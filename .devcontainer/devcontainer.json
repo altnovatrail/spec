@@ -1,4 +1,4 @@
-// Devcontainer for the Novatrail spec: all development happens here.
+// Devcontainer for the NovaTrail spec: all development happens here.
 // Tool versions are pinned directly in this file and in .devcontainer/Dockerfile.
 {
     "name": "novatrail-spec",

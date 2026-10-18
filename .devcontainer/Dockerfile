@@ -1,4 +1,4 @@
-# Development container for the Novatrail spec.
+# Development container for the NovaTrail spec.
 # Exact versions only: the base image is pinned by digest, every tool below by an ARG default.
 # Anything a builder understands: no heredocs, no RUN --mount, no TARGETARCH — architecture is
 # detected at RUN time via dpkg instead. A host that has Docker can build this, and that is the
