@@ -1,0 +1,45 @@
+# Dependabot proposes new versions of what it can see (R30): the actions of the workflows, with
+# the version comment beside each SHA; the base image of the devcontainer, tag and digest; and
+# the packages of tools/. For npm a pull request rewrites the lock file too, with whatever
+# packages the new version brings along: licenses-check reads every one of them in CI.
+#
+# Raised by hand, before each new tag of spec, because no ecosystem here reads them: the ARGs of
+# .devcontainer/Dockerfile, the VS Code extensions in .devcontainer/devcontainer.json and in
+# repo-template/kinds.json. Every new repository copies this devcontainer at a tag of spec.
+#
+# Every ecosystem waits three days after a release before proposing it. That is Dependabot's own
+# default, written down so that it stays: a bad release gets time to be noticed. The weekly
+# schedule runs on Mondays, and at most five pull requests are open per ecosystem, both by
+# default. Security updates are a setting of the repository, not of this file.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+
+  - package-ecosystem: docker
+    directory: /.devcontainer
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+
+  # The packages docs-check runs on. A new mermaid is read against the one the Markdown preview
+  # of the devcontainer carries (bierner.markdown-mermaid): a diagram that only one of them
+  # accepts passes docs-check and does not open in the preview, or the other way round.
+  - package-ecosystem: npm
+    directory: /tools
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+    groups:
+      # Routine bumps travel together. A major version arrives on its own, because it is the
+      # one that has to be read before it is merged.
+      tools:
+        patterns: ["*"]
+        update-types: [minor, patch]
