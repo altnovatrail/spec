@@ -55,10 +55,14 @@ export function nextVersion({ line, tags, merged, releasedHere }) {
 }
 
 // RELEASE_LINE as release.yml sets it, once: quoted or not, with a comment after it or not.
+// Read line by line, with no regular expression to backtrack in.
 export function readLine(workflow) {
-  const found = [...workflow.matchAll(/^\s*RELEASE_LINE:\s*(["']?)([^"'#\s]*)\1\s*(?:#.*)?$/gm)];
+  const key = "RELEASE_LINE:";
+  const found = workflow.split("\n").map((line) => line.trim()).filter((line) => line.startsWith(key));
   if (found.length !== 1) throw new Error(`release.yml sets RELEASE_LINE ${found.length} times, not once`);
-  return found[0][2];
+  const value = found[0].slice(key.length).split("#")[0].trim();
+  const quoted = value.length >= 2 && (value[0] === '"' || value[0] === "'") && value.at(-1) === value[0];
+  return quoted ? value.slice(1, -1) : value;
 }
 
 // What `just release-version` writes on stdin: three lists of tags divided by lines "--".

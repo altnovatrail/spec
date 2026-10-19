@@ -1082,6 +1082,7 @@ E2 и E3 идут вместе с репозиториями этапов 1 и 2
     - `just docs-check`, `docs-check-test`, `new-repo-test`, `licenses-check`, `licenses-check-test` и `release-version-test` — зелёные;
     - `just release-version` печатает `v0.2.0`;
     - actionlint 1.7.12 чистый. Ключа `queue` он не знает, хотя GitHub его документирует (R31), поэтому только эту его жалобу и только для `release.yml` снимает `.github/actionlint.yaml` — как в canvas-api;
+  - SonarCloud на pull request отметил code smell javascript:S8786: регулярное выражение, которым читался `RELEASE_LINE`, может работать сверхлинейно из-за перебора с возвратом. Мерж он не держал. Исправлено кодом: строка разбирается без такого выражения;
   - `isMain` вынесен в `tools/is-main.mjs`: им пользуются все три инструмента, и `tools/release` больше не зависит от `tools/new-repo`;
   - `/code-review high`:
     - первый круг — 10 находок. Исправлены:
