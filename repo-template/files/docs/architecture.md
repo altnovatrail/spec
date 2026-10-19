@@ -1,33 +1,33 @@
-# {{name}} — architecture
+# {{name}} — архитектура
 
-> Status: a skeleton from spec's template, {{date}}.
+> Статус: каркас из заготовки `spec`, {{date}}.
 >
-> What the component does, what it does not do, and what is still to decide about it. This is the detail of its card, architecture {{card}} spec. The card stays the summary: when the detail changes what the card says, the card is changed in spec by the same route as a question for spec's registers (RULES.md, Across repositories).
+> Что делает компонент, чего не делает и что о нём ещё предстоит решить. Это подробности его карточки — architecture {{card}} spec. Карточка остаётся сводкой: если подробности меняют то, что в ней сказано, она правится в `spec` тем же путём, что и вопросы в его реестры (RULES.md, Across repositories).
 >
-> Why it is decided this way and not another is in [decisions.md](decisions.md); the work plan is [RUN.md](../RUN.md). The vocabulary is concepts spec. spec's documents and decisions are under `spec/docs/` and are cited with the suffix "spec".
+> Почему решено так, а не иначе, — в [decisions.md](decisions.md); план работ — в [RUN.md](../RUN.md). Понятия — concepts spec. Документы и решения `spec` лежат в `spec/docs/` и цитируются с суффиксом «spec».
 
-## 1. Purpose and boundaries
+## 1. Назначение и границы
 
-<!-- FILL: from the card, architecture {{card}} spec, in your own words rather than a copy, in three parts:
-- **Does:** …
-- **Does not:** …
-- **Data and links:** what data it holds and what it never holds, who calls it and whom it calls, what it is built with (repositories 2.1 and 3 spec), its stage.
-Each statement cites the section or decision of spec it comes from. -->
+<!-- FILL: из карточки, architecture {{card}} spec, — своими словами, а не копией, тремя абзацами:
+- **Делает:** …
+- **Не делает:** …
+- **Данные и связи:** какие данные держит и каких не держит никогда, кто его зовёт и кого зовёт он, с чем собирается (repositories 2.1 и 3 spec), этап.
+Каждое утверждение — со ссылкой на раздел или решение spec, откуда оно взято. -->
 
-## 2. To decide in detailing
+## 2. Решить при детализации
 
-The card's «Решить при детализации» items, one subsection each. Each is decided by a task of its own in epic E1 of [RUN.md](../RUN.md). A decided item names its entry in the decision log, and the decision itself moves to section 3. A question that reaches beyond this repository goes «в реестр spec» (RULES.md, Across repositories).
+Пункты «Решить при детализации» из карточки — по подразделу на пункт. Каждый решает своя задача эпика E1 в [RUN.md](../RUN.md). Решённый пункт называет запись журнала, а само решение переезжает в раздел 3. Вопрос, который выходит за этот репозиторий, уходит «в реестр spec» (RULES.md, Across repositories).
 
-<!-- FILL: one subsection «### 2.N. <item>» per «Решить при детализации» item of the card, in the card's order; items that cannot be decided apart share one subsection. In each:
-- **The point:** what is to be decided, and why it is decided here;
-- **What is known:** citations of spec — sections, R, Т-, П-, О- — and of MathTrail, where it was decided there before;
-- **Options:** empty for now — the task brings them;
-- **Task:** its number in RUN.md. -->
+<!-- FILL: подраздел «### 2.N. <пункт>» на каждый пункт «Решить при детализации» карточки, в её порядке; пункты, которые порознь не решить, — одним подразделом. В каждом:
+- **Суть:** что решить и почему это решается здесь;
+- **Что известно:** ссылки на spec — разделы, R, Т-, П-, О- — и на MathTrail, если там это уже решали;
+- **Варианты:** пока пусто — их приносит задача;
+- **Задача:** её номер в RUN.md. -->
 
-## 3. Design
+## 3. Устройство
 
-Empty for now. What section 2 decides moves here: the parts the component is made of, its types and data, and how it links to other repositories.
+Пока пусто. Сюда переезжает то, что решено по разделу 2: из каких частей компонент состоит, его типы и данные, как он связан с другими репозиториями.
 
-## 4. Sources
+## 4. Источники
 
-Empty for now. A fact about the outside world — a provider's terms, a price, a law, a library's documentation — comes here with its source and the date it was read (RULES.md, The bar).
+Пока пусто. Внешний факт — условия поставщика, цена, закон, документация библиотеки — встаёт сюда с источником и датой прочтения (RULES.md, The bar).
