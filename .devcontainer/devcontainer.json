@@ -1,0 +1,55 @@
+// Devcontainer for the NovaTrail spec: all development happens here.
+// Tool versions are pinned directly in this file and in .devcontainer/Dockerfile.
+{
+    "name": "novatrail-spec",
+    "build": {
+        "dockerfile": "Dockerfile",
+        // The full environment, not the toolchain stage on its own.
+        "target": "devcontainer",
+        // The image copies nothing from the repository, so it is built from this folder alone.
+        "context": "."
+    },
+    "remoteUser": "vscode",
+    // Runs on the host before the container starts: gives it a network whose MTU is the
+    // host's own, so a tunnel on the host does not silently truncate large downloads here.
+    "initializeCommand": "bash .devcontainer/host-network.sh",
+    "runArgs": [
+        "--network=novatrail-spec"
+    ],
+    "mounts": [
+        // Claude Code login and settings survive container rebuilds.
+        "source=novatrail-spec-claude,target=/home/vscode/.claude,type=volume",
+        // Codex's ChatGPT sign-in, settings and chat history: its default home, kept the same way.
+        "source=novatrail-spec-codex,target=/home/vscode/.codex,type=volume",
+        // And the GitHub one, so that `gh auth login` is answered once rather than once
+        // per rebuild.
+        "source=novatrail-spec-gh,target=/home/vscode/.config/gh,type=volume"
+    ],
+    "containerEnv": {
+        // Tells an agent's session, Claude's or Codex's, that it runs in here, the one place
+        // it may work.
+        "NOVATRAIL_DEVCONTAINER": "1",
+        "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+        "DISABLE_AUTOUPDATER": "1"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "files.eol": "\n",
+                "files.insertFinalNewline": true
+            },
+            // Exact versions; the Claude Code extension matches CLAUDE_CODE_VERSION.
+            "extensions": [
+                "anthropic.claude-code@2.1.280",
+                // OpenAI's coding agent, signed in with a ChatGPT plan. The extension brings
+                // its own CLI and sandbox, so the image installs nothing for it.
+                "openai.chatgpt@26.1007.21434",
+                "redhat.vscode-yaml@1.24.0",
+                "nefrob.vscode-just-syntax@0.10.2",
+                // Mermaid in the Markdown preview: the prerequisite DAG and the data flows.
+                "bierner.markdown-mermaid@1.32.1",
+                "eamodio.gitlens@19.2.0"
+            ]
+        }
+    }
+}
