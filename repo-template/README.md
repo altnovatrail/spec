@@ -11,6 +11,6 @@ The template every NovaTrail repository other than spec starts from (R21; reposi
 
 Before spec has a tag, or to read a change to the template, `just new-repo-draft <name> <kind> <card> <tag>` builds the copy from the working tree instead, names the given tag in its text, and leaves git alone.
 
-`docs-check` reads `files/` as part of spec. Its citations of spec, written with the suffix "spec", are checked against spec's documents. The template cites its own sections through a link to its own file and the word «раздел», which `docs-check` resolves inside `files/`. A bare "architecture 2" or "R03" would be checked against spec's documents instead, so the template uses those only as examples of how to cite.
+`docs-check` reads `files/` as part of spec. Its citations of spec, written with the suffix "spec", are checked against spec's documents. The template cites its own sections through a link to its own file and the word "section" or «раздел», which `docs-check` resolves inside `files/`. A bare "architecture 2" or "R03" would be checked against spec's documents instead, so the template uses those only as examples of how to cite.
 
 `just new-repo-check <name>` checks the copy once it is filled: no `{{…}}` and no FILL left, `LICENSE` and `AGENTS.md` the same as spec's, relative links that lead somewhere, no name of spec's left in the devcontainer, and the submodule at the tag that the links to spec name.

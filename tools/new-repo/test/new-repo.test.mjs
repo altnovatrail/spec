@@ -105,7 +105,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     for (const file of EXPECTED_FILES) assert.equal(read(dir, file).match(PLACEHOLDER), null, `${name}: ${file} keeps a placeholder`);
     assert.match(read(dir, "README.md"), new RegExp(`^# ${name}\n`));
     assert.match(read(dir, "CLAUDE.md"), new RegExp(`architecture ${card.replace(".", "\\.")} spec`));
-    assert.match(read(dir, "docs/decisions.md"), /заведён 2026-01-02 из заготовки `spec` v0\.0\.0-test/);
+    assert.match(read(dir, "docs/decisions.md"), /set up on 2026-01-02 from spec's template at v0\.0\.0-test/);
     for (const file of ["README.md", "CLAUDE.md", "RUN.md", "docs/architecture.md"]) assert.ok(read(dir, file).match(FILL), `${name}: ${file} has no FILL`);
     for (const file of ["LICENSE", "AGENTS.md"]) assert.equal(read(dir, file), read(specRoot, file), `${name}: ${file} is not spec's`);
     assert.ok(fs.statSync(path.join(dir, ".devcontainer/host-network.sh")).mode & 0o100, "host-network.sh lost its executable bit");
