@@ -4,24 +4,25 @@
 //
 // The copy checked is .repos/<name>, for a name from the list of NovaTrail's repositories.
 // Nothing of the template may be left in it — no {{…}} and no FILL marker. LICENSE and AGENTS.md
-// must be spec's own; relative links in its Markdown must lead to files and headings that exist;
-// its devcontainer must keep no name of spec's; and every link to spec on GitHub must name the
-// tag the spec submodule is checked out at. A draft — a copy without .git — has no submodule:
-// its links to spec need only agree with one another, and LICENSE and AGENTS.md are compared
-// with spec's working tree. Prints one line per error, file:line: message, and exits 1 if any.
+// must be spec's own; its documents must pass docs-check as a repository of its own — links,
+// sections, its log and tables, and its citations of spec against the spec it pins; its
+// devcontainer must keep no name of spec's; and every link to spec on GitHub must name the tag
+// the spec submodule is checked out at. A draft — a copy without .git — has no submodule: its
+// links to spec need only agree with one another, and spec's working tree stands in for spec/.
+// Prints one line per error, file:line: message, and exits 1 if any.
 
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { parseMarkdown } from "../docs-check/markdown.mjs";
-import { checkLinks } from "../docs-check/links.mjs";
+import { check as checkDocuments } from "../docs-check/main.mjs";
+import { componentProfile } from "../docs-check/config.mjs";
 import { FILL, isMain, knownRepository, placeholders, walk } from "./copy.mjs";
 import { GIT, byCodeUnits } from "../shared.mjs";
 
 const SPEC_LINK = /https:\/\/github\.com\/altnovatrail\/spec\/(?:tree|blob)\/([^/\s)#>]+)/g;
 
-export function checkRepo({ dir, specRoot }) {
+export async function checkRepo({ dir, specRoot }) {
   const errors = [];
   const report = (file, line, message) => errors.push({ file, line, message });
   const files = walk(dir);
@@ -44,8 +45,13 @@ export function checkRepo({ dir, specRoot }) {
     else if (fs.readFileSync(theirs, "utf8") !== text.get(file)) report(file, 0, "differs from spec's own");
   }
 
-  const markdown = new Map(files.filter((f) => f.endsWith(".md")).map((f) => [f, parseMarkdown(text.get(f))]));
-  checkLinks(markdown, dir, report);
+  // Without spec's documents there is nothing to check the copy's citations of spec against; the
+  // submodule's tag, below, names that one cause.
+  if (fs.existsSync(path.join(reference, "RULES.md"))) {
+    const documents = await checkDocuments(dir, componentProfile(reference));
+    for (const { file, line, message } of documents.errors) report(file, line, message);
+  }
+  const markdown = files.filter((f) => f.endsWith(".md"));
 
   for (const file of files.filter((f) => f.startsWith(".devcontainer/"))) {
     eachLine(file, (line, n) => {
@@ -55,7 +61,7 @@ export function checkRepo({ dir, specRoot }) {
 
   // Links to spec on GitHub, by the version they name.
   const refs = [];
-  for (const file of markdown.keys()) {
+  for (const file of markdown) {
     eachLine(file, (line, n) => {
       for (const m of line.matchAll(SPEC_LINK)) refs.push({ file, line: n, ref: m[1] });
     });
@@ -109,7 +115,7 @@ if (isMain(import.meta.url)) {
     console.error(`new-repo-check: ${dir} does not exist`);
     process.exit(1);
   }
-  const errors = checkRepo({ dir, specRoot });
+  const errors = await checkRepo({ dir, specRoot });
   for (const { file, line, message } of errors) console.log(`${file}:${line}: ${message}`);
   if (errors.length) {
     console.log(`new-repo-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);

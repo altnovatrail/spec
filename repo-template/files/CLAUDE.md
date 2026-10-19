@@ -14,10 +14,10 @@ Its card in spec is architecture {{card}} spec. The card is the summary and this
 
 ## Documents
 
-The documents under `docs/` are in Russian. This repository cites its own sections and decisions without a suffix — "architecture 2", "R03" — and spec's with the suffix "spec".
+The documents under `docs/` are in Russian. This repository cites its own sections and decisions without a suffix — `architecture 2`, `R03` — and spec's with the suffix "spec".
 
 - [docs/architecture.md](docs/architecture.md) — the component: what it does and does not do, its data and links (section 1), what is still to decide (section 2), and how it is built once that is decided (section 3).
-- [docs/decisions.md](docs/decisions.md) — this repository's decision log, R01…: read it before proposing a change. Other repositories cite its entries as "R03 {{name}}".
+- [docs/decisions.md](docs/decisions.md) — this repository's decision log, `R01`…: read it before proposing a change. Other repositories cite its entries as `R03 {{name}}`.
 - [RUN.md](RUN.md) — the work plan, in epics. Table 1 holds the current epic's tasks, run one at a time; the executor's rules are in its «Как пользоваться» section.
 - `spec/` — spec at `{{spec_tag}}`, a git submodule and read-only here: the platform's vocabulary, formats, contracts, documents and decisions, and the rules imported below. Its documents are under `spec/docs/`, cited with the suffix "spec". spec's own CLAUDE.md and AGENTS.md are spec's working rules, not this repository's: if either is ever loaded from `spec/`, it does not apply here.
 

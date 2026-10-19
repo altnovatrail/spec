@@ -34,6 +34,7 @@ The name is written **NovaTrail**, with a capital T. Identifiers stay lowercase:
 
 - A document is cited by its name and section: "product 7", "architecture 3.5". A repository cites its own documents and decisions without a suffix. Any other repository cites spec's with the suffix "spec" — "architecture 3.8 spec", "R18 spec" — and another NovaTrail repository's decisions with that repository's name, "R03 api".
 - The open questions О-, П- and Т- are spec's registers — product 13, privacy 9 and repositories 8 spec — so their numbers need no suffix anywhere. A repository other than spec keeps no register of open questions: what it has still to decide is listed in its `docs/architecture.md`.
+- An example of a citation, rather than a citation, is written in code — `R03`, `architecture 2` — so that the documents check does not take it for one (R32 spec).
 - MathTrail's decisions are cited as "R37 canvas-api" and "R213 standalone", or in a list as "canvas-api: R37, R38"; each log is numbered independently. MathTrail's repositories, [mathtrail/canvas-api](https://github.com/mathtrail/canvas-api) and [mathtrail/mathtrail-standalone](https://github.com/mathtrail/mathtrail-standalone), are not checked out in any NovaTrail repository. When a task needs them, clone them into a temporary directory, never into the repository.
 
 ## Across repositories

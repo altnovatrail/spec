@@ -23,19 +23,30 @@ export function parseMarkdown(source) {
     links: [], // { url, line }
     diagrams: [], // { value, line }
     blocks: [], // Block
-    tables: [], // { section, rows: [{ cells: [text], line }] }
+    tables: [], // { section, heading, rows: [{ cells: [text], line }] }
   };
   // The numbered headings that enclose the current position. An unnumbered heading closes the
   // numbered ones at its depth and deeper: "## Приложение" after "## 13." is not in 13.
   const open = []; // { depth, number }
   let section = null; // the number of the innermost numbered heading around, or null
   let heading = -1; // the index in doc.headings of the nearest heading above, or -1
+  // The list items around the current position, each with the links of its first block. A block
+  // knows the links of the item it elaborates: the item above its own, or for a later block of
+  // an item, that item. "- source, [SPEC.md](https://…)" over "  - раздел 2.8 — …".
+  const items = []; // { lead: links | null }
 
   const add = (node) => {
     const block = new Block(node);
     block.type = node.type;
     block.heading = heading;
     block.strongStart = node.children?.[0]?.type === "strong";
+    const item = items.at(-1);
+    if (item && item.lead === null) {
+      block.outer = items.at(-2)?.lead ?? [];
+      item.lead = block.links;
+    } else {
+      block.outer = item?.lead ?? [];
+    }
     doc.blocks.push(block);
     collectLinks(node, doc);
   };
@@ -64,6 +75,7 @@ export function parseMarkdown(source) {
       case "table":
         doc.tables.push({
           section,
+          heading,
           rows: node.children.slice(1).map((row) => ({
             cells: row.children.map((cell) => plainText(cell).trim()),
             line: line(row),
@@ -77,6 +89,11 @@ export function parseMarkdown(source) {
         doc.links.push({ url: node.url, line: line(node) });
         return;
       case "html":
+        return;
+      case "listItem":
+        items.push({ lead: null });
+        for (const child of node.children ?? []) visit(child);
+        items.pop();
         return;
     }
     for (const child of node.children ?? []) visit(child);

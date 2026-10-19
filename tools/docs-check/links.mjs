@@ -3,7 +3,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export function checkLinks(files, root, report) {
+// `context` holds the parsed Markdown an anchor may lead into, the checked files and more; `locate`
+// turns a path relative to the root into the file on disk, which for spec/ may be elsewhere.
+export function checkLinks(files, root, report, { context = files, locate = (resolved) => path.join(root, resolved) } = {}) {
   let count = 0;
   for (const [file, doc] of files) {
     for (const { url, line } of doc.links) {
@@ -18,12 +20,12 @@ export function checkLinks(files, root, report) {
         report(file, line, `link ${url} leads outside the repository`);
         continue;
       }
-      if (target !== "" && !fs.existsSync(path.join(root, resolved))) {
+      if (target !== "" && !fs.existsSync(locate(resolved))) {
         report(file, line, `link ${url}: ${resolved} does not exist`);
         continue;
       }
       if (anchor) {
-        const linked = files.get(resolved);
+        const linked = context.get(resolved);
         if (linked && !linked.slugs.has(anchor)) {
           report(file, line, `link ${url}: ${resolved} has no heading with the anchor #${anchor}`);
         }

@@ -4,6 +4,13 @@
 docs-check: _tools
     node tools/docs-check/main.mjs
 
+# Runs from a NovaTrail repository's root, as `just -f spec/justfile docs-check-repo`: the spec it
+# pins as its submodule checks the repository's documents, and its citations of spec against
+# itself (R32). The repository is the one around this spec, so in spec itself it refuses.
+# Check the documents of the repository this spec is the submodule of.
+docs-check-repo: _tools
+    node tools/docs-check/main.mjs --component
+
 # Run docs-check's own tests, on trial copies of a small set of documents.
 docs-check-test: _tools
     node --test 'tools/docs-check/test/*.test.mjs'

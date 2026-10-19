@@ -52,7 +52,8 @@ function draft(name, kind, card, from = specRoot) {
 // when asked.
 function standIn({ change = () => {}, commit = false, tag = null } = {}) {
   const root = temporary();
-  for (const source of ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs/architecture.md"]) {
+  // What new-repo reads, and what a copy's documents cite of spec: its documents and its rules.
+  for (const source of ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs", "RULES.md"]) {
     fs.mkdirSync(path.dirname(path.join(root, source)), { recursive: true });
     fs.cpSync(path.join(specRoot, source), path.join(root, source), { recursive: true, verbatimSymlinks: true });
   }
@@ -79,7 +80,7 @@ function change(dir, file, from, to) {
   fs.writeFileSync(path.join(dir, file), text.replace(from, to));
 }
 
-const messages = (dir, root = specRoot) => checkRepo({ dir, specRoot: root }).map((e) => `${e.file}:${e.line}: ${e.message}`);
+const messages = async (dir, root = specRoot) => (await checkRepo({ dir, specRoot: root })).map((e) => `${e.file}:${e.line}: ${e.message}`);
 
 const EXPECTED_FILES = [
   ".claude/settings.json",
@@ -172,17 +173,17 @@ test("a placeholder the recipe does not know stops it", () => {
   assert.throws(() => draft("engine", "go", "3.8", root), /\{\{nmae\}\} is not one of name, card, spec_tag, date/);
 });
 
-test("check: red while a FILL marker is left, green once all are written", () => {
+test("check: red while a FILL marker is left, green once all are written", async () => {
   const dir = draft("learner-model", "go", "3.8");
-  const before = messages(dir);
+  const before = await messages(dir);
   const markers = walk(dir).reduce((n, file) => n + (read(dir, file).match(FILL)?.length ?? 0), 0);
   assert.equal(before.length, markers, before.join("\n"));
   for (const m of before) assert.match(m, /a FILL marker is left unwritten$/);
   fill(dir);
-  assert.deepEqual(messages(dir), []);
+  assert.deepEqual(await messages(dir), []);
 });
 
-test("check: what a careless fill can leave", () => {
+test("check: what a careless fill can leave", async () => {
   const cases = [
     ["README.md", "(docs/decisions.md)", "(docs/decision.md)", /^README\.md:\d+: link docs\/decision\.md: docs\/decision\.md does not exist$/],
     ["AGENTS.md", "Codex", "Kodex", /^AGENTS\.md:0: differs from spec's own$/],
@@ -194,13 +195,13 @@ test("check: what a careless fill can leave", () => {
     const dir = draft("learner-model", "go", "3.8");
     fill(dir);
     change(dir, file, from, to);
-    const found = messages(dir);
+    const found = await messages(dir);
     assert.equal(found.length, 1, `${file}: expected one error, got:\n${found.join("\n")}`);
     assert.match(found[0], expected);
   }
 });
 
-test("from a tag: the files are the tag's, spec is a submodule at it, all staged, nothing committed", () => {
+test("from a tag: the files are the tag's, spec is a submodule at it, all staged, nothing committed", async () => {
   const root = standIn({ tag: "v9.9.9" });
   change(root, "repo-template/files/README.md", "## Status", "WORKING TREE ONLY\n\n## Status");
   const dest = path.join(temporary(), "engine");
@@ -216,10 +217,10 @@ test("from a tag: the files are the tag's, spec is a submodule at it, all staged
   assert.throws(() => git(dest, "rev-parse", "--verify", "--quiet", "HEAD"), "the copy must not be committed");
 
   fill(dest);
-  assert.deepEqual(messages(dest, root), []);
+  assert.deepEqual(await messages(dest, root), []);
   change(dest, "CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/v9.9.8).");
   assert.deepEqual(
-    messages(dest, root).map((m) => m.replace(/:\d+:/, ":N:")),
+    (await messages(dest, root)).map((m) => m.replace(/:\d+:/, ":N:")),
     ["CLAUDE.md:N: links to spec at v9.9.8, but the submodule is at v9.9.9"],
   );
 });
@@ -278,7 +279,7 @@ test("--draft without a tag to name is refused", () => {
   assert.throws(() => newRepo({ specRoot, name: "engine", kind: "go", card: "3.8", dest, draft: "" }), /--draft needs the tag/);
 });
 
-test("check: an empty spec/ is not taken for the copy's own tag", () => {
+test("check: an empty spec/ is not taken for the copy's own tag", async () => {
   const root = standIn({ tag: "v9.9.9" });
   const dest = path.join(temporary(), "engine");
   newRepo({ specRoot: root, name: "engine", kind: "go", card: "3.8", dest, specUrl: root });
@@ -286,7 +287,7 @@ test("check: an empty spec/ is not taken for the copy's own tag", () => {
   commitAll(dest, "the first commit");
   git(dest, "tag", "v9.9.9");
   git(dest, "submodule", "deinit", "--quiet", "--force", "spec");
-  const found = messages(dest, root);
+  const found = await messages(dest, root);
   assert.ok(found.includes("spec:0: the spec submodule is not checked out at a tag"), found.join("\n"));
 });
 
@@ -312,7 +313,7 @@ test("a failed build empties a directory that was there before, and keeps it", (
   assert.deepEqual(fs.readdirSync(dest), []);
 });
 
-test("check: a link may name any tag of the submodule's commit", () => {
+test("check: a link may name any tag of the submodule's commit", async () => {
   const root = standIn({ tag: "v9.9.9" });
   git(root, "tag", "v9.9.9-docs");
   const dest = path.join(temporary(), "engine");
@@ -320,7 +321,7 @@ test("check: a link may name any tag of the submodule's commit", () => {
   fill(dest);
   git(path.join(dest, "spec"), "fetch", "--quiet", "--tags");
   change(dest, "CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/v9.9.9-docs).");
-  assert.deepEqual(messages(dest, root), []);
+  assert.deepEqual(await messages(dest, root), []);
 });
 
 // The findings SonarCloud raised on these tools (RUN.md, T19), each kept closed by a test.
