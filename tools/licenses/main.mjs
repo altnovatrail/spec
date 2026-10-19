@@ -1,10 +1,11 @@
 // licenses-check: the licenses of the packages tools/ is built from.
 //
-//   node tools/licenses/main.mjs [package-lock.json]
+//   node tools/licenses/main.mjs
 //
-// Reads the lock file (tools/package-lock.json by default) and checks that every package's
-// license, an SPDX expression, is satisfied by the allowed list in config.mjs, or that the
-// package is a named exception there. Prints one line per problem and exits 1 if there are any.
+// Reads tools/package-lock.json and checks that every package's license, an SPDX expression,
+// is satisfied by the allowed list in config.mjs, or that the package is a named exception
+// there. Prints one line per problem and exits 1 if there are any. The lock file is always the
+// one beside this script: no path comes from the command line.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -109,7 +110,7 @@ export function satisfies(tree, allowed) {
 }
 
 if (isMain(import.meta.url)) {
-  const file = path.resolve(process.argv[2] ?? path.join(path.dirname(fileURLToPath(import.meta.url)), "../package-lock.json"));
+  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), "../package-lock.json");
   const { problems, packages } = checkLicenses(JSON.parse(fs.readFileSync(file, "utf8")));
   for (const problem of problems) console.log(problem);
   if (problems.length) {
