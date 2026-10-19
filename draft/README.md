@@ -4,7 +4,7 @@
 
 It is a single file: open it in a browser, with no server. It opens on *My subjects*, the learner's subjects and modules. Its settings pick another screen to start on — setup, the four steps of a task, a wrong and a right answer, the solution, progress, the grown-ups' area, the paper flow, the topic map — and how the coach guides: step by step, or free solve. The paper flow and the maths topic map have no button on the home screen: only the settings open them.
 
-*My subjects* holds seven subjects, from school maths to Spanish, chess and Go. The rest of the screens — the task with the coach's steps, paper, the topic map, progress — are olympiad maths for grade 3.
+*My subjects* holds seven subjects, from school maths to Spanish, chess and Golang. The rest of the screens — the task with the coach's steps, paper, the topic map, progress — are olympiad maths for grade 3.
 
 It shows where the product is heading, not what it must be. Where it differs from the documents in [docs/](../docs/), the documents win.
 
