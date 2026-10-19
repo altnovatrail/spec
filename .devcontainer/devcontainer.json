@@ -17,13 +17,16 @@
         "--network=novatrail-spec"
     ],
     "mounts": [
-        // Claude Code login and settings survive container rebuilds.
-        "source=novatrail-spec-claude,target=/home/vscode/.claude,type=volume",
+        // The sign-ins live in volumes shared by the containers of every NovaTrail repository:
+        // they survive rebuilds, and one sign-in serves them all.
+        // Claude Code login and settings. It keeps a memory directory per git repository,
+        // under projects/ here, so one volume does not mix the repositories' memories.
+        "source=novatrail-claude,target=/home/vscode/.claude,type=volume",
         // Codex's ChatGPT sign-in, settings and chat history: its default home, kept the same way.
-        "source=novatrail-spec-codex,target=/home/vscode/.codex,type=volume",
+        "source=novatrail-codex,target=/home/vscode/.codex,type=volume",
         // And the GitHub one, so that `gh auth login` is answered once rather than once
         // per rebuild.
-        "source=novatrail-spec-gh,target=/home/vscode/.config/gh,type=volume"
+        "source=novatrail-gh,target=/home/vscode/.config/gh,type=volume"
     ],
     "containerEnv": {
         // Tells an agent's session, Claude's or Codex's, that it runs in here, the one place
@@ -36,7 +39,13 @@
         "vscode": {
             "settings": {
                 "files.eol": "\n",
-                "files.insertFinalNewline": true
+                "files.insertFinalNewline": true,
+                // A new repository's working copy is built in .repos/<name>, two levels down:
+                // Source Control looks that deep and offers it as a repository of its own.
+                "git.repositoryScanMaxDepth": 2,
+                // spec is a read-only submodule of every other NovaTrail repository: Source
+                // Control does not offer it as one more repository to commit in.
+                "git.detectSubmodules": false
             },
             // Exact versions; the Claude Code extension matches CLAUDE_CODE_VERSION.
             "extensions": [

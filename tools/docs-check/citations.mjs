@@ -6,7 +6,7 @@
 import { CODE } from "./markdown.mjs";
 import { documents, mathtrailRepositories, novatrailRepositories, otherTexts } from "./config.mjs";
 
-const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const mathtrail = mathtrailRepositories.map(escape).join("|");
 const novatrail = novatrailRepositories.map(escape).join("|");
 

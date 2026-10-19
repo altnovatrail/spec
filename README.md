@@ -29,7 +29,7 @@ All under [altnovatrail](https://github.com/altnovatrail). Created now, for stag
 
 Later: site (stage 3); module-registry, module-pipeline and widget-template (stage 4).
 
-How the parts fit together is in [docs/architecture.md](docs/architecture.md). The order in which the repositories appear, and how to set one up, is in [docs/repositories.md](docs/repositories.md).
+How the parts fit together is in [docs/architecture.md](docs/architecture.md). The order in which the repositories appear, and how to set one up, is in [docs/repositories.md](docs/repositories.md); every repository starts from the same template, [repo-template/](repo-template/README.md), and follows the same rules, [RULES.md](RULES.md).
 
 ## Documents
 

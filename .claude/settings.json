@@ -1,0 +1,8 @@
+{
+  "claudeMdExcludes": [
+    "**/repo-template/**/CLAUDE.md",
+    "**/.repos/**/CLAUDE.md",
+    "**/.repos/.github/CLAUDE.md",
+    "**/.repos/.github/**/CLAUDE.md"
+  ]
+}
