@@ -13,18 +13,19 @@ That bar is concrete:
 
 ## The project
 
-NovaTrail is a universal open platform for adaptive learning, interactive lessons and AI tutoring, for any subject and any age (decision R01). A subject comes as a module — data, not code and not instructions to a model (R02). A program decides every verdict; the AI only reads the learner's work and words the tutor's replies (R03). NovaTrail succeeds MathTrail, olympiad maths for grades 1–6, which is frozen; its ideas, code and content are carried over selectively (R01). The platform is split into repositories from day one, and this one, `spec`, is their shared source of truth (R10).
+NovaTrail is a universal open platform for adaptive learning, interactive lessons and AI tutoring, for any subject and any age (decision R01). A subject comes as a module — data, not code and not instructions to a model (R02). A program decides every verdict; the AI only reads the learner's work and words the tutor's replies (R03). NovaTrail succeeds MathTrail, olympiad maths for grades 1–6, which is frozen; its ideas, code and content are carried over selectively (R01). The platform is split into repositories from day one, and this one, `spec`, is their shared source of truth (R10); which repositories there are and what they are called is R18.
 
 The name is written **NovaTrail**, with a capital T. Identifiers stay lowercase: the organization `altnovatrail`, `novatrail-spec`, `NOVATRAIL_DEVCONTAINER` (R13).
 
 ## Documents
 
-The documents under `docs/` are in Russian (R14) and are cited by section: "product 7", "concepts 9", "privacy 5", "repositories 8".
+The documents under `docs/` are in Russian (R14) and are cited by section: "product 7", "concepts 9", "privacy 5", "architecture 3", "repositories 8".
 
 - [docs/product.md](docs/product.md) — what we build and why. Open product questions О-… are in section 13.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary and the glossary.
 - [docs/privacy.md](docs/privacy.md) — privacy and age. Open questions П-… are in section 9.
-- [docs/repositories.md](docs/repositories.md) — the repositories and their dependencies. Open technical questions Т-… are in section 8.
+- [docs/architecture.md](docs/architecture.md) — the components and how they connect. Each component's card, ending with what to decide when it is detailed, is in section 3.
+- [docs/repositories.md](docs/repositories.md) — the repositories, their dependencies, the order they appear in, and how to set one up. Open technical questions Т-… are in section 8.
 - [docs/decisions.md](docs/decisions.md) — the decision log, R01…: read it before proposing a change.
 - [draft/](draft/README.md) — the prototype; where it differs from the documents, the documents win.
 

@@ -48,7 +48,10 @@
                 "nefrob.vscode-just-syntax@0.10.2",
                 // Mermaid in the Markdown preview: the prerequisite DAG and the data flows.
                 "bierner.markdown-mermaid@1.32.1",
-                "eamodio.gitlens@19.2.0"
+                "eamodio.gitlens@19.2.0",
+                // Go, the language of services and libraries (R11). The latest stable release:
+                // odd minors such as 0.57 are pre-releases. The image has no Go toolchain yet.
+                "golang.go@0.56.1"
             ]
         }
     }

@@ -9,22 +9,27 @@ Early design. This repository holds the platform's first documents; the module f
 
 ## Repositories
 
-Planned, all under [altnovatrail](https://github.com/altnovatrail):
+All under [altnovatrail](https://github.com/altnovatrail). Created now, for stages 0–2:
 
 | Repository | What it is |
 |---|---|
 | spec | this repository: the vocabulary, formats, contracts and platform documents |
-| cognitive-model | the learner model: how well each skill is mastered, from the evidence of attempts |
+| .github | the organization's profile, community files and shared CI workflows |
+| modules | the official modules: olympiad maths and Spanish A1 |
+| module-kit | the module format in code — validation, packages, open views, check kinds — and the authors' CLI |
+| learner-model | the learner model: how well each skill is mastered, from the evidence of attempts |
 | engine | picks the next lesson or task |
 | sim | virtual learners that test the learner model and the engine |
-| canvas-api | the backend: accounts, sessions, checks, the tutor, routes to AI |
-| canvas-shell | the web app for learners and the adults beside them |
-| map-ui | the learner's skill map |
-| module-registry | the catalogue of modules: checks and publishing |
-| dataset-pipeline | help for module authors: tagging, task variants, checks |
-| module-template-ui | a starting point for a module's widgets |
+| tutor | the AI side: reading the work, the tutor's words, routes to AI, eval; a library inside api |
+| api | the backend and the platform's only service: accounts, attempts, checks, the learner model, the engine |
+| canvas | the canvases the learner works on, and their layers |
+| skill-map | the learner's skill map |
+| app | the web app for learners and the adults beside them |
+| infra | shared infrastructure: Terraform, domains, deployment, self-hosting |
 
-Official modules live outside this repository; whether in one repository or in one each is still open. The order in which the repositories appear is in [docs/repositories.md](docs/repositories.md).
+Later: site (stage 3); module-registry, module-pipeline and widget-template (stage 4).
+
+How the parts fit together is in [docs/architecture.md](docs/architecture.md). The order in which the repositories appear, and how to set one up, is in [docs/repositories.md](docs/repositories.md).
 
 ## Documents
 
@@ -33,7 +38,8 @@ The documents are in Russian.
 - [docs/product.md](docs/product.md) — what we build and why: who it is for, the principles, the first slice, the roadmap and the open product questions.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary: module, skill, lesson, task, canvas, check, tutor, learner model and engine, with a glossary that names each term as code and schemas will.
 - [docs/privacy.md](docs/privacy.md) — privacy and age: kinds of data, age categories, the two routes to AI, and what each AI provider's terms say about minors.
-- [docs/repositories.md](docs/repositories.md) — how the platform is split into repositories: their roles, dependencies, data flows, order of appearance, and what is carried over from MathTrail.
+- [docs/architecture.md](docs/architecture.md) — the platform's big parts and how they connect: the components, one overall diagram, the main flows, and how the interface is put together.
+- [docs/repositories.md](docs/repositories.md) — how the platform is split into repositories: their roles, dependencies, how changes flow between them, the order they appear in, how to set one up, and what is carried over from MathTrail.
 - [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.
 - [draft/](draft/README.md) — a clickable prototype of the learner's app, and where it differs from the documents.
 
