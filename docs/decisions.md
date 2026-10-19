@@ -9,9 +9,9 @@
 > - решения MathTrail, которые переходят сюда;
 > - план этих документов, который автор утвердил 2026-10-18.
 >
-> Записи R15–R18 внесены 2026-10-18 по ответам автора о бэкенде, интерфейсе и названиях репозиториев и по плану, который автор утвердил в тот же день. R19 и R20 — 2026-10-19, по решениям автора о плане работ и о лицензии; R21 и R22 — в тот же день, по его решениям о заготовке репозитория (RUN.md, T02) и о файлах сообщества (RUN.md, T03); R23–R29 — тоже 2026-10-19: автор поручил исполнителю решить вопросы таблицы 3 RUN.md по рекомендациям, которые принесла детализация компонентов (T05–T14).
+> Записи R15–R18 внесены 2026-10-18 по ответам автора о бэкенде, интерфейсе и названиях репозиториев и по плану, который автор утвердил в тот же день. R19 и R20 — 2026-10-19, по решениям автора о плане работ и о лицензии; R21 и R22 — в тот же день, по его решениям о заготовке репозитория (RUN.md, T02) и о файлах сообщества (RUN.md, T03); R23–R29 — тоже 2026-10-19: автор поручил исполнителю решить вопросы таблицы 3 RUN.md по рекомендациям, которые принесла детализация компонентов (T05–T14). R30 — в тот же день, по решениям автора о проверках CI (RUN.md, T15).
 >
-> Где запись идёт дальше ответов автора, она называет это предложением плана. Следующий номер — R30.
+> Где запись идёт дальше ответов автора, она называет это предложением плана. Следующий номер — R31.
 >
 > Решения MathTrail цитируются как «R37 canvas-api» и «R213 standalone», а списком — «canvas-api: R37, R38». У каждого репозитория свой журнал и своя нумерация.
 >
@@ -135,6 +135,13 @@
 — *Открыто:* лицензия содержания модулей (О-10). — product 9.
 
 — *Поправка 2026-10-19:* Apache-2.0 — и для документов, и для содержания официальных модулей (R20).
+
+— *Поправка 2026-10-19:* правило «только совместимые с Apache-2.0» — о том, что входит в код и пакеты NovaTrail и уходит вместе с ними.
+- Совместимые — категория A политики ASF: «we consider the following licenses to be similar in terms to the Apache License 2.0» ([ASF 3rd Party License Policy](https://www.apache.org/legal/resolved.html), прочитано 2026-10-19).
+- Инструмент разработки или CI, который никуда не поставляется — проверка документов, анализатор кода, — может быть и под другой лицензией, одобренной OSI, или под бесплатными условиями для открытого кода. Такой инструмент всегда назван: пакет из lock-файла — исключением в проверке лицензий, с причиной; сервис или action — в решении, которое его вводит.
+- Сейчас это `elkjs` под EPL-2.0 внутри `mermaid` у `docs-check` (RUN.md, T01), а из R30 — SonarQube Cloud на плане OSS, с его условиями в R30, и CodeQL CLI. Условия CodeQL CLI разрешают «Perform analysis on the Open Source Codebase», а «"Open Source Codebase" means a codebase that is released under an OSI-approved License» ([GitHub CodeQL Terms and Conditions](https://github.com/github/codeql-cli-binaries/blob/main/LICENSE.md), прочитано 2026-10-19).
+
+*Почему:* решение автора по вопросу В4 (RUN.md, T15). Без поправки правило расходилось с lock-файлом `tools/`, а проверка лицензий в CI не знала бы исключения. *Отвергнуто:* запись только в T01.
 
 **R13. Название — NovaTrail.**
 - Пишется с заглавной T, как MathTrail.
@@ -402,3 +409,51 @@
 — *Отвергнуто:* свои типы у каждой библиотеки; типы канонического вида пакета из `spec` (Т-15) — тогда библиотеки зависели бы от формата пакета, а карточка 3.8 держит их типы простыми и своими как раз затем, чтобы их можно было собрать для устройства без формата. — architecture 3.8; Т-10.
 
 **R29. Список кодов причин движка — контракт в `spec`.** Коды предлагает детализация `engine` (T03 engine), а записывает `spec` вместе с контрактами первого среза — эпик E3. — *Почему:* рекомендация по вопросу В22 (RUN.md, T07): «если коды читают другие репозитории — в `spec`». Читают: код причины хранит с выбором `api` (architecture 1), а видит взрослый в `app` (concepts 12). Форматы, которые делят репозитории, живут в `spec` (R10). — *Отвергнуто:* список в `engine`, на который ссылается `spec`. — concepts 12; repositories 5; Т-7.
+
+## Проверки
+
+**R30. Проверки CI одни на все репозитории NovaTrail. Мерж в `main` держат все проверки, кроме Scorecard, в том числе quality gate SonarCloud. Какие из них станут общими workflow, решает сам `.github`.**
+- **У каждого репозитория:**
+  - свои проверки — то, что знает только он. У `spec` это `docs-check`, тесты `tools/` и проверка лицензий `tools/`: этот lock-файл есть только у него. У репозиториев с кодом — проверки языка, с первым кодом (repositories 6), и с ними общая проверка лицензий Go и TypeScript (architecture 3.11);
+  - поиск секретов — бинарником gitleaks;
+  - CodeQL — для workflow, язык `actions`, и для языков репозитория;
+  - OpenSSF Scorecard;
+  - проверка DCO: у каждого коммита pull request, кроме merge-коммитов, есть `Signed-off-by` его автора (R22). Это свой job, без стороннего приложения;
+  - SonarQube Cloud (SonarCloud) на плане OSS, с автоматическим анализом (Automatic Analysis);
+  - средства самого GitHub: secret scanning и push protection, приватные сообщения об уязвимостях (R22), Dependabot.
+- **Что держит мерж.** У каждого репозитория свой ruleset ветки `main`:
+  - только через pull request, без одобрений: автор один;
+  - обязательны все проверки выше, кроме Scorecard, и quality gate SonarCloud тоже;
+  - ветка перед мержем актуальна;
+  - без force push и удаления ветки; список обхода пуст.
+- **Где.** Какие проверки станут общими workflow в `.github`, какие у них входы и как обновляются их SHA, решает T01 `.github` в своём контейнере (architecture 3.11); `spec` и репозитории компонентов их подключают (RUN.md, T17 и T16). Файлы CI репозиториев компонентов пишет сессия `spec` через `.repos/<имя>`, как при их заведении.
+- **Образ.** Свои проверки идут в стадии `toolchain` devcontainer репозитория — с тем же Node и just, что локально. Образ собирается на каждом прогоне и никуда не публикуется.
+- **Версии.** Dependabot обновляет то, что видит: actions вместе с комментарием версии, базовый образ, пакеты языков. `ARG` в Dockerfile, расширения VS Code в `devcontainer.json` и в `repo-template/kinds.json` он не видит. Их исполнитель сверяет с последними релизами перед каждым новым тегом `spec`: этот devcontainer копирует каждый новый репозиторий.
+- **SHA.** Автор включает в организации «Require actions to be pinned to a full-length commit SHA»: закрепление проверяет GitHub, а не ревью.
+
+— *Почему:* решения автора 2026-10-19 при планировании T15: SonarCloud держит мерж и анализирует сам, образ собирается на каждом прогоне, версии вне Dependabot сверяются руками, DCO проверяется, общие workflow решает `.github` (вопрос В5). Список проверок, подробности ruleset, то, что Scorecard мерж не держит, и закрепление по SHA для всей организации — предложение плана, утверждённого автором 2026-10-19. Scorecard — только на `main` и по расписанию: «The following GitHub triggers are supported: `push`, `schedule` (default branch only). The `pull_request` and `workflow_dispatch` triggers are experimental» ([ossf/scorecard-action, README](https://github.com/ossf/scorecard-action), прочитано 2026-10-19). У pull request его результата нет. Остальные доводы — из документации, прочитано 2026-10-19:
+- **Ruleset в каждом репозитории.** «Rulesets are available in public repositories with GitHub Free and GitHub Free for organizations» ([GitHub Docs, About rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)). Правила на всю организацию — нет: «For customers on GitHub Team or GitHub Enterprise plans you can create rulesets in your organization» ([GitHub Docs, Creating rulesets for repositories in your organization](https://docs.github.com/en/organizations/managing-organization-settings/creating-rulesets-for-repositories-in-your-organization)). Организация — на плане Free (RUN.md, T03).
+- **Общие workflow.** Workflow из другого репозитория можно вызвать, если «The called workflow is stored in a public repository, and your organization allows you to use public reusable workflows» ([GitHub Docs, Reusing workflow configurations](https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations)). Закреплять — по SHA: «Using the commit SHA is the safest option for stability and security» ([GitHub Docs, Reuse workflows](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows)). Обязательная проверка из него называется «`<job name> / <reusable job name>`» ([GitHub Docs, Troubleshooting rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/troubleshooting-rules)).
+- **Денег это не стоит.** Репозитории публичные (R18):
+  - «GitHub Actions usage is **free** for **self-hosted runners** and for **public repositories** that use standard GitHub-hosted runners» ([GitHub Docs, GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions));
+  - «Code scanning is available for the following repository types: Public repositories on GitHub.com» ([GitHub Docs, Code scanning](https://docs.github.com/en/code-security/concepts/code-scanning/code-scanning));
+  - для публичных репозиториев «Secret scanning runs automatically for free» ([GitHub Docs, About secret scanning](https://docs.github.com/en/code-security/secret-scanning/introduction/about-secret-scanning));
+  - «Public, OSI-licensed repos get SonarQube for OSS and Gitar AI Code Review for OSS, with the same features as the paid Pro plan» ([SonarQube Cloud, Plans and pricing](https://www.sonarsource.com/plans-and-pricing/sonarcloud/)).
+- **SonarCloud.**
+  - Держит мерж своей проверкой: «SonarQube Cloud adds the quality gate status as a GitHub check» ([SonarQube Cloud, GitHub integration](https://docs.sonarsource.com/sonarqube-cloud/managing-your-projects/administering-your-projects/devops-platform-integration/github)).
+  - Автоматический анализ и анализ в CI вместе не работают: «Automatic analysis is not intended to be used in conjunction with CI-based analysis». Покрытия он не принимает: «Code coverage information is not supported» ([SonarQube Cloud, Automatic analysis](https://docs.sonarsource.com/sonarqube-cloud/analyzing-source-code/automatic-analysis)).
+  - Анализ в CI требует токена, а pull request с форка его не получит: «With the exception of `GITHUB_TOKEN`, secrets are not passed to the runner when a workflow is triggered from a forked repository» ([GitHub Docs, Using secrets in GitHub Actions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)). Обязательная проверка у такого pull request не пришла бы вовсе.
+- **DCO.** GitHub подпись коммитов из командной строки не проверяет (R22), поэтому вклад без неё можно слить незаметно (RUN.md, Д5).
+- **Версии.** Экосистема Dependabot для devcontainer — только Features: «to update Features in your `devcontainer.json` configuration files» ([GitHub Docs, Dependabot supported ecosystems and repositories](https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories)). А закреплённые по SHA actions он ведёт вместе с комментарием: «Dependabot updates the version documentation of GitHub Actions when the comment is on the same line» (там же).
+- **SHA.** «When you enable **Require actions to be pinned to a full-length commit SHA**, all actions must be pinned to a full-length commit SHA to be used» ([GitHub Docs, Disabling or limiting GitHub Actions for your organization](https://docs.github.com/en/organizations/managing-organization-settings/disabling-or-limiting-github-actions-for-your-organization)).
+
+— *Отвергнуто:*
+- `gitleaks-action`: «Since v2.0.0 of Gitleaks-Action, the license has changed from MIT to a license» — это EULA Gitleaks LLC. А организации нужен ключ: «Clicking "Sign Up" will take you to a google form where you will need to supply name, email, and company» ([gitleaks-action, README](https://github.com/gitleaks/gitleaks-action), прочитано 2026-10-19). Сам gitleaks — под MIT;
+- SonarCloud, который только сообщает, как в MathTrail (R50 canvas-api, R31 standalone): автор решил, что его quality gate держит мерж;
+- анализ SonarCloud в CI сейчас: токен в секретах и pull request с форков без проверки, а его action под LGPL-3.0 пришлось бы назвать исключением R12. Вернуться к нему, когда quality gate понадобится покрытие кода;
+- Renovate: расширений VS Code он тоже не видит — его менеджер devcontainer «Extracts all Docker images from the image and features properties» ([Renovate, devcontainer manager](https://docs.renovatebot.com/modules/manager/devcontainer/), прочитано 2026-10-19). Он поднял бы `ARG`, но ценой второго бота обновлений рядом с Dependabot и стороннего приложения с правом записи;
+- подписанный образ в GHCR, как canvas-api: R49, R53 — целый механизм ради одной проверки документов. Вернуться, когда сборка образа станет долгой; решает `.github`;
+- приложение DCO — третья сторона со своими условиями;
+- rulesets организации — их нет на плане Free.
+
+— *Следствие:* Д1 закрывает T15, Д5 — T17. Открытый пункт R24 — как eval идёт по pull request с форка — переходит к T01 `.github` и T17. У R12 — поправка об инструментах, которые не поставляются. — RUN.md, T15, T17; architecture 3.11.

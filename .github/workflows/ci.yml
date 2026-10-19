@@ -1,0 +1,64 @@
+# spec's own checks (R30): the documents, the tests of tools/ and the licenses of its packages.
+# They run in the toolchain stage of .devcontainer/Dockerfile, with the Node and just of the
+# devcontainer, so a check that is green locally is green here. The image is built on every
+# run and published nowhere. The checks every repository shares come from .github (RUN.md, T17).
+#
+# The job's name is a required check in the ruleset of main: renaming it breaks that rule.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A new push to a pull request cancels its older run; every commit to main is checked.
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  checks:
+    name: Documents and tools
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The Dockerfile copies nothing from the repository, so it is built without a context.
+      # The script beside it runs one command in the image, as every check below does. The
+      # container runs as the runner's user: what it writes in the checkout is the runner's, and
+      # git finds the repository owned by the user it runs as.
+      - id: image
+        name: Toolchain image
+        run: |
+          docker build --target toolchain --tag spec-toolchain - < .devcontainer/Dockerfile
+          printf '#!/bin/sh\nexec docker run --rm --user "%s" --env HOME=/tmp --volume "%s:/work" --workdir /work spec-toolchain "$@"\n' \
+            "$(id -u):$(id -g)" "$PWD" > "$RUNNER_TEMP/toolchain"
+          chmod +x "$RUNNER_TEMP/toolchain"
+
+      # Each check runs even when the one before it failed, so that a run names every failure.
+      - name: Documents
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: '"$RUNNER_TEMP/toolchain" just docs-check'
+
+      - name: Tests of docs-check
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: '"$RUNNER_TEMP/toolchain" just docs-check-test'
+
+      - name: Tests of new-repo
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: '"$RUNNER_TEMP/toolchain" just new-repo-test'
+
+      - name: Licenses
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: '"$RUNNER_TEMP/toolchain" just licenses-check'
+
+      - name: Tests of licenses-check
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: '"$RUNNER_TEMP/toolchain" just licenses-check-test'

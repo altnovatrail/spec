@@ -46,6 +46,9 @@
             "settings": {
                 "files.eol": "\n",
                 "files.insertFinalNewline": true,
+                // Every commit made from Source Control carries Signed-off-by, as the DCO asks
+                // of every contribution. From a terminal it is `git commit -s`.
+                "git.alwaysSignOff": true,
                 // A new repository's working copy is built in .repos/<name>, two levels down:
                 // Source Control looks that deep and offers it as a repository of its own.
                 "git.repositoryScanMaxDepth": 2,

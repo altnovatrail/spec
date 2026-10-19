@@ -8,6 +8,16 @@ docs-check: _tools
 docs-check-test: _tools
     node --test 'tools/docs-check/test/*.test.mjs'
 
+# Reads the lock file alone, so nothing is installed first. The allowed list and the named
+# exceptions are in tools/licenses/config.mjs (R12).
+# Check the licenses of the packages in tools/package-lock.json.
+licenses-check:
+    node tools/licenses/main.mjs
+
+# Run licenses-check's own tests, on made-up lock files.
+licenses-check-test:
+    node --test 'tools/licenses/test/*.test.mjs'
+
 # The copy is built from repo-template/ as it stands at spec's latest release tag, and its FILL
 # markers are left to write from the component's card: 3.8 in `just new-repo learner-model go 3.8`.
 # Build a new repository's working copy in .repos/<name>, with spec as a submodule.
