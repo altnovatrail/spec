@@ -63,12 +63,16 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 # The GitHub CLI: pull requests, the runs of the checks and their alerts live only on
 # github.com and are invisible from inside a container otherwise.
 ARG GH_VERSION=2.101.0
+# The language server for justfiles: the just extension in devcontainer.json starts it, and
+# warns on every justfile it opens when it is missing.
+ARG JUST_LSP_VERSION=0.10.0
 # Claude Code CLI. The VS Code extension in devcontainer.json must have the same version.
 ARG CLAUDE_CODE_VERSION=2.1.280
 
 RUN arch="$(dpkg --print-architecture)"; \
     case "$arch" in \
-        amd64|arm64) ;; \
+        amd64) gnu_arch=x86_64 ;; \
+        arm64) gnu_arch=aarch64 ;; \
         *) echo "unsupported architecture: $arch" >&2; exit 1 ;; \
     esac; \
     workdir="$(mktemp -d)"; \
@@ -89,6 +93,12 @@ RUN arch="$(dpkg --print-architecture)"; \
         "gh_${GH_VERSION}_linux_${arch}/bin/gh"; \
     install -m 0755 "$workdir/gh" /usr/local/bin/gh; \
     \
+    echo "just-lsp ${JUST_LSP_VERSION}"; \
+    fetch "https://github.com/terror/just-lsp/releases/download/${JUST_LSP_VERSION}/just-lsp-${JUST_LSP_VERSION}-${gnu_arch}-unknown-linux-musl.tar.gz" \
+        "$workdir/just-lsp-${JUST_LSP_VERSION}-${gnu_arch}.tar.gz"; \
+    tar -C "$workdir" -xzf "$workdir/just-lsp-${JUST_LSP_VERSION}-${gnu_arch}.tar.gz" ./just-lsp; \
+    install -m 0755 "$workdir/just-lsp" /usr/local/bin/just-lsp; \
+    \
     rm -rf "$workdir"
 
 # Claude Code comes from the registry at an exact version, rather than from an installer
@@ -103,7 +113,9 @@ RUN echo "claude code ${CLAUDE_CODE_VERSION}" \
         "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
     && npm cache clean --force
 
-# The config dirs are created here so the named volumes mounted over them inherit vscode
-# ownership, and the image is left as that user: nothing in it needs root once it is built.
+# The dirs the named volumes are mounted over are created here so the volumes inherit vscode
+# ownership — a dir Docker makes for a mount belongs to root, and VS Code Server could not write
+# to its own home — and the image is left as that user: nothing in it needs root once it is built.
 USER vscode
-RUN mkdir -p /home/vscode/.claude /home/vscode/.codex /home/vscode/.config/gh
+RUN mkdir -p /home/vscode/.claude /home/vscode/.codex /home/vscode/.config/gh \
+        /home/vscode/.vscode-server/extensions

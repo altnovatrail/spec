@@ -9,9 +9,9 @@
 > - решения MathTrail, которые переходят сюда;
 > - план этих документов, который автор утвердил 2026-10-18.
 >
-> Записи R15–R18 внесены 2026-10-18 по ответам автора о бэкенде, интерфейсе и названиях репозиториев и по плану, который автор утвердил в тот же день. R19 и R20 — 2026-10-19, по решениям автора о плане работ и о лицензии; R21 — в тот же день, по его решениям о заготовке репозитория (RUN.md, T02).
+> Записи R15–R18 внесены 2026-10-18 по ответам автора о бэкенде, интерфейсе и названиях репозиториев и по плану, который автор утвердил в тот же день. R19 и R20 — 2026-10-19, по решениям автора о плане работ и о лицензии; R21 и R22 — в тот же день, по его решениям о заготовке репозитория (RUN.md, T02) и о файлах сообщества (RUN.md, T03).
 >
-> Где запись идёт дальше ответов автора, она называет это предложением плана. Следующий номер — R22.
+> Где запись идёт дальше ответов автора, она называет это предложением плана. Следующий номер — R23.
 >
 > Решения MathTrail цитируются как «R37 canvas-api» и «R213 standalone», а списком — «canvas-api: R37, R38». У каждого репозитория свой журнал и своя нумерация.
 >
@@ -148,6 +148,8 @@
 
 — *Открыто:* товарный знак (О-16).
 
+— *Поправка 2026-10-19:* прототип заменён новым — `draft/NovaTrail Widget.html`, и CogniTrail в нём больше нет. Он называется NovaTrail, а MathTrail в нём осталось в нескольких местах ([draft/README.md](../draft/README.md)).
+
 ## Документация
 
 **R14. Документы — на русском в `docs/`; код, комментарии, README, CLAUDE.md, AGENTS.md и промпты моделей — на английском; документы платформы живут в `spec`.**
@@ -262,6 +264,8 @@
 
 — *Почему:* решение автора 2026-10-19: «лицензия везде будет Apache-2.0». Одна лицензия снимает границу внутри модуля: виджеты в нём — код, а задачи и тексты — содержание. Проверка лицензий и вклады идут по одному правилу. — *Отвергнуто:* CC BY 4.0 для содержания официальных модулей — прежняя рекомендация О-10. — *Следствие:* у R12 — поправка; О-10 сужен до сторонних модулей и чужих наборов задач. — *Открыто:* какие лицензии принимает реестр от сторонних авторов и под какими лицензиями чужие наборы задач, в том числе MathNet (О-10). — RUN.md; repositories 2.2.
 
+— *Поправка 2026-10-19:* кодекс поведения в `.github` — текст Contributor Covenant 2.1 под его собственной лицензией, CC BY 4.0, а не под Apache-2.0. Это текст третьей стороны, и в клоны и пакеты других репозиториев он не попадает (R22).
+
 ## Заготовка репозитория
 
 **R21. Новый репозиторий начинается с заготовки в `spec`. `spec` в нём — подмодуль на теге, а общие правила — один файл `RULES.md`, который импортирует CLAUDE.md каждого репозитория.**
@@ -294,3 +298,57 @@
 - монтировать в контейнер `spec` родительскую папку хоста, чтобы клоны лежали рядом с ним: контейнер видел бы всё, что лежит в этой папке.
 
 — *Следствие:* общие разделы CLAUDE.md `spec` переехали в RULES.md, а AGENTS.md говорит, как Codex читает импорт и что у него вместо `/code-review high`. Правила версий формата по-прежнему решает Т-11. — RULES.md; `repo-template/`; repositories 1, 2.2, 5; RUN.md, T02.
+
+— *Поправка 2026-10-19:* расширения VS Code лежат в томе своего контейнера — `novatrail-vscode-extensions-${devcontainerId}`. `${devcontainerId}` — «an identifier that is unique to the dev container … and that is stable across rebuilds» ([Dev Container metadata reference](https://containers.dev/implementors/json_reference/), раздел Variables in devcontainer.json, прочитано 2026-10-19). Строка тома одна на все репозитории, поэтому рецепт копирует её без правки. *Почему:* Dev Containers ставит расширения только при создании контейнера (журнал Dev Containers 0.469.0, 2026-10-19). Без тома пересборка качала их заново, а установка, прерванная перезагрузкой окна, не доделывалась, и в контейнере не было Claude Code и Codex. *Отвергнуто:* общий том расширений на все контейнеры — у видов репозиториев разные наборы расширений, а контейнеры, открытые одновременно, писали бы в один `extensions.json`.
+
+## Файлы сообщества
+
+**R22. Файлы сообщества по умолчанию лежат в `.github`. Кодекс поведения — Contributor Covenant 2.1, об уязвимостях сообщают приватными сообщениями GitHub, вклады идут под Apache-2.0 с подписью DCO. Шаблоны issue и pull request появятся с первым кодом.**
+- **Где.** `CONTRIBUTING.md`, `SECURITY.md` и `CODE_OF_CONDUCT.md` лежат в корне публичного репозитория `.github`. GitHub показывает их в каждом репозитории организации, у которого нет своих (architecture 3.11, 8). Правила они не повторяют, а ведут на `RULES.md` и CLAUDE.md репозитория: копия разошлась бы с ними (R21).
+- **Кодекс поведения** — текст Contributor Covenant 2.1 с тега `2.1` репозитория [EthicalSource/contributor_covenant](https://github.com/EthicalSource/contributor_covenant), коммит 8a3be13.
+  - Заполнена одна пометка оригинала, `[INSERT CONTACT METHOD]`: о нарушении сообщают через GitHub. На issue, pull request, обсуждении или комментарии — «Report content», затем «Report to repository admins», а где такого выбора нет — «Report abuse to GitHub Support».
+  - В конце добавлен абзац: текст остаётся под CC BY 4.0, и сказано, что в нём изменено. Лицензия требует «indicate if You modified the Licensed Material» ([CC BY 4.0, Legal Code](https://creativecommons.org/licenses/by/4.0/legalcode.en), раздел 3 лицензии, прочитано 2026-10-19).
+- **Уязвимости** — приватными сообщениями об уязвимостях GitHub, и включаются они для всей организации сразу.
+  - Автор заводит настройку безопасности организации (security configuration), где включены только они. Она применяется ко всем репозиториям, а по умолчанию — к каждому новому публичному.
+  - Адреса почты нет.
+  - В отчёте — без данных учеников: только что открыто и где.
+- **Вклады** — под Apache-2.0, по разделу 5 лицензии. Каждый коммит вклада подписывается по DCO 1.1 (`git commit -s`), как рекомендует О-10. Подпись веб-коммитов автор делает обязательной в настройках организации.
+- **Языки.** Issue и pull request пишутся по-английски или по-русски: R14 говорит о файлах, а не о переписке.
+- **Шаблоны issue и pull request** — с первым кодом, в E2 (RUN.md, Д4).
+
+— *Почему:* решения автора 2026-10-19 при планировании T03. Языки issue и pull request — предложение плана.
+- **Где.** «You can add default community health files to a repository called .github. The .github repository must be public» и «GitHub will use and display default files for any repository owned by the account, regardless of the destination repository's visibility, that does not have its own file of that type» ([GitHub Docs, Creating a default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file), прочитано 2026-10-19).
+- **Лицензия кодекса.**
+  - Версия 2.1 — под разрешительной лицензией: «released under the terms of the Creative Commons Attribution 4.0 International public license» (README того же репозитория на теге `2.1`, прочитано 2026-10-19).
+  - Версия 3.0 — уже под share-alike: «Contributor Covenant is stewarded by the Organization for Ethical Source and licensed under CC BY-SA 4.0» ([Contributor Covenant 3.0](https://www.contributor-covenant.org/version/3/0/code_of_conduct/), раздел Attribution, прочитано 2026-10-19).
+  - Исключение из R20 узкое: файлы по умолчанию «are not included in their clones, packages, or downloads» (GitHub Docs, Creating a default community health file). Текст под CC BY 4.0 лежит только в `.github`.
+  - Такие тексты политика ASF велит помечать: «label them appropriately» ([ASF 3rd Party License Policy](https://www.apache.org/legal/resolved.html), прочитано 2026-10-19).
+- **Без почты.** Лишних контактов не держим (privacy 1), а домена для адреса проекта ещё нет (О-16, Т-17). GitHub принимает и жалобы, и отчёты без почты:
+  - «If reported content is enabled for a public repository, you can also report content directly to repository maintainers», а после «Report content» — «You may see options to Report to repository admins or Report abuse to GitHub Support» ([GitHub Docs, Reporting abuse or spam](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam), прочитано 2026-10-19). По умолчанию жалобы принимаются от прежних участников и соавторов: «Prior contributors and collaborators will be selected by default for repositories created after March 3, 2023» ([GitHub Docs, Managing how contributors report abuse in your organization's repository](https://docs.github.com/en/communities/moderating-comments-and-conversations/managing-how-contributors-report-abuse-in-your-organizations-repository), прочитано 2026-10-19). У `spec` жалобы включены: `content_reports_enabled` — `true` (API GitHub, community profile, 2026-10-19);
+  - «When private vulnerability reporting is enabled, security researchers see a Report a vulnerability button on the repository's "Advisories" page» ([GitHub Docs, Configuring private vulnerability reporting for a repository](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/configuring-private-vulnerability-reporting-for-a-repository), прочитано 2026-10-19). Путь для того, кто сообщает: «Under the repository name, click the Security and quality tab» и «Click Report a vulnerability to open the advisory form» ([GitHub Docs, Privately reporting a security vulnerability](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability), прочитано 2026-10-19).
+- **На всю организацию.**
+  - Без кнопки остаётся «standard process»: issue с просьбой о контакте, а «it should not include any information about the bug» ([GitHub Docs, Coordinated disclosure of security vulnerabilities](https://docs.github.com/en/code-security/concepts/vulnerability-reporting-and-management/coordinated-disclosure), прочитано 2026-10-19).
+  - Настройка организации включает кнопку и в новых репозиториях: «Use as default for newly created repositories» ([GitHub Docs, Creating a custom security configuration](https://docs.github.com/en/code-security/how-tos/secure-at-scale/configure-organization-security/establish-complete-coverage/creating-a-custom-security-configuration), прочитано 2026-10-19).
+  - Денег это не стоит. Платны только функции защиты кода и секретов, и только у закрытых репозиториев: «these features incur usage costs (or require GitHub Advanced Security licenses) when applied to private and internal repositories» (там же). Репозитории NovaTrail публичные (R18).
+  - Готовая настройка «GitHub recommended» не годится. Она включает ещё CodeQL default setup — `code_scanning_default_setup: "enabled"` (API GitHub, `orgs/altnovatrail/code-security/configurations`, 2026-10-19), — а T15 подключает CodeQL своими workflow.
+- **DCO.**
+  - DCO подтверждает, что у автора вклада есть право его отдать; лицензию на вклад даёт раздел 5 лицензии.
+  - Текст DCO копируется только без изменений: «Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed» ([Developer Certificate of Origin 1.1](https://developercertificate.org/), прочитано 2026-10-19).
+  - Подпись публична навсегда — пункт (d): «a record of the contribution (including all personal information I submit with it, including my sign-off) is maintained indefinitely». Поэтому CONTRIBUTING говорит об этом прямо и разрешает подписываться адресом GitHub noreply.
+  - GitHub обязывает подписывать только веб-коммиты: «Compulsory commit signoffs only apply to commits made via the web interface» ([GitHub Docs, Managing the commit signoff policy for your organization](https://docs.github.com/en/organizations/managing-organization-settings/managing-the-commit-signoff-policy-for-your-organization), прочитано 2026-10-19). Подпись коммитов из командной строки проверит CI (T15, Д5).
+- **Шаблоны.** Кода, CI и пользователей пока нет, а задачи ведёт RUN.md (R19). Чек-лист pull request, написанный сейчас, пришлось бы переписать, когда придёт CI.
+
+— *Отвергнуто:*
+- Contributor Covenant 3.0 (2025): он под CC BY-SA 4.0, и наша правка тоже осталась бы под share-alike;
+- свой текст кодекса под Apache-2.0 — новый чувствительный текст, который пришлось бы писать и поддерживать;
+- адрес почты для уязвимостей и жалоб;
+- CLA: для него нужны сторона, с которой его подписывают, и сервис, который хранит данные подписавших;
+- шаблоны issue и pull request сейчас;
+- приватные сообщения об уязвимостях по репозиториям, в T15 и T16: до них кнопки не было бы.
+
+— *Следствие:*
+- у R20 — поправка, а у `RULES.md` — исключение в разделе Hard rules;
+- T15 и T16 только проверяют, что приватные сообщения включены;
+- DCO из рекомендации О-10 решён.
+
+— architecture 3.11; RUN.md, T03; файлы `.github`.
