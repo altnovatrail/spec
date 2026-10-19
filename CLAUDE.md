@@ -27,6 +27,7 @@ The documents under `docs/` are in Russian (R14) and are cited by section: "prod
 - [docs/architecture.md](docs/architecture.md) — the components and how they connect. Each component's card, ending with what to decide when it is detailed, is in section 3.
 - [docs/repositories.md](docs/repositories.md) — the repositories, their dependencies, the order they appear in, and how to set one up. Open technical questions Т-… are in section 8.
 - [docs/decisions.md](docs/decisions.md) — the decision log, R01…: read it before proposing a change.
+- [RUN.md](RUN.md) — the work plan, in epics (R19). Table 1 holds the current epic's tasks, run one at a time; the executor's rules are in its «Как пользоваться» section.
 - [draft/](draft/README.md) — the prototype; where it differs from the documents, the documents win.
 
 MathTrail's decisions are cited as "R37 canvas-api" and "R213 standalone", or in a list as "canvas-api: R37, R38"; each log is numbered independently. Its repositories, [mathtrail/canvas-api](https://github.com/mathtrail/canvas-api) and [mathtrail/mathtrail-standalone](https://github.com/mathtrail/mathtrail-standalone), are not checked out here. When a task needs them, clone them into a temporary directory, never into this repository.
@@ -35,6 +36,7 @@ Project context lives in these files, not in chat history.
 
 ## How we work
 
+- The author runs tasks one at a time: «Выполни задачу Txx из RUN.md». Do only that task, by the rules in RUN.md.
 - Before proposing a change, read decisions.md and the sections the change touches. Do not re-propose what a decision rejected without new evidence. If a decision has to change, ask the author and record the change.
 - A decision is never rewritten. An amendment with its date goes at the end of the entry, or a new entry replaces it; the old one stays where it is, marked «Заменено», its text unedited.
 - A new number — R, О-, П-, Т- — is the next one still free when it is written down, not when the work began: a parallel session may have taken one meanwhile. Each register's opening names the next free number; keep it current.
@@ -46,7 +48,7 @@ Project context lives in these files, not in chat history.
 
 - **Devcontainer only.** All work happens inside the devcontainer (`.devcontainer/`). If `NOVATRAIL_DEVCONTAINER` is not `1`, you are on the host: stop and ask the author to "Reopen in Container". "The change is only documents" is no reason to go on. The one exception is a cloud session of Claude Code that the author started for the task: it works without the container, and its report names every check it could not run.
 - **Exact versions only.** No `latest`, floating tags or ranges. Images are pinned by tag and digest, tools by exact version, each where it is installed: an `ARG` in `.devcontainer/Dockerfile`, a literal in `.devcontainer/devcontainer.json`.
-- **Language.** Documents under `docs/` are in Russian. Everything else — README.md, CLAUDE.md, AGENTS.md, code, comments, schema descriptions and prompts — is in English (R14). Reports to the author are in Russian.
+- **Language.** Documents under `docs/` and RUN.md are in Russian (R14, R19). Everything else — README.md, CLAUDE.md, AGENTS.md, code, comments, schema descriptions and prompts — is in English (R14). Reports to the author are in Russian.
 - **No learners' data in the repository.** No learner's name, work, handwriting, voice or photo, no email or account identifier — not even in examples, which are synthetic.
 - **No secrets in the repository.** Keys and tokens live in environment variables or a secret manager, never in a committed file.
 - **Licenses.** Code is Apache-2.0 (R12); add only dependencies whose licenses are compatible with it. The license of module content is still open (О-10).
