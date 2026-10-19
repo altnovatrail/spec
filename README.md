@@ -32,6 +32,14 @@ Later: site (stage 3); module-registry, module-pipeline and widget-template (sta
 
 How the parts fit together is in [docs/architecture.md](docs/architecture.md). The order in which the repositories appear, and how to set one up, is in [docs/repositories.md](docs/repositories.md); every repository starts from the same template, [repo-template/](repo-template/README.md), and follows the same rules, [RULES.md](RULES.md).
 
+## Releases
+
+A release comes out by itself once the checks pass on `main`: the next patch of the current line, tagged `vX.Y.Z` with the release, and nobody tags by hand. A release holds no files yet; other repositories take its tag as the `spec` submodule. Releases are immutable, so a tag stays on its commit, and GitHub attests each one. To check a release:
+
+```
+gh release verify v0.2.0 -R altnovatrail/spec
+```
+
 ## Documents
 
 The documents are in Russian.

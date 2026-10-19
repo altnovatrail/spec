@@ -1,0 +1,160 @@
+# spec's release (R31): what a green main produces. Nobody tags by hand: the version is the next
+# patch of the line the releases are numbered in, and the tag is created with the release. A
+# line of its own comes from raising RELEASE_LINE in the change that deserves it.
+#
+# A release holds no files yet: what other repositories take is the tag itself, as a submodule
+# (R21). The repository's releases are immutable, so the tag stays on its commit for good, and
+# GitHub signs each release with an attestation of its tag and commit, which `gh release verify`
+# checks. Files, and a signature of their own, come with the schemas and packages.
+#
+# The button releases the tip of main when it has no release yet — after a release run that
+# failed, say. It works on main alone, and only once CI has passed on that commit.
+
+name: Release
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# The line the releases are numbered in: the major and minor version every release carries, the
+# patch counting up within it. just release-version reads it from here.
+env:
+  RELEASE_LINE: "0.2"
+
+jobs:
+  release:
+    name: Release
+    # Releases queue rather than overlap: each has to see the version the one before it
+    # published before it can work out the next, and every commit of main gets its own.
+    # queue: max keeps up to 100 runs pending, where the default keeps one (GitHub Docs, Workflow
+    # syntax, read 2026-10-19). actionlint does not know the key yet: .github/actionlint.yaml.
+    concurrency:
+      group: release
+      cancel-in-progress: false
+      queue: max
+    # Only from a commit the checks have passed on, and only when that commit is this
+    # repository's own: the branch filter above matches the name of a fork's branch as well.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      # Creating the release, and its tag with it.
+      contents: write
+      # Reading whether CI passed on the commit the button would release.
+      actions: read
+    steps:
+      # Asked before anything of the repository is fetched: a run on another branch publishes
+      # nothing, and neither does a commit whose CI on main has not finished green.
+      - name: Whether this commit may be released by hand
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_REF" != refs/heads/main ]; then
+              echo "::error::A release is published from main alone, and this run is on ${GITHUB_REF}."
+              exit 1
+          fi
+          passed=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs" \
+              -f head_sha="$GITHUB_SHA" -f event=push -f branch=main -f status=success \
+              --jq '.total_count')
+          if [ "$passed" = 0 ]; then
+              echo "::error::CI has not passed on ${GITHUB_SHA}. A release waits for its checks, and follows them by itself once they pass."
+              exit 1
+          fi
+
+      # The commit the checks ran on, with every tag: the next version is counted from them.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # In the toolchain stage, as CI runs it, with the Node and just of the devcontainer. The
+      # recipe prints the step's outputs: version — empty when there is nothing to release —
+      # previous, where the notes start, released, the release this commit has already, and
+      # behind, the newest release when this commit is older than it. A tag with no release
+      # behind it was pushed by hand, against R31: on this commit, or as the newest "release"
+      # off main's history, it would stop every release quietly, so the run stops on it instead.
+      - id: version
+        name: Work out the version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          docker build --target toolchain --tag spec-toolchain - < .devcontainer/Dockerfile
+          docker run --rm --user "$(id -u):$(id -g)" --env HOME=/tmp --volume "$PWD:/work" --workdir /work \
+              spec-toolchain just release-version > "$RUNNER_TEMP/release-version"
+          tee -a "$GITHUB_OUTPUT" < "$RUNNER_TEMP/release-version"
+          version=$(sed -n 's/^version=//p' "$RUNNER_TEMP/release-version")
+          released=$(sed -n 's/^released=//p' "$RUNNER_TEMP/release-version")
+          behind=$(sed -n 's/^behind=//p' "$RUNNER_TEMP/release-version")
+          for tag in $released $behind; do
+              if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null; then
+                  echo "::error::${tag} has no release behind it: a tag pushed by hand. Tags come from this workflow alone (R31)."
+                  exit 1
+              fi
+          done
+          if [ -n "$version" ]; then
+              echo "releasing $version"
+          else
+              echo "::notice::Nothing to publish: this commit is released already, or is older than the newest release."
+          fi
+
+      # Latest is the release of the newest commit of main: a commit whose checks finished after
+      # a newer one was pushed comes out without the mark. The notes run from the release before
+      # this one. The Releases API refuses GITHUB_TOKEN a commit whose workflow files differ from
+      # main's: a commit that is no longer the tip then waits for the next release, which
+      # covers it.
+      - id: publish
+        name: Publish the release
+        if: steps.version.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+          TARGET: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          start=()
+          if [ -n "$PREVIOUS" ]; then start=(--notes-start-tag "$PREVIOUS"); fi
+          tip=$(git ls-remote origin refs/heads/main | cut -f1)
+          newest=false
+          if [ "$tip" = "$TARGET" ]; then newest=true; fi
+          if ! gh release create "$VERSION" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$TARGET" \
+              --title "$VERSION" \
+              --latest="$newest" \
+              --generate-notes "${start[@]}" 2> "$RUNNER_TEMP/release-create.err"; then
+              cat "$RUNNER_TEMP/release-create.err" >&2
+              # Only the documented refusal of an older commit is let pass; anything else fails.
+              if [ "$newest" = true ] || ! grep -q 'HTTP 404' "$RUNNER_TEMP/release-create.err"; then exit 1; fi
+              echo "::warning::${TARGET} is no longer the tip of main (${tip}), and the Releases API refused it (404); the release of the tip covers it."
+              exit 0
+          fi
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+      # The release is immutable and attested; the attestation may take a moment to appear. A
+      # run again of a commit released already verifies its release, so that a run that failed
+      # here does not turn green on a second try without it.
+      - name: Verify the release
+        if: steps.publish.outputs.published == 'true' || steps.version.outputs.released != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version || steps.version.outputs.released }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+              if gh release verify "$VERSION" --repo "$GITHUB_REPOSITORY"; then exit 0; fi
+              echo "attempt $attempt: not verified yet"
+              sleep 10
+          done
+          echo "::error::${VERSION} is published, but its attestation does not verify."
+          exit 1

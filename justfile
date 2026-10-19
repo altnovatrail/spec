@@ -18,6 +18,28 @@ licenses-check:
 licenses-check-test:
     node --test 'tools/licenses/test/*.test.mjs'
 
+# Prints version=, previous= and released= lines, which release.yml takes as its step outputs;
+# version= is empty when this commit has a release already or is older than the newest one.
+# Refuses a shallow clone, which has no tags to count from. The line is RELEASE_LINE in
+# release.yml (R31).
+# Print the version the next release of spec takes.
+release-version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+        echo "release-version: a shallow clone has no tags to count from; fetch the whole history" >&2
+        exit 1
+    fi
+    {
+        git tag --list 'v*'; echo --
+        git tag --merged HEAD --list 'v*'; echo --
+        git tag --points-at HEAD --list 'v*'
+    } | node tools/release/version.mjs
+
+# Run release-version's own tests, on made-up tags.
+release-version-test:
+    node --test 'tools/release/test/*.test.mjs'
+
 # The copy is built from repo-template/ as it stands at spec's latest release tag, and its FILL
 # markers are left to write from the component's card: 3.8 in `just new-repo learner-model go 3.8`.
 # Build a new repository's working copy in .repos/<name>, with spec as a submodule.

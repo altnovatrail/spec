@@ -1,4 +1,5 @@
-# spec's own checks (R30): the documents, the tests of tools/ and the licenses of its packages.
+# spec's own checks (R30): the documents, the tests of tools/, the licenses of its packages and
+# the version the next release takes (R31).
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
 # run and published nowhere. The checks every repository shares come from .github (RUN.md, T17).
@@ -26,8 +27,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
+      # The whole history, with every tag: release-version counts the next version from them.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       # The Dockerfile copies nothing from the repository, so it is built without a context.
@@ -62,3 +65,12 @@ jobs:
       - name: Tests of licenses-check
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: '"$RUNNER_TEMP/toolchain" just licenses-check-test'
+
+      # What release.yml will publish once this is on main: the recipe it runs, run here first.
+      - name: Release version
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: '"$RUNNER_TEMP/toolchain" just release-version'
+
+      - name: Tests of release-version
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: '"$RUNNER_TEMP/toolchain" just release-version-test'
