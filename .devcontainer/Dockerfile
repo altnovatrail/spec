@@ -103,7 +103,9 @@ RUN echo "claude code ${CLAUDE_CODE_VERSION}" \
         "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
     && npm cache clean --force
 
-# The config dirs are created here so the named volumes mounted over them inherit vscode
-# ownership, and the image is left as that user: nothing in it needs root once it is built.
+# The dirs the named volumes are mounted over are created here so the volumes inherit vscode
+# ownership — a dir Docker makes for a mount belongs to root, and VS Code Server could not write
+# to its own home — and the image is left as that user: nothing in it needs root once it is built.
 USER vscode
-RUN mkdir -p /home/vscode/.claude /home/vscode/.codex /home/vscode/.config/gh
+RUN mkdir -p /home/vscode/.claude /home/vscode/.codex /home/vscode/.config/gh \
+        /home/vscode/.vscode-server/extensions

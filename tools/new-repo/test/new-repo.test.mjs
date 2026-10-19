@@ -126,7 +126,7 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     assert.deepEqual(dc.runArgs, [`--network=novatrail-${name}`]);
     assert.match(read(dir, ".devcontainer/host-network.sh"), new RegExp(`^network="novatrail-${name}"$`, "m"));
     assert.match(read(dir, ".devcontainer/Dockerfile"), new RegExp(`^# Development container for NovaTrail's ${name}\\.`));
-    assert.deepEqual(dc.mounts, spec.mounts, "the sign-in volumes are shared");
+    assert.deepEqual(dc.mounts, spec.mounts, "the sign-in volumes are shared, the extensions' named by ${devcontainerId}");
     assert.deepEqual(dc.customizations.vscode.extensions, [...spec.customizations.vscode.extensions, ...kinds[kind]]);
     assert.match(dc.postStartCommand, /git submodule update --init spec$/);
     const { "git.repositoryScanMaxDepth": onlySpec, ...settings } = spec.customizations.vscode.settings;

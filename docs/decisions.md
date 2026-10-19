@@ -148,6 +148,8 @@
 
 — *Открыто:* товарный знак (О-16).
 
+— *Поправка 2026-10-19:* прототип заменён новым — `draft/NovaTrail Widget.html`, и CogniTrail в нём больше нет. Он называется NovaTrail, а MathTrail в нём осталось в нескольких местах ([draft/README.md](../draft/README.md)).
+
 ## Документация
 
 **R14. Документы — на русском в `docs/`; код, комментарии, README, CLAUDE.md, AGENTS.md и промпты моделей — на английском; документы платформы живут в `spec`.**
@@ -294,3 +296,5 @@
 - монтировать в контейнер `spec` родительскую папку хоста, чтобы клоны лежали рядом с ним: контейнер видел бы всё, что лежит в этой папке.
 
 — *Следствие:* общие разделы CLAUDE.md `spec` переехали в RULES.md, а AGENTS.md говорит, как Codex читает импорт и что у него вместо `/code-review high`. Правила версий формата по-прежнему решает Т-11. — RULES.md; `repo-template/`; repositories 1, 2.2, 5; RUN.md, T02.
+
+— *Поправка 2026-10-19:* расширения VS Code лежат в томе своего контейнера — `novatrail-vscode-extensions-${devcontainerId}`. `${devcontainerId}` — «an identifier that is unique to the dev container … and that is stable across rebuilds» ([Dev Container metadata reference](https://containers.dev/implementors/json_reference/), раздел Variables in devcontainer.json, прочитано 2026-10-19). Строка тома одна на все репозитории, поэтому рецепт копирует её без правки. *Почему:* Dev Containers ставит расширения только при создании контейнера (журнал Dev Containers 0.469.0, 2026-10-19). Без тома пересборка качала их заново, а установка, прерванная перезагрузкой окна, не доделывалась, и в контейнере не было Claude Code и Codex. *Отвергнуто:* общий том расширений на все контейнеры — у видов репозиториев разные наборы расширений, а контейнеры, открытые одновременно, писали бы в один `extensions.json`.
