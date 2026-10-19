@@ -56,4 +56,4 @@ Project context lives in these files, not in chat history.
 
 ## Environment
 
-Open the repository in VS Code and choose "Reopen in Container". The container has Node.js and just (the `toolchain` stage of `.devcontainer/Dockerfile`), and the GitHub CLI and Claude Code on top. Schema validators and document linters come with the module format. The Markdown preview renders Mermaid diagrams (`bierner.markdown-mermaid`).
+Open the repository in VS Code and choose "Reopen in Container". The container has Node.js and just (the `toolchain` stage of `.devcontainer/Dockerfile`), and the GitHub CLI and Claude Code on top. `just docs-check` checks the documents — links, cited sections, the registers and every number cited from them, Mermaid diagrams — and a task that touches them ends with it green; its code and its lock file are in `tools/`. Schema validators come with the module format. The Markdown preview renders Mermaid diagrams (`bierner.markdown-mermaid`).

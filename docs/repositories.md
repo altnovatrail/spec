@@ -137,6 +137,7 @@ flowchart LR
 
 - `docs/` — описательные документы платформы на русском (R14): product, concepts, privacy, architecture, repositories, decisions.
 - `draft/` — прототип приложения ученика.
+- `tools/` и `justfile` — проверка документов `just docs-check`: ссылки, разделы, реестры, диаграммы (RUN.md, T01). Это инструмент самого `spec`, а не код платформы; валидатор JSON Schema встанет туда же (E2).
 - Позже — нормативные части, версионируемые тегами:
   - формат модуля — JSON Schema (Т-7); пакет модуля и индекс (Т-15);
   - контракты API — protobuf и buf (Т-7): между `app` и `api`; наблюдение — общий тип `tutor`, `module-kit` и eval;
