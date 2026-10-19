@@ -36,7 +36,7 @@ How the parts fit together is in [docs/architecture.md](docs/architecture.md). T
 
 The documents are in Russian.
 
-- [docs/product.md](docs/product.md) — what we build and why: who it is for, the principles, the first slice, the roadmap and the open product questions.
+- [docs/product.md](docs/produkt.md) — what we build and why: who it is for, the principles, the first slice, the roadmap and the open product questions.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary: module, skill, lesson, task, canvas, check, tutor, learner model and engine, with a glossary that names each term as code and schemas will.
 - [docs/privacy.md](docs/privacy.md) — privacy and age: kinds of data, age categories, the two routes to AI, and what each AI provider's terms say about minors.
 - [docs/architecture.md](docs/architecture.md) — the platform's big parts and how they connect: the components, one overall diagram, the main flows, and how the interface is put together.
