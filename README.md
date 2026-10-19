@@ -1,4 +1,4 @@
-# Spec
+# spec
 
 Official standards, schemas, and guidelines for NovaTrail, a universal open platform for adaptive learning, interactive lessons, and AI tutoring.
 
@@ -52,3 +52,7 @@ The documents are in Russian.
 - [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.
 - [RUN.md](RUN.md) — the work plan, in epics: the current epic broken into small tasks, run and reviewed one at a time, and the epics that come later.
 - [draft/](draft/README.md) — a clickable prototype of the learner's app, and where it differs from the documents.
+
+## License
+
+[Apache-2.0](LICENSE).
