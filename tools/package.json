@@ -1,7 +1,7 @@
 {
   "name": "novatrail-spec-tools",
   "private": true,
-  "description": "Checks for the NovaTrail spec documents: links, sections, registers and diagrams.",
+  "description": "The NovaTrail spec's tools: the checks of its documents, and the template a new repository starts from.",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {

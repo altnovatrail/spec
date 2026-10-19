@@ -55,7 +55,7 @@ export const registers = [
 // "product 5.4 canvas-api", or in a list as "canvas-api: R37, R38". Not checked.
 export const mathtrailRepositories = ["canvas-api", "standalone"];
 
-// NovaTrail's other repositories keep logs of their own, cited as "R3 api" (repositories 2.2).
+// NovaTrail's other repositories keep logs of their own, cited as "R03 api" (repositories 2.2).
 // Not checked either. "R19 spec" is this repository's own.
 export const novatrailRepositories = [
   ".github",
@@ -80,5 +80,6 @@ export const novatrailRepositories = [
 // "раздел 3 лицензии" in R12 is section 3 of the Apache License.
 export const otherTexts = ["лицензии"];
 
-// Paths, relative to the root, that are never scanned. The fixtures break the rules on purpose.
-export const excluded = [".git", "node_modules", "tools/node_modules", "tools/docs-check/test/fixtures"];
+// Paths, relative to the root, that are never scanned. The fixtures break the rules on purpose;
+// .repos holds working copies of other repositories, with documents and logs of their own.
+export const excluded = [".git", "node_modules", "tools/node_modules", "tools/docs-check/test/fixtures", ".repos"];
