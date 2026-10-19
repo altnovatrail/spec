@@ -54,7 +54,7 @@ new-repo-draft name kind card tag: _tools
 
 # Check a working copy built by new-repo, once its FILL markers are written.
 new-repo-check name: _tools
-    node tools/new-repo/check.mjs '.repos/{{name}}'
+    node tools/new-repo/check.mjs '{{name}}'
 
 # Run new-repo's own tests, on copies built in temporary directories.
 new-repo-test: _tools

@@ -18,6 +18,7 @@ import { checkSections } from "./sections.mjs";
 import { checkCitedNumbers, readRegisters } from "./registers.mjs";
 import { findWrongScript } from "./citations.mjs";
 import { checkDiagrams } from "./mermaid.mjs";
+import { byCodeUnits, isMain } from "../shared.mjs";
 
 export async function check(root) {
   const errors = [];
@@ -45,7 +46,7 @@ export async function check(root) {
   }
   stats.diagrams = await checkDiagrams(files, report);
 
-  errors.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+  errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line);
   return { errors, stats };
 }
 
@@ -62,12 +63,10 @@ function markdownFiles(root) {
     }
   };
   walk("");
-  return found.sort();
+  return found.sort(byCodeUnits);
 }
 
-// Run as a script, also through a symlink: argv[1] keeps the link, import.meta.url the real path.
-const invoked = process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
-if (invoked) {
+if (isMain(import.meta.url)) {
   const root = path.resolve(process.argv[2] ?? path.join(path.dirname(fileURLToPath(import.meta.url)), "../.."));
   const { errors, stats } = await check(root);
   for (const { file, line, message } of errors) console.log(`${file}:${line}: ${message}`);

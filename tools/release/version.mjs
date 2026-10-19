@@ -18,7 +18,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isMain } from "../is-main.mjs";
+import { isMain } from "../shared.mjs";
 
 // A release's tag: vMAJOR.MINOR.PATCH as SemVer writes numbers, with no leading zero. Any other
 // tag that starts with a v, such as v0.2.0-rc.1, is no release and counts for nothing here.

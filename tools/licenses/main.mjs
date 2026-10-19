@@ -10,7 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isMain } from "../is-main.mjs";
+import { isMain } from "../shared.mjs";
 import { allowed as ALLOWED, exceptions as EXCEPTIONS } from "./config.mjs";
 
 export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS } = {}) {

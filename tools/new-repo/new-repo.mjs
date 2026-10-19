@@ -16,11 +16,11 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
-import { novatrailRepositories } from "../docs-check/config.mjs";
 import { escape } from "../docs-check/citations.mjs";
 import { editDevcontainer } from "./devcontainer.mjs";
-import { FILL, PLACEHOLDER, isMain, walk } from "./copy.mjs";
+import { FILL, fillPlaceholders, isMain, knownRepository, walk } from "./copy.mjs";
 import { newestRelease } from "../release/version.mjs";
+import { GIT, TAR } from "../shared.mjs";
 
 export const SPEC_URL = "https://github.com/altnovatrail/spec.git";
 
@@ -28,16 +28,17 @@ export const SPEC_URL = "https://github.com/altnovatrail/spec.git";
 const SOURCES = ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs/architecture.md"];
 
 export function newRepo({ specRoot, name, kind, card, dest, draft = null, specUrl = SPEC_URL, date = today() }) {
-  if (!novatrailRepositories.includes(name)) {
-    throw new Error(`${name}: not one of NovaTrail's repositories (tools/docs-check/config.mjs)`);
-  }
+  if (!knownRepository(name)) throw new Error(`${name}: not one of NovaTrail's repositories (tools/docs-check/config.mjs)`);
   if (!/^\d+(?:\.\d+)*$/.test(card)) throw new Error(`${card}: a card is a section number, such as 3.8`);
   if (fs.existsSync(dest) && fs.readdirSync(dest).length > 0) throw new Error(`${dest}: already exists and is not empty`);
   const isDraft = draft !== null;
   if (isDraft && !/^\S+$/.test(draft)) throw new Error("--draft needs the tag the copy should name, such as v0.1.0");
 
-  const tag = isDraft ? draft : latestTag(specRoot);
-  const source = isDraft ? specRoot : extract(specRoot, tag);
+  // A release's tag comes from spec's own tags, and only that one reaches git: a draft's tag is
+  // only written into the copy's text.
+  const released = isDraft ? null : latestTag(specRoot);
+  const tag = released ?? draft;
+  const source = released ? extract(specRoot, released) : specRoot;
   const existed = fs.existsSync(dest);
   let started = false;
   try {
@@ -49,7 +50,7 @@ export function newRepo({ specRoot, name, kind, card, dest, draft = null, specUr
     fs.mkdirSync(dest, { recursive: true });
     copyTemplate(path.join(source, "repo-template", "files"), dest, { name, card, spec_tag: tag, date });
     editDevcontainer(dest, name, kinds[kind]);
-    if (!isDraft) initGit(dest, specRoot, specUrl, tag);
+    if (released) initGit(dest, specRoot, specUrl, released);
   } catch (error) {
     // Half a copy would only be refused as "not empty" next time. An empty directory that was
     // there before stays, emptied again.
@@ -60,12 +61,12 @@ export function newRepo({ specRoot, name, kind, card, dest, draft = null, specUr
     }
     throw error;
   } finally {
-    if (!isDraft) fs.rmSync(source, { recursive: true, force: true });
+    if (released) fs.rmSync(source, { recursive: true, force: true });
   }
   return { tag, fill: countFill(dest) };
 }
 
-const git =(dir, ...args) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+const git = (dir, ...args) => execFileSync(GIT, ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 
 // The highest release among spec's tags, wherever HEAD is: a branch forked before the latest
 // tag must not quietly build from an older one. Releases only, counted as release.yml counts
@@ -82,11 +83,11 @@ function latestTag(specRoot) {
 function extract(specRoot, tag) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "new-repo-"));
   try {
-    const archive = execFileSync("git", ["-C", specRoot, "archive", "--format=tar", tag, "--", ...SOURCES], {
+    const archive = execFileSync(GIT, ["-C", specRoot, "archive", "--format=tar", tag, "--", ...SOURCES], {
       maxBuffer: 256 * 1024 * 1024,
       stdio: ["ignore", "pipe", "pipe"],
     });
-    execFileSync("tar", ["-x", "-C", dir], { input: archive });
+    execFileSync(TAR, ["-x", "-C", dir], { input: archive });
   } catch (error) {
     fs.rmSync(dir, { recursive: true, force: true });
     throw new Error(`${tag}: cannot take ${SOURCES.join(", ")} from it — is it older than repo-template? ${error.stderr ?? error.message}`.trim());
@@ -118,7 +119,7 @@ function copyTemplate(from, to, values) {
       fs.mkdirSync(target);
       copyTemplate(source, target, values);
     } else {
-      const text = fs.readFileSync(source, "utf8").replace(PLACEHOLDER, (whole, key) => {
+      const text = fillPlaceholders(fs.readFileSync(source, "utf8"), (whole, key) => {
         if (!Object.hasOwn(values, key)) throw new Error(`${source}: ${whole} is not one of ${Object.keys(values).join(", ")}`);
         return values[key];
       });
@@ -166,7 +167,14 @@ if (isMain(import.meta.url)) {
     console.error("usage: new-repo.mjs <name> <kind> <card> [--draft <tag>]");
     process.exit(2);
   }
-  const [name, kind, card] = positionals;
+  const [given, kind, card] = positionals;
+  // The name is taken from the list of NovaTrail's repositories, never as given: the copy's path
+  // and the commands run in it are built from it.
+  const name = knownRepository(given);
+  if (!name) {
+    console.error(`new-repo: ${given}: not one of NovaTrail's repositories (tools/docs-check/config.mjs)`);
+    process.exit(2);
+  }
   const specRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   const dest = path.join(specRoot, ".repos", name);
   try {
