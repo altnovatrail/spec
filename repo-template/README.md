@@ -13,4 +13,6 @@ Before spec has a tag, or to read a change to the template, `just new-repo-draft
 
 `docs-check` reads `files/` as part of spec. Its citations of spec, written with the suffix "spec", are checked against spec's documents. The template cites its own sections through a link to its own file and the word "section" or «раздел», which `docs-check` resolves inside `files/`. A bare "architecture 2" or "R03" would be checked against spec's documents instead, so the template uses those only as examples of how to cite.
 
-`just new-repo-check <name>` checks the copy once it is filled: no `{{…}}` and no FILL left, `LICENSE` and `AGENTS.md` the same as spec's, relative links that lead somewhere, no name of spec's left in the devcontainer, and the submodule at the tag that the links to spec name.
+In the new repository, `just -f spec/justfile docs-check-repo` checks its documents as a repository of its own: its sections and log bare, spec's with the suffix, against its spec/ submodule (R32 in spec). An example of a citation is written in code — `R03` — so that the check does not take it for one.
+
+`just new-repo-check <name>` checks the copy once it is filled: no `{{…}}` and no FILL left, `LICENSE` and `AGENTS.md` the same as spec's, its documents passing the same check as `docs-check-repo` — links, sections, its log and tables, its citations of spec, its diagrams — no name of spec's left in the devcontainer, and the submodule at the tag that the links to spec name.

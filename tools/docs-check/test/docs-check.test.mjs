@@ -1,4 +1,5 @@
-// Each test breaks one thing in a trial copy of fixtures/base and expects docs-check to name it.
+// Each test breaks one thing in a trial copy of fixtures/base — or of fixtures/component, a
+// repository of its own with a copy of the base as its spec/ — and expects docs-check to name it.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -8,15 +9,35 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { check } from "../main.mjs";
+import { componentProfile } from "../config.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const base = path.join(here, "fixtures", "base");
+const component = path.join(here, "fixtures", "component");
 const main = path.join(here, "..", "main.mjs");
 
 // A copy of the base fixture with each [file, from, to] edit applied; `to` null deletes the file.
 function trialCopy(edits = []) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "docs-check-"));
   fs.cpSync(base, root, { recursive: true });
+  applyEdits(root, edits);
+  return root;
+}
+
+// A copy of the component fixture, with the base fixture and a RULES.md as its spec/ unless
+// told otherwise, and the edits applied.
+function componentCopy(edits = [], { spec = true } = {}) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "docs-check-component-"));
+  fs.cpSync(component, root, { recursive: true });
+  if (spec) {
+    fs.cpSync(base, path.join(root, "spec"), { recursive: true });
+    fs.writeFileSync(path.join(root, "spec", "RULES.md"), "# Rules\n");
+  }
+  applyEdits(root, edits);
+  return root;
+}
+
+function applyEdits(root, edits) {
   for (const [file, from, to] of edits) {
     const target = path.join(root, file);
     if (to === null) {
@@ -25,9 +46,8 @@ function trialCopy(edits = []) {
     }
     const text = fs.readFileSync(target, "utf8");
     assert.ok(text.includes(from), `the fixture ${file} has no "${from}"`);
-    fs.writeFileSync(target, text.replace(from, to));
+    fs.writeFileSync(target, text.replace(from, () => to));
   }
-  return root;
 }
 
 async function errorsOf(edits) {
@@ -39,11 +59,22 @@ async function errorsOf(edits) {
   }
 }
 
-async function expectOnly(edits, pattern) {
-  const errors = await errorsOf(edits);
+async function expectOnly(edits, pattern, errorsFor = errorsOf) {
+  const errors = await errorsFor(edits);
   assert.equal(errors.length, 1, `expected one error, got:\n${errors.join("\n")}`);
   assert.match(errors[0], pattern);
 }
+
+async function componentErrors(edits, options) {
+  const root = componentCopy(edits, options);
+  try {
+    return (await check(root, componentProfile(path.join(root, "spec")))).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+}
+
+const componentOnly = (edits, pattern) => expectOnly(edits, pattern, componentErrors);
 
 test("the base fixture is green", async () => {
   assert.deepEqual(await errorsOf(), []);
@@ -241,5 +272,152 @@ test("the script runs through a symlink", () => {
     }
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// The tables of a RUN.md, В and Д (RUN.md, T18).
+
+test("a В defined twice", async () => {
+  await expectOnly([["RUN.md", "| В3 | Третий вопрос |", "| В3 | Третий вопрос |\n| В3 | Повтор |"]], /^RUN\.md:\d+: В3 is defined twice$/);
+});
+
+test("a next free В that is not above the table", async () => {
+  await expectOnly([["RUN.md", "следующий — В4.", "следующий — В3."]], /^RUN\.md:7: the next free number is В3, but В3 is in the table: it should be above every number in it$/);
+});
+
+test("a table of debt that names no next free number", async () => {
+  await expectOnly([["RUN.md", "Номера не переиспользуются: следующий — Д2.", "Номера не переиспользуются."]], /register Д: its opening does not name the next free number/);
+});
+
+test("«раздел N» right after a link outside the repository is that text's section", async () => {
+  assert.deepEqual(await errorsOf([["docs/concepts.md", "Словарь — в разделе 2.", "Словарь — [чужой](https://example.org/x.md), раздел 99."]]), []);
+  assert.deepEqual(await errorsOf([["docs/concepts.md", "Словарь — в разделе 2.", "Словарь — как `docs/spec.md` canvas-api, раздел 99."]]), []);
+});
+
+// A repository of its own: its documents, and its citations of spec against its spec/ (T18).
+
+test("a repository of its own: the base component is green", async () => {
+  assert.deepEqual(await componentErrors(), []);
+});
+
+test("a gap in the repository's own log", async () => {
+  const log = "> Записей пока нет. Следующий номер — R01.";
+  const errors = await componentErrors([["docs/decisions.md", log, "> Следующий номер — R04.\n\n**R01. Первое.** Да.\n\n**R03. Третье.** Да."]]);
+  assert.ok(errors.some((e) => /^docs\/decisions\.md:1: R02 is missing/.test(e)), errors.join("\n"));
+});
+
+test("a link into spec/ that does not exist, and an anchor in spec/ that does not", async () => {
+  await componentOnly([["README.md", "(spec/docs/product.md)", "(spec/docs/produkt.md)"]], /^README\.md:\d+: link spec\/docs\/produkt\.md: spec\/docs\/produkt\.md does not exist$/);
+  await componentOnly([["README.md", "#журнал-решений", "#журнал"]], /spec\/docs\/decisions\.md has no heading with the anchor #журнал$/);
+});
+
+test("a number of spec's that is not on its tag", async () => {
+  await componentOnly([["README.md", "R02 spec,", "R09 spec,"]], /^README\.md:\d+: R09 does not exist \(spec\/docs\/decisions\.md\)$/);
+});
+
+test("a section of spec's that does not exist, also at the end of a list", async () => {
+  await componentOnly([["docs/architecture.md", "architecture 3.6 spec", "architecture 3.7 spec"]], /spec\/docs\/architecture\.md has no section 3\.7$/);
+  await componentOnly([["docs/architecture.md", "concepts 2, 2.1 spec", "concepts 2, 2.2 spec"]], /spec\/docs\/concepts\.md has no section 2\.2$/);
+});
+
+test("spec's document cited without the suffix", async () => {
+  await componentOnly([["docs/architecture.md", "concepts 2, 2.1 spec", "concepts 2"]], /"concepts 2[^"]*": concepts is spec's document; cite it as "concepts 2 spec"$/);
+});
+
+test("the repository's own sections: bare, and «раздел N» in its RUN.md", async () => {
+  await componentOnly([["docs/architecture.md", "architecture 2.1.", "architecture 2.2."]], /^docs\/architecture\.md:\d+: docs\/architecture\.md has no section 2\.2$/);
+  await componentOnly([["RUN.md", "раздел 2.1", "раздел 2.9"]], /^RUN\.md:\d+: docs\/architecture\.md has no section 2\.9$/);
+});
+
+test("an open question is spec's wherever it is cited", async () => {
+  await componentOnly([["README.md", "Т-2,", "Т-9,"]], /^README\.md:\d+: Т-9 does not exist \(spec\/docs\/repositories\.md\)$/);
+});
+
+test("an example taken out of code is checked as a citation", async () => {
+  await componentOnly([["README.md", "`R01`", "R01"]], /R01 is the next free number, not an entry yet \(docs\/decisions\.md\)$/);
+});
+
+test("the repository's tables: a В defined twice", async () => {
+  await componentOnly([["RUN.md", "| В2 | Второй, в реестр spec |", "| В2 | Второй, в реестр spec |\n| В2 | Повтор |"]], /В2 is defined twice$/);
+});
+
+test("an empty spec/ is named, not taken for spec", async () => {
+  const errors = await componentErrors([], { spec: false });
+  assert.ok(errors.some((e) => /^spec:0: spec's documents are not there/.test(e)), errors.join("\n"));
+});
+
+test("--component refuses to run where spec is not a repository's submodule", () => {
+  const run = spawnSync(process.execPath, [main, "--component"], { encoding: "utf8" });
+  assert.equal(run.status, 2, run.stdout + run.stderr);
+  assert.match(run.stderr, /--component runs from the spec\/ submodule of a NovaTrail repository/);
+});
+
+// Cases from the code review of T18.
+
+test("a list of numbers takes the suffix after its last", async () => {
+  await componentOnly([["README.md", "R02 spec, R01–R03 spec", "R02, R09 spec"]], /^README\.md:\d+: R09 does not exist \(spec\/docs\/decisions\.md\)$/);
+});
+
+test("a folder called spec deeper down is the repository's own, and checked", async () => {
+  const root = componentCopy();
+  try {
+    fs.mkdirSync(path.join(root, "docs", "spec"));
+    fs.writeFileSync(path.join(root, "docs", "spec", "README.md"), "# Schemas\n\n[x](nope.md)\n");
+    const errors = (await check(root, componentProfile(path.join(root, "spec")))).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
+    assert.deepEqual(errors, ["docs/spec/README.md:3: link nope.md: docs/spec/nope.md does not exist"]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("«раздел N» after a link to an anchor is still checked", async () => {
+  await expectOnly([["docs/concepts.md", "Словарь — в разделе 2.", "Словарь — [выше](#2-словарь), раздел 99."]], /docs\/concepts\.md has no section 99$/);
+});
+
+test("a NovaTrail name before «раздел N» is a word of prose, not another repository", async () => {
+  await expectOnly([["docs/concepts.md", "Словарь — в разделе 2.", "Словарь — в приложении app, раздел 99."]], /docs\/concepts\.md has no section 99$/);
+});
+
+test("«раздел N spec» with no document of spec's to tell", async () => {
+  await componentOnly([["RUN.md", "раздел 2.1", "раздел 2.1 spec"]], /a section of spec's document; cite it by name/);
+});
+
+test("a table whose heading is gone is named", async () => {
+  await componentOnly([["RUN.md", "## Таблица 3. Вопросы автору без ответа", "## Вопросы"]], /^RUN\.md:0: register В: no heading «Таблица 3\. …» to hold it$/);
+});
+
+// Cases from the second round of the code review of T18.
+
+test("a spec citation in the wrong script is measured against spec's register", async () => {
+  await componentOnly([["README.md", "R02 spec,", "Р03 spec,"]], /^README\.md:\d+: Р03: a register number typed in the wrong script/);
+});
+
+test("without its own log, the repository's numbers are not looked up in spec's", async () => {
+  const errors = await componentErrors([["docs/decisions.md", "# Журнал решений компонента", null], ["README.md", "Its own log starts at", "Its own R02; its own log starts at"]]);
+  assert.deepEqual(errors, ["docs/decisions.md:0: register R: the file does not exist"]);
+});
+
+test("«раздел N» in an item under one that links outside is that text's section", async () => {
+  const edits = [["docs/architecture.md", "Пока пусто.", "- Источник — [SPEC.md](https://example.org/SPEC.md), ветка main:\n  - раздел 9 — цитата;\n  - mathtrail/mathtrail-standalone, раздел 8."]];
+  assert.deepEqual(await componentErrors(edits), []);
+});
+
+test("the tables need no order: a row may stand above a lower number", async () => {
+  assert.deepEqual(await componentErrors([["RUN.md", "| В2 | Второй, в реестр spec |", "| В2 | Второй, в реестр spec |\n| В1 | Первый, вернулся |"]]), []);
+});
+
+test("--component runs from a repository's spec/ submodule and checks the repository", () => {
+  const root = componentCopy();
+  try {
+    const tools = path.join(root, "spec", "tools");
+    fs.mkdirSync(tools, { recursive: true });
+    fs.cpSync(path.dirname(main), path.join(tools, "docs-check"), { recursive: true });
+    fs.cpSync(path.join(here, "..", "..", "shared.mjs"), path.join(tools, "shared.mjs"));
+    fs.symlinkSync(path.join(here, "..", "..", "node_modules"), path.join(tools, "node_modules"));
+    const green = spawnSync(process.execPath, [path.join(tools, "docs-check", "main.mjs"), "--component"], { encoding: "utf8" });
+    assert.equal(green.status, 0, green.stdout + green.stderr);
+    assert.match(green.stdout, /^docs-check: ok — 4 files,/m);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
   }
 });
