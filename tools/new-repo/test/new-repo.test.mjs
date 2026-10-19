@@ -6,12 +6,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { newRepo } from "../new-repo.mjs";
 import { checkRepo } from "../check.mjs";
 import { parseJsonc } from "../devcontainer.mjs";
-import { FILL, PLACEHOLDER, walk } from "../copy.mjs";
+import { FILL, fillPlaceholders, placeholders, walk } from "../copy.mjs";
+import { GIT, TAR, byCodeUnits } from "../../shared.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const specRoot = path.resolve(here, "../../..");
@@ -34,7 +35,7 @@ function temporary() {
 
 const read = (dir, file) => fs.readFileSync(path.join(dir, file), "utf8");
 const devcontainer = (dir) => parseJsonc(read(dir, ".devcontainer/devcontainer.json"));
-const git = (dir, ...args) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+const git = (dir, ...args) => execFileSync(GIT, ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 const commitAll = (dir, message) => {
   git(dir, "add", "--all");
   git(dir, "-c", "user.name=Test", "-c", "user.email=test@example.invalid", "-c", "commit.gpgsign=false", "commit", "--quiet", "-m", message);
@@ -102,7 +103,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
   ]) {
     const dir = draft(name, kind, card);
     assert.deepEqual(walk(dir), EXPECTED_FILES);
-    for (const file of EXPECTED_FILES) assert.equal(read(dir, file).match(PLACEHOLDER), null, `${name}: ${file} keeps a placeholder`);
+    for (const file of EXPECTED_FILES) assert.deepEqual(placeholders(read(dir, file)), [], `${name}: ${file} keeps a placeholder`);
     assert.match(read(dir, "README.md"), new RegExp(`^# ${name}\n`));
     assert.match(read(dir, "CLAUDE.md"), new RegExp(`architecture ${card.replace(".", "\\.")} spec`));
     assert.match(read(dir, "docs/decisions.md"), /заведён 2026-01-02 из заготовки `spec` v0\.0\.0-test/);
@@ -256,7 +257,7 @@ test("from a tag: the highest version, even when HEAD is behind it", () => {
 test("from a tag: one that spec's remote lacks, or holds at another commit, is refused", () => {
   const root = standIn({ tag: "v0.1.0" });
   const remote = path.join(temporary(), "remote.git");
-  execFileSync("git", ["clone", "--quiet", "--bare", root, remote]);
+  execFileSync(GIT, ["clone", "--quiet", "--bare", root, remote]);
 
   git(root, "tag", "v0.2.0");
   const unpushed = path.join(temporary(), "engine");
@@ -303,7 +304,7 @@ test("from a tag: a pre-release is not the latest release", () => {
 test("a failed build empties a directory that was there before, and keeps it", () => {
   const root = standIn({ commit: true });
   const remote = path.join(temporary(), "remote.git");
-  execFileSync("git", ["clone", "--quiet", "--bare", root, remote]);
+  execFileSync(GIT, ["clone", "--quiet", "--bare", root, remote]);
   git(root, "tag", "v0.1.0");
   const dest = path.join(temporary(), "engine");
   fs.mkdirSync(dest);
@@ -320,4 +321,38 @@ test("check: a link may name any tag of the submodule's commit", () => {
   git(path.join(dest, "spec"), "fetch", "--quiet", "--tags");
   change(dest, "CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/v9.9.9-docs).");
   assert.deepEqual(messages(dest, root), []);
+});
+
+// The findings SonarCloud raised on these tools (RUN.md, T19), each kept closed by a test.
+
+test("the programs run by absolute path are git and tar", () => {
+  assert.match(execFileSync(GIT, ["--version"], { encoding: "utf8" }), /^git version /);
+  assert.match(execFileSync(TAR, ["--version"], { encoding: "utf8" }), /tar/);
+});
+
+test("names sort by code units, as sort() with no compare function does", () => {
+  const names = ["b", "B", "a", ".github", "ä", "a-b", "a.b", "10", "9"];
+  assert.deepEqual([...names].sort(byCodeUnits), [...names].sort());
+});
+
+test("JSON with comments: comments go, strings with slashes and escapes stay", () => {
+  assert.deepEqual(parseJsonc('{"a": 1 // c\n, "b": "x//y"}'), { a: 1, b: "x//y" });
+  assert.deepEqual(parseJsonc('{/* c */ "a": "q\\"//"}'), { a: 'q"//' });
+  assert.deepEqual(parseJsonc('{"a": [1, // last\n2], "e": "\\\\"} // end'), { a: [1, 2], e: "\\" });
+});
+
+test("a placeholder is one word in double braces, spaces inside or not; a Go template or an Actions expression is none", () => {
+  const text = "{{name}} {{spec_tag}} {{ name }} {{ index .x }} ${{ github.ref }} ${{ inputs }} {{{date}}} {{unclosed";
+  assert.deepEqual(placeholders(text).map((p) => p.key), ["name", "spec_tag", "name", "date"]);
+  assert.equal(fillPlaceholders(text, (whole, key) => key.toUpperCase()), "NAME SPEC_TAG NAME {{ index .x }} ${{ github.ref }} ${{ inputs }} {DATE} {{unclosed");
+});
+
+test("the scripts take a repository's name only from the list, and refuse any other", () => {
+  for (const script of ["new-repo.mjs", "check.mjs"]) {
+    const args = script === "new-repo.mjs" ? ["../outside", "go", "3.8"] : ["../outside"];
+    const run = spawnSync(process.execPath, [path.join(here, "..", script), ...args], { encoding: "utf8" });
+    assert.equal(run.status, 2, `${script}: ${run.stderr}`);
+    assert.match(run.stderr, /\.\.\/outside: not one of NovaTrail's repositories/);
+  }
+  assert.equal(fs.existsSync(path.join(specRoot, ".repos", "..", "outside")), false);
 });

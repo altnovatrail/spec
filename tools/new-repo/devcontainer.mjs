@@ -62,7 +62,8 @@ function addExtensions(text, extensions) {
   const lines = body.split("\n");
   const last = lines.findLastIndex((line) => line.trim() !== "" && !line.trim().startsWith("//"));
   if (last < 0) throw new Error("the list of extensions: empty in spec's devcontainer");
-  lines[last] = lines[last].replace(/,?\s*$/, ",");
+  const entry = lines[last].trimEnd();
+  lines[last] = entry.endsWith(",") ? entry : `${entry},`;
   const entries = extensions.map((e, i) => `${indent}    ${JSON.stringify(e)}${i < extensions.length - 1 ? "," : ""}`);
   const added = [`${indent}    // The extensions of this repository's kind.`, ...entries];
   return text.replace(whole, head + [...lines, ...added].join("\n") + tail);
@@ -71,29 +72,37 @@ function addExtensions(text, extensions) {
 // JSON with comments, as devcontainer.json is written: the comments go, then JSON.parse.
 export function parseJsonc(text) {
   let out = "";
-  for (let i = 0; i < text.length; i++) {
+  let i = 0;
+  while (i < text.length) {
     const c = text[i];
     if (c === '"') {
       const end = endOfString(text, i);
       out += text.slice(i, end);
-      i = end - 1;
+      i = end;
     } else if (c === "/" && text[i + 1] === "/") {
-      while (i < text.length && text[i] !== "\n") i++;
+      // A line comment becomes the line break it ends with.
+      const end = text.indexOf("\n", i);
       out += "\n";
+      i = end < 0 ? text.length : end + 1;
     } else if (c === "/" && text[i + 1] === "*") {
       const end = text.indexOf("*/", i + 2);
-      i = end < 0 ? text.length : end + 1;
+      i = end < 0 ? text.length : end + 2;
     } else {
       out += c;
+      i += 1;
     }
   }
   return JSON.parse(out);
 }
 
+// Where the string that opens at `start` ends, past its closing quote; an escape skips the
+// character after the backslash.
 function endOfString(text, start) {
-  for (let i = start + 1; i < text.length; i++) {
-    if (text[i] === "\\") i++;
+  let i = start + 1;
+  while (i < text.length) {
+    if (text[i] === "\\") i += 2;
     else if (text[i] === '"') return i + 1;
+    else i += 1;
   }
   return text.length;
 }

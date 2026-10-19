@@ -1,7 +1,8 @@
 // new-repo-check: checks a working copy that new-repo built, once its FILL markers are written.
 //
-//   node tools/new-repo/check.mjs <dir>
+//   node tools/new-repo/check.mjs <name>
 //
+// The copy checked is .repos/<name>, for a name from the list of NovaTrail's repositories.
 // Nothing of the template may be left in it — no {{…}} and no FILL marker. LICENSE and AGENTS.md
 // must be spec's own; relative links in its Markdown must lead to files and headings that exist;
 // its devcontainer must keep no name of spec's; and every link to spec on GitHub must name the
@@ -15,7 +16,8 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { parseMarkdown } from "../docs-check/markdown.mjs";
 import { checkLinks } from "../docs-check/links.mjs";
-import { FILL, PLACEHOLDER, isMain, walk } from "./copy.mjs";
+import { FILL, isMain, knownRepository, placeholders, walk } from "./copy.mjs";
+import { GIT, byCodeUnits } from "../shared.mjs";
 
 const SPEC_LINK = /https:\/\/github\.com\/altnovatrail\/spec\/(?:tree|blob)\/([^/\s)#>]+)/g;
 
@@ -29,7 +31,7 @@ export function checkRepo({ dir, specRoot }) {
 
   for (const file of files) {
     eachLine(file, (line, n) => {
-      for (const m of line.matchAll(PLACEHOLDER)) report(file, n, `${m[0]} is left from the template`);
+      for (const { whole } of placeholders(line)) report(file, n, `${whole} is left from the template`);
       if (line.match(FILL)) report(file, n, "a FILL marker is left unwritten");
     });
   }
@@ -59,7 +61,7 @@ export function checkRepo({ dir, specRoot }) {
     });
   }
   if (draft) {
-    const named = [...new Set(refs.map((r) => r.ref))].sort();
+    const named = [...new Set(refs.map((r) => r.ref))].sort(byCodeUnits);
     if (named.length > 1) report(refs[0].file, refs[0].line, `the links to spec name different versions: ${named.join(", ")}`);
   } else {
     const tags = submoduleTags(dir);
@@ -69,7 +71,7 @@ export function checkRepo({ dir, specRoot }) {
     }
   }
 
-  errors.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+  errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line);
   return errors;
 }
 
@@ -79,9 +81,9 @@ function submoduleTags(dir) {
   const spec = path.join(dir, "spec");
   if (!fs.existsSync(path.join(spec, ".git"))) return [];
   try {
-    const listed = execFileSync("git", ["-C", dir, "config", "--file", ".gitmodules", "--get", "submodule.spec.path"], { encoding: "utf8" }).trim();
+    const listed = execFileSync(GIT, ["-C", dir, "config", "--file", ".gitmodules", "--get", "submodule.spec.path"], { encoding: "utf8" }).trim();
     if (listed !== "spec") return [];
-    return execFileSync("git", ["-C", spec, "tag", "--points-at", "HEAD"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
+    return execFileSync(GIT, ["-C", spec, "tag", "--points-at", "HEAD"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
       .split("\n")
       .filter(Boolean);
   } catch {
@@ -91,11 +93,18 @@ function submoduleTags(dir) {
 
 if (isMain(import.meta.url)) {
   if (process.argv.length !== 3) {
-    console.error("usage: check.mjs <dir>");
+    console.error("usage: check.mjs <name>");
     process.exit(2);
   }
-  const dir = path.resolve(process.argv[2]);
+  // The copy is .repos/<name>, and the name is taken from the list of NovaTrail's repositories,
+  // never as given: no path and no command is built from what the caller typed.
+  const name = knownRepository(process.argv[2]);
+  if (!name) {
+    console.error(`new-repo-check: ${process.argv[2]}: not one of NovaTrail's repositories (tools/docs-check/config.mjs)`);
+    process.exit(2);
+  }
   const specRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const dir = path.join(specRoot, ".repos", name);
   if (!fs.existsSync(dir)) {
     console.error(`new-repo-check: ${dir} does not exist`);
     process.exit(1);
@@ -106,6 +115,6 @@ if (isMain(import.meta.url)) {
     console.log(`new-repo-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
     process.exitCode = 1;
   } else {
-    console.log(`new-repo-check: ok — ${path.relative(specRoot, dir) || dir}${fs.existsSync(path.join(dir, ".git")) ? "" : " (a draft)"}`);
+    console.log(`new-repo-check: ok — .repos/${name}${fs.existsSync(path.join(dir, ".git")) ? "" : " (a draft)"}`);
   }
 }
