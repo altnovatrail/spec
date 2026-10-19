@@ -51,7 +51,7 @@ Project context lives in these files, not in chat history.
 - **Language.** Documents under `docs/` and RUN.md are in Russian (R14, R19). Everything else — README.md, CLAUDE.md, AGENTS.md, code, comments, schema descriptions and prompts — is in English (R14). Reports to the author are in Russian.
 - **No learners' data in the repository.** No learner's name, work, handwriting, voice or photo, no email or account identifier — not even in examples, which are synthetic.
 - **No secrets in the repository.** Keys and tokens live in environment variables or a secret manager, never in a committed file.
-- **Licenses.** Code is Apache-2.0 (R12); add only dependencies whose licenses are compatible with it. The license of module content is still open (О-10).
+- **Licenses.** Everything is Apache-2.0 — code, documents and the official modules' content (R12, R20); add only dependencies whose licenses are compatible with it. Which licenses third-party modules may carry is still open (О-10).
 - **Learners' data first.** Anything that touches a learner's data is read against [docs/privacy.md](docs/privacy.md) before it is proposed.
 
 ## Environment
