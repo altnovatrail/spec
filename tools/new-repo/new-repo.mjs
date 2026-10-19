@@ -20,6 +20,7 @@ import { novatrailRepositories } from "../docs-check/config.mjs";
 import { escape } from "../docs-check/citations.mjs";
 import { editDevcontainer } from "./devcontainer.mjs";
 import { FILL, PLACEHOLDER, isMain, walk } from "./copy.mjs";
+import { newestRelease } from "../release/version.mjs";
 
 export const SPEC_URL = "https://github.com/altnovatrail/spec.git";
 
@@ -67,16 +68,14 @@ export function newRepo({ specRoot, name, kind, card, dest, draft = null, specUr
 const git =(dir, ...args) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 
 // The highest release among spec's tags, wherever HEAD is: a branch forked before the latest
-// tag must not quietly build from an older one. Releases only — vX.Y.Z — since git sorts a
-// pre-release such as v0.2.0-rc.1 above v0.2.0 itself.
+// tag must not quietly build from an older one. Releases only, counted as release.yml counts
+// them (tools/release/version.mjs): a pre-release such as v0.2.0-rc.1 is none.
 function latestTag(specRoot) {
-  const releases = git(specRoot, "tag", "--list", "v*", "--sort=-v:refname")
-    .split("\n")
-    .filter((tag) => /^v\d+\.\d+\.\d+$/.test(tag));
-  if (releases.length === 0) {
-    throw new Error("spec has no release tag to build from: tag it, or fetch its tags (git fetch --tags), or build a draft with just new-repo-draft");
+  const newest = newestRelease(git(specRoot, "tag", "--list", "v*").split("\n"));
+  if (!newest) {
+    throw new Error("spec has no release tag to build from: a release comes out by itself once CI passes on main (release.yml), so fetch its tags (git fetch --tags), or build a draft with just new-repo-draft");
   }
-  return releases[0];
+  return newest;
 }
 
 // The sources as they are at the tag, unpacked into a directory of their own.
