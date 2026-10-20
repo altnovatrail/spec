@@ -7,9 +7,10 @@
 // Reads on stdin three lists of tags, divided by lines "--": every tag of the repository, the
 // tags the commit to be released descends from, and the commit's own; `just release-version`
 // gathers them. The line the releases are numbered in, MAJOR.MINOR, is RELEASE_LINE from the
-// environment when it is set — the recipe sets it: in spec to what release.yml sets at the
-// commit, by line.mjs, and in another repository it comes from that repository's release
-// workflow — or else spec's own, RELEASE_LINE in .github/workflows/release.yml as checked out.
+// environment when it is set — the recipe sets it, by line.mjs: in spec to what release.yml sets
+// at the commit, and in another repository to what the release workflow named to the recipe sets
+// at the commit (as checked out, for a commit from before it), or else leaves the environment's —
+// or else spec's own, RELEASE_LINE in .github/workflows/release.yml as checked out.
 // Prints, as lines a release workflow adds to its step outputs:
 //
 //   version=  the next patch of the line, or nothing when there is no release to make;
@@ -58,12 +59,12 @@ export function nextVersion({ line, tags, merged, releasedHere }) {
   return { version: name(version), previous: newest };
 }
 
-// RELEASE_LINE as release.yml sets it, once: quoted or not, with a comment after it or not.
-// Read line by line, with no regular expression to backtrack in.
+// RELEASE_LINE as a release workflow sets it, once: quoted or not, with a comment after it or
+// not. Read line by line, with no regular expression to backtrack in.
 export function readLine(workflow) {
   const key = "RELEASE_LINE:";
   const found = workflow.split("\n").map((line) => line.trim()).filter((line) => line.startsWith(key));
-  if (found.length !== 1) throw new Error(`release.yml sets RELEASE_LINE ${found.length} times, not once`);
+  if (found.length !== 1) throw new Error(`the release workflow sets RELEASE_LINE ${found.length} times, not once`);
   const value = found[0].slice(key.length).split("#")[0].trim();
   const quoted = value.length >= 2 && (value[0] === '"' || value[0] === "'") && value.at(-1) === value[0];
   return quoted ? value.slice(1, -1) : value;

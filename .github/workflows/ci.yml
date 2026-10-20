@@ -40,7 +40,8 @@ jobs:
       # The Dockerfile copies nothing from the repository, so it is built without a context.
       # The script beside it runs one command in the image, as every check below does. The
       # container runs as the runner's user: what it writes in the checkout is the runner's, and
-      # git finds the repository owned by the user it runs as.
+      # git finds the repository owned by the user it runs as. release.yml writes the same
+      # script, with the runner's temporary directory mounted besides: a change here goes there.
       - id: image
         name: Toolchain image
         run: |

@@ -5,8 +5,9 @@
 # brings along: licenses-check reads every one of them in CI.
 #
 # Raised by hand, before each new tag of spec, because no ecosystem here reads them: the ARGs of
-# .devcontainer/Dockerfile, the VS Code extensions in .devcontainer/devcontainer.json and in
-# repo-template/kinds.json. Every new repository copies this devcontainer at a tag of spec.
+# .devcontainer/Dockerfile, each version with the sha256 of its archives (R34), the VS Code
+# extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json. Every new
+# repository copies this devcontainer at a tag of spec.
 #
 # Every ecosystem waits three days after a release before proposing it. That is Dependabot's own
 # default, written down so that it stays: a bad release gets time to be noticed. The weekly
