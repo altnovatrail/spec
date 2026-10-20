@@ -1,28 +1,18 @@
-// Each test numbers a release from made-up tags; two read the real release.yml, and the last two
-// run the recipe in made-up repositories: one that has spec as its submodule, and a copy of spec.
+// Each test numbers a release from made-up tags; two read the real release.yml, and the last ones
+// run release-version in made-up repositories: in one that has spec as its submodule, in one
+// whose release workflow it is named, and in a copy of spec. release-refusal's are in
+// refusal.test.mjs.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import os from "node:os";
-import { fileURLToPath } from "node:url";
 import { RELEASE_TAG, newestRelease, nextVersion, readLine, readTags } from "../version.mjs";
-import { GIT } from "../../shared.mjs";
+import { env, justfile, recipe, root, scratchRepository, writeFile } from "./repository.mjs";
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const script = path.join(here, "..", "version.mjs");
-const root = path.join(here, "..", "..", "..");
+const script = path.join(root, "tools", "release", "version.mjs");
 const workflow = path.join(root, ".github", "workflows", "release.yml");
-const justfile = path.join(root, "justfile");
-// The just that runs these tests, which `just release-version-test` passes on; or else the one
-// .devcontainer/Dockerfile installs, for `node --test` run by hand.
-const JUST = process.env.JUST ?? "/usr/local/bin/just";
-
-// The environment of the tests, without a line of its own: spec's line is then release.yml's.
-const env = { ...process.env };
-delete env.RELEASE_LINE;
 
 // A commit on top of main: it descends from every tag unless told otherwise.
 const next = (line, tags, { merged = tags, releasedHere = [] } = {}) => nextVersion({ line, tags, merged, releasedHere });
@@ -111,33 +101,6 @@ test("RELEASE_LINE from the environment is the line, before spec's own in releas
   assert.match(empty.stderr, /the line '' is not MAJOR\.MINOR/);
 });
 
-// A made-up repository for a test of the recipe, and git to run in it as a fresh machine has it:
-// no one's global or system settings, such as signed tags, and no GIT_ variable from whatever
-// runs the tests pointing it elsewhere.
-const isolated = Object.fromEntries(Object.entries(env).filter(([name]) => !name.startsWith("GIT_")));
-Object.assign(isolated, { GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_NOSYSTEM: "1" });
-
-function scratchRepository(prefix) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-  const git = (...args) => {
-    const result = spawnSync(GIT, ["-C", dir, "-c", "user.name=Test", "-c", "user.email=test@example.invalid", ...args], {
-      encoding: "utf8",
-      env: isolated,
-    });
-    assert.equal(result.status, 0, result.stderr);
-    return result.stdout.trim();
-  };
-  git("-c", "init.defaultBranch=main", "init", "--quiet");
-  return { dir, git };
-}
-
-// The recipe run from dir: through the given justfile flags, with its arguments, and with
-// RELEASE_LINE set in the shell or, when line is null, not.
-function recipe(dir, { justfileFlags = [], args = [], line = null } = {}) {
-  const lineEnv = line === null ? {} : { RELEASE_LINE: line };
-  return spawnSync(JUST, [...justfileFlags, "release-version", ...args], { cwd: dir, encoding: "utf8", env: { ...isolated, ...lineEnv } });
-}
-
 const lines = (version, previous, released = "", behind = "") =>
   `version=${version}\nprevious=${previous}\nreleased=${released}\nbehind=${behind}\n`;
 
@@ -167,7 +130,65 @@ test("another repository's tags are counted at the commit given, in the line its
     // Outside spec, spec's own line is never taken by default.
     const lineless = run([], null);
     assert.notEqual(lineless.status, 0);
-    assert.match(lineless.stderr, /is not spec, and RELEASE_LINE is not set/);
+    assert.match(lineless.stderr, /is not spec, and neither a workflow nor RELEASE_LINE names its line/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("another repository's line is RELEASE_LINE as the workflow it names sets it at the commit, whatever the shell sets", () => {
+  const { dir, git } = scratchRepository("release-version-workflow-");
+  try {
+    const workflow = ".github/workflows/self-release.yml";
+    writeFile(dir, git, workflow, 'env:\n  RELEASE_LINE: "2.1"\n');
+    git("commit", "--quiet", "-m", "first");
+    git("tag", "v2.1.0");
+    git("commit", "--quiet", "--allow-empty", "-m", "second");
+    const second = git("rev-parse", "HEAD");
+    writeFile(dir, git, workflow, 'env:\n  RELEASE_LINE: "2.2"\n');
+    git("commit", "--quiet", "-m", "raise the line");
+
+    const run = (args, line = null) => recipe(dir, { justfileFlags: ["-f", justfile], args, line });
+    for (const [args, line, expected] of [
+      // A commit made before the line was raised keeps the line of its own workflow.
+      [[second, workflow], null, lines("v2.1.1", "v2.1.0")],
+      [["HEAD", workflow], null, lines("v2.2.0", "v2.1.0")],
+      // A line set in the shell — a release workflow's own env, the tip's — counts only when no
+      // workflow is named.
+      [[second, workflow], "7.0", lines("v2.1.1", "v2.1.0")],
+      [[second], "7.0", lines("v7.0.0", "v2.1.0")],
+    ]) {
+      const result = run(args, line);
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(result.stdout, expected);
+    }
+    assert.notEqual(run([second, ".github/workflows/no-such.yml"]).status, 0);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("a commit from before the named workflow existed takes the checked-out file's line", () => {
+  const { dir, git } = scratchRepository("release-version-before-");
+  try {
+    git("commit", "--quiet", "--allow-empty", "-m", "before the workflow");
+    const before = git("rev-parse", "HEAD");
+    const workflow = ".github/workflows/release.yml";
+    writeFile(dir, git, workflow, 'env:\n  RELEASE_LINE: "3.0"\n');
+    git("commit", "--quiet", "-m", "the workflow");
+    git("tag", "v3.0.0");
+
+    const run = (args) => recipe(dir, { justfileFlags: ["-f", justfile], args });
+    // Older than the newest release, it gets none, and its run does not fail for want of a line.
+    const older = run([before, workflow]);
+    assert.equal(older.status, 0, older.stderr);
+    assert.equal(older.stdout, lines("", "v3.0.0", "", "v3.0.0"));
+    assert.match(older.stderr, /is not at [0-9a-f]+, which came before it; the line is the checked-out file's/);
+    // With the file gone from the checkout too, there is no line to take.
+    fs.rmSync(path.join(dir, workflow));
+    const gone = run([before, workflow]);
+    assert.notEqual(gone.status, 0);
+    assert.match(gone.stderr, /is neither at [0-9a-f]+ nor checked out/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
@@ -202,7 +223,12 @@ test("in spec, a commit is numbered in the line its own release.yml sets, whatev
     const tip = recipe(dir);
     assert.equal(tip.status, 0, tip.stderr);
     assert.equal(tip.stdout, lines("v1.5.0", "v1.4.0"));
+    // A workflow is named by another repository; in spec it is refused, not ignored.
+    const named = recipe(dir, { args: [second, ".github/workflows/release.yml"] });
+    assert.notEqual(named.status, 0);
+    assert.match(named.stderr, /in spec the line is its own release\.yml's/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+

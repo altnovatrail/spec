@@ -94,19 +94,24 @@ jobs:
           persist-credentials: false
 
       # In the toolchain stage, as CI runs it, with the Node and just of the devcontainer. The
-      # recipe prints the step's outputs: version — empty when there is nothing to release —
-      # previous, where the notes start, released, the release this commit has already, and
-      # behind, the newest release when this commit is older than it. A tag with no release
-      # behind it was pushed by hand, against R31: on this commit, or as the newest "release"
-      # off main's history, it would stop every release quietly, so the run stops on it instead.
+      # script beside the image is CI's (ci.yml, "Toolchain image"): a change to one goes to the
+      # other. The publish step runs it again, and so here it also mounts the runner's temporary
+      # directory, read-only and at the same path, where gh leaves the error of a refused release. The recipe prints the step's
+      # outputs: version — empty when there is nothing to release — previous, where the notes
+      # start, released, the release this commit has already, and behind, the newest release when
+      # this commit is older than it. A tag with no release behind it was pushed by hand, against
+      # R31: on this commit, or as the newest "release" off main's history, it would stop every
+      # release quietly, so the run stops on it instead.
       - id: version
         name: Work out the version
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           docker build --target toolchain --tag spec-toolchain - < .devcontainer/Dockerfile
-          docker run --rm --user "$(id -u):$(id -g)" --env HOME=/tmp --volume "$PWD:/work" --workdir /work \
-              spec-toolchain just release-version "$TARGET" > "$RUNNER_TEMP/release-version"
+          printf '#!/bin/sh\nexec docker run --rm --user "%s" --env HOME=/tmp --volume "%s:/work" --volume "%s:%s:ro" --workdir /work spec-toolchain "$@"\n' \
+            "$(id -u):$(id -g)" "$PWD" "$RUNNER_TEMP" "$RUNNER_TEMP" > "$RUNNER_TEMP/toolchain"
+          chmod +x "$RUNNER_TEMP/toolchain"
+          "$RUNNER_TEMP/toolchain" just release-version "$TARGET" > "$RUNNER_TEMP/release-version"
           tee -a "$GITHUB_OUTPUT" < "$RUNNER_TEMP/release-version"
           version=$(sed -n 's/^version=//p' "$RUNNER_TEMP/release-version")
           released=$(sed -n 's/^released=//p' "$RUNNER_TEMP/release-version")
@@ -151,17 +156,15 @@ jobs:
               --latest="$newest" \
               --generate-notes "${start[@]}" 2> "$RUNNER_TEMP/release-create.err"; then
               cat "$RUNNER_TEMP/release-create.err" >&2
-              # Only the documented refusal is let pass: of a commit that is no longer the tip and
+              # Only the documented refusal is let pass, of a commit that is no longer the tip and
               # "adds or modifies any file under .github/workflows/ relative to the repository's
-              # default branch" (the same page). main is fetched again after the refusal: a commit
-              # merged meanwhile is what makes this one older. git diff --quiet exits 1 on a
-              # difference and 0 on none; anything else is its own failure.
+              # default branch" (the same page). The rule is the recipe release-refusal, the one
+              # copy of it, which another repository's release workflow runs too (R31). main is
+              # fetched again after the refusal: a commit merged meanwhile is what makes this one
+              # older.
               git fetch --quiet --no-tags origin refs/heads/main
               tip=$(git rev-parse FETCH_HEAD)
-              changed=0
-              git diff --quiet --diff-filter=AM "$tip" "$TARGET" -- .github/workflows/ || changed=$?
-              if [ "$tip" = "$TARGET" ] || [ "$changed" != 1 ] \
-                  || ! grep -qE 'HTTP 404|HTTP 403: Resource not accessible by integration' "$RUNNER_TEMP/release-create.err"; then
+              if ! "$RUNNER_TEMP/toolchain" just release-refusal "$TARGET" "$tip" "$RUNNER_TEMP/release-create.err"; then
                   exit 1
               fi
               echo "::warning::${TARGET} is no longer the tip of main (${tip}) and adds or modifies its workflow files, and the Releases API refused it; the release of the tip covers it."
