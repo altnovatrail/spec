@@ -1,7 +1,8 @@
-# Dependabot proposes new versions of what it can see (R30): the actions of the workflows, with
-# the version comment beside each SHA; the base image of the devcontainer, tag and digest; and
-# the packages of tools/. For npm a pull request rewrites the lock file too, with whatever
-# packages the new version brings along: licenses-check reads every one of them in CI.
+# Dependabot proposes new versions of what it can see (R30): the actions of the workflows and
+# the references to .github's shared workflows, each with the version comment beside its SHA
+# (R04 .github); the base image of the devcontainer, tag and digest; and the packages of tools/.
+# For npm a pull request rewrites the lock file too, with whatever packages the new version
+# brings along: licenses-check reads every one of them in CI.
 #
 # Raised by hand, before each new tag of spec, because no ecosystem here reads them: the ARGs of
 # .devcontainer/Dockerfile, the VS Code extensions in .devcontainer/devcontainer.json and in

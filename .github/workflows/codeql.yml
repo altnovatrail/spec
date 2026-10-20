@@ -1,0 +1,28 @@
+# CodeQL over the repository's workflows and its JavaScript (R03 .github, R09 .github), pinned to
+# a release of .github: the code of tools/, and the scripts inside the prototype's HTML in draft/,
+# which CodeQL reads too. The job gives the shared workflow what it needs to upload its results.
+# Its checks, one per language, are required checks in the ruleset of main, and the ruleset holds
+# a merge on what they find (R30).
+name: CodeQL
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  codeql:
+    name: CodeQL
+    permissions:
+      contents: read
+      security-events: write
+    uses: altnovatrail/.github/.github/workflows/codeql.yml@ff2a3597769ca85e59e476b1a41bdcbc1f50e3ed # v0.1.0
+    with:
+      languages: javascript-typescript

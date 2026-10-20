@@ -47,6 +47,13 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    # With pipefail: a runner's default, bash -e, lets a failed command inside a pipe pass.
+    defaults:
+      run:
+        shell: bash
+    # The commit the checks ran on, named by its SHA alone; by the button, the tip of main.
+    env:
+      TARGET: ${{ github.event.workflow_run.head_sha || github.sha }}
     permissions:
       # Creating the release, and its tag with it.
       contents: write
@@ -72,10 +79,17 @@ jobs:
               exit 1
           fi
 
-      # The commit the checks ran on, with every tag: the next version is counted from them.
+      # main as it stands, with its whole history and every tag: the next version is counted from
+      # them. On workflow_run the checkout without a ref is "Last commit on default branch"
+      # (GitHub Docs, Events that trigger workflows, read 2026-10-20). The commit the checks ran
+      # on is named below by its SHA alone: it is in main's history, which the ruleset of main
+      # keeps from being rewritten, and the recipe reads its RELEASE_LINE from its own
+      # release.yml. Checking that commit out by the event's head_sha is what Scorecard's
+      # Dangerous-Workflow flags: a workflow_run trigger "in conjunction with an explicit pull
+      # request checkout", whatever the if: above lets through (Scorecard, docs/checks.md, read
+      # 2026-10-20; RUN.md, T17). The cost: the image and the recipe are the tip's.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -92,7 +106,7 @@ jobs:
         run: |
           docker build --target toolchain --tag spec-toolchain - < .devcontainer/Dockerfile
           docker run --rm --user "$(id -u):$(id -g)" --env HOME=/tmp --volume "$PWD:/work" --workdir /work \
-              spec-toolchain just release-version > "$RUNNER_TEMP/release-version"
+              spec-toolchain just release-version "$TARGET" > "$RUNNER_TEMP/release-version"
           tee -a "$GITHUB_OUTPUT" < "$RUNNER_TEMP/release-version"
           version=$(sed -n 's/^version=//p' "$RUNNER_TEMP/release-version")
           released=$(sed -n 's/^released=//p' "$RUNNER_TEMP/release-version")
@@ -112,8 +126,10 @@ jobs:
       # Latest is the release of the newest commit of main: a commit whose checks finished after
       # a newer one was pushed comes out without the mark. The notes run from the release before
       # this one. The Releases API refuses GITHUB_TOKEN a commit whose workflow files differ from
-      # main's: a commit that is no longer the tip then waits for the next release, which
-      # covers it.
+      # main's: "Otherwise, this endpoint returns 404 Not Found; some authentication paths surface
+      # 403 Resource not accessible by integration instead" (GitHub Docs, REST API endpoints for
+      # releases, read 2026-10-20). A commit that is no longer the tip then waits for the next
+      # release, which covers it.
       - id: publish
         name: Publish the release
         if: steps.version.outputs.version != ''
@@ -121,11 +137,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
           PREVIOUS: ${{ steps.version.outputs.previous }}
-          TARGET: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
           start=()
           if [ -n "$PREVIOUS" ]; then start=(--notes-start-tag "$PREVIOUS"); fi
-          tip=$(git ls-remote origin refs/heads/main | cut -f1)
+          git fetch --quiet --no-tags origin refs/heads/main
+          tip=$(git rev-parse FETCH_HEAD)
           newest=false
           if [ "$tip" = "$TARGET" ]; then newest=true; fi
           if ! gh release create "$VERSION" \
@@ -135,9 +151,20 @@ jobs:
               --latest="$newest" \
               --generate-notes "${start[@]}" 2> "$RUNNER_TEMP/release-create.err"; then
               cat "$RUNNER_TEMP/release-create.err" >&2
-              # Only the documented refusal of an older commit is let pass; anything else fails.
-              if [ "$newest" = true ] || ! grep -q 'HTTP 404' "$RUNNER_TEMP/release-create.err"; then exit 1; fi
-              echo "::warning::${TARGET} is no longer the tip of main (${tip}), and the Releases API refused it (404); the release of the tip covers it."
+              # Only the documented refusal is let pass: of a commit that is no longer the tip and
+              # "adds or modifies any file under .github/workflows/ relative to the repository's
+              # default branch" (the same page). main is fetched again after the refusal: a commit
+              # merged meanwhile is what makes this one older. git diff --quiet exits 1 on a
+              # difference and 0 on none; anything else is its own failure.
+              git fetch --quiet --no-tags origin refs/heads/main
+              tip=$(git rev-parse FETCH_HEAD)
+              changed=0
+              git diff --quiet --diff-filter=AM "$tip" "$TARGET" -- .github/workflows/ || changed=$?
+              if [ "$tip" = "$TARGET" ] || [ "$changed" != 1 ] \
+                  || ! grep -qE 'HTTP 404|HTTP 403: Resource not accessible by integration' "$RUNNER_TEMP/release-create.err"; then
+                  exit 1
+              fi
+              echo "::warning::${TARGET} is no longer the tip of main (${tip}) and adds or modifies its workflow files, and the Releases API refused it; the release of the tip covers it."
               exit 0
           fi
           echo "published=true" >> "$GITHUB_OUTPUT"

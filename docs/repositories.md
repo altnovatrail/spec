@@ -140,7 +140,7 @@ flowchart LR
 - `docs/` — описательные документы платформы на русском (R14): product, concepts, privacy, architecture, repositories, decisions.
 - `draft/` — прототип приложения ученика.
 - `tools/` и `justfile` — проверка документов `just docs-check`: ссылки, разделы, реестры, диаграммы (RUN.md, T01). Это инструмент самого `spec`, а не код платформы; валидатор JSON Schema встанет туда же (E2). Там же проверка лицензий его пакетов `just licenses-check` (R12), номер следующего релиза `just release-version` — `tools/release/` (R31) — и проверка документов репозитория компонента `just -f spec/justfile docs-check-repo` (R32).
-- папка `.github/` — CI самого `spec`, Dependabot (R30) и релиз `release.yml`: после зелёного CI на `main` он выпускает следующий патч линии, тег — вместе с релизом (R31). Общие проверки всех репозиториев придут из репозитория `.github` (RUN.md, T17).
+- папка `.github/` — CI самого `spec`, Dependabot (R30) и релиз `release.yml`: после зелёного CI на `main` он выпускает следующий патч линии, тег — вместе с релизом (R31). Рядом с ними — общие проверки всех репозиториев из `.github`: секреты, DCO, CodeQL и Scorecard (R03 .github; RUN.md, T17).
 - `RULES.md` — общие правила всех репозиториев NovaTrail; его импортирует CLAUDE.md каждого из них (R21).
 - `repo-template/` — заготовка нового репозитория, а `tools/new-repo/` — рецепты `just new-repo` и `just new-repo-check`, которые её собирают и проверяют (раздел 2.2).
 - Позже — нормативные части, версионируемые тегами:

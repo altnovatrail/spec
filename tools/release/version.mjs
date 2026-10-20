@@ -1,12 +1,16 @@
-// release-version: the version the next release of spec takes (R31).
+// release-version: the version the next release takes (R31) — spec's, or that of a repository
+// that has spec as its submodule.
 //
-//   { git tag --list 'v*'; echo --; git tag --merged HEAD --list 'v*'; echo --;
-//     git tag --points-at HEAD --list 'v*'; } | node tools/release/version.mjs
+//   { git tag --list 'v*'; echo --; git tag --merged <commit> --list 'v*'; echo --;
+//     git tag --points-at <commit> --list 'v*'; } | node tools/release/version.mjs
 //
-// Reads on stdin three lists of tags, divided by lines "--": every tag of spec, the tags the
-// commit to be released descends from, and the commit's own; `just release-version` gathers
-// them. The line the releases are numbered in, MAJOR.MINOR, is RELEASE_LINE in
-// .github/workflows/release.yml. Prints, as lines release.yml adds to its step outputs:
+// Reads on stdin three lists of tags, divided by lines "--": every tag of the repository, the
+// tags the commit to be released descends from, and the commit's own; `just release-version`
+// gathers them. The line the releases are numbered in, MAJOR.MINOR, is RELEASE_LINE from the
+// environment when it is set — the recipe sets it: in spec to what release.yml sets at the
+// commit, by line.mjs, and in another repository it comes from that repository's release
+// workflow — or else spec's own, RELEASE_LINE in .github/workflows/release.yml as checked out.
+// Prints, as lines a release workflow adds to its step outputs:
 //
 //   version=  the next patch of the line, or nothing when there is no release to make;
 //   previous= the newest release before it, where the release notes start;
@@ -49,7 +53,7 @@ export function nextVersion({ line, tags, merged, releasedHere }) {
   const inLine = tags.filter((tag) => RELEASE_TAG.test(tag)).map(numbers).filter(([a, b]) => a === major && b === minor);
   const version = [major, minor, inLine.length ? Math.max(...inLine.map((n) => n[2])) + 1 : 0];
   if (newest && compare(version, numbers(newest)) < 0) {
-    throw new Error(`the line ${line} is older than the newest release, ${newest}: raise RELEASE_LINE in .github/workflows/release.yml`);
+    throw new Error(`the line ${line} is older than the newest release, ${newest}: raise RELEASE_LINE where the release workflow sets it`);
   }
   return { version: name(version), previous: newest };
 }
@@ -84,7 +88,7 @@ const compare = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
 
 if (isMain(import.meta.url)) {
   try {
-    const line = readLine(fs.readFileSync(WORKFLOW, "utf8"));
+    const line = process.env.RELEASE_LINE ?? readLine(fs.readFileSync(WORKFLOW, "utf8"));
     const result = nextVersion({ line, ...readTags(fs.readFileSync(0, "utf8")) });
     if (result.released) console.error(`release-version: this commit is released already, as ${result.released}`);
     if (result.behind) console.error(`release-version: the newest release, ${result.behind}, is not in this commit's history: an older commit gets no release`);

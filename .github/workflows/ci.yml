@@ -2,9 +2,13 @@
 # the version the next release takes (R31).
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
-# run and published nowhere. The checks every repository shares come from .github (RUN.md, T17).
+# run and published nowhere. Beside them, two of the checks every repository shares, from
+# .github: secrets and DCO (R03 .github). The third, the documents of a repository with spec as
+# its submodule, spec does not take: its own job checks its documents.
 #
-# The job's name is a required check in the ruleset of main: renaming it breaks that rule.
+# The required checks of the ruleset of main are named after these jobs: "Documents and tools",
+# and for a shared check the job here and the job of the shared workflow, "Secrets / gitleaks"
+# and "DCO / sign-off". Renaming either breaks that rule.
 
 name: CI
 
@@ -74,3 +78,15 @@ jobs:
       - name: Tests of release-version
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: '"$RUNNER_TEMP/toolchain" just release-version-test'
+
+  # The shared checks, pinned to a release of .github by SHA with its version beside it;
+  # Dependabot moves both (R04 .github).
+  secrets:
+    name: Secrets
+    uses: altnovatrail/.github/.github/workflows/secrets.yml@ff2a3597769ca85e59e476b1a41bdcbc1f50e3ed # v0.1.0
+
+  # A pull request's commits are what it checks; a push to main has been checked as one.
+  dco:
+    name: DCO
+    if: github.event_name == 'pull_request'
+    uses: altnovatrail/.github/.github/workflows/dco.yml@ff2a3597769ca85e59e476b1a41bdcbc1f50e3ed # v0.1.0
