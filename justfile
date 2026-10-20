@@ -25,27 +25,42 @@ licenses-check:
 licenses-check-test:
     node --test 'tools/licenses/test/*.test.mjs'
 
-# Prints version=, previous= and released= lines, which release.yml takes as its step outputs;
-# version= is empty when this commit has a release already or is older than the newest one.
-# Refuses a shallow clone, which has no tags to count from. The line is RELEASE_LINE in
-# release.yml (R31).
-# Print the version the next release of spec takes.
-release-version:
+# Prints version=, previous=, released= and behind= lines, which a release workflow takes as its
+# step outputs; version= is empty when the commit has a release already or is older than the
+# newest one. The tags are those of the repository the recipe is run from: spec's, or a
+# repository's that runs `just -f spec/justfile release-version`. The commit is HEAD unless
+# given: release.yml gives the commit its checks passed on, by SHA. Refuses a shallow clone,
+# which has no tags to count from. In spec the line is RELEASE_LINE as release.yml sets it at
+# that commit, whatever is checked out or set in the shell (R31). Anywhere else — another
+# repository, a working copy in .repos/ among them — the line is RELEASE_LINE from the
+# environment, and without it the recipe refuses: that repository's releases take its own line.
+# Print the version the next release takes.
+release-version commit="HEAD":
     #!/usr/bin/env bash
     set -euo pipefail
+    cd {{quote(invocation_directory())}}
+    here=$(git rev-parse --show-toplevel)
     if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
         echo "release-version: a shallow clone has no tags to count from; fetch the whole history" >&2
         exit 1
     fi
+    commit=$(git rev-parse --verify --end-of-options {{quote(commit + "^{commit}")}})
+    if [ "$here" = "$(cd {{quote(justfile_directory())}} && pwd -P)" ]; then
+        RELEASE_LINE=$(git show "${commit}:.github/workflows/release.yml" | node {{quote(justfile_directory() / "tools/release/line.mjs")}})
+        export RELEASE_LINE
+    elif [ -z "${RELEASE_LINE+set}" ]; then
+        echo "release-version: ${here} is not spec, and RELEASE_LINE is not set: its releases take its own line, from its release workflow" >&2
+        exit 1
+    fi
     {
         git tag --list 'v*'; echo --
-        git tag --merged HEAD --list 'v*'; echo --
-        git tag --points-at HEAD --list 'v*'
-    } | node tools/release/version.mjs
+        git tag --merged "$commit" --list 'v*'; echo --
+        git tag --points-at "$commit" --list 'v*'
+    } | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
 
-# Run release-version's own tests, on made-up tags.
+# Run release-version's own tests, on made-up tags; the recipe's own test runs this same just.
 release-version-test:
-    node --test 'tools/release/test/*.test.mjs'
+    JUST={{quote(just_executable())}} node --test 'tools/release/test/*.test.mjs'
 
 # The copy is built from repo-template/ as it stands at spec's latest release tag, and its FILL
 # markers are left to write from the component's card: 3.8 in `just new-repo learner-model go 3.8`.
