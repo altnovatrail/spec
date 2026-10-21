@@ -158,6 +158,16 @@ test("licenses-check-repo stops on a lock file of npm 5 or 6, a missing file or 
   assert.match(notJson.stderr, /licenses-check: package-lock\.json: not JSON: /);
 });
 
+test("licenses-check-repo reads files of the repository alone, never outside it", () => {
+  for (const outside of ["../package-lock.json", path.join(here, "..", "..", "package-lock.json"), "."]) {
+    const refused = inRepository({ "package-lock.json": lock([]) }, "licenses-check-repo", [outside]);
+    assert.notEqual(refused.status, 0, `${outside}: ${refused.stdout}`);
+    assert.match(refused.stderr, /not a file of the repository the check runs in/);
+  }
+  const exceptions = inRepository({ "package-lock.json": lock([]) }, "licenses-check-repo", ["package-lock.json", "../licenses.json"]);
+  assert.match(exceptions.stderr, /\.\.\/licenses\.json: not a file of the repository/);
+});
+
 test("licenses-allowed prints config.mjs's list, one identifier a line, and nothing else on stdout", () => {
   const run = inRepository({}, "licenses-allowed", []);
   assert.equal(run.status, 0, run.stderr);

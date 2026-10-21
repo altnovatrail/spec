@@ -25,8 +25,8 @@ licenses-check:
 # package-lock.json licenses.json`: every package of that npm lock file against the list in
 # tools/licenses/config.mjs, with the exceptions the repository names in the file given second,
 # if any — a JSON object of packages, each with the license its lock file says, or null, and why
-# it is accepted. Both paths are the repository's, from where the recipe is run. A lock file of
-# npm 5 or 6, with no packages in it, is refused (R39).
+# it is accepted. Both paths are the repository's, from where the recipe is run, and a path that
+# leaves it is refused. A lock file of npm 5 or 6, with no packages in it, is refused (R39).
 # Check the licenses of the packages in a repository's npm lock file.
 licenses-check-repo lock exceptions="":
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/licenses/main.mjs")}} --lock={{quote(lock)}} {{ if exceptions == "" { "" } else { "--exceptions=" + quote(exceptions) } }}

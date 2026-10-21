@@ -8,8 +8,8 @@
 // config.mjs, or that the package is a named exception. Prints one line per problem and exits 1
 // if there are any, or 2 when it cannot check at all. With no options the lock file is
 // tools/package-lock.json, beside this script, and the exceptions are config.mjs's. With --lock
-// it is another repository's lock file, a path from where the script runs, and the exceptions
-// are those its file names, or none: config.mjs's are spec's own. --allowed prints the list, one
+// it is another repository's lock file, a path inside the folder the script runs from, and the
+// exceptions are those its file names, or none: config.mjs's are spec's own. --allowed prints the list, one
 // SPDX identifier a line, for another repository's check to take rather than copy (R39).
 
 import fs from "node:fs";
@@ -187,8 +187,8 @@ if (isMain(import.meta.url)) {
       if (values.lock !== undefined || values.exceptions !== undefined) throw new Error("--allowed takes no lock file");
       for (const id of ALLOWED) console.log(id);
     } else if (values.lock !== undefined) {
-      const exceptions = values.exceptions === undefined ? {} : readExceptions(read(values.exceptions), values.exceptions);
-      report(values.lock, checkLicenses(parseJson(read(values.lock), values.lock), { exceptions }), exceptions);
+      const exceptions = values.exceptions === undefined ? {} : readExceptions(read(inRepository(values.exceptions), values.exceptions), values.exceptions);
+      report(values.lock, checkLicenses(parseJson(read(inRepository(values.lock), values.lock), values.lock), { exceptions }), exceptions);
     } else if (values.exceptions !== undefined) {
       throw new Error("--exceptions goes with the --lock file they are for");
     } else {
@@ -201,11 +201,21 @@ if (isMain(import.meta.url)) {
   }
 }
 
-// A file's text; a file that cannot be read says which and why.
-function read(file) {
+// A path another repository gives, as the absolute path it names: inside the folder the check runs
+// from, the repository's root, and never outside it. A lock file and an exceptions file are the
+// repository's own, so a path that leaves it — ../, or an absolute path elsewhere — is refused.
+function inRepository(file) {
+  const root = process.cwd();
+  const resolved = path.resolve(root, file);
+  if (!resolved.startsWith(root + path.sep)) throw new Error(`${file}: not a file of the repository the check runs in, ${root}`);
+  return resolved;
+}
+
+// A file's text; a file that cannot be read says which, by the name it was given, and why.
+function read(file, name = file) {
   try {
     return fs.readFileSync(file, "utf8");
   } catch (error) {
-    throw new Error(`${file}: cannot be read: ${error.code ?? error.message}`);
+    throw new Error(`${name}: cannot be read: ${error.code ?? error.message}`);
   }
 }
