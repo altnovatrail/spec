@@ -1,5 +1,6 @@
 // The new repository's devcontainer is spec's own, with a few edits: its own name and network,
-// the VS Code extensions of its kind, and a start command for the spec submodule. Every edit
+// the VS Code extensions of its kind, a start command for the spec submodule, and the suffix
+// "spec" on the decisions its Dockerfile cites. Every edit
 // expects to find its place a known number of times, so that a change to spec's devcontainer
 // stops the recipe rather than producing a copy that is quietly wrong.
 
@@ -31,7 +32,9 @@ export function editDevcontainer(root, name, extensions) {
     );
   });
   edit(path.join(dir, "host-network.sh"), (text) => replace(text, '"novatrail-spec"', `"${id}"`, 1, "the network's name"));
-  edit(path.join(dir, "Dockerfile"), (text) => replace(text, "the NovaTrail spec", owner, 1, "the opening comment"));
+  edit(path.join(dir, "Dockerfile"), (text) =>
+    suffixDecisions(replace(text, "the NovaTrail spec", owner, 1, "the opening comment")),
+  );
 
   // What VS Code reads must still be JSON once the comments are gone.
   parseJsonc(fs.readFileSync(path.join(dir, "devcontainer.json"), "utf8"));
@@ -51,6 +54,17 @@ function remove(text, pattern, what) {
   const found = text.match(new RegExp(pattern.source, `${pattern.flags}g`))?.length ?? 0;
   if (found !== 1) throw new Error(`${what}: expected it once in spec's devcontainer, found ${found}`);
   return text.replace(pattern, "");
+}
+
+// A decision the Dockerfile cites — "(R34)", "(R12, R34)" or "R34" in a sentence — is one of
+// spec's: in the copy it reads "R34 spec", or it would name a decision of the repository's own
+// log (RULES.md, Citations). Every citation gets the suffix, however it is written, so that a new
+// one in spec's Dockerfile is not left behind.
+function suffixDecisions(text) {
+  const cited = /\bR\d+\b(?! spec\b)/g;
+  const found = text.match(cited)?.length ?? 0;
+  if (found === 0) throw new Error("the decisions the comments cite: none found in spec's Dockerfile");
+  return text.replace(cited, "$& spec");
 }
 
 // The kind's extensions go at the end of spec's list, after a comma on its last entry.

@@ -127,7 +127,10 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     assert.equal(dc.name, `novatrail-${name}`);
     assert.deepEqual(dc.runArgs, [`--network=novatrail-${name}`]);
     assert.match(read(dir, ".devcontainer/host-network.sh"), new RegExp(`^network="novatrail-${name}"$`, "m"));
-    assert.match(read(dir, ".devcontainer/Dockerfile"), new RegExp(`^# Development container for NovaTrail's ${name}\\.`));
+    const dockerfile = read(dir, ".devcontainer/Dockerfile");
+    assert.match(dockerfile, new RegExp(`^# Development container for NovaTrail's ${name}\\.`));
+    assert.match(dockerfile, /\(R34 spec\)/, "a decision the Dockerfile cites is spec's");
+    assert.doesNotMatch(dockerfile, /\bR\d+\b(?! spec\b)/, "no decision of spec's is cited without its suffix");
     assert.deepEqual(dc.mounts, spec.mounts, "the sign-in volumes are shared, the extensions' named by ${devcontainerId}");
     assert.deepEqual(dc.customizations.vscode.extensions, [...spec.customizations.vscode.extensions, ...kinds[kind]]);
     assert.match(dc.postStartCommand, /git submodule update --init spec$/);
