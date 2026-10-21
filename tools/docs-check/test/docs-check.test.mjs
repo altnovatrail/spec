@@ -421,3 +421,20 @@ test("--component runs from a repository's spec/ submodule and checks the reposi
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+// Cases from В22 .github: a name that no prose has is a suffix wherever a word ends with it.
+
+test(".github and a hyphenated name are another repository's even when the phrase goes on", async () => {
+  const edits = [["README.md", "Its own log starts at `R01`.", "Its own log starts at `R01`. R19 .github и его цитаты, R03 module-kit и его рецепты, R06 и R07 skill-map, architecture 9.9 .github и её тексты."]];
+  assert.deepEqual(await componentErrors(edits), []);
+  assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Per R99 .github and R98 `learner-model` and"]]), []);
+});
+
+test("a name that is also a word still counts only where it ends the phrase", async () => {
+  await componentOnly([["README.md", "Its own log starts at `R01`.", "Its own log starts at `R01`. R03 canvas и его тесты."]], /^README\.md:\d+: R03 does not exist/);
+  await expectOnly([["README.md", "Decision R02 and", "Per R99 api and"]], /^README\.md:8: R99 does not exist/);
+});
+
+test("a hyphen that goes on is part of another word, not the name", async () => {
+  await expectOnly([["README.md", "Decision R02 and", "Per R99 module-kit-like tools and"]], /^README\.md:8: R99 does not exist/);
+});

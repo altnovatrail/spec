@@ -1,14 +1,19 @@
-// Each test checks a made-up lock file, except the last, which checks tools/ itself.
+// Each test checks a made-up lock file, except those that check tools/ itself and those that run
+// the recipes for another repository, in a made-up one.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { checkLicenses, parse } from "../main.mjs";
-import { exceptions as configured } from "../config.mjs";
+import { checkLicenses, parse, readExceptions } from "../main.mjs";
+import { allowed as configuredAllowed, exceptions as configured } from "../config.mjs";
 
-const main = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "main.mjs");
+const here = path.dirname(fileURLToPath(import.meta.url));
+const main = path.join(here, "..", "main.mjs");
+const justfile = path.join(here, "..", "..", "..", "justfile");
 const allowed = ["MIT", "Apache-2.0"];
 
 // A lock file of the given [path, license] pairs; license undefined leaves the field out.
@@ -82,4 +87,91 @@ test("tools/package-lock.json passes, and the script says so", () => {
   const run = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(run.status, 0, run.stdout + run.stderr);
   assert.match(run.stdout, new RegExp(`^licenses-check: ok — \\d+ packages, ${Object.keys(configured).length} exceptions$`, "m"));
+});
+
+test("a lock file of npm 5 or 6, with no packages, is refused rather than read as empty", () => {
+  const v1 = { lockfileVersion: 1, dependencies: { a: { version: "1.0.0" } } };
+  assert.deepEqual(checkLicenses(v1, { allowed, exceptions: {} }), {
+    problems: ["the lock file has no packages, lockfileVersion 1: a lock file of npm 7 or later is read, one of npm 5 or 6 is refused"],
+    packages: 0,
+  });
+  assert.equal(checkLicenses([], { allowed, exceptions: {} }).problems.length, 1);
+  assert.equal(checkLicenses({ lockfileVersion: 3, packages: [] }, { allowed, exceptions: {} }).problems.length, 1);
+});
+
+test("an entry of packages that is not an object is named, not a crash", () => {
+  const broken = lock([["node_modules/a", "MIT"]]);
+  broken.packages["node_modules/b"] = null;
+  assert.deepEqual(checkLicenses(broken, { allowed, exceptions: {} }).problems, ["node_modules/b: not a package's entry"]);
+});
+
+test("a repository's exceptions file: each package's license, or null, and why; nothing else", () => {
+  const good = { lightningcss: { license: "MPL-2.0", reason: "a build tool, never shipped: R07 canvas" }, khroma: { license: null, reason: "MIT file" } };
+  assert.deepEqual(readExceptions(JSON.stringify(good), "licenses.json"), good);
+  for (const bad of ["[]", "null", "{", '{"a": {"license": "MIT"}}', '{"a": {"license": "MIT", "reason": " "}}', '{"a": {"license": "", "reason": "x"}}', '{"a": {"license": "MIT", "reason": "x", "until": "2027"}}', '{"": {"license": "MIT", "reason": "x"}}']) {
+    assert.throws(() => readExceptions(bad, "licenses.json"), /^Error: licenses\.json: /, bad);
+  }
+});
+
+// A repository of its own in a temporary directory, with the given files, and the recipe run in
+// it as another repository runs it: `just -f spec/justfile <recipe>` from its root.
+function inRepository(files, recipe, args) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "licenses-repo-"));
+  try {
+    for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(root, name), typeof content === "string" ? content : JSON.stringify(content));
+    return spawnSync(process.env.JUST ?? "just", ["-f", justfile, recipe, ...args], { cwd: root, encoding: "utf8" });
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+}
+
+test("licenses-check-repo checks a repository's lock file, from its root, with its own exceptions", () => {
+  const files = {
+    "package-lock.json": lock([["node_modules/a", "MIT"], ["node_modules/lightningcss", "MPL-2.0"]]),
+    "licenses.json": { lightningcss: { license: "MPL-2.0", reason: "a build tool, never shipped" } },
+  };
+  const green = inRepository(files, "licenses-check-repo", ["package-lock.json", "licenses.json"]);
+  assert.equal(green.status, 0, green.stdout + green.stderr);
+  assert.match(green.stdout, /^licenses-check: package-lock\.json: ok — 2 packages, 1 exceptions$/m);
+
+  const red = inRepository(files, "licenses-check-repo", ["package-lock.json"]);
+  assert.notEqual(red.status, 0);
+  assert.match(red.stdout, /^lightningcss@1\.0\.0: MPL-2\.0 is not on the allowed list$/m);
+  assert.match(red.stdout, /^licenses-check: package-lock\.json: 1 problem$/m);
+});
+
+test("licenses-check-repo takes spec's list, not spec's exceptions", () => {
+  const red = inRepository({ "package-lock.json": lock([["node_modules/elkjs", "EPL-2.0"], ["node_modules/z", "0BSD"]]) }, "licenses-check-repo", ["package-lock.json"]);
+  assert.match(red.stdout, /^elkjs@1\.0\.0: EPL-2\.0 is not on the allowed list$/m);
+  assert.doesNotMatch(red.stdout, /^z@/m);
+});
+
+test("licenses-check-repo stops on a lock file of npm 5 or 6, a missing file or a malformed exceptions file", () => {
+  const v1 = inRepository({ "package-lock.json": { lockfileVersion: 1, dependencies: {} } }, "licenses-check-repo", ["package-lock.json"]);
+  assert.notEqual(v1.status, 0);
+  assert.match(v1.stdout, /the lock file has no packages, lockfileVersion 1/);
+  const missing = inRepository({}, "licenses-check-repo", ["package-lock.json"]);
+  assert.match(missing.stderr, /licenses-check: package-lock\.json: cannot be read: ENOENT/);
+  const malformed = inRepository({ "package-lock.json": lock([]), "licenses.json": { a: "MIT" } }, "licenses-check-repo", ["package-lock.json", "licenses.json"]);
+  assert.match(malformed.stderr, /licenses-check: licenses\.json: "a": an exception is/);
+  const notJson = inRepository({ "package-lock.json": "{" }, "licenses-check-repo", ["package-lock.json"]);
+  assert.match(notJson.stderr, /licenses-check: package-lock\.json: not JSON: /);
+});
+
+test("licenses-check-repo reads files of the repository alone, never outside it", () => {
+  for (const outside of ["../package-lock.json", path.join(here, "..", "..", "package-lock.json"), "."]) {
+    const refused = inRepository({ "package-lock.json": lock([]) }, "licenses-check-repo", [outside]);
+    assert.notEqual(refused.status, 0, `${outside}: ${refused.stdout}`);
+    assert.match(refused.stderr, /not a file of the repository the check runs in/);
+  }
+  const exceptions = inRepository({ "package-lock.json": lock([]) }, "licenses-check-repo", ["package-lock.json", "../licenses.json"]);
+  assert.match(exceptions.stderr, /\.\.\/licenses\.json: not a file of the repository/);
+});
+
+test("licenses-allowed prints config.mjs's list, one identifier a line, and nothing else on stdout", () => {
+  const run = inRepository({}, "licenses-allowed", []);
+  assert.equal(run.status, 0, run.stderr);
+  assert.equal(run.stdout, configuredAllowed.map((id) => `${id}\n`).join(""));
+  const mixed = spawnSync(process.execPath, [main, "--allowed", "--lock=x"], { encoding: "utf8" });
+  assert.equal(mixed.status, 2);
 });

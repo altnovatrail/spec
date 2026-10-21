@@ -21,9 +21,26 @@ docs-check-test: _tools
 licenses-check:
     node tools/licenses/main.mjs
 
+# Runs from a NovaTrail repository's root, as `just -f spec/justfile licenses-check-repo
+# package-lock.json licenses.json`: every package of that npm lock file against the list in
+# tools/licenses/config.mjs, with the exceptions the repository names in the file given second,
+# if any — a JSON object of packages, each with the license its lock file says, or null, and why
+# it is accepted. Both paths are the repository's, from where the recipe is run, and a path that
+# leaves it is refused. A lock file of npm 5 or 6, with no packages in it, is refused (R39).
+# Check the licenses of the packages in a repository's npm lock file.
+licenses-check-repo lock exceptions="":
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/licenses/main.mjs")}} --lock={{quote(lock)}} {{ if exceptions == "" { "" } else { "--exceptions=" + quote(exceptions) } }}
+
+# What another repository's license check allows, taken from here rather than copied: one SPDX
+# identifier a line, as tools/licenses/config.mjs lists them (R12, R39).
+# Print the licenses a NovaTrail repository may build from.
+licenses-allowed:
+    node tools/licenses/main.mjs --allowed
+
+# The tests that run the recipes run this same just.
 # Run licenses-check's own tests, on made-up lock files.
 licenses-check-test:
-    node --test 'tools/licenses/test/*.test.mjs'
+    JUST={{quote(just_executable())}} node --test 'tools/licenses/test/*.test.mjs'
 
 # Prints version=, previous=, released= and behind= lines, which a release workflow takes as its
 # step outputs; version= is empty when the commit has a release already or is older than the
@@ -127,6 +144,13 @@ release-refusal commit tip error:
 # Run release-version's and release-refusal's own tests, on made-up tags and repositories.
 release-version-test:
     JUST={{quote(just_executable())}} node --test 'tools/release/test/*.test.mjs'
+
+# tools/toolchain/toolchain.sh is no recipe: a runner runs it with its own shell, to start the
+# toolchain stage that just itself is in. Its tests stand a docker in that writes down what it is
+# asked, and the dry run they try is this same just's.
+# Run toolchain.sh's own tests, with a stand-in for docker.
+toolchain-test:
+    JUST={{quote(just_executable())}} node --test 'tools/toolchain/test/*.test.mjs'
 
 # The copy is built from repo-template/ as it stands at spec's latest release tag, and its FILL
 # markers are left to write from the component's card: 3.8 in `just new-repo learner-model go 3.8`.
