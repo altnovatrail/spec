@@ -12,6 +12,7 @@ import { newRepo } from "../new-repo.mjs";
 import { checkRepo } from "../check.mjs";
 import { parseJsonc } from "../devcontainer.mjs";
 import { FILL, fillPlaceholders, placeholders, walk } from "../copy.mjs";
+import { findNumbers } from "../../docs-check/citations.mjs";
 import { GIT, TAR, byCodeUnits } from "../../shared.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -110,6 +111,13 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     assert.match(read(dir, "docs/decisions.md"), /заведён 2026-01-02 из заготовки `spec` v0\.0\.0-test/);
     for (const file of ["README.md", "CLAUDE.md", "RUN.md", "docs/architecture.md"]) assert.ok(read(dir, file).match(FILL), `${name}: ${file} has no FILL`);
     for (const file of ["LICENSE", "AGENTS.md"]) assert.equal(read(dir, file), read(specRoot, file), `${name}: ${file} is not spec's`);
+    // A file docs-check-repo does not read cites no number without a suffix, read as docs-check
+    // reads a citation: in the copy it would be one of the repository's own (RULES.md, Citations).
+    // В17 .github.
+    for (const file of EXPECTED_FILES.filter((f) => !f.endsWith(".md"))) {
+      const own = findNumbers({ text: read(dir, file) }).filter((n) => n.scope === "own");
+      assert.deepEqual(own.map((n) => n.prefix + n.digits), [], `${name}: ${file} cites a number of spec's without its suffix`);
+    }
     assert.ok(fs.statSync(path.join(dir, ".devcontainer/host-network.sh")).mode & 0o100, "host-network.sh lost its executable bit");
     assert.equal(fs.existsSync(path.join(dir, ".git")), false, "a draft leaves git alone");
   }

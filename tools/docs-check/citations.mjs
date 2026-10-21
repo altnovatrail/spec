@@ -9,11 +9,17 @@ import { documents, mathtrailRepositories, novatrailRepositories, otherTexts } f
 
 export const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const mathtrail = mathtrailRepositories.map(escape).join("|");
-const novatrail = novatrailRepositories.map(escape).join("|");
+// Most of NovaTrail's names are also English words ("R99 modules are data"); .github and the names
+// with a hyphen, module-kit or skill-map, are words of no prose.
+const isWord = (name) => /^\p{L}+$/u.test(name);
+const words = novatrailRepositories.filter(isWord).map(escape).join("|");
+const names = novatrailRepositories.filter((name) => !isWord(name)).map(escape).join("|");
 
-// "… canvas-api" right after a citation. NovaTrail's names are also English words ("R99 modules
-// are data"), so "… api" counts only where the name ends the phrase: "«R3 api»", "(R3 api)", "R3 api — …".
-const FOREIGN = `(?:${mathtrail})(?![\\p{L}\\p{N}-])|(?:${novatrail})(?=$|[^\\p{L}\\p{N}\\s-]|\\s+[^\\p{L}\\p{N}\\s])`;
+// "… canvas-api" right after a citation. A name that is also a word counts only where it ends the
+// phrase: "«R3 api»", "(R3 api)", "R3 api — …". The other names count wherever a word ends with
+// them, as MathTrail's do: "R19 .github и его цитаты", "R03 module-kit и его рецепты" (R32).
+const FOREIGN =
+  `(?:${mathtrail}|${names})(?![\\p{L}\\p{N}-])` + `|(?:${words})(?=$|[^\\p{L}\\p{N}\\s-]|\\s+[^\\p{L}\\p{N}\\s])`;
 const FOREIGN_SUFFIX = new RegExp(`^\\s+(?:${FOREIGN})`, "u");
 // "`docs/spec.md` canvas-api, раздел 4.2": a MathTrail repository's name, a whole word, and a
 // comma right before "раздел N" make it a section of that repository's document. NovaTrail's
