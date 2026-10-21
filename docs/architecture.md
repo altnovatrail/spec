@@ -166,7 +166,15 @@ flowchart LR
   - официальные виджеты работают в той же iframe-песочнице, что и чужие;
   - детям — только виджеты, прошедшие ревью (О-9).
 - **Этап 4.** В первом срезе виджетов нет: ни олимпиадной математике, ни испанскому A1 они не нужны. Образец для авторов — `widget-template` (раздел 3.13).
-- **Решить при детализации:** протокол виджета; можно ли верить состоянию, о котором сообщает виджет (Т-24).
+- **Решить при детализации** — в эпике E5 RUN.md:
+  - протокол виджета. Что ему решать сверх R16 — по анализу автора 2026-10-21 (product 14):
+    - канал. Отправителя сообщения HTML Standard велит проверять по origin, а у виджета без `allow-same-origin` origin непрозрачный и сериализуется как "null". Сверка `event.source` с окном iframe документы не различает: окно у iframe одно, а при переходе меняется только документ за ним. Поэтому анализ советует порт `MessageChannel`: `app` передаёт его виджету один раз, при первой загрузке iframe, и дальше слушает только его, а документ, на который виджет перешёл потом, этого порта не получал (раздел 8). Как `app` замечает такой переход, решает протокол;
+    - версия состояния в каждом сообщении виджета: `app` знает, к какой версии относятся вердикт и слова наставника, а пометку на части виджета, которая с тех пор изменилась, не рисует — как пометку листа, чьи штрихи стёрты (architecture 3.2 canvas);
+    - части виджета для пометок: слой наставника лежит над виджетом (concepts 8), поэтому виджет называет свои части и их рамки, а пометка держится за часть, как на листе — за штрихи;
+    - виджет сообщает состояние и события ученика, а не вердикт. Верно ли, решает `module-kit` (concepts 9.2), а по какому состоянию — сообщённому виджетом или повторённому на сервере по зерну и событиям, — решает Т-24;
+    - тесты соответствия протоколу — в `spec`, рядом с протоколом, как тест-векторы вердикта (RUN.md, T35), а тестовый хост — в среде разработки `widget-template` (раздел 3.13). Протоколу виджет отвечает, если проходит тесты, а библиотека для авторов — удобство, а не условие;
+  - можно ли верить состоянию, о котором сообщает виджет (Т-24);
+  - снятие с публикации версии виджета, которая оказалась вредной (Т-30).
 
 ### 3.5. api — сервис платформы
 
@@ -199,9 +207,9 @@ flowchart LR
   - вход и права. В canvas-api — Firebase Auth и OpenFGA. Для учителей права понадобятся в виде «кто, к чему и в какой роли получил доступ»;
   - база и где живёт модель ученика (П-7);
   - журнал свидетельств и состояние навыков (Т-22);
-  - какую версию модуля получает новая попытка: последнюю опубликованную или ту, что закреплена за подключением модуля у ученика. Попытка в любом случае хранит дайджест своего пакета;
+  - какую версию модуля получает новая попытка: последнюю опубликованную или ту, что закреплена за подключением модуля у ученика. Попытка в любом случае хранит дайджест своего пакета, а что с попытками на версии, которую сняли с публикации, — Т-30;
   - перенос прогресса по таблице соответствия старых ID навыков новым после мажорной версии (concepts 3);
-  - показ решения (О-7) и пауза (О-8);
+  - показ решения (О-7), пауза (О-8) и подсказка по просьбе ученика (О-21);
   - тарифы (О-14); оплата — этап 3;
   - протокол между `app` и `api` — его сообщения и сервисы; формат, protobuf и buf, решил R11;
   - канал реального времени (Т-25);
@@ -358,7 +366,7 @@ flowchart LR
 - **module-registry**, этап 4:
   - издатели и пространства имён;
   - публикация сторонних модулей и ревью модулей для детей (О-9);
-  - подпись и индекс.
+  - подпись, индекс и снятие версии с публикации (Т-30).
 
   На пути запроса ученика его нет: `api` читает индекс.
 - **module-pipeline**, этап 4: помощь автору — разметка навыков и ловушек, варианты задач, проверки.
@@ -496,6 +504,12 @@ sequenceDiagram
   - [Creating a default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file): «You can add default community health files to a repository called .github. The .github repository must be public»;
   - [Customizing your organization's profile](https://docs.github.com/en/organizations/collaborating-with-groups-in-organizations/customizing-your-organizations-profile): «In your organization's .github repository, create a README.md file in the profile folder».
 
+Прочитано 2026-10-21 — [HTML Standard](https://html.spec.whatwg.org/multipage/), обновлено 20.10.2026 (раздел 3.4):
+- [Origins](https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque), о непрозрачном origin: «An internal value, with no serialization it can be recreated from (it is serialized as "null" per serialization of an origin), for which the only meaningful operation is testing for equality»;
+- [Cross-document messaging, Authors](https://html.spec.whatwg.org/multipage/web-messaging.html#authors): «Authors should check the origin attribute to ensure that messages are only accepted from domains that they expect to receive messages from»;
+- [Ports as the basis of an object-capability model on the web](https://html.spec.whatwg.org/multipage/web-messaging.html#ports-as-the-basis-of-an-object-capability-model-on-the-web), раздел не нормативный: «Ports can be viewed as a way to expose limited capabilities (in the object-capability model sense) to other actors in the system»;
+- [The WindowProxy exotic object](https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-windowproxy-exotic-object): «Each browsing context has an associated WindowProxy object. When the browsing context is navigated, the Window object wrapped by the browsing context's associated WindowProxy object is changed».
+
 MathTrail:
 - MathTrail Canvas, [docs/](https://github.com/mathtrail/canvas-api/tree/main/docs) — коммит 0901af0:
   - spec и self-hosting;
@@ -503,3 +517,4 @@ MathTrail:
   - privacy 4: «Платформенные журналы запросов Cloud Run и Firebase Hosting сами пишут IP-адрес и user agent».
 - [mathtrail-standalone](https://github.com/mathtrail/mathtrail-standalone) — коммит c6cbeb2: SPEC (2 — модель ученика, 6.6 — песочница решателей), `docs/architecture/`, `docs/learners.md`.
 - Диалог автора с Gemini — в репозиторий не входит; доводы, на которые здесь опираемся, пересказаны в R16 и R18.
+- Анализ автора «Базовая канва и контракт „канва ↔ агент“», 2026-10-21, — в репозиторий не входит. Его писала модель, которая не видела ни кода, ни принятых решений NovaTrail: из него взяты вопросы, а не факты (раздел 3.4; Т-30).
