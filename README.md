@@ -6,7 +6,7 @@ NovaTrail turns any subject into interactive lessons with an AI tutor, for child
 
 ## Status
 
-Early design. This repository holds the platform's first documents; the module format and the contracts between components come next. NovaTrail succeeds [MathTrail](https://github.com/mathtrail), olympiad maths for grades 1–6, which is now frozen.
+Early design. This repository holds the platform's documents and the start of the module format, in [format/](format/README.md): its text and conventions are written, and its schemas come part by part. The contracts between components come after it. NovaTrail succeeds [MathTrail](https://github.com/mathtrail), olympiad maths for grades 1–6, which is now frozen.
 
 ## Repositories
 
@@ -42,7 +42,7 @@ gh release verify v0.2.0 -R altnovatrail/spec
 
 ## Documents
 
-The documents are in Russian.
+The documents are in Russian; the module format is in English and normative.
 
 - [docs/product.md](docs/product.md) — what we build and why: who it is for, the principles, the first slice, the roadmap and the open product questions.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary: module, skill, lesson, task, canvas, check, tutor, learner model and engine, with a glossary that names each term as code and schemas will.
@@ -50,6 +50,7 @@ The documents are in Russian.
 - [docs/architecture.md](docs/architecture.md) — the platform's big parts and how they connect: the components, one overall diagram, the main flows, and how the interface is put together.
 - [docs/repositories.md](docs/repositories.md) — how the platform is split into repositories: their roles, dependencies, how changes flow between them, the order they appear in, how to set one up, and what is carried over from MathTrail.
 - [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.
+- [format/](format/README.md) — the module format: what a module may and must contain and how the platform checks it. Its text is written; its schemas, examples and test vectors come as they are written.
 - [RUN.md](RUN.md) — the work plan, in epics: the current epic broken into small tasks, run and reviewed one at a time, and the epics that come later.
 - [draft/](draft/README.md) — a clickable prototype of the learner's app, and where it differs from the documents.
 

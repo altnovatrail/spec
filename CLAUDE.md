@@ -14,6 +14,7 @@ The documents under `docs/` are in Russian (R14) and are cited by section: "prod
 - [docs/architecture.md](docs/architecture.md) — the components and how they connect. Each component's card, ending with what to decide when it is detailed, is in section 3.
 - [docs/repositories.md](docs/repositories.md) — the repositories, their dependencies, the order they appear in, and how to set one up. Open technical questions Т-… are in section 8.
 - [docs/decisions.md](docs/decisions.md) — the decision log, R01…: read it before proposing a change.
+- [format/](format/README.md) — the module format: its text, and part by part its schemas, examples and test vectors. It is normative and in English (R42); its conventions are R45 and its versions R44.
 - [RUN.md](RUN.md) — the work plan, in epics (R19). Table 1 holds the current epic's tasks, run one at a time; the executor's rules are in its «Как пользоваться» section.
 - [RULES.md](RULES.md) — the rules every NovaTrail repository shares, imported below.
 - [repo-template/](repo-template/README.md) — the template every other NovaTrail repository starts from (repositories 2.2).
