@@ -34,7 +34,7 @@ How the parts fit together is in [docs/architecture.md](docs/architecture.md). T
 
 ## Releases
 
-A release comes out by itself once the checks pass on `main`: the next patch of the current line, tagged `vX.Y.Z` with the release, and nobody tags by hand. A release holds no files yet; other repositories take its tag as the `spec` submodule. Releases are immutable, so a tag stays on its commit, and GitHub attests each one. To check a release:
+A release comes out by itself once the checks pass on `main`: the next patch of the current line, tagged `vX.Y.Z` with the release, and nobody tags by hand. The module format has a version of its own, and a change that gives it a new version always starts a new line (R44). A release holds no files yet; other repositories take its tag as the `spec` submodule. Releases are immutable, so a tag stays on its commit, and GitHub attests each one. To check a release:
 
 ```
 gh release verify v0.2.0 -R altnovatrail/spec

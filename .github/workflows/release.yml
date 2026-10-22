@@ -1,6 +1,8 @@
 # spec's release (R31): what a green main produces. Nobody tags by hand: the version is the next
 # patch of the line the releases are numbered in, and the tag is created with the release. A
-# line of its own comes from raising RELEASE_LINE in the change that deserves it.
+# line of its own comes from raising RELEASE_LINE in the change that deserves it. A change that
+# gives the module format a new version always does, so that a line never spans two of them
+# (R44); whether contracts and protocols do as well is for their epics to decide.
 #
 # A release holds no files yet: what other repositories take is the tag itself, as a submodule
 # (R21). The repository's releases are immutable, so the tag stays on its commit for good, and
