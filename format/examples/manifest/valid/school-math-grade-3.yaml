@@ -1,0 +1,13 @@
+# The manifest of the official module of school mathematics for grade 3, on a workbook.
+module_format_version: "0.1"
+id: novatrail/school-math-grade-3
+version: "0.1.0"
+title: School mathematics, grade 3
+subject: mathematics
+audience:
+  age_categories: [under_13]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

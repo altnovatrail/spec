@@ -1,9 +1,12 @@
-// The examples and test vectors of the module format, and the rules its text lists (format/README.md,
-// sections 7–9; R45 and its amendment of 2026-10-22).
+// The examples and test vectors of the module format, and the rules and the layout of a module its
+// text lists (format/README.md, sections 7–11; R45 and its amendment of 2026-10-22, R46).
 
+import fs from "node:fs";
+import path from "node:path";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { gfm } from "micromark-extension-gfm";
+import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, listModule, placeFiles, versionProblem } from "./module.mjs";
 import { isKebabCase } from "./schemas.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
@@ -12,11 +15,14 @@ import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 const NEVER_NAMED = new Set(["$ref", "allOf", "properties", "items", "if", "then", "else"]);
 const HEADER = "# error: ";
 
-// The rules the text lists: the rows of each table whose first column is headed ID, each a rule's
-// ID, <part>.<name>, and its statement (section 7). Other tables are no lists of rules, whatever
-// their first cells look like. { rules: [{ id, line }], problems: [{ line, message }] }.
-export function readRules(readme) {
+// What the text lists in its tables: the rows of each table whose first column is headed ID, each a
+// rule's ID, <part>.<name>, and its statement (section 7); and the rows of the table whose first
+// column is headed Path, the layout of a module, each a path and its part (section 10). Other tables
+// are neither, whatever their first cells look like. { rules: [{ id, line }], layoutRows: [{ path,
+// part, line }] or null when no table is headed Path, problems: [{ line, message }] }.
+export function readText(readme) {
   const rules = [];
+  let layoutRows = null;
   const problems = [];
   const lines = new Map();
   const visit = (node) => {
@@ -25,7 +31,13 @@ export function readRules(readme) {
       return;
     }
     const [header, ...rows] = node.children;
-    if (cellText(header.children[0]) !== "ID") return;
+    const heading = cellText(header.children[0]);
+    if (heading === "Path") {
+      if (layoutRows) problems.push({ line: node.position.start.line, message: "a second layout of a module: the text has one table headed Path" });
+      else layoutRows = rows.map((row) => ({ path: cellText(row.children[0]), part: cellText(row.children[1]), line: row.position.start.line }));
+      return;
+    }
+    if (heading !== "ID") return;
     for (const row of rows) {
       const id = cellText(row.children[0]);
       const line = row.position.start.line;
@@ -38,7 +50,8 @@ export function readRules(readme) {
     }
   };
   visit(fromMarkdown(readme, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] }));
-  return { rules, problems };
+  if (!layoutRows) problems.push({ line: 0, message: "the text has no layout of a module: a table whose first column is headed Path" });
+  return { rules, layoutRows, problems };
 }
 
 function cellText(node) {
@@ -53,22 +66,34 @@ export function isRuleId(text) {
   return parts.length === 2 && parts.every(isKebabCase);
 }
 
-// The YAML rules the text lists against those this check knows: each side has every rule of the
-// other. Problems at the rules' lines in README.md, or at none.
-export function compareYamlRules(rules) {
+export function partOf(rule) {
+  return rule.split(".")[0];
+}
+
+// The rules format-check checks itself against those the text lists: the YAML rules and the rules
+// of a whole module, each side with every rule of the other; and manifest.format-version, whose cases
+// it tells apart by the version they name. Problems at the rules' lines in README.md, or at none.
+export function compareOwnRules(rules) {
   const problems = [];
-  const listed = new Set(rules.filter((rule) => rule.id.startsWith("yaml.")).map((rule) => rule.id));
-  for (const rule of rules) {
-    if (rule.id.startsWith("yaml.") && !YAML_RULES.includes(rule.id)) problems.push({ line: rule.line, message: `format-check does not check ${rule.id}: tools/format-check/yaml.mjs has to` });
+  for (const [part, own, file] of [
+    ["yaml", YAML_RULES, "yaml.mjs"],
+    ["module", MODULE_RULES, "module.mjs"],
+  ]) {
+    const listed = new Set(rules.filter((rule) => partOf(rule.id) === part).map((rule) => rule.id));
+    for (const id of listed) {
+      if (!own.includes(id)) problems.push({ line: rules.find((rule) => rule.id === id).line, message: `format-check does not check ${id}: tools/format-check/${file} has to` });
+    }
+    for (const id of own) if (!listed.has(id)) problems.push({ line: 0, message: `format-check checks ${id}, and the text does not list it` });
   }
-  for (const id of YAML_RULES) if (!listed.has(id)) problems.push({ line: 0, message: `format-check checks ${id}, and section 4 does not list it` });
+  if (!rules.some((rule) => rule.id === VERSION_RULE)) problems.push({ line: 0, message: `format-check checks the cases of ${VERSION_RULE}, and the text does not list it` });
   return problems;
 }
 
-// An example: a valid one passes its schema, an invalid one gives the error its first line names,
-// and both follow the YAML rules. validate is its term's validator, or undefined when there is none.
-// Returns problems, each { line, message }.
-export function checkExample(bytes, kind, validate) {
+// An example in a file: a valid one passes its schema, an invalid one gives the error its first line
+// names, and both follow the YAML rules; an example of the manifest names the version of
+// format/VERSION. validate is its term's validator, or undefined when there is none; version is
+// format/VERSION's, or null. Returns problems, each { line, message }.
+export function checkExample(bytes, { kind, term, validate, version }) {
   const { value, violations, notYaml } = readModuleFile(bytes);
   const problems = yamlProblems(violations, notYaml);
   const text = new TextDecoder().decode(bytes);
@@ -76,7 +101,13 @@ export function checkExample(bytes, kind, validate) {
   if (kind === "valid" && header) problems.push({ line: 1, message: "a valid example names no error" });
   if (kind === "invalid" && !header) problems.push({ line: 1, message: `an invalid example's first line is ${HEADER}<keyword> at <location>` });
   if (kind === "invalid" && header?.problem) problems.push({ line: 1, message: header.problem });
-  if (problems.length || !validate) return problems;
+  if (problems.length) return problems;
+  // An invalid example breaks one thing: the version too, unless the version is what it shows.
+  if (term === MANIFEST_PART && !(kind === "invalid" && header.pointer === `/${VERSION_FIELD}`)) {
+    const problem = versionProblem(value, version, null);
+    if (problem) problems.push({ line: 0, message: problem });
+  }
+  if (!validate) return problems;
 
   const valid = validate(value);
   const errors = valid ? [] : validate.errors;
@@ -91,22 +122,65 @@ export function checkExample(bytes, kind, validate) {
   return problems;
 }
 
-// A case of a rule's test vectors. A case of a YAML rule breaks that rule and no other; a case of a
-// part's rule follows the YAML rules and passes the part's schema, so that only the rule refuses it
-// (section 9). validate is the part's validator, or undefined.
-export function checkVector(bytes, rule, validate) {
-  const { value, violations, notYaml } = readModuleFile(bytes);
-  if (rule.startsWith("yaml.")) {
-    const problems = notYaml.map(({ line, message }) => ({ line, message: `not YAML: ${message}` }));
-    for (const { rule: broken, line, message } of violations) {
-      if (broken !== rule) problems.push({ line, message: `breaks ${broken} too: ${message}` });
-    }
-    if (!notYaml.length && !violations.some((violation) => violation.rule === rule)) problems.push({ line: 0, message: `breaks no ${rule}` });
-    return problems;
+// A case of a rule's test vectors, in a file. A case of a YAML rule breaks that rule and no other; a
+// case of a part's rule follows the YAML rules and passes the part's schema, so that only the rule
+// refuses it (section 9). validate is the part's validator, or undefined; version is
+// format/VERSION's, or null.
+export function checkVector(bytes, { rule, validate, version }) {
+  const read = readModuleFile(bytes);
+  if (partOf(rule) !== "yaml") return partFileProblems(read, partOf(rule), { rule, validate, version });
+  const problems = read.notYaml.map(({ line, message }) => ({ line, message: `not YAML: ${message}` }));
+  for (const { rule: broken, line, message } of read.violations) {
+    if (broken !== rule) problems.push({ line, message: `breaks ${broken} too: ${message}` });
   }
+  if (!read.notYaml.length && !read.violations.some((violation) => violation.rule === rule)) problems.push({ line: 0, message: `breaks no ${rule}` });
+  return problems;
+}
+
+// A case laid out as a module: a whole-module example, or a vector of a rule that spans files. Each
+// file of the case with a part follows the YAML rules and passes that part's schema; a manifest names
+// the format's version; and the rules of a whole module hold, except in a vector of one of them,
+// which breaks that rule and no other (sections 8–10). A vector of a part's rule holds a file of
+// that part. rule is the vector's rule, or null for an example; validatorOf(part) gives a part's
+// validator, or undefined. Returns problems, each { file, line, message }, where file is the path of
+// a file in the case, or "" for the case itself.
+export function checkModuleCase(folder, { rule, layout, validatorOf, version }) {
+  const { rows, breaches } = placeFiles(listModule(folder), layout);
+  const problems = wholeModuleProblems(breaches, rule);
+  const parts = new Set();
+  for (const [file, row] of rows) {
+    if (!row?.part) continue;
+    parts.add(row.part);
+    const read = readModuleFile(fs.readFileSync(path.join(folder, file)));
+    for (const problem of partFileProblems(read, row.part, { rule, validate: validatorOf(row.part), version })) problems.push({ file, ...problem });
+  }
+  const part = rule === null ? null : partOf(rule);
+  if (part !== null && part !== "yaml" && part !== "module" && !parts.has(part)) {
+    problems.push({ file: "", line: 0, message: `holds no file of the part ${part}, whose rule ${rule} it is a case of` });
+  }
+  return problems;
+}
+
+// The rules of a whole module on the files of a case: all of them hold, but in a vector of one of
+// them, which breaks that rule alone.
+function wholeModuleProblems(breaches, rule) {
+  const ownRule = rule !== null && partOf(rule) === "module" ? rule : null;
+  const problems = breaches
+    .filter((breach) => breach.rule !== ownRule)
+    .map((breach) => ({ file: breach.file, line: 0, message: ownRule ? `breaks ${breach.rule} too: ${breach.message}` : `${breach.rule}: ${breach.message}` }));
+  if (ownRule && !breaches.some((breach) => breach.rule === ownRule)) problems.push({ file: "", line: 0, message: `breaks no ${ownRule}` });
+  return problems;
+}
+
+// A file of a part, read, in a vector of rule or, with rule null, in an example of a whole module:
+// the YAML rules, the version that a manifest names, and the part's schema, by its validator
+// validate, or none when it is undefined.
+function partFileProblems({ value, violations, notYaml }, part, { rule, validate, version }) {
   const problems = yamlProblems(violations, notYaml);
-  if (problems.length || !validate) return problems;
-  if (!validate(value)) for (const error of validate.errors) problems.push({ line: 0, message: `does not pass the schema of its part: ${describe(error)}` });
+  if (problems.length) return problems;
+  const problem = part === MANIFEST_PART ? versionProblem(value, version, rule) : null;
+  if (problem) problems.push({ line: 0, message: problem });
+  if (validate && !validate(value)) for (const error of validate.errors) problems.push({ line: 0, message: `does not pass the schema of ${part}: ${describe(error)}` });
   return problems;
 }
 

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/manifest.schema.json",
+  "title": "Manifest",
+  "description": "The manifest of a module, manifest.yaml at the root of its folder: the format version the module is written in, its ID and version, what it is called and teaches, whom it is for, its languages, its authors and its license. Every field is open, since the learner's app shows them.",
+  "type": "object",
+  "properties": {
+    "module_format_version": {
+      "$ref": "common.schema.json#/$defs/module_format_version",
+      "description": "The version of the module format the module is written in, \"0.1\": the module is checked, built and run by it. It stands at the root of the manifest in every version of the format, so that a reader finds it before it knows which schemas to read the module by.",
+      "x-open": true
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/module_id",
+      "description": "The module's ID: novatrail/olympiad-math.",
+      "x-open": true
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/module_version",
+      "description": "The module's version, X.Y.Z.",
+      "x-open": true
+    },
+    "title": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "What the module is called, in its explanation language.",
+      "x-open": true
+    },
+    "subject": {
+      "$ref": "common.schema.json#/$defs/subject",
+      "description": "What the module teaches.",
+      "x-open": true
+    },
+    "audience": {
+      "type": "object",
+      "properties": {
+        "age_categories": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/age_category"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "The age categories that the module suits. The platform offers the module only to learners in one of them.",
+          "x-open": true
+        }
+      },
+      "required": [
+        "age_categories"
+      ],
+      "unevaluatedProperties": false,
+      "description": "Whom the module is for.",
+      "x-open": true
+    },
+    "languages": {
+      "type": "object",
+      "properties": {
+        "explanation": {
+          "$ref": "common.schema.json#/$defs/language_tag",
+          "description": "The explanation language: the one language in which the module explains and the tutor speaks with the learner. Every text of the module is in it, except the material of a language module, which is in its target language.",
+          "x-open": true
+        },
+        "target": {
+          "$ref": "common.schema.json#/$defs/language_tag",
+          "description": "The target language: the one that a language module teaches. Other modules have none.",
+          "x-open": true
+        }
+      },
+      "required": [
+        "explanation"
+      ],
+      "unevaluatedProperties": false,
+      "description": "The languages of the module.",
+      "x-open": true
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "The name of an author: a person or an organization.",
+            "x-open": true
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "Who wrote the module.",
+      "x-open": true
+    },
+    "license": {
+      "$ref": "common.schema.json#/$defs/license",
+      "description": "The license of the module's content: Apache-2.0 for an official module.",
+      "x-open": true
+    }
+  },
+  "required": [
+    "module_format_version",
+    "id",
+    "version",
+    "title",
+    "subject",
+    "audience",
+    "languages",
+    "authors",
+    "license"
+  ],
+  "unevaluatedProperties": false
+}

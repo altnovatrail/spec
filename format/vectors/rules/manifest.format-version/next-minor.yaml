@@ -1,0 +1,14 @@
+# The minor version after the format's: newer than a reader of the format knows. The task that
+# gives the format a new version moves this case to the one after it.
+module_format_version: "0.2"
+id: example/vector
+version: "0.1.0"
+title: A test vector
+subject: mathematics
+audience:
+  age_categories: [adult]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

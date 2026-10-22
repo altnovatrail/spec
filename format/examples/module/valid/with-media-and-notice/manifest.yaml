@@ -1,0 +1,13 @@
+# A module with a picture in media/, a stand-in for its eval set in eval/, and a NOTICE.
+module_format_version: "0.1"
+id: example/with-media-and-notice
+version: "0.1.0"
+title: With media and notice
+subject: mathematics
+audience:
+  age_categories: [under_13, adult]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

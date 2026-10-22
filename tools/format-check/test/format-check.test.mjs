@@ -1,6 +1,6 @@
 // Each test breaks one thing in a trial copy of fixtures/base — a small format/ with the layout,
-// the conventions and the rule tables of the real one — and expects format-check to name it. The
-// last tests read the real format/vectors/ of spec.
+// the conventions, the rule tables and the layout of a module of the real one — and expects
+// format-check to name it. The last tests read spec's real format/.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -10,11 +10,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import { checkFormat } from "../main.mjs";
+import { versionProblem } from "../module.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const base = path.join(here, "fixtures", "base");
 const spec = path.join(here, "..", "..", "..");
 const SAMPLE = "format/schemas/sample.schema.json";
+const MANIFEST = 'module_format_version: "0.1"\ntitle: A trial module\n';
 const COMMON = "format/schemas/common.schema.json";
 
 // A copy of the base fixture with each [file, from, to] edit applied: from null writes the file
@@ -38,9 +40,12 @@ function trialCopy(edits) {
   return root;
 }
 
-function errorsOf(edits = []) {
+// The errors of a trial copy, after change(root) when it is given: for what an edit cannot write, a
+// symbolic link or an empty folder.
+function errorsOf(edits = [], change = undefined) {
   const root = trialCopy(edits);
   try {
+    change?.(root);
     return checkFormat(root).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -78,7 +83,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 2, examples: 12, vectors: 11, rules: 11 });
+    assert.deepEqual(stats, { schemas: 3, examples: 15, vectors: 15, rules: 14 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -92,8 +97,17 @@ test("VERSION is MAJOR.MINOR and a newline", () => {
   expectOnly([["format/VERSION", null, "0.01\n"]], /^format\/VERSION:1: /);
 });
 
-test("a schema's $id follows VERSION", () => {
-  expectEach([["format/VERSION", null, "0.2\n"]], [/^format\/schemas\/common\.schema\.json:\d+: \$id is .*\/0\.2\/common\.schema\.json/, /^format\/schemas\/sample\.schema\.json:\d+: \$id is .*\/0\.2\/sample\.schema\.json/, /^format\/schemas\/sample\.schema\.json:0: its examples and vectors go unchecked/]);
+test("a schema's $id follows VERSION, and so does the version each manifest names", () => {
+  expectEach(
+    [["format/VERSION", null, "0.2\n"]],
+    [
+      /^format\/schemas\/common\.schema\.json:\d+: \$id is .*\/0\.2\/common\.schema\.json/,
+      /^format\/schemas\/manifest\.schema\.json:\d+: \$id is .*\/0\.2\/manifest\.schema\.json/,
+      /^format\/schemas\/sample\.schema\.json:\d+: \$id is .*\/0\.2\/sample\.schema\.json/,
+      /^format\/schemas\/(manifest|sample)\.schema\.json:0: its examples and vectors go unchecked/,
+      /(manifest\.yaml|manifest\/valid\/minimal\.yaml):0: names the format version 0\.1: it names 0\.2, as format\/VERSION has it/,
+    ],
+  );
 });
 
 test("a file outside the layout is named", () => {
@@ -108,8 +122,12 @@ test("a case is <case>.yaml, in kebab-case", () => {
   expectOnly([["format/examples/sample/other/minimal.yaml", null, "title: A sample\n"]], /sample\/other:0: examples are in valid\/ or invalid\//);
 });
 
-test("a case laid out as a folder waits for the layout of a module", () => {
-  expectOnly([["format/vectors/rules/sample.known-tag/whole-module/sample.yaml", null, "title: A sample\n"]], /known-tag\/whole-module:0: a case laid out as a folder comes with the layout of a module \(RUN\.md, T26\)/);
+test("a case laid out as a module stands where the format has one", () => {
+  expectOnly([["format/examples/sample/valid/whole/sample.yaml", null, "title: A sample\n"]], /sample\/valid\/whole:0: a case is <case>\.yaml: an example laid out as a module is in examples\/module\/valid\//);
+  expectOnly([["format/examples/module/valid/smallest.yaml", null, MANIFEST]], /module\/valid\/smallest\.yaml:0: an example of a whole module is a folder laid out as a module/);
+  expectOnly([["format/examples/module/invalid/no-title/manifest.yaml", null, MANIFEST]], /module\/invalid:0: a whole module has no invalid examples/);
+  expectOnly([["format/vectors/rules/module.layout/a-file.yaml", null, MANIFEST]], /module\.layout\/a-file\.yaml:0: a case of a rule of a whole module is a folder laid out as a module/);
+  expectOnly([["format/vectors/rules/yaml.no-tags/a-folder/manifest.yaml", null, "title: !!str A title\n"]], /yaml\.no-tags\/a-folder:0: a case of a YAML rule is a file/);
 });
 
 // The rules of the text and their vectors.
@@ -129,7 +147,7 @@ test("a rule listed twice is named", () => {
 test("the YAML rules of the text are those format-check checks", () => {
   expectEach(
     [["format/README.md", "| `yaml.no-tags` | The file MUST NOT contain tags. |\n", ""]],
-    [/^format\/README\.md:0: format-check checks yaml\.no-tags, and section 4 does not list it/, /^format\/vectors\/rules\/yaml\.no-tags:0: format\/README\.md lists no rule yaml\.no-tags/],
+    [/^format\/README\.md:0: format-check checks yaml\.no-tags, and the text does not list it/, /^format\/vectors\/rules\/yaml\.no-tags:0: format\/README\.md lists no rule yaml\.no-tags/],
   );
   expectEach(
     [["format/README.md", "| `yaml.no-tags` |", "| `yaml.no-comments` | The file MUST NOT contain comments. |\n| `yaml.no-tags` |"]],
@@ -305,9 +323,114 @@ test("a vector of a YAML rule breaks that rule and no other", () => {
 });
 
 test("a vector of a part's rule follows the YAML rules and passes the part's schema", () => {
-  expectOnly([["format/vectors/rules/sample.known-tag/unknown-tag.yaml", null, "tags: [unknown]\n"]], /unknown-tag\.yaml:0: does not pass the schema of its part: required at #/);
+  expectOnly([["format/vectors/rules/sample.known-tag/unknown-tag.yaml", null, "tags: [unknown]\n"]], /unknown-tag\.yaml:0: does not pass the schema of sample: required at #/);
   expectOnly([["format/vectors/rules/sample.known-tag/unknown-tag.yaml", null, "title: A sample\ntags: [~]\n"]], /unknown-tag\.yaml:2: yaml\.plain-strings/);
   expectOnly([["format/README.md", "`sample.known-tag`", "`other.known-tag`"], ["format/vectors/rules/sample.known-tag", "", null], ["format/vectors/rules/other.known-tag/unknown-tag.yaml", null, "title: A sample\n"]], /other\.known-tag\/unknown-tag\.yaml:0: no schema other\.schema\.json for the vectors of this part's rule/);
+});
+
+// The layout of a module, and the cases laid out as one.
+
+const README = "format/README.md";
+const SMALLEST = "format/examples/module/valid/smallest";
+const WITH_SAMPLE = "format/examples/module/valid/with-sample";
+const IN_A_MODULE = "format/vectors/rules/sample.known-tag/in-a-module";
+const waiting = /^format\/README\.md:0: the cases laid out as a module go unchecked until the layout of a module is fixed/;
+
+test("the text has one layout of a module", () => {
+  expectEach([[README, "| Path | Part | Holds |", "| File | Part | Holds |"]], [/^format\/README\.md:0: the text has no layout of a module: a table whose first column is headed Path/, waiting]);
+  expectEach([[README, "## 11. The manifest", "| Path | Part |\n|---|---|\n| \x60NOTICE\x60 | — |\n\n## 11. The manifest"]], [/^format\/README\.md:\d+: a second layout of a module/]);
+});
+
+test("a path of the layout is names joined by /, and may end with <path>", () => {
+  expectEach([[README, "| \x60media/<path>\x60 |", "| \x60media/<id>.png\x60 |"]], [/README\.md:\d+: media\/<id>\.png: format-check knows the placeholder <path> only/, waiting]);
+  expectEach([[README, "| \x60media/<path>\x60 |", "| \x60media/<path>/pictures\x60 |"]], [/README\.md:\d+: media\/<path>\/pictures: <path> stands only at the end of a path/, waiting]);
+  expectEach([[README, "| \x60media/<path>\x60 |", "| \x60.media/<path>\x60 |"]], [/README\.md:\d+: \.media\/<path>: a path is names joined by \/, each of letters, digits, \., - and _, and none beginning with \./, waiting]);
+  expectEach([[README, "| \x60media/<path>\x60 |", "| \x60media/*.png\x60 |"]], [/README\.md:\d+: media\/\*\.png: a path is names joined by \//, waiting]);
+  // A path that is <path> alone would hold every file, and module.layout would refuse none.
+  expectEach([[README, "| \x60media/<path>\x60 |", "| \x60<path>\x60 |"]], [/README\.md:\d+: <path>: a path begins with a name/, waiting]);
+});
+
+test("no row of the layout overlaps another", () => {
+  const notice = "| \x60NOTICE\x60 | — | The notices of the licenses. |";
+  expectEach([[README, notice, notice + "\n| \x60NOTICE\x60 | — | Again. |"]], [/README\.md:\d+: the path NOTICE overlaps NOTICE, after line \d+/, waiting]);
+  expectEach([[README, notice, notice + "\n| \x60media/dot.png\x60 | — | A picture. |"]], [/README\.md:\d+: the path media\/dot\.png overlaps media\/<path>, after line \d+: one names a file or folder that the other names too/, waiting]);
+  expectEach([[README, notice, notice + "\n| \x60NOTICE/<path>\x60 | — | More notices. |"]], [/README\.md:\d+: the path NOTICE\/<path> overlaps NOTICE/, waiting]);
+  expectEach([[README, notice, notice + "\n| \x60media/pictures/<path>\x60 | — | Pictures. |"]], [/README\.md:\d+: the path media\/pictures\/<path> overlaps media\/<path>/, waiting]);
+});
+
+test("a part of the layout is a term with a schema, or —", () => {
+  expectEach([[README, "| \x60NOTICE\x60 | — |", "| \x60NOTICE\x60 | Notice |"]], [/README\.md:\d+: "Notice": a part is a term in kebab-case, or —/, waiting]);
+  expectEach([[README, "| \x60sample.yaml\x60 | \x60sample\x60 |", "| \x60sample.yaml\x60 | \x60other\x60 |"]], [/README\.md:\d+: the layout names the part other, and there is no schemas\/other\.schema\.json/, waiting]);
+  expectEach([[README, "| \x60manifest.yaml\x60 | \x60manifest\x60 |", "| \x60manifest.yml\x60 | \x60manifest\x60 |"]], [/README\.md:\d+: the layout has no manifest\.yaml for the part manifest/, waiting]);
+});
+
+test("a whole-module example holds nothing outside the layout, names compared exactly", () => {
+  expectOnly([[`${WITH_SAMPLE}/notes.txt`, null, "Notes.\n"]], /with-sample\/notes\.txt:0: module\.layout: stands at no path of the layout of a module/);
+  expectOnly([[`${WITH_SAMPLE}/notice`, null, "Notices.\n"]], /with-sample\/notice:0: module\.layout: stands at no path/);
+  expectOnly([[`${WITH_SAMPLE}/dot.png`, null, "PNG\n"]], /with-sample\/dot\.png:0: module\.layout: stands at no path/);
+  expectEach([[`${SMALLEST}/manifest.yaml`, "", null], [`${SMALLEST}/Manifest.yaml`, null, MANIFEST]], [/smallest:0: module\.manifest: the folder holds no manifest\.yaml/, /smallest\/Manifest\.yaml:0: module\.layout: stands at no path/]);
+});
+
+test("what begins with a dot is not the module's, and an empty folder holds nothing", () => {
+  const edits = [[`${WITH_SAMPLE}/.hidden`, null, "hidden\n"], [`${WITH_SAMPLE}/.git/config`, null, "[core]\n"], [`${WITH_SAMPLE}/media/.keep`, null, ""]];
+  assert.deepEqual(errorsOf(edits, (root) => fs.mkdirSync(path.join(root, WITH_SAMPLE, "extras"))), []);
+});
+
+test("a symbolic link breaks module.layout", () => {
+  const errors = errorsOf([], (root) => fs.symlinkSync("dot.png", path.join(root, WITH_SAMPLE, "media", "link.png")));
+  assert.deepEqual(errors, ["format/examples/module/valid/with-sample/media/link.png:0: module.layout: a symbolic link: a module holds files and folders only"]);
+});
+
+test("a file of a whole-module example follows the YAML rules and passes its part's schema", () => {
+  expectOnly([[`${WITH_SAMPLE}/sample.yaml`, null, "title: yes\n"]], /with-sample\/sample\.yaml:1: yaml\.plain-strings/);
+  expectOnly([[`${WITH_SAMPLE}/sample.yaml`, null, "count: 2\n"]], /with-sample\/sample\.yaml:0: does not pass the schema of sample: required at #/);
+  expectOnly([[`${SMALLEST}/manifest.yaml`, null, 'module_format_version: "0.1"\n']], /smallest\/manifest\.yaml:0: does not pass the schema of manifest: required at #/);
+});
+
+test("a vector of a rule of a whole module breaks that rule and no other", () => {
+  expectOnly([["format/vectors/rules/module.manifest/no-manifest/manifest.yaml", null, MANIFEST]], /module\.manifest\/no-manifest:0: breaks no module\.manifest/);
+  expectOnly([["format/vectors/rules/module.layout/unknown-file/notes.txt", "", null]], /module\.layout\/unknown-file:0: breaks no module\.layout/);
+  expectOnly([["format/vectors/rules/module.layout/unknown-file/manifest.yaml", "", null]], /module\.layout\/unknown-file:0: breaks module\.manifest too: the folder holds no manifest\.yaml/);
+  expectOnly([["format/vectors/rules/module.layout/unknown-file/manifest.yaml", null, "title: yes\n"]], /unknown-file\/manifest\.yaml:1: yaml\.plain-strings/);
+});
+
+test("a vector of a part's rule laid out as a module follows the rules of a whole module and holds that part", () => {
+  expectOnly([[`${IN_A_MODULE}/notes.txt`, null, "Notes.\n"]], /in-a-module\/notes\.txt:0: module\.layout: stands at no path/);
+  expectOnly([[`${IN_A_MODULE}/sample.yaml`, "", null]], /in-a-module:0: holds no file of the part sample, whose rule sample\.known-tag it is a case of/);
+  expectOnly([[`${IN_A_MODULE}/sample.yaml`, null, "tags: [unknown]\n"]], /in-a-module\/sample\.yaml:0: does not pass the schema of sample: required at #/);
+});
+
+test("a manifest names the version in VERSION, but in a case of manifest.format-version", () => {
+  const other = /names the format version 0\.2: it names 0\.1, as format\/VERSION has it, or it breaks manifest\.format-version/;
+  expectOnly([["format/examples/manifest/valid/minimal.yaml", "0.1", "0.2"]], new RegExp(`^format/examples/manifest/valid/minimal\\.yaml:0: ${other.source}`));
+  expectOnly([[`${SMALLEST}/manifest.yaml`, "0.1", "0.2"]], new RegExp(`smallest/manifest\\.yaml:0: ${other.source}`));
+  expectOnly([[`${IN_A_MODULE}/manifest.yaml`, "0.1", "0.2"]], new RegExp(`in-a-module/manifest\\.yaml:0: ${other.source}`));
+  expectOnly([["format/vectors/rules/manifest.format-version/unknown-version.yaml", "0.0", "0.1"]], /unknown-version\.yaml:0: names the format version 0\.1, which a reader of 0\.1 reads: a case of manifest\.format-version names one that it does not read/);
+  // An invalid example breaks one thing: the version, when it shows it, or else not the version.
+  assert.deepEqual(errorsOf([["format/examples/manifest/invalid/version-with-v.yaml", null, "# error: pattern at #/module_format_version\nmodule_format_version: v0.1\ntitle: A trial module\n"]]), []);
+  expectOnly([["format/examples/manifest/invalid/no-title.yaml", null, '# error: required at #\nmodule_format_version: "0.2"\n']], /no-title\.yaml:0: names the format version 0\.2/);
+  // A case of manifest.format-version laid out as a module.
+  assert.deepEqual(errorsOf([["format/vectors/rules/manifest.format-version/in-a-module/manifest.yaml", null, 'module_format_version: "0.0"\ntitle: A trial module\n']]), []);
+  expectOnly([["format/vectors/rules/manifest.format-version/in-a-module/manifest.yaml", null, MANIFEST]], /format-version\/in-a-module\/manifest\.yaml:0: names the format version 0\.1, which a reader of 0\.1 reads/);
+});
+
+test("a case of manifest.format-version names a version outside the window of section 2", () => {
+  const caseOf = (version, named) => versionProblem({ module_format_version: named }, version, "manifest.format-version");
+  // While the format is v0, a reader reads its current version only.
+  assert.match(caseOf("0.3", "0.3"), /which a reader of 0\.3 reads/);
+  for (const named of ["0.2", "0.4", "1.0"]) assert.equal(caseOf("0.3", named), null, named);
+  // From v1 on, the minor versions of the current major up to the reader's, and the previous major, never v0.
+  for (const named of ["1.0", "1.2", "2.0", "2.1"]) assert.match(caseOf("2.1", named), /which a reader of 2\.1 reads/, named);
+  for (const named of ["2.2", "3.0", "0.9"]) assert.equal(caseOf("2.1", named), null, named);
+  assert.equal(caseOf("1.0", "0.5"), null);
+  // Every other manifest names format/VERSION's version itself.
+  assert.match(versionProblem({ module_format_version: "2.0" }, "2.1", null), /names the format version 2\.0: it names 2\.1/);
+});
+
+test("the rules of a whole module in the text are those format-check checks, and it lists manifest.format-version", () => {
+  expectEach([[README, "| \x60module.layout\x60 | Every file of a module MUST stand at a path of the layout. |\n", ""]], [/^format\/README\.md:0: format-check checks module\.layout, and the text does not list it/, /^format\/vectors\/rules\/module\.layout:0: format\/README\.md lists no rule module\.layout/]);
+  expectEach([[README, "| \x60module.layout\x60 |", "| \x60module.other\x60 | Another rule. |\n| \x60module.layout\x60 |"]], [/README\.md:\d+: format-check does not check module\.other: tools\/format-check\/module\.mjs has to/, /README\.md:\d+: module\.other has no test vectors/]);
+  expectEach([[README, "| \x60manifest.format-version\x60 | The manifest MUST name a format version that the reader reads. |\n", ""]], [/^format\/README\.md:0: format-check checks the cases of manifest\.format-version, and the text does not list it/, /^format\/vectors\/rules\/manifest\.format-version:0: format\/README\.md lists no rule manifest\.format-version/]);
 });
 
 // The real vectors: each case shows what its name says, so that a vector an editor saved again does
@@ -332,6 +455,13 @@ test("spec's vectors hold the bytes their names say", () => {
     "yaml.unique-keys/escaped-key.yaml": '"\\u0074itle":',
   };
   for (const [file, text] of Object.entries(escapes)) assert.ok(caseOf(file).toString("latin1").includes(text), `${file} holds ${text}`);
+});
+
+test("spec's pictures are PNG, as their names say", () => {
+  const signature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  for (const file of ["examples/module/valid/with-media-and-notice/media/pictures/dot.png", "vectors/rules/module.layout/media-at-root/dot.png"]) {
+    assert.deepEqual([...fs.readFileSync(path.join(spec, "format", file)).subarray(0, 8)], signature, file);
+  }
 });
 
 test("spec's vectors of yaml.plain-strings hold the words their names say", () => {

@@ -22,3 +22,23 @@ A small format for the tests of format-check. It lists its rules in tables, as t
 | ID | Rule |
 |---|---|
 | `sample.known-tag` | Every tag of a sample MUST be one its module defines. |
+
+## 10. A module
+
+| Path | Part | Holds |
+|---|---|---|
+| `manifest.yaml` | `manifest` | The manifest. |
+| `sample.yaml` | `sample` | A sample. |
+| `media/<path>` | — | Pictures and sound. |
+| `NOTICE` | — | The notices of the licenses. |
+
+| ID | Rule |
+|---|---|
+| `module.manifest` | The folder of a module MUST hold manifest.yaml. |
+| `module.layout` | Every file of a module MUST stand at a path of the layout. |
+
+## 11. The manifest
+
+| ID | Rule |
+|---|---|
+| `manifest.format-version` | The manifest MUST name a format version that the reader reads. |

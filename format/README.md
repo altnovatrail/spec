@@ -14,8 +14,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## 2. Versions
 
 - The format has a version of its own, MAJOR.MINOR, written once, in `VERSION`. It is neither the version of a module nor a tag of `spec`. A change that gives the format a new version also starts a new line of `spec`'s releases, so within one line the format is the same (R44).
-- A module names the format version it is written in as a string, such as `"0.1"`. The place where it names it is the same in every version of the format; the manifest's schema defines it.
-- A module is checked, built and run by the version it names, against the schemas of exactly that MAJOR.MINOR. It MUST use only what that version has. A reader MUST refuse, with a reason, a module that names a version it does not read: one newer than the reader knows, or one outside the versions the platform reads (below).
+- A module names the format version it is written in as a string, such as `"0.1"`, in the field `module_format_version` at the root of its manifest (section 11). That place is the same in every version of the format, so that a reader finds the version before it knows which schemas to read the module by.
+- A module is checked, built and run by the version it names, against the schemas of exactly that MAJOR.MINOR. It MUST use only what that version has. A reader MUST refuse, with a reason, a module that names a version it does not read: one newer than the reader knows, or one outside the versions the platform reads (below). The rule `manifest.format-version` (section 11) names that refusal.
 - A new version of the format changes nothing in a published module — not its verdicts, its open view or its numbers — until its author moves it to that version. That move is a new version of the module.
 - A minor version only adds. After it, every module of the previous version is still valid and gives the same verdict, open view and numbers on the same inputs: the module, the seed and the value read. Packages and indexes built under the previous version are read as before. Examples of minor changes:
   - an optional field, or a field that is open from the start;
@@ -39,12 +39,13 @@ format/
 ├── README.md     this text
 ├── VERSION       the format's version, MAJOR.MINOR
 ├── schemas/      <term>.schema.json; common.schema.json for definitions that parts share
-├── examples/     <term>/valid/<case>.yaml and <term>/invalid/<case>.yaml
+├── examples/     <term>/valid/<case>.yaml and <term>/invalid/<case>.yaml; module/valid/<case>/
 └── vectors/      rules/<rule-id>/, open-view/, and the vectors of check kinds and templates
 ```
 
 - `<term>` is the concepts 15 term for the part a schema describes, in kebab-case: `manifest`, `skill-graph`, `task`.
-- A case is named in kebab-case for what it shows: `missing-title.yaml`.
+- `examples/module/valid/<case>/` is an example of a whole module: a folder laid out as a module (section 10). The part `module` has no schema of its own.
+- A case is named in kebab-case for what it shows: `missing-title.yaml`, or a folder such as `no-manifest/`.
 - Schemas are JSON. Examples and vectors written by hand are YAML and follow section 4.
 - In version 0.1 this text and `VERSION` come first; the schemas, examples and vectors arrive part by part.
 
@@ -129,6 +130,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 ## 8. Examples
 
 - `examples/<term>/valid/<case>.yaml` is valid against `schemas/<term>.schema.json`. It also meets every format rule that can be checked within its part, and `module-kit`'s CI runs it too. A rule that spans parts is checked on examples laid out as a whole module.
+- `examples/module/valid/<case>/` is a whole module, laid out as section 10 says. Each of its files that has a part is valid against that part's schema, and the module breaks no format rule: not a rule of a whole module, nor a rule within a part or between parts. A whole module has no invalid examples: a module that breaks a rule is a test vector of that rule.
 - `examples/<term>/invalid/<case>.yaml` breaks one thing. Its first line names the error it MUST give: `# error: <keyword> at <location>`.
   - `<keyword>` is the JSON Schema keyword that fails.
   - `<location>` is the place in the file where the schema holding that keyword applies. It is written as a JSON Pointer in URI fragment form ([RFC 6901](https://www.rfc-editor.org/rfc/rfc6901), §6): `#` for the whole file, `#/answer_slots/0` for an element.
@@ -150,9 +152,71 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 ## 9. Test vectors
 
 - Test vectors are normative: an implementation that does not pass them does not conform to the format (R42).
-- `vectors/rules/<rule-id>/` holds the vectors of one format rule. Each case breaks that rule and nothing else. It is a file, or, for a rule that spans files, a folder laid out as a module.
-  - A vector of a part's rule is valid against the part's schema, so only the rule refuses it.
-  - A vector of a `yaml.*` rule breaks only that YAML rule.
-  - `spec`'s CI checks both. `module-kit`'s CI checks that each case is refused with the rule's ID.
+- `vectors/rules/<rule-id>/` holds the vectors of one format rule. Each case breaks that rule and nothing else. It is a file, or, for a rule that spans files, a folder laid out as a module (section 10).
+  - A vector of a part's rule is valid against the part's schema, so only the rule refuses it. Laid out as a module, it holds a file of that part and follows the rules of a whole module.
+  - A vector of a `yaml.*` rule is a file, and it breaks only that YAML rule.
+  - A vector of a rule of a whole module is a folder, and it breaks only that rule of a whole module. Each file in it that has a part follows the YAML rules and is valid against its part's schema.
+  - A manifest in a vector names the format version in `VERSION`, except in a vector of `manifest.format-version`, which names one that a reader of that version does not read (section 2).
+  - `spec`'s CI checks all of this. `module-kit`'s CI checks that each case is refused with the rule's ID.
 - `vectors/open-view/` holds the vectors of the open view: a part, and the exact open view it gives.
 - The vectors of check kinds, of templates and of the generator come with the tasks that define them.
+
+## 10. A module
+
+- A module is a folder. Which files it holds, and where each one stands, is the layout below. Where the folder lies and what it is called is not the format's to say: the repository that holds modules decides it.
+- A path is written from the module's folder, with `/` between names. `<path>` stands for one name or more, joined by `/`.
+
+| Path | Part | Holds |
+|---|---|---|
+| `manifest.yaml` | `manifest` | The manifest: what the module is and whom it is for (section 11). |
+| `media/<path>` | — | The pictures and sound that the parts of the module show. |
+| `eval/<path>` | — | The module's eval set: the samples on which the platform checks that AI reads work in this module right. |
+| `NOTICE` | — | The notices that the licenses of the module's content require to keep with it. |
+
+- The part of a file is the term whose schema checks it: such a file is YAML (section 4) and valid against `schemas/<part>.schema.json`. No schema checks a file whose part is —.
+- Each part adds its row to the layout when it comes into the format. A part that a module has once is one file at its root, named by its term: `skill-graph.yaml`. A part that a module has many of, such as tasks and lessons, is a folder with one file for each item, named by the item's local ID, and the file holds that ID in its field `id`.
+- The names in a path compare exactly, as the folder lists them, letter case and all: `Manifest.yaml` is not `manifest.yaml`, and `NOTICE.txt` is not `NOTICE`. A reader MUST compare the names it lists rather than open a file by its name: a file system that ignores letter case would open `Manifest.yaml` for `manifest.yaml`.
+- A file or folder whose name begins with `.` is not part of the module, nor is anything in such a folder: a reader MUST leave it out of the module. A folder with no file in it holds nothing.
+- A module holds files and folders only: no symbolic links.
+- The order in which a folder lists its files carries no meaning.
+- No learner's work is part of a module: a module is published under an open license, and it cannot be recalled. Its eval set holds synthetic samples, and samples that adult volunteers and authors made for it.
+
+**IDs.**
+- The ID of a module is `<publisher>/<name>`: `novatrail/olympiad-math`. A publisher owns the namespace of its modules' names, so two authors' modules never share an ID. The project publishes the official modules, and a third-party author publishes their own.
+- A skill, task, trap, technique or lesson has a local ID, unique among the module's items of its kind: a skill and a task may share one. A file of a module names the module's own items by local ID.
+- Outside its module, an item is named by its full ID: the module's ID, the item's kind and its local ID, joined by `/`, as in `novatrail/olympiad-math/skill/counting-gaps`. The kinds are `skill`, `task`, `trap`, `technique` and `lesson`. The learner model, the engine and a learner's progress name an item so, and a module never writes a full ID.
+- The forms of these IDs and of a module's version are `module_id`, `local_id` and `module_version` in `schemas/common.schema.json`.
+
+**Languages.** A module has one explanation language, which its manifest names. Every text of the module is in it, except the material of a language module, which is in the language the module teaches. This version of the format has no translations: the same content in another explanation language is another module.
+
+**Media.** `media/` holds the pictures and sound of the module in four formats, each with one extension: PNG (`.png`), JPEG (`.jpg`), WebP (`.webp`) and MP3 (`.mp3`). A part refers to a media file by its path from `media/`, as `media_path` in `schemas/common.schema.json` defines it: `pictures/ladder.png`. The rule that checks the files in `media/` comes with the first part that refers to them.
+
+**Eval set.** `eval/` holds the module's eval set. The format of its samples comes with the eval protocol; until then, the format says only where they lie.
+
+**Notices.** `NOTICE` holds, as plain text, the notices that the licenses of the module's content require to keep with it: for content under the MIT License, its copyright notice and permission notice. A module whose licenses require none has no `NOTICE`.
+
+**Rules.** The rules of a whole module have the part `module`, which has no schema. A module can break both, as one with `Manifest.yaml` in place of `manifest.yaml` does, but each test vector breaks one of them alone: a folder that holds no manifest and nothing out of place breaks `module.manifest` only. What lies in `media/` is the concern of the rule that checks media.
+
+| ID | Rule |
+|---|---|
+| `module.manifest` | The folder of a module MUST hold the file `manifest.yaml`. |
+| `module.layout` | Every file of a module MUST stand at a path of the layout above, and a module MUST hold nothing but files and folders. A file or folder whose name begins with `.` is not the module's, and the rule does not see it. |
+
+## 11. The manifest
+
+- The manifest is `manifest.yaml`, valid against `schemas/manifest.schema.json`. It says what the module is: the format version it is written in, its ID and version, its title and subject, whom it is for, its languages, its authors and its license. Every field is open: the learner's app shows them.
+- `module_format_version` names the version of the format the module is written in, as a string: `"0.1"`, since a plain `0.1` is a number (section 4). The field stands at the root of the manifest in every version of the format (section 2).
+- `id` is the module's ID (section 10). `version` is its version in Semantic Versioning 2.0.0, `X.Y.Z`, with no pre-release and no build metadata. It is written in quotes, `"1.2.0"`, since a plain string MUST NOT begin with a digit (section 4).
+- `title` is in the module's explanation language.
+- `subject` is a code: `mathematics`, `physics` or `writing`. A new code is a new value of a list, a minor version (section 2).
+- `audience.age_categories` lists the age categories that the module suits: `under_13`, `from_13_to_consent` (from 13 to the age of digital consent in the learner's country), `from_consent_to_18` and `adult`. The platform offers the module only to learners in one of them. The presentation style follows the learner's age, or the learner's choice, and the manifest does not name it in this version.
+- `languages.explanation` is the module's explanation language. `languages.target`, which only a language module has, is the language it teaches.
+  - A language is a BCP 47 tag of a language subtag, an optional script and an optional region, each in the letter case of the registry: `en`, `zh-Hans`, `pt-BR`, `es-419`. BCP 47 compares tags whatever their case ([RFC 5646](https://www.rfc-editor.org/rfc/rfc5646), §2.1.1); the format fixes the case, so that a tag is always written as the same string.
+  - The schema checks the form of a tag, not that the registry has it.
+  - Norwegian, `no`, is written in quotes, since a plain `no` breaks `yaml.plain-strings`.
+- `authors` lists who wrote the module, each by `name`: a person or an organization.
+- `license` is an identifier of the [SPDX License List](https://spdx.org/licenses/): `Apache-2.0` for an official module. An SPDX expression, such as `MIT OR Apache-2.0`, is not in this version.
+
+| ID | Rule |
+|---|---|
+| `manifest.format-version` | `module_format_version` MUST name a version of the format that the reader reads (section 2). A reader refuses a module that names another, and names this rule. |
