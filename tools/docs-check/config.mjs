@@ -68,13 +68,14 @@ function workRegisters(file) {
 // spec's own profile: its documents and registers, and spec's citations of itself ("R18 spec")
 // are its own.
 // What is never scanned: `names` wherever they are, `paths` relative to the root. The fixtures
-// break the rules on purpose; .repos holds working copies of other repositories, with documents
-// and logs of their own.
+// of docs-check break the rules on purpose, and those of format-check are a trial format, not
+// spec's documents; .repos holds working copies of other repositories, with documents and logs of
+// their own.
 export const specProfile = {
   documents,
   registers,
   spec: null,
-  excluded: { names: [".git", "node_modules"], paths: ["tools/docs-check/test/fixtures", ".repos"] },
+  excluded: { names: [".git", "node_modules"], paths: ["tools/docs-check/test/fixtures", "tools/format-check/test/fixtures", ".repos"] },
 };
 
 // A NovaTrail repository's profile. Its own: docs/architecture.md, cited as "architecture 2"; its

@@ -15,6 +15,18 @@ docs-check-repo: _tools
 docs-check-test: _tools
     node --test 'tools/docs-check/test/*.test.mjs'
 
+# Reads spec's own format/ by the layout of its text: each schema against the conventions of R45
+# and the 2020-12 meta-schema, each example against its schema, the YAML rules on every example and
+# test vector, and the rules the text lists against their vectors. A file it does not know is an
+# error, so the task that brings it extends the check (RUN.md, T25).
+# Check the module format in format/: schemas, examples and test vectors.
+format-check: _tools
+    node tools/format-check/main.mjs
+
+# Run format-check's own tests, on trial copies of a small format and on files written in the tests.
+format-check-test: _tools
+    node --test 'tools/format-check/test/*.test.mjs'
+
 # Reads the lock file alone, so nothing is installed first. The allowed list and the named
 # exceptions are in tools/licenses/config.mjs (R12).
 # Check the licenses of the packages in tools/package-lock.json.

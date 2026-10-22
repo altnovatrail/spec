@@ -1,0 +1,7 @@
+# error: unevaluatedProperties at #/item
+title: A sample
+item:
+  id: item-1
+  kind: a
+  a: Some text
+  b: 2

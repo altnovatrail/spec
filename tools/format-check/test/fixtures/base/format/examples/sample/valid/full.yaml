@@ -1,0 +1,14 @@
+title: A full sample
+count: 3
+level: high
+tags: [first, second-tag]
+weights:
+  first: 3
+item:
+  id: item-1
+  kind: a
+  a: Some text
+details:
+  note: A note
+notes:
+  first: One

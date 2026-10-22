@@ -1,15 +1,17 @@
 {
   "name": "novatrail-spec-tools",
   "private": true,
-  "description": "The NovaTrail spec's tools: the checks of its documents, and the template a new repository starts from.",
+  "description": "The NovaTrail spec's tools: the checks of its documents and of the module format, and the template a new repository starts from.",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
+    "ajv": "8.20.0",
     "github-slugger": "2.0.0",
     "jsdom": "30.1.3",
     "mdast-util-from-markdown": "2.1.0",
     "mdast-util-gfm": "3.1.0",
     "mermaid": "12.2.0",
-    "micromark-extension-gfm": "3.0.0"
+    "micromark-extension-gfm": "3.0.0",
+    "yaml": "2.9.1"
   }
 }

@@ -30,9 +30,11 @@ updates:
     cooldown:
       default-days: 3
 
-  # The packages docs-check runs on. A new mermaid is read against the one the Markdown preview
-  # of the devcontainer carries (bierner.markdown-mermaid): a diagram that only one of them
-  # accepts passes docs-check and does not open in the preview, or the other way round.
+  # The packages docs-check and format-check run on. A new mermaid is read against the one the
+  # Markdown preview of the devcontainer carries (bierner.markdown-mermaid): a diagram that only
+  # one of them accepts passes docs-check and does not open in the preview, or the other way round.
+  # A new ajv or yaml is read against the tests of format-check, which pin how ajv names an error
+  # and how yaml reads a file.
   - package-ecosystem: npm
     directory: /tools
     schedule:

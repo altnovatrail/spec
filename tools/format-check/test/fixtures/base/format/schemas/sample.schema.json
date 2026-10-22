@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/sample.schema.json",
+  "title": "Sample",
+  "description": "A part of the trial format.",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "What the sample is called.",
+      "x-open": true
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many there are."
+    },
+    "level": {
+      "enum": [
+        "low",
+        "high"
+      ],
+      "description": "How hard the sample is."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/tag"
+      },
+      "minItems": 1,
+      "description": "The tags of the sample.",
+      "x-open": true
+    },
+    "weights": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "description": "A weight."
+      },
+      "propertyNames": {
+        "pattern": "^[a-z]+$"
+      },
+      "description": "Weights, by name."
+    },
+    "item": {
+      "$ref": "common.schema.json#/$defs/base",
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "a",
+              "description": "Kind a."
+            },
+            "a": {
+              "type": "string",
+              "description": "The text of kind a."
+            }
+          },
+          "required": [
+            "a"
+          ]
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "b",
+              "description": "Kind b."
+            },
+            "b": {
+              "type": "number",
+              "description": "The number of kind b."
+            }
+          },
+          "required": [
+            "b"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false,
+      "description": "An item of kind a or b."
+    },
+    "details": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "type": "string",
+          "description": "A note."
+        }
+      },
+      "unevaluatedProperties": false,
+      "description": "The details of the sample."
+    },
+    "notes": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z]+$": {
+          "type": "string",
+          "description": "A note, by name."
+        }
+      },
+      "unevaluatedProperties": false,
+      "description": "Notes, by name."
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "if": {
+    "properties": {
+      "level": {
+        "const": "high"
+      }
+    },
+    "required": [
+      "level"
+    ]
+  },
+  "then": {
+    "required": [
+      "count"
+    ]
+  },
+  "unevaluatedProperties": false
+}

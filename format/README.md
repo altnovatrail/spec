@@ -61,9 +61,9 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 | `yaml.no-tags` | The file MUST NOT contain tags (`!`, `!!`). |
 | `yaml.string-keys` | Every key of a mapping MUST be a string: quoted, or plain under `yaml.plain-strings`. A plain `null`, `true`, `false` or number is not a string and MUST NOT be a key. |
 | `yaml.unique-keys` | Two keys of one mapping MUST NOT be the same string once escapes are processed ([RFC 7493](https://www.rfc-editor.org/rfc/rfc7493), §2.3). |
-| `yaml.json-scalars` | A plain scalar `null`, `true`, `false` or a JSON number is that value. A number MUST fit an IEEE 754 double, an integer MUST lie between −(2^53−1) and 2^53−1, and `-0` MUST NOT be written ([RFC 7493](https://www.rfc-editor.org/rfc/rfc7493), §2.2). |
+| `yaml.json-scalars` | A plain scalar `null`, `true`, `false` or a JSON number is that value. A number MUST be finite as an IEEE 754 double; how precisely the double holds it does not matter. A number written with neither a fraction nor an exponent is an integer, and it MUST lie between −(2^53−1) and 2^53−1. Negative zero MUST NOT be written: not as `-0` or `-0.0`, nor as a negative number so small that the double rounds it to zero, such as `-1e-400` ([RFC 7493](https://www.rfc-editor.org/rfc/rfc7493), §2.2). |
 | `yaml.plain-strings` | Any other plain scalar is a string. It MUST NOT be empty, MUST NOT begin with a digit, `+`, `-`, `.`, `~`, `<` or `=`, and MUST NOT equal `y`, `n`, `yes`, `no`, `on`, `off`, `true`, `false` or `null` in any letter case. Such a string is written in quotes. |
-| `yaml.characters` | A key or a string MUST NOT contain a surrogate or a noncharacter, whether written or escaped ([RFC 7493](https://www.rfc-editor.org/rfc/rfc7493), §2.1). It MUST NOT use the escape `\/`. |
+| `yaml.characters` | A key or a string MUST NOT contain a surrogate or a noncharacter — U+FDD0 to U+FDEF, and the last two code points of every plane — whether written or escaped ([RFC 7493](https://www.rfc-editor.org/rfc/rfc7493), §2.1). An escaped surrogate is refused also as half of a pair, `\ud83d\ude00`, and in the form `\U0000D800`. It MUST NOT use the escape `\/`. Escapes are read from left to right, so `\\/` is a backslash and a slash. |
 
 - Comments, block scalars (`|` and `>`), flow collections and quoted strings MAY be used.
 - The order of keys carries no meaning, and a reader MUST NOT normalize Unicode: a string is the characters written.
@@ -72,23 +72,36 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 ## 5. Writing a schema
 
 - A schema is a JSON file, `schemas/<term>.schema.json`, in JSON Schema 2020-12. Its root has `"$schema": "https://json-schema.org/draft/2020-12/schema"`.
+- A schema uses only these keywords:
+  - `$schema` and `$id`, at its root only, and `$ref`, `$defs` and `$comment`;
+  - `allOf`, `anyOf`, `oneOf`, `not`, `if`, `then`, `else`, `dependentSchemas`, `prefixItems`, `items`, `contains`, `properties`, `patternProperties`, `additionalProperties`, `propertyNames` and `unevaluatedProperties`;
+  - `type`, `enum`, `const`, `multipleOf`, `maximum`, `exclusiveMaximum`, `minimum`, `exclusiveMinimum`, `maxLength`, `minLength`, `pattern`, `maxItems`, `minItems`, `uniqueItems`, `maxProperties`, `minProperties`, `required` and `dependentRequired`;
+  - `title`, `description`, `default`, `deprecated`, `readOnly`, `writeOnly`, `examples` and `format`;
+  - `x-open` (section 6).
+
+  The other keywords of 2020-12 stay out of the format: a reference names only `$defs`, and validators differ on `minContains`, `maxContains` and `unevaluatedItems` (R45).
 - Its `$id` is `https://altnovatrail.github.io/spec/format/`, then the version in `VERSION`, a slash, and the file name: `https://altnovatrail.github.io/spec/format/0.1/task.schema.json`. The URI identifies the schema; it need not resolve ([JSON Schema 2020-12 core](https://json-schema.org/draft/2020-12/json-schema-core), §8.2.1). A new version changes every `$id` with it.
-- A reference between schemas MUST be relative, such as `"$ref": "common.schema.json#/$defs/skill_id"`, and resolves against the `$id`. A reference MUST NOT name that prefix absolutely: it would tie the schema to one version without anyone noticing.
+- A reference between schemas MUST be relative, in one of three forms: `#/$defs/<name>` for a definition in the same schema, `<file>.schema.json` for another schema, and `<file>.schema.json#/$defs/<name>` for a definition in another schema, such as `"$ref": "common.schema.json#/$defs/skill_id"`. It resolves against the `$id`. A reference MUST NOT name that prefix, nor a path such as `../0.1/`: it would tie the schema to one version without anyone noticing.
 - Field names and the values of lists are the English terms of concepts 15 in snake_case: `answer_slots`, `trap_advice`. A field that names no term — `id`, `title`, `version` — is a plain English word. An array takes the plural. A new term enters concepts 15 before it enters a schema (R42). Names under `$defs` are snake_case too.
-- The root of a schema has `title` and `description`, and every property's subschema has `description`, also where it holds only `$ref`. Descriptions are in English: a sentence or two on what the term means.
-- Every object is closed: the schema that describes the whole object at its place has `"unevaluatedProperties": false`, so an unknown field is an error.
-  - A subschema that another schema reuses and extends — through `allOf`, or through `$ref` beside its own `properties` — stays open: closed, it would refuse the fields the extension adds. Only the schema at the object's place closes it.
+- The root of a schema has `title` and `description`. The subschema of every field has `description`, also where it holds only `$ref`: a subschema under `properties` or `patternProperties`, and the schema of a map's values under `additionalProperties`. A condition — what `if` or `not` holds — needs none. Descriptions are in English: a sentence or two on what the term means.
+- Every object is closed at its place, so an unknown field is an error.
+  - A place is the root of a schema, or a subschema directly under `properties`, `patternProperties`, `additionalProperties`, `items`, `prefixItems` or `contains`, outside a condition. A definition under `$defs`, the target of a `$ref`, and the subschemas of `allOf`, `anyOf`, `oneOf`, `if`, `then`, `else`, `not` and `dependentSchemas` are parts of the place where they apply.
+  - When the parts of a place describe an object — with `properties`, `patternProperties` or `"type": "object"`, followed through `$ref` and through every part but `if` and `not` — the place has `"unevaluatedProperties": false`. Only the place closes the object: a part that closed it would refuse the fields of the other parts. So `unevaluatedProperties` stands only at a place, and only as `false`, and a `$ref` to an object at a place has `"unevaluatedProperties": false` beside it.
+  - A map — an object whose keys are data — uses `additionalProperties` with a schema, and `propertyNames`, and is closed by them.
   - `additionalProperties: false` MUST NOT be used: it does not see the properties declared through `$ref` or `allOf`.
-  - A map — an object whose keys are data — uses `additionalProperties` with a schema, and `propertyNames`.
+  - A property that `if` or `not` names is declared also by a part that always applies at its place: the place itself, or what its `$ref` or `allOf` reaches. Validators differ on whether the properties of an `if` that failed are evaluated.
 - A schema MUST NOT rely on `format` to refuse an instance: in 2020-12 `format` is only an annotation unless a validator is told otherwise ([JSON Schema 2020-12 validation](https://json-schema.org/draft/2020-12/json-schema-validation), §7.2.1).
-- A `pattern` uses only the tokens that JSON Schema 2020-12 recommends ([core](https://json-schema.org/draft/2020-12/json-schema-core), §6.4):
+- A `pattern`, and every key of `patternProperties`, uses only the tokens that JSON Schema 2020-12 recommends ([core](https://json-schema.org/draft/2020-12/json-schema-core), §6.4):
   - single characters;
   - classes, such as `[a-z]` and `[^a-z]`;
   - the quantifiers `+`, `*`, `?`, `{x}`, `{x,y}`, `{x,}` and their lazy forms;
   - the anchors `^` and `$`;
   - grouping `( )` and alternation `|`.
 
-  It escapes only the characters `^ $ \ . * + ? ( ) [ ] { } |`, and it writes classes out: `[0-9]`, not `\d`. Go and JavaScript then read a pattern the same way.
+  It escapes only the characters `^ $ \ . * + ? ( ) [ ] { } |`, and it writes classes out: `[0-9]`, not `\d`. So that Go and JavaScript read a pattern the same way:
+  - in a class, `[` and `]` are escaped, `-` stands first, last or between the ends of a range, a range runs upwards, and no class is empty;
+  - outside a class, `{`, `}` and `]` stand only in a quantifier, or escaped;
+  - a count has no leading zero, `{x,y}` has x ≤ y, and no count is above 1000, nor the product of the counts nested in one another, each counted as Go counts it: `{x}` and `{x,y}` by the most they allow, `{x,}` by x and `{0,}` as 1. Go's regular expressions refuse more ([regexp/syntax](https://pkg.go.dev/regexp/syntax)).
 - `false` is used as a subschema only as the value of `unevaluatedProperties`.
 - NovaTrail's own annotations begin with `x-`. JSON Schema 2020-12 reads an unknown keyword as an annotation ([core](https://json-schema.org/draft/2020-12/json-schema-core), §4.3.1), and its next version keeps the prefix `x-` for such keywords. The format has one: `x-open` (section 6). Schemas MUST NOT use other `x-` keywords.
 
@@ -111,7 +124,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 - A rule has an ID, `<part>.<name>` in kebab-case, where the part is the one in which a breach is reported: `skill-graph.acyclic`. A rule also has a statement with MUST. An ID is never reused.
 - A reader MUST refuse a module that breaks a rule and name the rule's ID.
 - A new rule, or a stricter one, is a major change (section 2).
-- Each rule has test vectors (section 9). The rules of each part are listed in this text as the part is written; the YAML rules are in section 4.
+- Each rule has test vectors (section 9). The rules of each part are listed in this text as the part is written, in a table whose first column is the rule's ID, as section 4 lists the YAML rules.
 
 ## 8. Examples
 
