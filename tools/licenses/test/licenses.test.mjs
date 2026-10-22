@@ -16,10 +16,11 @@ const main = path.join(here, "..", "main.mjs");
 const justfile = path.join(here, "..", "..", "..", "justfile");
 const allowed = ["MIT", "Apache-2.0"];
 
-// A lock file of the given [path, license] pairs; license undefined leaves the field out.
+// A lock file of the given [path, license, fields] entries; license undefined leaves the field
+// out, and fields — dev, optionalDependencies — go into the entry as they are.
 function lock(entries) {
   const packages = { "": { name: "root" } };
-  for (const [where, license] of entries) packages[where] = { version: "1.0.0", ...(license === undefined ? {} : { license }) };
+  for (const [where, license, fields] of entries) packages[where] = { version: "1.0.0", ...(license === undefined ? {} : { license }), ...fields };
   return { lockfileVersion: 3, packages };
 }
 
@@ -83,6 +84,68 @@ test("an exception for a package that is gone is named", () => {
   ]);
 });
 
+// Another repository's lock file, checked as licenses-check-repo checks it.
+function repositoryProblemsOf(entries, exceptions) {
+  return checkLicenses(lock(entries), { allowed, exceptions, devOnly: true }).problems;
+}
+
+const notDev = "the exception takes MPL-2.0 for a tool of development, and the lock file does not mark this package dev";
+
+test("in another repository's lock file, an exception for a license off the list holds only for a package marked dev", () => {
+  const exceptions = { lightningcss: { license: "MPL-2.0", reason: "a tool" } };
+  assert.deepEqual(repositoryProblemsOf([["node_modules/lightningcss", "MPL-2.0", { dev: true }]], exceptions), []);
+  assert.deepEqual(repositoryProblemsOf([["node_modules/lightningcss", "MPL-2.0"]], exceptions), [`lightningcss@1.0.0: ${notDev}`]);
+  // devOptional is a dependency of a package that ships, too.
+  assert.deepEqual(repositoryProblemsOf([["node_modules/lightningcss", "MPL-2.0", { devOptional: true }]], exceptions), [`lightningcss@1.0.0: ${notDev}`]);
+  // spec's own tools/ never ships, and its lock file marks nothing dev.
+  assert.deepEqual(problemsOf([["node_modules/lightningcss", "MPL-2.0"]], exceptions), []);
+});
+
+test("a tool's exception covers the builds it names in optionalDependencies, when they are dev and under its license, and nothing else", () => {
+  const exceptions = { lightningcss: { license: "MPL-2.0", reason: "a tool" } };
+  const names = { "lightningcss-linux-x64-gnu": "1.0.0", "lightningcss-darwin-arm64": "1.0.0", helper: "1.0.0" };
+  assert.deepEqual(
+    repositoryProblemsOf(
+      [
+        ["node_modules/lightningcss", "MPL-2.0", { dev: true, optionalDependencies: names }],
+        ["node_modules/lightningcss-linux-x64-gnu", "MPL-2.0", { dev: true, optional: true }],
+        ["node_modules/lightningcss-darwin-arm64", "MPL-2.0", { optional: true }],
+        ["node_modules/helper", "GPL-3.0-only", { dev: true }],
+        ["node_modules/lightningcss-wasm", "MPL-2.0", { dev: true }],
+      ],
+      exceptions,
+    ),
+    [
+      "lightningcss-darwin-arm64@1.0.0: MPL-2.0 is not on the allowed list, and lightningcss's exception covers this build only while the lock file marks it dev",
+      "helper@1.0.0: GPL-3.0-only is not on the allowed list",
+      "lightningcss-wasm@1.0.0: MPL-2.0 is not on the allowed list",
+    ],
+  );
+  // A tool the exception does not hold covers no build either.
+  assert.deepEqual(
+    repositoryProblemsOf(
+      [
+        ["node_modules/lightningcss", "MPL-2.0", { optionalDependencies: names }],
+        ["node_modules/lightningcss-linux-x64-gnu", "MPL-2.0", { dev: true, optional: true }],
+      ],
+      exceptions,
+    ),
+    [`lightningcss@1.0.0: ${notDev}`, "lightningcss-linux-x64-gnu@1.0.0: MPL-2.0 is not on the allowed list"],
+  );
+});
+
+test("an exception for no license, or for npm's SEE LICENSE IN, corrects the lock file and needs no dev; any other text off the list is a tool's", () => {
+  const exceptions = { khroma: { license: null, reason: "its license file is MIT" }, custom: { license: "SEE LICENSE IN LICENSE", reason: "that file is MIT" } };
+  assert.deepEqual(repositoryProblemsOf([["node_modules/khroma", undefined], ["node_modules/custom", "SEE LICENSE IN LICENSE"]], exceptions), []);
+  // An identifier SPDX does not have, or text that is no expression, takes a license off the list as well.
+  const odd = { old: { license: "BSD", reason: "its license file is BSD-3-Clause" }, plain: { license: "Public Domain", reason: "its file is CC0" } };
+  assert.deepEqual(repositoryProblemsOf([["node_modules/old", "BSD"], ["node_modules/plain", "Public Domain"]], odd), [
+    "old@1.0.0: the exception takes BSD for a tool of development, and the lock file does not mark this package dev",
+    "plain@1.0.0: the exception takes Public Domain for a tool of development, and the lock file does not mark this package dev",
+  ]);
+  assert.deepEqual(repositoryProblemsOf([["node_modules/old", "BSD", { dev: true }], ["node_modules/plain", "Public Domain", { dev: true }]], odd), []);
+});
+
 test("tools/package-lock.json passes, and the script says so", () => {
   const run = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(run.status, 0, run.stdout + run.stderr);
@@ -127,7 +190,7 @@ function inRepository(files, recipe, args) {
 
 test("licenses-check-repo checks a repository's lock file, from its root, with its own exceptions", () => {
   const files = {
-    "package-lock.json": lock([["node_modules/a", "MIT"], ["node_modules/lightningcss", "MPL-2.0"]]),
+    "package-lock.json": lock([["node_modules/a", "MIT"], ["node_modules/lightningcss", "MPL-2.0", { dev: true }]]),
     "licenses.json": { lightningcss: { license: "MPL-2.0", reason: "a build tool, never shipped" } },
   };
   const green = inRepository(files, "licenses-check-repo", ["package-lock.json", "licenses.json"]);
@@ -138,6 +201,11 @@ test("licenses-check-repo checks a repository's lock file, from its root, with i
   assert.notEqual(red.status, 0);
   assert.match(red.stdout, /^lightningcss@1\.0\.0: MPL-2\.0 is not on the allowed list$/m);
   assert.match(red.stdout, /^licenses-check: package-lock\.json: 1 problem$/m);
+
+  const shipped = { ...files, "package-lock.json": lock([["node_modules/a", "MIT"], ["node_modules/lightningcss", "MPL-2.0"]]) };
+  const notDevRed = inRepository(shipped, "licenses-check-repo", ["package-lock.json", "licenses.json"]);
+  assert.notEqual(notDevRed.status, 0);
+  assert.match(notDevRed.stdout, new RegExp(`^lightningcss@1\\.0\\.0: ${notDev}$`, "m"));
 });
 
 test("licenses-check-repo takes spec's list, not spec's exceptions", () => {

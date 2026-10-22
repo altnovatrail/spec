@@ -6,7 +6,7 @@ The template every NovaTrail repository other than spec starts from (R21; reposi
 
 - `files/` is the new repository. Each `{{…}}` is filled in — the repository's name, the number of its card in architecture 3, the tag of spec and the date — and each `<!-- FILL: … -->` is left for the executor to write from the component's card.
 - `LICENSE`, `AGENTS.md` and `.devcontainer/` in `files/` are links to spec's own, so there is one copy of each. They are copied as they are; the devcontainer then gets the repository's own name and network, the VS Code extensions of its kind, and a start command that checks out `spec/` when a clone has left it empty.
-- `kinds.json` names those extensions, at exact versions: `docs` adds none to spec's, `go` adds the Go extension, and `typescript` adds none yet — VS Code supports TypeScript itself, and a linter's extension comes once the repository has chosen its linter.
+- `kinds.json` names those extensions, at exact versions: `docs` adds none to spec's, `go` adds the Go extension, and `typescript` adds none yet — VS Code supports TypeScript itself, and a linter's extension comes once the repository has chosen its linter. A browser for tests, with its system libraries, is the repository's own decision too, as R13 canvas is, until a second repository on TypeScript tests in a browser (RUN.md, Д17).
 - spec becomes a git submodule at the same tag, and everything is staged. The first commit is the author's.
 
 Before spec has a tag, or to read a change to the template, `just new-repo-draft <name> <kind> <card> <tag>` builds the copy from the working tree instead, names the given tag in its text, and leaves git alone.

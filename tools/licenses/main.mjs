@@ -9,8 +9,11 @@
 // if there are any, or 2 when it cannot check at all. With no options the lock file is
 // tools/package-lock.json, beside this script, and the exceptions are config.mjs's. With --lock
 // it is another repository's lock file, a path inside the folder the script runs from, and the
-// exceptions are those its file names, or none: config.mjs's are spec's own. --allowed prints the list, one
-// SPDX identifier a line, for another repository's check to take rather than copy (R39).
+// exceptions are those its file names, or none: config.mjs's are spec's own. There an exception
+// that takes a license off the list holds only for a tool of development, a package the lock file
+// marks dev, and for the packages that tool names in optionalDependencies while they are dev too
+// and under its license. --allowed prints the list, one SPDX identifier a line, for another
+// repository's check to take rather than copy (R39).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -19,7 +22,7 @@ import { parseArgs } from "node:util";
 import { byCodeUnits, isMain } from "../shared.mjs";
 import { allowed as ALLOWED, exceptions as EXCEPTIONS } from "./config.mjs";
 
-export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS } = {}) {
+export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS, devOnly = false } = {}) {
   // npm 5 and 6 wrote lockfileVersion 1, whose tree is under dependencies alone: read for
   // packages, it would hold none and pass. "1: The lockfile version used by npm v5 and v6", and
   // packages "maps package locations to an object containing the information about that package"
@@ -30,6 +33,25 @@ export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS
       problems: [`the lock file has no packages, lockfileVersion ${version}: a lock file of npm 7 or later is read, one of npm 5 or 6 is refused`],
       packages: 0,
     };
+  }
+  // With devOnly, for another repository's lock file, whose packages may ship: an exception that
+  // takes a license off the list is for a tool that never ships (R12), and holds only for a package
+  // the lock file marks dev — "If the package is strictly part of the devDependencies tree, then
+  // dev will be true" (npm Docs, package-lock.json, v11, read 2026-10-22). It also covers the
+  // packages such a tool names in its optionalDependencies, its builds for each platform, while
+  // they are dev too and carry its license; any other package it names is checked as every
+  // package is (the 2026-10-22 amendment to R39, as R14 canvas). An exception for a lock file that
+  // names no license, or names the package's own file for it, corrects what the lock file says
+  // rather than taking a license off the list, and holds for any package. spec's own tools/ never
+  // ships at all, and its lock file marks none of its packages dev.
+  const tools = new Set(devOnly ? Object.keys(exceptions).filter((name) => offTheList(exceptions[name].license, allowed)) : []);
+  const builds = new Map();
+  for (const [where, entry] of Object.entries(lock.packages)) {
+    if (where === "" || !isObject(entry) || entry.link) continue;
+    const name = nameOf(where, entry);
+    if (tools.has(name) && entry.dev === true && entry.license === exceptions[name].license && isObject(entry.optionalDependencies)) {
+      for (const build of Object.keys(entry.optionalDependencies)) builds.set(build, { tool: name, license: entry.license });
+    }
   }
   const problems = [];
   const seen = new Set();
@@ -42,10 +64,7 @@ export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS
     }
     if (entry.link) continue;
     packages++;
-    // node_modules/a/node_modules/@s/b is @s/b; a path without node_modules is a package of the
-    // project's own, a workspace, and goes by its path unless it names itself.
-    const nested = where.lastIndexOf("node_modules/");
-    const name = entry.name ?? (nested < 0 ? where : where.slice(nested + "node_modules/".length));
+    const name = nameOf(where, entry);
     const id = `${name}@${entry.version ?? "?"}`;
     const license = entry.license ?? null;
     if (Object.hasOwn(exceptions, name)) {
@@ -53,7 +72,14 @@ export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS
       const expected = exceptions[name].license;
       if (license !== expected) {
         problems.push(`${id}: the exception expects ${expected ?? "no license"}, the lock file says ${license ?? "none"}`);
+      } else if (tools.has(name) && entry.dev !== true) {
+        problems.push(`${id}: the exception takes ${expected} for a tool of development, and the lock file does not mark this package dev`);
       }
+      continue;
+    }
+    const build = builds.get(name);
+    if (build !== undefined && build.license === license) {
+      if (entry.dev !== true) problems.push(`${id}: ${license} is not on the allowed list, and ${build.tool}'s exception covers this build only while the lock file marks it dev`);
       continue;
     }
     if (license === null) {
@@ -73,6 +99,28 @@ export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS
     if (!seen.has(name)) problems.push(`${name}: an exception for a package the lock file no longer has`);
   }
   return { problems, packages };
+}
+
+// node_modules/a/node_modules/@s/b is @s/b; a path without node_modules is a package of the
+// project's own, a workspace, and goes by its path unless it names itself.
+function nameOf(where, entry) {
+  const nested = where.lastIndexOf("node_modules/");
+  return entry.name ?? (nested < 0 ? where : where.slice(nested + "node_modules/".length));
+}
+
+// Whether an exception takes a license off the list: whatever the lock file says that the list
+// does not allow, an SPDX expression or not. Two things the lock file may say are no license of
+// their own, and the exception's reason names the license instead: null, no license at all, and
+// npm's words for a license in the package's own file — "If you are using a license that hasn't
+// been assigned an SPDX identifier, or if you are using a custom license, use a string value like
+// this one", SEE LICENSE IN <filename> (npm Docs, package.json, v11, read 2026-10-22).
+function offTheList(license, allowed) {
+  if (typeof license !== "string" || license.startsWith("SEE LICENSE IN ")) return false;
+  try {
+    return !satisfies(parse(license), allowed);
+  } catch {
+    return true;
+  }
 }
 
 // The exceptions another repository names in its file: a JSON object of packages, each with the
@@ -188,7 +236,7 @@ if (isMain(import.meta.url)) {
       for (const id of ALLOWED) console.log(id);
     } else if (values.lock !== undefined) {
       const exceptions = values.exceptions === undefined ? {} : readExceptions(read(inRepository(values.exceptions), values.exceptions), values.exceptions);
-      report(values.lock, checkLicenses(parseJson(read(inRepository(values.lock), values.lock), values.lock), { exceptions }), exceptions);
+      report(values.lock, checkLicenses(parseJson(read(inRepository(values.lock), values.lock), values.lock), { exceptions, devOnly: true }), exceptions);
     } else if (values.exceptions !== undefined) {
       throw new Error("--exceptions goes with the --lock file they are for");
     } else {
