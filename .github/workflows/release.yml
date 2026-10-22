@@ -106,13 +106,25 @@ jobs:
       # this commit is older than it. A tag with no release behind it was pushed by hand, against
       # R31: on this commit, or as the newest "release" off main's history, it would stop every
       # release quietly, so the run stops on it instead.
+      #
+      # Every container the script starts has the folder it runs from mounted read-write, .git
+      # and all, so the script runs from a copy of the checkout, in RUNNER_TEMP, taken before the
+      # first container. The runner's own git reads the checkout alone, which no container
+      # mounts: the fetch of the publish step and the post step of actions/checkout, which runs
+      # git config and git submodule foreach there. No script runs from this copy after its
+      # container, so the copy needs no check of the script's sum (the 2026-10-22 amendment to
+      # R31; В25 .github).
       - id: version
         name: Work out the version
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tools/toolchain/toolchain.sh build
-          tools/toolchain/toolchain.sh spec release-version "$TARGET" > "$RUNNER_TEMP/release-version"
+          cp -a . "$RUNNER_TEMP/checkout"
+          (
+              cd "$RUNNER_TEMP/checkout"
+              tools/toolchain/toolchain.sh build
+              tools/toolchain/toolchain.sh spec release-version "$TARGET" > "$RUNNER_TEMP/release-version"
+          )
           tee -a "$GITHUB_OUTPUT" < "$RUNNER_TEMP/release-version"
           version=$(sed -n 's/^version=//p' "$RUNNER_TEMP/release-version")
           released=$(sed -n 's/^released=//p' "$RUNNER_TEMP/release-version")
@@ -162,10 +174,15 @@ jobs:
               # default branch" (the same page). The rule is the recipe release-refusal, the one
               # copy of it, which another repository's release workflow runs too (R31). main is
               # fetched again after the refusal: a commit merged meanwhile is what makes this one
-              # older.
+              # older. The recipe runs in a new copy of the checkout, taken after the fetch: the
+              # version step's copy has no new tip, and its container may have changed it. No
+              # container has had the checkout, so the new copy's script is the one checked out.
               git fetch --quiet --no-tags origin refs/heads/main
               tip=$(git rev-parse FETCH_HEAD)
-              if ! tools/toolchain/toolchain.sh spec release-refusal "$TARGET" "$tip" "$RUNNER_TEMP/release-create.err"; then
+              cp -a . "$RUNNER_TEMP/checkout-tip"
+              if ! (cd "$RUNNER_TEMP/checkout-tip" &&
+                  tools/toolchain/toolchain.sh spec release-refusal \
+                      "$TARGET" "$tip" "$RUNNER_TEMP/release-create.err"); then
                   exit 1
               fi
               echo "::warning::${TARGET} is no longer the tip of main (${tip}) and adds or modifies its workflow files, and the Releases API refused it; the release of the tip covers it."
