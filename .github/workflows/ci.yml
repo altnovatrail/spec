@@ -1,5 +1,5 @@
-# spec's own checks (R30): the documents, the tests of tools/, the licenses of its packages and
-# the version the next release takes (R31).
+# spec's own checks (R30): the documents, the module format (R45), the tests of tools/, the
+# licenses of its packages and the version the next release takes (R31).
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
 # run and published nowhere. Beside them, two of the checks every repository shares, from
@@ -52,6 +52,14 @@ jobs:
       - name: Tests of docs-check
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec docs-check-test
+
+      - name: Module format
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec format-check
+
+      - name: Tests of format-check
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec format-check-test
 
       - name: Tests of new-repo
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}

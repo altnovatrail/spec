@@ -1,0 +1,4 @@
+# error: propertyNames at #/weights
+title: A sample
+weights:
+  First: 1

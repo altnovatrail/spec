@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/common.schema.json",
+  "title": "Common definitions",
+  "description": "What the parts of the trial format share.",
+  "$defs": {
+    "tag": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "A tag, in kebab-case."
+    },
+    "base": {
+      "type": "object",
+      "description": "What every item has.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "What the item is called."
+        },
+        "kind": {
+          "type": "string",
+          "description": "What kind of item it is."
+        }
+      },
+      "required": [
+        "id",
+        "kind"
+      ]
+    }
+  }
+}
