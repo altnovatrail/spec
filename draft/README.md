@@ -16,7 +16,7 @@ It shows where the product is heading, not what it must be. Where it differs fro
   - The learner's pseudonym and overall rank.
   - Grown-ups, behind a PIN.
 - **My subjects**, the home screen.
-  - Subjects on the left — Math, Physics, Spanish, Reading, Art, Chess and Golang — and "+ Add a subject".
+  - Subjects on the left — Math, Physics, Spanish, Writing, Art, Chess and Golang — and "+ Add a subject".
   - A subject's modules, grouped into packs: "School program", "Olympiad" and "Drills" in Math; "Foundations", "Concurrency" and "Advanced" in Golang. A pack is marked *Sequential*, where the modules go lesson by lesson in the author's order, or *Adaptive*, where "the engine picks each next task from your progress". Golang's packs are sequential, all the others adaptive.
   - Each module with its mastery, what is new this week and what slipped, and a tile per skill: mastered, new this week, slipped, in progress, ready to start, not yet, not mapped yet.
   - "Next in Math": the next task, why it comes, and Start.
@@ -29,7 +29,7 @@ It shows where the product is heading, not what it must be. Where it differs fro
   - A new module starts with a quick check on a free board: "No wrong answers — this just finds your start."
 - **Lessons from My subjects.**
   - A lesson opens on the module's canvas, with the module's own steps, such as Read, Write, Run, Improve, and the buddy beside it. The canvases are:
-    - a free board — olympiad maths, reading, drawing;
+    - a free board — olympiad maths, short essays, drawing. An essay, such as "My best day", goes Plan, Write, Improve and ends with "I'm done";
     - a workbook of ten examples — fractions, adding within 20, subtraction with borrowing, the table of 7;
     - a text — Spanish *ser* and *estar*: cross out, write above, tap a word to hear it;
     - a lab — a circuit bench, a widget by another author: batteries, a switch, a meter;
@@ -74,7 +74,11 @@ The documents are in Russian; the references below point to their sections and d
 | Topics locked to "grade 5+" | A skill opens by its prerequisites; age or grade only sets the starting point (concepts 4) |
 | Golang's packs are sequential: their modules go lesson by lesson in the author's order | The engine picks the next lesson or task by the learner model; the author's order holds inside a lesson and for skills without a deterministic check (concepts 4, 5, 12; R03). Whether an author can set the order of a whole module is open, product О-19. The recommendation: through the skill graph — a sequential module's graph is a chain, and the engine follows it |
 | A module builds on other modules, by package name and version range | A module builds only on skills of the shared taxonomy, never on another module's IDs (concepts 3, 4; Т-14) |
-| Modules by other authors in the catalog, and a widget by another author in the lab | Who publishes modules is open, product О-9; the recommendation is official modules only at stages 1–3. Other authors' widgets come at stage 4, in an iframe sandbox (R16, product 10) |
+| Modules by other authors in the catalog — Short essays by Quill & Co among them — and a widget by another author in the lab | Who publishes modules is open, product О-9; the recommendation is official modules only at stages 1–3, and the first slice's essays module is official (R41). Other authors' widgets come at stage 4, in an iframe sandbox (R16, product 10) |
+| A lesson's header credits the canvas to the module's author: "canvas by Quill & Co" | Canvas kinds are platform code shared by all modules; a module only chooses the kind and sets it up (concepts 8, R02) |
+| Short essays for grade 3 | In the first slice the essays module is for any age, a child or an adult, with the presentation style by age (R41) |
+| A short essay ends with "I'm done", and nothing checks it | An essay gets feedback by the module author's rubric: feedback, not a verdict (R04, R41). Tasks with a key in the same module, such as picking the best first sentence, get a verdict |
+| An essay about the child's own "best day" | What a module may ask a learner under 18 to write about is open, privacy П-20. The recommendation: invented or general topics, and a reminder not to write names |
 | A chess board as a canvas of its own | Canvas kinds are platform code shared by all modules: a handwriting sheet, a workbook, a text, a sandbox, a creative canvas. The core knows no subject, so a chess board would be a module's widget on a sandbox (R02, concepts 8) |
 | Golang lessons on a code editor: the learner's program runs, and the lines it prints decide the verdict | No canvas kind for code and no check kind that runs the learner's program (concepts 8, 9.2). Open, product О-20. The recommendation: the verdict comes from the module author's tests, run on the server in a sandbox, not from the output of one run: the broken program prints different lines from run to run |
 | A buddy and ranks for every learner | Presentation follows the learner's presentation style; for adults it is open (product О-13) |

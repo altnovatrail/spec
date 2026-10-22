@@ -16,7 +16,7 @@ All under [altnovatrail](https://github.com/altnovatrail). Created now, for stag
 |---|---|
 | spec | this repository: the vocabulary, formats, contracts and platform documents |
 | .github | the organization's profile, community files and shared CI workflows |
-| modules | the official modules: olympiad maths and Spanish A1 |
+| modules | the official modules: olympiad maths, school maths for grade 3 and short essays in English |
 | module-kit | the module format in code — validation, packages, open views, check kinds — and the authors' CLI |
 | learner-model | the learner model: how well each skill is mastered, from the evidence of attempts |
 | engine | picks the next lesson or task |
