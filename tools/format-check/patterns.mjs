@@ -75,17 +75,19 @@ class PatternParser {
     return product;
   }
 
+  // A sequence ends at the end of the pattern, at a |, or at the ) of the group it is in.
   sequence(depth) {
     let product = 1;
-    while (this.at < this.chars.length && this.peek() !== "|" && !(this.peek() === ")" && depth > 0)) {
-      if (this.peek() === "^" || this.peek() === "$") {
+    for (;;) {
+      const char = this.peek();
+      if (char === undefined || char === "|" || (char === ")" && depth > 0)) return product;
+      if (char === "^" || char === "$") {
         this.at++;
         if (QUANTIFIERS.has(this.peek())) this.fail(`nothing to repeat before ${this.peek()}`);
         continue;
       }
       product = Math.max(product, this.quantified(this.atom(depth)));
     }
-    return product;
   }
 
   atom(depth) {
