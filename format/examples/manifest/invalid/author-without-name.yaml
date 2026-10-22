@@ -1,0 +1,13 @@
+# error: required at #/authors/0
+module_format_version: "0.1"
+id: novatrail/olympiad-math
+version: "0.1.0"
+title: Olympiad mathematics, grades 1–6
+subject: mathematics
+audience:
+  age_categories: [under_13]
+languages:
+  explanation: en
+authors:
+  - {}
+license: Apache-2.0
