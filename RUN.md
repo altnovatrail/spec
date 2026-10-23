@@ -902,6 +902,7 @@ E3 идёт вместе с репозиториями этапа 2, как E2 �
     Оставлены 2:
     - значок покрытия приходит в README `main` тем же мержем, после которого CI делает первую загрузку, и «unknown» он показывает минуты;
     - job «Coverage» ждёт весь job «Documents and tools»: упавшая проверка и так держит pull request, а `codecov/patch` придёт со следующим прогоном.
+  - SonarCloud на pull request #39 нашёл в `ci.yml` уязвимость S6506: `curl -L` без `--proto-redir` мог уйти по редиректу с HTTPS. Скачивание CLI взяло флаги Dockerfile, `--proto "=https" --proto-redir "=https"`, третьим коммитом до мержа.
 - **Открыто:**
   - мои шаги — приложение Codecov на организации и требование токена «Required». Затем push, pull request и проба: job «Coverage» зелёный, загрузка — по OIDC, `codecov/patch` — от приложения 254, `codecov/project` нет. Потом мерж, значок с процентом и правило 12 — по T39 и T40; тогда T40 — `[x]`;
   - `codecov/patch` в ruleset — после pull request Dependabot, 2026-10-26 (Д10);

@@ -124,7 +124,8 @@ jobs:
           CLI_VERSION: v11.3.1
           CLI_SHA256: ca1d64196d2d34771084afe76ea657d581bf628e31d993ff8e52ea09cc88a56d
         run: |
-          curl -fsSL --retry 3 -o "$RUNNER_TEMP/codecov" "https://cli.codecov.io/${CLI_VERSION}/linux/codecov"
+          curl -fsSL --proto "=https" --proto-redir "=https" --retry 3 --retry-all-errors \
+              -o "$RUNNER_TEMP/codecov" "https://cli.codecov.io/${CLI_VERSION}/linux/codecov"
           echo "${CLI_SHA256}  ${RUNNER_TEMP}/codecov" | sha256sum -c -
           chmod +x "$RUNNER_TEMP/codecov"
 
