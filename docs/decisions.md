@@ -579,6 +579,8 @@ Pull request Dependabot идёт из ветки репозитория, но с
 - **Job «Coverage»** в ruleset не входит: без загрузки `codecov/patch` не приходит, и мерж ждёт и так. Любой его сбой валит прогон pull request, чтобы у пропавшего `codecov/patch` была видна причина. Прогон `main` — не валит: у job там `continue-on-error`, который «Prevents a workflow run from failing when a job fails» ([GitHub Docs, Workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontinue-on-error)). Релиз ждёт зелёного CI (R31), и сбой Codecov держать его не должен. Отчёт хранится неделю: после сбоя job можно перезапустить.
 - **`codecov/project`** не приходит вовсе (поправка того же дня к R48), и в ruleset его нет.
 
+— *Поправка 2026-10-23:* условие пункта «Когда» выполнено в тот же день. Первые pull request Dependabot у `spec`, #40–#42, получили токен OIDC, и `codecov/patch` к ним пришёл. С 2026-10-23 `codecov/patch` (`integration_id` 254) — обязательная проверка ruleset `main` `spec` (RUN.md, T40, Д10).
+
 ## Релизы
 
 **R31. Релиз `spec` выходит сам: после зелёного CI на `main` — следующий патч линии, тег вместе с релизом; руками теги не ставятся. Релиз неизменяемый и без файлов, а подписывает его аттестация GitHub.**
