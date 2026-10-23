@@ -123,6 +123,38 @@ test("a draft of each kind holds the whole template, its values filled in", () =
   }
 });
 
+// The badges are written once, in the block of repositories 2.3, with <имя> for the repository
+// (R48). The template's are the first day's of them, and spec's README takes its own from there.
+const FIRST_DAY = ["CI", "CodeQL", "OpenSSF Scorecard", "License", "Code Smells", "Reliability Rating", "Security Rating", "Maintainability Rating", "Vulnerabilities"];
+const badgeLines = (text) => text.split("\n").filter((line) => line.startsWith("[!["));
+const altOf = (line) => line.match(/^\[!\[([^\]]+)\]/)[1];
+
+function documentedBadges() {
+  const text = read(specRoot, "docs/repositories.md");
+  const section = text.slice(text.indexOf("### 2.3. "), text.indexOf("\n## 3. "));
+  const block = section.match(/```markdown\n([\s\S]*?)```/);
+  assert.ok(block, "repositories 2.3 has no block of badges");
+  return badgeLines(block[1]);
+}
+
+test("the README starts with the first day's badges of repositories 2.3, in two rows, with its name", () => {
+  const name = "learner-model";
+  const readme = read(draft(name, "go", "3.8"), "README.md");
+  const expected = documentedBadges()
+    .filter((line) => FIRST_DAY.includes(altOf(line)))
+    .map((line) => line.replaceAll("<имя>", name));
+  assert.deepEqual(expected.map(altOf), FIRST_DAY, "repositories 2.3 lists every badge of the first day once, in this order");
+  const rows = `${expected.slice(0, 4).join("\n")}\n\n${expected.slice(4).join("\n")}`;
+  assert.ok(readme.startsWith(`# ${name}\n\n${rows}\n\n`), "the badges come right under the title, SonarCloud's measures as the second row");
+});
+
+test("spec's own README takes its badges from repositories 2.3", () => {
+  const documented = documentedBadges().map((line) => line.replaceAll("<имя>", "spec"));
+  const own = badgeLines(read(specRoot, "README.md"));
+  assert.ok(own.length > 0, "README.md has no badges");
+  for (const line of own) assert.ok(documented.includes(line), `README.md: ${altOf(line)} differs from repositories 2.3`);
+});
+
 test("the devcontainer is spec's, with the repository's name, network and kind", () => {
   const spec = parseJsonc(read(specRoot, ".devcontainer/devcontainer.json"));
   const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));

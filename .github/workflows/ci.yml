@@ -1,5 +1,6 @@
 # spec's own checks (R30): the documents, the module format (R45), the tests of tools/, the
-# licenses of its packages and the version the next release takes (R31).
+# licenses of its packages and the version the next release takes (R31). The tests run once,
+# with their coverage, which a job of its own sends to Codecov (R48).
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
 # run and published nowhere. Beside them, two of the checks every repository shares, from
@@ -8,7 +9,9 @@
 #
 # The required checks of the ruleset of main are named after these jobs: "Documents and tools",
 # and for a shared check the job here and the job of the shared workflow, "Secrets / gitleaks"
-# and "DCO / sign-off". Renaming either breaks that rule.
+# and "DCO / sign-off". Renaming either breaks that rule. "Coverage" is not one of them: the
+# check that answers for coverage is codecov/patch, which Codecov sets from the upload, and the
+# ruleset requires it once a pull request of Dependabot has shown that it comes (R30).
 
 name: CI
 
@@ -49,42 +52,94 @@ jobs:
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec docs-check
 
-      - name: Tests of docs-check
-        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
-        run: tools/toolchain/toolchain.sh spec docs-check-test
-
       - name: Module format
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec format-check
 
-      - name: Tests of format-check
-        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
-        run: tools/toolchain/toolchain.sh spec format-check-test
-
-      - name: Tests of new-repo
-        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
-        run: tools/toolchain/toolchain.sh spec new-repo-test
-
       - name: Licenses
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec licenses-check
-
-      - name: Tests of licenses-check
-        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
-        run: tools/toolchain/toolchain.sh spec licenses-check-test
 
       # What release.yml will publish once this is on main: the recipe it runs, run here first.
       - name: Release version
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec release-version
 
-      - name: Tests of release-version
+      # The tests of every tool in one run, which names every test that fails, with the coverage
+      # of the code they test in coverage/lcov.info. The recipe fails on a module of tools/ that
+      # no test loads, since codecov/patch would never count its lines.
+      - id: tests
+        name: Tests of tools/
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
-        run: tools/toolchain/toolchain.sh spec release-version-test
+        run: tools/toolchain/toolchain.sh spec coverage
 
-      - name: Tests of toolchain.sh
-        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
-        run: tools/toolchain/toolchain.sh spec toolchain-test
+      # The report goes to the job that uploads it, the one job that may ask for an OIDC token. It
+      # is kept a week, so that the job can be run again after an outage of Codecov.
+      - name: Coverage report
+        if: ${{ !cancelled() && steps.tests.outcome == 'success' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          retention-days: 7
+          if-no-files-found: error
+
+  # Codecov takes the report by OIDC, with no secret (R48). This job alone may ask GitHub for the
+  # token, which only Codecov accepts and which grants nothing in the repository, and it runs
+  # none of the repository's code. A pull request from a fork gets no token: the action then
+  # sends the report without one, as Codecov takes it from a fork's branch.
+  #
+  # Any failure of the job fails a pull request, so that a missing codecov/patch has its reason
+  # in sight. On main it does not fail the run: the release waits for CI to pass (R31), and an
+  # outage of Codecov must not hold it back. continue-on-error "Prevents a workflow run from
+  # failing when a job fails" (GitHub Docs, Workflow syntax, read 2026-10-23).
+  coverage:
+    name: Coverage
+    needs: checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    continue-on-error: ${{ github.event_name != 'pull_request' }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # The files of the commit, which the upload lists so that Codecov can match the report's
+      # paths to them. Which commit and pull request the report is for, the action takes from
+      # the event.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: coverage
+          path: coverage
+
+      # The Codecov CLI at an exact version, checked against its sha256 here, as R34 checks the
+      # archives of the Dockerfile, rather than against a key that the action would fetch from
+      # Keybase during the run (R48). Dependabot moves the action's SHA alone: the version and its
+      # sum are raised by hand, together.
+      - name: Codecov CLI
+        env:
+          CLI_VERSION: v11.3.1
+          CLI_SHA256: ca1d64196d2d34771084afe76ea657d581bf628e31d993ff8e52ea09cc88a56d
+        run: |
+          curl -fsSL --proto "=https" --proto-redir "=https" --retry 3 --retry-all-errors \
+              -o "$RUNNER_TEMP/codecov" "https://cli.codecov.io/${CLI_VERSION}/linux/codecov"
+          echo "${CLI_SHA256}  ${RUNNER_TEMP}/codecov" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/codecov"
+
+      # The report alone: no search for others, and no plugins, which would run coverage tools of
+      # their own. A failed upload fails the job, as any of its steps does.
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          binary: ${{ runner.temp }}/codecov
+          use_oidc: true
+          files: coverage/lcov.info
+          disable_search: true
+          plugins: noop
+          disable_telem: true
+          fail_ci_if_error: true
 
   # The shared checks, pinned to a release of .github by SHA with its version beside it;
   # Dependabot moves both (R04 .github).
