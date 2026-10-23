@@ -145,7 +145,7 @@ jobs:
   # Dependabot moves both (R04 .github).
   secrets:
     name: Secrets
-    uses: altnovatrail/.github/.github/workflows/secrets.yml@ff2a3597769ca85e59e476b1a41bdcbc1f50e3ed # v0.1.0
+    uses: altnovatrail/.github/.github/workflows/secrets.yml@26f61993abadd564cce5e0498b31c686a61f9646 # v0.1.3
 
   # A pull request's commits are what it checks; a push to main has been checked as one.
   dco:
