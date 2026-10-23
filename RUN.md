@@ -191,7 +191,7 @@
 | [ ] | T37 | Что проверяет подпись пакета (Т-27) | я + Claude | да | T34; T16 `.github` и первый релиз `module-kit` |
 | [ ] | T38 | Формат v0 на двух предметах (R08) | Claude, проверяю я | да | T33, T35; первое содержание обоих модулей в `modules` |
 | [x] | T39 | Значки статуса в README (Т-34) | я + Claude | да | — |
-| [ ] | T40 | Покрытие в Codecov (R48) | я + Claude | да | T39 |
+| [x] | T40 | Покрытие в Codecov (R48) | я + Claude | да | T39 |
 | [ ] | T41 | OpenSSF Best Practices у `spec` (R48) | я + Claude | да | T39 |
 
 **Почему такой порядок.**
@@ -903,9 +903,20 @@ E3 идёт вместе с репозиториями этапа 2, как E2 �
     - значок покрытия приходит в README `main` тем же мержем, после которого CI делает первую загрузку, и «unknown» он показывает минуты;
     - job «Coverage» ждёт весь job «Documents and tools»: упавшая проверка и так держит pull request, а `codecov/patch` придёт со следующим прогоном.
   - SonarCloud на pull request #39 нашёл в `ci.yml` уязвимость S6506: `curl -L` без `--proto-redir` мог уйти по редиректу с HTTPS. Скачивание CLI взяло флаги Dockerfile, `--proto "=https" --proto-redir "=https"`, третьим коммитом до мержа.
+- **Сделано (2026-10-23)** — мои шаги, проба и мерж; весь цикл я поручил исполнителю словами «сделай всё сам»:
+  - приложение Codecov поставил я — на всю организацию, `app_id` 254. Требование токена для публичных репозиториев я перевёл в «Required». Глобальный токен на той же странице не нужен: его заменяет OIDC (R48);
+  - pull request #39 — T39 и T40. В первом прогоне, ещё без приложения и при «Not required», job «Coverage» получил токен OIDC, а Codecov принял отчёт, но проверки на GitHub поставить не мог;
+  - после моих шагов job перезапущен, и Codecov принял отчёт уже при «Required», то есть по токену OIDC. `codecov/patch` пришёл проверкой (check run) приложения 254 — success, «Coverage not affected». `codecov/project` не пришёл, а комментария нет: покрытие не менялось (`require_changes`);
+  - смержено 2a8a7ed. На `main` загрузка прошла:
+    - у коммита — статус `codecov/patch` «Coverage not affected when comparing 0f3df8f...2a8a7ed»: вне pull request Codecov ставит статус коммита, а не check run;
+    - значок отвечает «codecov 95%». Codecov считает 94,99 %: строку с непройденной ветвью он не считает покрытой, а Node — считает и даёт 97,33 %;
+    - вышел релиз v0.2.27;
+  - правило 12 по T39 и T40:
+    - SonarCloud на `main` 2a8a7ed — quality gate OK, по новому коду 0 находок;
+    - code scanning — те же шесть алертов Scorecard от 2026-10-20 (R33);
+    - Scorecard — 6,8, как прежде: Token-Permissions 10, Dangerous-Workflow 10, а Pinned-Dependencies 8 — по-прежнему из-за `npm` в Dockerfile. Своё скачивание CLI в `ci.yml` находкой он не считает.
 - **Открыто:**
-  - мои шаги — приложение Codecov на организации и требование токена «Required». Затем push, pull request и проба: job «Coverage» зелёный, загрузка — по OIDC, `codecov/patch` — от приложения 254, `codecov/project` нет. Потом мерж, значок с процентом и правило 12 — по T39 и T40; тогда T40 — `[x]`;
-  - `codecov/patch` в ruleset — после pull request Dependabot, 2026-10-26 (Д10);
+  - `codecov/patch` в ruleset `main` — после pull request Dependabot, 2026-10-26 (Д10);
   - путь форка в деле — с первым pull request с форка;
   - Д29 — покрытие у `.github`, `module-kit`, `tutor` и `canvas`.
 
