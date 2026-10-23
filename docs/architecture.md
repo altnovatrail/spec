@@ -379,7 +379,7 @@ flowchart LR
 | SonarQube Cloud | анализ кода и quality gate, который держит мерж; меры на значках README | решено: R30; значки — R48 |
 | OpenSSF Scorecard | оценка того, как ведётся репозиторий; значок README | решено: R09 .github; значок — R48 |
 | shields.io | значки README: номер релиза, язык, лицензия, а через него и значок Scorecard | решено: R48 |
-| Codecov | покрытие тестов и порог изменённых строк; значок README | решено: R48; подключает RUN.md, T40 |
+| Codecov | покрытие тестов и порог изменённых строк; значок README | решено: R48; у `spec` — с T40 (поправка 2026-10-23 к R30), у других — RUN.md, Д29 |
 | OpenSSF Best Practices | проект на bestpractices.dev и его значок | решено: R48; у `spec` — RUN.md, T41 |
 
 ### 3.13. Позже

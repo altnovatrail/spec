@@ -1,0 +1,25 @@
+# What Codecov does with the coverage of the tests of tools/, which the job "Coverage" of ci.yml
+# uploads (R48). The report is Node's: it leaves the tests and node_modules/ out by itself, and
+# `just coverage`, which writes it, fails on a module of tools/ that no test loads, so nothing
+# here needs ignoring. Node measures JavaScript alone, so the shell of toolchain.sh and of the
+# justfile's recipes counts nowhere.
+
+coverage:
+  status:
+    # New and changed lines are covered at 90 % at least, as R38 standalone. The ruleset of main
+    # requires this check once a pull request of Dependabot has shown that it comes (R30). A pull
+    # request that changes no line of the report, the documents alone, passes as "Coverage not
+    # affected".
+    patch:
+      default:
+        target: 90%
+    # On the plan Codecov gives a public repository, it sets no project status (R48). Should it
+    # ever set one, it only informs: the badge shows the coverage of the whole.
+    project:
+      default:
+        informational: true
+
+# As standalone's: a comment only when the coverage changes, with the diff and the files.
+comment:
+  layout: "condensed_header, diff, files"
+  require_changes: true

@@ -7,7 +7,8 @@
 # Raised by hand, before each new tag of spec, because no ecosystem here reads them: the ARGs of
 # .devcontainer/Dockerfile, each version with the sha256 of its archives (R34), the VS Code
 # extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json. Every new
-# repository copies this devcontainer at a tag of spec.
+# repository copies this devcontainer at a tag of spec. So is the Codecov CLI of ci.yml, its
+# version with its sha256 (R48): Dependabot moves the SHA of the action that runs it, not the CLI.
 #
 # Every ecosystem waits three days after a release before proposing it. That is Dependabot's own
 # default, written down so that it stays: a bad release gets time to be noticed. The weekly

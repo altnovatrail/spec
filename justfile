@@ -188,6 +188,33 @@ new-repo-check name: _tools
 new-repo-test: _tools
     node --test 'tools/new-repo/test/*.test.mjs'
 
+# The tests of every tool above in one run, as CI runs them, with the coverage of the code they
+# test: a summary after the tests, and coverage/lcov.info, its paths from the repository's root,
+# which a job of CI sends to Codecov (R48). Node leaves the tests themselves and node_modules/ out
+# of the report. A module that no test loads is not in it at all, and codecov/patch would never
+# count its lines, so the recipe fails on any module of tools/ the report does not name. Node
+# measures JavaScript alone: toolchain.sh and the bash recipes here have their tests, but no
+# coverage.
+# Run every test of tools/ once, and write their coverage.
+coverage: _tools
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p coverage
+    rm -f coverage/lcov.info
+    JUST={{quote(just_executable())}} node --test --experimental-test-coverage \
+        --test-reporter=spec --test-reporter-destination=stdout \
+        --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \
+        'tools/*/test/*.test.mjs'
+    # Both lists first, so that a git or a sed that fails stops the recipe rather than empty a list.
+    modules=$(git ls-files --cached --others --exclude-standard -- 'tools/*.mjs' | grep -v '/test/')
+    reported=$(sed -n 's/^SF://p' coverage/lcov.info)
+    missing=$(comm -23 <(sort <<< "$modules") <(sort <<< "$reported"))
+    if [ -n "$missing" ]; then
+        echo "coverage: no test loads these modules of tools/, so codecov/patch would never count their lines:" >&2
+        echo "$missing" >&2
+        exit 1
+    fi
+
 # Install tools/ from its lock file, again whenever package.json or the lock file changes:
 # the stamp holds their hashes, so a restored file with an old mtime is noticed too.
 # Package scripts never run: tools/.npmrc sets ignore-scripts, and the flag says it again.

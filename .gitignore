@@ -1,6 +1,9 @@
 # Installed by `just docs-check` from tools/package-lock.json.
 tools/node_modules/
 
+# The coverage of the tests of tools/, written by `just coverage` for Codecov (R48).
+coverage/
+
 # Working copies of new NovaTrail repositories, built by `just new-repo`: each is a repository
 # of its own.
 .repos/
