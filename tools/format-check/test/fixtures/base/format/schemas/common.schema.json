@@ -26,6 +26,21 @@
         "id",
         "kind"
       ]
+    },
+    "local_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "maxLength": 64,
+      "not": {
+        "pattern": "^(con|prn|aux|nul|com[1-9]|lpt[1-9])$"
+      },
+      "description": "A local ID, in kebab-case."
+    },
+    "media_path": {
+      "type": "string",
+      "pattern": "^([a-z][a-z0-9]*(-[a-z0-9]+)*/)*[a-z][a-z0-9]*(-[a-z0-9]+)*\\.(png|jpg|webp|mp3)$",
+      "maxLength": 128,
+      "description": "The path of a media file from media/."
     }
   }
 }

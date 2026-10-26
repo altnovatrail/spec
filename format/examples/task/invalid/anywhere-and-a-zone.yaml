@@ -1,0 +1,16 @@
+# error: not at #
+# An answer slot bound anywhere is the only answer slot of its task, even in a single item.
+id: anywhere-and-a-zone
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+      - binding: zone
+        zone: {left: 100, top: 1000, width: 400, height: 200}
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

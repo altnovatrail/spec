@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/manifest.schema.json",
   "title": "Manifest",
-  "description": "The manifest of a module, manifest.yaml at the root of its folder: the format version the module is written in, its ID and version, what it is called and teaches, whom it is for, its languages, the anchor skills it builds on, its authors and its license. Every field is open, since the learner's app shows them.",
+  "description": "The manifest of a module, manifest.yaml at the root of its folder: the format version the module is written in, its ID and version, what it is called and teaches, whom it is for, the bands of its difficulty scale, its languages, the anchor skills it builds on, the settings of its canvas, its authors and its license. Every field is open, since the learner's app shows them.",
   "type": "object",
   "properties": {
     "module_format_version": {
@@ -61,6 +61,42 @@
       "description": "Whom the module is for: its age categories and, for a module written for school grades, those grades.",
       "x-open": true
     },
+    "bands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/band_id",
+            "description": "The band's ID, by which a task names it.",
+            "x-open": true
+          },
+          "title": {
+            "$ref": "common.schema.json#/$defs/text",
+            "description": "What the band is called, in the module's explanation language: Grades 1–2.",
+            "x-open": true
+          },
+          "grades": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/grade"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "The school grades the band's tasks are written for, in a module that names grades: a learner of one of them starts in this band.",
+            "x-open": true
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "The bands of the module's difficulty scale, from the easiest: each task names its band and a difficulty from 1 to 5 within it. A module with tasks has them.",
+      "x-open": true
+    },
     "languages": {
       "type": "object",
       "properties": {
@@ -90,6 +126,23 @@
       "minItems": 1,
       "uniqueItems": true,
       "description": "The anchor skills of the shared taxonomy that the module's skills need: exactly those that its skill graph names as prerequisites. A module whose skills need none leaves this field out.",
+      "x-open": true
+    },
+    "canvas": {
+      "type": "object",
+      "properties": {
+        "digit_height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256,
+          "default": 32,
+          "description": "The height in px that a digit or a letter of the learner's writing has on the crop that goes to be read: 32 unless given.",
+          "x-open": true
+        }
+      },
+      "minProperties": 1,
+      "unevaluatedProperties": false,
+      "description": "The settings of the module's canvas, the same for each of its tasks.",
       "x-open": true
     },
     "authors": {

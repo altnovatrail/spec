@@ -1,0 +1,17 @@
+# error: not at #/items/0
+# A line of text and boxes is an item of a workbook, not of a handwriting sheet.
+id: line-on-the-sheet
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+    line:
+      - text: Rungs
+      - binding: box
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

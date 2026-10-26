@@ -1,0 +1,14 @@
+# error: enum at #/items/0/answer_slots/0/binding
+# A box belongs to a line of a workbook; an answer by keyboard is in no version yet either.
+id: box-on-the-sheet
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: box
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

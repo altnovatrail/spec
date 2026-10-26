@@ -64,6 +64,9 @@ const FIELDS = new Set(["properties", "patternProperties", "additionalProperties
 const PLACES = new Set([...FIELDS, "items", "prefixItems", "contains"]);
 // What a condition holds is no field and no place.
 const CONDITIONS = new Set(["if", "not"]);
+// Where a mark x-open counts for nothing, besides a condition: what contains or propertyNames holds
+// says nothing of which places are open (format/README.md, section 6).
+const UNMARKED = new Set(["contains", "propertyNames"]);
 
 // Reads format/schemas/<name>: { name, term, file, json, lineOf, problems }. json is null when the
 // file is not JSON; lineOf(path) is the line of the value at a path of keys and indexes.
@@ -99,7 +102,7 @@ export function readSchema(root, name) {
 // problems.
 export function checkConventions(schemas, version) {
   const byName = new Map(schemas.filter((s) => s.json !== null).map((s) => [s.name, s]));
-  const roots = conditionDefinitions(byName);
+  const roots = unmarkedDefinitions(byName);
   for (const schema of byName.values()) {
     const report = (at, message) => schema.problems.push({ line: schema.lineOf(at), message });
     const json = schema.json;
@@ -118,46 +121,57 @@ export function checkConventions(schemas, version) {
   }
 }
 
-// The definitions that serve only as conditions: reached by $ref from an if or a not, and from
-// nothing else. What they hold is a condition too, so their fields need no description and their
-// objects no closing. A definition becomes one only when every reference to it comes from a
-// condition, and its own references then come from one too: so the set only grows, and the loop ends.
-function conditionDefinitions(byName) {
-  let roots = new Set();
+// The definitions that serve only where a mark x-open counts for nothing: { conditions, unmarked }.
+// conditions are those reached by $ref from an if or a not, and from nothing else: what they hold is
+// a condition too, so their fields need no description and their objects no closing. unmarked are
+// those reached only from what a condition, contains or propertyNames holds. A definition becomes
+// one only when every reference to it comes from such a place, and its own references then come
+// from one too: so the sets only grow, and the loop ends.
+function unmarkedDefinitions(byName) {
+  let roots = NO_ROOTS;
   for (;;) {
-    const fromCondition = new Set();
-    const fromElsewhere = new Set();
+    const from = { conditions: new Set(), unmarked: new Set() };
+    const elsewhere = { conditions: new Set(), unmarked: new Set() };
     for (const schema of byName.values()) {
-      for (const { schema: node, inCondition } of subschemas(schema.json, roots)) {
+      for (const { schema: node, inCondition, unmarked } of subschemas(schema.json, roots)) {
         const target = isObject(node) ? resolveRef(node.$ref, schema, byName) : null;
-        if (target) (inCondition ? fromCondition : fromElsewhere).add(target.schema);
+        if (!target) continue;
+        (inCondition ? from : elsewhere).conditions.add(target.schema);
+        (unmarked ? from : elsewhere).unmarked.add(target.schema);
       }
     }
-    const next = new Set([...fromCondition].filter((definition) => !fromElsewhere.has(definition)));
-    if (next.size === roots.size) return roots;
+    const only = (kind) => new Set([...from[kind]].filter((definition) => !elsewhere[kind].has(definition)));
+    const next = { conditions: only("conditions"), unmarked: only("unmarked") };
+    if (next.conditions.size === roots.conditions.size && next.unmarked.size === roots.unmarked.size) return roots;
     roots = next;
   }
 }
 
-// Every subschema of a schema, depth first: { schema, at, under, inCondition }, where at is its
-// path of keys and indexes, under the keyword it stands under, and inCondition whether it is part of
-// a condition: held by an if or a not, or by one of the definitions that roots names.
-function* subschemas(schema, roots = new Set(), at = [], under = null, inCondition = false) {
-  const condition = inCondition || roots.has(schema);
-  yield { schema, at, under, inCondition: condition };
+const NO_ROOTS = { conditions: new Set(), unmarked: new Set() };
+
+// Every subschema of a schema, depth first: { schema, at, under, inCondition, unmarked }, where at
+// is its path of keys and indexes, under the keyword it stands under, inCondition whether it is part
+// of a condition — held by an if or a not, or by one of the definitions that roots.conditions names
+// — and unmarked whether a mark in it counts for nothing: in a condition, held by contains or
+// propertyNames, or by one of the definitions that roots.unmarked names.
+function* subschemas(schema, roots = NO_ROOTS, at = [], under = null, inCondition = false, unmarked = false) {
+  const condition = inCondition || roots.conditions.has(schema);
+  const noMarks = unmarked || condition || roots.unmarked.has(schema);
+  yield { schema, at, under, inCondition: condition, unmarked: noMarks };
   if (!isObject(schema)) return;
   for (const [keyword, value] of Object.entries(schema)) {
     const inner = condition || CONDITIONS.has(keyword);
-    if (ONE_SUBSCHEMA.has(keyword)) yield* subschemas(value, roots, [...at, keyword], keyword, inner);
+    const innerUnmarked = noMarks || inner || UNMARKED.has(keyword);
+    if (ONE_SUBSCHEMA.has(keyword)) yield* subschemas(value, roots, [...at, keyword], keyword, inner, innerUnmarked);
     else if (SUBSCHEMA_LIST.has(keyword) && Array.isArray(value)) {
-      for (const [index, item] of value.entries()) yield* subschemas(item, roots, [...at, keyword, index], keyword, inner);
+      for (const [index, item] of value.entries()) yield* subschemas(item, roots, [...at, keyword, index], keyword, inner, innerUnmarked);
     } else if (SUBSCHEMA_MAP.has(keyword) && isObject(value)) {
-      for (const [name, item] of Object.entries(value)) yield* subschemas(item, roots, [...at, keyword, name], keyword, inner);
+      for (const [name, item] of Object.entries(value)) yield* subschemas(item, roots, [...at, keyword, name], keyword, inner, innerUnmarked);
     }
   }
 }
 
-function checkSubschema({ schema, at, under, inCondition }, file, byName, report) {
+function checkSubschema({ schema, at, under, inCondition, unmarked }, file, byName, report) {
   const isRoot = at.length === 0;
   const isField = FIELDS.has(under) && !inCondition;
   const isPlace = isRoot || (PLACES.has(under) && !inCondition);
@@ -175,6 +189,7 @@ function checkSubschema({ schema, at, under, inCondition }, file, byName, report
   if ("x-open" in schema) {
     if (schema["x-open"] !== true) report([...at, "x-open"], "x-open is true, or absent");
     if (!FIELDS.has(under)) report([...at, "x-open"], "x-open stands only in a field's subschema: under properties, patternProperties or additionalProperties");
+    else if (unmarked) report([...at, "x-open"], "x-open counts for nothing under if, not, contains or propertyNames, so it stands nowhere there");
   }
   if ("$ref" in schema) {
     const problem = refProblem(schema.$ref, file, byName);
@@ -305,9 +320,11 @@ function referencedNames(schema) {
 }
 
 // Compiles the schemas with no problems, after checking every schema against the 2020-12
-// meta-schema. Returns the validator of each term that compiled, by term; what goes wrong is added
-// to the schema's problems. A schema that refers, directly or through others, to one with problems
-// gets one line, not the MissingRefError of each reference.
+// meta-schema. Returns { validators, schemaAt }: the validator of each term that compiled with no
+// word from ajv, by term, and schemaAt(uri), the validator of the subschema a URI names — a schema's
+// $id and a JSON Pointer — in a schema that compiled, or undefined. What goes wrong is added to the schema's problems. A
+// schema that refers, directly or through others, to one with problems gets one line, not the
+// MissingRefError of each reference.
 export function compileSchemas(schemas) {
   const warnings = [];
   const note = (...words) => warnings.push(words.join(" "));
@@ -375,14 +392,28 @@ export function compileSchemas(schemas) {
   };
   for (const name of added) place(name);
 
+  // A schema that ajv compiled but logged a word about has no validator of its own, yet a schema that
+  // refers to it may: so schemaAt reads every schema ajv compiled.
   const validators = new Map();
+  const compiled = new Set();
   for (const name of order) {
     const schema = sound.get(name);
     const before = schema.problems.length;
     const validate = attempt(schema, () => ajv.getSchema(schema.json.$id));
+    if (validate) compiled.add(name);
     if (validate && schema.problems.length === before) validators.set(schema.term, validate);
   }
-  return validators;
+  const schemaAt = (uri) => {
+    const base = uri.includes("#") ? uri.slice(0, uri.indexOf("#")) : uri;
+    const name = base.split("/").at(-1);
+    return compiled.has(name) ? ajv.getSchema(uri) : undefined;
+  };
+  return { validators, schemaAt };
+}
+
+// A JSON Pointer in URI fragment form for a path of keys and indexes (RFC 6901, 4 and 6): "#/a/0".
+export function fragmentOf(at) {
+  return `#${at.map((key) => `/${encodeURIComponent(String(key).replaceAll("~", "~0").replaceAll("/", "~1"))}`).join("")}`;
 }
 
 // A JSON Pointer as a path of keys, with ~1 and ~0 undone (RFC 6901, 4).

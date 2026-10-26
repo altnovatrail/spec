@@ -1,0 +1,15 @@
+# error: unevaluatedProperties at #/items/0/answer_slots/0/zone
+# A zone is a rectangle in units of the sheet, not cells of its grid, which would move with its step.
+id: zone-in-cells
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: zone
+        zone: {left: 100, top: 1000, width: 400, height: 200, cells: 8}
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

@@ -1,0 +1,16 @@
+# error: minProperties at #/canvas
+# A module that sets nothing of its canvas leaves canvas out.
+module_format_version: "0.1"
+id: novatrail/school-math-grade-3
+version: "0.1.0"
+title: School mathematics, grade 3
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3]
+languages:
+  explanation: en
+canvas: {}
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

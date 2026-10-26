@@ -1,5 +1,6 @@
 # The manifest of the official module of short essays in English, for learners of any age. It
-# teaches writing, not a language, so it has no target language.
+# teaches writing, not a language, so it has no target language, and it names no grades, so its
+# bands name none either.
 module_format_version: "0.1"
 id: novatrail/short-essays
 version: "0.1.0"
@@ -7,6 +8,11 @@ title: Short essays in English
 subject: writing
 audience:
   age_categories: [under_13, from_13_to_consent, from_consent_to_18, adult]
+bands:
+  - id: first-steps
+    title: First steps
+  - id: whole-essays
+    title: Whole essays
 languages:
   explanation: en
 authors:

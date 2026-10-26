@@ -1,0 +1,14 @@
+# A skill both primary and supporting in the task.
+id: seven-times-eight
+statement:
+  - text: What is 7 × 8?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [times-tables]
+  supporting: [times-tables]
+band: grade-3
+difficulty: 1

@@ -1,0 +1,16 @@
+# error: maxItems at #/items
+# An answer that stands anywhere on the sheet is the only one: AI could not tell two of them apart.
+id: two-answers-anywhere
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

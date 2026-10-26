@@ -29,6 +29,7 @@ A small format for the tests of format-check. It lists its rules in tables, as t
 |---|---|---|
 | `manifest.yaml` | `manifest` | The manifest. |
 | `sample.yaml` | `sample` | A sample. |
+| `samples/<id>.yaml` | `sample` | Samples, a file for each, named by its id. |
 | `media/<path>` | — | Pictures and sound. |
 | `NOTICE` | — | The notices of the licenses. |
 
@@ -36,6 +37,8 @@ A small format for the tests of format-check. It lists its rules in tables, as t
 |---|---|
 | `module.manifest` | The folder of a module MUST hold manifest.yaml. |
 | `module.layout` | Every file of a module MUST stand at a path of the layout. |
+| `module.file-ids` | A file at a path with <id> MUST hold that name in its id. |
+| `module.media` | A media file MUST stand at a media path and begin with its format's signature. |
 
 ## 11. The manifest
 

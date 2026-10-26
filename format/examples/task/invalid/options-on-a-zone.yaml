@@ -1,0 +1,16 @@
+# error: unevaluatedProperties at #/items/0/answer_slots/0
+# Options belong to an answer slot bound to a choice, not to a zone.
+id: options-on-a-zone
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: zone
+        zone: {left: 100, top: 1000, width: 400, height: 200}
+        options: ["6", "7"]
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

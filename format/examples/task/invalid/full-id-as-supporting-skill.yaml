@@ -1,0 +1,15 @@
+# error: anyOf at #/skills/supporting/0
+# A file of a module names its own skills by local ID, never by full ID.
+id: full-id-as-supporting-skill
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [counting-gaps]
+  supporting: [novatrail/olympiad-math/skill/time-calendar]
+band: grades-3-4
+difficulty: 2

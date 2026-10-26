@@ -1,0 +1,17 @@
+# error: not at #/canvas
+# A grid belongs to a handwriting sheet; a workbook lays out its lines itself.
+id: grid-on-the-workbook
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: workbook
+  grid: squares
+items:
+  - line:
+      - text: "7 ×"
+      - binding: box
+      - text: "= 56"
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

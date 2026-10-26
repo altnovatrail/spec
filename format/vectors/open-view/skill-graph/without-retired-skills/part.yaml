@@ -1,0 +1,15 @@
+# The open view of a skill graph keeps its skills and tiers, and leaves out its retired skills.
+tiers: [Tables, Division]
+skills:
+  times-tables:
+    title: Times tables
+    teaches: [core.multiplication-table]
+    assessability: verdict
+  division-with-remainder:
+    title: Division with a remainder
+    description: Divides a whole number by a number from 1 to 10 and gives the quotient and the remainder.
+    prerequisites: [times-tables]
+    assessability: verdict
+retired_skills:
+  table-of-seven:
+    replaced_by: [times-tables]

@@ -5,6 +5,11 @@
   "description": "A part of the trial format.",
   "type": "object",
   "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/local_id",
+      "description": "The sample's local ID.",
+      "x-open": true
+    },
     "title": {
       "type": "string",
       "description": "What the sample is called.",

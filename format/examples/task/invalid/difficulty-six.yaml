@@ -1,0 +1,14 @@
+# error: maximum at #/difficulty
+# The difficulty within a band runs from 1 to 5.
+id: difficulty-six
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 6

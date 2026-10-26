@@ -1,0 +1,15 @@
+# error: minimum at #/canvas/grid_step
+# The step of the grid runs from 20 to 500 units of the sheet.
+id: grid-step-ten
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+  grid_step: 10
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

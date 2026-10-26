@@ -1,0 +1,18 @@
+# error: not at #/statement/0
+# A part of a statement is a paragraph or a picture, not both.
+id: text-and-picture-in-one-part
+statement:
+  - text: The clock shows when Anna leaves home.
+    picture: pictures/clock-quarter-past-three.png
+    alt: A clock face whose hands show a quarter past three.
+    width: 240
+    height: 240
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

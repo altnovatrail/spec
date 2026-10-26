@@ -6,8 +6,9 @@ import path from "node:path";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { gfm } from "micromark-extension-gfm";
-import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, listModule, placeFiles, versionProblem } from "./module.mjs";
-import { isKebabCase } from "./schemas.mjs";
+import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listModule, mediaBreaches, placeFiles, versionProblem } from "./module.mjs";
+import { differenceOf, openViewOf } from "./openview.mjs";
+import { fragmentOf, isKebabCase } from "./schemas.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
 // What an invalid example never names: the keyword that failed inside them is named instead
@@ -142,18 +143,34 @@ export function checkVector(bytes, { rule, validate, version }) {
 // the format's version; and the rules of a whole module hold, except in a vector of one of them,
 // which breaks that rule and no other (sections 8–10). A vector of a part's rule holds a file of
 // that part. rule is the vector's rule, or null for an example; validatorOf(part) gives a part's
-// validator, or undefined. Returns problems, each { file, line, message }, where file is the path of
-// a file in the case, or "" for the case itself.
-export function checkModuleCase(folder, { rule, layout, validatorOf, version }) {
-  const { rows, breaches } = placeFiles(listModule(folder), layout);
-  const problems = wholeModuleProblems(breaches, rule);
+// validator, or undefined; forms holds isLocalId and isMediaPath, the forms of common's local_id and
+// media_path. Returns problems, each { file, line, message }, where file is the path of a file in
+// the case, or "" for the case itself.
+export function checkModuleCase(folder, { rule, layout, validatorOf, version, forms }) {
+  const { rows, breaches } = placeFiles(listModule(folder), layout, forms);
+  const problems = [];
   const parts = new Set();
+  // The rules of a whole module that could not be checked on this case: no vector of one then
+  // says that it breaks no such rule.
+  const unchecked = new Set(forms.isMediaPath ? [] : ["module.media"]);
   for (const [file, row] of rows) {
     if (!row?.part) continue;
     parts.add(row.part);
     const read = readModuleFile(fs.readFileSync(path.join(folder, file)));
-    for (const problem of partFileProblems(read, row.part, { rule, validate: validatorOf(row.part), version })) problems.push({ file, ...problem });
+    const validate = validatorOf(row.part);
+    const fileProblems = partFileProblems(read, row.part, { rule, validate, version });
+    for (const problem of fileProblems) problems.push({ file, ...problem });
+    // module.file-ids: an entry's file holds its own name in id, read only from a file that passed
+    // its schema, so that a file the schema refuses breaks that and nothing more.
+    const id = read.value?.id;
+    if (row.id === null) continue;
+    if (!validate || fileProblems.length > 0) unchecked.add("module.file-ids");
+    else if (typeof id === "string" && id !== idOf(file, row)) {
+      breaches.push({ rule: "module.file-ids", file, message: `holds the id ${JSON.stringify(id)}: the file of an entry is named by its id, ${idOf(file, row)}` });
+    }
   }
+  breaches.push(...mediaBreaches(folder, [...rows].filter(([, row]) => row).map(([file]) => file), forms));
+  problems.push(...wholeModuleProblems(breaches, rule, unchecked));
   const part = rule === null ? null : partOf(rule);
   if (part !== null && part !== "yaml" && part !== "module" && !parts.has(part)) {
     problems.push({ file: "", line: 0, message: `holds no file of the part ${part}, whose rule ${rule} it is a case of` });
@@ -161,14 +178,34 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version }) 
   return problems;
 }
 
+// A vector of the open view (section 9): part.yaml, a part of term, follows the YAML rules, names
+// the format's version when it is a manifest, and passes the part's schema, by its validator
+// validate; open-view.yaml follows the YAML rules; and the open view of the part, built by openView
+// — byName and schemaAt —, is open-view.yaml, whatever the order of keys. Returns problems, each
+// { file, line, message }, where file is part.yaml or open-view.yaml.
+export function checkOpenView(partBytes, viewBytes, { term, validate, version, openView }) {
+  const part = readModuleFile(partBytes);
+  const expected = readModuleFile(viewBytes);
+  const problems = [
+    ...partFileProblems(part, term, { rule: null, validate, version }).map((problem) => ({ file: "part.yaml", ...problem })),
+    ...yamlProblems(expected.violations, expected.notYaml).map((problem) => ({ file: "open-view.yaml", ...problem })),
+  ];
+  if (problems.length || !validate) return problems;
+  // The part's schema compiled, and so did every schema it reaches: every reference resolves, and
+  // every subschema has a validator.
+  const at = differenceOf(openViewOf(part.value, `${term}.schema.json`, openView), expected.value);
+  if (at) problems.push({ file: "open-view.yaml", line: 0, message: `is not the open view of part.yaml: they differ at ${fragmentOf(at)}` });
+  return problems;
+}
+
 // The rules of a whole module on the files of a case: all of them hold, but in a vector of one of
-// them, which breaks that rule alone.
-function wholeModuleProblems(breaches, rule) {
+// them, which breaks that rule alone, unless it went unchecked.
+function wholeModuleProblems(breaches, rule, unchecked) {
   const ownRule = rule !== null && partOf(rule) === "module" ? rule : null;
   const problems = breaches
     .filter((breach) => breach.rule !== ownRule)
     .map((breach) => ({ file: breach.file, line: 0, message: ownRule ? `breaks ${breach.rule} too: ${breach.message}` : `${breach.rule}: ${breach.message}` }));
-  if (ownRule && !breaches.some((breach) => breach.rule === ownRule)) problems.push({ file: "", line: 0, message: `breaks no ${ownRule}` });
+  if (ownRule && !unchecked.has(ownRule) && !breaches.some((breach) => breach.rule === ownRule)) problems.push({ file: "", line: 0, message: `breaks no ${ownRule}` });
   return problems;
 }
 

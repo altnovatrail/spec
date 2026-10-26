@@ -1,0 +1,17 @@
+# A picture that media/ does not hold.
+id: count-the-dots
+statement:
+  - text: How many dots does the picture show?
+  - picture: pictures/dots.png
+    alt: Eight rows of seven dots.
+    width: 240
+    height: 240
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

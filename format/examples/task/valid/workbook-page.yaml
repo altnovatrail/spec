@@ -1,0 +1,35 @@
+# A page of the workbook of school mathematics for grade 3: each item is a line of text and boxes,
+# the box in any place of it. The division has a box for the quotient and one for the remainder,
+# and trains a skill of its own.
+id: tables-and-division-1
+statement:
+  - text: Write the missing numbers and signs.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 ×"
+      - binding: box
+      - text: "= 56"
+  - line:
+      - binding: box
+      - text: "÷ 8 = 4"
+  - line:
+      - text: "56"
+      - binding: box
+      - text: "65"
+  - line:
+      - text: Tom has 3 bags of 4 apples. He has
+      - binding: box
+      - text: apples.
+  - line:
+      - text: "47 ÷ 6 ="
+      - binding: box
+      - text: r
+      - binding: box
+    skills:
+      primary: [division-with-remainder]
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

@@ -1,0 +1,17 @@
+# error: required at #/statement/1
+# A picture says what it shows, for a screen reader and for when it does not come.
+id: picture-without-alt
+statement:
+  - text: The clock shows when Anna leaves home.
+  - picture: pictures/clock-quarter-past-three.png
+    width: 240
+    height: 240
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

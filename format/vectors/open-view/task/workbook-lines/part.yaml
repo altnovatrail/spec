@@ -1,0 +1,22 @@
+# The lines of a workbook are open, and the skills of an item are closed, as the task's are.
+id: tables-page
+statement:
+  - text: Write the missing numbers.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 ×"
+      - binding: box
+      - text: "= 56"
+  - line:
+      - text: "47 ÷ 6 ="
+      - binding: box
+      - text: r
+      - binding: box
+    skills:
+      primary: [division-with-remainder]
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

@@ -1,0 +1,14 @@
+# error: pattern at #/skills/primary/0
+# A primary skill is a skill of the module, which gets the evidence; an anchor skill may only be a supporting one.
+id: anchor-skill-as-primary
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [core.multiplication-table]
+band: grades-3-4
+difficulty: 2

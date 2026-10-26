@@ -1,0 +1,557 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/task.schema.json",
+  "title": "Task",
+  "description": "A task of a module, tasks/<id>.yaml in its folder: its statement, its canvas, its items with their answer slots, the skills it trains, its band and difficulty, and, when they are fewer than the module's, the age categories it is for. What is right in each item, its key or predicate, comes with the check kinds. The ID, the statement, the canvas and the items are open, since the learner's app shows them; the skills, the band, the difficulty and the age categories are closed, since the server reads them.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/task_id",
+      "description": "The task's local ID: the name of its file, without .yaml.",
+      "x-open": true
+    },
+    "statement": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/statement_part",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "The statement of the task, what the learner reads: paragraphs and pictures in order, in the module's explanation language. Whether it stands above the canvas or on it is the canvas kind's to decide.",
+      "x-open": true
+    },
+    "canvas": {
+      "$ref": "#/$defs/canvas",
+      "unevaluatedProperties": false,
+      "description": "The canvas of the task, one for all its items: its kind and the kind's settings.",
+      "x-open": true
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/item",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "The items of the task, each named by its place, from 1. On a handwriting sheet an item has answer slots; on a workbook it is a line of text and boxes.",
+      "x-open": true
+    },
+    "skills": {
+      "$ref": "#/$defs/skills",
+      "unevaluatedProperties": false,
+      "description": "The skills that the task trains and needs, for each item that names none of its own."
+    },
+    "band": {
+      "$ref": "common.schema.json#/$defs/band_id",
+      "description": "The band of the module's difficulty scale that the task is in, by its ID in the manifest."
+    },
+    "difficulty": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "How hard the task is within its band, from 1 to 5."
+    },
+    "age_categories": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/age_category"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "The age categories that the task suits, when they are fewer than the module's: the platform gives the task only to learners in one of them. Without it, the task suits the module's audience."
+    }
+  },
+  "required": [
+    "id",
+    "statement",
+    "canvas",
+    "items",
+    "skills",
+    "band",
+    "difficulty"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "canvas": {
+            "properties": {
+              "kind": {
+                "const": "workbook"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        "required": [
+          "canvas"
+        ]
+      },
+      "then": {
+        "properties": {
+          "items": {
+            "items": {
+              "required": [
+                "line"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "answer_slots"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "text"
+                    ]
+                  }
+                ]
+              }
+            },
+            "description": "On a workbook, every item is a line, and has no answer slots or text beside it."
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "items": {
+            "items": {
+              "required": [
+                "answer_slots"
+              ],
+              "not": {
+                "required": [
+                  "line"
+                ]
+              }
+            },
+            "description": "On a handwriting sheet, every item has answer slots, and no line."
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "items": {
+            "contains": {
+              "properties": {
+                "answer_slots": {
+                  "contains": {
+                    "properties": {
+                      "binding": {
+                        "enum": [
+                          "anywhere",
+                          "sheet"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "binding"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "answer_slots"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "then": {
+        "properties": {
+          "items": {
+            "maxItems": 1,
+            "description": "A task whose answer stands anywhere on the sheet, or is the whole sheet, has one item."
+          }
+        },
+        "not": {
+          "properties": {
+            "items": {
+              "contains": {
+                "properties": {
+                  "answer_slots": {
+                    "minItems": 2
+                  }
+                },
+                "required": [
+                  "answer_slots"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "statement_part": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "A paragraph of the statement, as plain text.",
+          "x-open": true
+        },
+        "picture": {
+          "$ref": "common.schema.json#/$defs/picture_path",
+          "description": "A picture of the statement, by its path from media/.",
+          "x-open": true
+        },
+        "alt": {
+          "type": "string",
+          "description": "What the picture shows, in words: a screen reader reads it, and it stands in the picture's place until the picture comes. Empty for a picture that only decorates.",
+          "x-open": true
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The width the picture is shown at, in CSS px; narrower when the statement is.",
+          "x-open": true
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The height the picture is shown at, in CSS px, in proportion to its width.",
+          "x-open": true
+        }
+      },
+      "if": {
+        "required": [
+          "picture"
+        ]
+      },
+      "then": {
+        "required": [
+          "alt",
+          "width",
+          "height"
+        ],
+        "not": {
+          "required": [
+            "text"
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "text"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "alt"
+              ]
+            },
+            {
+              "required": [
+                "width"
+              ]
+            },
+            {
+              "required": [
+                "height"
+              ]
+            }
+          ]
+        }
+      },
+      "description": "A part of the statement: a paragraph, or a picture with what it shows and its size."
+    },
+    "canvas": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "handwriting_sheet",
+            "workbook"
+          ],
+          "description": "The canvas kind: a handwriting sheet, a free sheet of 1000 × 1400 units; or a workbook, lines of items with boxes for the answers.",
+          "x-open": true
+        },
+        "grid": {
+          "enum": [
+            "squares",
+            "lines",
+            "dots"
+          ],
+          "default": "squares",
+          "description": "The grid of a handwriting sheet: squares, lines or dots; squares unless given.",
+          "x-open": true
+        },
+        "grid_step": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 500,
+          "default": 50,
+          "description": "The step of the grid of a handwriting sheet, in its units: 50 unless given.",
+          "x-open": true
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "workbook"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "grid"
+              ]
+            },
+            {
+              "required": [
+                "grid_step"
+              ]
+            }
+          ]
+        }
+      },
+      "description": "The canvas of a task: its kind, and the grid of a handwriting sheet."
+    },
+    "item": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "What the item asks, on a handwriting sheet, beside its answer slots: a) or a question.",
+          "x-open": true
+        },
+        "answer_slots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/answer_slot",
+            "unevaluatedProperties": false
+          },
+          "minItems": 1,
+          "description": "The answer slots of an item on a handwriting sheet, each named by its place in the item, from 1.",
+          "x-open": true
+        },
+        "line": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/line_part",
+            "unevaluatedProperties": false
+          },
+          "minItems": 1,
+          "contains": {
+            "required": [
+              "binding"
+            ]
+          },
+          "description": "An item of a workbook: pieces of text and boxes in order, as 7 × [ ] = 56, and at least one box. Its boxes are its answer slots, each named by its place among them, from 1.",
+          "x-open": true
+        },
+        "skills": {
+          "$ref": "#/$defs/skills",
+          "unevaluatedProperties": false,
+          "description": "The skills that this item trains and needs, in place of the task's."
+        }
+      },
+      "description": "An item of the task: on a handwriting sheet, its answer slots and what it asks; on a workbook, a line of text and boxes."
+    },
+    "answer_slot": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "enum": [
+            "anywhere",
+            "sheet",
+            "zone",
+            "choice"
+          ],
+          "description": "Where and how the learner gives the answer on a handwriting sheet: anywhere on it, where AI finds the final answer; the whole sheet, a work as a whole, such as an essay; in a zone of it; or by choosing one of the options.",
+          "x-open": true
+        }
+      },
+      "required": [
+        "binding"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "binding": {
+                "const": "zone"
+              }
+            },
+            "required": [
+              "binding"
+            ]
+          },
+          "then": {
+            "properties": {
+              "zone": {
+                "$ref": "#/$defs/zone",
+                "unevaluatedProperties": false,
+                "description": "The zone of the sheet where the learner writes the answer.",
+                "x-open": true
+              }
+            },
+            "required": [
+              "zone"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "binding": {
+                "const": "choice"
+              }
+            },
+            "required": [
+              "binding"
+            ]
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/text"
+                },
+                "minItems": 2,
+                "uniqueItems": true,
+                "description": "The options the learner chooses from, in the order they are shown.",
+                "x-open": true
+              }
+            },
+            "required": [
+              "options"
+            ]
+          }
+        }
+      ],
+      "description": "An answer slot of an item on a handwriting sheet: its binding, and the zone or the options that the binding needs."
+    },
+    "zone": {
+      "type": "object",
+      "properties": {
+        "left": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999,
+          "description": "How far the zone begins from the left edge of the sheet, in its units.",
+          "x-open": true
+        },
+        "top": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1399,
+          "description": "How far the zone begins from the top edge of the sheet, in its units.",
+          "x-open": true
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "The width of the zone, in units of the sheet.",
+          "x-open": true
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1400,
+          "description": "The height of the zone, in units of the sheet.",
+          "x-open": true
+        }
+      },
+      "required": [
+        "left",
+        "top",
+        "width",
+        "height"
+      ],
+      "description": "A rectangle of the handwriting sheet, in its units of 1000 × 1400 from the top left corner."
+    },
+    "line_part": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "A piece of the line's text.",
+          "x-open": true
+        },
+        "binding": {
+          "enum": [
+            "box"
+          ],
+          "description": "A box of the line, an answer slot where the learner writes the answer.",
+          "x-open": true
+        }
+      },
+      "if": {
+        "required": [
+          "binding"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "text"
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "text"
+        ]
+      },
+      "description": "A piece of a line: a piece of text, or a box."
+    },
+    "skills": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/skill_id"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "The skills of the module, by local ID, that are trained: a wrong answer is evidence against them."
+        },
+        "supporting": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/skill_id"
+              },
+              {
+                "$ref": "shared-taxonomy.schema.json"
+              }
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "The skills that the answer needs and that a wrong answer does not count against: skills of the module by local ID, or anchor skills of the shared taxonomy by their IDs."
+        }
+      },
+      "required": [
+        "primary"
+      ],
+      "description": "The primary and supporting skills of a task or an item."
+    }
+  }
+}

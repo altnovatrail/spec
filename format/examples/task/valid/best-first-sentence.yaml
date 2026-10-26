@@ -1,0 +1,19 @@
+# A task of the module of short essays with a key: the learner chooses, out of three, the first
+# sentence that makes a reader want to go on.
+id: best-first-sentence-1
+statement:
+  - text: Which first sentence makes a reader want to go on?
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: choice
+        options:
+          - It was a day like any other.
+          - The door was open, and nobody had opened it.
+          - I am going to write about a day.
+skills:
+  primary: [choosing-a-first-sentence]
+band: first-steps
+difficulty: 1
