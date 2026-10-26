@@ -27,6 +27,7 @@ The name is written **NovaTrail**, with a capital T. Identifiers stay lowercase:
 - A new number — R, О-, П-, Т- — is the next one still free when it is written down, not when the work began: a parallel session may have taken one meanwhile. Each register's opening names the next free number; keep it current.
 - Facts about AI providers, laws and prices come from the primary source, quoted with the date read. What could not be verified is not stated as fact: it becomes an open question.
 - Project context lives in the repository's files, not in chat history.
+- Code comes with its tests: a pull request that adds or changes what code does adds or changes the tests of its automated suite too. Where a repository's coverage goes to Codecov, the merge waits for `codecov/patch`, at least 90% of the changed lines covered (R48 spec).
 - Do not commit: the author commits after review.
 - Finish with a short report to the author in Russian: what was done, which files, what is still open.
 

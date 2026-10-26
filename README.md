@@ -68,6 +68,19 @@ The documents are in Russian; the module format is in English and normative.
 - [RUN.md](RUN.md) — the work plan, in epics: the current epic broken into small tasks, run and reviewed one at a time, and the epics that come later.
 - [draft/](draft/README.md) — a clickable prototype of the learner's app, and where it differs from the documents.
 
+## Contributing
+
+Report a bug or propose a change in an [issue](https://github.com/altnovatrail/spec/issues), in English or Russian, and open one before a pull request unless the pull request fixes a typo or a broken link. How a change comes in, with every commit signed off, and what every change keeps to are in the organization's [CONTRIBUTING.md](https://github.com/altnovatrail/.github/blob/main/CONTRIBUTING.md); the rules every NovaTrail repository shares are in [RULES.md](RULES.md). Report a vulnerability privately, as the [security policy](https://github.com/altnovatrail/spec/security/policy) says, never in a public issue.
+
+Work in the devcontainer: open the repository in VS Code and choose "Reopen in Container". It holds every tool at the version the repository pins. The checks are recipes of the [justfile](justfile), and `just --list` names each with its arguments:
+
+- `just docs-check` checks the documents: links, cited sections, the registers and Mermaid diagrams;
+- `just format-check` checks the module format in [format/](format/README.md): its schemas, examples and test vectors;
+- `just licenses-check` checks the licenses of the packages of `tools/`;
+- `just coverage` runs every test of `tools/` and writes their coverage to `coverage/lcov.info`.
+
+A check prints a line for each problem it finds, `file:line: message` for the documents and the format, and exits with a non-zero status if it finds any. CI runs them all on every pull request and on `main`, and a pull request merges only when they pass. Another NovaTrail repository checks its own documents with `just -f spec/justfile docs-check-repo`. The environment and the checks are described in more detail in the Environment section of [CLAUDE.md](CLAUDE.md).
+
 ## License
 
 [Apache-2.0](LICENSE).
