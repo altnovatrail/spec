@@ -1,0 +1,13 @@
+# Two skills in two tiers, and a skill of version 1 that the times tables took over in version 2.0.0.
+tiers: [Tables, Division]
+skills:
+  times-tables:
+    title: Times tables
+    assessability: verdict
+  division-with-remainder:
+    title: Division with a remainder
+    prerequisites: [times-tables]
+    assessability: verdict
+retired_skills:
+  table-of-seven:
+    replaced_by: [times-tables]

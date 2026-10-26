@@ -1,0 +1,10 @@
+# error: pattern at #/skills/time-calendar/prerequisites/0
+# A prerequisite is named by its local ID, not by its title.
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    assessability: verdict
+  time-calendar:
+    title: Calendar and age
+    prerequisites: [Gaps and boundaries]
+    assessability: verdict

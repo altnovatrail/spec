@@ -20,7 +20,7 @@ NovaTrail turns any subject into interactive lessons with an AI tutor, for child
 
 ## Status
 
-Early design. This repository holds the platform's documents and the start of the module format, in [format/](format/README.md): its text and conventions are written, and its schemas come part by part, the manifest and the layout of a module first. The contracts between components come after it. NovaTrail succeeds [MathTrail](https://github.com/mathtrail), olympiad maths for grades 1–6, which is now frozen.
+Early design. This repository holds the platform's documents and the start of the module format, in [format/](format/README.md): its text and conventions are written, and its schemas come part by part: the manifest, the layout of a module and the skill graph so far. The contracts between components come after it. NovaTrail succeeds [MathTrail](https://github.com/mathtrail), olympiad maths for grades 1–6, which is now frozen.
 
 ## Repositories
 
@@ -64,7 +64,7 @@ The documents are in Russian; the module format is in English and normative.
 - [docs/architecture.md](docs/architecture.md) — the platform's big parts and how they connect: the components, one overall diagram, the main flows, and how the interface is put together.
 - [docs/repositories.md](docs/repositories.md) — how the platform is split into repositories: their roles, dependencies, how changes flow between them, the order they appear in, how to set one up, and what is carried over from MathTrail.
 - [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.
-- [format/](format/README.md) — the module format: what a module may and must contain and how the platform checks it. Its text, the manifest's schema and the layout of a module are written, with their examples and the test vectors of the YAML rules and of a whole module, and `just format-check` checks them; the other parts of a module come as they are written.
+- [format/](format/README.md) — the module format: what a module may and must contain and how the platform checks it. Its text, the schemas of the manifest and the skill graph and the layout of a module are written, with their examples and the test vectors of the YAML rules, of a whole module and of the skill graph, and `just format-check` checks them; the other parts of a module come as they are written.
 - [RUN.md](RUN.md) — the work plan, in epics: the current epic broken into small tasks, run and reviewed one at a time, and the epics that come later.
 - [draft/](draft/README.md) — a clickable prototype of the learner's app, and where it differs from the documents.
 

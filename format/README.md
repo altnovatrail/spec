@@ -83,7 +83,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   The other keywords of 2020-12 stay out of the format: a reference names only `$defs`, and validators differ on `minContains`, `maxContains` and `unevaluatedItems` (R45).
 - Its `$id` is `https://altnovatrail.github.io/spec/format/`, then the version in `VERSION`, a slash, and the file name: `https://altnovatrail.github.io/spec/format/0.1/task.schema.json`. The URI identifies the schema; it need not resolve ([JSON Schema 2020-12 core](https://json-schema.org/draft/2020-12/json-schema-core), §8.2.1). A new version changes every `$id` with it.
 - A reference between schemas MUST be relative, in one of three forms: `#/$defs/<name>` for a definition in the same schema, `<file>.schema.json` for another schema, and `<file>.schema.json#/$defs/<name>` for a definition in another schema, such as `"$ref": "common.schema.json#/$defs/skill_id"`. It resolves against the `$id`. A reference MUST NOT name that prefix, nor a path such as `../0.1/`: it would tie the schema to one version without anyone noticing.
-- Field names and the values of lists are the English terms of concepts 15 in snake_case: `answer_slots`, `trap_advice`. A field that names no term — `id`, `title`, `version` — is a plain English word. An array takes the plural. A new term enters concepts 15 before it enters a schema (R42). Names under `$defs` are snake_case too.
+- Field names and the values of lists are the English terms of concepts 15 in snake_case: `answer_slots`, `trap_advice`. A field that names no term — `id`, `title`, `version` — is a plain English word. An array takes the plural, unless the field names, with a verb, how its item relates to others: `replaced_by`. A new term enters concepts 15 before it enters a schema (R42). Names under `$defs` are snake_case too.
 - The root of a schema has `title` and `description`. The subschema of every field has `description`, also where it holds only `$ref`: a subschema under `properties` or `patternProperties`, and the schema of a map's values under `additionalProperties`. A condition — what `if` or `not` holds — needs none. Descriptions are in English: a sentence or two on what the term means.
 - Every object is closed at its place, so an unknown field is an error.
   - A place is the root of a schema, or a subschema directly under `properties`, `patternProperties`, `additionalProperties`, `items`, `prefixItems` or `contains`, outside a condition. A definition under `$defs`, the target of a `$ref`, and the subschemas of `allOf`, `anyOf`, `oneOf`, `if`, `then`, `else`, `not` and `dependentSchemas` are parts of the place where they apply.
@@ -157,7 +157,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   - A vector of a `yaml.*` rule is a file, and it breaks only that YAML rule.
   - A vector of a rule of a whole module is a folder, and it breaks only that rule of a whole module. Each file in it that has a part follows the YAML rules and is valid against its part's schema.
   - A manifest in a vector names the format version in `VERSION`, except in a vector of `manifest.format-version`, which names one that a reader of that version does not read (section 2).
-  - `spec`'s CI checks all of this. `module-kit`'s CI checks that each case is refused with the rule's ID.
+  - `spec`'s CI checks that a case breaks none of the YAML rules but its own, that each file of a part with a schema is valid against it, and that a case laid out as a module breaks no rule of a whole module but its own. That a case breaks its rule, it checks only for the rules it implements itself: the YAML rules, the rules of a whole module and `manifest.format-version`. `module-kit`'s CI checks every case: that it is refused with the rule's ID.
 - `vectors/open-view/` holds the vectors of the open view: a part, and the exact open view it gives.
 - The vectors of check kinds, of templates and of the generator come with the tasks that define them.
 
@@ -169,6 +169,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 | Path | Part | Holds |
 |---|---|---|
 | `manifest.yaml` | `manifest` | The manifest: what the module is and whom it is for (section 11). |
+| `skill-graph.yaml` | `skill-graph` | The skill graph: the module's skills and what a learner needs before each (section 12). |
 | `media/<path>` | — | The pictures and sound that the parts of the module show. |
 | `eval/<path>` | — | The module's eval set: the samples on which the platform checks that AI reads work in this module right. |
 | `NOTICE` | — | The notices that the licenses of the module's content require to keep with it. |
@@ -210,6 +211,11 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 - `title` is in the module's explanation language.
 - `subject` is a code: `mathematics`, `physics` or `writing`. A new code is a new value of a list, a minor version (section 2).
 - `audience.age_categories` lists the age categories that the module suits: `under_13`, `from_13_to_consent` (from 13 to the age of digital consent in the learner's country), `from_consent_to_18` and `adult`. The platform offers the module only to learners in one of them. The presentation style follows the learner's age, or the learner's choice, and the manifest does not name it in this version.
+- `audience.grades` lists the school grades that the module is written for, from 1 to 12, as its author counts them: the platform maps no country's grades onto another's.
+  - A module that names grades asks the learner's grade, and the platform keeps the answer in the learner's profile (privacy 4). The answer may be a grade the module does not name.
+  - Grades close nothing, unlike the age categories: the module and each of its skills stay open to a learner of any grade, and a skill opens by its prerequisites (concepts 4).
+  - Where a learner of each grade starts comes with the difficulty of tasks (RUN.md, T28).
+  - This version has no grade 0 and no grade above 12; allowing them is a minor change (section 2).
 - `languages.explanation` is the module's explanation language. `languages.target`, which only a language module has, is the language it teaches.
   - A language is a BCP 47 tag of a language subtag, an optional script and an optional region, each in the letter case of the registry: `en`, `zh-Hans`, `pt-BR`, `es-419`. BCP 47 compares tags whatever their case ([RFC 5646](https://www.rfc-editor.org/rfc/rfc5646), §2.1.1); the format fixes the case, so that a tag is always written as the same string.
   - The schema checks the form of a tag, not that the registry has it.
@@ -220,3 +226,36 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 | ID | Rule |
 |---|---|
 | `manifest.format-version` | `module_format_version` MUST name a version of the format that the reader reads (section 2). A reader refuses a module that names another, and names this rule. |
+
+## 12. The skill graph
+
+- The skill graph is `skill-graph.yaml`, valid against `schemas/skill-graph.schema.json`. It names the module's skills: what each one is called, what a learner needs before it, and how the platform can know a learner's command of it. A module MAY have no skill graph, and then it has no skills.
+- `skills` holds each skill under its local ID: its `title` and, if it has one, its `description`, both in the module's explanation language; its `prerequisites`; and its `assessability`. The order of the skills carries no meaning (section 4).
+- `prerequisites` lists the skills of the module, by local ID, that a learner needs before this one, and the learner needs each of them: to take on B, a learner needs A. A skill with no prerequisites starts the graph and leaves the field out: the list, when written, is not empty. The graph is directed and has no cycle.
+- **Tiers.** A tier is a group of the module's skills of one difficulty. It is computed from the graph, never written:
+  - a skill with no prerequisite among the module's skills is in tier 1;
+  - every other skill is one tier above the highest tier of its prerequisites among the module's skills.
+
+  So a skill's tier is the number of skills on the longest chain of prerequisites that ends with it, and a prerequisite always stands in a lower tier than its skill. The number of tiers has no limit. `module-kit` computes them when it builds the module's package (architecture 3.7).
+
+  `tiers` names the tiers in order from tier 1, in the module's explanation language. When the module has more tiers than names, the tiers past the last name are shown by their numbers, and a name past the last tier names none. A module that names no tier leaves `tiers` out.
+- `assessability` says how the platform can know a learner's command of the skill:
+  - `verdict` — the skill's tasks are checked against a key or a predicate, and their verdicts are evidence for the learner model;
+  - `rubric` — work on the skill gets feedback by the author's rubric, not a verdict (R04);
+  - `none` — the skill is practised and not assessed.
+
+  The engine adapts to the learner only in a skill whose assessability is `verdict`. In the others, the author's order holds (concepts 4).
+- **Retired skills.** A published skill ID never names another skill. A change in a skill's meaning cannot be seen in the module, so the author gives the changed skill a new ID. `retired_skills` holds each skill that an earlier version of the module had and this one has not, under the ID it had, with `replaced_by`: the skills of this version that took over what it taught.
+  - A skill renamed has one skill in `replaced_by`, and a skill split has several. Skills merged into one each name that one.
+  - `[]` says that no skill took over: a learner's progress in the retired skill moves to none.
+  - `replaced_by` names skills of this version. When a skill that it names is retired in turn, the entry names that skill's replacements instead.
+  - The learner model moves a learner's progress by this table: the evidence of a retired skill counts for each skill that replaced it, and how much it counts is the learner model's to decide (architecture 3.8).
+  - An entry stays in every later version, so that progress of any age still moves. Retiring a skill raises the module's major version (concepts 3).
+  - Only a comparison of two versions shows that every skill of the previous version is in this one or in `retired_skills`, and that no entry has gone. That comparison is `module-kit`'s (architecture 3.7), and the rules it checks come into this text with it.
+- **Open fields.** `tiers` and `skills`, with every field of a skill, are open: the skill map shows them. The tier of a skill is no field of the part: `module-kit` computes it into the package, and how it reaches the learner's app comes with the package (RUN.md, T34). `retired_skills` is closed: progress moves on the server.
+
+| ID | Rule |
+|---|---|
+| `skill-graph.acyclic` | The prerequisites among the module's skills MUST form no cycle: no skill is, through its prerequisites, a prerequisite of itself, and no skill names itself among them. |
+| `skill-graph.known-skills` | Every local ID in a skill's `prerequisites` and in `replaced_by` MUST be the ID of a skill in `skills`. |
+| `skill-graph.retired-ids` | An ID in `retired_skills` MUST NOT be the ID of a skill in `skills`: a published ID never names another skill. |

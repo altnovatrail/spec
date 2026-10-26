@@ -42,13 +42,23 @@
           "uniqueItems": true,
           "description": "The age categories that the module suits. The platform offers the module only to learners in one of them.",
           "x-open": true
+        },
+        "grades": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/grade"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "The school grades that the module is written for. A module that names them asks the learner's grade, and the answer may be one it does not name. Unlike the age categories, grades close nothing: the module and its skills stay open to a learner of any grade.",
+          "x-open": true
         }
       },
       "required": [
         "age_categories"
       ],
       "unevaluatedProperties": false,
-      "description": "Whom the module is for.",
+      "description": "Whom the module is for: its age categories and, for a module written for school grades, those grades.",
       "x-open": true
     },
     "languages": {

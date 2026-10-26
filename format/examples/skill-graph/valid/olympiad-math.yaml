@@ -1,0 +1,91 @@
+# The skill graph of the official module of olympiad mathematics for grades 1–6. Its skills and
+# their prerequisites are the 17 topics of mathtrail-standalone and their links, builds_on, in
+# content/catalogs/topics.json at commit c6cbeb2: each ID is the topic's, with . and _ made -, and
+# each title is the topic's name. The tiers come out 6, 6 and 5 skills, and their names are the
+# ones standalone gives the layers of its map. The topics and their links carry this notice:
+#
+# MIT License
+#
+# Copyright (c) 2026 MathTrail
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+tiers: [Foundations, Rules, Hard problems]
+skills:
+  logic-ordering:
+    title: Ordering
+    assessability: verdict
+  logic-knights-liars:
+    title: Knights and liars
+    prerequisites: [logic-ordering, combinatorics-enumeration]
+    assessability: verdict
+  combinatorics-enumeration:
+    title: Enumeration
+    assessability: verdict
+  counting-gaps:
+    title: Gaps and boundaries
+    assessability: verdict
+  time-clocks:
+    title: Clocks
+    assessability: verdict
+  time-calendar:
+    title: Calendar and age
+    prerequisites: [counting-gaps]
+    assessability: verdict
+  pigeonhole-basic:
+    title: Pigeonhole principle
+    prerequisites: [combinatorics-enumeration]
+    assessability: verdict
+  parity-alternation:
+    title: Parity and alternation
+    assessability: verdict
+  arithmetic-tricks:
+    title: Arithmetic with a trick
+    assessability: verdict
+  algorithms-weighing-pouring:
+    title: Weighing and pouring
+    prerequisites: [combinatorics-enumeration, pigeonhole-basic]
+    assessability: verdict
+  fractions-parts:
+    title: Parts and shares
+    prerequisites: [arithmetic-tricks]
+    assessability: verdict
+  percent-basic:
+    title: Percentages
+    prerequisites: [fractions-parts]
+    assessability: verdict
+  ratio-sharing:
+    title: Ratios and sharing
+    prerequisites: [fractions-parts]
+    assessability: verdict
+  geometry-grid:
+    title: Figures on a square grid
+    prerequisites: [combinatorics-enumeration, counting-gaps]
+    assessability: verdict
+  number-divisibility:
+    title: Divisibility and remainders
+    prerequisites: [time-calendar, parity-alternation]
+    assessability: verdict
+  logic-sets:
+    title: Overlapping groups
+    prerequisites: [combinatorics-enumeration, pigeonhole-basic]
+    assessability: verdict
+  games-strategy:
+    title: Games with a winning strategy
+    prerequisites: [combinatorics-enumeration, parity-alternation]
+    assessability: verdict

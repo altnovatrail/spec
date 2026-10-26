@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/common.schema.json",
   "title": "Common definitions",
-  "description": "The definitions that the parts of a module share: the format version, IDs and versions, languages, the license, age categories, subjects, the paths of media files and texts.",
+  "description": "The definitions that the parts of a module share: the format version, IDs and versions, languages, the license, age categories, school grades, subjects, the paths of media files and texts.",
   "$defs": {
     "module_format_version": {
       "type": "string",
@@ -70,6 +70,12 @@
         "adult"
       ],
       "description": "An age category: under 13; from 13 to the age of digital consent in the learner's country; from that age to 18; 18 and over."
+    },
+    "grade": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "description": "A school grade, from 1 to 12, as the module's author counts them: the platform does not map the grades of one country to another's."
     },
     "subject": {
       "enum": [

@@ -1,0 +1,8 @@
+# error: required at #/retired_skills/fractions
+# A retired skill names the skills that replaced it, and [] when none did.
+skills:
+  comparing-fractions:
+    title: Comparing fractions
+    assessability: verdict
+retired_skills:
+  fractions: {}

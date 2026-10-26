@@ -1,0 +1,6 @@
+# A prerequisite that names no skill of the module.
+skills:
+  time-calendar:
+    title: Calendar and age
+    prerequisites: [counting-gaps]
+    assessability: verdict

@@ -1,0 +1,17 @@
+# Three skills in a circle, beside a skill that starts the graph and is in no circle.
+skills:
+  combinatorics-enumeration:
+    title: Enumeration
+    assessability: verdict
+  pigeonhole-basic:
+    title: Pigeonhole principle
+    prerequisites: [combinatorics-enumeration, logic-sets]
+    assessability: verdict
+  logic-sets:
+    title: Overlapping groups
+    prerequisites: [algorithms-weighing-pouring]
+    assessability: verdict
+  algorithms-weighing-pouring:
+    title: Weighing and pouring
+    prerequisites: [pigeonhole-basic]
+    assessability: verdict

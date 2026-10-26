@@ -1,0 +1,15 @@
+# error: minimum at #/audience/grades/0
+# Grade 0, which some count for the year before school, is not in this version of the format.
+module_format_version: "0.1"
+id: novatrail/school-math-grade-3
+version: "0.1.0"
+title: School mathematics, grade 3
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [0]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

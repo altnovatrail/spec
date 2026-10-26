@@ -1,0 +1,6 @@
+# error: propertyNames at #/skills
+# The ID of a topic of mathtrail-standalone as it was there: a local ID has no . and no _.
+skills:
+  counting.gaps:
+    title: Gaps and boundaries
+    assessability: verdict
