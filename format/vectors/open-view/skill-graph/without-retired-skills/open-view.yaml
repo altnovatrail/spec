@@ -1,0 +1,11 @@
+tiers: [Tables, Division]
+skills:
+  times-tables:
+    title: Times tables
+    teaches: [core.multiplication-table]
+    assessability: verdict
+  division-with-remainder:
+    title: Division with a remainder
+    description: Divides a whole number by a number from 1 to 10 and gives the quotient and the remainder.
+    prerequisites: [times-tables]
+    assessability: verdict

@@ -1,0 +1,18 @@
+# The options of a choice are open, and the age categories of a task are closed.
+id: a-day-you-remember-1
+statement:
+  - text: Which first sentence makes a reader want to go on?
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: choice
+        options:
+          - It was a day like any other.
+          - The door was open, and nobody had opened it.
+skills:
+  primary: [choosing-a-first-sentence]
+band: first-steps
+difficulty: 1
+age_categories: [adult]

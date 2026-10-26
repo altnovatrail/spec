@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/common.schema.json",
   "title": "Common definitions",
-  "description": "The definitions that the parts of a module share: the format version, IDs and versions, languages, the license, age categories, school grades, subjects, the paths of media files and texts.",
+  "description": "The definitions that the parts of a module share: the format version, IDs and versions, languages, the license, age categories, school grades, subjects, the paths of media files and pictures, and texts.",
   "$defs": {
     "module_format_version": {
       "type": "string",
@@ -30,7 +30,7 @@
       "not": {
         "pattern": "^(con|prn|aux|nul|com[1-9]|lpt[1-9])$"
       },
-      "description": "The local ID of a skill, task, trap, technique or lesson: unique among the module's items of its kind, in kebab-case, beginning with a letter, at most 64 characters, and not a name that Windows reserves for a device, since a local ID may name a file: counting-gaps."
+      "description": "The local ID of a skill, task, trap, technique or lesson: unique among the module's entries of its kind, in kebab-case, beginning with a letter, at most 64 characters, and not a name that Windows reserves for a device, since a local ID may name a file: counting-gaps."
     },
     "skill_id": {
       "$ref": "#/$defs/local_id",
@@ -51,6 +51,10 @@
     "lesson_id": {
       "$ref": "#/$defs/local_id",
       "description": "The local ID of a lesson."
+    },
+    "band_id": {
+      "$ref": "#/$defs/local_id",
+      "description": "The ID of a band of the module's difficulty scale, of the form of a local ID and unique among its bands. A band is no entry of the module, and no full ID names it."
     },
     "language_tag": {
       "type": "string",
@@ -93,6 +97,11 @@
         "pattern": "(^|/)(con|prn|aux|nul|com[1-9]|lpt[1-9])(/|\\.)"
       },
       "description": "The path of a media file from the module's media/ folder: names in kebab-case that begin with a letter, joined by /, and the extension of the file's format — .png, .jpg, .webp or .mp3. No name is one that Windows reserves for a device. pictures/ladder.png."
+    },
+    "picture_path": {
+      "$ref": "#/$defs/media_path",
+      "pattern": "\\.(png|jpg|webp)$",
+      "description": "The path of a picture from the module's media/ folder: a media path whose extension is .png, .jpg or .webp."
     },
     "text": {
       "type": "string",

@@ -1,0 +1,18 @@
+id: clock-walk-1
+statement:
+  - text: The clock shows when Anna leaves home.
+  - picture: pictures/clock-quarter-past-three.png
+    alt: A clock face whose hands show a quarter past three.
+    width: 240
+    height: 240
+canvas:
+  kind: handwriting_sheet
+items:
+  - text: a)
+    answer_slots:
+      - binding: zone
+        zone: {left: 100, top: 1000, width: 400, height: 200}
+  - text: b)
+    answer_slots:
+      - binding: zone
+        zone: {left: 500, top: 1000, width: 400, height: 200}

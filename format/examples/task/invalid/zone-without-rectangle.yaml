@@ -1,0 +1,14 @@
+# error: required at #/items/0/answer_slots/0
+# An answer slot bound to a zone names its zone.
+id: zone-without-rectangle
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: zone
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

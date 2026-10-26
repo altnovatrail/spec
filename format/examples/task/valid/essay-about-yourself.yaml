@@ -1,0 +1,16 @@
+# An essay on the learner's own life, which the module gives to adults alone, as privacy П-20
+# recommends for learners under 18.
+id: a-day-you-remember-1
+statement:
+  - text: Write a short essay about a day of your life that you remember well.
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: sheet
+skills:
+  primary: [paragraphs, endings]
+band: whole-essays
+difficulty: 3
+age_categories: [adult]

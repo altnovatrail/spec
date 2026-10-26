@@ -1,5 +1,5 @@
-// format-check: the checks of the module format in spec's format/ (R45 and its amendment of
-// 2026-10-22, R46; RUN.md, T25 and T26).
+// format-check: the checks of the module format in spec's format/ (R45 and its amendments, R46,
+// R51; RUN.md, T25, T26 and T28).
 //
 //   node tools/format-check/main.mjs      spec's own format/, two levels above this file
 //
@@ -12,14 +12,17 @@
 //   names (section 8);
 // - each example of a whole module, examples/module/valid/<case>/, laid out as a module: its files
 //   by the layout of section 10, the YAML rules and the schema of each file's part, and the rules of
-//   a whole module;
+//   a whole module — its manifest, its layout, the ids of the files at <id> and its media files;
 // - the rules the text lists, each with test vectors in vectors/rules/<rule>/, and each such folder
 //   with its rule: a case of a YAML rule breaks that rule and no other; a case of a rule of a whole
 //   module is a folder that breaks that rule and no other; a case of a part's rule follows the YAML
 //   rules and passes the part's schema, and one laid out as a module follows the rules of a whole
 //   module too (section 9);
 // - the format version that each manifest names: the one in VERSION, but in the cases of
-//   manifest.format-version, which name one no reader of it reads (section 11).
+//   manifest.format-version, which name one no reader of it reads (section 11);
+// - each vector of the open view, vectors/open-view/<part>/<case>/: part.yaml follows the YAML rules
+//   and passes the part's schema, open-view.yaml follows the YAML rules, and the open view of the
+//   part, built from the marks x-open (section 6), is open-view.yaml.
 // Anything else in format/ is an error: what this check does not know would go unchecked, so the
 // task that brings it extends the check. Prints one line per error, file:line: message, and exits 1
 // if there are any.
@@ -28,12 +31,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { checkExample, checkModuleCase, checkVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { checkExample, checkModuleCase, checkOpenView, checkVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
 import { listFolder, readLayout } from "./module.mjs";
-import { checkConventions, compileSchemas, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
+import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
 
 const UNKNOWN = "format-check does not know it: the task that brings it to format/ extends the check";
+// The vectors of the open view (section 9): a part, and the open view it gives.
+const OPEN_VIEW = "open-view";
+const OPEN_VIEW_FILES = ["part.yaml", "open-view.yaml"];
 const README = "format/README.md";
+// The schema of the definitions that the parts share.
+const COMMON = "common";
 // The examples of a whole module, which has no schema of its own.
 const MODULE = "module";
 
@@ -47,7 +55,7 @@ export function checkFormat(root) {
   checkCases(root, files, { rules, layout, version, schemas }, report);
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
-  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0 };
+  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length };
   return { errors, stats };
 }
 
@@ -68,16 +76,31 @@ function readVersion(root, report) {
   return version;
 }
 
-// The schemas, checked and compiled: { has(term), validatorOf(term) }. A term whose schema did not
-// compile has no validator, and its files go unchecked, as is said once.
+// The schemas, checked and compiled: { has(term), validatorOf(term), forms, openView }. A term whose
+// schema did not compile has no validator, and its files go unchecked, as is said once. forms holds
+// isLocalId(name) and isMediaPath(path), the forms of common's local_id and media_path, by which the
+// layout's <id> and module.media read names, or null when common has no such definition that
+// compiled: then they go unchecked. openView holds byName and schemaAt, what the open view is built
+// from.
 function readSchemas(root, names, version, report) {
   const schemas = names.map((name) => readSchema(root, name));
   checkConventions(schemas, version);
-  const validators = compileSchemas(schemas);
+  const { validators, schemaAt } = compileSchemas(schemas);
   const byTerm = new Map(schemas.map((schema) => [schema.term, schema]));
   for (const schema of schemas) for (const { line, message } of schema.problems) report(schema.file, line, message);
   const unchecked = new Set();
+  const common = validators.has(COMMON) ? byTerm.get(COMMON).json.$id : null;
+  const definition = (name) => (common ? schemaAt(`${common}${fragmentOf(["$defs", name])}`) : undefined);
+  const localId = definition("local_id");
+  const mediaPath = definition("media_path");
+  if (common) {
+    for (const [name, found] of [["local_id", localId], ["media_path", mediaPath]]) {
+      if (!found) report(byTerm.get(COMMON).file, 0, `defines no ${name}, by which the layout's <id> and module.media read names`);
+    }
+  }
   return {
+    forms: { isLocalId: localId ? (name) => localId(name) : null, isMediaPath: mediaPath ? (media) => mediaPath(media) : null },
+    openView: { byName: new Map(schemas.map((schema) => [schema.name, schema])), schemaAt },
     has: (term) => byTerm.has(term),
     validatorOf: (term) => {
       if (validators.has(term)) return validators.get(term);
@@ -115,14 +138,16 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
     return schemas.validatorOf(term);
   };
   let waiting = false;
-  const checkFolder = (file, rule) => {
-    if (layout) {
-      for (const problem of checkModuleCase(path.join(root, file), { rule, layout, validatorOf: schemas.validatorOf, version })) {
-        report(problem.file ? `${file}/${problem.file}` : file, problem.line, problem.message);
-      }
-    } else if (rules && !waiting) {
+  const waitForLayout = () => {
+    if (rules && !waiting) {
       waiting = true;
       report(README, 0, "the cases laid out as a module go unchecked until the layout of a module is fixed");
+    }
+  };
+  const checkFolder = (file, rule) => {
+    if (!layout) return waitForLayout();
+    for (const problem of checkModuleCase(path.join(root, file), { rule, layout, validatorOf: schemas.validatorOf, version, forms: schemas.forms })) {
+      report(problem.file ? `${file}/${problem.file}` : file, problem.line, problem.message);
     }
   };
 
@@ -144,6 +169,20 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
     const validate = part === "yaml" ? undefined : schemaOf(part, file, "the vectors of this part's rule");
     for (const { line, message } of checkVector(fs.readFileSync(path.join(root, file)), { rule, validate, version })) report(file, line, message);
   }
+  for (const { file, term } of files.openViews) {
+    if (!layout) {
+      waitForLayout();
+      continue;
+    }
+    if (!layout.some((row) => row.part === term)) {
+      report(file, 0, `${term} is no part of the layout of a module: a vector of the open view is of a part`);
+      continue;
+    }
+    const read = (name) => fs.readFileSync(path.join(root, file, name));
+    for (const problem of checkOpenView(read("part.yaml"), read("open-view.yaml"), { term, validate: schemas.validatorOf(term), version, openView: schemas.openView })) {
+      report(`${file}/${problem.file}`, problem.line, problem.message);
+    }
+  }
 }
 
 // Each rule the text lists has vectors, and each folder of vectors has its rule in the text.
@@ -160,9 +199,11 @@ function checkRuleFolders(files, rules, report) {
 
 // The files of format/ by the layout of section 3, and an error for each one outside it. A case is a
 // file, <case>.yaml, or a folder laid out as a module, <case>/: an example of a whole module is a
-// folder, a case of a YAML rule a file, and a case of a rule of a whole module a folder.
+// folder, a case of a YAML rule a file, and a case of a rule of a whole module a folder. A vector of
+// the open view is a folder of its own kind, vectors/open-view/<part>/<case>/, which holds
+// part.yaml and open-view.yaml and nothing else.
 function readFiles(root, report) {
-  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [] };
+  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [] };
   if (!fs.existsSync(path.join(root, "format"))) {
     report("format", 0, "there is no format/");
     return files;
@@ -210,6 +251,10 @@ function readExampleFiles(at, dir) {
 function readVectorFiles(at, dir) {
   const { root, report, files } = at;
   for (const kind of entriesOf(root, dir)) {
+    if (kind.isFolder && kind.name === OPEN_VIEW) {
+      readOpenViewFiles(at, kind.file);
+      continue;
+    }
     if (!kind.isFolder || kind.name !== "rules") {
       report(kind.file, 0, UNKNOWN);
       continue;
@@ -224,6 +269,26 @@ function readVectorFiles(at, dir) {
       const part = partOf(folder.name);
       const only = { yaml: { onlyFile: "a case of a YAML rule is a file, <case>.yaml: the rule is a file's" }, [MODULE]: { onlyFolder: "a case of a rule of a whole module is a folder laid out as a module, <case>/" } };
       readCases(at, folder.file, only[part] ?? {}, add);
+    }
+  }
+}
+
+function readOpenViewFiles({ root, report, files }, dir) {
+  for (const term of entriesOf(root, dir)) {
+    if (!term.isFolder || !isKebabCase(term.name)) {
+      report(term.file, 0, `vectors of the open view are in open-view/<part>/<case>/, the part in kebab-case; ${UNKNOWN}`);
+      continue;
+    }
+    for (const entry of entriesOf(root, term.file)) {
+      if (!entry.isFolder || !isKebabCase(entry.name)) {
+        report(entry.file, 0, `a vector of the open view is a folder <case>/, its name in kebab-case; ${UNKNOWN}`);
+        continue;
+      }
+      const names = entriesOf(root, entry.file);
+      const held = names.filter((name) => name.isFile).map((name) => name.name);
+      const fits = names.length === OPEN_VIEW_FILES.length && OPEN_VIEW_FILES.every((name) => held.includes(name));
+      if (fits) files.openViews.push({ file: entry.file, term: term.name });
+      else report(entry.file, 0, `a vector of the open view holds ${OPEN_VIEW_FILES.join(" and ")}, and nothing else`);
     }
   }
 }
@@ -254,6 +319,6 @@ if (isMain(import.meta.url)) {
     console.log(`format-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
     process.exitCode = 1;
   } else {
-    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules`);
+    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view`);
   }
 }

@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import { checkFormat } from "../main.mjs";
 import { versionProblem } from "../module.mjs";
+import { differenceOf, openViewOf } from "../openview.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const base = path.join(here, "fixtures", "base");
@@ -83,7 +84,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 3, examples: 15, vectors: 15, rules: 14 });
+    assert.deepEqual(stats, { schemas: 3, examples: 15, vectors: 17, rules: 16, openViews: 1 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -112,7 +113,7 @@ test("a schema's $id follows VERSION, and so does the version each manifest name
 
 test("a file outside the layout is named", () => {
   expectOnly([["format/notes.txt", null, "notes\n"]], /^format\/notes\.txt:0: format-check does not know it/);
-  expectOnly([["format/vectors/open-view/task.yaml", null, "title: A title\n"]], /^format\/vectors\/open-view:0: format-check does not know it/);
+  expectOnly([["format/vectors/verdicts/task.yaml", null, "title: A title\n"]], /^format\/vectors\/verdicts:0: format-check does not know it/);
   expectOnly([["format/schemas/Sample.json", null, "{}\n"]], /^format\/schemas\/Sample\.json:0: a schema is <term>\.schema\.json/);
 });
 
@@ -212,6 +213,30 @@ test("x-open is true, in a field's subschema", () => {
   sampleBreaks((s) => (s.properties.count["x-open"] = false), /x-open is true, or absent/);
   sampleBreaks((s) => (s["x-open"] = true), /x-open stands only in a field's subschema/);
   sampleBreaks((s) => (s.properties.tags.items["x-open"] = true), /x-open stands only in a field's subschema/);
+});
+
+test("x-open stands nowhere under if, not, contains or propertyNames", () => {
+  const nothing = /x-open counts for nothing under if, not, contains or propertyNames/;
+  sampleBreaks((s) => (s.if.properties.level["x-open"] = true), nothing);
+  sampleBreaks((s) => (s.not = { properties: { title: { const: "Untitled", "x-open": true } } }), nothing);
+  sampleBreaks((s) => (s.properties.tags.contains = { properties: { a: { type: "string", description: "A field.", "x-open": true } }, unevaluatedProperties: false }), nothing);
+  // A definition that serves only as a condition is a condition.
+  sampleBreaks((s) => {
+    s.$defs = { high: { properties: { level: { const: "high", "x-open": true } } } };
+    s.if = { $ref: "#/$defs/high" };
+  }, nothing);
+  // One that serves only under contains holds no mark either; one that serves a field too may.
+  const probe = { properties: { a: { type: "string", description: "A field.", "x-open": true } } };
+  const underContains = (s) => {
+    s.$defs = { probe };
+    s.properties.tags.contains = { $ref: "#/$defs/probe", unevaluatedProperties: false };
+  };
+  sampleBreaks(underContains, nothing);
+  const alsoAField = (s) => {
+    underContains(s);
+    s.properties.probe = { $ref: "#/$defs/probe", unevaluatedProperties: false, description: "A probe." };
+  };
+  assert.deepEqual(errorsOf([sampleSchema(alsoAField)]), []);
 });
 
 test("an object is closed at its place, and only there", () => {
@@ -341,8 +366,11 @@ test("the text has one layout of a module", () => {
   expectEach([[README, "## 11. The manifest", "| Path | Part |\n|---|---|\n| \x60NOTICE\x60 | — |\n\n## 11. The manifest"]], [/^format\/README\.md:\d+: a second layout of a module/]);
 });
 
-test("a path of the layout is names joined by /, and may end with <path>", () => {
-  expectEach([[README, "| \x60media/<path>\x60 |", "| \x60media/<id>.png\x60 |"]], [/README\.md:\d+: media\/<id>\.png: format-check knows the placeholder <path> only/, waiting]);
+test("a path of the layout is names joined by /, and may end with <path>, or with <id> and an extension", () => {
+  expectEach([[README, "| \x60media/<path>\x60 |", "| \x60media/<name>.png\x60 |"]], [/README\.md:\d+: media\/<name>\.png: format-check knows the placeholders <path>, at the end of a path, and <id>, before the extension of its last name, only/, waiting]);
+  expectEach([[README, "| \x60samples/<id>.yaml\x60 |", "| \x60samples/<id>/sample.yaml\x60 |"]], [/README\.md:\d+: samples\/<id>\/sample\.yaml: <id> stands only in the last name of a path/, waiting]);
+  expectEach([[README, "| \x60samples/<id>.yaml\x60 |", "| \x60samples/<id>\x60 |"]], [/README\.md:\d+: samples\/<id>: <id> is followed by an extension/, waiting]);
+  expectEach([[README, "| \x60samples/<id>.yaml\x60 |", "| \x60<id>.yaml\x60 |"]], [/README\.md:\d+: <id>\.yaml: a path begins with a name/, waiting]);
   expectEach([[README, "| \x60media/<path>\x60 |", "| \x60media/<path>/pictures\x60 |"]], [/README\.md:\d+: media\/<path>\/pictures: <path> stands only at the end of a path/, waiting]);
   expectEach([[README, "| \x60media/<path>\x60 |", "| \x60.media/<path>\x60 |"]], [/README\.md:\d+: \.media\/<path>: a path is names joined by \/, each of letters, digits, \., - and _, and none beginning with \./, waiting]);
   expectEach([[README, "| \x60media/<path>\x60 |", "| \x60media/*.png\x60 |"]], [/README\.md:\d+: media\/\*\.png: a path is names joined by \//, waiting]);
@@ -356,6 +384,16 @@ test("no row of the layout overlaps another", () => {
   expectEach([[README, notice, notice + "\n| \x60media/dot.png\x60 | — | A picture. |"]], [/README\.md:\d+: the path media\/dot\.png overlaps media\/<path>, after line \d+: one names a file or folder that the other names too/, waiting]);
   expectEach([[README, notice, notice + "\n| \x60NOTICE/<path>\x60 | — | More notices. |"]], [/README\.md:\d+: the path NOTICE\/<path> overlaps NOTICE/, waiting]);
   expectEach([[README, notice, notice + "\n| \x60media/pictures/<path>\x60 | — | Pictures. |"]], [/README\.md:\d+: the path media\/pictures\/<path> overlaps media\/<path>/, waiting]);
+  // A placeholder <id> could take any name: a file of the same folder, or <path> there, meets it.
+  expectEach([[README, notice, notice + "\n| \x60samples/index.yaml\x60 | — | An index. |"]], [/README\.md:\d+: the path samples\/index\.yaml overlaps samples\/<id>\.yaml/, waiting]);
+  expectEach([[README, notice, notice + "\n| \x60samples/<path>\x60 | — | Anything. |"]], [/README\.md:\d+: the path samples\/<path> overlaps samples\/<id>\.yaml/, waiting]);
+  expectEach([[README, notice, notice + "\n| \x60samples\x60 | — | A file. |"]], [/README\.md:\d+: the path samples overlaps samples\/<id>\.yaml/, waiting]);
+  expectEach([[README, notice, notice + "\n| \x60samples/<id>.yaml\x60 | — | Again. |"]], [/README\.md:\d+: the path samples\/<id>\.yaml overlaps samples\/<id>\.yaml/, waiting]);
+  // Another extension is another file.
+  assert.deepEqual(errorsOf([[README, notice, notice + "\n| \x60samples/<id>.json\x60 | — | Samples as JSON. |"]]), []);
+  // Deeper in its folder, a row meets <id> only by a name with its extension.
+  assert.deepEqual(errorsOf([[README, notice, notice + "\n| \x60samples/media/<path>\x60 | — | Media of samples. |\n| \x60samples/README.md\x60 | — | A readme. |"]]), []);
+  expectEach([[README, notice, notice + "\n| \x60samples/notes.yaml/<path>\x60 | — | Notes. |"]], [/README\.md:\d+: the path samples\/notes\.yaml\/<path> overlaps samples\/<id>\.yaml/, waiting]);
 });
 
 test("a part of the layout is a term with a schema, or —", () => {
@@ -379,6 +417,52 @@ test("what begins with a dot is not the module's, and an empty folder holds noth
 test("a symbolic link breaks module.layout", () => {
   const errors = errorsOf([], (root) => fs.symlinkSync("dot.png", path.join(root, WITH_SAMPLE, "media", "link.png")));
   assert.deepEqual(errors, ["format/examples/module/valid/with-sample/media/link.png:0: module.layout: a symbolic link: a module holds files and folders only"]);
+});
+
+test("a file at <id> is named by a local ID and holds it in id", () => {
+  assert.deepEqual(errorsOf([[`${WITH_SAMPLE}/samples/a-sample.yaml`, null, "id: a-sample\ntitle: A sample\n"]]), []);
+  expectOnly([[`${WITH_SAMPLE}/samples/a-sample.yaml`, null, "id: another\ntitle: A sample\n"]], /with-sample\/samples\/a-sample\.yaml:0: module\.file-ids: holds the id "another": the file of an entry is named by its id, a-sample/);
+  // A file the schema refuses breaks that, and its id is not read.
+  expectOnly([[`${WITH_SAMPLE}/samples/a-sample.yaml`, null, "id: another\n"]], /with-sample\/samples\/a-sample\.yaml:0: does not pass the schema of sample: required at #/);
+  // A name that is no local ID stands at no path: capitals, a device name of Windows, 65 letters.
+  for (const name of ["A-sample", "con", "a".repeat(65), "a_sample"]) {
+    expectOnly([[`${WITH_SAMPLE}/samples/${name}.yaml`, null, "title: A sample\n"]], new RegExp(`samples/${name}\\.yaml:0: module\\.layout: stands at no path`));
+  }
+  expectOnly([[`${WITH_SAMPLE}/samples/more/a-sample.yaml`, null, "title: A sample\n"]], /samples\/more\/a-sample\.yaml:0: module\.layout: stands at no path/);
+  expectOnly([["format/vectors/rules/module.file-ids/id-unlike-name/samples/a-sample.yaml", null, "id: a-sample\ntitle: A sample\n"]], /module\.file-ids\/id-unlike-name:0: breaks no module\.file-ids/);
+});
+
+const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
+const media = (file) => `${WITH_SAMPLE}/media/${file}`;
+
+test("a media file stands at a media path and begins with its format's signature", () => {
+  const webp = Buffer.concat([Buffer.from("RIFF"), Buffer.from([0x24, 0, 0, 0]), Buffer.from("WEBPVP8 ")]);
+  const good = [["dot.jpg", Buffer.from([0xff, 0xd8, 0xff, 0xe0])], ["dot.webp", webp], ["tag.mp3", Buffer.from("ID3\x04\x00")], ["frame.mp3", Buffer.from([0xff, 0xfb, 0x90, 0x64])], ["pictures/dot.png", PNG]];
+  assert.deepEqual(errorsOf(good.map(([file, bytes]) => [media(file), null, bytes])), []);
+  const bad = [
+    ["dot.jpg", PNG, "JPEG"],
+    ["dot.png", Buffer.from([0xff, 0xd8, 0xff]), "PNG"],
+    ["dot.webp", Buffer.concat([Buffer.from("RIFF"), Buffer.from([0x24, 0, 0, 0]), Buffer.from("WAVEfmt ")]), "WebP"],
+    ["tag.mp3", Buffer.from("ID2\x04"), "MP3"],
+    // A reserved bitrate index, a reserved sampling rate, and layer II.
+    ["frame.mp3", Buffer.from([0xff, 0xfb, 0xf0, 0x64]), "MP3"],
+    ["frame.mp3", Buffer.from([0xff, 0xfb, 0x9c, 0x64]), "MP3"],
+    ["frame.mp3", Buffer.from([0xff, 0xfd, 0x90, 0x64]), "MP3"],
+    ["frame.mp3", Buffer.from([0xff, 0xfb, 0x90]), "MP3"],
+  ];
+  for (const [file, bytes, format] of bad) {
+    expectOnly([[media(file), null, bytes]], new RegExp(`media/${file.replace(".", "\\.")}:0: module\\.media: does not begin with the signature of ${format}`));
+  }
+  for (const file of ["Dot.png", "dot.gif", "dot.jpeg", "pictures/Dots/dot.png"]) {
+    expectOnly([[media(file), null, PNG]], new RegExp(`module\\.media: ${file.replace(".", "\\.")} is no media path`));
+  }
+  // An extension that media_path takes and format-check knows no signature of.
+  const withGif = commonSchema((s) => (s.$defs.media_path.pattern = s.$defs.media_path.pattern.replace("mp3", "mp3|gif")));
+  expectOnly([withGif, [media("dot.gif"), null, PNG]], /media\/dot\.gif:0: module\.media: format-check knows no signature of \.gif/);
+});
+
+test("a vector of a rule of a whole module about media breaks it and no other", () => {
+  expectOnly([["format/vectors/rules/module.media/png-holding-text/media/dot.png", null, PNG]], /module\.media\/png-holding-text:0: breaks no module\.media/);
 });
 
 test("a file of a whole-module example follows the YAML rules and passes its part's schema", () => {
@@ -433,6 +517,113 @@ test("the rules of a whole module in the text are those format-check checks, and
   expectEach([[README, "| \x60manifest.format-version\x60 | The manifest MUST name a format version that the reader reads. |\n", ""]], [/^format\/README\.md:0: format-check checks the cases of manifest\.format-version, and the text does not list it/, /^format\/vectors\/rules\/manifest\.format-version:0: format\/README\.md lists no rule manifest\.format-version/]);
 });
 
+// The vectors of the open view.
+
+const OPEN = "format/vectors/open-view/sample/title-and-tags";
+
+test("a vector of the open view gives the open view of its part, whatever the order of keys", () => {
+  expectOnly([[`${OPEN}/open-view.yaml`, null, "title: A sample\ntags: [first]\ncount: 2\n"]], /title-and-tags\/open-view\.yaml:0: is not the open view of part\.yaml: they differ at #\/count/);
+  expectOnly([[`${OPEN}/open-view.yaml`, null, "title: A sample\n"]], /they differ at #\/tags/);
+  expectOnly([[`${OPEN}/open-view.yaml`, null, "title: A sample\ntags: [second]\n"]], /they differ at #\/tags\/0/);
+  expectOnly([[`${OPEN}/open-view.yaml`, null, "title: A sample\ntags: first\n"]], /they differ at #\/tags/);
+  assert.deepEqual(errorsOf([[`${OPEN}/open-view.yaml`, null, "tags: [first]\ntitle: A sample\n"]]), []);
+});
+
+test("a vector of the open view: the part passes its schema, and both files follow the YAML rules", () => {
+  expectOnly([[`${OPEN}/part.yaml`, null, "title: A sample\ncount: -1\n"]], /title-and-tags\/part\.yaml:0: does not pass the schema of sample: minimum at #\/count/);
+  expectOnly([[`${OPEN}/part.yaml`, null, "title: yes\n"]], /title-and-tags\/part\.yaml:1: yaml\.plain-strings/);
+  expectOnly([[`${OPEN}/open-view.yaml`, null, "title: yes\n"]], /title-and-tags\/open-view\.yaml:1: yaml\.plain-strings/);
+});
+
+test("a vector of the open view is a folder of a part of the layout, with part.yaml and open-view.yaml alone", () => {
+  const holds = /title-and-tags:0: a vector of the open view holds part\.yaml and open-view\.yaml, and nothing else/;
+  expectOnly([[`${OPEN}/notes.txt`, null, "Notes.\n"]], holds);
+  expectOnly([[`${OPEN}/open-view.yaml`, "", null]], holds);
+  expectOnly([["format/vectors/open-view/sample/a-case.yaml", null, "title: A sample\n"]], /open-view\/sample\/a-case\.yaml:0: a vector of the open view is a folder <case>\//);
+  expectOnly([["format/vectors/open-view/Sample/a-case/part.yaml", null, "title: A sample\n"]], /open-view\/Sample:0: vectors of the open view are in open-view\/<part>\/<case>\//);
+  const other = ["format/vectors/open-view/other/a-case", ["part.yaml", "open-view.yaml"]];
+  expectOnly(other[1].map((name) => [`${other[0]}/${name}`, null, "title: A sample\n"]), /open-view\/other\/a-case:0: other is no part of the layout of a module/);
+});
+
+test("the open view counts a mark only where its subschema applies and passes", () => {
+  const marks = sampleSchema((s) => {
+    s.properties.item["x-open"] = true;
+    s.properties.item.oneOf[0].properties.a["x-open"] = true;
+    // A mark in the branch of kind b counts only for an item of kind b.
+    s.properties.item.oneOf[1].properties.kind["x-open"] = true;
+    s.properties.details["x-open"] = true;
+    s.properties.notes["x-open"] = true;
+    s.properties.notes.patternProperties["^[a-z]+$"]["x-open"] = true;
+    s.properties.weights["x-open"] = true;
+    s.properties.weights.additionalProperties["x-open"] = true;
+    // then applies when level is high.
+    s.then.properties = { count: { type: "integer", description: "How many there are, open when the sample is hard.", "x-open": true } };
+  });
+  const part = "title: A sample\nlevel: high\ncount: 2\nitem:\n  id: one\n  kind: a\n  a: text\ndetails:\n  note: Closed.\nnotes:\n  first: Open.\nweights:\n  heavy: 3\n";
+  // details keeps its place with nothing open in it, as {}.
+  const view = "title: A sample\ncount: 2\nitem:\n  a: text\ndetails: {}\nnotes:\n  first: Open.\nweights:\n  heavy: 3\n";
+  const files = (p, v) => [marks, [`${OPEN}/part.yaml`, null, p], [`${OPEN}/open-view.yaml`, null, v]];
+  assert.deepEqual(errorsOf(files(part, view)), []);
+  expectOnly(files(part.replace("level: high", "level: low"), view), /they differ at #\/count/);
+});
+
+test("the open view follows anyOf and prefixItems, and a reference to a whole schema", () => {
+  const marks = sampleSchema((s) => {
+    s.properties.pair = { type: "array", prefixItems: [{ type: "string" }, { type: "object", properties: { left: { type: "integer", description: "Open.", "x-open": true }, right: { type: "integer", description: "Closed." } }, unevaluatedProperties: false }], items: { type: "integer" }, description: "A pair, then numbers.", "x-open": true };
+    s.properties.either = { anyOf: [{ type: "object", properties: { p: { type: "string", description: "Open in the first branch.", "x-open": true } } }, { type: "object", properties: { q: { type: "string", description: "Closed in the second." } } }], unevaluatedProperties: false, description: "One of two shapes.", "x-open": true };
+    s.properties.whole = { $ref: "common.schema.json#/$defs/tag", description: "A tag, through common.", "x-open": true };
+  });
+  const part = "title: A sample\npair: [first, {left: 1, right: 2}, 3, 4]\neither: {p: open, q: closed}\nwhole: a-tag\n";
+  const view = "title: A sample\npair: [first, {left: 1}, 3, 4]\neither: {p: open}\nwhole: a-tag\n";
+  const files = (p, v) => [marks, [`${OPEN}/part.yaml`, null, p], [`${OPEN}/open-view.yaml`, null, v]];
+  assert.deepEqual(errorsOf(files(part, view)), []);
+  expectOnly(files(part, view.replace("pair: [first, {left: 1}, 3, 4]", "pair: [first, {left: 1}, 3]")), /they differ at #\/pair/);
+  expectOnly(files(part, view.replace("pair: [first, {left: 1}, 3, 4]", "pair: {first: 1}")), /they differ at #\/pair/);
+});
+
+// dependentSchemas beside unevaluatedProperties trips ajv 8.20.0 (the next test), so its walk is
+// tested on its own, with every subschema passing.
+test("the open view follows dependentSchemas when its key is present, and a reference to a whole schema", () => {
+  const json = { $id: "https://x.test/0.1/x.schema.json", properties: { count: { "x-open": true }, level: {}, other: { $ref: "y.schema.json", "x-open": true } }, dependentSchemas: { count: { properties: { level: { "x-open": true } } } } };
+  const other = { $id: "https://x.test/0.1/y.schema.json", properties: { inner: { "x-open": true }, hidden: {} } };
+  const byName = new Map([["x.schema.json", { name: "x.schema.json", json }], ["y.schema.json", { name: "y.schema.json", json: other }]]);
+  const ctx = { byName, schemaAt: () => () => true };
+  assert.deepEqual(openViewOf({ count: 1, level: "low", other: { inner: 1, hidden: 2 } }, "x.schema.json", ctx), { count: 1, level: "low", other: { inner: 1 } });
+  assert.deepEqual(openViewOf({ level: "low" }, "x.schema.json", ctx), {});
+  assert.throws(() => openViewOf({ other: {} }, "x.schema.json", { byName: new Map([["x.schema.json", { name: "x.schema.json", json }]]), schemaAt: ctx.schemaAt }), /the reference y\.schema\.json names no schema/);
+  const branching = { $id: "https://x.test/0.1/x.schema.json", oneOf: [{ properties: { a: { "x-open": true } } }] };
+  assert.throws(() => openViewOf({ a: 1 }, "x.schema.json", { byName: new Map([["x.schema.json", { name: "x.schema.json", json: branching }]]), schemaAt: () => undefined }), /the subschema https:\/\/x\.test\/0\.1\/x\.schema\.json#\/oneOf\/0 cannot be validated/);
+  // An if with neither then nor else brings nothing, and is not validated.
+  const lone = { $id: "https://x.test/0.1/x.schema.json", properties: { a: { "x-open": true } }, if: { required: ["a"] } };
+  assert.deepEqual(openViewOf({ a: 1 }, "x.schema.json", { byName: new Map([["x.schema.json", { name: "x.schema.json", json: lone }]]), schemaAt: () => undefined }), { a: 1 });
+  assert.equal(differenceOf([1, { a: 1 }], [1, { a: 1 }]), null);
+  assert.deepEqual(differenceOf({ a: [1] }, { a: [2] }), ["a", 0]);
+  assert.deepEqual(differenceOf({ a: 1 }, { b: 1 }), ["a"]);
+});
+
+test("why: ajv drops the properties of a place beside dependentSchemas whose key is absent, and beside $ref with oneOf", () => {
+  // 2020-12 counts the properties of the place as evaluated in both, and the value is valid; ajv
+  // 8.20.0 refuses it. The schemas of the format use neither (RUN.md, T28). When ajv changes, this
+  // test says so.
+  const ajv = new Ajv2020({ allErrors: true });
+  ajv.addSchema({ $id: "https://x.test/c.json", $defs: { base: { type: "object", properties: { id: { type: "string" }, kind: { type: "string" } } } } });
+  const dependent = ajv.compile({ type: "object", properties: { title: { type: "string" }, count: { type: "integer" } }, dependentSchemas: { count: { properties: { title: { minLength: 1 } } } }, unevaluatedProperties: false });
+  assert.equal(dependent({ title: "t" }), false);
+  const branches = ajv.compile({ $id: "https://x.test/s.json", $ref: "c.json#/$defs/base", oneOf: [{ properties: { kind: { const: "a" } } }, { properties: { kind: { const: "b" } } }], unevaluatedProperties: false });
+  assert.equal(branches({ id: "x", kind: "a" }), true);
+  assert.equal(branches({ id: "x", kind: "b" }), false);
+});
+
+test("the open view of a part whose schema has errors goes unchecked with it", () => {
+  expectEach([sampleSchema((s) => (s.properties.count.type = "whole"))], [/sample\.schema\.json:\d+: the 2020-12 meta-schema/, unchecked]);
+});
+
+test("common defines local_id and media_path, by which <id> and module.media read names", () => {
+  expectEach([commonSchema((s) => delete s.$defs.local_id)], [/common\.schema\.json:0: defines no local_id, by which the layout's <id> and module\.media read names/, /sample\.schema\.json:\d+: \$ref "common\.schema\.json#\/\$defs\/local_id": common\.schema\.json defines no local_id/, unchecked]);
+  // Without media_path, module.media goes unchecked, and its vector breaks nothing that is said.
+  expectOnly([commonSchema((s) => delete s.$defs.media_path)], /common\.schema\.json:0: defines no media_path/);
+});
+
 // The real vectors: each case shows what its name says, so that a vector an editor saved again does
 // not quietly become another.
 
@@ -457,11 +648,17 @@ test("spec's vectors hold the bytes their names say", () => {
   for (const [file, text] of Object.entries(escapes)) assert.ok(caseOf(file).toString("latin1").includes(text), `${file} holds ${text}`);
 });
 
-test("spec's pictures are PNG, as their names say", () => {
-  const signature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
-  for (const file of ["examples/module/valid/with-media-and-notice/media/pictures/dot.png", "vectors/rules/module.layout/media-at-root/dot.png"]) {
-    assert.deepEqual([...fs.readFileSync(path.join(spec, "format", file)).subarray(0, 8)], signature, file);
+test("spec's pictures are PNG, as their names say, and the vectors of module.media hold what theirs say", () => {
+  const png = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  const bytesOf = (file, count) => [...fs.readFileSync(path.join(spec, "format", file)).subarray(0, count)];
+  for (const file of ["examples/module/valid/with-media-and-notice/media/pictures/dot.png", "examples/module/valid/with-tasks/media/pictures/dot.png", "vectors/rules/module.layout/media-at-root/dot.png", "vectors/rules/module.media/name-in-capitals/media/Pictures/dot.png", "vectors/rules/module.media/jpeg-holding-png/media/pictures/dot.jpg"]) {
+    assert.deepEqual(bytesOf(file, 8), png, file);
   }
+  const media = "vectors/rules/module.media";
+  assert.deepEqual(bytesOf(`${media}/png-holding-jpeg/media/pictures/dot.png`, 3), [0xff, 0xd8, 0xff]);
+  assert.equal(Buffer.from(bytesOf(`${media}/webp-holding-wave/media/pictures/dot.webp`, 12)).toString("latin1").replace(/^RIFF.{4}/s, ""), "WAVE");
+  assert.equal(Buffer.from(bytesOf(`${media}/gif/media/pictures/dot.gif`, 6)).toString("latin1"), "GIF89a");
+  assert.equal(fs.readFileSync(path.join(spec, "format", `${media}/mp3-holding-text/media/sounds/bell.mp3`), "utf8"), "A bell rings.\n");
 });
 
 test("spec's vectors of yaml.plain-strings hold the words their names say", () => {

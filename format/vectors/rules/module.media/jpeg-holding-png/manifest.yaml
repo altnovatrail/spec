@@ -1,0 +1,13 @@
+# A manifest that breaks no rule: what this case breaks is in media/.
+module_format_version: "0.1"
+id: example/vector
+version: "0.1.0"
+title: A test vector
+subject: mathematics
+audience:
+  age_categories: [under_13]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

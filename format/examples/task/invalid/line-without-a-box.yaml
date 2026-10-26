@@ -1,0 +1,14 @@
+# error: contains at #/items/0/line
+# A line holds at least one box.
+id: line-without-a-box
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 × 8 = 56"
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

@@ -1,5 +1,6 @@
 # The manifest of the official module of olympiad mathematics for grades 1–6. Its skills need two
-# anchor skills of the shared taxonomy, which school mathematics teaches.
+# anchor skills of the shared taxonomy, which school mathematics teaches. Its bands of difficulty
+# are those of MathTrail: grades 1–2, 3–4 and 5–6.
 module_format_version: "0.1"
 id: novatrail/olympiad-math
 version: "0.1.0"
@@ -8,6 +9,16 @@ subject: mathematics
 audience:
   age_categories: [under_13]
   grades: [1, 2, 3, 4, 5, 6]
+bands:
+  - id: grades-1-2
+    title: Grades 1–2
+    grades: [1, 2]
+  - id: grades-3-4
+    title: Grades 3–4
+    grades: [3, 4]
+  - id: grades-5-6
+    title: Grades 5–6
+    grades: [5, 6]
 languages:
   explanation: en
 dependencies: [core.division-with-remainder, core.fractions-of-a-whole]

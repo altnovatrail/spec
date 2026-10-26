@@ -1,0 +1,19 @@
+# Two zones that overlap by 50 units.
+id: two-products
+statement:
+  - text: a) What is 7 × 8? b) What is 8 × 7?
+canvas:
+  kind: handwriting_sheet
+items:
+  - text: a)
+    answer_slots:
+      - binding: zone
+        zone: {left: 100, top: 1000, width: 400, height: 200}
+  - text: b)
+    answer_slots:
+      - binding: zone
+        zone: {left: 450, top: 1000, width: 400, height: 200}
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

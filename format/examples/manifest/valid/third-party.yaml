@@ -1,6 +1,7 @@
 # The manifest of a third-party module, as in the illustration of physics in concepts 16.3. Its
 # texts are in Russian, its explanation language, and its license is another one than the official
-# modules'. Its skills need linear equations, an anchor skill of the shared taxonomy, and no other.
+# modules'. Its skills need linear equations, an anchor skill of the shared taxonomy, and no other,
+# and the crops of its sheets draw the learner's digits 40 px high.
 module_format_version: "0.1"
 id: acme/optics-8
 version: "1.2.0"
@@ -9,9 +10,15 @@ subject: physics
 audience:
   age_categories: [from_13_to_consent, from_consent_to_18]
   grades: [8]
+bands:
+  - id: grade-8
+    title: "8 класс"
+    grades: [8]
 languages:
   explanation: ru
 dependencies: [core.linear-equations]
+canvas:
+  digit_height: 40
 authors:
   - name: Acme Learning
   - name: A. Example

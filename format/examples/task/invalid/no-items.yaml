@@ -1,0 +1,12 @@
+# error: minItems at #/items
+# A task has an item at least.
+id: no-items
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items: []
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

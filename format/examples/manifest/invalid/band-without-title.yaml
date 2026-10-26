@@ -1,0 +1,18 @@
+# error: required at #/bands/0
+# A band has a title, by which the learner's app names it.
+module_format_version: "0.1"
+id: novatrail/school-math-grade-3
+version: "0.1.0"
+title: School mathematics, grade 3
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3]
+bands:
+  - id: grade-3
+    grades: [3]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

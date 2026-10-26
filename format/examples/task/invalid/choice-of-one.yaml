@@ -1,0 +1,15 @@
+# error: minItems at #/items/0/answer_slots/0/options
+# A choice has two options at least.
+id: choice-of-one
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: choice
+        options: ["7"]
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

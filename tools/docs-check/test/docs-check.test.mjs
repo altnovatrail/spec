@@ -6,10 +6,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { check } from "../main.mjs";
 import { componentProfile } from "../config.mjs";
+import { GIT } from "../../shared.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const base = path.join(here, "fixtures", "base");
@@ -80,17 +81,37 @@ test("the base fixture is green", async () => {
   assert.deepEqual(await errorsOf(), []);
 });
 
+// A copy of docs-check under dir/tools, as it lies in spec, so that run from there it checks dir;
+// the path of its main.mjs.
+function toolsInto(dir) {
+  const tools = path.join(dir, "tools");
+  fs.mkdirSync(tools, { recursive: true });
+  const own = path.dirname(main);
+  fs.cpSync(own, path.join(tools, "docs-check"), { recursive: true, filter: (from) => path.relative(own, from).split(path.sep)[0] !== "test" });
+  fs.cpSync(path.join(here, "..", "..", "shared.mjs"), path.join(tools, "shared.mjs"));
+  fs.symlinkSync(path.join(here, "..", "..", "node_modules"), path.join(tools, "node_modules"));
+  return path.join(tools, "docs-check", "main.mjs");
+}
+
 test("exit code: 0 when green, 1 with errors", () => {
-  const green = spawnSync(process.execPath, [main, base], { encoding: "utf8" });
-  assert.equal(green.status, 0, green.stdout + green.stderr);
-  const root = trialCopy([["README.md", "(draft/)", "(drafts/)"]]);
+  const root = trialCopy();
   try {
-    const red = spawnSync(process.execPath, [main, root], { encoding: "utf8" });
+    const script = toolsInto(root);
+    const green = spawnSync(process.execPath, [script], { encoding: "utf8" });
+    assert.equal(green.status, 0, green.stdout + green.stderr);
+    applyEdits(root, [["README.md", "(draft/)", "(drafts/)"]]);
+    const red = spawnSync(process.execPath, [script], { encoding: "utf8" });
     assert.equal(red.status, 1);
     assert.match(red.stdout, /^README\.md:7: link drafts\/: drafts does not exist$/m);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("a path on the command line is refused: the root is never taken from it", () => {
+  const run = spawnSync(process.execPath, [main, base], { encoding: "utf8" });
+  assert.equal(run.status, 2, run.stdout + run.stderr);
+  assert.match(run.stderr, /the only argument is --component/);
 });
 
 test("a broken link", async () => {
@@ -260,17 +281,15 @@ test("Latin lookalikes beyond the register are names, not numbers: P-256, T-34",
 
 test("the script runs through a symlink", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "docs-check-link-"));
+  const root = trialCopy([["README.md", "(draft/)", "(drafts/)"]]);
   try {
     const link = path.join(dir, "docs-check");
-    fs.symlinkSync(path.dirname(main), link);
-    const root = trialCopy([["README.md", "(draft/)", "(drafts/)"]]);
-    try {
-      const red = spawnSync(process.execPath, [path.join(link, "main.mjs"), root], { encoding: "utf8" });
-      assert.equal(red.status, 1, red.stdout + red.stderr);
-    } finally {
-      fs.rmSync(root, { recursive: true, force: true });
-    }
+    fs.symlinkSync(path.dirname(toolsInto(root)), link);
+    const red = spawnSync(process.execPath, [path.join(link, "main.mjs")], { encoding: "utf8" });
+    assert.equal(red.status, 1, red.stdout + red.stderr);
+    assert.match(red.stdout, /^README\.md:7: link drafts\/: drafts does not exist$/m);
   } finally {
+    fs.rmSync(root, { recursive: true, force: true });
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
@@ -437,4 +456,117 @@ test("a name that is also a word still counts only where it ends the phrase", as
 
 test("a hyphen that goes on is part of another word, not the name", async () => {
   await expectOnly([["README.md", "Decision R02 and", "Per R99 module-kit-like tools and"]], /^README\.md:8: R99 does not exist/);
+});
+
+// Which files are read: in a repository, those git tracks or does not ignore; elsewhere, all
+// (В29 tutor; R32, the 2026-10-26 amendment).
+
+const brokenReport = "# Run\n\n[the sheets](nope.md)\n";
+
+// The copy at root made a repository of its own, with the files named staged.
+function inRepository(root, staged = []) {
+  execFileSync(GIT, ["-C", root, "init", "--quiet", "--initial-branch=main"]);
+  if (staged.length) execFileSync(GIT, ["-C", root, "add", "--", ...staged]);
+  return root;
+}
+
+// samples/runs/report.md under root, with a broken link, and samples/ kept out of git.
+function samplesOutOfGit(root) {
+  fs.writeFileSync(path.join(root, ".gitignore"), "/samples/\n");
+  fs.mkdirSync(path.join(root, "samples", "runs"), { recursive: true });
+  fs.writeFileSync(path.join(root, "samples", "runs", "report.md"), brokenReport);
+  return root;
+}
+
+test("in a repository, a folder that .gitignore keeps out is not read, and a document not committed yet is", async () => {
+  const root = samplesOutOfGit(inRepository(trialCopy()));
+  try {
+    fs.writeFileSync(path.join(root, "docs", "new.md"), brokenReport);
+    const errors = (await check(root)).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
+    assert.deepEqual(errors, ["docs/new.md:3: link nope.md: docs/nope.md does not exist"]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("in a repository, a tracked document deleted since is not read", async () => {
+  const root = trialCopy();
+  try {
+    fs.writeFileSync(path.join(root, "docs", "gone.md"), brokenReport);
+    inRepository(root, ["docs/gone.md"]);
+    fs.rmSync(path.join(root, "docs", "gone.md"));
+    assert.deepEqual((await check(root)).errors, []);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("in a component, samples/ out of git is not read, nor are the errors of spec/ the component's", async () => {
+  const root = samplesOutOfGit(inRepository(componentCopy()));
+  try {
+    fs.appendFileSync(path.join(root, "spec", "docs", "product.md"), "\n[broken](nope.md)\n");
+    assert.deepEqual((await check(root, componentProfile(path.join(root, "spec")))).errors, []);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a spec/ that is a repository of its own is read through git, and its ignored folders are not", async () => {
+  const root = inRepository(componentCopy());
+  try {
+    const spec = samplesOutOfGit(inRepository(path.join(root, "spec")));
+    // An anchor is checked only in a file that was read: read, this report would fail the link.
+    fs.appendFileSync(path.join(root, "README.md"), "\n[the report](spec/samples/runs/report.md#nope)\n");
+    assert.deepEqual((await check(root, componentProfile(spec))).errors, []);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a .git that git cannot read is named, and nothing else is checked", async () => {
+  const root = trialCopy();
+  try {
+    fs.writeFileSync(path.join(root, ".git"), `gitdir: ${path.join(root, "gone")}\n`);
+    const errors = (await check(root)).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
+    assert.equal(errors.length, 1, errors.join("\n"));
+    assert.match(errors[0], /^\.git:0: git cannot list the repository's files: fatal: /);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a spec/ whose .git git cannot read is named", async () => {
+  const root = componentCopy();
+  try {
+    fs.writeFileSync(path.join(root, "spec", ".git"), "gitdir: ../.git/modules/spec\n");
+    const errors = (await check(root, componentProfile(path.join(root, "spec")))).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
+    assert.ok(errors.some((e) => /^spec:0: git cannot list spec's files: fatal: /.test(e)), errors.join("\n"));
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("without a .git of its own, a draft is walked whole, its ignored folders too", async () => {
+  await expectOnly([], /^samples\/runs\/report\.md:3: link nope\.md: samples\/runs\/nope\.md does not exist$/, async () => {
+    const root = samplesOutOfGit(trialCopy());
+    try {
+      return (await check(root)).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
+
+test("in a repository, git runs without the fsmonitor hook that its config names", async () => {
+  const root = inRepository(trialCopy());
+  try {
+    const marker = path.join(root, "hook-ran");
+    const hook = path.join(root, "hook.sh");
+    fs.writeFileSync(hook, `#!/bin/sh\necho ran > "${marker}"\nexit 1\n`, { mode: 0o755 });
+    execFileSync(GIT, ["-C", root, "config", "core.fsmonitor", hook]);
+    assert.deepEqual((await check(root)).errors, []);
+    assert.equal(fs.existsSync(marker), false);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });

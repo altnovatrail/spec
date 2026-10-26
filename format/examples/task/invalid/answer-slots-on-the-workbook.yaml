@@ -1,0 +1,15 @@
+# error: required at #/items/0
+# An item of a workbook is a line.
+id: answer-slots-on-the-workbook
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: workbook
+items:
+  - answer_slots:
+      - binding: zone
+        zone: {left: 100, top: 1000, width: 400, height: 200}
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

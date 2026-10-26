@@ -1,0 +1,16 @@
+# A task of the module of short essays on an invented topic: the whole sheet is the answer, read and
+# given feedback as one work.
+id: undiscovered-island-1
+statement:
+  - text: Imagine an island that nobody has found yet. Write a short essay about your first morning there.
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: sheet
+skills:
+  primary: [paragraphs, endings]
+  supporting: [writing-a-first-sentence]
+band: whole-essays
+difficulty: 2

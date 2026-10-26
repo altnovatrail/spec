@@ -1,0 +1,15 @@
+id: tables-page
+statement:
+  - text: Write the missing numbers.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 ×"
+      - binding: box
+      - text: "= 56"
+  - line:
+      - text: "47 ÷ 6 ="
+      - binding: box
+      - text: r
+      - binding: box

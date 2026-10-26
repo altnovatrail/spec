@@ -1,0 +1,19 @@
+# A skill both primary and supporting in an item of its own skills.
+id: tables-page
+statement:
+  - text: What is 7 × 8?
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "47 ÷ 6 ="
+      - binding: box
+      - text: r
+      - binding: box
+    skills:
+      primary: [division-with-remainder]
+      supporting: [division-with-remainder]
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

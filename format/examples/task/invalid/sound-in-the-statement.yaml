@@ -1,0 +1,18 @@
+# error: pattern at #/statement/1/picture
+# A statement has no sound in this version: a picture is a PNG, JPEG or WebP file.
+id: sound-in-the-statement
+statement:
+  - text: Listen, and count the rings of the bell.
+  - picture: sounds/bell.mp3
+    alt: A bell rings.
+    width: 240
+    height: 240
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

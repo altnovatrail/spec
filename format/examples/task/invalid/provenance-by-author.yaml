@@ -1,0 +1,15 @@
+# error: unevaluatedProperties at #
+# A task has no field for provenance: everything in a module is its author's.
+id: provenance-by-author
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2
+provenance: author

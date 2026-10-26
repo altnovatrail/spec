@@ -1,0 +1,14 @@
+# error: required at #/skills
+# A task trains a skill of its module at least.
+id: no-primary-skill
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+skills:
+  supporting: [time-calendar]
+band: grades-3-4
+difficulty: 2
