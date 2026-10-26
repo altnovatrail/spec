@@ -1,0 +1,16 @@
+# A module whose skills need two anchor skills of the shared taxonomy and teach a third one: its
+# dependencies are the two it needs, not the one it teaches.
+module_format_version: "0.1"
+id: example/with-anchor-skills
+version: "0.1.0"
+title: Fractions, grade 4
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [4]
+languages:
+  explanation: en
+dependencies: [core.division-with-remainder, core.multiplication-table]
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

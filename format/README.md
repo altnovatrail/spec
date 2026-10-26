@@ -27,6 +27,11 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
   - something valid made invalid, a new or stricter format rule among them;
   - anything that can give a different verdict, open view or numbers on the same inputs: the behaviour of a check kind or of its normalization, the generator or the derivation of seeds, templates, a closed field opened.
 - Editorial changes give no new version. These are descriptions, examples, wording of this text that keeps its rules, and a test vector that pins what the text already says; the tag of `spec` names such a revision.
+- The anchor skills of the shared taxonomy are part of the format (section 13).
+  - A new anchor skill is a minor change, and so is marking one `"deprecated": true`: a module MAY still name it until a major version removes it.
+  - Removing an anchor skill is a major change, and so is changing what it means. A change of meaning is made as a removal and an addition: the skill with the new meaning comes in under a new ID, and the old ID is removed. The learner model knows an anchor skill by its ID alone, so an ID never takes another meaning.
+  - The description of an anchor skill is normative, since it says what the skill means: other words with the same meaning are an editorial change.
+  - The ID of an anchor skill is never reused.
 - A version number never goes back and is never reused: undoing a change is a new version too. A fault in `module-kit` that the test vectors catch is not a change of the format.
 - While the format is v0 (0.y), nothing is promised: every change is the next 0.y, and the platform reads only the current version. From v1 on, it reads the current major version, with all its minor versions, and the previous major version. v0 leaves when v1 comes out, and each previous major version leaves when the next one comes out.
 - Version 0.1 is a draft until the first release of `spec`'s line 0.3, the first release that carries the schemas as files for code (RUN.md, T35). Until then the tasks that write the format change 0.1 without raising the number, and no code takes it (R21).
@@ -38,12 +43,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 format/
 ├── README.md     this text
 ├── VERSION       the format's version, MAJOR.MINOR
-├── schemas/      <term>.schema.json; common.schema.json for definitions that parts share
+├── schemas/      <term>.schema.json; common.schema.json and shared-taxonomy.schema.json, which parts refer to
 ├── examples/     <term>/valid/<case>.yaml and <term>/invalid/<case>.yaml; module/valid/<case>/
 └── vectors/      rules/<rule-id>/, open-view/, and the vectors of check kinds and templates
 ```
 
 - `<term>` is the concepts 15 term for the part a schema describes, in kebab-case: `manifest`, `skill-graph`, `task`.
+- Two schemas describe no part, and the parts refer to them: `common.schema.json` holds the definitions that parts share, and `shared-taxonomy.schema.json`, named by its term, the anchor skills (section 13). Neither has examples of its own: the examples of the parts show them.
 - `examples/module/valid/<case>/` is an example of a whole module: a folder laid out as a module (section 10). The part `module` has no schema of its own.
 - A case is named in kebab-case for what it shows: `missing-title.yaml`, or a folder such as `no-manifest/`.
 - Schemas are JSON. Examples and vectors written by hand are YAML and follow section 4.
@@ -83,7 +89,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   The other keywords of 2020-12 stay out of the format: a reference names only `$defs`, and validators differ on `minContains`, `maxContains` and `unevaluatedItems` (R45).
 - Its `$id` is `https://altnovatrail.github.io/spec/format/`, then the version in `VERSION`, a slash, and the file name: `https://altnovatrail.github.io/spec/format/0.1/task.schema.json`. The URI identifies the schema; it need not resolve ([JSON Schema 2020-12 core](https://json-schema.org/draft/2020-12/json-schema-core), §8.2.1). A new version changes every `$id` with it.
 - A reference between schemas MUST be relative, in one of three forms: `#/$defs/<name>` for a definition in the same schema, `<file>.schema.json` for another schema, and `<file>.schema.json#/$defs/<name>` for a definition in another schema, such as `"$ref": "common.schema.json#/$defs/skill_id"`. It resolves against the `$id`. A reference MUST NOT name that prefix, nor a path such as `../0.1/`: it would tie the schema to one version without anyone noticing.
-- Field names and the values of lists are the English terms of concepts 15 in snake_case: `answer_slots`, `trap_advice`. A field that names no term — `id`, `title`, `version` — is a plain English word. An array takes the plural, unless the field names, with a verb, how its item relates to others: `replaced_by`. A new term enters concepts 15 before it enters a schema (R42). Names under `$defs` are snake_case too.
+- Field names and the values of lists are the English terms of concepts 15 in snake_case: `answer_slots`, `trap_advice`. A field that names no term — `id`, `title`, `version` — is a plain English word. An array takes the plural, unless the field names, with a verb, how its item relates to others: `replaced_by`, `teaches`. A new term enters concepts 15 before it enters a schema (R42). Names under `$defs` are snake_case too.
 - The root of a schema has `title` and `description`. The subschema of every field has `description`, also where it holds only `$ref`: a subschema under `properties` or `patternProperties`, and the schema of a map's values under `additionalProperties`. A condition — what `if` or `not` holds — needs none. Descriptions are in English: a sentence or two on what the term means.
 - Every object is closed at its place, so an unknown field is an error.
   - A place is the root of a schema, or a subschema directly under `properties`, `patternProperties`, `additionalProperties`, `items`, `prefixItems` or `contains`, outside a condition. A definition under `$defs`, the target of a `$ref`, and the subschemas of `allOf`, `anyOf`, `oneOf`, `if`, `then`, `else`, `not` and `dependentSchemas` are parts of the place where they apply.
@@ -186,6 +192,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 - The ID of a module is `<publisher>/<name>`: `novatrail/olympiad-math`. A publisher owns the namespace of its modules' names, so two authors' modules never share an ID. The project publishes the official modules, and a third-party author publishes their own.
 - A skill, task, trap, technique or lesson has a local ID, unique among the module's items of its kind: a skill and a task may share one. A file of a module names the module's own items by local ID.
 - Outside its module, an item is named by its full ID: the module's ID, the item's kind and its local ID, joined by `/`, as in `novatrail/olympiad-math/skill/counting-gaps`. The kinds are `skill`, `task`, `trap`, `technique` and `lesson`. The learner model, the engine and a learner's progress name an item so, and a module never writes a full ID.
+- An anchor skill of the shared taxonomy is no item of a module: its ID, `core.<name>`, is its own, the same in a module and outside it (section 13).
 - The forms of these IDs and of a module's version are `module_id`, `local_id` and `module_version` in `schemas/common.schema.json`.
 
 **Languages.** A module has one explanation language, which its manifest names. Every text of the module is in it, except the material of a language module, which is in the language the module teaches. This version of the format has no translations: the same content in another explanation language is another module.
@@ -205,7 +212,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 
 ## 11. The manifest
 
-- The manifest is `manifest.yaml`, valid against `schemas/manifest.schema.json`. It says what the module is: the format version it is written in, its ID and version, its title and subject, whom it is for, its languages, its authors and its license. Every field is open: the learner's app shows them.
+- The manifest is `manifest.yaml`, valid against `schemas/manifest.schema.json`. It says what the module is: the format version it is written in, its ID and version, its title and subject, whom it is for, its languages, the anchor skills it builds on, its authors and its license. Every field is open: the learner's app shows them.
 - `module_format_version` names the version of the format the module is written in, as a string: `"0.1"`, since a plain `0.1` is a number (section 4). The field stands at the root of the manifest in every version of the format (section 2).
 - `id` is the module's ID (section 10). `version` is its version in Semantic Versioning 2.0.0, `X.Y.Z`, with no pre-release and no build metadata. It is written in quotes, `"1.2.0"`, since a plain string MUST NOT begin with a digit (section 4).
 - `title` is in the module's explanation language.
@@ -220,23 +227,26 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   - A language is a BCP 47 tag of a language subtag, an optional script and an optional region, each in the letter case of the registry: `en`, `zh-Hans`, `pt-BR`, `es-419`. BCP 47 compares tags whatever their case ([RFC 5646](https://www.rfc-editor.org/rfc/rfc5646), §2.1.1); the format fixes the case, so that a tag is always written as the same string.
   - The schema checks the form of a tag, not that the registry has it.
   - Norwegian, `no`, is written in quotes, since a plain `no` breaks `yaml.plain-strings`.
+- `dependencies` lists the anchor skills of the shared taxonomy (section 13) that the module's skills need: exactly those that its skill graph names as prerequisites. A module whose skills need none leaves the field out. So what a module builds on is seen from its manifest alone; what it teaches other modules is in its skill graph, in `teaches` (section 12).
 - `authors` lists who wrote the module, each by `name`: a person or an organization.
 - `license` is an identifier of the [SPDX License List](https://spdx.org/licenses/): `Apache-2.0` for an official module. An SPDX expression, such as `MIT OR Apache-2.0`, is not in this version.
 
 | ID | Rule |
 |---|---|
 | `manifest.format-version` | `module_format_version` MUST name a version of the format that the reader reads (section 2). A reader refuses a module that names another, and names this rule. |
+| `manifest.dependencies` | `dependencies` MUST list exactly the anchor skills that the prerequisites in the module's skill graph name: each of them, and no other. |
 
 ## 12. The skill graph
 
-- The skill graph is `skill-graph.yaml`, valid against `schemas/skill-graph.schema.json`. It names the module's skills: what each one is called, what a learner needs before it, and how the platform can know a learner's command of it. A module MAY have no skill graph, and then it has no skills.
-- `skills` holds each skill under its local ID: its `title` and, if it has one, its `description`, both in the module's explanation language; its `prerequisites`; and its `assessability`. The order of the skills carries no meaning (section 4).
-- `prerequisites` lists the skills of the module, by local ID, that a learner needs before this one, and the learner needs each of them: to take on B, a learner needs A. A skill with no prerequisites starts the graph and leaves the field out: the list, when written, is not empty. The graph is directed and has no cycle.
+- The skill graph is `skill-graph.yaml`, valid against `schemas/skill-graph.schema.json`. It names the module's skills: what each one is called, what a learner needs before it, how the platform can know a learner's command of it, and which anchor skills of the shared taxonomy it teaches. A module MAY have no skill graph, and then it has no skills.
+- `skills` holds each skill under its local ID: its `title` and, if it has one, its `description`, both in the module's explanation language; its `prerequisites`; its `assessability`; and, if it teaches any anchor skill, its `teaches`. The order of the skills carries no meaning (section 4).
+- `prerequisites` lists the skills that a learner needs before this one, and the learner needs each of them: to take on B, a learner needs A. A prerequisite is a skill of the module, by its local ID, or an anchor skill of the shared taxonomy, by its ID (section 13). A skill with no prerequisites leaves the field out: the list, when written, is not empty. The prerequisites among the module's skills form a directed graph with no cycle.
+- A skill that needs what its own module teaches names a skill of the module that teaches it, not the anchor skill. So the graph of the module's skills keeps that link, and its tiers and the check for cycles see it.
 - **Tiers.** A tier is a group of the module's skills of one difficulty. It is computed from the graph, never written:
   - a skill with no prerequisite among the module's skills is in tier 1;
   - every other skill is one tier above the highest tier of its prerequisites among the module's skills.
 
-  So a skill's tier is the number of skills on the longest chain of prerequisites that ends with it, and a prerequisite always stands in a lower tier than its skill. The number of tiers has no limit. `module-kit` computes them when it builds the module's package (architecture 3.7).
+  So a skill's tier is the number of skills on the longest chain of prerequisites that ends with it, and a prerequisite always stands in a lower tier than its skill. An anchor skill is not one of the module's skills and counts for no tier: a skill whose prerequisites are all anchor skills is in tier 1. The number of tiers has no limit. `module-kit` computes them when it builds the module's package (architecture 3.7).
 
   `tiers` names the tiers in order from tier 1, in the module's explanation language. When the module has more tiers than names, the tiers past the last name are shown by their numbers, and a name past the last tier names none. A module that names no tier leaves `tiers` out.
 - `assessability` says how the platform can know a learner's command of the skill:
@@ -245,6 +255,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   - `none` — the skill is practised and not assessed.
 
   The engine adapts to the learner only in a skill whose assessability is `verdict`. In the others, the author's order holds (concepts 4).
+- `teaches` lists the anchor skills that the skill teaches: a learner who has the skill can do what the description of each says. Other modules build on them, and the learner model decides by such skills whether a learner has an anchor skill (section 13). A skill that teaches none leaves the field out. Several skills, of one module or of several, MAY teach the same anchor skill.
 - **Retired skills.** A published skill ID never names another skill. A change in a skill's meaning cannot be seen in the module, so the author gives the changed skill a new ID. `retired_skills` holds each skill that an earlier version of the module had and this one has not, under the ID it had, with `replaced_by`: the skills of this version that took over what it taught.
   - A skill renamed has one skill in `replaced_by`, and a skill split has several. Skills merged into one each name that one.
   - `[]` says that no skill took over: a learner's progress in the retired skill moves to none.
@@ -259,3 +270,21 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 | `skill-graph.acyclic` | The prerequisites among the module's skills MUST form no cycle: no skill is, through its prerequisites, a prerequisite of itself, and no skill names itself among them. |
 | `skill-graph.known-skills` | Every local ID in a skill's `prerequisites` and in `replaced_by` MUST be the ID of a skill in `skills`. |
 | `skill-graph.retired-ids` | An ID in `retired_skills` MUST NOT be the ID of a skill in `skills`: a published ID never names another skill. |
+| `skill-graph.own-anchors` | A skill MUST NOT name among its `prerequisites` an anchor skill that a skill of its module teaches, itself included. |
+
+## 13. The shared taxonomy
+
+- The shared taxonomy is the vocabulary of anchor skills: skills that belong to no module and that modules name to build on one another (concepts 4). A module never names a skill of another module. A skill that needs what another module teaches names an anchor skill, and that module says which of its skills teaches it. So a module that renames or retires a skill breaks nothing in another.
+- The vocabulary is `schemas/shared-taxonomy.schema.json`. Each anchor skill is a branch of its `oneOf`, with the skill's ID as `const`, its `title` and its `description`. The schema describes no part of a module and is no file of one: the parts that name anchor skills refer to it, and it refuses an ID that names none. The platform curates it in `spec`.
+- The ID of an anchor skill is `core.` and a name in kebab-case that begins with a letter: `core.multiplication-table`.
+  - The dot keeps it apart from a local ID and from a module's ID, which have none.
+  - The name says nothing of a subject: a module of any subject may build on the skill.
+  - The ID is the same in a module and outside it: an anchor skill has no full ID, and the learner model, the engine and a learner's progress know it by this one.
+- The title and the description of an anchor skill are English text of the schema, not text of a module: an anchor skill has no explanation language. The description says what a learner who has the skill can do, and it is normative (section 2).
+- A module names anchor skills in three places:
+  - among the `prerequisites` of a skill, as what the skill needs (section 12);
+  - in the `teaches` of a skill, as what the skill teaches (section 12);
+  - in the `dependencies` of its manifest, as what its skills need (section 11).
+- Whether a learner has an anchor skill, the learner model decides by the skills that teach it in the learner's modules (architecture 3.8). An anchor skill that none of the learner's modules teaches holds back no skill that needs it: the engine takes it as unknown (concepts 4).
+- The format checks each module on its own, so it sees no cycle of prerequisites that runs through anchor skills from one module to another.
+- The vocabulary changes by the format's versions (section 2), and v1 keeps only the anchor skills that a module of the first slice names. How a third-party author proposes an anchor skill is for the rules of publication (О-9).

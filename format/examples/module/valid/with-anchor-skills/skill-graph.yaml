@@ -1,0 +1,20 @@
+# Three skills on fractions. Two need anchor skills that other modules teach, the multiplication
+# table and division with a remainder, and the first teaches an anchor skill itself. The first is in
+# tier 1, since an anchor skill counts for no tier, and the other two are in tier 2.
+skills:
+  fractions-of-a-whole:
+    title: Fractions of a whole
+    description: Names a part of a whole split into equal parts as a fraction, and finds a fraction of a number, such as 2/3 of 12.
+    prerequisites: [core.multiplication-table]
+    teaches: [core.fractions-of-a-whole]
+    assessability: verdict
+  equal-fractions:
+    title: Equal fractions
+    description: Tells whether two fractions are equal, such as 2/3 and 4/6, and writes a fraction with another denominator.
+    prerequisites: [fractions-of-a-whole]
+    assessability: verdict
+  mixed-numbers:
+    title: Mixed numbers
+    description: Writes a fraction greater than 1 as a whole number and a fraction, such as 7/3 as 2 1/3, and back.
+    prerequisites: [fractions-of-a-whole, core.division-with-remainder]
+    assessability: verdict

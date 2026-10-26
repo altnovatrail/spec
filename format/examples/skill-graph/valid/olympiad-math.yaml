@@ -1,8 +1,11 @@
 # The skill graph of the official module of olympiad mathematics for grades 1–6. Its skills and
 # their prerequisites are the 17 topics of mathtrail-standalone and their links, builds_on, in
 # content/catalogs/topics.json at commit c6cbeb2: each ID is the topic's, with . and _ made -, and
-# each title is the topic's name. The tiers come out 6, 6 and 5 skills, and their names are the
-# ones standalone gives the layers of its map. The topics and their links carry this notice:
+# each title is the topic's name. Two skills also need an anchor skill of the shared taxonomy, which
+# standalone did not have: divisibility needs division with a remainder, and parts and shares need
+# fractions of a whole, both of which school mathematics teaches. The tiers come out 6, 6 and 5
+# skills, since an anchor skill counts for no tier, and their names are the ones standalone gives
+# the layers of its map. The topics and their links carry this notice:
 #
 # MIT License
 #
@@ -63,7 +66,7 @@ skills:
     assessability: verdict
   fractions-parts:
     title: Parts and shares
-    prerequisites: [arithmetic-tricks]
+    prerequisites: [arithmetic-tricks, core.fractions-of-a-whole]
     assessability: verdict
   percent-basic:
     title: Percentages
@@ -79,7 +82,7 @@ skills:
     assessability: verdict
   number-divisibility:
     title: Divisibility and remainders
-    prerequisites: [time-calendar, parity-alternation]
+    prerequisites: [time-calendar, parity-alternation, core.division-with-remainder]
     assessability: verdict
   logic-sets:
     title: Overlapping groups

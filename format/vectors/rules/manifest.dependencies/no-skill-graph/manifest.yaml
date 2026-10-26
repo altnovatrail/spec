@@ -1,0 +1,14 @@
+# A manifest with dependencies in a module that has no skill graph, and so no skill to need them.
+module_format_version: "0.1"
+id: example/vector
+version: "0.1.0"
+title: A test vector
+subject: mathematics
+audience:
+  age_categories: [adult]
+languages:
+  explanation: en
+dependencies: [core.multiplication-table]
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

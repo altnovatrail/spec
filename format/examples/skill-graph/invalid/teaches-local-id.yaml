@@ -1,0 +1,11 @@
+# error: pattern at #/skills/division-with-remainder/teaches/0
+# A skill teaches anchor skills of the shared taxonomy, named by their IDs, not skills of its module.
+skills:
+  times-tables:
+    title: Times tables
+    assessability: verdict
+  division-with-remainder:
+    title: Division with a remainder
+    prerequisites: [times-tables]
+    teaches: [division-with-remainder]
+    assessability: verdict

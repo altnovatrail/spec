@@ -1,5 +1,6 @@
 # The skill graph of the official module of school mathematics for grade 3, on a workbook. Its
-# tiers have no names, so the skill map shows them by number.
+# tiers have no names, so the skill map shows them by number. Three of its skills teach anchor
+# skills of the shared taxonomy, which other modules build on.
 skills:
   numbers-to-1000:
     title: Numbers to 1000
@@ -18,16 +19,19 @@ skills:
   times-tables:
     title: Times tables
     description: Knows the products of the whole numbers from 1 to 10 and the quotients they give.
+    teaches: [core.multiplication-table]
     assessability: verdict
   division-with-remainder:
     title: Division with a remainder
     description: Divides a whole number by a number from 1 to 10 and gives the quotient and the remainder.
     prerequisites: [times-tables]
+    teaches: [core.division-with-remainder]
     assessability: verdict
   fractions-of-a-whole:
     title: Fractions of a whole
     description: Names the fraction of a shape split into equal parts, and finds a fraction of a number, such as 2/3 of 12.
     prerequisites: [times-tables]
+    teaches: [core.fractions-of-a-whole]
     assessability: verdict
   comparing-fractions:
     title: Comparing fractions

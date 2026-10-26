@@ -1,0 +1,14 @@
+# A manifest that names, as what the module needs, the anchor skill that the module teaches.
+module_format_version: "0.1"
+id: example/vector
+version: "0.1.0"
+title: A test vector
+subject: mathematics
+audience:
+  age_categories: [adult]
+languages:
+  explanation: en
+dependencies: [core.multiplication-table]
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

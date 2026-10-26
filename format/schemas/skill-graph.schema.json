@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/skill-graph.schema.json",
   "title": "Skill graph",
-  "description": "The skill graph of a module, skill-graph.yaml at the root of its folder: the module's skills, what a learner needs before each one, how the platform can know a learner's command of each, the names of the tiers, and the skills that the module had once and has no more. The tier of a skill is computed from the prerequisites, never written, and module-kit puts it into the module's package. Every field is open but retired_skills, since the skill map shows them.",
+  "description": "The skill graph of a module, skill-graph.yaml at the root of its folder: the module's skills, what a learner needs before each one, how the platform can know a learner's command of each, which anchor skills of the shared taxonomy each one teaches, the names of the tiers, and the skills that the module had once and has no more. The tier of a skill is computed from the prerequisites, never written, and module-kit puts it into the module's package. Every field is open but retired_skills, since the skill map shows them.",
   "type": "object",
   "properties": {
     "tiers": {
@@ -35,11 +35,28 @@
           "prerequisites": {
             "type": "array",
             "items": {
-              "$ref": "common.schema.json#/$defs/skill_id"
+              "anyOf": [
+                {
+                  "$ref": "common.schema.json#/$defs/skill_id"
+                },
+                {
+                  "$ref": "shared-taxonomy.schema.json"
+                }
+              ]
             },
             "minItems": 1,
             "uniqueItems": true,
-            "description": "The skills of the module, by local ID, that a learner needs before this one: all of them. A skill with none starts the graph and leaves this field out.",
+            "description": "The skills that a learner needs before this one, all of them: skills of the module by local ID, and anchor skills of the shared taxonomy by their IDs. A skill with none leaves this field out.",
+            "x-open": true
+          },
+          "teaches": {
+            "type": "array",
+            "items": {
+              "$ref": "shared-taxonomy.schema.json"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "The anchor skills of the shared taxonomy that this skill teaches: a learner who has this skill can do what the description of each says. Other modules build on them, and the learner model decides by such skills whether a learner has them. A skill that teaches none leaves this field out.",
             "x-open": true
           },
           "assessability": {

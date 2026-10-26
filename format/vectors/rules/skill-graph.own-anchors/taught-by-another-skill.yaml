@@ -1,0 +1,11 @@
+# A skill that names among its prerequisites an anchor skill which another skill of its module
+# teaches, where it has to name that skill.
+skills:
+  times-tables:
+    title: Times tables
+    teaches: [core.multiplication-table]
+    assessability: verdict
+  division-with-remainder:
+    title: Division with a remainder
+    prerequisites: [core.multiplication-table]
+    assessability: verdict
