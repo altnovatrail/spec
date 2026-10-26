@@ -1,0 +1,11 @@
+# error: unevaluatedProperties at #/skills/time-calendar
+# A tier is computed from the prerequisites, never written.
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    assessability: verdict
+  time-calendar:
+    title: Calendar and age
+    prerequisites: [counting-gaps]
+    tier: 2
+    assessability: verdict

@@ -1,0 +1,6 @@
+# A skill that names itself among its prerequisites: the shortest cycle.
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    prerequisites: [counting-gaps]
+    assessability: verdict

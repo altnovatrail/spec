@@ -1,0 +1,7 @@
+# error: minLength at #/tiers/1
+# A tier with no name is left out at the end of the list, not named with an empty one.
+tiers: [Foundations, "", Hard problems]
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    assessability: verdict

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/manifest.schema.json",
   "title": "Manifest",
-  "description": "The manifest of a module, manifest.yaml at the root of its folder: the format version the module is written in, its ID and version, what it is called and teaches, whom it is for, its languages, its authors and its license. Every field is open, since the learner's app shows them.",
+  "description": "The manifest of a module, manifest.yaml at the root of its folder: the format version the module is written in, its ID and version, what it is called and teaches, whom it is for, its languages, the anchor skills it builds on, its authors and its license. Every field is open, since the learner's app shows them.",
   "type": "object",
   "properties": {
     "module_format_version": {
@@ -42,13 +42,23 @@
           "uniqueItems": true,
           "description": "The age categories that the module suits. The platform offers the module only to learners in one of them.",
           "x-open": true
+        },
+        "grades": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/grade"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "The school grades that the module is written for. A module that names them asks the learner's grade, and the answer may be one it does not name. Unlike the age categories, grades close nothing: the module and its skills stay open to a learner of any grade.",
+          "x-open": true
         }
       },
       "required": [
         "age_categories"
       ],
       "unevaluatedProperties": false,
-      "description": "Whom the module is for.",
+      "description": "Whom the module is for: its age categories and, for a module written for school grades, those grades.",
       "x-open": true
     },
     "languages": {
@@ -70,6 +80,16 @@
       ],
       "unevaluatedProperties": false,
       "description": "The languages of the module.",
+      "x-open": true
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "shared-taxonomy.schema.json"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "The anchor skills of the shared taxonomy that the module's skills need: exactly those that its skill graph names as prerequisites. A module whose skills need none leaves this field out.",
       "x-open": true
     },
     "authors": {

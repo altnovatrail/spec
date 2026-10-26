@@ -1,0 +1,15 @@
+# error: minItems at #/dependencies
+# A module whose skills need no anchor skill leaves dependencies out rather than writing an empty list.
+module_format_version: "0.1"
+id: novatrail/school-math-grade-3
+version: "0.1.0"
+title: School mathematics, grade 3
+subject: mathematics
+audience:
+  age_categories: [under_13]
+languages:
+  explanation: en
+dependencies: []
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

@@ -1,0 +1,8 @@
+# An ID that an earlier version retired, given to a skill again.
+skills:
+  fractions:
+    title: Fractions on the number line
+    assessability: verdict
+retired_skills:
+  fractions:
+    replaced_by: []

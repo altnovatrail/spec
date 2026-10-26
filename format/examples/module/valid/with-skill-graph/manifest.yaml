@@ -1,0 +1,14 @@
+# A module with a skill graph, at a version that retired a skill of an earlier one.
+module_format_version: "0.1"
+id: example/with-skill-graph
+version: "2.0.0"
+title: A module with a skill graph
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3, 4]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

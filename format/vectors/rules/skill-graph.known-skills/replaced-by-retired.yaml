@@ -1,0 +1,11 @@
+# A retired skill whose replacement was retired in turn: the entry still names that replacement,
+# where it has to name the skill that replaced it.
+skills:
+  times-tables:
+    title: Times tables
+    assessability: verdict
+retired_skills:
+  table-of-seven:
+    replaced_by: [tables-six-to-nine]
+  tables-six-to-nine:
+    replaced_by: [times-tables]

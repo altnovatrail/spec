@@ -1,0 +1,7 @@
+# error: enum at #/skills/counting-gaps/assessability
+# A key belongs to an item of a task. A skill whose tasks are checked against a key or a predicate
+# says verdict.
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    assessability: key

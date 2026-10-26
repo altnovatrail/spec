@@ -1,0 +1,6 @@
+# A skill that needs division with a remainder, which the manifest does not name.
+skills:
+  number-divisibility:
+    title: Divisibility and remainders
+    prerequisites: [core.division-with-remainder]
+    assessability: verdict

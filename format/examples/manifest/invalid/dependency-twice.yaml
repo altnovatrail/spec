@@ -1,0 +1,14 @@
+# error: uniqueItems at #/dependencies
+module_format_version: "0.1"
+id: novatrail/olympiad-math
+version: "0.1.0"
+title: Olympiad mathematics, grades 1–6
+subject: mathematics
+audience:
+  age_categories: [under_13]
+languages:
+  explanation: en
+dependencies: [core.fractions-of-a-whole, core.fractions-of-a-whole]
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

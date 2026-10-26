@@ -1,0 +1,7 @@
+# A skill that needs the anchor skill it teaches itself.
+skills:
+  times-tables:
+    title: Times tables
+    prerequisites: [core.multiplication-table]
+    teaches: [core.multiplication-table]
+    assessability: verdict

@@ -1,0 +1,13 @@
+# A manifest with no dependencies, though a skill of the module needs an anchor skill.
+module_format_version: "0.1"
+id: example/vector
+version: "0.1.0"
+title: A test vector
+subject: mathematics
+audience:
+  age_categories: [adult]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

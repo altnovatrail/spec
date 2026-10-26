@@ -1,0 +1,34 @@
+# The skill graph of the official module of short essays in English, for learners of any age. Most
+# of its skills get feedback by the author's rubric and no verdict; choosing a first sentence gets a
+# verdict, and reading model essays is practised and not assessed. A prerequisite is what a skill
+# needs, not the order of the lessons.
+tiers: [Reading and choosing, First sentences, Paragraphs, Whole essays]
+skills:
+  reading-model-essays:
+    title: Reading model essays
+    description: Reads short essays written as models, to see how they are built.
+    assessability: none
+  choosing-a-first-sentence:
+    title: Choosing a first sentence
+    description: Picks, out of a few, the first sentence that makes a reader want to go on.
+    assessability: verdict
+  writing-a-first-sentence:
+    title: Writing a first sentence
+    description: Writes a first sentence that says what the essay is about and makes a reader want to go on.
+    prerequisites: [choosing-a-first-sentence]
+    assessability: rubric
+  paragraphs:
+    title: Paragraphs
+    description: Puts the sentences about one idea into one paragraph, and starts a new paragraph for the next idea.
+    prerequisites: [writing-a-first-sentence]
+    assessability: rubric
+  endings:
+    title: Endings
+    description: Ends an essay with a sentence that closes what its beginning opened.
+    prerequisites: [paragraphs]
+    assessability: rubric
+  improving-an-essay:
+    title: Improving an essay
+    description: Reads their own essay again and makes it clearer, with fewer repeated words.
+    prerequisites: [paragraphs]
+    assessability: rubric

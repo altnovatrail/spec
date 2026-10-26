@@ -1,0 +1,7 @@
+# error: minItems at #/skills/counting-gaps/prerequisites
+# A skill that starts the graph leaves its prerequisites out rather than writing an empty list.
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    prerequisites: []
+    assessability: verdict

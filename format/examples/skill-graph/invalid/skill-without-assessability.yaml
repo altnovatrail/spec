@@ -1,0 +1,4 @@
+# error: required at #/skills/counting-gaps
+skills:
+  counting-gaps:
+    title: Gaps and boundaries

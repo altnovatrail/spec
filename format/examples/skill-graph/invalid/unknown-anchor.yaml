@@ -1,0 +1,11 @@
+# error: anyOf at #/skills/number-divisibility/prerequisites/1
+# A prerequisite that is neither a local ID, which has no dot, nor the ID of an anchor skill of the
+# shared taxonomy: the vocabulary has no long division.
+skills:
+  parity-alternation:
+    title: Parity and alternation
+    assessability: verdict
+  number-divisibility:
+    title: Divisibility and remainders
+    prerequisites: [parity-alternation, core.long-division]
+    assessability: verdict

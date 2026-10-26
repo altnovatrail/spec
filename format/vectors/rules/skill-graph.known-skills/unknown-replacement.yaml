@@ -1,0 +1,8 @@
+# A retired skill replaced by a skill that the module does not have.
+skills:
+  fractions-of-a-whole:
+    title: Fractions of a whole
+    assessability: verdict
+retired_skills:
+  fractions:
+    replaced_by: [fraction-of-a-number]

@@ -1,0 +1,28 @@
+# The skill graph of a module at its version 2.0.0, with the skills that earlier versions had and this
+# one has not: one renamed, one split in two, two merged into one, and one dropped with no skill to
+# take it over.
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    assessability: verdict
+  comparing-fractions:
+    title: Comparing fractions
+    assessability: verdict
+  adding-fractions:
+    title: Adding fractions
+    prerequisites: [comparing-fractions]
+    assessability: verdict
+  times-tables:
+    title: Times tables
+    assessability: verdict
+retired_skills:
+  fence-posts:
+    replaced_by: [counting-gaps]
+  fractions:
+    replaced_by: [comparing-fractions, adding-fractions]
+  table-of-seven:
+    replaced_by: [times-tables]
+  table-of-eight:
+    replaced_by: [times-tables]
+  number-tricks:
+    replaced_by: []

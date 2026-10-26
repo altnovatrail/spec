@@ -1,0 +1,10 @@
+# Two skills, each a prerequisite of the other.
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    prerequisites: [time-calendar]
+    assessability: verdict
+  time-calendar:
+    title: Calendar and age
+    prerequisites: [counting-gaps]
+    assessability: verdict

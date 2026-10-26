@@ -1,0 +1,9 @@
+# error: uniqueItems at #/skills/logic-knights-liars/prerequisites
+skills:
+  logic-ordering:
+    title: Ordering
+    assessability: verdict
+  logic-knights-liars:
+    title: Knights and liars
+    prerequisites: [logic-ordering, logic-ordering]
+    assessability: verdict
