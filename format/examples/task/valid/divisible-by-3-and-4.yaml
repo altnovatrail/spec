@@ -1,0 +1,17 @@
+# A task of olympiad mathematics with many right answers, 12, 24, 36 and 48: a predicate holds for
+# each of them, and the value read is a whole number.
+id: divisible-by-3-and-4-1
+statement:
+  - text: Write a number from 1 to 50 that divides by 3 and by 4.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: predicate
+          predicate: "1 <= value and value <= 50 and value % 3 == 0 and value % 4 == 0"
+skills:
+  primary: [number-divisibility]
+band: grades-3-4
+difficulty: 2

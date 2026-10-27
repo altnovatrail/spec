@@ -1,0 +1,16 @@
+# A fraction asked in lowest terms whose key is not in them: 2/8, which is 1/4.
+id: pizza-left
+statement:
+  - text: Write the fraction in lowest terms.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "2 of 8 slices of the pizza are left: that is"
+      - binding: box
+        check: {kind: fraction, key: "2/8", form: reduced}
+      - text: of the pizza.
+skills:
+  primary: [fractions-of-a-whole]
+band: grade-3
+difficulty: 3

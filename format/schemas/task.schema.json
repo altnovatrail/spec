@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/task.schema.json",
   "title": "Task",
-  "description": "A task of a module, tasks/<id>.yaml in its folder: its statement, its canvas, its items with their answer slots, the skills it trains, its band and difficulty, and, when they are fewer than the module's, the age categories it is for. What is right in each item, its key or predicate, comes with the check kinds. The ID, the statement, the canvas and the items are open, since the learner's app shows them; the skills, the band, the difficulty and the age categories are closed, since the server reads them.",
+  "description": "A task of a module, tasks/<id>.yaml in its folder: its statement, its canvas, its items with their answer slots, each with the check that says what is right in it, the skills it trains, its band and difficulty, and, when they are fewer than the module's, the age categories it is for. The ID, the statement, the canvas and the items are open, since the learner's app shows them, but for the check of each answer slot; the checks, the skills, the band, the difficulty and the age categories are closed, since the server reads them.",
   "type": "object",
   "properties": {
     "id": {
@@ -381,12 +381,60 @@
           ],
           "description": "Where and how the learner gives the answer on a handwriting sheet: anywhere on it, where AI finds the final answer; the whole sheet, a work as a whole, such as an essay; in a zone of it; or by choosing one of the options.",
           "x-open": true
+        },
+        "check": {
+          "$ref": "#/$defs/check",
+          "unevaluatedProperties": false,
+          "description": "The check of the answer slot: what is right in it, and how the platform tells. Closed, the kind too: the learner's app does not get it."
         }
       },
       "required": [
-        "binding"
+        "binding",
+        "check"
       ],
       "allOf": [
+        {
+          "if": {
+            "properties": {
+              "binding": {
+                "const": "anywhere"
+              }
+            },
+            "required": [
+              "binding"
+            ]
+          },
+          "then": {
+            "properties": {
+              "check": {
+                "$ref": "#/$defs/written_check",
+                "unevaluatedProperties": false,
+                "description": "The final answer that the learner writes anywhere on the sheet is checked as one written by hand."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "binding": {
+                "const": "sheet"
+              }
+            },
+            "required": [
+              "binding"
+            ]
+          },
+          "then": {
+            "properties": {
+              "check": {
+                "$ref": "#/$defs/sheet_check",
+                "unevaluatedProperties": false,
+                "description": "The whole sheet, a work as a whole, is given feedback by a rubric."
+              }
+            }
+          }
+        },
         {
           "if": {
             "properties": {
@@ -405,6 +453,11 @@
                 "unevaluatedProperties": false,
                 "description": "The zone of the sheet where the learner writes the answer.",
                 "x-open": true
+              },
+              "check": {
+                "$ref": "#/$defs/written_check",
+                "unevaluatedProperties": false,
+                "description": "The answer that the learner writes in the zone is checked as one written by hand."
               }
             },
             "required": [
@@ -434,6 +487,11 @@
                 "uniqueItems": true,
                 "description": "The options the learner chooses from, in the order they are shown.",
                 "x-open": true
+              },
+              "check": {
+                "$ref": "#/$defs/chosen_check",
+                "unevaluatedProperties": false,
+                "description": "The option that the learner taps is checked against the key, one of these options."
               }
             },
             "required": [
@@ -442,7 +500,7 @@
           }
         }
       ],
-      "description": "An answer slot of an item on a handwriting sheet: its binding, and the zone or the options that the binding needs."
+      "description": "An answer slot of an item on a handwriting sheet: its binding, the zone or the options that the binding needs, and its check."
     },
     "zone": {
       "type": "object",
@@ -498,6 +556,11 @@
           ],
           "description": "A box of the line, an answer slot where the learner writes the answer.",
           "x-open": true
+        },
+        "check": {
+          "$ref": "#/$defs/written_check",
+          "unevaluatedProperties": false,
+          "description": "The check of the box: what is right in it, and how the platform tells, the answer being written by hand. Closed, the kind too: the learner's app does not get it."
         }
       },
       "if": {
@@ -506,6 +569,9 @@
         ]
       },
       "then": {
+        "required": [
+          "check"
+        ],
         "not": {
           "required": [
             "text"
@@ -515,9 +581,378 @@
       "else": {
         "required": [
           "text"
+        ],
+        "not": {
+          "required": [
+            "check"
+          ]
+        }
+      },
+      "description": "A piece of a line: a piece of text, or a box with its check."
+    },
+    "check": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "number",
+            "fraction",
+            "choice",
+            "predicate",
+            "rubric"
+          ],
+          "description": "The check kind: a number, a fraction, a choice, a predicate on a whole number, or a rubric, which gives feedback and no verdict."
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The right answer, as a string: a number for number, a simple fraction for fraction, one of the options for choice."
+        },
+        "units": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Of a number: the words that may follow it in the answer, as rungs in 7 rungs."
+        },
+        "form": {
+          "enum": [
+            "any",
+            "reduced"
+          ],
+          "default": "any",
+          "description": "Of a fraction: any fraction of the key's value is right, or only one in lowest terms; any unless given."
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/text"
+          },
+          "minItems": 2,
+          "uniqueItems": true,
+          "description": "Of a choice written by hand: the options the learner writes one of, such as the signs <, > and =."
+        },
+        "predicate": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "description": "Of a predicate: a Starlark expression on value, the whole number read, that is True for every right answer."
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/criterion",
+            "unevaluatedProperties": false
+          },
+          "minItems": 1,
+          "description": "Of a rubric: what the work is given feedback by."
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "number"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "key": {
+                "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+|/[1-9][0-9]*)?$",
+                "maxLength": 16,
+                "description": "A number: an integer, a decimal with a point or a simple fraction, of 16 characters at most."
+              }
+            },
+            "required": [
+              "key"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "form"
+                  ]
+                },
+                {
+                  "required": [
+                    "options"
+                  ]
+                },
+                {
+                  "required": [
+                    "predicate"
+                  ]
+                },
+                {
+                  "required": [
+                    "criteria"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "fraction"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "key": {
+                "pattern": "^-?(0|[1-9][0-9]*)/[1-9][0-9]*$",
+                "maxLength": 16,
+                "description": "A simple fraction, of 16 characters at most."
+              }
+            },
+            "required": [
+              "key"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "units"
+                  ]
+                },
+                {
+                  "required": [
+                    "options"
+                  ]
+                },
+                {
+                  "required": [
+                    "predicate"
+                  ]
+                },
+                {
+                  "required": [
+                    "criteria"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "choice"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "key"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "units"
+                  ]
+                },
+                {
+                  "required": [
+                    "form"
+                  ]
+                },
+                {
+                  "required": [
+                    "predicate"
+                  ]
+                },
+                {
+                  "required": [
+                    "criteria"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "predicate"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "predicate"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "key"
+                  ]
+                },
+                {
+                  "required": [
+                    "units"
+                  ]
+                },
+                {
+                  "required": [
+                    "form"
+                  ]
+                },
+                {
+                  "required": [
+                    "options"
+                  ]
+                },
+                {
+                  "required": [
+                    "criteria"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "rubric"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "criteria"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "key"
+                  ]
+                },
+                {
+                  "required": [
+                    "units"
+                  ]
+                },
+                {
+                  "required": [
+                    "form"
+                  ]
+                },
+                {
+                  "required": [
+                    "options"
+                  ]
+                },
+                {
+                  "required": [
+                    "predicate"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "The check of an answer slot: its kind and the kind's parameters. Section 15 of the format text says how each kind reads the value and gives its verdict."
+    },
+    "written_check": {
+      "$ref": "#/$defs/check",
+      "properties": {
+        "kind": {
+          "enum": [
+            "number",
+            "fraction",
+            "choice",
+            "predicate"
+          ],
+          "description": "The kind of the check of an answer written by hand: any kind but the rubric."
+        }
+      },
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "choice"
+          }
+        },
+        "required": [
+          "kind"
         ]
       },
-      "description": "A piece of a line: a piece of text, or a box."
+      "then": {
+        "required": [
+          "options"
+        ]
+      },
+      "description": "The check of an answer written by hand, in a box, in a zone or anywhere on the sheet: a choice among them holds its own options."
+    },
+    "chosen_check": {
+      "$ref": "#/$defs/check",
+      "properties": {
+        "kind": {
+          "const": "choice",
+          "description": "The option the learner taps is checked as a choice."
+        }
+      },
+      "not": {
+        "required": [
+          "options"
+        ]
+      },
+      "description": "The check of a choice by tapping: its options are the answer slot's, and the check holds none."
+    },
+    "sheet_check": {
+      "$ref": "#/$defs/check",
+      "properties": {
+        "kind": {
+          "const": "rubric",
+          "description": "A work as a whole is given feedback by a rubric."
+        }
+      },
+      "description": "The check of the whole sheet: a rubric."
+    },
+    "criterion": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "The criterion, in the module's explanation language."
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "description": "A criterion of a rubric: one thing the work is given feedback by."
     },
     "skills": {
       "type": "object",

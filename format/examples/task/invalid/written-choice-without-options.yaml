@@ -1,0 +1,17 @@
+# error: required at #/items/0/line/1/check
+# A choice written by hand in a box names its options in the check: without them no value is read.
+id: written-choice-without-options
+statement:
+  - text: Write the sign <, > or = between the two numbers.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "56"
+      - binding: box
+        check: {kind: choice, key: "<"}
+      - text: "65"
+skills:
+  primary: [numbers-to-1000]
+band: grade-3
+difficulty: 1

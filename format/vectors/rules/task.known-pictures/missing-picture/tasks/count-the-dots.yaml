@@ -11,6 +11,7 @@ canvas:
 items:
   - answer_slots:
       - binding: anywhere
+        check: {kind: number, key: "56"}
 skills:
   primary: [times-tables]
 band: grade-3

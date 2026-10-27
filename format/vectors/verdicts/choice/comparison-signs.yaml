@@ -1,0 +1,30 @@
+# A choice written by hand in a box: the signs the check holds. The full-width sign is the sign under
+# NFKC; another sign, or a number, is none of the options, and is not read.
+item:
+  line:
+    - text: "56"
+    - binding: box
+      check: {kind: choice, options: ["<", ">", "="], key: "<"}
+    - text: "65"
+readings:
+  - answer_slots:
+      - {value: "<", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: " < ", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "＜", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: ">", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "=", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "≤", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "7", verdict: unreadable, reason: notation}
+    verdict: unreadable

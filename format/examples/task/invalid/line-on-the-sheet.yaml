@@ -8,9 +8,11 @@ canvas:
 items:
   - answer_slots:
       - binding: anywhere
+        check: {kind: number, key: "7"}
     line:
       - text: Rungs
       - binding: box
+        check: {kind: number, key: "7"}
 skills:
   primary: [counting-gaps]
 band: grades-3-4

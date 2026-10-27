@@ -1,0 +1,17 @@
+# Two options of a choice written by hand that differ only in width: NFKC makes the full-width sign
+# U+FF1C the sign <.
+id: fifty-six-and-sixty-five
+statement:
+  - text: Write the sign <, > or = between the two numbers.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "56"
+      - binding: box
+        check: {kind: choice, options: ["<", "＜", ">", "="], key: "<"}
+      - text: "65"
+skills:
+  primary: [numbers-to-1000]
+band: grade-3
+difficulty: 1

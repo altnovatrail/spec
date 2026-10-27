@@ -8,10 +8,12 @@ items:
   - text: a)
     answer_slots:
       - binding: zone
+        check: {kind: number, key: "56"}
         zone: {left: 100, top: 1000, width: 400, height: 200}
   - text: b)
     answer_slots:
       - binding: zone
+        check: {kind: number, key: "56"}
         zone: {left: 450, top: 1000, width: 400, height: 200}
 skills:
   primary: [times-tables]

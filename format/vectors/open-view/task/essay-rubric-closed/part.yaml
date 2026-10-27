@@ -1,0 +1,20 @@
+# The criteria of a rubric are closed, as every check is: the statement names what the learner
+# should know of them.
+id: undiscovered-island-1
+statement:
+  - text: Imagine an island that nobody has found yet. Write a short essay about your first morning there, in paragraphs.
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: sheet
+        check:
+          kind: rubric
+          criteria:
+            - text: It is written in paragraphs, each about one part of the morning.
+            - text: Its ending closes the story of the first morning.
+skills:
+  primary: [paragraphs, endings]
+band: whole-essays
+difficulty: 2

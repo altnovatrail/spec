@@ -9,6 +9,12 @@ canvas:
 items:
   - answer_slots:
       - binding: sheet
+        check:
+          kind: rubric
+          criteria:
+            - text: It tells of one day, in paragraphs, in the order things happened.
+            - text: Its ending says why the day is remembered.
+            - text: It names at least one person or place of that day.
 skills:
   primary: [paragraphs, endings]
 band: whole-essays

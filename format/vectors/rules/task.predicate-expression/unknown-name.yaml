@@ -1,0 +1,14 @@
+# A predicate that names something besides value and Starlark's built-in names.
+id: divisible-by-twelve
+statement:
+  - text: Write a number that divides by 3 and by 4.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: predicate, predicate: "number % 12 == 0"}
+skills:
+  primary: [number-divisibility]
+band: grades-3-4
+difficulty: 2

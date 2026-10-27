@@ -1,0 +1,24 @@
+# error: not at #/items/0/answer_slots/0/check
+# A choice by tapping has its options in the answer slot, which the learner sees; the check holds none.
+id: options-in-a-chosen-check
+statement:
+  - text: Which first sentence makes a reader want to go on?
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: choice
+        options:
+          - It was a day like any other.
+          - The door was open, and nobody had opened it.
+        check:
+          kind: choice
+          options:
+            - It was a day like any other.
+            - The door was open, and nobody had opened it.
+          key: The door was open, and nobody had opened it.
+skills:
+  primary: [choosing-a-first-sentence]
+band: first-steps
+difficulty: 1

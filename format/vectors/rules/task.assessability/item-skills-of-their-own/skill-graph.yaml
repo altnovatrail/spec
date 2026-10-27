@@ -1,0 +1,8 @@
+skills:
+  times-tables:
+    title: Times tables
+    assessability: verdict
+  explaining-a-product:
+    title: Explaining a product in words
+    prerequisites: [times-tables]
+    assessability: rubric

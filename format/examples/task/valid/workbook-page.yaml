@@ -1,32 +1,53 @@
 # A page of the workbook of school mathematics for grade 3: each item is a line of text and boxes,
-# the box in any place of it. The division has a box for the quotient and one for the remainder,
-# and trains a skill of its own.
+# the box in any place of it, and each box has its check. The comparison is a choice written by hand:
+# the learner writes one of the signs the check holds. The division has a box for the quotient and
+# one for the remainder, and trains a skill of its own.
 id: tables-and-division-1
 statement:
-  - text: Write the missing numbers and signs.
+  - text: Write the missing numbers, and the sign <, > or = between two numbers.
 canvas:
   kind: workbook
 items:
   - line:
       - text: "7 ×"
       - binding: box
+        check:
+          kind: number
+          key: "8"
       - text: "= 56"
   - line:
       - binding: box
+        check:
+          kind: number
+          key: "32"
       - text: "÷ 8 = 4"
   - line:
       - text: "56"
       - binding: box
+        check:
+          kind: choice
+          options: ["<", ">", "="]
+          key: "<"
       - text: "65"
   - line:
       - text: Tom has 3 bags of 4 apples. He has
       - binding: box
+        check:
+          kind: number
+          key: "12"
+          units: [apples]
       - text: apples.
   - line:
       - text: "47 ÷ 6 ="
       - binding: box
+        check:
+          kind: number
+          key: "7"
       - text: r
       - binding: box
+        check:
+          kind: number
+          key: "5"
     skills:
       primary: [division-with-remainder]
 skills:

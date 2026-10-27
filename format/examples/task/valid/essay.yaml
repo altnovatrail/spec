@@ -9,6 +9,12 @@ canvas:
 items:
   - answer_slots:
       - binding: sheet
+        check:
+          kind: rubric
+          criteria:
+            - text: It is written in paragraphs, each about one part of the morning.
+            - text: Its ending closes the story of the first morning.
+            - text: It tells what can be seen, heard or felt on the island.
 skills:
   primary: [paragraphs, endings]
   supporting: [writing-a-first-sentence]

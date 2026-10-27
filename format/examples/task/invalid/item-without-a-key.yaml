@@ -1,0 +1,21 @@
+# error: required at #/items/1/answer_slots/0
+# Every answer slot has its check: the second item's says nothing of what is right in it.
+id: item-without-a-key
+statement:
+  - text: a) How many minutes past three does Anna leave? b) How many minutes past three does she arrive?
+canvas:
+  kind: handwriting_sheet
+items:
+  - text: a)
+    answer_slots:
+      - binding: zone
+        zone: {left: 100, top: 1000, width: 400, height: 200}
+        check: {kind: number, key: "15"}
+  - text: b)
+    answer_slots:
+      - binding: zone
+        zone: {left: 500, top: 1000, width: 400, height: 200}
+skills:
+  primary: [time-clocks]
+band: grades-1-2
+difficulty: 3

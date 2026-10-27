@@ -1,0 +1,20 @@
+# A choice by tapping whose key is none of the answer slot's options.
+id: best-first-sentence
+statement:
+  - text: Which first sentence makes a reader want to go on?
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: choice
+        options:
+          - It was a day like any other.
+          - The door was open, and nobody had opened it.
+        check:
+          kind: choice
+          key: The door was open.
+skills:
+  primary: [choosing-a-first-sentence]
+band: first-steps
+difficulty: 1

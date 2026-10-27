@@ -8,6 +8,7 @@ canvas:
 items:
   - answer_slots:
       - binding: zone
+        check: {kind: number, key: "7"}
         zone: {left: 100, top: 1000, width: 400, height: 200}
         options: ["6", "7"]
 skills:

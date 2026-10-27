@@ -1,12 +1,13 @@
 # A supporting anchor skill that a skill of the module teaches: the task names that skill instead.
 id: forty-seven-by-six
 statement:
-  - text: What is 47 divided by 6, and what is left?
+  - text: How many times does 6 go into 47, leaving a remainder?
 canvas:
   kind: handwriting_sheet
 items:
   - answer_slots:
       - binding: anywhere
+        check: {kind: number, key: "7"}
 skills:
   primary: [division-with-remainder]
   supporting: [core.multiplication-table]

@@ -1,0 +1,19 @@
+# A choice by tapping: the value is the text of the option the learner tapped.
+item:
+  answer_slots:
+    - binding: choice
+      options:
+        - It was a day like any other.
+        - The door was open, and nobody had opened it.
+        - I am going to write about a day.
+      check: {kind: choice, key: "The door was open, and nobody had opened it."}
+readings:
+  - answer_slots:
+      - {value: "The door was open, and nobody had opened it.", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "It was a day like any other.", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: null, verdict: unreadable, reason: blank}
+    verdict: unreadable

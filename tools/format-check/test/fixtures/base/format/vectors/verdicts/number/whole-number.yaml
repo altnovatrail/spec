@@ -1,0 +1,9 @@
+# A whole number against its key.
+item:
+  answer_slots:
+    - binding: anywhere
+      check: {kind: number, key: "7"}
+readings:
+  - answer_slots:
+      - {value: "7", verdict: correct}
+    verdict: correct

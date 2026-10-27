@@ -1,0 +1,22 @@
+# A choice with a key whose primary skill is not assessed at all: such a skill is only ever a
+# supporting one.
+id: best-first-sentence
+statement:
+  - text: Which first sentence makes a reader want to go on?
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: choice
+        options:
+          - It was a day like any other.
+          - The door was open, and nobody had opened it.
+        check:
+          kind: choice
+          key: The door was open, and nobody had opened it.
+skills:
+  primary: [reading-model-essays]
+  supporting: [choosing-a-first-sentence]
+band: whole-essays
+difficulty: 1

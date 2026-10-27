@@ -8,6 +8,7 @@ canvas:
 items:
   - answer_slots:
       - binding: zone
+        check: {kind: number, key: "7"}
 skills:
   primary: [counting-gaps]
 band: grades-3-4

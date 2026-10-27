@@ -1,0 +1,20 @@
+# A task of olympiad mathematics whose answer is a word written by hand in a zone: the check holds
+# the options, and a word that is neither of them is not read, which is no wrong answer. The sum of
+# the numbers from 1 to 9 is 45.
+id: sum-even-or-odd-1
+statement:
+  - text: Kate adds up the numbers from 1 to 9. Is the sum even or odd? Write even or odd.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: zone
+        zone: {left: 300, top: 1100, width: 400, height: 200}
+        check:
+          kind: choice
+          options: [even, odd]
+          key: odd
+skills:
+  primary: [parity-alternation]
+band: grades-3-4
+difficulty: 2

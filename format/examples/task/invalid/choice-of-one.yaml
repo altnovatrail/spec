@@ -8,6 +8,7 @@ canvas:
 items:
   - answer_slots:
       - binding: choice
+        check: {kind: choice, key: "7"}
         options: ["7"]
 skills:
   primary: [counting-gaps]

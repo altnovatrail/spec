@@ -1,0 +1,16 @@
+# error: required at #/items/0/line/1
+# A box of a workbook line has its check, as every answer slot does.
+id: box-without-a-key
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 ×"
+      - binding: box
+      - text: "= 56"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

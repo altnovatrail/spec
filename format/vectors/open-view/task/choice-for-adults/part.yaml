@@ -1,4 +1,5 @@
-# The options of a choice are open, and the age categories of a task are closed.
+# The options of a choice are open, and its check is closed, with the key; so are the age categories
+# of a task.
 id: a-day-you-remember-1
 statement:
   - text: Which first sentence makes a reader want to go on?
@@ -11,6 +12,9 @@ items:
         options:
           - It was a day like any other.
           - The door was open, and nobody had opened it.
+        check:
+          kind: choice
+          key: The door was open, and nobody had opened it.
 skills:
   primary: [choosing-a-first-sentence]
 band: first-steps

@@ -1,0 +1,20 @@
+# error: enum at #/items/0/line/1/check/kind
+# A rubric gives feedback on a work as a whole, the whole sheet, not on a box of a line.
+id: rubric-in-a-box
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 ×"
+      - binding: box
+        check:
+          kind: rubric
+          criteria:
+            - text: The number is written neatly.
+      - text: "= 56"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

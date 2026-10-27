@@ -25,7 +25,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - A major version is everything else:
   - a field removed, renamed or made required;
   - something valid made invalid, a new or stricter format rule among them;
-  - anything that can give a different verdict, open view or numbers on the same inputs: the behaviour of a check kind or of its normalization, the generator or the derivation of seeds, templates, a closed field opened.
+  - anything that can give a different verdict, open view or numbers on the same inputs: the behaviour of a check kind or of its normalization, how the verdicts of an item's answer slots make the item's, the limit of a predicate's steps, the generator or the derivation of seeds, templates, a closed field opened.
 - Editorial changes give no new version. These are descriptions, examples, wording of this text that keeps its rules, and a test vector that pins what the text already says; the tag of `spec` names such a revision.
 - The anchor skills of the shared taxonomy are part of the format (section 13).
   - A new anchor skill is a minor change, and so is marking one `"deprecated": true`: a module MAY still name it until a major version removes it.
@@ -43,13 +43,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 format/
 ├── README.md     this text
 ├── VERSION       the format's version, MAJOR.MINOR
-├── schemas/      <term>.schema.json; common.schema.json and shared-taxonomy.schema.json, which parts refer to
+├── schemas/      <term>.schema.json; common.schema.json and shared-taxonomy.schema.json, which parts refer to; verdict-vector.schema.json
 ├── examples/     <term>/valid/<case>.yaml and <term>/invalid/<case>.yaml; module/valid/<case>/
-└── vectors/      rules/<rule-id>/, open-view/<part>/<case>/, and the vectors of check kinds and templates
+└── vectors/      rules/<rule-id>/, open-view/<part>/<case>/, verdicts/<kind>/<case>.yaml, and the vectors of templates
 ```
 
 - `<term>` is the concepts 15 term for the part a schema describes, in kebab-case: `manifest`, `skill-graph`, `task`.
-- Two schemas describe no part, and the parts refer to them: `common.schema.json` holds the definitions that parts share, and `shared-taxonomy.schema.json`, named by its term, the anchor skills (section 13). Neither has examples of its own: the examples of the parts show them.
+- Three schemas describe no part. The parts refer to two of them: `common.schema.json` holds the definitions that parts share, and `shared-taxonomy.schema.json`, named by its term, the anchor skills (section 13). The third, `verdict-vector.schema.json`, describes the test vectors of verdicts (section 9) and refers to the task's. None has examples of its own: the examples of the parts show the first two, and the vectors are the third's.
 - `examples/module/valid/<case>/` is an example of a whole module: a folder laid out as a module (section 10). The part `module` has no schema of its own.
 - A case is named in kebab-case for what it shows: `missing-title.yaml`, or a folder such as `no-manifest/`.
 - Schemas are JSON. Examples and vectors written by hand are YAML and follow section 4.
@@ -129,7 +129,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   - and, through them, for a field: its subschema under `properties`, under each key of `patternProperties` that matches it, and under `additionalProperties` where neither matches in the same subschema; for an element of an array: its subschema under `prefixItems`, or else under `items`.
 - An open object whose fields are all closed stays in the open view, as an empty object.
 - When an open object chooses a branch of `oneOf`, or a `then` of an `if`, by one of its fields, that field MUST be open.
-- A key or a predicate, a solution, a trap and a leak phrase MUST NOT be open (R05).
+- A check — with its key, its predicate, the options of a choice written by hand and the criteria of a rubric —, a solution, a trap and a leak phrase MUST NOT be open (R05; section 15).
 - Opening a closed field is a major change; a new field that is open from the start is a minor one (section 2).
 
 ## 7. Format rules
@@ -172,7 +172,10 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   - A manifest in a vector names the format version in `VERSION`, except in a vector of `manifest.format-version`, which names one that a reader of that version does not read (section 2).
   - `spec`'s CI checks that a case breaks none of the YAML rules but its own, that each file of a part with a schema is valid against it, and that a case laid out as a module breaks no rule of a whole module but its own. That a case breaks its rule, it checks only for the rules it implements itself: the YAML rules, the rules of a whole module and `manifest.format-version`. `module-kit`'s CI checks every case: that it is refused with the rule's ID.
 - `vectors/open-view/<part>/<case>/` holds the vectors of the open view: a folder of its own kind, not laid out as a module, with two files and nothing else. `part.yaml` is a part, valid against the schema of `<part>`, which is a part of the layout (section 10); `open-view.yaml` is the exact open view of it (section 6), whatever the order of keys. Both follow the YAML rules, and a manifest names the format version in `VERSION`. `spec`'s CI builds the open view of each case from the marks in the schemas and compares the two, and so does `module-kit`'s CI.
-- The vectors of check kinds, of templates and of the generator come with the tasks that define them.
+- `vectors/verdicts/<kind>/<case>.yaml` holds the vectors of verdicts: a folder for each check kind that gives verdicts, named by its code in kebab-case, and in it a file for each case. A case is valid against `schemas/verdict-vector.schema.json` and follows the YAML rules. It holds `item`, an item of a task whose answer slots are all checked by the kind of its folder, and which breaks no rule of a task, and `readings`: each the value read in every answer slot of the item, in order, with the verdict and, for `unreadable`, the reason that each answer slot gets, and the verdict that the item gets (section 15).
+  - `spec`'s CI computes each verdict and reason from section 15 and compares, and so does `module-kit`'s CI. Of the rules of a task, `spec`'s CI checks on the item those that an answer slot's check shows by itself: `task.choice-key`, `task.choice-options` and `task.fraction-key`.
+  - A predicate is the exception: `spec`'s CI has no Starlark, and computes only what a predicate gives before it runs, `blank` and `notation`. Its `correct`, `not_yet` and `unchecked` only `module-kit`'s CI computes.
+- The vectors of templates and of the generator come with the tasks that define them.
 
 ## 10. A module
 
@@ -316,7 +319,7 @@ The signature is all that `module.media` reads: that the rest of the file is a p
 
 ## 14. The task
 
-- A task is `tasks/<id>.yaml`, valid against `schemas/task.schema.json`, and its `id` is the name of its file before `.yaml` (section 10). It says what the learner reads, where and how they answer, which skills it trains, and how hard it is. What is right in each item, its key or predicate, comes with the check kinds (RUN.md, T29).
+- A task is `tasks/<id>.yaml`, valid against `schemas/task.schema.json`, and its `id` is the name of its file before `.yaml` (section 10). It says what the learner reads, where and how they answer, what is right in each answer, which skills it trains, and how hard it is. What is right in an answer slot, and how the platform tells, is the answer slot's check (section 15).
 - **Statement.** `statement` is what the learner reads: parts in order, each a paragraph, `text`, or a picture.
   - A paragraph is plain text in the module's explanation language. This version has no formulas and no sound in a statement; either is a minor change (section 2).
   - A picture is `picture`, its path from `media/` (`picture_path`: a PNG, JPEG or WebP file); `alt`, what it shows in words, which a screen reader reads and which stands in its place until it comes; and `width` and `height`, the size it is shown at in CSS px, narrower when the statement is. `alt` is empty only for a picture that only decorates.
@@ -330,11 +333,12 @@ The signature is all that `module.media` reads: that the rest of the file is a p
   - On a handwriting sheet, an item has `answer_slots`, and MAY have `text`: what it asks, such as "a)".
   - On a workbook, an item is a `line`: pieces of `text` and boxes, `binding: box`, in order, with at least one box, as in "7 × [ ] = 56" or "[ ] apples". Its boxes are its answer slots.
   - An answer slot is named by its place among its item's answer slots, from 1: the third item's second answer slot.
+  - Every answer slot, a box too, has its `check` (section 15), and an item's verdict is made of its answer slots' verdicts.
 - **Bindings.** The `binding` of an answer slot says where and how the learner gives the answer.
   - `anywhere` — anywhere on the sheet: the learner writes the final answer where they like, and AI finds it. When it finds none, or more than one, the learner is asked to circle the answer, which is no wrong answer (concepts 9.1).
-  - `sheet` — the whole sheet is the answer: a work as a whole, such as an essay.
+  - `sheet` — the whole sheet is the answer: a work as a whole, such as an essay, which a rubric gives feedback on.
   - `zone` — in a zone of the sheet: a rectangle, `zone`, whose `left` and `top` are how far it begins from the left and top edges of the sheet, and whose `width` and `height` are its size, all in units of the sheet. A zone lies on the sheet, and no two zones of a task overlap; zones that touch at an edge do not (`task.zones`). The names are not `x` and `y`: a plain `y` breaks `yaml.plain-strings` (section 4).
-  - `choice` — the learner chooses one of the `options`: two or more texts, all different, shown in their order.
+  - `choice` — the learner chooses one of the `options` by tapping it: two or more texts, all different, shown in their order. A choice that the learner writes by hand, such as a sign in a box, is a check kind instead, and its options are the check's (section 15).
   - `box` — a box in a line of a workbook.
 
   On a handwriting sheet the bindings are `anywhere`, `sheet`, `zone` and `choice`, and on a workbook `box`. An answer slot bound `anywhere` or `sheet` is the only answer slot of its task. An answer given by keyboard, an edit in the text of the statement and the state of a widget come in later versions, each a minor change; and only the bindings that a module of the first slice takes stay in v1 (section 2): so far no module takes `zone`.
@@ -346,7 +350,7 @@ The signature is all that `module.media` reads: that the rest of the file is a p
 - **Band and difficulty.** `band` is the band of the module's difficulty scale that the task is in, by its ID in the manifest's `bands`, and `difficulty` is how hard the task is within its band, from 1 to 5 (section 11).
 - **Age categories.** `age_categories`, when given, lists the age categories that the task suits, fewer than the module's: the platform gives the task only to learners in one of them (privacy 3.2). A task on the learner's own life, for instance, may be for adults alone (privacy 9, П-20).
 - **Provenance.** Everything in a module is its author's, so a task has no field for provenance (concepts 9.4). A key that a solver computes comes with the templates of tasks (RUN.md, T33).
-- **Open fields.** `id`, `statement`, `canvas` and `items`, with every field of them, are open: the learner's app shows them. `skills`, `band`, `difficulty` and `age_categories` are closed: the server reads them, and a skill's title could tell how to solve the task.
+- **Open fields.** `id`, `statement`, `canvas` and `items`, with every field of them but the `check` of each answer slot, are open: the learner's app shows them. The checks, `skills`, `band`, `difficulty` and `age_categories` are closed: the server reads them, a check holds what is right, and a skill's title could tell how to solve the task.
 
 | ID | Rule |
 |---|---|
@@ -357,3 +361,82 @@ The signature is all that `module.media` reads: that the rest of the file is a p
 | `task.known-pictures` | The `picture` of every part of a task's statement MUST be the path, from `media/`, of a file of the module. |
 | `task.age-categories` | Every age category of a task MUST be one of the manifest's `audience.age_categories`. |
 | `task.zones` | Every zone of a task MUST lie on the sheet, so that `left` + `width` is at most 1000 and `top` + `height` at most 1400, and no two zones of a task MAY overlap. |
+
+## 15. Checks
+
+- A check says what is right in an answer slot and how the platform tells it. Every answer slot of a task has one, `check`: an answer slot of a handwriting sheet, and a box of a workbook's line (section 14). It names its `kind`, the check kind, and the kind's parameters.
+- A check kind is code of the platform, the same for every module: a module chooses a kind and gives its parameters (R02), and `module-kit` runs it (R17). A new check kind is a minor change (section 2).
+- The check is closed, every field of it, and its kind too: the learner's app gets none of it until the task is solved (section 6; R05). A statement that wants the learner to know what a rubric judges, or which signs a box takes, says so in its text.
+
+**Kinds.**
+
+| Kind | What is right | Parameters | Bindings |
+|---|---|---|---|
+| `number` | a number of the key's value | `key`; `units` | `anywhere`, `zone`, `box` |
+| `fraction` | a fraction of the key's value, in the form asked | `key`; `form` | `anywhere`, `zone`, `box` |
+| `choice` | the option that is the key | `key`; `options`, when the choice is written by hand | `choice`; written by hand, `anywhere`, `zone` and `box` |
+| `predicate` | a whole number that the predicate holds for | `predicate` | `anywhere`, `zone`, `box` |
+| `rubric` | none: the work gets feedback by the criteria, not a verdict | `criteria` | `sheet` |
+
+- `key` is a string, written in quotes: a plain number in YAML is a double, and `0.1` would not be one tenth.
+- `number`: `key` is an integer, a decimal with a point or a simple fraction, written as the notation below takes it: `"7"`, `"-3"`, `"2.5"`, `"3/4"`. `units`, when given, are the words that MAY follow the number in the answer, as rungs in "7 rungs": the singular and the plural both, when both are right.
+- `fraction`: `key` is a simple fraction, `"3/4"`. `form` is `any` unless given, and then every fraction of the key's value is right. With `form: reduced`, only the fraction in lowest terms is right, and the key is that fraction (`task.fraction-key`): a fraction of the right value that can be reduced is not yet right.
+- `choice`: `key` is one of the options, as written (`task.choice-key`). When the answer slot is bound `choice`, the options are the answer slot's, and the learner taps one. Otherwise the check holds its own `options`, two or more, and the learner writes one of them by hand: a sign `<`, `>` or `=` in a box, or a word. No two options of a choice are alike once normalized (`task.choice-options`).
+- `predicate`: `predicate` is an expression of [Starlark](https://github.com/bazelbuild/starlark/blob/master/spec.md) that is `True` for every right answer and `False` for every other, such as `"value % 3 == 0 and value % 4 == 0"`. It is written on one name, `value`, the whole number read, and names nothing but `value` and Starlark's built-in names (`task.predicate-expression`). It is at most 1000 characters long: a check that needs more is a program, and programs come with the solvers of templates.
+- `rubric`: `criteria` lists what the work is judged by, each criterion a `text` in the module's explanation language. AI gives the feedback by them (R04). A rubric gives no verdict, so the item has none.
+
+**The value read.** A check judges the value read in its answer slot:
+- for an answer written by hand, what AI read in the slot, as it is written, and for a slot bound `anywhere` the final answer that AI found;
+- for a choice by tapping, the text of the option the learner tapped;
+- nothing, when nothing was read: the value is null.
+
+The reader gives the value as it is written: normalizing it is the check kind's, below, and is `module-kit`'s, not the reader's (R03). What else the reading says — that the writing is illegible or ambiguous, or that there is no final answer or more than one — makes the verdict `unreadable` before any check kind runs, and a failure of AI makes it `unchecked` (concepts 9.1). That is the observation's, which comes with the eval protocol; the test vectors of verdicts hold only the value.
+
+**Verdicts.** The verdict of an answer slot is one of:
+- `correct` — the value is right;
+- `not_yet` — the value is in the kind's notation and is not right;
+- `unreadable` — nothing was read, and the reason is `blank`; or the value is not in the kind's notation, and the reason is `notation`. The learner is asked to write the answer again, which is no wrong answer (R04);
+- `unchecked` — the check could not run: of the kinds of this version, only a predicate gives it.
+
+The verdict of an item is made of its answer slots' verdicts:
+- `correct`, when every answer slot is correct;
+- otherwise `not_yet`, when an answer slot is not yet right: a value read clearly and wrong is no doubt, and the item is not right whatever the others hold;
+- otherwise `unreadable`, when an answer slot is unreadable;
+- otherwise `unchecked`.
+
+**Numbers.** `number`, `fraction` and `predicate` read the value in these steps:
+1. Every superscript or subscript digit — U+00B2, U+00B3, U+00B9, or U+2070 to U+209F — becomes U+FFFD, the replacement character, which no notation takes: the next step would make `7²` into `72`. A unit such as `cm²` goes through the same step, and still matches (step 6).
+2. The value is normalized to NFKC ([UAX #15](https://www.unicode.org/reports/tr15/)), so that a full-width `７` is `7` and `½` is `1⁄2`.
+3. The hyphens and dashes U+2010 and U+2012 to U+2015, and the minus sign U+2212, become `-`; the fraction slash U+2044 and the division slash U+2215 become `/`.
+4. Every run of white space, the characters with the Unicode property White_Space, becomes one space, and white space at either end is dropped.
+5. A `=` at the start is dropped, and so is every `.`, `!` and `?` at the end: "= 7" and "7." are 7.
+6. For `number` with `units`: of the units that end the value, with a space before it or none, the longest is dropped, when something stands before it; when nothing does, nothing is dropped. The units go through steps 1 to 5, as the value does, so that `cm²` and `min.` match, and are compared with it by the simple lowercase mapping of each character (below).
+7. White space at either end is dropped again. A value that is now empty is blank.
+
+The value is then in notation when it is at most 16 characters long and is:
+- an integer, `-?(0|[1-9][0-9]*)`: `7`, `-12`, `0`;
+- a decimal, `-?(0|[1-9][0-9]*)\.[0-9]+`: `2.5`, `-0.75`;
+- a simple fraction, `-?(0|[1-9][0-9]*) ?/ ?[1-9][0-9]*`: `3/4`, `3 / 4`, `-1/2`.
+
+`number` takes all three, `fraction` only a simple fraction, and `predicate` only an integer. So `07`, `+7`, `.5`, `1,5`, `1 000`, `1,000`, `1/0`, `1 1/2`, `7e0` and a number in other digits are not in notation. A value in notation is compared with the key as a rational number, exactly, never through floating point: `3/6`, `0.5` and `1/2` are equal, and `9007199254740993` is not `9007199254740992`.
+
+**Choices.** A choice normalizes the value and every option alike: NFKC, the dashes and slashes of step 3, the white space of step 4, and then each character to its simple lowercase mapping ([UnicodeData.txt](https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt), field 13), so that `ODD` is `odd` and `＜` is `<`. Nothing more is dropped: a `=` or a `.` can be what the learner chose. An empty value is blank. A value equal to the key is `correct`, a value equal to another option is `not_yet`, and any other value is not in notation: the learner wrote none of the options.
+
+**Predicates.** The value is read as a number, and is in notation only as an integer. The expression is evaluated with `value` bound to that integer, a Starlark `int`:
+- `True` gives `correct`, and `False` gives `not_yet`;
+- an error, a result that is not a `bool`, or more than 1 000 000 steps, as go.starlark.net counts them (`Thread.SetMaxExecutionSteps`), give `unchecked`. So does `module-kit`'s clock, when it stops an evaluation that runs too long.
+
+The limit of steps is the format's: the same expression on the same value takes the same steps on every machine, so the verdict repeats on the value stored (R03). The clock is not: how long an evaluation may take, and how many run at once, is `module-kit`'s to decide (architecture 3.7).
+
+**What this version leaves out.** Text, an edit of a text, a quantity with its units, an order or a set, the state of a widget, and the steps of a solution — a check of each of its lines — are no check kinds of this version. Each would come as a new kind, a minor change, and only the kinds that a module of the first slice uses stay in v1 (section 2). The kinds of v0 are those its three modules need — numbers and fractions in the workbook of school mathematics, numbers and choices in olympiad mathematics, a rubric and choices in short essays — and the predicate, which v1 keeps only if one of them uses it.
+
+- A statement SHOULD say what form the answer takes when a check asks for one: "in lowest terms", "Write <, > or =".
+- The normalization follows the version of Unicode that the reader's release names. The test vectors use only characters that every version of Unicode from 15.0 on normalizes alike.
+
+| ID | Rule |
+|---|---|
+| `task.choice-key` | The `key` of a `choice` check MUST be one of its options as written: the answer slot's `options` when it is bound `choice`, and the check's own otherwise. |
+| `task.choice-options` | No two options of a choice MAY be the same once normalized as a choice normalizes them. |
+| `task.fraction-key` | The `key` of a `fraction` check with `form: reduced` MUST be a fraction in lowest terms. |
+| `task.predicate-expression` | The `predicate` of a check MUST be a Starlark expression, and MUST name nothing but `value` and Starlark's built-in names. |
+| `task.assessability` | Each primary skill of an item that is a skill of the module's graph MUST be of the assessability `verdict` when the item's answer slots are checked by a kind that gives a verdict, and `rubric` when the item's answer slot is checked by a rubric. An item's skills are its own, or else its task's. So a skill whose assessability is `none` is only ever a supporting skill. |
