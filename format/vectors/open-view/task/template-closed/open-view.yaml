@@ -1,0 +1,10 @@
+id: missing-factor
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{first} ×"
+      - binding: box
+      - text: "= {product}"

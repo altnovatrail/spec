@@ -1,0 +1,137 @@
+# The order of the combinations: the names in the order of their code units — a1, a_1, ab, b — the first
+# changing slowest, a domain of negative integers, and a domain of one. Unary - binds tighter than //,
+# so -ab // 2 is not -(ab // 2), and % takes the sign of the divisor.
+task:
+  id: order-of-names
+  template:
+    parameters:
+      b: {from: 1, to: 2}
+      ab: {from: 5, to: 6}
+      a_1: {from: 0, to: 1}
+      a1: {from: -3, to: -1}
+    derived:
+      neg_first: "-ab // 2"
+      neg_after: "-(ab // 2)"
+      rem: a1 % 2
+      rem_neg: ab % -4
+  statement:
+    - text: "Numbers {a1}, {a_1}, {ab} and {b} give {neg_first}, {neg_after}, {rem} and {rem_neg}. Which number is b?"
+  canvas:
+    kind: handwriting_sheet
+  items:
+    - answer_slots:
+        - binding: anywhere
+          check: {kind: number, key: "{b}"}
+  solution:
+    - text: The task says so.
+  skills:
+    primary: [reading-numbers]
+  band: grade-3
+  difficulty: 1
+count: 24
+attempts:
+  - seed: "0"
+    numbers: {a1: -3, a_1: 0, ab: 5, b: 1, neg_first: -3, neg_after: -2, rem: 1, rem_neg: -3}
+    instance:
+      id: order-of-names
+      statement:
+        - text: Numbers -3, 0, 5 and 1 give -3, -2, 1 and -3. Which number is b?
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "1"
+      solution:
+        - text: The task says so.
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1
+  - seed: "18446744073709551615"
+    numbers: {a1: -2, a_1: 0, ab: 6, b: 1, neg_first: -3, neg_after: -3, rem: 0, rem_neg: -2}
+    instance:
+      id: order-of-names
+      statement:
+        - text: Numbers -2, 0, 6 and 1 give -3, -3, 0 and -2. Which number is b?
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "1"
+      solution:
+        - text: The task says so.
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1
+  - seed: "1"
+    numbers: {a1: -1, a_1: 1, ab: 5, b: 1, neg_first: -3, neg_after: -2, rem: 1, rem_neg: -3}
+    instance:
+      id: order-of-names
+      statement:
+        - text: Numbers -1, 1, 5 and 1 give -3, -2, 1 and -3. Which number is b?
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "1"
+      solution:
+        - text: The task says so.
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1
+  - seed: "2"
+    numbers: {a1: -1, a_1: 0, ab: 6, b: 2, neg_first: -3, neg_after: -3, rem: 1, rem_neg: -2}
+    instance:
+      id: order-of-names
+      statement:
+        - text: Numbers -1, 0, 6 and 2 give -3, -3, 1 and -2. Which number is b?
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "2"
+      solution:
+        - text: The task says so.
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1
+  - seed: "3"
+    numbers: {a1: -2, a_1: 1, ab: 6, b: 2, neg_first: -3, neg_after: -3, rem: 0, rem_neg: -2}
+    instance:
+      id: order-of-names
+      statement:
+        - text: Numbers -2, 1, 6 and 2 give -3, -3, 0 and -2. Which number is b?
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "2"
+      solution:
+        - text: The task says so.
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1

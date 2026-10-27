@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/template-vector.schema.json",
+  "title": "Template vector",
+  "description": "A test vector of templates (section 23 of the format text): a template, the number of its instances, and attempts, each with its seed, the numbers of the instance that the seed picks, and that instance. An implementation counts the instances, picks the instance of each seed, replaces the placeholders, and gets exactly these.",
+  "type": "object",
+  "properties": {
+    "task": {
+      "$ref": "task.schema.json",
+      "unevaluatedProperties": false,
+      "required": [
+        "template"
+      ],
+      "description": "The template: a task with a template, which breaks no rule of a task."
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000,
+      "description": "The number of the template's instances: the combinations of its parameters for which its constraint holds."
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/attempt",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "Attempts on the template, each by its seed, with the instance that the seed picks."
+    }
+  },
+  "required": [
+    "task",
+    "count",
+    "attempts"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "attempt": {
+      "type": "object",
+      "properties": {
+        "seed": {
+          "$ref": "random-vector.schema.json#/$defs/unsigned",
+          "description": "The seed of the attempt, whose place of randomness with the names template, the task's ID and instance picks the instance."
+        },
+        "numbers": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "task.schema.json#/$defs/template_name"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "description": "The number of this parameter or derived number in the instance."
+          },
+          "minProperties": 1,
+          "description": "The numbers of the instance: every parameter and every derived number of the template, by its name."
+        },
+        "instance": {
+          "$ref": "task.schema.json",
+          "unevaluatedProperties": false,
+          "not": {
+            "required": [
+              "template"
+            ]
+          },
+          "description": "The instance that the seed picks: the template with its numbers in the place of its placeholders, and without its template."
+        }
+      },
+      "required": [
+        "seed",
+        "numbers",
+        "instance"
+      ],
+      "description": "An attempt on the template: its seed, and the instance that the seed picks."
+    }
+  }
+}

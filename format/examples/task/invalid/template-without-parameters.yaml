@@ -1,0 +1,21 @@
+# error: minProperties at #/template/parameters
+# A template has at least one parameter: without one, it would be a task with one instance.
+id: template-without-parameters
+template:
+  parameters: {}
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check: {kind: number, key: "7"}
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

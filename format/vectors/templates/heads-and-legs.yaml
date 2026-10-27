@@ -1,0 +1,192 @@
+# The template of the module of olympiad mathematics, as the example heads-and-legs-template.yaml has
+# it: 72 instances, so below multiplies, as Lemire's method does, and the constraint leaves out the 9
+# combinations with as many chickens as rabbits. Placeholders stand in the statement, the givens, the
+# trap values, the solution and the leak phrases.
+task:
+  id: heads-and-legs-2
+  template:
+    parameters:
+      chickens: {from: 1, to: 9}
+      rabbits: {from: 1, to: 9}
+    derived:
+      heads: chickens + rabbits
+      legs: "2 * chickens + 4 * rabbits"
+      half_legs: chickens + 2 * rabbits
+      chicken_legs: "2 * chickens + 2 * rabbits"
+      extra_legs: "2 * rabbits"
+    constraint: chickens != rabbits
+  statement:
+    - text: A farmyard has chickens and rabbits, {heads} heads and {legs} legs in all. A chicken has 2 legs, and a rabbit has 4. How many rabbits are there?
+  givens:
+    - "{heads} heads in all"
+    - "{legs} legs in all"
+    - A chicken has 2 legs.
+    - A rabbit has 4 legs.
+  unknown: How many rabbits there are.
+  canvas:
+    kind: handwriting_sheet
+    grid: squares
+  items:
+    - answer_slots:
+        - binding: anywhere
+          check:
+            kind: number
+            key: "{rabbits}"
+            units: [rabbit, rabbits]
+            trap_values:
+              - value: "{chickens}"
+                trap: answered-other-question
+                text: That is how many chickens there are. How many of the animals are rabbits?
+              - value: "{half_legs}"
+                trap: wrong-operation
+      simpler_case: Suppose first that every animal is a chicken. How many legs would they have, and how many legs are then left over?
+  solution:
+    - text: If all {heads} animals were chickens, they would have {heads} × 2 = {chicken_legs} legs.
+    - text: "There are {legs} − {chicken_legs} = {extra_legs} legs more, and a rabbit has 2 legs more than a chicken: {extra_legs} ÷ 2 = {rabbits} rabbits."
+  techniques: [all-the-same]
+  traps: [number-from-text]
+  leak_phrases: ["{rabbits} rabbits", "{chickens} chickens"]
+  skills:
+    primary: [arithmetic-tricks]
+  band: grades-3-4
+  difficulty: 3
+count: 72
+attempts:
+  - seed: "0"
+    numbers: {chickens: 1, rabbits: 8, heads: 9, legs: 34, half_legs: 17, chicken_legs: 18, extra_legs: 16}
+    instance:
+      id: heads-and-legs-2
+      statement:
+        - text: A farmyard has chickens and rabbits, 9 heads and 34 legs in all. A chicken has 2 legs, and a rabbit has 4. How many rabbits are there?
+      givens:
+        - "9 heads in all"
+        - "34 legs in all"
+        - A chicken has 2 legs.
+        - A rabbit has 4 legs.
+      unknown: How many rabbits there are.
+      canvas:
+        kind: handwriting_sheet
+        grid: squares
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "8"
+                units:
+                  - rabbit
+                  - rabbits
+                trap_values:
+                  - value: "1"
+                    trap: answered-other-question
+                    text: That is how many chickens there are. How many of the animals are rabbits?
+                  - value: "17"
+                    trap: wrong-operation
+          simpler_case: Suppose first that every animal is a chicken. How many legs would they have, and how many legs are then left over?
+      solution:
+        - text: "If all 9 animals were chickens, they would have 9 × 2 = 18 legs."
+        - text: "There are 34 − 18 = 16 legs more, and a rabbit has 2 legs more than a chicken: 16 ÷ 2 = 8 rabbits."
+      techniques:
+        - all-the-same
+      traps:
+        - number-from-text
+      leak_phrases:
+        - "8 rabbits"
+        - "1 chickens"
+      skills:
+        primary:
+          - arithmetic-tricks
+      band: grades-3-4
+      difficulty: 3
+  - seed: "18446744073709551615"
+    numbers: {chickens: 1, rabbits: 4, heads: 5, legs: 18, half_legs: 9, chicken_legs: 10, extra_legs: 8}
+    instance:
+      id: heads-and-legs-2
+      statement:
+        - text: A farmyard has chickens and rabbits, 5 heads and 18 legs in all. A chicken has 2 legs, and a rabbit has 4. How many rabbits are there?
+      givens:
+        - "5 heads in all"
+        - "18 legs in all"
+        - A chicken has 2 legs.
+        - A rabbit has 4 legs.
+      unknown: How many rabbits there are.
+      canvas:
+        kind: handwriting_sheet
+        grid: squares
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "4"
+                units:
+                  - rabbit
+                  - rabbits
+                trap_values:
+                  - value: "1"
+                    trap: answered-other-question
+                    text: That is how many chickens there are. How many of the animals are rabbits?
+                  - value: "9"
+                    trap: wrong-operation
+          simpler_case: Suppose first that every animal is a chicken. How many legs would they have, and how many legs are then left over?
+      solution:
+        - text: "If all 5 animals were chickens, they would have 5 × 2 = 10 legs."
+        - text: "There are 18 − 10 = 8 legs more, and a rabbit has 2 legs more than a chicken: 8 ÷ 2 = 4 rabbits."
+      techniques:
+        - all-the-same
+      traps:
+        - number-from-text
+      leak_phrases:
+        - "4 rabbits"
+        - "1 chickens"
+      skills:
+        primary:
+          - arithmetic-tricks
+      band: grades-3-4
+      difficulty: 3
+  - seed: "7"
+    numbers: {chickens: 2, rabbits: 7, heads: 9, legs: 32, half_legs: 16, chicken_legs: 18, extra_legs: 14}
+    instance:
+      id: heads-and-legs-2
+      statement:
+        - text: A farmyard has chickens and rabbits, 9 heads and 32 legs in all. A chicken has 2 legs, and a rabbit has 4. How many rabbits are there?
+      givens:
+        - "9 heads in all"
+        - "32 legs in all"
+        - A chicken has 2 legs.
+        - A rabbit has 4 legs.
+      unknown: How many rabbits there are.
+      canvas:
+        kind: handwriting_sheet
+        grid: squares
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "7"
+                units:
+                  - rabbit
+                  - rabbits
+                trap_values:
+                  - value: "2"
+                    trap: answered-other-question
+                    text: That is how many chickens there are. How many of the animals are rabbits?
+                  - value: "16"
+                    trap: wrong-operation
+          simpler_case: Suppose first that every animal is a chicken. How many legs would they have, and how many legs are then left over?
+      solution:
+        - text: "If all 9 animals were chickens, they would have 9 × 2 = 18 legs."
+        - text: "There are 32 − 18 = 14 legs more, and a rabbit has 2 legs more than a chicken: 14 ÷ 2 = 7 rabbits."
+      techniques:
+        - all-the-same
+      traps:
+        - number-from-text
+      leak_phrases:
+        - "7 rabbits"
+        - "2 chickens"
+      skills:
+        primary:
+          - arithmetic-tricks
+      band: grades-3-4
+      difficulty: 3

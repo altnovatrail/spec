@@ -8,7 +8,12 @@
     "task": {
       "$ref": "task.schema.json",
       "unevaluatedProperties": false,
-      "description": "The task whose keys and leak phrases the leak check searches for."
+      "description": "The task whose keys and leak phrases the leak check searches for. It is no template: a template is searched through its instances, which the vectors of templates pin.",
+      "not": {
+        "required": [
+          "template"
+        ]
+      }
     },
     "texts": {
       "type": "array",

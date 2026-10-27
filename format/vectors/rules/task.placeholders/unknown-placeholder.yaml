@@ -1,0 +1,26 @@
+# {c} names neither a parameter nor a derived number of the template.
+id: unknown-placeholder
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= {c}"
+solution:
+  - text: "{a} × {b} = {c}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

@@ -1,0 +1,28 @@
+# The simpler case holds 2, the key of every instance with b = 2, whose line shows no 2: 3 × [ ] = 6,
+# for one. A text that the learner sees with every instance holds no number that a key can be.
+id: key-of-an-instance-in-the-simpler-case
+template:
+  parameters:
+    a: {from: 3, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= {product}"
+    simpler_case: Try 10 × 2 first.
+solution:
+  - text: "{a} × {b} = {product}."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

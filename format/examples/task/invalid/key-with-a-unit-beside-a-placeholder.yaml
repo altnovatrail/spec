@@ -1,0 +1,25 @@
+# error: pattern at #/items/0/line/1/check/key
+# A key of a number is a number or a placeholder as a whole: a unit beside it goes in units.
+id: key-with-a-unit-beside-a-placeholder
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check: {kind: number, key: "{b} apples"}
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

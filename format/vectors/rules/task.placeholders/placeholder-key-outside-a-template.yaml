@@ -1,0 +1,20 @@
+# A key that is a placeholder, in a task that is no template: no instance puts a number in its place.
+id: placeholder-key-outside-a-template
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= 56"
+solution:
+  - text: "7 × 8 = 56."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

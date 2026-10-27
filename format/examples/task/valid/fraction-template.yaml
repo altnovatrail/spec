@@ -1,0 +1,31 @@
+# A template whose key is a fraction: its numerator and its denominator are each a placeholder, and
+# each of its 28 instances, such as "3 of 8 slices are left: that is [ ] of the pizza", has the key
+# 3/8. Any form of the value is right, so 6/16 is too; the reversed fraction is the trap value.
+id: fraction-template
+template:
+  parameters:
+    part: {from: 1, to: 7}
+    whole: {from: 2, to: 8}
+  constraint: part < whole
+statement:
+  - text: Write the fraction of the pizza.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{part} of {whole} slices of the pizza are left: that is"
+      - binding: box
+        check:
+          kind: fraction
+          key: "{part}/{whole}"
+          trap_values:
+            - value: "{whole}/{part}"
+              trap: reversed-fraction
+              text: The slices that are left go on top, and all the slices of the pizza below.
+      - text: of the pizza.
+solution:
+  - text: "{part} of {whole} slices is {part}/{whole} of the pizza."
+skills:
+  primary: [fractions-of-a-whole]
+band: grade-3
+difficulty: 2

@@ -4,6 +4,8 @@
 // but that of a predicate that runs: spec has no Starlark, so a predicate whose value is in notation
 // gets null, and only module-kit computes it.
 
+import { holdsPlaceholder } from "./templates.mjs";
+
 // The check kinds that give verdicts, and those that give feedback instead.
 export const VERDICT_KINDS = ["number", "fraction", "choice", "predicate"];
 export const FEEDBACK_KINDS = ["rubric"];
@@ -176,9 +178,13 @@ export function trapOf(slot, value) {
 // key that is none of the options as written; task.choice-options, two options alike once
 // normalized; task.fraction-key, a key not in lowest terms when the form is reduced;
 // task.trap-values, a trap value that is not yet right, for a choice not an option as written, or
-// two trap values that the check compares equal.
+// two trap values that the check compares equal. A key or a trap value of a number or a fraction
+// that holds a placeholder, outside a template, breaks task.placeholders, and nothing else is read
+// (section 23): a template is checked through its instances, which hold numbers in its place.
 export function slotBreaches(slot) {
   const { check } = slot;
+  const written = [check.key, ...(check.trap_values ?? []).map((trapValue) => trapValue.value)];
+  if ((check.kind === "number" || check.kind === "fraction") && written.some(holdsPlaceholder)) return ["task.placeholders"];
   const breaches = [];
   const options = check.options ?? slot.options ?? [];
   if (check.kind === "choice") {

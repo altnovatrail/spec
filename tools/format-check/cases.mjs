@@ -1,6 +1,6 @@
 // The examples and test vectors of the module format, and the rules and the layout of a module its
-// text lists (format/README.md, sections 7–11, 15 and 20–22; R45 and its amendment of 2026-10-22, R46,
-// R56, R57, R58, R59).
+// text lists (format/README.md, sections 7–11, 15 and 20–23; R45 and its amendment of 2026-10-22, R46,
+// R56, R57, R58, R59, R60).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -13,6 +13,7 @@ import { differenceOf, openViewOf } from "./openview.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
 import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
+import { instanceMaker, instanceShown, numbersShown, pickOf, templateOf } from "./templates.mjs";
 import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from "./verdicts.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
@@ -23,8 +24,9 @@ const HEADER = "# error: ";
 // The part of a task, whose rules format-check implements in part.
 const TASK_PART = "task";
 // The rules of a task that format-check implements, and so checks on every task it reads: those
-// that an answer slot's check shows by itself (section 15), and task.no-leaks (section 20).
-const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.no-leaks"];
+// that an answer slot's check shows by itself (section 15), task.no-leaks (section 20), and the rules
+// of templates (section 23), which it checks with the others on every instance of a template.
+const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.no-leaks", "task.template-names", "task.template-expressions", "task.placeholders", "task.template-instances", "task.instances"];
 // The part of a lesson, and the rule of a lesson that format-check implements, with its leak check
 // (section 21). The rule spans a lesson and its tasks, so its cases are laid out as modules.
 const LESSON_PART = "lesson";
@@ -131,7 +133,7 @@ export function checkExample(bytes, { kind, term, validate, version }) {
   const errors = valid ? [] : validate.errors;
   if (kind === "valid") {
     for (const error of errors) problems.push({ line: 0, message: `does not pass its schema: ${describe(error)}` });
-    if (valid && term === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(value), null));
+    if (valid && term === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(value, {}, validate), null));
     return problems;
   }
   if (valid) problems.push({ line: 1, message: `passes its schema, and names ${header.keyword} at ${header.location}` });
@@ -149,7 +151,7 @@ export function checkVector(bytes, { rule, validate, version }) {
   const read = readModuleFile(bytes);
   if (partOf(rule) !== "yaml") {
     const problems = partFileProblems(read, partOf(rule), { rule, validate, version });
-    if (!problems.length && validate && partOf(rule) === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(read.value), rule));
+    if (!problems.length && validate && partOf(rule) === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(read.value, {}, validate), rule));
     return problems;
   }
   const problems = read.notYaml.map(({ line, message }) => ({ line, message: `not YAML: ${message}` }));
@@ -200,7 +202,7 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
   }
   breaches.push(...mediaBreaches(folder, [...rows].filter(([, row]) => row).map(([file]) => file), forms));
   problems.push(...wholeModuleProblems(breaches, rule, unchecked));
-  if (values.partsOk) problems.push(...moduleRuleProblems(values, rule));
+  if (values.partsOk) problems.push(...moduleRuleProblems(values, rule, values.tasks.length ? validatorOf(TASK_PART) : undefined));
   const part = rule === null ? null : partOf(rule);
   if (part !== null && part !== "yaml" && part !== "module" && !parts.has(part)) {
     problems.push({ file: "", line: 0, message: `holds no file of the part ${part}, whose rule ${rule} it is a case of` });
@@ -282,7 +284,7 @@ export function checkLeakVector(bytes, { validate }) {
   const { problems, value } = vectorStart(bytes, validate, "leak vectors");
   if (!value) return problems;
   const { task, texts } = value;
-  for (const breach of [...taskRuleBreaches(task)].sort(byCodeUnits)) problems.push({ line: 0, message: `its task breaks ${breach}: the task of a vector is one that a module may hold` });
+  for (const breach of [...taskRuleBreaches(task).keys()].sort(byCodeUnits)) problems.push({ line: 0, message: `its task breaks ${breach}: the task of a vector is one that a module may hold` });
   if (problems.length) return problems;
   const needles = needlesOf(task);
   texts.forEach(({ text, leaks }, at) => {
@@ -317,6 +319,38 @@ export function checkRandomVector(bytes, { validate }) {
     problems.push({ line: 0, message: `draw ${at + 1}: ${problem.message}` });
     if (problem.ends) break;
   }
+  return problems;
+}
+
+// A vector of templates (section 23): the YAML rules, the schema of such vectors, the rules of a task
+// on every instance of its template, the number of its instances, and for each attempt the instance
+// that its seed picks — its numbers, and the task it is, whatever the order of keys. validateTask is
+// the task's validator, by which each instance passes its schema.
+export function checkTemplateVector(bytes, { validate, validateTask }) {
+  const { problems, value } = vectorStart(bytes, validate, "vectors of templates");
+  if (!value) return problems;
+  const { task, count, attempts } = value;
+  const counted = templateOf(task);
+  for (const [breach, detail] of sortedBreaches(expandedOf(task, {}, validateTask, counted).breaches)) problems.push({ line: 0, message: `its template breaks ${breach}${detail ? `, ${detail}` : ""}: the template of a vector is one that a module may hold` });
+  if (problems.length) return problems;
+  const { instances } = counted;
+  if (instances.length !== count) return [{ line: 0, message: `the template has ${instances.length} instances, not ${count}` }];
+  attempts.forEach((attempt, at) => {
+    const which = `attempt ${at + 1}`;
+    if (!isUnsigned(attempt.seed)) {
+      problems.push({ line: 0, message: `${which}: the seed, ${attempt.seed}, is past 2^64 − 1` });
+      return;
+    }
+    const numbers = instances[pickOf(BigInt(attempt.seed), task.id, count)];
+    const given = Object.entries(attempt.numbers);
+    const same = given.length === numbers.size && given.every(([name, number]) => numbers.get(name) === BigInt(number));
+    if (!same) {
+      problems.push({ line: 0, message: `${which}: the seed picks the instance ${numbersShown(numbers)}, not ${numbersShown(new Map(given))}` });
+      return;
+    }
+    const differs = differenceOf(instanceMaker(task)(numbers), attempt.instance);
+    if (differs) problems.push({ line: 0, message: `${which}: the instance is not the template with these numbers: they differ at ${fragmentOf(differs)}` });
+  });
   return problems;
 }
 
@@ -367,7 +401,7 @@ function drawProblem(stream, draw) {
   return same ? null : { message: `${fn} gives ${shown}, not ${given}`, ends: false };
 }
 
-// The start of a vector of verdicts, of the leak check or of the generator: the YAML rules, then the
+// The start of a vector of verdicts, of the leak check, of the generator or of templates: the YAML rules, then the
 // schema of such vectors. { problems, value }, with no value when the vector goes no further.
 function vectorStart(bytes, validate, what) {
   const read = readModuleFile(bytes);
@@ -377,37 +411,73 @@ function vectorStart(bytes, validate, what) {
   return { problems, value: read.value };
 }
 
-// Which of the rules that format-check implements a task breaks: with the module's other parts when
-// it lies in one.
-function taskRuleBreaches(task, parts = {}) {
-  const breaches = new Set((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap(slotBreaches)));
-  if (leaksBefore(task, parts)) breaches.add("task.no-leaks");
+// Which of the rules that format-check implements a task breaks: a Map from each to what breaks it,
+// or null, with the module's other parts when it lies in one.
+const taskRuleBreaches = (task, parts = {}, validateTask = undefined) => expandedOf(task, parts, validateTask).breaches;
+
+// The same, and the tasks that a lesson naming the task searches for: { breaches, tasks }. A task
+// that is no template is itself. A template breaks its own rules, and the others through its
+// instances, which are its tasks: each passes the task's schema by validateTask, when it is given,
+// and is checked as a task (section 23). counted is the template's instances, when they are known.
+function expandedOf(task, parts, validateTask, counted = undefined) {
+  if (task.template === undefined) return { breaches: plainBreaches(task, parts), tasks: [task] };
+  const { breaches, instances } = counted ?? templateOf(task);
+  const tasks = [];
+  if (!instances) return { breaches, tasks };
+  const make = instanceMaker(task);
+  for (const numbers of instances) {
+    const instance = make(numbers);
+    const add = (rule, detail) => {
+      if (breaches.has(rule)) return;
+      const on = `on the instance ${instanceShown(task, numbers)}`;
+      breaches.set(rule, detail ? `${on}: ${detail}` : on);
+    };
+    if (validateTask && !validateTask(instance)) {
+      add("task.instances", describe(validateTask.errors[0]));
+      continue;
+    }
+    tasks.push(instance);
+    for (const [rule, detail] of plainBreaches(instance, parts)) add(rule, detail);
+  }
+  return { breaches, tasks };
+}
+
+// The same for a task that is no template.
+function plainBreaches(task, parts) {
+  const breaches = new Map((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap(slotBreaches)).map((rule) => [rule, null]));
+  if (leaksBefore(task, parts)) breaches.set("task.no-leaks", null);
   return breaches;
 }
+
+const sortedBreaches = (breaches) => [...breaches].sort(([a], [b]) => byCodeUnits(a, b));
+const breachShown = (breach, detail, too) => `breaks ${breach}${too ? " too" : ""}${detail ? `, ${detail}` : ""}`;
 
 // What a task's breaches are in a vector of rule: it breaks its rule, if format-check implements
 // it, and no other that format-check implements; outside a vector of one, none.
 function taskRuleProblems(breaches, rule) {
   const own = TASK_RULES.includes(rule) ? rule : null;
-  const problems = [...breaches].filter((breach) => breach !== own).sort(byCodeUnits).map((breach) => ({ line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` }));
+  const problems = sortedBreaches(breaches)
+    .filter(([breach]) => breach !== own)
+    .map(([breach, detail]) => ({ line: 0, message: breachShown(breach, detail, own !== null) }));
   if (own && !breaches.has(own)) problems.push({ line: 0, message: `breaks no ${own}` });
   return problems;
 }
 
 // The same for the tasks and the lessons of a case laid out as a module, with its manifest, its trap
 // catalog and its technique catalog: one of them breaks the rule of the case.
-function moduleRuleProblems({ tasks, lessons, manifest, traps, techniques }, rule) {
+function moduleRuleProblems({ tasks, lessons, manifest, traps, techniques }, rule, validateTask) {
   const own = IMPLEMENTED_RULES.includes(rule) ? rule : null;
-  const byId = new Map(tasks.map(({ id, task }) => [id, task]));
+  const expanded = tasks.map(({ file, id, task }) => ({ file, id, ...expandedOf(task, { manifest, traps, techniques }, validateTask) }));
+  const byId = new Map(expanded.map(({ id, tasks: theirs }) => [id, theirs]));
   const files = [
-    ...tasks.map(({ file, task }) => ({ file, breaches: taskRuleBreaches(task, { manifest, traps, techniques }) })),
-    ...lessons.map(({ file, lesson }) => ({ file, breaches: new Set(lessonLeaks(lesson, byId) ? [LESSON_LEAKS] : []) })),
+    ...expanded.map(({ file, breaches }) => ({ file, breaches })),
+    ...lessons.map(({ file, lesson }) => ({ file, breaches: new Map(lessonLeaks(lesson, byId) ? [[LESSON_LEAKS, null]] : []) })),
   ];
   const problems = [];
   let ownBroken = false;
   for (const { file, breaches } of files) {
     if (breaches.has(own)) ownBroken = true;
-    for (const breach of [...breaches].filter((breach) => breach !== own).sort(byCodeUnits)) problems.push({ file, line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` });
+    for (const [breach, detail] of sortedBreaches(breaches).filter(([breach]) => breach !== own)) problems.push({ file, line: 0, message: breachShown(breach, detail, own !== null) });
   }
   if (own && !ownBroken) problems.push({ file: "", line: 0, message: `breaks no ${own}` });
   return problems;

@@ -71,6 +71,8 @@ test("a key is searched for unless the texts of its own item show it, and a leak
   const predicate = task([anywhere({ kind: "predicate", predicate: "value > 0" })]);
   assert.deepEqual(written(predicate), []);
   assert.deepEqual(written({ items: [{ text: "a)", answer_slots: [{ binding: "sheet", check: { kind: "rubric", criteria: [{ text: "A criterion." }] } }] }] }), []);
+  const placeholder = task([{ line: [{ binding: "box", check: { kind: "number", key: "{x}" } }, { text: "and" }, { binding: "box", check: { kind: "number", key: "42" } }] }]);
+  assert.deepEqual(written(placeholder), ["42"], "a key that holds a placeholder outside a template is task.placeholders', and the other keys are searched for");
 });
 
 test("what a text gives away: each key by value and magnitude, each phrase as written, once", () => {
@@ -116,10 +118,12 @@ test("lesson.no-leaks searches every text of a lesson for the keys of each task 
   };
   assert.deepEqual(lessonTexts(lesson), ["Gaps and posts", "A fence has posts.", "A fence.", "A path of 20 m.", "4 gaps.", "5 lamps.", "Count the gaps first."]);
   const keyed = (key, extra) => task([anywhere({ kind: "number", key })], extra);
-  assert.equal(lessonLeaks(lesson, new Map([["ladder", keyed("7")], ["camp", keyed("9")]])), false);
-  assert.equal(lessonLeaks(lesson, new Map([["ladder", keyed("5")]])), true, "the alt of a picture of the demo holds the key");
-  assert.equal(lessonLeaks(lesson, new Map([["ladder", keyed("8", { leak_phrases: ["the gaps first"] })]])), true, "a text after the task holds its leak phrase: the open view reaches the app whole");
-  assert.equal(lessonLeaks(lesson, new Map([["ladder", keyed("8")], ["camp", keyed("20")]])), true, "the statement of the worked example holds the second task's key");
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("7")]], ["camp", [keyed("9")]]])), false);
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("5")]]])), true, "the alt of a picture of the demo holds the key");
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("8", { leak_phrases: ["the gaps first"] })]]])), true, "a text after the task holds its leak phrase: the open view reaches the app whole");
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("8")]], ["camp", [keyed("20")]]])), true, "the statement of the worked example holds the second task's key");
   assert.equal(lessonLeaks(lesson, new Map()), false, "a task that the module does not hold is lesson.known-tasks', not this rule's");
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("7"), keyed("5")]]])), true, "the key of any instance of a template");
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", []]])), false, "a template whose instances cannot be counted");
   assert.deepEqual(lessonTexts({ segments: [{ task: "ladder" }] }), [], "a lesson with no title and no texts");
 });

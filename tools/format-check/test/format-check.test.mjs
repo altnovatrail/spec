@@ -92,7 +92,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 7, examples: 15, vectors: 17, rules: 16, openViews: 1, verdicts: 1, leaks: 1, random: 1 });
+    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 17, rules: 16, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -117,7 +117,8 @@ test("a schema's $id follows VERSION, and so does the version each manifest name
       /^format\/schemas\/verdict-vector\.schema\.json:\d+: \$id is .*\/0\.2\/verdict-vector\.schema\.json/,
       /^format\/schemas\/leak-vector\.schema\.json:\d+: \$id is .*\/0\.2\/leak-vector\.schema\.json/,
       /^format\/schemas\/random-vector\.schema\.json:\d+: \$id is .*\/0\.2\/random-vector\.schema\.json/,
-      /^format\/schemas\/(manifest|sample|verdict-vector|leak-vector|random-vector)\.schema\.json:0: its examples and vectors go unchecked/,
+      /^format\/schemas\/template-vector\.schema\.json:\d+: \$id is .*\/0\.2\/template-vector\.schema\.json/,
+      /^format\/schemas\/(manifest|sample|verdict-vector|leak-vector|random-vector|template-vector|task)\.schema\.json:0: its examples and vectors go unchecked/,
       /(manifest\.yaml|manifest\/valid\/minimal\.yaml):0: names the format version 0\.1: it names 0\.2, as format\/VERSION has it/,
     ],
   );
@@ -125,7 +126,7 @@ test("a schema's $id follows VERSION, and so does the version each manifest name
 
 test("a file outside the layout is named", () => {
   expectOnly([["format/notes.txt", null, "notes\n"]], /^format\/notes\.txt:0: format-check does not know it/);
-  expectOnly([["format/vectors/templates/task.yaml", null, "title: A title\n"]], /^format\/vectors\/templates:0: format-check does not know it/);
+  expectOnly([["format/vectors/widgets/task.yaml", null, "title: A title\n"]], /^format\/vectors\/widgets:0: format-check does not know it/);
   expectOnly([["format/schemas/Sample.json", null, "{}\n"]], /^format\/schemas\/Sample\.json:0: a schema is <term>\.schema\.json/);
 });
 
@@ -803,7 +804,71 @@ test("a vector of the generator derives its state from its seed and names, and t
 
 test("the vectors of the generator are files, and need the schema of such vectors", () => {
   expectOnly([["format/vectors/random/a-folder/case.yaml", null, "state: {}\n"]], /random\/a-folder:0: a vector of the generator is a file, <case>\.yaml$/);
-  expectOnly([["format/schemas/random-vector.schema.json", null, null]], /^format\/vectors\/random:0: no schema random-vector\.schema\.json for the vectors of the generator$/);
+  expectEach(
+    [["format/schemas/random-vector.schema.json", null, null]],
+    [
+      /^format\/vectors\/random:0: no schema random-vector\.schema\.json for the vectors of the generator$/,
+      /template-vector\.schema\.json:\d+: \$ref "random-vector\.schema\.json#\/\$defs\/unsigned": no schema random-vector\.schema\.json/,
+      /template-vector\.schema\.json:0: its examples and vectors go unchecked/,
+    ],
+  );
+});
+
+// The vectors of templates, and templates checked through their instances.
+
+const TEMPLATE = "format/vectors/templates/three.yaml";
+// A template with one answer slot: its parameters, as lines of YAML, its key and what else its check
+// holds.
+const templateTask = (parameters, key, extra = "") => `template:\n  parameters:\n${parameters}\nitems:\n  - answer_slots:\n      - binding: anywhere\n        check: {kind: number, key: "${key}"${extra}}\n`;
+const constrained = (constraint, task) => task.replace("  parameters:", `  constraint: "${constraint}"\n  parameters:`);
+
+test("a vector of templates lists the instance that each seed picks, as section 23 counts and replaces them", () => {
+  expectOnly([[TEMPLATE, 'key: "2"', 'key: "20"']], /three\.yaml:0: attempt 1: the instance is not the template with these numbers: they differ at #\/items\/0\/answer_slots\/0\/check\/key$/);
+  expectOnly([[TEMPLATE, "numbers: {a: 2}", "numbers: {a: 1}"]], /three\.yaml:0: attempt 1: the seed picks the instance a = 2, not a = 1$/);
+  expectOnly([[TEMPLATE, "count: 3", "count: 4"]], /three\.yaml:0: the template has 3 instances, not 4$/);
+  expectOnly([[TEMPLATE, 'seed: "0"', 'seed: "18446744073709551616"']], /three\.yaml:0: attempt 1: the seed, 18446744073709551616, is past 2\^64 − 1$/);
+});
+
+test("a vector of templates passes its schema, and its template breaks no rule of a task on any instance", () => {
+  expectOnly([[TEMPLATE, 'check: {kind: number, key: "{a}"}', 'check: {kind: number, key: "{b}"}']], /three\.yaml:0: its template breaks task\.placeholders, #\/items\/0\/answer_slots\/0\/check\/key: \{b\} names no parameter or derived number: the template of a vector is one that a module may hold$/);
+  expectOnly([[TEMPLATE, 'check: {kind: number, key: "{a}"}', 'check: {kind: number, key: "{a}", trap_values: [{value: "{a}", trap: off-by-one}]}']], /three\.yaml:0: its template breaks task\.trap-values, on the instance a = 1: the template/);
+  expectOnly([[TEMPLATE, "      id: three\n      items:", "      id: three\n      template: {parameters: {a: {from: 1, to: 3}}}\n      items:"]], /three\.yaml:0: does not pass the schema of vectors of templates: not at #\/attempts\/0\/instance/);
+});
+
+test("the vectors of templates are files, and need the schema of such vectors", () => {
+  expectOnly([["format/vectors/templates/a-folder/case.yaml", null, "task: {}\n"]], /templates\/a-folder:0: a vector of templates is a file, <case>\.yaml$/);
+  expectOnly([["format/schemas/template-vector.schema.json", null, null]], /^format\/vectors\/templates:0: no schema template-vector\.schema\.json for the vectors of templates$/);
+});
+
+test("a template is checked through its instances, as a valid example and as a case of a rule", () => {
+  const example = (name, text) => [`format/examples/task/valid/${name}.yaml`, null, text];
+  const twoByTwo = "    a: {from: 1, to: 2}\n    b: {from: 1, to: 2}";
+  const trapOfB = ', trap_values: [{value: "{b}", trap: off-by-one}]';
+  assert.deepEqual(errorsOf([example("fine", constrained("a != b", templateTask(twoByTwo, "{a}", trapOfB)))]), []);
+  expectOnly([example("alike", templateTask(twoByTwo, "{a}", trapOfB))], /alike\.yaml:0: breaks task\.trap-values, on the instance a = 1, b = 1$/);
+  const shortKeys = taskSchema((schema) => {
+    schema.$defs.check.properties.key.maxLength = 3;
+  });
+  expectOnly([shortKeys, example("long", templateTask("    a: {from: 999, to: 1000}", "{a}"))], /long\.yaml:0: breaks task\.instances, on the instance a = 1000: maxLength at #\/items\/0\/answer_slots\/0\/check\/key/);
+  expectOnly([example("plain", 'items:\n  - answer_slots:\n      - binding: anywhere\n        check: {kind: number, key: "{a}"}\n')], /plain\.yaml:0: breaks task\.placeholders$/);
+  expectOnly([example("chained", constrained("0 < a < 3", templateTask("    a: {from: 1, to: 2}", "{a}")))], /chained\.yaml:0: breaks task\.template-expressions, the constraint: < and <: comparisons do not chain$/);
+  const listed = ["format/README.md", "| `sample.known-tag` |", "| `task.template-instances` | A rule of a template. |\n| `sample.known-tag` |"];
+  const vector = (text) => ["format/vectors/rules/task.template-instances/a-case.yaml", null, text];
+  assert.deepEqual(errorsOf([listed, vector(constrained("a > 2", templateTask("    a: {from: 1, to: 2}", "{a}")))]), []);
+  expectOnly([listed, vector(templateTask("    a: {from: 1, to: 2}", "{a}"))], /a-case\.yaml:0: breaks no task\.template-instances$/);
+});
+
+test("a lesson that names a template is searched for the key of every instance", () => {
+  const layout = ["format/README.md", "| `media/<path>` | — | Pictures and sound. |", "| `tasks/<id>.yaml` | `task` | Tasks. |\n| `lessons/<id>.yaml` | `lesson` | Lessons. |\n| `media/<path>` | — | Pictures and sound. |"];
+  const schema = ["format/schemas/lesson.schema.json", null, LESSON_SCHEMA];
+  const at = "format/examples/module/valid/with-a-template";
+  const folder = (title) => [
+    [`${at}/manifest.yaml`, null, MANIFEST],
+    [`${at}/tasks/seven.yaml`, null, templateTask("    a: {from: 6, to: 7}", "{a}")],
+    [`${at}/lessons/ladder.yaml`, null, `title: ${title}\nsegments:\n  - task: seven\n`],
+  ];
+  assert.deepEqual(errorsOf([layout, schema, ...folder("A ladder of 8 rungs")]), []);
+  expectOnly([layout, schema, ...folder("A ladder of 7 rungs")], /with-a-template\/lessons\/ladder\.yaml:0: breaks lesson\.no-leaks$/);
 });
 
 test("common defines local_id and media_path, by which <id> and module.media read names", () => {

@@ -1,0 +1,22 @@
+# A lesson that names a template holds 8, the key of the instances with second = 8: lesson.no-leaks
+# searches its texts for the key of every instance.
+module_format_version: "0.1"
+id: example/with-templates
+version: "0.1.0"
+title: A module with a template
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3]
+bands:
+  - id: grade-3
+    title: Grade 3
+    grades: [3]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0
+rung_templates:
+  - Which step of your work gave you this answer?
+  - Read the line again. Which number of the times table gives the product it asks for?

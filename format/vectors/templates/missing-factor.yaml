@@ -1,0 +1,116 @@
+# The template of a line of the workbook, as the example missing-factor.yaml has it: 64 instances, a
+# power of two, so below takes the low bits of one integer. The seeds are 0, 2^64 − 1 and the date.
+task:
+  id: missing-factor
+  template:
+    parameters:
+      first: {from: 2, to: 9}
+      second: {from: 2, to: 9}
+    derived:
+      product: first * second
+      one_more: second + 1
+  statement:
+    - text: Write the missing number.
+  canvas:
+    kind: workbook
+  items:
+    - line:
+        - text: "{first} ×"
+        - binding: box
+          check:
+            kind: number
+            key: "{second}"
+            trap_values:
+              - value: "{one_more}"
+                trap: times-table-slip
+                text: Count up the times table again, one step at a time, and stop at the product the line asks for.
+        - text: "= {product}"
+  solution:
+    - text: "{first} × {second} = {product}, so the missing number is {second}."
+  skills:
+    primary: [times-tables]
+  band: grade-3
+  difficulty: 2
+count: 64
+attempts:
+  - seed: "0"
+    numbers: {first: 2, second: 3, product: 6, one_more: 4}
+    instance:
+      id: missing-factor
+      statement:
+        - text: Write the missing number.
+      canvas:
+        kind: workbook
+      items:
+        - line:
+            - text: "2 ×"
+            - binding: box
+              check:
+                kind: number
+                key: "3"
+                trap_values:
+                  - value: "4"
+                    trap: times-table-slip
+                    text: Count up the times table again, one step at a time, and stop at the product the line asks for.
+            - text: "= 6"
+      solution:
+        - text: "2 × 3 = 6, so the missing number is 3."
+      skills:
+        primary:
+          - times-tables
+      band: grade-3
+      difficulty: 2
+  - seed: "18446744073709551615"
+    numbers: {first: 7, second: 5, product: 35, one_more: 6}
+    instance:
+      id: missing-factor
+      statement:
+        - text: Write the missing number.
+      canvas:
+        kind: workbook
+      items:
+        - line:
+            - text: "7 ×"
+            - binding: box
+              check:
+                kind: number
+                key: "5"
+                trap_values:
+                  - value: "6"
+                    trap: times-table-slip
+                    text: Count up the times table again, one step at a time, and stop at the product the line asks for.
+            - text: "= 35"
+      solution:
+        - text: "7 × 5 = 35, so the missing number is 5."
+      skills:
+        primary:
+          - times-tables
+      band: grade-3
+      difficulty: 2
+  - seed: "20261027"
+    numbers: {first: 6, second: 4, product: 24, one_more: 5}
+    instance:
+      id: missing-factor
+      statement:
+        - text: Write the missing number.
+      canvas:
+        kind: workbook
+      items:
+        - line:
+            - text: "6 ×"
+            - binding: box
+              check:
+                kind: number
+                key: "4"
+                trap_values:
+                  - value: "5"
+                    trap: times-table-slip
+                    text: Count up the times table again, one step at a time, and stop at the product the line asks for.
+            - text: "= 24"
+      solution:
+        - text: "6 × 4 = 24, so the missing number is 4."
+      skills:
+        primary:
+          - times-tables
+      band: grade-3
+      difficulty: 2
