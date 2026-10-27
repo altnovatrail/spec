@@ -17,8 +17,15 @@ const SLASHES = /[\u2044\u2215]/gu;
 // White space is the characters with the Unicode property White_Space (step 4): JavaScript's \s
 // would miss U+0085 and take U+FEFF.
 const WHITE_SPACE = /\p{White_Space}+/gu;
+// The text without the run of the characters of chars that ends it. A loop: a regular expression
+// such as / +$/ backtracks, in time quadratic in a long run that does not end the text.
+function withoutEnd(text, chars) {
+  let end = text.length;
+  while (end > 0 && chars.includes(text[end - 1])) end--;
+  return text.slice(0, end);
+}
 // After step 4, white space is single spaces; trim() would also drop U+FEFF, which is none.
-const trimmed = (text) => text.replace(/^ +| +$/g, "");
+const trimmed = (text) => withoutEnd(text, " ").replace(/^ +/, "");
 const MAX_LENGTH = 16;
 const INTEGER = /^-?(0|[1-9][0-9]*)$/;
 const DECIMAL = /^-?(0|[1-9][0-9]*)\.[0-9]+$/;
@@ -46,7 +53,7 @@ export function lowercase(text) {
 
 // Steps 1 to 5, which a number's value and its units both go through.
 function steps1To5(text) {
-  return normalized(text.replace(SCRIPT_DIGITS, REPLACEMENT)).replace(/^=/, "").replace(/[.!?]+$/, "");
+  return withoutEnd(normalized(text.replace(SCRIPT_DIGITS, REPLACEMENT)).replace(/^=/, ""), ".!?");
 }
 
 // The value as number, fraction and predicate read it, steps 1 to 7: { text }, or { reason } when it
