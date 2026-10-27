@@ -1,0 +1,70 @@
+# A template with one instance: below(1) gives 0 for every seed, and still draws one integer.
+task:
+  id: one-instance
+  template:
+    parameters:
+      a: {from: 4, to: 4}
+  statement:
+    - text: How many legs does a chair have, if it has {a}?
+  canvas:
+    kind: handwriting_sheet
+  items:
+    - answer_slots:
+        - binding: anywhere
+          check: {kind: number, key: "{a}", units: [leg, legs]}
+  solution:
+    - text: The task says {a}.
+  skills:
+    primary: [reading-numbers]
+  band: grade-3
+  difficulty: 1
+count: 1
+attempts:
+  - seed: "0"
+    numbers: {a: 4}
+    instance:
+      id: one-instance
+      statement:
+        - text: How many legs does a chair have, if it has 4?
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "4"
+                units:
+                  - leg
+                  - legs
+      solution:
+        - text: The task says 4.
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1
+  - seed: "18446744073709551615"
+    numbers: {a: 4}
+    instance:
+      id: one-instance
+      statement:
+        - text: How many legs does a chair have, if it has 4?
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "4"
+                units:
+                  - leg
+                  - legs
+      solution:
+        - text: The task says 4.
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1

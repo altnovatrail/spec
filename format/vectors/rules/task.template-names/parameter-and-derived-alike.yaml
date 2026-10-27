@@ -1,0 +1,27 @@
+# A name is either a parameter's or a derived number's: b would be both.
+id: parameter-and-derived-alike
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    b: a + 1
+    product: a * b
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

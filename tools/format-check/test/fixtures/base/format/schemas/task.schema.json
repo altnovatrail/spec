@@ -2,9 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/task.schema.json",
   "title": "Task",
-  "description": "A trial task, whose items have answer slots with their checks: what the vectors of verdicts are of.",
+  "description": "A trial task, whose items have answer slots with their checks: what the vectors of verdicts are of. A task with a template is a template, as the vectors of templates are of.",
   "type": "object",
   "properties": {
+    "id": {
+      "type": "string",
+      "description": "The task's local ID."
+    },
     "items": {
       "type": "array",
       "items": {
@@ -13,6 +17,11 @@
       },
       "minItems": 1,
       "description": "The items of the task."
+    },
+    "template": {
+      "$ref": "#/$defs/template",
+      "unevaluatedProperties": false,
+      "description": "What makes the task a template: its parameters, the numbers derived from them and the constraint on their combinations. Each attempt gets one instance of the template, picked by the seed of the attempt, and the learner's app never gets the template itself."
     }
   },
   "unevaluatedProperties": false,
@@ -132,6 +141,111 @@
         "key"
       ],
       "description": "The check of an answer slot."
+    },
+    "template": {
+      "type": "object",
+      "properties": {
+        "parameters": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/template_name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/domain",
+            "unevaluatedProperties": false,
+            "description": "The parameter's domain: the integers that it takes."
+          },
+          "minProperties": 1,
+          "description": "The parameters of the template, each by its name with its domain. Their combinations are counted through in the order of their names, the first changing slowest."
+        },
+        "derived": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/template_name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/template_expression",
+            "description": "The expression that computes the derived number: an int expression that names only parameters."
+          },
+          "minProperties": 1,
+          "description": "The derived numbers of the template, each by its name with the expression that computes it from the parameters, such as legs: \"2 * chickens + 4 * rabbits\"."
+        },
+        "constraint": {
+          "$ref": "#/$defs/template_expression",
+          "description": "A bool expression of the parameters and the derived numbers that holds for the combinations that give an instance. Without it, every combination gives one."
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "description": "A template of tasks: parameters with their domains, the numbers derived from them, and the constraint that picks the combinations that are its instances."
+    },
+    "domain": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "integer",
+          "description": "The least integer that the parameter takes."
+        },
+        "to": {
+          "type": "integer",
+          "description": "The greatest integer that the parameter takes. A domain whose to is below its from is empty, and its template has no instance."
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "description": "The integers that a parameter takes, from from to to, both included."
+    },
+    "template_name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "maxLength": 14,
+      "not": {
+        "enum": [
+          "and",
+          "break",
+          "continue",
+          "def",
+          "elif",
+          "else",
+          "for",
+          "if",
+          "in",
+          "lambda",
+          "load",
+          "not",
+          "or",
+          "pass",
+          "return",
+          "as",
+          "assert",
+          "async",
+          "await",
+          "class",
+          "del",
+          "except",
+          "finally",
+          "from",
+          "global",
+          "import",
+          "is",
+          "nonlocal",
+          "raise",
+          "try",
+          "while",
+          "with",
+          "yield"
+        ]
+      },
+      "description": "The name of a parameter or a derived number: lowercase letters, digits and _, beginning with a letter, at most 14 characters long so that {name} fits a key, and no keyword or reserved word of Starlark."
+    },
+    "template_expression": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "An expression of the narrow subset of Starlark of section 23 of the format text: integers and names, + - * // %, comparisons, and, or and not."
     }
   }
 }

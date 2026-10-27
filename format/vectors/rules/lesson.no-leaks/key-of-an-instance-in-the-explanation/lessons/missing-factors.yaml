@@ -1,0 +1,7 @@
+id: missing-factors
+title: Missing factors
+skills: [times-tables]
+segments:
+  - explanation:
+      - text: To find a missing factor, go through the times table of the number you know. In 7 × 8 = 56, the times table of 7 reaches 56 at 8.
+  - task: missing-factor

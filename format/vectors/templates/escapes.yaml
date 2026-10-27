@@ -1,0 +1,118 @@
+# Doubled braces are one brace of the text, two placeholders may stand side by side, and placeholders
+# stand in the alt of a picture, the text of an item, the options of a choice by tapping and its key.
+# The seeds pick three of the four instances.
+task:
+  id: escapes
+  template:
+    parameters:
+      a: {from: 1, to: 2}
+      b: {from: 3, to: 4}
+  statement:
+    - text: "A set is written in braces, as {{{a}, {b}}}. Which of its numbers is the greater?"
+    - picture: pictures/dots.png
+      alt: "A row of {a}{b} dots"
+      width: 240
+      height: 40
+  canvas:
+    kind: handwriting_sheet
+  items:
+    - text: "a) {a} or {b}?"
+      answer_slots:
+        - binding: choice
+          options: ["{a}", "{b}"]
+          check: {kind: choice, key: "{b}"}
+  solution:
+    - text: "{b} is greater than {a}."
+  skills:
+    primary: [reading-numbers]
+  band: grade-3
+  difficulty: 1
+count: 4
+attempts:
+  - seed: "0"
+    numbers: {a: 1, b: 4}
+    instance:
+      id: escapes
+      statement:
+        - text: "A set is written in braces, as {1, 4}. Which of its numbers is the greater?"
+        - picture: pictures/dots.png
+          alt: A row of 14 dots
+          width: 240
+          height: 40
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - text: a) 1 or 4?
+          answer_slots:
+            - binding: choice
+              options:
+                - "1"
+                - "4"
+              check:
+                kind: choice
+                key: "4"
+      solution:
+        - text: "4 is greater than 1."
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1
+  - seed: "2"
+    numbers: {a: 1, b: 3}
+    instance:
+      id: escapes
+      statement:
+        - text: "A set is written in braces, as {1, 3}. Which of its numbers is the greater?"
+        - picture: pictures/dots.png
+          alt: A row of 13 dots
+          width: 240
+          height: 40
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - text: a) 1 or 3?
+          answer_slots:
+            - binding: choice
+              options:
+                - "1"
+                - "3"
+              check:
+                kind: choice
+                key: "3"
+      solution:
+        - text: "3 is greater than 1."
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1
+  - seed: "8"
+    numbers: {a: 2, b: 3}
+    instance:
+      id: escapes
+      statement:
+        - text: "A set is written in braces, as {2, 3}. Which of its numbers is the greater?"
+        - picture: pictures/dots.png
+          alt: A row of 23 dots
+          width: 240
+          height: 40
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - text: a) 2 or 3?
+          answer_slots:
+            - binding: choice
+              options:
+                - "2"
+                - "3"
+              check:
+                kind: choice
+                key: "3"
+      solution:
+        - text: "3 is greater than 2."
+      skills:
+        primary:
+          - reading-numbers
+      band: grade-3
+      difficulty: 1

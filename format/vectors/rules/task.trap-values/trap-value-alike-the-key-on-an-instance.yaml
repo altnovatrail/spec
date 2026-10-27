@@ -1,0 +1,30 @@
+# A template is checked through its instances: on those with a = b, the trap value {a} is the key
+# {b}, which is right and no wrong value. The other 56 instances break nothing.
+id: trap-value-alike-the-key-on-an-instance
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+          trap_values:
+            - value: "{a}"
+              trap: copied-a-factor
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

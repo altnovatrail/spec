@@ -1,0 +1,41 @@
+# A template of a line of the workbook for division with a remainder, "47 ÷ 6 = [ ] r [ ]": the
+# divisor and the quotient from 2 to 9, and the remainder below the divisor, which the constraint
+# says. The dividend is a derived number. Of the 576 combinations, 352 are instances. A remainder as
+# big as the divisor, or bigger, is the trap of the second box.
+id: division-with-remainder
+template:
+  parameters:
+    divisor: {from: 2, to: 9}
+    quotient: {from: 2, to: 9}
+    remainder: {from: 0, to: 8}
+  derived:
+    dividend: divisor * quotient + remainder
+    product: divisor * quotient
+    too_big: remainder + divisor
+  constraint: remainder < divisor
+statement:
+  - text: Divide, and write the quotient and the remainder.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{dividend} ÷ {divisor} ="
+      - binding: box
+        check:
+          kind: number
+          key: "{quotient}"
+      - text: r
+      - binding: box
+        check:
+          kind: number
+          key: "{remainder}"
+          trap_values:
+            - value: "{too_big}"
+              trap: remainder-too-big
+              text: A remainder is always smaller than the number you divide by. Can the quotient be one bigger?
+solution:
+  - text: "{divisor} × {quotient} = {product}, and {dividend} − {product} = {remainder}, so {dividend} ÷ {divisor} = {quotient} r {remainder}."
+skills:
+  primary: [division-with-remainder]
+band: grade-3
+difficulty: 3

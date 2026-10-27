@@ -1,0 +1,26 @@
+# The domains multiply to 10 100 combinations, more than the 10 000 that can be checked.
+id: too-many-combinations
+template:
+  parameters:
+    a: {from: 1, to: 100}
+    b: {from: 0, to: 100}
+  derived:
+    product: a * b
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

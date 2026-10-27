@@ -1,0 +1,5 @@
+traps:
+  times-table-slip:
+    description: Took the next or the previous number of the times table for the one the line asks for.
+    skills: [times-tables]
+    trap_advice: Say the times table aloud, one step at a time, and stop where the product is.

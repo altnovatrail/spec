@@ -1,0 +1,27 @@
+# A derived number names only parameters: the order of keys carries no meaning, so no order of counting is given.
+id: derived-of-a-derived
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+    twice: product * 2
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

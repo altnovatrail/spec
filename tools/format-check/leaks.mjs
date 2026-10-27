@@ -130,6 +130,10 @@ function ownTextsOf(task, item) {
   return [...partTexts(task.statement), item.text, ...line, ...options].filter(isText);
 }
 
+// A key of a number or a fraction is searched for only when it is in notation: a key that holds a
+// placeholder, outside a template, breaks task.placeholders instead (section 23).
+const isSearchable = (check) => (check.kind !== "number" && check.kind !== "fraction") || rationalOf(check.key, check.kind) !== null;
+
 // What the leak check searches a text for (section 20): the key of every check of a number, a
 // fraction or a choice that the texts of its own item do not show, and every leak phrase.
 export function needlesOf(task) {
@@ -137,7 +141,7 @@ export function needlesOf(task) {
   for (const item of task.items ?? []) {
     const own = ownTextsOf(task, item).map(searched);
     for (const { check } of answerSlotsOf(item)) {
-      if (!KEYED_KINDS.has(check.kind)) continue;
+      if (!KEYED_KINDS.has(check.kind) || !isSearchable(check)) continue;
       const needle = needleOf(check.key, check.kind);
       if (!own.some((text) => holds(text, needle))) needles.push(needle);
     }
@@ -192,10 +196,11 @@ export function lessonTexts(lesson) {
 }
 
 // Whether a lesson breaks lesson.no-leaks: one of its texts holds a key or a leak phrase of a task
-// that it names. tasks maps the local ID of each task of the module to the task; a task that the
-// module does not hold is lesson.known-tasks', not this rule's. Each text is normalized once.
+// that it names. tasks maps the local ID of each task of the module to the tasks that it is: the task
+// itself, or the instances of a template (section 23); a task that the module does not hold is
+// lesson.known-tasks', not this rule's. Each text is normalized once.
 export function lessonLeaks(lesson, tasks) {
   const texts = lessonTexts(lesson).map(searched);
   const named = new Set((lesson.segments ?? []).map((segment) => segment.task).filter((id) => tasks.has(id)));
-  return [...named].some((id) => needlesOf(tasks.get(id)).some((needle) => texts.some((text) => holds(text, needle))));
+  return [...named].some((id) => tasks.get(id).some((task) => needlesOf(task).some((needle) => texts.some((text) => holds(text, needle)))));
 }

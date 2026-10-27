@@ -1,0 +1,26 @@
+# error: propertyNames at #/template/parameters
+# A parameter is named by a word that is no keyword or reserved word of Starlark, so that an expression can name it.
+id: parameter-named-if
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    if: {from: 2, to: 9}
+  derived:
+    b: a + 1
+    product: a * (a + 1)
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check: {kind: number, key: "{b}"}
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

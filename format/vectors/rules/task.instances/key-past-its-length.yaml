@@ -1,0 +1,25 @@
+# On its one instance the key is -1000000000000000, 17 characters, past the 16 of a number's key.
+id: key-past-its-length
+template:
+  parameters:
+    a: {from: -1000000000000000, to: -1000000000000000}
+  derived:
+    product: "2 * a"
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "2 ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{a}"
+      - text: "= {product}"
+solution:
+  - text: "2 × {a} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

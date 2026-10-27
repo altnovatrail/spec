@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/task.schema.json",
   "title": "Task",
-  "description": "A task of a module, tasks/<id>.yaml in its folder: its statement, its canvas, its items with their answer slots, each with the check that says what is right in it, the skills it trains, its band and difficulty, and, when they are fewer than the module's, the age categories it is for; and what helps the learner on the way: what the statement gives and asks, the techniques that help, the traps that AI may suggest, a simpler case for each item, the solution and the phrases that give the answer away. The ID, the statement, the canvas, the items, the givens and the unknown are open, since the learner's app shows them, but for the skills and the simpler case of an item and the check of each answer slot; those, the skills, the band, the difficulty, the age categories, the techniques, the traps, the solution and the leak phrases are closed, since the server reads them.",
+  "description": "A task of a module, tasks/<id>.yaml in its folder: its statement, its canvas, its items with their answer slots, each with the check that says what is right in it, the skills it trains, its band and difficulty, and, when they are fewer than the module's, the age categories it is for; and what helps the learner on the way: what the statement gives and asks, the techniques that help, the traps that AI may suggest, a simpler case for each item, the solution and the phrases that give the answer away. The ID, the statement, the canvas, the items, the givens and the unknown are open, since the learner's app shows them, but for the skills and the simpler case of an item and the check of each answer slot; those, the skills, the band, the difficulty, the age categories, the techniques, the traps, the solution, the leak phrases and the template are closed, since the server reads them. A task with a template is a template of tasks: each attempt gets one instance of it, with numbers in the place of its placeholders.",
   "type": "object",
   "properties": {
     "id": {
@@ -110,6 +110,11 @@
       "minItems": 1,
       "uniqueItems": true,
       "description": "Phrases that give the answer away beyond the keys themselves, which the leak check searches for in every text that the learner sees before the task is solved: an answer in words, a key that its item shows already, the answer to a predicate."
+    },
+    "template": {
+      "$ref": "#/$defs/template",
+      "unevaluatedProperties": false,
+      "description": "What makes the task a template: its parameters, the numbers derived from them and the constraint on their combinations. Each attempt gets one instance of the template, picked by the seed of the attempt, and the learner's app never gets the template itself."
     }
   },
   "required": [
@@ -626,18 +631,18 @@
           "then": {
             "properties": {
               "key": {
-                "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+|/[1-9][0-9]*)?$",
+                "pattern": "^((-?(0|[1-9][0-9]*)|\\{[a-z][a-z0-9_]*\\})(/([1-9][0-9]*|\\{[a-z][a-z0-9_]*\\}))?|-?(0|[1-9][0-9]*)\\.[0-9]+)$",
                 "maxLength": 16,
-                "description": "A number: an integer, a decimal with a point or a simple fraction, of 16 characters at most."
+                "description": "A number: an integer, a decimal with a point or a simple fraction, of 16 characters at most. In a template its integer, or the numerator and the denominator of its fraction, may each be a placeholder, such as {second} or {part}/{whole}, which every instance replaces with a number."
               },
               "trap_values": {
                 "items": {
                   "$ref": "#/$defs/trap_value",
                   "properties": {
                     "value": {
-                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+|/[1-9][0-9]*)?$",
+                      "pattern": "^((-?(0|[1-9][0-9]*)|\\{[a-z][a-z0-9_]*\\})(/([1-9][0-9]*|\\{[a-z][a-z0-9_]*\\}))?|-?(0|[1-9][0-9]*)\\.[0-9]+)$",
                       "maxLength": 16,
-                      "description": "A wrong number, in the notation of the key, of 16 characters at most."
+                      "description": "A wrong number, in the notation of the key, of 16 characters at most; in a template, with placeholders as the key may have them."
                     }
                   },
                   "unevaluatedProperties": false
@@ -688,18 +693,18 @@
           "then": {
             "properties": {
               "key": {
-                "pattern": "^-?(0|[1-9][0-9]*)/[1-9][0-9]*$",
+                "pattern": "^(-?(0|[1-9][0-9]*)|\\{[a-z][a-z0-9_]*\\})/([1-9][0-9]*|\\{[a-z][a-z0-9_]*\\})$",
                 "maxLength": 16,
-                "description": "A simple fraction, of 16 characters at most."
+                "description": "A simple fraction, of 16 characters at most. In a template its numerator and its denominator may each be a placeholder, such as {part}/{whole}, which every instance replaces with a number."
               },
               "trap_values": {
                 "items": {
                   "$ref": "#/$defs/trap_value",
                   "properties": {
                     "value": {
-                      "pattern": "^-?(0|[1-9][0-9]*)/[1-9][0-9]*$",
+                      "pattern": "^(-?(0|[1-9][0-9]*)|\\{[a-z][a-z0-9_]*\\})/([1-9][0-9]*|\\{[a-z][a-z0-9_]*\\})$",
                       "maxLength": 16,
-                      "description": "A wrong fraction, in the notation of the key, of 16 characters at most."
+                      "description": "A wrong fraction, in the notation of the key, of 16 characters at most; in a template, with placeholders as the key may have them."
                     }
                   },
                   "unevaluatedProperties": false
@@ -983,6 +988,111 @@
         "primary"
       ],
       "description": "The primary and supporting skills of a task or an item."
+    },
+    "template": {
+      "type": "object",
+      "properties": {
+        "parameters": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/template_name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/domain",
+            "unevaluatedProperties": false,
+            "description": "The parameter's domain: the integers that it takes."
+          },
+          "minProperties": 1,
+          "description": "The parameters of the template, each by its name with its domain. Their combinations are counted through in the order of their names, the first changing slowest."
+        },
+        "derived": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/template_name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/template_expression",
+            "description": "The expression that computes the derived number: an int expression that names only parameters."
+          },
+          "minProperties": 1,
+          "description": "The derived numbers of the template, each by its name with the expression that computes it from the parameters, such as legs: \"2 * chickens + 4 * rabbits\"."
+        },
+        "constraint": {
+          "$ref": "#/$defs/template_expression",
+          "description": "A bool expression of the parameters and the derived numbers that holds for the combinations that give an instance. Without it, every combination gives one."
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "description": "A template of tasks: parameters with their domains, the numbers derived from them, and the constraint that picks the combinations that are its instances."
+    },
+    "domain": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "integer",
+          "description": "The least integer that the parameter takes."
+        },
+        "to": {
+          "type": "integer",
+          "description": "The greatest integer that the parameter takes. A domain whose to is below its from is empty, and its template has no instance."
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "description": "The integers that a parameter takes, from from to to, both included."
+    },
+    "template_name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "maxLength": 14,
+      "not": {
+        "enum": [
+          "and",
+          "break",
+          "continue",
+          "def",
+          "elif",
+          "else",
+          "for",
+          "if",
+          "in",
+          "lambda",
+          "load",
+          "not",
+          "or",
+          "pass",
+          "return",
+          "as",
+          "assert",
+          "async",
+          "await",
+          "class",
+          "del",
+          "except",
+          "finally",
+          "from",
+          "global",
+          "import",
+          "is",
+          "nonlocal",
+          "raise",
+          "try",
+          "while",
+          "with",
+          "yield"
+        ]
+      },
+      "description": "The name of a parameter or a derived number: lowercase letters, digits and _, beginning with a letter, at most 14 characters long so that {name} fits a key, and no keyword or reserved word of Starlark."
+    },
+    "template_expression": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "An expression of the narrow subset of Starlark of section 23 of the format text: integers and names, + - * // %, comparisons, and, or and not."
     }
   }
 }

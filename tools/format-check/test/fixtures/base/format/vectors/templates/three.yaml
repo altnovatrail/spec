@@ -1,0 +1,28 @@
+# A template of three instances, and the instance that each of two seeds picks.
+task:
+  id: three
+  template:
+    parameters:
+      a: {from: 1, to: 3}
+  items:
+    - answer_slots:
+        - binding: anywhere
+          check: {kind: number, key: "{a}"}
+count: 3
+attempts:
+  - seed: "0"
+    numbers: {a: 2}
+    instance:
+      id: three
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check: {kind: number, key: "2"}
+  - seed: "1"
+    numbers: {a: 3}
+    instance:
+      id: three
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check: {kind: number, key: "3"}

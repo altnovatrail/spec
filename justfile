@@ -23,9 +23,10 @@ docs-check-test: _tools
 # verdicts of each vector of verdicts, computed as section 15 of the text gives them — of a predicate
 # only blank and notation (R56) — with the trap of each wrong value, and what the leak check of
 # section 20 finds in each text of a vector of the leak check (R57) and in the texts of a lesson,
-# for the keys of its tasks (R58), and the numbers of each vector of the generator, as section 22
-# computes them (R59). A file it does not know is an error, so the task that brings it extends the
-# check (RUN.md, T25).
+# for the keys of its tasks (R58), the numbers of each vector of the generator, as section 22
+# computes them (R59), and the instances of each template, as section 23 counts, picks and fills
+# them, with the rules of a task on every instance (R60). A file it does not know is an error, so
+# the task that brings it extends the check (RUN.md, T25).
 # Check the module format in format/: schemas, examples and test vectors.
 format-check: _tools
     node tools/format-check/main.mjs

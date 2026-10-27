@@ -1,5 +1,5 @@
 // format-check: the checks of the module format in spec's format/ (R45 and its amendments, R46,
-// R51, R56, R57, R58, R59; RUN.md, T25, T26, T28, T29, T30, T31 and T32).
+// R51, R56, R57, R58, R59, R60; RUN.md, T25, T26, T28, T29, T30, T31, T32 and T33).
 //
 //   node tools/format-check/main.mjs      spec's own format/, two levels above this file
 //
@@ -18,10 +18,11 @@
 //   module is a folder that breaks that rule and no other; a case of a part's rule follows the YAML
 //   rules and passes the part's schema, and one laid out as a module follows the rules of a whole
 //   module too (section 9). Of the rules of a task and of a lesson that it implements — those that
-//   an answer slot's check shows by itself, task.no-leaks and lesson.no-leaks —, a case of one breaks
-//   it, and no other case breaks any, nor a valid example of a task or of a whole module: a rule of a
-//   lesson spans files, so a valid example of a lesson alone goes unchecked by it (sections 9, 20 and
-//   21);
+//   an answer slot's check shows by itself, task.no-leaks, lesson.no-leaks and the rules of
+//   templates —, a case of one breaks it, and no other case breaks any, nor a valid example of a task
+//   or of a whole module: a rule of a lesson spans files, so a valid example of a lesson alone goes
+//   unchecked by it. A template breaks the rules of a task through its instances (sections 9, 20, 21
+//   and 23);
 // - the format version that each manifest names: the one in VERSION, but in the cases of
 //   manifest.format-version, which name one no reader of it reads (section 11);
 // - each vector of the open view, vectors/open-view/<part>/<case>/: part.yaml follows the YAML rules
@@ -37,7 +38,10 @@
 //   case lists;
 // - the vectors of the generator, vectors/random/<case>.yaml: each case follows the YAML rules and
 //   passes the schema of such vectors, its seed and names derive its state, and the functions of
-//   section 22 give each value it lists, in order, on its stream.
+//   section 22 give each value it lists, in order, on its stream;
+// - the vectors of templates, vectors/templates/<case>.yaml: each case follows the YAML rules and
+//   passes the schema of such vectors, its template breaks no rule of a task on any instance, and
+//   section 23 gives the number of instances it lists and, for each seed, the instance it lists.
 // Anything else in format/ is an error: what this check does not know would go unchecked, so the
 // task that brings it extends the check. Prints one line per error, file:line: message, and exits 1
 // if there are any.
@@ -46,7 +50,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { LESSON_LEAKS, checkExample, checkLeakVector, checkModuleCase, checkOpenView, checkRandomVector, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { LESSON_LEAKS, checkExample, checkLeakVector, checkModuleCase, checkOpenView, checkRandomVector, checkTemplateVector, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
 import { listFolder, readLayout } from "./module.mjs";
 import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
 import { FEEDBACK_KINDS, VERDICT_KINDS } from "./verdicts.mjs";
@@ -66,6 +70,9 @@ const LEAK_VECTOR = "leak-vector";
 // The vectors of the generator (section 22), and their schema.
 const RANDOM = "random";
 const RANDOM_VECTOR = "random-vector";
+// The vectors of templates (section 23), and their schema.
+const TEMPLATES = "templates";
+const TEMPLATE_VECTOR = "template-vector";
 const README = "format/README.md";
 // The schema of the definitions that the parts share.
 const COMMON = "common";
@@ -82,7 +89,7 @@ export function checkFormat(root) {
   checkCases(root, files, { rules, layout, version, schemas }, report);
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
-  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length, random: files.random.length };
+  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length, random: files.random.length, templates: files.templates.length };
   return { errors, stats };
 }
 
@@ -215,6 +222,7 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
   checkVerdicts(root, files, schemas, report);
   checkLeaks(root, files, schemas, report);
   checkRandom(root, files, schemas, report);
+  checkTemplates(root, files, schemas, report);
 }
 
 // The vectors of the leak check: each case against the schema of leak vectors and the leak check of
@@ -242,6 +250,21 @@ function checkRandom(root, files, schemas, report) {
   const validate = schemas.validatorOf(RANDOM_VECTOR);
   for (const { file } of files.random) {
     for (const { line, message } of checkRandomVector(fs.readFileSync(path.join(root, file)), { validate })) report(file, line, message);
+  }
+}
+
+// The vectors of templates: each case against the schema of such vectors, the rules of a task on its
+// instances, and the instances of section 23.
+function checkTemplates(root, files, schemas, report) {
+  if (!files.templates.length) return;
+  if (!schemas.has(TEMPLATE_VECTOR)) {
+    report(`format/vectors/${TEMPLATES}`, 0, `no schema ${TEMPLATE_VECTOR}.schema.json for the vectors of templates`);
+    return;
+  }
+  const validate = schemas.validatorOf(TEMPLATE_VECTOR);
+  const validateTask = schemas.validatorOf(TASK);
+  for (const { file } of files.templates) {
+    for (const { line, message } of checkTemplateVector(fs.readFileSync(path.join(root, file)), { validate, validateTask })) report(file, line, message);
   }
 }
 
@@ -298,9 +321,10 @@ function checkRuleFolders(files, rules, report) {
 // the open view is a folder of its own kind, vectors/open-view/<part>/<case>/, which holds
 // part.yaml and open-view.yaml and nothing else; a vector of verdicts is a file,
 // vectors/verdicts/<kind>/<case>.yaml, and so are a vector of the leak check, vectors/leaks/<case>.yaml,
-// and a vector of the generator, vectors/random/<case>.yaml.
+// a vector of the generator, vectors/random/<case>.yaml, and a vector of templates,
+// vectors/templates/<case>.yaml.
 function readFiles(root, report) {
-  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [] };
+  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [], templates: [] };
   if (!fs.existsSync(path.join(root, "format"))) {
     report("format", 0, "there is no format/");
     return files;
@@ -362,6 +386,10 @@ function readVectorFiles(at, dir) {
     }
     if (kind.isFolder && kind.name === RANDOM) {
       readCases(at, kind.file, { onlyFile: "a vector of the generator is a file, <case>.yaml" }, (file) => at.files.random.push({ file }));
+      continue;
+    }
+    if (kind.isFolder && kind.name === TEMPLATES) {
+      readCases(at, kind.file, { onlyFile: "a vector of templates is a file, <case>.yaml" }, (file) => at.files.templates.push({ file }));
       continue;
     }
     if (!kind.isFolder || kind.name !== "rules") {
@@ -441,6 +469,6 @@ if (isMain(import.meta.url)) {
     console.log(`format-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
     process.exitCode = 1;
   } else {
-    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check, ${stats.random} vectors of the generator`);
+    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check, ${stats.random} vectors of the generator, ${stats.templates} vectors of templates`);
   }
 }

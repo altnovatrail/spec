@@ -1,0 +1,35 @@
+# A template of a line of the workbook of school mathematics for grade 3: each attempt gets one of its
+# 64 instances, such as "7 × [ ] = 56", whose key is the missing factor. The product is a derived
+# number, and so is the trap value: one more than the missing factor, a slip in the times table. A
+# string that begins with { is quoted, as is one that begins with =, and the trap's text holds no
+# number, since it is searched for the key of every instance.
+id: missing-factor
+template:
+  parameters:
+    first: {from: 2, to: 9}
+    second: {from: 2, to: 9}
+  derived:
+    product: first * second
+    one_more: second + 1
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{first} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{second}"
+          trap_values:
+            - value: "{one_more}"
+              trap: times-table-slip
+              text: Count up the times table again, one step at a time, and stop at the product the line asks for.
+      - text: "= {product}"
+solution:
+  - text: "{first} × {second} = {product}, so the missing number is {second}."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

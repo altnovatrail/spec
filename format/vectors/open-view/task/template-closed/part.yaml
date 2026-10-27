@@ -1,0 +1,33 @@
+# A template, whose field template is closed: the learner's app never gets it, and gets the open view
+# of an instance instead (format text, section 23). In the open fields the placeholders stand as
+# written, and the key, the trap value and the solution are closed, as in any task.
+id: missing-factor
+template:
+  parameters:
+    first: {from: 2, to: 9}
+    second: {from: 2, to: 9}
+  derived:
+    product: first * second
+    one_more: second + 1
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{first} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{second}"
+          trap_values:
+            - value: "{one_more}"
+              trap: times-table-slip
+              text: Count up the times table again, one step at a time, and stop at the product the line asks for.
+      - text: "= {product}"
+solution:
+  - text: "{first} × {second} = {product}, so the missing number is {second}."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

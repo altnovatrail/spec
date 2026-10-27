@@ -1,0 +1,26 @@
+# A brace of the text is written twice: a lone { opens no placeholder.
+id: lone-brace
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} × {"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × { {b} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2
