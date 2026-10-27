@@ -168,21 +168,21 @@ function dividing(right) {
   if (right === 0n) throw new EvaluationError("it divides by zero");
 }
 
-// Floored division and the remainder of floored division: BigInt's / and % truncate, and the
-// remainder of Starlark takes the sign of the divisor.
+// The remainder of floored division, which takes the sign of the divisor, as Starlark's does: BigInt's %
+// truncates, and takes the sign of the dividend. Floored division is then exact.
+const floorRemainder = (a, b) => ((a % b) + b) % b;
+
 const OPERATIONS = {
   "+": (a, b) => a + b,
   "-": (a, b) => a - b,
   "*": (a, b) => a * b,
   "//": (a, b) => {
     dividing(b);
-    const quotient = a / b;
-    return a % b !== 0n && a < 0n !== b < 0n ? quotient - 1n : quotient;
+    return (a - floorRemainder(a, b)) / b;
   },
   "%": (a, b) => {
     dividing(b);
-    const remainder = a % b;
-    return remainder !== 0n && remainder < 0n !== b < 0n ? remainder + b : remainder;
+    return floorRemainder(a, b);
   },
   "==": (a, b) => a === b,
   "!=": (a, b) => a !== b,
