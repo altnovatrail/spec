@@ -1,14 +1,19 @@
 # A task of the third-party module of physics of concepts 16.3, whose texts are in Russian: it needs
 # linear equations, an anchor skill of the shared taxonomy that another module teaches, and a wrong
-# answer does not count against them.
+# answer does not count against them. The answer is a whole number, since this version of the format
+# has no check of a quantity with its units: in thousands of km/s, 300 / 1.5 = 200.
 id: refraction-1
 statement:
-  - text: Луч падает на стекло под углом 45°. Найди скорость света в стекле.
+  - text: Луч света переходит из воздуха в стекло с показателем преломления 1,5. В воздухе свет проходит 300 тысяч км/с. Сколько тысяч км/с он проходит в стекле?
 canvas:
   kind: handwriting_sheet
 items:
   - answer_slots:
       - binding: anywhere
+        check:
+          kind: number
+          key: "200"
+          units: [тысяч км/с]
 skills:
   primary: [refraction-law]
   supporting: [core.linear-equations]

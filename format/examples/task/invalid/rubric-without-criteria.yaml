@@ -1,0 +1,16 @@
+# error: required at #/items/0/answer_slots/0/check
+# A rubric names its criteria: feedback by no criteria is no feedback.
+id: rubric-without-criteria
+statement:
+  - text: Write a short essay about your first morning on an island that nobody has found yet.
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: sheet
+        check: {kind: rubric}
+skills:
+  primary: [paragraphs]
+band: whole-essays
+difficulty: 2

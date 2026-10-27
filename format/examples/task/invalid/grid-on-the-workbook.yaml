@@ -10,6 +10,7 @@ items:
   - line:
       - text: "7 ×"
       - binding: box
+        check: {kind: number, key: "8"}
       - text: "= 56"
 skills:
   primary: [counting-gaps]

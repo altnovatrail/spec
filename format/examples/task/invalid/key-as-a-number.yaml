@@ -1,0 +1,15 @@
+# error: type at #/items/0/answer_slots/0/check/key
+# A key is a string, in quotes: a plain number in YAML is a double, and 0.1 would not be one tenth.
+id: key-as-a-number
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: 7}
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

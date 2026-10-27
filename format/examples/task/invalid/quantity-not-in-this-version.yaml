@@ -1,0 +1,15 @@
+# error: enum at #/items/0/answer_slots/0/check/kind
+# A quantity with its units and a tolerance is a check kind of no version yet: it comes as a new kind.
+id: quantity-not-in-this-version
+statement:
+  - text: How fast does light go in glass?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: quantity, key: "200000"}
+skills:
+  primary: [refraction-law]
+band: grade-8
+difficulty: 3

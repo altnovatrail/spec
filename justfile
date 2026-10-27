@@ -19,8 +19,10 @@ docs-check-test: _tools
 # the 2020-12 meta-schema, each example against its schema, the YAML rules on every example and test
 # vector, the layout of a module and its rules on the cases laid out as one — the ids of the files at
 # <id> and the signatures of the media files among them (R46, R51) —, the rules the text lists against
-# their vectors, and the open view of each vector of the open view, built from the marks x-open. A
-# file it does not know is an error, so the task that brings it extends the check (RUN.md, T25).
+# their vectors, the open view of each vector of the open view, built from the marks x-open, and the
+# verdicts of each vector of verdicts, computed as section 15 of the text gives them — of a predicate
+# only blank and notation (R56). A file it does not know is an error, so the task that brings it
+# extends the check (RUN.md, T25).
 # Check the module format in format/: schemas, examples and test vectors.
 format-check: _tools
     node tools/format-check/main.mjs

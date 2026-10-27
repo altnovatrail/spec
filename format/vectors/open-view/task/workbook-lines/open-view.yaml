@@ -1,6 +1,6 @@
 id: tables-page
 statement:
-  - text: Write the missing numbers.
+  - text: Write the missing numbers, and the sign <, > or = between two numbers.
 canvas:
   kind: workbook
 items:
@@ -13,3 +13,7 @@ items:
       - binding: box
       - text: r
       - binding: box
+  - line:
+      - text: "56"
+      - binding: box
+      - text: "65"

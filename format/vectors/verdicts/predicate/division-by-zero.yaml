@@ -1,0 +1,18 @@
+# A predicate that fails on some value: division by zero is an error in Starlark, and an error gives
+# unchecked, which is no wrong answer.
+item:
+  answer_slots:
+    - binding: anywhere
+      check:
+        kind: predicate
+        predicate: "12 % value == 0"
+readings:
+  - answer_slots:
+      - {value: "4", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "5", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "0", verdict: unchecked}
+    verdict: unchecked

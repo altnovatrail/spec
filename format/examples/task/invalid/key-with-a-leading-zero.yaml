@@ -1,0 +1,15 @@
+# error: pattern at #/items/0/answer_slots/0/check/key
+# The key of a number is in the notation the check accepts: 07 is not, and 7 is.
+id: key-with-a-leading-zero
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "07"}
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

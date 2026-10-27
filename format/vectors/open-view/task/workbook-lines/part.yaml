@@ -1,21 +1,30 @@
-# The lines of a workbook are open, and the skills of an item are closed, as the task's are.
+# The lines of a workbook are open, and the check of each box is closed: its key, and the options of
+# a choice written by hand. The skills of an item are closed, as the task's are.
 id: tables-page
 statement:
-  - text: Write the missing numbers.
+  - text: Write the missing numbers, and the sign <, > or = between two numbers.
 canvas:
   kind: workbook
 items:
   - line:
       - text: "7 ×"
       - binding: box
+        check: {kind: number, key: "8"}
       - text: "= 56"
   - line:
       - text: "47 ÷ 6 ="
       - binding: box
+        check: {kind: number, key: "7"}
       - text: r
       - binding: box
+        check: {kind: number, key: "5"}
     skills:
       primary: [division-with-remainder]
+  - line:
+      - text: "56"
+      - binding: box
+        check: {kind: choice, options: ["<", ">", "="], key: "<"}
+      - text: "65"
 skills:
   primary: [times-tables]
 band: grade-3

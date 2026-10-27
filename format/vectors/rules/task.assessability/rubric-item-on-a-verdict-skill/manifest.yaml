@@ -1,0 +1,15 @@
+module_format_version: "0.1"
+id: example/vector
+version: "0.1.0"
+title: A test vector
+subject: writing
+audience:
+  age_categories: [adult]
+bands:
+  - id: whole-essays
+    title: Whole essays
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

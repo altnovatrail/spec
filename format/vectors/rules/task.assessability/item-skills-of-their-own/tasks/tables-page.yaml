@@ -1,0 +1,25 @@
+# The task's skill has verdicts, but the second line names skills of its own, and its primary skill
+# is given feedback by a rubric, while its boxes have keys.
+id: tables-page
+statement:
+  - text: Write the missing numbers.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 ×"
+      - binding: box
+        check: {kind: number, key: "8"}
+      - text: "= 56"
+  - line:
+      - text: "8 ×"
+      - binding: box
+        check: {kind: number, key: "7"}
+      - text: "= 56"
+    skills:
+      primary: [explaining-a-product]
+      supporting: [times-tables]
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

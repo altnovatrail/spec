@@ -1,0 +1,18 @@
+# error: not at #/items/0/line/0
+# A piece of the line's text is no answer slot, and has no check.
+id: check-on-a-piece-of-text
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "7 ×"
+        check: {kind: number, key: "8"}
+      - binding: box
+        check: {kind: number, key: "8"}
+      - text: "= 56"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

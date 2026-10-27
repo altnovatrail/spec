@@ -8,8 +8,10 @@ items:
   - line:
       - text: "47 ÷ 6 ="
       - binding: box
+        check: {kind: number, key: "7"}
       - text: r
       - binding: box
+        check: {kind: number, key: "5"}
     skills:
       primary: [division-with-remainder]
       supporting: [division-with-remainder]

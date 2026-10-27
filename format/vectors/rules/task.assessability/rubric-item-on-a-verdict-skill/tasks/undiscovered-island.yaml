@@ -1,0 +1,18 @@
+# An essay given feedback by a rubric whose primary skill has verdicts: the feedback gives it none.
+id: undiscovered-island
+statement:
+  - text: Write a short essay about your first morning on an island that nobody has found yet.
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: sheet
+        check:
+          kind: rubric
+          criteria:
+            - text: Its ending closes the story of the first morning.
+skills:
+  primary: [endings]
+band: whole-essays
+difficulty: 2

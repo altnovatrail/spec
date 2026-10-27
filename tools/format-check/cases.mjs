@@ -1,5 +1,5 @@
 // The examples and test vectors of the module format, and the rules and the layout of a module its
-// text lists (format/README.md, sections 7–11; R45 and its amendment of 2026-10-22, R46).
+// text lists (format/README.md, sections 7–11 and 15; R45 and its amendment of 2026-10-22, R46, R56).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -9,6 +9,7 @@ import { gfm } from "micromark-extension-gfm";
 import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listModule, mediaBreaches, placeFiles, versionProblem } from "./module.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
+import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict } from "./verdicts.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
 // What an invalid example never names: the keyword that failed inside them is named instead
@@ -196,6 +197,50 @@ export function checkOpenView(partBytes, viewBytes, { term, validate, version, o
   const at = differenceOf(openViewOf(part.value, `${term}.schema.json`, openView), expected.value);
   if (at) problems.push({ file: "open-view.yaml", line: 0, message: `is not the open view of part.yaml: they differ at ${fragmentOf(at)}` });
   return problems;
+}
+
+// A vector of verdicts (section 9): it follows the YAML rules and passes the schema of verdict vectors,
+// by its validator validate; every answer slot of its item is checked by kind, the kind of its
+// folder, and breaks none of the rules of a task that its check shows by itself; each reading names
+// every answer slot; and each verdict is the one section 15 gives — the
+// item's made of its answer slots', and an answer slot's computed from its check and the value read.
+// A predicate's value in notation gets no verdict here: only module-kit runs Starlark. Returns
+// problems, each { line, message }.
+export function checkVerdictVector(bytes, { kind, validate }) {
+  const read = readModuleFile(bytes);
+  const problems = yamlProblems(read.violations, read.notYaml);
+  if (problems.length || !validate) return problems;
+  if (!validate(read.value)) return validate.errors.map((error) => ({ line: 0, message: `does not pass the schema of verdict vectors: ${describe(error)}` }));
+  const { item, readings } = read.value;
+  const slots = answerSlotsOf(item);
+  slots.forEach((slot, at) => {
+    if (slot.check.kind !== kind) problems.push({ line: 0, message: `answer slot ${at + 1} is checked by ${slot.check.kind}: a vector of ${kind} checks every answer slot by ${kind}` });
+    else for (const rule of slotBreaches(slot)) problems.push({ line: 0, message: `answer slot ${at + 1} breaks ${rule}: the item of a vector is one that a task may hold` });
+  });
+  if (problems.length) return problems;
+  readings.forEach((reading, at) => {
+    const which = `reading ${at + 1}`;
+    if (reading.answer_slots.length !== slots.length) {
+      problems.push({ line: 0, message: `${which} reads ${reading.answer_slots.length} answer slots, and the item has ${slots.length}` });
+      return;
+    }
+    reading.answer_slots.forEach((given, slot) => {
+      const computed = slotVerdict(slots[slot], given.value);
+      const value = JSON.stringify(given.value);
+      if (computed === null) {
+        if (given.verdict === "unreadable") problems.push({ line: 0, message: `${which}, answer slot ${slot + 1}: ${value} is in the notation of a predicate, which gives correct, not_yet or unchecked` });
+      } else if (computed.verdict !== given.verdict || computed.reason !== given.reason) {
+        problems.push({ line: 0, message: `${which}, answer slot ${slot + 1}: ${value} gets ${shown(computed)}, not ${shown(given)}` });
+      }
+    });
+    const made = itemVerdict(reading.answer_slots.map((given) => given.verdict));
+    if (made !== reading.verdict) problems.push({ line: 0, message: `${which}: its answer slots make the item ${made}, not ${reading.verdict}` });
+  });
+  return problems;
+}
+
+function shown({ verdict, reason }) {
+  return reason ? `${verdict} (${reason})` : verdict;
 }
 
 // The rules of a whole module on the files of a case: all of them hold, but in a vector of one of

@@ -1,0 +1,18 @@
+# error: maxLength at #/items/0/answer_slots/0/check/predicate
+# A predicate is an expression of 1000 characters at most: a longer check is a program, which comes
+# with the solvers of templates.
+id: predicate-too-long
+statement:
+  - text: Write a number from 1 to 50 that divides by 3 and by 4.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: predicate
+          predicate: "value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value % 12 == 0"
+skills:
+  primary: [number-divisibility]
+band: grades-3-4
+difficulty: 2

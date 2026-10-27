@@ -1,0 +1,24 @@
+# The signs of operations written by hand: the minus sign U+2212 is the hyphen-minus, and a letter x
+# is not the sign ×.
+item:
+  line:
+    - text: "9"
+    - binding: box
+      check: {kind: choice, options: ["+", "-", "×", "÷"], key: "-"}
+    - text: "4 = 5"
+readings:
+  - answer_slots:
+      - {value: "-", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "−", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "+", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "×", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "x", verdict: unreadable, reason: notation}
+    verdict: unreadable

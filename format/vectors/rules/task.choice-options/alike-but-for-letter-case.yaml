@@ -1,0 +1,16 @@
+# Two options of a choice written by hand that differ in letter case alone: once normalized, the
+# learner's word would match both.
+id: sum-even-or-odd
+statement:
+  - text: Is the sum of the numbers from 1 to 9 even or odd?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: zone
+        zone: {left: 300, top: 1100, width: 400, height: 200}
+        check: {kind: choice, options: [Even, even, odd], key: odd}
+skills:
+  primary: [parity-alternation]
+band: grades-3-4
+difficulty: 2

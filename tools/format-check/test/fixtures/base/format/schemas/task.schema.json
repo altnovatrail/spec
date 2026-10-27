@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/task.schema.json",
+  "title": "Task",
+  "description": "A trial task, whose items have answer slots with their checks: what the vectors of verdicts are of.",
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/item",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "The items of the task."
+    }
+  },
+  "unevaluatedProperties": false,
+  "$defs": {
+    "item": {
+      "type": "object",
+      "properties": {
+        "answer_slots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/answer_slot",
+            "unevaluatedProperties": false
+          },
+          "minItems": 1,
+          "description": "The answer slots of an item on a sheet."
+        },
+        "line": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/line_part",
+            "unevaluatedProperties": false
+          },
+          "minItems": 1,
+          "description": "The line of an item of a workbook: text and boxes."
+        }
+      },
+      "description": "An item of the task."
+    },
+    "answer_slot": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "enum": [
+            "anywhere"
+          ],
+          "description": "Where the answer stands."
+        },
+        "check": {
+          "$ref": "#/$defs/check",
+          "unevaluatedProperties": false,
+          "description": "The check of the answer slot."
+        }
+      },
+      "required": [
+        "binding",
+        "check"
+      ],
+      "description": "An answer slot."
+    },
+    "line_part": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "A piece of the line's text."
+        },
+        "binding": {
+          "enum": [
+            "box"
+          ],
+          "description": "A box."
+        },
+        "check": {
+          "$ref": "#/$defs/check",
+          "unevaluatedProperties": false,
+          "description": "The check of the box."
+        }
+      },
+      "description": "A piece of a line: text, or a box with its check."
+    },
+    "check": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "number"
+          ],
+          "description": "The check kind."
+        },
+        "key": {
+          "type": "string",
+          "description": "The right answer."
+        },
+        "units": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The words that may follow the number."
+        }
+      },
+      "required": [
+        "kind",
+        "key"
+      ],
+      "description": "The check of an answer slot."
+    }
+  }
+}

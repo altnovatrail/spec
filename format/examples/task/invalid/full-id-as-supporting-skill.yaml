@@ -8,6 +8,7 @@ canvas:
 items:
   - answer_slots:
       - binding: anywhere
+        check: {kind: number, key: "7"}
 skills:
   primary: [counting-gaps]
   supporting: [novatrail/olympiad-math/skill/time-calendar]

@@ -1,4 +1,5 @@
-# A picture of the statement and the zones of the answer slots are open, with every field of them.
+# A picture of the statement and the zones of the answer slots are open, with every field of them;
+# the checks of the answer slots are closed.
 id: clock-walk-1
 statement:
   - text: The clock shows when Anna leaves home.
@@ -13,10 +14,12 @@ items:
     answer_slots:
       - binding: zone
         zone: {left: 100, top: 1000, width: 400, height: 200}
+        check: {kind: number, key: "15", units: [minute, minutes]}
   - text: b)
     answer_slots:
       - binding: zone
         zone: {left: 500, top: 1000, width: 400, height: 200}
+        check: {kind: number, key: "40", units: [minute, minutes]}
 skills:
   primary: [time-clocks]
 band: grades-1-2

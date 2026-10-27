@@ -1,0 +1,9 @@
+id: undiscovered-island-1
+statement:
+  - text: Imagine an island that nobody has found yet. Write a short essay about your first morning there, in paragraphs.
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: sheet

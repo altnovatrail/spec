@@ -1,5 +1,5 @@
 // format-check: the checks of the module format in spec's format/ (R45 and its amendments, R46,
-// R51; RUN.md, T25, T26 and T28).
+// R51, R56; RUN.md, T25, T26, T28 and T29).
 //
 //   node tools/format-check/main.mjs      spec's own format/, two levels above this file
 //
@@ -22,7 +22,11 @@
 //   manifest.format-version, which name one no reader of it reads (section 11);
 // - each vector of the open view, vectors/open-view/<part>/<case>/: part.yaml follows the YAML rules
 //   and passes the part's schema, open-view.yaml follows the YAML rules, and the open view of the
-//   part, built from the marks x-open (section 6), is open-view.yaml.
+//   part, built from the marks x-open (section 6), is open-view.yaml;
+// - the vectors of verdicts, vectors/verdicts/<kind>/<case>.yaml, a folder for each check kind of the
+//   task's schema that gives verdicts: each case follows the YAML rules and passes the schema of
+//   verdict vectors, checks every answer slot by its folder's kind, and gives the verdicts that
+//   section 15 computes — of a predicate, only blank and notation, since spec has no Starlark.
 // Anything else in format/ is an error: what this check does not know would go unchecked, so the
 // task that brings it extends the check. Prints one line per error, file:line: message, and exits 1
 // if there are any.
@@ -31,14 +35,20 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { checkExample, checkModuleCase, checkOpenView, checkVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { checkExample, checkModuleCase, checkOpenView, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
 import { listFolder, readLayout } from "./module.mjs";
 import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
+import { FEEDBACK_KINDS, VERDICT_KINDS } from "./verdicts.mjs";
 
 const UNKNOWN = "format-check does not know it: the task that brings it to format/ extends the check";
 // The vectors of the open view (section 9): a part, and the open view it gives.
 const OPEN_VIEW = "open-view";
 const OPEN_VIEW_FILES = ["part.yaml", "open-view.yaml"];
+// The vectors of verdicts (section 9), and the schemas they read: theirs, and the task's, whose
+// check kinds they are of.
+const VERDICTS = "verdicts";
+const VERDICT_VECTOR = "verdict-vector";
+const TASK = "task";
 const README = "format/README.md";
 // The schema of the definitions that the parts share.
 const COMMON = "common";
@@ -55,7 +65,7 @@ export function checkFormat(root) {
   checkCases(root, files, { rules, layout, version, schemas }, report);
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
-  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length };
+  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length, verdicts: files.verdicts.length };
   return { errors, stats };
 }
 
@@ -76,12 +86,12 @@ function readVersion(root, report) {
   return version;
 }
 
-// The schemas, checked and compiled: { has(term), validatorOf(term), forms, openView }. A term whose
+// The schemas, checked and compiled: { has(term), validatorOf(term), forms, openView, checkKinds }. A term whose
 // schema did not compile has no validator, and its files go unchecked, as is said once. forms holds
 // isLocalId(name) and isMediaPath(path), the forms of common's local_id and media_path, by which the
 // layout's <id> and module.media read names, or null when common has no such definition that
 // compiled: then they go unchecked. openView holds byName and schemaAt, what the open view is built
-// from.
+// from. checkKinds is the enum of the task's $defs/check/properties/kind, or null when it has none.
 function readSchemas(root, names, version, report) {
   const schemas = names.map((name) => readSchema(root, name));
   checkConventions(schemas, version);
@@ -98,7 +108,9 @@ function readSchemas(root, names, version, report) {
       if (!found) report(byTerm.get(COMMON).file, 0, `defines no ${name}, by which the layout's <id> and module.media read names`);
     }
   }
+  const kinds = byTerm.get(TASK)?.json?.$defs?.check?.properties?.kind?.enum;
   return {
+    checkKinds: Array.isArray(kinds) ? kinds : null,
     forms: { isLocalId: localId ? (name) => localId(name) : null, isMediaPath: mediaPath ? (media) => mediaPath(media) : null },
     openView: { byName: new Map(schemas.map((schema) => [schema.name, schema])), schemaAt },
     has: (term) => byTerm.has(term),
@@ -183,6 +195,42 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
       report(`${file}/${problem.file}`, problem.line, problem.message);
     }
   }
+  checkVerdicts(root, files, schemas, report);
+}
+
+// The vectors of verdicts: a folder for each check kind of the task's schema that gives verdicts,
+// with its cases, and no other folder; each case against the schema of verdict vectors and the
+// verdicts of section 15. A kind that format-check cannot compute is named at the task's schema.
+function checkVerdicts(root, files, schemas, report) {
+  const kinds = schemas.checkKinds;
+  const schemaFile = `format/schemas/${TASK}.schema.json`;
+  if (!kinds) {
+    if (files.verdictFolders.length) report(`format/vectors/${VERDICTS}`, 0, `${schemaFile} names no check kinds in $defs/check/properties/kind: the vectors of verdicts go unchecked`);
+    return;
+  }
+  const folderOf = (kind) => kind.replaceAll("_", "-");
+  const withCases = new Set(files.verdicts.map((vector) => vector.kind));
+  for (const kind of kinds) {
+    if (VERDICT_KINDS.includes(kind)) {
+      if (!withCases.has(folderOf(kind))) report(schemaFile, 0, `the check kind ${kind} has no vectors of verdicts in format/vectors/${VERDICTS}/${folderOf(kind)}/`);
+    } else if (!FEEDBACK_KINDS.includes(kind)) {
+      report(schemaFile, 0, `format-check computes no verdict of the check kind ${kind}: tools/format-check/verdicts.mjs has to`);
+    }
+  }
+  const verdictKinds = new Map(kinds.filter((kind) => VERDICT_KINDS.includes(kind)).map((kind) => [folderOf(kind), kind]));
+  for (const folder of files.verdictFolders) {
+    if (!verdictKinds.has(folder.kind)) report(folder.file, 0, `no check kind of ${schemaFile} that gives verdicts is ${folder.kind}`);
+  }
+  if (!files.verdicts.length) return;
+  if (!schemas.has(VERDICT_VECTOR)) {
+    report(`format/vectors/${VERDICTS}`, 0, `no schema ${VERDICT_VECTOR}.schema.json for the vectors of verdicts`);
+    return;
+  }
+  const validate = schemas.validatorOf(VERDICT_VECTOR);
+  for (const { file, kind } of files.verdicts) {
+    if (!verdictKinds.has(kind)) continue;
+    for (const { line, message } of checkVerdictVector(fs.readFileSync(path.join(root, file)), { kind: verdictKinds.get(kind), validate })) report(file, line, message);
+  }
 }
 
 // Each rule the text lists has vectors, and each folder of vectors has its rule in the text.
@@ -201,9 +249,10 @@ function checkRuleFolders(files, rules, report) {
 // file, <case>.yaml, or a folder laid out as a module, <case>/: an example of a whole module is a
 // folder, a case of a YAML rule a file, and a case of a rule of a whole module a folder. A vector of
 // the open view is a folder of its own kind, vectors/open-view/<part>/<case>/, which holds
-// part.yaml and open-view.yaml and nothing else.
+// part.yaml and open-view.yaml and nothing else; a vector of verdicts is a file,
+// vectors/verdicts/<kind>/<case>.yaml.
 function readFiles(root, report) {
-  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [] };
+  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [] };
   if (!fs.existsSync(path.join(root, "format"))) {
     report("format", 0, "there is no format/");
     return files;
@@ -255,6 +304,10 @@ function readVectorFiles(at, dir) {
       readOpenViewFiles(at, kind.file);
       continue;
     }
+    if (kind.isFolder && kind.name === VERDICTS) {
+      readVerdictFiles(at, kind.file);
+      continue;
+    }
     if (!kind.isFolder || kind.name !== "rules") {
       report(kind.file, 0, UNKNOWN);
       continue;
@@ -293,6 +346,18 @@ function readOpenViewFiles({ root, report, files }, dir) {
   }
 }
 
+function readVerdictFiles(at, dir) {
+  const { root, report, files } = at;
+  for (const kind of entriesOf(root, dir)) {
+    if (!kind.isFolder || !isKebabCase(kind.name)) {
+      report(kind.file, 0, `vectors of verdicts are in verdicts/<kind>/<case>.yaml, the kind in kebab-case; ${UNKNOWN}`);
+      continue;
+    }
+    files.verdictFolders.push({ file: kind.file, kind: kind.name });
+    readCases(at, kind.file, { onlyFile: "a vector of verdicts is a file, <case>.yaml" }, (file) => files.verdicts.push({ file, kind: kind.name }));
+  }
+}
+
 // The cases in dir: files <case>.yaml, unless onlyFolder says why a file is none there, and folders
 // <case>/, unless onlyFile says why a folder is none; each name in kebab-case.
 function readCases({ root, report }, dir, { onlyFile, onlyFolder }, add) {
@@ -319,6 +384,6 @@ if (isMain(import.meta.url)) {
     console.log(`format-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
     process.exitCode = 1;
   } else {
-    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view`);
+    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts`);
   }
 }

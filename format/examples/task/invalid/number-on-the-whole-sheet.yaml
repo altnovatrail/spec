@@ -1,0 +1,15 @@
+# error: const at #/items/0/answer_slots/0/check/kind
+# The whole sheet is a work as a whole, given feedback by a rubric; a number is written anywhere on it.
+id: number-on-the-whole-sheet
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: sheet
+        check: {kind: number, key: "7"}
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

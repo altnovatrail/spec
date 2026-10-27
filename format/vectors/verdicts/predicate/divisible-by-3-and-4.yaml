@@ -1,0 +1,30 @@
+# A predicate on a whole number: only an integer is in its notation. Whether it holds, Starlark
+# decides: spec's CI checks only blank and notation, and module-kit's every verdict.
+item:
+  answer_slots:
+    - binding: anywhere
+      check:
+        kind: predicate
+        predicate: "1 <= value and value <= 50 and value % 3 == 0 and value % 4 == 0"
+readings:
+  - answer_slots:
+      - {value: "12", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "= 48.", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "18", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "60", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "12.0", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "24/2", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: null, verdict: unreadable, reason: blank}
+    verdict: unreadable

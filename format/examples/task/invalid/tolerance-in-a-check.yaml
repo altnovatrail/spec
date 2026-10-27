@@ -1,0 +1,15 @@
+# error: unevaluatedProperties at #/items/0/answer_slots/0/check
+# A number is compared exactly: a tolerance would come with a check kind of a quantity.
+id: tolerance-in-a-check
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "7", tolerance: "1"}
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

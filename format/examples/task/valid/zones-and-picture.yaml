@@ -1,5 +1,5 @@
 # A task with a picture and two items, each answered in its own zone of the sheet. The zones touch at
-# an edge, which is no overlap.
+# an edge, which is no overlap. Both answers are numbers of minutes, and "15 minutes" is right too.
 id: clock-walk-1
 statement:
   - text: The clock shows when Anna leaves home.
@@ -7,7 +7,7 @@ statement:
     alt: A clock face whose hands show a quarter past three.
     width: 240
     height: 240
-  - text: a) When does Anna leave? b) She walks for 25 minutes. When does she arrive?
+  - text: a) How many minutes past three does Anna leave? b) She walks for 25 minutes. How many minutes past three does she arrive?
 canvas:
   kind: handwriting_sheet
 items:
@@ -15,10 +15,18 @@ items:
     answer_slots:
       - binding: zone
         zone: {left: 100, top: 1000, width: 400, height: 200}
+        check:
+          kind: number
+          key: "15"
+          units: [minute, minutes]
   - text: b)
     answer_slots:
       - binding: zone
         zone: {left: 500, top: 1000, width: 400, height: 200}
+        check:
+          kind: number
+          key: "40"
+          units: [minute, minutes]
 skills:
   primary: [time-clocks]
 band: grades-1-2

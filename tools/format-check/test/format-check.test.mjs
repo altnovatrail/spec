@@ -79,12 +79,20 @@ function commonSchema(change) {
   return [COMMON, null, JSON.stringify(schema, null, 2)];
 }
 
+const TASK = "format/schemas/task.schema.json";
+
+function taskSchema(change) {
+  const schema = JSON.parse(fs.readFileSync(path.join(base, TASK), "utf8"));
+  change(schema);
+  return [TASK, null, JSON.stringify(schema, null, 2)];
+}
+
 test("the base fixture is green, and its invalid examples pin how ajv names an error", () => {
   const root = trialCopy([]);
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 3, examples: 15, vectors: 17, rules: 16, openViews: 1 });
+    assert.deepEqual(stats, { schemas: 5, examples: 15, vectors: 17, rules: 16, openViews: 1, verdicts: 1 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -105,7 +113,9 @@ test("a schema's $id follows VERSION, and so does the version each manifest name
       /^format\/schemas\/common\.schema\.json:\d+: \$id is .*\/0\.2\/common\.schema\.json/,
       /^format\/schemas\/manifest\.schema\.json:\d+: \$id is .*\/0\.2\/manifest\.schema\.json/,
       /^format\/schemas\/sample\.schema\.json:\d+: \$id is .*\/0\.2\/sample\.schema\.json/,
-      /^format\/schemas\/(manifest|sample)\.schema\.json:0: its examples and vectors go unchecked/,
+      /^format\/schemas\/task\.schema\.json:\d+: \$id is .*\/0\.2\/task\.schema\.json/,
+      /^format\/schemas\/verdict-vector\.schema\.json:\d+: \$id is .*\/0\.2\/verdict-vector\.schema\.json/,
+      /^format\/schemas\/(manifest|sample|verdict-vector)\.schema\.json:0: its examples and vectors go unchecked/,
       /(manifest\.yaml|manifest\/valid\/minimal\.yaml):0: names the format version 0\.1: it names 0\.2, as format\/VERSION has it/,
     ],
   );
@@ -113,7 +123,7 @@ test("a schema's $id follows VERSION, and so does the version each manifest name
 
 test("a file outside the layout is named", () => {
   expectOnly([["format/notes.txt", null, "notes\n"]], /^format\/notes\.txt:0: format-check does not know it/);
-  expectOnly([["format/vectors/verdicts/task.yaml", null, "title: A title\n"]], /^format\/vectors\/verdicts:0: format-check does not know it/);
+  expectOnly([["format/vectors/templates/task.yaml", null, "title: A title\n"]], /^format\/vectors\/templates:0: format-check does not know it/);
   expectOnly([["format/schemas/Sample.json", null, "{}\n"]], /^format\/schemas\/Sample\.json:0: a schema is <term>\.schema\.json/);
 });
 
@@ -616,6 +626,49 @@ test("why: ajv drops the properties of a place beside dependentSchemas whose key
 
 test("the open view of a part whose schema has errors goes unchecked with it", () => {
   expectEach([sampleSchema((s) => (s.properties.count.type = "whole"))], [/sample\.schema\.json:\d+: the 2020-12 meta-schema/, unchecked]);
+});
+
+// The vectors of verdicts.
+
+const VERDICT = "format/vectors/verdicts/number/whole-number.yaml";
+const SLOT_READING = '{value: "7", verdict: correct}';
+const ITEM_VERDICT = "    verdict: correct";
+
+test("a vector of verdicts gives the verdicts of section 15, an answer slot's and the item's", () => {
+  expectOnly([[VERDICT, SLOT_READING, '{value: "6", verdict: correct}']], /whole-number\.yaml:0: reading 1, answer slot 1: "6" gets not_yet, not correct$/);
+  expectOnly([[VERDICT, SLOT_READING, '{value: "07", verdict: unreadable, reason: blank}'], [VERDICT, ITEM_VERDICT, "    verdict: unreadable"]], /"07" gets unreadable \(notation\), not unreadable \(blank\)$/);
+  expectOnly([[VERDICT, ITEM_VERDICT, "    verdict: not_yet"]], /whole-number\.yaml:0: reading 1: its answer slots make the item correct, not not_yet$/);
+});
+
+test("a vector of verdicts passes its schema, reads every answer slot, and checks each by its folder's kind", () => {
+  expectEach(
+    [[VERDICT, SLOT_READING, '{value: "7", verdict: correct, reason: blank}']],
+    [/whole-number\.yaml:0: does not pass the schema of verdict vectors: not at #\/readings\/0\/answer_slots\/0/, /whole-number\.yaml:0: does not pass the schema of verdict vectors: if at #\/readings\/0\/answer_slots\/0/],
+  );
+  expectOnly([[VERDICT, `      - ${SLOT_READING}\n`, `      - ${SLOT_READING}\n      - ${SLOT_READING}\n`]], /reading 1 reads 2 answer slots, and the item has 1$/);
+  expectOnly([[VERDICT, "item:", "item:\n  title: !!str A title"]], /whole-number\.yaml:\d+: yaml\.no-tags/);
+  expectEach(
+    [taskSchema((s) => s.$defs.check.properties.kind.enum.push("fraction")), [VERDICT, 'check: {kind: number, key: "7"}', 'check: {kind: fraction, key: "7"}']],
+    [/whole-number\.yaml:0: answer slot 1 is checked by fraction: a vector of number checks every answer slot by number$/, /task\.schema\.json:0: the check kind fraction has no vectors of verdicts in format\/vectors\/verdicts\/fraction\/$/],
+  );
+});
+
+test("the vectors of verdicts are files in a folder for each check kind of the task's schema that gives verdicts", () => {
+  expectOnly([["format/vectors/verdicts/whole-number.yaml", null, "item: {}\n"]], /verdicts\/whole-number\.yaml:0: vectors of verdicts are in verdicts\/<kind>\/<case>\.yaml/);
+  expectOnly([["format/vectors/verdicts/number/a-folder/case.yaml", null, "item: {}\n"]], /number\/a-folder:0: a vector of verdicts is a file, <case>\.yaml$/);
+  expectOnly([["format/vectors/verdicts/colour/red.yaml", null, "item: {}\n"]], /verdicts\/colour:0: no check kind of format\/schemas\/task\.schema\.json that gives verdicts is colour$/);
+  expectOnly([[VERDICT, null, null]], /task\.schema\.json:0: the check kind number has no vectors of verdicts in format\/vectors\/verdicts\/number\/$/);
+});
+
+test("format-check computes the verdicts of every check kind of the task's schema, and a rubric gives none", () => {
+  expectOnly([taskSchema((s) => s.$defs.check.properties.kind.enum.push("colour"))], /task\.schema\.json:0: format-check computes no verdict of the check kind colour: tools\/format-check\/verdicts\.mjs has to$/);
+  assert.deepEqual(errorsOf([taskSchema((s) => s.$defs.check.properties.kind.enum.push("rubric"))]), []);
+  expectOnly([taskSchema((s) => s.$defs.check.properties.kind.enum.push("rubric")), ["format/vectors/verdicts/rubric/essay.yaml", null, "item: {}\n"]], /verdicts\/rubric:0: no check kind of .* that gives verdicts is rubric$/);
+});
+
+test("the vectors of verdicts need the schema of verdict vectors, and the check kinds of the task's", () => {
+  expectOnly([["format/schemas/verdict-vector.schema.json", null, null]], /^format\/vectors\/verdicts:0: no schema verdict-vector\.schema\.json for the vectors of verdicts$/);
+  expectOnly([taskSchema((s) => delete s.$defs.check.properties.kind.enum)], /^format\/vectors\/verdicts:0: format\/schemas\/task\.schema\.json names no check kinds .* the vectors of verdicts go unchecked$/);
 });
 
 test("common defines local_id and media_path, by which <id> and module.media read names", () => {

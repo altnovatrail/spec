@@ -1,0 +1,16 @@
+# error: pattern at #/items/0/line/1/check/key
+# The key of a fraction is a simple fraction: 0.25 is the key of a number.
+id: fraction-key-as-a-decimal
+statement:
+  - text: Write the fraction in lowest terms.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "2/8 ="
+      - binding: box
+        check: {kind: fraction, key: "0.25", form: reduced}
+skills:
+  primary: [fractions-of-a-whole]
+band: grade-3
+difficulty: 3
