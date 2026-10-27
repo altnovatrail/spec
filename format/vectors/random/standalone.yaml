@@ -1,0 +1,10 @@
+# The place of the simulator of mathtrail-standalone for the parameters of its unit G2/0, under its
+# master seed and experiment: the stream that its seeded("G2/0", "params") draws.
+seed: "20261001"
+names: [E-A3, G2/0, params]
+state: {high: "12184632468232712281", low: "20261001"}
+draws:
+  - integer: {value: "13797544462192556187"}
+  - below: {bound: "6", value: "2"}
+  - fraction: {value: 0.4891667826130891}
+  - below: {bound: "5", value: "2"}

@@ -1,0 +1,11 @@
+# Orders of 0 and 1 integers draw nothing, so the integer after them is the stream's first; an order
+# of 16 draws 15 at least.
+seed: "2026"
+names: [permutation]
+state: {high: "650905648525575843", low: "2026"}
+draws:
+  - permutation: {count: 0, value: []}
+  - permutation: {count: 1, value: [0]}
+  - integer: {value: "3593332488284529326"}
+  - permutation: {count: 2, value: [0, 1]}
+  - permutation: {count: 16, value: [0, 14, 13, 9, 10, 15, 12, 7, 3, 1, 4, 6, 2, 11, 8, 5]}

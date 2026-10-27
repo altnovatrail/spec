@@ -1,0 +1,9 @@
+# A bound that is a power of two takes the next integer and the bound less one, bitwise: 1 too,
+# which gives 0 and still draws an integer.
+state: {high: "1", low: "2"}
+draws:
+  - below: {bound: "1", value: "0"}
+  - below: {bound: "2", value: "0"}
+  - below: {bound: "1024", value: "136"}
+  - below: {bound: "9223372036854775808", value: "5471241176507662746"}
+  - integer: {value: "4321634407747778896"}

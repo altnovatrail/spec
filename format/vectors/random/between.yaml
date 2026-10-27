@@ -1,0 +1,10 @@
+# Integers between two, both included: with a negative least one, one alone, which still draws an
+# integer, and the widest count, 2^63 − 1.
+seed: "2026"
+names: [between]
+state: {high: "2892500477533020551", low: "2026"}
+draws:
+  - between: {from: "-10", to: "10", value: "7"}
+  - between: {from: "-3", to: "-3", value: "-3"}
+  - between: {from: "-9223372036854775808", to: "-2", value: "-5895723420613459511"}
+  - integer: {value: "9614063857269782151"}

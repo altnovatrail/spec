@@ -1,0 +1,9 @@
+# Fractions are the low 53 bits of an integer over 2^53: a double holds them exactly, and a reader
+# compares them as doubles.
+seed: "2026"
+names: [fraction]
+state: {high: "4448657570122874347", low: "2026"}
+draws:
+  - fraction: {value: 0.5714630301766158}
+  - fraction: {value: 0.9726829764240473}
+  - fraction: {value: 0.6329617991152076}

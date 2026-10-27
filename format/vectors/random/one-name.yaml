@@ -1,0 +1,8 @@
+# A place of one name: the state's high word is FNV-1a of "7|a", and its low word the seed.
+seed: "7"
+names: [a]
+state: {high: "3879510333719213901", low: "7"}
+draws:
+  - integer: {value: "152559422570776952"}
+  - integer: {value: "17504767982305824858"}
+  - integer: {value: "7854388064902729439"}

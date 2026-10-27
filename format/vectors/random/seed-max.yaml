@@ -1,0 +1,7 @@
+# The greatest seed, 2^64 − 1.
+seed: "18446744073709551615"
+names: [max]
+state: {high: "2735668769848699190", low: "18446744073709551615"}
+draws:
+  - integer: {value: "17598340917261953908"}
+  - integer: {value: "6701540518925109427"}
