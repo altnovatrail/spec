@@ -1,0 +1,6 @@
+# The calendar needs gaps and boundaries, which the other lesson teaches: so this lesson comes after it.
+id: days-and-dates
+title: Days and dates
+skills: [time-calendar]
+segments:
+  - task: camp-days-1

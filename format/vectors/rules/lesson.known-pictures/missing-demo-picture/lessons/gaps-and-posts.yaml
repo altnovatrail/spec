@@ -1,0 +1,17 @@
+# media/ holds pictures/path.png, and the demo names pictures/path-in-gaps.png.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - worked_example:
+      statement:
+        - text: A path is 20 m long, with a lamp at each end and one every 5 m between them. How many lamps are there?
+      canvas:
+        kind: handwriting_sheet
+      demo:
+        - text: Draw the path, and mark a lamp at each end.
+        - picture: pictures/path-in-gaps.png
+          alt: A line for the path, cut into equal gaps, with a lamp at every mark.
+          area: {left: 100, top: 150, width: 800, height: 200}
+        - text: With a lamp at each end, there is one lamp more than gaps, so five lamps.
+  - task: gaps-ladder-1

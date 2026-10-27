@@ -712,6 +712,43 @@ test("the tasks of a case laid out as a module are checked against the rules of 
   expectOnly([layout, ...folder("format/examples/module/valid/with-a-task", trapTask("7"))], /with-a-task\/tasks\/seven\.yaml:0: breaks task\.trap-values$/);
 });
 
+// lesson.no-leaks, the rule of a lesson that format-check implements, on the lessons of a case laid
+// out as a module: a trial lesson schema, a layout with tasks and lessons, and a lesson whose title
+// comes before its task.
+const LESSON_SCHEMA = JSON.stringify({
+  $schema: "https://json-schema.org/draft/2020-12/schema",
+  $id: "https://altnovatrail.github.io/spec/format/0.1/lesson.schema.json",
+  title: "Lesson",
+  description: "A trial lesson: its title, and segments that name tasks.",
+  type: "object",
+  properties: {
+    title: { type: "string", description: "What the lesson is called." },
+    segments: {
+      type: "array",
+      items: { type: "object", properties: { task: { type: "string", description: "A task, by its local ID." } }, unevaluatedProperties: false },
+      description: "The segments of the lesson.",
+    },
+  },
+  unevaluatedProperties: false,
+});
+
+test("the lessons of a case laid out as a module are checked against lesson.no-leaks, whose cases are folders", () => {
+  const layout = ["format/README.md", "| `media/<path>` | — | Pictures and sound. |", "| `tasks/<id>.yaml` | `task` | Tasks. |\n| `lessons/<id>.yaml` | `lesson` | Lessons. |\n| `media/<path>` | — | Pictures and sound. |"];
+  const listed = (rule) => ["format/README.md", "| `sample.known-tag` |", `| \`${rule}\` | A rule of a lesson. |\n| \`sample.known-tag\` |`];
+  const schema = ["format/schemas/lesson.schema.json", null, LESSON_SCHEMA];
+  const seven = 'items:\n  - answer_slots:\n      - binding: anywhere\n        check: {kind: number, key: "7"}\n';
+  const folder = (at, title) => [[`${at}/manifest.yaml`, null, MANIFEST], [`${at}/tasks/seven.yaml`, null, seven], [`${at}/lessons/ladder.yaml`, null, `title: ${title}\nsegments:\n  - task: seven\n`]];
+  const vectorAt = "format/vectors/rules/lesson.no-leaks/in-a-module";
+  assert.deepEqual(errorsOf([layout, schema, listed("lesson.no-leaks"), ...folder(vectorAt, "A ladder of 7 rungs")]), []);
+  expectOnly([layout, schema, listed("lesson.no-leaks"), ...folder(vectorAt, "A ladder")], /lesson\.no-leaks\/in-a-module:0: breaks no lesson\.no-leaks$/);
+  expectOnly([layout, schema, listed("lesson.other"), ...folder("format/vectors/rules/lesson.other/in-a-module", "A ladder of 7 rungs")], /lesson\.other\/in-a-module\/lessons\/ladder\.yaml:0: breaks lesson\.no-leaks$/);
+  expectOnly([layout, schema, ...folder("format/examples/module/valid/with-a-lesson", "A ladder of 7 rungs")], /with-a-lesson\/lessons\/ladder\.yaml:0: breaks lesson\.no-leaks$/);
+  expectEach(
+    [layout, schema, listed("lesson.no-leaks"), ["format/vectors/rules/lesson.no-leaks/a-case.yaml", null, "title: A ladder\nsegments: []\n"]],
+    [/lesson\.no-leaks\/a-case\.yaml:0: a case of lesson\.no-leaks is a folder laid out as a module, <case>\/: the rule spans a lesson and its tasks$/, /README\.md:\d+: lesson\.no-leaks has no test vectors/],
+  );
+});
+
 // The vectors of the leak check.
 
 const LEAK = "format/vectors/leaks/whole-number.yaml";

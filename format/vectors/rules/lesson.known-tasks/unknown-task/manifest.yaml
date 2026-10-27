@@ -1,0 +1,21 @@
+# The lesson names a task that the module does not hold.
+module_format_version: "0.1"
+id: example/lessons
+version: "0.1.0"
+title: Lessons
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3, 4]
+bands:
+  - id: grades-3-4
+    title: Grades 3–4
+    grades: [3, 4]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0
+rung_templates:
+  - Which step of your work gave you this answer?
+  - Read the task again slowly. Is there anything it says that your work does not use yet?

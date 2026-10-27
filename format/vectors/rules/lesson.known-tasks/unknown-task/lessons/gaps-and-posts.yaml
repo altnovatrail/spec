@@ -1,0 +1,9 @@
+# There is no tasks/gaps-ladder-2.yaml.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - explanation:
+      - text: A fence has posts, and gaps between them. When the fence has a post at each end, it has one post more than gaps.
+  - task: gaps-ladder-1
+  - task: gaps-ladder-2

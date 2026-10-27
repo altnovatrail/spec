@@ -1,0 +1,10 @@
+# A lesson's skills and age categories are closed: the engine reads them on the server, and the title
+# of a skill could tell how to solve the lesson's tasks. Its title and segments are open.
+id: writing-about-a-day
+title: Writing about a day you remember
+skills: [paragraphs, endings]
+age_categories: [adult]
+segments:
+  - explanation:
+      - text: Tell a day in the order things happened, a paragraph for each part of it.
+  - task: a-day-you-remember-1

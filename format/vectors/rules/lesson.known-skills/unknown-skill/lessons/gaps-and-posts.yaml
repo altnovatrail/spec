@@ -1,0 +1,8 @@
+# fences is no skill of the module's graph.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps, fences]
+segments:
+  - explanation:
+      - text: A fence has posts, and gaps between them. When the fence has a post at each end, it has one post more than gaps.
+  - task: gaps-ladder-1

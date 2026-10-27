@@ -1,0 +1,8 @@
+# error: minProperties at #/segments/0
+# A segment is an explanation, a worked example or a task, by its one field.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - {}
+  - task: gaps-ladder-1

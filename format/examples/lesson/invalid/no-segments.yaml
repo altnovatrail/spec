@@ -1,0 +1,6 @@
+# error: minItems at #/segments
+# A lesson has at least one segment.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments: []

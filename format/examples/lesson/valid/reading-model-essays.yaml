@@ -1,0 +1,10 @@
+# A lesson of the official module of short essays on a skill that is practised and not assessed:
+# explanations alone, with no task. It goes in the author's order, without adapting to the learner.
+id: reading-model-essays
+title: How a short essay is built
+skills: [reading-model-essays]
+segments:
+  - explanation:
+      - text: A short essay has a beginning, a middle and an end. The beginning says what the essay is about, the middle tells it, and the end closes it.
+  - explanation:
+      - text: "Read this one, and find where each part begins: \"Our street floods every spring. The water comes up to the second step, and we carry the chairs upstairs. Then it goes, and the street smells of the river for a week. I have stopped minding it: spring is when our street remembers it was a river once.\""

@@ -1,7 +1,8 @@
 # The skill graph of the official module of short essays in English, for learners of any age. Most
 # of its skills get feedback by the author's rubric and no verdict; choosing a first sentence gets a
 # verdict, and reading model essays is practised and not assessed. A prerequisite is what a skill
-# needs, not the order of the lessons.
+# needs, and so it orders the lessons too: endings and improving an essay both need paragraphs and
+# not each other, and the engine's rule chooses between their lessons.
 tiers: [Reading and choosing, First sentences, Paragraphs, Whole essays]
 skills:
   reading-model-essays:

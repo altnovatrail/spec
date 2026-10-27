@@ -1,0 +1,12 @@
+# A lesson of the official module of school mathematics for grade 3: an explanation and the page of
+# the workbook that practises it. Its explanation names no digit, since the page's keys are small
+# numbers and the leak check searches the lesson's texts before the page for them; and it has no
+# worked example, which a lesson may leave out.
+id: table-of-seven
+title: The table of seven
+skills: [times-tables]
+segments:
+  - explanation:
+      - text: A times table counts up in equal steps. The table of seven counts up in sevens, from seven to seventy.
+      - text: A division undoes a multiplication. To share a number into equal groups, find the product of the table that gives it.
+  - task: tables-and-division-1

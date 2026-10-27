@@ -1,0 +1,10 @@
+# error: uniqueItems at #/segments
+# No two segments of a lesson are the same: a lesson names a task once.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - task: gaps-ladder-1
+  - explanation:
+      - text: Count the gaps first, and then ask what stands at the ends.
+  - task: gaps-ladder-1

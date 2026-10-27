@@ -1,0 +1,9 @@
+# Counting days between two dates is counting posts and gaps, so the calendar needs gaps first.
+skills:
+  counting-gaps:
+    title: Gaps and boundaries
+    assessability: verdict
+  time-calendar:
+    title: Calendar and age
+    prerequisites: [counting-gaps]
+    assessability: verdict

@@ -1,0 +1,20 @@
+id: gaps-and-posts
+title: Gaps and posts
+segments:
+  - worked_example:
+      statement:
+        - text: A path is 20 m long, with a lamp at each end and one every 5 m between them. How many lamps are there?
+      canvas:
+        kind: handwriting_sheet
+        grid: lines
+        grid_step: 40
+      demo:
+        - text: Draw the path, and mark a lamp at each end.
+        - picture: pictures/lamp.png
+          alt: A lamp.
+          width: 60
+          height: 120
+        - picture: pictures/path-in-gaps.png
+          alt: A line for the path, cut into 4 equal gaps of 5 m, with a lamp at every mark.
+          area: {left: 100, top: 150, width: 800, height: 200}
+  - task: gaps-ladder-1

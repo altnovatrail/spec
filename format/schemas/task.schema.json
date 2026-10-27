@@ -13,7 +13,7 @@
     "statement": {
       "type": "array",
       "items": {
-        "$ref": "#/$defs/statement_part",
+        "$ref": "common.schema.json#/$defs/statement_part",
         "unevaluatedProperties": false
       },
       "minItems": 1,
@@ -21,7 +21,7 @@
       "x-open": true
     },
     "canvas": {
-      "$ref": "#/$defs/canvas",
+      "$ref": "common.schema.json#/$defs/canvas",
       "unevaluatedProperties": false,
       "description": "The canvas of the task, one for all its items: its kind and the kind's settings.",
       "x-open": true
@@ -96,7 +96,7 @@
     "solution": {
       "type": "array",
       "items": {
-        "$ref": "#/$defs/statement_part",
+        "$ref": "common.schema.json#/$defs/statement_part",
         "unevaluatedProperties": false
       },
       "minItems": 1,
@@ -290,80 +290,6 @@
   ],
   "unevaluatedProperties": false,
   "$defs": {
-    "statement_part": {
-      "type": "object",
-      "properties": {
-        "text": {
-          "$ref": "common.schema.json#/$defs/text",
-          "description": "A paragraph of the statement, as plain text.",
-          "x-open": true
-        },
-        "picture": {
-          "$ref": "common.schema.json#/$defs/picture_path",
-          "description": "A picture of the statement, by its path from media/.",
-          "x-open": true
-        },
-        "alt": {
-          "type": "string",
-          "description": "What the picture shows, in words: a screen reader reads it, and it stands in the picture's place until the picture comes. Empty for a picture that only decorates.",
-          "x-open": true
-        },
-        "width": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "The width the picture is shown at, in CSS px; narrower when the statement is.",
-          "x-open": true
-        },
-        "height": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "The height the picture is shown at, in CSS px, in proportion to its width.",
-          "x-open": true
-        }
-      },
-      "if": {
-        "required": [
-          "picture"
-        ]
-      },
-      "then": {
-        "required": [
-          "alt",
-          "width",
-          "height"
-        ],
-        "not": {
-          "required": [
-            "text"
-          ]
-        }
-      },
-      "else": {
-        "required": [
-          "text"
-        ],
-        "not": {
-          "anyOf": [
-            {
-              "required": [
-                "alt"
-              ]
-            },
-            {
-              "required": [
-                "width"
-              ]
-            },
-            {
-              "required": [
-                "height"
-              ]
-            }
-          ]
-        }
-      },
-      "description": "A part of the statement or of the solution: a paragraph, or a picture with what it shows and its size."
-    },
     "trap_value": {
       "type": "object",
       "properties": {
@@ -386,67 +312,6 @@
         "trap"
       ],
       "description": "A wrong value that the author knows, with the trap it shows."
-    },
-    "canvas": {
-      "type": "object",
-      "properties": {
-        "kind": {
-          "enum": [
-            "handwriting_sheet",
-            "workbook"
-          ],
-          "description": "The canvas kind: a handwriting sheet, a free sheet of 1000 × 1400 units; or a workbook, lines of items with boxes for the answers.",
-          "x-open": true
-        },
-        "grid": {
-          "enum": [
-            "squares",
-            "lines",
-            "dots"
-          ],
-          "default": "squares",
-          "description": "The grid of a handwriting sheet: squares, lines or dots; squares unless given.",
-          "x-open": true
-        },
-        "grid_step": {
-          "type": "integer",
-          "minimum": 20,
-          "maximum": 500,
-          "default": 50,
-          "description": "The step of the grid of a handwriting sheet, in its units: 50 unless given.",
-          "x-open": true
-        }
-      },
-      "required": [
-        "kind"
-      ],
-      "if": {
-        "properties": {
-          "kind": {
-            "const": "workbook"
-          }
-        },
-        "required": [
-          "kind"
-        ]
-      },
-      "then": {
-        "not": {
-          "anyOf": [
-            {
-              "required": [
-                "grid"
-              ]
-            },
-            {
-              "required": [
-                "grid_step"
-              ]
-            }
-          ]
-        }
-      },
-      "description": "The canvas of a task: its kind, and the grid of a handwriting sheet."
     },
     "item": {
       "type": "object",
@@ -573,7 +438,7 @@
           "then": {
             "properties": {
               "zone": {
-                "$ref": "#/$defs/zone",
+                "$ref": "common.schema.json#/$defs/sheet_rectangle",
                 "unevaluatedProperties": false,
                 "description": "The zone of the sheet where the learner writes the answer.",
                 "x-open": true
@@ -625,46 +490,6 @@
         }
       ],
       "description": "An answer slot of an item on a handwriting sheet: its binding, the zone or the options that the binding needs, and its check."
-    },
-    "zone": {
-      "type": "object",
-      "properties": {
-        "left": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 999,
-          "description": "How far the zone begins from the left edge of the sheet, in its units.",
-          "x-open": true
-        },
-        "top": {
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 1399,
-          "description": "How far the zone begins from the top edge of the sheet, in its units.",
-          "x-open": true
-        },
-        "width": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 1000,
-          "description": "The width of the zone, in units of the sheet.",
-          "x-open": true
-        },
-        "height": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 1400,
-          "description": "The height of the zone, in units of the sheet.",
-          "x-open": true
-        }
-      },
-      "required": [
-        "left",
-        "top",
-        "width",
-        "height"
-      ],
-      "description": "A rectangle of the handwriting sheet, in its units of 1000 × 1400 from the top left corner."
     },
     "line_part": {
       "type": "object",

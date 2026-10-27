@@ -1,5 +1,5 @@
 // format-check: the checks of the module format in spec's format/ (R45 and its amendments, R46,
-// R51, R56, R57; RUN.md, T25, T26, T28, T29 and T30).
+// R51, R56, R57, R58; RUN.md, T25, T26, T28, T29, T30 and T31).
 //
 //   node tools/format-check/main.mjs      spec's own format/, two levels above this file
 //
@@ -17,7 +17,11 @@
 //   with its rule: a case of a YAML rule breaks that rule and no other; a case of a rule of a whole
 //   module is a folder that breaks that rule and no other; a case of a part's rule follows the YAML
 //   rules and passes the part's schema, and one laid out as a module follows the rules of a whole
-//   module too (section 9);
+//   module too (section 9). Of the rules of a task and of a lesson that it implements — those that
+//   an answer slot's check shows by itself, task.no-leaks and lesson.no-leaks —, a case of one breaks
+//   it, and no other case breaks any, nor a valid example of a task or of a whole module: a rule of a
+//   lesson spans files, so a valid example of a lesson alone goes unchecked by it (sections 9, 20 and
+//   21);
 // - the format version that each manifest names: the one in VERSION, but in the cases of
 //   manifest.format-version, which name one no reader of it reads (section 11);
 // - each vector of the open view, vectors/open-view/<part>/<case>/: part.yaml follows the YAML rules
@@ -39,7 +43,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { checkExample, checkLeakVector, checkModuleCase, checkOpenView, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { LESSON_LEAKS, checkExample, checkLeakVector, checkModuleCase, checkOpenView, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
 import { listFolder, readLayout } from "./module.mjs";
 import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
 import { FEEDBACK_KINDS, VERDICT_KINDS } from "./verdicts.mjs";
@@ -347,7 +351,8 @@ function readVectorFiles(at, dir) {
       const add = (file, isFolder) => files.vectors.push({ file, rule: folder.name, folder: isFolder });
       const part = partOf(folder.name);
       const only = { yaml: { onlyFile: "a case of a YAML rule is a file, <case>.yaml: the rule is a file's" }, [MODULE]: { onlyFolder: "a case of a rule of a whole module is a folder laid out as a module, <case>/" } };
-      readCases(at, folder.file, only[part] ?? {}, add);
+      const onlyFolder = { onlyFolder: `a case of ${LESSON_LEAKS} is a folder laid out as a module, <case>/: the rule spans a lesson and its tasks` };
+      readCases(at, folder.file, folder.name === LESSON_LEAKS ? onlyFolder : (only[part] ?? {}), add);
     }
   }
 }

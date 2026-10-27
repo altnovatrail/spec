@@ -1,0 +1,8 @@
+# A ladder's 7 rungs are the ladder task's answer.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - explanation:
+      - text: A ladder of 7 rungs has 6 gaps between them, one gap fewer than rungs.
+  - task: gaps-ladder-1

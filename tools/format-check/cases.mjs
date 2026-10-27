@@ -1,6 +1,6 @@
 // The examples and test vectors of the module format, and the rules and the layout of a module its
-// text lists (format/README.md, sections 7–11, 15 and 20; R45 and its amendment of 2026-10-22, R46,
-// R56, R57).
+// text lists (format/README.md, sections 7–11, 15, 20 and 21; R45 and its amendment of 2026-10-22, R46,
+// R56, R57, R58).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -11,7 +11,7 @@ import { byCodeUnits } from "../shared.mjs";
 import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listModule, mediaBreaches, placeFiles, versionProblem } from "./module.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
-import { leaksBefore, leaksIn, needlesOf } from "./leaks.mjs";
+import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from "./verdicts.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
@@ -24,6 +24,13 @@ const TASK_PART = "task";
 // The rules of a task that format-check implements, and so checks on every task it reads: those
 // that an answer slot's check shows by itself (section 15), and task.no-leaks (section 20).
 const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.no-leaks"];
+// The part of a lesson, and the rule of a lesson that format-check implements, with its leak check
+// (section 21). The rule spans a lesson and its tasks, so its cases are laid out as modules.
+const LESSON_PART = "lesson";
+export const LESSON_LEAKS = "lesson.no-leaks";
+// Every rule of a part that format-check implements: a case of one breaks it, and a case of any
+// other rule breaks none of them.
+const IMPLEMENTED_RULES = [...TASK_RULES, LESSON_LEAKS];
 
 // What the text lists in its tables: the rows of each table whose first column is headed ID, each a
 // rule's ID, <part>.<name>, and its statement (section 7); and the rows of the table whose first
@@ -164,8 +171,9 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
   const { rows, breaches } = placeFiles(listModule(folder), layout, forms);
   const problems = [];
   const parts = new Set();
-  // The values of the files that passed their schemas, by part, for the rules of a task.
-  const values = { tasks: [], partsOk: true };
+  // The values of the files that passed their schemas, by part, for the rules that format-check
+  // implements. A task is known by the name of its file, as module.file-ids has it.
+  const values = { tasks: [], lessons: [], partsOk: true };
   // The rules of a whole module that could not be checked on this case: no vector of one then
   // says that it breaks no such rule.
   const unchecked = new Set(forms.isMediaPath ? [] : ["module.media"]);
@@ -177,7 +185,8 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
     const fileProblems = partFileProblems(read, row.part, { rule, validate, version });
     for (const problem of fileProblems) problems.push({ file, ...problem });
     if (!validate || fileProblems.length) values.partsOk = false;
-    else if (row.part === TASK_PART) values.tasks.push({ file, task: read.value });
+    else if (row.part === TASK_PART) values.tasks.push({ file, id: idOf(file, row), task: read.value });
+    else if (row.part === LESSON_PART) values.lessons.push({ file, lesson: read.value });
     else values[row.part] = read.value;
     // module.file-ids: an entry's file holds its own name in id, read only from a file that passed
     // its schema, so that a file the schema refuses breaks that and nothing more.
@@ -190,7 +199,7 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
   }
   breaches.push(...mediaBreaches(folder, [...rows].filter(([, row]) => row).map(([file]) => file), forms));
   problems.push(...wholeModuleProblems(breaches, rule, unchecked));
-  if (values.partsOk) problems.push(...moduleTaskProblems(values, rule));
+  if (values.partsOk) problems.push(...moduleRuleProblems(values, rule));
   const part = rule === null ? null : partOf(rule);
   if (part !== null && part !== "yaml" && part !== "module" && !parts.has(part)) {
     problems.push({ file: "", line: 0, message: `holds no file of the part ${part}, whose rule ${rule} it is a case of` });
@@ -310,14 +319,18 @@ function taskRuleProblems(breaches, rule) {
   return problems;
 }
 
-// The same for the tasks of a case laid out as a module, with its manifest, its trap catalog and
-// its technique catalog: one of them breaks the rule of the case.
-function moduleTaskProblems({ tasks, manifest, traps, techniques }, rule) {
-  const own = TASK_RULES.includes(rule) ? rule : null;
+// The same for the tasks and the lessons of a case laid out as a module, with its manifest, its trap
+// catalog and its technique catalog: one of them breaks the rule of the case.
+function moduleRuleProblems({ tasks, lessons, manifest, traps, techniques }, rule) {
+  const own = IMPLEMENTED_RULES.includes(rule) ? rule : null;
+  const byId = new Map(tasks.map(({ id, task }) => [id, task]));
+  const files = [
+    ...tasks.map(({ file, task }) => ({ file, breaches: taskRuleBreaches(task, { manifest, traps, techniques }) })),
+    ...lessons.map(({ file, lesson }) => ({ file, breaches: new Set(lessonLeaks(lesson, byId) ? [LESSON_LEAKS] : []) })),
+  ];
   const problems = [];
   let ownBroken = false;
-  for (const { file, task } of tasks) {
-    const breaches = taskRuleBreaches(task, { manifest, traps, techniques });
+  for (const { file, breaches } of files) {
     if (breaches.has(own)) ownBroken = true;
     for (const breach of [...breaches].filter((breach) => breach !== own).sort(byCodeUnits)) problems.push({ file, line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` });
   }

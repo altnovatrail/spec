@@ -1,0 +1,22 @@
+# A module with lessons: two skills, a task on each, and a lesson on each. The skill graph orders the
+# lessons: the lesson on the calendar comes after the lesson on gaps, since its skill needs theirs.
+module_format_version: "0.1"
+id: example/with-lessons
+version: "0.1.0"
+title: A module with lessons
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3, 4]
+bands:
+  - id: grades-3-4
+    title: Grades 3–4
+    grades: [3, 4]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0
+rung_templates:
+  - Which step of your work gave you this answer?
+  - Read the task again slowly. Is there anything it says that your work does not use yet?
