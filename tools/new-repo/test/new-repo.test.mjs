@@ -12,7 +12,7 @@ import { newRepo } from "../new-repo.mjs";
 import { checkRepo } from "../check.mjs";
 import { parseJsonc } from "../devcontainer.mjs";
 import { FILL, fillPlaceholders, placeholders, walk } from "../copy.mjs";
-import { findNumbers } from "../../docs-check/citations.mjs";
+import { escape, findNumbers } from "../../docs-check/citations.mjs";
 import { GIT, TAR, byCodeUnits } from "../../shared.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -124,10 +124,19 @@ test("a draft of each kind holds the whole template, its values filled in", () =
 });
 
 // The badges are written once, in the block of repositories 2.3, with <имя> for the repository
-// (R48). The template's are the first day's of them, and spec's README takes its own from there.
+// and <ID> for the number of its Best Practices project (R48). The template's are the first day's
+// of them, and spec's README takes its own from there.
 const FIRST_DAY = ["CI", "CodeQL", "OpenSSF Scorecard", "License", "Code Smells", "Reliability Rating", "Security Rating", "Maintainability Rating", "Vulnerabilities"];
 const badgeLines = (text) => text.split("\n").filter((line) => line.startsWith("[!["));
 const altOf = (line) => line.match(/^\[!\[([^\]]+)\]/)[1];
+
+// Whether a README's line is a documented badge of the repository `name`: <ID> holds a number,
+// and the same one wherever the line holds it.
+function badgeMatches(documented, line, name) {
+  const parts = documented.replaceAll("<имя>", name).split("<ID>").map(escape);
+  const match = line.match(new RegExp(`^${parts.join("([1-9][0-9]*)")}$`));
+  return match !== null && match.slice(1).every((id) => id === match[1]);
+}
 
 function documentedBadges() {
   const text = read(specRoot, "docs/repositories.md");
@@ -148,11 +157,32 @@ test("the README starts with the first day's badges of repositories 2.3, in two 
   assert.ok(readme.startsWith(`# ${name}\n\n${rows}\n\n`), "the badges come right under the title, SonarCloud's measures as the second row");
 });
 
-test("spec's own README takes its badges from repositories 2.3", () => {
-  const documented = documentedBadges().map((line) => line.replaceAll("<имя>", "spec"));
+test("spec's own README takes its badges from repositories 2.3, in their order", () => {
+  const documented = documentedBadges();
   const own = badgeLines(read(specRoot, "README.md"));
   assert.ok(own.length > 0, "README.md has no badges");
-  for (const line of own) assert.ok(documented.includes(line), `README.md: ${altOf(line)} differs from repositories 2.3`);
+  let last = -1;
+  for (const line of own) {
+    const at = documented.findIndex((d) => badgeMatches(d, line, "spec"));
+    assert.ok(at >= 0, `README.md: ${altOf(line)} differs from repositories 2.3`);
+    assert.ok(at > last, `README.md: ${altOf(line)} is out of the order of repositories 2.3`);
+    last = at;
+  }
+});
+
+test("the Best Practices badge holds its project's number for <ID>, the same in both places", () => {
+  const documented = documentedBadges().find((line) => altOf(line) === "OpenSSF Best Practices");
+  assert.ok(documented, "repositories 2.3 has no OpenSSF Best Practices badge");
+  assert.equal(documented.split("<ID>").length, 3, "repositories 2.3 writes <ID> in the badge's picture and in its link");
+  assert.ok(badgeMatches(documented, documented.replaceAll("<ID>", "15977"), "spec"));
+  for (const wrong of [
+    documented.replace("<ID>", "15977").replace("<ID>", "15978"),
+    documented.replaceAll("<ID>", "x15977"),
+    documented.replaceAll("<ID>", ""),
+    documented,
+    documented.replaceAll("<ID>", "15977").replace("bestpractices.dev", "bestpractices.example"),
+  ])
+    assert.equal(badgeMatches(documented, wrong, "spec"), false, wrong);
 });
 
 test("the devcontainer is spec's, with the repository's name, network and kind", () => {
