@@ -8,6 +8,8 @@ items:
   - answer_slots:
       - binding: anywhere
         check: {kind: predicate, predicate: "number % 12 == 0"}
+solution:
+  - text: "A number that divides by 3 and by 4 divides by 3 × 4 = 12: 12 is one."
 skills:
   primary: [number-divisibility]
 band: grades-3-4

@@ -1,0 +1,6 @@
+# A trap's advice that holds 56, which is the key of a task that names the trap.
+traps:
+  times-table-slip:
+    description: Took the product of a neighbouring fact of the times table.
+    skills: [times-tables]
+    trap_advice: "Count up in sevens: 7, 14, 21, 28, 35, 42, 49, 56."

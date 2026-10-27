@@ -20,6 +20,9 @@ items:
     skills:
       primary: [division-with-remainder]
       supporting: [times-tables]
+solution:
+  - text: "7 × 8 = 56, so the first missing number is 8."
+  - text: "6 × 7 = 42, and 47 − 42 = 5, so 47 ÷ 6 = 7 r 5."
 skills:
   primary: [times-tables]
 band: grade-3

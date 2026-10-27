@@ -1,0 +1,8 @@
+traps:
+  off-by-one:
+    description: Counted the gaps where the posts were asked for, or the posts where the gaps were.
+    skills: [counting-gaps]
+    trap_advice: Draw the posts as dots and the gaps as lines between them, and count each.
+  ignored-condition:
+    description: Left out a condition of the task, such as a post at each end.
+    trap_advice: Mark every condition of the task, then check the answer against each.

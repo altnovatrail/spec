@@ -1,0 +1,22 @@
+# error: required at #/items/0/answer_slots/0/check/trap_values/0
+# A trap value names the trap it shows: a wrong value with a text alone is no diagnosis.
+id: gaps-ladder-1
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: number
+          key: "7"
+          trap_values:
+            - value: "6"
+              text: That is how many gaps there are between the rungs.
+solution:
+  - text: "The ladder has one more rung than the gaps between its rungs: 7 rungs."
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

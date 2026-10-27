@@ -1,0 +1,4 @@
+techniques:
+  count-up:
+    title: Count up in steps
+    description: Say the times table of the number out loud until you reach the product you need.

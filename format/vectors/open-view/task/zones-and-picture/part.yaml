@@ -20,6 +20,9 @@ items:
       - binding: zone
         zone: {left: 500, top: 1000, width: 400, height: 200}
         check: {kind: number, key: "40", units: [minute, minutes]}
+solution:
+  - text: The clock shows a quarter past three, so Anna leaves 15 minutes past three.
+  - text: "She walks for 25 minutes, and 15 + 25 = 40: she arrives 40 minutes past three."
 skills:
   primary: [time-clocks]
 band: grades-1-2

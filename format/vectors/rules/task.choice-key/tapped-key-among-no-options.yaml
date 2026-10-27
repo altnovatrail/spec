@@ -14,6 +14,8 @@ items:
         check:
           kind: choice
           key: The door was open.
+solution:
+  - text: "\"The door was open, and nobody had opened it\" leaves a question that only the story can answer: who opened it? The other two sentences give the reader nothing to wait for."
 skills:
   primary: [choosing-a-first-sentence]
 band: first-steps

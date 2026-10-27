@@ -10,6 +10,8 @@ items:
       - text: "2/8 ="
       - binding: box
         check: {kind: fraction, key: "0.25", form: reduced}
+solution:
+  - text: Dividing both 2 and 8 by 2 gives 2/8 = 1/4.
 skills:
   primary: [fractions-of-a-whole]
 band: grade-3

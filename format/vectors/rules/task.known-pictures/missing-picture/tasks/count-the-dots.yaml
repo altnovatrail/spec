@@ -12,6 +12,8 @@ items:
   - answer_slots:
       - binding: anywhere
         check: {kind: number, key: "56"}
+solution:
+  - text: "The picture shows 8 rows of 7 dots: 8 × 7 = 56 dots."
 skills:
   primary: [times-tables]
 band: grade-3

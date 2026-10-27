@@ -1,0 +1,6 @@
+# error: contains at #/steps/0/gives
+# A step that ends once the givens are ticked gives the givens, not only the techniques.
+steps:
+  - title: Understand the task
+    gives: [techniques]
+    exit_condition: givens_ticked

@@ -26,7 +26,14 @@ items:
         check:
           kind: number
           key: "40"
+          trap_values:
+            - value: "25"
+              trap: answered-other-question
+              text: That is how long she walks. When does she get there?
           units: [minute, minutes]
+solution:
+  - text: The clock shows a quarter past three, so Anna leaves 15 minutes past three.
+  - text: "She walks for 25 minutes, and 15 + 25 = 40: she arrives 40 minutes past three."
 skills:
   primary: [time-clocks]
 band: grades-1-2

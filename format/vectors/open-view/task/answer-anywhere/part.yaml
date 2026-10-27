@@ -1,5 +1,5 @@
-# The open view of a task leaves out its skills, its band and its difficulty, and the check of its
-# answer slot: the learner's app does not get the key.
+# The open view of a task leaves out its skills, its band and its difficulty, the check of its answer
+# slot and its solution: the learner's app does not get the key.
 id: gaps-ladder-1
 statement:
   - text: The rungs of a ladder are 30 cm apart. From the lowest rung to the highest it is 180 cm. How many rungs are there?
@@ -13,6 +13,8 @@ items:
           kind: number
           key: "7"
           units: [rung, rungs]
+solution:
+  - text: "From the lowest rung to the highest there are 180 ÷ 30 = 6 gaps of 30 cm, and a ladder has one more rung than gaps: 7 rungs."
 skills:
   primary: [counting-gaps]
   supporting: [core.division-with-remainder]

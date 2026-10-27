@@ -1,0 +1,6 @@
+# A trap of a skill that the skill graph does not have.
+traps:
+  times-table-slip:
+    description: Took the product of a neighbouring fact of the times table.
+    skills: [fractions-of-a-whole]
+    trap_advice: Count up in the number you multiply by, out loud, until you reach the fact you need.

@@ -102,6 +102,29 @@
             "type": "string"
           },
           "description": "The words that may follow the number."
+        },
+        "trap_values": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "The wrong value."
+              },
+              "trap": {
+                "type": "string",
+                "description": "The trap it shows."
+              }
+            },
+            "required": [
+              "value",
+              "trap"
+            ],
+            "unevaluatedProperties": false,
+            "description": "A wrong value with the trap it shows."
+          },
+          "description": "The wrong values that the author knows."
         }
       },
       "required": [

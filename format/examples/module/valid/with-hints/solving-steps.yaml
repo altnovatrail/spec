@@ -1,0 +1,11 @@
+steps:
+  - title: Understand the task
+    gives: [givens]
+    exit_condition: givens_ticked
+  - title: Make a plan
+    gives: [techniques]
+    exit_condition: none
+  - title: Solve it
+    exit_condition: answer_slots_filled
+  - title: Check the answer
+    exit_condition: none

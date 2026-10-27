@@ -1,0 +1,12 @@
+id: gaps-ladder-1
+statement:
+  - text: The rungs of a ladder are 30 cm apart. From the lowest rung to the highest it is 180 cm. How many rungs are there?
+givens:
+  - The rungs are 30 cm apart.
+  - It is 180 cm from the lowest rung to the highest.
+unknown: How many rungs there are.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere

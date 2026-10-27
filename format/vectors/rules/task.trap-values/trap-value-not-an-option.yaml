@@ -1,0 +1,23 @@
+# A trap value of a choice that is none of its options as written: Even, where the option is even.
+id: sum-even-or-odd
+statement:
+  - text: Kate adds up the numbers from 1 to 9. Is the sum even or odd? Write even or odd.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: zone
+        zone: {left: 300, top: 1100, width: 400, height: 200}
+        check:
+          kind: choice
+          options: [even, odd]
+          key: odd
+          trap_values:
+            - value: Even
+              trap: wrong-parity
+solution:
+  - text: "1 + 2 + … + 9 = 45, and 45 is odd."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

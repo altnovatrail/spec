@@ -14,6 +14,13 @@ items:
           kind: choice
           options: [even, odd]
           key: odd
+          trap_values:
+            - value: even
+              trap: wrong-parity
+              text: How many odd numbers are there from one to nine? Two odd numbers add up to an even one.
+leak_phrases: ["45", forty-five]
+solution:
+  - text: "Of the numbers from 1 to 9, five are odd: 1, 3, 5, 7 and 9. An odd count of odd numbers makes an odd sum, and indeed 1 + 2 + … + 9 = 45."
 skills:
   primary: [parity-alternation]
 band: grades-3-4

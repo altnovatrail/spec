@@ -1,10 +1,11 @@
-// The verdicts of section 15 of the format text, edge by edge, as verdicts.mjs computes them, and a
-// vector of a predicate, of which spec computes only blank and notation.
+// The verdicts of section 15 of the format text, edge by edge, as verdicts.mjs computes them, the
+// traps that wrong values match, and a vector of a predicate, of which spec computes only blank and
+// notation.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkVerdictVector } from "../cases.mjs";
-import { answerSlotsOf, itemVerdict, lowercase, normalized, rationalOf, readNumber, slotBreaches, slotVerdict } from "../verdicts.mjs";
+import { answerSlotsOf, comparableOf, itemVerdict, lowercase, normalized, rationalOf, readNumber, scriptsReplaced, slotBreaches, slotVerdict, trapOf } from "../verdicts.mjs";
 
 const slot = (check, options) => (options ? { binding: "choice", options, check } : { binding: "anywhere", check });
 const verdictOf = (check, value, options) => slotVerdict(slot(check, options), value);
@@ -166,4 +167,59 @@ test("the item of a vector breaks no rule of a task that its answer slots show",
   );
   const messages = checkVerdictVector(bytes, { kind: "choice", validate: () => true }).map((problem) => problem.message);
   assert.deepEqual(messages, ["answer slot 1 breaks task.choice-key: the item of a vector is one that a task may hold"]);
+});
+
+test("step 1: a vulgar fraction that a number touches becomes U+FFFD, and a lone one stays", () => {
+  assert.equal(scriptsReplaced("1\u00BD"), "1\uFFFD");
+  assert.equal(scriptsReplaced("\u00BD1"), "\uFFFD1");
+  assert.equal(scriptsReplaced("\uFF11\u00BD"), "\uFF11\uFFFD", "a full-width digit is a number too");
+  assert.equal(scriptsReplaced("\u00BD"), "\u00BD");
+  assert.equal(scriptsReplaced("1 \u00BD"), "1 \u00BD", "a space keeps them apart, and 1 1/2 is not in notation anyway");
+  assert.equal(scriptsReplaced("7\u00B2"), "7\uFFFD");
+  assert.deepEqual(verdictOf({ kind: "number", key: "3/2" }, "1\u00BD"), NOTATION, "not eleven halves");
+  assert.deepEqual(verdictOf({ kind: "number", key: "1/2" }, "\u00BD"), CORRECT);
+  assert.deepEqual(verdictOf({ kind: "number", key: "3/2" }, "1 \u00BD"), NOTATION);
+});
+
+test("a check compares a value as it compares the key: a choice by its normal form, a number by its value", () => {
+  const number = slot({ kind: "number", key: "7", units: ["rungs"] });
+  assert.equal(comparableOf(number, "6 rungs"), "6/1");
+  assert.equal(comparableOf(number, "12/2"), "6/1");
+  assert.equal(comparableOf(number, "six"), null);
+  assert.equal(comparableOf(slot({ kind: "fraction", key: "3/4" }), "9/12"), "3/4");
+  assert.equal(comparableOf(slot({ kind: "fraction", key: "3/4" }), "-6/8"), "-3/4");
+  assert.equal(comparableOf(slot({ kind: "choice", key: "odd", options: ["even", "odd"] }), " EVEN "), "even");
+  assert.equal(comparableOf(slot({ kind: "predicate", predicate: "value > 0" }), "6"), null);
+});
+
+test("a wrong value matches the trap of the trap value its check compares it equal to", () => {
+  const ladder = slot({ kind: "number", key: "7", units: ["rung", "rungs"], trap_values: [{ value: "6", trap: "off-by-one" }, { value: "8", trap: "ignored-condition" }] });
+  assert.equal(trapOf(ladder, "6 rungs"), "off-by-one", "the units are dropped, as for the key");
+  assert.equal(trapOf(ladder, "8."), "ignored-condition");
+  assert.equal(trapOf(ladder, "9"), null, "a wrong value that no trap value is");
+  assert.equal(trapOf(ladder, "7"), null, "a right value matches no trap");
+  assert.equal(trapOf(ladder, "six"), null, "an unreadable value matches no trap");
+  assert.equal(trapOf(ladder, null), null);
+  const lowest = slot({ kind: "fraction", key: "3/4", form: "reduced", trap_values: [{ value: "6/8", trap: "not-in-lowest-terms" }] });
+  assert.equal(trapOf(lowest, "9/12"), "not-in-lowest-terms", "by value: every fraction of the key's value that is not the key");
+  assert.equal(trapOf(lowest, "3/4"), null);
+  const words = slot({ kind: "choice", key: "odd", options: ["even", "odd"], trap_values: [{ value: "even", trap: "wrong-parity" }] });
+  assert.equal(trapOf(words, "EVEN"), "wrong-parity");
+  assert.equal(trapOf(slot({ kind: "number", key: "7" }), "6"), null, "a check with no trap values");
+  assert.equal(trapOf(slot({ kind: "predicate", predicate: "value > 7" }), "6"), null, "a predicate, which Starlark judges");
+});
+
+test("the trap values of a check are all not yet right, a choice's are options as written, and no two are equal", () => {
+  const number = (trapValues) => slotBreaches(slot({ kind: "number", key: "7", trap_values: trapValues }));
+  assert.deepEqual(number([{ value: "6", trap: "a" }, { value: "8", trap: "a" }]), []);
+  assert.deepEqual(number([{ value: "7", trap: "a" }]), ["task.trap-values"], "the key itself");
+  assert.deepEqual(number([{ value: "6", trap: "a" }, { value: "6.0", trap: "b" }]), ["task.trap-values"], "two of one value");
+  assert.deepEqual(slotBreaches(slot({ kind: "fraction", key: "1/4", trap_values: [{ value: "2/8", trap: "a" }] })), ["task.trap-values"], "right in any form");
+  assert.deepEqual(slotBreaches(slot({ kind: "fraction", key: "1/4", form: "reduced", trap_values: [{ value: "2/8", trap: "a" }] })), []);
+  const written = (value) => slotBreaches({ binding: "zone", check: { kind: "choice", key: "odd", options: ["even", "odd"], trap_values: [{ value, trap: "a" }] } });
+  assert.deepEqual(written("even"), []);
+  assert.deepEqual(written("Even"), ["task.trap-values"], "an option as written, not as normalized");
+  assert.deepEqual(written("seven"), ["task.trap-values"], "no option");
+  const tapped = slotBreaches(slot({ kind: "choice", key: "B", trap_values: [{ value: "A", trap: "a" }] }, ["A", "B"]));
+  assert.deepEqual(tapped, [], "the options of a choice by tapping");
 });

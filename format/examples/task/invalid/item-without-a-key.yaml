@@ -15,6 +15,8 @@ items:
     answer_slots:
       - binding: zone
         zone: {left: 500, top: 1000, width: 400, height: 200}
+solution:
+  - text: "Anna leaves a quarter past three, 15 minutes past three, and arrives 25 minutes later: 40 minutes past three."
 skills:
   primary: [time-clocks]
 band: grades-1-2

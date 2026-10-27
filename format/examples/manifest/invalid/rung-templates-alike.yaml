@@ -1,0 +1,17 @@
+# error: uniqueItems at #/rung_templates
+# The two templates differ, so that the fallback of rung 2 never repeats the one of rung 1.
+module_format_version: "0.1"
+id: example/rung-templates-alike
+version: "0.1.0"
+title: Rung templates alike
+subject: mathematics
+audience:
+  age_categories: [under_13]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0
+rung_templates:
+  - Which step of your work gave you this answer?
+  - Which step of your work gave you this answer?

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/format/0.1/task.schema.json",
   "title": "Task",
-  "description": "A task of a module, tasks/<id>.yaml in its folder: its statement, its canvas, its items with their answer slots, each with the check that says what is right in it, the skills it trains, its band and difficulty, and, when they are fewer than the module's, the age categories it is for. The ID, the statement, the canvas and the items are open, since the learner's app shows them, but for the check of each answer slot; the checks, the skills, the band, the difficulty and the age categories are closed, since the server reads them.",
+  "description": "A task of a module, tasks/<id>.yaml in its folder: its statement, its canvas, its items with their answer slots, each with the check that says what is right in it, the skills it trains, its band and difficulty, and, when they are fewer than the module's, the age categories it is for; and what helps the learner on the way: what the statement gives and asks, the techniques that help, the traps that AI may suggest, a simpler case for each item, the solution and the phrases that give the answer away. The ID, the statement, the canvas, the items, the givens and the unknown are open, since the learner's app shows them, but for the skills and the simpler case of an item and the check of each answer slot; those, the skills, the band, the difficulty, the age categories, the techniques, the traps, the solution and the leak phrases are closed, since the server reads them.",
   "type": "object",
   "properties": {
     "id": {
@@ -36,6 +36,21 @@
       "description": "The items of the task, each named by its place, from 1. On a handwriting sheet an item has answer slots; on a workbook it is a line of text and boxes.",
       "x-open": true
     },
+    "givens": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "What the statement gives, each a short text in the module's explanation language: the chips that the learner ticks at a solving step that gives them, and what a hint asked for gives before the first answer.",
+      "x-open": true
+    },
+    "unknown": {
+      "$ref": "common.schema.json#/$defs/text",
+      "description": "What the task asks to find, in the module's explanation language: the chip that the learner ticks beside the givens.",
+      "x-open": true
+    },
     "skills": {
       "$ref": "#/$defs/skills",
       "unevaluatedProperties": false,
@@ -59,6 +74,42 @@
       "minItems": 1,
       "uniqueItems": true,
       "description": "The age categories that the task suits, when they are fewer than the module's: the platform gives the task only to learners in one of them. Without it, the task suits the module's audience."
+    },
+    "techniques": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/technique_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "The techniques of the module's technique catalog that help in the task, by local ID. The server gives them at a solving step that gives them or on request: a technique's title tells how to solve the task."
+    },
+    "traps": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/trap_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "The traps of the module's trap catalog that AI may suggest from the kind of mistake in the learner's work, by local ID. A trap that a wrong value shows is named in the check instead, among its trap values."
+    },
+    "solution": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/statement_part",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "How the task is solved, in parts as the statement is: paragraphs and pictures. The learner sees it once the task is solved, and AI reads it to find the first mistake in the learner's work. A task with an item with a verdict has one."
+    },
+    "leak_phrases": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/text"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Phrases that give the answer away beyond the keys themselves, which the leak check searches for in every text that the learner sees before the task is solved: an answer in words, a key that its item shows already, the answer to a predicate."
     }
   },
   "required": [
@@ -189,6 +240,52 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "items": {
+            "contains": {
+              "anyOf": [
+                {
+                  "required": [
+                    "line"
+                  ]
+                },
+                {
+                  "properties": {
+                    "answer_slots": {
+                      "contains": {
+                        "properties": {
+                          "binding": {
+                            "not": {
+                              "const": "sheet"
+                            }
+                          }
+                        },
+                        "required": [
+                          "binding"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "answer_slots"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "then": {
+        "required": [
+          "solution"
+        ]
+      }
     }
   ],
   "unevaluatedProperties": false,
@@ -265,7 +362,30 @@
           ]
         }
       },
-      "description": "A part of the statement: a paragraph, or a picture with what it shows and its size."
+      "description": "A part of the statement or of the solution: a paragraph, or a picture with what it shows and its size."
+    },
+    "trap_value": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The wrong value, as the key is written: for a choice, one of its options other than the key."
+        },
+        "trap": {
+          "$ref": "common.schema.json#/$defs/trap_id",
+          "description": "The trap that this wrong value shows, by its local ID in the module's trap catalog."
+        },
+        "text": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "What the learner reads after this wrong value: it names the mistake rather than retelling the solution. Without it, the trap's advice stands in."
+        }
+      },
+      "required": [
+        "value",
+        "trap"
+      ],
+      "description": "A wrong value that the author knows, with the trap it shows."
     },
     "canvas": {
       "type": "object",
@@ -365,6 +485,10 @@
           "$ref": "#/$defs/skills",
           "unevaluatedProperties": false,
           "description": "The skills that this item trains and needs, in place of the task's."
+        },
+        "simpler_case": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "A similar case, simpler than the item, that the learner reads at the third rung of the hint ladder when the tutor's words do not come."
         }
       },
       "description": "An item of the task: on a handwriting sheet, its answer slots and what it asks; on a workbook, a line of text and boxes."
@@ -634,6 +758,15 @@
           "uniqueItems": true,
           "description": "Of a choice written by hand: the options the learner writes one of, such as the signs <, > and =."
         },
+        "trap_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trap_value",
+            "unevaluatedProperties": false
+          },
+          "minItems": 1,
+          "description": "Of a number, a fraction or a choice: the wrong values that the author knows, each with the trap it shows, compared with the value read as the key is."
+        },
         "predicate": {
           "type": "string",
           "minLength": 1,
@@ -671,6 +804,20 @@
                 "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+|/[1-9][0-9]*)?$",
                 "maxLength": 16,
                 "description": "A number: an integer, a decimal with a point or a simple fraction, of 16 characters at most."
+              },
+              "trap_values": {
+                "items": {
+                  "$ref": "#/$defs/trap_value",
+                  "properties": {
+                    "value": {
+                      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+|/[1-9][0-9]*)?$",
+                      "maxLength": 16,
+                      "description": "A wrong number, in the notation of the key, of 16 characters at most."
+                    }
+                  },
+                  "unevaluatedProperties": false
+                },
+                "description": "Of a number: the wrong values, each in the notation of the key."
               }
             },
             "required": [
@@ -719,6 +866,20 @@
                 "pattern": "^-?(0|[1-9][0-9]*)/[1-9][0-9]*$",
                 "maxLength": 16,
                 "description": "A simple fraction, of 16 characters at most."
+              },
+              "trap_values": {
+                "items": {
+                  "$ref": "#/$defs/trap_value",
+                  "properties": {
+                    "value": {
+                      "pattern": "^-?(0|[1-9][0-9]*)/[1-9][0-9]*$",
+                      "maxLength": 16,
+                      "description": "A wrong fraction, in the notation of the key, of 16 characters at most."
+                    }
+                  },
+                  "unevaluatedProperties": false
+                },
+                "description": "Of a fraction: the wrong values, each in the notation of the key."
               }
             },
             "required": [
@@ -832,6 +993,11 @@
                   "required": [
                     "criteria"
                   ]
+                },
+                {
+                  "required": [
+                    "trap_values"
+                  ]
                 }
               ]
             }
@@ -877,6 +1043,11 @@
                 {
                   "required": [
                     "predicate"
+                  ]
+                },
+                {
+                  "required": [
+                    "trap_values"
                   ]
                 }
               ]

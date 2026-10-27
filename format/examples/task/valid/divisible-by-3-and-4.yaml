@@ -3,6 +3,11 @@
 id: divisible-by-3-and-4-1
 statement:
   - text: Write a number from 1 to 50 that divides by 3 and by 4.
+givens:
+  - The number is from 1 to 50.
+  - It divides by 3.
+  - It divides by 4.
+unknown: Such a number.
 canvas:
   kind: handwriting_sheet
 items:
@@ -11,6 +16,10 @@ items:
         check:
           kind: predicate
           predicate: "1 <= value and value <= 50 and value % 3 == 0 and value % 4 == 0"
+solution:
+  - text: A number that divides by 3 and by 4 divides by 3 × 4 = 12, so from 1 to 50 it is 12, 24, 36 or 48.
+traps: [ignored-condition]
+leak_phrases: ["12", "24", "36", "48"]
 skills:
   primary: [number-divisibility]
 band: grades-3-4

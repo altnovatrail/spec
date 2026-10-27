@@ -8,7 +8,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 - A module is data: not code, and not instructions to a model (R02). The platform reads it the same way every time.
 - The format is the schemas in `schemas/`, this text and the test vectors in `vectors/` (R42). What a schema cannot say, this text says as a format rule (section 7). The examples in `examples/` show the format and check the schemas, but they add no rules.
-- `module-kit` implements the format: it reads a module, checks it against the schemas and the format rules, builds its package and its open view, and runs its check kinds (R17; architecture 3.7). An implementation that does not pass the test vectors does not conform to the format.
+- `module-kit` implements the format: it reads a module, checks it against the schemas and the format rules, builds its package and its open view, and runs its check kinds and its leak check (R17; architecture 3.7). An implementation that does not pass the test vectors does not conform to the format.
 - The names in the format are the English terms of the glossary, concepts 15.
 
 ## 2. Versions
@@ -25,7 +25,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - A major version is everything else:
   - a field removed, renamed or made required;
   - something valid made invalid, a new or stricter format rule among them;
-  - anything that can give a different verdict, open view or numbers on the same inputs: the behaviour of a check kind or of its normalization, how the verdicts of an item's answer slots make the item's, the limit of a predicate's steps, the generator or the derivation of seeds, templates, a closed field opened.
+  - anything that can give a different verdict, trap, open view, leak or numbers on the same inputs: the behaviour of a check kind or of its normalization, how the verdicts of an item's answer slots make the item's, the limit of a predicate's steps, how a wrong value matches a trap, what the leak check searches for and finds (section 20), the generator or the derivation of seeds, templates, a closed field opened.
 - Editorial changes give no new version. These are descriptions, examples, wording of this text that keeps its rules, and a test vector that pins what the text already says; the tag of `spec` names such a revision.
 - The anchor skills of the shared taxonomy are part of the format (section 13).
   - A new anchor skill is a minor change, and so is marking one `"deprecated": true`: a module MAY still name it until a major version removes it.
@@ -43,13 +43,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 format/
 ├── README.md     this text
 ├── VERSION       the format's version, MAJOR.MINOR
-├── schemas/      <term>.schema.json; common.schema.json and shared-taxonomy.schema.json, which parts refer to; verdict-vector.schema.json
+├── schemas/      <term>.schema.json; common.schema.json and shared-taxonomy.schema.json, which parts refer to; verdict-vector.schema.json and leak-vector.schema.json
 ├── examples/     <term>/valid/<case>.yaml and <term>/invalid/<case>.yaml; module/valid/<case>/
-└── vectors/      rules/<rule-id>/, open-view/<part>/<case>/, verdicts/<kind>/<case>.yaml, and the vectors of templates
+└── vectors/      rules/<rule-id>/, open-view/<part>/<case>/, verdicts/<kind>/<case>.yaml, leaks/<case>.yaml, and the vectors of templates
 ```
 
-- `<term>` is the concepts 15 term for the part a schema describes, in kebab-case: `manifest`, `skill-graph`, `task`.
-- Three schemas describe no part. The parts refer to two of them: `common.schema.json` holds the definitions that parts share, and `shared-taxonomy.schema.json`, named by its term, the anchor skills (section 13). The third, `verdict-vector.schema.json`, describes the test vectors of verdicts (section 9) and refers to the task's. None has examples of its own: the examples of the parts show the first two, and the vectors are the third's.
+- `<term>` is the concepts 15 term for the part a schema describes, in kebab-case: `manifest`, `skill-graph`, `task`. A catalog is named by the entries it holds, in the plural: the trap catalog is `traps`, and the technique catalog `techniques`.
+- Four schemas describe no part. The parts refer to two of them: `common.schema.json` holds the definitions that parts share, and `shared-taxonomy.schema.json`, named by its term, the anchor skills (section 13). The other two describe test vectors and refer to the task's: `verdict-vector.schema.json` those of verdicts, and `leak-vector.schema.json` those of the leak check (section 9). None has examples of its own: the examples of the parts show the first two, and the vectors are the other two's.
 - `examples/module/valid/<case>/` is an example of a whole module: a folder laid out as a module (section 10). The part `module` has no schema of its own.
 - A case is named in kebab-case for what it shows: `missing-title.yaml`, or a folder such as `no-manifest/`.
 - Schemas are JSON. Examples and vectors written by hand are YAML and follow section 4.
@@ -129,7 +129,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   - and, through them, for a field: its subschema under `properties`, under each key of `patternProperties` that matches it, and under `additionalProperties` where neither matches in the same subschema; for an element of an array: its subschema under `prefixItems`, or else under `items`.
 - An open object whose fields are all closed stays in the open view, as an empty object.
 - When an open object chooses a branch of `oneOf`, or a `then` of an `if`, by one of its fields, that field MUST be open.
-- A check — with its key, its predicate, the options of a choice written by hand and the criteria of a rubric —, a solution, a trap and a leak phrase MUST NOT be open (R05; section 15).
+- A check — with its key, its trap values, its predicate, the options of a choice written by hand and the criteria of a rubric —, a solution, a trap, of the trap catalog or of a task, and a leak phrase MUST NOT be open (R05; sections 15, 16 and 20).
 - Opening a closed field is a major change; a new field that is open from the start is a minor one (section 2).
 
 ## 7. Format rules
@@ -170,11 +170,12 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   - A vector of a `yaml.*` rule is a file, and it breaks only that YAML rule.
   - A vector of a rule of a whole module is a folder, and it breaks only that rule of a whole module. Each file in it that has a part follows the YAML rules and is valid against its part's schema.
   - A manifest in a vector names the format version in `VERSION`, except in a vector of `manifest.format-version`, which names one that a reader of that version does not read (section 2).
-  - `spec`'s CI checks that a case breaks none of the YAML rules but its own, that each file of a part with a schema is valid against it, and that a case laid out as a module breaks no rule of a whole module but its own. That a case breaks its rule, it checks only for the rules it implements itself: the YAML rules, the rules of a whole module and `manifest.format-version`. `module-kit`'s CI checks every case: that it is refused with the rule's ID.
+  - `spec`'s CI checks that a case breaks none of the YAML rules but its own, that each file of a part with a schema is valid against it, and that a case laid out as a module breaks no rule of a whole module but its own. That a case breaks its rule, it checks only for the rules it implements itself: the YAML rules, the rules of a whole module, `manifest.format-version`, and the rules of a task that an answer slot's check shows by itself — `task.choice-key`, `task.choice-options`, `task.fraction-key` and `task.trap-values` — and `task.no-leaks`. It checks those rules of a task also on the valid examples of a task and of a whole module, which break none of them, and on the cases of every other rule, which break none of them either. `module-kit`'s CI checks every case: that it is refused with the rule's ID.
 - `vectors/open-view/<part>/<case>/` holds the vectors of the open view: a folder of its own kind, not laid out as a module, with two files and nothing else. `part.yaml` is a part, valid against the schema of `<part>`, which is a part of the layout (section 10); `open-view.yaml` is the exact open view of it (section 6), whatever the order of keys. Both follow the YAML rules, and a manifest names the format version in `VERSION`. `spec`'s CI builds the open view of each case from the marks in the schemas and compares the two, and so does `module-kit`'s CI.
-- `vectors/verdicts/<kind>/<case>.yaml` holds the vectors of verdicts: a folder for each check kind that gives verdicts, named by its code in kebab-case, and in it a file for each case. A case is valid against `schemas/verdict-vector.schema.json` and follows the YAML rules. It holds `item`, an item of a task whose answer slots are all checked by the kind of its folder, and which breaks no rule of a task, and `readings`: each the value read in every answer slot of the item, in order, with the verdict and, for `unreadable`, the reason that each answer slot gets, and the verdict that the item gets (section 15).
-  - `spec`'s CI computes each verdict and reason from section 15 and compares, and so does `module-kit`'s CI. Of the rules of a task, `spec`'s CI checks on the item those that an answer slot's check shows by itself: `task.choice-key`, `task.choice-options` and `task.fraction-key`.
+- `vectors/verdicts/<kind>/<case>.yaml` holds the vectors of verdicts: a folder for each check kind that gives verdicts, named by its code in kebab-case, and in it a file for each case. A case is valid against `schemas/verdict-vector.schema.json` and follows the YAML rules. It holds `item`, an item of a task whose answer slots are all checked by the kind of its folder, and which breaks no rule of a task, and `readings`: each the value read in every answer slot of the item, in order, with what each answer slot gets — its verdict, for `unreadable` the reason, and for a value that matches a trap value the trap — and the verdict that the item gets (section 15).
+  - `spec`'s CI computes each verdict, reason and trap from section 15 and compares, and so does `module-kit`'s CI. Of the rules of a task, `spec`'s CI checks on the item those that an answer slot's check shows by itself: `task.choice-key`, `task.choice-options`, `task.fraction-key` and `task.trap-values`.
   - A predicate is the exception: `spec`'s CI has no Starlark, and computes only what a predicate gives before it runs, `blank` and `notation`. Its `correct`, `not_yet` and `unchecked` only `module-kit`'s CI computes.
+- `vectors/leaks/<case>.yaml` holds the vectors of the leak check (section 20): a file for each case, valid against `schemas/leak-vector.schema.json`, which follows the YAML rules. It holds `task`, a task that breaks no rule within its part, and `texts`: each a `text` that the learner might see, with `leaks`, every key and leak phrase of the task that the leak check finds in it, as the task writes them, in any order. `spec`'s CI searches each text as section 20 says and compares, and so does `module-kit`'s CI. Of the rules of a task, `spec`'s CI checks on the task those that it implements (above), `task.no-leaks` among them.
 - The vectors of templates and of the generator come with the tasks that define them.
 
 ## 10. A module
@@ -186,13 +187,16 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 |---|---|---|
 | `manifest.yaml` | `manifest` | The manifest: what the module is and whom it is for (section 11). |
 | `skill-graph.yaml` | `skill-graph` | The skill graph: the module's skills and what a learner needs before each (section 12). |
+| `traps.yaml` | `traps` | The trap catalog: the typical mistakes that the module's tasks catch (section 16). |
+| `techniques.yaml` | `techniques` | The technique catalog: the ways of solving that the module names and teaches (section 17). |
+| `solving-steps.yaml` | `solving-steps` | The solving steps: the frame through which the tutor leads a learner within a task (section 18). |
 | `tasks/<id>.yaml` | `task` | A task, a file for each, named by its local ID (section 14). |
 | `media/<path>` | — | The pictures and sound that the parts of the module show. |
 | `eval/<path>` | — | The module's eval set: the samples on which the platform checks that AI reads work in this module right. |
 | `NOTICE` | — | The notices that the licenses of the module's content require to keep with it. |
 
 - The part of a file is the term whose schema checks it: such a file is YAML (section 4) and valid against `schemas/<part>.schema.json`. No schema checks a file whose part is —.
-- Each part adds its row to the layout when it comes into the format. A part that a module has once is one file at its root, named by its term: `skill-graph.yaml`. A part that a module has many of, such as tasks and lessons, is a folder with one file for each entry, `<id>.yaml`, named by the entry's local ID, and the file holds that ID in its field `id` (`module.file-ids`).
+- Each part adds its row to the layout when it comes into the format. A part that a module has once is one file at its root, named by its term, and a catalog by its entries (section 3): `skill-graph.yaml`, `traps.yaml`. A part that a module has many of, such as tasks and lessons, is a folder with one file for each entry, `<id>.yaml`, named by the entry's local ID, and the file holds that ID in its field `id` (`module.file-ids`).
 - The names in a path compare exactly, as the folder lists them, letter case and all: `Manifest.yaml` is not `manifest.yaml`, and `NOTICE.txt` is not `NOTICE`. A reader MUST compare the names it lists rather than open a file by its name: a file system that ignores letter case would open `Manifest.yaml` for `manifest.yaml`.
 - A file or folder whose name begins with `.` is not part of the module, nor is anything in such a folder: a reader MUST leave it out of the module. A folder with no file in it holds nothing.
 - A module holds files and folders only: no symbolic links.
@@ -257,12 +261,14 @@ The signature is all that `module.media` reads: that the rest of the file is a p
 - `canvas.digit_height` is the height, in px, that a digit or a letter of the learner's writing has on the crop of a handwriting sheet that goes to be read: an integer from 1 to 256, 32 unless given. It is the module's setting, the same for each of its tasks; how the learner's app gets it with a task comes with the package (RUN.md, T34).
 - `authors` lists who wrote the module, each by `name`: a person or an organization.
 - `license` is an identifier of the [SPDX License List](https://spdx.org/licenses/): `Apache-2.0` for an official module. An SPDX expression, such as `MIT OR Apache-2.0`, is not in this version.
+- `rung_templates` are the templates of the first two rungs of the hint ladder, in order, in the module's explanation language: what the learner reads after a wrong answer when the tutor's question did not come or did not pass its checks, and neither a trap text nor a trap's advice fits (section 19). They are two texts, and they differ, so that a fallback never repeats the one before it. A module with an item with a verdict (section 15) has them (`manifest.rung-templates`): a module of rubrics alone has no hint ladder and needs none. `task.no-leaks` searches them for the keys and leak phrases of every task with an item with a verdict, so they SHOULD hold no number and name nothing that a task might have as its answer.
 
 | ID | Rule |
 |---|---|
 | `manifest.format-version` | `module_format_version` MUST name a version of the format that the reader reads (section 2). A reader refuses a module that names another, and names this rule. |
 | `manifest.dependencies` | `dependencies` MUST list exactly the anchor skills that the prerequisites in the module's skill graph name: each of them, and no other. |
 | `manifest.bands` | When the manifest has `bands`, their IDs MUST differ. In a module that names grades, every band MUST then name grades, every grade of `audience.grades` MUST be in exactly one band, and no band MAY name a grade that `audience.grades` does not; in a module that names none, no band MAY name grades. |
+| `manifest.rung-templates` | A module with an item with a verdict MUST have `rung_templates` in its manifest. |
 
 ## 12. The skill graph
 
@@ -319,7 +325,7 @@ The signature is all that `module.media` reads: that the rest of the file is a p
 
 ## 14. The task
 
-- A task is `tasks/<id>.yaml`, valid against `schemas/task.schema.json`, and its `id` is the name of its file before `.yaml` (section 10). It says what the learner reads, where and how they answer, what is right in each answer, which skills it trains, and how hard it is. What is right in an answer slot, and how the platform tells, is the answer slot's check (section 15).
+- A task is `tasks/<id>.yaml`, valid against `schemas/task.schema.json`, and its `id` is the name of its file before `.yaml` (section 10). It says what the learner reads, where and how they answer, what is right in each answer, which skills it trains, and how hard it is; and what helps the learner on the way: what the statement gives and asks, the techniques that help, the traps that the task catches, a simpler case, and its solution. What is right in an answer slot, and how the platform tells, is the answer slot's check (section 15).
 - **Statement.** `statement` is what the learner reads: parts in order, each a paragraph, `text`, or a picture.
   - A paragraph is plain text in the module's explanation language. This version has no formulas and no sound in a statement; either is a minor change (section 2).
   - A picture is `picture`, its path from `media/` (`picture_path`: a PNG, JPEG or WebP file); `alt`, what it shows in words, which a screen reader reads and which stands in its place until it comes; and `width` and `height`, the size it is shown at in CSS px, narrower when the statement is. `alt` is empty only for a picture that only decorates.
@@ -334,6 +340,7 @@ The signature is all that `module.media` reads: that the rest of the file is a p
   - On a workbook, an item is a `line`: pieces of `text` and boxes, `binding: box`, in order, with at least one box, as in "7 × [ ] = 56" or "[ ] apples". Its boxes are its answer slots.
   - An answer slot is named by its place among its item's answer slots, from 1: the third item's second answer slot.
   - Every answer slot, a box too, has its `check` (section 15), and an item's verdict is made of its answer slots' verdicts.
+  - An item MAY have a `simpler_case`: a similar case, simpler than the item, which the learner reads at the third rung of the hint ladder when the tutor's words do not come (section 19).
 - **Bindings.** The `binding` of an answer slot says where and how the learner gives the answer.
   - `anywhere` — anywhere on the sheet: the learner writes the final answer where they like, and AI finds it. When it finds none, or more than one, the learner is asked to circle the answer, which is no wrong answer (concepts 9.1).
   - `sheet` — the whole sheet is the answer: a work as a whole, such as an essay, which a rubric gives feedback on.
@@ -349,8 +356,15 @@ The signature is all that `module.media` reads: that the rest of the file is a p
   - A supporting anchor skill does not enter `dependencies` (section 11), which hold what the skill graph's prerequisites name.
 - **Band and difficulty.** `band` is the band of the module's difficulty scale that the task is in, by its ID in the manifest's `bands`, and `difficulty` is how hard the task is within its band, from 1 to 5 (section 11).
 - **Age categories.** `age_categories`, when given, lists the age categories that the task suits, fewer than the module's: the platform gives the task only to learners in one of them (privacy 3.2). A task on the learner's own life, for instance, may be for adults alone (privacy 9, П-20).
+- **Givens and unknown.** `givens` lists what the statement gives, each a short text, and `unknown` says what the task asks to find, in the module's explanation language. They are the chips that the learner ticks at a solving step that gives them (section 18), and what a hint asked for gives before the first answer (section 19). They restate the statement and tell no way to the answer.
+- **Techniques.** `techniques` names, by local ID, the techniques of the module's technique catalog that help in the task (section 17). The learner gets them from the server, at a solving step that gives them or on request (section 19): a technique's title tells how to solve the task, as a skill's would.
+- **Traps.** A task catches a trap of the module's trap catalog (section 16) in two ways:
+  - by a wrong value: the check of an answer slot names the trap of each wrong value it knows, in `trap_values` (section 15), and the program finds the trap;
+  - by the kind of mistake in the learner's work: `traps` names, by local ID, the traps that AI may suggest from the work, and such a trap's provenance is AI's (concepts 9.4). A trap that a trap value of the task shows SHOULD NOT be named in `traps` too: one mistake would then count twice, as the program's finding and as AI's.
+- **Solution.** `solution` is how the task is solved, in parts as the statement is: paragraphs and pictures. The learner sees it once the task is solved, and AI reads it to find the first mistake in the learner's work (concepts 10). A task with an item with a verdict has one: the schema requires it of a task with a line, or with an answer slot bound other than `sheet`.
+- **Leak phrases.** `leak_phrases` lists phrases that give the answer away beyond the keys themselves, in the module's explanation language: the leak check searches the texts that the learner sees before the task is solved for them (section 20). They carry what the keys cannot: an answer in words, a key that its item shows already, the answer to a predicate.
 - **Provenance.** Everything in a module is its author's, so a task has no field for provenance (concepts 9.4). A key that a solver computes comes with the templates of tasks (RUN.md, T33).
-- **Open fields.** `id`, `statement`, `canvas` and `items`, with every field of them but the `check` of each answer slot, are open: the learner's app shows them. The checks, `skills`, `band`, `difficulty` and `age_categories` are closed: the server reads them, a check holds what is right, and a skill's title could tell how to solve the task.
+- **Open fields.** `id`, `statement`, `canvas`, `items`, `givens` and `unknown` are open, with every field of them but the `skills` and the `simpler_case` of an item and the `check` of each answer slot: the learner's app shows them. Those, and `skills`, `band`, `difficulty`, `age_categories`, `techniques`, `traps`, `solution` and `leak_phrases`, are closed: the server reads them. A check holds what is right, a solution and a simpler case come only when the program gives them, and the title of a skill or a technique could tell how to solve the task.
 
 | ID | Rule |
 |---|---|
@@ -358,7 +372,7 @@ The signature is all that `module.media` reads: that the rest of the file is a p
 | `task.skill-roles` | No skill MAY be both a primary and a supporting skill of an item: of the task, for an item that names no skills of its own, or of the item itself. |
 | `task.own-anchors` | A task MUST NOT name among its supporting skills an anchor skill that a skill of its module teaches. |
 | `task.known-band` | The `band` of a task MUST be the ID of a band in the manifest's `bands`. |
-| `task.known-pictures` | The `picture` of every part of a task's statement MUST be the path, from `media/`, of a file of the module. |
+| `task.known-pictures` | The `picture` of every part of a task's statement and of its solution MUST be the path, from `media/`, of a file of the module. |
 | `task.age-categories` | Every age category of a task MUST be one of the manifest's `audience.age_categories`. |
 | `task.zones` | Every zone of a task MUST lie on the sheet, so that `left` + `width` is at most 1000 and `top` + `height` at most 1400, and no two zones of a task MAY overlap. |
 
@@ -372,9 +386,9 @@ The signature is all that `module.media` reads: that the rest of the file is a p
 
 | Kind | What is right | Parameters | Bindings |
 |---|---|---|---|
-| `number` | a number of the key's value | `key`; `units` | `anywhere`, `zone`, `box` |
-| `fraction` | a fraction of the key's value, in the form asked | `key`; `form` | `anywhere`, `zone`, `box` |
-| `choice` | the option that is the key | `key`; `options`, when the choice is written by hand | `choice`; written by hand, `anywhere`, `zone` and `box` |
+| `number` | a number of the key's value | `key`; `units`; `trap_values` | `anywhere`, `zone`, `box` |
+| `fraction` | a fraction of the key's value, in the form asked | `key`; `form`; `trap_values` | `anywhere`, `zone`, `box` |
+| `choice` | the option that is the key | `key`; `options`, when the choice is written by hand; `trap_values` | `choice`; written by hand, `anywhere`, `zone` and `box` |
 | `predicate` | a whole number that the predicate holds for | `predicate` | `anywhere`, `zone`, `box` |
 | `rubric` | none: the work gets feedback by the criteria, not a verdict | `criteria` | `sheet` |
 
@@ -384,6 +398,14 @@ The signature is all that `module.media` reads: that the rest of the file is a p
 - `choice`: `key` is one of the options, as written (`task.choice-key`). When the answer slot is bound `choice`, the options are the answer slot's, and the learner taps one. Otherwise the check holds its own `options`, two or more, and the learner writes one of them by hand: a sign `<`, `>` or `=` in a box, or a word. No two options of a choice are alike once normalized (`task.choice-options`).
 - `predicate`: `predicate` is an expression of [Starlark](https://github.com/bazelbuild/starlark/blob/master/spec.md) that is `True` for every right answer and `False` for every other, such as `"value % 3 == 0 and value % 4 == 0"`. It is written on one name, `value`, the whole number read, and names nothing but `value` and Starlark's built-in names (`task.predicate-expression`). It is at most 1000 characters long: a check that needs more is a program, and programs come with the solvers of templates.
 - `rubric`: `criteria` lists what the work is judged by, each criterion a `text` in the module's explanation language. AI gives the feedback by them (R04). A rubric gives no verdict, so the item has none.
+
+The kinds that give a verdict are `number`, `fraction`, `choice` and `predicate`, and an item whose answer slots they check is an item with a verdict: sections 11, 19 and 20 name it so.
+
+**Trap values.** `trap_values` lists the wrong values that the author knows, each with the trap it shows: `value`, the wrong value; `trap`, a trap of the module's trap catalog by local ID (section 16); and, if the author wrote one, `text`, what the learner reads after this wrong value, which names the mistake rather than retelling the solution (section 19). A check of `number`, `fraction` or `choice` MAY have them: a predicate has no key to be wrong against, and a rubric no verdict.
+- A trap value is written as the key is: in quotes, and for `number` and `fraction` in the notation of the kind, at most 16 characters long. For a choice it is one of the options as written, other than the key.
+- A value read is compared with the trap values as the check compares it with the key, after the same normalization: `6 rungs` matches the trap value `6` of a check with the units `rungs`, `9/12` matches `6/8` by value, and `EVEN` matches `even`. A value matches a trap only when its verdict is `not_yet`, and then it matches one at most: the trap values of a check are all `not_yet`, and no two of them are equal as the check compares them (`task.trap-values`).
+- With `form: reduced`, a fraction of the key's value that can be reduced is not yet right, so a trap value MAY be such a fraction, as `6/8` for the key `3/4`: every fraction of that value that is not the key then matches it.
+- The trap that a value matches is the program's finding, and it weighs as a verdict does (concepts 9.4).
 
 **The value read.** A check judges the value read in its answer slot:
 - for an answer written by hand, what AI read in the slot, as it is written, and for a slot bound `anywhere` the final answer that AI found;
@@ -405,7 +427,7 @@ The verdict of an item is made of its answer slots' verdicts:
 - otherwise `unchecked`.
 
 **Numbers.** `number`, `fraction` and `predicate` read the value in these steps:
-1. Every superscript or subscript digit — U+00B2, U+00B3, U+00B9, or U+2070 to U+209F — becomes U+FFFD, the replacement character, which no notation takes: the next step would make `7²` into `72`. A unit such as `cm²` goes through the same step, and still matches (step 6).
+1. Every superscript or subscript digit — U+00B2, U+00B3, U+00B9, or U+2070 to U+209F — becomes U+FFFD, the replacement character, which no notation takes: the next step would make `7²` into `72`. So does every vulgar fraction — U+00BC to U+00BE, U+2150 to U+215F, or U+2189 — that a number, a character of the general category N such as `1` or `１`, stands right before or right after: the next step would make `1½` into `11⁄2`, eleven halves. A unit such as `cm²` goes through the same step, and still matches (step 6).
 2. The value is normalized to NFKC ([UAX #15](https://www.unicode.org/reports/tr15/)), so that a full-width `７` is `7` and `½` is `1⁄2`.
 3. The hyphens and dashes U+2010 and U+2012 to U+2015, and the minus sign U+2212, become `-`; the fraction slash U+2044 and the division slash U+2215 become `/`.
 4. Every run of white space, the characters with the Unicode property White_Space, becomes one space, and white space at either end is dropped.
@@ -418,7 +440,7 @@ The value is then in notation when it is at most 16 characters long and is:
 - a decimal, `-?(0|[1-9][0-9]*)\.[0-9]+`: `2.5`, `-0.75`;
 - a simple fraction, `-?(0|[1-9][0-9]*) ?/ ?[1-9][0-9]*`: `3/4`, `3 / 4`, `-1/2`.
 
-`number` takes all three, `fraction` only a simple fraction, and `predicate` only an integer. So `07`, `+7`, `.5`, `1,5`, `1 000`, `1,000`, `1/0`, `1 1/2`, `7e0` and a number in other digits are not in notation. A value in notation is compared with the key as a rational number, exactly, never through floating point: `3/6`, `0.5` and `1/2` are equal, and `9007199254740993` is not `9007199254740992`.
+`number` takes all three, `fraction` only a simple fraction, and `predicate` only an integer. So `07`, `+7`, `.5`, `1,5`, `1 000`, `1,000`, `1/0`, `1 1/2`, `1½`, `7e0` and a number in other digits are not in notation. A value in notation is compared with the key as a rational number, exactly, never through floating point: `3/6`, `0.5` and `1/2` are equal, and `9007199254740993` is not `9007199254740992`.
 
 **Choices.** A choice normalizes the value and every option alike: NFKC, the dashes and slashes of step 3, the white space of step 4, and then each character to its simple lowercase mapping ([UnicodeData.txt](https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt), field 13), so that `ODD` is `odd` and `＜` is `<`. Nothing more is dropped: a `=` or a `.` can be what the learner chose. An empty value is blank. A value equal to the key is `correct`, a value equal to another option is `not_yet`, and any other value is not in notation: the learner wrote none of the options.
 
@@ -438,5 +460,86 @@ The limit of steps is the format's: the same expression on the same value takes 
 | `task.choice-key` | The `key` of a `choice` check MUST be one of its options as written: the answer slot's `options` when it is bound `choice`, and the check's own otherwise. |
 | `task.choice-options` | No two options of a choice MAY be the same once normalized as a choice normalizes them. |
 | `task.fraction-key` | The `key` of a `fraction` check with `form: reduced` MUST be a fraction in lowest terms. |
+| `task.trap-values` | Every trap value of a check MUST get `not_yet` from the check, read as a value of its answer slot: for a choice it is one of the options as written, other than the key. No two trap values of a check MAY be equal as the check compares them. |
 | `task.predicate-expression` | The `predicate` of a check MUST be a Starlark expression, and MUST name nothing but `value` and Starlark's built-in names. |
 | `task.assessability` | Each primary skill of an item that is a skill of the module's graph MUST be of the assessability `verdict` when the item's answer slots are checked by a kind that gives a verdict, and `rubric` when the item's answer slot is checked by a rubric. An item's skills are its own, or else its task's. So a skill whose assessability is `none` is only ever a supporting skill. |
+
+## 16. The trap catalog
+
+- The trap catalog is `traps.yaml`, valid against `schemas/traps.schema.json`. It names the module's traps: the typical mistakes that its tasks catch, each by name, so that a wrong answer becomes a diagnosis that can be counted, which a free-form name of a mistake cannot (concepts 7). A task names only a trap of the catalog (`task.known-traps`). A module MAY have no trap catalog, and then its tasks catch no trap.
+- `traps` holds each trap under its local ID:
+  - `description`, what the mistake is, in the module's explanation language. AI reads it to suggest the trap from the learner's work, and the learner's progress names the mistakes that repeat by it;
+  - `skills`, when given, the skills of the module that the mistake belongs to, by local ID: the learner model counts the traps of a skill (concepts 11). A trap that belongs to no skill leaves the field out;
+  - `trap_advice`, what to advise the adult or the learner on this mistake, in the module's explanation language. The learner's progress gives it beside a trap that repeats, and it is the fallback text of the first two rungs after a wrong value of the trap that has no text of its own (section 19).
+- A published trap ID never names another trap: the learner's progress counts traps by their full IDs (section 10). The order of the traps carries no meaning (section 4).
+- **Open fields.** None: the trap catalog is closed, and its open view is an empty object (section 6). A trap tells what mistake a task expects, and the learner's app does not get it (R05).
+
+| ID | Rule |
+|---|---|
+| `traps.known-skills` | Every local ID in a trap's `skills` MUST be the ID of a skill in the module's skill graph. |
+| `task.known-traps` | Every trap that a task names, in its `traps` and in the trap values of its checks, MUST be the ID of a trap in the module's trap catalog. |
+
+## 17. The technique catalog
+
+- The technique catalog is `techniques.yaml`, valid against `schemas/techniques.schema.json`. It names the module's techniques: ways of solving that can be named and taught, such as "start with small numbers" (concepts 7). A module MAY have no technique catalog, and then its tasks name no technique.
+- `techniques` holds each technique under its local ID: its `title` and, if it has one, its `description` — what the technique is and when it helps — both in the module's explanation language. The order of the techniques carries no meaning (section 4), and this version gives them no numbers.
+- A task names the techniques that help in it, in its `techniques` (section 14).
+- **Open fields.** `techniques`, with every field of a technique, is open, as the skills of the skill graph are: the learner's app may show the catalog. Which techniques help in a task is closed, in the task (section 14).
+
+| ID | Rule |
+|---|---|
+| `task.known-techniques` | Every local ID in a task's `techniques` MUST be the ID of a technique in the module's technique catalog. |
+
+## 18. Solving steps
+
+- The solving steps are `solving-steps.yaml`, valid against `schemas/solving-steps.schema.json`: the frame through which the tutor leads a learner within a task, such as Pólya's understand, plan, solve and check (concepts 7). A module MAY have none, and then its tasks are solved without steps.
+- `steps` lists the steps in order, each named by its place, from 1. A step has:
+  - `title`, what the learner does in it, in the module's explanation language;
+  - `gives`, when given, what of the task the step gives the learner: `givens`, the task's `givens` and `unknown`, which the learner ticks; and `techniques`, the task's techniques, which the server gives when the step begins (section 19);
+  - `exit_condition`, when the step ends, by an event on the learner's device and with no key:
+    - `givens_ticked` — the learner has ticked every given and the unknown. Such a step gives `givens`, and on a task with neither it ends at once;
+    - `answer_slots_filled` — every answer slot of the task holds something of the learner's: a stroke in its zone or its box, an option tapped, and for an answer slot bound `anywhere` or `sheet`, a stroke on the sheet;
+    - `none` — the learner moves on.
+- The state of a widget comes as a new exit condition, a minor change, with the widgets (concepts 7).
+- Every task of the module goes through the same steps, and the learner MAY solve it without them: in the mode of solving alone, the tutor answers only when called (concepts 10).
+- **Open fields.** `steps`, with every field of a step, is open: the learner's app leads the steps itself, by their exit conditions (architecture 3.1).
+
+## 19. Hints
+
+- **The hint ladder** goes by the number of wrong answers on a task, and the program picks its rung, from 1 to 3: a question on where the mistake is, a question on the rule or the trap, and a similar case, simpler (concepts 10). AI only words the question for the rung (R03). After the third rung, the program offers to call an adult or to show the solution (О-7).
+- **Fallback texts.** When the tutor's question does not come, or does not pass its checks, the learner reads a fallback text of the module:
+  - at rungs 1 and 2, the `text` of the trap value that the wrong value matched (section 15); without one, the `trap_advice` of its trap (section 16); and without a trap, the template of the rung, from the manifest's `rung_templates` (section 11);
+  - at rung 3, the `simpler_case` of the item (section 14); without one, what rung 2 gives.
+
+  So a module with an item with a verdict has rung templates (`manifest.rung-templates`), and the learner always gets an answer. Which answer slot a fallback speaks of, when a submission has more than one wrong, is the server's to decide (architecture 3.5).
+- **A hint asked for.** Before the learner's first answer, a hint that the learner asks for gives what the module gives the solving steps: the task's `givens` and `unknown` (section 14) and its techniques (section 17), with no AI and no reading of the work. What a hint asked for gives after a wrong answer, and how it counts as evidence, is the server's to decide (architecture 3.5; О-21).
+- **Techniques.** The server gives the task's techniques when a solving step that `gives` them begins (section 18), or when the learner asks for a hint, and records that the learner saw them.
+- A sketch of how to start, which the tutor draws under the learner's work (concepts 8), is not in this version: it comes as a minor change, once the canvas draws one.
+- The module's texts that a call of AI reads — the descriptions of the traps, the techniques, the solution and the criteria of a rubric — reach it only as a marked block of data, which cannot change its task (R02).
+
+## 20. The leak check
+
+- The leak check is the program's search for the answer in a text that the learner will see: in the tutor's words before the learner gets them (R54), and in the module's texts when the module is checked (`task.no-leaks`). It is a safeguard, not a proof: it finds what it searches for, and an answer put in other words passes it (concepts 10).
+- **What it searches for.** For a task, it searches a text for:
+  - the `key` of every check of kind `number`, `fraction` and `choice`, in every item of the task, except a key that is found, by the same search, in a text that the learner sees with its item: the paragraphs of the statement and the `alt` of its pictures, the item's `text`, the `text` pieces of its line, and the `options` of its answer slots bound `choice`. Such a key, as `2` in a task whose statement says that a chicken has 2 legs, would be found in a plain mention of the task, and the task's leak phrases carry it instead. The options of a choice written by hand are closed and do not count, and neither do units or trap values;
+  - every phrase of the task's `leak_phrases`, always.
+
+  A predicate has no key, and a rubric neither: for them only leak phrases are searched for. A key of a choice by tapping is always among its item's options, so it is never searched for: a task that wants it kept SHOULD write it, or what gives it away, in `leak_phrases`.
+- **The normal form.** A text, a key of a choice and a leak phrase are searched in their normal forms: step 1 of section 15, then NFKC, the dashes and slashes of step 3 and the white space of step 4, and then each character to its simple lowercase mapping (section 15). A character of a word is one of the Unicode general categories L, M and N: a letter, a mark or a number.
+- **A phrase.** A key of a choice and a leak phrase are found where their normal form stands in the text's normal form, and when it begins with a character of a word, the character before it is none, if there is one, and when it ends with one, so is the character after it. So `odd` is found in "Odd." and in "even/odd", but not in "odds", and `<` is found in "56<65". A phrase whose normal form is empty is found nowhere.
+- **A number.** A key of `number` or `fraction` is found where a number of the text has its value, whatever the sign: the search compares magnitudes, so that `5-3` shows a key `3` and a key `-3` alike. The numbers of a text are found in its normal form, from its start:
+  1. at a digit, 0 to 9, the search takes the longest run of the form of a number: a simple fraction, digits, an optional space, `/`, an optional space and digits that are not all zero; a decimal, digits, `.` and digits; or an integer, digits;
+  2. the run is a number of the text when no character of a word stands right before it and none right after it, and its value is the exact rational number it writes, leading zeros and all;
+  3. either way, the search goes on after the whole run, so that no tail of a longer token is read as a number.
+
+  So `7` is found in "7 rungs", "(7)", "07:30" and "-7", but not in "17", "7.5", "7x", "x7" or "7th", and `5` is not found in "x7.5"; `0.5` is found in "1/2", "2 / 4" and "½"; and `3/4` is found in "6/8".
+- **What is not read as a number.** A number in words, a decimal comma, digits grouped by a comma or a space, a mixed number such as `1 1/2`, an exponent and the digits of other scripts are not read as numbers: `1,5` is the numbers 1 and 5. A task whose answer can be written so, and a task in a language that writes numbers so, SHOULD write it in `leak_phrases`: "seven", "семь".
+- **The module's texts.** For each task, `task.no-leaks` searches the module's texts that the learner can see before the task is solved: its `givens` and `unknown`, the title and description of each technique it names, the `text` of each of its trap values, the `trap_advice` of each trap it names, the `simpler_case` of each of its items, and, when it has an item with a verdict, the manifest's `rung_templates`. Its statement is not searched, being the task, nor its solution, which comes once it is solved.
+  - A text of the whole module — a rung template, a trap's advice, a technique — is searched for the keys of every task that can show it, so it SHOULD hold no number.
+  - A trap text SHOULD NOT repeat the learner's value: under `form: reduced`, `2/8` has the key's value, and "2/8 is right in value" gives `1/4` away. It says "your fraction" instead.
+  - A text for one item SHOULD NOT name the numbers of another: the keys of every item of the task are searched in it, and an item's own texts free only its own key.
+- The test vectors of the leak check (section 9) use only characters that every version of Unicode from 15.0 on normalizes alike, as those of verdicts do.
+
+| ID | Rule |
+|---|---|
+| `task.no-leaks` | No text of the module that the learner can see before a task is solved MAY hold a key or a leak phrase of the task, as the leak check finds them: its `givens` and `unknown`, the title and description of each technique it names, the `text` of each of its trap values, the `trap_advice` of each trap it names, the `simpler_case` of each of its items and, when it has an item with a verdict, the manifest's `rung_templates`. |

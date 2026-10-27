@@ -1,0 +1,17 @@
+# error: required at #
+# A task with an item with a verdict has a solution: the learner sees it once the task is solved.
+id: gaps-ladder-1
+statement:
+  - text: How many rungs are there?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: number
+          key: "7"
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

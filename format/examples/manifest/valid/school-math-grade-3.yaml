@@ -17,3 +17,6 @@ languages:
 authors:
   - name: The NovaTrail authors
 license: Apache-2.0
+rung_templates:
+  - Which step of your work gave you this answer?
+  - Read the task again slowly. Is there anything it says that your work does not use yet?

@@ -1,0 +1,32 @@
+# error: not at #/items/1/answer_slots/0/check
+# A predicate has no key to be wrong against, so its check knows no trap values: a wrong value of it
+# is in the task's leak phrases, or among the traps that AI may suggest.
+id: multiples-1
+statement:
+  - text: a) What is 3 × 4? b) Write another number that divides by 3 and by 4.
+canvas:
+  kind: handwriting_sheet
+items:
+  - text: a)
+    answer_slots:
+      - binding: zone
+        zone: {left: 100, top: 200, width: 300, height: 200}
+        check:
+          kind: number
+          key: "12"
+  - text: b)
+    answer_slots:
+      - binding: zone
+        zone: {left: 100, top: 600, width: 300, height: 200}
+        check:
+          kind: predicate
+          predicate: "value % 12 == 0 and value != 12"
+          trap_values:
+            - value: "6"
+              trap: ignored-condition
+solution:
+  - text: "3 × 4 = 12, and every multiple of 12 divides by 3 and by 4, such as 24."
+skills:
+  primary: [number-divisibility]
+band: grades-3-4
+difficulty: 2

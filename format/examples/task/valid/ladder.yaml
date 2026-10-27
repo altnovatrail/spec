@@ -1,9 +1,16 @@
 # The task of the illustration in concepts 16.1, from the module of olympiad mathematics: the learner
 # writes the answer anywhere on a handwriting sheet, and AI finds it. 180 cm hold six gaps of 30 cm,
-# so there are seven rungs, and "7 rungs" is right too.
+# so there are seven rungs, and "7 rungs" is right too. The check knows two wrong values: 6, the gaps
+# counted for the rungs, with a text of its own, and 8, a rung too many, after which the learner reads
+# the trap's advice. AI may suggest from the work that the learner left out a rung at either end. No
+# text that the learner sees before solving holds a 7, and "seven rungs" gives the answer in words.
 id: gaps-ladder-1
 statement:
   - text: The rungs of a ladder are 30 cm apart. From the lowest rung to the highest it is 180 cm. How many rungs are there?
+givens:
+  - The rungs are 30 cm apart.
+  - It is 180 cm from the lowest rung to the highest.
+unknown: How many rungs there are.
 canvas:
   kind: handwriting_sheet
   grid: squares
@@ -14,6 +21,18 @@ items:
           kind: number
           key: "7"
           units: [rung, rungs]
+          trap_values:
+            - value: "6"
+              trap: off-by-one
+              text: That is how many gaps there are between the rungs. How many rungs hold those gaps?
+            - value: "8"
+              trap: off-by-one
+    simpler_case: Try a short ladder first, 60 cm from the lowest rung to the highest, with the rungs 30 cm apart. How many rungs has it?
+solution:
+  - text: "From the lowest rung to the highest there are 180 ÷ 30 = 6 gaps of 30 cm, and a ladder has one more rung than gaps: 7 rungs."
+techniques: [draw, small-numbers]
+traps: [ignored-condition]
+leak_phrases: [seven rungs]
 skills:
   primary: [counting-gaps]
 band: grades-3-4

@@ -14,6 +14,8 @@ items:
           criteria:
             - text: The number is written neatly.
       - text: "= 56"
+solution:
+  - text: "7 × 8 = 56, so the missing number is 8."
 skills:
   primary: [times-tables]
 band: grade-3

@@ -1,0 +1,19 @@
+# Givens that hold the key, 7: the learner ticks them before the task is solved.
+id: gaps-ladder
+statement:
+  - text: The rungs of a ladder are 30 cm apart. From the lowest rung to the highest it is 180 cm. How many rungs are there?
+givens:
+  - The rungs are 30 cm apart.
+  - There are 7 rungs from the lowest to the highest.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "7"}
+solution:
+  - text: "180 ÷ 30 = 6 gaps, and a ladder has one more rung than gaps: 7 rungs."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

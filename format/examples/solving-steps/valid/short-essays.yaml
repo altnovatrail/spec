@@ -1,0 +1,10 @@
+# The solving steps of the module of short essays: no step waits for an event, so the learner moves
+# on when ready.
+steps:
+  - title: Plan the essay
+    gives: [techniques]
+    exit_condition: none
+  - title: Write it
+    exit_condition: none
+  - title: Read it again
+    exit_condition: none

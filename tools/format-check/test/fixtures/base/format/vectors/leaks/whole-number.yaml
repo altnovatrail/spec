@@ -1,0 +1,11 @@
+# A key found as a number of the text, and not inside another.
+task:
+  items:
+    - answer_slots:
+        - binding: anywhere
+          check: {kind: number, key: "7"}
+texts:
+  - text: It is 7.
+    leaks: ["7"]
+  - text: It is 17.
+    leaks: []

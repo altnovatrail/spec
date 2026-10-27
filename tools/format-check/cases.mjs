@@ -1,5 +1,6 @@
 // The examples and test vectors of the module format, and the rules and the layout of a module its
-// text lists (format/README.md, sections 7–11 and 15; R45 and its amendment of 2026-10-22, R46, R56).
+// text lists (format/README.md, sections 7–11, 15 and 20; R45 and its amendment of 2026-10-22, R46,
+// R56, R57).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -9,13 +10,19 @@ import { gfm } from "micromark-extension-gfm";
 import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listModule, mediaBreaches, placeFiles, versionProblem } from "./module.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
-import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict } from "./verdicts.mjs";
+import { leaksBefore, leaksIn, needlesOf } from "./leaks.mjs";
+import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from "./verdicts.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
 // What an invalid example never names: the keyword that failed inside them is named instead
 // (format/README.md, section 8).
 const NEVER_NAMED = new Set(["$ref", "allOf", "properties", "items", "if", "then", "else"]);
 const HEADER = "# error: ";
+// The part of a task, whose rules format-check implements in part.
+const TASK_PART = "task";
+// The rules of a task that format-check implements, and so checks on every task it reads: those
+// that an answer slot's check shows by itself (section 15), and task.no-leaks (section 20).
+const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.no-leaks"];
 
 // What the text lists in its tables: the rows of each table whose first column is headed ID, each a
 // rule's ID, <part>.<name>, and its statement (section 7); and the rows of the table whose first
@@ -115,6 +122,7 @@ export function checkExample(bytes, { kind, term, validate, version }) {
   const errors = valid ? [] : validate.errors;
   if (kind === "valid") {
     for (const error of errors) problems.push({ line: 0, message: `does not pass its schema: ${describe(error)}` });
+    if (valid && term === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(value), null));
     return problems;
   }
   if (valid) problems.push({ line: 1, message: `passes its schema, and names ${header.keyword} at ${header.location}` });
@@ -130,7 +138,11 @@ export function checkExample(bytes, { kind, term, validate, version }) {
 // format/VERSION's, or null.
 export function checkVector(bytes, { rule, validate, version }) {
   const read = readModuleFile(bytes);
-  if (partOf(rule) !== "yaml") return partFileProblems(read, partOf(rule), { rule, validate, version });
+  if (partOf(rule) !== "yaml") {
+    const problems = partFileProblems(read, partOf(rule), { rule, validate, version });
+    if (!problems.length && validate && partOf(rule) === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(read.value), rule));
+    return problems;
+  }
   const problems = read.notYaml.map(({ line, message }) => ({ line, message: `not YAML: ${message}` }));
   for (const { rule: broken, line, message } of read.violations) {
     if (broken !== rule) problems.push({ line, message: `breaks ${broken} too: ${message}` });
@@ -151,6 +163,8 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
   const { rows, breaches } = placeFiles(listModule(folder), layout, forms);
   const problems = [];
   const parts = new Set();
+  // The values of the files that passed their schemas, by part, for the rules of a task.
+  const values = { tasks: [], partsOk: true };
   // The rules of a whole module that could not be checked on this case: no vector of one then
   // says that it breaks no such rule.
   const unchecked = new Set(forms.isMediaPath ? [] : ["module.media"]);
@@ -161,6 +175,9 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
     const validate = validatorOf(row.part);
     const fileProblems = partFileProblems(read, row.part, { rule, validate, version });
     for (const problem of fileProblems) problems.push({ file, ...problem });
+    if (!validate || fileProblems.length) values.partsOk = false;
+    else if (row.part === TASK_PART) values.tasks.push({ file, task: read.value });
+    else values[row.part] = read.value;
     // module.file-ids: an entry's file holds its own name in id, read only from a file that passed
     // its schema, so that a file the schema refuses breaks that and nothing more.
     const id = read.value?.id;
@@ -172,6 +189,7 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
   }
   breaches.push(...mediaBreaches(folder, [...rows].filter(([, row]) => row).map(([file]) => file), forms));
   problems.push(...wholeModuleProblems(breaches, rule, unchecked));
+  if (values.partsOk) problems.push(...moduleTaskProblems(values, rule));
   const part = rule === null ? null : partOf(rule);
   if (part !== null && part !== "yaml" && part !== "module" && !parts.has(part)) {
     problems.push({ file: "", line: 0, message: `holds no file of the part ${part}, whose rule ${rule} it is a case of` });
@@ -207,11 +225,9 @@ export function checkOpenView(partBytes, viewBytes, { term, validate, version, o
 // A predicate's value in notation gets no verdict here: only module-kit runs Starlark. Returns
 // problems, each { line, message }.
 export function checkVerdictVector(bytes, { kind, validate }) {
-  const read = readModuleFile(bytes);
-  const problems = yamlProblems(read.violations, read.notYaml);
-  if (problems.length || !validate) return problems;
-  if (!validate(read.value)) return validate.errors.map((error) => ({ line: 0, message: `does not pass the schema of verdict vectors: ${describe(error)}` }));
-  const { item, readings } = read.value;
+  const { problems, value } = vectorStart(bytes, validate, "verdict vectors");
+  if (!value) return problems;
+  const { item, readings } = value;
   const slots = answerSlotsOf(item);
   slots.forEach((slot, at) => {
     if (slot.check.kind !== kind) problems.push({ line: 0, message: `answer slot ${at + 1} is checked by ${slot.check.kind}: a vector of ${kind} checks every answer slot by ${kind}` });
@@ -231,7 +247,10 @@ export function checkVerdictVector(bytes, { kind, validate }) {
         if (given.verdict === "unreadable") problems.push({ line: 0, message: `${which}, answer slot ${slot + 1}: ${value} is in the notation of a predicate, which gives correct, not_yet or unchecked` });
       } else if (computed.verdict !== given.verdict || computed.reason !== given.reason) {
         problems.push({ line: 0, message: `${which}, answer slot ${slot + 1}: ${value} gets ${shown(computed)}, not ${shown(given)}` });
+        return;
       }
+      const trap = trapOf(slots[slot], given.value);
+      if (trap !== (given.trap ?? null)) problems.push({ line: 0, message: `${which}, answer slot ${slot + 1}: ${value} matches ${trapShown(trap)}, not ${trapShown(given.trap)}` });
     });
     const made = itemVerdict(reading.answer_slots.map((given) => given.verdict));
     if (made !== reading.verdict) problems.push({ line: 0, message: `${which}: its answer slots make the item ${made}, not ${reading.verdict}` });
@@ -242,6 +261,70 @@ export function checkVerdictVector(bytes, { kind, validate }) {
 function shown({ verdict, reason }) {
   return reason ? `${verdict} (${reason})` : verdict;
 }
+
+const trapShown = (trap) => (trap ? `the trap ${trap}` : "no trap");
+
+// A test vector of the leak check (section 20): the YAML rules, the schema of leak vectors, the rules
+// of a task that its answer slots' checks show by themselves, and what the leak check finds in each
+// text, as a set.
+export function checkLeakVector(bytes, { validate }) {
+  const { problems, value } = vectorStart(bytes, validate, "leak vectors");
+  if (!value) return problems;
+  const { task, texts } = value;
+  for (const breach of [...taskRuleBreaches(task)].sort()) problems.push({ line: 0, message: `its task breaks ${breach}: the task of a vector is one that a module may hold` });
+  if (problems.length) return problems;
+  const needles = needlesOf(task);
+  texts.forEach(({ text, leaks }, at) => {
+    const found = leaksIn(text, needles);
+    const same = found.length === leaks.length && found.every((leak) => leaks.includes(leak));
+    if (!same) problems.push({ line: 0, message: `text ${at + 1}: the leak check finds ${leaksShown(found)} in ${JSON.stringify(text)}, not ${leaksShown(leaks)}` });
+  });
+  return problems;
+}
+
+// The start of a vector of verdicts or of the leak check: the YAML rules, then the schema of such
+// vectors. { problems, value }, with no value when the vector goes no further.
+function vectorStart(bytes, validate, what) {
+  const read = readModuleFile(bytes);
+  const problems = yamlProblems(read.violations, read.notYaml);
+  if (problems.length || !validate) return { problems };
+  if (!validate(read.value)) return { problems: validate.errors.map((error) => ({ line: 0, message: `does not pass the schema of ${what}: ${describe(error)}` })) };
+  return { problems, value: read.value };
+}
+
+// Which of the rules that format-check implements a task breaks: with the module's other parts when
+// it lies in one.
+function taskRuleBreaches(task, parts = {}) {
+  const breaches = new Set((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap(slotBreaches)));
+  if (leaksBefore(task, parts)) breaches.add("task.no-leaks");
+  return breaches;
+}
+
+// What a task's breaches are in a vector of rule: it breaks its rule, if format-check implements
+// it, and no other that format-check implements; outside a vector of one, none.
+function taskRuleProblems(breaches, rule) {
+  const own = TASK_RULES.includes(rule) ? rule : null;
+  const problems = [...breaches].filter((breach) => breach !== own).sort().map((breach) => ({ line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` }));
+  if (own && !breaches.has(own)) problems.push({ line: 0, message: `breaks no ${own}` });
+  return problems;
+}
+
+// The same for the tasks of a case laid out as a module, with its manifest, its trap catalog and
+// its technique catalog: one of them breaks the rule of the case.
+function moduleTaskProblems({ tasks, manifest, traps, techniques }, rule) {
+  const own = TASK_RULES.includes(rule) ? rule : null;
+  const problems = [];
+  let ownBroken = false;
+  for (const { file, task } of tasks) {
+    const breaches = taskRuleBreaches(task, { manifest, traps, techniques });
+    if (breaches.has(own)) ownBroken = true;
+    for (const breach of [...breaches].filter((breach) => breach !== own).sort()) problems.push({ file, line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` });
+  }
+  if (own && !ownBroken) problems.push({ file: "", line: 0, message: `breaks no ${own}` });
+  return problems;
+}
+
+const leaksShown = (leaks) => (leaks.length ? leaks.map((leak) => JSON.stringify(leak)).join(", ") : "nothing");
 
 // The rules of a whole module on the files of a case: all of them hold, but in a vector of one of
 // them, which breaks that rule alone, unless it went unchecked.

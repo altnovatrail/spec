@@ -12,6 +12,8 @@ items:
       - binding: box
         check: {kind: number, key: "8"}
       - text: "= 56"
+solution:
+  - text: "7 × 8 = 56, so the missing number is 8."
 skills:
   primary: [counting-gaps]
 band: grades-3-4

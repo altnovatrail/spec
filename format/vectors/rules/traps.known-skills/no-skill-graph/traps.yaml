@@ -1,0 +1,6 @@
+# A trap of a skill, in a module that has no skill graph and so no skills.
+traps:
+  times-table-slip:
+    description: Took the product of a neighbouring fact of the times table.
+    skills: [times-tables]
+    trap_advice: Count up in the number you multiply by, out loud, until you reach the fact you need.

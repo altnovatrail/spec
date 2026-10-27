@@ -13,6 +13,8 @@ items:
   - answer_slots:
       - binding: anywhere
         check: {kind: number, key: "7"}
+solution:
+  - text: The bell rings seven times.
 skills:
   primary: [counting-gaps]
 band: grades-3-4

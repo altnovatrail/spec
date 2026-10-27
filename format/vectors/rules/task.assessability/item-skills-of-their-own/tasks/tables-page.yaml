@@ -19,6 +19,8 @@ items:
     skills:
       primary: [explaining-a-product]
       supporting: [times-tables]
+solution:
+  - text: "7 × 8 = 56 and 8 × 7 = 56: the missing numbers are 8 and 7."
 skills:
   primary: [times-tables]
 band: grade-3

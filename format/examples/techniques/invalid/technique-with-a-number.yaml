@@ -1,0 +1,6 @@
+# error: unevaluatedProperties at #/techniques/small-numbers
+# The site of mathtrail-standalone numbers the techniques, and this version of the format does not.
+techniques:
+  small-numbers:
+    number: 3
+    title: Start with small numbers
