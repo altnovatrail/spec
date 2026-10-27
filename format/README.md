@@ -8,7 +8,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 - A module is data: not code, and not instructions to a model (R02). The platform reads it the same way every time.
 - The format is the schemas in `schemas/`, this text and the test vectors in `vectors/` (R42). What a schema cannot say, this text says as a format rule (section 7). The examples in `examples/` show the format and check the schemas, but they add no rules.
-- `module-kit` implements the format: it reads a module, checks it against the schemas and the format rules, builds its package and its open view, and runs its check kinds and its leak check (R17; architecture 3.7). An implementation that does not pass the test vectors does not conform to the format.
+- `module-kit` implements the format: it reads a module, checks it against the schemas and the format rules, builds its package and its open view, and runs its check kinds, its leak check and its generator (R17; architecture 3.7). An implementation that does not pass the test vectors does not conform to the format.
 - The names in the format are the English terms of the glossary, concepts 15.
 
 ## 2. Versions
@@ -21,11 +21,11 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
   - an optional field, or a field that is open from the start;
   - a new check kind, canvas kind, tool or list value;
   - a parameter whose default keeps the previous behaviour;
-  - a new place of randomness that shifts no numbers in the places before it.
+  - a new place of randomness that shifts no numbers in the places before it, a new function of the generator, or a new first name of the places of a module (section 22).
 - A major version is everything else:
   - a field removed, renamed or made required;
   - something valid made invalid, a new or stricter format rule among them;
-  - anything that can give a different verdict, trap, open view, leak or numbers on the same inputs: the behaviour of a check kind or of its normalization, how the verdicts of an item's answer slots make the item's, the limit of a predicate's steps, how a wrong value matches a trap, what the leak check searches for and finds (section 20), the generator or the derivation of seeds, templates, a closed field opened.
+  - anything that can give a different verdict, trap, open view, leak or numbers on the same inputs: the behaviour of a check kind or of its normalization, how the verdicts of an item's answer slots make the item's, the limit of a predicate's steps, how a wrong value matches a trap, what the leak check searches for and finds (section 20), the generator, the derivation of seeds, a function of the generator or how many integers it draws (section 22), templates, a closed field opened.
 - Editorial changes give no new version. These are descriptions, examples, wording of this text that keeps its rules, and a test vector that pins what the text already says; the tag of `spec` names such a revision.
 - The anchor skills of the shared taxonomy are part of the format (section 13).
   - A new anchor skill is a minor change, and so is marking one `"deprecated": true`: a module MAY still name it until a major version removes it.
@@ -43,13 +43,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 format/
 ├── README.md     this text
 ├── VERSION       the format's version, MAJOR.MINOR
-├── schemas/      <term>.schema.json; common.schema.json and shared-taxonomy.schema.json, which parts refer to; verdict-vector.schema.json and leak-vector.schema.json
+├── schemas/      <term>.schema.json; common.schema.json and shared-taxonomy.schema.json, which parts refer to; verdict-vector.schema.json, leak-vector.schema.json and random-vector.schema.json
 ├── examples/     <term>/valid/<case>.yaml and <term>/invalid/<case>.yaml; module/valid/<case>/
-└── vectors/      rules/<rule-id>/, open-view/<part>/<case>/, verdicts/<kind>/<case>.yaml, leaks/<case>.yaml, and the vectors of templates
+└── vectors/      rules/<rule-id>/, open-view/<part>/<case>/, verdicts/<kind>/<case>.yaml, leaks/<case>.yaml, random/<case>.yaml, and the vectors of templates
 ```
 
 - `<term>` is the concepts 15 term for the part a schema describes, in kebab-case: `manifest`, `skill-graph`, `task`. A catalog is named by the entries it holds, in the plural: the trap catalog is `traps`, and the technique catalog `techniques`.
-- Four schemas describe no part. The parts refer to two of them: `common.schema.json` holds the definitions that parts share, and `shared-taxonomy.schema.json`, named by its term, the anchor skills (section 13). The other two describe test vectors and refer to the task's: `verdict-vector.schema.json` those of verdicts, and `leak-vector.schema.json` those of the leak check (section 9). None has examples of its own: the examples of the parts show the first two, and the vectors are the other two's.
+- Five schemas describe no part. The parts refer to two of them: `common.schema.json` holds the definitions that parts share, and `shared-taxonomy.schema.json`, named by its term, the anchor skills (section 13). The other three describe test vectors (section 9): `verdict-vector.schema.json` those of verdicts and `leak-vector.schema.json` those of the leak check, which refer to the task's, and `random-vector.schema.json` those of the generator, which refers to none. None has examples of its own: the examples of the parts show the first two, and the vectors are the other three's.
 - `examples/module/valid/<case>/` is an example of a whole module: a folder laid out as a module (section 10). The part `module` has no schema of its own.
 - A case is named in kebab-case for what it shows: `missing-title.yaml`, or a folder such as `no-manifest/`.
 - Schemas are JSON. Examples and vectors written by hand are YAML and follow section 4.
@@ -176,7 +176,8 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
   - `spec`'s CI computes each verdict, reason and trap from section 15 and compares, and so does `module-kit`'s CI. Of the rules of a task, `spec`'s CI checks on the item those that an answer slot's check shows by itself: `task.choice-key`, `task.choice-options`, `task.fraction-key` and `task.trap-values`.
   - A predicate is the exception: `spec`'s CI has no Starlark, and computes only what a predicate gives before it runs, `blank` and `notation`. Its `correct`, `not_yet` and `unchecked` only `module-kit`'s CI computes.
 - `vectors/leaks/<case>.yaml` holds the vectors of the leak check (section 20): a file for each case, valid against `schemas/leak-vector.schema.json`, which follows the YAML rules. It holds `task`, a task that breaks no rule within its part, and `texts`: each a `text` that the learner might see, with `leaks`, every key and leak phrase of the task that the leak check finds in it, as the task writes them, in any order. `spec`'s CI searches each text as section 20 says and compares, and so does `module-kit`'s CI. Of the rules of a task, `spec`'s CI checks on the task those that it implements (above), `task.no-leaks` among them.
-- The vectors of templates and of the generator come with the tasks that define them.
+- `vectors/random/<case>.yaml` holds the vectors of the generator (section 22): a file for each case, valid against `schemas/random-vector.schema.json`, which follows the YAML rules. It holds the start of a stream — `state`, its two words, and, when the stream is a place of randomness's, the `seed` and the `names` of the place, whose state it is — and `draws`: the functions called on the stream, in order, each with its arguments and the value it gives. An integer of 64 bits is written as a string of decimal digits, since a YAML number holds an integer of 53 bits at most (section 4). `spec`'s CI derives each state and computes each value as section 22 says and compares, and so does `module-kit`'s CI.
+- The vectors of templates come with the templates (RUN.md, T33).
 
 ## 10. A module
 
@@ -580,3 +581,33 @@ The limit of steps is the format's: the same expression on the same value takes 
 | `lesson.age-categories` | Every age category of a lesson MUST be one of the manifest's `audience.age_categories`, and at least one age category MUST suit the lesson and each task of the module that it names: the lesson's own, or else the module's, and each task's own, or else the module's. |
 | `lesson.order` | The order of the module's lessons MUST have no cycle: no lesson comes, through the lessons that it comes after, after itself. |
 | `lesson.no-leaks` | No text of a lesson MAY hold a key or a leak phrase of a task of the module that the lesson names, as the leak check finds them (section 20): the lesson's `title`, the paragraphs of its explanations and the `alt` of their pictures, and the paragraphs and the `alt` of the pictures of its worked examples' statements and demos. |
+
+## 22. Randomness
+
+- Randomness on the platform comes only from a seed, so that the same inputs give the same numbers (R03). The format has one generator and one way to derive a stream of numbers from a seed, and the whole platform takes them: `module-kit` for the numbers of templates, the widgets, the engine and the simulator of virtual learners (R27). The test vectors of the generator are in `vectors/random/` (section 9).
+- **A seed** is an unsigned integer of 64 bits, from 0 to 2^64 − 1. Where a text writes it, it is written in decimal digits with no leading zero, and zero as `0`.
+- **The generator** is PCG with 128 bits of state, the generator `PCG` of the Go package `math/rand/v2`. It is defined here, so that no implementation depends on a library:
+  - The state is two words of 64 bits, high and low, read as the number high · 2^64 + low. A generator started from two words takes them as its state as they are.
+  - A step sets the state to state · M + C modulo 2^128, where M is 2549297995355413924 · 2^64 + 4865540595714422341 (`0x2360ed051fc65da44385df649fccf645`), and C is 6364136223846793005 · 2^64 + 1442695040888963407 (`0x5851f42d4c957f2d14057b7ef767814f`).
+  - The next integer of the stream is drawn by a step, and then from the new state's high word h and low word l, each operation modulo 2^64: h ← h xor (h >> 32); h ← h · 15750249268501108917 (`0xda942042e4dd58b5`); h ← h xor (h >> 48); h ← h · (l or 1). The integer is h. This output is called DXSM.
+  - It is not NumPy's PCG64DXSM, which multiplies by a constant of 64 bits and draws before the step, and it is no cryptographic generator.
+- **A place of randomness** is a seed and a list of names, at least one: the stream of numbers that one use of randomness draws from. A name is a string that is not empty and holds no `|`, and names compare as written, with no normalization (section 4).
+  - The stream of a place is the generator started from two words. The high word is FNV-1a of 64 bits ([RFC 9923](https://www.rfc-editor.org/rfc/rfc9923), sections 2 and 5) of the UTF-8 bytes of a text: the seed in decimal digits and then, for each name in order, `|` and the name. The low word is the seed itself.
+  - FNV-1a of 64 bits starts from 14695981039346656037 (`0xcbf29ce484222325`), and for each byte in turn takes the exclusive or of it and then multiplies by 1099511628211 (`0x100000001b3`), modulo 2^64.
+  - So two places of one seed differ by their names alone, and a new place, with names of its own, shifts no number of another. The stream that the simulator of mathtrail-standalone draws for a unit, `seeded`, is the place of its master seed with three names: the experiment, the unit and the purpose (R27).
+  - Two properties are informative. Places of one seed share the low word of their state, so their states lie on one sequence of the generator, at offsets that are multiples of 2^64. And FNV-1a resists no collisions, so two lists of names whose texts hash alike give one stream. Neither matters for the places of a module or of a run; a use that needs streams apart from another's takes a seed of its own.
+- **Functions.** A stream gives numbers only through the functions below, each the same as the method of Go's `math/rand/v2` named beside it. So every implementation draws the same numbers, and as many integers of the stream for each.
+  - `integer` gives the next integer of the stream, from 0 to 2^64 − 1, and draws one (Go: `Uint64`).
+  - `below(b)`, for a bound b from 1 to 2^64 − 1, gives an integer from 0 to b − 1 (Go: `Uint64N`).
+    - When b is a power of two, the value is the next integer and b − 1, bitwise, which draws one integer: `below(1)` too, which gives 0.
+    - Otherwise it takes the product of the next integer and b, x · b = hi · 2^64 + lo. When lo < b, it takes t = (2^64 − b) mod b, and while lo < t it takes the product again with the next integer. The value is hi, and each product draws one integer.
+  - `between(a, c)`, for signed integers of 64 bits a ≤ c with c − a + 1 at most 2^63 − 1, gives a + below(c − a + 1) (Go: `a + Int64N(c - a + 1)`). `between(a, a)` gives a, and draws one integer.
+  - `fraction` gives a number from 0 up to 1, never 1: the low 53 bits of the next integer, divided by 2^53 (Go: `Float64`). It draws one integer, and its value k / 2^53 is exact.
+  - `permutation(n)`, for n from 0 to 2^31 − 1, gives an order of the integers from 0 to n − 1. It starts from them in order, and for i from n − 1 down to 1 swaps the items at places i and below(i + 1) (Go: `Perm`). It draws nothing when n is 0 or 1. To shuffle a list of n items is to do the same swaps on the list (Go: `Shuffle`): the item at place k of the shuffled list is the item at place `permutation(n)[k]` of the list, counting places from 0.
+- **No other distribution** is in the format. A normal or an exponential one needs logarithms and exponents, which JavaScript computes only to an approximation ([ECMA-262](https://tc39.es/ecma262/), `Math.exp`: «implementation-approximated»), and which Go may compute with fused operations on some processors. A part that needs one builds it on these functions, and its numbers are its own, as the simulator's are.
+- **The seeds of the platform.**
+  - The server draws the seed of an attempt from a cryptographic source of randomness when the attempt begins, and keeps it with the attempt (architecture 3.5). It says nothing about the learner. Neither it nor the state of a place derived from it reaches the learner's device: the state of a place shows its seed, and the generator is not cryptographic.
+  - The places of randomness of a module are places of the seed of its attempt, and the first name of each says what it is of: `template`, a template of a task, whose other names come with the templates (RUN.md, T33). A new first name is a minor change (section 2).
+  - A widget has a seed of its own, not the seed of the attempt: how it gets one comes with the protocol of widgets (architecture 3.4; Т-24).
+  - The engine, if its rule draws at random, and the simulator take seeds and names of their own — a choice's and a run's — with this generator and these functions (R27).
+- **Versions.** The generator has no version of its own: it is part of the version of the format (section 2). A change to its constants, to its output, to FNV-1a, to the text of a place, or to a function or how many integers it draws is a major change. A new function, or a new first name of the places of a module, is a minor one. What a place draws, and in what order, is its owner's to say: a template says it (RUN.md, T33).

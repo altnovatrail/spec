@@ -1,0 +1,10 @@
+# The stream that starts from the words 1 and 2, as Go's NewPCG(1, 2): its integers are those of
+# TestPCG in Go's src/math/rand/v2/pcg_test.go.
+state: {high: "1", low: "2"}
+draws:
+  - integer: {value: "14192431797130687760"}
+  - integer: {value: "11371241257079532652"}
+  - integer: {value: "14470142590855381128"}
+  - integer: {value: "14694613213362438554"}
+  - integer: {value: "4321634407747778896"}
+  - integer: {value: "760102831717374652"}

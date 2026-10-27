@@ -1,0 +1,7 @@
+# The seed 0 is written 0, and the text of its place begins with it.
+seed: "0"
+names: [zero]
+state: {high: "17169638463767760023", low: "0"}
+draws:
+  - integer: {value: "7621176546073222326"}
+  - integer: {value: "7015999298809031614"}

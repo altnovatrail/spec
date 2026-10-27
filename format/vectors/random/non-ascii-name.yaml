@@ -1,0 +1,8 @@
+# A name outside ASCII is hashed in its UTF-8 bytes: шаг is six bytes, and é is one character of
+# two bytes.
+seed: "42"
+names: [шаг, é]
+state: {high: "4663844351231291435", low: "42"}
+draws:
+  - integer: {value: "6303077256245444376"}
+  - integer: {value: "4824581781322583743"}

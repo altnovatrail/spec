@@ -1,6 +1,6 @@
 // The examples and test vectors of the module format, and the rules and the layout of a module its
-// text lists (format/README.md, sections 7–11, 15, 20 and 21; R45 and its amendment of 2026-10-22, R46,
-// R56, R57, R58).
+// text lists (format/README.md, sections 7–11, 15 and 20–22; R45 and its amendment of 2026-10-22, R46,
+// R56, R57, R58, R59).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -12,6 +12,7 @@ import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listMod
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
 import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
+import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
 import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from "./verdicts.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
@@ -292,8 +293,82 @@ export function checkLeakVector(bytes, { validate }) {
   return problems;
 }
 
-// The start of a vector of verdicts or of the leak check: the YAML rules, then the schema of such
-// vectors. { problems, value }, with no value when the vector goes no further.
+// A vector of the generator (section 22): the YAML rules, the schema of such vectors, the state that
+// its seed and names derive, and the value of each draw, in order, on the stream from its state. A
+// state that its seed and names do not derive, or a draw whose arguments the functions do not take,
+// ends the vector.
+export function checkRandomVector(bytes, { validate }) {
+  const { problems, value } = vectorStart(bytes, validate, "vectors of the generator");
+  if (!value) return problems;
+  for (const [text, what] of [[value.seed, "the seed"], [value.state.high, "the high word"], [value.state.low, "the low word"]]) {
+    if (text !== undefined && !isUnsigned(text)) problems.push({ line: 0, message: `${what}, ${text}, is past 2^64 − 1` });
+  }
+  if (problems.length) return problems;
+  const high = BigInt(value.state.high);
+  const low = BigInt(value.state.low);
+  if (value.seed !== undefined) {
+    const derived = stateOf(BigInt(value.seed), value.names);
+    if (derived.high !== high || derived.low !== low) return [{ line: 0, message: `the seed and the names derive the state {high: ${derived.high}, low: ${derived.low}}, not {high: ${high}, low: ${low}}` }];
+  }
+  const stream = streamOf(high, low);
+  for (const [at, draw] of value.draws.entries()) {
+    const problem = drawProblem(stream, draw);
+    if (problem === null) continue;
+    problems.push({ line: 0, message: `draw ${at + 1}: ${problem.message}` });
+    if (problem.ends) break;
+  }
+  return problems;
+}
+
+const isUnsigned = (text) => BigInt(text) <= MAX_UNSIGNED;
+const isSigned = (text) => {
+  const number = BigInt(text);
+  return number >= MIN_SIGNED && number <= MAX_SIGNED;
+};
+const ends = (message) => ({ message, ends: true });
+
+// Each function of section 22 that a vector may call, by its field: what is wrong with its
+// arguments, or null, and its value on a stream.
+const DRAWS = {
+  integer: { refused: (args) => (isUnsigned(args.value) ? null : `its value, ${args.value}, is past 2^64 − 1`), value: (stream) => stream.integer() },
+  below: {
+    refused: (args) => (BigInt(args.bound) === 0n || !isUnsigned(args.bound) || !isUnsigned(args.value) ? `below takes a bound from 1 to 2^64 − 1, and gives an integer below it, not ${args.bound} and ${args.value}` : null),
+    value: (stream, args) => below(stream, BigInt(args.bound)),
+  },
+  between: {
+    refused: (args) => {
+      const fits = isSigned(args.from) && isSigned(args.to) && isSigned(args.value) && BigInt(args.from) <= BigInt(args.to) && BigInt(args.to) - BigInt(args.from) + 1n <= MAX_SIGNED;
+      return fits ? null : `between takes signed integers of 64 bits, the first not above the second and at most 2^63 − 1 integers from it to the second, not ${args.from} and ${args.to}`;
+    },
+    value: (stream, args) => between(stream, BigInt(args.from), BigInt(args.to)),
+  },
+  fraction: { refused: () => null, value: (stream) => fraction(stream) },
+  // A permutation is computed only when its value lists as many integers as it orders: a count of
+  // up to 2^31 − 1 would take long, and a vector cannot list one so long.
+  permutation: {
+    refused: (args) => (args.value.length === args.count ? null : `permutation orders ${args.count} integers, and its value lists ${args.value.length}`),
+    value: (stream, args) => permutation(stream, args.count),
+  },
+};
+
+// What is wrong with a draw of a vector of the generator, drawn on stream: null, or { message, ends },
+// where ends is true when its arguments are out of the function's ranges and the stream cannot go on.
+// A value compares as a BigInt, as a double or, for a permutation, integer by integer.
+function drawProblem(stream, draw) {
+  const [[fn, args]] = Object.entries(draw);
+  const call = DRAWS[fn];
+  if (!call) return ends(`format-check knows no function ${fn}`);
+  const refused = call.refused(args);
+  if (refused) return ends(refused);
+  const computed = call.value(stream, args);
+  const given = fn === "permutation" ? JSON.stringify(args.value) : args.value;
+  const shown = fn === "permutation" ? JSON.stringify(computed) : computed;
+  const same = typeof computed === "bigint" ? computed === BigInt(args.value) : shown === given;
+  return same ? null : { message: `${fn} gives ${shown}, not ${given}`, ends: false };
+}
+
+// The start of a vector of verdicts, of the leak check or of the generator: the YAML rules, then the
+// schema of such vectors. { problems, value }, with no value when the vector goes no further.
 function vectorStart(bytes, validate, what) {
   const read = readModuleFile(bytes);
   const problems = yamlProblems(read.violations, read.notYaml);

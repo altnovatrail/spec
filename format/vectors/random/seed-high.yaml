@@ -1,0 +1,7 @@
+# A seed of 2^63 or more, which a signed integer of 64 bits does not hold.
+seed: "9223372036854788153"
+names: [high]
+state: {high: "13452104493127133327", low: "9223372036854788153"}
+draws:
+  - integer: {value: "16724135176841130331"}
+  - integer: {value: "11868065704549552872"}

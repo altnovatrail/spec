@@ -1,0 +1,8 @@
+# From the words 0 and 2, the bound 2^63 + 1 refuses the first four products, each drawing another
+# integer, so the integer after it is the sixth of the stream; then the bound 2^64 − 1.
+state: {high: "0", low: "2"}
+draws:
+  - below: {bound: "9223372036854775809", value: "4388039611593198210"}
+  - integer: {value: "4532357488925043236"}
+  - below: {bound: "18446744073709551615", value: "12199412677229721393"}
+  - below: {bound: "3", value: "1"}

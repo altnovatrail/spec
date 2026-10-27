@@ -92,7 +92,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 6, examples: 15, vectors: 17, rules: 16, openViews: 1, verdicts: 1, leaks: 1 });
+    assert.deepEqual(stats, { schemas: 7, examples: 15, vectors: 17, rules: 16, openViews: 1, verdicts: 1, leaks: 1, random: 1 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -116,7 +116,8 @@ test("a schema's $id follows VERSION, and so does the version each manifest name
       /^format\/schemas\/task\.schema\.json:\d+: \$id is .*\/0\.2\/task\.schema\.json/,
       /^format\/schemas\/verdict-vector\.schema\.json:\d+: \$id is .*\/0\.2\/verdict-vector\.schema\.json/,
       /^format\/schemas\/leak-vector\.schema\.json:\d+: \$id is .*\/0\.2\/leak-vector\.schema\.json/,
-      /^format\/schemas\/(manifest|sample|verdict-vector|leak-vector)\.schema\.json:0: its examples and vectors go unchecked/,
+      /^format\/schemas\/random-vector\.schema\.json:\d+: \$id is .*\/0\.2\/random-vector\.schema\.json/,
+      /^format\/schemas\/(manifest|sample|verdict-vector|leak-vector|random-vector)\.schema\.json:0: its examples and vectors go unchecked/,
       /(manifest\.yaml|manifest\/valid\/minimal\.yaml):0: names the format version 0\.1: it names 0\.2, as format\/VERSION has it/,
     ],
   );
@@ -769,6 +770,40 @@ test("the vectors of the leak check are files, and need the schema of leak vecto
   expectOnly([["format/vectors/leaks/a-folder/case.yaml", null, "task: {}\n"]], /leaks\/a-folder:0: a vector of the leak check is a file, <case>\.yaml$/);
   expectOnly([["format/vectors/leaks/notes.txt", null, "notes\n"]], /leaks\/notes\.txt:0: a case is <case>\.yaml, its name in kebab-case/);
   expectOnly([["format/schemas/leak-vector.schema.json", null, null]], /^format\/vectors\/leaks:0: no schema leak-vector\.schema\.json for the vectors of the leak check$/);
+});
+
+// The vectors of the generator.
+
+const RANDOM = "format/vectors/random/go-pcg-1-2.yaml";
+const vectorOfRandom = (text) => [RANDOM, null, text];
+
+test("a vector of the generator gives, draw by draw, what section 22 computes on its stream", () => {
+  expectOnly([[RANDOM, 'value: "14192431797130687760"', 'value: "14192431797130687761"']], /go-pcg-1-2\.yaml:0: draw 1: integer gives 14192431797130687760, not 14192431797130687761$/);
+  const start = 'state: {high: "1", low: "2"}\ndraws:\n';
+  assert.deepEqual(errorsOf([vectorOfRandom(`${start}  - below: {bound: "10", value: "1"}\n  - between: {from: "-5", to: "5", value: "-5"}\n  - fraction: {value: 0.5}\n  - permutation: {count: 3, value: [0, 1, 2]}\n`)]), [
+    "format/vectors/random/go-pcg-1-2.yaml:0: draw 1: below gives 7, not 1",
+    "format/vectors/random/go-pcg-1-2.yaml:0: draw 2: between gives 1, not -5",
+    "format/vectors/random/go-pcg-1-2.yaml:0: draw 3: fraction gives 0.5085473976760264, not 0.5",
+    "format/vectors/random/go-pcg-1-2.yaml:0: draw 4: permutation gives [1,0,2], not [0,1,2]",
+  ]);
+});
+
+test("a vector of the generator derives its state from its seed and names, and takes only what the functions take", () => {
+  expectOnly([vectorOfRandom('seed: "7"\nnames: [a]\nstate: {high: "1", low: "7"}\ndraws:\n  - integer: {value: "0"}\n')], /go-pcg-1-2\.yaml:0: the seed and the names derive the state \{high: \d+, low: 7\}, not \{high: 1, low: 7\}$/);
+  expectOnly([vectorOfRandom('state: {high: "18446744073709551616", low: "2"}\ndraws:\n  - integer: {value: "0"}\n')], /go-pcg-1-2\.yaml:0: the high word, 18446744073709551616, is past 2\^64 − 1$/);
+  expectOnly([vectorOfRandom('state: {high: "1", low: "2"}\ndraws:\n  - below: {bound: "0", value: "0"}\n  - integer: {value: "0"}\n')], /draw 1: below takes a bound from 1 to 2\^64 − 1, and gives an integer below it, not 0 and 0$/);
+  expectOnly([vectorOfRandom('state: {high: "1", low: "2"}\ndraws:\n  - integer: {value: "99999999999999999999"}\n')], /draw 1: its value, 99999999999999999999, is past 2\^64 − 1$/);
+  expectOnly([vectorOfRandom('state: {high: "1", low: "2"}\ndraws:\n  - permutation: {count: 2147483647, value: [0]}\n')], /draw 1: permutation orders 2147483647 integers, and its value lists 1$/);
+  const withChoice = ["format/schemas/random-vector.schema.json", '"permutation": {', '"choice": { "type": "object", "unevaluatedProperties": false, "description": "A function of a later version." },\n        "permutation": {'];
+  expectOnly([withChoice, vectorOfRandom('state: {high: "1", low: "2"}\ndraws:\n  - choice: {}\n  - integer: {value: "0"}\n')], /draw 1: format-check knows no function choice$/);
+  expectOnly([vectorOfRandom('state: {high: "1", low: "2"}\ndraws:\n  - between: {from: "5", to: "4", value: "5"}\n')], /draw 1: between takes signed integers of 64 bits, the first not above the second and at most 2\^63 − 1 integers from it to the second, not 5 and 4$/);
+  expectOnly([vectorOfRandom('state: {high: "1", low: "2"}\ndraws:\n  - between: {from: "-9223372036854775808", to: "9223372036854775807", value: "0"}\n')], /draw 1: between takes signed integers/);
+  expectOnly([vectorOfRandom('seed: "7"\nstate: {high: "1", low: "2"}\ndraws:\n  - integer: {value: "0"}\n')], /does not pass the schema of vectors of the generator: dependentRequired at #/);
+});
+
+test("the vectors of the generator are files, and need the schema of such vectors", () => {
+  expectOnly([["format/vectors/random/a-folder/case.yaml", null, "state: {}\n"]], /random\/a-folder:0: a vector of the generator is a file, <case>\.yaml$/);
+  expectOnly([["format/schemas/random-vector.schema.json", null, null]], /^format\/vectors\/random:0: no schema random-vector\.schema\.json for the vectors of the generator$/);
 });
 
 test("common defines local_id and media_path, by which <id> and module.media read names", () => {
