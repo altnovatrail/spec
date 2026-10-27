@@ -5,6 +5,7 @@
 [![CodeQL](https://github.com/altnovatrail/spec/actions/workflows/codeql.yml/badge.svg)](https://github.com/altnovatrail/spec/actions/workflows/codeql.yml)
 [![Latest release](https://img.shields.io/github/v/release/altnovatrail/spec)](https://github.com/altnovatrail/spec/releases/latest)
 [![Coverage](https://codecov.io/gh/altnovatrail/spec/branch/main/graph/badge.svg)](https://codecov.io/gh/altnovatrail/spec)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15977/badge)](https://www.bestpractices.dev/projects/15977)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/altnovatrail/spec/badge)](https://scorecard.dev/viewer/?uri=github.com/altnovatrail/spec)
 [![License](https://img.shields.io/github/license/altnovatrail/spec)](LICENSE)
 
