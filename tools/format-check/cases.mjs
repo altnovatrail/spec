@@ -7,6 +7,7 @@ import path from "node:path";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { gfm } from "micromark-extension-gfm";
+import { byCodeUnits } from "../shared.mjs";
 import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listModule, mediaBreaches, placeFiles, versionProblem } from "./module.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
@@ -271,7 +272,7 @@ export function checkLeakVector(bytes, { validate }) {
   const { problems, value } = vectorStart(bytes, validate, "leak vectors");
   if (!value) return problems;
   const { task, texts } = value;
-  for (const breach of [...taskRuleBreaches(task)].sort()) problems.push({ line: 0, message: `its task breaks ${breach}: the task of a vector is one that a module may hold` });
+  for (const breach of [...taskRuleBreaches(task)].sort(byCodeUnits)) problems.push({ line: 0, message: `its task breaks ${breach}: the task of a vector is one that a module may hold` });
   if (problems.length) return problems;
   const needles = needlesOf(task);
   texts.forEach(({ text, leaks }, at) => {
@@ -304,7 +305,7 @@ function taskRuleBreaches(task, parts = {}) {
 // it, and no other that format-check implements; outside a vector of one, none.
 function taskRuleProblems(breaches, rule) {
   const own = TASK_RULES.includes(rule) ? rule : null;
-  const problems = [...breaches].filter((breach) => breach !== own).sort().map((breach) => ({ line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` }));
+  const problems = [...breaches].filter((breach) => breach !== own).sort(byCodeUnits).map((breach) => ({ line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` }));
   if (own && !breaches.has(own)) problems.push({ line: 0, message: `breaks no ${own}` });
   return problems;
 }
@@ -318,7 +319,7 @@ function moduleTaskProblems({ tasks, manifest, traps, techniques }, rule) {
   for (const { file, task } of tasks) {
     const breaches = taskRuleBreaches(task, { manifest, traps, techniques });
     if (breaches.has(own)) ownBroken = true;
-    for (const breach of [...breaches].filter((breach) => breach !== own).sort()) problems.push({ file, line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` });
+    for (const breach of [...breaches].filter((breach) => breach !== own).sort(byCodeUnits)) problems.push({ file, line: 0, message: own ? `breaks ${breach} too` : `breaks ${breach}` });
   }
   if (own && !ownBroken) problems.push({ file: "", line: 0, message: `breaks no ${own}` });
   return problems;
