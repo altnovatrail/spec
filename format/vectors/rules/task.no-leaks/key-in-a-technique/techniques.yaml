@@ -1,0 +1,5 @@
+# A technique whose description holds 56, which is the key of a task that names it.
+techniques:
+  count-up:
+    title: Count up in steps
+    description: "Say the sevens out loud: 7, 14, 21, 28, 35, 42, 49, 56."

@@ -1,5 +1,5 @@
 // format-check: the checks of the module format in spec's format/ (R45 and its amendments, R46,
-// R51, R56; RUN.md, T25, T26, T28 and T29).
+// R51, R56, R57; RUN.md, T25, T26, T28, T29 and T30).
 //
 //   node tools/format-check/main.mjs      spec's own format/, two levels above this file
 //
@@ -26,7 +26,11 @@
 // - the vectors of verdicts, vectors/verdicts/<kind>/<case>.yaml, a folder for each check kind of the
 //   task's schema that gives verdicts: each case follows the YAML rules and passes the schema of
 //   verdict vectors, checks every answer slot by its folder's kind, and gives the verdicts that
-//   section 15 computes — of a predicate, only blank and notation, since spec has no Starlark.
+//   section 15 computes — of a predicate, only blank and notation, since spec has no Starlark —
+//   with the trap that each wrong value matches;
+// - the vectors of the leak check, vectors/leaks/<case>.yaml: each case follows the YAML rules and
+//   passes the schema of leak vectors, and the leak check of section 20 finds in each text what the
+//   case lists.
 // Anything else in format/ is an error: what this check does not know would go unchecked, so the
 // task that brings it extends the check. Prints one line per error, file:line: message, and exits 1
 // if there are any.
@@ -35,7 +39,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { checkExample, checkModuleCase, checkOpenView, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { checkExample, checkLeakVector, checkModuleCase, checkOpenView, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
 import { listFolder, readLayout } from "./module.mjs";
 import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
 import { FEEDBACK_KINDS, VERDICT_KINDS } from "./verdicts.mjs";
@@ -49,6 +53,9 @@ const OPEN_VIEW_FILES = ["part.yaml", "open-view.yaml"];
 const VERDICTS = "verdicts";
 const VERDICT_VECTOR = "verdict-vector";
 const TASK = "task";
+// The vectors of the leak check (section 9), and their schema.
+const LEAKS = "leaks";
+const LEAK_VECTOR = "leak-vector";
 const README = "format/README.md";
 // The schema of the definitions that the parts share.
 const COMMON = "common";
@@ -65,7 +72,7 @@ export function checkFormat(root) {
   checkCases(root, files, { rules, layout, version, schemas }, report);
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
-  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length, verdicts: files.verdicts.length };
+  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length };
   return { errors, stats };
 }
 
@@ -196,6 +203,21 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
     }
   }
   checkVerdicts(root, files, schemas, report);
+  checkLeaks(root, files, schemas, report);
+}
+
+// The vectors of the leak check: each case against the schema of leak vectors and the leak check of
+// section 20.
+function checkLeaks(root, files, schemas, report) {
+  if (!files.leaks.length) return;
+  if (!schemas.has(LEAK_VECTOR)) {
+    report(`format/vectors/${LEAKS}`, 0, `no schema ${LEAK_VECTOR}.schema.json for the vectors of the leak check`);
+    return;
+  }
+  const validate = schemas.validatorOf(LEAK_VECTOR);
+  for (const { file } of files.leaks) {
+    for (const { line, message } of checkLeakVector(fs.readFileSync(path.join(root, file)), { validate })) report(file, line, message);
+  }
 }
 
 // The vectors of verdicts: a folder for each check kind of the task's schema that gives verdicts,
@@ -250,9 +272,9 @@ function checkRuleFolders(files, rules, report) {
 // folder, a case of a YAML rule a file, and a case of a rule of a whole module a folder. A vector of
 // the open view is a folder of its own kind, vectors/open-view/<part>/<case>/, which holds
 // part.yaml and open-view.yaml and nothing else; a vector of verdicts is a file,
-// vectors/verdicts/<kind>/<case>.yaml.
+// vectors/verdicts/<kind>/<case>.yaml, and so is a vector of the leak check, vectors/leaks/<case>.yaml.
 function readFiles(root, report) {
-  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [] };
+  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [] };
   if (!fs.existsSync(path.join(root, "format"))) {
     report("format", 0, "there is no format/");
     return files;
@@ -306,6 +328,10 @@ function readVectorFiles(at, dir) {
     }
     if (kind.isFolder && kind.name === VERDICTS) {
       readVerdictFiles(at, kind.file);
+      continue;
+    }
+    if (kind.isFolder && kind.name === LEAKS) {
+      readCases(at, kind.file, { onlyFile: "a vector of the leak check is a file, <case>.yaml" }, (file) => at.files.leaks.push({ file }));
       continue;
     }
     if (!kind.isFolder || kind.name !== "rules") {
@@ -384,6 +410,6 @@ if (isMain(import.meta.url)) {
     console.log(`format-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
     process.exitCode = 1;
   } else {
-    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts`);
+    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check`);
   }
 }

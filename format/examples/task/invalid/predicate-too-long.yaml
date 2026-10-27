@@ -12,6 +12,8 @@ items:
         check:
           kind: predicate
           predicate: "value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value != 0 and value % 12 == 0"
+solution:
+  - text: "A number that divides by 3 and by 4 divides by 12: 12, 24, 36 or 48."
 skills:
   primary: [number-divisibility]
 band: grades-3-4

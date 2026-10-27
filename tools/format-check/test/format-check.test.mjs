@@ -92,7 +92,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 5, examples: 15, vectors: 17, rules: 16, openViews: 1, verdicts: 1 });
+    assert.deepEqual(stats, { schemas: 6, examples: 15, vectors: 17, rules: 16, openViews: 1, verdicts: 1, leaks: 1 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -115,7 +115,8 @@ test("a schema's $id follows VERSION, and so does the version each manifest name
       /^format\/schemas\/sample\.schema\.json:\d+: \$id is .*\/0\.2\/sample\.schema\.json/,
       /^format\/schemas\/task\.schema\.json:\d+: \$id is .*\/0\.2\/task\.schema\.json/,
       /^format\/schemas\/verdict-vector\.schema\.json:\d+: \$id is .*\/0\.2\/verdict-vector\.schema\.json/,
-      /^format\/schemas\/(manifest|sample|verdict-vector)\.schema\.json:0: its examples and vectors go unchecked/,
+      /^format\/schemas\/leak-vector\.schema\.json:\d+: \$id is .*\/0\.2\/leak-vector\.schema\.json/,
+      /^format\/schemas\/(manifest|sample|verdict-vector|leak-vector)\.schema\.json:0: its examples and vectors go unchecked/,
       /(manifest\.yaml|manifest\/valid\/minimal\.yaml):0: names the format version 0\.1: it names 0\.2, as format\/VERSION has it/,
     ],
   );
@@ -643,7 +644,7 @@ test("a vector of verdicts gives the verdicts of section 15, an answer slot's an
 test("a vector of verdicts passes its schema, reads every answer slot, and checks each by its folder's kind", () => {
   expectEach(
     [[VERDICT, SLOT_READING, '{value: "7", verdict: correct, reason: blank}']],
-    [/whole-number\.yaml:0: does not pass the schema of verdict vectors: not at #\/readings\/0\/answer_slots\/0/, /whole-number\.yaml:0: does not pass the schema of verdict vectors: if at #\/readings\/0\/answer_slots\/0/],
+    [/whole-number\.yaml:0: does not pass the schema of verdict vectors: not at #\/readings\/0\/answer_slots\/0/, /whole-number\.yaml:0: does not pass the schema of verdict vectors: if at #\/readings\/0\/answer_slots\/0/, /whole-number\.yaml:0: does not pass the schema of verdict vectors: unevaluatedProperties at #\/readings\/0\/answer_slots\/0/],
   );
   expectOnly([[VERDICT, `      - ${SLOT_READING}\n`, `      - ${SLOT_READING}\n      - ${SLOT_READING}\n`]], /reading 1 reads 2 answer slots, and the item has 1$/);
   expectOnly([[VERDICT, "item:", "item:\n  title: !!str A title"]], /whole-number\.yaml:\d+: yaml\.no-tags/);
@@ -666,9 +667,71 @@ test("format-check computes the verdicts of every check kind of the task's schem
   expectOnly([taskSchema((s) => s.$defs.check.properties.kind.enum.push("rubric")), ["format/vectors/verdicts/rubric/essay.yaml", null, "item: {}\n"]], /verdicts\/rubric:0: no check kind of .* that gives verdicts is rubric$/);
 });
 
+test("a vector of verdicts names the trap that each wrong value matches, and none for another value", () => {
+  const withTrap = [VERDICT, 'check: {kind: number, key: "7"}', 'check: {kind: number, key: "7", trap_values: [{value: "6", trap: off-by-one}]}'];
+  expectOnly([withTrap, [VERDICT, SLOT_READING, '{value: "6", verdict: not_yet}'], [VERDICT, ITEM_VERDICT, "    verdict: not_yet"]], /whole-number\.yaml:0: reading 1, answer slot 1: "6" matches the trap off-by-one, not no trap$/);
+  expectOnly([withTrap, [VERDICT, SLOT_READING, '{value: "5", verdict: not_yet, trap: off-by-one}'], [VERDICT, ITEM_VERDICT, "    verdict: not_yet"]], /"5" matches no trap, not the trap off-by-one$/);
+  assert.deepEqual(errorsOf([withTrap, [VERDICT, SLOT_READING, '{value: "6 ", verdict: not_yet, trap: off-by-one}'], [VERDICT, ITEM_VERDICT, "    verdict: not_yet"]]), []);
+  // A trap value that is right breaks task.trap-values: the item of a vector is one that a task may hold.
+  expectOnly([[VERDICT, 'check: {kind: number, key: "7"}', 'check: {kind: number, key: "7", trap_values: [{value: "7", trap: off-by-one}]}']], /answer slot 1 breaks task\.trap-values: the item of a vector is one that a task may hold$/);
+  expectEach(
+    [[VERDICT, SLOT_READING, '{value: "7", verdict: correct, trap: off-by-one}']],
+    [/does not pass the schema of verdict vectors: const at #\/readings\/0\/answer_slots\/0\/verdict/, /does not pass the schema of verdict vectors: if at #\/readings\/0\/answer_slots\/0/, /does not pass the schema of verdict vectors: unevaluatedProperties at #\/readings\/0\/answer_slots\/0/],
+  );
+});
+
 test("the vectors of verdicts need the schema of verdict vectors, and the check kinds of the task's", () => {
   expectOnly([["format/schemas/verdict-vector.schema.json", null, null]], /^format\/vectors\/verdicts:0: no schema verdict-vector\.schema\.json for the vectors of verdicts$/);
   expectOnly([taskSchema((s) => delete s.$defs.check.properties.kind.enum)], /^format\/vectors\/verdicts:0: format\/schemas\/task\.schema\.json names no check kinds .* the vectors of verdicts go unchecked$/);
+});
+
+// The rules of a task that format-check implements, on every task it reads.
+
+const trapTask = (value) => `items:\n  - answer_slots:\n      - binding: anywhere\n        check: {kind: number, key: "7", trap_values: [{value: "${value}", trap: off-by-one}]}\n`;
+
+test("a valid example of a task breaks none of the rules of a task that format-check implements", () => {
+  expectOnly([["format/examples/task/valid/right-trap.yaml", null, trapTask("7")]], /task\/valid\/right-trap\.yaml:0: breaks task\.trap-values$/);
+  assert.deepEqual(errorsOf([["format/examples/task/valid/wrong-trap.yaml", null, trapTask("6")]]), []);
+});
+
+test("a case of a rule of a task that format-check implements breaks it, and a case of another rule none of them", () => {
+  const listed = (rule) => ["format/README.md", "| `sample.known-tag` |", `| \`${rule}\` | A rule of a task. |\n| \`sample.known-tag\` |`];
+  const vector = (rule, text) => [`format/vectors/rules/${rule}/a-case.yaml`, null, text];
+  assert.deepEqual(errorsOf([listed("task.trap-values"), vector("task.trap-values", trapTask("7"))]), []);
+  expectOnly([listed("task.trap-values"), vector("task.trap-values", trapTask("6"))], /task\.trap-values\/a-case\.yaml:0: breaks no task\.trap-values$/);
+  expectOnly([listed("task.other"), vector("task.other", trapTask("7"))], /task\.other\/a-case\.yaml:0: breaks task\.trap-values$/);
+});
+
+test("the tasks of a case laid out as a module are checked against the rules of a task that format-check implements", () => {
+  const layout = ["format/README.md", "| `media/<path>` | — | Pictures and sound. |", "| `tasks/<id>.yaml` | `task` | Tasks. |\n| `media/<path>` | — | Pictures and sound. |"];
+  const listed = ["format/README.md", "| `sample.known-tag` |", "| `task.trap-values` | A rule of a task. |\n| `sample.known-tag` |"];
+  const folder = (at, task) => [[`${at}/manifest.yaml`, null, MANIFEST], [`${at}/tasks/seven.yaml`, null, task]];
+  const vectorAt = "format/vectors/rules/task.trap-values/in-a-module";
+  assert.deepEqual(errorsOf([layout, listed, ...folder(vectorAt, trapTask("7"))]), []);
+  expectOnly([layout, listed, ...folder(vectorAt, trapTask("6"))], /task\.trap-values\/in-a-module:0: breaks no task\.trap-values$/);
+  expectOnly([layout, ...folder("format/examples/module/valid/with-a-task", trapTask("7"))], /with-a-task\/tasks\/seven\.yaml:0: breaks task\.trap-values$/);
+});
+
+// The vectors of the leak check.
+
+const LEAK = "format/vectors/leaks/whole-number.yaml";
+
+test("a vector of the leak check finds in each text what section 20 finds, as a set", () => {
+  expectOnly([[LEAK, '    leaks: ["7"]', "    leaks: []"]], /whole-number\.yaml:0: text 1: the leak check finds "7" in "It is 7\.", not nothing$/);
+  expectOnly([[LEAK, "    leaks: []", '    leaks: ["7"]']], /whole-number\.yaml:0: text 2: the leak check finds nothing in "It is 17\.", not "7"$/);
+  expectOnly([[LEAK, '    leaks: ["7"]', '    leaks: ["7", "seven"]']], /text 1: the leak check finds "7" in "It is 7\.", not "7", "seven"$/);
+});
+
+test("a vector of the leak check passes its schema, and its task breaks no rule of a task that format-check implements", () => {
+  expectOnly([[LEAK, '    leaks: ["7"]', '    leaks: ["7", "7"]']], /whole-number\.yaml:0: does not pass the schema of leak vectors: uniqueItems at #\/texts\/0\/leaks/);
+  expectOnly([[LEAK, "task:", "task:\n  title: !!str A title"]], /whole-number\.yaml:\d+: yaml\.no-tags/);
+  expectOnly([[LEAK, 'check: {kind: number, key: "7"}', 'check: {kind: number, key: "7", trap_values: [{value: "7", trap: off-by-one}]}']], /whole-number\.yaml:0: its task breaks task\.trap-values: the task of a vector is one that a module may hold$/);
+});
+
+test("the vectors of the leak check are files, and need the schema of leak vectors", () => {
+  expectOnly([["format/vectors/leaks/a-folder/case.yaml", null, "task: {}\n"]], /leaks\/a-folder:0: a vector of the leak check is a file, <case>\.yaml$/);
+  expectOnly([["format/vectors/leaks/notes.txt", null, "notes\n"]], /leaks\/notes\.txt:0: a case is <case>\.yaml, its name in kebab-case/);
+  expectOnly([["format/schemas/leak-vector.schema.json", null, null]], /^format\/vectors\/leaks:0: no schema leak-vector\.schema\.json for the vectors of the leak check$/);
 });
 
 test("common defines local_id and media_path, by which <id> and module.media read names", () => {

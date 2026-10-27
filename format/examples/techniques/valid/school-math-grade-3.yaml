@@ -1,0 +1,11 @@
+# The technique catalog of the module of school mathematics for grade 3: ways into a page of the
+# workbook. A technique with a title alone has no description.
+techniques:
+  count-up:
+    title: Count up in steps
+    description: Say the times table of the number out loud until you reach the product you need.
+  undo-it:
+    title: Undo it
+    description: "To check a division, multiply back: the groups times the size of a group, plus what is left, is where you began."
+  say-it-in-words:
+    title: Say it in words

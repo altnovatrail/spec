@@ -1,0 +1,23 @@
+# Two trap values of one value, 63 and 63.0: a value read would match both.
+id: seven-times-eight
+statement:
+  - text: What is 7 × 8?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: number
+          key: "56"
+          trap_values:
+            - value: "63"
+              trap: times-table-slip
+            - value: "63.0"
+              trap: wrong-operation
+solution:
+  - text: "7 × 8 = 56: seven eights are 56."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

@@ -1,0 +1,4 @@
+# error: required at #/traps/off-by-one
+traps:
+  off-by-one:
+    description: Off by one when counting gaps, floors or saw cuts.

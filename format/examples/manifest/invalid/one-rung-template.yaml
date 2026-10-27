@@ -1,0 +1,16 @@
+# error: minItems at #/rung_templates
+# The hint ladder falls back on a template at each of its first two rungs, so there are two.
+module_format_version: "0.1"
+id: example/one-rung-template
+version: "0.1.0"
+title: One rung template
+subject: mathematics
+audience:
+  age_categories: [under_13]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0
+rung_templates:
+  - Which step of your work gave you this answer?

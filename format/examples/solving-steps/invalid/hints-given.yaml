@@ -1,0 +1,6 @@
+# error: enum at #/steps/0/gives/0
+# A step gives the givens or the techniques: hints come by the hint ladder, not by a step.
+steps:
+  - title: Solve it
+    gives: [hints]
+    exit_condition: answer_slots_filled

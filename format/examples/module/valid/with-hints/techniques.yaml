@@ -1,0 +1,7 @@
+techniques:
+  draw:
+    title: Draw it
+    description: Lines and dots are enough to see what the words of the task say.
+  small-numbers:
+    title: Start small
+    description: Solve the task with small numbers first, spot the rule, then use it on the big ones.

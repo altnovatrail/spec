@@ -14,6 +14,8 @@ items:
   - answer_slots:
       - binding: anywhere
         check: {kind: number, key: "1"}
+solution:
+  - text: The picture shows one dot.
 skills:
   primary: [times-tables]
 band: grade-3

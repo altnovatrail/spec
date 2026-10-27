@@ -1,0 +1,8 @@
+# The solving steps of the module of school mathematics for grade 3: on a page of the workbook the
+# learner fills the boxes, then checks each line, with the task's technique to check it by.
+steps:
+  - title: Fill in the boxes
+    exit_condition: answer_slots_filled
+  - title: Check each line
+    gives: [techniques]
+    exit_condition: none

@@ -1,0 +1,11 @@
+# The trap catalog of the module of short essays: its one task with a key, the choice of a first
+# sentence, catches by a wrong option the two ways a first sentence lets a reader go.
+traps:
+  flat-opening:
+    description: Chose a first sentence that could open any story, and so promises nothing.
+    skills: [choosing-a-first-sentence]
+    trap_advice: "Ask what a reader wants to know after the first sentence: if nothing, it opens no story."
+  announcing-the-topic:
+    description: Chose a first sentence that says what the text is about instead of beginning it.
+    skills: [choosing-a-first-sentence]
+    trap_advice: "Start where something happens: the reader learns the topic on the way."

@@ -1,10 +1,15 @@
 # Words written by hand in a zone: letter case and white space do not count, but a full stop does,
-# since a sign can be what the learner chose.
+# since a sign can be what the learner chose. The other option shows a trap, in any letter case.
 item:
   answer_slots:
     - binding: zone
       zone: {left: 300, top: 1100, width: 400, height: 200}
-      check: {kind: choice, options: [even, odd], key: odd}
+      check:
+        kind: choice
+        options: [even, odd]
+        key: odd
+        trap_values:
+          - {value: even, trap: wrong-parity}
 readings:
   - answer_slots:
       - {value: "odd", verdict: correct}
@@ -16,7 +21,10 @@ readings:
       - {value: " Odd ", verdict: correct}
     verdict: correct
   - answer_slots:
-      - {value: "even", verdict: not_yet}
+      - {value: "even", verdict: not_yet, trap: wrong-parity}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "EVEN", verdict: not_yet, trap: wrong-parity}
     verdict: not_yet
   - answer_slots:
       - {value: "odd.", verdict: unreadable, reason: notation}

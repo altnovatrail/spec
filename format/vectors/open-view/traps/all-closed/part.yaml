@@ -1,0 +1,7 @@
+# Every field of the trap catalog is closed, so its open view is an empty object: the learner's app
+# does not learn what mistake a task expects.
+traps:
+  off-by-one:
+    description: Counted the gaps where the posts were asked for, or the posts where the gaps were.
+    skills: [counting-gaps]
+    trap_advice: Draw the posts as dots and the gaps as lines between them, and count each.

@@ -25,6 +25,10 @@ items:
       - binding: box
         check: {kind: choice, options: ["<", ">", "="], key: "<"}
       - text: "65"
+solution:
+  - text: "7 × 8 = 56, so the missing number is 8."
+  - text: "6 × 7 = 42, and 47 − 42 = 5, so 47 ÷ 6 = 7 r 5."
+  - text: "56 has 5 tens and 65 has 6, so 56 < 65."
 skills:
   primary: [times-tables]
 band: grade-3

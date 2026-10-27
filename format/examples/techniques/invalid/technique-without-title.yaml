@@ -1,0 +1,4 @@
+# error: required at #/techniques/draw
+techniques:
+  draw:
+    description: A picture or a diagram turns words into something you can look at.

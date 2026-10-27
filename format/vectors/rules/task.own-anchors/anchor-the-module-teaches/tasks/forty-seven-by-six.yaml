@@ -8,6 +8,8 @@ items:
   - answer_slots:
       - binding: anywhere
         check: {kind: number, key: "7"}
+solution:
+  - text: "6 × 7 = 42 and 6 × 8 = 48, which is more than 47: 6 goes into 47 seven times, and 5 is left."
 skills:
   primary: [division-with-remainder]
   supporting: [core.multiplication-table]

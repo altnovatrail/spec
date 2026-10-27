@@ -10,6 +10,8 @@ items:
       - binding: zone
         check: {kind: number, key: "7"}
         zone: {left: 100, top: 1000, width: 400, height: 200, cells: 8}
+solution:
+  - text: "The ladder has one more rung than the gaps between its rungs: 7 rungs."
 skills:
   primary: [counting-gaps]
 band: grades-3-4

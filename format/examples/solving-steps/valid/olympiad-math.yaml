@@ -1,0 +1,14 @@
+# The solving steps of the module of olympiad mathematics: Pólya's four steps, as the coach of the
+# prototype shows them. The learner ticks what is known and what to find, gets the task's technique
+# when the plan begins, and leaves the solving once every answer slot holds an answer.
+steps:
+  - title: Understand the task
+    gives: [givens]
+    exit_condition: givens_ticked
+  - title: Make a plan
+    gives: [techniques]
+    exit_condition: none
+  - title: Solve it
+    exit_condition: answer_slots_filled
+  - title: Check the answer
+    exit_condition: none

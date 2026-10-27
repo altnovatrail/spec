@@ -1,0 +1,8 @@
+# Every field of the technique catalog is open, as the skills of the skill graph are: its open view
+# is the catalog itself. Which techniques help in a task is closed, in the task.
+techniques:
+  draw:
+    title: Draw it
+    description: Lines and dots are enough to see what the words of the task say.
+  small-numbers:
+    title: Start small

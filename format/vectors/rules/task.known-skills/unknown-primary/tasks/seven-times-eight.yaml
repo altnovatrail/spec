@@ -8,6 +8,8 @@ items:
   - answer_slots:
       - binding: anywhere
         check: {kind: number, key: "56"}
+solution:
+  - text: "7 × 8 = 56: seven eights are 56."
 skills:
   primary: [fractions-of-a-whole]
 band: grade-3

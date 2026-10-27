@@ -1,0 +1,23 @@
+# A trap value of the key's value, where any form is right: 2/8 is right, not a wrong value.
+id: pizza-left
+statement:
+  - text: Write the fraction in lowest terms.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "2 of 8 slices of the pizza are left: that is"
+      - binding: box
+        check:
+          kind: fraction
+          key: "1/4"
+          trap_values:
+            - value: "2/8"
+              trap: not-in-lowest-terms
+      - text: of the pizza.
+solution:
+  - text: "2 of 8 slices is 2/8 of the pizza, and dividing both 2 and 8 by 2 gives 1/4."
+skills:
+  primary: [fractions-of-a-whole]
+band: grade-3
+difficulty: 3

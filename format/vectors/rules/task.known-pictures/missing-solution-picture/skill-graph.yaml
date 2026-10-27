@@ -1,0 +1,9 @@
+skills:
+  times-tables:
+    title: Times tables
+    teaches: [core.multiplication-table]
+    assessability: verdict
+  division-with-remainder:
+    title: Division with a remainder
+    prerequisites: [times-tables]
+    assessability: verdict

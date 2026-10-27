@@ -1,0 +1,7 @@
+# error: unevaluatedProperties at #/traps/off-by-one
+# A trap has a description and no title.
+traps:
+  off-by-one:
+    title: Off by one
+    description: Off by one when counting gaps, floors or saw cuts.
+    trap_advice: Draw the posts as dots and the gaps between them, then count both.

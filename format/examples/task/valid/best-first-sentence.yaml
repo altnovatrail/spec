@@ -1,5 +1,6 @@
 # A task of the module of short essays with a key: the learner chooses, out of three, the first
-# sentence that makes a reader want to go on.
+# sentence that makes a reader want to go on. Each wrong option shows a trap. The key is an option
+# that the learner sees, so the leak check does not search for it, and a leak phrase keeps it.
 id: best-first-sentence-1
 statement:
   - text: Which first sentence makes a reader want to go on?
@@ -16,6 +17,15 @@ items:
         check:
           kind: choice
           key: The door was open, and nobody had opened it.
+          trap_values:
+            - value: It was a day like any other.
+              trap: flat-opening
+              text: Could this sentence open any story at all? Look for one that makes you ask a question.
+            - value: I am going to write about a day.
+              trap: announcing-the-topic
+solution:
+  - text: "\"The door was open, and nobody had opened it\" leaves a question that only the story can answer: who opened it? The other two sentences give the reader nothing to wait for."
+leak_phrases: [nobody had opened it]
 skills:
   primary: [choosing-a-first-sentence]
 band: first-steps

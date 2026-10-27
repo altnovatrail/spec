@@ -1,0 +1,5 @@
+# error: required at #/steps/0
+# A step that ends once the givens are ticked gives them.
+steps:
+  - title: Understand the task
+    exit_condition: givens_ticked

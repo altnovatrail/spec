@@ -9,6 +9,8 @@ items:
   - answer_slots:
       - binding: anywhere
         check: {kind: quantity, key: "200000"}
+solution:
+  - text: "Glass slows light down 1.5 times: 300 000 ÷ 1.5 = 200 000 km/s."
 skills:
   primary: [refraction-law]
 band: grade-8

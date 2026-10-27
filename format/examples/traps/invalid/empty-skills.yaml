@@ -1,0 +1,7 @@
+# error: minItems at #/traps/off-by-one/skills
+# A trap that belongs to no skill leaves skills out.
+traps:
+  off-by-one:
+    description: Off by one when counting gaps, floors or saw cuts.
+    skills: []
+    trap_advice: Draw the posts as dots and the gaps between them, then count both.

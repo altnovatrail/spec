@@ -1,0 +1,23 @@
+# The trap catalog of the module of school mathematics for grade 3: the mistakes that its workbook
+# pages catch by a wrong value in a box, each with the skill it belongs to.
+traps:
+  times-table-slip:
+    description: Took the product of a neighbouring fact of the times table, one step too far or too short.
+    skills: [times-tables]
+    trap_advice: Count up in the number you multiply by, out loud, until you reach the fact you need.
+  wrong-operation:
+    description: Added where the story multiplies, or multiplied where it adds.
+    skills: [times-tables]
+    trap_advice: Draw the bags and the apples in them, then count what the picture shows.
+  reversed-comparison:
+    description: "Wrote the sign for the other way round: greater for less, or less for greater."
+    skills: [numbers-to-1000]
+    trap_advice: Say the comparison in words first, then write the sign whose open side faces the greater number.
+  remainder-too-big:
+    description: Left a remainder as large as the number divided by, or larger.
+    skills: [division-with-remainder]
+    trap_advice: Check that the remainder is smaller than the number you share by; if it is not, one more fits.
+  not-in-lowest-terms:
+    description: Wrote a fraction of the right value that can still be reduced.
+    skills: [fractions-of-a-whole]
+    trap_advice: Look for a number that divides both the top and the bottom, and divide them both by it.

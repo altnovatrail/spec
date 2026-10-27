@@ -1,0 +1,5 @@
+# error: enum at #/steps/0/exit_condition
+# The state of a widget is no exit condition of this version: it comes with the widgets.
+steps:
+  - title: Set the lens
+    exit_condition: widget_state

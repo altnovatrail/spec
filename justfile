@@ -21,8 +21,9 @@ docs-check-test: _tools
 # <id> and the signatures of the media files among them (R46, R51) —, the rules the text lists against
 # their vectors, the open view of each vector of the open view, built from the marks x-open, and the
 # verdicts of each vector of verdicts, computed as section 15 of the text gives them — of a predicate
-# only blank and notation (R56). A file it does not know is an error, so the task that brings it
-# extends the check (RUN.md, T25).
+# only blank and notation (R56) — with the trap of each wrong value, and what the leak check of
+# section 20 finds in each text of a vector of the leak check (R57). A file it does not know is an
+# error, so the task that brings it extends the check (RUN.md, T25).
 # Check the module format in format/: schemas, examples and test vectors.
 format-check: _tools
     node tools/format-check/main.mjs

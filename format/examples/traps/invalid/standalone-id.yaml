@@ -1,0 +1,6 @@
+# error: propertyNames at #/traps
+# The ID of a trap of mathtrail-standalone as it was there: a local ID has no _.
+traps:
+  off_by_one:
+    description: Off by one when counting gaps, floors or saw cuts.
+    trap_advice: Draw the posts as dots and the gaps between them, then count both.

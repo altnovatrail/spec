@@ -8,6 +8,8 @@ canvas:
 items:
   - line:
       - text: "7 × 8 = 56"
+solution:
+  - text: "7 × 8 = 56."
 skills:
   primary: [counting-gaps]
 band: grades-3-4

@@ -1,7 +1,8 @@
 # A page of the workbook of school mathematics for grade 3: each item is a line of text and boxes,
 # the box in any place of it, and each box has its check. The comparison is a choice written by hand:
 # the learner writes one of the signs the check holds. The division has a box for the quotient and
-# one for the remainder, and trains a skill of its own.
+# one for the remainder, and trains a skill of its own. Each box knows a wrong value and its trap, and
+# the texts of the traps hold no number: the keys of every line are searched in them.
 id: tables-and-division-1
 statement:
   - text: Write the missing numbers, and the sign <, > or = between two numbers.
@@ -14,12 +15,20 @@ items:
         check:
           kind: number
           key: "8"
+          trap_values:
+            - value: "9"
+              trap: times-table-slip
+              text: Count up in sevens again, one at a time, and stop at the product the line asks for.
       - text: "= 56"
   - line:
       - binding: box
         check:
           kind: number
           key: "32"
+          trap_values:
+            - value: "12"
+              trap: wrong-operation
+              text: Adding does not undo a division. What do you multiply to get back the number shared?
       - text: "÷ 8 = 4"
   - line:
       - text: "56"
@@ -28,6 +37,10 @@ items:
           kind: choice
           options: ["<", ">", "="]
           key: "<"
+          trap_values:
+            - value: ">"
+              trap: reversed-comparison
+              text: Look at the tens first. Which of the two numbers has more of them?
       - text: "65"
   - line:
       - text: Tom has 3 bags of 4 apples. He has
@@ -36,6 +49,10 @@ items:
           kind: number
           key: "12"
           units: [apples]
+          trap_values:
+            - value: "7"
+              trap: wrong-operation
+              text: That adds the bags to the apples in one bag. How many apples are there in all the bags?
       - text: apples.
   - line:
       - text: "47 ÷ 6 ="
@@ -48,8 +65,17 @@ items:
         check:
           kind: number
           key: "5"
+          trap_values:
+            - value: "11"
+              trap: remainder-too-big
     skills:
       primary: [division-with-remainder]
+solution:
+  - text: "7 × 8 = 56, so the first missing number is 8."
+  - text: "32 ÷ 8 = 4, since 4 × 8 = 32."
+  - text: "56 has 5 tens and 65 has 6, so 56 < 65."
+  - text: "3 bags of 4 apples are 3 × 4 = 12 apples."
+  - text: "6 × 7 = 42, and 47 − 42 = 5, so 47 ÷ 6 = 7 r 5."
 skills:
   primary: [times-tables]
 band: grade-3
