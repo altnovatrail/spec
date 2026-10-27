@@ -260,7 +260,7 @@ The signature is all that `module.media` reads: that the rest of the file is a p
   - The schema checks the form of a tag, not that the registry has it.
   - Norwegian, `no`, is written in quotes, since a plain `no` breaks `yaml.plain-strings`.
 - `dependencies` lists the anchor skills of the shared taxonomy (section 13) that the module's skills need: exactly those that its skill graph names as prerequisites. A module whose skills need none leaves the field out. So what a module builds on is seen from its manifest alone; what it teaches other modules is in its skill graph, in `teaches` (section 12).
-- `canvas.digit_height` is the height, in px, that a digit or a letter of the learner's writing has on the crop of a handwriting sheet that goes to be read: an integer from 1 to 256, 32 unless given. It is the module's setting, the same for each of its tasks; how the learner's app gets it with a task comes with the package (RUN.md, T34).
+- `canvas.digit_height` is the height, in px, that a digit or a letter of the learner's writing has on a crop that goes to be read, of a handwriting sheet or of a box of a workbook: an integer from 1 to 256, 32 unless given. It is the module's setting, the same for each of its tasks; how the learner's app gets it with a task comes with the package (RUN.md, T34).
 - `authors` lists who wrote the module, each by `name`: a person or an organization.
 - `license` is an identifier of the [SPDX License List](https://spdx.org/licenses/): `Apache-2.0` for an official module. An SPDX expression, such as `MIT OR Apache-2.0`, is not in this version.
 - `rung_templates` are the templates of the first two rungs of the hint ladder, in order, in the module's explanation language: what the learner reads after a wrong answer when the tutor's question did not come or did not pass its checks, and neither a trap text nor a trap's advice fits (section 19). They are two texts, and they differ, so that a fallback never repeats the one before it. A module with an item with a verdict (section 15) has them (`manifest.rung-templates`): a module of rubrics alone has no hint ladder and needs none. `task.no-leaks` searches them for the keys and leak phrases of every task with an item with a verdict, so they SHOULD hold no number and name nothing that a task might have as its answer.
@@ -338,7 +338,7 @@ The signature is all that `module.media` reads: that the rest of the file is a p
   - Every task has the pen and the eraser. A field for other tools, such as a ruler or a calculator, is a minor change; so is a new canvas kind.
   - The height of a digit on the crop is the manifest's (section 11).
 - **Items.** `items` lists the items of the task, each named by its place, from 1.
-  - On a handwriting sheet, an item has `answer_slots`, and MAY have `text`: what it asks, such as "a)".
+  - On a handwriting sheet, an item has `answer_slots`, and MAY have `text`: what it asks, such as "a)". The learner's app shows the `text`, with the options of the item's answer slots bound `choice`, beside the sheet: the sheet shows neither.
   - On a workbook, an item is a `line`: pieces of `text` and boxes, `binding: box`, in order, with at least one box, as in "7 × [ ] = 56" or "[ ] apples". Its boxes are its answer slots.
   - An answer slot is named by its place among its item's answer slots, from 1: the third item's second answer slot.
   - Every answer slot, a box too, has its `check` (section 15), and an item's verdict is made of its answer slots' verdicts.
