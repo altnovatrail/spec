@@ -1,0 +1,7 @@
+# error: pattern at #/skills/0
+# A lesson teaches skills of its module, by local ID: an anchor skill is no skill of a lesson.
+id: table-of-seven
+title: The table of seven
+skills: [core.multiplication-table]
+segments:
+  - task: tables-and-division-1

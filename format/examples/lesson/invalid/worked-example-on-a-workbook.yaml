@@ -1,0 +1,15 @@
+# error: const at #/segments/0/worked_example/canvas/kind
+# A worked example is shown on a handwriting sheet: a workbook is not in this version.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - worked_example:
+      statement:
+        - text: A path is 20 m long, with a lamp at each end and one every 5 m between them. How many lamps are there?
+      canvas:
+        kind: workbook
+      demo:
+        - text: Draw the path, and mark a lamp at each end.
+
+  - task: gaps-ladder-1

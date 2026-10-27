@@ -1,0 +1,9 @@
+# error: maxProperties at #/segments/0
+# A segment has one field: an explanation and a task are two segments.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - explanation:
+      - text: A fence has one post more than gaps.
+    task: gaps-ladder-1

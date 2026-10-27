@@ -1,0 +1,8 @@
+# error: unevaluatedProperties at #/segments/1
+# A check at the end of a lesson is its last tasks: the format has no segment of its own for one.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - task: gaps-ladder-1
+  - check: [gaps-ladder-2]

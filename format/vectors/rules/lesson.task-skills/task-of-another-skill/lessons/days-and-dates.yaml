@@ -1,0 +1,7 @@
+# The ladder trains gaps and boundaries, and the lesson teaches the calendar.
+id: days-and-dates
+title: Days and dates
+skills: [time-calendar]
+segments:
+  - task: camp-days-1
+  - task: gaps-ladder-1

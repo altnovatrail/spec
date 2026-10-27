@@ -1,0 +1,12 @@
+# A lesson of the official module of short essays on two skills: choosing a first sentence, which
+# gets a verdict, and writing one, which gets feedback by a rubric. Since not all its skills get a
+# verdict, the engine adds no segment to it and skips none.
+id: first-sentences
+title: First sentences
+skills: [choosing-a-first-sentence, writing-a-first-sentence]
+segments:
+  - explanation:
+      - text: The first sentence of an essay makes a reader want to go on. It says what the essay is about, and it leaves a question that only the essay can answer.
+  - task: best-first-sentence-1
+  - explanation:
+      - text: Before your next essay, write three first sentences, and keep the one that leaves a question.

@@ -1,0 +1,6 @@
+# Ages need the calendar, which the other lesson teaches: so this lesson comes after it.
+id: gaps-and-ages
+title: Gaps and ages
+skills: [counting-gaps, time-ages]
+segments:
+  - task: gaps-ladder-1

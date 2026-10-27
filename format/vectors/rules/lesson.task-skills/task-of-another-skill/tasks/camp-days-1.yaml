@@ -1,0 +1,16 @@
+id: camp-days-1
+statement:
+  - text: A summer camp runs from 12 July to 20 July, both days included. How many days does it last?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "9", units: [day, days]}
+solution:
+  - text: "From 12 July to 20 July there are 20 − 12 = 8 nights, and with both days included one day more than nights: 9 days."
+leak_phrases: [nine days]
+skills:
+  primary: [time-calendar]
+band: grades-3-4
+difficulty: 3

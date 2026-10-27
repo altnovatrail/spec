@@ -1,7 +1,7 @@
-// The leak check of the module format, as section 20 of its text gives it (format/README.md; R57): a
-// second implementation beside module-kit's, by which spec's CI computes the test vectors of the leak
-// check and checks task.no-leaks. The scans are loops over the characters: a regular expression over
-// a text of any length could backtrack.
+// The leak check of the module format, as section 20 of its text gives it (format/README.md; R57, R58):
+// a second implementation beside module-kit's, by which spec's CI computes the test vectors of the leak
+// check and checks task.no-leaks and lesson.no-leaks. The scans are loops over the characters: a
+// regular expression over a text of any length could backtrack.
 
 import { absolute, answerSlotsOf, equal, lowercase, normalized, rationalOf, scriptsReplaced } from "./verdicts.mjs";
 
@@ -115,14 +115,19 @@ function holds(text, needle) {
   return text.numbers.some((number) => equal(magnitudeOf(number), needle.magnitude));
 }
 
+const isText = (text) => typeof text === "string";
+
+// The texts that the learner reads in parts such as a statement's: the paragraphs, and the alt of
+// the pictures.
+const partTexts = (parts) => (parts ?? []).flatMap((part) => [part.text, part.alt]).filter(isText);
+
 // The texts that the learner sees with an item: the paragraphs of the statement and the alt of its
 // pictures, the item's text, the text pieces of its line and the options of its answer slots bound
 // choice.
 function ownTextsOf(task, item) {
-  const statement = (task.statement ?? []).flatMap((part) => [part.text, part.alt]);
   const line = (item.line ?? []).map((part) => part.text);
   const options = (item.answer_slots ?? []).flatMap((slot) => (slot.binding === "choice" ? slot.options : []));
-  return [...statement, item.text, ...line, ...options].filter((text) => typeof text === "string");
+  return [...partTexts(task.statement), item.text, ...line, ...options].filter(isText);
 }
 
 // What the leak check searches a text for (section 20): the key of every check of a number, a
@@ -166,7 +171,7 @@ export function textsShownBefore(task, { manifest, traps, techniques } = {}) {
   for (const id of task.techniques ?? []) texts.push(techniques?.techniques?.[id]?.title, techniques?.techniques?.[id]?.description);
   for (const id of trapsNamed(task)) texts.push(traps?.traps?.[id]?.trap_advice);
   if (hasVerdict(task)) texts.push(...(manifest?.rung_templates ?? []));
-  return texts.filter((text) => typeof text === "string");
+  return texts.filter(isText);
 }
 
 // Whether a task breaks task.no-leaks: a text that it shows before it is solved holds a key or a leak
@@ -174,4 +179,23 @@ export function textsShownBefore(task, { manifest, traps, techniques } = {}) {
 export function leaksBefore(task, parts) {
   const needles = needlesOf(task);
   return textsShownBefore(task, parts).some((text) => leaksIn(text, needles).length > 0);
+}
+
+// The texts of a lesson, which lesson.no-leaks searches (section 21): its title, and the paragraphs
+// and the alt of the pictures of each explanation and of each worked example's statement and demo.
+// The open view of a lesson reaches the learner's app whole, so a text after a task is seen before
+// the task is solved too.
+export function lessonTexts(lesson) {
+  const segments = lesson.segments ?? [];
+  const parts = segments.flatMap((segment) => [...(segment.explanation ?? []), ...(segment.worked_example?.statement ?? []), ...(segment.worked_example?.demo ?? [])]);
+  return [lesson.title, ...partTexts(parts)].filter(isText);
+}
+
+// Whether a lesson breaks lesson.no-leaks: one of its texts holds a key or a leak phrase of a task
+// that it names. tasks maps the local ID of each task of the module to the task; a task that the
+// module does not hold is lesson.known-tasks', not this rule's. Each text is normalized once.
+export function lessonLeaks(lesson, tasks) {
+  const texts = lessonTexts(lesson).map(searched);
+  const named = new Set((lesson.segments ?? []).map((segment) => segment.task).filter((id) => tasks.has(id)));
+  return [...named].some((id) => needlesOf(tasks.get(id)).some((needle) => texts.some((text) => holds(text, needle))));
 }

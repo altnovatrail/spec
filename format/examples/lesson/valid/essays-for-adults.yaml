@@ -1,0 +1,11 @@
+# A lesson of the official module of short essays for adults alone: its task is about the learner's
+# own life (П-20), so the lesson names the age category, and the platform gives it only to a learner
+# whom the lesson and its task suit.
+id: writing-about-a-day
+title: Writing about a day you remember
+skills: [paragraphs, endings]
+age_categories: [adult]
+segments:
+  - explanation:
+      - text: Tell a day in the order things happened, a paragraph for each part of it. End with why the day stays with you.
+  - task: a-day-you-remember-1

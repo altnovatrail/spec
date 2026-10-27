@@ -65,7 +65,7 @@ The documents are in Russian; the module format is in English and normative.
 - [docs/architecture.md](docs/architecture.md) — the platform's big parts and how they connect: the components, one overall diagram, the main flows, and how the interface is put together.
 - [docs/repositories.md](docs/repositories.md) — how the platform is split into repositories: their roles, dependencies, how changes flow between them, the order they appear in, how to set one up, and what is carried over from MathTrail.
 - [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.
-- [format/](format/README.md) — the module format: what a module may and must contain and how the platform checks it. Its text, the schemas of the manifest, the skill graph, the trap and technique catalogs, the solving steps and the task, with the checks of the task's answer slots and its hints, the shared taxonomy of skills and the layout of a module are written, with their examples, the test vectors of the YAML rules, of a whole module, of the manifest, of the skill graph, of the trap catalog and of the task, and the test vectors of the open view, of verdicts and of the leak check, and `just format-check` checks them; the other parts of a module come as they are written.
+- [format/](format/README.md) — the module format: what a module may and must contain and how the platform checks it. Its text, the schemas of the manifest, the skill graph, the trap and technique catalogs, the solving steps, the task, with the checks of the task's answer slots and its hints, and the lesson, the shared taxonomy of skills and the layout of a module are written, with their examples, the test vectors of the YAML rules, of a whole module, of the manifest, of the skill graph, of the trap catalog, of the task and of the lesson, and the test vectors of the open view, of verdicts and of the leak check, and `just format-check` checks them; the other parts of a module come as they are written.
 - [RUN.md](RUN.md) — the work plan, in epics: the current epic broken into small tasks, run and reviewed one at a time, and the epics that come later.
 - [draft/](draft/README.md) — a clickable prototype of the learner's app, and where it differs from the documents.
 
@@ -76,7 +76,7 @@ Report a bug or propose a change in an [issue](https://github.com/altnovatrail/s
 Work in the devcontainer: open the repository in VS Code and choose "Reopen in Container". It holds every tool at the version the repository pins. The checks are recipes of the [justfile](justfile), and `just --list` names each with its arguments:
 
 - `just docs-check` checks the documents: links, cited sections, the registers and Mermaid diagrams;
-- `just format-check` checks the module format in [format/](format/README.md): its schemas, examples and test vectors, and computes the verdicts and traps of the vectors of verdicts and what the leak check finds in the vectors of the leak check;
+- `just format-check` checks the module format in [format/](format/README.md): its schemas, examples and test vectors, and computes the verdicts and traps of the vectors of verdicts and what the leak check finds in the vectors of the leak check and in the lessons of a module;
 - `just licenses-check` checks the licenses of the packages of `tools/`;
 - `just coverage` runs every test of `tools/` and writes their coverage to `coverage/lcov.info`.
 

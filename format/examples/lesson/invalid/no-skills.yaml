@@ -1,0 +1,6 @@
+# error: required at #
+# A lesson names the skills it teaches: the engine gives it by them.
+id: gaps-and-posts
+title: Gaps and posts
+segments:
+  - task: gaps-ladder-1

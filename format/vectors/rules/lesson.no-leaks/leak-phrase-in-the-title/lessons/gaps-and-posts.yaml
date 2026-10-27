@@ -1,0 +1,8 @@
+# seven rungs is a leak phrase of the ladder task.
+id: gaps-and-posts
+title: Seven rungs and the gaps between them
+skills: [counting-gaps]
+segments:
+  - explanation:
+      - text: A fence has posts, and gaps between them. When the fence has a post at each end, it has one post more than gaps.
+  - task: gaps-ladder-1

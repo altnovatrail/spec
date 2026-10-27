@@ -1,9 +1,10 @@
 // The leak check of section 20 of the format text, edge by edge, as leaks.mjs computes it: the normal
-// form, the numbers of a text, a phrase as a whole, which keys are searched for, and what is found.
+// form, the numbers of a text, a phrase as a whole, which keys are searched for, and what is found;
+// and the texts of a lesson, searched for the keys of its tasks (section 21).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { holdsForm, leakForm, leaksBefore, leaksOf, needlesOf, numbersIn, textsShownBefore } from "../leaks.mjs";
+import { holdsForm, leakForm, leaksBefore, leaksOf, lessonLeaks, lessonTexts, needlesOf, numbersIn, textsShownBefore } from "../leaks.mjs";
 
 const numbers = (text) => numbersIn(leakForm(text)).map(({ numerator, denominator }) => `${numerator}/${denominator}`);
 const holds = (text, phrase) => holdsForm(leakForm(text), leakForm(phrase));
@@ -100,4 +101,25 @@ test("task.no-leaks searches the texts that the learner sees before the task is 
   assert.equal(leaksBefore(fixed, parts), true, "a rung template holds the leak phrase");
   const essay = { items: [{ answer_slots: [{ binding: "sheet", check: { kind: "rubric", criteria: [{ text: "A criterion." }] } }] }] };
   assert.deepEqual(textsShownBefore(essay, parts), [], "a task with no verdict shows no rung template");
+});
+
+test("lesson.no-leaks searches every text of a lesson for the keys of each task that it names", () => {
+  const lesson = {
+    title: "Gaps and posts",
+    segments: [
+      { explanation: [{ text: "A fence has posts." }, { picture: "pictures/fence.png", alt: "A fence.", width: 480, height: 160 }] },
+      { worked_example: { statement: [{ text: "A path of 20 m." }], canvas: { kind: "handwriting_sheet" }, demo: [{ text: "4 gaps." }, { picture: "pictures/path.png", alt: "5 lamps.", area: { left: 0, top: 0, width: 800, height: 200 } }] } },
+      { task: "ladder" },
+      { explanation: [{ text: "Count the gaps first." }] },
+      { task: "camp" },
+    ],
+  };
+  assert.deepEqual(lessonTexts(lesson), ["Gaps and posts", "A fence has posts.", "A fence.", "A path of 20 m.", "4 gaps.", "5 lamps.", "Count the gaps first."]);
+  const keyed = (key, extra) => task([anywhere({ kind: "number", key })], extra);
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", keyed("7")], ["camp", keyed("9")]])), false);
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", keyed("5")]])), true, "the alt of a picture of the demo holds the key");
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", keyed("8", { leak_phrases: ["the gaps first"] })]])), true, "a text after the task holds its leak phrase: the open view reaches the app whole");
+  assert.equal(lessonLeaks(lesson, new Map([["ladder", keyed("8")], ["camp", keyed("20")]])), true, "the statement of the worked example holds the second task's key");
+  assert.equal(lessonLeaks(lesson, new Map()), false, "a task that the module does not hold is lesson.known-tasks', not this rule's");
+  assert.deepEqual(lessonTexts({ segments: [{ task: "ladder" }] }), [], "a lesson with no title and no texts");
 });
