@@ -1,0 +1,9 @@
+# A lesson that names a template: lesson.no-leaks searches its texts for the key of every instance,
+# so they hold no number.
+id: missing-factors
+title: Missing factors
+skills: [times-tables]
+segments:
+  - explanation:
+      - text: To find a missing factor, go through the times table of the number you know, and stop at the product the line gives.
+  - task: missing-factor

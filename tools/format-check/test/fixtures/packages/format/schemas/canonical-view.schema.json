@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/canonical-view.schema.json",
+  "title": "Canonical view",
+  "description": "The canonical view of a trial module.",
+  "type": "object",
+  "properties": {
+    "manifest": {
+      "$ref": "manifest.schema.json",
+      "unevaluatedProperties": false,
+      "description": "The manifest."
+    },
+    "sample": {
+      "$ref": "sample.schema.json",
+      "unevaluatedProperties": false,
+      "description": "The sample."
+    },
+    "samples": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/local_id"
+      },
+      "additionalProperties": {
+        "$ref": "sample.schema.json",
+        "unevaluatedProperties": false,
+        "description": "A sample, by its local ID."
+      },
+      "description": "The samples."
+    }
+  },
+  "required": [
+    "manifest"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "skill_tiers": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/local_id"
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "The tier of a skill."
+      },
+      "description": "The tier of each skill."
+    }
+  }
+}

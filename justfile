@@ -26,8 +26,11 @@ docs-check-test: _tools
 # for the keys of its tasks (R58), the numbers of each vector of the generator, as section 22
 # computes them (R59), and the instances of each template, as section 23 counts, picks and fills
 # them, with the rules of a task on every instance (R60), and the results of their solvers as the
-# vectors give them, since spec runs no Starlark (R61). A file it does not know is an error, so the
-# task that brings it extends the check (RUN.md, T25).
+# vectors give them, since spec runs no Starlark (R61); the tiers of each vector of tiers, as section
+# 12 computes them, and the package of each vector of packages — its canonical view, the listing of
+# its device part, its inventory and their digests, as section 25 builds them —, and the canonical
+# view of each example of a whole module against its schema (R62). A file it does not know is an
+# error, so the task that brings it extends the check (RUN.md, T25).
 # Check the module format in format/: schemas, examples and test vectors.
 format-check: _tools
     node tools/format-check/main.mjs

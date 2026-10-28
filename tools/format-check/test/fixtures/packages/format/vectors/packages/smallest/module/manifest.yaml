@@ -1,0 +1,4 @@
+module_format_version: "0.1"
+id: trial/smallest
+version: "0.1.0"
+title: A trial module

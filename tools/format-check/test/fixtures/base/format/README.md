@@ -31,6 +31,7 @@ A small format for the tests of format-check. It lists its rules in tables, as t
 | `sample.yaml` | `sample` | A sample. |
 | `samples/<id>.yaml` | `sample` | Samples, a file for each, named by its id. |
 | `media/<path>` | — | Pictures and sound. |
+| `LICENSE` | — | The text of the license. |
 | `NOTICE` | — | The notices of the licenses. |
 
 | ID | Rule |
@@ -39,6 +40,8 @@ A small format for the tests of format-check. It lists its rules in tables, as t
 | `module.layout` | Every file of a module MUST stand at a path of the layout. |
 | `module.file-ids` | A file at a path with <id> MUST hold that name in its id. |
 | `module.media` | A media file MUST stand at a media path and begin with its format's signature. |
+| `module.license` | The folder of a module MUST hold LICENSE, not empty. |
+| `module.plain-text` | LICENSE and NOTICE MUST be UTF-8 with no byte order mark and no carriage return. |
 
 ## 11. The manifest
 

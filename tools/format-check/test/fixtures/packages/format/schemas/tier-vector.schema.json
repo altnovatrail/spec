@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/tier-vector.schema.json",
+  "title": "Tier vector",
+  "description": "A trial tier vector.",
+  "type": "object",
+  "properties": {
+    "skill_graph": {
+      "type": "object",
+      "properties": {
+        "skills": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/local_id"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "prerequisites": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "The skills needed first."
+              }
+            },
+            "unevaluatedProperties": false,
+            "description": "A skill."
+          },
+          "description": "The skills."
+        }
+      },
+      "required": [
+        "skills"
+      ],
+      "unevaluatedProperties": false,
+      "description": "A skill graph."
+    },
+    "skill_tiers": {
+      "$ref": "canonical-view.schema.json#/$defs/skill_tiers",
+      "description": "The tier of each skill."
+    }
+  },
+  "required": [
+    "skill_graph",
+    "skill_tiers"
+  ],
+  "unevaluatedProperties": false
+}

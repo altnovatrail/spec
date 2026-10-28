@@ -7,9 +7,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { byCodeUnits } from "../shared.mjs";
 import { isKebabCase } from "./schemas.mjs";
+import { firstInvalidByte } from "./yaml.mjs";
 
 // The rules of section 10, in its order.
-export const MODULE_RULES = ["module.manifest", "module.layout", "module.file-ids", "module.media"];
+export const MODULE_RULES = ["module.manifest", "module.layout", "module.file-ids", "module.media", "module.license", "module.plain-text"];
 
 // The manifest: where it stands, its part, and the field that names the format version, whose place
 // is the same in every version of the format (R44). The rule that refuses a version the reader does
@@ -19,6 +20,11 @@ export const MANIFEST = "manifest.yaml";
 export const MANIFEST_PART = "manifest";
 export const VERSION_FIELD = "module_format_version";
 export const VERSION_RULE = "manifest.format-version";
+// The text of the license that the manifest names, which every module holds, and the notices that
+// the licenses of its content require, which a module holds when they require any: plain text, which
+// goes into the device part of the package byte for byte (section 25).
+export const LICENSE = "LICENSE";
+export const NOTICE = "NOTICE";
 
 // A path of the layout ends with <path> where it holds a file at any depth below it, and its last
 // name may be <id> and an extension, <id>.yaml, where it holds one file for each entry of a part,
@@ -200,6 +206,32 @@ export function mediaBreaches(folder, files, { isMediaPath }) {
     if (!SIGNATURES[extension](bytes)) breaches.push({ rule: "module.media", file, message: `does not begin with the signature of ${FORMATS[extension]}, as its extension .${extension} says it is` });
   }
   return breaches;
+}
+
+// What breaks module.license and module.plain-text in a module's folder: LICENSE missing or empty, and
+// LICENSE or NOTICE in another encoding than UTF-8, with a byte order mark, or with a carriage return,
+// which a checkout that turns line ends into CRLF would add and so change the package's digest. files
+// are the module's files by their paths from its folder. Each breach { rule, file, message }.
+export function textBreaches(folder, files) {
+  const breaches = [];
+  if (!files.includes(LICENSE)) breaches.push({ rule: "module.license", file: "", message: `the folder holds no ${LICENSE}: the text of the license that the manifest names` });
+  for (const file of [LICENSE, NOTICE].filter((name) => files.includes(name))) {
+    const bytes = fs.readFileSync(path.join(folder, file));
+    if (file === LICENSE && bytes.length === 0) breaches.push({ rule: "module.license", file, message: "is empty: it holds the text of the license that the manifest names" });
+    const problem = plainTextProblem(bytes);
+    if (problem) breaches.push({ rule: "module.plain-text", file, message: problem });
+  }
+  return breaches;
+}
+
+// What keeps bytes from being plain text of the format, or null: UTF-8, with no byte order mark, and
+// every line ended by LF alone.
+function plainTextProblem(bytes) {
+  const invalid = firstInvalidByte(bytes);
+  if (invalid >= 0) return `byte ${invalid + 1} is not UTF-8`;
+  if (startsWith(bytes, 0, [0xef, 0xbb, 0xbf])) return "begins with a byte order mark";
+  const at = bytes.indexOf(0x0d);
+  return at === -1 ? null : `holds a carriage return at byte ${at + 1}: a line ends with LF alone`;
 }
 
 // What is wrong with the format version a manifest names, or null. version is format/VERSION's. A

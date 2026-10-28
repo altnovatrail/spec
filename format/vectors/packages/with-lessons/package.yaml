@@ -1,0 +1,155 @@
+# The package of a module with a skill graph, tasks, lessons and pictures. The server part holds each
+# part as its file gives it, the tasks and the lessons by local ID, and the tier of each skill, which
+# no file writes: one skill stands on another, so they stand in tiers 1 and 2.
+server_part:
+  manifest:
+    module_format_version: "0.1"
+    id: "example/with-lessons"
+    version: "0.1.0"
+    title: "A module with lessons"
+    subject: "mathematics"
+    audience:
+      age_categories:
+        - "under_13"
+      grades:
+        - 3
+        - 4
+    bands:
+      - id: "grades-3-4"
+        title: "Grades 3–4"
+        grades:
+          - 3
+          - 4
+    languages:
+      explanation: "en"
+    authors:
+      - name: "The NovaTrail authors"
+    license: "Apache-2.0"
+    rung_templates:
+      - "Which step of your work gave you this answer?"
+      - "Read the task again slowly. Is there anything it says that your work does not use yet?"
+  skill_graph:
+    skills:
+      counting-gaps:
+        title: "Gaps and boundaries"
+        assessability: "verdict"
+      time-calendar:
+        title: "Calendar and age"
+        prerequisites:
+          - "counting-gaps"
+        assessability: "verdict"
+  skill_tiers:
+    counting-gaps: 1
+    time-calendar: 2
+  tasks:
+    camp-days-1:
+      id: "camp-days-1"
+      statement:
+        - text: "A summer camp runs from 12 July to 20 July, both days included. How many days does it last?"
+      canvas:
+        kind: "handwriting_sheet"
+      items:
+        - answer_slots:
+            - binding: "anywhere"
+              check:
+                kind: "number"
+                key: "9"
+                units:
+                  - "day"
+                  - "days"
+      solution:
+        - text: "From 12 July to 20 July there are 20 − 12 = 8 nights, and with both days included one day more than nights: 9 days."
+      leak_phrases:
+        - "nine days"
+      skills:
+        primary:
+          - "time-calendar"
+      band: "grades-3-4"
+      difficulty: 3
+    gaps-ladder-1:
+      id: "gaps-ladder-1"
+      statement:
+        - text: "The rungs of a ladder are 30 cm apart. From the lowest rung to the highest it is 180 cm. How many rungs are there?"
+      canvas:
+        kind: "handwriting_sheet"
+      items:
+        - answer_slots:
+            - binding: "anywhere"
+              check:
+                kind: "number"
+                key: "7"
+                units:
+                  - "rung"
+                  - "rungs"
+      solution:
+        - text: "From the lowest rung to the highest there are 180 ÷ 30 = 6 gaps of 30 cm, and a ladder has one more rung than gaps: 7 rungs."
+      leak_phrases:
+        - "seven rungs"
+      skills:
+        primary:
+          - "counting-gaps"
+      band: "grades-3-4"
+      difficulty: 2
+  lessons:
+    days-and-dates:
+      id: "days-and-dates"
+      title: "Days and dates"
+      skills:
+        - "time-calendar"
+      segments:
+        - explanation:
+            - text: "Counting the days from one date to another, both included, is counting posts. The days are the posts, and the nights between them are the gaps."
+        - task: "camp-days-1"
+    gaps-and-posts:
+      id: "gaps-and-posts"
+      title: "Gaps and posts"
+      skills:
+        - "counting-gaps"
+      segments:
+        - explanation:
+            - text: "A fence has posts, and gaps between them. When the fence has a post at each end, it has one post more than gaps."
+            - picture: "pictures/fence-posts-and-gaps.png"
+              alt: "A short fence. Under each post there is a dot, and under each gap a dash, with one dot more than dashes."
+              width: 480
+              height: 160
+        - worked_example:
+            statement:
+              - text: "A path is 20 m long, with a lamp at each end and one every 5 m between them. How many lamps are there?"
+            canvas:
+              kind: "handwriting_sheet"
+              grid: "squares"
+            demo:
+              - text: "Draw the path, and mark a lamp at each end."
+              - picture: "pictures/path-in-gaps.png"
+                alt: "A line for the path, cut into 4 equal gaps of 5 m, with a lamp at every mark."
+                area:
+                  left: 100
+                  top: 150
+                  width: 800
+                  height: 200
+              - text: "20 ÷ 5 = 4 gaps. With a lamp at each end, there is one lamp more than gaps, so 5 lamps."
+        - task: "gaps-ladder-1"
+        - explanation:
+            - text: "Each time, count the gaps first, and then ask what stands at the ends."
+device_part:
+  license:
+    digest: "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    size: 11357
+  media:
+    pictures/fence-posts-and-gaps.png:
+      digest: "sha256:064b66188821584121784c30ca28eadbc5f265e025c6dd9eeed64cf1ef8e1f46"
+      size: 67
+    pictures/path-in-gaps.png:
+      digest: "sha256:064b66188821584121784c30ca28eadbc5f265e025c6dd9eeed64cf1ef8e1f46"
+      size: 67
+inventory:
+  module_format_version: "0.1"
+  id: "example/with-lessons"
+  version: "0.1.0"
+  server_part:
+    digest: "sha256:c5addd6ce61dbf78a3c9ed5cd8150184ff0ff98ae8ebe5acfd42f06dceec1c2d"
+    size: 3350
+  device_part:
+    digest: "sha256:af6eef318606293bccb44b66f404094224d0ae46df2a7d813cbcd60b87189a11"
+    size: 373
+digest: "sha256:3dcd70dc6dd9621eafd98e6cc5ee8dc4f14573f0e70116b2a803e69cdc371f1f"

@@ -1,0 +1,22 @@
+# A skill stands one tier above the highest of its prerequisites, not the lowest: word problems need
+# fractions, in tier 2, and halving, in tier 1, so they stand in tier 3. The skill that the graph
+# names first is no matter: the tiers come from the prerequisites alone, and an anchor skill among
+# them counts for none.
+skill_graph:
+  tiers: [First steps, Next steps]
+  skills:
+    word-problems:
+      title: Word problems
+      prerequisites: [halving, fractions, core.multiplication-table]
+      assessability: verdict
+    fractions:
+      title: Fractions
+      prerequisites: [halving]
+      assessability: verdict
+    halving:
+      title: Halving
+      assessability: verdict
+skill_tiers:
+  halving: 1
+  fractions: 2
+  word-problems: 3

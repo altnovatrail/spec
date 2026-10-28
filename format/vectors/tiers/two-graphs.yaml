@@ -1,0 +1,28 @@
+# Skills that no prerequisite links: each group gets its tiers by itself, so two groups of different
+# depths share tier 1 and tier 2, and only the deeper one reaches tier 3.
+skill_graph:
+  skills:
+    telling-time:
+      title: Telling the time
+      assessability: verdict
+    durations:
+      title: Durations
+      prerequisites: [telling-time]
+      assessability: verdict
+    shapes:
+      title: Shapes
+      assessability: verdict
+    areas:
+      title: Areas
+      prerequisites: [shapes]
+      assessability: verdict
+    areas-of-rooms:
+      title: Areas of rooms
+      prerequisites: [areas]
+      assessability: verdict
+skill_tiers:
+  telling-time: 1
+  durations: 2
+  shapes: 1
+  areas: 2
+  areas-of-rooms: 3

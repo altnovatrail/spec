@@ -1,0 +1,19 @@
+# A chain: each skill needs the one before it, so each stands one tier above it, and the last
+# stands in tier 3. Every skill of a chain stands in a tier of its own.
+skill_graph:
+  skills:
+    adding:
+      title: Adding
+      assessability: verdict
+    multiplying:
+      title: Multiplying
+      prerequisites: [adding]
+      assessability: verdict
+    dividing:
+      title: Dividing
+      prerequisites: [multiplying]
+      assessability: verdict
+skill_tiers:
+  adding: 1
+  multiplying: 2
+  dividing: 3

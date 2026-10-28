@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/inventory.schema.json",
+  "title": "Inventory",
+  "description": "The inventory of a trial package.",
+  "type": "object",
+  "properties": {
+    "module_format_version": {
+      "type": "string",
+      "description": "The format version."
+    },
+    "id": {
+      "type": "string",
+      "description": "The module's ID."
+    },
+    "version": {
+      "type": "string",
+      "description": "The module's version."
+    },
+    "server_part": {
+      "$ref": "#/$defs/descriptor",
+      "unevaluatedProperties": false,
+      "description": "The server part."
+    },
+    "device_part": {
+      "$ref": "#/$defs/descriptor",
+      "unevaluatedProperties": false,
+      "description": "The device part, by its listing."
+    }
+  },
+  "required": [
+    "module_format_version",
+    "id",
+    "version",
+    "server_part",
+    "device_part"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "A digest."
+    },
+    "descriptor": {
+      "type": "object",
+      "properties": {
+        "digest": {
+          "$ref": "#/$defs/digest",
+          "description": "The digest."
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The size."
+        }
+      },
+      "required": [
+        "digest",
+        "size"
+      ],
+      "description": "Bytes, by digest and size."
+    },
+    "device_listing": {
+      "type": "object",
+      "properties": {
+        "license": {
+          "$ref": "#/$defs/descriptor",
+          "unevaluatedProperties": false,
+          "description": "LICENSE."
+        },
+        "notice": {
+          "$ref": "#/$defs/descriptor",
+          "unevaluatedProperties": false,
+          "description": "NOTICE."
+        },
+        "media": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/media_path"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/descriptor",
+            "unevaluatedProperties": false,
+            "description": "A media file."
+          },
+          "description": "The media files."
+        }
+      },
+      "required": [
+        "license"
+      ],
+      "description": "The listing of a device part."
+    }
+  }
+}

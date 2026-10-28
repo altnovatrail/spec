@@ -18,6 +18,8 @@ const base = path.join(here, "fixtures", "base");
 const spec = path.join(here, "..", "..", "..");
 const SAMPLE = "format/schemas/sample.schema.json";
 const MANIFEST = 'module_format_version: "0.1"\ntitle: A trial module\n';
+// The text of the license that every module holds (module.license).
+const LICENSE = "A license of the trial modules.\n";
 const COMMON = "format/schemas/common.schema.json";
 
 // A copy of the base fixture with each [file, from, to] edit applied: from null writes the file
@@ -61,7 +63,10 @@ function expectOnly(edits, pattern) {
 
 // Every error matches one of the patterns, and every pattern one of the errors.
 function expectEach(edits, patterns) {
-  const errors = errorsOf(edits);
+  expectEachOf(errorsOf(edits), patterns);
+}
+
+function expectEachOf(errors, patterns) {
   for (const error of errors) assert.ok(patterns.some((p) => p.test(error)), `unexpected:\n${errors.join("\n")}`);
   for (const pattern of patterns) assert.ok(errors.some((e) => pattern.test(e)), `none matches ${pattern}:\n${errors.join("\n")}`);
 }
@@ -92,7 +97,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 17, rules: 16, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1 });
+    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 19, rules: 18, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -507,8 +512,8 @@ test("a manifest names the version in VERSION, but in a case of manifest.format-
   assert.deepEqual(errorsOf([["format/examples/manifest/invalid/version-with-v.yaml", null, "# error: pattern at #/module_format_version\nmodule_format_version: v0.1\ntitle: A trial module\n"]]), []);
   expectOnly([["format/examples/manifest/invalid/no-title.yaml", null, '# error: required at #\nmodule_format_version: "0.2"\n']], /no-title\.yaml:0: names the format version 0\.2/);
   // A case of manifest.format-version laid out as a module.
-  assert.deepEqual(errorsOf([["format/vectors/rules/manifest.format-version/in-a-module/manifest.yaml", null, 'module_format_version: "0.0"\ntitle: A trial module\n']]), []);
-  expectOnly([["format/vectors/rules/manifest.format-version/in-a-module/manifest.yaml", null, MANIFEST]], /format-version\/in-a-module\/manifest\.yaml:0: names the format version 0\.1, which a reader of 0\.1 reads/);
+  assert.deepEqual(errorsOf([["format/vectors/rules/manifest.format-version/in-a-module/manifest.yaml", null, 'module_format_version: "0.0"\ntitle: A trial module\n'], ["format/vectors/rules/manifest.format-version/in-a-module/LICENSE", null, LICENSE]]), []);
+  expectOnly([["format/vectors/rules/manifest.format-version/in-a-module/manifest.yaml", null, MANIFEST], ["format/vectors/rules/manifest.format-version/in-a-module/LICENSE", null, LICENSE]], /format-version\/in-a-module\/manifest\.yaml:0: names the format version 0\.1, which a reader of 0\.1 reads/);
 });
 
 test("a case of manifest.format-version names a version outside the window of section 2", () => {
@@ -707,7 +712,7 @@ test("a case of a rule of a task that format-check implements breaks it, and a c
 test("the tasks of a case laid out as a module are checked against the rules of a task that format-check implements", () => {
   const layout = ["format/README.md", "| `media/<path>` | — | Pictures and sound. |", "| `tasks/<id>.yaml` | `task` | Tasks. |\n| `media/<path>` | — | Pictures and sound. |"];
   const listed = ["format/README.md", "| `sample.known-tag` |", "| `task.trap-values` | A rule of a task. |\n| `sample.known-tag` |"];
-  const folder = (at, task) => [[`${at}/manifest.yaml`, null, MANIFEST], [`${at}/tasks/seven.yaml`, null, task]];
+  const folder = (at, task) => [[`${at}/manifest.yaml`, null, MANIFEST], [`${at}/LICENSE`, null, LICENSE], [`${at}/tasks/seven.yaml`, null, task]];
   const vectorAt = "format/vectors/rules/task.trap-values/in-a-module";
   assert.deepEqual(errorsOf([layout, listed, ...folder(vectorAt, trapTask("7"))]), []);
   expectOnly([layout, listed, ...folder(vectorAt, trapTask("6"))], /task\.trap-values\/in-a-module:0: breaks no task\.trap-values$/);
@@ -739,7 +744,7 @@ test("the lessons of a case laid out as a module are checked against lesson.no-l
   const listed = (rule) => ["format/README.md", "| `sample.known-tag` |", `| \`${rule}\` | A rule of a lesson. |\n| \`sample.known-tag\` |`];
   const schema = ["format/schemas/lesson.schema.json", null, LESSON_SCHEMA];
   const seven = 'items:\n  - answer_slots:\n      - binding: anywhere\n        check: {kind: number, key: "7"}\n';
-  const folder = (at, title) => [[`${at}/manifest.yaml`, null, MANIFEST], [`${at}/tasks/seven.yaml`, null, seven], [`${at}/lessons/ladder.yaml`, null, `title: ${title}\nsegments:\n  - task: seven\n`]];
+  const folder = (at, title) => [[`${at}/manifest.yaml`, null, MANIFEST], [`${at}/LICENSE`, null, LICENSE], [`${at}/tasks/seven.yaml`, null, seven], [`${at}/lessons/ladder.yaml`, null, `title: ${title}\nsegments:\n  - task: seven\n`]];
   const vectorAt = "format/vectors/rules/lesson.no-leaks/in-a-module";
   assert.deepEqual(errorsOf([layout, schema, listed("lesson.no-leaks"), ...folder(vectorAt, "A ladder of 7 rungs")]), []);
   expectOnly([layout, schema, listed("lesson.no-leaks"), ...folder(vectorAt, "A ladder")], /lesson\.no-leaks\/in-a-module:0: breaks no lesson\.no-leaks$/);
@@ -898,6 +903,7 @@ test("a lesson that names a template is searched for the key of every instance",
   const at = "format/examples/module/valid/with-a-template";
   const folder = (title) => [
     [`${at}/manifest.yaml`, null, MANIFEST],
+    [`${at}/LICENSE`, null, LICENSE],
     [`${at}/tasks/seven.yaml`, null, templateTask("    a: {from: 6, to: 7}", "{a}")],
     [`${at}/lessons/ladder.yaml`, null, `title: ${title}\nsegments:\n  - task: seven\n`],
   ];
@@ -1003,4 +1009,130 @@ test("a schema that reaches a broken one through another is not compiled, in one
     [commonSchema((s) => delete s.title), ["format/schemas/other.schema.json", null, JSON.stringify({ $schema: "https://json-schema.org/draft/2020-12/schema", $id: "https://altnovatrail.github.io/spec/format/0.1/other.schema.json", title: "Other", description: "Another part.", $ref: "sample.schema.json", unevaluatedProperties: false })]],
     [/common\.schema\.json:\d+: the root has title/, /sample\.schema\.json:1: not compiled: it refers to common\.schema\.json/, /other\.schema\.json:1: not compiled: it refers to sample\.schema\.json/, unchecked],
   );
+});
+
+// The vectors of packages and of tiers (sections 9, 12 and 25; RUN.md, T34): fixtures/packages adds
+// to the base fixture the schemas of a canonical view, an inventory and the two kinds of vectors, a
+// vector of tiers and a vector of the package of the smallest trial module.
+
+const packages = path.join(here, "fixtures", "packages");
+const PACKAGE = "format/vectors/packages/smallest";
+const TIERS = "format/vectors/tiers/chain.yaml";
+
+// The edits that write fixtures/packages into a trial copy.
+function packageFixture() {
+  const edits = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(path.join(packages, dir), { withFileTypes: true })) {
+      const file = path.posix.join(dir, entry.name);
+      if (entry.isDirectory()) walk(file);
+      else edits.push([file, null, fs.readFileSync(path.join(packages, file), "utf8")]);
+    }
+  };
+  walk("format");
+  return edits;
+}
+
+test("the fixture of packages is green: its examples build canonical views, and its vectors hold", () => {
+  const root = trialCopy(packageFixture());
+  try {
+    const { errors, stats } = checkFormat(root);
+    assert.deepEqual(errors, []);
+    assert.deepEqual([stats.schemas, stats.tiers, stats.packages], [12, 1, 1]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a vector of tiers gives the tier that section 12 computes for each skill", () => {
+  expectOnly([...packageFixture(), [TIERS, "second: 2", "second: 3"]], /chain\.yaml:0: the tiers are not those of section 12: they differ at #\/skill_tiers\/second/);
+  expectOnly([...packageFixture(), [TIERS, "first: {}", "first: {prerequisites: [second]}"]], /chain\.yaml:0: the prerequisites of \w+ run in a cycle/);
+  expectOnly([...packageFixture(), [TIERS, "first: 1", "first: one"]], /chain\.yaml:0: does not pass the schema of tier vectors: type at #\/skill_tiers\/first/);
+  expectOnly([...packageFixture(), ["format/schemas/tier-vector.schema.json", "", null]], /^format\/vectors\/tiers:0: no schema tier-vector\.schema\.json for the vectors of tiers/);
+  expectOnly([...packageFixture(), ["format/vectors/tiers/chain/case.yaml", null, "a: 1\n"]], /tiers\/chain:0: a vector of tiers is a file, <case>\.yaml/);
+});
+
+test("a vector of packages gives the package that section 25 builds of its module", () => {
+  const digest = /digest: "sha256:([0-9a-f]{64})"\n$/;
+  const edit = (from, to) => [`${PACKAGE}/package.yaml`, from, to];
+  expectOnly([...packageFixture(), edit('title: "A trial module"\ndevice_part', 'title: "Another"\ndevice_part')], /smallest\/package\.yaml:0: server_part is not the canonical view of the module: they differ at #\/server_part\/manifest\/title/);
+  expectOnly([...packageFixture(), edit("size: 32", "size: 33")], /smallest\/package\.yaml:0: device_part is not the listing of the device part of the module: they differ at #\/device_part\/license\/size/);
+  expectOnly([...packageFixture(), edit("size: 109", "size: 110")], /smallest\/package\.yaml:0: inventory is not the inventory of the module: they differ at #\/inventory\/server_part\/size/);
+  const text = fs.readFileSync(path.join(packages, PACKAGE, "package.yaml"), "utf8");
+  const given = text.match(digest)[1];
+  expectOnly([...packageFixture(), edit(given, "0".repeat(64))], new RegExp(`smallest/package\\.yaml:0: the digest of the package is sha256:${given}, not sha256:0{64}`));
+  expectOnly([...packageFixture(), edit("digest: ", "digest: sha256:")], /smallest\/package\.yaml:0: does not pass the schema of package vectors: pattern at /);
+});
+
+test("the module of a vector of packages is checked as an example of a whole module, and builds a package", () => {
+  expectOnly([...packageFixture(), [`${PACKAGE}/module/LICENSE`, "", null]], /smallest\/module:0: module\.license: the folder holds no LICENSE/);
+  expectOnly([...packageFixture(), [`${PACKAGE}/module/manifest.yaml`, 'id: trial/smallest\n', ""]], /smallest\/module:0: the manifest names no id, which the inventory names/);
+  expectOnly([...packageFixture(), [`${PACKAGE}/notes.txt`, null, "Notes.\n"]], /packages\/smallest:0: a vector of packages holds the folder module\/ and package\.yaml, and nothing else/);
+  expectOnly([...packageFixture(), ["format/vectors/packages/a-file.yaml", null, "a: 1\n"]], /packages\/a-file\.yaml:0: a vector of packages is a folder <case>\//);
+  expectOnly([...packageFixture(), ["format/schemas/package-vector.schema.json", "", null]], /^format\/vectors\/packages:0: no schema package-vector\.schema\.json for the vectors of packages/);
+  // A layout with errors leaves the vectors of packages unchecked, as it leaves every case laid out as
+  // a module.
+  expectEach([...packageFixture(), ["format/README.md", "| `sample.yaml` | `sample` |", "| `sample.yaml` | `Sample` |"]], [/README\.md:\d+: "Sample": a part is a term in kebab-case/, /README\.md:0: the cases laid out as a module go unchecked until the layout of a module is fixed/]);
+});
+
+test("the canonical view of an example of a whole module passes the schema of a canonical view", () => {
+  const view = "format/schemas/canonical-view.schema.json";
+  expectOnly([...packageFixture(), [view, '"sample": {', '"other": {']], /with-sample:0: its canonical view does not pass the schema of a canonical view: unevaluatedProperties at #/);
+  // Without it, the examples build no canonical view to check, and the schemas that refer to it break.
+  expectEach([...packageFixture(), [view, "", null]], [/package-vector\.schema\.json:\d+: \$ref "canonical-view\.schema\.json": no schema canonical-view\.schema\.json/, /tier-vector\.schema\.json:\d+: \$ref "canonical-view\.schema\.json#\/\$defs\/skill_tiers": no schema/, /(package|tier)-vector\.schema\.json:0: its examples and vectors go unchecked/]);
+});
+
+test("LICENSE is in every module and not empty, and LICENSE and NOTICE are plain text", () => {
+  const notice = "format/examples/module/valid/with-sample/NOTICE";
+  expectOnly([["format/examples/module/valid/smallest/LICENSE", null, ""]], /smallest\/LICENSE:0: module\.license: is empty/);
+  expectOnly([[notice, null, "﻿Notices.\n"]], /with-sample\/NOTICE:0: module\.plain-text: begins with a byte order mark/);
+  expectOnly([[notice, null, "Notices.\r\n"]], /with-sample\/NOTICE:0: module\.plain-text: holds a carriage return at byte 9/);
+  const latin = errorsOf([], (root) => fs.writeFileSync(path.join(root, notice), Buffer.from([0x52, 0xe9, 0x0a])));
+  assert.deepEqual(latin, ["format/examples/module/valid/with-sample/NOTICE:0: module.plain-text: byte 2 is not UTF-8"]);
+});
+
+// spec's real format/, in a copy: a vector of packages whose template has a solver, and an example
+// whose canonical view cannot be built.
+
+function realErrorsOf(edits) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "format-check-real-"));
+  try {
+    fs.cpSync(path.join(spec, "format"), path.join(root, "format"), { recursive: true });
+    for (const [file, from, to] of edits) {
+      const target = path.join(root, file);
+      const text = fs.readFileSync(target, "utf8");
+      assert.ok(text.includes(from), `${file} has no "${from}"`);
+      fs.writeFileSync(target, text.replace(from, () => to));
+    }
+    return checkFormat(root).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+}
+
+test("a vector of packages gives the results of a solver on every instance, and spec takes them as given", () => {
+  const solver = "format/vectors/packages/with-solver/package.yaml";
+  const first = "      - left: 2\n        to_ben: 3\n        before_ben: 5\n        sweets: 10\n";
+  assert.deepEqual(realErrorsOf([]), []);
+  // What is wrong with the results given is the vector's, not its module's.
+  assert.deepEqual(realErrorsOf([[solver, first, ""]]), ["format/vectors/packages/with-solver/package.yaml:0: the results of the solver of number-thought-of are given for 34 instances, and it has 35"]);
+  assert.deepEqual(realErrorsOf([[solver, first, first.replace("        sweets: 10\n", "")]]), ["format/vectors/packages/with-solver/package.yaml:0: the results of the solver of number-thought-of are not all given on instance 0: each of sweets is"]);
+  // A wrong result is the vector's: spec cannot tell it, but the digests that pin the server part can.
+  const digests = [/with-solver\/package\.yaml:0: inventory is not the inventory of the module: they differ at #\/inventory\/server_part\/digest/, /with-solver\/package\.yaml:0: the digest of the package is sha256:[0-9a-f]{64}, not sha256:b079e37e/];
+  expectEachOf(realErrorsOf([[solver, first, first.replace("sweets: 10", "sweets: 11")]]), digests);
+  // A result that makes its instance break a rule of a task: a key of 5 is the trap value before_ben.
+  expectEachOf(realErrorsOf([[solver, first, first.replace("sweets: 10", "sweets: 5")]]), [...digests, /with-solver\/package\.yaml:0: the instance left = 2, to_ben = 3 of number-thought-of, with the results of its solver that the vector gives, breaks task\.trap-values/]);
+});
+
+test("the canonical view holds the tiers when it holds a skill graph, and only then", () => {
+  const lessons = "format/vectors/packages/with-lessons/package.yaml";
+  assert.deepEqual(realErrorsOf([[lessons, "  skill_tiers:\n    counting-gaps: 1\n    time-calendar: 2\n", ""]]), ["format/vectors/packages/with-lessons/package.yaml:0: does not pass the schema of package vectors: dependentRequired at #/server_part: must have property skill_tiers when property skill_graph is present"]);
+});
+
+test("an example whose skills need each other in a cycle builds no canonical view", () => {
+  const graph = "format/examples/module/valid/with-skill-graph/skill-graph.yaml";
+  const text = fs.readFileSync(path.join(spec, graph), "utf8");
+  const [, first] = text.match(/^  ([a-z-]+):$/m);
+  const errors = realErrorsOf([[graph, `  ${first}:\n`, `  ${first}:\n    prerequisites: [${first}]\n`]]);
+  assert.deepEqual(errors, [`format/examples/module/valid/with-skill-graph:0: its canonical view cannot be built: the prerequisites of ${first} run in a cycle: its tier is no number`]);
 });

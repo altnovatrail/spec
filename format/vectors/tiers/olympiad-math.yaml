@@ -1,0 +1,109 @@
+# The skill graph of the example of the official module of olympiad mathematics, olympiad-math.yaml
+# among the valid examples of the skill graph: the 17 topics of mathtrail-standalone and their links.
+# Its tiers come out 6, 6 and 5 skills, as that example says, since an anchor skill counts for no
+# tier. The topics and their links carry this notice:
+#
+# MIT License
+#
+# Copyright (c) 2026 MathTrail
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+skill_graph:
+  tiers: [Foundations, Rules, Hard problems]
+  skills:
+    logic-ordering:
+      title: Ordering
+      assessability: verdict
+    logic-knights-liars:
+      title: Knights and liars
+      prerequisites: [logic-ordering, combinatorics-enumeration]
+      assessability: verdict
+    combinatorics-enumeration:
+      title: Enumeration
+      assessability: verdict
+    counting-gaps:
+      title: Gaps and boundaries
+      assessability: verdict
+    time-clocks:
+      title: Clocks
+      assessability: verdict
+    time-calendar:
+      title: Calendar and age
+      prerequisites: [counting-gaps]
+      assessability: verdict
+    pigeonhole-basic:
+      title: Pigeonhole principle
+      prerequisites: [combinatorics-enumeration]
+      assessability: verdict
+    parity-alternation:
+      title: Parity and alternation
+      assessability: verdict
+    arithmetic-tricks:
+      title: Arithmetic with a trick
+      assessability: verdict
+    algorithms-weighing-pouring:
+      title: Weighing and pouring
+      prerequisites: [combinatorics-enumeration, pigeonhole-basic]
+      assessability: verdict
+    fractions-parts:
+      title: Parts and shares
+      prerequisites: [arithmetic-tricks, core.fractions-of-a-whole]
+      assessability: verdict
+    percent-basic:
+      title: Percentages
+      prerequisites: [fractions-parts]
+      assessability: verdict
+    ratio-sharing:
+      title: Ratios and sharing
+      prerequisites: [fractions-parts]
+      assessability: verdict
+    geometry-grid:
+      title: Figures on a square grid
+      prerequisites: [combinatorics-enumeration, counting-gaps]
+      assessability: verdict
+    number-divisibility:
+      title: Divisibility and remainders
+      prerequisites: [time-calendar, parity-alternation, core.division-with-remainder]
+      assessability: verdict
+    logic-sets:
+      title: Overlapping groups
+      prerequisites: [combinatorics-enumeration, pigeonhole-basic]
+      assessability: verdict
+    games-strategy:
+      title: Games with a winning strategy
+      prerequisites: [combinatorics-enumeration, parity-alternation]
+      assessability: verdict
+skill_tiers:
+  logic-ordering: 1
+  logic-knights-liars: 2
+  combinatorics-enumeration: 1
+  counting-gaps: 1
+  time-clocks: 1
+  time-calendar: 2
+  pigeonhole-basic: 2
+  parity-alternation: 1
+  arithmetic-tricks: 1
+  algorithms-weighing-pouring: 3
+  fractions-parts: 2
+  percent-basic: 3
+  ratio-sharing: 3
+  geometry-grid: 2
+  number-divisibility: 3
+  logic-sets: 3
+  games-strategy: 2

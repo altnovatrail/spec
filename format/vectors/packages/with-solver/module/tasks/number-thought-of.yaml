@@ -1,0 +1,80 @@
+# The template of the vector of templates number-thought-of.yaml, with one of its traps and without
+# its techniques: Masha has some sweets, gives half to Ann and then to_ben to Ben, and has left. Its
+# solver finds how many sweets she had at first, which no expression of the template gives, by
+# standalone's solver number-thought-of.star. The solver and the trap carry the MIT License of
+# mathtrail-standalone, whose notice the module's NOTICE holds, since a comment does not reach the
+# package. As this file writes it:
+#
+# MIT License
+#
+# Copyright (c) 2026 MathTrail
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+id: number-thought-of
+template:
+  parameters:
+    to_ben: {from: 2, to: 6}
+    left: {from: 2, to: 9}
+  derived:
+    before_ben: left + to_ben
+  constraint: left != to_ben
+  solver:
+    program: |
+      # For "I thought of a number": try every whole number and keep the ones the
+      # steps of the story turn into the result. Keep to whole numbers: where the
+      # story halves, check that the half is whole with % 2 == 0 and take it with //.
+
+      def fits(sweets, to_ben, left):
+          return sweets % 2 == 0 and sweets - sweets // 2 - to_ben == left
+
+      def solve(numbers):
+          fitting = [n for n in range(1001) if fits(n, numbers["to_ben"], numbers["left"])]
+          if len(fitting) != 1:
+              fail("%d whole numbers fit the story" % len(fitting))
+          return {"sweets": fitting[0]}
+    results: [sweets]
+statement:
+  - text: Masha had some sweets. She gave half of them to Ann, and then she gave {to_ben} sweets to Ben. Now she has {left} sweets. How many sweets did Masha have at first?
+givens:
+  - Masha gave half of her sweets to Ann.
+  - Then she gave {to_ben} sweets to Ben.
+  - Now she has {left} sweets.
+unknown: How many sweets Masha had at first.
+canvas:
+  kind: handwriting_sheet
+  grid: squares
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: number
+          key: "{sweets}"
+          units: [sweet, sweets]
+          trap_values:
+            - value: "{before_ben}"
+              trap: stopped-early
+              text: That is how many sweets Masha had after she gave half to Ann. How many did she have before that?
+solution:
+  - text: Go backwards. Before Masha gave Ben his sweets, she had {left} + {to_ben} = {before_ben} sweets.
+  - text: That was the half she kept, so at first she had {before_ben} × 2 = {sweets} sweets.
+leak_phrases: ["{sweets} sweets at first"]
+skills:
+  primary: [arithmetic-tricks]
+band: grades-1-2
+difficulty: 2

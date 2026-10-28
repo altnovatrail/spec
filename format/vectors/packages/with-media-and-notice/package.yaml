@@ -1,0 +1,42 @@
+# The package of a module with a picture, notices and an eval set. The device part holds LICENSE,
+# NOTICE and the picture, by its path from media/. The eval set is no part of the package, and neither
+# is .editor-notes, whose name begins with a dot: the digests are those of the module without them,
+# whatever order its folder lists its files in.
+server_part:
+  manifest:
+    module_format_version: "0.1"
+    id: "example/with-media-and-notice"
+    version: "0.1.0"
+    title: "With media and notice"
+    subject: "mathematics"
+    audience:
+      age_categories:
+        - "under_13"
+        - "adult"
+    languages:
+      explanation: "en"
+    authors:
+      - name: "The NovaTrail authors"
+    license: "Apache-2.0"
+device_part:
+  license:
+    digest: "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    size: 11357
+  notice:
+    digest: "sha256:348639156f1c1e6af9b8d0b670080dcbffbfa5a3d36ab65b7c512f87cb684376"
+    size: 109
+  media:
+    pictures/dot.png:
+      digest: "sha256:064b66188821584121784c30ca28eadbc5f265e025c6dd9eeed64cf1ef8e1f46"
+      size: 67
+inventory:
+  module_format_version: "0.1"
+  id: "example/with-media-and-notice"
+  version: "0.1.0"
+  server_part:
+    digest: "sha256:c2e1913213eecd9a1ca5d3ed57c588d0fed04dbe365f670bf1fc100eee1bd713"
+    size: 307
+  device_part:
+    digest: "sha256:2f2a19ffef131ef087c1fe31fc0d92b55a782554a453f7398d6503b8496b5d94"
+    size: 338
+digest: "sha256:74660bd980f7e410eac964ac11a70885397a74ac9491c1d821fdea7a3b62bb1c"

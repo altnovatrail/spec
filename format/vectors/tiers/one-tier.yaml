@@ -1,0 +1,14 @@
+# No skill needs another skill of the module, so every skill stands in tier 1: one needs nothing,
+# and one needs only an anchor skill of the shared taxonomy, which counts for no tier.
+skill_graph:
+  skills:
+    counting-dots:
+      title: Counting dots
+      assessability: verdict
+    sharing-equally:
+      title: Sharing equally
+      prerequisites: [core.multiplication-table]
+      assessability: verdict
+skill_tiers:
+  counting-dots: 1
+  sharing-equally: 1
