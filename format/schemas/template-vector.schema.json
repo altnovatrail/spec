@@ -78,15 +78,7 @@
           "description": "The seed of the attempt, whose place of randomness with the names template, the task's ID and instance picks the instance."
         },
         "numbers": {
-          "type": "object",
-          "propertyNames": {
-            "$ref": "task.schema.json#/$defs/template_name"
-          },
-          "additionalProperties": {
-            "type": "integer",
-            "description": "The number of this parameter, derived number or result in the instance."
-          },
-          "minProperties": 1,
+          "$ref": "canonical-view.schema.json#/$defs/numbers",
           "description": "The numbers of the instance: every parameter, every derived number and every result of the solver of the template, by its name."
         },
         "instance": {

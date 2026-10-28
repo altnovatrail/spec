@@ -1,5 +1,5 @@
 // format-check: the checks of the module format in spec's format/ (R45 and its amendments, R46,
-// R51, R56, R57, R58, R59, R60; RUN.md, T25, T26, T28, T29, T30, T31, T32 and T33).
+// R51, R56, R57, R58, R59, R60, R62; RUN.md, T25, T26, T28, T29, T30, T31, T32, T33 and T34).
 //
 //   node tools/format-check/main.mjs      spec's own format/, two levels above this file
 //
@@ -12,7 +12,8 @@
 //   names (section 8);
 // - each example of a whole module, examples/module/valid/<case>/, laid out as a module: its files
 //   by the layout of section 10, the YAML rules and the schema of each file's part, and the rules of
-//   a whole module — its manifest, its layout, the ids of the files at <id> and its media files;
+//   a whole module — its manifest, its layout, the ids of the files at <id>, its media files, its
+//   LICENSE and its plain texts —, and its canonical view passes the schema of a canonical view;
 // - the rules the text lists, each with test vectors in vectors/rules/<rule>/, and each such folder
 //   with its rule: a case of a YAML rule breaks that rule and no other; a case of a rule of a whole
 //   module is a folder that breaks that rule and no other; a case of a part's rule follows the YAML
@@ -41,7 +42,13 @@
 //   section 22 give each value it lists, in order, on its stream;
 // - the vectors of templates, vectors/templates/<case>.yaml: each case follows the YAML rules and
 //   passes the schema of such vectors, its template breaks no rule of a task on any instance, and
-//   section 23 gives the number of instances it lists and, for each seed, the instance it lists.
+//   section 23 gives the number of instances it lists and, for each seed, the instance it lists;
+// - the vectors of tiers, vectors/tiers/<case>.yaml: each case follows the YAML rules and passes the
+//   schema of such vectors, and section 12 gives the tier it lists for each skill of its graph;
+// - the vectors of packages, vectors/packages/<case>/: module/ holds a module as an example of a
+//   whole module does, package.yaml follows the YAML rules and passes the schema of such vectors, and
+//   section 25 builds of module/ the server part, the listing of the device part, the inventory and
+//   the digest that package.yaml lists, with the results of the solvers that it gives.
 // Anything else in format/ is an error: what this check does not know would go unchecked, so the
 // task that brings it extends the check. Prints one line per error, file:line: message, and exits 1
 // if there are any.
@@ -50,7 +57,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { LESSON_LEAKS, checkExample, checkLeakVector, checkModuleCase, checkOpenView, checkRandomVector, checkTemplateVector, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { LESSON_LEAKS, PACKAGE_FILE, PACKAGE_MODULE, checkExample, checkLeakVector, checkModuleCase, checkOpenView, checkPackageVector, checkRandomVector, checkTemplateVector, checkTierVector, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
 import { listFolder, readLayout } from "./module.mjs";
 import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
 import { FEEDBACK_KINDS, VERDICT_KINDS } from "./verdicts.mjs";
@@ -73,6 +80,14 @@ const RANDOM_VECTOR = "random-vector";
 // The vectors of templates (section 23), and their schema.
 const TEMPLATES = "templates";
 const TEMPLATE_VECTOR = "template-vector";
+// The vectors of tiers (section 12), and their schema.
+const TIERS = "tiers";
+const TIER_VECTOR = "tier-vector";
+// The vectors of packages (section 25), and their schema, and the schema of the canonical view, by
+// which the canonical view of each example of a whole module is checked.
+const PACKAGES = "packages";
+const PACKAGE_VECTOR = "package-vector";
+const CANONICAL_VIEW = "canonical-view";
 const README = "format/README.md";
 // The schema of the definitions that the parts share.
 const COMMON = "common";
@@ -89,7 +104,7 @@ export function checkFormat(root) {
   checkCases(root, files, { rules, layout, version, schemas }, report);
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
-  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length, random: files.random.length, templates: files.templates.length };
+  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: rules?.length ?? 0, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length, random: files.random.length, templates: files.templates.length, tiers: files.tiers.length, packages: files.packages.length };
   return { errors, stats };
 }
 
@@ -180,9 +195,10 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
       report(README, 0, "the cases laid out as a module go unchecked until the layout of a module is fixed");
     }
   };
+  const validateView = schemas.has(CANONICAL_VIEW) ? schemas.validatorOf(CANONICAL_VIEW) : undefined;
   const checkFolder = (file, rule) => {
     if (!layout) return waitForLayout();
-    for (const problem of checkModuleCase(path.join(root, file), { rule, layout, validatorOf: schemas.validatorOf, version, forms: schemas.forms })) {
+    for (const problem of checkModuleCase(path.join(root, file), { rule, layout, validatorOf: schemas.validatorOf, version, forms: schemas.forms, validateView })) {
       report(problem.file ? `${file}/${problem.file}` : file, problem.line, problem.message);
     }
   };
@@ -223,6 +239,38 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
   checkLeaks(root, files, schemas, report);
   checkRandom(root, files, schemas, report);
   checkTemplates(root, files, schemas, report);
+  checkTiers(root, files, schemas, report);
+  checkPackages(root, files, { layout, version, schemas }, report, waitForLayout);
+}
+
+// The vectors of tiers: each case against the schema of such vectors and the tiers of section 12.
+function checkTiers(root, files, schemas, report) {
+  if (!files.tiers.length) return;
+  if (!schemas.has(TIER_VECTOR)) {
+    report(`format/vectors/${TIERS}`, 0, `no schema ${TIER_VECTOR}.schema.json for the vectors of tiers`);
+    return;
+  }
+  const validate = schemas.validatorOf(TIER_VECTOR);
+  for (const { file } of files.tiers) {
+    for (const { line, message } of checkTierVector(fs.readFileSync(path.join(root, file)), { validate })) report(file, line, message);
+  }
+}
+
+// The vectors of packages: each case's module against the rules of a whole module, and its package
+// against the schema of such vectors and the package that section 25 builds.
+function checkPackages(root, files, { layout, version, schemas }, report, waitForLayout) {
+  if (!files.packages.length) return;
+  if (!schemas.has(PACKAGE_VECTOR)) {
+    report(`format/vectors/${PACKAGES}`, 0, `no schema ${PACKAGE_VECTOR}.schema.json for the vectors of packages`);
+    return;
+  }
+  if (!layout) return waitForLayout();
+  const validate = schemas.validatorOf(PACKAGE_VECTOR);
+  for (const { file } of files.packages) {
+    for (const problem of checkPackageVector(path.join(root, file), { layout, validatorOf: schemas.validatorOf, version, forms: schemas.forms, validate })) {
+      report(`${file}/${problem.file}`, problem.line, problem.message);
+    }
+  }
 }
 
 // The vectors of the leak check: each case against the schema of leak vectors and the leak check of
@@ -321,10 +369,12 @@ function checkRuleFolders(files, rules, report) {
 // the open view is a folder of its own kind, vectors/open-view/<part>/<case>/, which holds
 // part.yaml and open-view.yaml and nothing else; a vector of verdicts is a file,
 // vectors/verdicts/<kind>/<case>.yaml, and so are a vector of the leak check, vectors/leaks/<case>.yaml,
-// a vector of the generator, vectors/random/<case>.yaml, and a vector of templates,
-// vectors/templates/<case>.yaml.
+// a vector of the generator, vectors/random/<case>.yaml, a vector of templates,
+// vectors/templates/<case>.yaml, and a vector of tiers, vectors/tiers/<case>.yaml. A vector of
+// packages is a folder, vectors/packages/<case>/, which holds module/ and package.yaml and nothing
+// else.
 function readFiles(root, report) {
-  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [], templates: [] };
+  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [], templates: [], tiers: [], packages: [] };
   if (!fs.existsSync(path.join(root, "format"))) {
     report("format", 0, "there is no format/");
     return files;
@@ -392,6 +442,14 @@ function readVectorFiles(at, dir) {
       readCases(at, kind.file, { onlyFile: "a vector of templates is a file, <case>.yaml" }, (file) => at.files.templates.push({ file }));
       continue;
     }
+    if (kind.isFolder && kind.name === TIERS) {
+      readCases(at, kind.file, { onlyFile: "a vector of tiers is a file, <case>.yaml" }, (file) => at.files.tiers.push({ file }));
+      continue;
+    }
+    if (kind.isFolder && kind.name === PACKAGES) {
+      readPackageFiles(at, kind.file);
+      continue;
+    }
     if (!kind.isFolder || kind.name !== "rules") {
       report(kind.file, 0, UNKNOWN);
       continue;
@@ -428,6 +486,19 @@ function readOpenViewFiles({ root, report, files }, dir) {
       if (fits) files.openViews.push({ file: entry.file, term: term.name });
       else report(entry.file, 0, `a vector of the open view holds ${OPEN_VIEW_FILES.join(" and ")}, and nothing else`);
     }
+  }
+}
+
+function readPackageFiles({ root, report, files }, dir) {
+  for (const entry of entriesOf(root, dir)) {
+    if (!entry.isFolder || !isKebabCase(entry.name)) {
+      report(entry.file, 0, `a vector of packages is a folder <case>/, its name in kebab-case; ${UNKNOWN}`);
+      continue;
+    }
+    const names = entriesOf(root, entry.file);
+    const fits = names.length === 2 && names.some((name) => name.isFolder && name.name === PACKAGE_MODULE) && names.some((name) => name.isFile && name.name === PACKAGE_FILE);
+    if (fits) files.packages.push({ file: entry.file });
+    else report(entry.file, 0, `a vector of packages holds the folder ${PACKAGE_MODULE}/ and ${PACKAGE_FILE}, and nothing else`);
   }
 }
 
@@ -469,6 +540,6 @@ if (isMain(import.meta.url)) {
     console.log(`format-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
     process.exitCode = 1;
   } else {
-    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check, ${stats.random} vectors of the generator, ${stats.templates} vectors of templates`);
+    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check, ${stats.random} vectors of the generator, ${stats.templates} vectors of templates, ${stats.tiers} vectors of tiers, ${stats.packages} vectors of packages`);
   }
 }

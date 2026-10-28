@@ -91,8 +91,16 @@ export const numbersShown = (numbers, names = [...numbers.keys()]) => names.map(
 // A template's own rules, and its instances: { breaches, instances }. breaches maps each rule of a
 // template that the task breaks to what breaks it; instances lists, in order, each instance's numbers,
 // a Map from every parameter and derived number to its BigInt, or is null when a breach leaves them
-// uncounted.
+// uncounted. A task read once is counted once: the checks of its rules and its package's canonical
+// view share what this gives, and none of them changes it.
+const counted = new WeakMap();
+
 export function templateOf(task) {
+  if (!counted.has(task)) counted.set(task, countedOf(task));
+  return counted.get(task);
+}
+
+function countedOf(task) {
   const breaches = new Map();
   const breach = (rule, message) => {
     if (!breaches.has(rule)) breaches.set(rule, message);

@@ -1,0 +1,11 @@
+# error: required at #
+# The format version stands at the root of the inventory in every version of the format, so that a
+# reader finds it first; an inventory without it cannot be read.
+id: example/smallest
+version: "0.1.0"
+server_part:
+  digest: sha256:8d193bbb0c7eccb52e5389edc4c5ad1b1fad761a4192d772b8fb8a985165e227
+  size: 281
+device_part:
+  digest: sha256:7866e51fff6d6b0cdab46531f4097231479159ab0667ad71f5ab4a8c88d33e74
+  size: 109

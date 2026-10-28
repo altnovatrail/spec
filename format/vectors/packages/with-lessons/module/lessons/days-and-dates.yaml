@@ -1,0 +1,8 @@
+# A lesson whose skill needs the skill of gaps-and-posts, so it comes after that lesson.
+id: days-and-dates
+title: Days and dates
+skills: [time-calendar]
+segments:
+  - explanation:
+      - text: Counting the days from one date to another, both included, is counting posts. The days are the posts, and the nights between them are the gaps.
+  - task: camp-days-1

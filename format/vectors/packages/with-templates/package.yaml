@@ -1,0 +1,363 @@
+# The package of a module with a template. The server part holds the template as it is written and,
+# in instances, the numbers of its 64 instances in the order of an odometer — first changing slowest,
+# each derived number beside its parameters —, from which the server takes the instance of an attempt
+# without running an expression.
+server_part:
+  manifest:
+    module_format_version: "0.1"
+    id: "example/with-templates"
+    version: "0.1.0"
+    title: "A module with a template"
+    subject: "mathematics"
+    audience:
+      age_categories:
+        - "under_13"
+      grades:
+        - 3
+    bands:
+      - id: "grade-3"
+        title: "Grade 3"
+        grades:
+          - 3
+    languages:
+      explanation: "en"
+    authors:
+      - name: "The NovaTrail authors"
+    license: "Apache-2.0"
+    rung_templates:
+      - "Which step of your work gave you this answer?"
+      - "Read the line again. Which number of the times table gives the product it asks for?"
+  skill_graph:
+    skills:
+      times-tables:
+        title: "The times tables"
+        assessability: "verdict"
+  skill_tiers:
+    times-tables: 1
+  traps:
+    traps:
+      times-table-slip:
+        description: "Took the next or the previous number of the times table for the one the line asks for."
+        skills:
+          - "times-tables"
+        trap_advice: "Say the times table aloud, one step at a time, and stop where the product is."
+  tasks:
+    missing-factor:
+      id: "missing-factor"
+      template:
+        parameters:
+          first:
+            from: 2
+            to: 9
+          second:
+            from: 2
+            to: 9
+        derived:
+          product: "first * second"
+          one_more: "second + 1"
+      statement:
+        - text: "Write the missing number."
+      canvas:
+        kind: "workbook"
+      items:
+        - line:
+            - text: "{first} ×"
+            - binding: "box"
+              check:
+                kind: "number"
+                key: "{second}"
+                trap_values:
+                  - value: "{one_more}"
+                    trap: "times-table-slip"
+                    text: "Count up the times table again, one step at a time, and stop at the product the line asks for."
+            - text: "= {product}"
+      solution:
+        - text: "{first} × {second} = {product}, so the missing number is {second}."
+      skills:
+        primary:
+          - "times-tables"
+      band: "grade-3"
+      difficulty: 2
+  lessons:
+    missing-factors:
+      id: "missing-factors"
+      title: "Missing factors"
+      skills:
+        - "times-tables"
+      segments:
+        - explanation:
+            - text: "To find a missing factor, go through the times table of the number you know, and stop at the product the line gives."
+        - task: "missing-factor"
+  instances:
+    missing-factor:
+      - first: 2
+        second: 2
+        product: 4
+        one_more: 3
+      - first: 2
+        second: 3
+        product: 6
+        one_more: 4
+      - first: 2
+        second: 4
+        product: 8
+        one_more: 5
+      - first: 2
+        second: 5
+        product: 10
+        one_more: 6
+      - first: 2
+        second: 6
+        product: 12
+        one_more: 7
+      - first: 2
+        second: 7
+        product: 14
+        one_more: 8
+      - first: 2
+        second: 8
+        product: 16
+        one_more: 9
+      - first: 2
+        second: 9
+        product: 18
+        one_more: 10
+      - first: 3
+        second: 2
+        product: 6
+        one_more: 3
+      - first: 3
+        second: 3
+        product: 9
+        one_more: 4
+      - first: 3
+        second: 4
+        product: 12
+        one_more: 5
+      - first: 3
+        second: 5
+        product: 15
+        one_more: 6
+      - first: 3
+        second: 6
+        product: 18
+        one_more: 7
+      - first: 3
+        second: 7
+        product: 21
+        one_more: 8
+      - first: 3
+        second: 8
+        product: 24
+        one_more: 9
+      - first: 3
+        second: 9
+        product: 27
+        one_more: 10
+      - first: 4
+        second: 2
+        product: 8
+        one_more: 3
+      - first: 4
+        second: 3
+        product: 12
+        one_more: 4
+      - first: 4
+        second: 4
+        product: 16
+        one_more: 5
+      - first: 4
+        second: 5
+        product: 20
+        one_more: 6
+      - first: 4
+        second: 6
+        product: 24
+        one_more: 7
+      - first: 4
+        second: 7
+        product: 28
+        one_more: 8
+      - first: 4
+        second: 8
+        product: 32
+        one_more: 9
+      - first: 4
+        second: 9
+        product: 36
+        one_more: 10
+      - first: 5
+        second: 2
+        product: 10
+        one_more: 3
+      - first: 5
+        second: 3
+        product: 15
+        one_more: 4
+      - first: 5
+        second: 4
+        product: 20
+        one_more: 5
+      - first: 5
+        second: 5
+        product: 25
+        one_more: 6
+      - first: 5
+        second: 6
+        product: 30
+        one_more: 7
+      - first: 5
+        second: 7
+        product: 35
+        one_more: 8
+      - first: 5
+        second: 8
+        product: 40
+        one_more: 9
+      - first: 5
+        second: 9
+        product: 45
+        one_more: 10
+      - first: 6
+        second: 2
+        product: 12
+        one_more: 3
+      - first: 6
+        second: 3
+        product: 18
+        one_more: 4
+      - first: 6
+        second: 4
+        product: 24
+        one_more: 5
+      - first: 6
+        second: 5
+        product: 30
+        one_more: 6
+      - first: 6
+        second: 6
+        product: 36
+        one_more: 7
+      - first: 6
+        second: 7
+        product: 42
+        one_more: 8
+      - first: 6
+        second: 8
+        product: 48
+        one_more: 9
+      - first: 6
+        second: 9
+        product: 54
+        one_more: 10
+      - first: 7
+        second: 2
+        product: 14
+        one_more: 3
+      - first: 7
+        second: 3
+        product: 21
+        one_more: 4
+      - first: 7
+        second: 4
+        product: 28
+        one_more: 5
+      - first: 7
+        second: 5
+        product: 35
+        one_more: 6
+      - first: 7
+        second: 6
+        product: 42
+        one_more: 7
+      - first: 7
+        second: 7
+        product: 49
+        one_more: 8
+      - first: 7
+        second: 8
+        product: 56
+        one_more: 9
+      - first: 7
+        second: 9
+        product: 63
+        one_more: 10
+      - first: 8
+        second: 2
+        product: 16
+        one_more: 3
+      - first: 8
+        second: 3
+        product: 24
+        one_more: 4
+      - first: 8
+        second: 4
+        product: 32
+        one_more: 5
+      - first: 8
+        second: 5
+        product: 40
+        one_more: 6
+      - first: 8
+        second: 6
+        product: 48
+        one_more: 7
+      - first: 8
+        second: 7
+        product: 56
+        one_more: 8
+      - first: 8
+        second: 8
+        product: 64
+        one_more: 9
+      - first: 8
+        second: 9
+        product: 72
+        one_more: 10
+      - first: 9
+        second: 2
+        product: 18
+        one_more: 3
+      - first: 9
+        second: 3
+        product: 27
+        one_more: 4
+      - first: 9
+        second: 4
+        product: 36
+        one_more: 5
+      - first: 9
+        second: 5
+        product: 45
+        one_more: 6
+      - first: 9
+        second: 6
+        product: 54
+        one_more: 7
+      - first: 9
+        second: 7
+        product: 63
+        one_more: 8
+      - first: 9
+        second: 8
+        product: 72
+        one_more: 9
+      - first: 9
+        second: 9
+        product: 81
+        one_more: 10
+device_part:
+  license:
+    digest: "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    size: 11357
+inventory:
+  module_format_version: "0.1"
+  id: "example/with-templates"
+  version: "0.1.0"
+  server_part:
+    digest: "sha256:16d5562addf56bb1d26fab0aa104fb7c00cc27803c15eb6c97bdb907d0a38768"
+    size: 5109
+  device_part:
+    digest: "sha256:7866e51fff6d6b0cdab46531f4097231479159ab0667ad71f5ab4a8c88d33e74"
+    size: 109
+digest: "sha256:9f11300d76ab39e42121cf713dd21c1d872ced0d401a126d6dde9af64809e7b5"

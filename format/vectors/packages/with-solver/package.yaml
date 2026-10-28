@@ -1,0 +1,277 @@
+# The package of a module with a template whose key its solver finds, and the notice of the MIT
+# License of its solver and its trap in NOTICE. The numbers of its 35 instances
+# hold the result of the solver, sweets, beside the parameters and the derived number. spec runs no
+# Starlark: the results are this vector's own, the one whole number that the solver finds on each
+# instance, twice left and to_ben together, and module-kit's CI runs the solver and compares.
+server_part:
+  manifest:
+    module_format_version: "0.1"
+    id: "example/with-solver"
+    version: "0.1.0"
+    title: "A module with a solver"
+    subject: "mathematics"
+    audience:
+      age_categories:
+        - "under_13"
+      grades:
+        - 1
+        - 2
+    bands:
+      - id: "grades-1-2"
+        title: "Grades 1 and 2"
+        grades:
+          - 1
+          - 2
+    languages:
+      explanation: "en"
+    authors:
+      - name: "The NovaTrail authors"
+    license: "Apache-2.0"
+    rung_templates:
+      - "Which step of your work gave you this answer?"
+      - "Read the story again. Which step can you undo first?"
+  skill_graph:
+    skills:
+      arithmetic-tricks:
+        title: "Arithmetic tricks"
+        assessability: "verdict"
+  skill_tiers:
+    arithmetic-tricks: 1
+  traps:
+    traps:
+      stopped-early:
+        description: "Stopped at an intermediate result instead of finishing the solution."
+        skills:
+          - "arithmetic-tricks"
+        trap_advice: "After each step, ask whether that is what the question wants, or only a step towards it."
+  tasks:
+    number-thought-of:
+      id: "number-thought-of"
+      template:
+        parameters:
+          to_ben:
+            from: 2
+            to: 6
+          left:
+            from: 2
+            to: 9
+        derived:
+          before_ben: "left + to_ben"
+        constraint: "left != to_ben"
+        solver:
+          program: "# For \"I thought of a number\": try every whole number and keep the ones the
+
+            # steps of the story turn into the result. Keep to whole numbers: where the
+
+            # story halves, check that the half is whole with % 2 == 0 and take it with //.
+
+
+            def fits(sweets, to_ben, left):
+
+            \    return sweets % 2 == 0 and sweets - sweets // 2 - to_ben == left
+
+
+            def solve(numbers):
+
+            \    fitting = [n for n in range(1001) if fits(n, numbers[\"to_ben\"], numbers[\"left\"])]
+
+            \    if len(fitting) != 1:
+
+            \        fail(\"%d whole numbers fit the story\" % len(fitting))
+
+            \    return {\"sweets\": fitting[0]}\n"
+          results:
+            - "sweets"
+      statement:
+        - text: "Masha had some sweets. She gave half of them to Ann, and then she gave {to_ben} sweets to Ben. Now she has {left} sweets. How many sweets did Masha have at first?"
+      givens:
+        - "Masha gave half of her sweets to Ann."
+        - "Then she gave {to_ben} sweets to Ben."
+        - "Now she has {left} sweets."
+      unknown: "How many sweets Masha had at first."
+      canvas:
+        kind: "handwriting_sheet"
+        grid: "squares"
+      items:
+        - answer_slots:
+            - binding: "anywhere"
+              check:
+                kind: "number"
+                key: "{sweets}"
+                units:
+                  - "sweet"
+                  - "sweets"
+                trap_values:
+                  - value: "{before_ben}"
+                    trap: "stopped-early"
+                    text: "That is how many sweets Masha had after she gave half to Ann. How many did she have before that?"
+      solution:
+        - text: "Go backwards. Before Masha gave Ben his sweets, she had {left} + {to_ben} = {before_ben} sweets."
+        - text: "That was the half she kept, so at first she had {before_ben} × 2 = {sweets} sweets."
+      leak_phrases:
+        - "{sweets} sweets at first"
+      skills:
+        primary:
+          - "arithmetic-tricks"
+      band: "grades-1-2"
+      difficulty: 2
+  instances:
+    number-thought-of:
+      - left: 2
+        to_ben: 3
+        before_ben: 5
+        sweets: 10
+      - left: 2
+        to_ben: 4
+        before_ben: 6
+        sweets: 12
+      - left: 2
+        to_ben: 5
+        before_ben: 7
+        sweets: 14
+      - left: 2
+        to_ben: 6
+        before_ben: 8
+        sweets: 16
+      - left: 3
+        to_ben: 2
+        before_ben: 5
+        sweets: 10
+      - left: 3
+        to_ben: 4
+        before_ben: 7
+        sweets: 14
+      - left: 3
+        to_ben: 5
+        before_ben: 8
+        sweets: 16
+      - left: 3
+        to_ben: 6
+        before_ben: 9
+        sweets: 18
+      - left: 4
+        to_ben: 2
+        before_ben: 6
+        sweets: 12
+      - left: 4
+        to_ben: 3
+        before_ben: 7
+        sweets: 14
+      - left: 4
+        to_ben: 5
+        before_ben: 9
+        sweets: 18
+      - left: 4
+        to_ben: 6
+        before_ben: 10
+        sweets: 20
+      - left: 5
+        to_ben: 2
+        before_ben: 7
+        sweets: 14
+      - left: 5
+        to_ben: 3
+        before_ben: 8
+        sweets: 16
+      - left: 5
+        to_ben: 4
+        before_ben: 9
+        sweets: 18
+      - left: 5
+        to_ben: 6
+        before_ben: 11
+        sweets: 22
+      - left: 6
+        to_ben: 2
+        before_ben: 8
+        sweets: 16
+      - left: 6
+        to_ben: 3
+        before_ben: 9
+        sweets: 18
+      - left: 6
+        to_ben: 4
+        before_ben: 10
+        sweets: 20
+      - left: 6
+        to_ben: 5
+        before_ben: 11
+        sweets: 22
+      - left: 7
+        to_ben: 2
+        before_ben: 9
+        sweets: 18
+      - left: 7
+        to_ben: 3
+        before_ben: 10
+        sweets: 20
+      - left: 7
+        to_ben: 4
+        before_ben: 11
+        sweets: 22
+      - left: 7
+        to_ben: 5
+        before_ben: 12
+        sweets: 24
+      - left: 7
+        to_ben: 6
+        before_ben: 13
+        sweets: 26
+      - left: 8
+        to_ben: 2
+        before_ben: 10
+        sweets: 20
+      - left: 8
+        to_ben: 3
+        before_ben: 11
+        sweets: 22
+      - left: 8
+        to_ben: 4
+        before_ben: 12
+        sweets: 24
+      - left: 8
+        to_ben: 5
+        before_ben: 13
+        sweets: 26
+      - left: 8
+        to_ben: 6
+        before_ben: 14
+        sweets: 28
+      - left: 9
+        to_ben: 2
+        before_ben: 11
+        sweets: 22
+      - left: 9
+        to_ben: 3
+        before_ben: 12
+        sweets: 24
+      - left: 9
+        to_ben: 4
+        before_ben: 13
+        sweets: 26
+      - left: 9
+        to_ben: 5
+        before_ben: 14
+        sweets: 28
+      - left: 9
+        to_ben: 6
+        before_ben: 15
+        sweets: 30
+device_part:
+  license:
+    digest: "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    size: 11357
+  notice:
+    digest: "sha256:e884000118cf28fb2bdb2002c8f0cf56e73561848de01bd91a1838851e156ef8"
+    size: 1220
+inventory:
+  module_format_version: "0.1"
+  id: "example/with-solver"
+  version: "0.1.0"
+  server_part:
+    digest: "sha256:fea13c081f2d748241d065a16e2a01f6b07a3cde0b67c7bf401a4926c83b1eeb"
+    size: 4546
+  device_part:
+    digest: "sha256:9a1b4e253759e7107617aa66af3edf51351c4f82f161756e2eabb8c4177f784c"
+    size: 215
+digest: "sha256:b079e37e1b45135345186d1f45e28cf18f777781448c97ecd01989e698f3c7fe"

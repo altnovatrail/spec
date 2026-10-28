@@ -1,0 +1,27 @@
+# A task whose strings hold what the canonical text writes with an escape — a quotation mark, a
+# backslash, a tab, a line feed and the bell, U+0007 — and what it writes as it is: <, > and &, which
+# encoding/json of Go would escape, U+2028, which it escapes too, a letter outside the Basic
+# Multilingual Plane, and an e followed by a combining acute accent, which no reader normalizes into
+# é (section 4). Its picture's size is written 5e1, an integer of YAML, which the canonical view
+# holds as 50.
+id: count-the-dots
+statement:
+  - text: "Anna wrote \"7 \\ 2\" on the board,\tthen a dot.\nHow many dots does the picture show?"
+  - picture: pictures/dot.png
+    alt: "One dot, drawn by Renée \U0001F600 <in ink> & pencil\L\a"
+    width: 5e1
+    height: 5e1
+canvas:
+  kind: handwriting_sheet
+  grid: dots
+  grid_step: 40
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "1"}
+solution:
+  - text: The picture shows one dot.
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

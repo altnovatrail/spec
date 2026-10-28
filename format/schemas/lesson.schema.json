@@ -146,12 +146,14 @@
         "width": {
           "type": "integer",
           "minimum": 1,
+          "maximum": 9007199254740991,
           "description": "The width that a picture beside the sheet is shown at, in CSS px.",
           "x-open": true
         },
         "height": {
           "type": "integer",
           "minimum": 1,
+          "maximum": 9007199254740991,
           "description": "The height that a picture beside the sheet is shown at, in CSS px, in proportion to its width.",
           "x-open": true
         },

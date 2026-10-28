@@ -1,6 +1,6 @@
 // The examples and test vectors of the module format, and the rules and the layout of a module its
-// text lists (format/README.md, sections 7–11, 15 and 20–23; R45 and its amendment of 2026-10-22, R46,
-// R56, R57, R58, R59, R60).
+// text lists (format/README.md, sections 7–12, 15, 20–23 and 25; R45 and its amendment of 2026-10-22,
+// R46, R56, R57, R58, R59, R60, R62).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -8,8 +8,9 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { gfm } from "micromark-extension-gfm";
 import { byCodeUnits } from "../shared.mjs";
-import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listModule, mediaBreaches, placeFiles, versionProblem } from "./module.mjs";
+import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listModule, mediaBreaches, placeFiles, textBreaches, versionProblem } from "./module.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
+import { canonicalViewOf, memberOf, packageOf, tiersOf } from "./package.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
 import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
@@ -169,12 +170,28 @@ export function checkVector(bytes, { rule, validate, version }) {
 // which breaks that rule and no other (sections 8–10). A vector of a part's rule holds a file of
 // that part. rule is the vector's rule, or null for an example; validatorOf(part) gives a part's
 // validator, or undefined; forms holds isLocalId and isMediaPath, the forms of common's local_id and
-// media_path. Returns problems, each { file, line, message }, where file is the path of a file in
-// the case, or "" for the case itself.
-export function checkModuleCase(folder, { rule, layout, validatorOf, version, forms }) {
-  const { rows, breaches } = placeFiles(listModule(folder), layout, forms);
+// media_path. An example of a whole module builds its canonical view too (section 25), which passes
+// the schema of a canonical view by validateView, when it is given. Returns problems, each { file,
+// line, message }, where file is the path of a file in the case, or "" for the case itself.
+export function checkModuleCase(folder, { rule, layout, validatorOf, version, forms, validateView }) {
+  const { problems, members, partsOk } = readModuleCase(folder, { rule, layout, validatorOf, version, forms });
+  if (rule !== null || !validateView || problems.length || !partsOk) return problems;
+  const { view, problem } = canonicalViewOf(members);
+  if (problem) problems.push({ file: "", line: 0, message: `its canonical view cannot be built: ${problem}` });
+  else if (!validateView(view)) for (const error of validateView.errors) problems.push({ file: "", line: 0, message: `its canonical view does not pass the schema of a canonical view: ${describe(error)}` });
+  return problems;
+}
+
+// The same, and what a case holds: { problems, files, members, partsOk }. files are the files of the
+// case that stand at a path of the layout, and members the value of each file of a part that passed
+// its schema, under the member of a canonical view that holds the part, by local ID for a part with
+// <id> (section 25); partsOk is false when a file of a part did not pass, so that members lacks it.
+function readModuleCase(folder, { rule, layout, validatorOf, version, forms }) {
+  const listing = listModule(folder);
+  const { rows, breaches } = placeFiles(listing, layout, forms);
   const problems = [];
   const parts = new Set();
+  const members = {};
   // The values of the files that passed their schemas, by part, for the rules that format-check
   // implements. A task is known by the name of its file, as module.file-ids has it.
   const values = { tasks: [], lessons: [], partsOk: true };
@@ -189,9 +206,13 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
     const fileProblems = partFileProblems(read, row.part, { rule, validate, version });
     for (const problem of fileProblems) problems.push({ file, ...problem });
     if (!validate || fileProblems.length) values.partsOk = false;
-    else if (row.part === TASK_PART) values.tasks.push({ file, id: idOf(file, row), task: read.value });
-    else if (row.part === LESSON_PART) values.lessons.push({ file, lesson: read.value });
-    else values[row.part] = read.value;
+    else {
+      if (row.id === null) members[memberOf(row)] = read.value;
+      else (members[memberOf(row)] ??= {})[idOf(file, row)] = read.value;
+      if (row.part === TASK_PART) values.tasks.push({ file, id: idOf(file, row), task: read.value });
+      else if (row.part === LESSON_PART) values.lessons.push({ file, lesson: read.value });
+      else values[row.part] = read.value;
+    }
     // module.file-ids: an entry's file holds its own name in id, read only from a file that passed
     // its schema, so that a file the schema refuses breaks that and nothing more.
     const id = read.value?.id;
@@ -201,13 +222,92 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
       breaches.push({ rule: "module.file-ids", file, message: `holds the id ${JSON.stringify(id)}: the file of an entry is named by its id, ${idOf(file, row)}` });
     }
   }
-  breaches.push(...mediaBreaches(folder, [...rows].filter(([, row]) => row).map(([file]) => file), forms));
+  const files = [...rows].filter(([, row]) => row).map(([file]) => file);
+  breaches.push(...mediaBreaches(folder, files, forms), ...textBreaches(folder, listing.files));
   problems.push(...wholeModuleProblems(breaches, rule, unchecked));
   if (values.partsOk) problems.push(...moduleRuleProblems(values, rule, values.tasks.length ? validatorOf(TASK_PART) : undefined));
   const part = rule === null ? null : partOf(rule);
   if (part !== null && part !== "yaml" && part !== "module" && !parts.has(part)) {
     problems.push({ file: "", line: 0, message: `holds no file of the part ${part}, whose rule ${rule} it is a case of` });
   }
+  return { problems, files, members, partsOk: values.partsOk };
+}
+
+// A vector of packages (section 9): module/, laid out as a module, holds a module that breaks no rule
+// that format-check checks, as an example of a whole module does; package.yaml follows the YAML rules
+// and passes the schema of package vectors, by its validator validate; and the package that section 25
+// builds of module/ is package.yaml's — its server part, the listing of its device part, its
+// inventory and its digest, whatever the order of keys. The results of the solvers are the vector's
+// own, in the instances of its server part: spec runs no Starlark, so it takes them as given. Returns
+// problems, each { file, line, message }, where file is package.yaml, or module/ and a path in it.
+export function checkPackageVector(folder, { layout, validatorOf, version, forms, validate }) {
+  const moduleFolder = path.join(folder, PACKAGE_MODULE);
+  const read = readModuleCase(moduleFolder, { rule: null, layout, validatorOf, version, forms });
+  const problems = read.problems.map((problem) => ({ ...problem, file: problem.file ? `${PACKAGE_MODULE}/${problem.file}` : PACKAGE_MODULE }));
+  const { problems: own, value } = vectorStart(fs.readFileSync(path.join(folder, PACKAGE_FILE)), validate, "package vectors");
+  problems.push(...own.map((problem) => ({ file: PACKAGE_FILE, ...problem })));
+  if (problems.length || !value || !read.partsOk) return problems;
+  const built = packageOf(moduleFolder, read.files, read.members, resultsGiven(read.members, value.server_part));
+  if (built.problem) return [{ file: built.inResults ? PACKAGE_FILE : PACKAGE_MODULE, line: 0, message: built.problem }];
+  problems.push(...solvedProblems(read.members, built.server.instances));
+  for (const [field, mine, what] of [
+    ["server_part", built.server, "the canonical view"],
+    ["device_part", built.device, "the listing of the device part"],
+    ["inventory", built.inventory, "the inventory"],
+  ]) {
+    const at = differenceOf(mine, value[field]);
+    if (at) problems.push({ file: PACKAGE_FILE, line: 0, message: `${field} is not ${what} of the module: they differ at ${fragmentOf([field, ...at])}` });
+  }
+  if (built.digest !== value.digest) problems.push({ file: PACKAGE_FILE, line: 0, message: `the digest of the package is ${built.digest}, not ${value.digest}` });
+  return problems;
+}
+
+// The folder of the module in a vector of packages, and the file of the package it gives.
+export const PACKAGE_MODULE = "module";
+export const PACKAGE_FILE = "package.yaml";
+
+// The results of the solvers of a module's templates as a vector's canonical view gives them: for each
+// template with a solver, an object of its results on each instance, in order, or nothing when the
+// view has no instances of it.
+function resultsGiven(members, view) {
+  const results = {};
+  for (const [id, task] of Object.entries(members.tasks ?? {})) {
+    const names = resultsOf(task);
+    const given = view.instances?.[id];
+    if (!names.length || !Array.isArray(given)) continue;
+    results[id] = given.map((numbers) => Object.fromEntries(names.filter((name) => Object.hasOwn(numbers, name)).map((name) => [name, numbers[name]])));
+  }
+  return results;
+}
+
+// The rules of a task that format-check implements, on every instance of each template with a solver,
+// filled with the results that a vector of packages gives: they make the instances that module-kit
+// checks, as the results of an attempt of a vector of templates do (section 24).
+function solvedProblems(members, instances = {}) {
+  const problems = [];
+  const parts = { manifest: members.manifest, traps: members.traps, techniques: members.techniques };
+  for (const [id, task] of Object.entries(members.tasks ?? {})) {
+    if (!resultsOf(task).length) continue;
+    const make = instanceMaker(task);
+    for (const numbers of instances[id]) {
+      const solved = new Map(Object.entries(numbers));
+      for (const [breach, detail] of sortedBreaches(plainBreaches(make(solved), parts))) {
+        problems.push({ file: PACKAGE_FILE, line: 0, message: `the instance ${instanceShown(task, solved)} of ${id}, with the results of its solver that the vector gives, ${breachShown(breach, detail, false)}` });
+      }
+    }
+  }
+  return problems;
+}
+
+// A vector of tiers (section 9): it follows the YAML rules and passes the schema of tier vectors, by
+// its validator validate, and the tier of each skill of its skill graph is the one section 12 gives.
+export function checkTierVector(bytes, { validate }) {
+  const { problems, value } = vectorStart(bytes, validate, "tier vectors");
+  if (!value) return problems;
+  const { tiers, problem } = tiersOf(value.skill_graph);
+  if (problem) return [{ line: 0, message: problem }];
+  const at = differenceOf(tiers, value.skill_tiers);
+  if (at) problems.push({ line: 0, message: `the tiers are not those of section 12: they differ at ${fragmentOf(["skill_tiers", ...at])}` });
   return problems;
 }
 
@@ -423,8 +523,8 @@ function drawProblem(stream, draw) {
   return same ? null : { message: `${fn} gives ${shown}, not ${given}`, ends: false };
 }
 
-// The start of a vector of verdicts, of the leak check, of the generator or of templates: the YAML rules, then the
-// schema of such vectors. { problems, value }, with no value when the vector goes no further.
+// The start of a vector of verdicts, of the leak check, of the generator, of templates, of packages
+// or of tiers: the YAML rules, then the schema of such vectors. { problems, value }, with no value when the vector goes no further.
 function vectorStart(bytes, validate, what) {
   const read = readModuleFile(bytes);
   const problems = yamlProblems(read.violations, read.notYaml);

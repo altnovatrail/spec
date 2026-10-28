@@ -1,0 +1,8 @@
+# error: required at #
+# An inventory names both parts of the package: the device part too, by the digest of its listing.
+module_format_version: "0.1"
+id: example/smallest
+version: "0.1.0"
+server_part:
+  digest: sha256:8d193bbb0c7eccb52e5389edc4c5ad1b1fad761a4192d772b8fb8a985165e227
+  size: 281

@@ -1,0 +1,2 @@
+A stand-in for the eval set of this module. The format of its samples comes with the eval
+protocol; until then, the layout of a module says only that they lie in eval/.

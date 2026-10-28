@@ -1,0 +1,7 @@
+# The trap of the template number-thought-of: stopping at the sweets that Masha kept, from the trap
+# catalog of mathtrail-standalone, whose notice the module's NOTICE holds.
+traps:
+  stopped-early:
+    description: Stopped at an intermediate result instead of finishing the solution.
+    skills: [arithmetic-tricks]
+    trap_advice: After each step, ask whether that is what the question wants, or only a step towards it.

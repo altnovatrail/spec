@@ -1063,10 +1063,14 @@
       "properties": {
         "from": {
           "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
           "description": "The least integer that the parameter takes."
         },
         "to": {
           "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
           "description": "The greatest integer that the parameter takes. A domain whose to is below its from is empty, and its template has no instance."
         }
       },

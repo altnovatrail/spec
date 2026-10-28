@@ -1,0 +1,10 @@
+# A chain of two skills and one beside it.
+skill_graph:
+  skills:
+    first: {}
+    second: {prerequisites: [first, core.reading]}
+    alone: {}
+skill_tiers:
+  first: 1
+  second: 2
+  alone: 1

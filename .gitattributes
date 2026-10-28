@@ -1,0 +1,6 @@
+# The files of format/ are read byte for byte: the line ends of a test vector are part of what it
+# shows (module.plain-text), and the digest of a package is taken of a module's files as they are
+# (format/README.md, sections 10 and 25). No checkout converts their line ends.
+format/** -text
+# The same holds for the fixtures of format-check's tests, which a trial copy of a format reads.
+tools/format-check/test/fixtures/** -text

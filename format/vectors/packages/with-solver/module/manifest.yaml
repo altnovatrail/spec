@@ -1,0 +1,22 @@
+# A module with a template whose key its solver finds: what the package carries of it are the numbers
+# of every instance, the results of the solver among them.
+module_format_version: "0.1"
+id: example/with-solver
+version: "0.1.0"
+title: A module with a solver
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [1, 2]
+bands:
+  - id: grades-1-2
+    title: Grades 1 and 2
+    grades: [1, 2]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0
+rung_templates:
+  - Which step of your work gave you this answer?
+  - Read the story again. Which step can you undo first?

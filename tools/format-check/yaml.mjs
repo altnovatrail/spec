@@ -257,7 +257,7 @@ function shortTag(tag) {
 // The offset of the first byte that is no part of a UTF-8 character, or -1 when there is none. The
 // platform's decoder decides, fed one byte at a time to tell where; it notices a sequence cut short
 // only at the byte after it, so the error is put back at the sequence's first byte.
-function firstInvalidByte(bytes) {
+export function firstInvalidByte(bytes) {
   try {
     new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
     return -1;

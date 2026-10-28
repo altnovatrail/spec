@@ -1,0 +1,28 @@
+# The leak check searches every text of the lesson for the key and the leak phrase of its task, the
+# word after the task too: the open view of a lesson reaches the learner's app whole. So the worked
+# example takes other numbers than the task, and the word after it names no answer.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - explanation:
+      - text: A fence has posts, and gaps between them. When the fence has a post at each end, it has one post more than gaps.
+      - picture: pictures/fence-posts-and-gaps.png
+        alt: A short fence. Under each post there is a dot, and under each gap a dash, with one dot more than dashes.
+        width: 480
+        height: 160
+  - worked_example:
+      statement:
+        - text: A path is 20 m long, with a lamp at each end and one every 5 m between them. How many lamps are there?
+      canvas:
+        kind: handwriting_sheet
+        grid: squares
+      demo:
+        - text: Draw the path, and mark a lamp at each end.
+        - picture: pictures/path-in-gaps.png
+          alt: A line for the path, cut into 4 equal gaps of 5 m, with a lamp at every mark.
+          area: {left: 100, top: 150, width: 800, height: 200}
+        - text: "20 ÷ 5 = 4 gaps. With a lamp at each end, there is one lamp more than gaps, so 5 lamps."
+  - task: gaps-ladder-1
+  - explanation:
+      - text: Each time, count the gaps first, and then ask what stands at the ends.

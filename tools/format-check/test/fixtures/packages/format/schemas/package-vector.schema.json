@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/package-vector.schema.json",
+  "title": "Package vector",
+  "description": "A trial package vector.",
+  "type": "object",
+  "properties": {
+    "server_part": {
+      "$ref": "canonical-view.schema.json",
+      "unevaluatedProperties": false,
+      "description": "The server part."
+    },
+    "device_part": {
+      "$ref": "inventory.schema.json#/$defs/device_listing",
+      "unevaluatedProperties": false,
+      "description": "The listing of the device part."
+    },
+    "inventory": {
+      "$ref": "inventory.schema.json",
+      "unevaluatedProperties": false,
+      "description": "The inventory."
+    },
+    "digest": {
+      "$ref": "inventory.schema.json#/$defs/digest",
+      "description": "The digest of the package."
+    }
+  },
+  "required": [
+    "server_part",
+    "device_part",
+    "inventory",
+    "digest"
+  ],
+  "unevaluatedProperties": false
+}

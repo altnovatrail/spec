@@ -1,0 +1,11 @@
+# error: pattern at #/server_part/digest
+# A digest is written in lowercase hexadecimal digits, so that one digest is always one string.
+module_format_version: "0.1"
+id: example/smallest
+version: "0.1.0"
+server_part:
+  digest: sha256:8D193BBB0C7ECCB52E5389EDC4C5AD1B1FAD761A4192D772B8FB8A985165E227
+  size: 281
+device_part:
+  digest: sha256:7866e51fff6d6b0cdab46531f4097231479159ab0667ad71f5ab4a8c88d33e74
+  size: 109

@@ -129,12 +129,14 @@
         "width": {
           "type": "integer",
           "minimum": 1,
+          "maximum": 9007199254740991,
           "description": "The width the picture is shown at, in CSS px; narrower when the text it stands in is.",
           "x-open": true
         },
         "height": {
           "type": "integer",
           "minimum": 1,
+          "maximum": 9007199254740991,
           "description": "The height the picture is shown at, in CSS px, in proportion to its width.",
           "x-open": true
         }

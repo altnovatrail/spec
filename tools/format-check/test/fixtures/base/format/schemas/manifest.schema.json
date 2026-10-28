@@ -11,6 +11,16 @@
       "description": "The format version the module is written in.",
       "x-open": true
     },
+    "id": {
+      "type": "string",
+      "description": "The module's ID.",
+      "x-open": true
+    },
+    "version": {
+      "type": "string",
+      "description": "The module's version.",
+      "x-open": true
+    },
     "title": {
       "type": "string",
       "description": "What the module is called.",

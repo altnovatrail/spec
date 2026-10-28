@@ -1,0 +1,94 @@
+# The package of a module whose task holds the characters that the canonical text escapes and some
+# that it writes as they are (section 25). The server part holds them as the YAML gives them, the size
+# of the picture as 50, and its digest is that of the canonical text that writes them: the quotation
+# mark, the backslash, the tab and the line feed by their short escapes, the bell as \u0007, and <, >,
+# &, U+2028, the letter outside the Basic Multilingual Plane and the combining accent as they are.
+server_part:
+  manifest:
+    module_format_version: "0.1"
+    id: "example/strings"
+    version: "0.1.0"
+    title: "A module of strings"
+    subject: "mathematics"
+    audience:
+      age_categories:
+        - "under_13"
+      grades:
+        - 3
+    bands:
+      - id: "grade-3"
+        title: "Grade 3"
+        grades:
+          - 3
+    languages:
+      explanation: "en"
+    canvas:
+      digit_height: 40
+    authors:
+      - name: "The NovaTrail authors"
+    license: "Apache-2.0"
+    rung_templates:
+      - "Which step of your work gave you this answer?"
+      - "Read the task again slowly. Is there anything it says that your work does not use yet?"
+  skill_graph:
+    skills:
+      times-tables:
+        title: "Times tables"
+        teaches:
+          - "core.multiplication-table"
+        assessability: "verdict"
+      division-with-remainder:
+        title: "Division with a remainder"
+        prerequisites:
+          - "times-tables"
+        assessability: "verdict"
+  skill_tiers:
+    times-tables: 1
+    division-with-remainder: 2
+  tasks:
+    count-the-dots:
+      id: "count-the-dots"
+      statement:
+        - text: "Anna wrote \"7 \\ 2\" on the board,\tthen a dot.
+
+            How many dots does the picture show?"
+        - picture: "pictures/dot.png"
+          alt: "One dot, drawn by Renée 😀 <in ink> & pencil \a"
+          width: 50
+          height: 50
+      canvas:
+        kind: "handwriting_sheet"
+        grid: "dots"
+        grid_step: 40
+      items:
+        - answer_slots:
+            - binding: "anywhere"
+              check:
+                kind: "number"
+                key: "1"
+      solution:
+        - text: "The picture shows one dot."
+      skills:
+        primary:
+          - "times-tables"
+      band: "grade-3"
+      difficulty: 1
+device_part:
+  license:
+    digest: "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    size: 11357
+  media:
+    pictures/dot.png:
+      digest: "sha256:064b66188821584121784c30ca28eadbc5f265e025c6dd9eeed64cf1ef8e1f46"
+      size: 67
+inventory:
+  module_format_version: "0.1"
+  id: "example/strings"
+  version: "0.1.0"
+  server_part:
+    digest: "sha256:02a5f3019b7a92a96a39a7d901e5b93a5c2c1e794c4a77b4fbae19f6f79c78e7"
+    size: 1415
+  device_part:
+    digest: "sha256:b991f3e0d4e8365fb7d2483395a6ae199be388e9029ee8b70d3b9f6d4ea5cf4e"
+    size: 233
+digest: "sha256:b2acbc0470a7bfd1939ea20c115d654723a9d877bdf66dd059c259aa7d6e8508"
