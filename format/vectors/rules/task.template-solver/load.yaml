@@ -1,0 +1,33 @@
+# The program loads another file: the dialect has no load.
+id: load
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      load("factors.star", "factor_of")
+
+      def solve(numbers):
+          return {"factor": factor_of(numbers["a"], numbers["product"])}
+    results: [factor]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{factor}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {factor} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

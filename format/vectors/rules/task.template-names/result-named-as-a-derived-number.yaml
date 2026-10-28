@@ -1,0 +1,34 @@
+# The solver names its result product, which is a derived number of the template already.
+id: result-named-as-a-derived-number
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def solve(numbers):
+          for factor in range(1, 101):
+              if numbers["a"] * factor == numbers["product"]:
+                  return {"product": factor}
+          fail("no factor fits")
+    results: [product]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

@@ -1,0 +1,35 @@
+# Each call of solve takes a fraction of the budget, a loop of 10 000 000 turns that takes more
+# than one step a turn, and the 64 instances together take far more than 100 000 000 steps: the
+# budget is the template's, not each instance's.
+id: past-the-budget-of-the-template
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def solve(numbers):
+          for turn in range(10000000):
+              pass
+          return {"factor": numbers["product"] // numbers["a"]}
+    results: [factor]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{factor}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {factor} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

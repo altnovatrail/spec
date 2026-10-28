@@ -264,7 +264,7 @@ function checkTemplates(root, files, schemas, report) {
   const validate = schemas.validatorOf(TEMPLATE_VECTOR);
   const validateTask = schemas.validatorOf(TASK);
   for (const { file } of files.templates) {
-    for (const { line, message } of checkTemplateVector(fs.readFileSync(path.join(root, file)), { validate, validateTask })) report(file, line, message);
+    for (const { line, message } of checkTemplateVector(fs.readFileSync(path.join(root, file)), { validate, validateTask, openView: schemas.openView })) report(file, line, message);
   }
 }
 

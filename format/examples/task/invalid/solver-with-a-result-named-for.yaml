@@ -1,0 +1,30 @@
+# error: not at #/template/solver/results/0
+# A result is named as a parameter is: for is a keyword of Starlark.
+id: solver-with-a-result-named-for
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def solve(numbers):
+          return {"for": numbers["product"] // numbers["a"]}
+    results: [for]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check: {kind: number, key: "{b}"}
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

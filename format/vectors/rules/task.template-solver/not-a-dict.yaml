@@ -1,0 +1,31 @@
+# solve returns the factor itself, not a dict of the results.
+id: not-a-dict
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def solve(numbers):
+          return numbers["product"] // numbers["a"]
+    results: [factor]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{factor}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {factor} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

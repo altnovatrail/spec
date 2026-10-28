@@ -1,0 +1,208 @@
+# The template of the example number-thought-of-template.yaml, whose key its solver finds: 35
+# instances, the 40 combinations without the 5 where Masha keeps as many sweets as she gives Ben.
+# solve gets the numbers that the statement and the givens show, left and to_ben, and not the derived
+# numbers, which stand only in the trap values and the solution. The result sweets is the vector's
+# own, as standalone's solver finds it: spec runs no Starlark, and module-kit's CI runs the solver on
+# every instance and compares (section 24). The solver carries this notice:
+#
+# MIT License
+#
+# Copyright (c) 2026 MathTrail
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+task:
+  id: number-thought-of
+  template:
+    parameters:
+      to_ben: {from: 2, to: 6}
+      left: {from: 2, to: 9}
+    derived:
+      before_ben: left + to_ben
+      forgot_ben: "2 * left"
+    constraint: left != to_ben
+    solver:
+      program: |
+        # For "I thought of a number": try every whole number and keep the ones the
+        # steps of the story turn into the result. Keep to whole numbers: where the
+        # story halves, check that the half is whole with % 2 == 0 and take it with //.
+
+        def fits(sweets, to_ben, left):
+            return sweets % 2 == 0 and sweets - sweets // 2 - to_ben == left
+
+        def solve(numbers):
+            fitting = [n for n in range(1001) if fits(n, numbers["to_ben"], numbers["left"])]
+            if len(fitting) != 1:
+                fail("%d whole numbers fit the story" % len(fitting))
+            return {"sweets": fitting[0]}
+      results: [sweets]
+  statement:
+    - text: Masha had some sweets. She gave half of them to Ann, and then she gave {to_ben} sweets to Ben. Now she has {left} sweets. How many sweets did Masha have at first?
+  givens:
+    - Masha gave half of her sweets to Ann.
+    - Then she gave {to_ben} sweets to Ben.
+    - Now she has {left} sweets.
+  unknown: How many sweets Masha had at first.
+  canvas:
+    kind: handwriting_sheet
+    grid: squares
+  items:
+    - answer_slots:
+        - binding: anywhere
+          check:
+            kind: number
+            key: "{sweets}"
+            units: [sweet, sweets]
+            trap_values:
+              - value: "{before_ben}"
+                trap: stopped-early
+                text: That is how many sweets Masha had after she gave half to Ann. How many did she have before that?
+              - value: "{forgot_ben}"
+                trap: ignored-condition
+                text: Masha gave some sweets to Ben too. Give them back to her before you undo the half.
+      simpler_case: Suppose Masha gave no sweets to Ben. How would you find how many she had at first?
+  solution:
+    - text: Go backwards. Before Masha gave Ben his sweets, she had {left} + {to_ben} = {before_ben} sweets.
+    - text: That was the half she kept, so at first she had {before_ben} × 2 = {sweets} sweets.
+  techniques: [backwards]
+  traps: [number-from-text]
+  leak_phrases: ["{sweets} sweets at first"]
+  skills:
+    primary: [arithmetic-tricks]
+  band: grades-1-2
+  difficulty: 2
+count: 35
+inputs: [left, to_ben]
+attempts:
+  - seed: "0"
+    numbers: {left: 7, to_ben: 6, before_ben: 13, forgot_ben: 14, sweets: 26}
+    instance:
+      id: number-thought-of
+      statement:
+        - text: Masha had some sweets. She gave half of them to Ann, and then she gave 6 sweets to Ben. Now she has 7 sweets. How many sweets did Masha have at first?
+      givens:
+        - Masha gave half of her sweets to Ann.
+        - Then she gave 6 sweets to Ben.
+        - Now she has 7 sweets.
+      unknown: How many sweets Masha had at first.
+      canvas:
+        kind: handwriting_sheet
+        grid: squares
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "26"
+                units: [sweet, sweets]
+                trap_values:
+                  - value: "13"
+                    trap: stopped-early
+                    text: That is how many sweets Masha had after she gave half to Ann. How many did she have before that?
+                  - value: "14"
+                    trap: ignored-condition
+                    text: Masha gave some sweets to Ben too. Give them back to her before you undo the half.
+          simpler_case: Suppose Masha gave no sweets to Ben. How would you find how many she had at first?
+      solution:
+        - text: Go backwards. Before Masha gave Ben his sweets, she had 7 + 6 = 13 sweets.
+        - text: That was the half she kept, so at first she had 13 × 2 = 26 sweets.
+      techniques: [backwards]
+      traps: [number-from-text]
+      leak_phrases: ["26 sweets at first"]
+      skills:
+        primary: [arithmetic-tricks]
+      band: grades-1-2
+      difficulty: 2
+  - seed: "20261028"
+    numbers: {left: 9, to_ben: 5, before_ben: 14, forgot_ben: 18, sweets: 28}
+    instance:
+      id: number-thought-of
+      statement:
+        - text: Masha had some sweets. She gave half of them to Ann, and then she gave 5 sweets to Ben. Now she has 9 sweets. How many sweets did Masha have at first?
+      givens:
+        - Masha gave half of her sweets to Ann.
+        - Then she gave 5 sweets to Ben.
+        - Now she has 9 sweets.
+      unknown: How many sweets Masha had at first.
+      canvas:
+        kind: handwriting_sheet
+        grid: squares
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "28"
+                units: [sweet, sweets]
+                trap_values:
+                  - value: "14"
+                    trap: stopped-early
+                    text: That is how many sweets Masha had after she gave half to Ann. How many did she have before that?
+                  - value: "18"
+                    trap: ignored-condition
+                    text: Masha gave some sweets to Ben too. Give them back to her before you undo the half.
+          simpler_case: Suppose Masha gave no sweets to Ben. How would you find how many she had at first?
+      solution:
+        - text: Go backwards. Before Masha gave Ben his sweets, she had 9 + 5 = 14 sweets.
+        - text: That was the half she kept, so at first she had 14 × 2 = 28 sweets.
+      techniques: [backwards]
+      traps: [number-from-text]
+      leak_phrases: ["28 sweets at first"]
+      skills:
+        primary: [arithmetic-tricks]
+      band: grades-1-2
+      difficulty: 2
+  - seed: "18446744073709551615"
+    numbers: {left: 3, to_ben: 2, before_ben: 5, forgot_ben: 6, sweets: 10}
+    instance:
+      id: number-thought-of
+      statement:
+        - text: Masha had some sweets. She gave half of them to Ann, and then she gave 2 sweets to Ben. Now she has 3 sweets. How many sweets did Masha have at first?
+      givens:
+        - Masha gave half of her sweets to Ann.
+        - Then she gave 2 sweets to Ben.
+        - Now she has 3 sweets.
+      unknown: How many sweets Masha had at first.
+      canvas:
+        kind: handwriting_sheet
+        grid: squares
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "10"
+                units: [sweet, sweets]
+                trap_values:
+                  - value: "5"
+                    trap: stopped-early
+                    text: That is how many sweets Masha had after she gave half to Ann. How many did she have before that?
+                  - value: "6"
+                    trap: ignored-condition
+                    text: Masha gave some sweets to Ben too. Give them back to her before you undo the half.
+          simpler_case: Suppose Masha gave no sweets to Ben. How would you find how many she had at first?
+      solution:
+        - text: Go backwards. Before Masha gave Ben his sweets, she had 3 + 2 = 5 sweets.
+        - text: That was the half she kept, so at first she had 5 × 2 = 10 sweets.
+      techniques: [backwards]
+      traps: [number-from-text]
+      leak_phrases: ["10 sweets at first"]
+      skills:
+        primary: [arithmetic-tricks]
+      band: grades-1-2
+      difficulty: 2

@@ -1,0 +1,32 @@
+# The solver never returns: its loop runs past the budget of 100 000 000 steps on the first instance.
+id: past-the-budget
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def solve(numbers):
+          while True:
+              pass
+    results: [factor]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{factor}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {factor} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

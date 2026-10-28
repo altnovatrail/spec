@@ -1,12 +1,13 @@
-// The templates of tasks (section 23 of the format text), as templates.mjs counts their instances,
-// picks the instance of a seed and replaces their placeholders. The pick rests on random.mjs, which
+// The templates of tasks (sections 23 and 24 of the format text), as templates.mjs counts their
+// instances, picks the instance of a seed and replaces their placeholders, and knows where the
+// results of a solver stand and what it gets. The pick rests on random.mjs, which
 // its own tests hold to Go's golden outputs; what is pinned here is the order of the combinations,
 // the names of the place and the substitution, which the vectors of templates then show.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { below, stateOf, streamOf } from "../random.mjs";
-import { MAX_COMBINATIONS, holdsPlaceholder, instanceOf, instanceShown, numbersShown, pickOf, piecesOf, templateOf } from "../templates.mjs";
+import { MAX_COMBINATIONS, holdsPlaceholder, instanceMaker, instanceOf, instanceShown, numbersShown, pickOf, piecesOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "../templates.mjs";
 
 const template = (parameters, extra = {}) => ({ id: "trial", template: { parameters, ...extra.template }, statement: [{ text: extra.text ?? "A trial." }], items: extra.items ?? [] });
 const domain = (from, to) => ({ from, to });
@@ -99,4 +100,56 @@ test("10 000 instances are counted in well under a second", () => {
   const { instances } = templateOf(template({ a: domain(1, 100), b: domain(1, 100) }, { template: { derived: { product: "a * b" }, constraint: "a % 7 != 0 or b % 7 != 0" } }));
   assert.equal(instances.length, 10_000 - 14 * 14);
   assert.ok(performance.now() - started < 1000);
+});
+
+// A template of the missing factor whose solver finds it: a and product stand in the line, and factor,
+// the solver's result, in the key.
+const solved = (extra = {}) => ({
+  id: "trial",
+  template: { parameters: { a: domain(2, 3), b: domain(4, 4) }, derived: { product: "a * b" }, solver: { program: "def solve(numbers): pass", results: ["factor"] } },
+  items: [{ line: [{ text: "{a} ×" }, { binding: "box", check: { kind: "number", key: "{factor}", ...extra.check } }, { text: "= {product}" }] }],
+  solution: [{ text: "{a} × {factor} = {product}" }],
+  leak_phrases: ["factor {factor}", "{{factor}}"],
+  ...extra.task,
+});
+
+test("a result of the solver is named as no parameter or derived number is, and stands only in closed fields", () => {
+  const breachesOf = (task) => Object.fromEntries(templateOf(task).breaches);
+  assert.deepEqual(breachesOf(solved()), {}, "the key, the solution and a leak phrase");
+  assert.deepEqual(resultsOf(solved()), ["factor"]);
+  assert.deepEqual(resultsOf({ id: "plain" }), [], "a task without a solver has no results");
+  const line = [{ text: "{a} ×" }, { binding: "box", check: { kind: "number", key: "{b}" } }, { text: "= {product}" }];
+  const named = (name) => solved({ task: { template: { ...solved().template, solver: { program: "", results: [name] } }, items: [{ line }], solution: [{ text: "{a} × {b} = {product}" }], leak_phrases: undefined } });
+  assert.match(breachesOf(named("a"))["task.template-names"], /a is both a parameter and a result of the solver/);
+  assert.match(breachesOf(named("product"))["task.template-names"], /product is both a derived number and a result of the solver/);
+  assert.equal(breachesOf(named("product"))["task.placeholders"], undefined, "a name that is a derived number already is not read as a result's where it stands");
+  assert.deepEqual(breachesOf(solved({ check: { trap_values: [{ value: "{factor}/2", trap: "t" }, { value: "{product}", trap: "u" }] } })), {}, "a trap value of a number");
+  assert.match(breachesOf(solved({ check: { trap_values: [{ value: "{b}", trap: "t", text: "Not {factor}." }] } }))["task.placeholders"], /#\/items\/0\/line\/1\/check\/trap_values\/0\/text: \{factor\} is a result of the solver, which stands only in a key/);
+  assert.match(breachesOf(solved({ task: { statement: [{ text: "Find {factor}." }] } }))["task.placeholders"], /#\/statement\/0\/text: \{factor\} is a result/);
+  const choice = solved({ task: { items: [{ answer_slots: [{ binding: "anywhere", check: { kind: "choice", key: "{factor}", options: ["{a}", "{b}"] } }] }] } });
+  assert.match(breachesOf(choice)["task.placeholders"], /#\/items\/0\/answer_slots\/0\/check\/key: \{factor\} is a result/, "not the key of a choice");
+  assert.match(breachesOf(solved({ task: { leak_phrases: ["{factors}"] } }))["task.placeholders"], /\{factors\} names no parameter, derived number or result of the solver/);
+});
+
+test("an instance keeps the placeholders of the results that spec does not know, and the leak phrases that hold one are passed over", () => {
+  const task = solved();
+  const [numbers] = templateOf(task).instances;
+  const instance = instanceMaker(task)(numbers);
+  assert.equal(instance.items[0].line[1].check.key, "{factor}");
+  assert.equal(instance.solution[0].text, "2 × {factor} = 8");
+  assert.deepEqual(instance.leak_phrases, ["factor {factor}", "{factor}"], "a doubled brace is a brace of the text");
+  assert.deepEqual(withoutResults(task)(instance).leak_phrases, ["{factor}"], "only the phrase that names the result is dropped");
+  const alone = solved({ task: { leak_phrases: ["factor {factor}"] } });
+  assert.equal(withoutResults(alone)(instanceMaker(alone)(numbers)).leak_phrases, undefined, "and with it, the list that holds no other");
+  const plain = { id: "plain", template: { parameters: { a: domain(1, 1) } }, leak_phrases: ["{a}"] };
+  assert.equal(withoutResults(plain)(instanceOf(plain, templateOf(plain).instances[0])).leak_phrases[0], "1", "a template without a solver keeps them all");
+  const known = instanceMaker(task)(new Map([...numbers, ["factor", 4n]]));
+  assert.equal(known.items[0].line[1].check.key, "4", "and a result that a vector gives takes its place");
+});
+
+test("the solver gets the parameters and the derived numbers that the open view of the template shows, in the order of their names", () => {
+  const task = solved();
+  const open = { id: "trial", statement: [{ text: "{product} and {b}, {{a}}" }], items: [{ line: [{ text: "{product} ÷" }, {}] }] };
+  assert.deepEqual(solverInputsOf(task, open), ["b", "product"]);
+  assert.deepEqual(solverInputsOf(task, { id: "trial", items: [{ line: [{ text: "{factor}" }] }] }), [], "never a result, nor a name of no number");
 });

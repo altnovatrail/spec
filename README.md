@@ -76,7 +76,7 @@ Report a bug or propose a change in an [issue](https://github.com/altnovatrail/s
 Work in the devcontainer: open the repository in VS Code and choose "Reopen in Container". It holds every tool at the version the repository pins. The checks are recipes of the [justfile](justfile), and `just --list` names each with its arguments:
 
 - `just docs-check` checks the documents: links, cited sections, the registers and Mermaid diagrams;
-- `just format-check` checks the module format in [format/](format/README.md): its schemas, examples and test vectors, and computes the verdicts and traps of the vectors of verdicts, what the leak check finds in the vectors of the leak check and in the lessons of a module, the numbers of the vectors of the generator, and the instances of the vectors of templates;
+- `just format-check` checks the module format in [format/](format/README.md): its schemas, examples and test vectors, and computes the verdicts and traps of the vectors of verdicts, what the leak check finds in the vectors of the leak check and in the lessons of a module, the numbers of the vectors of the generator, and the instances of the vectors of templates, with the results of their solvers as the vectors give them;
 - `just licenses-check` checks the licenses of the packages of `tools/`;
 - `just coverage` runs every test of `tools/` and writes their coverage to `coverage/lcov.info`.
 
