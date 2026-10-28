@@ -1,7 +1,8 @@
-# spec's own checks (R30): the documents, the module format (R45), the tests of tools/, the
-# licenses of its packages and the version the next release takes (R31). The tests run once,
-# with their coverage, which a job of its own sends to Codecov (R48).
-# They run in the toolchain stage of .devcontainer/Dockerfile, with the Node and just of the
+# spec's own checks (R30): the documents, the module format (R45), the Go module code takes
+# from a release and its zip, the tests of tools/, the licenses of its packages, the version the
+# next release takes (R31) and the files it carries (R64). The tests run once, with their
+# coverage, which a job of its own sends to Codecov (R48).
+# They run in the toolchain stage of .devcontainer/Dockerfile, with the Node, Go and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
 # run and published nowhere. Beside them, two of the checks every repository shares, from
 # .github: secrets and DCO (R03 .github). The third, the documents of a repository with spec as
@@ -56,14 +57,28 @@ jobs:
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec format-check
 
+      # spec's Go module (R64): vetted, tested, with no requirement, and its zip built of the
+      # commit as the Go module proxy will build it from the release's tag. go fetches the module
+      # the zip is built with, golang.org/x/mod, by tools/gomod/go.sum.
+      - name: Go module
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec go-check
+
       - name: Licenses
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec licenses-check
 
-      # What release.yml will publish once this is on main: the recipe it runs, run here first.
+      # What release.yml will publish once this is on main: the recipes it runs, run here first.
+      # The version, which a commit that gives the module format a new version without a new
+      # line does not get (R44), and the files, built into the container's /tmp and thrown away
+      # with it: release-files checks each against the commit.
       - name: Release version
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec release-version
+
+      - name: Release files
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec release-files HEAD /tmp/release-files
 
       # The tests of every tool in one run, which names every test that fails, with the coverage
       # of the code they test in coverage/lcov.info. The recipe fails on a module of tools/ that

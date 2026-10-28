@@ -9,7 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { RELEASE_TAG, newestRelease, nextVersion, readLine, readTags } from "../version.mjs";
-import { env, justfile, recipe, root, scratchRepository, writeFile } from "./repository.mjs";
+import { copySpecTools, env, justfile, recipe, releaseLine, root, scratchRepository, writeFile } from "./repository.mjs";
 
 const script = path.join(root, "tools", "release", "version.mjs");
 const workflow = path.join(root, ".github", "workflows", "release.yml");
@@ -197,22 +197,16 @@ test("a commit from before the named workflow existed takes the checked-out file
 test("in spec, a commit is numbered in the line its own release.yml sets, whatever is checked out", () => {
   const { dir, git } = scratchRepository("release-version-spec-");
   try {
-    // spec as far as the recipe goes: its justfile and the release tools, beside a release.yml.
-    for (const file of ["justfile", "tools/shared.mjs", "tools/release/version.mjs", "tools/release/line.mjs"]) {
-      fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
-      fs.copyFileSync(path.join(root, file), path.join(dir, file));
-    }
-    const releaseLine = (line) => {
-      fs.mkdirSync(path.join(dir, ".github", "workflows"), { recursive: true });
-      fs.writeFileSync(path.join(dir, ".github", "workflows", "release.yml"), `env:\n  RELEASE_LINE: "${line}"\n`);
-      git("add", "--all");
-    };
-    releaseLine("1.4");
+    // spec as far as the recipe goes: its justfile and the release tools, beside a release.yml,
+    // and the format's version, which the line of a v1 spec holds to (R44).
+    copySpecTools(dir, git);
+    writeFile(dir, git, "format/VERSION", "1.0\n");
+    releaseLine(dir, git, "1.4");
     git("commit", "--quiet", "-m", "first");
     git("tag", "v1.4.0");
     git("commit", "--quiet", "--allow-empty", "-m", "second");
     const second = git("rev-parse", "HEAD");
-    releaseLine("1.5");
+    releaseLine(dir, git, "1.5");
     git("commit", "--quiet", "-m", "raise the line");
 
     // From the copy's root, as `just release-version` runs in spec: a commit made before the line

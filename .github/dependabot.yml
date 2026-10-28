@@ -1,6 +1,9 @@
 # Dependabot proposes new versions of what it can see (R30): the actions of the workflows and
 # the references to .github's shared workflows, each with the version comment beside its SHA
-# (R04 .github); the base image of the devcontainer, tag and digest; and the packages of tools/.
+# (R04 .github); the base image of the devcontainer, tag and digest; the packages of tools/; and
+# the Go module of tools/gomod, the check of the zip of spec's own Go module. That module,
+# go.mod at the root, requires nothing, and `just go-check` keeps it so (R64): there is nothing
+# there to raise.
 # For npm a pull request rewrites the lock file too, with whatever packages the new version
 # brings along: licenses-check reads every one of them in CI.
 #
@@ -48,3 +51,12 @@ updates:
       tools:
         patterns: ["*"]
         update-types: [minor, patch]
+
+  # golang.org/x/mod, which builds spec's module zip as the Go module proxy builds it. A new
+  # version is read against the tests of tools/gomod, which pin what the zip leaves out.
+  - package-ecosystem: gomod
+    directory: /tools/gomod
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3

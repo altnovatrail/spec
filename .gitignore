@@ -7,3 +7,6 @@ coverage/
 # Working copies of new NovaTrail repositories, built by `just new-repo`: each is a repository
 # of its own.
 .repos/
+
+# The files of a release, which `just release-files` builds when it is given this folder (R64).
+dist/

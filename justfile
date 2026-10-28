@@ -41,6 +41,28 @@ format-check: _tools
 format-check-test: _tools
     node --test 'tools/format-check/test/*.test.mjs'
 
+# The Go module spec ships at the tag of every release (R64): go.mod and spec.go at the root, which
+# embeds format/. The module is vetted and tested, and it requires nothing: go list names it alone.
+# Its zip, as the Go module proxy will build it from a tag, is built of HEAD — a commit, not the
+# working tree — by tools/gomod, a module of its own with its own tests, under the version the line
+# of release.yml at HEAD takes, and read back for LICENSE and every file of format/. go fetches
+# golang.org/x/mod for it at the version tools/gomod/go.sum pins.
+# Check spec's Go module: vet, tests, requirements and the zip of HEAD.
+go-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    go vet .
+    go test .
+    if [ "$(go list -m all)" != "$(go list -m)" ]; then
+        echo "go-check: spec's Go module requires other modules, and it ships with none (R64):" >&2
+        go list -m all >&2
+        exit 1
+    fi
+    line=$(git show HEAD:.github/workflows/release.yml | node tools/release/line.mjs)
+    go -C tools/gomod vet ./...
+    go -C tools/gomod test ./...
+    go -C tools/gomod run . {{quote(justfile_directory())}} HEAD "$line"
+
 # Reads the lock file alone, so nothing is installed first. The allowed list and the named
 # exceptions are in tools/licenses/config.mjs (R12).
 # Check the licenses of the packages in tools/package-lock.json.
@@ -78,7 +100,9 @@ licenses-check-test:
 # given: release.yml gives the commit its checks passed on, by SHA. Refuses a shallow clone,
 # which has no tags to count from. In spec the line is RELEASE_LINE as release.yml sets it at
 # that commit, whatever is checked out or set in the shell, and naming a workflow is refused
-# (R31). Anywhere else — another repository, a working copy in .repos/ among them — the line is
+# (R31); and a commit that gets a release is refused when its format/VERSION breaks R44 against
+# the release before it, once releases carry the format as files: another version of the format
+# needs a raised line (tools/release/format-line.mjs). Anywhere else — another repository, a working copy in .repos/ among them — the line is
 # RELEASE_LINE as the workflow named second sets it at that commit, a path from the repository's
 # root, whatever the shell sets: a release workflow's own env, the tip's, must not number an
 # older commit. A commit from before that workflow existed takes the checked-out file's line. With
@@ -96,7 +120,9 @@ release-version commit="HEAD" workflow="":
     fi
     commit=$(git rev-parse --verify --end-of-options {{quote(commit + "^{commit}")}})
     workflow={{quote(workflow)}}
+    in_spec=false
     if [ "$here" = "$(cd {{quote(justfile_directory())}} && pwd -P)" ]; then
+        in_spec=true
         if [ -n "$workflow" ]; then
             echo "release-version: in spec the line is its own release.yml's; a workflow is named by another repository" >&2
             exit 1
@@ -118,11 +144,56 @@ release-version commit="HEAD" workflow="":
         echo "release-version: ${here} is not spec, and neither a workflow nor RELEASE_LINE names its line: name its release workflow after the commit" >&2
         exit 1
     fi
-    {
+    tags() {
         git tag --list 'v*'; echo --
         git tag --merged "$commit" --list 'v*'; echo --
         git tag --points-at "$commit" --list 'v*'
-    } | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
+    }
+    if [ "$in_spec" = true ]; then
+        tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}} \
+            | node {{quote(justfile_directory() / "tools/release/format-line.mjs")}} "$commit"
+    else
+        tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
+    fi
+
+# spec's own (R64): another repository's release builds its own files, by its own recipe. The
+# folder is a new one, and a relative path is from spec's root. From the line release.yml sets at
+# the commit, FIRST_FILES_LINE on (tools/release/files.mjs), each normative part with a version
+# of its own goes in as <part>-<version>.tar.gz — today the module format, format-0.1.tar.gz:
+# git archive of the commit, a folder of that name holding LICENSE and the part as the commit has
+# them, every file and nothing else, which the recipe checks against git ls-tree. A commit of an
+# earlier line gets an empty folder. The recipe reads the commit alone, never the working tree:
+# release.yml builds the files of the commit its checks passed on from the tip's checkout (R31).
+# Build the files of spec's release of a commit into a new folder.
+release-files commit dir:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    commit=$(git rev-parse --verify --end-of-options {{quote(commit + "^{commit}")}})
+    dir={{quote(dir)}}
+    if [ -e "$dir" ] || [ -L "$dir" ]; then
+        echo "release-files: ${dir} is there already; the files go into a new folder" >&2
+        exit 1
+    fi
+    line=$(git show "${commit}:.github/workflows/release.yml" | node tools/release/line.mjs)
+    files=$(
+        if git cat-file -e "${commit}:format/VERSION" 2>/dev/null; then git show "${commit}:format/VERSION"; fi \
+            | node tools/release/files.mjs "$line"
+    )
+    mkdir -p "$dir"
+    while read -r name part; do
+        if [ -z "$name" ]; then continue; fi
+        folder="${name%.tar.gz}"
+        git archive --format=tar.gz --prefix="${folder}/" -o "${dir}/${name}" "$commit" LICENSE "$part"
+        # Both lists name each file as it is: tar never escapes, and git, with -z, never quotes.
+        held=$(tar --quoting-style=literal -tzf "${dir}/${name}" | grep -v '/$' | sort)
+        wanted=$(git ls-tree -r -z --name-only "$commit" LICENSE "$part" | tr '\0' '\n' | sed "s|^|${folder}/|" | sort)
+        if [ "$held" != "$wanted" ]; then
+            echo "release-files: ${name} does not hold LICENSE and the files of ${part}/ at ${commit}, and only them" >&2
+            diff <(echo "$wanted") <(echo "$held") >&2 || true
+            exit 1
+        fi
+        echo "release-files: ${name}, $(wc -l <<< "$held") files of ${commit}"
+    done <<< "$files"
 
 # The Releases API refuses GITHUB_TOKEN a commit that is no longer the tip of main and "adds or
 # modifies any file under .github/workflows/ relative to the repository's default branch", with

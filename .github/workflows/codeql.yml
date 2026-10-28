@@ -1,5 +1,7 @@
-# CodeQL over the repository's workflows and its JavaScript (R03 .github, R09 .github), pinned to
-# a release of .github: the code of tools/. The prototype in draft/ is left out, as SonarCloud
+# CodeQL over the repository's workflows, its JavaScript and its Go (R03 .github, R09 .github),
+# pinned to a release of .github: the code of tools/, and the Go module spec ships with the check
+# of its zip (R64). Go is read from a build, with the Go of the toolchain stage of
+# .devcontainer/Dockerfile, in /usr/local/go. The prototype in draft/ is left out, as SonarCloud
 # leaves it out: its scripts are the loader a design tool built, not the platform's code, and every
 # new prototype would bring the same findings back (R33 and its amendment of 2026-10-22). The
 # analysis of actions reads every workflow all the same. The job gives the shared workflow what it
@@ -27,5 +29,5 @@ jobs:
       security-events: write
     uses: altnovatrail/.github/.github/workflows/codeql.yml@f3addb7403d084c560c61481e217b93f8e7ee1f3 # v0.1.10
     with:
-      languages: javascript-typescript
+      languages: javascript-typescript go
       paths-ignore: draft/**
