@@ -1,0 +1,50 @@
+# A release that publishes no new version and withdraws one. The times tables 0.1.0 were withdrawn
+# by the release before, v0.3.0, and are named again for the same reason, which changes nothing; the
+# smallest module 0.1.0 is withdrawn now. Every other entry stands as it was.
+previous:
+  module_format_version: "0.1"
+  modules:
+    example/smallest:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:df4dc2db21f26c231b0b0136b478d5dd2707c962c4432e0144649593e2fdfeb9
+        release: v0.1.0
+    example/times-tables:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:a7bc39696bebabbd8bdad1529282b42f8ef0edea09c5b90e9106fb6f051e3fb9
+        release: v0.1.0
+        teaches: [core.division-with-remainder, core.multiplication-table]
+        withdrawn: wrong_key
+      "0.2.0":
+        module_format_version: "0.1"
+        package_digest: sha256:a42bb6f5143764e0507e58ff3d508d11de2b4343489fc010e177a900cbfb07f7
+        release: v0.2.0
+        teaches: [core.division-with-remainder, core.multiplication-table]
+release: v0.4.0
+withdrawals:
+  example/smallest:
+    "0.1.0": unsuitable_content
+  example/times-tables:
+    "0.1.0": wrong_key
+index:
+  module_format_version: "0.1"
+  modules:
+    example/smallest:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:df4dc2db21f26c231b0b0136b478d5dd2707c962c4432e0144649593e2fdfeb9
+        release: v0.1.0
+        withdrawn: unsuitable_content
+    example/times-tables:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:a7bc39696bebabbd8bdad1529282b42f8ef0edea09c5b90e9106fb6f051e3fb9
+        release: v0.1.0
+        teaches: [core.division-with-remainder, core.multiplication-table]
+        withdrawn: wrong_key
+      "0.2.0":
+        module_format_version: "0.1"
+        package_digest: sha256:a42bb6f5143764e0507e58ff3d508d11de2b4343489fc010e177a900cbfb07f7
+        release: v0.2.0
+        teaches: [core.division-with-remainder, core.multiplication-table]

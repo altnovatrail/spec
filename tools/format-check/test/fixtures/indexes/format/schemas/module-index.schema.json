@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/module-index.schema.json",
+  "title": "Module index",
+  "description": "The index of trial modules.",
+  "type": "object",
+  "properties": {
+    "module_format_version": {
+      "type": "string",
+      "description": "The format version of the index."
+    },
+    "modules": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/entry",
+          "unevaluatedProperties": false,
+          "description": "An entry."
+        },
+        "description": "The versions of a module."
+      },
+      "description": "The modules."
+    }
+  },
+  "required": [
+    "module_format_version",
+    "modules"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "properties": {
+        "module_format_version": {
+          "type": "string",
+          "description": "The format version of the package."
+        },
+        "package_digest": {
+          "$ref": "inventory.schema.json#/$defs/digest",
+          "description": "The digest of the package."
+        },
+        "release": {
+          "$ref": "#/$defs/release",
+          "description": "The release."
+        },
+        "teaches": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "The anchor skills it teaches."
+        },
+        "withdrawn": {
+          "$ref": "#/$defs/withdrawal_reason",
+          "description": "The reason of the withdrawal."
+        }
+      },
+      "required": [
+        "module_format_version",
+        "package_digest",
+        "release"
+      ],
+      "description": "An entry."
+    },
+    "release": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "A tag."
+    },
+    "withdrawal_reason": {
+      "enum": [
+        "wrong_key",
+        "answer_leak",
+        "unsuitable_content"
+      ],
+      "description": "A reason."
+    }
+  }
+}

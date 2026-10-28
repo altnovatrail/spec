@@ -1,0 +1,20 @@
+# Three skills. Two of them teach the multiplication table, which the index names once; the graph
+# names it before division with a remainder, and the index lists the two in the order of code units.
+skills:
+  products:
+    title: Products
+    description: Knows the product of any two whole numbers from 1 to 10.
+    teaches: [core.multiplication-table]
+    assessability: verdict
+  quotients:
+    title: Quotients
+    description: Divides a product of the table by either of its factors.
+    prerequisites: [products]
+    teaches: [core.multiplication-table]
+    assessability: verdict
+  remainders:
+    title: Remainders
+    description: Divides a whole number by a whole number from 1 to 10, and gives the quotient and the remainder.
+    prerequisites: [quotients]
+    teaches: [core.division-with-remainder]
+    assessability: verdict

@@ -29,8 +29,10 @@ docs-check-test: _tools
 # vectors give them, since spec runs no Starlark (R61); the tiers of each vector of tiers, as section
 # 12 computes them, and the package of each vector of packages — its canonical view, the listing of
 # its device part, its inventory and their digests, as section 25 builds them —, and the canonical
-# view of each example of a whole module against its schema (R62). A file it does not know is an
-# error, so the task that brings it extends the check (RUN.md, T25).
+# view of each example of a whole module against its schema (R62); and the module index that each
+# vector of the index builds of its release, as section 26 builds it from the index of the release
+# before, or the rule of the index that refuses it (R63). A file it does not know is an error, so
+# the task that brings it extends the check (RUN.md, T25).
 # Check the module format in format/: schemas, examples and test vectors.
 format-check: _tools
     node tools/format-check/main.mjs

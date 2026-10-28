@@ -1,0 +1,22 @@
+# An index with two versions withdrawn from publication, each for its reason, as the vector of the
+# module index withdrawal gives it. Their entries stay, so that their verdicts can be repeated.
+module_format_version: "0.1"
+modules:
+  example/smallest:
+    "0.1.0":
+      module_format_version: "0.1"
+      package_digest: sha256:df4dc2db21f26c231b0b0136b478d5dd2707c962c4432e0144649593e2fdfeb9
+      release: v0.1.0
+      withdrawn: unsuitable_content
+  example/times-tables:
+    "0.1.0":
+      module_format_version: "0.1"
+      package_digest: sha256:a7bc39696bebabbd8bdad1529282b42f8ef0edea09c5b90e9106fb6f051e3fb9
+      release: v0.1.0
+      teaches: [core.division-with-remainder, core.multiplication-table]
+      withdrawn: wrong_key
+    "0.2.0":
+      module_format_version: "0.1"
+      package_digest: sha256:a42bb6f5143764e0507e58ff3d508d11de2b4343489fc010e177a900cbfb07f7
+      release: v0.2.0
+      teaches: [core.division-with-remainder, core.multiplication-table]

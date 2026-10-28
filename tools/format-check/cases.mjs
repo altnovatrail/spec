@@ -1,6 +1,6 @@
 // The examples and test vectors of the module format, and the rules and the layout of a module its
-// text lists (format/README.md, sections 7–12, 15, 20–23 and 25; R45 and its amendment of 2026-10-22,
-// R46, R56, R57, R58, R59, R60, R62).
+// text lists (format/README.md, sections 7–12, 15, 20–23, 25 and 26; R45 and its amendment of
+// 2026-10-22, R46, R56, R57, R58, R59, R60, R62, R63).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -8,7 +8,8 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { gfm } from "micromark-extension-gfm";
 import { byCodeUnits } from "../shared.mjs";
-import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listModule, mediaBreaches, placeFiles, textBreaches, versionProblem } from "./module.mjs";
+import { INDEX_PART, INDEX_RULES, indexFormProblems, indexOf } from "./index.mjs";
+import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listFolder, listModule, mediaBreaches, placeFiles, textBreaches, versionProblem } from "./module.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { canonicalViewOf, memberOf, packageOf, tiersOf } from "./package.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
@@ -92,16 +93,20 @@ export function partOf(rule) {
   return rule.split(".")[0];
 }
 
-// The rules format-check checks itself against those the text lists: the YAML rules and the rules
-// of a whole module, each side with every rule of the other; and manifest.format-version, whose cases
+// The rules format-check checks itself against those the text lists: the YAML rules, the rules of a
+// whole module and, when the format has a schema of the module index, the rules of the index, each side with every rule
+// of the other; and manifest.format-version, whose cases
 // it tells apart by the version they name. Problems at the rules' lines in README.md, or at none.
-export function compareOwnRules(rules) {
+export function compareOwnRules(rules, hasIndex = false) {
   const problems = [];
   for (const [part, own, file] of [
     ["yaml", YAML_RULES, "yaml.mjs"],
     ["module", MODULE_RULES, "module.mjs"],
+    [INDEX_PART, INDEX_RULES, "index.mjs"],
   ]) {
     const listed = new Set(rules.filter((rule) => partOf(rule.id) === part).map((rule) => rule.id));
+    // A format without a module index, as a trial one may be, has none of its rules.
+    if (part === INDEX_PART && !hasIndex) continue;
     for (const id of listed) {
       if (!own.includes(id)) problems.push({ line: rules.find((rule) => rule.id === id).line, message: `format-check does not check ${id}: tools/format-check/${file} has to` });
     }
@@ -113,7 +118,8 @@ export function compareOwnRules(rules) {
 
 // An example in a file: a valid one passes its schema, an invalid one gives the error its first line
 // names, and both follow the YAML rules; an example of the manifest names the version of
-// format/VERSION. validate is its term's validator, or undefined when there is none; version is
+// format/VERSION, and a valid example of the module index names it at its root and lists each
+// entry's teaches in the order of code units (section 26). validate is its term's validator, or undefined when there is none; version is
 // format/VERSION's, or null. Returns problems, each { line, message }.
 export function checkExample(bytes, { kind, term, validate, version }) {
   const { value, violations, notYaml } = readModuleFile(bytes);
@@ -136,6 +142,7 @@ export function checkExample(bytes, { kind, term, validate, version }) {
   if (kind === "valid") {
     for (const error of errors) problems.push({ line: 0, message: `does not pass its schema: ${describe(error)}` });
     if (valid && term === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(value, {}, validate), null));
+    if (valid && term === INDEX_PART) for (const message of indexFormProblems(value, version)) problems.push({ line: 0, message });
     return problems;
   }
   if (valid) problems.push({ line: 1, message: `passes its schema, and names ${header.keyword} at ${header.location}` });
@@ -265,6 +272,70 @@ export function checkPackageVector(folder, { layout, validatorOf, version, forms
 // The folder of the module in a vector of packages, and the file of the package it gives.
 export const PACKAGE_MODULE = "module";
 export const PACKAGE_FILE = "package.yaml";
+
+// A vector of the module index (section 9): each folder of modules/ holds a module, laid out as one,
+// that breaks no rule that format-check checks, as an example of a whole module does, and whose
+// templates have no solver, since spec runs none; index.yaml follows the YAML rules and passes the
+// schema of index vectors, by its validator validate, and each index in it names the format version
+// in VERSION — the previous one, it or an earlier one — and lists teaches in order; and section 26 builds of the release's packages the index
+// that index.yaml gives, whatever the order of keys, or refuses the build by its refusal and by no
+// other rule. { problems, refusal }: problems, each { file, line, message }, where file is index.yaml,
+// modules/ or a path in it; and the rule that the case says refuses the build, if it says one.
+export function checkIndexVector(folder, { layout, validatorOf, version, forms, validate }) {
+  const problems = [];
+  const packages = [];
+  // Whether every module of the release was read and built: a vector is compared only then, as a
+  // module left out could leave the index the same.
+  let built = true;
+  const modulesFolder = path.join(folder, INDEX_MODULES);
+  for (const entry of listFolder(modulesFolder)) {
+    const at = `${INDEX_MODULES}/${entry.name}`;
+    if (!entry.isDirectory() || !isKebabCase(entry.name)) {
+      problems.push({ file: at, line: 0, message: `${INDEX_MODULES}/ holds a folder <name>/ for each module of the release, its name in kebab-case, laid out as a module, and nothing else` });
+      continue;
+    }
+    const moduleFolder = path.join(modulesFolder, entry.name);
+    const read = readModuleCase(moduleFolder, { rule: null, layout, validatorOf, version, forms });
+    problems.push(...read.problems.map((problem) => ({ ...problem, file: problem.file ? `${at}/${problem.file}` : at })));
+    if (read.problems.length || !read.partsOk) {
+      built = false;
+      continue;
+    }
+    const solved = Object.keys(read.members.tasks ?? {}).filter((id) => resultsOf(read.members.tasks[id]).length);
+    if (solved.length) {
+      problems.push({ file: at, line: 0, message: `the template ${solved.join(", ")} has a solver: spec runs none, so a module of a vector of the index has no solver` });
+      continue;
+    }
+    const pkg = packageOf(moduleFolder, read.files, read.members);
+    if (pkg.problem) problems.push({ file: at, line: 0, message: pkg.problem });
+    else packages.push(pkg);
+  }
+  const { problems: own, value } = vectorStart(fs.readFileSync(path.join(folder, INDEX_FILE)), validate, "index vectors");
+  problems.push(...own.map((problem) => ({ file: INDEX_FILE, ...problem })));
+  if (!value) return { problems };
+  for (const field of ["previous", "index"]) {
+    if (value[field] === undefined) continue;
+    for (const message of indexFormProblems(value[field], version, field === "previous")) problems.push({ file: INDEX_FILE, line: 0, message: `${field}: ${message}` });
+  }
+  if (problems.length || !built) return { problems, refusal: value.refusal };
+  const { index, breaches } = indexOf({ version, previous: value.previous, packages, release: value.release, withdrawals: value.withdrawals });
+  const shown = (breach) => `${breach.rule}: ${breach.message}`;
+  if (value.refusal === undefined) {
+    for (const breach of breaches) problems.push({ file: INDEX_FILE, line: 0, message: `the build is refused, and the case names no refusal: ${shown(breach)}` });
+    const at = breaches.length ? null : differenceOf(index, value.index);
+    if (at) problems.push({ file: INDEX_FILE, line: 0, message: `index is not the index that the release builds: they differ at ${fragmentOf(["index", ...at])}` });
+  } else {
+    if (!breaches.some((breach) => breach.rule === value.refusal)) problems.push({ file: INDEX_FILE, line: 0, message: `the build breaks no ${value.refusal}` });
+    for (const breach of breaches) {
+      if (breach.rule !== value.refusal) problems.push({ file: INDEX_FILE, line: 0, message: `breaks ${breach.rule} too: ${breach.message}` });
+    }
+  }
+  return { problems, refusal: value.refusal };
+}
+
+// The folder of the modules of a release in a vector of the module index, and the file of the release.
+export const INDEX_MODULES = "modules";
+export const INDEX_FILE = "index.yaml";
 
 // The results of the solvers of a module's templates as a vector's canonical view gives them: for each
 // template with a solver, an object of its results on each instance, in order, or nothing when the
@@ -523,8 +594,8 @@ function drawProblem(stream, draw) {
   return same ? null : { message: `${fn} gives ${shown}, not ${given}`, ends: false };
 }
 
-// The start of a vector of verdicts, of the leak check, of the generator, of templates, of packages
-// or of tiers: the YAML rules, then the schema of such vectors. { problems, value }, with no value when the vector goes no further.
+// The start of a vector of verdicts, of the leak check, of the generator, of templates, of packages,
+// of tiers or of the module index: the YAML rules, then the schema of such vectors. { problems, value }, with no value when the vector goes no further.
 function vectorStart(bytes, validate, what) {
   const read = readModuleFile(bytes);
   const problems = yamlProblems(read.violations, read.notYaml);
