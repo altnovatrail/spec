@@ -28,7 +28,18 @@ import { isMain } from "../shared.mjs";
 // A release's tag: vMAJOR.MINOR.PATCH as SemVer writes numbers, with no leading zero. Any other
 // tag that starts with a v, such as v0.2.0-rc.1, is no release and counts for nothing here.
 export const RELEASE_TAG = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
-const LINE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+export const LINE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+
+// spec's first line whose releases carry files, the module format among them: its first release
+// is where version 0.1 of the format came out (R44, R64). The releases of the lines before it
+// carried no files, and 0.1 there was a draft.
+export const FIRST_FILES_LINE = "0.3";
+
+// Two lines, MAJOR.MINOR, compared by number: below zero when a comes first.
+export function compareLines(a, b) {
+  const [x, y] = [a, b].map((line) => line.split(".").map(Number));
+  return x[0] - y[0] || x[1] - y[1];
+}
 
 const WORKFLOW = path.join(path.dirname(fileURLToPath(import.meta.url)), "../../.github/workflows/release.yml");
 

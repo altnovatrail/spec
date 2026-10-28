@@ -2,12 +2,19 @@
 # patch of the line the releases are numbered in, and the tag is created with the release. A
 # line of its own comes from raising RELEASE_LINE in the change that deserves it. A change that
 # gives the module format a new version always does, so that a line never spans two of them
-# (R44); whether contracts and protocols do as well is for their epics to decide.
+# (R44), and release-version refuses one that does not; whether contracts and protocols do as
+# well is for their epics to decide.
 #
-# A release holds no files yet: what other repositories take is the tag itself, as a submodule
-# (R21). The repository's releases are immutable, so the tag stays on its commit for good, and
-# GitHub signs each release with an attestation of its tag and commit, which `gh release verify`
-# checks. Files, and a signature of their own, come with the schemas and packages.
+# Other repositories take the tag as a submodule for spec's documents and rules (R21), and their
+# code takes the release's files (R64). From the line 0.3 on, a release carries each normative
+# part with a version of its own as a file, <part>-<version>.tar.gz — today the module format,
+# format-0.1.tar.gz — signed without a key, with its bundle <file>.sigstore.json beside it, as
+# the shared release of .github signs its callers' files. Go code takes the same tag as the
+# version of spec's Go module, which the Go module proxy and its checksum database then hold to
+# its bytes. The repository's releases are immutable, so the tag stays on its commit for good and
+# no file is added or swapped once a release is out, and GitHub signs each release with an
+# attestation of its tag, its commit and its files, which `gh release verify` and
+# `gh release verify-asset` check. A release of an earlier line carries no files.
 #
 # The button releases the tip of main when it has no release yet — after a release run that
 # failed, say. It works on main alone, and only once CI has passed on that commit.
@@ -27,7 +34,7 @@ permissions:
 # The line the releases are numbered in: the major and minor version every release carries, the
 # patch counting up within it. just release-version reads it from here.
 env:
-  RELEASE_LINE: "0.2"
+  RELEASE_LINE: "0.3"
 
 jobs:
   release:
@@ -48,7 +55,9 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # The image is built twice over, and the Go module proxy is given five minutes to serve the
+    # release's version.
+    timeout-minutes: 25
     # With pipefail: a runner's default, bash -e, lets a failed command inside a pipe pass.
     defaults:
       run:
@@ -61,6 +70,9 @@ jobs:
       contents: write
       # Reading whether CI passed on the commit the button would release.
       actions: read
+      # Signing the release's files: cosign trades the job's OIDC token for a certificate that
+      # names this workflow (R64).
+      id-token: write
     steps:
       # Asked before anything of the repository is fetched: a run on another branch publishes
       # nothing, and neither does a commit whose CI on main has not finished green.
@@ -103,9 +115,10 @@ jobs:
       # another repository's release asks first is not asked here. The recipe prints the step's
       # outputs: version — empty when there is nothing to release — previous, where the notes
       # start, released, the release this commit has already, and behind, the newest release when
-      # this commit is older than it. A tag with no release behind it was pushed by hand, against
-      # R31: on this commit, or as the newest "release" off main's history, it would stop every
-      # release quietly, so the run stops on it instead.
+      # this commit is older than it. The recipe refuses a commit that gives the module format
+      # another version than the release before it in the same line (R44). A tag with no release
+      # behind it was pushed by hand, against R31: on this commit, or as the newest "release" off
+      # main's history, it would stop every release quietly, so the run stops on it instead.
       #
       # Every container the script starts has the folder it runs from mounted read-write, .git
       # and all, so the script runs from a copy of the checkout, in RUNNER_TEMP, taken before the
@@ -141,6 +154,81 @@ jobs:
               echo "::notice::Nothing to publish: this commit is released already, or is older than the newest release."
           fi
 
+      # The files of TARGET, built by the tip's recipe from TARGET's objects alone — git archive of
+      # the commit, never the working tree of the checkout — and checked against git ls-tree. They
+      # are built in a copy of the checkout of their own: the version step's container has had its
+      # copy, and no script runs from a copy after its container (the 2026-10-22 amendment to
+      # R31). The recipe reads TARGET's line, so a commit of a line before 0.3, whose checks
+      # finished after a later one was merged, gets no files. What the container wrote is checked
+      # here on the runner, as the shared release of .github checks its callers' files: plain
+      # files, named as release-files names them, none a bundle. A run again of a commit released
+      # already builds them too, to know which files its release has to hold.
+      - id: files
+        name: Build the files
+        if: steps.version.outputs.version != '' || steps.version.outputs.released != ''
+        run: |
+          cp -a . "$RUNNER_TEMP/checkout-files"
+          (
+              cd "$RUNNER_TEMP/checkout-files"
+              tools/toolchain/toolchain.sh spec release-files "$TARGET" dist
+          )
+          dist="$RUNNER_TEMP/checkout-files/dist"
+          if [ -L "$dist" ] || [ ! -d "$dist" ]; then
+              echo "::error::release-files left no folder dist/, or dist/ is a link."
+              exit 1
+          fi
+          if find "$dist" -mindepth 1 ! -type f | grep -q .; then
+              echo "::error::dist/ holds something besides files: a release takes files alone."
+              exit 1
+          fi
+          count=0
+          for path in "$dist"/*; do
+              if [ ! -e "$path" ]; then continue; fi
+              name="${path##*/}"
+              if ! [[ "$name" =~ ^[a-z][a-z-]*-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.tar\.gz$ ]]; then
+                  echo "::error::A file of dist/ is named ${name}, not <part>-<MAJOR.MINOR>.tar.gz as release-files names its files."
+                  exit 1
+              fi
+              count=$((count + 1))
+          done
+          mv "$dist" "$RUNNER_TEMP/dist"
+          ls -l "$RUNNER_TEMP/dist"
+          echo "count=${count}" >> "$GITHUB_OUTPUT"
+
+      # cosign at an exact version, checked against the sum in cosign_checksums.txt of its
+      # release, the version and sum of the shared release of .github (R08 .github). Every file
+      # gets its bundle, the signature and the certificate that names the workflow that made it,
+      # and every bundle is checked before anything is published: the identity is this workflow
+      # at main, issued to GitHub Actions, in this repository, in a run of main's tip, the commit
+      # the workflow file is read from on workflow_run. The step runs on the runner alone, with no
+      # container: the job's OIDC token never goes into one.
+      - name: Sign the files
+        if: steps.version.outputs.version != '' && steps.files.outputs.count != '0'
+        env:
+          COSIGN_VERSION: "3.1.4"
+          COSIGN_SHA256: 424e2c97d0b45fd7a6b608a87f090f35633f4c23ece5f092d48bba11aaf4bbfa
+        run: |
+          cosign="$RUNNER_TEMP/cosign"
+          curl -fsSL --proto "=https" --proto-redir "=https" --retry 3 --retry-all-errors \
+              -o "$cosign" \
+              "https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64"
+          echo "${COSIGN_SHA256}  ${cosign}" | sha256sum --check --strict
+          chmod +x "$cosign"
+          cd "$RUNNER_TEMP/dist"
+          files=(*.tar.gz)
+          for file in "${files[@]}"; do
+              "$cosign" sign-blob --yes --bundle "${file}.sigstore.json" "$file"
+          done
+          for file in "${files[@]}"; do
+              "$cosign" verify-blob --bundle "${file}.sigstore.json" \
+                  --certificate-identity "https://github.com/${GITHUB_WORKFLOW_REF}" \
+                  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+                  --certificate-github-workflow-repository "$GITHUB_REPOSITORY" \
+                  --certificate-github-workflow-sha "$GITHUB_SHA" \
+                  "$file"
+          done
+          ls -l
+
       # Latest is the release of the newest commit of main: a commit whose checks finished after
       # a newer one was pushed comes out without the mark. The notes run from the release before
       # this one. The Releases API refuses GITHUB_TOKEN a commit whose workflow files differ from
@@ -148,6 +236,13 @@ jobs:
       # 403 Resource not accessible by integration instead" (GitHub Docs, REST API endpoints for
       # releases, read 2026-10-20). A commit that is no longer the tip then waits for the next
       # release, which covers it.
+      #
+      # With files, gh "creates a draft release, uploads each asset, and then publishes the
+      # release", in "separate API requests" that "do not form a single atomic operation" (gh
+      # manual, gh release create, read 2026-10-28), and deletes its draft when a step fails. A
+      # draft of this version that a run stopped halfway left behind — gh's own delete failed, or
+      # the job was cancelled between the requests — is deleted before the release is created and
+      # after a failure, so that none is left beside the release or in its place.
       - id: publish
         name: Publish the release
         if: steps.version.outputs.version != ''
@@ -158,17 +253,33 @@ jobs:
         run: |
           start=()
           if [ -n "$PREVIOUS" ]; then start=(--notes-start-tag "$PREVIOUS"); fi
+          files=()
+          if [ -d "$RUNNER_TEMP/dist" ]; then
+              for path in "$RUNNER_TEMP/dist"/*; do
+                  if [ -e "$path" ]; then files+=("$path"); fi
+              done
+          fi
+          drafts() {
+              gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" \
+                  --jq '.[] | select(.draft and .tag_name == env.VERSION) | .id' |
+                  while read -r id; do
+                      echo "::warning::Deleting the draft ${id} of ${VERSION}, which a run stopped halfway left."
+                      gh api --method DELETE "repos/${GITHUB_REPOSITORY}/releases/${id}"
+                  done
+          }
+          drafts || echo "::warning::The drafts of ${VERSION} could not be listed or deleted."
           git fetch --quiet --no-tags origin refs/heads/main
           tip=$(git rev-parse FETCH_HEAD)
           newest=false
           if [ "$tip" = "$TARGET" ]; then newest=true; fi
-          if ! gh release create "$VERSION" \
+          if ! gh release create "$VERSION" "${files[@]}" \
               --repo "$GITHUB_REPOSITORY" \
               --target "$TARGET" \
               --title "$VERSION" \
               --latest="$newest" \
               --generate-notes "${start[@]}" 2> "$RUNNER_TEMP/release-create.err"; then
               cat "$RUNNER_TEMP/release-create.err" >&2
+              drafts || echo "::warning::The drafts of ${VERSION} could not be listed or deleted."
               # Only the documented refusal is let pass, of a commit that is no longer the tip and
               # "adds or modifies any file under .github/workflows/ relative to the repository's
               # default branch" (the same page). The rule is the recipe release-refusal, the one
@@ -190,19 +301,80 @@ jobs:
           fi
           echo "published=true" >> "$GITHUB_OUTPUT"
 
-      # The release is immutable and attested; the attestation may take a moment to appear. A
-      # run again of a commit released already verifies its release, so that a run that failed
-      # here does not turn green on a second try without it.
+      # The release is immutable and attested, and so is every file in it; the attestation may take
+      # a moment to appear. The files are those the release holds, downloaded: exactly the files
+      # built above, each with its bundle, and each verified against the attestation. A run again
+      # of a commit released already verifies its release, so that a run that failed here does not
+      # turn green on a second try without it.
       - name: Verify the release
         if: steps.publish.outputs.published == 'true' || steps.version.outputs.released != ''
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version || steps.version.outputs.released }}
         run: |
+          wanted=()
+          if [ -d "$RUNNER_TEMP/dist" ]; then
+              for path in "$RUNNER_TEMP/dist"/*.tar.gz; do
+                  if [ -e "$path" ]; then wanted+=("${path##*/}" "${path##*/}.sigstore.json"); fi
+              done
+          fi
+          held=$(gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)
+          expected=$(printf '%s\n' "${wanted[@]}" | sed '/^$/d' | sort)
+          if [ "$held" != "$expected" ]; then
+              echo "::error::${VERSION} holds the files [${held//$'\n'/, }], and its commit's are [${expected//$'\n'/, }]."
+              exit 1
+          fi
+          released="$RUNNER_TEMP/released"
+          mkdir "$released"
+          if [ ${#wanted[@]} -gt 0 ]; then
+              gh release download "$VERSION" --repo "$GITHUB_REPOSITORY" --dir "$released"
+          fi
           for attempt in 1 2 3 4 5; do
-              if gh release verify "$VERSION" --repo "$GITHUB_REPOSITORY"; then exit 0; fi
+              verified=true
+              gh release verify "$VERSION" --repo "$GITHUB_REPOSITORY" || verified=false
+              for file in "${wanted[@]}"; do
+                  if [ "$verified" = true ]; then
+                      gh release verify-asset "$VERSION" "$released/$file" --repo "$GITHUB_REPOSITORY" || verified=false
+                  fi
+              done
+              if [ "$verified" = true ]; then exit 0; fi
               echo "attempt $attempt: not verified yet"
               sleep 10
           done
-          echo "::error::${VERSION} is published, but its attestation does not verify."
+          echo "::error::${VERSION} is published, but its attestation does not verify it and its files."
+          exit 1
+
+      # Go code takes the release's tag as the version of spec's Go module (R64): the Go module
+      # proxy builds its zip from the tag when it is first asked, and the checksum database
+      # records its hash for good. The step asks for it, through the proxy alone — with
+      # GOPROXY's default, a go command that the proxy answers 404 fetches from GitHub instead,
+      # and would hide it — so that the release's run says whether the module came out: a zip Go
+      # refuses fails the run here, after the release, which is out already. A version is
+      # served "within one minute" of being asked for, unless it was asked for before its tag
+      # existed, which the proxy remembers for up to 30 minutes (proxy.golang.org, FAQ, read
+      # 2026-10-28). So the step tries for five minutes, and a run again asks again. It runs in
+      # the toolchain stage, from an empty folder, which is all the container mounts, by the
+      # checkout's script, which no container has had.
+      - name: Verify the Go module
+        if: >-
+          (steps.publish.outputs.published == 'true' || steps.version.outputs.released != '') &&
+          steps.files.outputs.count != '0'
+        env:
+          VERSION: ${{ steps.version.outputs.version || steps.version.outputs.released }}
+        run: |
+          major="${VERSION#v}"
+          major="${major%%.*}"
+          module=github.com/altnovatrail/spec
+          if [ "$major" -ge 2 ]; then module="${module}/v${major}"; fi
+          empty=$(mktemp -d -p "$RUNNER_TEMP")
+          cd "$empty"
+          for attempt in $(seq 1 10); do
+              if "$GITHUB_WORKSPACE/tools/toolchain/toolchain.sh" run \
+                  env GOPROXY=https://proxy.golang.org go mod download -json "${module}@${VERSION}"; then
+                  exit 0
+              fi
+              echo "attempt $attempt: the Go module proxy does not serve ${module}@${VERSION} yet"
+              sleep 30
+          done
+          echo "::error::${VERSION} is published, but the Go module proxy does not serve ${module}@${VERSION}; the lines above say why. Running the job again asks again."
           exit 1

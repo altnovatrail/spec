@@ -53,3 +53,19 @@ export function writeFile(dir, git, file, text) {
   fs.writeFileSync(path.join(dir, file), text);
   git("add", "--all");
 }
+
+// spec as far as its release recipes go, copied into a made-up repository: its justfile and the
+// release tools. Staged, not committed.
+export function copySpecTools(dir, git) {
+  const files = ["justfile", "tools/shared.mjs", "tools/release/version.mjs", "tools/release/line.mjs", "tools/release/files.mjs", "tools/release/format-line.mjs"];
+  for (const file of files) {
+    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    fs.copyFileSync(path.join(root, file), path.join(dir, file));
+  }
+  git("add", "--all");
+}
+
+// The line spec's release.yml sets, written into a made-up repository and staged.
+export function releaseLine(dir, git, line) {
+  writeFile(dir, git, ".github/workflows/release.yml", `env:\n  RELEASE_LINE: "${line}"\n`);
+}

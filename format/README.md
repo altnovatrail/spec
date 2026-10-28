@@ -39,7 +39,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - The module index keeps the entries of every version of the format (section 26), so its members keep their places and meanings in every version, while the format is v0 too, as `module_format_version` keeps its place in a manifest: `module_format_version` and `modules` at its root, and `module_format_version`, `package_digest`, `release`, `teaches` and `withdrawn` in an entry. A version MAY add only an optional member and a reason of withdrawal. A reader reads these members of an index of any version by their places alone, not by the schema of its own version, which refuses what a later version adds: it skips an entry whose format version it does not read, rather than refuse the index.
 - A version number never goes back and is never reused: undoing a change is a new version too. A fault in `module-kit` that the test vectors catch is not a change of the format.
 - While the format is v0 (0.y), nothing is promised beyond the places that this section keeps in every version: every change is the next 0.y, and the platform reads only the current version. From v1 on, it reads the current major version, with all its minor versions, and the previous major version. v0 leaves when v1 comes out, and each previous major version leaves when the next one comes out.
-- Version 0.1 is a draft until the first release of `spec`'s line 0.3, the first release that carries the schemas as files for code (RUN.md, T35). Until then the tasks that write the format change 0.1 without raising the number, and no code takes it (R21).
+- Version 0.1 comes out with v0.3.0, the first release of `spec`'s line 0.3 and the first that carries the format as files for code (R64). Before it, 0.1 was a draft, which the tasks that wrote the format changed without raising the number. From that release on, the rules of this section hold for it: any change of the format is the next version, 0.2, in a new line of `spec`.
 - The format becomes v1 by the author's decision, once the three modules of the first slice have passed through the platform with no subject code in its core (R08). v1.0 is the last 0.y without anything that no module of the first slice used. After v1, a new canvas kind or check kind comes in a minor version, together with the module that needs it first.
 
 ## 3. Files
@@ -58,7 +58,7 @@ format/
 - `examples/module/valid/<case>/` is an example of a whole module: a folder laid out as a module (section 10). The part `module` has no schema of its own.
 - A case is named in kebab-case for what it shows: `missing-title.yaml`, or a folder such as `no-manifest/`.
 - Schemas are JSON. Examples and vectors written by hand are YAML and follow section 4.
-- In version 0.1 this text and `VERSION` come first; the schemas, examples and vectors arrive part by part.
+- Code takes this folder from `spec`'s releases, not from a checkout of `spec` (R21, R64). Go code takes it from the Go module `github.com/altnovatrail/spec` at the release's tag, whose package `spec` holds it as `spec.Format`, with its root here. Any other code takes the release's file `format-<version>.tar.gz`, which holds `LICENSE` and this folder: the release signs it with cosign, with the bundle `format-<version>.tar.gz.sigstore.json` beside it, and GitHub's attestation of the release names it. A release carries a file for each version of the format the platform reads (section 2), and every release of one line of `spec` carries the same version.
 
 ## 4. Writing a module
 
