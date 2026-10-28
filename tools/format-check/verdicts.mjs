@@ -180,11 +180,16 @@ export function trapOf(slot, value) {
 // task.trap-values, a trap value that is not yet right, for a choice not an option as written, or
 // two trap values that the check compares equal. A key or a trap value of a number or a fraction
 // that holds a placeholder, outside a template, breaks task.placeholders, and nothing else is read
-// (section 23): a template is checked through its instances, which hold numbers in its place.
-export function slotBreaches(slot) {
+// (section 23): a template is checked through its instances, which hold numbers in its place. In an
+// instance whose solver's results are unknown, unsolved, such a placeholder is a result (section 24):
+// a trap value that holds one is passed over, and against a key that holds one no trap value is
+// compared, while the others are still compared with one another.
+export function slotBreaches(slot, unsolved = false) {
   const { check } = slot;
+  const numeric = check.kind === "number" || check.kind === "fraction";
   const written = [check.key, ...(check.trap_values ?? []).map((trapValue) => trapValue.value)];
-  if ((check.kind === "number" || check.kind === "fraction") && written.some(holdsPlaceholder)) return ["task.placeholders"];
+  if (numeric && !unsolved && written.some(holdsPlaceholder)) return ["task.placeholders"];
+  const keyKnown = !(numeric && holdsPlaceholder(check.key));
   const breaches = [];
   const options = check.options ?? slot.options ?? [];
   if (check.kind === "choice") {
@@ -196,10 +201,10 @@ export function slotBreaches(slot) {
     const key = rationalOf(check.key, "fraction");
     if (key && gcd(absolute(key.numerator), key.denominator) !== 1n) breaches.push("task.fraction-key");
   }
-  const trapValues = check.trap_values ?? [];
+  const trapValues = (check.trap_values ?? []).filter((trapValue) => !(numeric && holdsPlaceholder(trapValue.value)));
   const notYet = (trapValue) => slotVerdict(slot, trapValue.value)?.verdict === "not_yet" && (check.kind !== "choice" || options.includes(trapValue.value));
   const compared = trapValues.map((trapValue) => comparableOf(slot, trapValue.value));
-  if (!trapValues.every(notYet) || new Set(compared).size !== compared.length) breaches.push("task.trap-values");
+  if ((keyKnown && !trapValues.every(notYet)) || new Set(compared).size !== compared.length) breaches.push("task.trap-values");
   return breaches;
 }
 

@@ -1,0 +1,35 @@
+# The solver searches the factors only up to 6, so it fails on every instance whose b is 7 or more,
+# the first of them a = 2, b = 7.
+id: fails-on-an-instance
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def solve(numbers):
+          for factor in range(1, 7):
+              if numbers["a"] * factor == numbers["product"]:
+                  return {"factor": factor}
+          fail("no factor fits")
+    results: [factor]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{factor}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {factor} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

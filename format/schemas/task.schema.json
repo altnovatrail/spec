@@ -114,7 +114,7 @@
     "template": {
       "$ref": "#/$defs/template",
       "unevaluatedProperties": false,
-      "description": "What makes the task a template: its parameters, the numbers derived from them and the constraint on their combinations. Each attempt gets one instance of the template, picked by the seed of the attempt, and the learner's app never gets the template itself."
+      "description": "What makes the task a template: its parameters, the numbers derived from them, the constraint on their combinations and its solver. Each attempt gets one instance of the template, picked by the seed of the attempt, and the learner's app never gets the template itself."
     }
   },
   "required": [
@@ -1020,12 +1020,43 @@
         "constraint": {
           "$ref": "#/$defs/template_expression",
           "description": "A bool expression of the parameters and the derived numbers that holds for the combinations that give an instance. Without it, every combination gives one."
+        },
+        "solver": {
+          "$ref": "#/$defs/solver",
+          "unevaluatedProperties": false,
+          "description": "The solver of the template: a program of Starlark that finds, by search, numbers of each instance that no expression gives, such as its key. Its results are named as the parameters and the derived numbers are, and stand in placeholders too."
         }
       },
       "required": [
         "parameters"
       ],
-      "description": "A template of tasks: parameters with their domains, the numbers derived from them, and the constraint that picks the combinations that are its instances."
+      "description": "A template of tasks: parameters with their domains, the numbers derived from them, the constraint that picks the combinations that are its instances, and the solver that finds what no expression gives."
+    },
+    "solver": {
+      "type": "object",
+      "properties": {
+        "program": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192,
+          "description": "The program of Starlark, at most 8192 characters long, that defines solve(numbers): given the numbers that the open fields of an instance show, it returns a dict of the results, each a name with its int."
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/template_name",
+            "description": "The name of a result, which solve returns and a placeholder names."
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "The names of the results that solve returns for every instance, exactly these. A result stands only in a key or a trap value of a number or a fraction, in the solution and in a leak phrase."
+        }
+      },
+      "required": [
+        "program",
+        "results"
+      ],
+      "description": "A program of Starlark that finds numbers of each instance of a template by search, as the solvers of mathtrail-standalone do, and the names of the numbers that it finds."
     },
     "domain": {
       "type": "object",

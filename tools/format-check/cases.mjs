@@ -13,7 +13,7 @@ import { differenceOf, openViewOf } from "./openview.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
 import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
-import { instanceMaker, instanceShown, numbersShown, pickOf, templateOf } from "./templates.mjs";
+import { instanceMaker, instanceShown, numbersShown, pickOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "./templates.mjs";
 import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from "./verdicts.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
@@ -25,7 +25,8 @@ const HEADER = "# error: ";
 const TASK_PART = "task";
 // The rules of a task that format-check implements, and so checks on every task it reads: those
 // that an answer slot's check shows by itself (section 15), task.no-leaks (section 20), and the rules
-// of templates (section 23), which it checks with the others on every instance of a template.
+// of templates (section 23), which it checks with the others on every instance of a template. Not
+// task.template-solver: only module-kit runs a solver (section 24).
 const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.no-leaks", "task.template-names", "task.template-expressions", "task.placeholders", "task.template-instances", "task.instances"];
 // The part of a lesson, and the rule of a lesson that format-check implements, with its leak check
 // (section 21). The rule spans a lesson and its tasks, so its cases are laid out as modules.
@@ -322,19 +323,28 @@ export function checkRandomVector(bytes, { validate }) {
   return problems;
 }
 
-// A vector of templates (section 23): the YAML rules, the schema of such vectors, the rules of a task
-// on every instance of its template, the number of its instances, and for each attempt the instance
-// that its seed picks — its numbers, and the task it is, whatever the order of keys. validateTask is
-// the task's validator, by which each instance passes its schema.
-export function checkTemplateVector(bytes, { validate, validateTask }) {
+// A vector of templates (sections 23 and 24): the YAML rules, the schema of such vectors, the rules of
+// a task on every instance of its template, the number of its instances, the numbers that its solver
+// gets, and for each attempt the instance that its seed picks — its numbers, and the task it is,
+// whatever the order of keys. The results of a solver are the vector's own: spec runs no Starlark, so
+// it takes them as given and checks the rules of a task on the instance they make, which the schema of
+// vectors holds to the task's. validateTask is the task's validator, by which each instance passes its
+// schema, and openView what the open view of the template is built with.
+export function checkTemplateVector(bytes, { validate, validateTask, openView }) {
   const { problems, value } = vectorStart(bytes, validate, "vectors of templates");
   if (!value) return problems;
-  const { task, count, attempts } = value;
+  const { task, count, inputs, attempts } = value;
   const counted = templateOf(task);
   for (const [breach, detail] of sortedBreaches(expandedOf(task, {}, validateTask, counted).breaches)) problems.push({ line: 0, message: `its template breaks ${breach}${detail ? `, ${detail}` : ""}: the template of a vector is one that a module may hold` });
   if (problems.length) return problems;
   const { instances } = counted;
   if (instances.length !== count) return [{ line: 0, message: `the template has ${instances.length} instances, not ${count}` }];
+  const results = resultsOf(task);
+  if (inputs) {
+    const gets = solverInputsOf(task, openViewOf(task, `${TASK_PART}.schema.json`, openView));
+    if (gets.join() !== [...inputs].sort(byCodeUnits).join()) problems.push({ line: 0, message: `the solver gets ${namesShown(gets)}, not ${namesShown(inputs)}` });
+  }
+  const make = instanceMaker(task);
   attempts.forEach((attempt, at) => {
     const which = `attempt ${at + 1}`;
     if (!isUnsigned(attempt.seed)) {
@@ -342,17 +352,29 @@ export function checkTemplateVector(bytes, { validate, validateTask }) {
       return;
     }
     const numbers = instances[pickOf(BigInt(attempt.seed), task.id, count)];
-    const given = Object.entries(attempt.numbers);
+    const given = Object.entries(attempt.numbers).filter(([name]) => !results.includes(name));
     const same = given.length === numbers.size && given.every(([name, number]) => numbers.get(name) === BigInt(number));
     if (!same) {
       problems.push({ line: 0, message: `${which}: the seed picks the instance ${numbersShown(numbers)}, not ${numbersShown(new Map(given))}` });
       return;
     }
-    const differs = differenceOf(instanceMaker(task)(numbers), attempt.instance);
+    const missing = results.filter((name) => !Object.hasOwn(attempt.numbers, name));
+    if (missing.length) {
+      problems.push({ line: 0, message: `${which}: the numbers give no result ${namesShown(missing)} of the solver` });
+      return;
+    }
+    const solved = new Map([...numbers, ...results.map((name) => [name, BigInt(attempt.numbers[name])])]);
+    const instance = make(solved);
+    const differs = differenceOf(instance, attempt.instance);
     if (differs) problems.push({ line: 0, message: `${which}: the instance is not the template with these numbers: they differ at ${fragmentOf(differs)}` });
+    else if (results.length) {
+      for (const [breach, detail] of sortedBreaches(plainBreaches(instance, {}))) problems.push({ line: 0, message: `${which}: the instance breaks ${breach}${detail ? `, ${detail}` : ""}` });
+    }
   });
   return problems;
 }
+
+const namesShown = (names) => (names.length ? names.join(", ") : "nothing");
 
 const isUnsigned = (text) => BigInt(text) <= MAX_UNSIGNED;
 const isSigned = (text) => {
@@ -425,26 +447,31 @@ function expandedOf(task, parts, validateTask, counted = undefined) {
   const tasks = [];
   if (!instances) return { breaches, tasks };
   const make = instanceMaker(task);
+  // The results of a solver come from Starlark, so an instance here lacks them (section 24).
+  const unsolved = resultsOf(task).length > 0;
+  const known = withoutResults(task);
   for (const numbers of instances) {
-    const instance = make(numbers);
+    const made = make(numbers);
     const add = (rule, detail) => {
       if (breaches.has(rule)) return;
       const on = `on the instance ${instanceShown(task, numbers)}`;
       breaches.set(rule, detail ? `${on}: ${detail}` : on);
     };
-    if (validateTask && !validateTask(instance)) {
+    if (validateTask && !validateTask(made)) {
       add("task.instances", describe(validateTask.errors[0]));
       continue;
     }
+    const instance = unsolved ? known(made) : made;
     tasks.push(instance);
-    for (const [rule, detail] of plainBreaches(instance, parts)) add(rule, detail);
+    for (const [rule, detail] of plainBreaches(instance, parts, unsolved)) add(rule, detail);
   }
   return { breaches, tasks };
 }
 
-// The same for a task that is no template.
-function plainBreaches(task, parts) {
-  const breaches = new Map((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap(slotBreaches)).map((rule) => [rule, null]));
+// The same for a task that is no template, or for an instance, which is unsolved when the results of
+// its solver are not known.
+function plainBreaches(task, parts, unsolved = false) {
+  const breaches = new Map((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap((slot) => slotBreaches(slot, unsolved))).map((rule) => [rule, null]));
   if (leaksBefore(task, parts)) breaches.set("task.no-leaks", null);
   return breaches;
 }

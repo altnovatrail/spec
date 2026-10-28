@@ -25,8 +25,9 @@ docs-check-test: _tools
 # section 20 finds in each text of a vector of the leak check (R57) and in the texts of a lesson,
 # for the keys of its tasks (R58), the numbers of each vector of the generator, as section 22
 # computes them (R59), and the instances of each template, as section 23 counts, picks and fills
-# them, with the rules of a task on every instance (R60). A file it does not know is an error, so
-# the task that brings it extends the check (RUN.md, T25).
+# them, with the rules of a task on every instance (R60), and the results of their solvers as the
+# vectors give them, since spec runs no Starlark (R61). A file it does not know is an error, so the
+# task that brings it extends the check (RUN.md, T25).
 # Check the module format in format/: schemas, examples and test vectors.
 format-check: _tools
     node tools/format-check/main.mjs

@@ -830,9 +830,43 @@ test("a vector of templates lists the instance that each seed picks, as section 
 });
 
 test("a vector of templates passes its schema, and its template breaks no rule of a task on any instance", () => {
-  expectOnly([[TEMPLATE, 'check: {kind: number, key: "{a}"}', 'check: {kind: number, key: "{b}"}']], /three\.yaml:0: its template breaks task\.placeholders, #\/items\/0\/answer_slots\/0\/check\/key: \{b\} names no parameter or derived number: the template of a vector is one that a module may hold$/);
+  expectOnly([[TEMPLATE, 'check: {kind: number, key: "{a}"}', 'check: {kind: number, key: "{b}"}']], /three\.yaml:0: its template breaks task\.placeholders, #\/items\/0\/answer_slots\/0\/check\/key: \{b\} names no parameter, derived number or result of the solver: the template of a vector is one that a module may hold$/);
   expectOnly([[TEMPLATE, 'check: {kind: number, key: "{a}"}', 'check: {kind: number, key: "{a}", trap_values: [{value: "{a}", trap: off-by-one}]}']], /three\.yaml:0: its template breaks task\.trap-values, on the instance a = 1: the template/);
   expectOnly([[TEMPLATE, "      id: three\n      items:", "      id: three\n      template: {parameters: {a: {from: 1, to: 3}}}\n      items:"]], /three\.yaml:0: does not pass the schema of vectors of templates: not at #\/attempts\/0\/instance/);
+});
+
+// A vector of a template whose solver finds its key: the fixture's task schema opens no field, so the
+// solver gets nothing.
+const SOLVED = "format/vectors/templates/solved.yaml";
+const solvedVector = (check = 'check: {kind: number, key: "{twice}"}', instanceCheck = 'check: {kind: number, key: "4"}', more = "inputs: []\n") => [
+  SOLVED,
+  null,
+  `task:\n  id: solved\n  template:\n    parameters:\n      a: {from: 1, to: 3}\n    solver:\n      program: |\n        def solve(numbers):\n            return {"twice": 2 * numbers["a"]}\n      results: [twice]\n  items:\n    - answer_slots:\n        - binding: anywhere\n          ${check}\ncount: 3\n${more}attempts:\n  - seed: "0"\n    numbers: {a: 2, twice: 4}\n    instance:\n      id: solved\n      items:\n        - answer_slots:\n            - binding: anywhere\n              ${instanceCheck}\n`,
+];
+const editOf = ([file, , text], from, to) => [file, null, text.replace(from, to)];
+
+test("a vector of a template with a solver gives its results, and what the solver gets", () => {
+  assert.deepEqual(errorsOf([solvedVector()]), []);
+  expectOnly([editOf(solvedVector(), "inputs: []", "inputs: [a]")], /solved\.yaml:0: the solver gets nothing, not a$/);
+  expectEach([editOf(solvedVector(), "inputs: []\n", "")], [/solved\.yaml:0: does not pass the schema of vectors of templates: required at #: must have required property 'inputs'$/, /solved\.yaml:0: does not pass the schema of vectors of templates: if at #/]);
+  expectEach([[TEMPLATE, "count: 3", "count: 3\ninputs: []"]], [/three\.yaml:0: does not pass the schema of vectors of templates: not at #: must NOT be valid$/, /three\.yaml:0: does not pass the schema of vectors of templates: if at #/]);
+  expectOnly([editOf(solvedVector(), "{a: 2, twice: 4}", "{a: 2}")], /solved\.yaml:0: attempt 1: the numbers give no result twice of the solver$/);
+  expectOnly([editOf(solvedVector(), "{a: 2, twice: 4}", "{a: 2, twice: 5}")], /solved\.yaml:0: attempt 1: the instance is not the template with these numbers: they differ at #\/items\/0\/answer_slots\/0\/check\/key$/);
+  expectOnly([editOf(solvedVector(), "{a: 2, twice: 4}", "{a: 1, twice: 4}")], /solved\.yaml:0: attempt 1: the seed picks the instance a = 2, not a = 1$/);
+});
+
+test("spec passes over what a solver's results hold, until a vector gives them", () => {
+  const trapOfFour = ", trap_values: [{value: \"4\", trap: off-by-one}]";
+  // On the instances, the key is the solver's, so the trap value goes unchecked; the attempt's
+  // instance has it, and is checked.
+  expectOnly([solvedVector(`check: {kind: number, key: "{twice}"${trapOfFour}}`, `check: {kind: number, key: "4"${trapOfFour}}`)], /solved\.yaml:0: attempt 1: the instance breaks task\.trap-values$/);
+  const example = (text) => ["format/examples/task/valid/solved.yaml", null, text];
+  const solvedTask = (check) => `id: solved\ntemplate:\n  parameters:\n    a: {from: 1, to: 3}\n  solver: {program: "def solve(numbers): pass", results: [twice]}\nitems:\n  - answer_slots:\n      - binding: anywhere\n        ${check}\n`;
+  assert.deepEqual(errorsOf([example(solvedTask(`check: {kind: number, key: "{twice}"${trapOfFour}}`))]), [], "a trap value against a key that only the solver knows");
+  expectOnly([example(solvedTask('check: {kind: number, key: "{twice}", trap_values: [{value: "{a}", trap: off-by-one}, {value: "{a}", trap: off-by-one}]}'))], /solved\.yaml:0: breaks task\.trap-values, on the instance a = 1$/);
+  expectOnly([example(solvedTask('check: {kind: number, key: "{a}", trap_values: [{value: "{twice}", trap: off-by-one}, {value: "{a}", trap: off-by-one}]}'))], /solved\.yaml:0: breaks task\.trap-values, on the instance a = 1$/);
+  const shown = solvedTask('check: {kind: number, key: "{twice}"}').replace("  - answer_slots:\n      - binding: anywhere\n        check", '  - line:\n      - text: "= {twice}"\n      - binding: box\n        check');
+  expectOnly([example(shown)], /solved\.yaml:0: breaks task\.placeholders, #\/items\/0\/line\/0\/text: \{twice\} is a result of the solver, which stands only in a key/);
 });
 
 test("the vectors of templates are files, and need the schema of such vectors", () => {

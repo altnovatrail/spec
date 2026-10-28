@@ -1,0 +1,90 @@
+# A template of the module of olympiad mathematics whose key its solver finds (section 24): the
+# solver of mathtrail-standalone content/solvers/arithmetic.tricks/number-thought-of.star, at commit
+# 4dece74, made a solver of the template. Its capitals TO_BEN and LEFT are the numbers that the
+# statement shows, which solve gets as left and to_ben, and it tries every whole number from 0 to 1000
+# and keeps the one the steps of the story turn into what is left. The key has a formula, twice
+# left and to_ben, but the solver finds it as standalone's does, by search. The two trap values are
+# derived numbers: stopping before doubling, and forgetting the sweets given to Ben; the constraint
+# keeps them apart. The solver's result stands in the key, the solution and the leak phrase, and
+# nowhere that the learner sees before the task is solved. The solver carries this notice:
+#
+# MIT License
+#
+# Copyright (c) 2026 MathTrail
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+id: number-thought-of
+template:
+  parameters:
+    to_ben: {from: 2, to: 6}
+    left: {from: 2, to: 9}
+  derived:
+    before_ben: left + to_ben
+    forgot_ben: "2 * left"
+  constraint: left != to_ben
+  solver:
+    program: |
+      # For "I thought of a number": try every whole number and keep the ones the
+      # steps of the story turn into the result. Keep to whole numbers: where the
+      # story halves, check that the half is whole with % 2 == 0 and take it with //.
+
+      def fits(sweets, to_ben, left):
+          return sweets % 2 == 0 and sweets - sweets // 2 - to_ben == left
+
+      def solve(numbers):
+          fitting = [n for n in range(1001) if fits(n, numbers["to_ben"], numbers["left"])]
+          if len(fitting) != 1:
+              fail("%d whole numbers fit the story" % len(fitting))
+          return {"sweets": fitting[0]}
+    results: [sweets]
+statement:
+  - text: Masha had some sweets. She gave half of them to Ann, and then she gave {to_ben} sweets to Ben. Now she has {left} sweets. How many sweets did Masha have at first?
+givens:
+  - Masha gave half of her sweets to Ann.
+  - Then she gave {to_ben} sweets to Ben.
+  - Now she has {left} sweets.
+unknown: How many sweets Masha had at first.
+canvas:
+  kind: handwriting_sheet
+  grid: squares
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: number
+          key: "{sweets}"
+          units: [sweet, sweets]
+          trap_values:
+            - value: "{before_ben}"
+              trap: stopped-early
+              text: That is how many sweets Masha had after she gave half to Ann. How many did she have before that?
+            - value: "{forgot_ben}"
+              trap: ignored-condition
+              text: Masha gave some sweets to Ben too. Give them back to her before you undo the half.
+    simpler_case: Suppose Masha gave no sweets to Ben. How would you find how many she had at first?
+solution:
+  - text: Go backwards. Before Masha gave Ben his sweets, she had {left} + {to_ben} = {before_ben} sweets.
+  - text: That was the half she kept, so at first she had {before_ben} × 2 = {sweets} sweets.
+techniques: [backwards]
+traps: [number-from-text]
+leak_phrases: ["{sweets} sweets at first"]
+skills:
+  primary: [arithmetic-tricks]
+band: grades-1-2
+difficulty: 2

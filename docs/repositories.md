@@ -239,7 +239,7 @@ flowchart LR
 | Правило выбора задачи и коридор успеха (R23) | standalone: SPEC 3 | engine |
 | 17 тем и связи `builds_on`, 20 ловушек, 11 приёмов, 603 эталонные задачи с решателями | standalone: `content/`, `site/` | modules — модуль олимпиадной математики; ловушки и приёмы — уже примерами формата, `traps.yaml` и `techniques.yaml` (R57) |
 | Страницы тем сайта: суть темы, шаги приёма и примеры, разобранные до ответа, — ответ каждого доказывает решатель | standalone: `site/content/en/topics/`, `site/solvers/`, SPEC 8.12.2, R172 | modules — объяснения и примеры с разбором уроков модуля олимпиадной математики (R58) |
-| Проверка задачи решателем на Starlark | standalone: SPEC 6 | module-kit — решатель шаблона, который перебором считает ключ (concepts 9.3; RUN.md, T43), и вид проверки «условие»: выражение Starlark от целого `value` в самой проверке ячейки, с лимитом шагов в формате (R56) |
+| Проверка задачи решателем на Starlark | standalone: SPEC 6 | module-kit — решатель шаблона, который перебором считает ключ: диалект и бюджет шагов решателей standalone — в формате, а пример формата `number-thought-of-template` — решатель `content/solvers/arithmetic.tricks/number-thought-of.star` (concepts 9.3; R61). И вид проверки «условие»: выражение Starlark от целого `value` в самой проверке ячейки, с лимитом шагов в формате (R56) |
 | Каркас сервиса: конфигурация, журналы, ошибки, версия | canvas-api: `internal/`, в свою очередь из standalone (R11 canvas-api) | api, образец репозитория |
 | Devcontainer, justfile, CI, подписанные релизы, Terraform, self-hosting | canvas-api | все репозитории; общее — в .github и infra |
 | Замер чтения ИИ на образцах, журнал автора, eval | canvas-api: R60–R66 | tutor — eval-раннер; canvas — страница образцов |

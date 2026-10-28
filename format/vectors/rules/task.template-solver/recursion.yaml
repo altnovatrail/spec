@@ -1,0 +1,36 @@
+# The solver searches by a function that calls itself, which the dialect refuses when it does.
+id: recursion
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def search(numbers, factor):
+          if numbers["a"] * factor == numbers["product"]:
+              return factor
+          return search(numbers, factor + 1)
+
+      def solve(numbers):
+          return {"factor": search(numbers, 1)}
+    results: [factor]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{factor}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {factor} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2
