@@ -434,7 +434,11 @@ The kinds that give a verdict are `number`, `fraction`, `choice` and `predicate`
 - for a choice by tapping, the text of the option the learner tapped;
 - nothing, when nothing was read: the value is null.
 
-The reader gives the value as it is written: normalizing it is the check kind's, below, and is `module-kit`'s, not the reader's (R03). What else the reading says — that the writing is illegible or ambiguous, or that there is no final answer or more than one — makes the verdict `unreadable` before any check kind runs, and a failure of AI makes it `unchecked` (concepts 9.1). That is the observation's, which comes with the eval protocol; the test vectors of verdicts hold only the value.
+The reader gives the value as it is written: normalizing it is the check kind's, below, and is `module-kit`'s, not the reader's (R03). Two cases are read one way by every reader, so that the verdict does not depend on which reader read them (R56):
+- a fraction written with a bar, its numerator over its denominator, is given on one line, numerator first: `3/4`, the one notation of a fraction that the check kinds take;
+- a digit written mirrored is given as that digit: a mirrored `5` is `5`. A letter is given as what it reads as: a mirrored `b` is `d`.
+
+These rules are the reader's, not a module's: on the same value read, they change no verdict (section 2). What else the reading says — that the writing is illegible or ambiguous, or that there is no final answer or more than one — makes the verdict `unreadable` before any check kind runs, and a failure of AI makes it `unchecked` (concepts 9.1). That is the observation's, which comes with the eval protocol; the test vectors of verdicts hold only the value.
 
 **Verdicts.** The verdict of an answer slot is one of:
 - `correct` — the value is right;
