@@ -7,7 +7,8 @@ import { fileURLToPath } from "node:url";
 // The programs the tools run, by absolute path: no directory on PATH decides which program runs.
 // git is the one the devcontainers base image builds, which PATH finds first in the toolchain
 // image, or else the system's own, as a runner or a cloud session without the image has it; tar
-// is the system's, wherever its /usr is not merged with /.
+// is the system's, wherever its /usr is not merged with /. tools/gomod/main.go keeps the same
+// list for git, in Go: a change to one is a change to both.
 export const GIT = first(["/usr/local/bin/git", "/usr/bin/git", "/bin/git"]);
 export const TAR = first(["/usr/bin/tar", "/bin/tar"]);
 

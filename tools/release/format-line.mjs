@@ -56,11 +56,13 @@ export function checkFormatLine({ version, previous, formatNow, formatThen }) {
     throw new Error(`the format is ${formatNow}, and spec stays 0.x while the format is v0: ${version} is no release of it (R44)`);
   }
   if (formatNow === formatThen) return;
-  if (compareLines(line, previousLine) <= 0) {
-    throw new Error(`format/VERSION is ${formatNow}, and at ${previous} it was ${formatThen}: a new version of the format starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change (R44)`);
-  }
+  // A version that went back is refused first, whatever the line: a raised line would not let
+  // it pass.
   if (now[0] < then[0] || (now[0] === then[0] && now[1] < then[1])) {
     throw new Error(`format/VERSION is ${formatNow}, below ${formatThen} at ${previous}: a version of the format never goes back, and undoing a change is a new version too (R44)`);
+  }
+  if (compareLines(line, previousLine) <= 0) {
+    throw new Error(`format/VERSION is ${formatNow}, and at ${previous} it was ${formatThen}: a new version of the format starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change (R44)`);
   }
   if (now[0] !== then[0] && Number(line.split(".")[0]) <= Number(previousLine.split(".")[0])) {
     throw new Error(`the format goes from ${formatThen} to ${formatNow}, a new major version, and ${version} keeps spec's major version: a major version of the format raises spec's (R44)`);

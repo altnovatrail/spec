@@ -44,6 +44,22 @@ var carried = []string{"LICENSE", "format"}
 
 var lineForm = regexp.MustCompile(`^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$`)
 
+// The git the tool runs, by absolute path, as tools/shared.mjs has it: no directory on PATH
+// decides which program runs. The base image's git first, or else the system's own. The zip
+// itself golang.org/x/mod/zip builds with the git on PATH, as the go command does.
+var gitProgram = first("/usr/local/bin/git", "/usr/bin/git", "/bin/git")
+
+// first is the first of the paths that exists, or the first of them, which then fails by its
+// own name.
+func first(paths ...string) string {
+	for _, path := range paths {
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+	return paths[0]
+}
+
 func main() {
 	if len(os.Args) != 4 {
 		fmt.Fprintln(os.Stderr, "usage: go -C tools/gomod run . <repository root> <revision> <line>")
@@ -199,7 +215,7 @@ func nextBlob(batch *bufio.Reader, object string) ([]byte, error) {
 
 // git runs git in the repository, with stdin when given, and returns what it wrote.
 func git(root string, stdin io.Reader, args ...string) ([]byte, error) {
-	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+	cmd := exec.Command(gitProgram, append([]string{"-C", root}, args...)...)
 	cmd.Stdin = stdin
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

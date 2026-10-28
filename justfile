@@ -184,8 +184,9 @@ release-files commit dir:
         if [ -z "$name" ]; then continue; fi
         folder="${name%.tar.gz}"
         git archive --format=tar.gz --prefix="${folder}/" -o "${dir}/${name}" "$commit" LICENSE "$part"
-        held=$(tar -tzf "${dir}/${name}" | grep -v '/$' | sort)
-        wanted=$(git ls-tree -r --name-only "$commit" LICENSE "$part" | sed "s|^|${folder}/|" | sort)
+        # Both lists name each file as it is: tar never escapes, and git, with -z, never quotes.
+        held=$(tar --quoting-style=literal -tzf "${dir}/${name}" | grep -v '/$' | sort)
+        wanted=$(git ls-tree -r -z --name-only "$commit" LICENSE "$part" | tr '\0' '\n' | sed "s|^|${folder}/|" | sort)
         if [ "$held" != "$wanted" ]; then
             echo "release-files: ${name} does not hold LICENSE and the files of ${part}/ at ${commit}, and only them" >&2
             diff <(echo "$wanted") <(echo "$held") >&2 || true

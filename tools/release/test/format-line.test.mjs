@@ -29,6 +29,8 @@ test("another version of the format needs a raised line", () => {
 test("the version of the format never goes back", () => {
   assert.throws(check("v0.4.0", "v0.3.4", "0.1", "0.2"), /below 0\.2 at v0\.3\.4: a version of the format never goes back/);
   assert.throws(check("v2.0.0", "v1.4.0", "1.0", "1.3"), /never goes back/);
+  // In the same line too: raising it would not help, and the refusal says so at once.
+  assert.throws(check("v0.4.5", "v0.4.4", "0.1", "0.2"), /never goes back/);
 });
 
 test("a new major version of the format raises spec's major version, and spec stays 0.x while the format is v0", () => {

@@ -108,6 +108,24 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
   }
 });
 
+// git quotes a name that is not plain ASCII, or holds a quote or a backslash, and tar lists it
+// as it is: the two lists are held name for name, whatever the names.
+test("release-files holds names that git would quote", () => {
+  const { dir, git } = copy("0.3");
+  try {
+    writeFile(dir, git, "format/media/ёлка.png", "not a picture\n");
+    writeFile(dir, git, 'format/notes/a "quoted" \\ name.txt', "odd\n");
+    git("commit", "--quiet", "-m", "odd names");
+    const built = recipe(dir, { name: "release-files", args: ["HEAD", "dist"] });
+    assert.equal(built.status, 0, built.stderr);
+    assert.match(built.stdout, /format-0\.1\.tar\.gz, 6 files of/);
+    const listed = listing(path.join(dir, "dist", "format-0.1.tar.gz"));
+    assert.ok(listed.includes("format-0.1/format/media/ёлка.png"), listed.join("\n"));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("a commit of a line before 0.3 gets an empty folder, with or without format/VERSION", () => {
   const { dir, git } = copy("0.2");
   try {

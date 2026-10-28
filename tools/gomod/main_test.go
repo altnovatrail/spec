@@ -112,6 +112,31 @@ func TestBadArgumentsAreRefused(t *testing.T) {
 	}
 }
 
+// git runs by an absolute path, never by a search of PATH: the first that exists, or else the
+// first named, which then fails by its own name.
+func TestGitRunsByAbsolutePath(t *testing.T) {
+	if !filepath.IsAbs(gitProgram) {
+		t.Fatalf("git runs as %q", gitProgram)
+	}
+	dir := t.TempDir()
+	missing, present := filepath.Join(dir, "missing"), filepath.Join(dir, "present")
+	write(t, dir, "present", "")
+	if got := first(missing, present); got != present {
+		t.Errorf("an existing path: %q", got)
+	}
+	if got := first(missing, filepath.Join(dir, "also-missing")); got != missing {
+		t.Errorf("none exists: %q", got)
+	}
+
+	// Every git the tool runs is gitProgram: with it pointing nowhere, git fails by that name.
+	saved := gitProgram
+	t.Cleanup(func() { gitProgram = saved })
+	gitProgram = missing
+	if _, err := git(dir, nil, "--version"); err == nil || !strings.Contains(err.Error(), missing) {
+		t.Errorf("git ran without gitProgram: %v", err)
+	}
+}
+
 func TestNoLicenseIsFound(t *testing.T) {
 	root := scratch(t, v0)
 	run(t, root, "git", "rm", "--quiet", "LICENSE")

@@ -177,7 +177,9 @@ jobs:
               echo "::error::release-files left no folder dist/, or dist/ is a link."
               exit 1
           fi
-          if find "$dist" -mindepth 1 ! -type f | grep -q .; then
+          # find stops at the first, rather than feed grep -q, which would close the pipe early:
+          # find then dies of SIGPIPE, and with pipefail a failed pipe lets everything pass.
+          if [ -n "$(find "$dist" -mindepth 1 ! -type f -print -quit)" ]; then
               echo "::error::dist/ holds something besides files: a release takes files alone."
               exit 1
           fi
