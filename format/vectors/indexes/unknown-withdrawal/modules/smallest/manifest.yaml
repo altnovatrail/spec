@@ -1,0 +1,13 @@
+# The smallest module: a folder that holds its manifest and nothing else.
+module_format_version: "0.1"
+id: example/smallest
+version: "0.1.0"
+title: The smallest module
+subject: mathematics
+audience:
+  age_categories: [adult]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

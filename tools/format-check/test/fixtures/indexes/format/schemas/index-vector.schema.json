@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/format/0.1/index-vector.schema.json",
+  "title": "Index vector",
+  "description": "A release of trial modules.",
+  "type": "object",
+  "properties": {
+    "previous": {
+      "$ref": "module-index.schema.json",
+      "unevaluatedProperties": false,
+      "description": "The previous index."
+    },
+    "release": {
+      "$ref": "module-index.schema.json#/$defs/release",
+      "description": "The release."
+    },
+    "withdrawals": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {
+          "$ref": "module-index.schema.json#/$defs/withdrawal_reason",
+          "description": "A reason."
+        },
+        "description": "The versions withdrawn."
+      },
+      "description": "The withdrawals."
+    },
+    "index": {
+      "$ref": "module-index.schema.json",
+      "unevaluatedProperties": false,
+      "description": "The index."
+    },
+    "refusal": {
+      "enum": [
+        "module-index.entries-kept",
+        "module-index.one-package",
+        "module-index.known-withdrawals"
+      ],
+      "description": "The rule that refuses the build."
+    }
+  },
+  "required": [
+    "release"
+  ],
+  "if": {
+    "required": [
+      "refusal"
+    ]
+  },
+  "then": {
+    "not": {
+      "required": [
+        "index"
+      ]
+    }
+  },
+  "else": {
+    "required": [
+      "index"
+    ]
+  },
+  "unevaluatedProperties": false
+}

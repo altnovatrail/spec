@@ -1,0 +1,11 @@
+# The smallest trial module 0.1.0, which the previous index names by another package.
+previous:
+  module_format_version: "0.1"
+  modules:
+    trial/smallest:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+        release: v0.1.0
+release: v0.2.0
+refusal: module-index.one-package

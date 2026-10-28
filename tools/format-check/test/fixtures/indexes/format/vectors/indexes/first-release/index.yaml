@@ -1,0 +1,10 @@
+# The first release of the smallest trial module.
+release: v0.1.0
+index:
+  module_format_version: "0.1"
+  modules:
+    trial/smallest:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:ed03ae1351e9201bee973e7143609b16cd372cd3f56f4bd471ae727839849ab2
+        release: v0.1.0

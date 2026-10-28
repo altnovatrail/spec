@@ -1,0 +1,20 @@
+# A release that withdraws the smallest module 0.2.0, which no release has published.
+previous:
+  module_format_version: "0.1"
+  modules:
+    example/smallest:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:df4dc2db21f26c231b0b0136b478d5dd2707c962c4432e0144649593e2fdfeb9
+        release: v0.1.0
+    example/times-tables:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:a7bc39696bebabbd8bdad1529282b42f8ef0edea09c5b90e9106fb6f051e3fb9
+        release: v0.1.0
+        teaches: [core.division-with-remainder, core.multiplication-table]
+release: v0.2.0
+withdrawals:
+  example/smallest:
+    "0.2.0": answer_leak
+refusal: module-index.known-withdrawals

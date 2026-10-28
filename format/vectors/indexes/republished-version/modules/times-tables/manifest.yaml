@@ -1,0 +1,15 @@
+# The times tables again under version 0.1.0, which a release has published already, with a skill
+# renamed: another package of a version that has one.
+module_format_version: "0.1"
+id: example/times-tables
+version: "0.1.0"
+title: Times tables
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

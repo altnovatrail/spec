@@ -97,7 +97,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 19, rules: 18, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0 });
+    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 19, rules: 18, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0, indexes: 0 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -1019,19 +1019,22 @@ const packages = path.join(here, "fixtures", "packages");
 const PACKAGE = "format/vectors/packages/smallest";
 const TIERS = "format/vectors/tiers/chain.yaml";
 
-// The edits that write fixtures/packages into a trial copy.
-function packageFixture() {
+// The edits that write a fixture's format/ into a trial copy.
+function fixtureEdits(fixture) {
   const edits = [];
   const walk = (dir) => {
-    for (const entry of fs.readdirSync(path.join(packages, dir), { withFileTypes: true })) {
+    for (const entry of fs.readdirSync(path.join(fixture, dir), { withFileTypes: true })) {
       const file = path.posix.join(dir, entry.name);
       if (entry.isDirectory()) walk(file);
-      else edits.push([file, null, fs.readFileSync(path.join(packages, file), "utf8")]);
+      else edits.push([file, null, fs.readFileSync(path.join(fixture, file), "utf8")]);
     }
   };
   walk("format");
   return edits;
 }
+
+// The edits that write fixtures/packages into a trial copy.
+const packageFixture = () => fixtureEdits(packages);
 
 test("the fixture of packages is green: its examples build canonical views, and its vectors hold", () => {
   const root = trialCopy(packageFixture());
@@ -1095,15 +1098,22 @@ test("LICENSE is in every module and not empty, and LICENSE and NOTICE are plain
 // whose canonical view cannot be built.
 
 function realErrorsOf(edits) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "format-check-real-"));
-  try {
-    fs.cpSync(path.join(spec, "format"), path.join(root, "format"), { recursive: true });
+  return realErrorsWith((root) => {
     for (const [file, from, to] of edits) {
       const target = path.join(root, file);
       const text = fs.readFileSync(target, "utf8");
       assert.ok(text.includes(from), `${file} has no "${from}"`);
       fs.writeFileSync(target, text.replace(from, () => to));
     }
+  });
+}
+
+// The errors of spec's real format/ in a copy, after change(root).
+function realErrorsWith(change) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "format-check-real-"));
+  try {
+    fs.cpSync(path.join(spec, "format"), path.join(root, "format"), { recursive: true });
+    change(root);
     return checkFormat(root).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -1135,4 +1145,90 @@ test("an example whose skills need each other in a cycle builds no canonical vie
   const [, first] = text.match(/^  ([a-z-]+):$/m);
   const errors = realErrorsOf([[graph, `  ${first}:\n`, `  ${first}:\n    prerequisites: [${first}]\n`]]);
   assert.deepEqual(errors, [`format/examples/module/valid/with-skill-graph:0: its canonical view cannot be built: the prerequisites of ${first} run in a cycle: its tier is no number`]);
+});
+
+// The vectors of the module index (sections 9 and 26; RUN.md, T44): fixtures/indexes adds to the
+// fixture of packages the schemas of the module index and of its vectors, an example of the index, a
+// vector of a first release and a refusal by each rule of the index, and the text lists those rules.
+
+const indexes = path.join(here, "fixtures", "indexes");
+const FIRST = "format/vectors/indexes/first-release";
+const INDEX_ROWS = [
+  "| `module-index.entries-kept` | Every entry of the previous index MUST stand in the new one as it was. |\n",
+  "| `module-index.one-package` | A version of a module MUST have one package. |\n",
+  "| `module-index.known-withdrawals` | A withdrawal MUST name a version that the new index names. |\n",
+];
+
+// The edits that write fixtures/indexes into a trial copy, over the fixture of packages, and the
+// rules of the index into its text.
+function indexFixture() {
+  const section = `## 26. The module index\n\n| ID | Rule |\n|---|---|\n${INDEX_ROWS.join("")}\n## 11. The manifest`;
+  return [...packageFixture(), ["format/README.md", "## 11. The manifest", section], ...fixtureEdits(indexes)];
+}
+
+const firstEdit = (from, to) => [`${FIRST}/index.yaml`, from, to];
+
+test("the fixture of the module index is green: its example holds, and its vectors build or refuse", () => {
+  const root = trialCopy(indexFixture());
+  try {
+    const { errors, stats } = checkFormat(root);
+    assert.deepEqual(errors, []);
+    assert.deepEqual([stats.schemas, stats.rules, stats.indexes], [14, 18, 4]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a vector of the module index gives the index that section 26 builds of its release", () => {
+  expectOnly([...indexFixture(), firstEdit("        release: v0.1.0", "        release: v0.2.0")], /first-release\/index\.yaml:0: index is not the index that the release builds: they differ at #\/index\/modules\/trial~1smallest\/0\.1\.0\/release/);
+  expectOnly([...indexFixture(), firstEdit("release: v0.1.0\nindex", "release: 1\nindex")], /first-release\/index\.yaml:0: does not pass the schema of index vectors: type at #\/release/);
+  expectOnly([...indexFixture(), firstEdit('  module_format_version: "0.1"\n  modules', '  module_format_version: "0.2"\n  modules')], /first-release\/index\.yaml:0: index: the index names the format version 0\.2: it names 0\.1/);
+  const republished = "format/vectors/indexes/republished/index.yaml";
+  expectOnly([...indexFixture(), [republished, 'previous:\n  module_format_version: "0.1"', 'previous:\n  module_format_version: "0.2"']], /republished\/index\.yaml:0: previous: the index names the format version 0\.2, newer than 0\.1, which format\/VERSION has/);
+  assert.deepEqual(errorsOf([...indexFixture(), [republished, 'previous:\n  module_format_version: "0.1"', 'previous:\n  module_format_version: "0.0"']]), []);
+  expectOnly([...indexFixture(), firstEdit("index:\n", 'withdrawals:\n  trial/smallest:\n    "0.2.0": answer_leak\nindex:\n')], /first-release\/index\.yaml:0: the build is refused, and the case names no refusal: module-index\.known-withdrawals: the release withdraws trial\/smallest 0\.2\.0, which the index does not name/);
+});
+
+test("a refusal among the vectors of the index breaks its rule and no other", () => {
+  const republished = "format/vectors/indexes/republished/index.yaml";
+  expectOnly([...indexFixture(), [republished, `sha256:${"0".repeat(64)}`, "sha256:ed03ae1351e9201bee973e7143609b16cd372cd3f56f4bd471ae727839849ab2"]], /republished\/index\.yaml:0: the build breaks no module-index\.one-package/);
+  const another = "format/vectors/indexes/another-reason/index.yaml";
+  expectOnly([...indexFixture(), [another, '"0.1.0": answer_leak\n', '"0.1.0": answer_leak\n    "0.3.0": wrong_key\n']], /another-reason\/index\.yaml:0: breaks module-index\.known-withdrawals too: the release withdraws trial\/smallest 0\.3\.0/);
+});
+
+test("each rule of the index has a refusal among its vectors, and none in vectors/rules/", () => {
+  expectOnly([...indexFixture(), ["format/vectors/indexes/republished", "", null]], /^format\/README\.md:\d+: module-index\.one-package has no refusal among the vectors of the module index in format\/vectors\/indexes\//);
+  expectOnly([...indexFixture(), ["format/vectors/rules/module-index.one-package/case.yaml", null, "a: 1\n"]], /module-index\.one-package:0: a rule of the module index refuses to build an index: its vectors are refusals among the vectors of the index, in vectors\/indexes\//);
+  // A format with a schema of the module index lists its rules; one without lists none (the base fixture).
+  expectEach([...indexFixture(), ["format/README.md", INDEX_ROWS.join(""), ""]], [/README\.md:0: format-check checks module-index\.entries-kept, and the text does not list it/, /README\.md:0: format-check checks module-index\.one-package, and the text does not list it/, /README\.md:0: format-check checks module-index\.known-withdrawals, and the text does not list it/, /index\.yaml:0: format\/README\.md lists no rule module-index\./]);
+  expectEach([...indexFixture(), ["format/README.md", INDEX_ROWS[1], ""]], [/^format\/README\.md:0: format-check checks module-index\.one-package, and the text does not list it/, /republished\/index\.yaml:0: format\/README\.md lists no rule module-index\.one-package/]);
+  expectEach([...indexFixture(), ["format/README.md", INDEX_ROWS[2], `${INDEX_ROWS[2]}| \`module-index.other\` | Another rule. |\n`]], [/README\.md:\d+: format-check does not check module-index\.other: tools\/format-check\/index\.mjs has to/, /README\.md:\d+: module-index\.other has no refusal among the vectors of the module index/]);
+});
+
+test("a vector of the module index is a folder of modules/ and index.yaml, and its modules are held as examples", () => {
+  expectOnly([...indexFixture(), [`${FIRST}/notes.txt`, null, "Notes.\n"]], /indexes\/first-release:0: a vector of the module index holds the folder modules\/ and index\.yaml, and nothing else/);
+  expectOnly([...indexFixture(), ["format/vectors/indexes/a-file.yaml", null, "a: 1\n"]], /indexes\/a-file\.yaml:0: a vector of the module index is a folder <case>\//);
+  expectOnly([...indexFixture(), [`${FIRST}/modules/notes.txt`, null, "Notes.\n"]], /first-release\/modules\/notes\.txt:0: modules\/ holds a folder <name>\/ for each module of the release, its name in kebab-case, laid out as a module, and nothing else/);
+  expectOnly([...indexFixture(), [`${FIRST}/modules/Smallest/manifest.yaml`, null, "a: 1\n"]], /first-release\/modules\/Smallest:0: modules\/ holds a folder <name>\/ for each module of the release, its name in kebab-case/);
+  expectOnly([...indexFixture(), [`${FIRST}/modules/smallest/LICENSE`, "", null]], /first-release\/modules\/smallest:0: module\.license: the folder holds no LICENSE/);
+  expectOnly([...indexFixture(), [`${FIRST}/modules/smallest/manifest.yaml`, "id: trial/smallest\n", ""]], /first-release\/modules\/smallest:0: the manifest names no id, which the inventory names/);
+  expectOnly([...indexFixture(), ["format/schemas/index-vector.schema.json", "", null]], /^format\/vectors\/indexes:0: no schema index-vector\.schema\.json for the vectors of the module index/);
+  expectEach([...indexFixture(), ["format/README.md", "| `sample.yaml` | `sample` |", "| `sample.yaml` | `Sample` |"]], [/README\.md:\d+: "Sample": a part is a term in kebab-case/, /README\.md:0: the cases laid out as a module go unchecked until the layout of a module is fixed/]);
+});
+
+test("a valid example of the module index names the format version in VERSION and lists teaches in order", () => {
+  const example = "format/examples/module-index/valid/one.yaml";
+  expectOnly([...indexFixture(), [example, "[core.reading, core.writing]", "[core.writing, core.reading]"]], /one\.yaml:0: the teaches of trial\/smallest 0\.1\.0 are not in the order of code units: core\.reading, core\.writing/);
+  expectOnly([...indexFixture(), [example, 'module_format_version: "0.1"\nmodules', 'module_format_version: "0.2"\nmodules']], /one\.yaml:0: the index names the format version 0\.2: it names 0\.1, as format\/VERSION has it/);
+});
+
+// spec's real format/, in a copy: the anchor skills of an entry, and a module with a solver in a
+// vector of the index.
+
+test("an entry of the index lists the anchor skills that its version teaches, and a module with a solver is no module of a release", () => {
+  const first = "format/vectors/indexes/first-release/index.yaml";
+  const taught = "teaches: [core.division-with-remainder, core.multiplication-table]";
+  assert.deepEqual(realErrorsOf([[first, taught, "teaches: [core.multiplication-table]"]]), [`${first}:0: index is not the index that the release builds: they differ at #/index/modules/example~1times-tables/0.1.0/teaches`]);
+  const solver = realErrorsWith((root) => fs.cpSync(path.join(root, "format/vectors/packages/with-solver/module"), path.join(root, "format/vectors/indexes/first-release/modules/with-solver"), { recursive: true }));
+  assert.deepEqual(solver, ["format/vectors/indexes/first-release/modules/with-solver:0: the template number-thought-of has a solver: spec runs none, so a module of a vector of the index has no solver"]);
 });
