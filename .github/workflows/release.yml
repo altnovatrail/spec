@@ -17,6 +17,19 @@
 # attestation of its tag, its commit and its files, which `gh release verify` and
 # `gh release verify-asset` check. A release of an earlier line carries no files.
 #
+# The release also publishes that npm package to npm, the same file, once the release is out and
+# verified (R37, R73). npm takes it by trusted publishing, with no token kept anywhere: the
+# registry trusts this workflow by its file name, as the package's trusted publisher names it —
+# the repository altnovatrail/spec, release.yml, no environment, npm publish allowed — and npm
+# trades the job's OIDC token for a short-lived one and makes the version's provenance itself.
+# The steps are those of the shared release of .github at v0.1.10, which spec cannot call, since
+# it runs spec's recipes from a spec submodule (architecture 3.11). A version npm holds already is
+# not published again, and one below the highest goes out with the tag previous. A commit that is
+# no longer the tip is published too: its provenance, like the certificate of its files, names
+# the commit of the run, main's tip, and its release's attestation names its own. The first
+# version, 0.4.0, was published by hand, as a trusted publisher is set on a package the registry
+# has.
+#
 # The button releases the tip of main when it has no release yet — after a release run that
 # failed, say. It works on main alone, and only once CI has passed on that commit.
 
@@ -56,9 +69,9 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-24.04
-    # The image is built twice over, and the Go module proxy is given five minutes to serve the
-    # release's version.
-    timeout-minutes: 25
+    # The image is built twice over, the Go module proxy is given five minutes to serve the
+    # release's version, and the npm registry five to show the package's.
+    timeout-minutes: 35
     # With pipefail: a runner's default, bash -e, lets a failed command inside a pipe pass.
     defaults:
       run:
@@ -72,7 +85,8 @@ jobs:
       # Reading whether CI passed on the commit the button would release.
       actions: read
       # Signing the release's files: cosign trades the job's OIDC token for a certificate that
-      # names this workflow (R64).
+      # names this workflow (R64). npm trades it for a token that may publish the npm package
+      # (R37).
       id-token: write
     steps:
       # Asked before anything of the repository is fetched: a run on another branch publishes
@@ -164,7 +178,8 @@ jobs:
       # here on the runner, as the shared release of .github checks its callers' files: plain
       # files, named as release-files names them, none a bundle. A run again of a commit released
       # already builds them too, to know which files its release has to hold. The npm package is
-      # of the release's version, which the recipe takes with the commit.
+      # of the release's version, which the recipe takes with the commit; its name is the step's
+      # output npm, empty when the files hold none, and the steps of npm below run on it alone.
       - id: files
         name: Build the files
         if: steps.version.outputs.version != '' || steps.version.outputs.released != ''
@@ -188,11 +203,13 @@ jobs:
               exit 1
           fi
           count=0
+          npm=""
           for path in "$dist"/*; do
               if [ ! -e "$path" ]; then continue; fi
               name="${path##*/}"
-              if ! [[ "$name" =~ ^[a-z][a-z-]*-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.tar\.gz$ ]] &&
-                  [ "$name" != "altnovatrail-spec-${VERSION#v}.tgz" ]; then
+              if [ "$name" = "altnovatrail-spec-${VERSION#v}.tgz" ]; then
+                  npm="$name"
+              elif ! [[ "$name" =~ ^[a-z][a-z-]*-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.tar\.gz$ ]]; then
                   echo "::error::A file of dist/ is named ${name}, neither <part>-<MAJOR.MINOR>.tar.gz nor altnovatrail-spec-${VERSION#v}.tgz as release-files names its files."
                   exit 1
               fi
@@ -200,17 +217,18 @@ jobs:
           done
           mv "$dist" "$RUNNER_TEMP/dist"
           ls -l "$RUNNER_TEMP/dist"
-          echo "count=${count}" >> "$GITHUB_OUTPUT"
+          {
+              echo "count=${count}"
+              echo "npm=${npm}"
+          } >> "$GITHUB_OUTPUT"
 
       # cosign at an exact version, checked against the sum in cosign_checksums.txt of its
-      # release, the version and sum of the shared release of .github (R08 .github). Every file
-      # gets its bundle, the signature and the certificate that names the workflow that made it,
-      # and every bundle is checked before anything is published: the identity is this workflow
-      # at main, issued to GitHub Actions, in this repository, in a run of main's tip, the commit
-      # the workflow file is read from on workflow_run. The step runs on the runner alone, with no
-      # container: the job's OIDC token never goes into one.
-      - name: Sign the files
-        if: steps.version.outputs.version != '' && steps.files.outputs.count != '0'
+      # release, the version and sum of the shared release of .github (R08 .github). Signing needs
+      # it, and so does a run again that takes the npm package from its release to publish it.
+      - name: cosign
+        if: >-
+          (steps.version.outputs.version != '' && steps.files.outputs.count != '0') ||
+          (steps.version.outputs.released != '' && steps.files.outputs.npm != '')
         env:
           COSIGN_VERSION: "3.1.4"
           COSIGN_SHA256: 424e2c97d0b45fd7a6b608a87f090f35633f4c23ece5f092d48bba11aaf4bbfa
@@ -221,6 +239,222 @@ jobs:
               "https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64"
           echo "${COSIGN_SHA256}  ${cosign}" | sha256sum --check --strict
           chmod +x "$cosign"
+
+      # Node at an exact version, with the npm it ships, checked against the sum in SHASUMS256.txt
+      # of its release, as cosign is: 24.22.1 with npm 11.19.1, the version and sum of the shared
+      # release of .github (R08 .github), rather than the Node of the toolchain stage, which comes
+      # before Node's security release of 2026-10-20 (RUN.md, T51). Trusted publishing takes npm
+      # 11.5.1 and Node 22.14.0 or newer (R37). npm runs on the runner, not in the toolchain
+      # stage: the job's OIDC token never goes into a container.
+      #
+      # npm-isolated, which the check and the publish below both run, is npm kept from every
+      # setting this workflow did not choose: from an empty folder, so no package.json or .npmrc
+      # of a project is read; with no user or global config and no npm_config_ variables,
+      # NODE_OPTIONS or NPM_ID_TOKEN; with the registry named on its command line, which no
+      # publishConfig overrides; and with no scripts. That guards against stray settings, not
+      # against code that ran on the runner before (В23 .github). The containers that run after
+      # this step — release-refusal's after a refusal, and the check of the Go module — see
+      # RUNNER_TEMP read-only outside the folder each mounts, so nothing but this workflow writes
+      # the script.
+      - name: Node and npm
+        if: steps.files.outputs.npm != ''
+        env:
+          NODE_VERSION: "24.22.1"
+          NODE_SHA256: 6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6
+        run: |
+          archive="$RUNNER_TEMP/node.tar.xz"
+          curl -fsSL --proto "=https" --proto-redir "=https" --retry 3 --retry-all-errors \
+              -o "$archive" \
+              "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz"
+          echo "${NODE_SHA256}  ${archive}" | sha256sum --check --strict
+          mkdir "$RUNNER_TEMP/node"
+          tar -C "$RUNNER_TEMP/node" --strip-components=1 -xJf "$archive"
+          "$RUNNER_TEMP/node/bin/node" --version
+          jq -r '"npm " + .version' "$RUNNER_TEMP/node/lib/node_modules/npm/package.json"
+          cat > "$RUNNER_TEMP/npm-isolated" <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          unset NODE_OPTIONS NPM_ID_TOKEN
+          for variable in $(compgen -e); do
+              case "${variable,,}" in npm_config_*) unset "$variable" ;; esac
+          done
+          work="$RUNNER_TEMP/npm"
+          mkdir -p "$work"
+          cd "$work"
+          exec "$RUNNER_TEMP/node/bin/node" "$RUNNER_TEMP/node/lib/node_modules/npm/bin/npm-cli.js" "$@" \
+              --prefix "$work" --userconfig "$work/no-userconfig" --globalconfig "$work/no-globalconfig" \
+              --cache "$RUNNER_TEMP/npm-cache" --registry=https://registry.npmjs.org/ \
+              --@altnovatrail:registry=https://registry.npmjs.org/ --ignore-scripts
+          EOF
+          chmod +x "$RUNNER_TEMP/npm-isolated"
+
+      # A run again of a commit released already publishes the archive its release holds, not the
+      # one built anew above. It downloads that file with its bundle into a folder of its own, and
+      # checks both before npm sees them: the release's attestation, which ties the file to the
+      # release and its commit, and the signature of this workflow at main, in this repository.
+      # The commit of the run that signed is left open: it was main's tip when that run began,
+      # and a run of the same commit started anew — CI run again on it, say — is a run of a
+      # later tip. Only this step has the token, and npm, which reads an archive the toolchain
+      # stage built, never sees it.
+      - name: The npm package of the release
+        if: steps.version.outputs.released != '' && steps.files.outputs.npm != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASED: ${{ steps.version.outputs.released }}
+          FILE: ${{ steps.files.outputs.npm }}
+        run: |
+          folder="$RUNNER_TEMP/npm-release"
+          mkdir "$folder"
+          gh release download "$RELEASED" --repo "$GITHUB_REPOSITORY" --dir "$folder" \
+              --pattern "$FILE" --pattern "${FILE}.sigstore.json" || true
+          if [ ! -f "$folder/$FILE" ] || [ ! -f "$folder/${FILE}.sigstore.json" ]; then
+              echo "::error::${RELEASED} holds no ${FILE} with its bundle ${FILE}.sigstore.json to publish to npm."
+              exit 1
+          fi
+          gh release verify-asset "$RELEASED" "$folder/$FILE" --repo "$GITHUB_REPOSITORY"
+          "$RUNNER_TEMP/cosign" verify-blob --bundle "$folder/${FILE}.sigstore.json" \
+              --certificate-identity "https://github.com/${GITHUB_WORKFLOW_REF}" \
+              --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+              --certificate-github-workflow-repository "$GITHUB_REPOSITORY" \
+              "$folder/$FILE"
+
+      # The archive npm would publish, checked before the GitHub release exists, which is
+      # immutable, so that a package that fails here leaves no release behind:
+      # - every entry lies under package/, with one package/package.json, whose name is
+      #   @altnovatrail/spec and version the release's number without v;
+      # - it is not private, and has no publishConfig and no tag of its own, which would change
+      #   where and how npm publishes it;
+      # - its repository is an object whose url is this repository, as the registry asks of a
+      #   package with provenance.
+      # The registry is read by its packument, with write=true, as npm reads one before it writes:
+      # so the registry's CDN serves no copy cached for minutes. A package it lacks stops the run:
+      # its first version was published by hand, and a trusted publisher is set on it. A version
+      # it holds with this archive's integrity is published already. With another, or a version
+      # it held once and that was unpublished, which its time still lists, the number is gone:
+      # "Once package@version has been used, you can never use it again" (npm/documentation,
+      # content/policies/unpublish.mdx, read 2026-10-29). Before the release that stops every
+      # release of the line, which would take the same number again, until RELEASE_LINE is raised;
+      # after it, the next release has a new number. A version below the highest one npm holds
+      # goes out with the tag previous, since npm 11 refuses to put it under latest by default
+      # (npm/cli v11.19.1, lib/commands/publish.js, read 2026-10-29), and latest is never named;
+      # the highest is of the versions MAJOR.MINOR.PATCH, not deprecated, as npm counts it there,
+      # so the placeholder 0.0.0-stage the registry made with the package counts for nothing.
+      # Then npm's own dry run, npm-isolated, reads the archive, and has to read the same file and
+      # integrity. The check's own files lie apart from the empty folder npm runs in.
+      # This step has no token and no OIDC variables, so the dry run, which tries npm's token
+      # exchange too, gets nothing to exchange: npm gets a token in the last step alone.
+      - id: npm
+        name: Check the npm package
+        if: steps.files.outputs.npm != ''
+        env:
+          NPM_PACKAGE: "@altnovatrail/spec"
+          VERSION: ${{ steps.version.outputs.version || steps.version.outputs.released }}
+          RELEASED: ${{ steps.version.outputs.released }}
+          FILE: ${{ steps.files.outputs.npm }}
+        run: |
+          unset ACTIONS_ID_TOKEN_REQUEST_URL ACTIONS_ID_TOKEN_REQUEST_TOKEN
+          files="$RUNNER_TEMP/npm-files"
+          mkdir -p "$files"
+          version="${VERSION#v}"
+          file="$RUNNER_TEMP/dist/${FILE}"
+          if [ -n "$RELEASED" ]; then file="$RUNNER_TEMP/npm-release/${FILE}"; fi
+          if [ -L "$file" ] || [ ! -f "$file" ]; then
+              echo "::error::There is no ${file}, the archive npm pack makes of ${NPM_PACKAGE} ${version}."
+              exit 1
+          fi
+          entries=$(tar -tzf "$file")
+          if grep -qv '^package/' <<< "$entries" || [ "$(grep -cx 'package/package.json' <<< "$entries")" != 1 ]; then
+              echo "::error::${file##*/} is no archive npm pack makes: every entry lies under package/, with one package/package.json."
+              exit 1
+          fi
+          manifest="$files/package.json"
+          tar -xzOf "$file" package/package.json > "$manifest"
+          if ! jq -e 'type == "object"' "$manifest" > /dev/null; then
+              echo "::error::The package.json of ${file##*/} is no JSON object."
+              exit 1
+          fi
+          if [ "$(jq -r '.name' "$manifest")" != "$NPM_PACKAGE" ] || [ "$(jq -r '.version' "$manifest")" != "$version" ]; then
+              echo "::error::${file##*/} holds $(jq -r '"\(.name)@\(.version)"' "$manifest"), not ${NPM_PACKAGE}@${version}: the release's number, without v, is the package's version."
+              exit 1
+          fi
+          if jq -e '.private == true or has("publishConfig") or has("tag")' "$manifest" > /dev/null; then
+              echo "::error::The package.json of ${file##*/} is private, or has a publishConfig or a tag of its own, which would change how npm publishes it."
+              exit 1
+          fi
+          url=$(jq -r 'if (.repository | type) == "object" then .repository.url // "" else "" end' "$manifest")
+          url="${url#git+}"
+          url="${url%.git}"
+          if [ "$url" != "https://github.com/${GITHUB_REPOSITORY}" ]; then
+              echo "::error::The package.json of ${file##*/} names its repository as \"${url}\", not as an object whose url is git+https://github.com/${GITHUB_REPOSITORY}.git: the registry refuses provenance from another repository."
+              exit 1
+          fi
+          integrity="sha512-$(openssl dgst -sha512 -binary "$file" | base64 -w0)"
+          packument="$files/packument.json"
+          code=$(curl -sS --proto "=https" --retry 3 -o "$packument" -w '%{http_code}' \
+              "https://registry.npmjs.org/${NPM_PACKAGE/\//%2f}?write=true")
+          tag=""
+          if [ -n "$RELEASED" ]; then
+              gone="The next release, with a new number, publishes the package."
+          else
+              gone="No release has that number yet, and every release of the line would take it again: raise RELEASE_LINE, so that the next release gets a number npm has never held."
+          fi
+          case "$code" in
+              404)
+                  echo "::error::${NPM_PACKAGE} is not in the npm registry. Its first version is published by hand and a trusted publisher set on it; only then does a release publish (R37)."
+                  exit 1
+                  ;;
+              200)
+                  published=$(jq -r --arg v "$version" '(.versions // {})[$v].dist.integrity // ""' "$packument")
+                  if [ -n "$published" ] && [ "$published" != "$integrity" ]; then
+                      echo "::error::${NPM_PACKAGE}@${version} is in the npm registry with the integrity ${published}, and this archive's is ${integrity}. npm never takes a version back. ${gone}"
+                      exit 1
+                  elif [ -z "$published" ] && jq -e --arg v "$version" '(.time // {}) | has($v)' "$packument" > /dev/null; then
+                      echo "::error::${NPM_PACKAGE}@${version} was in the npm registry and was unpublished, and npm never takes a number it has held. ${gone}"
+                      exit 1
+                  elif [ -n "$published" ]; then
+                      echo "::notice::${NPM_PACKAGE}@${version} is in the npm registry already, with this archive's integrity."
+                      action=skip
+                  else
+                      highest=$(jq -r '(.versions // {}) | to_entries[] | select(.value.deprecated == null) | .key | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))' "$packument" | sort -V | tail -n 1)
+                      if [ -n "$highest" ] && [ "$(printf '%s\n' "$version" "$highest" | sort -V | tail -n 1)" = "$highest" ]; then
+                          tag=previous
+                      fi
+                      action=publish
+                  fi
+                  ;;
+              *)
+                  echo "::error::The npm registry answered ${code} for ${NPM_PACKAGE}."
+                  exit 1
+                  ;;
+          esac
+          if [ "$action" = publish ]; then
+              tag_args=()
+              if [ -n "$tag" ]; then tag_args=(--tag "$tag"); fi
+              "$RUNNER_TEMP/npm-isolated" publish "$file" --dry-run --json --access public "${tag_args[@]}" \
+                  --loglevel verbose > "$files/dry-run.json"
+              if ! jq -e --arg n "$NPM_PACKAGE" --arg f "${file##*/}" --arg i "$integrity" \
+                  '.[$n].filename == $f and .[$n].integrity == $i' "$files/dry-run.json" > /dev/null; then
+                  echo "::error::npm's dry run did not read ${file##*/} with the integrity ${integrity}."
+                  exit 1
+              fi
+          fi
+          echo "${NPM_PACKAGE}@${version}: ${integrity}, ${action}${tag:+, tag ${tag}}"
+          {
+              echo "action=${action}"
+              echo "tag=${tag}"
+              echo "integrity=${integrity}"
+              echo "file=${file}"
+          } >> "$GITHUB_OUTPUT"
+
+      # Every file gets its bundle, the signature and the certificate that names the workflow that
+      # made it, and every bundle is checked before anything is published: the identity is this
+      # workflow at main, issued to GitHub Actions, in this repository, in a run of main's tip, the
+      # commit the workflow file is read from on workflow_run. The step runs on the runner alone,
+      # with no container: the job's OIDC token never goes into one.
+      - name: Sign the files
+        if: steps.version.outputs.version != '' && steps.files.outputs.count != '0'
+        run: |
+          cosign="$RUNNER_TEMP/cosign"
           cd "$RUNNER_TEMP/dist"
           shopt -s nullglob
           files=(*.tar.gz *.tgz)
@@ -351,6 +585,90 @@ jobs:
           done
           echo "::error::${VERSION} is published, but its attestation does not verify it and its files."
           exit 1
+
+      # The package goes to npm once its release is out and verified, the same archive, by trusted
+      # publishing: npm exchanges the job's OIDC token for one that may publish this package, since
+      # a trusted publisher of the package names this repository and release.yml, and makes its
+      # provenance itself. npm-isolated runs it as in the check above, but with the OIDC
+      # variables. Its exit status is not the verdict, the registry is: npm may end well with a
+      # version only staged, or fail on a version that went out (npm/cli#9889, open when read on
+      # 2026-10-29). So the step asks the packument, with write=true, until the version is there —
+      # for five minutes at most, or half a minute after npm failed — and then the archive the
+      # registry serves has to be this file, byte for byte. A version npm holds already is not
+      # published again, and a refusal release-refusal lets pass leaves the step out: no release,
+      # nothing in npm, and the release of the tip covers it. If npm fails after the release is
+      # out, running the job again publishes the release's file. The step comes before the check
+      # of the Go module, so that waiting for the proxy holds nothing up here.
+      - name: Publish to npm
+        if: >-
+          steps.npm.outputs.action != '' &&
+          (steps.publish.outputs.published == 'true' || steps.version.outputs.released != '')
+        env:
+          NPM_PACKAGE: "@altnovatrail/spec"
+          VERSION: ${{ steps.version.outputs.version || steps.version.outputs.released }}
+          ACTION: ${{ steps.npm.outputs.action }}
+          TAG: ${{ steps.npm.outputs.tag }}
+          INTEGRITY: ${{ steps.npm.outputs.integrity }}
+          FILE: ${{ steps.npm.outputs.file }}
+        run: |
+          files="$RUNNER_TEMP/npm-files"
+          mkdir -p "$files"
+          version="${VERSION#v}"
+          if [ "$ACTION" != publish ]; then
+              echo "::notice::${NPM_PACKAGE}@${version} is in the npm registry already: nothing to publish."
+              exit 0
+          fi
+          tag_args=()
+          if [ -n "$TAG" ]; then tag_args=(--tag "$TAG"); fi
+          status=0
+          "$RUNNER_TEMP/npm-isolated" publish "$FILE" --access public "${tag_args[@]}" --loglevel verbose || status=$?
+          # A publish npm reports as done may take a while to show; one npm reports as failed is
+          # looked for briefly, in case it went out all the same.
+          attempts=30
+          if [ "$status" != 0 ]; then attempts=3; fi
+          packument="$files/packument.json"
+          published=""
+          for attempt in $(seq 1 "$attempts"); do
+              code=$(curl -sS --proto "=https" --retry 3 -o "$packument" -w '%{http_code}' \
+                  "https://registry.npmjs.org/${NPM_PACKAGE/\//%2f}?write=true") || code=""
+              if [ "$code" = 200 ]; then
+                  published=$(jq -r --arg v "$version" '(.versions // {})[$v].dist.integrity // ""' "$packument")
+                  if [ -n "$published" ]; then break; fi
+              fi
+              echo "attempt ${attempt}: ${NPM_PACKAGE}@${version} is not in the registry yet"
+              sleep 10
+          done
+          workflow="${GITHUB_WORKFLOW_REF%@*}"
+          if [ -z "$published" ] && [ "$status" = 0 ]; then
+              echo "::error::npm publish ended well, but ${NPM_PACKAGE}@${version} is not in the registry after five minutes: it may be only staged, by a trusted publisher that allows npm stage publish alone, or npm/cli#9889. Approve or reject it on npmjs.com, let the trusted publisher publish, and run the job again."
+              exit 1
+          elif [ -z "$published" ]; then
+              echo "::error::npm publish failed with ${status}, and ${NPM_PACKAGE}@${version} is not in the registry; the lines above say why. The package's trusted publisher names the repository ${GITHUB_REPOSITORY}, the workflow ${workflow##*/}, no environment, and allows npm publish."
+              exit 1
+          elif [ "$published" != "$INTEGRITY" ]; then
+              echo "::error::${NPM_PACKAGE}@${version} is in the registry with the integrity ${published}, and the release's file has ${INTEGRITY}."
+              exit 1
+          fi
+          tarball=$(jq -r --arg v "$version" '.versions[$v].dist.tarball' "$packument")
+          case "$tarball" in
+              https://registry.npmjs.org/*) ;;
+              *)
+                  echo "::error::The registry serves ${NPM_PACKAGE}@${version} from \"${tarball}\", not from https://registry.npmjs.org/."
+                  exit 1
+                  ;;
+          esac
+          curl -fsSL --proto "=https" --proto-redir "=https" --retry 3 -o "$files/registry.tgz" "$tarball"
+          if ! cmp "$FILE" "$files/registry.tgz"; then
+              echo "::error::The archive the registry serves for ${NPM_PACKAGE}@${version} is not the release's file."
+              exit 1
+          fi
+          if [ "$status" != 0 ]; then
+              echo "::warning::npm publish failed with ${status}, but the registry holds ${NPM_PACKAGE}@${version}, the release's file byte for byte."
+          fi
+          if ! jq -e --arg v "$version" '.versions[$v].dist.attestations.provenance' "$packument" > /dev/null; then
+              echo "::warning::${NPM_PACKAGE}@${version} has no provenance in the registry."
+          fi
+          echo "${NPM_PACKAGE}@${version} is published${TAG:+ with the tag ${TAG}}: ${published}"
 
       # Go code takes the release's tag as the version of spec's Go module (R64): the Go module
       # proxy builds its zip from the tag when it is first asked, and the checksum database

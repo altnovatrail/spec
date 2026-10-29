@@ -108,7 +108,7 @@
   "crypto_random_status": "N/A",
   "crypto_random_justification": "spec generates no keys or nonces.",
   "delivery_mitm_status": "Met",
-  "delivery_mitm_justification": "spec is delivered over HTTPS only: the repository, its releases and their files, the git submodule other repositories take it as, and its Go module, through the Go module proxy, whose checksum database holds each version to its bytes. Releases are immutable, GitHub attests each one with its files, which `gh release verify` and `gh release verify-asset` check, and each file is signed with cosign, its bundle beside it in the release.",
+  "delivery_mitm_justification": "spec is delivered over HTTPS only: the repository, its releases and their files, the git submodule other repositories take it as, its Go module, through the Go module proxy, whose checksum database holds each version to its bytes, and its npm package @altnovatrail/spec, from the npm registry, the same file as in the release, which the release publishes by trusted publishing with npm's provenance. Releases are immutable, GitHub attests each one with its files, which `gh release verify` and `gh release verify-asset` check, and each file is signed with cosign, its bundle beside it in the release.",
   "delivery_unsigned_status": "Met",
   "delivery_unsigned_justification": "No hash is retrieved over HTTP: every SHA-256 sum is pinned in the file next to its version, and every download in spec's files is restricted to HTTPS, redirects included (curl --proto =https --proto-redir =https).",
   "vulnerabilities_fixed_60_days_status": "Met",
