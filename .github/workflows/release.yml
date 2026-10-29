@@ -8,10 +8,11 @@
 # Other repositories take the tag as a submodule for spec's documents and rules (R21), and their
 # code takes the release's files (R64). From the line 0.3 on, a release carries each normative
 # part with a version of its own as a file, <part>-<version>.tar.gz — today the module format,
-# format-0.1.tar.gz — signed without a key, with its bundle <file>.sigstore.json beside it, as
-# the shared release of .github signs its callers' files. Go code takes the same tag as the
-# version of spec's Go module, which the Go module proxy and its checksum database then hold to
-# its bytes. The repository's releases are immutable, so the tag stays on its commit for good and
+# format-0.1.tar.gz — and from the line 0.4 on the npm package of the format's types for
+# TypeScript as well, altnovatrail-spec-<X.Y.Z>.tgz, the archive npm takes (R73). Each is signed
+# without a key, with its bundle <file>.sigstore.json beside it, as the shared release of .github
+# signs its callers' files. Go code takes the same tag as the version of spec's Go module, which
+# the Go module proxy and its checksum database then hold to its bytes. The repository's releases are immutable, so the tag stays on its commit for good and
 # no file is added or swapped once a release is out, and GitHub signs each release with an
 # attestation of its tag, its commit and its files, which `gh release verify` and
 # `gh release verify-asset` check. A release of an earlier line carries no files.
@@ -34,7 +35,7 @@ permissions:
 # The line the releases are numbered in: the major and minor version every release carries, the
 # patch counting up within it. just release-version reads it from here.
 env:
-  RELEASE_LINE: "0.3"
+  RELEASE_LINE: "0.4"
 
 jobs:
   release:
@@ -162,15 +163,18 @@ jobs:
       # finished after a later one was merged, gets no files. What the container wrote is checked
       # here on the runner, as the shared release of .github checks its callers' files: plain
       # files, named as release-files names them, none a bundle. A run again of a commit released
-      # already builds them too, to know which files its release has to hold.
+      # already builds them too, to know which files its release has to hold. The npm package is
+      # of the release's version, which the recipe takes with the commit.
       - id: files
         name: Build the files
         if: steps.version.outputs.version != '' || steps.version.outputs.released != ''
+        env:
+          VERSION: ${{ steps.version.outputs.version || steps.version.outputs.released }}
         run: |
           cp -a . "$RUNNER_TEMP/checkout-files"
           (
               cd "$RUNNER_TEMP/checkout-files"
-              tools/toolchain/toolchain.sh spec release-files "$TARGET" dist
+              tools/toolchain/toolchain.sh spec release-files "$TARGET" dist "$VERSION"
           )
           dist="$RUNNER_TEMP/checkout-files/dist"
           if [ -L "$dist" ] || [ ! -d "$dist" ]; then
@@ -187,8 +191,9 @@ jobs:
           for path in "$dist"/*; do
               if [ ! -e "$path" ]; then continue; fi
               name="${path##*/}"
-              if ! [[ "$name" =~ ^[a-z][a-z-]*-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.tar\.gz$ ]]; then
-                  echo "::error::A file of dist/ is named ${name}, not <part>-<MAJOR.MINOR>.tar.gz as release-files names its files."
+              if ! [[ "$name" =~ ^[a-z][a-z-]*-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.tar\.gz$ ]] &&
+                  [ "$name" != "altnovatrail-spec-${VERSION#v}.tgz" ]; then
+                  echo "::error::A file of dist/ is named ${name}, neither <part>-<MAJOR.MINOR>.tar.gz nor altnovatrail-spec-${VERSION#v}.tgz as release-files names its files."
                   exit 1
               fi
               count=$((count + 1))
@@ -217,7 +222,8 @@ jobs:
           echo "${COSIGN_SHA256}  ${cosign}" | sha256sum --check --strict
           chmod +x "$cosign"
           cd "$RUNNER_TEMP/dist"
-          files=(*.tar.gz)
+          shopt -s nullglob
+          files=(*.tar.gz *.tgz)
           for file in "${files[@]}"; do
               "$cosign" sign-blob --yes --bundle "${file}.sigstore.json" "$file"
           done
@@ -316,7 +322,7 @@ jobs:
         run: |
           wanted=()
           if [ -d "$RUNNER_TEMP/dist" ]; then
-              for path in "$RUNNER_TEMP/dist"/*.tar.gz; do
+              for path in "$RUNNER_TEMP/dist"/*.tar.gz "$RUNNER_TEMP/dist"/*.tgz; do
                   if [ -e "$path" ]; then wanted+=("${path##*/}" "${path##*/}.sigstore.json"); fi
               done
           fi
