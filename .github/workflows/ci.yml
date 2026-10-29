@@ -1,7 +1,7 @@
-# spec's own checks (R30): the documents, the module format (R45), the Go module code takes
-# from a release and its zip, the tests of tools/, the licenses of its packages, the version the
-# next release takes (R31) and the files it carries (R64). The tests run once, with their
-# coverage, which a job of its own sends to Codecov (R48).
+# spec's own checks (R30): the documents, the module format (R45), the types of the module format
+# (R72), the Go module code takes from a release and its zip, the tests of tools/, the licenses of
+# its packages, the version the next release takes (R31) and the files it carries (R64). The tests
+# run once, with their coverage, which a job of its own sends to Codecov (R48).
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node, Go and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
 # run and published nowhere. Beside them, two of the checks every repository shares, from
@@ -57,9 +57,16 @@ jobs:
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec format-check
 
-      # spec's Go module (R64): vetted, tested, with no requirement, and its zip built of the
-      # commit as the Go module proxy will build it from the release's tag. go fetches the module
-      # the zip is built with, golang.org/x/mod, by tools/gomod/go.sum.
+      # The types of the module format (R72): those its schemas give, file for file, and each
+      # value of format/ read by its type and written back as it was.
+      - name: Types
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec types-check
+
+      # spec's Go module (R64), with the types of the module format (R72): vetted, tested, with no
+      # requirement, and its zip built of the commit as the Go module proxy will build it from the
+      # release's tag. go fetches the module the zip is built with, golang.org/x/mod, by
+      # tools/gomod/go.sum.
       - name: Go module
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec go-check

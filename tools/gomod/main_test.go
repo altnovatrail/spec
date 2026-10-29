@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// A made-up spec: go.mod, LICENSE and a small format/, committed on main.
+// A made-up spec: go.mod, LICENSE, a small format/ and a type of it, committed on main.
 func scratch(t *testing.T, goMod string) string {
 	t.Helper()
 	t.Setenv("GIT_CONFIG_GLOBAL", os.DevNull)
@@ -19,6 +19,7 @@ func scratch(t *testing.T, goMod string) string {
 	write(t, root, "LICENSE", "Apache License\n")
 	write(t, root, "format/VERSION", "0.1\n")
 	write(t, root, "format/vectors/packages/a/module/.editor-notes", "left out of a package, not of the module\n")
+	write(t, root, "types/formatv0/doc.go", "package formatv0\n")
 	commit(t, root)
 	return root
 }
@@ -57,7 +58,7 @@ func TestTheModuleCarriesEveryFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(report, "github.com/altnovatrail/spec@v0.3.0") || !strings.Contains(report, "the 2 files of format/") {
+	if !strings.Contains(report, "github.com/altnovatrail/spec@v0.3.0") || !strings.Contains(report, "the 3 files of format/ and types/") {
 		t.Fatalf("report: %s", report)
 	}
 }
@@ -65,7 +66,7 @@ func TestTheModuleCarriesEveryFile(t *testing.T) {
 // Go leaves a folder with a go.mod of its own out of a module's zip, and a vendor folder too:
 // the files would be in spec and missing from the module its consumers get.
 func TestFilesTheZipLeavesOutAreFound(t *testing.T) {
-	for _, name := range []string{"format/vectors/rules/a/go.mod", "format/vectors/vendor/a/b.yaml"} {
+	for _, name := range []string{"format/vectors/rules/a/go.mod", "format/vectors/vendor/a/b.yaml", "types/formatv0/open/go.mod"} {
 		root := scratch(t, v0)
 		write(t, root, name, "module example.invalid/a\n")
 		commit(t, root)
@@ -134,6 +135,16 @@ func TestGitRunsByAbsolutePath(t *testing.T) {
 	gitProgram = missing
 	if _, err := git(dir, nil, "--version"); err == nil || !strings.Contains(err.Error(), missing) {
 		t.Errorf("git ran without gitProgram: %v", err)
+	}
+}
+
+// A folder the module carries that the commit lacks would leave its consumers without it.
+func TestAMissingFolderIsFound(t *testing.T) {
+	root := scratch(t, v0)
+	run(t, root, "git", "rm", "--quiet", "-r", "types")
+	commit(t, root)
+	if _, err := check(root, "HEAD", "0.3"); err == nil || !strings.Contains(err.Error(), "no file in types/") {
+		t.Fatalf("no types/: %v", err)
 	}
 }
 

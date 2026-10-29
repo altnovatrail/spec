@@ -3,7 +3,8 @@
 # (R04 .github); the base image of the devcontainer, tag and digest; the packages of tools/; and
 # the Go module of tools/gomod, the check of the zip of spec's own Go module. That module,
 # go.mod at the root, requires nothing, and `just go-check` keeps it so (R64): there is nothing
-# there to raise.
+# there to raise. Nor in tools/types/roundtrip, the check of the types, which requires spec's own
+# module alone, from the working tree (R72).
 # For npm a pull request rewrites the lock file too, with whatever packages the new version
 # brings along: licenses-check reads every one of them in CI.
 #
