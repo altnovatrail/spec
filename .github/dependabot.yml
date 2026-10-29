@@ -39,7 +39,8 @@ updates:
   # Markdown preview of the devcontainer carries (bierner.markdown-mermaid): a diagram that only
   # one of them accepts passes docs-check and does not open in the preview, or the other way round.
   # A new ajv or yaml is read against the tests of format-check, which pin how ajv names an error
-  # and how yaml reads a file.
+  # and how yaml reads a file. A new typescript is read against types-check, whose tsc takes every
+  # value of format/ as a value of its type, and against the version canvas builds with (R73).
   - package-ecosystem: npm
     directory: /tools
     schedule:

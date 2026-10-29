@@ -8,7 +8,7 @@
 // written by hand is a check. The types hold no code: what is valid, the schema decides.
 
 import { byCodeUnits } from "../shared.mjs";
-import { namesIn, pascalOf } from "./model.mjs";
+import { openRefOf, pascalOf, placeOf } from "./model.mjs";
 
 export const MODULE = "github.com/altnovatrail/spec";
 export const PACKAGE = "formatv0";
@@ -63,7 +63,7 @@ function declarationOf(type, model) {
   const doc = commentOf(`${type.name} is the type of ${placeOf(type)}.${type.doc ? `\n\n${type.doc}` : ""}`, "");
   switch (type.kind) {
     case "struct":
-      return `${doc}type ${type.name} ${structOf(fieldsOf(type.fields, model, (ref) => goOf(ref, model, false)))}\n`;
+      return `${doc}type ${type.name} ${structOf(fieldsOf(type.fields, model, (ref) => goOf(ref, (name) => name)))}\n`;
     case "string":
       return `${doc}type ${type.name} string\n${type.values ? constantsOf(type) : ""}`;
     case "integer":
@@ -72,7 +72,7 @@ function declarationOf(type, model) {
       const target = model.types.get(type.type.named);
       // Another name of a struct is the same struct; a string, a list or a map is a type of its own.
       const alias = target?.kind === "struct" ? " =" : "";
-      return `${doc}type ${type.name}${alias} ${goOf(type.type, model, false)}\n`;
+      return `${doc}type ${type.name}${alias} ${goOf(type.type, (name) => name)}\n`;
     }
   }
 }
@@ -121,45 +121,23 @@ function checkConstants(model) {
   }
 }
 
-// The Go of a type in formatv0.
-function goOf(ref, model, open) {
+// The Go of a type, each named type written as named writes it: by its name in formatv0, and with
+// formatv0's name in open. An open view, which openRefOf gives, is open's own.
+function goOf(ref, named) {
   if (ref.primitive) return PRIMITIVE_GO[ref.primitive];
-  if (ref.named) return ref.named;
-  if (ref.list) return `[]${goOf(ref.list, model, open)}`;
-  if (ref.map) return `map[${goOf(ref.map.key, model, open)}]${goOf(ref.map.value, model, open)}`;
-  return `*${goOf(ref.nullable, model, open)}`;
+  if (ref.view) return ref.view;
+  if (ref.named) return named(ref.named);
+  if (ref.list) return `[]${goOf(ref.list, named)}`;
+  if (ref.map) return `map[${goOf(ref.map.key, named)}]${goOf(ref.map.value, named)}`;
+  return `*${goOf(ref.nullable, named)}`;
 }
 
 // The Go of a type in open: a struct's open view by its own name, any other named type formatv0's.
-// A list or a map of structs under a name of its own is written out, of their open views: formatv0's
-// would hold their closed fields.
 function openGoOf(ref, model, uses) {
-  if (ref.primitive) return PRIMITIVE_GO[ref.primitive];
-  if (ref.named) {
-    const type = structBehind(ref.named, model);
-    if (type) return type.name;
-    const named = model.types.get(ref.named);
-    if (named.kind === "named" && namesIn(named.type).some((name) => holdsStruct(name, model))) return openGoOf(named.type, model, uses);
+  return goOf(openRefOf(ref, model.types), (name) => {
     uses.base = true;
-    return `${PACKAGE}.${ref.named}`;
-  }
-  if (ref.list) return `[]${openGoOf(ref.list, model, uses)}`;
-  if (ref.map) return `map[${openGoOf(ref.map.key, model, uses)}]${openGoOf(ref.map.value, model, uses)}`;
-  return `*${openGoOf(ref.nullable, model, uses)}`;
-}
-
-// The struct a name stands for, through the names of a struct that narrow it, or undefined.
-function structBehind(name, model) {
-  const type = model.types.get(name);
-  if (type.kind === "struct") return type;
-  if (type.kind === "named" && type.type.named) return structBehind(type.type.named, model);
-  return undefined;
-}
-
-// Whether a named type is a struct or holds one, through lists, maps and names of its own.
-function holdsStruct(name, model) {
-  const type = model.types.get(name);
-  return type.kind === "struct" || (type.kind === "named" && namesIn(type.type).some((inner) => holdsStruct(inner, model)));
+    return `${PACKAGE}.${name}`;
+  });
 }
 
 // Whether a type is a slice or a map, by itself or under a name of its own: then nil leaves it out.
@@ -185,14 +163,16 @@ function fileOf(schema) {
   return `${schema.slice(0, -".schema.json".length).replaceAll("-", "_")}.go`;
 }
 
-function placeOf(type) {
-  return type.pointer === "" ? type.schema : `${type.schema}#${type.pointer}`;
-}
-
 // A comment of text, its paragraphs apart by an empty line, each line no wider than WIDTH with
 // the indent, a tab counted as four.
 export function commentOf(text, indent) {
-  const room = WIDTH - indent.length * 4 - 3;
+  return linesOf(text, WIDTH - indent.length * 4 - 3)
+    .map((line) => `${indent}//${line ? ` ${line}` : ""}\n`)
+    .join("");
+}
+
+// The lines of text, each no wider than room: its words, and an empty line between paragraphs.
+export function linesOf(text, room) {
   const lines = [];
   text.split("\n\n").forEach((paragraph, index) => {
     if (index > 0) lines.push("");
@@ -205,10 +185,11 @@ export function commentOf(text, indent) {
     }
     if (line) lines.push(line);
   });
-  return lines.map((line) => `${indent}//${line ? ` ${line}` : ""}\n`).join("");
+  return lines;
 }
 
-function groupBy(list, keyOf) {
+// The items of list in groups, by the key keyOf gives each, in the order the keys first come.
+export function groupBy(list, keyOf) {
   const groups = new Map();
   for (const item of list) {
     const key = keyOf(item);

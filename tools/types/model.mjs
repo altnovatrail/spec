@@ -332,6 +332,43 @@ export function namesIn(ref) {
   return [];
 }
 
+// The type of a field of an open view, as the open view reads it: a struct's open view by the
+// struct's name, { view }; a list or a map of structs under a name of its own written out, of their
+// open views, since the named type would hold their closed fields; any other named type as it is,
+// the base package's.
+export function openRefOf(ref, types) {
+  if (ref.named) {
+    const struct = structBehind(ref.named, types);
+    if (struct) return { view: struct.name };
+    const named = types.get(ref.named);
+    if (named.kind === "named" && namesIn(named.type).some((name) => holdsStruct(name, types))) return openRefOf(named.type, types);
+    return ref;
+  }
+  if (ref.list) return { list: openRefOf(ref.list, types) };
+  if (ref.map) return { map: { ...ref.map, key: openRefOf(ref.map.key, types), value: openRefOf(ref.map.value, types) } };
+  if (ref.nullable) return { nullable: openRefOf(ref.nullable, types) };
+  return ref;
+}
+
+// The struct a name stands for, through the names of a struct that narrow it, or undefined.
+function structBehind(name, types) {
+  const type = types.get(name);
+  if (type.kind === "struct") return type;
+  if (type.kind === "named" && type.type.named) return structBehind(type.type.named, types);
+  return undefined;
+}
+
+// Whether a named type is a struct or holds one, through lists, maps and names of its own.
+function holdsStruct(name, types) {
+  const type = types.get(name);
+  return type.kind === "struct" || (type.kind === "named" && namesIn(type.type).some((inner) => holdsStruct(inner, types)));
+}
+
+// The place of a type in its schema, which its comment names: the schema, and its JSON Pointer.
+export function placeOf(type) {
+  return type.pointer === "" ? type.schema : `${type.schema}#${type.pointer}`;
+}
+
 export class ModelError extends Error {
   constructor(place, message) {
     super(`${place} ${message}`);

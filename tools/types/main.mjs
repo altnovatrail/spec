@@ -6,9 +6,10 @@
 // Reads spec's own format/, two levels above this file: the schemas, the version, and the parts of
 // a module that the layout of the format text names. Writes the Go of the model — the packages
 // formatv0 and formatv0/open under types/, and the registry of tools/types/roundtrip — as gofmt
-// leaves it but for the alignment of a struct's fields: `just types` runs gofmt on them, and
-// `just types-check` compares them, so run, with the files in the repository. A form of a schema
-// the model does not know stops it with the place of that form.
+// leaves it but for the alignment of a struct's fields, and the TypeScript of the same packages
+// beside it, index.d.ts in each (R73): `just types` runs gofmt on them, and `just types-check`
+// compares them, so run, with the files in the repository. A form of a schema the model does not
+// know stops it with the place of that form.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -17,6 +18,7 @@ import { readText } from "../format-check/cases.mjs";
 import { readLayout } from "../format-check/module.mjs";
 import { byCodeUnits, isMain } from "../shared.mjs";
 import { goFiles } from "./go.mjs";
+import { tsFiles } from "./ts.mjs";
 import { buildModel } from "./model.mjs";
 
 const SCHEMAS = "format/schemas";
@@ -44,7 +46,7 @@ export function readFormat(root) {
 export function generate(root) {
   const { schemas, version, parts } = readFormat(root);
   const model = buildModel(schemas, parts);
-  return { model, files: goFiles(model, version) };
+  return { model, files: new Map([...goFiles(model, version), ...tsFiles(model, version)]) };
 }
 
 // Writes the files under folder, which holds no file of theirs yet.

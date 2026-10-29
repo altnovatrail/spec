@@ -43,9 +43,10 @@ format-check-test: _tools
 
 # The types of the module format, generated from its schemas by tools/types (R72): the packages
 # formatv0 and formatv0/open under types/, which spec's Go module ships at the tag of every release,
-# and the registry of tools/types/roundtrip. The generator writes them into a new folder, gofmt
-# aligns them, and they take the place of the files in the repository, so that a type no schema
-# gives any more goes too.
+# each with its TypeScript beside it, index.d.ts, which the npm package @altnovatrail/spec carries
+# (R73), and the registry of tools/types/roundtrip. The generator writes them into a new folder,
+# gofmt aligns the Go, and they take the place of the files in the repository, so that a type no
+# schema gives any more goes too.
 # Generate the types of the module format from its schemas again.
 types: _tools
     #!/usr/bin/env bash
@@ -63,8 +64,12 @@ types: _tools
 # vectors, the vectors themselves and the canonical view of each example of a whole module — is read
 # by its type of formatv0 strictly and written back as it was, and so is the open view of each
 # vector of the open view by its type of open; the part of such a vector that holds a closed field
-# fails to be read by that type (tools/types/corpus.mjs, tools/types/roundtrip). The corpus is of the
-# working tree, as format-check's files are.
+# fails to be read by that type (tools/types/corpus.mjs, tools/types/roundtrip). And each value is
+# the value of a declaration of its type in TypeScript, imported from the npm package, which is
+# packed of the working tree and unpacked into the project tsc checks: under the resolution of
+# modules nodenext and under bundler, with a value that holds a closed field refused
+# (tools/types/typescript.mjs, tools/types/npm.mjs). The corpus is of the working tree, as
+# format-check's files are.
 # Check the types of the module format against its schemas and against the values of format/.
 types-check: _tools
     #!/usr/bin/env bash
@@ -79,8 +84,17 @@ types-check: _tools
     fi
     node tools/types/corpus.mjs "$out/corpus.json"
     go -C tools/types/roundtrip run . "$out/corpus.json"
+    node tools/types/typescript.mjs "$out/corpus.json" "$out/typescript"
+    archive=$(node tools/types/npm.mjs . 0.0.0 "$out")
+    mkdir -p "$out/typescript/node_modules/@altnovatrail/spec"
+    tar -xzf "$archive" -C "$out/typescript/node_modules/@altnovatrail/spec" --strip-components=1
+    for config in "$out/typescript"/tsconfig.*.json; do
+        tools/node_modules/.bin/tsc -p "$config"
+        echo "types-check: tsc takes every case, by $(basename "$config")"
+    done
 
-# Run the generator's own tests, on small schemas written in the tests and on spec's own format/.
+# Run the generator's own tests, on small schemas written in the tests and on spec's own format/,
+# with tsc on the TypeScript of a small model.
 types-test: _tools
     node --test 'tools/types/test/*.test.mjs'
 
@@ -208,11 +222,15 @@ release-version commit="HEAD" workflow="":
 # the commit, FIRST_FILES_LINE on (tools/release/files.mjs), each normative part with a version
 # of its own goes in as <part>-<version>.tar.gz — today the module format, format-0.1.tar.gz:
 # git archive of the commit, a folder of that name holding LICENSE and the part as the commit has
-# them, every file and nothing else, which the recipe checks against git ls-tree. A commit of an
-# earlier line gets an empty folder. The recipe reads the commit alone, never the working tree:
-# release.yml builds the files of the commit its checks passed on from the tip's checkout (R31).
+# them, every file and nothing else, which the recipe checks against git ls-tree. From
+# FIRST_NPM_LINE on, the npm package @altnovatrail/spec goes in too, altnovatrail-spec-<X.Y.Z>.tgz,
+# of the release's tag, which the recipe then takes third (R73): npm pack of the package that
+# tools/types/npm.mjs writes of the commit's types/, LICENSE and the package's README, read back by
+# tar. A commit of an earlier line gets an empty folder. The recipe reads the commit alone, never
+# the working tree: release.yml builds the files of the commit its checks passed on from the tip's
+# checkout (R31).
 # Build the files of spec's release of a commit into a new folder.
-release-files commit dir:
+release-files commit dir tag="":
     #!/usr/bin/env bash
     set -euo pipefail
     commit=$(git rev-parse --verify --end-of-options {{quote(commit + "^{commit}")}})
@@ -222,13 +240,19 @@ release-files commit dir:
         exit 1
     fi
     line=$(git show "${commit}:.github/workflows/release.yml" | node tools/release/line.mjs)
+    tag={{quote(tag)}}
     files=$(
         if git cat-file -e "${commit}:format/VERSION" 2>/dev/null; then git show "${commit}:format/VERSION"; fi \
-            | node tools/release/files.mjs "$line"
+            | node tools/release/files.mjs "$line" "$tag"
     )
     mkdir -p "$dir"
     while read -r name part; do
         if [ -z "$name" ]; then continue; fi
+        if [[ "$name" == *.tgz ]]; then
+            node tools/types/npm.mjs . "${tag#v}" "$dir" "$commit" > /dev/null
+            echo "release-files: ${name}, the npm package of ${part}/ at ${commit}"
+            continue
+        fi
         folder="${name%.tar.gz}"
         git archive --format=tar.gz --prefix="${folder}/" -o "${dir}/${name}" "$commit" LICENSE "$part"
         # Both lists name each file as it is: tar never escapes, and git, with -z, never quotes.

@@ -1,7 +1,7 @@
 {
   "name": "novatrail-spec-tools",
   "private": true,
-  "description": "The NovaTrail spec's tools: the checks of its documents and of the module format, and the template a new repository starts from.",
+  "description": "The NovaTrail spec's tools: the checks of its documents and of the module format, the generator of the format's types and their checks, and the template a new repository starts from.",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
@@ -12,6 +12,7 @@
     "mdast-util-gfm": "3.1.0",
     "mermaid": "12.2.0",
     "micromark-extension-gfm": "3.0.0",
+    "typescript": "7.0.2",
     "yaml": "2.9.1"
   }
 }
