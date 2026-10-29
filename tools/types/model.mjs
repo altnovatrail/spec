@@ -96,7 +96,7 @@ export function buildModel(schemas, parts) {
     // holds itself finds its name.
     const type = { name, schema, pointer, doc: docOf(node), kind: null };
     types.set(name, type);
-    Object.assign(type, shapeOfNamed(node, schema, pointer, name));
+    Object.assign(type, shapeOfNamed(node, schema, pointer));
     building.delete(name);
     return name;
   };
