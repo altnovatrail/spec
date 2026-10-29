@@ -9,7 +9,7 @@
 // by case alone, a module too large, a module path whose major version suffix the version does
 // not match. What a module's zip leaves out it leaves out without a word — a folder with a go.mod
 // of its own, a vendor folder, a link — so the command reads the zip back: LICENSE and every file
-// of format/ at the revision are in it, byte for byte, or the check fails. It checks too that
+// of format/ and of types/ at the revision are in it, byte for byte, or the check fails. It checks too that
 // go.mod names the module by the path its consumers import.
 //
 // The tool is no part of the module spec ships: it is a module of its own, and a module's zip
@@ -38,9 +38,9 @@ import (
 // The path consumers import the module by, before its suffix from v2 on.
 const modulePath = "github.com/altnovatrail/spec"
 
-// What the module carries to its consumers, which its zip must hold whole: the format, and the
-// license that goes with it.
-var carried = []string{"LICENSE", "format"}
+// What the module carries to its consumers, which its zip must hold whole: the format, its types
+// (R72), and the license that goes with them.
+var carried = []string{"LICENSE", "format", "types"}
 
 var lineForm = regexp.MustCompile(`^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$`)
 
@@ -113,7 +113,7 @@ func check(root, revision, line string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("the zip of %s at %s holds LICENSE and the %d files of format/, %d bytes in all", version, short(sha), count-1, size), nil
+	return fmt.Sprintf("the zip of %s at %s holds LICENSE and the %d files of format/ and types/, %d bytes in all", version, short(sha), count-1, size), nil
 }
 
 // filesOf reads a module's zip into its files' contents by their names in the module.
@@ -167,6 +167,20 @@ func compare(root, sha string, held map[string][]byte) (int, int, error) {
 	if len(entries) == 0 || entries[0].name != "LICENSE" {
 		return 0, 0, fmt.Errorf("%s has no LICENSE at its root", short(sha))
 	}
+	// git ls-tree names nothing for a path the commit lacks: each folder the module carries holds a
+	// file, or the module its consumers get would lack it.
+	for _, path := range carried[1:] {
+		found := false
+		for _, e := range entries {
+			if strings.HasPrefix(e.name, path+"/") {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return 0, 0, fmt.Errorf("%s has no file in %s/, which the module carries", short(sha), path)
+		}
+	}
 
 	contents, err := git(root, &objects, "cat-file", "--batch")
 	if err != nil {
@@ -181,7 +195,7 @@ func compare(root, sha string, held map[string][]byte) (int, int, error) {
 		}
 		got, ok := held[e.name]
 		if !ok {
-			return 0, 0, fmt.Errorf("the module's zip leaves out %s: Go drops a folder with a go.mod of its own and a vendor folder, and the module carries every file of format/", e.name)
+			return 0, 0, fmt.Errorf("the module's zip leaves out %s: Go drops a folder with a go.mod of its own and a vendor folder, and the module carries every file of format/ and of types/", e.name)
 		}
 		if !bytes.Equal(got, content) {
 			return 0, 0, fmt.Errorf("the module's zip holds %s with other bytes than git has at %s", e.name, short(sha))

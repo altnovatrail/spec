@@ -41,18 +41,63 @@ format-check: _tools
 format-check-test: _tools
     node --test 'tools/format-check/test/*.test.mjs'
 
+# The types of the module format, generated from its schemas by tools/types (R72): the packages
+# formatv0 and formatv0/open under types/, which spec's Go module ships at the tag of every release,
+# and the registry of tools/types/roundtrip. The generator writes them into a new folder, gofmt
+# aligns them, and they take the place of the files in the repository, so that a type no schema
+# gives any more goes too.
+# Generate the types of the module format from its schemas again.
+types: _tools
+    #!/usr/bin/env bash
+    set -euo pipefail
+    out=$(mktemp -d)
+    trap 'rm -rf "$out"' EXIT
+    node tools/types/main.mjs "$out"
+    gofmt -w "$out"
+    rm -rf types
+    mv "$out/types" types
+    mv "$out/tools/types/roundtrip/registry.go" tools/types/roundtrip/registry.go
+
+# What `just types` would write is what types/ and the registry hold, file for file. Then each value
+# of format/ that passes a schema — the examples, the files of every module of the examples and the
+# vectors, the vectors themselves and the canonical view of each example of a whole module — is read
+# by its type of formatv0 strictly and written back as it was, and so is the open view of each
+# vector of the open view by its type of open; the part of such a vector that holds a closed field
+# fails to be read by that type (tools/types/corpus.mjs, tools/types/roundtrip). The corpus is of the
+# working tree, as format-check's files are.
+# Check the types of the module format against its schemas and against the values of format/.
+types-check: _tools
+    #!/usr/bin/env bash
+    set -euo pipefail
+    out=$(mktemp -d)
+    trap 'rm -rf "$out"' EXIT
+    node tools/types/main.mjs "$out/generated"
+    gofmt -w "$out/generated"
+    if ! diff -r types "$out/generated/types" || ! diff tools/types/roundtrip/registry.go "$out/generated/tools/types/roundtrip/registry.go"; then
+        echo "types-check: the files differ from what format/schemas gives; run just types" >&2
+        exit 1
+    fi
+    node tools/types/corpus.mjs "$out/corpus.json"
+    go -C tools/types/roundtrip run . "$out/corpus.json"
+
+# Run the generator's own tests, on small schemas written in the tests and on spec's own format/.
+types-test: _tools
+    node --test 'tools/types/test/*.test.mjs'
+
 # The Go module spec ships at the tag of every release (R64): go.mod and spec.go at the root, which
-# embeds format/. The module is vetted and tested, and it requires nothing: go list names it alone.
-# Its zip, as the Go module proxy will build it from a tag, is built of HEAD — a commit, not the
-# working tree — by tools/gomod, a module of its own with its own tests, under the version the line
-# of release.yml at HEAD takes, and read back for LICENSE and every file of format/. go fetches
-# golang.org/x/mod for it at the version tools/gomod/go.sum pins.
+# embeds format/, and the types of the module format under types/ (R72). The module is vetted and
+# tested, and it requires nothing: go list names it alone. Its zip, as the Go module proxy will
+# build it from a tag, is built of HEAD — a commit, not the working tree — by tools/gomod, a module
+# of its own with its own tests, under the version the line of release.yml at HEAD takes, and read
+# back for LICENSE and every file of format/ and of types/. go fetches golang.org/x/mod for it at
+# the version tools/gomod/go.sum pins. tools/types/roundtrip, the check of the types, is a module of
+# its own too, vetted and tested here.
 # Check spec's Go module: vet, tests, requirements and the zip of HEAD.
 go-check:
     #!/usr/bin/env bash
     set -euo pipefail
-    go vet .
-    go test .
+    go vet ./...
+    go test ./...
     if [ "$(go list -m all)" != "$(go list -m)" ]; then
         echo "go-check: spec's Go module requires other modules, and it ships with none (R64):" >&2
         go list -m all >&2
@@ -62,6 +107,8 @@ go-check:
     go -C tools/gomod vet ./...
     go -C tools/gomod test ./...
     go -C tools/gomod run . {{quote(justfile_directory())}} HEAD "$line"
+    go -C tools/types/roundtrip vet ./...
+    go -C tools/types/roundtrip test ./...
 
 # Reads the lock file alone, so nothing is installed first. The allowed list and the named
 # exceptions are in tools/licenses/config.mjs (R12).
