@@ -44,6 +44,8 @@ npm pack @altnovatrail/spec@0.4.0
 gh release verify-asset v0.4.0 altnovatrail-spec-0.4.0.tgz -R altnovatrail/spec
 ```
 
+The release publishes that file to npm itself, by trusted publishing, and npm gives each version it publishes that way a provenance attestation. The provenance names `.github/workflows/release.yml` of `altnovatrail/spec` and the commit of the run that published it. That commit is the tip of `main` when the run began, which is not always the commit the release was cut from. The release's attestation names the release's own commit, and `gh release verify-asset` is what ties the archive to it. 0.4.0 was published by hand and has no provenance. Not every release of the line has a version in npm, so take a tag whose version is there.
+
 ## License
 
 [Apache-2.0](https://github.com/altnovatrail/spec/blob/main/LICENSE).
