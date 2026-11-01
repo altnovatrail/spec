@@ -422,9 +422,36 @@ release-refusal commit tip error:
     fi
     echo "release-refusal: ${commit} is no longer the tip of main (${tip}) and adds or modifies its workflow files; the release of the tip covers it"
 
-# The tests that run the recipes run this same just.
-# Run release-version's and release-refusal's own tests, on made-up tags and repositories.
-release-version-test:
+# A file of a NovaTrail release enters NovaTrail only through this check (R77): the release <tag>
+# of <repository>, its file, and the file's cosign bundle, <file>.sigstore.json beside it unless
+# named; paths are from the caller's directory. tools/release/verify.mjs verifies the bundle for
+# the file's bytes by sigstore-js against Sigstore's trust root, which TUF reads afresh from
+# Sigstore on every run, and holds the certificate's fields to R77: a file of spec is signed by
+# spec's release.yml on main and bound to its tag by what it holds; a file of any other
+# repository is signed by the shared release.yml of .github, at the commit of a release of
+# .github, v0.1.7 or newer, on its main, at the call of the repository's release.yml on main, of
+# the commit of the tag. What GitHub holds it reads through git, with no token and none of the
+# caller's git settings; the repositories' numeric IDs are tools/release/repositories.mjs. When
+# Sigstore or GitHub cannot be read, the file is refused. Another repository runs it by
+# `just -f spec/justfile release-verify`, in its toolchain stage, which reaches the network.
+# Verify the signature of a release's file against R77.
+release-verify repository tag file bundle="": _tools
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/release/verify.mjs")}} {{quote(repository)}} {{quote(tag)}} {{quote(file)}} {{ if bundle == "" { "" } else { quote(bundle) } }}
+
+# The same check, for each package of @altnovatrail in an npm lock file of lockfileVersion 2 or 3
+# (R37, R77): the archive from the registry, at the lock file's resolved address, verified as the
+# release file of the same name, against the bundle that release holds, and the lock file's
+# integrity held to the verified bytes. From then on the integrity holds the version. A link to a
+# folder is named and skipped; a lock file with no such package has nothing to verify. RULES.md
+# has a repository run it in CI of each pull request that changes the lock file.
+# Verify each package of @altnovatrail in an npm lock file against R77.
+release-verify-npm lock: _tools
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/release/verify.mjs")}} --npm {{quote(lock)}}
+
+# The tests that run the recipes run this same just. release-verify's tests verify files of real
+# releases, tools/release/test/fixtures/, with the packages of tools/ and no network.
+# Run the tests of the release recipes: release-version, release-refusal, release-files and release-verify.
+release-version-test: _tools
     JUST={{quote(just_executable())}} node --test 'tools/release/test/*.test.mjs'
 
 # tools/toolchain/toolchain.sh is no recipe: a runner runs it with its own shell, to start the

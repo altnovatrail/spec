@@ -396,7 +396,7 @@ flowchart LR
 | Cloud Scheduler и задания Cloud Run | миграции, сроки хранения | `api`, `infra` |
 | поставщики ИИ | чтение и слова наставника | `tutor`; privacy 5.3 |
 | оплата | подписка, этап 3 | `api`; О-14 |
-| GitHub и Sigstore | CI, релизы, подписи без ключей, как R52 canvas-api | `.github`; у `spec` — свой `release.yml` (R64). Что проверяет подпись — R77, рецептом `spec` `release-verify` |
+| GitHub и Sigstore | CI, релизы, подписи без ключей, как R52 canvas-api | `.github`; у `spec` — свой `release.yml` (R64). Что проверяет подпись — R77, рецептом `spec` `release-verify`: корень доверия Sigstore он читает по TUF на каждом прогоне, а теги и историю `main` — у GitHub через git, без токена. Если Sigstore или GitHub не отвечают, файл отклоняется (поправка 2026-11-01 к R77) |
 | прокси модулей Go и база контрольных сумм — proxy.golang.org и sum.golang.org | модуль Go `spec`, который код берёт по тегу релиза: прокси строит его zip, база навсегда записывает хеш | решено: R64 |
 | реестр npm | пакеты интерфейса в области `@altnovatrail` и типы формата для TypeScript, `@altnovatrail/spec` | решено: R37; пакеты интерфейса публикует общий релиз `.github`, а `@altnovatrail/spec` — свой `release.yml` `spec`, файлом его релиза, через trusted publishing (R73; вторая поправка 2026-10-29 к R37) |
 | SonarQube Cloud | анализ кода и quality gate, который держит мерж; меры на значках README | решено: R30; значки — R48 |
