@@ -2186,7 +2186,11 @@ E3 идёт вместе с репозиториями этапа 2, как E2 �
 - **Открыто:**
   - Д29 — загрузка покрытия в `go.yml`, T34 `.github`. С ней профиль Go `spec` уходит к загрузке обёртки;
   - мой шаг: девять обоснований `.bestpractices.json` на bestpractices.dev — ссылкой с `overrides` из отчёта;
-  - правило 12 по T50 — SonarCloud, New Code, и алерты code scanning на `main` после мержа.
+  - ~~правило 12 по T50 — SonarCloud, New Code, и алерты code scanning на `main` после мержа~~ — чисто 2026-11-01:
+    - SonarCloud на `main` b3dc8fd — quality gate OK, по новому коду 0 находок;
+    - code scanning — те же пять алертов Scorecard от 2026-10-20, все из списка R33: #1, #2, #4, #5 и #6.
+
+  Исполнено 2026-11-01: pull request #72 смержен merge-коммитом b3dc8fd. CI на `main` зелёный, вместе с четырьмя «Go / …», и релиз v0.5.1 вышел, с пакетом `@altnovatrail/spec@0.5.1` в npm. У коммита — статус `codecov/patch` «Coverage not affected when comparing 863b6a7...b3dc8fd».
 
 ### Часть 5. С первым кодом `module-kit`
 
