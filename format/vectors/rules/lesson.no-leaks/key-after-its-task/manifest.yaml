@@ -1,5 +1,5 @@
 # The word after the task holds its key: the open view of a lesson reaches the learner's app whole.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/lessons
 version: "0.1.0"
 title: Lessons

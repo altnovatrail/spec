@@ -5,7 +5,7 @@
 # &, U+2028, the letter outside the Basic Multilingual Plane and the combining accent as they are.
 server_part:
   manifest:
-    module_format_version: "0.1"
+    module_format_version: "0.2"
     id: "example/strings"
     version: "0.1.0"
     title: "A module of strings"
@@ -82,13 +82,13 @@ device_part:
       digest: "sha256:064b66188821584121784c30ca28eadbc5f265e025c6dd9eeed64cf1ef8e1f46"
       size: 67
 inventory:
-  module_format_version: "0.1"
+  module_format_version: "0.2"
   id: "example/strings"
   version: "0.1.0"
   server_part:
-    digest: "sha256:02a5f3019b7a92a96a39a7d901e5b93a5c2c1e794c4a77b4fbae19f6f79c78e7"
+    digest: "sha256:d7a70b53aa63ad7032d0734fc1bfb799b196f23f276683b4be41786ff203fea2"
     size: 1415
   device_part:
     digest: "sha256:b991f3e0d4e8365fb7d2483395a6ae199be388e9029ee8b70d3b9f6d4ea5cf4e"
     size: 233
-digest: "sha256:b2acbc0470a7bfd1939ea20c115d654723a9d877bdf66dd059c259aa7d6e8508"
+digest: "sha256:a1dc3d72db8d263ca2ec0dd553710113f64565ab07a47d42e5f29037f5d0d3e6"

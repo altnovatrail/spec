@@ -1,6 +1,6 @@
 # error: uniqueItems at #/rung_templates
 # The two templates differ, so that the fallback of rung 2 never repeats the one of rung 1.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/rung-templates-alike
 version: "0.1.0"
 title: Rung templates alike

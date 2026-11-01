@@ -1,6 +1,6 @@
 # error: oneOf at #/dependencies/0
 # An anchor skill that the shared taxonomy does not have.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: novatrail/olympiad-math
 version: "0.1.0"
 title: Olympiad mathematics, grades 1–6

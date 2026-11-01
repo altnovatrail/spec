@@ -1,5 +1,5 @@
 # A rung template that holds 56, which is the key of a task of the module.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/vector
 version: "0.1.0"
 title: A test vector

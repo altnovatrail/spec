@@ -1,5 +1,5 @@
 # A module whose skills teach two anchor skills of the shared taxonomy, which other modules build on.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/times-tables
 version: "0.1.0"
 title: Times tables

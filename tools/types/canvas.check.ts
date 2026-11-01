@@ -12,6 +12,9 @@ import type * as open from "@altnovatrail/spec/formatv0/open";
 declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   tool: canvas.Tool;
   task: open.Task | undefined;
+  workedExample: open.WorkedExample | undefined;
+  get demoState(): canvas.DemoState | undefined;
+  set demoState(state: canvas.DemoState | undefined);
   manifest: open.Manifest | undefined;
   get history(): readonly canvas.HistoryEvent[];
   set history(history: readonly canvas.HistoryEvent[] | undefined);
@@ -28,6 +31,7 @@ declare global {
 
 declare const task: open.Task;
 declare const manifest: open.Manifest;
+declare const example: open.WorkedExample;
 declare const done: canvas.ExportedWork;
 declare const event: canvas.HistoryEvent;
 
@@ -71,6 +75,14 @@ export const filled: canvas.Filled | null = sheet.filled;
 export const first: boolean | undefined = sheet.filled?.[0]?.[0];
 export const work: Promise<canvas.ExportedWork | null> = sheet.exportWork();
 
+/** A worked example in place of the task, and how far its demo has gone, which app keeps. */
+sheet.task = undefined;
+sheet.workedExample = example;
+export const demo: canvas.DemoState | undefined = sheet.demoState;
+sheet.demoState = { opened: 2, hidden: true };
+sheet.demoState = undefined;
+sheet.workedExample = undefined;
+
 /** The work's key tells its kind: the crop of a sheet, or the crops of a workbook's boxes. */
 export const sent: Blob | readonly Blob[] = "png" in done ? done.png : done.cells.map(({ png }) => png);
 export const places: readonly canvas.CellPlace[] = "cells" in done ? done.cells : [];
@@ -86,6 +98,10 @@ document.addEventListener("toolchange", (change) => {
   const tool: canvas.Tool = change.detail.tool;
   return tool;
 });
+document.addEventListener("demochange", (change) => {
+  const state: canvas.DemoState = change.detail;
+  return state.opened;
+});
 
 // @ts-expect-error The filled boxes are the element's to tell, not the consumer's to set.
 sheet.filled = null;
@@ -95,6 +111,10 @@ filled?.[0]?.push(true);
 sheet.history = null;
 // @ts-expect-error null is no manifest: undefined, and undefined alone, is none.
 sheet.manifest = null;
+// @ts-expect-error null is no worked example: undefined, and undefined alone, is none.
+sheet.workedExample = null;
+// @ts-expect-error A state of a demo says both how many parts are open and whether it is hidden.
+sheet.demoState = { opened: 1 };
 // @ts-expect-error A tool the sheet has not is no tool of it.
 sheet.tool = "ruler";
 // @ts-expect-error The marks wait for the contract of epic E3: the element's contract has none yet.
@@ -106,6 +126,10 @@ document.addEventListener("historychange", (change) => {
 document.addEventListener("toolchange", (change) => {
   // @ts-expect-error The tool told is the learner's choice, to read.
   change.detail.tool = "pen";
+});
+document.addEventListener("demochange", (change) => {
+  // @ts-expect-error The state told is how far the learner went, to read.
+  change.detail.opened = 0;
 });
 // @ts-expect-error A workbook's work has no PNG of a sheet: its key tells which it is.
 export const png: Blob = done.png;

@@ -1,5 +1,5 @@
 # The skills of the task's only item take the place of the task's, and they are not the lesson's.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/lessons
 version: "0.1.0"
 title: Lessons

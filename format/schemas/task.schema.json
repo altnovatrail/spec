@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/format/0.1/task.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/format/0.2/task.schema.json",
   "title": "Task",
   "description": "A task of a module, tasks/<id>.yaml in its folder: its statement, its canvas, its items with their answer slots, each with the check that says what is right in it, the skills it trains, its band and difficulty, and, when they are fewer than the module's, the age categories it is for; and what helps the learner on the way: what the statement gives and asks, the techniques that help, the traps that AI may suggest, a simpler case for each item, the solution and the phrases that give the answer away. The ID, the statement, the canvas, the items, the givens and the unknown are open, since the learner's app shows them, but for the skills and the simpler case of an item and the check of each answer slot; those, the skills, the band, the difficulty, the age categories, the techniques, the traps, the solution, the leak phrases and the template are closed, since the server reads them. A task with a template is a template of tasks: each attempt gets one instance of it, with numbers in the place of its placeholders.",
   "type": "object",

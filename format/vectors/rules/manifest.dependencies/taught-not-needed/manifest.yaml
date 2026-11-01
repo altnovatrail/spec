@@ -1,5 +1,5 @@
 # A manifest that names, as what the module needs, the anchor skill that the module teaches.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/vector
 version: "0.1.0"
 title: A test vector

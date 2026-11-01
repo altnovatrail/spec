@@ -1,5 +1,5 @@
 # The lesson names an age category that the module does not suit.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/lessons
 version: "0.1.0"
 title: Lessons

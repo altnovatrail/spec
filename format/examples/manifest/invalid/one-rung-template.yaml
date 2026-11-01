@@ -1,6 +1,6 @@
 # error: minItems at #/rung_templates
 # The hint ladder falls back on a template at each of its first two rungs, so there are two.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/one-rung-template
 version: "0.1.0"
 title: One rung template

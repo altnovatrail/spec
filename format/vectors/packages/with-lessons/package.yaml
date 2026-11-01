@@ -3,7 +3,7 @@
 # no file writes: one skill stands on another, so they stand in tiers 1 and 2.
 server_part:
   manifest:
-    module_format_version: "0.1"
+    module_format_version: "0.2"
     id: "example/with-lessons"
     version: "0.1.0"
     title: "A module with lessons"
@@ -143,13 +143,13 @@ device_part:
       digest: "sha256:064b66188821584121784c30ca28eadbc5f265e025c6dd9eeed64cf1ef8e1f46"
       size: 67
 inventory:
-  module_format_version: "0.1"
+  module_format_version: "0.2"
   id: "example/with-lessons"
   version: "0.1.0"
   server_part:
-    digest: "sha256:c5addd6ce61dbf78a3c9ed5cd8150184ff0ff98ae8ebe5acfd42f06dceec1c2d"
+    digest: "sha256:9427e94c062d822805014aa266c46f7f20d9e7f3f67567bb14ef22a1ef8cee85"
     size: 3350
   device_part:
     digest: "sha256:af6eef318606293bccb44b66f404094224d0ae46df2a7d813cbcd60b87189a11"
     size: 373
-digest: "sha256:3dcd70dc6dd9621eafd98e6cc5ee8dc4f14573f0e70116b2a803e69cdc371f1f"
+digest: "sha256:11fc9e157ccfe363bd84b4539c3c95b0ac5ddfe11dc330536e6dd6a7f8d204b8"

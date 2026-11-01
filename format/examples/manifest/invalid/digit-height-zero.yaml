@@ -1,6 +1,6 @@
 # error: minimum at #/canvas/digit_height
 # A digit or a letter on the crop is 1 px high at least.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: novatrail/school-math-grade-3
 version: "0.1.0"
 title: School mathematics, grade 3

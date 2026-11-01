@@ -4,7 +4,7 @@ package formatv0
 
 // ModuleFormatVersion is the type of common.schema.json#/$defs/module_format_version.
 //
-// A version of the module format, MAJOR.MINOR, written as a string: "0.1".
+// A version of the module format, MAJOR.MINOR, written as a string: "0.2".
 type ModuleFormatVersion string
 
 // ModuleID is the type of common.schema.json#/$defs/module_id.
