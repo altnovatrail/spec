@@ -2,7 +2,7 @@
 # and a lesson that names it. Every text that the learner can see with an instance — the rung
 # templates, the trap's advice, the lesson — holds no number, since the keys of all 64 instances are
 # searched for in it.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/with-templates
 version: "0.1.0"
 title: A module with a template

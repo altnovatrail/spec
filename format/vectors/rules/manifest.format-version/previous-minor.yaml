@@ -1,0 +1,15 @@
+# The minor version before the format's: while the format is v0, a reader reads only the current
+# version, so it refuses a module written in the one before (section 2). The task that gives the
+# format a new version moves this case to the one before it.
+module_format_version: "0.1"
+id: example/vector
+version: "0.1.0"
+title: A test vector
+subject: mathematics
+audience:
+  age_categories: [adult]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

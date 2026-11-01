@@ -1,6 +1,6 @@
 # error: maximum at #/bands/0/grades/1
 # A band names grades from 1 to 12.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: novatrail/school-math-grade-3
 version: "0.1.0"
 title: School mathematics, grade 3

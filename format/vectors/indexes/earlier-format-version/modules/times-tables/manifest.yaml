@@ -1,0 +1,14 @@
+# The times tables, moved to version 0.2 of the format with the same skills: a new version.
+module_format_version: "0.2"
+id: example/times-tables
+version: "0.2.0"
+title: Times tables
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

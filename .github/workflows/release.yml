@@ -49,7 +49,7 @@ permissions:
 # The line the releases are numbered in: the major and minor version every release carries, the
 # patch counting up within it. just release-version reads it from here.
 env:
-  RELEASE_LINE: "0.5"
+  RELEASE_LINE: "0.6"
 
 jobs:
   release:

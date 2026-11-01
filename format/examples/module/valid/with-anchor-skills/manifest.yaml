@@ -1,6 +1,6 @@
 # A module whose skills need two anchor skills of the shared taxonomy and teach a third one: its
 # dependencies are the two it needs, not the one it teaches.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/with-anchor-skills
 version: "0.1.0"
 title: Fractions, grade 4

@@ -1,5 +1,5 @@
 # The next version of the times tables: the same skills, one of them described anew.
-module_format_version: "0.1"
+module_format_version: "0.2"
 id: example/times-tables
 version: "0.2.0"
 title: Times tables
