@@ -1772,7 +1772,7 @@ E3 идёт вместе с репозиториями этапа 2, как E2 �
   - настоящие cosign, OIDC, Releases API и прокси Go впервые прогонит релиз v0.3.0 после мержа;
   - покрытие кода Go `spec` в Codecov не идёт — оно придёт с общим `go.yml` в T45 (Д29);
   - мои шаги:
-    - проверку CodeQL для Go, «CodeQL / analyze (go)», поставить в обязательные проверки ruleset `main`;
+    - ~~проверку CodeQL для Go, «CodeQL / analyze (go)», поставить в обязательные проверки ruleset `main`~~ — стоит с 2026-11-01, вместе с проверками «Go / …» (T50);
     - сохранить 12 обоснований на bestpractices.dev по ссылке с `overrides` из отчёта;
   - T45 и T46.
 
@@ -2177,6 +2177,16 @@ E3 идёт вместе с репозиториями этапа 2, как E2 �
     Не приняты 2:
     - окно, пока «Go / lint» не обязателен: ruleset встаёт до мержа этого pull request, и окна нет;
     - файл, удалённый из рабочего дерева, но ещё в индексе, ломает `ci-lint` локально. Так же у `module-kit`; ошибка называет файл, а `git rm` её снимает.
+  - pull request #72, коммит 21edcd2:
+    - все проверки зелёные: «Go / lint» — 35 с, «Go / test» — 45 с, «Go / vuln» — 46 с, «Go / licenses» — 51 с, а «Documents and tools» — 2 мин 9 с;
+    - job «Coverage» отправил оба отчёта: «Found 2 coverage files to report». Отчёт Codecov коммита называет файлы Go путями репозитория — `spec.go` 75 %, `tools/gomod/main.go` 80 %, `tools/types/roundtrip/main.go` 95,23 % и `registry.go` 100 %, — а всего в нём 45 файлов и 96,65 % (API Codecov);
+    - `codecov/patch` — success, «Coverage not affected when comparing f005943...21edcd2»;
+    - SonarCloud по pull request — 0 находок и 0 hotspots;
+  - ruleset `main` 25424994 — с 2026-11-01 16:22 UTC обязательны ещё «Go / lint», «Go / test», «Go / vuln», «Go / licenses» и «CodeQL / analyze (go)», все с `integration_id` 15368. Остальное в нём как было — сверено чтением после правки.
+- **Открыто:**
+  - Д29 — загрузка покрытия в `go.yml`, T34 `.github`. С ней профиль Go `spec` уходит к загрузке обёртки;
+  - мой шаг: девять обоснований `.bestpractices.json` на bestpractices.dev — ссылкой с `overrides` из отчёта;
+  - правило 12 по T50 — SonarCloud, New Code, и алерты code scanning на `main` после мержа.
 
 ### Часть 5. С первым кодом `module-kit`
 
