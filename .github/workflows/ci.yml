@@ -1,18 +1,22 @@
 # spec's own checks (R30): the documents, the module format (R45), the types of the module format
-# in Go and TypeScript (R72, R73), the Go module code takes from a release and its zip, the tests of tools/, the licenses of
-# its packages, the version the next release takes (R31) and the files it carries (R64). The tests
-# run once, with their coverage, which a job of its own sends to Codecov (R48).
+# in Go and TypeScript (R72, R73), the Go module code takes from a release and its zip, the
+# licenses of the packages of tools/, the version the next release takes (R31) and the files it
+# carries (R64). The tests of tools/ and of the Go modules run once here, with their coverage,
+# which a job of its own sends to Codecov (R48); the Go tests run again in "Go / test", whose
+# shared workflow uploads no coverage yet.
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node, Go and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
-# run and published nowhere. Beside them, two of the checks every repository shares, from
-# .github: secrets and DCO (R03 .github). The third, the documents of a repository with spec as
-# its submodule, spec does not take: its own job checks its documents.
+# run and published nowhere. Beside them, three of the checks every repository shares, from
+# .github: secrets, DCO and the Go code, by the ci- recipes of the justfile (R03, R16 .github).
+# The fourth, the documents of a repository with spec as its submodule, spec does not take: its
+# own job checks its documents.
 #
 # The required checks of the ruleset of main are named after these jobs: "Documents and tools",
-# and for a shared check the job here and the job of the shared workflow, "Secrets / gitleaks"
-# and "DCO / sign-off". Renaming either breaks that rule. "Coverage" is not one of them: the
-# check that answers for coverage is codecov/patch, which Codecov sets from the upload, and the
-# ruleset requires it once a pull request of Dependabot has shown that it comes (R30).
+# and for a shared check the job here and the job of the shared workflow, "Secrets / gitleaks",
+# "DCO / sign-off", and "Go / lint", "Go / test", "Go / vuln" and "Go / licenses". Renaming
+# either breaks that rule. "Coverage" is not one of them: the check that answers for coverage is
+# codecov/patch, which Codecov sets from the upload, and the ruleset requires it once a pull
+# request of Dependabot has shown that it comes (R30).
 
 name: CI
 
@@ -64,10 +68,10 @@ jobs:
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec types-check
 
-      # spec's Go module (R64), with the types of the module format (R72): vetted, tested, with no
-      # requirement, and its zip built of the commit as the Go module proxy will build it from the
-      # release's tag. go fetches the module the zip is built with, golang.org/x/mod, by
-      # tools/gomod/go.sum.
+      # spec's Go module (R64), with the types of the module format (R72): with no requirement,
+      # and its zip built of the commit as the Go module proxy will build it from the release's
+      # tag. go fetches the module the zip is built with, golang.org/x/mod, by tools/gomod/go.sum.
+      # Its vet and its tests are the job Go's, below.
       - name: Go module
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec go-check
@@ -103,27 +107,30 @@ jobs:
 
       # The tests of every tool in one run, which names every test that fails, with the coverage
       # of the code they test in coverage/lcov.info. The recipe fails on a module of tools/ that
-      # no test loads, since codecov/patch would never count its lines.
+      # no test loads, since codecov/patch would never count its lines. Then the tests of the Go
+      # modules, as "Go / test" runs them, with their profile in coverage/go.out.
       - id: tests
-        name: Tests of tools/
+        name: Tests
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec coverage
 
-      # The report goes to the job that uploads it, the one job that may ask for an OIDC token. It
-      # is kept a week, so that the job can be run again after an outage of Codecov.
+      # The reports go to the job that uploads them, the one job that may ask for an OIDC token.
+      # They are kept a week, so that the job can be run again after an outage of Codecov.
       - name: Coverage report
         if: ${{ !cancelled() && steps.tests.outcome == 'success' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage
-          path: coverage/lcov.info
+          path: |
+            coverage/lcov.info
+            coverage/go.out
           retention-days: 7
           if-no-files-found: error
 
-  # Codecov takes the report by OIDC, with no secret (R48). This job alone may ask GitHub for the
+  # Codecov takes the reports by OIDC, with no secret (R48). This job alone may ask GitHub for the
   # token, which only Codecov accepts and which grants nothing in the repository, and it runs
   # none of the repository's code. A pull request from a fork gets no token: the action then
-  # sends the report without one, as Codecov takes it from a fork's branch.
+  # sends the reports without one, as Codecov takes them from a fork's branch.
   #
   # Any failure of the job fails a pull request, so that a missing codecov/patch has its reason
   # in sight. On main it does not fail the run: the release waits for CI to pass (R31), and an
@@ -139,9 +146,10 @@ jobs:
       contents: read
       id-token: write
     steps:
-      # The files of the commit, which the upload lists so that Codecov can match the report's
-      # paths to them. Which commit and pull request the report is for, the action takes from
-      # the event.
+      # The files of the commit, which the upload lists so that Codecov can match the reports'
+      # paths to them: Go names a file by its import path, which Codecov cuts down to the path in
+      # the repository by a rule of its own. Which commit and pull request the reports are for,
+      # the action takes from the event.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -165,13 +173,13 @@ jobs:
           echo "${CLI_SHA256}  ${RUNNER_TEMP}/codecov" | sha256sum -c -
           chmod +x "$RUNNER_TEMP/codecov"
 
-      # The report alone: no search for others, and no plugins, which would run coverage tools of
-      # their own. A failed upload fails the job, as any of its steps does.
+      # The two reports alone: no search for others, and no plugins, which would run coverage
+      # tools of their own. A failed upload fails the job, as any of its steps does.
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           binary: ${{ runner.temp }}/codecov
           use_oidc: true
-          files: coverage/lcov.info
+          files: coverage/lcov.info,coverage/go.out
           disable_search: true
           plugins: noop
           disable_telem: true
@@ -188,3 +196,10 @@ jobs:
     name: DCO
     if: github.event_name == 'pull_request'
     uses: altnovatrail/.github/.github/workflows/dco.yml@26f61993abadd564cce5e0498b31c686a61f9646 # v0.1.3
+
+  # The Go code — spec's Go module and the modules of tools/ — by the ci- recipes of the
+  # justfile, in the toolchain stage, as in every Go repository (R16 .github; R30). go.yml asks
+  # for contents: read alone, which the workflow gives.
+  go:
+    name: Go
+    uses: altnovatrail/.github/.github/workflows/go.yml@f3addb7403d084c560c61481e217b93f8e7ee1f3 # v0.1.10

@@ -113,30 +113,127 @@ types-test: _tools
     node --test 'tools/types/test/*.test.mjs'
 
 # The Go module spec ships at the tag of every release (R64): go.mod and spec.go at the root, which
-# embeds format/, and the types of the module format under types/ (R72). The module is vetted and
-# tested, and it requires nothing: go list names it alone. Its zip, as the Go module proxy will
-# build it from a tag, is built of HEAD — a commit, not the working tree — by tools/gomod, a module
-# of its own with its own tests, under the version the line of release.yml at HEAD takes, and read
-# back for LICENSE and every file of format/ and of types/. go fetches golang.org/x/mod for it at
-# the version tools/gomod/go.sum pins. tools/types/roundtrip, the check of the types, is a module of
-# its own too, vetted and tested here.
-# Check spec's Go module: vet, tests, requirements and the zip of HEAD.
+# embeds format/, and the types of the module format under types/ (R72). It requires nothing: go
+# list names it alone. Its zip, as the Go module proxy will build it from a tag, is built of HEAD — a
+# commit, not the working tree — by tools/gomod, a module of its own, under the version the line of
+# release.yml at HEAD takes, and read back for LICENSE and every file of format/ and of types/. go
+# fetches golang.org/x/mod for it at the version tools/gomod/go.sum pins. The vet and the tests of
+# this module and of the modules of tools/ are ci-lint's and ci-test's, below.
+# Check spec's Go module: that it requires nothing, and the zip of HEAD.
 go-check:
     #!/usr/bin/env bash
     set -euo pipefail
-    go vet ./...
-    go test ./...
     if [ "$(go list -m all)" != "$(go list -m)" ]; then
         echo "go-check: spec's Go module requires other modules, and it ships with none (R64):" >&2
         go list -m all >&2
         exit 1
     fi
     line=$(git show HEAD:.github/workflows/release.yml | node tools/release/line.mjs)
-    go -C tools/gomod vet ./...
-    go -C tools/gomod test ./...
     go -C tools/gomod run . {{quote(justfile_directory())}} HEAD "$line"
-    go -C tools/types/roundtrip vet ./...
-    go -C tools/types/roundtrip test ./...
+
+# The ci- recipes are what .github's shared go.yml runs, one job each, in the toolchain stage of
+# .devcontainer/Dockerfile, as it runs them in every Go repository of NovaTrail: "Go / lint", "Go /
+# test", "Go / vuln" and "Go / licenses" (R16 .github; R30). Each checks every Go module of spec:
+# the root and the modules of tools/, which `./...` at the root does not reach.
+#
+# The tools only the checks need, at exact versions. Each is a Go program run straight from its
+# module, as module-kit's justfile runs them, so nothing is installed for it: the Go module proxy
+# serves that version and the checksum database vouches for it. Dependabot does not see them,
+# so they are raised by hand.
+GOVULNCHECK := "golang.org/x/vuln/cmd/govulncheck@v1.9.0"
+GO_LICENSES := "github.com/google/go-licenses/v2@v2.0.1"
+
+# The folder of each Go module of spec, one a line: each go.mod git tracks or would, outside any
+# testdata/ — go.mod at the root, tools/gomod and tools/types/roundtrip today. The tests of
+# tools/gomod build their repositories in temporary folders, and the copies new-repo builds in
+# .repos/ git ignores. A new module is checked without a change here.
+[private]
+_go-modules:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    modules=$(git ls-files --cached --others --exclude-standard -- 'go.mod' '*/go.mod' ':(glob,exclude)**/testdata/**' \
+        | sed -e 's|/*go\.mod$||' -e 's|^$|.|' | sort -u)
+    if ! grep -qx '\.' <<< "$modules"; then
+        echo "_go-modules: git lists no go.mod at the root of spec" >&2
+        exit 1
+    fi
+    echo "$modules"
+
+# Fail on Go code gofmt would rewrite, and on what go vet reports.
+ci-lint:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    modules=$({{quote(just_executable())}} _go-modules)
+    unformatted="$(git ls-files -z --cached --others --exclude-standard -- '*.go' ':(glob,exclude)**/testdata/**' \
+        | xargs -0 -r gofmt -l)"
+    if [ -n "$unformatted" ]; then
+        echo "ci-lint: gofmt would rewrite these files; run gofmt -w on them:" >&2
+        echo "$unformatted" >&2
+        exit 1
+    fi
+    while IFS= read -r module; do
+        echo "ci-lint: go vet in ${module}"
+        go -C "$module" vet ./...
+    done <<< "$modules"
+
+# The profiles of the modules go into coverage/go.out, one profile with one mode line, which a job
+# of CI sends to Codecov with the coverage of tools/ (R48). Go counts statements, and leaves the
+# tests themselves out; a package that no test runs is in it too, its statements at zero.
+# Run the tests, with the race detector, and write their coverage.
+ci-test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    modules=$({{quote(just_executable())}} _go-modules)
+    rm -f coverage/go.out
+    profiles=$(mktemp -d)
+    trap 'rm -rf "$profiles"' EXIT
+    n=0
+    while IFS= read -r module; do
+        n=$((n + 1))
+        echo "ci-test: go test in ${module}"
+        go -C "$module" test -race -count=1 -covermode=atomic -coverprofile="${profiles}/${n}.out" ./...
+    done <<< "$modules"
+    mkdir -p coverage
+    {
+        echo "mode: atomic"
+        for profile in "$profiles"/*.out; do
+            tail -n +2 "$profile"
+        done
+    } > coverage/go.out
+
+# Fail on a known vulnerability in code a module reaches, in the standard library of its Go too.
+ci-vuln:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    modules=$({{quote(just_executable())}} _go-modules)
+    while IFS= read -r module; do
+        echo "ci-vuln: govulncheck in ${module}"
+        go -C "$module" run {{GOVULNCHECK}} ./...
+    done <<< "$modules"
+
+# The list is ALLOWED_LICENSES, SPDX identifiers separated by commas, which .github's go.yml sets
+# from spec's own list; without it, the recipe takes that list itself, as licenses-allowed prints
+# it (R12, R39). A module of tools/ is spec's own code under the LICENSE at the root, which
+# go-licenses looks for no higher than the module's root: its own packages are left out, and every
+# package it is built from is checked.
+# Fail if a package a module is built from carries a license outside that list.
+ci-licenses:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -n "${ALLOWED_LICENSES:-}" ]; then
+        allowed=$ALLOWED_LICENSES
+    else
+        allowed=$({{quote(just_executable())}} licenses-allowed | paste -sd , -)
+    fi
+    modules=$({{quote(just_executable())}} _go-modules)
+    while IFS= read -r module; do
+        echo "ci-licenses: go-licenses in ${module}"
+        ignore=()
+        if [ "$module" != . ]; then
+            ignore=(--ignore "$(go -C "$module" list -m)")
+        fi
+        go -C "$module" run {{GO_LICENSES}} check ./... --allowed_licenses="$allowed" "${ignore[@]}"
+    done <<< "$modules"
 
 # Reads the lock file alone, so nothing is installed first. The allowed list and the named
 # exceptions are in tools/licenses/config.mjs (R12).
@@ -363,8 +460,9 @@ new-repo-test: _tools
 # of the report. A module that no test loads is not in it at all, and codecov/patch would never
 # count its lines, so the recipe fails on any module of tools/ the report does not name. Node
 # measures JavaScript alone: toolchain.sh and the bash recipes here have their tests, but no
-# coverage.
-# Run every test of tools/ once, and write their coverage.
+# coverage. Then the tests of every Go module, as ci-test runs them, with their profile in
+# coverage/go.out, which the same job sends with the report of Node (R48).
+# Run every test of tools/ and of the Go modules once, and write their coverage.
 coverage: _tools
     #!/usr/bin/env bash
     set -euo pipefail
@@ -383,6 +481,7 @@ coverage: _tools
         echo "$missing" >&2
         exit 1
     fi
+    {{quote(just_executable())}} ci-test
 
 # Install tools/ from its lock file, again whenever package.json or the lock file changes:
 # the stamp holds their hashes, so a restored file with an old mtime is noticed too.
