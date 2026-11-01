@@ -46,7 +46,8 @@ format-check-test: _tools
 # each with its TypeScript beside it, index.d.ts, which the npm package @altnovatrail/spec carries
 # (R73), and the registry of tools/types/roundtrip. The generator writes them into a new folder,
 # gofmt aligns the Go, and they take the place of the files in the repository, so that a type no
-# schema gives any more goes too.
+# schema gives any more goes too. types/canvas, the types of <novatrail-canvas>, is written by hand
+# (R74): it stays as it is.
 # Generate the types of the module format from its schemas again.
 types: _tools
     #!/usr/bin/env bash
@@ -55,11 +56,14 @@ types: _tools
     trap 'rm -rf "$out"' EXIT
     node tools/types/main.mjs "$out"
     gofmt -w "$out"
-    rm -rf types
-    mv "$out/types" types
+    mkdir -p types
+    find types -mindepth 1 -maxdepth 1 ! -name canvas -exec rm -rf {} +
+    mv "$out"/types/* types/
     mv "$out/tools/types/roundtrip/registry.go" tools/types/roundtrip/registry.go
 
-# What `just types` would write is what types/ and the registry hold, file for file. Then each value
+# What `just types` would write is what types/ and the registry hold, file for file, and types/ holds
+# nothing else but types/canvas/index.d.ts, the types of <novatrail-canvas>, written by hand (R74).
+# Then each value
 # of format/ that passes a schema — the examples, the files of every module of the examples and the
 # vectors, the vectors themselves and the canonical view of each example of a whole module — is read
 # by its type of formatv0 strictly and written back as it was, and so is the open view of each
@@ -68,8 +72,10 @@ types: _tools
 # the value of a declaration of its type in TypeScript, imported from the npm package, which is
 # packed of the working tree and unpacked into the project tsc checks: under the resolution of
 # modules nodenext and under bundler, with a value that holds a closed field refused
-# (tools/types/typescript.mjs, tools/types/npm.mjs). The corpus is of the working tree, as
-# format-check's files are.
+# (tools/types/typescript.mjs, tools/types/npm.mjs). The package is of the line the working tree is
+# numbered in, as its next release's will be, and tsc takes the check of the types of
+# <novatrail-canvas> from it too, tools/types/canvas.check.ts, with the DOM. The corpus is of the
+# working tree, as format-check's files are.
 # Check the types of the module format against its schemas and against the values of format/.
 types-check: _tools
     #!/usr/bin/env bash
@@ -78,19 +84,27 @@ types-check: _tools
     trap 'rm -rf "$out"' EXIT
     node tools/types/main.mjs "$out/generated"
     gofmt -w "$out/generated"
-    if ! diff -r types "$out/generated/types" || ! diff tools/types/roundtrip/registry.go "$out/generated/tools/types/roundtrip/registry.go"; then
+    if [ "$(ls -A types/canvas 2> /dev/null)" != "index.d.ts" ]; then
+        echo "types-check: types/canvas holds index.d.ts alone, the types of <novatrail-canvas>, written by hand: just types neither writes nor cleans it" >&2
+        exit 1
+    fi
+    if ! diff -r --exclude=canvas types "$out/generated/types" || ! diff tools/types/roundtrip/registry.go "$out/generated/tools/types/roundtrip/registry.go"; then
         echo "types-check: the files differ from what format/schemas gives; run just types" >&2
         exit 1
     fi
     node tools/types/corpus.mjs "$out/corpus.json"
     go -C tools/types/roundtrip run . "$out/corpus.json"
     node tools/types/typescript.mjs "$out/corpus.json" "$out/typescript"
-    archive=$(node tools/types/npm.mjs . 0.0.0 "$out")
+    line=$(node tools/release/line.mjs < .github/workflows/release.yml)
+    archive=$(node tools/types/npm.mjs . "${line}.0" "$out")
     mkdir -p "$out/typescript/node_modules/@altnovatrail/spec"
     tar -xzf "$archive" -C "$out/typescript/node_modules/@altnovatrail/spec" --strip-components=1
     for config in "$out/typescript"/tsconfig.*.json; do
         tools/node_modules/.bin/tsc -p "$config"
-        echo "types-check: tsc takes every case, by $(basename "$config")"
+        case "$config" in
+            */tsconfig.canvas.*) echo "types-check: tsc takes the check of <novatrail-canvas>, by $(basename "$config")" ;;
+            *) echo "types-check: tsc takes every case, by $(basename "$config")" ;;
+        esac
     done
 
 # Run the generator's own tests, on small schemas written in the tests and on spec's own format/,

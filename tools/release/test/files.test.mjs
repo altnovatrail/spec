@@ -138,6 +138,31 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
     const other = recipe(dir, { name: "release-files", args: ["HEAD", "other-line", "v0.3.7"] });
     assert.notEqual(other.status, 0);
     assert.match(other.stderr, /v0\.3\.7 is no release of the line 0\.4/);
+
+    // From the line 0.5 on, the package holds the types of <novatrail-canvas> too. A release of the
+    // line 0.4, run again, gets the package it got, though its commit has none of them.
+    const earlier = git("rev-parse", "HEAD");
+    writeFile(dir, git, "types/canvas/index.d.ts", 'export type Tool = "pen";\n');
+    releaseLine(dir, git, "0.5");
+    git("commit", "--quiet", "-m", "the types of the element, in a new line");
+    const canvas = recipe(dir, { name: "release-files", args: ["HEAD", "canvas", "v0.5.0"] });
+    assert.equal(canvas.status, 0, canvas.stderr);
+    assert.deepEqual(listing(path.join(dir, "canvas", "altnovatrail-spec-0.5.0.tgz")), [
+      "package/LICENSE",
+      "package/README.md",
+      "package/canvas/index.d.ts",
+      "package/formatv0/index.d.ts",
+      "package/formatv0/open/index.d.ts",
+      "package/package.json",
+    ]);
+    const again04 = recipe(dir, { name: "release-files", args: [earlier, "earlier", "v0.4.0"] });
+    assert.equal(again04.status, 0, again04.stderr);
+    const rebuilt = path.join(dir, "earlier", "altnovatrail-spec-0.4.0.tgz");
+    assert.deepEqual(listing(rebuilt), listing(npm));
+    const entry = (archive, file) => spawnSync(TAR, ["-xzOf", archive, `package/${file}`], { encoding: "utf8" }).stdout;
+    for (const file of ["package.json", "formatv0/index.d.ts"]) assert.equal(entry(rebuilt, file), entry(npm, file), file);
+    // The commit of the line 0.5 holds the types changed since, which the rebuilt 0.4 package has not.
+    assert.equal(entry(path.join(dir, "canvas", "altnovatrail-spec-0.5.0.tgz"), "formatv0/index.d.ts"), "export type Changed = never;\n");
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
