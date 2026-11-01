@@ -18,5 +18,10 @@
     "micromark-extension-gfm": "3.0.0",
     "typescript": "7.0.2",
     "yaml": "2.9.1"
+  },
+  "overrides": {
+    "@tufjs/models": {
+      "minimatch": "11.0.3"
+    }
   }
 }
