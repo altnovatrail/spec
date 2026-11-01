@@ -36,7 +36,7 @@ test("module-kit v0.1.0, signed by .github v0.1.4, is refused below the minimum,
 
 test("a file checked as another repository's, or as signed by another workflow, is refused", () => {
   assert.throws(() => checked({ ...specFile("altnovatrail-spec-0.5.6.tgz"), repository: "module-kit" }), /the SAN is "https:\/\/github\.com\/altnovatrail\/spec\/\.github\/workflows\/release\.yml@refs\/heads\/main", not the shared release\.yml of \.github at the SHA of a commit/);
-  assert.throws(() => checked({ ...license(), repository: "spec" }, { minimum: AT_V014 }), new RegExp(`the SAN is "${SHARED.replaceAll(".", "\\.")}${V014}", not "https://github\\.com/altnovatrail/spec/`));
+  assert.throws(() => checked({ ...license(), repository: "spec" }, { minimum: AT_V014 }), new RegExp(`the SAN is "${RegExp.escape(SHARED)}${V014}", not "https://github\\.com/altnovatrail/spec/`));
   assert.throws(() => checked({ ...license(), repository: "canvas" }, { minimum: AT_V014 }), /Source Repository URI \(1\.3\.6\.1\.4\.1\.57264\.1\.12\) is "https:\/\/github\.com\/altnovatrail\/module-kit", not "https:\/\/github\.com\/altnovatrail\/canvas"/);
 });
 
@@ -65,7 +65,7 @@ test("the bytes, the bundle and the bundle's form are held", () => {
     return () => checked(file, { minimum: AT_V014 });
   };
   for (const mediaType of ["application/vnd.dev.sigstore.bundle+json;version=0.2", "application/vnd.dev.sigstore.bundle.v0.4+json"]) {
-    assert.throws(form((bundle) => (bundle.mediaType = mediaType)), new RegExp(`the bundle is ${mediaType.replaceAll(/[.+]/g, "\\$&")}, not application/vnd\\.dev\\.sigstore\\.bundle\\.v0\\.3\\+json`));
+    assert.throws(form((bundle) => (bundle.mediaType = mediaType)), new RegExp(`the bundle is ${RegExp.escape(mediaType)}, not application/vnd\\.dev\\.sigstore\\.bundle\\.v0\\.3\\+json`));
   }
   assert.throws(form((bundle) => {
     delete bundle.verificationMaterial.certificate;

@@ -105,7 +105,7 @@ test("a lock file that is not npm's, of lockfileVersion 2 or 3 with its packages
 
 test("what the network answers is held: an error, a status, plain HTTP, a bundle that is no JSON", async () => {
   const one = lock({ "node_modules/@altnovatrail/spec": spec });
-  await assert.rejects(verified(one, { [BUNDLE]: undefined }), new RegExp(`${BUNDLE.replaceAll(/[./]/g, "\\$&")} answered HTTP 404`));
+  await assert.rejects(verified(one, { [BUNDLE]: undefined }), new RegExp(`${RegExp.escape(BUNDLE)} answered HTTP 404`));
   await assert.rejects(verified(one, { [ARCHIVE]: { status: 500, body: Buffer.alloc(0) } }), /spec-0\.5\.6\.tgz answered HTTP 500/);
   await assert.rejects(verified(one, { [ARCHIVE]: new Error("getaddrinfo ENOTFOUND registry.npmjs.org") }), /spec-0\.5\.6\.tgz could not be fetched: getaddrinfo ENOTFOUND/);
   await assert.rejects(verified(one, { [ARCHIVE]: { body: RELEASED.bytes, url: "http://registry.npmjs.org/@altnovatrail/spec/-/spec-0.5.6.tgz" } }), /was answered from http:\/\/registry\.npmjs\.org\/.* not over HTTPS/);
