@@ -21,7 +21,7 @@ NovaTrail turns any subject into interactive lessons with an AI tutor, for child
 
 ## Status
 
-Early design. This repository holds the platform's documents and the module format, in [format/](format/README.md): version 0.1, its text, schemas, examples and test vectors, which comes out as files for code with the release v0.3.0 and is still to be tried on the modules of the first slice. The types of the format for Go and TypeScript come next, and the contracts between components after it. NovaTrail succeeds [MathTrail](https://github.com/mathtrail), olympiad maths for grades 1–6, which is now frozen.
+Early design. This repository holds the platform's documents and the module format, in [format/](format/README.md): version 0.1, its text, schemas, examples and test vectors, which comes out as files for code from the release v0.3.0, with its types for Go from v0.3.4 and for TypeScript from v0.4.0, and is still to be tried on the modules of the first slice. The first contract between components, the types of the element `<novatrail-canvas>` between `canvas` and `app`, comes out from v0.5.0 (R74), and the other contracts come after it. NovaTrail succeeds [MathTrail](https://github.com/mathtrail), olympiad maths for grades 1–6, which is now frozen.
 
 ## Repositories
 
