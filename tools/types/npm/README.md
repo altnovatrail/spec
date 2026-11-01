@@ -8,6 +8,8 @@ The types of [NovaTrail](https://github.com/altnovatrail)'s module format for Ty
 
 They are generated from the format's schemas, [`format/schemas`](https://github.com/altnovatrail/spec/tree/main/format/schemas) in `altnovatrail/spec`, by its `tools/types`. Go code takes the same types from the Go module `github.com/altnovatrail/spec`, at the same tag.
 
+From 0.5.0 on, the package also holds the types of the element `<novatrail-canvas>`: the contract between the canvas and the learner's app. These are written by hand rather than generated, and only TypeScript has them.
+
 The package holds declarations alone, with no code to run, so import them with `import type`:
 
 ```ts
@@ -26,6 +28,13 @@ function show(task: open.Task, manifest: open.Manifest) {
 
   A field the object always holds is required, and any other is optional. That includes each field that only some branches of a schema give.
 - **`@altnovatrail/spec/formatv0/open`** holds the open view of each part, which is what the learner's app gets ([the format's text](https://github.com/altnovatrail/spec/blob/main/format/README.md#6-open-fields), section 6). Each type keeps its name from `formatv0` and only the fields marked `x-open`, so an open view has no check, no template and no solver.
+- **`@altnovatrail/spec/canvas`** holds the types of `<novatrail-canvas>`:
+  - `CanvasElement`, which describes the element's properties `tool`, `task`, `manifest`, `history` and `filled` and its method `exportWork()`;
+  - the events `toolchange` and `historychange`, with `CanvasEventMap` naming them;
+  - the history of writing;
+  - the work for checking, with the context of its submission.
+
+  Its unions are exact: an event of the history is told by its `kind`, and the work of a sheet or of a workbook by its key, `png` or `cells`. The declarations need the DOM's types, so the consumer's `lib` must include `dom`. The tutor's marks are not in it yet: their types come with the contract between the app and the platform's API. The package registers nothing. The canvas's own package puts the element in `HTMLElementTagNameMap` and its events in `GlobalEventHandlersEventMap`.
 
 A type gives the shape of a value and nothing more: the schemas decide what is valid. Code that reads a value from elsewhere checks it against its schema first.
 

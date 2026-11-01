@@ -1,5 +1,5 @@
-// The npm package of the types: its package.json, its files of the working tree or of a commit,
-// and its archive, which npm packs and tar reads back.
+// The npm package of the types: its package.json and its files, by the line of its version, of the
+// working tree or of a commit, and its archive, which npm packs and tar reads back.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TAR } from "../../shared.mjs";
-import { FILES, NAME, archiveOf, checkArchive, manifestOf, packOf, writePackage } from "../npm.mjs";
+import { FIRST_CANVAS_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
 import { scratchRepository, writeFile } from "../../release/test/repository.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -17,6 +17,9 @@ const spec = path.join(here, "..", "..", "..");
 const script = path.join(spec, "tools", "types", "npm.mjs");
 
 const scratch = (prefix) => fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+
+// The package's files of the newest line, which holds those of every earlier one.
+const FILES = filesOf("99.0.0");
 
 // A tree that holds the package's files, each with its own text.
 function tree() {
@@ -43,16 +46,60 @@ test("the package is named and versioned as the release, and exports each packag
     "./formatv0/open": { types: "./formatv0/open/index.d.ts" },
     "./package.json": "./package.json",
   });
+  assert.deepEqual(manifest.files, ["formatv0"]);
+  assert.doesNotMatch(manifest.description, /novatrail-canvas/);
   for (const field of ["main", "scripts", "dependencies", "private", "publishConfig"]) assert.equal(manifest[field], undefined, field);
-  assert.deepEqual(
-    FILES.map(({ file, from }) => [file, from]),
-    [
-      ["LICENSE", "LICENSE"],
-      ["README.md", "tools/types/npm/README.md"],
-      ["formatv0/index.d.ts", "types/formatv0/index.d.ts"],
-      ["formatv0/open/index.d.ts", "types/formatv0/open/index.d.ts"],
-    ],
+  const format = [
+    ["LICENSE", "LICENSE"],
+    ["README.md", "tools/types/npm/README.md"],
+    ["formatv0/index.d.ts", "types/formatv0/index.d.ts"],
+    ["formatv0/open/index.d.ts", "types/formatv0/open/index.d.ts"],
+  ];
+  assert.deepEqual(filesOf("0.4.12").map(({ file, from }) => [file, from]), format);
+  for (const version of ["0.0.0", "0.4.0"]) assert.deepEqual(filesOf(version).map(({ file }) => file), format.map(([file]) => file), version);
+  for (const version of ["", "0.4"]) assert.throws(() => filesOf(version), /is not MAJOR\.MINOR\.PATCH/, version);
+});
+
+test("from the line 0.5 on, the package holds and exports the types of <novatrail-canvas> too", () => {
+  assert.equal(FIRST_CANVAS_LINE, "0.5");
+  const canvas = ["canvas/index.d.ts", "types/canvas/index.d.ts"];
+  for (const version of ["0.5.0", "0.10.3", "1.0.0"]) {
+    assert.deepEqual(filesOf(version).at(-1), { file: canvas[0], from: canvas[1] }, version);
+    const manifest = manifestOf(version);
+    assert.deepEqual(manifest.exports, {
+      "./formatv0": { types: "./formatv0/index.d.ts" },
+      "./formatv0/open": { types: "./formatv0/open/index.d.ts" },
+      "./canvas": { types: "./canvas/index.d.ts" },
+      "./package.json": "./package.json",
+    });
+    assert.deepEqual(manifest.files, ["formatv0", "canvas"]);
+    assert.match(manifest.description, /^The types of NovaTrail's module format .* And the types of the element <novatrail-canvas>/);
+  }
+  // A package of the line 0.4 is the one its releases got: the package.json of the archive of
+  // v0.4.1, as npm holds it, field for field and in its order.
+  assert.equal(
+    JSON.stringify(manifestOf("0.4.1"), null, 2),
+    JSON.stringify(
+      {
+        name: "@altnovatrail/spec",
+        version: "0.4.1",
+        description: "The types of NovaTrail's module format for TypeScript, generated from its schemas: the parts of a module and their open views, the canonical view, the inventory, the module index and the test vectors.",
+        license: "Apache-2.0",
+        repository: { type: "git", url: "git+https://github.com/altnovatrail/spec.git" },
+        type: "module",
+        exports: {
+          "./formatv0": { types: "./formatv0/index.d.ts" },
+          "./formatv0/open": { types: "./formatv0/open/index.d.ts" },
+          "./package.json": "./package.json",
+        },
+        files: ["formatv0"],
+        sideEffects: false,
+      },
+      null,
+      2,
+    ),
   );
+  assert.equal(filesOf("0.4.9").length, filesOf("0.5.0").length - 1);
   for (const version of ["", "v0.4.0", "0.4", "0.04.0", "0.4.0-rc.1"]) assert.throws(() => archiveOf(version), /is not MAJOR\.MINOR\.PATCH/, version);
 });
 
@@ -62,6 +109,10 @@ test("the package is written of the working tree, of files alone", () => {
     writePackage(root, "1.2.3", path.join(root, "out"));
     for (const { file, from } of FILES) assert.equal(fs.readFileSync(path.join(root, "out", file), "utf8"), `${from}\n`);
     assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, "out", "package.json"), "utf8")), manifestOf("1.2.3"));
+    // The package of an earlier line leaves the types of <novatrail-canvas> out.
+    writePackage(root, "0.4.3", path.join(root, "earlier"));
+    assert.equal(fs.existsSync(path.join(root, "earlier", "canvas")), false);
+    assert.equal(fs.readFileSync(path.join(root, "earlier", "formatv0/index.d.ts"), "utf8"), "types/formatv0/index.d.ts\n");
     assert.throws(() => writePackage(root, "1.2.3", path.join(root, "out")), /out is there already/);
     fs.rmSync(path.join(root, "types/formatv0/index.d.ts"));
     fs.symlinkSync("../../LICENSE", path.join(root, "types/formatv0/index.d.ts"));
@@ -75,9 +126,18 @@ test("the package is written of the working tree, of files alone", () => {
 test("the package is written of a commit's objects, not of the working tree", () => {
   const { dir, git } = scratchRepository("types-npm-commit-");
   try {
-    for (const { from } of FILES) writeFile(dir, git, from, `${from} at the commit\n`);
+    // A commit of the line 0.4, which has no types of <novatrail-canvas>: its package is the one
+    // its line holds, and the package of a later line is no package of it.
+    for (const { from } of filesOf("0.4.0")) writeFile(dir, git, from, `${from} at the commit\n`);
     git("commit", "--quiet", "-m", "the package's files");
+    const earlier = git("rev-parse", "HEAD");
+    writePackage(dir, "0.4.0", path.join(dir, "earlier"), earlier);
+    assert.throws(() => writePackage(dir, "0.5.0", path.join(dir, "later"), earlier), /types\/canvas\/index\.d\.ts is no file of [0-9a-f]{40}/);
+    writeFile(dir, git, "types/canvas/index.d.ts", "types/canvas/index.d.ts at the commit\n");
+    git("commit", "--quiet", "-m", "the types of the element");
     const commit = git("rev-parse", "HEAD");
+    writePackage(dir, "0.5.0", path.join(dir, "later"), commit);
+    assert.equal(fs.readFileSync(path.join(dir, "later", "canvas/index.d.ts"), "utf8"), "types/canvas/index.d.ts at the commit\n");
     fs.writeFileSync(path.join(dir, "LICENSE"), "changed since\n");
     writePackage(dir, "0.4.0", path.join(dir, "out"), commit);
     assert.equal(fs.readFileSync(path.join(dir, "out", "LICENSE"), "utf8"), "LICENSE at the commit\n");
@@ -105,6 +165,8 @@ test("npm packs the package, and the archive is read back", () => {
     const archive = packOf(root, "0.4.0", dir);
     assert.equal(archive, path.join(dir, "altnovatrail-spec-0.4.0.tgz"));
     assert.deepEqual(listing(archive), ["package/LICENSE", "package/README.md", "package/formatv0/index.d.ts", "package/formatv0/open/index.d.ts", "package/package.json"]);
+    const later = packOf(root, "0.5.0", dir);
+    assert.deepEqual(listing(later), ["package/LICENSE", "package/README.md", "package/canvas/index.d.ts", "package/formatv0/index.d.ts", "package/formatv0/open/index.d.ts", "package/package.json"]);
     assert.throws(() => packOf(root, "0.4.0", dir), /altnovatrail-spec-0\.4\.0\.tgz is there already/);
 
     // An npm that fails is named, and its work folder goes.
@@ -121,9 +183,9 @@ test("npm packs the package, and the archive is read back", () => {
 test("an archive with a file too many, or with another package.json, is refused", () => {
   const dir = scratch("types-npm-archive-");
   try {
-    const archiveWith = (name, extra, manifest) => {
+    const archiveWith = (name, extra, manifest, version = "0.4.0") => {
       const folder = path.join(dir, name, "package");
-      for (const { file } of FILES) {
+      for (const { file } of filesOf(version)) {
         fs.mkdirSync(path.dirname(path.join(folder, file)), { recursive: true });
         fs.writeFileSync(path.join(folder, file), "a\n");
       }
@@ -138,6 +200,10 @@ test("an archive with a file too many, or with another package.json, is refused"
     assert.throws(() => checkArchive(archiveWith("extra", "index.js", manifestOf("0.4.0")), "0.4.0"), /extra\.tgz holds \[.*package\/index\.js.*\], not \[/);
     assert.throws(() => checkArchive(archiveWith("other", null, manifestOf("0.4.1")), "0.4.0"), /the package\.json of other\.tgz is not the one of @altnovatrail\/spec@0\.4\.0/);
     assert.throws(() => checkArchive(path.join(dir, "none.tgz"), "0.4.0"), /tar .* failed/);
+    // A package of the line 0.5 holds the types of <novatrail-canvas>; one of 0.4 that does is refused.
+    checkArchive(archiveWith("later", null, manifestOf("0.5.0"), "0.5.0"), "0.5.0");
+    assert.throws(() => checkArchive(archiveWith("lacking", null, manifestOf("0.5.0")), "0.5.0"), /lacking\.tgz holds \[.*\], not \[.*package\/canvas\/index\.d\.ts/);
+    assert.throws(() => checkArchive(archiveWith("early", null, manifestOf("0.4.0"), "0.5.0"), "0.4.0"), /early\.tgz holds \[.*package\/canvas\/index\.d\.ts.*\], not \[/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

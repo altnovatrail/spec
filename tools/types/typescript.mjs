@@ -13,12 +13,18 @@
 // The directive takes any error of its line, but the open view of the same vector is a case of its
 // own, which tsc takes: the part holds the same open fields with the same values, so what is left
 // to refuse in it is its closed fields. tools/types/roundtrip reads it so in Go.
+// Beside the corpus stands canvas.ts, a copy of canvas.check.ts beside this module: the check of
+// the types of <novatrail-canvas>, which are written by hand (R74). It has a tsconfig for each
+// resolution of modules too, tsconfig.canvas.<resolution>.json, as strict, and with the DOM, whose
+// types the element's take. The corpus's own tsconfigs have no DOM: the module format's types take
+// none of it.
 // The package goes into the project's node_modules/@altnovatrail/spec, which `just types-check`
 // unpacks from the archive that tools/types/npm.mjs builds of the working tree: so the package's
 // exports are checked as well. Then the recipe runs tsc on each tsconfig.
 
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { isMain } from "../shared.mjs";
 import { OPEN, PACKAGE } from "./go.mjs";
 import { NAME } from "./npm.mjs";
@@ -40,6 +46,11 @@ const STRICT = {
   skipLibCheck: false,
   noEmit: true,
 };
+// The check of the types of <novatrail-canvas>, its name in the project, and the libraries of its
+// tsconfigs: the DOM's too.
+export const CANVAS_CHECK = fileURLToPath(new URL("canvas.check.ts", import.meta.url));
+const CANVAS = "canvas.ts";
+const CANVAS_LIB = ["es2022", "dom"];
 // The packages a case's type may be of, each by the path the npm package exports it at.
 const PACKAGES = { [PACKAGE]: `${NAME}/${PACKAGE}`, [OPEN]: `${NAME}/${PACKAGE}/${OPEN}` };
 
@@ -57,16 +68,22 @@ export function sourceOf(cases) {
   return `${lines.join("\n")}\n`;
 }
 
-// Writes the project of the cases into folder, a new one.
-export function writeProject(cases, folder) {
+// The tsconfig of the check of <novatrail-canvas> beside the corpus's file of a resolution.
+export const canvasConfigOf = (file) => file.replace(/^tsconfig\./, "tsconfig.canvas.");
+
+// Writes the project of the cases into folder, a new one, with the check of <novatrail-canvas>,
+// the text of canvas.check.ts unless another is given.
+export function writeProject(cases, folder, check = fs.readFileSync(CANVAS_CHECK, "utf8")) {
   if (fs.existsSync(folder)) throw new Error(`${folder} is there already; the project goes into a new folder`);
   fs.mkdirSync(folder, { recursive: true });
   fs.writeFileSync(path.join(folder, "corpus.ts"), sourceOf(cases));
+  fs.writeFileSync(path.join(folder, CANVAS), check);
   // The project's own package.json makes corpus.ts a module of ES, as a consumer's is.
   fs.writeFileSync(path.join(folder, "package.json"), `${JSON.stringify({ private: true, type: "module" }, null, 2)}\n`);
+  const write = (file, config) => fs.writeFileSync(path.join(folder, file), `${JSON.stringify(config, null, 2)}\n`);
   for (const [file, resolution] of Object.entries(CONFIGS)) {
-    const config = { compilerOptions: { ...resolution, ...STRICT }, files: ["corpus.ts"] };
-    fs.writeFileSync(path.join(folder, file), `${JSON.stringify(config, null, 2)}\n`);
+    write(file, { compilerOptions: { ...resolution, ...STRICT }, files: ["corpus.ts"] });
+    write(canvasConfigOf(file), { compilerOptions: { ...resolution, ...STRICT, lib: CANVAS_LIB }, files: [CANVAS] });
   }
 }
 
@@ -79,7 +96,7 @@ if (isMain(import.meta.url)) {
   try {
     const cases = JSON.parse(fs.readFileSync(corpus, "utf8"));
     writeProject(cases, path.resolve(folder));
-    console.log(`typescript: ${cases.length} cases, ${Object.keys(CONFIGS).length} configurations`);
+    console.log(`typescript: ${cases.length} cases and the check of <novatrail-canvas>, ${Object.keys(CONFIGS).length} configurations each`);
   } catch (error) {
     console.error(`typescript: ${error.message}`);
     process.exit(1);

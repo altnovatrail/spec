@@ -9,7 +9,8 @@
 # code takes the release's files (R64). From the line 0.3 on, a release carries each normative
 # part with a version of its own as a file, <part>-<version>.tar.gz — today the module format,
 # format-0.1.tar.gz — and from the line 0.4 on the npm package of the format's types for
-# TypeScript as well, altnovatrail-spec-<X.Y.Z>.tgz, the archive npm takes (R73). Each is signed
+# TypeScript as well, altnovatrail-spec-<X.Y.Z>.tgz, the archive npm takes (R73), which from the
+# line 0.5 on holds the types of the element <novatrail-canvas> too (R74). Each is signed
 # without a key, with its bundle <file>.sigstore.json beside it, as the shared release of .github
 # signs its callers' files. Go code takes the same tag as the version of spec's Go module, which
 # the Go module proxy and its checksum database then hold to its bytes. The repository's releases are immutable, so the tag stays on its commit for good and
@@ -48,7 +49,7 @@ permissions:
 # The line the releases are numbered in: the major and minor version every release carries, the
 # patch counting up within it. just release-version reads it from here.
 env:
-  RELEASE_LINE: "0.4"
+  RELEASE_LINE: "0.5"
 
 jobs:
   release:

@@ -1,5 +1,6 @@
 // The TypeScript of the model, of small models built here, and its check by tsc: a project of the
-// corpus, written by tools/types/typescript.mjs, against a package of the small model's types.
+// corpus, written by tools/types/typescript.mjs, against a package of the small model's types, and
+// the check of the types of <novatrail-canvas> beside it, with the DOM.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -11,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { OPEN_DIR, TYPES_DIR } from "../go.mjs";
 import { manifestOf } from "../npm.mjs";
 import { docOf, tsFiles } from "../ts.mjs";
-import { CONFIGS, sourceOf, writeProject } from "../typescript.mjs";
+import { CANVAS_CHECK, CONFIGS, canvasConfigOf, sourceOf, writeProject } from "../typescript.mjs";
 import { fieldOf, smallModel } from "./models.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -166,12 +167,26 @@ test("the project is a declaration of each case on its own line, of the package'
     fs.writeFileSync(corpus, JSON.stringify([{ file: "a.yaml", type: "formatv0.Part", value: {}, closed: false }]));
     const written = spawnSync(process.execPath, [script, corpus, path.join(folder, "project")], { encoding: "utf8" });
     assert.equal(written.status, 0, written.stderr);
-    assert.equal(written.stdout, "typescript: 1 cases, 2 configurations\n");
-    assert.deepEqual(fs.readdirSync(path.join(folder, "project")).sort(), ["corpus.ts", "package.json", "tsconfig.bundler.json", "tsconfig.nodenext.json"]);
+    assert.equal(written.stdout, "typescript: 1 cases and the check of <novatrail-canvas>, 2 configurations each\n");
+    assert.deepEqual(fs.readdirSync(path.join(folder, "project")).sort(), [
+      "canvas.ts",
+      "corpus.ts",
+      "package.json",
+      "tsconfig.bundler.json",
+      "tsconfig.canvas.bundler.json",
+      "tsconfig.canvas.nodenext.json",
+      "tsconfig.nodenext.json",
+    ]);
     const config = JSON.parse(fs.readFileSync(path.join(folder, "project", "tsconfig.nodenext.json"), "utf8"));
     assert.equal(config.compilerOptions.strict, true);
     assert.equal(config.compilerOptions.skipLibCheck, false);
+    assert.deepEqual(config.compilerOptions.lib, ["es2022"]);
     assert.deepEqual(config.files, ["corpus.ts"]);
+    // The check of <novatrail-canvas> is canvas.check.ts as it is, under the same options and the DOM.
+    assert.equal(fs.readFileSync(path.join(folder, "project", "canvas.ts"), "utf8"), fs.readFileSync(CANVAS_CHECK, "utf8"));
+    const canvas = JSON.parse(fs.readFileSync(path.join(folder, "project", "tsconfig.canvas.nodenext.json"), "utf8"));
+    assert.deepEqual(canvas.compilerOptions, { ...config.compilerOptions, lib: ["es2022", "dom"] });
+    assert.deepEqual(canvas.files, ["canvas.ts"]);
     const again = spawnSync(process.execPath, [script, corpus, path.join(folder, "project")], { encoding: "utf8" });
     assert.equal(again.status, 1);
     assert.match(again.stderr, /^typescript: .*project is there already/);
@@ -180,5 +195,36 @@ test("the project is a declaration of each case on its own line, of the package'
     assert.match(usage.stderr, /^usage: node tools\/types\/typescript\.mjs <corpus\.json> <folder>/);
   } finally {
     fs.rmSync(folder, { recursive: true, force: true });
+  }
+});
+
+test("tsc takes the check of <novatrail-canvas> with the DOM, and fails it on a directive it does not need", () => {
+  assert.equal(canvasConfigOf("tsconfig.bundler.json"), "tsconfig.canvas.bundler.json");
+  assert.equal(path.basename(CANVAS_CHECK), "canvas.check.ts");
+  // A package of the element's types alone, as the npm package exports them from the line 0.5 on.
+  const element = 'export interface CanvasElement extends HTMLElement { readonly filled: readonly (readonly boolean[])[] | null }\n';
+  const projectOf = (check) => {
+    const folder = fs.mkdtempSync(path.join(os.tmpdir(), "types-canvas-"));
+    writeProject([], path.join(folder, "project"), check);
+    const spec = path.join(folder, "project", "node_modules", "@altnovatrail", "spec");
+    fs.mkdirSync(path.join(spec, "canvas"), { recursive: true });
+    fs.writeFileSync(path.join(spec, "canvas", "index.d.ts"), element);
+    fs.writeFileSync(path.join(spec, "package.json"), JSON.stringify(manifestOf("0.5.0")));
+    return folder;
+  };
+  const head = 'import type { CanvasElement } from "@altnovatrail/spec/canvas";\ndeclare const sheet: CanvasElement;\n';
+  const good = projectOf(`${head}export const filled = sheet.filled;\n// @ts-expect-error The filled boxes are the element's to tell.\nsheet.filled = null;\n`);
+  const bad = projectOf(`${head}// @ts-expect-error A directive with no error under it.\nexport const filled = sheet.filled;\n`);
+  try {
+    for (const config of Object.keys(CONFIGS)) {
+      const checked = tsc(path.join(good, "project"), canvasConfigOf(config));
+      assert.equal(checked.status, 0, checked.stdout + checked.stderr);
+      const refused = tsc(path.join(bad, "project"), canvasConfigOf(config));
+      assert.notEqual(refused.status, 0);
+      assert.match(refused.stdout, /canvas\.ts\(3,1\): error TS2578: Unused '@ts-expect-error' directive/);
+    }
+  } finally {
+    fs.rmSync(good, { recursive: true, force: true });
+    fs.rmSync(bad, { recursive: true, force: true });
   }
 });
