@@ -13,6 +13,8 @@
 # extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json. Every new
 # repository copies this devcontainer at a tag of spec. So is the Codecov CLI of ci.yml, its
 # version with its sha256 (R48): Dependabot moves the SHA of the action that runs it, not the CLI.
+# And so are govulncheck and go-licenses, which the ci- recipes of the justfile run by go run at
+# exact versions (R30).
 #
 # Every ecosystem waits three days after a release before proposing it. That is Dependabot's own
 # default, written down so that it stays: a bad release gets time to be noticed. The weekly

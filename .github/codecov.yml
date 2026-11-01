@@ -1,8 +1,13 @@
-# What Codecov does with the coverage of the tests of tools/, which the job "Coverage" of ci.yml
-# uploads (R48). The report is Node's: it leaves the tests and node_modules/ out by itself, and
-# `just coverage`, which writes it, fails on a module of tools/ that no test loads, so nothing
-# here needs ignoring. Node measures JavaScript alone, so the shell of toolchain.sh and of the
-# justfile's recipes counts nowhere.
+# What Codecov does with the coverage of the tests of tools/ and of the Go modules, which the job
+# "Coverage" of ci.yml uploads (R48). There are two reports, and both leave the tests out by
+# themselves. Node's, coverage/lcov.info, leaves node_modules/ out too, and `just coverage`, which
+# writes it, fails on a module of tools/ that no test loads. Go's, coverage/go.out, which ci-test
+# writes, holds every package of every Go module, one that no test runs at zero; it names a file
+# by its import path, which Codecov cuts down to the path in the repository by a default rule of
+# its own, "Golang specific rule to strip out the github portion of a file path" (Codecov docs,
+# Fixing paths, read 2026-11-01). The generated types of types/ hold no statement, so nothing here
+# needs ignoring. Node measures JavaScript and Go measures Go, so the shell of toolchain.sh and of
+# the justfile's recipes counts nowhere.
 
 coverage:
   status:
