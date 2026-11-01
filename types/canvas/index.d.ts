@@ -4,8 +4,10 @@
 /**
  * The types of the element `<novatrail-canvas>`: the contract of canvas and app (R36). The element
  * takes a task and its module's manifest, and the learner's history of writing, by properties; it
- * gives the work for checking by a method, and tells what the learner did by events. The types of
- * the task and of the manifest are the module format's open views, formatv0/open.
+ * gives the work for checking by a method, and tells what the learner did by events. In place of a
+ * task it may show a lesson's worked example, whose demo the learner opens part by part with its
+ * buttons, and how far they have gone is a property and an event too. The types of the task, of
+ * the worked example and of the manifest are the module format's open views, formatv0/open.
  *
  * The tutor's marks — the property `marks` and the types of a mark — wait for the contract of epic
  * E3, and are canvas's own until then. The element's members beyond this contract, and its place in
@@ -34,6 +36,26 @@ export interface ToolChange {
  * Its detail is frozen.
  */
 export type ToolChangeEvent = CustomEvent<ToolChange>;
+
+/**
+ * How far the learner has gone through a worked example's demo: how many of its parts are open,
+ * from the first, and whether the whole demo is hidden. Every demo starts at
+ * `{ opened: 0, hidden: false }`.
+ */
+export interface DemoState {
+  /** How many parts of the demo are open, from the first: from 0 to all of them. */
+  readonly opened: number;
+  /** Whether the whole demo is hidden: its open parts stay open, out of sight. */
+  readonly hidden: boolean;
+}
+
+/**
+ * The event the element sends from its host, bubbling and composed, when the learner opens the
+ * next part of the demo, or hides or shows the whole demo, with its buttons — not when the consumer
+ * sets `demoState`, nor when a new worked example starts its demo at the beginning. Its detail is
+ * the new state, frozen.
+ */
+export type DemoChangeEvent = CustomEvent<DemoState>;
 
 /**
  * A point of a stroke: where it lies on the sheet, in its logical units, when it was written and
@@ -121,8 +143,9 @@ export interface CellPlace {
 }
 
 /**
- * Which boxes of a workbook are filled: per item, per box, in the task's order, whether the box
- * holds one of the strokes `exportWork()` would take.
+ * Which answer slots the learner's strokes fill: per item, per slot, in the task's order, whether
+ * the slot holds one of the strokes `exportWork()` would take. On a workbook a slot is a box; on a
+ * sheet it is the task's one slot bound `anywhere` or `sheet`, and the sheet holds the strokes.
  */
 export type Filled = readonly (readonly boolean[])[];
 
@@ -245,6 +268,7 @@ export type ExportedWork = ExportedSheet | ExportedWorkbook;
 export interface CanvasEventMap {
   historychange: HistoryChangeEvent;
   toolchange: ToolChangeEvent;
+  demochange: DemoChangeEvent;
 }
 
 /**
@@ -257,12 +281,37 @@ export interface CanvasElement extends HTMLElement {
    * which a `toolchange` tells; the consumer may set it too, which tells nothing.
    */
   tool: Tool;
-  /** The open view of the task, given before the history and the marks. */
+  /**
+   * The open view of the task, given before the history and the marks. The element shows a task
+   * or a worked example, not both: a task given while it shows an example is a TypeError, and so is
+   * a task with an answer slot bound `zone`, which no module of the first slice takes.
+   */
   task: open.Task | undefined;
   /**
-   * The open view of the task's module's manifest. The element reads its version of the module
-   * format, the height of a digit on the crop for checking, `canvas.digit_height`, and its
-   * explanation language. A canvas setting it does not know is a TypeError.
+   * The open view of a lesson's worked example, its segment `worked_example`, in place of a task;
+   * its module's manifest is `manifest`, as a task's is. The element shows the example's statement
+   * and its sheet, which the learner does not write on: the sheet takes no input, and the tool is the
+   * pen alone, so an eraser is a TypeError. An example given while the element shows a task, or has
+   * a history of writing, is a TypeError; while it shows one, so are a task, a history other than
+   * the empty one and the marks, and `filled` and `exportWork()` give `null`. app gives each segment
+   * of a lesson a new element. On one element, a task comes once the example is `undefined`, and
+   * another example starts its demo at the beginning.
+   */
+  workedExample: open.WorkedExample | undefined;
+  /**
+   * How far the learner has gone through the worked example's demo, frozen: `undefined` without an
+   * example, and `{ opened: 0, hidden: false }` as a new one starts. The learner changes it with the
+   * element's buttons, which a `demochange` tells; the consumer keeps it and may give it back,
+   * which tells nothing. Given before an example, a state is a TypeError, and so is one the demo
+   * cannot have, such as more parts open than it has; `undefined` changes nothing.
+   */
+  get demoState(): DemoState | undefined;
+  set demoState(state: DemoState | undefined);
+  /**
+   * The open view of the manifest of the module of the task or of the worked example. The element
+   * reads its version of the module format, the height of a digit on the crop for checking,
+   * `canvas.digit_height`, and its explanation language. A canvas setting it does not know is a
+   * TypeError.
    */
   manifest: open.Manifest | undefined;
   /**
@@ -274,14 +323,16 @@ export interface CanvasElement extends HTMLElement {
   get history(): readonly HistoryEvent[];
   set history(history: readonly HistoryEvent[] | undefined);
   /**
-   * Which boxes of a workbook are filled, frozen; `null` on a sheet. An action on the sheet changes
-   * it before its `historychange`, and a task or a history given changes it with no event.
+   * Which answer slots are filled, frozen: a workbook's boxes, and on a sheet the task's one slot
+   * bound `anywhere` or `sheet`. `null` on a sheet whose slots are bound `choice`, whose options app
+   * marks, on a sheet with no task, and for a worked example. An action on the sheet changes it
+   * before its `historychange`, and a task or a history given changes it with no event.
    */
   readonly filled: Filled | null;
   /**
    * The work for checking, as the sheet is when it is called: a sheet's crop or a workbook's boxes,
-   * with the context of the submission. A sheet without strokes, and a workbook with no box filled,
-   * give `null`.
+   * with the context of the submission. A sheet without strokes, a workbook with no box filled and a
+   * worked example give `null`.
    */
   exportWork(): Promise<ExportedWork | null>;
 }
