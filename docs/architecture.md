@@ -338,7 +338,7 @@ flowchart LR
   - Что внутри папки модуля — паспорт `manifest.yaml`, файлы частей, задачи в `tasks/<id>.yaml`, `media/`, `eval/` и `NOTICE` — задаёт формат ([текст формата](../format/README.md), раздел 10; R46, R51), а где лежат сами папки и как называются — `modules`. Картинки задач standalone `modules` рисует при порте в файлы `media/` с описанием (R51).
 - **CI `modules`:**
   - проверка `module-kit`;
-  - `sim`, если изменился граф;
+  - `sim`, если изменился граф, — с первого тега `sim`: первые релизы `modules` выходят раньше стенда, и до его тега гейта графа нет (R76);
   - с этапа 2, когда появятся `tutor` и страница образцов, — eval-раннер `tutor` на eval-наборе модуля, отдельным ключом платформы только для eval (R24);
   - на релизе — пакеты и индекс модулей; подпись ставит общий workflow релиза.
 - **Доставка по этапам:**
@@ -371,7 +371,7 @@ flowchart LR
   Образец — `infra/` canvas-api: `bootstrap.sh` и один корневой модуль Terraform. Будет ли это Terraform или его открытый форк OpenTofu, решит первый код `infra` (Т-29). Репозиторий заводится сейчас ради документов, а код появится, когда решён П-11.
 - **.github:**
   - профиль организации — `profile/README.md`;
-  - файлы сообщества по умолчанию: CONTRIBUTING, SECURITY, кодекс поведения. GitHub берёт их из публичного репозитория `.github` для всех репозиториев организации (раздел 8);
+  - файлы сообщества по умолчанию: CONTRIBUTING, SECURITY, кодекс поведения, а с ними шаблоны issue и pull request — формы «Bug report» и «Change proposal» и чек-лист pull request (поправка 2026-11-01 к R22). GitHub берёт их из публичного репозитория `.github` для всех репозиториев организации, у которых нет своих, и свои шаблоны репозиторий не заводит: они отменили бы общие (раздел 8);
   - общие workflow, с actions, закреплёнными по SHA (R03–R05 .github):
     - до кода и у всех репозиториев — поиск секретов, DCO, CodeQL, Scorecard и проверка документов; у `spec` проверка документов своя. Scorecard общий: его сервер принимает результат общего workflow, вызванного из другого репозитория. API Scorecard отдаёт результаты `spec` и всех одиннадцати репозиториев компонентов, прочитано 2026-10-20 (RUN.md, T17, T16 и T21; architecture 2.2 .github);
     - для кода — обёртки Go и TypeScript над рецептами репозитория, с проверкой лицензий, и релиз с подписью. `spec` общий релиз позвать не может — тот берёт рецепты из подмодуля `spec`, — и его `release.yml` свой: подписывает файлы тем же cosign без ключа и публикует в npm пакет типов `@altnovatrail/spec` теми же шагами, что общий, а общую обёртку Go `spec` зовёт, как любой репозиторий на Go, — job «Go» со своими рецептами `ci-*` (R64, R72; вторая поправка 2026-10-29 к R37; поправка 2026-11-01 к R30). Список лицензий и проверку lock-файла npm обёртки берут рецептами `spec` (R39), а релиз зовёт рецепты релиза `spec` его скриптом `tools/toolchain/toolchain.sh` (поправки к R31). Пакет интерфейса из подписанного релиза тот же релиз публикует в npm — шаг пишет `.github` (R37). Каждую проверяет настоящий код (R03 .github): обёртка Go и релиз приходят с первым кодом `module-kit`, а обёртка TypeScript — с первым кодом на TypeScript, у `canvas`;
@@ -564,6 +564,10 @@ sequenceDiagram
 - [Cross-document messaging, Authors](https://html.spec.whatwg.org/multipage/web-messaging.html#authors): «Authors should check the origin attribute to ensure that messages are only accepted from domains that they expect to receive messages from»;
 - [Ports as the basis of an object-capability model on the web](https://html.spec.whatwg.org/multipage/web-messaging.html#ports-as-the-basis-of-an-object-capability-model-on-the-web), раздел не нормативный: «Ports can be viewed as a way to expose limited capabilities (in the object-capability model sense) to other actors in the system»;
 - [The WindowProxy exotic object](https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-windowproxy-exotic-object): «Each browsing context has an associated WindowProxy object. When the browsing context is navigated, the Window object wrapped by the browsing context's associated WindowProxy object is changed».
+
+Прочитано 2026-11-01 — GitHub Docs:
+- [Creating a default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file): «Store issue templates and their configuration file in `.github/ISSUE_TEMPLATE`» и «if a repository defines valid issue templates or issue template configuration in its own `.github/ISSUE_TEMPLATE` folder, none of the contents of the default `.github/ISSUE_TEMPLATE` folder will be used»;
+- [Creating a pull request template for your repository](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository): «You can create default pull request templates for your organization or personal account».
 
 MathTrail:
 - MathTrail Canvas, [docs/](https://github.com/mathtrail/canvas-api/tree/main/docs) — коммит 0901af0:
