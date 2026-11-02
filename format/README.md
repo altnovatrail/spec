@@ -445,12 +445,12 @@ The reader gives the value as it is written: normalizing it is the check kind's,
 - a fraction written with a bar, its numerator over its denominator, is given on one line, numerator first: `3/4`, the one notation of a fraction that the check kinds take;
 - a digit written mirrored is not given as a digit: the reading says the slot is ambiguous, and the learner is asked to write it again. A letter is given as what it reads as: a mirrored `b` is `d`.
 
-These rules are the reader's, not a module's: on the same value read, they change no verdict (section 2). What else the reading says — that the writing is illegible or ambiguous, or that there is no final answer or more than one — makes the verdict `unreadable` before any check kind runs, and a failure of AI makes it `unchecked` (concepts 9.1). That is the observation's, which comes with the eval protocol; the test vectors of verdicts hold only the value.
+These rules are the reader's, not a module's: on the same value read, they change no verdict (section 2). What else the reading says — that the writing is illegible or ambiguous, or that there is no final answer or more than one — makes the verdict `unreadable` before any check kind runs, and a failure of AI makes it `unchecked` (concepts 9.1). That is the observation's, an API contract of `spec`, `novatrail.observation.v1`: section 10 of its text, `contracts/README.md`, says which reasons it gives, and how the readings of two readers join into one value. The test vectors of verdicts hold only the value.
 
 **Verdicts.** The verdict of an answer slot is one of:
 - `correct` — the value is right;
 - `not_yet` — the value is in the kind's notation and is not right;
-- `unreadable` — nothing was read, and the reason is `blank`; or the value is not in the kind's notation, and the reason is `notation`. The learner is asked to write the answer again, which is no wrong answer (R04);
+- `unreadable` — nothing was read, and the reason is `blank`; or the value is not in the kind's notation, and the reason is `notation`. The observation gives other reasons before the value is judged (above). The learner is asked to write the answer again, which is no wrong answer (R04);
 - `unchecked` — the check could not run: of the kinds of this version, only a predicate gives it.
 
 The verdict of an item is made of its answer slots' verdicts:
@@ -588,7 +588,7 @@ The limit of steps is the format's: the same expression on the same value takes 
 - **Segments.** `segments` lists the segments of the lesson in order, each named by its place, from 1. A segment is one of three, by its one field:
   - `explanation` — paragraphs and pictures that the learner reads, in parts as a task's statement is (section 14);
   - `worked_example` — an example solved before the learner's eyes (below);
-  - `task` — a task of the module, by its local ID (`lesson.known-tasks`); a template too, and then the learner gets one instance of it (section 23). The segment ends when the task ends, as the server decides by the hint ladder and the solution shown (architecture 3.5; О-7), and only then does the next segment begin.
+  - `task` — a task of the module, by its local ID (`lesson.known-tasks`); a template too, and then the learner gets one instance of it (section 23). The segment ends when the task ends, as the server decides — by a right answer or the solution shown, and under a rubric by the learner's Done (architecture 3.5; R87) — and only then does the next segment begin.
 
   No two segments of a lesson are the same, so a lesson names a task once. A check at the end of a lesson is its last tasks: the format marks no segment as a check.
 - **Worked examples.** A worked example is no task: it has no answer slots and no key, and nothing in it is evidence for the learner model.
