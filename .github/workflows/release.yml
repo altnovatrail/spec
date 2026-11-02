@@ -224,12 +224,10 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       # cosign at an exact version, checked against the sum in cosign_checksums.txt of its
-      # release, the version and sum of the shared release of .github (R08 .github). Signing needs
-      # it, and so does a run again that takes the npm package from its release to publish it.
+      # release, the version and sum of the shared release of .github (R08 .github). Signing alone
+      # needs it: a run again checks the npm package it takes from its release by release-verify.
       - name: cosign
-        if: >-
-          (steps.version.outputs.version != '' && steps.files.outputs.count != '0') ||
-          (steps.version.outputs.released != '' && steps.files.outputs.npm != '')
+        if: steps.version.outputs.version != '' && steps.files.outputs.count != '0'
         env:
           COSIGN_VERSION: "3.1.4"
           COSIGN_SHA256: 424e2c97d0b45fd7a6b608a87f090f35633f4c23ece5f092d48bba11aaf4bbfa
@@ -254,9 +252,9 @@ jobs:
       # NODE_OPTIONS or NPM_ID_TOKEN; with the registry named on its command line, which no
       # publishConfig overrides; and with no scripts. That guards against stray settings, not
       # against code that ran on the runner before (В23 .github). The containers that run after
-      # this step — release-refusal's after a refusal, and the check of the Go module — see
-      # RUNNER_TEMP read-only outside the folder each mounts, so nothing but this workflow writes
-      # the script.
+      # this step — release-verify's on a run again, release-refusal's after a refusal, and the
+      # check of the Go module — see RUNNER_TEMP read-only outside the folder each mounts, a copy
+      # of the checkout of its own, so nothing but this workflow writes the script.
       - name: Node and npm
         if: steps.files.outputs.npm != ''
         env:
@@ -291,12 +289,15 @@ jobs:
 
       # A run again of a commit released already publishes the archive its release holds, not the
       # one built anew above. It downloads that file with its bundle into a folder of its own, and
-      # checks both before npm sees them: the release's attestation, which ties the file to the
-      # release and its commit, and the signature of this workflow at main, in this repository.
-      # The commit of the run that signed is left open: it was main's tip when that run began,
-      # and a run of the same commit started anew — CI run again on it, say — is a run of a
-      # later tip. Only this step has the token, and npm, which reads an archive the toolchain
-      # stage built, never sees it.
+      # checks both before npm sees them. The release's attestation is checked here on the runner.
+      # The signature is checked by release-verify, the one way a file of a NovaTrail release
+      # enters CI (R77; RULES.md, Hard rules): this workflow at main, in this repository, and the
+      # version in the archive's package.json, which ties it to its tag, since the certificate
+      # names main's tip as the run that signed began. The recipe runs in the toolchain stage,
+      # from a new copy of the checkout, as the shared release.yml of .github runs it (R18 .github),
+      # and reads Sigstore, GitHub and the npm registry: when one cannot be read, it refuses, and
+      # the job is run again. Only this step has the token, which neither the recipe's container
+      # nor npm, which reads an archive the toolchain stage built, ever sees.
       - name: The npm package of the release
         if: steps.version.outputs.released != '' && steps.files.outputs.npm != ''
         env:
@@ -313,11 +314,12 @@ jobs:
               exit 1
           fi
           gh release verify-asset "$RELEASED" "$folder/$FILE" --repo "$GITHUB_REPOSITORY"
-          "$RUNNER_TEMP/cosign" verify-blob --bundle "$folder/${FILE}.sigstore.json" \
-              --certificate-identity "https://github.com/${GITHUB_WORKFLOW_REF}" \
-              --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-              --certificate-github-workflow-repository "$GITHUB_REPOSITORY" \
-              "$folder/$FILE"
+          cp -a . "$RUNNER_TEMP/checkout-verify"
+          cd "$RUNNER_TEMP/checkout-verify"
+          if ! env -u GH_TOKEN tools/toolchain/toolchain.sh spec release-verify spec "$RELEASED" "$folder/$FILE"; then
+              echo "::error::release-verify refused ${FILE} of ${RELEASED}; the lines above say why, and nothing goes to npm. If Sigstore, GitHub or the npm registry could not be read, run the job again (R77)."
+              exit 1
+          fi
 
       # The archive npm would publish, checked before the GitHub release exists, which is
       # immutable, so that a package that fails here leaves no release behind:
@@ -329,9 +331,16 @@ jobs:
       #   package with provenance.
       # The registry is read by its packument, with write=true, as npm reads one before it writes:
       # so the registry's CDN serves no copy cached for minutes. A package it lacks stops the run:
-      # its first version was published by hand, and a trusted publisher is set on it. A version
-      # it holds with this archive's integrity is published already. With another, or a version
-      # it held once and that was unpublished, which its time still lists, the number is gone:
+      # its first version was published by hand, and a trusted publisher is set on it. So does a
+      # package unpublished as a whole, which the registry answers with 200 and a packument with
+      # no versions, whose time has unpublished, and which npm view takes for a 404 (npm/cli
+      # v11.19.1, lib/commands/view.js, read 2026-11-01): it takes no new version for 24 hours — "If
+      # you entirely unpublish all versions of a package, you may not publish any new versions of
+      # that package until 24 hours have passed" (docs.npmjs.com/policies/unpublish, read
+      # 2026-11-02) — and then its next one is published by hand too. A version it held lies in
+      # its time then, or under time.unpublished.versions once the whole package is gone. A version it holds with this archive's
+      # integrity is published already. With another, or with none, or a version it held once and
+      # that was unpublished, which its time still lists, the number is gone:
       # "Once package@version has been used, you can never use it again" (npm/documentation,
       # content/policies/unpublish.mdx, read 2026-10-29). Before the release that stops every
       # release of the line, which would take the same number again, until RELEASE_LINE is raised;
@@ -405,16 +414,26 @@ jobs:
                   exit 1
                   ;;
               200)
-                  published=$(jq -r --arg v "$version" '(.versions // {})[$v].dist.integrity // ""' "$packument")
-                  if [ -n "$published" ] && [ "$published" != "$integrity" ]; then
+                  published=$(jq -r --arg v "$version" '(.versions // {}) | if has($v) then .[$v].dist.integrity // "none" else "" end' "$packument")
+                  whole=""
+                  if jq -e '((.time // {}) | has("unpublished")) and ((.versions // {}) | length == 0)' "$packument" > /dev/null; then
+                      whole="${NPM_PACKAGE} was unpublished from the npm registry as a whole, and takes no new version for 24 hours. Then its next version is published by hand, as its first version was, and a trusted publisher set on it again if it has none: npm's documentation does not say whether one outlives the package."
+                  fi
+                  if [ "$published" = none ]; then
+                      echo "::error::${NPM_PACKAGE}@${version} is in the npm registry with no integrity, so it is not this archive. npm never takes a version back. ${gone}"
+                      exit 1
+                  elif [ -n "$published" ] && [ "$published" != "$integrity" ]; then
                       echo "::error::${NPM_PACKAGE}@${version} is in the npm registry with the integrity ${published}, and this archive's is ${integrity}. npm never takes a version back. ${gone}"
                       exit 1
-                  elif [ -z "$published" ] && jq -e --arg v "$version" '(.time // {}) | has($v)' "$packument" > /dev/null; then
-                      echo "::error::${NPM_PACKAGE}@${version} was in the npm registry and was unpublished, and npm never takes a number it has held. ${gone}"
+                  elif [ -z "$published" ] && jq -e --arg v "$version" '((.time // {}) | has($v)) or ((.time.unpublished.versions? // []) | index($v) != null)' "$packument" > /dev/null; then
+                      echo "::error::${NPM_PACKAGE}@${version} was in the npm registry and was unpublished, and npm never takes a number it has held. ${gone}${whole:+ ${whole}}"
                       exit 1
                   elif [ -n "$published" ]; then
                       echo "::notice::${NPM_PACKAGE}@${version} is in the npm registry already, with this archive's integrity."
                       action=skip
+                  elif [ -n "$whole" ]; then
+                      echo "::error::${whole} Only then does a release publish (R37)."
+                      exit 1
                   else
                       highest=$(jq -r '(.versions // {}) | to_entries[] | select(.value.deprecated == null) | .key | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))' "$packument" | sort -V | tail -n 1)
                       if [ -n "$highest" ] && [ "$(printf '%s\n' "$version" "$highest" | sort -V | tail -n 1)" = "$highest" ]; then

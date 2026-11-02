@@ -10,7 +10,9 @@
 #
 # Raised by hand, before each new tag of spec, because no ecosystem here reads them: the ARGs of
 # .devcontainer/Dockerfile, each version with the sha256 of its archives (R34), the VS Code
-# extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json. Every new
+# extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json, and the browser
+# of the typescript kind in repo-template/kinds/typescript.Dockerfile — Playwright's image by tag
+# and digest, the browser's revision in it and the snapshot of the Ubuntu archive (R79). Every new
 # repository copies this devcontainer at a tag of spec. So is the Codecov CLI of ci.yml, its
 # version with its sha256 (R48): Dependabot moves the SHA of the action that runs it, not the CLI.
 # And so are govulncheck and go-licenses, which the ci- recipes of the justfile run by go run at

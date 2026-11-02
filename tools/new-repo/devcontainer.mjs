@@ -1,14 +1,44 @@
 // The new repository's devcontainer is spec's own, with a few edits: its own name and network,
-// the VS Code extensions of its kind, a start command for the spec submodule, and the suffix
-// "spec" on the decisions its Dockerfile cites. Every edit
-// expects to find its place a known number of times, so that a change to spec's devcontainer
-// stops the recipe rather than producing a copy that is quietly wrong.
+// the VS Code extensions and settings of its kind and the lines its kind adds to the toolchain
+// stage, a start command for the spec submodule, and the suffix "spec" on the decisions its
+// Dockerfile cites. Every edit expects to find its place a known number of times, so that a
+// change to spec's devcontainer stops the recipe rather than producing a copy that is quietly
+// wrong.
 
 import fs from "node:fs";
 import path from "node:path";
 
-// The edits, given the copy's root, the repository's name and its kind's extensions.
-export function editDevcontainer(root, name, extensions) {
+// What a kind of repo-template/kinds.json may add to spec's devcontainer. A key it does not know
+// stops the recipe, so that a misspelt one is not quietly left out of the copy.
+const KIND_KEYS = ["extensions", "settings", "toolchain"];
+
+// A kind, read from kinds.json in the template `template`: VS Code extensions, VS Code settings,
+// and lines for the end of the Dockerfile's toolchain stage, from the file in kinds/ that
+// "toolchain" names (R79). A tag before R79 wrote a kind as its list of extensions alone, and
+// new-repo builds from the latest tag, so that form is read too.
+export function readKind(template, name, kind) {
+  const where = `kinds.json: ${name}`;
+  if (Array.isArray(kind)) kind = { extensions: kind };
+  if (kind === null || typeof kind !== "object") throw new Error(`${where}: a kind is an object of ${KIND_KEYS.join(", ")}`);
+  const unknown = Object.keys(kind).filter((key) => !KIND_KEYS.includes(key));
+  if (unknown.length > 0) throw new Error(`${where}: ${unknown.join(", ")} is not one of ${KIND_KEYS.join(", ")}`);
+  const { extensions = [], settings = {}, toolchain = null } = kind;
+  if (!Array.isArray(extensions) || !extensions.every((e) => typeof e === "string")) throw new Error(`${where}: extensions is a list of strings`);
+  if (settings === null || typeof settings !== "object" || Array.isArray(settings)) throw new Error(`${where}: settings is an object`);
+  return { extensions, settings, toolchain: toolchain === null ? null : readToolchain(template, where, toolchain) };
+}
+
+// The toolchain's lines come from a file in the template's kinds/, and only from there.
+function readToolchain(template, where, file) {
+  const kinds = path.join(template, "kinds");
+  const full = typeof file === "string" && file !== "" ? path.resolve(template, file) : null;
+  if (!full || path.dirname(full) !== kinds) throw new Error(`${where}: toolchain names a file in repo-template/kinds/, not ${JSON.stringify(file)}`);
+  if (!fs.existsSync(full)) throw new Error(`${where}: toolchain names ${file}, which repo-template does not have`);
+  return fs.readFileSync(full, "utf8");
+}
+
+// The edits, given the copy's root, the repository's name and its kind, as readKind gives it.
+export function editDevcontainer(root, name, { extensions, settings, toolchain }) {
   const dir = path.join(root, ".devcontainer");
   // Docker names may not start with a dot, and a container named after .github needs none.
   const id = `novatrail-${name.replace(/^\./, "")}`;
@@ -18,6 +48,7 @@ export function editDevcontainer(root, name, extensions) {
     text = replace(text, "novatrail-spec", id, 2, "the container's name and network");
     text = replace(text, "the NovaTrail spec", owner, 1, "the opening comment");
     text = remove(text, /^(?:[ \t]*\/\/.*\n)*[ \t]*"git\.repositoryScanMaxDepth":.*\n/m, "the setting only spec needs");
+    text = addSettings(text, settings);
     text = addExtensions(text, extensions);
     return replace(
       text,
@@ -33,7 +64,7 @@ export function editDevcontainer(root, name, extensions) {
   });
   edit(path.join(dir, "host-network.sh"), (text) => replace(text, '"novatrail-spec"', `"${id}"`, 1, "the network's name"));
   edit(path.join(dir, "Dockerfile"), (text) =>
-    suffixDecisions(replace(text, "the NovaTrail spec", owner, 1, "the opening comment")),
+    suffixDecisions(addToolchain(replace(text, "the NovaTrail spec", owner, 1, "the opening comment"), toolchain)),
   );
 
   // What VS Code reads must still be JSON once the comments are gone.
@@ -46,7 +77,7 @@ function edit(file, change) {
 
 function replace(text, from, to, times, what) {
   const found = text.split(from).length - 1;
-  if (found !== times) throw new Error(`${what}: expected "${from}" ${times} time(s) in spec's devcontainer, found ${found}`);
+  if (found !== times) throw new Error(`${what}: expected ${JSON.stringify(from)} ${times} time(s) in spec's devcontainer, found ${found}`);
   return text.split(from).join(to);
 }
 
@@ -67,20 +98,56 @@ function suffixDecisions(text) {
   return text.replace(cited, "$& spec");
 }
 
-// The kind's extensions go at the end of spec's list, after a comma on its last entry.
+// The kind's lines go at the end of the toolchain stage, after everything spec's own stage does,
+// so that what they run finds Node and Go: the checks run in that stage and need them too. The
+// stage ends where the devcontainer stage begins, at its FROM, and the comments and blank lines
+// right above that FROM are the devcontainer stage's heading, which stays with it.
+const DEVCONTAINER_STAGE = "\nFROM toolchain AS devcontainer\n";
+
+function addToolchain(text, lines) {
+  if (lines === null) return text;
+  replace(text, DEVCONTAINER_STAGE, DEVCONTAINER_STAGE, 1, "the start of the devcontainer stage");
+  const at = text.indexOf(DEVCONTAINER_STAGE) + 1;
+  const before = text.slice(0, at).split("\n");
+  let end = before.length - 1;
+  while (end > 0 && (before[end - 1] === "" || before[end - 1].startsWith("#"))) end -= 1;
+  return `${before.slice(0, end).join("\n")}\n\n${lines.trimEnd()}\n${before.slice(end).join("\n")}${text.slice(at)}`;
+}
+
+// The kind's extensions go at the end of spec's list, and its settings at the end of spec's: the
+// closing brace of the settings is the one at the depth of their key, past any object inside.
+const EXTENSIONS = /(?<head>"extensions": \[\n)(?<body>[\s\S]*?)(?<tail>\n(?<indent>[ \t]*)\])/;
+const SETTINGS = /^(?<head>(?<indent>[ \t]*)"settings": \{\n)(?<body>[\s\S]*?)(?<tail>\n\k<indent>\})/m;
+
 function addExtensions(text, extensions) {
-  if (extensions.length === 0) return text;
-  const list = /("extensions": \[\n)([\s\S]*?)(\n([ \t]*)\])/.exec(text);
-  if (!list) throw new Error("the list of extensions: not found in spec's devcontainer");
-  const [whole, head, body, tail, indent] = list;
+  return append(text, EXTENSIONS, "extensions", extensions.map((e) => JSON.stringify(e)));
+}
+
+// A setting spec already has would be a second key of the same name: the kind does not override.
+function addSettings(text, settings) {
+  const own = parseJsonc(text).customizations?.vscode?.settings ?? {};
+  const both = Object.keys(settings).filter((key) => Object.hasOwn(own, key));
+  if (both.length > 0) throw new Error(`the settings: spec's devcontainer already sets ${both.join(", ")}`);
+  return append(text, SETTINGS, "settings", Object.entries(settings).map(([key, value]) => `${JSON.stringify(key)}: ${JSON.stringify(value, null, 4)}`));
+}
+
+// Entries go after a comma on the last entry of spec's own, one level deeper than the key that
+// opens the list, under a comment that says where they come from.
+function append(text, pattern, what, entries) {
+  if (entries.length === 0) return text;
+  const all = [...text.matchAll(new RegExp(pattern.source, `${pattern.flags}g`))];
+  if (all.length !== 1) throw new Error(`the ${what}: expected once in spec's devcontainer, found ${all.length}`);
+  const [found] = all;
+  const { head, body, tail, indent } = found.groups;
   const lines = body.split("\n");
   const last = lines.findLastIndex((line) => line.trim() !== "" && !line.trim().startsWith("//"));
-  if (last < 0) throw new Error("the list of extensions: empty in spec's devcontainer");
-  const entry = lines[last].trimEnd();
-  lines[last] = entry.endsWith(",") ? entry : `${entry},`;
-  const entries = extensions.map((e, i) => `${indent}    ${JSON.stringify(e)}${i < extensions.length - 1 ? "," : ""}`);
-  const added = [`${indent}    // The extensions of this repository's kind.`, ...entries];
-  return text.replace(whole, head + [...lines, ...added].join("\n") + tail);
+  if (last < 0) throw new Error(`the ${what}: empty in spec's devcontainer`);
+  // The comma goes after the entry, before a comment that may end its line.
+  const code = lines[last].slice(0, endOfCode(lines[last])).trimEnd();
+  if (!code.endsWith(",")) lines[last] = `${code},${lines[last].slice(code.length)}`;
+  const inner = `${indent}    `;
+  const added = entries.map((e, i) => `${inner}${e.replaceAll("\n", `\n${inner}`)}${i < entries.length - 1 ? "," : ""}`);
+  return text.replace(found[0], () => head + [...lines, `${inner}// The ${what} of this repository's kind.`, ...added].join("\n") + tail);
 }
 
 // JSON with comments, as devcontainer.json is written: the comments go, then JSON.parse.
@@ -107,6 +174,17 @@ export function parseJsonc(text) {
     }
   }
   return JSON.parse(out);
+}
+
+// Where a line's JSON ends: at a line comment outside its strings, or at its end.
+function endOfCode(line) {
+  let i = 0;
+  while (i < line.length) {
+    if (line[i] === '"') i = endOfString(line, i);
+    else if (line[i] === "/" && line[i + 1] === "/") return i;
+    else i += 1;
+  }
+  return line.length;
 }
 
 // Where the string that opens at `start` ends, past its closing quote; an escape skips the

@@ -17,7 +17,7 @@ import { execFileSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
 import { escape } from "../docs-check/citations.mjs";
-import { editDevcontainer } from "./devcontainer.mjs";
+import { editDevcontainer, readKind } from "./devcontainer.mjs";
 import { FILL, fillPlaceholders, isMain, knownRepository, walk } from "./copy.mjs";
 import { newestRelease } from "../release/version.mjs";
 import { GIT, TAR } from "../shared.mjs";
@@ -42,14 +42,16 @@ export function newRepo({ specRoot, name, kind, card, dest, draft = null, specUr
   const existed = fs.existsSync(dest);
   let started = false;
   try {
-    const kinds = JSON.parse(fs.readFileSync(path.join(source, "repo-template", "kinds.json"), "utf8"));
+    const template = path.join(source, "repo-template");
+    const kinds = JSON.parse(fs.readFileSync(path.join(template, "kinds.json"), "utf8"));
     if (!Object.hasOwn(kinds, kind)) throw new Error(`${kind}: the kinds are ${Object.keys(kinds).join(", ")}`);
+    const additions = readKind(template, kind, kinds[kind]);
     checkCard(source, name, card);
 
     started = true;
     fs.mkdirSync(dest, { recursive: true });
     copyTemplate(path.join(source, "repo-template", "files"), dest, { name, card, spec_tag: tag, date });
-    editDevcontainer(dest, name, kinds[kind]);
+    editDevcontainer(dest, name, additions);
     if (released) initGit(dest, specRoot, specUrl, released);
   } catch (error) {
     // Half a copy would only be refused as "not empty" next time. An empty directory that was

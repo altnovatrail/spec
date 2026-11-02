@@ -35,6 +35,8 @@ function temporary() {
 }
 
 const read = (dir, file) => fs.readFileSync(path.join(dir, file), "utf8");
+// A decision of spec's, as a copy cites it: "R34" becomes "R34 spec".
+const suffixed = (text) => text.replace(/\bR\d+\b/g, "$& spec");
 const devcontainer = (dir) => parseJsonc(read(dir, ".devcontainer/devcontainer.json"));
 const git = (dir, ...args) => execFileSync(GIT, ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 const commitAll = (dir, message) => {
@@ -187,12 +189,14 @@ test("the Best Practices badge holds its project's number for <ID>, the same in 
 
 test("the devcontainer is spec's, with the repository's name, network and kind", () => {
   const spec = parseJsonc(read(specRoot, ".devcontainer/devcontainer.json"));
+  const specDockerfile = read(specRoot, ".devcontainer/Dockerfile");
   const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
-  for (const [name, kind] of [
-    ["learner-model", "go"],
-    ["infra", "docs"],
+  for (const [name, kind, card] of [
+    ["learner-model", "go", "3.8"],
+    ["infra", "docs", "3.11"],
+    ["app", "typescript", "3.1"],
   ]) {
-    const dir = draft(name, kind, name === "infra" ? "3.11" : "3.8");
+    const dir = draft(name, kind, card);
     const dc = devcontainer(dir);
     assert.equal(dc.name, `novatrail-${name}`);
     assert.deepEqual(dc.runArgs, [`--network=novatrail-${name}`]);
@@ -202,13 +206,62 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     assert.match(dockerfile, /\(R34 spec\)/, "a decision the Dockerfile cites is spec's");
     assert.doesNotMatch(dockerfile, /\bR\d+\b(?! spec\b)/, "no decision of spec's is cited without its suffix");
     assert.deepEqual(dc.mounts, spec.mounts, "the sign-in volumes are shared, the extensions' named by ${devcontainerId}");
-    assert.deepEqual(dc.customizations.vscode.extensions, [...spec.customizations.vscode.extensions, ...kinds[kind]]);
+    assert.deepEqual(dc.customizations.vscode.extensions, [...spec.customizations.vscode.extensions, ...(kinds[kind].extensions ?? [])]);
     assert.match(dc.postStartCommand, /git submodule update --init spec$/);
     const { "git.repositoryScanMaxDepth": onlySpec, ...settings } = spec.customizations.vscode.settings;
     assert.equal(onlySpec, 2);
-    assert.deepEqual(dc.customizations.vscode.settings, settings);
+    assert.deepEqual(dc.customizations.vscode.settings, { ...settings, ...(kinds[kind].settings ?? {}) });
+    // The kind's lines close the toolchain stage, before the devcontainer stage's heading, and
+    // without them the Dockerfile is spec's.
+    const lines = kinds[kind].toolchain ? suffixed(read(specRoot, path.join("repo-template", kinds[kind].toolchain)).trimEnd()) : null;
+    const ownName = (text) => suffixed(text.replace("the NovaTrail spec", `NovaTrail's ${name}`));
+    if (lines) {
+      const toolchainStage = dockerfile.slice(0, dockerfile.indexOf("\n# -- devcontainer:"));
+      assert.ok(toolchainStage.endsWith(`\n\n${lines}\n`), "the kind's lines end the toolchain stage");
+      assert.equal(dockerfile.replace(`${lines}\n\n`, ""), ownName(specDockerfile));
+    } else {
+      assert.equal(dockerfile, ownName(specDockerfile));
+    }
+    assert.equal(/PLAYWRIGHT_BROWSERS_PATH/.test(dockerfile), kind === "typescript", "the browser comes with the typescript kind alone");
     const rest = ({ name: _n, runArgs: _r, postStartCommand: _p, customizations: _c, ...others }) => others;
     assert.deepEqual(rest(dc), rest(spec));
+  }
+});
+
+test("the typescript kind brings the browser into the toolchain stage, and Biome into VS Code (R79)", () => {
+  const dir = draft("app", "typescript", "3.1");
+  const dockerfile = read(dir, ".devcontainer/Dockerfile");
+  const toolchain = dockerfile.slice(0, dockerfile.indexOf("\nFROM toolchain AS devcontainer"));
+  assert.match(toolchain, /^COPY --from=mcr\.microsoft\.com\/playwright:v[\d.]+-noble@sha256:[0-9a-f]{64} \\$/m, "the image is pinned by tag and digest");
+  assert.match(toolchain, /^ENV PLAYWRIGHT_BROWSERS_PATH=\/ms-playwright$/m);
+  assert.match(toolchain, /^ARG UBUNTU_SNAPSHOT=\d{8}T\d{6}Z$/m, "the system libraries come from a snapshot (R40)");
+  assert.match(toolchain, /\(R79 spec\)/);
+  const dc = devcontainer(dir);
+  assert.ok(dc.customizations.vscode.extensions.some((e) => /^biomejs\.biome@\d+\.\d+\.\d+$/.test(e)), "Biome's extension at an exact version");
+  assert.equal(dc.customizations.vscode.settings["[typescript]"]["editor.defaultFormatter"], "biomejs.biome");
+});
+
+test("a kind the recipe cannot read stops it, and one written as a list is read as before R79", () => {
+  const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
+  for (const [kind, message] of [
+    [{ extension: ["golang.go@0.56.1"] }, /kinds\.json: go: extension is not one of extensions, settings, toolchain/],
+    [null, /kinds\.json: go: a kind is an object of extensions, settings, toolchain/],
+    [{ extensions: "golang.go@0.56.1" }, /kinds\.json: go: extensions is a list of strings/],
+    [{ settings: ["files.eol"] }, /kinds\.json: go: settings is an object/],
+    [{ toolchain: "../files/.devcontainer/Dockerfile" }, /kinds\.json: go: toolchain names a file in repo-template\/kinds\/, not "\.\.\/files/],
+    [{ toolchain: "" }, /toolchain names a file in repo-template\/kinds\/, not ""/],
+    [{ toolchain: "kinds/go.Dockerfile" }, /kinds\.json: go: toolchain names kinds\/go\.Dockerfile, which repo-template does not have/],
+  ]) {
+    const root = standIn({ change: (r) => fs.writeFileSync(path.join(r, "repo-template/kinds.json"), JSON.stringify({ ...kinds, go: kind })) });
+    assert.throws(() => draft("engine", "go", "3.8", root), message);
+  }
+  // The latest tag before R79 writes a kind as its list of extensions: `just new-repo` still builds.
+  const root = standIn({ change: (r) => fs.writeFileSync(path.join(r, "repo-template/kinds.json"), JSON.stringify({ docs: [], go: ["golang.go@0.56.1"], typescript: [] })) });
+  const spec = parseJsonc(read(specRoot, ".devcontainer/devcontainer.json")).customizations.vscode.extensions;
+  for (const [kind, extensions] of [["go", ["golang.go@0.56.1"]], ["typescript", []]]) {
+    const dir = draft("engine", kind, "3.8", root);
+    assert.deepEqual(devcontainer(dir).customizations.vscode.extensions, [...spec, ...extensions]);
+    assert.doesNotMatch(read(dir, ".devcontainer/Dockerfile"), /PLAYWRIGHT/);
   }
 });
 
@@ -239,6 +292,40 @@ test("a change to spec's devcontainer stops the recipe instead of a quietly wron
   const dest = path.join(temporary(), "engine");
   assert.throws(() => newRepo({ specRoot: root, name: "engine", kind: "go", card: "3.8", dest, draft: "v0.0.0-test" }), /the container's name and network: expected "novatrail-spec" 2 time\(s\).*found 1/);
   assert.equal(fs.existsSync(dest), false, "half a copy was left behind");
+});
+
+test("a change to spec's devcontainer where a kind adds its own stops the recipe too", () => {
+  for (const [file, from, to, message] of [
+    [".devcontainer/Dockerfile", "FROM toolchain AS devcontainer", "FROM toolchain AS dev", /the start of the devcontainer stage: expected "\\nFROM toolchain AS devcontainer\\n" 1 time\(s\).*found 0/],
+    [".devcontainer/devcontainer.json", '"settings": {', '"settings":{', /the settings: expected once in spec's devcontainer, found 0/],
+    [".devcontainer/devcontainer.json", '"files.eol": "\\n",', '"[typescript]": {},\n                "files.eol": "\\n",', /the settings: spec's devcontainer already sets \[typescript\]/],
+  ]) {
+    const root = standIn({ change: (r) => change(r, file, from, to) });
+    assert.throws(() => draft("app", "typescript", "3.1", root), message);
+  }
+  // A list with comments but no entry has nowhere to put the comma after.
+  const root = standIn({
+    change: (r) => {
+      const dc = read(r, ".devcontainer/devcontainer.json");
+      const emptied = dc.replace(/("extensions": \[\n)[\s\S]*?(\n[ \t]*\])/, '$1                // none$2');
+      fs.writeFileSync(path.join(r, ".devcontainer/devcontainer.json"), emptied);
+    },
+  });
+  assert.throws(() => draft("app", "typescript", "3.1", root), /the extensions: empty in spec's devcontainer/);
+});
+
+test("the comma after spec's last entry goes before a comment on its line, not into it", () => {
+  const root = standIn({
+    change: (r) => {
+      change(r, ".devcontainer/devcontainer.json", '"git.detectSubmodules": false', '"git.detectSubmodules": false // "a // in a string"');
+      change(r, ".devcontainer/devcontainer.json", '"eamodio.gitlens@19.2.0"', '"eamodio.gitlens@19.2.0" // https://example.invalid/x');
+    },
+  });
+  const dir = draft("app", "typescript", "3.1", root);
+  const text = read(dir, ".devcontainer/devcontainer.json");
+  assert.match(text, /"git\.detectSubmodules": false, \/\/ "a \/\/ in a string"$/m);
+  assert.match(text, /"eamodio\.gitlens@19\.2\.0", \/\/ https:\/\/example\.invalid\/x$/m);
+  assert.equal(devcontainer(dir).customizations.vscode.settings["git.detectSubmodules"], false);
 });
 
 test("a placeholder the recipe does not know stops it", () => {
