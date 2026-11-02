@@ -1,7 +1,7 @@
 // contracts: the code buf generates from the API contracts, put beside the files it comes from
 // (R83; contracts/README.md, section 8; RUN.md, T55).
 //
-//   node tools/contracts/generate.mjs [<root>]      spec's own, two levels above this file, unless named
+//   node tools/contracts/generate.mjs      spec's own contracts/, two levels above this file
 //
 // buf generate writes the code of buf.gen.yaml into a new folder; then every generated file of
 // contracts/ goes, and the new ones take their place, so that a file no .proto gives any more goes
@@ -49,7 +49,7 @@ export function writeGenerated(root) {
 }
 
 if (isMain(import.meta.url)) {
-  const root = process.argv[2] ? path.resolve(process.argv[2]) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   try {
     const { written, removed } = writeGenerated(root);
     console.log(`contracts: ${written} file${written === 1 ? "" : "s"} of generated code in contracts/${removed ? `, ${removed} no longer generated removed` : ""}`);

@@ -241,16 +241,22 @@ test("a shallow clone is refused: it has no tags to find the previous release by
 });
 
 test("the command prints each error and exits 1, or prints the summary", () => {
+  // The commands read the spec two levels above them, and take no other: a copy of them in the
+  // made-up repository reads that one.
   const { dir } = repository();
-  const main = path.join(root, "tools/contracts/main.mjs");
-  const ok = spawnSync(process.execPath, [main, dir], { encoding: "utf8" });
+  for (const file of ["tools/shared.mjs", "tools/release/version.mjs", "tools/contracts/main.mjs", "tools/contracts/buf.mjs", "tools/contracts/rules.mjs", "tools/contracts/generate.mjs"]) {
+    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    fs.copyFileSync(path.join(root, file), path.join(dir, file));
+  }
+  const main = path.join(dir, "tools/contracts/main.mjs");
+  const ok = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(ok.status, 0, ok.stderr);
   assert.match(ok.stdout, /^contracts-check: ok — 1 \.proto file in 1 package, 4 files of generated code/);
   edit(dir, "contracts/notes.txt", null, "notes\n");
-  const failed = spawnSync(process.execPath, [main, dir], { encoding: "utf8" });
+  const failed = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(failed.status, 1);
   assert.match(failed.stdout, /^contracts\/notes\.txt:0: contracts-check does not know it[^]*contracts-check: 1 error\n$/);
-  const generate = spawnSync(process.execPath, [path.join(root, "tools/contracts/generate.mjs"), dir], { encoding: "utf8" });
+  const generate = spawnSync(process.execPath, [path.join(dir, "tools/contracts/generate.mjs")], { encoding: "utf8" });
   assert.equal(generate.status, 1);
   assert.match(generate.stderr, /^contracts: buf generate does not run while contracts-check finds these:/);
 });

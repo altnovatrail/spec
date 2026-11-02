@@ -1,6 +1,6 @@
 // contracts-check: the checks of the API contracts in spec's contracts/ (R83; RUN.md, T55).
 //
-//   node tools/contracts/main.mjs [<root>]      spec's own, two levels above this file, unless named
+//   node tools/contracts/main.mjs      spec's own contracts/, two levels above this file
 //
 // Checks, in order:
 // - buf.yaml, as R83 fixes it — one module, contracts/, no deps, the lint categories STANDARD,
@@ -137,7 +137,7 @@ export function summary({ protos, packages, generated, previous }) {
 }
 
 if (isMain(import.meta.url)) {
-  const root = process.argv[2] ? path.resolve(process.argv[2]) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   try {
     const { errors, stats } = checkContracts(root);
     for (const { file, line, message } of errors) console.log(`${file}:${line}: ${message}`);

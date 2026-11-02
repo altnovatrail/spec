@@ -16,7 +16,7 @@ import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import { compareLines } from "./version.mjs";
 import { lineOf, readOutputs } from "./format-line.mjs";
-import { GIT, isMain } from "../shared.mjs";
+import { GIT, byCodeUnits, isMain } from "../shared.mjs";
 
 // A contract's file and its package's folder: contracts/novatrail/<part>/vN/<name>.proto.
 const CONTRACT = /^contracts\/novatrail\/([a-z][a-z0-9_]*)\/v([1-9][0-9]*)\/[^/]+\.proto$/;
@@ -35,7 +35,7 @@ export function packagesOf(files) {
 // major package, v2 or later, needs a raised line.
 export function checkContractsLine({ version, previous, packagesNow, packagesThen }) {
   const previousLine = lineOf(previous);
-  const opened = [...packagesNow].filter((name) => !packagesThen.has(name) && Number(name.split(".v").at(-1)) >= 2).sort();
+  const opened = [...packagesNow].filter((name) => !packagesThen.has(name) && Number(name.split(".v").at(-1)) >= 2).sort(byCodeUnits);
   if (opened.length && compareLines(lineOf(version), previousLine) <= 0) {
     throw new Error(`${opened.join(" and ")} came after ${previous}: a new major package of a contract starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change (R83, R44)`);
   }
