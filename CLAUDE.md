@@ -15,6 +15,7 @@ The documents under `docs/` are in Russian (R14) and are cited by section: "prod
 - [docs/repositories.md](docs/repositories.md) — the repositories, their dependencies, the order they appear in, and how to set one up. Open technical questions Т-… are in section 8.
 - [docs/decisions.md](docs/decisions.md) — the decision log, R01…: read it before proposing a change.
 - [format/](format/README.md) — the module format: its text, and part by part its schemas, examples and test vectors. It is normative and in English (R42); its conventions are R45 and its versions R44.
+- [contracts/](contracts/README.md) — the API contracts: protobuf files by buf's rules, and the code buf generates from them. It is normative and in English (R42); its rules are R83.
 - [RUN.md](RUN.md) — the work plan, in epics (R19). Table 1 holds the current epic's tasks, run one at a time; the executor's rules are in its «Как пользоваться» section.
 - [COORDINATION.md](COORDINATION.md) — the cross-repository plan (R76), in Russian: in what order the other repositories' tasks run, by repositories 6, toward the first app, and which waits for which. Each row points to a task in that repository's RUN.md, where the task itself lives (R19). «Что дальше по COORDINATION.md?» in a session of spec runs its coordinator, by the rules in its «Как пользоваться» section: it reads the other repositories on GitHub and changes none of them.
 - [RULES.md](RULES.md) — the rules every NovaTrail repository shares, imported below.
