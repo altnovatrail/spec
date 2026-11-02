@@ -48,12 +48,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## 7. buf's rules
 
 - `buf lint` holds every file to the categories `STANDARD`, `COMMENTS` and `UNARY_RPC`, with no exceptions, and with `disallow_comment_ignores: true`: a comment in a file MUST NOT switch a rule off. A method streams nothing.
-- `buf breaking` holds every package to the category `FILE` against the previous release of `spec`. A release in which a package first appears has nothing to compare it with.
+- `buf breaking` holds every package to the category `FILE` against the previous release of `spec`: the newest release tag in the history of the commit checked, other than the commit's own, with `buf.yaml` and `contracts/` as git holds them at that tag. A release in which a package first appears has nothing to compare it with.
 - No rule of protovalidate is used: its module lives in the Buf Schema Registry.
+- Beside buf's rules, `spec`'s checks hold every rule of this text that a program can read: the syntax (section 4), the path and the package (section 3), no `json_name` (section 6) and no unsigned type (section 5), `buf.yaml` as section 3 and this section have it, and a template of `buf generate` with local plugins alone (section 8). `optional` where absence differs from zero, and `int64` only past 2³¹ − 1, are held by review.
 
 ## 8. Generated code
 
-- The code is generated from the files by buf with local plugins at exact versions; no remote plugin of the Buf Schema Registry is used. It lies in the repository beside the files, and `spec`'s checks verify that it is what buf generates.
+- The code is generated from the files by buf with local plugins at exact versions; no remote plugin of the Buf Schema Registry is used. `buf.gen.yaml` at the root of `spec` names them: `protoc-gen-go` and `protoc-gen-connect-go` are tools of `contracts/go.mod`, so that each comes at the version of the runtime the module requires, and `protoc-gen-es` is a package of `spec`'s tools. The code lies in the repository beside the files, and `spec`'s checks verify that it is what buf generates.
 - **Go.** The code is the module `github.com/altnovatrail/spec/contracts`, whose `go.mod` lies in `contracts/`: the messages from `protoc-gen-go` and the services from `protoc-gen-connect-go`. Its tag is `contracts/vX.Y.Z`, with the number of the tag of `spec`. It requires the protobuf runtime and Connect at exact versions, while the module `github.com/altnovatrail/spec` at the root still requires nothing (R64). Code on Go MUST take a contract from this module and MUST NOT generate its own: two copies of one contract in one program refuse to start.
 - **TypeScript.** The code is the npm package `@altnovatrail/contracts`, JavaScript with its declarations and the JSON types of `protoc-gen-es`. It depends on `@bufbuild/protobuf` at an exact version. Its version is the tag of `spec` without `v`, and a consumer verifies it as it verifies `@altnovatrail/spec` (R73, R77).
 

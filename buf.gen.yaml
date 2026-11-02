@@ -1,0 +1,29 @@
+# The code buf generates from the API contracts, beside the files it comes from (R83;
+# contracts/README.md, section 8). Every plugin is local, at an exact version: protoc-gen-go and
+# protoc-gen-connect-go are the tools of contracts/go.mod, the same modules at the same versions
+# as the runtime the code requires, and protoc-gen-es is the package of tools/package.json. No
+# remote plugin of the Buf Schema Registry is used. Managed mode gives each file its Go package,
+# github.com/altnovatrail/spec/contracts/novatrail/<part>/vN, so the .proto files carry no option
+# of a language. The code goes out only through just contracts, which generates it into a new
+# folder and puts it in place, and just contracts-check holds it to what this file generates.
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/altnovatrail/spec/contracts
+plugins:
+  - local: ["go", "-C", "contracts", "tool", "protoc-gen-go"]
+    out: contracts
+    opt: paths=source_relative
+  - local: ["go", "-C", "contracts", "tool", "protoc-gen-connect-go"]
+    out: contracts
+    opt: paths=source_relative
+  # JavaScript with its declarations and the JSON types, as ECMAScript modules whose imports name
+  # their files, as Node and TypeScript's nodenext resolve them.
+  - local: tools/node_modules/.bin/protoc-gen-es
+    out: contracts
+    opt:
+      - target=js+dts
+      - import_extension=js
+      - json_types=true
