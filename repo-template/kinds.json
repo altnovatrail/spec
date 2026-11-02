@@ -1,5 +1,13 @@
 {
-  "docs": [],
-  "go": ["golang.go@0.56.1"],
-  "typescript": []
+  "docs": {},
+  "go": {
+    "extensions": ["golang.go@0.56.1"]
+  },
+  "typescript": {
+    "extensions": ["biomejs.biome@3.8.1"],
+    "settings": {
+      "[typescript]": { "editor.defaultFormatter": "biomejs.biome" }
+    },
+    "toolchain": "kinds/typescript.Dockerfile"
+  }
 }

@@ -25,6 +25,17 @@ test("the files of spec v0.5.6 are let in, each bound to its tag by what it hold
   }
 });
 
+test("tutor v0.1.0, signed by .github v0.1.11, is let in at the minimum R77 sets, refused by one above its signer, and held to its repository and tag", () => {
+  const sums = { repository: "tutor", tag: "v0.1.0", ...fixture("tutor-v0.1.0/SHA256SUMS") };
+  assert.equal(checked(sums), "SHA256SUMS: tutor v0.1.0, signed by the shared release.yml of .github v0.1.11");
+  const V0111 = COMMITS[".github"]["v0.1.11"];
+  assert.throws(() => checked(sums, { minimum: { tag: "v0.1.12", commit: COMMITS[".github"]["v0.1.12"] } }), new RegExp(`\\.github v0\\.1\\.11, ${V0111}, is older than v0\\.1\\.12`));
+  // The same file is still held to its repository and its tag.
+  assert.throws(() => checked({ ...sums, repository: "module-kit" }), /Source Repository URI \(1\.3\.6\.1\.4\.1\.57264\.1\.12\) is "https:\/\/github\.com\/altnovatrail\/tutor", not "https:\/\/github\.com\/altnovatrail\/module-kit"/);
+  const moved = gitHub({ tags: { ...COMMITS, tutor: { "v0.1.0": COMMITS["module-kit"]["v0.1.0"] } } });
+  assert.throws(() => checked(sums, { source: moved }), /Source Repository Digest \(1\.3\.6\.1\.4\.1\.57264\.1\.13\) is e4ed077\w+, and tutor v0\.1\.0 is 7e0144a/);
+});
+
 test("module-kit v0.1.0, signed by .github v0.1.4, is refused below the minimum, and let in by a minimum the test sets at v0.1.4", () => {
   assert.deepEqual(MINIMUM, { tag: "v0.1.7", commit: COMMITS[".github"]["v0.1.7"] });
   assert.throws(() => checked(license()), new RegExp(`\\.github v0\\.1\\.4, ${V014}, is older than v0\\.1\\.7: ${MINIMUM.commit} is not in its history`));

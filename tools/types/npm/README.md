@@ -47,14 +47,22 @@ The package's version is the tag of the release of `altnovatrail/spec` it comes 
 
 ## Checking the archive
 
-The archive in npm is the file `altnovatrail-spec-<version>.tgz` of that release, which the release signs with cosign and whose attestation names it. To check it:
+The archive in npm is the file `altnovatrail-spec-<version>.tgz` of that release, which the release signs with cosign and whose attestation names it. A NovaTrail repository lets the package into its code only once spec's `release-verify-npm` has accepted its lock file, in CI of the pull request that changes it (decision R77 of spec; [RULES.md](https://github.com/altnovatrail/spec/blob/main/RULES.md), Hard rules). It runs from the repository's `spec` submodule:
 
 ```sh
-npm pack @altnovatrail/spec@0.4.0
-gh release verify-asset v0.4.0 altnovatrail-spec-0.4.0.tgz -R altnovatrail/spec
+just -f spec/justfile release-verify-npm package-lock.json
 ```
 
-The release publishes that file to npm itself, by trusted publishing, and npm gives each version it publishes that way a provenance attestation. The provenance names `.github/workflows/release.yml` of `altnovatrail/spec` and the commit of the run that published it. That commit is the tip of `main` when the run began, which is not always the commit the release was cut from. The release's attestation names the release's own commit, and `gh release verify-asset` is what ties the archive to it. 0.4.0 was published by hand and has no provenance. Not every release of the line has a version in npm, so take a tag whose version is there.
+For each package of `@altnovatrail` in the lock file, it downloads the archive from the registry and checks it against Sigstore's trust root and the cosign bundle of the release file of the same name. This package's must be signed by spec's own `.github/workflows/release.yml` on `main`, in `altnovatrail/spec`. Its certificate names the tip of `main` as the signing run began, so the archive is tied to its tag by the version its `package.json` holds. Last, the lock file's `integrity` must be the hash of the bytes so checked. A single archive, with its bundle beside it, is checked by `just -f spec/justfile release-verify spec v0.6.2 altnovatrail-spec-0.6.2.tgz`.
+
+The release's attestation ties the archive to the release, not to a commit, and `gh release verify-asset` checks it apart:
+
+```sh
+npm pack @altnovatrail/spec@0.6.2
+gh release verify-asset v0.6.2 altnovatrail-spec-0.6.2.tgz -R altnovatrail/spec
+```
+
+The release publishes that file to npm itself, by trusted publishing, and npm gives each version it publishes that way a provenance attestation. The provenance names `.github/workflows/release.yml` of `altnovatrail/spec` and the commit of the run that published it, which is the tip of `main` when the run began rather than always the commit the release was cut from. 0.4.0 was published by hand and has no provenance. Not every release of the line has a version in npm, so take a tag whose version is there.
 
 ## License
 
