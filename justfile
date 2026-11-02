@@ -132,7 +132,7 @@ types-test: _tools
 # whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds every release
 # and no file of a release is needed; and the code buf generates, which contracts/ holds file for
 # file. buf is the toolchain stage's, at an exact version; its Go plugins are the tools of
-# contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file yet, buf refuses a
+# contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file, buf refuses a
 # module without one, and the check stops after the layout. A file it does not know is an error, so
 # the task that brings it extends the check (RUN.md, T55).
 # Check the API contracts in contracts/: buf's rules, R83's own and the generated code.
@@ -202,7 +202,7 @@ GO_LICENSES := "github.com/google/go-licenses/v2@v2.0.1"
 # of tools/gomod build their repositories in temporary folders, and the copies new-repo builds in
 # .repos/ git ignores. A new module is checked without a change here. A module that holds no Go
 # package yet is named and left out, since go vet, go test and govulncheck refuse a pattern that
-# matches nothing: contracts holds only the generators of buf until the first .proto file (R83).
+# matches nothing, as contracts did until its first .proto file, with only the generators of buf (R83).
 [private]
 _go-modules:
     #!/usr/bin/env bash
