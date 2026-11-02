@@ -741,7 +741,7 @@ The limit of steps is the format's: the same expression on the same value takes 
   - `true`, `false` and `null` are written so;
   - the text is UTF-8, with no byte order mark and no newline at the end.
 
-  A JSON library that escapes more does not give the canonical text: `encoding/json` of Go escapes `<`, `>` and `&` unless it is told not to, and U+2028 and U+2029 always ([encoding/json](https://pkg.go.dev/encoding/json)), and the vectors of packages hold such characters. `Value.Canonicalize` of Go's [encoding/json/jsontext](https://pkg.go.dev/encoding/json/jsontext) implements RFC 8785, but in go1.27.3 only under the experiment `jsonv2` (both read 2026-10-28).
+  A JSON library that escapes more than this does not give the canonical text, and the vectors of packages hold such characters.
 - **Digests.** A digest is `sha256:` and the SHA-256 of bytes in 64 lowercase hexadecimal digits, and a size is how many bytes there are. Each part is named by the digest and the size of a canonical text:
   - the server part, by the canonical text of the canonical view;
   - the device part, by the canonical text of its listing: an object with `license`, the digest and size of `LICENSE`, `notice`, those of `NOTICE` when the module has one, and `media`, those of each file of `media/` by its path from `media/`, when it has any (`inventory.schema.json`, `$defs/device_listing`). The files themselves travel as they are, and how — in an archive or one by one, compressed or not — changes no digest.
