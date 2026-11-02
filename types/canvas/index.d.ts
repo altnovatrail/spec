@@ -3,16 +3,18 @@
 
 /**
  * The types of the element `<novatrail-canvas>`: the contract of canvas and app (R36). The element
- * takes a task and its module's manifest, and the learner's history of writing, by properties; it
- * gives the work for checking by a method, and tells what the learner did by events. In place of a
- * task it may show a lesson's worked example, whose demo the learner opens part by part with its
- * buttons, and how far they have gone is a property and an event too. The types of the task, of
- * the worked example and of the manifest are the module format's open views, formatv0/open.
+ * takes a task and its module's manifest, the files of its pictures and the learner's history of
+ * writing, by properties; it gives the work for checking by a method, and tells what the learner did
+ * by events. In place of a task it may show a lesson's worked example, whose demo the learner opens
+ * part by part with its buttons, and how far they have gone is a property and an event too. The
+ * types of the task, of the worked example and of the manifest are the module format's open views,
+ * formatv0/open.
  *
  * The tutor's marks — the property `marks` and the types of a mark — wait for the contract of epic
- * E3, and are canvas's own until then. The element's members beyond this contract, and its place in
- * the DOM's maps of tags and events, are canvas's too: its package registers the element. The
- * declarations take the DOM's types: Blob, CustomEvent and HTMLElement.
+ * E3, and are canvas's own until then. The element's members beyond this contract — its commands
+ * undo() and clear(), which its own buttons call — and its place in the DOM's maps of tags and
+ * events are canvas's too: its package registers the element. The declarations take the DOM's
+ * types: Blob, CustomEvent and HTMLElement.
  *
  * @packageDocumentation
  */
@@ -272,6 +274,13 @@ export interface CanvasEventMap {
 }
 
 /**
+ * What gives the file of a picture by its reference, the picture's path from the module's media/
+ * folder: the consumer's, for the canvas goes to no network. app takes the files from the device
+ * part of the module's package, which api serves.
+ */
+export type Media = (ref: string) => Promise<Blob>;
+
+/**
  * The element `<novatrail-canvas>` as its contract with app has it. The language of its buttons is
  * its own attribute `lang`.
  */
@@ -314,6 +323,14 @@ export interface CanvasElement extends HTMLElement {
    * TypeError.
    */
   manifest: open.Manifest | undefined;
+  /**
+   * What gives the files of the pictures of the task or of the worked example — its statement's,
+   * and every part's of its demo — by their references. A reference is asked for once, however many
+   * pictures show it. Until a picture's file comes, or if it never does, its frame shows what it
+   * shows in words. A new function serves the references that have no file yet. Anything but a
+   * function or `undefined` is a TypeError.
+   */
+  media: Media | undefined;
   /**
    * The history of writing: every stroke, erasing, clearing and undo on the sheet, frozen. The
    * consumer keeps it, adding what `historychange` tells, and gives it back to open the sheet as it

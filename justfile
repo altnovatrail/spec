@@ -15,6 +15,18 @@ docs-check-repo: _tools
 docs-check-test: _tools
     node --test 'tools/docs-check/test/*.test.mjs'
 
+# Reads table 3 of every other NovaTrail repository's RUN.md on GitHub, through gh — on main and in
+# each open pull request — and prints the rows «в реестр spec» that table 5 of RUN.md does not hold
+# yet, and those of table 5 the source no longer marks (R81). A session of spec runs it before a
+# task, rule 13 of RUN.md; gh has to be logged in.
+# List what the other repositories hold for spec.
+inbox: _tools
+    node tools/inbox/main.mjs
+
+# Run inbox's own tests, on made-up RUN.md files and a stand-in for gh.
+inbox-test: _tools
+    node --test 'tools/inbox/test/*.test.mjs'
+
 # Reads spec's own format/ by the layout of its text: each schema against the conventions of R45 and
 # the 2020-12 meta-schema, each example against its schema, the YAML rules on every example and test
 # vector, the layout of a module and its rules on the cases laid out as one — the ids of the files at

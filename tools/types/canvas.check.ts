@@ -16,11 +16,13 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   get demoState(): canvas.DemoState | undefined;
   set demoState(state: canvas.DemoState | undefined);
   manifest: open.Manifest | undefined;
+  media: canvas.Media | undefined;
   get history(): readonly canvas.HistoryEvent[];
   set history(history: readonly canvas.HistoryEvent[] | undefined);
   get filled(): canvas.Filled | null;
   exportWork(): Promise<canvas.ExportedWork | null>;
   undo(): boolean;
+  clear(): boolean;
 }
 
 // canvas puts the element's events in the DOM's map of events, as its package does: their types
@@ -68,6 +70,8 @@ sheet.task = task;
 sheet.task = undefined;
 sheet.manifest = manifest;
 sheet.manifest = undefined;
+sheet.media = async (ref) => new Blob([ref]);
+sheet.media = undefined;
 sheet.history = history;
 sheet.history = undefined;
 export const kept: readonly canvas.HistoryEvent[] = sheet.history;
@@ -111,6 +115,12 @@ filled?.[0]?.push(true);
 sheet.history = null;
 // @ts-expect-error null is no manifest: undefined, and undefined alone, is none.
 sheet.manifest = null;
+// @ts-expect-error null is no media: undefined, and undefined alone, is none.
+sheet.media = null;
+// @ts-expect-error A picture's file comes as a Blob, not as its address.
+sheet.media = async (ref: string) => ref;
+// @ts-expect-error The commands are canvas's own, which its buttons call: the contract has none.
+sheet.undo();
 // @ts-expect-error null is no worked example: undefined, and undefined alone, is none.
 sheet.workedExample = null;
 // @ts-expect-error A state of a demo says both how many parts are open and whether it is hidden.

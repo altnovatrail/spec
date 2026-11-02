@@ -29,7 +29,8 @@ function show(task: open.Task, manifest: open.Manifest) {
   A field the object always holds is required, and any other is optional. That includes each field that only some branches of a schema give.
 - **`@altnovatrail/spec/formatv0/open`** holds the open view of each part, which is what the learner's app gets ([the format's text](https://github.com/altnovatrail/spec/blob/main/format/README.md#6-open-fields), section 6). Each type keeps its name from `formatv0` and only the fields marked `x-open`, so an open view has no check, no template and no solver.
 - **`@altnovatrail/spec/canvas`** holds the types of `<novatrail-canvas>`:
-  - `CanvasElement`, which describes the element's properties `tool`, `task`, `workedExample`, `demoState`, `manifest`, `history` and `filled` and its method `exportWork()`;
+  - `CanvasElement`, which describes the element's properties `tool`, `task`, `workedExample`, `demoState`, `manifest`, `media`, `history` and `filled` and its method `exportWork()`;
+  - `Media`, the function by which the consumer gives the files of the pictures: the canvas goes to no network;
   - the events `toolchange`, `historychange` and `demochange`, with `CanvasEventMap` naming them;
   - the state of a worked example's demo, `DemoState`;
   - the history of writing;
