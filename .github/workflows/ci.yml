@@ -68,10 +68,20 @@ jobs:
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec types-check
 
+      # The API contracts in contracts/ (R83): buf.yaml and buf.gen.yaml as R83 has them, buf
+      # format, buf lint, R83's own rules, buf breaking against the previous release of spec by
+      # its tag, which the whole history above holds, and the code buf generates, which
+      # contracts/ holds file for file. buf is the toolchain stage's; the Go generators come
+      # through the Go module proxy, as the module of go-check does.
+      - name: Contracts
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec contracts-check
+
       # spec's Go module (R64), with the types of the module format (R72): with no requirement,
       # and its zip built of the commit as the Go module proxy will build it from the release's
-      # tag. go fetches the module the zip is built with, golang.org/x/mod, by tools/gomod/go.sum.
-      # Its vet and its tests are the job Go's, below.
+      # tag; and the module of the contracts, contracts/ (R83), with the runtime of protobuf and
+      # Connect alone, and its zip too. go fetches the module the zips are built with,
+      # golang.org/x/mod, by tools/gomod/go.sum. Their vet and their tests are the job Go's, below.
       - name: Go module
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec go-check

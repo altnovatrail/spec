@@ -1,0 +1,18 @@
+# The workspace of the API contracts (R83; contracts/README.md, sections 3 and 7): one module,
+# contracts/, and no deps, so that nothing of the build comes from the Buf Schema Registry or any
+# other service outside the repository. Every file is held to the lint categories STANDARD,
+# COMMENTS and UNARY_RPC, with no exception and no comment that switches a rule off, and every
+# package to the breaking category FILE against the previous release of spec. just contracts-check
+# holds this file to exactly that.
+version: v2
+modules:
+  - path: contracts
+lint:
+  use:
+    - STANDARD
+    - COMMENTS
+    - UNARY_RPC
+  disallow_comment_ignores: true
+breaking:
+  use:
+    - FILE

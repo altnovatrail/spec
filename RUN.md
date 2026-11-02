@@ -25,9 +25,10 @@
 5. Факты о поставщиках ИИ, законах, ценах и чужих платформах — из первоисточника, с цитатой и датой прочтения (CLAUDE.md). Что не подтвердилось — не утверждается, а становится открытым вопросом.
 6. **Задача заканчивается зелёными проверками** — теми, что уже есть и касаются её правок:
    - проверка документов — ссылки, разделы, реестры, диаграммы. С T01 это `just docs-check`, до неё — тот же набор руками;
-   - лицензии пакетов `tools/` — `just licenses-check`, когда задача меняет `tools/package.json` или lock-файл (T15). Код `tools/` — ещё и его тесты, все разом и с покрытием, как в CI: `just coverage`. Тесты одного инструмента — его рецепт: `just docs-check-test`, `just format-check-test`, `just new-repo-test`, `just licenses-check-test`, `just release-version-test`, `just toolchain-test`, `just types-test`, `just inbox-test`. Если задача трогает `release.yml` или `tools/release/` — ещё и `just release-version`;
+   - лицензии пакетов `tools/` — `just licenses-check`, когда задача меняет `tools/package.json` или lock-файл (T15). Код `tools/` — ещё и его тесты, все разом и с покрытием, как в CI: `just coverage`. Тесты одного инструмента — его рецепт: `just docs-check-test`, `just format-check-test`, `just new-repo-test`, `just licenses-check-test`, `just release-version-test`, `just toolchain-test`, `just types-test`, `just inbox-test`, `just contracts-check-test`. Если задача трогает `release.yml` или `tools/release/` — ещё и `just release-version`;
    - формат модуля в `format/` — схемы, примеры и тест-векторы — `just format-check` (T25), а с ним и типы формата — `just types-check`; правка схемы — ещё и `just types` (T45);
-   - код Go — модуль `spec` и модули `tools/` — `just go-check` и рецепты общих проверок Go: `just ci-lint`, `just ci-test`, `just ci-vuln` и `just ci-licenses` (T50).
+   - код Go — модули `spec` и `contracts` и модули `tools/` — `just go-check` и рецепты общих проверок Go: `just ci-lint`, `just ci-test`, `just ci-vuln` и `just ci-licenses` (T50);
+   - контракты в `contracts/`, `buf.yaml` и `buf.gen.yaml` — `just contracts-check`, а правка `.proto` — ещё и `just contracts`, который пишет код buf (T55).
 
    Затем задача проходит `/code-review high`, один круг: исправив его находки, исполнитель ревью не повторяет. Небольшую правку он может сдать без ревью — это решает он сам, даже если «Как проверить» задачи называет `/code-review high`.
 7. Не коммитить. Коммит делаю я после проверки. Это относится и к репозиториям, которые заводит эпик, если задача прямо не говорит иначе.
@@ -219,7 +220,7 @@ E3 идёт вместе с репозиториями этапа 2, как E2 �
 |---|---|---|---|---|---|
 | [x] | T66 | Входящие `spec`: строки других репозиториев `spec` читает сам | я + Claude | да | — |
 | [x] | T54 | Контракты на protobuf и buf: раскладка, версии и код | Claude | да | T66 |
-| [ ] | T55 | Проверка контрактов в CI | Claude | да | T54 |
+| [x] | T55 | Проверка контрактов в CI | Claude | да | T54 |
 | [ ] | T56 | Наблюдение | Claude, проверяю я | да | T55 |
 | [ ] | T57 | Контракты в релизах `spec` | я + Claude | да | T56 |
 | [ ] | T58 | Файл образца | Claude, проверяю я | да | T55 |
@@ -482,6 +483,36 @@ E3 идёт вместе с репозиториями этапа 2, как E2 �
 - **Решить при планировании:** как `buf breaking` берёт прошлый релиз без Buf Schema Registry — по тегу git `spec` или по файлу релиза, проверенному `release-verify` (R77); имя рецепта.
 - **Как проверить:** новый рецепт и `just docs-check` — зелёные; `just licenses-check`, если меняются пакеты `tools/`; тесты — `just coverage`; `/code-review high`.
 - **Разделы:** R12, R30, R34, R35, R40, R72, R77, R83; T54; repositories 5; CLAUDE.md, Environment.
+- **Решено автором (2026-11-02)** — все ответы по рекомендациям плана; запись — поправкой к R83:
+  - прошлый релиз для `buf breaking` — по тегу git `spec`: самый новый тег `v*` в истории HEAD, кроме тега самого HEAD. Его `buf.yaml` и `contracts/` рецепт выкладывает `git archive` во временную папку, и buf сверяется с ней. У тега без `.proto` сверять не с чем. Отвергнуто — файл релиза, проверенный `release-verify`: своей версии у контракта нет, привязки такого файла `verify.mjs` не знает, а `release.yml` пускает только `<часть>-MAJOR.MINOR.tar.gz`; каждый pull request ходил бы в сеть к GitHub и Sigstore, а у релизов до T57 файла нет;
+  - рецепты — `just contracts-check`, `just contracts` (генерация) и `just contracts-check-test`, как `types` и `types-check`: имя по роли, а не по технологии, как папка `contracts/`. Отвергнуто — `buf-check`;
+  - директивы `tool` для `protoc-gen-go` и `protoc-gen-connect-go` — в самом `contracts/go.mod`, а не в модуле Go в `tools/`, как писал R83: генератор и рантайм держит один пин, и одна запись Dependabot поднимает их вместе. Модулей от этого не прибавляется: оба плагина — пакеты тех же двух модулей, а `go mod tidy` держит `require` и до первого `.proto`. `protoc-gen-es` — точной версией в `tools/package.json`, как решил R83. Отвергнуто — свой модуль `tools/contracts`: версии protobuf и connect стояли бы в двух `go.mod`, и проверке пришлось бы держать их равными;
+  - сверх buf рецепт проверяет то, что `contracts/README.md` требует, а buf не ловит: `syntax = "proto3"`, без editions и proto2; ни одного `json_name`; ни одного беззнакового типа; префикс `novatrail.` и путь `contracts/novatrail/<часть>/vN/<имя>.proto`; `buf.yaml` и `buf.gen.yaml` по R83 — без `deps`, `except` и удалённых плагинов. Файл в `contracts/`, которого рецепт не знает, — ошибка, как в `format-check`. `optional` там, где «нет» и ноль различаются, и `int64` только сверх 2³¹ − 1 — смысловые правила, их держит ревью. Отвергнуто — только buf и сверка кода: `json_name`, editions и ослабленный `buf.yaml` buf пропустил бы молча.
+- **Выяснилось при планировании:**
+  - когда `.proto` нет, buf завершается с ошибкой, и это «Working as intended» (bufbuild/buf#175, прочитано 2026-11-02). До T56 рецепт пишет, что `.proto` ещё нет, и buf не зовёт, а сам buf пробуют тесты рецепта, на пробных `.proto`;
+  - buf v1.75.0 от 2026-10-22 — новейший на 2026-11-02, лицензия Apache-2.0. Суммы из его `sha256.txt`: `buf-Linux-x86_64` — `fad1e38d6909bbb583a4da81d8c02a01046e2cd663bde7e337dd24277393764b`, `buf-Linux-aarch64` — `00eb190aa82df17f393e05b04889cc60a0b13b3259d336e21a87d5f23ab4fd26`. Бинарник один, без архива;
+  - `.devcontainer` заготовки — ссылка на devcontainer `spec`, так что buf стадии `toolchain` придёт в каждую новую копию и будет там без дела, как Go (repositories 2.2). Комментарий Dockerfile пишется так, чтобы читаться верно и в копии;
+  - `buf.gen.yaml` v2 принимает `local` списком — программа и её аргументы, — так что плагины Go идут `go -C contracts tool …`, без установки;
+  - `cmd/protoc-gen-connect-go` в connect v2.0.2 импортирует только connect и protobuf. connect v2.0.2 требует protobuf v1.36.11, а MVS берёт v1.36.12;
+  - с `contracts/go.mod` папка `contracts/` уходит из zip корня: x/mod выкидывает папку со своим `go.mod`. Zip вложенного модуля `CreateFromVCS` с подпапкой собирает сам и кладёт в него корневой LICENSE, а `tools/gomod` этого пока не умеет: модуль, подпапка и что модуль несёт в нём заданы жёстко;
+  - фикстуры тестов — только `.proto`: `.go` или `go.mod` в них подхватили бы `_go-modules`, `go vet` корня и `gofmt`;
+  - модуль `contracts` до T56 — без пакетов: `ci-lint`, `ci-test`, `ci-vuln`, `ci-licenses` и CodeQL на Go проверяются и на таком модуле;
+  - правило 12: открыты только пять находок Scorecard от 2026-10-20, все отвечены в R33. Правило 13: `just inbox` 2026-11-02 — 12 новых строк на `main` (`api` В12–В14, `app` В20–В23, `module-kit` В9, `modules` В2–В5) и 4 на подходе (`modules` В6–В9, pull request #12); о проверке контрактов среди них нет ни одной. Разбор больше одной проверки и идёт до T55 отдельно, фразой «Разбери входящие». Разбор шёл в той же сессии, до выполнения: к нему 22 строки — пока он шёл, `modules` смержил pull request #12, а `app` добавил В24–В29; записаны R84, R85, поправками того же дня к R25, R36 и R62, П-23, П-24, T67 и Д76–Д80, таблица 5.
+- **Сделано (2026-11-02):**
+  - buf v1.75.0 — в стадии `toolchain` Dockerfile, бинарником релиза с суммой на каждую архитектуру; суммы сверены с `sha256.txt`, с полем `digest` API GitHub и с самими файлами обеих архитектур;
+  - `buf.yaml` и `buf.gen.yaml` в корне, по R83; `contracts/go.mod` и `go.sum` — модуль `github.com/altnovatrail/spec/contracts` с `require` protobuf v1.36.12 и connect v2.0.2 и их генераторами в `tool`; `@bufbuild/protoc-gen-es` 2.16.0 в `tools/package.json`;
+  - `tools/contracts/` — `rules.mjs`, `buf.mjs`, `main.mjs` и `generate.mjs` — и рецепты `just contracts-check`, `just contracts` (он же `go mod tidy` модуля) и `just contracts-check-test`; `BUF` в `tools/shared.mjs`. Тесты — 31: правила на текстах и образах, написанных в тестах, и сквозные — во временном репозитории git с настоящими `buf.yaml`, `buf.gen.yaml` и `contracts/go.mod`, с buf и плагинами, на пробном контракте `fixtures/base`;
+  - `release-version` — `tools/release/contracts-line.mjs`: новый мажорный пакет без новой линии рецепт отклоняет; 4 теста;
+  - `go-check` — `go mod tidy -diff` модуля `contracts` и его zip: `tools/gomod` получил модули по папкам — что модуль несёт и что может требовать; 5 новых тестов Go;
+  - `_go-modules` называет и пропускает модуль без пакетов Go, а `ci-test` не пишет в покрытие код buf; CI — шаг «Contracts» в job «Documents and tools»; Dependabot — `gomod` в `/contracts` одной группой; `.sonarcloud.properties` и `.gitattributes` — код buf и фикстуры;
+  - поправка 2026-11-02 к R83; [contracts/README.md](contracts/README.md), разделы 7 и 8; CLAUDE.md, Environment; README.md; repositories 2.2 и 5; правило 6 этого файла; T57 — без архива `.proto`;
+  - проверено: `just contracts-check` — ok, `.proto` ещё нет; сквозная проба во временном клоне — пробный `.proto`, `just contracts`, `just contracts-check`, `go vet` и `ci-test` модуля `contracts`, `go-check` на коммите с ним: zip несёт LICENSE и 8 файлов `contracts/`, а код buf в `coverage/go.out` не попал; `just go-check` — на пробном коммите рабочего дерева во временном клоне, ведь рецепт читает HEAD; `just ci-lint`, `ci-vuln`, `ci-licenses`, `just licenses-check` — 257 пакетов, `just format-check`, `just release-version`, `just docs-check`; `just coverage` — все тесты `tools/` и Go; шаг buf Dockerfile — `bash -n` и повтор с `sha256sum --check`. Сборки стадии `toolchain` здесь не было: в devcontainer нет docker, её соберёт CI pull request;
+  - `/code-review high`, один круг, — 9 находок, исправлены семь: `just contracts` падал, когда уборка пустых папок находила папку уже убранной; удаление всех `.proto` после релиза проходило — buf на модуле без них не идёт, и теперь рецепт сверяет с прошлым релизом сам; строка ошибки вложенного ключа YAML — по его пути, а не по первому ключу того же имени; `contracts/**` и фикстуры — `-text`; обёртки `UInt32Value` и `UInt64Value` и беззнаковый ключ `map` — тоже беззнаковые типы; литерал допустимых `require` в `tools/gomod` — множество; двойная проверка `require` корня объяснена — `go list` читает рабочее дерево, `tools/gomod` — коммит. Не исправлены: пропуск модуля без пакетов в рецептах `ci-` — пока пакетов нет, нечего ни проверять, ни отдавать, а с первым `.proto` модуль проверяется весь; пять запусков buf вместо одного образа — проверка идёт секунды.
+- **Открыто:**
+  - сборка стадии `toolchain` с buf и прогон шага «Contracts» — в CI pull request; devcontainer у автора возьмёт buf пересборкой контейнера, а в этой сессии он поставлен вручную по той же сумме;
+  - CodeQL на Go и модуль `contracts` без пакетов — смотреть по прогону pull request: «CodeQL / analyze (go)» обязательна;
+  - работает ли код protobuf-es под TypeScript 7 — по-прежнему T57;
+  - `just inbox` после разбора — 8 новых строк на `main`, пришедших, пока он шёл: `api` В15 и В16, `learner-model` В3 и В4, `module-kit` В10–В13. Их разбор — следующий, по правилу 13.
 
 ### Часть 3. Наблюдение
 
@@ -510,7 +541,7 @@ E3 идёт вместе с репозиториями этапа 2, как E2 �
 - **Цель:** контракты другие репозитории берут из релиза `spec` по тегу (R21, R64), тем же путём, что формат (T35): `tutor` и `module-kit` — наблюдение, а `api`, `app` и `canvas` — то, что приносят следующие задачи.
 - **Почему:** код `tutor` ждёт наблюдения (строка 5.4 COORDINATION.md). Путь пробуется на первом сообщении, как T35 — на первых схемах.
 - **Сделать:** по решению T54:
-  - своей версии у контракта нет (R83), и архива `<часть>-<версия>.tar.gz` по R64 у него тоже нет. Файлы `.proto` лежат во вложенном модуле Go, а `.proto` архивом релиза — только если его выберет T55 для `buf breaking`;
+  - своей версии у контракта нет (R83), и архива `<часть>-<версия>.tar.gz` по R64 у него тоже нет. Файлы `.proto` лежат во вложенном модуле Go, а архива `.proto` в релизе нет: `buf breaking` берёт прошлый релиз по тегу git `spec` (T55; поправка 2026-11-02 к R83);
   - код Go — вложенный модуль `github.com/altnovatrail/spec/contracts` с тегом `contracts/vX.Y.Z`, который ставит `release.yml` вместе с тегом `spec`; код TypeScript — пакет npm `@altnovatrail/contracts` с доверенным издателем (вторая поправка 2026-10-29 к R37), своим файлом релиза и `release-verify-npm` (R83);
   - `release-files`, `release-version` и `release.yml`; подпись файла сверяет `release-verify`, а пакета npm — `release-verify-npm` (R77);
   - README.md — как взять контракт; repositories 5; долг в таблице 4 — получить с тегом.

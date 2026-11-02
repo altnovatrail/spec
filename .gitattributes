@@ -7,3 +7,8 @@ tools/format-check/test/fixtures/** -text
 # The fixtures of release-verify's tests are files of real releases, which their bundles sign
 # byte for byte.
 tools/release/test/fixtures/** -text
+# The API contracts are read byte for byte too: contracts-check holds each .proto file to what buf
+# format writes and the generated code to what buf generates (R83), and so do the trial contracts
+# of its tests.
+contracts/** -text
+tools/contracts/test/fixtures/** -text

@@ -14,6 +14,9 @@ export const TAR = first(["/usr/bin/tar", "/bin/tar"]);
 // gh is the devcontainer's, which its Dockerfile puts in /usr/local/bin, or the system's. Only
 // inbox runs it, in a session: the toolchain image and CI have none.
 export const GH = first(["/usr/local/bin/gh", "/usr/bin/gh"]);
+// buf is the toolchain stage's, which its Dockerfile puts in /usr/local/bin at an exact version
+// (R83). Only the check of the contracts and their generation run it.
+export const BUF = first(["/usr/local/bin/buf"]);
 
 // The first of the paths that exists, or the first of them, which then fails by its own name.
 function first(paths) {

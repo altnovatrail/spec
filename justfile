@@ -124,6 +124,36 @@ types-check: _tools
 types-test: _tools
     node --test 'tools/types/test/*.test.mjs'
 
+# Reads spec's API contracts in contracts/ by the rules of R83 and contracts/README.md: buf.yaml as
+# R83 fixes it and buf.gen.yaml with local plugins alone, before buf runs; the layout of contracts/;
+# what buf lets pass in a file — a syntax other than proto3, a json_name, an unsigned type, a package
+# without the prefix novatrail. —, by the image buf builds; buf format and buf lint; buf breaking
+# against the previous release, the newest release tag in the history of HEAD other than HEAD's own,
+# whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds every release
+# and no file of a release is needed; and the code buf generates, which contracts/ holds file for
+# file. buf is the toolchain stage's, at an exact version; its Go plugins are the tools of
+# contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file yet, buf refuses a
+# module without one, and the check stops after the layout. A file it does not know is an error, so
+# the task that brings it extends the check (RUN.md, T55).
+# Check the API contracts in contracts/: buf's rules, R83's own and the generated code.
+contracts-check: _tools
+    node tools/contracts/main.mjs
+
+# The code buf generates from the contracts, beside the .proto files it comes from (R83): Go of
+# protoc-gen-go and protoc-gen-connect-go, JavaScript with its declarations and JSON types of
+# protoc-gen-es. buf writes it into a new folder, and it takes the place of the generated files of
+# contracts/, so that a file no .proto gives any more goes too. Then go mod tidy brings
+# contracts/go.mod and go.sum in line with what the code imports, as go-check wants them.
+# Generate the code of the contracts again.
+contracts: _tools
+    node tools/contracts/generate.mjs
+    go -C contracts mod tidy
+
+# Run contracts-check's own tests, on trial contracts in made-up repositories, with spec's buf.yaml,
+# buf.gen.yaml and contracts/go.mod, and buf and its plugins as the check runs them.
+contracts-check-test: _tools
+    node --test 'tools/contracts/test/*.test.mjs'
+
 # The Go module spec ships at the tag of every release (R64): go.mod and spec.go at the root, which
 # embeds format/, and the types of the module format under types/ (R72). It requires nothing: go
 # list names it alone. Its zip, as the Go module proxy will build it from a tag, is built of HEAD — a
@@ -131,7 +161,14 @@ types-test: _tools
 # release.yml at HEAD takes, and read back for LICENSE and every file of format/ and of types/. go
 # fetches golang.org/x/mod for it at the version tools/gomod/go.sum pins. The vet and the tests of
 # this module and of the modules of tools/ are ci-lint's and ci-test's, below.
-# Check spec's Go module: that it requires nothing, and the zip of HEAD.
+# The same holds for the module of the contracts, github.com/altnovatrail/spec/contracts in
+# contracts/, which ships at the tag contracts/vX.Y.Z with the number of spec's (R83): its go.mod
+# and go.sum are as go mod tidy leaves them, its go.mod at HEAD requires the runtime of protobuf and
+# of Connect and nothing else, and its zip of HEAD holds LICENSE and every file of contracts/. Its
+# go.mod names buf's Go generators as tools, so its requirements stand before the first .proto too.
+# go list reads the working tree and tools/gomod the commit, so that a requirement of spec's own
+# module is found before it is committed, and what a tag would ship is held as well.
+# Check spec's Go modules: what they require, and their zips of HEAD.
 go-check:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -140,8 +177,13 @@ go-check:
         go list -m all >&2
         exit 1
     fi
+    if ! go -C contracts mod tidy -diff; then
+        echo "go-check: contracts/go.mod or go.sum is not as go mod tidy leaves it; run go -C contracts mod tidy" >&2
+        exit 1
+    fi
     line=$(git show HEAD:.github/workflows/release.yml | node tools/release/line.mjs)
     go -C tools/gomod run . {{quote(justfile_directory())}} HEAD "$line"
+    go -C tools/gomod run . {{quote(justfile_directory())}} HEAD "$line" contracts
 
 # The ci- recipes are what .github's shared go.yml runs, one job each, in the toolchain stage of
 # .devcontainer/Dockerfile, as it runs them in every Go repository of NovaTrail: "Go / lint", "Go /
@@ -156,9 +198,11 @@ GOVULNCHECK := "golang.org/x/vuln/cmd/govulncheck@v1.9.0"
 GO_LICENSES := "github.com/google/go-licenses/v2@v2.0.1"
 
 # The folder of each Go module of spec, one a line: each go.mod git tracks or would, outside any
-# testdata/ — go.mod at the root, tools/gomod and tools/types/roundtrip today. The tests of
-# tools/gomod build their repositories in temporary folders, and the copies new-repo builds in
-# .repos/ git ignores. A new module is checked without a change here.
+# testdata/ — go.mod at the root, contracts, tools/gomod and tools/types/roundtrip today. The tests
+# of tools/gomod build their repositories in temporary folders, and the copies new-repo builds in
+# .repos/ git ignores. A new module is checked without a change here. A module that holds no Go
+# package yet is named and left out, since go vet, go test and govulncheck refuse a pattern that
+# matches nothing: contracts holds only the generators of buf until the first .proto file (R83).
 [private]
 _go-modules:
     #!/usr/bin/env bash
@@ -169,7 +213,18 @@ _go-modules:
         echo "_go-modules: git lists no go.mod at the root of spec" >&2
         exit 1
     fi
-    echo "$modules"
+    while IFS= read -r module; do
+        if ! packages=$(go -C "$module" list ./... 2> /dev/null); then
+            echo "_go-modules: go list fails in ${module}:" >&2
+            go -C "$module" list ./... >&2 || true
+            exit 1
+        fi
+        if [ -z "$packages" ]; then
+            echo "_go-modules: ${module} holds no Go package yet, and the Go checks leave it out" >&2
+            continue
+        fi
+        echo "$module"
+    done <<< "$modules"
 
 # Fail on Go code gofmt would rewrite, and on what go vet reports.
 ci-lint:
@@ -190,7 +245,10 @@ ci-lint:
 
 # The profiles of the modules go into coverage/go.out, one profile with one mode line, which a job
 # of CI sends to Codecov with the coverage of tools/ (R48). Go counts statements, and leaves the
-# tests themselves out; a package that no test runs is in it too, its statements at zero.
+# tests themselves out; a package that no test runs is in it too, its statements at zero. The code
+# buf generates from the contracts, *.pb.go and *.connect.go under contracts/, is left out of it:
+# contracts-check holds it to what buf generates, and codecov/patch would count every generated line
+# of a new message as a line no test covers (R83).
 # Run the tests, with the race detector, and write their coverage.
 ci-test:
     #!/usr/bin/env bash
@@ -209,7 +267,7 @@ ci-test:
     {
         echo "mode: atomic"
         for profile in "$profiles"/*.out; do
-            tail -n +2 "$profile"
+            tail -n +2 "$profile" | awk '!/^github\.com\/altnovatrail\/spec\/contracts\/.*\.(pb|connect)\.go:/'
         done
     } > coverage/go.out
 
@@ -286,7 +344,9 @@ licenses-check-test:
 # that commit, whatever is checked out or set in the shell, and naming a workflow is refused
 # (R31); and a commit that gets a release is refused when its format/VERSION breaks R44 against
 # the release before it, once releases carry the format as files: another version of the format
-# needs a raised line (tools/release/format-line.mjs). Anywhere else — another repository, a working copy in .repos/ among them — the line is
+# needs a raised line (tools/release/format-line.mjs). So does a new major package of an API
+# contract, novatrail.<part>.vN with N of 2 or more, that the release before had not (R83;
+# tools/release/contracts-line.mjs). Anywhere else — another repository, a working copy in .repos/ among them — the line is
 # RELEASE_LINE as the workflow named second sets it at that commit, a path from the repository's
 # root, whatever the shell sets: a release workflow's own env, the tip's, must not number an
 # older commit. A commit from before that workflow existed takes the checked-out file's line. With
@@ -335,7 +395,8 @@ release-version commit="HEAD" workflow="":
     }
     if [ "$in_spec" = true ]; then
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}} \
-            | node {{quote(justfile_directory() / "tools/release/format-line.mjs")}} "$commit"
+            | node {{quote(justfile_directory() / "tools/release/format-line.mjs")}} "$commit" \
+            | node {{quote(justfile_directory() / "tools/release/contracts-line.mjs")}} "$commit"
     else
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
     fi

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+// A trial contract of contracts-check's tests: a message, an enum, a nested message and a
+// service, each with its comment, as R83 has a contract written.
+package novatrail.trial.v1;
+
+// A place on the canvas, in thousandths of the crop.
+message Place {
+  // The top edge.
+  int32 ymin = 1;
+  // How the place was found.
+  Kind kind = 2;
+  // A note the reader left, if any.
+  optional string note = 3;
+  // A part of the place.
+  message Part {
+    // The left edge of the part.
+    int32 xmin = 1;
+  }
+  // The parts of the place.
+  repeated Part parts = 4;
+}
+
+// How a place was found.
+enum Kind {
+  // No kind: never sent.
+  KIND_UNSPECIFIED = 0;
+  // Found by the reader.
+  KIND_READ = 1;
+}
+
+// Asks for the place of a task.
+message GetPlaceRequest {
+  // The ID of the task.
+  string task_id = 1;
+}
+
+// The place asked for.
+message GetPlaceResponse {
+  // The place.
+  Place place = 1;
+}
+
+// Gives places.
+service PlaceService {
+  // Gives the place of a task.
+  rpc GetPlace(GetPlaceRequest) returns (GetPlaceResponse);
+}

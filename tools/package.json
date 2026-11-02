@@ -1,10 +1,11 @@
 {
   "name": "novatrail-spec-tools",
   "private": true,
-  "description": "The NovaTrail spec's tools: the checks of its documents and of the module format, the generator of the format's types and their checks, and the template a new repository starts from.",
+  "description": "The NovaTrail spec's tools: the checks of its documents and of the module format, the generator of the format's types and their checks, the check of the API contracts and the generator of their code for TypeScript, and the template a new repository starts from.",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
+    "@bufbuild/protoc-gen-es": "2.16.0",
     "@sigstore/bundle": "5.0.0",
     "@sigstore/protobuf-specs": "0.5.2",
     "@sigstore/tuf": "5.0.0",
