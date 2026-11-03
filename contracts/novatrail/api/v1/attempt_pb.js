@@ -281,7 +281,10 @@ export const MarkKind = /*@__PURE__*/
  * the profile and the attempt; one of another profile, or none, gets `CAUSE_NOT_FOUND`, and a
  * profile that is not the account's `CAUSE_NO_PROFILE`. A request whose form the contract refuses
  * — a field it needs left out, a place the task does not have, a method the task's kind does not
- * take — gets the code `invalid_argument` with no `Refusal`.
+ * take — gets the code `invalid_argument` with no `Refusal`. Every method carries the token of the
+ * sign-in service and may get the refusals of every request with a token, which the comment of
+ * `AccountService` names with what `app` does on each; a request of a profile whose consent is not
+ * confirmed gets `CAUSE_NO_CONSENT`.
  *
  * @generated from service novatrail.api.v1.AttemptService
  */
