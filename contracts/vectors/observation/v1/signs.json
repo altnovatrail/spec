@@ -1,0 +1,75 @@
+{
+  "description": "Boxes checked by a choice written by hand, a sign and a word: values join by the choice's normal form, in lowercase.",
+  "canvas": {"kind": "workbook"},
+  "items": [
+    {"line": [{"text": "7 + 5 "}, {"binding": "box", "check": {"kind": "choice", "key": ">", "options": ["<", ">", "="], "trap_values": [{"value": "<", "trap": "compared-backwards"}]}}, {"text": " 10"}]},
+    {"line": [{"text": "14 is "}, {"binding": "box", "check": {"kind": "choice", "key": "even", "options": ["even", "odd"]}}, {"text": "."}]}
+  ],
+  "cases": [
+    {
+      "description": "The same option written in other cases and widths joins into the first reader's.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "＞"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "EVEN"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": ">"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "even"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "＞"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "EVEN"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "Two different options join into ambiguous, though both are not yet right.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "<"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "odd"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "="}, {"answer_slot": {"item": 2, "slot": 1}, "value": "even"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "A wrong option read alike joins, and matches its trap.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "<"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "odd"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": " < "}, {"answer_slot": {"item": 2, "slot": 1}, "value": "Odd"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "<"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "odd"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "not_yet", "trap": "compared-backwards"}], "verdict": "not_yet"},
+        {"answer_slots": [{"verdict": "not_yet"}], "verdict": "not_yet"}
+      ]
+    },
+    {
+      "description": "A value that is none of the options is out of the choice's notation, and two alike once normalized join.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "maybe"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "MAYBE"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "maybe"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "= is an option of a sign, and no choice drops it: it is a value, not blank.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "="}, {"answer_slot": {"item": 2, "slot": 1}, "value": "even"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "="}, {"answer_slot": {"item": 2, "slot": 1}, "value": "even"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "="}, {"answer_slot": {"item": 2, "slot": 1}, "value": "even"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "not_yet"}], "verdict": "not_yet"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    }
+  ]
+}

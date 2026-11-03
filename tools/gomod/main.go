@@ -50,8 +50,9 @@ type shipped struct {
 }
 
 // The modules spec ships, by their folders. At the root: the format, its types (R72), and the
-// license that goes with them, with no requirement (R64). In contracts: the contracts and the code
-// buf generates from them, which require the runtime of protobuf and of Connect (R83). The license
+// license that goes with them, with no requirement (R64). In contracts: the contracts, the code
+// buf generates from them, which requires the runtime of protobuf and of Connect, and their test
+// vectors with the package that embeds them, which requires nothing more (R83, R86). The license
 // of the root goes into it too: Go puts the root's LICENSE into the zip of a module in a folder
 // that has none.
 var modules = map[string]shipped{

@@ -1,0 +1,75 @@
+{
+  "description": "Boxes checked by a predicate: two values join when the integers read are the same, and the verdict on a value in notation is Starlark's, which spec does not run.",
+  "canvas": {"kind": "workbook"},
+  "items": [
+    {"line": [{"text": "A number divisible by 3 and by 4: "}, {"binding": "box", "check": {"kind": "predicate", "predicate": "value % 3 == 0 and value % 4 == 0"}}]},
+    {"line": [{"text": "A divisor of 12: "}, {"binding": "box", "check": {"kind": "predicate", "predicate": "12 % value == 0"}}]}
+  ],
+  "cases": [
+    {
+      "description": "The same integer, written otherwise, joins into the first reader's.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "12"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "6"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "= 12."}, {"answer_slot": {"item": 2, "slot": 1}, "value": "6"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "12"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "6"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "Two integers that the predicate holds for alike do not join: a predicate compares the integers read.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "12"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "24"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "5"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "5"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "not_yet"}], "verdict": "not_yet"}
+      ]
+    },
+    {
+      "description": "-0 and 0 are one integer; an error of the predicate, a division by zero, makes the verdict unchecked.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "-0"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "0"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "0"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "0"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "-0"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "0"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A leading zero is out of the notation of an integer: two alike join, and with an integer in notation the value is ambiguous.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "012"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "12"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "012"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "012"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "012"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "With an observation not valid, every answer slot that AI reads is unchecked.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "12"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "6"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "12"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_UNSPECIFIED"}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    }
+  ]
+}

@@ -60,7 +60,7 @@ function read(file, text) {
   return { value: document.toJS(), lineAt };
 }
 
-const isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
+export const isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 const show = (value) => JSON.stringify(value);
 
 // buf.yaml against BUF_YAML: every key it has and lacks, and every value, where a list of
@@ -138,9 +138,11 @@ export function checkBufGenYaml(text) {
   return errors;
 }
 
-// The layout of contracts/ (the text, section 3): its text, the module of the generated Go code,
-// the contracts, contracts/novatrail/<part>/vN/<name>.proto, and the code buf generates from each:
-// <name>.pb.go, <part>vNconnect/<name>.connect.go, <name>_pb.js and <name>_pb.d.ts beside it.
+// The layout of contracts/ (the text, section 3): its text, the module of the generated Go code
+// with the package that embeds the test vectors, vectors.go and its test, the contracts,
+// contracts/novatrail/<part>/vN/<name>.proto, the code buf generates from each — <name>.pb.go,
+// <part>vNconnect/<name>.connect.go, <name>_pb.js and <name>_pb.d.ts beside it —, and the test
+// vectors of a package, contracts/vectors/<part>/vN/<case>.json (the text, section 10).
 const NAME = "[a-z][a-z0-9_]*";
 const FOLDER = `contracts/novatrail/(${NAME})/v([1-9][0-9]*)`;
 const PROTO = new RegExp(`^${FOLDER}/(${NAME})\\.proto$`);
@@ -150,17 +152,20 @@ const GENERATED = [
   new RegExp(`^${FOLDER}/(${NAME})_pb\\.d\\.ts$`),
 ];
 const CONNECT = new RegExp(`^${FOLDER}/(${NAME})v([1-9][0-9]*)connect/(${NAME})\\.connect\\.go$`);
-const FIXED = new Set(["contracts/README.md", "contracts/go.mod", "contracts/go.sum"]);
+const VECTOR = new RegExp(`^contracts/vectors/(${NAME})/v([1-9][0-9]*)/[a-z0-9]+(?:-[a-z0-9]+)*\\.json$`);
+const FIXED = new Set(["contracts/README.md", "contracts/go.mod", "contracts/go.sum", "contracts/vectors.go", "contracts/vectors_test.go"]);
 
 export const UNKNOWN = "contracts-check does not know it: the task that brings it to contracts/ extends the check";
 
 // What a file of contracts/ is: { kind: "text" }, { kind: "proto", package }, { kind:
-// "generated", source } with the .proto file it comes from, or null for a file the layout does
-// not have.
+// "generated", source } with the .proto file it comes from, { kind: "vector", package } with the
+// package it is a vector of, or null for a file the layout does not have.
 export function classify(file) {
   if (FIXED.has(file)) return { kind: "text" };
   const proto = PROTO.exec(file);
   if (proto) return { kind: "proto", package: `novatrail.${proto[1]}.v${proto[2]}` };
+  const vector = VECTOR.exec(file);
+  if (vector) return { kind: "vector", package: `novatrail.${vector[1]}.v${vector[2]}` };
   for (const pattern of GENERATED) {
     const match = pattern.exec(file);
     if (match) return { kind: "generated", source: `contracts/novatrail/${match[1]}/v${match[2]}/${match[3]}.proto` };
@@ -176,7 +181,9 @@ export function classify(file) {
 export function unknownFile(file) {
   const message = file.endsWith(".proto")
     ? `a contract is contracts/novatrail/<part>/vN/<name>.proto, its part and name in lower snake case and N from 1 (${TEXT}, sections 2 and 3)`
-    : UNKNOWN;
+    : file.startsWith("contracts/vectors/")
+      ? `a test vector is contracts/vectors/<part>/vN/<case>.json, its part in lower snake case, N from 1 and its case in kebab case (${TEXT}, sections 3 and 10)`
+      : UNKNOWN;
   return { file, line: 0, message };
 }
 

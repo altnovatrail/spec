@@ -64,7 +64,7 @@ test("the trial contract with its generated code passes, with no release to comp
   const { dir } = repository();
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
-  assert.deepEqual(stats, { protos: 1, packages: 1, generated: 4, previous: null, messages: 4 });
+  assert.deepEqual(stats, { protos: 1, packages: 1, generated: 4, vectors: 0, cases: 0, previous: null, messages: 4 });
   assert.equal(summary(stats), "1 .proto file in 1 package, 4 files of generated code, and no release of spec before HEAD to compare with; tsc and Node take the 4 messages of its npm package");
   for (const file of ["trial.pb.go", "trialv1connect/trial.connect.go", "trial_pb.js", "trial_pb.d.ts"]) {
     assert.ok(fs.existsSync(path.join(dir, "contracts/novatrail/trial/v1", file)), file);
@@ -244,8 +244,9 @@ test("the command prints each error and exits 1, or prints the summary", () => {
   // made-up repository reads that one.
   const { dir } = repository();
   const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs"];
-  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check"].map((name) => `tools/contracts/${name}.mjs`);
-  for (const file of [...tools, ...contracts]) {
+  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation"].map((name) => `tools/contracts/${name}.mjs`);
+  const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
+  for (const file of [...tools, ...contracts, ...format]) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(dir, file));
   }
@@ -284,7 +285,40 @@ test("generation clears folders that another file's folder took with it", () => 
   assert.ok(!fs.existsSync(path.join(dir, "contracts/novatrail")));
 });
 
-test("spec's own contracts/ passes", () => {
-  const { errors } = checkContracts(root);
+test("a test vector is of a package that contracts/ has and whose vectors the check runs", () => {
+  const { dir } = repository();
+  edit(dir, "contracts/vectors/trial/v1/one.json", null, "{}\n");
+  edit(dir, "contracts/vectors/learner_model/v1/one.json", null, "{}\n");
+  edit(dir, "contracts/vectors/trial/v1/One.json", null, "{}\n");
+  edit(dir, "contracts/vectors/notes.txt", null, "notes\n");
+  expectEach(
+    dir,
+    /^contracts\/vectors\/learner_model\/v1\/one\.json:0: a vector of novatrail\.learner_model\.v1, and contracts\/ has no \.proto file of that package$/,
+    /^contracts\/vectors\/trial\/v1\/one\.json:0: contracts-check runs no vectors of novatrail\.trial\.v1: the task that brings them extends the check$/,
+    /^contracts\/vectors\/trial\/v1\/One\.json:0: a test vector is contracts\/vectors\/<part>\/vN\/<case>\.json/,
+    /^contracts\/vectors\/notes\.txt:0: a test vector is contracts\/vectors\/<part>\/vN\/<case>\.json/,
+  );
+});
+
+test("the observation is checked by its vectors, and has some", () => {
+  const { dir } = repository();
+  const observation = "contracts/novatrail/observation/v1/observation.proto";
+  fs.mkdirSync(path.join(dir, path.dirname(observation)), { recursive: true });
+  fs.copyFileSync(path.join(root, observation), path.join(dir, observation));
+  fs.cpSync(path.join(root, "format"), path.join(dir, "format"), { recursive: true });
+  writeGenerated(dir);
+  expectEach(dir, /^contracts\/vectors\/observation\/v1:0: novatrail\.observation\.v1 has no test vectors, and they hold the rules of contracts\/README\.md, section 10$/);
+  fs.cpSync(path.join(root, "contracts/vectors"), path.join(dir, "contracts/vectors"), { recursive: true });
+  const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
+  assert.ok(stats.vectors > 0 && stats.cases > stats.vectors, JSON.stringify(stats));
+  assert.match(summary(stats), new RegExp(`, ${stats.vectors} files of test vectors with ${stats.cases} cases, `));
+  edit(dir, "contracts/vectors/observation/v1/essay.json", '"submission": "unreadable"', '"submission": "assessment"');
+  expectEach(dir, /^contracts\/vectors\/observation\/v1\/essay\.json:\d+: case \d+: the submission ends unreadable, not assessment$/);
+});
+
+test("spec's own contracts/ passes", () => {
+  const { errors, stats } = checkContracts(root);
+  assert.deepEqual(errors, []);
+  assert.ok(stats.vectors > 0, "spec's vectors of the observation are checked");
 });

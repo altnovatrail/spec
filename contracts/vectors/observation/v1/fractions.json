@@ -1,0 +1,49 @@
+{
+  "description": "Boxes checked by fraction, in lowest terms and in any form: two values join only when the check compares them equal and gives them one verdict.",
+  "canvas": {"kind": "workbook"},
+  "items": [
+    {"line": [{"text": "2/4 in lowest terms: "}, {"binding": "box", "check": {"kind": "fraction", "key": "1/2", "form": "reduced", "trap_values": [{"value": "2/4", "trap": "not-reduced"}]}}]},
+    {"line": [{"text": "A fraction equal to 3/6: "}, {"binding": "box", "check": {"kind": "fraction", "key": "1/2"}}]}
+  ],
+  "cases": [
+    {
+      "description": "Under form reduced, 2/4 and 1/2 do not join, though the check compares them equal: their verdicts differ. In any form they join.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "2/4"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "2/4"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "1/2"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "1/2"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "2/4"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "Two fractions of one value, both not yet right in lowest terms, join into the first, which matches the trap; spaces around the bar are of the notation.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "2/4"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "1 / 2"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "3/6"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "1/2"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "2/4"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "1 / 2"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "not_yet", "trap": "not-reduced"}], "verdict": "not_yet"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "A decimal is out of a fraction's notation: two alike join, and a decimal and a fraction do not.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "0.5"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "0.5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "0.5"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "1/2"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "0.5"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    }
+  ]
+}

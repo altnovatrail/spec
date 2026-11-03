@@ -8,15 +8,20 @@
 //   category FILE —, and buf.gen.yaml: local plugins only, out to contracts/, no input from
 //   outside and no folder cleaned. While either breaks R83, buf does not run, since it could then
 //   reach a service outside the repository;
-// - the layout of contracts/ (contracts/README.md, section 3): its README, go.mod and go.sum, the
-//   contracts at contracts/novatrail/<part>/vN/<name>.proto, and the code buf generates from them.
+// - the layout of contracts/ (contracts/README.md, section 3): its README, go.mod and go.sum,
+//   vectors.go and its test, the contracts at contracts/novatrail/<part>/vN/<name>.proto, the code
+//   buf generates from them, and the test vectors of a package at contracts/vectors/<part>/vN/.
 //   Anything else is an error, so the task that brings it extends the check, and while a .proto
-//   file is out of place buf does not run;
+//   file is out of place buf does not run. A vector is of a package that contracts/ has, and of one
+//   whose vectors the check runs: so far novatrail.observation.v1, which has them;
 // - with no .proto file, nothing more but that the previous release has none either: buf refuses a
 //   module without one, and a package is never removed;
 // - buf build, and of the image it builds what buf lets pass: a syntax other than proto3, a package
 //   without the prefix novatrail., a json_name, an unsigned type (sections 3–6);
 // - buf format and buf lint;
+// - the test vectors of the observation, by the image: each observation as the package reads and a
+//   writer writes it, whether it is valid, the joined observation and the verdicts, as section 10
+//   gives them, and that the vectors hold every rule of it (tools/contracts/observation.mjs);
 // - buf breaking against the previous release of spec, the newest release tag in the history of
 //   HEAD other than HEAD's own, whose buf.yaml and contracts/ git archive unpacks into a temporary
 //   folder; a release with no .proto file has nothing to compare with (section 7);
@@ -33,6 +38,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
 import { breaking, build, contractFiles, format, generate, lint, previousRelease } from "./buf.mjs";
+import { FOLDER, PACKAGE, checkVectors } from "./observation.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
 import { checkTypeScript } from "./typescript.mjs";
 
@@ -51,14 +57,30 @@ export function checkConfig(root) {
 export function layout(root) {
   const protos = [];
   const generated = new Map();
+  const vectors = [];
   const errors = [];
   for (const file of contractFiles(root)) {
     const kind = classify(file);
     if (!kind) errors.push(unknownFile(file));
     else if (kind.kind === "proto") protos.push(file);
     else if (kind.kind === "generated") generated.set(file, kind.source);
+    else if (kind.kind === "vector") vectors.push({ file, package: kind.package });
   }
-  return { protos, generated, errors };
+  return { protos, generated, vectors, errors };
+}
+
+// The test vectors against the packages: each is of a package that contracts/ has and whose vectors
+// the check runs, and the observation has some, since review alone would hold section 10 otherwise.
+export function vectorErrors(vectors, packages) {
+  const errors = [];
+  for (const vector of vectors) {
+    if (!packages.has(vector.package)) errors.push({ file: vector.file, line: 0, message: `a vector of ${vector.package}, and contracts/ has no .proto file of that package` });
+    else if (vector.package !== PACKAGE) errors.push({ file: vector.file, line: 0, message: `contracts-check runs no vectors of ${vector.package}: the task that brings them extends the check` });
+  }
+  if (packages.has(PACKAGE) && !vectors.some((vector) => vector.package === PACKAGE)) {
+    errors.push({ file: FOLDER, line: 0, message: `${PACKAGE} has no test vectors, and they hold the rules of contracts/README.md, section 10` });
+  }
+  return errors;
 }
 
 // The generated code in contracts/ against what buf generates of the files now.
@@ -85,10 +107,11 @@ export function compareGenerated(root, generated, written) {
 // Every check of the contracts at root: { errors, stats }.
 export function checkContracts(root) {
   const errors = checkConfig(root);
-  const { protos, generated, errors: misplaced } = layout(root);
+  const { protos, generated, vectors, errors: misplaced } = layout(root);
   errors.push(...misplaced);
   const packages = new Set(protos.map((file) => classify(file).package));
-  const stats = { protos: protos.length, packages: packages.size, generated: generated.size, previous: null, messages: 0 };
+  errors.push(...vectorErrors(vectors, packages));
+  const stats = { protos: protos.length, packages: packages.size, generated: generated.size, vectors: vectors.length, cases: 0, previous: null, messages: 0 };
   const done = () => ({ errors: errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message)), stats });
 
   if (protos.length === 0) {
@@ -116,6 +139,12 @@ export function checkContracts(root) {
     return done();
   }
   errors.push(...checkImage(built.image), ...format(root, protos), ...lint(root));
+  const observed = vectors.filter((vector) => vector.package === PACKAGE).map((vector) => vector.file);
+  if (packages.has(PACKAGE) && observed.length) {
+    const checked = checkVectors(root, built.image, observed);
+    errors.push(...checked.errors);
+    stats.cases = checked.cases;
+  }
 
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), "contracts-check-"));
   try {
@@ -137,14 +166,15 @@ export function checkContracts(root) {
 }
 
 // What a run found, in a line.
-export function summary({ protos, packages, generated, previous, messages }) {
+export function summary({ protos, packages, generated, vectors, cases, previous, messages }) {
   if (protos === 0) return "contracts/ holds no .proto file yet, so buf has nothing to check; buf.yaml and buf.gen.yaml are as R83 has them";
   const against = !previous
     ? "and no release of spec before HEAD to compare with"
     : previous.protos
       ? `compared with ${previous.tag}`
       : `and ${previous.tag} holds no .proto file to compare with`;
-  return `${protos} .proto file${protos === 1 ? "" : "s"} in ${packages} package${packages === 1 ? "" : "s"}, ${generated} file${generated === 1 ? "" : "s"} of generated code, ${against}; tsc and Node take the ${messages} message${messages === 1 ? "" : "s"} of its npm package`;
+  const tested = vectors ? `, ${vectors} file${vectors === 1 ? "" : "s"} of test vectors with ${cases} case${cases === 1 ? "" : "s"}` : "";
+  return `${protos} .proto file${protos === 1 ? "" : "s"} in ${packages} package${packages === 1 ? "" : "s"}, ${generated} file${generated === 1 ? "" : "s"} of generated code${tested}, ${against}; tsc and Node take the ${messages} message${messages === 1 ? "" : "s"} of its npm package`;
 }
 
 if (isMain(import.meta.url)) {

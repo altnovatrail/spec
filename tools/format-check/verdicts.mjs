@@ -161,9 +161,33 @@ export function comparableOf(slot, value) {
   if (check.kind === "choice") return choiceForm(value);
   if (check.kind !== "number" && check.kind !== "fraction") return null;
   const { number } = numberOf(check, value);
-  if (!number) return null;
-  const divisor = gcd(absolute(number.numerator), number.denominator);
-  return `${number.numerator / divisor}/${number.denominator / divisor}`;
+  return number ? lowestTerms(number) : null;
+}
+
+// A rational in lowest terms, as a string: "n/d".
+function lowestTerms({ numerator, denominator }) {
+  const divisor = gcd(absolute(numerator), denominator);
+  return `${numerator / divisor}/${denominator / divisor}`;
+}
+
+// What the check of an answer slot reads a value as, by which two readers' values join
+// (contracts/README.md, section 10): { blank: true }, a value that the kind normalizes to nothing;
+// { notation }, a value out of the kind's notation, as the kind normalizes it — steps 1 to 7, a
+// choice in lowercase too; or { compared, verdict }, a value in notation: what the check compares
+// it by — a choice its normal form, a number, a fraction or a predicate's integer its value in
+// lowest terms — and its verdict, null for a predicate, whose verdict Starlark gives. Two values
+// join when they read as the same and are not blank. Kept apart from comparableOf: a value out of
+// notation, normalized, can spell a comparable, as 1/100000000000000 does.
+export function readingOf(slot, value) {
+  const { check } = slot;
+  const verdict = slotVerdict(slot, value);
+  if (verdict?.reason === "blank") return { blank: true };
+  if (check.kind === "choice") {
+    const form = choiceForm(value);
+    return verdict.reason === "notation" ? { notation: form } : { compared: form, verdict: verdict.verdict };
+  }
+  if (verdict?.reason === "notation") return { notation: readNumber(value, check.kind === "number" ? check.units : []).text };
+  return { compared: lowestTerms(numberOf(check, value).number), verdict: verdict?.verdict ?? null };
 }
 
 // The trap that a value read in an answer slot matches: the trap of the trap value that its check
