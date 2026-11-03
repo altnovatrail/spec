@@ -3,6 +3,11 @@
 // JSON types (buf.gen.yaml) —, with spec's LICENSE and the package's README, tools/contracts/npm/.
 // It exports each file of code by its path, as the Go package's path names it, without the module's
 // prefix: ./novatrail/observation/v1/observation_pb.js, its types from the declarations beside it.
+// It carries the test vectors of the packages whose rules code on TypeScript runs, too, each by its
+// path from contracts/: ./vectors/eval/v1/groups.json, the rules the device and the runner share,
+// which canvas runs (contracts/README.md, section 12; R94). The observation's are Go's alone:
+// TypeScript gives no verdict. What the package holds is what the tree holds, so the package of a
+// commit with no such vectors is the one it was.
 // The code imports the runtime of protobuf-es, @bufbuild/protobuf, which the package depends on at
 // the exact version tools/package.json pins, the version of protoc-gen-es that writes the code.
 //
@@ -24,19 +29,24 @@ export const RUNTIME = "@bufbuild/protobuf";
 const PLUGIN = "@bufbuild/protoc-gen-es";
 const FOLDER = "contracts";
 const CODE = /^contracts\/(novatrail\/.+_pb\.(?:js|d\.ts))$/;
+// The parts whose vectors the package carries, and a vector of one of them.
+export const TYPESCRIPT_VECTORS = ["eval"];
+const VECTOR = new RegExp(`^contracts/(vectors/(?:${TYPESCRIPT_VECTORS.join("|")})/v[1-9][0-9]*/[a-z0-9]+(?:-[a-z0-9]+)*\\.json)$`);
 
 // The package of version, of the tree: its files, each by its path in the package and in the tree,
 // and its package.json.
 export function packageOf(version, tree) {
   checkedVersion(version);
-  const code = tree.list(FOLDER).map((from) => CODE.exec(from)?.[1]).filter(Boolean);
+  const listed = tree.list(FOLDER);
+  const code = listed.map((from) => CODE.exec(from)?.[1]).filter(Boolean);
   if (!code.length) throw new Error(`${FOLDER}/ holds no code of protoc-gen-es: no .proto file, or run just contracts`);
+  const vectors = listed.map((from) => VECTOR.exec(from)?.[1]).filter(Boolean);
   const files = [
     { file: "LICENSE", from: "LICENSE" },
     { file: "README.md", from: "tools/contracts/npm/README.md" },
-    ...code.map((file) => ({ file, from: `${FOLDER}/${file}` })),
+    ...[...code, ...vectors].map((file) => ({ file, from: `${FOLDER}/${file}` })),
   ];
-  return { files, manifest: manifestOf(version, code, runtimeOf(tree)) };
+  return { files, manifest: manifestOf(version, code, runtimeOf(tree), vectors) };
 }
 
 // The version of @bufbuild/protobuf that tools/package.json pins: exact, and that of protoc-gen-es,
@@ -54,15 +64,16 @@ export function runtimeOf(tree) {
   return runtime;
 }
 
-// The package's package.json, of version, with its files of code and the runtime they need. The
-// repository is spec's, as npm's provenance wants it to be.
-export function manifestOf(version, code, runtime) {
+// The package's package.json, of version, with its files of code, the runtime they need and the
+// vectors it carries. The repository is spec's, as npm's provenance wants it to be.
+export function manifestOf(version, code, runtime, vectors = []) {
   const exports = {};
   for (const file of code.filter((file) => file.endsWith("_pb.js"))) {
     const types = file.replace(/\.js$/, ".d.ts");
     if (!code.includes(types)) throw new Error(`${FOLDER}/${file} has no declarations beside it, ${FOLDER}/${types}: run just contracts`);
     exports[`./${file}`] = { types: `./${types}`, default: `./${file}` };
   }
+  for (const file of vectors) exports[`./${file}`] = `./${file}`;
   exports["./package.json"] = "./package.json";
   return {
     name: NAME,
@@ -72,7 +83,7 @@ export function manifestOf(version, code, runtime) {
     repository: { type: "git", url: "git+https://github.com/altnovatrail/spec.git" },
     type: "module",
     exports,
-    files: ["novatrail"],
+    files: vectors.length ? ["novatrail", "vectors"] : ["novatrail"],
     sideEffects: false,
     dependencies: { [RUNTIME]: runtime },
   };

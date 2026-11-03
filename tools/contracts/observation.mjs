@@ -135,8 +135,23 @@ export function readVector(bytes) {
   return problems.length ? { problems } : { value, lineOf };
 }
 
+// The first path at which two JSON values that differ do, for the line of a problem: a key the
+// first has and the second lacks, or else the deepest member where they part.
+export function differenceOf(a, b, at = []) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    const i = a.findIndex((each, n) => !isDeepStrictEqual(each, b[n]));
+    if (i >= 0) return differenceOf(a[i], b[i], [...at, i]);
+  } else if (isObject(a) && isObject(b)) {
+    const extra = Object.keys(a).find((key) => !(key in b));
+    if (extra !== undefined) return [...at, extra];
+    const key = Object.keys(b).find((name) => !isDeepStrictEqual(a[name], b[name]));
+    if (key !== undefined && key in a) return differenceOf(a[key], b[key], [...at, key]);
+  }
+  return at;
+}
+
 // The keys an object has beyond those given, and those it lacks of the required ones.
-function keysOf(object, required, optional = []) {
+export function keysOf(object, required, optional = []) {
   const unknown = Object.keys(object).filter((key) => !required.includes(key) && !optional.includes(key));
   const missing = required.filter((key) => !(key in object));
   return [...unknown.map((key) => `${key}: no such key`), ...missing.map((key) => `${key} is missing`)];

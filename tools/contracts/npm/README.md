@@ -18,6 +18,23 @@ JSON of a contract names each field by its protobuf name, in snake case, as the 
 
 The package is read through its `exports`, under `"moduleResolution": "nodenext"`, `"node16"` or `"bundler"`. `spec` checks its declarations with TypeScript 7 under both, strictly, and runs its code under Node.
 
+## Test vectors
+
+The package carries the test vectors of the rules that the device and the eval runner share — how a history of writing folds, the groups of strokes, the crop, which strokes a box of a model snaps to and which box of a workbook a stroke fills ([the contracts' text](https://github.com/altnovatrail/spec/blob/main/contracts/README.md), section 12) — each exported by its path, as JSON:
+
+```ts
+import { fromJson } from "@bufbuild/protobuf";
+import { HistorySchema } from "@altnovatrail/contracts/novatrail/eval/v1/sample_pb.js";
+import groups from "@altnovatrail/contracts/vectors/eval/v1/groups.json" with { type: "json" };
+
+for (const one of groups.cases) {
+  const history = fromJson(HistorySchema, one.history);
+  // fold the history, make its groups, and compare them with one.visible, one.groups, ...
+}
+```
+
+Their messages are written with the protobuf names and every field, and a reader takes each with the schema of its message from this package's code. Code that follows the rules passes every case. The vectors of the observation are in the Go module alone: TypeScript gives no verdict.
+
 ## Versions
 
 The package's version is the tag of the release of `altnovatrail/spec` it comes from, without its `v`: 0.7.0 is `v0.7.0`. Every release from the line 0.7 on carries one, even when the contracts have not changed. Take it at an exact version, the same tag as the `spec` submodule and the Go modules of `spec` you hold, and move all of them together. Leave it out of Dependabot, as the Go modules: a release of `spec` comes out with each change of its documents. Dependabot's `ignore` matches a dependency by the name the manifest gives it, `@altnovatrail/contracts` here, and `github.com/altnovatrail/spec/contracts` for the Go module.
