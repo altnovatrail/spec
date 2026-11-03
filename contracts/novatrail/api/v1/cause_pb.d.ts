@@ -58,6 +58,22 @@ export declare type Refusal = Message<"novatrail.api.v1.Refusal"> & {
      */
     value: number;
     case: "wrongAnswers";
+  } | {
+    /**
+     * Beside `CAUSE_PIN_LOCKED`: when the input of the PIN opens.
+     *
+     * @generated from field: google.protobuf.Timestamp locked_until = 5;
+     */
+    value: Timestamp;
+    case: "lockedUntil";
+  } | {
+    /**
+     * Beside `CAUSE_FRESH_SIGN_IN_NEEDED`: how old a sign-in may be, in seconds.
+     *
+     * @generated from field: int32 max_auth_age_seconds = 6;
+     */
+    value: number;
+    case: "maxAuthAgeSeconds";
   } | { case: undefined; value?: undefined };
 };
 
@@ -150,14 +166,15 @@ export enum Cause {
 
   /**
    * The profile named is not one of the account's, or there is no such profile. Code `not_found`.
+   * On `DeleteProfile` it means that the profile is deleted already.
    *
    * @generated from enum value: CAUSE_NO_PROFILE = 1;
    */
   NO_PROFILE = 1,
 
   /**
-   * The profile has no attempt with the ID named; another profile's is the same. Code
-   * `not_found`.
+   * The profile has no attempt with the ID named, or the account no consent with the ID named;
+   * another profile's, or another account's, is the same. Code `not_found`.
    *
    * @generated from enum value: CAUSE_NOT_FOUND = 2;
    */
@@ -173,7 +190,8 @@ export enum Cause {
   ATTEMPT_CLOSED = 3,
 
   /**
-   * The idempotency key was sent with another method or another attempt. Code `invalid_argument`.
+   * The idempotency key was sent with another method, another attempt or another request. Code
+   * `invalid_argument`.
    *
    * @generated from enum value: CAUSE_KEY_ALREADY_USED = 4;
    */
@@ -312,6 +330,85 @@ export enum Cause {
    * @generated from enum value: CAUSE_NOT_CURRENT = 21;
    */
   NOT_CURRENT = 21,
+
+  /**
+   * The user of the sign-in service has no account: no invite code was redeemed, and the account
+   * was not created. Such a user may only create the account. Code `permission_denied`.
+   *
+   * @generated from enum value: CAUSE_NO_ACCESS = 22;
+   */
+  NO_ACCESS = 22,
+
+  /**
+   * The account is no longer there: it is being deleted or was deleted, or the sign-in service has
+   * no such user. `app` erases everything of the account on the device and signs out, without
+   * refreshing the token. Code `unauthenticated`.
+   *
+   * @generated from enum value: CAUSE_ACCOUNT_GONE = 23;
+   */
+  ACCOUNT_GONE = 23,
+
+  /**
+   * The action needs a fresh sign-in, and the sign-in of the token is older than the refusal allows.
+   * The refusal holds how old a sign-in may be, in seconds. Code `unauthenticated`.
+   *
+   * @generated from enum value: CAUSE_FRESH_SIGN_IN_NEEDED = 24;
+   */
+  FRESH_SIGN_IN_NEEDED = 24,
+
+  /**
+   * The invite code is not valid, or was redeemed already. Code `invalid_argument`.
+   *
+   * @generated from enum value: CAUSE_CODE_NOT_ACCEPTED = 25;
+   */
+  CODE_NOT_ACCEPTED = 25,
+
+  /**
+   * What the request creates is there already: the account of the user, the owner's profile, or
+   * the profile of a consent. Code `already_exists`.
+   *
+   * @generated from enum value: CAUSE_ALREADY_EXISTS = 26;
+   */
+  ALREADY_EXISTS = 26,
+
+  /**
+   * The deployment does not take learners from the country named (privacy 9, П-2). Code
+   * `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_COUNTRY_NOT_ACCEPTED = 27;
+   */
+  COUNTRY_NOT_ACCEPTED = 27,
+
+  /**
+   * The consent is not confirmed: a child's profile asked for by a consent that still waits, or a
+   * learning request of a profile without consent. Code `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_NO_CONSENT = 28;
+   */
+  NO_CONSENT = 28,
+
+  /**
+   * The input of the PIN is closed after too many wrong PINs. The refusal holds when it opens. Code
+   * `resource_exhausted`.
+   *
+   * @generated from enum value: CAUSE_PIN_LOCKED = 29;
+   */
+  PIN_LOCKED = 29,
+
+  /**
+   * The PIN is set already: it is changed by the PIN before it, or by a fresh sign-in. Code
+   * `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_PIN_ALREADY_SET = 30;
+   */
+  PIN_ALREADY_SET = 30,
+
+  /**
+   * The account has no PIN yet: it is set first. Code `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_NO_PIN = 31;
+   */
+  NO_PIN = 31,
 }
 
 /**

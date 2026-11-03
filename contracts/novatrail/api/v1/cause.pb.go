@@ -38,15 +38,17 @@ const (
 	// No cause: never sent.
 	Cause_CAUSE_UNSPECIFIED Cause = 0
 	// The profile named is not one of the account's, or there is no such profile. Code `not_found`.
+	// On `DeleteProfile` it means that the profile is deleted already.
 	Cause_CAUSE_NO_PROFILE Cause = 1
-	// The profile has no attempt with the ID named; another profile's is the same. Code
-	// `not_found`.
+	// The profile has no attempt with the ID named, or the account no consent with the ID named;
+	// another profile's, or another account's, is the same. Code `not_found`.
 	Cause_CAUSE_NOT_FOUND Cause = 2
 	// The attempt is closed, and the request acts on an open one. The refusal holds the close reason
 	// of the attempt. Code `failed_precondition`. An essay whose attempt was closed while its
 	// submission went is no refusal: its answer says so by a field of its own.
 	Cause_CAUSE_ATTEMPT_CLOSED Cause = 3
-	// The idempotency key was sent with another method or another attempt. Code `invalid_argument`.
+	// The idempotency key was sent with another method, another attempt or another request. Code
+	// `invalid_argument`.
 	Cause_CAUSE_KEY_ALREADY_USED Cause = 4
 	// The request with this idempotency key is still going; its repeat waits for it. Code
 	// `unavailable`.
@@ -97,6 +99,35 @@ const (
 	// attempt's last: another submission came meanwhile. The refusal holds how many wrong answers the attempt has. Code
 	// `failed_precondition`.
 	Cause_CAUSE_NOT_CURRENT Cause = 21
+	// The user of the sign-in service has no account: no invite code was redeemed, and the account
+	// was not created. Such a user may only create the account. Code `permission_denied`.
+	Cause_CAUSE_NO_ACCESS Cause = 22
+	// The account is no longer there: it is being deleted or was deleted, or the sign-in service has
+	// no such user. `app` erases everything of the account on the device and signs out, without
+	// refreshing the token. Code `unauthenticated`.
+	Cause_CAUSE_ACCOUNT_GONE Cause = 23
+	// The action needs a fresh sign-in, and the sign-in of the token is older than the refusal allows.
+	// The refusal holds how old a sign-in may be, in seconds. Code `unauthenticated`.
+	Cause_CAUSE_FRESH_SIGN_IN_NEEDED Cause = 24
+	// The invite code is not valid, or was redeemed already. Code `invalid_argument`.
+	Cause_CAUSE_CODE_NOT_ACCEPTED Cause = 25
+	// What the request creates is there already: the account of the user, the owner's profile, or
+	// the profile of a consent. Code `already_exists`.
+	Cause_CAUSE_ALREADY_EXISTS Cause = 26
+	// The deployment does not take learners from the country named (privacy 9, П-2). Code
+	// `failed_precondition`.
+	Cause_CAUSE_COUNTRY_NOT_ACCEPTED Cause = 27
+	// The consent is not confirmed: a child's profile asked for by a consent that still waits, or a
+	// learning request of a profile without consent. Code `failed_precondition`.
+	Cause_CAUSE_NO_CONSENT Cause = 28
+	// The input of the PIN is closed after too many wrong PINs. The refusal holds when it opens. Code
+	// `resource_exhausted`.
+	Cause_CAUSE_PIN_LOCKED Cause = 29
+	// The PIN is set already: it is changed by the PIN before it, or by a fresh sign-in. Code
+	// `failed_precondition`.
+	Cause_CAUSE_PIN_ALREADY_SET Cause = 30
+	// The account has no PIN yet: it is set first. Code `failed_precondition`.
+	Cause_CAUSE_NO_PIN Cause = 31
 )
 
 // Enum value maps for Cause.
@@ -124,30 +155,50 @@ var (
 		19: "CAUSE_NO_MORE_WORDS",
 		20: "CAUSE_NO_SUBMISSION",
 		21: "CAUSE_NOT_CURRENT",
+		22: "CAUSE_NO_ACCESS",
+		23: "CAUSE_ACCOUNT_GONE",
+		24: "CAUSE_FRESH_SIGN_IN_NEEDED",
+		25: "CAUSE_CODE_NOT_ACCEPTED",
+		26: "CAUSE_ALREADY_EXISTS",
+		27: "CAUSE_COUNTRY_NOT_ACCEPTED",
+		28: "CAUSE_NO_CONSENT",
+		29: "CAUSE_PIN_LOCKED",
+		30: "CAUSE_PIN_ALREADY_SET",
+		31: "CAUSE_NO_PIN",
 	}
 	Cause_value = map[string]int32{
-		"CAUSE_UNSPECIFIED":         0,
-		"CAUSE_NO_PROFILE":          1,
-		"CAUSE_NOT_FOUND":           2,
-		"CAUSE_ATTEMPT_CLOSED":      3,
-		"CAUSE_KEY_ALREADY_USED":    4,
-		"CAUSE_STILL_GOING":         5,
-		"CAUSE_KEY_NOT_FOR_PROFILE": 6,
-		"CAUSE_QUOTA":               7,
-		"CAUSE_PLATFORM_LIMIT":      8,
-		"CAUSE_NOT_ADMITTED":        9,
-		"CAUSE_AI_FAILURE":          10,
-		"CAUSE_LIMIT_REACHED":       11,
-		"CAUSE_KEY_REFUSED":         12,
-		"CAUSE_ADULT_NEEDED":        13,
-		"CAUSE_LADDER_NOT_PASSED":   14,
-		"CAUSE_NO_SHOWING":          15,
-		"CAUSE_NO_RUNG":             16,
-		"CAUSE_ALREADY_ASKED":       17,
-		"CAUSE_NO_OTHER_WORDS":      18,
-		"CAUSE_NO_MORE_WORDS":       19,
-		"CAUSE_NO_SUBMISSION":       20,
-		"CAUSE_NOT_CURRENT":         21,
+		"CAUSE_UNSPECIFIED":          0,
+		"CAUSE_NO_PROFILE":           1,
+		"CAUSE_NOT_FOUND":            2,
+		"CAUSE_ATTEMPT_CLOSED":       3,
+		"CAUSE_KEY_ALREADY_USED":     4,
+		"CAUSE_STILL_GOING":          5,
+		"CAUSE_KEY_NOT_FOR_PROFILE":  6,
+		"CAUSE_QUOTA":                7,
+		"CAUSE_PLATFORM_LIMIT":       8,
+		"CAUSE_NOT_ADMITTED":         9,
+		"CAUSE_AI_FAILURE":           10,
+		"CAUSE_LIMIT_REACHED":        11,
+		"CAUSE_KEY_REFUSED":          12,
+		"CAUSE_ADULT_NEEDED":         13,
+		"CAUSE_LADDER_NOT_PASSED":    14,
+		"CAUSE_NO_SHOWING":           15,
+		"CAUSE_NO_RUNG":              16,
+		"CAUSE_ALREADY_ASKED":        17,
+		"CAUSE_NO_OTHER_WORDS":       18,
+		"CAUSE_NO_MORE_WORDS":        19,
+		"CAUSE_NO_SUBMISSION":        20,
+		"CAUSE_NOT_CURRENT":          21,
+		"CAUSE_NO_ACCESS":            22,
+		"CAUSE_ACCOUNT_GONE":         23,
+		"CAUSE_FRESH_SIGN_IN_NEEDED": 24,
+		"CAUSE_CODE_NOT_ACCEPTED":    25,
+		"CAUSE_ALREADY_EXISTS":       26,
+		"CAUSE_COUNTRY_NOT_ACCEPTED": 27,
+		"CAUSE_NO_CONSENT":           28,
+		"CAUSE_PIN_LOCKED":           29,
+		"CAUSE_PIN_ALREADY_SET":      30,
+		"CAUSE_NO_PIN":               31,
 	}
 )
 
@@ -326,6 +377,8 @@ type Refusal struct {
 	//	*Refusal_CloseReason
 	//	*Refusal_NextFamilyDay
 	//	*Refusal_WrongAnswers
+	//	*Refusal_LockedUntil
+	//	*Refusal_MaxAuthAgeSeconds
 	Data          isRefusal_Data `protobuf_oneof:"data"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -402,6 +455,24 @@ func (x *Refusal) GetWrongAnswers() int32 {
 	return 0
 }
 
+func (x *Refusal) GetLockedUntil() *timestamppb.Timestamp {
+	if x != nil {
+		if x, ok := x.Data.(*Refusal_LockedUntil); ok {
+			return x.LockedUntil
+		}
+	}
+	return nil
+}
+
+func (x *Refusal) GetMaxAuthAgeSeconds() int32 {
+	if x != nil {
+		if x, ok := x.Data.(*Refusal_MaxAuthAgeSeconds); ok {
+			return x.MaxAuthAgeSeconds
+		}
+	}
+	return 0
+}
+
 type isRefusal_Data interface {
 	isRefusal_Data()
 }
@@ -421,11 +492,25 @@ type Refusal_WrongAnswers struct {
 	WrongAnswers int32 `protobuf:"varint,4,opt,name=wrong_answers,json=wrongAnswers,proto3,oneof"`
 }
 
+type Refusal_LockedUntil struct {
+	// Beside `CAUSE_PIN_LOCKED`: when the input of the PIN opens.
+	LockedUntil *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=locked_until,json=lockedUntil,proto3,oneof"`
+}
+
+type Refusal_MaxAuthAgeSeconds struct {
+	// Beside `CAUSE_FRESH_SIGN_IN_NEEDED`: how old a sign-in may be, in seconds.
+	MaxAuthAgeSeconds int32 `protobuf:"varint,6,opt,name=max_auth_age_seconds,json=maxAuthAgeSeconds,proto3,oneof"`
+}
+
 func (*Refusal_CloseReason) isRefusal_Data() {}
 
 func (*Refusal_NextFamilyDay) isRefusal_Data() {}
 
 func (*Refusal_WrongAnswers) isRefusal_Data() {}
+
+func (*Refusal_LockedUntil) isRefusal_Data() {}
+
+func (*Refusal_MaxAuthAgeSeconds) isRefusal_Data() {}
 
 // An outcome: what a call of AI came to when the answer holds no reading, or no words, of AI.
 type Outcome struct {
@@ -553,12 +638,14 @@ var File_novatrail_api_v1_cause_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\n" +
-	"\x1cnovatrail/api/v1/cause.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf1\x01\n" +
+	"\x1cnovatrail/api/v1/cause.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe5\x02\n" +
 	"\aRefusal\x12-\n" +
 	"\x05cause\x18\x01 \x01(\x0e2\x17.novatrail.api.v1.CauseR\x05cause\x12B\n" +
 	"\fclose_reason\x18\x02 \x01(\x0e2\x1d.novatrail.api.v1.CloseReasonH\x00R\vcloseReason\x12D\n" +
 	"\x0fnext_family_day\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\rnextFamilyDay\x12%\n" +
-	"\rwrong_answers\x18\x04 \x01(\x05H\x00R\fwrongAnswersB\x06\n" +
+	"\rwrong_answers\x18\x04 \x01(\x05H\x00R\fwrongAnswers\x12?\n" +
+	"\flocked_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\vlockedUntil\x121\n" +
+	"\x14max_auth_age_seconds\x18\x06 \x01(\x05H\x00R\x11maxAuthAgeSecondsB\x06\n" +
 	"\x04data\"\xbf\x01\n" +
 	"\aOutcome\x12-\n" +
 	"\x05cause\x18\x01 \x01(\x0e2\x17.novatrail.api.v1.CauseR\x05cause\x12B\n" +
@@ -566,7 +653,7 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\rown_key_limit\x18\x03 \x01(\v2\x1d.novatrail.api.v1.OwnKeyLimitR\vownKeyLimit\"\x84\x01\n" +
 	"\vOwnKeyLimit\x122\n" +
 	"\x05cause\x18\x01 \x01(\x0e2\x1c.novatrail.api.v1.LimitCauseR\x05cause\x12A\n" +
-	"\x0eaccess_returns\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\raccessReturns*\x98\x04\n" +
+	"\x0eaccess_returns\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\raccessReturns*\x95\x06\n" +
 	"\x05Cause\x12\x15\n" +
 	"\x11CAUSE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10CAUSE_NO_PROFILE\x10\x01\x12\x13\n" +
@@ -590,7 +677,17 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x14CAUSE_NO_OTHER_WORDS\x10\x12\x12\x17\n" +
 	"\x13CAUSE_NO_MORE_WORDS\x10\x13\x12\x17\n" +
 	"\x13CAUSE_NO_SUBMISSION\x10\x14\x12\x15\n" +
-	"\x11CAUSE_NOT_CURRENT\x10\x15*\x88\x01\n" +
+	"\x11CAUSE_NOT_CURRENT\x10\x15\x12\x13\n" +
+	"\x0fCAUSE_NO_ACCESS\x10\x16\x12\x16\n" +
+	"\x12CAUSE_ACCOUNT_GONE\x10\x17\x12\x1e\n" +
+	"\x1aCAUSE_FRESH_SIGN_IN_NEEDED\x10\x18\x12\x1b\n" +
+	"\x17CAUSE_CODE_NOT_ACCEPTED\x10\x19\x12\x18\n" +
+	"\x14CAUSE_ALREADY_EXISTS\x10\x1a\x12\x1e\n" +
+	"\x1aCAUSE_COUNTRY_NOT_ACCEPTED\x10\x1b\x12\x14\n" +
+	"\x10CAUSE_NO_CONSENT\x10\x1c\x12\x14\n" +
+	"\x10CAUSE_PIN_LOCKED\x10\x1d\x12\x19\n" +
+	"\x15CAUSE_PIN_ALREADY_SET\x10\x1e\x12\x10\n" +
+	"\fCAUSE_NO_PIN\x10\x1f*\x88\x01\n" +
 	"\n" +
 	"LimitCause\x12\x1b\n" +
 	"\x17LIMIT_CAUSE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -637,16 +734,17 @@ var file_novatrail_api_v1_cause_proto_depIdxs = []int32{
 	0, // 0: novatrail.api.v1.Refusal.cause:type_name -> novatrail.api.v1.Cause
 	2, // 1: novatrail.api.v1.Refusal.close_reason:type_name -> novatrail.api.v1.CloseReason
 	6, // 2: novatrail.api.v1.Refusal.next_family_day:type_name -> google.protobuf.Timestamp
-	0, // 3: novatrail.api.v1.Outcome.cause:type_name -> novatrail.api.v1.Cause
-	6, // 4: novatrail.api.v1.Outcome.next_family_day:type_name -> google.protobuf.Timestamp
-	5, // 5: novatrail.api.v1.Outcome.own_key_limit:type_name -> novatrail.api.v1.OwnKeyLimit
-	1, // 6: novatrail.api.v1.OwnKeyLimit.cause:type_name -> novatrail.api.v1.LimitCause
-	6, // 7: novatrail.api.v1.OwnKeyLimit.access_returns:type_name -> google.protobuf.Timestamp
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	6, // 3: novatrail.api.v1.Refusal.locked_until:type_name -> google.protobuf.Timestamp
+	0, // 4: novatrail.api.v1.Outcome.cause:type_name -> novatrail.api.v1.Cause
+	6, // 5: novatrail.api.v1.Outcome.next_family_day:type_name -> google.protobuf.Timestamp
+	5, // 6: novatrail.api.v1.Outcome.own_key_limit:type_name -> novatrail.api.v1.OwnKeyLimit
+	1, // 7: novatrail.api.v1.OwnKeyLimit.cause:type_name -> novatrail.api.v1.LimitCause
+	6, // 8: novatrail.api.v1.OwnKeyLimit.access_returns:type_name -> google.protobuf.Timestamp
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_cause_proto_init() }
@@ -658,6 +756,8 @@ func file_novatrail_api_v1_cause_proto_init() {
 		(*Refusal_CloseReason)(nil),
 		(*Refusal_NextFamilyDay)(nil),
 		(*Refusal_WrongAnswers)(nil),
+		(*Refusal_LockedUntil)(nil),
+		(*Refusal_MaxAuthAgeSeconds)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

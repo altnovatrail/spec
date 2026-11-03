@@ -282,7 +282,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## 15. The contract between app and api
 
-- The contract between `app` and `api` is the package `novatrail.api.v1`: the services that `app` calls on `api` by Connect (section 9), one package for all of them, with one list of causes (R97; R17 api). This section is its text so far: the checking of an attempt, `AttemptService` of `attempt.proto`, with `cause.proto`. Which requests there are, with what comes and goes in each, `api`'s detailing proposed (architecture 3.9 api); what both sides know is the contract's, and how `api` keeps it is `api`'s code: the order of its checks, its records of idempotency keys and how long they live, the reserve of its quota, CORS, its codecs and which place the program gives a mark.
+- The contract between `app` and `api` is the package `novatrail.api.v1`: the services that `app` calls on `api` by Connect (section 9), one package for all of them, with one list of causes (R97; R17 api). This section is its text so far: the checking of an attempt, `AttemptService` of `attempt.proto`, and the account and its profiles, `AccountService` of `account.proto` (R98), with `cause.proto`. Which requests there are, with what comes and goes in each, `api`'s detailing proposed (architecture 3.9 api); what both sides know is the contract's, and how `api` keeps it is `api`'s code: the order of its checks, its records of idempotency keys and how long they live, the reserve of its quota, CORS, its codecs and which place the program gives a mark.
 - **Every request** on an attempt names the profile, `profile_id`, and the attempt, `attempt_id`: `api` reads an attempt by the pair. An attempt of another profile, or none, gets `CAUSE_NOT_FOUND`, and a profile that is not the account's `CAUSE_NO_PROFILE`. A request whose form the contract refuses — a field it needs left out, a place the task does not have, a method the task's kind does not take — gets the code `invalid_argument` with no `Refusal`.
 
 **Refusals and outcomes.**
@@ -291,9 +291,23 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - `Cause` is one list for both: why a request was refused, or what a call of AI came to. A verdict's reason is no cause: it is the module format's and the observation's. Why an attempt was closed, `CloseReason`, and how a submission of an essay ended, `SubmissionEnd`, are values of their own, which come in answers and in the data of a refusal.
 - A cause that the build of `app` does not know, it reads by the code of the error; an outcome it does not know, as a failure of AI. It words neither: the words are `app`'s, in the language of its screen, and the server sends no text of a cause (R10 app).
 
-**The idempotency key.** A request that must not be done twice carries `idempotency_key`, a field of its message, since CORS lets through `Authorization` and the headers of Connect alone: `SubmitWork`, `SubmitEssay`, `GetRungWords`, `GetCorrectAnswerWords`, `ExplainDifferently` and `ShowSolution`.
+**Sign-in.** Every request carries the ID token of the sign-in service in the header `Authorization`, as `Bearer <token>` (R03 api); only the files of a package's device part and the open views go without one, T64 of RUN.md. The comment of `AccountService` names the refusals that every request with a token may get, and what `app` does on each (R04 app):
+- `app` reads the cause of a refusal before it refreshes any token.
+- `unauthenticated` with no `Refusal` — the token has expired, is revoked, or its user is disabled: `app` refreshes the token and repeats the request, and opens the sign-in window only if the refresh failed. Signing in again is signing in as the same user, without signing out, since signing out erases everything of the account on the device.
+- `CAUSE_FRESH_SIGN_IN_NEEDED`, also `unauthenticated`: the action needs a sign-in no older than the refusal's `max_auth_age_seconds` (R20 api). `app` signs in again by the window, on a press, and repeats the action. Whether a sign-in is fresh it reads by the `authTime` of a token it has just refreshed, against that token's `issuedAtTime`, not against the clock of the device; on `auth/user-mismatch` it asks `GetAccount`.
+- `CAUSE_ACCOUNT_GONE`, also `unauthenticated`, with no data: the account is being deleted or was deleted, or the sign-in service has no such user. `app` erases everything of the account and signs out, without refreshing the token: a refresh would sign the deleted user out with the error of a revoked token, and the device would not know why (architecture 4.5).
+- `CAUSE_NO_ACCESS`: the user has no account, and may only create one. While the registry of the device holds an account, it means that another account has signed in, and `app` erases what is left of the one before it opens anything.
+- `unavailable` with no `Refusal`: the token could not be checked, and `app` repeats the request after a growing pause, for a short while.
+- A request without the right it needs gets the code `permission_denied` with no `Refusal`. A method on a profile names its right, `can_manage` or `can_learn`; a method on the account itself — the PIN, the creation of a profile, the account's export and deletion — needs the account of the token alone: it is an action of an adult, and the PIN in front of it is a barrier of the interface (R04 api). The fresh sign-in is checked last, after the right.
+
+**Versions and origin.**
+- `app` reads the major package it was built with (section 2), and `api` holds the current one and the one before. A method that `api` no longer holds answers `unimplemented`, and only then, or for an open view in a version of the module format that its build does not read, does `app` offer to reload (R44; R83). The contract names no version of `api`: inside the major package an older build works with a newer `api`.
+- A value of an enum that its build does not know `app` reads as the comment of the enum says, and never writes it back: a change of a profile sends only the fields that changed.
+- `api` stands on the origin of `app` or on its own (repositories 8, Т-17). On its own, it answers CORS to the exact origin of `app` on every path and every answer, errors among them, and exposes `Retry-After`. A request carries no headers but `Authorization`, `Content-Type`, `Connect-Protocol-Version` and `Connect-Timeout-Ms`, so whatever else a request says is a field of its message. How long a preflight's answer lives, and where the origin is configured, are `api`'s (R18 api).
+
+**The idempotency key.** A request that must not be done twice carries `idempotency_key`, a field of its message, since CORS lets through `Authorization` and the headers of Connect alone: `SubmitWork`, `SubmitEssay`, `GetRungWords`, `GetCorrectAnswerWords`, `ExplainDifferently`, `ShowSolution`, `RequestChildConsent` and the requests of the PIN, `SetPin`, `VerifyPin`, `ChangePin` and `ResetPin`.
 - `app` makes a key for each action and sends it with every repeat of the action.
-- The same key with another method or another attempt gets `CAUSE_KEY_ALREADY_USED`, and a repeat while the first request goes, `CAUSE_STILL_GOING`.
+- The same key with another method, another attempt or another request gets `CAUSE_KEY_ALREADY_USED`, and a repeat while the first request goes, `CAUSE_STILL_GOING`.
 - A repeat once it is done is answered by what is recorded, with no AI:
 
   | Method | A repeat gets |
@@ -303,8 +317,10 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
   | `GetRungWords`, `ExplainDifferently` | the words the attempt keeps, while it is open; the words of a rung `repeated` and without marks, which the server does not keep |
   | `GetCorrectAnswerWords` | an answer `repeated` without words: the server keeps none, and a response lost is words lost |
   | `ShowSolution` | the solution again |
+  | `RequestChildConsent` | the same consent |
+  | `SetPin`, `VerifyPin`, `ChangePin`, `ResetPin` | the same answer: a wrong PIN is not counted again, and a PIN changed or set already is not read as wrong |
 
-- `Done`, `GetHint` and `BeginStep` carry no key: they repeat by the attempt's state.
+- `Done`, `GetHint` and `BeginStep` carry no key: they repeat by the attempt's state. Nor do the other requests of `AccountService`: they repeat by the state of the account. A creation of what is there already gets `CAUSE_ALREADY_EXISTS`, which `CreateAccount` checks before the code, so that its repeat is not refused for the code it redeemed; a deletion of a profile deleted already `CAUSE_NO_PROFILE`, and of an account deleted already `CAUSE_ACCOUNT_GONE`; a change sets the same values again.
 
 **The own key and the clock.**
 - `own_key`, the key and its provider by its code in the admission table, goes with every request of a profile of its owner that calls AI, "explain differently" too (R84; R08 app).
@@ -374,3 +390,41 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - `keys`, each answer slot's key as the module format writes it, of the instance when the task is a template; a predicate or a rubric has none.
 - `solution`, the task's field `solution` as JSON of the module format, bytes, and `module_format_version`, its version; empty when the task has none. `app` reads it by the types of `@altnovatrail/spec`, and for a version of the format that its build does not read, it offers to reload (R44).
 - `criteria`, on a task with a rubric, the text of each criterion, without the marks of the assessment.
+
+**The account.** `GetAccount` gives the account of the user signed in: `account_id`, the ID of the account in `api`, not the user's ID at the sign-in service; whether the PIN is set; the account's profiles; and the consents for a child that have no profile yet (R98).
+- `app` reads it when it starts and after signing in, and erases on the device the databases of the profiles that the list does not hold: a profile deleted on another device. It erases only by an answer that came, and for the account that the registry of the device names; a failure of the network erases nothing (R04 app).
+- A user with no account gets `CAUSE_NO_ACCESS`, and `app` asks for an invite code. `CreateAccount` takes the code and the owner's statement that they are 18 or older, which `api` keeps with its date (privacy 9, П-6); a code that is not valid, or was redeemed, gets `CAUSE_CODE_NOT_ACCEPTED`.
+- The tariff of the account comes with what is decided of tariffs (product 13, О-14).
+
+**Profiles.** `Profile` is a learner in the account as `api` keeps it (privacy 4): its pseudonym, avatar, age category, country, presentation style, default mode, language of the interface and grade, and on a child's profile the setting "ask before showing" (R82). `owner` marks the profile of the account's owner, who is of the category `adult`; a child's profile is of another category.
+- The avatar is the code of a picture of the set of `app`: no picture is uploaded.
+- The presentation style holds the voicing for now: whether it is on and its speed. Only what changes the words goes to AI from it, and neither the voicing, nor the mode, nor the language of the interface goes there (privacy 4). The voice is chosen on the device (R07 app).
+- The language of the interface is a well-formed tag of BCP 47, which `api` keeps with no list of its own; absent, `app` speaks the language of the device (R92).
+- The grade is from 1 to 12, as a module with grades asks for it (R49).
+- The interests of a learner come only once the module format gives a task a look by interests (concepts 13; R51): a field that nothing reads is not kept (privacy 1).
+- The date the age was given and the last activity stay in `api`.
+
+**Settings.** `ProfileSettings` is what an adult sets when a profile is created and changed. A field sent is set; a field left out stays as it is, and on a new profile takes its default, which `api` gives — whether the voicing is on is such a field of its own, apart from its speed: the mode "by steps"; the voicing on at the category `under_13` and off at the others, at normal speed; on a child's profile "ask before showing" on. An empty language of the interface or avatar, or a grade 0, clears it. The pseudonym is from 1 to 30 Unicode code points once the spaces at its ends are trimmed, the avatar's code up to 64 ASCII characters, and a country ISO 3166-1 alpha-2; a field of another form gets `invalid_argument`.
+- `UpdateProfile` is an action of an adult, with the right `can_manage`. `SetVoicing` sets the voicing alone, from the screen of a task: a learning request, with the right `can_learn`, so the learner sets it as well as the adult, and it holds on every device (R07 app).
+- The country and the age are given again only with the yearly refinement of the category and with a new country, epic E4 of RUN.md (privacy 3.3).
+
+**The owner's profile and a child's.** `CreateOwnerProfile` creates the owner's profile, of the category `adult` by the owner's statement, with no age asked. A child's profile is created in two steps, since a consent comes before it (R98):
+1. `RequestChildConsent` sends the child's age in years, from 0 to 17, and country; an age left out gets `invalid_argument`. `api` works out the age category, records a consent that waits, with the category and the country alone, and keeps the age nowhere (privacy 3.3). A country that the deployment does not take gets `CAUSE_COUNTRY_NOT_ACCEPTED`, here and on `CreateOwnerProfile`, the requests that name a country (privacy 9, П-2); the child's profile takes the consent's.
+2. Once the consent is confirmed, `CreateChildProfile` creates the profile by its ID, with its pseudonym and settings; while it waits, `CAUSE_NO_CONSENT`.
+
+How the consent is given and confirmed, withdrawn, or the waiting one taken back, is epic E4 of RUN.md (privacy 9, П-1, П-14). A request of a profile whose consent is not confirmed gets `CAUSE_NO_CONSENT`.
+
+**The PIN.** The PIN of the section for adults is from 4 to 6 digits. It is a barrier of the interface, not of the server: when to ask for it `app` decides, and no request carries proof that it was asked (R04 api; R84).
+- Each request of the PIN carries an idempotency key, so that a repeat after a lost answer counts no wrong PIN that was not (above).
+- `SetPin` sets it while the account has none, and otherwise gets `CAUSE_PIN_ALREADY_SET`. `VerifyPin` and `ChangePin` on an account with none get `CAUSE_NO_PIN`.
+- `VerifyPin` answers `PinCheck`. A wrong PIN counts toward closing the input, and the answer says how many wrong PINs are left before it closes, and when it opens, once this one closed it; while it is closed, `CAUSE_PIN_LOCKED` says when it opens. `app` words it in the language of its screen, what went wrong and what to do, and keeps no counter of its own, which would part from the server's (WCAG 2.2, 3.3.1 and 3.3.3; R11 app).
+- `ChangePin` changes it by the PIN before it, which counts toward closing the input as `VerifyPin` counts it. `ResetPin` changes a forgotten PIN by a fresh sign-in, and opens the input if it was closed.
+
+**Checking the own key.** `CheckOwnKey` checks a key of the owner's at its provider when it is connected, on the page where the key is entered, by a request with nothing of a learner's: an action of an adult on the owner's profile of the category `adult`, which another profile's request gets `CAUSE_KEY_NOT_FOR_PROFILE` for (R84). The answer is the key accepted, not valid, with no right to the models, or the provider closed to it at the profile; a provider that gave no answer is the outcome `CAUSE_AI_FAILURE`. `ListOwnKeyProviders` names the providers that the admission function opens to an own key at a profile, by code and name of the admission table, so that `app` builds no list in; at a profile whose category is not `adult`, none (Т-20; R96).
+
+**Deletion and export.**
+- `DeleteProfile` and `DeleteAccount` need a fresh sign-in, not the PIN (R20, R21 api). Their answer is "deleted": of a profile, `app` erases its database, and of the account, everything of the account on the device, and signs out without refreshing the token. The owner's profile is deleted the same way, and the last profile leaves the account without profiles.
+- Other devices learn of a deleted profile by the list of profiles, and of a deleted account by `CAUSE_ACCOUNT_GONE` while their token lives, about an hour, and later by `CAUSE_NO_ACCESS` once the sign-in service has signed them out and a new sign-in is a new user (architecture 4.5).
+- `ExportProfile` and `ExportAccount` give the part of the export that `api` holds, with no fresh sign-in: bytes in the export format and its version, which `app` puts into the file of the export as they are, beside what the device holds. The format is open and `spec`'s, epic E4 of RUN.md (R09), and until it is written the export is neither asked for nor given. The own key is no part of it (R84).
+
+**Texts from api.** The legal texts, the privacy policy and the consent, `app` asks of `api` naming the language in the request, a field of its message, not the header `Accept-Language` (R92); the texts themselves are in English alone, and on a screen in another language `app` says so in it (privacy 7). The request comes with the texts, their versions and the consent, epic E4 of RUN.md.

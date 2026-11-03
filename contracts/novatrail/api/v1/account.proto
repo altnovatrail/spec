@@ -1,0 +1,519 @@
+syntax = "proto3";
+
+// The account and its profiles in the contract between `app` and `api`: the account and the list
+// of its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of
+// the account's owner and a child's profile, which a consent comes before; the PIN of the section
+// for adults; the voicing a learner sets; the own key checked when it is connected; deletion and
+// export. What each message means, and what `app` does on each refusal, are the rules of
+// contracts/README.md, section 15.
+package novatrail.api.v1;
+
+import "google/protobuf/timestamp.proto";
+import "novatrail/api/v1/attempt.proto";
+import "novatrail/api/v1/cause.proto";
+
+// The requests on the account and its profiles, from the section for adults and from a learner's
+// session. Every method carries the ID token of the sign-in service in the header `Authorization`,
+// as `Bearer <token>`, and every one may get the refusals of every request with a token:
+// `unauthenticated` with no `Refusal`, when the token has expired, is revoked or its user is
+// disabled; `CAUSE_ACCOUNT_GONE`; `CAUSE_NO_ACCESS`, but for `CreateAccount`; and `unavailable`
+// with no `Refusal`, when the token could not be checked. A method on a profile names the right it
+// needs, `can_manage` or `can_learn`; a method on the account itself needs the account of the token
+// alone: it is an action of an adult, and the PIN in front of it is a barrier of the interface
+// (R04 api). A request without the right it needs
+// gets the code `permission_denied` with no `Refusal`, and a request whose form the contract
+// refuses the code `invalid_argument` with no `Refusal`. `app` reads the cause of a refusal before
+// it refreshes any token:
+// - `unauthenticated` with no `Refusal`: it refreshes the token and repeats the request, and opens
+//   the sign-in window only if the refresh failed. Signing in again is signing in as the same
+//   user, without signing out: signing out erases everything of the account on the device;
+// - `CAUSE_FRESH_SIGN_IN_NEEDED`: it signs in again by the window, on a press, and repeats the
+//   action. Whether a sign-in is fresh it reads by the `authTime` of a token it has just
+//   refreshed, against that token's `issuedAtTime`, not against the clock of the device; on
+//   `auth/user-mismatch` it asks `GetAccount`;
+// - `CAUSE_ACCOUNT_GONE`: it erases everything of the account and signs out, without refreshing
+//   the token;
+// - `CAUSE_NO_ACCESS` while the registry of the device holds an account: another account has
+//   signed in, and `app` erases what is left of the one before it opens anything;
+// - `unavailable`: it repeats the request after a growing pause, for a short while.
+service AccountService {
+  // The account and its profiles, each with its fields, and the consents that have no profile yet.
+  // `app` reads it when it starts and after signing in, and erases the databases of the profiles
+  // that the list does not hold: only by an answer that came, and for the account the registry of
+  // the device names; a failure of the network erases nothing. A user with no account gets
+  // `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
+  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
+  // Creates the account of the user signed in, by an invite code and the owner's statement that
+  // they are 18 or older. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already,
+  // checked before the code, so that a repeat gets it rather than a code redeemed; `app` then reads
+  // the account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED`. It carries no idempotency key: it
+  // repeats by the account's state.
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
+  // Sets the PIN of the section for adults, while the account has none. Refusals:
+  // `CAUSE_PIN_ALREADY_SET`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
+  // same idempotency key gets the same answer.
+  rpc SetPin(SetPinRequest) returns (SetPinResponse);
+  // Checks a PIN. A wrong one counts toward closing the input, and the answer says how many wrong
+  // PINs are left before it closes, and when it opens, once it has closed. Refusals:
+  // `CAUSE_PIN_LOCKED`, `CAUSE_NO_PIN`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
+  // with the same idempotency key gets the same check, and counts nothing again. The PIN is a
+  // barrier of the interface, not of the server: when to ask for it `app` decides, and no request
+  // carries proof that it was asked (R04 api).
+  rpc VerifyPin(VerifyPinRequest) returns (VerifyPinResponse);
+  // Changes the PIN by the PIN before it. A wrong PIN before counts toward closing the input as
+  // `VerifyPin` counts it, and changes nothing. Refusals: `CAUSE_PIN_LOCKED`, `CAUSE_NO_PIN`,
+  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+  // the same check: a PIN changed already is not counted as wrong.
+  rpc ChangePin(ChangePinRequest) returns (ChangePinResponse);
+  // Changes a forgotten PIN by a fresh sign-in: it sets the new PIN, whether there was one or not,
+  // and opens the input if it was closed. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, checked last,
+  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+  // the same answer.
+  rpc ResetPin(ResetPinRequest) returns (ResetPinResponse);
+  // Creates the profile of the account's owner, of the age category `adult` by the owner's
+  // statement, with no age asked. Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED` and
+  // `CAUSE_ALREADY_EXISTS`, when the owner has a profile already; `app` then reads the account. It
+  // carries no idempotency key: it repeats by the account's state.
+  rpc CreateOwnerProfile(CreateOwnerProfileRequest) returns (CreateOwnerProfileResponse);
+  // The first of a child's profile's two steps: the owner gives the child's age in years and the
+  // child's country, and `api` works out the age category and records a consent that waits, with
+  // the category and the country alone: no pseudonym and no other field of the profile. The age in
+  // years `api` keeps nowhere. How the consent is given and confirmed is epic E4 of RUN.md (privacy
+  // 9, П-1). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_KEY_ALREADY_USED` and
+  // `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same consent.
+  rpc RequestChildConsent(RequestChildConsentRequest) returns (RequestChildConsentResponse);
+  // The second step: creates a child's profile by its consent, once the consent is confirmed.
+  // Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while the consent waits, and
+  // `CAUSE_ALREADY_EXISTS`, when the consent has its profile already; `app` then reads the account.
+  // It carries no idempotency key: it repeats by the consent's state.
+  rpc CreateChildProfile(CreateChildProfileRequest) returns (CreateChildProfileResponse);
+  // Changes a profile's settings, by an action of an adult with the right `can_manage`: the fields
+  // sent change, and the others stay as they are. Refusals: `CAUSE_NO_PROFILE`.
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+  // Sets the voicing of a profile, whether it is on and its speed, and nothing else, from the
+  // screen of a task: a learning request with the right `can_learn`. Refusals:
+  // `CAUSE_NO_PROFILE`.
+  rpc SetVoicing(SetVoicingRequest) returns (SetVoicingResponse);
+  // Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
+  // and a fresh sign-in, checked last. The profile of the owner is deleted the same way, and the
+  // last profile leaves the account without profiles. The answer is "deleted", and `app` erases
+  // the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and `CAUSE_NO_PROFILE`, which
+  // is the answer of a repeat too: `app` reads it as deleted already. It carries no idempotency
+  // key: it repeats by the profile's state.
+  rpc DeleteProfile(DeleteProfileRequest) returns (DeleteProfileResponse);
+  // Deletes the account and everything of it, with the user of the sign-in service, by a fresh
+  // sign-in, checked last. The answer is "deleted", and `app` erases everything of the account on
+  // the device and signs out, without refreshing the token. Other devices learn of it by
+  // `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat gets
+  // `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
+  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
+  // The part of a profile's export that `api` holds, by an action of an adult with the right
+  // `can_manage`, with no fresh sign-in. `app` makes the file of the export of it and of what the
+  // device holds. Refusals: `CAUSE_NO_PROFILE`.
+  rpc ExportProfile(ExportProfileRequest) returns (ExportProfileResponse);
+  // The part of the account's export that `api` holds: the fields of the account and the parts of
+  // every profile, with no fresh sign-in.
+  rpc ExportAccount(ExportAccountRequest) returns (ExportAccountResponse);
+  // Checks a key of the owner's at its provider, when it is connected, by a request with nothing of
+  // a learner's: on the page where the key is entered, an action of an adult with the right
+  // `can_manage` on the owner's profile of the age category `adult` (R84). A provider that gave no
+  // answer is an outcome. Refusals: `CAUSE_NO_PROFILE` and `CAUSE_KEY_NOT_FOR_PROFILE`.
+  rpc CheckOwnKey(CheckOwnKeyRequest) returns (CheckOwnKeyResponse);
+  // The providers that the admission function opens to an own key at a profile, so that `app`
+  // builds no list in: empty at a profile whose age category is not `adult`. An action of an adult
+  // with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
+  rpc ListOwnKeyProviders(ListOwnKeyProvidersRequest) returns (ListOwnKeyProvidersResponse);
+}
+
+// A request for the account: the user is the token's.
+message GetAccountRequest {}
+
+// The account.
+message GetAccountResponse {
+  // The account, its profiles and its consents that have no profile yet.
+  Account account = 1;
+}
+
+// The creation of an account.
+message CreateAccountRequest {
+  // The invite code, as it was given.
+  string invite_code = 1;
+  // The owner's statement that they are 18 or older: true, or the request is refused
+  // `invalid_argument`. `api` keeps it with its date (privacy 9, П-6).
+  bool adult_stated = 2;
+}
+
+// The account created.
+message CreateAccountResponse {
+  // The account, with no profile.
+  Account account = 1;
+}
+
+// An account of `api`, by the token of its user.
+message Account {
+  // The ID of the account in `api`: not the user's ID at the sign-in service, which another way of
+  // signing in would change. The registry of the device holds it, and another ID after a sign-in
+  // is another account.
+  string account_id = 1;
+  // Whether the PIN of the section for adults is set.
+  bool pin_set = 2;
+  // The account's profiles: the owner's, when the owner learns, and the children's.
+  repeated Profile profiles = 3;
+  // The consents for a child that have no profile yet: waiting, or confirmed and waiting for the
+  // profile.
+  repeated ChildConsent child_consents = 4;
+}
+
+// A profile, a learner in the account (concepts 13), as `api` keeps it. Its date of the age given
+// and its last activity stay in `api`; its interests come only once the module format gives a
+// task a look by interests (concepts 13; R51).
+message Profile {
+  // The ID of the profile.
+  string profile_id = 1;
+  // Whether this is the profile of the account's owner.
+  bool owner = 2;
+  // The pseudonym the owner made up for the learner: never a real name.
+  string pseudonym = 3;
+  // The code of a picture of the set of `app`: no picture is uploaded. Empty when none was chosen;
+  // a code its build does not know `app` shows as its own picture.
+  string avatar = 4;
+  // The age category, by its code: "under_13", "from_13_to_consent", "from_consent_to_18" or
+  // "adult" (R46).
+  string age_category = 5;
+  // The learner's country, ISO 3166-1 alpha-2.
+  string country = 6;
+  // How the platform speaks and shows: what of it changes the words goes to AI, and nothing else.
+  PresentationStyle presentation_style = 7;
+  // The default mode, which the learner switches on the screen of a task until the end of the
+  // attempt. It goes to no AI.
+  Mode default_mode = 8;
+  // The language of the interface, a tag of BCP 47: absent when none is set, and then `app` speaks
+  // the language of the device. It goes to no AI (R92).
+  optional string interface_language = 9;
+  // The grade, from 1 to 12, as a module with grades asks for it (R49): absent when none is given.
+  optional int32 grade = 10;
+  // A child's setting, which an adult sets: the solution is shown by an action of an adult.
+  // Always false on a profile of the category `adult`.
+  bool ask_before_showing = 11;
+}
+
+// The presentation style of a profile. What else it holds comes with what a module may say of it
+// (product 13, О-23).
+message PresentationStyle {
+  // The voicing: the tutor's words and the open texts of a module read aloud by the device. It
+  // goes to no AI.
+  Voicing voicing = 1;
+}
+
+// The voicing of a profile. The voice is chosen on the device, and the contract carries none.
+message Voicing {
+  // Whether it is on. In a request, absent leaves it as it is, and a new profile's takes the
+  // default of its category.
+  optional bool enabled = 1;
+  // Its speed. In a request, `VOICING_SPEED_UNSPECIFIED` leaves the speed as it is, and a new
+  // profile's is normal.
+  VoicingSpeed speed = 2;
+}
+
+// The speed of the voicing. A speed its build does not know `app` reads as normal.
+enum VoicingSpeed {
+  // Not named: in a request, the speed stays as it is.
+  VOICING_SPEED_UNSPECIFIED = 0;
+  // Normal.
+  VOICING_SPEED_NORMAL = 1;
+  // Slow.
+  VOICING_SPEED_SLOW = 2;
+}
+
+// A mode of the screen of a task (concepts 10). A mode its build does not know `app` reads as "by
+// steps".
+enum Mode {
+  // Not named: in a request, the mode stays as it is, and a new profile's is "by steps".
+  MODE_UNSPECIFIED = 0;
+  // "By steps": the app leads through the module's solving steps.
+  MODE_BY_STEPS = 1;
+  // "Self": the app waits until the learner calls.
+  MODE_SELF = 2;
+}
+
+// The settings of a profile that an adult sets, when a profile is created or changed. A field sent
+// is set; a field left out stays as it is, and on a new profile takes its default: the mode "by
+// steps", the voicing on at the category `under_13` and off at the others, at normal speed, and on
+// a child's profile "ask before showing" on. `app` sends only what changed, so it never writes back
+// a value its build does not know. A field whose form the contract refuses gets the code
+// `invalid_argument`.
+message ProfileSettings {
+  // The pseudonym: from 1 to 30 Unicode code points once the spaces at its ends are trimmed.
+  // Needed when a profile is created.
+  optional string pseudonym = 1;
+  // The code of a picture of the set of `app`, up to 64 ASCII characters; empty clears it.
+  optional string avatar = 2;
+  // The voicing.
+  Voicing voicing = 3;
+  // The default mode: `MODE_UNSPECIFIED` leaves it as it is.
+  Mode default_mode = 4;
+  // The language of the interface, a well-formed tag of BCP 47, which `api` keeps with no list of
+  // its own (R92); empty clears it. On a new profile `app` sends the language of the section for
+  // adults.
+  optional string interface_language = 5;
+  // The grade, from 1 to 12; 0 clears it.
+  optional int32 grade = 6;
+  // "Ask before showing" the solution: a child's alone, and on a profile of the category `adult`
+  // the request is refused `invalid_argument`.
+  optional bool ask_before_showing = 7;
+}
+
+// A consent for a child: what `api` records before the child's profile exists.
+message ChildConsent {
+  // The ID of the consent, by which the child's profile is created.
+  string consent_id = 1;
+  // The age category that `api` worked out of the age and the country, by its code.
+  string age_category = 2;
+  // The child's country, ISO 3166-1 alpha-2.
+  string country = 3;
+  // Where the consent stands.
+  ConsentState state = 4;
+}
+
+// Where a consent for a child stands. A state its build does not know `app` reads as waiting.
+enum ConsentState {
+  // Not named: never sent.
+  CONSENT_STATE_UNSPECIFIED = 0;
+  // It waits: it is not given and confirmed yet (epic E4 of RUN.md).
+  CONSENT_STATE_WAITING = 1;
+  // It is confirmed, and the child's profile may be created.
+  CONSENT_STATE_CONFIRMED = 2;
+}
+
+// The setting of the PIN.
+message SetPinRequest {
+  // The PIN: from 4 to 6 digits.
+  string pin = 1;
+  // The idempotency key of this action of the adult.
+  string idempotency_key = 2;
+}
+
+// The PIN set.
+message SetPinResponse {}
+
+// A PIN to check.
+message VerifyPinRequest {
+  // The PIN: from 4 to 6 digits.
+  string pin = 1;
+  // The idempotency key of this action of the adult.
+  string idempotency_key = 2;
+}
+
+// What a check of the PIN gave.
+message VerifyPinResponse {
+  // The check.
+  PinCheck check = 1;
+}
+
+// The change of the PIN.
+message ChangePinRequest {
+  // The PIN before it: from 4 to 6 digits.
+  string pin = 1;
+  // The new PIN: from 4 to 6 digits.
+  string new_pin = 2;
+  // The idempotency key of this action of the adult.
+  string idempotency_key = 3;
+}
+
+// What a change of the PIN gave.
+message ChangePinResponse {
+  // The check of the PIN before it: the PIN is changed when it matches.
+  PinCheck check = 1;
+}
+
+// A check of a PIN, which `app` words in the language of its screen: what went wrong and what to
+// do. The counter is the server's alone: one on the device would part from it.
+message PinCheck {
+  // Whether the PIN matches the one set.
+  bool matches = 1;
+  // Beside a wrong PIN: how many wrong PINs are left before the input closes; 0 when this one
+  // closed it.
+  int32 attempts_left = 2;
+  // Beside a wrong PIN that closed the input: when it opens.
+  google.protobuf.Timestamp locked_until = 3;
+}
+
+// The change of a forgotten PIN.
+message ResetPinRequest {
+  // The new PIN: from 4 to 6 digits.
+  string new_pin = 1;
+  // The idempotency key of this action of the adult.
+  string idempotency_key = 2;
+}
+
+// The new PIN set.
+message ResetPinResponse {}
+
+// The creation of the owner's profile.
+message CreateOwnerProfileRequest {
+  // The owner's country, ISO 3166-1 alpha-2.
+  string country = 1;
+  // The settings of the profile: the pseudonym at least.
+  ProfileSettings settings = 2;
+}
+
+// The owner's profile created.
+message CreateOwnerProfileResponse {
+  // The profile.
+  Profile profile = 1;
+}
+
+// The first step of a child's profile: the consent asked for.
+message RequestChildConsentRequest {
+  // The idempotency key of this action of the owner.
+  string idempotency_key = 1;
+  // The child's age in years, from 0 to 17, which `api` keeps nowhere: a learner of 18 or older is
+  // the owner of an account of their own. Needed: absent, the request is refused
+  // `invalid_argument`.
+  optional int32 age_years = 2;
+  // The child's country, ISO 3166-1 alpha-2.
+  string country = 3;
+}
+
+// The consent recorded.
+message RequestChildConsentResponse {
+  // The consent, which waits.
+  ChildConsent consent = 1;
+}
+
+// The second step: a child's profile created by its consent.
+message CreateChildProfileRequest {
+  // The consent, confirmed.
+  string consent_id = 1;
+  // The settings of the profile: the pseudonym at least.
+  ProfileSettings settings = 2;
+}
+
+// The child's profile created.
+message CreateChildProfileResponse {
+  // The profile, of the consent's age category and country.
+  Profile profile = 1;
+}
+
+// A change of a profile's settings.
+message UpdateProfileRequest {
+  // The profile.
+  string profile_id = 1;
+  // The settings that change.
+  ProfileSettings settings = 2;
+}
+
+// The profile changed.
+message UpdateProfileResponse {
+  // The profile.
+  Profile profile = 1;
+}
+
+// The voicing set from the screen of a task.
+message SetVoicingRequest {
+  // The profile.
+  string profile_id = 1;
+  // The voicing.
+  Voicing voicing = 2;
+}
+
+// The profile with its voicing.
+message SetVoicingResponse {
+  // The profile.
+  Profile profile = 1;
+}
+
+// The deletion of a profile.
+message DeleteProfileRequest {
+  // The profile.
+  string profile_id = 1;
+}
+
+// "Deleted": the profile and everything of it are gone.
+message DeleteProfileResponse {}
+
+// The deletion of the account: the account is the token's.
+message DeleteAccountRequest {}
+
+// "Deleted": the account is gone, and what its deletion has still to do `api` finishes itself.
+message DeleteAccountResponse {}
+
+// A request for a profile's part of the export.
+message ExportProfileRequest {
+  // The profile.
+  string profile_id = 1;
+}
+
+// The part of a profile's export that `api` holds.
+message ExportProfileResponse {
+  // The part, in the export format, which `app` puts into the file of the export as it is, without
+  // reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+  bytes part = 1;
+  // The version of the export format the part is written in.
+  string export_format_version = 2;
+}
+
+// A request for the account's part of the export: the account is the token's.
+message ExportAccountRequest {}
+
+// The part of the account's export that `api` holds.
+message ExportAccountResponse {
+  // The part, in the export format, which `app` puts into the file of the export as it is, without
+  // reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+  bytes part = 1;
+  // The version of the export format the part is written in.
+  string export_format_version = 2;
+}
+
+// The check of an own key, when it is connected.
+message CheckOwnKeyRequest {
+  // The owner's profile, of the category `adult`.
+  string profile_id = 1;
+  // The key and its provider.
+  OwnKey own_key = 2;
+}
+
+// What the check of an own key gave.
+message CheckOwnKeyResponse {
+  // What the provider said of the key, or that the provider is closed to it at the profile:
+  // `OWN_KEY_CHECK_UNSPECIFIED` when the provider gave no answer.
+  OwnKeyCheck check = 1;
+  // Beside `OWN_KEY_CHECK_UNSPECIFIED`: `CAUSE_AI_FAILURE`, the provider gave no answer.
+  Outcome outcome = 2;
+}
+
+// What the check of an own key gave (R84). A value its build does not know `app` words as a check
+// that did not go through.
+enum OwnKeyCheck {
+  // No check: the provider gave no answer, and the outcome says so.
+  OWN_KEY_CHECK_UNSPECIFIED = 0;
+  // The key is accepted.
+  OWN_KEY_CHECK_ACCEPTED = 1;
+  // The key is not valid, or was revoked.
+  OWN_KEY_CHECK_INVALID = 2;
+  // The key is valid, but has no right to the models it is needed for.
+  OWN_KEY_CHECK_NO_PERMISSION = 3;
+  // The admission function does not open the provider to an own key at this profile, or the
+  // admission table does not know the provider: no call went.
+  OWN_KEY_CHECK_PROVIDER_CLOSED = 4;
+}
+
+// A request for the providers of an own key.
+message ListOwnKeyProvidersRequest {
+  // The profile.
+  string profile_id = 1;
+}
+
+// The providers of an own key at a profile.
+message ListOwnKeyProvidersResponse {
+  // The providers open to an own key, in the order of the admission table.
+  repeated OwnKeyProvider providers = 1;
+}
+
+// An AI provider open to an own key.
+message OwnKeyProvider {
+  // The provider's code in the admission table: "openai", "anthropic".
+  string provider = 1;
+  // The provider's name in the admission table, which `app` shows as it is.
+  string name = 2;
+}
