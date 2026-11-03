@@ -21,7 +21,10 @@
 // none of it.
 // The package goes into the project's node_modules/@altnovatrail/spec, which `just types-check`
 // unpacks from the archive that tools/types/npm.mjs builds of the working tree: so the package's
-// exports are checked as well. Then the recipe runs tsc on each tsconfig.
+// exports are checked as well. Beside it go the npm package of the contracts' code,
+// @altnovatrail/contracts, which tools/contracts/npm.mjs builds, and the runtime of protobuf-es: the
+// check of <novatrail-canvas> holds the element's marks to the contract's message (R83). Then the
+// recipe runs tsc on each tsconfig.
 
 import fs from "node:fs";
 import path from "node:path";

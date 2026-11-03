@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+// The causes of the contract between `app` and `api`: one list for its refusals and for the
+// outcomes of its calls of AI, the refusal that a method's error carries, and the outcome that its
+// answer carries. What they mean, and how `app` reads a cause it does not know, are the rules of
+// contracts/README.md, section 15.
+package novatrail.api.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// Why a request was refused, or what a call of AI in it came to: one list for the whole contract
+// (R17 api). A refusal comes as the detail `Refusal` of an error of Connect, with the code that the
+// comment of each method gives it; an outcome comes in the answer, as `Outcome`. A cause that the
+// build of `app` does not know it reads by the code of the error, or as a call of AI that gave
+// nothing. A verdict's reason is no cause: it is the module format's and the observation's.
+enum Cause {
+  // No cause: never sent.
+  CAUSE_UNSPECIFIED = 0;
+  // The profile named is not one of the account's, or there is no such profile. Code `not_found`.
+  CAUSE_NO_PROFILE = 1;
+  // The profile has no attempt with the ID named; another profile's is the same. Code
+  // `not_found`.
+  CAUSE_NOT_FOUND = 2;
+  // The attempt is closed, and the request acts on an open one. The refusal holds the close reason
+  // of the attempt. Code `failed_precondition`. An essay whose attempt was closed while its
+  // submission went is no refusal: its answer says so by a field of its own.
+  CAUSE_ATTEMPT_CLOSED = 3;
+  // The idempotency key was sent with another method or another attempt. Code `invalid_argument`.
+  CAUSE_KEY_ALREADY_USED = 4;
+  // The request with this idempotency key is still going; its repeat waits for it. Code
+  // `unavailable`.
+  CAUSE_STILL_GOING = 5;
+  // The learner's own key came with a profile whose age category is not `adult`. Code
+  // `invalid_argument`.
+  CAUSE_KEY_NOT_FOR_PROFILE = 6;
+  // The quota of platform AI for the family day is spent. A refusal holds when the next family day
+  // begins; so does an outcome. Code `resource_exhausted`.
+  CAUSE_QUOTA = 7;
+  // Platform AI is out of what its provider allows the platform. Code `resource_exhausted`.
+  CAUSE_PLATFORM_LIMIT = 8;
+  // The admission function admits no call of AI for this learner and this capability of AI. Code
+  // `failed_precondition`.
+  CAUSE_NOT_ADMITTED = 9;
+  // AI failed: an error, a refusal of the provider, a timeout. An outcome alone.
+  CAUSE_AI_FAILURE = 10;
+  // The limit of the learner's own key ran out at its provider. The outcome holds why, and when
+  // access comes back if the provider says so. An outcome alone: the call does not move to
+  // platform AI.
+  CAUSE_LIMIT_REACHED = 11;
+  // The provider refused the learner's own key: it is not valid, or it was revoked. An outcome
+  // alone: the call does not move to platform AI.
+  CAUSE_KEY_REFUSED = 12;
+  // A learning request to show the solution, while the child's setting "ask before showing" is on:
+  // the solution is shown by an action of an adult. Code `permission_denied`.
+  CAUSE_ADULT_NEEDED = 13;
+  // A child asks for the solution before the fourth wrong answer. Code `failed_precondition`.
+  CAUSE_LADDER_NOT_PASSED = 14;
+  // The task has nothing to show by this request: a task with a rubric, which "Done" ends. Code
+  // `failed_precondition`.
+  CAUSE_NO_SHOWING = 15;
+  // The attempt has no rung: no wrong answer yet, or a task with a rubric. Code
+  // `failed_precondition`.
+  CAUSE_NO_RUNG = 16;
+  // "Explain differently" was asked for once on this rung already. Code `failed_precondition`.
+  CAUSE_ALREADY_ASKED = 17;
+  // "Explain differently" was called and gave the words the learner reads already: the right to it
+  // on this rung is spent. An outcome alone.
+  CAUSE_NO_OTHER_WORDS = 18;
+  // The words asked for are not given: the words after a correct answer on an attempt that no
+  // correct answer closed, a second time, or once the profile began another attempt; the words of a
+  // rung from the fourth wrong answer on, where no rung is new. Code `failed_precondition`.
+  CAUSE_NO_MORE_WORDS = 19;
+  // "Done" before the attempt's first submission. Code `failed_precondition`.
+  CAUSE_NO_SUBMISSION = 20;
+  // The words of a rung, or "explain differently", asked for a wrong answer that is not the
+  // attempt's last: another submission came meanwhile. The refusal holds how many wrong answers the attempt has. Code
+  // `failed_precondition`.
+  CAUSE_NOT_CURRENT = 21;
+}
+
+// A refusal: the detail of an error of Connect when the request was not done.
+message Refusal {
+  // Why the request was refused.
+  Cause cause = 1;
+  // What the cause tells beside it, when it tells anything.
+  oneof data {
+    // Beside `CAUSE_ATTEMPT_CLOSED`: the close reason of the attempt.
+    CloseReason close_reason = 2;
+    // Beside `CAUSE_QUOTA`: when the next family day begins.
+    google.protobuf.Timestamp next_family_day = 3;
+    // Beside `CAUSE_NOT_CURRENT`: how many wrong answers the attempt has.
+    int32 wrong_answers = 4;
+  }
+}
+
+// An outcome: what a call of AI came to when the answer holds no reading, or no words, of AI.
+message Outcome {
+  // The outcome: `CAUSE_AI_FAILURE`, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT`,
+  // `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED` or `CAUSE_NO_OTHER_WORDS`.
+  // "Explain differently" makes no call without the reserve of the quota: there the quota, the limit
+  // of platform AI and no admission are refusals, and the right to it on the rung stays.
+  Cause cause = 1;
+  // Beside `CAUSE_QUOTA`: when the next family day begins.
+  google.protobuf.Timestamp next_family_day = 2;
+  // Beside `CAUSE_LIMIT_REACHED`: which limit of the own key ran out.
+  OwnKeyLimit own_key_limit = 3;
+}
+
+// The limit of the learner's own key that ran out at its provider (R55 tutor).
+message OwnKeyLimit {
+  // Which limit ran out.
+  LimitCause cause = 1;
+  // When access comes back: only when the provider says so.
+  google.protobuf.Timestamp access_returns = 2;
+}
+
+// Which limit of the learner's own key ran out at its provider.
+enum LimitCause {
+  // Not named: the provider said no more than that a limit ran out.
+  LIMIT_CAUSE_UNSPECIFIED = 0;
+  // The limit of spending that the owner of the key set at the provider.
+  LIMIT_CAUSE_LIMIT = 1;
+  // The ceiling of the provider's tier that the key's account is on.
+  LIMIT_CAUSE_TIER = 2;
+  // The balance of the key's account is spent.
+  LIMIT_CAUSE_BALANCE = 3;
+  // A payment of the key's account did not go through.
+  LIMIT_CAUSE_PAYMENT = 4;
+}
+
+// Why an attempt was closed (architecture 3.5 api). An attempt that is not closed waits, whatever
+// its submissions came to.
+enum CloseReason {
+  // Not closed: the attempt is open.
+  CLOSE_REASON_UNSPECIFIED = 0;
+  // A submission whose every item is correct.
+  CLOSE_REASON_CORRECT = 1;
+  // The solution was shown.
+  CLOSE_REASON_SOLUTION_SHOWN = 2;
+  // The learner left it, beginning another attempt.
+  CLOSE_REASON_LEFT = 3;
+  // The attempt was abandoned: no action on it for 7 days.
+  CLOSE_REASON_ABANDONED = 4;
+  // Its version of the module is no longer given: withdrawn, or out of the window of formats that
+  // `api` reads.
+  CLOSE_REASON_UNCHECKED = 5;
+  // The run of the lesson the attempt was in ended as not suitable while the attempt was open.
+  CLOSE_REASON_NOT_SUITABLE = 6;
+  // The learner pressed "Done" on a task with a rubric.
+  CLOSE_REASON_DONE = 7;
+}

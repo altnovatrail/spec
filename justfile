@@ -102,8 +102,10 @@ types: _tools
 # modules nodenext and under bundler, with a value that holds a closed field refused
 # (tools/types/typescript.mjs, tools/types/npm.mjs). The package is of the line the working tree is
 # numbered in, as its next release's will be, and tsc takes the check of the types of
-# <novatrail-canvas> from it too, tools/types/canvas.check.ts, with the DOM. The corpus is of the
-# working tree, as format-check's files are.
+# <novatrail-canvas> from it too, tools/types/canvas.check.ts, with the DOM, beside the npm package
+# of the contracts' code, @altnovatrail/contracts of the working tree, and the runtime of
+# protobuf-es it depends on, from tools/node_modules: the check holds the element's marks to the
+# contract's (R83). The corpus is of the working tree, as format-check's files are.
 # Check the types of the format and the admission table against their schemas and values.
 types-check: _tools
     #!/usr/bin/env bash
@@ -127,6 +129,10 @@ types-check: _tools
     archive=$(node tools/types/npm.mjs . "${line}.0" "$out")
     mkdir -p "$out/typescript/node_modules/@altnovatrail/spec"
     tar -xzf "$archive" -C "$out/typescript/node_modules/@altnovatrail/spec" --strip-components=1
+    contracts=$(node tools/contracts/npm.mjs . "${line}.0" "$out")
+    mkdir -p "$out/typescript/node_modules/@altnovatrail/contracts" "$out/typescript/node_modules/@bufbuild"
+    tar -xzf "$contracts" -C "$out/typescript/node_modules/@altnovatrail/contracts" --strip-components=1
+    ln -s "$PWD/tools/node_modules/@bufbuild/protobuf" "$out/typescript/node_modules/@bufbuild/protobuf"
     for config in "$out/typescript"/tsconfig.*.json; do
         tools/node_modules/.bin/tsc -p "$config"
         case "$config" in

@@ -1,0 +1,470 @@
+syntax = "proto3";
+
+// The checking of an attempt in the contract between `app` and `api`: the submission of the work
+// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task with
+// a rubric. What each message means, what never reaches the device, and what a repeat with the same
+// idempotency key answers are the rules of contracts/README.md, section 15.
+package novatrail.api.v1;
+
+import "novatrail/api/v1/cause.proto";
+import "novatrail/observation/v1/observation.proto";
+
+// The requests on an attempt of a task, as a learner and an adult act on it. Every method names
+// the profile and the attempt; one of another profile, or none, gets `CAUSE_NOT_FOUND`, and a
+// profile that is not the account's `CAUSE_NO_PROFILE`. A request whose form the contract refuses
+// — a field it needs left out, a place the task does not have, a method the task's kind does not
+// take — gets the code `invalid_argument` with no `Refusal`.
+service AttemptService {
+  // Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
+  // both. The answer is the verdict of every item and answer slot, on the whole observation, and
+  // what was read. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no reading is no
+  // refusal: its slots get "unchecked", and the answer names the outcome. A repeat with the same
+  // idempotency key gets the verdicts and the reading recorded, with no AI.
+  rpc SubmitWork(SubmitWorkRequest) returns (SubmitWorkResponse);
+  // Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and
+  // assessment both. Refusals: `CAUSE_ATTEMPT_CLOSED`, before any call of AI,
+  // `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
+  // the same idempotency key gets how the submission ended, without the text read and the words of
+  // the feedback: they are nowhere on the server.
+  rpc SubmitEssay(SubmitEssayRequest) returns (SubmitEssayResponse);
+  // "Done" on a task with a rubric: the learner ends the attempt, which is closed
+  // `CLOSE_REASON_DONE`, and the task is solved. Refusals: `CAUSE_NO_SUBMISSION` and
+  // `CAUSE_ATTEMPT_CLOSED` with another close reason; a repeat on an attempt closed by "Done" gets the
+  // same answer. It carries no idempotency key: it repeats by the attempt's state.
+  rpc Done(DoneRequest) returns (DoneResponse);
+  // Asks for the words of the rung that a wrong answer gave, sending the work again: the server
+  // keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
+  // `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+  // `CAUSE_STILL_GOING`. A call of AI that gives no words is no refusal: the answer holds the
+  // rung's fallback text and names the outcome. A repeat with the same idempotency key, or a request
+  // for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
+  rpc GetRungWords(GetRungWordsRequest) returns (GetRungWordsResponse);
+  // Asks for the tutor's words after a correct answer, sending the work again, once, on the attempt
+  // that the answer has just closed. Refusals: `CAUSE_NO_MORE_WORDS`, also on an attempt that no
+  // correct answer closed, `CAUSE_KEY_NOT_FOR_PROFILE`,
+  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+  // an answer without words: the server keeps none.
+  rpc GetCorrectAnswerWords(GetCorrectAnswerWordsRequest) returns (GetCorrectAnswerWordsResponse);
+  // "Explain differently": the words of the same rung in other words, one call of AI on a rung,
+  // without the work, for the wrong answer it names. Refusals: `CAUSE_NOT_CURRENT`,
+  // `CAUSE_ALREADY_ASKED`, `CAUSE_NO_RUNG`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
+  // `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of the
+  // quota, and the right to it on the rung stays. A repeat with the same idempotency key gets the
+  // words the attempt keeps, with no AI.
+  rpc ExplainDifferently(ExplainDifferentlyRequest) returns (ExplainDifferentlyResponse);
+  // "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
+  // answer, and on a task with a rubric, the IDs of the task's techniques; after it, the words of the
+  // current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by
+  // the attempt's state.
+  rpc GetHint(GetHintRequest) returns (GetHintResponse);
+  // Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
+  // steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
+  // `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
+  rpc BeginStep(BeginStepRequest) returns (BeginStepResponse);
+  // Shows the solution, by a learning action or by an action of an adult, and closes the attempt
+  // `CLOSE_REASON_SOLUTION_SHOWN`. A learning action needs the right `can_learn`, and an action of
+  // an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
+  // section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
+  // `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
+  // `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_ALREADY_USED` and
+  // `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the solution again.
+  rpc ShowSolution(ShowSolutionRequest) returns (ShowSolutionResponse);
+}
+
+// The submission of a task with a verdict.
+message SubmitWorkRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+  // The idempotency key of this action of the learner: `app` makes one for it, and sends it again
+  // with every repeat of it.
+  string idempotency_key = 3;
+  // The handwriting for checking: absent when the task's answer slots are bound `choice` alone.
+  Work work = 4;
+  // The options tapped, one for each answer slot bound `choice` that the learner tapped one of, in
+  // the task's order.
+  repeated TappedChoice tapped_choices = 5;
+  // The learner's own key and its provider: with a profile of its owner, when AI reads the work.
+  OwnKey own_key = 6;
+  // The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+  optional int32 clock_offset_minutes = 7;
+}
+
+// The verdict of a submission.
+message SubmitWorkResponse {
+  // Every item of the task, in the task's order, with its verdict.
+  repeated ItemVerdict items = 1;
+  // What the call of AI came to, when the answer slots that AI reads got "unchecked" by it: a
+  // failure of AI, a quota or a limit, no admission, or a refusal of the own key. A slot bound
+  // `choice` still has its verdict.
+  Outcome outcome = 2;
+  // How many wrong answers the attempt has, this submission's too: a wrong answer is a submission
+  // with an answer slot "not_yet".
+  int32 wrong_answers = 3;
+  // The solved task, when every item is correct and the attempt is closed `CLOSE_REASON_CORRECT`.
+  SolvedTask solved = 4;
+}
+
+// The submission of an essay.
+message SubmitEssayRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+  // The idempotency key of this action of the learner.
+  string idempotency_key = 3;
+  // The PNG of the crop of the sheet, without its `sheet_box`.
+  bytes crop = 4;
+  // The learner's own key and its provider: with a profile of its owner.
+  OwnKey own_key = 5;
+  // The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+  optional int32 clock_offset_minutes = 6;
+}
+
+// How a submission of an essay ended (R87). No verdict: an item with a rubric has none.
+message SubmitEssayResponse {
+  // How the submission ended.
+  SubmissionEnd end = 1;
+  // The text read, as it is written, when the essay was read: beside the feedback, and beside
+  // "unchecked" when the assessment gave none.
+  optional string text = 2;
+  // Why the essay could not be read, as a verdict's reason is written: "blank" or "illegible",
+  // beside `SUBMISSION_END_UNREADABLE` alone, and empty beside the others. The learner writes the
+  // sheet again.
+  string reason = 3;
+  // The words of the feedback, beside `SUBMISSION_END_FEEDBACK`: absent when they failed the leak
+  // check or the rule of feedback, and then `app` shows its own phrase, "no feedback this time".
+  optional string feedback = 4;
+  // What the call of AI came to, beside `SUBMISSION_END_UNCHECKED`: absent when the assessment
+  // assessed no criterion.
+  Outcome outcome = 5;
+  // Why the attempt was closed while this submission went: `CLOSE_REASON_UNSPECIFIED` when it is
+  // still open. The feedback came all the same, from the memory of the request.
+  CloseReason closed = 6;
+  // The answer of a repeat with the same idempotency key: it holds neither the text read nor the
+  // words of the feedback, which are nowhere on the server.
+  bool repeated = 7;
+}
+
+// How a submission of an essay ended.
+enum SubmissionEnd {
+  // Not named: never sent.
+  SUBMISSION_END_UNSPECIFIED = 0;
+  // The essay was read and assessed by its rubric: the learner gets feedback.
+  SUBMISSION_END_FEEDBACK = 1;
+  // The sheet is blank, or the essay cannot be read as a whole: it does not reach the assessment.
+  SUBMISSION_END_UNREADABLE = 2;
+  // No check: a call of AI gave nothing, or the assessment assessed no criterion.
+  SUBMISSION_END_UNCHECKED = 3;
+}
+
+// "Done" on a task with a rubric.
+message DoneRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+}
+
+// What "Done" gives: the task solved.
+message DoneResponse {
+  // The criteria of the rubric and the solution, if the task has one.
+  SolvedTask solved = 1;
+}
+
+// A request for the words of a rung.
+message GetRungWordsRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+  // The idempotency key of this request.
+  string idempotency_key = 3;
+  // How many wrong answers the attempt had when the submission came that the words are asked for:
+  // the `wrong_answers` of its answer.
+  optional int32 wrong_answers = 4;
+  // The work of that submission again: absent when the task's answer slots are bound `choice`
+  // alone.
+  Work work = 5;
+  // The learner's own key and its provider: with a profile of its owner.
+  OwnKey own_key = 6;
+  // The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+  optional int32 clock_offset_minutes = 7;
+}
+
+// The words of a rung.
+message GetRungWordsResponse {
+  // The rung, from 1 to 3.
+  int32 rung = 1;
+  // The tutor's words, whole, once they passed the leak check and the form check, or the rung's
+  // fallback text.
+  string words = 2;
+  // The tutor's marks that the words come with, on the tutor's layer of the work sent.
+  repeated Mark marks = 3;
+  // Why the words are the fallback text, when a call of AI came to an outcome. Absent when the
+  // model's words came, or when they failed a check.
+  Outcome outcome = 4;
+  // The answer of a repeat, or of a request for the same wrong answer: the words the attempt keeps,
+  // without marks, which the server does not keep.
+  bool repeated = 5;
+}
+
+// A request for the words after a correct answer.
+message GetCorrectAnswerWordsRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt, which the correct answer has just closed.
+  string attempt_id = 2;
+  // The idempotency key of this request.
+  string idempotency_key = 3;
+  // The work of the correct submission again: absent when the task's answer slots are bound
+  // `choice` alone.
+  Work work = 4;
+  // The learner's own key and its provider: with a profile of its owner.
+  OwnKey own_key = 5;
+  // The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+  optional int32 clock_offset_minutes = 6;
+}
+
+// The words after a correct answer.
+message GetCorrectAnswerWordsResponse {
+  // The tutor's words, whole, once they passed the leak check and the form check: absent when a
+  // call of AI gave none, or they failed a check.
+  optional string words = 1;
+  // What the call of AI came to, when it gave no words.
+  Outcome outcome = 2;
+  // The answer of a repeat with the same idempotency key, which holds no words: the server keeps
+  // none.
+  bool repeated = 3;
+}
+
+// "Explain differently".
+message ExplainDifferentlyRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+  // The idempotency key of this action of the learner.
+  string idempotency_key = 3;
+  // The learner's own key and its provider: with a profile of its owner.
+  OwnKey own_key = 4;
+  // The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+  optional int32 clock_offset_minutes = 5;
+  // How many wrong answers the attempt had when the words that the learner reads came: the
+  // `wrong_answers` of the submission whose rung they are.
+  optional int32 wrong_answers = 6;
+}
+
+// The words of the same rung, in other words.
+message ExplainDifferentlyResponse {
+  // The tutor's words, whole, once they passed the leak check and the form check, or the rung's
+  // fallback text.
+  string words = 1;
+  // What the call came to, when the words are not the model's: a failure of AI, a refusal of the own
+  // key, or `CAUSE_NO_OTHER_WORDS` when they are the words the learner reads already.
+  Outcome outcome = 2;
+}
+
+// "Hint".
+message GetHintRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+}
+
+// What a hint asked for gives. "What is known and what to find" `app` shows from the open view of
+// the task: they are open, and the server records nothing of them.
+message GetHintResponse {
+  // Before the first wrong answer, and on a task with a rubric, the task's techniques; after it, the
+  // current rung's words.
+  oneof hint {
+    // The task's techniques.
+    Techniques techniques = 1;
+    // The current rung's words.
+    RungHint rung = 2;
+  }
+}
+
+// The techniques of a task, which the server records as given at a step or on request.
+message Techniques {
+  // The IDs of the techniques, local IDs of the module's technique catalog: empty when the task
+  // names none, which is the answer that there is nothing to hint.
+  repeated string technique_ids = 1;
+}
+
+// A rung's words that a hint asked for gives again, with no AI.
+message RungHint {
+  // The rung, from 1 to 3.
+  int32 rung = 1;
+  // The words the attempt keeps for the rung, or the rung's fallback text.
+  string words = 2;
+}
+
+// The beginning of a solving step.
+message BeginStepRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+  // The step's place among the task's solving steps, from 1.
+  int32 step = 3;
+}
+
+// What the beginning of a step gives.
+message BeginStepResponse {
+  // The task's techniques.
+  Techniques techniques = 1;
+}
+
+// A request to show the solution.
+message ShowSolutionRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+  // The idempotency key of this action.
+  string idempotency_key = 3;
+  // Whose action it is.
+  Action action = 4;
+}
+
+// The solution shown.
+message ShowSolutionResponse {
+  // The solved task.
+  SolvedTask solved = 1;
+}
+
+// Whose action a request is: the server tells kinds of action apart, not people (R04 api).
+enum Action {
+  // Not named: never sent.
+  ACTION_UNSPECIFIED = 0;
+  // A learning action, by the learner's session.
+  ACTION_LEARNING = 1;
+  // An action of an adult, behind the PIN of the section for adults.
+  ACTION_ADULT = 2;
+}
+
+// The work for checking: a sheet's crop, or the crops of a workbook's filled boxes. Nothing of the
+// writing history, of the context of the submission, of the groups of strokes or of the text of an
+// item goes with it.
+message Work {
+  // Where the work was written.
+  oneof surface {
+    // A handwriting sheet.
+    SheetWork sheet = 1;
+    // A page of a workbook.
+    WorkbookWork workbook = 2;
+  }
+}
+
+// The work of a handwriting sheet.
+message SheetWork {
+  // The PNG of the crop of the visible strokes, without its `sheet_box`.
+  bytes crop = 1;
+}
+
+// The work of a page of a workbook.
+message WorkbookWork {
+  // Each filled box, in the task's order. A box left empty sends nothing, and the draft, the
+  // writing outside the boxes, goes nowhere.
+  repeated BoxCrop boxes = 1;
+}
+
+// The crop of one filled box.
+message BoxCrop {
+  // The box, by its place.
+  novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+  // The PNG of the crop of the box's strokes.
+  bytes crop = 2;
+}
+
+// An option the learner tapped.
+message TappedChoice {
+  // The answer slot bound `choice`.
+  novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+  // The text of the option tapped, as the open view of the task writes it.
+  string value = 2;
+}
+
+// The learner's own key at its provider, which the server holds in the memory of the request alone.
+message OwnKey {
+  // The provider, by its code in the admission table: "openai", "anthropic".
+  string provider = 1;
+  // The key, as the provider gave it.
+  string key = 2;
+}
+
+// The verdict of an item.
+message ItemVerdict {
+  // The item's verdict, made of its answer slots': "correct", "not_yet", "unreadable" or
+  // "unchecked".
+  string verdict = 1;
+  // Every answer slot of the item, in order.
+  repeated AnswerSlotVerdict answer_slots = 2;
+}
+
+// The verdict of an answer slot, and what was read in it. The trap that a value shows is not here:
+// the tutor's words alone get it, in `api`.
+message AnswerSlotVerdict {
+  // The answer slot.
+  novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+  // "correct", "not_yet", "unreadable" or "unchecked".
+  string verdict = 2;
+  // Why the verdict is "unreadable": "blank", "notation", "illegible", "ambiguous",
+  // "no_final_answer" or "several_final_answers". Empty beside the others.
+  string reason = 3;
+  // What was read in the slot, as the learner sees it, "Read: 6": the value of the observation, or
+  // the text of the option tapped. Absent when nothing was read.
+  optional string value = 4;
+}
+
+// What reaches the device once the task is solved: its attempt closed by a correct answer, by the
+// solution shown, or by "Done".
+message SolvedTask {
+  // The key of each answer slot that has one, in the task's order: a slot whose check is a
+  // predicate or a rubric has none.
+  repeated AnswerSlotKey keys = 1;
+  // The task's solution, the value of its field `solution` as JSON of the module format, of the
+  // instance when the task is a template: empty when the task has none.
+  bytes solution = 2;
+  // The version of the module format the solution is written in, MAJOR.MINOR.
+  string module_format_version = 3;
+  // The criteria of a rubric, each its text, in order: on a task with a rubric alone, without the
+  // marks of the assessment.
+  repeated string criteria = 4;
+}
+
+// The key of an answer slot.
+message AnswerSlotKey {
+  // The answer slot.
+  novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+  // The key as the module format writes it, of the instance when the task is a template.
+  string key = 2;
+}
+
+// A mark of the tutor on its layer of the canvas, over the learner's work. The program places it;
+// `app` gives it its name, which a screen reader reads, and it belongs to the words that bring it.
+message Mark {
+  // What the mark is.
+  MarkKind kind = 1;
+  // Where the mark stands. A group's label comes only if the frames of the groups go with the work
+  // (repositories 8, Т-31).
+  oneof place {
+    // An answer slot by its place: on a workbook, the box, framed with its strokes.
+    novatrail.observation.v1.AnswerSlotPlace answer_slot = 2;
+    // A box on the crop the device sent, in whole thousandths: on a handwriting sheet alone.
+    novatrail.observation.v1.CropBox crop_box = 3;
+  }
+}
+
+// What a mark is.
+enum MarkKind {
+  // Not named: never sent.
+  MARK_KIND_UNSPECIFIED = 0;
+  // A frame round the place.
+  MARK_KIND_FRAME = 1;
+}
