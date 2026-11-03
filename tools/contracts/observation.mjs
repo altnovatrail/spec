@@ -28,6 +28,7 @@ import { isDeepStrictEqual } from "node:util";
 import { createFileRegistry, fromJson, toJson } from "@bufbuild/protobuf";
 import * as wkt from "@bufbuild/protobuf/wkt";
 import { parseDocument, LineCounter } from "yaml";
+import { byCodeUnits } from "../shared.mjs";
 import { compileSchemas, readSchema } from "../format-check/schemas.mjs";
 import { FEEDBACK_KINDS, VERDICT_KINDS, answerSlotsOf, itemVerdict, readingOf, slotBreaches, slotVerdict, trapOf } from "../format-check/verdicts.mjs";
 import { isObject } from "./rules.mjs";
@@ -88,7 +89,7 @@ export function packageOf(image) {
 // The validators of a vector's canvas and items, by the schemas of format/ in the same tree: { canvas,
 // item }, or { error } while they do not compile, which format-check reports.
 export function formatValidators(root) {
-  const names = fs.readdirSync(path.join(root, "format/schemas")).filter((name) => name.endsWith(".schema.json")).sort();
+  const names = fs.readdirSync(path.join(root, "format/schemas")).filter((name) => name.endsWith(".schema.json")).sort(byCodeUnits);
   const schemas = names.map((name) => readSchema(root, name));
   const id = schemas.find((schema) => schema.term === "task")?.json?.$id;
   const { schemaAt } = compileSchemas(schemas);
@@ -305,7 +306,7 @@ export function checkVector(bytes, { message, reasons, canvas, item }) {
         const slot = choices[n].at;
         const wrong = keysOf(tap, ["answer_slot", "value"]);
         const { answer_slot: place } = tap;
-        if (wrong.length || !isDeepStrictEqual(Object.keys(place).sort(), ["item", "slot"]) || !Number.isInteger(place.item) || !Number.isInteger(place.slot)) return here(`tapped ${n + 1} is { answer_slot: { item, slot }, value }, its place in integers`, ["tapped", n]);
+        if (wrong.length || !isDeepStrictEqual(Object.keys(place).sort(byCodeUnits), ["item", "slot"]) || !Number.isInteger(place.item) || !Number.isInteger(place.slot)) return here(`tapped ${n + 1} is { answer_slot: { item, slot }, value }, its place in integers`, ["tapped", n]);
         if (tap.value !== null && !slot.options.includes(tap.value)) return here(`tapped ${n + 1}: ${show(tap.value)} is none of the options as written, ${show(slot.options)}`, ["tapped", n]);
         if (tap.value !== null) seen.tapped = true;
         tapped.set(placeOf(choices[n]), tap.value);

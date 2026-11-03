@@ -6,17 +6,24 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { test } from "node:test";
+import { before, test } from "node:test";
 import { root } from "../../release/test/repository.mjs";
 import { build } from "../buf.mjs";
 import { FOLDER, REASONS, breaches, checkVector, checkVectors, formatValidators, join, packageOf, readVector } from "../observation.mjs";
 
-const built = build(root);
-assert.deepEqual(built.errors, []);
-const { image } = built;
-const known = packageOf(image);
-const validators = formatValidators(root);
-const options = { ...known, ...validators };
+// The image of spec's own contracts/, and what the checks read from it, built once before the tests.
+let image;
+let known;
+let validators;
+let options;
+before(() => {
+  const built = build(root);
+  assert.deepEqual(built.errors, []);
+  image = built.image;
+  known = packageOf(image);
+  validators = formatValidators(root);
+  options = { ...known, ...validators };
+});
 const vectors = fs.readdirSync(path.join(root, FOLDER)).map((name) => `${FOLDER}/${name}`);
 
 const at = (item, slot) => ({ item, slot });
