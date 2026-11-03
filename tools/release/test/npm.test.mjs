@@ -96,6 +96,22 @@ test("an archive from anywhere but the registry's address for its release is ref
   refused({ "node_modules/types": { ...spec } }, /node_modules\/types comes from https:\/\/registry\.npmjs\.org\/@altnovatrail\/spec\/-\/spec-0\.5\.6\.tgz, of @altnovatrail, as types/);
 });
 
+test("@altnovatrail/contracts is spec's: its archive is verified against the bundle of the file of its name in spec's release", async () => {
+  const resolved = "https://registry.npmjs.org/@altnovatrail/contracts/-/contracts-0.5.6.tgz";
+  const bundle = "https://github.com/altnovatrail/spec/releases/download/v0.5.6/altnovatrail-contracts-0.5.6.tgz.sigstore.json";
+  const contracts = { version: "0.5.6", resolved, integrity: INTEGRITY };
+  const one = lock({ "node_modules/@altnovatrail/contracts": contracts });
+  assert.deepEqual(lockedPackages(one).packages, [
+    { key: "node_modules/@altnovatrail/contracts", name: "@altnovatrail/contracts", repository: "spec", archive: "altnovatrail-contracts-0.5.6.tgz", version: "0.5.6", resolved, integrity: INTEGRITY },
+  ]);
+  assert.throws(() => lockedPackages(lock({ "node_modules/@altnovatrail/contracts": { ...contracts, resolved: ARCHIVE } })), /comes from "https:\/\/registry\.npmjs\.org\/@altnovatrail\/spec\/-\/spec-0\.5\.6\.tgz", not https:\/\/registry\.npmjs\.org\/@altnovatrail\/contracts\/-\/contracts-0\.5\.6\.tgz/);
+  // spec's other package, signed by the same release.yml, under the contracts' name: the signature
+  // holds for its bytes, and its package.json gives it away.
+  const { fetch, asked } = web({ [resolved]: RELEASED.bytes, [bundle]: Buffer.from(JSON.stringify(RELEASED.bundle)) });
+  await assert.rejects(verifyLock(one, { trust: async () => trustedRoot, source: gitHub(), fetch }), /the package\.json of altnovatrail-contracts-0\.5\.6\.tgz names the package "@altnovatrail\/spec", not @altnovatrail\/contracts/);
+  assert.deepEqual(asked, [resolved, bundle]);
+});
+
 test("a lock file that is not npm's, of lockfileVersion 2 or 3 with its packages, is refused rather than found empty", () => {
   for (const text of [JSON.stringify({ lockfileVersion: 1, dependencies: {} }), JSON.stringify({ lockfileVersion: 3 }), JSON.stringify({ lockfileVersion: 3, packages: [] }), "null", "[]"]) {
     assert.throws(() => lockedPackages(text), /the lock file is not npm's, of lockfileVersion 2 or 3, with its packages/, text);

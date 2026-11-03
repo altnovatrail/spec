@@ -21,7 +21,8 @@
 // - A file of spec is signed by spec's own release.yml on main, whose certificate names the tip
 //   of main as the run began rather than the commit of the tag. The file's content binds it to
 //   its tag instead: the commit git archive writes into the header of format-<version>.tar.gz,
-//   and the version in the package.json of altnovatrail-spec-<version>.tgz.
+//   and the version in the package.json of altnovatrail-spec-<version>.tgz and of
+//   altnovatrail-contracts-<version>.tgz, the package of the contracts' code (R83).
 //
 // Prints a line for each file verified; a refusal is an error, with what was wanted and found.
 
@@ -52,8 +53,13 @@ const BUNDLE = "application/vnd.dev.sigstore.bundle.v0.3+json";
 const SHA = /^[0-9a-f]{40}$/;
 const ORGANIZATION_URI = `https://github.com/${ORGANIZATION.name}`;
 const FORMAT_FILE = /^format-(0|[1-9]\d*)\.(0|[1-9]\d*)\.tar\.gz$/;
-const NPM_FILE = /^altnovatrail-spec-((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))\.tgz$/;
+// The npm packages of spec's release, by the name of their archive: the types of the format, and
+// the code of the contracts.
+const NPM_FILE = /^altnovatrail-(spec|contracts)-((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))\.tgz$/;
 const SCOPE = "@altnovatrail/";
+// A package of @altnovatrail that is not named for the repository whose release carries it: the
+// code of the contracts comes out in spec's (R83). Every other package is its repository's.
+export const RELEASED_BY = Object.freeze({ "@altnovatrail/contracts": "spec" });
 const REGISTRY = "https://registry.npmjs.org/";
 
 // The fields of a Fulcio certificate that R77 holds a signature to, by Fulcio's names and OIDs.
@@ -222,13 +228,15 @@ export function checkSpecContent(name, bytes, tag, source) {
   if (npm) {
     // The name and the tag must agree, and the tag must be spec's: a signed archive whose release
     // never came out, its run stopped after signing, names a version no tag has.
-    if (npm[1] !== tag.slice(1)) throw new Error(`${name} is no file of spec ${tag}, whose npm package is altnovatrail-spec-${tag.slice(1)}.tgz`);
-    const version = packageVersion(name, bytes);
-    if (version !== tag.slice(1)) throw new Error(`the package.json of ${name} has the version ${JSON.stringify(version)}, not ${tag.slice(1)}`);
+    if (npm[2] !== tag.slice(1)) throw new Error(`${name} is no file of spec ${tag}, whose npm package is altnovatrail-${npm[1]}-${tag.slice(1)}.tgz`);
+    // The package is the one its name says: the types of the format are no code of the contracts.
+    const manifest = packageManifest(name, bytes);
+    if (manifest.name !== `${SCOPE}${npm[1]}`) throw new Error(`the package.json of ${name} names the package ${JSON.stringify(manifest.name)}, not ${SCOPE}${npm[1]}`);
+    if (manifest.version !== tag.slice(1)) throw new Error(`the package.json of ${name} has the version ${JSON.stringify(manifest.version)}, not ${tag.slice(1)}`);
     if (!source.tagCommit("spec", tag)) throw new Error(`spec has no tag ${tag}`);
     return;
   }
-  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz or altnovatrail-spec-<version>.tgz`);
+  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
 }
 
 // The commit git archive writes into the archive's header, as git get-tar-commit-id reads it.
@@ -251,12 +259,14 @@ function tarCommit(name, bytes) {
   return commit;
 }
 
-// The version in the package.json of an npm archive, read by tar to standard output alone.
-function packageVersion(name, bytes) {
+// The package.json of an npm archive, read by tar to standard output alone.
+function packageManifest(name, bytes) {
   const read = spawnSync(TAR, ["-xzOf", "-", "package/package.json"], { input: bytes, encoding: "utf8" });
   try {
     if (read.status !== 0) throw new Error((read.stderr || read.error?.message || "").trim());
-    return JSON.parse(read.stdout).version;
+    const manifest = JSON.parse(read.stdout);
+    if (typeof manifest !== "object" || manifest === null) throw new Error("it holds no object");
+    return manifest;
   } catch (error) {
     throw new Error(`the package.json of ${name} cannot be read: ${error.message}`);
   }
@@ -278,7 +288,8 @@ export function verifyFile({ repository, tag, name, bytes, bundle }, { trustedRo
 // The packages of @altnovatrail in an npm lock file, of lockfileVersion 2 or 3: under their own
 // names, or under an alias, whose entry names the package. A link to a folder of the repository
 // holds no release file and is only named. Each package must be a release of a repository of the
-// table, from the registry's address for it, with its integrity.
+// table — its own, or the one RELEASED_BY names —, from the registry's address for it, with its
+// integrity.
 export function lockedPackages(text) {
   let lock;
   try {
@@ -304,15 +315,16 @@ export function lockedPackages(text) {
       continue;
     }
     if (!name.startsWith(SCOPE)) throw new Error(`${key} comes from ${resolved}, of ${SCOPE.slice(0, -1)}, as ${name}`);
-    const repository = name.slice(SCOPE.length);
+    const short = name.slice(SCOPE.length);
+    const repository = Object.hasOwn(RELEASED_BY, name) ? RELEASED_BY[name] : short;
     if (!Object.hasOwn(REPOSITORIES, repository)) throw new Error(`${key}: ${name} is no package of a repository of ${ORGANIZATION.name}`);
     const version = String(entry.version ?? "");
     if (!RELEASE_TAG.test(`v${version}`)) throw new Error(`${key}: ${name}@${version} is no release's version, MAJOR.MINOR.PATCH`);
-    const wanted = `${REGISTRY}${name}/-/${repository}-${version}.tgz`;
+    const wanted = `${REGISTRY}${name}/-/${short}-${version}.tgz`;
     if (resolved !== wanted) throw new Error(`${key} comes from ${JSON.stringify(resolved)}, not ${wanted}`);
     if (typeof entry.integrity !== "string") throw new Error(`${key} has no integrity`);
     const id = `${name}@${version} ${entry.integrity}`;
-    if (!found.has(id)) found.set(id, { key, name, repository, version, resolved, integrity: entry.integrity });
+    if (!found.has(id)) found.set(id, { key, name, repository, archive: `altnovatrail-${short}-${version}.tgz`, version, resolved, integrity: entry.integrity });
   }
   return { packages: [...found.values()], linked };
 }
@@ -351,7 +363,7 @@ export async function verifyLock(text, { trust, source, fetch = globalThis.fetch
   if (!packages.length) return [...lines, `no package of ${SCOPE.slice(0, -1)} to verify`];
   const trustedRoot = await trust();
   for (const locked of packages) {
-    const name = `altnovatrail-${locked.repository}-${locked.version}.tgz`;
+    const name = locked.archive;
     const tag = `v${locked.version}`;
     const bytes = await download(fetch, locked.resolved);
     const bundleURL = `${ORGANIZATION_URI}/${locked.repository}/releases/download/${tag}/${name}.sigstore.json`;

@@ -21,7 +21,10 @@
 //   HEAD other than HEAD's own, whose buf.yaml and contracts/ git archive unpacks into a temporary
 //   folder; a release with no .proto file has nothing to compare with (section 7);
 // - the generated code: what buf generate writes from the files is what contracts/ holds, file for
-//   file and byte for byte, and contracts/ holds no generated file buf no longer writes (section 8).
+//   file and byte for byte, and contracts/ holds no generated file buf no longer writes (section 8);
+// - with the code as buf writes it, its npm package, @altnovatrail/contracts, of the working tree:
+//   tsc of tools/ takes every message of it under nodenext and bundler, and Node runs it, its binary
+//   form and its JSON with protobuf names read back (tools/contracts/typescript.mjs).
 // Prints one line per error, file:line: message, and exits 1 if there are any.
 
 import fs from "node:fs";
@@ -31,6 +34,7 @@ import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
 import { breaking, build, contractFiles, format, generate, lint, previousRelease } from "./buf.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
+import { checkTypeScript } from "./typescript.mjs";
 
 // buf.yaml and buf.gen.yaml at root, against R83: the errors, with a missing file one of them.
 export function checkConfig(root) {
@@ -84,7 +88,7 @@ export function checkContracts(root) {
   const { protos, generated, errors: misplaced } = layout(root);
   errors.push(...misplaced);
   const packages = new Set(protos.map((file) => classify(file).package));
-  const stats = { protos: protos.length, packages: packages.size, generated: generated.size, previous: null };
+  const stats = { protos: protos.length, packages: packages.size, generated: generated.size, previous: null, messages: 0 };
   const done = () => ({ errors: errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message)), stats });
 
   if (protos.length === 0) {
@@ -122,18 +126,25 @@ export function checkContracts(root) {
   } finally {
     fs.rmSync(folder, { recursive: true, force: true });
   }
+  // The package is of the code in contracts/: while it is not what buf writes, there is nothing to
+  // check it by.
+  if (errors.length === 0) {
+    const typescript = checkTypeScript(root);
+    errors.push(...typescript.errors);
+    stats.messages = typescript.messages;
+  }
   return done();
 }
 
 // What a run found, in a line.
-export function summary({ protos, packages, generated, previous }) {
+export function summary({ protos, packages, generated, previous, messages }) {
   if (protos === 0) return "contracts/ holds no .proto file yet, so buf has nothing to check; buf.yaml and buf.gen.yaml are as R83 has them";
   const against = !previous
     ? "and no release of spec before HEAD to compare with"
     : previous.protos
       ? `compared with ${previous.tag}`
       : `and ${previous.tag} holds no .proto file to compare with`;
-  return `${protos} .proto file${protos === 1 ? "" : "s"} in ${packages} package${packages === 1 ? "" : "s"}, ${generated} file${generated === 1 ? "" : "s"} of generated code, ${against}`;
+  return `${protos} .proto file${protos === 1 ? "" : "s"} in ${packages} package${packages === 1 ? "" : "s"}, ${generated} file${generated === 1 ? "" : "s"} of generated code, ${against}; tsc and Node take the ${messages} message${messages === 1 ? "" : "s"} of its npm package`;
 }
 
 if (isMain(import.meta.url)) {

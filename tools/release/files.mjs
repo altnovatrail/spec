@@ -7,20 +7,27 @@
 // the format is v0 that is the format alone, at the version format/VERSION names at the commit.
 // From FIRST_NPM_LINE on, it carries the npm package @altnovatrail/spec as well, the archive npm
 // pack names for the release's version, altnovatrail-spec-<MAJOR.MINOR.PATCH>.tgz (R73): tag is
-// the release's, in the line. A release of an earlier line carries no files, and its stdin, which
-// may be empty, is not read for a version. Prints a line for each file: its name, and the path in
-// the repository that the file holds beside LICENSE. `just release-files` builds them, and
-// release.yml checks the files of a release it runs again by the names.
+// the release's, in the line. From FIRST_CONTRACTS_LINE on, it carries the npm package of the
+// contracts' code too, @altnovatrail/contracts, altnovatrail-contracts-<MAJOR.MINOR.PATCH>.tgz, and
+// release.yml tags the Go module of the contracts with the release (R83). A release of an earlier
+// line carries no files, and its stdin, which may be empty, is not read for a version. Prints a
+// line for each file: its name, and the path in the repository that the file holds beside LICENSE.
+// `just release-files` builds them, and release.yml checks the files of a release it runs again by
+// the names.
 //
 // Takes nothing from its command line but the line and the tag, which it checks for their form.
 
 import fs from "node:fs";
 import { archiveOf } from "../types/npm.mjs";
+import { archiveOf as contractsArchiveOf } from "../contracts/npm.mjs";
 import { FIRST_FILES_LINE, LINE, RELEASE_TAG, compareLines } from "./version.mjs";
 import { isMain } from "../shared.mjs";
 
 // spec's first line whose releases carry the npm package of the types (R73).
 export const FIRST_NPM_LINE = "0.4";
+// spec's first line whose releases carry the npm package of the contracts' code (R83): a release
+// of an earlier line, run again, builds the files it got, though its commit may hold contracts.
+export const FIRST_CONTRACTS_LINE = "0.7";
 
 const VERSION = /^((?:0|[1-9]\d*)\.(?:0|[1-9]\d*))\n$/;
 
@@ -41,7 +48,9 @@ export function releaseFiles(line, versionText, tag) {
   const match = RELEASE_TAG.exec(tag ?? "");
   if (!match) throw new Error(`a release of the line ${line} carries the npm package, which takes the release's tag, vMAJOR.MINOR.PATCH, and '${tag ?? ""}' is none`);
   if (`${match[1]}.${match[2]}` !== line) throw new Error(`${tag} is no release of the line ${line}`);
-  return [...files, { name: archiveOf(tag.slice(1)), path: "types" }];
+  files.push({ name: archiveOf(tag.slice(1)), path: "types" });
+  if (compareLines(line, FIRST_CONTRACTS_LINE) >= 0) files.push({ name: contractsArchiveOf(tag.slice(1)), path: "contracts" });
+  return files;
 }
 
 if (isMain(import.meta.url)) {

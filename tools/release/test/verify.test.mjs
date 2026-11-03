@@ -10,6 +10,7 @@ import { spawnSync } from "node:child_process";
 import zlib from "node:zlib";
 import { FIELDS, ISSUER, MINIMUM, checkFields, checkRelease, checkSpecContent, main, readIdentity, sigstoreRoot, verifyFile, verifySignature } from "../verify.mjs";
 import { COMMITS, fixture, fixtures, gitHub, trustedRoot } from "./signed.mjs";
+import { TAR } from "../../shared.mjs";
 import { justfile, recipe, root, scratchRepository } from "./repository.mjs";
 
 const SHARED = "https://github.com/altnovatrail/.github/.github/workflows/release.yml@";
@@ -107,6 +108,35 @@ test("spec's files are bound to their tag by what they hold, and no other file o
   assert.throws(() => checkSpecContent("format-0.1.tar.gz", tgz, "v0.5.6", source), /names no commit in its header/);
   assert.throws(() => checkSpecContent("altnovatrail-spec-0.5.6.tgz", specFile("format-0.1.tar.gz").bytes, "v0.5.6", source), /the package\.json of altnovatrail-spec-0\.5\.6\.tgz cannot be read/);
   assert.throws(() => checkSpecContent("altnovatrail-spec-0.5.6.tgz", zlib.gzipSync(Buffer.alloc(1024)), "v0.5.6", source), /cannot be read/);
+});
+
+// An npm archive of the package and version given, as npm packs one: its package.json under package/.
+function npmArchive(manifest) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "release-verify-npm-archive-"));
+  try {
+    fs.mkdirSync(path.join(dir, "package"));
+    fs.writeFileSync(path.join(dir, "package", "package.json"), JSON.stringify(manifest));
+    const packed = spawnSync(TAR, ["-czf", path.join(dir, "a.tgz"), "-C", dir, "package"], { encoding: "utf8" });
+    assert.equal(packed.status, 0, packed.stderr);
+    return fs.readFileSync(path.join(dir, "a.tgz"));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test("the archive of the contracts' code is bound to its tag as spec's other package, and each names its own package", () => {
+  const source = gitHub();
+  const contracts = npmArchive({ name: "@altnovatrail/contracts", version: "0.5.6" });
+  checkSpecContent("altnovatrail-contracts-0.5.6.tgz", contracts, "v0.5.6", source);
+  assert.throws(() => checkSpecContent("altnovatrail-contracts-0.4.0.tgz", contracts, "v0.5.6", source), /altnovatrail-contracts-0\.4\.0\.tgz is no file of spec v0\.5\.6, whose npm package is altnovatrail-contracts-0\.5\.6\.tgz/);
+  assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive({ name: "@altnovatrail/contracts", version: "0.5.5" }), "v0.5.6", source), /has the version "0\.5\.5", not 0\.5\.6/);
+  // The types of the format are no code of the contracts, nor the other way round.
+  assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", fixture("spec-v0.5.6/altnovatrail-spec-0.5.6.tgz").bytes, "v0.5.6", source), /the package\.json of altnovatrail-contracts-0\.5\.6\.tgz names the package "@altnovatrail\/spec", not @altnovatrail\/contracts/);
+  assert.throws(() => checkSpecContent("altnovatrail-spec-0.5.6.tgz", contracts, "v0.5.6", source), /names the package "@altnovatrail\/contracts", not @altnovatrail\/spec/);
+  assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive([]), "v0.5.6", source), /names the package undefined/);
+  assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive(null), "v0.5.6", source), /cannot be read: it holds no object/);
+  assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", contracts, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
+  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
 });
 
 // The fields of the certificates of the fixtures, read once their bundles hold.

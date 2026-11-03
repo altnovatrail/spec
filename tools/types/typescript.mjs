@@ -25,27 +25,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isMain } from "../shared.mjs";
+import { TYPESCRIPT_CONFIGS, TYPESCRIPT_STRICT, isMain } from "../shared.mjs";
 import { OPEN, PACKAGE } from "./go.mjs";
 import { NAME } from "./npm.mjs";
 
-// The tsconfig of each resolution of modules, by its file name.
-export const CONFIGS = {
-  "tsconfig.nodenext.json": { module: "nodenext", moduleResolution: "nodenext" },
-  "tsconfig.bundler.json": { module: "preserve", moduleResolution: "bundler" },
-};
-const STRICT = {
-  target: "es2022",
-  lib: ["es2022"],
-  types: [],
-  strict: true,
-  exactOptionalPropertyTypes: true,
-  noUncheckedIndexedAccess: true,
-  verbatimModuleSyntax: true,
-  isolatedModules: true,
-  skipLibCheck: false,
-  noEmit: true,
-};
+// The tsconfig of each resolution of modules and how strict it is: shared with the check of the
+// contracts' code (tools/contracts/typescript.mjs).
+export { TYPESCRIPT_CONFIGS as CONFIGS, TYPESCRIPT_STRICT as STRICT };
 // The check of the types of <novatrail-canvas>, its name in the project, and the libraries of its
 // tsconfigs: the DOM's too.
 export const CANVAS_CHECK = fileURLToPath(new URL("canvas.check.ts", import.meta.url));
@@ -81,9 +67,9 @@ export function writeProject(cases, folder, check = fs.readFileSync(CANVAS_CHECK
   // The project's own package.json makes corpus.ts a module of ES, as a consumer's is.
   fs.writeFileSync(path.join(folder, "package.json"), `${JSON.stringify({ private: true, type: "module" }, null, 2)}\n`);
   const write = (file, config) => fs.writeFileSync(path.join(folder, file), `${JSON.stringify(config, null, 2)}\n`);
-  for (const [file, resolution] of Object.entries(CONFIGS)) {
-    write(file, { compilerOptions: { ...resolution, ...STRICT }, files: ["corpus.ts"] });
-    write(canvasConfigOf(file), { compilerOptions: { ...resolution, ...STRICT, lib: CANVAS_LIB }, files: [CANVAS] });
+  for (const [file, resolution] of Object.entries(TYPESCRIPT_CONFIGS)) {
+    write(file, { compilerOptions: { ...resolution, ...TYPESCRIPT_STRICT }, files: ["corpus.ts"] });
+    write(canvasConfigOf(file), { compilerOptions: { ...resolution, ...TYPESCRIPT_STRICT, lib: CANVAS_LIB }, files: [CANVAS] });
   }
 }
 
@@ -96,7 +82,7 @@ if (isMain(import.meta.url)) {
   try {
     const cases = JSON.parse(fs.readFileSync(corpus, "utf8"));
     writeProject(cases, path.resolve(folder));
-    console.log(`typescript: ${cases.length} cases and the check of <novatrail-canvas>, ${Object.keys(CONFIGS).length} configurations each`);
+    console.log(`typescript: ${cases.length} cases and the check of <novatrail-canvas>, ${Object.keys(TYPESCRIPT_CONFIGS).length} configurations each`);
   } catch (error) {
     console.error(`typescript: ${error.message}`);
     process.exit(1);

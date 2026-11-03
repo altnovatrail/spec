@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { FIRST_NPM_LINE, formatVersion, releaseFiles } from "../files.mjs";
+import { FIRST_CONTRACTS_LINE, FIRST_NPM_LINE, formatVersion, releaseFiles } from "../files.mjs";
 import { FIRST_FILES_LINE, compareLines } from "../version.mjs";
 import { TAR } from "../../shared.mjs";
 import { copySpecTools, env, recipe, releaseLine, root, scratchRepository, writeFile } from "./repository.mjs";
@@ -34,6 +34,17 @@ test("from the line 0.4 on, a release carries the npm package too, of the releas
     assert.throws(() => releaseFiles("0.4", "0.1\n", tag), /a release of the line 0\.4 carries the npm package, which takes the release's tag/, String(tag));
   }
   assert.throws(() => releaseFiles("0.4", "0.1\n", "v0.5.0"), /v0\.5\.0 is no release of the line 0\.4/);
+});
+
+test("from the line 0.7 on, a release carries the npm package of the contracts' code as well", () => {
+  assert.equal(FIRST_CONTRACTS_LINE, "0.7");
+  assert.deepEqual(releaseFiles("0.6", "0.2\n", "v0.6.9").map(({ name }) => name), ["format-0.2.tar.gz", "altnovatrail-spec-0.6.9.tgz"]);
+  assert.deepEqual(releaseFiles("0.7", "0.2\n", "v0.7.0"), [
+    { name: "format-0.2.tar.gz", path: "format" },
+    { name: "altnovatrail-spec-0.7.0.tgz", path: "types" },
+    { name: "altnovatrail-contracts-0.7.0.tgz", path: "contracts" },
+  ]);
+  assert.deepEqual(releaseFiles("1.2", "1.0\n", "v1.2.3")[2], { name: "altnovatrail-contracts-1.2.3.tgz", path: "contracts" });
 });
 
 test("a VERSION that is not MAJOR.MINOR and a newline, and a line that is not MAJOR.MINOR, are refused", () => {
@@ -65,6 +76,9 @@ test("the script prints a line for each file, and says why it refuses", () => {
   const npm = spawnSync(process.execPath, [script, "0.4", "v0.4.2"], { input: "0.1\n", encoding: "utf8", env });
   assert.equal(npm.status, 0, npm.stderr);
   assert.equal(npm.stdout, "format-0.1.tar.gz format\naltnovatrail-spec-0.4.2.tgz types\n");
+  const contracts = spawnSync(process.execPath, [script, "0.7", "v0.7.1"], { input: "0.2\n", encoding: "utf8", env });
+  assert.equal(contracts.status, 0, contracts.stderr);
+  assert.equal(contracts.stdout, "format-0.2.tar.gz format\naltnovatrail-spec-0.7.1.tgz types\naltnovatrail-contracts-0.7.1.tgz contracts\n");
 });
 
 // A made-up spec with a small format, committed in the line given: release-files reads it.
@@ -163,6 +177,30 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
     for (const file of ["package.json", "formatv0/index.d.ts"]) assert.equal(entry(rebuilt, file), entry(npm, file), file);
     // The commit of the line 0.5 holds the types changed since, which the rebuilt 0.4 package has not.
     assert.equal(entry(path.join(dir, "canvas", "altnovatrail-spec-0.5.0.tgz"), "formatv0/index.d.ts"), "export type Changed = never;\n");
+
+    // A commit with contracts, in the line 0.6, gets no package of them: a release of that line,
+    // run again, builds the files it got. From the line 0.7 on, the package of their code comes.
+    writeFile(dir, git, "contracts/novatrail/trial/v1/trial.proto", "syntax = \"proto3\";\n");
+    writeFile(dir, git, "contracts/novatrail/trial/v1/trial_pb.js", "export const TrialSchema = 1;\n");
+    writeFile(dir, git, "contracts/novatrail/trial/v1/trial_pb.d.ts", "export declare const TrialSchema: number;\n");
+    writeFile(dir, git, "tools/contracts/npm/README.md", "# @altnovatrail/contracts\n");
+    writeFile(dir, git, "tools/package.json", `${JSON.stringify({ dependencies: { "@bufbuild/protobuf": "2.16.0", "@bufbuild/protoc-gen-es": "2.16.0" } })}\n`);
+    releaseLine(dir, git, "0.6");
+    git("commit", "--quiet", "-m", "a contract, in the line 0.6");
+    const before = recipe(dir, { name: "release-files", args: ["HEAD", "before", "v0.6.7"] });
+    assert.equal(before.status, 0, before.stderr);
+    assert.deepEqual(fs.readdirSync(path.join(dir, "before")).sort(), ["altnovatrail-spec-0.6.7.tgz", "format-0.2.tar.gz"]);
+    releaseLine(dir, git, "0.7");
+    git("commit", "--quiet", "-m", "the line 0.7");
+    fs.writeFileSync(path.join(dir, "contracts/novatrail/trial/v1/trial_pb.js"), "changed since\n");
+    const contracts = recipe(dir, { name: "release-files", args: ["HEAD", "with-contracts", "v0.7.0"] });
+    assert.equal(contracts.status, 0, contracts.stderr);
+    assert.match(contracts.stdout, /release-files: altnovatrail-contracts-0\.7\.0\.tgz, the npm package of contracts\/ at [0-9a-f]{40}/);
+    assert.deepEqual(fs.readdirSync(path.join(dir, "with-contracts")).sort(), ["altnovatrail-contracts-0.7.0.tgz", "altnovatrail-spec-0.7.0.tgz", "format-0.2.tar.gz"]);
+    const code = path.join(dir, "with-contracts", "altnovatrail-contracts-0.7.0.tgz");
+    assert.deepEqual(listing(code), ["package/LICENSE", "package/README.md", "package/novatrail/trial/v1/trial_pb.d.ts", "package/novatrail/trial/v1/trial_pb.js", "package/package.json"]);
+    assert.equal(entry(code, "novatrail/trial/v1/trial_pb.js"), "export const TrialSchema = 1;\n");
+    assert.deepEqual(JSON.parse(entry(code, "package.json")).dependencies, { "@bufbuild/protobuf": "2.16.0" });
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
