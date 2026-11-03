@@ -5,6 +5,8 @@
 // fixtures/ holds, byte for byte:
 // - spec-v0.5.6/: format-0.1.tar.gz and altnovatrail-spec-0.5.6.tgz of spec's release v0.5.6,
 //   each with its bundle, signed by spec's own release.yml (R64, R73);
+// - spec-v0.7.0/: altnovatrail-contracts-0.7.0.tgz of spec's release v0.7.0, the first with the
+//   contracts' code, with its bundle, signed by spec's own release.yml (R83), read 2026-11-03;
 // - module-kit-v0.1.0/: LICENSE of module-kit's release v0.1.0, with its bundle, signed by the
 //   shared release.yml of .github v0.1.4, below the minimum of R77;
 // - tutor-v0.1.0/: SHA256SUMS of tutor's release v0.1.0, with its bundle, signed by the shared
@@ -31,10 +33,14 @@ export function fixture(file) {
   return { name: path.basename(at), bytes: fs.readFileSync(at), bundle: JSON.parse(fs.readFileSync(`${at}.sigstore.json`, "utf8")) };
 }
 
-// The commits of the tags, as git ls-remote read them on 2026-11-01, and tutor's and .github's
-// v0.1.12 on 2026-11-02.
+// The commits of the tags, as git ls-remote read them on 2026-11-01, tutor's and .github's
+// v0.1.12 on 2026-11-02, and spec's v0.7.0 on 2026-11-03.
 export const COMMITS = Object.freeze({
-  spec: { "v0.5.5": "c143fa0d0189a63a2031391e731f89f0677c9e2e", "v0.5.6": "e6069ae5e0c16b8121285359c6cc97175e07ec73" },
+  spec: {
+    "v0.5.5": "c143fa0d0189a63a2031391e731f89f0677c9e2e",
+    "v0.5.6": "e6069ae5e0c16b8121285359c6cc97175e07ec73",
+    "v0.7.0": "f4d60ae76b2f7a75be3beec6ddf52a5ed1f400fc",
+  },
   "module-kit": { "v0.1.0": "7e0144a61323be0875f5b4819d1708a581db94bc" },
   tutor: { "v0.1.0": "e4ed0772464758c03a160daf4644d1c0160e459a" },
   ".github": {

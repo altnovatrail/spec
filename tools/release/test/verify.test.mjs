@@ -26,6 +26,12 @@ test("the files of spec v0.5.6 are let in, each bound to its tag by what it hold
   }
 });
 
+test("the npm package of the contracts' code of spec v0.7.0 is let in, and held to its tag", () => {
+  const contracts = { repository: "spec", tag: "v0.7.0", ...fixture("spec-v0.7.0/altnovatrail-contracts-0.7.0.tgz") };
+  assert.equal(checked(contracts), "altnovatrail-contracts-0.7.0.tgz: spec v0.7.0, signed by spec's release.yml");
+  assert.throws(() => checked({ ...contracts, tag: "v0.5.6" }), /altnovatrail-contracts-0\.7\.0\.tgz is no file of spec v0\.5\.6, whose npm package is altnovatrail-contracts-0\.5\.6\.tgz/);
+});
+
 test("tutor v0.1.0, signed by .github v0.1.11, is let in at the minimum R77 sets, refused by one above its signer, and held to its repository and tag", () => {
   const sums = { repository: "tutor", tag: "v0.1.0", ...fixture("tutor-v0.1.0/SHA256SUMS") };
   assert.equal(checked(sums), "SHA256SUMS: tutor v0.1.0, signed by the shared release.yml of .github v0.1.11");
