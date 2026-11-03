@@ -2,24 +2,30 @@
 # patch of the line the releases are numbered in, and the tag is created with the release. A
 # line of its own comes from raising RELEASE_LINE in the change that deserves it. A change that
 # gives the module format a new version always does, so that a line never spans two of them
-# (R44), and release-version refuses one that does not; whether contracts and protocols do as
-# well is for their epics to decide.
+# (R44), and release-version refuses one that does not; so does a new major package of a
+# contract (R83), and a change that brings a new kind of file into the release, so that a release
+# of an earlier line, run again, builds the files it got.
 #
 # Other repositories take the tag as a submodule for spec's documents and rules (R21), and their
 # code takes the release's files (R64). From the line 0.3 on, a release carries each normative
 # part with a version of its own as a file, <part>-<version>.tar.gz — today the module format,
 # format-0.1.tar.gz — and from the line 0.4 on the npm package of the format's types for
 # TypeScript as well, altnovatrail-spec-<X.Y.Z>.tgz, the archive npm takes (R73), which from the
-# line 0.5 on holds the types of the element <novatrail-canvas> too (R74). Each is signed
-# without a key, with its bundle <file>.sigstore.json beside it, as the shared release of .github
-# signs its callers' files. Go code takes the same tag as the version of spec's Go module, which
-# the Go module proxy and its checksum database then hold to its bytes. The repository's releases are immutable, so the tag stays on its commit for good and
-# no file is added or swapped once a release is out, and GitHub signs each release with an
-# attestation of its tag, its commit and its files, which `gh release verify` and
-# `gh release verify-asset` check. A release of an earlier line carries no files.
+# line 0.5 on holds the types of the element <novatrail-canvas> too (R74). From the line 0.7 on,
+# it carries the npm package of the API contracts' code as well, altnovatrail-contracts-<X.Y.Z>.tgz
+# (R83). Each is signed without a key, with its bundle <file>.sigstore.json beside it, as the
+# shared release of .github signs its callers' files. Go code takes the same tag as the version
+# of spec's Go module, which the Go module proxy and its checksum database then hold to its
+# bytes, and from the line 0.7 on the tag contracts/<tag> as the version of the Go module of the
+# contracts, which the release sets once it is out (R83). The repository's releases are
+# immutable, so the tag stays on its commit for good and no file is added or swapped once a
+# release is out, and GitHub signs each release with an attestation of its tag, its commit and
+# its files, which `gh release verify` and `gh release verify-asset` check. A release of an
+# earlier line carries no files.
 #
-# The release also publishes that npm package to npm, the same file, once the release is out and
-# verified (R37, R73). npm takes it by trusted publishing, with no token kept anywhere: the
+# The release also publishes the npm package of the types, @altnovatrail/spec, to npm, the same
+# file, once the release is out and verified (R37, R73); the package of the contracts' code is not
+# published yet (RUN.md, T70). npm takes it by trusted publishing, with no token kept anywhere: the
 # registry trusts this workflow by its file name, as the package's trusted publisher names it —
 # the repository altnovatrail/spec, release.yml, no environment, npm publish allowed — and npm
 # trades the job's OIDC token for a short-lived one and makes the version's provenance itself.
@@ -49,7 +55,7 @@ permissions:
 # The line the releases are numbered in: the major and minor version every release carries, the
 # patch counting up within it. just release-version reads it from here.
 env:
-  RELEASE_LINE: "0.6"
+  RELEASE_LINE: "0.7"
 
 jobs:
   release:
@@ -71,8 +77,9 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-24.04
     # The image is built twice over, the Go module proxy is given five minutes to serve the
-    # release's version, and the npm registry twenty to show the package's.
-    timeout-minutes: 50
+    # release's version, and five more the contracts' module, and the npm registry twenty to show
+    # the package's.
+    timeout-minutes: 55
     # With pipefail: a runner's default, bash -e, lets a failed command inside a pipe pass.
     defaults:
       run:
@@ -180,7 +187,10 @@ jobs:
       # files, named as release-files names them, none a bundle. A run again of a commit released
       # already builds them too, to know which files its release has to hold. The npm package is
       # of the release's version, which the recipe takes with the commit; its name is the step's
-      # output npm, empty when the files hold none, and the steps of npm below run on it alone.
+      # output npm, empty when the files hold none, and the steps of npm below run on it alone. The
+      # npm package of the contracts' code, from the line 0.7 on, is the output contracts: npm
+      # does not take it from here yet (RUN.md, T70), and the release tags the Go module of the
+      # contracts when its files hold it.
       - id: files
         name: Build the files
         if: steps.version.outputs.version != '' || steps.version.outputs.released != ''
@@ -205,13 +215,16 @@ jobs:
           fi
           count=0
           npm=""
+          contracts=""
           for path in "$dist"/*; do
               if [ ! -e "$path" ]; then continue; fi
               name="${path##*/}"
               if [ "$name" = "altnovatrail-spec-${VERSION#v}.tgz" ]; then
                   npm="$name"
+              elif [ "$name" = "altnovatrail-contracts-${VERSION#v}.tgz" ]; then
+                  contracts="$name"
               elif ! [[ "$name" =~ ^[a-z][a-z-]*-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.tar\.gz$ ]]; then
-                  echo "::error::A file of dist/ is named ${name}, neither <part>-<MAJOR.MINOR>.tar.gz nor altnovatrail-spec-${VERSION#v}.tgz as release-files names its files."
+                  echo "::error::A file of dist/ is named ${name}, neither <part>-<MAJOR.MINOR>.tar.gz, altnovatrail-spec-${VERSION#v}.tgz nor altnovatrail-contracts-${VERSION#v}.tgz as release-files names its files."
                   exit 1
               fi
               count=$((count + 1))
@@ -221,6 +234,7 @@ jobs:
           {
               echo "count=${count}"
               echo "npm=${npm}"
+              echo "contracts=${contracts}"
           } >> "$GITHUB_OUTPUT"
 
       # cosign at an exact version, checked against the sum in cosign_checksums.txt of its
@@ -608,6 +622,70 @@ jobs:
           echo "::error::${VERSION} is published, but its attestation does not verify it and its files."
           exit 1
 
+      # Go code takes the contracts' code from the Go module of contracts/, and a module in a folder
+      # of the repository has tags of its own: "each tag name must be prefixed with the module
+      # subdirectory, followed by a slash" (Go Modules Reference, go.dev/ref/mod, read
+      # 2026-11-02). Its tag is the release's behind the folder, contracts/<tag>, on the same commit
+      # (R83). It is set once the release is out and verified, so that no such tag stands without a
+      # release: the ruleset v-tags forbids moving or deleting it, as it does a release's own tag
+      # (R31, R77). It is a plain tag of TARGET, as the release's is, set through the API with the
+      # job's token. A run again of a released commit sets it if a run before stopped short of it;
+      # one of that name on another commit was set by hand, against R31, and stops the run. The API
+      # may refuse GITHUB_TOKEN a ref to a commit that is no longer the tip and whose workflow files
+      # differ from main's, as the Releases API does: then release-refusal, run as the publish step
+      # runs it, lets it pass, the tag stays unset — the release of the tip, and its tag, cover it —
+      # and the check of the Go module leaves the module of the contracts out. gh api words a 403 as
+      # "Resource not accessible by integration (HTTP 403)", so its line is put as the recipe reads
+      # it. Its output tagged says whether the tag names the commit.
+      - id: contracts-tag
+        name: Tag the Go module of the contracts
+        if: >-
+          steps.files.outputs.contracts != '' &&
+          (steps.publish.outputs.published == 'true' || steps.version.outputs.released != '')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version || steps.version.outputs.released }}
+        run: |
+          tag="contracts/${VERSION}"
+          held() {
+              gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${tag}" \
+                  --jq '[.object.type, .object.sha] | join(" ")' 2> "$RUNNER_TEMP/contracts-tag.err"
+          }
+          if found=$(held); then
+              echo "${tag} is there already"
+          elif grep -q "HTTP 404" "$RUNNER_TEMP/contracts-tag.err"; then
+              if ! gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+                  -f "ref=refs/tags/${tag}" -f "sha=${TARGET}" > /dev/null 2> "$RUNNER_TEMP/contracts-create.err"; then
+                  cat "$RUNNER_TEMP/contracts-create.err" >&2
+                  sed 's/^gh: Resource not accessible by integration (HTTP 403)$/HTTP 403: Resource not accessible by integration/' \
+                      "$RUNNER_TEMP/contracts-create.err" > "$RUNNER_TEMP/contracts-refusal.err"
+                  git fetch --quiet --no-tags origin refs/heads/main
+                  tip=$(git rev-parse FETCH_HEAD)
+                  rm -rf "$RUNNER_TEMP/checkout-contracts"
+                  cp -a . "$RUNNER_TEMP/checkout-contracts"
+                  if ! (cd "$RUNNER_TEMP/checkout-contracts" &&
+                      tools/toolchain/toolchain.sh spec release-refusal \
+                          "$TARGET" "$tip" "$RUNNER_TEMP/contracts-refusal.err"); then
+                      echo "::error::The tag ${tag} could not be set; the lines above say why. Running the job again tries again."
+                      exit 1
+                  fi
+                  echo "::warning::${TARGET} is no longer the tip of main (${tip}) and adds or modifies its workflow files, and the API refused it the tag ${tag}; the release of the tip and its tag cover it."
+                  echo "tagged=false" >> "$GITHUB_OUTPUT"
+                  exit 0
+              fi
+              found=$(held)
+          else
+              cat "$RUNNER_TEMP/contracts-tag.err" >&2
+              echo "::error::The tag ${tag} could not be read; the lines above say why. Running the job again asks again."
+              exit 1
+          fi
+          if [ "$found" != "commit ${TARGET}" ]; then
+              echo "::error::The tag ${tag} names ${found}, not the commit ${TARGET} of ${VERSION}: a tag set by hand, against R31. Tags come from this workflow alone."
+              exit 1
+          fi
+          echo "${tag} names ${TARGET}"
+          echo "tagged=true" >> "$GITHUB_OUTPUT"
+
       # The package goes to npm once its release is out and verified, the same archive, by trusted
       # publishing: npm exchanges the job's OIDC token for one that may publish this package, since
       # a trusted publisher of the package names this repository and release.yml, and makes its
@@ -706,29 +784,42 @@ jobs:
       # refuses fails the run here, after the release, which is out already. A version is
       # served "within one minute" of being asked for, unless it was asked for before its tag
       # existed, which the proxy remembers for up to 30 minutes (proxy.golang.org, FAQ, read
-      # 2026-10-28). So the step tries for five minutes, and a run again asks again. It runs in
-      # the toolchain stage, from an empty folder, which is all the container mounts, by the
-      # checkout's script, which no container has had.
+      # 2026-10-28). So the step tries for five minutes, for each module, and a run again asks
+      # again. From the line 0.7 on it asks for the Go module of the contracts too, at its tag
+      # contracts/<tag>, as Go asks for it, when the step above set it: the version is the
+      # release's. It runs in the toolchain
+      # stage, from an empty folder, which is all the container mounts, by the checkout's script,
+      # which no container has had.
       - name: Verify the Go module
         if: >-
           (steps.publish.outputs.published == 'true' || steps.version.outputs.released != '') &&
           steps.files.outputs.count != '0'
         env:
           VERSION: ${{ steps.version.outputs.version || steps.version.outputs.released }}
+          CONTRACTS: ${{ steps.contracts-tag.outputs.tagged }}
         run: |
           major="${VERSION#v}"
           major="${major%%.*}"
-          module=github.com/altnovatrail/spec
-          if [ "$major" -ge 2 ]; then module="${module}/v${major}"; fi
+          suffix=""
+          if [ "$major" -ge 2 ]; then suffix="/v${major}"; fi
+          modules=("github.com/altnovatrail/spec${suffix}")
+          if [ "$CONTRACTS" = true ]; then modules+=("github.com/altnovatrail/spec/contracts${suffix}"); fi
           empty=$(mktemp -d -p "$RUNNER_TEMP")
           cd "$empty"
-          for attempt in $(seq 1 10); do
-              if "$GITHUB_WORKSPACE/tools/toolchain/toolchain.sh" run \
-                  env GOPROXY=https://proxy.golang.org go mod download -json "${module}@${VERSION}"; then
-                  exit 0
+          served() {
+              for attempt in $(seq 1 10); do
+                  if "$GITHUB_WORKSPACE/tools/toolchain/toolchain.sh" run \
+                      env GOPROXY=https://proxy.golang.org go mod download -json "$1@${VERSION}"; then
+                      return 0
+                  fi
+                  echo "attempt $attempt: the Go module proxy does not serve $1@${VERSION} yet"
+                  sleep 30
+              done
+              return 1
+          }
+          for module in "${modules[@]}"; do
+              if ! served "$module"; then
+                  echo "::error::${VERSION} is published, but the Go module proxy does not serve ${module}@${VERSION}; the lines above say why. Running the job again asks again."
+                  exit 1
               fi
-              echo "attempt $attempt: the Go module proxy does not serve ${module}@${VERSION} yet"
-              sleep 30
           done
-          echo "::error::${VERSION} is published, but the Go module proxy does not serve ${module}@${VERSION}; the lines above say why. Running the job again asks again."
-          exit 1

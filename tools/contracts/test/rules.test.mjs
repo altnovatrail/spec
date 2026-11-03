@@ -60,7 +60,7 @@ test("buf.gen.yaml has local plugins alone, out to contracts/, with no input and
   expectOnly(checkBufGenYaml(`${bufGenYaml}clean: true\n`), /clean: the template has version, managed and plugins alone/);
   expectOnly(checkBufGenYaml(bufGenYaml.replace("version: v2", "version: v1")), /version is "v1", and the template is of version v2/);
   expectOnly(checkBufGenYaml(bufGenYaml.replace(/plugins:[^]*$/, "plugins: []\n")), /plugins: the template names its local plugins/);
-  expectOnly(checkBufGenYaml(bufGenYaml.replace(plugin, "  - protoc-gen-es\n").replace(/    out: contracts\n    opt:\n      - target=js\+dts\n      - import_extension=js\n      - json_types=true\n/, "")), /a plugin is "protoc-gen-es", not a local plugin/);
+  expectOnly(checkBufGenYaml(bufGenYaml.replace(plugin, "  - protoc-gen-es\n").replace(/    out: contracts\n    opt:\n      - target=js\+dts\n      - import_extension=js\n/, "")), /a plugin is "protoc-gen-es", not a local plugin/);
   expectOnly(checkBufGenYaml("- protoc-gen-go\n"), /the file is \["protoc-gen-go"\], not a template of buf generate/);
   expectOnly(checkBufGenYaml("plugins: [\n"), /^buf\.gen\.yaml:\d+: not YAML:/);
 });

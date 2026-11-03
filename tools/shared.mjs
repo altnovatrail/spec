@@ -39,3 +39,24 @@ export function byCodeUnits(a, b) {
   if (a < b) return -1;
   return a > b ? 1 : 0;
 }
+
+// The tsconfig of each resolution of modules a consumer of spec's npm packages may use, by its file
+// name, and the options that make each as strict as TypeScript goes and check the packages'
+// declarations too: tools/types checks the types of the format by them, and tools/contracts the
+// code of the contracts.
+export const TYPESCRIPT_CONFIGS = {
+  "tsconfig.nodenext.json": { module: "nodenext", moduleResolution: "nodenext" },
+  "tsconfig.bundler.json": { module: "preserve", moduleResolution: "bundler" },
+};
+export const TYPESCRIPT_STRICT = {
+  target: "es2022",
+  lib: ["es2022"],
+  types: [],
+  strict: true,
+  exactOptionalPropertyTypes: true,
+  noUncheckedIndexedAccess: true,
+  verbatimModuleSyntax: true,
+  isolatedModules: true,
+  skipLibCheck: false,
+  noEmit: true,
+};

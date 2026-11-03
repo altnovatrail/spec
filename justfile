@@ -140,8 +140,8 @@ contracts-check: _tools
     node tools/contracts/main.mjs
 
 # The code buf generates from the contracts, beside the .proto files it comes from (R83): Go of
-# protoc-gen-go and protoc-gen-connect-go, JavaScript with its declarations and JSON types of
-# protoc-gen-es. buf writes it into a new folder, and it takes the place of the generated files of
+# protoc-gen-go and protoc-gen-connect-go, JavaScript with its declarations of protoc-gen-es.
+# buf writes it into a new folder, and it takes the place of the generated files of
 # contracts/, so that a file no .proto gives any more goes too. Then go mod tidy brings
 # contracts/go.mod and go.sum in line with what the code imports, as go-check wants them.
 # Generate the code of the contracts again.
@@ -410,9 +410,12 @@ release-version commit="HEAD" workflow="":
 # FIRST_NPM_LINE on, the npm package @altnovatrail/spec goes in too, altnovatrail-spec-<X.Y.Z>.tgz,
 # of the release's tag, which the recipe then takes third (R73): npm pack of the package that
 # tools/types/npm.mjs writes of the commit's types/, LICENSE and the package's README, read back by
-# tar. A commit of an earlier line gets an empty folder. The recipe reads the commit alone, never
-# the working tree: release.yml builds the files of the commit its checks passed on from the tip's
-# checkout (R31).
+# tar. From FIRST_CONTRACTS_LINE on, the npm package of the contracts' code, @altnovatrail/contracts,
+# goes in as well, altnovatrail-contracts-<X.Y.Z>.tgz: npm pack of the package tools/contracts/npm.mjs
+# writes of the commit's code of protoc-gen-es under contracts/, LICENSE, the package's README and
+# the runtime tools/package.json pins (R83). A commit of an earlier line gets an empty folder. The
+# recipe reads the commit alone, never the working tree: release.yml builds the files of the commit
+# its checks passed on from the tip's checkout (R31).
 # Build the files of spec's release of a commit into a new folder.
 release-files commit dir tag="":
     #!/usr/bin/env bash
@@ -433,7 +436,14 @@ release-files commit dir tag="":
     while read -r name part; do
         if [ -z "$name" ]; then continue; fi
         if [[ "$name" == *.tgz ]]; then
-            node tools/types/npm.mjs . "${tag#v}" "$dir" "$commit" > /dev/null
+            case "$part" in
+                types) node tools/types/npm.mjs . "${tag#v}" "$dir" "$commit" > /dev/null ;;
+                contracts) node tools/contracts/npm.mjs . "${tag#v}" "$dir" "$commit" > /dev/null ;;
+                *)
+                    echo "release-files: ${name} is an npm package of ${part}/, which no packer of spec builds" >&2
+                    exit 1
+                    ;;
+            esac
             echo "release-files: ${name}, the npm package of ${part}/ at ${commit}"
             continue
         fi
