@@ -15,7 +15,8 @@
 //   examples at contracts/examples/<part>/vN/. Anything else is an error, so the task that brings
 //   it extends the check, and while a .proto file is out of place buf does not run. A vector is of
 //   a package that contracts/ has, and of one whose vectors the check runs: so far
-//   novatrail.observation.v1, which has them; an example likewise, so far of novatrail.eval.v1;
+//   novatrail.observation.v1 and novatrail.eval.v1, which have them; an example likewise, so far of
+//   novatrail.eval.v1;
 // - with no .proto file, nothing more but that the previous release has none either: buf refuses a
 //   module without one, and a package is never removed;
 // - buf build, and of the image it builds what buf lets pass: a syntax other than proto3, a package
@@ -24,9 +25,14 @@
 // - the test vectors of the observation, by the image: each observation as the package reads and a
 //   writer writes it, whether it is valid, the joined observation and the verdicts, as section 10
 //   gives them, and that the vectors hold every rule of it (tools/contracts/observation.mjs);
+// - the test vectors of the rules the device and the runner share, by the image: the messages of
+//   each case as the package reads and a writer writes them, and what the fold of a history, the
+//   groups, the crop, snapping and the boxes give, as section 12 has them, and that the four files
+//   hold every rule of it (tools/contracts/strokes.mjs);
 // - the examples of the sample file, by the image: each sample as the package reads and a writer
 //   writes it, and the rules of section 11 — its fields by its purpose and writer, its strokes,
-//   groups, boxes and crops, the chunks of its PNG —, and that together they show every purpose,
+//   groups, boxes and crops, the chunks of its PNG — and of section 12 — the groups and boxes of a
+//   history, and the numbers of every crop —, and that together they show every purpose,
 //   writer, ink, surface and event (tools/contracts/sample.mjs);
 // - buf breaking against the previous release of spec, the newest release tag in the history of
 //   HEAD other than HEAD's own, whose buf.yaml and contracts/ git archive unpacks into a temporary
@@ -35,7 +41,8 @@
 //   file and byte for byte, and contracts/ holds no generated file buf no longer writes (section 8);
 // - with the code as buf writes it, its npm package, @altnovatrail/contracts, of the working tree:
 //   tsc of tools/ takes every message of it under nodenext and bundler, and Node runs it, its binary
-//   form and its JSON with protobuf names read back (tools/contracts/typescript.mjs).
+//   form and its JSON with protobuf names read back; tsc takes each vector it carries as JSON, and
+//   Node reads each message of them by its code (tools/contracts/typescript.mjs).
 // Prints one line per error, file:line: message, and exits 1 if there are any.
 //
 // With --samples, sample-check: the sample files another NovaTrail repository names, by their
@@ -55,6 +62,7 @@ import { breaking, build, contractFiles, format, generate, lint, previousRelease
 import { FOLDER, PACKAGE, checkVectors } from "./observation.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
 import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, sampleOf } from "./sample.mjs";
+import { FOLDER as RULES, checkVectors as checkRuleVectors } from "./strokes.mjs";
 import { checkTypeScript } from "./typescript.mjs";
 
 // The spec this file is part of: spec itself, or the spec/ submodule of another repository.
@@ -89,16 +97,25 @@ export function layout(root) {
   return { protos, generated, vectors, examples, errors };
 }
 
+// The packages whose vectors the check runs, each with the folder of its vectors and the section of
+// the text whose rules they hold.
+const VECTORS = new Map([
+  [PACKAGE, { folder: FOLDER, section: 10 }],
+  [EVAL, { folder: RULES, section: 12 }],
+]);
+
 // The test vectors against the packages: each is of a package that contracts/ has and whose vectors
-// the check runs, and the observation has some, since review alone would hold section 10 otherwise.
+// the check runs, and each such package has some, since review alone would hold its rules otherwise.
 export function vectorErrors(vectors, packages) {
   const errors = [];
   for (const vector of vectors) {
     if (!packages.has(vector.package)) errors.push({ file: vector.file, line: 0, message: `a vector of ${vector.package}, and contracts/ has no .proto file of that package` });
-    else if (vector.package !== PACKAGE) errors.push({ file: vector.file, line: 0, message: `contracts-check runs no vectors of ${vector.package}: the task that brings them extends the check` });
+    else if (!VECTORS.has(vector.package)) errors.push({ file: vector.file, line: 0, message: `contracts-check runs no vectors of ${vector.package}: the task that brings them extends the check` });
   }
-  if (packages.has(PACKAGE) && !vectors.some((vector) => vector.package === PACKAGE)) {
-    errors.push({ file: FOLDER, line: 0, message: `${PACKAGE} has no test vectors, and they hold the rules of contracts/README.md, section 10` });
+  for (const [name, { folder, section }] of VECTORS) {
+    if (packages.has(name) && !vectors.some((vector) => vector.package === name)) {
+      errors.push({ file: folder, line: 0, message: `${name} has no test vectors, and they hold the rules of contracts/README.md, section ${section}` });
+    }
   }
   return errors;
 }
@@ -148,7 +165,7 @@ export function checkContracts(root) {
   errors.push(...misplaced);
   const packages = new Set(protos.map((file) => classify(file).package));
   errors.push(...vectorErrors(vectors, packages), ...exampleErrors(examples, packages));
-  const stats = { protos: protos.length, packages: packages.size, generated: generated.size, vectors: vectors.length, cases: 0, examples: 0, previous: null, messages: 0 };
+  const stats = { protos: protos.length, packages: packages.size, generated: generated.size, vectors: vectors.length, cases: 0, examples: 0, previous: null, messages: 0, packaged: 0 };
   const done = () => ({ errors: errors.sort(byPlace), stats });
 
   if (protos.length === 0) {
@@ -176,11 +193,12 @@ export function checkContracts(root) {
     return done();
   }
   errors.push(...checkImage(built.image), ...format(root, protos), ...lint(root));
-  const observed = vectors.filter((vector) => vector.package === PACKAGE).map((vector) => vector.file);
-  if (packages.has(PACKAGE) && observed.length) {
-    const checked = checkVectors(root, built.image, observed);
+  for (const [name, check] of [[PACKAGE, checkVectors], [EVAL, checkRuleVectors]]) {
+    const files = vectors.filter((vector) => vector.package === name).map((vector) => vector.file);
+    if (!packages.has(name) || files.length === 0) continue;
+    const checked = check(root, built.image, files);
     errors.push(...checked.errors);
-    stats.cases = checked.cases;
+    stats.cases += checked.cases;
   }
   const samples = examples.filter((example) => example.package === EVAL).map((example) => example.file);
   if (packages.has(EVAL) && samples.length) {
@@ -203,6 +221,7 @@ export function checkContracts(root) {
     const typescript = checkTypeScript(root);
     errors.push(...typescript.errors);
     stats.messages = typescript.messages;
+    stats.packaged = typescript.vectors;
   }
   return done();
 }
@@ -247,7 +266,7 @@ function sampleCheck(files) {
 }
 
 // What a run found, in a line.
-export function summary({ protos, packages, generated, vectors, cases, examples, previous, messages }) {
+export function summary({ protos, packages, generated, vectors, cases, examples, previous, messages, packaged = 0 }) {
   if (protos === 0) return "contracts/ holds no .proto file yet, so buf has nothing to check; buf.yaml and buf.gen.yaml are as R83 has them";
   const against = !previous
     ? "and no release of spec before HEAD to compare with"
@@ -255,7 +274,7 @@ export function summary({ protos, packages, generated, vectors, cases, examples,
       ? `compared with ${previous.tag}`
       : `and ${previous.tag} holds no .proto file to compare with`;
   const tested = (vectors ? `, ${vectors} file${vectors === 1 ? "" : "s"} of test vectors with ${cases} case${cases === 1 ? "" : "s"}` : "") + (examples ? `, ${examples} example${examples === 1 ? "" : "s"}` : "");
-  return `${protos} .proto file${protos === 1 ? "" : "s"} in ${packages} package${packages === 1 ? "" : "s"}, ${generated} file${generated === 1 ? "" : "s"} of generated code${tested}, ${against}; tsc and Node take the ${messages} message${messages === 1 ? "" : "s"} of its npm package`;
+  return `${protos} .proto file${protos === 1 ? "" : "s"} in ${packages} package${packages === 1 ? "" : "s"}, ${generated} file${generated === 1 ? "" : "s"} of generated code${tested}, ${against}; tsc and Node take the ${messages} message${messages === 1 ? "" : "s"} of its npm package${packaged ? ` and the ${packaged} file${packaged === 1 ? "" : "s"} of vectors it carries` : ""}`;
 }
 
 // contracts-check: what it found in spec's contracts/, a line each, and its verdict.

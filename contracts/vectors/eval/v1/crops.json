@@ -1,0 +1,1065 @@
+{
+  "description": "The rule of the crop (contracts/README.md, section 12): from the strokes a sheet shows and their groups to the bundles of the strokes and the crops' numbers at each height of a digit of eval and at the module's, 24 px — the box of the points and h_med in tenths, and of each crop the height drawn, its size, margins, scale, line, where it lies on the sheet and the frames of the groups —, without their PNG. canvas's vectors/crops.json at its tag v0.1.2.",
+  "rule": {"margin": 12, "flat": 15, "ceiling": 100, "side": 200, "edge": 1568, "tokens": 1568, "patch": 28, "heights": [16, 24, 32, 48]},
+  "cases": [
+    {
+      "name": "staircase",
+      "description": "The example of canvas's research into a child's writing and the AI tutor: a ladder of two posts and seven rungs, «30» beside it after a pause, «180 : 30 = 5» after another, the 5 erased, then 6, ringed.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 300}, {"x": 100, "y": 600}]},
+        {"id": 2, "points": [{"x": 160, "y": 300}, {"x": 160, "y": 600}]},
+        {"id": 3, "points": [{"x": 100, "y": 600}, {"x": 160, "y": 600}]},
+        {"id": 4, "points": [{"x": 100, "y": 550}, {"x": 160, "y": 550}]},
+        {"id": 5, "points": [{"x": 100, "y": 500}, {"x": 160, "y": 500}]},
+        {"id": 6, "points": [{"x": 100, "y": 450}, {"x": 160, "y": 450}]},
+        {"id": 7, "points": [{"x": 100, "y": 400}, {"x": 160, "y": 400}]},
+        {"id": 8, "points": [{"x": 100, "y": 350}, {"x": 160, "y": 350}]},
+        {"id": 9, "points": [{"x": 100, "y": 300}, {"x": 160, "y": 300}]},
+        {"id": 10, "points": [{"x": 175, "y": 413.6}, {"x": 183, "y": 410}, {"x": 191, "y": 413.6}, {"x": 193, "y": 420.8}, {"x": 185, "y": 428}, {"x": 193, "y": 435.2}, {"x": 193, "y": 442.4}, {"x": 185, "y": 446}, {"x": 175, "y": 442.4}]},
+        {"id": 11, "points": [{"x": 211, "y": 410}, {"x": 217, "y": 413.6}, {"x": 221, "y": 424.4}, {"x": 221, "y": 431.6}, {"x": 217, "y": 442.4}, {"x": 211, "y": 446}, {"x": 205, "y": 442.4}, {"x": 201, "y": 431.6}, {"x": 201, "y": 424.4}, {"x": 205, "y": 413.6}, {"x": 211, "y": 410}]},
+        {"id": 12, "points": [{"x": 264, "y": 440.8}, {"x": 272, "y": 430}, {"x": 272, "y": 466}]},
+        {"id": 13, "points": [{"x": 296, "y": 448}, {"x": 288, "y": 440.8}, {"x": 290, "y": 430}, {"x": 302, "y": 430}, {"x": 304, "y": 440.8}, {"x": 296, "y": 448}, {"x": 286, "y": 455.2}, {"x": 288, "y": 466}, {"x": 304, "y": 466}, {"x": 306, "y": 455.2}, {"x": 296, "y": 448}]},
+        {"id": 14, "points": [{"x": 322, "y": 430}, {"x": 328, "y": 433.6}, {"x": 332, "y": 444.4}, {"x": 332, "y": 451.6}, {"x": 328, "y": 462.4}, {"x": 322, "y": 466}, {"x": 316, "y": 462.4}, {"x": 312, "y": 451.6}, {"x": 312, "y": 444.4}, {"x": 316, "y": 433.6}, {"x": 322, "y": 430}]},
+        {"id": 15, "points": [{"x": 374, "y": 440.8}, {"x": 374, "y": 440.8}]},
+        {"id": 16, "points": [{"x": 374, "y": 455.2}, {"x": 374, "y": 455.2}]},
+        {"id": 17, "points": [{"x": 416, "y": 433.6}, {"x": 424, "y": 430}, {"x": 432, "y": 433.6}, {"x": 434, "y": 440.8}, {"x": 426, "y": 448}, {"x": 434, "y": 455.2}, {"x": 434, "y": 462.4}, {"x": 426, "y": 466}, {"x": 416, "y": 462.4}]},
+        {"id": 18, "points": [{"x": 452, "y": 430}, {"x": 458, "y": 433.6}, {"x": 462, "y": 444.4}, {"x": 462, "y": 451.6}, {"x": 458, "y": 462.4}, {"x": 452, "y": 466}, {"x": 446, "y": 462.4}, {"x": 442, "y": 451.6}, {"x": 442, "y": 444.4}, {"x": 446, "y": 433.6}, {"x": 452, "y": 430}]},
+        {"id": 19, "points": [{"x": 496, "y": 440.8}, {"x": 512, "y": 440.8}]},
+        {"id": 20, "points": [{"x": 496, "y": 455.2}, {"x": 512, "y": 455.2}]},
+        {"id": 23, "points": [{"x": 562, "y": 430}, {"x": 552, "y": 437.2}, {"x": 546, "y": 451.6}, {"x": 548, "y": 462.4}, {"x": 556, "y": 466}, {"x": 564, "y": 458.8}, {"x": 564, "y": 451.6}, {"x": 556, "y": 448}, {"x": 548, "y": 451.6}]},
+        {"id": 24, "points": [{"x": 556, "y": 420}, {"x": 566.8, "y": 425.6}, {"x": 574, "y": 442.4}, {"x": 574, "y": 453.6}, {"x": 566.8, "y": 470.4}, {"x": 556, "y": 476}, {"x": 545.2, "y": 470.4}, {"x": 538, "y": 453.6}, {"x": 538, "y": 442.4}, {"x": 545.2, "y": 425.6}, {"x": 556, "y": 420}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]},
+        {"label": "B", "stroke_ids": [10, 11]},
+        {"label": "C", "stroke_ids": [23, 24]},
+        {"label": "D", "stroke_ids": [12, 13, 14, 15, 16, 17, 18, 19, 20]}
+      ],
+      "bundles": [
+        [1],
+        [2],
+        [10],
+        [11],
+        [12],
+        [13],
+        [14],
+        [17],
+        [18],
+        [23, 24]
+      ],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 1000, "ymax": 6000, "xmax": 5740}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 235, "height": 200, "margin_top": 33, "margin_left": 12, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 225.75, "xmin": 73, "ymax": 675.75, "xmax": 601.75}, "frames": [{"label": "A", "box": {"ymin": 156, "xmin": 43, "ymax": 840, "xmax": 172}}, {"label": "B", "box": {"ymin": 401, "xmin": 185, "ymax": 498, "xmax": 287}}, {"label": "C", "box": {"ymin": 423, "xmin": 872, "ymax": 565, "xmax": 955}}, {"label": "D", "box": {"ymin": 445, "xmin": 354, "ymax": 543, "xmax": 838}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 340, "height": 224, "margin_top": 12, "margin_left": 12, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 282, "xmin": 82, "ymax": 618, "xmax": 592}, "frames": [{"label": "A", "box": {"ymin": 44, "xmin": 29, "ymax": 956, "xmax": 159}}, {"label": "B", "box": {"ymin": 372, "xmin": 176, "ymax": 498, "xmax": 279}}, {"label": "C", "box": {"ymin": 401, "xmin": 888, "ymax": 587, "xmax": 971}}, {"label": "D", "box": {"ymin": 431, "xmin": 350, "ymax": 557, "xmax": 850}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 446, "height": 291, "margin_top": 12, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 286.5, "xmin": 86.5, "ymax": 613.875, "xmax": 588.25}, "frames": [{"label": "A", "box": {"ymin": 33, "xmin": 21, "ymax": 966, "xmax": 152}}, {"label": "B", "box": {"ymin": 369, "xmin": 171, "ymax": 496, "xmax": 274}}, {"label": "C", "box": {"ymin": 399, "xmin": 894, "ymax": 587, "xmax": 977}}, {"label": "D", "box": {"ymin": 430, "xmin": 348, "ymax": 557, "xmax": 854}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 656, "height": 424, "margin_top": 12, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 291, "xmin": 91, "ymax": 609, "xmax": 583}, "frames": [{"label": "A", "box": {"ymin": 21, "xmin": 13, "ymax": 979, "xmax": 145}}, {"label": "B", "box": {"ymin": 367, "xmin": 166, "ymax": 495, "xmax": 269}}, {"label": "C", "box": {"ymin": 398, "xmin": 903, "ymax": 589, "xmax": 987}}, {"label": "D", "box": {"ymin": 430, "xmin": 347, "ymax": 558, "xmax": 861}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "later",
+      "description": "«12 + 5 =», and 8 s later «17» right after it: what is written later next to old writing is a group of its own (R06 canvas).",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 104, "y": 210.8}, {"x": 112, "y": 200}, {"x": 112, "y": 236}]},
+        {"id": 2, "points": [{"x": 126, "y": 207.2}, {"x": 132, "y": 200}, {"x": 140, "y": 200}, {"x": 146, "y": 210.8}, {"x": 144, "y": 218}, {"x": 126, "y": 236}, {"x": 146, "y": 236}]},
+        {"id": 3, "points": [{"x": 188, "y": 207.2}, {"x": 188, "y": 228.8}]},
+        {"id": 4, "points": [{"x": 182, "y": 218}, {"x": 194, "y": 218}]},
+        {"id": 5, "points": [{"x": 232, "y": 200}, {"x": 232, "y": 214.4}, {"x": 242, "y": 214.4}, {"x": 248, "y": 221.6}, {"x": 248, "y": 228.8}, {"x": 242, "y": 236}, {"x": 230, "y": 232.4}]},
+        {"id": 6, "points": [{"x": 232, "y": 200}, {"x": 248, "y": 200}]},
+        {"id": 7, "points": [{"x": 284, "y": 210.8}, {"x": 300, "y": 210.8}]},
+        {"id": 8, "points": [{"x": 284, "y": 225.2}, {"x": 300, "y": 225.2}]},
+        {"id": 9, "points": [{"x": 338, "y": 210.8}, {"x": 346, "y": 200}, {"x": 346, "y": 236}]},
+        {"id": 10, "points": [{"x": 360, "y": 200}, {"x": 380, "y": 200}, {"x": 368, "y": 236}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8]},
+        {"label": "B", "stroke_ids": [9, 10]}
+      ],
+      "bundles": [
+        [1],
+        [2],
+        [3],
+        [5],
+        [9],
+        [10]
+      ],
+      "crops": {"ink_box": {"ymin": 2000, "xmin": 1040, "ymax": 2360, "xmax": 3800}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 92, "margin_left": 38, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -7, "xmin": 18.5, "ymax": 443, "xmax": 468.5}, "frames": [{"label": "A", "box": {"ymin": 451, "xmin": 181, "ymax": 549, "xmax": 634}}, {"label": "B", "box": {"ymin": 451, "xmin": 701, "ymax": 549, "xmax": 812}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 208, "height": 200, "margin_top": 88, "margin_left": 12, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 68, "xmin": 86, "ymax": 368, "xmax": 398}, "frames": [{"label": "A", "box": {"ymin": 430, "xmin": 48, "ymax": 570, "xmax": 696}}, {"label": "B", "box": {"ymin": 430, "xmin": 798, "ymax": 570, "xmax": 952}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 270, "height": 200, "margin_top": 84, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 105.5, "xmin": 90.5, "ymax": 330.5, "xmax": 394.25}, "frames": [{"label": "A", "box": {"ymin": 408, "xmin": 35, "ymax": 592, "xmax": 699}}, {"label": "B", "box": {"ymin": 408, "xmin": 806, "ymax": 592, "xmax": 962}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 392, "height": 200, "margin_top": 76, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 143, "xmin": 95, "ymax": 293, "xmax": 389}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 22, "ymax": 635, "xmax": 705}}, {"label": "B", "box": {"ymin": 365, "xmin": 818, "ymax": 635, "xmax": 978}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "lines",
+      "description": "Two lines a cell apart, the second begun 1.5 s after the first, with no pause to think: a group each.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 104, "y": 210.8}, {"x": 112, "y": 200}, {"x": 112, "y": 236}]},
+        {"id": 2, "points": [{"x": 126, "y": 207.2}, {"x": 132, "y": 200}, {"x": 140, "y": 200}, {"x": 146, "y": 210.8}, {"x": 144, "y": 218}, {"x": 126, "y": 236}, {"x": 146, "y": 236}]},
+        {"id": 3, "points": [{"x": 188, "y": 207.2}, {"x": 188, "y": 228.8}]},
+        {"id": 4, "points": [{"x": 182, "y": 218}, {"x": 194, "y": 218}]},
+        {"id": 5, "points": [{"x": 232, "y": 200}, {"x": 232, "y": 214.4}, {"x": 242, "y": 214.4}, {"x": 248, "y": 221.6}, {"x": 248, "y": 228.8}, {"x": 242, "y": 236}, {"x": 230, "y": 232.4}]},
+        {"id": 6, "points": [{"x": 232, "y": 200}, {"x": 248, "y": 200}]},
+        {"id": 7, "points": [{"x": 284, "y": 210.8}, {"x": 300, "y": 210.8}]},
+        {"id": 8, "points": [{"x": 284, "y": 225.2}, {"x": 300, "y": 225.2}]},
+        {"id": 9, "points": [{"x": 338, "y": 210.8}, {"x": 346, "y": 200}, {"x": 346, "y": 236}]},
+        {"id": 10, "points": [{"x": 360, "y": 200}, {"x": 380, "y": 200}, {"x": 368, "y": 236}]},
+        {"id": 11, "points": [{"x": 104, "y": 260.8}, {"x": 112, "y": 250}, {"x": 112, "y": 286}]},
+        {"id": 12, "points": [{"x": 126, "y": 250}, {"x": 146, "y": 250}, {"x": 134, "y": 286}]},
+        {"id": 13, "points": [{"x": 180, "y": 268}, {"x": 196, "y": 268}]},
+        {"id": 14, "points": [{"x": 244, "y": 250}, {"x": 230, "y": 275.2}, {"x": 250, "y": 275.2}]},
+        {"id": 15, "points": [{"x": 244, "y": 260.8}, {"x": 244, "y": 286}]},
+        {"id": 16, "points": [{"x": 284, "y": 260.8}, {"x": 300, "y": 260.8}]},
+        {"id": 17, "points": [{"x": 284, "y": 275.2}, {"x": 300, "y": 275.2}]},
+        {"id": 18, "points": [{"x": 338, "y": 260.8}, {"x": 346, "y": 250}, {"x": 346, "y": 286}]},
+        {"id": 19, "points": [{"x": 360, "y": 253.6}, {"x": 368, "y": 250}, {"x": 376, "y": 253.6}, {"x": 378, "y": 260.8}, {"x": 370, "y": 268}, {"x": 378, "y": 275.2}, {"x": 378, "y": 282.4}, {"x": 370, "y": 286}, {"x": 360, "y": 282.4}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
+        {"label": "B", "stroke_ids": [11, 12, 13, 14, 15, 16, 17, 18, 19]}
+      ],
+      "bundles": [
+        [1],
+        [2],
+        [3],
+        [5],
+        [9],
+        [10],
+        [11],
+        [12],
+        [14, 15],
+        [18],
+        [19]
+      ],
+      "crops": {"ink_box": {"ymin": 2000, "xmin": 1040, "ymax": 2860, "xmax": 3800}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 80, "margin_left": 38, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 20, "xmin": 18.5, "ymax": 470, "xmax": 468.5}, "frames": [{"label": "A", "box": {"ymin": 391, "xmin": 181, "ymax": 489, "xmax": 812}}, {"label": "B", "box": {"ymin": 502, "xmin": 181, "ymax": 600, "xmax": 808}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 208, "height": 200, "margin_top": 71, "margin_left": 12, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 93.5, "xmin": 86, "ymax": 393.5, "xmax": 398}, "frames": [{"label": "A", "box": {"ymin": 345, "xmin": 48, "ymax": 485, "xmax": 952}}, {"label": "B", "box": {"ymin": 511, "xmin": 48, "ymax": 652, "xmax": 946}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 270, "height": 200, "margin_top": 61, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 131.375, "xmin": 90.5, "ymax": 356.375, "xmax": 394.25}, "frames": [{"label": "A", "box": {"ymin": 293, "xmin": 35, "ymax": 477, "xmax": 962}}, {"label": "B", "box": {"ymin": 515, "xmin": 35, "ymax": 699, "xmax": 956}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 392, "height": 200, "margin_top": 42, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 168.5, "xmin": 95, "ymax": 318.5, "xmax": 389}, "frames": [{"label": "A", "box": {"ymin": 195, "xmin": 22, "ymax": 465, "xmax": 978}}, {"label": "B", "box": {"ymin": 528, "xmin": 22, "ymax": 799, "xmax": 971}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "signs",
+      "description": "3/4 + 1/4 = 1 in fractions over bars, underlined; 3 s later «12 : 4 = 3» below: a group each, with their bars, dots and lines.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 303}, {"x": 107.2, "y": 300}, {"x": 114.4, "y": 303}, {"x": 116.2, "y": 309}, {"x": 109, "y": 315}, {"x": 116.2, "y": 321}, {"x": 116.2, "y": 327}, {"x": 109, "y": 330}, {"x": 100, "y": 327}]},
+        {"id": 2, "points": [{"x": 98, "y": 336}, {"x": 120, "y": 336}]},
+        {"id": 3, "points": [{"x": 112.6, "y": 342}, {"x": 100, "y": 363}, {"x": 118, "y": 363}]},
+        {"id": 4, "points": [{"x": 112.6, "y": 351}, {"x": 112.6, "y": 372}]},
+        {"id": 5, "points": [{"x": 139, "y": 327}, {"x": 139, "y": 345}]},
+        {"id": 6, "points": [{"x": 133.6, "y": 336}, {"x": 144.4, "y": 336}]},
+        {"id": 7, "points": [{"x": 163.6, "y": 309}, {"x": 170.8, "y": 300}, {"x": 170.8, "y": 330}]},
+        {"id": 8, "points": [{"x": 158, "y": 336}, {"x": 180, "y": 336}]},
+        {"id": 9, "points": [{"x": 172.6, "y": 342}, {"x": 160, "y": 363}, {"x": 178, "y": 363}]},
+        {"id": 10, "points": [{"x": 172.6, "y": 351}, {"x": 172.6, "y": 372}]},
+        {"id": 11, "points": [{"x": 191.8, "y": 330}, {"x": 206.2, "y": 330}]},
+        {"id": 12, "points": [{"x": 191.8, "y": 342}, {"x": 206.2, "y": 342}]},
+        {"id": 13, "points": [{"x": 224, "y": 328.8}, {"x": 232, "y": 318}, {"x": 232, "y": 354}]},
+        {"id": 14, "points": [{"x": 95, "y": 378}, {"x": 245, "y": 378}]},
+        {"id": 15, "points": [{"x": 104, "y": 440.8}, {"x": 112, "y": 430}, {"x": 112, "y": 466}]},
+        {"id": 16, "points": [{"x": 126, "y": 437.2}, {"x": 132, "y": 430}, {"x": 140, "y": 430}, {"x": 146, "y": 440.8}, {"x": 144, "y": 448}, {"x": 126, "y": 466}, {"x": 146, "y": 466}]},
+        {"id": 17, "points": [{"x": 188, "y": 440.8}, {"x": 188, "y": 440.8}]},
+        {"id": 18, "points": [{"x": 188, "y": 455.2}, {"x": 188, "y": 455.2}]},
+        {"id": 19, "points": [{"x": 244, "y": 430}, {"x": 230, "y": 455.2}, {"x": 250, "y": 455.2}]},
+        {"id": 20, "points": [{"x": 244, "y": 440.8}, {"x": 244, "y": 466}]},
+        {"id": 21, "points": [{"x": 284, "y": 440.8}, {"x": 300, "y": 440.8}]},
+        {"id": 22, "points": [{"x": 284, "y": 455.2}, {"x": 300, "y": 455.2}]},
+        {"id": 23, "points": [{"x": 334, "y": 433.6}, {"x": 342, "y": 430}, {"x": 350, "y": 433.6}, {"x": 352, "y": 440.8}, {"x": 344, "y": 448}, {"x": 352, "y": 455.2}, {"x": 352, "y": 462.4}, {"x": 344, "y": 466}, {"x": 334, "y": 462.4}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]},
+        {"label": "B", "stroke_ids": [15, 16, 17, 18, 19, 20, 21, 22, 23]}
+      ],
+      "bundles": [
+        [1],
+        [3, 4],
+        [5],
+        [7],
+        [9, 10],
+        [13],
+        [15],
+        [16],
+        [19, 20],
+        [23]
+      ],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 950, "ymax": 4660, "xmax": 3520}, "bundle_median": 300, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 55, "margin_left": 31, "scale": 0.5333333333333333, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 196.875, "xmin": 36.875, "ymax": 571.875, "xmax": 411.875}, "frames": [{"label": "A", "box": {"ymin": 266, "xmin": 146, "ymax": 492, "xmax": 564}}, {"label": "B", "box": {"ymin": 613, "xmin": 170, "ymax": 726, "xmax": 849}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 230, "height": 200, "margin_top": 33, "margin_left": 12, "scale": 0.8, "line_width": 2, "sheet_box": {"ymin": 258.75, "xmin": 80, "ymax": 508.75, "xmax": 367.5}, "frames": [{"label": "A", "box": {"ymin": 155, "xmin": 43, "ymax": 487, "xmax": 583}}, {"label": "B", "box": {"ymin": 675, "xmin": 74, "ymax": 839, "xmax": 955}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 299, "height": 202, "margin_top": 12, "margin_left": 12, "scale": 1.0666666666666667, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 288.75, "xmin": 83.75, "ymax": 478.125, "xmax": 364.0625}, "frames": [{"label": "A", "box": {"ymin": 47, "xmin": 32, "ymax": 483, "xmax": 584}}, {"label": "B", "box": {"ymin": 734, "xmin": 64, "ymax": 948, "xmax": 965}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 436, "height": 290, "margin_top": 12, "margin_left": 12, "scale": 1.6, "line_width": 4, "sheet_box": {"ymin": 292.5, "xmin": 87.5, "ymax": 473.75, "xmax": 360}, "frames": [{"label": "A", "box": {"ymin": 31, "xmin": 20, "ymax": 483, "xmax": 585}}, {"label": "B", "box": {"ymin": 748, "xmin": 53, "ymax": 968, "xmax": 978}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "words",
+      "description": "Two lines of joined-up words, each word a stroke, with the dot of an i put after its word: a group a line.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 520}, {"x": 106, "y": 500}, {"x": 112, "y": 520}, {"x": 118, "y": 500}, {"x": 124, "y": 520}, {"x": 130, "y": 500}, {"x": 136, "y": 520}, {"x": 142, "y": 500}, {"x": 148, "y": 520}, {"x": 154, "y": 500}, {"x": 160, "y": 520}]},
+        {"id": 2, "points": [{"x": 130, "y": 490}, {"x": 130, "y": 490}]},
+        {"id": 3, "points": [{"x": 180, "y": 520}, {"x": 186, "y": 500}, {"x": 192, "y": 520}, {"x": 198, "y": 500}, {"x": 204, "y": 520}]},
+        {"id": 4, "points": [{"x": 186, "y": 490}, {"x": 186, "y": 490}]},
+        {"id": 5, "points": [{"x": 224, "y": 520}, {"x": 230, "y": 500}, {"x": 236, "y": 520}, {"x": 242, "y": 500}, {"x": 248, "y": 520}, {"x": 254, "y": 500}, {"x": 260, "y": 520}, {"x": 266, "y": 500}, {"x": 272, "y": 520}]},
+        {"id": 6, "points": [{"x": 100, "y": 580}, {"x": 106, "y": 560}, {"x": 112, "y": 580}, {"x": 118, "y": 560}, {"x": 124, "y": 580}, {"x": 130, "y": 560}, {"x": 136, "y": 580}]},
+        {"id": 7, "points": [{"x": 156, "y": 580}, {"x": 162, "y": 560}, {"x": 168, "y": 580}, {"x": 174, "y": 560}, {"x": 180, "y": 580}, {"x": 186, "y": 560}, {"x": 192, "y": 580}, {"x": 198, "y": 560}, {"x": 204, "y": 580}, {"x": 210, "y": 560}, {"x": 216, "y": 580}, {"x": 222, "y": 560}, {"x": 228, "y": 580}]},
+        {"id": 8, "points": [{"x": 162, "y": 550}, {"x": 162, "y": 550}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5]},
+        {"label": "B", "stroke_ids": [6, 7, 8]}
+      ],
+      "bundles": [
+        [1],
+        [3],
+        [5],
+        [6],
+        [7]
+      ],
+      "crops": {"ink_box": {"ymin": 4900, "xmin": 1000, "ymax": 5800, "xmax": 2720}, "bundle_median": 200, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 64, "margin_left": 31, "scale": 0.8, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 410, "xmin": 61.25, "ymax": 660, "xmax": 311.25}, "frames": [{"label": "A", "box": {"ymin": 311, "xmin": 146, "ymax": 449, "xmax": 852}}, {"label": "B", "box": {"ymin": 551, "xmin": 146, "ymax": 689, "xmax": 676}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 231, "height": 200, "margin_top": 46, "margin_left": 12, "scale": 1.2, "line_width": 2, "sheet_box": {"ymin": 451.6666666666667, "xmin": 90, "ymax": 618.3333333333334, "xmax": 282.5}, "frames": [{"label": "A", "box": {"ymin": 220, "xmin": 43, "ymax": 420, "xmax": 955}}, {"label": "B", "box": {"ymin": 580, "xmin": 43, "ymax": 780, "xmax": 726}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 300, "height": 200, "margin_top": 28, "margin_left": 12, "scale": 1.6, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 472.5, "xmin": 92.5, "ymax": 597.5, "xmax": 280}, "frames": [{"label": "A", "box": {"ymin": 128, "xmin": 32, "ymax": 392, "xmax": 966}}, {"label": "B", "box": {"ymin": 608, "xmin": 32, "ymax": 872, "xmax": 731}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 437, "height": 240, "margin_top": 12, "margin_left": 12, "scale": 2.4, "line_width": 4, "sheet_box": {"ymin": 485, "xmin": 95, "ymax": 585, "xmax": 277.0833333333333}, "frames": [{"label": "A", "box": {"ymin": 37, "xmin": 20, "ymax": 363, "xmax": 979}}, {"label": "B", "box": {"ymin": 637, "xmin": 20, "ymax": 963, "xmax": 738}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "tutor",
+      "description": "Two lines as tutor's synthetic writer draws them: digits 36 high, 26 apart, lines 80 apart, 1.5 s before a line and 120 to 249 ms between strokes.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 74, "y": 100}, {"x": 60, "y": 125.2}, {"x": 80, "y": 125.2}]},
+        {"id": 2, "points": [{"x": 74, "y": 110.8}, {"x": 74, "y": 136}]},
+        {"id": 3, "points": [{"x": 86, "y": 100}, {"x": 106, "y": 100}, {"x": 94, "y": 136}]},
+        {"id": 4, "points": [{"x": 148, "y": 107.2}, {"x": 148, "y": 128.8}]},
+        {"id": 5, "points": [{"x": 142, "y": 118}, {"x": 154, "y": 118}]},
+        {"id": 6, "points": [{"x": 194, "y": 110.8}, {"x": 202, "y": 100}, {"x": 202, "y": 136}]},
+        {"id": 7, "points": [{"x": 234, "y": 114.4}, {"x": 226, "y": 118}, {"x": 218, "y": 114.4}, {"x": 218, "y": 103.6}, {"x": 226, "y": 100}, {"x": 234, "y": 103.6}, {"x": 234, "y": 114.4}, {"x": 232, "y": 136}]},
+        {"id": 8, "points": [{"x": 270, "y": 110.8}, {"x": 286, "y": 110.8}]},
+        {"id": 9, "points": [{"x": 270, "y": 125.2}, {"x": 286, "y": 125.2}]},
+        {"id": 10, "points": [{"x": 336, "y": 100}, {"x": 326, "y": 107.2}, {"x": 320, "y": 121.6}, {"x": 322, "y": 132.4}, {"x": 330, "y": 136}, {"x": 338, "y": 128.8}, {"x": 338, "y": 121.6}, {"x": 330, "y": 118}, {"x": 322, "y": 121.6}]},
+        {"id": 11, "points": [{"x": 362, "y": 100}, {"x": 352, "y": 107.2}, {"x": 346, "y": 121.6}, {"x": 348, "y": 132.4}, {"x": 356, "y": 136}, {"x": 364, "y": 128.8}, {"x": 364, "y": 121.6}, {"x": 356, "y": 118}, {"x": 348, "y": 121.6}]},
+        {"id": 12, "points": [{"x": 76, "y": 180}, {"x": 66, "y": 187.2}, {"x": 60, "y": 201.6}, {"x": 62, "y": 212.4}, {"x": 70, "y": 216}, {"x": 78, "y": 208.8}, {"x": 78, "y": 201.6}, {"x": 70, "y": 198}, {"x": 62, "y": 201.6}]},
+        {"id": 13, "points": [{"x": 102, "y": 180}, {"x": 92, "y": 187.2}, {"x": 86, "y": 201.6}, {"x": 88, "y": 212.4}, {"x": 96, "y": 216}, {"x": 104, "y": 208.8}, {"x": 104, "y": 201.6}, {"x": 96, "y": 198}, {"x": 88, "y": 201.6}]},
+        {"id": 14, "points": [{"x": 148, "y": 190.8}, {"x": 148, "y": 190.8}]},
+        {"id": 15, "points": [{"x": 148, "y": 205.2}, {"x": 148, "y": 205.2}]},
+        {"id": 16, "points": [{"x": 206, "y": 180}, {"x": 196, "y": 187.2}, {"x": 190, "y": 201.6}, {"x": 192, "y": 212.4}, {"x": 200, "y": 216}, {"x": 208, "y": 208.8}, {"x": 208, "y": 201.6}, {"x": 200, "y": 198}, {"x": 192, "y": 201.6}]},
+        {"id": 17, "points": [{"x": 244, "y": 190.8}, {"x": 260, "y": 190.8}]},
+        {"id": 18, "points": [{"x": 244, "y": 205.2}, {"x": 260, "y": 205.2}]},
+        {"id": 19, "points": [{"x": 298, "y": 190.8}, {"x": 306, "y": 180}, {"x": 306, "y": 216}]},
+        {"id": 20, "points": [{"x": 324, "y": 190.8}, {"x": 332, "y": 180}, {"x": 332, "y": 216}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]},
+        {"label": "B", "stroke_ids": [12, 13, 14, 15, 16, 17, 18, 19, 20]}
+      ],
+      "bundles": [
+        [1, 2],
+        [3],
+        [4],
+        [6],
+        [7],
+        [10],
+        [11],
+        [12],
+        [13],
+        [16],
+        [19],
+        [20]
+      ],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 600, "ymax": 2160, "xmax": 3640}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 74, "margin_left": 32, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -66.5, "xmin": -12, "ymax": 383.5, "xmax": 438}, "frames": [{"label": "A", "box": {"ymin": 361, "xmin": 151, "ymax": 459, "xmax": 844}}, {"label": "B", "box": {"ymin": 539, "xmin": 151, "ymax": 637, "xmax": 773}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 227, "height": 200, "margin_top": 61, "margin_left": 12, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 8.5, "xmin": 42, "ymax": 308.5, "xmax": 382.5}, "frames": [{"label": "A", "box": {"ymin": 295, "xmin": 44, "ymax": 435, "xmax": 955}}, {"label": "B", "box": {"ymin": 561, "xmin": 44, "ymax": 702, "xmax": 861}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 295, "height": 200, "margin_top": 48, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 46, "xmin": 46.5, "ymax": 271, "xmax": 378.375}, "frames": [{"label": "A", "box": {"ymin": 228, "xmin": 32, "ymax": 412, "xmax": 965}}, {"label": "B", "box": {"ymin": 583, "xmin": 32, "ymax": 768, "xmax": 869}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 430, "height": 200, "margin_top": 22, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 83.5, "xmin": 51, "ymax": 233.5, "xmax": 373.5}, "frames": [{"label": "A", "box": {"ymin": 95, "xmin": 20, "ymax": 365, "xmax": 978}}, {"label": "B", "box": {"ymin": 628, "xmin": 20, "ymax": 899, "xmax": 879}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "crossed",
+      "description": "A line crossed out at once, 0.4 s after it, which is of its group; another crossed out 3 s after it, which is a group of its own.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 114, "y": 200}, {"x": 100, "y": 225.2}, {"x": 120, "y": 225.2}]},
+        {"id": 2, "points": [{"x": 114, "y": 210.8}, {"x": 114, "y": 236}]},
+        {"id": 3, "points": [{"x": 126, "y": 200}, {"x": 146, "y": 200}, {"x": 134, "y": 236}]},
+        {"id": 4, "points": [{"x": 188, "y": 207.2}, {"x": 188, "y": 228.8}]},
+        {"id": 5, "points": [{"x": 182, "y": 218}, {"x": 194, "y": 218}]},
+        {"id": 6, "points": [{"x": 234, "y": 210.8}, {"x": 242, "y": 200}, {"x": 242, "y": 236}]},
+        {"id": 7, "points": [{"x": 274, "y": 214.4}, {"x": 266, "y": 218}, {"x": 258, "y": 214.4}, {"x": 258, "y": 203.6}, {"x": 266, "y": 200}, {"x": 274, "y": 203.6}, {"x": 274, "y": 214.4}, {"x": 272, "y": 236}]},
+        {"id": 8, "points": [{"x": 310, "y": 210.8}, {"x": 326, "y": 210.8}]},
+        {"id": 9, "points": [{"x": 310, "y": 225.2}, {"x": 326, "y": 225.2}]},
+        {"id": 10, "points": [{"x": 362, "y": 200}, {"x": 362, "y": 214.4}, {"x": 372, "y": 214.4}, {"x": 378, "y": 221.6}, {"x": 378, "y": 228.8}, {"x": 372, "y": 236}, {"x": 360, "y": 232.4}]},
+        {"id": 11, "points": [{"x": 362, "y": 200}, {"x": 378, "y": 200}]},
+        {"id": 12, "points": [{"x": 402, "y": 200}, {"x": 392, "y": 207.2}, {"x": 386, "y": 221.6}, {"x": 388, "y": 232.4}, {"x": 396, "y": 236}, {"x": 404, "y": 228.8}, {"x": 404, "y": 221.6}, {"x": 396, "y": 218}, {"x": 388, "y": 221.6}]},
+        {"id": 13, "points": [{"x": 94, "y": 218}, {"x": 410, "y": 218}]},
+        {"id": 14, "points": [{"x": 114, "y": 300}, {"x": 100, "y": 325.2}, {"x": 120, "y": 325.2}]},
+        {"id": 15, "points": [{"x": 114, "y": 310.8}, {"x": 114, "y": 336}]},
+        {"id": 16, "points": [{"x": 126, "y": 300}, {"x": 146, "y": 300}, {"x": 134, "y": 336}]},
+        {"id": 17, "points": [{"x": 188, "y": 307.2}, {"x": 188, "y": 328.8}]},
+        {"id": 18, "points": [{"x": 182, "y": 318}, {"x": 194, "y": 318}]},
+        {"id": 19, "points": [{"x": 234, "y": 310.8}, {"x": 242, "y": 300}, {"x": 242, "y": 336}]},
+        {"id": 20, "points": [{"x": 274, "y": 314.4}, {"x": 266, "y": 318}, {"x": 258, "y": 314.4}, {"x": 258, "y": 303.6}, {"x": 266, "y": 300}, {"x": 274, "y": 303.6}, {"x": 274, "y": 314.4}, {"x": 272, "y": 336}]},
+        {"id": 21, "points": [{"x": 310, "y": 310.8}, {"x": 326, "y": 310.8}]},
+        {"id": 22, "points": [{"x": 310, "y": 325.2}, {"x": 326, "y": 325.2}]},
+        {"id": 23, "points": [{"x": 376, "y": 300}, {"x": 366, "y": 307.2}, {"x": 360, "y": 321.6}, {"x": 362, "y": 332.4}, {"x": 370, "y": 336}, {"x": 378, "y": 328.8}, {"x": 378, "y": 321.6}, {"x": 370, "y": 318}, {"x": 362, "y": 321.6}]},
+        {"id": 24, "points": [{"x": 402, "y": 300}, {"x": 392, "y": 307.2}, {"x": 386, "y": 321.6}, {"x": 388, "y": 332.4}, {"x": 396, "y": 336}, {"x": 404, "y": 328.8}, {"x": 404, "y": 321.6}, {"x": 396, "y": 318}, {"x": 388, "y": 321.6}]},
+        {"id": 25, "points": [{"x": 94, "y": 318}, {"x": 410, "y": 318}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]},
+        {"label": "B", "stroke_ids": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]},
+        {"label": "C", "stroke_ids": [25]}
+      ],
+      "bundles": [
+        [1, 2],
+        [3],
+        [4],
+        [6],
+        [7],
+        [10],
+        [12],
+        [14, 15],
+        [16],
+        [17],
+        [19],
+        [20],
+        [23],
+        [24]
+      ],
+      "crops": {"ink_box": {"ymin": 2000, "xmin": 940, "ymax": 3360, "xmax": 4100}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 69, "margin_left": 29, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 44.75, "xmin": 28.75, "ymax": 494.75, "xmax": 478.75}, "frames": [{"label": "A", "box": {"ymin": 336, "xmin": 136, "ymax": 434, "xmax": 856}}, {"label": "B", "box": {"ymin": 558, "xmin": 150, "ymax": 656, "xmax": 843}}, {"label": "C", "box": {"ymin": 598, "xmin": 136, "ymax": 616, "xmax": 856}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 235, "height": 200, "margin_top": 54, "margin_left": 12, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 119, "xmin": 76, "ymax": 419, "xmax": 428.5}, "frames": [{"label": "A", "box": {"ymin": 260, "xmin": 42, "ymax": 400, "xmax": 957}}, {"label": "B", "box": {"ymin": 593, "xmin": 59, "ymax": 734, "xmax": 940}}, {"label": "C", "box": {"ymin": 653, "xmin": 42, "ymax": 674, "xmax": 957}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 305, "height": 200, "margin_top": 39, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 156.125, "xmin": 80.5, "ymax": 381.125, "xmax": 423.625}, "frames": [{"label": "A", "box": {"ymin": 183, "xmin": 31, "ymax": 367, "xmax": 968}}, {"label": "B", "box": {"ymin": 627, "xmin": 49, "ymax": 812, "xmax": 951}}, {"label": "C", "box": {"ymin": 707, "xmin": 31, "ymax": 732, "xmax": 968}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 446, "height": 206, "margin_top": 12, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 191, "xmin": 85, "ymax": 345.5, "xmax": 419.5}, "frames": [{"label": "A", "box": {"ymin": 43, "xmin": 20, "ymax": 306, "xmax": 979}}, {"label": "B", "box": {"ymin": 690, "xmin": 38, "ymax": 954, "xmax": 961}}, {"label": "C", "box": {"ymin": 807, "xmin": 20, "ymax": 837, "xmax": 979}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "bridge",
+      "description": "«12» and «34» far apart, a line under both 0.3 s on, which joins them; «56» and «78» the same, the line 4 s on, which joins neither.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 104, "y": 210.8}, {"x": 112, "y": 200}, {"x": 112, "y": 236}]},
+        {"id": 2, "points": [{"x": 126, "y": 207.2}, {"x": 132, "y": 200}, {"x": 140, "y": 200}, {"x": 146, "y": 210.8}, {"x": 144, "y": 218}, {"x": 126, "y": 236}, {"x": 146, "y": 236}]},
+        {"id": 3, "points": [{"x": 220, "y": 203.6}, {"x": 228, "y": 200}, {"x": 236, "y": 203.6}, {"x": 238, "y": 210.8}, {"x": 230, "y": 218}, {"x": 238, "y": 225.2}, {"x": 238, "y": 232.4}, {"x": 230, "y": 236}, {"x": 220, "y": 232.4}]},
+        {"id": 4, "points": [{"x": 260, "y": 200}, {"x": 246, "y": 225.2}, {"x": 266, "y": 225.2}]},
+        {"id": 5, "points": [{"x": 260, "y": 210.8}, {"x": 260, "y": 236}]},
+        {"id": 6, "points": [{"x": 98, "y": 245}, {"x": 268, "y": 245}]},
+        {"id": 7, "points": [{"x": 102, "y": 400}, {"x": 102, "y": 414.4}, {"x": 112, "y": 414.4}, {"x": 118, "y": 421.6}, {"x": 118, "y": 428.8}, {"x": 112, "y": 436}, {"x": 100, "y": 432.4}]},
+        {"id": 8, "points": [{"x": 102, "y": 400}, {"x": 118, "y": 400}]},
+        {"id": 9, "points": [{"x": 142, "y": 400}, {"x": 132, "y": 407.2}, {"x": 126, "y": 421.6}, {"x": 128, "y": 432.4}, {"x": 136, "y": 436}, {"x": 144, "y": 428.8}, {"x": 144, "y": 421.6}, {"x": 136, "y": 418}, {"x": 128, "y": 421.6}]},
+        {"id": 10, "points": [{"x": 220, "y": 400}, {"x": 240, "y": 400}, {"x": 228, "y": 436}]},
+        {"id": 11, "points": [{"x": 256, "y": 418}, {"x": 248, "y": 410.8}, {"x": 250, "y": 400}, {"x": 262, "y": 400}, {"x": 264, "y": 410.8}, {"x": 256, "y": 418}, {"x": 246, "y": 425.2}, {"x": 248, "y": 436}, {"x": 264, "y": 436}, {"x": 266, "y": 425.2}, {"x": 256, "y": 418}]},
+        {"id": 12, "points": [{"x": 98, "y": 445}, {"x": 268, "y": 445}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6]},
+        {"label": "B", "stroke_ids": [7, 8, 9]},
+        {"label": "C", "stroke_ids": [10, 11]},
+        {"label": "D", "stroke_ids": [12]}
+      ],
+      "bundles": [
+        [1],
+        [2],
+        [3],
+        [4, 5],
+        [7],
+        [9],
+        [10],
+        [11]
+      ],
+      "crops": {"ink_box": {"ymin": 2000, "xmin": 980, "ymax": 4450, "xmax": 2680}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 45, "margin_left": 62, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 98.75, "xmin": -41.5, "ymax": 548.75, "xmax": 408.5}, "frames": [{"label": "A", "box": {"ymin": 216, "xmin": 301, "ymax": 334, "xmax": 697}}, {"label": "B", "box": {"ymin": 661, "xmin": 306, "ymax": 758, "xmax": 421}}, {"label": "C", "box": {"ymin": 661, "xmin": 572, "ymax": 758, "xmax": 692}}, {"label": "D", "box": {"ymin": 761, "xmin": 301, "ymax": 778, "xmax": 697}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 18, "margin_left": 43, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 173, "xmin": 33.5, "ymax": 473, "xmax": 333.5}, "frames": [{"label": "A", "box": {"ymin": 80, "xmin": 205, "ymax": 250, "xmax": 792}}, {"label": "B", "box": {"ymin": 746, "xmin": 211, "ymax": 887, "xmax": 379}}, {"label": "C", "box": {"ymin": 746, "xmin": 611, "ymax": 887, "xmax": 785}}, {"label": "D", "box": {"ymin": 896, "xmin": 205, "ymax": 917, "xmax": 792}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 242, "margin_top": 12, "margin_left": 24, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 186.5, "xmin": 71, "ymax": 458.75, "xmax": 296}, "frames": [{"label": "A", "box": {"ymin": 39, "xmin": 108, "ymax": 225, "xmax": 888}}, {"label": "B", "box": {"ymin": 774, "xmin": 117, "ymax": 927, "xmax": 337}}, {"label": "C", "box": {"ymin": 774, "xmin": 650, "ymax": 927, "xmax": 879}}, {"label": "D", "box": {"ymin": 939, "xmin": 108, "ymax": 960, "xmax": 888}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 251, "height": 351, "margin_top": 12, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 191, "xmin": 89, "ymax": 454.25, "xmax": 277.25}, "frames": [{"label": "A", "box": {"ymin": 25, "xmin": 35, "ymax": 214, "xmax": 963}}, {"label": "B", "box": {"ymin": 785, "xmin": 46, "ymax": 940, "xmax": 305}}, {"label": "C", "box": {"ymin": 785, "xmin": 683, "ymax": 940, "xmax": 953}}, {"label": "D", "box": {"ymin": 956, "xmin": 35, "ymax": 974, "xmax": 963}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "undone",
+      "description": "«12» erased and brought back by undo 3 s on, «3» written next to it 0.5 s after that, the sheet cleared and that undone: «12» keeps the time it was written, a group apart from «3».",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 104, "y": 210.8}, {"x": 112, "y": 200}, {"x": 112, "y": 236}]},
+        {"id": 2, "points": [{"x": 126, "y": 207.2}, {"x": 132, "y": 200}, {"x": 140, "y": 200}, {"x": 146, "y": 210.8}, {"x": 144, "y": 218}, {"x": 126, "y": 236}, {"x": 146, "y": 236}]},
+        {"id": 3, "points": [{"x": 160, "y": 203.6}, {"x": 168, "y": 200}, {"x": 176, "y": 203.6}, {"x": 178, "y": 210.8}, {"x": 170, "y": 218}, {"x": 178, "y": 225.2}, {"x": 178, "y": 232.4}, {"x": 170, "y": 236}, {"x": 160, "y": 232.4}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2]},
+        {"label": "B", "stroke_ids": [3]}
+      ],
+      "bundles": [
+        [1],
+        [2],
+        [3]
+      ],
+      "crops": {"ink_box": {"ymin": 2000, "xmin": 1040, "ymax": 2360, "xmax": 1780}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 92, "margin_left": 83, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -7, "xmin": -82.75, "ymax": 443, "xmax": 367.25}, "frames": [{"label": "A", "box": {"ymin": 451, "xmin": 406, "ymax": 549, "xmax": 517}}, {"label": "B", "box": {"ymin": 451, "xmin": 531, "ymax": 549, "xmax": 588}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 88, "margin_left": 75, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 68, "xmin": -8.5, "ymax": 368, "xmax": 291.5}, "frames": [{"label": "A", "box": {"ymin": 430, "xmin": 365, "ymax": 570, "xmax": 525}}, {"label": "B", "box": {"ymin": 430, "xmin": 551, "ymax": 570, "xmax": 632}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 84, "margin_left": 67, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 105.5, "xmin": 28.625, "ymax": 330.5, "xmax": 253.625}, "frames": [{"label": "A", "box": {"ymin": 408, "xmin": 323, "ymax": 592, "xmax": 534}}, {"label": "B", "box": {"ymin": 408, "xmin": 572, "ymax": 592, "xmax": 676}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 76, "margin_left": 50, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 143, "xmin": 66.5, "ymax": 293, "xmax": 216.5}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 235, "ymax": 635, "xmax": 545}}, {"label": "B", "box": {"ymin": 365, "xmin": 608, "ymax": 635, "xmax": 759}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "bounds",
+      "description": "Pairs at the rule's bounds and just past them: 2000 and 2001 ms, 50 and 50.1 units across, 50 and 50.1 down.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 100}, {"x": 100, "y": 100}]},
+        {"id": 2, "points": [{"x": 110, "y": 100}, {"x": 110, "y": 100}]},
+        {"id": 3, "points": [{"x": 300, "y": 100}, {"x": 300, "y": 100}]},
+        {"id": 4, "points": [{"x": 310, "y": 100}, {"x": 310, "y": 100}]},
+        {"id": 5, "points": [{"x": 100, "y": 300}, {"x": 100, "y": 340}]},
+        {"id": 6, "points": [{"x": 150, "y": 300}, {"x": 150, "y": 340}]},
+        {"id": 7, "points": [{"x": 300, "y": 300}, {"x": 300, "y": 340}]},
+        {"id": 8, "points": [{"x": 350.1, "y": 300}, {"x": 350.1, "y": 340}]},
+        {"id": 9, "points": [{"x": 100, "y": 500}, {"x": 140, "y": 500}]},
+        {"id": 10, "points": [{"x": 100, "y": 550}, {"x": 140, "y": 550}]},
+        {"id": 11, "points": [{"x": 300, "y": 700}, {"x": 340, "y": 700}]},
+        {"id": 12, "points": [{"x": 300, "y": 750.1}, {"x": 340, "y": 750.1}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2]},
+        {"label": "B", "stroke_ids": [3]},
+        {"label": "C", "stroke_ids": [4]},
+        {"label": "D", "stroke_ids": [5, 6]},
+        {"label": "E", "stroke_ids": [7]},
+        {"label": "F", "stroke_ids": [8]},
+        {"label": "G", "stroke_ids": [9, 10]},
+        {"label": "H", "stroke_ids": [11]},
+        {"label": "I", "stroke_ids": [12]}
+      ],
+      "bundles": [
+        [5],
+        [6],
+        [7],
+        [8]
+      ],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 1000, "ymax": 7501, "xmax": 3501}, "bundle_median": 400, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 285, "margin_top": 12, "margin_left": 49, "scale": 0.4, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 70, "xmin": -22.5, "ymax": 782.5, "xmax": 477.5}, "frames": [{"label": "A", "box": {"ymin": 36, "xmin": 236, "ymax": 48, "xmax": 274}}, {"label": "B", "box": {"ymin": 36, "xmin": 636, "ymax": 48, "xmax": 654}}, {"label": "C", "box": {"ymin": 36, "xmin": 656, "ymax": 48, "xmax": 674}}, {"label": "D", "box": {"ymin": 316, "xmin": 236, "ymax": 385, "xmax": 354}}, {"label": "E", "box": {"ymin": 316, "xmin": 636, "ymax": 385, "xmax": 654}}, {"label": "F", "box": {"ymin": 316, "xmin": 736, "ymax": 385, "xmax": 754}}, {"label": "G", "box": {"ymin": 597, "xmin": 236, "ymax": 680, "xmax": 334}}, {"label": "H", "box": {"ymin": 878, "xmin": 636, "ymax": 891, "xmax": 734}}, {"label": "I", "box": {"ymin": 948, "xmin": 636, "ymax": 961, "xmax": 734}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 415, "margin_top": 12, "margin_left": 24, "scale": 0.6, "line_width": 2, "sheet_box": {"ymin": 80, "xmin": 60, "ymax": 771.6666666666666, "xmax": 393.3333333333333}, "frames": [{"label": "A", "box": {"ymin": 24, "xmin": 110, "ymax": 34, "xmax": 160}}, {"label": "B", "box": {"ymin": 24, "xmin": 710, "ymax": 34, "xmax": 730}}, {"label": "C", "box": {"ymin": 24, "xmin": 740, "ymax": 34, "xmax": 760}}, {"label": "D", "box": {"ymin": 313, "xmin": 110, "ymax": 381, "xmax": 280}}, {"label": "E", "box": {"ymin": 313, "xmin": 710, "ymax": 381, "xmax": 730}}, {"label": "F", "box": {"ymin": 313, "xmin": 860, "ymax": 381, "xmax": 881}}, {"label": "G", "box": {"ymin": 602, "xmin": 110, "ymax": 685, "xmax": 250}}, {"label": "H", "box": {"ymin": 891, "xmin": 710, "ymax": 902, "xmax": 850}}, {"label": "I", "box": {"ymin": 964, "xmin": 710, "ymax": 974, "xmax": 850}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 225, "height": 545, "margin_top": 12, "margin_left": 12, "scale": 0.8, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 85, "xmin": 85, "ymax": 766.25, "xmax": 366.25}, "frames": [{"label": "A", "box": {"ymin": 17, "xmin": 42, "ymax": 27, "xmax": 100}}, {"label": "B", "box": {"ymin": 17, "xmin": 754, "ymax": 27, "xmax": 775}}, {"label": "C", "box": {"ymin": 17, "xmin": 789, "ymax": 27, "xmax": 811}}, {"label": "D", "box": {"ymin": 311, "xmin": 42, "ymax": 379, "xmax": 242}}, {"label": "E", "box": {"ymin": 311, "xmin": 754, "ymax": 379, "xmax": 775}}, {"label": "F", "box": {"ymin": 311, "xmin": 932, "ymax": 379, "xmax": 953}}, {"label": "G", "box": {"ymin": 604, "xmin": 42, "ymax": 687, "xmax": 206}}, {"label": "H", "box": {"ymin": 898, "xmin": 754, "ymax": 908, "xmax": 918}}, {"label": "I", "box": {"ymin": 972, "xmin": 754, "ymax": 981, "xmax": 918}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 325, "height": 805, "margin_top": 12, "margin_left": 12, "scale": 1.2, "line_width": 4, "sheet_box": {"ymin": 90, "xmin": 90, "ymax": 760.8333333333334, "xmax": 360.8333333333333}, "frames": [{"label": "A", "box": {"ymin": 11, "xmin": 27, "ymax": 19, "xmax": 84}}, {"label": "B", "box": {"ymin": 11, "xmin": 766, "ymax": 19, "xmax": 785}}, {"label": "C", "box": {"ymin": 11, "xmin": 803, "ymax": 19, "xmax": 822}}, {"label": "D", "box": {"ymin": 309, "xmin": 27, "ymax": 377, "xmax": 231}}, {"label": "E", "box": {"ymin": 309, "xmin": 766, "ymax": 377, "xmax": 785}}, {"label": "F", "box": {"ymin": 309, "xmin": 951, "ymax": 377, "xmax": 970}}, {"label": "G", "box": {"ymin": 607, "xmin": 27, "ymax": 690, "xmax": 194}}, {"label": "H", "box": {"ymin": 905, "xmin": 766, "ymax": 914, "xmax": 933}}, {"label": "I", "box": {"ymin": 980, "xmin": 766, "ymax": 988, "xmax": 933}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "rounding",
+      "description": "Dots in hundredths of a unit and fractions of a millisecond, in pairs. The rule rounds half up: 100.05 units are 1001 tenths, so the first pair is 500 tenths apart across, the fourth 2000 ms apart and the sixth 500 tenths apart down — neighbours all three, which rounding half to even or cutting the fraction off would part. The second pair, 50.02 units apart, is 501 tenths, and the third and fifth come out at the bounds from just above.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100.05, "y": 100}]},
+        {"id": 2, "points": [{"x": 150.1, "y": 100}]},
+        {"id": 3, "points": [{"x": 300.04, "y": 100}]},
+        {"id": 4, "points": [{"x": 350.06, "y": 100}]},
+        {"id": 5, "points": [{"x": 500.06, "y": 100}]},
+        {"id": 6, "points": [{"x": 550.14, "y": 100}]},
+        {"id": 7, "points": [{"x": 100, "y": 300}]},
+        {"id": 8, "points": [{"x": 110, "y": 300}]},
+        {"id": 9, "points": [{"x": 300, "y": 300}]},
+        {"id": 10, "points": [{"x": 310, "y": 300}]},
+        {"id": 11, "points": [{"x": 500, "y": 300.05}]},
+        {"id": 12, "points": [{"x": 500, "y": 350.1}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2]},
+        {"label": "B", "stroke_ids": [3]},
+        {"label": "C", "stroke_ids": [4]},
+        {"label": "D", "stroke_ids": [5, 6]},
+        {"label": "E", "stroke_ids": [7, 8]},
+        {"label": "F", "stroke_ids": [9, 10]},
+        {"label": "G", "stroke_ids": [11, 12]}
+      ],
+      "bundles": [],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 1000, "ymax": 3501, "xmax": 5501}, "bundle_median": 150, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 505, "height": 291, "margin_top": 12, "margin_left": 12, "scale": 1.0666666666666667, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 88.75, "xmin": 88.75, "ymax": 361.5625, "xmax": 562.1875}, "frames": [{"label": "A", "box": {"ymin": 35, "xmin": 20, "ymax": 47, "xmax": 133}}, {"label": "B", "box": {"ymin": 35, "xmin": 442, "ymax": 47, "xmax": 450}}, {"label": "C", "box": {"ymin": 35, "xmin": 548, "ymax": 47, "xmax": 556}}, {"label": "D", "box": {"ymin": 35, "xmin": 865, "ymax": 47, "xmax": 978}}, {"label": "E", "box": {"ymin": 768, "xmin": 20, "ymax": 781, "xmax": 49}}, {"label": "F", "box": {"ymin": 768, "xmin": 442, "ymax": 781, "xmax": 471}}, {"label": "G", "box": {"ymin": 768, "xmin": 865, "ymax": 964, "xmax": 872}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 745, "height": 425, "margin_top": 12, "margin_left": 12, "scale": 1.6, "line_width": 2, "sheet_box": {"ymin": 92.5, "xmin": 92.5, "ymax": 358.125, "xmax": 558.125}, "frames": [{"label": "A", "box": {"ymin": 23, "xmin": 13, "ymax": 33, "xmax": 127}}, {"label": "B", "box": {"ymin": 23, "xmin": 442, "ymax": 33, "xmax": 449}}, {"label": "C", "box": {"ymin": 23, "xmin": 550, "ymax": 33, "xmax": 556}}, {"label": "D", "box": {"ymin": 23, "xmin": 872, "ymax": 33, "xmax": 986}}, {"label": "E", "box": {"ymin": 776, "xmin": 13, "ymax": 786, "xmax": 41}}, {"label": "F", "box": {"ymin": 776, "xmin": 442, "ymax": 786, "xmax": 470}}, {"label": "G", "box": {"ymin": 776, "xmin": 872, "ymax": 975, "xmax": 878}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 985, "height": 558, "margin_top": 12, "margin_left": 12, "scale": 2.1333333333333333, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 94.375, "xmin": 94.375, "ymax": 355.9375, "xmax": 556.09375}, "frames": [{"label": "A", "box": {"ymin": 17, "xmin": 10, "ymax": 26, "xmax": 124}}, {"label": "B", "box": {"ymin": 17, "xmin": 442, "ymax": 26, "xmax": 448}}, {"label": "C", "box": {"ymin": 17, "xmin": 551, "ymax": 26, "xmax": 557}}, {"label": "D", "box": {"ymin": 17, "xmin": 876, "ymax": 26, "xmax": 990}}, {"label": "E", "box": {"ymin": 781, "xmin": 9, "ymax": 791, "xmax": 37}}, {"label": "F", "box": {"ymin": 781, "xmin": 442, "ymax": 791, "xmax": 470}}, {"label": "G", "box": {"ymin": 782, "xmin": 876, "ymax": 982, "xmax": 881}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 47, "width": 1435, "height": 808, "margin_top": 12, "margin_left": 12, "scale": 3.1333333333333333, "line_width": 3.9166666666666665, "sheet_box": {"ymin": 96.17021276595744, "xmin": 96.17021276595744, "ymax": 354.0425531914894, "xmax": 554.1489361702128}, "frames": [{"label": "A", "box": {"ymin": 11, "xmin": 6, "ymax": 19, "xmax": 120}}, {"label": "B", "box": {"ymin": 11, "xmin": 443, "ymax": 19, "xmax": 448}}, {"label": "C", "box": {"ymin": 11, "xmin": 552, "ymax": 19, "xmax": 557}}, {"label": "D", "box": {"ymin": 11, "xmin": 879, "ymax": 19, "xmax": 994}}, {"label": "E", "box": {"ymin": 786, "xmin": 6, "ymax": 795, "xmax": 33}}, {"label": "F", "box": {"ymin": 786, "xmin": 443, "ymax": 795, "xmax": 469}}, {"label": "G", "box": {"ymin": 787, "xmin": 879, "ymax": 989, "xmax": 884}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "ladder",
+      "description": "A ladder alone, two posts 300 high and seven rungs. The rungs are lines, the posts two bundles, and their median, 300, is over the ceiling: the scale takes 100, and the ladder comes out three digits high.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 300}, {"x": 100, "y": 600}]},
+        {"id": 2, "points": [{"x": 160, "y": 300}, {"x": 160, "y": 600}]},
+        {"id": 3, "points": [{"x": 100, "y": 600}, {"x": 160, "y": 600}]},
+        {"id": 4, "points": [{"x": 100, "y": 550}, {"x": 160, "y": 550}]},
+        {"id": 5, "points": [{"x": 100, "y": 500}, {"x": 160, "y": 500}]},
+        {"id": 6, "points": [{"x": 100, "y": 450}, {"x": 160, "y": 450}]},
+        {"id": 7, "points": [{"x": 100, "y": 400}, {"x": 160, "y": 400}]},
+        {"id": 8, "points": [{"x": 100, "y": 350}, {"x": 160, "y": 350}]},
+        {"id": 9, "points": [{"x": 100, "y": 300}, {"x": 160, "y": 300}]}
+      ],
+      "groups": [{"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]}],
+      "bundles": [
+        [1],
+        [2]
+      ],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 1000, "ymax": 6000, "xmax": 1600}, "bundle_median": 3000, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 76, "margin_left": 95, "scale": 0.16, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -175, "xmin": -493.75, "ymax": 1075, "xmax": 756.25}, "frames": [{"label": "A", "box": {"ymin": 371, "xmin": 466, "ymax": 629, "xmax": 532}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 64, "margin_left": 92, "scale": 0.24, "line_width": 2, "sheet_box": {"ymin": 33.333333333333336, "xmin": -283.3333333333333, "ymax": 866.6666666666666, "xmax": 550}, "frames": [{"label": "A", "box": {"ymin": 310, "xmin": 450, "ymax": 690, "xmax": 542}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 52, "margin_left": 90, "scale": 0.32, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 137.5, "xmin": -181.25, "ymax": 762.5, "xmax": 443.75}, "frames": [{"label": "A", "box": {"ymin": 248, "xmin": 438, "ymax": 752, "xmax": 558}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 28, "margin_left": 85, "scale": 0.48, "line_width": 4, "sheet_box": {"ymin": 241.66666666666666, "xmin": -77.08333333333333, "ymax": 658.3333333333334, "xmax": 339.5833333333333}, "frames": [{"label": "A", "box": {"ymin": 125, "xmin": 410, "ymax": 875, "xmax": 584}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "ladder-30",
+      "description": "The ladder and «30» beside it: four bundles, the two posts and the two digits, and the lower median of them is a digit's height.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 300}, {"x": 100, "y": 600}]},
+        {"id": 2, "points": [{"x": 160, "y": 300}, {"x": 160, "y": 600}]},
+        {"id": 3, "points": [{"x": 100, "y": 600}, {"x": 160, "y": 600}]},
+        {"id": 4, "points": [{"x": 100, "y": 550}, {"x": 160, "y": 550}]},
+        {"id": 5, "points": [{"x": 100, "y": 500}, {"x": 160, "y": 500}]},
+        {"id": 6, "points": [{"x": 100, "y": 450}, {"x": 160, "y": 450}]},
+        {"id": 7, "points": [{"x": 100, "y": 400}, {"x": 160, "y": 400}]},
+        {"id": 8, "points": [{"x": 100, "y": 350}, {"x": 160, "y": 350}]},
+        {"id": 9, "points": [{"x": 100, "y": 300}, {"x": 160, "y": 300}]},
+        {"id": 10, "points": [{"x": 175, "y": 413.6}, {"x": 183, "y": 410}, {"x": 191, "y": 413.6}, {"x": 193, "y": 420.8}, {"x": 185, "y": 428}, {"x": 193, "y": 435.2}, {"x": 193, "y": 442.4}, {"x": 185, "y": 446}, {"x": 175, "y": 442.4}]},
+        {"id": 11, "points": [{"x": 211, "y": 410}, {"x": 217, "y": 413.6}, {"x": 221, "y": 424.4}, {"x": 221, "y": 431.6}, {"x": 217, "y": 442.4}, {"x": 211, "y": 446}, {"x": 205, "y": 442.4}, {"x": 201, "y": 431.6}, {"x": 201, "y": 424.4}, {"x": 205, "y": 413.6}, {"x": 211, "y": 410}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]},
+        {"label": "B", "stroke_ids": [10, 11]}
+      ],
+      "bundles": [
+        [1],
+        [2],
+        [10],
+        [11]
+      ],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 1000, "ymax": 6000, "xmax": 2210}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 33, "margin_left": 73, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 225.75, "xmin": -64.25, "ymax": 675.75, "xmax": 385.75}, "frames": [{"label": "A", "box": {"ymin": 156, "xmin": 356, "ymax": 840, "xmax": 507}}, {"label": "B", "box": {"ymin": 401, "xmin": 523, "ymax": 498, "xmax": 643}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 224, "margin_top": 12, "margin_left": 59, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 282, "xmin": 11.5, "ymax": 618, "xmax": 311.5}, "frames": [{"label": "A", "box": {"ymin": 44, "xmin": 285, "ymax": 956, "xmax": 505}}, {"label": "B", "box": {"ymin": 372, "xmin": 535, "ymax": 498, "xmax": 709}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 291, "margin_top": 12, "margin_left": 46, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 286.5, "xmin": 48.25, "ymax": 613.875, "xmax": 273.25}, "frames": [{"label": "A", "box": {"ymin": 33, "xmin": 218, "ymax": 966, "xmax": 509}}, {"label": "B", "box": {"ymin": 369, "xmin": 551, "ymax": 496, "xmax": 780}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 424, "margin_top": 12, "margin_left": 19, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 291, "xmin": 85.75, "ymax": 609, "xmax": 235.75}, "frames": [{"label": "A", "box": {"ymin": 21, "xmin": 80, "ymax": 979, "xmax": 510}}, {"label": "B", "box": {"ymin": 367, "xmin": 580, "ymax": 495, "xmax": 917}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "house",
+      "description": "A house — walls, a roof of two strokes, a door and a window, all touching — and «3» beside it: the house is one bundle 300 high, the digit another, and the lower median of the two is the digit.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 400}, {"x": 100, "y": 600}, {"x": 300, "y": 600}, {"x": 300, "y": 400}, {"x": 100, "y": 400}]},
+        {"id": 2, "points": [{"x": 100, "y": 400}, {"x": 200, "y": 300}]},
+        {"id": 3, "points": [{"x": 200, "y": 300}, {"x": 300, "y": 400}]},
+        {"id": 4, "points": [{"x": 180, "y": 520}, {"x": 180, "y": 600}, {"x": 220, "y": 600}, {"x": 220, "y": 520}, {"x": 180, "y": 520}]},
+        {"id": 5, "points": [{"x": 120, "y": 440}, {"x": 160, "y": 440}, {"x": 160, "y": 480}, {"x": 120, "y": 480}, {"x": 120, "y": 440}]},
+        {"id": 6, "points": [{"x": 400, "y": 563.6}, {"x": 408, "y": 560}, {"x": 416, "y": 563.6}, {"x": 418, "y": 570.8}, {"x": 410, "y": 578}, {"x": 418, "y": 585.2}, {"x": 418, "y": 592.4}, {"x": 410, "y": 596}, {"x": 400, "y": 592.4}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5]},
+        {"label": "B", "stroke_ids": [6]}
+      ],
+      "bundles": [
+        [1, 2, 3, 4, 5],
+        [6]
+      ],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 1000, "ymax": 6000, "xmax": 4180}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 33, "margin_left": 29, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 225.75, "xmin": 34.75, "ymax": 675.75, "xmax": 484.75}, "frames": [{"label": "A", "box": {"ymin": 156, "xmin": 136, "ymax": 840, "xmax": 598}}, {"label": "B", "box": {"ymin": 734, "xmin": 803, "ymax": 832, "xmax": 860}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 236, "height": 224, "margin_top": 12, "margin_left": 12, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 282, "xmin": 82, "ymax": 618, "xmax": 436}, "frames": [{"label": "A", "box": {"ymin": 44, "xmin": 42, "ymax": 956, "xmax": 625}}, {"label": "B", "box": {"ymin": 818, "xmin": 889, "ymax": 944, "xmax": 958}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 307, "height": 291, "margin_top": 12, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 286.5, "xmin": 86.5, "ymax": 613.875, "xmax": 431.875}, "frames": [{"label": "A", "box": {"ymin": 33, "xmin": 31, "ymax": 966, "xmax": 626}}, {"label": "B", "box": {"ymin": 827, "xmin": 900, "ymax": 954, "xmax": 968}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 448, "height": 424, "margin_top": 12, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 291, "xmin": 91, "ymax": 609, "xmax": 427}, "frames": [{"label": "A", "box": {"ymin": 21, "xmin": 20, "ymax": 979, "xmax": 629}}, {"label": "B", "box": {"ymin": 838, "xmin": 912, "ymax": 967, "xmax": 980}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "fraction",
+      "description": "«3/4 = 6/8», each bar touching both its digits, which are 2 units apart: the bars are lines and join nothing, so each digit is a bundle of its own.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 303.6}, {"x": 108, "y": 300}, {"x": 116, "y": 303.6}, {"x": 118, "y": 310.8}, {"x": 110, "y": 318}, {"x": 118, "y": 325.2}, {"x": 118, "y": 332.4}, {"x": 110, "y": 336}, {"x": 100, "y": 332.4}]},
+        {"id": 2, "points": [{"x": 96, "y": 336}, {"x": 110, "y": 338}, {"x": 124, "y": 336}]},
+        {"id": 3, "points": [{"x": 114, "y": 338}, {"x": 100, "y": 363.2}, {"x": 120, "y": 363.2}]},
+        {"id": 4, "points": [{"x": 114, "y": 348.8}, {"x": 114, "y": 374}]},
+        {"id": 5, "points": [{"x": 142, "y": 329.8}, {"x": 158, "y": 329.8}]},
+        {"id": 6, "points": [{"x": 142, "y": 344.2}, {"x": 158, "y": 344.2}]},
+        {"id": 7, "points": [{"x": 196, "y": 300}, {"x": 186, "y": 307.2}, {"x": 180, "y": 321.6}, {"x": 182, "y": 332.4}, {"x": 190, "y": 336}, {"x": 198, "y": 328.8}, {"x": 198, "y": 321.6}, {"x": 190, "y": 318}, {"x": 182, "y": 321.6}]},
+        {"id": 8, "points": [{"x": 176, "y": 336}, {"x": 190, "y": 338}, {"x": 204, "y": 336}]},
+        {"id": 9, "points": [{"x": 190, "y": 356}, {"x": 182, "y": 348.8}, {"x": 184, "y": 338}, {"x": 196, "y": 338}, {"x": 198, "y": 348.8}, {"x": 190, "y": 356}, {"x": 180, "y": 363.2}, {"x": 182, "y": 374}, {"x": 198, "y": 374}, {"x": 200, "y": 363.2}, {"x": 190, "y": 356}]}
+      ],
+      "groups": [{"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]}],
+      "bundles": [
+        [1],
+        [3, 4],
+        [7],
+        [9]
+      ],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 960, "ymax": 3740, "xmax": 2040}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 83, "margin_left": 76, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 113.25, "xmin": -75, "ymax": 563.25, "xmax": 375}, "frames": [{"label": "A", "box": {"ymin": 406, "xmin": 371, "ymax": 588, "xmax": 629}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 75, "margin_left": 64, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 187.5, "xmin": 0, "ymax": 487.5, "xmax": 300}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 310, "ymax": 632, "xmax": 690}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 67, "margin_left": 52, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 224.625, "xmin": 37.5, "ymax": 449.625, "xmax": 262.5}, "frames": [{"label": "A", "box": {"ymin": 323, "xmin": 248, "ymax": 676, "xmax": 752}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 50, "margin_left": 28, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 262.5, "xmin": 75, "ymax": 412.5, "xmax": 225}, "frames": [{"label": "A", "box": {"ymin": 235, "xmin": 125, "ymax": 759, "xmax": 875}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "rows",
+      "description": "Three rows of digits 50 high, a row to a cell of the default grid, each touching the next: the digits of a column join into one bundle 150 high, and the median is over the ceiling. The rule's weak spot, and one reason for its ceiling.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 106, "y": 115}, {"x": 118, "y": 100}, {"x": 118, "y": 150}]},
+        {"id": 2, "points": [{"x": 140, "y": 110}, {"x": 149, "y": 100}, {"x": 161, "y": 100}, {"x": 170, "y": 115}, {"x": 167, "y": 125}, {"x": 140, "y": 150}, {"x": 170, "y": 150}]},
+        {"id": 3, "points": [{"x": 180, "y": 105}, {"x": 192, "y": 100}, {"x": 204, "y": 105}, {"x": 207, "y": 115}, {"x": 195, "y": 125}, {"x": 207, "y": 135}, {"x": 207, "y": 145}, {"x": 195, "y": 150}, {"x": 180, "y": 145}]},
+        {"id": 4, "points": [{"x": 121, "y": 150}, {"x": 100, "y": 185}, {"x": 130, "y": 185}]},
+        {"id": 5, "points": [{"x": 121, "y": 165}, {"x": 121, "y": 200}]},
+        {"id": 6, "points": [{"x": 143, "y": 150}, {"x": 143, "y": 170}, {"x": 158, "y": 170}, {"x": 167, "y": 180}, {"x": 167, "y": 190}, {"x": 158, "y": 200}, {"x": 140, "y": 195}]},
+        {"id": 7, "points": [{"x": 143, "y": 150}, {"x": 167, "y": 150}]},
+        {"id": 8, "points": [{"x": 204, "y": 150}, {"x": 189, "y": 160}, {"x": 180, "y": 180}, {"x": 183, "y": 195}, {"x": 195, "y": 200}, {"x": 207, "y": 190}, {"x": 207, "y": 180}, {"x": 195, "y": 175}, {"x": 183, "y": 180}]},
+        {"id": 9, "points": [{"x": 100, "y": 200}, {"x": 130, "y": 200}, {"x": 112, "y": 250}]},
+        {"id": 10, "points": [{"x": 155, "y": 225}, {"x": 143, "y": 215}, {"x": 146, "y": 200}, {"x": 164, "y": 200}, {"x": 167, "y": 215}, {"x": 155, "y": 225}, {"x": 140, "y": 235}, {"x": 143, "y": 250}, {"x": 167, "y": 250}, {"x": 170, "y": 235}, {"x": 155, "y": 225}]},
+        {"id": 11, "points": [{"x": 207, "y": 220}, {"x": 195, "y": 225}, {"x": 183, "y": 220}, {"x": 183, "y": 205}, {"x": 195, "y": 200}, {"x": 207, "y": 205}, {"x": 207, "y": 220}, {"x": 204, "y": 250}]}
+      ],
+      "groups": [{"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}],
+      "bundles": [
+        [1, 4, 5, 9],
+        [2, 6, 10],
+        [3, 8, 11]
+      ],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 1000, "ymax": 2500, "xmax": 2070}, "bundle_median": 1500, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 88, "margin_left": 91, "scale": 0.16, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -450, "xmin": -468.75, "ymax": 800, "xmax": 781.25}, "frames": [{"label": "A", "box": {"ymin": 431, "xmin": 446, "ymax": 569, "xmax": 549}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 82, "margin_left": 87, "scale": 0.24, "line_width": 2, "sheet_box": {"ymin": -241.66666666666666, "xmin": -262.5, "ymax": 591.6666666666666, "xmax": 570.8333333333334}, "frames": [{"label": "A", "box": {"ymin": 400, "xmin": 425, "ymax": 600, "xmax": 574}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 76, "margin_left": 82, "scale": 0.32, "line_width": 2.6666666666666665, "sheet_box": {"ymin": -137.5, "xmin": -156.25, "ymax": 487.5, "xmax": 468.75}, "frames": [{"label": "A", "box": {"ymin": 368, "xmin": 398, "ymax": 632, "xmax": 593}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 64, "margin_left": 74, "scale": 0.48, "line_width": 4, "sheet_box": {"ymin": -33.333333333333336, "xmin": -54.166666666666664, "ymax": 383.3333333333333, "xmax": 362.5}, "frames": [{"label": "A", "box": {"ymin": 305, "xmin": 355, "ymax": 695, "xmax": 642}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "slant",
+      "description": "«5» and an underline 150 long that slants 4°, 10.5 units from end to end: under the floor of 15, a line, so the median is the digit's.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 102, "y": 200}, {"x": 102, "y": 214.4}, {"x": 112, "y": 214.4}, {"x": 118, "y": 221.6}, {"x": 118, "y": 228.8}, {"x": 112, "y": 236}, {"x": 100, "y": 232.4}]},
+        {"id": 2, "points": [{"x": 102, "y": 200}, {"x": 118, "y": 200}]},
+        {"id": 3, "points": [{"x": 95, "y": 240}, {"x": 245, "y": 250.5}]}
+      ],
+      "groups": [{"label": "A", "stroke_ids": [1, 2, 3]}],
+      "bundles": [[1]],
+      "crops": {"ink_box": {"ymin": 2000, "xmin": 950, "ymax": 2505, "xmax": 2450}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 88, "margin_left": 66, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 2, "xmin": -53.5, "ymax": 452, "xmax": 396.5}, "frames": [{"label": "A", "box": {"ymin": 431, "xmin": 321, "ymax": 561, "xmax": 672}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 83, "margin_left": 50, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 75.5, "xmin": 20, "ymax": 375.5, "xmax": 320}, "frames": [{"label": "A", "box": {"ymin": 405, "xmin": 240, "ymax": 594, "xmax": 760}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 77, "margin_left": 33, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 113.375, "xmin": 57.875, "ymax": 338.375, "xmax": 282.875}, "frames": [{"label": "A", "box": {"ymin": 373, "xmin": 153, "ymax": 622, "xmax": 844}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 224, "height": 200, "margin_top": 66, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 150.5, "xmin": 86, "ymax": 300.5, "xmax": 254}, "frames": [{"label": "A", "box": {"ymin": 315, "xmin": 40, "ymax": 682, "xmax": 960}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "ringed",
+      "description": "«7 − 1 = 6» with a ring round the 6: the ring's box holds the digit's, so the two are one bundle 56 high, and the lower median of the three bundles is a digit's.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 300}, {"x": 120, "y": 300}, {"x": 108, "y": 336}]},
+        {"id": 2, "points": [{"x": 154, "y": 318}, {"x": 170, "y": 318}]},
+        {"id": 3, "points": [{"x": 208, "y": 310.8}, {"x": 216, "y": 300}, {"x": 216, "y": 336}]},
+        {"id": 4, "points": [{"x": 258, "y": 310.8}, {"x": 274, "y": 310.8}]},
+        {"id": 5, "points": [{"x": 258, "y": 325.2}, {"x": 274, "y": 325.2}]},
+        {"id": 6, "points": [{"x": 324, "y": 300}, {"x": 314, "y": 307.2}, {"x": 308, "y": 321.6}, {"x": 310, "y": 332.4}, {"x": 318, "y": 336}, {"x": 326, "y": 328.8}, {"x": 326, "y": 321.6}, {"x": 318, "y": 318}, {"x": 310, "y": 321.6}]},
+        {"id": 7, "points": [{"x": 318, "y": 290}, {"x": 328.8, "y": 295.6}, {"x": 336, "y": 312.4}, {"x": 336, "y": 323.6}, {"x": 328.8, "y": 340.4}, {"x": 318, "y": 346}, {"x": 307.2, "y": 340.4}, {"x": 300, "y": 323.6}, {"x": 300, "y": 312.4}, {"x": 307.2, "y": 295.6}, {"x": 318, "y": 290}]}
+      ],
+      "groups": [{"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7]}],
+      "bundles": [
+        [1],
+        [3],
+        [6, 7]
+      ],
+      "crops": {"ink_box": {"ymin": 2900, "xmin": 1000, "ymax": 3460, "xmax": 3360}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 87, "margin_left": 47, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 94.25, "xmin": -5.75, "ymax": 544.25, "xmax": 444.25}, "frames": [{"label": "A", "box": {"ymin": 426, "xmin": 226, "ymax": 568, "xmax": 768}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 81, "margin_left": 21, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 168.5, "xmin": 68.5, "ymax": 468.5, "xmax": 368.5}, "frames": [{"label": "A", "box": {"ymin": 395, "xmin": 95, "ymax": 602, "xmax": 902}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 234, "height": 200, "margin_top": 75, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 205.625, "xmin": 86.5, "ymax": 430.625, "xmax": 349.75}, "frames": [{"label": "A", "box": {"ymin": 363, "xmin": 41, "ymax": 636, "xmax": 958}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 339, "height": 200, "margin_top": 62, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 243.5, "xmin": 91, "ymax": 393.5, "xmax": 345.25}, "frames": [{"label": "A", "box": {"ymin": 295, "xmin": 26, "ymax": 699, "xmax": 973}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "crossed-out",
+      "description": "«47 + 19 = 56» crossed out by an X over the whole line, and «47 + 19 = 66» written below: the X joins the line it crosses into one bundle 46 high, and the line below gives the median.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 114, "y": 200}, {"x": 100, "y": 225.2}, {"x": 120, "y": 225.2}]},
+        {"id": 2, "points": [{"x": 114, "y": 210.8}, {"x": 114, "y": 236}]},
+        {"id": 3, "points": [{"x": 126, "y": 200}, {"x": 146, "y": 200}, {"x": 134, "y": 236}]},
+        {"id": 4, "points": [{"x": 188, "y": 207.2}, {"x": 188, "y": 228.8}]},
+        {"id": 5, "points": [{"x": 182, "y": 218}, {"x": 194, "y": 218}]},
+        {"id": 6, "points": [{"x": 234, "y": 210.8}, {"x": 242, "y": 200}, {"x": 242, "y": 236}]},
+        {"id": 7, "points": [{"x": 274, "y": 214.4}, {"x": 266, "y": 218}, {"x": 258, "y": 214.4}, {"x": 258, "y": 203.6}, {"x": 266, "y": 200}, {"x": 274, "y": 203.6}, {"x": 274, "y": 214.4}, {"x": 272, "y": 236}]},
+        {"id": 8, "points": [{"x": 310, "y": 210.8}, {"x": 326, "y": 210.8}]},
+        {"id": 9, "points": [{"x": 310, "y": 225.2}, {"x": 326, "y": 225.2}]},
+        {"id": 10, "points": [{"x": 362, "y": 200}, {"x": 362, "y": 214.4}, {"x": 372, "y": 214.4}, {"x": 378, "y": 221.6}, {"x": 378, "y": 228.8}, {"x": 372, "y": 236}, {"x": 360, "y": 232.4}]},
+        {"id": 11, "points": [{"x": 362, "y": 200}, {"x": 378, "y": 200}]},
+        {"id": 12, "points": [{"x": 402, "y": 200}, {"x": 392, "y": 207.2}, {"x": 386, "y": 221.6}, {"x": 388, "y": 232.4}, {"x": 396, "y": 236}, {"x": 404, "y": 228.8}, {"x": 404, "y": 221.6}, {"x": 396, "y": 218}, {"x": 388, "y": 221.6}]},
+        {"id": 13, "points": [{"x": 90, "y": 195}, {"x": 410, "y": 241}]},
+        {"id": 14, "points": [{"x": 90, "y": 241}, {"x": 410, "y": 195}]},
+        {"id": 15, "points": [{"x": 114, "y": 300}, {"x": 100, "y": 325.2}, {"x": 120, "y": 325.2}]},
+        {"id": 16, "points": [{"x": 114, "y": 310.8}, {"x": 114, "y": 336}]},
+        {"id": 17, "points": [{"x": 126, "y": 300}, {"x": 146, "y": 300}, {"x": 134, "y": 336}]},
+        {"id": 18, "points": [{"x": 188, "y": 307.2}, {"x": 188, "y": 328.8}]},
+        {"id": 19, "points": [{"x": 182, "y": 318}, {"x": 194, "y": 318}]},
+        {"id": 20, "points": [{"x": 234, "y": 310.8}, {"x": 242, "y": 300}, {"x": 242, "y": 336}]},
+        {"id": 21, "points": [{"x": 274, "y": 314.4}, {"x": 266, "y": 318}, {"x": 258, "y": 314.4}, {"x": 258, "y": 303.6}, {"x": 266, "y": 300}, {"x": 274, "y": 303.6}, {"x": 274, "y": 314.4}, {"x": 272, "y": 336}]},
+        {"id": 22, "points": [{"x": 310, "y": 310.8}, {"x": 326, "y": 310.8}]},
+        {"id": 23, "points": [{"x": 310, "y": 325.2}, {"x": 326, "y": 325.2}]},
+        {"id": 24, "points": [{"x": 376, "y": 300}, {"x": 366, "y": 307.2}, {"x": 360, "y": 321.6}, {"x": 362, "y": 332.4}, {"x": 370, "y": 336}, {"x": 378, "y": 328.8}, {"x": 378, "y": 321.6}, {"x": 370, "y": 318}, {"x": 362, "y": 321.6}]},
+        {"id": 25, "points": [{"x": 402, "y": 300}, {"x": 392, "y": 307.2}, {"x": 386, "y": 321.6}, {"x": 388, "y": 332.4}, {"x": 396, "y": 336}, {"x": 404, "y": 328.8}, {"x": 404, "y": 321.6}, {"x": 396, "y": 318}, {"x": 388, "y": 321.6}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]},
+        {"label": "B", "stroke_ids": [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]}
+      ],
+      "bundles": [
+        [1, 2, 3, 4, 6, 7, 10, 12, 13, 14],
+        [15, 16],
+        [17],
+        [18],
+        [20],
+        [21],
+        [24],
+        [25]
+      ],
+      "crops": {"ink_box": {"ymin": 1950, "xmin": 900, "ymax": 3360, "xmax": 4100}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 68, "margin_left": 28, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 42, "xmin": 27, "ymax": 492, "xmax": 477}, "frames": [{"label": "A", "box": {"ymin": 331, "xmin": 131, "ymax": 451, "xmax": 860}}, {"label": "B", "box": {"ymin": 565, "xmin": 153, "ymax": 662, "xmax": 847}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 238, "height": 200, "margin_top": 53, "margin_left": 12, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 115.5, "xmin": 72, "ymax": 415.5, "xmax": 429}, "frames": [{"label": "A", "box": {"ymin": 255, "xmin": 42, "ymax": 429, "xmax": 956}}, {"label": "B", "box": {"ymin": 605, "xmin": 70, "ymax": 745, "xmax": 939}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 309, "height": 200, "margin_top": 37, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 153.375, "xmin": 76.5, "ymax": 378.375, "xmax": 424.125}, "frames": [{"label": "A", "box": {"ymin": 173, "xmin": 31, "ymax": 402, "xmax": 967}}, {"label": "B", "box": {"ymin": 640, "xmin": 60, "ymax": 824, "xmax": 950}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 451, "height": 212, "margin_top": 12, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 186, "xmin": 81, "ymax": 345, "xmax": 419.25}, "frames": [{"label": "A", "box": {"ymin": 42, "xmin": 19, "ymax": 361, "xmax": 980}}, {"label": "B", "box": {"ymin": 702, "xmin": 49, "ymax": 958, "xmax": 962}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "table",
+      "description": "A drawn table of two rows and two columns, a number in each cell clear of its lines: the upright lines are bundles 120 high, the others are lines, and the digits give the median.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 100}, {"x": 100, "y": 220}]},
+        {"id": 2, "points": [{"x": 200, "y": 100}, {"x": 200, "y": 220}]},
+        {"id": 3, "points": [{"x": 300, "y": 100}, {"x": 300, "y": 220}]},
+        {"id": 4, "points": [{"x": 100, "y": 100}, {"x": 300, "y": 100}]},
+        {"id": 5, "points": [{"x": 100, "y": 160}, {"x": 300, "y": 160}]},
+        {"id": 6, "points": [{"x": 100, "y": 220}, {"x": 300, "y": 220}]},
+        {"id": 7, "points": [{"x": 131, "y": 122.8}, {"x": 139, "y": 112}, {"x": 139, "y": 148}]},
+        {"id": 8, "points": [{"x": 153, "y": 119.2}, {"x": 159, "y": 112}, {"x": 167, "y": 112}, {"x": 173, "y": 122.8}, {"x": 171, "y": 130}, {"x": 153, "y": 148}, {"x": 173, "y": 148}]},
+        {"id": 9, "points": [{"x": 227, "y": 115.6}, {"x": 235, "y": 112}, {"x": 243, "y": 115.6}, {"x": 245, "y": 122.8}, {"x": 237, "y": 130}, {"x": 245, "y": 137.2}, {"x": 245, "y": 144.4}, {"x": 237, "y": 148}, {"x": 227, "y": 144.4}]},
+        {"id": 10, "points": [{"x": 267, "y": 112}, {"x": 253, "y": 137.2}, {"x": 273, "y": 137.2}]},
+        {"id": 11, "points": [{"x": 267, "y": 122.8}, {"x": 267, "y": 148}]},
+        {"id": 12, "points": [{"x": 129, "y": 172}, {"x": 129, "y": 186.4}, {"x": 139, "y": 186.4}, {"x": 145, "y": 193.6}, {"x": 145, "y": 200.8}, {"x": 139, "y": 208}, {"x": 127, "y": 204.4}]},
+        {"id": 13, "points": [{"x": 129, "y": 172}, {"x": 145, "y": 172}]},
+        {"id": 14, "points": [{"x": 169, "y": 172}, {"x": 159, "y": 179.2}, {"x": 153, "y": 193.6}, {"x": 155, "y": 204.4}, {"x": 163, "y": 208}, {"x": 171, "y": 200.8}, {"x": 171, "y": 193.6}, {"x": 163, "y": 190}, {"x": 155, "y": 193.6}]},
+        {"id": 15, "points": [{"x": 227, "y": 172}, {"x": 247, "y": 172}, {"x": 235, "y": 208}]},
+        {"id": 16, "points": [{"x": 263, "y": 190}, {"x": 255, "y": 182.8}, {"x": 257, "y": 172}, {"x": 269, "y": 172}, {"x": 271, "y": 182.8}, {"x": 263, "y": 190}, {"x": 253, "y": 197.2}, {"x": 255, "y": 208}, {"x": 271, "y": 208}, {"x": 273, "y": 197.2}, {"x": 263, "y": 190}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6]},
+        {"label": "B", "stroke_ids": [7, 8]},
+        {"label": "C", "stroke_ids": [9, 10, 11]},
+        {"label": "D", "stroke_ids": [12, 13, 14]},
+        {"label": "E", "stroke_ids": [15, 16]}
+      ],
+      "bundles": [
+        [1],
+        [2],
+        [3],
+        [7],
+        [8],
+        [9],
+        [10, 11],
+        [12],
+        [14],
+        [15],
+        [16]
+      ],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 1000, "ymax": 2200, "xmax": 3000}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 73, "margin_left": 55, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -64.25, "xmin": -23.75, "ymax": 385.75, "xmax": 426.25}, "frames": [{"label": "A", "box": {"ymin": 356, "xmin": 266, "ymax": 640, "xmax": 728}}, {"label": "B", "box": {"ymin": 383, "xmin": 335, "ymax": 480, "xmax": 446}}, {"label": "C", "box": {"ymin": 383, "xmin": 548, "ymax": 480, "xmax": 668}}, {"label": "D", "box": {"ymin": 516, "xmin": 326, "ymax": 614, "xmax": 442}}, {"label": "E", "box": {"ymin": 516, "xmin": 548, "ymax": 614, "xmax": 668}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 60, "margin_left": 33, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 10, "xmin": 50.5, "ymax": 310, "xmax": 350.5}, "frames": [{"label": "A", "box": {"ymin": 290, "xmin": 155, "ymax": 710, "xmax": 842}}, {"label": "B", "box": {"ymin": 330, "xmin": 258, "ymax": 470, "xmax": 419}}, {"label": "C", "box": {"ymin": 330, "xmin": 578, "ymax": 470, "xmax": 752}}, {"label": "D", "box": {"ymin": 530, "xmin": 245, "ymax": 670, "xmax": 412}}, {"label": "E", "box": {"ymin": 530, "xmin": 578, "ymax": 670, "xmax": 752}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 202, "height": 200, "margin_top": 46, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 48.25, "xmin": 86.5, "ymax": 273.25, "xmax": 313.75}, "frames": [{"label": "A", "box": {"ymin": 218, "xmin": 47, "ymax": 775, "xmax": 952}}, {"label": "B", "box": {"ymin": 271, "xmin": 184, "ymax": 455, "xmax": 393}}, {"label": "C", "box": {"ymin": 271, "xmin": 606, "ymax": 455, "xmax": 833}}, {"label": "D", "box": {"ymin": 538, "xmin": 166, "ymax": 722, "xmax": 384}}, {"label": "E", "box": {"ymin": 538, "xmin": 606, "ymax": 722, "xmax": 833}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 291, "height": 200, "margin_top": 20, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 85, "xmin": 91, "ymax": 235, "xmax": 309.25}, "frames": [{"label": "A", "box": {"ymin": 85, "xmin": 30, "ymax": 915, "xmax": 968}}, {"label": "B", "box": {"ymin": 165, "xmin": 172, "ymax": 435, "xmax": 387}}, {"label": "C", "box": {"ymin": 165, "xmin": 612, "ymax": 435, "xmax": 845}}, {"label": "D", "box": {"ymin": 565, "xmin": 154, "ymax": 835, "xmax": 377}}, {"label": "E", "box": {"ymin": 565, "xmin": 612, "ymax": 835, "xmax": 845}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "column",
+      "description": "47 + 19 summed in a column without a pause to think: one group 141 high, but each digit a bundle of its own, so the median is a digit's.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 114, "y": 100}, {"x": 100, "y": 125.2}, {"x": 120, "y": 125.2}]},
+        {"id": 2, "points": [{"x": 114, "y": 110.8}, {"x": 114, "y": 136}]},
+        {"id": 3, "points": [{"x": 126, "y": 100}, {"x": 146, "y": 100}, {"x": 134, "y": 136}]},
+        {"id": 4, "points": [{"x": 70, "y": 132.2}, {"x": 70, "y": 153.8}]},
+        {"id": 5, "points": [{"x": 64, "y": 143}, {"x": 76, "y": 143}]},
+        {"id": 6, "points": [{"x": 104, "y": 160.8}, {"x": 112, "y": 150}, {"x": 112, "y": 186}]},
+        {"id": 7, "points": [{"x": 144, "y": 164.4}, {"x": 136, "y": 168}, {"x": 128, "y": 164.4}, {"x": 128, "y": 153.6}, {"x": 136, "y": 150}, {"x": 144, "y": 153.6}, {"x": 144, "y": 164.4}, {"x": 142, "y": 186}]},
+        {"id": 8, "points": [{"x": 55, "y": 195}, {"x": 150, "y": 195}]},
+        {"id": 9, "points": [{"x": 116, "y": 205}, {"x": 106, "y": 212.2}, {"x": 100, "y": 226.6}, {"x": 102, "y": 237.4}, {"x": 110, "y": 241}, {"x": 118, "y": 233.8}, {"x": 118, "y": 226.6}, {"x": 110, "y": 223}, {"x": 102, "y": 226.6}]},
+        {"id": 10, "points": [{"x": 142, "y": 205}, {"x": 132, "y": 212.2}, {"x": 126, "y": 226.6}, {"x": 128, "y": 237.4}, {"x": 136, "y": 241}, {"x": 144, "y": 233.8}, {"x": 144, "y": 226.6}, {"x": 136, "y": 223}, {"x": 128, "y": 226.6}]}
+      ],
+      "groups": [{"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}],
+      "bundles": [
+        [1, 2],
+        [3],
+        [4],
+        [6],
+        [7],
+        [9],
+        [10]
+      ],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 550, "ymax": 2410, "xmax": 1500}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 68, "margin_left": 78, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -53, "xmin": -120.5, "ymax": 397, "xmax": 329.5}, "frames": [{"label": "A", "box": {"ymin": 331, "xmin": 381, "ymax": 662, "xmax": 610}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 53, "margin_left": 68, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 20.5, "xmin": -47, "ymax": 320.5, "xmax": 253}, "frames": [{"label": "A", "box": {"ymin": 255, "xmin": 330, "ymax": 745, "xmax": 667}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 37, "margin_left": 57, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 58.375, "xmin": -9.125, "ymax": 283.375, "xmax": 215.875}, "frames": [{"label": "A", "box": {"ymin": 173, "xmin": 273, "ymax": 824, "xmax": 719}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 212, "margin_top": 12, "margin_left": 36, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 91, "xmin": 28, "ymax": 250, "xmax": 178}, "frames": [{"label": "A", "box": {"ymin": 42, "xmin": 165, "ymax": 958, "xmax": 829}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "fours",
+      "description": "«4 + 4 = 8»: each 4, of two strokes that cross, is one bundle, the + a bundle 21.6 high, and the lower median of the four is a digit's.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 114, "y": 200}, {"x": 100, "y": 225.2}, {"x": 120, "y": 225.2}]},
+        {"id": 2, "points": [{"x": 114, "y": 210.8}, {"x": 114, "y": 236}]},
+        {"id": 3, "points": [{"x": 162, "y": 207.2}, {"x": 162, "y": 228.8}]},
+        {"id": 4, "points": [{"x": 156, "y": 218}, {"x": 168, "y": 218}]},
+        {"id": 5, "points": [{"x": 218, "y": 200}, {"x": 204, "y": 225.2}, {"x": 224, "y": 225.2}]},
+        {"id": 6, "points": [{"x": 218, "y": 210.8}, {"x": 218, "y": 236}]},
+        {"id": 7, "points": [{"x": 258, "y": 210.8}, {"x": 274, "y": 210.8}]},
+        {"id": 8, "points": [{"x": 258, "y": 225.2}, {"x": 274, "y": 225.2}]},
+        {"id": 9, "points": [{"x": 318, "y": 218}, {"x": 310, "y": 210.8}, {"x": 312, "y": 200}, {"x": 324, "y": 200}, {"x": 326, "y": 210.8}, {"x": 318, "y": 218}, {"x": 308, "y": 225.2}, {"x": 310, "y": 236}, {"x": 326, "y": 236}, {"x": 328, "y": 225.2}, {"x": 318, "y": 218}]}
+      ],
+      "groups": [{"label": "A", "stroke_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]}],
+      "bundles": [
+        [1, 2],
+        [3],
+        [5, 6],
+        [9]
+      ],
+      "crops": {"ink_box": {"ymin": 2000, "xmin": 1000, "ymax": 2360, "xmax": 3280}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 92, "margin_left": 49, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -7, "xmin": -10.25, "ymax": 443, "xmax": 439.75}, "frames": [{"label": "A", "box": {"ymin": 451, "xmin": 236, "ymax": 549, "xmax": 760}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 88, "margin_left": 24, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 68, "xmin": 64, "ymax": 368, "xmax": 364}, "frames": [{"label": "A", "box": {"ymin": 430, "xmin": 110, "ymax": 570, "xmax": 890}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 227, "height": 200, "margin_top": 84, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 105.5, "xmin": 86.5, "ymax": 330.5, "xmax": 341.875}, "frames": [{"label": "A", "box": {"ymin": 408, "xmin": 42, "ymax": 592, "xmax": 956}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 328, "height": 200, "margin_top": 76, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 143, "xmin": 91, "ymax": 293, "xmax": 337}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 27, "ymax": 635, "xmax": 973}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "dashes",
+      "description": "Three minus signs and a dot: lines, all of them, so there is no bundle and the median is the floor, 15.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 102, "y": 218}, {"x": 118, "y": 218}]},
+        {"id": 2, "points": [{"x": 154, "y": 218}, {"x": 170, "y": 218}]},
+        {"id": 3, "points": [{"x": 206, "y": 218}, {"x": 222, "y": 218}]},
+        {"id": 4, "points": [{"x": 300, "y": 218}, {"x": 300, "y": 218}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3]},
+        {"label": "B", "stroke_ids": [4]}
+      ],
+      "bundles": [],
+      "crops": {"ink_box": {"ymin": 2180, "xmin": 1020, "ymax": 2180, "xmax": 3000}, "bundle_median": 150, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 236, "height": 200, "margin_top": 100, "margin_left": 12, "scale": 1.0666666666666667, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 124.25, "xmin": 90.75, "ymax": 311.75, "xmax": 312}, "frames": [{"label": "A", "box": {"ymin": 491, "xmin": 43, "ymax": 509, "xmax": 601}}, {"label": "B", "box": {"ymin": 491, "xmin": 938, "ymax": 509, "xmax": 953}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 341, "height": 200, "margin_top": 100, "margin_left": 12, "scale": 1.6, "line_width": 2, "sheet_box": {"ymin": 155.5, "xmin": 94.5, "ymax": 280.5, "xmax": 307.625}, "frames": [{"label": "A", "box": {"ymin": 490, "xmin": 29, "ymax": 510, "xmax": 605}}, {"label": "B", "box": {"ymin": 490, "xmin": 958, "ymax": 510, "xmax": 971}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 447, "height": 200, "margin_top": 100, "margin_left": 12, "scale": 2.1333333333333333, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 171.125, "xmin": 96.375, "ymax": 264.875, "xmax": 305.90625}, "frames": [{"label": "A", "box": {"ymin": 488, "xmin": 21, "ymax": 512, "xmax": 605}}, {"label": "B", "box": {"ymin": 488, "xmin": 966, "ymax": 512, "xmax": 978}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 658, "height": 200, "margin_top": 100, "margin_left": 12, "scale": 3.2, "line_width": 4, "sheet_box": {"ymin": 186.75, "xmin": 98.25, "ymax": 249.25, "xmax": 303.875}, "frames": [{"label": "A", "box": {"ymin": 485, "xmin": 13, "ymax": 515, "xmax": 607}}, {"label": "B", "box": {"ymin": 485, "xmin": 976, "ymax": 515, "xmax": 986}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "dot",
+      "description": "A dot alone: no bundle, so the median is the floor, and the crop is 200 px each way, the least, the dot in its middle.",
+      "digit_height": 24,
+      "strokes": [{"id": 1, "points": [{"x": 500, "y": 700}, {"x": 500, "y": 700}]}],
+      "groups": [{"label": "A", "stroke_ids": [1]}],
+      "bundles": [],
+      "crops": {"ink_box": {"ymin": 7000, "xmin": 5000, "ymax": 7000, "xmax": 5000}, "bundle_median": 150, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 100, "margin_left": 100, "scale": 1.0666666666666667, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 606.25, "xmin": 406.25, "ymax": 793.75, "xmax": 593.75}, "frames": [{"label": "A", "box": {"ymin": 491, "xmin": 491, "ymax": 509, "xmax": 509}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 100, "margin_left": 100, "scale": 1.6, "line_width": 2, "sheet_box": {"ymin": 637.5, "xmin": 437.5, "ymax": 762.5, "xmax": 562.5}, "frames": [{"label": "A", "box": {"ymin": 490, "xmin": 490, "ymax": 510, "xmax": 510}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 100, "margin_left": 100, "scale": 2.1333333333333333, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 653.125, "xmin": 453.125, "ymax": 746.875, "xmax": 546.875}, "frames": [{"label": "A", "box": {"ymin": 488, "xmin": 488, "ymax": 512, "xmax": 512}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 100, "margin_left": 100, "scale": 3.2, "line_width": 4, "sheet_box": {"ymin": 668.75, "xmin": 468.75, "ymax": 731.25, "xmax": 531.25}, "frames": [{"label": "A", "box": {"ymin": 485, "xmin": 485, "ymax": 515, "xmax": 515}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "whole",
+      "description": "Digits at the top left corner, in the middle and at the bottom right corner: the work is the whole sheet. Its crop fits Claude's standard tier at 32 px, and at 48 px it would not, so its digits come out 32 px.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 0, "y": 0}, {"x": 20, "y": 0}, {"x": 8, "y": 36}]},
+        {"id": 2, "points": [{"x": 484, "y": 692.8}, {"x": 492, "y": 682}, {"x": 492, "y": 718}]},
+        {"id": 3, "points": [{"x": 506, "y": 689.2}, {"x": 512, "y": 682}, {"x": 520, "y": 682}, {"x": 526, "y": 692.8}, {"x": 524, "y": 700}, {"x": 506, "y": 718}, {"x": 526, "y": 718}]},
+        {"id": 4, "points": [{"x": 980, "y": 1364}, {"x": 1000, "y": 1364}, {"x": 988, "y": 1400}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1]},
+        {"label": "B", "stroke_ids": [2, 3]},
+        {"label": "C", "stroke_ids": [4]}
+      ],
+      "bundles": [
+        [1],
+        [2],
+        [3],
+        [4]
+      ],
+      "crops": {"ink_box": {"ymin": 0, "xmin": 0, "ymax": 14000, "xmax": 10000}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 469, "height": 647, "margin_top": 12, "margin_left": 12, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -27, "xmin": -27, "ymax": 1428.75, "xmax": 1028.25}, "frames": [{"label": "A", "box": {"ymin": 15, "xmin": 22, "ymax": 46, "xmax": 49}}, {"label": "B", "box": {"ymin": 484, "xmin": 480, "ymax": 515, "xmax": 528}}, {"label": "C", "box": {"ymin": 952, "xmin": 950, "ymax": 983, "xmax": 977}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 691, "height": 958, "margin_top": 12, "margin_left": 12, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": -18, "xmin": -18, "ymax": 1419, "xmax": 1018.5}, "frames": [{"label": "A", "box": {"ymin": 10, "xmin": 14, "ymax": 40, "xmax": 40}}, {"label": "B", "box": {"ymin": 485, "xmin": 481, "ymax": 515, "xmax": 528}}, {"label": "C", "box": {"ymin": 959, "xmin": 959, "ymax": 989, "xmax": 986}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 913, "height": 1269, "margin_top": 12, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": -13.5, "xmin": -13.5, "ymax": 1414.125, "xmax": 1013.625}, "frames": [{"label": "A", "box": {"ymin": 7, "xmin": 10, "ymax": 37, "xmax": 36}}, {"label": "B", "box": {"ymin": 485, "xmin": 481, "ymax": 515, "xmax": 528}}, {"label": "C", "box": {"ymin": 963, "xmin": 964, "ymax": 992, "xmax": 990}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 32, "width": 913, "height": 1269, "margin_top": 12, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": -13.5, "xmin": -13.5, "ymax": 1414.125, "xmax": 1013.625}, "frames": [{"label": "A", "box": {"ymin": 7, "xmin": 10, "ymax": 37, "xmax": 36}}, {"label": "B", "box": {"ymin": 485, "xmin": 481, "ymax": 515, "xmax": 528}}, {"label": "C", "box": {"ymin": 963, "xmin": 964, "ymax": 992, "xmax": 990}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "answer",
+      "description": "A one-digit answer, under the least size of a crop: the crop is 200 px each way, and its margins widen to keep the digit in the middle.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 502, "y": 700}, {"x": 502, "y": 714.4}, {"x": 512, "y": 714.4}, {"x": 518, "y": 721.6}, {"x": 518, "y": 728.8}, {"x": 512, "y": 736}, {"x": 500, "y": 732.4}]},
+        {"id": 2, "points": [{"x": 502, "y": 700}, {"x": 518, "y": 700}]}
+      ],
+      "groups": [{"label": "A", "stroke_ids": [1, 2]}],
+      "bundles": [[1]],
+      "crops": {"ink_box": {"ymin": 7000, "xmin": 5000, "ymax": 7360, "xmax": 5180}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 92, "margin_left": 96, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 493, "xmin": 284, "ymax": 943, "xmax": 734}, "frames": [{"label": "A", "box": {"ymin": 451, "xmin": 471, "ymax": 549, "xmax": 529}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 88, "margin_left": 94, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": 568, "xmin": 359, "ymax": 868, "xmax": 659}, "frames": [{"label": "A", "box": {"ymin": 430, "xmin": 460, "ymax": 570, "xmax": 540}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 84, "margin_left": 92, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 605.5, "xmin": 396.5, "ymax": 830.5, "xmax": 621.5}, "frames": [{"label": "A", "box": {"ymin": 408, "xmin": 448, "ymax": 592, "xmax": 552}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 76, "margin_left": 88, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 643, "xmin": 434, "ymax": 793, "xmax": 584}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 425, "ymax": 635, "xmax": 575}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "touching",
+      "description": "Two strokes 36 high whose boxes touch at a corner, 0 tenths apart: one bundle 72 high.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 100}, {"x": 110, "y": 136}]},
+        {"id": 2, "points": [{"x": 110, "y": 136}, {"x": 120, "y": 172}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1]},
+        {"label": "B", "stroke_ids": [2]}
+      ],
+      "bundles": [[1, 2]],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 1000, "ymax": 1720, "xmax": 1200}, "bundle_median": 720, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 92, "margin_left": 97, "scale": 0.2222222222222222, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -314, "xmin": -336.5, "ymax": 586, "xmax": 563.5}, "frames": [{"label": "A", "box": {"ymin": 451, "xmin": 476, "ymax": 509, "xmax": 505}}, {"label": "B", "box": {"ymin": 491, "xmin": 487, "ymax": 549, "xmax": 516}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 88, "margin_left": 96, "scale": 0.3333333333333333, "line_width": 2, "sheet_box": {"ymin": -164, "xmin": -188, "ymax": 436, "xmax": 412}, "frames": [{"label": "A", "box": {"ymin": 430, "xmin": 470, "ymax": 510, "xmax": 507}}, {"label": "B", "box": {"ymin": 490, "xmin": 486, "ymax": 570, "xmax": 524}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 84, "margin_left": 95, "scale": 0.4444444444444444, "line_width": 2.6666666666666665, "sheet_box": {"ymin": -89, "xmin": -113.75, "ymax": 361, "xmax": 336.25}, "frames": [{"label": "A", "box": {"ymin": 408, "xmin": 463, "ymax": 512, "xmax": 509}}, {"label": "B", "box": {"ymin": 488, "xmin": 485, "ymax": 592, "xmax": 532}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 76, "margin_left": 93, "scale": 0.6666666666666666, "line_width": 4, "sheet_box": {"ymin": -14, "xmin": -39.5, "ymax": 286, "xmax": 260.5}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 450, "ymax": 515, "xmax": 514}}, {"label": "B", "box": {"ymin": 485, "xmin": 483, "ymax": 635, "xmax": 547}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "apart",
+      "description": "The same strokes, the second a tenth of a unit to the right: two bundles 36 high.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 100}, {"x": 110, "y": 136}]},
+        {"id": 2, "points": [{"x": 110.1, "y": 136}, {"x": 120.1, "y": 172}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1]},
+        {"label": "B", "stroke_ids": [2]}
+      ],
+      "bundles": [
+        [1],
+        [2]
+      ],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 1000, "ymax": 1720, "xmax": 1201}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 84, "margin_left": 95, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -89, "xmin": -113.75, "ymax": 361, "xmax": 336.25}, "frames": [{"label": "A", "box": {"ymin": 411, "xmin": 466, "ymax": 509, "xmax": 506}}, {"label": "B", "box": {"ymin": 491, "xmin": 489, "ymax": 589, "xmax": 528}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 76, "margin_left": 93, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": -14, "xmin": -39.5, "ymax": 286, "xmax": 260.5}, "frames": [{"label": "A", "box": {"ymin": 370, "xmin": 455, "ymax": 510, "xmax": 509}}, {"label": "B", "box": {"ymin": 490, "xmin": 488, "ymax": 630, "xmax": 542}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 68, "margin_left": 91, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 23.5, "xmin": -2.375, "ymax": 248.5, "xmax": 222.625}, "frames": [{"label": "A", "box": {"ymin": 328, "xmin": 443, "ymax": 512, "xmax": 512}}, {"label": "B", "box": {"ymin": 488, "xmin": 488, "ymax": 672, "xmax": 556}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 52, "margin_left": 86, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 61, "xmin": 35.5, "ymax": 211, "xmax": 185.5}, "frames": [{"label": "A", "box": {"ymin": 245, "xmin": 415, "ymax": 515, "xmax": 512}}, {"label": "B", "box": {"ymin": 485, "xmin": 482, "ymax": 755, "xmax": 579}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "under-floor",
+      "description": "A stroke 36 high and one 14.9 high, 149 tenths: a line, so the median is the first's.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 100}, {"x": 100, "y": 136}]},
+        {"id": 2, "points": [{"x": 300, "y": 100}, {"x": 300, "y": 114.9}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1]},
+        {"label": "B", "stroke_ids": [2]}
+      ],
+      "bundles": [[1]],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 1000, "ymax": 1360, "xmax": 3000}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 92, "margin_left": 55, "scale": 0.4444444444444444, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -107, "xmin": -23.75, "ymax": 343, "xmax": 426.25}, "frames": [{"label": "A", "box": {"ymin": 451, "xmin": 266, "ymax": 549, "xmax": 284}}, {"label": "B", "box": {"ymin": 451, "xmin": 711, "ymax": 502, "xmax": 728}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 88, "margin_left": 33, "scale": 0.6666666666666666, "line_width": 2, "sheet_box": {"ymin": -32, "xmin": 50.5, "ymax": 268, "xmax": 350.5}, "frames": [{"label": "A", "box": {"ymin": 430, "xmin": 155, "ymax": 570, "xmax": 175}}, {"label": "B", "box": {"ymin": 430, "xmin": 821, "ymax": 500, "xmax": 842}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 202, "height": 200, "margin_top": 84, "margin_left": 12, "scale": 0.8888888888888888, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 5.5, "xmin": 86.5, "ymax": 230.5, "xmax": 313.75}, "frames": [{"label": "A", "box": {"ymin": 408, "xmin": 47, "ymax": 592, "xmax": 71}}, {"label": "B", "box": {"ymin": 408, "xmin": 927, "ymax": 498, "xmax": 952}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 291, "height": 200, "margin_top": 76, "margin_left": 12, "scale": 1.3333333333333333, "line_width": 4, "sheet_box": {"ymin": 43, "xmin": 91, "ymax": 193, "xmax": 309.25}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 30, "ymax": 635, "xmax": 52}}, {"label": "B", "box": {"ymin": 365, "xmin": 947, "ymax": 495, "xmax": 968}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "at-floor",
+      "description": "A stroke 36 high and one 15 high, 150 tenths: at the floor a bundle, and the lower median of the two is 15.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 100}, {"x": 100, "y": 136}]},
+        {"id": 2, "points": [{"x": 300, "y": 100}, {"x": 300, "y": 115}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1]},
+        {"label": "B", "stroke_ids": [2]}
+      ],
+      "bundles": [
+        [1],
+        [2]
+      ],
+      "crops": {"ink_box": {"ymin": 1000, "xmin": 1000, "ymax": 1360, "xmax": 3000}, "bundle_median": 150, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 238, "height": 200, "margin_top": 80, "margin_left": 12, "scale": 1.0666666666666667, "line_width": 1.3333333333333333, "sheet_box": {"ymin": 25, "xmin": 88.75, "ymax": 212.5, "xmax": 311.875}, "frames": [{"label": "A", "box": {"ymin": 391, "xmin": 43, "ymax": 601, "xmax": 58}}, {"label": "B", "box": {"ymin": 391, "xmin": 939, "ymax": 489, "xmax": 954}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 344, "height": 200, "margin_top": 71, "margin_left": 12, "scale": 1.6, "line_width": 2, "sheet_box": {"ymin": 55.625, "xmin": 92.5, "ymax": 180.625, "xmax": 307.5}, "frames": [{"label": "A", "box": {"ymin": 345, "xmin": 29, "ymax": 653, "xmax": 41}}, {"label": "B", "box": {"ymin": 345, "xmin": 959, "ymax": 485, "xmax": 971}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 451, "height": 200, "margin_top": 61, "margin_left": 12, "scale": 2.1333333333333333, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 71.40625, "xmin": 94.375, "ymax": 165.15625, "xmax": 305.78125}, "frames": [{"label": "A", "box": {"ymin": 293, "xmin": 21, "ymax": 701, "xmax": 32}}, {"label": "B", "box": {"ymin": 293, "xmin": 967, "ymax": 477, "xmax": 978}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 664, "height": 200, "margin_top": 42, "margin_left": 12, "scale": 3.2, "line_width": 4, "sheet_box": {"ymin": 86.875, "xmin": 96.25, "ymax": 149.375, "xmax": 303.75}, "frames": [{"label": "A", "box": {"ymin": 195, "xmin": 13, "ymax": 801, "xmax": 23}}, {"label": "B", "box": {"ymin": 195, "xmin": 977, "ymax": 465, "xmax": 987}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "under-ceiling",
+      "description": "One stroke 99.9 high, 999 tenths: the scale takes it as it is.",
+      "digit_height": 24,
+      "strokes": [{"id": 1, "points": [{"x": 500, "y": 300}, {"x": 500, "y": 399.9}]}],
+      "groups": [{"label": "A", "stroke_ids": [1]}],
+      "bundles": [[1]],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 5000, "ymax": 3999, "xmax": 5000}, "bundle_median": 999, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 92, "margin_left": 100, "scale": 0.16016016016016016, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -274.425, "xmin": -124.375, "ymax": 974.325, "xmax": 1124.375}, "frames": [{"label": "A", "box": {"ymin": 451, "xmin": 491, "ymax": 549, "xmax": 509}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 88, "margin_left": 100, "scale": 0.24024024024024024, "line_width": 2, "sheet_box": {"ymin": -66.3, "xmin": 83.75, "ymax": 766.2, "xmax": 916.25}, "frames": [{"label": "A", "box": {"ymin": 430, "xmin": 490, "ymax": 570, "xmax": 510}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 84, "margin_left": 100, "scale": 0.3203203203203203, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 37.7625, "xmin": 187.8125, "ymax": 662.1375, "xmax": 812.1875}, "frames": [{"label": "A", "box": {"ymin": 408, "xmin": 488, "ymax": 592, "xmax": 512}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 76, "margin_left": 100, "scale": 0.4804804804804805, "line_width": 4, "sheet_box": {"ymin": 141.825, "xmin": 291.875, "ymax": 558.075, "xmax": 708.125}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 485, "ymax": 635, "xmax": 515}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "at-ceiling",
+      "description": "One stroke 100 high, 1000 tenths: the ceiling itself.",
+      "digit_height": 24,
+      "strokes": [{"id": 1, "points": [{"x": 500, "y": 300}, {"x": 500, "y": 400}]}],
+      "groups": [{"label": "A", "stroke_ids": [1]}],
+      "bundles": [[1]],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 5000, "ymax": 4000, "xmax": 5000}, "bundle_median": 1000, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 92, "margin_left": 100, "scale": 0.16, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -275, "xmin": -125, "ymax": 975, "xmax": 1125}, "frames": [{"label": "A", "box": {"ymin": 451, "xmin": 491, "ymax": 549, "xmax": 509}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 88, "margin_left": 100, "scale": 0.24, "line_width": 2, "sheet_box": {"ymin": -66.66666666666667, "xmin": 83.33333333333333, "ymax": 766.6666666666666, "xmax": 916.6666666666666}, "frames": [{"label": "A", "box": {"ymin": 430, "xmin": 490, "ymax": 570, "xmax": 510}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 84, "margin_left": 100, "scale": 0.32, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 37.5, "xmin": 187.5, "ymax": 662.5, "xmax": 812.5}, "frames": [{"label": "A", "box": {"ymin": 408, "xmin": 488, "ymax": 592, "xmax": 512}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 76, "margin_left": 100, "scale": 0.48, "line_width": 4, "sheet_box": {"ymin": 141.66666666666666, "xmin": 291.6666666666667, "ymax": 558.3333333333334, "xmax": 708.3333333333334}, "frames": [{"label": "A", "box": {"ymin": 365, "xmin": 485, "ymax": 635, "xmax": 515}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "over-ceiling",
+      "description": "One stroke 100.1 high, 1001 tenths: the scale takes 100.",
+      "digit_height": 24,
+      "strokes": [{"id": 1, "points": [{"x": 500, "y": 300}, {"x": 500, "y": 400.1}]}],
+      "groups": [{"label": "A", "stroke_ids": [1]}],
+      "bundles": [[1]],
+      "crops": {"ink_box": {"ymin": 3000, "xmin": 5000, "ymax": 4001, "xmax": 5000}, "bundle_median": 1001, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 91, "margin_left": 100, "scale": 0.16, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -268.75, "xmin": -125, "ymax": 981.25, "xmax": 1125}, "frames": [{"label": "A", "box": {"ymin": 446, "xmin": 491, "ymax": 544, "xmax": 509}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 87, "margin_left": 100, "scale": 0.24, "line_width": 2, "sheet_box": {"ymin": -62.5, "xmin": 83.33333333333333, "ymax": 770.8333333333334, "xmax": 916.6666666666666}, "frames": [{"label": "A", "box": {"ymin": 425, "xmin": 490, "ymax": 566, "xmax": 510}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 83, "margin_left": 100, "scale": 0.32, "line_width": 2.6666666666666665, "sheet_box": {"ymin": 40.625, "xmin": 187.5, "ymax": 665.625, "xmax": 812.5}, "frames": [{"label": "A", "box": {"ymin": 403, "xmin": 488, "ymax": 587, "xmax": 512}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 75, "margin_left": 100, "scale": 0.48, "line_width": 4, "sheet_box": {"ymin": 143.75, "xmin": 291.6666666666667, "ymax": 560.4166666666666, "xmax": 708.3333333333334}, "frames": [{"label": "A", "box": {"ymin": 360, "xmin": 485, "ymax": 631, "xmax": 515}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "limit",
+      "description": "Three dots that span 660 by 1362 units: no bundle, so the median is 15. At 17 px the crop is 772 by 1568 px, 28 by 56 tiles of 28 px, 1568 tokens: at both of Claude's limits at once. From 18 px up it is drawn at 17.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 100, "y": 10}]},
+        {"id": 2, "points": [{"x": 760, "y": 10}]},
+        {"id": 3, "points": [{"x": 100, "y": 1372}]}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1]},
+        {"label": "B", "stroke_ids": [2]},
+        {"label": "C", "stroke_ids": [3]}
+      ],
+      "bundles": [],
+      "crops": {"ink_box": {"ymin": 100, "xmin": 1000, "ymax": 13720, "xmax": 7600}, "bundle_median": 150, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 728, "height": 1477, "margin_top": 12, "margin_left": 12, "scale": 1.0666666666666667, "line_width": 1.3333333333333333, "sheet_box": {"ymin": -1.25, "xmin": 88.75, "ymax": 1383.4375, "xmax": 771.25}, "frames": [{"label": "A", "box": {"ymin": 6, "xmin": 14, "ymax": 10, "xmax": 19}}, {"label": "B", "box": {"ymin": 6, "xmin": 981, "ymax": 10, "xmax": 986}}, {"label": "C", "box": {"ymin": 990, "xmin": 14, "ymax": 993, "xmax": 19}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 17, "width": 772, "height": 1568, "margin_top": 12, "margin_left": 12, "scale": 1.1333333333333333, "line_width": 1.4166666666666667, "sheet_box": {"ymin": -0.5882352941176471, "xmin": 89.41176470588235, "ymax": 1382.9411764705883, "xmax": 770.5882352941177}, "frames": [{"label": "A", "box": {"ymin": 6, "xmin": 13, "ymax": 9, "xmax": 18}}, {"label": "B", "box": {"ymin": 6, "xmin": 982, "ymax": 9, "xmax": 987}}, {"label": "C", "box": {"ymin": 991, "xmin": 13, "ymax": 994, "xmax": 18}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 17, "width": 772, "height": 1568, "margin_top": 12, "margin_left": 12, "scale": 1.1333333333333333, "line_width": 1.4166666666666667, "sheet_box": {"ymin": -0.5882352941176471, "xmin": 89.41176470588235, "ymax": 1382.9411764705883, "xmax": 770.5882352941177}, "frames": [{"label": "A", "box": {"ymin": 6, "xmin": 13, "ymax": 9, "xmax": 18}}, {"label": "B", "box": {"ymin": 6, "xmin": 982, "ymax": 9, "xmax": 987}}, {"label": "C", "box": {"ymin": 991, "xmin": 13, "ymax": 994, "xmax": 18}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 17, "width": 772, "height": 1568, "margin_top": 12, "margin_left": 12, "scale": 1.1333333333333333, "line_width": 1.4166666666666667, "sheet_box": {"ymin": -0.5882352941176471, "xmin": 89.41176470588235, "ymax": 1382.9411764705883, "xmax": 770.5882352941177}, "frames": [{"label": "A", "box": {"ymin": 6, "xmin": 13, "ymax": 9, "xmax": 18}}, {"label": "B", "box": {"ymin": 6, "xmin": 982, "ymax": 9, "xmax": 987}}, {"label": "C", "box": {"ymin": 991, "xmin": 13, "ymax": 994, "xmax": 18}}], "png": ""}
+      ]}
+    }
+  ]
+}

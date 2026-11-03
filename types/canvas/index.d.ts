@@ -95,7 +95,9 @@ export interface Stroke {
  * when it landed, in the order the actions landed — so `t` never goes back along a history. Each
  * event says which strokes it put on the sheet or took off, so whoever reads the history replays it
  * without the rules of the stack of undo. The events are plain data, for JSON as they are; those
- * the sheet hands out are frozen through. The eval protocol takes the history as it is (epic E3).
+ * the sheet hands out are frozen through. A sample file of the eval protocol holds the same
+ * history, spelt as its contract has it and without the pressure of a point (contracts/README.md,
+ * section 12; R94).
  */
 export type HistoryEvent =
   /**

@@ -7,9 +7,10 @@
 // A sample is read as section 11 reads one: UTF-8 JSON with no key twice, which @bufbuild/protobuf
 // reads strictly by the descriptors of the image buf builds of contracts/ — a field it does not know
 // is refused — and whose text is the one it writes back with the protobuf names and every field, its
-// zero too. Then the rules no descriptor holds. The numbers of a crop are the rule of the crop's,
-// which a sample holds as the device drew them: the check holds their form, and the PNG to its
-// chunks, its header and its size, not how the crop was drawn.
+// zero too. Then the rules no descriptor holds, and, once its sheet or page holds its form, those
+// of section 12 (tools/contracts/strokes.mjs): the numbers of every crop are those the rule of the
+// crop gives the strokes the file holds, and the groups and the boxes of a history those its rules
+// give. A PNG is held to its chunks, its header and its size, not to its pixels.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -17,8 +18,11 @@ import { isDeepStrictEqual } from "node:util";
 import zlib from "node:zlib";
 import { createFileRegistry, fromJson, toJson } from "@bufbuild/protobuf";
 import * as wkt from "@bufbuild/protobuf/wkt";
-import { readVector } from "./observation.mjs";
+import { differenceOf, readVector } from "./observation.mjs";
 import { isObject } from "./rules.mjs";
+import { CROP_RULE, cropSetOf, fold, groupsOf, heightsOf, historyBreaches, labelOf, numbersOf, ruleDifference, tableOf } from "./strokes.mjs";
+
+export { labelOf };
 
 export const PACKAGE = "novatrail.eval.v1";
 export const FOLDER = "contracts/examples/eval/v1";
@@ -28,7 +32,7 @@ const WRITTEN = { useProtoFieldName: true, alwaysEmitImplicit: true };
 
 // The heights of a digit a sample's crops are drawn at, px, beside the module's own; the tallest a
 // crop takes.
-export const HEIGHTS = [16, 24, 32, 48];
+export const HEIGHTS = CROP_RULE.heights;
 const TALLEST = 256;
 const LICENSE = "Apache-2.0";
 // Each purpose and each writer, as the rules of section 11 name them; a value the package adds is
@@ -53,13 +57,6 @@ const isSeed = (seed) => typeof seed === "string" && SEED.test(seed) && BigInt(s
 const placeOf = ({ item, slot }) => `${item}.${slot}`;
 const byPlace = (a, b) => a.item - b.item || a.slot - b.slot;
 
-// A group's label by its place: A to Z, then AA, AB and on.
-export function labelOf(n) {
-  let label = "";
-  for (let rest = n + 1; rest > 0; rest = Math.floor((rest - 1) / 26)) label = String.fromCodePoint(65 + ((rest - 1) % 26)) + label;
-  return label;
-}
-
 // The message Sample, of the image buf builds of contracts/: { message }, or { error }, also when an
 // enum of the package has a value that the rules of section 11 do not name.
 export function sampleOf(image) {
@@ -75,21 +72,6 @@ export function sampleOf(image) {
     if (unnamed.length) return { error: `${PACKAGE}.${name} has ${unnamed.join(", ")}, which the rules of ${TEXT} do not name; the task that adds a value extends the check` };
   }
   return { message };
-}
-
-// The first path at which two JSON values that differ do, for the line of a problem: a key the
-// first has and the second lacks, or else the deepest member where they part.
-function differenceOf(a, b, at = []) {
-  if (Array.isArray(a) && Array.isArray(b)) {
-    const i = a.findIndex((each, n) => !isDeepStrictEqual(each, b[n]));
-    if (i >= 0) return differenceOf(a[i], b[i], [...at, i]);
-  } else if (isObject(a) && isObject(b)) {
-    const extra = Object.keys(a).find((key) => !(key in b));
-    if (extra !== undefined) return [...at, extra];
-    const key = Object.keys(b).find((name) => !isDeepStrictEqual(a[name], b[name]));
-    if (key !== undefined && key in a) return differenceOf(a[key], b[key], [...at, key]);
-  }
-  return at;
 }
 
 // What a PNG breaks of a crop's (section 11): its signature, every chunk whole with its CRC, the
@@ -154,46 +136,8 @@ function strokesOf(sample, size, breach) {
     }
   };
   if ("history" in sample) {
-    const known = new Set();
-    let time = 0;
-    sample.history.events.forEach((event, i) => {
-      const at = ["history", "events", i];
-      if (event.t_ms < time) breach([...at, "t_ms"], `the event is at ${event.t_ms} ms, before the one before it, at ${time} ms`);
-      time = Math.max(time, event.t_ms);
-      const kind = EVENTS.find((name) => name in event);
-      if (kind === "write") {
-        const stroke = event.write;
-        if (stroke.id < 1) breach([...at, "write", "id"], `the stroke's ID is ${stroke.id}, and IDs count from 1`);
-        else if (known.has(stroke.id)) breach([...at, "write", "id"], `the stroke ${stroke.id} is written twice`);
-        known.add(stroke.id);
-        visible.add(stroke.id);
-        if (stroke.pointer === "") breach([...at, "write", "pointer"], "the stroke names no type of pointer");
-        if (stroke.points.length === 0) breach([...at, "write", "points"], `the stroke ${stroke.id} has no point`);
-        let last = 0;
-        stroke.points.forEach((point, j) => {
-          const where = [...at, "write", "points", j];
-          onSurface(point, where);
-          if (point.t_ms < last) breach([...where, "t_ms"], `the point is at ${point.t_ms} ms, before the one before it, at ${last} ms: a stroke's points never go back in time`);
-          last = Math.max(last, point.t_ms);
-        });
-        const end = stroke.points.at(-1)?.t_ms;
-        if (end !== undefined && end !== event.t_ms) breach([...at, "t_ms"], `the stroke ${stroke.id} is written at ${event.t_ms} ms, and its last point is at ${end} ms: a stroke is written when its last point is`);
-      } else if (kind === "erase" || kind === "clear") {
-        const { ids } = event[kind];
-        if (kind === "erase" && ids.length === 0) breach([...at, kind], "the eraser takes no stroke off");
-        if (new Set(ids).size !== ids.length) breach([...at, kind], `${kind} names a stroke twice`);
-        for (const id of ids) if (!visible.has(id)) breach([...at, kind], `${kind} takes off the stroke ${id}, which the sheet does not show then`);
-        if (kind === "clear" && !isDeepStrictEqual(new Set(ids), visible)) breach([...at, kind], `clear names ${show(ids)}, and the sheet shows ${show([...visible].sort((a, b) => a - b))}: a clear takes every stroke off`);
-        for (const id of ids) visible.delete(id);
-      } else if (kind === "undo") {
-        const { removed, restored } = event.undo;
-        if (removed.length + restored.length === 0) breach([...at, "undo"], "the undo changes nothing");
-        for (const id of removed) if (!visible.has(id)) breach([...at, "undo"], `the undo takes off the stroke ${id}, which the sheet does not show then`);
-        for (const id of restored) if (!known.has(id) || visible.has(id)) breach([...at, "undo"], `the undo puts back the stroke ${id}, which is ${known.has(id) ? "on the sheet already" : "never written"}`);
-        for (const id of removed) visible.delete(id);
-        for (const id of restored) if (known.has(id)) visible.add(id);
-      } else breach(at, "the event is none of write, erase, clear and undo");
-    });
+    const events = (at) => ["history", "events", ...at];
+    for (const id of historyBreaches(sample.history.events, (at, message) => breach(events(at), message), (point, at) => onSurface(point, events(at)))) visible.add(id);
   } else if ("geometry" in sample) {
     sample.geometry.strokes.forEach((stroke, i) => {
       const at = ["geometry", "strokes", i];
@@ -223,7 +167,7 @@ function cropsBreaches(set, at, digit, labels, breach) {
   const box = set.ink_box;
   if (!box || box.ymin > box.ymax || box.xmin > box.xmax) breach([...at, "ink_box"], `ink_box is ${show(box)}: the box of the points, ymin no more than ymax and xmin no more than xmax`);
   if (set.bundle_median < 1) breach([...at, "bundle_median"], `bundle_median is ${set.bundle_median}, and h_med is a height of 1 tenth at least`);
-  const heights = [...new Set([...HEIGHTS, digit])].sort((a, b) => a - b);
+  const heights = heightsOf(digit);
   const given = set.crops.map((crop) => crop.digit_height);
   if (!isDeepStrictEqual(given, heights)) breach([...at, "crops"], `the crops are at ${show(given)} px, and a sample's are at the heights of eval and the module's, ${show(heights)}`);
   set.crops.forEach((crop, i) => {
@@ -241,6 +185,40 @@ function cropsBreaches(set, at, digit, labels, breach) {
     });
     for (const text of pngBreaches(Buffer.from(crop.png, "base64"), crop.width, crop.height)) breach([...where, "png"], `the PNG at ${crop.digit_height} px: ${text}`);
   });
+}
+
+// What a crop set breaks of the numbers the rule of the crop gives the strokes it is of: the first
+// number that differs, if any. Its PNG aside: the rule gives no pixels.
+function cropRuleBreaches(given, strokes, groups, digit, at) {
+  const parted = ruleDifference(numbersOf(given), cropSetOf(strokes, groups, digit));
+  return parted ? [{ at: [...at, ...parted.at], message: `${parted.at.join(".")} of the crops is ${show(parted.given)}, and the rule of the crop gives ${show(parted.computed)} (contracts/README.md, section 12)` }] : [];
+}
+
+// What a sample, whose form holds, breaks of the rules of section 12. The crops are drawn from the
+// strokes the file holds — those a history shows at the end, or the final geometry —, a sheet's
+// with its groups and a box's with none. A history holds the strokes as they came, so its groups
+// on a sheet and its table of boxes on a workbook are what the rules give them; the final geometry
+// holds them no more as the device saw them, so its groups and table are the device's.
+function rulesBreaches(sample, kind) {
+  const found = [];
+  const surface = sample[kind];
+  let strokes = sample.geometry?.strokes;
+  if (sample.history) {
+    const { written, visible } = fold(sample.history.events);
+    strokes = visible.map((id) => written.get(id));
+  }
+  const byId = new Map(strokes.map((stroke) => [stroke.id, stroke]));
+  if (kind === "sheet") {
+    const groups = sample.history && groupsOf(strokes).groups;
+    if (groups && !isDeepStrictEqual(surface.groups, groups)) found.push({ at: ["sheet", "groups"], message: `the groups are ${show(surface.groups)}, and the rule of groups gives the strokes the sheet shows ${show(groups)} (contracts/README.md, section 12)` });
+    if (surface.crops) found.push(...cropRuleBreaches(surface.crops, strokes, surface.groups, surface.digit_height, ["sheet", "crops"]));
+  } else {
+    const table = sample.history && tableOf(strokes, surface.boxes).filled_boxes;
+    const given = surface.filled_boxes.map((box) => ({ answer_slot: box.answer_slot, stroke_ids: box.stroke_ids }));
+    if (table && !isDeepStrictEqual(given, table)) found.push({ at: ["workbook", "filled_boxes"], message: `the filled boxes are ${show(given)}, and the rule of boxes gives the strokes the page shows ${show(table)} (contracts/README.md, section 12)` });
+    surface.filled_boxes.forEach((box, i) => found.push(...cropRuleBreaches(box.crops, box.stroke_ids.map((id) => byId.get(id)), [], surface.digit_height, ["workbook", "filled_boxes", i, "crops"])));
+  }
+  return found;
 }
 
 // What a sample, as JSON with the protobuf names, breaks of the rules of section 11: each { at,
@@ -310,6 +288,7 @@ export function breaches(sample) {
     return found;
   }
   const surface = sample[kind];
+  const formed = found.length;
   const size = { kind: kind === "sheet" ? "sheet" : "page", width: surface.width, height: surface.height };
   if (surface.width < 1 || surface.height < 1) breach([kind], `the ${size.kind} is ${surface.width} × ${surface.height} units: 1 unit each way at least`);
   if (surface.digit_height < 1 || surface.digit_height > TALLEST) breach([kind, "digit_height"], `digit_height is ${surface.digit_height}, from 1 to ${TALLEST} px`);
@@ -354,6 +333,8 @@ export function breaches(sample) {
     });
     if (visible && "geometry" in sample) for (const id of visible) if (!filled.has(id)) breach(["geometry"], `the stroke ${id} is in no box: the final geometry of a workbook holds the strokes of its boxes alone, and the draft goes nowhere`);
   }
+  // The rules of section 12, once the sheet or the page holds its form.
+  if (found.length === formed) found.push(...rulesBreaches(sample, kind));
   return found;
 }
 

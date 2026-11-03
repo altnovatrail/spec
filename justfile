@@ -129,15 +129,17 @@ types-test: _tools
 # what buf lets pass in a file — a syntax other than proto3, a json_name, an unsigned type, a package
 # without the prefix novatrail. —, by the image buf builds; buf format and buf lint; the test vectors
 # of the observation, read by the same image, whose joins and verdicts it computes as section 10 of
-# contracts/README.md gives them, but for what Starlark gives a predicate (R86); the examples of
-# the sample file, read by the same image, strictly, and held to the rules of section 11 (R93); buf
+# contracts/README.md gives them, but for what Starlark gives a predicate (R86); the test vectors
+# of the rules the device and the runner share, read by the same image, which it computes as
+# section 12 gives them (R94); the examples of the sample file, read by the same image, strictly,
+# and held to the rules of sections 11 and 12 (R93, R94); buf
 # breaking against the previous release, the newest release tag in the history of HEAD other than
 # HEAD's own, whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds
 # every release and no file of a release is needed; and the code buf generates, which contracts/
 # holds file for file. buf is the toolchain stage's, at an exact version; its Go plugins are the tools of
 # contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file, buf refuses a
 # module without one, and the check stops after the layout. A file it does not know is an error, so
-# the task that brings it extends the check (RUN.md, T55, T68, T58).
+# the task that brings it extends the check (RUN.md, T55, T68, T58, T59).
 # Check the API contracts in contracts/: buf's rules, R83's own, the generated code, the vectors and
 # the examples.
 contracts-check: _tools
@@ -145,7 +147,7 @@ contracts-check: _tools
 
 # Runs from a NovaTrail repository's root, as `just -f spec/justfile sample-check eval/a.json …`:
 # each sample file of the eval protocol it names is read strictly and held to the rules of
-# contracts/README.md, section 11, by the code that holds spec's examples to them (R93), against
+# contracts/README.md, sections 11 and 12, by the code that holds spec's examples to them (R93, R94), against
 # the image buf builds of this spec's contracts/ — the submodule's, at the tag the repository pins.
 # The folder it is run from is the root: the paths are from it, a path that leaves it — a link that
 # leads out too — or names no file stops the check before buf runs, and a file named twice is

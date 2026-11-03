@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TAR } from "../../shared.mjs";
 import { treeOf } from "../../npm-package.mjs";
-import { NAME, RUNTIME, archiveOf, checkArchive, manifestOf, packOf, packageOf, runtimeOf, writePackage } from "../npm.mjs";
+import { NAME, RUNTIME, TYPESCRIPT_VECTORS, archiveOf, checkArchive, manifestOf, packOf, packageOf, runtimeOf, writePackage } from "../npm.mjs";
 import { scratchRepository, writeFile } from "../../release/test/repository.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -38,9 +38,9 @@ const FILES = {
   "contracts/novatrail/place/v2/place_pb.d.ts": "export {};\n",
 };
 
-function tree() {
+function tree(more = {}) {
   const root = scratch("contracts-npm-tree-");
-  for (const [file, text] of Object.entries(FILES)) {
+  for (const [file, text] of Object.entries({ ...FILES, ...more })) {
     fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
     fs.writeFileSync(path.join(root, file), text);
   }
@@ -77,6 +77,40 @@ test("the package holds the code of protoc-gen-es, exports each file by its path
     assert.deepEqual(manifest.dependencies, { "@bufbuild/protobuf": "2.16.0" });
     for (const field of ["main", "scripts", "private", "publishConfig", "devDependencies", "peerDependencies"]) assert.equal(manifest[field], undefined, field);
     for (const version of ["", "v0.7.0", "0.7"]) assert.throws(() => packageOf(version, treeOf(root)), /is not MAJOR\.MINOR\.PATCH/, version);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("the package carries the vectors of the rules TypeScript runs, by their paths, and no others", () => {
+  assert.deepEqual(TYPESCRIPT_VECTORS, ["eval"]);
+  const root = tree({
+    "contracts/vectors/eval/v1/groups.json": "{}\n",
+    "contracts/vectors/eval/v1/boxes.json": "{}\n",
+    "contracts/vectors/observation/v1/boxes.json": "{}\n",
+    "contracts/vectors/eval/v1/notes.txt": "no vector\n",
+    "contracts/examples/eval/v1/sheet.json": "{}\n",
+  });
+  try {
+    const { files, manifest } = packageOf("0.7.8", treeOf(root));
+    assert.deepEqual(files.map(({ file }) => file).filter((file) => !file.startsWith("novatrail/")), ["LICENSE", "README.md", "vectors/eval/v1/boxes.json", "vectors/eval/v1/groups.json"]);
+    assert.deepEqual(Object.keys(manifest.exports), [
+      "./novatrail/place/v2/place_pb.js",
+      "./novatrail/trial/v1/trial_pb.js",
+      "./vectors/eval/v1/boxes.json",
+      "./vectors/eval/v1/groups.json",
+      "./package.json",
+    ]);
+    assert.equal(manifest.exports["./vectors/eval/v1/groups.json"], "./vectors/eval/v1/groups.json");
+    assert.deepEqual(manifest.files, ["novatrail", "vectors"]);
+    const dir = scratch("contracts-npm-pack-");
+    try {
+      const archive = packOf(root, "0.7.8", dir);
+      assert.ok(listing(archive).includes("package/vectors/eval/v1/groups.json"));
+      assert.ok(!listing(archive).some((file) => file.includes("observation") && file.endsWith(".json")));
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

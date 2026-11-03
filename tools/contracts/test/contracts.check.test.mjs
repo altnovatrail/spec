@@ -6,7 +6,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { create, createFileRegistry, toJson } from "@bufbuild/protobuf";
 import { FileDescriptorProtoSchema } from "@bufbuild/protobuf/wkt";
-import { checkMessages, otherNames, sample } from "../contracts.check.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { root } from "../../release/test/repository.mjs";
+import { build } from "../buf.mjs";
+import { checkMessages, checkVectors, otherNames, sample } from "../contracts.check.mjs";
+import { messagesOf } from "../strokes.mjs";
 
 // FieldDescriptorProto's types and labels by their numbers in descriptor.proto.
 const TYPE = { double: 1, int64: 3, int32: 5, bool: 8, string: 9, message: 11, bytes: 12, enum: 14 };
@@ -88,4 +93,28 @@ test("JSON that names a field otherwise than by its protobuf name is found, nest
     "boxes_by_name.topEdge",
   ]);
   for (const json of [null, [], "a"]) assert.deepEqual(otherNames(Place, json), []);
+});
+
+test("the vectors the package carries read back by its code, and one it reads otherwise fails", () => {
+  const built = build(root);
+  assert.deepEqual(built.errors, []);
+  const schemas = Object.values(messagesOf(built.image).messages);
+  const read = (name) => JSON.parse(fs.readFileSync(path.join(root, "contracts/vectors/eval/v1", name), "utf8"));
+  const names = ["groups.json", "crops.json", "snaps.json", "boxes.json"];
+  assert.deepEqual(checkVectors(names.map((name) => [`vectors/eval/v1/${name}`, read(name)]), schemas), []);
+  assert.deepEqual(checkVectors([], schemas), []);
+
+  const camel = read("groups.json");
+  camel.cases[0].groups[0] = { label: "A", strokeIds: camel.cases[0].groups[0].stroke_ids };
+  const [written, ...others] = checkVectors([["vectors/eval/v1/groups.json", camel]], schemas);
+  assert.deepEqual(others, []);
+  assert.match(written, /^vectors\/eval\/v1\/groups\.json, case 1, groups 1: the package writes it \{"label":"A","stroke_ids":\[/);
+
+  const unknown = read("snaps.json");
+  unknown.cases[0].snaps[0].box.depth = 1;
+  assert.match(checkVectors([["vectors/eval/v1/snaps.json", unknown]], schemas)[0], /^vectors\/eval\/v1\/snaps\.json, case 1, snaps 1, box: /);
+
+  const lacking = schemas.filter((schema) => schema.typeName !== "novatrail.eval.v1.PageBox");
+  assert.ok(checkVectors([["vectors/eval/v1/boxes.json", read("boxes.json")]], lacking).every((failure) => / boxes \d+: the package has no novatrail\.eval\.v1\.PageBox$/.test(failure)));
+  assert.deepEqual(checkVectors([["vectors/eval/v1/none.json", { cases: [{ name: "a", description: "b" }] }]], schemas), ["the vectors the package carries hold no message of it"]);
 });

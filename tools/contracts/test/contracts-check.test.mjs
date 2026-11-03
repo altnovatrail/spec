@@ -64,7 +64,7 @@ test("the trial contract with its generated code passes, with no release to comp
   const { dir } = repository();
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
-  assert.deepEqual(stats, { protos: 1, packages: 1, generated: 4, vectors: 0, cases: 0, examples: 0, previous: null, messages: 4 });
+  assert.deepEqual(stats, { protos: 1, packages: 1, generated: 4, vectors: 0, cases: 0, examples: 0, previous: null, messages: 4, packaged: 0 });
   assert.equal(summary(stats), "1 .proto file in 1 package, 4 files of generated code, and no release of spec before HEAD to compare with; tsc and Node take the 4 messages of its npm package");
   for (const file of ["trial.pb.go", "trialv1connect/trial.connect.go", "trial_pb.js", "trial_pb.d.ts"]) {
     assert.ok(fs.existsSync(path.join(dir, "contracts/novatrail/trial/v1", file)), file);
@@ -243,7 +243,7 @@ test("a shallow clone is refused: it has no tags to find the previous release by
 // made-up repository reads that one. Returns the copy of main.mjs.
 function withCommands(dir) {
   const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs"];
-  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample"].map((name) => `tools/contracts/${name}.mjs`);
+  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample", "strokes"].map((name) => `tools/contracts/${name}.mjs`);
   const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
   for (const file of [...tools, ...contracts, ...format]) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
@@ -328,7 +328,7 @@ test("the observation is checked by its vectors, and has some", () => {
   fs.cpSync(path.join(root, "format"), path.join(dir, "format"), { recursive: true });
   writeGenerated(dir);
   expectEach(dir, /^contracts\/vectors\/observation\/v1:0: novatrail\.observation\.v1 has no test vectors, and they hold the rules of contracts\/README\.md, section 10$/);
-  fs.cpSync(path.join(root, "contracts/vectors"), path.join(dir, "contracts/vectors"), { recursive: true });
+  fs.cpSync(path.join(root, "contracts/vectors/observation"), path.join(dir, "contracts/vectors/observation"), { recursive: true });
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
   assert.ok(stats.vectors > 0 && stats.cases > stats.vectors, JSON.stringify(stats));
@@ -357,14 +357,25 @@ test("the sample file is checked by its examples, and has some", () => {
     fs.copyFileSync(path.join(root, file), path.join(dir, file));
   }
   fs.cpSync(path.join(root, "format"), path.join(dir, "format"), { recursive: true });
-  fs.cpSync(path.join(root, "contracts/vectors"), path.join(dir, "contracts/vectors"), { recursive: true });
+  fs.cpSync(path.join(root, "contracts/vectors/observation"), path.join(dir, "contracts/vectors/observation"), { recursive: true });
   writeGenerated(dir);
-  expectEach(dir, /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no examples, and they show the sample file of contracts\/README\.md, section 11$/);
+  expectEach(
+    dir,
+    /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no examples, and they show the sample file of contracts\/README\.md, section 11$/,
+    /^contracts\/vectors\/eval\/v1:0: novatrail\.eval\.v1 has no test vectors, and they hold the rules of contracts\/README\.md, section 12$/,
+  );
+  fs.cpSync(path.join(root, "contracts/vectors/eval"), path.join(dir, "contracts/vectors/eval"), { recursive: true });
   fs.cpSync(path.join(root, "contracts/examples"), path.join(dir, "contracts/examples"), { recursive: true });
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
   assert.equal(stats.examples, 3);
-  assert.match(summary(stats), / with \d+ cases, 3 examples, /);
+  assert.equal(stats.packaged, 4);
+  assert.match(summary(stats), / with \d+ cases, 3 examples, .*; tsc and Node take the \d+ messages of its npm package and the 4 files of vectors it carries$/);
+  const boxes = path.join(dir, "contracts/vectors/eval/v1/boxes.json");
+  const kept = fs.readFileSync(boxes);
+  edit(dir, "contracts/vectors/eval/v1/boxes.json", '"stroke_id": 1, "answer_slot": null', '"stroke_id": 1, "answer_slot": {"item": 1, "slot": 1}');
+  expectEach(dir, /^contracts\/vectors\/eval\/v1\/boxes\.json:\d+: [a-z0-9-]+: verdicts\.0\.answer_slot is \{"item":1,"slot":1\}, and the rule of boxes gives null$/);
+  fs.writeFileSync(boxes, kept);
   edit(dir, "contracts/examples/eval/v1/sheet-eval-set.json", '"license": "Apache-2.0",\n', "");
   expectEach(dir, /^contracts\/examples\/eval\/v1\/sheet-eval-set\.json:1: a sample of an eval set names its license, "Apache-2\.0"$/);
 });

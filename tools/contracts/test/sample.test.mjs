@@ -187,8 +187,10 @@ test("the task, without its key", () => {
 test("the history of writing", () => {
   const events = () => measurement().history.events;
   const at = (edit) => changed(measurement(), (s) => edit(s.history.events));
-  expectOnly(at((list) => (list[1].t_ms = 10)), /^the event is at 10 ms, before the one before it, at 128 ms$/, /^the stroke 2 is written at 10 ms, and its last point is at 586 ms: a stroke is written when its last point is$/);
-  expectOnly(at((list) => (list[0].t_ms = 200)), /^the stroke 1 is written at 200 ms, and its last point is at 128 ms: a stroke is written when its last point is$/);
+  expectOnly(at((list) => (list[1].t_ms = 10)), /^the event is at 10 ms, before the one before it, at 128 ms$/, /^the stroke 2 is written at 10 ms, and its last point is at 586 ms: a stroke is written no sooner than its last point$/);
+  // A stroke that ended without its pointerup, while another action landed, lands after its last
+  // point (R22 canvas).
+  expectOnly(at((list) => (list[0].t_ms = 200)));
   const unwritten = [/^(?:erase|clear) takes off the stroke 2, which the sheet does not show then$/, /^the undo puts back the stroke 2, which is never written$/, /^the group A names the stroke 2, which the sheet does not show$/];
   expectOnly(at((list) => (list[1].write.id = 0)), /^the stroke's ID is 0, and IDs count from 1$/, ...unwritten, /^clear names \[1,2,3\], and the sheet shows \[0,1,3\]/, /^the stroke 0 is in 0 groups/);
   expectOnly(at((list) => (list[1].write.id = 1)), /^the stroke 1 is written twice$/, ...unwritten, /^clear names \[1,2,3\], and the sheet shows \[1,3\]/);
@@ -299,12 +301,64 @@ test("a workbook: its boxes, its filled boxes and its crops", () => {
   expectOnly(changed(workbook(), (s) => delete s.workbook), /^the sample holds neither sheet nor workbook$/);
 });
 
+test("the rules of section 12: a history's groups, and every crop's numbers by the strokes the file holds", () => {
+  // A history's groups are what the rule gives its strokes, and the frames are drawn by the groups given.
+  expectOnly(changed(measurement(), (s) => (s.sheet.groups = [{ label: "A", stroke_ids: [1] }, { label: "B", stroke_ids: [2, 3] }])),
+    /^the groups are \[\{"label":"A","stroke_ids":\[1\]\},\{"label":"B","stroke_ids":\[2,3\]\}\], and the rule of groups gives the strokes the sheet shows \[\{"label":"A","stroke_ids":\[1,2\]\},\{"label":"B","stroke_ids":\[3\]\}\] \(contracts\/README\.md, section 12\)$/,
+    /^crops\.0\.frames\.0\.box\.\w+ of the crops is \d+, and the rule of the crop gives \d+/);
+  // The final geometry's groups are the device's: the rule does not redraw them, and the frames follow them.
+  expectOnly(changed(evalSet(), (s) => {
+    s.sheet.groups[0].stroke_ids.pop();
+    s.sheet.groups[1].stroke_ids.unshift(11);
+  }), /^crops\.0\.frames\.\d\.box\.\w+ of the crops is \d+, and the rule of the crop gives \d+/);
+  const crop = (edit) => changed(evalSet(), (s) => edit(s.sheet.crops.crops[1], s.sheet.crops));
+  expectOnly(crop((c) => (c.scale += 1e-9)), /^crops\.1\.scale of the crops is [\d.]+, and the rule of the crop gives [\d.]+ \(contracts\/README\.md, section 12\)$/);
+  expectOnly(crop((c, set) => (set.ink_box.xmin -= 1)), /^ink_box\.xmin of the crops is \d+, and the rule of the crop gives \d+/);
+  expectOnly(crop((c, set) => (set.bundle_median += 1)), /^bundle_median of the crops is \d+, and the rule of the crop gives \d+/);
+  expectOnly(crop((c) => (c.sheet_box.xmax += 0.5)), /^crops\.1\.sheet_box\.xmax of the crops is/);
+  const found = breaches(changed(workbook(), (s) => (s.workbook.filled_boxes[2].crops.crops[0].margin_left += 1)));
+  assert.deepEqual(found.map((one) => one.at), [["workbook", "filled_boxes", 2, "crops", "crops", 0, "margin_left"]]);
+  assert.match(found[0].message, /^crops\.0\.margin_left of the crops is \d+, and the rule of the crop gives \d+/);
+  // A sample whose form breaks is not held to the rules: their numbers would say nothing new.
+  expectOnly(changed(evalSet(), (s) => {
+    s.sheet.crops.crops[1].scale += 1e-9;
+    s.sheet.width = 0;
+  }), /^the sheet is 0 × 1400 units/, /off the sheet, from 0 to 0/);
+});
+
+test("the rules of section 12: a history's boxes on a workbook are what the rule of boxes gives its strokes", () => {
+  // The child's page written as an adult's measurement: the history of the same strokes, a stroke
+  // each 400 ms, a point each 10 ms.
+  const adult = () => changed(workbook(), (s) => {
+    s.writer = "WRITER_ADULT";
+    let time = 0;
+    s.history = {
+      events: s.geometry.strokes.map((stroke) => {
+        const points = stroke.points.map((point, i) => ({ ...point, t_ms: time + 10 * i }));
+        time = points.at(-1).t_ms + 400;
+        return { t_ms: points.at(-1).t_ms, write: { id: stroke.id, pointer: "pen", points } };
+      }),
+    };
+    delete s.geometry;
+  });
+  expectOnly(adult());
+  // A stroke of the draft is no box's, and the history may hold it.
+  expectOnly(changed(adult(), (s) => s.history.events.push({ t_ms: 99999, write: { id: 17, pointer: "pen", points: [{ x: 500, y: 1300, t_ms: 99999 }] } })));
+  expectOnly(changed(adult(), (s) => {
+    const [first, second] = s.workbook.filled_boxes;
+    second.stroke_ids = [...first.stroke_ids.splice(2), ...second.stroke_ids].sort((a, b) => a - b);
+  }), /^the filled boxes are .*, and the rule of boxes gives the strokes the page shows \[\{"answer_slot":\{"item":1,"slot":1\},"stroke_ids":\[3,4,5\]\},/, /^ink_box\.\w+ of the crops is/, /^\w+(?:\.\w+)* of the crops is/);
+});
+
 test("the breaches of a sample name where they are", () => {
   const found = breaches(changed(evalSet(), (s) => {
     s.id = "";
     s.geometry.strokes[0].points[0].x = -1;
   }));
   assert.deepEqual(found.map((one) => one.at), [["id"], ["geometry", "strokes", 0, "points", 0, "x"]]);
+  // A point of a history is named by its path from the sample, as the events of the history are.
+  const history = breaches(changed(measurement(), (s) => (s.history.events[1].write.points[2].x = 1000.5)));
+  assert.deepEqual(history.map((one) => one.at), [["history", "events", 1, "write", "points", 2, "x"]]);
   assert.equal(labelOf(0), "A");
   assert.equal(labelOf(25), "Z");
   assert.equal(labelOf(26), "AA");
