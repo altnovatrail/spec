@@ -129,15 +129,17 @@ types-test: _tools
 # what buf lets pass in a file — a syntax other than proto3, a json_name, an unsigned type, a package
 # without the prefix novatrail. —, by the image buf builds; buf format and buf lint; the test vectors
 # of the observation, read by the same image, whose joins and verdicts it computes as section 10 of
-# contracts/README.md gives them, but for what Starlark gives a predicate (R86); buf breaking
-# against the previous release, the newest release tag in the history of HEAD other than HEAD's own,
-# whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds every release
-# and no file of a release is needed; and the code buf generates, which contracts/ holds file for
-# file. buf is the toolchain stage's, at an exact version; its Go plugins are the tools of
+# contracts/README.md gives them, but for what Starlark gives a predicate (R86); the examples of
+# the sample file, read by the same image, strictly, and held to the rules of section 11 (R93); buf
+# breaking against the previous release, the newest release tag in the history of HEAD other than
+# HEAD's own, whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds
+# every release and no file of a release is needed; and the code buf generates, which contracts/
+# holds file for file. buf is the toolchain stage's, at an exact version; its Go plugins are the tools of
 # contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file, buf refuses a
 # module without one, and the check stops after the layout. A file it does not know is an error, so
-# the task that brings it extends the check (RUN.md, T55, T68).
-# Check the API contracts in contracts/: buf's rules, R83's own, the generated code and the vectors.
+# the task that brings it extends the check (RUN.md, T55, T68, T58).
+# Check the API contracts in contracts/: buf's rules, R83's own, the generated code, the vectors and
+# the examples.
 contracts-check: _tools
     node tools/contracts/main.mjs
 

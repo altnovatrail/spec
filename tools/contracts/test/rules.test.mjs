@@ -68,6 +68,7 @@ test("buf.gen.yaml has local plugins alone, out to contracts/, with no input and
 test("the layout of contracts/ names each file's kind and the .proto it comes from", () => {
   for (const file of ["contracts/README.md", "contracts/go.mod", "contracts/go.sum", "contracts/vectors.go", "contracts/vectors_test.go"]) assert.deepEqual(classify(file), { kind: "text" });
   assert.deepEqual(classify("contracts/vectors/learner_model/v2/two-readers.json"), { kind: "vector", package: "novatrail.learner_model.v2" });
+  assert.deepEqual(classify("contracts/examples/learner_model/v2/sheet-of-lines.json"), { kind: "example", package: "novatrail.learner_model.v2" });
   assert.deepEqual(classify("contracts/novatrail/learner_model/v2/progress.proto"), { kind: "proto", package: "novatrail.learner_model.v2" });
   const source = "contracts/novatrail/learner_model/v2/progress.proto";
   for (const file of ["progress.pb.go", "progress_pb.js", "progress_pb.d.ts", "learner_modelv2connect/progress.connect.go"]) {
@@ -91,6 +92,10 @@ test("the layout of contracts/ names each file's kind and the .proto it comes fr
     "contracts/vectors/trial/v0/two.json",
     "contracts/vectors/trial/v1/sub/two.json",
     "contracts/vectors/two.json",
+    "contracts/examples/trial/v1/Two.json",
+    "contracts/examples/trial/v0/two.json",
+    "contracts/examples/trial/v1/two.png",
+    "contracts/examples/two.json",
     "contracts/other.go",
   ]) {
     assert.equal(classify(file), null, file);
@@ -98,6 +103,7 @@ test("the layout of contracts/ names each file's kind and the .proto it comes fr
   assert.match(unknownFile("contracts/novatrail/trial/v0/trial.proto").message, /^a contract is contracts\/novatrail\/<part>\/vN\/<name>\.proto/);
   assert.match(unknownFile("contracts/LICENSE").message, /^contracts-check does not know it/);
   assert.match(unknownFile("contracts/vectors/two.json").message, /^a test vector is contracts\/vectors\/<part>\/vN\/<case>\.json/);
+  assert.match(unknownFile("contracts/examples/two.json").message, /^an example is contracts\/examples\/<part>\/vN\/<case>\.json/);
 });
 
 // An image as buf build --exclude-imports writes it, made up: one file, with the fields and

@@ -171,6 +171,7 @@ func scratchContracts(t *testing.T, goMod string) string {
 	write(t, root, "contracts/novatrail/trial/v1/trial.pb.go", "package trialv1\n")
 	write(t, root, "contracts/vectors.go", "package contracts\n")
 	write(t, root, "contracts/vectors/trial/v1/one.json", "{}\n")
+	write(t, root, "contracts/examples/trial/v1/one.json", "{}\n")
 	commit(t, root)
 	return root
 }
@@ -182,7 +183,7 @@ func TestTheContractsModuleCarriesEveryFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(report, "github.com/altnovatrail/spec/contracts@v0.7.0") || !strings.Contains(report, "LICENSE and the 6 files of contracts/") {
+	if !strings.Contains(report, "github.com/altnovatrail/spec/contracts@v0.7.0") || !strings.Contains(report, "LICENSE and the 7 files of contracts/") {
 		t.Fatalf("report: %s", report)
 	}
 	// spec's own module no longer carries contracts/, and its check is the same as before.

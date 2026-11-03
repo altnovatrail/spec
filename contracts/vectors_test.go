@@ -2,6 +2,7 @@ package contracts
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/fs"
 	"os"
 	"reflect"
@@ -9,7 +10,9 @@ import (
 	"testing"
 
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
+	evalv1 "github.com/altnovatrail/spec/contracts/novatrail/eval/v1"
 	observationv1 "github.com/altnovatrail/spec/contracts/novatrail/observation/v1"
 )
 
@@ -37,8 +40,6 @@ func TestObservationsReadInGo(t *testing.T) {
 	if len(names) == 0 {
 		t.Fatal("no vectors of the observation")
 	}
-	read := protojson.UnmarshalOptions{}
-	write := protojson.MarshalOptions{UseProtoNames: true, EmitDefaultValues: true}
 	for _, name := range names {
 		data, err := fs.ReadFile(Vectors, name)
 		if err != nil {
@@ -59,20 +60,60 @@ func TestObservationsReadInGo(t *testing.T) {
 				observations = append(observations, one.Joined)
 			}
 			for n, raw := range observations {
-				var observation observationv1.Observation
-				if err := read.Unmarshal(raw, &observation); err != nil {
-					t.Errorf("%s, case %d, observation %d: %v", name, k+1, n+1, err)
-					continue
-				}
-				written, err := write.Marshal(&observation)
-				if err != nil {
-					t.Fatal(err)
-				}
-				if !reflect.DeepEqual(jsonOf(t, raw), jsonOf(t, written)) {
-					t.Errorf("%s, case %d, observation %d: Go writes it %s", name, k+1, n+1, written)
-				}
+				readBack(t, fmt.Sprintf("%s, case %d, observation %d", name, k+1, n+1), raw, &observationv1.Observation{})
 			}
 		}
+	}
+}
+
+// Go reads every example of the sample file as contracts-check does: protojson takes each strictly,
+// refusing a field it does not know, and writes it back, with the protobuf names and every field,
+// as the example has it (contracts/README.md, section 11). A field added to a sample is refused.
+func TestSamplesReadInGo(t *testing.T) {
+	examples := os.DirFS("examples")
+	names, err := fs.Glob(examples, "eval/v1/*.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(names) == 0 {
+		t.Fatal("no examples of the sample file")
+	}
+	for _, name := range names {
+		data, err := fs.ReadFile(examples, name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		readBack(t, name, data, &evalv1.Sample{})
+		extra, ok := jsonOf(t, data).(map[string]any)
+		if !ok {
+			t.Fatalf("%s is no JSON object", name)
+		}
+		extra["writer_name"] = "x"
+		added, err := json.Marshal(extra)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := protojson.Unmarshal(added, &evalv1.Sample{}); err == nil {
+			t.Errorf("%s: protojson takes a field the sample file does not have", name)
+		}
+	}
+}
+
+// readBack reads raw into message as protojson reads by default, refusing a field it does not
+// know, and writes it back as a writer of a contract does, with the protobuf names and every field
+// (contracts/README.md, section 6): the JSON it writes is the one it read.
+func readBack(t *testing.T, what string, raw []byte, message proto.Message) {
+	t.Helper()
+	if err := protojson.Unmarshal(raw, message); err != nil {
+		t.Errorf("%s: %v", what, err)
+		return
+	}
+	written, err := protojson.MarshalOptions{UseProtoNames: true, EmitDefaultValues: true}.Marshal(message)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(jsonOf(t, raw), jsonOf(t, written)) {
+		t.Errorf("%s: Go writes it %s", what, written)
 	}
 }
 
