@@ -10,10 +10,12 @@
  * types of the task, of the worked example and of the manifest are the module format's open views,
  * formatv0/open.
  *
- * The tutor's marks — the property `marks` and the types of a mark — wait for the contract of epic
- * E3, and are canvas's own until then. The element's members beyond this contract — its commands
- * undo() and clear(), which its own buttons call — and its place in the DOM's maps of tags and
- * events are canvas's too: its package registers the element. The declarations take the DOM's
+ * It takes the tutor's marks of a submission too, by a property, with the submission's context:
+ * their kind and their place come from the contract between app and api, novatrail.api.v1, whose
+ * message `Mark` these types are checked against, and their names from app (contracts/README.md,
+ * section 15; R83). The element's members beyond this contract — its commands undo() and clear(),
+ * which its own buttons call — and its place in the DOM's maps of tags and events are canvas's:
+ * its package registers the element. The declarations take the DOM's
  * types: Blob, CustomEvent and HTMLElement.
  *
  * @packageDocumentation
@@ -268,6 +270,39 @@ export interface ExportedWorkbook {
 /** The work for checking, of a sheet or of a workbook: its key, `png` or `cells`, tells which. */
 export type ExportedWork = ExportedSheet | ExportedWorkbook;
 
+/**
+ * Where a tutor's mark is: a group of strokes by its label, an answer cell by its place, or a box on
+ * the crop the model saw, as the contract's mark has its place (contracts/README.md, section 15). On
+ * a workbook a mark stands on a cell alone. A group's label comes from api only if the frames of the
+ * groups go with the work (repositories 8, Т-31).
+ */
+export type Anchor =
+  | { readonly group: string }
+  | { readonly cell: CellPlace }
+  /** [ymin, xmin, ymax, xmax] in whole thousandths of the crop's height and width; min < max. */
+  | { readonly box: readonly [number, number, number, number] };
+
+/** A mark of the tutor's layer: a frame, so far, with where it is and its name. */
+export interface Mark {
+  readonly kind: "frame";
+  readonly at: Anchor;
+  /**
+   * What a screen reader names it, in app's words, in the language of its screen: "Tutor's mark 1
+   * of 2". The element words nothing, and a name empty or of white space alone is a TypeError.
+   */
+  readonly name: string;
+}
+
+/**
+ * The tutor's marks of one submission, with the context of the submission that the element gave
+ * with its work and app kept: a sheet's or a workbook's. The marks are those of one answer of
+ * api, in its order.
+ */
+export interface Marks {
+  readonly submission: Submission;
+  readonly marks: readonly Mark[];
+}
+
 /** The events of the element, by their names, for a consumer's map of events. */
 export interface CanvasEventMap {
   historychange: HistoryChangeEvent;
@@ -341,6 +376,22 @@ export interface CanvasElement extends HTMLElement {
    */
   get history(): readonly HistoryEvent[];
   set history(history: readonly HistoryEvent[] | undefined);
+  /**
+   * The tutor's marks of one submission, on the tutor's layer, given after the task and the
+   * history they hold on to. A mark holds on to the strokes the model saw at its place and is drawn
+   * around those of them the sheet shows, as they are now: a box on the crop takes the strokes by
+   * the rule of snapping (contracts/README.md, section 12), and a cell of a workbook is framed with
+   * its box — round the box alone when the box was empty. A cell on a sheet, and a box that comes
+   * near no stroke, have no frame: the question is asked without one. A submission goes back to the
+   * sheet or the page it was made on, as its digest tells: one of other strokes or other boxes is a
+   * TypeError, and so are marks given before the task and the history, a mark of another kind, a
+   * name empty or of white space alone, a group's label the submission has not, a box that is not
+   * whole thousandths with min < max, and on a workbook any place but a cell. A new history puts the
+   * marks back on their strokes, or takes them off. `undefined` takes the marks off. A worked
+   * example's sheet has nothing to mark: marks are a TypeError there.
+   */
+  get marks(): Marks | undefined;
+  set marks(marks: Marks | undefined);
   /**
    * Which answer slots are filled, frozen: a workbook's boxes, and on a sheet the task's one slot
    * bound `anywhere` or `sheet`. `null` on a sheet whose slots are bound `choice`, whose options app

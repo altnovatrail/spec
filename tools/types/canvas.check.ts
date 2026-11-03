@@ -3,8 +3,13 @@
 // project as canvas.ts, beside the corpus, and tsc takes it under each resolution of modules, with
 // the DOM (tools/types/typescript.mjs). What canvas and app may do type-checks; each line under a
 // directive must be an error, and were it not, the directive would go unused, and that would be the
-// error instead.
+// error instead. The marks are checked against the message `Mark` of the contract between app and
+// api, from the npm package of its code, which the recipe installs beside (R83): app makes the
+// element's mark of the contract's, and a kind or a place the contract adds that the element has
+// no type for fails tsc.
 
+import { MarkKind } from "@altnovatrail/contracts/novatrail/api/v1/attempt_pb.js";
+import type * as api from "@altnovatrail/contracts/novatrail/api/v1/attempt_pb.js";
 import type * as canvas from "@altnovatrail/spec/canvas";
 import type * as open from "@altnovatrail/spec/formatv0/open";
 
@@ -19,6 +24,8 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   media: canvas.Media | undefined;
   get history(): readonly canvas.HistoryEvent[];
   set history(history: readonly canvas.HistoryEvent[] | undefined);
+  get marks(): canvas.Marks | undefined;
+  set marks(marks: canvas.Marks | undefined);
   get filled(): canvas.Filled | null;
   exportWork(): Promise<canvas.ExportedWork | null>;
   undo(): boolean;
@@ -74,6 +81,55 @@ sheet.media = async (ref) => new Blob([ref]);
 sheet.media = undefined;
 sheet.history = history;
 sheet.history = undefined;
+
+/** What a value the check has no type for is: never, so that tsc fails where one comes. */
+function unknown(value: never): never {
+  throw new TypeError(`no type of the element for ${String(value)}`);
+}
+
+/**
+ * The element's mark of the contract's, with the name app writes: undefined for a mark with no
+ * kind or no place, which api never sends (contracts/README.md, section 15).
+ */
+export function markOf(mark: api.Mark, name: string): canvas.Mark | undefined {
+  let kind: canvas.Mark["kind"];
+  switch (mark.kind) {
+    case MarkKind.FRAME:
+      kind = "frame";
+      break;
+    case MarkKind.UNSPECIFIED:
+      return undefined;
+    default:
+      return unknown(mark.kind);
+  }
+  const { place } = mark;
+  switch (place.case) {
+    case "answerSlot":
+      return { kind, at: { cell: { item: place.value.item, slot: place.value.slot } }, name };
+    case "cropBox":
+      return { kind, at: { box: [place.value.ymin, place.value.xmin, place.value.ymax, place.value.xmax] }, name };
+    case undefined:
+      return undefined;
+    default:
+      return unknown(place);
+  }
+}
+
+/**
+ * The marks of an answer of api, given with the context app kept of its submission: numbered among
+ * those the element takes.
+ */
+declare const answer: api.GetRungWordsResponse;
+const placed = answer.marks.filter((mark) => markOf(mark, "") !== undefined);
+export const given: canvas.Marks = {
+  submission: sheetSubmission,
+  marks: placed.flatMap((mark, n) => markOf(mark, `Tutor's mark ${n + 1} of ${placed.length}`) ?? []),
+};
+sheet.marks = given;
+sheet.marks = { submission: workbookSubmission, marks: [{ kind: "frame", at: { cell: { item: 1, slot: 2 } }, name: "Tutor's mark 1 of 1: line 1, box 2" }] };
+sheet.marks = { submission: sheetSubmission, marks: [{ kind: "frame", at: { group: "A" }, name: "Tutor's mark 1 of 1" }] };
+sheet.marks = undefined;
+export const shown: canvas.Marks | undefined = sheet.marks;
 export const kept: readonly canvas.HistoryEvent[] = sheet.history;
 export const filled: canvas.Filled | null = sheet.filled;
 export const first: boolean | undefined = sheet.filled?.[0]?.[0];
@@ -127,8 +183,16 @@ sheet.workedExample = null;
 sheet.demoState = { opened: 1 };
 // @ts-expect-error A tool the sheet has not is no tool of it.
 sheet.tool = "ruler";
-// @ts-expect-error The marks wait for the contract of epic E3: the element's contract has none yet.
-sheet.marks = undefined;
+// @ts-expect-error null is no marks: undefined, and undefined alone, is none.
+sheet.marks = null;
+// @ts-expect-error The marks come with the context of their submission, which places them.
+sheet.marks = { marks: [] };
+// @ts-expect-error A mark has a name, which app writes: the element words nothing.
+export const unnamed: canvas.Mark = { kind: "frame", at: { cell: { item: 1, slot: 1 } } };
+// @ts-expect-error A frame is the one kind of a mark so far.
+export const arrow: canvas.Mark = { kind: "arrow", at: { group: "A" }, name: "Tutor's mark 1 of 1" };
+// @ts-expect-error A box on the crop is four numbers, [ymin, xmin, ymax, xmax].
+export const corner: canvas.Anchor = { box: [0, 0] };
 document.addEventListener("historychange", (change) => {
   // @ts-expect-error The events told are the sheet's, to read.
   change.detail.events.push(event);

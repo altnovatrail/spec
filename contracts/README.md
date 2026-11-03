@@ -1,6 +1,6 @@
 # The NovaTrail API contracts
 
-This is the text of the API contracts: how the messages and services that NovaTrail's parts exchange are written in protobuf, which rules buf holds them to, how they are versioned, which code is generated from them, and what each contract means and which rules its parts follow. It is normative, as are the `.proto` files beside it (R42). The documents under `docs/` describe the platform in Russian and add no rules to the contracts. The decision behind sections 1 to 9 is R83, behind section 10, the observation, R86, behind section 11, the sample file, R93, behind section 12, the rules the device and the runner share, R94, and behind the markup of section 11 and sections 13 and 14, eval sets and the runner's report, R95.
+This is the text of the API contracts: how the messages and services that NovaTrail's parts exchange are written in protobuf, which rules buf holds them to, how they are versioned, which code is generated from them, and what each contract means and which rules its parts follow. It is normative, as are the `.proto` files beside it (R42). The documents under `docs/` describe the platform in Russian and add no rules to the contracts. The decision behind sections 1 to 9 is R83, behind section 10, the observation, R86, behind section 11, the sample file, R93, behind section 12, the rules the device and the runner share, R94, behind the markup of section 11 and sections 13 and 14, eval sets and the runner's report, R95, and behind section 15, the contract between `app` and `api`, R97.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 ([RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174)) when, and only when, they appear in all capitals, as shown here.
 
@@ -9,7 +9,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - An API contract — a contract, in this text — is a protobuf package: its messages, and the services one part of the platform calls on another (R11). The contract of the element `<novatrail-canvas>` with `app` is not one: it is TypeScript types, written by hand (R36, R74). The first ones are the observation, which `tutor`, `module-kit` and `api` exchange in one process (R15), and the contract between `app` and `api`.
 - The contracts are the `.proto` files under `contracts/` and this text. The code generated from them is no part of the contract: it follows from the files (section 8).
 - The names in the contracts are the English terms of the glossary, concepts 15. A value or an ID of the module format keeps the spelling the format gives it (section 5).
-- The first package is `novatrail.observation.v1`, the observation (section 10). The second is `novatrail.eval.v1`, the eval protocol: the sample file with its markup (section 11), the rules of the strokes on a sheet that the device and the runner share (section 12), eval sets (section 13) and the runner's report (section 14). The other tasks of epic E3 add theirs, each by the rules of this text.
+- The first package is `novatrail.observation.v1`, the observation (section 10). The second is `novatrail.eval.v1`, the eval protocol: the sample file with its markup (section 11), the rules of the strokes on a sheet that the device and the runner share (section 12), eval sets (section 13) and the runner's report (section 14). The third is `novatrail.api.v1`, the contract between `app` and `api` (section 15). The other tasks of epic E3 add theirs, each by the rules of this text.
 
 ## 2. Versions
 
@@ -41,6 +41,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - A value or an ID of the module format — a canvas kind such as `handwriting_sheet`, a task's ID — is a `string` holding the format's own spelling, not an enum of the contract, so that one value has one spelling.
 - One of several alternatives is a `oneof`.
 - A PNG, or any other file, is `bytes`; in JSON it is a base64 string.
+- A moment is `google.protobuf.Timestamp`; in JSON it is a string of RFC 3339, in UTC.
 
 ## 6. JSON
 
@@ -53,7 +54,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - `buf lint` holds every file to the categories `STANDARD`, `COMMENTS` and `UNARY_RPC`, with no exceptions, and with `disallow_comment_ignores: true`: a comment in a file MUST NOT switch a rule off. A method streams nothing.
 - `buf breaking` holds every package to the category `FILE` against the previous release of `spec`: the newest release tag in the history of the commit checked, other than the commit's own, with `buf.yaml` and `contracts/` as git holds them at that tag. A release in which a package first appears has nothing to compare it with.
 - No rule of protovalidate is used: its module lives in the Buf Schema Registry.
-- Beside buf's rules, `spec`'s checks hold every rule of this text that a program can read: the syntax (section 4), the path and the package (section 3), no `json_name` (section 6) and no unsigned type (section 5), `buf.yaml` as section 3 and this section have it, and a template of `buf generate` with local plugins alone (section 8). `optional` where absence differs from zero, and `int64` only past 2³¹ − 1, are held by review. The rules of sections 10 and 12 are held by their test vectors, which `spec`'s checks compute (section 10, "Test vectors"; section 12, "Test vectors"), those of sections 11 and 12 by the check of each example (section 11, "Examples") and of each sample file another repository names (section 11, "Checking a sample"), and the form of a report by the check of its examples (section 14, "Examples"). Sections 13 and 14 are rules of the runner, which `tutor`'s tests and review hold: the measures of section 14 have no vectors, since one implementation counts them, and a report's records let anyone count them again. That a change of any of them is a change of meaning, which breaks the package (section 2), review holds.
+- Beside buf's rules, `spec`'s checks hold every rule of this text that a program can read: the syntax (section 4), the path and the package (section 3), no `json_name` (section 6) and no unsigned type (section 5), `buf.yaml` as section 3 and this section have it, and a template of `buf generate` with local plugins alone (section 8). `optional` where absence differs from zero, and `int64` only past 2³¹ − 1, are held by review. The rules of sections 10 and 12 are held by their test vectors, which `spec`'s checks compute (section 10, "Test vectors"; section 12, "Test vectors"), those of sections 11 and 12 by the check of each example (section 11, "Examples") and of each sample file another repository names (section 11, "Checking a sample"), and the form of a report by the check of its examples (section 14, "Examples"). Sections 13 and 14 are rules of the runner, which `tutor`'s tests and review hold: the measures of section 14 have no vectors, since one implementation counts them, and a report's records let anyone count them again. Section 15 has no vectors either: its rules are what `app` and `api` do, which their tests and review hold. That a change of any of them is a change of meaning, which breaks the package (section 2), review holds.
 
 ## 8. Generated code
 
@@ -278,3 +279,98 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 **Where a report goes.** A report names its models and their providers. A run of an eval set at a provider, and a report of it published, follow that provider's terms: beyond OpenAI and Anthropic, some providers forbid benchmarking, and one its publication without consent (R65; architecture 4.6; privacy 5.3). A log of CI that anyone can read publishes what it prints. A report that names samples of measurement or of a child is not published: it lies where they do (privacy 9, П-10 and П-18).
 
 **Examples.** `contracts/examples/eval/v1/report-<case>.json` holds synthetic reports of the samples beside them (section 11, "Examples"): a run of reading on a capability set of those samples, which refuses the child's, and a run of assessment of the essay, in three repeats. No runner made them: their runner and the code of their verdicts are `v0.0.0`, their models are stand-ins named `example`, and their readings are made up; the verdict on each truth is the one the check `number` gives with the key of its task in `tutor`'s bank at v0.1.1. `spec`'s checks hold each to the form of this section and, once the samples beside it hold their own rules, to them: it names each that its capability measures, and only those, a child's is refused as such, the answer slots are those of the truth that a model reads, with its notes, and an essay's people's marks are its markup's. Go reads each back as it is written. Together they show every capability, a refused and a measured sample, every verdict a reading gives and every mark AI gives a criterion, and the check refuses a value that the package adds to an enum of the report until this section names it.
+
+## 15. The contract between app and api
+
+- The contract between `app` and `api` is the package `novatrail.api.v1`: the services that `app` calls on `api` by Connect (section 9), one package for all of them, with one list of causes (R97; R17 api). This section is its text so far: the checking of an attempt, `AttemptService` of `attempt.proto`, with `cause.proto`. Which requests there are, with what comes and goes in each, `api`'s detailing proposed (architecture 3.9 api); what both sides know is the contract's, and how `api` keeps it is `api`'s code: the order of its checks, its records of idempotency keys and how long they live, the reserve of its quota, CORS, its codecs and which place the program gives a mark.
+- **Every request** on an attempt names the profile, `profile_id`, and the attempt, `attempt_id`: `api` reads an attempt by the pair. An attempt of another profile, or none, gets `CAUSE_NOT_FOUND`, and a profile that is not the account's `CAUSE_NO_PROFILE`. A request whose form the contract refuses — a field it needs left out, a place the task does not have, a method the task's kind does not take — gets the code `invalid_argument` with no `Refusal`.
+
+**Refusals and outcomes.**
+- A request that was not done is refused: an error of Connect with the standard code that the cause's comment gives, and the detail `Refusal`, its cause and what it tells beside it. A method's comment names its refusals.
+- A request that was done answers, and the answer says what changed for the learner. A call of AI in it that gave no reading or no words is an outcome, `Outcome`, in the answer, not a refusal: a failure of AI, the quota with when the next family day begins, the limit of platform AI, no admission, and of the learner's own key the limit reached, with why, or the key refused (R84; R11 api). "Explain differently" is the one request on an attempt that makes no call of platform AI without the reserve of the quota: there the quota, the limit of platform AI and no admission are refusals, and the right to it on the rung stays.
+- `Cause` is one list for both: why a request was refused, or what a call of AI came to. A verdict's reason is no cause: it is the module format's and the observation's. Why an attempt was closed, `CloseReason`, and how a submission of an essay ended, `SubmissionEnd`, are values of their own, which come in answers and in the data of a refusal.
+- A cause that the build of `app` does not know, it reads by the code of the error; an outcome it does not know, as a failure of AI. It words neither: the words are `app`'s, in the language of its screen, and the server sends no text of a cause (R10 app).
+
+**The idempotency key.** A request that must not be done twice carries `idempotency_key`, a field of its message, since CORS lets through `Authorization` and the headers of Connect alone: `SubmitWork`, `SubmitEssay`, `GetRungWords`, `GetCorrectAnswerWords`, `ExplainDifferently` and `ShowSolution`.
+- `app` makes a key for each action and sends it with every repeat of the action.
+- The same key with another method or another attempt gets `CAUSE_KEY_ALREADY_USED`, and a repeat while the first request goes, `CAUSE_STILL_GOING`.
+- A repeat once it is done is answered by what is recorded, with no AI:
+
+  | Method | A repeat gets |
+  |---|---|
+  | `SubmitWork` | the verdicts and the reading recorded |
+  | `SubmitEssay` | how the submission ended, `repeated`, without the text read and the words of the feedback: they are nowhere on the server (R87) |
+  | `GetRungWords`, `ExplainDifferently` | the words the attempt keeps, while it is open; the words of a rung `repeated` and without marks, which the server does not keep |
+  | `GetCorrectAnswerWords` | an answer `repeated` without words: the server keeps none, and a response lost is words lost |
+  | `ShowSolution` | the solution again |
+
+- `Done`, `GetHint` and `BeginStep` carry no key: they repeat by the attempt's state.
+
+**The own key and the clock.**
+- `own_key`, the key and its provider by its code in the admission table, goes with every request of a profile of its owner that calls AI, "explain differently" too (R84; R08 app).
+  - `api` takes it with a profile of the age category `adult` alone, and otherwise refuses `CAUSE_KEY_NOT_FOR_PROFILE`.
+  - It holds the key in the memory of the request alone, and writes it nowhere.
+  - Neither the limit reached nor the key refused moves the call to platform AI.
+- `clock_offset_minutes`, the offset of the device's clock from UTC, goes with a request on platform AI alone, for the family day of its quota, and not with the own key (privacy 9, П-23).
+
+**What never reaches the device.** Before the task is solved, an answer holds no key, no solution, nothing of a check, and no trap: neither the trap catalog nor the trap that a wrong value shows, which the tutor's words alone get, in `api` (section 16 of the module format; R05, R57). Nor does any answer hold a technique of the task beyond the IDs given at a step or on request, the simpler case, a leak phrase, or the marks of the criteria of a rubric (R82, R87). Once the task is solved, `SolvedTask` comes (below).
+
+**The work.**
+- On a handwriting sheet, the PNG of the one crop, without its `sheet_box`.
+- On a workbook, the crop of each filled box with its place, in the task's order. An empty box sends nothing, and the draft goes nowhere.
+- With either, the text of each option the learner tapped, by its answer slot.
+- Nothing of the writing history goes (R52), nor the context of the submission, which `app` keeps on the device to give the canvas its marks (R36), nor the groups of strokes and their frames (repositories 8, Т-31), nor the text of an item (R53).
+- The server keeps no crop, so the work goes again for the tutor's words (R09).
+
+**The verdict.** `SubmitWork` sends the work of a task with a verdict and answers once the reading has ended, with the verdict on the whole observation (R54; section 10).
+- `items` holds each item of the task, in order, with its verdict, and each of its answer slots with its own. The verdicts and their reasons are written as section 15 of the module format and section 10 have them. `value` is what was read, which the learner sees, "Read: 6": the value of the observation, or the text of the option tapped (R05).
+- When a call of AI gives no reading, the answer slots that AI reads get `unchecked`, and `outcome` says why; a slot bound `choice` keeps its verdict.
+- `wrong_answers` counts the attempt's wrong answers, this one's too: a wrong answer is a submission with an answer slot `not_yet`, and an `unreadable` or `unchecked` one raises no rung (R82).
+- `solved` comes when every item is correct, and the attempt is closed `CLOSE_REASON_CORRECT`.
+
+**Two requests.** The words come in a request of their own, after the verdict: there is no channel of real time (R19 api; repositories 8, Т-25). After a wrong answer, `app` asks `GetRungWords`; after a correct one, `GetCorrectAnswerWords`. An essay is one request, `SubmitEssay`.
+
+**The tutor's words.**
+- The words come whole, once they passed the leak check and the form check, or as the fallback text, never in parts (R54, R57, R70).
+- **The rung's words.** The k-th wrong answer gives the rung k, up to 3; from the fourth on, no rung is new.
+  - `GetRungWords` names the wrong answer it asks for by the `wrong_answers` of its submission's answer, and sends that submission's work again. A wrong answer that is no longer the last gets `CAUSE_NOT_CURRENT`, with how many there are, so that the words never speak of a work the learner has written over (R97).
+  - The answer is the rung, its words and the marks they come with.
+  - When a call of AI came to an outcome, the words are the rung's fallback text and `outcome` says why; when the words failed a check, they are the fallback text with no outcome.
+  - The same wrong answer asked again, or a repeat, gets the words the attempt keeps, with no AI and no marks.
+- **After a correct answer**, `GetCorrectAnswerWords` sends the work again, once, while the profile has begun no other attempt; on an attempt that no correct answer closed, and asked again, it gets `CAUSE_NO_MORE_WORDS`. `app` keeps the work until the answer comes.
+- **Explain differently**, `ExplainDifferently`, is one call of AI on a rung, without the work. It names the wrong answer whose words the learner reads, as `GetRungWords` does, and one that is no longer the last gets `CAUSE_NOT_CURRENT`. `CAUSE_NO_OTHER_WORDS` is its outcome when the words are the ones the learner reads already: the right to it on that rung is spent (R82; R10 api).
+- **Hint**, `GetHint`, asks for no AI and sends no work:
+  - before the first wrong answer, and on a task with a rubric, it gives the IDs of the task's techniques, empty when the task names none, which is the answer that there is nothing to hint;
+  - after it, the current rung and its words.
+
+  "What is known and what to find" `app` shows from the open view of the task: they are open, and the server records nothing of them (R82).
+- **A step.** `BeginStep` begins a solving step whose `gives` gives techniques, by its place, and gives the IDs of the task's techniques. The server records each technique given, at a step or on request (R82). "Step done" sends no request (R69).
+
+**The solution shown.** `ShowSolution` names whose action it is: `ACTION_LEARNING`, the learner's, with the right `can_learn`, or `ACTION_ADULT`, an adult's behind the PIN, with the right `can_manage`. A request without its right gets the code `permission_denied`: the PIN is a barrier of the interface, and the server tells kinds of action apart, not people (R04 api).
+- A child's solution is shown from the fourth wrong answer on, and earlier, by either kind of action, gets `CAUSE_LADDER_NOT_PASSED`.
+- While the child's setting "ask before showing" is on, a learning action gets `CAUSE_ADULT_NEEDED`.
+- A learner of the category `adult` shows it from the beginning.
+- A task with a rubric has nothing to show this way, `CAUSE_NO_SHOWING`: "Done" solves it.
+- The answer is `SolvedTask`, and the attempt is closed `CLOSE_REASON_SOLUTION_SHOWN` (R82).
+
+**Marks.** A mark of the tutor, `Mark`, is its kind and its place; the program places it (R03), and it belongs to the words of the answer that brings it, the rung's one question (R70; R97).
+- Its kind is `MARK_KIND_FRAME`, a frame round the place.
+- Its place is an answer slot by its place, `answer_slot`, or a box on the crop the device sent, `crop_box`, in whole thousandths, as the observation writes them (section 10).
+  - On a workbook, only an answer slot: the box, framed with its strokes, or alone when it is empty.
+  - The box of the first mistake that the analysis gives goes as it is, with no translation (R86).
+  - A group's label as a place comes only if the frames of the groups go with the work, as a field added to `place` (repositories 8, Т-31).
+- Its name, which a screen reader reads, `app` writes in the language of its screen from its kind, its number and its place: "Tutor's mark 1 of 2" (R10 app).
+- `app` gives the canvas the marks with the context of the submission it kept, as the types of the element `<novatrail-canvas>` have them: `Marks`, `Mark` and `Anchor` of `@altnovatrail/spec/canvas`, written by hand and checked against this message (R74; R83).
+
+**An essay.** `SubmitEssay` sends the crop of the sheet of a task with a rubric, and its answer is how the submission ended, `end`, which is no verdict (R87):
+- `SUBMISSION_END_FEEDBACK`: the essay was read and assessed. `text` is what was read, as it is written, and `feedback` the words of the feedback; without them, they failed the leak check or the rule of feedback, and `app` shows its own phrase "no feedback this time", which is no neutral phrase.
+- `SUBMISSION_END_UNREADABLE`, with `reason`, `blank` or `illegible`, as a verdict's reason is written: it reached no assessment, and the learner writes the sheet again.
+- `SUBMISSION_END_UNCHECKED`: `outcome` says why, and is absent when the assessment assessed no criterion; `text` is there if the essay was read.
+- `closed` names why the attempt was closed while the submission went, `CLOSE_REASON_UNSPECIFIED` when it is open: the feedback comes all the same. A submission on an attempt closed already gets `CAUSE_ATTEMPT_CLOSED` before any call of AI.
+- Neither the marks of the criteria nor their justifications reach the device.
+- The attempt stays open for writing again, and the learner ends it with `Done`, after one submission at least, whatever it came to; earlier, `CAUSE_NO_SUBMISSION`. `Done` closes it `CLOSE_REASON_DONE`, and the task is solved (R87).
+
+**The task solved.** `SolvedTask` comes once an attempt is closed by a correct answer, by the solution shown, or by "Done" (R05):
+- `keys`, each answer slot's key as the module format writes it, of the instance when the task is a template; a predicate or a rubric has none.
+- `solution`, the task's field `solution` as JSON of the module format, bytes, and `module_format_version`, its version; empty when the task has none. `app` reads it by the types of `@altnovatrail/spec`, and for a version of the format that its build does not read, it offers to reload (R44).
+- `criteria`, on a task with a rubric, the text of each criterion, without the marks of the assessment.

@@ -32,14 +32,15 @@ function show(task: open.Task, manifest: open.Manifest) {
 - **`@altnovatrail/spec/formatv0/open`** holds the open view of each part, which is what the learner's app gets ([the format's text](https://github.com/altnovatrail/spec/blob/main/format/README.md#6-open-fields), section 6). Each type keeps its name from `formatv0` and only the fields marked `x-open`, so an open view has no check, no template and no solver.
 - **`@altnovatrail/spec/admissionv0`** holds the types of the admission table's major version 0: the table, with its providers, deployment facts, rules of capabilities and cells, and the test vectors of the admission function's answers.
 - **`@altnovatrail/spec/canvas`** holds the types of `<novatrail-canvas>`:
-  - `CanvasElement`, which describes the element's properties `tool`, `task`, `workedExample`, `demoState`, `manifest`, `media`, `history` and `filled` and its method `exportWork()`;
+  - `CanvasElement`, which describes the element's properties `tool`, `task`, `workedExample`, `demoState`, `manifest`, `media`, `history`, `marks` and `filled` and its method `exportWork()`;
   - `Media`, the function by which the consumer gives the files of the pictures: the canvas goes to no network;
   - the events `toolchange`, `historychange` and `demochange`, with `CanvasEventMap` naming them;
   - the state of a worked example's demo, `DemoState`;
   - the history of writing;
-  - the work for checking, with the context of its submission.
+  - the work for checking, with the context of its submission;
+  - the tutor's marks of a submission, `Marks`, `Mark` and `Anchor`: their kind and place come from the contract between the app and the platform's API, the message `Mark` of `novatrail.api.v1` in the npm package `@altnovatrail/contracts`, and their name from the app.
 
-  Its unions are exact: an event of the history is told by its `kind`, and the work of a sheet or of a workbook by its key, `png` or `cells`. The declarations need the DOM's types, so the consumer's `lib` must include `dom`. The tutor's marks are not in it yet: their types come with the contract between the app and the platform's API. The package registers nothing. The canvas's own package puts the element in `HTMLElementTagNameMap` and its events in `GlobalEventHandlersEventMap`.
+  Its unions are exact: an event of the history is told by its `kind`, and the work of a sheet or of a workbook by its key, `png` or `cells`. The declarations need the DOM's types, so the consumer's `lib` must include `dom`. The package registers nothing. The canvas's own package puts the element in `HTMLElementTagNameMap` and its events in `GlobalEventHandlersEventMap`.
 
 A type gives the shape of a value and nothing more: the schemas decide what is valid. Code that reads a value from elsewhere checks it against its schema first.
 
