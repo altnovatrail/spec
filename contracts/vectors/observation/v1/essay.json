@@ -1,0 +1,73 @@
+{
+  "description": "An essay, the one answer slot of its task bound sheet with a rubric: one reader, nothing to join, and no verdict — its submission goes on to the assessment, ends unreadable or ends unchecked.",
+  "canvas": {"kind": "handwriting_sheet"},
+  "items": [
+    {"answer_slots": [{"binding": "sheet", "check": {"kind": "rubric", "criteria": [{"text": "It tells what happened first and what happened next."}]}}]}
+  ],
+  "cases": [
+    {
+      "description": "An essay read goes on to the assessment by its rubric.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "On the first morning we walked to the sea. Then it rained."}]}
+      ],
+      "valid": [true],
+      "submission": "assessment"
+    },
+    {
+      "description": "A rubric normalizes nothing: a text that a number would drop is still an essay.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "="}]}
+      ],
+      "valid": [true],
+      "submission": "assessment"
+    },
+    {
+      "description": "A blank sheet ends unreadable.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}]}
+      ],
+      "valid": [true],
+      "submission": "unreadable"
+    },
+    {
+      "description": "An essay that cannot be read ends unreadable.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_ILLEGIBLE"}]}
+      ],
+      "valid": [true],
+      "submission": "unreadable"
+    },
+    {
+      "description": "Ambiguous is no reason of an essay: the observation is not valid, and the submission ends unchecked.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]}
+      ],
+      "valid": [false],
+      "submission": "unchecked"
+    },
+    {
+      "description": "No final answer is no reason of an essay either.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_NO_FINAL_ANSWER"}]}
+      ],
+      "valid": [false],
+      "submission": "unchecked"
+    },
+    {
+      "description": "An empty text is not valid.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": ""}]}
+      ],
+      "valid": [false],
+      "submission": "unchecked"
+    },
+    {
+      "description": "An essay has no crop_box.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "On the first morning we walked to the sea.", "crop_box": {"ymin": 0, "xmin": 0, "ymax": 1000, "xmax": 1000}}]}
+      ],
+      "valid": [false],
+      "submission": "unchecked"
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "description": "A handwriting sheet whose one answer slot is bound anywhere, checked by number with units: the box of the final answer, and no final answer or several.",
+  "canvas": {"kind": "handwriting_sheet"},
+  "items": [
+    {"answer_slots": [{"binding": "anywhere", "check": {"kind": "number", "key": "7", "units": ["rung", "rungs"], "trap_values": [{"value": "6", "trap": "off-by-one"}]}}]}
+  ],
+  "cases": [
+    {
+      "description": "The joined value is the first reader's, with the first reader's box.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7 rungs", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 300}}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 610, "xmin": 120, "ymax": 690, "xmax": 280}}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7 rungs", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 300}}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "When the first reader names no box, the joined value has the second's.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "= 7.", "crop_box": {"ymin": 610, "xmin": 120, "ymax": 690, "xmax": 280}}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 610, "xmin": 120, "ymax": 690, "xmax": 280}}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "When neither names a box, the joined value has none.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "A box from 0 to 1000 is valid.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 0, "xmin": 0, "ymax": 1000, "xmax": 1000}}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 0, "xmin": 0, "ymax": 1000, "xmax": 1000}}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "A wrong value read alike joins, with the first's box, and matches its trap.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "6 rungs", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 300}}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "6", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 250}}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "6 rungs", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 300}}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "not_yet", "trap": "off-by-one"}], "verdict": "not_yet"}
+      ]
+    },
+    {
+      "description": "Two values that differ join into ambiguous, which has no box.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 300}}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8", "crop_box": {"ymin": 200, "xmin": 100, "ymax": 300, "xmax": 300}}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "A word that is no unit leaves the value out of notation, and two values the same once normalized join, with the box.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7 steps", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 300}}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7  steps"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7 steps", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 300}}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "No final answer from both readers joins into no final answer.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_NO_FINAL_ANSWER"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_NO_FINAL_ANSWER"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_NO_FINAL_ANSWER"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "no_final_answer"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "Several final answers from both readers joins into several final answers.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_SEVERAL_FINAL_ANSWERS"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_SEVERAL_FINAL_ANSWERS"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_SEVERAL_FINAL_ANSWERS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "several_final_answers"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "No final answer and several join into ambiguous.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_NO_FINAL_ANSWER"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_SEVERAL_FINAL_ANSWERS"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "Ambiguous from both readers joins into ambiguous.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "A box beside a reason.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_NO_FINAL_ANSWER", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 700, "xmax": 300}}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A box whose top is its bottom.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 600, "xmax": 300}}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A box whose left edge is right of its right edge.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 600, "xmin": 300, "ymax": 700, "xmax": 100}}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A box past 1000.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 600, "xmin": 100, "ymax": 1001, "xmax": 300}}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A box of zeros, which is a box all the same, and not valid.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7", "crop_box": {"ymin": 0, "xmin": 0, "ymax": 0, "xmax": 0}}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    }
+  ]
+}

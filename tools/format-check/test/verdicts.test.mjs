@@ -5,7 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkVerdictVector } from "../cases.mjs";
-import { answerSlotsOf, comparableOf, itemVerdict, lowercase, normalized, rationalOf, readNumber, scriptsReplaced, slotBreaches, slotVerdict, trapOf } from "../verdicts.mjs";
+import { answerSlotsOf, comparableOf, itemVerdict, lowercase, normalized, rationalOf, readNumber, readingOf, scriptsReplaced, slotBreaches, slotVerdict, trapOf } from "../verdicts.mjs";
 
 const slot = (check, options) => (options ? { binding: "choice", options, check } : { binding: "anywhere", check });
 const verdictOf = (check, value, options) => slotVerdict(slot(check, options), value);
@@ -190,6 +190,29 @@ test("a check compares a value as it compares the key: a choice by its normal fo
   assert.equal(comparableOf(slot({ kind: "fraction", key: "3/4" }), "-6/8"), "-3/4");
   assert.equal(comparableOf(slot({ kind: "choice", key: "odd", options: ["even", "odd"] }), " EVEN "), "even");
   assert.equal(comparableOf(slot({ kind: "predicate", predicate: "value > 0" }), "6"), null);
+});
+
+test("a value reads, for the join of two readings, as blank, as its normal form out of notation, or as what the check compares and its verdict", () => {
+  const number = slot({ kind: "number", key: "7", units: ["rungs"] });
+  assert.deepEqual(readingOf(number, "= 7."), { compared: "7/1", verdict: "correct" });
+  assert.deepEqual(readingOf(number, "14/2 rungs"), readingOf(number, "7"));
+  assert.deepEqual(readingOf(number, "6"), { compared: "6/1", verdict: "not_yet" });
+  assert.deepEqual(readingOf(number, "="), { blank: true });
+  assert.deepEqual(readingOf(number, " seven Rungs "), { notation: "seven" }, "steps 1 to 7, the unit dropped");
+  assert.deepEqual(readingOf(number, "7²"), readingOf(number, "7³"), "both are 7 and U+FFFD");
+  assert.deepEqual(readingOf(number, "1/100000000000000"), { notation: "1/100000000000000" }, "17 characters: no comparable, though it spells one");
+  const reduced = slot({ kind: "fraction", key: "1/2", form: "reduced" });
+  assert.deepEqual(readingOf(reduced, "2/4"), { compared: "1/2", verdict: "not_yet" });
+  assert.deepEqual(readingOf(reduced, "1/2"), { compared: "1/2", verdict: "correct" });
+  assert.deepEqual(readingOf(reduced, "0.5"), { notation: "0.5" });
+  const predicate = slot({ kind: "predicate", predicate: "value % 3 == 0" });
+  assert.deepEqual(readingOf(predicate, "12."), { compared: "12/1", verdict: null });
+  assert.deepEqual(readingOf(predicate, "-0"), readingOf(predicate, "0"));
+  assert.deepEqual(readingOf(predicate, "012"), { notation: "012" });
+  const choice = slot({ kind: "choice", key: "odd", options: ["even", "odd"] });
+  assert.deepEqual(readingOf(choice, " EVEN "), { compared: "even", verdict: "not_yet" });
+  assert.deepEqual(readingOf(choice, "MAYBE"), { notation: "maybe" });
+  assert.deepEqual(readingOf(slot({ kind: "choice", key: "<", options: ["<", ">", "="] }), "="), { compared: "=", verdict: "not_yet" }, "= is a sign of a choice, not blank");
 });
 
 test("a wrong value matches the trap of the trap value its check compares it equal to", () => {

@@ -1,0 +1,101 @@
+{
+  "description": "Zones of a handwriting sheet, and answer slots bound choice, which the learner taps and AI does not read: a tapped slot counts in the places of its item, and gets its verdict whatever the observations are.",
+  "canvas": {"kind": "handwriting_sheet"},
+  "items": [
+    {"text": "a)", "answer_slots": [{"binding": "zone", "zone": {"left": 100, "top": 1000, "width": 400, "height": 200}, "check": {"kind": "number", "key": "15", "units": ["minute", "minutes"]}}, {"binding": "choice", "options": ["before", "after"], "check": {"kind": "choice", "key": "after", "trap_values": [{"value": "before", "trap": "reversed-order"}]}}, {"binding": "zone", "zone": {"left": 500, "top": 1000, "width": 400, "height": 200}, "check": {"kind": "number", "key": "40", "units": ["minute", "minutes"]}}]},
+    {"text": "b)", "answer_slots": [{"binding": "choice", "options": ["yes", "no"], "check": {"kind": "choice", "key": "yes"}}]},
+    {"text": "c)", "answer_slots": [{"binding": "zone", "zone": {"left": 100, "top": 1250, "width": 400, "height": 100}, "check": {"kind": "number", "key": "55"}}]}
+  ],
+  "cases": [
+    {
+      "description": "Every answer right, the options tapped too.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15 minutes"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]}
+      ],
+      "valid": [true, true],
+      "tapped": [{"answer_slot": {"item": 1, "slot": 2}, "value": "after"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "yes"}],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}, {"verdict": "correct"}, {"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "A wrong option tapped matches its trap, and a choice with no option tapped is blank.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]}
+      ],
+      "valid": [true, true],
+      "tapped": [{"answer_slot": {"item": 1, "slot": 2}, "value": "before"}, {"answer_slot": {"item": 2, "slot": 1}, "value": null}],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}, {"verdict": "not_yet", "trap": "reversed-order"}, {"verdict": "correct"}], "verdict": "not_yet"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "blank"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "Two zone values that differ join into ambiguous.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "16"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]}
+      ],
+      "valid": [true, true],
+      "tapped": [{"answer_slot": {"item": 1, "slot": 2}, "value": "after"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "yes"}],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}, {"verdict": "correct"}, {"verdict": "correct"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "A slot bound choice in the observation makes it not valid; the slots AI reads are unchecked, and the options tapped still get their verdicts.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 2}, "value": "after"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]}
+      ],
+      "valid": [false, true],
+      "tapped": [{"answer_slot": {"item": 1, "slot": 2}, "value": "before"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "yes"}],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "not_yet", "trap": "reversed-order"}, {"verdict": "unchecked"}], "verdict": "not_yet"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "No final answer, which only a slot bound anywhere gives, in a zone; with no joined observation, a choice with no option tapped is still blank.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_NO_FINAL_ANSWER"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]}
+      ],
+      "valid": [true, false],
+      "tapped": [{"answer_slot": {"item": 1, "slot": 2}, "value": "after"}, {"answer_slot": {"item": 2, "slot": 1}, "value": null}],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "correct"}, {"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "blank"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A crop_box, which only a slot bound anywhere has, in a zone.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40", "crop_box": {"ymin": 100, "xmin": 500, "ymax": 300, "xmax": 900}}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "15"}, {"answer_slot": {"item": 1, "slot": 3}, "value": "40"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "55"}]}
+      ],
+      "valid": [false, true],
+      "tapped": [{"answer_slot": {"item": 1, "slot": 2}, "value": "after"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "yes"}],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "correct"}, {"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    }
+  ]
+}
