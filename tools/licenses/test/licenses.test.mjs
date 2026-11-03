@@ -234,6 +234,16 @@ test("licenses-check-repo reads files of the repository alone, never outside it"
   }
   const exceptions = inRepository({ "package-lock.json": lock([]) }, "licenses-check-repo", ["package-lock.json", "../licenses.json"]);
   assert.match(exceptions.stderr, /\.\.\/licenses\.json: not a file of the repository/);
+  // A link in the repository is read where it leads, so one that leads out is refused too.
+  const linked = fs.mkdtempSync(path.join(os.tmpdir(), "licenses-repo-"));
+  try {
+    fs.symlinkSync(path.join(here, "..", "..", "package-lock.json"), path.join(linked, "package-lock.json"));
+    const refused = spawnSync(process.env.JUST ?? "just", ["-f", justfile, "licenses-check-repo", "package-lock.json"], { cwd: linked, encoding: "utf8" });
+    assert.equal(refused.status, 2, refused.stdout);
+    assert.match(refused.stderr, /^licenses-check: package-lock\.json: a link that leads out of the repository the check runs in, /m);
+  } finally {
+    fs.rmSync(linked, { recursive: true, force: true });
+  }
 });
 
 test("licenses-allowed prints config.mjs's list, one identifier a line, and nothing else on stdout", () => {

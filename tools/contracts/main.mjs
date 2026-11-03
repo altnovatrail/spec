@@ -1,6 +1,7 @@
 // contracts-check: the checks of the API contracts in spec's contracts/ (R83; RUN.md, T55).
 //
-//   node tools/contracts/main.mjs      spec's own contracts/, two levels above this file
+//   node tools/contracts/main.mjs                       spec's own contracts/, two levels above this file
+//   node tools/contracts/main.mjs --samples <file>...   sample files of the repository it runs from
 //
 // Checks, in order:
 // - buf.yaml, as R83 fixes it — one module, contracts/, no deps, the lint categories STANDARD,
@@ -36,17 +37,28 @@
 //   tsc of tools/ takes every message of it under nodenext and bundler, and Node runs it, its binary
 //   form and its JSON with protobuf names read back (tools/contracts/typescript.mjs).
 // Prints one line per error, file:line: message, and exits 1 if there are any.
+//
+// With --samples, sample-check: the sample files another NovaTrail repository names, by their
+// paths from the folder it runs from, its root (R93). Each path is a file of that folder, or the
+// check stops before buf runs; then buf builds the image of this spec's contracts/ — the spec/
+// submodule's, at the tag the repository pins —, and each file is read as the examples of spec are
+// and held to the rules of contracts/README.md, section 11, by the same code, which asks nothing
+// of the files together. Prints one line per error, file:line: message, and exits 1 if there are
+// any, or 2 when it cannot check at all.
 
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { byCodeUnits, isMain } from "../shared.mjs";
+import { byCodeUnits, inRepository, isMain } from "../shared.mjs";
 import { breaking, build, contractFiles, format, generate, lint, previousRelease } from "./buf.mjs";
 import { FOLDER, PACKAGE, checkVectors } from "./observation.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
-import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples } from "./sample.mjs";
+import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, sampleOf } from "./sample.mjs";
 import { checkTypeScript } from "./typescript.mjs";
+
+// The spec this file is part of: spec itself, or the spec/ submodule of another repository.
+const SPEC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 // buf.yaml and buf.gen.yaml at root, against R83: the errors, with a missing file one of them.
 export function checkConfig(root) {
@@ -126,6 +138,9 @@ export function compareGenerated(root, generated, written) {
   return errors;
 }
 
+// Errors in the order of their files, lines and messages.
+const byPlace = (a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message);
+
 // Every check of the contracts at root: { errors, stats }.
 export function checkContracts(root) {
   const errors = checkConfig(root);
@@ -134,7 +149,7 @@ export function checkContracts(root) {
   const packages = new Set(protos.map((file) => classify(file).package));
   errors.push(...vectorErrors(vectors, packages), ...exampleErrors(examples, packages));
   const stats = { protos: protos.length, packages: packages.size, generated: generated.size, vectors: vectors.length, cases: 0, examples: 0, previous: null, messages: 0 };
-  const done = () => ({ errors: errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message)), stats });
+  const done = () => ({ errors: errors.sort(byPlace), stats });
 
   if (protos.length === 0) {
     errors.push(...compareGenerated(root, generated, new Map()));
@@ -192,6 +207,45 @@ export function checkContracts(root) {
   return done();
 }
 
+// The sample files another repository names, by their paths from root, the folder sample-check
+// runs from: { errors, samples }, the errors by the paths given, and a file named twice checked
+// once, by its first name. A path that leaves root or names no file throws before buf runs, and
+// so does an image of this spec's contracts/ with no Sample.
+export function checkSampleFiles(root, files) {
+  if (files.length === 0) throw new Error("name the sample files to check");
+  const named = new Map();
+  for (const file of files) {
+    const full = inRepository(file, root);
+    const stat = fs.statSync(full, { throwIfNoEntry: false });
+    if (!stat) throw new Error(`${file}: there is no such file`);
+    if (!stat.isFile()) throw new Error(`${file}: not a file; name the sample files themselves`);
+    if (!named.has(full)) named.set(full, file);
+  }
+  const built = build(SPEC);
+  if (built.errors.length) throw new Error(`buf build fails in ${SPEC}: ${built.errors.map(({ file, line, message }) => `${file}:${line}: ${message}`).join("; ")}`);
+  const known = sampleOf(built.image);
+  if (known.error) throw new Error(known.error);
+  const read = [...named].map(([full, file]) => [file, full]);
+  return { errors: checkSamples(known.message, read).errors.sort(byPlace), samples: read.length };
+}
+
+// sample-check: what it found in the files, a line each, and its verdict; 2 when it cannot check.
+function sampleCheck(files) {
+  try {
+    const { errors, samples } = checkSampleFiles(process.cwd(), files);
+    for (const { file, line, message } of errors) console.log(`${file}:${line}: ${message}`);
+    if (errors.length) {
+      console.log(`sample-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
+      process.exitCode = 1;
+    } else {
+      console.log(`sample-check: ok — ${samples} sample${samples === 1 ? "" : "s"}`);
+    }
+  } catch (error) {
+    console.error(`sample-check: ${error.message}`);
+    process.exitCode = 2;
+  }
+}
+
 // What a run found, in a line.
 export function summary({ protos, packages, generated, vectors, cases, examples, previous, messages }) {
   if (protos === 0) return "contracts/ holds no .proto file yet, so buf has nothing to check; buf.yaml and buf.gen.yaml are as R83 has them";
@@ -204,10 +258,10 @@ export function summary({ protos, packages, generated, vectors, cases, examples,
   return `${protos} .proto file${protos === 1 ? "" : "s"} in ${packages} package${packages === 1 ? "" : "s"}, ${generated} file${generated === 1 ? "" : "s"} of generated code${tested}, ${against}; tsc and Node take the ${messages} message${messages === 1 ? "" : "s"} of its npm package`;
 }
 
-if (isMain(import.meta.url)) {
-  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+// contracts-check: what it found in spec's contracts/, a line each, and its verdict.
+function contractsCheck() {
   try {
-    const { errors, stats } = checkContracts(root);
+    const { errors, stats } = checkContracts(SPEC);
     for (const { file, line, message } of errors) console.log(`${file}:${line}: ${message}`);
     if (errors.length) {
       console.log(`contracts-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
@@ -219,4 +273,14 @@ if (isMain(import.meta.url)) {
     console.error(`contracts-check: ${error.message}`);
     process.exitCode = 1;
   }
+}
+
+if (isMain(import.meta.url)) {
+  // Every argument after --samples is a file, one beginning with - too.
+  const args = process.argv.slice(2);
+  if (args[0] === "--samples") sampleCheck(args.slice(1));
+  else if (args.length) {
+    console.error("contracts-check: the only argument is --samples, with the sample files to check");
+    process.exitCode = 2;
+  } else contractsCheck();
 }

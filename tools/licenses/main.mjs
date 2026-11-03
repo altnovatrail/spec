@@ -19,7 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { byCodeUnits, isMain } from "../shared.mjs";
+import { byCodeUnits, inRepository, isMain } from "../shared.mjs";
 import { allowed as ALLOWED, exceptions as EXCEPTIONS } from "./config.mjs";
 
 export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS, devOnly = false } = {}) {
@@ -247,16 +247,6 @@ if (isMain(import.meta.url)) {
     console.error(`licenses-check: ${error.message}`);
     process.exitCode = 2;
   }
-}
-
-// A path another repository gives, as the absolute path it names: inside the folder the check runs
-// from, the repository's root, and never outside it. A lock file and an exceptions file are the
-// repository's own, so a path that leaves it — ../, or an absolute path elsewhere — is refused.
-function inRepository(file) {
-  const root = process.cwd();
-  const resolved = path.resolve(root, file);
-  if (!resolved.startsWith(root + path.sep)) throw new Error(`${file}: not a file of the repository the check runs in, ${root}`);
-  return resolved;
 }
 
 // A file's text; a file that cannot be read says which, by the name it was given, and why.

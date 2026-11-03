@@ -68,7 +68,7 @@ export function sampleOf(image) {
   const resolve = (name) => set.file.find((proto) => proto.name === name) ?? known.get(name);
   const registry = createFileRegistry(...set.file.filter((proto) => proto.package === PACKAGE).map((proto) => createFileRegistry(proto, resolve)));
   const message = registry.getMessage(SAMPLE);
-  if (!message) return { error: `the image of buf build has no ${SAMPLE}, which the examples are of` };
+  if (!message) return { error: `the image of buf build has no ${SAMPLE}, the message of the sample file` };
   for (const [name, values] of [["Purpose", PURPOSES], ["Writer", WRITERS]]) {
     const named = registry.getEnum(`${PACKAGE}.${name}`)?.values.map((value) => value.name).filter((value) => !value.endsWith("_UNSPECIFIED")) ?? [];
     const unnamed = named.filter((value) => !values.includes(value));
@@ -382,19 +382,27 @@ export function checkSample(bytes, message) {
   return { problems, seen };
 }
 
+// Sample files against the message, each a [name, path to read]: { errors, seen }, the errors
+// { file, line, message } of each file by its name, and seen what they show together. spec's
+// examples and the files another repository names are read by this same code (R93).
+export function checkSamples(message, files) {
+  const errors = [];
+  const seen = new Set();
+  for (const [file, full] of files) {
+    const { problems, seen: found } = checkSample(fs.readFileSync(full), message);
+    errors.push(...problems.map((one) => ({ file, ...one })));
+    for (const each of found) seen.add(each);
+  }
+  return { errors, seen };
+}
+
 // The examples of the sample file at root, files of contracts/, by the image buf builds: the errors,
 // { file, line, message } — each example's, and, when every one holds, what they lack together:
 // every purpose, writer, ink, surface and event of the history of writing.
 export function checkExamples(root, image, files) {
   const known = sampleOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }] };
-  const errors = [];
-  const seen = new Set();
-  for (const file of files) {
-    const { problems, seen: found } = checkSample(fs.readFileSync(path.join(root, file)), known.message);
-    errors.push(...problems.map((one) => ({ file, ...one })));
-    for (const each of found) seen.add(each);
-  }
+  const { errors, seen } = checkSamples(known.message, files.map((file) => [file, path.join(root, file)]));
   if (errors.length === 0) {
     for (const each of [...PURPOSES, ...WRITERS, "history", "geometry", "sheet", "workbook", ...EVENTS]) {
       if (!seen.has(each)) errors.push({ file: FOLDER, line: 0, message: `no example shows ${each}: together the examples show every purpose, writer, ink, surface and event of ${TEXT}` });

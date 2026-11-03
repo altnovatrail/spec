@@ -1,7 +1,8 @@
 // What every tool under tools/ shares: how a module tells that it runs as a script, the
-// programs the tools run, and how they order names.
+// programs the tools run, which paths of another repository they read, and how they order names.
 
 import fs from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // The programs the tools run, by absolute path: no directory on PATH decides which program runs.
@@ -31,6 +32,25 @@ export function isMain(url) {
   } catch {
     return false;
   }
+}
+
+// A path another repository gives, as the absolute path to read: inside the folder the check runs
+// from, the repository's root, and never outside it. A lock file, an exceptions file and a sample
+// file are the repository's own, so a path that leaves it — ../, or an absolute path elsewhere — is
+// refused, and so is a link in it that leads out, since what is read is where the link leads, and
+// a check would print part of a file from outside. A path to nothing is returned as it is, for the
+// reader to name.
+export function inRepository(file, root = process.cwd()) {
+  const resolved = path.resolve(root, file);
+  if (!resolved.startsWith(root + path.sep)) throw new Error(`${file}: not a file of the repository the check runs in, ${root}`);
+  let real;
+  try {
+    real = fs.realpathSync(resolved);
+  } catch {
+    return resolved;
+  }
+  if (!real.startsWith(fs.realpathSync(root) + path.sep)) throw new Error(`${file}: a link that leads out of the repository the check runs in, ${root}`);
+  return real;
 }
 
 // Names in the order of their UTF-16 code units, as sort() puts them with no compare function:

@@ -239,10 +239,9 @@ test("a shallow clone is refused: it has no tags to find the previous release by
   assert.throws(() => checkContracts(shallow), /a shallow clone has no tags to find the previous release by/);
 });
 
-test("the command prints each error and exits 1, or prints the summary", () => {
-  // The commands read the spec two levels above them, and take no other: a copy of them in the
-  // made-up repository reads that one.
-  const { dir } = repository();
+// The commands read the spec two levels above them, and take no other: a copy of them in the
+// made-up repository reads that one. Returns the copy of main.mjs.
+function withCommands(dir) {
   const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs"];
   const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample"].map((name) => `tools/contracts/${name}.mjs`);
   const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
@@ -250,7 +249,12 @@ test("the command prints each error and exits 1, or prints the summary", () => {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(dir, file));
   }
-  const main = path.join(dir, "tools/contracts/main.mjs");
+  return path.join(dir, "tools/contracts/main.mjs");
+}
+
+test("the command prints each error and exits 1, or prints the summary", () => {
+  const { dir } = repository();
+  const main = withCommands(dir);
   const ok = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(ok.status, 0, ok.stderr);
   assert.match(ok.stdout, /^contracts-check: ok — 1 \.proto file in 1 package, 4 files of generated code/);
@@ -261,6 +265,22 @@ test("the command prints each error and exits 1, or prints the summary", () => {
   const generate = spawnSync(process.execPath, [path.join(dir, "tools/contracts/generate.mjs")], { encoding: "utf8" });
   assert.equal(generate.status, 1);
   assert.match(generate.stderr, /^contracts: buf generate does not run while contracts-check finds these:/);
+});
+
+test("sample-check stops when buf cannot build the contracts of its spec, or they have no Sample", () => {
+  // The spec of the copy is the made-up repository, whose one contract is the trial's.
+  const { dir } = repository();
+  const main = withCommands(dir);
+  const samples = path.join(dir, "samples");
+  edit(dir, "samples/a.json", null, "{}\n");
+  const unknown = spawnSync(process.execPath, [main, "--samples", "a.json"], { cwd: samples, encoding: "utf8" });
+  assert.equal(unknown.status, 2);
+  assert.equal(unknown.stderr, "sample-check: the image of buf build has no novatrail.eval.v1.Sample, the message of the sample file\n");
+  edit(dir, trial, "message Place {", "message Place {{");
+  const broken = spawnSync(process.execPath, [main, "--samples", "a.json"], { cwd: samples, encoding: "utf8" });
+  assert.equal(broken.status, 2);
+  assert.match(broken.stderr, /^sample-check: buf build fails in .*: contracts\/novatrail\/trial\/v1\/trial\.proto:\d+: /);
+  assert.equal(broken.stdout, "");
 });
 
 test("removing every contract after a release is found, though buf cannot run on none", () => {
