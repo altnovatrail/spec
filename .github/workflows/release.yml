@@ -71,8 +71,8 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-24.04
     # The image is built twice over, the Go module proxy is given five minutes to serve the
-    # release's version, and the npm registry five to show the package's.
-    timeout-minutes: 35
+    # release's version, and the npm registry twenty to show the package's.
+    timeout-minutes: 50
     # With pipefail: a runner's default, bash -e, lets a failed command inside a pipe pass.
     defaults:
       run:
@@ -614,9 +614,15 @@ jobs:
       # provenance itself. npm-isolated runs it as in the check above, but with the OIDC
       # variables. Its exit status is not the verdict, the registry is: npm may end well with a
       # version only staged, or fail on a version that went out (npm/cli#9889, open when read on
-      # 2026-10-29). So the step asks the packument, with write=true, until the version is there —
-      # for five minutes at most, or half a minute after npm failed — and then the archive the
-      # registry serves has to be this file, byte for byte. A version npm holds already is not
+      # 2026-10-29). And a version npm took is not readable at once: the registry answers the
+      # upload with 202 and "Your package is being processed and may take a few minutes to become
+      # available" (its notice in the run of v0.6.7, 2026-11-02), since it scans the package
+      # first, with "a short delay between publishing and availability, typically around five
+      # minutes. It may take longer, up to 15 minutes or more, at peak times" (GitHub Changelog,
+      # npm publish-time malware scanning, 2026-07-28, read 2026-11-02). So the step asks the
+      # packument, with write=true, until the version is there — for twenty minutes at most, or
+      # half a minute after npm failed — and then the archive the registry serves has to be this
+      # file, byte for byte. A version npm holds already is not
       # published again, and a refusal release-refusal lets pass leaves the step out: no release,
       # nothing in npm, and the release of the tip covers it. If npm fails after the release is
       # out, running the job again publishes the release's file. The step comes before the check
@@ -646,7 +652,7 @@ jobs:
           "$RUNNER_TEMP/npm-isolated" publish "$FILE" --access public "${tag_args[@]}" --loglevel verbose || status=$?
           # A publish npm reports as done may take a while to show; one npm reports as failed is
           # looked for briefly, in case it went out all the same.
-          attempts=30
+          attempts=120
           if [ "$status" != 0 ]; then attempts=3; fi
           packument="$files/packument.json"
           published=""
@@ -662,7 +668,7 @@ jobs:
           done
           workflow="${GITHUB_WORKFLOW_REF%@*}"
           if [ -z "$published" ] && [ "$status" = 0 ]; then
-              echo "::error::npm publish ended well, but ${NPM_PACKAGE}@${version} is not in the registry after five minutes: it may be only staged, by a trusted publisher that allows npm stage publish alone, or npm/cli#9889. Approve or reject it on npmjs.com, let the trusted publisher publish, and run the job again."
+              echo "::error::npm publish ended well, but ${NPM_PACKAGE}@${version} is not in the registry after twenty minutes. The registry may be processing it still, past its delay at peak times: run the job again later, and the check of the npm package finds it by its integrity. Or it may be only staged, by a trusted publisher that allows npm stage publish alone, or npm/cli#9889: then approve or reject it on npmjs.com, let the trusted publisher publish, and run the job again."
               exit 1
           elif [ -z "$published" ]; then
               echo "::error::npm publish failed with ${status}, and ${NPM_PACKAGE}@${version} is not in the registry; the lines above say why. The package's trusted publisher names the repository ${GITHUB_REPOSITORY}, the workflow ${workflow##*/}, no environment, and allows npm publish."
