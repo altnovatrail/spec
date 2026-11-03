@@ -505,7 +505,7 @@ The limit of steps is the format's: the same expression on the same value takes 
   - `skills`, when given, the skills of the module that the mistake belongs to, by local ID: the learner model counts the traps of a skill (concepts 11). A trap that belongs to no skill leaves the field out;
   - `trap_advice`, what to advise the adult or the learner on this mistake, in the module's explanation language. The learner's progress gives it beside a trap that repeats, and it is the fallback text of the first two rungs after a wrong value of the trap that has no text of its own (section 19).
 - A published trap ID never names another trap: the learner's progress counts traps by their full IDs (section 10). The order of the traps carries no meaning (section 4).
-- **Open fields.** None: the trap catalog is closed, and its open view is an empty object (section 6). A trap tells what mistake a task expects, and the learner's app does not get it (R05).
+- **Open fields.** None: the trap catalog is closed, and its open view is an empty object (section 6). A trap tells what mistake a task expects, and the learner's app does not get it with a task (R05). Only the learner's progress, which the adult views, gets the `description` and `trap_advice` of a trap that repeats, and only by attempts that are closed; beside that, `trap_advice` reaches the learner only as the fallback text of a rung (section 19).
 
 | ID | Rule |
 |---|---|

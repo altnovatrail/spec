@@ -62,7 +62,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## 9. Transport
 
 - `app` and `api` talk by Connect: the server is connect-go, and the client connect-es. Every call is unary.
-- Whether a call goes as JSON or binary protobuf is the transport's choice; a server takes both.
+- Between `app` and `api` the wire is binary protobuf: a new enum value reaches an older client as a number, while in JSON connect-es skips a name it does not know and reads the field as unset (section 2). The server takes JSON too, for debugging, and writes it with the protobuf names (section 6).
 - Both sides skip the fields they do not know, so a client and a server within one major package understand each other.
 
 ## 10. The observation
