@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path"
 	"reflect"
 	"slices"
+	"strings"
 	"testing"
 
 	"google.golang.org/protobuf/encoding/protojson"
@@ -159,34 +161,53 @@ func readEach(t *testing.T, what string, raw json.RawMessage, field string, mess
 
 // Go reads every example of the sample file as contracts-check does: protojson takes each strictly,
 // refusing a field it does not know, and writes it back, with the protobuf names and every field,
-// as the example has it (contracts/README.md, section 11). A field added to a sample is refused.
+// as the example has it, its markup too (contracts/README.md, section 11). A field added to a sample
+// is refused.
 func TestSamplesReadInGo(t *testing.T) {
+	readExamples(t, false, func() proto.Message { return &evalv1.Sample{} }, "writer_name")
+}
+
+// Go reads every example of the runner's report, report-<case>.json, as it reads the samples
+// (contracts/README.md, sections 3 and 14). A field added to a report is refused.
+func TestReportsReadInGo(t *testing.T) {
+	readExamples(t, true, func() proto.Message { return &evalv1.Report{} }, "sample_text")
+}
+
+// readExamples reads the examples of the eval protocol that are reports, or those that are not, as
+// the message gives: each back as it is written, and refused with the field extra added to it.
+func readExamples(t *testing.T, reports bool, message func() proto.Message, extra string) {
+	t.Helper()
 	examples := os.DirFS("examples")
 	names, err := fs.Glob(examples, "eval/v1/*.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(names) == 0 {
-		t.Fatal("no examples of the sample file")
-	}
+	read := 0
 	for _, name := range names {
+		if strings.HasPrefix(path.Base(name), "report-") != reports {
+			continue
+		}
+		read++
 		data, err := fs.ReadFile(examples, name)
 		if err != nil {
 			t.Fatal(err)
 		}
-		readBack(t, name, data, &evalv1.Sample{})
-		extra, ok := jsonOf(t, data).(map[string]any)
+		readBack(t, name, data, message())
+		value, ok := jsonOf(t, data).(map[string]any)
 		if !ok {
 			t.Fatalf("%s is no JSON object", name)
 		}
-		extra["writer_name"] = "x"
-		added, err := json.Marshal(extra)
+		value[extra] = "x"
+		added, err := json.Marshal(value)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := protojson.Unmarshal(added, &evalv1.Sample{}); err == nil {
-			t.Errorf("%s: protojson takes a field the sample file does not have", name)
+		if err := protojson.Unmarshal(added, message()); err == nil {
+			t.Errorf("%s: protojson takes the field %s, which the message does not have", name, extra)
 		}
+	}
+	if read == 0 {
+		t.Fatalf("no examples of %T", message())
 	}
 }
 

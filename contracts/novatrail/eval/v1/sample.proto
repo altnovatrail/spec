@@ -2,9 +2,9 @@ syntax = "proto3";
 
 // The sample file of the eval protocol: one sample of writing on a sheet or on a page of a
 // workbook, as the samples page of `canvas` saves it and the eval runner of `tutor` reads it, one
-// JSON file to a sample. Which fields a sample holds, by its purpose and by who wrote it, how the
-// file is written and read, and where a sample may go are the rules of contracts/README.md,
-// section 11.
+// JSON file to a sample, with its markup. Which fields a sample holds, by its purpose and by who
+// wrote it, how the file is written and read, its markup, and where a sample may go are the rules
+// of contracts/README.md, section 11.
 package novatrail.eval.v1;
 
 import "novatrail/observation/v1/observation.proto";
@@ -58,6 +58,87 @@ message Sample {
     // A page of a workbook.
     Workbook workbook = 15;
   }
+  // What the sample is meant to say, which the runner compares what AI reads with. Every writer
+  // writes it; a file without it is still a sample, and the runner measures nothing on it.
+  Markup markup = 16;
+}
+
+// The markup of a sample: the truth of the answer slots that AI reads, notes on some of them, and on
+// a sheet the parts of its writing or, on an essay, the people's marks of its rubric's criteria.
+message Markup {
+  // What a reader that reads right gives: every answer slot that AI reads, in the task's order, with
+  // its value as written or the reason it gives none, and no box on a crop.
+  novatrail.observation.v1.Observation truth = 1;
+  // What sets some answer slots apart, ascending by place: only those it sets apart.
+  repeated AnswerSlotNote notes = 2;
+  // What the markup says of the writing beyond its answer slots: on a sheet one of the two, and on
+  // a workbook neither.
+  oneof writing {
+    // The parts of a solution, in the order it reads.
+    WritingParts parts = 3;
+    // The people's marks of an essay's criteria.
+    CriterionMarks marks = 4;
+  }
+}
+
+// What sets an answer slot apart, so that its row is measured apart too.
+message AnswerSlotNote {
+  // The answer slot, one of the truth's.
+  novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+  // A digit in it is written mirrored: its truth is UNREADABLE_AMBIGUOUS.
+  bool mirrored = 2;
+  // Something in it is crossed out and written again.
+  bool crossed_out = 3;
+}
+
+// The parts of a solution on a sheet, in the order it reads, and where it went wrong.
+message WritingParts {
+  // The parts, one at least when the sheet shows strokes, and none when it shows none.
+  repeated WritingPart parts = 1;
+  // The place, from 1, of the part where the solution went wrong, even when its calculation is
+  // right; none when it did not go wrong.
+  optional int32 first_error = 2;
+}
+
+// One part of the writing: what the writer meant as one, a text or a drawing.
+message WritingPart {
+  // A text or a drawing.
+  PartKind kind = 1;
+  // A text as it is written; a drawing described in words, with every number and label on it.
+  string text = 2;
+  // The IDs of its strokes, ascending: every stroke the sheet shows is in one part, and the strokes
+  // that cross a part out are in it.
+  repeated int32 stroke_ids = 3;
+  // The writer crossed the part out.
+  bool crossed_out = 4;
+  // The part, or something in it, is written illegibly on purpose.
+  bool illegible = 5;
+  // The part holds the final answer of the task's answer slot bound `anywhere`.
+  bool final_answer = 6;
+}
+
+// The kind of a part of the writing.
+enum PartKind {
+  // No kind: never written. A part that holds it is not valid.
+  PART_KIND_UNSPECIFIED = 0;
+  // Writing: letters, digits and signs.
+  PART_KIND_TEXT = 1;
+  // A drawing: a number line, a picture, a scheme.
+  PART_KIND_DRAWING = 2;
+}
+
+// The marks that people gave an essay's criteria.
+message CriterionMarks {
+  // The marks, ascending by criterion: a criterion the people did not agree on has none.
+  repeated CriterionMark marks = 1;
+}
+
+// One criterion's mark, as the people who marked the essay agreed on it.
+message CriterionMark {
+  // The criterion's place in the rubric, from 1.
+  int32 criterion = 1;
+  // Whether the essay meets it.
+  bool met = 2;
 }
 
 // What a sample is made for.

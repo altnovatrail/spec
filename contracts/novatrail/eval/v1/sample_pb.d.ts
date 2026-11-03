@@ -4,13 +4,13 @@
 
 // The sample file of the eval protocol: one sample of writing on a sheet or on a page of a
 // workbook, as the samples page of `canvas` saves it and the eval runner of `tutor` reads it, one
-// JSON file to a sample. Which fields a sample holds, by its purpose and by who wrote it, how the
-// file is written and read, and where a sample may go are the rules of contracts/README.md,
-// section 11.
+// JSON file to a sample, with its markup. Which fields a sample holds, by its purpose and by who
+// wrote it, how the file is written and read, its markup, and where a sample may go are the rules
+// of contracts/README.md, section 11.
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
-import type { AnswerSlotPlace, CropBox } from "../../observation/v1/observation_pb.js";
+import type { AnswerSlotPlace, CropBox, Observation } from "../../observation/v1/observation_pb.js";
 
 /**
  * Describes the file novatrail/eval/v1/sample.proto.
@@ -162,6 +162,14 @@ export declare type Sample = Message<"novatrail.eval.v1.Sample"> & {
     value: Workbook;
     case: "workbook";
   } | { case: undefined; value?: undefined };
+
+  /**
+   * What the sample is meant to say, which the runner compares what AI reads with. Every writer
+   * writes it; a file without it is still a sample, and the runner measures nothing on it.
+   *
+   * @generated from field: novatrail.eval.v1.Markup markup = 16;
+   */
+  markup?: Markup | undefined;
 };
 
 /**
@@ -169,6 +177,224 @@ export declare type Sample = Message<"novatrail.eval.v1.Sample"> & {
  * Use `create(SampleSchema)` to create a new message.
  */
 export declare const SampleSchema: GenMessage<Sample>;
+
+/**
+ * The markup of a sample: the truth of the answer slots that AI reads, notes on some of them, and on
+ * a sheet the parts of its writing or, on an essay, the people's marks of its rubric's criteria.
+ *
+ * @generated from message novatrail.eval.v1.Markup
+ */
+export declare type Markup = Message<"novatrail.eval.v1.Markup"> & {
+  /**
+   * What a reader that reads right gives: every answer slot that AI reads, in the task's order, with
+   * its value as written or the reason it gives none, and no box on a crop.
+   *
+   * @generated from field: novatrail.observation.v1.Observation truth = 1;
+   */
+  truth?: Observation | undefined;
+
+  /**
+   * What sets some answer slots apart, ascending by place: only those it sets apart.
+   *
+   * @generated from field: repeated novatrail.eval.v1.AnswerSlotNote notes = 2;
+   */
+  notes: AnswerSlotNote[];
+
+  /**
+   * What the markup says of the writing beyond its answer slots: on a sheet one of the two, and on
+   * a workbook neither.
+   *
+   * @generated from oneof novatrail.eval.v1.Markup.writing
+   */
+  writing: {
+    /**
+     * The parts of a solution, in the order it reads.
+     *
+     * @generated from field: novatrail.eval.v1.WritingParts parts = 3;
+     */
+    value: WritingParts;
+    case: "parts";
+  } | {
+    /**
+     * The people's marks of an essay's criteria.
+     *
+     * @generated from field: novatrail.eval.v1.CriterionMarks marks = 4;
+     */
+    value: CriterionMarks;
+    case: "marks";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message novatrail.eval.v1.Markup.
+ * Use `create(MarkupSchema)` to create a new message.
+ */
+export declare const MarkupSchema: GenMessage<Markup>;
+
+/**
+ * What sets an answer slot apart, so that its row is measured apart too.
+ *
+ * @generated from message novatrail.eval.v1.AnswerSlotNote
+ */
+export declare type AnswerSlotNote = Message<"novatrail.eval.v1.AnswerSlotNote"> & {
+  /**
+   * The answer slot, one of the truth's.
+   *
+   * @generated from field: novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+   */
+  answerSlot?: AnswerSlotPlace | undefined;
+
+  /**
+   * A digit in it is written mirrored: its truth is UNREADABLE_AMBIGUOUS.
+   *
+   * @generated from field: bool mirrored = 2;
+   */
+  mirrored: boolean;
+
+  /**
+   * Something in it is crossed out and written again.
+   *
+   * @generated from field: bool crossed_out = 3;
+   */
+  crossedOut: boolean;
+};
+
+/**
+ * Describes the message novatrail.eval.v1.AnswerSlotNote.
+ * Use `create(AnswerSlotNoteSchema)` to create a new message.
+ */
+export declare const AnswerSlotNoteSchema: GenMessage<AnswerSlotNote>;
+
+/**
+ * The parts of a solution on a sheet, in the order it reads, and where it went wrong.
+ *
+ * @generated from message novatrail.eval.v1.WritingParts
+ */
+export declare type WritingParts = Message<"novatrail.eval.v1.WritingParts"> & {
+  /**
+   * The parts, one at least when the sheet shows strokes, and none when it shows none.
+   *
+   * @generated from field: repeated novatrail.eval.v1.WritingPart parts = 1;
+   */
+  parts: WritingPart[];
+
+  /**
+   * The place, from 1, of the part where the solution went wrong, even when its calculation is
+   * right; none when it did not go wrong.
+   *
+   * @generated from field: optional int32 first_error = 2;
+   */
+  firstError?: number | undefined;
+};
+
+/**
+ * Describes the message novatrail.eval.v1.WritingParts.
+ * Use `create(WritingPartsSchema)` to create a new message.
+ */
+export declare const WritingPartsSchema: GenMessage<WritingParts>;
+
+/**
+ * One part of the writing: what the writer meant as one, a text or a drawing.
+ *
+ * @generated from message novatrail.eval.v1.WritingPart
+ */
+export declare type WritingPart = Message<"novatrail.eval.v1.WritingPart"> & {
+  /**
+   * A text or a drawing.
+   *
+   * @generated from field: novatrail.eval.v1.PartKind kind = 1;
+   */
+  kind: PartKind;
+
+  /**
+   * A text as it is written; a drawing described in words, with every number and label on it.
+   *
+   * @generated from field: string text = 2;
+   */
+  text: string;
+
+  /**
+   * The IDs of its strokes, ascending: every stroke the sheet shows is in one part, and the strokes
+   * that cross a part out are in it.
+   *
+   * @generated from field: repeated int32 stroke_ids = 3;
+   */
+  strokeIds: number[];
+
+  /**
+   * The writer crossed the part out.
+   *
+   * @generated from field: bool crossed_out = 4;
+   */
+  crossedOut: boolean;
+
+  /**
+   * The part, or something in it, is written illegibly on purpose.
+   *
+   * @generated from field: bool illegible = 5;
+   */
+  illegible: boolean;
+
+  /**
+   * The part holds the final answer of the task's answer slot bound `anywhere`.
+   *
+   * @generated from field: bool final_answer = 6;
+   */
+  finalAnswer: boolean;
+};
+
+/**
+ * Describes the message novatrail.eval.v1.WritingPart.
+ * Use `create(WritingPartSchema)` to create a new message.
+ */
+export declare const WritingPartSchema: GenMessage<WritingPart>;
+
+/**
+ * The marks that people gave an essay's criteria.
+ *
+ * @generated from message novatrail.eval.v1.CriterionMarks
+ */
+export declare type CriterionMarks = Message<"novatrail.eval.v1.CriterionMarks"> & {
+  /**
+   * The marks, ascending by criterion: a criterion the people did not agree on has none.
+   *
+   * @generated from field: repeated novatrail.eval.v1.CriterionMark marks = 1;
+   */
+  marks: CriterionMark[];
+};
+
+/**
+ * Describes the message novatrail.eval.v1.CriterionMarks.
+ * Use `create(CriterionMarksSchema)` to create a new message.
+ */
+export declare const CriterionMarksSchema: GenMessage<CriterionMarks>;
+
+/**
+ * One criterion's mark, as the people who marked the essay agreed on it.
+ *
+ * @generated from message novatrail.eval.v1.CriterionMark
+ */
+export declare type CriterionMark = Message<"novatrail.eval.v1.CriterionMark"> & {
+  /**
+   * The criterion's place in the rubric, from 1.
+   *
+   * @generated from field: int32 criterion = 1;
+   */
+  criterion: number;
+
+  /**
+   * Whether the essay meets it.
+   *
+   * @generated from field: bool met = 2;
+   */
+  met: boolean;
+};
+
+/**
+ * Describes the message novatrail.eval.v1.CriterionMark.
+ * Use `create(CriterionMarkSchema)` to create a new message.
+ */
+export declare const CriterionMarkSchema: GenMessage<CriterionMark>;
 
 /**
  * A person who wrote a sample: the file says nothing more of them.
@@ -1106,6 +1332,39 @@ export declare type Frame = Message<"novatrail.eval.v1.Frame"> & {
  * Use `create(FrameSchema)` to create a new message.
  */
 export declare const FrameSchema: GenMessage<Frame>;
+
+/**
+ * The kind of a part of the writing.
+ *
+ * @generated from enum novatrail.eval.v1.PartKind
+ */
+export enum PartKind {
+  /**
+   * No kind: never written. A part that holds it is not valid.
+   *
+   * @generated from enum value: PART_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Writing: letters, digits and signs.
+   *
+   * @generated from enum value: PART_KIND_TEXT = 1;
+   */
+  TEXT = 1,
+
+  /**
+   * A drawing: a number line, a picture, a scheme.
+   *
+   * @generated from enum value: PART_KIND_DRAWING = 2;
+   */
+  DRAWING = 2,
+}
+
+/**
+ * Describes the enum novatrail.eval.v1.PartKind.
+ */
+export declare const PartKindSchema: GenEnum<PartKind>;
 
 /**
  * What a sample is made for.

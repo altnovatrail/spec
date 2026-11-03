@@ -363,5 +363,36 @@
         }
       ]
     }
+  },
+  "markup": {
+    "truth": {
+      "answer_slots": [
+        {
+          "answer_slot": {
+            "item": 1,
+            "slot": 1
+          },
+          "value": "123"
+        }
+      ]
+    },
+    "notes": [],
+    "parts": {
+      "parts": [
+        {
+          "kind": "PART_KIND_TEXT",
+          "text": "123",
+          "stroke_ids": [
+            1,
+            2,
+            3
+          ],
+          "crossed_out": false,
+          "illegible": false,
+          "final_answer": true
+        }
+      ],
+      "first_error": 1
+    }
   }
 }

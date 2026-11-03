@@ -1,0 +1,143 @@
+{
+  "protocol": "novatrail.eval.v1",
+  "runner": "v0.0.0",
+  "capability": "CAPABILITY_HANDWRITING_READING",
+  "readers": [
+    {
+      "provider": "example",
+      "model": "example-reader-first"
+    },
+    {
+      "provider": "example",
+      "model": "example-reader-second"
+    }
+  ],
+  "verdicts": {
+    "code": "VERDICT_CODE_RUNNER",
+    "version": "v0.0.0"
+  },
+  "capability_set": {
+    "name": "examples"
+  },
+  "repeats": 2,
+  "samples": [
+    {
+      "sample": "synthetic-1103",
+      "measured": {
+        "answer_slots": [
+          {
+            "answer_slot": {
+              "item": 1,
+              "slot": 1
+            },
+            "truth": {
+              "verdict": "not_yet",
+              "reason": "",
+              "trap": ""
+            },
+            "mirrored": false,
+            "crossed_out": false,
+            "readings": [
+              {
+                "verdict": {
+                  "verdict": "not_yet",
+                  "reason": "",
+                  "trap": ""
+                },
+                "unchecked": "UNCHECKED_CAUSE_UNSPECIFIED"
+              },
+              {
+                "verdict": {
+                  "verdict": "unreadable",
+                  "reason": "ambiguous",
+                  "trap": ""
+                },
+                "unchecked": "UNCHECKED_CAUSE_UNSPECIFIED"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "sample": "synthetic-1104",
+      "measured": {
+        "answer_slots": [
+          {
+            "answer_slot": {
+              "item": 1,
+              "slot": 1
+            },
+            "truth": {
+              "verdict": "not_yet",
+              "reason": "",
+              "trap": ""
+            },
+            "mirrored": false,
+            "crossed_out": false,
+            "readings": [
+              {
+                "verdict": {
+                  "verdict": "not_yet",
+                  "reason": "",
+                  "trap": ""
+                },
+                "unchecked": "UNCHECKED_CAUSE_UNSPECIFIED"
+              },
+              {
+                "verdict": {
+                  "verdict": "not_yet",
+                  "reason": "",
+                  "trap": ""
+                },
+                "unchecked": "UNCHECKED_CAUSE_UNSPECIFIED"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "sample": "synthetic-1105",
+      "refused": "REFUSAL_CHILD"
+    },
+    {
+      "sample": "synthetic-1106",
+      "measured": {
+        "answer_slots": [
+          {
+            "answer_slot": {
+              "item": 1,
+              "slot": 1
+            },
+            "truth": {
+              "verdict": "not_yet",
+              "reason": "",
+              "trap": ""
+            },
+            "mirrored": false,
+            "crossed_out": false,
+            "readings": [
+              {
+                "verdict": {
+                  "verdict": "correct",
+                  "reason": "",
+                  "trap": ""
+                },
+                "unchecked": "UNCHECKED_CAUSE_UNSPECIFIED"
+              },
+              {
+                "verdict": {
+                  "verdict": "unchecked",
+                  "reason": "",
+                  "trap": ""
+                },
+                "unchecked": "UNCHECKED_CAUSE_FAILURE"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

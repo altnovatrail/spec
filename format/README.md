@@ -237,7 +237,7 @@ A module is written in [YAML 1.2.2](https://yaml.org/spec/1.2.2/) and read with 
 
 The signature is all that `module.media` reads: that the rest of the file is a picture or a sound that every browser shows is the author's to make sure of.
 
-**Eval set.** `eval/` holds the module's eval set. The format of its samples comes with the eval protocol; until then, the format says only where they lie. The eval set is no part of the module's package (section 25).
+**Eval set.** `eval/` holds the module's eval set. Which of its files are samples, and what a sample holds, is the eval protocol's to say, not the format's ([the text of the contracts](../contracts/README.md), sections 11 and 13): the format says only where they lie. The eval set is no part of the module's package (section 25).
 
 **License.** `LICENSE` holds the text of the license that the manifest names in `license` (section 11), as plain text: for an official module, the text of Apache-2.0 that the repository's own `LICENSE` holds. Every module has one, since a license such as Apache-2.0 asks that whoever gets the content gets a copy of it, and the module's package carries it to every reader, the learner's device among them (section 25; `module.license`). The format does not check that the text is the license's: that is the author's to make sure of, as the notices are.
 

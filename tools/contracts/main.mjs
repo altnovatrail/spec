@@ -31,9 +31,16 @@
 //   hold every rule of it (tools/contracts/strokes.mjs);
 // - the examples of the sample file, by the image: each sample as the package reads and a writer
 //   writes it, and the rules of section 11 — its fields by its purpose and writer, its strokes,
-//   groups, boxes and crops, the chunks of its PNG — and of section 12 — the groups and boxes of a
-//   history, and the numbers of every crop —, and that together they show every purpose,
-//   writer, ink, surface and event (tools/contracts/sample.mjs);
+//   groups, boxes and crops, the chunks of its PNG, its markup — and of section 12 — the groups and
+//   boxes of a history, and the numbers of every crop —, and that together they show every
+//   purpose, writer, ink, surface and event, and every kind of part of a markup
+//   (tools/contracts/sample.mjs);
+// - the examples of the runner's report, report-<case>.json among them, by the image: each report
+//   as the package reads and a writer writes it, the rules of section 14 — its capability, models,
+//   code of verdicts, eval set, and each sample refused or measured, a reading for each repeat —,
+//   that it is of the samples beside it, and that together they show every capability, a refused
+//   and a measured sample, every verdict a reading gives and every mark of a criterion
+//   (tools/contracts/report.mjs);
 // - buf breaking against the previous release of spec, the newest release tag in the history of
 //   HEAD other than HEAD's own, whose buf.yaml and contracts/ git archive unpacks into a temporary
 //   folder; a release with no .proto file has nothing to compare with (section 7);
@@ -60,6 +67,7 @@ import { fileURLToPath } from "node:url";
 import { byCodeUnits, inRepository, isMain } from "../shared.mjs";
 import { breaking, build, contractFiles, format, generate, lint, previousRelease } from "./buf.mjs";
 import { FOLDER, PACKAGE, checkVectors } from "./observation.mjs";
+import { checkReportExamples, isReport } from "./report.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
 import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, sampleOf } from "./sample.mjs";
 import { FOLDER as RULES, checkVectors as checkRuleVectors } from "./strokes.mjs";
@@ -121,15 +129,19 @@ export function vectorErrors(vectors, packages) {
 }
 
 // The examples against the packages: each is of a package that contracts/ has and whose examples
-// the check reads, and the sample file has some, since nothing else would show it whole.
+// the check reads, and the sample file and the runner's report have some, since nothing else would
+// show them whole.
 export function exampleErrors(examples, packages) {
   const errors = [];
   for (const example of examples) {
     if (!packages.has(example.package)) errors.push({ file: example.file, line: 0, message: `an example of ${example.package}, and contracts/ has no .proto file of that package` });
     else if (example.package !== EVAL) errors.push({ file: example.file, line: 0, message: `contracts-check reads no examples of ${example.package}: the task that brings them extends the check` });
   }
-  if (packages.has(EVAL) && !examples.some((example) => example.package === EVAL)) {
-    errors.push({ file: SAMPLES, line: 0, message: `${EVAL} has no examples, and they show the sample file of contracts/README.md, section 11` });
+  if (packages.has(EVAL) && !examples.some((example) => example.package === EVAL && !isReport(example.file))) {
+    errors.push({ file: SAMPLES, line: 0, message: `${EVAL} has no examples of the sample file, and they show it as contracts/README.md, section 11, has it` });
+  }
+  if (packages.has(EVAL) && !examples.some((example) => example.package === EVAL && isReport(example.file))) {
+    errors.push({ file: SAMPLES, line: 0, message: `${EVAL} has no example of the runner's report, report-<case>.json, and they show it as contracts/README.md, section 14, has it` });
   }
   return errors;
 }
@@ -200,10 +212,20 @@ export function checkContracts(root) {
     errors.push(...checked.errors);
     stats.cases += checked.cases;
   }
-  const samples = examples.filter((example) => example.package === EVAL).map((example) => example.file);
+  const ofEval = examples.filter((example) => example.package === EVAL).map((example) => example.file);
+  const samples = ofEval.filter((file) => !isReport(file));
+  const reports = ofEval.filter(isReport);
+  let held = new Map();
   if (packages.has(EVAL) && samples.length) {
-    errors.push(...checkExamples(root, built.image, samples).errors);
-    stats.examples = samples.length;
+    const checked = checkExamples(root, built.image, samples);
+    errors.push(...checked.errors);
+    // A sample that breaks its rules has its error, and the reports are not held to the samples then.
+    held = checked.errors.length ? null : checked.samples;
+    stats.examples += samples.length;
+  }
+  if (packages.has(EVAL) && reports.length) {
+    errors.push(...checkReportExamples(root, built.image, reports, held).errors);
+    stats.examples += reports.length;
   }
 
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), "contracts-check-"));

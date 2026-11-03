@@ -132,14 +132,16 @@ types-test: _tools
 # contracts/README.md gives them, but for what Starlark gives a predicate (R86); the test vectors
 # of the rules the device and the runner share, read by the same image, which it computes as
 # section 12 gives them (R94); the examples of the sample file, read by the same image, strictly,
-# and held to the rules of sections 11 and 12 (R93, R94); buf
+# and held to the rules of sections 11 and 12, their markup too (R93, R94, R95); the examples of
+# the runner's report, report-<case>.json, held to the form of section 14 and to the samples
+# beside them (R95); buf
 # breaking against the previous release, the newest release tag in the history of HEAD other than
 # HEAD's own, whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds
 # every release and no file of a release is needed; and the code buf generates, which contracts/
 # holds file for file. buf is the toolchain stage's, at an exact version; its Go plugins are the tools of
 # contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file, buf refuses a
 # module without one, and the check stops after the layout. A file it does not know is an error, so
-# the task that brings it extends the check (RUN.md, T55, T68, T58, T59).
+# the task that brings it extends the check (RUN.md, T55, T68, T58, T59, T60).
 # Check the API contracts in contracts/: buf's rules, R83's own, the generated code, the vectors and
 # the examples.
 contracts-check: _tools

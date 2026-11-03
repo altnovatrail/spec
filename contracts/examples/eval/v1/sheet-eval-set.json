@@ -662,5 +662,62 @@
         }
       ]
     }
+  },
+  "markup": {
+    "truth": {
+      "answer_slots": [
+        {
+          "answer_slot": {
+            "item": 1,
+            "slot": 1
+          },
+          "value": "11"
+        }
+      ]
+    },
+    "notes": [],
+    "parts": {
+      "parts": [
+        {
+          "kind": "PART_KIND_TEXT",
+          "text": "47 + 19 = 66",
+          "stroke_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "crossed_out": false,
+          "illegible": false,
+          "final_answer": false
+        },
+        {
+          "kind": "PART_KIND_TEXT",
+          "text": "66 : 6 = 11",
+          "stroke_ids": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "crossed_out": false,
+          "illegible": false,
+          "final_answer": true
+        }
+      ],
+      "first_error": 1
+    }
   }
 }

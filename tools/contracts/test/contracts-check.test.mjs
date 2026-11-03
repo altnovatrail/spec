@@ -243,7 +243,7 @@ test("a shallow clone is refused: it has no tags to find the previous release by
 // made-up repository reads that one. Returns the copy of main.mjs.
 function withCommands(dir) {
   const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs"];
-  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample", "strokes"].map((name) => `tools/contracts/${name}.mjs`);
+  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample", "report", "strokes"].map((name) => `tools/contracts/${name}.mjs`);
   const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
   for (const file of [...tools, ...contracts, ...format]) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
@@ -350,9 +350,9 @@ test("an example is of a package that contracts/ has and whose examples the chec
   );
 });
 
-test("the sample file is checked by its examples, and has some", () => {
+test("the sample file and the runner's report are checked by their examples, and have some", () => {
   const { dir } = repository();
-  for (const file of ["contracts/novatrail/observation/v1/observation.proto", "contracts/novatrail/eval/v1/sample.proto"]) {
+  for (const file of ["contracts/novatrail/observation/v1/observation.proto", "contracts/novatrail/eval/v1/sample.proto", "contracts/novatrail/eval/v1/report.proto"]) {
     fs.mkdirSync(path.join(dir, path.dirname(file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(dir, file));
   }
@@ -361,21 +361,26 @@ test("the sample file is checked by its examples, and has some", () => {
   writeGenerated(dir);
   expectEach(
     dir,
-    /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no examples, and they show the sample file of contracts\/README\.md, section 11$/,
+    /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no examples of the sample file, and they show it as contracts\/README\.md, section 11, has it$/,
+    /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no example of the runner's report, report-<case>\.json, and they show it as contracts\/README\.md, section 14, has it$/,
     /^contracts\/vectors\/eval\/v1:0: novatrail\.eval\.v1 has no test vectors, and they hold the rules of contracts\/README\.md, section 12$/,
   );
   fs.cpSync(path.join(root, "contracts/vectors/eval"), path.join(dir, "contracts/vectors/eval"), { recursive: true });
   fs.cpSync(path.join(root, "contracts/examples"), path.join(dir, "contracts/examples"), { recursive: true });
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
-  assert.equal(stats.examples, 3);
+  const examples = fs.readdirSync(path.join(root, "contracts/examples/eval/v1")).length;
+  assert.equal(stats.examples, examples);
   assert.equal(stats.packaged, 4);
-  assert.match(summary(stats), / with \d+ cases, 3 examples, .*; tsc and Node take the \d+ messages of its npm package and the 4 files of vectors it carries$/);
+  assert.match(summary(stats), new RegExp(` with \\d+ cases, ${examples} examples, .*; tsc and Node take the \\d+ messages of its npm package and the 4 files of vectors it carries$`));
   const boxes = path.join(dir, "contracts/vectors/eval/v1/boxes.json");
   const kept = fs.readFileSync(boxes);
   edit(dir, "contracts/vectors/eval/v1/boxes.json", '"stroke_id": 1, "answer_slot": null', '"stroke_id": 1, "answer_slot": {"item": 1, "slot": 1}');
   expectEach(dir, /^contracts\/vectors\/eval\/v1\/boxes\.json:\d+: [a-z0-9-]+: verdicts\.0\.answer_slot is \{"item":1,"slot":1\}, and the rule of boxes gives null$/);
   fs.writeFileSync(boxes, kept);
+  edit(dir, "contracts/examples/eval/v1/report-reading.json", '"repeats": 2', '"repeats": 3');
+  expectEach(dir, /^contracts\/examples\/eval\/v1\/report-reading\.json:\d+: the answer slot has 2 readings, and the run 3 repeats$/);
+  edit(dir, "contracts/examples/eval/v1/report-reading.json", '"repeats": 3', '"repeats": 2');
   edit(dir, "contracts/examples/eval/v1/sheet-eval-set.json", '"license": "Apache-2.0",\n', "");
   expectEach(dir, /^contracts\/examples\/eval\/v1\/sheet-eval-set\.json:1: a sample of an eval set names its license, "Apache-2\.0"$/);
 });
@@ -384,5 +389,5 @@ test("spec's own contracts/ passes", () => {
   const { errors, stats } = checkContracts(root);
   assert.deepEqual(errors, []);
   assert.ok(stats.vectors > 0, "spec's vectors of the observation are checked");
-  assert.ok(stats.examples > 0, "spec's examples of the sample file are checked");
+  assert.ok(stats.examples > 0, "spec's examples of the sample file and the runner's report are checked");
 });

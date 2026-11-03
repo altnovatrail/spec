@@ -10,11 +10,12 @@ import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import { root } from "../../release/test/repository.mjs";
 import { checkSampleFiles } from "../main.mjs";
+import { isReport } from "../report.mjs";
 import { FOLDER } from "../sample.mjs";
 
 const justfile = path.join(root, "justfile");
 const main = path.join(root, "tools/contracts/main.mjs");
-const examples = fs.readdirSync(path.join(root, FOLDER)).map((name) => `${FOLDER}/${name}`);
+const examples = fs.readdirSync(path.join(root, FOLDER)).map((name) => `${FOLDER}/${name}`).filter((file) => !isReport(file));
 const example = (name) => JSON.parse(fs.readFileSync(path.join(root, FOLDER, `${name}.json`), "utf8"));
 const textOf = (value) => `${JSON.stringify(value, null, 2)}\n`;
 const lineOf = (text, key) => text.split("\n").findIndex((line) => line.trimStart().startsWith(`"${key}":`)) + 1;
