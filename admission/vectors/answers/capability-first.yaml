@@ -1,0 +1,50 @@
+# The rule of the capability comes first: a capability closed for the category, or one with no
+# rule for it, refuses the request whatever its cell says. Only then is the cell read.
+table:
+  providers:
+    alpha: {name: Alpha}
+  facts:
+    data_processing_agreement: {description: The platform's data processing agreement with the provider is signed.}
+  capabilities:
+    - {capability: voice, age_category: adult, admission: open, basis: [privacy 6, О-6]}
+    - {capability: voice, age_category: from_consent_to_18, admission: closed, basis: [privacy 6, О-6, П-5]}
+    - {capability: hint, age_category: from_consent_to_18, admission: open, basis: [privacy 3.2]}
+  cells:
+    - provider: alpha
+      ai_route: platform_ai
+      age_category: from_consent_to_18
+      admission: open_with_facts
+      facts: [data_processing_agreement]
+      terms: [{row: Anthropic, read: "2026-11-03"}]
+      basis: [privacy 5.1, П-3]
+cases:
+  # Voice is closed for the category, though the cell would admit the request.
+  - request: {capability: voice, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
+    facts:
+      alpha:
+        data_processing_agreement: [from_consent_to_18]
+    answer:
+      admitted: false
+      reason: capability_closed
+      capability_rule: {capability: voice, age_category: from_consent_to_18}
+  # Reading text has no rule at all: closed, with no rule to name.
+  - request: {capability: text_reading, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
+    facts:
+      alpha:
+        data_processing_agreement: [from_consent_to_18]
+    answer:
+      admitted: false
+      reason: capability_closed
+  # The capability's rule refuses before the cell is looked for: alpha has no cell for adults.
+  - request: {capability: hint, ai_route: platform_ai, provider: alpha, age_category: adult}
+    answer:
+      admitted: false
+      reason: capability_closed
+  # The hint is open for the category, and the cell then admits the request.
+  - request: {capability: hint, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
+    facts:
+      alpha:
+        data_processing_agreement: [from_consent_to_18]
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: platform_ai, age_category: from_consent_to_18}

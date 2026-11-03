@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/admission/0.1/answer-vector.schema.json",
+  "title": "Answer vector",
+  "description": "A test vector of answers (section 9 of the admission text): a table of its own and requests to the admission function, each with the deployment facts declared and the answer that sections 5 and 6 give. An implementation computes each answer and gets exactly this one.",
+  "type": "object",
+  "properties": {
+    "table": {
+      "$ref": "admission-table.schema.json",
+      "unevaluatedProperties": false,
+      "description": "The table the function reads, which breaks no rule of a table."
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/case",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "The requests, each with the facts declared and its answer."
+    }
+  },
+  "required": [
+    "table",
+    "cases"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "case": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/request",
+          "unevaluatedProperties": false,
+          "description": "What the function is asked."
+        },
+        "facts": {
+          "$ref": "#/$defs/declared_facts",
+          "description": "The deployment facts declared, which the function gets as a value; none when left out."
+        },
+        "answer": {
+          "$ref": "#/$defs/answer",
+          "unevaluatedProperties": false,
+          "description": "The function's answer, by the table alone: the check of the model comes after it, and is tutor's."
+        }
+      },
+      "required": [
+        "request",
+        "answer"
+      ],
+      "description": "A request to the admission function and its answer."
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "capability": {
+          "$ref": "admission-table.schema.json#/$defs/capability",
+          "description": "The capability of AI the call serves."
+        },
+        "ai_route": {
+          "$ref": "admission-table.schema.json#/$defs/ai_route",
+          "description": "The AI route of the call."
+        },
+        "provider": {
+          "$ref": "admission-table.schema.json#/$defs/provider",
+          "description": "The AI provider of the call, by its code."
+        },
+        "age_category": {
+          "$ref": "admission-table.schema.json#/$defs/age_category",
+          "description": "The age category of the learner whose work the call carries."
+        }
+      },
+      "required": [
+        "capability",
+        "ai_route",
+        "provider",
+        "age_category"
+      ],
+      "description": "A request to the admission function, but for the model."
+    },
+    "declared_facts": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "admission-table.schema.json#/$defs/provider"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/provider_facts",
+        "description": "The facts declared for the provider, each with the age categories for which it holds."
+      },
+      "description": "The deployment facts declared, by provider: what the function gets by value from the file of a deployment's configuration (section 5 of the admission text)."
+    },
+    "provider_facts": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "admission-table.schema.json#/$defs/fact"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "admission-table.schema.json#/$defs/age_category"
+        },
+        "minItems": 1,
+        "uniqueItems": true,
+        "description": "The age categories for which the fact holds."
+      },
+      "description": "The deployment facts declared for one provider, each with the age categories for which it holds."
+    },
+    "cell_key": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "$ref": "admission-table.schema.json#/$defs/provider",
+          "description": "The cell's AI provider."
+        },
+        "ai_route": {
+          "$ref": "admission-table.schema.json#/$defs/ai_route",
+          "description": "The cell's AI route."
+        },
+        "age_category": {
+          "$ref": "admission-table.schema.json#/$defs/age_category",
+          "description": "The cell's age category."
+        }
+      },
+      "required": [
+        "provider",
+        "ai_route",
+        "age_category"
+      ],
+      "description": "A cell of the table, by its provider, AI route and age category."
+    },
+    "capability_rule_key": {
+      "type": "object",
+      "properties": {
+        "capability": {
+          "$ref": "admission-table.schema.json#/$defs/capability",
+          "description": "The rule's capability of AI."
+        },
+        "age_category": {
+          "$ref": "admission-table.schema.json#/$defs/age_category",
+          "description": "The rule's age category."
+        }
+      },
+      "required": [
+        "capability",
+        "age_category"
+      ],
+      "description": "A rule of a capability of AI, by its capability and age category."
+    },
+    "answer": {
+      "type": "object",
+      "properties": {
+        "admitted": {
+          "type": "boolean",
+          "description": "Whether the table admits the request."
+        },
+        "reason": {
+          "enum": [
+            "capability_closed",
+            "cell_closed",
+            "fact_missing"
+          ],
+          "description": "Why the table refuses it: the capability's rule is closed or missing; the cell is closed or missing; a fact the cell needs is not declared."
+        },
+        "capability_rule": {
+          "$ref": "#/$defs/capability_rule_key",
+          "unevaluatedProperties": false,
+          "description": "The rule of the capability that refuses the request, when the table has one."
+        },
+        "cell": {
+          "$ref": "#/$defs/cell_key",
+          "unevaluatedProperties": false,
+          "description": "The cell that admits or refuses the request, when the table has one."
+        },
+        "fact": {
+          "$ref": "admission-table.schema.json#/$defs/fact",
+          "description": "The first fact of the cell, in its order, that is not declared for the provider and the age category."
+        }
+      },
+      "required": [
+        "admitted"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "admitted": {
+                "const": true
+              }
+            },
+            "required": [
+              "admitted"
+            ]
+          },
+          "then": {
+            "required": [
+              "cell"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "reason"
+                  ]
+                },
+                {
+                  "required": [
+                    "capability_rule"
+                  ]
+                },
+                {
+                  "required": [
+                    "fact"
+                  ]
+                }
+              ]
+            }
+          },
+          "else": {
+            "required": [
+              "reason"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "const": "capability_closed"
+              }
+            },
+            "required": [
+              "reason"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "cell"
+                  ]
+                },
+                {
+                  "required": [
+                    "fact"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "const": "cell_closed"
+              }
+            },
+            "required": [
+              "reason"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "capability_rule"
+                  ]
+                },
+                {
+                  "required": [
+                    "fact"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reason": {
+                "const": "fact_missing"
+              }
+            },
+            "required": [
+              "reason"
+            ]
+          },
+          "then": {
+            "required": [
+              "cell",
+              "fact"
+            ],
+            "not": {
+              "required": [
+                "capability_rule"
+              ]
+            }
+          }
+        }
+      ],
+      "description": "The answer of the admission function by the table: admitted with the cell, or refused with the reason, the rule or cell that refuses it when there is one, and the missing fact."
+    }
+  }
+}

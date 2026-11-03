@@ -52,7 +52,8 @@ enum Capability {
 
 // A model of a provider of AI.
 message Model {
-  // The provider, as the adapters of `tutor` name it.
+  // The provider, as the adapters of `tutor` name it: by its code in the admission table, when the
+  // table names it (admission/README.md, section 4).
   string provider = 1;
   // The model, as the list of admitted models names it, with its setting.
   string model = 2;

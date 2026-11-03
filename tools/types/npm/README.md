@@ -1,6 +1,6 @@
 # @altnovatrail/spec
 
-The types of [NovaTrail](https://github.com/altnovatrail)'s module format for TypeScript. The package covers:
+The types of [NovaTrail](https://github.com/altnovatrail)'s module format for TypeScript, and from 0.8.0 on those of its admission table. The package covers:
 - the parts of a module and their open views;
 - the canonical view and the inventory of a package;
 - the module index;
@@ -9,6 +9,8 @@ The types of [NovaTrail](https://github.com/altnovatrail)'s module format for Ty
 They are generated from the format's schemas, [`format/schemas`](https://github.com/altnovatrail/spec/tree/main/format/schemas) in `altnovatrail/spec`, by its `tools/types`. Go code takes the same types from the Go module `github.com/altnovatrail/spec`, at the same tag.
 
 From 0.5.0 on, the package also holds the types of the element `<novatrail-canvas>`: the contract between the canvas and the learner's app. These are written by hand rather than generated, and only TypeScript has them.
+
+From 0.8.0 on, it holds the types of the admission table too: which AI provider, on which route to AI, may receive the work of a learner of which age category ([the table's text](https://github.com/altnovatrail/spec/blob/main/admission/README.md)). They are generated from its schemas, `admission/schemas`, as the format's are.
 
 The package holds declarations alone, with no code to run, so import them with `import type`:
 
@@ -28,6 +30,7 @@ function show(task: open.Task, manifest: open.Manifest) {
 
   A field the object always holds is required, and any other is optional. That includes each field that only some branches of a schema give.
 - **`@altnovatrail/spec/formatv0/open`** holds the open view of each part, which is what the learner's app gets ([the format's text](https://github.com/altnovatrail/spec/blob/main/format/README.md#6-open-fields), section 6). Each type keeps its name from `formatv0` and only the fields marked `x-open`, so an open view has no check, no template and no solver.
+- **`@altnovatrail/spec/admissionv0`** holds the types of the admission table's major version 0: the table, with its providers, deployment facts, rules of capabilities and cells, and the test vectors of the admission function's answers.
 - **`@altnovatrail/spec/canvas`** holds the types of `<novatrail-canvas>`:
   - `CanvasElement`, which describes the element's properties `tool`, `task`, `workedExample`, `demoState`, `manifest`, `media`, `history` and `filled` and its method `exportWork()`;
   - `Media`, the function by which the consumer gives the files of the pictures: the canvas goes to no network;

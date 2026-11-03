@@ -1,11 +1,13 @@
-// types: the types of the module format, generated from its schemas (R72; RUN.md, T45).
+// types: the types of the module format and of the admission table, generated from their schemas
+// (R72, R96; RUN.md, T45, T61).
 //
 //   node tools/types/main.mjs <folder>      writes the files under <folder>, by their paths from
 //                                           the root of the repository
 //
 // Reads spec's own format/, two levels above this file: the schemas, the version, and the parts of
-// a module that the layout of the format text names. Writes the Go of the model — the packages
-// formatv0 and formatv0/open under types/, and the registry of tools/types/roundtrip — as gofmt
+// a module that the layout of the format text names; and admission/, its schemas and its version.
+// Writes the Go of the models — the packages formatv0 and formatv0/open under types/, admissionv0
+// beside them, and the registry of tools/types/roundtrip — as gofmt
 // leaves it but for the alignment of a struct's fields, and the TypeScript of the same packages
 // beside it, index.d.ts in each (R73): `just types` runs gofmt on them, and `just types-check`
 // compares them, so run, with the files in the repository. A form of a schema the model does not
@@ -22,17 +24,14 @@ import { tsFiles } from "./ts.mjs";
 import { buildModel } from "./model.mjs";
 
 const SCHEMAS = "format/schemas";
+const ADMISSION = "admission";
 const SUFFIX = ".schema.json";
 
 // What the model is built of: { schemas, version, parts }, each schema { name, json }; version is
 // format/VERSION's; parts the terms of the parts of a module, by the layout of the format text.
 // Throws when one of them cannot be read: format-check names what is wrong with it.
 export function readFormat(root) {
-  const names = fs
-    .readdirSync(path.join(root, SCHEMAS))
-    .filter((name) => name.endsWith(SUFFIX))
-    .sort(byCodeUnits);
-  const schemas = names.map((name) => ({ name, json: JSON.parse(fs.readFileSync(path.join(root, SCHEMAS, name), "utf8")) }));
+  const schemas = schemasIn(root, SCHEMAS);
   const version = fs.readFileSync(path.join(root, "format/VERSION"), "utf8").trim();
   const text = readText(fs.readFileSync(path.join(root, "format/README.md"), "utf8"));
   if (!text.layoutRows) throw new Error("format/README.md has no layout of a module: run just format-check");
@@ -42,11 +41,33 @@ export function readFormat(root) {
   return { schemas, version, parts };
 }
 
-// The model and the files of the format at root, by their paths from the root of the repository.
+// What the admission table's model is built of: { schemas, version }, as readFormat gives them, of
+// admission/schemas and admission/VERSION (R96). The table has no open view. Its types are the
+// package admissionv0, which holds the major version 0 alone: a major version of the table would
+// need a package of its own, so another one stops the generator (R72).
+export function readAdmission(root) {
+  const version = fs.readFileSync(path.join(root, ADMISSION, "VERSION"), "utf8").trim();
+  if (!version.startsWith("0.")) throw new Error(`admission/VERSION is ${version}: the types of the admission table are the package admissionv0, of its major version 0, and another major version needs a package of its own`);
+  return { schemas: schemasIn(root, `${ADMISSION}/schemas`), version };
+}
+
+// The schemas of a folder of root, { name, json }, in the order of code units of their names.
+function schemasIn(root, dir) {
+  return fs
+    .readdirSync(path.join(root, dir))
+    .filter((name) => name.endsWith(SUFFIX))
+    .sort(byCodeUnits)
+    .map((name) => ({ name, json: JSON.parse(fs.readFileSync(path.join(root, dir, name), "utf8")) }));
+}
+
+// The models and the files of the format and of the admission table at root, by their paths from
+// the root of the repository: { model, admission, files }, admission the table's model.
 export function generate(root) {
   const { schemas, version, parts } = readFormat(root);
   const model = buildModel(schemas, parts);
-  return { model, files: new Map([...goFiles(model, version), ...tsFiles(model, version)]) };
+  const table = readAdmission(root);
+  const admission = { model: buildModel(table.schemas, []), version: table.version };
+  return { model, admission: admission.model, files: new Map([...goFiles(model, version, admission), ...tsFiles(model, version, admission)]) };
 }
 
 // Writes the files under folder, which holds no file of theirs yet.

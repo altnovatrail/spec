@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/admission/0.1/admission-table.schema.json",
+  "title": "Admission table",
+  "description": "The rules of admission to AI by age category (section 4 of the admission text): the AI providers, the dictionary of deployment facts, the rule of each capability of AI for each age category, and the cell of each provider, AI route and age category. What the table does not name is closed.",
+  "type": "object",
+  "properties": {
+    "providers": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/provider"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/ai_provider",
+        "unevaluatedProperties": false,
+        "description": "An AI provider that the cells name."
+      },
+      "minProperties": 1,
+      "description": "The AI providers the table knows, by code: the code that tutor's adapters and the admission function name a provider by. A provider that is not here is closed (R65)."
+    },
+    "facts": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/fact"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/deployment_fact",
+        "unevaluatedProperties": false,
+        "description": "A deployment fact of the dictionary."
+      },
+      "minProperties": 1,
+      "description": "The dictionary of deployment facts, by code: what an operator declares about its agreements with each provider, for some age categories (section 5 of the admission text)."
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/capability_rule",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "The rule of each capability of AI for each age category: the first part of the table, which the admission function checks first. A capability and age category with no rule are closed."
+    },
+    "cells": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cell",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "The cell of each AI provider, AI route and age category: the second part of the table. A provider, AI route and age category with no cell are closed."
+    }
+  },
+  "required": [
+    "providers",
+    "facts",
+    "capabilities",
+    "cells"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "ai_provider": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The provider's name, as privacy 5.3 names it."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "description": "An AI provider of the table: what privacy 5.3 names it."
+    },
+    "deployment_fact": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What the operator of a deployment declares by the fact, and when it holds."
+        }
+      },
+      "required": [
+        "description"
+      ],
+      "description": "A deployment fact of the dictionary: what the operator of a deployment declares by it."
+    },
+    "provider": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+      "description": "The code of an AI provider, in snake_case: openai, anthropic."
+    },
+    "fact": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(_[a-z0-9]+)*$",
+      "description": "The code of a deployment fact, in snake_case: data_processing_agreement."
+    },
+    "age_category": {
+      "enum": [
+        "under_13",
+        "from_13_to_consent",
+        "from_consent_to_18",
+        "adult"
+      ],
+      "description": "An age category, by its code (R46): under 13; from 13 to the age of digital consent in the learner's country; from that age to 18; 18 and over."
+    },
+    "ai_route": {
+      "enum": [
+        "platform_ai",
+        "own_key"
+      ],
+      "description": "An AI route: platform AI, under the platform's agreements with the providers, or the own key of an account owner who learns, at the profile of the category adult (concepts 14)."
+    },
+    "capability": {
+      "enum": [
+        "handwriting_reading",
+        "text_reading",
+        "solution_analysis",
+        "rubric_assessment",
+        "hint",
+        "voice"
+      ],
+      "description": "A capability of AI (concepts 10): reading handwriting, reading text, the analysis of a solution's steps, the assessment by a rubric, the hint, and voice — the voicing of the tutor by a provider and the learner's voice input, which are one capability for now."
+    },
+    "citation": {
+      "type": "string",
+      "pattern": "^(R[1-9][0-9]*|[ОПТ]-[1-9][0-9]*|(product|concepts|privacy|architecture|repositories) [1-9][0-9]*(\\.[1-9][0-9]*)*)$",
+      "description": "What a rule or a cell rests on, in spec's documents: a decision, R47; an open question of a register, П-4; or a section of a document, privacy 5.3."
+    },
+    "basis": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/citation"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "What the rule or the cell rests on, in spec's documents."
+    },
+    "capability_rule": {
+      "type": "object",
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/capability",
+          "description": "The capability of AI."
+        },
+        "age_category": {
+          "$ref": "#/$defs/age_category",
+          "description": "The age category."
+        },
+        "admission": {
+          "enum": [
+            "open",
+            "closed"
+          ],
+          "description": "Whether the capability may serve a learner of the category: open, or closed."
+        },
+        "basis": {
+          "$ref": "#/$defs/basis",
+          "description": "What the rule rests on."
+        }
+      },
+      "required": [
+        "capability",
+        "age_category",
+        "admission",
+        "basis"
+      ],
+      "description": "The rule of a capability of AI for an age category."
+    },
+    "terms": {
+      "type": "object",
+      "properties": {
+        "row": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The provider's row in the table of privacy 5.3, as its first column names it: OpenAI, Google Cloud, Vertex AI."
+        },
+        "read": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "The date the provider's terms that the row quotes were last read, YYYY-MM-DD."
+        }
+      },
+      "required": [
+        "row",
+        "read"
+      ],
+      "description": "The provider's terms that a cell reads, by its row of privacy 5.3 and the date they were read."
+    },
+    "cell": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "$ref": "#/$defs/provider",
+          "description": "The AI provider, by its code in providers."
+        },
+        "ai_route": {
+          "$ref": "#/$defs/ai_route",
+          "description": "The AI route."
+        },
+        "age_category": {
+          "$ref": "#/$defs/age_category",
+          "description": "The age category."
+        },
+        "admission": {
+          "enum": [
+            "closed",
+            "open",
+            "open_with_facts"
+          ],
+          "description": "Whether the provider, on the route, may receive the work of a learner of the category: closed; open; or open with facts — only when every deployment fact in facts holds for the provider and the category. On the own key a cell is closed or open, never open with facts: the agreement with the provider is the key owner's, and a deployment declares nothing of it (privacy 5.2)."
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "The deployment facts that open the cell, by code in facts, in the order the admission function checks them. Only a cell open with facts has them."
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/terms",
+            "unevaluatedProperties": false
+          },
+          "minItems": 1,
+          "description": "The provider's terms that the cell reads: each its row of privacy 5.3 and the date it was read."
+        },
+        "basis": {
+          "$ref": "#/$defs/basis",
+          "description": "What the cell rests on besides the provider's terms."
+        }
+      },
+      "required": [
+        "provider",
+        "ai_route",
+        "age_category",
+        "admission",
+        "terms",
+        "basis"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "admission": {
+                "const": "open_with_facts"
+              }
+            },
+            "required": [
+              "admission"
+            ]
+          },
+          "then": {
+            "required": [
+              "facts"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "facts"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ai_route": {
+                "const": "own_key"
+              }
+            },
+            "required": [
+              "ai_route"
+            ]
+          },
+          "then": {
+            "not": {
+              "properties": {
+                "admission": {
+                  "const": "open_with_facts"
+                }
+              },
+              "required": [
+                "admission"
+              ]
+            }
+          }
+        }
+      ],
+      "description": "A cell of the table: an AI provider, an AI route and an age category, and whether the work of a learner of the category may go to the provider on the route."
+    }
+  }
+}

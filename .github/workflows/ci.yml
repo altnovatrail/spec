@@ -1,9 +1,9 @@
-# spec's own checks (R30): the documents, the module format (R45), the types of the module format
-# in Go and TypeScript (R72, R73), the Go module code takes from a release and its zip, the
-# licenses of the packages of tools/, the version the next release takes (R31) and the files it
-# carries (R64). The tests of tools/ and of the Go modules run once here, with their coverage,
-# which a job of its own sends to Codecov (R48); the Go tests run again in "Go / test", whose
-# shared workflow uploads no coverage yet.
+# spec's own checks (R30): the documents, the module format (R45), the admission table (R96), the
+# types of both in Go and TypeScript (R72, R73), the Go module code takes from a release and its
+# zip, the licenses of the packages of tools/, the version the next release takes (R31) and the
+# files it carries (R64). The tests of tools/ and of the Go modules run once here, with their
+# coverage, which a job of its own sends to Codecov (R48); the Go tests run again in "Go / test",
+# whose shared workflow uploads no coverage yet.
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node, Go and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
 # run and published nowhere. Beside them, three of the checks every repository shares, from
@@ -60,6 +60,12 @@ jobs:
       - name: Module format
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec format-check
+
+      # The admission table in admission/ (R96): its schemas, the table and the documents it cites,
+      # its examples, and its test vectors, whose answers the check computes.
+      - name: Admission table
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec admission-check
 
       # The types of the module format (R72, R73): those its schemas give, file for file, and each
       # value of format/ read by its Go type and written back as it was, and taken by tsc as a value

@@ -1,0 +1,16 @@
+# error: pattern at #/cells/0/terms/0/read
+providers:
+  example: {name: Example}
+facts:
+  data_processing_agreement:
+    description: The platform's data processing agreement with the provider is signed.
+capabilities:
+  - {capability: hint, age_category: adult, admission: open, basis: [privacy 3.2]}
+cells:
+  - provider: example
+    ai_route: own_key
+    age_category: adult
+    admission: open
+    terms:
+      - {row: OpenAI, read: "3 November 2026"}
+    basis: [privacy 5.2]

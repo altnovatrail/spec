@@ -20,9 +20,10 @@
 //   repository's own release.yml on main, of the commit of the tag.
 // - A file of spec is signed by spec's own release.yml on main, whose certificate names the tip
 //   of main as the run began rather than the commit of the tag. The file's content binds it to
-//   its tag instead: the commit git archive writes into the header of format-<version>.tar.gz,
-//   and the version in the package.json of altnovatrail-spec-<version>.tgz and of
-//   altnovatrail-contracts-<version>.tgz, the package of the contracts' code (R83).
+//   its tag instead: the commit git archive writes into the header of format-<version>.tar.gz and
+//   of admission-<version>.tar.gz, the admission table's (R96), and the version in the
+//   package.json of altnovatrail-spec-<version>.tgz and of altnovatrail-contracts-<version>.tgz,
+//   the package of the contracts' code (R83).
 //
 // Prints a line for each file verified; a refusal is an error, with what was wanted and found.
 
@@ -52,7 +53,9 @@ const MAIN = "refs/heads/main";
 const BUNDLE = "application/vnd.dev.sigstore.bundle.v0.3+json";
 const SHA = /^[0-9a-f]{40}$/;
 const ORGANIZATION_URI = `https://github.com/${ORGANIZATION.name}`;
-const FORMAT_FILE = /^format-(0|[1-9]\d*)\.(0|[1-9]\d*)\.tar\.gz$/;
+// The normative parts with a version of their own, each one archive of git archive: the module
+// format, and the admission table (R96).
+const PART_FILE = /^(format|admission)-(0|[1-9]\d*)\.(0|[1-9]\d*)\.tar\.gz$/;
 // The npm packages of spec's release, by the name of their archive: the types of the format, and
 // the code of the contracts.
 const NPM_FILE = /^altnovatrail-(spec|contracts)-((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))\.tgz$/;
@@ -217,7 +220,7 @@ export function checkGitHub(fields, { repository, tag, signer }, { source, minim
 // A file of spec, bound to its tag by what it holds (R77). A new kind of file names its binding
 // in the task that brings it in, and until then it is refused.
 export function checkSpecContent(name, bytes, tag, source) {
-  if (FORMAT_FILE.test(name)) {
+  if (PART_FILE.test(name)) {
     const archived = tarCommit(name, bytes);
     const commit = source.tagCommit("spec", tag);
     if (!commit) throw new Error(`spec has no tag ${tag}`);
@@ -236,7 +239,7 @@ export function checkSpecContent(name, bytes, tag, source) {
     if (!source.tagCommit("spec", tag)) throw new Error(`spec has no tag ${tag}`);
     return;
   }
-  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
+  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz, admission-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
 }
 
 // The commit git archive writes into the archive's header, as git get-tar-commit-id reads it.

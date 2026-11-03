@@ -1,0 +1,15 @@
+# Two rules of one capability and age category.
+providers:
+  example: {name: Example}
+facts:
+  data_processing_agreement: {description: The platform's data processing agreement with the provider is signed.}
+capabilities:
+  - {capability: voice, age_category: adult, admission: open, basis: [privacy 6, О-6]}
+  - {capability: voice, age_category: adult, admission: closed, basis: [privacy 6, П-5]}
+cells:
+  - provider: example
+    ai_route: own_key
+    age_category: adult
+    admission: open
+    terms: [{row: OpenAI, read: "2026-11-03"}]
+    basis: [privacy 5.2, О-4]

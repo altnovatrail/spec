@@ -1,0 +1,51 @@
+# A cell that is open admits the request with no fact; a cell open with facts admits it once each
+# of its facts is declared for its provider and the learner's category. Facts declared for another
+# provider, or more facts than the cell names, change nothing.
+table:
+  providers:
+    alpha: {name: Alpha}
+    beta: {name: Beta}
+  facts:
+    data_processing_agreement: {description: The platform's data processing agreement with the provider is signed.}
+    minimal_retention: {description: The provider keeps none of the content of the platform's requests.}
+  capabilities:
+    - {capability: handwriting_reading, age_category: adult, admission: open, basis: [privacy 3.2]}
+  cells:
+    - provider: alpha
+      ai_route: own_key
+      age_category: adult
+      admission: open
+      terms: [{row: Anthropic, read: "2026-11-03"}]
+      basis: [privacy 5.2, О-4]
+    - provider: alpha
+      ai_route: platform_ai
+      age_category: adult
+      admission: open_with_facts
+      facts: [data_processing_agreement, minimal_retention]
+      terms: [{row: Anthropic, read: "2026-11-03"}]
+      basis: [privacy 5.1, П-3]
+cases:
+  # The own key of an adult: no fact is needed, and none is declared.
+  - request: {capability: handwriting_reading, ai_route: own_key, provider: alpha, age_category: adult}
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: own_key, age_category: adult}
+  # Facts declared for platform AI do not touch the own key.
+  - request: {capability: handwriting_reading, ai_route: own_key, provider: alpha, age_category: adult}
+    facts:
+      alpha:
+        data_processing_agreement: [adult]
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: own_key, age_category: adult}
+  # Platform AI with both facts of the cell declared for the adult category.
+  - request: {capability: handwriting_reading, ai_route: platform_ai, provider: alpha, age_category: adult}
+    facts:
+      alpha:
+        data_processing_agreement: [adult, from_consent_to_18]
+        minimal_retention: [adult]
+      beta:
+        data_processing_agreement: [adult]
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: platform_ai, age_category: adult}

@@ -4,6 +4,8 @@
 format/** -text
 # The same holds for the fixtures of format-check's tests, which a trial copy of a format reads.
 tools/format-check/test/fixtures/** -text
+# So do the files of admission/, the admission table (R96), which code reads as the release has them.
+admission/** -text
 # The fixtures of release-verify's tests are files of real releases, which their bundles sign
 # byte for byte.
 tools/release/test/fixtures/** -text

@@ -1,0 +1,37 @@
+# A cell of each kind of admission: closed, open, and open with facts — the last only on platform
+# AI, since on the own key a deployment declares nothing (privacy 5.2).
+providers:
+  example: {name: Example}
+  other: {name: Other}
+facts:
+  data_processing_agreement:
+    description: The platform's data processing agreement with the provider is signed.
+  minor_safeguards:
+    description: The safeguards the provider requires for minors are in place.
+capabilities:
+  - {capability: hint, age_category: adult, admission: open, basis: [privacy 3.2]}
+  - {capability: voice, age_category: under_13, admission: closed, basis: [privacy 6, О-6, П-5]}
+cells:
+  - provider: example
+    ai_route: platform_ai
+    age_category: from_consent_to_18
+    admission: open_with_facts
+    facts: [data_processing_agreement, minor_safeguards]
+    terms:
+      - {row: Anthropic, read: "2026-11-03"}
+    basis: [privacy 5.1, П-3, П-15]
+  - provider: example
+    ai_route: own_key
+    age_category: adult
+    admission: open
+    terms:
+      - {row: Anthropic, read: "2026-11-03"}
+    basis: [privacy 5.2, О-4]
+  - provider: other
+    ai_route: own_key
+    age_category: adult
+    admission: closed
+    terms:
+      - {row: "Google, Gemini API", read: "2026-11-03"}
+      - {row: "Google Cloud, Vertex AI", read: "2026-11-03"}
+    basis: [R47]

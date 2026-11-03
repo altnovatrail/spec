@@ -1,0 +1,14 @@
+# A cell of a provider that providers does not name.
+providers:
+  example: {name: Example}
+facts:
+  data_processing_agreement: {description: The platform's data processing agreement with the provider is signed.}
+capabilities:
+  - {capability: hint, age_category: adult, admission: open, basis: [privacy 3.2]}
+cells:
+  - provider: other
+    ai_route: own_key
+    age_category: adult
+    admission: open
+    terms: [{row: OpenAI, read: "2026-11-03"}]
+    basis: [privacy 5.2, О-4]

@@ -480,7 +480,8 @@ func (*Report_CapabilitySet) isReport_EvalSet() {}
 // A model of a provider of AI.
 type Model struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The provider, as the adapters of `tutor` name it.
+	// The provider, as the adapters of `tutor` name it: by its code in the admission table, when the
+	// table names it (admission/README.md, section 4).
 	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
 	// The model, as the list of admitted models names it, with its setting.
 	Model         string `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`

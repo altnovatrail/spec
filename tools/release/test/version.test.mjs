@@ -198,9 +198,11 @@ test("in spec, a commit is numbered in the line its own release.yml sets, whatev
   const { dir, git } = scratchRepository("release-version-spec-");
   try {
     // spec as far as the recipe goes: its justfile and the release tools, beside a release.yml,
-    // and the format's version, which the line of a v1 spec holds to (R44).
+    // the format's version, which the line of a v1 spec holds to (R44), and the admission table's,
+    // which every commit of spec has from the line 0.8 on (R96).
     copySpecTools(dir, git);
     writeFile(dir, git, "format/VERSION", "1.0\n");
+    writeFile(dir, git, "admission/VERSION", "0.4\n");
     releaseLine(dir, git, "1.4");
     git("commit", "--quiet", "-m", "first");
     git("tag", "v1.4.0");
