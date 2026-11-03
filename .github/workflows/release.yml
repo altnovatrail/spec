@@ -763,15 +763,17 @@ jobs:
               unset -n held
           done
           # Each package's exit status of npm publish, empty for one it holds already; the
-          # integrity the registry shows for its version, empty until it shows one; and its
-          # archive: true once downloaded, no when it is not to be — another integrity, another
-          # host —, empty until then.
+          # integrity the registry shows for its version, empty until it shows one; the address of
+          # its archive in the packument; and the archive: true once downloaded, no when it is not
+          # to be — another integrity, another host —, empty until then.
           statuses=()
           published=()
+          tarballs=()
           served=()
           for i in "${!packages[@]}"; do
               statuses[i]=""
               published[i]=""
+              tarballs[i]=""
               served[i]=""
               if [ "${actions[i]}" != publish ]; then
                   echo "::notice::${packages[i]}@${version} is in the npm registry already: nothing to publish."
@@ -786,8 +788,9 @@ jobs:
           # A publish npm reports as done may take a while to show; one npm reports as failed is
           # looked for briefly, in case it went out all the same, and once its packument shows
           # it, its archive is waited for like any other. The rounds end at twenty minutes of the
-          # clock, however long the registry takes to answer; a read of a packument gives up after
-          # half a minute, and of an archive after a minute.
+          # clock, however long the registry takes to answer: a read of a packument tries four
+          # times, half a minute at most each, and of an archive once, a minute at most, since the
+          # next round tries it again.
           deadline=$((SECONDS + 1200))
           for round in $(seq 1 120); do
               looking=false
@@ -807,11 +810,11 @@ jobs:
                   if [ -n "${published[i]}" ] && [ "${published[i]}" != "${integrities[i]}" ]; then
                       served[i]=no
                   elif [ -n "${published[i]}" ]; then
-                      tarball=$(jq -r --arg v "$version" '.versions[$v].dist.tarball // ""' "$packument")
-                      case "$tarball" in
+                      tarballs[i]=$(jq -r --arg v "$version" '.versions[$v].dist.tarball // ""' "$packument")
+                      case "${tarballs[i]}" in
                           https://registry.npmjs.org/*)
-                              code=$(curl -sS --proto "=https" --proto-redir "=https" -L --retry 3 --max-time 60 \
-                                  -o "$folder/registry.tgz" -w '%{http_code}' "$tarball") || code=""
+                              code=$(curl -sS --proto "=https" --proto-redir "=https" -L --max-time 60 \
+                                  -o "$folder/registry.tgz" -w '%{http_code}' "${tarballs[i]}") || code=""
                               if [ "$code" = 200 ]; then served[i]=true; fi
                               ;;
                           *) served[i]=no ;;
@@ -848,17 +851,12 @@ jobs:
                   failed=true
                   continue
               fi
-              tarball=$(jq -r --arg v "$version" '.versions[$v].dist.tarball' "$packument")
-              case "$tarball" in
-                  https://registry.npmjs.org/*) ;;
-                  *)
-                      echo "::error::The registry serves ${package}@${version} from \"${tarball}\", not from https://registry.npmjs.org/."
-                      failed=true
-                      continue
-                      ;;
-              esac
-              if [ "${served[i]}" != true ]; then
-                  echo "::error::The registry shows ${package}@${version}, but did not serve its archive ${tarball} in twenty minutes. It may serve it later: run the job again later, and the check of the npm package finds the version by its integrity."
+              if [ "${served[i]}" = no ]; then
+                  echo "::error::The registry serves ${package}@${version} from \"${tarballs[i]}\", not from https://registry.npmjs.org/."
+                  failed=true
+                  continue
+              elif [ "${served[i]}" != true ]; then
+                  echo "::error::The registry shows ${package}@${version}, but did not serve its archive ${tarballs[i]} in twenty minutes. It may serve it later: run the job again later, and the check of the npm package finds the version by its integrity."
                   failed=true
                   continue
               fi
