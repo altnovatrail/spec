@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { FIRST_CONTRACTS_LINE, FIRST_NPM_LINE, formatVersion, releaseFiles } from "../files.mjs";
+import { FIRST_ADMISSION_LINE, FIRST_CONTRACTS_LINE, FIRST_NPM_LINE, formatVersion, releaseFiles, versionTexts } from "../files.mjs";
 import { FIRST_FILES_LINE, compareLines } from "../version.mjs";
 import { TAR } from "../../shared.mjs";
 import { copySpecTools, env, recipe, releaseLine, root, scratchRepository, writeFile } from "./repository.mjs";
@@ -16,7 +16,7 @@ const script = path.join(root, "tools", "release", "files.mjs");
 test("from the line 0.3 on, a release carries the format as one file, named by its version", () => {
   assert.equal(FIRST_FILES_LINE, "0.3");
   assert.deepEqual(releaseFiles("0.3", "0.1\n"), [{ name: "format-0.1.tar.gz", path: "format" }]);
-  assert.deepEqual(releaseFiles("2.10", "2.4\n", "v2.10.0")[0], { name: "format-2.4.tar.gz", path: "format" });
+  assert.deepEqual(releaseFiles("2.10", "2.4\n--\n0.3\n", "v2.10.0")[0], { name: "format-2.4.tar.gz", path: "format" });
   // A release of an earlier line carries none, and its commit need not have a VERSION.
   assert.deepEqual(releaseFiles("0.2", ""), []);
   assert.deepEqual(releaseFiles("0.2", "0.1\n"), []);
@@ -29,7 +29,7 @@ test("from the line 0.4 on, a release carries the npm package too, of the releas
     { name: "format-0.1.tar.gz", path: "format" },
     { name: "altnovatrail-spec-0.4.0.tgz", path: "types" },
   ]);
-  assert.deepEqual(releaseFiles("1.12", "1.3\n", "v1.12.7")[1], { name: "altnovatrail-spec-1.12.7.tgz", path: "types" });
+  assert.deepEqual(releaseFiles("1.12", "1.3\n--\n0.2\n", "v1.12.7")[2], { name: "altnovatrail-spec-1.12.7.tgz", path: "types" });
   for (const tag of [undefined, "", "0.4.0", "v0.4", "v0.4.0-rc.1"]) {
     assert.throws(() => releaseFiles("0.4", "0.1\n", tag), /a release of the line 0\.4 carries the npm package, which takes the release's tag/, String(tag));
   }
@@ -44,7 +44,30 @@ test("from the line 0.7 on, a release carries the npm package of the contracts' 
     { name: "altnovatrail-spec-0.7.0.tgz", path: "types" },
     { name: "altnovatrail-contracts-0.7.0.tgz", path: "contracts" },
   ]);
-  assert.deepEqual(releaseFiles("1.2", "1.0\n", "v1.2.3")[2], { name: "altnovatrail-contracts-1.2.3.tgz", path: "contracts" });
+  assert.deepEqual(releaseFiles("1.2", "1.0\n--\n0.1\n", "v1.2.3")[3], { name: "altnovatrail-contracts-1.2.3.tgz", path: "contracts" });
+});
+
+test("from the line 0.8 on, a release carries the admission table too, named by its own version", () => {
+  assert.equal(FIRST_ADMISSION_LINE, "0.8");
+  // A release of an earlier line reads format/VERSION alone, though the commit may have both, and
+  // a malformed admission/VERSION too.
+  assert.deepEqual(releaseFiles("0.7", "0.2\n--\n0.1\n", "v0.7.9").map(({ name }) => name), ["format-0.2.tar.gz", "altnovatrail-spec-0.7.9.tgz", "altnovatrail-contracts-0.7.9.tgz"]);
+  assert.deepEqual(releaseFiles("0.7", "0.2\n--\nnot a version\n", "v0.7.9").length, 3);
+  assert.deepEqual(releaseFiles("0.8", "0.2\n--\n0.1\n", "v0.8.0"), [
+    { name: "format-0.2.tar.gz", path: "format" },
+    { name: "admission-0.1.tar.gz", path: "admission" },
+    { name: "altnovatrail-spec-0.8.0.tgz", path: "types" },
+    { name: "altnovatrail-contracts-0.8.0.tgz", path: "contracts" },
+  ]);
+  assert.deepEqual(versionTexts("0.2\n"), { format: "0.2\n", admission: null });
+  assert.deepEqual(versionTexts("--\n0.1\n"), { format: "", admission: "0.1\n" });
+  for (const text of ["0.2\n", "0.2\n--\n"]) {
+    assert.throws(() => releaseFiles("0.8", text, "v0.8.0"), /a release of the line 0\.8 carries the admission table, and the commit has no admission\/VERSION/, JSON.stringify(text));
+  }
+  assert.throws(() => releaseFiles("0.8", "0.2\n--\n0.01\n", "v0.8.0"), /^Error: admission\/VERSION is "0\.01\\n", not MAJOR\.MINOR and a newline/);
+  // With no format/VERSION, its side is empty, and the refusal names it, not the table's.
+  assert.throws(() => releaseFiles("0.8", "--\n0.1\n", "v0.8.0"), /^Error: format\/VERSION is "", not MAJOR\.MINOR/);
+  assert.throws(() => releaseFiles("0.8", "0.2\n--\n0.1\n--\n", "v0.8.0"), /there are more lines --/);
 });
 
 test("a VERSION that is not MAJOR.MINOR and a newline, and a line that is not MAJOR.MINOR, are refused", () => {
@@ -79,6 +102,9 @@ test("the script prints a line for each file, and says why it refuses", () => {
   const contracts = spawnSync(process.execPath, [script, "0.7", "v0.7.1"], { input: "0.2\n", encoding: "utf8", env });
   assert.equal(contracts.status, 0, contracts.stderr);
   assert.equal(contracts.stdout, "format-0.2.tar.gz format\naltnovatrail-spec-0.7.1.tgz types\naltnovatrail-contracts-0.7.1.tgz contracts\n");
+  const admission = spawnSync(process.execPath, [script, "0.8", "v0.8.1"], { input: "0.2\n--\n0.1\n", encoding: "utf8", env });
+  assert.equal(admission.status, 0, admission.stderr);
+  assert.equal(admission.stdout, "format-0.2.tar.gz format\nadmission-0.1.tar.gz admission\naltnovatrail-spec-0.8.1.tgz types\naltnovatrail-contracts-0.8.1.tgz contracts\n");
 });
 
 // A made-up spec with a small format, committed in the line given: release-files reads it.
@@ -201,6 +227,23 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
     assert.deepEqual(listing(code), ["package/LICENSE", "package/README.md", "package/novatrail/trial/v1/trial_pb.d.ts", "package/novatrail/trial/v1/trial_pb.js", "package/package.json"]);
     assert.equal(entry(code, "novatrail/trial/v1/trial_pb.js"), "export const TrialSchema = 1;\n");
     assert.deepEqual(JSON.parse(entry(code, "package.json")).dependencies, { "@bufbuild/protobuf": "2.16.0" });
+
+    // From the line 0.8 on, the admission table comes too, by its own version (R96), and a commit
+    // of the line without admission/VERSION is refused.
+    releaseLine(dir, git, "0.8");
+    git("commit", "--quiet", "-m", "the line 0.8, with no table yet");
+    const missing = recipe(dir, { name: "release-files", args: ["HEAD", "no-table", "v0.8.0"] });
+    assert.notEqual(missing.status, 0);
+    assert.match(missing.stderr, /a release of the line 0\.8 carries the admission table, and the commit has no admission\/VERSION/);
+    writeFile(dir, git, "admission/VERSION", "0.1\n");
+    writeFile(dir, git, "admission/admission-table.json", "{}\n");
+    writeFile(dir, git, "types/admissionv0/index.d.ts", "export type AdmissionTable = object;\n");
+    git("commit", "--quiet", "-m", "the admission table");
+    const admission = recipe(dir, { name: "release-files", args: ["HEAD", "with-admission", "v0.8.0"] });
+    assert.equal(admission.status, 0, admission.stderr);
+    assert.match(admission.stdout, /admission-0\.1\.tar\.gz, 3 files of [0-9a-f]{40}/);
+    assert.deepEqual(fs.readdirSync(path.join(dir, "with-admission")).sort(), ["admission-0.1.tar.gz", "altnovatrail-contracts-0.8.0.tgz", "altnovatrail-spec-0.8.0.tgz", "format-0.2.tar.gz"]);
+    assert.deepEqual(listing(path.join(dir, "with-admission", "admission-0.1.tar.gz")), ["admission-0.1/LICENSE", "admission-0.1/admission/VERSION", "admission-0.1/admission/admission-table.json"]);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

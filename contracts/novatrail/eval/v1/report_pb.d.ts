@@ -119,7 +119,8 @@ export declare const ReportSchema: GenMessage<Report>;
  */
 export declare type Model = Message<"novatrail.eval.v1.Model"> & {
   /**
-   * The provider, as the adapters of `tutor` name it.
+   * The provider, as the adapters of `tutor` name it: by its code in the admission table, when the
+   * table names it (admission/README.md, section 4).
    *
    * @generated from field: string provider = 1;
    */

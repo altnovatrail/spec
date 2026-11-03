@@ -1,0 +1,80 @@
+# A cell open with facts needs each of its facts declared for its provider and for the learner's
+# category. The function checks them in the order the cell lists them, and the first that is not
+# declared refuses the request: a fact declared for another category or another provider is not
+# declared, and with no facts at all none is.
+table:
+  providers:
+    alpha: {name: Alpha}
+    beta: {name: Beta}
+  facts:
+    data_processing_agreement: {description: The platform's data processing agreement with the provider is signed.}
+    minimal_retention: {description: The provider keeps none of the content of the platform's requests.}
+    zero_data_retention: {description: The provider approved zero data retention.}
+    minor_safeguards: {description: The safeguards the provider requires for minors are in place.}
+  capabilities:
+    - {capability: handwriting_reading, age_category: under_13, admission: open, basis: [privacy 3.2]}
+  cells:
+    - provider: alpha
+      ai_route: platform_ai
+      age_category: under_13
+      admission: open_with_facts
+      facts: [data_processing_agreement, minimal_retention, zero_data_retention, minor_safeguards]
+      terms: [{row: OpenAI, read: "2026-11-03"}]
+      basis: [privacy 5.1, П-3, П-15]
+cases:
+  # No facts at all: the cell's first fact is missing.
+  - request: {capability: handwriting_reading, ai_route: platform_ai, provider: alpha, age_category: under_13}
+    answer:
+      admitted: false
+      reason: fact_missing
+      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}
+      fact: data_processing_agreement
+  # Two facts missing: the first of them in the cell's order, not in the dictionary's.
+  - request: {capability: handwriting_reading, ai_route: platform_ai, provider: alpha, age_category: under_13}
+    facts:
+      alpha:
+        data_processing_agreement: [under_13]
+        minimal_retention: [under_13]
+    answer:
+      admitted: false
+      reason: fact_missing
+      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}
+      fact: zero_data_retention
+  # Zero data retention approved for adults alone does not hold for a child.
+  - request: {capability: handwriting_reading, ai_route: platform_ai, provider: alpha, age_category: under_13}
+    facts:
+      alpha:
+        data_processing_agreement: [under_13]
+        minimal_retention: [under_13]
+        zero_data_retention: [adult]
+        minor_safeguards: [under_13]
+    answer:
+      admitted: false
+      reason: fact_missing
+      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}
+      fact: zero_data_retention
+  # The safeguards declared for another provider do not hold for this one.
+  - request: {capability: handwriting_reading, ai_route: platform_ai, provider: alpha, age_category: under_13}
+    facts:
+      alpha:
+        data_processing_agreement: [under_13]
+        minimal_retention: [under_13]
+        zero_data_retention: [under_13]
+      beta:
+        minor_safeguards: [under_13]
+    answer:
+      admitted: false
+      reason: fact_missing
+      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}
+      fact: minor_safeguards
+  # Every fact declared for the child's category: admitted.
+  - request: {capability: handwriting_reading, ai_route: platform_ai, provider: alpha, age_category: under_13}
+    facts:
+      alpha:
+        data_processing_agreement: [under_13, adult]
+        minimal_retention: [under_13]
+        zero_data_retention: [under_13]
+        minor_safeguards: [under_13]
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}

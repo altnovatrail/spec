@@ -8,7 +8,8 @@ import (
 	"testing"
 )
 
-// A made-up spec: go.mod, LICENSE, a small format/ and a type of it, committed on main.
+// A made-up spec: go.mod, LICENSE, a small format/, a small admission/ and a type of the format,
+// committed on main.
 func scratch(t *testing.T, goMod string) string {
 	t.Helper()
 	t.Setenv("GIT_CONFIG_GLOBAL", os.DevNull)
@@ -19,6 +20,7 @@ func scratch(t *testing.T, goMod string) string {
 	write(t, root, "LICENSE", "Apache License\n")
 	write(t, root, "format/VERSION", "0.1\n")
 	write(t, root, "format/vectors/packages/a/module/.editor-notes", "left out of a package, not of the module\n")
+	write(t, root, "admission/VERSION", "0.1\n")
 	write(t, root, "types/formatv0/doc.go", "package formatv0\n")
 	commit(t, root)
 	return root
@@ -58,7 +60,7 @@ func TestTheModuleCarriesEveryFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(report, "github.com/altnovatrail/spec@v0.3.0") || !strings.Contains(report, "the 3 files of format/ and types/") {
+	if !strings.Contains(report, "github.com/altnovatrail/spec@v0.3.0") || !strings.Contains(report, "the 4 files of format/, admission/ and types/") {
 		t.Fatalf("report: %s", report)
 	}
 }
@@ -187,7 +189,7 @@ func TestTheContractsModuleCarriesEveryFile(t *testing.T) {
 		t.Fatalf("report: %s", report)
 	}
 	// spec's own module no longer carries contracts/, and its check is the same as before.
-	if report, err := check(root, "HEAD", "0.7", "."); err != nil || !strings.Contains(report, "the 3 files of format/ and types/") {
+	if report, err := check(root, "HEAD", "0.7", "."); err != nil || !strings.Contains(report, "the 4 files of format/, admission/ and types/") {
 		t.Fatalf("the root beside the contracts: %s, %v", report, err)
 	}
 }

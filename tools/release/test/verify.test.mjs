@@ -142,7 +142,19 @@ test("the archive of the contracts' code is bound to its tag as spec's other pac
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive([]), "v0.5.6", source), /names the package undefined/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive(null), "v0.5.6", source), /cannot be read: it holds no object/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", contracts, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
-  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
+  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
+});
+
+test("the archive of the admission table is bound to its tag as the format's is, by the commit in its header", () => {
+  const source = gitHub();
+  // git archive writes the commit into the header whatever the folder: the format's archive of
+  // v0.5.6, by the admission table's name, is bound to v0.5.6 alone.
+  const archive = specFile("format-0.1.tar.gz").bytes;
+  checkSpecContent("admission-0.1.tar.gz", archive, "v0.5.6", source);
+  assert.throws(() => checkSpecContent("admission-0.1.tar.gz", archive, "v0.5.5", source), /admission-0\.1\.tar\.gz is git archive's of e6069ae\w+, and spec v0\.5\.5 is c143fa0/);
+  assert.throws(() => checkSpecContent("admission-0.1.tar.gz", archive, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
+  assert.throws(() => checkSpecContent("admission-01.tar.gz", archive, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag/);
+  assert.throws(() => checkSpecContent("admission-0.1.tar.gz", Buffer.from("no gzip"), "v0.5.6", source), /admission-0\.1\.tar\.gz is no gzip archive/);
 });
 
 // The fields of the certificates of the fixtures, read once their bundles hold.

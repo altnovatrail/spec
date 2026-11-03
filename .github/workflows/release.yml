@@ -2,25 +2,26 @@
 # patch of the line the releases are numbered in, and the tag is created with the release. A
 # line of its own comes from raising RELEASE_LINE in the change that deserves it. A change that
 # gives the module format a new version always does, so that a line never spans two of them
-# (R44), and release-version refuses one that does not; so does a new major package of a
-# contract (R83), and a change that brings a new kind of file into the release, so that a release
-# of an earlier line, run again, builds the files it got.
+# (R44), and release-version refuses one that does not; so does a new version of the admission
+# table (R96) and a new major package of a contract (R83), and a change that brings a new kind of
+# file into the release, so that a release of an earlier line, run again, builds the files it got.
 #
 # Other repositories take the tag as a submodule for spec's documents and rules (R21), and their
-# code takes the release's files (R64). From the line 0.3 on, a release carries each normative
-# part with a version of its own as a file, <part>-<version>.tar.gz — today the module format,
-# format-0.1.tar.gz — and from the line 0.4 on the npm package of the format's types for
-# TypeScript as well, altnovatrail-spec-<X.Y.Z>.tgz, the archive npm takes (R73), which from the
-# line 0.5 on holds the types of the element <novatrail-canvas> too (R74). From the line 0.7 on,
-# it carries the npm package of the API contracts' code as well, altnovatrail-contracts-<X.Y.Z>.tgz
-# (R83). Each is signed without a key, with its bundle <file>.sigstore.json beside it, as the
-# shared release of .github signs its callers' files. Go code takes the same tag as the version
-# of spec's Go module, which the Go module proxy and its checksum database then hold to its
-# bytes, and from the line 0.7 on the tag contracts/<tag> as the version of the Go module of the
-# contracts, which the release sets once it is out (R83). The repository's releases are
-# immutable, so the tag stays on its commit for good and no file is added or swapped once a
-# release is out, and GitHub signs each release with an attestation of its tag, its commit and
-# its files, which `gh release verify` and `gh release verify-asset` check. A release of an
+# code takes the release's files (R64). From the line 0.3 on, a release carries each normative part
+# with a version of its own as a file, <part>-<version>.tar.gz — the module format,
+# format-<version>.tar.gz, and from the line 0.8 on the admission table, admission-<version>.tar.gz
+# (R96) — and from the line 0.4 on the npm package of the format's types for TypeScript as well,
+# altnovatrail-spec-<X.Y.Z>.tgz, the archive npm takes (R73), which from the line 0.5 on holds the
+# types of the element <novatrail-canvas> too (R74), and from the line 0.8 on the admission table's.
+# From the line 0.7 on, it carries the npm package of the API contracts' code as well,
+# altnovatrail-contracts-<X.Y.Z>.tgz (R83). Each is signed without a key, with its bundle
+# <file>.sigstore.json beside it, as the shared release of .github signs its callers' files. Go code
+# takes the same tag as the version of spec's Go module, which the Go module proxy and its checksum
+# database then hold to its bytes, and from the line 0.7 on the tag contracts/<tag> as the version
+# of the Go module of the contracts, which the release sets once it is out (R83). The repository's
+# releases are immutable, so the tag stays on its commit for good and no file is added or swapped
+# once a release is out, and GitHub signs each release with an attestation of its tag, its commit
+# and its files, which `gh release verify` and `gh release verify-asset` check. A release of an
 # earlier line carries no files.
 #
 # The release also publishes its npm packages to npm, each the same file, once the release is out
@@ -56,7 +57,7 @@ permissions:
 # The line the releases are numbered in: the major and minor version every release carries, the
 # patch counting up within it. just release-version reads it from here.
 env:
-  RELEASE_LINE: "0.7"
+  RELEASE_LINE: "0.8"
 
 jobs:
   release:
@@ -77,11 +78,12 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-24.04
-    # The image is built twice over, the Go module proxy is given five minutes to serve the
-    # release's version, and five more the contracts' module, and the npm registry twenty to show
-    # the packages', which the publish step waits for together; five more go to the second
-    # package — its dry run, its publish and, on a run again, its release-verify.
-    timeout-minutes: 60
+    # The image is built twice over, the Go module proxy is given 36 rounds a minute apart to
+    # serve the release's version of both Go modules, which outlast the 30 minutes it remembers a
+    # failed fetch for, and the npm registry twenty to show the packages', which the publish step
+    # waits for together; five more go to the second package — its dry run, its publish and, on a
+    # run again, its release-verify.
+    timeout-minutes: 85
     # With pipefail: a runner's default, bash -e, lets a failed command inside a pipe pass.
     defaults:
       run:
@@ -876,19 +878,22 @@ jobs:
           if [ "$failed" = true ]; then exit 1; fi
 
       # Go code takes the release's tag as the version of spec's Go module (R64): the Go module
-      # proxy builds its zip from the tag when it is first asked, and the checksum database
-      # records its hash for good. The step asks for it, through the proxy alone — with
-      # GOPROXY's default, a go command that the proxy answers 404 fetches from GitHub instead,
-      # and would hide it — so that the release's run says whether the module came out: a zip Go
-      # refuses fails the run here, after the release, which is out already. A version is
-      # served "within one minute" of being asked for, unless it was asked for before its tag
-      # existed, which the proxy remembers for up to 30 minutes (proxy.golang.org, FAQ, read
-      # 2026-10-28). So the step tries for five minutes, for each module, and a run again asks
-      # again. From the line 0.7 on it asks for the Go module of the contracts too, at its tag
-      # contracts/<tag>, as Go asks for it, when the step above set it: the version is the
-      # release's. It runs in the toolchain
-      # stage, from an empty folder, which is all the container mounts, by the checkout's script,
-      # which no container has had.
+      # proxy builds its zip from the tag when it is first asked, and the checksum database records
+      # its hash for good. The step asks for it, through the proxy alone — with GOPROXY's default, a
+      # go command that the proxy answers 404 fetches from GitHub instead, and would hide it — so
+      # that the release's run says whether the module came out: a zip Go refuses fails the run
+      # here, after the release, which is out already. A version is served "within one minute" of
+      # being asked for, unless it was asked for before its tag existed, which the proxy remembers
+      # for up to 30 minutes (proxy.golang.org, FAQ, read 2026-10-28 and again 2026-11-03). A fetch
+      # of its own that fails it remembers as long: on 2026-11-03 it could not reach GitHub for the
+      # contracts' v0.7.9, "Could not resolve host: github.com", and answered that 404 again, with
+      # "cache-control: public", until 30 minutes after it was first asked. So the step asks for
+      # each module it has not got yet, in rounds a minute apart, 36 of them for all the modules
+      # together, which outlast that memory, and a run again asks again. From the line 0.7 on it
+      # asks for the Go module of the contracts too, at its tag contracts/<tag>, as Go asks for it,
+      # when the step above set it: the version is the release's. It runs in the toolchain stage,
+      # from an empty folder, which is all the container mounts, by the checkout's script, which no
+      # container has had.
       - name: Verify the Go module
         if: >-
           (steps.publish.outputs.published == 'true' || steps.version.outputs.released != '') &&
@@ -905,20 +910,24 @@ jobs:
           if [ "$CONTRACTS" = true ]; then modules+=("github.com/altnovatrail/spec/contracts${suffix}"); fi
           empty=$(mktemp -d -p "$RUNNER_TEMP")
           cd "$empty"
-          served() {
-              for attempt in $(seq 1 10); do
-                  if "$GITHUB_WORKSPACE/tools/toolchain/toolchain.sh" run \
-                      env GOPROXY=https://proxy.golang.org go mod download -json "$1@${VERSION}"; then
-                      return 0
+          rounds=36
+          round=0
+          while [ "${#modules[@]}" -gt 0 ] && [ "$round" -lt "$rounds" ]; do
+              if [ "$round" -gt 0 ]; then sleep 60; fi
+              round=$((round + 1))
+              waiting=()
+              for module in "${modules[@]}"; do
+                  if ! "$GITHUB_WORKSPACE/tools/toolchain/toolchain.sh" run \
+                      env GOPROXY=https://proxy.golang.org go mod download -json "${module}@${VERSION}"; then
+                      echo "round ${round}: the Go module proxy does not serve ${module}@${VERSION} yet"
+                      waiting+=("$module")
                   fi
-                  echo "attempt $attempt: the Go module proxy does not serve $1@${VERSION} yet"
-                  sleep 30
               done
-              return 1
-          }
-          for module in "${modules[@]}"; do
-              if ! served "$module"; then
-                  echo "::error::${VERSION} is published, but the Go module proxy does not serve ${module}@${VERSION}; the lines above say why. Running the job again asks again."
-                  exit 1
-              fi
+              modules=("${waiting[@]}")
           done
+          if [ "${#modules[@]}" -gt 0 ]; then
+              for module in "${modules[@]}"; do
+                  echo "::error::${VERSION} is published, but the Go module proxy does not serve ${module}@${VERSION} after ${rounds} rounds a minute apart; the lines above say why. Running the job again asks again."
+              done
+              exit 1
+          fi

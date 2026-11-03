@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TAR } from "../../shared.mjs";
-import { FIRST_CANVAS_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
+import { FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
 import { scratchRepository, writeFile } from "../../release/test/repository.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -60,10 +60,28 @@ test("the package is named and versioned as the release, and exports each packag
   for (const version of ["", "0.4"]) assert.throws(() => filesOf(version), /is not MAJOR\.MINOR\.PATCH/, version);
 });
 
+test("from the line 0.8 on, the package holds and exports the types of the admission table too", () => {
+  assert.equal(FIRST_ADMISSION_LINE, "0.8");
+  for (const version of ["0.8.0", "0.10.3", "1.0.0"]) {
+    assert.deepEqual(filesOf(version).slice(-2), [{ file: "canvas/index.d.ts", from: "types/canvas/index.d.ts" }, { file: "admissionv0/index.d.ts", from: "types/admissionv0/index.d.ts" }], version);
+    const manifest = manifestOf(version);
+    assert.deepEqual(manifest.exports, {
+      "./formatv0": { types: "./formatv0/index.d.ts" },
+      "./formatv0/open": { types: "./formatv0/open/index.d.ts" },
+      "./canvas": { types: "./canvas/index.d.ts" },
+      "./admissionv0": { types: "./admissionv0/index.d.ts" },
+      "./package.json": "./package.json",
+    });
+    assert.deepEqual(manifest.files, ["formatv0", "canvas", "admissionv0"]);
+    assert.match(manifest.description, /<novatrail-canvas>, the contract of the canvas and the app\. And the types of the admission table, /);
+  }
+  assert.doesNotMatch(manifestOf("0.7.9").description, /admission/);
+});
+
 test("from the line 0.5 on, the package holds and exports the types of <novatrail-canvas> too", () => {
   assert.equal(FIRST_CANVAS_LINE, "0.5");
   const canvas = ["canvas/index.d.ts", "types/canvas/index.d.ts"];
-  for (const version of ["0.5.0", "0.10.3", "1.0.0"]) {
+  for (const version of ["0.5.0", "0.7.9"]) {
     assert.deepEqual(filesOf(version).at(-1), { file: canvas[0], from: canvas[1] }, version);
     const manifest = manifestOf(version);
     assert.deepEqual(manifest.exports, {

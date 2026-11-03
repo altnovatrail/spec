@@ -52,6 +52,29 @@ func TestFormatHoldsEveryFile(t *testing.T) {
 	}
 }
 
+// Admission holds every file of admission/, and its VERSION and its table are what the text says.
+func TestAdmissionHoldsEveryFile(t *testing.T) {
+	embedded := filesOf(t, Admission)
+	onDisk := filesOf(t, os.DirFS("admission"))
+	if !slices.Equal(embedded, onDisk) {
+		t.Fatalf("Admission holds %d files, and admission/ %d", len(embedded), len(onDisk))
+	}
+	version, err := fs.ReadFile(Admission, "VERSION")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !regexp.MustCompile(`^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\n$`).Match(version) {
+		t.Fatalf("VERSION is %q, not MAJOR.MINOR and a newline", version)
+	}
+	table, err := fs.ReadFile(Admission, "admission-table.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !json.Valid(table) {
+		t.Fatal("admission-table.json is not JSON")
+	}
+}
+
 func filesOf(t *testing.T, fsys fs.FS) []string {
 	t.Helper()
 	var names []string

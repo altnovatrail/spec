@@ -1,0 +1,16 @@
+# error: enum at #/cells/0/ai_route
+providers:
+  example: {name: Example}
+facts:
+  data_processing_agreement:
+    description: The platform's data processing agreement with the provider is signed.
+capabilities:
+  - {capability: hint, age_category: adult, admission: open, basis: [privacy 3.2]}
+cells:
+  - provider: example
+    ai_route: platform
+    age_category: adult
+    admission: closed
+    terms:
+      - {row: OpenAI, read: "2026-11-03"}
+    basis: [privacy 5.1]

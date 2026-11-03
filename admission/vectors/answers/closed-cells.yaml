@@ -1,0 +1,49 @@
+# A cell that is closed refuses the request and is named; a provider, an AI route or a category
+# with no cell refuses it too, with no cell to name: what the table does not name is closed.
+table:
+  providers:
+    alpha: {name: Alpha}
+    google: {name: Google}
+  facts:
+    data_processing_agreement: {description: The platform's data processing agreement with the provider is signed.}
+  capabilities:
+    - {capability: handwriting_reading, age_category: adult, admission: open, basis: [privacy 3.2]}
+    - {capability: handwriting_reading, age_category: under_13, admission: open, basis: [privacy 3.2]}
+  cells:
+    - provider: google
+      ai_route: own_key
+      age_category: adult
+      admission: closed
+      terms: [{row: "Google, Gemini API", read: "2026-11-03"}, {row: "Google Cloud, Vertex AI", read: "2026-11-03"}]
+      basis: [R47]
+    - provider: alpha
+      ai_route: own_key
+      age_category: adult
+      admission: open
+      terms: [{row: OpenAI, read: "2026-11-03"}]
+      basis: [privacy 5.2, О-4]
+cases:
+  # A closed cell, named.
+  - request: {capability: handwriting_reading, ai_route: own_key, provider: google, age_category: adult}
+    answer:
+      admitted: false
+      reason: cell_closed
+      cell: {provider: google, ai_route: own_key, age_category: adult}
+  # A provider the table does not know (R65).
+  - request: {capability: handwriting_reading, ai_route: own_key, provider: cerebras, age_category: adult}
+    answer:
+      admitted: false
+      reason: cell_closed
+  # A known provider on an AI route with no cell.
+  - request: {capability: handwriting_reading, ai_route: platform_ai, provider: alpha, age_category: adult}
+    facts:
+      alpha:
+        data_processing_agreement: [adult]
+    answer:
+      admitted: false
+      reason: cell_closed
+  # A known provider and AI route, and a category with no cell: the own key of a child.
+  - request: {capability: handwriting_reading, ai_route: own_key, provider: alpha, age_category: under_13}
+    answer:
+      admitted: false
+      reason: cell_closed

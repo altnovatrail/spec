@@ -53,14 +53,30 @@ format-check: _tools
 format-check-test: _tools
     node --test 'tools/format-check/test/*.test.mjs'
 
+# Reads spec's own admission/, the admission table (R96), by the layout of its text: VERSION, each
+# schema against the conventions of the format's schemas under the prefix of the table and with no
+# x-open, the codes of the age categories against the format's, the table against its schema and
+# its rules, and each of its rows of privacy 5.3 and its citations against spec's documents; each
+# example against its schema, each vector of a rule — that it breaks that rule and no other —, and
+# each vector of answers, whose answers it computes as section 6 of the text gives them, with every
+# reason of a refusal among them.
+# Check the admission table in admission/: its schemas, the table, examples and test vectors.
+admission-check: _tools
+    node tools/admission/main.mjs
+
+# Run admission-check's own tests, on trial copies of spec's admission/ and the documents it cites.
+admission-check-test: _tools
+    node --test 'tools/admission/test/*.test.mjs'
+
 # The types of the module format, generated from its schemas by tools/types (R72): the packages
-# formatv0 and formatv0/open under types/, which spec's Go module ships at the tag of every release,
-# each with its TypeScript beside it, index.d.ts, which the npm package @altnovatrail/spec carries
-# (R73), and the registry of tools/types/roundtrip. The generator writes them into a new folder,
+# formatv0 and formatv0/open under types/, and admissionv0 of the admission table, generated from
+# admission/schemas (R96), which spec's Go module ships at the tag of every release, each with its
+# TypeScript beside it, index.d.ts, which the npm package @altnovatrail/spec carries (R73), and the
+# registry of tools/types/roundtrip. The generator writes them into a new folder,
 # gofmt aligns the Go, and they take the place of the files in the repository, so that a type no
 # schema gives any more goes too. types/canvas, the types of <novatrail-canvas>, is written by hand
 # (R74): it stays as it is.
-# Generate the types of the module format from its schemas again.
+# Generate the types of the module format and of the admission table from their schemas again.
 types: _tools
     #!/usr/bin/env bash
     set -euo pipefail
@@ -75,10 +91,10 @@ types: _tools
 
 # What `just types` would write is what types/ and the registry hold, file for file, and types/ holds
 # nothing else but types/canvas/index.d.ts, the types of <novatrail-canvas>, written by hand (R74).
-# Then each value
-# of format/ that passes a schema — the examples, the files of every module of the examples and the
-# vectors, the vectors themselves and the canonical view of each example of a whole module — is read
-# by its type of formatv0 strictly and written back as it was, and so is the open view of each
+# Then each value of format/ and admission/ that passes a schema — the examples, the files of every
+# module of the examples and the vectors, the vectors themselves, the canonical view of each example
+# of a whole module and the admission table — is read by its type of formatv0 or admissionv0
+# strictly and written back as it was, and so is the open view of each
 # vector of the open view by its type of open; the part of such a vector that holds a closed field
 # fails to be read by that type (tools/types/corpus.mjs, tools/types/roundtrip). And each value is
 # the value of a declaration of its type in TypeScript, imported from the npm package, which is
@@ -88,7 +104,7 @@ types: _tools
 # numbered in, as its next release's will be, and tsc takes the check of the types of
 # <novatrail-canvas> from it too, tools/types/canvas.check.ts, with the DOM. The corpus is of the
 # working tree, as format-check's files are.
-# Check the types of the module format against its schemas and against the values of format/.
+# Check the types of the format and the admission table against their schemas and values.
 types-check: _tools
     #!/usr/bin/env bash
     set -euo pipefail
@@ -101,7 +117,7 @@ types-check: _tools
         exit 1
     fi
     if ! diff -r --exclude=canvas types "$out/generated/types" || ! diff tools/types/roundtrip/registry.go "$out/generated/tools/types/roundtrip/registry.go"; then
-        echo "types-check: the files differ from what format/schemas gives; run just types" >&2
+        echo "types-check: the files differ from what format/schemas and admission/schemas give; run just types" >&2
         exit 1
     fi
     node tools/types/corpus.mjs "$out/corpus.json"
@@ -372,7 +388,9 @@ licenses-check-test:
 # the release before it, once releases carry the format as files: another version of the format
 # needs a raised line (tools/release/format-line.mjs). So does a new major package of an API
 # contract, novatrail.<part>.vN with N of 2 or more, that the release before had not (R83;
-# tools/release/contracts-line.mjs). Anywhere else — another repository, a working copy in .repos/ among them — the line is
+# tools/release/contracts-line.mjs), and another version of the admission table, once releases
+# carry it (R96; tools/release/admission-line.mjs). Anywhere else — another repository, a working
+# copy in .repos/ among them — the line is
 # RELEASE_LINE as the workflow named second sets it at that commit, a path from the repository's
 # root, whatever the shell sets: a release workflow's own env, the tip's, must not number an
 # older commit. A commit from before that workflow existed takes the checked-out file's line. With
@@ -422,7 +440,8 @@ release-version commit="HEAD" workflow="":
     if [ "$in_spec" = true ]; then
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}} \
             | node {{quote(justfile_directory() / "tools/release/format-line.mjs")}} "$commit" \
-            | node {{quote(justfile_directory() / "tools/release/contracts-line.mjs")}} "$commit"
+            | node {{quote(justfile_directory() / "tools/release/contracts-line.mjs")}} "$commit" \
+            | node {{quote(justfile_directory() / "tools/release/admission-line.mjs")}} "$commit"
     else
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
     fi
@@ -430,9 +449,10 @@ release-version commit="HEAD" workflow="":
 # spec's own (R64): another repository's release builds its own files, by its own recipe. The
 # folder is a new one, and a relative path is from spec's root. From the line release.yml sets at
 # the commit, FIRST_FILES_LINE on (tools/release/files.mjs), each normative part with a version
-# of its own goes in as <part>-<version>.tar.gz — today the module format, format-0.1.tar.gz:
-# git archive of the commit, a folder of that name holding LICENSE and the part as the commit has
-# them, every file and nothing else, which the recipe checks against git ls-tree. From
+# of its own goes in as <part>-<version>.tar.gz — the module format, format-<version>.tar.gz, and
+# from FIRST_ADMISSION_LINE on the admission table, admission-<version>.tar.gz (R96): git archive of
+# the commit, a folder of that name holding LICENSE and the part as the commit has them, every file
+# and nothing else, which the recipe checks against git ls-tree. From
 # FIRST_NPM_LINE on, the npm package @altnovatrail/spec goes in too, altnovatrail-spec-<X.Y.Z>.tgz,
 # of the release's tag, which the recipe then takes third (R73): npm pack of the package that
 # tools/types/npm.mjs writes of the commit's types/, LICENSE and the package's README, read back by
@@ -455,8 +475,11 @@ release-files commit dir tag="":
     line=$(git show "${commit}:.github/workflows/release.yml" | node tools/release/line.mjs)
     tag={{quote(tag)}}
     files=$(
-        if git cat-file -e "${commit}:format/VERSION" 2>/dev/null; then git show "${commit}:format/VERSION"; fi \
-            | node tools/release/files.mjs "$line" "$tag"
+        {
+            if git cat-file -e "${commit}:format/VERSION" 2>/dev/null; then git show "${commit}:format/VERSION"; fi
+            echo --
+            if git cat-file -e "${commit}:admission/VERSION" 2>/dev/null; then git show "${commit}:admission/VERSION"; fi
+        } | node tools/release/files.mjs "$line" "$tag"
     )
     mkdir -p "$dir"
     while read -r name part; do

@@ -2,9 +2,10 @@
 // tools/types writes under types/, with spec's LICENSE and the package's README, tools/types/npm/.
 // It holds declarations alone, and exports each package of the types by its Go path: ./formatv0 and
 // ./formatv0/open. From the line FIRST_CANVAS_LINE on, it holds and exports the types of the element
-// <novatrail-canvas> too, ./canvas, which types/canvas holds, written by hand (R74): what a package
-// holds is the line's of its version, the release's, so that a release of an earlier line, run
-// again, gets the package it got.
+// <novatrail-canvas> too, ./canvas, which types/canvas holds, written by hand (R74), and from the
+// line FIRST_ADMISSION_LINE on the types of the admission table, ./admissionv0 (R96): what a
+// package holds is the line's of its version, the release's, so that a release of an earlier line,
+// run again, gets the package it got.
 //
 //   node tools/types/npm.mjs <root> <version> <folder> [<commit>]
 //
@@ -19,7 +20,7 @@ import path from "node:path";
 import { isMain } from "../shared.mjs";
 import { archiveName, checkPackageArchive, checkedVersion, packPackage, treeOf, writePackageOf } from "../npm-package.mjs";
 import { compareLines } from "../release/version.mjs";
-import { OPEN_DIR, TYPES_DIR } from "./go.mjs";
+import { ADMISSION_DIR, ADMISSION_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
 
 export const NAME = "@altnovatrail/spec";
 const DECLARATIONS = "index.d.ts";
@@ -30,6 +31,9 @@ const CANVAS = "canvas";
 const CANVAS_DIR = "types/canvas";
 // spec's first line whose package holds them.
 export const FIRST_CANVAS_LINE = "0.5";
+// spec's first line whose package holds the types of the admission table, as the release holds the
+// table (tools/release/files.mjs).
+export const FIRST_ADMISSION_LINE = "0.8";
 // What a file missing from the working tree asks for.
 const HINT = "run just types";
 
@@ -43,15 +47,20 @@ export function filesOf(version) {
     { file: `${TYPES}/open/${DECLARATIONS}`, from: `${OPEN_DIR}/${DECLARATIONS}` },
   ];
   if (holdsCanvas(version)) files.push({ file: `${CANVAS}/${DECLARATIONS}`, from: `${CANVAS_DIR}/${DECLARATIONS}` });
+  if (holdsAdmission(version)) files.push({ file: `${ADMISSION_PACKAGE}/${DECLARATIONS}`, from: `${ADMISSION_DIR}/${DECLARATIONS}` });
   return files;
 }
 
-// Whether the package of version holds the types of <novatrail-canvas>: by the line of the version,
-// its MAJOR.MINOR.
-function holdsCanvas(version) {
+// Whether the package of version is of the line first or a later one: by its MAJOR.MINOR.
+function fromLine(version, first) {
   const [major, minor] = checkedVersion(version).split(".");
-  return compareLines(`${major}.${minor}`, FIRST_CANVAS_LINE) >= 0;
+  return compareLines(`${major}.${minor}`, first) >= 0;
 }
+
+// Whether the package of version holds the types of <novatrail-canvas>.
+const holdsCanvas = (version) => fromLine(version, FIRST_CANVAS_LINE);
+// Whether it holds the types of the admission table.
+const holdsAdmission = (version) => fromLine(version, FIRST_ADMISSION_LINE);
 
 // The name npm pack gives the package's archive of version: the scope's @ dropped, its / a dash.
 export function archiveOf(version) {
@@ -63,10 +72,12 @@ export function archiveOf(version) {
 export function manifestOf(version) {
   const format = "The types of NovaTrail's module format for TypeScript, generated from its schemas: the parts of a module and their open views, the canonical view, the inventory, the module index and the test vectors.";
   const canvas = holdsCanvas(version);
+  const admission = holdsAdmission(version);
+  const description = [format, canvas ? "And the types of the element <novatrail-canvas>, the contract of the canvas and the app." : "", admission ? "And the types of the admission table, which says which AI provider may serve which age category." : ""].filter(Boolean).join(" ");
   return {
     name: NAME,
     version: checkedVersion(version),
-    description: canvas ? `${format} And the types of the element <novatrail-canvas>, the contract of the canvas and the app.` : format,
+    description,
     license: "Apache-2.0",
     repository: { type: "git", url: "git+https://github.com/altnovatrail/spec.git" },
     type: "module",
@@ -74,9 +85,10 @@ export function manifestOf(version) {
       [`./${TYPES}`]: { types: `./${TYPES}/${DECLARATIONS}` },
       [`./${TYPES}/open`]: { types: `./${TYPES}/open/${DECLARATIONS}` },
       ...(canvas ? { [`./${CANVAS}`]: { types: `./${CANVAS}/${DECLARATIONS}` } } : {}),
+      ...(admission ? { [`./${ADMISSION_PACKAGE}`]: { types: `./${ADMISSION_PACKAGE}/${DECLARATIONS}` } } : {}),
       "./package.json": "./package.json",
     },
-    files: canvas ? [TYPES, CANVAS] : [TYPES],
+    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : [])],
     sideEffects: false,
   };
 }

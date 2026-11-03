@@ -1,0 +1,18 @@
+# The smallest table: one provider, one fact, one rule of a capability and one cell. Everything
+# else is closed, since what the table does not name is closed.
+providers:
+  example: {name: Example}
+facts:
+  data_processing_agreement:
+    description: The platform's data processing agreement with the provider is signed.
+capabilities:
+  - {capability: handwriting_reading, age_category: adult, admission: open, basis: [privacy 3.2]}
+cells:
+  - provider: example
+    ai_route: platform_ai
+    age_category: adult
+    admission: open_with_facts
+    facts: [data_processing_agreement]
+    terms:
+      - {row: OpenAI, read: "2026-11-03"}
+    basis: [privacy 5.1, П-3]

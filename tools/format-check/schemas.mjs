@@ -1,6 +1,8 @@
 // The schemas of the module format, format/schemas/<term>.schema.json: read, checked against the
 // conventions of the format text, section 5 (R45 and its amendment of 2026-10-22), and compiled by
-// ajv, the JSON Schema 2020-12 validator that checks the examples and the vectors against them.
+// ajv, the JSON Schema 2020-12 validator that checks the examples and the vectors against them. The
+// schemas of another normative part with a version of its own, such as the admission table's in
+// admission/schemas/, follow the same conventions under the prefix of their part (R96).
 //
 // ajv's strict mode is no check of the conventions: it accepts nullable, definitions, dependencies
 // and $dynamicRef, and none of those is the format's. So the conventions are checked on the
@@ -16,6 +18,10 @@ import { patternProblem } from "./patterns.mjs";
 
 export const DIALECT = "https://json-schema.org/draft/2020-12/schema";
 export const ID_PREFIX = "https://altnovatrail.github.io/spec/format/";
+
+// A normative part whose schemas follow the conventions: its folder, the prefix of each $id, and
+// whether its schemas may mark fields x-open, which only the format does, for the open view.
+export const FORMAT_PART = { folder: "format", prefix: ID_PREFIX, open: true };
 
 // The keywords a schema may use, by what their values hold (format/README.md, section 5). Left out
 // of 2020-12: $anchor, $dynamicRef, $dynamicAnchor and $vocabulary, since a reference names only
@@ -68,12 +74,13 @@ const CONDITIONS = new Set(["if", "not"]);
 // says nothing of which places are open (format/README.md, section 6).
 const UNMARKED = new Set(["contains", "propertyNames"]);
 
-// Reads format/schemas/<name>: { name, term, file, json, lineOf, problems }. json is null when the
-// file is not JSON; lineOf(path) is the line of the value at a path of keys and indexes.
-export function readSchema(root, name) {
-  const file = `format/schemas/${name}`;
+// Reads <folder>/schemas/<name> of the part, the format's unless named: { name, term, file, part,
+// json, lineOf, problems }. json is null when the file is not JSON; lineOf(path) is the line of the
+// value at a path of keys and indexes.
+export function readSchema(root, name, part = FORMAT_PART) {
+  const file = `${part.folder}/schemas/${name}`;
   const text = fs.readFileSync(path.join(root, file), "utf8");
-  const schema = { name, term: name.slice(0, -".schema.json".length), file, json: null, lineOf: () => 1, problems: [] };
+  const schema = { name, term: name.slice(0, -".schema.json".length), file, part, json: null, lineOf: () => 1, problems: [] };
   try {
     schema.json = JSON.parse(text);
   } catch (error) {
@@ -98,8 +105,8 @@ export function readSchema(root, name) {
 }
 
 // Checks every schema against the conventions, given all of them, for the references between them,
-// and the format's version, or null when it cannot be read. Adds what it finds to each schema's
-// problems.
+// and the version of their part, or null when it cannot be read. Adds what it finds to each
+// schema's problems.
 export function checkConventions(schemas, version) {
   const byName = new Map(schemas.filter((s) => s.json !== null).map((s) => [s.name, s]));
   const roots = unmarkedDefinitions(byName);
@@ -111,11 +118,12 @@ export function checkConventions(schemas, version) {
       continue;
     }
     if (json.$schema !== DIALECT) report(["$schema"], `$schema is ${DIALECT}`);
-    // With no version to compare with, format/VERSION has an error of its own, and $id is compared
-    // with what does not depend on it.
-    const id = `${ID_PREFIX}${version ?? "<MAJOR.MINOR>"}/${schema.name}`;
-    const idHolds = version === null ? typeof json.$id === "string" && json.$id.startsWith(ID_PREFIX) && json.$id.endsWith(`/${schema.name}`) : json.$id === id;
-    if (!idHolds) report(["$id"], `$id is ${id}: the prefix, the version in format/VERSION and the file's name`);
+    // With no version to compare with, the part's VERSION has an error of its own, and $id is
+    // compared with what does not depend on it.
+    const { folder, prefix } = schema.part;
+    const id = `${prefix}${version ?? "<MAJOR.MINOR>"}/${schema.name}`;
+    const idHolds = version === null ? typeof json.$id === "string" && json.$id.startsWith(prefix) && json.$id.endsWith(`/${schema.name}`) : json.$id === id;
+    if (!idHolds) report(["$id"], `$id is ${id}: the prefix, the version in ${folder}/VERSION and the file's name`);
     for (const keyword of ["title", "description"]) if (!isText(json[keyword])) report([], `the root has ${keyword}`);
     for (const node of subschemas(json, roots)) checkSubschema(node, schema, byName, report);
   }
@@ -186,7 +194,8 @@ function checkSubschema({ schema, at, under, inCondition, unmarked }, file, byNa
     if (!KEYWORDS.has(keyword)) report([...at, keyword], keyword.startsWith("x-") ? `${keyword}: the format's one annotation is x-open` : `${keyword}: no keyword of the format`);
     else if (ROOT_ONLY.has(keyword) && !isRoot) report([...at, keyword], `${keyword} stands only at the root`);
   }
-  if ("x-open" in schema) {
+  if ("x-open" in schema && !file.part.open) report([...at, "x-open"], `x-open: ${file.part.folder}/ has no open view, so its schemas mark nothing open`);
+  else if ("x-open" in schema) {
     if (schema["x-open"] !== true) report([...at, "x-open"], "x-open is true, or absent");
     if (!FIELDS.has(under)) report([...at, "x-open"], "x-open stands only in a field's subschema: under properties, patternProperties or additionalProperties");
     else if (unmarked) report([...at, "x-open"], "x-open counts for nothing under if, not, contains or propertyNames, so it stands nowhere there");
@@ -280,7 +289,7 @@ function refProblem(ref, file, byName) {
   const target = parseRef(ref, file.name);
   if (!target) return `$ref ${JSON.stringify(ref)}: a reference is ${forms}`;
   const schema = byName.get(target.name);
-  if (!schema) return `$ref ${JSON.stringify(ref)}: no schema ${target.name} in format/schemas/`;
+  if (!schema) return `$ref ${JSON.stringify(ref)}: no schema ${target.name} in ${file.part.folder}/schemas/`;
   if (target.definition !== null && !isObject(schema.json?.$defs?.[target.definition])) return `$ref ${JSON.stringify(ref)}: ${target.name} defines no ${target.definition}`;
   return null;
 }
