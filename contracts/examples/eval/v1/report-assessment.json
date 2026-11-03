@@ -1,0 +1,112 @@
+{
+  "protocol": "novatrail.eval.v1",
+  "runner": "v0.0.0",
+  "capability": "CAPABILITY_RUBRIC_ASSESSMENT",
+  "readers": [
+    {
+      "provider": "example",
+      "model": "example-reader-first"
+    }
+  ],
+  "assessor": {
+    "provider": "example",
+    "model": "example-assessor"
+  },
+  "verdicts": {
+    "code": "VERDICT_CODE_RUNNER",
+    "version": "v0.0.0"
+  },
+  "capability_set": {
+    "name": "examples"
+  },
+  "repeats": 3,
+  "samples": [
+    {
+      "sample": "synthetic-1107",
+      "measured": {
+        "answer_slots": [],
+        "essay": {
+          "people": [
+            {
+              "criterion": 1,
+              "met": true
+            },
+            {
+              "criterion": 2,
+              "met": false
+            },
+            {
+              "criterion": 3,
+              "met": true
+            },
+            {
+              "criterion": 5,
+              "met": true
+            },
+            {
+              "criterion": 6,
+              "met": true
+            }
+          ],
+          "readings": [
+            {
+              "assessment": {
+                "criteria": [
+                  {
+                    "criterion": 1,
+                    "assessment": "CRITERION_ASSESSMENT_MET"
+                  },
+                  {
+                    "criterion": 2,
+                    "assessment": "CRITERION_ASSESSMENT_NOT_MET"
+                  },
+                  {
+                    "criterion": 3,
+                    "assessment": "CRITERION_ASSESSMENT_MET"
+                  },
+                  {
+                    "criterion": 5,
+                    "assessment": "CRITERION_ASSESSMENT_NOT_MET"
+                  },
+                  {
+                    "criterion": 6,
+                    "assessment": "CRITERION_ASSESSMENT_MET"
+                  }
+                ]
+              }
+            },
+            {
+              "assessment": {
+                "criteria": [
+                  {
+                    "criterion": 1,
+                    "assessment": "CRITERION_ASSESSMENT_MET"
+                  },
+                  {
+                    "criterion": 2,
+                    "assessment": "CRITERION_ASSESSMENT_NOT_MET"
+                  },
+                  {
+                    "criterion": 3,
+                    "assessment": "CRITERION_ASSESSMENT_NONE"
+                  },
+                  {
+                    "criterion": 5,
+                    "assessment": "CRITERION_ASSESSMENT_MET"
+                  },
+                  {
+                    "criterion": 6,
+                    "assessment": "CRITERION_ASSESSMENT_MET"
+                  }
+                ]
+              }
+            },
+            {
+              "unreadable": "UNREADABLE_ILLEGIBLE"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

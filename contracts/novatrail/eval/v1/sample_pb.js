@@ -4,9 +4,9 @@
 
 // The sample file of the eval protocol: one sample of writing on a sheet or on a page of a
 // workbook, as the samples page of `canvas` saves it and the eval runner of `tutor` reads it, one
-// JSON file to a sample. Which fields a sample holds, by its purpose and by who wrote it, how the
-// file is written and read, and where a sample may go are the rules of contracts/README.md,
-// section 11.
+// JSON file to a sample, with its markup. Which fields a sample holds, by its purpose and by who
+// wrote it, how the file is written and read, its markup, and where a sample may go are the rules
+// of contracts/README.md, section 11.
 
 import { enumDesc, fileDesc, messageDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_novatrail_observation_v1_observation } from "../../observation/v1/observation_pb.js";
@@ -15,7 +15,7 @@ import { file_novatrail_observation_v1_observation } from "../../observation/v1/
  * Describes the file novatrail/eval/v1/sample.proto.
  */
 export const file_novatrail_eval_v1_sample = /*@__PURE__*/
-  fileDesc("Ch5ub3ZhdHJhaWwvZXZhbC92MS9zYW1wbGUucHJvdG8SEW5vdmF0cmFpbC5ldmFsLnYxIuQECgZTYW1wbGUSEAoIcHJvdG9jb2wYASABKAkSCgoCaWQYAiABKAkSKwoHcHVycG9zZRgDIAEoDjIaLm5vdmF0cmFpbC5ldmFsLnYxLlB1cnBvc2USKQoGd3JpdGVyGAQgASgOMhkubm92YXRyYWlsLmV2YWwudjEuV3JpdGVyEisKBnBlcnNvbhgFIAEoCzIZLm5vdmF0cmFpbC5ldmFsLnYxLlBlcnNvbkgAEjEKCXN5bnRoZXRpYxgGIAEoCzIcLm5vdmF0cmFpbC5ldmFsLnYxLlN5bnRoZXRpY0gAEhgKC3dyaXRlcl9jb2RlGAcgASgJSAOIAQESGAoQdGV4dF9zZXRfdmVyc2lvbhgIIAEoCRIWCg5jYW52YXNfdmVyc2lvbhgJIAEoCRIUCgdsaWNlbnNlGAogASgJSASIAQESLgoEdGFzaxgLIAEoCzIgLm5vdmF0cmFpbC5ldmFsLnYxLlRhc2tSZWZlcmVuY2USLQoHaGlzdG9yeRgMIAEoCzIaLm5vdmF0cmFpbC5ldmFsLnYxLkhpc3RvcnlIARIvCghnZW9tZXRyeRgNIAEoCzIbLm5vdmF0cmFpbC5ldmFsLnYxLkdlb21ldHJ5SAESKQoFc2hlZXQYDiABKAsyGC5ub3ZhdHJhaWwuZXZhbC52MS5TaGVldEgCEi8KCHdvcmtib29rGA8gASgLMhsubm92YXRyYWlsLmV2YWwudjEuV29ya2Jvb2tIAkIICgZvcmlnaW5CBQoDaW5rQgkKB3N1cmZhY2VCDgoMX3dyaXRlcl9jb2RlQgoKCF9saWNlbnNlIggKBlBlcnNvbiIZCglTeW50aGV0aWMSDAoEc2VlZBgBIAEoCSL1AQoNVGFza1JlZmVyZW5jZRIyCgdtb2R1bGVzGAEgASgLMh8ubm92YXRyYWlsLmV2YWwudjEuTW9kdWxlU291cmNlSAASLwoFdHV0b3IYAiABKAsyHi5ub3ZhdHJhaWwuZXZhbC52MS5UdXRvclNvdXJjZUgAEjEKBGZpbGUYAyABKAsyIS5ub3ZhdHJhaWwuZXZhbC52MS5UYXNrRmlsZVNvdXJjZUgAEgwKBHRhc2sYBCABKAkSEQoEc2VlZBgFIAEoCUgBiAEBEhgKEG9wZW5fdmlld19kaWdlc3QYBiABKAlCCAoGc291cmNlQgcKBV9zZWVkIlQKDE1vZHVsZVNvdXJjZRILCgN0YWcYASABKAkSDgoGbW9kdWxlGAIgASgJEg8KB3ZlcnNpb24YAyABKAkSFgoOcGFja2FnZV9kaWdlc3QYBCABKAkiUgoLVHV0b3JTb3VyY2USCwoDdGFnGAEgASgJEhMKC2ZpbGVfZGlnZXN0GAIgASgJEgwKBGJhbmsYAyABKAkSEwoLYmFua19kaWdlc3QYBCABKAkiSAoOVGFza0ZpbGVTb3VyY2USEwoLZmlsZV9kaWdlc3QYASABKAkSDAoEYmFuaxgCIAEoCRITCgtiYW5rX2RpZ2VzdBgDIAEoCSI6CgdIaXN0b3J5Ei8KBmV2ZW50cxgBIAMoCzIfLm5vdmF0cmFpbC5ldmFsLnYxLkhpc3RvcnlFdmVudCLYAQoMSGlzdG9yeUV2ZW50EgwKBHRfbXMYASABKAUSKgoFd3JpdGUYAiABKAsyGS5ub3ZhdHJhaWwuZXZhbC52MS5TdHJva2VIABItCgVlcmFzZRgDIAEoCzIcLm5vdmF0cmFpbC5ldmFsLnYxLlN0cm9rZUlkc0gAEi0KBWNsZWFyGAQgASgLMhwubm92YXRyYWlsLmV2YWwudjEuU3Ryb2tlSWRzSAASJwoEdW5kbxgFIAEoCzIXLm5vdmF0cmFpbC5ldmFsLnYxLlVuZG9IAEIHCgVldmVudCJSCgZTdHJva2USCgoCaWQYASABKAUSDwoHcG9pbnRlchgCIAEoCRIrCgZwb2ludHMYAyADKAsyGy5ub3ZhdHJhaWwuZXZhbC52MS5JbmtQb2ludCIuCghJbmtQb2ludBIJCgF4GAEgASgBEgkKAXkYAiABKAESDAoEdF9tcxgDIAEoBSIYCglTdHJva2VJZHMSCwoDaWRzGAEgAygFIikKBFVuZG8SDwoHcmVtb3ZlZBgBIAMoBRIQCghyZXN0b3JlZBgCIAMoBSI7CghHZW9tZXRyeRIvCgdzdHJva2VzGAEgAygLMh4ubm92YXRyYWlsLmV2YWwudjEuRmluYWxTdHJva2UiSAoLRmluYWxTdHJva2USCgoCaWQYASABKAUSLQoGcG9pbnRzGAIgAygLMh0ubm92YXRyYWlsLmV2YWwudjEuRmluYWxQb2ludCIiCgpGaW5hbFBvaW50EgkKAXgYASABKAESCQoBeRgCIAEoASKRAQoFU2hlZXQSDQoFd2lkdGgYASABKAUSDgoGaGVpZ2h0GAIgASgFEhQKDGRpZ2l0X2hlaWdodBgDIAEoBRIoCgZncm91cHMYBCADKAsyGC5ub3ZhdHJhaWwuZXZhbC52MS5Hcm91cBIpCgVjcm9wcxgFIAEoCzIaLm5vdmF0cmFpbC5ldmFsLnYxLkNyb3BTZXQiKgoFR3JvdXASDQoFbGFiZWwYASABKAkSEgoKc3Ryb2tlX2lkcxgCIAMoBSKeAQoIV29ya2Jvb2sSDQoFd2lkdGgYASABKAUSDgoGaGVpZ2h0GAIgASgFEhQKDGRpZ2l0X2hlaWdodBgDIAEoBRIpCgVib3hlcxgEIAMoCzIaLm5vdmF0cmFpbC5ldmFsLnYxLlBhZ2VCb3gSMgoMZmlsbGVkX2JveGVzGAUgAygLMhwubm92YXRyYWlsLmV2YWwudjEuRmlsbGVkQm94IoMBCgdQYWdlQm94Ej4KC2Fuc3dlcl9zbG90GAEgASgLMikubm92YXRyYWlsLm9ic2VydmF0aW9uLnYxLkFuc3dlclNsb3RQbGFjZRIMCgRsZWZ0GAIgASgFEgsKA3RvcBgDIAEoBRINCgV3aWR0aBgEIAEoBRIOCgZoZWlnaHQYBSABKAUiigEKCUZpbGxlZEJveBI+CgthbnN3ZXJfc2xvdBgBIAEoCzIpLm5vdmF0cmFpbC5vYnNlcnZhdGlvbi52MS5BbnN3ZXJTbG90UGxhY2USEgoKc3Ryb2tlX2lkcxgCIAMoBRIpCgVjcm9wcxgDIAEoCzIaLm5vdmF0cmFpbC5ldmFsLnYxLkNyb3BTZXQidwoHQ3JvcFNldBItCgdpbmtfYm94GAEgASgLMhwubm92YXRyYWlsLmV2YWwudjEuVGVudGhzQm94EhUKDWJ1bmRsZV9tZWRpYW4YAiABKAUSJgoFY3JvcHMYAyADKAsyFy5ub3ZhdHJhaWwuZXZhbC52MS5Dcm9wIkMKCVRlbnRoc0JveBIMCgR5bWluGAEgASgFEgwKBHhtaW4YAiABKAUSDAoEeW1heBgDIAEoBRIMCgR4bWF4GAQgASgFIoQCCgRDcm9wEhQKDGRpZ2l0X2hlaWdodBgBIAEoBRIUCgxkcmF3bl9oZWlnaHQYAiABKAUSDQoFd2lkdGgYAyABKAUSDgoGaGVpZ2h0GAQgASgFEhIKCm1hcmdpbl90b3AYBSABKAUSEwoLbWFyZ2luX2xlZnQYBiABKAUSDQoFc2NhbGUYByABKAESEgoKbGluZV93aWR0aBgIIAEoARIuCglzaGVldF9ib3gYCSABKAsyGy5ub3ZhdHJhaWwuZXZhbC52MS5TaGVldEJveBIoCgZmcmFtZXMYCiADKAsyGC5ub3ZhdHJhaWwuZXZhbC52MS5GcmFtZRILCgNwbmcYCyABKAwiQgoIU2hlZXRCb3gSDAoEeW1pbhgBIAEoARIMCgR4bWluGAIgASgBEgwKBHltYXgYAyABKAESDAoEeG1heBgEIAEoASJGCgVGcmFtZRINCgVsYWJlbBgBIAEoCRIuCgNib3gYAiABKAsyIS5ub3ZhdHJhaWwub2JzZXJ2YXRpb24udjEuQ3JvcEJveCpRCgdQdXJwb3NlEhcKE1BVUlBPU0VfVU5TUEVDSUZJRUQQABIXChNQVVJQT1NFX01FQVNVUkVNRU5UEAESFAoQUFVSUE9TRV9FVkFMX1NFVBACKl8KBldyaXRlchIWChJXUklURVJfVU5TUEVDSUZJRUQQABIQCgxXUklURVJfQURVTFQQARIZChVXUklURVJfQURVTFRfQVNfQ0hJTEQQAhIQCgxXUklURVJfQ0hJTEQQA0LNAQoVY29tLm5vdmF0cmFpbC5ldmFsLnYxQgtTYW1wbGVQcm90b1ABWj9naXRodWIuY29tL2FsdG5vdmF0cmFpbC9zcGVjL2NvbnRyYWN0cy9ub3ZhdHJhaWwvZXZhbC92MTtldmFsdjGiAgNORViqAhFOb3ZhdHJhaWwuRXZhbC5WMcoCEk5vdmF0cmFpbFxFdmFsX1xWMeICHk5vdmF0cmFpbFxFdmFsX1xWMVxHUEJNZXRhZGF0YeoCE05vdmF0cmFpbDo6RXZhbDo6VjFiBnByb3RvMw", [file_novatrail_observation_v1_observation]);
+  fileDesc("Ch5ub3ZhdHJhaWwvZXZhbC92MS9zYW1wbGUucHJvdG8SEW5vdmF0cmFpbC5ldmFsLnYxIo8FCgZTYW1wbGUSEAoIcHJvdG9jb2wYASABKAkSCgoCaWQYAiABKAkSKwoHcHVycG9zZRgDIAEoDjIaLm5vdmF0cmFpbC5ldmFsLnYxLlB1cnBvc2USKQoGd3JpdGVyGAQgASgOMhkubm92YXRyYWlsLmV2YWwudjEuV3JpdGVyEisKBnBlcnNvbhgFIAEoCzIZLm5vdmF0cmFpbC5ldmFsLnYxLlBlcnNvbkgAEjEKCXN5bnRoZXRpYxgGIAEoCzIcLm5vdmF0cmFpbC5ldmFsLnYxLlN5bnRoZXRpY0gAEhgKC3dyaXRlcl9jb2RlGAcgASgJSAOIAQESGAoQdGV4dF9zZXRfdmVyc2lvbhgIIAEoCRIWCg5jYW52YXNfdmVyc2lvbhgJIAEoCRIUCgdsaWNlbnNlGAogASgJSASIAQESLgoEdGFzaxgLIAEoCzIgLm5vdmF0cmFpbC5ldmFsLnYxLlRhc2tSZWZlcmVuY2USLQoHaGlzdG9yeRgMIAEoCzIaLm5vdmF0cmFpbC5ldmFsLnYxLkhpc3RvcnlIARIvCghnZW9tZXRyeRgNIAEoCzIbLm5vdmF0cmFpbC5ldmFsLnYxLkdlb21ldHJ5SAESKQoFc2hlZXQYDiABKAsyGC5ub3ZhdHJhaWwuZXZhbC52MS5TaGVldEgCEi8KCHdvcmtib29rGA8gASgLMhsubm92YXRyYWlsLmV2YWwudjEuV29ya2Jvb2tIAhIpCgZtYXJrdXAYECABKAsyGS5ub3ZhdHJhaWwuZXZhbC52MS5NYXJrdXBCCAoGb3JpZ2luQgUKA2lua0IJCgdzdXJmYWNlQg4KDF93cml0ZXJfY29kZUIKCghfbGljZW5zZSLhAQoGTWFya3VwEjQKBXRydXRoGAEgASgLMiUubm92YXRyYWlsLm9ic2VydmF0aW9uLnYxLk9ic2VydmF0aW9uEjAKBW5vdGVzGAIgAygLMiEubm92YXRyYWlsLmV2YWwudjEuQW5zd2VyU2xvdE5vdGUSMAoFcGFydHMYAyABKAsyHy5ub3ZhdHJhaWwuZXZhbC52MS5Xcml0aW5nUGFydHNIABIyCgVtYXJrcxgEIAEoCzIhLm5vdmF0cmFpbC5ldmFsLnYxLkNyaXRlcmlvbk1hcmtzSABCCQoHd3JpdGluZyJ3Cg5BbnN3ZXJTbG90Tm90ZRI+CgthbnN3ZXJfc2xvdBgBIAEoCzIpLm5vdmF0cmFpbC5vYnNlcnZhdGlvbi52MS5BbnN3ZXJTbG90UGxhY2USEAoIbWlycm9yZWQYAiABKAgSEwoLY3Jvc3NlZF9vdXQYAyABKAgiZwoMV3JpdGluZ1BhcnRzEi0KBXBhcnRzGAEgAygLMh4ubm92YXRyYWlsLmV2YWwudjEuV3JpdGluZ1BhcnQSGAoLZmlyc3RfZXJyb3IYAiABKAVIAIgBAUIOCgxfZmlyc3RfZXJyb3IimAEKC1dyaXRpbmdQYXJ0EikKBGtpbmQYASABKA4yGy5ub3ZhdHJhaWwuZXZhbC52MS5QYXJ0S2luZBIMCgR0ZXh0GAIgASgJEhIKCnN0cm9rZV9pZHMYAyADKAUSEwoLY3Jvc3NlZF9vdXQYBCABKAgSEQoJaWxsZWdpYmxlGAUgASgIEhQKDGZpbmFsX2Fuc3dlchgGIAEoCCJBCg5Dcml0ZXJpb25NYXJrcxIvCgVtYXJrcxgBIAMoCzIgLm5vdmF0cmFpbC5ldmFsLnYxLkNyaXRlcmlvbk1hcmsiLwoNQ3JpdGVyaW9uTWFyaxIRCgljcml0ZXJpb24YASABKAUSCwoDbWV0GAIgASgIIggKBlBlcnNvbiIZCglTeW50aGV0aWMSDAoEc2VlZBgBIAEoCSL1AQoNVGFza1JlZmVyZW5jZRIyCgdtb2R1bGVzGAEgASgLMh8ubm92YXRyYWlsLmV2YWwudjEuTW9kdWxlU291cmNlSAASLwoFdHV0b3IYAiABKAsyHi5ub3ZhdHJhaWwuZXZhbC52MS5UdXRvclNvdXJjZUgAEjEKBGZpbGUYAyABKAsyIS5ub3ZhdHJhaWwuZXZhbC52MS5UYXNrRmlsZVNvdXJjZUgAEgwKBHRhc2sYBCABKAkSEQoEc2VlZBgFIAEoCUgBiAEBEhgKEG9wZW5fdmlld19kaWdlc3QYBiABKAlCCAoGc291cmNlQgcKBV9zZWVkIlQKDE1vZHVsZVNvdXJjZRILCgN0YWcYASABKAkSDgoGbW9kdWxlGAIgASgJEg8KB3ZlcnNpb24YAyABKAkSFgoOcGFja2FnZV9kaWdlc3QYBCABKAkiUgoLVHV0b3JTb3VyY2USCwoDdGFnGAEgASgJEhMKC2ZpbGVfZGlnZXN0GAIgASgJEgwKBGJhbmsYAyABKAkSEwoLYmFua19kaWdlc3QYBCABKAkiSAoOVGFza0ZpbGVTb3VyY2USEwoLZmlsZV9kaWdlc3QYASABKAkSDAoEYmFuaxgCIAEoCRITCgtiYW5rX2RpZ2VzdBgDIAEoCSI6CgdIaXN0b3J5Ei8KBmV2ZW50cxgBIAMoCzIfLm5vdmF0cmFpbC5ldmFsLnYxLkhpc3RvcnlFdmVudCLYAQoMSGlzdG9yeUV2ZW50EgwKBHRfbXMYASABKAUSKgoFd3JpdGUYAiABKAsyGS5ub3ZhdHJhaWwuZXZhbC52MS5TdHJva2VIABItCgVlcmFzZRgDIAEoCzIcLm5vdmF0cmFpbC5ldmFsLnYxLlN0cm9rZUlkc0gAEi0KBWNsZWFyGAQgASgLMhwubm92YXRyYWlsLmV2YWwudjEuU3Ryb2tlSWRzSAASJwoEdW5kbxgFIAEoCzIXLm5vdmF0cmFpbC5ldmFsLnYxLlVuZG9IAEIHCgVldmVudCJSCgZTdHJva2USCgoCaWQYASABKAUSDwoHcG9pbnRlchgCIAEoCRIrCgZwb2ludHMYAyADKAsyGy5ub3ZhdHJhaWwuZXZhbC52MS5JbmtQb2ludCIuCghJbmtQb2ludBIJCgF4GAEgASgBEgkKAXkYAiABKAESDAoEdF9tcxgDIAEoBSIYCglTdHJva2VJZHMSCwoDaWRzGAEgAygFIikKBFVuZG8SDwoHcmVtb3ZlZBgBIAMoBRIQCghyZXN0b3JlZBgCIAMoBSI7CghHZW9tZXRyeRIvCgdzdHJva2VzGAEgAygLMh4ubm92YXRyYWlsLmV2YWwudjEuRmluYWxTdHJva2UiSAoLRmluYWxTdHJva2USCgoCaWQYASABKAUSLQoGcG9pbnRzGAIgAygLMh0ubm92YXRyYWlsLmV2YWwudjEuRmluYWxQb2ludCIiCgpGaW5hbFBvaW50EgkKAXgYASABKAESCQoBeRgCIAEoASKRAQoFU2hlZXQSDQoFd2lkdGgYASABKAUSDgoGaGVpZ2h0GAIgASgFEhQKDGRpZ2l0X2hlaWdodBgDIAEoBRIoCgZncm91cHMYBCADKAsyGC5ub3ZhdHJhaWwuZXZhbC52MS5Hcm91cBIpCgVjcm9wcxgFIAEoCzIaLm5vdmF0cmFpbC5ldmFsLnYxLkNyb3BTZXQiKgoFR3JvdXASDQoFbGFiZWwYASABKAkSEgoKc3Ryb2tlX2lkcxgCIAMoBSKeAQoIV29ya2Jvb2sSDQoFd2lkdGgYASABKAUSDgoGaGVpZ2h0GAIgASgFEhQKDGRpZ2l0X2hlaWdodBgDIAEoBRIpCgVib3hlcxgEIAMoCzIaLm5vdmF0cmFpbC5ldmFsLnYxLlBhZ2VCb3gSMgoMZmlsbGVkX2JveGVzGAUgAygLMhwubm92YXRyYWlsLmV2YWwudjEuRmlsbGVkQm94IoMBCgdQYWdlQm94Ej4KC2Fuc3dlcl9zbG90GAEgASgLMikubm92YXRyYWlsLm9ic2VydmF0aW9uLnYxLkFuc3dlclNsb3RQbGFjZRIMCgRsZWZ0GAIgASgFEgsKA3RvcBgDIAEoBRINCgV3aWR0aBgEIAEoBRIOCgZoZWlnaHQYBSABKAUiigEKCUZpbGxlZEJveBI+CgthbnN3ZXJfc2xvdBgBIAEoCzIpLm5vdmF0cmFpbC5vYnNlcnZhdGlvbi52MS5BbnN3ZXJTbG90UGxhY2USEgoKc3Ryb2tlX2lkcxgCIAMoBRIpCgVjcm9wcxgDIAEoCzIaLm5vdmF0cmFpbC5ldmFsLnYxLkNyb3BTZXQidwoHQ3JvcFNldBItCgdpbmtfYm94GAEgASgLMhwubm92YXRyYWlsLmV2YWwudjEuVGVudGhzQm94EhUKDWJ1bmRsZV9tZWRpYW4YAiABKAUSJgoFY3JvcHMYAyADKAsyFy5ub3ZhdHJhaWwuZXZhbC52MS5Dcm9wIkMKCVRlbnRoc0JveBIMCgR5bWluGAEgASgFEgwKBHhtaW4YAiABKAUSDAoEeW1heBgDIAEoBRIMCgR4bWF4GAQgASgFIoQCCgRDcm9wEhQKDGRpZ2l0X2hlaWdodBgBIAEoBRIUCgxkcmF3bl9oZWlnaHQYAiABKAUSDQoFd2lkdGgYAyABKAUSDgoGaGVpZ2h0GAQgASgFEhIKCm1hcmdpbl90b3AYBSABKAUSEwoLbWFyZ2luX2xlZnQYBiABKAUSDQoFc2NhbGUYByABKAESEgoKbGluZV93aWR0aBgIIAEoARIuCglzaGVldF9ib3gYCSABKAsyGy5ub3ZhdHJhaWwuZXZhbC52MS5TaGVldEJveBIoCgZmcmFtZXMYCiADKAsyGC5ub3ZhdHJhaWwuZXZhbC52MS5GcmFtZRILCgNwbmcYCyABKAwiQgoIU2hlZXRCb3gSDAoEeW1pbhgBIAEoARIMCgR4bWluGAIgASgBEgwKBHltYXgYAyABKAESDAoEeG1heBgEIAEoASJGCgVGcmFtZRINCgVsYWJlbBgBIAEoCRIuCgNib3gYAiABKAsyIS5ub3ZhdHJhaWwub2JzZXJ2YXRpb24udjEuQ3JvcEJveCpQCghQYXJ0S2luZBIZChVQQVJUX0tJTkRfVU5TUEVDSUZJRUQQABISCg5QQVJUX0tJTkRfVEVYVBABEhUKEVBBUlRfS0lORF9EUkFXSU5HEAIqUQoHUHVycG9zZRIXChNQVVJQT1NFX1VOU1BFQ0lGSUVEEAASFwoTUFVSUE9TRV9NRUFTVVJFTUVOVBABEhQKEFBVUlBPU0VfRVZBTF9TRVQQAipfCgZXcml0ZXISFgoSV1JJVEVSX1VOU1BFQ0lGSUVEEAASEAoMV1JJVEVSX0FEVUxUEAESGQoVV1JJVEVSX0FEVUxUX0FTX0NISUxEEAISEAoMV1JJVEVSX0NISUxEEANCzQEKFWNvbS5ub3ZhdHJhaWwuZXZhbC52MUILU2FtcGxlUHJvdG9QAVo/Z2l0aHViLmNvbS9hbHRub3ZhdHJhaWwvc3BlYy9jb250cmFjdHMvbm92YXRyYWlsL2V2YWwvdjE7ZXZhbHYxogIDTkVYqgIRTm92YXRyYWlsLkV2YWwuVjHKAhJOb3ZhdHJhaWxcRXZhbF9cVjHiAh5Ob3ZhdHJhaWxcRXZhbF9cVjFcR1BCTWV0YWRhdGHqAhNOb3ZhdHJhaWw6OkV2YWw6OlYxYgZwcm90bzM", [file_novatrail_observation_v1_observation]);
 
 /**
  * Describes the message novatrail.eval.v1.Sample.
@@ -25,185 +25,241 @@ export const SampleSchema = /*@__PURE__*/
   messageDesc(file_novatrail_eval_v1_sample, 0);
 
 /**
+ * Describes the message novatrail.eval.v1.Markup.
+ * Use `create(MarkupSchema)` to create a new message.
+ */
+export const MarkupSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_eval_v1_sample, 1);
+
+/**
+ * Describes the message novatrail.eval.v1.AnswerSlotNote.
+ * Use `create(AnswerSlotNoteSchema)` to create a new message.
+ */
+export const AnswerSlotNoteSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_eval_v1_sample, 2);
+
+/**
+ * Describes the message novatrail.eval.v1.WritingParts.
+ * Use `create(WritingPartsSchema)` to create a new message.
+ */
+export const WritingPartsSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_eval_v1_sample, 3);
+
+/**
+ * Describes the message novatrail.eval.v1.WritingPart.
+ * Use `create(WritingPartSchema)` to create a new message.
+ */
+export const WritingPartSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_eval_v1_sample, 4);
+
+/**
+ * Describes the message novatrail.eval.v1.CriterionMarks.
+ * Use `create(CriterionMarksSchema)` to create a new message.
+ */
+export const CriterionMarksSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_eval_v1_sample, 5);
+
+/**
+ * Describes the message novatrail.eval.v1.CriterionMark.
+ * Use `create(CriterionMarkSchema)` to create a new message.
+ */
+export const CriterionMarkSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_eval_v1_sample, 6);
+
+/**
  * Describes the message novatrail.eval.v1.Person.
  * Use `create(PersonSchema)` to create a new message.
  */
 export const PersonSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 1);
+  messageDesc(file_novatrail_eval_v1_sample, 7);
 
 /**
  * Describes the message novatrail.eval.v1.Synthetic.
  * Use `create(SyntheticSchema)` to create a new message.
  */
 export const SyntheticSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 2);
+  messageDesc(file_novatrail_eval_v1_sample, 8);
 
 /**
  * Describes the message novatrail.eval.v1.TaskReference.
  * Use `create(TaskReferenceSchema)` to create a new message.
  */
 export const TaskReferenceSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 3);
+  messageDesc(file_novatrail_eval_v1_sample, 9);
 
 /**
  * Describes the message novatrail.eval.v1.ModuleSource.
  * Use `create(ModuleSourceSchema)` to create a new message.
  */
 export const ModuleSourceSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 4);
+  messageDesc(file_novatrail_eval_v1_sample, 10);
 
 /**
  * Describes the message novatrail.eval.v1.TutorSource.
  * Use `create(TutorSourceSchema)` to create a new message.
  */
 export const TutorSourceSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 5);
+  messageDesc(file_novatrail_eval_v1_sample, 11);
 
 /**
  * Describes the message novatrail.eval.v1.TaskFileSource.
  * Use `create(TaskFileSourceSchema)` to create a new message.
  */
 export const TaskFileSourceSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 6);
+  messageDesc(file_novatrail_eval_v1_sample, 12);
 
 /**
  * Describes the message novatrail.eval.v1.History.
  * Use `create(HistorySchema)` to create a new message.
  */
 export const HistorySchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 7);
+  messageDesc(file_novatrail_eval_v1_sample, 13);
 
 /**
  * Describes the message novatrail.eval.v1.HistoryEvent.
  * Use `create(HistoryEventSchema)` to create a new message.
  */
 export const HistoryEventSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 8);
+  messageDesc(file_novatrail_eval_v1_sample, 14);
 
 /**
  * Describes the message novatrail.eval.v1.Stroke.
  * Use `create(StrokeSchema)` to create a new message.
  */
 export const StrokeSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 9);
+  messageDesc(file_novatrail_eval_v1_sample, 15);
 
 /**
  * Describes the message novatrail.eval.v1.InkPoint.
  * Use `create(InkPointSchema)` to create a new message.
  */
 export const InkPointSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 10);
+  messageDesc(file_novatrail_eval_v1_sample, 16);
 
 /**
  * Describes the message novatrail.eval.v1.StrokeIds.
  * Use `create(StrokeIdsSchema)` to create a new message.
  */
 export const StrokeIdsSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 11);
+  messageDesc(file_novatrail_eval_v1_sample, 17);
 
 /**
  * Describes the message novatrail.eval.v1.Undo.
  * Use `create(UndoSchema)` to create a new message.
  */
 export const UndoSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 12);
+  messageDesc(file_novatrail_eval_v1_sample, 18);
 
 /**
  * Describes the message novatrail.eval.v1.Geometry.
  * Use `create(GeometrySchema)` to create a new message.
  */
 export const GeometrySchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 13);
+  messageDesc(file_novatrail_eval_v1_sample, 19);
 
 /**
  * Describes the message novatrail.eval.v1.FinalStroke.
  * Use `create(FinalStrokeSchema)` to create a new message.
  */
 export const FinalStrokeSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 14);
+  messageDesc(file_novatrail_eval_v1_sample, 20);
 
 /**
  * Describes the message novatrail.eval.v1.FinalPoint.
  * Use `create(FinalPointSchema)` to create a new message.
  */
 export const FinalPointSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 15);
+  messageDesc(file_novatrail_eval_v1_sample, 21);
 
 /**
  * Describes the message novatrail.eval.v1.Sheet.
  * Use `create(SheetSchema)` to create a new message.
  */
 export const SheetSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 16);
+  messageDesc(file_novatrail_eval_v1_sample, 22);
 
 /**
  * Describes the message novatrail.eval.v1.Group.
  * Use `create(GroupSchema)` to create a new message.
  */
 export const GroupSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 17);
+  messageDesc(file_novatrail_eval_v1_sample, 23);
 
 /**
  * Describes the message novatrail.eval.v1.Workbook.
  * Use `create(WorkbookSchema)` to create a new message.
  */
 export const WorkbookSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 18);
+  messageDesc(file_novatrail_eval_v1_sample, 24);
 
 /**
  * Describes the message novatrail.eval.v1.PageBox.
  * Use `create(PageBoxSchema)` to create a new message.
  */
 export const PageBoxSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 19);
+  messageDesc(file_novatrail_eval_v1_sample, 25);
 
 /**
  * Describes the message novatrail.eval.v1.FilledBox.
  * Use `create(FilledBoxSchema)` to create a new message.
  */
 export const FilledBoxSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 20);
+  messageDesc(file_novatrail_eval_v1_sample, 26);
 
 /**
  * Describes the message novatrail.eval.v1.CropSet.
  * Use `create(CropSetSchema)` to create a new message.
  */
 export const CropSetSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 21);
+  messageDesc(file_novatrail_eval_v1_sample, 27);
 
 /**
  * Describes the message novatrail.eval.v1.TenthsBox.
  * Use `create(TenthsBoxSchema)` to create a new message.
  */
 export const TenthsBoxSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 22);
+  messageDesc(file_novatrail_eval_v1_sample, 28);
 
 /**
  * Describes the message novatrail.eval.v1.Crop.
  * Use `create(CropSchema)` to create a new message.
  */
 export const CropSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 23);
+  messageDesc(file_novatrail_eval_v1_sample, 29);
 
 /**
  * Describes the message novatrail.eval.v1.SheetBox.
  * Use `create(SheetBoxSchema)` to create a new message.
  */
 export const SheetBoxSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 24);
+  messageDesc(file_novatrail_eval_v1_sample, 30);
 
 /**
  * Describes the message novatrail.eval.v1.Frame.
  * Use `create(FrameSchema)` to create a new message.
  */
 export const FrameSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_eval_v1_sample, 25);
+  messageDesc(file_novatrail_eval_v1_sample, 31);
+
+/**
+ * Describes the enum novatrail.eval.v1.PartKind.
+ */
+export const PartKindSchema = /*@__PURE__*/
+  enumDesc(file_novatrail_eval_v1_sample, 0);
+
+/**
+ * The kind of a part of the writing.
+ *
+ * @generated from enum novatrail.eval.v1.PartKind
+ */
+export const PartKind = /*@__PURE__*/
+  tsEnum(PartKindSchema);
 
 /**
  * Describes the enum novatrail.eval.v1.Purpose.
  */
 export const PurposeSchema = /*@__PURE__*/
-  enumDesc(file_novatrail_eval_v1_sample, 0);
+  enumDesc(file_novatrail_eval_v1_sample, 1);
 
 /**
  * What a sample is made for.
@@ -217,7 +273,7 @@ export const Purpose = /*@__PURE__*/
  * Describes the enum novatrail.eval.v1.Writer.
  */
 export const WriterSchema = /*@__PURE__*/
-  enumDesc(file_novatrail_eval_v1_sample, 1);
+  enumDesc(file_novatrail_eval_v1_sample, 2);
 
 /**
  * Who wrote a sample.

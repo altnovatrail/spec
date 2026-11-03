@@ -53,15 +53,15 @@ export const REASONS = new Map([
 ]);
 // The reasons that only an answer slot bound anywhere gives, and the ones an essay gives.
 const FINAL_ANSWER = new Set(["UNREADABLE_NO_FINAL_ANSWER", "UNREADABLE_SEVERAL_FINAL_ANSWERS"]);
-const ESSAY_REASONS = new Set([BLANK, "UNREADABLE_ILLEGIBLE"]);
-const VERDICTS = ["correct", "not_yet", "unreadable", "unchecked"];
+export const ESSAY_REASONS = new Set([BLANK, "UNREADABLE_ILLEGIBLE"]);
+export const VERDICTS = ["correct", "not_yet", "unreadable", "unchecked"];
 const SUBMISSIONS = ["assessment", "unreadable", "unchecked"];
 // The form of the items on each canvas kind (format/README.md, section 14).
 const ITEM_FORM = { workbook: "line", handwriting_sheet: "answer_slots" };
 // Writing an observation as a vector holds it: the protobuf names (contracts/README.md, section 6),
 // and every field with its zero too, so that a box at 0 says so.
 const WRITTEN = { useProtoFieldName: true, alwaysEmitImplicit: true };
-const WHITE_SPACE = /^\p{White_Space}*$/u;
+export const WHITE_SPACE = /^\p{White_Space}*$/u;
 
 const show = (value) => JSON.stringify(value);
 const placeOf = (place) => `${place?.item ?? "?"}.${place?.slot ?? "?"}`;

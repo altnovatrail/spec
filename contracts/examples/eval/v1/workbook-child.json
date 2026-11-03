@@ -1099,5 +1099,89 @@
         }
       }
     ]
+  },
+  "markup": {
+    "truth": {
+      "answer_slots": [
+        {
+          "answer_slot": {
+            "item": 1,
+            "slot": 1
+          },
+          "value": "14"
+        },
+        {
+          "answer_slot": {
+            "item": 2,
+            "slot": 1
+          },
+          "value": "21"
+        },
+        {
+          "answer_slot": {
+            "item": 3,
+            "slot": 1
+          },
+          "value": "28"
+        },
+        {
+          "answer_slot": {
+            "item": 4,
+            "slot": 1
+          },
+          "value": "35"
+        },
+        {
+          "answer_slot": {
+            "item": 5,
+            "slot": 1
+          },
+          "value": "42"
+        },
+        {
+          "answer_slot": {
+            "item": 5,
+            "slot": 2
+          },
+          "value": "49"
+        },
+        {
+          "answer_slot": {
+            "item": 6,
+            "slot": 1
+          },
+          "unreadable": "UNREADABLE_BLANK"
+        },
+        {
+          "answer_slot": {
+            "item": 7,
+            "slot": 1
+          },
+          "unreadable": "UNREADABLE_BLANK"
+        },
+        {
+          "answer_slot": {
+            "item": 8,
+            "slot": 1
+          },
+          "unreadable": "UNREADABLE_BLANK"
+        },
+        {
+          "answer_slot": {
+            "item": 9,
+            "slot": 1
+          },
+          "unreadable": "UNREADABLE_BLANK"
+        },
+        {
+          "answer_slot": {
+            "item": 10,
+            "slot": 1
+          },
+          "unreadable": "UNREADABLE_BLANK"
+        }
+      ]
+    },
+    "notes": []
   }
 }

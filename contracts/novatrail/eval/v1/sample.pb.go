@@ -6,9 +6,9 @@
 
 // The sample file of the eval protocol: one sample of writing on a sheet or on a page of a
 // workbook, as the samples page of `canvas` saves it and the eval runner of `tutor` reads it, one
-// JSON file to a sample. Which fields a sample holds, by its purpose and by who wrote it, how the
-// file is written and read, and where a sample may go are the rules of contracts/README.md,
-// section 11.
+// JSON file to a sample, with its markup. Which fields a sample holds, by its purpose and by who
+// wrote it, how the file is written and read, its markup, and where a sample may go are the rules
+// of contracts/README.md, section 11.
 
 package evalv1
 
@@ -27,6 +27,59 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// The kind of a part of the writing.
+type PartKind int32
+
+const (
+	// No kind: never written. A part that holds it is not valid.
+	PartKind_PART_KIND_UNSPECIFIED PartKind = 0
+	// Writing: letters, digits and signs.
+	PartKind_PART_KIND_TEXT PartKind = 1
+	// A drawing: a number line, a picture, a scheme.
+	PartKind_PART_KIND_DRAWING PartKind = 2
+)
+
+// Enum value maps for PartKind.
+var (
+	PartKind_name = map[int32]string{
+		0: "PART_KIND_UNSPECIFIED",
+		1: "PART_KIND_TEXT",
+		2: "PART_KIND_DRAWING",
+	}
+	PartKind_value = map[string]int32{
+		"PART_KIND_UNSPECIFIED": 0,
+		"PART_KIND_TEXT":        1,
+		"PART_KIND_DRAWING":     2,
+	}
+)
+
+func (x PartKind) Enum() *PartKind {
+	p := new(PartKind)
+	*p = x
+	return p
+}
+
+func (x PartKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PartKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_eval_v1_sample_proto_enumTypes[0].Descriptor()
+}
+
+func (PartKind) Type() protoreflect.EnumType {
+	return &file_novatrail_eval_v1_sample_proto_enumTypes[0]
+}
+
+func (x PartKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PartKind.Descriptor instead.
+func (PartKind) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{0}
+}
 
 // What a sample is made for.
 type Purpose int32
@@ -66,11 +119,11 @@ func (x Purpose) String() string {
 }
 
 func (Purpose) Descriptor() protoreflect.EnumDescriptor {
-	return file_novatrail_eval_v1_sample_proto_enumTypes[0].Descriptor()
+	return file_novatrail_eval_v1_sample_proto_enumTypes[1].Descriptor()
 }
 
 func (Purpose) Type() protoreflect.EnumType {
-	return &file_novatrail_eval_v1_sample_proto_enumTypes[0]
+	return &file_novatrail_eval_v1_sample_proto_enumTypes[1]
 }
 
 func (x Purpose) Number() protoreflect.EnumNumber {
@@ -79,7 +132,7 @@ func (x Purpose) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Purpose.Descriptor instead.
 func (Purpose) EnumDescriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{0}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{1}
 }
 
 // Who wrote a sample.
@@ -123,11 +176,11 @@ func (x Writer) String() string {
 }
 
 func (Writer) Descriptor() protoreflect.EnumDescriptor {
-	return file_novatrail_eval_v1_sample_proto_enumTypes[1].Descriptor()
+	return file_novatrail_eval_v1_sample_proto_enumTypes[2].Descriptor()
 }
 
 func (Writer) Type() protoreflect.EnumType {
-	return &file_novatrail_eval_v1_sample_proto_enumTypes[1]
+	return &file_novatrail_eval_v1_sample_proto_enumTypes[2]
 }
 
 func (x Writer) Number() protoreflect.EnumNumber {
@@ -136,7 +189,7 @@ func (x Writer) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Writer.Descriptor instead.
 func (Writer) EnumDescriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{1}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{2}
 }
 
 // One sample: what it is for and who wrote it, the task it answers, its strokes, and the crops
@@ -187,7 +240,10 @@ type Sample struct {
 	//
 	//	*Sample_Sheet
 	//	*Sample_Workbook
-	Surface       isSample_Surface `protobuf_oneof:"surface"`
+	Surface isSample_Surface `protobuf_oneof:"surface"`
+	// What the sample is meant to say, which the runner compares what AI reads with. Every writer
+	// writes it; a file without it is still a sample, and the runner measures nothing on it.
+	Markup        *Markup `protobuf:"bytes,16,opt,name=markup,proto3" json:"markup,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -360,6 +416,13 @@ func (x *Sample) GetWorkbook() *Workbook {
 	return nil
 }
 
+func (x *Sample) GetMarkup() *Markup {
+	if x != nil {
+		return x.Markup
+	}
+	return nil
+}
+
 type isSample_Origin interface {
 	isSample_Origin()
 }
@@ -415,6 +478,427 @@ func (*Sample_Sheet) isSample_Surface() {}
 
 func (*Sample_Workbook) isSample_Surface() {}
 
+// The markup of a sample: the truth of the answer slots that AI reads, notes on some of them, and on
+// a sheet the parts of its writing or, on an essay, the people's marks of its rubric's criteria.
+type Markup struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// What a reader that reads right gives: every answer slot that AI reads, in the task's order, with
+	// its value as written or the reason it gives none, and no box on a crop.
+	Truth *v1.Observation `protobuf:"bytes,1,opt,name=truth,proto3" json:"truth,omitempty"`
+	// What sets some answer slots apart, ascending by place: only those it sets apart.
+	Notes []*AnswerSlotNote `protobuf:"bytes,2,rep,name=notes,proto3" json:"notes,omitempty"`
+	// What the markup says of the writing beyond its answer slots: on a sheet one of the two, and on
+	// a workbook neither.
+	//
+	// Types that are valid to be assigned to Writing:
+	//
+	//	*Markup_Parts
+	//	*Markup_Marks
+	Writing       isMarkup_Writing `protobuf_oneof:"writing"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Markup) Reset() {
+	*x = Markup{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Markup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Markup) ProtoMessage() {}
+
+func (x *Markup) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Markup.ProtoReflect.Descriptor instead.
+func (*Markup) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Markup) GetTruth() *v1.Observation {
+	if x != nil {
+		return x.Truth
+	}
+	return nil
+}
+
+func (x *Markup) GetNotes() []*AnswerSlotNote {
+	if x != nil {
+		return x.Notes
+	}
+	return nil
+}
+
+func (x *Markup) GetWriting() isMarkup_Writing {
+	if x != nil {
+		return x.Writing
+	}
+	return nil
+}
+
+func (x *Markup) GetParts() *WritingParts {
+	if x != nil {
+		if x, ok := x.Writing.(*Markup_Parts); ok {
+			return x.Parts
+		}
+	}
+	return nil
+}
+
+func (x *Markup) GetMarks() *CriterionMarks {
+	if x != nil {
+		if x, ok := x.Writing.(*Markup_Marks); ok {
+			return x.Marks
+		}
+	}
+	return nil
+}
+
+type isMarkup_Writing interface {
+	isMarkup_Writing()
+}
+
+type Markup_Parts struct {
+	// The parts of a solution, in the order it reads.
+	Parts *WritingParts `protobuf:"bytes,3,opt,name=parts,proto3,oneof"`
+}
+
+type Markup_Marks struct {
+	// The people's marks of an essay's criteria.
+	Marks *CriterionMarks `protobuf:"bytes,4,opt,name=marks,proto3,oneof"`
+}
+
+func (*Markup_Parts) isMarkup_Writing() {}
+
+func (*Markup_Marks) isMarkup_Writing() {}
+
+// What sets an answer slot apart, so that its row is measured apart too.
+type AnswerSlotNote struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The answer slot, one of the truth's.
+	AnswerSlot *v1.AnswerSlotPlace `protobuf:"bytes,1,opt,name=answer_slot,json=answerSlot,proto3" json:"answer_slot,omitempty"`
+	// A digit in it is written mirrored: its truth is UNREADABLE_AMBIGUOUS.
+	Mirrored bool `protobuf:"varint,2,opt,name=mirrored,proto3" json:"mirrored,omitempty"`
+	// Something in it is crossed out and written again.
+	CrossedOut    bool `protobuf:"varint,3,opt,name=crossed_out,json=crossedOut,proto3" json:"crossed_out,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AnswerSlotNote) Reset() {
+	*x = AnswerSlotNote{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AnswerSlotNote) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AnswerSlotNote) ProtoMessage() {}
+
+func (x *AnswerSlotNote) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AnswerSlotNote.ProtoReflect.Descriptor instead.
+func (*AnswerSlotNote) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *AnswerSlotNote) GetAnswerSlot() *v1.AnswerSlotPlace {
+	if x != nil {
+		return x.AnswerSlot
+	}
+	return nil
+}
+
+func (x *AnswerSlotNote) GetMirrored() bool {
+	if x != nil {
+		return x.Mirrored
+	}
+	return false
+}
+
+func (x *AnswerSlotNote) GetCrossedOut() bool {
+	if x != nil {
+		return x.CrossedOut
+	}
+	return false
+}
+
+// The parts of a solution on a sheet, in the order it reads, and where it went wrong.
+type WritingParts struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The parts, one at least when the sheet shows strokes, and none when it shows none.
+	Parts []*WritingPart `protobuf:"bytes,1,rep,name=parts,proto3" json:"parts,omitempty"`
+	// The place, from 1, of the part where the solution went wrong, even when its calculation is
+	// right; none when it did not go wrong.
+	FirstError    *int32 `protobuf:"varint,2,opt,name=first_error,json=firstError,proto3,oneof" json:"first_error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WritingParts) Reset() {
+	*x = WritingParts{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WritingParts) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WritingParts) ProtoMessage() {}
+
+func (x *WritingParts) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WritingParts.ProtoReflect.Descriptor instead.
+func (*WritingParts) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *WritingParts) GetParts() []*WritingPart {
+	if x != nil {
+		return x.Parts
+	}
+	return nil
+}
+
+func (x *WritingParts) GetFirstError() int32 {
+	if x != nil && x.FirstError != nil {
+		return *x.FirstError
+	}
+	return 0
+}
+
+// One part of the writing: what the writer meant as one, a text or a drawing.
+type WritingPart struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A text or a drawing.
+	Kind PartKind `protobuf:"varint,1,opt,name=kind,proto3,enum=novatrail.eval.v1.PartKind" json:"kind,omitempty"`
+	// A text as it is written; a drawing described in words, with every number and label on it.
+	Text string `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	// The IDs of its strokes, ascending: every stroke the sheet shows is in one part, and the strokes
+	// that cross a part out are in it.
+	StrokeIds []int32 `protobuf:"varint,3,rep,packed,name=stroke_ids,json=strokeIds,proto3" json:"stroke_ids,omitempty"`
+	// The writer crossed the part out.
+	CrossedOut bool `protobuf:"varint,4,opt,name=crossed_out,json=crossedOut,proto3" json:"crossed_out,omitempty"`
+	// The part, or something in it, is written illegibly on purpose.
+	Illegible bool `protobuf:"varint,5,opt,name=illegible,proto3" json:"illegible,omitempty"`
+	// The part holds the final answer of the task's answer slot bound `anywhere`.
+	FinalAnswer   bool `protobuf:"varint,6,opt,name=final_answer,json=finalAnswer,proto3" json:"final_answer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WritingPart) Reset() {
+	*x = WritingPart{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WritingPart) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WritingPart) ProtoMessage() {}
+
+func (x *WritingPart) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WritingPart.ProtoReflect.Descriptor instead.
+func (*WritingPart) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *WritingPart) GetKind() PartKind {
+	if x != nil {
+		return x.Kind
+	}
+	return PartKind_PART_KIND_UNSPECIFIED
+}
+
+func (x *WritingPart) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *WritingPart) GetStrokeIds() []int32 {
+	if x != nil {
+		return x.StrokeIds
+	}
+	return nil
+}
+
+func (x *WritingPart) GetCrossedOut() bool {
+	if x != nil {
+		return x.CrossedOut
+	}
+	return false
+}
+
+func (x *WritingPart) GetIllegible() bool {
+	if x != nil {
+		return x.Illegible
+	}
+	return false
+}
+
+func (x *WritingPart) GetFinalAnswer() bool {
+	if x != nil {
+		return x.FinalAnswer
+	}
+	return false
+}
+
+// The marks that people gave an essay's criteria.
+type CriterionMarks struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The marks, ascending by criterion: a criterion the people did not agree on has none.
+	Marks         []*CriterionMark `protobuf:"bytes,1,rep,name=marks,proto3" json:"marks,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CriterionMarks) Reset() {
+	*x = CriterionMarks{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CriterionMarks) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CriterionMarks) ProtoMessage() {}
+
+func (x *CriterionMarks) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CriterionMarks.ProtoReflect.Descriptor instead.
+func (*CriterionMarks) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CriterionMarks) GetMarks() []*CriterionMark {
+	if x != nil {
+		return x.Marks
+	}
+	return nil
+}
+
+// One criterion's mark, as the people who marked the essay agreed on it.
+type CriterionMark struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The criterion's place in the rubric, from 1.
+	Criterion int32 `protobuf:"varint,1,opt,name=criterion,proto3" json:"criterion,omitempty"`
+	// Whether the essay meets it.
+	Met           bool `protobuf:"varint,2,opt,name=met,proto3" json:"met,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CriterionMark) Reset() {
+	*x = CriterionMark{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CriterionMark) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CriterionMark) ProtoMessage() {}
+
+func (x *CriterionMark) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CriterionMark.ProtoReflect.Descriptor instead.
+func (*CriterionMark) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CriterionMark) GetCriterion() int32 {
+	if x != nil {
+		return x.Criterion
+	}
+	return 0
+}
+
+func (x *CriterionMark) GetMet() bool {
+	if x != nil {
+		return x.Met
+	}
+	return false
+}
+
 // A person who wrote a sample: the file says nothing more of them.
 type Person struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -424,7 +908,7 @@ type Person struct {
 
 func (x *Person) Reset() {
 	*x = Person{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[1]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -436,7 +920,7 @@ func (x *Person) String() string {
 func (*Person) ProtoMessage() {}
 
 func (x *Person) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[1]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -449,7 +933,7 @@ func (x *Person) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Person.ProtoReflect.Descriptor instead.
 func (*Person) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{1}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{7}
 }
 
 // Code that drew a sample from a seed.
@@ -463,7 +947,7 @@ type Synthetic struct {
 
 func (x *Synthetic) Reset() {
 	*x = Synthetic{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[2]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -475,7 +959,7 @@ func (x *Synthetic) String() string {
 func (*Synthetic) ProtoMessage() {}
 
 func (x *Synthetic) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[2]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -488,7 +972,7 @@ func (x *Synthetic) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Synthetic.ProtoReflect.Descriptor instead.
 func (*Synthetic) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{2}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Synthetic) GetSeed() string {
@@ -525,7 +1009,7 @@ type TaskReference struct {
 
 func (x *TaskReference) Reset() {
 	*x = TaskReference{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[3]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -537,7 +1021,7 @@ func (x *TaskReference) String() string {
 func (*TaskReference) ProtoMessage() {}
 
 func (x *TaskReference) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[3]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -550,7 +1034,7 @@ func (x *TaskReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskReference.ProtoReflect.Descriptor instead.
 func (*TaskReference) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{3}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *TaskReference) GetSource() isTaskReference_Source {
@@ -650,7 +1134,7 @@ type ModuleSource struct {
 
 func (x *ModuleSource) Reset() {
 	*x = ModuleSource{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[4]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -662,7 +1146,7 @@ func (x *ModuleSource) String() string {
 func (*ModuleSource) ProtoMessage() {}
 
 func (x *ModuleSource) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[4]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -675,7 +1159,7 @@ func (x *ModuleSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModuleSource.ProtoReflect.Descriptor instead.
 func (*ModuleSource) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{4}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ModuleSource) GetTag() string {
@@ -723,7 +1207,7 @@ type TutorSource struct {
 
 func (x *TutorSource) Reset() {
 	*x = TutorSource{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[5]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -735,7 +1219,7 @@ func (x *TutorSource) String() string {
 func (*TutorSource) ProtoMessage() {}
 
 func (x *TutorSource) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[5]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -748,7 +1232,7 @@ func (x *TutorSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TutorSource.ProtoReflect.Descriptor instead.
 func (*TutorSource) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{5}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *TutorSource) GetTag() string {
@@ -794,7 +1278,7 @@ type TaskFileSource struct {
 
 func (x *TaskFileSource) Reset() {
 	*x = TaskFileSource{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[6]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -806,7 +1290,7 @@ func (x *TaskFileSource) String() string {
 func (*TaskFileSource) ProtoMessage() {}
 
 func (x *TaskFileSource) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[6]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -819,7 +1303,7 @@ func (x *TaskFileSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TaskFileSource.ProtoReflect.Descriptor instead.
 func (*TaskFileSource) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{6}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *TaskFileSource) GetFileDigest() string {
@@ -854,7 +1338,7 @@ type History struct {
 
 func (x *History) Reset() {
 	*x = History{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[7]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -866,7 +1350,7 @@ func (x *History) String() string {
 func (*History) ProtoMessage() {}
 
 func (x *History) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[7]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -879,7 +1363,7 @@ func (x *History) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use History.ProtoReflect.Descriptor instead.
 func (*History) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{7}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *History) GetEvents() []*HistoryEvent {
@@ -910,7 +1394,7 @@ type HistoryEvent struct {
 
 func (x *HistoryEvent) Reset() {
 	*x = HistoryEvent{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[8]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -922,7 +1406,7 @@ func (x *HistoryEvent) String() string {
 func (*HistoryEvent) ProtoMessage() {}
 
 func (x *HistoryEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[8]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -935,7 +1419,7 @@ func (x *HistoryEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistoryEvent.ProtoReflect.Descriptor instead.
 func (*HistoryEvent) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{8}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *HistoryEvent) GetTMs() int32 {
@@ -1036,7 +1520,7 @@ type Stroke struct {
 
 func (x *Stroke) Reset() {
 	*x = Stroke{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[9]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1048,7 +1532,7 @@ func (x *Stroke) String() string {
 func (*Stroke) ProtoMessage() {}
 
 func (x *Stroke) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[9]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1061,7 +1545,7 @@ func (x *Stroke) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Stroke.ProtoReflect.Descriptor instead.
 func (*Stroke) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{9}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Stroke) GetId() int32 {
@@ -1100,7 +1584,7 @@ type InkPoint struct {
 
 func (x *InkPoint) Reset() {
 	*x = InkPoint{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[10]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1112,7 +1596,7 @@ func (x *InkPoint) String() string {
 func (*InkPoint) ProtoMessage() {}
 
 func (x *InkPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[10]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1125,7 +1609,7 @@ func (x *InkPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InkPoint.ProtoReflect.Descriptor instead.
 func (*InkPoint) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{10}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *InkPoint) GetX() float64 {
@@ -1160,7 +1644,7 @@ type StrokeIds struct {
 
 func (x *StrokeIds) Reset() {
 	*x = StrokeIds{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[11]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1172,7 +1656,7 @@ func (x *StrokeIds) String() string {
 func (*StrokeIds) ProtoMessage() {}
 
 func (x *StrokeIds) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[11]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1185,7 +1669,7 @@ func (x *StrokeIds) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StrokeIds.ProtoReflect.Descriptor instead.
 func (*StrokeIds) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{11}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *StrokeIds) GetIds() []int32 {
@@ -1208,7 +1692,7 @@ type Undo struct {
 
 func (x *Undo) Reset() {
 	*x = Undo{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[12]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1220,7 +1704,7 @@ func (x *Undo) String() string {
 func (*Undo) ProtoMessage() {}
 
 func (x *Undo) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[12]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1233,7 +1717,7 @@ func (x *Undo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Undo.ProtoReflect.Descriptor instead.
 func (*Undo) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{12}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *Undo) GetRemoved() []int32 {
@@ -1262,7 +1746,7 @@ type Geometry struct {
 
 func (x *Geometry) Reset() {
 	*x = Geometry{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[13]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1274,7 +1758,7 @@ func (x *Geometry) String() string {
 func (*Geometry) ProtoMessage() {}
 
 func (x *Geometry) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[13]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1287,7 +1771,7 @@ func (x *Geometry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Geometry.ProtoReflect.Descriptor instead.
 func (*Geometry) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{13}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *Geometry) GetStrokes() []*FinalStroke {
@@ -1310,7 +1794,7 @@ type FinalStroke struct {
 
 func (x *FinalStroke) Reset() {
 	*x = FinalStroke{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[14]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1322,7 +1806,7 @@ func (x *FinalStroke) String() string {
 func (*FinalStroke) ProtoMessage() {}
 
 func (x *FinalStroke) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[14]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1335,7 +1819,7 @@ func (x *FinalStroke) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FinalStroke.ProtoReflect.Descriptor instead.
 func (*FinalStroke) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{14}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *FinalStroke) GetId() int32 {
@@ -1365,7 +1849,7 @@ type FinalPoint struct {
 
 func (x *FinalPoint) Reset() {
 	*x = FinalPoint{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[15]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1377,7 +1861,7 @@ func (x *FinalPoint) String() string {
 func (*FinalPoint) ProtoMessage() {}
 
 func (x *FinalPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[15]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1390,7 +1874,7 @@ func (x *FinalPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FinalPoint.ProtoReflect.Descriptor instead.
 func (*FinalPoint) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{15}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *FinalPoint) GetX() float64 {
@@ -1429,7 +1913,7 @@ type Sheet struct {
 
 func (x *Sheet) Reset() {
 	*x = Sheet{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[16]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1441,7 +1925,7 @@ func (x *Sheet) String() string {
 func (*Sheet) ProtoMessage() {}
 
 func (x *Sheet) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[16]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1454,7 +1938,7 @@ func (x *Sheet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Sheet.ProtoReflect.Descriptor instead.
 func (*Sheet) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{16}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *Sheet) GetWidth() int32 {
@@ -1505,7 +1989,7 @@ type Group struct {
 
 func (x *Group) Reset() {
 	*x = Group{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[17]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1517,7 +2001,7 @@ func (x *Group) String() string {
 func (*Group) ProtoMessage() {}
 
 func (x *Group) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[17]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1530,7 +2014,7 @@ func (x *Group) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Group.ProtoReflect.Descriptor instead.
 func (*Group) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{17}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *Group) GetLabel() string {
@@ -1569,7 +2053,7 @@ type Workbook struct {
 
 func (x *Workbook) Reset() {
 	*x = Workbook{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[18]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1581,7 +2065,7 @@ func (x *Workbook) String() string {
 func (*Workbook) ProtoMessage() {}
 
 func (x *Workbook) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[18]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1594,7 +2078,7 @@ func (x *Workbook) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Workbook.ProtoReflect.Descriptor instead.
 func (*Workbook) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{18}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *Workbook) GetWidth() int32 {
@@ -1651,7 +2135,7 @@ type PageBox struct {
 
 func (x *PageBox) Reset() {
 	*x = PageBox{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[19]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1663,7 +2147,7 @@ func (x *PageBox) String() string {
 func (*PageBox) ProtoMessage() {}
 
 func (x *PageBox) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[19]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1676,7 +2160,7 @@ func (x *PageBox) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBox.ProtoReflect.Descriptor instead.
 func (*PageBox) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{19}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *PageBox) GetAnswerSlot() *v1.AnswerSlotPlace {
@@ -1729,7 +2213,7 @@ type FilledBox struct {
 
 func (x *FilledBox) Reset() {
 	*x = FilledBox{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[20]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1741,7 +2225,7 @@ func (x *FilledBox) String() string {
 func (*FilledBox) ProtoMessage() {}
 
 func (x *FilledBox) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[20]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1754,7 +2238,7 @@ func (x *FilledBox) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilledBox.ProtoReflect.Descriptor instead.
 func (*FilledBox) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{20}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *FilledBox) GetAnswerSlot() *v1.AnswerSlotPlace {
@@ -1795,7 +2279,7 @@ type CropSet struct {
 
 func (x *CropSet) Reset() {
 	*x = CropSet{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[21]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1807,7 +2291,7 @@ func (x *CropSet) String() string {
 func (*CropSet) ProtoMessage() {}
 
 func (x *CropSet) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[21]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1820,7 +2304,7 @@ func (x *CropSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CropSet.ProtoReflect.Descriptor instead.
 func (*CropSet) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{21}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *CropSet) GetInkBox() *TenthsBox {
@@ -1861,7 +2345,7 @@ type TenthsBox struct {
 
 func (x *TenthsBox) Reset() {
 	*x = TenthsBox{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[22]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1873,7 +2357,7 @@ func (x *TenthsBox) String() string {
 func (*TenthsBox) ProtoMessage() {}
 
 func (x *TenthsBox) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[22]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1886,7 +2370,7 @@ func (x *TenthsBox) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TenthsBox.ProtoReflect.Descriptor instead.
 func (*TenthsBox) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{22}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *TenthsBox) GetYmin() int32 {
@@ -1949,7 +2433,7 @@ type Crop struct {
 
 func (x *Crop) Reset() {
 	*x = Crop{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[23]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1961,7 +2445,7 @@ func (x *Crop) String() string {
 func (*Crop) ProtoMessage() {}
 
 func (x *Crop) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[23]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1974,7 +2458,7 @@ func (x *Crop) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Crop.ProtoReflect.Descriptor instead.
 func (*Crop) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{23}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *Crop) GetDigitHeight() int32 {
@@ -2071,7 +2555,7 @@ type SheetBox struct {
 
 func (x *SheetBox) Reset() {
 	*x = SheetBox{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[24]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2083,7 +2567,7 @@ func (x *SheetBox) String() string {
 func (*SheetBox) ProtoMessage() {}
 
 func (x *SheetBox) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[24]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2096,7 +2580,7 @@ func (x *SheetBox) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SheetBox.ProtoReflect.Descriptor instead.
 func (*SheetBox) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{24}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *SheetBox) GetYmin() float64 {
@@ -2140,7 +2624,7 @@ type Frame struct {
 
 func (x *Frame) Reset() {
 	*x = Frame{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[25]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2152,7 +2636,7 @@ func (x *Frame) String() string {
 func (*Frame) ProtoMessage() {}
 
 func (x *Frame) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[25]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2165,7 +2649,7 @@ func (x *Frame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Frame.ProtoReflect.Descriptor instead.
 func (*Frame) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{25}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *Frame) GetLabel() string {
@@ -2186,7 +2670,7 @@ var File_novatrail_eval_v1_sample_proto protoreflect.FileDescriptor
 
 const file_novatrail_eval_v1_sample_proto_rawDesc = "" +
 	"\n" +
-	"\x1enovatrail/eval/v1/sample.proto\x12\x11novatrail.eval.v1\x1a*novatrail/observation/v1/observation.proto\"\xf4\x05\n" +
+	"\x1enovatrail/eval/v1/sample.proto\x12\x11novatrail.eval.v1\x1a*novatrail/observation/v1/observation.proto\"\xa7\x06\n" +
 	"\x06Sample\x12\x1a\n" +
 	"\bprotocol\x18\x01 \x01(\tR\bprotocol\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x124\n" +
@@ -2204,13 +2688,45 @@ const file_novatrail_eval_v1_sample_proto_rawDesc = "" +
 	"\ahistory\x18\f \x01(\v2\x1a.novatrail.eval.v1.HistoryH\x01R\ahistory\x129\n" +
 	"\bgeometry\x18\r \x01(\v2\x1b.novatrail.eval.v1.GeometryH\x01R\bgeometry\x120\n" +
 	"\x05sheet\x18\x0e \x01(\v2\x18.novatrail.eval.v1.SheetH\x02R\x05sheet\x129\n" +
-	"\bworkbook\x18\x0f \x01(\v2\x1b.novatrail.eval.v1.WorkbookH\x02R\bworkbookB\b\n" +
+	"\bworkbook\x18\x0f \x01(\v2\x1b.novatrail.eval.v1.WorkbookH\x02R\bworkbook\x121\n" +
+	"\x06markup\x18\x10 \x01(\v2\x19.novatrail.eval.v1.MarkupR\x06markupB\b\n" +
 	"\x06originB\x05\n" +
 	"\x03inkB\t\n" +
 	"\asurfaceB\x0e\n" +
 	"\f_writer_codeB\n" +
 	"\n" +
-	"\b_license\"\b\n" +
+	"\b_license\"\xfd\x01\n" +
+	"\x06Markup\x12;\n" +
+	"\x05truth\x18\x01 \x01(\v2%.novatrail.observation.v1.ObservationR\x05truth\x127\n" +
+	"\x05notes\x18\x02 \x03(\v2!.novatrail.eval.v1.AnswerSlotNoteR\x05notes\x127\n" +
+	"\x05parts\x18\x03 \x01(\v2\x1f.novatrail.eval.v1.WritingPartsH\x00R\x05parts\x129\n" +
+	"\x05marks\x18\x04 \x01(\v2!.novatrail.eval.v1.CriterionMarksH\x00R\x05marksB\t\n" +
+	"\awriting\"\x99\x01\n" +
+	"\x0eAnswerSlotNote\x12J\n" +
+	"\vanswer_slot\x18\x01 \x01(\v2).novatrail.observation.v1.AnswerSlotPlaceR\n" +
+	"answerSlot\x12\x1a\n" +
+	"\bmirrored\x18\x02 \x01(\bR\bmirrored\x12\x1f\n" +
+	"\vcrossed_out\x18\x03 \x01(\bR\n" +
+	"crossedOut\"z\n" +
+	"\fWritingParts\x124\n" +
+	"\x05parts\x18\x01 \x03(\v2\x1e.novatrail.eval.v1.WritingPartR\x05parts\x12$\n" +
+	"\vfirst_error\x18\x02 \x01(\x05H\x00R\n" +
+	"firstError\x88\x01\x01B\x0e\n" +
+	"\f_first_error\"\xd3\x01\n" +
+	"\vWritingPart\x12/\n" +
+	"\x04kind\x18\x01 \x01(\x0e2\x1b.novatrail.eval.v1.PartKindR\x04kind\x12\x12\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\x12\x1d\n" +
+	"\n" +
+	"stroke_ids\x18\x03 \x03(\x05R\tstrokeIds\x12\x1f\n" +
+	"\vcrossed_out\x18\x04 \x01(\bR\n" +
+	"crossedOut\x12\x1c\n" +
+	"\tillegible\x18\x05 \x01(\bR\tillegible\x12!\n" +
+	"\ffinal_answer\x18\x06 \x01(\bR\vfinalAnswer\"H\n" +
+	"\x0eCriterionMarks\x126\n" +
+	"\x05marks\x18\x01 \x03(\v2 .novatrail.eval.v1.CriterionMarkR\x05marks\"?\n" +
+	"\rCriterionMark\x12\x1c\n" +
+	"\tcriterion\x18\x01 \x01(\x05R\tcriterion\x12\x10\n" +
+	"\x03met\x18\x02 \x01(\bR\x03met\"\b\n" +
 	"\x06Person\"\x1f\n" +
 	"\tSynthetic\x12\x12\n" +
 	"\x04seed\x18\x01 \x01(\tR\x04seed\"\xa7\x02\n" +
@@ -2333,7 +2849,11 @@ const file_novatrail_eval_v1_sample_proto_rawDesc = "" +
 	"\x04xmax\x18\x04 \x01(\x01R\x04xmax\"R\n" +
 	"\x05Frame\x12\x14\n" +
 	"\x05label\x18\x01 \x01(\tR\x05label\x123\n" +
-	"\x03box\x18\x02 \x01(\v2!.novatrail.observation.v1.CropBoxR\x03box*Q\n" +
+	"\x03box\x18\x02 \x01(\v2!.novatrail.observation.v1.CropBoxR\x03box*P\n" +
+	"\bPartKind\x12\x19\n" +
+	"\x15PART_KIND_UNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0ePART_KIND_TEXT\x10\x01\x12\x15\n" +
+	"\x11PART_KIND_DRAWING\x10\x02*Q\n" +
 	"\aPurpose\x12\x17\n" +
 	"\x13PURPOSE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13PURPOSE_MEASUREMENT\x10\x01\x12\x14\n" +
@@ -2357,78 +2877,95 @@ func file_novatrail_eval_v1_sample_proto_rawDescGZIP() []byte {
 	return file_novatrail_eval_v1_sample_proto_rawDescData
 }
 
-var file_novatrail_eval_v1_sample_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_novatrail_eval_v1_sample_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_novatrail_eval_v1_sample_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_novatrail_eval_v1_sample_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_novatrail_eval_v1_sample_proto_goTypes = []any{
-	(Purpose)(0),               // 0: novatrail.eval.v1.Purpose
-	(Writer)(0),                // 1: novatrail.eval.v1.Writer
-	(*Sample)(nil),             // 2: novatrail.eval.v1.Sample
-	(*Person)(nil),             // 3: novatrail.eval.v1.Person
-	(*Synthetic)(nil),          // 4: novatrail.eval.v1.Synthetic
-	(*TaskReference)(nil),      // 5: novatrail.eval.v1.TaskReference
-	(*ModuleSource)(nil),       // 6: novatrail.eval.v1.ModuleSource
-	(*TutorSource)(nil),        // 7: novatrail.eval.v1.TutorSource
-	(*TaskFileSource)(nil),     // 8: novatrail.eval.v1.TaskFileSource
-	(*History)(nil),            // 9: novatrail.eval.v1.History
-	(*HistoryEvent)(nil),       // 10: novatrail.eval.v1.HistoryEvent
-	(*Stroke)(nil),             // 11: novatrail.eval.v1.Stroke
-	(*InkPoint)(nil),           // 12: novatrail.eval.v1.InkPoint
-	(*StrokeIds)(nil),          // 13: novatrail.eval.v1.StrokeIds
-	(*Undo)(nil),               // 14: novatrail.eval.v1.Undo
-	(*Geometry)(nil),           // 15: novatrail.eval.v1.Geometry
-	(*FinalStroke)(nil),        // 16: novatrail.eval.v1.FinalStroke
-	(*FinalPoint)(nil),         // 17: novatrail.eval.v1.FinalPoint
-	(*Sheet)(nil),              // 18: novatrail.eval.v1.Sheet
-	(*Group)(nil),              // 19: novatrail.eval.v1.Group
-	(*Workbook)(nil),           // 20: novatrail.eval.v1.Workbook
-	(*PageBox)(nil),            // 21: novatrail.eval.v1.PageBox
-	(*FilledBox)(nil),          // 22: novatrail.eval.v1.FilledBox
-	(*CropSet)(nil),            // 23: novatrail.eval.v1.CropSet
-	(*TenthsBox)(nil),          // 24: novatrail.eval.v1.TenthsBox
-	(*Crop)(nil),               // 25: novatrail.eval.v1.Crop
-	(*SheetBox)(nil),           // 26: novatrail.eval.v1.SheetBox
-	(*Frame)(nil),              // 27: novatrail.eval.v1.Frame
-	(*v1.AnswerSlotPlace)(nil), // 28: novatrail.observation.v1.AnswerSlotPlace
-	(*v1.CropBox)(nil),         // 29: novatrail.observation.v1.CropBox
+	(PartKind)(0),              // 0: novatrail.eval.v1.PartKind
+	(Purpose)(0),               // 1: novatrail.eval.v1.Purpose
+	(Writer)(0),                // 2: novatrail.eval.v1.Writer
+	(*Sample)(nil),             // 3: novatrail.eval.v1.Sample
+	(*Markup)(nil),             // 4: novatrail.eval.v1.Markup
+	(*AnswerSlotNote)(nil),     // 5: novatrail.eval.v1.AnswerSlotNote
+	(*WritingParts)(nil),       // 6: novatrail.eval.v1.WritingParts
+	(*WritingPart)(nil),        // 7: novatrail.eval.v1.WritingPart
+	(*CriterionMarks)(nil),     // 8: novatrail.eval.v1.CriterionMarks
+	(*CriterionMark)(nil),      // 9: novatrail.eval.v1.CriterionMark
+	(*Person)(nil),             // 10: novatrail.eval.v1.Person
+	(*Synthetic)(nil),          // 11: novatrail.eval.v1.Synthetic
+	(*TaskReference)(nil),      // 12: novatrail.eval.v1.TaskReference
+	(*ModuleSource)(nil),       // 13: novatrail.eval.v1.ModuleSource
+	(*TutorSource)(nil),        // 14: novatrail.eval.v1.TutorSource
+	(*TaskFileSource)(nil),     // 15: novatrail.eval.v1.TaskFileSource
+	(*History)(nil),            // 16: novatrail.eval.v1.History
+	(*HistoryEvent)(nil),       // 17: novatrail.eval.v1.HistoryEvent
+	(*Stroke)(nil),             // 18: novatrail.eval.v1.Stroke
+	(*InkPoint)(nil),           // 19: novatrail.eval.v1.InkPoint
+	(*StrokeIds)(nil),          // 20: novatrail.eval.v1.StrokeIds
+	(*Undo)(nil),               // 21: novatrail.eval.v1.Undo
+	(*Geometry)(nil),           // 22: novatrail.eval.v1.Geometry
+	(*FinalStroke)(nil),        // 23: novatrail.eval.v1.FinalStroke
+	(*FinalPoint)(nil),         // 24: novatrail.eval.v1.FinalPoint
+	(*Sheet)(nil),              // 25: novatrail.eval.v1.Sheet
+	(*Group)(nil),              // 26: novatrail.eval.v1.Group
+	(*Workbook)(nil),           // 27: novatrail.eval.v1.Workbook
+	(*PageBox)(nil),            // 28: novatrail.eval.v1.PageBox
+	(*FilledBox)(nil),          // 29: novatrail.eval.v1.FilledBox
+	(*CropSet)(nil),            // 30: novatrail.eval.v1.CropSet
+	(*TenthsBox)(nil),          // 31: novatrail.eval.v1.TenthsBox
+	(*Crop)(nil),               // 32: novatrail.eval.v1.Crop
+	(*SheetBox)(nil),           // 33: novatrail.eval.v1.SheetBox
+	(*Frame)(nil),              // 34: novatrail.eval.v1.Frame
+	(*v1.Observation)(nil),     // 35: novatrail.observation.v1.Observation
+	(*v1.AnswerSlotPlace)(nil), // 36: novatrail.observation.v1.AnswerSlotPlace
+	(*v1.CropBox)(nil),         // 37: novatrail.observation.v1.CropBox
 }
 var file_novatrail_eval_v1_sample_proto_depIdxs = []int32{
-	0,  // 0: novatrail.eval.v1.Sample.purpose:type_name -> novatrail.eval.v1.Purpose
-	1,  // 1: novatrail.eval.v1.Sample.writer:type_name -> novatrail.eval.v1.Writer
-	3,  // 2: novatrail.eval.v1.Sample.person:type_name -> novatrail.eval.v1.Person
-	4,  // 3: novatrail.eval.v1.Sample.synthetic:type_name -> novatrail.eval.v1.Synthetic
-	5,  // 4: novatrail.eval.v1.Sample.task:type_name -> novatrail.eval.v1.TaskReference
-	9,  // 5: novatrail.eval.v1.Sample.history:type_name -> novatrail.eval.v1.History
-	15, // 6: novatrail.eval.v1.Sample.geometry:type_name -> novatrail.eval.v1.Geometry
-	18, // 7: novatrail.eval.v1.Sample.sheet:type_name -> novatrail.eval.v1.Sheet
-	20, // 8: novatrail.eval.v1.Sample.workbook:type_name -> novatrail.eval.v1.Workbook
-	6,  // 9: novatrail.eval.v1.TaskReference.modules:type_name -> novatrail.eval.v1.ModuleSource
-	7,  // 10: novatrail.eval.v1.TaskReference.tutor:type_name -> novatrail.eval.v1.TutorSource
-	8,  // 11: novatrail.eval.v1.TaskReference.file:type_name -> novatrail.eval.v1.TaskFileSource
-	10, // 12: novatrail.eval.v1.History.events:type_name -> novatrail.eval.v1.HistoryEvent
-	11, // 13: novatrail.eval.v1.HistoryEvent.write:type_name -> novatrail.eval.v1.Stroke
-	13, // 14: novatrail.eval.v1.HistoryEvent.erase:type_name -> novatrail.eval.v1.StrokeIds
-	13, // 15: novatrail.eval.v1.HistoryEvent.clear:type_name -> novatrail.eval.v1.StrokeIds
-	14, // 16: novatrail.eval.v1.HistoryEvent.undo:type_name -> novatrail.eval.v1.Undo
-	12, // 17: novatrail.eval.v1.Stroke.points:type_name -> novatrail.eval.v1.InkPoint
-	16, // 18: novatrail.eval.v1.Geometry.strokes:type_name -> novatrail.eval.v1.FinalStroke
-	17, // 19: novatrail.eval.v1.FinalStroke.points:type_name -> novatrail.eval.v1.FinalPoint
-	19, // 20: novatrail.eval.v1.Sheet.groups:type_name -> novatrail.eval.v1.Group
-	23, // 21: novatrail.eval.v1.Sheet.crops:type_name -> novatrail.eval.v1.CropSet
-	21, // 22: novatrail.eval.v1.Workbook.boxes:type_name -> novatrail.eval.v1.PageBox
-	22, // 23: novatrail.eval.v1.Workbook.filled_boxes:type_name -> novatrail.eval.v1.FilledBox
-	28, // 24: novatrail.eval.v1.PageBox.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	28, // 25: novatrail.eval.v1.FilledBox.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	23, // 26: novatrail.eval.v1.FilledBox.crops:type_name -> novatrail.eval.v1.CropSet
-	24, // 27: novatrail.eval.v1.CropSet.ink_box:type_name -> novatrail.eval.v1.TenthsBox
-	25, // 28: novatrail.eval.v1.CropSet.crops:type_name -> novatrail.eval.v1.Crop
-	26, // 29: novatrail.eval.v1.Crop.sheet_box:type_name -> novatrail.eval.v1.SheetBox
-	27, // 30: novatrail.eval.v1.Crop.frames:type_name -> novatrail.eval.v1.Frame
-	29, // 31: novatrail.eval.v1.Frame.box:type_name -> novatrail.observation.v1.CropBox
-	32, // [32:32] is the sub-list for method output_type
-	32, // [32:32] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	1,  // 0: novatrail.eval.v1.Sample.purpose:type_name -> novatrail.eval.v1.Purpose
+	2,  // 1: novatrail.eval.v1.Sample.writer:type_name -> novatrail.eval.v1.Writer
+	10, // 2: novatrail.eval.v1.Sample.person:type_name -> novatrail.eval.v1.Person
+	11, // 3: novatrail.eval.v1.Sample.synthetic:type_name -> novatrail.eval.v1.Synthetic
+	12, // 4: novatrail.eval.v1.Sample.task:type_name -> novatrail.eval.v1.TaskReference
+	16, // 5: novatrail.eval.v1.Sample.history:type_name -> novatrail.eval.v1.History
+	22, // 6: novatrail.eval.v1.Sample.geometry:type_name -> novatrail.eval.v1.Geometry
+	25, // 7: novatrail.eval.v1.Sample.sheet:type_name -> novatrail.eval.v1.Sheet
+	27, // 8: novatrail.eval.v1.Sample.workbook:type_name -> novatrail.eval.v1.Workbook
+	4,  // 9: novatrail.eval.v1.Sample.markup:type_name -> novatrail.eval.v1.Markup
+	35, // 10: novatrail.eval.v1.Markup.truth:type_name -> novatrail.observation.v1.Observation
+	5,  // 11: novatrail.eval.v1.Markup.notes:type_name -> novatrail.eval.v1.AnswerSlotNote
+	6,  // 12: novatrail.eval.v1.Markup.parts:type_name -> novatrail.eval.v1.WritingParts
+	8,  // 13: novatrail.eval.v1.Markup.marks:type_name -> novatrail.eval.v1.CriterionMarks
+	36, // 14: novatrail.eval.v1.AnswerSlotNote.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	7,  // 15: novatrail.eval.v1.WritingParts.parts:type_name -> novatrail.eval.v1.WritingPart
+	0,  // 16: novatrail.eval.v1.WritingPart.kind:type_name -> novatrail.eval.v1.PartKind
+	9,  // 17: novatrail.eval.v1.CriterionMarks.marks:type_name -> novatrail.eval.v1.CriterionMark
+	13, // 18: novatrail.eval.v1.TaskReference.modules:type_name -> novatrail.eval.v1.ModuleSource
+	14, // 19: novatrail.eval.v1.TaskReference.tutor:type_name -> novatrail.eval.v1.TutorSource
+	15, // 20: novatrail.eval.v1.TaskReference.file:type_name -> novatrail.eval.v1.TaskFileSource
+	17, // 21: novatrail.eval.v1.History.events:type_name -> novatrail.eval.v1.HistoryEvent
+	18, // 22: novatrail.eval.v1.HistoryEvent.write:type_name -> novatrail.eval.v1.Stroke
+	20, // 23: novatrail.eval.v1.HistoryEvent.erase:type_name -> novatrail.eval.v1.StrokeIds
+	20, // 24: novatrail.eval.v1.HistoryEvent.clear:type_name -> novatrail.eval.v1.StrokeIds
+	21, // 25: novatrail.eval.v1.HistoryEvent.undo:type_name -> novatrail.eval.v1.Undo
+	19, // 26: novatrail.eval.v1.Stroke.points:type_name -> novatrail.eval.v1.InkPoint
+	23, // 27: novatrail.eval.v1.Geometry.strokes:type_name -> novatrail.eval.v1.FinalStroke
+	24, // 28: novatrail.eval.v1.FinalStroke.points:type_name -> novatrail.eval.v1.FinalPoint
+	26, // 29: novatrail.eval.v1.Sheet.groups:type_name -> novatrail.eval.v1.Group
+	30, // 30: novatrail.eval.v1.Sheet.crops:type_name -> novatrail.eval.v1.CropSet
+	28, // 31: novatrail.eval.v1.Workbook.boxes:type_name -> novatrail.eval.v1.PageBox
+	29, // 32: novatrail.eval.v1.Workbook.filled_boxes:type_name -> novatrail.eval.v1.FilledBox
+	36, // 33: novatrail.eval.v1.PageBox.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	36, // 34: novatrail.eval.v1.FilledBox.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	30, // 35: novatrail.eval.v1.FilledBox.crops:type_name -> novatrail.eval.v1.CropSet
+	31, // 36: novatrail.eval.v1.CropSet.ink_box:type_name -> novatrail.eval.v1.TenthsBox
+	32, // 37: novatrail.eval.v1.CropSet.crops:type_name -> novatrail.eval.v1.Crop
+	33, // 38: novatrail.eval.v1.Crop.sheet_box:type_name -> novatrail.eval.v1.SheetBox
+	34, // 39: novatrail.eval.v1.Crop.frames:type_name -> novatrail.eval.v1.Frame
+	37, // 40: novatrail.eval.v1.Frame.box:type_name -> novatrail.observation.v1.CropBox
+	41, // [41:41] is the sub-list for method output_type
+	41, // [41:41] is the sub-list for method input_type
+	41, // [41:41] is the sub-list for extension type_name
+	41, // [41:41] is the sub-list for extension extendee
+	0,  // [0:41] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_eval_v1_sample_proto_init() }
@@ -2444,12 +2981,17 @@ func file_novatrail_eval_v1_sample_proto_init() {
 		(*Sample_Sheet)(nil),
 		(*Sample_Workbook)(nil),
 	}
-	file_novatrail_eval_v1_sample_proto_msgTypes[3].OneofWrappers = []any{
+	file_novatrail_eval_v1_sample_proto_msgTypes[1].OneofWrappers = []any{
+		(*Markup_Parts)(nil),
+		(*Markup_Marks)(nil),
+	}
+	file_novatrail_eval_v1_sample_proto_msgTypes[3].OneofWrappers = []any{}
+	file_novatrail_eval_v1_sample_proto_msgTypes[9].OneofWrappers = []any{
 		(*TaskReference_Modules)(nil),
 		(*TaskReference_Tutor)(nil),
 		(*TaskReference_File)(nil),
 	}
-	file_novatrail_eval_v1_sample_proto_msgTypes[8].OneofWrappers = []any{
+	file_novatrail_eval_v1_sample_proto_msgTypes[14].OneofWrappers = []any{
 		(*HistoryEvent_Write)(nil),
 		(*HistoryEvent_Erase)(nil),
 		(*HistoryEvent_Clear)(nil),
@@ -2460,8 +3002,8 @@ func file_novatrail_eval_v1_sample_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_eval_v1_sample_proto_rawDesc), len(file_novatrail_eval_v1_sample_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   26,
+			NumEnums:      3,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

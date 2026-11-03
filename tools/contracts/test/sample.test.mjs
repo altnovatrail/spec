@@ -10,6 +10,7 @@ import { before, test } from "node:test";
 import zlib from "node:zlib";
 import { root } from "../../release/test/repository.mjs";
 import { build } from "../buf.mjs";
+import { isReport } from "../report.mjs";
 import { FOLDER, HEIGHTS, breaches, checkExamples, checkSample, labelOf, pngBreaches, sampleOf } from "../sample.mjs";
 
 let image;
@@ -21,8 +22,11 @@ before(() => {
   ({ message } = sampleOf(image));
   assert.ok(message);
 });
-const files = fs.readdirSync(path.join(root, FOLDER)).map((name) => `${FOLDER}/${name}`);
-const example = (name) => JSON.parse(fs.readFileSync(path.join(root, FOLDER, `${name}.json`), "utf8"));
+const files = fs.readdirSync(path.join(root, FOLDER)).map((name) => `${FOLDER}/${name}`).filter((file) => !isReport(file));
+const marked = (name) => JSON.parse(fs.readFileSync(path.join(root, FOLDER, `${name}.json`), "utf8"));
+// The examples without their markup, which a sample may lack: the rules of its other fields are
+// tested on them, and those of the markup on the examples as they are.
+const example = (name) => changed(marked(name), (s) => delete s.markup);
 const measurement = () => example("sheet-measurement");
 const evalSet = () => example("sheet-eval-set");
 const workbook = () => example("workbook-child");
@@ -63,15 +67,18 @@ function png(width, height, edit = (chunks) => chunks, { depth = 8, colour = 0, 
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), ...edit(chunks).map(([type, data]) => chunk(type, data))]);
 }
 
-test("spec's own examples pass, and together show every purpose, writer, ink, surface and event", () => {
-  assert.deepEqual(checkExamples(root, image, files), { errors: [] });
+test("spec's own examples pass, and together show every purpose, writer, ink, surface and event, and every kind of part", () => {
+  const { errors, samples } = checkExamples(root, image, files);
+  assert.deepEqual(errors, []);
+  assert.deepEqual([...samples.keys()].sort(), files.map((file) => JSON.parse(fs.readFileSync(path.join(root, file), "utf8")).id).sort(), "every example that holds is handed on, by its ID");
   for (const file of files) assert.deepEqual(checkSample(fs.readFileSync(path.join(root, file)), message).problems, [], file);
+  for (const file of files) assert.ok(JSON.parse(fs.readFileSync(path.join(root, file), "utf8")).markup, `${file} has its markup`);
 });
 
-test("the examples together show every purpose, writer, ink, surface and event", () => {
+test("the examples together show every purpose, writer, ink, surface and event, and what a markup holds", () => {
   const { errors } = checkExamples(root, image, [`${FOLDER}/sheet-measurement.json`]);
-  const lacking = errors.map((error) => error.message.match(/^no example shows (\S+):/)?.[1]);
-  assert.deepEqual(lacking.sort(), ["PURPOSE_EVAL_SET", "WRITER_ADULT_AS_CHILD", "WRITER_CHILD", "geometry", "workbook"]);
+  const lacking = errors.map((error) => error.message.match(/^no example shows (.+?): together/)?.[1]);
+  assert.deepEqual(lacking.sort(), ["PART_KIND_DRAWING", "PURPOSE_EVAL_SET", "WRITER_ADULT_AS_CHILD", "WRITER_CHILD", "a workbook's truth", "geometry", "marks", "workbook"]);
   assert.ok(errors.every((error) => error.file === FOLDER && error.line === 0));
 });
 
@@ -81,8 +88,10 @@ test("an example that breaks a rule fails, and the coverage is not looked at", (
     const folder = path.join(dir, FOLDER);
     fs.mkdirSync(folder, { recursive: true });
     fs.writeFileSync(path.join(folder, "one.json"), bytesOf(changed(evalSet(), (s) => delete s.license)));
-    const { errors } = checkExamples(dir, image, [`${FOLDER}/one.json`]);
+    const { errors, samples } = checkExamples(dir, image, [`${FOLDER}/one.json`]);
     assert.deepEqual(errors.map((error) => [error.file, error.message]), [[`${FOLDER}/one.json`, 'a sample of an eval set names its license, "Apache-2.0"']]);
+    assert.equal(samples.size, 0, "a sample that breaks a rule is not handed on");
+    assert.deepEqual(checkExamples(dir, { file: [] }, [`${FOLDER}/one.json`]).samples, new Map());
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
@@ -350,7 +359,122 @@ test("the rules of section 12: a history's boxes on a workbook are what the rule
   }), /^the filled boxes are .*, and the rule of boxes gives the strokes the page shows \[\{"answer_slot":\{"item":1,"slot":1\},"stroke_ids":\[3,4,5\]\},/, /^ink_box\.\w+ of the crops is/, /^\w+(?:\.\w+)* of the crops is/);
 });
 
+// The examples with their markup: a solution with a drawing on a history, an essay, a workbook.
+const drawing = () => marked("sheet-drawing");
+const essay = () => marked("sheet-essay");
+const book = () => marked("workbook-child");
+const markup = (sample, edit) => changed(sample, (s) => edit(s.markup, s));
+const value = (text) => ({ answer_slot: { item: 1, slot: 1 }, value: text });
+const reason = (unreadable) => ({ answer_slot: { item: 1, slot: 1 }, unreadable });
+
+test("a sample without its markup is a sample, and the markup holds a truth", () => {
+  expectOnly(evalSet());
+  expectOnly(workbook());
+  expectOnly(markup(drawing(), (m) => delete m.truth), /^the markup has no truth: every answer slot that AI reads/);
+});
+
+test("the truth: every answer slot that AI reads, its value as written or why there is none", () => {
+  expectOnly(markup(drawing(), (m) => (m.truth.answer_slots[0].answer_slot = { item: 0, slot: 1 })), /^the answer slot is at \{"item":0,"slot":1\}: an item and a slot, each from 1$/);
+  expectOnly(markup(book(), (m) => m.truth.answer_slots.reverse()), /^the answer slot \S+ comes after \S+: the truth goes in the task's order, each once$/, /^the truth names the boxes .*, and on a workbook it names every box of the page, in order: /);
+  expectOnly(markup(drawing(), (m) => (m.truth.answer_slots[0].value = "  ")), /^the value "  " is empty or only white space: where nothing is written, the slot is blank$/);
+  expectOnly(markup(drawing(), (m) => (m.truth.answer_slots[0] = reason(9))), /^the reason 9 is none of the observation's/, /^one part holds the final answer, so its truth is a value, UNREADABLE_ILLEGIBLE or UNREADABLE_AMBIGUOUS, not 9$/);
+  expectOnly(markup(drawing(), (m) => delete m.truth.answer_slots[0].value), /^the answer slot 1\.1 gives neither a value nor a reason$/);
+  expectOnly(markup(drawing(), (m) => (m.truth.answer_slots[0].crop_box = { ymin: 0, xmin: 0, ymax: 10, xmax: 10 })), /^the truth gives no box on a crop/);
+  // A sheet that shows no stroke: every answer slot is blank, and the solution has no part.
+  const blank = (truth) => changed(drawing(), (s) => {
+    s.history.events = [];
+    s.sheet.groups = [];
+    delete s.sheet.crops;
+    s.markup.truth.answer_slots = [truth];
+    s.markup.parts = { parts: [] };
+  });
+  expectOnly(blank(reason("UNREADABLE_BLANK")));
+  expectOnly(blank(value("12")), /^the sheet shows no stroke, so every answer slot is UNREADABLE_BLANK$/);
+  expectOnly(changed(blank(reason("UNREADABLE_BLANK")), (s) => (s.markup.parts.parts = drawing().markup.parts.parts.slice(1))), /^the sheet shows no stroke, so its markup has no part$/, /^the part 1 names the stroke \d+, which the sheet does not show$/, /^one part holds the final answer, so its truth is a value, .*, not "UNREADABLE_BLANK"$/);
+});
+
+test("the notes set answer slots apart: a mirrored digit, something crossed out", () => {
+  const note = (one) => markup(book(), (m) => (m.notes = [one]));
+  expectOnly(note({ answer_slot: { item: 1, slot: 1 }, mirrored: false, crossed_out: true }));
+  expectOnly(note({ answer_slot: { item: 1, slot: 1 }, mirrored: true, crossed_out: false }), /^a mirrored digit is read as UNREADABLE_AMBIGUOUS, and the truth of 1\.1 is "14"$/);
+  expectOnly(changed(note({ answer_slot: { item: 1, slot: 1 }, mirrored: true, crossed_out: false }), (s) => (s.markup.truth.answer_slots[0] = reason("UNREADABLE_AMBIGUOUS"))));
+  expectOnly(note({ answer_slot: { item: 9, slot: 9 }, mirrored: false, crossed_out: true }), /^the note is of \{"item":9,"slot":9\}, which is none of the truth's answer slots$/);
+  expectOnly(note({ answer_slot: { item: 1, slot: 1 }, mirrored: false, crossed_out: false }), /^the note of 1\.1 sets nothing apart/);
+  const both = [{ answer_slot: { item: 2, slot: 1 }, mirrored: false, crossed_out: true }, { answer_slot: { item: 1, slot: 1 }, mirrored: false, crossed_out: true }];
+  expectOnly(markup(book(), (m) => (m.notes = both)), /^the note of 1\.1 comes after that of 2\.1: the notes go ascending by place, each once$/);
+});
+
+test("a workbook's truth names every box, an empty box blank, and nothing else", () => {
+  expectOnly(markup(book(), (m) => m.truth.answer_slots.pop()), /^the truth names the boxes .*, and on a workbook it names every box of the page, in order: /);
+  expectOnly(markup(book(), (m) => (m.truth.answer_slots[6] = { answer_slot: { item: 6, slot: 1 }, value: "7" })), /^the box 6\.1 holds no stroke, so its truth is UNREADABLE_BLANK$/);
+  expectOnly(markup(book(), (m) => (m.parts = { parts: [] })), /^a workbook's markup has neither parts nor marks: its places are its boxes$/);
+  expectOnly(markup(drawing(), (m) => delete m.parts), /^a sheet's markup gives the parts of its solution, or the people's marks of its essay$/);
+});
+
+test("the parts of a solution: each stroke in one, the first error, the final answer", () => {
+  const parts = (edit) => markup(drawing(), (m) => edit(m.parts.parts, m));
+  expectOnly(parts((p) => (p[0].kind = "PART_KIND_UNSPECIFIED")), /^the part 1 is of the kind "PART_KIND_UNSPECIFIED", and a part is PART_KIND_TEXT or PART_KIND_DRAWING$/);
+  expectOnly(parts((p) => (p[1].text = " ")), /^the part 2 has no text: a text as written, or a drawing described in words$/);
+  expectOnly(parts((p) => p[0].stroke_ids.push(999)), /^the part 1 names the stroke 999, which the sheet does not show$/);
+  expectOnly(parts((p) => p[1].stroke_ids.push(p[0].stroke_ids[0])), /^the part 2 names its strokes .*, and they go ascending, each once$/, /^the stroke \d+ is in 2 parts, and every stroke the sheet shows is in one$/);
+  expectOnly(parts((p) => p[0].stroke_ids.shift()), /^the stroke \d+ is in 0 parts, and every stroke the sheet shows is in one$/);
+  expectOnly(parts((p) => (p[1].stroke_ids = [])), /^the part 2 has no stroke$/, /is in 0 parts/);
+  expectOnly(parts((p) => p.splice(0)), /^the sheet shows strokes, and the markup names no part: each stroke is in one$/, /^the first error is at the part 1, and the parts are 1 to 0$/);
+  expectOnly(parts((p, m) => (m.parts.first_error = 3)), /^the first error is at the part 3, and the parts are 1 to 2$/);
+  expectOnly(parts((p, m) => delete m.parts.first_error));
+  expectOnly(parts((p) => (p[0].crossed_out = true)), /^the first error is at the part 1, which is crossed out and no part of the solution$/);
+  expectOnly(parts((p) => (p[1].crossed_out = true)), /^the part 2 is crossed out, so it holds no final answer$/);
+  // A part crossed out holds no final answer, so it counts toward none of the truth's.
+  expectOnly(parts((p) => {
+    p[0].final_answer = true;
+    p[0].crossed_out = true;
+    p[0].stroke_ids = p[0].stroke_ids.slice();
+  }), /^the part 1 is crossed out, so it holds no final answer$/, /^the first error is at the part 1, which is crossed out/);
+  expectOnly(parts((p, m) => {
+    p.push({ ...p[1], stroke_ids: [], final_answer: true, crossed_out: true });
+    p[1].stroke_ids.length && p[2].stroke_ids.push(p[1].stroke_ids.pop());
+    m.truth.answer_slots[0] = reason("UNREADABLE_SEVERAL_FINAL_ANSWERS");
+  }), /^the part 3 is crossed out, so it holds no final answer$/, /^the truth is UNREADABLE_SEVERAL_FINAL_ANSWERS, and 1 part holds a final answer: two at least$/);
+  expectOnly(parts((p) => (p[0].illegible = true)));
+  expectOnly(parts((p, m) => m.truth.answer_slots.push({ answer_slot: { item: 2, slot: 1 }, value: "3" })), /^a part holds the final answer, so the task's answer slot is the one bound anywhere, and the truth names 2$/);
+  expectOnly(parts((p, m) => (m.truth.answer_slots[0] = reason("UNREADABLE_BLANK"))), /^one part holds the final answer, so its truth is a value, UNREADABLE_ILLEGIBLE or UNREADABLE_AMBIGUOUS, not "UNREADABLE_BLANK"$/);
+  expectOnly(parts((p, m) => (m.truth.answer_slots[0] = reason("UNREADABLE_ILLEGIBLE"))));
+  expectOnly(parts((p, m) => (m.truth.answer_slots[0] = reason("UNREADABLE_SEVERAL_FINAL_ANSWERS"))), /^the truth is UNREADABLE_SEVERAL_FINAL_ANSWERS, and 1 part holds a final answer: two at least$/);
+  expectOnly(parts((p, m) => (m.truth.answer_slots[0] = reason("UNREADABLE_NO_FINAL_ANSWER"))), /^the truth is UNREADABLE_NO_FINAL_ANSWER, and 1 part holds one$/);
+  expectOnly(parts((p, m) => {
+    p[1].final_answer = false;
+    m.truth.answer_slots[0] = reason("UNREADABLE_NO_FINAL_ANSWER");
+  }));
+  expectOnly(parts((p) => (p[0].final_answer = true)), /^2 parts hold a final answer, so the truth is UNREADABLE_SEVERAL_FINAL_ANSWERS$/);
+  expectOnly(parts((p, m) => {
+    p[0].final_answer = true;
+    m.truth.answer_slots[0] = reason("UNREADABLE_SEVERAL_FINAL_ANSWERS");
+  }));
+});
+
+test("the people's marks of an essay: of its text, ascending by criterion", () => {
+  const marks = (edit) => markup(essay(), (m) => edit(m.marks.marks, m));
+  expectOnly(marks((list, m) => m.truth.answer_slots.push({ answer_slot: { item: 2, slot: 1 }, value: "x" })), /^an essay's truth is its one answer slot, bound sheet, and the truth names 2$/);
+  expectOnly(marks((list, m) => (m.truth.answer_slots[0] = reason("UNREADABLE_AMBIGUOUS"))), /^an essay is its text, blank or illegible, not "UNREADABLE_AMBIGUOUS"$/);
+  expectOnly(marks((list, m) => (m.truth.answer_slots[0] = reason("UNREADABLE_ILLEGIBLE"))), /^an essay that cannot be read reaches no assessment, so no criterion has a mark$/);
+  expectOnly(marks((list, m) => {
+    m.truth.answer_slots[0] = reason("UNREADABLE_ILLEGIBLE");
+    list.splice(0);
+  }));
+  expectOnly(marks((list) => (list[0].criterion = 0)), /^the criterion 0 is no place in a rubric, from 1$/);
+  expectOnly(marks((list) => list.reverse()), /^the criterion \d comes after \d: the marks go ascending, each once$/);
+});
+
+test("the image names only the kinds of part the rules know", () => {
+  const more = structuredClone(image);
+  const file = more.file.find((one) => one.package === "novatrail.eval.v1" && one.enumType?.some((each) => each.name === "PartKind"));
+  file.enumType.find((one) => one.name === "PartKind").value.push({ name: "PART_KIND_TABLE", number: 3 });
+  assert.match(sampleOf(more).error, /^novatrail\.eval\.v1\.PartKind has PART_KIND_TABLE, which the rules of contracts\/README\.md, section 11 do not name/);
+});
+
 test("the breaches of a sample name where they are", () => {
+  const parted = breaches(changed(drawing(), (s) => (s.markup.parts.parts[1].text = "")));
+  assert.deepEqual(parted.map((one) => one.at), [["markup", "parts", "parts", 1, "text"]]);
   const found = breaches(changed(evalSet(), (s) => {
     s.id = "";
     s.geometry.strokes[0].points[0].x = -1;

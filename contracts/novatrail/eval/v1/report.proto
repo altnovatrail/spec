@@ -1,0 +1,225 @@
+syntax = "proto3";
+
+// The runner's report of the eval protocol: what the eval runner of `tutor` measured in one run of
+// an eval set, sample by sample — the verdict on each answer slot's truth and on what the models
+// read, an essay's marks by people and by AI, or why a sample was refused —, with no value, text,
+// stroke or crop of any work. What it holds, and how the measures are counted from it, are the
+// rules of contracts/README.md, section 14.
+package novatrail.eval.v1;
+
+import "novatrail/eval/v1/sample.proto";
+import "novatrail/observation/v1/observation.proto";
+
+// One run of an eval set by the eval runner: who ran it, what it measured, which models read, by
+// which code the verdicts came, and each sample's result.
+message Report {
+  // The protocol the file is written in: "novatrail.eval.v1", the package of this message.
+  string protocol = 1;
+  // The tag of the release of `tutor` whose runner made the run.
+  string runner = 2;
+  // The capability of AI that the run measured.
+  Capability capability = 3;
+  // The models that read the work, in the order of the pair: two or one in a run of reading, one in
+  // a run of assessment.
+  repeated Model readers = 4;
+  // The model that assessed the essays by their rubric: only in a run of assessment.
+  Model assessor = 5;
+  // The code that gave the verdicts.
+  VerdictSource verdicts = 6;
+  // The eval set the run measured.
+  oneof eval_set {
+    // A module's eval set, in `modules`.
+    ModuleEvalSet module = 7;
+    // An eval set of a capability of AI, which `tutor` holds.
+    CapabilityEvalSet capability_set = 8;
+  }
+  // How many times each sample was read: 1 or more.
+  int32 repeats = 9;
+  // Each sample of the set that the capability measures, ascending by ID.
+  repeated SampleResult samples = 10;
+}
+
+// A capability of AI that the protocol measures.
+enum Capability {
+  // No capability: never written. A report that holds it is not valid.
+  CAPABILITY_UNSPECIFIED = 0;
+  // Reading handwriting: the values of the answer slots on a sheet or a workbook, which get a
+  // verdict.
+  CAPABILITY_HANDWRITING_READING = 1;
+  // Assessing an essay by its rubric, the whole path: the essay read, and what was read assessed.
+  CAPABILITY_RUBRIC_ASSESSMENT = 2;
+}
+
+// A model of a provider of AI.
+message Model {
+  // The provider, as the adapters of `tutor` name it.
+  string provider = 1;
+  // The model, as the list of admitted models names it, with its setting.
+  string model = 2;
+}
+
+// The code that gave the verdicts of a run, and its version.
+message VerdictSource {
+  // Whose code.
+  VerdictCode code = 1;
+  // The tag of the release of that code.
+  string version = 2;
+}
+
+// Whose code gave the verdicts of a run.
+enum VerdictCode {
+  // Nobody's: never written. A report that holds it is not valid.
+  VERDICT_CODE_UNSPECIFIED = 0;
+  // `module-kit`'s, as in the platform's work: only such a report admits a model.
+  VERDICT_CODE_MODULE_KIT = 1;
+  // The runner's own: a measurement, which admits no model.
+  VERDICT_CODE_RUNNER = 2;
+}
+
+// A module's eval set, as a commit of `modules` holds it.
+message ModuleEvalSet {
+  // The module's ID.
+  string module = 1;
+  // The commit of `modules` whose `eval/` the run read: 40 lowercase hexadecimal digits.
+  string commit = 2;
+}
+
+// An eval set of a capability of AI, which `tutor` holds.
+message CapabilityEvalSet {
+  // The set's name, as `tutor` names it.
+  string name = 1;
+}
+
+// What the run made of one sample.
+message SampleResult {
+  // The sample's ID.
+  string sample = 1;
+  // Whether it was measured.
+  oneof result {
+    // The runner refused it, and why: nothing of it was sent to AI.
+    Refusal refused = 2;
+    // It was read and measured.
+    Measurement measured = 3;
+  }
+}
+
+// Why the runner refused a sample.
+enum Refusal {
+  // No reason: never written. A report that holds it is not valid.
+  REFUSAL_UNSPECIFIED = 0;
+  // The sample breaks a rule of sections 11 and 12, or its markup does not fit its task.
+  REFUSAL_INVALID = 1;
+  // The sample has no markup.
+  REFUSAL_NO_MARKUP = 2;
+  // Its task is not the one it names: no such task, a task of another module, or an open view of
+  // another digest.
+  REFUSAL_OTHER_TASK = 3;
+  // A sample written by a child, which goes to no provider until a contract with it admits
+  // children.
+  REFUSAL_CHILD = 4;
+}
+
+// What a run measured on one sample: its answer slots, or its essay.
+message Measurement {
+  // Every answer slot that a model reads and whose check gives a verdict, in the task's order: on
+  // a workbook, the filled boxes. None on an essay.
+  repeated AnswerSlotResult answer_slots = 1;
+  // The essay: only on a sample of an essay.
+  EssayResult essay = 2;
+}
+
+// One answer slot: the verdict on its truth, and on what the models read in each repeat.
+message AnswerSlotResult {
+  // The answer slot.
+  novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+  // The verdict that the truth of the markup gets.
+  Verdict truth = 2;
+  // The markup notes a mirrored digit in it.
+  bool mirrored = 3;
+  // The markup notes something crossed out and written again in it.
+  bool crossed_out = 4;
+  // What each repeat gave, in order: as many as the report's repeats.
+  repeated Reading readings = 5;
+}
+
+// A verdict of an answer slot, as the test vectors of verdicts of the module format write it.
+message Verdict {
+  // "correct", "not_yet", "unreadable" or "unchecked".
+  string verdict = 1;
+  // The reason of the verdict: only beside "unreadable", and empty beside the others.
+  string reason = 2;
+  // The trap that the value shows, by its local ID: only beside "not_yet", and empty when the
+  // value shows none.
+  string trap = 3;
+}
+
+// What one repeat gave an answer slot.
+message Reading {
+  // The verdict on the observation the readers gave, joined when they are two.
+  Verdict verdict = 1;
+  // Why the verdict is "unchecked": only beside it.
+  UncheckedCause unchecked = 2;
+}
+
+// Why a reading gave no verdict.
+enum UncheckedCause {
+  // No cause: the reading gave a verdict.
+  UNCHECKED_CAUSE_UNSPECIFIED = 0;
+  // AI failed: an error, a refusal of the provider, a timeout.
+  UNCHECKED_CAUSE_FAILURE = 1;
+  // A limit or a quota ran out.
+  UNCHECKED_CAUSE_LIMIT = 2;
+  // An observation is not valid (contracts/README.md, section 10).
+  UNCHECKED_CAUSE_INVALID = 3;
+  // The assessment of an essay marked no criterion.
+  UNCHECKED_CAUSE_NO_MARK = 4;
+}
+
+// An essay: its truth, the people's marks, and what each repeat gave.
+message EssayResult {
+  // Why the truth holds no text: blank or illegible. None when it holds the essay's text.
+  optional novatrail.observation.v1.Unreadable truth = 1;
+  // The marks the people agreed on, as the markup gives them.
+  repeated CriterionMark people = 2;
+  // What each repeat gave, in order: as many as the report's repeats.
+  repeated EssayReading readings = 3;
+}
+
+// What one repeat gave an essay.
+message EssayReading {
+  // How its submission ended.
+  oneof outcome {
+    // The essay was read and assessed.
+    AssessedEssay assessment = 1;
+    // The essay was read as blank or illegible, and was not assessed.
+    novatrail.observation.v1.Unreadable unreadable = 2;
+    // The reading or the assessment gave nothing, and why.
+    UncheckedCause unchecked = 3;
+  }
+}
+
+// The assessment of an essay by AI.
+message AssessedEssay {
+  // The mark that AI gave each criterion the people marked, in their order.
+  repeated AssessedCriterion criteria = 1;
+}
+
+// The mark that AI gave one criterion.
+message AssessedCriterion {
+  // The criterion's place in the rubric, from 1.
+  int32 criterion = 1;
+  // The mark.
+  CriterionAssessment assessment = 2;
+}
+
+// The mark that AI gave a criterion.
+enum CriterionAssessment {
+  // No mark: never written. A report that holds it is not valid.
+  CRITERION_ASSESSMENT_UNSPECIFIED = 0;
+  // The essay meets it.
+  CRITERION_ASSESSMENT_MET = 1;
+  // The essay does not meet it.
+  CRITERION_ASSESSMENT_NOT_MET = 2;
+  // AI gave it no mark.
+  CRITERION_ASSESSMENT_NONE = 3;
+}

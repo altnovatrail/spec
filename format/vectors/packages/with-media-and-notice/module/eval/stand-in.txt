@@ -1,2 +1,2 @@
-A stand-in for the eval set of this module. The format of its samples comes with the eval
-protocol; until then, the layout of a module says only that they lie in eval/.
+A stand-in in the eval set of this module, and no sample: the eval protocol takes as samples
+only the files of eval/ whose names end in .json (contracts/README.md, section 13).
