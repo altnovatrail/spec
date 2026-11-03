@@ -127,21 +127,25 @@ types-test: _tools
 # Reads spec's API contracts in contracts/ by the rules of R83 and contracts/README.md: buf.yaml as
 # R83 fixes it and buf.gen.yaml with local plugins alone, before buf runs; the layout of contracts/;
 # what buf lets pass in a file — a syntax other than proto3, a json_name, an unsigned type, a package
-# without the prefix novatrail. —, by the image buf builds; buf format and buf lint; buf breaking
-# against the previous release, the newest release tag in the history of HEAD other than HEAD's own,
-# whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds every release
-# and no file of a release is needed; and the code buf generates, which contracts/ holds file for
-# file. buf is the toolchain stage's, at an exact version; its Go plugins are the tools of
-# contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file yet, buf refuses a
+# without the prefix novatrail. —, by the image buf builds; buf format and buf lint; the test vectors
+# of the observation, read by the same image, whose joins and verdicts it computes as section 10 of
+# contracts/README.md gives them, but for what Starlark gives a predicate (R86); the examples of
+# the sample file, read by the same image, strictly, and held to the rules of section 11 (R93); buf
+# breaking against the previous release, the newest release tag in the history of HEAD other than
+# HEAD's own, whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds
+# every release and no file of a release is needed; and the code buf generates, which contracts/
+# holds file for file. buf is the toolchain stage's, at an exact version; its Go plugins are the tools of
+# contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file, buf refuses a
 # module without one, and the check stops after the layout. A file it does not know is an error, so
-# the task that brings it extends the check (RUN.md, T55).
-# Check the API contracts in contracts/: buf's rules, R83's own and the generated code.
+# the task that brings it extends the check (RUN.md, T55, T68, T58).
+# Check the API contracts in contracts/: buf's rules, R83's own, the generated code, the vectors and
+# the examples.
 contracts-check: _tools
     node tools/contracts/main.mjs
 
 # The code buf generates from the contracts, beside the .proto files it comes from (R83): Go of
-# protoc-gen-go and protoc-gen-connect-go, JavaScript with its declarations and JSON types of
-# protoc-gen-es. buf writes it into a new folder, and it takes the place of the generated files of
+# protoc-gen-go and protoc-gen-connect-go, JavaScript with its declarations of protoc-gen-es.
+# buf writes it into a new folder, and it takes the place of the generated files of
 # contracts/, so that a file no .proto gives any more goes too. Then go mod tidy brings
 # contracts/go.mod and go.sum in line with what the code imports, as go-check wants them.
 # Generate the code of the contracts again.
@@ -202,7 +206,7 @@ GO_LICENSES := "github.com/google/go-licenses/v2@v2.0.1"
 # of tools/gomod build their repositories in temporary folders, and the copies new-repo builds in
 # .repos/ git ignores. A new module is checked without a change here. A module that holds no Go
 # package yet is named and left out, since go vet, go test and govulncheck refuse a pattern that
-# matches nothing: contracts holds only the generators of buf until the first .proto file (R83).
+# matches nothing, as contracts did until its first .proto file, with only the generators of buf (R83).
 [private]
 _go-modules:
     #!/usr/bin/env bash
@@ -410,9 +414,12 @@ release-version commit="HEAD" workflow="":
 # FIRST_NPM_LINE on, the npm package @altnovatrail/spec goes in too, altnovatrail-spec-<X.Y.Z>.tgz,
 # of the release's tag, which the recipe then takes third (R73): npm pack of the package that
 # tools/types/npm.mjs writes of the commit's types/, LICENSE and the package's README, read back by
-# tar. A commit of an earlier line gets an empty folder. The recipe reads the commit alone, never
-# the working tree: release.yml builds the files of the commit its checks passed on from the tip's
-# checkout (R31).
+# tar. From FIRST_CONTRACTS_LINE on, the npm package of the contracts' code, @altnovatrail/contracts,
+# goes in as well, altnovatrail-contracts-<X.Y.Z>.tgz: npm pack of the package tools/contracts/npm.mjs
+# writes of the commit's code of protoc-gen-es under contracts/, LICENSE, the package's README and
+# the runtime tools/package.json pins (R83). A commit of an earlier line gets an empty folder. The
+# recipe reads the commit alone, never the working tree: release.yml builds the files of the commit
+# its checks passed on from the tip's checkout (R31).
 # Build the files of spec's release of a commit into a new folder.
 release-files commit dir tag="":
     #!/usr/bin/env bash
@@ -433,7 +440,14 @@ release-files commit dir tag="":
     while read -r name part; do
         if [ -z "$name" ]; then continue; fi
         if [[ "$name" == *.tgz ]]; then
-            node tools/types/npm.mjs . "${tag#v}" "$dir" "$commit" > /dev/null
+            case "$part" in
+                types) node tools/types/npm.mjs . "${tag#v}" "$dir" "$commit" > /dev/null ;;
+                contracts) node tools/contracts/npm.mjs . "${tag#v}" "$dir" "$commit" > /dev/null ;;
+                *)
+                    echo "release-files: ${name} is an npm package of ${part}/, which no packer of spec builds" >&2
+                    exit 1
+                    ;;
+            esac
             echo "release-files: ${name}, the npm package of ${part}/ at ${commit}"
             continue
         fi

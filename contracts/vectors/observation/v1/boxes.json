@@ -1,0 +1,361 @@
+{
+  "description": "Boxes of a workbook checked by number, in two items: how the readings of each box join, and every way an observation is not valid.",
+  "canvas": {"kind": "workbook"},
+  "items": [
+    {"line": [{"text": "7 × "}, {"binding": "box", "check": {"kind": "number", "key": "8", "trap_values": [{"value": "9", "trap": "times-table-slip"}]}}, {"text": " = 56"}]},
+    {"line": [{"text": "47 ÷ 6 = "}, {"binding": "box", "check": {"kind": "number", "key": "7"}}, {"text": " r "}, {"binding": "box", "check": {"kind": "number", "key": "5", "trap_values": [{"value": "11", "trap": "remainder-too-big"}]}}]}
+  ],
+  "cases": [
+    {
+      "description": "Both readers read every box alike.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}, {"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "Values written otherwise that the check compares equal, with one verdict, join into the first reader's.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8."}, {"answer_slot": {"item": 2, "slot": 1}, "value": "= 7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7."}, {"answer_slot": {"item": 2, "slot": 2}, "value": "10/2"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8."}, {"answer_slot": {"item": 2, "slot": 1}, "value": "= 7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}, {"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "A wrong value read alike joins, and matches its trap.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "9"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "11"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "9."}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "11"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "9"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "11"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "not_yet", "trap": "times-table-slip"}], "verdict": "not_yet"},
+        {"answer_slots": [{"verdict": "correct"}, {"verdict": "not_yet", "trap": "remainder-too-big"}], "verdict": "not_yet"}
+      ]
+    },
+    {
+      "description": "Two values that differ join into ambiguous.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "3"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "correct"}, {"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "A value and a reason join into ambiguous, two reasons alike into that reason, and two that differ into ambiguous.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_ILLEGIBLE"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_BLANK"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_ILLEGIBLE"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_ILLEGIBLE"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_ILLEGIBLE"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_ILLEGIBLE"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "illegible"}, {"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "Boxes left empty, which a reader gives as blank without calling a model, join into blank.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_BLANK"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_BLANK"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_BLANK"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "blank"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "blank"}, {"verdict": "unreadable", "reason": "blank"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "A value that the kind normalizes to nothing is blank before the join: with blank and with another such value it joins into blank, and with a value into ambiguous.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "="}, {"answer_slot": {"item": 2, "slot": 1}, "value": "="}, {"answer_slot": {"item": 2, "slot": 2}, "value": "."}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "."}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_BLANK"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "blank"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "blank"}, {"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "Values out of the kind's notation join when they are the same once normalized, as 7² and 7³ are, both 7 and U+FFFD; a value in notation and one out of it do not.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "eight"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7²"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": " eight "}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7³"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "05"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "eight"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7²"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_AMBIGUOUS"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}, {"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "U+FEFF is no white space: a value of it alone is valid, and out of notation.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "\ufeff"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "\ufeff"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "\ufeff"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "correct"}, {"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "An item with an answer slot not yet right is not yet right, whatever its others hold.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "6"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_ILLEGIBLE"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "6"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_ILLEGIBLE"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "6"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_ILLEGIBLE"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "not_yet"}, {"verdict": "unreadable", "reason": "illegible"}], "verdict": "not_yet"}
+      ]
+    },
+    {
+      "description": "An item is right only when every answer slot is; else, with one unreadable, it is unreadable.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_BLANK"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_BLANK"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_BLANK"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}, {"verdict": "unreadable", "reason": "blank"}], "verdict": "unreadable"}
+      ]
+    },
+    {
+      "description": "An answer slot that AI reads is missing.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "An answer slot is there twice.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "The answer slots of an item are out of order.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "The items are out of order.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}, {"answer_slot": {"item": 1, "slot": 1}, "value": "8"}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "An answer slot that the task does not have.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}, {"answer_slot": {"item": 3, "slot": 1}, "value": "1"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "An answer slot without its place.",
+      "observations": [
+        {"answer_slots": [{"value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "An answer slot with neither a value nor a reason.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "An empty value.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": ""}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A value of white space alone: U+00A0 is white space.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "\u00a0"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A value of white space alone: U+0085 is white space too, though JavaScript's \\s misses it.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "\u0085"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A reason that is no reason, UNREADABLE_UNSPECIFIED.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_UNSPECIFIED"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A reason that the package does not know, written as its number.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": 1000}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "No final answer, which only a slot bound anywhere gives, in a box.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "unreadable": "UNREADABLE_NO_FINAL_ANSWER"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "Several final answers, which only a slot bound anywhere gives, in a box.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "unreadable": "UNREADABLE_SEVERAL_FINAL_ANSWERS"}]}
+      ],
+      "valid": [true, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "A crop_box, which only a slot bound anywhere has, in a box.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8", "crop_box": {"ymin": 0, "xmin": 0, "ymax": 1000, "xmax": 1000}}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, true],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    },
+    {
+      "description": "Neither observation is valid.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "8"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": ""}, {"answer_slot": {"item": 2, "slot": 1}, "value": "7"}, {"answer_slot": {"item": 2, "slot": 2}, "value": "5"}]}
+      ],
+      "valid": [false, false],
+      "joined": null,
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unchecked"}], "verdict": "unchecked"},
+        {"answer_slots": [{"verdict": "unchecked"}, {"verdict": "unchecked"}], "verdict": "unchecked"}
+      ]
+    }
+  ]
+}

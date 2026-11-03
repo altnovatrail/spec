@@ -47,7 +47,9 @@ updates:
   # and how yaml reads a file. A new typescript is read against types-check, whose tsc takes every
   # value of format/ as a value of its type, and against the version canvas builds with (R73). A
   # new @bufbuild/protoc-gen-es writes other code of the contracts: its pull request runs
-  # `just contracts`, or contracts-check fails it (R83).
+  # `just contracts`, or contracts-check fails it (R83). @bufbuild/protobuf, the runtime the npm
+  # package of that code depends on, moves with it in the group bufbuild, at the same version;
+  # contracts-check then runs the code under tsc and Node (RUN.md, T57).
   - package-ecosystem: npm
     directory: /tools
     schedule:
@@ -55,6 +57,14 @@ updates:
     cooldown:
       default-days: 3
     groups:
+      # protoc-gen-es writes code for the runtime of its own version, and the npm package of the
+      # contracts depends on that runtime at that version, or is not built: the two travel in one
+      # pull request, a major version too (RUN.md, T57). The group comes first: "If a dependency
+      # matches more than one rule, it's included in the first group that it matches", and "by
+      # default, a group will include updates for all semantic versions" (GitHub Docs, Dependabot
+      # options reference, read 2026-11-03).
+      bufbuild:
+        patterns: ["@bufbuild/*"]
       # Routine bumps travel together. A major version arrives on its own, because it is the
       # one that has to be read before it is merged.
       tools:

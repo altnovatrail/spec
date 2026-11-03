@@ -7,7 +7,6 @@ tool (
 	google.golang.org/protobuf/cmd/protoc-gen-go
 )
 
-require (
-	connectrpc.com/connect/v2 v2.0.2 // indirect
-	google.golang.org/protobuf v1.36.12 // indirect
-)
+require google.golang.org/protobuf v1.36.12
+
+require connectrpc.com/connect/v2 v2.0.2 // indirect

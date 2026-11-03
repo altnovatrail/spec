@@ -60,13 +60,15 @@ test("buf.gen.yaml has local plugins alone, out to contracts/, with no input and
   expectOnly(checkBufGenYaml(`${bufGenYaml}clean: true\n`), /clean: the template has version, managed and plugins alone/);
   expectOnly(checkBufGenYaml(bufGenYaml.replace("version: v2", "version: v1")), /version is "v1", and the template is of version v2/);
   expectOnly(checkBufGenYaml(bufGenYaml.replace(/plugins:[^]*$/, "plugins: []\n")), /plugins: the template names its local plugins/);
-  expectOnly(checkBufGenYaml(bufGenYaml.replace(plugin, "  - protoc-gen-es\n").replace(/    out: contracts\n    opt:\n      - target=js\+dts\n      - import_extension=js\n      - json_types=true\n/, "")), /a plugin is "protoc-gen-es", not a local plugin/);
+  expectOnly(checkBufGenYaml(bufGenYaml.replace(plugin, "  - protoc-gen-es\n").replace(/    out: contracts\n    opt:\n      - target=js\+dts\n      - import_extension=js\n/, "")), /a plugin is "protoc-gen-es", not a local plugin/);
   expectOnly(checkBufGenYaml("- protoc-gen-go\n"), /the file is \["protoc-gen-go"\], not a template of buf generate/);
   expectOnly(checkBufGenYaml("plugins: [\n"), /^buf\.gen\.yaml:\d+: not YAML:/);
 });
 
 test("the layout of contracts/ names each file's kind and the .proto it comes from", () => {
-  for (const file of ["contracts/README.md", "contracts/go.mod", "contracts/go.sum"]) assert.deepEqual(classify(file), { kind: "text" });
+  for (const file of ["contracts/README.md", "contracts/go.mod", "contracts/go.sum", "contracts/vectors.go", "contracts/vectors_test.go"]) assert.deepEqual(classify(file), { kind: "text" });
+  assert.deepEqual(classify("contracts/vectors/learner_model/v2/two-readers.json"), { kind: "vector", package: "novatrail.learner_model.v2" });
+  assert.deepEqual(classify("contracts/examples/learner_model/v2/sheet-of-lines.json"), { kind: "example", package: "novatrail.learner_model.v2" });
   assert.deepEqual(classify("contracts/novatrail/learner_model/v2/progress.proto"), { kind: "proto", package: "novatrail.learner_model.v2" });
   const source = "contracts/novatrail/learner_model/v2/progress.proto";
   for (const file of ["progress.pb.go", "progress_pb.js", "progress_pb.d.ts", "learner_modelv2connect/progress.connect.go"]) {
@@ -83,11 +85,25 @@ test("the layout of contracts/ names each file's kind and the .proto it comes fr
     "contracts/novatrail/trial/v1/trial.pb.ts",
     "contracts/LICENSE",
     "contracts/buf.yaml",
+    "contracts/vectors/trial/v1/Two.json",
+    "contracts/vectors/trial/v1/two_readers.json",
+    "contracts/vectors/trial/v1/two-.json",
+    "contracts/vectors/trial/v1/two.yaml",
+    "contracts/vectors/trial/v0/two.json",
+    "contracts/vectors/trial/v1/sub/two.json",
+    "contracts/vectors/two.json",
+    "contracts/examples/trial/v1/Two.json",
+    "contracts/examples/trial/v0/two.json",
+    "contracts/examples/trial/v1/two.png",
+    "contracts/examples/two.json",
+    "contracts/other.go",
   ]) {
     assert.equal(classify(file), null, file);
   }
   assert.match(unknownFile("contracts/novatrail/trial/v0/trial.proto").message, /^a contract is contracts\/novatrail\/<part>\/vN\/<name>\.proto/);
   assert.match(unknownFile("contracts/LICENSE").message, /^contracts-check does not know it/);
+  assert.match(unknownFile("contracts/vectors/two.json").message, /^a test vector is contracts\/vectors\/<part>\/vN\/<case>\.json/);
+  assert.match(unknownFile("contracts/examples/two.json").message, /^an example is contracts\/examples\/<part>\/vN\/<case>\.json/);
 });
 
 // An image as buf build --exclude-imports writes it, made up: one file, with the fields and

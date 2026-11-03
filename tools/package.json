@@ -5,6 +5,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
+    "@bufbuild/protobuf": "2.16.0",
     "@bufbuild/protoc-gen-es": "2.16.0",
     "@sigstore/bundle": "5.0.0",
     "@sigstore/protobuf-specs": "0.5.2",

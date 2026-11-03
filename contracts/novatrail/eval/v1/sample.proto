@@ -1,0 +1,369 @@
+syntax = "proto3";
+
+// The sample file of the eval protocol: one sample of writing on a sheet or on a page of a
+// workbook, as the samples page of `canvas` saves it and the eval runner of `tutor` reads it, one
+// JSON file to a sample. Which fields a sample holds, by its purpose and by who wrote it, how the
+// file is written and read, and where a sample may go are the rules of contracts/README.md,
+// section 11.
+package novatrail.eval.v1;
+
+import "novatrail/observation/v1/observation.proto";
+
+// One sample: what it is for and who wrote it, the task it answers, its strokes, and the crops
+// drawn of them.
+message Sample {
+  // The protocol the file is written in: "novatrail.eval.v1", the package of this message. A
+  // reader reads it before the rest, and takes only the protocol it knows.
+  string protocol = 1;
+  // The sample's ID: 1 to 64 lowercase Latin letters, digits and hyphens. A person's sample gets
+  // one at random; a synthetic sample's comes from its seed, so that one seed gives the same file.
+  string id = 2;
+  // What the sample is made for. With `writer`, it sets which fields the sample holds.
+  Purpose purpose = 3;
+  // Who wrote the sample, or whose writing a synthetic sample stands for.
+  Writer writer = 4;
+  // Who made the strokes: a person, or code from a seed. It does not change which fields the
+  // sample holds.
+  oneof origin {
+    // A person, of whom the file says no more than its purpose, its writer and its writer's code.
+    Person person = 5;
+    // Code that drew the strokes from a seed.
+    Synthetic synthetic = 6;
+  }
+  // The writer's code, which the samples page makes at random and which links a person's samples
+  // with each other: 6 to 16 digits and capital Latin letters. Only in a sample of measurement.
+  optional string writer_code = 7;
+  // The version of the set of texts that the samples page showed: the notice of the purpose and
+  // the form of consent. 1 to 32 Latin letters, digits, dots and hyphens.
+  string text_set_version = 8;
+  // The version of `canvas` whose samples page wrote the file, MAJOR.MINOR.PATCH.
+  string canvas_version = 9;
+  // The license the sample is published under: "Apache-2.0" in a sample of an eval set, and none
+  // in a sample of measurement, which is not published.
+  optional string license = 10;
+  // The task the sample answers, without its key.
+  TaskReference task = 11;
+  // The strokes: the history of writing, or the final geometry of the strokes the sheet shows.
+  oneof ink {
+    // The history of writing, in a sample of measurement written by an adult.
+    History history = 12;
+    // The final geometry of the visible strokes, in a sample of an eval set and in a sample of a
+    // child.
+    Geometry geometry = 13;
+  }
+  // Where the sample was written.
+  oneof surface {
+    // A handwriting sheet.
+    Sheet sheet = 14;
+    // A page of a workbook.
+    Workbook workbook = 15;
+  }
+}
+
+// What a sample is made for.
+enum Purpose {
+  // No purpose: never written. A sample that holds it is not valid.
+  PURPOSE_UNSPECIFIED = 0;
+  // Measurement: a sample for `tutor`'s measurement, kept out of git.
+  PURPOSE_MEASUREMENT = 1;
+  // An eval set: a sample that the organizer of an eval set adds to a module's eval set in
+  // `modules`, published and never withdrawn.
+  PURPOSE_EVAL_SET = 2;
+}
+
+// Who wrote a sample.
+enum Writer {
+  // Nobody: never written. A sample that holds it is not valid.
+  WRITER_UNSPECIFIED = 0;
+  // An adult, in their own hand.
+  WRITER_ADULT = 1;
+  // An adult imitating a child's hand.
+  WRITER_ADULT_AS_CHILD = 2;
+  // A child: only in a sample of measurement.
+  WRITER_CHILD = 3;
+}
+
+// A person who wrote a sample: the file says nothing more of them.
+message Person {}
+
+// Code that drew a sample from a seed.
+message Synthetic {
+  // The seed, an unsigned integer of 64 bits in decimal digits, as the module format writes one.
+  string seed = 1;
+}
+
+// The task a sample answers, without its key: where it comes from, its ID, the seed of an
+// instance of a template, and the digest of its open view. The runner finds the key by them.
+message TaskReference {
+  // Where the task comes from.
+  oneof source {
+    // A module's package, from a release of `modules`.
+    ModuleSource modules = 1;
+    // The file of open tasks of a release of `tutor`.
+    TutorSource tutor = 2;
+    // A file of tasks outside any release.
+    TaskFileSource file = 3;
+  }
+  // The task's ID, as its module or bank spells it.
+  string task = 4;
+  // The seed whose instance of a template the sample answers, in decimal digits: only when the
+  // task is a template.
+  optional string seed = 5;
+  // The digest of the task's open view: `sha256:` and the SHA-256 of its canonical text, 64
+  // lowercase hexadecimal digits, as the module format takes a digest (section 25 of its text).
+  // Of an instance of a template, the open view with its numbers in place.
+  string open_view_digest = 6;
+}
+
+// A task of a module's package, from a release of `modules`.
+message ModuleSource {
+  // The tag of the release of `modules` whose index holds the package.
+  string tag = 1;
+  // The module's ID.
+  string module = 2;
+  // The module's version.
+  string version = 3;
+  // The digest of the package, `sha256:` and 64 lowercase hexadecimal digits.
+  string package_digest = 4;
+}
+
+// A task of the file of open tasks of a release of `tutor`.
+message TutorSource {
+  // The tag of the release of `tutor`.
+  string tag = 1;
+  // The digest of the file of open tasks: `sha256:` and the SHA-256 of its bytes.
+  string file_digest = 2;
+  // The bank of tasks in the file.
+  string bank = 3;
+  // The digest of the bank, as the file gives it.
+  string bank_digest = 4;
+}
+
+// A task of a file of tasks outside any release.
+message TaskFileSource {
+  // The digest of the file: `sha256:` and the SHA-256 of its bytes.
+  string file_digest = 1;
+  // The bank of tasks in the file.
+  string bank = 2;
+  // The digest of the bank, as the file gives it.
+  string bank_digest = 3;
+}
+
+// The history of writing: the events in the order they happened, on the sheet's clock.
+message History {
+  // The events, their times never decreasing.
+  repeated HistoryEvent events = 1;
+}
+
+// One event of the history of writing.
+message HistoryEvent {
+  // When it happened: whole milliseconds on the sheet's clock, which counts from when it was first
+  // read. A stroke is written when its last point is.
+  int32 t_ms = 1;
+  // What happened.
+  oneof event {
+    // A stroke was written.
+    Stroke write = 2;
+    // The eraser took strokes off, in one stroke of the eraser.
+    StrokeIds erase = 3;
+    // The sheet was cleared: every stroke on it.
+    StrokeIds clear = 4;
+    // An undo took strokes off and put others back.
+    Undo undo = 5;
+  }
+}
+
+// A stroke as it was written.
+message Stroke {
+  // The stroke's ID: unique in the sample, from 1.
+  int32 id = 1;
+  // The type of the pointer that wrote it, as the browser names it: "pen", "touch", "mouse" or
+  // another.
+  string pointer = 2;
+  // The points, in the order they were written: one at least.
+  repeated InkPoint points = 3;
+}
+
+// A point of a stroke as it was written.
+message InkPoint {
+  // Across, in units of the sheet from its left edge, to a tenth.
+  double x = 1;
+  // Down, in units of the sheet from its top edge, to a tenth.
+  double y = 2;
+  // When: whole milliseconds on the sheet's clock, never decreasing along the stroke.
+  int32 t_ms = 3;
+}
+
+// The IDs of strokes.
+message StrokeIds {
+  // The strokes' IDs, in the order of the sheet.
+  repeated int32 ids = 1;
+}
+
+// What an undo changed.
+message Undo {
+  // The IDs of the strokes it took off.
+  repeated int32 removed = 1;
+  // The IDs of the strokes it put back.
+  repeated int32 restored = 2;
+}
+
+// The final geometry: the strokes the sheet shows at the end, without time, pressure, the order of
+// writing or what was erased.
+message Geometry {
+  // The visible strokes, numbered by their place from 1.
+  repeated FinalStroke strokes = 1;
+}
+
+// A visible stroke of the final geometry.
+message FinalStroke {
+  // The stroke's ID: its number by place, from 1.
+  int32 id = 1;
+  // The points along the stroke, in its canonical direction: one at least.
+  repeated FinalPoint points = 2;
+}
+
+// A point of the final geometry.
+message FinalPoint {
+  // Across, in units of the sheet from its left edge, to a tenth.
+  double x = 1;
+  // Down, in units of the sheet from its top edge, to a tenth.
+  double y = 2;
+}
+
+// A handwriting sheet: its size, the groups of its strokes, and their crops.
+message Sheet {
+  // The sheet's width, in units.
+  int32 width = 1;
+  // The sheet's height, in units.
+  int32 height = 2;
+  // The height of a digit that the module asks a crop to be drawn at, px: the height at which
+  // `app` sends the crop.
+  int32 digit_height = 3;
+  // The groups of the visible strokes, by the rule of groups, their labels in order: every
+  // visible stroke in one of them.
+  repeated Group groups = 4;
+  // The crops of the visible strokes, with the frames of their groups. A sheet without strokes
+  // has none.
+  CropSet crops = 5;
+}
+
+// A group of strokes on a sheet.
+message Group {
+  // The group's label: A to Z, then AA, AB and on, by the group's place on the sheet.
+  string label = 1;
+  // The IDs of its strokes, ascending: one at least.
+  repeated int32 stroke_ids = 2;
+}
+
+// A page of a workbook: its size, its boxes, and the filled boxes with their strokes and crops.
+// It has no groups.
+message Workbook {
+  // The page's width, in units.
+  int32 width = 1;
+  // The page's height, in units.
+  int32 height = 2;
+  // The height of a digit that the module asks a crop to be drawn at, px: the height at which
+  // `app` sends the crops.
+  int32 digit_height = 3;
+  // Every box of the page, in the task's order.
+  repeated PageBox boxes = 4;
+  // The boxes that strokes fill, by the rule of boxes, in the task's order: the table "box →
+  // stroke IDs" that the device built, and each box's crops.
+  repeated FilledBox filled_boxes = 5;
+}
+
+// A box of a workbook's page, where it stands.
+message PageBox {
+  // The box, by its item and its place in the item.
+  novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+  // Its left edge, in whole units of the page.
+  int32 left = 2;
+  // Its top edge, in whole units of the page.
+  int32 top = 3;
+  // Its width, in whole units.
+  int32 width = 4;
+  // Its height, in whole units.
+  int32 height = 5;
+}
+
+// A box that strokes fill, its strokes and its crops.
+message FilledBox {
+  // The box, by its item and its place in the item.
+  novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
+  // The IDs of its strokes, ascending: one at least.
+  repeated int32 stroke_ids = 2;
+  // The crops of its strokes, without frames.
+  CropSet crops = 3;
+}
+
+// The crops of one set of strokes, one at each height of eval, and the whole numbers they share:
+// the box of the points and the median of the heights of the bundles of strokes.
+message CropSet {
+  // The box of the strokes' points, in whole tenths of a unit.
+  TenthsBox ink_box = 1;
+  // h_med: the lower median of the heights of the bundles of strokes, in whole tenths of a unit.
+  int32 bundle_median = 2;
+  // The crops, by the height of a digit ascending: one at each height of eval and at the
+  // module's.
+  repeated Crop crops = 3;
+}
+
+// A box on the sheet in whole tenths of a unit, [ymin, xmin, ymax, xmax].
+message TenthsBox {
+  // The top edge.
+  int32 ymin = 1;
+  // The left edge.
+  int32 xmin = 2;
+  // The bottom edge.
+  int32 ymax = 3;
+  // The right edge.
+  int32 xmax = 4;
+}
+
+// One crop: the height of a digit it was asked at, the numbers it was drawn by, and its PNG.
+message Crop {
+  // D: the height of a digit asked for, px.
+  int32 digit_height = 1;
+  // D′: the height digits are drawn at, px, D or less if the crop at D would be too large.
+  int32 drawn_height = 2;
+  // The crop's width, px.
+  int32 width = 3;
+  // The crop's height, px.
+  int32 height = 4;
+  // The margin above the strokes, px.
+  int32 margin_top = 5;
+  // The margin left of the strokes, px.
+  int32 margin_left = 6;
+  // s: px of the crop to a unit of the sheet.
+  double scale = 7;
+  // The width of the line, px.
+  double line_width = 8;
+  // Where the crop with its margins lies on the sheet, `sheet_box`.
+  SheetBox sheet_box = 9;
+  // The frames of the groups, in the order of their labels: on a sheet one for each group, and
+  // none on a workbook.
+  repeated Frame frames = 10;
+  // The crop, a PNG: grey, 8 bits, with no ancillary chunk.
+  bytes png = 11;
+}
+
+// Where a crop lies on the sheet, in units, [ymin, xmin, ymax, xmax].
+message SheetBox {
+  // The top edge.
+  double ymin = 1;
+  // The left edge.
+  double xmin = 2;
+  // The bottom edge.
+  double ymax = 3;
+  // The right edge.
+  double xmax = 4;
+}
+
+// A group's frame on a crop.
+message Frame {
+  // The group's label.
+  string label = 1;
+  // Where the ink of its strokes lies on the crop, in whole thousandths of the crop.
+  novatrail.observation.v1.CropBox box = 2;
+}

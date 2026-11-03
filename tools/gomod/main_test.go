@@ -160,8 +160,8 @@ func TestNoLicenseIsFound(t *testing.T) {
 // The module of the contracts, in a folder of its own, with what its go.mod requires (R83).
 const contractsMod = "module github.com/altnovatrail/spec/contracts\n\ngo 1.27.0\n\nrequire (\n\tconnectrpc.com/connect/v2 v2.0.2\n\tgoogle.golang.org/protobuf v1.36.12\n)\n"
 
-// A made-up spec with the module of the contracts beside its own: a README, a .proto and a file
-// of generated code.
+// A made-up spec with the module of the contracts beside its own: a README, a .proto, a file of
+// generated code, and a test vector with the package that embeds it.
 func scratchContracts(t *testing.T, goMod string) string {
 	t.Helper()
 	root := scratch(t, v0)
@@ -169,6 +169,9 @@ func scratchContracts(t *testing.T, goMod string) string {
 	write(t, root, "contracts/README.md", "# The contracts\n")
 	write(t, root, "contracts/novatrail/trial/v1/trial.proto", "syntax = \"proto3\";\n")
 	write(t, root, "contracts/novatrail/trial/v1/trial.pb.go", "package trialv1\n")
+	write(t, root, "contracts/vectors.go", "package contracts\n")
+	write(t, root, "contracts/vectors/trial/v1/one.json", "{}\n")
+	write(t, root, "contracts/examples/trial/v1/one.json", "{}\n")
 	commit(t, root)
 	return root
 }
@@ -180,7 +183,7 @@ func TestTheContractsModuleCarriesEveryFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(report, "github.com/altnovatrail/spec/contracts@v0.7.0") || !strings.Contains(report, "LICENSE and the 4 files of contracts/") {
+	if !strings.Contains(report, "github.com/altnovatrail/spec/contracts@v0.7.0") || !strings.Contains(report, "LICENSE and the 7 files of contracts/") {
 		t.Fatalf("report: %s", report)
 	}
 	// spec's own module no longer carries contracts/, and its check is the same as before.

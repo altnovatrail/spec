@@ -96,6 +96,51 @@ test("an archive from anywhere but the registry's address for its release is ref
   refused({ "node_modules/types": { ...spec } }, /node_modules\/types comes from https:\/\/registry\.npmjs\.org\/@altnovatrail\/spec\/-\/spec-0\.5\.6\.tgz, of @altnovatrail, as types/);
 });
 
+test("@altnovatrail/contracts is spec's: its archive is verified against the bundle of the file of its name in spec's release", async () => {
+  const resolved = "https://registry.npmjs.org/@altnovatrail/contracts/-/contracts-0.5.6.tgz";
+  const bundle = "https://github.com/altnovatrail/spec/releases/download/v0.5.6/altnovatrail-contracts-0.5.6.tgz.sigstore.json";
+  const contracts = { version: "0.5.6", resolved, integrity: INTEGRITY };
+  const one = lock({ "node_modules/@altnovatrail/contracts": contracts });
+  assert.deepEqual(lockedPackages(one).packages, [
+    { key: "node_modules/@altnovatrail/contracts", name: "@altnovatrail/contracts", repository: "spec", archive: "altnovatrail-contracts-0.5.6.tgz", version: "0.5.6", resolved, integrity: INTEGRITY },
+  ]);
+  assert.throws(() => lockedPackages(lock({ "node_modules/@altnovatrail/contracts": { ...contracts, resolved: ARCHIVE } })), /comes from "https:\/\/registry\.npmjs\.org\/@altnovatrail\/spec\/-\/spec-0\.5\.6\.tgz", not https:\/\/registry\.npmjs\.org\/@altnovatrail\/contracts\/-\/contracts-0\.5\.6\.tgz/);
+  // spec's other package, signed by the same release.yml, under the contracts' name: the signature
+  // holds for its bytes, and its package.json gives it away.
+  const { fetch, asked } = web({ [resolved]: RELEASED.bytes, [bundle]: Buffer.from(JSON.stringify(RELEASED.bundle)) });
+  await assert.rejects(verifyLock(one, { trust: async () => trustedRoot, source: gitHub(), fetch }), /the package\.json of altnovatrail-contracts-0\.5\.6\.tgz names the package "@altnovatrail\/spec", not @altnovatrail\/contracts/);
+  assert.deepEqual(asked, [resolved, bundle]);
+});
+
+test("@altnovatrail/contracts 0.7.0, the file of spec's release v0.7.0 in npm, is verified beside the types' package", async () => {
+  const resolved = "https://registry.npmjs.org/@altnovatrail/contracts/-/contracts-0.7.0.tgz";
+  const bundle = "https://github.com/altnovatrail/spec/releases/download/v0.7.0/altnovatrail-contracts-0.7.0.tgz.sigstore.json";
+  // The integrity of @altnovatrail/contracts@0.7.0 in the registry, as `npm view` read it on
+  // 2026-11-03: the archive in npm is the file of spec's release v0.7.0, byte for byte (R83).
+  const integrity = "sha512-6P71MYXtDxji1Jo7eELAhD9+zHkgsH2ob57IYGy80pZwA+ujtN6A0YWyM6+hjVPSSHG4lOD+lRIdlz1gQrYrdQ==";
+  const released = fixture("spec-v0.7.0/altnovatrail-contracts-0.7.0.tgz");
+  const { fetch, asked } = web({ [resolved]: released.bytes, [bundle]: Buffer.from(JSON.stringify(released.bundle)) });
+  const lines = await verifyLock(
+    lock({
+      "node_modules/@altnovatrail/contracts": { version: "0.7.0", resolved, integrity },
+      "node_modules/@altnovatrail/spec": spec,
+      // The runtime the contracts' code depends on is no package of @altnovatrail.
+      "node_modules/@bufbuild/protobuf": { version: "2.16.0", resolved: "https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-2.16.0.tgz", integrity: "sha512-x" },
+    }),
+    { trust: async () => trustedRoot, source: gitHub(), fetch },
+  );
+  assert.deepEqual(lines, [
+    "node_modules/@altnovatrail/contracts: altnovatrail-contracts-0.7.0.tgz: spec v0.7.0, signed by spec's release.yml, and its integrity is the verified bytes'",
+    "node_modules/@altnovatrail/spec: altnovatrail-spec-0.5.6.tgz: spec v0.5.6, signed by spec's release.yml, and its integrity is the verified bytes'",
+  ]);
+  assert.deepEqual(asked.toSorted(), [resolved, bundle, ARCHIVE, BUNDLE].toSorted());
+  // The same archive under the types' integrity is refused.
+  await assert.rejects(
+    verifyLock(lock({ "node_modules/@altnovatrail/contracts": { version: "0.7.0", resolved, integrity: INTEGRITY } }), { trust: async () => trustedRoot, source: gitHub(), fetch }),
+    /node_modules\/@altnovatrail\/contracts has the integrity sha512-w0qfxwt.*, and the verified archive's is sha512-6P71MYX/,
+  );
+});
+
 test("a lock file that is not npm's, of lockfileVersion 2 or 3 with its packages, is refused rather than found empty", () => {
   for (const text of [JSON.stringify({ lockfileVersion: 1, dependencies: {} }), JSON.stringify({ lockfileVersion: 3 }), JSON.stringify({ lockfileVersion: 3, packages: [] }), "null", "[]"]) {
     assert.throws(() => lockedPackages(text), /the lock file is not npm's, of lockfileVersion 2 or 3, with its packages/, text);

@@ -22,12 +22,11 @@ const trial = "contracts/novatrail/trial/v1/trial.proto";
 // code buf generates from it, all committed on main.
 function repository({ generated = true } = {}) {
   const { dir, git } = scratchRepository("contracts-check-");
-  for (const file of ["LICENSE", "buf.yaml", "buf.gen.yaml", "contracts/README.md", "contracts/go.mod", "contracts/go.sum"]) {
+  for (const file of ["LICENSE", "buf.yaml", "buf.gen.yaml", "contracts/README.md", "contracts/go.mod", "contracts/go.sum", "tools/package.json", "tools/contracts/npm/README.md"]) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(dir, file));
   }
   fs.cpSync(path.join(here, "fixtures", "base"), dir, { recursive: true });
-  fs.mkdirSync(path.join(dir, "tools"));
   fs.symlinkSync(path.join(root, "tools", "node_modules"), path.join(dir, "tools", "node_modules"));
   fs.writeFileSync(path.join(dir, ".gitignore"), "/tools/node_modules\n");
   if (generated) writeGenerated(dir);
@@ -65,8 +64,8 @@ test("the trial contract with its generated code passes, with no release to comp
   const { dir } = repository();
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
-  assert.deepEqual(stats, { protos: 1, packages: 1, generated: 4, previous: null });
-  assert.equal(summary(stats), "1 .proto file in 1 package, 4 files of generated code, and no release of spec before HEAD to compare with");
+  assert.deepEqual(stats, { protos: 1, packages: 1, generated: 4, vectors: 0, cases: 0, examples: 0, previous: null, messages: 4 });
+  assert.equal(summary(stats), "1 .proto file in 1 package, 4 files of generated code, and no release of spec before HEAD to compare with; tsc and Node take the 4 messages of its npm package");
   for (const file of ["trial.pb.go", "trialv1connect/trial.connect.go", "trial_pb.js", "trial_pb.d.ts"]) {
     assert.ok(fs.existsSync(path.join(dir, "contracts/novatrail/trial/v1", file)), file);
   }
@@ -179,7 +178,7 @@ test("a field added passes against the release, and a release with no .proto has
   git("commit", "--quiet", "--all", "-m", "a field added");
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
-  assert.match(summary(stats), /, compared with v0\.6\.4$/);
+  assert.match(summary(stats), /, compared with v0\.6\.4; tsc and Node take the 4 messages of its npm package$/);
 
   const empty = scratchRepository("contracts-check-empty-");
   empty.git("commit", "--quiet", "--allow-empty", "-m", "before the contracts");
@@ -189,7 +188,7 @@ test("a field added passes against the release, and a release with no .proto has
   later.git("merge", "--quiet", "--allow-unrelated-histories", "-m", "both", "v0.6.0");
   const result = checkContracts(later.dir);
   assert.deepEqual(result.errors, []);
-  assert.match(summary(result.stats), /, and v0\.6\.0 holds no \.proto file to compare with$/);
+  assert.match(summary(result.stats), /, and v0\.6\.0 holds no \.proto file to compare with; tsc and Node take/);
 });
 
 test("the generated code is held to what buf generates, file for file", () => {
@@ -236,7 +235,7 @@ test("a shallow clone is refused: it has no tags to find the previous release by
   const shallow = `${dir}-shallow`;
   const clone = spawnSync(GIT, ["clone", "--quiet", "--depth", "1", `file://${dir}`, shallow], { encoding: "utf8", env: isolated });
   assert.equal(clone.status, 0, clone.stderr);
-  fs.symlinkSync(path.join(root, "tools"), path.join(shallow, "tools"));
+  fs.symlinkSync(path.join(root, "tools", "node_modules"), path.join(shallow, "tools", "node_modules"));
   assert.throws(() => checkContracts(shallow), /a shallow clone has no tags to find the previous release by/);
 });
 
@@ -244,7 +243,10 @@ test("the command prints each error and exits 1, or prints the summary", () => {
   // The commands read the spec two levels above them, and take no other: a copy of them in the
   // made-up repository reads that one.
   const { dir } = repository();
-  for (const file of ["tools/shared.mjs", "tools/release/version.mjs", "tools/contracts/main.mjs", "tools/contracts/buf.mjs", "tools/contracts/rules.mjs", "tools/contracts/generate.mjs"]) {
+  const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs"];
+  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample"].map((name) => `tools/contracts/${name}.mjs`);
+  const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
+  for (const file of [...tools, ...contracts, ...format]) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(dir, file));
   }
@@ -283,7 +285,73 @@ test("generation clears folders that another file's folder took with it", () => 
   assert.ok(!fs.existsSync(path.join(dir, "contracts/novatrail")));
 });
 
-test("spec's own contracts/ passes", () => {
-  const { errors } = checkContracts(root);
+test("a test vector is of a package that contracts/ has and whose vectors the check runs", () => {
+  const { dir } = repository();
+  edit(dir, "contracts/vectors/trial/v1/one.json", null, "{}\n");
+  edit(dir, "contracts/vectors/learner_model/v1/one.json", null, "{}\n");
+  edit(dir, "contracts/vectors/trial/v1/One.json", null, "{}\n");
+  edit(dir, "contracts/vectors/notes.txt", null, "notes\n");
+  expectEach(
+    dir,
+    /^contracts\/vectors\/learner_model\/v1\/one\.json:0: a vector of novatrail\.learner_model\.v1, and contracts\/ has no \.proto file of that package$/,
+    /^contracts\/vectors\/trial\/v1\/one\.json:0: contracts-check runs no vectors of novatrail\.trial\.v1: the task that brings them extends the check$/,
+    /^contracts\/vectors\/trial\/v1\/One\.json:0: a test vector is contracts\/vectors\/<part>\/vN\/<case>\.json/,
+    /^contracts\/vectors\/notes\.txt:0: a test vector is contracts\/vectors\/<part>\/vN\/<case>\.json/,
+  );
+});
+
+test("the observation is checked by its vectors, and has some", () => {
+  const { dir } = repository();
+  const observation = "contracts/novatrail/observation/v1/observation.proto";
+  fs.mkdirSync(path.join(dir, path.dirname(observation)), { recursive: true });
+  fs.copyFileSync(path.join(root, observation), path.join(dir, observation));
+  fs.cpSync(path.join(root, "format"), path.join(dir, "format"), { recursive: true });
+  writeGenerated(dir);
+  expectEach(dir, /^contracts\/vectors\/observation\/v1:0: novatrail\.observation\.v1 has no test vectors, and they hold the rules of contracts\/README\.md, section 10$/);
+  fs.cpSync(path.join(root, "contracts/vectors"), path.join(dir, "contracts/vectors"), { recursive: true });
+  const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
+  assert.ok(stats.vectors > 0 && stats.cases > stats.vectors, JSON.stringify(stats));
+  assert.match(summary(stats), new RegExp(`, ${stats.vectors} files of test vectors with ${stats.cases} cases, `));
+  edit(dir, "contracts/vectors/observation/v1/essay.json", '"submission": "unreadable"', '"submission": "assessment"');
+  expectEach(dir, /^contracts\/vectors\/observation\/v1\/essay\.json:\d+: case \d+: the submission ends unreadable, not assessment$/);
+});
+
+test("an example is of a package that contracts/ has and whose examples the check reads", () => {
+  const { dir } = repository();
+  edit(dir, "contracts/examples/trial/v1/one.json", null, "{}\n");
+  edit(dir, "contracts/examples/learner_model/v1/one.json", null, "{}\n");
+  edit(dir, "contracts/examples/trial/v1/one.png", null, "png\n");
+  expectEach(
+    dir,
+    /^contracts\/examples\/learner_model\/v1\/one\.json:0: an example of novatrail\.learner_model\.v1, and contracts\/ has no \.proto file of that package$/,
+    /^contracts\/examples\/trial\/v1\/one\.json:0: contracts-check reads no examples of novatrail\.trial\.v1: the task that brings them extends the check$/,
+    /^contracts\/examples\/trial\/v1\/one\.png:0: an example is contracts\/examples\/<part>\/vN\/<case>\.json/,
+  );
+});
+
+test("the sample file is checked by its examples, and has some", () => {
+  const { dir } = repository();
+  for (const file of ["contracts/novatrail/observation/v1/observation.proto", "contracts/novatrail/eval/v1/sample.proto"]) {
+    fs.mkdirSync(path.join(dir, path.dirname(file)), { recursive: true });
+    fs.copyFileSync(path.join(root, file), path.join(dir, file));
+  }
+  fs.cpSync(path.join(root, "format"), path.join(dir, "format"), { recursive: true });
+  fs.cpSync(path.join(root, "contracts/vectors"), path.join(dir, "contracts/vectors"), { recursive: true });
+  writeGenerated(dir);
+  expectEach(dir, /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no examples, and they show the sample file of contracts\/README\.md, section 11$/);
+  fs.cpSync(path.join(root, "contracts/examples"), path.join(dir, "contracts/examples"), { recursive: true });
+  const { errors, stats } = checkContracts(dir);
+  assert.deepEqual(errors, []);
+  assert.equal(stats.examples, 3);
+  assert.match(summary(stats), / with \d+ cases, 3 examples, /);
+  edit(dir, "contracts/examples/eval/v1/sheet-eval-set.json", '"license": "Apache-2.0",\n', "");
+  expectEach(dir, /^contracts\/examples\/eval\/v1\/sheet-eval-set\.json:1: a sample of an eval set names its license, "Apache-2\.0"$/);
+});
+
+test("spec's own contracts/ passes", () => {
+  const { errors, stats } = checkContracts(root);
+  assert.deepEqual(errors, []);
+  assert.ok(stats.vectors > 0, "spec's vectors of the observation are checked");
+  assert.ok(stats.examples > 0, "spec's examples of the sample file are checked");
 });

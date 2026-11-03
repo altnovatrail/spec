@@ -19,11 +19,12 @@ plugins:
   - local: ["go", "-C", "contracts", "tool", "protoc-gen-connect-go"]
     out: contracts
     opt: paths=source_relative
-  # JavaScript with its declarations and the JSON types, as ECMAScript modules whose imports name
-  # their files, as Node and TypeScript's nodenext resolve them.
+  # JavaScript with its declarations, as ECMAScript modules whose imports name their files, as
+  # Node and TypeScript's nodenext resolve them. No JSON types (json_types): they spell a field in
+  # lowerCamelCase, the JSON a writer of a contract never writes, and toJson with
+  # useProtoFieldName gives a JsonValue anyway (R83; contracts/README.md, section 6).
   - local: tools/node_modules/.bin/protoc-gen-es
     out: contracts
     opt:
       - target=js+dts
       - import_extension=js
-      - json_types=true
