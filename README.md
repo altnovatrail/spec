@@ -90,7 +90,7 @@ Work in the devcontainer: open the repository in VS Code and choose "Reopen in C
 - `just release-version` prints the version the next release takes, and `just release-files HEAD <folder> <tag>` builds the files it carries, the npm packages of that tag among them;
 - `just coverage` runs every test of `tools/` and writes their coverage to `coverage/lcov.info`, then the tests of the Go modules, as `ci-test` runs them.
 
-A check prints a line for each problem it finds, `file:line: message` for the documents, the format and the contracts, and exits with a non-zero status if it finds any. CI runs them all on every pull request and on `main`, and a pull request merges only when they pass. Another NovaTrail repository checks its own documents with `just -f spec/justfile docs-check-repo`. The environment and the checks are described in more detail in the Environment section of [CLAUDE.md](CLAUDE.md).
+A check prints a line for each problem it finds, `file:line: message` for the documents, the format and the contracts, and exits with a non-zero status if it finds any. CI runs them all on every pull request and on `main`, and a pull request merges only when they pass. Another NovaTrail repository checks its own documents with `just -f spec/justfile docs-check-repo`, and its sample files of the eval protocol with `just -f spec/justfile sample-check <file>…`, by the code that checks the examples. The environment and the checks are described in more detail in the Environment section of [CLAUDE.md](CLAUDE.md).
 
 ## License
 

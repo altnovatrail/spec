@@ -143,6 +143,23 @@ types-test: _tools
 contracts-check: _tools
     node tools/contracts/main.mjs
 
+# Runs from a NovaTrail repository's root, as `just -f spec/justfile sample-check eval/a.json …`:
+# each sample file of the eval protocol it names is read strictly and held to the rules of
+# contracts/README.md, section 11, by the code that holds spec's examples to them (R93), against
+# the image buf builds of this spec's contracts/ — the submodule's, at the tag the repository pins.
+# The folder it is run from is the root: the paths are from it, a path that leaves it — a link that
+# leads out too — or names no file stops the check before buf runs, and a file named twice is
+# checked once. buf is the toolchain stage's and reaches no service, since buf.yaml has no deps
+# (R83), and no key is needed, so a pull request from a fork runs it too; only _tools reaches the
+# npm registry, to install tools/ from its lock file, as docs-check-repo's does, and fails with
+# npm's status. A file that breaks a rule gives file:line: message and the exit status 1; a path,
+# buf, or a call that names no file, since a check of nothing passes nothing, stops it with 2. In
+# spec itself it reads spec's files the same way.
+# Check sample files of the eval protocol, from a repository's root.
+[positional-arguments]
+sample-check *files: _tools
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/contracts/main.mjs")}} --samples "$@"
+
 # The code buf generates from the contracts, beside the .proto files it comes from (R83): Go of
 # protoc-gen-go and protoc-gen-connect-go, JavaScript with its declarations of protoc-gen-es.
 # buf writes it into a new folder, and it takes the place of the generated files of
@@ -153,10 +170,11 @@ contracts: _tools
     node tools/contracts/generate.mjs
     go -C contracts mod tidy
 
+# The tests that run the recipes run this same just: sample-check's, from made-up repositories.
 # Run contracts-check's own tests, on trial contracts in made-up repositories, with spec's buf.yaml,
 # buf.gen.yaml and contracts/go.mod, and buf and its plugins as the check runs them.
 contracts-check-test: _tools
-    node --test 'tools/contracts/test/*.test.mjs'
+    JUST={{quote(just_executable())}} node --test 'tools/contracts/test/*.test.mjs'
 
 # The Go module spec ships at the tag of every release (R64): go.mod and spec.go at the root, which
 # embeds format/, and the types of the module format under types/ (R72). It requires nothing: go
