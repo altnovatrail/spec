@@ -64,7 +64,7 @@ test("the trial contract with its generated code passes, with no release to comp
   const { dir } = repository();
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
-  assert.deepEqual(stats, { protos: 1, packages: 1, generated: 4, vectors: 0, cases: 0, previous: null, messages: 4 });
+  assert.deepEqual(stats, { protos: 1, packages: 1, generated: 4, vectors: 0, cases: 0, examples: 0, previous: null, messages: 4 });
   assert.equal(summary(stats), "1 .proto file in 1 package, 4 files of generated code, and no release of spec before HEAD to compare with; tsc and Node take the 4 messages of its npm package");
   for (const file of ["trial.pb.go", "trialv1connect/trial.connect.go", "trial_pb.js", "trial_pb.d.ts"]) {
     assert.ok(fs.existsSync(path.join(dir, "contracts/novatrail/trial/v1", file)), file);
@@ -244,7 +244,7 @@ test("the command prints each error and exits 1, or prints the summary", () => {
   // made-up repository reads that one.
   const { dir } = repository();
   const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs"];
-  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation"].map((name) => `tools/contracts/${name}.mjs`);
+  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample"].map((name) => `tools/contracts/${name}.mjs`);
   const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
   for (const file of [...tools, ...contracts, ...format]) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
@@ -317,8 +317,41 @@ test("the observation is checked by its vectors, and has some", () => {
   expectEach(dir, /^contracts\/vectors\/observation\/v1\/essay\.json:\d+: case \d+: the submission ends unreadable, not assessment$/);
 });
 
+test("an example is of a package that contracts/ has and whose examples the check reads", () => {
+  const { dir } = repository();
+  edit(dir, "contracts/examples/trial/v1/one.json", null, "{}\n");
+  edit(dir, "contracts/examples/learner_model/v1/one.json", null, "{}\n");
+  edit(dir, "contracts/examples/trial/v1/one.png", null, "png\n");
+  expectEach(
+    dir,
+    /^contracts\/examples\/learner_model\/v1\/one\.json:0: an example of novatrail\.learner_model\.v1, and contracts\/ has no \.proto file of that package$/,
+    /^contracts\/examples\/trial\/v1\/one\.json:0: contracts-check reads no examples of novatrail\.trial\.v1: the task that brings them extends the check$/,
+    /^contracts\/examples\/trial\/v1\/one\.png:0: an example is contracts\/examples\/<part>\/vN\/<case>\.json/,
+  );
+});
+
+test("the sample file is checked by its examples, and has some", () => {
+  const { dir } = repository();
+  for (const file of ["contracts/novatrail/observation/v1/observation.proto", "contracts/novatrail/eval/v1/sample.proto"]) {
+    fs.mkdirSync(path.join(dir, path.dirname(file)), { recursive: true });
+    fs.copyFileSync(path.join(root, file), path.join(dir, file));
+  }
+  fs.cpSync(path.join(root, "format"), path.join(dir, "format"), { recursive: true });
+  fs.cpSync(path.join(root, "contracts/vectors"), path.join(dir, "contracts/vectors"), { recursive: true });
+  writeGenerated(dir);
+  expectEach(dir, /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no examples, and they show the sample file of contracts\/README\.md, section 11$/);
+  fs.cpSync(path.join(root, "contracts/examples"), path.join(dir, "contracts/examples"), { recursive: true });
+  const { errors, stats } = checkContracts(dir);
+  assert.deepEqual(errors, []);
+  assert.equal(stats.examples, 3);
+  assert.match(summary(stats), / with \d+ cases, 3 examples, /);
+  edit(dir, "contracts/examples/eval/v1/sheet-eval-set.json", '"license": "Apache-2.0",\n', "");
+  expectEach(dir, /^contracts\/examples\/eval\/v1\/sheet-eval-set\.json:1: a sample of an eval set names its license, "Apache-2\.0"$/);
+});
+
 test("spec's own contracts/ passes", () => {
   const { errors, stats } = checkContracts(root);
   assert.deepEqual(errors, []);
   assert.ok(stats.vectors > 0, "spec's vectors of the observation are checked");
+  assert.ok(stats.examples > 0, "spec's examples of the sample file are checked");
 });
