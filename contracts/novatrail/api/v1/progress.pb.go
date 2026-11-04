@@ -684,13 +684,16 @@ type AttemptRecord struct {
 	BegunAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=begun_at,json=begunAt,proto3" json:"begun_at,omitempty"`
 	// When it was closed: absent while it is open.
 	ClosedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=closed_at,json=closedAt,proto3" json:"closed_at,omitempty"`
-	// When the engine chose the task, or the lesson of the run: absent for an attempt begun again by
-	// the learner.
+	// When the engine chose the task, or the lesson of the run by the choice that began the run:
+	// absent for an attempt begun again by the learner.
 	ChosenAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=chosen_at,json=chosenAt,proto3" json:"chosen_at,omitempty"`
 	// On a task with a rubric: each submission, in order, with how it ended and its feedback's marks.
 	EssaySubmissions []*EssayRecord `protobuf:"bytes,9,rep,name=essay_submissions,json=essaySubmissions,proto3" json:"essay_submissions,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// The reason code of the choice that `chosen_at` names, which the adult sees and a child is not
+	// told (R100): `REASON_CODE_UNSPECIFIED` where `chosen_at` is absent.
+	ReasonCode    ReasonCode `protobuf:"varint,10,opt,name=reason_code,json=reasonCode,proto3,enum=novatrail.api.v1.ReasonCode" json:"reason_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AttemptRecord) Reset() {
@@ -784,6 +787,13 @@ func (x *AttemptRecord) GetEssaySubmissions() []*EssayRecord {
 		return x.EssaySubmissions
 	}
 	return nil
+}
+
+func (x *AttemptRecord) GetReasonCode() ReasonCode {
+	if x != nil {
+		return x.ReasonCode
+	}
+	return ReasonCode_REASON_CODE_UNSPECIFIED
 }
 
 // A submission of an essay in the progress of a profile.
@@ -983,7 +993,7 @@ const file_novatrail_api_v1_progress_proto_rawDesc = "" +
 	"\x13GetProgressResponse\x12;\n" +
 	"\battempts\x18\x01 \x03(\v2\x1f.novatrail.api.v1.AttemptRecordR\battempts\x12H\n" +
 	"\x0frepeating_traps\x18\x02 \x03(\v2\x1f.novatrail.api.v1.RepeatingTrapR\x0erepeatingTraps\x12&\n" +
-	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\"\xbe\x03\n" +
+	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\"\xfd\x03\n" +
 	"\rAttemptRecord\x12\x12\n" +
 	"\x04task\x18\x01 \x01(\tR\x04task\x12%\n" +
 	"\x0emodule_version\x18\x02 \x01(\tR\rmoduleVersion\x12\x16\n" +
@@ -993,7 +1003,10 @@ const file_novatrail_api_v1_progress_proto_rawDesc = "" +
 	"\bbegun_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\abegunAt\x127\n" +
 	"\tclosed_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\x127\n" +
 	"\tchosen_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bchosenAt\x12J\n" +
-	"\x11essay_submissions\x18\t \x03(\v2\x1d.novatrail.api.v1.EssayRecordR\x10essaySubmissions\"\xc9\x01\n" +
+	"\x11essay_submissions\x18\t \x03(\v2\x1d.novatrail.api.v1.EssayRecordR\x10essaySubmissions\x12=\n" +
+	"\vreason_code\x18\n" +
+	" \x01(\x0e2\x1c.novatrail.api.v1.ReasonCodeR\n" +
+	"reasonCode\"\xc9\x01\n" +
 	"\vEssayRecord\x12=\n" +
 	"\fsubmitted_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vsubmittedAt\x121\n" +
 	"\x03end\x18\x02 \x01(\x0e2\x1f.novatrail.api.v1.SubmissionEndR\x03end\x12H\n" +
@@ -1056,7 +1069,8 @@ var file_novatrail_api_v1_progress_proto_goTypes = []any{
 	(Action)(0),                   // 12: novatrail.api.v1.Action
 	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
 	(CloseReason)(0),              // 14: novatrail.api.v1.CloseReason
-	(SubmissionEnd)(0),            // 15: novatrail.api.v1.SubmissionEnd
+	(ReasonCode)(0),               // 15: novatrail.api.v1.ReasonCode
+	(SubmissionEnd)(0),            // 16: novatrail.api.v1.SubmissionEnd
 }
 var file_novatrail_api_v1_progress_proto_depIdxs = []int32{
 	12, // 0: novatrail.api.v1.GetSkillMapRequest.action:type_name -> novatrail.api.v1.Action
@@ -1073,19 +1087,20 @@ var file_novatrail_api_v1_progress_proto_depIdxs = []int32{
 	13, // 11: novatrail.api.v1.AttemptRecord.closed_at:type_name -> google.protobuf.Timestamp
 	13, // 12: novatrail.api.v1.AttemptRecord.chosen_at:type_name -> google.protobuf.Timestamp
 	10, // 13: novatrail.api.v1.AttemptRecord.essay_submissions:type_name -> novatrail.api.v1.EssayRecord
-	13, // 14: novatrail.api.v1.EssayRecord.submitted_at:type_name -> google.protobuf.Timestamp
-	15, // 15: novatrail.api.v1.EssayRecord.end:type_name -> novatrail.api.v1.SubmissionEnd
-	2,  // 16: novatrail.api.v1.EssayRecord.criterion_marks:type_name -> novatrail.api.v1.CriterionMark
-	13, // 17: novatrail.api.v1.RepeatingTrap.last_closed_at:type_name -> google.protobuf.Timestamp
-	3,  // 18: novatrail.api.v1.ProgressService.GetSkillMap:input_type -> novatrail.api.v1.GetSkillMapRequest
-	7,  // 19: novatrail.api.v1.ProgressService.GetProgress:input_type -> novatrail.api.v1.GetProgressRequest
-	4,  // 20: novatrail.api.v1.ProgressService.GetSkillMap:output_type -> novatrail.api.v1.GetSkillMapResponse
-	8,  // 21: novatrail.api.v1.ProgressService.GetProgress:output_type -> novatrail.api.v1.GetProgressResponse
-	20, // [20:22] is the sub-list for method output_type
-	18, // [18:20] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	15, // 14: novatrail.api.v1.AttemptRecord.reason_code:type_name -> novatrail.api.v1.ReasonCode
+	13, // 15: novatrail.api.v1.EssayRecord.submitted_at:type_name -> google.protobuf.Timestamp
+	16, // 16: novatrail.api.v1.EssayRecord.end:type_name -> novatrail.api.v1.SubmissionEnd
+	2,  // 17: novatrail.api.v1.EssayRecord.criterion_marks:type_name -> novatrail.api.v1.CriterionMark
+	13, // 18: novatrail.api.v1.RepeatingTrap.last_closed_at:type_name -> google.protobuf.Timestamp
+	3,  // 19: novatrail.api.v1.ProgressService.GetSkillMap:input_type -> novatrail.api.v1.GetSkillMapRequest
+	7,  // 20: novatrail.api.v1.ProgressService.GetProgress:input_type -> novatrail.api.v1.GetProgressRequest
+	4,  // 21: novatrail.api.v1.ProgressService.GetSkillMap:output_type -> novatrail.api.v1.GetSkillMapResponse
+	8,  // 22: novatrail.api.v1.ProgressService.GetProgress:output_type -> novatrail.api.v1.GetProgressResponse
+	21, // [21:23] is the sub-list for method output_type
+	19, // [19:21] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_progress_proto_init() }

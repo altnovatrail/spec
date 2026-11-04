@@ -11,7 +11,7 @@ import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobu
 import type { Message } from "@bufbuild/protobuf";
 import type { Action, SubmissionEnd } from "./attempt_pb.js";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
-import type { CloseReason } from "./cause_pb.js";
+import type { CloseReason, ReasonCode } from "./cause_pb.js";
 
 /**
  * Describes the file novatrail/api/v1/progress.proto.
@@ -340,8 +340,8 @@ export declare type AttemptRecord = Message<"novatrail.api.v1.AttemptRecord"> & 
   closedAt?: Timestamp | undefined;
 
   /**
-   * When the engine chose the task, or the lesson of the run: absent for an attempt begun again by
-   * the learner.
+   * When the engine chose the task, or the lesson of the run by the choice that began the run:
+   * absent for an attempt begun again by the learner.
    *
    * @generated from field: google.protobuf.Timestamp chosen_at = 8;
    */
@@ -353,6 +353,14 @@ export declare type AttemptRecord = Message<"novatrail.api.v1.AttemptRecord"> & 
    * @generated from field: repeated novatrail.api.v1.EssayRecord essay_submissions = 9;
    */
   essaySubmissions: EssayRecord[];
+
+  /**
+   * The reason code of the choice that `chosen_at` names, which the adult sees and a child is not
+   * told (R100): `REASON_CODE_UNSPECIFIED` where `chosen_at` is absent.
+   *
+   * @generated from field: novatrail.api.v1.ReasonCode reason_code = 10;
+   */
+  reasonCode: ReasonCode;
 };
 
 /**
