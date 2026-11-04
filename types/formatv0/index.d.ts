@@ -1264,7 +1264,7 @@ export interface IndexVector {
    * The versions that the release withdraws from publication, by module ID and version. A release
    * that withdraws none leaves this field out.
    */
-  readonly withdrawals?: Readonly<Record<ModuleID, Readonly<Record<ModuleVersion, WithdrawalReason>>>>;
+  readonly withdrawals?: Withdrawals;
   /**
    * The index that the release builds, when it builds one.
    */
@@ -1368,6 +1368,16 @@ export type AnchorSkillID = string;
  * whatever the reason, also one that a later version of the format adds.
  */
 export type WithdrawalReason = "wrong_key" | "answer_leak" | "unsuitable_content";
+
+/**
+ * Withdrawals is the type of module-index.schema.json#/$defs/withdrawals.
+ *
+ * The withdrawals of a release of modules, which the build of its index marks (section 26 of the
+ * format text): under each module's ID, under each version it withdraws, the reason of the
+ * withdrawal. modules keeps them in a file of its own, and a test vector of the index in its member
+ * withdrawals. A release that withdraws none has no withdrawals, rather than an empty object.
+ */
+export type Withdrawals = Readonly<Record<ModuleID, Readonly<Record<ModuleVersion, WithdrawalReason>>>>;
 
 // The types of inventory.schema.json.
 

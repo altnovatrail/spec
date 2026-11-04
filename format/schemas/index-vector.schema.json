@@ -15,23 +15,7 @@
       "description": "The tag of this release, which a new entry names."
     },
     "withdrawals": {
-      "type": "object",
-      "propertyNames": {
-        "$ref": "common.schema.json#/$defs/module_id"
-      },
-      "additionalProperties": {
-        "type": "object",
-        "propertyNames": {
-          "$ref": "common.schema.json#/$defs/module_version"
-        },
-        "additionalProperties": {
-          "$ref": "module-index.schema.json#/$defs/withdrawal_reason",
-          "description": "The reason for which the release withdraws the version."
-        },
-        "minProperties": 1,
-        "description": "The versions of one module that the release withdraws, each under its version."
-      },
-      "minProperties": 1,
+      "$ref": "module-index.schema.json#/$defs/withdrawals",
       "description": "The versions that the release withdraws from publication, by module ID and version. A release that withdraws none leaves this field out."
     },
     "index": {
