@@ -200,11 +200,12 @@ var (
 
 // AccountServiceClient is a client for the novatrail.api.v1.AccountService service.
 type AccountServiceClient interface {
-	// The account and its profiles, each with its fields, and the consents that have no profile yet.
-	// `app` reads it when it starts and after signing in, and erases the databases of the profiles
-	// that the list does not hold: only by an answer that came, and for the account the registry of
-	// the device names; a failure of the network erases nothing. A user with no account gets
-	// `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
+	// The account and its profiles, each with its fields, its open attempt and its open lesson runs,
+	// and the consents that have no profile yet. `app` reads it when it starts and after signing in,
+	// and erases the databases of the profiles that the list does not hold: only by an answer that
+	// came, and for the account the registry of the device names; a failure of the network erases
+	// nothing. By the open attempt and runs a device that keeps no state of them finds them. A user
+	// with no account gets `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
 	GetAccount(context.Context, *v1.GetAccountRequest) (*v1.GetAccountResponse, error)
 	// Creates the account of the user signed in, by an invite code and the owner's statement that
 	// they are 18 or older. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already,
@@ -296,11 +297,12 @@ func NewAccountServiceClient(client *connect.Client) AccountServiceClient {
 
 // AccountServiceHandler is an implementation of the novatrail.api.v1.AccountService service.
 type AccountServiceHandler interface {
-	// The account and its profiles, each with its fields, and the consents that have no profile yet.
-	// `app` reads it when it starts and after signing in, and erases the databases of the profiles
-	// that the list does not hold: only by an answer that came, and for the account the registry of
-	// the device names; a failure of the network erases nothing. A user with no account gets
-	// `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
+	// The account and its profiles, each with its fields, its open attempt and its open lesson runs,
+	// and the consents that have no profile yet. `app` reads it when it starts and after signing in,
+	// and erases the databases of the profiles that the list does not hold: only by an answer that
+	// came, and for the account the registry of the device names; a failure of the network erases
+	// nothing. By the open attempt and runs a device that keeps no state of them finds them. A user
+	// with no account gets `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
 	GetAccount(context.Context, *v1.GetAccountRequest) (*v1.GetAccountResponse, error)
 	// Creates the account of the user signed in, by an invite code and the owner's statement that
 	// they are 18 or older. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already,

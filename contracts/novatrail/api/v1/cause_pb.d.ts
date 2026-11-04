@@ -4,8 +4,9 @@
 
 // The causes of the contract between `app` and `api`: one list for its refusals and for the
 // outcomes of its calls of AI, the refusal that a method's error carries, and the outcome that its
-// answer carries. What they mean, and how `app` reads a cause it does not know, are the rules of
-// contracts/README.md, section 15.
+// answer carries; and the values that come both in answers and in the data of a refusal: why an
+// attempt was closed, how a lesson run ended, and the engine's choice. What they mean, and how
+// `app` reads a cause it does not know, are the rules of contracts/README.md, section 15.
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -74,6 +75,24 @@ export declare type Refusal = Message<"novatrail.api.v1.Refusal"> & {
      */
     value: number;
     case: "maxAuthAgeSeconds";
+  } | {
+    /**
+     * Beside `CAUSE_RUN_ENDED`: how the lesson run ended, and the engine's choice when this request
+     * ended it.
+     *
+     * @generated from field: novatrail.api.v1.RunEnd run_end = 7;
+     */
+    value: RunEnd;
+    case: "runEnd";
+  } | {
+    /**
+     * Beside `CAUSE_SEGMENTS_NOT_ENDED` and `CAUSE_SEGMENT_UNAVAILABLE`: the task segments of the
+     * lesson run that have ended.
+     *
+     * @generated from field: novatrail.api.v1.EndedSegments ended_segments = 8;
+     */
+    value: EndedSegments;
+    case: "endedSegments";
   } | { case: undefined; value?: undefined };
 };
 
@@ -84,7 +103,8 @@ export declare type Refusal = Message<"novatrail.api.v1.Refusal"> & {
 export declare const RefusalSchema: GenMessage<Refusal>;
 
 /**
- * An outcome: what a call of AI came to when the answer holds no reading, or no words, of AI.
+ * An outcome: what a call of AI came to when the answer holds no reading, or no words, of AI; and
+ * why the engine's choice gives nothing, when the AI that checks the tasks is closed to the learner.
  *
  * @generated from message novatrail.api.v1.Outcome
  */
@@ -93,7 +113,9 @@ export declare type Outcome = Message<"novatrail.api.v1.Outcome"> & {
    * The outcome: `CAUSE_AI_FAILURE`, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT`,
    * `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED` or `CAUSE_NO_OTHER_WORDS`.
    * "Explain differently" makes no call without the reserve of the quota: there the quota, the limit
-   * of platform AI and no admission are refusals, and the right to it on the rung stays.
+   * of platform AI and no admission are refusals, and the right to it on the rung stays. Beside an
+   * engine's choice that gives nothing: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` or
+   * `CAUSE_NOT_ADMITTED`.
    *
    * @generated from field: novatrail.api.v1.Cause cause = 1;
    */
@@ -148,6 +170,96 @@ export declare type OwnKeyLimit = Message<"novatrail.api.v1.OwnKeyLimit"> & {
 export declare const OwnKeyLimitSchema: GenMessage<OwnKeyLimit>;
 
 /**
+ * The engine's choice: what the learner is given next — a lesson, or a task outside a lesson — or
+ * that there is nothing to give (concepts 12). A choice begins nothing: `app` opens a lesson by
+ * `OpenLesson` and begins a task by `BeginAttempt`, each naming the choice. Its reason code, which
+ * the adult sees, is RUN.md's T65.
+ *
+ * @generated from message novatrail.api.v1.EngineChoice
+ */
+export declare type EngineChoice = Message<"novatrail.api.v1.EngineChoice"> & {
+  /**
+   * The ID of the choice: empty beside `CHOICE_KIND_NOTHING`.
+   *
+   * @generated from field: string choice_id = 1;
+   */
+  choiceId: string;
+
+  /**
+   * What the choice gives.
+   *
+   * @generated from field: novatrail.api.v1.ChoiceKind kind = 2;
+   */
+  kind: ChoiceKind;
+
+  /**
+   * Beside `CHOICE_KIND_NOTHING`, when the AI that checks the tasks is closed to the learner and no
+   * task that a tap checks is left: `CAUSE_QUOTA`, with when the next family day begins,
+   * `CAUSE_PLATFORM_LIMIT` or `CAUSE_NOT_ADMITTED`. Absent when there is nothing to give for
+   * another reason, such as no module connected with a current version.
+   *
+   * @generated from field: novatrail.api.v1.Outcome outcome = 3;
+   */
+  outcome?: Outcome | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.EngineChoice.
+ * Use `create(EngineChoiceSchema)` to create a new message.
+ */
+export declare const EngineChoiceSchema: GenMessage<EngineChoice>;
+
+/**
+ * How a lesson run ended.
+ *
+ * @generated from message novatrail.api.v1.RunEnd
+ */
+export declare type RunEnd = Message<"novatrail.api.v1.RunEnd"> & {
+  /**
+   * Why it ended.
+   *
+   * @generated from field: novatrail.api.v1.RunEndReason reason = 1;
+   */
+  reason: RunEndReason;
+
+  /**
+   * The engine's choice that the end gave: when the request that carries it ended the run — "lesson
+   * done", or a request that found the run's package no longer given, the lesson unsuitable, or the
+   * run abandoned —, and on a repeat of the "lesson done" that ended it. Absent when the run had
+   * ended before by anything else, such as a job of the operator: `app` then asks `ChooseNext`.
+   *
+   * @generated from field: novatrail.api.v1.EngineChoice choice = 2;
+   */
+  choice?: EngineChoice | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.RunEnd.
+ * Use `create(RunEndSchema)` to create a new message.
+ */
+export declare const RunEndSchema: GenMessage<RunEnd>;
+
+/**
+ * The task segments of a lesson run that have ended.
+ *
+ * @generated from message novatrail.api.v1.EndedSegments
+ */
+export declare type EndedSegments = Message<"novatrail.api.v1.EndedSegments"> & {
+  /**
+   * Their places among the segments of the lesson, from 1, in order.
+   *
+   * @generated from field: repeated int32 places = 1;
+   */
+  places: number[];
+};
+
+/**
+ * Describes the message novatrail.api.v1.EndedSegments.
+ * Use `create(EndedSegmentsSchema)` to create a new message.
+ */
+export declare const EndedSegmentsSchema: GenMessage<EndedSegments>;
+
+/**
  * Why a request was refused, or what a call of AI in it came to: one list for the whole contract
  * (R17 api). A refusal comes as the detail `Refusal` of an error of Connect, with the code that the
  * comment of each method gives it; an outcome comes in the answer, as `Outcome`. A cause that the
@@ -173,8 +285,11 @@ export enum Cause {
   NO_PROFILE = 1,
 
   /**
-   * The profile has no attempt with the ID named, or the account no consent with the ID named;
-   * another profile's, or another account's, is the same. Code `not_found`.
+   * The profile has no attempt, lesson run or engine's choice with the ID named, no module
+   * connected with the ID named, and no skill by the full ID named in the current version of a
+   * module connected to it; or the account has no consent with the ID named; or the pinned index
+   * of `api` has no module with the ID named. Another profile's, or another account's, is the
+   * same. Code `not_found`.
    *
    * @generated from enum value: CAUSE_NOT_FOUND = 2;
    */
@@ -206,16 +321,17 @@ export enum Cause {
   STILL_GOING = 5,
 
   /**
-   * The learner's own key came with a profile whose age category is not `adult`. Code
-   * `invalid_argument`.
+   * The learner's own key, or the provider of one at the beginning of an attempt, came with a
+   * profile whose age category is not `adult`. Code `invalid_argument`.
    *
    * @generated from enum value: CAUSE_KEY_NOT_FOR_PROFILE = 6;
    */
   KEY_NOT_FOR_PROFILE = 6,
 
   /**
-   * The quota of platform AI for the family day is spent. A refusal holds when the next family day
-   * begins; so does an outcome. Code `resource_exhausted`.
+   * The quota of platform AI for the family day is spent; at the beginning of an attempt on a task
+   * that platform AI checks, what is left of it is not enough for a typical task. A refusal holds
+   * when the next family day begins; so does an outcome. Code `resource_exhausted`.
    *
    * @generated from enum value: CAUSE_QUOTA = 7;
    */
@@ -364,8 +480,8 @@ export enum Cause {
   CODE_NOT_ACCEPTED = 25,
 
   /**
-   * What the request creates is there already: the account of the user, the owner's profile, or
-   * the profile of a consent. Code `already_exists`.
+   * What the request creates is there already: the account of the user, the owner's profile, the
+   * profile of a consent, or the attempt of an engine's choice of a task. Code `already_exists`.
    *
    * @generated from enum value: CAUSE_ALREADY_EXISTS = 26;
    */
@@ -409,6 +525,67 @@ export enum Cause {
    * @generated from enum value: CAUSE_NO_PIN = 31;
    */
   NO_PIN = 31,
+
+  /**
+   * An open view asked for by the digest of a package whose version the image of `api` no longer
+   * gives: its index marks the version withdrawn, or the version's module format is out of the
+   * window of formats that `api` reads. `app` asks `CheckPackages` about the digests it keeps,
+   * and erases what it keeps of the version. An attempt or a lesson run on such a version is closed
+   * or ended `unchecked` instead. Code `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_VERSION_NOT_GIVEN = 32;
+   */
+  VERSION_NOT_GIVEN = 32,
+
+  /**
+   * The index of the image of `api` does not know the package digest: a deployment is going on,
+   * and a repeat reaches the new image. Code `unavailable`.
+   *
+   * @generated from enum value: CAUSE_PACKAGE_UNKNOWN = 33;
+   */
+  PACKAGE_UNKNOWN = 33,
+
+  /**
+   * The module has no current version for the learner — none at all, or one whose audience the
+   * learner is not in — or its current version has no lesson or task by the ID named. Code
+   * `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_NO_CURRENT_VERSION = 34;
+   */
+  NO_CURRENT_VERSION = 34,
+
+  /**
+   * The lesson, one of its tasks, or the task does not suit the age category of the profile. Code
+   * `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_NOT_SUITABLE = 35;
+   */
+  NOT_SUITABLE = 35,
+
+  /**
+   * The lesson run has ended. The refusal holds how it ended, and the engine's choice when this
+   * request ended it. Code `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_RUN_ENDED = 36;
+   */
+  RUN_ENDED = 36,
+
+  /**
+   * "Lesson done" while a task segment of the lesson has not ended. The refusal holds the places
+   * of the task segments that have ended. Code `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_SEGMENTS_NOT_ENDED = 37;
+   */
+  SEGMENTS_NOT_ENDED = 37,
+
+  /**
+   * An attempt asked for on a segment out of order: a task segment before it has not ended, or it
+   * has ended itself. The refusal holds the places of the task segments that have ended. Code
+   * `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_SEGMENT_UNAVAILABLE = 38;
+   */
+  SEGMENT_UNAVAILABLE = 38,
 }
 
 /**
@@ -532,4 +709,95 @@ export enum CloseReason {
  * Describes the enum novatrail.api.v1.CloseReason.
  */
 export declare const CloseReasonSchema: GenEnum<CloseReason>;
+
+/**
+ * What an engine's choice gives. A kind its build does not know `app` reads as
+ * `CHOICE_KIND_NOTHING`.
+ *
+ * @generated from enum novatrail.api.v1.ChoiceKind
+ */
+export enum ChoiceKind {
+  /**
+   * Not named: never sent.
+   *
+   * @generated from enum value: CHOICE_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * A lesson: `app` opens it by `OpenLesson`. It may be the lesson of a run that is open.
+   *
+   * @generated from enum value: CHOICE_KIND_LESSON = 1;
+   */
+  LESSON = 1,
+
+  /**
+   * A task outside a lesson: `app` begins it by `BeginAttempt`.
+   *
+   * @generated from enum value: CHOICE_KIND_TASK = 2;
+   */
+  TASK = 2,
+
+  /**
+   * Nothing to give.
+   *
+   * @generated from enum value: CHOICE_KIND_NOTHING = 3;
+   */
+  NOTHING = 3,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.ChoiceKind.
+ */
+export declare const ChoiceKindSchema: GenEnum<ChoiceKind>;
+
+/**
+ * Why a lesson run ended (concepts 5). A reason its build does not know `app` reads as an end other
+ * than `RUN_END_REASON_PASSED`, and erases the state of the lesson as at every end.
+ *
+ * @generated from enum novatrail.api.v1.RunEndReason
+ */
+export enum RunEndReason {
+  /**
+   * Not ended: the run is open.
+   *
+   * @generated from enum value: RUN_END_REASON_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The lesson is done: "lesson done" came once every task segment had ended.
+   *
+   * @generated from enum value: RUN_END_REASON_PASSED = 1;
+   */
+  PASSED = 1,
+
+  /**
+   * Unchecked: the run's version of the module is no longer given, withdrawn or out of the window
+   * of formats that `api` reads, or an attempt of the run was closed `CLOSE_REASON_UNCHECKED`.
+   *
+   * @generated from enum value: RUN_END_REASON_UNCHECKED = 2;
+   */
+  UNCHECKED = 2,
+
+  /**
+   * Not suitable: the module is no longer connected or has no current version for the learner, or
+   * the lesson or one of its tasks no longer suits the age category of the profile.
+   *
+   * @generated from enum value: RUN_END_REASON_NOT_SUITABLE = 3;
+   */
+  NOT_SUITABLE = 3,
+
+  /**
+   * Abandoned: no request on the run or its attempts for 30 days.
+   *
+   * @generated from enum value: RUN_END_REASON_ABANDONED = 4;
+   */
+  ABANDONED = 4,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.RunEndReason.
+ */
+export declare const RunEndReasonSchema: GenEnum<RunEndReason>;
 

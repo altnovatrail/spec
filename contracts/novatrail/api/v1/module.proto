@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+// The modules of a learner in the contract between `app` and `api`: the catalog of the modules a
+// profile may connect, and the modules connected to it, each by the digest of its current version.
+// What each message means is the rule of contracts/README.md, section 15.
+package novatrail.api.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// The modules of a profile, from a learner's session: each method is a learning request, with the
+// right `can_learn`, and repeats by the state of the profile, with no idempotency key. Every method
+// carries the token of the sign-in service and may get the refusals of every request with a token,
+// which the comment of `AccountService` names with what `app` does on each; a profile that is not
+// the account's gets `CAUSE_NO_PROFILE`, and a request of a profile whose consent is not confirmed
+// `CAUSE_NO_CONSENT`. A module is named by its ID, and a version by the digest of its package:
+// `app` reads its title and explanation language in the open view of its manifest,
+// `PackageService`.
+service ModuleService {
+  // The catalog: the modules of the pinned index of `api` whose current version suits the profile
+  // by its audience, the age category of the profile (R63), connected ones too. The explanation
+  // language goes into no choice: the card of a module names it when it is not the language of the
+  // screen (R92), and the adult chooses.
+  rpc ListCatalog(ListCatalogRequest) returns (ListCatalogResponse);
+  // Connects a module to the profile, with no version: the attempts outside a lesson and new lesson
+  // runs go on its current version. The answer is the modules connected; a module connected
+  // already stays as it is. Refusals: `CAUSE_NOT_FOUND`, a module the index does not name, and
+  // `CAUSE_NO_CURRENT_VERSION`.
+  rpc ConnectModule(ConnectModuleRequest) returns (ConnectModuleResponse);
+  // Disconnects a module from the profile. The answer is the modules connected; a module not
+  // connected changes nothing. The evidence of the module stays in the profile's journal, and an
+  // open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next request.
+  rpc DisconnectModule(DisconnectModuleRequest) returns (DisconnectModuleResponse);
+  // The modules connected to the profile, each with the digest of its current version, or with
+  // none when it has none for the learner. `app` shows such a module unavailable: it may be
+  // disconnected, and it has no attempts and no lessons.
+  rpc ListConnectedModules(ListConnectedModulesRequest) returns (ListConnectedModulesResponse);
+}
+
+// A request for the catalog.
+message ListCatalogRequest {
+  // The profile.
+  string profile_id = 1;
+}
+
+// The catalog of a profile.
+message ListCatalogResponse {
+  // The modules the profile may connect, in the order of their IDs' UTF-16 code units.
+  repeated CatalogModule modules = 1;
+}
+
+// A module of the catalog.
+message CatalogModule {
+  // The module's ID, as its manifest writes it: "novatrail/olympiad-math".
+  string module_id = 1;
+  // The digest of the package of its current version.
+  string package_digest = 2;
+}
+
+// The connection of a module.
+message ConnectModuleRequest {
+  // The profile.
+  string profile_id = 1;
+  // The module's ID.
+  string module_id = 2;
+}
+
+// The modules connected, once the module is.
+message ConnectModuleResponse {
+  // The modules connected to the profile.
+  repeated ConnectedModule modules = 1;
+}
+
+// The disconnection of a module.
+message DisconnectModuleRequest {
+  // The profile.
+  string profile_id = 1;
+  // The module's ID.
+  string module_id = 2;
+}
+
+// The modules connected, once the module is not.
+message DisconnectModuleResponse {
+  // The modules connected to the profile.
+  repeated ConnectedModule modules = 1;
+}
+
+// A request for the modules connected.
+message ListConnectedModulesRequest {
+  // The profile.
+  string profile_id = 1;
+}
+
+// The modules connected to a profile.
+message ListConnectedModulesResponse {
+  // The modules connected, in the order they were connected.
+  repeated ConnectedModule modules = 1;
+}
+
+// A module connected to a profile.
+message ConnectedModule {
+  // The module's ID.
+  string module_id = 1;
+  // When it was connected.
+  google.protobuf.Timestamp connected_at = 2;
+  // The digest of the package of its current version: empty when the module has no current
+  // version for the learner — none at all, or one whose audience the learner is not in. Without a
+  // digest there is no manifest to name the module by: `app` names it by the title of a manifest
+  // it keeps of an earlier version, or else by its ID.
+  string package_digest = 3;
+}

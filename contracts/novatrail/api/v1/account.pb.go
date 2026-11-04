@@ -513,9 +513,9 @@ func (x *Account) GetChildConsents() []*ChildConsent {
 	return nil
 }
 
-// A profile, a learner in the account (concepts 13), as `api` keeps it. Its date of the age given
-// and its last activity stay in `api`; its interests come only once the module format gives a
-// task a look by interests (concepts 13; R51).
+// A profile, a learner in the account (concepts 13), as `api` keeps it, with its open attempt and
+// its open lesson runs. Its date of the age given and its last activity stay in `api`; its
+// interests come only once the module format gives a task a look by interests (concepts 13; R51).
 type Profile struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the profile.
@@ -545,8 +545,12 @@ type Profile struct {
 	// A child's setting, which an adult sets: the solution is shown by an action of an adult.
 	// Always false on a profile of the category `adult`.
 	AskBeforeShowing bool `protobuf:"varint,11,opt,name=ask_before_showing,json=askBeforeShowing,proto3" json:"ask_before_showing,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// The profile's open attempt: absent when it has none. A profile has one open attempt at most.
+	OpenAttempt *OpenAttemptRef `protobuf:"bytes,12,opt,name=open_attempt,json=openAttempt,proto3" json:"open_attempt,omitempty"`
+	// The profile's open lesson runs, one at most for each lesson.
+	OpenLessonRuns []*LessonRunRef `protobuf:"bytes,13,rep,name=open_lesson_runs,json=openLessonRuns,proto3" json:"open_lesson_runs,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Profile) Reset() {
@@ -654,6 +658,20 @@ func (x *Profile) GetAskBeforeShowing() bool {
 		return x.AskBeforeShowing
 	}
 	return false
+}
+
+func (x *Profile) GetOpenAttempt() *OpenAttemptRef {
+	if x != nil {
+		return x.OpenAttempt
+	}
+	return nil
+}
+
+func (x *Profile) GetOpenLessonRuns() []*LessonRunRef {
+	if x != nil {
+		return x.OpenLessonRuns
+	}
+	return nil
 }
 
 // The presentation style of a profile. What else it holds comes with what a module may say of it
@@ -2534,7 +2552,7 @@ var File_novatrail_api_v1_account_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\n" +
-	"\x1enovatrail/api/v1/account.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\"\x13\n" +
+	"\x1enovatrail/api/v1/account.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a\x1fnovatrail/api/v1/learning.proto\"\x13\n" +
 	"\x11GetAccountRequest\"I\n" +
 	"\x12GetAccountResponse\x123\n" +
 	"\aaccount\x18\x01 \x01(\v2\x19.novatrail.api.v1.AccountR\aaccount\"Z\n" +
@@ -2549,7 +2567,7 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x17\n" +
 	"\apin_set\x18\x02 \x01(\bR\x06pinSet\x125\n" +
 	"\bprofiles\x18\x03 \x03(\v2\x19.novatrail.api.v1.ProfileR\bprofiles\x12E\n" +
-	"\x0echild_consents\x18\x04 \x03(\v2\x1e.novatrail.api.v1.ChildConsentR\rchildConsents\"\xde\x03\n" +
+	"\x0echild_consents\x18\x04 \x03(\v2\x1e.novatrail.api.v1.ChildConsentR\rchildConsents\"\xed\x04\n" +
 	"\aProfile\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x14\n" +
@@ -2563,7 +2581,9 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\x12interface_language\x18\t \x01(\tH\x00R\x11interfaceLanguage\x88\x01\x01\x12\x19\n" +
 	"\x05grade\x18\n" +
 	" \x01(\x05H\x01R\x05grade\x88\x01\x01\x12,\n" +
-	"\x12ask_before_showing\x18\v \x01(\bR\x10askBeforeShowingB\x15\n" +
+	"\x12ask_before_showing\x18\v \x01(\bR\x10askBeforeShowing\x12C\n" +
+	"\fopen_attempt\x18\f \x01(\v2 .novatrail.api.v1.OpenAttemptRefR\vopenAttempt\x12H\n" +
+	"\x10open_lesson_runs\x18\r \x03(\v2\x1e.novatrail.api.v1.LessonRunRefR\x0eopenLessonRunsB\x15\n" +
 	"\x13_interface_languageB\b\n" +
 	"\x06_grade\"H\n" +
 	"\x11PresentationStyle\x123\n" +
@@ -2779,9 +2799,11 @@ var file_novatrail_api_v1_account_proto_goTypes = []any{
 	(*ListOwnKeyProvidersRequest)(nil),  // 43: novatrail.api.v1.ListOwnKeyProvidersRequest
 	(*ListOwnKeyProvidersResponse)(nil), // 44: novatrail.api.v1.ListOwnKeyProvidersResponse
 	(*OwnKeyProvider)(nil),              // 45: novatrail.api.v1.OwnKeyProvider
-	(*timestamppb.Timestamp)(nil),       // 46: google.protobuf.Timestamp
-	(*OwnKey)(nil),                      // 47: novatrail.api.v1.OwnKey
-	(*Outcome)(nil),                     // 48: novatrail.api.v1.Outcome
+	(*OpenAttemptRef)(nil),              // 46: novatrail.api.v1.OpenAttemptRef
+	(*LessonRunRef)(nil),                // 47: novatrail.api.v1.LessonRunRef
+	(*timestamppb.Timestamp)(nil),       // 48: google.protobuf.Timestamp
+	(*OwnKey)(nil),                      // 49: novatrail.api.v1.OwnKey
+	(*Outcome)(nil),                     // 50: novatrail.api.v1.Outcome
 }
 var file_novatrail_api_v1_account_proto_depIdxs = []int32{
 	8,  // 0: novatrail.api.v1.GetAccountResponse.account:type_name -> novatrail.api.v1.Account
@@ -2790,66 +2812,68 @@ var file_novatrail_api_v1_account_proto_depIdxs = []int32{
 	13, // 3: novatrail.api.v1.Account.child_consents:type_name -> novatrail.api.v1.ChildConsent
 	10, // 4: novatrail.api.v1.Profile.presentation_style:type_name -> novatrail.api.v1.PresentationStyle
 	1,  // 5: novatrail.api.v1.Profile.default_mode:type_name -> novatrail.api.v1.Mode
-	11, // 6: novatrail.api.v1.PresentationStyle.voicing:type_name -> novatrail.api.v1.Voicing
-	0,  // 7: novatrail.api.v1.Voicing.speed:type_name -> novatrail.api.v1.VoicingSpeed
-	11, // 8: novatrail.api.v1.ProfileSettings.voicing:type_name -> novatrail.api.v1.Voicing
-	1,  // 9: novatrail.api.v1.ProfileSettings.default_mode:type_name -> novatrail.api.v1.Mode
-	2,  // 10: novatrail.api.v1.ChildConsent.state:type_name -> novatrail.api.v1.ConsentState
-	20, // 11: novatrail.api.v1.VerifyPinResponse.check:type_name -> novatrail.api.v1.PinCheck
-	20, // 12: novatrail.api.v1.ChangePinResponse.check:type_name -> novatrail.api.v1.PinCheck
-	46, // 13: novatrail.api.v1.PinCheck.locked_until:type_name -> google.protobuf.Timestamp
-	12, // 14: novatrail.api.v1.CreateOwnerProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
-	9,  // 15: novatrail.api.v1.CreateOwnerProfileResponse.profile:type_name -> novatrail.api.v1.Profile
-	13, // 16: novatrail.api.v1.RequestChildConsentResponse.consent:type_name -> novatrail.api.v1.ChildConsent
-	12, // 17: novatrail.api.v1.CreateChildProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
-	9,  // 18: novatrail.api.v1.CreateChildProfileResponse.profile:type_name -> novatrail.api.v1.Profile
-	12, // 19: novatrail.api.v1.UpdateProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
-	9,  // 20: novatrail.api.v1.UpdateProfileResponse.profile:type_name -> novatrail.api.v1.Profile
-	11, // 21: novatrail.api.v1.SetVoicingRequest.voicing:type_name -> novatrail.api.v1.Voicing
-	9,  // 22: novatrail.api.v1.SetVoicingResponse.profile:type_name -> novatrail.api.v1.Profile
-	47, // 23: novatrail.api.v1.CheckOwnKeyRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	3,  // 24: novatrail.api.v1.CheckOwnKeyResponse.check:type_name -> novatrail.api.v1.OwnKeyCheck
-	48, // 25: novatrail.api.v1.CheckOwnKeyResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	45, // 26: novatrail.api.v1.ListOwnKeyProvidersResponse.providers:type_name -> novatrail.api.v1.OwnKeyProvider
-	4,  // 27: novatrail.api.v1.AccountService.GetAccount:input_type -> novatrail.api.v1.GetAccountRequest
-	6,  // 28: novatrail.api.v1.AccountService.CreateAccount:input_type -> novatrail.api.v1.CreateAccountRequest
-	14, // 29: novatrail.api.v1.AccountService.SetPin:input_type -> novatrail.api.v1.SetPinRequest
-	16, // 30: novatrail.api.v1.AccountService.VerifyPin:input_type -> novatrail.api.v1.VerifyPinRequest
-	18, // 31: novatrail.api.v1.AccountService.ChangePin:input_type -> novatrail.api.v1.ChangePinRequest
-	21, // 32: novatrail.api.v1.AccountService.ResetPin:input_type -> novatrail.api.v1.ResetPinRequest
-	23, // 33: novatrail.api.v1.AccountService.CreateOwnerProfile:input_type -> novatrail.api.v1.CreateOwnerProfileRequest
-	25, // 34: novatrail.api.v1.AccountService.RequestChildConsent:input_type -> novatrail.api.v1.RequestChildConsentRequest
-	27, // 35: novatrail.api.v1.AccountService.CreateChildProfile:input_type -> novatrail.api.v1.CreateChildProfileRequest
-	29, // 36: novatrail.api.v1.AccountService.UpdateProfile:input_type -> novatrail.api.v1.UpdateProfileRequest
-	31, // 37: novatrail.api.v1.AccountService.SetVoicing:input_type -> novatrail.api.v1.SetVoicingRequest
-	33, // 38: novatrail.api.v1.AccountService.DeleteProfile:input_type -> novatrail.api.v1.DeleteProfileRequest
-	35, // 39: novatrail.api.v1.AccountService.DeleteAccount:input_type -> novatrail.api.v1.DeleteAccountRequest
-	37, // 40: novatrail.api.v1.AccountService.ExportProfile:input_type -> novatrail.api.v1.ExportProfileRequest
-	39, // 41: novatrail.api.v1.AccountService.ExportAccount:input_type -> novatrail.api.v1.ExportAccountRequest
-	41, // 42: novatrail.api.v1.AccountService.CheckOwnKey:input_type -> novatrail.api.v1.CheckOwnKeyRequest
-	43, // 43: novatrail.api.v1.AccountService.ListOwnKeyProviders:input_type -> novatrail.api.v1.ListOwnKeyProvidersRequest
-	5,  // 44: novatrail.api.v1.AccountService.GetAccount:output_type -> novatrail.api.v1.GetAccountResponse
-	7,  // 45: novatrail.api.v1.AccountService.CreateAccount:output_type -> novatrail.api.v1.CreateAccountResponse
-	15, // 46: novatrail.api.v1.AccountService.SetPin:output_type -> novatrail.api.v1.SetPinResponse
-	17, // 47: novatrail.api.v1.AccountService.VerifyPin:output_type -> novatrail.api.v1.VerifyPinResponse
-	19, // 48: novatrail.api.v1.AccountService.ChangePin:output_type -> novatrail.api.v1.ChangePinResponse
-	22, // 49: novatrail.api.v1.AccountService.ResetPin:output_type -> novatrail.api.v1.ResetPinResponse
-	24, // 50: novatrail.api.v1.AccountService.CreateOwnerProfile:output_type -> novatrail.api.v1.CreateOwnerProfileResponse
-	26, // 51: novatrail.api.v1.AccountService.RequestChildConsent:output_type -> novatrail.api.v1.RequestChildConsentResponse
-	28, // 52: novatrail.api.v1.AccountService.CreateChildProfile:output_type -> novatrail.api.v1.CreateChildProfileResponse
-	30, // 53: novatrail.api.v1.AccountService.UpdateProfile:output_type -> novatrail.api.v1.UpdateProfileResponse
-	32, // 54: novatrail.api.v1.AccountService.SetVoicing:output_type -> novatrail.api.v1.SetVoicingResponse
-	34, // 55: novatrail.api.v1.AccountService.DeleteProfile:output_type -> novatrail.api.v1.DeleteProfileResponse
-	36, // 56: novatrail.api.v1.AccountService.DeleteAccount:output_type -> novatrail.api.v1.DeleteAccountResponse
-	38, // 57: novatrail.api.v1.AccountService.ExportProfile:output_type -> novatrail.api.v1.ExportProfileResponse
-	40, // 58: novatrail.api.v1.AccountService.ExportAccount:output_type -> novatrail.api.v1.ExportAccountResponse
-	42, // 59: novatrail.api.v1.AccountService.CheckOwnKey:output_type -> novatrail.api.v1.CheckOwnKeyResponse
-	44, // 60: novatrail.api.v1.AccountService.ListOwnKeyProviders:output_type -> novatrail.api.v1.ListOwnKeyProvidersResponse
-	44, // [44:61] is the sub-list for method output_type
-	27, // [27:44] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	46, // 6: novatrail.api.v1.Profile.open_attempt:type_name -> novatrail.api.v1.OpenAttemptRef
+	47, // 7: novatrail.api.v1.Profile.open_lesson_runs:type_name -> novatrail.api.v1.LessonRunRef
+	11, // 8: novatrail.api.v1.PresentationStyle.voicing:type_name -> novatrail.api.v1.Voicing
+	0,  // 9: novatrail.api.v1.Voicing.speed:type_name -> novatrail.api.v1.VoicingSpeed
+	11, // 10: novatrail.api.v1.ProfileSettings.voicing:type_name -> novatrail.api.v1.Voicing
+	1,  // 11: novatrail.api.v1.ProfileSettings.default_mode:type_name -> novatrail.api.v1.Mode
+	2,  // 12: novatrail.api.v1.ChildConsent.state:type_name -> novatrail.api.v1.ConsentState
+	20, // 13: novatrail.api.v1.VerifyPinResponse.check:type_name -> novatrail.api.v1.PinCheck
+	20, // 14: novatrail.api.v1.ChangePinResponse.check:type_name -> novatrail.api.v1.PinCheck
+	48, // 15: novatrail.api.v1.PinCheck.locked_until:type_name -> google.protobuf.Timestamp
+	12, // 16: novatrail.api.v1.CreateOwnerProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
+	9,  // 17: novatrail.api.v1.CreateOwnerProfileResponse.profile:type_name -> novatrail.api.v1.Profile
+	13, // 18: novatrail.api.v1.RequestChildConsentResponse.consent:type_name -> novatrail.api.v1.ChildConsent
+	12, // 19: novatrail.api.v1.CreateChildProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
+	9,  // 20: novatrail.api.v1.CreateChildProfileResponse.profile:type_name -> novatrail.api.v1.Profile
+	12, // 21: novatrail.api.v1.UpdateProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
+	9,  // 22: novatrail.api.v1.UpdateProfileResponse.profile:type_name -> novatrail.api.v1.Profile
+	11, // 23: novatrail.api.v1.SetVoicingRequest.voicing:type_name -> novatrail.api.v1.Voicing
+	9,  // 24: novatrail.api.v1.SetVoicingResponse.profile:type_name -> novatrail.api.v1.Profile
+	49, // 25: novatrail.api.v1.CheckOwnKeyRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	3,  // 26: novatrail.api.v1.CheckOwnKeyResponse.check:type_name -> novatrail.api.v1.OwnKeyCheck
+	50, // 27: novatrail.api.v1.CheckOwnKeyResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	45, // 28: novatrail.api.v1.ListOwnKeyProvidersResponse.providers:type_name -> novatrail.api.v1.OwnKeyProvider
+	4,  // 29: novatrail.api.v1.AccountService.GetAccount:input_type -> novatrail.api.v1.GetAccountRequest
+	6,  // 30: novatrail.api.v1.AccountService.CreateAccount:input_type -> novatrail.api.v1.CreateAccountRequest
+	14, // 31: novatrail.api.v1.AccountService.SetPin:input_type -> novatrail.api.v1.SetPinRequest
+	16, // 32: novatrail.api.v1.AccountService.VerifyPin:input_type -> novatrail.api.v1.VerifyPinRequest
+	18, // 33: novatrail.api.v1.AccountService.ChangePin:input_type -> novatrail.api.v1.ChangePinRequest
+	21, // 34: novatrail.api.v1.AccountService.ResetPin:input_type -> novatrail.api.v1.ResetPinRequest
+	23, // 35: novatrail.api.v1.AccountService.CreateOwnerProfile:input_type -> novatrail.api.v1.CreateOwnerProfileRequest
+	25, // 36: novatrail.api.v1.AccountService.RequestChildConsent:input_type -> novatrail.api.v1.RequestChildConsentRequest
+	27, // 37: novatrail.api.v1.AccountService.CreateChildProfile:input_type -> novatrail.api.v1.CreateChildProfileRequest
+	29, // 38: novatrail.api.v1.AccountService.UpdateProfile:input_type -> novatrail.api.v1.UpdateProfileRequest
+	31, // 39: novatrail.api.v1.AccountService.SetVoicing:input_type -> novatrail.api.v1.SetVoicingRequest
+	33, // 40: novatrail.api.v1.AccountService.DeleteProfile:input_type -> novatrail.api.v1.DeleteProfileRequest
+	35, // 41: novatrail.api.v1.AccountService.DeleteAccount:input_type -> novatrail.api.v1.DeleteAccountRequest
+	37, // 42: novatrail.api.v1.AccountService.ExportProfile:input_type -> novatrail.api.v1.ExportProfileRequest
+	39, // 43: novatrail.api.v1.AccountService.ExportAccount:input_type -> novatrail.api.v1.ExportAccountRequest
+	41, // 44: novatrail.api.v1.AccountService.CheckOwnKey:input_type -> novatrail.api.v1.CheckOwnKeyRequest
+	43, // 45: novatrail.api.v1.AccountService.ListOwnKeyProviders:input_type -> novatrail.api.v1.ListOwnKeyProvidersRequest
+	5,  // 46: novatrail.api.v1.AccountService.GetAccount:output_type -> novatrail.api.v1.GetAccountResponse
+	7,  // 47: novatrail.api.v1.AccountService.CreateAccount:output_type -> novatrail.api.v1.CreateAccountResponse
+	15, // 48: novatrail.api.v1.AccountService.SetPin:output_type -> novatrail.api.v1.SetPinResponse
+	17, // 49: novatrail.api.v1.AccountService.VerifyPin:output_type -> novatrail.api.v1.VerifyPinResponse
+	19, // 50: novatrail.api.v1.AccountService.ChangePin:output_type -> novatrail.api.v1.ChangePinResponse
+	22, // 51: novatrail.api.v1.AccountService.ResetPin:output_type -> novatrail.api.v1.ResetPinResponse
+	24, // 52: novatrail.api.v1.AccountService.CreateOwnerProfile:output_type -> novatrail.api.v1.CreateOwnerProfileResponse
+	26, // 53: novatrail.api.v1.AccountService.RequestChildConsent:output_type -> novatrail.api.v1.RequestChildConsentResponse
+	28, // 54: novatrail.api.v1.AccountService.CreateChildProfile:output_type -> novatrail.api.v1.CreateChildProfileResponse
+	30, // 55: novatrail.api.v1.AccountService.UpdateProfile:output_type -> novatrail.api.v1.UpdateProfileResponse
+	32, // 56: novatrail.api.v1.AccountService.SetVoicing:output_type -> novatrail.api.v1.SetVoicingResponse
+	34, // 57: novatrail.api.v1.AccountService.DeleteProfile:output_type -> novatrail.api.v1.DeleteProfileResponse
+	36, // 58: novatrail.api.v1.AccountService.DeleteAccount:output_type -> novatrail.api.v1.DeleteAccountResponse
+	38, // 59: novatrail.api.v1.AccountService.ExportProfile:output_type -> novatrail.api.v1.ExportProfileResponse
+	40, // 60: novatrail.api.v1.AccountService.ExportAccount:output_type -> novatrail.api.v1.ExportAccountResponse
+	42, // 61: novatrail.api.v1.AccountService.CheckOwnKey:output_type -> novatrail.api.v1.CheckOwnKeyResponse
+	44, // 62: novatrail.api.v1.AccountService.ListOwnKeyProviders:output_type -> novatrail.api.v1.ListOwnKeyProvidersResponse
+	46, // [46:63] is the sub-list for method output_type
+	29, // [29:46] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_account_proto_init() }
@@ -2859,6 +2883,7 @@ func file_novatrail_api_v1_account_proto_init() {
 	}
 	file_novatrail_api_v1_attempt_proto_init()
 	file_novatrail_api_v1_cause_proto_init()
+	file_novatrail_api_v1_learning_proto_init()
 	file_novatrail_api_v1_account_proto_msgTypes[5].OneofWrappers = []any{}
 	file_novatrail_api_v1_account_proto_msgTypes[7].OneofWrappers = []any{}
 	file_novatrail_api_v1_account_proto_msgTypes[8].OneofWrappers = []any{}

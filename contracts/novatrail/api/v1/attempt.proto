@@ -16,7 +16,9 @@ import "novatrail/observation/v1/observation.proto";
 // take — gets the code `invalid_argument` with no `Refusal`. Every method carries the token of the
 // sign-in service and may get the refusals of every request with a token, which the comment of
 // `AccountService` names with what `app` does on each; a request of a profile whose consent is not
-// confirmed gets `CAUSE_NO_CONSENT`.
+// confirmed gets `CAUSE_NO_CONSENT`. An answer that closes the attempt by a correct answer, by the
+// solution shown or by "Done" says what comes next, `next`: an attempt begins by
+// `LearningService`.
 service AttemptService {
   // Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
   // both. The answer is the verdict of every item and answer slot, on the whole observation, and
@@ -109,6 +111,8 @@ message SubmitWorkResponse {
   int32 wrong_answers = 3;
   // The solved task, when every item is correct and the attempt is closed `CLOSE_REASON_CORRECT`.
   SolvedTask solved = 4;
+  // What comes next, beside `solved`.
+  Next next = 5;
 }
 
 // The submission of an essay.
@@ -176,6 +180,8 @@ message DoneRequest {
 message DoneResponse {
   // The criteria of the rubric and the solution, if the task has one.
   SolvedTask solved = 1;
+  // What comes next.
+  Next next = 2;
 }
 
 // A request for the words of a rung.
@@ -339,6 +345,8 @@ message ShowSolutionRequest {
 message ShowSolutionResponse {
   // The solved task.
   SolvedTask solved = 1;
+  // What comes next.
+  Next next = 2;
 }
 
 // Whose action a request is: the server tells kinds of action apart, not people (R04 api).
@@ -439,6 +447,22 @@ message SolvedTask {
   // The criteria of a rubric, each its text, in order: on a task with a rubric alone, without the
   // marks of the assessment.
   repeated string criteria = 4;
+}
+
+// What comes next once an attempt is closed by a correct answer, by the solution shown or by "Done".
+// A repeat gets the same: of `SubmitWork` and `ShowSolution` with the same idempotency key, and of
+// `Done` by the state of the attempt.
+message Next {
+  // In a lesson, the segment that comes next; outside a lesson, the engine's choice.
+  oneof next {
+    // In a lesson: the place of the next segment, from 1.
+    int32 segment = 1;
+    // In a lesson: no segment is left after the one that ended. The lesson run stays open until
+    // "lesson done", `CompleteLesson`, which `app` sends when the learner presses "Continue".
+    bool segments_ended = 2;
+    // Outside a lesson: the engine's choice.
+    EngineChoice choice = 3;
+  }
 }
 
 // The key of an answer slot.

@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+// What a package of a module gives by its digest, in the contract between `app` and `api`: the
+// open views of its manifest, skill graph, technique catalog and solving steps, which go without a
+// token, and whether the image of `api` still gives a package. The files of a package's device
+// part are no method of the contract: they go by HTTP GET, as contracts/README.md, section 15, has
+// it, with the rules of the whole contract.
+package novatrail.api.v1;
+
+// What a package of a module gives by its digest (R62). The four open views go without a token and
+// without the ID of a profile, by Connect GET: each method has the idempotency level
+// `NO_SIDE_EFFECTS`, and `app` calls it with no header — no `Connect-Timeout-Ms` either, which would
+// make the request not simple and send a preflight before it. They go for any package that the
+// image of `api` gives: the package of an attempt or of a lesson run, and the current version of a
+// module in the catalog or connected. Their refusals: `CAUSE_VERSION_NOT_GIVEN`, and
+// `CAUSE_PACKAGE_UNKNOWN`; a digest that is not one, `invalid_argument` with no `Refusal`.
+// `CheckPackages` carries the token of the sign-in service and may get the refusals of every
+// request with a token, which the comment of `AccountService` names.
+service PackageService {
+  // The open view of the manifest of a package: `app` caches it by the digest, gives it to the
+  // canvas with each task of the package, and reads in it the title and the explanation language of
+  // a module before its first attempt (R92).
+  rpc GetManifest(GetManifestRequest) returns (GetManifestResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  // The open view of the skill graph of a package, with the tier of each skill: what the skill map
+  // draws, and what `app` reads a sequential module by (R58).
+  rpc GetSkillGraph(GetSkillGraphRequest) returns (GetSkillGraphResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  // The open view of the technique catalog of a package: the techniques whose IDs a step or a hint
+  // gives.
+  rpc GetTechniques(GetTechniquesRequest) returns (GetTechniquesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  // The open view of the solving steps of a package, which `app` leads in the mode "by steps".
+  rpc GetSolvingSteps(GetSolvingStepsRequest) returns (GetSolvingStepsResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  // Which of the digests named the image of `api` still gives: of the account of the token, with
+  // no ID of a profile, and `api` keeps none of them. `app` asks it when it starts, about the
+  // digests whose open views it keeps, and after `CAUSE_VERSION_NOT_GIVEN` or an answer `410` to a
+  // file of a device part. It erases the open views of a digest no longer given, and asks about a
+  // digest not known later.
+  rpc CheckPackages(CheckPackagesRequest) returns (CheckPackagesResponse);
+}
+
+// An open view of a part of a module: what the learner's app receives of the part, without its
+// closed fields (section 6 of the module format). `app` and `api` read it by the types of the
+// module format, `open` of `@altnovatrail/spec` and of the Go module `spec`.
+message OpenView {
+  // The open view, as JSON of the module format.
+  bytes json = 1;
+  // The version of the module format the view is written in, MAJOR.MINOR: `app` reads a view of a
+  // version its build reads, and offers to reload for another (R44).
+  string module_format_version = 2;
+}
+
+// A request for the open view of a manifest.
+message GetManifestRequest {
+  // The package digest, `sha256:` and 64 lowercase hexadecimal digits.
+  string package_digest = 1;
+}
+
+// The open view of a manifest.
+message GetManifestResponse {
+  // The open view of the package's manifest.
+  OpenView manifest = 1;
+}
+
+// A request for the open view of a skill graph.
+message GetSkillGraphRequest {
+  // The package digest.
+  string package_digest = 1;
+}
+
+// The open view of a skill graph, with its tiers.
+message GetSkillGraphResponse {
+  // The open view of the package's skill graph: absent when the module has none.
+  OpenView skill_graph = 1;
+  // The tier of each skill of the graph, by its local ID, as section 12 of the module format
+  // computes it and the canonical view of the package holds it, `skill_tiers`: no field of the
+  // graph, nor of its open view.
+  map<string, int32> skill_tiers = 2;
+}
+
+// A request for the open view of a technique catalog.
+message GetTechniquesRequest {
+  // The package digest.
+  string package_digest = 1;
+}
+
+// The open view of a technique catalog.
+message GetTechniquesResponse {
+  // The open view of the package's technique catalog: absent when the module has none.
+  OpenView techniques = 1;
+}
+
+// A request for the open view of solving steps.
+message GetSolvingStepsRequest {
+  // The package digest.
+  string package_digest = 1;
+}
+
+// The open view of solving steps.
+message GetSolvingStepsResponse {
+  // The open view of the package's solving steps: absent when the module has none.
+  OpenView solving_steps = 1;
+}
+
+// A request on which packages the image of `api` still gives.
+message CheckPackagesRequest {
+  // The package digests, each `sha256:` and 64 lowercase hexadecimal digits.
+  repeated string package_digests = 1;
+}
+
+// Which packages the image of `api` still gives.
+message CheckPackagesResponse {
+  // Each digest of the request, in its order, with whether the image gives it.
+  repeated PackageCheck packages = 1;
+}
+
+// Whether the image of `api` gives a package.
+message PackageCheck {
+  // The package digest.
+  string package_digest = 1;
+  // Whether the image gives it.
+  PackageStatus status = 2;
+}
+
+// Whether the image of `api` gives a package. A status its build does not know `app` reads as
+// `PACKAGE_STATUS_UNKNOWN`.
+enum PackageStatus {
+  // Not named: never sent.
+  PACKAGE_STATUS_UNSPECIFIED = 0;
+  // The image gives the package: its open views and the files of its device part.
+  PACKAGE_STATUS_GIVEN = 1;
+  // The image no longer gives the package: its version is withdrawn, or its module format is out of
+  // the window of formats that `api` reads. `app` erases its open views.
+  PACKAGE_STATUS_NOT_GIVEN = 2;
+  // The index of the image does not know the digest: a deployment is going on, or the digest is
+  // no package's. `app` asks again later.
+  PACKAGE_STATUS_UNKNOWN = 3;
+}

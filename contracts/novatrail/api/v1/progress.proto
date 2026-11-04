@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+// The skill map and the adult's progress in the contract between `app` and `api`: the state of a
+// learner's skills in a module, as the learner model reads it, and the attempts of a profile with
+// the traps that repeat in them. What each message means is the rule of contracts/README.md,
+// section 15.
+package novatrail.api.v1;
+
+import "google/protobuf/timestamp.proto";
+import "novatrail/api/v1/attempt.proto";
+import "novatrail/api/v1/cause.proto";
+
+// What the learner model and the history of a profile show: the skill map, on the learner's screen
+// and in the section for adults, and the progress, which the adult views. Every method carries the
+// token of the sign-in service and may get the refusals of every request with a token, which the
+// comment of `AccountService` names with what `app` does on each; a profile that is not the
+// account's gets `CAUSE_NO_PROFILE`, a learning request of a profile whose consent is not
+// confirmed `CAUSE_NO_CONSENT`, a request without the right it needs the code `permission_denied`
+// with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
+// with no `Refusal`. Both repeat by the state of the profile, with no idempotency key.
+service ProgressService {
+  // The state of the skills of a connected module's current version, for the skill map (concepts
+  // 11), as `learner-model` reads it at the time of the request. The graph and its tiers `app`
+  // takes by the digest of the answer, `GetSkillGraph`, so a skill that the current version no
+  // longer names is not on the map. A learning action needs the right `can_learn`, and an action of
+  // an adult `can_view`. Refusals: `CAUSE_NOT_FOUND`, a module not connected, and
+  // `CAUSE_NO_CURRENT_VERSION`.
+  rpc GetSkillMap(GetSkillMapRequest) returns (GetSkillMapResponse);
+  // The progress of a profile, which an adult views with the right `can_view`: its attempts, newest
+  // first, a page at a time, and the traps that repeat in its closed attempts, with their
+  // descriptions and advice (section 16 of the module format).
+  rpc GetProgress(GetProgressRequest) returns (GetProgressResponse);
+}
+
+// A request for the skill map of a module.
+message GetSkillMapRequest {
+  // The profile.
+  string profile_id = 1;
+  // The module's ID.
+  string module_id = 2;
+  // Whose action it is: the learner's, on the learner's screen, or an adult's, in the section for
+  // adults.
+  Action action = 3;
+}
+
+// The skill map of a module.
+message GetSkillMapResponse {
+  // The digest of the package of the module's current version, by which `app` takes the open view
+  // of its skill graph and its tiers.
+  string package_digest = 1;
+  // The state of each skill of the graph whose assessability is `verdict`, by its local ID. A skill
+  // of `rubric` or `none` has none.
+  repeated SkillState skills = 2;
+  // The state of each anchor skill that the graph names as a prerequisite or in `teaches`.
+  repeated AnchorSkillState anchor_skills = 3;
+}
+
+// The state of a skill of a module, as `learner-model` reads it (concepts 11). No trap is in it:
+// the trap catalog is closed, and the traps that repeat go to the adult's progress alone.
+message SkillState {
+  // The skill's local ID.
+  string skill = 1;
+  // The number of pieces of evidence: attempts where the skill, a primary skill of an item, has an
+  // answer.
+  int32 evidence_count = 2;
+  // When the skill was last practised: absent without practice.
+  google.protobuf.Timestamp last_practiced_at = 3;
+  // The estimate of mastery, the module's level plus the skill's adjustment, on the scale of the
+  // module's bands: absent without practice.
+  optional double estimate = 4;
+  // The uncertainty of the estimate, as `learner-model` gives it: absent without practice.
+  optional double uncertainty = 5;
+  // The retention of the skill at the time of the request, from 0 to 1: absent without practice.
+  optional double retention = 6;
+  // The ID of the mastery band, the band the skill is mastered at: empty when it is not mastered.
+  string mastery_band = 7;
+  // Beside a mastered skill: the cautious probability of a correct answer with retention, at the
+  // middle task of the mastery band.
+  optional double cautious_probability = 8;
+  // Beside a mastered skill: the review date, when the cautious probability with retention falls
+  // below the threshold of mastery. Absent when the review is due already.
+  google.protobuf.Timestamp review_date = 9;
+  // Beside a mastered skill: the review is due already, since the threshold does not hold even
+  // without forgetting.
+  bool review_due = 10;
+}
+
+// The state of an anchor skill of the shared taxonomy, as `learner-model` reads it from the skills
+// that teach it in the learner's modules (concepts 4).
+message AnchorSkillState {
+  // The anchor skill's ID, "core.multiplication-table".
+  string anchor_skill = 1;
+  // Whether the learner holds it.
+  AnchorSkillHolding holding = 2;
+  // Why, beside `ANCHOR_SKILL_HOLDING_NOT_HELD` and `ANCHOR_SKILL_HOLDING_UNKNOWN`.
+  AnchorSkillReason reason = 3;
+  // The full IDs of the skills that teach it, in the modules whose graphs the learner model has.
+  repeated string teaching_skills = 4;
+}
+
+// Whether a learner holds an anchor skill. A value its build does not know `app` reads as
+// `ANCHOR_SKILL_HOLDING_UNKNOWN`.
+enum AnchorSkillHolding {
+  // Not named: never sent.
+  ANCHOR_SKILL_HOLDING_UNSPECIFIED = 0;
+  // Holds it: a skill that teaches it is mastered, in any module and at any band.
+  ANCHOR_SKILL_HOLDING_HELD = 1;
+  // Does not hold it: the skills that teach it in the engine's modules, and may be mastered, are
+  // not.
+  ANCHOR_SKILL_HOLDING_NOT_HELD = 2;
+  // Unknown: no skill of the engine's modules that may be mastered teaches it.
+  ANCHOR_SKILL_HOLDING_UNKNOWN = 3;
+}
+
+// Why a learner does not hold an anchor skill, or why it is unknown. A reason its build does not
+// know `app` shows no reason for.
+enum AnchorSkillReason {
+  // No reason: beside a skill held.
+  ANCHOR_SKILL_REASON_UNSPECIFIED = 0;
+  // Not held: a skill that teaches it has answers, and is not mastered.
+  ANCHOR_SKILL_REASON_NOT_MASTERED = 1;
+  // Not held: no skill that teaches it has answers yet.
+  ANCHOR_SKILL_REASON_NO_EVIDENCE = 2;
+  // Unknown: no module of the engine teaches it.
+  ANCHOR_SKILL_REASON_NOBODY_TEACHES = 3;
+  // Unknown: only skills that cannot be mastered, of `rubric` or `none`, or with no band they are
+  // taught at, teach it.
+  ANCHOR_SKILL_REASON_ONLY_UNASSESSABLE = 4;
+}
+
+// A request for the progress of a profile.
+message GetProgressRequest {
+  // The profile.
+  string profile_id = 1;
+  // The page: empty for the first, and otherwise the `next_page_token` of the page before.
+  string page_token = 2;
+}
+
+// A page of the progress of a profile.
+message GetProgressResponse {
+  // The attempts of the page, newest first.
+  repeated AttemptRecord attempts = 1;
+  // The traps that repeat in the profile's closed attempts: on the first page alone, the one asked
+  // for with an empty `page_token`, and empty on the others.
+  repeated RepeatingTrap repeating_traps = 2;
+  // The token of the next page: empty on the last.
+  string next_page_token = 3;
+}
+
+// An attempt in the progress of a profile. How it came out follows from its close reason and its
+// wrong answers: correct with none is correct at the first submission.
+message AttemptRecord {
+  // The full ID of the task, "novatrail/olympiad-math/task/counting-gaps-3".
+  string task = 1;
+  // The version of the module the attempt went on, X.Y.Z.
+  string module_version = 2;
+  // The full ID of the lesson, when the attempt is one of a lesson run's segments: empty outside a
+  // lesson.
+  string lesson = 3;
+  // Why the attempt was closed: `CLOSE_REASON_UNSPECIFIED` while it is open.
+  CloseReason close_reason = 4;
+  // How many wrong answers it has.
+  int32 wrong_answers = 5;
+  // When it began.
+  google.protobuf.Timestamp begun_at = 6;
+  // When it was closed: absent while it is open.
+  google.protobuf.Timestamp closed_at = 7;
+  // When the engine chose the task, or the lesson of the run: absent for an attempt begun again by
+  // the learner.
+  google.protobuf.Timestamp chosen_at = 8;
+  // On a task with a rubric: each submission, in order, with how it ended and its feedback's marks.
+  repeated EssayRecord essay_submissions = 9;
+}
+
+// A submission of an essay in the progress of a profile.
+message EssayRecord {
+  // When it came.
+  google.protobuf.Timestamp submitted_at = 1;
+  // How it ended.
+  SubmissionEnd end = 2;
+  // Beside `SUBMISSION_END_FEEDBACK`: the mark of each criterion of the rubric, in the order of
+  // the criteria (R87).
+  repeated CriterionMark criterion_marks = 3;
+}
+
+// The mark of a criterion in a feedback (R87). A mark its build does not know `app` reads as
+// `CRITERION_MARK_NOT_ASSESSED`.
+enum CriterionMark {
+  // Not named: never sent.
+  CRITERION_MARK_UNSPECIFIED = 0;
+  // Met.
+  CRITERION_MARK_MET = 1;
+  // Not met.
+  CRITERION_MARK_NOT_MET = 2;
+  // Not assessed.
+  CRITERION_MARK_NOT_ASSESSED = 3;
+}
+
+// A trap that repeats: one that the program found in two closed attempts of the profile or more,
+// counted by its full ID. An attempt on a version withdrawn `wrong_key` counts no trap: its
+// verdicts are wrong (R63).
+message RepeatingTrap {
+  // The full ID of the trap, "novatrail/olympiad-math/trap/off-by-one".
+  string trap = 1;
+  // The trap's `description`, from the trap catalog of the version of the last attempt that found
+  // it.
+  string description = 2;
+  // The trap's `trap_advice`, from the same catalog.
+  string trap_advice = 3;
+  // How many closed attempts found it.
+  int32 attempt_count = 4;
+  // When the last of them was closed.
+  google.protobuf.Timestamp last_closed_at = 5;
+}
