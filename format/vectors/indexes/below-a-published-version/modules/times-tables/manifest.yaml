@@ -1,0 +1,14 @@
+# A fix of the times tables 0.1.0, as 0.1.1, after 0.2.0 is published: a version below a published one.
+module_format_version: "0.3"
+id: example/times-tables
+version: "0.1.1"
+title: Times tables
+subject: mathematics
+audience:
+  age_categories: [under_13]
+  grades: [3]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

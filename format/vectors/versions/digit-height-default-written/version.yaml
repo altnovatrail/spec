@@ -1,0 +1,4 @@
+# The height of a digit is written as 24, the height that 1.0.0 had by leaving it out: the canonical
+# view differs, and the height does not.
+# The new version is 1.0.1, and the published one is 1.0.0.
+version_part: patch

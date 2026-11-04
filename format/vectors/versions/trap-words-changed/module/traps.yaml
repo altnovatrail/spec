@@ -1,0 +1,5 @@
+traps:
+  off-by-one:
+    description: Counted one thing too few or too many.
+    skills: [counting]
+    trap_advice: Point at each thing as you count it, and at no thing twice.

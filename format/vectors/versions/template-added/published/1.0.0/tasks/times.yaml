@@ -1,0 +1,19 @@
+id: times
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "2 ×"
+      - binding: box
+        check:
+          kind: number
+          key: "3"
+      - text: "= 6"
+solution:
+  - text: "2 × 3 = 6"
+skills:
+  primary: [adding]
+band: grades-3-4
+difficulty: 2

@@ -1,0 +1,7 @@
+techniques:
+  count-on:
+    title: Count on
+    description: Start from the bigger number and count on by the smaller.
+  draw:
+    title: Draw it
+    description: Dots are enough to see what the words say.

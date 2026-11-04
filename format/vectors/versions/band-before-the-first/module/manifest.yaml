@@ -1,0 +1,23 @@
+module_format_version: "0.3"
+id: example/versions
+version: "2.0.0"
+title: Counting and adding
+subject: mathematics
+audience:
+  age_categories: [under_13, from_13_to_consent]
+  grades: [1, 2, 3, 4]
+bands:
+  - id: grade-1
+    title: Grade 1
+    grades: [1]
+  - id: grades-1-2
+    title: Grades 1–2
+    grades: [2]
+  - id: grades-3-4
+    title: Grades 3–4
+    grades: [3, 4]
+languages:
+  explanation: en
+authors:
+  - name: The NovaTrail authors
+license: Apache-2.0

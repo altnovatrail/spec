@@ -55,7 +55,14 @@
 //   schema of such vectors, its indexes name the format version in VERSION, and section 26 builds of
 //   the release the index that index.yaml lists, or refuses it by the rule it names and by no other.
 //   The rules of the module index have their vectors there, each at least one refusal, and none in
-//   vectors/rules/.
+//   vectors/rules/;
+// - the vectors of versions of a module, vectors/versions/<case>/: module/ and each published version
+//   in published/<X.Y.Z>/ laid out as a module are held as an example of a whole module is, and have
+//   no solver, and a published version of an earlier version of the format is a package as files
+//   whose digests hold; version.yaml follows the YAML rules and passes the schema of such vectors,
+//   and section 27 finds the part of the version that it lists, or refuses the new version by the
+//   rule it names and by no other. The rules of versions have their vectors there, each at least one
+//   refusal, and none in vectors/rules/.
 // Anything else in format/ is an error: what this check does not know would go unchecked, so the
 // task that brings it extends the check. Prints one line per error, file:line: message, and exits 1
 // if there are any.
@@ -64,11 +71,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { INDEX_FILE, INDEX_MODULES, LESSON_LEAKS, PACKAGE_FILE, PACKAGE_MODULE, checkExample, checkIndexVector, checkLeakVector, checkModuleCase, checkOpenView, checkPackageVector, checkRandomVector, checkTemplateVector, checkTierVector, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { INDEX_FILE, INDEX_MODULES, LESSON_LEAKS, PACKAGE_FILE, PACKAGE_MODULE, VERSION_FILE, VERSION_MODULE, VERSION_PUBLISHED, checkExample, checkIndexVector, checkVersionVector, checkLeakVector, checkModuleCase, checkOpenView, checkPackageVector, checkRandomVector, checkTemplateVector, checkTierVector, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
 import { INDEX_PART } from "./index.mjs";
 import { listFolder, readLayout } from "./module.mjs";
 import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
 import { FEEDBACK_KINDS, VERDICT_KINDS } from "./verdicts.mjs";
+import { VERSION_PART } from "./versions.mjs";
 
 const UNKNOWN = "format-check does not know it: the task that brings it to format/ extends the check";
 // The vectors of the open view (section 9): a part, and the open view it gives.
@@ -99,7 +107,13 @@ const CANONICAL_VIEW = "canonical-view";
 // The vectors of the module index (section 26), and their schema.
 const INDEXES = "indexes";
 const INDEX_VECTOR = "index-vector";
+// The vectors of versions of a module (section 27), and their schema.
+const VERSIONS = "versions";
+const VERSION_VECTOR = "version-vector";
 const README = "format/README.md";
+// The parts of the rules whose vectors are refusals among vectors of their own kind, not in
+// vectors/rules/: the rules of the module index and of versions of a module (section 7).
+const OWN_VECTORS = [INDEX_PART, VERSION_PART];
 // The schema of the definitions that the parts share.
 const COMMON = "common";
 // The examples of a whole module, which has no schema of its own.
@@ -115,9 +129,9 @@ export function checkFormat(root) {
   checkCases(root, files, { rules, layout, version, schemas }, report);
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
-  // The rules whose vectors are in vectors/rules/: all but those of the module index.
-  const ruled = rules?.filter((rule) => partOf(rule.id) !== INDEX_PART).length ?? 0;
-  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: ruled, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length, random: files.random.length, templates: files.templates.length, tiers: files.tiers.length, packages: files.packages.length, indexes: files.indexes.length };
+  // The rules whose vectors are in vectors/rules/: all but those of the module index and of versions.
+  const ruled = rules?.filter((rule) => !OWN_VECTORS.includes(partOf(rule.id))).length ?? 0;
+  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: ruled, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length, random: files.random.length, templates: files.templates.length, tiers: files.tiers.length, packages: files.packages.length, indexes: files.indexes.length, versions: files.versions.length };
   return { errors, stats };
 }
 
@@ -185,7 +199,7 @@ function readFormatText(root, schemas, report) {
     return { rules: null, layout: null };
   }
   const text = readText(fs.readFileSync(path.join(root, README), "utf8"));
-  for (const { line, message } of [...text.problems, ...compareOwnRules(text.rules, schemas.has(INDEX_PART))]) report(README, line, message);
+  for (const { line, message } of [...text.problems, ...compareOwnRules(text.rules, schemas.has(INDEX_PART), schemas.has(VERSION_VECTOR))]) report(README, line, message);
   if (!text.layoutRows) return { rules: text.rules, layout: null };
   const { layout, problems } = readLayout(text.layoutRows);
   for (const { line, message } of problems) report(README, line, message);
@@ -254,31 +268,39 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
   checkTemplates(root, files, schemas, report);
   checkTiers(root, files, schemas, report);
   checkPackages(root, files, { layout, version, schemas }, report, waitForLayout);
-  checkIndexes(root, files, { rules, layout, version, schemas }, report, waitForLayout);
+  for (const kind of REFUSAL_VECTORS) checkRefusalVectors(root, files, { rules, layout, version, schemas }, report, waitForLayout, kind);
 }
 
-// The vectors of the module index: each case's modules against the rules of a whole module, and its
-// release against the schema of such vectors and the index that section 26 builds; and each rule of
-// the index that the text lists with a refusal among them, and each refusal with its rule in the text.
-function checkIndexes(root, files, { rules, layout, version, schemas }, report, waitForLayout) {
-  const listed = (rules ?? []).filter((rule) => partOf(rule.id) === INDEX_PART);
+// The vectors whose cases are refusals by rules of their own (section 7): of the module index, by the
+// index that section 26 builds of each release, and of versions of a module, by the comparison of
+// section 27. Each case against the rules of a whole module, the schema of such vectors and what its
+// check computes; and each rule of the kind that the text lists with a refusal among them, and each
+// refusal with its rule in the text.
+const REFUSAL_VECTORS = [
+  { files: "indexes", folder: INDEXES, part: INDEX_PART, schema: INDEX_VECTOR, file: INDEX_FILE, what: "the module index", check: checkIndexVector },
+  { files: "versions", folder: VERSIONS, part: VERSION_PART, schema: VERSION_VECTOR, file: VERSION_FILE, what: "versions of a module", check: checkVersionVector },
+];
+
+function checkRefusalVectors(root, files, { rules, layout, version, schemas }, report, waitForLayout, kind) {
+  const cases = files[kind.files];
+  const listed = (rules ?? []).filter((rule) => partOf(rule.id) === kind.part);
   const refused = new Set();
-  if (files.indexes.length) {
-    if (!schemas.has(INDEX_VECTOR)) report(`format/vectors/${INDEXES}`, 0, `no schema ${INDEX_VECTOR}.schema.json for the vectors of the module index`);
+  if (cases.length) {
+    if (!schemas.has(kind.schema)) report(`format/vectors/${kind.folder}`, 0, `no schema ${kind.schema}.schema.json for the vectors of ${kind.what}`);
     else if (!layout) waitForLayout();
     else {
-      const validate = schemas.validatorOf(INDEX_VECTOR);
-      for (const { file } of files.indexes) {
-        const { problems, refusal } = checkIndexVector(path.join(root, file), { layout, validatorOf: schemas.validatorOf, version, forms: schemas.forms, validate });
+      const validate = schemas.validatorOf(kind.schema);
+      for (const { file } of cases) {
+        const { problems, refusal } = kind.check(path.join(root, file), { layout, validatorOf: schemas.validatorOf, version, forms: schemas.forms, validate });
         for (const problem of problems) report(`${file}/${problem.file}`, problem.line, problem.message);
         if (refusal === undefined) continue;
         refused.add(refusal);
-        if (rules && !listed.some((rule) => rule.id === refusal)) report(`${file}/${INDEX_FILE}`, 0, `format/README.md lists no rule ${refusal}`);
+        if (rules && !listed.some((rule) => rule.id === refusal)) report(`${file}/${kind.file}`, 0, `format/README.md lists no rule ${refusal}`);
       }
     }
   }
-  if (!files.indexes.length || (schemas.has(INDEX_VECTOR) && layout)) {
-    for (const rule of listed) if (!refused.has(rule.id)) report(README, rule.line, `${rule.id} has no refusal among the vectors of the module index in format/vectors/${INDEXES}/`);
+  if (!cases.length || (schemas.has(kind.schema) && layout)) {
+    for (const rule of listed) if (!refused.has(rule.id)) report(README, rule.line, `${rule.id} has no refusal among the vectors of ${kind.what} in format/vectors/${kind.folder}/`);
   }
 }
 
@@ -391,12 +413,13 @@ function checkVerdicts(root, files, schemas, report) {
 }
 
 // Each rule the text lists has vectors, and each folder of vectors has its rule in the text. A rule
-// of the module index has its vectors among those of the index, which checkIndexes counts.
+// of the module index has its vectors among those of the index, and a rule of versions among those of
+// versions, which checkRefusalVectors counts.
 function checkRuleFolders(files, rules, report) {
   const listed = new Set(rules.map((rule) => rule.id));
   const withVectors = new Set(files.vectors.map((vector) => vector.rule));
   for (const rule of rules) {
-    if (partOf(rule.id) !== INDEX_PART && !withVectors.has(rule.id)) report(README, rule.line, `${rule.id} has no test vectors in format/vectors/rules/${rule.id}/`);
+    if (!OWN_VECTORS.includes(partOf(rule.id)) && !withVectors.has(rule.id)) report(README, rule.line, `${rule.id} has no test vectors in format/vectors/rules/${rule.id}/`);
   }
   for (const folder of files.ruleFolders) {
     if (!listed.has(folder.rule)) report(folder.file, 0, `format/README.md lists no rule ${folder.rule}`);
@@ -413,9 +436,10 @@ function checkRuleFolders(files, rules, report) {
 // vectors/templates/<case>.yaml, and a vector of tiers, vectors/tiers/<case>.yaml. A vector of
 // packages is a folder, vectors/packages/<case>/, which holds module/ and package.yaml and nothing
 // else, and so is a vector of the module index, vectors/indexes/<case>/, which holds modules/ and
-// index.yaml.
+// index.yaml, and a vector of versions of a module, vectors/versions/<case>/, which holds module/,
+// published/ and version.yaml.
 function readFiles(root, report) {
-  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [], templates: [], tiers: [], packages: [], indexes: [] };
+  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [], templates: [], tiers: [], packages: [], indexes: [], versions: [] };
   if (!fs.existsSync(path.join(root, "format"))) {
     report("format", 0, "there is no format/");
     return files;
@@ -492,7 +516,11 @@ function readVectorFiles(at, dir) {
       continue;
     }
     if (kind.isFolder && kind.name === INDEXES) {
-      readIndexFiles(at, kind.file);
+      readFolderCases(at, kind.file, { into: "indexes", what: "the module index", folders: [INDEX_MODULES], held: [INDEX_FILE] });
+      continue;
+    }
+    if (kind.isFolder && kind.name === VERSIONS) {
+      readFolderCases(at, kind.file, { into: "versions", what: "versions of a module", folders: [VERSION_MODULE, VERSION_PUBLISHED], held: [VERSION_FILE] });
       continue;
     }
     if (!kind.isFolder || kind.name !== "rules") {
@@ -506,6 +534,10 @@ function readVectorFiles(at, dir) {
       }
       if (partOf(folder.name) === INDEX_PART) {
         report(folder.file, 0, `a rule of the module index refuses to build an index: its vectors are refusals among the vectors of the index, in vectors/${INDEXES}/`);
+        continue;
+      }
+      if (partOf(folder.name) === VERSION_PART) {
+        report(folder.file, 0, `a rule of versions of a module refuses a new version: its vectors are refusals among the vectors of versions, in vectors/${VERSIONS}/`);
         continue;
       }
       files.ruleFolders.push({ file: folder.file, rule: folder.name });
@@ -551,16 +583,19 @@ function readPackageFiles({ root, report, files }, dir) {
   }
 }
 
-function readIndexFiles({ root, report, files }, dir) {
+// The cases of a kind of vectors that are folders, each holding the folders and the files that names
+// it, and nothing else, into files[into].
+function readFolderCases({ root, report, files }, dir, { into, what, folders, held }) {
   for (const entry of entriesOf(root, dir)) {
     if (!entry.isFolder || !isKebabCase(entry.name)) {
-      report(entry.file, 0, `a vector of the module index is a folder <case>/, its name in kebab-case; ${UNKNOWN}`);
+      report(entry.file, 0, `a vector of ${what} is a folder <case>/, its name in kebab-case; ${UNKNOWN}`);
       continue;
     }
     const names = entriesOf(root, entry.file);
-    const fits = names.length === 2 && names.some((name) => name.isFolder && name.name === INDEX_MODULES) && names.some((name) => name.isFile && name.name === INDEX_FILE);
-    if (fits) files.indexes.push({ file: entry.file });
-    else report(entry.file, 0, `a vector of the module index holds the folder ${INDEX_MODULES}/ and ${INDEX_FILE}, and nothing else`);
+    const has = (name, isFolder) => names.some((entry) => entry.name === name && (isFolder ? entry.isFolder : entry.isFile));
+    const fits = names.length === folders.length + held.length && folders.every((name) => has(name, true)) && held.every((name) => has(name, false));
+    if (fits) files[into].push({ file: entry.file });
+    else report(entry.file, 0, `a vector of ${what} holds ${folders.length === 1 ? "the folder" : "the folders"} ${folders.map((name) => `${name}/`).join(" and ")} and ${held.join(" and ")}, and nothing else`);
   }
 }
 
@@ -602,6 +637,6 @@ if (isMain(import.meta.url)) {
     console.log(`format-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
     process.exitCode = 1;
   } else {
-    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check, ${stats.random} vectors of the generator, ${stats.templates} vectors of templates, ${stats.tiers} vectors of tiers, ${stats.packages} vectors of packages, ${stats.indexes} vectors of the module index`);
+    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check, ${stats.random} vectors of the generator, ${stats.templates} vectors of templates, ${stats.tiers} vectors of tiers, ${stats.packages} vectors of packages, ${stats.indexes} vectors of the module index, ${stats.versions} vectors of versions of a module`);
   }
 }

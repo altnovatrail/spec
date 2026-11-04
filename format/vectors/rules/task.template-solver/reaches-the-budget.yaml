@@ -1,0 +1,35 @@
+# The template of the vector of templates within-the-budget.yaml, with one turn more: its solver
+# would take 100 000 000 steps, as go.starlark.net v0.0.0-20261021141710-4f4267fb140d counts them,
+# and the run stops when the count reaches the budget, before solve returns on the one instance.
+id: reaches-the-budget
+template:
+  parameters:
+    a: {from: 3, to: 3}
+    b: {from: 4, to: 4}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def solve(numbers):
+          for turn in range(9999997):
+              pass
+          return {"factor": numbers["product"] // numbers["a"]}
+    results: [factor]
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{factor}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {factor} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

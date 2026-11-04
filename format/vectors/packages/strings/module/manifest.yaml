@@ -1,5 +1,5 @@
 # A module whose task holds the characters that the canonical text escapes, and some that it does not.
-module_format_version: "0.2"
+module_format_version: "0.3"
 id: example/strings
 version: "0.1.0"
 title: A module of strings

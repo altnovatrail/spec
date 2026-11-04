@@ -1,9 +1,9 @@
 // The module index of section 26: the entry of a package, the build of an index from the index of
-// the release before, and the three rules that refuse a build.
+// the release before, and the four rules that refuse a build.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ENTRIES_KEPT, KNOWN_WITHDRAWALS, ONE_PACKAGE, entryOf, indexFormProblems, indexOf, teachesOf } from "../index.mjs";
+import { ENTRIES_KEPT, KNOWN_WITHDRAWALS, ONE_PACKAGE, VERSION_ABOVE, entryOf, indexFormProblems, indexOf, teachesOf } from "../index.mjs";
 
 const skill = (teaches) => (teaches ? { title: "A skill", assessability: "verdict", teaches } : { title: "A skill", assessability: "verdict" });
 // A package as packageOf builds it, as far as the index reads it.
@@ -81,4 +81,22 @@ test("an index names the format version in VERSION, its previous one no later, a
   assert.deepEqual(indexFormProblems({ module_format_version: "1.0", modules: {} }, "1.1", true), []);
   assert.deepEqual(indexFormProblems({ module_format_version: "1.1", modules: {} }, "1.0", true), ["the index names the format version 1.1, newer than 1.0, which format/VERSION has"]);
   assert.deepEqual(indexFormProblems({ module_format_version: "2.0", modules: {} }, "1.3", true), ["the index names the format version 2.0, newer than 1.3, which format/VERSION has"]);
+});
+
+test("a version new in the release stands above every version of its module in the previous index, withdrawn ones too", () => {
+  const previous = indexOf({ version: "0.1", packages: [built("example/a", "0.9.0", A), built("example/a", "1.10.0", B)], release: "v0.1.0" }).index;
+  // Above every published version, by its numbers: 1.10.1 is above 1.10.0, and 1.9.0 is not.
+  assert.deepEqual(indexOf({ version: "0.1", previous, packages: [built("example/a", "1.10.1", C)], release: "v0.2.0" }).breaches, []);
+  const below = indexOf({ version: "0.1", previous, packages: [built("example/a", "1.9.0", C)], release: "v0.2.0" });
+  assert.deepEqual(below.breaches.map((breach) => breach.rule), [VERSION_ABOVE]);
+  assert.match(below.breaches[0].message, /example\/a 1\.9\.0 is new in the release, and the previous index names 1\.10\.0 above it/);
+  // The entry stands, so that a withdrawal of the same version breaks no other rule.
+  const withdrawing = indexOf({ version: "0.1", previous, packages: [built("example/a", "1.9.0", C)], release: "v0.2.0", withdrawals: { "example/a": { "1.9.0": "wrong_key" } } });
+  assert.deepEqual(withdrawing.breaches.map((breach) => breach.rule), [VERSION_ABOVE]);
+  // A version that the previous index names is no new one, and another module is no matter.
+  assert.deepEqual(indexOf({ version: "0.1", previous, packages: [built("example/a", "0.9.0", A), built("example/b", "0.1.0", C)], release: "v0.2.0" }).breaches, []);
+  // A withdrawn version is published too.
+  const withdrawn = indexOf({ version: "0.1", previous, packages: [], release: "v0.2.0", withdrawals: { "example/a": { "1.10.0": "wrong_key" } } }).index;
+  const fix = indexOf({ version: "0.1", previous: withdrawn, packages: [built("example/a", "1.9.1", C)], release: "v0.3.0" });
+  assert.match(fix.breaches[0].message, /names 1\.10\.0 above it/);
 });

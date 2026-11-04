@@ -1,5 +1,5 @@
 # The lesson's task trains no skill of the lesson.
-module_format_version: "0.2"
+module_format_version: "0.3"
 id: example/lessons
 version: "0.1.0"
 title: Lessons

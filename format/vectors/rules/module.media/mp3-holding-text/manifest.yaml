@@ -1,5 +1,5 @@
 # A manifest that breaks no rule: what this case breaks is in media/.
-module_format_version: "0.2"
+module_format_version: "0.3"
 id: example/vector
 version: "0.1.0"
 title: A test vector

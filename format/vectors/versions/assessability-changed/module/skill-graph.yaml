@@ -1,0 +1,8 @@
+skills:
+  counting:
+    title: Counting
+    assessability: none
+  adding:
+    title: Adding
+    prerequisites: [counting]
+    assessability: verdict

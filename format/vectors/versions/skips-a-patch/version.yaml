@@ -1,0 +1,4 @@
+# The title changes, a patch, and the new version skips 1.0.1: it is not the next version by one of
+# its parts.
+# The new version is 1.0.2, and the published one is 1.0.0.
+refusal: module-version.step

@@ -1,0 +1,4 @@
+# The skill counting needs the anchor skill core.multiplication-table now, and dependencies follow:
+# a prerequisite changes the path, not the progress.
+# The new version is 1.1.0, and the published one is 1.0.0.
+version_part: minor

@@ -1,0 +1,4 @@
+# A target language comes in, es, as if the module taught Spanish: its languages are not those of
+# 1.0.0.
+# The new version is 2.0.0, and the published one is 1.0.0.
+refusal: module-version.languages-kept

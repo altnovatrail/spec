@@ -36,4 +36,5 @@ const (
 	IndexVectorRefusalModuleIndexEntriesKept      IndexVectorRefusal = "module-index.entries-kept"
 	IndexVectorRefusalModuleIndexOnePackage       IndexVectorRefusal = "module-index.one-package"
 	IndexVectorRefusalModuleIndexKnownWithdrawals IndexVectorRefusal = "module-index.known-withdrawals"
+	IndexVectorRefusalModuleIndexVersionAbove     IndexVectorRefusal = "module-index.version-above"
 )

@@ -1,0 +1,4 @@
+# Grade 3 moves from grades-3-4 to grades-1-2: grades close nothing, and only the band where a new
+# learner starts changes.
+# The new version is 1.1.0, and the published one is 1.0.0.
+version_part: minor

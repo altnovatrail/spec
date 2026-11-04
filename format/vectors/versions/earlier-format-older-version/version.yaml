@@ -1,0 +1,4 @@
+# 0.9.0 was published in format 0.2 and 1.0.0 in 0.3; the new version adds a technique: its part
+# comes from 1.0.0, the newest, in the same version of the format.
+# The new version is 1.1.0, and the published ones are 0.9.0 and 1.0.0.
+version_part: minor

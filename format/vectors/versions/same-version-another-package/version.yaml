@@ -1,0 +1,4 @@
+# The new version names 1.0.0, which is published, and its package differs: a version is published
+# once.
+# The new version is 1.0.0, and the published one is 1.0.0.
+refusal: module-version.above

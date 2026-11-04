@@ -1,0 +1,3 @@
+# adding no longer teaches core.multiplication-table: the modules that build on it lose it.
+# The new version is 2.0.0, and the published one is 1.0.0.
+version_part: major

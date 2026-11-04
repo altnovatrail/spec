@@ -1,0 +1,3 @@
+# From 0.0.1 a task is removed at 0.0.2: every 0.0.z is a major of its own.
+# The new version is 0.0.2, and the published one is 0.0.1.
+version_part: major

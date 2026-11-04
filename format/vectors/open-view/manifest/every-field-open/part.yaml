@@ -1,5 +1,5 @@
 # Every field of a manifest is open, so its open view is the manifest itself.
-module_format_version: "0.2"
+module_format_version: "0.3"
 id: example/vector
 version: "0.1.0"
 title: A test vector

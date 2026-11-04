@@ -1,0 +1,4 @@
+# The new version retires adding, replaced by sums, and the entry of tens, which adding replaced,
+# now names sums: it expands, and the retirement is a major change.
+# The new version is 3.0.0, and the published one is 2.0.0.
+version_part: major

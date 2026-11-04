@@ -1,0 +1,3 @@
+# The answer slot of apples is bound to a zone, not anywhere: what the value read is changes.
+# The new version is 2.0.0, and the published one is 1.0.0.
+version_part: major

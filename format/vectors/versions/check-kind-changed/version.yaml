@@ -1,0 +1,3 @@
+# The task odd is checked by a number, 11, and not by a predicate.
+# The new version is 2.0.0, and the published one is 1.0.0.
+version_part: major

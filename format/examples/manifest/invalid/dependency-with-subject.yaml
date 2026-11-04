@@ -1,6 +1,6 @@
 # error: pattern at #/dependencies/0
 # The ID of an anchor skill names no subject: core.linear-equations, not core.math.linear-equations.
-module_format_version: "0.2"
+module_format_version: "0.3"
 id: acme/optics-8
 version: "1.2.0"
 title: Оптика, 8 класс

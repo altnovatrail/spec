@@ -1,0 +1,9 @@
+skills:
+  counting:
+    title: Counting
+    assessability: verdict
+  adding:
+    title: Adding
+    prerequisites: [counting]
+    assessability: verdict
+    teaches: [core.multiplication-table]

@@ -1,0 +1,24 @@
+# The predicate of steps-below-the-limit.yaml with one square more: its evaluation would take
+# 1 000 000 steps, as go.starlark.net v0.0.0-20261021141710-4f4267fb140d counts them, and it stops
+# when the count reaches the limit, so every value in notation gets unchecked, the right one too.
+# A blank value is unreadable before the predicate runs. spec's CI checks only blank and notation,
+# and module-kit's CI every verdict (section 15).
+item:
+  answer_slots:
+    - binding: anywhere
+      check:
+        kind: predicate
+        predicate: "value in [n * n for n in range(99998)]"
+readings:
+  - answer_slots:
+      - {value: "49", verdict: unchecked}
+    verdict: unchecked
+  - answer_slots:
+      - {value: "50", verdict: unchecked}
+    verdict: unchecked
+  - answer_slots:
+      - {value: "7.5", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: null, verdict: unreadable, reason: blank}
+    verdict: unreadable

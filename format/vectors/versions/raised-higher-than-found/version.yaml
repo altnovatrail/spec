@@ -1,0 +1,4 @@
+# The title changes, a patch, and the author raises the major version: higher than the part found is
+# allowed.
+# The new version is 2.0.0, and the published one is 1.0.0.
+version_part: patch

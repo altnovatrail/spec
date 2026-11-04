@@ -1,0 +1,4 @@
+# 1.0.0 had the bands easy and hard, and 2.0.0 easy and harder, as no comparison would have let it.
+# The new version adds hard after harder: the ID of a band of 1.0.0 at another place.
+# The new version is 2.1.0, and the published ones are 1.0.0 and 2.0.0.
+refusal: module-version.bands-kept

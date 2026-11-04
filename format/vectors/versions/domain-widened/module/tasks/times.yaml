@@ -1,0 +1,29 @@
+id: times
+template:
+  parameters:
+    a:
+      from: 2
+      to: 3
+    b:
+      from: 2
+      to: 4
+  derived:
+    product: a * b
+statement:
+  - text: Write the missing number.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{b}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {b} = {product}"
+skills:
+  primary: [adding]
+band: grades-3-4
+difficulty: 2

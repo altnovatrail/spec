@@ -1,0 +1,4 @@
+# 2.0.0 has tens replaced by adding, and the new version replaces it by counting: an entry only
+# expands, and a wrong one cannot be corrected in this version of the format.
+# The new version is 3.0.0, and the published one is 2.0.0.
+refusal: module-version.retired-kept

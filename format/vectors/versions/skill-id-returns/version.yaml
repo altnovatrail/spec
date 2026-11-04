@@ -1,0 +1,4 @@
+# 1.0.0 had the skill tens, which 2.0.0 left out without retiring it; the new version brings the ID
+# back, for whatever it now means.
+# The new version is 2.1.0, and the published ones are 1.0.0 and 2.0.0.
+refusal: module-version.ids-kept

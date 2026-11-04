@@ -17,6 +17,7 @@ import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
 import { instanceMaker, instanceShown, numbersShown, pickOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "./templates.mjs";
 import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from "./verdicts.mjs";
+import { PACKAGE_FILES, VERSION_PART, VERSION_RULES, compareVersions, formatVersionCompare, isPackageFolder, packageFromFiles, placesOf, semverOf, shownAt } from "./versions.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
 // What an invalid example never names: the keyword that failed inside them is named instead
@@ -94,19 +95,22 @@ export function partOf(rule) {
 }
 
 // The rules format-check checks itself against those the text lists: the YAML rules, the rules of a
-// whole module and, when the format has a schema of the module index, the rules of the index, each side with every rule
-// of the other; and manifest.format-version, whose cases
-// it tells apart by the version they name. Problems at the rules' lines in README.md, or at none.
-export function compareOwnRules(rules, hasIndex = false) {
+// whole module, when the format has a schema of the module index, the rules of the index, and, when it
+// has a schema of version vectors, the rules of versions of a module, each side with every rule of
+// the other; and manifest.format-version, whose cases it tells apart by the version they name.
+// Problems at the rules' lines in README.md, or at none.
+export function compareOwnRules(rules, hasIndex = false, hasVersions = false) {
   const problems = [];
   for (const [part, own, file] of [
     ["yaml", YAML_RULES, "yaml.mjs"],
     ["module", MODULE_RULES, "module.mjs"],
     [INDEX_PART, INDEX_RULES, "index.mjs"],
+    [VERSION_PART, VERSION_RULES, "versions.mjs"],
   ]) {
     const listed = new Set(rules.filter((rule) => partOf(rule.id) === part).map((rule) => rule.id));
-    // A format without a module index, as a trial one may be, has none of its rules.
-    if (part === INDEX_PART && !hasIndex) continue;
+    // A format without a module index, or without versions of a module, as a trial one may be, has
+    // none of their rules.
+    if ((part === INDEX_PART && !hasIndex) || (part === VERSION_PART && !hasVersions)) continue;
     for (const id of listed) {
       if (!own.includes(id)) problems.push({ line: rules.find((rule) => rule.id === id).line, message: `format-check does not check ${id}: tools/format-check/${file} has to` });
     }
@@ -294,21 +298,9 @@ export function checkIndexVector(folder, { layout, validatorOf, version, forms, 
       problems.push({ file: at, line: 0, message: `${INDEX_MODULES}/ holds a folder <name>/ for each module of the release, its name in kebab-case, laid out as a module, and nothing else` });
       continue;
     }
-    const moduleFolder = path.join(modulesFolder, entry.name);
-    const read = readModuleCase(moduleFolder, { rule: null, layout, validatorOf, version, forms });
-    problems.push(...read.problems.map((problem) => ({ ...problem, file: problem.file ? `${at}/${problem.file}` : at })));
-    if (read.problems.length || !read.partsOk) {
-      built = false;
-      continue;
-    }
-    const solved = Object.keys(read.members.tasks ?? {}).filter((id) => resultsOf(read.members.tasks[id]).length);
-    if (solved.length) {
-      problems.push({ file: at, line: 0, message: `the template ${solved.join(", ")} has a solver: spec runs none, so a module of a vector of the index has no solver` });
-      continue;
-    }
-    const pkg = packageOf(moduleFolder, read.files, read.members);
-    if (pkg.problem) problems.push({ file: at, line: 0, message: pkg.problem });
-    else packages.push(pkg);
+    const pkg = builtModule(folder, at, { layout, validatorOf, version, forms }, problems, "the index");
+    if (pkg) packages.push(pkg);
+    else built = false;
   }
   const { problems: own, value } = vectorStart(fs.readFileSync(path.join(folder, INDEX_FILE)), validate, "index vectors");
   problems.push(...own.map((problem) => ({ file: INDEX_FILE, ...problem })));
@@ -319,23 +311,130 @@ export function checkIndexVector(folder, { layout, validatorOf, version, forms, 
   }
   if (problems.length || !built) return { problems, refusal: value.refusal };
   const { index, breaches } = indexOf({ version, previous: value.previous, packages, release: value.release, withdrawals: value.withdrawals });
-  const shown = (breach) => `${breach.rule}: ${breach.message}`;
-  if (value.refusal === undefined) {
-    for (const breach of breaches) problems.push({ file: INDEX_FILE, line: 0, message: `the build is refused, and the case names no refusal: ${shown(breach)}` });
-    const at = breaches.length ? null : differenceOf(index, value.index);
-    if (at) problems.push({ file: INDEX_FILE, line: 0, message: `index is not the index that the release builds: they differ at ${fragmentOf(["index", ...at])}` });
-  } else {
-    if (!breaches.some((breach) => breach.rule === value.refusal)) problems.push({ file: INDEX_FILE, line: 0, message: `the build breaks no ${value.refusal}` });
-    for (const breach of breaches) {
-      if (breach.rule !== value.refusal) problems.push({ file: INDEX_FILE, line: 0, message: `breaks ${breach.rule} too: ${breach.message}` });
-    }
-  }
+  problems.push(...refusalProblems(breaches, value.refusal, INDEX_FILE, "the build"));
+  const at = breaches.length || value.refusal !== undefined ? null : differenceOf(index, value.index);
+  if (at) problems.push({ file: INDEX_FILE, line: 0, message: `index is not the index that the release builds: they differ at ${fragmentOf(["index", ...at])}` });
   return { problems, refusal: value.refusal };
+}
+
+// A module of a vector of the index or of versions, at in folder: read as an example of a whole module
+// is, and built into its package, which has no solver, since spec runs none (sections 9 and 24). The
+// package, or null, with what is wrong in problems. what names the vectors.
+function builtModule(folder, at, options, problems, what) {
+  const moduleFolder = path.join(folder, at);
+  const read = readModuleCase(moduleFolder, { rule: null, ...options });
+  problems.push(...read.problems.map((problem) => ({ ...problem, file: problem.file ? `${at}/${problem.file}` : at })));
+  if (read.problems.length || !read.partsOk) return null;
+  const solved = Object.keys(read.members.tasks ?? {}).filter((id) => resultsOf(read.members.tasks[id]).length);
+  if (solved.length) {
+    problems.push({ file: at, line: 0, message: `the template ${solved.join(", ")} has a solver: spec runs none, so a module of a vector of ${what} has no solver` });
+    return null;
+  }
+  const pkg = packageOf(moduleFolder, read.files, read.members);
+  if (!pkg.problem) return pkg;
+  problems.push({ file: at, line: 0, message: pkg.problem });
+  return null;
+}
+
+// What a vector that names a refusal, or none, gets wrong against the rules that the computation
+// breaks, breaches: with no refusal, each breach; with one, its rule unbroken and every other rule
+// broken too. subject is what the rules refuse. Problems at file.
+function refusalProblems(breaches, refusal, file, subject) {
+  const shown = (breach) => `${breach.rule}: ${breach.message}`;
+  if (refusal === undefined) return breaches.map((breach) => ({ file, line: 0, message: `${subject} is refused, and the case names no refusal: ${shown(breach)}` }));
+  const problems = [];
+  if (!breaches.some((breach) => breach.rule === refusal)) problems.push({ file, line: 0, message: `${subject} breaks no ${refusal}` });
+  for (const breach of breaches) if (breach.rule !== refusal) problems.push({ file, line: 0, message: `breaks ${breach.rule} too: ${breach.message}` });
+  return problems;
 }
 
 // The folder of the modules of a release in a vector of the module index, and the file of the release.
 export const INDEX_MODULES = "modules";
 export const INDEX_FILE = "index.yaml";
+
+// A vector of versions of a module (section 9): module/ holds the new version, laid out as a module;
+// published/ holds a folder X.Y.Z for each published version of the module, at least one, named by
+// its version — laid out as a module, when it names the format version in VERSION, or, when it names
+// an earlier one, the files of its package that every version keeps, inventory.json and server.json,
+// which format-check reads only by their places (section 2). Every module of the case breaks no rule
+// that format-check checks, as an example of a whole module does, and has no solver, since spec runs
+// none; every version is of the module of module/. version.yaml follows the YAML rules and passes the schema of version vectors, by its
+// validator validate, and section 27 finds the part that it gives, or refuses the new version by its
+// refusal and by no other rule. { problems, refusal }: problems, each { file, line, message }, where
+// file is version.yaml, module/, published/ or a path in them; and the rule that the case says
+// refuses the new version, if it says one.
+export function checkVersionVector(folder, { layout, validatorOf, version, forms, validate }) {
+  const problems = [];
+  const options = { layout, validatorOf, version, forms };
+  const next = builtVersion(folder, VERSION_MODULE, options, problems);
+  // Whether every version was read: a vector is compared only then.
+  let read = next !== null;
+  const published = [];
+  const publishedFolder = path.join(folder, VERSION_PUBLISHED);
+  const entries = listFolder(publishedFolder);
+  if (!entries.length) problems.push({ file: VERSION_PUBLISHED, line: 0, message: `${VERSION_PUBLISHED}/ holds a folder for each published version of the module, at least one` });
+  for (const entry of entries) {
+    const at = `${VERSION_PUBLISHED}/${entry.name}`;
+    if (!entry.isDirectory() || !semverOf(entry.name)) {
+      problems.push({ file: at, line: 0, message: `${VERSION_PUBLISHED}/ holds a folder X.Y.Z for each published version of the module, named by its version, and nothing else` });
+      read = false;
+      continue;
+    }
+    const asFiles = isPackageFolder(listFolder(path.join(publishedFolder, entry.name)).map((file) => file.name));
+    const built = asFiles ? readPackageFolder(path.join(publishedFolder, entry.name), at, version, problems) : builtVersion(folder, at, options, problems);
+    if (!built) {
+      read = false;
+      continue;
+    }
+    if (built.places.version !== entry.name) problems.push({ file: at, line: 0, message: `holds the version ${built.places.version}: a folder of ${VERSION_PUBLISHED}/ is named by the version it holds` });
+    if (next && built.places.id !== next.places.id) problems.push({ file: at, line: 0, message: `is a version of ${built.places.id}, and ${VERSION_MODULE}/ of ${next.places.id}: every version of a case is of one module` });
+    published.push(built);
+  }
+  const { problems: own, value } = vectorStart(fs.readFileSync(path.join(folder, VERSION_FILE)), validate, "version vectors");
+  problems.push(...own.map((problem) => ({ file: VERSION_FILE, ...problem })));
+  if (!value) return { problems };
+  if (problems.length || !read) return { problems, refusal: value.refusal };
+  const { part, changes, breaches } = compareVersions({ published, next });
+  problems.push(...refusalProblems(breaches, value.refusal, VERSION_FILE, "the new version"));
+  if (!breaches.length && value.refusal === undefined && part !== value.version_part) {
+    const found = part === "none" ? "nothing but the version changes" : shownAt(changes, part);
+    problems.push({ file: VERSION_FILE, line: 0, message: `the comparison finds the part ${part}, not ${value.version_part}: ${found}` });
+  }
+  return { problems, refusal: value.refusal };
+}
+
+// The folders and the file of a vector of versions.
+export const VERSION_MODULE = "module";
+export const VERSION_PUBLISHED = "published";
+export const VERSION_FILE = "version.yaml";
+
+// A version of a vector of versions laid out as a module, at in folder, built as builtModule builds
+// it: { digest, places, view, device }, or null, with what is wrong in problems.
+function builtVersion(folder, at, options, problems) {
+  const pkg = builtModule(folder, at, options, problems, "versions");
+  return pkg && { digest: pkg.digest, places: placesOf(pkg.inventory, pkg.server).places, view: pkg.server, device: pkg.device };
+}
+
+// A published version of an earlier version of the format, a package as files at at in folder, read
+// by its places alone (section 2). { digest, places }, or null, with what is wrong in problems.
+function readPackageFolder(folder, at, version, problems) {
+  const files = Object.fromEntries(PACKAGE_FILES.map((name) => [name, fs.readFileSync(path.join(folder, name))]));
+  const { pkg, problems: own } = packageFromFiles(files);
+  if (own) {
+    problems.push(...own.map((problem) => ({ file: `${at}/${problem.file}`, line: 0, message: problem.message })));
+    return null;
+  }
+  const { places, problem } = placesOf(pkg.inventory, pkg.view);
+  if (problem) {
+    problems.push({ file: at, line: 0, message: problem });
+    return null;
+  }
+  if (version !== null && formatVersionCompare(places.formatVersion, version) >= 0) {
+    problems.push({ file: at, line: 0, message: `is a package of the format version ${places.formatVersion}: a published version of ${version}, which format/VERSION has, is laid out as a module, and one of a later version is none` });
+    return null;
+  }
+  return { digest: pkg.digest, places };
+}
 
 // The results of the solvers of a module's templates as a vector's canonical view gives them: for each
 // template with a solver, an object of its results on each instance, in order, or nothing when the

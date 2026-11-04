@@ -8,12 +8,12 @@
 // The corpus holds:
 // - each valid example of a term, examples/<term>/valid/<case>.yaml;
 // - each file of a part in a module: of each example of a whole module, examples/module/valid/, and
-//   of each module of the vectors of packages and of the module index; and the canonical view of
-//   each example of a whole module;
+//   of each module of the vectors of packages and of the module index, and of each version laid out
+//   as a module in the vectors of versions; and the canonical view of each example of a whole module;
 // - each case of a part's rule that is a file, vectors/rules/<rule>/<case>.yaml: it passes the
 //   part's schema (format/README.md, section 9);
 // - each vector of verdicts, of the leak check, of the generator, of templates, of tiers, of
-//   packages and of the module index;
+//   packages, of the module index and of versions;
 // - each vector of the open view: its part, read by the part's type; its open view, read by the
 //   type of open; and its part read by the type of open too, which a closed field of the part fails
 //   when the part holds one;
@@ -33,6 +33,7 @@ import { partOf, readText } from "../format-check/cases.mjs";
 import { idOf, listModule, placeFiles, readLayout } from "../format-check/module.mjs";
 import { canonicalViewOf, memberOf } from "../format-check/package.mjs";
 import { compileSchemas, fragmentOf, readSchema } from "../format-check/schemas.mjs";
+import { isPackageFolder } from "../format-check/versions.mjs";
 import { readModuleFile } from "../format-check/yaml.mjs";
 import { byCodeUnits, isMain } from "../shared.mjs";
 import { ADMISSION_PART, FOLDER as ADMISSION } from "../admission/main.mjs";
@@ -51,6 +52,11 @@ const PACKAGES = "packages";
 const PACKAGE_VECTOR = "package-vector";
 const INDEXES = "indexes";
 const INDEX_VECTOR = "index-vector";
+// The vectors of versions: a new version and the published ones, each laid out as a module, or a
+// published version of an earlier version of the format as a package as files, which the types of
+// this version do not read.
+const VERSIONS = "versions";
+const VERSION_VECTOR = "version-vector";
 const OPEN_VIEW = "open-view";
 const RULES = "rules";
 const CANONICAL_VIEW = "canonical-view";
@@ -110,6 +116,15 @@ export function corpusOf(root, model) {
       for (const entry of list(dir)) {
         for (const module of list(`${dir}/${entry.name}/modules`)) addModule(`${dir}/${entry.name}/modules/${module.name}`, false);
         add(`${dir}/${entry.name}/index.yaml`, INDEX_VECTOR, read(`${dir}/${entry.name}/index.yaml`));
+      }
+    } else if (folder === VERSIONS) {
+      for (const entry of list(dir)) {
+        addModule(`${dir}/${entry.name}/module`, false);
+        for (const version of list(`${dir}/${entry.name}/published`)) {
+          const at = `${dir}/${entry.name}/published/${version.name}`;
+          if (!isPackageFolder(list(at).map((file) => file.name))) addModule(at, false);
+        }
+        add(`${dir}/${entry.name}/version.yaml`, VERSION_VECTOR, read(`${dir}/${entry.name}/version.yaml`));
       }
     } else if (folder === OPEN_VIEW) {
       for (const term of list(dir)) for (const entry of list(`${dir}/${term.name}`)) addOpenView(`${dir}/${term.name}/${entry.name}`, term.name);

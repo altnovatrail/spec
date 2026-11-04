@@ -1,5 +1,5 @@
 # The worked example has the task's answer: its demo gives 7.
-module_format_version: "0.2"
+module_format_version: "0.3"
 id: example/lessons
 version: "0.1.0"
 title: Lessons
