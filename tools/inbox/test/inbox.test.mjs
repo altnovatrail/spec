@@ -3,7 +3,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compare, ledgerOf, parseNumbers, readRepository, report, rowsForSpec, runGh } from "../inbox.mjs";
+import { compare, fingerprintOf, ledgerOf, parseNumbers, readRepository, report, rowsForSpec, runGh } from "../inbox.mjs";
 import { inbox, OTHERS } from "../main.mjs";
 
 const HEADER = "| ID | Вопрос | Откуда | Варианты | Рекомендация |\n|---|---|---|---|---|";
@@ -35,7 +35,7 @@ const row = (n, text) => `| В${n} | «В реестр spec»: ${text} | T01 | �
 
 // spec's RUN.md with table 5 holding the rows given.
 function spec(...rows) {
-  return ["# RUN.md — план работ spec", "", "## Таблица 5. Строки других репозиториев, записанные в `spec`", "", "| Репозиторий | Строки | Где ответ |\n|---|---|---|", ...rows, ""].join("\n");
+  return ["# RUN.md — план работ spec", "", "## Таблица 5. Строки других репозиториев, записанные в `spec`", "", "| Репозиторий | Строки | Отпечаток | Где ответ |\n|---|---|---|---|", ...rows, ""].join("\n");
 }
 
 // A stand-in for gh over { name: { sha, run, runs, pulls: [{ number, title, sha, base, files, run }] } },
@@ -89,6 +89,20 @@ test("the rows marked for spec, whatever the mark's case, quotes and spaces, at 
     ],
   );
   assert.equal(rows[0].line, 7);
+  assert.deepEqual(rows[0].cells, ["В1", "«В реестр spec», к П-17: как ребёнок не попадёт", "T01", "а; б", "а"]);
+});
+
+test("a fingerprint is of every cell of the rows, in the order of their numbers, and of nothing else", () => {
+  const [one, two] = rowsForSpec(run(row(5, "раскладка релиза"), row(6, "перенос")));
+  const print = fingerprintOf([one, two]);
+  assert.match(print, /^[0-9a-f]{12}$/u);
+  assert.equal(fingerprintOf([two, one]), print);
+  // Its place in the file, its white space and its Markdown marks are no change of the row.
+  const moved = rowsForSpec(run("| В0 | Своё | T01 | — | — |", "| В5 | «В реестр spec»:  **раскладка**   релиза | T01 | — | — |", row(6, "перенос")));
+  assert.equal(fingerprintOf(moved), print);
+  // A word in any cell is.
+  assert.notEqual(fingerprintOf(rowsForSpec(run(row(5, "раскладка релиза"), "| В6 | «В реестр spec»: перенос | T01 | — | (а) |"))), print);
+  assert.notEqual(fingerprintOf([one]), print);
 });
 
 test("a RUN.md with no table 3, or a row with no number, holds nothing for spec", () => {
@@ -106,11 +120,24 @@ test("numbers, ranges and lists of rows В", () => {
 });
 
 test("table 5 gives each repository its numbers, and names a row it cannot read", () => {
-  const { ledger, problems } = ledgerOf(spec("| `api` | В1–В3 | Д62 |", "| `api` | В5 | Д67; R80 |", "| `tutor` | В33 | не для `spec` |", "| `app` | все | Д68 |"));
+  const { ledger, entries, problems } = ledgerOf(
+    spec("| `api` | В1–В3 | 0123456789ab | Д62 |", "| `api` | В5 | — | Д67; R80 |", "| `tutor` | В33 | Д66 | не для `spec` |", "| `app` | все | — | Д68 |"),
+  );
   assert.deepEqual([...ledger.get("api")], [1, 2, 3, 5]);
   assert.deepEqual([...ledger.get("tutor")], [33]);
   assert.equal(ledger.has("app"), false);
-  assert.deepEqual(problems, ['RUN.md:10: a row of table 5 names no repository or no rows В: "app | все | Д68"']);
+  assert.deepEqual(
+    entries.map((e) => [e.repository, e.list, e.numbers, e.fingerprint, e.line]),
+    [
+      ["api", "В1–В3", [1, 2, 3], "0123456789ab", 7],
+      ["api", "В5", [5], null, 8],
+      ["tutor", "В33", [33], null, 9],
+    ],
+  );
+  assert.deepEqual(problems, [
+    'RUN.md:9: the fingerprint of a row of table 5 is 12 hexadecimal digits, or — while it has none: "Д66"',
+    'RUN.md:10: a row of table 5 names no repository or no rows В: "app | все | — | Д68"',
+  ]);
   assert.equal(ledgerOf("# RUN.md\n").ledger.size, 0);
 });
 
@@ -158,8 +185,35 @@ test("compare: new on main, on the way, and what can leave table 5", () => {
     result.gone.map((r) => [r.repository, r.number]),
     [["api", 4]],
   );
+  assert.deepEqual(result.changed, []);
   assert.deepEqual(result.problems, ["table 5 names site, which is not a NovaTrail repository inbox reads"]);
   assert.deepEqual(compare(repositories, new Map([["modules", new Set([1])]])).problems, ["table 5 names modules, which is not a NovaTrail repository inbox reads"]);
+});
+
+test("compare: rows of table 5 whose rows on main changed, or have no fingerprint yet", () => {
+  const rows = rowsForSpec(run(row(5, "записана"), row(6, "тоже записана"), row(7, "одна")));
+  const both = fingerprintOf(rows.slice(0, 2));
+  const repositories = [{ name: "api", main: { sha: A, rows }, pulls: [] }];
+  const ledger = new Map([["api", new Set([5, 6, 7, 9])]]);
+  const entry = (list, numbers, fingerprint, line) => ({ repository: "api", list, numbers, fingerprint, line });
+  const result = compare(repositories, ledger, ["api"], [entry("В5–В6", [5, 6], both, 20), entry("В7", [7], null, 21), entry("В9", [9], "0123456789ab", 22)]);
+  assert.deepEqual(result.changed, [{ repository: "api", list: "В7", line: 21, sha: A, lines: [rows[2].line], recorded: null, fingerprint: fingerprintOf([rows[2]]) }]);
+  // A row edited at the source; and one that left it, whose rest no longer has the fingerprint.
+  const edited = rowsForSpec(run(row(5, "записана, с дополнением"), row(6, "тоже записана")));
+  const again = compare([{ name: "api", main: { sha: B, rows: edited }, pulls: [] }], ledger, ["api"], [entry("В5–В6", [5, 6], both, 20)]);
+  assert.deepEqual(
+    again.changed.map((c) => [c.list, c.recorded, c.fingerprint, c.lines]),
+    [["В5–В6", both, fingerprintOf(edited), [edited[0].line, edited[1].line]]],
+  );
+  const left = compare([{ name: "api", main: { sha: B, rows: rows.slice(1, 2) }, pulls: [] }], ledger, ["api"], [entry("В5–В6", [5, 6], both, 20)]);
+  assert.deepEqual(
+    left.changed.map((c) => [c.list, c.fingerprint]),
+    [["В5–В6", fingerprintOf(rows.slice(1, 2))]],
+  );
+  assert.deepEqual(
+    left.gone.map((g) => g.number),
+    [5, 7, 9],
+  );
 });
 
 test("the report names each row with its place, and cuts a long question", () => {
@@ -168,20 +222,27 @@ test("the report names each row with its place, and cuts a long question", () =>
     {
       fresh: [{ repository: "api", number: 6, sha: A, line: 12, text: long }],
       coming: [{ repository: "app", number: 11, pull: 13, title: "T03", sha: C, line: 14, text: "на подходе" }],
+      changed: [
+        { repository: "api", list: "В5–В6", line: 20, sha: B, lines: [11, 12], recorded: "0123456789ab", fingerprint: "ba9876543210" },
+        { repository: "app", list: "В7", line: 21, sha: D, lines: [13], recorded: null, fingerprint: "00112233aabb" },
+      ],
       gone: [{ repository: "tutor", number: 33 }],
     },
     12,
   );
   assert.deepEqual(lines, [
-    "inbox: 12 repositories read; 1 new on main, 1 on the way, 1 to leave table 5",
+    "inbox: 12 repositories read; 1 new on main, 1 on the way, 2 changed since recorded, 1 to leave table 5",
     "new on main — record, or bring to the author:",
     `  api В6 (RUN.md:12, main aaaaaaa): ${"x".repeat(199)}…`,
     "on the way, in open pull requests — recorded only on the author's word:",
     '  app В11 (pull request #13 "T03", ccccccc, RUN.md:14): на подходе',
+    "changed on main since table 5 recorded them — read the rows again, record what is new, then write the fingerprint in table 5:",
+    "  api В5–В6 (table 5 at RUN.md:20; its RUN.md:11–12, main bbbbbbb): 0123456789ab → ba9876543210",
+    "  app В7 (table 5 at RUN.md:21; its RUN.md:13, main ddddddd): — → 00112233aabb",
     "in table 5, but no longer marked for spec at the source — the row can leave:",
     "  tutor В33",
   ]);
-  assert.deepEqual(report({ fresh: [], coming: [], gone: [] }, 12), ["inbox: 12 repositories read; 0 new on main, 0 on the way, 0 to leave table 5"]);
+  assert.deepEqual(report({ fresh: [], coming: [], gone: [] }, 12), ["inbox: 12 repositories read; 0 new on main, 0 on the way, 0 changed since recorded, 0 to leave table 5"]);
 });
 
 test("a pull request adds the rows its merge base with main has not, each RUN.md read once", () => {
@@ -229,15 +290,19 @@ test("inbox reads every other repository, and says what it could not read", () =
     api: { sha: A, run: run(row(5, "записана"), row(6, "новая")), pulls: [] },
     app: { sha: B, run: run(), pulls: [] },
   };
-  const done = inbox({ names: ["api", "app"], ledgerSource: spec("| `api` | В5 | Д67 |"), gh: fakeGh(repositories) });
+  const print = fingerprintOf(rowsForSpec(run(row(5, "записана"))));
+  const done = inbox({ names: ["api", "app"], ledgerSource: spec(`| \`api\` | В5 | ${print} | Д67 |`), gh: fakeGh(repositories) });
   assert.equal(done.status, 0);
-  assert.deepEqual(done.lines.slice(0, 2), ["inbox: 2 repositories read; 1 new on main, 0 on the way, 0 to leave table 5", "new on main — record, or bring to the author:"]);
-  const unreadable = inbox({ names: ["api"], ledgerSource: spec("| `api` | что-то | Д67 |"), gh: fakeGh(repositories) });
+  assert.deepEqual(done.lines.slice(0, 2), ["inbox: 2 repositories read; 1 new on main, 0 on the way, 0 changed since recorded, 0 to leave table 5", "new on main — record, or bring to the author:"]);
+  const unprinted = inbox({ names: ["api"], ledgerSource: spec("| `api` | В5 | — | Д67 |"), gh: fakeGh(repositories) });
+  assert.equal(unprinted.status, 0);
+  assert.equal(unprinted.lines.at(-1), `  api В5 (table 5 at RUN.md:7; its RUN.md:7, main aaaaaaa): — → ${print}`);
+  const unreadable = inbox({ names: ["api"], ledgerSource: spec("| `api` | что-то | — | Д67 |"), gh: fakeGh(repositories) });
   assert.equal(unreadable.status, 1);
   assert.match(unreadable.lines.at(-1), /a row of table 5 names no repository or no rows В/u);
-  const partly = inbox({ names: ["api", "infra"], ledgerSource: spec("| `infra` | В2 | Т-29 |"), gh: fakeGh(repositories) });
+  const partly = inbox({ names: ["api", "infra"], ledgerSource: spec("| `infra` | В2 | — | Т-29 |"), gh: fakeGh(repositories) });
   assert.equal(partly.status, 2);
-  assert.deepEqual(partly.lines.slice(0, 1), ["inbox: 1 repositories read; 2 new on main, 0 on the way, 0 to leave table 5"]);
+  assert.deepEqual(partly.lines.slice(0, 1), ["inbox: 1 repositories read; 2 new on main, 0 on the way, 0 changed since recorded, 0 to leave table 5"]);
   assert.equal(partly.lines.at(-1), "inbox: cannot read infra — gh api repos/altnovatrail/infra/commits/main: HTTP 404");
 });
 

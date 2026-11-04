@@ -60,6 +60,10 @@ items:
         check:
           kind: number
           key: "7"
+          trap_values:
+            - value: "8"
+              trap: times-table-slip
+              text: Multiply your answer back. Is the product more than the number shared?
       - text: r
       - binding: box
         check:

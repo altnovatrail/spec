@@ -3,6 +3,7 @@
 // a gh function the caller gives, so that the tests run with no network.
 
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { parseMarkdown } from "../docs-check/markdown.mjs";
 import { ORGANIZATION } from "../release/repositories.mjs";
 import { byCodeUnits, GH } from "../shared.mjs";
@@ -23,20 +24,36 @@ function tablesUnder(doc, prefix) {
   return index < 0 ? [] : doc.tables.filter((table) => table.heading === index);
 }
 
-// The rows of table 3 marked for spec: { number, text, line }, text being the question's cell
-// with its white space folded. parseMarkdown gives a cell's plain text, so **В реестр spec.** reads
-// as В реестр spec.
+const fold = (text) => text.replace(/\s+/gu, " ").trim();
+
+// The rows of table 3 marked for spec: { number, text, cells, line }, text being the question's
+// cell and cells every cell of the row, each with its white space folded. parseMarkdown gives a
+// cell's plain text, so **В реестр spec.** reads as В реестр spec.
 export function rowsForSpec(source) {
   const rows = [];
   for (const table of tablesUnder(parseMarkdown(source), "Таблица 3.")) {
     for (const row of table.rows) {
       const number = ROW.exec(row.cells[0] ?? "")?.[1];
-      const text = (row.cells[1] ?? "").replace(/\s+/gu, " ");
-      if (number && MARK.test(text)) rows.push({ number: Number(number), text, line: row.line });
+      const text = fold(row.cells[1] ?? "");
+      if (number && MARK.test(text)) rows.push({ number: Number(number), text, cells: row.cells.map(fold), line: row.line });
     }
   }
   return rows;
 }
+
+// The fingerprint of rows of table 3, as table 5 keeps it (the amendment of 2026-11-04 to R81):
+// the first 12 hexadecimal digits of the SHA-256 of their cells, in the order of their numbers —
+// a row's cells joined by " | ", the rows by a line break. A change of any word of a row changes
+// it; the row's place in the file and its Markdown marks do not.
+export function fingerprintOf(rows) {
+  const text = [...rows]
+    .sort((a, b) => a.number - b.number)
+    .map((row) => row.cells.join(" | "))
+    .join("\n");
+  return createHash("sha256").update(text, "utf8").digest("hex").slice(0, 12);
+}
+
+const FINGERPRINT = /^[0-9a-f]{12}$/u;
 
 // "В1–В5, В7" as the numbers it names; null when a part is not a number or a range.
 export function parseNumbers(text) {
@@ -52,25 +69,32 @@ export function parseNumbers(text) {
   return numbers;
 }
 
-// Table 5 of spec's RUN.md: repository → the numbers spec has recorded. A row it cannot read is a
-// problem, with its line.
+// Table 5 of spec's RUN.md: the ledger, repository → the numbers spec has recorded, and its
+// entries, one a row: { repository, list, numbers, fingerprint, line }, fingerprint being null
+// while the row has none, written —. A row it cannot read is a problem, with its line; a row whose
+// fingerprint is no fingerprint is one too, and counts as having none.
 export function ledgerOf(source) {
   const ledger = new Map();
+  const entries = [];
   const problems = [];
   for (const table of tablesUnder(parseMarkdown(source), "Таблица 5.")) {
     for (const row of table.rows) {
-      const [name = "", list = ""] = row.cells;
+      const [name = "", list = "", print = ""] = row.cells;
       const numbers = parseNumbers(list);
       if (!name || !numbers) {
         problems.push(`RUN.md:${row.line}: a row of table 5 names no repository or no rows В: "${row.cells.join(" | ")}"`);
         continue;
       }
+      if (print !== "—" && !FINGERPRINT.test(print)) {
+        problems.push(`RUN.md:${row.line}: the fingerprint of a row of table 5 is 12 hexadecimal digits, or — while it has none: "${print}"`);
+      }
       const recorded = ledger.get(name) ?? new Set();
       for (const n of numbers) recorded.add(n);
       ledger.set(name, recorded);
+      entries.push({ repository: name, list, numbers, fingerprint: FINGERPRINT.test(print) ? print : null, line: row.line });
     }
   }
-  return { ledger, problems };
+  return { ledger, entries, problems };
 }
 
 // How long one call of gh may take, as tools/release/github.mjs gives git: a stalled network ends
@@ -120,13 +144,16 @@ export function readRepository(name, gh = runGh) {
 }
 
 // What spec has still to take: rows on main that table 5 does not hold; rows of open pull requests
-// that neither main nor table 5 holds; and numbers of table 5 that neither main nor an open pull
-// request holds now, which can leave the table — a row recorded from a pull request, on the author's
-// word, stays while the pull request is open. A repository that table 5 names and `known` does not
-// — the repositories inbox reads, whether or not they could be read — is a problem.
-export function compare(repositories, ledger, known = repositories.map((r) => r.name)) {
+// that neither main nor table 5 holds; rows of table 5 whose rows on main no longer have the
+// fingerprint it keeps, or whose fingerprint it does not keep yet — a row of table 5 with none of
+// its rows on main has nothing to compare; and numbers of table 5 that neither main nor an open
+// pull request holds now, which can leave the table — a row recorded from a pull request, on the
+// author's word, stays while the pull request is open. A repository that table 5 names and `known`
+// does not — the repositories inbox reads, whether or not they could be read — is a problem.
+export function compare(repositories, ledger, known = repositories.map((r) => r.name), entries = []) {
   const fresh = [];
   const coming = [];
+  const changed = [];
   const gone = [];
   const problems = [];
   const read = new Set(known);
@@ -142,6 +169,14 @@ export function compare(repositories, ledger, known = repositories.map((r) => r.
         if (!onMain.has(row.number) && !recorded.has(row.number)) coming.push({ repository: repository.name, pull: pull.number, title: pull.title, sha: pull.sha, ...row });
       }
     }
+    for (const entry of entries.filter((e) => e.repository === repository.name)) {
+      const rows = repository.main.rows.filter((row) => entry.numbers.includes(row.number));
+      if (rows.length === 0) continue;
+      const fingerprint = fingerprintOf(rows);
+      if (fingerprint !== entry.fingerprint) {
+        changed.push({ repository: repository.name, list: entry.list, line: entry.line, sha: repository.main.sha, lines: rows.map((row) => row.line), recorded: entry.fingerprint, fingerprint });
+      }
+    }
     for (const n of [...recorded].sort((a, b) => a - b)) {
       if (!onMain.has(n) && !inPulls.has(n)) gone.push({ repository: repository.name, number: n });
     }
@@ -149,15 +184,15 @@ export function compare(repositories, ledger, known = repositories.map((r) => r.
   for (const name of [...ledger.keys()].sort(byCodeUnits)) {
     if (!read.has(name)) problems.push(`table 5 names ${name}, which is not a NovaTrail repository inbox reads`);
   }
-  return { fresh, coming, gone, problems };
+  return { fresh, coming, changed, gone, problems };
 }
 
 const short = (sha) => sha.slice(0, 7);
 const excerpt = (text) => (text.length > 200 ? `${text.slice(0, 199)}…` : text);
 
 // The lines inbox prints.
-export function report({ fresh, coming, gone }, count) {
-  const lines = [`inbox: ${count} repositories read; ${fresh.length} new on main, ${coming.length} on the way, ${gone.length} to leave table 5`];
+export function report({ fresh, coming, changed = [], gone }, count) {
+  const lines = [`inbox: ${count} repositories read; ${fresh.length} new on main, ${coming.length} on the way, ${changed.length} changed since recorded, ${gone.length} to leave table 5`];
   if (fresh.length) {
     lines.push("new on main — record, or bring to the author:");
     for (const r of fresh) lines.push(`  ${r.repository} В${r.number} (RUN.md:${r.line}, main ${short(r.sha)}): ${excerpt(r.text)}`);
@@ -165,6 +200,13 @@ export function report({ fresh, coming, gone }, count) {
   if (coming.length) {
     lines.push("on the way, in open pull requests — recorded only on the author's word:");
     for (const r of coming) lines.push(`  ${r.repository} В${r.number} (pull request #${r.pull} "${r.title}", ${short(r.sha)}, RUN.md:${r.line}): ${excerpt(r.text)}`);
+  }
+  if (changed.length) {
+    lines.push("changed on main since table 5 recorded them — read the rows again, record what is new, then write the fingerprint in table 5:");
+    for (const r of changed) {
+      const at = r.lines.length === 1 ? r.lines[0] : `${Math.min(...r.lines)}–${Math.max(...r.lines)}`;
+      lines.push(`  ${r.repository} ${r.list} (table 5 at RUN.md:${r.line}; its RUN.md:${at}, main ${short(r.sha)}): ${r.recorded ?? "—"} → ${r.fingerprint}`);
+    }
   }
   if (gone.length) {
     lines.push("in table 5, but no longer marked for spec at the source — the row can leave:");

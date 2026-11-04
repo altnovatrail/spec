@@ -48,7 +48,11 @@
       "description": "Weights, by name."
     },
     "item": {
-      "$ref": "common.schema.json#/$defs/base",
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/base"
+        }
+      ],
       "oneOf": [
         {
           "properties": {

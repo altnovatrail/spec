@@ -229,6 +229,24 @@ test("only the format's keywords", () => {
   sampleBreaks((s) => (s.properties.count["x-hidden"] = true), /x-hidden: the format's one annotation is x-open/);
 });
 
+test("no dependentSchemas, and no $ref beside oneOf or anyOf: ajv validates them wrongly", () => {
+  const dependent = /dependentSchemas: ajv 8\.20\.0 counts the fields of the place as unevaluated when its key is absent; write allOf with if: \{required: \[<key>\]\} and then/;
+  sampleBreaks((s) => (s.dependentSchemas = { count: { properties: { level: { const: "high", description: "High, when counted." } } } }), dependent);
+  // What it holds is checked too.
+  expectEach([sampleSchema((s) => (s.dependentSchemas = { count: { properties: { Level: { const: "high", description: "High, when counted." } } } }))], [dependent, /Level: a name in snake_case/, unchecked]);
+  const beside = (keyword) => new RegExp(`sample\\.schema\\.json:\\d+: ${keyword} beside \\$ref: ajv 8\\.20\\.0 counts the fields of the place as unevaluated when a branch other than the first passes; put the \\$ref or the ${keyword} in allOf`);
+  const atItem = (keyword) => (s) => {
+    s.properties.item.$ref = s.properties.item.allOf[0].$ref;
+    delete s.properties.item.allOf;
+    if (keyword === "anyOf") {
+      s.properties.item.anyOf = s.properties.item.oneOf;
+      delete s.properties.item.oneOf;
+    }
+  };
+  sampleBreaks(atItem("oneOf"), beside("oneOf"));
+  sampleBreaks(atItem("anyOf"), beside("anyOf"));
+});
+
 test("x-open is true, in a field's subschema", () => {
   sampleBreaks((s) => (s.properties.count["x-open"] = false), /x-open is true, or absent/);
   sampleBreaks((s) => (s["x-open"] = true), /x-open stands only in a field's subschema/);
@@ -623,8 +641,9 @@ test("the open view follows dependentSchemas when its key is present, and a refe
 
 test("why: ajv drops the properties of a place beside dependentSchemas whose key is absent, and beside $ref with oneOf", () => {
   // 2020-12 counts the properties of the place as evaluated in both, and the value is valid; ajv
-  // 8.20.0 refuses it. The schemas of the format use neither (RUN.md, T28). When ajv changes, this
-  // test says so.
+  // 8.20.0 refuses it. So the conventions refuse both forms (R45 and its amendment of 2026-11-04),
+  // and the forms the refusal points to pass. When ajv changes, this test says so, and the
+  // amendment can be lifted.
   const ajv = new Ajv2020({ allErrors: true });
   ajv.addSchema({ $id: "https://x.test/c.json", $defs: { base: { type: "object", properties: { id: { type: "string" }, kind: { type: "string" } } } } });
   const dependent = ajv.compile({ type: "object", properties: { title: { type: "string" }, count: { type: "integer" } }, dependentSchemas: { count: { properties: { title: { minLength: 1 } } } }, unevaluatedProperties: false });
@@ -632,6 +651,11 @@ test("why: ajv drops the properties of a place beside dependentSchemas whose key
   const branches = ajv.compile({ $id: "https://x.test/s.json", $ref: "c.json#/$defs/base", oneOf: [{ properties: { kind: { const: "a" } } }, { properties: { kind: { const: "b" } } }], unevaluatedProperties: false });
   assert.equal(branches({ id: "x", kind: "a" }), true);
   assert.equal(branches({ id: "x", kind: "b" }), false);
+  const conditional = ajv.compile({ type: "object", properties: { title: { type: "string" }, count: { type: "integer" } }, allOf: [{ if: { required: ["count"] }, then: { properties: { title: { minLength: 1 } } } }], unevaluatedProperties: false });
+  assert.equal(conditional({ title: "t" }), true);
+  assert.equal(conditional({ title: "", count: 1 }), false);
+  const branchesBesideAllOf = ajv.compile({ $id: "https://x.test/t.json", allOf: [{ $ref: "c.json#/$defs/base" }], oneOf: [{ properties: { kind: { const: "a" } } }, { properties: { kind: { const: "b" } } }], unevaluatedProperties: false });
+  assert.equal(branchesBesideAllOf({ id: "x", kind: "b" }), true);
 });
 
 test("the open view of a part whose schema has errors goes unchecked with it", () => {

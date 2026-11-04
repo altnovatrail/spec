@@ -5,11 +5,12 @@
 // Reads table 3 of each repository's RUN.md on GitHub through gh — on main, and in each open
 // pull request — and table 5 of spec's RUN.md in the working tree, the rows spec has recorded.
 // Prints the rows marked «в реестр spec» that are new on main, those on the way in an open pull
-// request, and the numbers of table 5 that the source no longer marks. A session of spec runs it
-// before a task (RUN.md, rule 13); nobody carries a row from session to session any more. Exits 0
-// when it read and compared everything; 1 when table 5 has a row it cannot read or names a
-// repository it does not read; 2 when a repository or a pull request could not be read — gh has to
-// be logged in —, and then it still prints what it read of the others.
+// request, the rows of table 5 whose rows on main have changed since it recorded them — by the
+// fingerprint it keeps of them —, and the numbers of table 5 that the source no longer marks. A
+// session of spec runs it before a task (RUN.md, rule 13); nobody carries a row from session to
+// session any more. Exits 0 when it read and compared everything; 1 when table 5 has a row it
+// cannot read or names a repository it does not read; 2 when a repository or a pull request could
+// not be read — gh has to be logged in —, and then it still prints what it read of the others.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -27,7 +28,7 @@ export const OTHERS = Object.keys(REPOSITORIES)
 
 // The whole run: { lines, status }.
 export function inbox({ names = OTHERS, ledgerSource = fs.readFileSync(RUN, "utf8"), gh = runGh } = {}) {
-  const { ledger, problems } = ledgerOf(ledgerSource);
+  const { ledger, entries, problems } = ledgerOf(ledgerSource);
   const unread = [];
   const repositories = [];
   for (const name of names) {
@@ -39,7 +40,7 @@ export function inbox({ names = OTHERS, ledgerSource = fs.readFileSync(RUN, "utf
       unread.push(`cannot read ${name} — ${error.message}`);
     }
   }
-  const result = compare(repositories, ledger, names);
+  const result = compare(repositories, ledger, names, entries);
   const wrong = [...problems, ...result.problems];
   let status = 0;
   if (wrong.length) status = 1;
