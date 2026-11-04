@@ -7,12 +7,14 @@
 
 import { byCodeUnits } from "../shared.mjs";
 import { VERSION_FIELD } from "./module.mjs";
+import { formatVersionCompare, semverCompare } from "./versions.mjs";
 
 // The rules of the module index, which refuse to build an index rather than a module (section 7).
 export const ENTRIES_KEPT = "module-index.entries-kept";
 export const ONE_PACKAGE = "module-index.one-package";
 export const KNOWN_WITHDRAWALS = "module-index.known-withdrawals";
-export const INDEX_RULES = [ENTRIES_KEPT, ONE_PACKAGE, KNOWN_WITHDRAWALS];
+export const VERSION_ABOVE = "module-index.version-above";
+export const INDEX_RULES = [ENTRIES_KEPT, ONE_PACKAGE, KNOWN_WITHDRAWALS, VERSION_ABOVE];
 // The part of their IDs, <part>.<name>.
 export const INDEX_PART = "module-index";
 
@@ -44,7 +46,8 @@ export function entryOf(built, release) {
 // each rule that the build breaks, { rule, message }, and a build that breaks one is refused. The
 // index is what the build gives without what breaks a rule.
 export function indexOf({ version, previous, packages, release, withdrawals = {} }) {
-  const modules = structuredClone(previous?.modules ?? {});
+  const before = previous?.modules ?? {};
+  const modules = structuredClone(before);
   const breaches = [];
   // The digest of each version that a package of this release gives, by its ID and version.
   const built = new Map();
@@ -58,6 +61,12 @@ export function indexOf({ version, previous, packages, release, withdrawals = {}
     built.set(key, pkg.digest);
     const kept = entryAt(modules, id, moduleVersion);
     if (kept === undefined) {
+      // A version new in this release stands above every version of its module that the previous
+      // index names, withdrawn ones too: so the index catches a release whose CI did not compare the
+      // versions (section 27). The entry stands even so, so that a withdrawal of it breaks no other
+      // rule.
+      const above = Object.keys(Object.hasOwn(before, id) ? before[id] : {}).filter((published) => semverCompare(moduleVersion, published) < 0);
+      if (above.length) breaches.push({ rule: VERSION_ABOVE, message: `${key} is new in the release, and the previous index names ${above.sort(semverCompare).join(", ")} above it: a new version stands above every published one` });
       if (!Object.hasOwn(modules, id)) modules[id] = {};
       modules[id][moduleVersion] = entryOf(pkg, release);
     } else if (kept.package_digest !== pkg.digest) {
@@ -78,13 +87,6 @@ export function indexOf({ version, previous, packages, release, withdrawals = {}
   return { index: { [VERSION_FIELD]: version, modules }, breaches };
 }
 
-// Whether format version a, MAJOR.MINOR, comes after b.
-function isNewer(a, b) {
-  const [aMajor, aMinor] = a.split(".").map(Number);
-  const [bMajor, bMinor] = b.split(".").map(Number);
-  return aMajor > bMajor || (aMajor === bMajor && aMinor > bMinor);
-}
-
 // What an index of an example or a vector does against section 26 that its schema cannot see: its
 // root names a format version other than version, the one in format/VERSION — or, for an index
 // built before, with earlier true, one newer than version —, or an entry lists teaches out of the
@@ -95,7 +97,7 @@ export function indexFormProblems(index, version, earlier = false) {
   const named = index[VERSION_FIELD];
   const other = version !== null && named !== version && /^[0-9]+\.[0-9]+$/.test(named);
   if (other && !earlier) problems.push(`the index names the format version ${named}: it names ${version}, as format/VERSION has it`);
-  else if (other && isNewer(named, version)) problems.push(`the index names the format version ${named}, newer than ${version}, which format/VERSION has`);
+  else if (other && formatVersionCompare(named, version) > 0) problems.push(`the index names the format version ${named}, newer than ${version}, which format/VERSION has`);
   for (const [id, versions] of Object.entries(index.modules ?? {})) {
     for (const [moduleVersion, entry] of Object.entries(versions)) {
       const teaches = entry.teaches ?? [];

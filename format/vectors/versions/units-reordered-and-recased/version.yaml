@@ -1,0 +1,3 @@
+# The units swap places and change their letter case: the set that the check compares stays.
+# The new version is 1.0.1, and the published one is 1.0.0.
+version_part: patch

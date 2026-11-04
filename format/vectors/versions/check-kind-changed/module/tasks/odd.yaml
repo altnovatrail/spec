@@ -1,0 +1,17 @@
+id: odd
+statement:
+  - text: Write an odd number between 10 and 20.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: number
+          key: "11"
+solution:
+  - text: "11, 13, 15, 17 and 19 are odd and lie between 10 and 20."
+skills:
+  primary: [counting]
+band: grades-1-2
+difficulty: 1

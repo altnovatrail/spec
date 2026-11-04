@@ -1,7 +1,7 @@
-# The smallest module, moved to version 0.2 of the format: that move is a new version of the module.
-module_format_version: "0.2"
+# The smallest module, moved to version 0.3 of the format: that move is a new version of the module.
+module_format_version: "0.3"
 id: example/smallest
-version: "0.2.0"
+version: "0.3.0"
 title: The smallest module
 subject: mathematics
 audience:

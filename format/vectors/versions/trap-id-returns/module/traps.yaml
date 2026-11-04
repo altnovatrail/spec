@@ -1,0 +1,8 @@
+traps:
+  off-by-one:
+    description: Counted one too few or one too many.
+    skills: [counting]
+    trap_advice: Point at each thing as you count it, once.
+  forgot-one:
+    description: Left out one of the numbers.
+    trap_advice: Name each number of the task before you add.

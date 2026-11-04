@@ -1,0 +1,4 @@
+# 1.0.0 had tens, which 2.0.0 left out without retiring it; the new version retires it now, replaced
+# by adding. A new entry of retired_skills is a major change.
+# The new version is 3.0.0, and the published ones are 1.0.0 and 2.0.0.
+version_part: major

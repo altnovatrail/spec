@@ -1,0 +1,7 @@
+id: first-sums
+title: Sums, the first ones
+skills: [adding]
+segments:
+  - explanation:
+      - text: To add two numbers, start at the first and count on by the second.
+  - task: apples

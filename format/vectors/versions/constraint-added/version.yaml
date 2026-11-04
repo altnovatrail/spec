@@ -1,0 +1,4 @@
+# A constraint, a != b, leaves out two instances, and the places of the others shift: instances
+# match by their numbers.
+# The new version is 1.1.0, and the published one is 1.0.0.
+version_part: minor

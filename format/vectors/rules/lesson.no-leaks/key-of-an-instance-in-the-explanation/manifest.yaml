@@ -1,6 +1,6 @@
 # A lesson that names a template holds 8, the key of the instances with second = 8: lesson.no-leaks
 # searches its texts for the key of every instance.
-module_format_version: "0.2"
+module_format_version: "0.3"
 id: example/with-templates
 version: "0.1.0"
 title: A module with a template

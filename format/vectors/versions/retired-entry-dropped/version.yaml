@@ -1,0 +1,4 @@
+# 2.0.0 retires tens, replaced by adding, and the new version drops the entry: an entry stays in
+# every later version.
+# The new version is 3.0.0, and the published one is 2.0.0.
+refusal: module-version.retired-kept

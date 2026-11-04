@@ -1,0 +1,4 @@
+# The height of a digit on a crop is 32 px, where 1.0.0 left it out and had 24: every crop changes,
+# but no check.
+# The new version is 1.1.0, and the published one is 1.0.0.
+version_part: minor

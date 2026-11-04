@@ -1,0 +1,32 @@
+id: two-sums
+statement:
+  - text: Write the sum of 2 and 3 in the left box, and the sum of 4 and 4 in the right one.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: zone
+        zone:
+          left: 100
+          top: 100
+          width: 300
+          height: 200
+        check:
+          kind: number
+          key: "5"
+  - answer_slots:
+      - binding: zone
+        zone:
+          left: 600
+          top: 500
+          width: 300
+          height: 200
+        check:
+          kind: number
+          key: "8"
+solution:
+  - text: "2 + 3 = 5, and 4 + 4 = 8."
+skills:
+  primary: [adding]
+band: grades-1-2
+difficulty: 2

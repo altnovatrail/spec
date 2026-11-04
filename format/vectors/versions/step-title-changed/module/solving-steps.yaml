@@ -1,0 +1,6 @@
+steps:
+  - title: Understand the task
+    gives: [givens]
+    exit_condition: givens_ticked
+  - title: Work it out
+    exit_condition: answer_slots_filled

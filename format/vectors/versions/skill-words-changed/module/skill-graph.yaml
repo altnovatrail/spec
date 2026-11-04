@@ -1,0 +1,9 @@
+skills:
+  counting:
+    title: Counting
+    assessability: verdict
+  adding:
+    title: Adding two numbers
+    prerequisites: [counting]
+    assessability: verdict
+    description: Adds two whole numbers.

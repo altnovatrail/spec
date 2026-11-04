@@ -1,0 +1,6 @@
+steps:
+  - title: Solve it
+    exit_condition: answer_slots_filled
+  - title: Understand the task
+    gives: [givens]
+    exit_condition: givens_ticked

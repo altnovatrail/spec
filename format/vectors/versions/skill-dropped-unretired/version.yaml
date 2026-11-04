@@ -1,0 +1,3 @@
+# The skill adding is removed, and retired_skills does not name it.
+# The new version is 2.0.0, and the published one is 1.0.0.
+refusal: module-version.retired-complete

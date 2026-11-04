@@ -116,7 +116,7 @@ test("the corpus holds every value of format/ that passes a schema, and its open
   const { cases, problems } = corpusOf(spec, buildModel(schemas, parts));
   assert.deepEqual(problems, []);
   const types = new Set(cases.map((each) => each.type));
-  for (const name of ["Manifest", "SkillGraph", "Traps", "Techniques", "SolvingSteps", "Task", "Lesson", "CanonicalView", "Inventory", "ModuleIndex", "VerdictVector", "LeakVector", "RandomVector", "TemplateVector", "TierVector", "PackageVector", "IndexVector"]) {
+  for (const name of ["Manifest", "SkillGraph", "Traps", "Techniques", "SolvingSteps", "Task", "Lesson", "CanonicalView", "Inventory", "ModuleIndex", "VerdictVector", "LeakVector", "RandomVector", "TemplateVector", "TierVector", "PackageVector", "IndexVector", "VersionVector"]) {
     assert.ok(types.has(`formatv0.${name}`), name);
   }
   for (const name of ["Manifest", "SkillGraph", "Traps", "Techniques", "SolvingSteps", "Task", "Lesson"]) assert.ok(types.has(`open.${name}`), name);

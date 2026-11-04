@@ -1,0 +1,3 @@
+# a runs from 1: the new instances come first, the places of every other shift, and none changes.
+# The new version is 1.1.0, and the published one is 1.0.0.
+version_part: minor

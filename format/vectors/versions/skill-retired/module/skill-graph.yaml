@@ -1,0 +1,7 @@
+skills:
+  counting:
+    title: Counting
+    assessability: verdict
+retired_skills:
+  adding:
+    replaced_by: [counting]

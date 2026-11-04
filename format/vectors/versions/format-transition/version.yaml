@@ -1,0 +1,4 @@
+# 1.0.0 was published in version 0.2 of the format, and the new version moves to 0.3 with the same
+# content: while the format is v0, the move is a major change.
+# The new version is 2.0.0, and the published one is 1.0.0.
+version_part: major

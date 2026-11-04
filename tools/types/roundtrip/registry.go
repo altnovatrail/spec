@@ -31,6 +31,7 @@ var typesByName = map[string]func() any{
 	"formatv0.TierVector":        func() any { return new(formatv0.TierVector) },
 	"formatv0.Traps":             func() any { return new(formatv0.Traps) },
 	"formatv0.VerdictVector":     func() any { return new(formatv0.VerdictVector) },
+	"formatv0.VersionVector":     func() any { return new(formatv0.VersionVector) },
 	"open.AnswerSlot":            func() any { return new(open.AnswerSlot) },
 	"open.Audience":              func() any { return new(open.Audience) },
 	"open.Author":                func() any { return new(open.Author) },

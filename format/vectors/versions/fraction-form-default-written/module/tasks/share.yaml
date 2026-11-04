@@ -1,0 +1,18 @@
+id: share
+statement:
+  - text: A cake is cut into 4 equal pieces, and Ann eats 2 of them. What part of the cake does she eat?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: fraction
+          key: "2/4"
+          form: any
+solution:
+  - text: "Ann eats 2 of the 4 pieces: 2/4 of the cake, which is a half."
+skills:
+  primary: [counting]
+band: grades-3-4
+difficulty: 1

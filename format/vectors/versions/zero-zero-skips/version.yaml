@@ -1,0 +1,3 @@
+# From 0.0.1 the new version is 0.0.3: it skips 0.0.2.
+# The new version is 0.0.3, and the published one is 0.0.1.
+refusal: module-version.step

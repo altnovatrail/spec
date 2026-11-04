@@ -1,0 +1,28 @@
+id: apples
+statement:
+  - text: Ann has 3 apples, and Ben gives her 4 more. How many apples has Ann now?
+givens: [Ann has 3 apples., Ben gives Ann 4 more apples.]
+unknown: How many apples Ann has in the end.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: number
+          key: "7"
+          units: [apple, apples]
+          trap_values:
+            - value: "6"
+              trap: off-by-one
+              text: Count the apples that Ben gives once more, one at a time.
+    simpler_case: Ann has an apple, and Ben gives her one more. How many has she now?
+solution:
+  - text: "3 + 4 = 7: Ann has 7 apples."
+techniques: [count-on]
+leak_phrases: [seven apples]
+skills:
+  primary: [adding]
+  supporting: [counting]
+band: grades-1-2
+difficulty: 1

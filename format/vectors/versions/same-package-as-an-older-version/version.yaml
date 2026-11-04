@@ -1,0 +1,4 @@
+# 1.0.0 and 1.1.0 are published, and the new version is 1.0.0 as it was: it is not the newest, so it
+# is compared, and it stands below 1.1.0.
+# The new version is 1.0.0, and the published ones are 1.0.0 and 1.1.0.
+refusal: module-version.above

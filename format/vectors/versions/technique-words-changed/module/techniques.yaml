@@ -1,0 +1,4 @@
+techniques:
+  count-on:
+    title: Count on from the bigger
+    description: Begin at the bigger number and count on by the smaller.

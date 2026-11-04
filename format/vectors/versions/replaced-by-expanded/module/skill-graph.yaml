@@ -1,0 +1,13 @@
+skills:
+  counting:
+    title: Counting
+    assessability: verdict
+  sums:
+    title: Sums
+    prerequisites: [counting]
+    assessability: verdict
+retired_skills:
+  tens:
+    replaced_by: [sums]
+  adding:
+    replaced_by: [sums]

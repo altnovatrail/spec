@@ -1,0 +1,3 @@
+# The line asks for the product, not the factor: the key of every matched instance changes.
+# The new version is 2.0.0, and the published one is 1.0.0.
+version_part: major

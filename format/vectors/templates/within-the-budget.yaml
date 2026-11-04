@@ -1,0 +1,65 @@
+# A template of one instance whose solver takes 99 999 990 steps, as go.starlark.net
+# v0.0.0-20261021141710-4f4267fb140d counts them: 10 for the top level of the program and 99 999 980
+# for the one call of solve, a loop of 9 999 996 turns. The count stops below the budget, 100 000 000,
+# so the solver gives its result. solve gets a and product, which the line shows, and not b. The result
+# factor is the vector's own: spec runs no Starlark, and module-kit's CI runs the solver and compares
+# (section 24).
+task:
+  id: within-the-budget
+  template:
+    parameters:
+      a: {from: 3, to: 3}
+      b: {from: 4, to: 4}
+    derived:
+      product: a * b
+    solver:
+      program: |
+        def solve(numbers):
+            for turn in range(9999996):
+                pass
+            return {"factor": numbers["product"] // numbers["a"]}
+      results: [factor]
+  statement:
+    - text: Write the missing number.
+  canvas:
+    kind: workbook
+  items:
+    - line:
+        - text: "{a} ×"
+        - binding: box
+          check:
+            kind: number
+            key: "{factor}"
+        - text: "= {product}"
+  solution:
+    - text: "{a} × {factor} = {product}"
+  skills:
+    primary: [times-tables]
+  band: grade-3
+  difficulty: 2
+count: 1
+inputs: [a, product]
+attempts:
+  - seed: "0"
+    numbers: {a: 3, b: 4, product: 12, factor: 4}
+    instance:
+      id: within-the-budget
+      statement:
+        - text: Write the missing number.
+      canvas:
+        kind: workbook
+      items:
+        - line:
+            - text: "3 ×"
+            - binding: box
+              check:
+                kind: number
+                key: "4"
+            - text: "= 12"
+      solution:
+        - text: "3 × 4 = 12"
+      skills:
+        primary:
+          - times-tables
+      band: grade-3
+      difficulty: 2

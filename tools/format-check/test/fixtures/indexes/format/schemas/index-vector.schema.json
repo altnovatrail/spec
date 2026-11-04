@@ -41,7 +41,8 @@
       "enum": [
         "module-index.entries-kept",
         "module-index.one-package",
-        "module-index.known-withdrawals"
+        "module-index.known-withdrawals",
+        "module-index.version-above"
       ],
       "description": "The rule that refuses the build."
     }

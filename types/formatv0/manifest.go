@@ -10,7 +10,7 @@ package formatv0
 // its authors and its license, and the templates of the rungs of its hint ladder. Every field is
 // open, since the learner's app shows them.
 type Manifest struct {
-	// The version of the module format the module is written in, "0.2": the module is checked,
+	// The version of the module format the module is written in, "0.3": the module is checked,
 	// built and run by it. It stands at the root of the manifest in every version of the format, so
 	// that a reader finds it before it knows which schemas to read the module by.
 	ModuleFormatVersion ModuleFormatVersion `json:"module_format_version"`

@@ -1,23 +1,9 @@
-# The first release after a new version of the format. The previous index was built by version 0.1,
-# and its entries name 0.1. Both modules moved to 0.2, each to a new version, which gets an entry of
-# 0.2 that names this release; the entries of 0.1 stand as they were, so the index names versions of
-# both. A reader of 0.2 skips the entries of 0.1, rather than refuse the index.
+# The first release after a new version of the format. The previous index was built by version 0.2,
+# and its entries name 0.1 and 0.2: the index keeps the entries of every version of the format. Both
+# modules moved to 0.3, each to a new version, which gets an entry of 0.3 that names this release;
+# the entries of 0.1 and 0.2 stand as they were, so the index names versions of all three. A reader
+# of 0.3 skips the entries of 0.1 and 0.2, rather than refuse the index.
 previous:
-  module_format_version: "0.1"
-  modules:
-    example/smallest:
-      "0.1.0":
-        module_format_version: "0.1"
-        package_digest: sha256:df4dc2db21f26c231b0b0136b478d5dd2707c962c4432e0144649593e2fdfeb9
-        release: v0.1.0
-    example/times-tables:
-      "0.1.0":
-        module_format_version: "0.1"
-        package_digest: sha256:a7bc39696bebabbd8bdad1529282b42f8ef0edea09c5b90e9106fb6f051e3fb9
-        release: v0.1.0
-        teaches: [core.division-with-remainder, core.multiplication-table]
-release: v0.2.0
-index:
   module_format_version: "0.2"
   modules:
     example/smallest:
@@ -39,4 +25,37 @@ index:
         module_format_version: "0.2"
         package_digest: sha256:8566f849815bb47b46a6e7fcfe8c10d8ee8a95163bff53bae72c475af2661570
         release: v0.2.0
+        teaches: [core.division-with-remainder, core.multiplication-table]
+release: v0.3.0
+index:
+  module_format_version: "0.3"
+  modules:
+    example/smallest:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:df4dc2db21f26c231b0b0136b478d5dd2707c962c4432e0144649593e2fdfeb9
+        release: v0.1.0
+      "0.2.0":
+        module_format_version: "0.2"
+        package_digest: sha256:56ff2bf71e668ddf64aba520f6f7c9cc6c8b150a81202cfe8fe8db3669ad4c49
+        release: v0.2.0
+      "0.3.0":
+        module_format_version: "0.3"
+        package_digest: sha256:5126f63bedb2ab64dbe70946f012c13f2bf1550c2aa71f631693628c1e09af3e
+        release: v0.3.0
+    example/times-tables:
+      "0.1.0":
+        module_format_version: "0.1"
+        package_digest: sha256:a7bc39696bebabbd8bdad1529282b42f8ef0edea09c5b90e9106fb6f051e3fb9
+        release: v0.1.0
+        teaches: [core.division-with-remainder, core.multiplication-table]
+      "0.2.0":
+        module_format_version: "0.2"
+        package_digest: sha256:8566f849815bb47b46a6e7fcfe8c10d8ee8a95163bff53bae72c475af2661570
+        release: v0.2.0
+        teaches: [core.division-with-remainder, core.multiplication-table]
+      "0.3.0":
+        module_format_version: "0.3"
+        package_digest: sha256:1bb0e4359d2dd75f2d1fc63e7159e20f2a66da0dfcf2819c2889cd3e28b30eeb
+        release: v0.3.0
         teaches: [core.division-with-remainder, core.multiplication-table]

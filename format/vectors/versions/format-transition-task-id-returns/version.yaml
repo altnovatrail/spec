@@ -1,0 +1,4 @@
+# 0.9.0, of format 0.2, had the task pick, which 1.0.0 removed; the new version brings the ID back,
+# which the places of the package of 0.2 show.
+# The new version is 1.1.0, and the published ones are 0.9.0 and 1.0.0.
+refusal: module-version.ids-kept

@@ -1,0 +1,4 @@
+# 1.1.0 gave apples the wrong key 8 and was withdrawn for it, wrong_key; the new version fixes the
+# key above it. A key that changes is a major change, so the fix is 2.0.0.
+# The new version is 2.0.0, and the published ones are 1.0.0 and 1.1.0.
+version_part: major

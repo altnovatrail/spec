@@ -1,0 +1,27 @@
+id: compare
+statement:
+  - text: Write <, > or = in the box.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "3 + 4"
+      - binding: box
+        check:
+          kind: choice
+          key: ">"
+          options: ["<", ">", "="]
+      - text: "5"
+      - text: and
+      - binding: box
+        check:
+          kind: choice
+          key: "<"
+          options: ["<", ">", "="]
+      - text: "9"
+solution:
+  - text: "3 + 4 = 7, and 7 > 5."
+skills:
+  primary: [adding]
+band: grades-1-2
+difficulty: 1

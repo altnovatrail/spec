@@ -1,0 +1,5 @@
+# The new version names 1.0.0 again, with a comment, its keys in another order, a file in eval/ and
+# a file whose name begins with a dot: none of them is part of the package, so the package is the
+# same, and nothing is compared.
+# The new version is 1.0.0, and the published one is 1.0.0.
+version_part: none

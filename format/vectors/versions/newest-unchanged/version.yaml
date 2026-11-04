@@ -1,0 +1,4 @@
+# The new version is the newest published one as it was, 1.0.0 with the same package: the module has
+# not changed, and nothing is compared.
+# The new version is 1.0.0, and the published one is 1.0.0.
+version_part: none

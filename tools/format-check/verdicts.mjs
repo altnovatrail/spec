@@ -77,6 +77,11 @@ export function readNumber(value, units = []) {
   return text === "" ? { reason: "blank" } : { text };
 }
 
+// What a unit compares by: steps 1 to 5, as the value goes through them, white space at either end
+// dropped, and each character in lowercase (step 6). The comparison of two versions of a module
+// compares units so too (section 27).
+export const unitForm = (unit) => lowercase(trimmed(steps1To5(unit)));
+
 // Step 6: of the units that end the text, with a space before it or none, the longest; dropped
 // when something stands before it, and otherwise nothing is. Both sides compare by their
 // lowercase, a character at a time.
@@ -84,7 +89,7 @@ function withoutUnit(text, units) {
   const chars = [...text];
   const lowered = lowercase(text);
   const fits = units
-    .map((unit) => [...lowercase(trimmed(steps1To5(unit)))])
+    .map((unit) => [...unitForm(unit)])
     .filter((unit) => unit.length > 0 && lowered.endsWith(unit.join("")))
     .sort((a, b) => b.length - a.length);
   if (!fits.length) return text;
@@ -144,7 +149,7 @@ export function slotVerdict(slot, value) {
 }
 
 // What a choice compares: the text normalized and in lowercase.
-const choiceForm = (text) => lowercase(normalized(text));
+export const choiceForm = (text) => lowercase(normalized(text));
 
 // A choice compares the value with the key and the options, all normalized and in lowercase.
 function choiceVerdict(value, key, options) {

@@ -4,11 +4,13 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
+import { canonicalText } from "../canonical.mjs";
 import { checkFormat } from "../main.mjs";
 import { versionProblem } from "../module.mjs";
 import { differenceOf, openViewOf } from "../openview.mjs";
@@ -97,7 +99,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 19, rules: 18, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0, indexes: 0 });
+    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 19, rules: 18, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0, indexes: 0, versions: 0 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -1128,7 +1130,7 @@ test("a vector of packages gives the results of a solver on every instance, and 
   assert.deepEqual(realErrorsOf([[solver, first, ""]]), ["format/vectors/packages/with-solver/package.yaml:0: the results of the solver of number-thought-of are given for 34 instances, and it has 35"]);
   assert.deepEqual(realErrorsOf([[solver, first, first.replace("        sweets: 10\n", "")]]), ["format/vectors/packages/with-solver/package.yaml:0: the results of the solver of number-thought-of are not all given on instance 0: each of sweets is"]);
   // A wrong result is the vector's: spec cannot tell it, but the digests that pin the server part can.
-  const digests = [/with-solver\/package\.yaml:0: inventory is not the inventory of the module: they differ at #\/inventory\/server_part\/digest/, /with-solver\/package\.yaml:0: the digest of the package is sha256:[0-9a-f]{64}, not sha256:1cd3544d/];
+  const digests = [/with-solver\/package\.yaml:0: inventory is not the inventory of the module: they differ at #\/inventory\/server_part\/digest/, /with-solver\/package\.yaml:0: the digest of the package is sha256:[0-9a-f]{64}, not sha256:3ff05331/];
   expectEachOf(realErrorsOf([[solver, first, first.replace("sweets: 10", "sweets: 11")]]), digests);
   // A result that makes its instance break a rule of a task: a key of 5 is the trap value before_ben.
   expectEachOf(realErrorsOf([[solver, first, first.replace("sweets: 10", "sweets: 5")]]), [...digests, /with-solver\/package\.yaml:0: the instance left = 2, to_ben = 3 of number-thought-of, with the results of its solver that the vector gives, breaks task\.trap-values/]);
@@ -1157,6 +1159,7 @@ const INDEX_ROWS = [
   "| `module-index.entries-kept` | Every entry of the previous index MUST stand in the new one as it was. |\n",
   "| `module-index.one-package` | A version of a module MUST have one package. |\n",
   "| `module-index.known-withdrawals` | A withdrawal MUST name a version that the new index names. |\n",
+  "| `module-index.version-above` | A version new in the index MUST stand above every version of its module in the previous one. |\n",
 ];
 
 // The edits that write fixtures/indexes into a trial copy, over the fixture of packages, and the
@@ -1173,7 +1176,7 @@ test("the fixture of the module index is green: its example holds, and its vecto
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual([stats.schemas, stats.rules, stats.indexes], [14, 18, 4]);
+    assert.deepEqual([stats.schemas, stats.rules, stats.indexes], [14, 18, 5]);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -1200,7 +1203,7 @@ test("each rule of the index has a refusal among its vectors, and none in vector
   expectOnly([...indexFixture(), ["format/vectors/indexes/republished", "", null]], /^format\/README\.md:\d+: module-index\.one-package has no refusal among the vectors of the module index in format\/vectors\/indexes\//);
   expectOnly([...indexFixture(), ["format/vectors/rules/module-index.one-package/case.yaml", null, "a: 1\n"]], /module-index\.one-package:0: a rule of the module index refuses to build an index: its vectors are refusals among the vectors of the index, in vectors\/indexes\//);
   // A format with a schema of the module index lists its rules; one without lists none (the base fixture).
-  expectEach([...indexFixture(), ["format/README.md", INDEX_ROWS.join(""), ""]], [/README\.md:0: format-check checks module-index\.entries-kept, and the text does not list it/, /README\.md:0: format-check checks module-index\.one-package, and the text does not list it/, /README\.md:0: format-check checks module-index\.known-withdrawals, and the text does not list it/, /index\.yaml:0: format\/README\.md lists no rule module-index\./]);
+  expectEach([...indexFixture(), ["format/README.md", INDEX_ROWS.join(""), ""]], [/README\.md:0: format-check checks module-index\.entries-kept, and the text does not list it/, /README\.md:0: format-check checks module-index\.one-package, and the text does not list it/, /README\.md:0: format-check checks module-index\.known-withdrawals, and the text does not list it/, /README\.md:0: format-check checks module-index\.version-above, and the text does not list it/, /index\.yaml:0: format\/README\.md lists no rule module-index\./]);
   expectEach([...indexFixture(), ["format/README.md", INDEX_ROWS[1], ""]], [/^format\/README\.md:0: format-check checks module-index\.one-package, and the text does not list it/, /republished\/index\.yaml:0: format\/README\.md lists no rule module-index\.one-package/]);
   expectEach([...indexFixture(), ["format/README.md", INDEX_ROWS[2], `${INDEX_ROWS[2]}| \`module-index.other\` | Another rule. |\n`]], [/README\.md:\d+: format-check does not check module-index\.other: tools\/format-check\/index\.mjs has to/, /README\.md:\d+: module-index\.other has no refusal among the vectors of the module index/]);
 });
@@ -1231,4 +1234,92 @@ test("an entry of the index lists the anchor skills that its version teaches, an
   assert.deepEqual(realErrorsOf([[first, taught, "teaches: [core.multiplication-table]"]]), [`${first}:0: index is not the index that the release builds: they differ at #/index/modules/example~1times-tables/0.1.0/teaches`]);
   const solver = realErrorsWith((root) => fs.cpSync(path.join(root, "format/vectors/packages/with-solver/module"), path.join(root, "format/vectors/indexes/first-release/modules/with-solver"), { recursive: true }));
   assert.deepEqual(solver, ["format/vectors/indexes/first-release/modules/with-solver:0: the template number-thought-of has a solver: spec runs none, so a module of a vector of the index has no solver"]);
+});
+
+// The vectors of versions of a module (sections 9 and 27; RUN.md, T69), on copies of spec's format/:
+// the trial fixtures have no schema of a manifest with languages and bands, which the rules read.
+const VERSIONS = "format/vectors/versions";
+
+test("a vector of versions gives the part that section 27 finds, or the rule that refuses the new version", () => {
+  const title = `${VERSIONS}/title-changed/version.yaml`;
+  assert.deepEqual(realErrorsOf([[title, "version_part: patch", "version_part: minor"]]), [`${title}:0: the comparison finds the part patch, not minor: #: the canonical view differs beyond the version`]);
+  assert.deepEqual(realErrorsOf([[title, "version_part: patch", "refusal: module-version.step"]]), [`${title}:0: the new version breaks no module-version.step`]);
+  const only = `${VERSIONS}/only-the-version/version.yaml`;
+  assert.deepEqual(realErrorsOf([[only, "version_part: none", "version_part: patch"]]), [`${only}:0: the comparison finds the part none, not patch: nothing but the version changes`]);
+  const band = `${VERSIONS}/band-removed/version.yaml`;
+  expectEachOf(realErrorsOf([[band, "refusal: module-version.bands-kept", "version_part: major"]]), [/band-removed\/version\.yaml:0: the new version is refused, and the case names no refusal: module-version\.bands-kept: the bands of 1\.0\.0, grades-1-2, grades-3-4, are not the first bands of the new version, grades-1-2$/]);
+  expectEachOf(realErrorsOf([[band, "refusal: module-version.bands-kept", "refusal: module-version.above"]]), [/band-removed\/version\.yaml:0: the new version breaks no module-version\.above/, /band-removed\/version\.yaml:0: breaks module-version\.bands-kept too: the bands of 1\.0\.0/]);
+  expectEachOf(realErrorsOf([[title, "version_part: patch", "version_part: patch\nrefusal: module-version.step"]]), [/title-changed\/version\.yaml:0: does not pass the schema of version vectors: not at #/, /title-changed\/version\.yaml:0: does not pass the schema of version vectors: if at #/]);
+});
+
+test("each rule of versions has a refusal among its vectors, and none in vectors/rules/", () => {
+  const without = realErrorsWith((root) => {
+    for (const name of ["explanation-language-changed", "target-language-added"]) fs.rmSync(path.join(root, VERSIONS, name), { recursive: true });
+  });
+  expectEachOf(without, [/^format\/README\.md:\d+: module-version\.languages-kept has no refusal among the vectors of versions of a module in format\/vectors\/versions\//]);
+  const ruled = realErrorsWith((root) => {
+    fs.mkdirSync(path.join(root, "format/vectors/rules/module-version.above"));
+    fs.writeFileSync(path.join(root, "format/vectors/rules/module-version.above/case.yaml"), "a: 1\n");
+  });
+  assert.deepEqual(ruled, ["format/vectors/rules/module-version.above:0: a rule of versions of a module refuses a new version: its vectors are refusals among the vectors of versions, in vectors/versions/"]);
+  const row = (text) => text.match(/^\| `module-version\.languages-kept` .*\n/m)[0];
+  const unlisted = realErrorsWith((root) => {
+    const readme = path.join(root, "format/README.md");
+    const text = fs.readFileSync(readme, "utf8");
+    fs.writeFileSync(readme, text.replace(row(text), ""));
+  });
+  expectEachOf(unlisted, [/^format\/README\.md:0: format-check checks module-version\.languages-kept, and the text does not list it/, /version\.yaml:0: format\/README\.md lists no rule module-version\.languages-kept/]);
+  const other = realErrorsWith((root) => {
+    const readme = path.join(root, "format/README.md");
+    const text = fs.readFileSync(readme, "utf8");
+    fs.writeFileSync(readme, text.replace(row(text), `${row(text)}| \`module-version.other\` | Another rule. |\n`));
+  });
+  expectEachOf(other, [/README\.md:\d+: format-check does not check module-version\.other: tools\/format-check\/versions\.mjs has to/, /README\.md:\d+: module-version\.other has no refusal among the vectors of versions/]);
+});
+
+test("a vector of versions holds module/, published/ and version.yaml, and every version of one module", () => {
+  const at = (name) => path.join(VERSIONS, name);
+  const write = (file, text) => (root) => {
+    fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    fs.writeFileSync(path.join(root, file), text);
+  };
+  assert.deepEqual(realErrorsWith(write(`${at("title-changed")}/notes.txt`, "Notes.\n")), [`${at("title-changed")}:0: a vector of versions of a module holds the folders module/ and published/ and version.yaml, and nothing else`]);
+  assert.deepEqual(realErrorsWith(write(`${VERSIONS}/a-file.yaml`, "a: 1\n")), [`${VERSIONS}/a-file.yaml:0: a vector of versions of a module is a folder <case>/, its name in kebab-case; format-check does not know it: the task that brings it to format/ extends the check`]);
+  assert.deepEqual(realErrorsWith(write(`${at("title-changed")}/published/notes.txt`, "Notes.\n")), [`${at("title-changed")}/published/notes.txt:0: published/ holds a folder X.Y.Z for each published version of the module, named by its version, and nothing else`]);
+  assert.deepEqual(realErrorsWith((root) => fs.renameSync(path.join(root, at("title-changed"), "published/1.0.0"), path.join(root, at("title-changed"), "published/1.0"))), [`${at("title-changed")}/published/1.0:0: published/ holds a folder X.Y.Z for each published version of the module, named by its version, and nothing else`]);
+  assert.deepEqual(realErrorsWith((root) => fs.rmSync(path.join(root, at("title-changed"), "published/1.0.0"), { recursive: true })), [`${at("title-changed")}/published:0: published/ holds a folder for each published version of the module, at least one`]);
+  assert.deepEqual(realErrorsWith((root) => fs.renameSync(path.join(root, at("title-changed"), "published/1.0.0"), path.join(root, at("title-changed"), "published/0.9.0"))), [`${at("title-changed")}/published/0.9.0:0: holds the version 1.0.0: a folder of published/ is named by the version it holds`]);
+  assert.deepEqual(realErrorsOf([[`${at("title-changed")}/published/1.0.0/manifest.yaml`, "id: example/versions", "id: example/other"]]), [`${at("title-changed")}/published/1.0.0:0: is a version of example/other, and module/ of example/versions: every version of a case is of one module`]);
+  const solver = realErrorsWith((root) => fs.cpSync(path.join(root, "format/vectors/packages/with-solver/module/tasks"), path.join(root, at("task-added"), "module/tasks"), { recursive: true }));
+  assert.deepEqual(solver, [`${at("task-added")}/module:0: the template number-thought-of has a solver: spec runs none, so a module of a vector of versions has no solver`]);
+  assert.deepEqual(realErrorsWith((root) => fs.rmSync(path.join(root, "format/schemas/version-vector.schema.json"))), [`${VERSIONS}:0: no schema version-vector.schema.json for the vectors of versions of a module`]);
+});
+
+test("a published version of an earlier version of the format is a package as files, read by its places", () => {
+  const files = `${VERSIONS}/format-transition/published/1.0.0`;
+  const server = path.join(files, "server.json");
+  const edited = realErrorsWith((root) => {
+    const bytes = fs.readFileSync(path.join(root, server), "utf8");
+    fs.writeFileSync(path.join(root, server), bytes.replace('"title":"Counting and adding"', '"title":"Counting and adding!"'));
+  });
+  expectEachOf(edited, [/format-transition\/published\/1\.0\.0\/inventory\.json:0: names the server part \{"digest":"sha256:[0-9a-f]{64}","size":\d+\}, and server\.json is \{"digest":"sha256:[0-9a-f]{64}","size":\d+\}$/]);
+  const spaced = realErrorsWith((root) => fs.writeFileSync(path.join(root, server), `${fs.readFileSync(path.join(root, server), "utf8")}\n`));
+  // Its canonical text is no place that every version keeps, but its digest in the inventory is.
+  expectEachOf(spaced, [/format-transition\/published\/1\.0\.0\/inventory\.json:0: names the server part \{"digest":"sha256:[0-9a-f]{64}","size":\d+\}, and server\.json is /]);
+  const current = realErrorsWith((root) => {
+    const file = path.join(root, files, "inventory.json");
+    fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace('"module_format_version":"0.2"', '"module_format_version":"0.3"'));
+  });
+  assert.deepEqual(current, [`${files}:0: is a package of the format version 0.3: a published version of 0.3, which format/VERSION has, is laid out as a module, and one of a later version is none`]);
+  const placeless = realErrorsWith((root) => {
+    const view = JSON.parse(fs.readFileSync(path.join(root, server), "utf8"));
+    delete view.manifest.languages;
+    const bytes = Buffer.from(canonicalText(view));
+    fs.writeFileSync(path.join(root, server), bytes);
+    const inventoryFile = path.join(root, files, "inventory.json");
+    const inventory = JSON.parse(fs.readFileSync(inventoryFile, "utf8"));
+    inventory.server_part = { digest: `sha256:${crypto.createHash("sha256").update(bytes).digest("hex")}`, size: bytes.length };
+    fs.writeFileSync(inventoryFile, canonicalText(inventory));
+  });
+  assert.deepEqual(placeless, [`${files}:0: holds no manifest.languages where the format keeps it in every version (section 2)`]);
 });

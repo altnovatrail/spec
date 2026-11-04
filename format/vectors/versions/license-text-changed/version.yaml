@@ -1,0 +1,4 @@
+# LICENSE holds the same license with one more line at its end: the listing of the device part
+# changes.
+# The new version is 1.0.1, and the published one is 1.0.0.
+version_part: patch
