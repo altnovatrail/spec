@@ -93,15 +93,18 @@ export function format(root, protos, buf = BUF) {
 }
 
 // The release spec's buf breaking compares with (R83): the newest release tag in the history of
-// HEAD, other than a tag of HEAD itself. Its buf.yaml and contracts/, as git archive gives them,
-// go into folder, when one is named and the release has a .proto file. Returns the tag and how
-// many .proto files it has, or null when HEAD descends from no release. A shallow clone has no
-// tags to count from and is refused, as release-version refuses it.
+// HEAD, other than a tag of HEAD itself — unless the working tree changes buf.yaml or contracts/:
+// what it would commit comes after HEAD, so a release of HEAD is the previous one then (the
+// amendment of 2026-11-04 to R83). Its buf.yaml and contracts/, as git archive gives them, go into
+// folder, when one is named and the release has a .proto file. Returns the tag and how many .proto
+// files it has, or null when HEAD descends from no release. A shallow clone has no tags to count
+// from and is refused, as release-version refuses it.
 export function previousRelease(root, folder = null) {
   if (git(root, "rev-parse", "--is-shallow-repository").trim() === "true") {
     throw new Error("a shallow clone has no tags to find the previous release by; fetch the whole history");
   }
-  const tags = git(root, "tag", "--merged", "HEAD", "--no-contains", "HEAD", "--list", "v*").split("\n").filter(Boolean);
+  const changed = git(root, "status", "--porcelain", "--", "buf.yaml", "contracts").trim() !== "";
+  const tags = git(root, "tag", "--merged", "HEAD", ...(changed ? [] : ["--no-contains", "HEAD"]), "--list", "v*").split("\n").filter(Boolean);
   const tag = newestRelease(tags);
   if (!tag) return null;
   const protos = git(root, "ls-tree", "-r", "-z", "--name-only", tag, "--", "contracts")

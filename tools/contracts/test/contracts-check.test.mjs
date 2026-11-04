@@ -168,6 +168,10 @@ test("buf breaking compares with the newest release before HEAD", () => {
   // A release of HEAD itself is no previous release: the one before it is.
   git("tag", "v0.6.5");
   expectEach(dir, /\(buf breaking against v0\.6\.4, FIELD_SAME_NAME\)/, /\(buf breaking against v0\.6\.4, FIELD_SAME_JSON_NAME\)/);
+  // Unless the working tree changes contracts/: what it would commit comes after that release.
+  edit(dir, trial, "  optional string remark = 3;", "  optional string comment = 3;");
+  writeGenerated(dir);
+  expectEach(dir, /trial\.proto:14: Field "3" on message "Place" changed name from "remark" to "comment"\. \(buf breaking against v0\.6\.5, FIELD_SAME_NAME\)/, /\(buf breaking against v0\.6\.5, FIELD_SAME_JSON_NAME\)/);
 });
 
 test("a field added passes against the release, and a release with no .proto has nothing to compare", () => {

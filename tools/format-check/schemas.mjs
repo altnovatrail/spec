@@ -27,7 +27,8 @@ export const FORMAT_PART = { folder: "format", prefix: ID_PREFIX, open: true };
 // of 2020-12: $anchor, $dynamicRef, $dynamicAnchor and $vocabulary, since a reference names only
 // $defs; minContains and maxContains, whose failure ajv names "contains"; unevaluatedItems, whose
 // meeting with contains ajv's own test runner skips in the JSON Schema Test Suite; and the content
-// keywords, which the format has no use for.
+// keywords, which the format has no use for. dependentSchemas is walked, so that what it holds is
+// checked too, and refused with its reason (checkSubschema).
 const ONE_SUBSCHEMA = new Set(["not", "if", "then", "else", "items", "contains", "additionalProperties", "propertyNames", "unevaluatedProperties"]);
 const SUBSCHEMA_LIST = new Set(["allOf", "anyOf", "oneOf", "prefixItems"]);
 const SUBSCHEMA_MAP = new Set(["$defs", "properties", "patternProperties", "dependentSchemas"]);
@@ -193,6 +194,18 @@ function checkSubschema({ schema, at, under, inCondition, unmarked }, file, byNa
   for (const keyword of Object.keys(schema)) {
     if (!KEYWORDS.has(keyword)) report([...at, keyword], keyword.startsWith("x-") ? `${keyword}: the format's one annotation is x-open` : `${keyword}: no keyword of the format`);
     else if (ROOT_ONLY.has(keyword) && !isRoot) report([...at, keyword], `${keyword} stands only at the root`);
+  }
+  // Two forms that ajv 8.20.0 validates wrongly beside unevaluatedProperties: false, which closes
+  // every object at its place: it counts the fields of the place as unevaluated, and refuses a
+  // valid value (R45 and its amendment of 2026-11-04). When ajv mends them, the amendment that
+  // lifts this rule follows the test that pins them.
+  if ("dependentSchemas" in schema) {
+    report([...at, "dependentSchemas"], "dependentSchemas: ajv 8.20.0 counts the fields of the place as unevaluated when its key is absent; write allOf with if: {required: [<key>]} and then");
+  }
+  for (const keyword of ["oneOf", "anyOf"]) {
+    if ("$ref" in schema && keyword in schema) {
+      report([...at, keyword], `${keyword} beside $ref: ajv 8.20.0 counts the fields of the place as unevaluated when a branch other than the first passes; put the $ref or the ${keyword} in allOf`);
+    }
   }
   if ("x-open" in schema && !file.part.open) report([...at, "x-open"], `x-open: ${file.part.folder}/ has no open view, so its schemas mark nothing open`);
   else if ("x-open" in schema) {
