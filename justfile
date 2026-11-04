@@ -291,12 +291,12 @@ ci-lint:
         go -C "$module" vet ./...
     done <<< "$modules"
 
-# The profiles of the modules go into coverage/go.out, one profile with one mode line, which a job
-# of CI sends to Codecov with the coverage of tools/ (R48). Go counts statements, and leaves the
-# tests themselves out; a package that no test runs is in it too, its statements at zero. The code
-# buf generates from the contracts, *.pb.go and *.connect.go under contracts/, is left out of it:
-# contracts-check holds it to what buf generates, and codecov/patch would count every generated line
-# of a new message as a line no test covers (R83).
+# The profiles of the modules go into coverage/go.out, one profile with one mode line, which the job
+# coverage of .github's shared go.yml sends to Codecov, as "Go / coverage" (R48). Go counts
+# statements, and leaves the tests themselves out; a package that no test runs is in it too, its
+# statements at zero. The code buf generates from the contracts, *.pb.go and *.connect.go under
+# contracts/, is left out of it: contracts-check holds it to what buf generates, and codecov/patch
+# would count every generated line of a new message as a line no test covers (R83).
 # Run the tests, with the race detector, and write their coverage.
 ci-test:
     #!/usr/bin/env bash
@@ -626,7 +626,7 @@ new-repo-test: _tools
 # count its lines, so the recipe fails on any module of tools/ the report does not name. Node
 # measures JavaScript alone: toolchain.sh and the bash recipes here have their tests, but no
 # coverage. Then the tests of every Go module, as ci-test runs them, with their profile in
-# coverage/go.out, which the same job sends with the report of Node (R48).
+# coverage/go.out, which "Go / coverage" sends from its own run of ci-test (R48).
 # Run every test of tools/ and of the Go modules once, and write their coverage.
 coverage: _tools
     #!/usr/bin/env bash
