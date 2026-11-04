@@ -90,6 +90,26 @@
         "unsuitable_content"
       ],
       "description": "Why a version was withdrawn: wrong_key, a key or a predicate of it gives wrong verdicts; answer_leak, a text that the learner sees gives an answer away; unsuitable_content, it holds content that does not suit the learners it may reach. A reader takes a version as withdrawn whatever the reason, also one that a later version of the format adds."
+    },
+    "withdrawals": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/module_id"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "$ref": "common.schema.json#/$defs/module_version"
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/withdrawal_reason",
+          "description": "The reason for which the release withdraws the version."
+        },
+        "minProperties": 1,
+        "description": "The versions of one module that the release withdraws, each under its version, X.Y.Z."
+      },
+      "minProperties": 1,
+      "description": "The withdrawals of a release of modules, which the build of its index marks (section 26 of the format text): under each module's ID, under each version it withdraws, the reason of the withdrawal. modules keeps them in a file of its own, and a test vector of the index in its member withdrawals. A release that withdraws none has no withdrawals, rather than an empty object."
     }
   }
 }

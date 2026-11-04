@@ -67,3 +67,11 @@ const (
 	WithdrawalReasonAnswerLeak        WithdrawalReason = "answer_leak"
 	WithdrawalReasonUnsuitableContent WithdrawalReason = "unsuitable_content"
 )
+
+// Withdrawals is the type of module-index.schema.json#/$defs/withdrawals.
+//
+// The withdrawals of a release of modules, which the build of its index marks (section 26 of the
+// format text): under each module's ID, under each version it withdraws, the reason of the
+// withdrawal. modules keeps them in a file of its own, and a test vector of the index in its member
+// withdrawals. A release that withdraws none has no withdrawals, rather than an empty object.
+type Withdrawals map[ModuleID]map[ModuleVersion]WithdrawalReason

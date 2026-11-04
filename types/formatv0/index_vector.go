@@ -17,7 +17,7 @@ type IndexVector struct {
 	Release Release `json:"release"`
 	// The versions that the release withdraws from publication, by module ID and version. A release
 	// that withdraws none leaves this field out.
-	Withdrawals map[ModuleID]map[ModuleVersion]WithdrawalReason `json:"withdrawals,omitzero"`
+	Withdrawals Withdrawals `json:"withdrawals,omitzero"`
 	// The index that the release builds, when it builds one.
 	Index *ModuleIndex `json:"index,omitzero"`
 	// The rule of the index by which the build is refused, when it is: the case breaks that rule
