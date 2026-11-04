@@ -7,8 +7,9 @@
 // The causes of the contract between `app` and `api`: one list for its refusals and for the
 // outcomes of its calls of AI, the refusal that a method's error carries, and the outcome that its
 // answer carries; and the values that come both in answers and in the data of a refusal: why an
-// attempt was closed, how a lesson run ended, and the engine's choice. What they mean, and how
-// `app` reads a cause it does not know, are the rules of contracts/README.md, section 15.
+// attempt was closed, how a lesson run ended, and the engine's choice, with the list of its reason
+// codes, which the adult's progress alone carries. What they mean, and how `app` reads a cause it
+// does not know, are the rules of contracts/README.md, section 15.
 
 package apiv1
 
@@ -468,6 +469,94 @@ func (ChoiceKind) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{3}
 }
 
+// Why the engine gave what it chose: its reason code (concepts 12; R29; R100). The adult sees it
+// in the progress of a profile, and a child is not told it: no answer to a learning request
+// carries it. A choice has one code, that of the branch of the engine's rule that made it, a
+// lesson's as a task's, and `ChoiceKind` says what it gave. A value never changes its meaning: a
+// branch of the engine's rule that the list does not name comes as a new value, and the value of a
+// branch the engine drops stays, its comment saying that it is no longer given. A code its build
+// does not know `app` words as a reason it does not name.
+type ReasonCode int32
+
+const (
+	// No code: a choice of nothing, and an attempt that the learner began again.
+	ReasonCode_REASON_CODE_UNSPECIFIED ReasonCode = 0
+	// Consolidation: after a wrong answer, another task on the same skill, while the skill is within
+	// reach.
+	ReasonCode_REASON_CODE_CONSOLIDATION ReasonCode = 1
+	// A new skill: one not given before, whose prerequisites are mastered or which has none.
+	ReasonCode_REASON_CODE_NEW_SKILL ReasonCode = 2
+	// The queue: of the skills within reach that were given before and are not mastered, the one
+	// not given for longest.
+	ReasonCode_REASON_CODE_QUEUE ReasonCode = 3
+	// Repetition: the review date of a mastered skill has come.
+	ReasonCode_REASON_CODE_REPETITION ReasonCode = 4
+	// A probe: a skill put aside comes back as a check.
+	ReasonCode_REASON_CODE_PROBE ReasonCode = 5
+	// The learner chose the skill on the skill map, and the engine the lesson or the task on it,
+	// whatever else the skill would fit.
+	ReasonCode_REASON_CODE_SKILL_CHOSEN ReasonCode = 6
+	// The author's order: a skill with a rubric or without assessment comes next by the skill graph,
+	// without the learner model (concepts 4).
+	ReasonCode_REASON_CODE_AUTHOR_ORDER ReasonCode = 7
+	// The lesson of a run that is open, which the learner goes on with, whatever else its skills
+	// would fit.
+	ReasonCode_REASON_CODE_OPEN_RUN ReasonCode = 8
+)
+
+// Enum value maps for ReasonCode.
+var (
+	ReasonCode_name = map[int32]string{
+		0: "REASON_CODE_UNSPECIFIED",
+		1: "REASON_CODE_CONSOLIDATION",
+		2: "REASON_CODE_NEW_SKILL",
+		3: "REASON_CODE_QUEUE",
+		4: "REASON_CODE_REPETITION",
+		5: "REASON_CODE_PROBE",
+		6: "REASON_CODE_SKILL_CHOSEN",
+		7: "REASON_CODE_AUTHOR_ORDER",
+		8: "REASON_CODE_OPEN_RUN",
+	}
+	ReasonCode_value = map[string]int32{
+		"REASON_CODE_UNSPECIFIED":   0,
+		"REASON_CODE_CONSOLIDATION": 1,
+		"REASON_CODE_NEW_SKILL":     2,
+		"REASON_CODE_QUEUE":         3,
+		"REASON_CODE_REPETITION":    4,
+		"REASON_CODE_PROBE":         5,
+		"REASON_CODE_SKILL_CHOSEN":  6,
+		"REASON_CODE_AUTHOR_ORDER":  7,
+		"REASON_CODE_OPEN_RUN":      8,
+	}
+)
+
+func (x ReasonCode) Enum() *ReasonCode {
+	p := new(ReasonCode)
+	*p = x
+	return p
+}
+
+func (x ReasonCode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ReasonCode) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_api_v1_cause_proto_enumTypes[4].Descriptor()
+}
+
+func (ReasonCode) Type() protoreflect.EnumType {
+	return &file_novatrail_api_v1_cause_proto_enumTypes[4]
+}
+
+func (x ReasonCode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ReasonCode.Descriptor instead.
+func (ReasonCode) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{4}
+}
+
 // Why a lesson run ended (concepts 5). A reason its build does not know `app` reads as an end other
 // than `RUN_END_REASON_PASSED`, and erases the state of the lesson as at every end.
 type RunEndReason int32
@@ -516,11 +605,11 @@ func (x RunEndReason) String() string {
 }
 
 func (RunEndReason) Descriptor() protoreflect.EnumDescriptor {
-	return file_novatrail_api_v1_cause_proto_enumTypes[4].Descriptor()
+	return file_novatrail_api_v1_cause_proto_enumTypes[5].Descriptor()
 }
 
 func (RunEndReason) Type() protoreflect.EnumType {
-	return &file_novatrail_api_v1_cause_proto_enumTypes[4]
+	return &file_novatrail_api_v1_cause_proto_enumTypes[5]
 }
 
 func (x RunEndReason) Number() protoreflect.EnumNumber {
@@ -529,7 +618,7 @@ func (x RunEndReason) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RunEndReason.Descriptor instead.
 func (RunEndReason) EnumDescriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{4}
+	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{5}
 }
 
 // A refusal: the detail of an error of Connect when the request was not done.
@@ -842,8 +931,8 @@ func (x *OwnKeyLimit) GetAccessReturns() *timestamppb.Timestamp {
 
 // The engine's choice: what the learner is given next — a lesson, or a task outside a lesson — or
 // that there is nothing to give (concepts 12). A choice begins nothing: `app` opens a lesson by
-// `OpenLesson` and begins a task by `BeginAttempt`, each naming the choice. Its reason code, which
-// the adult sees, is RUN.md's T65.
+// `OpenLesson` and begins a task by `BeginAttempt`, each naming the choice. Its reason code is not
+// here: a child is not told it, and it goes to the adult's progress alone, `AttemptRecord`.
 type EngineChoice struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the choice: empty beside `CHOICE_KIND_NOTHING`.
@@ -1107,7 +1196,18 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x17CHOICE_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12CHOICE_KIND_LESSON\x10\x01\x12\x14\n" +
 	"\x10CHOICE_KIND_TASK\x10\x02\x12\x17\n" +
-	"\x13CHOICE_KIND_NOTHING\x10\x03*\xa6\x01\n" +
+	"\x13CHOICE_KIND_NOTHING\x10\x03*\x83\x02\n" +
+	"\n" +
+	"ReasonCode\x12\x1b\n" +
+	"\x17REASON_CODE_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19REASON_CODE_CONSOLIDATION\x10\x01\x12\x19\n" +
+	"\x15REASON_CODE_NEW_SKILL\x10\x02\x12\x15\n" +
+	"\x11REASON_CODE_QUEUE\x10\x03\x12\x1a\n" +
+	"\x16REASON_CODE_REPETITION\x10\x04\x12\x15\n" +
+	"\x11REASON_CODE_PROBE\x10\x05\x12\x1c\n" +
+	"\x18REASON_CODE_SKILL_CHOSEN\x10\x06\x12\x1c\n" +
+	"\x18REASON_CODE_AUTHOR_ORDER\x10\a\x12\x18\n" +
+	"\x14REASON_CODE_OPEN_RUN\x10\b*\xa6\x01\n" +
 	"\fRunEndReason\x12\x1e\n" +
 	"\x1aRUN_END_REASON_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15RUN_END_REASON_PASSED\x10\x01\x12\x1c\n" +
@@ -1129,38 +1229,39 @@ func file_novatrail_api_v1_cause_proto_rawDescGZIP() []byte {
 	return file_novatrail_api_v1_cause_proto_rawDescData
 }
 
-var file_novatrail_api_v1_cause_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_novatrail_api_v1_cause_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_novatrail_api_v1_cause_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_novatrail_api_v1_cause_proto_goTypes = []any{
 	(Cause)(0),                    // 0: novatrail.api.v1.Cause
 	(LimitCause)(0),               // 1: novatrail.api.v1.LimitCause
 	(CloseReason)(0),              // 2: novatrail.api.v1.CloseReason
 	(ChoiceKind)(0),               // 3: novatrail.api.v1.ChoiceKind
-	(RunEndReason)(0),             // 4: novatrail.api.v1.RunEndReason
-	(*Refusal)(nil),               // 5: novatrail.api.v1.Refusal
-	(*Outcome)(nil),               // 6: novatrail.api.v1.Outcome
-	(*OwnKeyLimit)(nil),           // 7: novatrail.api.v1.OwnKeyLimit
-	(*EngineChoice)(nil),          // 8: novatrail.api.v1.EngineChoice
-	(*RunEnd)(nil),                // 9: novatrail.api.v1.RunEnd
-	(*EndedSegments)(nil),         // 10: novatrail.api.v1.EndedSegments
-	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
+	(ReasonCode)(0),               // 4: novatrail.api.v1.ReasonCode
+	(RunEndReason)(0),             // 5: novatrail.api.v1.RunEndReason
+	(*Refusal)(nil),               // 6: novatrail.api.v1.Refusal
+	(*Outcome)(nil),               // 7: novatrail.api.v1.Outcome
+	(*OwnKeyLimit)(nil),           // 8: novatrail.api.v1.OwnKeyLimit
+	(*EngineChoice)(nil),          // 9: novatrail.api.v1.EngineChoice
+	(*RunEnd)(nil),                // 10: novatrail.api.v1.RunEnd
+	(*EndedSegments)(nil),         // 11: novatrail.api.v1.EndedSegments
+	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
 }
 var file_novatrail_api_v1_cause_proto_depIdxs = []int32{
 	0,  // 0: novatrail.api.v1.Refusal.cause:type_name -> novatrail.api.v1.Cause
 	2,  // 1: novatrail.api.v1.Refusal.close_reason:type_name -> novatrail.api.v1.CloseReason
-	11, // 2: novatrail.api.v1.Refusal.next_family_day:type_name -> google.protobuf.Timestamp
-	11, // 3: novatrail.api.v1.Refusal.locked_until:type_name -> google.protobuf.Timestamp
-	9,  // 4: novatrail.api.v1.Refusal.run_end:type_name -> novatrail.api.v1.RunEnd
-	10, // 5: novatrail.api.v1.Refusal.ended_segments:type_name -> novatrail.api.v1.EndedSegments
+	12, // 2: novatrail.api.v1.Refusal.next_family_day:type_name -> google.protobuf.Timestamp
+	12, // 3: novatrail.api.v1.Refusal.locked_until:type_name -> google.protobuf.Timestamp
+	10, // 4: novatrail.api.v1.Refusal.run_end:type_name -> novatrail.api.v1.RunEnd
+	11, // 5: novatrail.api.v1.Refusal.ended_segments:type_name -> novatrail.api.v1.EndedSegments
 	0,  // 6: novatrail.api.v1.Outcome.cause:type_name -> novatrail.api.v1.Cause
-	11, // 7: novatrail.api.v1.Outcome.next_family_day:type_name -> google.protobuf.Timestamp
-	7,  // 8: novatrail.api.v1.Outcome.own_key_limit:type_name -> novatrail.api.v1.OwnKeyLimit
+	12, // 7: novatrail.api.v1.Outcome.next_family_day:type_name -> google.protobuf.Timestamp
+	8,  // 8: novatrail.api.v1.Outcome.own_key_limit:type_name -> novatrail.api.v1.OwnKeyLimit
 	1,  // 9: novatrail.api.v1.OwnKeyLimit.cause:type_name -> novatrail.api.v1.LimitCause
-	11, // 10: novatrail.api.v1.OwnKeyLimit.access_returns:type_name -> google.protobuf.Timestamp
+	12, // 10: novatrail.api.v1.OwnKeyLimit.access_returns:type_name -> google.protobuf.Timestamp
 	3,  // 11: novatrail.api.v1.EngineChoice.kind:type_name -> novatrail.api.v1.ChoiceKind
-	6,  // 12: novatrail.api.v1.EngineChoice.outcome:type_name -> novatrail.api.v1.Outcome
-	4,  // 13: novatrail.api.v1.RunEnd.reason:type_name -> novatrail.api.v1.RunEndReason
-	8,  // 14: novatrail.api.v1.RunEnd.choice:type_name -> novatrail.api.v1.EngineChoice
+	7,  // 12: novatrail.api.v1.EngineChoice.outcome:type_name -> novatrail.api.v1.Outcome
+	5,  // 13: novatrail.api.v1.RunEnd.reason:type_name -> novatrail.api.v1.RunEndReason
+	9,  // 14: novatrail.api.v1.RunEnd.choice:type_name -> novatrail.api.v1.EngineChoice
 	15, // [15:15] is the sub-list for method output_type
 	15, // [15:15] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name
@@ -1187,7 +1288,7 @@ func file_novatrail_api_v1_cause_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_cause_proto_rawDesc), len(file_novatrail_api_v1_cause_proto_rawDesc)),
-			NumEnums:      5,
+			NumEnums:      6,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,

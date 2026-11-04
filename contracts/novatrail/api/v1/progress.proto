@@ -165,11 +165,14 @@ message AttemptRecord {
   google.protobuf.Timestamp begun_at = 6;
   // When it was closed: absent while it is open.
   google.protobuf.Timestamp closed_at = 7;
-  // When the engine chose the task, or the lesson of the run: absent for an attempt begun again by
-  // the learner.
+  // When the engine chose the task, or the lesson of the run by the choice that began the run:
+  // absent for an attempt begun again by the learner.
   google.protobuf.Timestamp chosen_at = 8;
   // On a task with a rubric: each submission, in order, with how it ended and its feedback's marks.
   repeated EssayRecord essay_submissions = 9;
+  // The reason code of the choice that `chosen_at` names, which the adult sees and a child is not
+  // told (R100): `REASON_CODE_UNSPECIFIED` where `chosen_at` is absent.
+  ReasonCode reason_code = 10;
 }
 
 // A submission of an essay in the progress of a profile.

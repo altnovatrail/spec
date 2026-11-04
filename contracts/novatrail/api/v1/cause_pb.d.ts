@@ -5,8 +5,9 @@
 // The causes of the contract between `app` and `api`: one list for its refusals and for the
 // outcomes of its calls of AI, the refusal that a method's error carries, and the outcome that its
 // answer carries; and the values that come both in answers and in the data of a refusal: why an
-// attempt was closed, how a lesson run ended, and the engine's choice. What they mean, and how
-// `app` reads a cause it does not know, are the rules of contracts/README.md, section 15.
+// attempt was closed, how a lesson run ended, and the engine's choice, with the list of its reason
+// codes, which the adult's progress alone carries. What they mean, and how `app` reads a cause it
+// does not know, are the rules of contracts/README.md, section 15.
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -172,8 +173,8 @@ export declare const OwnKeyLimitSchema: GenMessage<OwnKeyLimit>;
 /**
  * The engine's choice: what the learner is given next — a lesson, or a task outside a lesson — or
  * that there is nothing to give (concepts 12). A choice begins nothing: `app` opens a lesson by
- * `OpenLesson` and begins a task by `BeginAttempt`, each naming the choice. Its reason code, which
- * the adult sees, is RUN.md's T65.
+ * `OpenLesson` and begins a task by `BeginAttempt`, each naming the choice. Its reason code is not
+ * here: a child is not told it, and it goes to the adult's progress alone, `AttemptRecord`.
  *
  * @generated from message novatrail.api.v1.EngineChoice
  */
@@ -750,6 +751,92 @@ export enum ChoiceKind {
  * Describes the enum novatrail.api.v1.ChoiceKind.
  */
 export declare const ChoiceKindSchema: GenEnum<ChoiceKind>;
+
+/**
+ * Why the engine gave what it chose: its reason code (concepts 12; R29; R100). The adult sees it
+ * in the progress of a profile, and a child is not told it: no answer to a learning request
+ * carries it. A choice has one code, that of the branch of the engine's rule that made it, a
+ * lesson's as a task's, and `ChoiceKind` says what it gave. A value never changes its meaning: a
+ * branch of the engine's rule that the list does not name comes as a new value, and the value of a
+ * branch the engine drops stays, its comment saying that it is no longer given. A code its build
+ * does not know `app` words as a reason it does not name.
+ *
+ * @generated from enum novatrail.api.v1.ReasonCode
+ */
+export enum ReasonCode {
+  /**
+   * No code: a choice of nothing, and an attempt that the learner began again.
+   *
+   * @generated from enum value: REASON_CODE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Consolidation: after a wrong answer, another task on the same skill, while the skill is within
+   * reach.
+   *
+   * @generated from enum value: REASON_CODE_CONSOLIDATION = 1;
+   */
+  CONSOLIDATION = 1,
+
+  /**
+   * A new skill: one not given before, whose prerequisites are mastered or which has none.
+   *
+   * @generated from enum value: REASON_CODE_NEW_SKILL = 2;
+   */
+  NEW_SKILL = 2,
+
+  /**
+   * The queue: of the skills within reach that were given before and are not mastered, the one
+   * not given for longest.
+   *
+   * @generated from enum value: REASON_CODE_QUEUE = 3;
+   */
+  QUEUE = 3,
+
+  /**
+   * Repetition: the review date of a mastered skill has come.
+   *
+   * @generated from enum value: REASON_CODE_REPETITION = 4;
+   */
+  REPETITION = 4,
+
+  /**
+   * A probe: a skill put aside comes back as a check.
+   *
+   * @generated from enum value: REASON_CODE_PROBE = 5;
+   */
+  PROBE = 5,
+
+  /**
+   * The learner chose the skill on the skill map, and the engine the lesson or the task on it,
+   * whatever else the skill would fit.
+   *
+   * @generated from enum value: REASON_CODE_SKILL_CHOSEN = 6;
+   */
+  SKILL_CHOSEN = 6,
+
+  /**
+   * The author's order: a skill with a rubric or without assessment comes next by the skill graph,
+   * without the learner model (concepts 4).
+   *
+   * @generated from enum value: REASON_CODE_AUTHOR_ORDER = 7;
+   */
+  AUTHOR_ORDER = 7,
+
+  /**
+   * The lesson of a run that is open, which the learner goes on with, whatever else its skills
+   * would fit.
+   *
+   * @generated from enum value: REASON_CODE_OPEN_RUN = 8;
+   */
+  OPEN_RUN = 8,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.ReasonCode.
+ */
+export declare const ReasonCodeSchema: GenEnum<ReasonCode>;
 
 /**
  * Why a lesson run ended (concepts 5). A reason its build does not know `app` reads as an end other
