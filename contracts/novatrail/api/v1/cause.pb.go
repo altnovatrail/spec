@@ -6,8 +6,9 @@
 
 // The causes of the contract between `app` and `api`: one list for its refusals and for the
 // outcomes of its calls of AI, the refusal that a method's error carries, and the outcome that its
-// answer carries. What they mean, and how `app` reads a cause it does not know, are the rules of
-// contracts/README.md, section 15.
+// answer carries; and the values that come both in answers and in the data of a refusal: why an
+// attempt was closed, how a lesson run ended, and the engine's choice. What they mean, and how
+// `app` reads a cause it does not know, are the rules of contracts/README.md, section 15.
 
 package apiv1
 
@@ -40,8 +41,11 @@ const (
 	// The profile named is not one of the account's, or there is no such profile. Code `not_found`.
 	// On `DeleteProfile` it means that the profile is deleted already.
 	Cause_CAUSE_NO_PROFILE Cause = 1
-	// The profile has no attempt with the ID named, or the account no consent with the ID named;
-	// another profile's, or another account's, is the same. Code `not_found`.
+	// The profile has no attempt, lesson run or engine's choice with the ID named, no module
+	// connected with the ID named, and no skill by the full ID named in the current version of a
+	// module connected to it; or the account has no consent with the ID named; or the pinned index
+	// of `api` has no module with the ID named. Another profile's, or another account's, is the
+	// same. Code `not_found`.
 	Cause_CAUSE_NOT_FOUND Cause = 2
 	// The attempt is closed, and the request acts on an open one. The refusal holds the close reason
 	// of the attempt. Code `failed_precondition`. An essay whose attempt was closed while its
@@ -53,11 +57,12 @@ const (
 	// The request with this idempotency key is still going; its repeat waits for it. Code
 	// `unavailable`.
 	Cause_CAUSE_STILL_GOING Cause = 5
-	// The learner's own key came with a profile whose age category is not `adult`. Code
-	// `invalid_argument`.
+	// The learner's own key, or the provider of one at the beginning of an attempt, came with a
+	// profile whose age category is not `adult`. Code `invalid_argument`.
 	Cause_CAUSE_KEY_NOT_FOR_PROFILE Cause = 6
-	// The quota of platform AI for the family day is spent. A refusal holds when the next family day
-	// begins; so does an outcome. Code `resource_exhausted`.
+	// The quota of platform AI for the family day is spent; at the beginning of an attempt on a task
+	// that platform AI checks, what is left of it is not enough for a typical task. A refusal holds
+	// when the next family day begins; so does an outcome. Code `resource_exhausted`.
 	Cause_CAUSE_QUOTA Cause = 7
 	// Platform AI is out of what its provider allows the platform. Code `resource_exhausted`.
 	Cause_CAUSE_PLATFORM_LIMIT Cause = 8
@@ -111,8 +116,8 @@ const (
 	Cause_CAUSE_FRESH_SIGN_IN_NEEDED Cause = 24
 	// The invite code is not valid, or was redeemed already. Code `invalid_argument`.
 	Cause_CAUSE_CODE_NOT_ACCEPTED Cause = 25
-	// What the request creates is there already: the account of the user, the owner's profile, or
-	// the profile of a consent. Code `already_exists`.
+	// What the request creates is there already: the account of the user, the owner's profile, the
+	// profile of a consent, or the attempt of an engine's choice of a task. Code `already_exists`.
 	Cause_CAUSE_ALREADY_EXISTS Cause = 26
 	// The deployment does not take learners from the country named (privacy 9, П-2). Code
 	// `failed_precondition`.
@@ -128,6 +133,32 @@ const (
 	Cause_CAUSE_PIN_ALREADY_SET Cause = 30
 	// The account has no PIN yet: it is set first. Code `failed_precondition`.
 	Cause_CAUSE_NO_PIN Cause = 31
+	// An open view asked for by the digest of a package whose version the image of `api` no longer
+	// gives: its index marks the version withdrawn, or the version's module format is out of the
+	// window of formats that `api` reads. `app` asks `CheckPackages` about the digests it keeps,
+	// and erases what it keeps of the version. An attempt or a lesson run on such a version is closed
+	// or ended `unchecked` instead. Code `failed_precondition`.
+	Cause_CAUSE_VERSION_NOT_GIVEN Cause = 32
+	// The index of the image of `api` does not know the package digest: a deployment is going on,
+	// and a repeat reaches the new image. Code `unavailable`.
+	Cause_CAUSE_PACKAGE_UNKNOWN Cause = 33
+	// The module has no current version for the learner — none at all, or one whose audience the
+	// learner is not in — or its current version has no lesson or task by the ID named. Code
+	// `failed_precondition`.
+	Cause_CAUSE_NO_CURRENT_VERSION Cause = 34
+	// The lesson, one of its tasks, or the task does not suit the age category of the profile. Code
+	// `failed_precondition`.
+	Cause_CAUSE_NOT_SUITABLE Cause = 35
+	// The lesson run has ended. The refusal holds how it ended, and the engine's choice when this
+	// request ended it. Code `failed_precondition`.
+	Cause_CAUSE_RUN_ENDED Cause = 36
+	// "Lesson done" while a task segment of the lesson has not ended. The refusal holds the places
+	// of the task segments that have ended. Code `failed_precondition`.
+	Cause_CAUSE_SEGMENTS_NOT_ENDED Cause = 37
+	// An attempt asked for on a segment out of order: a task segment before it has not ended, or it
+	// has ended itself. The refusal holds the places of the task segments that have ended. Code
+	// `failed_precondition`.
+	Cause_CAUSE_SEGMENT_UNAVAILABLE Cause = 38
 )
 
 // Enum value maps for Cause.
@@ -165,6 +196,13 @@ var (
 		29: "CAUSE_PIN_LOCKED",
 		30: "CAUSE_PIN_ALREADY_SET",
 		31: "CAUSE_NO_PIN",
+		32: "CAUSE_VERSION_NOT_GIVEN",
+		33: "CAUSE_PACKAGE_UNKNOWN",
+		34: "CAUSE_NO_CURRENT_VERSION",
+		35: "CAUSE_NOT_SUITABLE",
+		36: "CAUSE_RUN_ENDED",
+		37: "CAUSE_SEGMENTS_NOT_ENDED",
+		38: "CAUSE_SEGMENT_UNAVAILABLE",
 	}
 	Cause_value = map[string]int32{
 		"CAUSE_UNSPECIFIED":          0,
@@ -199,6 +237,13 @@ var (
 		"CAUSE_PIN_LOCKED":           29,
 		"CAUSE_PIN_ALREADY_SET":      30,
 		"CAUSE_NO_PIN":               31,
+		"CAUSE_VERSION_NOT_GIVEN":    32,
+		"CAUSE_PACKAGE_UNKNOWN":      33,
+		"CAUSE_NO_CURRENT_VERSION":   34,
+		"CAUSE_NOT_SUITABLE":         35,
+		"CAUSE_RUN_ENDED":            36,
+		"CAUSE_SEGMENTS_NOT_ENDED":   37,
+		"CAUSE_SEGMENT_UNAVAILABLE":  38,
 	}
 )
 
@@ -365,6 +410,128 @@ func (CloseReason) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{2}
 }
 
+// What an engine's choice gives. A kind its build does not know `app` reads as
+// `CHOICE_KIND_NOTHING`.
+type ChoiceKind int32
+
+const (
+	// Not named: never sent.
+	ChoiceKind_CHOICE_KIND_UNSPECIFIED ChoiceKind = 0
+	// A lesson: `app` opens it by `OpenLesson`. It may be the lesson of a run that is open.
+	ChoiceKind_CHOICE_KIND_LESSON ChoiceKind = 1
+	// A task outside a lesson: `app` begins it by `BeginAttempt`.
+	ChoiceKind_CHOICE_KIND_TASK ChoiceKind = 2
+	// Nothing to give.
+	ChoiceKind_CHOICE_KIND_NOTHING ChoiceKind = 3
+)
+
+// Enum value maps for ChoiceKind.
+var (
+	ChoiceKind_name = map[int32]string{
+		0: "CHOICE_KIND_UNSPECIFIED",
+		1: "CHOICE_KIND_LESSON",
+		2: "CHOICE_KIND_TASK",
+		3: "CHOICE_KIND_NOTHING",
+	}
+	ChoiceKind_value = map[string]int32{
+		"CHOICE_KIND_UNSPECIFIED": 0,
+		"CHOICE_KIND_LESSON":      1,
+		"CHOICE_KIND_TASK":        2,
+		"CHOICE_KIND_NOTHING":     3,
+	}
+)
+
+func (x ChoiceKind) Enum() *ChoiceKind {
+	p := new(ChoiceKind)
+	*p = x
+	return p
+}
+
+func (x ChoiceKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ChoiceKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_api_v1_cause_proto_enumTypes[3].Descriptor()
+}
+
+func (ChoiceKind) Type() protoreflect.EnumType {
+	return &file_novatrail_api_v1_cause_proto_enumTypes[3]
+}
+
+func (x ChoiceKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ChoiceKind.Descriptor instead.
+func (ChoiceKind) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{3}
+}
+
+// Why a lesson run ended (concepts 5). A reason its build does not know `app` reads as an end other
+// than `RUN_END_REASON_PASSED`, and erases the state of the lesson as at every end.
+type RunEndReason int32
+
+const (
+	// Not ended: the run is open.
+	RunEndReason_RUN_END_REASON_UNSPECIFIED RunEndReason = 0
+	// The lesson is done: "lesson done" came once every task segment had ended.
+	RunEndReason_RUN_END_REASON_PASSED RunEndReason = 1
+	// Unchecked: the run's version of the module is no longer given, withdrawn or out of the window
+	// of formats that `api` reads, or an attempt of the run was closed `CLOSE_REASON_UNCHECKED`.
+	RunEndReason_RUN_END_REASON_UNCHECKED RunEndReason = 2
+	// Not suitable: the module is no longer connected or has no current version for the learner, or
+	// the lesson or one of its tasks no longer suits the age category of the profile.
+	RunEndReason_RUN_END_REASON_NOT_SUITABLE RunEndReason = 3
+	// Abandoned: no request on the run or its attempts for 30 days.
+	RunEndReason_RUN_END_REASON_ABANDONED RunEndReason = 4
+)
+
+// Enum value maps for RunEndReason.
+var (
+	RunEndReason_name = map[int32]string{
+		0: "RUN_END_REASON_UNSPECIFIED",
+		1: "RUN_END_REASON_PASSED",
+		2: "RUN_END_REASON_UNCHECKED",
+		3: "RUN_END_REASON_NOT_SUITABLE",
+		4: "RUN_END_REASON_ABANDONED",
+	}
+	RunEndReason_value = map[string]int32{
+		"RUN_END_REASON_UNSPECIFIED":  0,
+		"RUN_END_REASON_PASSED":       1,
+		"RUN_END_REASON_UNCHECKED":    2,
+		"RUN_END_REASON_NOT_SUITABLE": 3,
+		"RUN_END_REASON_ABANDONED":    4,
+	}
+)
+
+func (x RunEndReason) Enum() *RunEndReason {
+	p := new(RunEndReason)
+	*p = x
+	return p
+}
+
+func (x RunEndReason) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RunEndReason) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_api_v1_cause_proto_enumTypes[4].Descriptor()
+}
+
+func (RunEndReason) Type() protoreflect.EnumType {
+	return &file_novatrail_api_v1_cause_proto_enumTypes[4]
+}
+
+func (x RunEndReason) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RunEndReason.Descriptor instead.
+func (RunEndReason) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{4}
+}
+
 // A refusal: the detail of an error of Connect when the request was not done.
 type Refusal struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -379,6 +546,8 @@ type Refusal struct {
 	//	*Refusal_WrongAnswers
 	//	*Refusal_LockedUntil
 	//	*Refusal_MaxAuthAgeSeconds
+	//	*Refusal_RunEnd
+	//	*Refusal_EndedSegments
 	Data          isRefusal_Data `protobuf_oneof:"data"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -473,6 +642,24 @@ func (x *Refusal) GetMaxAuthAgeSeconds() int32 {
 	return 0
 }
 
+func (x *Refusal) GetRunEnd() *RunEnd {
+	if x != nil {
+		if x, ok := x.Data.(*Refusal_RunEnd); ok {
+			return x.RunEnd
+		}
+	}
+	return nil
+}
+
+func (x *Refusal) GetEndedSegments() *EndedSegments {
+	if x != nil {
+		if x, ok := x.Data.(*Refusal_EndedSegments); ok {
+			return x.EndedSegments
+		}
+	}
+	return nil
+}
+
 type isRefusal_Data interface {
 	isRefusal_Data()
 }
@@ -502,6 +689,18 @@ type Refusal_MaxAuthAgeSeconds struct {
 	MaxAuthAgeSeconds int32 `protobuf:"varint,6,opt,name=max_auth_age_seconds,json=maxAuthAgeSeconds,proto3,oneof"`
 }
 
+type Refusal_RunEnd struct {
+	// Beside `CAUSE_RUN_ENDED`: how the lesson run ended, and the engine's choice when this request
+	// ended it.
+	RunEnd *RunEnd `protobuf:"bytes,7,opt,name=run_end,json=runEnd,proto3,oneof"`
+}
+
+type Refusal_EndedSegments struct {
+	// Beside `CAUSE_SEGMENTS_NOT_ENDED` and `CAUSE_SEGMENT_UNAVAILABLE`: the task segments of the
+	// lesson run that have ended.
+	EndedSegments *EndedSegments `protobuf:"bytes,8,opt,name=ended_segments,json=endedSegments,proto3,oneof"`
+}
+
 func (*Refusal_CloseReason) isRefusal_Data() {}
 
 func (*Refusal_NextFamilyDay) isRefusal_Data() {}
@@ -512,13 +711,20 @@ func (*Refusal_LockedUntil) isRefusal_Data() {}
 
 func (*Refusal_MaxAuthAgeSeconds) isRefusal_Data() {}
 
-// An outcome: what a call of AI came to when the answer holds no reading, or no words, of AI.
+func (*Refusal_RunEnd) isRefusal_Data() {}
+
+func (*Refusal_EndedSegments) isRefusal_Data() {}
+
+// An outcome: what a call of AI came to when the answer holds no reading, or no words, of AI; and
+// why the engine's choice gives nothing, when the AI that checks the tasks is closed to the learner.
 type Outcome struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The outcome: `CAUSE_AI_FAILURE`, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT`,
 	// `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED` or `CAUSE_NO_OTHER_WORDS`.
 	// "Explain differently" makes no call without the reserve of the quota: there the quota, the limit
-	// of platform AI and no admission are refusals, and the right to it on the rung stays.
+	// of platform AI and no admission are refusals, and the right to it on the rung stays. Beside an
+	// engine's choice that gives nothing: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` or
+	// `CAUSE_NOT_ADMITTED`.
 	Cause Cause `protobuf:"varint,1,opt,name=cause,proto3,enum=novatrail.api.v1.Cause" json:"cause,omitempty"`
 	// Beside `CAUSE_QUOTA`: when the next family day begins.
 	NextFamilyDay *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=next_family_day,json=nextFamilyDay,proto3" json:"next_family_day,omitempty"`
@@ -634,18 +840,194 @@ func (x *OwnKeyLimit) GetAccessReturns() *timestamppb.Timestamp {
 	return nil
 }
 
+// The engine's choice: what the learner is given next — a lesson, or a task outside a lesson — or
+// that there is nothing to give (concepts 12). A choice begins nothing: `app` opens a lesson by
+// `OpenLesson` and begins a task by `BeginAttempt`, each naming the choice. Its reason code, which
+// the adult sees, is RUN.md's T65.
+type EngineChoice struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The ID of the choice: empty beside `CHOICE_KIND_NOTHING`.
+	ChoiceId string `protobuf:"bytes,1,opt,name=choice_id,json=choiceId,proto3" json:"choice_id,omitempty"`
+	// What the choice gives.
+	Kind ChoiceKind `protobuf:"varint,2,opt,name=kind,proto3,enum=novatrail.api.v1.ChoiceKind" json:"kind,omitempty"`
+	// Beside `CHOICE_KIND_NOTHING`, when the AI that checks the tasks is closed to the learner and no
+	// task that a tap checks is left: `CAUSE_QUOTA`, with when the next family day begins,
+	// `CAUSE_PLATFORM_LIMIT` or `CAUSE_NOT_ADMITTED`. Absent when there is nothing to give for
+	// another reason, such as no module connected with a current version.
+	Outcome       *Outcome `protobuf:"bytes,3,opt,name=outcome,proto3" json:"outcome,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EngineChoice) Reset() {
+	*x = EngineChoice{}
+	mi := &file_novatrail_api_v1_cause_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EngineChoice) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EngineChoice) ProtoMessage() {}
+
+func (x *EngineChoice) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_cause_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EngineChoice.ProtoReflect.Descriptor instead.
+func (*EngineChoice) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *EngineChoice) GetChoiceId() string {
+	if x != nil {
+		return x.ChoiceId
+	}
+	return ""
+}
+
+func (x *EngineChoice) GetKind() ChoiceKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ChoiceKind_CHOICE_KIND_UNSPECIFIED
+}
+
+func (x *EngineChoice) GetOutcome() *Outcome {
+	if x != nil {
+		return x.Outcome
+	}
+	return nil
+}
+
+// How a lesson run ended.
+type RunEnd struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Why it ended.
+	Reason RunEndReason `protobuf:"varint,1,opt,name=reason,proto3,enum=novatrail.api.v1.RunEndReason" json:"reason,omitempty"`
+	// The engine's choice that the end gave: when the request that carries it ended the run — "lesson
+	// done", or a request that found the run's package no longer given, the lesson unsuitable, or the
+	// run abandoned —, and on a repeat of the "lesson done" that ended it. Absent when the run had
+	// ended before by anything else, such as a job of the operator: `app` then asks `ChooseNext`.
+	Choice        *EngineChoice `protobuf:"bytes,2,opt,name=choice,proto3" json:"choice,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunEnd) Reset() {
+	*x = RunEnd{}
+	mi := &file_novatrail_api_v1_cause_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunEnd) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunEnd) ProtoMessage() {}
+
+func (x *RunEnd) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_cause_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunEnd.ProtoReflect.Descriptor instead.
+func (*RunEnd) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RunEnd) GetReason() RunEndReason {
+	if x != nil {
+		return x.Reason
+	}
+	return RunEndReason_RUN_END_REASON_UNSPECIFIED
+}
+
+func (x *RunEnd) GetChoice() *EngineChoice {
+	if x != nil {
+		return x.Choice
+	}
+	return nil
+}
+
+// The task segments of a lesson run that have ended.
+type EndedSegments struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Their places among the segments of the lesson, from 1, in order.
+	Places        []int32 `protobuf:"varint,1,rep,packed,name=places,proto3" json:"places,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EndedSegments) Reset() {
+	*x = EndedSegments{}
+	mi := &file_novatrail_api_v1_cause_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EndedSegments) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EndedSegments) ProtoMessage() {}
+
+func (x *EndedSegments) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_cause_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EndedSegments.ProtoReflect.Descriptor instead.
+func (*EndedSegments) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *EndedSegments) GetPlaces() []int32 {
+	if x != nil {
+		return x.Places
+	}
+	return nil
+}
+
 var File_novatrail_api_v1_cause_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\n" +
-	"\x1cnovatrail/api/v1/cause.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe5\x02\n" +
+	"\x1cnovatrail/api/v1/cause.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe4\x03\n" +
 	"\aRefusal\x12-\n" +
 	"\x05cause\x18\x01 \x01(\x0e2\x17.novatrail.api.v1.CauseR\x05cause\x12B\n" +
 	"\fclose_reason\x18\x02 \x01(\x0e2\x1d.novatrail.api.v1.CloseReasonH\x00R\vcloseReason\x12D\n" +
 	"\x0fnext_family_day\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\rnextFamilyDay\x12%\n" +
 	"\rwrong_answers\x18\x04 \x01(\x05H\x00R\fwrongAnswers\x12?\n" +
 	"\flocked_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\vlockedUntil\x121\n" +
-	"\x14max_auth_age_seconds\x18\x06 \x01(\x05H\x00R\x11maxAuthAgeSecondsB\x06\n" +
+	"\x14max_auth_age_seconds\x18\x06 \x01(\x05H\x00R\x11maxAuthAgeSeconds\x123\n" +
+	"\arun_end\x18\a \x01(\v2\x18.novatrail.api.v1.RunEndH\x00R\x06runEnd\x12H\n" +
+	"\x0eended_segments\x18\b \x01(\v2\x1f.novatrail.api.v1.EndedSegmentsH\x00R\rendedSegmentsB\x06\n" +
 	"\x04data\"\xbf\x01\n" +
 	"\aOutcome\x12-\n" +
 	"\x05cause\x18\x01 \x01(\x0e2\x17.novatrail.api.v1.CauseR\x05cause\x12B\n" +
@@ -653,7 +1035,16 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\rown_key_limit\x18\x03 \x01(\v2\x1d.novatrail.api.v1.OwnKeyLimitR\vownKeyLimit\"\x84\x01\n" +
 	"\vOwnKeyLimit\x122\n" +
 	"\x05cause\x18\x01 \x01(\x0e2\x1c.novatrail.api.v1.LimitCauseR\x05cause\x12A\n" +
-	"\x0eaccess_returns\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\raccessReturns*\x95\x06\n" +
+	"\x0eaccess_returns\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\raccessReturns\"\x92\x01\n" +
+	"\fEngineChoice\x12\x1b\n" +
+	"\tchoice_id\x18\x01 \x01(\tR\bchoiceId\x120\n" +
+	"\x04kind\x18\x02 \x01(\x0e2\x1c.novatrail.api.v1.ChoiceKindR\x04kind\x123\n" +
+	"\aoutcome\x18\x03 \x01(\v2\x19.novatrail.api.v1.OutcomeR\aoutcome\"x\n" +
+	"\x06RunEnd\x126\n" +
+	"\x06reason\x18\x01 \x01(\x0e2\x1e.novatrail.api.v1.RunEndReasonR\x06reason\x126\n" +
+	"\x06choice\x18\x02 \x01(\v2\x1e.novatrail.api.v1.EngineChoiceR\x06choice\"'\n" +
+	"\rEndedSegments\x12\x16\n" +
+	"\x06places\x18\x01 \x03(\x05R\x06places*\xd5\a\n" +
 	"\x05Cause\x12\x15\n" +
 	"\x11CAUSE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10CAUSE_NO_PROFILE\x10\x01\x12\x13\n" +
@@ -687,7 +1078,14 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x10CAUSE_NO_CONSENT\x10\x1c\x12\x14\n" +
 	"\x10CAUSE_PIN_LOCKED\x10\x1d\x12\x19\n" +
 	"\x15CAUSE_PIN_ALREADY_SET\x10\x1e\x12\x10\n" +
-	"\fCAUSE_NO_PIN\x10\x1f*\x88\x01\n" +
+	"\fCAUSE_NO_PIN\x10\x1f\x12\x1b\n" +
+	"\x17CAUSE_VERSION_NOT_GIVEN\x10 \x12\x19\n" +
+	"\x15CAUSE_PACKAGE_UNKNOWN\x10!\x12\x1c\n" +
+	"\x18CAUSE_NO_CURRENT_VERSION\x10\"\x12\x16\n" +
+	"\x12CAUSE_NOT_SUITABLE\x10#\x12\x13\n" +
+	"\x0fCAUSE_RUN_ENDED\x10$\x12\x1c\n" +
+	"\x18CAUSE_SEGMENTS_NOT_ENDED\x10%\x12\x1d\n" +
+	"\x19CAUSE_SEGMENT_UNAVAILABLE\x10&*\x88\x01\n" +
 	"\n" +
 	"LimitCause\x12\x1b\n" +
 	"\x17LIMIT_CAUSE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -703,7 +1101,19 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x16CLOSE_REASON_ABANDONED\x10\x04\x12\x1a\n" +
 	"\x16CLOSE_REASON_UNCHECKED\x10\x05\x12\x1d\n" +
 	"\x19CLOSE_REASON_NOT_SUITABLE\x10\x06\x12\x15\n" +
-	"\x11CLOSE_REASON_DONE\x10\aB\xc3\x01\n" +
+	"\x11CLOSE_REASON_DONE\x10\a*p\n" +
+	"\n" +
+	"ChoiceKind\x12\x1b\n" +
+	"\x17CHOICE_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12CHOICE_KIND_LESSON\x10\x01\x12\x14\n" +
+	"\x10CHOICE_KIND_TASK\x10\x02\x12\x17\n" +
+	"\x13CHOICE_KIND_NOTHING\x10\x03*\xa6\x01\n" +
+	"\fRunEndReason\x12\x1e\n" +
+	"\x1aRUN_END_REASON_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15RUN_END_REASON_PASSED\x10\x01\x12\x1c\n" +
+	"\x18RUN_END_REASON_UNCHECKED\x10\x02\x12\x1f\n" +
+	"\x1bRUN_END_REASON_NOT_SUITABLE\x10\x03\x12\x1c\n" +
+	"\x18RUN_END_REASON_ABANDONED\x10\x04B\xc3\x01\n" +
 	"\x14com.novatrail.api.v1B\n" +
 	"CauseProtoP\x01Z=github.com/altnovatrail/spec/contracts/novatrail/api/v1;apiv1\xa2\x02\x03NAX\xaa\x02\x10Novatrail.Api.V1\xca\x02\x10Novatrail\\Api\\V1\xe2\x02\x1cNovatrail\\Api\\V1\\GPBMetadata\xea\x02\x12Novatrail::Api::V1b\x06proto3"
 
@@ -719,32 +1129,43 @@ func file_novatrail_api_v1_cause_proto_rawDescGZIP() []byte {
 	return file_novatrail_api_v1_cause_proto_rawDescData
 }
 
-var file_novatrail_api_v1_cause_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_novatrail_api_v1_cause_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_novatrail_api_v1_cause_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_novatrail_api_v1_cause_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_novatrail_api_v1_cause_proto_goTypes = []any{
 	(Cause)(0),                    // 0: novatrail.api.v1.Cause
 	(LimitCause)(0),               // 1: novatrail.api.v1.LimitCause
 	(CloseReason)(0),              // 2: novatrail.api.v1.CloseReason
-	(*Refusal)(nil),               // 3: novatrail.api.v1.Refusal
-	(*Outcome)(nil),               // 4: novatrail.api.v1.Outcome
-	(*OwnKeyLimit)(nil),           // 5: novatrail.api.v1.OwnKeyLimit
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(ChoiceKind)(0),               // 3: novatrail.api.v1.ChoiceKind
+	(RunEndReason)(0),             // 4: novatrail.api.v1.RunEndReason
+	(*Refusal)(nil),               // 5: novatrail.api.v1.Refusal
+	(*Outcome)(nil),               // 6: novatrail.api.v1.Outcome
+	(*OwnKeyLimit)(nil),           // 7: novatrail.api.v1.OwnKeyLimit
+	(*EngineChoice)(nil),          // 8: novatrail.api.v1.EngineChoice
+	(*RunEnd)(nil),                // 9: novatrail.api.v1.RunEnd
+	(*EndedSegments)(nil),         // 10: novatrail.api.v1.EndedSegments
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
 var file_novatrail_api_v1_cause_proto_depIdxs = []int32{
-	0, // 0: novatrail.api.v1.Refusal.cause:type_name -> novatrail.api.v1.Cause
-	2, // 1: novatrail.api.v1.Refusal.close_reason:type_name -> novatrail.api.v1.CloseReason
-	6, // 2: novatrail.api.v1.Refusal.next_family_day:type_name -> google.protobuf.Timestamp
-	6, // 3: novatrail.api.v1.Refusal.locked_until:type_name -> google.protobuf.Timestamp
-	0, // 4: novatrail.api.v1.Outcome.cause:type_name -> novatrail.api.v1.Cause
-	6, // 5: novatrail.api.v1.Outcome.next_family_day:type_name -> google.protobuf.Timestamp
-	5, // 6: novatrail.api.v1.Outcome.own_key_limit:type_name -> novatrail.api.v1.OwnKeyLimit
-	1, // 7: novatrail.api.v1.OwnKeyLimit.cause:type_name -> novatrail.api.v1.LimitCause
-	6, // 8: novatrail.api.v1.OwnKeyLimit.access_returns:type_name -> google.protobuf.Timestamp
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	0,  // 0: novatrail.api.v1.Refusal.cause:type_name -> novatrail.api.v1.Cause
+	2,  // 1: novatrail.api.v1.Refusal.close_reason:type_name -> novatrail.api.v1.CloseReason
+	11, // 2: novatrail.api.v1.Refusal.next_family_day:type_name -> google.protobuf.Timestamp
+	11, // 3: novatrail.api.v1.Refusal.locked_until:type_name -> google.protobuf.Timestamp
+	9,  // 4: novatrail.api.v1.Refusal.run_end:type_name -> novatrail.api.v1.RunEnd
+	10, // 5: novatrail.api.v1.Refusal.ended_segments:type_name -> novatrail.api.v1.EndedSegments
+	0,  // 6: novatrail.api.v1.Outcome.cause:type_name -> novatrail.api.v1.Cause
+	11, // 7: novatrail.api.v1.Outcome.next_family_day:type_name -> google.protobuf.Timestamp
+	7,  // 8: novatrail.api.v1.Outcome.own_key_limit:type_name -> novatrail.api.v1.OwnKeyLimit
+	1,  // 9: novatrail.api.v1.OwnKeyLimit.cause:type_name -> novatrail.api.v1.LimitCause
+	11, // 10: novatrail.api.v1.OwnKeyLimit.access_returns:type_name -> google.protobuf.Timestamp
+	3,  // 11: novatrail.api.v1.EngineChoice.kind:type_name -> novatrail.api.v1.ChoiceKind
+	6,  // 12: novatrail.api.v1.EngineChoice.outcome:type_name -> novatrail.api.v1.Outcome
+	4,  // 13: novatrail.api.v1.RunEnd.reason:type_name -> novatrail.api.v1.RunEndReason
+	8,  // 14: novatrail.api.v1.RunEnd.choice:type_name -> novatrail.api.v1.EngineChoice
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_cause_proto_init() }
@@ -758,14 +1179,16 @@ func file_novatrail_api_v1_cause_proto_init() {
 		(*Refusal_WrongAnswers)(nil),
 		(*Refusal_LockedUntil)(nil),
 		(*Refusal_MaxAuthAgeSeconds)(nil),
+		(*Refusal_RunEnd)(nil),
+		(*Refusal_EndedSegments)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_cause_proto_rawDesc), len(file_novatrail_api_v1_cause_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   3,
+			NumEnums:      5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

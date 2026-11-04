@@ -11,6 +11,7 @@ package novatrail.api.v1;
 import "google/protobuf/timestamp.proto";
 import "novatrail/api/v1/attempt.proto";
 import "novatrail/api/v1/cause.proto";
+import "novatrail/api/v1/learning.proto";
 
 // The requests on the account and its profiles, from the section for adults and from a learner's
 // session. Every method carries the ID token of the sign-in service in the header `Authorization`,
@@ -37,11 +38,12 @@ import "novatrail/api/v1/cause.proto";
 //   signed in, and `app` erases what is left of the one before it opens anything;
 // - `unavailable`: it repeats the request after a growing pause, for a short while.
 service AccountService {
-  // The account and its profiles, each with its fields, and the consents that have no profile yet.
-  // `app` reads it when it starts and after signing in, and erases the databases of the profiles
-  // that the list does not hold: only by an answer that came, and for the account the registry of
-  // the device names; a failure of the network erases nothing. A user with no account gets
-  // `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
+  // The account and its profiles, each with its fields, its open attempt and its open lesson runs,
+  // and the consents that have no profile yet. `app` reads it when it starts and after signing in,
+  // and erases the databases of the profiles that the list does not hold: only by an answer that
+  // came, and for the account the registry of the device names; a failure of the network erases
+  // nothing. By the open attempt and runs a device that keeps no state of them finds them. A user
+  // with no account gets `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
   rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
   // Creates the account of the user signed in, by an invite code and the owner's statement that
   // they are 18 or older. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already,
@@ -164,9 +166,9 @@ message Account {
   repeated ChildConsent child_consents = 4;
 }
 
-// A profile, a learner in the account (concepts 13), as `api` keeps it. Its date of the age given
-// and its last activity stay in `api`; its interests come only once the module format gives a
-// task a look by interests (concepts 13; R51).
+// A profile, a learner in the account (concepts 13), as `api` keeps it, with its open attempt and
+// its open lesson runs. Its date of the age given and its last activity stay in `api`; its
+// interests come only once the module format gives a task a look by interests (concepts 13; R51).
 message Profile {
   // The ID of the profile.
   string profile_id = 1;
@@ -195,6 +197,10 @@ message Profile {
   // A child's setting, which an adult sets: the solution is shown by an action of an adult.
   // Always false on a profile of the category `adult`.
   bool ask_before_showing = 11;
+  // The profile's open attempt: absent when it has none. A profile has one open attempt at most.
+  OpenAttemptRef open_attempt = 12;
+  // The profile's open lesson runs, one at most for each lesson.
+  repeated LessonRunRef open_lesson_runs = 13;
 }
 
 // The presentation style of a profile. What else it holds comes with what a module may say of it

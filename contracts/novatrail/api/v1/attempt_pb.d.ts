@@ -9,7 +9,7 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
-import type { CloseReason, Outcome } from "./cause_pb.js";
+import type { CloseReason, EngineChoice, Outcome } from "./cause_pb.js";
 import type { AnswerSlotPlace, CropBox } from "../../observation/v1/observation_pb.js";
 
 /**
@@ -117,6 +117,13 @@ export declare type SubmitWorkResponse = Message<"novatrail.api.v1.SubmitWorkRes
    * @generated from field: novatrail.api.v1.SolvedTask solved = 4;
    */
   solved?: SolvedTask | undefined;
+
+  /**
+   * What comes next, beside `solved`.
+   *
+   * @generated from field: novatrail.api.v1.Next next = 5;
+   */
+  next?: Next | undefined;
 };
 
 /**
@@ -288,6 +295,13 @@ export declare type DoneResponse = Message<"novatrail.api.v1.DoneResponse"> & {
    * @generated from field: novatrail.api.v1.SolvedTask solved = 1;
    */
   solved?: SolvedTask | undefined;
+
+  /**
+   * What comes next.
+   *
+   * @generated from field: novatrail.api.v1.Next next = 2;
+   */
+  next?: Next | undefined;
 };
 
 /**
@@ -808,6 +822,13 @@ export declare type ShowSolutionResponse = Message<"novatrail.api.v1.ShowSolutio
    * @generated from field: novatrail.api.v1.SolvedTask solved = 1;
    */
   solved?: SolvedTask | undefined;
+
+  /**
+   * What comes next.
+   *
+   * @generated from field: novatrail.api.v1.Next next = 2;
+   */
+  next?: Next | undefined;
 };
 
 /**
@@ -1094,6 +1115,53 @@ export declare type SolvedTask = Message<"novatrail.api.v1.SolvedTask"> & {
 export declare const SolvedTaskSchema: GenMessage<SolvedTask>;
 
 /**
+ * What comes next once an attempt is closed by a correct answer, by the solution shown or by "Done".
+ * A repeat gets the same: of `SubmitWork` and `ShowSolution` with the same idempotency key, and of
+ * `Done` by the state of the attempt.
+ *
+ * @generated from message novatrail.api.v1.Next
+ */
+export declare type Next = Message<"novatrail.api.v1.Next"> & {
+  /**
+   * In a lesson, the segment that comes next; outside a lesson, the engine's choice.
+   *
+   * @generated from oneof novatrail.api.v1.Next.next
+   */
+  next: {
+    /**
+     * In a lesson: the place of the next segment, from 1.
+     *
+     * @generated from field: int32 segment = 1;
+     */
+    value: number;
+    case: "segment";
+  } | {
+    /**
+     * In a lesson: no segment is left after the one that ended. The lesson run stays open until
+     * "lesson done", `CompleteLesson`, which `app` sends when the learner presses "Continue".
+     *
+     * @generated from field: bool segments_ended = 2;
+     */
+    value: boolean;
+    case: "segmentsEnded";
+  } | {
+    /**
+     * Outside a lesson: the engine's choice.
+     *
+     * @generated from field: novatrail.api.v1.EngineChoice choice = 3;
+     */
+    value: EngineChoice;
+    case: "choice";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message novatrail.api.v1.Next.
+ * Use `create(NextSchema)` to create a new message.
+ */
+export declare const NextSchema: GenMessage<Next>;
+
+/**
  * The key of an answer slot.
  *
  * @generated from message novatrail.api.v1.AnswerSlotKey
@@ -1272,7 +1340,9 @@ export declare const MarkKindSchema: GenEnum<MarkKind>;
  * take — gets the code `invalid_argument` with no `Refusal`. Every method carries the token of the
  * sign-in service and may get the refusals of every request with a token, which the comment of
  * `AccountService` names with what `app` does on each; a request of a profile whose consent is not
- * confirmed gets `CAUSE_NO_CONSENT`.
+ * confirmed gets `CAUSE_NO_CONSENT`. An answer that closes the attempt by a correct answer, by the
+ * solution shown or by "Done" says what comes next, `next`: an attempt begins by
+ * `LearningService`.
  *
  * @generated from service novatrail.api.v1.AttemptService
  */

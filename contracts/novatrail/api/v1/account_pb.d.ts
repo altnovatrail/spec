@@ -11,6 +11,7 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
+import type { LessonRunRef, OpenAttemptRef } from "./learning_pb.js";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import type { OwnKey } from "./attempt_pb.js";
 import type { Outcome } from "./cause_pb.js";
@@ -147,9 +148,9 @@ export declare type Account = Message<"novatrail.api.v1.Account"> & {
 export declare const AccountSchema: GenMessage<Account>;
 
 /**
- * A profile, a learner in the account (concepts 13), as `api` keeps it. Its date of the age given
- * and its last activity stay in `api`; its interests come only once the module format gives a
- * task a look by interests (concepts 13; R51).
+ * A profile, a learner in the account (concepts 13), as `api` keeps it, with its open attempt and
+ * its open lesson runs. Its date of the age given and its last activity stay in `api`; its
+ * interests come only once the module format gives a task a look by interests (concepts 13; R51).
  *
  * @generated from message novatrail.api.v1.Profile
  */
@@ -235,6 +236,20 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
    * @generated from field: bool ask_before_showing = 11;
    */
   askBeforeShowing: boolean;
+
+  /**
+   * The profile's open attempt: absent when it has none. A profile has one open attempt at most.
+   *
+   * @generated from field: novatrail.api.v1.OpenAttemptRef open_attempt = 12;
+   */
+  openAttempt?: OpenAttemptRef | undefined;
+
+  /**
+   * The profile's open lesson runs, one at most for each lesson.
+   *
+   * @generated from field: repeated novatrail.api.v1.LessonRunRef open_lesson_runs = 13;
+   */
+  openLessonRuns: LessonRunRef[];
 };
 
 /**
@@ -1322,11 +1337,12 @@ export declare const OwnKeyCheckSchema: GenEnum<OwnKeyCheck>;
  */
 export declare const AccountService: GenService<{
   /**
-   * The account and its profiles, each with its fields, and the consents that have no profile yet.
-   * `app` reads it when it starts and after signing in, and erases the databases of the profiles
-   * that the list does not hold: only by an answer that came, and for the account the registry of
-   * the device names; a failure of the network erases nothing. A user with no account gets
-   * `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
+   * The account and its profiles, each with its fields, its open attempt and its open lesson runs,
+   * and the consents that have no profile yet. `app` reads it when it starts and after signing in,
+   * and erases the databases of the profiles that the list does not hold: only by an answer that
+   * came, and for the account the registry of the device names; a failure of the network erases
+   * nothing. By the open attempt and runs a device that keeps no state of them finds them. A user
+   * with no account gets `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
    *
    * @generated from rpc novatrail.api.v1.AccountService.GetAccount
    */

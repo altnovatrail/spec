@@ -1,0 +1,270 @@
+syntax = "proto3";
+
+// The way from a module to a task in the contract between `app` and `api`: the engine's choice, the
+// beginning of an attempt and the open attempt, and lessons, which `api` leads by lesson runs. What
+// each message means is the rule of contracts/README.md, section 15.
+package novatrail.api.v1;
+
+import "google/protobuf/timestamp.proto";
+import "novatrail/api/v1/attempt.proto";
+import "novatrail/api/v1/cause.proto";
+import "novatrail/api/v1/package.proto";
+
+// The way from a module to a task, from a learner's session: each method is a learning request,
+// with the right `can_learn`. Every method carries the token of the sign-in service and may get the
+// refusals of every request with a token, which the comment of `AccountService` names with what
+// `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, a request of a
+// profile whose consent is not confirmed `CAUSE_NO_CONSENT`, and a request whose form the contract
+// refuses the code `invalid_argument` with no `Refusal`. A profile has one open attempt: a new one
+// closes the one before `CLOSE_REASON_LEFT`. A lesson run goes on the package it began on, and
+// every attempt of its task segments too. `app` keeps the place in a lesson and the state of its
+// demos by the key "lesson's full ID, package digest", beside the ID of the run: the state of
+// another run under the same key it drops, and it erases the state of the lesson at every end of
+// the run, in an answer or in a refusal.
+service LearningService {
+  // "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
+  // when the learner asks for it, or when nothing is open. It closes the open attempt
+  // `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to. The
+  // choice gives a lesson or a task, or nothing, with the outcome that says why. Refusals:
+  // `CAUSE_NOT_FOUND`, a skill named that no module connected has, `CAUSE_KEY_ALREADY_USED` and
+  // `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same choice.
+  rpc ChooseNext(ChooseNextRequest) returns (ChooseNextResponse);
+  // Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
+  // same task again. It closes the open attempt `CLOSE_REASON_LEFT`. A choice begins one attempt:
+  // once it has, another request by it gets `CAUSE_ALREADY_EXISTS`, and `app` reads the open
+  // attempt of the profile; a choice of a lesson gets `invalid_argument`. An attempt on a segment
+  // of a run whose package the image no longer gives ends the run `RUN_END_REASON_UNCHECKED` and
+  // gets `CAUSE_RUN_ENDED`, and `app` then asks `CheckPackages`. The answer is the attempt with
+  // the open view of its task, of an instance when the task is a template; the seed of the attempt
+  // never goes to the device. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and
+  // `CAUSE_NOT_ADMITTED`, when platform AI checks the task, and a lesson run stays open on them;
+  // `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
+  // `CAUSE_RUN_ENDED`, `CAUSE_SEGMENT_UNAVAILABLE`, `CAUSE_ALREADY_EXISTS`,
+  // `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND`, `CAUSE_KEY_ALREADY_USED` and
+  // `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same attempt and its open
+  // view.
+  rpc BeginAttempt(BeginAttemptRequest) returns (BeginAttemptResponse);
+  // The open attempt, by which the learner goes on with it, on another device too, with a clean
+  // sheet: the strokes stay on the device that wrote them. Refusals: `CAUSE_NOT_FOUND`,
+  // `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
+  // state of the attempt.
+  rpc GetOpenAttempt(GetOpenAttemptRequest) returns (GetOpenAttemptResponse);
+  // Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
+  // or else a new run on the package of the module's current version. A choice opens one run: once
+  // it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice. Before the
+  // answer `api` checks that the module is connected and has a current version for the learner,
+  // and that the lesson and each of its tasks suit the age category of the profile — on the
+  // package of the run when it is open; a run that fails ends `RUN_END_REASON_NOT_SUITABLE`, and
+  // a run whose package the image no longer gives `RUN_END_REASON_UNCHECKED`, after which `app`
+  // asks `CheckPackages`. A choice of a task gets `invalid_argument`. Refusals:
+  // `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
+  // `CAUSE_RUN_ENDED` and `CAUSE_NOT_FOUND`. It carries no idempotency key: it repeats by the
+  // state of the run.
+  rpc OpenLesson(OpenLessonRequest) returns (OpenLessonResponse);
+  // An open lesson run again, by its ID: after a restart, and on another device. `api` checks it as
+  // `OpenLesson` does. Refusals: `CAUSE_RUN_ENDED`, with how the run ended, and the engine's choice
+  // when this request ended it; `CAUSE_NOT_FOUND` and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
+  // state of the run.
+  rpc GetLessonRun(GetLessonRunRequest) returns (GetLessonRunResponse);
+  // "Lesson done": `app` sends it when the learner presses "Continue" on the last segment, and
+  // repeats it until `api` answers. It ends the run `RUN_END_REASON_PASSED` once every task segment
+  // has ended, and the answer holds the engine's choice; a repeat on a run that ended so gets the
+  // same answer. Refusals: `CAUSE_SEGMENTS_NOT_ENDED`, with the places of the task segments that
+  // have ended, `CAUSE_RUN_ENDED` with another reason, and `CAUSE_NOT_FOUND`. It carries no
+  // idempotency key: it repeats by the state of the run.
+  rpc CompleteLesson(CompleteLessonRequest) returns (CompleteLessonResponse);
+}
+
+// "Something else".
+message ChooseNextRequest {
+  // The profile.
+  string profile_id = 1;
+  // The idempotency key of this action of the learner.
+  string idempotency_key = 2;
+  // The full ID of the skill that the learner chose on the skill map, "novatrail/olympiad-math/
+  // skill/counting-gaps": empty when the engine leads.
+  string skill = 3;
+}
+
+// The engine's choice.
+message ChooseNextResponse {
+  // The choice.
+  EngineChoice choice = 1;
+}
+
+// The beginning of an attempt.
+message BeginAttemptRequest {
+  // The profile.
+  string profile_id = 1;
+  // The idempotency key of this action of the learner.
+  string idempotency_key = 2;
+  // What the attempt begins by.
+  oneof start {
+    // An engine's choice of a task, `CHOICE_KIND_TASK`: the task, on the current version of its
+    // module.
+    string choice_id = 3;
+    // A task segment of an open lesson run, on the run's package: every task segment before it has
+    // ended, and it has not.
+    SegmentPlace segment = 4;
+    // The same task again, outside a lesson, on the current version of its module: the ID of an
+    // earlier attempt of it, open or closed. A template gives a new seed, and maybe another
+    // instance.
+    string previous_attempt_id = 5;
+  }
+  // The provider of the learner's own key, by its code in the admission table, without the key:
+  // with a profile of its owner that checks the task by its own key, so that `api` chooses the
+  // route to AI for the checks of the beginning, and checks no quota. Empty when platform AI checks
+  // it. Each later request on the attempt that calls AI goes by the `own_key` it carries, or on
+  // platform AI without one, and meets the quota there as an outcome (R84).
+  string own_key_provider = 6;
+}
+
+// The attempt begun.
+message BeginAttemptResponse {
+  // The attempt.
+  AttemptStart attempt = 1;
+}
+
+// A task segment of a lesson run.
+message SegmentPlace {
+  // The lesson run.
+  string lesson_run_id = 1;
+  // The segment's place among the segments of the lesson, from 1: a segment has no ID.
+  int32 segment = 2;
+}
+
+// An attempt as it begins: what `app` shows the task by.
+message AttemptStart {
+  // The ID of the attempt.
+  string attempt_id = 1;
+  // The open view of the task, of the instance when the task is a template.
+  OpenView task = 2;
+  // The digest of the package the attempt goes on, by which `app` takes the open views of its
+  // manifest, technique catalog and solving steps.
+  string package_digest = 3;
+  // The task segment, when the attempt is one of a lesson run; absent outside a lesson.
+  SegmentPlace segment = 4;
+}
+
+// A request for the open attempt.
+message GetOpenAttemptRequest {
+  // The profile.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+}
+
+// The open attempt.
+message GetOpenAttemptResponse {
+  // The attempt.
+  OpenAttempt attempt = 1;
+}
+
+// An open attempt, as the server keeps it: what lets the learner go on with it.
+message OpenAttempt {
+  // The attempt, as it began.
+  AttemptStart start = 1;
+  // The verdict of every item at the last submission with a verdict, in the task's order, and what
+  // was read: empty before the first one, and on a task with a rubric.
+  repeated ItemVerdict items = 2;
+  // How many wrong answers the attempt has.
+  int32 wrong_answers = 3;
+  // The current rung and the words the attempt keeps for it, or its fallback text: absent before
+  // the first wrong answer.
+  RungHint rung = 4;
+  // Whether "explain differently" was asked for on the current rung.
+  bool explained_differently = 5;
+  // The IDs of the techniques given at a step, local IDs of the technique catalog.
+  repeated string step_technique_ids = 6;
+  // The IDs of the techniques given on request.
+  repeated string requested_technique_ids = 7;
+  // On a task with a rubric: each submission, in order, with how it ended and when, without the
+  // text read and the words of the feedback, which are nowhere on the server (R87).
+  repeated EssaySubmission essay_submissions = 8;
+}
+
+// A submission of an essay as the server keeps it.
+message EssaySubmission {
+  // When it came.
+  google.protobuf.Timestamp submitted_at = 1;
+  // How it ended.
+  SubmissionEnd end = 2;
+}
+
+// The opening of the lesson of an engine's choice.
+message OpenLessonRequest {
+  // The profile.
+  string profile_id = 1;
+  // The engine's choice of the lesson, `CHOICE_KIND_LESSON`.
+  string choice_id = 2;
+}
+
+// The lesson opened.
+message OpenLessonResponse {
+  // The lesson run.
+  LessonRun run = 1;
+}
+
+// A request for an open lesson run.
+message GetLessonRunRequest {
+  // The profile.
+  string profile_id = 1;
+  // The lesson run.
+  string lesson_run_id = 2;
+}
+
+// The open lesson run.
+message GetLessonRunResponse {
+  // The lesson run.
+  LessonRun run = 1;
+}
+
+// An open lesson run: what `app` leads the lesson by.
+message LessonRun {
+  // The ID of the run, which every answer about the lesson, an attempt of its segment, and "lesson
+  // done" name.
+  string lesson_run_id = 1;
+  // The open view of the lesson, whole: its title and its segments, without its skills and age
+  // categories.
+  OpenView lesson = 2;
+  // The digest of the package the run goes on.
+  string package_digest = 3;
+  // The places of the task segments that have ended, in order.
+  repeated int32 ended_segments = 4;
+  // The open attempt of a segment of the run, when there is one: `app` opens the lesson at the
+  // later of it and the place it keeps.
+  OpenAttemptRef open_attempt = 5;
+}
+
+// "Lesson done".
+message CompleteLessonRequest {
+  // The profile.
+  string profile_id = 1;
+  // The lesson run.
+  string lesson_run_id = 2;
+}
+
+// The lesson run ended "passed".
+message CompleteLessonResponse {
+  // How the run ended, `RUN_END_REASON_PASSED`, and the engine's choice.
+  RunEnd end = 1;
+}
+
+// The open attempt of a profile, as the list of profiles names it.
+message OpenAttemptRef {
+  // The attempt, which `GetOpenAttempt` gives.
+  string attempt_id = 1;
+  // Its task segment, when it is an attempt of a lesson run; absent outside a lesson.
+  SegmentPlace segment = 2;
+}
+
+// An open lesson run of a profile, as the list of profiles names it: what a device that keeps no
+// state of the lesson finds it by.
+message LessonRunRef {
+  // The lesson run, which `GetLessonRun` gives.
+  string lesson_run_id = 1;
+  // The full ID of the lesson, "novatrail/olympiad-math/lesson/counting-gaps-1".
+  string lesson = 2;
+  // The digest of the package the run goes on.
+  string package_digest = 3;
+}
