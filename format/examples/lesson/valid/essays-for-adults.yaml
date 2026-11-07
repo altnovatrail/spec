@@ -1,9 +1,10 @@
 # A lesson of the official module of short essays for adults alone: its task is about the learner's
 # own life (П-20), so the lesson names the age category, and the platform gives it only to a learner
-# whom the lesson and its task suit.
+# whom the lesson and its task suit. Its skill is endings alone: endings needs paragraphs, so the
+# lesson comes after the lessons of paragraphs, and naming paragraphs too would drop that (section 21).
 id: writing-about-a-day
 title: Writing about a day you remember
-skills: [paragraphs, endings]
+skills: [endings]
 age_categories: [adult]
 segments:
   - explanation:
