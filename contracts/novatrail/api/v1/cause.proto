@@ -268,10 +268,11 @@ enum ReasonCode {
   // Consolidation: after a wrong answer, another task on the same skill, while the skill is within
   // reach.
   REASON_CODE_CONSOLIDATION = 1;
-  // A new skill: one not given before, whose prerequisites are mastered or which has none.
+  // A new skill: one not given before, whose prerequisites the engine's rule counts as met, or
+  // which has none.
   REASON_CODE_NEW_SKILL = 2;
   // The queue: of the skills within reach that were given before and are not mastered, the one
-  // not given for longest.
+  // not given for longest in its module.
   REASON_CODE_QUEUE = 3;
   // Repetition: the review date of a mastered skill has come.
   REASON_CODE_REPETITION = 4;
@@ -286,6 +287,10 @@ enum ReasonCode {
   // The lesson of a run that is open, which the learner goes on with, whatever else its skills
   // would fit.
   REASON_CODE_OPEN_RUN = 8;
+  // Rotation: a skill given before comes round again, the one not given for longest first,
+  // though it does not fit the queue of `REASON_CODE_QUEUE`: it is mastered, or no skill is within
+  // reach.
+  REASON_CODE_ROTATION = 9;
 }
 
 // How a lesson run ended.
