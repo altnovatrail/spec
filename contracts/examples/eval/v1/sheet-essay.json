@@ -6,8 +6,8 @@
   "synthetic": {
     "seed": "1107"
   },
-  "text_set_version": "0.1",
-  "canvas_version": "0.1.0",
+  "text_set_version": "none",
+  "canvas_version": "0.0.0",
   "license": "Apache-2.0",
   "task": {
     "tutor": {

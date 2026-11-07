@@ -55,6 +55,9 @@ export const ID = /^[a-z0-9-]{1,64}$/;
 const CODE = /^[0-9A-Z]{6,16}$/;
 const TEXT_SET = /^[A-Za-z0-9.-]{1,32}$/;
 const VERSION = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
+// The versions of a file that the samples page did not write (the amendment of 2026-11-07 to R93):
+// no release of canvas is 0.0.0, and its page names no set of texts "none".
+const NOT_THE_PAGE = { canvas_version: "0.0.0", text_set_version: "none" };
 export const TAG = /^v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
 const SEED = /^(?:0|[1-9][0-9]*)$/;
@@ -373,8 +376,11 @@ export function breaches(sample) {
   if (!WRITERS.includes(writer)) breach(["writer"], `writer is ${show(writer)}, and a sample is written by ${WRITERS.join(", ")}`);
   if (!("person" in sample) && !("synthetic" in sample)) breach([], "the sample says neither person nor synthetic: who or what made its strokes");
   if ("synthetic" in sample && !isSeed(sample.synthetic.seed)) breach(["synthetic", "seed"], `the seed ${show(sample.synthetic.seed)} is not an unsigned integer of 64 bits in decimal digits`);
-  if (!TEXT_SET.test(sample.text_set_version)) breach(["text_set_version"], `text_set_version ${show(sample.text_set_version)} is not 1 to 32 Latin letters, digits, dots and hyphens`);
-  if (!VERSION.test(sample.canvas_version)) breach(["canvas_version"], `canvas_version ${show(sample.canvas_version)} is not MAJOR.MINOR.PATCH`);
+  const versions = { text_set_version: [TEXT_SET, "1 to 32 Latin letters, digits, dots and hyphens"], canvas_version: [VERSION, "MAJOR.MINOR.PATCH"] };
+  for (const [field, [form, words]] of Object.entries(versions)) {
+    if (!form.test(sample[field])) breach([field], `${field} ${show(sample[field])} is not ${words}`);
+    else if ("synthetic" in sample && sample[field] !== NOT_THE_PAGE[field]) breach([field], `a synthetic sample was not written by the samples page, so its ${field} is ${show(NOT_THE_PAGE[field])}, not ${show(sample[field])}`);
+  }
 
   // What the purpose and the writer give the sample.
   if (purpose === "PURPOSE_EVAL_SET") {

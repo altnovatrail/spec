@@ -143,6 +143,22 @@ test("what the sample is, its versions and its origin", () => {
   expectOnly(changed(evalSet(), (s) => (s.canvas_version = "v0.1.0")), /^canvas_version "v0\.1\.0" is not MAJOR\.MINOR\.PATCH$/);
 });
 
+test("a synthetic sample has the versions of a file the samples page did not write", () => {
+  expectOnly(changed(evalSet(), (s) => (s.canvas_version = "0.1.0")), /^a synthetic sample was not written by the samples page, so its canvas_version is "0\.0\.0", not "0\.1\.0"$/);
+  expectOnly(changed(evalSet(), (s) => (s.text_set_version = "0.1")), /^a synthetic sample was not written by the samples page, so its text_set_version is "none", not "0\.1"$/);
+  const byThePage = (s) => {
+    delete s.synthetic;
+    s.person = {};
+    s.canvas_version = "0.1.2";
+    s.text_set_version = "2026-11a";
+  };
+  expectOnly(changed(evalSet(), byThePage));
+  expectOnly(changed(evalSet(), (s) => {
+    delete s.synthetic;
+    s.person = {};
+  }));
+});
+
 test("the purpose and the writer give the sample its fields", () => {
   expectOnly(changed(evalSet(), (s) => (s.writer = "WRITER_CHILD")), /^a sample of an eval set is written by an adult, never by a child$/);
   expectOnly(changed(evalSet(), (s) => (s.writer_code = "K7Q2M9XD")), /^a sample of an eval set has no writer's code/);

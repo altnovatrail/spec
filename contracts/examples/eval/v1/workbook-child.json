@@ -7,8 +7,8 @@
     "seed": "1105"
   },
   "writer_code": "R4T8W2NC",
-  "text_set_version": "0.1",
-  "canvas_version": "0.1.0",
+  "text_set_version": "none",
+  "canvas_version": "0.0.0",
   "task": {
     "tutor": {
       "tag": "v0.1.1",

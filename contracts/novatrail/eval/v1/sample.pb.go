@@ -218,9 +218,11 @@ type Sample struct {
 	// with each other: 6 to 16 digits and capital Latin letters. Only in a sample of measurement.
 	WriterCode *string `protobuf:"bytes,7,opt,name=writer_code,json=writerCode,proto3,oneof" json:"writer_code,omitempty"`
 	// The version of the set of texts that the samples page showed: the notice of the purpose and
-	// the form of consent. 1 to 32 Latin letters, digits, dots and hyphens.
+	// the form of consent. 1 to 32 Latin letters, digits, dots and hyphens; "none" in a file that the
+	// samples page did not write, a synthetic sample among them.
 	TextSetVersion string `protobuf:"bytes,8,opt,name=text_set_version,json=textSetVersion,proto3" json:"text_set_version,omitempty"`
-	// The version of `canvas` whose samples page wrote the file, MAJOR.MINOR.PATCH.
+	// The version of `canvas` whose samples page wrote the file, MAJOR.MINOR.PATCH; "0.0.0" in a file
+	// that the page did not write, a synthetic sample among them.
 	CanvasVersion string `protobuf:"bytes,9,opt,name=canvas_version,json=canvasVersion,proto3" json:"canvas_version,omitempty"`
 	// The license the sample is published under: "Apache-2.0" in a sample of an eval set, and none
 	// in a sample of measurement, which is not published.
