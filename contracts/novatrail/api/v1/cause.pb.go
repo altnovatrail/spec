@@ -484,10 +484,11 @@ const (
 	// Consolidation: after a wrong answer, another task on the same skill, while the skill is within
 	// reach.
 	ReasonCode_REASON_CODE_CONSOLIDATION ReasonCode = 1
-	// A new skill: one not given before, whose prerequisites are mastered or which has none.
+	// A new skill: one not given before, whose prerequisites the engine's rule counts as met, or
+	// which has none.
 	ReasonCode_REASON_CODE_NEW_SKILL ReasonCode = 2
 	// The queue: of the skills within reach that were given before and are not mastered, the one
-	// not given for longest.
+	// not given for longest in its module.
 	ReasonCode_REASON_CODE_QUEUE ReasonCode = 3
 	// Repetition: the review date of a mastered skill has come.
 	ReasonCode_REASON_CODE_REPETITION ReasonCode = 4
@@ -502,6 +503,10 @@ const (
 	// The lesson of a run that is open, which the learner goes on with, whatever else its skills
 	// would fit.
 	ReasonCode_REASON_CODE_OPEN_RUN ReasonCode = 8
+	// Rotation: a skill given before comes round again, the one not given for longest first,
+	// though it does not fit the queue of `REASON_CODE_QUEUE`: it is mastered, or no skill is within
+	// reach.
+	ReasonCode_REASON_CODE_ROTATION ReasonCode = 9
 )
 
 // Enum value maps for ReasonCode.
@@ -516,6 +521,7 @@ var (
 		6: "REASON_CODE_SKILL_CHOSEN",
 		7: "REASON_CODE_AUTHOR_ORDER",
 		8: "REASON_CODE_OPEN_RUN",
+		9: "REASON_CODE_ROTATION",
 	}
 	ReasonCode_value = map[string]int32{
 		"REASON_CODE_UNSPECIFIED":   0,
@@ -527,6 +533,7 @@ var (
 		"REASON_CODE_SKILL_CHOSEN":  6,
 		"REASON_CODE_AUTHOR_ORDER":  7,
 		"REASON_CODE_OPEN_RUN":      8,
+		"REASON_CODE_ROTATION":      9,
 	}
 )
 
@@ -1196,7 +1203,7 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x17CHOICE_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12CHOICE_KIND_LESSON\x10\x01\x12\x14\n" +
 	"\x10CHOICE_KIND_TASK\x10\x02\x12\x17\n" +
-	"\x13CHOICE_KIND_NOTHING\x10\x03*\x83\x02\n" +
+	"\x13CHOICE_KIND_NOTHING\x10\x03*\x9d\x02\n" +
 	"\n" +
 	"ReasonCode\x12\x1b\n" +
 	"\x17REASON_CODE_UNSPECIFIED\x10\x00\x12\x1d\n" +
@@ -1207,7 +1214,8 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x11REASON_CODE_PROBE\x10\x05\x12\x1c\n" +
 	"\x18REASON_CODE_SKILL_CHOSEN\x10\x06\x12\x1c\n" +
 	"\x18REASON_CODE_AUTHOR_ORDER\x10\a\x12\x18\n" +
-	"\x14REASON_CODE_OPEN_RUN\x10\b*\xa6\x01\n" +
+	"\x14REASON_CODE_OPEN_RUN\x10\b\x12\x18\n" +
+	"\x14REASON_CODE_ROTATION\x10\t*\xa6\x01\n" +
 	"\fRunEndReason\x12\x1e\n" +
 	"\x1aRUN_END_REASON_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15RUN_END_REASON_PASSED\x10\x01\x12\x1c\n" +

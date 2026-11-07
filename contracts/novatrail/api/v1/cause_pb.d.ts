@@ -780,7 +780,8 @@ export enum ReasonCode {
   CONSOLIDATION = 1,
 
   /**
-   * A new skill: one not given before, whose prerequisites are mastered or which has none.
+   * A new skill: one not given before, whose prerequisites the engine's rule counts as met, or
+   * which has none.
    *
    * @generated from enum value: REASON_CODE_NEW_SKILL = 2;
    */
@@ -788,7 +789,7 @@ export enum ReasonCode {
 
   /**
    * The queue: of the skills within reach that were given before and are not mastered, the one
-   * not given for longest.
+   * not given for longest in its module.
    *
    * @generated from enum value: REASON_CODE_QUEUE = 3;
    */
@@ -831,6 +832,15 @@ export enum ReasonCode {
    * @generated from enum value: REASON_CODE_OPEN_RUN = 8;
    */
   OPEN_RUN = 8,
+
+  /**
+   * Rotation: a skill given before comes round again, the one not given for longest first,
+   * though it does not fit the queue of `REASON_CODE_QUEUE`: it is mastered, or no skill is within
+   * reach.
+   *
+   * @generated from enum value: REASON_CODE_ROTATION = 9;
+   */
+  ROTATION = 9,
 }
 
 /**
