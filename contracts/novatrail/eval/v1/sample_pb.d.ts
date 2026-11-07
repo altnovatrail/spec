@@ -88,14 +88,16 @@ export declare type Sample = Message<"novatrail.eval.v1.Sample"> & {
 
   /**
    * The version of the set of texts that the samples page showed: the notice of the purpose and
-   * the form of consent. 1 to 32 Latin letters, digits, dots and hyphens.
+   * the form of consent. 1 to 32 Latin letters, digits, dots and hyphens; "none" in a file that the
+   * samples page did not write, a synthetic sample among them.
    *
    * @generated from field: string text_set_version = 8;
    */
   textSetVersion: string;
 
   /**
-   * The version of `canvas` whose samples page wrote the file, MAJOR.MINOR.PATCH.
+   * The version of `canvas` whose samples page wrote the file, MAJOR.MINOR.PATCH; "0.0.0" in a file
+   * that the page did not write, a synthetic sample among them.
    *
    * @generated from field: string canvas_version = 9;
    */
