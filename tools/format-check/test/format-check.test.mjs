@@ -1000,6 +1000,8 @@ test("spec's pictures are PNG, as their names say, and the vectors of module.med
   assert.equal(Buffer.from(bytesOf(`${media}/webp-holding-wave/media/pictures/dot.webp`, 12)).toString("latin1").replace(/^RIFF.{4}/s, ""), "WAVE");
   assert.equal(Buffer.from(bytesOf(`${media}/gif/media/pictures/dot.gif`, 6)).toString("latin1"), "GIF89a");
   assert.equal(fs.readFileSync(path.join(spec, "format", `${media}/mp3-holding-text/media/sounds/bell.mp3`), "utf8"), "A bell rings.\n");
+  // Three bytes of a frame header, and no fourth: WHATWG reads no header in fewer than four.
+  assert.deepEqual([...fs.readFileSync(path.join(spec, "format", `${media}/mp3-of-three-bytes/media/sounds/bell.mp3`))], [0xff, 0xfb, 0x90]);
 });
 
 test("spec's vectors of yaml.plain-strings hold the words their names say", () => {

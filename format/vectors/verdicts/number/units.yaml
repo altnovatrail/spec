@@ -24,6 +24,16 @@ readings:
   - answer_slots:
       - {value: "7 rungs.", verdict: correct}
     verdict: correct
+  # Steps 5 to 7 of a number in their order: the "." at the end goes before the units, so "rungs"
+  # still ends the value and is dropped, and "7 ." is 7; but in "7 rungs ." a space stands between
+  # the units and the ".", so once the "." goes, "7 rungs " keeps its space, the units do not end
+  # it, and nothing is dropped.
+  - answer_slots:
+      - {value: "7 .", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "7 rungs .", verdict: unreadable, reason: notation}
+    verdict: unreadable
   - answer_slots:
       - {value: "6 rungs", verdict: not_yet, trap: off-by-one}
     verdict: not_yet
