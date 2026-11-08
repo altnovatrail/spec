@@ -183,7 +183,9 @@ function addContext(text, devcontainer) {
 // it is not there. CI never builds the devcontainer stage, so only this holds them together.
 export function goplsVersions(dir) {
   const read = (file) => (fs.existsSync(path.join(dir, file)) ? fs.readFileSync(path.join(dir, file), "utf8") : "");
-  const lock = read("gopls/go.mod").match(/^\s*(?:require\s+)?golang\.org\/x\/tools\/gopls\s+v(\S+)/m)?.[1] ?? null;
+  // A line of go.mod, as "require golang.org/x/tools/gopls vX" or, in a block, the module and its
+  // version alone, read word by word: no pattern that backtracks.
+  const lock = read("gopls/go.mod").split("\n").map((line) => line.trim().split(/\s+/)).map((words) => (words[0] === "require" ? words.slice(1) : words)).find((words) => words[0] === "golang.org/x/tools/gopls" && words[1]?.startsWith("v"))?.[1].slice(1) ?? null;
   const arg = read("Dockerfile").match(/^ARG GOPLS_VERSION=(\S+)$/m)?.[1] ?? null;
   return { lock, arg };
 }

@@ -302,6 +302,14 @@ test("the go kind's lock file and its Dockerfile name one version of gopls, and 
   const { lock, arg } = goplsVersions(folder);
   assert.match(lock, /^\d+\.\d+\.\d+$/);
   assert.equal(arg, lock, "kinds/go/Dockerfile and kinds/go/gopls/go.mod name one version");
+  // A require on one line reads as one in a block, and a go.mod without gopls names none.
+  const dir = temporary();
+  fs.mkdirSync(path.join(dir, "gopls"));
+  fs.writeFileSync(path.join(dir, "gopls/go.mod"), "module devcontainer/gopls\n\nrequire golang.org/x/tools/gopls v1.2.3 // indirect\n");
+  fs.writeFileSync(path.join(dir, "Dockerfile"), "FROM x\nARG GOPLS_VERSION=1.2.3\n");
+  assert.deepEqual(goplsVersions(dir), { lock: "1.2.3", arg: "1.2.3" });
+  fs.writeFileSync(path.join(dir, "gopls/go.mod"), "module devcontainer/gopls\n\nrequire golang.org/x/tools v0.1.0\n");
+  assert.deepEqual(goplsVersions(dir), { lock: null, arg: "1.2.3" });
   assert.match(read(folder, "gopls/go.mod"), /^tool golang\.org\/x\/tools\/gopls$/m, "gopls is a tool of the lock file");
   assert.match(read(folder, "gopls/go.mod"), /^go 1\.\d+\.\d+$/m);
   assert.equal(read(folder, "gopls/go.mod").match(/^go (\S+)$/m)[1], read(specRoot, ".devcontainer/Dockerfile").match(/^ARG GO_VERSION=(\S+)$/m)[1], "the lock file's Go is the toolchain stage's");
