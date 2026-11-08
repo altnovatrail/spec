@@ -99,9 +99,14 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
   );
   for (const file of devcontainer?.files ?? []) {
     const target = path.join(dir, file.path);
-    if (fs.existsSync(target)) throw new Error(`the kind's folder holds ${file.path}, which spec's devcontainer has: the kind adds files, and does not replace spec's`);
     fs.mkdirSync(path.dirname(target), { recursive: true });
-    fs.writeFileSync(target, file.bytes, { mode: file.mode });
+    // Written only where nothing is: a file spec's devcontainer has is refused as the write finds it.
+    try {
+      fs.writeFileSync(target, file.bytes, { mode: file.mode, flag: "wx" });
+    } catch (error) {
+      if (error.code === "EEXIST") throw new Error(`the kind's folder holds ${file.path}, which spec's devcontainer has: the kind adds files, and does not replace spec's`);
+      throw error;
+    }
   }
 
   // What VS Code reads must still be JSON once the comments are gone.
