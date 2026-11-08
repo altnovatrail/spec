@@ -206,26 +206,30 @@ export function checkReport(bytes, message) {
 // markup has the people's marks, and a run of reading every other sample.
 const measures = (capability, sample) => (capability === RUBRIC) === Boolean(sample.markup?.marks);
 
-// What a report of the examples breaks of the samples beside it, the ones that hold, by their IDs:
-// a report on the capability set of the examples names every one of them that its capability
-// measures; each sample it names is one of them; a child's is refused as REFUSAL_CHILD, one without
-// markup as REFUSAL_NO_MARKUP, and any other is measured; a measured sample's answer slots are the
+// What sampleBreaches calls spec's examples beside a report, in its messages.
+export const EXAMPLES = { measured: "the examples its capability measures", none: "no example that holds its rules" };
+
+// What a report breaks of its samples, the ones that hold, by their IDs — spec's examples beside the
+// report, or the samples a call of report-check names, which of names in the messages: a report on
+// a capability set names every one of them that its capability measures; each sample it names is
+// one of them; a child's is refused as REFUSAL_CHILD, one without markup as REFUSAL_NO_MARKUP, and
+// any other is measured; a measured sample's answer slots are the
 // truth's that a model reads — on a workbook, its filled boxes, and on a sheet that shows no stroke,
 // which has no crops, none — with the markup's notes, and its essay the truth's and the marks of its
 // markup.
-export function sampleBreaches(report, samples) {
+export function sampleBreaches(report, samples, of = EXAMPLES) {
   const found = [];
   const breach = (at, message) => found.push({ at, message });
   if ("capability_set" in report) {
     const set = [...samples.values()].filter((sample) => measures(report.capability, sample)).map((sample) => sample.id).sort(byCodeUnits);
     const named = report.samples.map((result) => result.sample);
-    if (!isDeepStrictEqual(named, set)) breach(["samples"], `the report names the samples ${show(named)}, and the examples its capability measures are ${show(set)}`);
+    if (!isDeepStrictEqual(named, set)) breach(["samples"], `the report names the samples ${show(named)}, and ${of.measured} are ${show(set)}`);
   }
   report.samples.forEach((result, i) => {
     const at = ["samples", i];
     const sample = samples.get(result.sample);
     if (!sample) {
-      breach([...at, "sample"], `no example that holds its rules is the sample ${result.sample}`);
+      breach([...at, "sample"], `${of.none} is the sample ${result.sample}`);
       return;
     }
     const child = sample.writer === "WRITER_CHILD";

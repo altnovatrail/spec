@@ -186,6 +186,21 @@ contracts-check: _tools
 sample-check *files: _tools
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/contracts/main.mjs")}} --samples "$@"
 
+# Runs from a NovaTrail repository's root, as `just -f spec/justfile report-check eval/report.json …`
+# or `… report-check eval/report.json --samples eval/a.json …`: each file of the runner's report it
+# names before --samples is read strictly and held to the rules of contracts/README.md, section 14,
+# by the code that holds spec's examples of the report to them (the second and the fourth
+# amendments of 2026-11-08 to R95), against the image buf builds of this spec's contracts/, as sample-check reads its files.
+# After --samples come the sample files of the reports: each is checked as sample-check checks it,
+# no two may share an ID, and once they all hold, each report is held to them as the examples of
+# the report are to the samples beside them. Its paths, its tools, its lines file:line: message and
+# its statuses are sample-check's, and its last line is report-check's own verdict; --samples with
+# no file after it, or a second time, stops it with 2, as a call that names no report does.
+# Check report files of the eval runner, and their samples, from a repository's root.
+[positional-arguments]
+report-check *files: _tools
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/contracts/main.mjs")}} --reports "$@"
+
 # The code buf generates from the contracts, beside the .proto files it comes from (R83): Go of
 # protoc-gen-go and protoc-gen-connect-go, JavaScript with its declarations of protoc-gen-es.
 # buf writes it into a new folder, and it takes the place of the generated files of
@@ -196,7 +211,8 @@ contracts: _tools
     node tools/contracts/generate.mjs
     go -C contracts mod tidy
 
-# The tests that run the recipes run this same just: sample-check's, from made-up repositories.
+# The tests that run the recipes run this same just: sample-check's and report-check's, from made-up
+# repositories.
 # Run contracts-check's own tests, on trial contracts in made-up repositories, with spec's buf.yaml,
 # buf.gen.yaml and contracts/go.mod, and buf and its plugins as the check runs them.
 contracts-check-test: _tools

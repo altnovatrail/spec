@@ -92,7 +92,7 @@ test("the command takes --samples alone, and every argument after it is a file",
   assert.equal(empty.stderr, "sample-check: name the sample files to check\n");
   const other = command(good, ["--lock=x"]);
   assert.equal(other.status, 2);
-  assert.match(other.stderr, /^contracts-check: the only argument is --samples/);
+  assert.match(other.stderr, /^contracts-check: the only arguments are --samples, with the sample files to check, and --reports/);
   const dashed = command({ "-sample.json": evalSet }, ["--samples", "-sample.json"]);
   assert.equal(dashed.status, 0, dashed.stderr);
   assert.equal(dashed.stdout, "sample-check: ok — 1 sample\n");

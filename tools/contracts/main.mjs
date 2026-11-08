@@ -2,6 +2,8 @@
 //
 //   node tools/contracts/main.mjs                       spec's own contracts/, two levels above this file
 //   node tools/contracts/main.mjs --samples <file>...   sample files of the repository it runs from
+//   node tools/contracts/main.mjs --reports <file>... [--samples <file>...]
+//                                                       report files of it, and their samples
 //
 // Checks, in order:
 // - buf.yaml, as R83 fixes it — one module, contracts/, no deps, the lint categories STANDARD,
@@ -59,6 +61,13 @@
 // and held to the rules of contracts/README.md, section 11, by the same code, which asks nothing
 // of the files together. Prints one line per error, file:line: message, and exits 1 if there are
 // any, or 2 when it cannot check at all.
+//
+// With --reports, report-check: the files of the runner's report another NovaTrail repository
+// names, the same way (the second and the fourth amendments of 2026-11-08 to R95). Each is read as
+// spec's examples of the report are and held to the rules of section 14 by the same code; with
+// --samples and the sample files after it, each sample is checked as sample-check checks it, no two
+// share an ID, and each report is held to them as the examples of the report are held to the
+// samples beside them.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -66,10 +75,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, inRepository, isMain } from "../shared.mjs";
 import { breaking, build, contractFiles, format, generate, lint, previousRelease } from "./buf.mjs";
-import { FOLDER, PACKAGE, checkVectors } from "./observation.mjs";
-import { checkReportExamples, isReport } from "./report.mjs";
+import { FOLDER, PACKAGE, checkVectors, plural } from "./observation.mjs";
+import { checkReport, checkReportExamples, isReport, reportOf, sampleBreaches } from "./report.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
-import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, sampleOf } from "./sample.mjs";
+import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, sameIds, sampleOf } from "./sample.mjs";
 import { FOLDER as RULES, checkVectors as checkRuleVectors } from "./strokes.mjs";
 import { checkTypeScript } from "./typescript.mjs";
 
@@ -248,43 +257,107 @@ export function checkContracts(root) {
   return done();
 }
 
+// The files another repository names, by their paths from root, the folder the check runs from:
+// each [name, path to read], a file named twice once, by its first name. A path that leaves root or
+// names no file throws, before buf runs.
+function namedFiles(root, files, what) {
+  const named = new Map();
+  for (const file of files) {
+    const full = inRepository(file, root);
+    const stat = fs.statSync(full, { throwIfNoEntry: false });
+    if (!stat) throw new Error(`${file}: there is no such file`);
+    if (!stat.isFile()) throw new Error(`${file}: not a file; name the ${what} files themselves`);
+    if (!named.has(full)) named.set(full, file);
+  }
+  return [...named].map(([full, file]) => [file, full]);
+}
+
+// The image buf builds of this spec's contracts/: it throws when buf build fails.
+function specImage() {
+  const built = build(SPEC);
+  if (built.errors.length) throw new Error(`buf build fails in ${SPEC}: ${built.errors.map(({ file, line, message }) => `${file}:${line}: ${message}`).join("; ")}`);
+  return built.image;
+}
+
+// A message of the image, or a throw: an image of this spec's contracts/ without it, or with a value
+// of an enum its rules do not name, checks nothing.
+function known({ message, error }) {
+  if (error) throw new Error(error);
+  return message;
+}
+
 // The sample files another repository names, by their paths from root, the folder sample-check
 // runs from: { errors, samples }, the errors by the paths given, and a file named twice checked
 // once, by its first name. A path that leaves root or names no file throws before buf runs, and
 // so does an image of this spec's contracts/ with no Sample.
 export function checkSampleFiles(root, files) {
   if (files.length === 0) throw new Error("name the sample files to check");
-  const named = new Map();
-  for (const file of files) {
-    const full = inRepository(file, root);
-    const stat = fs.statSync(full, { throwIfNoEntry: false });
-    if (!stat) throw new Error(`${file}: there is no such file`);
-    if (!stat.isFile()) throw new Error(`${file}: not a file; name the sample files themselves`);
-    if (!named.has(full)) named.set(full, file);
-  }
-  const built = build(SPEC);
-  if (built.errors.length) throw new Error(`buf build fails in ${SPEC}: ${built.errors.map(({ file, line, message }) => `${file}:${line}: ${message}`).join("; ")}`);
-  const known = sampleOf(built.image);
-  if (known.error) throw new Error(known.error);
-  const read = [...named].map(([full, file]) => [file, full]);
-  return { errors: checkSamples(known.message, read).errors.sort(byPlace), samples: read.length };
+  const read = namedFiles(root, files, "sample");
+  const message = known(sampleOf(specImage()));
+  return { errors: checkSamples(message, read).errors.sort(byPlace), samples: read.length };
 }
 
-// sample-check: what it found in the files, a line each, and its verdict; 2 when it cannot check.
-function sampleCheck(files) {
+// What the samples a call of report-check names are to the messages of the check.
+const GIVEN = { measured: "the samples given with --samples that its capability measures", none: "no sample given with --samples" };
+
+// The report files another repository names, by their paths from root, the folder report-check runs
+// from, and, unless null, the sample files to hold them to: { errors, reports, samples }, the errors
+// by the paths given, and each list read as checkSampleFiles reads one. A report is held to the
+// samples only when every sample holds its rules and no two share an ID, since a report would
+// otherwise be held to what is not there.
+export function checkReportFiles(root, reports, samples = null) {
+  if (reports.length === 0) throw new Error("name the report files to check");
+  if (samples?.length === 0) throw new Error("name the sample files after --samples, or leave it out");
+  const reportFiles = namedFiles(root, reports, "report");
+  const sampleFiles = samples && namedFiles(root, samples, "sample");
+  const image = specImage();
+  const report = known(reportOf(image));
+  const errors = [];
+  let held = null;
+  if (sampleFiles) {
+    const checked = checkSamples(known(sampleOf(image)), sampleFiles);
+    errors.push(...checked.errors, ...sameIds(checked.ids));
+    if (errors.length === 0) held = checked.samples;
+  }
+  for (const [file, full] of reportFiles) {
+    const { problems, value, lineOf } = checkReport(fs.readFileSync(full), report);
+    errors.push(...problems.map((one) => ({ file, ...one })));
+    if (problems.length === 0 && held) errors.push(...sampleBreaches(value, held, GIVEN).map(({ at, message }) => ({ file, line: lineOf(at), message })));
+  }
+  return { errors: errors.sort(byPlace), reports: reportFiles.length, samples: sampleFiles?.length ?? 0 };
+}
+
+// A check of the files another repository names, as its recipe runs it: what check found, a line
+// each, and its verdict, which ok words; the status 1 when a file breaks a rule, and 2 when it cannot
+// check at all.
+function run(name, check, ok) {
   try {
-    const { errors, samples } = checkSampleFiles(process.cwd(), files);
-    for (const { file, line, message } of errors) console.log(`${file}:${line}: ${message}`);
-    if (errors.length) {
-      console.log(`sample-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
+    const found = check();
+    for (const { file, line, message } of found.errors) console.log(`${file}:${line}: ${message}`);
+    if (found.errors.length) {
+      console.log(`${name}: ${plural(found.errors.length, "error")}`);
       process.exitCode = 1;
     } else {
-      console.log(`sample-check: ok — ${samples} sample${samples === 1 ? "" : "s"}`);
+      console.log(`${name}: ok — ${ok(found)}`);
     }
   } catch (error) {
-    console.error(`sample-check: ${error.message}`);
+    console.error(`${name}: ${error.message}`);
     process.exitCode = 2;
   }
+}
+
+// sample-check: the sample files.
+const sampleCheck = (files) => run("sample-check", () => checkSampleFiles(process.cwd(), files), ({ samples }) => plural(samples, "sample"));
+
+// report-check: the report files before --samples, and the sample files after it.
+function reportCheck(args) {
+  const at = args.indexOf("--samples");
+  const reports = at < 0 ? args : args.slice(0, at);
+  const samples = at < 0 ? null : args.slice(at + 1);
+  run("report-check", () => {
+    if (samples?.includes("--samples")) throw new Error("--samples comes once, before all the sample files");
+    return checkReportFiles(process.cwd(), reports, samples);
+  }, (found) => plural(found.reports, "report") + (samples ? `, held to ${plural(found.samples, "sample")}` : ""));
 }
 
 // What a run found, in a line.
@@ -317,11 +390,13 @@ function contractsCheck() {
 }
 
 if (isMain(import.meta.url)) {
-  // Every argument after --samples is a file, one beginning with - too.
+  // Every argument after --samples is a file, one beginning with - too; after --reports, every one
+  // but the first --samples, which divides the reports from their samples.
   const args = process.argv.slice(2);
   if (args[0] === "--samples") sampleCheck(args.slice(1));
+  else if (args[0] === "--reports") reportCheck(args.slice(1));
   else if (args.length) {
-    console.error("contracts-check: the only argument is --samples, with the sample files to check");
+    console.error("contracts-check: the only arguments are --samples, with the sample files to check, and --reports, with the report files to check and, after --samples, their samples");
     process.exitCode = 2;
   } else contractsCheck();
 }
