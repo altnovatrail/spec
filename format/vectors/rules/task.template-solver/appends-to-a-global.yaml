@@ -1,0 +1,32 @@
+# The program's globals are frozen once its top level has run (section 24), so solve cannot append
+# to the list seen: it fails on the first instance, a = 1, "cannot append to frozen list". Were they
+# not frozen, its result on an instance would depend on the instances before it.
+id: appends-to-a-global
+template:
+  parameters:
+    a: {from: 1, to: 3}
+  solver:
+    program: |
+      seen = []
+
+      def solve(numbers):
+          seen.append(numbers["a"])
+          return {"double": 2 * numbers["a"]}
+    results: [double]
+statement:
+  - text: "Double {a}."
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "2 × {a} ="
+      - binding: box
+        check:
+          kind: number
+          key: "{double}"
+solution:
+  - text: "2 × {a} = {double}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

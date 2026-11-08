@@ -35,6 +35,7 @@ count: 64
 attempts:
   - seed: "0"
     numbers: {first: 2, second: 3, product: 6, one_more: 4}
+    open_view_digest: sha256:ed1e2c77551770d3839487f418179aa11a2b05a93308116f698b4f3e9981ccef
     instance:
       id: missing-factor
       statement:
@@ -62,6 +63,7 @@ attempts:
       difficulty: 2
   - seed: "18446744073709551615"
     numbers: {first: 7, second: 5, product: 35, one_more: 6}
+    open_view_digest: sha256:256a950918dfc9371ce57fd1b4af0b715cf2fecaa77e45d0e601f40434509687
     instance:
       id: missing-factor
       statement:
@@ -89,6 +91,7 @@ attempts:
       difficulty: 2
   - seed: "20261027"
     numbers: {first: 6, second: 4, product: 24, one_more: 5}
+    open_view_digest: sha256:0cf63de5130b6d85ddef224e6885f1a4d7b5c12a571f776d20f2fce8ec19e401
     instance:
       id: missing-factor
       statement:

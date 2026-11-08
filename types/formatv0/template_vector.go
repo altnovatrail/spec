@@ -6,9 +6,9 @@ package formatv0
 //
 // A test vector of templates (sections 23 and 24 of the format text): a template, the number of its
 // instances, the names that its solver gets, when it has one, and attempts, each with its seed, the
-// numbers of the instance that the seed picks, and that instance. An implementation counts the
-// instances, picks the instance of each seed, runs the solver on it, replaces the placeholders, and
-// gets exactly these.
+// numbers of the instance that the seed picks, that instance, and the digest of its open view. An
+// implementation counts the instances, picks the instance of each seed, runs the solver on it,
+// replaces the placeholders, and gets exactly these.
 type TemplateVector struct {
 	// The template: a task with a template, which breaks no rule of a task.
 	Task Task `json:"task"`
@@ -25,7 +25,8 @@ type TemplateVector struct {
 
 // Attempt is the type of template-vector.schema.json#/$defs/attempt.
 //
-// An attempt on the template: its seed, and the instance that the seed picks.
+// An attempt on the template: its seed, the instance that the seed picks, and the digest of that
+// instance's open view.
 type Attempt struct {
 	// The seed of the attempt, whose place of randomness with the names template, the task's ID and
 	// instance picks the instance.
@@ -36,4 +37,8 @@ type Attempt struct {
 	// The instance that the seed picks: the template with its numbers, the solver's results among
 	// them, in the place of its placeholders, and without its template.
 	Instance Task `json:"instance"`
+	// The digest of the open view of the instance, as a sample of the eval protocol names the task
+	// it answers: sha256: and the SHA-256 of the open view's canonical text, the instance's numbers
+	// in place (section 25 of the format text; contracts/README.md, section 11).
+	OpenViewDigest Digest `json:"open_view_digest"`
 }

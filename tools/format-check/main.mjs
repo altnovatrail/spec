@@ -29,7 +29,8 @@
 //   manifest.format-version, which name one no reader of it reads (section 11);
 // - each vector of the open view, vectors/open-view/<part>/<case>/: part.yaml follows the YAML rules
 //   and passes the part's schema, open-view.yaml follows the YAML rules, and the open view of the
-//   part, built from the marks x-open (section 6), is open-view.yaml;
+//   part, built from the marks x-open (section 6), is open-view.yaml; a task's holds digest.yaml
+//   too, the digest of its open view, as a sample of the eval protocol names it;
 // - the vectors of verdicts, vectors/verdicts/<kind>/<case>.yaml, a folder for each check kind of the
 //   task's schema that gives verdicts: each case follows the YAML rules and passes the schema of
 //   verdict vectors, checks every answer slot by its folder's kind, and gives the verdicts that
@@ -71,7 +72,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { INDEX_FILE, INDEX_MODULES, LESSON_LEAKS, PACKAGE_FILE, PACKAGE_MODULE, VERSION_FILE, VERSION_MODULE, VERSION_PUBLISHED, checkExample, checkIndexVector, checkVersionVector, checkLeakVector, checkModuleCase, checkOpenView, checkPackageVector, checkRandomVector, checkTemplateVector, checkTierVector, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { INDEX_FILE, INDEX_MODULES, LESSON_LEAKS, PACKAGE_FILE, PACKAGE_MODULE, VERSION_FILE, VERSION_MODULE, VERSION_PUBLISHED, checkExample, checkIndexVector, checkVersionVector, checkLeakVector, checkModuleCase, checkOpenView, checkPackageVector, checkRandomVector, checkTemplateVector, checkTierVector, DIGEST_FILE, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
 import { INDEX_PART } from "./index.mjs";
 import { listFolder, readLayout } from "./module.mjs";
 import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
@@ -82,6 +83,9 @@ const UNKNOWN = "format-check does not know it: the task that brings it to forma
 // The vectors of the open view (section 9): a part, and the open view it gives.
 const OPEN_VIEW = "open-view";
 const OPEN_VIEW_FILES = ["part.yaml", "open-view.yaml"];
+// A vector of a task's open view holds digest.yaml too: the digest of the open view, as a sample of
+// the eval protocol names it.
+const openViewFilesOf = (term) => (term === TASK ? [...OPEN_VIEW_FILES, DIGEST_FILE] : OPEN_VIEW_FILES);
 // The vectors of verdicts (section 9), and the schemas they read: theirs, and the task's, whose
 // check kinds they are of.
 const VERDICTS = "verdicts";
@@ -258,7 +262,8 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
       continue;
     }
     const read = (name) => fs.readFileSync(path.join(root, file, name));
-    for (const problem of checkOpenView(read("part.yaml"), read("open-view.yaml"), { term, validate: schemas.validatorOf(term), version, openView: schemas.openView })) {
+    const digestBytes = openViewFilesOf(term).includes(DIGEST_FILE) ? read(DIGEST_FILE) : undefined;
+    for (const problem of checkOpenView(read("part.yaml"), read("open-view.yaml"), { term, validate: schemas.validatorOf(term), version, openView: schemas.openView, digestBytes })) {
       report(`${file}/${problem.file}`, problem.line, problem.message);
     }
   }
@@ -430,7 +435,7 @@ function checkRuleFolders(files, rules, report) {
 // file, <case>.yaml, or a folder laid out as a module, <case>/: an example of a whole module is a
 // folder, a case of a YAML rule a file, and a case of a rule of a whole module a folder. A vector of
 // the open view is a folder of its own kind, vectors/open-view/<part>/<case>/, which holds
-// part.yaml and open-view.yaml and nothing else; a vector of verdicts is a file,
+// part.yaml and open-view.yaml and nothing else, and a task's digest.yaml too; a vector of verdicts is a file,
 // vectors/verdicts/<kind>/<case>.yaml, and so are a vector of the leak check, vectors/leaks/<case>.yaml,
 // a vector of the generator, vectors/random/<case>.yaml, a vector of templates,
 // vectors/templates/<case>.yaml, and a vector of tiers, vectors/tiers/<case>.yaml. A vector of
@@ -563,9 +568,10 @@ function readOpenViewFiles({ root, report, files }, dir) {
       }
       const names = entriesOf(root, entry.file);
       const held = names.filter((name) => name.isFile).map((name) => name.name);
-      const fits = names.length === OPEN_VIEW_FILES.length && OPEN_VIEW_FILES.every((name) => held.includes(name));
+      const wanted = openViewFilesOf(term.name);
+      const fits = names.length === wanted.length && wanted.every((name) => held.includes(name));
       if (fits) files.openViews.push({ file: entry.file, term: term.name });
-      else report(entry.file, 0, `a vector of the open view holds ${OPEN_VIEW_FILES.join(" and ")}, and nothing else`);
+      else report(entry.file, 0, `a vector of the open view of ${term.name} holds ${wanted.slice(0, -1).join(", ")} and ${wanted.at(-1)}, and nothing else`);
     }
   }
 }

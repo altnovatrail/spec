@@ -12,6 +12,7 @@ count: 3
 attempts:
   - seed: "0"
     numbers: {a: 2}
+    open_view_digest: sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
     instance:
       id: three
       items:
@@ -20,6 +21,7 @@ attempts:
               check: {kind: number, key: "2"}
   - seed: "1"
     numbers: {a: 3}
+    open_view_digest: sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
     instance:
       id: three
       items:
