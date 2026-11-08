@@ -2,8 +2,12 @@
 # mathtrail-standalone, in content/catalogs/traps.json at commit 55dd676, each with its description
 # and its advice. Each ID is the trap's, with _ made -. standalone gives the traps no skills: the six
 # it added name, in its SPEC 1.3, the topics they are mostly used in, and those are their skills here,
-# the topics of the module's skill graph. The text of one description names a trap by standalone's
-# own ID, percent_wrong_base, as it is written there. The traps carry this notice:
+# the topics of the module's skill graph, as standalone's reference tasks at commit 42b4408 give them:
+# tasks of ratio-sharing give part-whole-swap, and none gives percent-wrong-base. Four texts are not
+# standalone's. The description of part-whole-swap names a trap by its ID here, percent-wrong-base;
+# that of percent-wrong-base names each wrong quantity its tasks take, not the price alone; and the
+# advice of time-unit-mixup and of wrong-parity holds no number, as section 20 of the format's text
+# asks of a text of the whole module. The traps carry this notice:
 #
 # MIT License
 #
@@ -59,23 +63,23 @@ traps:
     trap_advice: "For each speaker, try both: what follows if they tell the truth, and what follows if they lie."
   time-unit-mixup:
     description: Mixed up hours and minutes, or counted 100 minutes in an hour.
-    trap_advice: Draw a clock face and count on in minutes, remembering that an hour has 60 of them, not 100.
+    trap_advice: Draw a clock face and count on in minutes, remembering how many minutes an hour has.
   number-from-text:
     description: Answered with a number from the question without computing anything.
     trap_advice: "Before writing a number down, say which calculation it comes from: a number copied from the question is rarely the answer."
   wrong-parity:
     description: Got the parity wrong, for example thought that odd plus odd is odd.
-    trap_advice: Check parity on small numbers first, such as 1 + 3 and 3 + 5, then say the rule out loud.
+    trap_advice: Check the rule on a few small sums first, then say it out loud.
   ignored-condition:
     description: Ignored one of the conditions, such as "different", "exactly once" or "at both ends".
     trap_advice: Reread the question and mark every condition, such as “different” or “exactly once”, then check the answer against each.
   percent-wrong-base:
-    description: "Took the percentage of the wrong quantity: of the new price instead of the old one."
-    skills: [percent-basic, ratio-sharing]
+    description: "Took the percentage of the wrong quantity: of the new amount instead of the old one, of a part instead of the whole, or the other way round."
+    skills: [percent-basic]
     trap_advice: "Ask first: a percentage of what? Write that whole amount down before taking the percentage."
   part-whole-swap:
-    description: "Swapped the part and the whole, either way: answered with one when the other was asked for, or took a fraction of one as if it were a fraction of the other; a percentage of the wrong quantity is percent_wrong_base instead."
-    skills: [fractions-parts, percent-basic]
+    description: "Swapped the part and the whole, either way: answered with one when the other was asked for, or took a fraction of one as if it were a fraction of the other; a percentage of the wrong quantity is percent-wrong-base instead."
+    skills: [fractions-parts, percent-basic, ratio-sharing]
     trap_advice: Draw the whole as a bar and shade the part, then check which of the two the question asks for.
   ratio-total-confusion:
     description: Treated a share of a ratio as a share of the total, or added the parts of the ratio wrongly.

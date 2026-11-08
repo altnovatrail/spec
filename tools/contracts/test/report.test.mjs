@@ -214,6 +214,15 @@ test("a report of the examples is of the samples beside it", () => {
   filled.writer = "WRITER_ADULT";
   const boxes = filled.workbook.filled_boxes.map(({ answer_slot }) => ({ answer_slot, truth: { verdict: "not_yet", reason: "", trap: "" }, mirrored: false, crossed_out: false, readings: [] }));
   assert.deepEqual(ofSamples(changed(reading(), (r) => (r.samples[2] = { sample: "synthetic-1105", measured: { answer_slots: boxes } })), book), []);
+  // A sheet that shows no stroke has no crops and goes to no model, as an empty box does: it is
+  // measured with no answer slot.
+  const empty = sampleMap();
+  const sheet = empty.get("synthetic-1103");
+  delete sheet.sheet.crops;
+  sheet.markup.truth.answer_slots = sheet.markup.truth.answer_slots.map(({ answer_slot }) => ({ answer_slot, unreadable: "UNREADABLE_BLANK" }));
+  assert.deepEqual(ofSamples(reading(), empty), ['the answer slots are ["1.1"], and those of the truth that a model reads []']);
+  assert.deepEqual(ofSamples(changed(reading(), (r) => (r.samples[0].measured.answer_slots = [])), empty), []);
+  assert.deepEqual(ofSamples(changed(reading(), (r) => (r.samples[0].measured.answer_slots = []))), ['the answer slots are [], and those of the truth that a model reads ["1.1"]']);
   // An essay's people and truth are those of its markup.
   assert.deepEqual(ofSamples(changed(assessment(), (r) => r.samples[0].measured.essay.people.pop())), [`the people's marks are ${JSON.stringify(assessment().samples[0].measured.essay.people.slice(0, -1))}, and the markup's ${JSON.stringify(assessment().samples[0].measured.essay.people)}`]);
   assert.deepEqual(ofSamples(changed(assessment(), (r) => (r.samples[0].measured.essay.truth = "UNREADABLE_ILLEGIBLE"))), ['the truth of the essay is "UNREADABLE_ILLEGIBLE", and the markup\'s "its text"']);

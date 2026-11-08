@@ -204,8 +204,9 @@ const measures = (capability, sample) => (capability === RUBRIC) === Boolean(sam
 // a report on the capability set of the examples names every one of them that its capability
 // measures; each sample it names is one of them; a child's is refused as REFUSAL_CHILD, one without
 // markup as REFUSAL_NO_MARKUP, and any other is measured; a measured sample's answer slots are the
-// truth's that a model reads — on a workbook, its filled boxes — with the markup's notes, and its
-// essay the truth's and the marks of its markup.
+// truth's that a model reads — on a workbook, its filled boxes, and on a sheet that shows no stroke,
+// which has no crops, none — with the markup's notes, and its essay the truth's and the marks of its
+// markup.
 export function sampleBreaches(report, samples) {
   const found = [];
   const breach = (at, message) => found.push({ at, message });
@@ -243,8 +244,10 @@ export function sampleBreaches(report, samples) {
       breach([...at, "measured"], `the sample ${result.sample} is an essay, which a run of reading does not measure`);
       return;
     }
+    // A sheet that shows no stroke has no crops (section 11): like an empty box, it goes to no model.
+    const blank = sample.sheet && !sample.sheet.crops;
     const filled = sample.workbook && new Set(sample.workbook.filled_boxes.map((box) => placeOf(box.answer_slot ?? {})));
-    const read = truth.filter((slot) => !filled || filled.has(placeOf(slot.answer_slot ?? {}))).map((slot) => placeOf(slot.answer_slot ?? {}));
+    const read = blank ? [] : truth.filter((slot) => !filled || filled.has(placeOf(slot.answer_slot ?? {}))).map((slot) => placeOf(slot.answer_slot ?? {}));
     const given = result.measured.answer_slots.map((slot) => placeOf(slot.answer_slot ?? {}));
     if (!isDeepStrictEqual(given, read)) breach([...at, "measured", "answer_slots"], `the answer slots are ${show(given)}, and those of the truth that a model reads ${show(read)}`);
     const notes = new Map((sample.markup.notes ?? []).map((note) => [placeOf(note.answer_slot ?? {}), note]));

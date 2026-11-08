@@ -9,18 +9,19 @@ import { documents, mathtrailRepositories, novatrailRepositories, otherTexts } f
 
 export const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const mathtrail = mathtrailRepositories.map(escape).join("|");
-// Most of NovaTrail's names are also English words ("R99 modules are data"); .github and the names
-// with a hyphen, module-kit or skill-map, are words of no prose.
-const isWord = (name) => /^\p{L}+$/u.test(name);
-const words = novatrailRepositories.filter(isWord).map(escape).join("|");
-const names = novatrailRepositories.filter((name) => !isWord(name)).map(escape).join("|");
+const novatrail = novatrailRepositories.map(escape).join("|");
 
-// "… canvas-api" right after a citation. A name that is also a word counts only where it ends the
-// phrase: "«R3 api»", "(R3 api)", "R3 api — …". The other names count wherever a word ends with
-// them, as MathTrail's do: "R19 .github и его цитаты", "R03 module-kit и его рецепты" (R32).
-const FOREIGN =
-  `(?:${mathtrail}|${names})(?![\\p{L}\\p{N}-])` + `|(?:${words})(?=$|[^\\p{L}\\p{N}\\s-]|\\s+[^\\p{L}\\p{N}\\s])`;
+// "… canvas-api" right after a citation. A repository's name counts wherever a word ends with it,
+// MathTrail's and NovaTrail's alike, though most of NovaTrail's are also English words: "R03 modules
+// сравнивает граф" is R03 of modules, and "R10 engine решил" R10 of engine (R32, the 2026-11-08
+// amendment). So the name of a repository never comes right after an own citation as a word of
+// prose: "modules берут его по R07", not "по R07 modules берут".
+const FOREIGN = `(?:${mathtrail}|${novatrail})(?![\\p{L}\\p{N}-])`;
 const FOREIGN_SUFFIX = new RegExp(`^\\s+(?:${FOREIGN})`, "u");
+// "… engine" after О-, П- or Т-: spec's registers wherever they are cited, which no other
+// NovaTrail repository keeps, so such a name after one is a word of the phrase: "П-15 app
+// показывает его всем".
+const NOVATRAIL_SUFFIX = new RegExp(`^\\s+(?:${novatrail})(?![\\p{L}\\p{N}-])`, "u");
 // "`docs/spec.md` canvas-api, раздел 4.2": a MathTrail repository's name, a whole word, and a
 // comma right before "раздел N" make it a section of that repository's document. NovaTrail's
 // names are also words of prose — "в приложении app, раздел 3" — and do not count here.
@@ -123,7 +124,9 @@ export function findNumbers(block) {
       last = next;
       i++;
     }
-    items.push({ first, last, scope: inSpans(spans, first.start) ? "foreign" : scopeAfter(text, last.end) });
+    let scope = inSpans(spans, first.start) ? "foreign" : scopeAfter(text, last.end);
+    if (scope === "foreign" && first.prefix !== "R" && NOVATRAIL_SUFFIX.test(text.slice(last.end))) scope = "own";
+    items.push({ first, last, scope });
   }
   // Back from the end of each list, the last item's suffix reaches the items before it.
   for (let i = items.length - 2; i >= 0; i--) {
