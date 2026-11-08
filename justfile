@@ -268,14 +268,16 @@ GO_LICENSES := "github.com/google/go-licenses/v2@v2.0.1"
 # The folder of each Go module of spec, one a line: each go.mod git tracks or would, outside any
 # testdata/ — go.mod at the root, contracts, tools/gomod and tools/types/roundtrip today. The tests
 # of tools/gomod build their repositories in temporary folders, and the copies new-repo builds in
-# .repos/ git ignores. A new module is checked without a change here. A module that holds no Go
+# .repos/ git ignores. The lock file of gopls that the go kind of repo-template gives a copy,
+# repo-template/kinds/go/gopls/, is no module of spec but a file of the template: it is left out
+# (R102). A new module is checked without a change here. A module that holds no Go
 # package yet is named and left out, since go vet, go test and govulncheck refuse a pattern that
 # matches nothing, as contracts did until its first .proto file, with only the generators of buf (R83).
 [private]
 _go-modules:
     #!/usr/bin/env bash
     set -euo pipefail
-    modules=$(git ls-files --cached --others --exclude-standard -- 'go.mod' '*/go.mod' ':(glob,exclude)**/testdata/**' \
+    modules=$(git ls-files --cached --others --exclude-standard -- 'go.mod' '*/go.mod' ':(glob,exclude)**/testdata/**' ':(glob,exclude)repo-template/**' \
         | sed -e 's|/*go\.mod$||' -e 's|^$|.|' | sort -u)
     if ! grep -qx '\.' <<< "$modules"; then
         echo "_go-modules: git lists no go.mod at the root of spec" >&2

@@ -1,7 +1,13 @@
 {
   "docs": {},
   "go": {
-    "extensions": ["golang.go@0.56.1"]
+    "extensions": ["golang.go@0.56.1"],
+    "settings": {
+      "go.toolsManagement.autoUpdate": false,
+      "go.toolsManagement.checkForUpdates": "off",
+      "go.lintOnSave": "off"
+    },
+    "devcontainer": "kinds/go"
   },
   "typescript": {
     "extensions": ["biomejs.biome@3.8.1"],

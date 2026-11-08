@@ -10,7 +10,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { newRepo } from "../new-repo.mjs";
 import { checkRepo } from "../check.mjs";
-import { parseJsonc } from "../devcontainer.mjs";
+import { goplsVersions, parseJsonc } from "../devcontainer.mjs";
 import { FILL, fillPlaceholders, placeholders, walk } from "../copy.mjs";
 import { escape, findNumbers } from "../../docs-check/citations.mjs";
 import { GIT, TAR, byCodeUnits } from "../../shared.mjs";
@@ -98,6 +98,11 @@ const EXPECTED_FILES = [
   "docs/architecture.md",
   "docs/decisions.md",
 ];
+// The go kind's folder puts the lock file of gopls beside the Dockerfile (R102).
+const GOPLS_FILES = [".devcontainer/gopls/go.mod", ".devcontainer/gopls/go.sum"];
+// The version of gopls the go kind pins, in its lock file and its Dockerfile alike.
+const GOPLS = goplsVersions(path.join(specRoot, "repo-template/kinds/go")).lock;
+const filesOf = (kind) => (kind === "go" ? [...EXPECTED_FILES, ...GOPLS_FILES].sort() : EXPECTED_FILES);
 
 test("a draft of each kind holds the whole template, its values filled in", () => {
   for (const [name, kind, card] of [
@@ -106,8 +111,8 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     ["canvas", "typescript", "3.2"],
   ]) {
     const dir = draft(name, kind, card);
-    assert.deepEqual(walk(dir), EXPECTED_FILES);
-    for (const file of EXPECTED_FILES) assert.deepEqual(placeholders(read(dir, file)), [], `${name}: ${file} keeps a placeholder`);
+    assert.deepEqual(walk(dir), filesOf(kind));
+    for (const file of filesOf(kind)) assert.deepEqual(placeholders(read(dir, file)), [], `${name}: ${file} keeps a placeholder`);
     assert.match(read(dir, "README.md"), new RegExp(`^# ${name}\n`));
     assert.match(read(dir, "CLAUDE.md"), new RegExp(`architecture ${card.replace(".", "\\.")} spec`));
     assert.match(read(dir, "docs/decisions.md"), /заведён 2026-01-02 из заготовки `spec` v0\.0\.0-test/);
@@ -116,7 +121,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     // A file docs-check-repo does not read cites no number without a suffix, read as docs-check
     // reads a citation: in the copy it would be one of the repository's own (RULES.md, Citations).
     // В17 .github.
-    for (const file of EXPECTED_FILES.filter((f) => !f.endsWith(".md"))) {
+    for (const file of filesOf(kind).filter((f) => !f.endsWith(".md"))) {
       const own = findNumbers({ text: read(dir, file) }).filter((n) => n.scope === "own");
       assert.deepEqual(own.map((n) => n.prefix + n.digits), [], `${name}: ${file} cites a number of spec's without its suffix`);
     }
@@ -215,13 +220,24 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     // without them the Dockerfile is spec's.
     const lines = kinds[kind].toolchain ? suffixed(read(specRoot, path.join("repo-template", kinds[kind].toolchain)).trimEnd()) : null;
     const ownName = (text) => suffixed(text.replace("the NovaTrail spec", `NovaTrail's ${name}`));
+    // The lines of the kind's folder stand in the devcontainer stage, right before the step of
+    // Claude Code, and the rest of the folder lies beside the Dockerfile as it is.
+    const folder = kinds[kind].devcontainer ? path.join(specRoot, "repo-template", kinds[kind].devcontainer) : null;
+    const stage = folder ? suffixed(read(folder, "Dockerfile").trimEnd()) : null;
+    let without = dockerfile;
     if (lines) {
       const toolchainStage = dockerfile.slice(0, dockerfile.indexOf("\n# -- devcontainer:"));
       assert.ok(toolchainStage.endsWith(`\n\n${lines}\n`), "the kind's lines end the toolchain stage");
-      assert.equal(dockerfile.replace(`${lines}\n\n`, ""), ownName(specDockerfile));
-    } else {
-      assert.equal(dockerfile, ownName(specDockerfile));
+      without = without.replace(`${lines}\n\n`, "");
     }
+    if (stage) {
+      const devcontainerStage = dockerfile.slice(dockerfile.indexOf("\nFROM toolchain AS devcontainer\n"));
+      assert.ok(devcontainerStage.includes(`\n${stage}\n\n# Claude Code comes from the registry`), "the kind's lines come right before the step of Claude Code");
+      without = without.replace(`${stage}\n\n`, "");
+      for (const file of ["gopls/go.mod", "gopls/go.sum"]) assert.equal(read(dir, `.devcontainer/${file}`), read(folder, file), `${file} is the kind's`);
+      assert.match(read(dir, ".devcontainer/devcontainer.json"), /\/\/ The image copies nothing from the repository but what its kind puts in this folder,\n\s+\/\/ gopls\/, so it is built from this folder alone\.\n/);
+    }
+    assert.equal(without, ownName(specDockerfile));
     assert.equal(/PLAYWRIGHT_BROWSERS_PATH/.test(dockerfile), kind === "typescript", "the browser comes with the typescript kind alone");
     const rest = ({ name: _n, runArgs: _r, postStartCommand: _p, customizations: _c, ...others }) => others;
     assert.deepEqual(rest(dc), rest(spec));
@@ -251,10 +267,26 @@ test("a kind the recipe cannot read stops it, and one written as a list is read 
     [{ toolchain: "../files/.devcontainer/Dockerfile" }, /kinds\.json: go: toolchain names a file in repo-template\/kinds\/, not "\.\.\/files/],
     [{ toolchain: "" }, /toolchain names a file in repo-template\/kinds\/, not ""/],
     [{ toolchain: "kinds/go.Dockerfile" }, /kinds\.json: go: toolchain names kinds\/go\.Dockerfile, which repo-template does not have/],
+    [{ devcontainer: "../files/.devcontainer" }, /kinds\.json: go: devcontainer names a folder in repo-template\/kinds\/, not "\.\.\/files/],
+    [{ devcontainer: "kinds/none" }, /kinds\.json: go: devcontainer names kinds\/none, which is no folder of repo-template/],
+    [{ devcontainer: "kinds/typescript.Dockerfile" }, /devcontainer names kinds\/typescript\.Dockerfile, which is no folder of repo-template/],
   ]) {
     const root = standIn({ change: (r) => fs.writeFileSync(path.join(r, "repo-template/kinds.json"), JSON.stringify({ ...kinds, go: kind })) });
     assert.throws(() => draft("engine", "go", "3.8", root), message);
   }
+  // A folder of the kind holds its Dockerfile and the files the image copies, and spec's
+  // Dockerfile the step the lines go before.
+  for (const [change, message] of [
+    [(r) => fs.rmSync(path.join(r, "repo-template/kinds/go/Dockerfile")), /kinds\.json: go: kinds\/go has no Dockerfile, the lines of the devcontainer stage/],
+    [(r) => fs.rmSync(path.join(r, "repo-template/kinds/go/gopls"), { recursive: true }), /kinds\.json: go: kinds\/go holds its Dockerfile alone/],
+    [(r) => fs.writeFileSync(path.join(r, ".devcontainer/Dockerfile"), read(specRoot, ".devcontainer/Dockerfile").replace("# Claude Code comes from the registry", "# Claude Code is installed from the registry")), /the step of Claude Code in the devcontainer stage: expected/],
+    [(r) => fs.writeFileSync(path.join(r, "repo-template/kinds/go/host-network.sh"), "#!/bin/sh\n"), /the kind's folder holds host-network\.sh, which spec's devcontainer has: the kind adds files, and does not replace spec's/],
+  ]) {
+    assert.throws(() => draft("engine", "go", "3.8", standIn({ change })), message);
+  }
+  // A file of the kind's folder keeps its mode in the copy, as the template's own files do.
+  const withScript = standIn({ change: (r) => fs.writeFileSync(path.join(r, "repo-template/kinds/go/gopls/build.sh"), "#!/bin/sh\n", { mode: 0o755 }) });
+  assert.ok(fs.statSync(path.join(draft("engine", "go", "3.8", withScript), ".devcontainer/gopls/build.sh")).mode & 0o100, "a script of the kind's folder lost its executable bit");
   // The latest tag before R79 writes a kind as its list of extensions: `just new-repo` still builds.
   const root = standIn({ change: (r) => fs.writeFileSync(path.join(r, "repo-template/kinds.json"), JSON.stringify({ docs: [], go: ["golang.go@0.56.1"], typescript: [] })) });
   const spec = parseJsonc(read(specRoot, ".devcontainer/devcontainer.json")).customizations.vscode.extensions;
@@ -263,6 +295,16 @@ test("a kind the recipe cannot read stops it, and one written as a list is read 
     assert.deepEqual(devcontainer(dir).customizations.vscode.extensions, [...spec, ...extensions]);
     assert.doesNotMatch(read(dir, ".devcontainer/Dockerfile"), /PLAYWRIGHT/);
   }
+});
+
+test("the go kind's lock file and its Dockerfile name one version of gopls, and new-repo-check holds a copy to it (R102)", () => {
+  const folder = path.join(specRoot, "repo-template/kinds/go");
+  const { lock, arg } = goplsVersions(folder);
+  assert.match(lock, /^\d+\.\d+\.\d+$/);
+  assert.equal(arg, lock, "kinds/go/Dockerfile and kinds/go/gopls/go.mod name one version");
+  assert.match(read(folder, "gopls/go.mod"), /^tool golang\.org\/x\/tools\/gopls$/m, "gopls is a tool of the lock file");
+  assert.match(read(folder, "gopls/go.mod"), /^go 1\.\d+\.\d+$/m);
+  assert.equal(read(folder, "gopls/go.mod").match(/^go (\S+)$/m)[1], read(specRoot, ".devcontainer/Dockerfile").match(/^ARG GO_VERSION=(\S+)$/m)[1], "the lock file's Go is the toolchain stage's");
 });
 
 test(".github gets a container name without the dot", () => {
@@ -349,12 +391,17 @@ test("check: what a careless fill can leave", async () => {
     ["AGENTS.md", "Codex", "Kodex", /^AGENTS\.md:0: differs from spec's own$/],
     ["RUN.md", "# RUN.md — план работ learner-model", "# RUN.md — план работ {{name}}", /^RUN\.md:1: \{\{name\}\} is left from the template$/],
     [".devcontainer/devcontainer.json", '"name": "novatrail-learner-model"', '"name": "novatrail-spec"', /^\.devcontainer\/devcontainer\.json:\d+: spec's container name or network is left/],
+    // The lock file of gopls and its ARG, raised apart: CI never builds that stage (R102).
+    [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}`, "ARG GOPLS_VERSION=0.0.1", new RegExp(`^\\.devcontainer/gopls/go\\.mod:0: it names gopls ${GOPLS.replaceAll(".", "\\.")}, and \\.devcontainer/Dockerfile has GOPLS_VERSION 0\\.0\\.1: raise them together \\(R102 spec\\)$`)],
+    [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}\n`, "", /^\.devcontainer\/gopls\/go\.mod:0: it names gopls [\d.]+, and \.devcontainer\/Dockerfile has GOPLS_VERSION unset/],
+    [".devcontainer/gopls/go.sum", "golang.org/x/", "", /^\.devcontainer\/gopls\/go\.sum:0: the file is missing, and \.devcontainer\/Dockerfile builds gopls from it \(R102 spec\)$/, true],
     ["CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/main).", /the links to spec name different versions: main, v0\.0\.0-test$/],
   ];
-  for (const [file, from, to, expected] of cases) {
+  for (const [file, from, to, expected, gone] of cases) {
     const dir = draft("learner-model", "go", "3.8");
     fill(dir);
-    change(dir, file, from, to);
+    if (gone) fs.rmSync(path.join(dir, file));
+    else change(dir, file, from, to);
     const found = await messages(dir);
     assert.equal(found.length, 1, `${file}: expected one error, got:\n${found.join("\n")}`);
     assert.match(found[0], expected);
