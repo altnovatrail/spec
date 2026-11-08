@@ -244,8 +244,21 @@ test("dates and counts after a section are not sections", async () => {
   assert.deepEqual(await errorsOf(edits), []);
 });
 
-test("NovaTrail's repository names in prose do not hide our numbers", async () => {
-  await expectOnly([["README.md", "Decision R02 and", "Per R99 modules are data, and"]], /^README\.md:8: R99 does not exist/);
+test("a NovaTrail repository's name after a citation is its suffix, even where the phrase goes on", async () => {
+  // "R03 modules сравнивает граф" is R03 of modules, and "R10 engine решил" R10 of engine: neither
+  // is looked up in the own register (R32, the 2026-11-08 amendment).
+  assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02; R99 modules сравнивает граф, R98 engine решил, R97 app и R96 api, and"]]), []);
+  assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02, architecture 9.9 canvas говорит, and"]]), []);
+  // With the name in code, and in a list, too.
+  assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02; R99 и R98 `modules` берут, and"]]), []);
+  // An own number with no name after it is still looked up.
+  await expectOnly([["README.md", "Decision R02 and", "Per R99: modules are data, and"]], /^README\.md:8: R99 does not exist/);
+});
+
+test("О-, П- and Т- are spec's wherever they are cited, so a NovaTrail name after one is prose", async () => {
+  await expectOnly([["README.md", "Decision R02 and", "Decision R02; П-9 app показывает, and"]], /^README\.md:8: П-9 does not exist/);
+  // A MathTrail repository's name still makes it another log's: no register here holds it.
+  assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02; П-9 canvas-api, and"]]), []);
 });
 
 test("«(раздел N)» right after a link means that document's section", async () => {
@@ -441,7 +454,8 @@ test("--component runs from a repository's spec/ submodule and checks the reposi
   }
 });
 
-// Cases from В22 .github: a name that no prose has is a suffix wherever a word ends with it.
+// Cases from В22 .github: a name that no prose has is a suffix wherever a word ends with it — and,
+// since В5 sim, so is every NovaTrail name (R32, the 2026-11-08 amendment).
 
 test(".github and a hyphenated name are another repository's even when the phrase goes on", async () => {
   const edits = [["README.md", "Its own log starts at `R01`.", "Its own log starts at `R01`. R19 .github и его цитаты, R03 module-kit и его рецепты, R06 и R07 skill-map, architecture 9.9 .github и её тексты."]];
@@ -449,9 +463,10 @@ test(".github and a hyphenated name are another repository's even when the phras
   assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Per R99 .github and R98 `learner-model` and"]]), []);
 });
 
-test("a name that is also a word still counts only where it ends the phrase", async () => {
-  await componentOnly([["README.md", "Its own log starts at `R01`.", "Its own log starts at `R01`. R03 canvas и его тесты."]], /^README\.md:\d+: R03 does not exist/);
-  await expectOnly([["README.md", "Decision R02 and", "Per R99 api and"]], /^README\.md:8: R99 does not exist/);
+test("a name that is also a word is a suffix wherever a word ends with it, as the others are", async () => {
+  assert.deepEqual(await componentErrors([["README.md", "Its own log starts at `R01`.", "Its own log starts at `R01`. R03 canvas и его тесты, R10 engine решил."]]), []);
+  assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Per R99 api and"]]), []);
+  await expectOnly([["README.md", "Decision R02 and", "Per R99 apis and"]], /^README\.md:8: R99 does not exist/);
 });
 
 test("a hyphen that goes on is part of another word, not the name", async () => {
