@@ -510,35 +510,55 @@ export function checkSample(bytes, message) {
   }
   if (markup?.marks) seen.add("marks");
   if (markup?.truth && "workbook" in value) seen.add("a workbook's truth");
-  return { problems, seen, value };
+  return { problems, seen, value, lineOf };
 }
 
-// Sample files against the message, each a [name, path to read]: { errors, seen, samples }, the
-// errors { file, line, message } of each file by its name, seen what they show together, and
-// samples the files that hold, by their IDs. spec's examples and the files another repository
+// Sample files against the message, each a [name, path to read]: { errors, seen, samples, ids }, the
+// errors { file, line, message } of each file by its name, seen what they show together, samples
+// the files that hold, by their IDs, and ids the ID of each that holds, { file, line, id }, in the
+// order of the files. Two of them may share one, which samples then holds by the last: sameIds
+// finds them where the files are held together. spec's examples and the files another repository
 // names are read by this same code (R93).
 export function checkSamples(message, files) {
   const errors = [];
   const seen = new Set();
   const samples = new Map();
+  const ids = [];
   for (const [file, full] of files) {
-    const { problems, seen: found, value } = checkSample(fs.readFileSync(full), message);
+    const { problems, seen: found, value, lineOf } = checkSample(fs.readFileSync(full), message);
     errors.push(...problems.map((one) => ({ file, ...one })));
-    if (problems.length === 0) samples.set(value.id, value);
+    if (problems.length === 0) {
+      samples.set(value.id, value);
+      ids.push({ file, line: lineOf(["id"]), id: value.id });
+    }
     for (const each of found) seen.add(each);
   }
-  return { errors, seen, samples };
+  return { errors, seen, samples, ids };
+}
+
+// Of the samples that hold, ids as checkSamples gives them, the second of two with one ID and every
+// one after it: a report names a sample by its ID, so the samples it is held to have one each.
+export function sameIds(ids) {
+  const first = new Map();
+  const errors = [];
+  for (const { file, line, id } of ids) {
+    if (first.has(id)) errors.push({ file, line, message: `the ID ${id} is ${first.get(id)}'s too: a report names a sample by its ID, so the samples it is held to have one ID each` });
+    else first.set(id, file);
+  }
+  return errors;
 }
 
 // The examples of the sample file at root, files of contracts/, by the image buf builds: the errors,
 // { file, line, message } — each example's, and, when every one holds, what they lack together:
 // every purpose, writer, ink, surface and event of the history of writing, and of a markup every
-// kind of part, parts and marks, a first error, a final answer and a workbook's truth; and samples,
-// those that hold by their IDs, which the examples of the runner's report are of.
+// kind of part, parts and marks, a first error, a final answer and a workbook's truth, and two of
+// one ID; and samples, those that hold by their IDs, which the examples of the runner's report are
+// of.
 export function checkExamples(root, image, files) {
   const known = sampleOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }], samples: new Map() };
-  const { errors, seen, samples } = checkSamples(known.message, files.map((file) => [file, path.join(root, file)]));
+  const { errors, seen, samples, ids } = checkSamples(known.message, files.map((file) => [file, path.join(root, file)]));
+  errors.push(...sameIds(ids));
   if (errors.length === 0) {
     for (const each of [...PURPOSES, ...WRITERS, "history", "geometry", "sheet", "workbook", ...EVENTS, ...PART_KINDS, ...MARKUP]) {
       if (!seen.has(each)) errors.push({ file: FOLDER, line: 0, message: `no example shows ${each}: together the examples show every purpose, writer, ink, surface and event of ${TEXT}, and of a markup every kind of part, parts and marks, a first error, a final answer and a workbook's truth` });

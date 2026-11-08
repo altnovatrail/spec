@@ -65,7 +65,7 @@ export const WHITE_SPACE = /^\p{White_Space}*$/u;
 
 const show = (value) => JSON.stringify(value);
 const placeOf = (place) => `${place?.item ?? "?"}.${place?.slot ?? "?"}`;
-const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+export const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 // The message Observation and the reasons of the enum Unreadable, of the image buf builds of
 // contracts/: { message, reasons }, or { error }. Every file of the package is read, whichever

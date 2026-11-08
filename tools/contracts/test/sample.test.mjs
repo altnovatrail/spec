@@ -97,6 +97,23 @@ test("an example that breaks a rule fails, and the coverage is not looked at", (
   }
 });
 
+test("no two examples have one ID: a report names a sample by its ID", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "samples-"));
+  try {
+    const folder = path.join(dir, FOLDER);
+    fs.mkdirSync(folder, { recursive: true });
+    for (const file of files) fs.copyFileSync(path.join(root, file), path.join(dir, file));
+    const copy = `${FOLDER}/copy.json`;
+    fs.copyFileSync(path.join(root, files[0]), path.join(dir, copy));
+    const { id } = JSON.parse(fs.readFileSync(path.join(root, files[0]), "utf8"));
+    const { errors } = checkExamples(dir, image, [...files, copy]);
+    assert.deepEqual(errors.map((error) => [error.file, error.message]), [[copy, `the ID ${id} is ${files[0]}'s too: a report names a sample by its ID, so the samples it is held to have one ID each`]]);
+    assert.ok(errors[0].line > 1, "the line of the ID");
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("the image must hold the sample, and name only the purposes and writers the rules know", () => {
   assert.match(sampleOf({ file: [] }).error, /^the image of buf build has no novatrail\.eval\.v1\.Sample/);
   const more = structuredClone(image);
