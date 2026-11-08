@@ -676,6 +676,16 @@ export enum UncheckedCause {
    * @generated from enum value: UNCHECKED_CAUSE_NO_MARK = 4;
    */
   NO_MARK = 4,
+
+  /**
+   * The check of the answer slot gave no verdict on a valid observation: its predicate gave an
+   * error or a result that is not a bool, or ran to its bound of steps or to the clock of the code
+   * that gives the verdicts (section 15 of the module format). The task's, not the model's; never
+   * an essay's, whose rubric has no predicate.
+   *
+   * @generated from enum value: UNCHECKED_CAUSE_CHECK = 5;
+   */
+  CHECK = 5,
 }
 
 /**

@@ -212,6 +212,11 @@ const (
 	UncheckedCause_UNCHECKED_CAUSE_INVALID UncheckedCause = 3
 	// The assessment of an essay marked no criterion.
 	UncheckedCause_UNCHECKED_CAUSE_NO_MARK UncheckedCause = 4
+	// The check of the answer slot gave no verdict on a valid observation: its predicate gave an
+	// error or a result that is not a bool, or ran to its bound of steps or to the clock of the code
+	// that gives the verdicts (section 15 of the module format). The task's, not the model's; never
+	// an essay's, whose rubric has no predicate.
+	UncheckedCause_UNCHECKED_CAUSE_CHECK UncheckedCause = 5
 )
 
 // Enum value maps for UncheckedCause.
@@ -222,6 +227,7 @@ var (
 		2: "UNCHECKED_CAUSE_LIMIT",
 		3: "UNCHECKED_CAUSE_INVALID",
 		4: "UNCHECKED_CAUSE_NO_MARK",
+		5: "UNCHECKED_CAUSE_CHECK",
 	}
 	UncheckedCause_value = map[string]int32{
 		"UNCHECKED_CAUSE_UNSPECIFIED": 0,
@@ -229,6 +235,7 @@ var (
 		"UNCHECKED_CAUSE_LIMIT":       2,
 		"UNCHECKED_CAUSE_INVALID":     3,
 		"UNCHECKED_CAUSE_NO_MARK":     4,
+		"UNCHECKED_CAUSE_CHECK":       5,
 	}
 )
 
@@ -1402,13 +1409,14 @@ const file_novatrail_eval_v1_report_proto_rawDesc = "" +
 	"\x0fREFUSAL_INVALID\x10\x01\x12\x15\n" +
 	"\x11REFUSAL_NO_MARKUP\x10\x02\x12\x16\n" +
 	"\x12REFUSAL_OTHER_TASK\x10\x03\x12\x11\n" +
-	"\rREFUSAL_CHILD\x10\x04*\xa3\x01\n" +
+	"\rREFUSAL_CHILD\x10\x04*\xbe\x01\n" +
 	"\x0eUncheckedCause\x12\x1f\n" +
 	"\x1bUNCHECKED_CAUSE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17UNCHECKED_CAUSE_FAILURE\x10\x01\x12\x19\n" +
 	"\x15UNCHECKED_CAUSE_LIMIT\x10\x02\x12\x1b\n" +
 	"\x17UNCHECKED_CAUSE_INVALID\x10\x03\x12\x1b\n" +
-	"\x17UNCHECKED_CAUSE_NO_MARK\x10\x04*\x9a\x01\n" +
+	"\x17UNCHECKED_CAUSE_NO_MARK\x10\x04\x12\x19\n" +
+	"\x15UNCHECKED_CAUSE_CHECK\x10\x05*\x9a\x01\n" +
 	"\x13CriterionAssessment\x12$\n" +
 	" CRITERION_ASSESSMENT_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18CRITERION_ASSESSMENT_MET\x10\x01\x12 \n" +

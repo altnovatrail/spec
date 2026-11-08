@@ -86,7 +86,7 @@ test("a report that breaks a rule fails, and the coverage is not looked at", () 
 test("the image must hold the report, and name only the values the rules know", () => {
   assert.match(reportOf({ file: [] }).error, /^the image of buf build has no novatrail\.eval\.v1\.Report/);
   assert.deepEqual(checkReportExamples(root, { file: [] }, reports, sampleMap()).errors.map((error) => error.file), [FOLDER]);
-  for (const [name, value] of [["Capability", "CAPABILITY_VOICE"], ["Refusal", "REFUSAL_LATE"], ["CriterionAssessment", "CRITERION_ASSESSMENT_HALF"]]) {
+  for (const [name, value] of [["Capability", "CAPABILITY_VOICE"], ["Refusal", "REFUSAL_LATE"], ["UncheckedCause", "UNCHECKED_CAUSE_LATE"], ["CriterionAssessment", "CRITERION_ASSESSMENT_HALF"]]) {
     const more = structuredClone(image);
     const file = more.file.find((one) => one.package === "novatrail.eval.v1" && one.enumType?.some((each) => each.name === name));
     file.enumType.find((one) => one.name === name).value.push({ name: value, number: 9 });
@@ -158,10 +158,13 @@ test("a run of reading: answer slots, a truth with its verdict, and a reading fo
   expectOnly(slot((s) => (s.truth = { verdict: "correct", reason: "", trap: "sign-on-transfer" })), /^the verdict on the truth is "correct" with the trap "sign-on-transfer": only "not_yet" has a trap$/);
   expectOnly(slot((s) => (s.truth = { verdict: "unchecked", reason: "", trap: "" })), /^the truth gets no verdict, so the markup does not fit the task: the runner refuses the sample as REFUSAL_INVALID$/);
   expectOnly(slot((s) => s.readings.pop()), /^the answer slot has 1 readings, and the run 2 repeats$/);
-  expectOnly(slot((s) => (s.readings[0].verdict = { verdict: "unchecked", reason: "", trap: "" })), /^the verdict is unchecked, and its cause is "UNCHECKED_CAUSE_UNSPECIFIED"/);
+  expectOnly(slot((s) => (s.readings[0].verdict = { verdict: "unchecked", reason: "", trap: "" })), /^the verdict is unchecked, and its cause is "UNCHECKED_CAUSE_UNSPECIFIED": UNCHECKED_CAUSE_FAILURE, UNCHECKED_CAUSE_LIMIT, UNCHECKED_CAUSE_INVALID, UNCHECKED_CAUSE_CHECK$/);
   expectOnly(slot((s) => (s.readings[0].unchecked = "UNCHECKED_CAUSE_LIMIT")), /^the reading gave a verdict, and it names the cause "UNCHECKED_CAUSE_LIMIT"/);
   expectOnly(slot((s) => (s.readings[0] = { verdict: { verdict: "unchecked", reason: "", trap: "" }, unchecked: "UNCHECKED_CAUSE_NO_MARK" })), /^UNCHECKED_CAUSE_NO_MARK is an essay's/);
   expectOnly(slot((s) => (s.readings[0] = { verdict: { verdict: "unchecked", reason: "", trap: "" }, unchecked: "UNCHECKED_CAUSE_INVALID" })));
+  // The check's own cause: a predicate that gave no verdict on a valid observation.
+  expectOnly(slot((s) => (s.readings[0] = { verdict: { verdict: "unchecked", reason: "", trap: "" }, unchecked: "UNCHECKED_CAUSE_CHECK" })));
+  expectOnly(slot((s) => (s.readings[0].unchecked = "UNCHECKED_CAUSE_CHECK")), /^the reading gave a verdict, and it names the cause "UNCHECKED_CAUSE_CHECK"/);
 });
 
 test("a run of assessment: the essay, the people's marks, and an outcome for each repeat", () => {
@@ -179,7 +182,8 @@ test("a run of assessment: the essay, the people's marks, and an outcome for eac
   expectOnly(essay((e) => (e.readings[0].assessment.criteria[0].assessment = "CRITERION_ASSESSMENT_UNSPECIFIED")), /^the mark "CRITERION_ASSESSMENT_UNSPECIFIED" is none of /);
   expectOnly(essay((e) => (e.readings[2] = { unreadable: "UNREADABLE_AMBIGUOUS" })), /^an essay is read as UNREADABLE_BLANK or UNREADABLE_ILLEGIBLE, not "UNREADABLE_AMBIGUOUS"$/);
   expectOnly(essay((e) => (e.readings[2] = { unchecked: "UNCHECKED_CAUSE_NO_MARK" })));
-  expectOnly(essay((e) => (e.readings[2] = { unchecked: "UNCHECKED_CAUSE_UNSPECIFIED" })), /^the cause "UNCHECKED_CAUSE_UNSPECIFIED" is none of /);
+  expectOnly(essay((e) => (e.readings[2] = { unchecked: "UNCHECKED_CAUSE_UNSPECIFIED" })), /^the cause "UNCHECKED_CAUSE_UNSPECIFIED" is none of UNCHECKED_CAUSE_FAILURE, UNCHECKED_CAUSE_LIMIT, UNCHECKED_CAUSE_INVALID, UNCHECKED_CAUSE_NO_MARK$/);
+  expectOnly(essay((e) => (e.readings[2] = { unchecked: "UNCHECKED_CAUSE_CHECK" })), /^UNCHECKED_CAUSE_CHECK is a predicate's, and the rubric of an essay has none$/);
   expectOnly(essay((e) => (e.readings[2] = {})), /^the reading says neither assessment, unreadable nor unchecked$/);
 });
 

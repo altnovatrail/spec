@@ -29,7 +29,7 @@ const RUBRIC = "CAPABILITY_RUBRIC_ASSESSMENT";
 export const CAPABILITIES = [HANDWRITING, RUBRIC];
 export const CODES = ["VERDICT_CODE_MODULE_KIT", "VERDICT_CODE_RUNNER"];
 export const REFUSALS = ["REFUSAL_INVALID", "REFUSAL_NO_MARKUP", "REFUSAL_OTHER_TASK", "REFUSAL_CHILD"];
-export const CAUSES = ["UNCHECKED_CAUSE_FAILURE", "UNCHECKED_CAUSE_LIMIT", "UNCHECKED_CAUSE_INVALID", "UNCHECKED_CAUSE_NO_MARK"];
+export const CAUSES = ["UNCHECKED_CAUSE_FAILURE", "UNCHECKED_CAUSE_LIMIT", "UNCHECKED_CAUSE_INVALID", "UNCHECKED_CAUSE_NO_MARK", "UNCHECKED_CAUSE_CHECK"];
 export const ASSESSMENTS = ["CRITERION_ASSESSMENT_MET", "CRITERION_ASSESSMENT_NOT_MET", "CRITERION_ASSESSMENT_NONE"];
 const ENUMS = [["Capability", CAPABILITIES], ["VerdictCode", CODES], ["Refusal", REFUSALS], ["UncheckedCause", CAUSES], ["CriterionAssessment", ASSESSMENTS]];
 // The reasons of the verdict "unreadable": the module format's, blank and notation, and the
@@ -37,6 +37,11 @@ const ENUMS = [["Capability", CAPABILITIES], ["VerdictCode", CODES], ["Refusal",
 const VERDICT_REASONS = new Set(["blank", "notation", ...REASONS.values()]);
 const ESSAY_READ = [...ESSAY_REASONS].join(" or ");
 const NO_MARK = "UNCHECKED_CAUSE_NO_MARK";
+// The check's own cause: a predicate that gave no verdict on a valid observation (R102). An essay's
+// rubric has no predicate, so its readings never name it.
+const CHECK = "UNCHECKED_CAUSE_CHECK";
+const SLOT_CAUSES = CAUSES.filter((cause) => cause !== NO_MARK);
+const ESSAY_CAUSES = CAUSES.filter((cause) => cause !== CHECK);
 
 const COMMIT = /^[0-9a-f]{40}$/;
 const NAME = "[a-z][a-z0-9]*(?:-[a-z0-9]+)*";
@@ -76,7 +81,7 @@ function modelBreaches(model, at, breach) {
 function readingBreaches(reading, at, breach) {
   verdictBreaches(reading.verdict, [...at, "verdict"], "the verdict on the reading", breach);
   const unchecked = reading.verdict?.verdict === "unchecked";
-  if (unchecked && !CAUSES.includes(reading.unchecked)) breach([...at, "unchecked"], `the verdict is unchecked, and its cause is ${show(reading.unchecked)}: ${CAUSES.filter((cause) => cause !== NO_MARK).join(", ")}`);
+  if (unchecked && !CAUSES.includes(reading.unchecked)) breach([...at, "unchecked"], `the verdict is unchecked, and its cause is ${show(reading.unchecked)}: ${SLOT_CAUSES.join(", ")}`);
   else if (!unchecked && reading.unchecked !== "UNCHECKED_CAUSE_UNSPECIFIED") breach([...at, "unchecked"], `the reading gave a verdict, and it names the cause ${show(reading.unchecked)}: a cause stands beside "unchecked" alone`);
   else if (reading.unchecked === NO_MARK) breach([...at, "unchecked"], `${NO_MARK} is an essay's, whose assessment marked no criterion`);
 }
@@ -126,7 +131,8 @@ function essayBreaches(measured, repeats, at, breach) {
     } else if ("unreadable" in reading) {
       if (!ESSAY_REASONS.has(reading.unreadable)) breach([...at, "unreadable"], `an essay is read as ${ESSAY_READ}, not ${show(reading.unreadable)}`);
     } else if ("unchecked" in reading) {
-      if (!CAUSES.includes(reading.unchecked)) breach([...at, "unchecked"], `the cause ${show(reading.unchecked)} is none of ${CAUSES.join(", ")}`);
+      if (reading.unchecked === CHECK) breach([...at, "unchecked"], `${CHECK} is a predicate's, and the rubric of an essay has none`);
+      else if (!ESSAY_CAUSES.includes(reading.unchecked)) breach([...at, "unchecked"], `the cause ${show(reading.unchecked)} is none of ${ESSAY_CAUSES.join(", ")}`);
     } else breach(at, "the reading says neither assessment, unreadable nor unchecked");
   });
 }
