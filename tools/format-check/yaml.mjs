@@ -8,7 +8,7 @@
 // reads the value. yaml itself is lenient where the YAML specification is not, so what it lets
 // through and YAML forbids is refused here as not YAML.
 
-import { LineCounter, Parser, Scalar, isAlias, isMap, isScalar, isSeq, parseAllDocuments } from "yaml";
+import { LineCounter, Parser, Scalar, isAlias, isMap, isScalar, isSeq, parseAllDocuments, visit } from "yaml";
 
 // The rules of section 4, in its order.
 export const YAML_RULES = [
@@ -44,7 +44,10 @@ export function readModuleFile(bytes) {
   const invalid = firstInvalidByte(bytes);
   if (invalid >= 0) breach("yaml.encoding", lineOfByte(bytes, invalid), `byte ${invalid + 1} is not UTF-8`);
   // The rest is read even so, with each byte that is not UTF-8 replaced, so that every rule is seen.
-  const text = new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes);
+  // A line break is CR LF, CR or LF, and the processor reads each as LF (YAML 1.2.2, 5.4, read
+  // 2026-11-08: «Line breaks inside scalar content must be normalized by the YAML processor»): yaml
+  // takes LF alone, and would read a CR as a character of the line.
+  const text = new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes).replace(/\r\n?/g, "\n");
 
   // "To ensure readability, YAML streams use only the printable subset of the Unicode character
   // set" (YAML 1.2.2, 5.1). yaml reads control characters and U+FFFE all the same; go-yaml does not.
@@ -55,15 +58,38 @@ export function readModuleFile(bytes) {
   }
 
   const lines = new LineCounter();
-  const documents = parseAllDocuments(text, { ...OPTIONS, lineCounter: lines });
   const lineAt = (offset) => lines.linePos(offset).line;
+  const tokens = [...new Parser().parse(text)];
+  // A document suffix, "...", with no document before it is no document: the stream is
+  // «l-document-prefix* l-any-document? ( l-document-suffix+ l-document-prefix* l-any-document? …
+  // )*» (YAML 1.2.2, 9.2, production 211, read 2026-11-08). yaml makes a document of it, whose token
+  // has no "---", no property and no node; any other is a document, a tag or an anchor alone too.
+  const parts = tokens.filter((token) => token.type === "document");
+  const documents = parseAllDocuments(text, { ...OPTIONS, lineCounter: lines }).filter((document, i) => document.errors.length || parts[i]?.start.length || parts[i]?.value);
   for (const document of documents) {
     for (const error of document.errors) notYaml.push({ line: lineAt(error.pos[0]), message: error.message.split("\n")[0] });
+  }
+  // U+FEFF, the byte order mark, «may appear at the start of any document», and «byte order marks
+  // are also allowed inside quoted scalars» (YAML 1.2.2, 5.2, read 2026-11-08); it is no nb-char,
+  // so no plain or block scalar and no comment holds it, while yaml reads it anywhere. One at the
+  // start of a document is yaml.encoding's, as yaml's own token of it is; any other outside quotes is
+  // no YAML.
+  if (text.includes("\uFEFF")) {
+    const marks = new Set(tokens.filter((token) => token.type === "byte-order-mark").map((token) => token.offset));
+    const quoted = [];
+    for (const document of documents) {
+      visit(document, { Scalar: (_, node) => (node.type === Scalar.QUOTE_DOUBLE || node.type === Scalar.QUOTE_SINGLE ? quoted.push(node.range) : undefined) });
+    }
+    for (let at = text.indexOf("\uFEFF"); at >= 0; at = text.indexOf("\uFEFF", at + 1)) {
+      if (marks.has(at) || quoted.some(([start, end]) => at > start && at < end)) continue;
+      if (startsDocument(text, at)) breach("yaml.encoding", lineAt(at), "a byte order mark");
+      else notYaml.push({ line: lineAt(at), message: "U+FEFF: YAML allows it only at the start of a document or in a quoted scalar, not in a plain or block scalar or in a comment" });
+    }
   }
   if (notYaml.length) return { value: undefined, violations, notYaml };
 
   // What stands between documents: a byte order mark, a directive.
-  for (const token of new Parser().parse(text)) {
+  for (const token of tokens) {
     if (token.type === "byte-order-mark") breach("yaml.encoding", lineAt(token.offset), "a byte order mark");
     else if (token.type === "directive") breach("yaml.no-directives", lineAt(token.offset), `the directive ${token.source}`);
   }
@@ -227,6 +253,7 @@ function isDigit(char) {
 }
 
 // c-printable: x09, x0A, x0D, x20–x7E, x85, xA0–xD7FF, xE000–xFFFD, x10000–x10FFFF (YAML 1.2.2, 5.1).
+// readModuleFile has turned every CR into LF before it asks, but the set is YAML's, x0D in it.
 function isPrintable(code) {
   return (
     code === 0x09 ||
@@ -238,6 +265,15 @@ function isPrintable(code) {
     (code >= 0xe000 && code <= 0xfffd) ||
     (code >= 0x10000 && code <= 0x10ffff)
   );
+}
+
+// Whether the U+FEFF at at is a byte order mark at the start of a document (YAML 1.2.2, 9.1.1): at
+// the start of a line, after no other character of it but U+FEFF, and on the stream's first line or
+// before a marker of a document, a comment or nothing.
+function startsDocument(text, at) {
+  const start = text.lastIndexOf("\n", at - 1) + 1;
+  if (!/^\uFEFF*$/u.test(text.slice(start, at))) return false;
+  return start === 0 || /^\uFEFF*(?:---|\.\.\.|#|\n|$)/u.test(text.slice(at + 1));
 }
 
 // U+FDD0 to U+FDEF, and the last two code points of every plane.
@@ -287,8 +323,9 @@ function sequenceStart(bytes, at) {
   return at;
 }
 
+// The line of a byte, with CR LF, CR and LF each a line break (YAML 1.2.2, 5.4).
 function lineOfByte(bytes, offset) {
   let line = 1;
-  for (let at = 0; at < offset; at++) if (bytes[at] === 0x0a) line++;
+  for (let at = 0; at < offset; at++) if (bytes[at] === 0x0a || (bytes[at] === 0x0d && bytes[at + 1] !== 0x0a)) line++;
   return line;
 }

@@ -166,3 +166,54 @@ test("review: a byte that is not UTF-8 is named at the start of its sequence", (
   assert.match(read([...Buffer.from("a: \""), 0xed, 0xa0, 0x80, ...Buffer.from("\"\n")]).violations[0].message, /^byte 5 /);
   assert.match(read([...Buffer.from("a: x"), 0xf0, 0x9f]).violations[0].message, /^byte 5 /);
 });
+
+// Three places where yaml reads otherwise than YAML 1.2.2 (R102, В21 module-kit).
+
+test("a line break is CR LF, CR or LF, and each reads as LF (YAML 1.2.2, 5.4)", () => {
+  for (const source of ["a: 1\rb: 2\r", "a: 1\r\nb: 2\r\n", "a: 1\nb: 2\r"]) assert.deepEqual(read(source).value, { a: 1, b: 2 }, JSON.stringify(source));
+  // A block scalar's lines and a quoted scalar folded over lines come out with LF.
+  assert.deepEqual(read("a: |\r  one\r  two\r").value, { a: "one\ntwo\n" });
+  assert.deepEqual(read('a: "one\r  two"\r').value, { a: "one two" });
+  // A CR is a line break, so "y" begins a line of its own, and a key with no ":" is no YAML.
+  assert.ok(read("a: x\ry\n").notYaml.length > 0);
+  // Lines are counted by CR too: of a character, and of a byte that is not UTF-8.
+  assert.equal(read("a: 1\rb: \u0001\r").notYaml[0].line, 2);
+  assert.equal(read([...Buffer.from("a: 1\rb: 2\r\nc: \"x"), 0xff, ...Buffer.from('"\r')]).violations[0].line, 3);
+});
+
+test("a document suffix with no document before it is no document (YAML 1.2.2, 9.2)", () => {
+  assert.deepEqual(rulesOf("...\na: 1\n"), []);
+  assert.deepEqual(read("...\na: 1\n").value, { a: 1 });
+  assert.deepEqual(rulesOf("# A comment.\n...\n---\na: 1\n"), []);
+  assert.deepEqual(rulesOf("a: 1\n...\n...\n"), []);
+  breaksOnly("yaml.single-document", ["...\n", "...\n# Only a comment.\n"]);
+  // A document of a tag or an anchor alone is a document, after "..." too.
+  assert.deepEqual(rulesOf("a: 1\n...\n!t\n"), ["yaml.single-document", "yaml.no-tags", "yaml.plain-strings"]);
+  assert.deepEqual(rulesOf("a: 1\n...\n&x\n"), ["yaml.single-document", "yaml.no-anchors", "yaml.plain-strings"]);
+  assert.deepEqual(rulesOf("&a\n"), ["yaml.no-anchors", "yaml.plain-strings"]);
+  assert.deepEqual(rulesOf("!!str\n"), ["yaml.no-tags", "yaml.plain-strings"]);
+  // An empty document that "---" begins is a document, and its node an empty plain scalar.
+  assert.deepEqual(rulesOf("---\n...\na: 1\n"), ["yaml.single-document", "yaml.plain-strings"]);
+});
+
+test("U+FEFF stands in a quoted scalar, and nowhere else in a document (YAML 1.2.2, 5.2)", () => {
+  for (const source of ["a: \uFEFFx\n", "a: x\uFEFF\n", "a: |\n  \uFEFFx\n", "a: >\n  x\uFEFF\n", "a: 1 # \uFEFF\n", "# \uFEFF\na: 1\n", "k\uFEFF: 1\n", "a: [x\uFEFF]\n"]) {
+    const { value, notYaml } = read(source);
+    assert.deepEqual(notYaml.map((one) => one.message), ["U+FEFF: YAML allows it only at the start of a document or in a quoted scalar, not in a plain or block scalar or in a comment"], JSON.stringify(source));
+    assert.equal(value, undefined);
+  }
+  assert.equal(read("a: 1\nb: \uFEFFx\n").notYaml[0].line, 2);
+  assert.deepEqual(read('a: "\uFEFFx"\n').value, { a: "\uFEFFx" });
+  assert.deepEqual(read("a: '\uFEFFx'\n").value, { a: "\uFEFFx" });
+  assert.deepEqual(read('{"\uFEFFk": [\'\uFEFF\']}\n').value, { "\uFEFFk": ["\uFEFF"] });
+  // At the start of a document it is a byte order mark, which yaml.encoding refuses: of the stream,
+  // twice there, or before "---" or "...".
+  assert.deepEqual(rulesOf("\uFEFFa: 1\n"), ["yaml.encoding"]);
+  assert.deepEqual(rulesOf("\uFEFF\uFEFFa: 1\n"), ["yaml.encoding"]);
+  assert.deepEqual(rulesOf("# c\n\uFEFF---\na: 1\n"), ["yaml.encoding"]);
+  for (const source of ["a: 1\n\uFEFF---\nb: 2\n", "a: 1\n\uFEFF...\n"]) {
+    const { violations, notYaml } = read(source);
+    assert.ok(violations.some((one) => one.rule === "yaml.encoding"), JSON.stringify(source));
+    assert.ok(!notYaml.some((one) => one.message.startsWith("U+FEFF")), JSON.stringify(source));
+  }
+});
