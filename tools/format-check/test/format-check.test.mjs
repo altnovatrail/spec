@@ -573,14 +573,34 @@ test("a vector of the open view: the part passes its schema, and both files foll
   expectOnly([[`${OPEN}/open-view.yaml`, null, "title: yes\n"]], /title-and-tags\/open-view\.yaml:1: yaml\.plain-strings/);
 });
 
-test("a vector of the open view is a folder of a part of the layout, with part.yaml and open-view.yaml alone", () => {
-  const holds = /title-and-tags:0: a vector of the open view holds part\.yaml and open-view\.yaml, and nothing else/;
+test("a vector of the open view is a folder of a part of the layout, with part.yaml and open-view.yaml alone, and a task's with digest.yaml", () => {
+  const holds = /title-and-tags:0: a vector of the open view of sample holds part\.yaml and open-view\.yaml, and nothing else/;
   expectOnly([[`${OPEN}/notes.txt`, null, "Notes.\n"]], holds);
   expectOnly([[`${OPEN}/open-view.yaml`, "", null]], holds);
   expectOnly([["format/vectors/open-view/sample/a-case.yaml", null, "title: A sample\n"]], /open-view\/sample\/a-case\.yaml:0: a vector of the open view is a folder <case>\//);
   expectOnly([["format/vectors/open-view/Sample/a-case/part.yaml", null, "title: A sample\n"]], /open-view\/Sample:0: vectors of the open view are in open-view\/<part>\/<case>\//);
   const other = ["format/vectors/open-view/other/a-case", ["part.yaml", "open-view.yaml"]];
   expectOnly(other[1].map((name) => [`${other[0]}/${name}`, null, "title: A sample\n"]), /open-view\/other\/a-case:0: other is no part of the layout of a module/);
+});
+
+// A vector of a task's open view, with task a part of the fixture's layout, whose schema marks
+// nothing of a task open: its open view is {}, and digest.yaml names the digest of that.
+const TASK_VIEW = "format/vectors/open-view/task/a-case";
+const EMPTY_DIGEST = "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a";
+const taskView = (digest = `open_view_digest: ${EMPTY_DIGEST}\n`) => [
+  [README, "| `samples/<id>.yaml` | `sample` | Samples, a file for each, named by its id. |\n", "| `samples/<id>.yaml` | `sample` | Samples, a file for each, named by its id. |\n| `tasks/<id>.yaml` | `task` | Tasks, a file for each. |\n"],
+  [`${TASK_VIEW}/part.yaml`, null, 'id: a-case\nitems:\n  - answer_slots:\n      - binding: anywhere\n        check: {kind: number, key: "2"}\n'],
+  [`${TASK_VIEW}/open-view.yaml`, null, "{}\n"],
+  ...(digest === null ? [] : [[`${TASK_VIEW}/digest.yaml`, null, digest]]),
+];
+
+test("a vector of a task's open view names the digest of the open view in digest.yaml", () => {
+  assert.deepEqual(errorsOf(taskView()), []);
+  expectOnly(taskView(null), /open-view\/task\/a-case:0: a vector of the open view of task holds part\.yaml, open-view\.yaml and digest\.yaml, and nothing else$/);
+  expectOnly(taskView(`open_view_digest: sha256:${"0".repeat(64)}\n`), new RegExp(`a-case/digest\\.yaml:0: open_view_digest is "sha256:0{64}", and the digest of the open view is ${EMPTY_DIGEST}$`));
+  expectOnly(taskView(`digest: ${EMPTY_DIGEST}\n`), new RegExp(`a-case/digest\\.yaml:0: holds open_view_digest alone, the digest of the open view: ${EMPTY_DIGEST}$`));
+  expectOnly(taskView(`open_view_digest: ${EMPTY_DIGEST}\nnote: x\n`), /a-case\/digest\.yaml:0: holds open_view_digest alone/);
+  expectOnly(taskView("open_view_digest: yes\n"), /a-case\/digest\.yaml:1: yaml\.plain-strings/);
 });
 
 test("the open view counts a mark only where its subschema applies and passes", () => {
@@ -856,6 +876,8 @@ const constrained = (constraint, task) => task.replace("  parameters:", `  const
 test("a vector of templates lists the instance that each seed picks, as section 23 counts and replaces them", () => {
   expectOnly([[TEMPLATE, 'key: "2"', 'key: "20"']], /three\.yaml:0: attempt 1: the instance is not the template with these numbers: they differ at #\/items\/0\/answer_slots\/0\/check\/key$/);
   expectOnly([[TEMPLATE, "numbers: {a: 2}", "numbers: {a: 1}"]], /three\.yaml:0: attempt 1: the seed picks the instance a = 2, not a = 1$/);
+  // An attempt names the digest of its instance's open view, as a sample of the eval protocol does.
+  expectOnly([[TEMPLATE, "open_view_digest: sha256:44136fa", "open_view_digest: sha256:00000fa"]], /three\.yaml:0: attempt 1: open_view_digest is "sha256:00000fa[0-9a-f]+", and the digest of the instance's open view is sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a$/);
   expectOnly([[TEMPLATE, "count: 3", "count: 4"]], /three\.yaml:0: the template has 3 instances, not 4$/);
   expectOnly([[TEMPLATE, 'seed: "0"', 'seed: "18446744073709551616"']], /three\.yaml:0: attempt 1: the seed, 18446744073709551616, is past 2\^64 − 1$/);
 });
@@ -872,7 +894,7 @@ const SOLVED = "format/vectors/templates/solved.yaml";
 const solvedVector = (check = 'check: {kind: number, key: "{twice}"}', instanceCheck = 'check: {kind: number, key: "4"}', more = "inputs: []\n") => [
   SOLVED,
   null,
-  `task:\n  id: solved\n  template:\n    parameters:\n      a: {from: 1, to: 3}\n    solver:\n      program: |\n        def solve(numbers):\n            return {"twice": 2 * numbers["a"]}\n      results: [twice]\n  items:\n    - answer_slots:\n        - binding: anywhere\n          ${check}\ncount: 3\n${more}attempts:\n  - seed: "0"\n    numbers: {a: 2, twice: 4}\n    instance:\n      id: solved\n      items:\n        - answer_slots:\n            - binding: anywhere\n              ${instanceCheck}\n`,
+  `task:\n  id: solved\n  template:\n    parameters:\n      a: {from: 1, to: 3}\n    solver:\n      program: |\n        def solve(numbers):\n            return {"twice": 2 * numbers["a"]}\n      results: [twice]\n  items:\n    - answer_slots:\n        - binding: anywhere\n          ${check}\ncount: 3\n${more}attempts:\n  - seed: "0"\n    numbers: {a: 2, twice: 4}\n    open_view_digest: sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a\n    instance:\n      id: solved\n      items:\n        - answer_slots:\n            - binding: anywhere\n              ${instanceCheck}\n`,
 ];
 const editOf = ([file, , text], from, to) => [file, null, text.replace(from, to)];
 
@@ -1145,6 +1167,24 @@ function realErrorsWith(change) {
     fs.rmSync(root, { recursive: true, force: true });
   }
 }
+
+test("on spec's own vectors, a digest is of the open view of its instance, and of its task's", () => {
+  // Two attempts of one template whose instances differ in what is open: swapping their digests is
+  // found on each, so the digest is the instance's, not the template's.
+  const heads = "format/vectors/templates/heads-and-legs.yaml";
+  const text = fs.readFileSync(path.join(spec, heads), "utf8");
+  const [first, second] = [...text.matchAll(/open_view_digest: (sha256:[0-9a-f]{64})/g)].map((m) => m[1]);
+  assert.notEqual(first, second);
+  const swapped = realErrorsWith((root) => fs.writeFileSync(path.join(root, heads), text.replace(first, "FIRST").replace(second, first).replace("FIRST", second)));
+  assert.deepEqual(swapped, [
+    `${heads}:0: attempt 1: open_view_digest is "${second}", and the digest of the instance's open view is ${first}`,
+    `${heads}:0: attempt 2: open_view_digest is "${first}", and the digest of the instance's open view is ${second}`,
+  ]);
+  const digest = "format/vectors/open-view/task/answer-anywhere/digest.yaml";
+  const given = fs.readFileSync(path.join(spec, digest), "utf8").match(/sha256:[0-9a-f]{64}/)[0];
+  const other = realErrorsWith((root) => fs.writeFileSync(path.join(root, digest), `open_view_digest: ${first}\n`));
+  assert.deepEqual(other, [`${digest}:0: open_view_digest is "${first}", and the digest of the open view is ${given}`]);
+});
 
 test("a vector of packages gives the results of a solver on every instance, and spec takes them as given", () => {
   const solver = "format/vectors/packages/with-solver/package.yaml";

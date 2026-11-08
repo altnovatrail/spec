@@ -91,6 +91,7 @@ inputs: [left, to_ben]
 attempts:
   - seed: "0"
     numbers: {left: 7, to_ben: 6, before_ben: 13, forgot_ben: 14, sweets: 26}
+    open_view_digest: sha256:a61888df3721c0e5e4fc3580fafb63641669c2d3531365a02dcfecfec50af84c
     instance:
       id: number-thought-of
       statement:
@@ -130,6 +131,7 @@ attempts:
       difficulty: 2
   - seed: "20261028"
     numbers: {left: 9, to_ben: 5, before_ben: 14, forgot_ben: 18, sweets: 28}
+    open_view_digest: sha256:c1c98095e9dae89962bbcbaebbd487ff76e6119aa9f5164b275ae4552dc4cd74
     instance:
       id: number-thought-of
       statement:
@@ -169,6 +171,7 @@ attempts:
       difficulty: 2
   - seed: "18446744073709551615"
     numbers: {left: 3, to_ben: 2, before_ben: 5, forgot_ben: 6, sweets: 10}
+    open_view_digest: sha256:2f10602dcaba40ef2ccc85ab0924a39556413825b41cf1c969e669ff6fd22266
     instance:
       id: number-thought-of
       statement:

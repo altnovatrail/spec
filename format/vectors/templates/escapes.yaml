@@ -31,6 +31,7 @@ count: 4
 attempts:
   - seed: "0"
     numbers: {a: 1, b: 4}
+    open_view_digest: sha256:bc95cc3a728714bb441b343f9ec6e219fc9b360e0a66254e4a13c62ec1ae61f9
     instance:
       id: escapes
       statement:
@@ -60,6 +61,7 @@ attempts:
       difficulty: 1
   - seed: "2"
     numbers: {a: 1, b: 3}
+    open_view_digest: sha256:dc6acf5c03adf4d521f14d46cad47b6dc0f5d0bb20c38d442e92912b433bc4af
     instance:
       id: escapes
       statement:
@@ -89,6 +91,7 @@ attempts:
       difficulty: 1
   - seed: "8"
     numbers: {a: 2, b: 3}
+    open_view_digest: sha256:f67c616f28ad8411dccf7fa53bd7c993c1237a6e6eec05d669064f5cbd41ef57
     instance:
       id: escapes
       statement:

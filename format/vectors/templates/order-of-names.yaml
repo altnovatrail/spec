@@ -32,6 +32,7 @@ count: 24
 attempts:
   - seed: "0"
     numbers: {a1: -3, a_1: 0, ab: 5, b: 1, neg_first: -3, neg_after: -2, rem: 1, rem_neg: -3}
+    open_view_digest: sha256:7f5a7a8393208a6038ecebaa0424ba784bcb97715809544d1fe76d1dc84f4d0e
     instance:
       id: order-of-names
       statement:
@@ -53,6 +54,7 @@ attempts:
       difficulty: 1
   - seed: "18446744073709551615"
     numbers: {a1: -2, a_1: 0, ab: 6, b: 1, neg_first: -3, neg_after: -3, rem: 0, rem_neg: -2}
+    open_view_digest: sha256:4b5c5812f9a01c4a93f4bb457cc4d7db682e46989305fca703fef6fbe7a28bc7
     instance:
       id: order-of-names
       statement:
@@ -74,6 +76,7 @@ attempts:
       difficulty: 1
   - seed: "1"
     numbers: {a1: -1, a_1: 1, ab: 5, b: 1, neg_first: -3, neg_after: -2, rem: 1, rem_neg: -3}
+    open_view_digest: sha256:915f44a32b3e60bede4a3a9955c86daf5b2a387d60b271eb3ad000ef5ad861b4
     instance:
       id: order-of-names
       statement:
@@ -95,6 +98,7 @@ attempts:
       difficulty: 1
   - seed: "2"
     numbers: {a1: -1, a_1: 0, ab: 6, b: 2, neg_first: -3, neg_after: -3, rem: 1, rem_neg: -2}
+    open_view_digest: sha256:a0467aa4a667771c143c27ed2c61ffd6ac2274598804b70be2fb04cfb866d4a0
     instance:
       id: order-of-names
       statement:
@@ -116,6 +120,7 @@ attempts:
       difficulty: 1
   - seed: "3"
     numbers: {a1: -2, a_1: 1, ab: 6, b: 2, neg_first: -3, neg_after: -3, rem: 0, rem_neg: -2}
+    open_view_digest: sha256:6b82827f271a8661bb6e8cc7a2d8bcaa60d29113872fd4dd0b6ff5855dabe086
     instance:
       id: order-of-names
       statement:

@@ -10,6 +10,7 @@ import { gfm } from "micromark-extension-gfm";
 import { byCodeUnits } from "../shared.mjs";
 import { INDEX_PART, INDEX_RULES, indexFormProblems, indexOf } from "./index.mjs";
 import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listFolder, listModule, mediaBreaches, placeFiles, textBreaches, versionProblem } from "./module.mjs";
+import { canonicalBytes, digestOf } from "./canonical.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { canonicalViewOf, memberOf, packageOf, tiersOf } from "./package.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
@@ -481,23 +482,44 @@ export function checkTierVector(bytes, { validate }) {
   return problems;
 }
 
+// The digest of an open view, as a sample of the eval protocol names it: sha256: and the SHA-256 of
+// its canonical text (section 25; contracts/README.md, section 11).
+export const openViewDigestOf = (view) => digestOf(canonicalBytes(view));
+
+// What digest.yaml of a vector of a task's open view holds: its one member, open_view_digest.
+export const DIGEST_FILE = "digest.yaml";
+const DIGEST_KEY = "open_view_digest";
+
 // A vector of the open view (section 9): part.yaml, a part of term, follows the YAML rules, names
 // the format's version when it is a manifest, and passes the part's schema, by its validator
 // validate; open-view.yaml follows the YAML rules; and the open view of the part, built by openView
-// — byName and schemaAt —, is open-view.yaml, whatever the order of keys. Returns problems, each
-// { file, line, message }, where file is part.yaml or open-view.yaml.
-export function checkOpenView(partBytes, viewBytes, { term, validate, version, openView }) {
+// — byName and schemaAt —, is open-view.yaml, whatever the order of keys. Of a task, digestBytes is
+// digest.yaml: it follows the YAML rules, holds open_view_digest alone, and that is the digest of
+// the open view. Returns problems, each { file, line, message }, where file is part.yaml,
+// open-view.yaml or digest.yaml.
+export function checkOpenView(partBytes, viewBytes, { term, validate, version, openView, digestBytes }) {
   const part = readModuleFile(partBytes);
   const expected = readModuleFile(viewBytes);
+  const digest = digestBytes && readModuleFile(digestBytes);
   const problems = [
     ...partFileProblems(part, term, { rule: null, validate, version }).map((problem) => ({ file: "part.yaml", ...problem })),
     ...yamlProblems(expected.violations, expected.notYaml).map((problem) => ({ file: "open-view.yaml", ...problem })),
+    ...(digest ? yamlProblems(digest.violations, digest.notYaml).map((problem) => ({ file: DIGEST_FILE, ...problem })) : []),
   ];
   if (problems.length || !validate) return problems;
   // The part's schema compiled, and so did every schema it reaches: every reference resolves, and
   // every subschema has a validator.
-  const at = differenceOf(openViewOf(part.value, `${term}.schema.json`, openView), expected.value);
+  const view = openViewOf(part.value, `${term}.schema.json`, openView);
+  const at = differenceOf(view, expected.value);
   if (at) problems.push({ file: "open-view.yaml", line: 0, message: `is not the open view of part.yaml: they differ at ${fragmentOf(at)}` });
+  if (digest) {
+    // The digest is of the open view the part gives, whether or not open-view.yaml is it.
+    const given = digest.value;
+    const keys = given && typeof given === "object" && !Array.isArray(given) ? Object.keys(given) : null;
+    const computed = openViewDigestOf(view);
+    if (!keys || keys.length !== 1 || keys[0] !== DIGEST_KEY) problems.push({ file: DIGEST_FILE, line: 0, message: `holds ${DIGEST_KEY} alone, the digest of the open view: ${computed}` });
+    else if (given[DIGEST_KEY] !== computed) problems.push({ file: DIGEST_FILE, line: 0, message: `${DIGEST_KEY} is ${JSON.stringify(given[DIGEST_KEY])}, and the digest of the open view is ${computed}` });
+  }
   return problems;
 }
 
@@ -599,7 +621,8 @@ export function checkRandomVector(bytes, { validate }) {
 // whatever the order of keys. The results of a solver are the vector's own: spec runs no Starlark, so
 // it takes them as given and checks the rules of a task on the instance they make, which the schema of
 // vectors holds to the task's. validateTask is the task's validator, by which each instance passes its
-// schema, and openView what the open view of the template is built with.
+// schema, and openView what the open views of the template and of an instance are built with: an
+// attempt names the digest of its instance's open view, as a sample of the eval protocol does.
 export function checkTemplateVector(bytes, { validate, validateTask, openView }) {
   const { problems, value } = vectorStart(bytes, validate, "vectors of templates");
   if (!value) return problems;
@@ -636,10 +659,15 @@ export function checkTemplateVector(bytes, { validate, validateTask, openView })
     const solved = new Map([...numbers, ...results.map((name) => [name, BigInt(attempt.numbers[name])])]);
     const instance = make(solved);
     const differs = differenceOf(instance, attempt.instance);
-    if (differs) problems.push({ line: 0, message: `${which}: the instance is not the template with these numbers: they differ at ${fragmentOf(differs)}` });
-    else if (results.length) {
+    if (differs) {
+      problems.push({ line: 0, message: `${which}: the instance is not the template with these numbers: they differ at ${fragmentOf(differs)}` });
+      return;
+    }
+    if (results.length) {
       for (const [breach, detail] of sortedBreaches(plainBreaches(instance, {}))) problems.push({ line: 0, message: `${which}: the instance breaks ${breach}${detail ? `, ${detail}` : ""}` });
     }
+    const digest = openViewDigestOf(openViewOf(instance, `${TASK_PART}.schema.json`, openView));
+    if (attempt.open_view_digest !== digest) problems.push({ line: 0, message: `${which}: open_view_digest is ${JSON.stringify(attempt.open_view_digest)}, and the digest of the instance's open view is ${digest}` });
   });
   return problems;
 }

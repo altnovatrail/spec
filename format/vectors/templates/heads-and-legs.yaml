@@ -54,6 +54,7 @@ count: 72
 attempts:
   - seed: "0"
     numbers: {chickens: 1, rabbits: 8, heads: 9, legs: 34, half_legs: 17, chicken_legs: 18, extra_legs: 16}
+    open_view_digest: sha256:98b4fd15d4a17e04e35e9a733c837e8f26081c3db8622ad8e6925321a47c5d17
     instance:
       id: heads-and-legs-2
       statement:
@@ -100,6 +101,7 @@ attempts:
       difficulty: 3
   - seed: "18446744073709551615"
     numbers: {chickens: 1, rabbits: 4, heads: 5, legs: 18, half_legs: 9, chicken_legs: 10, extra_legs: 8}
+    open_view_digest: sha256:d34c6897c9e01656d2c4dc3fbc194fbd8af6e59f839b4fcccba7eb76c1559111
     instance:
       id: heads-and-legs-2
       statement:
@@ -146,6 +148,7 @@ attempts:
       difficulty: 3
   - seed: "7"
     numbers: {chickens: 2, rabbits: 7, heads: 9, legs: 32, half_legs: 16, chicken_legs: 18, extra_legs: 14}
+    open_view_digest: sha256:21166b591ebb9257313159d39f70f2c6d54066d2ad68bdebc72985a70a1b8789
     instance:
       id: heads-and-legs-2
       statement:

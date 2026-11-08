@@ -98,14 +98,20 @@
             ]
           },
           "description": "The instance that the seed picks: the template with its numbers, the solver's results among them, in the place of its placeholders, and without its template."
+        },
+        "open_view_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "The digest of the open view of the instance."
         }
       },
       "required": [
         "seed",
         "numbers",
-        "instance"
+        "instance",
+        "open_view_digest"
       ],
-      "description": "An attempt on the template: its seed, and the instance that the seed picks."
+      "description": "An attempt on the template: its seed, the instance that the seed picks, and the digest of that instance's open view."
     }
   }
 }

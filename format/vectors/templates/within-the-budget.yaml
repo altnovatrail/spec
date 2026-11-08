@@ -42,6 +42,7 @@ inputs: [a, product]
 attempts:
   - seed: "0"
     numbers: {a: 3, b: 4, product: 12, factor: 4}
+    open_view_digest: sha256:3dce76cf9adb8afc3563f00cb00a1fce03d55ea8e4df5ca589b7e348b3bfe43b
     instance:
       id: within-the-budget
       statement:

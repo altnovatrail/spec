@@ -22,6 +22,7 @@ count: 1
 attempts:
   - seed: "0"
     numbers: {a: 4}
+    open_view_digest: sha256:c928cb2cec7ebd00c71f5f0f1be7a25b0d9393fdb35ca039454d1a10053cb50f
     instance:
       id: one-instance
       statement:
@@ -46,6 +47,7 @@ attempts:
       difficulty: 1
   - seed: "18446744073709551615"
     numbers: {a: 4}
+    open_view_digest: sha256:c928cb2cec7ebd00c71f5f0f1be7a25b0d9393fdb35ca039454d1a10053cb50f
     instance:
       id: one-instance
       statement:
