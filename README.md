@@ -41,7 +41,7 @@ All under [altnovatrail](https://github.com/altnovatrail). Created now, for stag
 | canvas | the canvases the learner works on, and their layers |
 | skill-map | the learner's skill map |
 | app | the web app for learners and the adults beside them |
-| infra | shared infrastructure: Terraform, domains, deployment, self-hosting |
+| infra | shared infrastructure: OpenTofu, domains, deployment, self-hosting |
 
 Later: site (stage 3); module-registry, module-pipeline and widget-template (stage 4).
 
