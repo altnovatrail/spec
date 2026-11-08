@@ -6,7 +6,8 @@
 // Nothing of the template may be left in it — no {{…}} and no FILL marker. LICENSE and AGENTS.md
 // must be spec's own; its documents must pass docs-check as a repository of its own — links,
 // sections, its log and tables, and its citations of spec against the spec it pins; its
-// devcontainer must keep no name of spec's; and every link to spec on GitHub must name the tag
+// devcontainer must keep no name of spec's, and the version of gopls its lock file names, when it
+// has one, must be the one its Dockerfile asks for (R102); and every link to spec on GitHub must name the tag
 // the spec submodule is checked out at. A draft — a copy without .git — has no submodule: its
 // links to spec need only agree with one another, and spec's working tree stands in for spec/.
 // Prints one line per error, file:line: message, and exits 1 if any.
@@ -19,6 +20,7 @@ import { check as checkDocuments } from "../docs-check/main.mjs";
 import { componentProfile } from "../docs-check/config.mjs";
 import { FILL, isMain, knownRepository, placeholders, walk } from "./copy.mjs";
 import { GIT, byCodeUnits } from "../shared.mjs";
+import { goplsVersions } from "./devcontainer.mjs";
 
 const SPEC_LINK = /https:\/\/github\.com\/altnovatrail\/spec\/(?:tree|blob)\/([^/\s)#>]+)/g;
 
@@ -57,6 +59,15 @@ export async function checkRepo({ dir, specRoot }) {
     eachLine(file, (line, n) => {
       if (line.includes("novatrail-spec")) report(file, n, "spec's container name or network is left in the devcontainer");
     });
+  }
+  // CI never builds the devcontainer stage, so nothing else holds the lock and the ARG together,
+  // nor finds the lock gone while the step that copies it stays.
+  const { lock, arg } = goplsVersions(path.join(dir, ".devcontainer"));
+  if (lock !== null || arg !== null) {
+    for (const file of [".devcontainer/gopls/go.mod", ".devcontainer/gopls/go.sum"]) {
+      if (!files.includes(file)) report(file, 0, `the file is missing, and .devcontainer/Dockerfile builds gopls from it (R102 spec)`);
+    }
+    if (lock !== arg) report(".devcontainer/gopls/go.mod", 0, `it names gopls ${lock ?? "at no version"}, and .devcontainer/Dockerfile has GOPLS_VERSION ${arg ?? "unset"}: raise them together (R102 spec)`);
   }
 
   // Links to spec on GitHub, by the version they name.
