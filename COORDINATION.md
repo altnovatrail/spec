@@ -136,8 +136,8 @@
 - 6.10 — `api`: эпик E2 начнётся, когда автор сделает свой шаг — dev-проекты Firebase и Neon (Д5, Д6 api).
 
 Вне строк:
-- `spec`: «Выполни задачу T75 из RUN.md» в контейнере `spec` — рецепт `report-check`; за ней T76–T80. Причину `UNCHECKED_CAUSE_CHECK` из `v0.9.10` ждут `tutor` и `module-kit` (Д108), а берут они её своими переходами.
-- `modules`: E3 сделан, в таблице 2 — E4 «Eval-наборы»; он ждёт режима eval-набора у `sample-check` (T76 `spec`; Д109). Шаг автора из T42 и T43 `modules`: убрать `refs/heads/e3` из ruleset `main` и удалить ветку `e3`.
+- `spec`: E7 сделан и ушёл в архив, [docs/plan/E7.md](docs/plan/E7.md): причина `UNCHECKED_CAUSE_CHECK` (T74, `v0.9.10`), `report-check` (T75, `v0.9.12`), режим eval-набора у `sample-check` (T76, `v0.9.13`), векторы и `yaml.mjs` (T77–T79, `v0.9.14`), gopls вида `go` заготовки (T80, следующим релизом). Репозитории берут их своими переходами на тег (Д108, Д109, Д115). Текущего эпика нет: следующий автор выбирает из таблицы 2 RUN.md `spec`, а E6 возвращает T38 (строка 1.4).
+- `modules`: E3 сделан, в таблице 2 — E4 «Eval-наборы»; режим eval-набора у `sample-check`, которого он ждал, вышел в `v0.9.13` (T76 `spec`; Д109), и E4 берёт его переходом на тег. Шаг автора из T42 и T43 `modules`: убрать `refs/heads/e3` из ruleset `main` и удалить ветку `e3`.
 - `canvas`: T80 — проба в iPad Simulator — в pull request 93; затем T19.
 - `learner-model`: T26 — в pull request 33.
 - `module-kit`, `skill-map` и `.github`: таблицы 2 пусты, следующий эпик выбирает автор. `.github` ждёт только группы `shared-workflows` у вызывающих, а её вносит сессия `spec` (Д88).
