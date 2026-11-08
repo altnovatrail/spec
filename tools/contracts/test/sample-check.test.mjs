@@ -92,7 +92,7 @@ test("the command takes --samples alone, and every argument after it is a file",
   assert.equal(empty.stderr, "sample-check: name the sample files to check\n");
   const other = command(good, ["--lock=x"]);
   assert.equal(other.status, 2);
-  assert.match(other.stderr, /^contracts-check: the only arguments are --samples, with the sample files to check, and --reports/);
+  assert.match(other.stderr, /^contracts-check: the only arguments are --samples, with the sample files to check — or --eval-set, .*, and --reports/);
   const dashed = command({ "-sample.json": evalSet }, ["--samples", "-sample.json"]);
   assert.equal(dashed.status, 0, dashed.stderr);
   assert.equal(dashed.stdout, "sample-check: ok — 1 sample\n");
@@ -102,4 +102,73 @@ test("checkSampleFiles reads spec's examples by the same code, and throws on a p
   assert.deepEqual(checkSampleFiles(root, examples), { errors: [], samples: examples.length });
   assert.throws(() => checkSampleFiles(path.join(root, FOLDER), ["../../../../justfile"]), /not a file of the repository the check runs in/);
   assert.throws(() => checkSampleFiles(root, []), /^Error: name the sample files to check$/);
+});
+
+// A sample of a module's eval set, as modules holds one: spec's example of an eval set, of a task of
+// that module.
+const MODULE = "novatrail/olympiad-math";
+const ofModule = (sample, module = MODULE) => {
+  const { tutor: _, ...task } = sample.task;
+  return { ...sample, task: { modules: { tag: "v0.1.0", module, version: "0.1.0", package_digest: `sha256:${"0".repeat(64)}` }, ...task } };
+};
+const setSample = ofModule(example("sheet-eval-set"));
+const essay = ofModule(example("sheet-essay"));
+
+test("with --eval-set, sample-check holds the files of a module's eval set together to the rules of section 13", () => {
+  const set = { "eval/a.json": textOf(setSample), "eval/essay.json": textOf(essay) };
+  const run = recipe(set, ["--eval-set", MODULE, ...Object.keys(set)]);
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  assert.equal(run.stdout, `sample-check: ok — 2 samples of the eval set of ${MODULE}\n`);
+  // A sample of measurement, one with no markup, one of another module's task or of tutor's, and two
+  // with one ID.
+  const measurement = textOf(ofModule(example("sheet-measurement")));
+  const { markup: __, ...bare } = setSample;
+  const unmarked = textOf({ ...bare, id: "synthetic-9001" });
+  const other = textOf({ ...ofModule(example("sheet-eval-set"), "novatrail/school-math"), id: "synthetic-9002" });
+  const tutors = textOf({ ...example("sheet-eval-set"), id: "synthetic-9003" });
+  const twice = textOf(setSample);
+  const bad = recipe({ ...set, "eval/m.json": measurement, "eval/u.json": unmarked, "eval/o.json": other, "eval/t.json": tutors, "eval/twice.json": twice }, ["--eval-set", MODULE, "eval/a.json", "eval/m.json", "eval/u.json", "eval/o.json", "eval/t.json", "eval/twice.json"]);
+  assert.equal(bad.status, 1, bad.stdout + bad.stderr);
+  const lines = bad.stdout.trimEnd().split("\n");
+  assert.deepEqual(lines, [
+    `eval/m.json:${lineOf(measurement, "purpose")}: a sample of the eval set of ${MODULE} is of the purpose PURPOSE_EVAL_SET, not "PURPOSE_MEASUREMENT" (contracts/README.md, section 13)`,
+    `eval/o.json:${lineOf(other, "module")}: a sample of the eval set of ${MODULE} is of a task of that module, not of "novatrail/school-math" (contracts/README.md, section 13)`,
+    `eval/t.json:${lineOf(tutors, "task")}: a sample of the eval set of ${MODULE} is of a task of that module: its source is modules (contracts/README.md, section 13)`,
+    `eval/twice.json:${lineOf(twice, "id")}: the ID ${setSample.id} is eval/a.json's too: no two samples of an eval set share an ID (contracts/README.md, section 13)`,
+    `eval/u.json:1: a sample of an eval set has its markup, which the runner measures AI by (contracts/README.md, section 13)`,
+    "sample-check: 5 errors",
+  ]);
+  // A file named twice, and through a link, is one sample, and a sample that breaks section 11 has
+  // that error alone.
+  const linked = recipe({ ...set, "more/a.json": { link: "../eval/a.json" } }, ["--eval-set", MODULE, "eval/a.json", "./eval/a.json", "more/a.json"]);
+  assert.equal(linked.status, 0, linked.stdout + linked.stderr);
+  assert.equal(linked.stdout, `sample-check: ok — 1 sample of the eval set of ${MODULE}\n`);
+  const licensed = textOf({ ...setSample, license: "MIT", purpose: "PURPOSE_MEASUREMENT" });
+  const one = recipe({ "eval/l.json": licensed }, ["--eval-set", MODULE, "eval/l.json"]);
+  assert.equal(one.status, 1, one.stdout + one.stderr);
+  assert.doesNotMatch(one.stdout, /section 13/);
+  // Without --eval-set the same files are checked each alone, and two with one ID pass.
+  const alone = recipe({ "eval/a.json": textOf(setSample), "eval/twice.json": twice }, ["eval/a.json", "eval/twice.json"]);
+  assert.equal(alone.status, 0, alone.stdout + alone.stderr);
+});
+
+test("--eval-set comes first, with the ID of a module, and then the files of its eval set", () => {
+  for (const [args, pattern] of [
+    [["--eval-set"], /^sample-check: "" is not the ID of a module, <publisher>\/<name>: name the module whose eval set the files are, then the files$/m],
+    [["--eval-set", "eval/a.json"], /^sample-check: "eval\/a\.json" is not the ID of a module/m],
+    [["--eval-set", MODULE], new RegExp(`^sample-check: name the files of the eval set of ${MODULE} to check$`, "m")],
+  ]) {
+    const run = recipe({ "eval/a.json": textOf(setSample) }, args);
+    assert.equal(run.status, 2, `${args}: ${run.stdout}${run.stderr}`);
+    assert.match(run.stderr, pattern, args.join(" "));
+  }
+  for (const id of ["novatrail/con", `novatrail/${"a".repeat(120)}`]) {
+    const run = recipe({ "eval/a.json": textOf(setSample) }, ["--eval-set", id, "eval/a.json"]);
+    assert.equal(run.status, 2, `${id}: ${run.stdout}${run.stderr}`);
+  }
+  // A sample names its module by an ID of the module format, with or without --eval-set.
+  const unnamed = recipe({ "eval/a.json": textOf(ofModule(example("sheet-eval-set"), "Novatrail/Olympiad Math")) }, ["eval/a.json"]);
+  assert.equal(unnamed.status, 1, unnamed.stdout + unnamed.stderr);
+  assert.match(unnamed.stdout, /: the module's ID "Novatrail\/Olympiad Math" is not the ID of a module, <publisher>\/<name>, as the module format has it$/m);
+  assert.deepEqual(checkSampleFiles(root, [`${FOLDER}/sheet-eval-set.json`], MODULE).errors.map((error) => error.message), [`a sample of the eval set of ${MODULE} is of a task of that module: its source is modules (contracts/README.md, section 13)`]);
 });

@@ -171,8 +171,8 @@ contracts-check: _tools
 
 # Runs from a NovaTrail repository's root, as `just -f spec/justfile sample-check eval/a.json …`:
 # each sample file of the eval protocol it names is read strictly and held to the rules of
-# contracts/README.md, sections 11 and 12, by the code that holds spec's examples to them (R93, R94), against
-# the image buf builds of this spec's contracts/ — the submodule's, at the tag the repository pins.
+# contracts/README.md, sections 11 and 12, by the code that holds spec's examples to them (R93,
+# R94), against the image buf builds of this spec's contracts/ — the submodule's, at the tag the repository pins.
 # The folder it is run from is the root: the paths are from it, a path that leaves it — a link that
 # leads out too — or names no file stops the check before buf runs, and a file named twice is
 # checked once. buf is the toolchain stage's and reaches no service, since buf.yaml has no deps
@@ -180,8 +180,12 @@ contracts-check: _tools
 # npm registry, to install tools/ from its lock file, as docs-check-repo's does, and fails with
 # npm's status. A file that breaks a rule gives file:line: message and the exit status 1; a path,
 # buf, or a call that names no file, since a check of nothing passes nothing, stops it with 2. In
-# spec itself it reads spec's files the same way.
-# Check sample files of the eval protocol, from a repository's root.
+# spec itself it reads spec's files the same way. With --eval-set and a module's ID first, as
+# `… sample-check --eval-set novatrail/olympiad-math eval/a.json …`, the files are the module's eval
+# set and are held together to the rules of section 13 that need neither its package nor a key —
+# each of the purpose PURPOSE_EVAL_SET, with its markup, of a task of that module, and no two of
+# one ID (the amendment of 2026-11-06 to R93); an ID that is no module's stops it with 2.
+# Check sample files of the eval protocol, or a module's eval set with --eval-set, from a repository's root.
 [positional-arguments]
 sample-check *files: _tools
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/contracts/main.mjs")}} --samples "$@"

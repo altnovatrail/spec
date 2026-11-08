@@ -18,7 +18,7 @@ import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { byCodeUnits } from "../shared.mjs";
 import { ESSAY_REASONS, REASONS, VERDICTS, WHITE_SPACE } from "./observation.mjs";
-import { FOLDER, ID, PACKAGE, TAG, byPlace, messageOf, placeOf, readMessage, show } from "./sample.mjs";
+import { FOLDER, ID, PACKAGE, TAG, byPlace, isLocalId, isModuleId, messageOf, placeOf, readMessage, show } from "./sample.mjs";
 
 const TEXT = "contracts/README.md, section 14";
 
@@ -44,9 +44,6 @@ const SLOT_CAUSES = CAUSES.filter((cause) => cause !== NO_MARK);
 const ESSAY_CAUSES = CAUSES.filter((cause) => cause !== CHECK);
 
 const COMMIT = /^[0-9a-f]{40}$/;
-const NAME = "[a-z][a-z0-9]*(?:-[a-z0-9]+)*";
-const MODULE_ID = new RegExp(`^${NAME}/${NAME}$`);
-const LOCAL_ID = new RegExp(`^${NAME}$`);
 
 // Whether an example of the package is a report, by its name: report-<case>.json (section 3).
 export const isReport = (file) => path.basename(file).startsWith("report-");
@@ -67,7 +64,7 @@ function verdictBreaches(verdict, at, what, breach) {
     if (!VERDICT_REASONS.has(verdict.reason)) breach([...at, "reason"], `${what} is unreadable with the reason ${show(verdict.reason)}, and its reasons are ${[...VERDICT_REASONS].join(", ")}`);
   } else if (verdict.reason !== "") breach([...at, "reason"], `${what} is ${show(verdict.verdict)} with the reason ${show(verdict.reason)}: only "unreadable" has a reason`);
   if (verdict.verdict === "not_yet") {
-    if (verdict.trap !== "" && !LOCAL_ID.test(verdict.trap)) breach([...at, "trap"], `${what} names the trap ${show(verdict.trap)}, which is no local ID`);
+    if (verdict.trap !== "" && !isLocalId(verdict.trap)) breach([...at, "trap"], `${what} names the trap ${show(verdict.trap)}, which is no local ID`);
   } else if (verdict.trap !== "") breach([...at, "trap"], `${what} is ${show(verdict.verdict)} with the trap ${show(verdict.trap)}: only "not_yet" has a trap`);
 }
 
@@ -162,7 +159,7 @@ export function breaches(report) {
     if (!TAG.test(report.verdicts.version)) breach(["verdicts", "version"], `the version ${show(report.verdicts.version)} is not the tag of a release, vMAJOR.MINOR.PATCH`);
   }
   if ("module" in report) {
-    if (!MODULE_ID.test(report.module.module)) breach(["module", "module"], `${show(report.module.module)} is not the ID of a module, <publisher>/<name>`);
+    if (!isModuleId(report.module.module)) breach(["module", "module"], `${show(report.module.module)} is not the ID of a module, <publisher>/<name>`);
     if (!COMMIT.test(report.module.commit)) breach(["module", "commit"], `the commit ${show(report.module.commit)} is not 40 lowercase hexadecimal digits`);
   } else if ("capability_set" in report) {
     if (WHITE_SPACE.test(report.capability_set.name)) breach(["capability_set", "name"], "the eval set of the capability is not named");

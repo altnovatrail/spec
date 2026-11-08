@@ -2,6 +2,8 @@
 //
 //   node tools/contracts/main.mjs                       spec's own contracts/, two levels above this file
 //   node tools/contracts/main.mjs --samples <file>...   sample files of the repository it runs from
+//   node tools/contracts/main.mjs --samples --eval-set <module> <file>...
+//                                                       the files of a module's eval set
 //   node tools/contracts/main.mjs --reports <file>... [--samples <file>...]
 //                                                       report files of it, and their samples
 //
@@ -58,9 +60,13 @@
 // paths from the folder it runs from, its root (R93). Each path is a file of that folder, or the
 // check stops before buf runs; then buf builds the image of this spec's contracts/ — the spec/
 // submodule's, at the tag the repository pins —, and each file is read as the examples of spec are
-// and held to the rules of contracts/README.md, section 11, by the same code, which asks nothing
-// of the files together. Prints one line per error, file:line: message, and exits 1 if there are
-// any, or 2 when it cannot check at all.
+// and held to the rules of contracts/README.md, sections 11 and 12, by the same code, which asks
+// nothing of the files together but in the mode of an eval set. Prints one line per error, file:line: message, and exits 1 if
+// there are any, or 2 when it cannot check at all. With --eval-set and a module's ID before the
+// files, they are the files of the folder eval/ of that module, and are held together to the rules
+// of section 13 that need neither the module's package nor a key: each is of the purpose
+// PURPOSE_EVAL_SET, with its markup, of a task of that module, and no two share an ID (the
+// amendment of 2026-11-06 to R93).
 //
 // With --reports, report-check: the files of the runner's report another NovaTrail repository
 // names, the same way (the second and the fourth amendments of 2026-11-08 to R95). Each is read as
@@ -78,7 +84,7 @@ import { breaking, build, contractFiles, format, generate, lint, previousRelease
 import { FOLDER, PACKAGE, checkVectors, plural } from "./observation.mjs";
 import { checkReport, checkReportExamples, isReport, reportOf, sampleBreaches } from "./report.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
-import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, sameIds, sampleOf } from "./sample.mjs";
+import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, evalSetBreaches, isModuleId, sameIds, sampleOf } from "./sample.mjs";
 import { FOLDER as RULES, checkVectors as checkRuleVectors } from "./strokes.mjs";
 import { checkTypeScript } from "./typescript.mjs";
 
@@ -287,14 +293,19 @@ function known({ message, error }) {
 }
 
 // The sample files another repository names, by their paths from root, the folder sample-check
-// runs from: { errors, samples }, the errors by the paths given, and a file named twice checked
-// once, by its first name. A path that leaves root or names no file throws before buf runs, and
-// so does an image of this spec's contracts/ with no Sample.
-export function checkSampleFiles(root, files) {
-  if (files.length === 0) throw new Error("name the sample files to check");
+// runs from, and, unless null, the ID of the module whose eval set they are: { errors, samples },
+// the errors by the paths given, and a file named twice checked once, by its first name. Of a
+// module's eval set, the samples that hold are held together to the rules of section 13 that need
+// neither the package nor a key. A path that leaves root or names no file throws before buf runs,
+// and so does an ID that is no module's, or an image of this spec's contracts/ with no Sample.
+export function checkSampleFiles(root, files, module = null) {
+  if (module !== null && !isModuleId(module)) throw new Error(`${JSON.stringify(module)} is not the ID of a module, <publisher>/<name>: name the module whose eval set the files are, then the files`);
+  if (files.length === 0) throw new Error(module === null ? "name the sample files to check" : `name the files of the eval set of ${module} to check`);
   const read = namedFiles(root, files, "sample");
   const message = known(sampleOf(specImage()));
-  return { errors: checkSamples(message, read).errors.sort(byPlace), samples: read.length };
+  const checked = checkSamples(message, read);
+  const errors = module === null ? checked.errors : [...checked.errors, ...evalSetBreaches(module, checked.held)];
+  return { errors: errors.sort(byPlace), samples: read.length };
 }
 
 // What the samples a call of report-check names are to the messages of the check.
@@ -316,7 +327,7 @@ export function checkReportFiles(root, reports, samples = null) {
   let held = null;
   if (sampleFiles) {
     const checked = checkSamples(known(sampleOf(image)), sampleFiles);
-    errors.push(...checked.errors, ...sameIds(checked.ids));
+    errors.push(...checked.errors, ...sameIds(checked.held));
     if (errors.length === 0) held = checked.samples;
   }
   for (const [file, full] of reportFiles) {
@@ -346,8 +357,13 @@ function run(name, check, ok) {
   }
 }
 
-// sample-check: the sample files.
-const sampleCheck = (files) => run("sample-check", () => checkSampleFiles(process.cwd(), files), ({ samples }) => plural(samples, "sample"));
+// sample-check: the sample files, or, after --eval-set, a module's ID and the files of its eval set.
+function sampleCheck(args) {
+  const set = args[0] === "--eval-set";
+  const module = set ? args[1] ?? "" : null;
+  const files = set ? args.slice(2) : args;
+  run("sample-check", () => checkSampleFiles(process.cwd(), files, module), ({ samples }) => plural(samples, "sample") + (set ? ` of the eval set of ${module}` : ""));
+}
 
 // report-check: the report files before --samples, and the sample files after it.
 function reportCheck(args) {
@@ -390,13 +406,14 @@ function contractsCheck() {
 }
 
 if (isMain(import.meta.url)) {
-  // Every argument after --samples is a file, one beginning with - too; after --reports, every one
+  // Every argument after --samples is a file, one beginning with - too, but a first --eval-set, and the
+  // module's ID after it; after --reports, every one
   // but the first --samples, which divides the reports from their samples.
   const args = process.argv.slice(2);
   if (args[0] === "--samples") sampleCheck(args.slice(1));
   else if (args[0] === "--reports") reportCheck(args.slice(1));
   else if (args.length) {
-    console.error("contracts-check: the only arguments are --samples, with the sample files to check, and --reports, with the report files to check and, after --samples, their samples");
+    console.error("contracts-check: the only arguments are --samples, with the sample files to check — or --eval-set, a module's ID and the files of its eval set —, and --reports, with the report files to check and, after --samples, their samples");
     process.exitCode = 2;
   } else contractsCheck();
 }
