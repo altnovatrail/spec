@@ -52,6 +52,13 @@ const NONE = "UNREADABLE_NO_FINAL_ANSWER";
 const SOURCES = ["modules", "tutor", "file"];
 
 export const ID = /^[a-z0-9-]{1,64}$/;
+// Whether a string is the ID of a module, or a local ID — of a trap, say —, as the module format's
+// schemas define them (format/schemas/common.schema.json, $defs module_id and local_id): the
+// pattern, the length, and no name Windows reserves for a device.
+const COMMON = JSON.parse(fs.readFileSync(new URL("../../format/schemas/common.schema.json", import.meta.url), "utf8")).$defs;
+const idOf = ({ pattern, maxLength, not }) => (value) => typeof value === "string" && new RegExp(pattern, "u").test(value) && [...value].length <= maxLength && !new RegExp(not.pattern, "u").test(value);
+export const isModuleId = idOf(COMMON.module_id);
+export const isLocalId = idOf(COMMON.local_id);
 const CODE = /^[0-9A-Z]{6,16}$/;
 const TEXT_SET = /^[A-Za-z0-9.-]{1,32}$/;
 const VERSION = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
@@ -409,7 +416,7 @@ export function breaches(sample) {
     };
     if (source === "modules") {
       form(["modules", "tag"], task.modules.tag, TAG, "the tag");
-      named(["modules", "module"], task.modules.module, "the module's ID");
+      if (!isModuleId(task.modules.module)) breach(["task", "modules", "module"], `the module's ID ${show(task.modules.module)} is not the ID of a module, <publisher>/<name>, as the module format has it`);
       form(["modules", "version"], task.modules.version, VERSION, "the module's version");
       form(["modules", "package_digest"], task.modules.package_digest, DIGEST, "the package's digest");
     } else if (source === "tutor") {
@@ -513,38 +520,61 @@ export function checkSample(bytes, message) {
   return { problems, seen, value, lineOf };
 }
 
-// Sample files against the message, each a [name, path to read]: { errors, seen, samples, ids }, the
-// errors { file, line, message } of each file by its name, seen what they show together, samples
-// the files that hold, by their IDs, and ids the ID of each that holds, { file, line, id }, in the
-// order of the files. Two of them may share one, which samples then holds by the last: sameIds
-// finds them where the files are held together. spec's examples and the files another repository
+// Sample files against the message, each a [name, path to read]: { errors, seen, samples, held },
+// the errors { file, line, message } of each file by its name, seen what they show together,
+// samples the files that hold, by their IDs, and held each that holds, { file, line, value, lineOf },
+// with line that of its ID, in the order of the files. Two of them may share an ID, which samples
+// then holds by the last: sameIds finds them where the files are held together. spec's examples and the files another repository
 // names are read by this same code (R93).
 export function checkSamples(message, files) {
   const errors = [];
   const seen = new Set();
   const samples = new Map();
-  const ids = [];
+  const held = [];
   for (const [file, full] of files) {
     const { problems, seen: found, value, lineOf } = checkSample(fs.readFileSync(full), message);
     errors.push(...problems.map((one) => ({ file, ...one })));
     if (problems.length === 0) {
       samples.set(value.id, value);
-      ids.push({ file, line: lineOf(["id"]), id: value.id });
+      held.push({ file, line: lineOf(["id"]), value, lineOf });
     }
     for (const each of found) seen.add(each);
   }
-  return { errors, seen, samples, ids };
+  return { errors, seen, samples, held };
 }
 
-// Of the samples that hold, ids as checkSamples gives them, the second of two with one ID and every
-// one after it: a report names a sample by its ID, so the samples it is held to have one each.
-export function sameIds(ids) {
+// Of the samples that hold, held as checkSamples gives them, the second of two with one ID and
+// every one after it, with why their IDs are one each: by default, that a report names a sample by its
+// ID, so the samples it is held to have one each.
+const HELD = "a report names a sample by its ID, so the samples it is held to have one ID each";
+export function sameIds(held, why = HELD) {
   const first = new Map();
   const errors = [];
-  for (const { file, line, id } of ids) {
-    if (first.has(id)) errors.push({ file, line, message: `the ID ${id} is ${first.get(id)}'s too: a report names a sample by its ID, so the samples it is held to have one ID each` });
+  for (const { file, line, value: { id } } of held) {
+    if (first.has(id)) errors.push({ file, line, message: `the ID ${id} is ${first.get(id)}'s too: ${why}` });
     else first.set(id, file);
   }
+  return errors;
+}
+
+// What the samples of a module's eval set break of the rules of section 13 that need neither the
+// module's package nor a key, held as checkSamples gives them, of the module by its ID: each is of
+// the purpose PURPOSE_EVAL_SET, with its markup, of a task of its own module — its source is
+// modules, with the module's ID —, and no two of the set share an ID. The task itself, and the
+// digest of its open view, are the runner's to check, by the package (contracts/README.md, section
+// 13).
+const SET = "contracts/README.md, section 13";
+export function evalSetBreaches(module, held) {
+  const errors = [];
+  for (const { file, value, lineOf } of held) {
+    const breach = (at, message) => errors.push({ file, line: lineOf(at), message });
+    if (value.purpose !== "PURPOSE_EVAL_SET") breach(["purpose"], `a sample of the eval set of ${module} is of the purpose PURPOSE_EVAL_SET, not ${show(value.purpose)} (${SET})`);
+    if (!value.markup) breach([], `a sample of an eval set has its markup, which the runner measures AI by (${SET})`);
+    const source = value.task?.modules;
+    if (!source) breach(["task"], `a sample of the eval set of ${module} is of a task of that module: its source is modules (${SET})`);
+    else if (source.module !== module) breach(["task", "modules", "module"], `a sample of the eval set of ${module} is of a task of that module, not of ${show(source.module)} (${SET})`);
+  }
+  errors.push(...sameIds(held, `no two samples of an eval set share an ID (${SET})`));
   return errors;
 }
 
@@ -557,8 +587,8 @@ export function sameIds(ids) {
 export function checkExamples(root, image, files) {
   const known = sampleOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }], samples: new Map() };
-  const { errors, seen, samples, ids } = checkSamples(known.message, files.map((file) => [file, path.join(root, file)]));
-  errors.push(...sameIds(ids));
+  const { errors, seen, samples, held } = checkSamples(known.message, files.map((file) => [file, path.join(root, file)]));
+  errors.push(...sameIds(held));
   if (errors.length === 0) {
     for (const each of [...PURPOSES, ...WRITERS, "history", "geometry", "sheet", "workbook", ...EVENTS, ...PART_KINDS, ...MARKUP]) {
       if (!seen.has(each)) errors.push({ file: FOLDER, line: 0, message: `no example shows ${each}: together the examples show every purpose, writer, ink, surface and event of ${TEXT}, and of a markup every kind of part, parts and marks, a first error, a final answer and a workbook's truth` });

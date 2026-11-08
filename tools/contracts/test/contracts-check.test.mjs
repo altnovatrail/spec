@@ -249,7 +249,8 @@ function withCommands(dir) {
   const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs"];
   const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample", "report", "strokes"].map((name) => `tools/contracts/${name}.mjs`);
   const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
-  for (const file of [...tools, ...contracts, ...format]) {
+  // sample.mjs reads the IDs of the module format from its schemas.
+  for (const file of [...tools, ...contracts, ...format, "format/schemas/common.schema.json"]) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(dir, file));
   }

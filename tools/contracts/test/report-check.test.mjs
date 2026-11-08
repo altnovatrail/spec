@@ -126,7 +126,7 @@ test("the command takes --reports, and every argument after it but the first --s
   assert.equal(dashed.stdout, "report-check: ok — 1 report\n");
   const other = command(good, ["--report", reports[0]]);
   assert.equal(other.status, 2);
-  assert.match(other.stderr, /^contracts-check: the only arguments are --samples, with the sample files to check, and --reports, /);
+  assert.match(other.stderr, /^contracts-check: the only arguments are --samples, with the sample files to check — or --eval-set, .*, and --reports, /);
 });
 
 test("checkReportFiles reads spec's examples by the same code, and throws on a path outside root", () => {

@@ -206,12 +206,12 @@ test("the task, without its key", () => {
   const digest = tutor.file_digest;
   expectOnly(changed(evalSet(), (s) => {
     delete s.task.tutor;
-    s.task.modules = { tag: "v0.1.0", module: "fractions", version: "1.2.0", package_digest: digest };
+    s.task.modules = { tag: "v0.1.0", module: "novatrail/fractions", version: "1.2.0", package_digest: digest };
   }));
   expectOnly(changed(evalSet(), (s) => {
     delete s.task.tutor;
     s.task.modules = { tag: "v0.1", module: "", version: "1.2", package_digest: "sha256:" };
-  }), /^the tag "v0\.1" is not/, /^the module's ID is empty$/, /^the module's version "1\.2" is not MAJOR\.MINOR\.PATCH$/, /^the package's digest "sha256:" is not/);
+  }), /^the tag "v0\.1" is not/, /^the module's ID "" is not the ID of a module, <publisher>\/<name>, as the module format has it$/, /^the module's version "1\.2" is not MAJOR\.MINOR\.PATCH$/, /^the package's digest "sha256:" is not/);
   expectOnly(changed(evalSet(), (s) => {
     delete s.task.tutor;
     s.task.file = { file_digest: digest, bank: "bank.json", bank_digest: digest };
