@@ -17,7 +17,7 @@ This folder holds the legal texts of the NovaTrail platform: the privacy policy,
 - **The current version** of a text is its version in force with the highest number; a text with no version in force has none, and is shown nowhere. The same holds for a set. A version that a later one replaced stays in the part, so that what a consent or a sample names can still be read.
 - **What a release holds to.** Within the line of the release before it, and under the same `VERSION`, `release-version` refuses a change of `schemas/legal.schema.json` once its annotations — `title`, `description`, `$comment` and `examples` — are taken out at every level, and a change of the list of the IDs of the rules of section 5, in their order, as it does for the deployment configuration ([the deployment configuration](../deployment/README.md), section 2). A new text, a new version of a text and the words of a draft are no change of the part.
 - A change that gives the part a new `VERSION` also starts a new line of `spec`'s releases. A version number never goes back and is never reused.
-- Version 1 comes out with the release of epic E4 of RUN.md, the first of `spec`'s line 0.13.
+- Version 1 comes out with `v0.13.0`, the first release of `spec`'s line 0.13, while its texts are still drafts: their words, and the author's approval, come in later releases of the line.
 
 ## 3. Files
 
