@@ -174,7 +174,7 @@ test("the part itself is read as section 5 reads it: the schema, then the rules"
   expectOnly([[POLICY, "", null]], /^legal\/texts\/privacy-policy\/1\.md:0: legal\.files: texts\/privacy-policy\/1\.md$/);
   // A rule that names a text or a set names the passport.
   const versions = errorsOf([
-    [PASSPORT, "      - version: 1\n        status: draft\n        summary:\n          en: \"Draft: Privacy policy.", "      - version: 2\n        status: draft\n        summary:\n          en: \"Draft: Privacy policy."],
+    [PASSPORT, "  privacy-policy:\n    place: app\n    versions:\n      - version: 1\n", "  privacy-policy:\n    place: app\n    versions:\n      - version: 2\n"],
     [POLICY, "", null],
     ["legal/texts/privacy-policy/2.md", null, policy],
   ]);
@@ -191,9 +191,13 @@ test("the part itself is read as section 5 reads it: the schema, then the rules"
   }
 });
 
-// A part in force, for the release before: the policy's version 1 comes into force, by the
-// passport's text.
-const inForce = (text) => text.replace('      - version: 1\n        status: draft\n        summary:\n          en: "Draft: Privacy policy.', '      - version: 1\n        status: in_force\n        in_force_since: "2026-11-20"\n        summary:\n          en: "Draft: Privacy policy.');
+// A part in force, for the release before: the policy's version 1 comes into force, found by
+// its entry in the passport rather than by its words, which change while it is a draft.
+const POLICY_DRAFT = "  privacy-policy:\n    place: app\n    versions:\n      - version: 1\n        status: draft\n";
+const inForce = (text) => {
+  assert.ok(text.includes(POLICY_DRAFT), "the passport holds the policy's version 1 as a draft");
+  return text.replace(POLICY_DRAFT, '  privacy-policy:\n    place: app\n    versions:\n      - version: 1\n        status: in_force\n        in_force_since: "2026-11-20"\n');
+};
 
 test("a passport that is a folder, a texts/ that is a file and a VERSION that is a folder are named, not thrown", () => {
   assert.deepEqual(errorsOf([[PASSPORT, "", null], ["legal/legal.yaml/notes.txt", null, "notes\n"]]), ["legal/legal.yaml:0: the passport is a file, and this is none"]);
