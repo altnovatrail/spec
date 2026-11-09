@@ -199,17 +199,18 @@ const trapValuesOf = (task) => (task.items ?? []).flatMap((item) => answerSlotsO
 export const trapsNamed = (task) => [...(task.traps ?? []), ...trapValuesOf(task).map((trapValue) => trapValue.trap)];
 
 // The texts of a module that the learner can see before a task is solved, which task.no-leaks
-// searches: the task's givens and unknown, the text of each trap value and the simpler case of each
-// item; of an instance of a template, the path of each picture of its statement and its solution,
+// searches: the task's givens, unknown and leading question, the text of each trap value and the
+// simpler case of each item; of an instance of a template, the path of each picture of its statement and its solution,
 // whose names its numbers fill (section 23; R108) — not a task's that is no template, whose names the
 // author wrote, often with the numbers of its ID; and, of the module's other parts when they are given, the title
-// and description of each technique the task names, the advice of each trap it names and, for a task
-// with an item with a verdict, the manifest's rung templates.
-export function textsShownBefore(task, { manifest, traps, techniques } = {}, instance = false) {
-  const texts = [...(task.givens ?? []), task.unknown, ...(task.items ?? []).map((item) => item.simpler_case), ...trapValuesOf(task).map((trapValue) => trapValue.text)];
+// and description of each technique the task names, the advice of each trap it names, the description
+// and title of each solving step and, for a task with an item with a verdict, the manifest's rung templates.
+export function textsShownBefore(task, { manifest, traps, techniques, solvingSteps } = {}, instance = false) {
+  const texts = [...(task.givens ?? []), task.unknown, task.leading_question, ...(task.items ?? []).map((item) => item.simpler_case), ...trapValuesOf(task).map((trapValue) => trapValue.text)];
   if (instance) texts.push(...[...(task.statement ?? []), ...(task.solution ?? [])].map((part) => part.picture));
   for (const id of task.techniques ?? []) texts.push(techniques?.techniques?.[id]?.title, techniques?.techniques?.[id]?.description);
   for (const id of trapsNamed(task)) texts.push(traps?.traps?.[id]?.trap_advice);
+  for (const step of solvingSteps?.steps ?? []) texts.push(step.title, step.description);
   if (hasVerdict(task)) texts.push(...(manifest?.rung_templates ?? []));
   return texts.filter(isText);
 }

@@ -313,6 +313,12 @@ export interface Step {
    */
   readonly title: formatv0.Text;
   /**
+   * How to go through the step, in the module's explanation language, which the learner's app shows
+   * beside its title. Every task of the module goes through the step, so the leak check searches it
+   * for the keys of every task.
+   */
+  readonly description?: formatv0.Text;
+  /**
    * What of the task the step gives the learner: givens, the task's givens and unknown, which the
    * learner ticks; techniques, the task's techniques, which the server gives when the step begins.
    * A step that gives neither leaves this field out.

@@ -34,6 +34,11 @@ type Task struct {
 	// What the task asks to find, in the module's explanation language: the chip that the learner
 	// ticks beside the givens.
 	Unknown *Text `json:"unknown,omitzero"`
+	// The author's question that breaks the task down, in the module's explanation language: what a
+	// hint asked for gives before the first wrong answer, with the techniques. Closed, since it
+	// hints at how to solve the task more than a technique does; the leak check searches it for the
+	// task's keys.
+	LeadingQuestion *Text `json:"leading_question,omitzero"`
 	// The skills that the task trains and needs, for each item that names none of its own.
 	Skills Skills `json:"skills"`
 	// The band of the module's difficulty scale that the task is in, by its ID in the manifest.

@@ -29,6 +29,11 @@
           "description": "What the learner does in the step, in the module's explanation language.",
           "x-open": true
         },
+        "description": {
+          "$ref": "common.schema.json#/$defs/text",
+          "description": "How to go through the step, in the module's explanation language, which the learner's app shows beside its title. Every task of the module goes through the step, so the leak check searches it for the keys of every task.",
+          "x-open": true
+        },
         "gives": {
           "type": "array",
           "items": {

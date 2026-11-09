@@ -119,6 +119,15 @@ test("task.no-leaks searches the texts that the learner sees before the task is 
   assert.equal(leaksBefore(fixed, parts), true, "a rung template holds the leak phrase");
   const essay = { items: [{ answer_slots: [{ binding: "sheet", check: { kind: "rubric", criteria: [{ text: "A criterion." }] } }] }] };
   assert.deepEqual(textsShownBefore(essay, parts), [], "a task with no verdict shows no rung template");
+  // The leading question of the task, and the description of every solving step (R108; app В13).
+  const asked = { ...fixed, leading_question: "Is it 7?" };
+  assert.ok(textsShownBefore(asked).includes("Is it 7?"));
+  assert.equal(leaksBefore(asked), true, "a hint asked for gives the leading question before the first wrong answer");
+  const steps = { solvingSteps: { steps: [{ title: "Solve it", description: "Count all 7 rungs.", exit_condition: "none" }, { title: "Check", exit_condition: "none" }] } };
+  assert.ok(textsShownBefore(fixed, steps).includes("Count all 7 rungs."));
+  assert.equal(leaksBefore(fixed, steps), true, "a step's description is searched for the keys of every task");
+  // The title of a step is as open, and shown with every task, as its description is.
+  assert.equal(leaksBefore(fixed, { solvingSteps: { steps: [{ title: "Count up to 7", exit_condition: "none" }] } }), true);
   // Of an instance of a template, the paths of the pictures of its statement and solution too (R108).
   const pictured = { ...fixed, statement: [{ text: "How many rungs?" }, { picture: "pictures/ladder-of-7.png", alt: "A ladder.", width: 1, height: 1 }], solution: [{ picture: "pictures/ladder-of-8.png", alt: "", width: 1, height: 1 }] };
   assert.ok(!textsShownBefore(pictured).includes("pictures/ladder-of-7.png"), "a task that is no template");

@@ -269,7 +269,7 @@ function compareSolvingSteps(before, after, change) {
   if (!before && after) return change("#/solving_steps", "minor", "the solving steps are added");
   if (!before) return;
   // Steps have no IDs: their number and, at each place, what the step gives, as a set, and its exit
-  // condition. Their titles are words.
+  // condition. Their titles and descriptions are words, a patch.
   const flow = (steps) => steps.map((step) => [[...setOf(step.gives)].sort(byCodeUnits), step.exit_condition]);
   if (differ(flow(before.steps), flow(after.steps))) change("#/solving_steps/steps", "minor", "the solving steps change their number, order, what they give or their exit conditions");
 }

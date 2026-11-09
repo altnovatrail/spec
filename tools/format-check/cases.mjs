@@ -454,12 +454,16 @@ function resultsGiven(members, view) {
   return results;
 }
 
+// The parts of a module beside its tasks whose texts task.no-leaks searches (section 20), as
+// textsShownBefore takes them: one place, so that both callers pass the same.
+const leakPartsOf = (manifest, traps, techniques, solvingSteps) => ({ manifest, traps, techniques, solvingSteps });
+
 // The rules of a task that format-check implements, on every instance of each template with a solver,
 // filled with the results that a vector of packages gives: they make the instances that module-kit
 // checks, as the results of an attempt of a vector of templates do (section 24).
 function solvedProblems(members, instances = {}) {
   const problems = [];
-  const parts = { manifest: members.manifest, traps: members.traps, techniques: members.techniques };
+  const parts = leakPartsOf(members.manifest, members.traps, members.techniques, members.solving_steps);
   for (const [id, task] of Object.entries(members.tasks ?? {})) {
     if (!resultsOf(task).length) continue;
     const make = instanceMaker(task);
@@ -798,10 +802,11 @@ function taskRuleProblems(breaches, rule) {
 }
 
 // The same for the tasks and the lessons of a case laid out as a module, with its manifest, its trap
-// catalog and its technique catalog: one of them breaks the rule of the case.
-function moduleRuleProblems({ tasks, lessons, manifest, traps, techniques }, rule, validateTask) {
+// catalog, its technique catalog and its solving steps: one of them breaks the rule of the case.
+function moduleRuleProblems({ tasks, lessons, manifest, traps, techniques, "solving-steps": solvingSteps }, rule, validateTask) {
   const own = IMPLEMENTED_RULES.includes(rule) ? rule : null;
-  const expanded = tasks.map(({ file, id, task }) => ({ file, id, ...expandedOf(task, { manifest, traps, techniques }, validateTask) }));
+  const parts = leakPartsOf(manifest, traps, techniques, solvingSteps);
+  const expanded = tasks.map(({ file, id, task }) => ({ file, id, ...expandedOf(task, parts, validateTask) }));
   const byId = new Map(expanded.map(({ id, tasks: theirs }) => [id, theirs]));
   const files = [
     ...expanded.map(({ file, breaches }) => ({ file, breaches })),

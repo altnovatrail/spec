@@ -186,6 +186,11 @@ test("the part found is the highest that a change raises, and the version alone 
   assert.equal(partOf((view) => (view.tasks.t = { ...TASK, items: [{ answer_slots: [slot({ kind: "number", key: "8" })] }] })), "major");
   assert.equal(partOf((view) => (view.tasks.t = { ...TASK, items: [{ answer_slots: [slot({ kind: "number", key: "7" }, { binding: "zone" })] }] })), "major");
   assert.equal(partOf((view) => (view.solving_steps = { steps: [{ title: "Solve", exit_condition: "none" }] })), "minor");
+  // A leading question and the description of a step are words (R108): a patch.
+  assert.equal(partOf((view) => (view.tasks.t = { ...TASK, leading_question: "What is one more?" })), "patch");
+  const stepped = (step) => ({ view: { ...VIEW, solving_steps: { steps: [{ title: "Solve", exit_condition: "none", ...step }] } }, device: DEVICE });
+  assert.equal(foundPartOf(stepped({}), stepped({ description: "Write the answer." })).part, "patch");
+  assert.equal(foundPartOf(stepped({}), stepped({ exit_condition: "answer_slots_filled" })).part, "minor");
   assert.equal(partOf((view) => (view.manifest = { ...view.manifest, canvas: { digit_height: 24 } })), "patch");
   assert.equal(partOf((view) => (view.manifest = { ...view.manifest, bands: [{ id: "hard", title: "Hard" }] })), "patch");
   assert.equal(partOf((view) => (view.skill_graph.retired_skills = { c: { replaced_by: ["a"] } })), "major");

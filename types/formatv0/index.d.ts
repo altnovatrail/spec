@@ -691,6 +691,12 @@ export interface Step {
    */
   readonly title: Text;
   /**
+   * How to go through the step, in the module's explanation language, which the learner's app shows
+   * beside its title. Every task of the module goes through the step, so the leak check searches it
+   * for the keys of every task.
+   */
+  readonly description?: Text;
+  /**
    * What of the task the step gives the learner: givens, the task's givens and unknown, which the
    * learner ticks; techniques, the task's techniques, which the server gives when the step begins.
    * A step that gives neither leaves this field out.
@@ -766,6 +772,13 @@ export interface Task {
    * ticks beside the givens.
    */
   readonly unknown?: Text;
+  /**
+   * The author's question that breaks the task down, in the module's explanation language: what a
+   * hint asked for gives before the first wrong answer, with the techniques. Closed, since it hints
+   * at how to solve the task more than a technique does; the leak check searches it for the task's
+   * keys.
+   */
+  readonly leading_question?: Text;
   /**
    * The skills that the task trains and needs, for each item that names none of its own.
    */
