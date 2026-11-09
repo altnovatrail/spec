@@ -1,6 +1,6 @@
 # The manifest of the official module of school mathematics for grade 3, on a workbook. Its skills
 # teach anchor skills of the shared taxonomy and need none, so it has no dependencies.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: novatrail/school-math-grade-3
 version: "0.1.0"
 title: School mathematics, grade 3

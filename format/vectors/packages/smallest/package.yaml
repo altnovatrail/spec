@@ -2,7 +2,7 @@
 # the manifest alone, and its device part LICENSE alone.
 server_part:
   manifest:
-    module_format_version: "0.3"
+    module_format_version: "0.4"
     id: "example/smallest"
     version: "0.1.0"
     title: "The smallest module"
@@ -20,13 +20,13 @@ device_part:
     digest: "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
     size: 11357
 inventory:
-  module_format_version: "0.3"
+  module_format_version: "0.4"
   id: "example/smallest"
   version: "0.1.0"
   server_part:
-    digest: "sha256:afabb6c8a84f17dc56e50aa70d0c3d2ef7ee023a479717fec0949fe46f3943a5"
+    digest: "sha256:c0e5c7622bc28ae39c06f47b69a94b1a6364e2968ef5a48f4fc773a54680c149"
     size: 281
   device_part:
     digest: "sha256:7866e51fff6d6b0cdab46531f4097231479159ab0667ad71f5ab4a8c88d33e74"
     size: 109
-digest: "sha256:fcbe6e68430776b0506c93ab51b155f8e7f92e2b3ecbe03e34e2afb91b4d4d08"
+digest: "sha256:1b974824c9360e67fc8c3cf61e084eb36bdf4820814069dade492d2736ac5dbf"

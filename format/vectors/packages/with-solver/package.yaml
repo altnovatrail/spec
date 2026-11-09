@@ -5,7 +5,7 @@
 # instance, twice left and to_ben together, and module-kit's CI runs the solver and compares.
 server_part:
   manifest:
-    module_format_version: "0.3"
+    module_format_version: "0.4"
     id: "example/with-solver"
     version: "0.1.0"
     title: "A module with a solver"
@@ -265,13 +265,13 @@ device_part:
     digest: "sha256:e884000118cf28fb2bdb2002c8f0cf56e73561848de01bd91a1838851e156ef8"
     size: 1220
 inventory:
-  module_format_version: "0.3"
+  module_format_version: "0.4"
   id: "example/with-solver"
   version: "0.1.0"
   server_part:
-    digest: "sha256:dde7d51d1019d647dddd379a22a8e642c578e41097431ae1d5f33697d61564e9"
+    digest: "sha256:603b4103de11f16bd4e35b6c12724b5a8f500f7da2767b8750f063f873903244"
     size: 4546
   device_part:
     digest: "sha256:9a1b4e253759e7107617aa66af3edf51351c4f82f161756e2eabb8c4177f784c"
     size: 215
-digest: "sha256:3ff05331a68fd13b56588ea6ac3ed2621d2ecb910221b09e8a84e69c567c5134"
+digest: "sha256:1e176443790714b421719ad6eea7e25f2763a1b38a59b5fa2bddedee1bc00e66"

@@ -2,16 +2,16 @@
 # that names the release. The times tables teach two anchor skills, the smallest module none.
 release: v0.1.0
 index:
-  module_format_version: "0.3"
+  module_format_version: "0.4"
   modules:
     example/smallest:
       "0.1.0":
-        module_format_version: "0.3"
-        package_digest: sha256:fcbe6e68430776b0506c93ab51b155f8e7f92e2b3ecbe03e34e2afb91b4d4d08
+        module_format_version: "0.4"
+        package_digest: sha256:1b974824c9360e67fc8c3cf61e084eb36bdf4820814069dade492d2736ac5dbf
         release: v0.1.0
     example/times-tables:
       "0.1.0":
-        module_format_version: "0.3"
-        package_digest: sha256:860ba9ff55af668cb068de2cb8b6e99d86f8739ed40e00d3c40bba34d71f7555
+        module_format_version: "0.4"
+        package_digest: sha256:29b391c30b183e80f71456dc9783b28df6e161388b762dc08adc42df9ca70dee
         release: v0.1.0
         teaches: [core.division-with-remainder, core.multiplication-table]

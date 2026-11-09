@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/format/0.3/lesson.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/format/0.4/lesson.schema.json",
   "title": "Lesson",
   "description": "A lesson of a module: a sequence that its author made — explanations, worked examples and tasks, in order — and the skills of the module that it teaches. The skill graph orders the lessons.",
   "type": "object",

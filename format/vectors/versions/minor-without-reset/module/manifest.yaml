@@ -1,4 +1,4 @@
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: example/versions
 version: "1.1.3"
 title: Counting and adding again

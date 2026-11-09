@@ -1,5 +1,5 @@
 # error: uniqueItems at #/dependencies
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: novatrail/olympiad-math
 version: "0.1.0"
 title: Olympiad mathematics, grades 1–6

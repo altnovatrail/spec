@@ -4,7 +4,7 @@
 # whatever order its folder lists its files in.
 server_part:
   manifest:
-    module_format_version: "0.3"
+    module_format_version: "0.4"
     id: "example/with-media-and-notice"
     version: "0.1.0"
     title: "With media and notice"
@@ -30,13 +30,13 @@ device_part:
       digest: "sha256:064b66188821584121784c30ca28eadbc5f265e025c6dd9eeed64cf1ef8e1f46"
       size: 67
 inventory:
-  module_format_version: "0.3"
+  module_format_version: "0.4"
   id: "example/with-media-and-notice"
   version: "0.1.0"
   server_part:
-    digest: "sha256:39b845131257fa61e564fe9adf6537f10e144290ae900fc78ceae16f070291ee"
+    digest: "sha256:4c016c1435eea8bfbdbd00b777ef1c61f2c1121476fd814fe02a02ff9f1e585c"
     size: 307
   device_part:
     digest: "sha256:2f2a19ffef131ef087c1fe31fc0d92b55a782554a453f7398d6503b8496b5d94"
     size: 338
-digest: "sha256:9cb41f60d3d19e4733c619a26277e68d0a59eb19a76b5180dba15f6dc09bccdc"
+digest: "sha256:391f7ca91389fb834775986b41af16120ceaf1106712d8d367e1684c616d1843"

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/format/0.3/common.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/format/0.4/common.schema.json",
   "title": "Common definitions",
   "description": "The definitions that the parts of a module share: the format version, IDs and versions, languages, the license, age categories, school grades, subjects, the paths of media files and pictures, texts, the parts of a text that the learner reads, a canvas, and a rectangle of the handwriting sheet.",
   "$defs": {

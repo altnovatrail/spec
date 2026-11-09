@@ -1202,7 +1202,7 @@ test("a vector of packages gives the results of a solver on every instance, and 
   assert.deepEqual(realErrorsOf([[solver, first, ""]]), ["format/vectors/packages/with-solver/package.yaml:0: the results of the solver of number-thought-of are given for 34 instances, and it has 35"]);
   assert.deepEqual(realErrorsOf([[solver, first, first.replace("        sweets: 10\n", "")]]), ["format/vectors/packages/with-solver/package.yaml:0: the results of the solver of number-thought-of are not all given on instance 0: each of sweets is"]);
   // A wrong result is the vector's: spec cannot tell it, but the digests that pin the server part can.
-  const digests = [/with-solver\/package\.yaml:0: inventory is not the inventory of the module: they differ at #\/inventory\/server_part\/digest/, /with-solver\/package\.yaml:0: the digest of the package is sha256:[0-9a-f]{64}, not sha256:3ff05331/];
+  const digests = [/with-solver\/package\.yaml:0: inventory is not the inventory of the module: they differ at #\/inventory\/server_part\/digest/, /with-solver\/package\.yaml:0: the digest of the package is sha256:[0-9a-f]{64}, not sha256:1e176443/];
   expectEachOf(realErrorsOf([[solver, first, first.replace("sweets: 10", "sweets: 11")]]), digests);
   // A result that makes its instance break a rule of a task: a key of 5 is the trap value before_ben.
   expectEachOf(realErrorsOf([[solver, first, first.replace("sweets: 10", "sweets: 5")]]), [...digests, /with-solver\/package\.yaml:0: the instance left = 2, to_ben = 3 of number-thought-of, with the results of its solver that the vector gives, breaks task\.trap-values/]);
@@ -1380,9 +1380,9 @@ test("a published version of an earlier version of the format is a package as fi
   expectEachOf(spaced, [/format-transition\/published\/1\.0\.0\/inventory\.json:0: names the server part \{"digest":"sha256:[0-9a-f]{64}","size":\d+\}, and server\.json is /]);
   const current = realErrorsWith((root) => {
     const file = path.join(root, files, "inventory.json");
-    fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace('"module_format_version":"0.2"', '"module_format_version":"0.3"'));
+    fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace('"module_format_version":"0.2"', '"module_format_version":"0.4"'));
   });
-  assert.deepEqual(current, [`${files}:0: is a package of the format version 0.3: a published version of 0.3, which format/VERSION has, is laid out as a module, and one of a later version is none`]);
+  assert.deepEqual(current, [`${files}:0: is a package of the format version 0.4: a published version of 0.4, which format/VERSION has, is laid out as a module, and one of a later version is none`]);
   const placeless = realErrorsWith((root) => {
     const view = JSON.parse(fs.readFileSync(path.join(root, server), "utf8"));
     delete view.manifest.languages;
