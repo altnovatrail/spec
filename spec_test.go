@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -72,6 +73,40 @@ func TestAdmissionHoldsEveryFile(t *testing.T) {
 	}
 	if !json.Valid(table) {
 		t.Fatal("admission-table.json is not JSON")
+	}
+}
+
+// Deployment holds every file of deployment/, and its VERSION is an integer, which the field format
+// of the file's schema holds.
+func TestDeploymentHoldsEveryFile(t *testing.T) {
+	embedded := filesOf(t, Deployment)
+	onDisk := filesOf(t, os.DirFS("deployment"))
+	if !slices.Equal(embedded, onDisk) {
+		t.Fatalf("Deployment holds %d files, and deployment/ %d", len(embedded), len(onDisk))
+	}
+	version, err := fs.ReadFile(Deployment, "VERSION")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !regexp.MustCompile(`^[1-9][0-9]*\n$`).Match(version) {
+		t.Fatalf("VERSION is %q, not an integer and a newline", version)
+	}
+	data, err := fs.ReadFile(Deployment, "schemas/deployment.schema.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var schema struct {
+		Properties struct {
+			Format struct {
+				Const json.Number `json:"const"`
+			} `json:"format"`
+		} `json:"properties"`
+	}
+	if err := json.Unmarshal(data, &schema); err != nil {
+		t.Fatalf("schemas/deployment.schema.json is not JSON: %v", err)
+	}
+	if want := strings.TrimSuffix(string(version), "\n"); string(schema.Properties.Format.Const) != want {
+		t.Fatalf("the field format of the file is the const %q, and VERSION %q", schema.Properties.Format.Const, want)
 	}
 }
 

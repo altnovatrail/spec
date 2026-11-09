@@ -16,7 +16,7 @@ import (
 // leaves out otherwise: a vector of packages holds one on purpose, since a module's package
 // leaves such files out (format/README.md, section 25).
 //
-//go:embed all:format all:admission
+//go:embed all:format all:admission all:deployment
 var files embed.FS
 
 // Format is the module format as the release has it: format/ at its tag, with the text, VERSION,
@@ -28,6 +28,12 @@ var Format = sub("format")
 // text, VERSION, the table, its schemas, its examples and its test vectors (admission/README.md,
 // section 3). Its root is admission/, so that the table is "admission-table.json".
 var Admission = sub("admission")
+
+// Deployment is the format of the deployment configuration as the release has it (R85):
+// deployment/ at its tag, with the text, VERSION, the schemas, the examples and the test vectors
+// (deployment/README.md, section 3). Its root is deployment/, so that the schema of the file is
+// "schemas/deployment.schema.json".
+var Deployment = sub("deployment")
 
 func sub(dir string) fs.FS {
 	part, err := fs.Sub(files, dir)

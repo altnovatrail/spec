@@ -1,0 +1,9 @@
+# A local run: api over http on a loopback host, with its port.
+format: 1
+api: http://localhost:8080
+signIn:
+  service: firebase
+  apiKey: synthetic-web-api-key
+  authDomain: example-project.firebaseapp.com
+  projectId: example-project
+  appId: synthetic-web-app-id

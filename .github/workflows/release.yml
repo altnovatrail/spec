@@ -3,16 +3,19 @@
 # line of its own comes from raising RELEASE_LINE in the change that deserves it. A change that
 # gives the module format a new version always does, so that a line never spans two of them
 # (R44), and release-version refuses one that does not; so does a new version of the admission
-# table (R96) and a new major package of a contract (R83), and a change that brings a new kind of
-# file into the release, so that a release of an earlier line, run again, builds the files it got.
+# table (R96) or of the deployment configuration (R85) and a new major package of a contract
+# (R83), and a change that brings a new kind of file into the release, so that a release of an
+# earlier line, run again, builds the files it got.
 #
 # Other repositories take the tag as a submodule for spec's documents and rules (R21), and their
 # code takes the release's files (R64). From the line 0.3 on, a release carries each normative part
 # with a version of its own as a file, <part>-<version>.tar.gz — the module format,
-# format-<version>.tar.gz, and from the line 0.8 on the admission table, admission-<version>.tar.gz
-# (R96) — and from the line 0.4 on the npm package of the format's types for TypeScript as well,
-# altnovatrail-spec-<X.Y.Z>.tgz, the archive npm takes (R73), which from the line 0.5 on holds the
-# types of the element <novatrail-canvas> too (R74), and from the line 0.8 on the admission table's.
+# format-<version>.tar.gz, from the line 0.8 on the admission table, admission-<version>.tar.gz
+# (R96), and from the line 0.11 on the deployment configuration, deployment-<version>.tar.gz, its
+# version an integer (R85) — and from the line 0.4 on the npm package of the format's types for
+# TypeScript as well, altnovatrail-spec-<X.Y.Z>.tgz, the archive npm takes (R73), which from the
+# line 0.5 on holds the types of the element <novatrail-canvas> too (R74), from the line 0.8 on
+# the admission table's, and from the line 0.11 on the deployment configuration's.
 # From the line 0.7 on, it carries the npm package of the API contracts' code as well,
 # altnovatrail-contracts-<X.Y.Z>.tgz (R83). Each is signed without a key, with its bundle
 # <file>.sigstore.json beside it, as the shared release of .github signs its callers' files. Go code
@@ -57,7 +60,7 @@ permissions:
 # The line the releases are numbered in: the major and minor version every release carries, the
 # patch counting up within it. just release-version reads it from here.
 env:
-  RELEASE_LINE: "0.10"
+  RELEASE_LINE: "0.11"
 
 jobs:
   release:
@@ -228,8 +231,12 @@ jobs:
               elif [ "$name" = "altnovatrail-contracts-${VERSION#v}.tgz" ]; then
                   npm="${npm:+${npm} }${name}"
                   contracts="$name"
-              elif ! [[ "$name" =~ ^[a-z][a-z-]*-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.tar\.gz$ ]]; then
-                  echo "::error::A file of dist/ is named ${name}, neither <part>-<MAJOR.MINOR>.tar.gz, altnovatrail-spec-${VERSION#v}.tgz nor altnovatrail-contracts-${VERSION#v}.tgz as release-files names its files."
+              # The parts as release-verify knows them (tools/release/verify.mjs, PART_FILE): the
+              # format and the admission table by MAJOR.MINOR, the deployment configuration by an
+              # integer.
+              elif ! [[ "$name" =~ ^(format|admission)-(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.tar\.gz$ ||
+                  "$name" =~ ^deployment-[1-9][0-9]*\.tar\.gz$ ]]; then
+                  echo "::error::A file of dist/ is named ${name}, neither format-<MAJOR.MINOR>.tar.gz, admission-<MAJOR.MINOR>.tar.gz, deployment-<integer>.tar.gz, altnovatrail-spec-${VERSION#v}.tgz nor altnovatrail-contracts-${VERSION#v}.tgz as release-files names its files."
                   exit 1
               fi
               count=$((count + 1))

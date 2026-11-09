@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/deployment/1/reading-vector.schema.json",
+  "title": "Reading vector",
+  "description": "A test vector of reading (section 7 of the deployment text): files of a deployment configuration, each with the origin where app is open and what section 5 gives. A reader implements section 5 and gets exactly this.",
+  "type": "object",
+  "properties": {
+    "cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/case",
+        "unevaluatedProperties": false
+      },
+      "minItems": 1,
+      "description": "The files, each read once."
+    }
+  },
+  "required": [
+    "cases"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "case": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string",
+          "pattern": "^https?://[a-z0-9.:\\[\\]-]+$",
+          "description": "The origin where app is open, as the URL Standard serializes it."
+        },
+        "file": {
+          "description": "The file as JSON reads it: any JSON value, not only one the schema accepts."
+        },
+        "refused_by": {
+          "enum": [
+            "schema",
+            "deployment.api-origin",
+            "deployment.loopback"
+          ],
+          "description": "The step that refuses the file: the schema, or the ID of the rule. Left out when the reader accepts the file."
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "A field's path: the names from the root, joined by a dot; the empty path for the root."
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Every field that step refuses, in the order of code units."
+        }
+      },
+      "required": [
+        "origin",
+        "file"
+      ],
+      "dependentRequired": {
+        "refused_by": [
+          "fields"
+        ],
+        "fields": [
+          "refused_by"
+        ]
+      }
+    }
+  }
+}

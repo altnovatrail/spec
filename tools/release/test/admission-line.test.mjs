@@ -6,7 +6,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { checkAdmissionLine, checked } from "../admission-line.mjs";
+import { ADMISSION, checkAdmissionLine, checked, tableChangedBetween } from "../admission-line.mjs";
+import { partLineOutput } from "../part-line.mjs";
 import { copySpecTools, env, recipe, releaseLine, root, scratchRepository, writeFile } from "./repository.mjs";
 
 const script = path.join(root, "tools", "release", "admission-line.mjs");
@@ -55,6 +56,29 @@ test("the script passes the lines through when there is nothing to check, and wa
     const missing = spawnSync(process.execPath, [script, head], { cwd: dir, input: "version=v0.8.1\nprevious=v0.8.0\nreleased=\nbehind=\n", encoding: "utf8", env });
     assert.equal(missing.status, 1);
     assert.match(missing.stderr, /^release-version: no admission\/VERSION at /);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("the rule reads the versions and the table of the commit and of the release before it, by git", () => {
+  const { dir, git } = scratchRepository("admission-line-git-");
+  try {
+    writeFile(dir, git, "admission/VERSION", "0.1\n");
+    writeFile(dir, git, "admission/admission-table.json", "{}\n");
+    git("commit", "--quiet", "-m", "one");
+    git("tag", "v0.8.0");
+    writeFile(dir, git, "admission/README.md", "# The admission table\n");
+    git("commit", "--quiet", "-m", "the text");
+    const head = git("rev-parse", "HEAD");
+    const input = "version=v0.8.1\nprevious=v0.8.0\nreleased=\nbehind=\n";
+    assert.equal(tableChangedBetween(head, "v0.8.0", dir), null);
+    assert.equal(partLineOutput(ADMISSION, tableChangedBetween, { input, commit: head, cwd: dir }), input);
+    writeFile(dir, git, "admission/admission-table.json", "{ }\n");
+    git("commit", "--quiet", "-m", "the table");
+    const changed = git("rev-parse", "HEAD");
+    assert.equal(tableChangedBetween(changed, "v0.8.0", dir), "admission/admission-table.json changed");
+    assert.throws(() => partLineOutput(ADMISSION, tableChangedBetween, { input, commit: changed, cwd: dir }), /admission\/admission-table\.json changed after v0\.8\.0, and admission\/VERSION is still 0\.1/);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

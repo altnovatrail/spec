@@ -1,0 +1,52 @@
+# api over http, while app itself is open on a host that is no loopback host.
+cases:
+  - origin: https://app.example.org
+    file:
+      format: 1
+      api: http://127.0.0.1:8080
+      signIn:
+        service: firebase
+        apiKey: synthetic-web-api-key
+        authDomain: example-project.firebaseapp.com
+        projectId: example-project
+        appId: synthetic-web-app-id
+    refused_by: deployment.loopback
+    fields: [api]
+  - origin: http://app.example.org
+    file:
+      format: 1
+      api: http://localhost:8080
+      signIn:
+        service: firebase
+        apiKey: synthetic-web-api-key
+        authDomain: example-project.firebaseapp.com
+        projectId: example-project
+        appId: synthetic-web-app-id
+    refused_by: deployment.loopback
+    fields: [api]
+  # A loopback host is 127.0.0.1, localhost or [::1], written so: not another address of 127.0.0.0/8,
+  # nor a name under localhost.
+  - origin: http://127.0.0.2:5173
+    file:
+      format: 1
+      api: http://localhost:8080
+      signIn:
+        service: firebase
+        apiKey: synthetic-web-api-key
+        authDomain: example-project.firebaseapp.com
+        projectId: example-project
+        appId: synthetic-web-app-id
+    refused_by: deployment.loopback
+    fields: [api]
+  - origin: http://dev.localhost:5173
+    file:
+      format: 1
+      api: http://localhost:8080
+      signIn:
+        service: firebase
+        apiKey: synthetic-web-api-key
+        authDomain: example-project.firebaseapp.com
+        projectId: example-project
+        appId: synthetic-web-app-id
+    refused_by: deployment.loopback
+    fields: [api]

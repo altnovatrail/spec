@@ -1,0 +1,4 @@
+# error: required at #
+# No signIn: there is no default.
+format: 1
+api: https://api.example.org

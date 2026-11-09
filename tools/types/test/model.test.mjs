@@ -211,4 +211,33 @@ test("names are PascalCase, with ID for id", () => {
   assert.equal(pascalOf("module-index.entries-kept"), "ModuleIndexEntriesKept");
   assert.equal(pascalOf("under_13"), "Under13");
   assert.equal(pascalOf("answer_slots"), "AnswerSlots");
+  // The fields of the deployment configuration keep their names in camelCase (R85).
+  assert.equal(pascalOf("appId"), "AppID");
+  assert.equal(pascalOf("authDomain"), "AuthDomain");
+  assert.equal(pascalOf("signIn"), "SignIn");
+  // api is an initialism of Go's, as id is.
+  assert.equal(pascalOf("api"), "API");
+  assert.equal(pascalOf("apiKey"), "APIKey");
+  assert.equal(pascalOf("deployment.api-origin"), "DeploymentAPIOrigin");
+  assert.equal(pascalOf("rapid_idea"), "RapidIdea");
+});
+
+test("a const number is an integer or a number, and a field described alone holds any JSON value where the model lets it", () => {
+  const part = schema("part.schema.json", {
+    type: "object",
+    properties: { format: { const: 1, description: "A version." }, ratio: { const: 0.5, description: "A ratio." }, file: { description: "Any JSON value." } },
+    required: ["format", "file"],
+  });
+  // The format's and the admission table's models do not: such a field has no shape.
+  assert.throws(() => model(part), (error) => error instanceof ModelError && /#\/properties\/file gives the field file no shape anywhere/.test(error.message));
+  assert.throws(() => buildModel([common, part], [], { anyValue: false }), /gives the field file no shape anywhere/);
+  const built = buildModel([common, part], ["part"], { anyValue: true });
+  assert.deepEqual(
+    type(built, "Part").fields.map(({ json, type: ref, required }) => ({ json, ref, required })),
+    [
+      { json: "format", ref: { primitive: "integer" }, required: true },
+      { json: "ratio", ref: { primitive: "number" }, required: false },
+      { json: "file", ref: { any: true }, required: true },
+    ],
+  );
 });

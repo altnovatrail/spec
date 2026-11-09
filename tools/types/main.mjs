@@ -1,13 +1,14 @@
-// types: the types of the module format and of the admission table, generated from their schemas
-// (R72, R96; RUN.md, T45, T61).
+// types: the types of the module format, of the admission table and of the deployment
+// configuration, generated from their schemas (R72, R96, R85; RUN.md, T45, T61, T91).
 //
 //   node tools/types/main.mjs <folder>      writes the files under <folder>, by their paths from
 //                                           the root of the repository
 //
 // Reads spec's own format/, two levels above this file: the schemas, the version, and the parts of
-// a module that the layout of the format text names; and admission/, its schemas and its version.
-// Writes the Go of the models — the packages formatv0 and formatv0/open under types/, admissionv0
-// beside them, and the registry of tools/types/roundtrip — as gofmt
+// a module that the layout of the format text names; and admission/ and deployment/, the schemas
+// and the version of each. Writes the Go of the models — the packages formatv0 and formatv0/open
+// under types/, admissionv0 and deploymentv1 beside them, and the registry of
+// tools/types/roundtrip — as gofmt
 // leaves it but for the alignment of a struct's fields, and the TypeScript of the same packages
 // beside it, index.d.ts in each (R73): `just types` runs gofmt on them, and `just types-check`
 // compares them, so run, with the files in the repository. A form of a schema the model does not
@@ -26,6 +27,7 @@ import { buildModel } from "./model.mjs";
 
 const SCHEMAS = "format/schemas";
 const ADMISSION = "admission";
+const DEPLOYMENT = "deployment";
 const SUFFIX = ".schema.json";
 
 // What the model is built of: { schemas, version, parts }, each schema { name, json }; version is
@@ -50,6 +52,18 @@ export function readAdmission(root) {
   const version = fs.readFileSync(path.join(root, ADMISSION, "VERSION"), "utf8").trim();
   if (!version.startsWith("0.")) throw new Error(`admission/VERSION is ${version}: the types of the admission table are the package admissionv0, of its major version 0, and another major version needs a package of its own`);
   return { schemas: schemasIn(root, `${ADMISSION}/schemas`), version };
+}
+
+// What the deployment configuration's model is built of: { schemas, version, options }, of
+// deployment/schemas and deployment/VERSION (R85), and the options of buildModel: a vector's file
+// holds any JSON value. It has no open view. Its types are the package
+// deploymentv1, which holds the version 1 alone: every change of the configuration is a new
+// version (deployment/README.md, section 2), which would need a package of its own, so another one
+// stops the generator (R72).
+export function readDeployment(root) {
+  const version = fs.readFileSync(path.join(root, DEPLOYMENT, "VERSION"), "utf8").trim();
+  if (version !== "1") throw new Error(`deployment/VERSION is ${version}: the types of the deployment configuration are the package deploymentv1, of its version 1, and another version needs a package of its own`);
+  return { schemas: schemasIn(root, `${DEPLOYMENT}/schemas`), version, options: { anyValue: true } };
 }
 
 // The schemas of a folder of root, { name, json }, in the order of code units of their names.
@@ -77,14 +91,18 @@ export function pageFiles(root) {
   return [[`${PAGE_DIR}/page.json`, json("format/page.yaml")], ...cases.map((name) => [`${PAGE_DIR}/vectors/${name.replace(/\.yaml$/, ".json")}`, json(`format/vectors/pages/${name}`)])];
 }
 
-// The models and the files of the format and of the admission table at root, by their paths from
-// the root of the repository: { model, admission, files }, admission the table's model.
+// The models and the files of the format, of the admission table and of the deployment
+// configuration at root, by their paths from the root of the repository: { model, admission,
+// deployment, files }, admission the table's model and deployment the configuration's.
 export function generate(root) {
   const { schemas, version, parts } = readFormat(root);
   const model = buildModel(schemas, parts);
   const table = readAdmission(root);
   const admission = { model: buildModel(table.schemas, []), version: table.version };
-  return { model, admission: admission.model, files: new Map([...goFiles(model, version, admission), ...tsFiles(model, version, admission), ...pageFiles(root)]) };
+  const configuration = readDeployment(root);
+  const deployment = { model: buildModel(configuration.schemas, [], configuration.options), version: configuration.version };
+  const files = new Map([...goFiles(model, version, admission, deployment), ...tsFiles(model, version, admission, deployment), ...pageFiles(root)]);
+  return { model, admission: admission.model, deployment: deployment.model, files };
 }
 
 // Writes the files under folder, which holds no file of theirs yet.
