@@ -12,6 +12,8 @@ import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import { canonicalText } from "../canonical.mjs";
 import { checkFormat } from "../main.mjs";
+import { hasPage, pageOf, usePage } from "../page.mjs";
+import { readModuleFile } from "../yaml.mjs";
 import { versionProblem } from "../module.mjs";
 import { differenceOf, openViewOf } from "../openview.mjs";
 
@@ -99,7 +101,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 20, rules: 19, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0, indexes: 0, versions: 0 });
+    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 20, rules: 19, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, pages: 0, packages: 0, indexes: 0, versions: 0 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -1405,4 +1407,53 @@ test("task_picture_path is media_path for pictures, with placeholders after a -"
   const takes = (text) => new RegExp(task.pattern, "u").test(text);
   for (const text of ["pictures/split-{total}-{parts}.png", "pictures/split-12-3.png", "rows-{n}/dots.png"]) assert.ok(takes(text), text);
   for (const text of ["pictures/{total}-apples.png", "pictures/split{total}.png", "pictures/split--3.png", "pictures/split-{Total}.png", "sound-{a}.mp3"]) assert.ok(!takes(text), text);
+});
+
+// T88: the page of a workbook. The fixture takes spec's own page.yaml, its two schemas and two of
+// its vectors, a page and a refusal: they refer to no other schema.
+const PAGE_FROM = (file) => fs.readFileSync(path.join(spec, "format", file), "utf8");
+const pageFixture = () => [
+  ["format/schemas/page.schema.json", null, PAGE_FROM("schemas/page.schema.json").replace("/format/0.4/", "/format/0.1/").replace("/format/0.3/", "/format/0.1/")],
+  ["format/schemas/page-vector.schema.json", null, PAGE_FROM("schemas/page-vector.schema.json").replace("/format/0.4/", "/format/0.1/").replace("/format/0.3/", "/format/0.1/")],
+  ["format/page.yaml", null, PAGE_FROM("page.yaml")],
+  ["format/vectors/pages/times-ten.yaml", null, PAGE_FROM("vectors/pages/times-ten.yaml")],
+  ["format/vectors/pages/huge-piece.yaml", null, PAGE_FROM("vectors/pages/huge-piece.yaml")],
+];
+
+test("the page: page.yaml, its schema, and the vectors of the page laid out by it", () => {
+  const root = trialCopy(pageFixture());
+  try {
+    const { errors, stats } = checkFormat(root);
+    assert.deepEqual(errors, []);
+    assert.deepEqual([stats.schemas, stats.pages], [10, 2]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+  const times = "format/vectors/pages/times-ten.yaml";
+  expectOnly([...pageFixture(), [times, "bottom: 668", "bottom: 669"]], /times-ten\.yaml:0: the page is not the one that section 14 lays out: they differ at #\/bottom/);
+  expectOnly([...pageFixture(), [times, "left: 201", "left: 202"]], /times-ten\.yaml:0: the page is not the one that section 14 lays out: they differ at #\/page\/0\/line\/1\/left/);
+  expectOnly([...pageFixture(), ["format/vectors/pages/huge-piece.yaml", "no_room_at: 0", "no_room_at: 1"]], /huge-piece\.yaml:0: the page has no room at item 0, from 0, and the vector says 1/);
+  expectOnly([...pageFixture(), ["format/vectors/pages/empty.yaml", null, "items: []\nbottom: 40\npage: []\n"]], /empty\.yaml:0: does not pass the schema of page vectors: minItems at #\/items/);
+  expectOnly([...pageFixture(), ["format/vectors/pages/folder/case.yaml", null, "a: 1\n"]], /pages\/folder:0: a vector of the page is a file, <case>\.yaml/);
+  expectOnly([...pageFixture(), ["format/schemas/page-vector.schema.json", "", null]], /^format\/vectors\/pages:0: no schema page-vector\.schema\.json for the vectors of the page/);
+  expectEach([...pageFixture(), ["format/page.yaml", "most_items: 99", "most_items: 0"]], [/^format\/page\.yaml:0: does not pass the schema of the page: minimum at #\/most_items/, /^format\/vectors\/pages:0: the vectors of the page are laid out by format\/page\.yaml, which this run has not/]);
+  expectEach([...pageFixture(), ["format/page.yaml", "", null]], [/^format\/page\.yaml:0: the numbers and widths of the workbook's page are missing/, /^format\/vectors\/pages:0: the vectors of the page are laid out by format\/page\.yaml, which this run has not/]);
+  expectOnly([...pageFixture().filter(([file]) => !file.startsWith("format/vectors/") && !file.includes("page-vector")), ["format/schemas/page.schema.json", "", null]], /^format\/page\.yaml:0: no schema page\.schema\.json for the numbers and widths of the page/);
+});
+
+test("pageOf lays out no page without a table, and the table reads code points and ranges", () => {
+  usePage(null);
+  assert.equal(hasPage(), false);
+  assert.throws(() => pageOf([{ line: [{ text: "1 + 1 =" }, { binding: "box" }] }]), /lays out no page without format\/page\.yaml/);
+  const table = readModuleFile(fs.readFileSync(path.join(spec, "format", "page.yaml"))).value;
+  usePage(table);
+  assert.equal(hasPage(), true);
+  // A page of nothing; a box alone; a line of one word wider than the page, broken by its clusters.
+  assert.deepEqual(pageOf([]), { page: { items: [], bottom: 40 } });
+  assert.equal(pageOf([{ line: [{ binding: "box" }] }]).page.bottom, 140);
+  const long = pageOf([{ line: [{ text: "w".repeat(200) }, { binding: "box" }] }]).page;
+  assert.ok(long.items[0].line.filter((part) => part.text).length > 1, "the word is broken between its clusters");
+  // Twenty rows of short items fill the page; the row after them has no room.
+  assert.equal(pageOf(Array.from({ length: 21 }, () => ({ line: [{ text: "x =" }, { binding: "box" }] }))).noRoomAt, 20);
+  usePage(null);
 });

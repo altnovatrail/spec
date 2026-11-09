@@ -1,0 +1,399 @@
+{
+  "items": [
+    {
+      "line": [
+        {
+          "text": "56 : 8 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "7 · 6 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "2 ч 15 мин ="
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "мин"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "3 км 200 м ="
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "м"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "1000 − 365 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "binding": "box"
+        },
+        {
+          "text": "+ 27 = 64"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "8 ·"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "= 72"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "90 :"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "= 9"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "1 м ="
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "см"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "47 : 6 ="
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "(ост."
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": ")"
+        }
+      ]
+    }
+  ],
+  "bottom": 800,
+  "page": [
+    {
+      "number": {
+        "text": "1.",
+        "left": 56,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "56 : 8 =",
+          "left": 96,
+          "baseline": 100,
+          "width": 97
+        },
+        {
+          "left": 209,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "2.",
+        "left": 536,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "7 · 6 =",
+          "left": 576,
+          "baseline": 100,
+          "width": 82
+        },
+        {
+          "left": 674,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "3.",
+        "left": 56,
+        "baseline": 232,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "2 ч 15 мин =",
+          "left": 96,
+          "baseline": 232,
+          "width": 164
+        },
+        {
+          "left": 276,
+          "top": 172,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "мин",
+          "left": 392,
+          "baseline": 232,
+          "width": 53
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "4.",
+        "left": 536,
+        "baseline": 232,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "3 км 200 м =",
+          "left": 576,
+          "baseline": 232,
+          "width": 165
+        },
+        {
+          "left": 757,
+          "top": 172,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "м",
+          "left": 873,
+          "baseline": 232,
+          "width": 20
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "5.",
+        "left": 56,
+        "baseline": 364,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "1000 − 365 =",
+          "left": 96,
+          "baseline": 364,
+          "width": 169
+        },
+        {
+          "left": 281,
+          "top": 304,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "6.",
+        "left": 536,
+        "baseline": 364,
+        "width": 24
+      },
+      "line": [
+        {
+          "left": 576,
+          "top": 304,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "+ 27 = 64",
+          "left": 692,
+          "baseline": 364,
+          "width": 121
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "7.",
+        "left": 56,
+        "baseline": 496,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "8 ·",
+          "left": 96,
+          "baseline": 496,
+          "width": 34
+        },
+        {
+          "left": 146,
+          "top": 436,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "= 72",
+          "left": 262,
+          "baseline": 496,
+          "width": 57
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "8.",
+        "left": 536,
+        "baseline": 496,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "90 :",
+          "left": 576,
+          "baseline": 496,
+          "width": 48
+        },
+        {
+          "left": 640,
+          "top": 436,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "= 9",
+          "left": 756,
+          "baseline": 496,
+          "width": 41
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "9.",
+        "left": 56,
+        "baseline": 628,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "1 м =",
+          "left": 96,
+          "baseline": 628,
+          "width": 69
+        },
+        {
+          "left": 181,
+          "top": 568,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "см",
+          "left": 297,
+          "baseline": 628,
+          "width": 34
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "10.",
+        "left": 40,
+        "baseline": 760,
+        "width": 40
+      },
+      "line": [
+        {
+          "text": "47 : 6 =",
+          "left": 96,
+          "baseline": 760,
+          "width": 97
+        },
+        {
+          "left": 209,
+          "top": 700,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "(ост.",
+          "left": 325,
+          "baseline": 760,
+          "width": 62
+        },
+        {
+          "left": 403,
+          "top": 700,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": ")",
+          "left": 519,
+          "baseline": 760,
+          "width": 10
+        }
+      ]
+    }
+  ]
+}

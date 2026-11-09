@@ -14,6 +14,7 @@ import { canonicalBytes, digestOf } from "./canonical.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { canonicalViewOf, memberOf, packageOf, tiersOf } from "./package.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
+import { hasPage, pageOf } from "./page.mjs";
 import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
 import { holdsPlaceholder, instanceMaker, instanceShown, numbersShown, pickOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "./templates.mjs";
@@ -31,7 +32,7 @@ const TASK_PART = "task";
 // that an answer slot's check shows by itself (section 15), task.no-leaks (section 20), and the rules
 // of templates (section 23), which it checks with the others on every instance of a template. Not
 // task.template-solver: only module-kit runs a solver (section 24).
-const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.no-leaks", "task.template-names", "task.template-expressions", "task.placeholders", "task.template-instances", "task.instances"];
+const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.workbook-page", "task.no-leaks", "task.template-names", "task.template-expressions", "task.placeholders", "task.template-instances", "task.instances"];
 // The part of a lesson, and the rule of a lesson that format-check implements, with its leak check
 // (section 21). The rule spans a lesson and its tasks, so its cases are laid out as modules.
 const LESSON_PART = "lesson";
@@ -489,6 +490,34 @@ export function checkTierVector(bytes, { validate }) {
   return problems;
 }
 
+// format/page.yaml (section 14): the YAML rules and its schema, by validate. { problems, value }.
+export function checkPageFile(bytes, { validate }) {
+  return vectorStart(bytes, validate, "the page");
+}
+
+// A vector of the page (section 9): the YAML rules, the schema of such vectors, by validate, and the
+// page that section 14 lays out of its items, or the item at whose row it has no room.
+export function checkPageVector(bytes, { validate }) {
+  const { problems, value } = vectorStart(bytes, validate, "page vectors");
+  if (!value) return problems;
+  const { page, noRoomAt } = pageOf(value.items);
+  if (value.no_room_at !== undefined || noRoomAt !== undefined) {
+    if (value.no_room_at !== noRoomAt) problems.push({ line: 0, message: `the page has no room at item ${noRoomAt ?? "none"}, from 0, and the vector says ${value.no_room_at ?? "none"}` });
+    return problems;
+  }
+  const at = differenceOf({ page: page.items, bottom: page.bottom }, { page: value.page, bottom: value.bottom });
+  if (at) problems.push({ line: 0, message: `the page is not the one that section 14 lays out: they differ at ${fragmentOf(at)}` });
+  return problems;
+}
+
+// The breach of task.workbook-page by a task on a workbook, a detail, or null: its lines do not fit
+// the page as section 14 lays them out, by format/page.yaml. None without the file.
+function pageBreach(task) {
+  if (task.canvas?.kind !== "workbook" || !hasPage() || !Array.isArray(task.items)) return null;
+  const { noRoomAt } = pageOf(task.items);
+  return noRoomAt === undefined ? null : `#/items/${noRoomAt}: no room on the page for its row`;
+}
+
 // The digest of an open view, as a sample of the eval protocol names it: sha256: and the SHA-256 of
 // its canonical text (section 25; contracts/README.md, section 11).
 export const openViewDigestOf = (view) => digestOf(canonicalBytes(view));
@@ -784,6 +813,8 @@ function expandedOf(task, parts, validateTask, counted = undefined) {
 function plainBreaches(task, parts, unsolved = false, instance = false) {
   const breaches = new Map((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap((slot) => slotBreaches(slot, unsolved))).map((rule) => [rule, null]));
   if (leaksBefore(task, parts, instance)) breaches.set("task.no-leaks", null);
+  const page = pageBreach(task);
+  if (page) breaches.set("task.workbook-page", page);
   return breaches;
 }
 

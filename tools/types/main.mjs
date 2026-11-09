@@ -17,6 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readText } from "../format-check/cases.mjs";
+import { readModuleFile } from "../format-check/yaml.mjs";
 import { readLayout } from "../format-check/module.mjs";
 import { byCodeUnits, isMain } from "../shared.mjs";
 import { goFiles } from "./go.mjs";
@@ -60,6 +61,22 @@ function schemasIn(root, dir) {
     .map((name) => ({ name, json: JSON.parse(fs.readFileSync(path.join(root, dir, name), "utf8")) }));
 }
 
+// The page of the workbook as JSON, for code that reads no YAML (T88): format/page.yaml as
+// types/page/page.json, and each vector of the page, format/vectors/pages/<case>.yaml, as
+// types/page/vectors/<case>.json, which the npm package carries. None when the format has no page.
+export const PAGE_DIR = "types/page";
+export function pageFiles(root) {
+  const json = (file) => {
+    const { value, violations, notYaml } = readModuleFile(fs.readFileSync(path.join(root, file)));
+    if (violations.length || notYaml.length || value === undefined) throw new Error(`${file} is not YAML within the rules: run just format-check`);
+    return `${JSON.stringify(value, null, 2)}\n`;
+  };
+  if (!fs.existsSync(path.join(root, "format", "page.yaml"))) return [];
+  const vectors = path.join(root, "format", "vectors", "pages");
+  const cases = fs.existsSync(vectors) ? fs.readdirSync(vectors).filter((name) => name.endsWith(".yaml")).sort(byCodeUnits) : [];
+  return [[`${PAGE_DIR}/page.json`, json("format/page.yaml")], ...cases.map((name) => [`${PAGE_DIR}/vectors/${name.replace(/\.yaml$/, ".json")}`, json(`format/vectors/pages/${name}`)])];
+}
+
 // The models and the files of the format and of the admission table at root, by their paths from
 // the root of the repository: { model, admission, files }, admission the table's model.
 export function generate(root) {
@@ -67,7 +84,7 @@ export function generate(root) {
   const model = buildModel(schemas, parts);
   const table = readAdmission(root);
   const admission = { model: buildModel(table.schemas, []), version: table.version };
-  return { model, admission: admission.model, files: new Map([...goFiles(model, version, admission), ...tsFiles(model, version, admission)]) };
+  return { model, admission: admission.model, files: new Map([...goFiles(model, version, admission), ...tsFiles(model, version, admission), ...pageFiles(root)]) };
 }
 
 // Writes the files under folder, which holds no file of theirs yet.

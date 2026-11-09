@@ -1605,6 +1605,351 @@ export interface PackageVector {
   readonly digest: Digest;
 }
 
+// The types of page-vector.schema.json.
+
+/**
+ * PageVector is the type of page-vector.schema.json.
+ *
+ * A test vector of the workbook's page (sections 9 and 14 of the format text): the lines of a
+ * task's items, as the open view holds them, and either the page that the layout makes of them or
+ * the item at whose row it has no room. An implementation lays the page out by format/page.yaml and
+ * gets exactly these.
+ */
+export interface PageVector {
+  /**
+   * The items of the task, in order.
+   */
+  readonly items: readonly PageLine[];
+  /**
+   * The bottom of the last row of the page.
+   */
+  readonly bottom?: number;
+  /**
+   * The items on the page, in the task's order.
+   */
+  readonly page?: readonly PageItem[];
+  /**
+   * The item, counted from 0, at whose row the page has no room: the layout refuses the page there,
+   * and task.workbook-page with it.
+   */
+  readonly no_room_at?: number;
+}
+
+/**
+ * PageLine is the type of page-vector.schema.json#/$defs/page_line.
+ *
+ * An item of a workbook, its line alone.
+ */
+export interface PageLine {
+  /**
+   * The pieces of the item's line, in order.
+   */
+  readonly line: readonly PageLinePart[];
+}
+
+/**
+ * PageLinePart is the type of page-vector.schema.json#/$defs/page_line_part.
+ *
+ * A piece of the line: a piece of text, or a box.
+ */
+export interface PageLinePart {
+  /**
+   * A piece of text of the line.
+   */
+  readonly text?: string;
+  /**
+   * A box, an answer slot.
+   */
+  readonly binding?: string;
+}
+
+/**
+ * PageItem is the type of page-vector.schema.json#/$defs/page_item.
+ *
+ * An item on the page.
+ */
+export interface PageItem {
+  /**
+   * The item's number, n., right in the column of the numbers on the baseline of its first line.
+   */
+  readonly number: PageText;
+  /**
+   * The item's texts and boxes, in the order they are read.
+   */
+  readonly line: readonly PagePart[];
+}
+
+/**
+ * PageText is the type of page-vector.schema.json#/$defs/page_text.
+ *
+ * The item's number, n., right in the column of the numbers on the baseline of its first line.
+ */
+export interface PageText {
+  /**
+   * The text, its words joined by single spaces.
+   */
+  readonly text: string;
+  /**
+   * Where it starts.
+   */
+  readonly left: number;
+  /**
+   * Its alphabetic baseline.
+   */
+  readonly baseline: number;
+  /**
+   * The width that it is fitted to.
+   */
+  readonly width: number;
+}
+
+/**
+ * PagePart is the type of page-vector.schema.json#/$defs/page_part.
+ *
+ * A text of the line on one line of the page, with its place, or a box, with its rectangle.
+ */
+export interface PagePart {
+  /**
+   * The text, its words joined by single spaces.
+   */
+  readonly text?: string;
+  /**
+   * Where it starts.
+   */
+  readonly left?: number;
+  /**
+   * Its alphabetic baseline.
+   */
+  readonly baseline?: number;
+  /**
+   * The width that it is fitted to.
+   */
+  readonly width?: number;
+  /**
+   * Of a box: its top.
+   */
+  readonly top?: number;
+  /**
+   * Of a box: its height.
+   */
+  readonly height?: number;
+}
+
+// The types of page.schema.json.
+
+/**
+ * Page is the type of page.schema.json.
+ *
+ * The numbers and the table of widths of a workbook's page, format/page.yaml (section 14 of the
+ * format text): canvas lays every page out by them, and task.workbook-page holds every task on a
+ * workbook to them. Units are those of the page, and a width of a character is in whole hundredths
+ * of the type size.
+ */
+export interface Page {
+  /**
+   * The page, as large as the handwriting sheet.
+   */
+  readonly sheet: PageSheet;
+  /**
+   * The numbers of the layout, in units of the page.
+   */
+  readonly numbers: PageNumbers;
+  /**
+   * The most items that a page holds, 99 at most: the column of their numbers is two digits and a
+   * full stop wide.
+   */
+  readonly most_items: number;
+  /**
+   * The table of widths, in whole hundredths of the type size.
+   */
+  readonly widths: PageWidths;
+  /**
+   * The marks that glue two neighbours of a line together.
+   */
+  readonly joints: PageJoints;
+}
+
+/**
+ * PageSheet is the type of page.schema.json#/$defs/page_sheet.
+ *
+ * The page, as large as the handwriting sheet.
+ */
+export interface PageSheet {
+  /**
+   * The width of the page, in its units.
+   */
+  readonly width: number;
+  /**
+   * The height of the page, in its units.
+   */
+  readonly height: number;
+}
+
+/**
+ * PageNumbers is the type of page.schema.json#/$defs/page_numbers.
+ *
+ * The numbers of the layout, in units of the page.
+ */
+export interface PageNumbers {
+  /**
+   * The type size of the text of a line.
+   */
+  readonly size: number;
+  /**
+   * The width of a box, the same for every box of the task.
+   */
+  readonly box_width: number;
+  /**
+   * The height of a box.
+   */
+  readonly box_height: number;
+  /**
+   * The height of a line of text without a box.
+   */
+  readonly line: number;
+  /**
+   * Between a line with a box and one without, in an item that wraps.
+   */
+  readonly lead: number;
+  /**
+   * Between a box and a word beside it, and between an item's number and its line.
+   */
+  readonly gap: number;
+  /**
+   * Between two boxes side by side, and between two lines with boxes in an item that wraps.
+   */
+  readonly apart: number;
+  /**
+   * Between two rows of items.
+   */
+  readonly items: number;
+  /**
+   * Between the two columns of short items.
+   */
+  readonly gutter: number;
+  /**
+   * The margin of the page on its sides, its top and its bottom.
+   */
+  readonly margin: number;
+}
+
+/**
+ * PageWidths is the type of page.schema.json#/$defs/page_widths.
+ *
+ * The table of widths, in whole hundredths of the type size.
+ */
+export interface PageWidths {
+  /**
+   * The digits, all of one width.
+   */
+  readonly digits: PageWidthClass;
+  /**
+   * The signs of operations and comparisons, all of one width.
+   */
+  readonly signs: PageWidthClass;
+  /**
+   * The space between two words, which the layout sets itself.
+   */
+  readonly space: number;
+  /**
+   * The characters of a width of their own, each class by its width.
+   */
+  readonly characters: readonly PageWidthClass[];
+  /**
+   * The spaces that do not break, each a character of its word.
+   */
+  readonly spaces: readonly PageSpaceWidth[];
+  /**
+   * The code points of no width, each joining the character before it.
+   */
+  readonly zero: readonly string[];
+  /**
+   * The characters of a square's width: Hangul, CJK, the full-width forms and emoji.
+   */
+  readonly wide: PageWide;
+  /**
+   * The white space that a line breaks at: a run of it is one space between two words, and none at
+   * the ends of a piece.
+   */
+  readonly breaks: readonly string[];
+  /**
+   * The width of a character that the table does not know.
+   */
+  readonly unknown: number;
+  /**
+   * The joiner: the code point after it goes with the one before it.
+   */
+  readonly joiner: string;
+  /**
+   * The regional indicators, two of which make a flag, one cluster.
+   */
+  readonly regional_indicators: string;
+}
+
+/**
+ * PageWidthClass is the type of page.schema.json#/$defs/page_width_class.
+ *
+ * Characters of one width.
+ */
+export interface PageWidthClass {
+  /**
+   * The characters of the class.
+   */
+  readonly characters: string;
+  /**
+   * Their width.
+   */
+  readonly width: number;
+}
+
+/**
+ * PageSpaceWidth is the type of page.schema.json#/$defs/page_space_width.
+ *
+ * A space that does not break, of its own width.
+ */
+export interface PageSpaceWidth {
+  /**
+   * The code point of the space, U+ and four to six hexadecimal digits.
+   */
+  readonly code_point: string;
+  /**
+   * Its width.
+   */
+  readonly width: number;
+}
+
+/**
+ * PageWide is the type of page.schema.json#/$defs/page_wide.
+ *
+ * The characters of a square's width: Hangul, CJK, the full-width forms and emoji.
+ */
+export interface PageWide {
+  /**
+   * The width of such a character, a square.
+   */
+  readonly width: number;
+  /**
+   * The ranges of the wide characters.
+   */
+  readonly ranges: readonly string[];
+}
+
+/**
+ * PageJoints is the type of page.schema.json#/$defs/page_joints.
+ *
+ * The marks that glue two neighbours of a line together.
+ */
+export interface PageJoints {
+  /**
+   * The marks that a word glues to the word before it: no space between them, and no break.
+   */
+  readonly closing: string;
+  /**
+   * The marks that glue a word to the word after it, or to a box: no break after them.
+   */
+  readonly opening: string;
+}
+
 // The types of random-vector.schema.json.
 
 /**

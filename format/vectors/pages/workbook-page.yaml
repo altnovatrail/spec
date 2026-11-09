@@ -1,0 +1,116 @@
+# The format's example of a workbook page (spec/format/examples/task/valid/workbook-page.yaml at
+# v0.9.8), copied: two short lines to a row, a short line before a long one alone, and a line of two
+# boxes. From canvas's vectors/pages.json at its commit 73807f2.
+items:
+  - line:
+      - text: "7 ×"
+      - binding: "box"
+      - text: "= 56"
+  - line:
+      - binding: "box"
+      - text: "÷ 8 = 4"
+  - line:
+      - text: "56"
+      - binding: "box"
+      - text: "65"
+  - line:
+      - text: "Tom has 3 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "47 ÷ 6 ="
+      - binding: "box"
+      - text: "r"
+      - binding: "box"
+bottom: 536
+page:
+  - number:
+      text: "1."
+      left: 56
+      baseline: 100
+      width: 24
+    line:
+      - text: "7 ×"
+        left: 96
+        baseline: 100
+        width: 41
+      - left: 153
+        top: 40
+        width: 100
+        height: 100
+      - text: "= 56"
+        left: 269
+        baseline: 100
+        width: 57
+  - number:
+      text: "2."
+      left: 536
+      baseline: 100
+      width: 24
+    line:
+      - left: 576
+        top: 40
+        width: 100
+        height: 100
+      - text: "÷ 8 = 4"
+        left: 692
+        baseline: 100
+        width: 89
+  - number:
+      text: "3."
+      left: 56
+      baseline: 232
+      width: 24
+    line:
+      - text: "56"
+        left: 96
+        baseline: 232
+        width: 32
+      - left: 144
+        top: 172
+        width: 100
+        height: 100
+      - text: "65"
+        left: 260
+        baseline: 232
+        width: 32
+  - number:
+      text: "4."
+      left: 56
+      baseline: 364
+      width: 24
+    line:
+      - text: "Tom has 3 bags of 4 apples. He has"
+        left: 96
+        baseline: 364
+        width: 453
+      - left: 565
+        top: 304
+        width: 100
+        height: 100
+      - text: "apples."
+        left: 681
+        baseline: 364
+        width: 91
+  - number:
+      text: "5."
+      left: 56
+      baseline: 496
+      width: 24
+    line:
+      - text: "47 ÷ 6 ="
+        left: 96
+        baseline: 496
+        width: 105
+      - left: 217
+        top: 436
+        width: 100
+        height: 100
+      - text: "r"
+        left: 333
+        baseline: 496
+        width: 10
+      - left: 359
+        top: 436
+        width: 100
+        height: 100

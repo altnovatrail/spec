@@ -21,6 +21,8 @@ var typesByName = map[string]func() any{
 	"formatv0.Manifest":          func() any { return new(formatv0.Manifest) },
 	"formatv0.ModuleIndex":       func() any { return new(formatv0.ModuleIndex) },
 	"formatv0.PackageVector":     func() any { return new(formatv0.PackageVector) },
+	"formatv0.Page":              func() any { return new(formatv0.Page) },
+	"formatv0.PageVector":        func() any { return new(formatv0.PageVector) },
 	"formatv0.RandomVector":      func() any { return new(formatv0.RandomVector) },
 	"formatv0.SharedTaxonomy":    func() any { return new(formatv0.SharedTaxonomy) },
 	"formatv0.SkillGraph":        func() any { return new(formatv0.SkillGraph) },

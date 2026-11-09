@@ -1,0 +1,147 @@
+# Five word problems in English, of one or two lines, two of them with two boxes. From canvas's
+# vectors/pages.json at its commit 73807f2.
+items:
+  - line:
+      - text: "Tom has 3 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "A pen costs 7 dollars. Five pens cost"
+      - binding: "box"
+      - text: "dollars."
+  - line:
+      - text: "There are 47 children and 6 benches."
+      - binding: "box"
+      - text: "sit on each bench, and"
+      - binding: "box"
+      - text: "are left over."
+  - line:
+      - text: "Ann read 24 pages on Monday and twice as many on Tuesday. On Tuesday she read"
+      - binding: "box"
+      - text: "pages, and in the two days"
+      - binding: "box"
+      - text: "pages."
+  - line:
+      - text: "A rope 96 m long is cut into 8 equal parts. Each part is"
+      - binding: "box"
+      - text: "m long."
+bottom: 1048
+page:
+  - number:
+      text: "1."
+      left: 56
+      baseline: 100
+      width: 24
+    line:
+      - text: "Tom has 3 bags of 4 apples. He has"
+        left: 96
+        baseline: 100
+        width: 453
+      - left: 565
+        top: 40
+        width: 100
+        height: 100
+      - text: "apples."
+        left: 681
+        baseline: 100
+        width: 91
+  - number:
+      text: "2."
+      left: 56
+      baseline: 232
+      width: 24
+    line:
+      - text: "A pen costs 7 dollars. Five pens cost"
+        left: 96
+        baseline: 232
+        width: 462
+      - left: 574
+        top: 172
+        width: 100
+        height: 100
+      - text: "dollars."
+        left: 690
+        baseline: 232
+        width: 93
+  - number:
+      text: "3."
+      left: 56
+      baseline: 364
+      width: 24
+    line:
+      - text: "There are 47 children and 6 benches."
+        left: 96
+        baseline: 364
+        width: 470
+      - left: 582
+        top: 304
+        width: 100
+        height: 100
+      - text: "sit on each bench,"
+        left: 698
+        baseline: 364
+        width: 229
+      - text: "and"
+        left: 96
+        baseline: 496
+        width: 47
+      - left: 159
+        top: 436
+        width: 100
+        height: 100
+      - text: "are left over."
+        left: 275
+        baseline: 496
+        width: 160
+  - number:
+      text: "4."
+      left: 56
+      baseline: 601
+      width: 24
+    line:
+      - text: "Ann read 24 pages on Monday and twice as many on Tuesday. On"
+        left: 96
+        baseline: 601
+        width: 843
+      - text: "Tuesday she read"
+        left: 96
+        baseline: 686
+        width: 224
+      - left: 336
+        top: 626
+        width: 100
+        height: 100
+      - text: "pages, and in the two days"
+        left: 452
+        baseline: 686
+        width: 337
+      - left: 96
+        top: 758
+        width: 100
+        height: 100
+      - text: "pages."
+        left: 212
+        baseline: 818
+        width: 83
+  - number:
+      text: "5."
+      left: 56
+      baseline: 950
+      width: 24
+    line:
+      - text: "A rope 96 m long is cut into 8 equal parts. Each part is"
+        left: 96
+        baseline: 950
+        width: 687
+      - left: 799
+        top: 890
+        width: 100
+        height: 100
+      - text: "m"
+        left: 915
+        baseline: 950
+        width: 25
+      - text: "long."
+        left: 96
+        baseline: 1035
+        width: 63

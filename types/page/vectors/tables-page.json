@@ -1,0 +1,98 @@
+{
+  "items": [
+    {
+      "line": [
+        {
+          "text": "7 ×"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "= 56"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "47 ÷ 6 ="
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "r"
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    }
+  ],
+  "bottom": 140,
+  "page": [
+    {
+      "number": {
+        "text": "1.",
+        "left": 56,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "7 ×",
+          "left": 96,
+          "baseline": 100,
+          "width": 41
+        },
+        {
+          "left": 153,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "= 56",
+          "left": 269,
+          "baseline": 100,
+          "width": 57
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "2.",
+        "left": 536,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "47 ÷ 6 =",
+          "left": 576,
+          "baseline": 100,
+          "width": 105
+        },
+        {
+          "left": 697,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "r",
+          "left": 813,
+          "baseline": 100,
+          "width": 10
+        },
+        {
+          "left": 839,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    }
+  ]
+}

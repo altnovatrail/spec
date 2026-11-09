@@ -1,0 +1,48 @@
+# Eleven lines across the page: the eleventh has no room. From canvas's vectors/pages.json at its
+# commit 73807f2.
+items:
+  - line:
+      - text: "Tom has 3 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 4 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 5 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 6 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 7 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 8 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 9 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 10 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 11 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 12 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+  - line:
+      - text: "Tom has 13 bags of 4 apples. He has"
+      - binding: "box"
+      - text: "apples."
+no_room_at: 10

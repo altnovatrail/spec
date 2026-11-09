@@ -9,7 +9,8 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TAR } from "../../shared.mjs";
-import { FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
+import { FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, FIRST_PAGE_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
+import { treeOf } from "../../npm-package.mjs";
 import { scratchRepository, writeFile } from "../../release/test/repository.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -62,7 +63,7 @@ test("the package is named and versioned as the release, and exports each packag
 
 test("from the line 0.8 on, the package holds and exports the types of the admission table too", () => {
   assert.equal(FIRST_ADMISSION_LINE, "0.8");
-  for (const version of ["0.8.0", "0.10.3", "1.0.0"]) {
+  for (const version of ["0.8.0", "0.9.15"]) {
     assert.deepEqual(filesOf(version).slice(-2), [{ file: "canvas/index.d.ts", from: "types/canvas/index.d.ts" }, { file: "admissionv0/index.d.ts", from: "types/admissionv0/index.d.ts" }], version);
     const manifest = manifestOf(version);
     assert.deepEqual(manifest.exports, {
@@ -76,6 +77,31 @@ test("from the line 0.8 on, the package holds and exports the types of the admis
     assert.match(manifest.description, /<novatrail-canvas>, the contract of the canvas and the app\. And the types of the admission table, /);
   }
   assert.doesNotMatch(manifestOf("0.7.9").description, /admission/);
+});
+
+// T88: canvas lays its page out by the numbers and widths of format 0.4, from this package.
+test("from the line 0.10 on, the package holds the page of the workbook and its vectors, as JSON", () => {
+  assert.equal(FIRST_PAGE_LINE, "0.10");
+  const tree = treeOf(spec);
+  for (const version of ["0.10.0", "1.0.0"]) {
+    const files = filesOf(version, tree);
+    const page = files.filter(({ file }) => file.startsWith("format/"));
+    assert.deepEqual(page[0], { file: "format/page.json", from: "types/page/page.json" });
+    assert.equal(page.length, 1 + fs.readdirSync(path.join(spec, "format", "vectors", "pages")).length, version);
+    assert.deepEqual(page[1], { file: "format/vectors/pages/eleven-long.json", from: "types/page/vectors/eleven-long.json" });
+    assert.equal(JSON.parse(fs.readFileSync(path.join(spec, "types", "page", "page.json"), "utf8")).numbers.size, 30);
+    const manifest = manifestOf(version);
+    assert.equal(manifest.exports["./format/page.json"], "./format/page.json");
+    assert.equal(manifest.exports["./format/vectors/pages/*.json"], "./format/vectors/pages/*.json");
+    assert.deepEqual(manifest.files, ["formatv0", "canvas", "admissionv0", "format"]);
+    // The types of the lines before stay as they were.
+    assert.deepEqual(files.slice(4, 6), [{ file: "canvas/index.d.ts", from: "types/canvas/index.d.ts" }, { file: "admissionv0/index.d.ts", from: "types/admissionv0/index.d.ts" }], version);
+    assert.deepEqual(Object.keys(manifest.exports), ["./formatv0", "./formatv0/open", "./canvas", "./admissionv0", "./format/page.json", "./format/vectors/pages/*.json", "./package.json"]);
+    assert.match(manifest.description, /the numbers and widths of the workbook's page and its test vectors, as JSON/);
+  }
+  // Without a tree, the vectors are not listed.
+  assert.deepEqual(filesOf("0.10.0").filter(({ file }) => file.startsWith("format/")).map(({ file }) => file), ["format/page.json"]);
+  assert.doesNotMatch(manifestOf("0.9.15").description, /page/);
 });
 
 test("from the line 0.5 on, the package holds and exports the types of <novatrail-canvas> too", () => {

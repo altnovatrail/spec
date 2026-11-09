@@ -1,0 +1,52 @@
+# Seven boxes in a row after a word: a line may break between two boxes, though never between a box
+# and the word after it. From canvas's vectors/pages.json at its commit 73807f2.
+items:
+  - line:
+      - text: "Fill in the boxes:"
+      - binding: "box"
+      - binding: "box"
+      - binding: "box"
+      - binding: "box"
+      - binding: "box"
+      - binding: "box"
+      - binding: "box"
+bottom: 272
+page:
+  - number:
+      text: "1."
+      left: 56
+      baseline: 100
+      width: 24
+    line:
+      - text: "Fill in the boxes:"
+        left: 96
+        baseline: 100
+        width: 210
+      - left: 322
+        top: 40
+        width: 100
+        height: 100
+      - left: 454
+        top: 40
+        width: 100
+        height: 100
+      - left: 586
+        top: 40
+        width: 100
+        height: 100
+      - left: 718
+        top: 40
+        width: 100
+        height: 100
+      - left: 850
+        top: 40
+        width: 100
+        height: 100
+      - left: 96
+        top: 172
+        width: 100
+        height: 100
+      - left: 228
+        top: 172
+        width: 100
+        height: 100

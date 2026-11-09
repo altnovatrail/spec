@@ -1,0 +1,91 @@
+# Eleven long items, a row each: the eleventh has no room on the page.
+id: "eleven-long"
+statement:
+  - text: "Fill in every box."
+canvas:
+  kind: "workbook"
+items:
+  - line:
+      - text: "Tom has 3 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 4 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 5 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 6 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 7 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 8 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 9 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 10 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 11 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 12 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+  - line:
+      - text: "Tom has 13 bags of 4 apples. He has"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+      - text: "apples."
+solution:
+  - text: "Each box holds the number that makes its line true."
+skills:
+  primary:
+    - "times-tables"
+band: "grade-3"
+difficulty: 1

@@ -1,0 +1,20 @@
+# One item whose line wraps past the bottom of the page: it has no room even alone.
+id: "huge-piece"
+statement:
+  - text: "Fill in every box."
+canvas:
+  kind: "workbook"
+items:
+  - line:
+      - text: "many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words many words"
+      - binding: "box"
+        check:
+          kind: "number"
+          key: "1"
+solution:
+  - text: "Each box holds the number that makes its line true."
+skills:
+  primary:
+    - "times-tables"
+band: "grade-3"
+difficulty: 1

@@ -1,0 +1,175 @@
+# Ten examples of the table of 7, as the prototype's page has them: five rows of two. From canvas's
+# vectors/pages.json at its commit 73807f2.
+items:
+  - line:
+      - text: "7 × 2 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 3 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 4 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 5 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 6 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 7 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 8 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 9 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 10 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 1 ="
+      - binding: "box"
+bottom: 668
+page:
+  - number:
+      text: "1."
+      left: 56
+      baseline: 100
+      width: 24
+    line:
+      - text: "7 × 2 ="
+        left: 96
+        baseline: 100
+        width: 89
+      - left: 201
+        top: 40
+        width: 100
+        height: 100
+  - number:
+      text: "2."
+      left: 536
+      baseline: 100
+      width: 24
+    line:
+      - text: "7 × 3 ="
+        left: 576
+        baseline: 100
+        width: 89
+      - left: 681
+        top: 40
+        width: 100
+        height: 100
+  - number:
+      text: "3."
+      left: 56
+      baseline: 232
+      width: 24
+    line:
+      - text: "7 × 4 ="
+        left: 96
+        baseline: 232
+        width: 89
+      - left: 201
+        top: 172
+        width: 100
+        height: 100
+  - number:
+      text: "4."
+      left: 536
+      baseline: 232
+      width: 24
+    line:
+      - text: "7 × 5 ="
+        left: 576
+        baseline: 232
+        width: 89
+      - left: 681
+        top: 172
+        width: 100
+        height: 100
+  - number:
+      text: "5."
+      left: 56
+      baseline: 364
+      width: 24
+    line:
+      - text: "7 × 6 ="
+        left: 96
+        baseline: 364
+        width: 89
+      - left: 201
+        top: 304
+        width: 100
+        height: 100
+  - number:
+      text: "6."
+      left: 536
+      baseline: 364
+      width: 24
+    line:
+      - text: "7 × 7 ="
+        left: 576
+        baseline: 364
+        width: 89
+      - left: 681
+        top: 304
+        width: 100
+        height: 100
+  - number:
+      text: "7."
+      left: 56
+      baseline: 496
+      width: 24
+    line:
+      - text: "7 × 8 ="
+        left: 96
+        baseline: 496
+        width: 89
+      - left: 201
+        top: 436
+        width: 100
+        height: 100
+  - number:
+      text: "8."
+      left: 536
+      baseline: 496
+      width: 24
+    line:
+      - text: "7 × 9 ="
+        left: 576
+        baseline: 496
+        width: 89
+      - left: 681
+        top: 436
+        width: 100
+        height: 100
+  - number:
+      text: "9."
+      left: 56
+      baseline: 628
+      width: 24
+    line:
+      - text: "7 × 10 ="
+        left: 96
+        baseline: 628
+        width: 105
+      - left: 217
+        top: 568
+        width: 100
+        height: 100
+  - number:
+      text: "10."
+      left: 520
+      baseline: 628
+      width: 40
+    line:
+      - text: "7 × 1 ="
+        left: 576
+        baseline: 628
+        width: 89
+      - left: 681
+        top: 568
+        width: 100
+        height: 100
