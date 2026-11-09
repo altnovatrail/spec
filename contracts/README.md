@@ -173,7 +173,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 **Where a sample goes.**
 - A sample of measurement by an adult goes to the organizer of the measurement, outside git and outside the platform's server, and from there to the providers of AI that the measurement names (privacy 9, П-18).
 - A sample of an eval set goes to the organizer of the eval set, who adds it to a module's eval set in `modules`, where it is published under Apache-2.0 and never withdrawn (R25; privacy 9, П-16). Its markup is published with it, the texts of its parts and an essay's truth too, so the organizer looks for a name in them as on the sheet.
-- A sample of a child lies outside every repository, with a separate consent, for a time (privacy 9, П-10). A runner MUST NOT send a sample whose writer is `WRITER_CHILD` to a provider of AI until a contract with the provider admits children (R24; privacy 9, П-3).
+- A sample of a child lies outside every repository, in the operator's closed bucket, with a separate consent, for two years from its session (R125). A runner MUST NOT send a sample whose writer is `WRITER_CHILD` to a provider of AI until the admission table admits to that provider the work of a child under 13, the strictest category, since the file holds no category (R24; R121; R125).
 - No sample goes to the platform's server (R09).
 
 **Checking a sample.** A repository other than `spec` checks its sample files by the code that holds the examples below to this section, at the tag of `spec` it pins, and MUST NOT write a check of its own (R93): `just -f spec/justfile sample-check <file>…`, from its root, in its `toolchain` stage.
