@@ -17,9 +17,11 @@ const justfile = path.join(here, "..", "..", "..", "justfile");
 const awkward = 'a $HOME `id` "q" \\ b';
 const user = `${process.getuid()}:${process.getgid()}`;
 
-// A runner in a temporary directory: a docker that writes its arguments, NUL after each, and for
-// build what it read; RUNNER_TEMP; and a repository with the script where `inSpec` puts it — in
-// tools/ of spec itself, or in spec/tools/ of a repository with spec as its submodule.
+// A runner in a temporary directory: a docker that writes down each call — its arguments, NUL after
+// each, and a record separator after the call — and for build what it read; that answers each
+// subcommand with the code DOCKER_EXIT_<subcommand> names, 0 by default, and on a save that
+// succeeds writes the file; RUNNER_TEMP; and a repository with the script where `inSpec` puts it —
+// in tools/ of spec itself, or in spec/tools/ of a repository with spec as its submodule.
 function runner({ inSpec = false } = {}) {
   const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "toolchain-")));
   const bin = path.join(root, "bin");
@@ -27,7 +29,17 @@ function runner({ inSpec = false } = {}) {
   const log = path.join(root, "docker.log");
   fs.writeFileSync(
     path.join(bin, "docker"),
-    '#!/bin/sh\nprintf \'%s\\0\' "$@" > "$DOCKER_LOG"\nif [ "$1" = build ]; then cat > "$DOCKER_LOG.stdin"; fi\n',
+    [
+      "#!/bin/sh",
+      'printf \'%s\\0\' "$@" >> "$DOCKER_LOG"',
+      "printf '\\036' >> \"$DOCKER_LOG\"",
+      'if [ "$1" = build ]; then cat > "$DOCKER_LOG.stdin"; fi',
+      'eval "code=\\${DOCKER_EXIT_$1:-0}"',
+      'if [ "$1" = save ] && [ "$code" = 0 ]; then echo image > "$3"; fi',
+      'if [ "$1" = save ] && [ "$code" != 0 ]; then echo half > "$3"; fi',
+      'exit "$code"',
+      "",
+    ].join("\n"),
     { mode: 0o755 },
   );
   const temp = path.join(root, `temp ${awkward}`);
@@ -43,14 +55,16 @@ function runner({ inSpec = false } = {}) {
   // The script run as a workflow step runs it: by its path from the repository's root, or from cwd.
   const toolchain = (args, { cwd = repo, env = {} } = {}) => {
     fs.rmSync(log, { force: true });
+    fs.rmSync(`${log}.stdin`, { force: true });
     const run = spawnSync("/bin/sh", [path.relative(cwd, path.join(repo, relative)), ...args], {
       cwd,
       encoding: "utf8",
       env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, RUNNER_TEMP: temp, DOCKER_LOG: log, ...env },
     });
-    const docker = fs.existsSync(log) ? fs.readFileSync(log, "utf8").split("\0").slice(0, -1) : null;
+    const calls = fs.existsSync(log) ? fs.readFileSync(log, "utf8").split("\x1e").slice(0, -1).map((call) => call.split("\0").slice(0, -1)) : [];
     const stdin = fs.existsSync(`${log}.stdin`) ? fs.readFileSync(`${log}.stdin`, "utf8") : null;
-    return { ...run, docker, stdin };
+    // `docker` is the first call, or null when docker was never asked.
+    return { ...run, calls, docker: calls[0] ?? null, stdin };
   };
   return { root, repo, temp, toolchain, done: () => fs.rmSync(root, { recursive: true, force: true }) };
 }
@@ -58,13 +72,92 @@ function runner({ inSpec = false } = {}) {
 // What docker run is given before the command.
 const runPrefix = (repo, temp) => ["run", "--rm", "--user", user, "--env", "HOME=/tmp", "--volume", `${repo}:/work`, "--volume", `${temp}:${temp}:ro`, "--workdir", "/work", "novatrail-toolchain"];
 
+const BUILD = ["build", "--target", "toolchain", "--tag", "novatrail-toolchain", "-"];
+
 test("build builds the toolchain stage of the repository's Dockerfile, without a context", () => {
   const r = runner();
   try {
     const built = r.toolchain(["build"]);
     assert.equal(built.status, 0, built.stderr);
-    assert.deepEqual(built.docker, ["build", "--target", "toolchain", "--tag", "novatrail-toolchain", "-"]);
+    assert.deepEqual(built.calls, [BUILD]);
     assert.equal(built.stdin, "FROM scratch AS toolchain\n");
+    // An empty TOOLCHAIN_IMAGE_FILE is none: no cache, as a release builds.
+    const empty = r.toolchain(["build"], { env: { TOOLCHAIN_IMAGE_FILE: "" } });
+    assert.equal(empty.status, 0, empty.stderr);
+    assert.deepEqual(empty.calls, [BUILD]);
+    const failed = r.toolchain(["build"], { env: { DOCKER_EXIT_build: "7" } });
+    assert.equal(failed.status, 7);
+  } finally {
+    r.done();
+  }
+});
+
+// The file of the image, in the runner's temporary directory, by a path whose characters a shell
+// reads as syntax.
+const imageFile = (r) => path.join(r.temp, `toolchain ${awkward}.tar`);
+const LOAD = (file) => ["load", "--quiet", "--input", file];
+const INSPECT = ["image", "inspect", "novatrail-toolchain"];
+const SAVE = (file) => ["save", "--output", file, "novatrail-toolchain"];
+
+test("with TOOLCHAIN_IMAGE_FILE, a file that is there is loaded and removed, and nothing is built", () => {
+  const r = runner();
+  try {
+    const file = imageFile(r);
+    fs.writeFileSync(file, "image");
+    const hit = r.toolchain(["build"], { env: { TOOLCHAIN_IMAGE_FILE: file } });
+    assert.equal(hit.status, 0, hit.stderr);
+    assert.deepEqual(hit.calls, [LOAD(file), INSPECT]);
+    assert.equal(fs.existsSync(file), false);
+    assert.doesNotMatch(hit.stdout, /::warning::/);
+  } finally {
+    r.done();
+  }
+});
+
+test("a file that does not load, or gives no novatrail-toolchain, is removed and the stage is built, with no file written", () => {
+  const r = runner();
+  try {
+    const file = imageFile(r);
+    for (const [env, calls] of [
+      [{ DOCKER_EXIT_load: "1" }, [LOAD(file), BUILD]],
+      [{ DOCKER_EXIT_image: "1" }, [LOAD(file), INSPECT, BUILD]],
+    ]) {
+      fs.writeFileSync(file, "image");
+      const broken = r.toolchain(["build"], { env: { TOOLCHAIN_IMAGE_FILE: file, ...env } });
+      assert.equal(broken.status, 0, broken.stderr);
+      assert.deepEqual(broken.calls, calls);
+      assert.match(broken.stdout, /^::warning::toolchain\.sh: the file of TOOLCHAIN_IMAGE_FILE did not give the image novatrail-toolchain, so it is built\. The cache entry .* delete it, or it is hit again$/m);
+      assert.ok(broken.stderr.includes(file), "the path is not named");
+      assert.ok(!broken.stdout.includes(awkward), "the path is in a workflow command");
+      assert.equal(fs.existsSync(file), false, "a broken file stays, or one was written");
+    }
+    fs.writeFileSync(file, "image");
+    const failed = r.toolchain(["build"], { env: { TOOLCHAIN_IMAGE_FILE: file, DOCKER_EXIT_load: "1", DOCKER_EXIT_build: "3" } });
+    assert.equal(failed.status, 3);
+  } finally {
+    r.done();
+  }
+});
+
+test("with no file there, the stage is built and saved to it; a save that fails leaves a warning and no file", () => {
+  const r = runner();
+  try {
+    const file = imageFile(r);
+    const miss = r.toolchain(["build"], { env: { TOOLCHAIN_IMAGE_FILE: file } });
+    assert.equal(miss.status, 0, miss.stderr);
+    assert.deepEqual(miss.calls, [BUILD, SAVE(file)]);
+    assert.equal(fs.readFileSync(file, "utf8"), "image\n");
+    assert.doesNotMatch(miss.stdout, /::warning::/);
+    fs.rmSync(file);
+    const unsaved = r.toolchain(["build"], { env: { TOOLCHAIN_IMAGE_FILE: file, DOCKER_EXIT_save: "1" } });
+    assert.equal(unsaved.status, 0, unsaved.stderr);
+    assert.deepEqual(unsaved.calls, [BUILD, SAVE(file)]);
+    assert.match(unsaved.stdout, /^::warning::toolchain\.sh: docker save could not write the file of TOOLCHAIN_IMAGE_FILE; the image is built, but not cached$/m);
+    assert.ok(unsaved.stderr.includes(file), "the path is not named");
+    assert.equal(fs.existsSync(file), false, "a half-written file stays");
+    const failed = r.toolchain(["build"], { env: { TOOLCHAIN_IMAGE_FILE: file, DOCKER_EXIT_build: "5" } });
+    assert.equal(failed.status, 5);
+    assert.deepEqual(failed.calls, [BUILD]);
   } finally {
     r.done();
   }

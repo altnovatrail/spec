@@ -7,8 +7,8 @@
 # (R48). The Go tests run again in "Go / test", and the shared workflow's job "Go / coverage"
 # sends their profile (R16 .github).
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node, Go and just of the
-# devcontainer, so a check that is green locally is green here. The image is built on every
-# run and published nowhere. Beside them, three of the checks every repository shares, from
+# devcontainer, so a check that is green locally is green here. The image is built from the
+# Dockerfile, or loaded from the cache of GitHub Actions by its sha256, and published nowhere. Beside them, three of the checks every repository shares, from
 # .github: secrets, DCO and the Go code, by the ci- recipes of the justfile (R03, R16 .github).
 # The fourth, the documents of a repository with spec as its submodule, spec does not take: its
 # own job checks its documents.
@@ -50,9 +50,43 @@ jobs:
       # The toolchain stage, built once; every check below runs one command in it. How it is built
       # and how a command runs in it is tools/toolchain/toolchain.sh, which release.yml runs too,
       # and another repository's workflows from their spec submodule (R31).
+      #
+      # The image comes from the cache of GitHub Actions, as a file of docker save, by the sha256
+      # of the Dockerfile, which pins everything it fetches (R34, R40): on a hit the Dockerfile
+      # does not run, and a failure of nodejs.org, GitHub or the Ubuntu snapshot fails no check.
+      # toolchain.sh loads the file, or builds the stage and writes it; the file is saved only on
+      # a miss, since an entry never changes. The scope of main is filled by the runs on main; a
+      # pull request's entry serves only its own re-runs (GitHub Docs, Dependency caching
+      # reference, read 2026-11-09). A broken entry stays until it is deleted: toolchain.sh warns
+      # of it and builds. release.yml takes no cache (R31). The job "Go" runs .github's go.yml,
+      # which takes the cache with its own release.
+      - id: cache
+        name: Toolchain image from the cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/novatrail-toolchain.tar
+          key: toolchain-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.devcontainer/Dockerfile') }}
+
       - id: image
         name: Toolchain image
+        env:
+          TOOLCHAIN_IMAGE_FILE: ${{ runner.temp }}/novatrail-toolchain.tar
         run: tools/toolchain/toolchain.sh build
+
+      # A file that docker save could not write is no file, and the save only warns of it: its
+      # errors become warnings (src/saveImpl.ts of v6.1.0, read 2026-11-09). The key is the one the
+      # restore asked for.
+      - name: Toolchain image to the cache
+        if: ${{ steps.image.outcome == 'success' && steps.cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/novatrail-toolchain.tar
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+
+      # The file is in the image now, and the checks need the disk.
+      - name: Free the file of the toolchain image
+        if: ${{ !cancelled() }}
+        run: rm -f -- "$RUNNER_TEMP/novatrail-toolchain.tar"
 
       # Each check runs even when the one before it failed, so that a run names every failure.
       - name: Documents

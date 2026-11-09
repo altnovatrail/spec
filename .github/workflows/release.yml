@@ -159,6 +159,10 @@ jobs:
       # git config and git submodule foreach there. No script runs from this copy after its
       # container, so the copy needs no check of the script's sum (the 2026-10-22 amendment to
       # R31; В25 .github).
+      #
+      # The stage is built from the Dockerfile, never from the cache that CI fills: the step sets
+      # no TOOLCHAIN_IMAGE_FILE, so the image of the job that signs is what the Dockerfile builds
+      # (the 2026-11-09 amendment to R31).
       - id: version
         name: Work out the version
         env:
