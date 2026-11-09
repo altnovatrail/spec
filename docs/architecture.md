@@ -406,7 +406,7 @@ flowchart LR
 ### 3.11. infra и .github
 
 - **infra:**
-  - проекты, Workload Identity Federation для CI, Artifact Registry, домены, Secret Manager, бюджеты; ключи платформы для eval — секреты `eval-key-<код поставщика>` в Secret Manager, которые читает только job окружения GitHub `eval` репозиториев `modules` и `tutor`, своим пулом Workload Identity Federation `github-eval` в модуле, отдельно от пула `bootstrap.sh` (R120);
+  - проекты, Workload Identity Federation для CI, Artifact Registry, домены, Secret Manager, бюджеты; ключи платформы для eval — секреты `eval-key-<код поставщика>` в Secret Manager, которые читает только job окружения GitHub `eval` репозиториев `modules` и `tutor`, своим пулом Workload Identity Federation `github-eval`, отдельным от пула CI: пул и провайдер делает `bootstrap.sh`, а секреты и права на них — модуль (R120 и поправка 2026-11-09 к нему);
   - журналы: журналы запросов Cloud Run исключены фильтром в каждом sink; журналы платформы — 30 дней в бакете `us-east4`, а аудит в `_Required` — 400 дней в `global`, пока нет организации Google Cloud, и срок не настраивается; трасс у первого среза нет (R07 infra; R109);
   - регион: США, одно место на всех учеников — Cloud Run, Artifact Registry, секреты с репликацией по выбору, бакеты журналов и трасс — `us-east4`, Neon — `aws-us-east-1` (R109; П-11 закрыт);
   - хостинг сборки `app` — Firebase Hosting, сайт проекта по умолчанию; своего домена у первого развёртывания нет: `app` — на `<проект>.web.app`, `api` — на `*.run.app`, с CORS точному origin `app` (R06 infra; Т-17). Основной домен и домен виджетов — отдельный регистрируемый (R16) — покупаются вместе после О-16, до публичного запуска;
