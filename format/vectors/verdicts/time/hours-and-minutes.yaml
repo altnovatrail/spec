@@ -1,0 +1,71 @@
+# A time written by hand: right when its hours and its minutes, as numbers, are the key's, so that a
+# leading zero does not count, and the sum of minutes is never taken: 5:60 is no 6:00, and a time
+# of 60 minutes or more is a wrong time, which can show a trap. Hours count to 24, so 19:30 is not
+# 7:30. A value that is no time is not read.
+item:
+  answer_slots:
+    - binding: anywhere
+      check:
+        kind: time
+        key: "6:00"
+        trap_values:
+          - {value: "5:60", trap: hundred-minutes-in-an-hour}
+          - {value: "18:00", trap: twelve-hours-off}
+readings:
+  - answer_slots:
+      - {value: "6:00", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "06:00", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "= 6:00.", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "5:60", verdict: not_yet, trap: hundred-minutes-in-an-hour}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "05:60", verdict: not_yet, trap: hundred-minutes-in-an-hour}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "18:00", verdict: not_yet, trap: twelve-hours-off}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "6:01", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "5:100", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "25:00", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "10:100", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "99:99", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "6", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "6:0", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "6:000", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "006:00", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "6.00", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "6 : 00", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "6:00 pm", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: " ", verdict: unreadable, reason: blank}
+    verdict: unreadable

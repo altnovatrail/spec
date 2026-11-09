@@ -124,11 +124,11 @@ const (
 // The check of an answer slot: its kind and the kind's parameters. Section 15 of the format text
 // says how each kind reads the value and gives its verdict.
 type Check struct {
-	// The check kind: a number, a fraction, a choice, a predicate on a whole number, or a rubric,
-	// which gives feedback and no verdict.
+	// The check kind: a number, a fraction, a choice, a time of day in hours and minutes, a
+	// predicate on a whole number, or a rubric, which gives feedback and no verdict.
 	Kind CheckKind `json:"kind"`
 	// The right answer, as a string: a number for number, a simple fraction for fraction, one of
-	// the options for choice.
+	// the options for choice, a time H:MM for time.
 	Key *string `json:"key,omitzero"`
 	// Of a number: the words that may follow it in the answer, as rungs in 7 rungs.
 	Units []Text `json:"units,omitzero"`
@@ -146,8 +146,8 @@ type Check struct {
 	//
 	// Default: "options".
 	Notation *CheckNotation `json:"notation,omitzero"`
-	// Of a number, a fraction or a choice: the wrong values that the author knows, each with the
-	// trap it shows, compared with the value read as the key is.
+	// Of a number, a fraction, a choice or a time: the wrong values that the author knows, each
+	// with the trap it shows, compared with the value read as the key is.
 	TrapValues []TrapValue `json:"trap_values,omitzero"`
 	// Of a predicate: a Starlark expression on value, the whole number read, that is True for every
 	// right answer.
@@ -158,8 +158,8 @@ type Check struct {
 
 // CheckKind is the type of task.schema.json#/$defs/check/properties/kind.
 //
-// The check kind: a number, a fraction, a choice, a predicate on a whole number, or a rubric, which
-// gives feedback and no verdict.
+// The check kind: a number, a fraction, a choice, a time of day in hours and minutes, a predicate
+// on a whole number, or a rubric, which gives feedback and no verdict.
 type CheckKind string
 
 // The values of CheckKind.
@@ -167,6 +167,7 @@ const (
 	CheckKindNumber    CheckKind = "number"
 	CheckKindFraction  CheckKind = "fraction"
 	CheckKindChoice    CheckKind = "choice"
+	CheckKindTime      CheckKind = "time"
 	CheckKindPredicate CheckKind = "predicate"
 	CheckKindRubric    CheckKind = "rubric"
 )
@@ -200,7 +201,8 @@ const (
 //
 // A wrong value that the author knows, with the trap it shows.
 type TrapValue struct {
-	// The wrong value, as the key is written: for a choice, one of its options other than the key.
+	// The wrong value, as the key is written: for a choice, one of its options other than the key;
+	// for a time, in the notation of a time read, so that 5:60 can show a trap.
 	Value string `json:"value"`
 	// The trap that this wrong value shows, by its local ID in the module's trap catalog.
 	Trap TrapID `json:"trap"`

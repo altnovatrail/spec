@@ -1,0 +1,49 @@
+{
+  "description": "Boxes checked by a time of day: two values join when their hours and minutes are the same numbers, so 07:30 and 7:30 join, and 7:30 and 19:30 do not; a time of 60 minutes or more is a wrong time, which shows its trap, and is never the sum of its minutes.",
+  "canvas": {"kind": "workbook"},
+  "items": [
+    {"line": [{"text": "Half an hour after 7:00 it is "}, {"binding": "box", "check": {"kind": "time", "key": "7:30"}}]},
+    {"line": [{"text": "An hour after 5:00 it is "}, {"binding": "box", "check": {"kind": "time", "key": "6:00", "trap_values": [{"value": "5:60", "trap": "hundred-minutes-in-an-hour"}]}}]}
+  ],
+  "cases": [
+    {
+      "description": "A leading zero does not count: 07:30 joins into the first reader's 7:30, and so does 06:00 with 6:00.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7:30"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "06:00"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "07:30"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "6:00"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7:30"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "06:00"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"},
+        {"answer_slots": [{"verdict": "correct"}], "verdict": "correct"}
+      ]
+    },
+    {
+      "description": "Hours count to 24: 7:30 and 19:30 are two times, and do not join; 5:60 and 05:60 are one wrong time, which is not 6:00, and shows its trap.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7:30"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "5:60"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "19:30"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "05:60"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "unreadable": "UNREADABLE_AMBIGUOUS"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "5:60"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "ambiguous"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "not_yet", "trap": "hundred-minutes-in-an-hour"}], "verdict": "not_yet"}
+      ]
+    },
+    {
+      "description": "A value that is no time joins with the same value as written, and is not read; a time of a hundred minutes is in notation, and not yet right.",
+      "observations": [
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7.30"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "5:100"}]},
+        {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7.30"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "5:100"}]}
+      ],
+      "valid": [true, true],
+      "joined": {"answer_slots": [{"answer_slot": {"item": 1, "slot": 1}, "value": "7.30"}, {"answer_slot": {"item": 2, "slot": 1}, "value": "5:100"}]},
+      "verdicts": [
+        {"answer_slots": [{"verdict": "unreadable", "reason": "notation"}], "verdict": "unreadable"},
+        {"answer_slots": [{"verdict": "not_yet"}], "verdict": "not_yet"}
+      ]
+    }
+  ]
+}

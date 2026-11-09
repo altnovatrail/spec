@@ -5,7 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkVerdictVector } from "../cases.mjs";
-import { answerSlotsOf, choiceForm, comparableOf, isWord, itemVerdict, lowercase, normalized, rationalOf, readNumber, readingOf, scriptsReplaced, slotBreaches, slotVerdict, trapOf } from "../verdicts.mjs";
+import { answerSlotsOf, choiceForm, comparableOf, isWord, itemVerdict, lowercase, normalized, rationalOf, readNumber, readingOf, scriptsReplaced, slotBreaches, slotVerdict, timeOf, trapOf } from "../verdicts.mjs";
 
 const slot = (check, options) => (options ? { binding: "choice", options, check } : { binding: "anywhere", check });
 const verdictOf = (check, value, options) => slotVerdict(slot(check, options), value);
@@ -136,6 +136,29 @@ test("a choice of notation word takes one word that is none of the options as no
   assert.equal(trapOf(slot(trapped), "Maya"), null);
   assert.deepEqual(readingOf(slot(names), "Maya."), { compared: "maya", verdict: "not_yet" });
   assert.deepEqual(readingOf(slot(names), "Kim and Lea"), { notation: "kim and lea" });
+});
+
+// R111, В29 modules: hours and minutes as numbers, never the sum of minutes, and 24 hours.
+test("a time is right by its hours and minutes as numbers, and a time of 60 minutes or more is a wrong one", () => {
+  const time = { kind: "time", key: "6:00" };
+  for (const value of ["6:00", "06:00", "= 6:00.", " 6:00 "]) assert.deepEqual(verdictOf(time, value), CORRECT, value);
+  for (const value of ["5:60", "18:00", "6:01", "5:100", "25:00", "0:00"]) assert.deepEqual(verdictOf(time, value), NOT_YET, value);
+  for (const value of ["6", "6:0", "6:000", "6:060", "006:00", "6.00", "6 : 00", "6:00 pm", "６:00x"]) assert.deepEqual(verdictOf(time, value), NOTATION, value);
+  for (const value of [null, " ", "."]) assert.deepEqual(verdictOf(time, value), BLANK, JSON.stringify(value));
+  assert.deepEqual(verdictOf(time, "６:００"), CORRECT, "NFKC makes full-width digits ASCII");
+  assert.equal(timeOf("07:30"), "7:30");
+  assert.equal(timeOf("7:3"), null);
+  // A wrong time matches its trap by hours and minutes; the trap values are all not yet right.
+  const trapped = { ...time, trap_values: [{ value: "5:60", trap: "hundred" }] };
+  assert.equal(trapOf(slot(trapped), "05:60"), "hundred");
+  assert.equal(trapOf(slot(trapped), "6:60"), null);
+  assert.deepEqual(slotBreaches(slot(trapped)), []);
+  assert.deepEqual(slotBreaches(slot({ ...time, trap_values: [{ value: "06:00", trap: "hundred" }] })), ["task.trap-values"]);
+  assert.deepEqual(slotBreaches(slot({ ...time, trap_values: [{ value: "5:60", trap: "a" }, { value: "05:60", trap: "b" }] })), ["task.trap-values"]);
+  assert.deepEqual(readingOf(slot(time), "06:00"), { compared: "6:0", verdict: "correct" });
+  assert.deepEqual(readingOf(slot(time), "6.00"), { notation: "6.00" });
+  assert.deepEqual(readingOf(slot(time), ""), { blank: true });
+  assert.equal(comparableOf(slot(time), " "), null);
 });
 
 test("a predicate reads an integer, and leaves the rest to Starlark", () => {

@@ -7,7 +7,7 @@
 import { holdsPlaceholder } from "./templates.mjs";
 
 // The check kinds that give verdicts, and those that give feedback instead.
-export const VERDICT_KINDS = ["number", "fraction", "choice", "predicate"];
+export const VERDICT_KINDS = ["number", "fraction", "choice", "time", "predicate"];
 export const FEEDBACK_KINDS = ["rubric"];
 
 // A superscript or a subscript digit becomes U+FFFD, which no notation takes, so that NFKC does not
@@ -70,11 +70,33 @@ function steps1To5(text) {
   return withoutEnd(normalized(scriptsReplaced(text)).replace(/^=/, ""), ".!?");
 }
 
-// The value as number, fraction and predicate read it, steps 1 to 7: { text }, or { reason } when it
-// is blank.
+// The value as number, fraction, predicate and time read it, steps 1 to 7, with no units for a
+// time: { text }, or { reason } when it is blank.
 export function readNumber(value, units = []) {
   const text = trimmed(withoutUnit(steps1To5(value), units));
   return text === "" ? { reason: "blank" } : { text };
+}
+
+// A time as a value read is in notation (section 15; R111): H:MM or HH:MM, the minutes two digits,
+// or three that begin with no zero, so that 5:60 and 10:100 are times a trap can show. Anchored and
+// with no nested repeat, so it cannot backtrack.
+const TIME = /^([0-9]{1,2}):([0-9]{2}|[1-9][0-9]{2})$/;
+
+// The hours and the minutes of a time as numbers, "h:m", so that 07:30 is 7:30; or null when the
+// value, through steps 1 to 5 with white space at either end dropped, is not in the notation of a
+// time. The sum of minutes is never taken: 5:60 is not 6:00.
+export function timeOf(text) {
+  const match = TIME.exec(text);
+  return match ? `${Number(match[1])}:${Number(match[2])}` : null;
+}
+
+// A value as time reads it, steps 1 to 7 and the notation of a time: { time }, its hours and minutes
+// as timeOf gives them, or { reason }, blank or notation.
+function timeOfValue(value) {
+  const read = readNumber(value);
+  if (read.reason) return read;
+  const time = timeOf(read.text);
+  return time === null ? { reason: "notation" } : { time };
 }
 
 // What a unit compares by: steps 1 to 5, as the value goes through them, white space at either end
@@ -139,6 +161,11 @@ export function slotVerdict(slot, value) {
   const { check } = slot;
   if (value === null) return BLANK;
   if (check.kind === "choice") return choiceVerdict(value, check, check.options ?? slot.options);
+  if (check.kind === "time") {
+    const { time, reason } = timeOfValue(value);
+    if (reason) return reason === "blank" ? BLANK : NOTATION;
+    return time === timeOf(check.key) ? CORRECT : NOT_YET;
+  }
   if (!["number", "fraction", "predicate"].includes(check.kind)) throw new Error(`format-check computes no verdict of the check kind ${check.kind}`);
   const { number, reason } = numberOf(check, value);
   if (reason) return reason === "blank" ? BLANK : NOTATION;
@@ -171,10 +198,12 @@ function choiceVerdict(value, { key, notation }, options) {
 }
 
 // What the check of an answer slot compares a value by, as a string, or null when the value is not
-// in its notation: a choice, its normal form; a number or a fraction, its value in lowest terms.
+// in its notation: a choice, its normal form; a number or a fraction, its value in lowest terms; a
+// time, its hours and minutes, "h:m".
 export function comparableOf(slot, value) {
   const { check } = slot;
   if (check.kind === "choice") return choiceForm(value, check.notation);
+  if (check.kind === "time") return timeOfValue(value).time ?? null;
   if (check.kind !== "number" && check.kind !== "fraction") return null;
   const { number } = numberOf(check, value);
   return number ? lowestTerms(number) : null;
@@ -191,7 +220,7 @@ function lowestTerms({ numerator, denominator }) {
 // { notation }, a value out of the kind's notation, as the kind normalizes it — steps 1 to 7, a
 // choice in lowercase too; or { compared, verdict }, a value in notation: what the check compares
 // it by — a choice its normal form, a number, a fraction or a predicate's integer its value in
-// lowest terms — and its verdict, null for a predicate, whose verdict Starlark gives. Two values
+// lowest terms, a time its hours and minutes — and its verdict, null for a predicate, whose verdict Starlark gives. Two values
 // join when they read as the same and are not blank. Kept apart from comparableOf: a value out of
 // notation, normalized, can spell a comparable, as 1/100000000000000 does.
 export function readingOf(slot, value) {
@@ -203,6 +232,7 @@ export function readingOf(slot, value) {
     return verdict.reason === "notation" ? { notation: form } : { compared: form, verdict: verdict.verdict };
   }
   if (verdict?.reason === "notation") return { notation: readNumber(value, check.kind === "number" ? check.units : []).text };
+  if (check.kind === "time") return { compared: comparableOf(slot, value), verdict: verdict.verdict };
   return { compared: lowestTerms(numberOf(check, value).number), verdict: verdict?.verdict ?? null };
 }
 

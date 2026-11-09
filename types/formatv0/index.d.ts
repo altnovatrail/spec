@@ -883,13 +883,13 @@ export type AnswerSlotBinding = "anywhere" | "sheet" | "zone" | "choice";
  */
 export interface Check {
   /**
-   * The check kind: a number, a fraction, a choice, a predicate on a whole number, or a rubric,
-   * which gives feedback and no verdict.
+   * The check kind: a number, a fraction, a choice, a time of day in hours and minutes, a predicate
+   * on a whole number, or a rubric, which gives feedback and no verdict.
    */
   readonly kind: CheckKind;
   /**
    * The right answer, as a string: a number for number, a simple fraction for fraction, one of the
-   * options for choice.
+   * options for choice, a time H:MM for time.
    */
   readonly key?: string;
   /**
@@ -917,8 +917,8 @@ export interface Check {
    */
   readonly notation?: CheckNotation;
   /**
-   * Of a number, a fraction or a choice: the wrong values that the author knows, each with the trap
-   * it shows, compared with the value read as the key is.
+   * Of a number, a fraction, a choice or a time: the wrong values that the author knows, each with
+   * the trap it shows, compared with the value read as the key is.
    */
   readonly trap_values?: readonly TrapValue[];
   /**
@@ -935,10 +935,10 @@ export interface Check {
 /**
  * CheckKind is the type of task.schema.json#/$defs/check/properties/kind.
  *
- * The check kind: a number, a fraction, a choice, a predicate on a whole number, or a rubric, which
- * gives feedback and no verdict.
+ * The check kind: a number, a fraction, a choice, a time of day in hours and minutes, a predicate
+ * on a whole number, or a rubric, which gives feedback and no verdict.
  */
-export type CheckKind = "number" | "fraction" | "choice" | "predicate" | "rubric";
+export type CheckKind = "number" | "fraction" | "choice" | "time" | "predicate" | "rubric";
 
 /**
  * CheckForm is the type of task.schema.json#/$defs/check/properties/form.
@@ -964,7 +964,8 @@ export type CheckNotation = "options" | "word";
  */
 export interface TrapValue {
   /**
-   * The wrong value, as the key is written: for a choice, one of its options other than the key.
+   * The wrong value, as the key is written: for a choice, one of its options other than the key;
+   * for a time, in the notation of a time read, so that 5:60 can show a trap.
    */
   readonly value: string;
   /**

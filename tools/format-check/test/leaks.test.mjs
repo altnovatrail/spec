@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { holdsForm, leakForm, leaksBefore, leaksOf, lessonLeaks, lessonTexts, needlesOf, numbersIn, textsShownBefore } from "../leaks.mjs";
+import { holdsForm, leakForm, leaksBefore, leaksOf, lessonLeaks, lessonTexts, needlesOf, numbersIn, textsShownBefore, timesIn } from "../leaks.mjs";
 
 const numbers = (text) => numbersIn(leakForm(text)).map(({ numerator, denominator }) => `${numerator}/${denominator}`);
 const holds = (text, phrase) => holdsForm(leakForm(text), leakForm(phrase));
@@ -28,6 +28,22 @@ test("a number begins at a digit that no letter, mark or digit stands before, an
   assert.deepEqual(numbers("x77"), []);
   assert.deepEqual(numbers("x7.5 v1/2 A4.7"), [], "the whole run of a token that is no number is passed over, its tail too");
   assert.deepEqual(numbers("a5-3"), ["3/1"], "a sign ends a run");
+});
+
+// R111, В29 modules: a key of a time is found by its hours and minutes.
+test("a time is a run of digits, : and digits that no letter, mark or digit stands right outside", () => {
+  assert.deepEqual(timesIn(leakForm("At 07:30, or 19:05; not 7:305x or x7:30 or 7:")), ["7:30", "19:5"]);
+  assert.deepEqual(timesIn(leakForm("12:00:30")), ["12:0"], "the search goes on after the run, and :30 begins at no digit");
+  // A run out of the notation of a time read is none: a score, a time of 007 hours, minutes 030.
+  assert.deepEqual(timesIn(leakForm("The score was 7:3, then 007:30 and 7:030; 10:100 is one")), ["10:100"]);
+  // A key that is no time, which only a task the schema refuses has, is searched for nowhere.
+  assert.deepEqual(needlesOf({ statement: [], items: [{ answer_slots: [{ binding: "anywhere", check: { kind: "time", key: "07:3" } }] }] }), []);
+  assert.deepEqual(timesIn(leakForm("7 : 30, 7.30")), []);
+  const task = { statement: [{ text: "When?" }], items: [{ answer_slots: [{ binding: "anywhere", check: { kind: "time", key: "7:30" } }] }] };
+  assert.deepEqual(leaksOf("It is 07:30.", task), ["7:30"]);
+  assert.deepEqual(leaksOf("It is 17:30, 7:31 or 7:30am.", task), []);
+  // The statement frees its own key, as it does a number's.
+  assert.deepEqual(needlesOf({ ...task, statement: [{ text: "It is 07:30 now. When?" }] }), []);
 });
 
 test("the longest of a simple fraction, a decimal and an integer", () => {

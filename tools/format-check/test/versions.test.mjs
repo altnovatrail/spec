@@ -142,6 +142,10 @@ test("a check is compared by what decides its verdict and its trap", () => {
   same(slot({ kind: "fraction", key: "6/8" }), slot({ kind: "fraction", key: "3/4", form: "any" }));
   other(slot({ kind: "fraction", key: "3/4" }), slot({ kind: "fraction", key: "3/4", form: "reduced" }));
   same(slot({ kind: "choice", key: "ODD", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["Odd", "Even"] }));
+  // A time by its hours and minutes (R111).
+  same(slot({ kind: "time", key: "7:30", trap_values: [trap("07:60")] }), slot({ kind: "time", key: "7:30", trap_values: [trap("7:60")] }));
+  other(slot({ kind: "time", key: "7:30" }), slot({ kind: "time", key: "19:30" }));
+  other(slot({ kind: "time", key: "7:30" }), slot({ kind: "number", key: "7" }));
   // The notation decides the verdict of a word that is none of the options (R111): options unless given.
   same(slot({ kind: "choice", key: "odd", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["even", "odd"], notation: "options" }));
   other(slot({ kind: "choice", key: "odd", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["even", "odd"], notation: "word" }));

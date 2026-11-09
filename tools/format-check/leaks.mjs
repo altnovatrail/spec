@@ -3,15 +3,15 @@
 // check and checks task.no-leaks and lesson.no-leaks. The scans are loops over the characters: a
 // regular expression over a text of any length could backtrack.
 
-import { absolute, answerSlotsOf, equal, lowercase, normalized, rationalOf, scriptsReplaced } from "./verdicts.mjs";
+import { VERDICT_KINDS as KINDS_WITH_VERDICTS, absolute, answerSlotsOf, equal, lowercase, normalized, rationalOf, scriptsReplaced, timeOf } from "./verdicts.mjs";
 
 // A character of a word: a letter, a mark or a number, the general categories L, M and N.
 const WORD_CHARACTER = /[\p{L}\p{M}\p{N}]/u;
 const isWordCharacter = (char) => char !== undefined && WORD_CHARACTER.test(char);
 const isDigit = (char) => char !== undefined && char >= "0" && char <= "9";
 // The check kinds whose keys the leak check searches for: a predicate has no key, a rubric neither.
-const KEYED_KINDS = new Set(["number", "fraction", "choice"]);
-const VERDICT_KINDS = new Set(["number", "fraction", "choice", "predicate"]);
+const VERDICT_KINDS = new Set(KINDS_WITH_VERDICTS);
+const KEYED_KINDS = new Set(KINDS_WITH_VERDICTS.filter((kind) => kind !== "predicate"));
 
 // The normal form of a text, of a key of a choice and of a leak phrase: step 1 of section 15, NFKC,
 // the dashes and slashes, the white space, and each character to its simple lowercase mapping. An
@@ -72,6 +72,32 @@ export function numbersIn(chars) {
   return numbers;
 }
 
+// The times of a text in its normal form, each "h:m" by its hours and minutes as numbers: at each
+// digit, the run of digits, ":" and digits, which is a time when it is in the notation of a time read
+// — one or two digits of hours, and minutes of two digits or of three that begin with no zero — and
+// no character of a word stands right before it and none right after it; either way the search goes
+// on after the run, as for numbers. So 07:30 holds the time 7:30, and 17:30 and a score 7:3 do not.
+export function timesIn(chars) {
+  const times = [];
+  let at = 0;
+  while (at < chars.length) {
+    if (!isDigit(chars[at])) {
+      at++;
+      continue;
+    }
+    const hours = digitsEnd(chars, at);
+    if (chars[hours] !== ":" || !isDigit(chars[hours + 1])) {
+      at = hours;
+      continue;
+    }
+    const end = digitsEnd(chars, hours + 1);
+    const time = timeOf(chars.slice(at, end).join(""));
+    if (time !== null && !isWordCharacter(chars[at - 1]) && !isWordCharacter(chars[end])) times.push(time);
+    at = end;
+  }
+  return times;
+}
+
 const magnitudeOf = ({ numerator, denominator }) => ({ numerator: absolute(numerator), denominator });
 
 // Whether a needle's normal form stands in a text's normal form at at.
@@ -96,22 +122,26 @@ export function holdsForm(chars, form) {
   return false;
 }
 
-// A text in its normal form, with its numbers, which every key of a number searches.
+// A text in its normal form, with its numbers, which every key of a number searches, and its times,
+// which every key of a time searches.
 function searched(text) {
   const chars = leakForm(text);
-  return { chars, numbers: numbersIn(chars) };
+  return { chars, numbers: numbersIn(chars), times: timesIn(chars) };
 }
 
-// A needle, normalized once: a key of a number or a fraction by its magnitude, and a key of a choice
+// A needle, normalized once: a key of a number or a fraction by its magnitude, a key of a time by its
+// hours and minutes, and a key of a choice
 // or a leak phrase by its normal form. written is how the task writes it.
 function needleOf(written, kind) {
   if (kind === "number" || kind === "fraction") return { written, magnitude: magnitudeOf(rationalOf(written, kind)) };
+  if (kind === "time") return { written, time: timeOf(written) };
   return { written, form: leakForm(written) };
 }
 
 // Whether a needle is found in a searched text.
 function holds(text, needle) {
   if (needle.form) return holdsForm(text.chars, needle.form);
+  if (needle.time) return text.times.includes(needle.time);
   return text.numbers.some((number) => equal(magnitudeOf(number), needle.magnitude));
 }
 
@@ -132,10 +162,13 @@ function ownTextsOf(task, item) {
 
 // A key of a number or a fraction is searched for only when it is in notation: a key that holds a
 // placeholder, outside a template, breaks task.placeholders instead (section 23).
-const isSearchable = (check) => (check.kind !== "number" && check.kind !== "fraction") || rationalOf(check.key, check.kind) !== null;
+const isSearchable = (check) => {
+  if (check.kind === "time") return timeOf(check.key) !== null;
+  return (check.kind !== "number" && check.kind !== "fraction") || rationalOf(check.key, check.kind) !== null;
+};
 
 // What the leak check searches a text for (section 20): the key of every check of a number, a
-// fraction or a choice that the texts of its own item do not show, and every leak phrase.
+// fraction, a choice or a time that the texts of its own item do not show, and every leak phrase.
 export function needlesOf(task) {
   const needles = [];
   for (const item of task.items ?? []) {
