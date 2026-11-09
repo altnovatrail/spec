@@ -1,0 +1,21 @@
+# A task that is no template names a picture whose path holds a brace: only a template's picture
+# path holds placeholders, which every instance fills with numbers.
+id: apples-in-two-rows
+statement:
+  - text: The apples lie in two equal rows. How many apples are in each row?
+  - picture: pictures/apples-{total}-in-two-rows.png
+    alt: Six apples in two equal rows
+    width: 320
+    height: 160
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "3"}
+solution:
+  - text: "6 ÷ 2 = 3: each row has 3 apples."
+skills:
+  primary: [equal-sharing]
+band: grade-3
+difficulty: 1

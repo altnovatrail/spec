@@ -1,0 +1,30 @@
+# A template whose statement shows a picture of each instance: the path holds the placeholders of
+# its parameters, and media/ holds a file for every instance, dots-2-by-3.png and dots-3-by-3.png.
+# The path holds no number that the key can be, since task.no-leaks searches it.
+id: dots-in-rows
+template:
+  parameters:
+    rows: {from: 2, to: 3}
+    columns: {from: 3, to: 3}
+  derived:
+    product: rows * columns
+statement:
+  - text: How many dots does the picture show?
+  - picture: pictures/dots-{rows}-by-{columns}.png
+    alt: Dots in {rows} rows of {columns}.
+    width: 120
+    height: 120
+canvas:
+  kind: handwriting_sheet
+  grid: dots
+  grid_step: 40
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "{product}"}
+solution:
+  - text: "{rows} rows of {columns} dots are {rows} × {columns} = {product} dots."
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 1

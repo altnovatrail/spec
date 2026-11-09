@@ -16,7 +16,7 @@ import { canonicalViewOf, memberOf, packageOf, tiersOf } from "./package.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
 import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
-import { instanceMaker, instanceShown, numbersShown, pickOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "./templates.mjs";
+import { holdsPlaceholder, instanceMaker, instanceShown, numbersShown, pickOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "./templates.mjs";
 import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from "./verdicts.mjs";
 import { PACKAGE_FILES, VERSION_PART, VERSION_RULES, compareVersions, formatVersionCompare, isPackageFolder, packageFromFiles, placesOf, semverOf, shownAt } from "./versions.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
@@ -743,7 +743,13 @@ const taskRuleBreaches = (task, parts = {}, validateTask = undefined) => expande
 // instances, which are its tasks: each passes the task's schema by validateTask, when it is given,
 // and is checked as a task (section 23). counted is the template's instances, when they are known.
 function expandedOf(task, parts, validateTask, counted = undefined) {
-  if (task.template === undefined) return { breaches: plainBreaches(task, parts), tasks: [task] };
+  if (task.template === undefined) {
+    const breaches = plainBreaches(task, parts);
+    // A picture path holds a placeholder only in a template (section 23; R108).
+    const pictures = [...(task.statement ?? []), ...(task.solution ?? [])].map((part) => part.picture);
+    if (pictures.some(holdsPlaceholder)) breaches.set("task.placeholders", "a picture path holds a brace, and only a template's holds placeholders");
+    return { breaches, tasks: [task] };
+  }
   const { breaches, instances } = counted ?? templateOf(task);
   const tasks = [];
   if (!instances) return { breaches, tasks };
@@ -764,16 +770,16 @@ function expandedOf(task, parts, validateTask, counted = undefined) {
     }
     const instance = unsolved ? known(made) : made;
     tasks.push(instance);
-    for (const [rule, detail] of plainBreaches(instance, parts, unsolved)) add(rule, detail);
+    for (const [rule, detail] of plainBreaches(instance, parts, unsolved, true)) add(rule, detail);
   }
   return { breaches, tasks };
 }
 
 // The same for a task that is no template, or for an instance, which is unsolved when the results of
-// its solver are not known.
-function plainBreaches(task, parts, unsolved = false) {
+// its solver are not known; task.no-leaks searches an instance's picture paths too (R108).
+function plainBreaches(task, parts, unsolved = false, instance = false) {
   const breaches = new Map((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap((slot) => slotBreaches(slot, unsolved))).map((rule) => [rule, null]));
-  if (leaksBefore(task, parts)) breaches.set("task.no-leaks", null);
+  if (leaksBefore(task, parts, instance)) breaches.set("task.no-leaks", null);
   return breaches;
 }
 

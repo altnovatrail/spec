@@ -12,8 +12,9 @@ import "github.com/altnovatrail/spec/types/formatv0"
 type StatementPart struct {
 	// A paragraph, as plain text.
 	Text *formatv0.Text `json:"text,omitzero"`
-	// A picture, by its path from media/.
-	Picture *formatv0.PicturePath `json:"picture,omitzero"`
+	// A picture, by its path from media/; in a task, a template's may hold placeholders, and a
+	// lesson's holds none.
+	Picture *formatv0.TaskPicturePath `json:"picture,omitzero"`
 	// What the picture shows, in words: a screen reader reads it, and it stands in the picture's
 	// place until the picture comes. Empty for a picture that only decorates.
 	Alt *string `json:"alt,omitzero"`

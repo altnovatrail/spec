@@ -1392,3 +1392,17 @@ test("a published version of an earlier version of the format is a package as fi
   });
   assert.deepEqual(placeless, [`${files}:0: holds no manifest.languages where the format keeps it in every version (section 2)`]);
 });
+
+// R108: the path of a task's picture is a media path whose names may hold placeholders, and
+// nothing else, so that what its instances name is a file that media/ can hold.
+test("task_picture_path is media_path for pictures, with placeholders after a -", () => {
+  const { $defs } = JSON.parse(fs.readFileSync(path.join(spec, "format", "schemas", "common.schema.json"), "utf8"));
+  const task = $defs.task_picture_path;
+  assert.deepEqual(task.not, $defs.media_path.not);
+  assert.equal(task.maxLength, $defs.media_path.maxLength);
+  const placeholder = "|\\{[a-z][a-z0-9_]*\\}";
+  assert.equal(task.pattern.replaceAll(placeholder, "").replaceAll("-([a-z0-9]+)", "-[a-z0-9]+"), $defs.media_path.pattern.replace("(png|jpg|webp|mp3)", "(png|jpg|webp)"));
+  const takes = (text) => new RegExp(task.pattern, "u").test(text);
+  for (const text of ["pictures/split-{total}-{parts}.png", "pictures/split-12-3.png", "rows-{n}/dots.png"]) assert.ok(takes(text), text);
+  for (const text of ["pictures/{total}-apples.png", "pictures/split{total}.png", "pictures/split--3.png", "pictures/split-{Total}.png", "sound-{a}.mp3"]) assert.ok(!takes(text), text);
+});

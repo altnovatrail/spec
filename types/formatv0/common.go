@@ -110,8 +110,9 @@ type TaskID LocalID
 type StatementPart struct {
 	// A paragraph, as plain text.
 	Text *Text `json:"text,omitzero"`
-	// A picture, by its path from media/.
-	Picture *PicturePath `json:"picture,omitzero"`
+	// A picture, by its path from media/; in a task, a template's may hold placeholders, and a
+	// lesson's holds none.
+	Picture *TaskPicturePath `json:"picture,omitzero"`
 	// What the picture shows, in words: a screen reader reads it, and it stands in the picture's
 	// place until the picture comes. Empty for a picture that only decorates.
 	Alt *string `json:"alt,omitzero"`
@@ -121,18 +122,12 @@ type StatementPart struct {
 	Height *int64 `json:"height,omitzero"`
 }
 
-// PicturePath is the type of common.schema.json#/$defs/picture_path.
+// TaskPicturePath is the type of common.schema.json#/$defs/task_picture_path.
 //
-// The path of a picture from the module's media/ folder: a media path whose extension is .png, .jpg
-// or .webp.
-type PicturePath MediaPath
-
-// MediaPath is the type of common.schema.json#/$defs/media_path.
-//
-// The path of a media file from the module's media/ folder: names in kebab-case that begin with a
-// letter, joined by /, and the extension of the file's format — .png, .jpg, .webp or .mp3. No name
-// is one that Windows reserves for a device. pictures/ladder.png.
-type MediaPath string
+// The path of a picture of a task's statement or solution: a picture path, and in a template, one
+// whose names MAY hold placeholders of parameters and derived numbers, each after a -, such as
+// pictures/split-{total}-{parts}.png, which every instance replaces with numbers.
+type TaskPicturePath string
 
 // Canvas is the type of common.schema.json#/$defs/canvas.
 //
@@ -193,3 +188,16 @@ type SheetRectangle struct {
 //
 // The local ID of a lesson.
 type LessonID LocalID
+
+// PicturePath is the type of common.schema.json#/$defs/picture_path.
+//
+// The path of a picture from the module's media/ folder: a media path whose extension is .png, .jpg
+// or .webp.
+type PicturePath MediaPath
+
+// MediaPath is the type of common.schema.json#/$defs/media_path.
+//
+// The path of a media file from the module's media/ folder: names in kebab-case that begin with a
+// letter, joined by /, and the extension of the file's format — .png, .jpg, .webp or .mp3. No name
+// is one that Windows reserves for a device. pictures/ladder.png.
+type MediaPath string

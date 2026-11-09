@@ -200,11 +200,14 @@ export const trapsNamed = (task) => [...(task.traps ?? []), ...trapValuesOf(task
 
 // The texts of a module that the learner can see before a task is solved, which task.no-leaks
 // searches: the task's givens and unknown, the text of each trap value and the simpler case of each
-// item; and, of the module's other parts when they are given, the title and description of each
-// technique the task names, the advice of each trap it names and, for a task with an item with a
-// verdict, the manifest's rung templates.
-export function textsShownBefore(task, { manifest, traps, techniques } = {}) {
+// item; of an instance of a template, the path of each picture of its statement and its solution,
+// whose names its numbers fill (section 23; R108) — not a task's that is no template, whose names the
+// author wrote, often with the numbers of its ID; and, of the module's other parts when they are given, the title
+// and description of each technique the task names, the advice of each trap it names and, for a task
+// with an item with a verdict, the manifest's rung templates.
+export function textsShownBefore(task, { manifest, traps, techniques } = {}, instance = false) {
   const texts = [...(task.givens ?? []), task.unknown, ...(task.items ?? []).map((item) => item.simpler_case), ...trapValuesOf(task).map((trapValue) => trapValue.text)];
+  if (instance) texts.push(...[...(task.statement ?? []), ...(task.solution ?? [])].map((part) => part.picture));
   for (const id of task.techniques ?? []) texts.push(techniques?.techniques?.[id]?.title, techniques?.techniques?.[id]?.description);
   for (const id of trapsNamed(task)) texts.push(traps?.traps?.[id]?.trap_advice);
   if (hasVerdict(task)) texts.push(...(manifest?.rung_templates ?? []));
@@ -212,10 +215,10 @@ export function textsShownBefore(task, { manifest, traps, techniques } = {}) {
 }
 
 // Whether a task breaks task.no-leaks: a text that it shows before it is solved holds a key or a leak
-// phrase of it.
-export function leaksBefore(task, parts) {
+// phrase of it. instance is true of an instance of a template.
+export function leaksBefore(task, parts, instance = false) {
   const needles = needlesOf(task);
-  return textsShownBefore(task, parts).some((text) => leaksIn(text, needles).length > 0);
+  return textsShownBefore(task, parts, instance).some((text) => leaksIn(text, needles).length > 0);
 }
 
 // The texts of a lesson, which lesson.no-leaks searches (section 21): its title, and the paragraphs

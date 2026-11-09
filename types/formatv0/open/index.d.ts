@@ -456,9 +456,10 @@ export interface StatementPart {
    */
   readonly text?: formatv0.Text;
   /**
-   * A picture, by its path from media/.
+   * A picture, by its path from media/; in a task, a template's may hold placeholders, and a
+   * lesson's holds none.
    */
-  readonly picture?: formatv0.PicturePath;
+  readonly picture?: formatv0.TaskPicturePath;
   /**
    * What the picture shows, in words: a screen reader reads it, and it stands in the picture's
    * place until the picture comes. Empty for a picture that only decorates.

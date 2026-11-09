@@ -60,7 +60,14 @@
           "type": "array",
           "items": {
             "$ref": "common.schema.json#/$defs/statement_part",
-            "unevaluatedProperties": false
+            "unevaluatedProperties": false,
+            "properties": {
+              "picture": {
+                "$ref": "common.schema.json#/$defs/picture_path",
+                "description": "A picture, by its path from media/: a lesson has no template, so its path holds no placeholder.",
+                "x-open": true
+              }
+            }
           },
           "minItems": 1,
           "description": "An explanation: paragraphs and pictures that the learner reads, in order, in the module's explanation language.",
@@ -89,7 +96,14 @@
           "type": "array",
           "items": {
             "$ref": "common.schema.json#/$defs/statement_part",
-            "unevaluatedProperties": false
+            "unevaluatedProperties": false,
+            "properties": {
+              "picture": {
+                "$ref": "common.schema.json#/$defs/picture_path",
+                "description": "A picture, by its path from media/: a lesson has no template, so its path holds no placeholder.",
+                "x-open": true
+              }
+            }
           },
           "minItems": 1,
           "description": "What the example asks: paragraphs and pictures in order, as a task's statement.",

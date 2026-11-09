@@ -368,9 +368,10 @@ export interface StatementPart {
    */
   readonly text?: Text;
   /**
-   * A picture, by its path from media/.
+   * A picture, by its path from media/; in a task, a template's may hold placeholders, and a
+   * lesson's holds none.
    */
-  readonly picture?: PicturePath;
+  readonly picture?: TaskPicturePath;
   /**
    * What the picture shows, in words: a screen reader reads it, and it stands in the picture's
    * place until the picture comes. Empty for a picture that only decorates.
@@ -387,21 +388,13 @@ export interface StatementPart {
 }
 
 /**
- * PicturePath is the type of common.schema.json#/$defs/picture_path.
+ * TaskPicturePath is the type of common.schema.json#/$defs/task_picture_path.
  *
- * The path of a picture from the module's media/ folder: a media path whose extension is .png, .jpg
- * or .webp.
+ * The path of a picture of a task's statement or solution: a picture path, and in a template, one
+ * whose names MAY hold placeholders of parameters and derived numbers, each after a -, such as
+ * pictures/split-{total}-{parts}.png, which every instance replaces with numbers.
  */
-export type PicturePath = MediaPath;
-
-/**
- * MediaPath is the type of common.schema.json#/$defs/media_path.
- *
- * The path of a media file from the module's media/ folder: names in kebab-case that begin with a
- * letter, joined by /, and the extension of the file's format — .png, .jpg, .webp or .mp3. No name
- * is one that Windows reserves for a device. pictures/ladder.png.
- */
-export type MediaPath = string;
+export type TaskPicturePath = string;
 
 /**
  * Canvas is the type of common.schema.json#/$defs/canvas.
@@ -473,6 +466,23 @@ export interface SheetRectangle {
  * The local ID of a lesson.
  */
 export type LessonID = LocalID;
+
+/**
+ * PicturePath is the type of common.schema.json#/$defs/picture_path.
+ *
+ * The path of a picture from the module's media/ folder: a media path whose extension is .png, .jpg
+ * or .webp.
+ */
+export type PicturePath = MediaPath;
+
+/**
+ * MediaPath is the type of common.schema.json#/$defs/media_path.
+ *
+ * The path of a media file from the module's media/ folder: names in kebab-case that begin with a
+ * letter, joined by /, and the extension of the file's format — .png, .jpg, .webp or .mp3. No name
+ * is one that Windows reserves for a device. pictures/ladder.png.
+ */
+export type MediaPath = string;
 
 // The types of shared-taxonomy.schema.json.
 

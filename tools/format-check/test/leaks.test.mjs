@@ -119,6 +119,13 @@ test("task.no-leaks searches the texts that the learner sees before the task is 
   assert.equal(leaksBefore(fixed, parts), true, "a rung template holds the leak phrase");
   const essay = { items: [{ answer_slots: [{ binding: "sheet", check: { kind: "rubric", criteria: [{ text: "A criterion." }] } }] }] };
   assert.deepEqual(textsShownBefore(essay, parts), [], "a task with no verdict shows no rung template");
+  // Of an instance of a template, the paths of the pictures of its statement and solution too (R108).
+  const pictured = { ...fixed, statement: [{ text: "How many rungs?" }, { picture: "pictures/ladder-of-7.png", alt: "A ladder.", width: 1, height: 1 }], solution: [{ picture: "pictures/ladder-of-8.png", alt: "", width: 1, height: 1 }] };
+  assert.ok(!textsShownBefore(pictured).includes("pictures/ladder-of-7.png"), "a task that is no template");
+  assert.ok(textsShownBefore(pictured, {}, true).includes("pictures/ladder-of-7.png"));
+  assert.ok(textsShownBefore(pictured, {}, true).includes("pictures/ladder-of-8.png"), "every picture of an instance is a file of the module");
+  assert.equal(leaksBefore(pictured), false);
+  assert.equal(leaksBefore(pictured, {}, true), true, "the instance's picture path holds the key 7");
 });
 
 test("lesson.no-leaks searches every text of a lesson for the keys of each task that it names", () => {

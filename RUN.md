@@ -131,7 +131,7 @@
 | [x] | T81 | Правила R102: печатный набор в кавычках, выражения шаблона, прошлый индекс | Claude, проверяю я | — | T38 |
 | [x] | T82 | Признак слова у выбора от руки | Claude, проверяю я | — | T38 |
 | [x] | T83 | Вид проверки `time` | Claude, проверяю я | — | T38 |
-| [ ] | T84 | Подстановки в пути картинки шаблона | Claude, проверяю я | — | T38 |
+| [x] | T84 | Подстановки в пути картинки шаблона | Claude, проверяю я | — | T38 |
 | [ ] | T85 | Наводящий вопрос `leading_question` и описание шага | Claude, проверяю я | — | T38 |
 | [ ] | T86 | Наводящий вопрос в ответе `api` на «подскажи» | Claude | — | T85 |
 | [ ] | T87 | Список шагов в объяснении урока | Claude, проверяю я | — | T38 |
@@ -365,6 +365,15 @@
   - редакция [текста формата](format/README.md), раздел 23: «so far no module takes templates» больше не так — у `modules` 19 шаблонов (T38, «Выяснилось при планировании»).
 - **Как проверить:** `just format-check`, `just format-check-test`, `just types-check`, `just coverage` и `just docs-check` — зелёные; `/code-review high`.
 - **Разделы:** R44, R51, R57, R60, R108; [текст формата](format/README.md), разделы 20, 23 и 24; Д121.
+- **Сделано (2026-11-09)** — на ветке `e6`; входящие перед задачей не смотрелись, по слову автора до T90:
+  - [текст формата](format/README.md), раздел 23: путь картинки условия и решения шаблона может держать подстановки параметров и производных чисел — целой частью имени после `-`: `pictures/split-{total}-{parts}.png`. Результата решателя ни в одном пути нет, даже в пути картинки решения: файл каждого экземпляра лежит в `media/`, и `task.known-pictures` держится на каждом экземпляре. Отрицательное число в пути даёт `--`, и такой экземпляр нарушает `task.instances`. Вне шаблона и в уроке скобок в пути нет: у задачи — `task.placeholders`, у урока — его схема. Редакция: «so far no module takes templates» больше не так. Раздел 24 — то же о результате;
+  - [текст формата](format/README.md), раздел 20, и `task.no-leaks`: путь каждой картинки условия и решения экземпляра — среди текстов, где ищутся ключи. У задачи не шаблона путь не ищется: имя пишет автор, и в нём часто числа ID, как `pictures/clk-12-d1-1.png` у `modules`, — поиск дал бы ложные утечки. Дробь и время в имени не записать, поэтому путь SHOULD NOT складывать их из чисел;
+  - схемы: `task_picture_path` в `common.schema.json` — `media_path` картинки с подстановками, им живёт `statement_part`, а урок держит свои картинки строгим `picture_path`; `just types` — тип `TaskPicturePath` у `StatementPart.Picture` в Go и TypeScript, и у частей урока тоже, хотя их схема скобок не пускает;
+  - `tools/format-check/`: `cases.mjs` — `task.placeholders` на скобке в пути вне шаблона; `templates.mjs` — результат не стоит в пути картинки решения; `leaks.mjs` — пути картинок экземпляра среди текстов `task.no-leaks`;
+  - векторы: `vectors/templates/picture-of-the-instance.yaml` — три экземпляра; `vectors/leaks/numbers-in-a-picture-path.yaml`; `task.placeholders/picture-path-outside-a-template.yaml` и `result-in-a-picture-path.yaml`; `task.no-leaks/key-in-the-picture-path-of-an-instance.yaml`; примеры — шаблон `dots-in-rows.yaml` с файлами двух экземпляров в `module/valid/with-tasks/media/` и неверный урок `placeholder-in-a-picture-path.yaml`;
+  - проверено: `just format-check` — 193 вектора 56 правил, 8 векторов шаблонов, 19 утечки, `just format-check-test` — 231 тест, `just coverage` — 638, `just types-check`, `just ci-lint`, `just ci-test`, `just contracts-check`, `just docs-check`;
+  - `/code-review high`, один круг: 10 находок, исправлены 8. Пути картинок решения экземпляра не искались, хотя R108 говорит о каждой картинке; дробь и время в пути не найти — совет в тексте; «SHOULD NOT быть отрицательным», а схема отвергает — теперь сказано, что отвергает; ссылки на R111 вместо R108; число «19 шаблонов» без источника — убрано; `task_picture_path` повторяет `media_path` — тест держит их в лад; сообщение об ошибке и комментарий `holdsPlaceholder`. Не взяты: искать пути картинок и у задачи не шаблона — см. выше; смена типа `StatementPart.Picture` в Go — это и есть изменение 0.4, и `module-kit` берёт его с тегом линии 0.10.
+- **Открыто:** `module-kit` — подстановки в пути, `task.known-pictures` на каждом экземпляре и поиск по путям в `task.no-leaks` с тегом линии 0.10; `modules` — шесть шаблонов по картинке и картинки `for-every`, `split`, `groups`, `two-groups`, `changes` и `groups` (Д121).
 
 #### T85. Наводящий вопрос `leading_question` и описание шага
 

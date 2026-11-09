@@ -129,6 +129,11 @@ test("a result of the solver is named as no parameter or derived number is, and 
   const choice = solved({ task: { items: [{ answer_slots: [{ binding: "anywhere", check: { kind: "choice", key: "{factor}", options: ["{a}", "{b}"] } }] }] } });
   assert.match(breachesOf(choice)["task.placeholders"], /#\/items\/0\/answer_slots\/0\/check\/key: \{factor\} is a result/, "not the key of a choice");
   assert.match(breachesOf(solved({ task: { leak_phrases: ["{factors}"] } }))["task.placeholders"], /\{factors\} names no parameter, derived number or result of the solver/);
+  // A picture path holds parameters and derived numbers, but no result, not even the solution's (R108).
+  const picture = (path) => ({ picture: path, alt: "Dots.", width: 100, height: 100 });
+  assert.deepEqual(breachesOf(solved({ task: { statement: [{ text: "Find it." }, picture("pictures/rows-{a}-by-{b}.png")] } })), {});
+  assert.match(breachesOf(solved({ task: { statement: [{ text: "Find it." }, picture("pictures/rows-{a}-by-{factor}.png")] } }))["task.placeholders"], /#\/statement\/1\/picture: \{factor\} is a result/);
+  assert.match(breachesOf(solved({ task: { solution: [{ text: "{factor}." }, picture("pictures/rows-{factor}.png")] } }))["task.placeholders"], /#\/solution\/1\/picture: \{factor\} is a result/);
 });
 
 test("an instance keeps the placeholders of the results that spec does not know, and the leak phrases that hold one are passed over", () => {

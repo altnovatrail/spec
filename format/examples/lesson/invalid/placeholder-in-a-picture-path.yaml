@@ -1,0 +1,13 @@
+# error: pattern at #/segments/0/explanation/1/picture
+# A lesson has no template, so the path of its picture holds no placeholder.
+id: dots-in-rows
+title: Dots in rows
+skills: [times-tables]
+segments:
+  - explanation:
+      - text: Count the dots in a row, then the rows.
+      - picture: pictures/dots-{rows}-by-3.png
+        alt: Dots in rows of three.
+        width: 120
+        height: 120
+  - task: dots-in-rows
