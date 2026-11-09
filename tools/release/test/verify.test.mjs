@@ -142,7 +142,7 @@ test("the archive of the contracts' code is bound to its tag as spec's other pac
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive([]), "v0.5.6", source), /names the package undefined/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive(null), "v0.5.6", source), /cannot be read: it holds no object/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", contracts, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
-  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
+  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
 });
 
 test("the archive of the admission table is bound to its tag as the format's is, by the commit in its header", () => {
@@ -155,6 +155,19 @@ test("the archive of the admission table is bound to its tag as the format's is,
   assert.throws(() => checkSpecContent("admission-0.1.tar.gz", archive, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
   assert.throws(() => checkSpecContent("admission-01.tar.gz", archive, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag/);
   assert.throws(() => checkSpecContent("admission-0.1.tar.gz", Buffer.from("no gzip"), "v0.5.6", source), /admission-0\.1\.tar\.gz is no gzip archive/);
+});
+
+test("the archive of the deployment configuration is bound to its tag as the format's is, by the commit in its header, and named by an integer", () => {
+  const source = gitHub();
+  // As above: the format's archive of v0.5.6, by the deployment configuration's name.
+  const archive = specFile("format-0.1.tar.gz").bytes;
+  checkSpecContent("deployment-1.tar.gz", archive, "v0.5.6", source);
+  checkSpecContent("deployment-12.tar.gz", archive, "v0.5.6", source);
+  assert.throws(() => checkSpecContent("deployment-1.tar.gz", archive, "v0.5.5", source), /deployment-1\.tar\.gz is git archive's of e6069ae\w+, and spec v0\.5\.5 is c143fa0/);
+  // Its version is an integer from 1, and the other parts' are MAJOR.MINOR.
+  for (const name of ["deployment-0.tar.gz", "deployment-01.tar.gz", "deployment-1.0.tar.gz", "admission-1.tar.gz", "format-1.tar.gz"]) {
+    assert.throws(() => checkSpecContent(name, archive, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag/, name);
+  }
 });
 
 // The fields of the certificates of the fixtures, read once their bundles hold.

@@ -1,0 +1,48 @@
+# Files the schema refuses, each at the paths of every field it refuses.
+cases:
+  - origin: https://app.example.org
+    file:
+      format: 1
+      api: https://api.example.org
+      signIn:
+        service: firebase
+        apiKey: synthetic-web-api-key
+        authDomain: example-project.firebaseapp.com
+        projectId: example-project
+        appId: synthetic-web-app-id
+        measurementId: G-SYNTHETIC
+    refused_by: schema
+    fields: [signIn.measurementId]
+  - origin: https://app.example.org
+    file:
+      format: 1
+      api: https://api.example.org
+    refused_by: schema
+    fields: [signIn]
+  - origin: https://app.example.org
+    file:
+      format: "1"
+      api: https://api.example.org/
+      signIn:
+        service: firebase
+        apiKey: synthetic-web-api-key
+        authDomain: example-project.firebaseapp.com
+        projectId: example-project
+        appId: synthetic-web-app-id
+    refused_by: schema
+    fields: [api, format]
+  - origin: https://app.example.org
+    file:
+      format: 1
+      api: https://api.example.org
+      signIn:
+        service: firebase
+        apiKey: ""
+        authDomain: https://example-project.firebaseapp.com
+        projectId: example-project
+    refused_by: schema
+    fields: [signIn.apiKey, signIn.appId, signIn.authDomain]
+  - origin: https://app.example.org
+    file: [format, api, signIn]
+    refused_by: schema
+    fields: [""]

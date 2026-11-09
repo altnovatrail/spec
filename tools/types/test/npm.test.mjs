@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TAR } from "../../shared.mjs";
-import { FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, FIRST_PAGE_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
+import { FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, FIRST_DEPLOYMENT_LINE, FIRST_PAGE_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
 import { treeOf } from "../../npm-package.mjs";
 import { scratchRepository, writeFile } from "../../release/test/repository.mjs";
 
@@ -83,7 +83,7 @@ test("from the line 0.8 on, the package holds and exports the types of the admis
 test("from the line 0.10 on, the package holds the page of the workbook and its vectors, as JSON", () => {
   assert.equal(FIRST_PAGE_LINE, "0.10");
   const tree = treeOf(spec);
-  for (const version of ["0.10.0", "1.0.0"]) {
+  for (const version of ["0.10.0", "0.10.7"]) {
     const files = filesOf(version, tree);
     const page = files.filter(({ file }) => file.startsWith("format/"));
     assert.deepEqual(page[0], { file: "format/page.json", from: "types/page/page.json" });
@@ -102,6 +102,24 @@ test("from the line 0.10 on, the package holds the page of the workbook and its 
   // Without a tree, the vectors are not listed.
   assert.deepEqual(filesOf("0.10.0").filter(({ file }) => file.startsWith("format/")).map(({ file }) => file), ["format/page.json"]);
   assert.doesNotMatch(manifestOf("0.9.15").description, /page/);
+});
+
+test("from the line 0.11 on, the package holds and exports the types of the deployment configuration too", () => {
+  assert.equal(FIRST_DEPLOYMENT_LINE, "0.11");
+  const tree = treeOf(spec);
+  for (const version of ["0.11.0", "1.0.0"]) {
+    const files = filesOf(version, tree);
+    assert.deepEqual(files.at(-1), { file: "deploymentv1/index.d.ts", from: "types/deploymentv1/index.d.ts" }, version);
+    // The types and the page of the lines before stay as they were.
+    assert.deepEqual(files.slice(4, 7), [{ file: "canvas/index.d.ts", from: "types/canvas/index.d.ts" }, { file: "admissionv0/index.d.ts", from: "types/admissionv0/index.d.ts" }, { file: "format/page.json", from: "types/page/page.json" }], version);
+    const manifest = manifestOf(version);
+    assert.deepEqual(manifest.files, ["formatv0", "canvas", "admissionv0", "format", "deploymentv1"]);
+    assert.deepEqual(Object.keys(manifest.exports), ["./formatv0", "./formatv0/open", "./canvas", "./admissionv0", "./format/page.json", "./format/vectors/pages/*.json", "./deploymentv1", "./package.json"]);
+    assert.deepEqual(manifest.exports["./deploymentv1"], { types: "./deploymentv1/index.d.ts" });
+    assert.match(manifest.description, /And the types of the deployment configuration, the file \/deployment\.json that the app reads at its start\.$/);
+  }
+  assert.ok(!filesOf("0.10.7", tree).some(({ file }) => file.startsWith("deploymentv1/")));
+  assert.doesNotMatch(manifestOf("0.10.7").description, /deployment/);
 });
 
 test("from the line 0.5 on, the package holds and exports the types of <novatrail-canvas> too", () => {

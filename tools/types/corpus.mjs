@@ -1,9 +1,9 @@
 // The corpus of tools/types/roundtrip (R72; RUN.md, T45): every value of format/ that passes a
-// schema, with the type of formatv0 that reads it, and every value of admission/, with the type of
-// admissionv0 (R96).
+// schema, with the type of formatv0 that reads it, every value of admission/, with the type of
+// admissionv0 (R96), and every value of deployment/, with the type of deploymentv1 (R85).
 //
-//   node tools/types/corpus.mjs <file>      writes the corpus of spec's own format/ and admission/
-//                                           to <file>
+//   node tools/types/corpus.mjs <file>      writes the corpus of spec's own format/, admission/
+//                                           and deployment/ to <file>
 //
 // The corpus holds:
 // - each valid example of a term, examples/<term>/valid/<case>.yaml;
@@ -18,7 +18,9 @@
 //   type of open; and its part read by the type of open too, which a closed field of the part fails
 //   when the part holds one;
 // - of admission/: the table, each valid example, each vector of a rule — a table that passes its
-//   schema — and each vector of answers.
+//   schema — and each vector of answers;
+// - of deployment/: each valid example of the file and each vector of reading, whose files are any
+//   JSON value, as a reader gets them.
 // Each case is { file, type, value, closed }: closed is true where reading the value fails on a
 // field its type has not. A value that does not pass its schema, or a folder of vectors/ that the
 // corpus does not know, is a problem: format-check names what is wrong with the first, and the task
@@ -37,8 +39,9 @@ import { isPackageFolder } from "../format-check/versions.mjs";
 import { readModuleFile } from "../format-check/yaml.mjs";
 import { byCodeUnits, isMain } from "../shared.mjs";
 import { ADMISSION_PART, FOLDER as ADMISSION } from "../admission/main.mjs";
-import { ADMISSION_PACKAGE, OPEN, PACKAGE } from "./go.mjs";
-import { readAdmission, readFormat } from "./main.mjs";
+import { DEPLOYMENT_PART, FOLDER as DEPLOYMENT } from "../deployment/main.mjs";
+import { ADMISSION_PACKAGE, DEPLOYMENT_PACKAGE, OPEN, PACKAGE } from "./go.mjs";
+import { readAdmission, readDeployment, readFormat } from "./main.mjs";
 import { buildModel } from "./model.mjs";
 
 const FORMAT = "format";
@@ -210,6 +213,28 @@ export function admissionCorpusOf(root, model) {
   return { cases, problems };
 }
 
+// The corpus of the deployment configuration at root, by the root types of its model: { cases,
+// problems }.
+export function deploymentCorpusOf(root, model) {
+  const cases = [];
+  const problems = [];
+  const schemas = fs
+    .readdirSync(path.join(root, DEPLOYMENT, "schemas"))
+    .sort(byCodeUnits)
+    .map((name) => readSchema(root, name, DEPLOYMENT_PART));
+  const { validators } = compileSchemas(schemas);
+  const { read, add, list } = collector(root, { validators, model, packageName: DEPLOYMENT_PACKAGE, check: "deployment-check", cases, problems });
+  for (const term of list(`${DEPLOYMENT}/examples`)) {
+    for (const entry of list(`${DEPLOYMENT}/examples/${term.name}/valid`)) add(`${DEPLOYMENT}/examples/${term.name}/valid/${entry.name}`, term.name, read(`${DEPLOYMENT}/examples/${term.name}/valid/${entry.name}`));
+  }
+  for (const folder of list(`${DEPLOYMENT}/vectors`)) {
+    const dir = `${DEPLOYMENT}/vectors/${folder.name}`;
+    if (folder.name === "reading") for (const entry of list(dir)) add(`${dir}/${entry.name}`, "reading-vector", read(`${dir}/${entry.name}`));
+    else problems.push(`${dir}: tools/types does not know these vectors: the task that brings them extends the corpus`);
+  }
+  return { cases, problems };
+}
+
 if (isMain(import.meta.url)) {
   const [file, ...rest] = process.argv.slice(2);
   if (!file || rest.length) {
@@ -220,8 +245,10 @@ if (isMain(import.meta.url)) {
   const { schemas, parts } = readFormat(root);
   const format = corpusOf(root, buildModel(schemas, parts));
   const admission = admissionCorpusOf(root, buildModel(readAdmission(root).schemas, []));
-  const cases = [...format.cases, ...admission.cases];
-  const problems = [...format.problems, ...admission.problems];
+  const configuration = readDeployment(root);
+  const deployment = deploymentCorpusOf(root, buildModel(configuration.schemas, [], configuration.options));
+  const cases = [...format.cases, ...admission.cases, ...deployment.cases];
+  const problems = [...format.problems, ...admission.problems, ...deployment.problems];
   for (const problem of problems) console.error(`corpus: ${problem}`);
   if (problems.length) process.exit(1);
   fs.writeFileSync(file, JSON.stringify(cases));

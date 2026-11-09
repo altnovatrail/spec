@@ -47,8 +47,10 @@ const PRIMITIVES = new Set(["string", "integer", "number", "boolean"]);
 // terms of the parts of a module, whose open views the model gives. Returns { types, roots, open }:
 // types by name, in the order of the schemas and of their places; roots, the type of each schema
 // that has one, by term; open, the open view of each struct the open view of a part reaches, by
-// name. Throws a ModelError at the first form it does not know.
-export function buildModel(schemas, parts) {
+// name. Throws a ModelError at the first form it does not know. anyValue, which only the deployment
+// configuration's model sets (R85), lets a field whose every subschema holds a description alone
+// hold any JSON value, as a vector's file does; anywhere else such a field has no shape.
+export function buildModel(schemas, parts, { anyValue = false } = {}) {
   const byName = new Map(schemas.map((schema) => [schema.name, schema.json]));
   const types = new Map();
   const building = new Set();
@@ -115,8 +117,8 @@ export function buildModel(schemas, parts) {
     return { kind: "named", type: ref };
   };
 
-  // The type of a value at a place: { named }, { primitive }, { list }, { map: { key, value } } or
-  // { nullable }, or null when the subschema gives no shape. name is what an enumeration there is
+  // The type of a value at a place: { named }, { primitive }, { list }, { map: { key, value } },
+  // { nullable } or { any }, or null when the subschema gives no shape. name is what an enumeration there is
   // named, or null where none may stand.
   const refOf = (node, schema, pointer, name) => {
     if (!isObject(node) || !SHAPING.some((key) => key in node)) return null;
@@ -152,6 +154,7 @@ export function buildModel(schemas, parts) {
     }
     if (PRIMITIVES.has(node.type)) return { primitive: node.type };
     if (node.const !== undefined && typeof node.const === "string") return { primitive: "string" };
+    if (typeof node.const === "number") return { primitive: Number.isInteger(node.const) ? "integer" : "number" };
     if (isStringChoice(node, schema)) return { primitive: "string" };
     throw new ModelError(at(schema, pointer), "has no shape the model knows");
   };
@@ -233,10 +236,14 @@ export function buildModel(schemas, parts) {
       // subschema shapes — by a const, or by the items or the fields of its value alone.
       const strongest = Math.max(...list.map(({ subschema }) => strengthOf(subschema)));
       const defining = strongest === 0 ? [] : list.filter(({ subschema }) => strengthOf(subschema) === strongest);
-      if (defining.length === 0) throw new ModelError(at(schema, list[0].place), `gives the field ${field} no shape anywhere`);
+      // A field whose every subschema holds a description alone holds any JSON value, where the
+      // model lets it: a vector's file of the deployment configuration, as JSON reads it, for a
+      // reader to check.
+      const any = anyValue && list.every(({ subschema }) => isObject(subschema) && Object.keys(subschema).every((key) => key === "description"));
+      if (defining.length === 0 && !any) throw new ModelError(at(schema, list[0].place), `gives the field ${field} no shape anywhere`);
       const name = `${parent}${pascalOf(field)}`;
       const [first, ...others] = defining;
-      const type = refOf(first.subschema, schema, first.place, name);
+      const type = any ? { any: true } : refOf(first.subschema, schema, first.place, name);
       // A branch may name the type by another name of the same type, as a $ref that narrows it:
       // the check of an answer slot written by hand is a check. Two enumerations of a field are one
       // when their values are.
@@ -376,13 +383,18 @@ export class ModelError extends Error {
   }
 }
 
-// A name in PascalCase of a snake_case or kebab-case one, with ID for id, as Go writes it:
-// answer_slot → AnswerSlot, skill_id → SkillID, skill-graph → SkillGraph.
+// The words Go writes in capitals, as its initialisms: id and api.
+const INITIALISMS = new Set(["id", "api"]);
+
+// A name in PascalCase of a snake_case, kebab-case or camelCase one, with each initialism in
+// capitals, as Go writes it: answer_slot → AnswerSlot, skill_id → SkillID, skill-graph →
+// SkillGraph, appId → AppID, apiKey → APIKey.
 export function pascalOf(name) {
   return name
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
     .split(/[^A-Za-z0-9]+/)
     .filter(Boolean)
-    .map((word) => (word === "id" ? "ID" : word[0].toUpperCase() + word.slice(1)))
+    .map((word) => (INITIALISMS.has(word.toLowerCase()) ? word.toUpperCase() : word[0].toUpperCase() + word.slice(1)))
     .join("");
 }
 

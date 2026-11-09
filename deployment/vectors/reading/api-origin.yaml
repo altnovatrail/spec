@@ -1,0 +1,26 @@
+# api passes the schema, but is not written as its origin is.
+cases:
+  - origin: https://app.example.org
+    file:
+      format: 1
+      api: https://api.example.org:443
+      signIn:
+        service: firebase
+        apiKey: synthetic-web-api-key
+        authDomain: example-project.firebaseapp.com
+        projectId: example-project
+        appId: synthetic-web-app-id
+    refused_by: deployment.api-origin
+    fields: [api]
+  - origin: http://localhost:5173
+    file:
+      format: 1
+      api: http://localhost:80
+      signIn:
+        service: firebase
+        apiKey: synthetic-web-api-key
+        authDomain: example-project.firebaseapp.com
+        projectId: example-project
+        appId: synthetic-web-app-id
+    refused_by: deployment.api-origin
+    fields: [api]

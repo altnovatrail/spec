@@ -6,6 +6,8 @@ format/** -text
 tools/format-check/test/fixtures/** -text
 # So do the files of admission/, the admission table (R96), which code reads as the release has them.
 admission/** -text
+# And the files of deployment/, the format of the deployment configuration (R85).
+deployment/** -text
 # The fixtures of release-verify's tests are files of real releases, which their bundles sign
 # byte for byte.
 tools/release/test/fixtures/** -text

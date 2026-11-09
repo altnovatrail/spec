@@ -2,7 +2,8 @@
 // conventions of the format text, section 5 (R45 and its amendment of 2026-10-22), and compiled by
 // ajv, the JSON Schema 2020-12 validator that checks the examples and the vectors against them. The
 // schemas of another normative part with a version of its own, such as the admission table's in
-// admission/schemas/, follow the same conventions under the prefix of their part (R96).
+// admission/schemas/, follow the same conventions under the prefix of their part (R96), and so do
+// the deployment configuration's, but for the names of its file's fields (R85).
 //
 // ajv's strict mode is no check of the conventions: it accepts nullable, definitions, dependencies
 // and $dynamicRef, and none of those is the format's. So the conventions are checked on the
@@ -20,7 +21,11 @@ export const DIALECT = "https://json-schema.org/draft/2020-12/schema";
 export const ID_PREFIX = "https://altnovatrail.github.io/spec/format/";
 
 // A normative part whose schemas follow the conventions: its folder, the prefix of each $id, and
-// whether its schemas may mark fields x-open, which only the format does, for the open view.
+// whether its schemas may mark fields x-open, which only the format does, for the open view. A part
+// may name, in camelCase, the schemas whose fields keep names in camelCase rather than snake_case:
+// only the deployment configuration does, for the file of deployment.schema.json, whose names are
+// those of R09 app and of a Firebase project (deployment/README.md, section 3). The names of $defs
+// stay in snake_case everywhere.
 export const FORMAT_PART = { folder: "format", prefix: ID_PREFIX, open: true };
 
 // The keywords a schema may use, by what their values hold (format/README.md, section 5). Left out
@@ -184,7 +189,9 @@ function checkSubschema({ schema, at, under, inCondition, unmarked }, file, byNa
   const isRoot = at.length === 0;
   const isField = FIELDS.has(under) && !inCondition;
   const isPlace = isRoot || (PLACES.has(under) && !inCondition);
-  if ((under === "properties" || under === "$defs") && !isSnakeCase(at.at(-1))) report(at, `${at.at(-1)}: a name in snake_case`);
+  if (under === "properties" && file.part.camelCase?.includes(file.name)) {
+    if (!isCamelCase(at.at(-1))) report(at, `${at.at(-1)}: a name in camelCase, as ${file.part.folder}/ names the fields of ${file.name}`);
+  } else if ((under === "properties" || under === "$defs") && !isSnakeCase(at.at(-1))) report(at, `${at.at(-1)}: a name in snake_case`);
   // What additionalProperties holds when it is no schema, its parent names.
   const noMapSchema = under === "additionalProperties" && !isObject(schema);
   if (isField && !noMapSchema && !(isObject(schema) && isText(schema.description))) report(at, "a field's subschema has a description");
@@ -454,6 +461,12 @@ export function isSchemaName(name) {
 // lower_case words joined by _, the first beginning with a letter: answer_slots.
 export function isSnakeCase(name) {
   return isWords(name, "_");
+}
+
+// A lower-case letter, then letters and digits, each word after the first beginning with a capital:
+// authDomain.
+export function isCamelCase(name) {
+  return typeof name === "string" && /^[a-z][A-Za-z0-9]*$/.test(name);
 }
 
 // lower-case words joined by -, the first beginning with a letter: skill-graph.

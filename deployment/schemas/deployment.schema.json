@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/deployment/1/deployment.schema.json",
+  "title": "Deployment configuration",
+  "description": "The file /deployment.json, which app reads at every start from the root of its origin, beside its signed build (section 4 of the deployment text). It holds no secret: every browser that opens app gets it.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": 1,
+      "description": "The version of the format, the integer in deployment/VERSION."
+    },
+    "api": {
+      "type": "string",
+      "pattern": "^(https://[a-z0-9]([a-z0-9.-]*[a-z0-9])?(:[1-9][0-9]{0,4})?|http://(127\\.0\\.0\\.1|localhost|\\[::1\\])(:[1-9][0-9]{0,4})?)$",
+      "description": "The origin of api: a scheme, a host in lower case and perhaps a port, with no path, query, fragment or credentials; https, or http on a loopback host. That it is equal to its own origin, and that http needs app itself on a loopback host, are rules of reading (section 5)."
+    },
+    "signIn": {
+      "$ref": "#/$defs/sign_in",
+      "unevaluatedProperties": false,
+      "description": "The sign-in service and the parameters of its project."
+    }
+  },
+  "required": [
+    "format",
+    "api",
+    "signIn"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "sign_in": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "const": "firebase",
+          "description": "The sign-in service: Firebase Auth. Another service is another adapter, in api and in app."
+        },
+        "apiKey": {
+          "$ref": "#/$defs/parameter",
+          "description": "The key of the Firebase web app, as the Firebase console gives it."
+        },
+        "authDomain": {
+          "type": "string",
+          "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$",
+          "description": "The host of the Firebase sign-in pages, with no scheme and no path, such as example-project.firebaseapp.com."
+        },
+        "projectId": {
+          "$ref": "#/$defs/parameter",
+          "description": "The ID of the Firebase project."
+        },
+        "appId": {
+          "$ref": "#/$defs/parameter",
+          "description": "The ID of the Firebase web app."
+        }
+      },
+      "required": [
+        "service",
+        "apiKey",
+        "authDomain",
+        "projectId",
+        "appId"
+      ]
+    },
+    "parameter": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

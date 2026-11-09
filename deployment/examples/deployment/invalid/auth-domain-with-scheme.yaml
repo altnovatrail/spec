@@ -1,0 +1,10 @@
+# error: pattern at #/signIn/authDomain
+# authDomain is a host name, with no scheme.
+format: 1
+api: https://api.example.org
+signIn:
+  service: firebase
+  apiKey: synthetic-web-api-key
+  authDomain: https://example-project.firebaseapp.com
+  projectId: example-project
+  appId: synthetic-web-app-id

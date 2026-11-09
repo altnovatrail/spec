@@ -68,6 +68,20 @@ admission-check: _tools
 admission-check-test: _tools
     node --test 'tools/admission/test/*.test.mjs'
 
+# Reads spec's own deployment/, the format of the deployment configuration (R85), by the layout of
+# its text: VERSION, an integer, and the field format of the file that holds it; each schema against
+# the conventions of the format's schemas under the prefix of the configuration, with no x-open and
+# the fields of the file in camelCase; the rules the text lists, in their order; each example against
+# its schema; and each vector of reading, whose cases it reads as section 5 of the text does, with a
+# file accepted and one refused by the schema and by each rule among them.
+# Check the format of the deployment configuration in deployment/: schemas, examples and vectors.
+deployment-check: _tools
+    node tools/deployment/main.mjs
+
+# Run deployment-check's own tests, on trial copies of spec's deployment/.
+deployment-check-test: _tools
+    node --test 'tools/deployment/test/*.test.mjs'
+
 # The types of the module format, generated from its schemas by tools/types (R72): the packages
 # formatv0 and formatv0/open under types/, and admissionv0 of the admission table, generated from
 # admission/schemas (R96), which spec's Go module ships at the tag of every release, each with its
@@ -417,7 +431,10 @@ licenses-check-test:
 # needs a raised line (tools/release/format-line.mjs). So does a new major package of an API
 # contract, novatrail.<part>.vN with N of 2 or more, that the release before had not (R83;
 # tools/release/contracts-line.mjs), and another version of the admission table, once releases
-# carry it (R96; tools/release/admission-line.mjs). Anywhere else — another repository, a working
+# carry it (R96; tools/release/admission-line.mjs), and another version of the deployment
+# configuration, or another shape of its file or other IDs of its rules under the same version,
+# once releases carry it (R85; tools/release/deployment-line.mjs, which reads the text by the
+# packages of tools/, so in spec the recipe installs them first). Anywhere else — another repository, a working
 # copy in .repos/ among them — the line is
 # RELEASE_LINE as the workflow named second sets it at that commit, a path from the repository's
 # root, whatever the shell sets: a release workflow's own env, the tip's, must not number an
@@ -466,10 +483,14 @@ release-version commit="HEAD" workflow="":
         git tag --points-at "$commit" --list 'v*'
     }
     if [ "$in_spec" = true ]; then
+        # deployment-line.mjs reads the rules of deployment/README.md as format-check does, by the
+        # packages of tools/: they are installed first, and npm says nothing on stdout.
+        {{quote(just_executable())}} --justfile {{quote(justfile())}} _tools >&2
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}} \
             | node {{quote(justfile_directory() / "tools/release/format-line.mjs")}} "$commit" \
             | node {{quote(justfile_directory() / "tools/release/contracts-line.mjs")}} "$commit" \
-            | node {{quote(justfile_directory() / "tools/release/admission-line.mjs")}} "$commit"
+            | node {{quote(justfile_directory() / "tools/release/admission-line.mjs")}} "$commit" \
+            | node {{quote(justfile_directory() / "tools/release/deployment-line.mjs")}} "$commit"
     else
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
     fi
@@ -477,10 +498,12 @@ release-version commit="HEAD" workflow="":
 # spec's own (R64): another repository's release builds its own files, by its own recipe. The
 # folder is a new one, and a relative path is from spec's root. From the line release.yml sets at
 # the commit, FIRST_FILES_LINE on (tools/release/files.mjs), each normative part with a version
-# of its own goes in as <part>-<version>.tar.gz — the module format, format-<version>.tar.gz, and
-# from FIRST_ADMISSION_LINE on the admission table, admission-<version>.tar.gz (R96): git archive of
-# the commit, a folder of that name holding LICENSE and the part as the commit has them, every file
-# and nothing else, which the recipe checks against git ls-tree. From
+# of its own goes in as <part>-<version>.tar.gz — the module format, format-<version>.tar.gz,
+# from FIRST_ADMISSION_LINE on the admission table, admission-<version>.tar.gz (R96), and from
+# FIRST_DEPLOYMENT_LINE on the deployment configuration, deployment-<version>.tar.gz, its version
+# an integer (R85): git archive of the commit, a folder of that name holding LICENSE and the part
+# as the commit has them, every file and nothing else, which the recipe checks against git
+# ls-tree. From
 # FIRST_NPM_LINE on, the npm package @altnovatrail/spec goes in too, altnovatrail-spec-<X.Y.Z>.tgz,
 # of the release's tag, which the recipe then takes third (R73): npm pack of the package that
 # tools/types/npm.mjs writes of the commit's types/, LICENSE and the package's README, read back by
@@ -507,6 +530,8 @@ release-files commit dir tag="":
             if git cat-file -e "${commit}:format/VERSION" 2>/dev/null; then git show "${commit}:format/VERSION"; fi
             echo --
             if git cat-file -e "${commit}:admission/VERSION" 2>/dev/null; then git show "${commit}:admission/VERSION"; fi
+            echo --
+            if git cat-file -e "${commit}:deployment/VERSION" 2>/dev/null; then git show "${commit}:deployment/VERSION"; fi
         } | node tools/release/files.mjs "$line" "$tag"
     )
     mkdir -p "$dir"

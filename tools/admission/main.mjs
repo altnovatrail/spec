@@ -27,6 +27,7 @@ import { parseMarkdown } from "../docs-check/markdown.mjs";
 import { readRegisters } from "../docs-check/registers.mjs";
 import { documents, registers } from "../docs-check/config.mjs";
 import { byCodeUnits, isMain } from "../shared.mjs";
+import { describe, filesUnder, printCheck, readVersion as readVersionFile, uniqueErrors, yamlProblems } from "../parts.mjs";
 import { answerOf } from "./answer.mjs";
 import { RULES, tableBreaches } from "./table.mjs";
 
@@ -141,34 +142,9 @@ function readLayout(root, report) {
   return layout;
 }
 
-// Every file under dir of root, by its path from root with forward slashes, in the order of code
-// units.
-function filesUnder(root, dir) {
-  const files = [];
-  const walk = (at) => {
-    for (const entry of fs.readdirSync(path.join(root, at), { withFileTypes: true })) {
-      const file = `${at}/${entry.name}`;
-      if (entry.isDirectory()) walk(file);
-      else files.push(file);
-    }
-  };
-  walk(dir);
-  return files.sort(byCodeUnits);
-}
-
 // The version in admission/VERSION, MAJOR.MINOR, or null when it cannot be read.
 function readVersion(root, report) {
-  const file = `${FOLDER}/VERSION`;
-  if (!fs.existsSync(path.join(root, file))) {
-    report(file, 0, "no VERSION: the table's version, MAJOR.MINOR and a newline");
-    return null;
-  }
-  const match = VERSION.exec(fs.readFileSync(path.join(root, file), "utf8"));
-  if (!match) {
-    report(file, 1, "the table's version is MAJOR.MINOR and a newline, with no leading zeros");
-    return null;
-  }
-  return match[1];
+  return readVersionFile(root, `${FOLDER}/VERSION`, VERSION, { missing: "no VERSION: the table's version, MAJOR.MINOR and a newline", malformed: "the table's version is MAJOR.MINOR and a newline, with no leading zeros" }, report);
 }
 
 // The codes of the age categories are the format's, R46's: the table's schema and the format's
@@ -334,10 +310,6 @@ function sorted(value) {
   return Object.fromEntries(Object.keys(value).sort(byCodeUnits).map((key) => [key, sorted(value[key])]));
 }
 
-function yamlProblems({ violations, notYaml }) {
-  return [...notYaml.map(({ line, message }) => ({ line, message: `not YAML: ${message}` })), ...violations.map(({ rule, line, message }) => ({ line, message: `${rule}: ${message}` }))];
-}
-
 // The path of keys and indexes of an instance path of ajv's: /cells/0/terms → ["cells", 0, "terms"].
 function pathOf(pointer) {
   return pointer
@@ -347,27 +319,12 @@ function pathOf(pointer) {
     .map((part) => (/^(0|[1-9][0-9]*)$/.test(part) ? Number(part) : part));
 }
 
-// ajv's errors, each described once.
-function uniqueErrors(errors) {
-  const seen = new Set();
-  return errors.filter((error) => !seen.has(describe(error)) && seen.add(describe(error)));
-}
-
-function describe(error) {
-  return `${error.keyword} at #${encodeURI(error.instancePath)}: ${error.message}`;
-}
-
 // Checks root's admission/ and prints what it finds, setting the exit code to 1 on an error.
 export function admissionCheck(root) {
-  const { errors, stats } = checkAdmission(root);
-  for (const { file, line, message } of errors) console.error(`${file}:${line}: ${message}`);
-  if (errors.length) {
-    console.error(`admission-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
-    process.exitCode = 1;
-    return;
-  }
-  console.log(
-    `admission-check: ok — ${stats.schemas} schemas; the table: ${stats.providers} providers, ${stats.facts} deployment facts, ${stats.capabilities} rules of capabilities and ${stats.cells} cells; ${stats.examples} examples, ${stats.ruleVectors} vectors of ${stats.rules} rules, ${stats.answerVectors} vectors of answers with ${stats.cases} cases`,
+  printCheck(
+    "admission-check",
+    checkAdmission(root),
+    (stats) => `${stats.schemas} schemas; the table: ${stats.providers} providers, ${stats.facts} deployment facts, ${stats.capabilities} rules of capabilities and ${stats.cells} cells; ${stats.examples} examples, ${stats.ruleVectors} vectors of ${stats.rules} rules, ${stats.answerVectors} vectors of answers with ${stats.cases} cases`,
   );
 }
 

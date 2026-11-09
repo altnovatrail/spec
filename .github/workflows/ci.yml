@@ -1,9 +1,10 @@
 # spec's own checks (R30): the documents, the module format (R45), the admission table (R96), the
-# types of both in Go and TypeScript (R72, R73), the Go module code takes from a release and its
-# zip, the licenses of the packages of tools/, the version the next release takes (R31) and the
-# files it carries (R64). The tests of tools/ and of the Go modules run once here, with their
-# coverage, and a job of its own sends that of tools/ to Codecov (R48). The Go tests run again in
-# "Go / test", and the shared workflow's job "Go / coverage" sends their profile (R16 .github).
+# deployment configuration (R85), the types of each in Go and TypeScript (R72, R73), the Go module
+# code takes from a release and its zip, the licenses of the packages of tools/, the version the
+# next release takes (R31) and the files it carries (R64). The tests of tools/ and of the Go
+# modules run once here, with their coverage, and a job of its own sends that of tools/ to Codecov
+# (R48). The Go tests run again in "Go / test", and the shared workflow's job "Go / coverage"
+# sends their profile (R16 .github).
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node, Go and just of the
 # devcontainer, so a check that is green locally is green here. The image is built on every
 # run and published nowhere. Beside them, three of the checks every repository shares, from
@@ -66,6 +67,12 @@ jobs:
       - name: Admission table
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec admission-check
+
+      # The format of the deployment configuration in deployment/ (R85): its schemas, its examples,
+      # and its test vectors, which the check reads as section 5 of its text does.
+      - name: Deployment configuration
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec deployment-check
 
       # The types of the module format (R72, R73): those its schemas give, file for file, and each
       # value of format/ read by its Go type and written back as it was, and taken by tsc as a value
