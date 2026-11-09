@@ -1,0 +1,69 @@
+# Eleven long lines of a worked example: as on a task's page, the eleventh has no room.
+id: remainders
+title: Remainders
+skills: [counting-gaps]
+segments:
+  - worked_example:
+      statement:
+        - text: Share the apples into equal heaps, and say how many are left over.
+      canvas:
+        kind: workbook
+      lines:
+        - line:
+            - text: "Share 23 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "3"
+        - line:
+            - text: "Share 24 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "0"
+        - line:
+            - text: "Share 25 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "1"
+        - line:
+            - text: "Share 26 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "2"
+        - line:
+            - text: "Share 27 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "3"
+        - line:
+            - text: "Share 28 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "0"
+        - line:
+            - text: "Share 29 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "1"
+        - line:
+            - text: "Share 30 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "2"
+        - line:
+            - text: "Share 31 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "3"
+        - line:
+            - text: "Share 32 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "0"
+        - line:
+            - text: "Share 33 apples into heaps of four; the apples left over are"
+            - binding: box
+              value: "1"
+      demo:
+        - text: Take the largest number of heaps that fit, then count what is left.
+        - fill: {line: 1, box: 1}
+        - fill: {line: 2, box: 1}
+        - fill: {line: 3, box: 1}
+        - fill: {line: 4, box: 1}
+        - fill: {line: 5, box: 1}
+        - fill: {line: 6, box: 1}
+        - fill: {line: 7, box: 1}
+        - fill: {line: 8, box: 1}
+        - fill: {line: 9, box: 1}
+        - fill: {line: 10, box: 1}
+        - fill: {line: 11, box: 1}
+  - task: remainders-1

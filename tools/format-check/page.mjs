@@ -128,6 +128,13 @@ function measuresOf(table) {
   };
 }
 
+// Whether a value written in a box, as a worked example's is, fits the box: as a text of the line,
+// it is no wider than numbers.box_width (section 21).
+export function fitsBox(value, table = current) {
+  if (!table) throw new Error("format-check lays out no page without format/page.yaml");
+  return textWidth(table, wordsOf(table, value).reduce((sum, word) => sum + wordWidth(table, word), 0) + table.space * Math.max(wordsOf(table, value).length - 1, 0)) <= table.numbers.box_width;
+}
+
 // The page of a workbook's items, each { line: [{ text } | { binding }] }, by the table in use:
 // { page: { items, bottom } }, or { noRoomAt }, the item from 0 at whose row the page has no room.
 export function pageOf(items, table = current) {

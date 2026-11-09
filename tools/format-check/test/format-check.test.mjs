@@ -11,6 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import { canonicalText } from "../canonical.mjs";
+import { lessonRuleBreaches } from "../cases.mjs";
 import { checkFormat } from "../main.mjs";
 import { hasPage, pageOf, usePage } from "../page.mjs";
 import { readModuleFile } from "../yaml.mjs";
@@ -1456,4 +1457,33 @@ test("pageOf lays out no page without a table, and the table reads code points a
   // Twenty rows of short items fill the page; the row after them has no room.
   assert.equal(pageOf(Array.from({ length: 21 }, () => ({ line: [{ text: "x =" }, { binding: "box" }] }))).noRoomAt, 20);
   usePage(null);
+});
+
+// T89: the rules of a worked example on a workbook, on a lesson's file alone.
+test("a worked example on a workbook fills each box of its lines once, and its lines and values fit the page", () => {
+  const lessonOf = (fills, lines = [[{ text: "23 ÷ 4 =" }, { binding: "box", value: "5" }, { text: "r" }, { binding: "box", value: "3" }]], kind = "workbook") => ({
+    segments: [{ worked_example: { canvas: { kind }, lines: lines.map((line) => ({ line })), demo: [{ text: "Count." }, ...fills.map(([line, box]) => ({ fill: { line, box } }))] } }],
+  });
+  // Each line takes a row of its own, and the page holds ten such rows.
+  const long = Array.from({ length: 11 }, (_, n) => [{ text: `Share ${23 + n} apples into heaps of four; the apples left over are` }, { binding: "box", value: "1" }]);
+  usePage(readModuleFile(fs.readFileSync(path.join(spec, "format", "page.yaml"))).value);
+  try {
+    assert.deepEqual([...lessonRuleBreaches(lessonOf([[1, 2], [1, 1]]))], []);
+    assert.match(lessonRuleBreaches(lessonOf([[1, 1], [1, 1], [1, 2]])).get("lesson.example-fills"), /box 1 of line 1 is filled 2 times/);
+    assert.match(lessonRuleBreaches(lessonOf([[1, 1], [1, 2], [2, 1]])).get("lesson.example-fills"), /a fill names box 1 of line 2, which the example has not/);
+    assert.match(lessonRuleBreaches(lessonOf([[1, 1]])).get("lesson.example-fills"), /box 2 of line 1 is filled 0 times/);
+    assert.match(lessonRuleBreaches(lessonOf(long.map((_, n) => [n + 1, 1]), long)).get("lesson.workbook-page"), /line 11 of the example has no room on the page/);
+    // A value wider than its box, 100 units at the type size 30.
+    assert.deepEqual([...lessonRuleBreaches(lessonOf([[1, 1]], [[{ text: "7 × 8 =" }, { binding: "box", value: "56" }]]))], []);
+    assert.match(lessonRuleBreaches(lessonOf([[1, 1]], [[{ text: "Left over:" }, { binding: "box", value: "three apples" }]])).get("lesson.workbook-page"), /the value "three apples" is wider than its box/);
+    // The first breach of a lesson is the one named, segment by segment.
+    const two = { segments: [...lessonOf([[1, 1]]).segments, ...lessonOf([[1, 1], [1, 2], [2, 1]]).segments] };
+    assert.match(lessonRuleBreaches(two).get("lesson.example-fills"), /^#\/segments\/0: /);
+    // A worked example on a sheet, and a lesson without one, break neither rule.
+    assert.deepEqual([...lessonRuleBreaches({ segments: [{ worked_example: { canvas: { kind: "handwriting_sheet" }, demo: [{ text: "Count." }] } }, { task: "t" }] })], []);
+    assert.deepEqual([...lessonRuleBreaches({})], []);
+  } finally {
+    usePage(null);
+  }
+  assert.deepEqual([...lessonRuleBreaches(lessonOf(long.map((_, n) => [n + 1, 1]), long))], [], "without page.yaml the page is not checked");
 });

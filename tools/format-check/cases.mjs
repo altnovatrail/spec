@@ -14,7 +14,7 @@ import { canonicalBytes, digestOf } from "./canonical.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { canonicalViewOf, memberOf, packageOf, tiersOf } from "./package.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
-import { hasPage, pageOf } from "./page.mjs";
+import { fitsBox, hasPage, pageOf } from "./page.mjs";
 import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
 import { holdsPlaceholder, instanceMaker, instanceShown, numbersShown, pickOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "./templates.mjs";
@@ -39,7 +39,10 @@ const LESSON_PART = "lesson";
 export const LESSON_LEAKS = "lesson.no-leaks";
 // Every rule of a part that format-check implements: a case of one breaks it, and a case of any
 // other rule breaks none of them.
-const IMPLEMENTED_RULES = [...TASK_RULES, LESSON_LEAKS];
+// The rules of a lesson that format-check implements on a lesson's file alone: the boxes that the
+// demo of a worked example on a workbook fills, and the page of its lines (section 21).
+const LESSON_RULES = ["lesson.example-fills", "lesson.workbook-page"];
+const IMPLEMENTED_RULES = [...TASK_RULES, ...LESSON_RULES, LESSON_LEAKS];
 
 // What the text lists in its tables: the rows of each table whose first column is headed ID, each a
 // rule's ID, <part>.<name>, and its statement (section 7); and the rows of the table whose first
@@ -148,6 +151,7 @@ export function checkExample(bytes, { kind, term, validate, version }) {
   if (kind === "valid") {
     for (const error of errors) problems.push({ line: 0, message: `does not pass its schema: ${describe(error)}` });
     if (valid && term === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(value, {}, validate), null));
+    if (valid && term === LESSON_PART) problems.push(...taskRuleProblems(lessonRuleBreaches(value), null, LESSON_RULES));
     if (valid && term === INDEX_PART) for (const message of indexFormProblems(value, version)) problems.push({ line: 0, message });
     return problems;
   }
@@ -167,6 +171,7 @@ export function checkVector(bytes, { rule, validate, version }) {
   if (partOf(rule) !== "yaml") {
     const problems = partFileProblems(read, partOf(rule), { rule, validate, version });
     if (!problems.length && validate && partOf(rule) === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(read.value, {}, validate), rule));
+    if (!problems.length && validate && partOf(rule) === LESSON_PART && rule !== LESSON_LEAKS) problems.push(...taskRuleProblems(lessonRuleBreaches(read.value), rule, LESSON_RULES));
     return problems;
   }
   const problems = read.notYaml.map(({ line, message }) => ({ line, message: `not YAML: ${message}` }));
@@ -510,13 +515,48 @@ export function checkPageVector(bytes, { validate }) {
   return problems;
 }
 
+// The rules of a lesson that format-check implements on its file alone (section 21), a Map from each
+// that it breaks to a detail: on a worked example on a workbook, every fill of its demo names a box
+// of its lines, and fills each box once (lesson.example-fills); and its lines fit the page as a
+// task's do (lesson.workbook-page).
+export function lessonRuleBreaches(lesson) {
+  const breaches = new Map();
+  for (const [at, segment] of (lesson.segments ?? []).entries()) {
+    const example = segment.worked_example;
+    if (example?.canvas?.kind !== "workbook" || !Array.isArray(example.lines)) continue;
+    const set = (rule, detail) => breaches.has(rule) || breaches.set(rule, `#/segments/${at}: ${detail}`);
+    const boxes = example.lines.map(({ line }) => line.filter((part) => part.binding !== undefined).length);
+    const filled = boxes.map((count) => new Array(count).fill(0));
+    for (const part of example.demo ?? []) {
+      if (!part.fill) continue;
+      const { line, box } = part.fill;
+      if (line > boxes.length || box > boxes[line - 1]) set("lesson.example-fills", `a fill names box ${box} of line ${line}, which the example has not`);
+      else filled[line - 1][box - 1]++;
+    }
+    for (const [n, counts] of filled.entries()) {
+      const box = counts.findIndex((count) => count !== 1);
+      if (box >= 0) set("lesson.example-fills", `box ${box + 1} of line ${n + 1} is filled ${counts[box]} times, and the demo fills each box once`);
+    }
+    if (!hasPage()) continue;
+    const noRoomAt = noRoomOf(example.lines);
+    if (noRoomAt !== undefined) set("lesson.workbook-page", `line ${noRoomAt + 1} of the example has no room on the page`);
+    const wide = example.lines.flatMap(({ line }) => line).find((part) => part.binding !== undefined && !fitsBox(part.value));
+    if (wide) set("lesson.workbook-page", `the value ${JSON.stringify(wide.value)} is wider than its box`);
+  }
+  return breaches;
+}
+
 // The breach of task.workbook-page by a task on a workbook, a detail, or null: its lines do not fit
 // the page as section 14 lays them out, by format/page.yaml. None without the file.
 function pageBreach(task) {
   if (task.canvas?.kind !== "workbook" || !hasPage() || !Array.isArray(task.items)) return null;
-  const { noRoomAt } = pageOf(task.items);
+  const noRoomAt = noRoomOf(task.items);
   return noRoomAt === undefined ? null : `#/items/${noRoomAt}: no room on the page for its row`;
 }
+
+// The line, from 0, at whose row the page of lines has no room, or undefined: one place for a task's
+// items and a worked example's lines, which section 14 lays out alike.
+const noRoomOf = (lines) => pageOf(lines).noRoomAt;
 
 // The digest of an open view, as a sample of the eval protocol names it: sha256: and the SHA-256 of
 // its canonical text (section 25; contracts/README.md, section 11).
@@ -821,10 +861,11 @@ function plainBreaches(task, parts, unsolved = false, instance = false) {
 const sortedBreaches = (breaches) => [...breaches].sort(([a], [b]) => byCodeUnits(a, b));
 const breachShown = (breach, detail, too) => `breaks ${breach}${too ? " too" : ""}${detail ? `, ${detail}` : ""}`;
 
-// What a task's breaches are in a vector of rule: it breaks its rule, if format-check implements
-// it, and no other that format-check implements; outside a vector of one, none.
-function taskRuleProblems(breaches, rule) {
-  const own = TASK_RULES.includes(rule) ? rule : null;
+// What a task's breaches are in a vector of rule — or a lesson's, with the rules of a lesson —: it
+// breaks its rule, if format-check implements it, and no other that format-check implements;
+// outside a vector of one, none.
+function taskRuleProblems(breaches, rule, rules = TASK_RULES) {
+  const own = rules.includes(rule) ? rule : null;
   const problems = sortedBreaches(breaches)
     .filter(([breach]) => breach !== own)
     .map(([breach, detail]) => ({ line: 0, message: breachShown(breach, detail, own !== null) }));
@@ -841,7 +882,7 @@ function moduleRuleProblems({ tasks, lessons, manifest, traps, techniques, "solv
   const byId = new Map(expanded.map(({ id, tasks: theirs }) => [id, theirs]));
   const files = [
     ...expanded.map(({ file, breaches }) => ({ file, breaches })),
-    ...lessons.map(({ file, lesson }) => ({ file, breaches: new Map(lessonLeaks(lesson, byId) ? [[LESSON_LEAKS, null]] : []) })),
+    ...lessons.map(({ file, lesson }) => ({ file, breaches: new Map([...lessonRuleBreaches(lesson), ...(lessonLeaks(lesson, byId) ? [[LESSON_LEAKS, null]] : [])]) })),
   ];
   const problems = [];
   let ownBroken = false;

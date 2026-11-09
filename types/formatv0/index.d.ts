@@ -1264,7 +1264,8 @@ export interface ExplanationPart {
 /**
  * WorkedExample is the type of lesson.schema.json#/$defs/worked_example.
  *
- * A worked example of a lesson: no task, with no answer slots and no key.
+ * A worked example of a lesson: no task, with no answer slots and no key. On a handwriting sheet
+ * the demo shows pictures on the sheet; on a workbook it fills the boxes of the example's lines.
  */
 export interface WorkedExample {
   /**
@@ -1272,10 +1273,15 @@ export interface WorkedExample {
    */
   readonly statement: readonly StatementPart[];
   /**
-   * The sheet that the author's demo is shown on: a handwriting sheet and its grid. The learner
-   * does not write on it.
+   * What the author's demo is shown on: a handwriting sheet and its grid, or a workbook, the
+   * example's lines with their boxes. The learner does not write on it.
    */
   readonly canvas: Canvas;
+  /**
+   * On a workbook: the example's lines, each with its boxes and what they hold, laid out on the
+   * page as a task's lines are.
+   */
+  readonly lines?: readonly ExampleLine[];
   /**
    * The author's demo: the parts of how the example is solved, in order, which the learner opens
    * one at a time and may hide.
@@ -1284,10 +1290,42 @@ export interface WorkedExample {
 }
 
 /**
+ * ExampleLine is the type of lesson.schema.json#/$defs/example_line.
+ *
+ * A line of a worked example on a workbook.
+ */
+export interface ExampleLine {
+  /**
+   * The pieces of the line, in order, a box among them at least.
+   */
+  readonly line: readonly ExampleLinePart[];
+}
+
+/**
+ * ExampleLinePart is the type of lesson.schema.json#/$defs/example_line_part.
+ *
+ * A piece of a line of a worked example: a piece of text, or a box with what the demo writes in it.
+ */
+export interface ExampleLinePart {
+  /**
+   * A piece of text of the line.
+   */
+  readonly text?: Text;
+  /**
+   * A box of the line.
+   */
+  readonly binding?: string;
+  /**
+   * Of a box: what the demo writes in it when a part fills it.
+   */
+  readonly value?: Text;
+}
+
+/**
  * DemoPart is the type of lesson.schema.json#/$defs/demo_part.
  *
  * A part of the author's demo: a paragraph; a picture beside the sheet, with what it shows and its
- * size; or a picture on the sheet, with what it shows and its area.
+ * size; a picture on the sheet, with what it shows and its area; or, on a workbook, a box filled.
  */
 export interface DemoPart {
   /**
@@ -1316,6 +1354,26 @@ export interface DemoPart {
    * of the author's demo.
    */
   readonly area?: SheetRectangle;
+  /**
+   * Of a worked example on a workbook: the box that this part of the demo fills with its value.
+   */
+  readonly fill?: DemoFill;
+}
+
+/**
+ * DemoFill is the type of lesson.schema.json#/$defs/demo_fill.
+ *
+ * A box of a worked example's lines, by its line and its place in it.
+ */
+export interface DemoFill {
+  /**
+   * The line, by its place among the example's lines, from 1.
+   */
+  readonly line: number;
+  /**
+   * The box, by its place among the boxes of the line, from 1.
+   */
+  readonly box: number;
 }
 
 // The types of index-vector.schema.json.

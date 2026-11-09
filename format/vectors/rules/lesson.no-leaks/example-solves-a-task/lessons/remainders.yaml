@@ -1,0 +1,22 @@
+id: remainders
+title: Remainders
+skills: [counting-gaps]
+segments:
+  - worked_example:
+      statement:
+        - text: Share the apples into equal heaps, and say how many are left over.
+      canvas:
+        kind: workbook
+      lines:
+        - line:
+            - text: "17 ÷ 5 ="
+            - binding: box
+              value: "3.0"
+            - text: r
+            - binding: box
+              value: "2"
+      demo:
+        - text: Take the largest number of heaps that fit, then count what is left.
+        - fill: {line: 1, box: 1}
+        - fill: {line: 1, box: 2}
+  - task: remainders-1

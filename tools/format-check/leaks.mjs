@@ -3,7 +3,7 @@
 // check and checks task.no-leaks and lesson.no-leaks. The scans are loops over the characters: a
 // regular expression over a text of any length could backtrack.
 
-import { VERDICT_KINDS as KINDS_WITH_VERDICTS, absolute, answerSlotsOf, equal, lowercase, normalized, rationalOf, scriptsReplaced, timeOf } from "./verdicts.mjs";
+import { VERDICT_KINDS as KINDS_WITH_VERDICTS, absolute, answerSlotsOf, comparableOf, equal, lowercase, normalized, rationalOf, scriptsReplaced, timeOf } from "./verdicts.mjs";
 
 // A character of a word: a letter, a mark or a number, the general categories L, M and N.
 const WORD_CHARACTER = /[\p{L}\p{M}\p{N}]/u;
@@ -242,5 +242,30 @@ export function lessonTexts(lesson) {
 export function lessonLeaks(lesson, tasks) {
   const texts = lessonTexts(lesson).map(searched);
   const named = new Set((lesson.segments ?? []).map((segment) => segment.task).filter((id) => tasks.has(id)));
-  return [...named].some((id) => tasks.get(id).some((task) => needlesOf(task).some((needle) => texts.some((text) => holds(text, needle)))));
+  const lines = exampleLines(lesson);
+  // The text pieces of an example's lines are searched for leak phrases, not for numbers (R111).
+  const pieces = lines.flatMap((line) => line.filter((part) => part.binding === undefined).map((part) => searched(part.text)));
+  const phrase = (needle) => needle.form !== undefined && pieces.some((text) => holds(text, needle));
+  return [...named].some((id) => tasks.get(id).some((task) => needlesOf(task).some((needle) => texts.some((text) => holds(text, needle)) || phrase(needle)) || lines.some((line) => solvesLine(line, task))));
+}
+
+// The lines of the worked examples of a lesson on a workbook, each with the values of its boxes: the
+// leak check searches no number in them, and finds a leak where one solves a line of a task (R111).
+const exampleLines = (lesson) => (lesson.segments ?? []).flatMap((segment) => (segment.worked_example?.canvas?.kind === "workbook" ? (segment.worked_example.lines ?? []).map(({ line }) => line) : []));
+
+// Whether a line of a worked example solves a line of a task: the same pieces, the texts alike in
+// their normal form and each value of a box as its box's check compares it equal to the key.
+function solvesLine(example, task) {
+  if (task.canvas?.kind !== "workbook") return false;
+  return (task.items ?? []).some(({ line }) =>
+    Array.isArray(line) &&
+    line.length === example.length &&
+    line.every((part, n) => {
+      const other = example[n];
+      if (part.binding === undefined) return other.binding === undefined && leakForm(part.text).join("") === leakForm(other.text).join("");
+      if (other.binding === undefined) return false;
+      const key = comparableOf(part, part.check.key);
+      return key !== null && comparableOf(part, other.value) === key;
+    }),
+  );
 }

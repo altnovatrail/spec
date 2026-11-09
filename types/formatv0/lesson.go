@@ -62,22 +62,46 @@ type ExplanationPart struct {
 
 // WorkedExample is the type of lesson.schema.json#/$defs/worked_example.
 //
-// A worked example of a lesson: no task, with no answer slots and no key.
+// A worked example of a lesson: no task, with no answer slots and no key. On a handwriting sheet
+// the demo shows pictures on the sheet; on a workbook it fills the boxes of the example's lines.
 type WorkedExample struct {
 	// What the example asks: paragraphs and pictures in order, as a task's statement.
 	Statement []StatementPart `json:"statement"`
-	// The sheet that the author's demo is shown on: a handwriting sheet and its grid. The learner
-	// does not write on it.
+	// What the author's demo is shown on: a handwriting sheet and its grid, or a workbook, the
+	// example's lines with their boxes. The learner does not write on it.
 	Canvas Canvas `json:"canvas"`
+	// On a workbook: the example's lines, each with its boxes and what they hold, laid out on the
+	// page as a task's lines are.
+	Lines []ExampleLine `json:"lines,omitzero"`
 	// The author's demo: the parts of how the example is solved, in order, which the learner opens
 	// one at a time and may hide.
 	Demo []DemoPart `json:"demo"`
 }
 
+// ExampleLine is the type of lesson.schema.json#/$defs/example_line.
+//
+// A line of a worked example on a workbook.
+type ExampleLine struct {
+	// The pieces of the line, in order, a box among them at least.
+	Line []ExampleLinePart `json:"line"`
+}
+
+// ExampleLinePart is the type of lesson.schema.json#/$defs/example_line_part.
+//
+// A piece of a line of a worked example: a piece of text, or a box with what the demo writes in it.
+type ExampleLinePart struct {
+	// A piece of text of the line.
+	Text *Text `json:"text,omitzero"`
+	// A box of the line.
+	Binding *string `json:"binding,omitzero"`
+	// Of a box: what the demo writes in it when a part fills it.
+	Value *Text `json:"value,omitzero"`
+}
+
 // DemoPart is the type of lesson.schema.json#/$defs/demo_part.
 //
 // A part of the author's demo: a paragraph; a picture beside the sheet, with what it shows and its
-// size; or a picture on the sheet, with what it shows and its area.
+// size; a picture on the sheet, with what it shows and its area; or, on a workbook, a box filled.
 type DemoPart struct {
 	// A paragraph of the demo, as plain text.
 	Text *Text `json:"text,omitzero"`
@@ -94,4 +118,16 @@ type DemoPart struct {
 	// The area of the sheet that a picture on the sheet is shown in, at its size, on the canvas
 	// layer of the author's demo.
 	Area *SheetRectangle `json:"area,omitzero"`
+	// Of a worked example on a workbook: the box that this part of the demo fills with its value.
+	Fill *DemoFill `json:"fill,omitzero"`
+}
+
+// DemoFill is the type of lesson.schema.json#/$defs/demo_fill.
+//
+// A box of a worked example's lines, by its line and its place in it.
+type DemoFill struct {
+	// The line, by its place among the example's lines, from 1.
+	Line int64 `json:"line"`
+	// The box, by its place among the boxes of the line, from 1.
+	Box int64 `json:"box"`
 }

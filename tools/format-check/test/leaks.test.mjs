@@ -162,3 +162,32 @@ test("lesson.no-leaks searches every text of a lesson for the keys of each task 
   assert.equal(lessonLeaks(lesson, new Map([["ladder", []]])), false, "a template whose instances cannot be counted");
   assert.deepEqual(lessonTexts({ segments: [{ task: "ladder" }] }), [], "a lesson with no title and no texts");
 });
+
+// R111, В19 modules: a worked example on a workbook leaks where one of its lines solves a task's.
+test("lesson.no-leaks searches no number in the lines of a worked example on a workbook, and finds a line that solves a task's", () => {
+  const box = (key) => ({ binding: "box", check: { kind: "number", key } });
+  const workbookTask = (line) => ({ canvas: { kind: "workbook" }, statement: [{ text: "Write the quotient and the remainder." }], items: [{ line }] });
+  const taskLine = [{ text: "17 ÷ 5 =" }, box("3"), { text: "r" }, box("2")];
+  const tasks = new Map([["remainders", [workbookTask(taskLine)]]]);
+  const lessonOf = (line, kind = "workbook") => ({ title: "Remainders", segments: [{ worked_example: { statement: [{ text: "Share the apples." }], canvas: { kind }, lines: [{ line }], demo: [{ fill: { line: 1, box: 1 } }] } }, { task: "remainders" }] });
+  const exampleLine = (q, r, text = "17 ÷ 5 =") => [{ text }, { binding: "box", value: q }, { text: "r" }, { binding: "box", value: r }];
+  // Other numbers hold 3 and 2 and no leak: the lines are searched for no number.
+  assert.equal(lessonLeaks(lessonOf(exampleLine("5", "3", "23 ÷ 4 =")), tasks), false);
+  // The task's line with its keys, by value too, and in another white space.
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2")), tasks), true);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3.0", "2")), tasks), true);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2", "17  ÷  5 =")), tasks), true);
+  // One value off, a value out of notation, another piece, a line of another length: no leak.
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "1")), tasks), false);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("03", "2")), tasks), false);
+  assert.equal(lessonLeaks(lessonOf([{ binding: "box", value: "17" }, { binding: "box", value: "3" }, { text: "r" }, { binding: "box", value: "2" }]), tasks), false);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2").slice(0, 2)), tasks), false);
+  // A task on a sheet, and a predicate, which has no key, are solved by no line.
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2")), new Map([["remainders", [{ ...workbookTask(taskLine), canvas: { kind: "handwriting_sheet" } }]]])), false);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2")), new Map([["remainders", [workbookTask([{ text: "17 ÷ 5 =" }, { binding: "box", check: { kind: "predicate", predicate: "value == 3" } }, { text: "r" }, box("2")])]]])), false);
+  // A text piece of a line is searched for the task's leak phrases, though for no number.
+  const phrased = new Map([["remainders", [{ ...workbookTask(taskLine), leak_phrases: ["three left over"] }]]]);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("5", "3", "23 ÷ 4 =")), phrased), false);
+  assert.equal(lessonLeaks(lessonOf([{ text: "with three left over:" }, { binding: "box", value: "5" }]), phrased), true);
+  assert.equal(lessonLeaks(lessonOf([{ text: "17 ÷ 5 = 3 r 2, and 23 ÷ 4 =" }, { binding: "box", value: "5" }]), tasks), false, "a number in a piece is no leak by the rule: the text says SHOULD NOT");
+});
