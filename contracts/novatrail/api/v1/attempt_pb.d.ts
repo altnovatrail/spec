@@ -659,6 +659,17 @@ export declare type GetHintResponse = Message<"novatrail.api.v1.GetHintResponse"
     value: RungHint;
     case: "rung";
   } | { case: undefined; value?: undefined };
+
+  /**
+   * With the techniques, the task's leading question, the leading_question of the module format, of
+   * the instance that the attempt got: the author's question that breaks the task down, in the
+   * module's explanation language. Empty when the task has none, and always empty with the rung's
+   * words: after the first wrong answer it is no more given. The server records it as given only
+   * when it is not empty, as it records a technique given on request (R108).
+   *
+   * @generated from field: string leading_question = 3;
+   */
+  leadingQuestion: string;
 };
 
 /**
@@ -1436,9 +1447,9 @@ export declare const AttemptService: GenService<{
   },
   /**
    * "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
-   * answer, and on a task with a rubric, the IDs of the task's techniques; after it, the words of the
-   * current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by
-   * the attempt's state.
+   * answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
+   * when it has one; after it, the words of the current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
+   * carries no idempotency key: it repeats by the attempt's state.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.GetHint
    */

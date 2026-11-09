@@ -574,8 +574,13 @@ type OpenAttempt struct {
 	// On a task with a rubric: each submission, in order, with how it ended and when, without the
 	// text read and the words of the feedback, which are nowhere on the server (R87).
 	EssaySubmissions []*EssaySubmission `protobuf:"bytes,8,rep,name=essay_submissions,json=essaySubmissions,proto3" json:"essay_submissions,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// The task's leading question as a hint asked for gave it, with the techniques, before the first
+	// wrong answer or on a task with a rubric: empty when none was given, and when the task has none.
+	// It is a closed field of the module format, so the open view of the task does not hold it, and
+	// a device that goes on with the attempt shows it from here (R108).
+	RequestedLeadingQuestion string `protobuf:"bytes,9,opt,name=requested_leading_question,json=requestedLeadingQuestion,proto3" json:"requested_leading_question,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *OpenAttempt) Reset() {
@@ -662,6 +667,13 @@ func (x *OpenAttempt) GetEssaySubmissions() []*EssaySubmission {
 		return x.EssaySubmissions
 	}
 	return nil
+}
+
+func (x *OpenAttempt) GetRequestedLeadingQuestion() string {
+	if x != nil {
+		return x.RequestedLeadingQuestion
+	}
+	return ""
 }
 
 // A submission of an essay as the server keeps it.
@@ -1265,7 +1277,7 @@ const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\n" +
 	"attempt_id\x18\x02 \x01(\tR\tattemptId\"Q\n" +
 	"\x16GetOpenAttemptResponse\x127\n" +
-	"\aattempt\x18\x01 \x01(\v2\x1d.novatrail.api.v1.OpenAttemptR\aattempt\"\xb8\x03\n" +
+	"\aattempt\x18\x01 \x01(\v2\x1d.novatrail.api.v1.OpenAttemptR\aattempt\"\xf6\x03\n" +
 	"\vOpenAttempt\x124\n" +
 	"\x05start\x18\x01 \x01(\v2\x1e.novatrail.api.v1.AttemptStartR\x05start\x123\n" +
 	"\x05items\x18\x02 \x03(\v2\x1d.novatrail.api.v1.ItemVerdictR\x05items\x12#\n" +
@@ -1274,7 +1286,8 @@ const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\x15explained_differently\x18\x05 \x01(\bR\x14explainedDifferently\x12,\n" +
 	"\x12step_technique_ids\x18\x06 \x03(\tR\x10stepTechniqueIds\x126\n" +
 	"\x17requested_technique_ids\x18\a \x03(\tR\x15requestedTechniqueIds\x12N\n" +
-	"\x11essay_submissions\x18\b \x03(\v2!.novatrail.api.v1.EssaySubmissionR\x10essaySubmissions\"\x83\x01\n" +
+	"\x11essay_submissions\x18\b \x03(\v2!.novatrail.api.v1.EssaySubmissionR\x10essaySubmissions\x12<\n" +
+	"\x1arequested_leading_question\x18\t \x01(\tR\x18requestedLeadingQuestion\"\x83\x01\n" +
 	"\x0fEssaySubmission\x12=\n" +
 	"\fsubmitted_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vsubmittedAt\x121\n" +
 	"\x03end\x18\x02 \x01(\x0e2\x1f.novatrail.api.v1.SubmissionEndR\x03end\"O\n" +

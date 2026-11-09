@@ -160,9 +160,9 @@ type AttemptServiceClient interface {
 	// words the attempt keeps, with no AI.
 	ExplainDifferently(context.Context, *v1.ExplainDifferentlyRequest) (*v1.ExplainDifferentlyResponse, error)
 	// "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
-	// answer, and on a task with a rubric, the IDs of the task's techniques; after it, the words of the
-	// current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by
-	// the attempt's state.
+	// answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
+	// when it has one; after it, the words of the current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
+	// carries no idempotency key: it repeats by the attempt's state.
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
@@ -226,9 +226,9 @@ type AttemptServiceHandler interface {
 	// words the attempt keeps, with no AI.
 	ExplainDifferently(context.Context, *v1.ExplainDifferentlyRequest) (*v1.ExplainDifferentlyResponse, error)
 	// "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
-	// answer, and on a task with a rubric, the IDs of the task's techniques; after it, the words of the
-	// current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by
-	// the attempt's state.
+	// answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
+	// when it has one; after it, the words of the current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
+	// carries no idempotency key: it repeats by the attempt's state.
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
