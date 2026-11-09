@@ -104,9 +104,9 @@ test("a file the layout does not know is an error, and so is a case not in kebab
 });
 
 test("VERSION is MAJOR.MINOR and a newline, and the $id of each schema names it", () => {
-  const errors = errorsOf([["admission/VERSION", "0.1\n", "0.01\n"]]);
+  const errors = errorsOf([["admission/VERSION", "0.2\n", "0.02\n"]]);
   assert.ok(errors.includes("admission/VERSION:1: the table's version is MAJOR.MINOR and a newline, with no leading zeros"), errors.join("\n"));
-  expectAll([["admission/VERSION", null, "0.2\n"]], /^admission\/schemas\/(admission-table|answer-vector)\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/admission\/0\.2\/[a-z-]+\.schema\.json: the prefix, the version in admission\/VERSION/, 2);
+  expectAll([["admission/VERSION", null, "0.3\n"]], /^admission\/schemas\/(admission-table|answer-vector)\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/admission\/0\.3\/[a-z-]+\.schema\.json: the prefix, the version in admission\/VERSION/, 2);
   const missing = errorsOf([["admission/VERSION", "", null]]);
   assert.ok(missing.includes("admission/VERSION:0: no VERSION: the table's version, MAJOR.MINOR and a newline"), missing.join("\n"));
 });

@@ -12,16 +12,16 @@
   },
   "facts": {
     "data_processing_agreement": {
-      "description": "The platform's data processing agreement with the provider is signed, and it covers the requests of learners of the age categories declared (privacy 5.1; П-3)."
+      "description": "The platform's data processing agreement with the provider is in force — signed, or incorporated into the provider's terms that the platform accepted — and nothing in it excludes the requests of learners of the age categories declared (privacy 5.1; R121)."
     },
     "minimal_retention": {
-      "description": "The provider keeps none of the content of the platform's requests of the age categories declared once it has answered, but for what its terms keep in any case, by law or as its safety systems flag it: under zero data retention, or under an exclusion of that content from its abuse-monitoring logs that the provider approved (privacy 5.1; П-3). It holds only when it holds for every model of the provider that tutor's list of admitted models names: a model whose content the provider keeps all the same, such as Anthropic's Covered Models, keeps the operator from declaring it until the list leaves the model out (privacy 5.3). Zero data retention that takes the content out of those logs gives this fact as well, and the operator declares both."
+      "description": "The provider keeps none of the content of the platform's requests of the age categories declared once it has answered, but for what its terms keep in any case, by law or as its safety systems flag it: under zero data retention, or under an exclusion of that content from its abuse-monitoring logs that the provider approved (privacy 5.1; R121). It holds only when it holds for every model of the provider that tutor's list of admitted models names: a model whose content the provider keeps all the same, such as Anthropic's Covered Models, keeps the operator from declaring it until the list leaves the model out (privacy 5.3). Zero data retention that takes the content out of those logs gives this fact as well, and the operator declares both."
     },
     "zero_data_retention": {
-      "description": "The provider approved zero data retention for the platform's requests of the age categories declared, as its terms name it, for every model of the provider that tutor's list of admitted models names: OpenAI's for personal data of children under 13 or under the age of digital consent (privacy 5.3; П-3)."
+      "description": "The provider approved zero data retention for the platform's requests of the age categories declared, as its terms name it, for every model of the provider that tutor's list of admitted models names: OpenAI's for personal data of children under 13 or under the age of digital consent (privacy 5.3; R121)."
     },
     "minor_safeguards": {
-      "description": "The safeguards that the provider's terms require of an organization serving minors are in place for the age categories declared, and a lawyer has said they are enough: among them the disclosure that the learner talks with AI, content filters, monitoring and reporting, and age assurance where the law requires it (privacy 5.3; П-15, П-6). The operator declares it only after the lawyer's answer."
+      "description": "The safeguards that the provider's terms require of an organization serving minors are in place for the age categories declared, and the author has decided, on Claude's analysis of the providers' terms, that they are enough (R112, R123): among them the disclosure that the learner talks with AI, content filters, monitoring and reporting, and age assurance where the law requires it (privacy 5.3; R118). The operator declares it only after that decision."
     }
   },
   "capabilities": [
@@ -234,11 +234,11 @@
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
-        "П-4",
+        "R122",
         "О-4"
       ]
     },
@@ -250,11 +250,11 @@
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
-        "П-4",
+        "R122",
         "О-4"
       ]
     },
@@ -266,11 +266,11 @@
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
-        "П-4",
+        "R122",
         "О-4"
       ]
     },
@@ -282,7 +282,7 @@
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -303,13 +303,13 @@
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "П-3",
-        "П-15"
+        "R121",
+        "R123"
       ]
     },
     {
@@ -325,13 +325,13 @@
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "П-3",
-        "П-15"
+        "R121",
+        "R123"
       ]
     },
     {
@@ -347,13 +347,13 @@
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "П-3",
-        "П-15"
+        "R121",
+        "R123"
       ]
     },
     {
@@ -368,12 +368,12 @@
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "П-3"
+        "R121"
       ]
     },
     {
@@ -384,11 +384,11 @@
       "terms": [
         {
           "row": "Google, Gemini API",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         },
         {
           "row": "Google Cloud, Vertex AI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -403,11 +403,11 @@
       "terms": [
         {
           "row": "Google, Gemini API",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         },
         {
           "row": "Google Cloud, Vertex AI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -422,11 +422,11 @@
       "terms": [
         {
           "row": "Google, Gemini API",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         },
         {
           "row": "Google Cloud, Vertex AI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -441,11 +441,11 @@
       "terms": [
         {
           "row": "Google, Gemini API",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         },
         {
           "row": "Google Cloud, Vertex AI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -460,11 +460,11 @@
       "terms": [
         {
           "row": "Google, Gemini API",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         },
         {
           "row": "Google Cloud, Vertex AI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -479,11 +479,11 @@
       "terms": [
         {
           "row": "Google, Gemini API",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         },
         {
           "row": "Google Cloud, Vertex AI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -498,11 +498,11 @@
       "terms": [
         {
           "row": "Google, Gemini API",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         },
         {
           "row": "Google Cloud, Vertex AI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -517,11 +517,11 @@
       "terms": [
         {
           "row": "Google, Gemini API",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         },
         {
           "row": "Google Cloud, Vertex AI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -536,11 +536,11 @@
       "terms": [
         {
           "row": "OpenAI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
-        "П-4",
+        "R122",
         "О-4"
       ]
     },
@@ -552,11 +552,11 @@
       "terms": [
         {
           "row": "OpenAI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
-        "П-4",
+        "R122",
         "О-4"
       ]
     },
@@ -568,11 +568,11 @@
       "terms": [
         {
           "row": "OpenAI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
-        "П-4",
+        "R122",
         "О-4"
       ]
     },
@@ -584,7 +584,7 @@
       "terms": [
         {
           "row": "OpenAI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
@@ -606,13 +606,13 @@
       "terms": [
         {
           "row": "OpenAI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "П-3",
-        "П-15"
+        "R121",
+        "R123"
       ]
     },
     {
@@ -629,13 +629,13 @@
       "terms": [
         {
           "row": "OpenAI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "П-3",
-        "П-15"
+        "R121",
+        "R123"
       ]
     },
     {
@@ -651,13 +651,13 @@
       "terms": [
         {
           "row": "OpenAI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "П-3",
-        "П-15"
+        "R121",
+        "R123"
       ]
     },
     {
@@ -672,12 +672,12 @@
       "terms": [
         {
           "row": "OpenAI",
-          "read": "2026-11-03"
+          "read": "2026-11-09"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "П-3"
+        "R121"
       ]
     }
   ]

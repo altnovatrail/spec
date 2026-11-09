@@ -6,8 +6,8 @@ This folder is the admission table of NovaTrail: to which AI provider, on which 
 
 - The table is data: the rules of admission to AI by age category, which the providers' terms and the platform's decisions give (privacy 5; R07, R47, R65). The table is `admission-table.json`, its schema `schemas/admission-table.schema.json`, this text and the test vectors in `vectors/`.
 - `tutor`'s admission function implements it (R57 tutor). It is one pure function: no input or output, no clock, nothing kept. `api` calls it before an attempt, naming the capabilities of AI that the task's check needs, the AI route and the age category, and on the own key its provider. `tutor` calls it before each call of a model that carries a learner's work. The eval runner and the check board do not call it: they send synthetic samples and adults' samples, and measure models that are not admitted yet (R24; architecture 3.6).
-- What the table does not name is closed (section 6). For a minor every cell of platform AI needs the deployment fact `minor_safeguards`, which an operator declares only after a lawyer's answer, and every cell of the own key is closed (privacy 9, П-4, П-15).
-- A cell is no legal reading. It is the platform's reading of a provider's terms, which privacy 5.3 quotes with the date they were read; whether it is enough, a lawyer decides (privacy 9, П-3).
+- What the table does not name is closed (section 6). For a minor every cell of platform AI needs the deployment fact `minor_safeguards`, which an operator declares only once the author has decided, on Claude's analysis, that the safeguards are enough (R112, R123), and every cell of the own key is closed (R122).
+- A cell is no legal reading. It is the platform's reading of a provider's terms, which privacy 5.3 quotes with the date they were read; whether it is enough, the author decides on Claude's analysis (R112; R121).
 
 ## 2. Versions
 
@@ -18,7 +18,7 @@ This folder is the admission table of NovaTrail: to which AI provider, on which 
 - A major version is everything else: a field removed, renamed or made required; a new input of the function, such as a region of data or the learner's country (privacy 9, П-11, П-6); a new reason of refusal or kind of admission; a new or stricter rule of a table (section 7).
 - Changes of this text that keep its rules, and a test vector that pins what it says already, give no new version: the tag of `spec` names such a revision.
 - A version number never goes back and is never reused: undoing a change is a new version too.
-- While the table is v0 (0.y), nothing is promised: every change is the next 0.y. Version 0.1 comes out with v0.8.0, the first release of `spec`'s line 0.8.
+- While the table is v0 (0.y), nothing is promised: every change is the next 0.y. Version 0.1 comes out with v0.8.0, the first release of `spec`'s line 0.8. Version 0.2 comes out with v0.12.0, the first release of the line 0.12: the fact `minor_safeguards` is declared on the author's decision, not a lawyer's answer (R112, R123); `data_processing_agreement` holds for an agreement in force, signed or incorporated into the provider's terms (R121); cells rest on R121–R123 instead of the closed questions П-3, П-4 and П-15; and every cell's terms were read on 2026-11-09. No cell opens or closes.
 
 ## 3. Files
 
@@ -33,7 +33,7 @@ admission/
 ```
 
 - The table is JSON: code reads it. Examples and vectors are YAML and follow the YAML rules of [the module format](../format/README.md), section 4, and a case is named in kebab-case for what it shows.
-- Schemas follow the conventions of the module format's schemas, section 5 of its text, with two differences: an `$id` begins with `https://altnovatrail.github.io/spec/admission/`, then the version in `VERSION`, a slash and the file name, such as `https://altnovatrail.github.io/spec/admission/0.1/admission-table.schema.json`; and no schema marks a field `x-open`, since the table has no open view. The codes of the age categories are those of the module format (R46).
+- Schemas follow the conventions of the module format's schemas, section 5 of its text, with two differences: an `$id` begins with `https://altnovatrail.github.io/spec/admission/`, then the version in `VERSION`, a slash and the file name, such as `https://altnovatrail.github.io/spec/admission/0.2/admission-table.schema.json`; and no schema marks a field `x-open`, since the table has no open view. The codes of the age categories are those of the module format (R46).
 - Code takes this folder from `spec`'s releases, not from a checkout of `spec` (R21, R64). Go code takes it from the Go module `github.com/altnovatrail/spec` at the release's tag, whose package `spec` holds it as `spec.Admission`, with its root here, and its types from the package `types/admissionv0` of the same module (R72). TypeScript takes its types from the npm package `@altnovatrail/spec`, as `@altnovatrail/spec/admissionv0` (R73). The package `admissionv0` holds the types of the major version 0: a major version of the table brings a package of its own. Any other code takes the release's file `admission-<version>.tar.gz`, which holds `LICENSE` and this folder: the release signs it with cosign, with the bundle `admission-<version>.tar.gz.sigstore.json` beside it, and GitHub's attestation of the release names it. Every release of one line of `spec` carries the same version.
 
 ## 4. The table
@@ -57,7 +57,7 @@ A `basis` lists citations of `spec`'s documents: a decision, `R47`; an open ques
 - A deployment fact is what the operator of a deployment declares about its agreements with a provider, such as that a data processing agreement is signed. The dictionary of the table says what each code means.
 - A fact holds for a provider and for the age categories the operator names: a data processing agreement may not cover children's data, and zero data retention may be approved for one project. The admission function gets the facts declared as a value: for each provider, each fact with the age categories it holds for, as `facts` in a vector of answers (section 9).
 - `api` reads that value from a file of its deployment's configuration, which a pull request changes, and reads it when it starts; the file's type and how it is read are `tutor`'s (R57 tutor). With no file no fact holds: every cell open with facts is closed, and the own key of an adult stays open. A fact the file names that the dictionary does not is an error when `api` starts, since a typo would close a route without a word.
-- An operator declares a fact only when it holds. `minor_safeguards` holds only once a lawyer has said the safeguards are enough (privacy 9, П-15). A deployment of self-hosting declares its own facts.
+- An operator declares a fact only when it holds. `minor_safeguards` holds only once every safeguard on the provider's list of R123 is in place and the author has decided, on Claude's analysis, that they are enough (R112, R123). A deployment of self-hosting declares its own facts.
 - Withdrawing a fact closes the cells it opened, with no release of `spec`: that is how an operator closes platform AI at once.
 - Only cells of platform AI need facts.
 

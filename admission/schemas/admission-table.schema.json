@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/admission/0.1/admission-table.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/admission/0.2/admission-table.schema.json",
   "title": "Admission table",
   "description": "The rules of admission to AI by age category (section 4 of the admission text): the AI providers, the dictionary of deployment facts, the rule of each capability of AI for each age category, and the cell of each provider, AI route and age category. What the table does not name is closed.",
   "type": "object",
