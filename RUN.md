@@ -242,6 +242,8 @@
 | `canvas` | В63 | `2c8d761160ed` | поправка 2026-11-08 к R34; Д122 |
 | `canvas` | В64 | `7ee1589647bd` | поправка 2026-11-08 к R25; architecture 3.2; Д130 |
 | `canvas` | В65 | `54dd1baba0b9` | поправка 2026-11-09 к R31; RUN.md, T104; Д146 |
+| `canvas` | В67 | `3657aae21fcd` | privacy 9, П-10, дополнение 2026-11-09; RUN.md, T95 |
+| `canvas` | В68 | `02c096c1b147` | поправка 2026-11-09 к R95; [текст контрактов](contracts/README.md), раздел 11 |
 | `engine` | В21 | `5c7b67a5098b` | строка 4.8 [COORDINATION.md](COORDINATION.md), закрытая; Д136 |
 | `engine` | В24 | `ecc709d22196` | строки 4.9 и 6.5 [COORDINATION.md](COORDINATION.md); Д137 |
 | `infra` | В11 | `5c8a511c6923` | architecture 3.11 и 3.12; Д141 |
