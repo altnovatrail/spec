@@ -1,0 +1,13 @@
+# A numbered list of an explanation is open, as every field of a segment is: the learner's app
+# shows its texts in order and draws their numbers.
+id: pigeonholes
+title: The worst luck
+skills: [pigeonhole]
+segments:
+  - explanation:
+      - text: "How to solve: the worst luck, then one more."
+      - numbered_list:
+          - Find the holes and the pigeons.
+          - Play the worst luck to the end.
+          - Add one, and check that it settles it.
+  - task: pigeonhole-socks

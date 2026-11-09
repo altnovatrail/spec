@@ -222,14 +222,17 @@ export function leaksBefore(task, parts, instance = false) {
   return textsShownBefore(task, parts, instance).some((text) => leaksIn(text, needles).length > 0);
 }
 
-// The texts of a lesson, which lesson.no-leaks searches (section 21): its title, and the paragraphs
-// and the alt of the pictures of each explanation and of each worked example's statement and demo.
+// The texts of a lesson, which lesson.no-leaks searches (section 21): its title; the paragraphs, the
+// alt of the pictures and the texts of the numbered lists of each explanation, whose numbers the app
+// draws (R111); and the paragraphs and the alt of the pictures of each worked example's statement and
+// demo.
 // The open view of a lesson reaches the learner's app whole, so a text after a task is seen before
 // the task is solved too.
 export function lessonTexts(lesson) {
   const segments = lesson.segments ?? [];
   const parts = segments.flatMap((segment) => [...(segment.explanation ?? []), ...(segment.worked_example?.statement ?? []), ...(segment.worked_example?.demo ?? [])]);
-  return [lesson.title, ...partTexts(parts)].filter(isText);
+  const lists = segments.flatMap((segment) => (segment.explanation ?? []).flatMap((part) => part.numbered_list ?? []));
+  return [lesson.title, ...partTexts(parts), ...lists].filter(isText);
 }
 
 // Whether a lesson breaks lesson.no-leaks: one of its texts holds a key or a leak phrase of a task

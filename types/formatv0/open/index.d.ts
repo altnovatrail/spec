@@ -453,8 +453,9 @@ export interface LinePart {
  * StatementPart is the open view of formatv0.StatementPart, the type of
  * common.schema.json#/$defs/statement_part: its fields marked x-open.
  *
- * A part of a text that the learner reads — a statement, a solution or an explanation: a paragraph,
- * or a picture with what it shows and its size.
+ * A part of a text that the learner reads — a statement, a solution, the statement of a worked
+ * example, or a paragraph or a picture of an explanation, which the lesson's own explanation_part
+ * repeats: a paragraph, or a picture with what it shows and its size.
  */
 export interface StatementPart {
   /**
@@ -566,10 +567,10 @@ export interface Lesson {
  */
 export interface Segment {
   /**
-   * An explanation: paragraphs and pictures that the learner reads, in order, in the module's
-   * explanation language.
+   * An explanation: paragraphs, pictures and numbered lists that the learner reads, in order, in
+   * the module's explanation language.
    */
-  readonly explanation?: readonly StatementPart[];
+  readonly explanation?: readonly ExplanationPart[];
   /**
    * A worked example: an example solved before the learner's eyes, on a handwriting sheet.
    */
@@ -578,6 +579,43 @@ export interface Segment {
    * A task of the module, by its local ID. The next segment begins when the task ends.
    */
   readonly task?: formatv0.TaskID;
+}
+
+/**
+ * ExplanationPart is the open view of formatv0.ExplanationPart, the type of
+ * lesson.schema.json#/$defs/explanation_part: its fields marked x-open.
+ *
+ * A part of an explanation: a numbered list, or a paragraph or a picture with what it shows and its
+ * size, as a part of a task's statement is; a lesson's picture path holds no placeholder.
+ */
+export interface ExplanationPart {
+  /**
+   * A paragraph, as plain text.
+   */
+  readonly text?: formatv0.Text;
+  /**
+   * A picture, by its path from media/: a lesson has no template, so its path holds no placeholder.
+   */
+  readonly picture?: formatv0.PicturePath;
+  /**
+   * What the picture shows, in words: a screen reader reads it, and it stands in the picture's
+   * place until the picture comes. Empty for a picture that only decorates.
+   */
+  readonly alt?: string;
+  /**
+   * The width the picture is shown at, in CSS px; narrower when the text it stands in is.
+   */
+  readonly width?: number;
+  /**
+   * The height the picture is shown at, in CSS px, in proportion to its width.
+   */
+  readonly height?: number;
+  /**
+   * A numbered list: its texts in order, such as the steps of a method, each a short text that does
+   * not begin with a number of its own, as 1. or 1) does. The learner's app draws the numbers, so
+   * the leak check reads none of them; it searches the texts as it searches the paragraphs.
+   */
+  readonly numbered_list?: readonly formatv0.Text[];
 }
 
 /**

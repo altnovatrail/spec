@@ -1,0 +1,12 @@
+# The second text of the numbered list holds 7, the ladder task's answer: the texts of a list are
+# searched as paragraphs are, while the numbers that the app draws before them are not.
+id: gaps-and-posts
+title: Gaps and posts
+skills: [counting-gaps]
+segments:
+  - explanation:
+      - text: "How to solve: count the gaps, then the posts."
+      - numbered_list:
+          - Find the gaps between the posts.
+          - A ladder of 7 rungs has one rung more than gaps.
+  - task: gaps-ladder-1

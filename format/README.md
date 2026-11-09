@@ -600,7 +600,7 @@ The limit of steps is the format's: the same expression on the same value takes 
 - `title` is what the lesson is called, in the module's explanation language. The learner sees it before every task of the lesson, and `lesson.no-leaks` searches it for the keys of each of them, so it SHOULD hold no number.
 - **Skills.** `skills` names, by local ID, the skills of the module that the lesson teaches (`lesson.known-skills`). An anchor skill is no skill of a lesson: a lesson teaches its module's own. Every task of the lesson trains one of them as a primary skill (`lesson.task-skills`).
 - **Segments.** `segments` lists the segments of the lesson in order, each named by its place, from 1. A segment is one of three, by its one field:
-  - `explanation` — paragraphs and pictures that the learner reads, in parts as a task's statement is (section 14);
+  - `explanation` — paragraphs and pictures that the learner reads, in parts as a task's statement is (section 14), and numbered lists. A part `numbered_list` holds two or more texts in order, such as the steps of a method — "Find the holes and the pigeons", "Play the worst luck to the end", "Add one" —, each with no number of its own — none begins with `1.` or `1)`, as the schema holds —: the learner's app draws the numbers, 1, 2, 3, so the leak check reads none of them, as it would read `3.` written in a text as the number 3, and searches the texts as it searches the paragraphs (R111). A part with a numbered list holds nothing else. A heading of a part and a table come in a later version, with the content that needs them;
   - `worked_example` — an example solved before the learner's eyes (below);
   - `task` — a task of the module, by its local ID (`lesson.known-tasks`); a template too, and then the learner gets one instance of it (section 23). The segment ends when the task ends, as the server decides — by a right answer or the solution shown, and under a rubric by the learner's Done (architecture 3.5; R87) — and only then does the next segment begin.
 
@@ -626,7 +626,7 @@ The limit of steps is the format's: the same expression on the same value takes 
 | `lesson.areas` | Every area of a lesson MUST lie on the sheet, so that `left` + `width` is at most 1000 and `top` + `height` at most 1400. |
 | `lesson.age-categories` | Every age category of a lesson MUST be one of the manifest's `audience.age_categories`, and at least one age category MUST suit the lesson and each task of the module that it names: the lesson's own, or else the module's, and each task's own, or else the module's. |
 | `lesson.order` | The order of the module's lessons MUST have no cycle: no lesson comes, through the lessons that it comes after, after itself. |
-| `lesson.no-leaks` | No text of a lesson MAY hold a key or a leak phrase of a task of the module that the lesson names, as the leak check finds them (section 20): the lesson's `title`, the paragraphs of its explanations and the `alt` of their pictures, and the paragraphs and the `alt` of the pictures of its worked examples' statements and demos. |
+| `lesson.no-leaks` | No text of a lesson MAY hold a key or a leak phrase of a task of the module that the lesson names, as the leak check finds them (section 20): the lesson's `title`, the paragraphs of its explanations, the `alt` of their pictures and the texts of their numbered lists, and the paragraphs and the `alt` of the pictures of its worked examples' statements and demos. |
 
 ## 22. Randomness
 

@@ -149,6 +149,9 @@ test("lesson.no-leaks searches every text of a lesson for the keys of each task 
     ],
   };
   assert.deepEqual(lessonTexts(lesson), ["Gaps and posts", "A fence has posts.", "A fence.", "A path of 20 m.", "4 gaps.", "5 lamps.", "Count the gaps first."]);
+  // The texts of a numbered list, in order, and none of the numbers that the app draws (R111).
+  const listed = { title: "Gaps", segments: [{ explanation: [{ text: "How to solve:" }, { numbered_list: ["Count the gaps.", "Add one post."] }] }] };
+  assert.deepEqual(lessonTexts(listed), ["Gaps", "How to solve:", "Count the gaps.", "Add one post."]);
   const keyed = (key, extra) => task([anywhere({ kind: "number", key })], extra);
   assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("7")]], ["camp", [keyed("9")]]])), false);
   assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("5")]]])), true, "the alt of a picture of the demo holds the key");

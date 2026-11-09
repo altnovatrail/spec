@@ -25,13 +25,38 @@ type Lesson struct {
 //
 // A segment of a lesson: an explanation, a worked example or a task, by its one field.
 type Segment struct {
-	// An explanation: paragraphs and pictures that the learner reads, in order, in the module's
-	// explanation language.
-	Explanation []StatementPart `json:"explanation,omitzero"`
+	// An explanation: paragraphs, pictures and numbered lists that the learner reads, in order, in
+	// the module's explanation language.
+	Explanation []ExplanationPart `json:"explanation,omitzero"`
 	// A worked example: an example solved before the learner's eyes, on a handwriting sheet.
 	WorkedExample *WorkedExample `json:"worked_example,omitzero"`
 	// A task of the module, by its local ID. The next segment begins when the task ends.
 	Task *formatv0.TaskID `json:"task,omitzero"`
+}
+
+// ExplanationPart is the open view of formatv0.ExplanationPart, the type of
+// lesson.schema.json#/$defs/explanation_part: its fields marked x-open.
+//
+// A part of an explanation: a numbered list, or a paragraph or a picture with what it shows and its
+// size, as a part of a task's statement is; a lesson's picture path holds no placeholder.
+type ExplanationPart struct {
+	// A paragraph, as plain text.
+	Text *formatv0.Text `json:"text,omitzero"`
+	// A picture, by its path from media/: a lesson has no template, so its path holds no
+	// placeholder.
+	Picture *formatv0.PicturePath `json:"picture,omitzero"`
+	// What the picture shows, in words: a screen reader reads it, and it stands in the picture's
+	// place until the picture comes. Empty for a picture that only decorates.
+	Alt *string `json:"alt,omitzero"`
+	// The width the picture is shown at, in CSS px; narrower when the text it stands in is.
+	Width *int64 `json:"width,omitzero"`
+	// The height the picture is shown at, in CSS px, in proportion to its width.
+	Height *int64 `json:"height,omitzero"`
+	// A numbered list: its texts in order, such as the steps of a method, each a short text that
+	// does not begin with a number of its own, as 1. or 1) does. The learner's app draws the
+	// numbers, so the leak check reads none of them; it searches the texts as it searches the
+	// paragraphs.
+	NumberedList []formatv0.Text `json:"numbered_list,omitzero"`
 }
 
 // WorkedExample is the open view of formatv0.WorkedExample, the type of

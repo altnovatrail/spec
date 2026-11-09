@@ -7,8 +7,9 @@ import "github.com/altnovatrail/spec/types/formatv0"
 // StatementPart is the open view of formatv0.StatementPart, the type of
 // common.schema.json#/$defs/statement_part: its fields marked x-open.
 //
-// A part of a text that the learner reads — a statement, a solution or an explanation: a paragraph,
-// or a picture with what it shows and its size.
+// A part of a text that the learner reads — a statement, a solution, the statement of a worked
+// example, or a paragraph or a picture of an explanation, which the lesson's own explanation_part
+// repeats: a paragraph, or a picture with what it shows and its size.
 type StatementPart struct {
 	// A paragraph, as plain text.
 	Text *formatv0.Text `json:"text,omitzero"`

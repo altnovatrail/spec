@@ -105,8 +105,9 @@ type TaskID LocalID
 
 // StatementPart is the type of common.schema.json#/$defs/statement_part.
 //
-// A part of a text that the learner reads — a statement, a solution or an explanation: a paragraph,
-// or a picture with what it shows and its size.
+// A part of a text that the learner reads — a statement, a solution, the statement of a worked
+// example, or a paragraph or a picture of an explanation, which the lesson's own explanation_part
+// repeats: a paragraph, or a picture with what it shows and its size.
 type StatementPart struct {
 	// A paragraph, as plain text.
 	Text *Text `json:"text,omitzero"`

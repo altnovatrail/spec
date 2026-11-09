@@ -39,6 +39,7 @@ var typesByName = map[string]func() any{
 	"open.Canvas":                func() any { return new(open.Canvas) },
 	"open.CanvasSettings":        func() any { return new(open.CanvasSettings) },
 	"open.DemoPart":              func() any { return new(open.DemoPart) },
+	"open.ExplanationPart":       func() any { return new(open.ExplanationPart) },
 	"open.Item":                  func() any { return new(open.Item) },
 	"open.Languages":             func() any { return new(open.Languages) },
 	"open.Lesson":                func() any { return new(open.Lesson) },

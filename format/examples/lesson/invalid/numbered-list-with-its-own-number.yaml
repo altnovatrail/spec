@@ -1,0 +1,12 @@
+# error: not at #/segments/0/explanation/0/numbered_list/0
+# The learner's app draws the numbers of a list, so a text holds none of its own: it would show
+# twice, and the leak check would read it as a number.
+id: the-worst-luck
+title: The worst luck
+skills: [pigeonhole]
+segments:
+  - explanation:
+      - numbered_list:
+          - "1. Find the holes and the pigeons."
+          - "2. Play the worst luck to the end."
+  - task: pigeonhole-socks

@@ -1,0 +1,12 @@
+# error: maxProperties at #/segments/0/explanation/0
+# A part with a numbered list holds nothing else: a paragraph is a part of its own.
+id: the-worst-luck
+title: The worst luck
+skills: [pigeonhole]
+segments:
+  - explanation:
+      - text: "How to solve: the worst luck, then one more."
+        numbered_list:
+          - Find the holes and the pigeons.
+          - Play the worst luck to the end.
+  - task: pigeonhole-socks
