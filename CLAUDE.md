@@ -11,6 +11,7 @@ The documents under `docs/` are in Russian (R14) and are cited by section: "prod
 - [docs/product.md](docs/product.md) — what we build and why. Open product questions О-… are in section 13.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary and the glossary.
 - [docs/privacy.md](docs/privacy.md) — privacy and age. Open questions П-… are in section 9.
+- [docs/dpia.md](docs/dpia.md) — the data protection impact assessment, by the ICO's template: the processing, its necessity, the risks to children and the measures against them, and what must hold before the first child (R119, R129). It is cited by section, as `dpia 6`, and a task that changes what it rests on reviews it.
 - [docs/architecture.md](docs/architecture.md) — the components and how they connect. Each component's card, ending with what to decide when it is detailed, is in section 3.
 - [docs/repositories.md](docs/repositories.md) — the repositories, their dependencies, the order they appear in, and how to set one up. Open technical questions Т-… are in section 8.
 - [docs/decisions.md](docs/decisions.md) — the decision log, R01…: read it before proposing a change.

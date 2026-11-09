@@ -17,7 +17,8 @@ const base = path.join(here, "fixtures", "base");
 const component = path.join(here, "fixtures", "component");
 const main = path.join(here, "..", "main.mjs");
 
-// A copy of the base fixture with each [file, from, to] edit applied; `to` null deletes the file.
+// A copy of the base fixture with each [file, from, to] edit applied; `to` null deletes the file,
+// and `from` null writes `to` as a new file.
 function trialCopy(edits = []) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "docs-check-"));
   fs.cpSync(base, root, { recursive: true });
@@ -43,6 +44,10 @@ function applyEdits(root, edits) {
     const target = path.join(root, file);
     if (to === null) {
       fs.rmSync(target);
+      continue;
+    }
+    if (from === null) {
+      fs.writeFileSync(target, to);
       continue;
     }
     const text = fs.readFileSync(target, "utf8");
@@ -133,6 +138,16 @@ test("a section that does not exist", async () => {
 test("a section in a list and in a range", async () => {
   await expectOnly([["docs/repositories.md", "architecture 3, 3.6", "architecture 3, 3.7"]], /has no section 3\.7$/);
   await expectOnly([["docs/concepts.md", "в разделе 2.", "в разделах 1–3."]], /docs\/concepts\.md has no section 3$/);
+});
+
+test("dpia N is a section of docs/dpia.md, the DPIA", async () => {
+  await expectOnly(
+    [
+      ["docs/dpia.md", null, "# DPIA\n\n## 6. Риски и меры\n"],
+      ["docs/privacy.md", "как П-5 canvas-api (раздел 9) |", "как П-5 canvas-api (раздел 9); риски — dpia 6 и dpia 7 |"],
+    ],
+    /^docs\/privacy\.md:\d+: docs\/dpia\.md has no section 7$/,
+  );
 });
 
 test("«раздел N» after a link means that document's section", async () => {
@@ -350,6 +365,13 @@ test("a number of spec's that is not on its tag", async () => {
 test("a section of spec's that does not exist, also at the end of a list", async () => {
   await componentOnly([["docs/architecture.md", "architecture 3.6 spec", "architecture 3.7 spec"]], /spec\/docs\/architecture\.md has no section 3\.7$/);
   await componentOnly([["docs/architecture.md", "concepts 2, 2.1 spec", "concepts 2, 2.2 spec"]], /spec\/docs\/concepts\.md has no section 2\.2$/);
+  await componentOnly(
+    [
+      ["spec/docs/dpia.md", null, "# DPIA\n\n## 6. Риски и меры\n"],
+      ["docs/architecture.md", "вопросы — product 13 spec.", "вопросы — product 13 spec; риски — dpia 6 spec и dpia 7 spec."],
+    ],
+    /spec\/docs\/dpia\.md has no section 7$/,
+  );
 });
 
 test("spec's document cited without the suffix", async () => {
