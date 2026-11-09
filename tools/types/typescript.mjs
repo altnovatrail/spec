@@ -1,5 +1,6 @@
-// The check of the TypeScript of the module format, of the admission table and of the deployment
-// configuration by its compiler (R73, R96, R85): each case of the corpus
+// The check of the TypeScript of the module format, of the admission table, of the deployment
+// configuration and of the legal texts by its compiler (R73, R96, R85, R130): each case of the
+// corpus
 // (tools/types/corpus.mjs), the value of a declaration of its type, as code that imports the types
 // from the npm package @altnovatrail/spec would declare it.
 //
@@ -30,7 +31,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TYPESCRIPT_CONFIGS, TYPESCRIPT_STRICT, isMain } from "../shared.mjs";
-import { ADMISSION_PACKAGE, DEPLOYMENT_PACKAGE, OPEN, PACKAGE } from "./go.mjs";
+import { ADMISSION_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_PACKAGE, OPEN, PACKAGE } from "./go.mjs";
 import { NAME } from "./npm.mjs";
 
 // The tsconfig of each resolution of modules and how strict it is: shared with the check of the
@@ -42,7 +43,7 @@ export const CANVAS_CHECK = fileURLToPath(new URL("canvas.check.ts", import.meta
 const CANVAS = "canvas.ts";
 const CANVAS_LIB = ["es2022", "dom"];
 // The packages a case's type may be of, each by the path the npm package exports it at.
-const PACKAGES = { [PACKAGE]: `${NAME}/${PACKAGE}`, [OPEN]: `${NAME}/${PACKAGE}/${OPEN}`, [ADMISSION_PACKAGE]: `${NAME}/${ADMISSION_PACKAGE}`, [DEPLOYMENT_PACKAGE]: `${NAME}/${DEPLOYMENT_PACKAGE}` };
+const PACKAGES = { [PACKAGE]: `${NAME}/${PACKAGE}`, [OPEN]: `${NAME}/${PACKAGE}/${OPEN}`, [ADMISSION_PACKAGE]: `${NAME}/${ADMISSION_PACKAGE}`, [DEPLOYMENT_PACKAGE]: `${NAME}/${DEPLOYMENT_PACKAGE}`, [LEGAL_PACKAGE]: `${NAME}/${LEGAL_PACKAGE}` };
 
 // The source of corpus.ts: a declaration of each case, each named by its place in the corpus.
 export function sourceOf(cases) {
@@ -52,7 +53,7 @@ export function sourceOf(cases) {
     if (!Object.hasOwn(PACKAGES, name) || rest.length !== 1) throw new Error(`${file}: the type ${type} is of no package of ${NAME}`);
   }
   // Only the packages the cases are of: a package of an earlier line exports no admissionv0, nor
-  // deploymentv1.
+  // deploymentv1, nor legalv1.
   const used = new Set(cases.map(({ type }) => type.split(".")[0]));
   for (const [name, from] of Object.entries(PACKAGES)) if (used.has(name)) lines.push(`import type * as ${name} from ${JSON.stringify(from)};`);
   cases.forEach(({ file, type, value, closed }, index) => {

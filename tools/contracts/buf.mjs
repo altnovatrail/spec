@@ -7,8 +7,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { BUF, GIT, TAR, byCodeUnits } from "../shared.mjs";
-import { newestRelease } from "../release/version.mjs";
+import { BUF, TAR, byCodeUnits, git } from "../shared.mjs";
+import { previousReleaseTag } from "../release/previous.mjs";
 
 // How long buf may take: generating with the Go plugins builds them the first time, which a
 // fresh machine fetches through the Go module proxy.
@@ -21,17 +21,10 @@ function run(program, args, root) {
   return result;
 }
 
-// git in root; what it wrote, or an error with what it said.
-export function git(root, ...args) {
-  const result = run(GIT, args, root);
-  if (result.status !== 0) throw new Error(`git ${args.join(" ")}: ${result.stderr.trim()}`);
-  return result.stdout;
-}
-
 // The files of contracts/ as the check sees them: what git tracks or would, ignored files left out,
 // as format-check and the Go checks see theirs.
 export function contractFiles(root) {
-  return git(root, "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "contracts")
+  return git(root, ["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "contracts"])
     .split("\0")
     .filter(Boolean)
     .filter((file) => fs.existsSync(path.join(root, file)))
@@ -95,25 +88,21 @@ export function format(root, protos, buf = BUF) {
 // The release spec's buf breaking compares with (R83): the newest release tag in the history of
 // HEAD, other than a tag of HEAD itself — unless the working tree changes buf.yaml or contracts/:
 // what it would commit comes after HEAD, so a release of HEAD is the previous one then (the
-// amendment of 2026-11-04 to R83). Its buf.yaml and contracts/, as git archive gives them, go into
-// folder, when one is named and the release has a .proto file. Returns the tag and how many .proto
-// files it has, or null when HEAD descends from no release. A shallow clone has no tags to count
-// from and is refused, as release-version refuses it.
+// amendment of 2026-11-04 to R83), as tools/release/previous.mjs finds it. Its buf.yaml and
+// contracts/, as git archive gives them, go into folder, when one is named and the release has a
+// .proto file. Returns the tag and how many .proto files it has, or null when HEAD descends from
+// no release. A shallow clone has no tags to count from and is refused, as release-version
+// refuses it.
 export function previousRelease(root, folder = null) {
-  if (git(root, "rev-parse", "--is-shallow-repository").trim() === "true") {
-    throw new Error("a shallow clone has no tags to find the previous release by; fetch the whole history");
-  }
-  const changed = git(root, "status", "--porcelain", "--", "buf.yaml", "contracts").trim() !== "";
-  const tags = git(root, "tag", "--merged", "HEAD", ...(changed ? [] : ["--no-contains", "HEAD"]), "--list", "v*").split("\n").filter(Boolean);
-  const tag = newestRelease(tags);
+  const tag = previousReleaseTag(root, ["buf.yaml", "contracts"]);
   if (!tag) return null;
-  const protos = git(root, "ls-tree", "-r", "-z", "--name-only", tag, "--", "contracts")
+  const protos = git(root, ["ls-tree", "-r", "-z", "--name-only", tag, "--", "contracts"])
     .split("\0")
     .filter((file) => file.endsWith(".proto"));
   if (protos.length === 0 || folder === null) return { tag, protos: protos.length };
   fs.mkdirSync(folder, { recursive: true });
   const archive = path.join(folder, "previous.tar");
-  git(root, "archive", "--format=tar", `--output=${archive}`, tag, "buf.yaml", "contracts");
+  git(root, ["archive", "--format=tar", `--output=${archive}`, tag, "buf.yaml", "contracts"]);
   const unpacked = run(TAR, ["-xf", archive, "-C", folder], root);
   if (unpacked.status !== 0) throw new Error(`tar: ${unpacked.stderr.trim()}`);
   fs.rmSync(archive);

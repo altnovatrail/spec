@@ -1,0 +1,12 @@
+# A passport whose every version is a draft, with no set: nothing is shown yet.
+format: 1
+texts:
+  terms-of-use:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: A draft of the terms.
+          ru: Черновик условий.
+sets: {}

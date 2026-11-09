@@ -246,7 +246,7 @@ test("a shallow clone is refused: it has no tags to find the previous release by
 // The commands read the spec two levels above them, and take no other: a copy of them in the
 // made-up repository reads that one. Returns the copy of main.mjs.
 function withCommands(dir) {
-  const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs"];
+  const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs", "tools/release/previous.mjs"];
   const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample", "report", "strokes"].map((name) => `tools/contracts/${name}.mjs`);
   const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
   // sample.mjs reads the IDs of the module format from its schemas.

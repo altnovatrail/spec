@@ -3,7 +3,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ModelError, buildModel, pascalOf } from "../model.mjs";
+import { INLINE_NAMES, ModelError, buildModel, partOfId, pascalOf } from "../model.mjs";
 
 const ID = "https://altnovatrail.github.io/spec/format/0.1/";
 
@@ -131,6 +131,23 @@ test("a map, a choice of strings, a oneOf of consts and an object with a name of
   assert.deepEqual([...built.open.keys()], ["Techniques", "Technique"]);
 });
 
+test("an inline name is its part's: a schema of the same name in another part has none", () => {
+  assert.equal(partOfId("https://altnovatrail.github.io/spec/legal/1/reading-vector.schema.json"), "legal");
+  assert.equal(partOfId("https://altnovatrail.github.io/spec/format/0.4/task.schema.json"), "format");
+  for (const id of [undefined, "https://example.org/spec/legal/1/a.schema.json", "https://altnovatrail.github.io/spec/"]) assert.equal(partOfId(id), null, String(id));
+  assert.deepEqual(Object.keys(INLINE_NAMES), ["format", "legal"]);
+  const vector = (prefix) => ({
+    name: "reading-vector.schema.json",
+    json: { $id: `${prefix}reading-vector.schema.json`, type: "object", properties: {}, $defs: { case: { type: "object", properties: { current: { type: "object", properties: { a: { type: "string" } } } } } } },
+  });
+  // The legal texts' vector names its object Current.
+  assert.equal(buildModel([vector("https://altnovatrail.github.io/spec/legal/1/")], []).types.get("Current").pointer, "/$defs/case/properties/current");
+  // The deployment configuration's, at the same place, and one with no part, have no name for it.
+  for (const prefix of ["https://altnovatrail.github.io/spec/deployment/1/", "https://example.org/"]) {
+    assert.throws(() => buildModel([vector(prefix)], []), (error) => error instanceof ModelError && /reading-vector\.schema\.json#\/\$defs\/case\/properties\/current has no name/.test(error.message), prefix);
+  }
+});
+
 test("a $ref that narrows a type stands for it, and a name of its own for a struct is another name of it", () => {
   const built = model(
     schema("part.schema.json", {
@@ -180,7 +197,9 @@ test("a form the model does not know stops it with its place", () => {
   refused({ type: "object", properties: { kind: { enum: ["a"] } }, $defs: { part_kind: { type: "string" } } }, /is named PartKind/);
   refused({ $defs: { a: { type: "array", items: { enum: ["x"] } } } }, /is an enumeration at a place that gives it no name/);
   // Forms of an object whose fields the model would leave out.
-  refused({ type: "object", properties: {}, allOf: [{ $ref: "common.schema.json#/$defs/pair" }] }, /#\/allOf\/0 has \$ref in an object/);
+  // A $ref is a member of allOf, to an object, and nowhere else in an object.
+  refused({ type: "object", properties: {}, allOf: [{ $ref: "common.schema.json#/$defs/text" }] }, /#\/allOf\/0 refers in allOf to no object/);
+  refused({ type: "object", properties: {}, allOf: [{ if: { required: ["a"] }, then: { $ref: "common.schema.json#/$defs/pair" } }] }, /#\/allOf\/0\/then has \$ref in an object/);
   refused({ type: "object", properties: {}, patternProperties: { "^a": { type: "string" } } }, /has patternProperties in an object/);
   refused({ type: "object", properties: {}, dependentSchemas: { a: { properties: { b: { type: "string" } } } } }, /has dependentSchemas in an object/);
   refused({ type: "object", properties: { a: { type: "string" } }, additionalProperties: { type: "string" } }, /has additionalProperties in an object/);
@@ -202,6 +221,45 @@ test("a form the model does not know stops it with its place", () => {
   const marks = model(schema("part.schema.json", { type: "object", properties: { a: { type: "string", "x-open": true } }, allOf: [{ if: { required: ["b"] }, then: { properties: { a: { minLength: 1 }, z: { type: "string", "x-open": true } } } }] }));
   assert.deepEqual(marks.open.get("Part").fields.map(({ json }) => json), ["a", "z"]);
   refused(branches({ enum: ["any"] }), /allOf\/1\/then\/properties\/form gives the field form another shape/);
+});
+
+test("a member of allOf that refers to a struct gives the object its fields, with the types they have there", () => {
+  const built = model(
+    schema("part.schema.json", {
+      type: "object",
+      properties: { draft: { $ref: "#/$defs/draft", description: "A draft." }, final: { $ref: "#/$defs/final", description: "A final." } },
+      required: ["draft"],
+      $defs: {
+        status: {
+          type: "object",
+          properties: { state: { enum: ["draft", "final"], description: "The state." }, since: { type: "string", description: "The date." } },
+          required: ["state"],
+          if: { properties: { state: { const: "final" } } },
+          then: { properties: { note: { type: "string", description: "A note." } }, required: ["since"] },
+        },
+        draft: { type: "object", allOf: [{ $ref: "#/$defs/status" }], properties: { words: { type: "string", description: "The words." } }, required: ["words"] },
+        // From another schema too, beside a part of its own.
+        final: { type: "object", allOf: [{ $ref: "#/$defs/status" }, { $ref: "common.schema.json#/$defs/pair" }] },
+      },
+    }),
+  );
+  const fields = (name) => type(built, name).fields.map(({ json, type: ref, required }) => ({ json, ref, required }));
+  const status = [
+    { json: "state", ref: { named: "StatusState" }, required: true },
+    { json: "since", ref: { primitive: "string" }, required: false },
+    { json: "note", ref: { primitive: "string" }, required: false },
+  ];
+  assert.deepEqual(fields("Status"), status);
+  assert.deepEqual(fields("Draft"), [{ json: "words", ref: { primitive: "string" }, required: true }, ...status]);
+  assert.deepEqual(fields("Final"), [...status, { json: "left", ref: { named: "Text" }, required: true }, { json: "right", ref: { primitive: "integer" }, required: false }]);
+  // The enumeration of the field of status is one type, wherever its fields go.
+  assert.deepEqual(type(built, "StatusState"), { name: "StatusState", schema: "part.schema.json", pointer: "/$defs/status/properties/state", doc: "The state.", kind: "string", values: ["draft", "final"] });
+  assert.ok(!built.types.has("DraftState") && !built.types.has("FinalState"));
+  // A field the member gives no shape is named at its place there.
+  assert.throws(
+    () => model(schema("part.schema.json", { type: "object", properties: {}, allOf: [{ $ref: "#/$defs/loose" }], $defs: { loose: { type: "object", properties: { a: { minLength: 1 } } } } })),
+    (error) => error instanceof ModelError && /part\.schema\.json#\/\$defs\/loose\/properties\/a gives the field a no shape anywhere/.test(error.message),
+  );
 });
 
 test("names are PascalCase, with ID for id", () => {

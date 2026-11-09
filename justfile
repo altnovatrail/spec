@@ -82,6 +82,37 @@ deployment-check: _tools
 deployment-check-test: _tools
     node --test 'tools/deployment/test/*.test.mjs'
 
+# Reads spec's own legal/, the legal texts (R130), by the layout of its text: VERSION, an integer,
+# and the field format of the passport that holds it; each schema against the conventions of the
+# format's schemas under the prefix of the legal texts, with no x-open; the rules the text lists, in
+# their order; each example against its schema; each vector of reading, whose cases it reads as
+# section 5 of the text does, with a part accepted and one refused by the schema and by each rule
+# among them; and the part itself, legal.yaml and the files under texts/, read the same way. For
+# legal.in-force-unchanged it reads the part of the release before, as git archive's files of its
+# tag: the newest release tag in the history of HEAD, other than a tag of HEAD itself unless the
+# working tree changes legal/ (tools/release/previous.mjs), as contracts-check finds the release
+# buf breaking compares with. A release with no legal/ holds the rule; a shallow clone, which has no
+# tags to find it by, is refused.
+# Check the legal texts in legal/: schemas, examples, test vectors and the part itself.
+legal-check: _tools
+    node tools/legal/main.mjs
+
+# The tests that run the recipe run this same just: legal-check-dir's, from made-up repositories.
+# Run legal-check's own tests, on trial copies of spec's legal/ and in made-up repositories.
+legal-check-test: _tools
+    JUST={{quote(just_executable())}} node --test 'tools/legal/test/*.test.mjs'
+
+# Runs from the root of the repository that holds a self-hosted copy's own legal texts, as
+# `just -f spec/justfile legal-check-dir legal`: the folder its operator writes in the layout of
+# legal/README.md, section 3 — VERSION, legal.yaml and texts/, and nothing else — read as section 5
+# reads a part, against this spec's schema of the passport and its rules but
+# legal.in-force-unchanged, since the copy's operator keeps its own history (section 8). VERSION is
+# this spec's: a folder of another version is checked by the spec of its version. The path is from
+# where the recipe is run, and the errors name the folder's files by it.
+# Check a self-hosted copy's folder of legal texts against this spec's legal/.
+legal-check-dir folder: _tools
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/legal/main.mjs")}} --dir {{quote(folder)}}
+
 # The types of the module format, generated from its schemas by tools/types (R72): the packages
 # formatv0 and formatv0/open under types/, and admissionv0 of the admission table, generated from
 # admission/schemas (R96), which spec's Go module ships at the tag of every release, each with its
@@ -434,8 +465,10 @@ licenses-check-test:
 # carry it (R96; tools/release/admission-line.mjs), and another version of the deployment
 # configuration, or another shape of its file or other IDs of its rules under the same version,
 # once releases carry it (R85; tools/release/deployment-line.mjs, which reads the text by the
-# packages of tools/, so in spec the recipe installs them first). Anywhere else — another repository, a working
-# copy in .repos/ among them — the line is
+# packages of tools/, so in spec the recipe installs them first), and another version of the legal
+# texts, or another shape of their passport's schema or other IDs of their rules under the same
+# version, once releases carry them (R130; tools/release/legal-line.mjs, which reads the text the
+# same way). Anywhere else — another repository, a working copy in .repos/ among them — the line is
 # RELEASE_LINE as the workflow named second sets it at that commit, a path from the repository's
 # root, whatever the shell sets: a release workflow's own env, the tip's, must not number an
 # older commit. A commit from before that workflow existed takes the checked-out file's line. With
@@ -483,14 +516,16 @@ release-version commit="HEAD" workflow="":
         git tag --points-at "$commit" --list 'v*'
     }
     if [ "$in_spec" = true ]; then
-        # deployment-line.mjs reads the rules of deployment/README.md as format-check does, by the
-        # packages of tools/: they are installed first, and npm says nothing on stdout.
+        # deployment-line.mjs and legal-line.mjs read the rules of their part's README.md as
+        # format-check does, by the packages of tools/: they are installed first, and npm says
+        # nothing on stdout.
         {{quote(just_executable())}} --justfile {{quote(justfile())}} _tools >&2
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}} \
             | node {{quote(justfile_directory() / "tools/release/format-line.mjs")}} "$commit" \
             | node {{quote(justfile_directory() / "tools/release/contracts-line.mjs")}} "$commit" \
             | node {{quote(justfile_directory() / "tools/release/admission-line.mjs")}} "$commit" \
-            | node {{quote(justfile_directory() / "tools/release/deployment-line.mjs")}} "$commit"
+            | node {{quote(justfile_directory() / "tools/release/deployment-line.mjs")}} "$commit" \
+            | node {{quote(justfile_directory() / "tools/release/legal-line.mjs")}} "$commit"
     else
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
     fi
@@ -501,9 +536,10 @@ release-version commit="HEAD" workflow="":
 # of its own goes in as <part>-<version>.tar.gz — the module format, format-<version>.tar.gz,
 # from FIRST_ADMISSION_LINE on the admission table, admission-<version>.tar.gz (R96), and from
 # FIRST_DEPLOYMENT_LINE on the deployment configuration, deployment-<version>.tar.gz, its version
-# an integer (R85): git archive of the commit, a folder of that name holding LICENSE and the part
-# as the commit has them, every file and nothing else, which the recipe checks against git
-# ls-tree. From
+# an integer (R85), and from FIRST_LEGAL_LINE on the legal texts, legal-<version>.tar.gz, its
+# version an integer too (R130): git archive of the commit, a folder of that name holding LICENSE
+# and the part as the commit has them, every file and nothing else, which the recipe checks
+# against git ls-tree. From
 # FIRST_NPM_LINE on, the npm package @altnovatrail/spec goes in too, altnovatrail-spec-<X.Y.Z>.tgz,
 # of the release's tag, which the recipe then takes third (R73): npm pack of the package that
 # tools/types/npm.mjs writes of the commit's types/, LICENSE and the package's README, read back by
@@ -532,6 +568,8 @@ release-files commit dir tag="":
             if git cat-file -e "${commit}:admission/VERSION" 2>/dev/null; then git show "${commit}:admission/VERSION"; fi
             echo --
             if git cat-file -e "${commit}:deployment/VERSION" 2>/dev/null; then git show "${commit}:deployment/VERSION"; fi
+            echo --
+            if git cat-file -e "${commit}:legal/VERSION" 2>/dev/null; then git show "${commit}:legal/VERSION"; fi
         } | node tools/release/files.mjs "$line" "$tag"
     )
     mkdir -p "$dir"

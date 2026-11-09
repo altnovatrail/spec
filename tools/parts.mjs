@@ -1,7 +1,7 @@
 // What the checks of spec's normative parts with a version of their own share — the admission table
-// (tools/admission/main.mjs, R96) and the deployment configuration (tools/deployment/main.mjs,
-// R85): the files of a part's folder, its VERSION, the problems of a YAML file, ajv's errors, and
-// how a check prints what it finds.
+// (tools/admission/main.mjs, R96), the deployment configuration (tools/deployment/main.mjs, R85)
+// and the legal texts (tools/legal/main.mjs, R130): the files of a part's folder, its VERSION, the
+// problems of a YAML file, ajv's errors, and how a check prints what it finds.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -23,10 +23,10 @@ export function filesUnder(root, dir) {
 }
 
 // The version in a part's VERSION file of root, as the first group of form matches it, or null when
-// it cannot be read: missing is reported at line 0 when there is no file, and malformed at line 1
-// when form does not match.
+// it cannot be read: missing is reported at line 0 when there is no file — nothing, or a folder of
+// that name —, and malformed at line 1 when form does not match.
 export function readVersion(root, file, form, { missing, malformed }, report) {
-  if (!fs.existsSync(path.join(root, file))) {
+  if (!fs.existsSync(path.join(root, file)) || !fs.statSync(path.join(root, file)).isFile()) {
     report(file, 0, missing);
     return null;
   }

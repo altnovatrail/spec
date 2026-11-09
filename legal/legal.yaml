@@ -1,0 +1,123 @@
+# The passport of the legal texts (section 4 of the legal text). Every version is a draft until
+# T97, T98 and T99 of RUN.md write its words and the author approves it (R112).
+format: 1
+texts:
+  privacy-policy:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Privacy policy. Its gist is written with its words, in T97 of RUN.md."
+          ru: "Черновик: Политика конфиденциальности. Суть пишется вместе с текстом, в T97 RUN.md."
+  terms-of-use:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Terms of use. Its gist is written with its words, in T97 of RUN.md."
+          ru: "Черновик: Условия использования. Суть пишется вместе с текстом, в T97 RUN.md."
+  parent-consent:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Consent for a child. Its gist is written with its words, in T98 of RUN.md."
+          ru: "Черновик: Согласие за ребёнка. Суть пишется вместе с текстом, в T98 RUN.md."
+  teen-consent:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Consent of a teenager. Its gist is written with its words, in T98 of RUN.md."
+          ru: "Черновик: Согласие подростка. Суть пишется вместе с текстом, в T98 RUN.md."
+  child-notice:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: For you, the learner. Its gist is written with its words, in T98 of RUN.md."
+          ru: "Черновик: Для тебя, ученик. Суть пишется вместе с текстом, в T98 RUN.md."
+  measure-notice:
+    place: samples_page
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Measurement: notice. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Замер: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+  measure-form:
+    place: form
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Measurement: form of consent. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Замер: форма согласия. Суть пишется вместе с текстом, в T99 RUN.md."
+  eval-set-notice:
+    place: samples_page
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Eval set: notice. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Eval-набор: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+  volunteer-form:
+    place: form
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Eval set: the volunteer's form. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Eval-набор: форма добровольца. Суть пишется вместе с текстом, в T99 RUN.md."
+  child-sample-notice:
+    place: samples_page
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: A child's sample: notice. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Образец ребёнка: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+  child-sample-form:
+    place: form
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: A child's sample: the parent's form. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Образец ребёнка: форма родителя. Суть пишется вместе с текстом, в T99 RUN.md."
+sets:
+  measure:
+    versions:
+      - version: 1
+        status: draft
+        notice:
+          text: measure-notice
+          version: 1
+        form:
+          text: measure-form
+          version: 1
+  eval-set:
+    versions:
+      - version: 1
+        status: draft
+        notice:
+          text: eval-set-notice
+          version: 1
+        form:
+          text: volunteer-form
+          version: 1
+  child-sample:
+    versions:
+      - version: 1
+        status: draft
+        notice:
+          text: child-sample-notice
+          version: 1
+        form:
+          text: child-sample-form
+          version: 1

@@ -3,6 +3,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 // The programs the tools run, by absolute path: no directory on PATH decides which program runs.
@@ -18,6 +19,21 @@ export const GH = first(["/usr/local/bin/gh", "/usr/bin/gh"]);
 // buf is the toolchain stage's, which its Dockerfile puts in /usr/local/bin at an exact version
 // (R83). Only the check of the contracts and their generation run it.
 export const BUF = first(["/usr/local/bin/buf"]);
+
+// How long git may take in a check: an archive of a release reads every file of its tag.
+const GIT_TIMEOUT = 600_000;
+
+// git in the repository at root, with its arguments, as every tool runs it: what it wrote on
+// stdout, as text or, with encoding "buffer", as bytes, and with input on its stdin when one is
+// given; or an error with what it said, when it cannot start or exits with another status than 0.
+export function git(root, args, { encoding = "utf8", input } = {}) {
+  // The input as bytes of UTF-8: spawnSync would read a string by the encoding of its output.
+  const bytes = typeof input === "string" ? Buffer.from(input, "utf8") : input;
+  const result = spawnSync(GIT, args, { cwd: root, encoding, input: bytes, maxBuffer: 256 * 1024 * 1024, timeout: GIT_TIMEOUT });
+  if (result.error) throw new Error(`git ${args[0]}: ${result.error.message}`);
+  if (result.status !== 0) throw new Error(`git ${args.join(" ")}: ${String(result.stderr).trim()}`);
+  return result.stdout;
+}
 
 // The first of the paths that exists, or the first of them, which then fails by its own name.
 function first(paths) {

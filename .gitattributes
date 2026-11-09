@@ -8,6 +8,9 @@ tools/format-check/test/fixtures/** -text
 admission/** -text
 # And the files of deployment/, the format of the deployment configuration (R85).
 deployment/** -text
+# And the files of legal/, the legal texts (R130): a version in force stays the same byte for byte
+# (legal.in-force-unchanged), and a consent names the words it was given to.
+legal/** -text
 # The fixtures of release-verify's tests are files of real releases, which their bundles sign
 # byte for byte.
 tools/release/test/fixtures/** -text

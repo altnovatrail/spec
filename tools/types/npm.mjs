@@ -7,9 +7,10 @@
 // line FIRST_PAGE_LINE on the numbers and widths of the workbook's page and its vectors, as JSON of
 // format/page.yaml and format/vectors/pages/, which tools/types writes under types/page/, by which
 // canvas lays its page out (section 14 of the format text; T88), and from the line
-// FIRST_DEPLOYMENT_LINE on the types of the deployment configuration, ./deploymentv1 (R85): what a
-// package holds is the line's of its version, the release's, so that a
-// release of an earlier line, run again, gets the package it got.
+// FIRST_DEPLOYMENT_LINE on the types of the deployment configuration, ./deploymentv1 (R85), and
+// from the line FIRST_LEGAL_LINE on the types of the legal texts, ./legalv1 (R130): what a package
+// holds is the line's of its version, the release's, so that a release of an earlier line, run
+// again, gets the package it got.
 //
 //   node tools/types/npm.mjs <root> <version> <folder> [<commit>]
 //
@@ -24,7 +25,7 @@ import path from "node:path";
 import { isMain } from "../shared.mjs";
 import { archiveName, checkPackageArchive, checkedVersion, packPackage, treeOf, writePackageOf } from "../npm-package.mjs";
 import { compareLines } from "../release/version.mjs";
-import { ADMISSION_DIR, ADMISSION_PACKAGE, DEPLOYMENT_DIR, DEPLOYMENT_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
+import { ADMISSION_DIR, ADMISSION_PACKAGE, DEPLOYMENT_DIR, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
 
 export const NAME = "@altnovatrail/spec";
 const DECLARATIONS = "index.d.ts";
@@ -43,6 +44,9 @@ export const FIRST_PAGE_LINE = "0.10";
 // spec's first line whose package holds the types of the deployment configuration, as the release
 // holds the configuration's format (tools/release/files.mjs).
 export const FIRST_DEPLOYMENT_LINE = "0.11";
+// spec's first line whose package holds the types of the legal texts, as the release holds the
+// part (tools/release/files.mjs).
+export const FIRST_LEGAL_LINE = "0.13";
 // The package's folder of the page, as format/ holds it, and the repository's, which tools/types
 // writes.
 const PAGE = "format";
@@ -68,6 +72,7 @@ export function filesOf(version, tree) {
     }
   }
   if (holdsDeployment(version)) files.push({ file: `${DEPLOYMENT_PACKAGE}/${DECLARATIONS}`, from: `${DEPLOYMENT_DIR}/${DECLARATIONS}` });
+  if (holdsLegal(version)) files.push({ file: `${LEGAL_PACKAGE}/${DECLARATIONS}`, from: `${LEGAL_DIR}/${DECLARATIONS}` });
   return files;
 }
 
@@ -85,6 +90,8 @@ const holdsAdmission = (version) => fromLine(version, FIRST_ADMISSION_LINE);
 const holdsPage = (version) => fromLine(version, FIRST_PAGE_LINE);
 // Whether it holds the types of the deployment configuration.
 const holdsDeployment = (version) => fromLine(version, FIRST_DEPLOYMENT_LINE);
+// Whether it holds the types of the legal texts.
+const holdsLegal = (version) => fromLine(version, FIRST_LEGAL_LINE);
 
 // The name npm pack gives the package's archive of version: the scope's @ dropped, its / a dash.
 export function archiveOf(version) {
@@ -99,7 +106,8 @@ export function manifestOf(version) {
   const admission = holdsAdmission(version);
   const page = holdsPage(version);
   const deployment = holdsDeployment(version);
-  const description = [format, canvas ? "And the types of the element <novatrail-canvas>, the contract of the canvas and the app." : "", admission ? "And the types of the admission table, which says which AI provider may serve which age category." : "", page ? "And the numbers and widths of the workbook's page and its test vectors, as JSON, by which a canvas lays the page out." : "", deployment ? "And the types of the deployment configuration, the file /deployment.json that the app reads at its start." : ""].filter(Boolean).join(" ");
+  const legal = holdsLegal(version);
+  const description = [format, canvas ? "And the types of the element <novatrail-canvas>, the contract of the canvas and the app." : "", admission ? "And the types of the admission table, which says which AI provider may serve which age category." : "", page ? "And the numbers and widths of the workbook's page and its test vectors, as JSON, by which a canvas lays the page out." : "", deployment ? "And the types of the deployment configuration, the file /deployment.json that the app reads at its start." : "", legal ? "And the types of the legal texts' passport, which names each text, its versions and the sets of texts of the samples page." : ""].filter(Boolean).join(" ");
   return {
     name: NAME,
     version: checkedVersion(version),
@@ -114,9 +122,10 @@ export function manifestOf(version) {
       ...(admission ? { [`./${ADMISSION_PACKAGE}`]: { types: `./${ADMISSION_PACKAGE}/${DECLARATIONS}` } } : {}),
       ...(page ? { "./format/page.json": "./format/page.json", "./format/vectors/pages/*.json": "./format/vectors/pages/*.json" } : {}),
       ...(deployment ? { [`./${DEPLOYMENT_PACKAGE}`]: { types: `./${DEPLOYMENT_PACKAGE}/${DECLARATIONS}` } } : {}),
+      ...(legal ? { [`./${LEGAL_PACKAGE}`]: { types: `./${LEGAL_PACKAGE}/${DECLARATIONS}` } } : {}),
       "./package.json": "./package.json",
     },
-    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : []), ...(deployment ? [DEPLOYMENT_PACKAGE] : [])],
+    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : []), ...(deployment ? [DEPLOYMENT_PACKAGE] : []), ...(legal ? [LEGAL_PACKAGE] : [])],
     sideEffects: false,
   };
 }

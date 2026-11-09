@@ -1,5 +1,6 @@
 # spec's own checks (R30): the documents, the module format (R45), the admission table (R96), the
-# deployment configuration (R85), the types of each in Go and TypeScript (R72, R73), the Go module
+# deployment configuration (R85), the legal texts (R130), the types of each in Go and TypeScript
+# (R72, R73), the Go module
 # code takes from a release and its zip, the licenses of the packages of tools/, the version the
 # next release takes (R31) and the files it carries (R64). The tests of tools/ and of the Go
 # modules run once here, with their coverage, and a job of its own sends that of tools/ to Codecov
@@ -73,6 +74,13 @@ jobs:
       - name: Deployment configuration
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec deployment-check
+
+      # The legal texts in legal/ (R130): its schemas, its examples, its test vectors, which the
+      # check reads as section 5 of its text does, and the part itself, against the part of the
+      # release before, which the whole history of the checkout holds.
+      - name: Legal texts
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec legal-check
 
       # The types of the module format (R72, R73): those its schemas give, file for file, and each
       # value of format/ read by its Go type and written back as it was, and taken by tsc as a value

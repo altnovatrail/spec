@@ -16,7 +16,7 @@ import (
 // leaves out otherwise: a vector of packages holds one on purpose, since a module's package
 // leaves such files out (format/README.md, section 25).
 //
-//go:embed all:format all:admission all:deployment
+//go:embed all:format all:admission all:deployment all:legal
 var files embed.FS
 
 // Format is the module format as the release has it: format/ at its tag, with the text, VERSION,
@@ -34,6 +34,13 @@ var Admission = sub("admission")
 // (deployment/README.md, section 3). Its root is deployment/, so that the schema of the file is
 // "schemas/deployment.schema.json".
 var Deployment = sub("deployment")
+
+// Legal is the legal texts as the release has them (R130): legal/ at its tag, with the text,
+// VERSION, the passport, the versions of the texts, the schemas, the examples and the test vectors
+// (legal/README.md, section 3). Its root is legal/, so that the passport is "legal.yaml" and a
+// version of a text is "texts/privacy-policy/1.md". api serves the texts from it
+// (legal/README.md, section 8).
+var Legal = sub("legal")
 
 func sub(dir string) fs.FS {
 	part, err := fs.Sub(files, dir)
