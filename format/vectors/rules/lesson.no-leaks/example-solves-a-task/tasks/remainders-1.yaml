@@ -1,0 +1,19 @@
+id: remainders-1
+statement:
+  - text: Write the quotient and the remainder.
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "17 ÷ 5 ="
+      - binding: box
+        check: {kind: number, key: "3"}
+      - text: r
+      - binding: box
+        check: {kind: number, key: "2"}
+solution:
+  - text: "5 × 3 = 15, and 17 − 15 = 2: 17 ÷ 5 = 3 r 2."
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 1

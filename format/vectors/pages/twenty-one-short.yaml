@@ -1,0 +1,67 @@
+# Twenty-one short lines: the eleventh row has no room. From canvas's vectors/pages.json at its
+# commit 73807f2.
+items:
+  - line:
+      - text: "7 × 1 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 2 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 3 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 4 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 5 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 6 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 7 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 8 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 9 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 10 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 11 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 12 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 13 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 14 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 15 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 16 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 17 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 18 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 19 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 20 ="
+      - binding: "box"
+  - line:
+      - text: "7 × 21 ="
+      - binding: "box"
+no_room_at: 20

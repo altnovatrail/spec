@@ -1,0 +1,21 @@
+# With notation: word, a choice drops a full stop at the end of an option too, so Kim and Kim. are alike.
+id: who-is-shorter
+statement:
+  - text: Kim is taller than Lea. Who is shorter? Write the name.
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: choice
+          notation: word
+          options: [Lea, Kim, Kim.]
+          key: Lea
+solution:
+  - text: "Kim is taller than Lea, so Lea is the shorter one."
+skills:
+  primary: [ordering]
+band: first-steps
+difficulty: 1

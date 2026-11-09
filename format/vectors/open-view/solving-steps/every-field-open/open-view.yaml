@@ -3,6 +3,7 @@ steps:
     gives: [givens]
     exit_condition: givens_ticked
   - title: Make a plan
+    description: Choose a technique that fits, or think of a task you have solved like it.
     gives: [techniques]
     exit_condition: none
   - title: Solve it

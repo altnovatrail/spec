@@ -1,6 +1,6 @@
 # error: pattern at #/device_part/digest
 # A digest is SHA-256, named sha256: in front of it; another algorithm is a major change of the format.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: example/smallest
 version: "0.1.0"
 server_part:

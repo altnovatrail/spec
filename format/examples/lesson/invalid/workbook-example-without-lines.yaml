@@ -1,0 +1,14 @@
+# error: required at #/segments/0/worked_example
+# A worked example on a workbook has its lines: the demo fills their boxes.
+id: remainders
+title: Remainders
+skills: [counting-gaps]
+segments:
+  - worked_example:
+      statement:
+        - text: Share the apples into equal heaps.
+      canvas:
+        kind: workbook
+      demo:
+        - text: Take the largest number of heaps that fit.
+  - task: remainders-1

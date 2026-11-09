@@ -1241,9 +1241,15 @@ type GetHintResponse struct {
 	//
 	//	*GetHintResponse_Techniques
 	//	*GetHintResponse_Rung
-	Hint          isGetHintResponse_Hint `protobuf_oneof:"hint"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Hint isGetHintResponse_Hint `protobuf_oneof:"hint"`
+	// With the techniques, the task's leading question, the leading_question of the module format, of
+	// the instance that the attempt got: the author's question that breaks the task down, in the
+	// module's explanation language. Empty when the task has none, and always empty with the rung's
+	// words: after the first wrong answer it is no more given. The server records it as given only
+	// when it is not empty, as it records a technique given on request (R108).
+	LeadingQuestion string `protobuf:"bytes,3,opt,name=leading_question,json=leadingQuestion,proto3" json:"leading_question,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetHintResponse) Reset() {
@@ -1299,6 +1305,13 @@ func (x *GetHintResponse) GetRung() *RungHint {
 		}
 	}
 	return nil
+}
+
+func (x *GetHintResponse) GetLeadingQuestion() string {
+	if x != nil {
+		return x.LeadingQuestion
+	}
+	return ""
 }
 
 type isGetHintResponse_Hint interface {
@@ -2576,12 +2589,13 @@ const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
 	"\n" +
-	"attempt_id\x18\x02 \x01(\tR\tattemptId\"\x8b\x01\n" +
+	"attempt_id\x18\x02 \x01(\tR\tattemptId\"\xb6\x01\n" +
 	"\x0fGetHintResponse\x12>\n" +
 	"\n" +
 	"techniques\x18\x01 \x01(\v2\x1c.novatrail.api.v1.TechniquesH\x00R\n" +
 	"techniques\x120\n" +
-	"\x04rung\x18\x02 \x01(\v2\x1a.novatrail.api.v1.RungHintH\x00R\x04rungB\x06\n" +
+	"\x04rung\x18\x02 \x01(\v2\x1a.novatrail.api.v1.RungHintH\x00R\x04rung\x12)\n" +
+	"\x10leading_question\x18\x03 \x01(\tR\x0fleadingQuestionB\x06\n" +
 	"\x04hint\"1\n" +
 	"\n" +
 	"Techniques\x12#\n" +

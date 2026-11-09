@@ -1,5 +1,5 @@
 # A fix of the times tables 0.1.0, as 0.1.1, after 0.2.0 is published: a version below a published one.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: example/times-tables
 version: "0.1.1"
 title: Times tables

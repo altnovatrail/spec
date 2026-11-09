@@ -1,8 +1,8 @@
 # The first release after a new version of the format. The previous index was built by version 0.2,
 # and its entries name 0.1 and 0.2: the index keeps the entries of every version of the format. Both
-# modules moved to 0.3, each to a new version, which gets an entry of 0.3 that names this release;
+# modules moved to 0.4, each to a new version, which gets an entry of 0.4 that names this release;
 # the entries of 0.1 and 0.2 stand as they were, so the index names versions of all three. A reader
-# of 0.3 skips the entries of 0.1 and 0.2, rather than refuse the index.
+# of 0.4 skips the entries of 0.1 and 0.2, rather than refuse the index.
 previous:
   module_format_version: "0.2"
   modules:
@@ -28,7 +28,7 @@ previous:
         teaches: [core.division-with-remainder, core.multiplication-table]
 release: v0.3.0
 index:
-  module_format_version: "0.3"
+  module_format_version: "0.4"
   modules:
     example/smallest:
       "0.1.0":
@@ -40,8 +40,8 @@ index:
         package_digest: sha256:56ff2bf71e668ddf64aba520f6f7c9cc6c8b150a81202cfe8fe8db3669ad4c49
         release: v0.2.0
       "0.3.0":
-        module_format_version: "0.3"
-        package_digest: sha256:5126f63bedb2ab64dbe70946f012c13f2bf1550c2aa71f631693628c1e09af3e
+        module_format_version: "0.4"
+        package_digest: sha256:0ef66e51aae530cfc64eef10c15922e45f75834902b8a5b2e142bb73d8927d39
         release: v0.3.0
     example/times-tables:
       "0.1.0":
@@ -55,7 +55,7 @@ index:
         release: v0.2.0
         teaches: [core.division-with-remainder, core.multiplication-table]
       "0.3.0":
-        module_format_version: "0.3"
-        package_digest: sha256:1bb0e4359d2dd75f2d1fc63e7159e20f2a66da0dfcf2819c2889cd3e28b30eeb
+        module_format_version: "0.4"
+        package_digest: sha256:3309736fa3d876fc5cf875dc84db84a4c25ad7bcf91d9382c381e0f3f8e507cf
         release: v0.3.0
         teaches: [core.division-with-remainder, core.multiplication-table]

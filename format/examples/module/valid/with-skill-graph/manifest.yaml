@@ -1,5 +1,5 @@
 # A module with a skill graph, at a version that retired a skill of an earlier one.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: example/with-skill-graph
 version: "2.0.0"
 title: A module with a skill graph

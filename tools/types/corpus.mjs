@@ -44,7 +44,7 @@ import { buildModel } from "./model.mjs";
 const FORMAT = "format";
 // The vectors whose folders hold a file of a schema's for each case, by folder; those of verdicts in
 // a folder for each check kind.
-const VECTOR_FILES = { leaks: "leak-vector", random: "random-vector", templates: "template-vector", tiers: "tier-vector" };
+const VECTOR_FILES = { leaks: "leak-vector", random: "random-vector", templates: "template-vector", tiers: "tier-vector", pages: "page-vector" };
 const VERDICTS = "verdicts";
 const VERDICT_VECTOR = "verdict-vector";
 // The vectors whose cases are folders: a module and its package, a release and its index.
@@ -95,6 +95,9 @@ export function corpusOf(root, model) {
     if (built.problem) problems.push(`${dir}: its canonical view cannot be built: run just format-check`);
     else add(`${dir} (its canonical view)`, CANONICAL_VIEW, built.view);
   };
+
+  // The numbers and widths of the workbook's page, the one value of page.schema.json (section 14).
+  if (fs.existsSync(path.join(root, FORMAT, "page.yaml"))) add(`${FORMAT}/page.yaml`, "page", read(`${FORMAT}/page.yaml`));
 
   for (const term of list(`${FORMAT}/examples`).map((entry) => entry.name)) {
     const dir = `${FORMAT}/examples/${term}/valid`;

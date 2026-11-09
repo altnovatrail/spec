@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { holdsForm, leakForm, leaksBefore, leaksOf, lessonLeaks, lessonTexts, needlesOf, numbersIn, textsShownBefore } from "../leaks.mjs";
+import { holdsForm, leakForm, leaksBefore, leaksOf, lessonLeaks, lessonTexts, needlesOf, numbersIn, textsShownBefore, timesIn } from "../leaks.mjs";
 
 const numbers = (text) => numbersIn(leakForm(text)).map(({ numerator, denominator }) => `${numerator}/${denominator}`);
 const holds = (text, phrase) => holdsForm(leakForm(text), leakForm(phrase));
@@ -28,6 +28,22 @@ test("a number begins at a digit that no letter, mark or digit stands before, an
   assert.deepEqual(numbers("x77"), []);
   assert.deepEqual(numbers("x7.5 v1/2 A4.7"), [], "the whole run of a token that is no number is passed over, its tail too");
   assert.deepEqual(numbers("a5-3"), ["3/1"], "a sign ends a run");
+});
+
+// R111, В29 modules: a key of a time is found by its hours and minutes.
+test("a time is a run of digits, : and digits that no letter, mark or digit stands right outside", () => {
+  assert.deepEqual(timesIn(leakForm("At 07:30, or 19:05; not 7:305x or x7:30 or 7:")), ["7:30", "19:5"]);
+  assert.deepEqual(timesIn(leakForm("12:00:30")), ["12:0"], "the search goes on after the run, and :30 begins at no digit");
+  // A run out of the notation of a time read is none: a score, a time of 007 hours, minutes 030.
+  assert.deepEqual(timesIn(leakForm("The score was 7:3, then 007:30 and 7:030; 10:100 is one")), ["10:100"]);
+  // A key that is no time, which only a task the schema refuses has, is searched for nowhere.
+  assert.deepEqual(needlesOf({ statement: [], items: [{ answer_slots: [{ binding: "anywhere", check: { kind: "time", key: "07:3" } }] }] }), []);
+  assert.deepEqual(timesIn(leakForm("7 : 30, 7.30")), []);
+  const task = { statement: [{ text: "When?" }], items: [{ answer_slots: [{ binding: "anywhere", check: { kind: "time", key: "7:30" } }] }] };
+  assert.deepEqual(leaksOf("It is 07:30.", task), ["7:30"]);
+  assert.deepEqual(leaksOf("It is 17:30, 7:31 or 7:30am.", task), []);
+  // The statement frees its own key, as it does a number's.
+  assert.deepEqual(needlesOf({ ...task, statement: [{ text: "It is 07:30 now. When?" }] }), []);
 });
 
 test("the longest of a simple fraction, a decimal and an integer", () => {
@@ -103,6 +119,22 @@ test("task.no-leaks searches the texts that the learner sees before the task is 
   assert.equal(leaksBefore(fixed, parts), true, "a rung template holds the leak phrase");
   const essay = { items: [{ answer_slots: [{ binding: "sheet", check: { kind: "rubric", criteria: [{ text: "A criterion." }] } }] }] };
   assert.deepEqual(textsShownBefore(essay, parts), [], "a task with no verdict shows no rung template");
+  // The leading question of the task, and the description of every solving step (R108; app В13).
+  const asked = { ...fixed, leading_question: "Is it 7?" };
+  assert.ok(textsShownBefore(asked).includes("Is it 7?"));
+  assert.equal(leaksBefore(asked), true, "a hint asked for gives the leading question before the first wrong answer");
+  const steps = { solvingSteps: { steps: [{ title: "Solve it", description: "Count all 7 rungs.", exit_condition: "none" }, { title: "Check", exit_condition: "none" }] } };
+  assert.ok(textsShownBefore(fixed, steps).includes("Count all 7 rungs."));
+  assert.equal(leaksBefore(fixed, steps), true, "a step's description is searched for the keys of every task");
+  // The title of a step is as open, and shown with every task, as its description is.
+  assert.equal(leaksBefore(fixed, { solvingSteps: { steps: [{ title: "Count up to 7", exit_condition: "none" }] } }), true);
+  // Of an instance of a template, the paths of the pictures of its statement and solution too (R108).
+  const pictured = { ...fixed, statement: [{ text: "How many rungs?" }, { picture: "pictures/ladder-of-7.png", alt: "A ladder.", width: 1, height: 1 }], solution: [{ picture: "pictures/ladder-of-8.png", alt: "", width: 1, height: 1 }] };
+  assert.ok(!textsShownBefore(pictured).includes("pictures/ladder-of-7.png"), "a task that is no template");
+  assert.ok(textsShownBefore(pictured, {}, true).includes("pictures/ladder-of-7.png"));
+  assert.ok(textsShownBefore(pictured, {}, true).includes("pictures/ladder-of-8.png"), "every picture of an instance is a file of the module");
+  assert.equal(leaksBefore(pictured), false);
+  assert.equal(leaksBefore(pictured, {}, true), true, "the instance's picture path holds the key 7");
 });
 
 test("lesson.no-leaks searches every text of a lesson for the keys of each task that it names", () => {
@@ -117,6 +149,9 @@ test("lesson.no-leaks searches every text of a lesson for the keys of each task 
     ],
   };
   assert.deepEqual(lessonTexts(lesson), ["Gaps and posts", "A fence has posts.", "A fence.", "A path of 20 m.", "4 gaps.", "5 lamps.", "Count the gaps first."]);
+  // The texts of a numbered list, in order, and none of the numbers that the app draws (R111).
+  const listed = { title: "Gaps", segments: [{ explanation: [{ text: "How to solve:" }, { numbered_list: ["Count the gaps.", "Add one post."] }] }] };
+  assert.deepEqual(lessonTexts(listed), ["Gaps", "How to solve:", "Count the gaps.", "Add one post."]);
   const keyed = (key, extra) => task([anywhere({ kind: "number", key })], extra);
   assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("7")]], ["camp", [keyed("9")]]])), false);
   assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("5")]]])), true, "the alt of a picture of the demo holds the key");
@@ -126,4 +161,33 @@ test("lesson.no-leaks searches every text of a lesson for the keys of each task 
   assert.equal(lessonLeaks(lesson, new Map([["ladder", [keyed("7"), keyed("5")]]])), true, "the key of any instance of a template");
   assert.equal(lessonLeaks(lesson, new Map([["ladder", []]])), false, "a template whose instances cannot be counted");
   assert.deepEqual(lessonTexts({ segments: [{ task: "ladder" }] }), [], "a lesson with no title and no texts");
+});
+
+// R111, В19 modules: a worked example on a workbook leaks where one of its lines solves a task's.
+test("lesson.no-leaks searches no number in the lines of a worked example on a workbook, and finds a line that solves a task's", () => {
+  const box = (key) => ({ binding: "box", check: { kind: "number", key } });
+  const workbookTask = (line) => ({ canvas: { kind: "workbook" }, statement: [{ text: "Write the quotient and the remainder." }], items: [{ line }] });
+  const taskLine = [{ text: "17 ÷ 5 =" }, box("3"), { text: "r" }, box("2")];
+  const tasks = new Map([["remainders", [workbookTask(taskLine)]]]);
+  const lessonOf = (line, kind = "workbook") => ({ title: "Remainders", segments: [{ worked_example: { statement: [{ text: "Share the apples." }], canvas: { kind }, lines: [{ line }], demo: [{ fill: { line: 1, box: 1 } }] } }, { task: "remainders" }] });
+  const exampleLine = (q, r, text = "17 ÷ 5 =") => [{ text }, { binding: "box", value: q }, { text: "r" }, { binding: "box", value: r }];
+  // Other numbers hold 3 and 2 and no leak: the lines are searched for no number.
+  assert.equal(lessonLeaks(lessonOf(exampleLine("5", "3", "23 ÷ 4 =")), tasks), false);
+  // The task's line with its keys, by value too, and in another white space.
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2")), tasks), true);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3.0", "2")), tasks), true);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2", "17  ÷  5 =")), tasks), true);
+  // One value off, a value out of notation, another piece, a line of another length: no leak.
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "1")), tasks), false);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("03", "2")), tasks), false);
+  assert.equal(lessonLeaks(lessonOf([{ binding: "box", value: "17" }, { binding: "box", value: "3" }, { text: "r" }, { binding: "box", value: "2" }]), tasks), false);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2").slice(0, 2)), tasks), false);
+  // A task on a sheet, and a predicate, which has no key, are solved by no line.
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2")), new Map([["remainders", [{ ...workbookTask(taskLine), canvas: { kind: "handwriting_sheet" } }]]])), false);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("3", "2")), new Map([["remainders", [workbookTask([{ text: "17 ÷ 5 =" }, { binding: "box", check: { kind: "predicate", predicate: "value == 3" } }, { text: "r" }, box("2")])]]])), false);
+  // A text piece of a line is searched for the task's leak phrases, though for no number.
+  const phrased = new Map([["remainders", [{ ...workbookTask(taskLine), leak_phrases: ["three left over"] }]]]);
+  assert.equal(lessonLeaks(lessonOf(exampleLine("5", "3", "23 ÷ 4 =")), phrased), false);
+  assert.equal(lessonLeaks(lessonOf([{ text: "with three left over:" }, { binding: "box", value: "5" }]), phrased), true);
+  assert.equal(lessonLeaks(lessonOf([{ text: "17 ÷ 5 = 3 r 2, and 23 ÷ 4 =" }, { binding: "box", value: "5" }]), tasks), false, "a number in a piece is no leak by the rule: the text says SHOULD NOT");
 });

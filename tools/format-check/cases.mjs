@@ -14,9 +14,10 @@ import { canonicalBytes, digestOf } from "./canonical.mjs";
 import { differenceOf, openViewOf } from "./openview.mjs";
 import { canonicalViewOf, memberOf, packageOf, tiersOf } from "./package.mjs";
 import { fragmentOf, isKebabCase } from "./schemas.mjs";
+import { fitsBox, hasPage, pageOf } from "./page.mjs";
 import { leaksBefore, leaksIn, lessonLeaks, needlesOf } from "./leaks.mjs";
 import { MAX_SIGNED, MAX_UNSIGNED, MIN_SIGNED, below, between, fraction, permutation, stateOf, streamOf } from "./random.mjs";
-import { instanceMaker, instanceShown, numbersShown, pickOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "./templates.mjs";
+import { holdsPlaceholder, instanceMaker, instanceShown, numbersShown, pickOf, resultsOf, solverInputsOf, templateOf, withoutResults } from "./templates.mjs";
 import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from "./verdicts.mjs";
 import { PACKAGE_FILES, VERSION_PART, VERSION_RULES, compareVersions, formatVersionCompare, isPackageFolder, packageFromFiles, placesOf, semverOf, shownAt } from "./versions.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
@@ -31,14 +32,17 @@ const TASK_PART = "task";
 // that an answer slot's check shows by itself (section 15), task.no-leaks (section 20), and the rules
 // of templates (section 23), which it checks with the others on every instance of a template. Not
 // task.template-solver: only module-kit runs a solver (section 24).
-const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.no-leaks", "task.template-names", "task.template-expressions", "task.placeholders", "task.template-instances", "task.instances"];
+const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.workbook-page", "task.no-leaks", "task.template-names", "task.template-expressions", "task.placeholders", "task.template-instances", "task.instances"];
 // The part of a lesson, and the rule of a lesson that format-check implements, with its leak check
 // (section 21). The rule spans a lesson and its tasks, so its cases are laid out as modules.
 const LESSON_PART = "lesson";
 export const LESSON_LEAKS = "lesson.no-leaks";
 // Every rule of a part that format-check implements: a case of one breaks it, and a case of any
 // other rule breaks none of them.
-const IMPLEMENTED_RULES = [...TASK_RULES, LESSON_LEAKS];
+// The rules of a lesson that format-check implements on a lesson's file alone: the boxes that the
+// demo of a worked example on a workbook fills, and the page of its lines (section 21).
+const LESSON_RULES = ["lesson.example-fills", "lesson.workbook-page"];
+const IMPLEMENTED_RULES = [...TASK_RULES, ...LESSON_RULES, LESSON_LEAKS];
 
 // What the text lists in its tables: the rows of each table whose first column is headed ID, each a
 // rule's ID, <part>.<name>, and its statement (section 7); and the rows of the table whose first
@@ -147,6 +151,7 @@ export function checkExample(bytes, { kind, term, validate, version }) {
   if (kind === "valid") {
     for (const error of errors) problems.push({ line: 0, message: `does not pass its schema: ${describe(error)}` });
     if (valid && term === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(value, {}, validate), null));
+    if (valid && term === LESSON_PART) problems.push(...taskRuleProblems(lessonRuleBreaches(value), null, LESSON_RULES));
     if (valid && term === INDEX_PART) for (const message of indexFormProblems(value, version)) problems.push({ line: 0, message });
     return problems;
   }
@@ -166,6 +171,7 @@ export function checkVector(bytes, { rule, validate, version }) {
   if (partOf(rule) !== "yaml") {
     const problems = partFileProblems(read, partOf(rule), { rule, validate, version });
     if (!problems.length && validate && partOf(rule) === TASK_PART) problems.push(...taskRuleProblems(taskRuleBreaches(read.value, {}, validate), rule));
+    if (!problems.length && validate && partOf(rule) === LESSON_PART && rule !== LESSON_LEAKS) problems.push(...taskRuleProblems(lessonRuleBreaches(read.value), rule, LESSON_RULES));
     return problems;
   }
   const problems = read.notYaml.map(({ line, message }) => ({ line, message: `not YAML: ${message}` }));
@@ -311,6 +317,9 @@ export function checkIndexVector(folder, { layout, validatorOf, version, forms, 
     for (const message of indexFormProblems(value[field], version, field === "previous")) problems.push({ file: INDEX_FILE, line: 0, message: `${field}: ${message}` });
   }
   if (problems.length || !built) return { problems, refusal: value.refusal };
+  // The form above holds the previous index to what the build reads: valid against the schema of the
+  // index, by the schema of index vectors, and of no later format version. So no vector fails a
+  // release (section 26).
   const { index, breaches } = indexOf({ version, previous: value.previous, packages, release: value.release, withdrawals: value.withdrawals });
   problems.push(...refusalProblems(breaches, value.refusal, INDEX_FILE, "the build"));
   const at = breaches.length || value.refusal !== undefined ? null : differenceOf(index, value.index);
@@ -451,12 +460,16 @@ function resultsGiven(members, view) {
   return results;
 }
 
+// The parts of a module beside its tasks whose texts task.no-leaks searches (section 20), as
+// textsShownBefore takes them: one place, so that both callers pass the same.
+const leakPartsOf = (manifest, traps, techniques, solvingSteps) => ({ manifest, traps, techniques, solvingSteps });
+
 // The rules of a task that format-check implements, on every instance of each template with a solver,
 // filled with the results that a vector of packages gives: they make the instances that module-kit
 // checks, as the results of an attempt of a vector of templates do (section 24).
 function solvedProblems(members, instances = {}) {
   const problems = [];
-  const parts = { manifest: members.manifest, traps: members.traps, techniques: members.techniques };
+  const parts = leakPartsOf(members.manifest, members.traps, members.techniques, members.solving_steps);
   for (const [id, task] of Object.entries(members.tasks ?? {})) {
     if (!resultsOf(task).length) continue;
     const make = instanceMaker(task);
@@ -481,6 +494,69 @@ export function checkTierVector(bytes, { validate }) {
   if (at) problems.push({ line: 0, message: `the tiers are not those of section 12: they differ at ${fragmentOf(["skill_tiers", ...at])}` });
   return problems;
 }
+
+// format/page.yaml (section 14): the YAML rules and its schema, by validate. { problems, value }.
+export function checkPageFile(bytes, { validate }) {
+  return vectorStart(bytes, validate, "the page");
+}
+
+// A vector of the page (section 9): the YAML rules, the schema of such vectors, by validate, and the
+// page that section 14 lays out of its items, or the item at whose row it has no room.
+export function checkPageVector(bytes, { validate }) {
+  const { problems, value } = vectorStart(bytes, validate, "page vectors");
+  if (!value) return problems;
+  const { page, noRoomAt } = pageOf(value.items);
+  if (value.no_room_at !== undefined || noRoomAt !== undefined) {
+    if (value.no_room_at !== noRoomAt) problems.push({ line: 0, message: `the page has no room at item ${noRoomAt ?? "none"}, from 0, and the vector says ${value.no_room_at ?? "none"}` });
+    return problems;
+  }
+  const at = differenceOf({ page: page.items, bottom: page.bottom }, { page: value.page, bottom: value.bottom });
+  if (at) problems.push({ line: 0, message: `the page is not the one that section 14 lays out: they differ at ${fragmentOf(at)}` });
+  return problems;
+}
+
+// The rules of a lesson that format-check implements on its file alone (section 21), a Map from each
+// that it breaks to a detail: on a worked example on a workbook, every fill of its demo names a box
+// of its lines, and fills each box once (lesson.example-fills); and its lines fit the page as a
+// task's do (lesson.workbook-page).
+export function lessonRuleBreaches(lesson) {
+  const breaches = new Map();
+  for (const [at, segment] of (lesson.segments ?? []).entries()) {
+    const example = segment.worked_example;
+    if (example?.canvas?.kind !== "workbook" || !Array.isArray(example.lines)) continue;
+    const set = (rule, detail) => breaches.has(rule) || breaches.set(rule, `#/segments/${at}: ${detail}`);
+    const boxes = example.lines.map(({ line }) => line.filter((part) => part.binding !== undefined).length);
+    const filled = boxes.map((count) => new Array(count).fill(0));
+    for (const part of example.demo ?? []) {
+      if (!part.fill) continue;
+      const { line, box } = part.fill;
+      if (line > boxes.length || box > boxes[line - 1]) set("lesson.example-fills", `a fill names box ${box} of line ${line}, which the example has not`);
+      else filled[line - 1][box - 1]++;
+    }
+    for (const [n, counts] of filled.entries()) {
+      const box = counts.findIndex((count) => count !== 1);
+      if (box >= 0) set("lesson.example-fills", `box ${box + 1} of line ${n + 1} is filled ${counts[box]} times, and the demo fills each box once`);
+    }
+    if (!hasPage()) continue;
+    const noRoomAt = noRoomOf(example.lines);
+    if (noRoomAt !== undefined) set("lesson.workbook-page", `line ${noRoomAt + 1} of the example has no room on the page`);
+    const wide = example.lines.flatMap(({ line }) => line).find((part) => part.binding !== undefined && !fitsBox(part.value));
+    if (wide) set("lesson.workbook-page", `the value ${JSON.stringify(wide.value)} is wider than its box`);
+  }
+  return breaches;
+}
+
+// The breach of task.workbook-page by a task on a workbook, a detail, or null: its lines do not fit
+// the page as section 14 lays them out, by format/page.yaml. None without the file.
+function pageBreach(task) {
+  if (task.canvas?.kind !== "workbook" || !hasPage() || !Array.isArray(task.items)) return null;
+  const noRoomAt = noRoomOf(task.items);
+  return noRoomAt === undefined ? null : `#/items/${noRoomAt}: no room on the page for its row`;
+}
+
+// The line, from 0, at whose row the page of lines has no room, or undefined: one place for a task's
+// items and a worked example's lines, which section 14 lays out alike.
+const noRoomOf = (lines) => pageOf(lines).noRoomAt;
 
 // The digest of an open view, as a sample of the eval protocol names it: sha256: and the SHA-256 of
 // its canonical text (section 25; contracts/README.md, section 11).
@@ -740,7 +816,13 @@ const taskRuleBreaches = (task, parts = {}, validateTask = undefined) => expande
 // instances, which are its tasks: each passes the task's schema by validateTask, when it is given,
 // and is checked as a task (section 23). counted is the template's instances, when they are known.
 function expandedOf(task, parts, validateTask, counted = undefined) {
-  if (task.template === undefined) return { breaches: plainBreaches(task, parts), tasks: [task] };
+  if (task.template === undefined) {
+    const breaches = plainBreaches(task, parts);
+    // A picture path holds a placeholder only in a template (section 23; R108).
+    const pictures = [...(task.statement ?? []), ...(task.solution ?? [])].map((part) => part.picture);
+    if (pictures.some(holdsPlaceholder)) breaches.set("task.placeholders", "a picture path holds a brace, and only a template's holds placeholders");
+    return { breaches, tasks: [task] };
+  }
   const { breaches, instances } = counted ?? templateOf(task);
   const tasks = [];
   if (!instances) return { breaches, tasks };
@@ -761,26 +843,29 @@ function expandedOf(task, parts, validateTask, counted = undefined) {
     }
     const instance = unsolved ? known(made) : made;
     tasks.push(instance);
-    for (const [rule, detail] of plainBreaches(instance, parts, unsolved)) add(rule, detail);
+    for (const [rule, detail] of plainBreaches(instance, parts, unsolved, true)) add(rule, detail);
   }
   return { breaches, tasks };
 }
 
 // The same for a task that is no template, or for an instance, which is unsolved when the results of
-// its solver are not known.
-function plainBreaches(task, parts, unsolved = false) {
+// its solver are not known; task.no-leaks searches an instance's picture paths too (R108).
+function plainBreaches(task, parts, unsolved = false, instance = false) {
   const breaches = new Map((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap((slot) => slotBreaches(slot, unsolved))).map((rule) => [rule, null]));
-  if (leaksBefore(task, parts)) breaches.set("task.no-leaks", null);
+  if (leaksBefore(task, parts, instance)) breaches.set("task.no-leaks", null);
+  const page = pageBreach(task);
+  if (page) breaches.set("task.workbook-page", page);
   return breaches;
 }
 
 const sortedBreaches = (breaches) => [...breaches].sort(([a], [b]) => byCodeUnits(a, b));
 const breachShown = (breach, detail, too) => `breaks ${breach}${too ? " too" : ""}${detail ? `, ${detail}` : ""}`;
 
-// What a task's breaches are in a vector of rule: it breaks its rule, if format-check implements
-// it, and no other that format-check implements; outside a vector of one, none.
-function taskRuleProblems(breaches, rule) {
-  const own = TASK_RULES.includes(rule) ? rule : null;
+// What a task's breaches are in a vector of rule — or a lesson's, with the rules of a lesson —: it
+// breaks its rule, if format-check implements it, and no other that format-check implements;
+// outside a vector of one, none.
+function taskRuleProblems(breaches, rule, rules = TASK_RULES) {
+  const own = rules.includes(rule) ? rule : null;
   const problems = sortedBreaches(breaches)
     .filter(([breach]) => breach !== own)
     .map(([breach, detail]) => ({ line: 0, message: breachShown(breach, detail, own !== null) }));
@@ -789,14 +874,15 @@ function taskRuleProblems(breaches, rule) {
 }
 
 // The same for the tasks and the lessons of a case laid out as a module, with its manifest, its trap
-// catalog and its technique catalog: one of them breaks the rule of the case.
-function moduleRuleProblems({ tasks, lessons, manifest, traps, techniques }, rule, validateTask) {
+// catalog, its technique catalog and its solving steps: one of them breaks the rule of the case.
+function moduleRuleProblems({ tasks, lessons, manifest, traps, techniques, "solving-steps": solvingSteps }, rule, validateTask) {
   const own = IMPLEMENTED_RULES.includes(rule) ? rule : null;
-  const expanded = tasks.map(({ file, id, task }) => ({ file, id, ...expandedOf(task, { manifest, traps, techniques }, validateTask) }));
+  const parts = leakPartsOf(manifest, traps, techniques, solvingSteps);
+  const expanded = tasks.map(({ file, id, task }) => ({ file, id, ...expandedOf(task, parts, validateTask) }));
   const byId = new Map(expanded.map(({ id, tasks: theirs }) => [id, theirs]));
   const files = [
     ...expanded.map(({ file, breaches }) => ({ file, breaches })),
-    ...lessons.map(({ file, lesson }) => ({ file, breaches: new Map(lessonLeaks(lesson, byId) ? [[LESSON_LEAKS, null]] : []) })),
+    ...lessons.map(({ file, lesson }) => ({ file, breaches: new Map([...lessonRuleBreaches(lesson), ...(lessonLeaks(lesson, byId) ? [[LESSON_LEAKS, null]] : [])]) })),
   ];
   const problems = [];
   let ownBroken = false;

@@ -1,23 +1,23 @@
 # error: enum at #/modules/example~1smallest/0.1.0/withdrawn
 # A version is withdrawn for one of the reasons that the format names; a reason for widgets comes
 # with a minor version.
-module_format_version: "0.3"
+module_format_version: "0.4"
 modules:
   example/smallest:
     "0.1.0":
-      module_format_version: "0.3"
+      module_format_version: "0.4"
       package_digest: sha256:fcbe6e68430776b0506c93ab51b155f8e7f92e2b3ecbe03e34e2afb91b4d4d08
       release: v0.1.0
       withdrawn: broken_widget
   example/times-tables:
     "0.1.0":
-      module_format_version: "0.3"
+      module_format_version: "0.4"
       package_digest: sha256:860ba9ff55af668cb068de2cb8b6e99d86f8739ed40e00d3c40bba34d71f7555
       release: v0.1.0
       teaches: [core.division-with-remainder, core.multiplication-table]
       withdrawn: wrong_key
     "0.2.0":
-      module_format_version: "0.3"
+      module_format_version: "0.4"
       package_digest: sha256:8b645240171d4e82b3411ce4f09ed0cc13d7c995e4fdb303b719d6837fb993b1
       release: v0.2.0
       teaches: [core.division-with-remainder, core.multiplication-table]

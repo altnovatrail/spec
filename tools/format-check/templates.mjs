@@ -16,19 +16,21 @@ const LIMIT = 2n ** 53n - 1n;
 const PLACE_FIRST = "template";
 const PLACE_LAST = "instance";
 
-// Whether a key or a trap value of a number or a fraction holds a placeholder: its schema takes a
-// brace only in one.
+// Whether a key or a trap value of a number or a fraction, or a picture path, holds a placeholder:
+// their schemas take a brace only in one.
 export const holdsPlaceholder = (text) => typeof text === "string" && text.includes("{");
 
 // The names of the results of a template's solver: none when it has no solver (section 24).
 export const resultsOf = (task) => task.template?.solver?.results ?? [];
 
 // Where a result of the solver may stand (section 24): in the key or a trap value of a check of a
-// number or a fraction, in the solution and in a leak phrase. at is the path of keys to a string of
-// the task, as stringsOf gives it.
+// number or a fraction, in the text of the solution and in a leak phrase, but in no picture path,
+// which is open (section 23; R108). at is the path of keys to a string of the task, as stringsOf
+// gives it.
 function takesResults(task, at) {
   const [field, , list, , part, which, , inner] = at;
-  if (field === "solution" || field === "leak_phrases") return true;
+  if (field === "solution") return at[2] !== "picture";
+  if (field === "leak_phrases") return true;
   if (field !== "items" || part !== "check" || (list !== "answer_slots" && list !== "line")) return false;
   const { kind } = task.items[at[1]][list][at[3]].check;
   if (kind !== "number" && kind !== "fraction") return false;
@@ -136,7 +138,7 @@ function countedOf(task) {
     const result = named.find((name) => results.has(name) && !Object.hasOwn(parameters, name) && !Object.hasOwn(derived, name));
     if (problem) breach("task.placeholders", `${pathShown(at)}: ${problem}`);
     else if (unknown) breach("task.placeholders", `${pathShown(at)}: {${unknown}} names no parameter, derived number or result of the solver`);
-    else if (result && !takesResults(task, at)) breach("task.placeholders", `${pathShown(at)}: {${result}} is a result of the solver, which stands only in a key or a trap value of a number or a fraction, in the solution and in a leak phrase`);
+    else if (result && !takesResults(task, at)) breach("task.placeholders", `${pathShown(at)}: {${result}} is a result of the solver, which stands only in a key or a trap value of a number or a fraction, in the text of the solution and in a leak phrase, and in no picture path`);
   }
   if (breaches.size) return { breaches, instances: null };
 

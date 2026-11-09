@@ -1,0 +1,72 @@
+# A line does not start with a closing mark nor end with an opening one, and a box holds on to the
+# word after it: «.» after a box, «(» before one, and a piece of «.» after a piece of text. From
+# canvas's vectors/pages.json at its commit 73807f2.
+items:
+  - line:
+      - text: "He has"
+      - binding: "box"
+      - text: "."
+  - line:
+      - text: "("
+      - binding: "box"
+      - text: ")"
+  - line:
+      - text: "apples"
+      - text: "."
+      - binding: "box"
+bottom: 272
+page:
+  - number:
+      text: "1."
+      left: 56
+      baseline: 100
+      width: 24
+    line:
+      - text: "He has"
+        left: 96
+        baseline: 100
+        width: 89
+      - left: 201
+        top: 40
+        width: 100
+        height: 100
+      - text: "."
+        left: 317
+        baseline: 100
+        width: 8
+  - number:
+      text: "2."
+      left: 536
+      baseline: 100
+      width: 24
+    line:
+      - text: "("
+        left: 576
+        baseline: 100
+        width: 10
+      - left: 602
+        top: 40
+        width: 100
+        height: 100
+      - text: ")"
+        left: 718
+        baseline: 100
+        width: 10
+  - number:
+      text: "3."
+      left: 56
+      baseline: 232
+      width: 24
+    line:
+      - text: "apples"
+        left: 96
+        baseline: 232
+        width: 83
+      - text: "."
+        left: 179
+        baseline: 232
+        width: 8
+      - left: 203
+        top: 172
+        width: 100
+        height: 100

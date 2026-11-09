@@ -1,0 +1,231 @@
+{
+  "items": [
+    {
+      "line": [
+        {
+          "text": "ё = ё"
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "三 + 四 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "🍎 × 3 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "👨‍👩‍👧 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "🇺🇦"
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "π ≈"
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "שלום"
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    }
+  ],
+  "bottom": 536,
+  "page": [
+    {
+      "number": {
+        "text": "1.",
+        "left": 56,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "ё = ё",
+          "left": 96,
+          "baseline": 100,
+          "width": 63
+        },
+        {
+          "left": 175,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "2.",
+        "left": 536,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "三 + 四 =",
+          "left": 576,
+          "baseline": 100,
+          "width": 117
+        },
+        {
+          "left": 709,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "3.",
+        "left": 56,
+        "baseline": 232,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "🍎 × 3 =",
+          "left": 96,
+          "baseline": 232,
+          "width": 103
+        },
+        {
+          "left": 215,
+          "top": 172,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "4.",
+        "left": 536,
+        "baseline": 232,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "👨‍👩‍👧 =",
+          "left": 576,
+          "baseline": 232,
+          "width": 55
+        },
+        {
+          "left": 647,
+          "top": 172,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "5.",
+        "left": 56,
+        "baseline": 364,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "🇺🇦",
+          "left": 96,
+          "baseline": 364,
+          "width": 30
+        },
+        {
+          "left": 142,
+          "top": 304,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "6.",
+        "left": 536,
+        "baseline": 364,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "π ≈",
+          "left": 576,
+          "baseline": 364,
+          "width": 43
+        },
+        {
+          "left": 635,
+          "top": 304,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "7.",
+        "left": 56,
+        "baseline": 496,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "שלום",
+          "left": 96,
+          "baseline": 496,
+          "width": 72
+        },
+        {
+          "left": 184,
+          "top": 436,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ENTRIES_KEPT, KNOWN_WITHDRAWALS, ONE_PACKAGE, VERSION_ABOVE, entryOf, indexFormProblems, indexOf, teachesOf } from "../index.mjs";
+import { ENTRIES_KEPT, KNOWN_WITHDRAWALS, ONE_PACKAGE, VERSION_ABOVE, entryOf, indexFormProblems, indexOf, teachesOf, unreadablePrevious } from "../index.mjs";
 
 const skill = (teaches) => (teaches ? { title: "A skill", assessability: "verdict", teaches } : { title: "A skill", assessability: "verdict" });
 // A package as packageOf builds it, as far as the index reads it.
@@ -81,6 +81,30 @@ test("an index names the format version in VERSION, its previous one no later, a
   assert.deepEqual(indexFormProblems({ module_format_version: "1.0", modules: {} }, "1.1", true), []);
   assert.deepEqual(indexFormProblems({ module_format_version: "1.1", modules: {} }, "1.0", true), ["the index names the format version 1.1, newer than 1.0, which format/VERSION has"]);
   assert.deepEqual(indexFormProblems({ module_format_version: "2.0", modules: {} }, "1.3", true), ["the index names the format version 2.0, newer than 1.3, which format/VERSION has"]);
+});
+
+// R102, В31 module-kit: a release whose previous index the build cannot read fails, by no rule.
+test("the build reads no previous index of a later format version, nor one that the schema of its own refuses", () => {
+  const packages = [built("example/a", "0.2.0", B)];
+  const previous = (version, extra = {}) => ({ module_format_version: version, modules: { "example/a": { "0.1.0": { module_format_version: "0.1", package_digest: A, release: "v0.1.0" } } }, ...extra });
+  // The schema of the module index, as far as these cases need: no member it does not know.
+  const validate = (index) => Object.keys(index).every((member) => member === "module_format_version" || member === "modules");
+  for (const version of ["0.2", "1.0"]) {
+    const { index, breaches, failure } = indexOf({ version: "0.1", previous: previous(version), packages, release: "v0.2.0", validate });
+    assert.equal(index, undefined);
+    assert.deepEqual(breaches, []);
+    assert.equal(failure, `the previous index was built by the format version ${version}, later than 0.1, by which the release builds`);
+  }
+  // The version comes first: an index of a later version is named so, not by what that version added.
+  assert.match(unreadablePrevious(previous("0.2", { registry: {} }), "0.1", validate), /format version 0\.2, later than 0\.1/);
+  assert.equal(unreadablePrevious(previous("0.1", { registry: {} }), "0.1", validate), "the previous index is not valid against the schema of the module index of the format version 0.1");
+  assert.equal(indexOf({ version: "0.1", previous: previous("0.1", { registry: {} }), packages, release: "v0.2.0", validate }).index, undefined);
+  // The same version, or an earlier one, that the schema takes, is read.
+  for (const [version, built] of [["0.1", "0.1"], ["0.1", "0.2"], ["0.9", "1.0"]]) assert.equal(unreadablePrevious(previous(version), built, validate), undefined, `${version} by ${built}`);
+  assert.deepEqual(indexOf({ version: "0.2", previous: previous("0.1"), packages, release: "v0.2.0", validate }).breaches, []);
+  // With format/VERSION unread, no version is later: the missing VERSION is the error, not this.
+  assert.equal(unreadablePrevious(previous("0.3"), null), undefined);
+  assert.deepEqual(indexFormProblems(previous("0.3"), null, true), []);
 });
 
 test("a version new in the release stands above every version of its module in the previous index, withdrawn ones too", () => {

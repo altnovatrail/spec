@@ -1,0 +1,29 @@
+# The path of the statement's picture holds {each}, the key of every instance: the learner's app
+# fetches pictures/apples-in-rows-of-3.png, and its name gives the answer away before the task is
+# solved.
+id: key-in-the-picture-path-of-an-instance
+template:
+  parameters:
+    total: {from: 6, to: 8}
+    rows: {from: 2, to: 3}
+  derived:
+    each: total // rows
+  constraint: total % rows == 0
+statement:
+  - text: The apples lie in equal rows. How many apples are in each row?
+  - picture: pictures/apples-in-rows-of-{each}.png
+    alt: Apples in equal rows
+    width: 320
+    height: 160
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "{each}"}
+solution:
+  - text: "{total} ÷ {rows} = {each}: each row has {each} apples."
+skills:
+  primary: [equal-sharing]
+band: grade-3
+difficulty: 1

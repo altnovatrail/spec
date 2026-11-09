@@ -144,13 +144,28 @@ test("yaml.characters: no surrogate, no noncharacter, no \\/", () => {
   assert.deepEqual(rulesOf('a: "\\\\/"\nb: "\\u00e9 \\U0001F600"\n'), []);
 });
 
-test("not YAML: a syntax error, or a character YAML does not allow", () => {
-  for (const source of ["a: [\n", "a: \"x\u0001y\"\n", "a: 1 # \u0002\n", [...Buffer.from("a: x"), 0xef, 0xbf, 0xbe, 0x0a], "a: 1\n b: 2\n"]) {
+test("not YAML: a syntax error", () => {
+  for (const source of ["a: [\n", "a: 1\n b: 2\n"]) {
     const { value, notYaml } = read(source);
     assert.ok(notYaml.length > 0, JSON.stringify(source));
     assert.equal(value, undefined);
   }
-  assert.equal(read("a: 1\nb: \u0001\n").notYaml[0].line, 2);
+});
+
+// R102, В20 module-kit: YAML 1.2.2 takes in quotes any character but C0, and the format does not.
+test("yaml.printable: a character outside YAML's printable set, in quotes and in a comment too", () => {
+  for (const source of ['a: "x\u0001y"\n', "a: 'x\u0080y'\n", "a: 1 # \u0002\n", "a: 1 # \u007f\n", "a: x\u009fy\n"]) {
+    assert.deepEqual(rulesOf(source), ["yaml.printable"], JSON.stringify(source));
+    assert.equal(read(source).value, undefined);
+  }
+  // U+FFFE written is outside the set, and a file with one is read no further: so it breaks no
+  // yaml.characters too, nor any other rule after it.
+  assert.deepEqual(rulesOf([...Buffer.from("a: x"), 0xef, 0xbf, 0xbe, 0x0a]), ["yaml.printable"]);
+  assert.deepEqual(rulesOf("a: yes\nb: \u0001\n"), ["yaml.printable"]);
+  assert.match(read("a: 1\nb: \u0001\n").violations[0].message, /^U\+0001: /);
+  assert.equal(read("a: 1\nb: \u0001\n").violations[0].line, 2);
+  // What the set holds, and an escape, which is no character of the file.
+  assert.deepEqual(rulesOf('a: "\t \u0085 \u00a0 \ud7ff \ue000 \ufffd \u{10000}"\nb: "\\a \\x7f \\u0080"\n'), []);
 });
 
 test("a file that breaks a rule gives no value", () => {
@@ -177,7 +192,7 @@ test("a line break is CR LF, CR or LF, and each reads as LF (YAML 1.2.2, 5.4)", 
   // A CR is a line break, so "y" begins a line of its own, and a key with no ":" is no YAML.
   assert.ok(read("a: x\ry\n").notYaml.length > 0);
   // Lines are counted by CR too: of a character, and of a byte that is not UTF-8.
-  assert.equal(read("a: 1\rb: \u0001\r").notYaml[0].line, 2);
+  assert.equal(read("a: 1\rb: \u0001\r").violations[0].line, 2);
   assert.equal(read([...Buffer.from("a: 1\rb: 2\r\nc: \"x"), 0xff, ...Buffer.from('"\r')]).violations[0].line, 3);
 });
 

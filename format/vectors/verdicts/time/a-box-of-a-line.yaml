@@ -1,0 +1,20 @@
+# A time in a box of a workbook line: 07:30 is the key 7:30, and 19:30 is another time, since hours
+# count to 24 and no parameter reads 12-hour times.
+item:
+  line:
+    - text: "Half an hour after 7:00 it is"
+    - binding: box
+      check: {kind: time, key: "7:30"}
+readings:
+  - answer_slots:
+      - {value: "7:30", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "07:30", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "19:30", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "7:3", verdict: unreadable, reason: notation}
+    verdict: unreadable

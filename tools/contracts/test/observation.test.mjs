@@ -65,7 +65,7 @@ test("what the vectors lack together is found, once each holds", () => {
   const { errors } = checkVectors(root, image, [`${FOLDER}/essay.json`]);
   const messages = errors.map((error) => error.message);
   for (const name of ["UNREADABLE_BLANK", "UNREADABLE_ILLEGIBLE", "UNREADABLE_AMBIGUOUS", "UNREADABLE_NO_FINAL_ANSWER", "UNREADABLE_SEVERAL_FINAL_ANSWERS"]) assert.ok(messages.some((message) => message.includes(`joins into ${name}`)), name);
-  for (const kind of ["number", "fraction", "choice", "predicate"]) assert.ok(messages.some((message) => message.includes(`checked by ${kind}`)), kind);
+  for (const kind of ["number", "fraction", "choice", "time", "predicate"]) assert.ok(messages.some((message) => message.includes(`checked by ${kind}`)), kind);
   assert.ok(!messages.some((message) => message.includes("checked by rubric")));
   assert.ok(!messages.some((message) => message.includes("not valid")), "the essay has an observation that is not valid");
   assert.ok(messages.some((message) => message.includes("taps an option")));

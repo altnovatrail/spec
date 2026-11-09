@@ -1,0 +1,24 @@
+# The demo fills a third box of the line, which has two.
+id: remainders
+title: Remainders
+skills: [counting-gaps]
+segments:
+  - worked_example:
+      statement:
+        - text: Share the apples into equal heaps, and say how many are left over.
+      canvas:
+        kind: workbook
+      lines:
+        - line:
+            - text: "23 ÷ 4 ="
+            - binding: box
+              value: "5"
+            - text: r
+            - binding: box
+              value: "3"
+      demo:
+        - text: Take the largest number of heaps that fit, then count what is left.
+        - fill: {line: 1, box: 1}
+        - fill: {line: 1, box: 2}
+        - fill: {line: 1, box: 3}
+  - task: remainders-1

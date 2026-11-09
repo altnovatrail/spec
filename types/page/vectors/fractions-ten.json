@@ -1,0 +1,345 @@
+{
+  "items": [
+    {
+      "line": [
+        {
+          "text": "1/2 + 1/4 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "3/4 − 1/4 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "2/3 + 1/3 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "3/5 + 1/5 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "5/8 − 3/8 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "1/3 + 1/6 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "2/5"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "3/5"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "1/4 + 1/4 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "7/10 − 3/10 ="
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "1/2"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "2/4"
+        }
+      ]
+    }
+  ],
+  "bottom": 668,
+  "page": [
+    {
+      "number": {
+        "text": "1.",
+        "left": 56,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "1/2 + 1/4 =",
+          "left": 96,
+          "baseline": 100,
+          "width": 138
+        },
+        {
+          "left": 250,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "2.",
+        "left": 536,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "3/4 − 1/4 =",
+          "left": 576,
+          "baseline": 100,
+          "width": 138
+        },
+        {
+          "left": 730,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "3.",
+        "left": 56,
+        "baseline": 232,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "2/3 + 1/3 =",
+          "left": 96,
+          "baseline": 232,
+          "width": 138
+        },
+        {
+          "left": 250,
+          "top": 172,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "4.",
+        "left": 536,
+        "baseline": 232,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "3/5 + 1/5 =",
+          "left": 576,
+          "baseline": 232,
+          "width": 138
+        },
+        {
+          "left": 730,
+          "top": 172,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "5.",
+        "left": 56,
+        "baseline": 364,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "5/8 − 3/8 =",
+          "left": 96,
+          "baseline": 364,
+          "width": 138
+        },
+        {
+          "left": 250,
+          "top": 304,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "6.",
+        "left": 536,
+        "baseline": 364,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "1/3 + 1/6 =",
+          "left": 576,
+          "baseline": 364,
+          "width": 138
+        },
+        {
+          "left": 730,
+          "top": 304,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "7.",
+        "left": 56,
+        "baseline": 496,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "2/5",
+          "left": 96,
+          "baseline": 496,
+          "width": 41
+        },
+        {
+          "left": 153,
+          "top": 436,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "3/5",
+          "left": 269,
+          "baseline": 496,
+          "width": 41
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "8.",
+        "left": 536,
+        "baseline": 496,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "1/4 + 1/4 =",
+          "left": 576,
+          "baseline": 496,
+          "width": 138
+        },
+        {
+          "left": 730,
+          "top": 436,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "9.",
+        "left": 56,
+        "baseline": 628,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "7/10 − 3/10 =",
+          "left": 96,
+          "baseline": 628,
+          "width": 170
+        },
+        {
+          "left": 282,
+          "top": 568,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "10.",
+        "left": 520,
+        "baseline": 628,
+        "width": 40
+      },
+      "line": [
+        {
+          "text": "1/2",
+          "left": 576,
+          "baseline": 628,
+          "width": 41
+        },
+        {
+          "left": 633,
+          "top": 568,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "2/4",
+          "left": 749,
+          "baseline": 628,
+          "width": 41
+        }
+      ]
+    }
+  ]
+}

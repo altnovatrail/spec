@@ -1,0 +1,8 @@
+# A solving step whose description holds 56, the key of a task of the module: every task goes
+# through the step, so its description is searched for the keys of every task.
+steps:
+  - title: Understand the task
+    exit_condition: none
+  - title: Solve it
+    description: "Count up in sevens: 7, 14, 21, 28, 35, 42, 49, 56."
+    exit_condition: answer_slots_filled

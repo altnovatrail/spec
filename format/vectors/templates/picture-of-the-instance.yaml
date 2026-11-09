@@ -1,0 +1,126 @@
+# Placeholders of parameters stand in the path of a picture of the statement, and every instance
+# names its own file: the path is open, so it holds no result of a solver, and task.no-leaks searches
+# it for the instance's keys. The seeds pick each of the three instances.
+task:
+  id: apples-in-rows
+  template:
+    parameters:
+      total:
+        from: 6
+        to: 8
+      rows:
+        from: 2
+        to: 3
+    derived:
+      each: total // rows
+    constraint: total % rows == 0
+  statement:
+    - text: The apples lie in equal rows. How many apples are in each row?
+    - picture: pictures/apples-{total}-in-{rows}-rows.png
+      alt: Apples, {total} of them, in {rows} equal rows
+      width: 320
+      height: 160
+  canvas:
+    kind: handwriting_sheet
+  items:
+    - answer_slots:
+        - binding: anywhere
+          check:
+            kind: number
+            key: "{each}"
+  solution:
+    - text: "{total} ÷ {rows} = {each}: each row has {each} apples."
+  skills:
+    primary:
+      - equal-sharing
+  band: grade-3
+  difficulty: 1
+count: 3
+attempts:
+  - seed: "0"
+    numbers:
+      rows: 2
+      total: 6
+      each: 3
+    open_view_digest: sha256:85c723826fc12544f058b58c19b009abce667702478aa9c06bf171ebb939eb5a
+    instance:
+      id: apples-in-rows
+      statement:
+        - text: The apples lie in equal rows. How many apples are in each row?
+        - picture: pictures/apples-6-in-2-rows.png
+          alt: Apples, 6 of them, in 2 equal rows
+          width: 320
+          height: 160
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "3"
+      solution:
+        - text: "6 ÷ 2 = 3: each row has 3 apples."
+      skills:
+        primary:
+          - equal-sharing
+      band: grade-3
+      difficulty: 1
+  - seed: "2"
+    numbers:
+      rows: 2
+      total: 8
+      each: 4
+    open_view_digest: sha256:7080c29f933d7524cab689b804146e72962cc16d6430efffbf3d8b94db6871ce
+    instance:
+      id: apples-in-rows
+      statement:
+        - text: The apples lie in equal rows. How many apples are in each row?
+        - picture: pictures/apples-8-in-2-rows.png
+          alt: Apples, 8 of them, in 2 equal rows
+          width: 320
+          height: 160
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "4"
+      solution:
+        - text: "8 ÷ 2 = 4: each row has 4 apples."
+      skills:
+        primary:
+          - equal-sharing
+      band: grade-3
+      difficulty: 1
+  - seed: "5"
+    numbers:
+      rows: 3
+      total: 6
+      each: 2
+    open_view_digest: sha256:f5d195cf9da19d87de2ac5c79f9606399bd1017992185e60c2168df690e5fc41
+    instance:
+      id: apples-in-rows
+      statement:
+        - text: The apples lie in equal rows. How many apples are in each row?
+        - picture: pictures/apples-6-in-3-rows.png
+          alt: Apples, 6 of them, in 3 equal rows
+          width: 320
+          height: 160
+      canvas:
+        kind: handwriting_sheet
+      items:
+        - answer_slots:
+            - binding: anywhere
+              check:
+                kind: number
+                key: "2"
+      solution:
+        - text: "6 ÷ 3 = 2: each row has 2 apples."
+      skills:
+        primary:
+          - equal-sharing
+      band: grade-3
+      difficulty: 1

@@ -72,7 +72,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { INDEX_FILE, INDEX_MODULES, LESSON_LEAKS, PACKAGE_FILE, PACKAGE_MODULE, VERSION_FILE, VERSION_MODULE, VERSION_PUBLISHED, checkExample, checkIndexVector, checkVersionVector, checkLeakVector, checkModuleCase, checkOpenView, checkPackageVector, checkRandomVector, checkTemplateVector, checkTierVector, DIGEST_FILE, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { INDEX_FILE, INDEX_MODULES, LESSON_LEAKS, PACKAGE_FILE, PACKAGE_MODULE, VERSION_FILE, VERSION_MODULE, VERSION_PUBLISHED, checkExample, checkIndexVector, checkVersionVector, checkLeakVector, checkModuleCase, checkOpenView, checkPackageVector, checkRandomVector, checkTemplateVector, checkTierVector, checkPageFile, checkPageVector, DIGEST_FILE, checkVector, checkVerdictVector, compareOwnRules, isRuleId, partOf, readText } from "./cases.mjs";
+import { hasPage, usePage } from "./page.mjs";
 import { INDEX_PART } from "./index.mjs";
 import { listFolder, readLayout } from "./module.mjs";
 import { checkConventions, compileSchemas, fragmentOf, isKebabCase, isSchemaName, readSchema } from "./schemas.mjs";
@@ -103,6 +104,12 @@ const TEMPLATE_VECTOR = "template-vector";
 // The vectors of tiers (section 12), and their schema.
 const TIERS = "tiers";
 const TIER_VECTOR = "tier-vector";
+// The numbers and widths of the workbook's page, format/page.yaml, and its schema; and the vectors
+// of the page (section 14), and theirs.
+const PAGE_FILE = "format/page.yaml";
+const PAGE = "page";
+const PAGES = "pages";
+const PAGE_VECTOR = "page-vector";
 // The vectors of packages (section 25), and their schema, and the schema of the canonical view, by
 // which the canonical view of each example of a whole module is checked.
 const PACKAGES = "packages";
@@ -129,14 +136,33 @@ export function checkFormat(root) {
   const files = readFiles(root, report);
   const version = readVersion(root, report);
   const schemas = readSchemas(root, files.schemas, version, report);
+  readPage(root, schemas, report);
   const { rules, layout } = readFormatText(root, schemas, report);
   checkCases(root, files, { rules, layout, version, schemas }, report);
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
   // The rules whose vectors are in vectors/rules/: all but those of the module index and of versions.
   const ruled = rules?.filter((rule) => !OWN_VECTORS.includes(partOf(rule.id))).length ?? 0;
-  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: ruled, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length, random: files.random.length, templates: files.templates.length, tiers: files.tiers.length, packages: files.packages.length, indexes: files.indexes.length, versions: files.versions.length };
+  const stats = { schemas: files.schemas.length, examples: files.examples.length, vectors: files.vectors.length, rules: ruled, openViews: files.openViews.length, verdicts: files.verdicts.length, leaks: files.leaks.length, random: files.random.length, templates: files.templates.length, tiers: files.tiers.length, pages: files.pages.length, packages: files.packages.length, indexes: files.indexes.length, versions: files.versions.length };
   return { errors, stats };
+}
+
+// format/page.yaml, against its schema, which the page of every workbook and task.workbook-page take
+// for this run (section 14); none, when the format has neither the file nor its schema.
+function readPage(root, schemas, report) {
+  usePage(null);
+  const there = fs.existsSync(path.join(root, PAGE_FILE));
+  if (!there) {
+    if (schemas.has(PAGE)) report(PAGE_FILE, 0, "the numbers and widths of the workbook's page are missing");
+    return;
+  }
+  if (!schemas.has(PAGE)) {
+    report(PAGE_FILE, 0, `no schema ${PAGE}.schema.json for the numbers and widths of the page`);
+    return;
+  }
+  const { problems, value } = checkPageFile(fs.readFileSync(path.join(root, PAGE_FILE)), { validate: schemas.validatorOf(PAGE) });
+  for (const { line, message } of problems) report(PAGE_FILE, line, message);
+  if (value) usePage(value);
 }
 
 // format/VERSION, MAJOR.MINOR and a newline (R44), or null.
@@ -272,6 +298,7 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
   checkRandom(root, files, schemas, report);
   checkTemplates(root, files, schemas, report);
   checkTiers(root, files, schemas, report);
+  checkPages(root, files, schemas, report);
   checkPackages(root, files, { layout, version, schemas }, report, waitForLayout);
   for (const kind of REFUSAL_VECTORS) checkRefusalVectors(root, files, { rules, layout, version, schemas }, report, waitForLayout, kind);
 }
@@ -319,6 +346,24 @@ function checkTiers(root, files, schemas, report) {
   const validate = schemas.validatorOf(TIER_VECTOR);
   for (const { file } of files.tiers) {
     for (const { line, message } of checkTierVector(fs.readFileSync(path.join(root, file)), { validate })) report(file, line, message);
+  }
+}
+
+// The vectors of the page: each case against the schema of such vectors and the page that section 14
+// lays out, by format/page.yaml.
+function checkPages(root, files, schemas, report) {
+  if (!files.pages.length) return;
+  if (!schemas.has(PAGE_VECTOR)) {
+    report(`format/vectors/${PAGES}`, 0, `no schema ${PAGE_VECTOR}.schema.json for the vectors of the page`);
+    return;
+  }
+  if (!hasPage()) {
+    report(`format/vectors/${PAGES}`, 0, "the vectors of the page are laid out by format/page.yaml, which this run has not");
+    return;
+  }
+  const validate = schemas.validatorOf(PAGE_VECTOR);
+  for (const { file } of files.pages) {
+    for (const { line, message } of checkPageVector(fs.readFileSync(path.join(root, file)), { validate })) report(file, line, message);
   }
 }
 
@@ -444,14 +489,14 @@ function checkRuleFolders(files, rules, report) {
 // index.yaml, and a vector of versions of a module, vectors/versions/<case>/, which holds module/,
 // published/ and version.yaml.
 function readFiles(root, report) {
-  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [], templates: [], tiers: [], packages: [], indexes: [], versions: [] };
+  const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [], templates: [], tiers: [], pages: [], packages: [], indexes: [], versions: [] };
   if (!fs.existsSync(path.join(root, "format"))) {
     report("format", 0, "there is no format/");
     return files;
   }
   const at = { root, report, files };
   for (const entry of entriesOf(root, "format")) {
-    if (entry.isFile && (entry.name === "README.md" || entry.name === "VERSION")) continue;
+    if (entry.isFile && (entry.name === "README.md" || entry.name === "VERSION" || entry.file === PAGE_FILE)) continue;
     if (!entry.isFolder) report(entry.file, 0, UNKNOWN);
     else if (entry.name === "schemas") readSchemaFiles(at, entry.file);
     else if (entry.name === "examples") readExampleFiles(at, entry.file);
@@ -514,6 +559,10 @@ function readVectorFiles(at, dir) {
     }
     if (kind.isFolder && kind.name === TIERS) {
       readCases(at, kind.file, { onlyFile: "a vector of tiers is a file, <case>.yaml" }, (file) => at.files.tiers.push({ file }));
+      continue;
+    }
+    if (kind.isFolder && kind.name === PAGES) {
+      readCases(at, kind.file, { onlyFile: "a vector of the page is a file, <case>.yaml" }, (file) => at.files.pages.push({ file }));
       continue;
     }
     if (kind.isFolder && kind.name === PACKAGES) {
@@ -643,6 +692,6 @@ if (isMain(import.meta.url)) {
     console.log(`format-check: ${errors.length} error${errors.length === 1 ? "" : "s"}`);
     process.exitCode = 1;
   } else {
-    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check, ${stats.random} vectors of the generator, ${stats.templates} vectors of templates, ${stats.tiers} vectors of tiers, ${stats.packages} vectors of packages, ${stats.indexes} vectors of the module index, ${stats.versions} vectors of versions of a module`);
+    console.log(`format-check: ok — ${stats.schemas} schemas, ${stats.examples} examples, ${stats.vectors} vectors of ${stats.rules} rules, ${stats.openViews} vectors of the open view, ${stats.verdicts} vectors of verdicts, ${stats.leaks} vectors of the leak check, ${stats.random} vectors of the generator, ${stats.templates} vectors of templates, ${stats.tiers} vectors of tiers, ${stats.pages} vectors of the page, ${stats.packages} vectors of packages, ${stats.indexes} vectors of the module index, ${stats.versions} vectors of versions of a module`);
   }
 }

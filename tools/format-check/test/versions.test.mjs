@@ -142,6 +142,14 @@ test("a check is compared by what decides its verdict and its trap", () => {
   same(slot({ kind: "fraction", key: "6/8" }), slot({ kind: "fraction", key: "3/4", form: "any" }));
   other(slot({ kind: "fraction", key: "3/4" }), slot({ kind: "fraction", key: "3/4", form: "reduced" }));
   same(slot({ kind: "choice", key: "ODD", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["Odd", "Even"] }));
+  // A time by its hours and minutes (R111).
+  same(slot({ kind: "time", key: "7:30", trap_values: [trap("07:60")] }), slot({ kind: "time", key: "7:30", trap_values: [trap("7:60")] }));
+  other(slot({ kind: "time", key: "7:30" }), slot({ kind: "time", key: "19:30" }));
+  other(slot({ kind: "time", key: "7:30" }), slot({ kind: "number", key: "7" }));
+  // The notation decides the verdict of a word that is none of the options (R111): options unless given.
+  same(slot({ kind: "choice", key: "odd", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["even", "odd"], notation: "options" }));
+  other(slot({ kind: "choice", key: "odd", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["even", "odd"], notation: "word" }));
+  same(slot({ kind: "choice", key: "Kim.", options: ["Kim.", "Lea"], notation: "word" }), slot({ kind: "choice", key: "kim", options: ["lea", "kim"], notation: "word" }));
   same(slot({ kind: "choice", key: "a" }, { binding: "choice", options: ["a", "b"] }), slot({ kind: "choice", key: "A" }, { binding: "choice", options: ["B", "A"] }));
   other(slot({ kind: "choice", key: "a" }, { binding: "choice", options: ["a", "b"] }), slot({ kind: "choice", key: "a" }, { binding: "choice", options: ["a", "b", "c"] }));
   other(slot({ kind: "predicate", predicate: "value > 1" }), slot({ kind: "predicate", predicate: "value>1" }));
@@ -178,6 +186,11 @@ test("the part found is the highest that a change raises, and the version alone 
   assert.equal(partOf((view) => (view.tasks.t = { ...TASK, items: [{ answer_slots: [slot({ kind: "number", key: "8" })] }] })), "major");
   assert.equal(partOf((view) => (view.tasks.t = { ...TASK, items: [{ answer_slots: [slot({ kind: "number", key: "7" }, { binding: "zone" })] }] })), "major");
   assert.equal(partOf((view) => (view.solving_steps = { steps: [{ title: "Solve", exit_condition: "none" }] })), "minor");
+  // A leading question and the description of a step are words (R108): a patch.
+  assert.equal(partOf((view) => (view.tasks.t = { ...TASK, leading_question: "What is one more?" })), "patch");
+  const stepped = (step) => ({ view: { ...VIEW, solving_steps: { steps: [{ title: "Solve", exit_condition: "none", ...step }] } }, device: DEVICE });
+  assert.equal(foundPartOf(stepped({}), stepped({ description: "Write the answer." })).part, "patch");
+  assert.equal(foundPartOf(stepped({}), stepped({ exit_condition: "answer_slots_filled" })).part, "minor");
   assert.equal(partOf((view) => (view.manifest = { ...view.manifest, canvas: { digit_height: 24 } })), "patch");
   assert.equal(partOf((view) => (view.manifest = { ...view.manifest, bands: [{ id: "hard", title: "Hard" }] })), "patch");
   assert.equal(partOf((view) => (view.skill_graph.retired_skills = { c: { replaced_by: ["a"] } })), "major");

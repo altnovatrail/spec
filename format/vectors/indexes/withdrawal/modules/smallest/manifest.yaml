@@ -1,5 +1,5 @@
 # The smallest module: a folder that holds its manifest and nothing else.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: example/smallest
 version: "0.1.0"
 title: The smallest module

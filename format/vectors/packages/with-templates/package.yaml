@@ -4,7 +4,7 @@
 # without running an expression.
 server_part:
   manifest:
-    module_format_version: "0.3"
+    module_format_version: "0.4"
     id: "example/with-templates"
     version: "0.1.0"
     title: "A module with a template"
@@ -351,13 +351,13 @@ device_part:
     digest: "sha256:c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
     size: 11357
 inventory:
-  module_format_version: "0.3"
+  module_format_version: "0.4"
   id: "example/with-templates"
   version: "0.1.0"
   server_part:
-    digest: "sha256:10805740196f0e7c39d4150cdbdba958f71c1c0974f9cc2e64575c0d0903a34c"
+    digest: "sha256:1f950c5857b9f34cab6b5cf14f041ad4708eb876f76eb41e4816cb53f22890bf"
     size: 5109
   device_part:
     digest: "sha256:7866e51fff6d6b0cdab46531f4097231479159ab0667ad71f5ab4a8c88d33e74"
     size: 109
-digest: "sha256:2698c827bb10afeb10acba7ea4c2b1a3094a225894b3ef792a80e8a8876ed2ab"
+digest: "sha256:6a3774f014e40d0fe865bb419df8b51da9fb87e9e3aecc25cc060b064135d40a"

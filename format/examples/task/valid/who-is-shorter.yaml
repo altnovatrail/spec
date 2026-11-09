@@ -1,0 +1,26 @@
+# A choice written by hand with notation: word: the learner writes a name, and a name that is none
+# of the options, such as one that the statement gives, is a wrong answer that gets a rung, not an
+# answer left unread. The key is one word; an option and a trap value may be a phrase.
+id: who-is-shorter
+statement:
+  - text: Kim is taller than Lea, and Lea is taller than Maya. Who is the shortest? Write the name, or write that it is impossible to tell.
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: choice
+          notation: word
+          options: [Kim, Lea, Maya, It is impossible to tell]
+          key: Maya
+          trap_values:
+            - {value: Kim, trap: reversed-order}
+            - {value: It is impossible to tell, trap: gave-up-on-the-order}
+solution:
+  - text: "Kim is taller than Lea, and Lea is taller than Maya, so Maya is shorter than both: Maya is the shortest."
+skills:
+  primary: [ordering]
+band: first-steps
+difficulty: 1

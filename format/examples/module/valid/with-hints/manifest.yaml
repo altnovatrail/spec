@@ -1,6 +1,6 @@
 # A module with the whole hint ladder: its manifest has the rung templates, its catalogs name the
 # traps and the techniques that its task uses, and its solving steps lead the learner through it.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: example/with-hints
 version: "0.1.0"
 title: A module with hints

@@ -2,36 +2,36 @@
 # smallest module, built again from the same files, gives the same package and keeps its entry, its
 # release among it. The entry of the times tables 0.1.0 stands as it was.
 previous:
-  module_format_version: "0.3"
+  module_format_version: "0.4"
   modules:
     example/smallest:
       "0.1.0":
-        module_format_version: "0.3"
-        package_digest: sha256:fcbe6e68430776b0506c93ab51b155f8e7f92e2b3ecbe03e34e2afb91b4d4d08
+        module_format_version: "0.4"
+        package_digest: sha256:1b974824c9360e67fc8c3cf61e084eb36bdf4820814069dade492d2736ac5dbf
         release: v0.1.0
     example/times-tables:
       "0.1.0":
-        module_format_version: "0.3"
+        module_format_version: "0.4"
         package_digest: sha256:860ba9ff55af668cb068de2cb8b6e99d86f8739ed40e00d3c40bba34d71f7555
         release: v0.1.0
         teaches: [core.division-with-remainder, core.multiplication-table]
 release: v0.2.0
 index:
-  module_format_version: "0.3"
+  module_format_version: "0.4"
   modules:
     example/smallest:
       "0.1.0":
-        module_format_version: "0.3"
-        package_digest: sha256:fcbe6e68430776b0506c93ab51b155f8e7f92e2b3ecbe03e34e2afb91b4d4d08
+        module_format_version: "0.4"
+        package_digest: sha256:1b974824c9360e67fc8c3cf61e084eb36bdf4820814069dade492d2736ac5dbf
         release: v0.1.0
     example/times-tables:
       "0.1.0":
-        module_format_version: "0.3"
+        module_format_version: "0.4"
         package_digest: sha256:860ba9ff55af668cb068de2cb8b6e99d86f8739ed40e00d3c40bba34d71f7555
         release: v0.1.0
         teaches: [core.division-with-remainder, core.multiplication-table]
       "0.2.0":
-        module_format_version: "0.3"
-        package_digest: sha256:8b645240171d4e82b3411ce4f09ed0cc13d7c995e4fdb303b719d6837fb993b1
+        module_format_version: "0.4"
+        package_digest: sha256:c9805b9e10d1864f10fe93bbe5214c0722b01c9593d996b40dec0a2b9ad54fb1
         release: v0.2.0
         teaches: [core.division-with-remainder, core.multiplication-table]

@@ -39,13 +39,31 @@ export function entryOf(built, release) {
   return entry;
 }
 
+// Why the build cannot read previous, the index of the release before, or undefined (section 26;
+// R102, В31 module-kit): it was built by a format version later than version, or validate, the
+// schema of the module index of version, refuses it — such as one with a member or a reason that a
+// later version adds. The format version is read first, at the place every version keeps (section
+// 2), so that an index of a later version is named so rather than by what that version added.
+export function unreadablePrevious(previous, version, validate) {
+  const named = laterVersionOf(previous, version);
+  if (named) return `the previous index was built by the format version ${named}, later than ${version}, by which the release builds`;
+  if (validate && !validate(previous)) return `the previous index is not valid against the schema of the module index of the format version ${version}`;
+  return undefined;
+}
+
 // The index that a release builds (section 26). version is the format version it is built by;
 // previous the index of the release before, or undefined for the first release; packages the
 // release's packages as packageOf builds them; release its tag; withdrawals an object from a module's
-// ID to each version that the release withdraws to the reason. { index, breaches }: breaches lists
-// each rule that the build breaks, { rule, message }, and a build that breaks one is refused. The
-// index is what the build gives without what breaks a rule.
-export function indexOf({ version, previous, packages, release, withdrawals = {} }) {
+// ID to each version that the release withdraws to the reason; validate the schema of the module
+// index of version, which previous must pass. { index, breaches }: breaches lists each rule that the
+// build breaks, { rule, message }, and a build that breaks one is refused. The index is what the
+// build gives without what breaks a rule. A previous index that the build cannot read gives
+// { failure }, why, instead: the release fails, and no rule of the index refuses it.
+export function indexOf({ version, previous, packages, release, withdrawals = {}, validate }) {
+  if (previous !== undefined) {
+    const failure = unreadablePrevious(previous, version, validate);
+    if (failure) return { failure, breaches: [] };
+  }
   const before = previous?.modules ?? {};
   const modules = structuredClone(before);
   const breaches = [];
@@ -87,6 +105,14 @@ export function indexOf({ version, previous, packages, release, withdrawals = {}
   return { index: { [VERSION_FIELD]: version, modules }, breaches };
 }
 
+// The format version that index names at its root when it is later than version, or undefined: none
+// when version is null, as when format/VERSION cannot be read.
+function laterVersionOf(index, version) {
+  const named = index?.[VERSION_FIELD];
+  const later = version !== null && typeof named === "string" && /^[0-9]+\.[0-9]+$/.test(named) && formatVersionCompare(named, version) > 0;
+  return later ? named : undefined;
+}
+
 // What an index of an example or a vector does against section 26 that its schema cannot see: its
 // root names a format version other than version, the one in format/VERSION — or, for an index
 // built before, with earlier true, one newer than version —, or an entry lists teaches out of the
@@ -97,7 +123,7 @@ export function indexFormProblems(index, version, earlier = false) {
   const named = index[VERSION_FIELD];
   const other = version !== null && named !== version && /^[0-9]+\.[0-9]+$/.test(named);
   if (other && !earlier) problems.push(`the index names the format version ${named}: it names ${version}, as format/VERSION has it`);
-  else if (other && formatVersionCompare(named, version) > 0) problems.push(`the index names the format version ${named}, newer than ${version}, which format/VERSION has`);
+  else if (other && laterVersionOf(index, version)) problems.push(`the index names the format version ${named}, newer than ${version}, which format/VERSION has`);
   for (const [id, versions] of Object.entries(index.modules ?? {})) {
     for (const [moduleVersion, entry] of Object.entries(versions)) {
       const teaches = entry.teaches ?? [];

@@ -1,5 +1,5 @@
 # A manifest with no dependencies, though a skill of the module needs an anchor skill.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: example/vector
 version: "0.1.0"
 title: A test vector

@@ -1,0 +1,22 @@
+# A time of day written by hand: right by its hours and minutes, so 07:30 is as right as 7:30. A
+# time of 60 minutes or more is a wrong time, and here it shows the mistake of a hundred minutes in
+# an hour.
+id: minutes-past-the-hour
+statement:
+  - text: A film begins at 6:45 and lasts 45 minutes. When does it end? Write the time as hours and minutes, like 9:15.
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check:
+          kind: time
+          key: "7:30"
+          trap_values:
+            - {value: "6:90", trap: hundred-minutes-in-an-hour}
+solution:
+  - text: "15 minutes after 6:45 it is 7:00, and 30 minutes more make 45: the film ends at 7:30."
+skills:
+  primary: [time-clocks]
+band: grades-3-4
+difficulty: 2

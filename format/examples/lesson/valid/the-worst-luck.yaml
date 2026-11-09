@@ -1,0 +1,15 @@
+# A lesson of the module of olympiad mathematics whose explanation ends with the steps of the method,
+# as a numbered list: the texts hold no number of their own, and the learner's app draws 1, 2 and 3,
+# which the leak check does not read.
+id: the-worst-luck
+title: The worst luck
+skills: [pigeonhole]
+segments:
+  - explanation:
+      - text: A drawer holds red socks and blue socks. To be sure of two of one colour, think of the worst luck first.
+      - text: "How to solve: the worst luck, then one more."
+      - numbered_list:
+          - Find the holes and the pigeons.
+          - Play the worst luck to the end.
+          - Add one, and check that it settles it.
+  - task: pigeonhole-socks

@@ -181,6 +181,11 @@ message OpenAttempt {
   // On a task with a rubric: each submission, in order, with how it ended and when, without the
   // text read and the words of the feedback, which are nowhere on the server (R87).
   repeated EssaySubmission essay_submissions = 8;
+  // The task's leading question as a hint asked for gave it, with the techniques, before the first
+  // wrong answer or on a task with a rubric: empty when none was given, and when the task has none.
+  // It is a closed field of the module format, so the open view of the task does not hold it, and
+  // a device that goes on with the attempt shows it from here (R108).
+  string requested_leading_question = 9;
 }
 
 // A submission of an essay as the server keeps it.

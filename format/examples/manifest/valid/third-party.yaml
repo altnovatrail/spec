@@ -2,7 +2,7 @@
 # texts are in Russian, its explanation language, and its license is another one than the official
 # modules'. Its skills need linear equations, an anchor skill of the shared taxonomy, and no other,
 # and the crops of its sheets draw the learner's digits 40 px high.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: acme/optics-8
 version: "1.2.0"
 title: Оптика, 8 класс

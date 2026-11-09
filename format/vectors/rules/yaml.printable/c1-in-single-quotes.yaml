@@ -1,0 +1,2 @@
+# U+0080, a C1 control character, written in single quotes: YAML 1.2.2 takes it there too.
+title: 'Cafe'

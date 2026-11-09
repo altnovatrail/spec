@@ -3,7 +3,7 @@
 /**
  * The open view of each part of a module (format/README.md, section 6): the type of each struct the
  * open view of a part reaches, by the name it has in formatv0, with the fields marked x-open alone,
- * of version 0.3. An open view has no check, no template and no solver; a task's has its givens and
+ * of version 0.4. An open view has no check, no template and no solver; a task's has its givens and
  * its unknown. Strings, integers and enumerations are formatv0's.
  *
  * @packageDocumentation
@@ -313,6 +313,12 @@ export interface Step {
    */
   readonly title: formatv0.Text;
   /**
+   * How to go through the step, in the module's explanation language, which the learner's app shows
+   * beside its title. Every task of the module goes through the step, so the leak check searches it
+   * for the keys of every task.
+   */
+  readonly description?: formatv0.Text;
+  /**
    * What of the task the step gives the learner: givens, the task's givens and unknown, which the
    * learner ticks; techniques, the task's techniques, which the server gives when the step begins.
    * A step that gives neither leaves this field out.
@@ -447,8 +453,9 @@ export interface LinePart {
  * StatementPart is the open view of formatv0.StatementPart, the type of
  * common.schema.json#/$defs/statement_part: its fields marked x-open.
  *
- * A part of a text that the learner reads — a statement, a solution or an explanation: a paragraph,
- * or a picture with what it shows and its size.
+ * A part of a text that the learner reads — a statement, a solution, the statement of a worked
+ * example, or a paragraph or a picture of an explanation, which the lesson's own explanation_part
+ * repeats: a paragraph, or a picture with what it shows and its size.
  */
 export interface StatementPart {
   /**
@@ -456,9 +463,10 @@ export interface StatementPart {
    */
   readonly text?: formatv0.Text;
   /**
-   * A picture, by its path from media/.
+   * A picture, by its path from media/; in a task, a template's may hold placeholders, and a
+   * lesson's holds none.
    */
-  readonly picture?: formatv0.PicturePath;
+  readonly picture?: formatv0.TaskPicturePath;
   /**
    * What the picture shows, in words: a screen reader reads it, and it stands in the picture's
    * place until the picture comes. Empty for a picture that only decorates.
@@ -559,10 +567,10 @@ export interface Lesson {
  */
 export interface Segment {
   /**
-   * An explanation: paragraphs and pictures that the learner reads, in order, in the module's
-   * explanation language.
+   * An explanation: paragraphs, pictures and numbered lists that the learner reads, in order, in
+   * the module's explanation language.
    */
-  readonly explanation?: readonly StatementPart[];
+  readonly explanation?: readonly ExplanationPart[];
   /**
    * A worked example: an example solved before the learner's eyes, on a handwriting sheet.
    */
@@ -574,10 +582,48 @@ export interface Segment {
 }
 
 /**
+ * ExplanationPart is the open view of formatv0.ExplanationPart, the type of
+ * lesson.schema.json#/$defs/explanation_part: its fields marked x-open.
+ *
+ * A part of an explanation: a numbered list, or a paragraph or a picture with what it shows and its
+ * size, as a part of a task's statement is; a lesson's picture path holds no placeholder.
+ */
+export interface ExplanationPart {
+  /**
+   * A paragraph, as plain text.
+   */
+  readonly text?: formatv0.Text;
+  /**
+   * A picture, by its path from media/: a lesson has no template, so its path holds no placeholder.
+   */
+  readonly picture?: formatv0.PicturePath;
+  /**
+   * What the picture shows, in words: a screen reader reads it, and it stands in the picture's
+   * place until the picture comes. Empty for a picture that only decorates.
+   */
+  readonly alt?: string;
+  /**
+   * The width the picture is shown at, in CSS px; narrower when the text it stands in is.
+   */
+  readonly width?: number;
+  /**
+   * The height the picture is shown at, in CSS px, in proportion to its width.
+   */
+  readonly height?: number;
+  /**
+   * A numbered list: its texts in order, such as the steps of a method, each a short text that does
+   * not begin with a number of its own, as 1. or 1) does. The learner's app draws the numbers, so
+   * the leak check reads none of them; it searches the texts as it searches the paragraphs.
+   */
+  readonly numbered_list?: readonly formatv0.Text[];
+}
+
+/**
  * WorkedExample is the open view of formatv0.WorkedExample, the type of
  * lesson.schema.json#/$defs/worked_example: its fields marked x-open.
  *
- * A worked example of a lesson: no task, with no answer slots and no key.
+ * A worked example of a lesson: no task, with no answer slots and no key. On a handwriting sheet
+ * the demo shows pictures on the sheet; on a workbook it fills the boxes of the example's lines.
  */
 export interface WorkedExample {
   /**
@@ -585,10 +631,15 @@ export interface WorkedExample {
    */
   readonly statement: readonly StatementPart[];
   /**
-   * The sheet that the author's demo is shown on: a handwriting sheet and its grid. The learner
-   * does not write on it.
+   * What the author's demo is shown on: a handwriting sheet and its grid, or a workbook, the
+   * example's lines with their boxes. The learner does not write on it.
    */
   readonly canvas: Canvas;
+  /**
+   * On a workbook: the example's lines, each with its boxes and what they hold, laid out on the
+   * page as a task's lines are.
+   */
+  readonly lines?: readonly ExampleLine[];
   /**
    * The author's demo: the parts of how the example is solved, in order, which the learner opens
    * one at a time and may hide.
@@ -597,11 +648,45 @@ export interface WorkedExample {
 }
 
 /**
+ * ExampleLine is the open view of formatv0.ExampleLine, the type of
+ * lesson.schema.json#/$defs/example_line: its fields marked x-open.
+ *
+ * A line of a worked example on a workbook.
+ */
+export interface ExampleLine {
+  /**
+   * The pieces of the line, in order, a box among them at least.
+   */
+  readonly line: readonly ExampleLinePart[];
+}
+
+/**
+ * ExampleLinePart is the open view of formatv0.ExampleLinePart, the type of
+ * lesson.schema.json#/$defs/example_line_part: its fields marked x-open.
+ *
+ * A piece of a line of a worked example: a piece of text, or a box with what the demo writes in it.
+ */
+export interface ExampleLinePart {
+  /**
+   * A piece of text of the line.
+   */
+  readonly text?: formatv0.Text;
+  /**
+   * A box of the line.
+   */
+  readonly binding?: string;
+  /**
+   * Of a box: what the demo writes in it when a part fills it.
+   */
+  readonly value?: formatv0.Text;
+}
+
+/**
  * DemoPart is the open view of formatv0.DemoPart, the type of lesson.schema.json#/$defs/demo_part:
  * its fields marked x-open.
  *
  * A part of the author's demo: a paragraph; a picture beside the sheet, with what it shows and its
- * size; or a picture on the sheet, with what it shows and its area.
+ * size; a picture on the sheet, with what it shows and its area; or, on a workbook, a box filled.
  */
 export interface DemoPart {
   /**
@@ -630,4 +715,25 @@ export interface DemoPart {
    * of the author's demo.
    */
   readonly area?: SheetRectangle;
+  /**
+   * Of a worked example on a workbook: the box that this part of the demo fills with its value.
+   */
+  readonly fill?: DemoFill;
+}
+
+/**
+ * DemoFill is the open view of formatv0.DemoFill, the type of lesson.schema.json#/$defs/demo_fill:
+ * its fields marked x-open.
+ *
+ * A box of a worked example's lines, by its line and its place in it.
+ */
+export interface DemoFill {
+  /**
+   * The line, by its place among the example's lines, from 1.
+   */
+  readonly line: number;
+  /**
+   * The box, by its place among the boxes of the line, from 1.
+   */
+  readonly box: number;
 }

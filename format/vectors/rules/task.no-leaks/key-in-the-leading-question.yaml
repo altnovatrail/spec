@@ -1,0 +1,22 @@
+# The leading question holds 6, the key: a hint asked for gives it before the first wrong answer,
+# so it gives the answer away.
+id: gaps-in-a-ladder
+statement:
+  - text: The rungs of a ladder are 30 cm apart. From the lowest rung to the highest it is 180 cm. How many gaps are there between the rungs?
+givens:
+  - The rungs are 30 cm apart.
+  - It is 180 cm from the lowest rung to the highest.
+unknown: How many gaps there are.
+leading_question: Is it 6 gaps of 30 cm that make 180 cm?
+canvas:
+  kind: handwriting_sheet
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "6"}
+solution:
+  - text: "180 ÷ 30 = 6: there are 6 gaps."
+skills:
+  primary: [counting-gaps]
+band: grades-3-4
+difficulty: 2

@@ -1,0 +1,15 @@
+# error: not at #/segments/0/worked_example/demo/1
+# A handwriting sheet has no boxes to fill.
+id: remainders
+title: Remainders
+skills: [counting-gaps]
+segments:
+  - worked_example:
+      statement:
+        - text: Share the apples into equal heaps.
+      canvas:
+        kind: handwriting_sheet
+      demo:
+        - text: Take the largest number of heaps that fit.
+        - fill: {line: 1, box: 1}
+  - task: remainders-1

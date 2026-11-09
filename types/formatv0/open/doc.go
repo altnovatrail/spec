@@ -2,6 +2,6 @@
 
 // Package open holds the open view of each part of a module (format/README.md, section 6): the
 // struct of each type the open view of a part reaches, by the name it has in formatv0, with the
-// fields marked x-open alone, of version 0.3. An open view has no check, no template and no solver;
+// fields marked x-open alone, of version 0.4. An open view has no check, no template and no solver;
 // a task's has its givens and its unknown. Strings, integers and enumerations are formatv0's.
 package open

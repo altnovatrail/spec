@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "line": [
+        {
+          "text": "Marks: .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x"
+        },
+        {
+          "binding": "box"
+        }
+      ]
+    }
+  ],
+  "bottom": 198,
+  "page": [
+    {
+      "number": {
+        "text": "1.",
+        "left": 56,
+        "baseline": 73,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Marks: .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x",
+          "left": 96,
+          "baseline": 73,
+          "width": 853
+        },
+        {
+          "text": ".x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x .x",
+          "left": 96,
+          "baseline": 158,
+          "width": 696
+        },
+        {
+          "left": 808,
+          "top": 98,
+          "width": 100,
+          "height": 100
+        }
+      ]
+    }
+  ]
+}

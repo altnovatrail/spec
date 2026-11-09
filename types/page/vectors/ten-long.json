@@ -1,0 +1,417 @@
+{
+  "items": [
+    {
+      "line": [
+        {
+          "text": "Tom has 3 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 4 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 5 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 6 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 7 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 8 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 9 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 10 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 11 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    },
+    {
+      "line": [
+        {
+          "text": "Tom has 12 bags of 4 apples. He has"
+        },
+        {
+          "binding": "box"
+        },
+        {
+          "text": "apples."
+        }
+      ]
+    }
+  ],
+  "bottom": 1328,
+  "page": [
+    {
+      "number": {
+        "text": "1.",
+        "left": 56,
+        "baseline": 100,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 3 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 100,
+          "width": 453
+        },
+        {
+          "left": 565,
+          "top": 40,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 681,
+          "baseline": 100,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "2.",
+        "left": 56,
+        "baseline": 232,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 4 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 232,
+          "width": 453
+        },
+        {
+          "left": 565,
+          "top": 172,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 681,
+          "baseline": 232,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "3.",
+        "left": 56,
+        "baseline": 364,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 5 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 364,
+          "width": 453
+        },
+        {
+          "left": 565,
+          "top": 304,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 681,
+          "baseline": 364,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "4.",
+        "left": 56,
+        "baseline": 496,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 6 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 496,
+          "width": 453
+        },
+        {
+          "left": 565,
+          "top": 436,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 681,
+          "baseline": 496,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "5.",
+        "left": 56,
+        "baseline": 628,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 7 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 628,
+          "width": 453
+        },
+        {
+          "left": 565,
+          "top": 568,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 681,
+          "baseline": 628,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "6.",
+        "left": 56,
+        "baseline": 760,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 8 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 760,
+          "width": 453
+        },
+        {
+          "left": 565,
+          "top": 700,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 681,
+          "baseline": 760,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "7.",
+        "left": 56,
+        "baseline": 892,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 9 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 892,
+          "width": 453
+        },
+        {
+          "left": 565,
+          "top": 832,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 681,
+          "baseline": 892,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "8.",
+        "left": 56,
+        "baseline": 1024,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 10 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 1024,
+          "width": 469
+        },
+        {
+          "left": 581,
+          "top": 964,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 697,
+          "baseline": 1024,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "9.",
+        "left": 56,
+        "baseline": 1156,
+        "width": 24
+      },
+      "line": [
+        {
+          "text": "Tom has 11 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 1156,
+          "width": 469
+        },
+        {
+          "left": 581,
+          "top": 1096,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 697,
+          "baseline": 1156,
+          "width": 91
+        }
+      ]
+    },
+    {
+      "number": {
+        "text": "10.",
+        "left": 40,
+        "baseline": 1288,
+        "width": 40
+      },
+      "line": [
+        {
+          "text": "Tom has 12 bags of 4 apples. He has",
+          "left": 96,
+          "baseline": 1288,
+          "width": 469
+        },
+        {
+          "left": 581,
+          "top": 1228,
+          "width": 100,
+          "height": 100
+        },
+        {
+          "text": "apples.",
+          "left": 697,
+          "baseline": 1288,
+          "width": 91
+        }
+      ]
+    }
+  ]
+}

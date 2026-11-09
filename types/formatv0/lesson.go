@@ -27,33 +27,81 @@ type Lesson struct {
 //
 // A segment of a lesson: an explanation, a worked example or a task, by its one field.
 type Segment struct {
-	// An explanation: paragraphs and pictures that the learner reads, in order, in the module's
-	// explanation language.
-	Explanation []StatementPart `json:"explanation,omitzero"`
+	// An explanation: paragraphs, pictures and numbered lists that the learner reads, in order, in
+	// the module's explanation language.
+	Explanation []ExplanationPart `json:"explanation,omitzero"`
 	// A worked example: an example solved before the learner's eyes, on a handwriting sheet.
 	WorkedExample *WorkedExample `json:"worked_example,omitzero"`
 	// A task of the module, by its local ID. The next segment begins when the task ends.
 	Task *TaskID `json:"task,omitzero"`
 }
 
+// ExplanationPart is the type of lesson.schema.json#/$defs/explanation_part.
+//
+// A part of an explanation: a numbered list, or a paragraph or a picture with what it shows and its
+// size, as a part of a task's statement is; a lesson's picture path holds no placeholder.
+type ExplanationPart struct {
+	// A paragraph, as plain text.
+	Text *Text `json:"text,omitzero"`
+	// A picture, by its path from media/: a lesson has no template, so its path holds no
+	// placeholder.
+	Picture *PicturePath `json:"picture,omitzero"`
+	// What the picture shows, in words: a screen reader reads it, and it stands in the picture's
+	// place until the picture comes. Empty for a picture that only decorates.
+	Alt *string `json:"alt,omitzero"`
+	// The width the picture is shown at, in CSS px; narrower when the text it stands in is.
+	Width *int64 `json:"width,omitzero"`
+	// The height the picture is shown at, in CSS px, in proportion to its width.
+	Height *int64 `json:"height,omitzero"`
+	// A numbered list: its texts in order, such as the steps of a method, each a short text that
+	// does not begin with a number of its own, as 1. or 1) does. The learner's app draws the
+	// numbers, so the leak check reads none of them; it searches the texts as it searches the
+	// paragraphs.
+	NumberedList []Text `json:"numbered_list,omitzero"`
+}
+
 // WorkedExample is the type of lesson.schema.json#/$defs/worked_example.
 //
-// A worked example of a lesson: no task, with no answer slots and no key.
+// A worked example of a lesson: no task, with no answer slots and no key. On a handwriting sheet
+// the demo shows pictures on the sheet; on a workbook it fills the boxes of the example's lines.
 type WorkedExample struct {
 	// What the example asks: paragraphs and pictures in order, as a task's statement.
 	Statement []StatementPart `json:"statement"`
-	// The sheet that the author's demo is shown on: a handwriting sheet and its grid. The learner
-	// does not write on it.
+	// What the author's demo is shown on: a handwriting sheet and its grid, or a workbook, the
+	// example's lines with their boxes. The learner does not write on it.
 	Canvas Canvas `json:"canvas"`
+	// On a workbook: the example's lines, each with its boxes and what they hold, laid out on the
+	// page as a task's lines are.
+	Lines []ExampleLine `json:"lines,omitzero"`
 	// The author's demo: the parts of how the example is solved, in order, which the learner opens
 	// one at a time and may hide.
 	Demo []DemoPart `json:"demo"`
 }
 
+// ExampleLine is the type of lesson.schema.json#/$defs/example_line.
+//
+// A line of a worked example on a workbook.
+type ExampleLine struct {
+	// The pieces of the line, in order, a box among them at least.
+	Line []ExampleLinePart `json:"line"`
+}
+
+// ExampleLinePart is the type of lesson.schema.json#/$defs/example_line_part.
+//
+// A piece of a line of a worked example: a piece of text, or a box with what the demo writes in it.
+type ExampleLinePart struct {
+	// A piece of text of the line.
+	Text *Text `json:"text,omitzero"`
+	// A box of the line.
+	Binding *string `json:"binding,omitzero"`
+	// Of a box: what the demo writes in it when a part fills it.
+	Value *Text `json:"value,omitzero"`
+}
+
 // DemoPart is the type of lesson.schema.json#/$defs/demo_part.
 //
 // A part of the author's demo: a paragraph; a picture beside the sheet, with what it shows and its
-// size; or a picture on the sheet, with what it shows and its area.
+// size; a picture on the sheet, with what it shows and its area; or, on a workbook, a box filled.
 type DemoPart struct {
 	// A paragraph of the demo, as plain text.
 	Text *Text `json:"text,omitzero"`
@@ -70,4 +118,16 @@ type DemoPart struct {
 	// The area of the sheet that a picture on the sheet is shown in, at its size, on the canvas
 	// layer of the author's demo.
 	Area *SheetRectangle `json:"area,omitzero"`
+	// Of a worked example on a workbook: the box that this part of the demo fills with its value.
+	Fill *DemoFill `json:"fill,omitzero"`
+}
+
+// DemoFill is the type of lesson.schema.json#/$defs/demo_fill.
+//
+// A box of a worked example's lines, by its line and its place in it.
+type DemoFill struct {
+	// The line, by its place among the example's lines, from 1.
+	Line int64 `json:"line"`
+	// The box, by its place among the boxes of the line, from 1.
+	Box int64 `json:"box"`
 }

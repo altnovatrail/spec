@@ -7,6 +7,7 @@ A small format for the tests of format-check. It lists its rules in tables, as t
 | ID | Rule |
 |---|---|
 | `yaml.encoding` | The file MUST be UTF-8, with no byte order mark. |
+| `yaml.printable` | Every character of the file MUST be in the printable set of YAML. |
 | `yaml.single-document` | The file MUST hold exactly one document. |
 | `yaml.no-directives` | The file MUST NOT contain directives. |
 | `yaml.no-anchors` | The file MUST NOT contain anchors or aliases. |

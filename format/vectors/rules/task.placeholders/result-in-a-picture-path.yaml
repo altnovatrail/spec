@@ -1,0 +1,39 @@
+# The path of a picture of the statement holds {factor}, a result of the solver: the path is open,
+# and the learner's app would fetch a file whose name gives away what only the solver finds.
+id: result-in-a-picture-path
+template:
+  parameters:
+    a: {from: 2, to: 9}
+    b: {from: 2, to: 9}
+  derived:
+    product: a * b
+  solver:
+    program: |
+      def solve(numbers):
+          for factor in range(1, 101):
+              if numbers["a"] * factor == numbers["product"]:
+                  return {"factor": factor}
+          fail("no factor fits")
+    results: [factor]
+statement:
+  - text: Write the missing number.
+  - picture: pictures/rows-{a}-by-{factor}.png
+    alt: Dots in rows
+    width: 320
+    height: 160
+canvas:
+  kind: workbook
+items:
+  - line:
+      - text: "{a} ×"
+      - binding: box
+        check:
+          kind: number
+          key: "{factor}"
+      - text: "= {product}"
+solution:
+  - text: "{a} × {factor} = {product}"
+skills:
+  primary: [times-tables]
+band: grade-3
+difficulty: 2

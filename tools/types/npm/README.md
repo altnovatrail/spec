@@ -12,7 +12,9 @@ From 0.5.0 on, the package also holds the types of the element `<novatrail-canva
 
 From 0.8.0 on, it holds the types of the admission table too: which AI provider, on which route to AI, may receive the work of a learner of which age category ([the table's text](https://github.com/altnovatrail/spec/blob/main/admission/README.md)). They are generated from its schemas, `admission/schemas`, as the format's are.
 
-The package holds declarations alone, with no code to run, so import them with `import type`:
+From 0.10.0 on, it holds the page of the workbook too, which format 0.4 makes a rule: `@altnovatrail/spec/format/page.json`, the numbers and the widths by which every page is laid out, and `@altnovatrail/spec/format/vectors/pages/<case>.json`, the test vectors of the page, each the JSON of the format's [`page.yaml`](https://github.com/altnovatrail/spec/blob/main/format/page.yaml) and of its vectors, `format/vectors/pages/` ([the format's text](https://github.com/altnovatrail/spec/blob/main/format/README.md), section 14). A canvas reads them to lay its page out, and its tests check its layout against the vectors; their types are `Page` and `PageVector` of `formatv0`.
+
+The types are declarations alone, with no code to run, so import them with `import type`; the page's JSON is data, which a module imports with `with { type: "json" }` or reads as a file:
 
 ```ts
 import type { Manifest, Task } from "@altnovatrail/spec/formatv0";

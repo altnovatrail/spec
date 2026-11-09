@@ -1,11 +1,13 @@
 // The npm package @altnovatrail/spec (R73): the TypeScript of the module format's types, which
 // tools/types writes under types/, with spec's LICENSE and the package's README, tools/types/npm/.
-// It holds declarations alone, and exports each package of the types by its Go path: ./formatv0 and
+// It holds declarations, and from FIRST_PAGE_LINE on the page's JSON, no code, and exports each package of the types by its Go path: ./formatv0 and
 // ./formatv0/open. From the line FIRST_CANVAS_LINE on, it holds and exports the types of the element
 // <novatrail-canvas> too, ./canvas, which types/canvas holds, written by hand (R74), and from the
-// line FIRST_ADMISSION_LINE on the types of the admission table, ./admissionv0 (R96): what a
-// package holds is the line's of its version, the release's, so that a release of an earlier line,
-// run again, gets the package it got.
+// line FIRST_ADMISSION_LINE on the types of the admission table, ./admissionv0 (R96), and from the
+// line FIRST_PAGE_LINE on the numbers and widths of the workbook's page and its vectors, as JSON of
+// format/page.yaml and format/vectors/pages/, which tools/types writes under types/page/, by which
+// canvas lays its page out (section 14 of the format text; T88): what a package holds is the line's of its version, the release's, so that a
+// release of an earlier line, run again, gets the package it got.
 //
 //   node tools/types/npm.mjs <root> <version> <folder> [<commit>]
 //
@@ -34,12 +36,18 @@ export const FIRST_CANVAS_LINE = "0.5";
 // spec's first line whose package holds the types of the admission table, as the release holds the
 // table (tools/release/files.mjs).
 export const FIRST_ADMISSION_LINE = "0.8";
+// spec's first line whose package holds the page of the workbook, format 0.4's.
+export const FIRST_PAGE_LINE = "0.10";
+// The package's folder of the page, as format/ holds it, and the repository's, which tools/types
+// writes.
+const PAGE = "format";
+const PAGE_DIR = "types/page";
 // What a file missing from the working tree asks for.
 const HINT = "run just types";
 
 // The files of the package of version, each by its path in the package and in the tree it is
-// built of.
-export function filesOf(version) {
+// built of: of the tree, when it is given, the vectors of the page too.
+export function filesOf(version, tree) {
   const files = [
     { file: "LICENSE", from: "LICENSE" },
     { file: "README.md", from: "tools/types/npm/README.md" },
@@ -48,6 +56,12 @@ export function filesOf(version) {
   ];
   if (holdsCanvas(version)) files.push({ file: `${CANVAS}/${DECLARATIONS}`, from: `${CANVAS_DIR}/${DECLARATIONS}` });
   if (holdsAdmission(version)) files.push({ file: `${ADMISSION_PACKAGE}/${DECLARATIONS}`, from: `${ADMISSION_DIR}/${DECLARATIONS}` });
+  if (holdsPage(version)) {
+    files.push({ file: `${PAGE}/page.json`, from: `${PAGE_DIR}/page.json` });
+    for (const from of (tree?.list(`${PAGE_DIR}/vectors`) ?? []).filter((name) => name.endsWith(".json"))) {
+      files.push({ file: `${PAGE}/vectors/pages/${path.posix.basename(from)}`, from });
+    }
+  }
   return files;
 }
 
@@ -61,6 +75,8 @@ function fromLine(version, first) {
 const holdsCanvas = (version) => fromLine(version, FIRST_CANVAS_LINE);
 // Whether it holds the types of the admission table.
 const holdsAdmission = (version) => fromLine(version, FIRST_ADMISSION_LINE);
+// Whether it holds the page of the workbook.
+const holdsPage = (version) => fromLine(version, FIRST_PAGE_LINE);
 
 // The name npm pack gives the package's archive of version: the scope's @ dropped, its / a dash.
 export function archiveOf(version) {
@@ -73,7 +89,8 @@ export function manifestOf(version) {
   const format = "The types of NovaTrail's module format for TypeScript, generated from its schemas: the parts of a module and their open views, the canonical view, the inventory, the module index and the test vectors.";
   const canvas = holdsCanvas(version);
   const admission = holdsAdmission(version);
-  const description = [format, canvas ? "And the types of the element <novatrail-canvas>, the contract of the canvas and the app." : "", admission ? "And the types of the admission table, which says which AI provider may serve which age category." : ""].filter(Boolean).join(" ");
+  const page = holdsPage(version);
+  const description = [format, canvas ? "And the types of the element <novatrail-canvas>, the contract of the canvas and the app." : "", admission ? "And the types of the admission table, which says which AI provider may serve which age category." : "", page ? "And the numbers and widths of the workbook's page and its test vectors, as JSON, by which a canvas lays the page out." : ""].filter(Boolean).join(" ");
   return {
     name: NAME,
     version: checkedVersion(version),
@@ -86,34 +103,38 @@ export function manifestOf(version) {
       [`./${TYPES}/open`]: { types: `./${TYPES}/open/${DECLARATIONS}` },
       ...(canvas ? { [`./${CANVAS}`]: { types: `./${CANVAS}/${DECLARATIONS}` } } : {}),
       ...(admission ? { [`./${ADMISSION_PACKAGE}`]: { types: `./${ADMISSION_PACKAGE}/${DECLARATIONS}` } } : {}),
+      ...(page ? { "./format/page.json": "./format/page.json", "./format/vectors/pages/*.json": "./format/vectors/pages/*.json" } : {}),
       "./package.json": "./package.json",
     },
-    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : [])],
+    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : [])],
     sideEffects: false,
   };
 }
 
-// The package of version: its files and its package.json.
-function packageOf(version) {
-  return { files: filesOf(version), manifest: manifestOf(version) };
+// The package of version, of the tree: its files and its package.json.
+function packageOf(version, tree) {
+  return { files: filesOf(version, tree), manifest: manifestOf(version) };
 }
 
 // Writes the package of version into folder, which is not there yet: of the working tree at root,
 // or, when commit is given, of that commit of the repository at root.
 export function writePackage(root, version, folder, commit) {
-  writePackageOf(packageOf(version), treeOf(root, commit, HINT), folder);
+  const tree = treeOf(root, commit, HINT);
+  writePackageOf(packageOf(version, tree), tree, folder);
 }
 
 // Builds the archive of the package of version, of the tree at root, into the folder dir, which is
 // there and holds no archive of that version; checks it and gives its path.
 export function packOf(root, version, dir, commit, npm) {
-  return packPackage(packageOf(version), treeOf(root, commit, HINT), dir, npm);
+  const tree = treeOf(root, commit, HINT);
+  return packPackage(packageOf(version, tree), tree, dir, npm);
 }
 
 // The archive holds the files of the package, the package.json of version among them, and nothing
-// else: read back by tar, not by npm, which built it.
-export function checkArchive(archive, version) {
-  checkPackageArchive(archive, packageOf(version));
+// else: read back by tar, not by npm, which built it. Of a line that holds the page, the vectors of
+// the page are those of the tree at root, or of its commit.
+export function checkArchive(archive, version, root, commit) {
+  checkPackageArchive(archive, packageOf(version, root === undefined ? undefined : treeOf(root, commit, HINT)));
 }
 
 if (isMain(import.meta.url)) {

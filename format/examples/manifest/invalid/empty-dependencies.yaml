@@ -1,6 +1,6 @@
 # error: minItems at #/dependencies
 # A module whose skills need no anchor skill leaves dependencies out rather than writing an empty list.
-module_format_version: "0.3"
+module_format_version: "0.4"
 id: novatrail/school-math-grade-3
 version: "0.1.0"
 title: School mathematics, grade 3

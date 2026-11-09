@@ -13,6 +13,7 @@ import { LineCounter, Parser, Scalar, isAlias, isMap, isScalar, isSeq, parseAllD
 // The rules of section 4, in its order.
 export const YAML_RULES = [
   "yaml.encoding",
+  "yaml.printable",
   "yaml.single-document",
   "yaml.no-directives",
   "yaml.no-anchors",
@@ -50,12 +51,16 @@ export function readModuleFile(bytes) {
   const text = new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes).replace(/\r\n?/g, "\n");
 
   // "To ensure readability, YAML streams use only the printable subset of the Unicode character
-  // set" (YAML 1.2.2, 5.1). yaml reads control characters and U+FFFE all the same; go-yaml does not.
+  // set" (YAML 1.2.2, 5.1), and yaml.printable holds it in quotes too, where YAML 1.2.2 takes DEL,
+  // C1, U+FFFE and U+FFFF (R102, В20 module-kit). yaml reads control characters and U+FFFE all the
+  // same; go-yaml does not. A file with one is read no further, as module-kit reads it: so a written
+  // U+FFFE breaks yaml.printable alone, not yaml.characters too.
   let line = 1;
   for (const char of text) {
     if (char === "\n") line++;
-    else if (!isPrintable(char.codePointAt(0))) notYaml.push({ line, message: `${codePoint(char)}: YAML allows no such character, not even in a comment` });
+    else if (!isPrintable(char.codePointAt(0))) breach("yaml.printable", line, `${codePoint(char)}: no character outside the printable set of YAML, not even in a comment or in quotes`);
   }
+  if (violations.some((violation) => violation.rule === "yaml.printable")) return { value: undefined, violations, notYaml };
 
   const lines = new LineCounter();
   const lineAt = (offset) => lines.linePos(offset).line;

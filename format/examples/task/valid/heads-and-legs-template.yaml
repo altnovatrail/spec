@@ -3,7 +3,8 @@
 # the trap value of the chickens is never the key. The heads and the legs are derived numbers, which
 # the statement and the givens show; the givens hold no number that the statement does not, so the
 # key is found in them only when it stands in the statement too. The simpler case holds no number:
-# every key of an instance is searched for in it.
+# every key of an instance is searched for in it. The leading question, closed, holds the heads,
+# which are never the key: there is always a chicken too.
 id: heads-and-legs-2
 template:
   parameters:
@@ -24,6 +25,7 @@ givens:
   - A chicken has 2 legs.
   - A rabbit has 4 legs.
 unknown: How many rabbits there are.
+leading_question: If all {heads} animals were chickens, how many legs would they have?
 canvas:
   kind: handwriting_sheet
   grid: squares

@@ -1,0 +1,18 @@
+# error: not at #/items/0/answer_slots/0/check
+# notation is a parameter of a choice written by hand; a number has none.
+id: notation-on-a-number
+statement:
+  - text: How many legs do three cats have?
+canvas:
+  kind: handwriting_sheet
+  grid: lines
+items:
+  - answer_slots:
+      - binding: anywhere
+        check: {kind: number, key: "12", notation: word}
+solution:
+  - text: "A cat has 4 legs, and 3 × 4 = 12."
+skills:
+  primary: [multiplication]
+band: first-steps
+difficulty: 1

@@ -1,0 +1,30 @@
+# A word of 100 letters, wider than a line: it breaks between its letters. From canvas's
+# vectors/pages.json at its commit 73807f2.
+items:
+  - line:
+      - text: "The longest word: supercalifragilisticsupercalifragilisticsupercalifragilisticsupercalifragilisticsupercalifragilistic and its box"
+      - binding: "box"
+bottom: 244
+page:
+  - number:
+      text: "1."
+      left: 56
+      baseline: 73
+      width: 24
+    line:
+      - text: "The longest word:"
+        left: 96
+        baseline: 73
+        width: 229
+      - text: "supercalifragilisticsupercalifragilisticsupercalifragilisticsupercalifragi"
+        left: 96
+        baseline: 119
+        width: 861
+      - text: "listicsupercalifragilistic and its box"
+        left: 96
+        baseline: 204
+        width: 435
+      - left: 547
+        top: 144
+        width: 100
+        height: 100

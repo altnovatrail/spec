@@ -1,0 +1,10 @@
+id: pigeonholes
+title: The worst luck
+segments:
+  - explanation:
+      - text: "How to solve: the worst luck, then one more."
+      - numbered_list:
+          - Find the holes and the pigeons.
+          - Play the worst luck to the end.
+          - Add one, and check that it settles it.
+  - task: pigeonhole-socks

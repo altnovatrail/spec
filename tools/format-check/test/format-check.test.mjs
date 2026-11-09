@@ -11,7 +11,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import { canonicalText } from "../canonical.mjs";
+import { lessonRuleBreaches } from "../cases.mjs";
 import { checkFormat } from "../main.mjs";
+import { hasPage, pageOf, usePage } from "../page.mjs";
+import { readModuleFile } from "../yaml.mjs";
 import { versionProblem } from "../module.mjs";
 import { differenceOf, openViewOf } from "../openview.mjs";
 
@@ -99,7 +102,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 19, rules: 18, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0, indexes: 0, versions: 0 });
+    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 20, rules: 19, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, pages: 0, packages: 0, indexes: 0, versions: 0 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -976,6 +979,9 @@ test("spec's vectors hold the bytes their names say", () => {
   const latin = caseOf("yaml.encoding/latin-1.yaml");
   assert.ok(latin.includes(0xe9) && !latin.includes(0xc3), "latin-1.yaml holds é as the one byte 0xE9");
   assert.ok(caseOf("yaml.characters/written-noncharacter.yaml").includes(Buffer.from([0xef, 0xb7, 0x90])), "U+FDD0 as UTF-8");
+  assert.ok(caseOf("yaml.printable/delete-in-double-quotes.yaml").includes(Buffer.from('"Count \u007f down"')), "U+007F written in double quotes");
+  assert.ok(caseOf("yaml.printable/c1-in-single-quotes.yaml").includes(Buffer.from([0x27, 0x43, 0x61, 0x66, 0xc2, 0x80, 0x65, 0x27])), "U+0080 as UTF-8 in single quotes");
+  assert.ok(caseOf("yaml.printable/delete-in-a-comment.yaml").includes(Buffer.from("either: \u007f\n")), "U+007F in a comment");
   const escapes = {
     "yaml.characters/escaped-surrogate.yaml": '"\\ud800"',
     "yaml.characters/escaped-surrogate-pair.yaml": '"\\ud83d\\ude00"',
@@ -1196,7 +1202,7 @@ test("a vector of packages gives the results of a solver on every instance, and 
   assert.deepEqual(realErrorsOf([[solver, first, ""]]), ["format/vectors/packages/with-solver/package.yaml:0: the results of the solver of number-thought-of are given for 34 instances, and it has 35"]);
   assert.deepEqual(realErrorsOf([[solver, first, first.replace("        sweets: 10\n", "")]]), ["format/vectors/packages/with-solver/package.yaml:0: the results of the solver of number-thought-of are not all given on instance 0: each of sweets is"]);
   // A wrong result is the vector's: spec cannot tell it, but the digests that pin the server part can.
-  const digests = [/with-solver\/package\.yaml:0: inventory is not the inventory of the module: they differ at #\/inventory\/server_part\/digest/, /with-solver\/package\.yaml:0: the digest of the package is sha256:[0-9a-f]{64}, not sha256:3ff05331/];
+  const digests = [/with-solver\/package\.yaml:0: inventory is not the inventory of the module: they differ at #\/inventory\/server_part\/digest/, /with-solver\/package\.yaml:0: the digest of the package is sha256:[0-9a-f]{64}, not sha256:1e176443/];
   expectEachOf(realErrorsOf([[solver, first, first.replace("sweets: 10", "sweets: 11")]]), digests);
   // A result that makes its instance break a rule of a task: a key of 5 is the trap value before_ben.
   expectEachOf(realErrorsOf([[solver, first, first.replace("sweets: 10", "sweets: 5")]]), [...digests, /with-solver\/package\.yaml:0: the instance left = 2, to_ben = 3 of number-thought-of, with the results of its solver that the vector gives, breaks task\.trap-values/]);
@@ -1242,7 +1248,7 @@ test("the fixture of the module index is green: its example holds, and its vecto
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual([stats.schemas, stats.rules, stats.indexes], [14, 18, 5]);
+    assert.deepEqual([stats.schemas, stats.rules, stats.indexes], [14, 19, 5]);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -1374,9 +1380,9 @@ test("a published version of an earlier version of the format is a package as fi
   expectEachOf(spaced, [/format-transition\/published\/1\.0\.0\/inventory\.json:0: names the server part \{"digest":"sha256:[0-9a-f]{64}","size":\d+\}, and server\.json is /]);
   const current = realErrorsWith((root) => {
     const file = path.join(root, files, "inventory.json");
-    fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace('"module_format_version":"0.2"', '"module_format_version":"0.3"'));
+    fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace('"module_format_version":"0.2"', '"module_format_version":"0.4"'));
   });
-  assert.deepEqual(current, [`${files}:0: is a package of the format version 0.3: a published version of 0.3, which format/VERSION has, is laid out as a module, and one of a later version is none`]);
+  assert.deepEqual(current, [`${files}:0: is a package of the format version 0.4: a published version of 0.4, which format/VERSION has, is laid out as a module, and one of a later version is none`]);
   const placeless = realErrorsWith((root) => {
     const view = JSON.parse(fs.readFileSync(path.join(root, server), "utf8"));
     delete view.manifest.languages;
@@ -1388,4 +1394,96 @@ test("a published version of an earlier version of the format is a package as fi
     fs.writeFileSync(inventoryFile, canonicalText(inventory));
   });
   assert.deepEqual(placeless, [`${files}:0: holds no manifest.languages where the format keeps it in every version (section 2)`]);
+});
+
+// R108: the path of a task's picture is a media path whose names may hold placeholders, and
+// nothing else, so that what its instances name is a file that media/ can hold.
+test("task_picture_path is media_path for pictures, with placeholders after a -", () => {
+  const { $defs } = JSON.parse(fs.readFileSync(path.join(spec, "format", "schemas", "common.schema.json"), "utf8"));
+  const task = $defs.task_picture_path;
+  assert.deepEqual(task.not, $defs.media_path.not);
+  assert.equal(task.maxLength, $defs.media_path.maxLength);
+  const placeholder = "|\\{[a-z][a-z0-9_]*\\}";
+  assert.equal(task.pattern.replaceAll(placeholder, "").replaceAll("-([a-z0-9]+)", "-[a-z0-9]+"), $defs.media_path.pattern.replace("(png|jpg|webp|mp3)", "(png|jpg|webp)"));
+  const takes = (text) => new RegExp(task.pattern, "u").test(text);
+  for (const text of ["pictures/split-{total}-{parts}.png", "pictures/split-12-3.png", "rows-{n}/dots.png"]) assert.ok(takes(text), text);
+  for (const text of ["pictures/{total}-apples.png", "pictures/split{total}.png", "pictures/split--3.png", "pictures/split-{Total}.png", "sound-{a}.mp3"]) assert.ok(!takes(text), text);
+});
+
+// T88: the page of a workbook. The fixture takes spec's own page.yaml, its two schemas and two of
+// its vectors, a page and a refusal: they refer to no other schema.
+const PAGE_FROM = (file) => fs.readFileSync(path.join(spec, "format", file), "utf8");
+const pageFixture = () => [
+  ["format/schemas/page.schema.json", null, PAGE_FROM("schemas/page.schema.json").replace("/format/0.4/", "/format/0.1/").replace("/format/0.3/", "/format/0.1/")],
+  ["format/schemas/page-vector.schema.json", null, PAGE_FROM("schemas/page-vector.schema.json").replace("/format/0.4/", "/format/0.1/").replace("/format/0.3/", "/format/0.1/")],
+  ["format/page.yaml", null, PAGE_FROM("page.yaml")],
+  ["format/vectors/pages/times-ten.yaml", null, PAGE_FROM("vectors/pages/times-ten.yaml")],
+  ["format/vectors/pages/huge-piece.yaml", null, PAGE_FROM("vectors/pages/huge-piece.yaml")],
+];
+
+test("the page: page.yaml, its schema, and the vectors of the page laid out by it", () => {
+  const root = trialCopy(pageFixture());
+  try {
+    const { errors, stats } = checkFormat(root);
+    assert.deepEqual(errors, []);
+    assert.deepEqual([stats.schemas, stats.pages], [10, 2]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+  const times = "format/vectors/pages/times-ten.yaml";
+  expectOnly([...pageFixture(), [times, "bottom: 668", "bottom: 669"]], /times-ten\.yaml:0: the page is not the one that section 14 lays out: they differ at #\/bottom/);
+  expectOnly([...pageFixture(), [times, "left: 201", "left: 202"]], /times-ten\.yaml:0: the page is not the one that section 14 lays out: they differ at #\/page\/0\/line\/1\/left/);
+  expectOnly([...pageFixture(), ["format/vectors/pages/huge-piece.yaml", "no_room_at: 0", "no_room_at: 1"]], /huge-piece\.yaml:0: the page has no room at item 0, from 0, and the vector says 1/);
+  expectOnly([...pageFixture(), ["format/vectors/pages/empty.yaml", null, "items: []\nbottom: 40\npage: []\n"]], /empty\.yaml:0: does not pass the schema of page vectors: minItems at #\/items/);
+  expectOnly([...pageFixture(), ["format/vectors/pages/folder/case.yaml", null, "a: 1\n"]], /pages\/folder:0: a vector of the page is a file, <case>\.yaml/);
+  expectOnly([...pageFixture(), ["format/schemas/page-vector.schema.json", "", null]], /^format\/vectors\/pages:0: no schema page-vector\.schema\.json for the vectors of the page/);
+  expectEach([...pageFixture(), ["format/page.yaml", "most_items: 99", "most_items: 0"]], [/^format\/page\.yaml:0: does not pass the schema of the page: minimum at #\/most_items/, /^format\/vectors\/pages:0: the vectors of the page are laid out by format\/page\.yaml, which this run has not/]);
+  expectEach([...pageFixture(), ["format/page.yaml", "", null]], [/^format\/page\.yaml:0: the numbers and widths of the workbook's page are missing/, /^format\/vectors\/pages:0: the vectors of the page are laid out by format\/page\.yaml, which this run has not/]);
+  expectOnly([...pageFixture().filter(([file]) => !file.startsWith("format/vectors/") && !file.includes("page-vector")), ["format/schemas/page.schema.json", "", null]], /^format\/page\.yaml:0: no schema page\.schema\.json for the numbers and widths of the page/);
+});
+
+test("pageOf lays out no page without a table, and the table reads code points and ranges", () => {
+  usePage(null);
+  assert.equal(hasPage(), false);
+  assert.throws(() => pageOf([{ line: [{ text: "1 + 1 =" }, { binding: "box" }] }]), /lays out no page without format\/page\.yaml/);
+  const table = readModuleFile(fs.readFileSync(path.join(spec, "format", "page.yaml"))).value;
+  usePage(table);
+  assert.equal(hasPage(), true);
+  // A page of nothing; a box alone; a line of one word wider than the page, broken by its clusters.
+  assert.deepEqual(pageOf([]), { page: { items: [], bottom: 40 } });
+  assert.equal(pageOf([{ line: [{ binding: "box" }] }]).page.bottom, 140);
+  const long = pageOf([{ line: [{ text: "w".repeat(200) }, { binding: "box" }] }]).page;
+  assert.ok(long.items[0].line.filter((part) => part.text).length > 1, "the word is broken between its clusters");
+  // Twenty rows of short items fill the page; the row after them has no room.
+  assert.equal(pageOf(Array.from({ length: 21 }, () => ({ line: [{ text: "x =" }, { binding: "box" }] }))).noRoomAt, 20);
+  usePage(null);
+});
+
+// T89: the rules of a worked example on a workbook, on a lesson's file alone.
+test("a worked example on a workbook fills each box of its lines once, and its lines and values fit the page", () => {
+  const lessonOf = (fills, lines = [[{ text: "23 ÷ 4 =" }, { binding: "box", value: "5" }, { text: "r" }, { binding: "box", value: "3" }]], kind = "workbook") => ({
+    segments: [{ worked_example: { canvas: { kind }, lines: lines.map((line) => ({ line })), demo: [{ text: "Count." }, ...fills.map(([line, box]) => ({ fill: { line, box } }))] } }],
+  });
+  // Each line takes a row of its own, and the page holds ten such rows.
+  const long = Array.from({ length: 11 }, (_, n) => [{ text: `Share ${23 + n} apples into heaps of four; the apples left over are` }, { binding: "box", value: "1" }]);
+  usePage(readModuleFile(fs.readFileSync(path.join(spec, "format", "page.yaml"))).value);
+  try {
+    assert.deepEqual([...lessonRuleBreaches(lessonOf([[1, 2], [1, 1]]))], []);
+    assert.match(lessonRuleBreaches(lessonOf([[1, 1], [1, 1], [1, 2]])).get("lesson.example-fills"), /box 1 of line 1 is filled 2 times/);
+    assert.match(lessonRuleBreaches(lessonOf([[1, 1], [1, 2], [2, 1]])).get("lesson.example-fills"), /a fill names box 1 of line 2, which the example has not/);
+    assert.match(lessonRuleBreaches(lessonOf([[1, 1]])).get("lesson.example-fills"), /box 2 of line 1 is filled 0 times/);
+    assert.match(lessonRuleBreaches(lessonOf(long.map((_, n) => [n + 1, 1]), long)).get("lesson.workbook-page"), /line 11 of the example has no room on the page/);
+    // A value wider than its box, 100 units at the type size 30.
+    assert.deepEqual([...lessonRuleBreaches(lessonOf([[1, 1]], [[{ text: "7 × 8 =" }, { binding: "box", value: "56" }]]))], []);
+    assert.match(lessonRuleBreaches(lessonOf([[1, 1]], [[{ text: "Left over:" }, { binding: "box", value: "three apples" }]])).get("lesson.workbook-page"), /the value "three apples" is wider than its box/);
+    // The first breach of a lesson is the one named, segment by segment.
+    const two = { segments: [...lessonOf([[1, 1]]).segments, ...lessonOf([[1, 1], [1, 2], [2, 1]]).segments] };
+    assert.match(lessonRuleBreaches(two).get("lesson.example-fills"), /^#\/segments\/0: /);
+    // A worked example on a sheet, and a lesson without one, break neither rule.
+    assert.deepEqual([...lessonRuleBreaches({ segments: [{ worked_example: { canvas: { kind: "handwriting_sheet" }, demo: [{ text: "Count." }] } }, { task: "t" }] })], []);
+    assert.deepEqual([...lessonRuleBreaches({})], []);
+  } finally {
+    usePage(null);
+  }
+  assert.deepEqual([...lessonRuleBreaches(lessonOf(long.map((_, n) => [n + 1, 1]), long))], [], "without page.yaml the page is not checked");
 });

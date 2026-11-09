@@ -1,0 +1,10 @@
+# error: minItems at #/segments/0/explanation/0/numbered_list
+# A numbered list holds two texts at least: one text is a paragraph.
+id: the-worst-luck
+title: The worst luck
+skills: [pigeonhole]
+segments:
+  - explanation:
+      - numbered_list:
+          - Find the holes and the pigeons.
+  - task: pigeonhole-socks

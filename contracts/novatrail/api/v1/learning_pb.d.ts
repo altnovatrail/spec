@@ -346,6 +346,16 @@ export declare type OpenAttempt = Message<"novatrail.api.v1.OpenAttempt"> & {
    * @generated from field: repeated novatrail.api.v1.EssaySubmission essay_submissions = 8;
    */
   essaySubmissions: EssaySubmission[];
+
+  /**
+   * The task's leading question as a hint asked for gave it, with the techniques, before the first
+   * wrong answer or on a task with a rubric: empty when none was given, and when the task has none.
+   * It is a closed field of the module format, so the open view of the task does not hold it, and
+   * a device that goes on with the attempt shows it from here (R108).
+   *
+   * @generated from field: string requested_leading_question = 9;
+   */
+  requestedLeadingQuestion: string;
 };
 
 /**
