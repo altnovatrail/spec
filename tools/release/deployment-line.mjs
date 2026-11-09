@@ -44,7 +44,7 @@ export const checked = (outputs) => partChecked(DEPLOYMENT, outputs);
 // R85's rule, for the release of version after previous, with the configuration's versions at
 // each and what changed of its shape between them, as a phrase, or null.
 export function checkDeploymentLine({ version, previous, deploymentNow, deploymentThen, changed = null }) {
-  checkPartLine(DEPLOYMENT, { version, previous, now: deploymentNow, then: deploymentThen, changed });
+  checkPartLine(DEPLOYMENT, { version, previous, now: deploymentNow, before: deploymentThen, changed });
 }
 
 // The shape of a schema: the schema with its annotations taken out at every level, as JSON with

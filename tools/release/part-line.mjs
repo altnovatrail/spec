@@ -28,21 +28,21 @@ export function checked(part, { version, previous }) {
 }
 
 // The rule, for the release of version after previous, with the part's versions at each, now and
-// then, and what changed between them that its text makes a new version, as a phrase — "the table
+// before, and what changed between them that its text makes a new version, as a phrase — "the table
 // changed" — or null.
-export function checkPartLine(part, { version, previous, now, then, changed = null }) {
-  if (now === then) {
+export function checkPartLine(part, { version, previous, now, before, changed = null }) {
+  if (now === before) {
     if (changed) throw new Error(`${changed} after ${previous}, and ${part.file} is still ${now}: ${part.rule}, in a new line (${part.decision})`);
     return;
   }
   // A version that went back is refused first, whatever the line: a raised line would not let it
   // pass.
-  if (part.below(now, then)) {
-    throw new Error(`${part.file} is ${now}, below ${then} at ${previous}: a version of ${part.name} never goes back, and undoing a change is a new version too (${part.decision})`);
+  if (part.below(now, before)) {
+    throw new Error(`${part.file} is ${now}, below ${before} at ${previous}: a version of ${part.name} never goes back, and undoing a change is a new version too (${part.decision})`);
   }
   const previousLine = lineOf(previous);
   if (compareLines(lineOf(version), previousLine) <= 0) {
-    throw new Error(`${part.file} is ${now}, and at ${previous} it was ${then}: a new version of ${part.name} starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change (${part.decision})`);
+    throw new Error(`${part.file} is ${now}, and at ${previous} it was ${before}: a new version of ${part.name} starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change (${part.decision})`);
   }
 }
 
@@ -66,7 +66,7 @@ export function partLineOutput(part, changedBetween, { input, commit = "", cwd =
   const outputs = readOutputs(input);
   if (checked(part, outputs)) {
     if (!/^[0-9a-f]{40,64}$/.test(commit)) throw new Error(`the commit is '${commit}', not a SHA`);
-    checkPartLine(part, { ...outputs, now: versionAt(part, commit, cwd), then: versionAt(part, outputs.previous, cwd), changed: changedBetween(commit, outputs.previous, cwd) });
+    checkPartLine(part, { ...outputs, now: versionAt(part, commit, cwd), before: versionAt(part, outputs.previous, cwd), changed: changedBetween(commit, outputs.previous, cwd) });
   }
   return input;
 }

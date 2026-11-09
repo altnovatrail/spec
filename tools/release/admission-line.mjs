@@ -36,7 +36,7 @@ export const checked = (outputs) => partChecked(ADMISSION, outputs);
 // R96's rule, for the release of version after previous, with the table's versions at each and
 // whether admission-table.json changed between them.
 export function checkAdmissionLine({ version, previous, admissionNow, admissionThen, tableChanged = false }) {
-  checkPartLine(ADMISSION, { version, previous, now: admissionNow, then: admissionThen, changed: tableChanged ? `${TABLE} changed` : null });
+  checkPartLine(ADMISSION, { version, previous, now: admissionNow, before: admissionThen, changed: tableChanged ? `${TABLE} changed` : null });
 }
 
 // Whether admission-table.json is another file at revision than at previous, in the repository at
