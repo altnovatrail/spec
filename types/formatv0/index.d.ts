@@ -909,6 +909,14 @@ export interface Check {
    */
   readonly options?: readonly Text[];
   /**
+   * Of a choice written by hand: what is in notation. options, unless given: the options alone.
+   * word: the options, and any other value that is one word of letters, which gets not_yet; the key
+   * is one such word, and the other options may be phrases.
+   *
+   * @defaultValue "options"
+   */
+  readonly notation?: CheckNotation;
+  /**
    * Of a number, a fraction or a choice: the wrong values that the author knows, each with the trap
    * it shows, compared with the value read as the key is.
    */
@@ -939,6 +947,15 @@ export type CheckKind = "number" | "fraction" | "choice" | "predicate" | "rubric
  * given.
  */
 export type CheckForm = "any" | "reduced";
+
+/**
+ * CheckNotation is the type of task.schema.json#/$defs/check/properties/notation.
+ *
+ * Of a choice written by hand: what is in notation. options, unless given: the options alone. word:
+ * the options, and any other value that is one word of letters, which gets not_yet; the key is one
+ * such word, and the other options may be phrases.
+ */
+export type CheckNotation = "options" | "word";
 
 /**
  * TrapValue is the type of task.schema.json#/$defs/trap_value.
@@ -991,7 +1008,8 @@ export type SheetCheck = Check;
 /**
  * ChosenCheck is the type of task.schema.json#/$defs/chosen_check.
  *
- * The check of a choice by tapping: its options are the answer slot's, and the check holds none.
+ * The check of a choice by tapping: its options are the answer slot's, and the check holds none,
+ * nor a notation.
  */
 export type ChosenCheck = Check;
 

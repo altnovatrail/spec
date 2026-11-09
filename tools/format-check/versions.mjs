@@ -155,10 +155,11 @@ export function packageFromFiles(files) {
 
 // What decides the verdict and the trap of an answer slot, which a comparison compares by meaning
 // (section 27): the kind always; for number, the key as a rational and the set of units as a unit
-// compares; for fraction, the key as a rational and the form, any unless given; for choice, the key
-// and the set of options — the check's own, or the slot's when it is bound choice — as a choice
-// compares them; for predicate, the predicate as written; and the set of trap values, each the value
-// as the check compares it with its trap. A rubric gives no verdict: its criteria are compared apart.
+// compares; for fraction, the key as a rational and the form, any unless given; for choice, the
+// notation, options unless given, and the key and the set of options — the check's own, or the
+// slot's when it is bound choice — as a choice of that notation compares them; for predicate, the
+// predicate as written; and the set of trap values, each the value as the check compares it with
+// its trap. A rubric gives no verdict: its criteria are compared apart.
 // A canonical text, so that two checks of one meaning give the same one.
 export function checkMeaningOf(slot) {
   const { check } = slot;
@@ -167,7 +168,11 @@ export function checkMeaningOf(slot) {
   const meaning = { kind: check.kind };
   if (check.kind === "number") Object.assign(meaning, { key: comparableOf(slot, check.key), units: set((check.units ?? []).map(unitForm).filter((unit) => unit !== "")), traps: set(traps) });
   else if (check.kind === "fraction") Object.assign(meaning, { key: comparableOf(slot, check.key), form: check.form ?? "any", traps: set(traps) });
-  else if (check.kind === "choice") Object.assign(meaning, { key: choiceForm(check.key), options: set((check.options ?? slot.options ?? []).map(choiceForm)), traps: set(traps) });
+  else if (check.kind === "choice") {
+    const notation = check.notation ?? "options";
+    const form = (text) => choiceForm(text, notation);
+    Object.assign(meaning, { notation, key: form(check.key), options: set((check.options ?? slot.options ?? []).map(form)), traps: set(traps) });
+  }
   else if (check.kind === "predicate") meaning.predicate = check.predicate;
   else if (check.kind !== "rubric") throw new Error(`format-check compares no check of the kind ${check.kind}: tools/format-check/versions.mjs has to`);
   return canonicalText(meaning);

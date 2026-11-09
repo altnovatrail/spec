@@ -5,7 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkVerdictVector } from "../cases.mjs";
-import { answerSlotsOf, comparableOf, itemVerdict, lowercase, normalized, rationalOf, readNumber, readingOf, scriptsReplaced, slotBreaches, slotVerdict, trapOf } from "../verdicts.mjs";
+import { answerSlotsOf, choiceForm, comparableOf, isWord, itemVerdict, lowercase, normalized, rationalOf, readNumber, readingOf, scriptsReplaced, slotBreaches, slotVerdict, trapOf } from "../verdicts.mjs";
 
 const slot = (check, options) => (options ? { binding: "choice", options, check } : { binding: "anywhere", check });
 const verdictOf = (check, value, options) => slotVerdict(slot(check, options), value);
@@ -100,6 +100,42 @@ test("a choice compares the value with its options in lowercase, dropping nothin
   const tapped = { kind: "choice", key: "B" };
   assert.deepEqual(verdictOf(tapped, "A", ["A", "B"]), NOT_YET, "the options of a choice by tapping are the answer slot's");
   assert.deepEqual(verdictOf(tapped, "B", ["A", "B"]), CORRECT);
+});
+
+// R111, В28 modules: the key and the value are one word, and an option may be a phrase.
+test("a choice of notation word takes one word that is none of the options as not yet right", () => {
+  const names = { kind: "choice", notation: "word", options: ["Kim", "Lea", "It is impossible to tell"], key: "Kim" };
+  for (const value of ["Kim", "kim.", "KIM!", "Kim ?", "Kim...", " kim "]) assert.deepEqual(verdictOf(names, value), CORRECT, value);
+  for (const value of ["Lea", "It is impossible to tell.", "Maya", "A", "Zoë", "Ёлка"]) assert.deepEqual(verdictOf(names, value), NOT_YET, value);
+  for (const value of ["Kim and Lea", "Ann-Marie", "Kim2", "O'Neil", ".Kim"]) assert.deepEqual(verdictOf(names, value), NOTATION, value);
+  // A value with nothing left once its end is dropped is blank, as a number's is.
+  for (const value of ["  ", "?", "!.", " . "]) assert.deepEqual(verdictOf(names, value), BLANK, value);
+  assert.deepEqual(readingOf(slot(names), "?"), { blank: true });
+  // A word of a script with marks: the vowel signs of Devanagari are M.
+  assert.deepEqual(verdictOf(names, "नमस्ते"), NOT_YET);
+  // Without the notation, nothing is dropped and no other word is read.
+  const options = { ...names, notation: undefined };
+  assert.deepEqual(verdictOf(options, "kim."), NOTATION);
+  assert.deepEqual(verdictOf(options, "Maya"), NOTATION);
+  assert.deepEqual(verdictOf({ ...names, notation: "options" }, "Maya"), NOTATION);
+  // A word of letters is letters alone, in any script, after NFKC and lowercase.
+  assert.equal(choiceForm("Kim?! ", "word"), "kim");
+  assert.equal(choiceForm("Kim?! "), "kim?!");
+  for (const form of ["kim", "zoë", "ёлка", "名前", "नमस्ते", "e\u0301"]) assert.ok(isWord(form), form);
+  for (const form of ["", "kim lea", "ann-marie", "kim2", "o'neil", "\u0301e"]) assert.ok(!isWord(form), form);
+  // The key of such a choice is one word; and a full stop no longer tells two options apart.
+  assert.deepEqual(slotBreaches(slot({ ...names, key: "It is impossible to tell" })), ["task.choice-key"]);
+  assert.deepEqual(slotBreaches(slot({ ...names, options: ["Kim.", "Lea"], key: "Kim." })), ["task.choice-key"], "the key is a word as written, so the leak check finds it");
+  assert.deepEqual(slotBreaches(slot({ ...names, options: ["Kim", "Kim.", "Lea"] })), ["task.choice-options"]);
+  assert.deepEqual(slotBreaches(slot({ ...names, options: ["Kim", "Lea", "?"] })), ["task.choice-options"], "an option with nothing left");
+  assert.deepEqual(slotBreaches(slot({ kind: "choice", options: ["Kim", "?"], key: "Kim" })), [], "without the notation, ? is an option like a sign");
+  assert.deepEqual(slotBreaches(slot({ ...names, trap_values: [{ value: "It is impossible to tell", trap: "gave-up" }] })), [], "a trap value may be a phrase");
+  // A wrong word matches no trap; a wrong option does, with its end dropped.
+  const trapped = { ...names, trap_values: [{ value: "Lea", trap: "reversed" }] };
+  assert.equal(trapOf(slot(trapped), "Lea."), "reversed");
+  assert.equal(trapOf(slot(trapped), "Maya"), null);
+  assert.deepEqual(readingOf(slot(names), "Maya."), { compared: "maya", verdict: "not_yet" });
+  assert.deepEqual(readingOf(slot(names), "Kim and Lea"), { notation: "kim and lea" });
 });
 
 test("a predicate reads an integer, and leaves the rest to Starlark", () => {

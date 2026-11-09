@@ -588,6 +588,14 @@
           "uniqueItems": true,
           "description": "Of a choice written by hand: the options the learner writes one of, such as the signs <, > and =."
         },
+        "notation": {
+          "enum": [
+            "options",
+            "word"
+          ],
+          "default": "options",
+          "description": "Of a choice written by hand: what is in notation. options, unless given: the options alone. word: the options, and any other value that is one word of letters, which gets not_yet; the key is one such word, and the other options may be phrases."
+        },
         "trap_values": {
           "type": "array",
           "items": {
@@ -667,6 +675,11 @@
                 },
                 {
                   "required": [
+                    "notation"
+                  ]
+                },
+                {
+                  "required": [
                     "predicate"
                   ]
                 },
@@ -725,6 +738,11 @@
                 {
                   "required": [
                     "options"
+                  ]
+                },
+                {
+                  "required": [
+                    "notation"
                   ]
                 },
                 {
@@ -821,6 +839,11 @@
                 },
                 {
                   "required": [
+                    "notation"
+                  ]
+                },
+                {
+                  "required": [
                     "criteria"
                   ]
                 },
@@ -868,6 +891,11 @@
                 {
                   "required": [
                     "options"
+                  ]
+                },
+                {
+                  "required": [
+                    "notation"
                   ]
                 },
                 {
@@ -926,11 +954,20 @@
         }
       },
       "not": {
-        "required": [
-          "options"
+        "anyOf": [
+          {
+            "required": [
+              "options"
+            ]
+          },
+          {
+            "required": [
+              "notation"
+            ]
+          }
         ]
       },
-      "description": "The check of a choice by tapping: its options are the answer slot's, and the check holds none."
+      "description": "The check of a choice by tapping: its options are the answer slot's, and the check holds none, nor a notation."
     },
     "sheet_check": {
       "$ref": "#/$defs/check",

@@ -138,7 +138,7 @@ function numberOf(check, value) {
 export function slotVerdict(slot, value) {
   const { check } = slot;
   if (value === null) return BLANK;
-  if (check.kind === "choice") return choiceVerdict(value, check.key, check.options ?? slot.options);
+  if (check.kind === "choice") return choiceVerdict(value, check, check.options ?? slot.options);
   if (!["number", "fraction", "predicate"].includes(check.kind)) throw new Error(`format-check computes no verdict of the check kind ${check.kind}`);
   const { number, reason } = numberOf(check, value);
   if (reason) return reason === "blank" ? BLANK : NOTATION;
@@ -148,22 +148,33 @@ export function slotVerdict(slot, value) {
   return CORRECT;
 }
 
-// What a choice compares: the text normalized and in lowercase.
-export const choiceForm = (text) => lowercase(normalized(text));
+// What a choice compares: the text normalized and in lowercase, and with notation word, without
+// the ., !, ? and spaces at its end (section 15; R111).
+export const choiceForm = (text, notation = "options") => {
+  const form = lowercase(normalized(text));
+  return notation === "word" ? withoutEnd(form, ".!? ") : form;
+};
 
-// A choice compares the value with the key and the options, all normalized and in lowercase.
-function choiceVerdict(value, key, options) {
-  const read = choiceForm(value);
+// One word of letters: a letter, the general category L, then letters and marks, M, as a word of
+// Devanagari or Thai has its vowel signs, and nothing else.
+export const isWord = (form) => /^\p{L}[\p{L}\p{M}]*$/u.test(form);
+
+// A choice compares the value with the key and the options, all normalized and in lowercase: a value
+// with nothing left is blank. With notation word, a value that is none of the options but one word of
+// letters is not yet right too.
+function choiceVerdict(value, { key, notation }, options) {
+  const read = choiceForm(value, notation);
   if (read === "") return BLANK;
-  if (read === choiceForm(key)) return CORRECT;
-  return options.some((option) => choiceForm(option) === read) ? NOT_YET : NOTATION;
+  if (read === choiceForm(key, notation)) return CORRECT;
+  if (options.some((option) => choiceForm(option, notation) === read)) return NOT_YET;
+  return notation === "word" && isWord(read) ? NOT_YET : NOTATION;
 }
 
 // What the check of an answer slot compares a value by, as a string, or null when the value is not
 // in its notation: a choice, its normal form; a number or a fraction, its value in lowest terms.
 export function comparableOf(slot, value) {
   const { check } = slot;
-  if (check.kind === "choice") return choiceForm(value);
+  if (check.kind === "choice") return choiceForm(value, check.notation);
   if (check.kind !== "number" && check.kind !== "fraction") return null;
   const { number } = numberOf(check, value);
   return number ? lowestTerms(number) : null;
@@ -188,7 +199,7 @@ export function readingOf(slot, value) {
   const verdict = slotVerdict(slot, value);
   if (verdict?.reason === "blank") return { blank: true };
   if (check.kind === "choice") {
-    const form = choiceForm(value);
+    const form = choiceForm(value, check.notation);
     return verdict.reason === "notation" ? { notation: form } : { compared: form, verdict: verdict.verdict };
   }
   if (verdict?.reason === "notation") return { notation: readNumber(value, check.kind === "number" ? check.units : []).text };
@@ -204,8 +215,9 @@ export function trapOf(slot, value) {
 }
 
 // The rules of a task that an answer slot's check breaks by itself (section 15): task.choice-key, a
-// key that is none of the options as written; task.choice-options, two options alike once
-// normalized; task.fraction-key, a key not in lowest terms when the form is reduced;
+// key that is none of the options as written, or with notation word no word of letters as written,
+// normalized but with its end kept; task.choice-options, two options alike once normalized with the
+// notation, or with notation word an option with nothing left; task.fraction-key, a key not in lowest terms when the form is reduced;
 // task.trap-values, a trap value that is not yet right, for a choice not an option as written, or
 // two trap values that the check compares equal. A key or a trap value of a number or a fraction
 // that holds a placeholder, outside a template, breaks task.placeholders, and nothing else is read
@@ -222,9 +234,9 @@ export function slotBreaches(slot, unsolved = false) {
   const breaches = [];
   const options = check.options ?? slot.options ?? [];
   if (check.kind === "choice") {
-    if (!options.includes(check.key)) breaches.push("task.choice-key");
-    const forms = options.map(choiceForm);
-    if (new Set(forms).size !== forms.length) breaches.push("task.choice-options");
+    if (!options.includes(check.key) || (check.notation === "word" && !isWord(choiceForm(check.key)))) breaches.push("task.choice-key");
+    const forms = options.map((option) => choiceForm(option, check.notation));
+    if (new Set(forms).size !== forms.length || forms.includes("")) breaches.push("task.choice-options");
   }
   if (check.kind === "fraction" && check.form === "reduced") {
     const key = rationalOf(check.key, "fraction");

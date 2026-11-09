@@ -142,6 +142,10 @@ test("a check is compared by what decides its verdict and its trap", () => {
   same(slot({ kind: "fraction", key: "6/8" }), slot({ kind: "fraction", key: "3/4", form: "any" }));
   other(slot({ kind: "fraction", key: "3/4" }), slot({ kind: "fraction", key: "3/4", form: "reduced" }));
   same(slot({ kind: "choice", key: "ODD", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["Odd", "Even"] }));
+  // The notation decides the verdict of a word that is none of the options (R111): options unless given.
+  same(slot({ kind: "choice", key: "odd", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["even", "odd"], notation: "options" }));
+  other(slot({ kind: "choice", key: "odd", options: ["even", "odd"] }), slot({ kind: "choice", key: "odd", options: ["even", "odd"], notation: "word" }));
+  same(slot({ kind: "choice", key: "Kim.", options: ["Kim.", "Lea"], notation: "word" }), slot({ kind: "choice", key: "kim", options: ["lea", "kim"], notation: "word" }));
   same(slot({ kind: "choice", key: "a" }, { binding: "choice", options: ["a", "b"] }), slot({ kind: "choice", key: "A" }, { binding: "choice", options: ["B", "A"] }));
   other(slot({ kind: "choice", key: "a" }, { binding: "choice", options: ["a", "b"] }), slot({ kind: "choice", key: "a" }, { binding: "choice", options: ["a", "b", "c"] }));
   other(slot({ kind: "predicate", predicate: "value > 1" }), slot({ kind: "predicate", predicate: "value>1" }));

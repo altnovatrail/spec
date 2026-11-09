@@ -1,0 +1,52 @@
+# A choice written by hand with notation: word. The key is one word, while an option and a trap
+# value may be a phrase. A full stop, ! or ? at the end does not count, and a word that is none of
+# the options, such as a name from the statement, is a wrong answer; a phrase that is none of them,
+# or a word with a hyphen or a digit, is still not read, and a value with nothing left is blank.
+item:
+  answer_slots:
+    - binding: anywhere
+      check:
+        kind: choice
+        notation: word
+        options: [Kim, Lea, It is impossible to tell]
+        key: Kim
+        trap_values:
+          - {value: Lea, trap: reversed-order}
+          - {value: It is impossible to tell, trap: gave-up-on-the-order}
+readings:
+  - answer_slots:
+      - {value: "Kim", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "kim.", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: " KIM ?! ", verdict: correct}
+    verdict: correct
+  - answer_slots:
+      - {value: "Lea", verdict: not_yet, trap: reversed-order}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "It is impossible to tell.", verdict: not_yet, trap: gave-up-on-the-order}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "Maya", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "A", verdict: not_yet}
+    verdict: not_yet
+  - answer_slots:
+      - {value: "Kim and Lea", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "Ann-Marie", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "Kim2", verdict: unreadable, reason: notation}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "?", verdict: unreadable, reason: blank}
+    verdict: unreadable
+  - answer_slots:
+      - {value: "", verdict: unreadable, reason: blank}
+    verdict: unreadable

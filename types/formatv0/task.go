@@ -140,6 +140,12 @@ type Check struct {
 	// Of a choice written by hand: the options the learner writes one of, such as the signs <, >
 	// and =.
 	Options []Text `json:"options,omitzero"`
+	// Of a choice written by hand: what is in notation. options, unless given: the options alone.
+	// word: the options, and any other value that is one word of letters, which gets not_yet; the
+	// key is one such word, and the other options may be phrases.
+	//
+	// Default: "options".
+	Notation *CheckNotation `json:"notation,omitzero"`
 	// Of a number, a fraction or a choice: the wrong values that the author knows, each with the
 	// trap it shows, compared with the value read as the key is.
 	TrapValues []TrapValue `json:"trap_values,omitzero"`
@@ -177,6 +183,19 @@ const (
 	CheckFormReduced CheckForm = "reduced"
 )
 
+// CheckNotation is the type of task.schema.json#/$defs/check/properties/notation.
+//
+// Of a choice written by hand: what is in notation. options, unless given: the options alone. word:
+// the options, and any other value that is one word of letters, which gets not_yet; the key is one
+// such word, and the other options may be phrases.
+type CheckNotation string
+
+// The values of CheckNotation.
+const (
+	CheckNotationOptions CheckNotation = "options"
+	CheckNotationWord    CheckNotation = "word"
+)
+
 // TrapValue is the type of task.schema.json#/$defs/trap_value.
 //
 // A wrong value that the author knows, with the trap it shows.
@@ -211,7 +230,8 @@ type SheetCheck = Check
 
 // ChosenCheck is the type of task.schema.json#/$defs/chosen_check.
 //
-// The check of a choice by tapping: its options are the answer slot's, and the check holds none.
+// The check of a choice by tapping: its options are the answer slot's, and the check holds none,
+// nor a notation.
 type ChosenCheck = Check
 
 // LinePart is the type of task.schema.json#/$defs/line_part.
