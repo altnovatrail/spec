@@ -311,6 +311,9 @@ export function checkIndexVector(folder, { layout, validatorOf, version, forms, 
     for (const message of indexFormProblems(value[field], version, field === "previous")) problems.push({ file: INDEX_FILE, line: 0, message: `${field}: ${message}` });
   }
   if (problems.length || !built) return { problems, refusal: value.refusal };
+  // The form above holds the previous index to what the build reads: valid against the schema of the
+  // index, by the schema of index vectors, and of no later format version. So no vector fails a
+  // release (section 26).
   const { index, breaches } = indexOf({ version, previous: value.previous, packages, release: value.release, withdrawals: value.withdrawals });
   problems.push(...refusalProblems(breaches, value.refusal, INDEX_FILE, "the build"));
   const at = breaches.length || value.refusal !== undefined ? null : differenceOf(index, value.index);

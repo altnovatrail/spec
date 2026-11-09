@@ -7,6 +7,11 @@
 const SYMBOLS = ["==", "!=", "<=", ">=", "//", "<", ">", "+", "-", "*", "%", "(", ")"];
 const COMPARISONS = new Set(["==", "!=", "<", "<=", ">", ">="]);
 const WORDS = new Set(["and", "or", "not"]);
+// How deep an expression nests at most: each parenthesis, unary - and not is a level within the one
+// around it. go.starlark.net at the version of the format parses no deeper than about 75
+// parentheses, or 987 unary - in a row, as module-kit found (R102; R32 module-kit, its
+// template/expression.go at aa7686c, read 2026-11-09), and 64 is below both with room to spare.
+export const MOST_LEVELS = 64;
 
 // What reading or typing an expression throws, with the problem to name: any other error is a fault
 // of this code, and goes on.
@@ -51,11 +56,21 @@ export function tokensOf(text) {
 }
 
 // The tree of an expression: { tree } or { problem }. A node is { int }, { name }, { op, operand } for
-// not and unary -, or { op, left, right }.
+// not and unary -, or { op, left, right }. It begins with a token, since go.starlark.net reads a space
+// before it as an indent, and nests at most MOST_LEVELS levels (R102, В28 module-kit).
 export function parseExpression(text) {
+  if (text.startsWith(" ")) return { problem: "it begins with a space: an expression begins with a token" };
   const { tokens, problem } = tokensOf(text);
   if (problem) return { problem };
   let at = 0;
+  let levels = 0;
+  // read() one level deeper than the expression around it.
+  const deeper = (read) => {
+    if (++levels > MOST_LEVELS) fail(`it nests deeper than ${MOST_LEVELS} levels of parentheses, unary - and not`);
+    const node = read();
+    levels--;
+    return node;
+  };
   const peek = () => tokens[at]?.text;
   const fail = (message) => {
     throw new ExpressionProblem(message);
@@ -67,7 +82,7 @@ export function parseExpression(text) {
   function negation() {
     if (peek() !== "not") return comparison();
     next();
-    return { op: "not", operand: negation() };
+    return deeper(() => ({ op: "not", operand: negation() }));
   }
   function comparison() {
     const left = sum();
@@ -82,7 +97,7 @@ export function parseExpression(text) {
   function unary() {
     if (peek() !== "-") return atom();
     next();
-    return { op: "negate", operand: unary() };
+    return deeper(() => ({ op: "negate", operand: unary() }));
   }
   function atom() {
     const token = next();
@@ -90,10 +105,12 @@ export function parseExpression(text) {
     if (token.kind === "int") return { int: BigInt(token.text) };
     if (token.kind === "name") return { name: token.text };
     if (token.text !== "(") fail(`${token.text} stands where an operand is due`);
-    const inner = expression();
-    if (peek() !== ")") fail("a ( is not closed");
-    next();
-    return inner;
+    return deeper(() => {
+      const inner = expression();
+      if (peek() !== ")") fail("a ( is not closed");
+      next();
+      return inner;
+    });
   }
   function binary(operand, ops) {
     let left = operand();

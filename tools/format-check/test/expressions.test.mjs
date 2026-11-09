@@ -8,7 +8,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { EvaluationError, evaluate, parseExpression, tokensOf, typeOf } from "../expressions.mjs";
+import { EvaluationError, MOST_LEVELS, evaluate, parseExpression, tokensOf, typeOf } from "../expressions.mjs";
 
 const value = (text, numbers = {}) => {
   const { tree, problem } = parseExpression(text);
@@ -80,6 +80,22 @@ test("comparisons do not chain, and the subset takes only its own tokens", () =>
   assert.match(problemOf("a b"), /b stands where the expression has ended/);
   assert.match(problemOf(""), /ends where an operand is due/);
   assert.deepEqual(tokensOf("a<=b//2").tokens.map((token) => token.text), ["a", "<=", "b", "//", "2"], "tokens need no spaces between them");
+});
+
+// R102, В28 module-kit: what the dialect of the format does not parse is none of the subset.
+test("an expression begins with a token and nests at most 64 levels of parentheses, unary - and not", () => {
+  assert.match(problemOf(" a + 1"), /begins with a space/);
+  assert.equal(problemOf("a + 1 "), undefined, "a space after it is no indent");
+  const nested = (count, open, close = "") => `${open.repeat(count)}a == 1${close.repeat(count)}`;
+  for (const [open, close] of [["(", ")"], ["- (", ")"], ["not ", ""]]) {
+    const per = open === "- (" ? 2 : 1;
+    assert.equal(problemOf(nested(MOST_LEVELS / per, open, close)), undefined, open);
+    assert.match(problemOf(nested(MOST_LEVELS / per + 1, open, close)), /nests deeper than 64 levels/, open);
+  }
+  // Levels are counted along a path, not over the whole expression.
+  assert.equal(problemOf(Array.from({ length: 100 }, () => "(a)").join(" + ")), undefined);
+  // The limit that section 23 of the format text names.
+  assert.equal(MOST_LEVELS, 64);
 });
 
 test("every expression is typed: ints for arithmetic and comparison, bools for logic, and known names only", () => {

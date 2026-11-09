@@ -99,7 +99,7 @@ test("the base fixture is green, and its invalid examples pin how ajv names an e
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 19, rules: 18, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0, indexes: 0, versions: 0 });
+    assert.deepEqual(stats, { schemas: 8, examples: 15, vectors: 20, rules: 19, openViews: 1, verdicts: 1, leaks: 1, random: 1, templates: 1, tiers: 0, packages: 0, indexes: 0, versions: 0 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -976,6 +976,9 @@ test("spec's vectors hold the bytes their names say", () => {
   const latin = caseOf("yaml.encoding/latin-1.yaml");
   assert.ok(latin.includes(0xe9) && !latin.includes(0xc3), "latin-1.yaml holds é as the one byte 0xE9");
   assert.ok(caseOf("yaml.characters/written-noncharacter.yaml").includes(Buffer.from([0xef, 0xb7, 0x90])), "U+FDD0 as UTF-8");
+  assert.ok(caseOf("yaml.printable/delete-in-double-quotes.yaml").includes(Buffer.from('"Count \u007f down"')), "U+007F written in double quotes");
+  assert.ok(caseOf("yaml.printable/c1-in-single-quotes.yaml").includes(Buffer.from([0x27, 0x43, 0x61, 0x66, 0xc2, 0x80, 0x65, 0x27])), "U+0080 as UTF-8 in single quotes");
+  assert.ok(caseOf("yaml.printable/delete-in-a-comment.yaml").includes(Buffer.from("either: \u007f\n")), "U+007F in a comment");
   const escapes = {
     "yaml.characters/escaped-surrogate.yaml": '"\\ud800"',
     "yaml.characters/escaped-surrogate-pair.yaml": '"\\ud83d\\ude00"',
@@ -1242,7 +1245,7 @@ test("the fixture of the module index is green: its example holds, and its vecto
   try {
     const { errors, stats } = checkFormat(root);
     assert.deepEqual(errors, []);
-    assert.deepEqual([stats.schemas, stats.rules, stats.indexes], [14, 18, 5]);
+    assert.deepEqual([stats.schemas, stats.rules, stats.indexes], [14, 19, 5]);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

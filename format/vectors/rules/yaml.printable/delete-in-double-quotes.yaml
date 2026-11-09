@@ -1,0 +1,2 @@
+# U+007F, DEL, written in double quotes: YAML 1.2.2 takes it there, and the format does not.
+title: "Count  down"
