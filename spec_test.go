@@ -201,6 +201,43 @@ func TestConsentAgeHoldsEveryFile(t *testing.T) {
 	}
 }
 
+// Export holds every file of export/, and its VERSION is an integer, which the field format of the
+// schema of each file of an export holds.
+func TestExportHoldsEveryFile(t *testing.T) {
+	embedded := filesOf(t, Export)
+	onDisk := filesOf(t, os.DirFS("export"))
+	if !slices.Equal(embedded, onDisk) {
+		t.Fatalf("Export holds %d files, and export/ %d", len(embedded), len(onDisk))
+	}
+	version, err := fs.ReadFile(Export, "VERSION")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !regexp.MustCompile(`^[1-9][0-9]*\n$`).Match(version) {
+		t.Fatalf("VERSION is %q, not an integer and a newline", version)
+	}
+	want := strings.TrimSuffix(string(version), "\n")
+	for _, term := range []string{"manifest", "account", "profile", "device"} {
+		data, err := fs.ReadFile(Export, "schemas/"+term+".schema.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		var schema struct {
+			Properties struct {
+				Format struct {
+					Const json.Number `json:"const"`
+				} `json:"format"`
+			} `json:"properties"`
+		}
+		if err := json.Unmarshal(data, &schema); err != nil {
+			t.Fatalf("schemas/%s.schema.json is not JSON: %v", term, err)
+		}
+		if string(schema.Properties.Format.Const) != want {
+			t.Fatalf("the field format of %s is the const %q, and VERSION %q", term, schema.Properties.Format.Const, want)
+		}
+	}
+}
+
 func filesOf(t *testing.T, fsys fs.FS) []string {
 	t.Helper()
 	var names []string
@@ -229,6 +266,7 @@ func TestPartIsWhatSubGives(t *testing.T) {
 		{Deployment, &deploymentFiles, "deployment"},
 		{Legal, &legalFiles, "legal"},
 		{ConsentAge, &consentAgeFiles, "consent-age"},
+		{Export, &exportFiles, "export"},
 	} {
 		sub, err := fs.Sub(each.files, each.dir)
 		if err != nil {
@@ -324,6 +362,7 @@ func TestBinaryKeepsOnlyThePartsItReads(t *testing.T) {
 		"Deployment": "deployment/schemas/deployment.schema.json",
 		"Legal":      "legal/legal.yaml",
 		"ConsentAge": "consent-age/consent-age.yaml",
+		"Export":     "export/schemas/profile.schema.json",
 	}
 	contents := map[string][]byte{}
 	for name, file := range marks {

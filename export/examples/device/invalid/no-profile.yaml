@@ -1,0 +1,17 @@
+# error: required at #
+# A device's file names its profile.
+format: 1
+attempts:
+  - attempt_id: "attempt-2"
+    history:
+      - type: "stroke"
+        stroke:
+          id: 1
+          points:
+            - x: 10
+              "y": 20
+              t: 0
+              p: 0.5
+    submissions: []
+essays: []
+lessons: []

@@ -44,6 +44,11 @@ var legalFiles embed.FS
 //go:embed all:consent-age
 var consentAgeFiles embed.FS
 
+// The files of export/, with the prefix all: as format/'s.
+//
+//go:embed all:export
+var exportFiles embed.FS
+
 // Format is the module format as the release has it: format/ at its tag, with the text, VERSION,
 // the schemas, the examples and the test vectors (format/README.md, section 3). Its root is
 // format/, so that VERSION is "VERSION" and a schema is "schemas/task.schema.json".
@@ -73,6 +78,13 @@ var Legal fs.FS = &part{&legalFiles, "legal"}
 // "consent-age.yaml". api computes a learner's age category by it (consent-age/README.md,
 // section 6).
 var ConsentAge fs.FS = &part{&consentAgeFiles, "consent-age"}
+
+// Export is the format of the export as the release has it (R135): export/ at its tag, with the
+// text, VERSION, the schemas of the files of an export, the examples and the test vectors
+// (export/README.md, section 3). Its root is export/, so that the schema of a profile's file is
+// "schemas/profile.schema.json". api writes its part of an export by it (export/README.md,
+// section 8).
+var Export fs.FS = &part{&exportFiles, "export"}
 
 // part is a folder of an embed.FS seen as its root, as fs.Sub gives it: the same paths, the same
 // errors and the same methods — those of fs.ReadDirFS, fs.ReadFileFS, fs.GlobFS, fs.SubFS and

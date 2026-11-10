@@ -1,0 +1,208 @@
+# Exports that break export.files: no manifest, or a file the layout does not name.
+
+cases:
+  - files:
+      api/profiles/p-2.json:
+        format: 1
+        profile_id: "p-2"
+        owner: false
+        pseudonym: "Orbit"
+        avatar: "owl"
+        age_category: "under_13"
+        country: "US"
+        presentation_style:
+          voicing:
+            enabled: false
+            speed: "normal"
+        default_mode: "by_steps"
+        ask_before_showing: false
+        active_on: "2026-11-10"
+        consent:
+          consent_id: "consent-1"
+          subject: "adult"
+          state: "waiting"
+          age_category: "under_13"
+          country: "US"
+          requested_at: "2026-11-10T09:30:00Z"
+          text_id: "text-1"
+          text_version: 1
+        connected_modules: []
+        lesson_runs: []
+        attempts: []
+        choices: []
+        evidence: []
+        state:
+          state: {}
+          learner_model_version: "0.1.0"
+          modules_release: "modules_release"
+          format_window: "format_window"
+          last_seq: 0
+          modules: []
+        artefacts: []
+        quota_counters: []
+    refused_by: "export.files"
+    names:
+      - "manifest.json"
+  - files:
+      manifest.json:
+        format: 1
+        scope: "account"
+        built_at: "2026-11-10T09:30:00Z"
+        app_version: "0.1.0"
+        api_format: "1"
+      api/account.json:
+        format: 1
+        account_id: "account-1"
+        adult_stated_at: "2026-11-10T09:30:00Z"
+        tariff: "invite"
+        last_request_on: "2026-11-10"
+        profile_ids:
+          - "p-1"
+        consents:
+          - consent_id: "consent-1"
+            subject: "child"
+            state: "confirmed"
+            age_category: "under_13"
+            country: "US"
+            requested_at: "2026-11-10T09:30:00Z"
+            text_id: "parent-consent"
+            text_version: 1
+            method: "signed_form"
+            confirmed_at: "2026-11-10T10:00:00Z"
+        quota_counters:
+          - day_start: "2026-11-10T00:00:00Z"
+            spent_micro_usd: 12000
+            reserved_micro_usd: 0
+      api/profiles/p-1.json:
+        format: 1
+        profile_id: "p-1"
+        owner: false
+        pseudonym: "Comet"
+        avatar: "fox"
+        age_category: "under_13"
+        country: "US"
+        presentation_style:
+          voicing:
+            enabled: false
+            speed: "normal"
+        default_mode: "by_steps"
+        ask_before_showing: false
+        active_on: "2026-11-10"
+        consent:
+          consent_id: "consent-1"
+          subject: "child"
+          state: "confirmed"
+          age_category: "under_13"
+          country: "US"
+          requested_at: "2026-11-10T09:30:00Z"
+          text_id: "parent-consent"
+          text_version: 1
+          method: "signed_form"
+          confirmed_at: "2026-11-10T10:00:00Z"
+        connected_modules: []
+        lesson_runs: []
+        attempts:
+          - attempt_id: "attempt-1"
+            package_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+            module_id: "olympiad-math"
+            module_version: "0.2.0"
+            module_format_version: "0.4"
+            module_kit_version: "0.3.0"
+            task: "olympiad-math/sum-of-two"
+            begun_at: "2026-11-10T09:30:00Z"
+            last_action_at: "2026-11-10T09:30:00Z"
+            wrong_answers: 0
+            step_technique_ids: []
+            requested_technique_ids: []
+            traps: []
+            rungs: []
+            correct_answer_words_given: false
+            submissions:
+              - number: 1
+                submitted_at: "2026-11-10T09:30:00Z"
+                items:
+                  - verdict: "correct"
+                    answer_slots:
+                      - answer_slot:
+                          item: 1
+                          slot: 1
+                        verdict: "correct"
+                        value: "12"
+                tapped_choices: []
+                wrong_answers: 0
+                observation:
+                  answer_slots:
+                    - answer_slot:
+                        item: 1
+                        slot: 1
+                      value: "12"
+            close_reason: "correct"
+            closed_at: "2026-11-10T09:40:00Z"
+        choices: []
+        evidence:
+          - seq: 1
+            attempt_id: "attempt-1"
+            package_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+            module_id: "olympiad-math"
+            recorded_at: "2026-11-10T09:30:00Z"
+            evidence:
+              kind: 1
+              task_id: "sum-of-two"
+              difficulty: 2
+              primary_skills:
+                - "addition"
+              outcome: "OUTCOME_CORRECT"
+              practice_time: "1762767000"
+        state:
+          state:
+            kind: 1
+            modules:
+              - module_id: "olympiad-math"
+                level: 0.4
+                skills:
+                  - skill_id: "addition"
+                    evidence_count: "1"
+          learner_model_version: "0.1.4"
+          modules_release: "0.2.0"
+          format_window: "0.4"
+          last_seq: 1
+          modules:
+            - module_id: "olympiad-math"
+              module_version: "0.2.0"
+        artefacts: []
+        quota_counters: []
+        age_stated_on: "2026-11-10"
+        consent_age: 13
+      api/proto/novatrail/learnermodel/v1/common.proto: "// A stand-in for novatrail/learnermodel/v1/common.proto, as the export carries it.
+
+        syntax = \"proto3\";\n"
+      api/proto/novatrail/learnermodel/v1/evidence.proto: "// A stand-in for novatrail/learnermodel/v1/evidence.proto, as the export carries it.
+
+        syntax = \"proto3\";\n"
+      api/proto/novatrail/learnermodel/v1/state.proto: "// A stand-in for novatrail/learnermodel/v1/state.proto, as the export carries it.
+
+        syntax = \"proto3\";\n"
+      api/proto/novatrail/observation/v1/observation.proto: "// A stand-in for novatrail/observation/v1/observation.proto, as the export carries it.
+
+        syntax = \"proto3\";\n"
+      device/p-1.json:
+        format: 1
+        profile_id: "p-1"
+        attempts:
+          - attempt_id: "attempt-2"
+            history:
+              - type: "stroke"
+                stroke:
+                  id: 1
+                  points:
+                    - x: 10
+                      "y": 20
+                      t: 0
+                      p: 0.5
+            submissions: []
+        essays: []
+        lessons: []
+      api/notes.txt: "notes"
+    refused_by: "export.files"
+    names:
+      - "api/notes.txt"

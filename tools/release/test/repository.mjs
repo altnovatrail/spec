@@ -60,7 +60,7 @@ export function writeFile(dir, git, file, text) {
 // not committed.
 export function copySpecTools(dir, git) {
   const formatCheck = fs.readdirSync(path.join(root, "tools/format-check")).filter((name) => name.endsWith(".mjs")).map((name) => `tools/format-check/${name}`);
-  const files = [...formatCheck, "tools/package.json", "tools/package-lock.json", "justfile", "tools/shared.mjs", "tools/release/version.mjs", "tools/release/line.mjs", "tools/release/files.mjs", "tools/release/format-line.mjs", "tools/release/contracts-line.mjs", "tools/release/part-line.mjs", "tools/release/admission-line.mjs", "tools/release/deployment-line.mjs", "tools/release/legal-line.mjs", "tools/release/consent-age-line.mjs", "tools/types/npm.mjs", "tools/types/go.mjs", "tools/types/model.mjs", "tools/npm-package.mjs", "tools/contracts/npm.mjs"];
+  const files = [...formatCheck, "tools/package.json", "tools/package-lock.json", "justfile", "tools/shared.mjs", "tools/release/version.mjs", "tools/release/line.mjs", "tools/release/files.mjs", "tools/release/format-line.mjs", "tools/release/contracts-line.mjs", "tools/release/part-line.mjs", "tools/release/admission-line.mjs", "tools/release/deployment-line.mjs", "tools/release/legal-line.mjs", "tools/release/consent-age-line.mjs", "tools/release/export-line.mjs", "tools/types/npm.mjs", "tools/types/go.mjs", "tools/types/model.mjs", "tools/npm-package.mjs", "tools/contracts/npm.mjs"];
   for (const file of files) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     fs.copyFileSync(path.join(root, file), path.join(dir, file));

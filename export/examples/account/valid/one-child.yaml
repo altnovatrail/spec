@@ -1,0 +1,23 @@
+# Synthetic: no learner's data. IDs, times and values are made up.
+format: 1
+account_id: "account-1"
+adult_stated_at: "2026-11-10T09:30:00Z"
+tariff: "invite"
+last_request_on: "2026-11-10"
+profile_ids:
+  - "p-1"
+consents:
+  - consent_id: "consent-1"
+    subject: "child"
+    state: "confirmed"
+    age_category: "under_13"
+    country: "US"
+    requested_at: "2026-11-10T09:30:00Z"
+    text_id: "parent-consent"
+    text_version: 1
+    method: "signed_form"
+    confirmed_at: "2026-11-10T10:00:00Z"
+quota_counters:
+  - day_start: "2026-11-10T00:00:00Z"
+    spent_micro_usd: 12000
+    reserved_micro_usd: 0

@@ -2144,10 +2144,11 @@ func (x *ExportProfileRequest) GetProfileId() string {
 // The part of a profile's export that `api` holds.
 type ExportProfileResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The part, in the export format, which `app` puts into the file of the export as it is, without
-	// reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+	// The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+	// the file of the export as it is, without reading it.
 	Part []byte `protobuf:"bytes,1,opt,name=part,proto3" json:"part,omitempty"`
-	// The version of the export format the part is written in.
+	// The version of the export format the part is written in: the integer of `export/VERSION`, in
+	// decimal, such as "1".
 	ExportFormatVersion string `protobuf:"bytes,2,opt,name=export_format_version,json=exportFormatVersion,proto3" json:"export_format_version,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -2237,10 +2238,11 @@ func (*ExportAccountRequest) Descriptor() ([]byte, []int) {
 // The part of the account's export that `api` holds.
 type ExportAccountResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The part, in the export format, which `app` puts into the file of the export as it is, without
-	// reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+	// The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+	// the file of the export as it is, without reading it.
 	Part []byte `protobuf:"bytes,1,opt,name=part,proto3" json:"part,omitempty"`
-	// The version of the export format the part is written in.
+	// The version of the export format the part is written in: the integer of `export/VERSION`, in
+	// decimal, such as "1".
 	ExportFormatVersion string `protobuf:"bytes,2,opt,name=export_format_version,json=exportFormatVersion,proto3" json:"export_format_version,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache

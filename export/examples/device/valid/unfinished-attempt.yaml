@@ -1,0 +1,17 @@
+# Synthetic: no learner's data. IDs, times and values are made up.
+format: 1
+profile_id: "p-1"
+attempts:
+  - attempt_id: "attempt-2"
+    history:
+      - type: "stroke"
+        stroke:
+          id: 1
+          points:
+            - x: 10
+              "y": 20
+              t: 0
+              p: 0.5
+    submissions: []
+essays: []
+lessons: []

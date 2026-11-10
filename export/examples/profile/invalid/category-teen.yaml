@@ -1,0 +1,101 @@
+# error: enum at #/age_category
+# An age category is one of the four codes.
+format: 1
+profile_id: "p-1"
+owner: false
+pseudonym: "Comet"
+avatar: "fox"
+age_category: "teen"
+country: "US"
+presentation_style:
+  voicing:
+    enabled: false
+    speed: "normal"
+default_mode: "by_steps"
+ask_before_showing: false
+active_on: "2026-11-10"
+consent:
+  consent_id: "consent-1"
+  subject: "child"
+  state: "confirmed"
+  age_category: "under_13"
+  country: "US"
+  requested_at: "2026-11-10T09:30:00Z"
+  text_id: "parent-consent"
+  text_version: 1
+  method: "signed_form"
+  confirmed_at: "2026-11-10T10:00:00Z"
+connected_modules: []
+lesson_runs: []
+attempts:
+  - attempt_id: "attempt-1"
+    package_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    module_id: "olympiad-math"
+    module_version: "0.2.0"
+    module_format_version: "0.4"
+    module_kit_version: "0.3.0"
+    task: "olympiad-math/sum-of-two"
+    begun_at: "2026-11-10T09:30:00Z"
+    last_action_at: "2026-11-10T09:30:00Z"
+    wrong_answers: 0
+    step_technique_ids: []
+    requested_technique_ids: []
+    traps: []
+    rungs: []
+    correct_answer_words_given: false
+    submissions:
+      - number: 1
+        submitted_at: "2026-11-10T09:30:00Z"
+        items:
+          - verdict: "correct"
+            answer_slots:
+              - answer_slot:
+                  item: 1
+                  slot: 1
+                verdict: "correct"
+                value: "12"
+        tapped_choices: []
+        wrong_answers: 0
+        observation:
+          answer_slots:
+            - answer_slot:
+                item: 1
+                slot: 1
+              value: "12"
+    close_reason: "correct"
+    closed_at: "2026-11-10T09:40:00Z"
+choices: []
+evidence:
+  - seq: 1
+    attempt_id: "attempt-1"
+    package_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    module_id: "olympiad-math"
+    recorded_at: "2026-11-10T09:30:00Z"
+    evidence:
+      kind: 1
+      task_id: "sum-of-two"
+      difficulty: 2
+      primary_skills:
+        - "addition"
+      outcome: "OUTCOME_CORRECT"
+      practice_time: "1762767000"
+state:
+  state:
+    kind: 1
+    modules:
+      - module_id: "olympiad-math"
+        level: 0.4
+        skills:
+          - skill_id: "addition"
+            evidence_count: "1"
+  learner_model_version: "0.1.4"
+  modules_release: "0.2.0"
+  format_window: "0.4"
+  last_seq: 1
+  modules:
+    - module_id: "olympiad-math"
+      module_version: "0.2.0"
+artefacts: []
+quota_counters: []
+age_stated_on: "2026-11-10"
+consent_age: 13

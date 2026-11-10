@@ -23,7 +23,8 @@
 //   its tag instead: the commit git archive writes into the header of format-<version>.tar.gz, of
 //   admission-<version>.tar.gz, the admission table's (R96), of deployment-<version>.tar.gz, the
 //   deployment configuration's (R85), of legal-<version>.tar.gz, the legal texts' (R130), and of
-//   consent-age-<version>.tar.gz, the table of the age of digital consent's (R134) —
+//   consent-age-<version>.tar.gz, the table of the age of digital consent's (R134), and of
+//   export-<version>.tar.gz, the format of the export's (R135) —
 //   each of which holds what its name says, as release-files writes it: a folder
 //   <part>-<version>/ with LICENSE and <part>/, whose VERSION is that version —, and the version in
 //   the
@@ -60,8 +61,9 @@ const SHA = /^[0-9a-f]{40}$/;
 const ORGANIZATION_URI = `https://github.com/${ORGANIZATION.name}`;
 // The normative parts with a version of their own, each one archive of git archive: the module
 // format and the admission table (R96), by MAJOR.MINOR, and the deployment configuration (R85),
-// the legal texts (R130) and the table of the age of digital consent (R134), by an integer.
-const PART_FILE = /^(?:(?:format|admission)-(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)|(?:deployment|legal|consent-age)-[1-9]\d*)\.tar\.gz$/;
+// the legal texts (R130), the table of the age of digital consent (R134) and the format of the
+// export (R135), by an integer.
+const PART_FILE = /^(?:(?:format|admission)-(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)|(?:deployment|legal|consent-age|export)-[1-9]\d*)\.tar\.gz$/;
 // The npm packages of spec's release, by the name of their archive: the types of the format, and
 // the code of the contracts.
 const NPM_FILE = /^altnovatrail-(spec|contracts)-((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))\.tgz$/;
@@ -246,7 +248,7 @@ export function checkSpecContent(name, bytes, tag, source) {
     if (!source.tagCommit("spec", tag)) throw new Error(`spec has no tag ${tag}`);
     return;
   }
-  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz, admission-<version>.tar.gz, deployment-<version>.tar.gz, legal-<version>.tar.gz, consent-age-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
+  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz, admission-<version>.tar.gz, deployment-<version>.tar.gz, legal-<version>.tar.gz, consent-age-<version>.tar.gz, export-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
 }
 
 // A part's archive holds what its name says, as release-files writes it (tools/release/files.mjs

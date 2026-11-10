@@ -1,0 +1,1022 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/export/1/profile.schema.json",
+  "title": "Profile",
+  "description": "A profile and every record of it, api/profiles/<id>.json (section 4 of the text of the part).",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": 1,
+      "description": "The version of the part, the integer in export/VERSION."
+    },
+    "profile_id": {
+      "$ref": "common.schema.json#/$defs/id",
+      "description": "The ID of the profile."
+    },
+    "owner": {
+      "type": "boolean",
+      "description": "Whether this is the profile of the account's owner."
+    },
+    "pseudonym": {
+      "type": "string",
+      "maxLength": 10000,
+      "description": "The pseudonym the owner made up for the learner, never a real name."
+    },
+    "avatar": {
+      "type": "string",
+      "maxLength": 10000,
+      "description": "The code of a picture of app's set; empty when none was chosen."
+    },
+    "age_category": {
+      "$ref": "common.schema.json#/$defs/age_category",
+      "description": "The learner's age category."
+    },
+    "country": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "The learner's country, ISO 3166-1 alpha-2."
+    },
+    "age_stated_on": {
+      "$ref": "common.schema.json#/$defs/day",
+      "description": "The day the age was given; absent on the owner's profile, which asks no age."
+    },
+    "consent_age": {
+      "type": "integer",
+      "minimum": 13,
+      "maximum": 18,
+      "description": "The country's age of digital consent, 13 to 18, that the category was given by (consent-age calls it `applied`); absent where no age was given."
+    },
+    "presentation_style": {
+      "$ref": "#/$defs/profile_presentation_style",
+      "unevaluatedProperties": false,
+      "description": "How the platform speaks and shows: today only the voicing, on or off, and its speed."
+    },
+    "default_mode": {
+      "enum": [
+        "by_steps",
+        "self"
+      ],
+      "description": "The default mode of the screen of a task."
+    },
+    "interface_language": {
+      "type": "string",
+      "maxLength": 10000,
+      "description": "The interface language, a BCP 47 tag; absent when none is set."
+    },
+    "grade": {
+      "type": "integer",
+      "description": "The grade, 1 to 12, when a module asks for it."
+    },
+    "ask_before_showing": {
+      "type": "boolean",
+      "description": "A child's setting: the solution is shown by an action of an adult; always false at adult."
+    },
+    "active_on": {
+      "$ref": "common.schema.json#/$defs/day",
+      "description": "The date of the last learning request or adult action on the profile, by which an idle profile is deleted after 12 months."
+    },
+    "consent": {
+      "$ref": "common.schema.json#/$defs/consent",
+      "unevaluatedProperties": false,
+      "description": "The profile's consent record, whole."
+    },
+    "connected_modules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/connected_module",
+        "unevaluatedProperties": false,
+        "description": "The modules connected to the profile: one of them."
+      },
+      "description": "The modules connected to the profile."
+    },
+    "lesson_runs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/lesson_run",
+        "unevaluatedProperties": false,
+        "description": "The profile's lesson runs, open and ended: one of them."
+      },
+      "description": "The profile's lesson runs, open and ended."
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/attempt",
+        "unevaluatedProperties": false,
+        "description": "The profile's attempts, open and closed: one of them."
+      },
+      "description": "The profile's attempts, open and closed."
+    },
+    "choices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/choice",
+        "unevaluatedProperties": false,
+        "description": "The engine's choices for the profile: one of them."
+      },
+      "description": "The engine's choices for the profile."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence_entry",
+        "unevaluatedProperties": false,
+        "description": "The whole evidence log, in the order of seq: one of them."
+      },
+      "description": "The whole evidence log, in the order of seq."
+    },
+    "state": {
+      "$ref": "#/$defs/state_entry",
+      "unevaluatedProperties": false,
+      "description": "The current state of the learner model."
+    },
+    "artefacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/artefact",
+        "unevaluatedProperties": false,
+        "description": "Artefacts kept on the server; empty while storage is off: one of them."
+      },
+      "description": "Artefacts kept on the server; empty while storage is off."
+    },
+    "quota_counters": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/quota_counter",
+        "unevaluatedProperties": false,
+        "description": "The profile's quota counters: one of them."
+      },
+      "description": "The profile's quota counters."
+    }
+  },
+  "required": [
+    "format",
+    "profile_id",
+    "owner",
+    "pseudonym",
+    "avatar",
+    "age_category",
+    "country",
+    "presentation_style",
+    "default_mode",
+    "ask_before_showing",
+    "active_on",
+    "consent",
+    "connected_modules",
+    "lesson_runs",
+    "attempts",
+    "choices",
+    "evidence",
+    "state",
+    "artefacts",
+    "quota_counters"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "connected_module": {
+      "type": "object",
+      "properties": {
+        "module_id": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module's ID, 1 to 128 characters."
+        },
+        "connected_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the module was connected; no version is kept."
+        }
+      },
+      "required": [
+        "module_id",
+        "connected_at"
+      ]
+    },
+    "lesson_run": {
+      "type": "object",
+      "properties": {
+        "lesson_run_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The ID of the run."
+        },
+        "lesson": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The lesson's full ID (lesson_id in the database)."
+        },
+        "module_id": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module's ID."
+        },
+        "module_version": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module's version, so the export reads without the index."
+        },
+        "package_digest": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The digest of the package the run goes on."
+        },
+        "choice_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The engine's lesson choice that opened the run."
+        },
+        "begun_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the run began (started_at in the database)."
+        },
+        "last_action_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "The time of the last action on the run or its attempts."
+        },
+        "end_reason": {
+          "enum": [
+            "passed",
+            "unchecked",
+            "not_suitable",
+            "abandoned"
+          ],
+          "description": "Why the run ended; absent while open."
+        },
+        "ended_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When it ended; absent while open."
+        }
+      },
+      "required": [
+        "lesson_run_id",
+        "lesson",
+        "module_id",
+        "module_version",
+        "package_digest",
+        "choice_id",
+        "begun_at",
+        "last_action_at"
+      ]
+    },
+    "attempt_segment": {
+      "type": "object",
+      "properties": {
+        "lesson_run_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The ID of the run of the lesson."
+        },
+        "segment": {
+          "type": "integer",
+          "description": "The number of the segment of the lesson."
+        }
+      },
+      "required": [
+        "lesson_run_id",
+        "segment"
+      ]
+    },
+    "attempt_item": {
+      "type": "object",
+      "properties": {
+        "place": {
+          "type": "integer",
+          "description": "The number of the item in the task."
+        },
+        "submitted": {
+          "type": "boolean",
+          "description": "Whether the item was submitted."
+        },
+        "unverdicted_reasons": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "unreadable_blank",
+              "unreadable_other",
+              "unchecked"
+            ],
+            "description": "Why each submission of the item got no verdict: one of them."
+          },
+          "description": "Why each submission of the item got no verdict."
+        },
+        "first_verdict": {
+          "enum": [
+            "correct",
+            "not_yet",
+            "unreadable",
+            "unchecked"
+          ],
+          "description": "The item's first verdict."
+        },
+        "wrong_answers_before_first_verdict": {
+          "type": "integer",
+          "description": "The wrong answers before the submission that gave the first verdict."
+        },
+        "final_verdict": {
+          "enum": [
+            "correct",
+            "not_yet",
+            "unreadable",
+            "unchecked"
+          ],
+          "description": "The item's verdict at the end."
+        },
+        "wrong_answers_before_first_correct": {
+          "type": "integer",
+          "description": "The wrong answers before the first correct one."
+        }
+      },
+      "required": [
+        "place",
+        "submitted",
+        "unverdicted_reasons",
+        "first_verdict",
+        "wrong_answers_before_first_verdict",
+        "final_verdict",
+        "wrong_answers_before_first_correct"
+      ]
+    },
+    "attempt": {
+      "type": "object",
+      "properties": {
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The ID of the attempt."
+        },
+        "package_digest": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The digest of the attempt's module package, sha256:<64 hex>."
+        },
+        "module_id": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module's ID."
+        },
+        "module_version": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module's version X.Y.Z, so the export reads without the index."
+        },
+        "module_format_version": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module format version the verdict repeats by, MAJOR.MINOR."
+        },
+        "module_kit_version": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module-kit version the verdict repeats by."
+        },
+        "task": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The task's full ID; the database keeps the module ID and the local ID apart."
+        },
+        "instance": {
+          "type": "integer",
+          "description": "The instance the seed chose, when the task is a template; the seed itself is not exported."
+        },
+        "choice_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The engine's task choice the attempt began by; one of choice_id, segment, previous_attempt_id."
+        },
+        "segment": {
+          "$ref": "#/$defs/attempt_segment",
+          "unevaluatedProperties": false,
+          "description": "The task segment of a lesson run the attempt is, the segment's place from 1."
+        },
+        "previous_attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The earlier attempt of the same task that this one began again from."
+        },
+        "begun_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the attempt began (started_at in the database)."
+        },
+        "last_action_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "The time of the last action on the attempt."
+        },
+        "close_reason": {
+          "enum": [
+            "correct",
+            "solution_shown",
+            "left",
+            "abandoned",
+            "unchecked",
+            "not_suitable",
+            "done"
+          ],
+          "description": "Why the attempt was closed; absent while it is open."
+        },
+        "closed_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When it was closed; absent while it is open."
+        },
+        "wrong_answers": {
+          "type": "integer",
+          "description": "How many wrong answers the attempt has."
+        },
+        "step_technique_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 10000,
+            "description": "The technique IDs given at a solving step: one of them."
+          },
+          "description": "The technique IDs given at a solving step."
+        },
+        "step_techniques_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the task's techniques were first given at a step."
+        },
+        "requested_technique_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 10000,
+            "description": "The technique IDs given on request: one of them."
+          },
+          "description": "The technique IDs given on request."
+        },
+        "requested_leading_question": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The leading question a hint asked for gave (format 0.4); absent when none was given."
+        },
+        "traps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 10000,
+            "description": "The full IDs of the traps the program found in the attempt's wrong values: one of them."
+          },
+          "description": "The full IDs of the traps the program found in the attempt's wrong values."
+        },
+        "rungs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rung",
+            "unevaluatedProperties": false,
+            "description": "The hint ladder's rungs given, with their source: one of them."
+          },
+          "description": "The hint ladder's rungs given, with their source."
+        },
+        "correct_answer_words_given": {
+          "type": "boolean",
+          "description": "Whether the tutor's words after a correct answer were given."
+        },
+        "solution_shown_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the solution was shown."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attempt_item",
+            "unevaluatedProperties": false,
+            "description": "Per item, the facts the evidence also carries; needed in the attempt for an attempt with no evidence: one of them."
+          },
+          "description": "Per item, the facts the evidence also carries; needed in the attempt for an attempt with no evidence."
+        },
+        "submissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/submission",
+            "unevaluatedProperties": false,
+            "description": "Each submission with a verdict, in order: one of them."
+          },
+          "description": "Each submission with a verdict, in order."
+        },
+        "essay_submissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rubric_submission",
+            "unevaluatedProperties": false,
+            "description": "On a task with a rubric, each submission in order; such an attempt has no ladder fields: one of them."
+          },
+          "description": "On a task with a rubric, each submission in order; such an attempt has no ladder fields."
+        }
+      },
+      "required": [
+        "attempt_id",
+        "package_digest",
+        "module_id",
+        "module_version",
+        "module_format_version",
+        "module_kit_version",
+        "task",
+        "begun_at",
+        "last_action_at",
+        "wrong_answers",
+        "step_technique_ids",
+        "requested_technique_ids",
+        "traps",
+        "rungs",
+        "correct_answer_words_given",
+        "submissions"
+      ]
+    },
+    "submission_item_answer_slot": {
+      "type": "object",
+      "properties": {
+        "answer_slot": {
+          "description": "The place of the answer slot, the JSON of novatrail.observation.v1.AnswerSlotPlace by protobuf's JSON mapping with the names of the .proto fields."
+        },
+        "verdict": {
+          "enum": [
+            "correct",
+            "not_yet",
+            "unreadable",
+            "unchecked"
+          ],
+          "description": "The verdict."
+        },
+        "reason": {
+          "enum": [
+            "blank",
+            "notation",
+            "illegible",
+            "ambiguous",
+            "no_final_answer",
+            "several_final_answers"
+          ],
+          "description": "Why the answer slot could not be read."
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The value, as written."
+        }
+      },
+      "required": [
+        "answer_slot",
+        "verdict"
+      ]
+    },
+    "submission_item": {
+      "type": "object",
+      "properties": {
+        "verdict": {
+          "enum": [
+            "correct",
+            "not_yet",
+            "unreadable",
+            "unchecked"
+          ],
+          "description": "The verdict."
+        },
+        "answer_slots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/submission_item_answer_slot",
+            "unevaluatedProperties": false,
+            "description": "The verdict of each answer slot: one of them."
+          },
+          "description": "The verdict of each answer slot."
+        }
+      },
+      "required": [
+        "verdict",
+        "answer_slots"
+      ]
+    },
+    "submission_tapped_choice": {
+      "type": "object",
+      "properties": {
+        "answer_slot": {
+          "description": "The place of the answer slot, the JSON of novatrail.observation.v1.AnswerSlotPlace by protobuf's JSON mapping with the names of the .proto fields."
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The value, as written."
+        }
+      },
+      "required": [
+        "answer_slot",
+        "value"
+      ]
+    },
+    "submission_outcome": {
+      "type": "object",
+      "properties": {
+        "cause": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The cause of the outcome, by its code."
+        }
+      },
+      "required": [
+        "cause"
+      ]
+    },
+    "submission": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "integer",
+          "description": "The submission's place among the attempt's, from 1."
+        },
+        "submitted_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When it came."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/submission_item",
+            "unevaluatedProperties": false,
+            "description": "The verdict of every item and answer slot and what was read, as ItemVerdict/AnswerSlotVerdict hold them: one of them."
+          },
+          "description": "The verdict of every item and answer slot and what was read, as ItemVerdict/AnswerSlotVerdict hold them."
+        },
+        "observation": {
+          "description": "The observation merged from the two readings; absent when only taps were sent."
+        },
+        "tapped_choices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/submission_tapped_choice",
+            "unevaluatedProperties": false,
+            "description": "The options tapped, beside the observation: one of them."
+          },
+          "description": "The options tapped, beside the observation."
+        },
+        "wrong_answers": {
+          "type": "integer",
+          "description": "The attempt's wrong answers including this submission."
+        },
+        "outcome": {
+          "$ref": "#/$defs/submission_outcome",
+          "unevaluatedProperties": false,
+          "description": "What a call of AI came to when slots got unchecked by it (a Cause of the contract)."
+        }
+      },
+      "required": [
+        "number",
+        "submitted_at",
+        "items",
+        "tapped_choices",
+        "wrong_answers"
+      ]
+    },
+    "rung": {
+      "type": "object",
+      "properties": {
+        "rung": {
+          "type": "integer",
+          "description": "The rung, 1 to 3."
+        },
+        "source": {
+          "enum": [
+            "model",
+            "fallback"
+          ],
+          "description": "Whether its words came from the model or are the fallback text."
+        },
+        "words": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The rung's words; present only while the attempt is open, deleted at close."
+        },
+        "explained_differently": {
+          "type": "boolean",
+          "description": "Whether the learner asked to explain this rung differently."
+        },
+        "explained_differently_source": {
+          "enum": [
+            "model",
+            "fallback"
+          ],
+          "description": "The source of the other words, beside explained_differently."
+        }
+      },
+      "required": [
+        "rung",
+        "source",
+        "explained_differently"
+      ]
+    },
+    "rubric_submission": {
+      "type": "object",
+      "properties": {
+        "submitted_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the submission came."
+        },
+        "end": {
+          "enum": [
+            "feedback",
+            "unreadable",
+            "unchecked"
+          ],
+          "description": "How it ended."
+        },
+        "criterion_marks": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "met",
+              "not_met",
+              "not_assessed"
+            ],
+            "description": "Beside feedback, the mark of each criterion, by its number in the rubric (its index, from 1): one of them."
+          },
+          "description": "Beside feedback, the mark of each criterion, by its number in the rubric (its index, from 1)."
+        },
+        "feedback_source": {
+          "enum": [
+            "model",
+            "no_feedback"
+          ],
+          "description": "Beside feedback, whether the words were the model's or the phrase 'no feedback this time'."
+        }
+      },
+      "required": [
+        "submitted_at",
+        "end"
+      ]
+    },
+    "choice_package_digest": {
+      "type": "object",
+      "properties": {
+        "package_digest": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The digest of a package, sha256:<64 hex>."
+        },
+        "engine_module": {
+          "type": "boolean",
+          "description": "Whether the module is a module of the engine."
+        }
+      },
+      "required": [
+        "package_digest",
+        "engine_module"
+      ]
+    },
+    "choice": {
+      "type": "object",
+      "properties": {
+        "choice_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The ID of the choice."
+        },
+        "kind": {
+          "enum": [
+            "task",
+            "lesson"
+          ],
+          "description": "What the choice gave; a choice of nothing is not stored."
+        },
+        "chosen_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the choice was made, by which a replay restores the runs and closed attempts it saw."
+        },
+        "task": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The task's full ID, beside kind task; no version, the attempt takes the current one."
+        },
+        "lesson": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The lesson's full ID, beside kind lesson."
+        },
+        "reason_code": {
+          "enum": [
+            "consolidation",
+            "new_skill",
+            "queue",
+            "repetition",
+            "probe",
+            "skill_chosen",
+            "author_order",
+            "open_run",
+            "rotation"
+          ],
+          "description": "The reason code, from the closed list ReasonCode."
+        },
+        "engine_version": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The version of engine that chose."
+        },
+        "learner_model_version": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The version of learner-model that computed the state."
+        },
+        "package_digests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/choice_package_digest",
+            "unevaluatedProperties": false,
+            "description": "The digests of every graph learner-model and the engine got, each marked whether it is an engine module, connected and suitable: one of them."
+          },
+          "description": "The digests of every graph learner-model and the engine got, each marked whether it is an engine module, connected and suitable."
+        },
+        "modules_release": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The modules release pinned when the choice was made."
+        },
+        "last_evidence_seq": {
+          "type": "integer",
+          "description": "The number of the last evidence of the log the choice was made by."
+        },
+        "grade": {
+          "type": "integer",
+          "description": "The grade by which the model took the starting point of modules without evidence."
+        },
+        "pool_without_ai": {
+          "type": "boolean",
+          "description": "Whether the pool was limited to tasks checked without AI."
+        },
+        "skill": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The full ID of the skill chosen on the skill map; absent when the engine leads."
+        },
+        "age_category": {
+          "$ref": "common.schema.json#/$defs/age_category",
+          "description": "The profile's age category at the time of the choice."
+        },
+        "seed": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The engine's seed; empty while the engine takes no randomness, as now."
+        }
+      },
+      "required": [
+        "choice_id",
+        "kind",
+        "chosen_at",
+        "reason_code",
+        "engine_version",
+        "learner_model_version",
+        "package_digests",
+        "modules_release",
+        "last_evidence_seq",
+        "pool_without_ai",
+        "age_category"
+      ]
+    },
+    "evidence_entry": {
+      "type": "object",
+      "properties": {
+        "seq": {
+          "type": "integer",
+          "description": "The number in the profile's log, from 1."
+        },
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The attempt the evidence is of; one per attempt."
+        },
+        "package_digest": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The digest of the attempt's package, by which wrong_key versions are filtered."
+        },
+        "module_id": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module's ID."
+        },
+        "recorded_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the evidence was appended."
+        },
+        "evidence": {
+          "description": "The evidence itself, as learner-model's message."
+        }
+      },
+      "required": [
+        "seq",
+        "attempt_id",
+        "package_digest",
+        "module_id",
+        "recorded_at",
+        "evidence"
+      ]
+    },
+    "state_entry_module": {
+      "type": "object",
+      "properties": {
+        "module_id": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module's ID."
+        },
+        "module_version": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The version of the module whose graph the state was computed by; left out when the module has no current version and its evidence waits."
+        }
+      },
+      "required": [
+        "module_id"
+      ]
+    },
+    "state_entry": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "description": "The state of the learner model, the fold of the log."
+        },
+        "learner_model_version": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The version of learner-model that computed it."
+        },
+        "modules_release": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The modules release of the cache's mark."
+        },
+        "format_window": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The window of module format versions of the cache's mark."
+        },
+        "last_seq": {
+          "type": "integer",
+          "description": "The number of the last evidence counted."
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/state_entry_module",
+            "unevaluatedProperties": false,
+            "description": "For each module of the log, the version whose graph the state was computed by; module_version absent when the module has no current version and its evidence waits: one of them."
+          },
+          "description": "For each module of the log, the version whose graph the state was computed by; module_version absent when the module has no current version and its evidence waits."
+        }
+      },
+      "required": [
+        "state",
+        "learner_model_version",
+        "modules_release",
+        "format_window",
+        "last_seq",
+        "modules"
+      ]
+    },
+    "artefact": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "essay",
+            "drawing",
+            "recording"
+          ],
+          "description": "What the artefact is: an essay, a drawing or a recording."
+        },
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The attempt whose work it is."
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The text of an essay."
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    "profile_presentation_style_voicing": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the voicing is on."
+        },
+        "speed": {
+          "enum": [
+            "normal",
+            "slow"
+          ],
+          "description": "The speed of the voicing."
+        }
+      },
+      "required": [
+        "enabled",
+        "speed"
+      ]
+    },
+    "profile_presentation_style": {
+      "type": "object",
+      "properties": {
+        "voicing": {
+          "$ref": "#/$defs/profile_presentation_style_voicing",
+          "unevaluatedProperties": false,
+          "description": "The voicing: whether it is on, and its speed."
+        }
+      },
+      "required": [
+        "voicing"
+      ]
+    }
+  }
+}

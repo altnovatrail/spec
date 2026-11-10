@@ -13,6 +13,8 @@ deployment/** -text
 legal/** -text
 # And the files of consent-age/, the table of the age of digital consent (R134).
 consent-age/** -text
+# And the files of export/, the format of the export (R135).
+export/** -text
 # The fixtures of release-verify's tests are files of real releases, which their bundles sign
 # byte for byte.
 tools/release/test/fixtures/** -text

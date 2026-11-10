@@ -51,13 +51,13 @@ type shipped struct {
 
 // The modules spec ships, by their folders. At the root: the format, the admission table (R96), the
 // deployment configuration (R85), the legal texts (R130), the table of the age of digital consent
-// (R134), the types of each (R72), and the license that goes with them, with no requirement (R64). In contracts: the contracts, the code
+// (R134), the format of the export (R135), the types of each (R72), and the license that goes with them, with no requirement (R64). In contracts: the contracts, the code
 // buf generates from them, which requires the runtime of protobuf and of Connect, their test
 // vectors with the package that embeds them, which requires nothing more, and their examples (R83,
 // R86, R93). The license of the root goes into it too: Go puts the root's LICENSE into the zip of a
 // module in a folder that has none.
 var modules = map[string]shipped{
-	".":         {"github.com/altnovatrail/spec", []string{"LICENSE", "format", "admission", "deployment", "legal", "consent-age", "types"}, nil},
+	".":         {"github.com/altnovatrail/spec", []string{"LICENSE", "format", "admission", "deployment", "legal", "consent-age", "export", "types"}, nil},
 	"contracts": {"github.com/altnovatrail/spec/contracts", []string{"LICENSE", "contracts"}, []string{"connectrpc.com/connect/v2", "google.golang.org/protobuf"}},
 }
 
@@ -168,7 +168,7 @@ func named(paths []string) string {
 }
 
 // folders names the folders a module carries, past its LICENSE: "contracts/", or "format/,
-// admission/, deployment/, legal/, consent-age/ and types/".
+// admission/, deployment/, legal/, consent-age/, export/ and types/".
 func folders(carried []string) string {
 	names := make([]string, 0, len(carried)-1)
 	for _, folder := range carried[1:] {

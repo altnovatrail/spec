@@ -10,7 +10,8 @@
 // FIRST_DEPLOYMENT_LINE on the types of the deployment configuration, ./deploymentv1 (R85), and
 // from the line FIRST_LEGAL_LINE on the types of the legal texts, ./legalv1 (R130), and from the
 // line FIRST_CONSENT_AGE_LINE on the types of the table of the age of digital consent,
-// ./consentagev1 (R134): what a package
+// ./consentagev1 (R134), and from the line FIRST_EXPORT_LINE on the types of the format of the
+// export, ./exportv1 (R135): what a package
 // holds is the line's of its version, the release's, so that a release of an earlier line, run
 // again, gets the package it got.
 //
@@ -27,7 +28,7 @@ import path from "node:path";
 import { isMain } from "../shared.mjs";
 import { archiveName, checkPackageArchive, checkedVersion, packPackage, treeOf, writePackageOf } from "../npm-package.mjs";
 import { compareLines } from "../release/version.mjs";
-import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
+import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
 
 export const NAME = "@altnovatrail/spec";
 const DECLARATIONS = "index.d.ts";
@@ -52,6 +53,9 @@ export const FIRST_LEGAL_LINE = "0.13";
 // spec's first line whose package holds the types of the table of the age of digital consent, as
 // the release holds the table (tools/release/files.mjs).
 export const FIRST_CONSENT_AGE_LINE = "0.14";
+// spec's first line whose package holds the types of the format of the export, as the release
+// holds the format (tools/release/files.mjs).
+export const FIRST_EXPORT_LINE = "0.14";
 // The package's folder of the page, as format/ holds it, and the repository's, which tools/types
 // writes.
 const PAGE = "format";
@@ -79,6 +83,7 @@ export function filesOf(version, tree) {
   if (holdsDeployment(version)) files.push({ file: `${DEPLOYMENT_PACKAGE}/${DECLARATIONS}`, from: `${DEPLOYMENT_DIR}/${DECLARATIONS}` });
   if (holdsLegal(version)) files.push({ file: `${LEGAL_PACKAGE}/${DECLARATIONS}`, from: `${LEGAL_DIR}/${DECLARATIONS}` });
   if (holdsConsentAge(version)) files.push({ file: `${CONSENT_AGE_PACKAGE}/${DECLARATIONS}`, from: `${CONSENT_AGE_DIR}/${DECLARATIONS}` });
+  if (holdsExport(version)) files.push({ file: `${EXPORT_PACKAGE}/${DECLARATIONS}`, from: `${EXPORT_DIR}/${DECLARATIONS}` });
   return files;
 }
 
@@ -100,6 +105,8 @@ const holdsDeployment = (version) => fromLine(version, FIRST_DEPLOYMENT_LINE);
 const holdsLegal = (version) => fromLine(version, FIRST_LEGAL_LINE);
 // Whether it holds the types of the table of the age of digital consent.
 const holdsConsentAge = (version) => fromLine(version, FIRST_CONSENT_AGE_LINE);
+// Whether it holds the types of the format of the export.
+const holdsExport = (version) => fromLine(version, FIRST_EXPORT_LINE);
 
 // The name npm pack gives the package's archive of version: the scope's @ dropped, its / a dash.
 export function archiveOf(version) {
@@ -116,7 +123,8 @@ export function manifestOf(version) {
   const deployment = holdsDeployment(version);
   const legal = holdsLegal(version);
   const consentAge = holdsConsentAge(version);
-  const description = [format, canvas ? "And the types of the element <novatrail-canvas>, the contract of the canvas and the app." : "", admission ? "And the types of the admission table, which says which AI provider may serve which age category." : "", page ? "And the numbers and widths of the workbook's page and its test vectors, as JSON, by which a canvas lays the page out." : "", deployment ? "And the types of the deployment configuration, the file /deployment.json that the app reads at its start." : "", legal ? "And the types of the legal texts' passport, which names each text, its versions and the sets of texts of the samples page." : "", consentAge ? "And the types of the table of the age of digital consent, which gives each country's age with the law that sets it." : ""].filter(Boolean).join(" ");
+  const exported = holdsExport(version);
+  const description = [format, canvas ? "And the types of the element <novatrail-canvas>, the contract of the canvas and the app." : "", admission ? "And the types of the admission table, which says which AI provider may serve which age category." : "", page ? "And the numbers and widths of the workbook's page and its test vectors, as JSON, by which a canvas lays the page out." : "", deployment ? "And the types of the deployment configuration, the file /deployment.json that the app reads at its start." : "", legal ? "And the types of the legal texts' passport, which names each text, its versions and the sets of texts of the samples page." : "", consentAge ? "And the types of the table of the age of digital consent, which gives each country's age with the law that sets it." : "", exported ? "And the types of the files of an export, the file the owner of an account gets of a profile or of the account." : ""].filter(Boolean).join(" ");
   return {
     name: NAME,
     version: checkedVersion(version),
@@ -133,9 +141,10 @@ export function manifestOf(version) {
       ...(deployment ? { [`./${DEPLOYMENT_PACKAGE}`]: { types: `./${DEPLOYMENT_PACKAGE}/${DECLARATIONS}` } } : {}),
       ...(legal ? { [`./${LEGAL_PACKAGE}`]: { types: `./${LEGAL_PACKAGE}/${DECLARATIONS}` } } : {}),
       ...(consentAge ? { [`./${CONSENT_AGE_PACKAGE}`]: { types: `./${CONSENT_AGE_PACKAGE}/${DECLARATIONS}` } } : {}),
+      ...(exported ? { [`./${EXPORT_PACKAGE}`]: { types: `./${EXPORT_PACKAGE}/${DECLARATIONS}` } } : {}),
       "./package.json": "./package.json",
     },
-    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : []), ...(deployment ? [DEPLOYMENT_PACKAGE] : []), ...(legal ? [LEGAL_PACKAGE] : []), ...(consentAge ? [CONSENT_AGE_PACKAGE] : [])],
+    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : []), ...(deployment ? [DEPLOYMENT_PACKAGE] : []), ...(legal ? [LEGAL_PACKAGE] : []), ...(consentAge ? [CONSENT_AGE_PACKAGE] : []), ...(exported ? [EXPORT_PACKAGE] : [])],
     sideEffects: false,
   };
 }

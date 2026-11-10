@@ -973,15 +973,16 @@ export declare const ExportProfileRequestSchema: GenMessage<ExportProfileRequest
  */
 export declare type ExportProfileResponse = Message<"novatrail.api.v1.ExportProfileResponse"> & {
   /**
-   * The part, in the export format, which `app` puts into the file of the export as it is, without
-   * reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+   * The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+   * the file of the export as it is, without reading it.
    *
    * @generated from field: bytes part = 1;
    */
   part: Uint8Array;
 
   /**
-   * The version of the export format the part is written in.
+   * The version of the export format the part is written in: the integer of `export/VERSION`, in
+   * decimal, such as "1".
    *
    * @generated from field: string export_format_version = 2;
    */
@@ -1015,15 +1016,16 @@ export declare const ExportAccountRequestSchema: GenMessage<ExportAccountRequest
  */
 export declare type ExportAccountResponse = Message<"novatrail.api.v1.ExportAccountResponse"> & {
   /**
-   * The part, in the export format, which `app` puts into the file of the export as it is, without
-   * reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+   * The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+   * the file of the export as it is, without reading it.
    *
    * @generated from field: bytes part = 1;
    */
   part: Uint8Array;
 
   /**
-   * The version of the export format the part is written in.
+   * The version of the export format the part is written in: the integer of `export/VERSION`, in
+   * decimal, such as "1".
    *
    * @generated from field: string export_format_version = 2;
    */

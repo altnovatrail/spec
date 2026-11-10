@@ -452,10 +452,11 @@ message ExportProfileRequest {
 
 // The part of a profile's export that `api` holds.
 message ExportProfileResponse {
-  // The part, in the export format, which `app` puts into the file of the export as it is, without
-  // reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+  // The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+  // the file of the export as it is, without reading it.
   bytes part = 1;
-  // The version of the export format the part is written in.
+  // The version of the export format the part is written in: the integer of `export/VERSION`, in
+  // decimal, such as "1".
   string export_format_version = 2;
 }
 
@@ -464,10 +465,11 @@ message ExportAccountRequest {}
 
 // The part of the account's export that `api` holds.
 message ExportAccountResponse {
-  // The part, in the export format, which `app` puts into the file of the export as it is, without
-  // reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+  // The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+  // the file of the export as it is, without reading it.
   bytes part = 1;
-  // The version of the export format the part is written in.
+  // The version of the export format the part is written in: the integer of `export/VERSION`, in
+  // decimal, such as "1".
   string export_format_version = 2;
 }
 

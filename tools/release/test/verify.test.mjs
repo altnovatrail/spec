@@ -142,7 +142,7 @@ test("the archive of the contracts' code is bound to its tag as spec's other pac
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive([]), "v0.5.6", source), /names the package undefined/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive(null), "v0.5.6", source), /cannot be read: it holds no object/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", contracts, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
-  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, legal-<version>\.tar\.gz, consent-age-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
+  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, legal-<version>\.tar\.gz, consent-age-<version>\.tar\.gz, export-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
 });
 
 // A part's archive as release-files writes it, of a made-up spec whose commit v0.13.0 names:
@@ -177,6 +177,7 @@ test("the archive of each part is bound to its tag as the format's is, by the co
     ["legal-1.tar.gz", "legal", "1"],
     ["legal-23.tar.gz", "legal", "23"],
     ["consent-age-1.tar.gz", "consent-age", "1"],
+    ["export-1.tar.gz", "export", "1"],
   ]) {
     const { bytes, source } = partArchive(name, { [`${part}/VERSION`]: `${version}\n`, [`${part}/schemas/a.schema.json`]: "{}\n" });
     checkSpecContent(name, bytes, "v0.13.0", source);

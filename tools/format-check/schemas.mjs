@@ -4,7 +4,7 @@
 // schemas of another normative part with a version of its own, such as the admission table's in
 // admission/schemas/, follow the same conventions under the prefix of their part (R96), and so do
 // the deployment configuration's, but for the names of its file's fields (R85), the legal texts'
-// (R130) and the table of the age of digital consent's (R134).
+// (R130), the table of the age of digital consent's (R134) and the format of the export's (R135).
 //
 // ajv's strict mode is no check of the conventions: it accepts nullable, definitions, dependencies
 // and $dynamicRef, and none of those is the format's. So the conventions are checked on the

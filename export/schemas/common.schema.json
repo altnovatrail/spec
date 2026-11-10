@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/export/1/common.schema.json",
+  "title": "Common definitions",
+  "description": "What the files of an export share: IDs, times, days, the age categories, consents and counters of quota (section 4 of the text of the part).",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "An ID, as api or app gives it."
+    },
+    "time": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]{1,9})?Z$",
+      "description": "A time, RFC 3339 in UTC."
+    },
+    "day": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "description": "A day, YYYY-MM-DD."
+    },
+    "age_category": {
+      "enum": [
+        "under_13",
+        "from_13_to_consent",
+        "from_consent_to_18",
+        "adult"
+      ],
+      "description": "An age category, by its code (R46)."
+    },
+    "consent": {
+      "type": "object",
+      "properties": {
+        "consent_id": {
+          "$ref": "#/$defs/id",
+          "description": "The ID of the consent record, which the signed form names and the minimal record keeps after deletion."
+        },
+        "subject": {
+          "enum": [
+            "adult",
+            "child"
+          ],
+          "description": "Whose consent it is: an adult's own, given with the profile, or one for a child."
+        },
+        "state": {
+          "enum": [
+            "waiting",
+            "confirmed"
+          ],
+          "description": "Where the consent stands."
+        },
+        "age_category": {
+          "$ref": "#/$defs/age_category",
+          "description": "The age category the consent was given for."
+        },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "The learner's country, ISO 3166-1 alpha-2."
+        },
+        "method": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "How the consent was checked: the owner's dated statement for an adult, the signed form (and later a card transaction) for a child."
+        },
+        "requested_at": {
+          "$ref": "#/$defs/time",
+          "description": "When the consent was recorded."
+        },
+        "confirmed_at": {
+          "$ref": "#/$defs/time",
+          "description": "When the consent was confirmed; absent while it waits."
+        },
+        "text_id": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The ID of the legal text the person saw, as legal.yaml names it (parent-consent, teen-consent, storage-consent)."
+        },
+        "text_version": {
+          "type": "integer",
+          "description": "The version of that text, from 1."
+        }
+      },
+      "required": [
+        "consent_id",
+        "subject",
+        "state",
+        "age_category",
+        "country",
+        "requested_at",
+        "text_id",
+        "text_version"
+      ]
+    },
+    "quota_counter": {
+      "type": "object",
+      "properties": {
+        "day_start": {
+          "$ref": "#/$defs/time",
+          "description": "The beginning of the family day, the counter's key (not a date: an offset change can repeat a date)."
+        },
+        "spent_micro_usd": {
+          "type": "integer",
+          "description": "Spent that day; the source keeps US dollars by tutor's estimate, here as integer micro-dollars."
+        },
+        "reserved_micro_usd": {
+          "type": "integer",
+          "description": "In reserve that day, in integer micro-dollars of the dollars the source keeps."
+        }
+      },
+      "required": [
+        "day_start",
+        "spent_micro_usd",
+        "reserved_micro_usd"
+      ]
+    }
+  }
+}

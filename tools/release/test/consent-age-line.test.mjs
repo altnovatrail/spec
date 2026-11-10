@@ -106,6 +106,7 @@ test("in spec, release-version refuses another shape or a new version of the tab
     writeFile(dir, git, "deployment/VERSION", "1\n");
     writeFile(dir, git, "legal/VERSION", "1\n");
     writeFile(dir, git, "consent-age/VERSION", "1\n");
+    writeFile(dir, git, "export/VERSION", "1\n");
     writeFile(dir, git, "consent-age/schemas/consent-age.schema.json", '{"title": "A table", "type": "object"}\n');
     writeFile(dir, git, "consent-age/README.md", text("consent-age.days"));
     releaseLine(dir, git, "0.14");

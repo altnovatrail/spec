@@ -208,6 +208,7 @@ test("in spec, a commit is numbered in the line its own release.yml sets, whatev
     writeFile(dir, git, "deployment/VERSION", "1\n");
     writeFile(dir, git, "legal/VERSION", "1\n");
     writeFile(dir, git, "consent-age/VERSION", "1\n");
+    writeFile(dir, git, "export/VERSION", "1\n");
     releaseLine(dir, git, "1.4");
     git("commit", "--quiet", "-m", "first");
     git("tag", "v1.4.0");
