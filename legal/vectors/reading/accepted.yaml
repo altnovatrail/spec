@@ -1,0 +1,343 @@
+# Parts that a reader accepts, and the current versions it gives.
+
+cases:
+  # Every version a draft: nothing is current, and nothing is shown.
+  - passport:
+      format: 1
+      texts:
+        terms-of-use:
+          place: app
+          versions:
+            - version: 1
+              status: draft
+              summary:
+                en: A draft.
+                ru: Черновик.
+      sets: {}
+    files:
+      texts/terms-of-use/1.md: |
+        # Terms of use
+
+        The words of this version.
+    current:
+      texts: {}
+      sets: {}
+  # A version in force and its next version in draft: the one in force is current.
+  - passport:
+      format: 1
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+            - version: 2
+              status: draft
+              summary:
+                en: A draft of the next wording.
+                ru: Черновик следующей редакции.
+        measure-notice:
+          place: samples_page
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: Your writing history goes to the organizer.
+                ru: История письма уходит организатору.
+        measure-form:
+          place: form
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: You consent to your writing history.
+                ru: Вы соглашаетесь на историю письма.
+      sets:
+        measure:
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              notice:
+                text: measure-notice
+                version: 1
+              form:
+                text: measure-form
+                version: 1
+    files:
+      texts/measure-form/1.md: |
+        # Measurement: form of consent
+
+        The words of this version.
+      texts/measure-notice/1.md: |
+        # Measurement: notice
+
+        The words of this version.
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        The words of this version.
+      texts/privacy-policy/2.md: |
+        # Privacy policy
+
+        A draft.
+    current:
+      texts:
+        measure-form: 1
+        measure-notice: 1
+        privacy-policy: 1
+      sets:
+        measure: 1
+  # The release before had version 1 in force; it is here unchanged, and version 2 now in force is current.
+  - passport:
+      format: 1
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+            - version: 2
+              status: in_force
+              in_force_since: "2026-12-01"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+        measure-notice:
+          place: samples_page
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: Your writing history goes to the organizer.
+                ru: История письма уходит организатору.
+        measure-form:
+          place: form
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: You consent to your writing history.
+                ru: Вы соглашаетесь на историю письма.
+      sets:
+        measure:
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              notice:
+                text: measure-notice
+                version: 1
+              form:
+                text: measure-form
+                version: 1
+    files:
+      texts/measure-form/1.md: |
+        # Measurement: form of consent
+
+        The words of this version.
+      texts/measure-notice/1.md: |
+        # Measurement: notice
+
+        The words of this version.
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        The words of this version.
+      texts/privacy-policy/2.md: |
+        # Privacy policy
+
+        The second wording.
+    previous:
+      passport:
+        format: 1
+        texts:
+          privacy-policy:
+            place: app
+            versions:
+              - version: 1
+                status: in_force
+                in_force_since: "2026-11-20"
+                summary:
+                  en: We keep the least data we need.
+                  ru: Мы храним минимум данных.
+          measure-notice:
+            place: samples_page
+            versions:
+              - version: 1
+                status: in_force
+                in_force_since: "2026-11-20"
+                summary:
+                  en: Your writing history goes to the organizer.
+                  ru: История письма уходит организатору.
+          measure-form:
+            place: form
+            versions:
+              - version: 1
+                status: in_force
+                in_force_since: "2026-11-20"
+                summary:
+                  en: You consent to your writing history.
+                  ru: Вы соглашаетесь на историю письма.
+        sets:
+          measure:
+            versions:
+              - version: 1
+                status: in_force
+                in_force_since: "2026-11-20"
+                notice:
+                  text: measure-notice
+                  version: 1
+                form:
+                  text: measure-form
+                  version: 1
+      files:
+        texts/measure-form/1.md: |
+          # Measurement: form of consent
+
+          The words of this version.
+        texts/measure-notice/1.md: |
+          # Measurement: notice
+
+          The words of this version.
+        texts/privacy-policy/1.md: |
+          # Privacy policy
+
+          The words of this version.
+    current:
+      texts:
+        measure-form: 1
+        measure-notice: 1
+        privacy-policy: 2
+      sets:
+        measure: 1
+  # The release before had version 1 in draft: a draft may change, and come into force.
+  - passport:
+      format: 1
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+        measure-notice:
+          place: samples_page
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: Your writing history goes to the organizer.
+                ru: История письма уходит организатору.
+        measure-form:
+          place: form
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: You consent to your writing history.
+                ru: Вы соглашаетесь на историю письма.
+      sets:
+        measure:
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              notice:
+                text: measure-notice
+                version: 1
+              form:
+                text: measure-form
+                version: 1
+    files:
+      texts/measure-form/1.md: |
+        # Measurement: form of consent
+
+        The words of this version.
+      texts/measure-notice/1.md: |
+        # Measurement: notice
+
+        The words of this version.
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        The words of this version.
+    previous:
+      passport:
+        format: 1
+        texts:
+          privacy-policy:
+            place: app
+            versions:
+              - version: 1
+                status: draft
+                summary:
+                  en: An earlier draft.
+                  ru: Прежний черновик.
+          measure-notice:
+            place: samples_page
+            versions:
+              - version: 1
+                status: in_force
+                in_force_since: "2026-11-20"
+                summary:
+                  en: Your writing history goes to the organizer.
+                  ru: История письма уходит организатору.
+          measure-form:
+            place: form
+            versions:
+              - version: 1
+                status: in_force
+                in_force_since: "2026-11-20"
+                summary:
+                  en: You consent to your writing history.
+                  ru: Вы соглашаетесь на историю письма.
+        sets:
+          measure:
+            versions:
+              - version: 1
+                status: in_force
+                in_force_since: "2026-11-20"
+                notice:
+                  text: measure-notice
+                  version: 1
+                form:
+                  text: measure-form
+                  version: 1
+      files:
+        texts/measure-form/1.md: |
+          # Measurement: form of consent
+
+          The words of this version.
+        texts/measure-notice/1.md: |
+          # Measurement: notice
+
+          The words of this version.
+        texts/privacy-policy/1.md: |
+          # Privacy policy
+
+          An earlier draft.
+    current:
+      texts:
+        measure-form: 1
+        measure-notice: 1
+        privacy-policy: 1
+      sets:
+        measure: 1

@@ -1,0 +1,184 @@
+# Parts that break legal.files: a version with no file, and a file that is no version.
+
+cases:
+  # Version 1 of the policy has no file.
+  - passport:
+      format: 1
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+        measure-notice:
+          place: samples_page
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: Your writing history goes to the organizer.
+                ru: История письма уходит организатору.
+        measure-form:
+          place: form
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: You consent to your writing history.
+                ru: Вы соглашаетесь на историю письма.
+      sets:
+        measure:
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              notice:
+                text: measure-notice
+                version: 1
+              form:
+                text: measure-form
+                version: 1
+    files:
+      texts/measure-form/1.md: |
+        # Measurement: form of consent
+
+        The words of this version.
+      texts/measure-notice/1.md: |
+        # Measurement: notice
+
+        The words of this version.
+    refused_by: legal.files
+    names:
+      - texts/privacy-policy/1.md
+  # A file of a version the passport does not name.
+  - passport:
+      format: 1
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+        measure-notice:
+          place: samples_page
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: Your writing history goes to the organizer.
+                ru: История письма уходит организатору.
+        measure-form:
+          place: form
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: You consent to your writing history.
+                ru: Вы соглашаетесь на историю письма.
+      sets:
+        measure:
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              notice:
+                text: measure-notice
+                version: 1
+              form:
+                text: measure-form
+                version: 1
+    files:
+      texts/measure-form/1.md: |
+        # Measurement: form of consent
+
+        The words of this version.
+      texts/measure-notice/1.md: |
+        # Measurement: notice
+
+        The words of this version.
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        The words of this version.
+      texts/privacy-policy/2.md: |
+        # Privacy policy
+
+        A version the passport does not name.
+    refused_by: legal.files
+    names:
+      - texts/privacy-policy/2.md
+  # A file of a text the passport does not name.
+  - passport:
+      format: 1
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+        measure-notice:
+          place: samples_page
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: Your writing history goes to the organizer.
+                ru: История письма уходит организатору.
+        measure-form:
+          place: form
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: You consent to your writing history.
+                ru: Вы соглашаетесь на историю письма.
+      sets:
+        measure:
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              notice:
+                text: measure-notice
+                version: 1
+              form:
+                text: measure-form
+                version: 1
+    files:
+      texts/measure-form/1.md: |
+        # Measurement: form of consent
+
+        The words of this version.
+      texts/measure-notice/1.md: |
+        # Measurement: notice
+
+        The words of this version.
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        The words of this version.
+      texts/cookie-policy/1.md: |
+        # Cookie policy
+
+        The words of this version.
+    refused_by: legal.files
+    names:
+      - texts/cookie-policy/1.md

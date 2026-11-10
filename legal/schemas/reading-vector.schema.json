@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/legal/1/reading-vector.schema.json",
+  "title": "Reading vector",
+  "description": "A test vector of reading (section 7 of the legal text): parts, each perhaps with the part of the release before, and what section 5 gives. A reader implements section 5 and gets exactly this.",
+  "type": "object",
+  "properties": {
+    "cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/case",
+        "unevaluatedProperties": false,
+        "description": "A part, read once."
+      },
+      "minItems": 1,
+      "description": "The parts."
+    }
+  },
+  "required": [
+    "cases"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "part": {
+      "type": "object",
+      "properties": {
+        "passport": {
+          "description": "The passport as YAML reads it: any value, not only one the schema accepts."
+        },
+        "files": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^texts/[a-z0-9-]+/[a-z0-9-]+\\.md$",
+            "description": "A file's path from the part, such as texts/privacy-policy/1.md."
+          },
+          "additionalProperties": {
+            "type": "string",
+            "description": "The file's text."
+          },
+          "description": "The files under texts/, by their paths from the part."
+        }
+      },
+      "required": [
+        "passport",
+        "files"
+      ]
+    },
+    "case": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/part"
+        }
+      ],
+      "properties": {
+        "previous": {
+          "$ref": "#/$defs/part",
+          "unevaluatedProperties": false,
+          "description": "The part of the release before, which legal.in-force-unchanged reads. Left out when that release has no legal/."
+        },
+        "current": {
+          "type": "object",
+          "properties": {
+            "texts": {
+              "$ref": "#/$defs/versions",
+              "description": "The current version of every text that has one."
+            },
+            "sets": {
+              "$ref": "#/$defs/versions",
+              "description": "The current version of every set that has one."
+            }
+          },
+          "required": [
+            "texts",
+            "sets"
+          ],
+          "unevaluatedProperties": false,
+          "description": "What the reader gives a part it accepts. Left out when it refuses the part."
+        },
+        "refused_by": {
+          "enum": [
+            "schema",
+            "legal.files",
+            "legal.versions",
+            "legal.set-texts",
+            "legal.markdown",
+            "legal.in-force-unchanged"
+          ],
+          "description": "The step that refuses the part: the schema, or the ID of the rule. Left out when the reader accepts it."
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "A path of the passport, a text or set as texts.<id> or sets.<id>, or a file by its path from the part."
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Every name that step gives, in the order of code units."
+        }
+      },
+      "dependentRequired": {
+        "refused_by": [
+          "names"
+        ],
+        "names": [
+          "refused_by"
+        ]
+      },
+      "oneOf": [
+        {
+          "required": [
+            "current"
+          ]
+        },
+        {
+          "required": [
+            "refused_by"
+          ]
+        }
+      ]
+    },
+    "versions": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+        "description": "The ID of a text or of a set."
+      },
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Its current version."
+      }
+    }
+  }
+}

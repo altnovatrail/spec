@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { FIRST_ADMISSION_LINE, FIRST_CONTRACTS_LINE, FIRST_DEPLOYMENT_LINE, FIRST_NPM_LINE, deploymentVersion, formatVersion, releaseFiles, versionTexts } from "../files.mjs";
+import { FIRST_ADMISSION_LINE, FIRST_CONTRACTS_LINE, FIRST_DEPLOYMENT_LINE, FIRST_LEGAL_LINE, FIRST_NPM_LINE, deploymentVersion, formatVersion, legalVersion, releaseFiles, versionTexts } from "../files.mjs";
 import { FIRST_FILES_LINE, compareLines } from "../version.mjs";
 import { TAR } from "../../shared.mjs";
 import { copySpecTools, env, recipe, releaseLine, root, scratchRepository, writeFile } from "./repository.mjs";
@@ -16,7 +16,7 @@ const script = path.join(root, "tools", "release", "files.mjs");
 test("from the line 0.3 on, a release carries the format as one file, named by its version", () => {
   assert.equal(FIRST_FILES_LINE, "0.3");
   assert.deepEqual(releaseFiles("0.3", "0.1\n"), [{ name: "format-0.1.tar.gz", path: "format" }]);
-  assert.deepEqual(releaseFiles("2.10", "2.4\n--\n0.3\n--\n1\n", "v2.10.0")[0], { name: "format-2.4.tar.gz", path: "format" });
+  assert.deepEqual(releaseFiles("2.10", "2.4\n--\n0.3\n--\n1\n--\n1\n", "v2.10.0")[0], { name: "format-2.4.tar.gz", path: "format" });
   // A release of an earlier line carries none, and its commit need not have a VERSION.
   assert.deepEqual(releaseFiles("0.2", ""), []);
   assert.deepEqual(releaseFiles("0.2", "0.1\n"), []);
@@ -29,7 +29,7 @@ test("from the line 0.4 on, a release carries the npm package too, of the releas
     { name: "format-0.1.tar.gz", path: "format" },
     { name: "altnovatrail-spec-0.4.0.tgz", path: "types" },
   ]);
-  assert.deepEqual(releaseFiles("1.12", "1.3\n--\n0.2\n--\n3\n", "v1.12.7")[3], { name: "altnovatrail-spec-1.12.7.tgz", path: "types" });
+  assert.deepEqual(releaseFiles("1.12", "1.3\n--\n0.2\n--\n3\n--\n2\n", "v1.12.7")[4], { name: "altnovatrail-spec-1.12.7.tgz", path: "types" });
   for (const tag of [undefined, "", "0.4.0", "v0.4", "v0.4.0-rc.1"]) {
     assert.throws(() => releaseFiles("0.4", "0.1\n", tag), /a release of the line 0\.4 carries the npm package, which takes the release's tag/, String(tag));
   }
@@ -44,7 +44,7 @@ test("from the line 0.7 on, a release carries the npm package of the contracts' 
     { name: "altnovatrail-spec-0.7.0.tgz", path: "types" },
     { name: "altnovatrail-contracts-0.7.0.tgz", path: "contracts" },
   ]);
-  assert.deepEqual(releaseFiles("1.2", "1.0\n--\n0.1\n--\n2\n", "v1.2.3")[4], { name: "altnovatrail-contracts-1.2.3.tgz", path: "contracts" });
+  assert.deepEqual(releaseFiles("1.2", "1.0\n--\n0.1\n--\n2\n--\n1\n", "v1.2.3")[5], { name: "altnovatrail-contracts-1.2.3.tgz", path: "contracts" });
 });
 
 test("from the line 0.8 on, a release carries the admission table too, named by its own version", () => {
@@ -59,15 +59,15 @@ test("from the line 0.8 on, a release carries the admission table too, named by 
     { name: "altnovatrail-spec-0.8.0.tgz", path: "types" },
     { name: "altnovatrail-contracts-0.8.0.tgz", path: "contracts" },
   ]);
-  assert.deepEqual(versionTexts("0.2\n"), { format: "0.2\n", admission: null, deployment: null });
-  assert.deepEqual(versionTexts("--\n0.1\n"), { format: "", admission: "0.1\n", deployment: null });
+  assert.deepEqual(versionTexts("0.2\n"), { format: "0.2\n", admission: null, deployment: null, legal: null });
+  assert.deepEqual(versionTexts("--\n0.1\n"), { format: "", admission: "0.1\n", deployment: null, legal: null });
   for (const text of ["0.2\n", "0.2\n--\n"]) {
     assert.throws(() => releaseFiles("0.8", text, "v0.8.0"), /a release of the line 0\.8 carries the admission table, and the commit has no admission\/VERSION/, JSON.stringify(text));
   }
   assert.throws(() => releaseFiles("0.8", "0.2\n--\n0.01\n", "v0.8.0"), /^Error: admission\/VERSION is "0\.01\\n", not MAJOR\.MINOR and a newline/);
   // With no format/VERSION, its side is empty, and the refusal names it, not the table's.
   assert.throws(() => releaseFiles("0.8", "--\n0.1\n", "v0.8.0"), /^Error: format\/VERSION is "", not MAJOR\.MINOR/);
-  assert.throws(() => releaseFiles("0.8", "0.2\n--\n0.1\n--\n1\n--\n", "v0.8.0"), /there are more lines --/);
+  assert.throws(() => releaseFiles("0.8", "0.2\n--\n0.1\n--\n1\n--\n1\n--\n", "v0.8.0"), /there are more lines --/);
 });
 
 test("from the line 0.11 on, a release carries the deployment configuration too, named by its integer", () => {
@@ -81,7 +81,7 @@ test("from the line 0.11 on, a release carries the deployment configuration too,
     { name: "altnovatrail-spec-0.11.0.tgz", path: "types" },
     { name: "altnovatrail-contracts-0.11.0.tgz", path: "contracts" },
   ]);
-  assert.deepEqual(versionTexts("0.4\n--\n0.1\n--\n1\n"), { format: "0.4\n", admission: "0.1\n", deployment: "1\n" });
+  assert.deepEqual(versionTexts("0.4\n--\n0.1\n--\n1\n"), { format: "0.4\n", admission: "0.1\n", deployment: "1\n", legal: null });
   for (const text of ["0.4\n--\n0.1\n", "0.4\n--\n0.1\n--\n"]) {
     assert.throws(() => releaseFiles("0.11", text, "v0.11.0"), /a release of the line 0\.11 carries the deployment configuration, and the commit has no deployment\/VERSION/, JSON.stringify(text));
   }
@@ -90,6 +90,28 @@ test("from the line 0.11 on, a release carries the deployment configuration too,
     assert.throws(() => deploymentVersion(text), /^Error: deployment\/VERSION is .*, not an integer from 1 and a newline$/, JSON.stringify(text));
   }
   assert.throws(() => releaseFiles("0.11", "0.4\n--\n0.1\n--\n1.0\n", "v0.11.0"), /^Error: deployment\/VERSION is "1\.0\\n", not an integer from 1/);
+});
+
+test("from the line 0.13 on, a release carries the legal texts too, named by their integer", () => {
+  assert.equal(FIRST_LEGAL_LINE, "0.13");
+  // A release of an earlier line reads no legal/VERSION, whatever it says.
+  assert.deepEqual(releaseFiles("0.12", "0.4\n--\n0.1\n--\n1\n--\nnot a version\n", "v0.12.0").map(({ name }) => name), ["format-0.4.tar.gz", "admission-0.1.tar.gz", "deployment-1.tar.gz", "altnovatrail-spec-0.12.0.tgz", "altnovatrail-contracts-0.12.0.tgz"]);
+  assert.deepEqual(releaseFiles("0.13", "0.4\n--\n0.1\n--\n1\n--\n1\n", "v0.13.0"), [
+    { name: "format-0.4.tar.gz", path: "format" },
+    { name: "admission-0.1.tar.gz", path: "admission" },
+    { name: "deployment-1.tar.gz", path: "deployment" },
+    { name: "legal-1.tar.gz", path: "legal" },
+    { name: "altnovatrail-spec-0.13.0.tgz", path: "types" },
+    { name: "altnovatrail-contracts-0.13.0.tgz", path: "contracts" },
+  ]);
+  assert.deepEqual(versionTexts("0.4\n--\n0.1\n--\n1\n--\n2\n"), { format: "0.4\n", admission: "0.1\n", deployment: "1\n", legal: "2\n" });
+  for (const text of ["0.4\n--\n0.1\n--\n1\n", "0.4\n--\n0.1\n--\n1\n--\n"]) {
+    assert.throws(() => releaseFiles("0.13", text, "v0.13.0"), /a release of the line 0\.13 carries the legal texts, and the commit has no legal\/VERSION/, JSON.stringify(text));
+  }
+  assert.equal(legalVersion("3\n"), "3");
+  for (const text of ["0\n", "01\n", "1.0\n", "1"]) {
+    assert.throws(() => legalVersion(text), /^Error: legal\/VERSION is .*, not an integer from 1 and a newline$/, JSON.stringify(text));
+  }
 });
 
 test("a VERSION that is not MAJOR.MINOR and a newline, and a line that is not MAJOR.MINOR, are refused", () => {
@@ -130,6 +152,9 @@ test("the script prints a line for each file, and says why it refuses", () => {
   const deployment = spawnSync(process.execPath, [script, "0.11", "v0.11.2"], { input: "0.4\n--\n0.1\n--\n1\n", encoding: "utf8", env });
   assert.equal(deployment.status, 0, deployment.stderr);
   assert.equal(deployment.stdout, "format-0.4.tar.gz format\nadmission-0.1.tar.gz admission\ndeployment-1.tar.gz deployment\naltnovatrail-spec-0.11.2.tgz types\naltnovatrail-contracts-0.11.2.tgz contracts\n");
+  const legal = spawnSync(process.execPath, [script, "0.13", "v0.13.1"], { input: "0.4\n--\n0.1\n--\n1\n--\n1\n", encoding: "utf8", env });
+  assert.equal(legal.status, 0, legal.stderr);
+  assert.equal(legal.stdout, "format-0.4.tar.gz format\nadmission-0.1.tar.gz admission\ndeployment-1.tar.gz deployment\nlegal-1.tar.gz legal\naltnovatrail-spec-0.13.1.tgz types\naltnovatrail-contracts-0.13.1.tgz contracts\n");
 });
 
 // A made-up spec with a small format, committed in the line given: release-files reads it.
@@ -289,6 +314,24 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
     assert.match(deployment.stdout, /deployment-1\.tar\.gz, 3 files of [0-9a-f]{40}/);
     assert.deepEqual(fs.readdirSync(path.join(dir, "with-deployment")).sort(), ["admission-0.1.tar.gz", "altnovatrail-contracts-0.11.0.tgz", "altnovatrail-spec-0.11.0.tgz", "deployment-1.tar.gz", "format-0.2.tar.gz"]);
     assert.deepEqual(listing(path.join(dir, "with-deployment", "deployment-1.tar.gz")), ["deployment-1/LICENSE", "deployment-1/deployment/VERSION", "deployment-1/deployment/schemas/deployment.schema.json"]);
+
+    // From the line 0.13 on, the legal texts come too, by their integer (R130), and a commit of the
+    // line without legal/VERSION is refused.
+    releaseLine(dir, git, "0.13");
+    git("commit", "--quiet", "-m", "the line 0.13, with no legal texts yet");
+    const unwritten = recipe(dir, { name: "release-files", args: ["HEAD", "no-legal", "v0.13.0"] });
+    assert.notEqual(unwritten.status, 0);
+    assert.match(unwritten.stderr, /a release of the line 0\.13 carries the legal texts, and the commit has no legal\/VERSION/);
+    writeFile(dir, git, "legal/VERSION", "1\n");
+    writeFile(dir, git, "legal/legal.yaml", "format: 1\n");
+    writeFile(dir, git, "legal/texts/privacy-policy/1.md", "# Privacy policy\n");
+    writeFile(dir, git, "types/legalv1/index.d.ts", "export type Legal = object;\n");
+    git("commit", "--quiet", "-m", "the legal texts");
+    const legal = recipe(dir, { name: "release-files", args: ["HEAD", "with-legal", "v0.13.0"] });
+    assert.equal(legal.status, 0, legal.stderr);
+    assert.match(legal.stdout, /legal-1\.tar\.gz, 4 files of [0-9a-f]{40}/);
+    assert.deepEqual(fs.readdirSync(path.join(dir, "with-legal")).sort(), ["admission-0.1.tar.gz", "altnovatrail-contracts-0.13.0.tgz", "altnovatrail-spec-0.13.0.tgz", "deployment-1.tar.gz", "format-0.2.tar.gz", "legal-1.tar.gz"]);
+    assert.deepEqual(listing(path.join(dir, "with-legal", "legal-1.tar.gz")), ["legal-1/LICENSE", "legal-1/legal/VERSION", "legal-1/legal/legal.yaml", "legal-1/legal/texts/privacy-policy/1.md"]);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

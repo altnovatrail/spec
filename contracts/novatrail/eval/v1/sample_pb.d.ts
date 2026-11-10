@@ -88,8 +88,10 @@ export declare type Sample = Message<"novatrail.eval.v1.Sample"> & {
 
   /**
    * The version of the set of texts that the samples page showed: the notice of the purpose and
-   * the form of consent. 1 to 32 Latin letters, digits, dots and hyphens; "none" in a file that the
-   * samples page did not write, a synthetic sample among them.
+   * the form of consent. 1 to 32 Latin letters, digits, dots and hyphens: from the legal part on,
+   * the set's ID and version joined by a hyphen, such as "child-sample-1" (legal/README.md,
+   * section 4); "none" in a file that the samples page did not write, a synthetic sample among
+   * them.
    *
    * @generated from field: string text_set_version = 8;
    */

@@ -21,8 +21,11 @@
 // - A file of spec is signed by spec's own release.yml on main, whose certificate names the tip
 //   of main as the run began rather than the commit of the tag. The file's content binds it to
 //   its tag instead: the commit git archive writes into the header of format-<version>.tar.gz, of
-//   admission-<version>.tar.gz, the admission table's (R96), and of deployment-<version>.tar.gz,
-//   the deployment configuration's (R85), and the version in the
+//   admission-<version>.tar.gz, the admission table's (R96), of deployment-<version>.tar.gz, the
+//   deployment configuration's (R85), and of legal-<version>.tar.gz, the legal texts' (R130) —
+//   each of which holds what its name says, as release-files writes it: a folder
+//   <part>-<version>/ with LICENSE and <part>/, whose VERSION is that version —, and the version in
+//   the
 //   package.json of altnovatrail-spec-<version>.tgz and of altnovatrail-contracts-<version>.tgz,
 //   the package of the contracts' code (R83).
 //
@@ -55,9 +58,9 @@ const BUNDLE = "application/vnd.dev.sigstore.bundle.v0.3+json";
 const SHA = /^[0-9a-f]{40}$/;
 const ORGANIZATION_URI = `https://github.com/${ORGANIZATION.name}`;
 // The normative parts with a version of their own, each one archive of git archive: the module
-// format and the admission table (R96), by MAJOR.MINOR, and the deployment configuration (R85), by
-// an integer.
-const PART_FILE = /^(?:(?:format|admission)-(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)|deployment-[1-9]\d*)\.tar\.gz$/;
+// format and the admission table (R96), by MAJOR.MINOR, and the deployment configuration (R85) and
+// the legal texts (R130), by an integer.
+const PART_FILE = /^(?:(?:format|admission)-(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)|(?:deployment|legal)-[1-9]\d*)\.tar\.gz$/;
 // The npm packages of spec's release, by the name of their archive: the types of the format, and
 // the code of the contracts.
 const NPM_FILE = /^altnovatrail-(spec|contracts)-((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))\.tgz$/;
@@ -227,6 +230,7 @@ export function checkSpecContent(name, bytes, tag, source) {
     const commit = source.tagCommit("spec", tag);
     if (!commit) throw new Error(`spec has no tag ${tag}`);
     if (archived !== commit) throw new Error(`${name} is git archive's of ${archived}, and spec ${tag} is ${commit}`);
+    checkPartArchive(name, bytes);
     return;
   }
   const npm = NPM_FILE.exec(name);
@@ -241,7 +245,26 @@ export function checkSpecContent(name, bytes, tag, source) {
     if (!source.tagCommit("spec", tag)) throw new Error(`spec has no tag ${tag}`);
     return;
   }
-  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz, admission-<version>.tar.gz, deployment-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
+  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz, admission-<version>.tar.gz, deployment-<version>.tar.gz, legal-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
+}
+
+// A part's archive holds what its name says, as release-files writes it (tools/release/files.mjs
+// and the justfile): one folder named as the file, <part>-<version>/, with LICENSE and the part's
+// folder in it and nothing else, whose VERSION is the version the name gives. The format's archive
+// of v0.5.6 by the admission table's name holds format-0.1/, and is refused.
+export function checkPartArchive(name, bytes) {
+  const [, part, version] = /^([a-z]+)-(.+)\.tar\.gz$/.exec(name);
+  const folder = `${part}-${version}`;
+  const listed = spawnSync(TAR, ["--quoting-style=literal", "-tzf", "-"], { input: bytes, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  if (listed.status !== 0) throw new Error(`${name} cannot be listed by tar: ${(listed.stderr || listed.error?.message || "").trim()}`);
+  const entries = listed.stdout.split("\n").filter(Boolean);
+  const outside = entries.find((entry) => !(entry === `${folder}/` || entry === `${folder}/LICENSE` || entry === `${folder}/${part}/` || entry.startsWith(`${folder}/${part}/`)));
+  if (outside !== undefined) throw new Error(`${name} holds ${outside}, and the archive of ${part}/ that its name says holds ${folder}/LICENSE and ${folder}/${part}/ alone`);
+  for (const wanted of [`${folder}/LICENSE`, `${folder}/${part}/VERSION`]) {
+    if (!entries.includes(wanted)) throw new Error(`${name} holds no ${wanted}`);
+  }
+  const read = spawnSync(TAR, ["-xzOf", "-", `${folder}/${part}/VERSION`], { input: bytes, encoding: "utf8" });
+  if (read.stdout !== `${version}\n`) throw new Error(`${name} holds ${folder}/${part}/VERSION ${JSON.stringify(read.stdout)}, and its name says ${version}`);
 }
 
 // The commit git archive writes into the archive's header, as git get-tar-commit-id reads it.

@@ -11,6 +11,7 @@ export const documents = {
   privacy: "docs/privacy.md",
   architecture: "docs/architecture.md",
   repositories: "docs/repositories.md",
+  dpia: "docs/dpia.md",
 };
 
 // The numbered registers. `section` is the numbered section that holds the register, or null

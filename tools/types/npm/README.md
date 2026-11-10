@@ -1,6 +1,6 @@
 # @altnovatrail/spec
 
-The types of [NovaTrail](https://github.com/altnovatrail)'s module format for TypeScript, from 0.8.0 on those of its admission table, and from 0.11.0 on those of its deployment configuration. The package covers:
+The types of [NovaTrail](https://github.com/altnovatrail)'s module format for TypeScript, from 0.8.0 on those of its admission table, from 0.11.0 on those of its deployment configuration, and from 0.13.0 on those of the passport of its legal texts. The package covers:
 - the parts of a module and their open views;
 - the canonical view and the inventory of a package;
 - the module index;
@@ -15,6 +15,8 @@ From 0.8.0 on, it holds the types of the admission table too: which AI provider,
 From 0.10.0 on, it holds the page of the workbook too, which format 0.4 makes a rule: `@altnovatrail/spec/format/page.json`, the numbers and the widths by which every page is laid out, and `@altnovatrail/spec/format/vectors/pages/<case>.json`, the test vectors of the page, each the JSON of the format's [`page.yaml`](https://github.com/altnovatrail/spec/blob/main/format/page.yaml) and of its vectors, `format/vectors/pages/` ([the format's text](https://github.com/altnovatrail/spec/blob/main/format/README.md), section 14). A canvas reads them to lay its page out, and its tests check its layout against the vectors; their types are `Page` and `PageVector` of `formatv0`.
 
 From 0.11.0 on, it holds the types of the deployment configuration too: the file `/deployment.json`, which the learner's app reads at its start from the root of its origin, with the origin of the platform's API and the parameters of the sign-in service ([the format's text](https://github.com/altnovatrail/spec/blob/main/deployment/README.md)). They are generated from its schemas, `deployment/schemas`, as the format's are, and the fields of the file keep their names in camelCase, such as `signIn.apiKey`.
+
+From 0.13.0 on, it holds the types of the legal texts' passport too, `legal/legal.yaml`: each text of the platform — the privacy policy, the terms of use, the consents and the forms —, where it is shown, its versions with their status, the date each came into force and its gist in each language of the interface, and the sets of texts of the samples page ([the part's text](https://github.com/altnovatrail/spec/blob/main/legal/README.md)). The words of each version are a Markdown file of their own, `legal/texts/<id>/<n>.md`, which no type holds. They are generated from the part's schemas, `legal/schemas`, as the format's are.
 
 The types are declarations alone, with no code to run, so import them with `import type`; the page's JSON is data, which a module imports with `with { type: "json" }` or reads as a file:
 
@@ -36,6 +38,7 @@ function show(task: open.Task, manifest: open.Manifest) {
 - **`@altnovatrail/spec/formatv0/open`** holds the open view of each part, which is what the learner's app gets ([the format's text](https://github.com/altnovatrail/spec/blob/main/format/README.md#6-open-fields), section 6). Each type keeps its name from `formatv0` and only the fields marked `x-open`, so an open view has no check, no template and no solver.
 - **`@altnovatrail/spec/admissionv0`** holds the types of the admission table's major version 0: the table, with its providers, deployment facts, rules of capabilities and cells, and the test vectors of the admission function's answers.
 - **`@altnovatrail/spec/deploymentv1`** holds the types of the deployment configuration's version 1: the file, `Deployment`, and the test vectors of reading it, `ReadingVector`, whose file is any JSON value, `unknown`. A type gives the shape alone: a reader checks the file against its schema and then against the rules of reading, section 5 of the format's text.
+- **`@altnovatrail/spec/legalv1`** holds the types of version 1 of the legal texts: the passport, `Legal`, with each `Text` and its `TextVersion`, each `Set` and its `SetVersion`, and the test vectors of reading the part, `ReadingVector`, whose passport is any JSON value, `unknown`. A type gives the shape alone: a reader checks the passport against its schema and then the part against the rules of reading, section 5 of the part's text.
 - **`@altnovatrail/spec/canvas`** holds the types of `<novatrail-canvas>`:
   - `CanvasElement`, which describes the element's properties `tool`, `task`, `workedExample`, `demoState`, `manifest`, `media`, `history`, `marks` and `filled` and its method `exportWork()`;
   - `Media`, the function by which the consumer gives the files of the pictures: the canvas goes to no network;

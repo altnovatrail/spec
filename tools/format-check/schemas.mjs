@@ -3,7 +3,8 @@
 // ajv, the JSON Schema 2020-12 validator that checks the examples and the vectors against them. The
 // schemas of another normative part with a version of its own, such as the admission table's in
 // admission/schemas/, follow the same conventions under the prefix of their part (R96), and so do
-// the deployment configuration's, but for the names of its file's fields (R85).
+// the deployment configuration's, but for the names of its file's fields (R85), and the legal
+// texts' (R130).
 //
 // ajv's strict mode is no check of the conventions: it accepts nullable, definitions, dependencies
 // and $dynamicRef, and none of those is the format's. So the conventions are checked on the

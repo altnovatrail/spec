@@ -13,25 +13,42 @@
 import { byCodeUnits } from "../shared.mjs";
 
 // The objects whose place gives them no name: a field's object, an array's element, a map's value.
-// Each takes a term of concepts 15, by the schema and the JSON Pointer of its place. A struct at a
-// place that is neither here nor a schema's root or $defs is an error.
+// Each takes a term of concepts 15, by the normative part its schema is of — the folder its $id
+// names after the prefix of spec, PART_PREFIX — and by the schema and the JSON Pointer of its
+// place there, since two parts may hold schemas of one name, such as reading-vector.schema.json.
+// A struct at a place that is neither here nor a schema's root or $defs is an error.
+export const PART_PREFIX = "https://altnovatrail.github.io/spec/";
 export const INLINE_NAMES = {
-  "manifest.schema.json#/properties/audience": "Audience",
-  "manifest.schema.json#/properties/bands/items": "Band",
-  "manifest.schema.json#/properties/languages": "Languages",
-  "manifest.schema.json#/properties/canvas": "CanvasSettings",
-  "manifest.schema.json#/properties/authors/items": "Author",
-  "skill-graph.schema.json#/properties/skills/additionalProperties": "Skill",
-  "skill-graph.schema.json#/properties/retired_skills/additionalProperties": "RetiredSkill",
-  "techniques.schema.json#/properties/techniques/additionalProperties": "Technique",
-  "traps.schema.json#/properties/traps/additionalProperties": "Trap",
-  "random-vector.schema.json#/properties/state": "RandomState",
-  "random-vector.schema.json#/$defs/draw/properties/integer": "IntegerDraw",
-  "random-vector.schema.json#/$defs/draw/properties/below": "BelowDraw",
-  "random-vector.schema.json#/$defs/draw/properties/between": "BetweenDraw",
-  "random-vector.schema.json#/$defs/draw/properties/fraction": "FractionDraw",
-  "random-vector.schema.json#/$defs/draw/properties/permutation": "PermutationDraw",
+  format: {
+    "manifest.schema.json#/properties/audience": "Audience",
+    "manifest.schema.json#/properties/bands/items": "Band",
+    "manifest.schema.json#/properties/languages": "Languages",
+    "manifest.schema.json#/properties/canvas": "CanvasSettings",
+    "manifest.schema.json#/properties/authors/items": "Author",
+    "skill-graph.schema.json#/properties/skills/additionalProperties": "Skill",
+    "skill-graph.schema.json#/properties/retired_skills/additionalProperties": "RetiredSkill",
+    "techniques.schema.json#/properties/techniques/additionalProperties": "Technique",
+    "traps.schema.json#/properties/traps/additionalProperties": "Trap",
+    "random-vector.schema.json#/properties/state": "RandomState",
+    "random-vector.schema.json#/$defs/draw/properties/integer": "IntegerDraw",
+    "random-vector.schema.json#/$defs/draw/properties/below": "BelowDraw",
+    "random-vector.schema.json#/$defs/draw/properties/between": "BetweenDraw",
+    "random-vector.schema.json#/$defs/draw/properties/fraction": "FractionDraw",
+    "random-vector.schema.json#/$defs/draw/properties/permutation": "PermutationDraw",
+  },
+  // The legal texts' (R130).
+  legal: {
+    "legal.schema.json#/$defs/text_version/properties/summary": "Gist",
+    "reading-vector.schema.json#/$defs/case/properties/current": "Current",
+  },
 };
+
+// The part a schema is of, by its $id: the folder after PART_PREFIX, or null when it names none.
+export function partOfId(id) {
+  if (typeof id !== "string" || !id.startsWith(PART_PREFIX)) return null;
+  const folder = id.slice(PART_PREFIX.length).split("/")[0];
+  return folder || null;
+}
 
 // What a subschema beside a $ref may say without changing the shape of the type it refers to: it
 // narrows the values, or names a field the type has.
@@ -48,8 +65,9 @@ const PRIMITIVES = new Set(["string", "integer", "number", "boolean"]);
 // types by name, in the order of the schemas and of their places; roots, the type of each schema
 // that has one, by term; open, the open view of each struct the open view of a part reaches, by
 // name. Throws a ModelError at the first form it does not know. anyValue, which only the deployment
-// configuration's model sets (R85), lets a field whose every subschema holds a description alone
-// hold any JSON value, as a vector's file does; anywhere else such a field has no shape.
+// configuration's model and the legal texts' set (R85, R130), lets a field whose every subschema
+// holds a description alone hold any JSON value, as a vector's file or passport does; anywhere else
+// such a field has no shape.
 export function buildModel(schemas, parts, { anyValue = false } = {}) {
   const byName = new Map(schemas.map((schema) => [schema.name, schema.json]));
   const types = new Map();
@@ -80,7 +98,8 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
     if (pointer === "") return isTyped(byName.get(schema)) ? pascalOf(schema.slice(0, -".schema.json".length)) : undefined;
     const keys = pointerKeys(pointer);
     if (keys.length === 2 && keys[0] === "$defs") return pascalOf(keys[1]);
-    return INLINE_NAMES[at(schema, pointer)];
+    const part = partOfId(byName.get(schema)?.$id);
+    return part && Object.hasOwn(INLINE_NAMES, part) ? INLINE_NAMES[part][at(schema, pointer)] : undefined;
   };
 
   // The named type at a place, built once: its name.
@@ -164,9 +183,10 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
   };
 
   // A string enumeration at a field, named after it. A struct's fields are built once, so the name
-  // is taken only by another place.
+  // is taken by another place, or by the same place, whose fields another object takes too.
   const enumType = (name, schema, pointer, node, values) => {
     const known = types.get(name);
+    if (known?.schema === schema && known.pointer === pointer) return name;
     if (known) throw new ModelError(at(schema, pointer), `is named ${name}, as ${at(known.schema, known.pointer)} is`);
     types.set(name, { name, schema, pointer, doc: docOf(node), kind: "string", values });
     return name;
@@ -205,31 +225,40 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
 
   // The fields of an object: those of its properties, of each allOf, and of each branch of
   // if/then/else, in the order they are written. A field is required when the object holds it
-  // always: required at the object or in an allOf of it, not in a branch.
+  // always: required at the object or in an allOf of it, not in a branch. A member of allOf may be
+  // a $ref to another struct, whose fields the object takes as they are, with the types they have
+  // there: an enumeration of a field of that struct is one type, named after it, whichever object
+  // takes its fields (legal/schemas, R130).
   const fieldsOf = (node, schema, pointer) => {
     const declarations = new Map();
     const required = new Set();
-    const collect = (part, place, conditional) => {
+    const parent = nameAt(schema, pointer);
+    // A part of the object at place in the schema from, whose fields owner names their types after.
+    const collect = (part, place, conditional, from = schema, owner = parent, member = false) => {
       if (!isObject(part)) return;
       for (const key of UNKNOWN_OBJECT_FORMS) {
-        if (part[key] !== undefined) throw new ModelError(at(schema, place), `has ${key} in an object: the model takes its fields from properties, allOf and the branches of if alone`);
+        if (part[key] !== undefined && !(key === "$ref" && member)) throw new ModelError(at(from, place), `has ${key} in an object: the model takes its fields from properties, allOf and the branches of if alone`);
+      }
+      if (part.$ref !== undefined) {
+        const { schema: file, pointer: referred } = target(part.$ref, from);
+        if (!isStruct(nodeAt(file, referred))) throw new ModelError(at(from, place), "refers in allOf to no object: the model takes fields from a struct alone");
+        collect(nodeAt(file, referred), referred, conditional, file, typeAt(file, referred));
       }
       for (const key of ["anyOf", "oneOf"]) {
-        if (Array.isArray(part[key]) && part[key].some((branch) => isObject(branch?.properties))) throw new ModelError(at(schema, `${place}/${key}`), "declares fields in a branch of a choice: the model takes them from the branches of if alone");
+        if (Array.isArray(part[key]) && part[key].some((branch) => isObject(branch?.properties))) throw new ModelError(at(from, `${place}/${key}`), "declares fields in a branch of a choice: the model takes them from the branches of if alone");
       }
       if (isObject(part.properties)) {
         for (const [field, subschema] of Object.entries(part.properties)) {
           if (!declarations.has(field)) declarations.set(field, []);
-          declarations.get(field).push({ subschema, place: `${place}/properties/${escapeKey(field)}`, conditional });
+          declarations.get(field).push({ subschema, schema: from, owner, place: `${place}/properties/${escapeKey(field)}`, conditional });
         }
       }
       if (!conditional && Array.isArray(part.required)) for (const field of part.required) required.add(field);
-      if (Array.isArray(part.allOf)) part.allOf.forEach((member, index) => collect(member, `${place}/allOf/${index}`, conditional));
-      collect(part.then, `${place}/then`, true);
-      collect(part.else, `${place}/else`, true);
+      if (Array.isArray(part.allOf)) part.allOf.forEach((each, index) => collect(each, `${place}/allOf/${index}`, conditional, from, owner, true));
+      collect(part.then, `${place}/then`, true, from, owner);
+      collect(part.else, `${place}/else`, true, from, owner);
     };
     collect(node, pointer, false);
-    const parent = nameAt(schema, pointer);
     const fields = [];
     for (const [field, list] of declarations) {
       // The subschemas that shape the field most (strengthOf): a branch narrows a field that another
@@ -240,17 +269,17 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
       // model lets it: a vector's file of the deployment configuration, as JSON reads it, for a
       // reader to check.
       const any = anyValue && list.every(({ subschema }) => isObject(subschema) && Object.keys(subschema).every((key) => key === "description"));
-      if (defining.length === 0 && !any) throw new ModelError(at(schema, list[0].place), `gives the field ${field} no shape anywhere`);
-      const name = `${parent}${pascalOf(field)}`;
+      if (defining.length === 0 && !any) throw new ModelError(at(list[0].schema, list[0].place), `gives the field ${field} no shape anywhere`);
       const [first, ...others] = defining;
-      const type = any ? { any: true } : refOf(first.subschema, schema, first.place, name);
+      const name = `${(first ?? list[0]).owner}${pascalOf(field)}`;
+      const type = any ? { any: true } : refOf(first.subschema, first.schema, first.place, name);
       // A branch may name the type by another name of the same type, as a $ref that narrows it:
       // the check of an answer slot written by hand is a check. Two enumerations of a field are one
       // when their values are.
       for (const other of others) {
         const values = enumOf(first.subschema);
-        const same = values ? JSON.stringify(enumOf(other.subschema)) === JSON.stringify(values) && other.subschema.type === first.subschema.type : JSON.stringify(unaliased(refOf(other.subschema, schema, other.place, name))) === JSON.stringify(unaliased(type));
-        if (!same) throw new ModelError(at(schema, other.place), `gives the field ${field} another shape than ${at(schema, first.place)}`);
+        const same = values ? JSON.stringify(enumOf(other.subschema)) === JSON.stringify(values) && other.subschema.type === first.subschema.type : JSON.stringify(unaliased(refOf(other.subschema, other.schema, other.place, name))) === JSON.stringify(unaliased(type));
+        if (!same) throw new ModelError(at(other.schema, other.place), `gives the field ${field} another shape than ${at(first.schema, first.place)}`);
       }
       // A field marked where its object always is is open in every value; a field marked in a branch
       // is open in a value of that branch alone. The type holds no branch, so a field marked in a
@@ -258,7 +287,7 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
       const marked = list.filter(({ subschema }) => subschema["x-open"] === true);
       const unmarked = list.find(({ subschema }) => subschema["x-open"] !== true);
       if (marked.length && unmarked && marked.every(({ conditional }) => conditional)) {
-        throw new ModelError(at(schema, unmarked.place), `leaves the field ${field} unmarked, which ${at(schema, marked[0].place)} marks x-open in a branch alone: whether it is open would turn on the branch`);
+        throw new ModelError(at(unmarked.schema, unmarked.place), `leaves the field ${field} unmarked, which ${at(marked[0].schema, marked[0].place)} marks x-open in a branch alone: whether it is open would turn on the branch`);
       }
       const described = list.find(({ subschema }) => typeof subschema.description === "string");
       const defaulted = list.find(({ subschema }) => subschema.default !== undefined);

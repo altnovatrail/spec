@@ -1,0 +1,131 @@
+# The passport of the legal texts (section 4 of the legal text). Every version is a draft until
+# T97, T98 and T99 of RUN.md write its words and the author approves it (R112).
+format: 1
+texts:
+  privacy-policy:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "NovaTrail collects only what it needs to teach: a pseudonym, never a name; an age category, never a date of birth; and what the learner has done and learned. The learner's work stays on the device unless the adult chooses to keep works on our server. To be checked, a picture of it goes, with no name or ID, to an AI provider, OpenAI or Anthropic, which reads it and words the tutor's replies. A program, not AI, decides whether an answer is right. A child has no account: the adult creates the child's profile after consent, a parent's checked one below the age of digital consent. The data lies in the United States, with Google, Neon and the AI providers, under contracts that make them our processors. No advertising, no selling of data, no links out of the app. You can export or delete the data in one step; the policy lists what remains, and for how long."
+          ru: "NovaTrail собирает только то, без чего не учит: псевдоним, а не имя; возрастную категорию, а не дату рождения; что ученик сделал и чему научился. Работа ученика остаётся на устройстве, если взрослый не включит хранение работ на нашем сервере. На проверку её картинка, без имени и идентификаторов, уходит поставщику ИИ — OpenAI или Anthropic, — который её читает и подбирает слова наставника. Верен ли ответ, решает программа, а не ИИ. У ребёнка нет аккаунта: профиль ребёнка взрослый заводит после согласия, а ниже возраста цифрового согласия — после проверенного согласия родителя. Данные лежат в США — у Google, Neon и поставщиков ИИ, по договорам, которые делают их нашими обработчиками. Нет рекламы, продажи данных и ссылок наружу. Выгрузить и удалить данные можно в один шаг; что остаётся и на какой срок, политика называет."
+  terms-of-use:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "The agreement between the adult who owns a NovaTrail account and its operator. You must be 18 or older, and of age to make it where you live. You may create a profile for yourself and for each child you are the parent or guardian of, a child's only after consent. A program checks the answers; AI reads the work and words the tutor's replies, and can be wrong. For now NovaTrail is free and by invitation, and the platform's AI has a daily limit. A key of your own to an AI provider is for your own profile only, and the provider's terms are your contract with it. You can delete the account at any time; an account unused for 12 months is deleted."
+          ru: "Договор взрослого, у которого аккаунт NovaTrail, с её оператором. Вам должно быть 18 или больше, и по закону места, где вы живёте, вы вправе его заключить. Профиль можно завести себе и каждому ребёнку, чей вы родитель или опекун, — ребёнку только после согласия. Ответы проверяет программа; ИИ читает работу и подбирает слова наставника и может ошибаться. Пока NovaTrail бесплатна и только по приглашению, а у ИИ платформы есть дневной предел. Свой ключ поставщика ИИ — только для вашего профиля, и условия поставщика — ваш договор с ним. Удалить аккаунт можно когда угодно; аккаунт, которым не пользовались 12 месяцев, удаляется."
+  storage-consent:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "You switch on keeping this learner's works, such as drawings and essays, on our server, as the device holds them, never their read text. An essay may tell something personal, about health too: you give explicit consent to our keeping it. Nobody reads the works, and they never go to an AI provider. Switching off is one step, and it erases the copies on our server."
+          ru: "Вы включаете хранение работ этого ученика — рисунков, сочинений — на нашем сервере, в том виде, в каком их держит устройство, без прочитанного текста. В сочинении может оказаться личное, в том числе о здоровье: вы даёте явное согласие на то, что мы это храним. Работ никто не читает, и к поставщику ИИ они не уходят. Выключить хранение можно в один шаг, и это стирает копии на сервере."
+  parent-consent:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Consent for a child. Its gist is written with its words, in T98 of RUN.md."
+          ru: "Черновик: Согласие за ребёнка. Суть пишется вместе с текстом, в T98 RUN.md."
+  teen-consent:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Consent of a teenager. Its gist is written with its words, in T98 of RUN.md."
+          ru: "Черновик: Согласие подростка. Суть пишется вместе с текстом, в T98 RUN.md."
+  child-notice:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: For you, the learner. Its gist is written with its words, in T98 of RUN.md."
+          ru: "Черновик: Для тебя, ученик. Суть пишется вместе с текстом, в T98 RUN.md."
+  measure-notice:
+    place: samples_page
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Measurement: notice. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Замер: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+  measure-form:
+    place: form
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Measurement: form of consent. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Замер: форма согласия. Суть пишется вместе с текстом, в T99 RUN.md."
+  eval-set-notice:
+    place: samples_page
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Eval set: notice. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Eval-набор: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+  volunteer-form:
+    place: form
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: Eval set: the volunteer's form. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Eval-набор: форма добровольца. Суть пишется вместе с текстом, в T99 RUN.md."
+  child-sample-notice:
+    place: samples_page
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: A child's sample: notice. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Образец ребёнка: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+  child-sample-form:
+    place: form
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "Draft: A child's sample: the parent's form. Its gist is written with its words, in T99 of RUN.md."
+          ru: "Черновик: Образец ребёнка: форма родителя. Суть пишется вместе с текстом, в T99 RUN.md."
+sets:
+  measure:
+    versions:
+      - version: 1
+        status: draft
+        notice:
+          text: measure-notice
+          version: 1
+        form:
+          text: measure-form
+          version: 1
+  eval-set:
+    versions:
+      - version: 1
+        status: draft
+        notice:
+          text: eval-set-notice
+          version: 1
+        form:
+          text: volunteer-form
+          version: 1
+  child-sample:
+    versions:
+      - version: 1
+        status: draft
+        notice:
+          text: child-sample-notice
+          version: 1
+        form:
+          text: child-sample-form
+          version: 1

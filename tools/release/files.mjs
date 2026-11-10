@@ -1,7 +1,8 @@
 // release-files: the files spec's release of a commit carries, by the line it is numbered in (R64).
 //
 //   { git show <commit>:format/VERSION; echo --; git show <commit>:admission/VERSION; echo --;
-//     git show <commit>:deployment/VERSION; } | node tools/release/files.mjs <line> [<tag>]
+//     git show <commit>:deployment/VERSION; echo --; git show <commit>:legal/VERSION; } \
+//       | node tools/release/files.mjs <line> [<tag>]
 //
 // From FIRST_FILES_LINE on, a release carries each normative part that has a version of its own
 // as one file, <part>-<version>.tar.gz, for each version of it the platform reads (R44): while
@@ -10,23 +11,26 @@
 // admission-<version>.tar.gz, at the version admission/VERSION names, which comes on stdin after
 // format/VERSION and a line -- (R96). From FIRST_DEPLOYMENT_LINE on, it carries the format of the
 // deployment configuration as well, deployment-<version>.tar.gz, at the version deployment/VERSION
-// names, an integer, which comes after admission/VERSION and a second line -- (R85). Any of the
-// files may be missing from the commit, and then its side of the line is empty.
+// names, an integer, which comes after admission/VERSION and a second line -- (R85). From
+// FIRST_LEGAL_LINE on, it carries the legal texts too, legal-<version>.tar.gz, at the version
+// legal/VERSION names, an integer, which comes after deployment/VERSION and a third line -- (R130).
+// Any of the files may be missing from the commit, and then its side of the line is empty.
 // From FIRST_NPM_LINE on, it carries the npm package @altnovatrail/spec as well, the archive npm
 // pack names for the release's version, altnovatrail-spec-<MAJOR.MINOR.PATCH>.tgz (R73): tag is
 // the release's, in the line. From FIRST_CONTRACTS_LINE on, it carries the npm package of the
 // contracts' code too, @altnovatrail/contracts, altnovatrail-contracts-<MAJOR.MINOR.PATCH>.tgz, and
 // release.yml tags the Go module of the contracts with the release (R83). A release of an earlier
 // line carries no files, and its stdin, which may be empty, is not read for a version; a release of
-// a line before FIRST_ADMISSION_LINE reads format/VERSION alone, and one before
-// FIRST_DEPLOYMENT_LINE no deployment/VERSION. Prints a line for each file: its
+// a line before FIRST_ADMISSION_LINE reads format/VERSION alone, one before
+// FIRST_DEPLOYMENT_LINE no deployment/VERSION, and one before FIRST_LEGAL_LINE no legal/VERSION.
+// Prints a line for each file: its
 // name, and the path in the repository that the file holds beside LICENSE. `just release-files`
 // builds them, and release.yml checks the files of a release it runs again by the names.
 //
 // Takes nothing from its command line but the line and the tag, which it checks for their form.
 
 import fs from "node:fs";
-import { FIRST_ADMISSION_LINE, FIRST_DEPLOYMENT_LINE, archiveOf } from "../types/npm.mjs";
+import { FIRST_ADMISSION_LINE, FIRST_DEPLOYMENT_LINE, FIRST_LEGAL_LINE, archiveOf } from "../types/npm.mjs";
 import { archiveOf as contractsArchiveOf } from "../contracts/npm.mjs";
 import { FIRST_FILES_LINE, LINE, RELEASE_TAG, compareLines } from "./version.mjs";
 import { isMain } from "../shared.mjs";
@@ -42,6 +46,9 @@ export { FIRST_ADMISSION_LINE };
 // spec's first line whose releases carry the format of the deployment configuration (R85): the
 // line whose npm package of the types holds its types, one constant for both.
 export { FIRST_DEPLOYMENT_LINE };
+// spec's first line whose releases carry the legal texts (R130): the line whose npm package of the
+// types holds the types of their passport, one constant for both.
+export { FIRST_LEGAL_LINE };
 
 const VERSION = /^((?:0|[1-9]\d*)\.(?:0|[1-9]\d*))\n$/;
 const INTEGER = /^([1-9]\d*)\n$/;
@@ -55,20 +62,25 @@ export function formatVersion(text, file = "format/VERSION") {
 }
 
 // The version deployment/VERSION names, an integer from 1 and a newline, as deployment-check reads
-// it.
-export function deploymentVersion(text) {
+// it; or the version of another part's file of an integer, by its name.
+export function deploymentVersion(text, file = "deployment/VERSION") {
   const match = INTEGER.exec(text);
-  if (!match) throw new Error(`deployment/VERSION is ${JSON.stringify(text)}, not an integer from 1 and a newline`);
+  if (!match) throw new Error(`${file} is ${JSON.stringify(text)}, not an integer from 1 and a newline`);
   return match[1];
 }
 
-// The text of format/VERSION, of admission/VERSION and of deployment/VERSION, apart by lines --:
-// { format, admission, deployment }, each the file's text, and null for each that no line -- comes
-// before.
+// The version legal/VERSION names, an integer from 1 and a newline, as legal-check reads it.
+export function legalVersion(text) {
+  return deploymentVersion(text, "legal/VERSION");
+}
+
+// The text of format/VERSION, of admission/VERSION, of deployment/VERSION and of legal/VERSION,
+// apart by lines --: { format, admission, deployment, legal }, each the file's text, and null for
+// each that no line -- comes before.
 export function versionTexts(text) {
   const parts = text.split(/^--\n/m);
-  if (parts.length > 3) throw new Error("the VERSION files are format/VERSION, a line --, admission/VERSION, a line --, and deployment/VERSION: there are more lines --");
-  return { format: parts[0], admission: parts.length >= 2 ? parts[1] : null, deployment: parts.length === 3 ? parts[2] : null };
+  if (parts.length > 4) throw new Error("the VERSION files are format/VERSION, a line --, admission/VERSION, a line --, deployment/VERSION, a line --, and legal/VERSION: there are more lines --");
+  return { format: parts[0], admission: parts[1] ?? null, deployment: parts[2] ?? null, legal: parts[3] ?? null };
 }
 
 // The files of a release of the line, given format/VERSION and admission/VERSION at its commit and
@@ -88,6 +100,11 @@ export function releaseFiles(line, versionText, tag) {
   if (compareLines(line, FIRST_DEPLOYMENT_LINE) >= 0) {
     if (!texts.deployment) throw new Error(`a release of the line ${line} carries the deployment configuration, and the commit has no deployment/VERSION`);
     files.push({ name: `deployment-${deploymentVersion(texts.deployment)}.tar.gz`, path: "deployment" });
+  }
+  // And one before FIRST_LEGAL_LINE no legal/VERSION.
+  if (compareLines(line, FIRST_LEGAL_LINE) >= 0) {
+    if (!texts.legal) throw new Error(`a release of the line ${line} carries the legal texts, and the commit has no legal/VERSION`);
+    files.push({ name: `legal-${legalVersion(texts.legal)}.tar.gz`, path: "legal" });
   }
   if (compareLines(line, FIRST_NPM_LINE) < 0) return files;
   const match = RELEASE_TAG.exec(tag ?? "");

@@ -110,6 +110,48 @@ func TestDeploymentHoldsEveryFile(t *testing.T) {
 	}
 }
 
+// Legal holds every file of legal/, and its VERSION is an integer, which the field format of the
+// passport's schema holds, as the passport itself does.
+func TestLegalHoldsEveryFile(t *testing.T) {
+	embedded := filesOf(t, Legal)
+	onDisk := filesOf(t, os.DirFS("legal"))
+	if !slices.Equal(embedded, onDisk) {
+		t.Fatalf("Legal holds %d files, and legal/ %d", len(embedded), len(onDisk))
+	}
+	version, err := fs.ReadFile(Legal, "VERSION")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !regexp.MustCompile(`^[1-9][0-9]*\n$`).Match(version) {
+		t.Fatalf("VERSION is %q, not an integer and a newline", version)
+	}
+	data, err := fs.ReadFile(Legal, "schemas/legal.schema.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var schema struct {
+		Properties struct {
+			Format struct {
+				Const json.Number `json:"const"`
+			} `json:"format"`
+		} `json:"properties"`
+	}
+	if err := json.Unmarshal(data, &schema); err != nil {
+		t.Fatalf("schemas/legal.schema.json is not JSON: %v", err)
+	}
+	want := strings.TrimSuffix(string(version), "\n")
+	if string(schema.Properties.Format.Const) != want {
+		t.Fatalf("the field format of the passport is the const %q, and VERSION %q", schema.Properties.Format.Const, want)
+	}
+	passport, err := fs.ReadFile(Legal, "legal.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !regexp.MustCompile(`(?m)^format: ` + regexp.QuoteMeta(want) + `$`).Match(passport) {
+		t.Fatalf("legal.yaml does not hold format: %s", want)
+	}
+}
+
 func filesOf(t *testing.T, fsys fs.FS) []string {
 	t.Helper()
 	var names []string

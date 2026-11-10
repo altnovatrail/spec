@@ -12,13 +12,16 @@
 // of a description, an example or a vector passes. A rule is held by its ID, so a rule that comes
 // to allow or refuse another value takes a new ID.
 
-import { readText } from "../format-check/cases.mjs";
 import { FIRST_DEPLOYMENT_LINE, deploymentVersion } from "./files.mjs";
-import { checkPartLine, checked as partChecked, fileAt, runPartLine } from "./part-line.mjs";
-import { byCodeUnits, isMain } from "../shared.mjs";
+import { checkPartLine, checked as partChecked, runPartLine, shapeChange as partShapeChange, shapeChangedBetween as partShapeChangedBetween } from "./part-line.mjs";
+import { isMain } from "../shared.mjs";
 
-const SCHEMA = "deployment/schemas/deployment.schema.json";
-const README = "deployment/README.md";
+// The shape of a schema and the IDs of the rules are part-line.mjs's, which legal-line.mjs reads
+// them by too.
+export { ruleIdsOf, shapeOf } from "./part-line.mjs";
+
+// What the rule holds the configuration's shape by: the file's schema and the text.
+const SHAPED = { schema: "deployment/schemas/deployment.schema.json", readme: "deployment/README.md" };
 
 export const DEPLOYMENT = {
   file: "deployment/VERSION",
@@ -30,14 +33,6 @@ export const DEPLOYMENT = {
   rule: "every change of the deployment configuration's shape is a new version",
 };
 
-// The keywords that annotate a schema and shape nothing (JSON Schema 2020-12, Validation 9).
-const ANNOTATIONS = new Set(["title", "description", "$comment", "examples"]);
-// Where a keyword holds a subschema, a list of them or a map of them, as format-check walks them:
-// the names of a map, such as a field named title under properties, are no keywords.
-const ONE = new Set(["not", "if", "then", "else", "items", "contains", "additionalProperties", "propertyNames", "unevaluatedProperties"]);
-const LIST = new Set(["allOf", "anyOf", "oneOf", "prefixItems"]);
-const MAP = new Set(["$defs", "properties", "patternProperties", "dependentSchemas"]);
-
 // Whether the release of version, after previous, is held to the configuration's version at all.
 export const checked = (outputs) => partChecked(DEPLOYMENT, outputs);
 
@@ -47,61 +42,11 @@ export function checkDeploymentLine({ version, previous, deploymentNow, deployme
   checkPartLine(DEPLOYMENT, { version, previous, now: deploymentNow, before: deploymentThen, changed });
 }
 
-// The shape of a schema: the schema with its annotations taken out at every level, as JSON with
-// the keys of each object in the order of code units, so that two shapes compare as text.
-export function shapeOf(schema) {
-  const strip = (node) => {
-    if (Array.isArray(node)) return node;
-    if (node === null || typeof node !== "object") return node;
-    const kept = {};
-    for (const key of Object.keys(node).sort(byCodeUnits)) {
-      if (ANNOTATIONS.has(key)) continue;
-      const value = node[key];
-      if (ONE.has(key)) kept[key] = strip(value);
-      else if (LIST.has(key) && Array.isArray(value)) kept[key] = value.map(strip);
-      else if (MAP.has(key) && value !== null && typeof value === "object" && !Array.isArray(value)) {
-        kept[key] = Object.fromEntries(Object.keys(value).sort(byCodeUnits).map((name) => [name, strip(value[name])]));
-      } else kept[key] = sortedValue(value);
-    }
-    return kept;
-  };
-  return JSON.stringify(strip(schema));
-}
-
-// A value that is no subschema, such as an enum or a const, with the keys of its objects in order.
-function sortedValue(value) {
-  if (Array.isArray(value)) return value.map(sortedValue);
-  if (value === null || typeof value !== "object") return value;
-  return Object.fromEntries(Object.keys(value).sort(byCodeUnits).map((key) => [key, sortedValue(value[key])]));
-}
-
-// The IDs of the rules the text lists, in their order.
-export function ruleIdsOf(readme) {
-  return readText(readme).rules.map((rule) => rule.id);
-}
-
 // What changed of the shape between two versions of the file's schema and of the text, each its
 // text or null when the revision has none: a phrase for each that changed, joined, or null.
-export function shapeChange({ schemaNow, schemaThen, readmeNow, readmeThen }) {
-  const shape = (text, at) => {
-    if (text === null) return null;
-    try {
-      return shapeOf(JSON.parse(text));
-    } catch (error) {
-      throw new Error(`${SCHEMA} at ${at} is not JSON: ${error.message}`);
-    }
-  };
-  const ids = (text) => JSON.stringify(text === null ? [] : ruleIdsOf(text));
-  const changes = [];
-  if (shape(schemaNow, "the commit") !== shape(schemaThen, "the release before")) changes.push(`the shape of ${SCHEMA} changed`);
-  if (ids(readmeNow) !== ids(readmeThen)) changes.push(`the IDs of the rules of ${README}, section 5, changed`);
-  return changes.length ? changes.join(", and ") : null;
-}
+export const shapeChange = (texts) => partShapeChange(SHAPED, texts);
 
 // What changed of the shape between previous and revision, in the repository at cwd.
-export function shapeChangedBetween(revision, previous, cwd = process.cwd()) {
-  const at = (revisionOf, file) => fileAt(revisionOf, file, cwd);
-  return shapeChange({ schemaNow: at(revision, SCHEMA), schemaThen: at(previous, SCHEMA), readmeNow: at(revision, README), readmeThen: at(previous, README) });
-}
+export const shapeChangedBetween = (revision, previous, cwd = process.cwd()) => partShapeChangedBetween(SHAPED, revision, previous, cwd);
 
 if (isMain(import.meta.url)) runPartLine(DEPLOYMENT, shapeChangedBetween);

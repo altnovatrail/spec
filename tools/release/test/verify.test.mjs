@@ -8,7 +8,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import zlib from "node:zlib";
-import { FIELDS, ISSUER, MINIMUM, checkFields, checkRelease, checkSpecContent, main, readIdentity, sigstoreRoot, verifyFile, verifySignature } from "../verify.mjs";
+import { FIELDS, ISSUER, MINIMUM, checkFields, checkPartArchive, checkRelease, checkSpecContent, main, readIdentity, sigstoreRoot, verifyFile, verifySignature } from "../verify.mjs";
 import { COMMITS, fixture, fixtures, gitHub, trustedRoot } from "./signed.mjs";
 import { TAR } from "../../shared.mjs";
 import { justfile, recipe, root, scratchRepository } from "./repository.mjs";
@@ -142,31 +142,72 @@ test("the archive of the contracts' code is bound to its tag as spec's other pac
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive([]), "v0.5.6", source), /names the package undefined/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive(null), "v0.5.6", source), /cannot be read: it holds no object/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", contracts, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
-  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
+  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, legal-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
 });
 
-test("the archive of the admission table is bound to its tag as the format's is, by the commit in its header", () => {
-  const source = gitHub();
+// A part's archive as release-files writes it, of a made-up spec whose commit v0.13.0 names:
+// git archive of LICENSE and the part's folder, under <name without .tar.gz>/. files are the
+// part's, by their paths from the root, and prefix the folder, when it is another.
+function partArchive(name, files, prefix = name.slice(0, -".tar.gz".length)) {
+  const { dir, git } = scratchRepository("release-verify-part-");
+  try {
+    fs.writeFileSync(path.join(dir, "LICENSE"), "Apache License\n");
+    for (const [file, text] of Object.entries(files)) {
+      fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+      fs.writeFileSync(path.join(dir, file), text);
+    }
+    git("add", "--all");
+    git("commit", "--quiet", "-m", "a release");
+    const commit = git("rev-parse", "HEAD");
+    const archive = path.join(dir, "archive.tar.gz");
+    git("archive", "--format=tar.gz", `--prefix=${prefix}/`, "-o", archive, "HEAD", ...Object.keys(files).map((file) => file.split("/")[0]).filter((top, index, all) => all.indexOf(top) === index), "LICENSE");
+    return { bytes: fs.readFileSync(archive), source: gitHub({ tags: { ...COMMITS, spec: { ...COMMITS.spec, "v0.13.0": commit } } }) };
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test("the archive of each part is bound to its tag as the format's is, by the commit in its header, and holds what its name says", () => {
+  // Each part as release-files writes it: the admission table by MAJOR.MINOR, the deployment
+  // configuration and the legal texts by an integer.
+  for (const [name, part, version] of [
+    ["admission-0.1.tar.gz", "admission", "0.1"],
+    ["deployment-1.tar.gz", "deployment", "1"],
+    ["deployment-12.tar.gz", "deployment", "12"],
+    ["legal-1.tar.gz", "legal", "1"],
+    ["legal-23.tar.gz", "legal", "23"],
+  ]) {
+    const { bytes, source } = partArchive(name, { [`${part}/VERSION`]: `${version}\n`, [`${part}/schemas/a.schema.json`]: "{}\n" });
+    checkSpecContent(name, bytes, "v0.13.0", source);
+    assert.throws(() => checkSpecContent(name, bytes, "v0.5.6", source), new RegExp(`${name.replaceAll(".", "\\.")} is git archive's of [0-9a-f]{40}, and spec v0\\.5\\.6 is e6069ae`), name);
+    assert.throws(() => checkSpecContent(name, bytes, "v0.13.0", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.13\.0/, name);
+  }
   // git archive writes the commit into the header whatever the folder: the format's archive of
-  // v0.5.6, by the admission table's name, is bound to v0.5.6 alone.
-  const archive = specFile("format-0.1.tar.gz").bytes;
-  checkSpecContent("admission-0.1.tar.gz", archive, "v0.5.6", source);
-  assert.throws(() => checkSpecContent("admission-0.1.tar.gz", archive, "v0.5.5", source), /admission-0\.1\.tar\.gz is git archive's of e6069ae\w+, and spec v0\.5\.5 is c143fa0/);
-  assert.throws(() => checkSpecContent("admission-0.1.tar.gz", archive, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
-  assert.throws(() => checkSpecContent("admission-01.tar.gz", archive, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag/);
-  assert.throws(() => checkSpecContent("admission-0.1.tar.gz", Buffer.from("no gzip"), "v0.5.6", source), /admission-0\.1\.tar\.gz is no gzip archive/);
-});
-
-test("the archive of the deployment configuration is bound to its tag as the format's is, by the commit in its header, and named by an integer", () => {
+  // v0.5.6, by another part's name, is bound to v0.5.6, and holds format-0.1/, not that part.
+  const format = specFile("format-0.1.tar.gz").bytes;
   const source = gitHub();
-  // As above: the format's archive of v0.5.6, by the deployment configuration's name.
-  const archive = specFile("format-0.1.tar.gz").bytes;
-  checkSpecContent("deployment-1.tar.gz", archive, "v0.5.6", source);
-  checkSpecContent("deployment-12.tar.gz", archive, "v0.5.6", source);
-  assert.throws(() => checkSpecContent("deployment-1.tar.gz", archive, "v0.5.5", source), /deployment-1\.tar\.gz is git archive's of e6069ae\w+, and spec v0\.5\.5 is c143fa0/);
-  // Its version is an integer from 1, and the other parts' are MAJOR.MINOR.
-  for (const name of ["deployment-0.tar.gz", "deployment-01.tar.gz", "deployment-1.0.tar.gz", "admission-1.tar.gz", "format-1.tar.gz"]) {
-    assert.throws(() => checkSpecContent(name, archive, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag/, name);
+  for (const name of ["admission-0.1.tar.gz", "deployment-1.tar.gz", "legal-1.tar.gz", "format-0.2.tar.gz"]) {
+    assert.throws(() => checkSpecContent(name, format, "v0.5.6", source), /holds format-0\.1\/, and the archive of [a-z]+\/ that its name says holds [a-z]+-[0-9.]+\/LICENSE and [a-z]+-[0-9.]+\/[a-z]+\/ alone/, name);
+  }
+  assert.throws(() => checkSpecContent("legal-1.tar.gz", format, "v0.5.5", source), /legal-1\.tar\.gz is git archive's of e6069ae\w+, and spec v0\.5\.5 is c143fa0/);
+  // Its VERSION is the version its name says.
+  const two = partArchive("legal-1.tar.gz", { "legal/VERSION": "2\n" });
+  assert.throws(() => checkSpecContent("legal-1.tar.gz", two.bytes, "v0.13.0", two.source), /^Error: legal-1\.tar\.gz holds legal-1\/legal\/VERSION "2\\n", and its name says 1$/);
+  // It holds VERSION and LICENSE, and nothing beside the part.
+  const unversioned = partArchive("legal-1.tar.gz", { "legal/legal.yaml": "format: 1\n" });
+  assert.throws(() => checkSpecContent("legal-1.tar.gz", unversioned.bytes, "v0.13.0", unversioned.source), /^Error: legal-1\.tar\.gz holds no legal-1\/legal\/VERSION$/);
+  const beside = partArchive("legal-1.tar.gz", { "legal/VERSION": "1\n", "notes/a.txt": "a\n" });
+  assert.throws(() => checkSpecContent("legal-1.tar.gz", beside.bytes, "v0.13.0", beside.source), /^Error: legal-1\.tar\.gz holds legal-1\/notes\/, and the archive of legal\/ that its name says/);
+  const moved = partArchive("legal-1.tar.gz", { "legal/VERSION": "1\n" }, "legal");
+  assert.throws(() => checkSpecContent("legal-1.tar.gz", moved.bytes, "v0.13.0", moved.source), /^Error: legal-1\.tar\.gz holds legal\/, and the archive/);
+  assert.throws(() => checkSpecContent("admission-0.1.tar.gz", Buffer.from("no gzip"), "v0.5.6", source), /admission-0\.1\.tar\.gz is no gzip archive/);
+  // What tar cannot list is no archive of a part, and an archive of nothing holds neither file.
+  assert.throws(() => checkPartArchive("legal-1.tar.gz", Buffer.from("no gzip")), /^Error: legal-1\.tar\.gz cannot be listed by tar/);
+  assert.throws(() => checkPartArchive("legal-1.tar.gz", zlib.gzipSync(Buffer.alloc(1024))), /^Error: legal-1\.tar\.gz holds no legal-1\/LICENSE$/);
+  // A version is an integer from 1 for the deployment configuration and the legal texts, and
+  // MAJOR.MINOR for the others.
+  for (const name of ["admission-01.tar.gz", "deployment-0.tar.gz", "deployment-01.tar.gz", "deployment-1.0.tar.gz", "admission-1.tar.gz", "format-1.tar.gz", "legal-0.tar.gz", "legal-01.tar.gz", "legal-1.0.tar.gz", "legals-1.tar.gz"]) {
+    assert.throws(() => checkSpecContent(name, format, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag/, name);
   }
 });
 

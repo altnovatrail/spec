@@ -1,0 +1,47 @@
+# error: required at #/texts/privacy-policy/versions/0
+# A version in force has the date the author approved it.
+format: 1
+texts:
+  privacy-policy:
+    place: app
+    versions:
+      - version: 1
+        status: in_force
+        summary:
+          en: We keep the least data we need, on the device where we can.
+          ru: Мы храним минимум данных и, где можем, только на устройстве.
+      - version: 2
+        status: draft
+        summary:
+          en: A draft of the next wording.
+          ru: Черновик следующей редакции.
+  measure-notice:
+    place: samples_page
+    versions:
+      - version: 1
+        status: in_force
+        in_force_since: "2026-11-20"
+        summary:
+          en: Your writing history goes to the organizer and two providers of AI.
+          ru: История письма уходит организатору и двум поставщикам ИИ.
+  measure-form:
+    place: form
+    versions:
+      - version: 1
+        status: in_force
+        in_force_since: "2026-11-20"
+        summary:
+          en: You consent to your writing history being kept for two years.
+          ru: Вы соглашаетесь, что история письма хранится два года.
+sets:
+  measure:
+    versions:
+      - version: 1
+        status: in_force
+        in_force_since: "2026-11-20"
+        notice:
+          text: measure-notice
+          version: 1
+        form:
+          text: measure-form
+          version: 1

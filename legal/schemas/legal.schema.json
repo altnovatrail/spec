@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/legal/1/legal.schema.json",
+  "title": "Legal passport",
+  "description": "The passport of the legal texts, legal/legal.yaml (section 4 of the legal text): the texts, their versions with their status, date and summary, and the sets of texts of the samples page.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": 1,
+      "description": "The version of the part, the integer in legal/VERSION."
+    },
+    "texts": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/id"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/text",
+        "unevaluatedProperties": false,
+        "description": "A text: where it is shown, and its versions."
+      },
+      "minProperties": 1,
+      "description": "The texts, by their IDs."
+    },
+    "sets": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/set_id"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/set",
+        "unevaluatedProperties": false,
+        "description": "A set of texts of the samples page: the notice of a purpose and its form, under one version."
+      },
+      "description": "The sets of texts of the samples page, by their IDs."
+    }
+  },
+  "required": [
+    "format",
+    "texts",
+    "sets"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "maxLength": 64,
+      "description": "The ID of a text or of a set: lower-case Latin letters and digits in words joined by hyphens, beginning with a letter."
+    },
+    "set_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "maxLength": 24,
+      "description": "The ID of a set: as the ID of a text, of at most 24 characters, so that the set's ID and version joined by a hyphen fit the 32 characters of a sample's text_set_version."
+    },
+    "text": {
+      "type": "object",
+      "properties": {
+        "place": {
+          "enum": [
+            "app",
+            "samples_page",
+            "form"
+          ],
+          "description": "Where the text is shown: app, on its pages and consents; samples_page, the notice of a set of texts; form, a form a person signs outside every screen."
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text_version",
+            "unevaluatedProperties": false,
+            "description": "A version of the text."
+          },
+          "minItems": 1,
+          "description": "The versions of the text, from 1 on, in order."
+        }
+      },
+      "required": [
+        "place",
+        "versions"
+      ]
+    },
+    "set": {
+      "type": "object",
+      "properties": {
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/set_version",
+            "unevaluatedProperties": false,
+            "description": "A version of the set."
+          },
+          "minItems": 1,
+          "description": "The versions of the set, from 1 on, in order."
+        }
+      },
+      "required": [
+        "versions"
+      ]
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The number of the version."
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "in_force"
+          ],
+          "description": "draft, shown to nobody and free to change; or in_force, approved by the author and never changed again."
+        },
+        "in_force_since": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+          "description": "The date the author approved the version, YYYY-MM-DD. Only a version in force has it, and it always has it."
+        }
+      },
+      "required": [
+        "version",
+        "status"
+      ],
+      "if": {
+        "properties": {
+          "status": {
+            "const": "in_force"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "in_force_since"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "in_force_since"
+          ]
+        }
+      }
+    },
+    "text_version": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/status"
+        }
+      ],
+      "properties": {
+        "summary": {
+          "type": "object",
+          "properties": {
+            "en": {
+              "$ref": "#/$defs/summary",
+              "description": "The gist in English."
+            },
+            "ru": {
+              "$ref": "#/$defs/summary",
+              "description": "The gist in Russian."
+            }
+          },
+          "required": [
+            "en",
+            "ru"
+          ],
+          "unevaluatedProperties": false,
+          "description": "The gist of the version in each language of the interface, by the language's tag: what a screen in that language shows beside the English text in force. A self-hosted copy writes both too: one build of app serves every copy."
+        }
+      },
+      "required": [
+        "summary"
+      ]
+    },
+    "set_version": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/status"
+        }
+      ],
+      "properties": {
+        "notice": {
+          "$ref": "#/$defs/text_ref",
+          "unevaluatedProperties": false,
+          "description": "The notice the samples page shows before writing."
+        },
+        "form": {
+          "$ref": "#/$defs/text_ref",
+          "unevaluatedProperties": false,
+          "description": "The form a person signs outside the page, before the first sample."
+        }
+      },
+      "required": [
+        "notice",
+        "form"
+      ]
+    },
+    "text_ref": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "$ref": "#/$defs/id",
+          "description": "The ID of the text."
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The version of the text."
+        }
+      },
+      "required": [
+        "text",
+        "version"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    }
+  }
+}
