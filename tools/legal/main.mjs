@@ -333,7 +333,10 @@ if (isMain(import.meta.url)) {
   const spec = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   if (args.length === 0) legalCheck(spec);
   else if (args.length === 2 && args[0] === "--dir" && args[1] !== "") {
-    const shown = args[1].replace(/\/+$/, "") || "/";
+    // The folder as given, but its trailing slashes; a root of slashes alone is "/".
+    let end = args[1].length;
+    while (end > 1 && args[1][end - 1] === "/") end--;
+    const shown = args[1].slice(0, end);
     legalCheckDir(path.resolve(shown), spec, shown);
   } else {
     console.error("usage: node tools/legal/main.mjs [--dir <folder>]");
