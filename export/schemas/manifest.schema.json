@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/export/1/manifest.schema.json",
+  "title": "Manifest",
+  "description": "The manifest of an export, manifest.json, which app writes (section 4 of the text of the part).",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": 1,
+      "description": "The version of the part, the integer in export/VERSION."
+    },
+    "scope": {
+      "enum": [
+        "profile",
+        "account"
+      ],
+      "description": "What the export holds: one profile, or the account and every profile of it."
+    },
+    "built_at": {
+      "$ref": "common.schema.json#/$defs/time",
+      "description": "When app built the export."
+    },
+    "app_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "The version of the build of app that built the export."
+    },
+    "api_format": {
+      "const": "1",
+      "description": "The version of the format that the method of api named for its part, export_format_version, as the string it gave."
+    }
+  },
+  "required": [
+    "format",
+    "scope",
+    "built_at",
+    "app_version",
+    "api_format"
+  ],
+  "unevaluatedProperties": false
+}

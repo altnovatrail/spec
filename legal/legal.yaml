@@ -8,16 +8,16 @@ texts:
       - version: 1
         status: draft
         summary:
-          en: "NovaTrail collects only what it needs to teach: a pseudonym, never a name; an age category, never a date of birth; and what the learner has done and learned. The learner's work stays on the device unless the adult chooses to keep works on our server. To be checked, a picture of it goes, with no name or ID, to an AI provider, OpenAI or Anthropic, which reads it and words the tutor's replies. A program, not AI, decides whether an answer is right. A child has no account: the adult creates the child's profile after consent, a parent's checked one below the age of digital consent. The data lies in the United States, with Google, Neon and the AI providers, under contracts that make them our processors. No advertising, no selling of data, no links out of the app. You can export or delete the data in one step; the policy lists what remains, and for how long."
-          ru: "NovaTrail собирает только то, без чего не учит: псевдоним, а не имя; возрастную категорию, а не дату рождения; что ученик сделал и чему научился. Работа ученика остаётся на устройстве, если взрослый не включит хранение работ на нашем сервере. На проверку её картинка, без имени и идентификаторов, уходит поставщику ИИ — OpenAI или Anthropic, — который её читает и подбирает слова наставника. Верен ли ответ, решает программа, а не ИИ. У ребёнка нет аккаунта: профиль ребёнка взрослый заводит после согласия, а ниже возраста цифрового согласия — после проверенного согласия родителя. Данные лежат в США — у Google, Neon и поставщиков ИИ, по договорам, которые делают их нашими обработчиками. Нет рекламы, продажи данных и ссылок наружу. Выгрузить и удалить данные можно в один шаг; что остаётся и на какой срок, политика называет."
+          en: "NovaTrail collects only what it needs to teach: a pseudonym, never a name; an age category, never a date of birth; and what the learner has done and learned. The learner's work stays on the device unless the adult chooses to keep works on our server. To be checked, a picture of it goes, with no name or ID, to an AI provider, OpenAI or Anthropic, which reads it and words the tutor's replies. A program, not AI, decides whether an answer is right. A child has no account: the adult creates the child's profile after consent, a parent's checked one below the age of digital consent. The data lies in the United States, with Google, Neon and the AI providers, under contracts that make them our processors. No advertising, no selling of data, no links out of the app. You can export or delete the data in one step; the policy lists what remains, and for how long. The operator is ALT EdTech LLC, in Texas."
+          ru: "NovaTrail собирает только то, без чего не учит: псевдоним, а не имя; возрастную категорию, а не дату рождения; что ученик сделал и чему научился. Работа ученика остаётся на устройстве, если взрослый не включит хранение работ на нашем сервере. На проверку её картинка, без имени и идентификаторов, уходит поставщику ИИ — OpenAI или Anthropic, — который её читает и подбирает слова наставника. Верен ли ответ, решает программа, а не ИИ. У ребёнка нет аккаунта: профиль ребёнка взрослый заводит после согласия, а ниже возраста цифрового согласия — после проверенного согласия родителя. Данные лежат в США — у Google, Neon и поставщиков ИИ, по договорам, которые делают их нашими обработчиками. Нет рекламы, продажи данных и ссылок наружу. Выгрузить и удалить данные можно в один шаг; что остаётся и на какой срок, политика называет. Оператор — ALT EdTech LLC, Техас."
   terms-of-use:
     place: app
     versions:
       - version: 1
         status: draft
         summary:
-          en: "The agreement between the adult who owns a NovaTrail account and its operator. You must be 18 or older, and of age to make it where you live. You may create a profile for yourself and for each child you are the parent or guardian of, a child's only after consent. A program checks the answers; AI reads the work and words the tutor's replies, and can be wrong. For now NovaTrail is free and by invitation, and the platform's AI has a daily limit. A key of your own to an AI provider is for your own profile only, and the provider's terms are your contract with it. You can delete the account at any time; an account unused for 12 months is deleted."
-          ru: "Договор взрослого, у которого аккаунт NovaTrail, с её оператором. Вам должно быть 18 или больше, и по закону места, где вы живёте, вы вправе его заключить. Профиль можно завести себе и каждому ребёнку, чей вы родитель или опекун, — ребёнку только после согласия. Ответы проверяет программа; ИИ читает работу и подбирает слова наставника и может ошибаться. Пока NovaTrail бесплатна и только по приглашению, а у ИИ платформы есть дневной предел. Свой ключ поставщика ИИ — только для вашего профиля, и условия поставщика — ваш договор с ним. Удалить аккаунт можно когда угодно; аккаунт, которым не пользовались 12 месяцев, удаляется."
+          en: "The agreement between the adult who owns a NovaTrail account and its operator, ALT EdTech LLC. You must be 18 or older, and of age to make it where you live. You may create a profile for yourself and for each child you are the parent or guardian of, a child's only after consent. A program checks the answers; AI reads the work and words the tutor's replies, and can be wrong. For now NovaTrail is free and by invitation, and the platform's AI has a daily limit. A key of your own to an AI provider is for your own profile only, and the provider's terms are your contract with it. You can delete the account at any time; an account unused for 12 months is deleted. Texas law governs, and a dispute goes to the courts in Bexar County, Texas, unless the law where you live lets you bring it there."
+          ru: "Договор взрослого, у которого аккаунт NovaTrail, с её оператором — ALT EdTech LLC. Вам должно быть 18 или больше, и по закону места, где вы живёте, вы вправе его заключить. Профиль можно завести себе и каждому ребёнку, чей вы родитель или опекун, — ребёнку только после согласия. Ответы проверяет программа; ИИ читает работу и подбирает слова наставника и может ошибаться. Пока NovaTrail бесплатна и только по приглашению, а у ИИ платформы есть дневной предел. Свой ключ поставщика ИИ — только для вашего профиля, и условия поставщика — ваш договор с ним. Удалить аккаунт можно когда угодно; аккаунт, которым не пользовались 12 месяцев, удаляется. Договор правит право Техаса, а спор слушают суды округа Бексар, Техас, если закон места, где вы живёте, не даёт вам права подать его по месту жительства."
   storage-consent:
     place: app
     versions:
@@ -32,72 +32,80 @@ texts:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Consent for a child. Its gist is written with its words, in T98 of RUN.md."
-          ru: "Черновик: Согласие за ребёнка. Суть пишется вместе с текстом, в T98 RUN.md."
+          en: "You ask NovaTrail to let your child learn with it. We keep a pseudonym, an avatar, the age category and country, the profile's settings and what your child has done — never a name, a date of birth or a photo. Your child's work stays on the device; to be checked, a picture of it goes, with no name or ID, to OpenAI or Anthropic, and to no one else, but where the law requires it. Your child is told that the tutor is an AI, that you see their progress, and where to turn for help. You sign a form with your name and return a scan; the operator checks it before the profile is made. You can withdraw in one step: that deletes the profile and its data, and only the record that consent was given stays, for 5 years."
+          ru: "Вы просите NovaTrail разрешить вашему ребёнку учиться. Мы храним псевдоним, аватар, возрастную категорию и страну, настройки профиля и то, что ребёнок сделал, — никогда имя, дату рождения или фото. Работа ребёнка остаётся на устройстве; на проверку её картинка, без имени и идентификаторов, уходит OpenAI или Anthropic — и больше никому, кроме случаев, когда этого требует закон. Ребёнку говорят, что наставник — ИИ, что вы видите его прогресс и куда обратиться за помощью. Вы подписываете форму со своим именем и присылаете скан; оператор проверяет его до того, как появится профиль. Отозвать согласие можно в один шаг: это удаляет профиль с данными, а остаётся только запись, что согласие было, на 5 лет."
   teen-consent:
     place: app
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Consent of a teenager. Its gist is written with its words, in T98 of RUN.md."
-          ru: "Черновик: Согласие подростка. Суть пишется вместе с текстом, в T98 RUN.md."
+          en: "You have reached the age at which you decide about your data, so NovaTrail asks you. We keep a pseudonym, an avatar, your age category and country, your settings and what you have done — never your name, date of birth or school. Your work stays on your device; to be checked, a picture of it goes, with no name or ID, to OpenAI or Anthropic. The tutor is an AI, and the adult of the account sees your progress. Keeping your works on our server is your own choice. You can withdraw in one step, in your profile: that deletes your profile and its data."
+          ru: "В твоём возрасте закон твоей страны даёт тебе решать о своих данных, поэтому NovaTrail спрашивает тебя. Мы храним псевдоним, аватар, возрастную категорию и страну, настройки и твои ответы, — никогда имя, дату рождения или школу. Работа остаётся на твоём устройстве; на проверку её картинка, без имени и идентификаторов, уходит OpenAI или Anthropic. Наставник — ИИ, а взрослый аккаунта видит твой прогресс. Хранить ли работы на нашем сервере — решаешь ты. Отозвать согласие можно в один шаг, в своём профиле: это удаляет профиль с данными."
   child-notice:
     place: app
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: For you, the learner. Its gist is written with its words, in T98 of RUN.md."
-          ru: "Черновик: Для тебя, ученик. Суть пишется вместе с текстом, в T98 RUN.md."
+          en: "You write and draw your answers, and a computer program checks them. The tutor is an AI: a computer program, not a person. It gets a picture of your work, but not your name, so do not write your name, or the names of people you know, on your work. On NovaTrail you have a made-up name. We keep what you did, to give you the right next task. The grown-up of your account can see how you are doing, and nobody else. If something makes you sad or scared, tell a grown-up you trust, or call the helpline on the \"Help\" page. If you are in danger right now, tell a grown-up near you, or call the emergency number."
+          ru: "Ты пишешь и рисуешь ответы, а компьютерная программа их проверяет. Наставник — ИИ, компьютерная программа, а не человек. Он получает картинку твоей работы, но не твоё имя, поэтому не пиши на работе своё имя и имена знакомых. В NovaTrail у тебя придуманное имя. Мы храним, что ты делаешь, чтобы давать тебе подходящие задачи. Как у тебя дела, видит взрослый твоего аккаунта, и больше никто. Если тебе грустно или страшно, скажи взрослому, которому доверяешь, или позвони по телефону помощи со страницы «Помощь». Если тебе грозит опасность прямо сейчас, скажи взрослому рядом или позвони в экстренную службу."
+  teen-notice:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "What you write stays on your device; to be checked, a picture of it goes, with no name or ID, to an AI provider, OpenAI or Anthropic, and our server does not keep it. So do not write your name or the real names of people you know. A program decides whether an answer is right, and the tutor is an AI. We keep a pseudonym, your age category and country, your settings and what you have done. The adult of the account sees your progress; no one buys your data. Until the age of digital consent of your country, that adult decides about your data; then you are asked to confirm or withdraw that consent, and you decide. If something is wrong, tell an adult you trust or call a helpline; if anyone is in danger now, call the emergency number."
+          ru: "То, что ты пишешь, остаётся на твоём устройстве; на проверку его картинка, без имени и идентификаторов, уходит поставщику ИИ — OpenAI или Anthropic, — а наш сервер её не хранит. Поэтому не пиши своё имя и настоящие имена знакомых. Верен ли ответ, решает программа, а наставник — ИИ. Мы храним псевдоним, возрастную категорию и страну, настройки и твои ответы. Взрослый аккаунта видит твой прогресс; твоих данных никто не покупает. До возраста цифрового согласия твоей страны о твоих данных решает он, а потом тебя спросят, подтвердить ли это согласие или отозвать, и решать будешь ты. Если что-то не так, скажи взрослому, которому доверяешь, или позвони по телефону помощи; если кому-то грозит опасность сейчас, звони в экстренную службу."
   measure-notice:
     place: samples_page
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Measurement: notice. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Замер: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "Your samples test how well AI reads handwriting. A sample holds your strokes with the history of your writing — the time and course of the pen, with no pressure, which we treat as biometric data — the crops, their markup and your writer code, never your name. The organizer, the runner and Anthropic see it; it is never published, and nobody tells writers apart by their handwriting. You send the file by a one-day upload link; it lies in the operator's closed storage in the United States for 2 years. You can withdraw by your writer code: the organizer erases your samples within 30 days."
+          ru: "Ваши образцы проверяют, как ИИ читает почерк. В образце — штрихи с историей письма: время и ход пера, без нажима, — с ней мы обходимся как с биометрией, вырезки, их разметка и код писавшего, но не имя. Его видят организатор, раннер и Anthropic; он не публикуется, и почерк никто не сравнивает, чтобы узнать, кто писал. Файл вы отправляете по ссылке на загрузку на сутки; он лежит в закрытом хранилище оператора в США 2 года. Отозвать можно по коду писавшего: организатор сотрёт образцы за 30 дней."
   measure-form:
     place: form
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Measurement: form of consent. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Замер: форма согласия. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "Consent to write samples for a measurement of how well AI reads handwriting: explicit consent to the history of your writing, treated as biometric data; the organizer, the runner and Anthropic receive the samples, which are never published; 2 years from the session, the form 5 years after the samples are erased; withdrawal by your writer code within 30 days. You declare that you are 18 or older and may make this agreement where you live, and sign with your name and the date."
+          ru: "Согласие писать образцы для замера того, как ИИ читает почерк: явное согласие на историю письма, с которой обходятся как с биометрией; образцы получают организатор, раннер и Anthropic, и они не публикуются; 2 года от сеанса, форма — 5 лет после того, как стёрты образцы; отзыв по коду писавшего за 30 дней. Вы заявляете, что вам 18 или больше и по законам места, где вы живёте, вы вправе заключить этот договор, и подписываете его с именем и датой."
   eval-set-notice:
     place: samples_page
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Eval set: notice. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Eval-набор: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "Your samples join a module's eval set, by which every new AI model is tested. A sample holds the final shapes of what you wrote (not the history of the writing), its crops, its markup and the Apache-2.0 license — no writer code, no name. Write on made-up topics. The organizer checks each sample by hand and erases one with a name. Samples are published with the module for ever and cannot be withdrawn, and in its tests they run at Anthropic and OpenAI. You send the file by a one-day upload link."
+          ru: "Ваши образцы войдут в eval-набор модуля, по которому проверяют каждую новую модель ИИ. В образце — итоговые штрихи без истории письма, вырезки, разметка и лицензия Apache-2.0, без кода писавшего и имени. Пишите на выдуманные темы. Организатор проверяет каждый образец руками и стирает образец с именем. Образцы публикуются с модулем навсегда, и отозвать их нельзя, а в его тестах они идут к Anthropic и OpenAI. Файл вы отправляете по ссылке на загрузку на сутки."
   volunteer-form:
     place: form
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Eval set: the volunteer's form. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Eval-набор: форма добровольца. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "The volunteer's agreement for a module's eval set: your samples, without the history of the writing, are published with the module under Apache-2.0 for ever and cannot be withdrawn; they run at Anthropic and OpenAI in its tests; an essay is marked by two people, a third deciding where they differ; samples are for evaluating AI, not for training. The form and the record of your samples' digests are kept while any of them is published, or 12 months if none was added. It carries the Developer Certificate of Origin 1.1, whose point (a) you certify, and your declaration that you are 18 or older and may make this agreement where you live."
+          ru: "Договор добровольца eval-набора модуля: ваши образцы, без истории письма, публикуются с модулем под Apache-2.0 навсегда, и отозвать их нельзя; в его тестах они идут к Anthropic и OpenAI; сочинение оценивают двое, а где они разошлись, решает третий; образцы — для проверки ИИ, а не для обучения. Форма и запись с дайджестами ваших образцов хранятся, пока хоть один из них опубликован, а если ни один не внесён — 12 месяцев. В ней — Developer Certificate of Origin 1.1, пункт (a) которого вы заверяете, и заявление, что вам 18 или больше и по законам места, где вы живёте, вы вправе заключить этот договор."
   child-sample-notice:
     place: samples_page
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: A child's sample: notice. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Образец ребёнка: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "A child writes samples in a session you lead, to test how well AI reads children's handwriting; the parent has signed the parent's form first. A sample holds the final shapes of the writing (not its history), the crops, the markup you write from the child's words, and the child's writer code — no name, grade or age. Only the organizer sees it; it is never published and goes to no AI provider until the platform may give one the work of a child under 13. Send the file by the one-day upload link, check that Safari does not save to iCloud Drive, and erase the file from the device afterwards. It is kept 2 years; the parent can withdraw by the code, within 30 days."
+          ru: "Ребёнок пишет образцы в сеансе, который ведёте вы, чтобы проверить, как ИИ читает детский почерк; родитель заранее подписал свою форму. В образце — итоговые штрихи без истории письма, вырезки, разметка, которую вы пишете со слов ребёнка, и код писавшего — без имени, класса и возраста. Его видит только организатор; он не публикуется и не уходит к поставщику ИИ, пока платформа не может отдать тому работу ребёнка младше 13. Отправьте файл по ссылке на загрузку на сутки, проверьте, что Safari не сохраняет в iCloud Drive, а потом сотрите файл с устройства. Он хранится 2 года; родитель может отозвать согласие по коду, за 30 дней."
   child-sample-form:
     place: form
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: A child's sample: the parent's form. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Образец ребёнка: форма родителя. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "The parent's consent for a child's samples: the final shapes of the writing (not its history), the crops, the markup from the child's words and the child's writer code — no name, grade or age; the band of grades only in the organizer's record. Only the organizer sees them; they are never published and go to no AI provider until the platform may give one the work of a child under 13. Kept 2 years from the session; withdrawal by the code or the form within 30 days; the form kept 5 years after the samples are erased. Signed with the child's writer code, the parent's name and the date."
+          ru: "Согласие родителя на образцы ребёнка: итоговые штрихи без истории письма, вырезки, разметка со слов ребёнка и код писавшего — без имени, класса и возраста; полоса классов — только в записи организатора. Видит их только организатор; они не публикуются и не уходят к поставщику ИИ, пока платформа не может отдать тому работу ребёнка младше 13. Хранятся 2 года от сеанса; отзыв по коду или форме — за 30 дней; форма хранится 5 лет после того, как стёрты образцы. Подписывается с кодом писавшего ребёнка, именем родителя и датой."
 sets:
   measure:
     versions:

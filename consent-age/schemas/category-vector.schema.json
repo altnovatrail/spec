@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/consent-age/1/category-vector.schema.json",
+  "title": "Category vector",
+  "description": "A test vector of the category (section 8 of the text of the part): a table that section 5 accepts, and what section 6 gives on it — the category of a learner, and whether a profile's age is asked again.",
+  "type": "object",
+  "properties": {
+    "table": {
+      "$ref": "consent-age.schema.json",
+      "unevaluatedProperties": false,
+      "description": "The table the cases are computed on."
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/category_case",
+        "unevaluatedProperties": false,
+        "description": "A case of section 6."
+      },
+      "minItems": 1,
+      "description": "The cases."
+    }
+  },
+  "required": [
+    "table",
+    "cases"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "category_case": {
+      "type": "object",
+      "properties": {
+        "country": {
+          "$ref": "consent-age.schema.json#/$defs/country",
+          "description": "The learner's country."
+        },
+        "age_years": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 150,
+          "description": "The learner's age in years, as it is given."
+        },
+        "day": {
+          "$ref": "consent-age.schema.json#/$defs/day",
+          "description": "The day the age is given."
+        },
+        "category": {
+          "enum": [
+            "under_13",
+            "from_13_to_consent",
+            "from_consent_to_18",
+            "adult"
+          ],
+          "description": "The category: of a learner of age_years on day, or the one a profile keeps."
+        },
+        "applied": {
+          "type": "integer",
+          "minimum": 13,
+          "maximum": 18,
+          "description": "The age of digital consent of the country that the category was given by: of the country on day, or the one the profile keeps with its category."
+        },
+        "today": {
+          "$ref": "consent-age.schema.json#/$defs/day",
+          "description": "The day the profile comes to work."
+        },
+        "ask_again": {
+          "type": "boolean",
+          "description": "Whether the profile's age is asked again before its next work."
+        }
+      },
+      "required": [
+        "country",
+        "category",
+        "applied"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "age_years",
+            "day"
+          ]
+        },
+        {
+          "required": [
+            "today",
+            "ask_again"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "age_years"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "today"
+                  ]
+                },
+                {
+                  "required": [
+                    "ask_again"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "today"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "age_years"
+                  ]
+                },
+                {
+                  "required": [
+                    "day"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

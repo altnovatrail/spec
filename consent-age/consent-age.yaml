@@ -1,0 +1,295 @@
+# The table of the age of digital consent (R134; README.md of this folder, section 4): for each
+# country, the age from which a learner gives consent themselves, from the day it applies, with the
+# law that sets it, read in its official text on the day named.
+
+format: 1
+outside_table: 18
+countries:
+  "AT":
+    - age: 14
+      from: "2018-05-25"
+      law: "Bundesgesetz zum Schutz natürlicher Personen bei der Verarbeitung personenbezogener Daten (Datenschutzgesetz – DSG), BGBl. I Nr. 165/1999; § 4 Abs. 4 idF BGBl. I Nr. 120/2017 und BGBl. I Nr. 24/2018"
+      provision: "§ 4 Abs. 4"
+      quote: "Bei einem Angebot von Diensten der Informationsgesellschaft, das einem Kind direkt gemacht wird, ist die Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO zur Verarbeitung der personenbezogenen Daten des Kindes rechtmäßig, wenn das Kind das vierzehnte Lebensjahr vollendet hat."
+      source: "https://ogd.ris.bka.gv.at/Dokumente/Bundesnormen/NOR40212006/NOR40212006.html"
+      read: "2026-11-10"
+      note: "Read in the open-data service of RIS, the Federal Chancellery's legal information system: www.ris.bka.gv.at answered with a bot check. § 4 Abs. 4 has stood unchanged since 2018-05-25."
+  "BE":
+    - age: 13
+      from: "2018-09-05"
+      law: "Loi du 30 juillet 2018 relative à la protection des personnes physiques à l'égard des traitements de données à caractère personnel (Moniteur belge 5 septembre 2018, NUMAC 2018040581)"
+      provision: "Art. 7"
+      quote: "En exécution de l'article 8.1 du Réglement, le traitement des données à caractère personnel relatif aux enfants en ce qui concerne l'offre directe de services de la société de l'information aux enfants, est licite lorsque le consentement a été donné par des enfants âgés de 13 ans ou plus. Lorsque ce traitement porte sur des données à caractère personnel de l'enfant âgé de moins de 13 ans, il n'est licite que si le consentement est donné par le représentant légal de cet enfant."
+      source: "https://www.ejustice.just.fgov.be/eli/loi/2018/07/30/2018040581/justel"
+      read: "2026-11-10"
+      note: "In force from its publication in the Moniteur belge, 2018-09-05; before it, GDPR's 16 applied. The French text was read, not the Dutch one."
+  "BG":
+    - age: 14
+      from: "2019-03-02"
+      law: "Закон за защита на личните данни (обн. ДВ, бр. 1 от 2002 г.); чл. 25в създаден със Закона за изменение и допълнение на Закона за защита на личните данни, обн. ДВ, бр. 17 от 26.02.2019 г."
+      provision: "чл. 25в"
+      quote: "Обработването на данни на субект на данни – лице, ненавършило 14 години, въз основа на съгласие по смисъла на чл. 4, т. 11 от Регламент (ЕС) 2016/679, включително в случаите на пряко предлагане на услуги на информационното общество по смисъла на чл. 1, ал. 3 от Закона за електронната търговия, е законосъобразно само ако съгласието е дадено от упражняващия родителски права родител или от настойника на субекта на данните."
+      source: "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=135056"
+      read: "2026-11-10"
+      note: "Below 14, a parent consents to every processing that rests on consent, not only to information society services. In force three days after its publication in the State Gazette, no. 17 of 2019-02-26, by Art. 5(5) of the Constitution; the gazette prints no day."
+  "CY":
+    - age: 14
+      from: "2018-07-31"
+      law: "Ο περί της Προστασίας των Φυσικών Προσώπων Έναντι της Επεξεργασίας των Δεδομένων Προσωπικού Χαρακτήρα και της Ελεύθερης Κυκλοφορίας των Δεδομένων αυτών Νόμος του 2018 (Ν. 125(I)/2018), όπως τροποποιήθηκε με τον Ν. 26(I)/2022"
+      provision: "άρθρο 8(1)"
+      quote: "Όταν η προσφορά υπηρεσιών της κοινωνίας των πληροφοριών απευθείας σε παιδί βασίζεται στη συγκατάθεση του παιδιού η επεξεργασία δεδομένων προσωπικού χαρακτήρα είναι σύννομη, εάν το παιδί είναι τουλάχιστον δεκατεσσάρων (14) ετών."
+      source: "https://www.cylaw.org/nomoi/enop/non-ind/2018_1_125/full.html"
+      read: "2026-11-10"
+      note: "Read on CyLaw, the legislation portal of the Cyprus Bar Association, with its copy of the Official Gazette (Ε.Ε. Παρ. Ι(Ι), Αρ. 4670, 31.7.2018), from whose header the day is taken; the Official Gazette itself was not read. Article 8 was not changed by Ν. 26(I)/2022."
+  "CZ":
+    - age: 15
+      from: "2019-04-24"
+      law: "Zákon č. 110/2019 Sb., o zpracování osobních údajů, ve znění zákona č. 448/2024 Sb., zákona č. 218/2025 Sb., zákona č. 230/2025 Sb. a zákona č. 197/2026 Sb."
+      provision: "§ 7"
+      quote: "Dítě nabývá způsobilosti k udělení souhlasu se zpracováním osobních údajů v souvislosti s nabídkou služeb informační společnosti přímo jemu dovršením patnáctého roku věku."
+      source: "https://www.e-sbirka.cz/eli/cz/sb/2019/110/2026-11-01/dokument/norma/cast_1/hlava_2/dil_1/par_7"
+      read: "2026-11-10"
+      note: "Read in the data service of e-Sbírka; § 7 has stood unchanged since the law came into effect on its publication, 2019-04-24."
+  "DE":
+    - age: 16
+      from: "2018-05-25"
+      law: "Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (General Data Protection Regulation), OJ L 119, 4.5.2016"
+      provision: "Article 8(1)"
+      quote: "Where the child is below the age of 16 years, such processing shall be lawful only if and to the extent that consent is given or authorised by the holder of parental responsibility over the child."
+      source: "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679"
+      read: "2026-11-10"
+      note: "The Bundesdatenschutzgesetz (https://www.gesetze-im-internet.de/bdsg_2018/BJNR209710017.html), as amended up to 2026-07-03, sets no age: GDPR's own applies."
+  "DK":
+    - age: 15
+      from: "2024-01-01"
+      law: "Databeskyttelsesloven, jf. lovbekendtgørelse nr. 289 af 8. marts 2024 (lov nr. 502 af 23. maj 2018 som ændret ved lov nr. 1783 af 28. december 2023)"
+      provision: "§ 6, stk. 2"
+      quote: "Finder databeskyttelsesforordningens artikel 6, stk. 1, litra a, anvendelse i forbindelse med udbud af informationssamfundstjenester direkte til børn, er behandling af personoplysninger om et barn lovlig, hvis barnet er mindst 15 år."
+      source: "https://www.retsinformation.dk/eli/lta/2024/289"
+      read: "2026-11-10"
+      note: "Lov nr. 1783 af 28. december 2023 raised the age from 13 to 15 from 2024-01-01; a consent given before that day stays under the old rule. The official text writes an invisible zero-width non-joiner inside informationssamfundstjenester, left out of the quote."
+  "EE":
+    - age: 13
+      from: "2019-01-15"
+      law: "Isikuandmete kaitse seadus (vastu võetud 12.12.2018, RT I, 04.01.2019, 11; redaktsioon RT I, 06.03.2026, 10)"
+      provision: "§ 8 lg 1"
+      quote: "Kui kohaldatakse Euroopa Parlamendi ja nõukogu määruse (EL) 2016/679 artikli 6 lõike 1 punkti a seoses infoühiskonna teenuste pakkumisega otse lapsele, on lapse isikuandmete töötlemine lubatud ainult juhul, kui laps on vähemalt 13-aastane."
+      source: "https://www.riigiteataja.ee/akt/IKS"
+      read: "2026-11-10"
+      note: "Read in the Wayback Machine's copy of 2026-04-14 of the official page: Riigi Teataja's site is an application its reader could not open. In force from 2019-01-15; amendments after 2026-04-14 not checked."
+  "ES":
+    - age: 14
+      from: "2018-12-07"
+      law: "Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales (BOE núm. 294, de 06/12/2018; texto consolidado, última actualización publicada el 27/12/2025)"
+      provision: "Artículo 7"
+      quote: "1. El tratamiento de los datos personales de un menor de edad únicamente podrá fundarse en su consentimiento cuando sea mayor de catorce años. Se exceptúan los supuestos en que la ley exija la asistencia de los titulares de la patria potestad o tutela para la celebración del acto o negocio jurídico en cuyo contexto se recaba el consentimiento para el tratamiento. 2. El tratamiento de los datos de los menores de catorce años, fundado en el consentimiento, solo será lícito si consta el del titular de la patria potestad o tutela, con el alcance que determinen los titulares de la patria potestad o tutela."
+      source: "https://www.boe.es/buscar/act.php?id=BOE-A-2018-16673"
+      read: "2026-11-10"
+      note: "Article 7 holds for every processing of a minor's data that rests on consent, not only information society services. It was never amended; a bill that would have raised the age to 16 lapsed with the dissolution of the Cortes Generales (Real Decreto 806/2026)."
+  "FI":
+    - age: 13
+      from: "2019-01-01"
+      law: "Tietosuojalaki 1050/2018"
+      provision: "5 § (Tietoyhteiskunnan palvelujen tarjoamiseen lapselle sovellettava ikäraja)"
+      quote: "Kun henkilötietoja käsitellään tietosuoja-asetuksen 6 artiklan 1 kohdan a alakohdassa tarkoitetun suostumuksen perusteella ja kyseessä on tietosuoja-asetuksen 4 artiklan 25 kohdassa tarkoitettujen tietoyhteiskunnan palvelujen tarjoaminen suoraan lapselle, lapsen henkilötietojen käsittely on lainmukaista, jos lapsi on vähintään 13-vuotias."
+      source: "https://www.finlex.fi/fi/lainsaadanto/2018/1050"
+      read: "2026-11-10"
+      note: "In force from 2019-01-01 (37 §); none of the amending acts up to 380/2026 changes 5 §."
+  "FR":
+    - age: 15
+      from: "2018-06-22"
+      law: "Loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés (rédaction de l'ordonnance n° 2018-1125 du 12 décembre 2018)"
+      provision: "Article 45, alinéas 1 et 2"
+      quote: "En application du 1 de l'article 8 du règlement (UE) 2016/679 du 27 avril 2016, un mineur peut consentir seul à un traitement de données à caractère personnel en ce qui concerne l'offre directe de services de la société de l'information à compter de l'âge de quinze ans. Lorsque le mineur est âgé de moins de quinze ans, le traitement n'est licite que si le consentement est donné conjointement par le mineur concerné et le ou les titulaires de l'autorité parentale à l'égard de ce mineur."
+      source: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000037823135"
+      read: "2026-11-10"
+      note: "Below 15, consent is given jointly by the minor and the holder or holders of parental authority, not by the parent alone. The age applied from 2018-06-22 by article 7-1 of the law, created by loi n° 2018-493, and stands in article 45 since 2019-06-01."
+  "GB":
+    - age: 13
+      from: "2021-01-01"
+      law: "Regulation (EU) 2016/679 as retained and amended in UK law (UK GDPR), as amended by the Data Protection, Privacy and Electronic Communications (Amendments etc) (EU Exit) Regulations 2019 (S.I. 2019/419) and the Children's Wellbeing and Schools Act 2026 (c. 21)"
+      provision: "Article 8(1)"
+      quote: "Where point (a) of Article 6(1) applies, in relation to the offer of information society services directly to a child, the processing of the personal data of a child shall be lawful where the child is at least 13 years old. Where the child is below the age of 13 years, such processing shall be lawful only if and to the extent that consent is given or authorised by the holder of parental responsibility over the child."
+      source: "https://www.legislation.gov.uk/eur/2016/679/article/8"
+      read: "2026-11-10"
+      note: "Article 8(2A), inserted by the Children's Wellbeing and Schools Act 2026, s. 72, in force from 2026-04-29, lets the Secretary of State change the age by regulations, between 13 and 16, and set another age for specified services; none had been made by 2026-11-10. The age has been 13 since 2018-05-25, by the Data Protection Act 2018, s. 9, and stands in Article 8(1) from 2021-01-01."
+  "GR":
+    - age: 15
+      from: "2019-08-29"
+      law: "Νόμος 4624/2019 (ΦΕΚ Α' 137/29.08.2019) «Αρχή Προστασίας Δεδομένων Προσωπικού Χαρακτήρα, μέτρα εφαρμογής του Κανονισμού (ΕΕ) 2016/679 ... και άλλες διατάξεις»"
+      provision: "Άρθρο 21 παρ. 1 και 2 (Συγκατάθεση ανηλίκου)"
+      quote: "1. Όταν εφαρμόζεται το άρθρο 6 παράγραφος 1 στοιχείο α) του ΓΚΠΔ, η επεξεργασία δεδομένων προσωπικού χαρακτήρα ανηλίκου, κατά την προσφορά υπηρεσιών της κοινωνίας των πληροφοριών απευθείας σε αυτόν, είναι σύννομη, εφόσον ο ανήλικος έχει συμπληρώσει το 15ο έτος της ηλικίας του και παρέχει τη συγκατάθεσή του. 2. Εάν ο ανήλικος είναι κάτω των 15 ετών η επεξεργασία της παραγράφου 1 είναι σύννομη μόνο μετά την παροχή συγκατάθεσης του νομίμου αντιπροσώπου του."
+      source: "https://www.et.gr/api/DownloadFeksApi/?fek_pdf=20190100137"
+      read: "2026-11-10"
+      note: "Read in the Wayback Machine's copy of the official PDF of ΦΕΚ Α' 137/29.08.2019: et.gr did not open. In force from its publication (article 87). Νόμος 5350/2026 bars social networks under 15 from 2027-01-01 and does not change article 21."
+  "HR":
+    - age: 16
+      from: "2018-05-25"
+      law: "Zakon o provedbi Opće uredbe o zaštiti podataka (Narodne novine 42/2018)"
+      provision: "članak 19. stavak 1."
+      quote: "Kod primjene članka 6. stavka 1. točke (a) Opće uredbe o zaštiti podataka, u vezi s nuđenjem usluga informacijskog društva izravno djetetu, obrada osobnih podataka djeteta zakonita je ako dijete ima najmanje 16 godina."
+      source: "https://narodne-novine.nn.hr/clanci/sluzbeni/2018_05_42_805.html"
+      read: "2026-11-10"
+      note: "Croatia sets 16 by its own law, for a child whose residence is in Croatia (Article 19(2)). The amending act in force from 2023-01-01 was not read on the official site; the consolidated Article 19 is unchanged."
+  "HU":
+    - age: 16
+      from: "2018-05-25"
+      law: "Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (General Data Protection Regulation), OJ L 119, 4.5.2016"
+      provision: "Article 8(1)"
+      quote: "Where the child is below the age of 16 years, such processing shall be lawful only if and to the extent that consent is given or authorised by the holder of parental responsibility over the child."
+      source: "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679"
+      read: "2026-11-10"
+      note: "The Infotv., 2011. évi CXII. törvény (https://njt.hu/jogszabaly/2011-112-00-00), read in the Wayback Machine's copy of 2026-04-17 of the official page, as njt.hu did not open, sets no age: GDPR's own applies."
+  "IE":
+    - age: 16
+      from: "2018-05-25"
+      law: "Data Protection Act 2018 (No. 7 of 2018)"
+      provision: "section 31(1)"
+      quote: "The age of a child specified for the purposes of Article 8 is 16 years of age."
+      source: "https://www.irishstatutebook.ie/eli/2018/act/7/section/31/enacted/en/html"
+      read: "2026-11-10"
+      note: "Section 31(2) leaves preventive and counselling services out of Article 8. Commenced on 2018-05-25 by S.I. No. 174/2018."
+  "IS":
+    - age: 13
+      from: "2018-07-15"
+      law: "Lög um persónuvernd og vinnslu persónuupplýsinga, nr. 90/2018 (Lagasafn, útgáfa 158a, Íslensk lög 1. október 2026)"
+      provision: "10. gr., 5. mgr."
+      quote: "Þegar barni er boðin þjónusta í upplýsingasamfélaginu með beinum hætti og vinnsla persónuupplýsinga byggist á samþykki þess telst vinnslan því aðeins lögmæt ef barnið hefur náð 13 ára aldri. Sé barnið undir 13 ára aldri telst vinnslan aðeins lögmæt að því marki sem forsjáraðili þess heimilar samþykki."
+      source: "https://www.althingi.is/lagas/nuna/2018090.html"
+      read: "2026-11-10"
+      note: "Read in the Wayback Machine's copy of 2026-10-27 of the official page: althingi.is did not open. GDPR has the force of law in Iceland from 2018-07-15 (2. and 53. gr.)."
+  "IT":
+    - age: 14
+      from: "2018-09-19"
+      law: "Decreto legislativo 30 giugno 2003, n. 196 (Codice in materia di protezione dei dati personali), come modificato dal decreto legislativo 10 agosto 2018, n. 101"
+      provision: "Art. 2-quinquies, comma 1"
+      quote: "In attuazione dell'articolo 8, paragrafo 1, del Regolamento, il minore che ha compiuto i quattordici anni può esprimere il consenso al trattamento dei propri dati personali in relazione all'offerta diretta di servizi della società dell'informazione. Con riguardo a tali servizi, il trattamento dei dati personali del minore di età inferiore a quattordici anni, fondato sull'articolo 6, paragrafo 1, lettera a), del Regolamento, è lecito a condizione che sia prestato da chi esercita la responsabilità genitoriale."
+      source: "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2003-06-30;196~art2quinquies"
+      read: "2026-11-10"
+      note: "Below 14, Legge 23 settembre 2025, n. 132, art. 4, comma 4, in force from 2025-10-10, also asks the consent of the holder of parental responsibility for a minor's access to technologies of artificial intelligence and the processing that follows it."
+  "LI":
+    - age: 16
+      from: "2018-07-20"
+      law: "Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (General Data Protection Regulation), OJ L 119, 4.5.2016"
+      provision: "Article 8(1)"
+      quote: "Where the child is below the age of 16 years, such processing shall be lawful only if and to the extent that consent is given or authorised by the holder of parental responsibility over the child."
+      source: "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679"
+      read: "2026-11-10"
+      note: "The Datenschutzgesetz, LGBl. 2018 Nr. 272, in its version of 2026-04-01 (https://www.gesetze.li/konso/html/2018272000?version=4), sets no age: GDPR's own applies, in the EEA from 2018-07-20 by EEA Joint Committee Decision No 154/2018."
+  "LT":
+    - age: 14
+      from: "2018-07-16"
+      law: "Lietuvos Respublikos asmens duomenų teisinės apsaugos įstatymas Nr. I-1374 (nauja redakcija: 2018-06-30 įstatymas Nr. XIII-1426, paskelbta TAR 2018-07-11, i. k. 2018-11733)"
+      provision: "6 straipsnis"
+      quote: "Kai vaikui tiesiogiai siūlomos informacinės visuomenės paslaugos, vaiko asmens duomenų tvarkymas yra teisėtas, jei sutikimą pagal Reglamento (ES) 2016/679 6 straipsnio 1 dalies a punktą duoda ne jaunesnis negu 14 metų vaikas."
+      source: "https://www.e-tar.lt/portal/lt/legalAct/TAR.5368B592234C/asr"
+      read: "2026-11-10"
+      note: "Read in the Wayback Machine's copies of the official page: e-tar.lt answered 403. Article 6 stands in the consolidated text from 2026-06-30; in force from 2018-07-16. It names 14 as the age of the child who consents; below it the parent consents by GDPR itself."
+  "LU":
+    - age: 16
+      from: "2018-05-25"
+      law: "Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (General Data Protection Regulation), OJ L 119, 4.5.2016"
+      provision: "Article 8(1)"
+      quote: "Where the child is below the age of 16 years, such processing shall be lawful only if and to the extent that consent is given or authorised by the holder of parental responsibility over the child."
+      source: "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679"
+      read: "2026-11-10"
+      note: "The Loi du 1er août 2018 portant organisation de la Commission nationale pour la protection des données (https://data.legilux.public.lu/file/eli-etat-leg-loi-2018-08-01-a686-jo-fr-html.html) sets no age: GDPR's own applies."
+  "LV":
+    - age: 13
+      from: "2018-07-05"
+      law: "Fizisko personu datu apstrādes likums (Latvijas Vēstnesis, 132, 04.07.2018.)"
+      provision: "33. pants (Nosacījumi bērna piekrišanai attiecībā uz informācijas sabiedrības pakalpojumiem)"
+      quote: "Ja atbilstoši datu regulas 8. pantam informācijas sabiedrības pakalpojumu tiešai sniegšanai ir nepieciešama datu subjekta piekrišana, bet datu subjekts ir bērns, viņa piekrišana ir uzskatāma par pamatu datu apstrādei un viņa datu apstrāde ir likumīga, ja bērns ir vismaz 13 gadus vecs vai ja attiecībā uz bērnu, kurš vēl nav sasniedzis 13 gadu vecumu, piekrišanu ir devis viņa vecāks vai likumiskais aizbildnis."
+      source: "https://likumi.lv/ta/id/300099-fizisko-personu-datu-apstrades-likums"
+      read: "2026-11-10"
+      note: "In force from 2018-07-05; article 33 unamended."
+  "MT":
+    - age: 13
+      from: "2018-06-01"
+      law: "Processing of Child's Personal Data in relation to the Offer of Information Society Services Regulations, S.L. 586.11 (Legal Notice 179 of 2018), made under art. 33(g) of the Data Protection Act, Cap. 586"
+      provision: "Regulation 4"
+      quote: "The processing of personal data of a child in relation to information society services shall be lawful where the child is thirteen years of age."
+      source: "https://legislation.mt/eli/sl/586.11/eng/pdf"
+      read: "2026-11-10"
+      note: "Regulation 4 reads where the child is thirteen years of age: with article 33(g) of the Data Protection Act, Cap. 586, a lower age than sixteen and not below thirteen, it means 13 and over. In force from 2018-06-01."
+  "NL":
+    - age: 16
+      from: "2018-05-25"
+      law: "Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (General Data Protection Regulation), OJ L 119, 4.5.2016"
+      provision: "Article 8(1)"
+      quote: "Where the child is below the age of 16 years, such processing shall be lawful only if and to the extent that consent is given or authorised by the holder of parental responsibility over the child."
+      source: "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679"
+      read: "2026-11-10"
+      note: "The Uitvoeringswet AVG (https://wetten.overheid.nl/BWBR0040940/2026-09-01) sets no lower age; its article 5(1) asks a parent's consent below 16 for a consent outside Article 8 too."
+  "NO":
+    - age: 13
+      from: "2018-07-20"
+      law: "Lov 15. juni 2018 nr. 38 om behandling av personopplysninger (personopplysningsloven), LOV-2018-06-15-38, sist endret LOV-2021-06-18-124"
+      provision: "§ 5"
+      quote: "Aldersgrensen er 13 år for samtykke etter personvernforordningen artikkel 6 nr. 1 bokstav a i forbindelse med formål som nevnt i personvernforordningen artikkel 8 nr. 1."
+      source: "https://lovdata.no/dokument/NL/lov/2018-06-15-38/%C2%A75"
+      read: "2026-11-10"
+      note: "In force from 2018-07-20, the day GDPR applies in the EEA. A consultation of the Ministry of Justice of 2025-07-07 proposes 15; no law has been adopted."
+  "PL":
+    - age: 16
+      from: "2018-05-25"
+      law: "Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (General Data Protection Regulation), OJ L 119, 4.5.2016"
+      provision: "Article 8(1)"
+      quote: "Where the child is below the age of 16 years, such processing shall be lawful only if and to the extent that consent is given or authorised by the holder of parental responsibility over the child."
+      source: "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679"
+      read: "2026-11-10"
+      note: "The Ustawa z dnia 10 maja 2018 r. o ochronie danych osobowych (https://api.sejm.gov.pl/eli/acts/DU/2019/1781/text.html), with its amendments up to 2026, sets no age: GDPR's own applies."
+  "PT":
+    - age: 13
+      from: "2019-08-09"
+      law: "Lei n.º 58/2019, de 8 de agosto (Diário da República n.º 151/2019, Série I, de 2019-08-08)"
+      provision: "Artigo 16.º, n.º 1 (n.º 2 for below 13)"
+      quote: "Nos termos do artigo 8.º do RGPD, os dados pessoais de crianças só podem ser objeto de tratamento com base no consentimento previsto na alínea a) do n.º 1 do artigo 6.º do RGPD e relativo à oferta direta de serviços da sociedade de informação quando as mesmas já tenham completado 13 anos de idade."
+      source: "https://files.diariodarepublica.pt/1s/2019/08/15100/0000300040.pdf"
+      read: "2026-11-10"
+      note: "Below 13, article 16.º, n.º 2, asks the consent of the legal representatives, preferably by secure authentication. In force from 2019-08-09 (article 68.º)."
+  "RO":
+    - age: 16
+      from: "2018-05-25"
+      law: "Regulation (EU) 2016/679 of the European Parliament and of the Council of 27 April 2016 (General Data Protection Regulation), OJ L 119, 4.5.2016"
+      provision: "Article 8(1)"
+      quote: "Where the child is below the age of 16 years, such processing shall be lawful only if and to the extent that consent is given or authorised by the holder of parental responsibility over the child."
+      source: "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679"
+      read: "2026-11-10"
+      note: "Legea nr. 190/2018 (https://legislatie.just.ro/Public/DetaliiDocumentAfis/203151), read in the Wayback Machine's copy of 2026-06-14 of the official page, as legislatie.just.ro did not open, implements no provision of Article 8: GDPR's own applies."
+  "SE":
+    - age: 13
+      from: "2018-05-25"
+      law: "Lag (2018:218) med kompletterande bestämmelser till EU:s dataskyddsförordning (ändrad t.o.m. SFS 2026:1589)"
+      provision: "2 kap. 4 §"
+      quote: "Vid erbjudande av informationssamhällets tjänster direkt till ett barn som bor i Sverige ska behandling av personuppgifter vara tillåten med stöd av barnets samtycke, om barnet är minst 13 år. Om barnet är under 13 år, ska sådan behandling vara tillåten endast om samtycke ges eller godkänns av den som har föräldraansvar för barnet."
+      source: "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/lag-2018218-med-kompletterande-bestammelser_sfs-2018-218/"
+      read: "2026-11-10"
+      note: "It holds for a child who lives in Sweden. In force from 2018-05-25."
+  "SI":
+    - age: 15
+      from: "2023-01-26"
+      law: "Zakon o varstvu osebnih podatkov (ZVOP-2), Uradni list RS, št. 163/22 (amended by 40/25 – ZInfV-1, Art. 23 only)"
+      provision: "8. člen, prvi odstavek"
+      quote: "Privolitev otroka za uporabo storitev informacijske družbe, ki se ponujajo neposredno otrokom oziroma za katere se lahko verjetno domneva, da jih bodo uporabljali otroci, je veljavna, če je otrok star 15 let ali več. Če je otrok mlajši od 15 let, je privolitev veljavna le, če jo da ali odobri eden od staršev otroka, njegov skrbnik ali oseba, ki ji je podeljena starševska skrb."
+      source: "https://www.uradni-list.si/glasilo-uradni-list-rs/vsebina/2022-01-4187/zakon-o-varstvu-osebnih-podatkov-zvop-2"
+      read: "2026-11-10"
+      note: "Where the provider's terms of service set a higher age, that age applies. In force from 2023-01-26 (127. člen); before it, GDPR's 16 applied."
+  "SK":
+    - age: 16
+      from: "2018-05-25"
+      law: "Zákon č. 18/2018 Z. z. o ochrane osobných údajov a o zmene a doplnení niektorých zákonov"
+      provision: "§ 15 ods. 1"
+      quote: "Prevádzkovateľ v súvislosti s ponukou služieb informačnej spoločnosti spracúva osobné údaje na základe súhlasu dotknutej osoby zákonne, ak dotknutá osoba dovŕšila 16 rokov veku. Ak má dotknutá osoba menej ako 16 rokov, takéto spracúvanie osobných údajov je zákonné iba za podmienky a v rozsahu, v akom takýto súhlas poskytol alebo schválil jej zákonný zástupca."
+      source: "https://static.slov-lex.sk/static/SK/ZZ/2018/18/20260818.html"
+      read: "2026-11-10"
+      note: "Slovakia restates 16 in its own law. § 15 ods. 1 stands unchanged since 2018-05-25, in the version from 2026-08-18 too."
+  "US":
+    - age: 13
+      from: "2000-04-21"
+      law: "Children's Online Privacy Protection Rule, 16 CFR Part 312 (64 FR 59888, 3 Nov 1999; as amended by 90 FR 16918, 22 Apr 2025)"
+      provision: "16 CFR 312.2, definition of \"Child\""
+      quote: "Child means an individual under the age of 13."
+      source: "https://www.ecfr.gov/api/versioner/v1/full/2026-11-01/title-16.xml?part=312&section=312.2"
+      read: "2026-11-10"
+      note: "COPPA asks a parent's verifiable consent below 13 and sets no age above it: no federal law sets an age of digital consent. The laws of the states are another task (RUN.md, T107). The amendments in force from 2025-06-23 keep 13."

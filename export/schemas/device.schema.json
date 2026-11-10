@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/export/1/device.schema.json",
+  "title": "Device",
+  "description": "What this device holds of a profile, device/<id>.json (section 4 of the text of the part): its unfinished attempts with their history, its essays and its places in lessons.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": 1,
+      "description": "The version of the part, the integer in export/VERSION."
+    },
+    "profile_id": {
+      "$ref": "common.schema.json#/$defs/id",
+      "description": "The ID of the profile."
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/device_attempt",
+        "unevaluatedProperties": false,
+        "description": "An unfinished attempt as this device holds it."
+      },
+      "description": "The unfinished attempts this device holds."
+    },
+    "essays": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/device_essay",
+        "unevaluatedProperties": false,
+        "description": "An essay as this device holds it."
+      },
+      "description": "The essays this device holds, with what was read and the feedback."
+    },
+    "lessons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/device_lesson",
+        "unevaluatedProperties": false,
+        "description": "A lesson's place as this device holds it."
+      },
+      "description": "The places in the unfinished lessons."
+    }
+  },
+  "required": [
+    "format",
+    "profile_id",
+    "attempts",
+    "essays",
+    "lessons"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "device_attempt_submission": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context of the submission, as the element <novatrail-canvas> gave it, in its own names."
+        },
+        "history_length": {
+          "type": "integer",
+          "description": "How many events of the history the submission covers."
+        }
+      },
+      "required": [
+        "context",
+        "history_length"
+      ]
+    },
+    "device_attempt_step_state": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "by_steps",
+            "self"
+          ],
+          "description": "The mode of the attempt."
+        },
+        "step": {
+          "type": "integer",
+          "description": "The place of the step."
+        },
+        "ticks": {
+          "description": "The ticks of what is given and what is to be found, as app keeps them."
+        },
+        "technique_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 10000,
+            "description": "The IDs of the techniques the learner got: one of them."
+          },
+          "description": "The IDs of the techniques the learner got."
+        }
+      },
+      "required": [
+        "mode",
+        "step",
+        "ticks",
+        "technique_ids"
+      ]
+    },
+    "device_attempt": {
+      "type": "object",
+      "properties": {
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The unfinished attempt, by its ID in api."
+        },
+        "history": {
+          "description": "The history of writing as the canvas gave it: write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p."
+        },
+        "submissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/device_attempt_submission",
+            "unevaluatedProperties": false,
+            "description": "Each submission's context (SheetSubmission or WorkbookSubmission, as the canvas gave it) and the history length when it was sent; the PNG work is not exported: one of them."
+          },
+          "description": "Each submission's context (SheetSubmission or WorkbookSubmission, as the canvas gave it) and the history length when it was sent; the PNG work is not exported."
+        },
+        "step_state": {
+          "$ref": "#/$defs/device_attempt_step_state",
+          "unevaluatedProperties": false,
+          "description": "The attempt's mode, the step's place, the ticks of the chips and the technique IDs received."
+        }
+      },
+      "required": [
+        "attempt_id",
+        "history",
+        "submissions"
+      ]
+    },
+    "device_essay": {
+      "type": "object",
+      "properties": {
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The essay's attempt, finished or not."
+        },
+        "module_version_withdrawn": {
+          "type": "boolean",
+          "description": "Whether the module version was withdrawn, so the essay goes without the task's statement."
+        },
+        "history": {
+          "description": "The history of writing of the essay."
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "What was read of the essay."
+        },
+        "feedback": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The rubric feedback's words."
+        }
+      },
+      "required": [
+        "attempt_id",
+        "module_version_withdrawn",
+        "history"
+      ]
+    },
+    "device_lesson_demo_state": {
+      "type": "object",
+      "properties": {
+        "segment": {
+          "type": "integer",
+          "description": "The number of the segment of the lesson."
+        },
+        "demo_state": {
+          "description": "The state of showing of the segment, as the element gave it, in its own names."
+        }
+      },
+      "required": [
+        "segment",
+        "demo_state"
+      ]
+    },
+    "device_lesson": {
+      "type": "object",
+      "properties": {
+        "lesson": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The lesson's full ID, part of the key."
+        },
+        "package_digest": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The package digest, the rest of the key."
+        },
+        "lesson_run_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The run the state belongs to."
+        },
+        "place": {
+          "type": "integer",
+          "description": "The segment the learner has reached, from 1."
+        },
+        "demo_states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/device_lesson_demo_state",
+            "unevaluatedProperties": false,
+            "description": "The demo state of each worked example, {opened, hidden}, by segment place: one of them."
+          },
+          "description": "The demo state of each worked example, {opened, hidden}, by segment place."
+        }
+      },
+      "required": [
+        "lesson",
+        "package_digest",
+        "lesson_run_id",
+        "place",
+        "demo_states"
+      ]
+    }
+  }
+}

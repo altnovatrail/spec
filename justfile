@@ -113,6 +113,37 @@ legal-check-test: _tools
 legal-check-dir folder: _tools
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/legal/main.mjs")}} --dir {{quote(folder)}}
 
+# Reads spec's own consent-age/, the table of the age of digital consent (R134), by the layout of
+# its text: VERSION, an integer, and the field format of the table that holds it; each schema
+# against the conventions of the format's schemas under the prefix of the part, with no x-open; the
+# rules the text lists, in their order; each example against its schema; each vector of reading,
+# whose cases it reads as section 5 of the text does, with a table accepted and one refused by the
+# schema and by each rule among them; each vector of the category, whose cases it computes as
+# section 6 does, with every category and both answers to asking the age again among them; and the
+# table itself, consent-age.yaml, read the same way. For consent-age.ages-kept it reads the table of
+# the release before, as legal-check reads its part (tools/release/previous.mjs).
+# Check the table of the age of digital consent in consent-age/: schemas, examples, vectors and the table.
+consent-age-check: _tools
+    node tools/consent-age/main.mjs
+
+# Run consent-age-check's own tests, on trial copies of spec's consent-age/ and in made-up repositories.
+consent-age-check-test: _tools
+    node --test 'tools/consent-age/test/*.test.mjs'
+
+# Reads spec's own export/, the format of the export (R135), by the layout of its text: VERSION, an
+# integer, and the field format of each file's schema that holds it; each schema against the
+# conventions of the format's schemas under the prefix of the part, with no x-open; the rules the
+# text lists, in their order; each example against its schema; and each vector of reading, whose
+# cases — exports, unpacked — it reads as section 5 of the text does, with an export accepted and
+# one refused by the schema and by each rule among them.
+# Check the format of the export in export/: schemas, examples and vectors.
+export-check: _tools
+    node tools/export/main.mjs
+
+# Run export-check's own tests, on trial copies of spec's export/.
+export-check-test: _tools
+    node --test 'tools/export/test/*.test.mjs'
+
 # The types of the module format, generated from its schemas by tools/types (R72): the packages
 # formatv0 and formatv0/open under types/, and admissionv0 of the admission table, generated from
 # admission/schemas (R96), which spec's Go module ships at the tag of every release, each with its
@@ -468,7 +499,11 @@ licenses-check-test:
 # packages of tools/, so in spec the recipe installs them first), and another version of the legal
 # texts, or another shape of their passport's schema or other IDs of their rules under the same
 # version, once releases carry them (R130; tools/release/legal-line.mjs, which reads the text the
-# same way). Anywhere else — another repository, a working copy in .repos/ among them — the line is
+# same way), and another version of the table of the age of digital consent, or another shape of
+# its schema or other IDs of its rules under the same version, once releases carry it (R134;
+# tools/release/consent-age-line.mjs, the same way), and another version of the format of the
+# export, or another shape of the schemas of its files or other IDs of its rules under the same
+# version, once releases carry it (R135; tools/release/export-line.mjs, the same way). Anywhere else — another repository, a working copy in .repos/ among them — the line is
 # RELEASE_LINE as the workflow named second sets it at that commit, a path from the repository's
 # root, whatever the shell sets: a release workflow's own env, the tip's, must not number an
 # older commit. A commit from before that workflow existed takes the checked-out file's line. With
@@ -516,7 +551,7 @@ release-version commit="HEAD" workflow="":
         git tag --points-at "$commit" --list 'v*'
     }
     if [ "$in_spec" = true ]; then
-        # deployment-line.mjs and legal-line.mjs read the rules of their part's README.md as
+        # deployment-line.mjs, legal-line.mjs, consent-age-line.mjs and export-line.mjs read the rules of their part's README.md as
         # format-check does, by the packages of tools/: they are installed first, and npm says
         # nothing on stdout.
         {{quote(just_executable())}} --justfile {{quote(justfile())}} _tools >&2
@@ -525,7 +560,9 @@ release-version commit="HEAD" workflow="":
             | node {{quote(justfile_directory() / "tools/release/contracts-line.mjs")}} "$commit" \
             | node {{quote(justfile_directory() / "tools/release/admission-line.mjs")}} "$commit" \
             | node {{quote(justfile_directory() / "tools/release/deployment-line.mjs")}} "$commit" \
-            | node {{quote(justfile_directory() / "tools/release/legal-line.mjs")}} "$commit"
+            | node {{quote(justfile_directory() / "tools/release/legal-line.mjs")}} "$commit" \
+            | node {{quote(justfile_directory() / "tools/release/consent-age-line.mjs")}} "$commit" \
+            | node {{quote(justfile_directory() / "tools/release/export-line.mjs")}} "$commit"
     else
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
     fi
@@ -536,8 +573,10 @@ release-version commit="HEAD" workflow="":
 # of its own goes in as <part>-<version>.tar.gz — the module format, format-<version>.tar.gz,
 # from FIRST_ADMISSION_LINE on the admission table, admission-<version>.tar.gz (R96), and from
 # FIRST_DEPLOYMENT_LINE on the deployment configuration, deployment-<version>.tar.gz, its version
-# an integer (R85), and from FIRST_LEGAL_LINE on the legal texts, legal-<version>.tar.gz, its
-# version an integer too (R130): git archive of the commit, a folder of that name holding LICENSE
+# an integer (R85), from FIRST_LEGAL_LINE on the legal texts, legal-<version>.tar.gz, its version
+# an integer too (R130), and from FIRST_CONSENT_AGE_LINE on the table of the age of digital consent,
+# consent-age-<version>.tar.gz, an integer as well (R134), and from FIRST_EXPORT_LINE on the format
+# of the export, export-<version>.tar.gz, an integer too (R135): git archive of the commit, a folder of that name holding LICENSE
 # and the part as the commit has them, every file and nothing else, which the recipe checks
 # against git ls-tree. From
 # FIRST_NPM_LINE on, the npm package @altnovatrail/spec goes in too, altnovatrail-spec-<X.Y.Z>.tgz,
@@ -570,6 +609,10 @@ release-files commit dir tag="":
             if git cat-file -e "${commit}:deployment/VERSION" 2>/dev/null; then git show "${commit}:deployment/VERSION"; fi
             echo --
             if git cat-file -e "${commit}:legal/VERSION" 2>/dev/null; then git show "${commit}:legal/VERSION"; fi
+            echo --
+            if git cat-file -e "${commit}:consent-age/VERSION" 2>/dev/null; then git show "${commit}:consent-age/VERSION"; fi
+            echo --
+            if git cat-file -e "${commit}:export/VERSION" 2>/dev/null; then git show "${commit}:export/VERSION"; fi
         } | node tools/release/files.mjs "$line" "$tag"
     )
     mkdir -p "$dir"

@@ -1,8 +1,9 @@
 // part-line: a new version of a normative part with a version of its own starts a new line of
 // spec's releases, as a new version of the module format does (R44): the admission table (R96;
-// admission-line.mjs), the deployment configuration (R85; deployment-line.mjs) and the legal texts
-// (R130; legal-line.mjs) hold their releases to it by this one rule, each with its part. release-version passes its lines through each
-// part's script, with the commit, and the script prints the same lines, or refuses.
+// admission-line.mjs), the deployment configuration (R85; deployment-line.mjs), the legal texts
+// (R130; legal-line.mjs), the table of the age of digital consent (R134; consent-age-line.mjs) and
+// the format of the export (R135; export-line.mjs) hold their releases to it by this one rule, each with its part. release-version passes its lines
+// through each part's script, with the commit, and the script prints the same lines, or refuses.
 //
 // Only a commit that gets a release is checked, and only against a release that carried the part,
 // of the part's first line or a later one: the releases before it had none. Then the part's VERSION
@@ -16,8 +17,8 @@
 // releases carry it; parse, the version of the text of its VERSION, or an error; below(now, then),
 // whether a version is below another; and rule, what its text makes a new version, in a sentence.
 //
-// A part whose every change of shape is a new version — the deployment configuration and the legal
-// texts — holds its releases to the shape alone, by shapeChange: its schema with its annotations
+// A part whose every change of shape is a new version — the deployment configuration, the legal
+// texts, the table of the age of digital consent and the format of the export — holds its releases to the shape alone, by shapeChange: its schema with its annotations
 // taken out at every level, and the IDs of the rules of section 5 of its text, in their order.
 
 import fs from "node:fs";

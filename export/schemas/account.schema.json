@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/export/1/account.schema.json",
+  "title": "Account",
+  "description": "The account in an export of the account, api/account.json (section 4 of the text of the part): its fields that are no secret, its consents and its counters of quota.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": 1,
+      "description": "The version of the part, the integer in export/VERSION."
+    },
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/id",
+      "description": "The ID of the account in api, never the sign-in service's UID."
+    },
+    "adult_stated_at": {
+      "$ref": "common.schema.json#/$defs/time",
+      "description": "When the owner stated they are 18 or older; the column is a timestamptz, the documents say a date."
+    },
+    "tariff": {
+      "type": "string",
+      "maxLength": 10000,
+      "description": "The account's tariff, taken from its invite code, which sets the quota ceilings."
+    },
+    "utc_offset_minutes": {
+      "type": "integer",
+      "description": "The family's clock offset from UTC in minutes, -720 to 840 in steps of 15; absent before the first request on platform AI."
+    },
+    "day_ends_at": {
+      "$ref": "common.schema.json#/$defs/time",
+      "description": "The end of the family's current quota day."
+    },
+    "last_request_on": {
+      "$ref": "common.schema.json#/$defs/day",
+      "description": "The date of the last request with the account's token, by which an idle account is deleted after 12 months."
+    },
+    "profile_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/id",
+        "description": "The part of every profile of the account, as in a profile export: one of them."
+      },
+      "description": "The IDs of the account's profiles, each with its file in profiles/."
+    },
+    "consents": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/consent",
+        "unevaluatedProperties": false,
+        "description": "The consents for a child that have no profile yet, waiting or confirmed: one of them."
+      },
+      "description": "Every consent of the account, in full: the minimal record left after a deletion is none (R117)."
+    },
+    "quota_counters": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/quota_counter",
+        "unevaluatedProperties": false,
+        "description": "The account's own quota counters; a profile's go in its profile part: one of them."
+      },
+      "description": "The account's own quota counters; a profile's go in its profile part."
+    }
+  },
+  "required": [
+    "format",
+    "account_id",
+    "adult_stated_at",
+    "tariff",
+    "last_request_on",
+    "profile_ids",
+    "consents",
+    "quota_counters"
+  ],
+  "unevaluatedProperties": false
+}

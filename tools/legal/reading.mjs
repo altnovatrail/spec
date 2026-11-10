@@ -13,6 +13,9 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { gfm } from "micromark-extension-gfm";
 import { byCodeUnits } from "../shared.mjs";
+import { namesOf } from "../parts.mjs";
+
+export { namesOf };
 
 export const SCHEMA = "schema";
 export const FILES = "legal.files";
@@ -181,27 +184,6 @@ function currentOf(map) {
     if (numbers.length) current[id] = Math.max(...numbers);
   }
   return current;
-}
-
-// The paths that ajv's errors name, each once, in the order of code units: the names of the fields
-// from the root joined by ".", an index of a list among them; a missing or unknown field at the path
-// it would have, a name a map does not allow at the path it has, and any other error at the place it
-// stands. An if is left out: the error of its then or its else names the same place, or one below.
-export function namesOf(errors) {
-  const paths = new Set();
-  for (const error of errors) {
-    if (error.keyword === "if") continue;
-    const names = error.instancePath
-      .split("/")
-      .slice(1)
-      .map((part) => part.replaceAll("~1", "/").replaceAll("~0", "~"));
-    if (error.propertyName !== undefined) names.push(error.propertyName);
-    else if (error.keyword === "propertyNames") names.push(error.params.propertyName);
-    else if (error.keyword === "required") names.push(error.params.missingProperty);
-    else if (error.keyword === "unevaluatedProperties") names.push(error.params.unevaluatedProperty);
-    paths.add(names.join("."));
-  }
-  return [...paths].sort(byCodeUnits);
 }
 
 function isObject(value) {

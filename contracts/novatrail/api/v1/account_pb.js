@@ -2,24 +2,26 @@
 // @generated from file novatrail/api/v1/account.proto (package novatrail.api.v1, syntax proto3)
 /* eslint-disable */
 
-// The account and its profiles in the contract between `app` and `api`: the account and the list
-// of its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of
-// the account's owner and a child's profile, which a consent comes before; the PIN of the section
-// for adults; the voicing a learner sets; the own key checked when it is connected; deletion and
-// export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// The account and its profiles in the contract between `app` and `api`: the account and the list of
+// its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of the
+// account's owner and a child's profile, which a consent comes before; how a consent is given,
+// confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
+// of the section for adults; the voicing a learner sets; the storage of works; the own key checked
+// when it is connected; deletion and export. What each message means, and what `app` does on each
+// refusal, are the rules of contracts/README.md, section 15.
 
 import { enumDesc, fileDesc, messageDesc, serviceDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_novatrail_api_v1_attempt } from "./attempt_pb.js";
 import { file_novatrail_api_v1_cause } from "./cause_pb.js";
 import { file_novatrail_api_v1_learning } from "./learning_pb.js";
+import { file_novatrail_api_v1_legal } from "./legal_pb.js";
 
 /**
  * Describes the file novatrail/api/v1/account.proto.
  */
 export const file_novatrail_api_v1_account = /*@__PURE__*/
-  fileDesc("Ch5ub3ZhdHJhaWwvYXBpL3YxL2FjY291bnQucHJvdG8SEG5vdmF0cmFpbC5hcGkudjEiEwoRR2V0QWNjb3VudFJlcXVlc3QiQAoSR2V0QWNjb3VudFJlc3BvbnNlEioKB2FjY291bnQYASABKAsyGS5ub3ZhdHJhaWwuYXBpLnYxLkFjY291bnQiQQoUQ3JlYXRlQWNjb3VudFJlcXVlc3QSEwoLaW52aXRlX2NvZGUYASABKAkSFAoMYWR1bHRfc3RhdGVkGAIgASgIIkMKFUNyZWF0ZUFjY291bnRSZXNwb25zZRIqCgdhY2NvdW50GAEgASgLMhkubm92YXRyYWlsLmFwaS52MS5BY2NvdW50IpMBCgdBY2NvdW50EhIKCmFjY291bnRfaWQYASABKAkSDwoHcGluX3NldBgCIAEoCBIrCghwcm9maWxlcxgDIAMoCzIZLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZRI2Cg5jaGlsZF9jb25zZW50cxgEIAMoCzIeLm5vdmF0cmFpbC5hcGkudjEuQ2hpbGRDb25zZW50IskDCgdQcm9maWxlEhIKCnByb2ZpbGVfaWQYASABKAkSDQoFb3duZXIYAiABKAgSEQoJcHNldWRvbnltGAMgASgJEg4KBmF2YXRhchgEIAEoCRIUCgxhZ2VfY2F0ZWdvcnkYBSABKAkSDwoHY291bnRyeRgGIAEoCRI/ChJwcmVzZW50YXRpb25fc3R5bGUYByABKAsyIy5ub3ZhdHJhaWwuYXBpLnYxLlByZXNlbnRhdGlvblN0eWxlEiwKDGRlZmF1bHRfbW9kZRgIIAEoDjIWLm5vdmF0cmFpbC5hcGkudjEuTW9kZRIfChJpbnRlcmZhY2VfbGFuZ3VhZ2UYCSABKAlIAIgBARISCgVncmFkZRgKIAEoBUgBiAEBEhoKEmFza19iZWZvcmVfc2hvd2luZxgLIAEoCBI2CgxvcGVuX2F0dGVtcHQYDCABKAsyIC5ub3ZhdHJhaWwuYXBpLnYxLk9wZW5BdHRlbXB0UmVmEjgKEG9wZW5fbGVzc29uX3J1bnMYDSADKAsyHi5ub3ZhdHJhaWwuYXBpLnYxLkxlc3NvblJ1blJlZkIVChNfaW50ZXJmYWNlX2xhbmd1YWdlQggKBl9ncmFkZSI/ChFQcmVzZW50YXRpb25TdHlsZRIqCgd2b2ljaW5nGAEgASgLMhkubm92YXRyYWlsLmFwaS52MS5Wb2ljaW5nIloKB1ZvaWNpbmcSFAoHZW5hYmxlZBgBIAEoCEgAiAEBEi0KBXNwZWVkGAIgASgOMh4ubm92YXRyYWlsLmFwaS52MS5Wb2ljaW5nU3BlZWRCCgoIX2VuYWJsZWQivwIKD1Byb2ZpbGVTZXR0aW5ncxIWCglwc2V1ZG9ueW0YASABKAlIAIgBARITCgZhdmF0YXIYAiABKAlIAYgBARIqCgd2b2ljaW5nGAMgASgLMhkubm92YXRyYWlsLmFwaS52MS5Wb2ljaW5nEiwKDGRlZmF1bHRfbW9kZRgEIAEoDjIWLm5vdmF0cmFpbC5hcGkudjEuTW9kZRIfChJpbnRlcmZhY2VfbGFuZ3VhZ2UYBSABKAlIAogBARISCgVncmFkZRgGIAEoBUgDiAEBEh8KEmFza19iZWZvcmVfc2hvd2luZxgHIAEoCEgEiAEBQgwKCl9wc2V1ZG9ueW1CCQoHX2F2YXRhckIVChNfaW50ZXJmYWNlX2xhbmd1YWdlQggKBl9ncmFkZUIVChNfYXNrX2JlZm9yZV9zaG93aW5nIngKDENoaWxkQ29uc2VudBISCgpjb25zZW50X2lkGAEgASgJEhQKDGFnZV9jYXRlZ29yeRgCIAEoCRIPCgdjb3VudHJ5GAMgASgJEi0KBXN0YXRlGAQgASgOMh4ubm92YXRyYWlsLmFwaS52MS5Db25zZW50U3RhdGUiNQoNU2V0UGluUmVxdWVzdBILCgNwaW4YASABKAkSFwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJIhAKDlNldFBpblJlc3BvbnNlIjgKEFZlcmlmeVBpblJlcXVlc3QSCwoDcGluGAEgASgJEhcKD2lkZW1wb3RlbmN5X2tleRgCIAEoCSI+ChFWZXJpZnlQaW5SZXNwb25zZRIpCgVjaGVjaxgBIAEoCzIaLm5vdmF0cmFpbC5hcGkudjEuUGluQ2hlY2siSQoQQ2hhbmdlUGluUmVxdWVzdBILCgNwaW4YASABKAkSDwoHbmV3X3BpbhgCIAEoCRIXCg9pZGVtcG90ZW5jeV9rZXkYAyABKAkiPgoRQ2hhbmdlUGluUmVzcG9uc2USKQoFY2hlY2sYASABKAsyGi5ub3ZhdHJhaWwuYXBpLnYxLlBpbkNoZWNrImQKCFBpbkNoZWNrEg8KB21hdGNoZXMYASABKAgSFQoNYXR0ZW1wdHNfbGVmdBgCIAEoBRIwCgxsb2NrZWRfdW50aWwYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIjsKD1Jlc2V0UGluUmVxdWVzdBIPCgduZXdfcGluGAEgASgJEhcKD2lkZW1wb3RlbmN5X2tleRgCIAEoCSISChBSZXNldFBpblJlc3BvbnNlImEKGUNyZWF0ZU93bmVyUHJvZmlsZVJlcXVlc3QSDwoHY291bnRyeRgBIAEoCRIzCghzZXR0aW5ncxgCIAEoCzIhLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZVNldHRpbmdzIkgKGkNyZWF0ZU93bmVyUHJvZmlsZVJlc3BvbnNlEioKB3Byb2ZpbGUYASABKAsyGS5ub3ZhdHJhaWwuYXBpLnYxLlByb2ZpbGUibAoaUmVxdWVzdENoaWxkQ29uc2VudFJlcXVlc3QSFwoPaWRlbXBvdGVuY3lfa2V5GAEgASgJEhYKCWFnZV95ZWFycxgCIAEoBUgAiAEBEg8KB2NvdW50cnkYAyABKAlCDAoKX2FnZV95ZWFycyJOChtSZXF1ZXN0Q2hpbGRDb25zZW50UmVzcG9uc2USLwoHY29uc2VudBgBIAEoCzIeLm5vdmF0cmFpbC5hcGkudjEuQ2hpbGRDb25zZW50ImQKGUNyZWF0ZUNoaWxkUHJvZmlsZVJlcXVlc3QSEgoKY29uc2VudF9pZBgBIAEoCRIzCghzZXR0aW5ncxgCIAEoCzIhLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZVNldHRpbmdzIkgKGkNyZWF0ZUNoaWxkUHJvZmlsZVJlc3BvbnNlEioKB3Byb2ZpbGUYASABKAsyGS5ub3ZhdHJhaWwuYXBpLnYxLlByb2ZpbGUiXwoUVXBkYXRlUHJvZmlsZVJlcXVlc3QSEgoKcHJvZmlsZV9pZBgBIAEoCRIzCghzZXR0aW5ncxgCIAEoCzIhLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZVNldHRpbmdzIkMKFVVwZGF0ZVByb2ZpbGVSZXNwb25zZRIqCgdwcm9maWxlGAEgASgLMhkubm92YXRyYWlsLmFwaS52MS5Qcm9maWxlIlMKEVNldFZvaWNpbmdSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkSKgoHdm9pY2luZxgCIAEoCzIZLm5vdmF0cmFpbC5hcGkudjEuVm9pY2luZyJAChJTZXRWb2ljaW5nUmVzcG9uc2USKgoHcHJvZmlsZRgBIAEoCzIZLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZSIqChREZWxldGVQcm9maWxlUmVxdWVzdBISCgpwcm9maWxlX2lkGAEgASgJIhcKFURlbGV0ZVByb2ZpbGVSZXNwb25zZSIWChREZWxldGVBY2NvdW50UmVxdWVzdCIXChVEZWxldGVBY2NvdW50UmVzcG9uc2UiKgoURXhwb3J0UHJvZmlsZVJlcXVlc3QSEgoKcHJvZmlsZV9pZBgBIAEoCSJEChVFeHBvcnRQcm9maWxlUmVzcG9uc2USDAoEcGFydBgBIAEoDBIdChVleHBvcnRfZm9ybWF0X3ZlcnNpb24YAiABKAkiFgoURXhwb3J0QWNjb3VudFJlcXVlc3QiRAoVRXhwb3J0QWNjb3VudFJlc3BvbnNlEgwKBHBhcnQYASABKAwSHQoVZXhwb3J0X2Zvcm1hdF92ZXJzaW9uGAIgASgJIlMKEkNoZWNrT3duS2V5UmVxdWVzdBISCgpwcm9maWxlX2lkGAEgASgJEikKB293bl9rZXkYAiABKAsyGC5ub3ZhdHJhaWwuYXBpLnYxLk93bktleSJvChNDaGVja093bktleVJlc3BvbnNlEiwKBWNoZWNrGAEgASgOMh0ubm92YXRyYWlsLmFwaS52MS5Pd25LZXlDaGVjaxIqCgdvdXRjb21lGAIgASgLMhkubm92YXRyYWlsLmFwaS52MS5PdXRjb21lIjAKGkxpc3RPd25LZXlQcm92aWRlcnNSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkiUgobTGlzdE93bktleVByb3ZpZGVyc1Jlc3BvbnNlEjMKCXByb3ZpZGVycxgBIAMoCzIgLm5vdmF0cmFpbC5hcGkudjEuT3duS2V5UHJvdmlkZXIiMAoOT3duS2V5UHJvdmlkZXISEAoIcHJvdmlkZXIYASABKAkSDAoEbmFtZRgCIAEoCSpfCgxWb2ljaW5nU3BlZWQSHQoZVk9JQ0lOR19TUEVFRF9VTlNQRUNJRklFRBAAEhgKFFZPSUNJTkdfU1BFRURfTk9STUFMEAESFgoSVk9JQ0lOR19TUEVFRF9TTE9XEAIqPgoETW9kZRIUChBNT0RFX1VOU1BFQ0lGSUVEEAASEQoNTU9ERV9CWV9TVEVQUxABEg0KCU1PREVfU0VMRhACKmUKDENvbnNlbnRTdGF0ZRIdChlDT05TRU5UX1NUQVRFX1VOU1BFQ0lGSUVEEAASGQoVQ09OU0VOVF9TVEFURV9XQUlUSU5HEAESGwoXQ09OU0VOVF9TVEFURV9DT05GSVJNRUQQAiqnAQoLT3duS2V5Q2hlY2sSHQoZT1dOX0tFWV9DSEVDS19VTlNQRUNJRklFRBAAEhoKFk9XTl9LRVlfQ0hFQ0tfQUNDRVBURUQQARIZChVPV05fS0VZX0NIRUNLX0lOVkFMSUQQAhIfChtPV05fS0VZX0NIRUNLX05PX1BFUk1JU1NJT04QAxIhCh1PV05fS0VZX0NIRUNLX1BST1ZJREVSX0NMT1NFRBAEMoANCg5BY2NvdW50U2VydmljZRJXCgpHZXRBY2NvdW50EiMubm92YXRyYWlsLmFwaS52MS5HZXRBY2NvdW50UmVxdWVzdBokLm5vdmF0cmFpbC5hcGkudjEuR2V0QWNjb3VudFJlc3BvbnNlEmAKDUNyZWF0ZUFjY291bnQSJi5ub3ZhdHJhaWwuYXBpLnYxLkNyZWF0ZUFjY291bnRSZXF1ZXN0Gicubm92YXRyYWlsLmFwaS52MS5DcmVhdGVBY2NvdW50UmVzcG9uc2USSwoGU2V0UGluEh8ubm92YXRyYWlsLmFwaS52MS5TZXRQaW5SZXF1ZXN0GiAubm92YXRyYWlsLmFwaS52MS5TZXRQaW5SZXNwb25zZRJUCglWZXJpZnlQaW4SIi5ub3ZhdHJhaWwuYXBpLnYxLlZlcmlmeVBpblJlcXVlc3QaIy5ub3ZhdHJhaWwuYXBpLnYxLlZlcmlmeVBpblJlc3BvbnNlElQKCUNoYW5nZVBpbhIiLm5vdmF0cmFpbC5hcGkudjEuQ2hhbmdlUGluUmVxdWVzdBojLm5vdmF0cmFpbC5hcGkudjEuQ2hhbmdlUGluUmVzcG9uc2USUQoIUmVzZXRQaW4SIS5ub3ZhdHJhaWwuYXBpLnYxLlJlc2V0UGluUmVxdWVzdBoiLm5vdmF0cmFpbC5hcGkudjEuUmVzZXRQaW5SZXNwb25zZRJvChJDcmVhdGVPd25lclByb2ZpbGUSKy5ub3ZhdHJhaWwuYXBpLnYxLkNyZWF0ZU93bmVyUHJvZmlsZVJlcXVlc3QaLC5ub3ZhdHJhaWwuYXBpLnYxLkNyZWF0ZU93bmVyUHJvZmlsZVJlc3BvbnNlEnIKE1JlcXVlc3RDaGlsZENvbnNlbnQSLC5ub3ZhdHJhaWwuYXBpLnYxLlJlcXVlc3RDaGlsZENvbnNlbnRSZXF1ZXN0Gi0ubm92YXRyYWlsLmFwaS52MS5SZXF1ZXN0Q2hpbGRDb25zZW50UmVzcG9uc2USbwoSQ3JlYXRlQ2hpbGRQcm9maWxlEisubm92YXRyYWlsLmFwaS52MS5DcmVhdGVDaGlsZFByb2ZpbGVSZXF1ZXN0Giwubm92YXRyYWlsLmFwaS52MS5DcmVhdGVDaGlsZFByb2ZpbGVSZXNwb25zZRJgCg1VcGRhdGVQcm9maWxlEiYubm92YXRyYWlsLmFwaS52MS5VcGRhdGVQcm9maWxlUmVxdWVzdBonLm5vdmF0cmFpbC5hcGkudjEuVXBkYXRlUHJvZmlsZVJlc3BvbnNlElcKClNldFZvaWNpbmcSIy5ub3ZhdHJhaWwuYXBpLnYxLlNldFZvaWNpbmdSZXF1ZXN0GiQubm92YXRyYWlsLmFwaS52MS5TZXRWb2ljaW5nUmVzcG9uc2USYAoNRGVsZXRlUHJvZmlsZRImLm5vdmF0cmFpbC5hcGkudjEuRGVsZXRlUHJvZmlsZVJlcXVlc3QaJy5ub3ZhdHJhaWwuYXBpLnYxLkRlbGV0ZVByb2ZpbGVSZXNwb25zZRJgCg1EZWxldGVBY2NvdW50EiYubm92YXRyYWlsLmFwaS52MS5EZWxldGVBY2NvdW50UmVxdWVzdBonLm5vdmF0cmFpbC5hcGkudjEuRGVsZXRlQWNjb3VudFJlc3BvbnNlEmAKDUV4cG9ydFByb2ZpbGUSJi5ub3ZhdHJhaWwuYXBpLnYxLkV4cG9ydFByb2ZpbGVSZXF1ZXN0Gicubm92YXRyYWlsLmFwaS52MS5FeHBvcnRQcm9maWxlUmVzcG9uc2USYAoNRXhwb3J0QWNjb3VudBImLm5vdmF0cmFpbC5hcGkudjEuRXhwb3J0QWNjb3VudFJlcXVlc3QaJy5ub3ZhdHJhaWwuYXBpLnYxLkV4cG9ydEFjY291bnRSZXNwb25zZRJaCgtDaGVja093bktleRIkLm5vdmF0cmFpbC5hcGkudjEuQ2hlY2tPd25LZXlSZXF1ZXN0GiUubm92YXRyYWlsLmFwaS52MS5DaGVja093bktleVJlc3BvbnNlEnIKE0xpc3RPd25LZXlQcm92aWRlcnMSLC5ub3ZhdHJhaWwuYXBpLnYxLkxpc3RPd25LZXlQcm92aWRlcnNSZXF1ZXN0Gi0ubm92YXRyYWlsLmFwaS52MS5MaXN0T3duS2V5UHJvdmlkZXJzUmVzcG9uc2VCxQEKFGNvbS5ub3ZhdHJhaWwuYXBpLnYxQgxBY2NvdW50UHJvdG9QAVo9Z2l0aHViLmNvbS9hbHRub3ZhdHJhaWwvc3BlYy9jb250cmFjdHMvbm92YXRyYWlsL2FwaS92MTthcGl2MaICA05BWKoCEE5vdmF0cmFpbC5BcGkuVjHKAhBOb3ZhdHJhaWxcQXBpXFYx4gIcTm92YXRyYWlsXEFwaVxWMVxHUEJNZXRhZGF0YeoCEk5vdmF0cmFpbDo6QXBpOjpWMWIGcHJvdG8z", [file_google_protobuf_timestamp, file_novatrail_api_v1_attempt, file_novatrail_api_v1_cause, file_novatrail_api_v1_learning]);
+  fileDesc("Ch5ub3ZhdHJhaWwvYXBpL3YxL2FjY291bnQucHJvdG8SEG5vdmF0cmFpbC5hcGkudjEiEwoRR2V0QWNjb3VudFJlcXVlc3QiQAoSR2V0QWNjb3VudFJlc3BvbnNlEioKB2FjY291bnQYASABKAsyGS5ub3ZhdHJhaWwuYXBpLnYxLkFjY291bnQieQoUQ3JlYXRlQWNjb3VudFJlcXVlc3QSEwoLaW52aXRlX2NvZGUYASABKAkSFAoMYWR1bHRfc3RhdGVkGAIgASgIEjYKDmFjY2VwdGVkX3RleHRzGAMgAygLMh4ubm92YXRyYWlsLmFwaS52MS5MZWdhbFRleHRSZWYiQwoVQ3JlYXRlQWNjb3VudFJlc3BvbnNlEioKB2FjY291bnQYASABKAsyGS5ub3ZhdHJhaWwuYXBpLnYxLkFjY291bnQikwEKB0FjY291bnQSEgoKYWNjb3VudF9pZBgBIAEoCRIPCgdwaW5fc2V0GAIgASgIEisKCHByb2ZpbGVzGAMgAygLMhkubm92YXRyYWlsLmFwaS52MS5Qcm9maWxlEjYKDmNoaWxkX2NvbnNlbnRzGAQgAygLMh4ubm92YXRyYWlsLmFwaS52MS5DaGlsZENvbnNlbnQiqQQKB1Byb2ZpbGUSEgoKcHJvZmlsZV9pZBgBIAEoCRINCgVvd25lchgCIAEoCBIRCglwc2V1ZG9ueW0YAyABKAkSDgoGYXZhdGFyGAQgASgJEhQKDGFnZV9jYXRlZ29yeRgFIAEoCRIPCgdjb3VudHJ5GAYgASgJEj8KEnByZXNlbnRhdGlvbl9zdHlsZRgHIAEoCzIjLm5vdmF0cmFpbC5hcGkudjEuUHJlc2VudGF0aW9uU3R5bGUSLAoMZGVmYXVsdF9tb2RlGAggASgOMhYubm92YXRyYWlsLmFwaS52MS5Nb2RlEh8KEmludGVyZmFjZV9sYW5ndWFnZRgJIAEoCUgAiAEBEhIKBWdyYWRlGAogASgFSAGIAQESGgoSYXNrX2JlZm9yZV9zaG93aW5nGAsgASgIEjYKDG9wZW5fYXR0ZW1wdBgMIAEoCzIgLm5vdmF0cmFpbC5hcGkudjEuT3BlbkF0dGVtcHRSZWYSOAoQb3Blbl9sZXNzb25fcnVucxgNIAMoCzIeLm5vdmF0cmFpbC5hcGkudjEuTGVzc29uUnVuUmVmEjEKB2NvbnNlbnQYDiABKAsyIC5ub3ZhdHJhaWwuYXBpLnYxLlByb2ZpbGVDb25zZW50EhUKDWFnZV9jaGVja19kdWUYDyABKAgSFAoMd29ya19zdG9yYWdlGBAgASgIQhUKE19pbnRlcmZhY2VfbGFuZ3VhZ2VCCAoGX2dyYWRlIp0BCg5Qcm9maWxlQ29uc2VudBItCgVnaXZlchgBIAEoDjIeLm5vdmF0cmFpbC5hcGkudjEuQ29uc2VudEdpdmVyEisKBG5lZWQYAiABKA4yHS5ub3ZhdHJhaWwuYXBpLnYxLkNvbnNlbnROZWVkEi8KB3dhaXRpbmcYAyABKAsyHi5ub3ZhdHJhaWwuYXBpLnYxLkNoaWxkQ29uc2VudCI/ChFQcmVzZW50YXRpb25TdHlsZRIqCgd2b2ljaW5nGAEgASgLMhkubm92YXRyYWlsLmFwaS52MS5Wb2ljaW5nIloKB1ZvaWNpbmcSFAoHZW5hYmxlZBgBIAEoCEgAiAEBEi0KBXNwZWVkGAIgASgOMh4ubm92YXRyYWlsLmFwaS52MS5Wb2ljaW5nU3BlZWRCCgoIX2VuYWJsZWQivwIKD1Byb2ZpbGVTZXR0aW5ncxIWCglwc2V1ZG9ueW0YASABKAlIAIgBARITCgZhdmF0YXIYAiABKAlIAYgBARIqCgd2b2ljaW5nGAMgASgLMhkubm92YXRyYWlsLmFwaS52MS5Wb2ljaW5nEiwKDGRlZmF1bHRfbW9kZRgEIAEoDjIWLm5vdmF0cmFpbC5hcGkudjEuTW9kZRIfChJpbnRlcmZhY2VfbGFuZ3VhZ2UYBSABKAlIAogBARISCgVncmFkZRgGIAEoBUgDiAEBEh8KEmFza19iZWZvcmVfc2hvd2luZxgHIAEoCEgEiAEBQgwKCl9wc2V1ZG9ueW1CCQoHX2F2YXRhckIVChNfaW50ZXJmYWNlX2xhbmd1YWdlQggKBl9ncmFkZUIVChNfYXNrX2JlZm9yZV9zaG93aW5nIugBCgxDaGlsZENvbnNlbnQSEgoKY29uc2VudF9pZBgBIAEoCRIUCgxhZ2VfY2F0ZWdvcnkYAiABKAkSDwoHY291bnRyeRgDIAEoCRItCgVzdGF0ZRgEIAEoDjIeLm5vdmF0cmFpbC5hcGkudjEuQ29uc2VudFN0YXRlEi0KBWdpdmVyGAUgASgOMh4ubm92YXRyYWlsLmFwaS52MS5Db25zZW50R2l2ZXISFAoMcmVxdWVzdF9jb2RlGAYgASgJEikKBGZvcm0YByABKA4yGy5ub3ZhdHJhaWwuYXBpLnYxLkZvcm1TdGF0ZSI1Cg1TZXRQaW5SZXF1ZXN0EgsKA3BpbhgBIAEoCRIXCg9pZGVtcG90ZW5jeV9rZXkYAiABKAkiEAoOU2V0UGluUmVzcG9uc2UiOAoQVmVyaWZ5UGluUmVxdWVzdBILCgNwaW4YASABKAkSFwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJIj4KEVZlcmlmeVBpblJlc3BvbnNlEikKBWNoZWNrGAEgASgLMhoubm92YXRyYWlsLmFwaS52MS5QaW5DaGVjayJJChBDaGFuZ2VQaW5SZXF1ZXN0EgsKA3BpbhgBIAEoCRIPCgduZXdfcGluGAIgASgJEhcKD2lkZW1wb3RlbmN5X2tleRgDIAEoCSI+ChFDaGFuZ2VQaW5SZXNwb25zZRIpCgVjaGVjaxgBIAEoCzIaLm5vdmF0cmFpbC5hcGkudjEuUGluQ2hlY2siZAoIUGluQ2hlY2sSDwoHbWF0Y2hlcxgBIAEoCBIVCg1hdHRlbXB0c19sZWZ0GAIgASgFEjAKDGxvY2tlZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiOwoPUmVzZXRQaW5SZXF1ZXN0Eg8KB25ld19waW4YASABKAkSFwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJIhIKEFJlc2V0UGluUmVzcG9uc2UiYQoZQ3JlYXRlT3duZXJQcm9maWxlUmVxdWVzdBIPCgdjb3VudHJ5GAEgASgJEjMKCHNldHRpbmdzGAIgASgLMiEubm92YXRyYWlsLmFwaS52MS5Qcm9maWxlU2V0dGluZ3MiSAoaQ3JlYXRlT3duZXJQcm9maWxlUmVzcG9uc2USKgoHcHJvZmlsZRgBIAEoCzIZLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZSKpAQoaUmVxdWVzdENoaWxkQ29uc2VudFJlcXVlc3QSFwoPaWRlbXBvdGVuY3lfa2V5GAEgASgJEhYKCWFnZV95ZWFycxgCIAEoBUgAiAEBEg8KB2NvdW50cnkYAyABKAkSOwoTcGFyZW50X2NvbnNlbnRfdGV4dBgEIAEoCzIeLm5vdmF0cmFpbC5hcGkudjEuTGVnYWxUZXh0UmVmQgwKCl9hZ2VfeWVhcnMiTgobUmVxdWVzdENoaWxkQ29uc2VudFJlc3BvbnNlEi8KB2NvbnNlbnQYASABKAsyHi5ub3ZhdHJhaWwuYXBpLnYxLkNoaWxkQ29uc2VudCJnChZTZW5kQ29uc2VudEZvcm1SZXF1ZXN0EhIKCmNvbnNlbnRfaWQYASABKAkSFwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJEgwKBGZvcm0YAyABKAwSEgoKbWVkaWFfdHlwZRgEIAEoCSJKChdTZW5kQ29uc2VudEZvcm1SZXNwb25zZRIvCgdjb25zZW50GAEgASgLMh4ubm92YXRyYWlsLmFwaS52MS5DaGlsZENvbnNlbnQiLwoZQ2FuY2VsQ2hpbGRDb25zZW50UmVxdWVzdBISCgpjb25zZW50X2lkGAEgASgJIhwKGkNhbmNlbENoaWxkQ29uc2VudFJlc3BvbnNlImQKGUNyZWF0ZUNoaWxkUHJvZmlsZVJlcXVlc3QSEgoKY29uc2VudF9pZBgBIAEoCRIzCghzZXR0aW5ncxgCIAEoCzIhLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZVNldHRpbmdzIkgKGkNyZWF0ZUNoaWxkUHJvZmlsZVJlc3BvbnNlEioKB3Byb2ZpbGUYASABKAsyGS5ub3ZhdHJhaWwuYXBpLnYxLlByb2ZpbGUiWQoVR2l2ZU93bkNvbnNlbnRSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkSLAoEdGV4dBgCIAEoCzIeLm5vdmF0cmFpbC5hcGkudjEuTGVnYWxUZXh0UmVmIkQKFkdpdmVPd25Db25zZW50UmVzcG9uc2USKgoHcHJvZmlsZRgBIAEoCzIZLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZSIvChlXaXRoZHJhd093bkNvbnNlbnRSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkiHAoaV2l0aGRyYXdPd25Db25zZW50UmVzcG9uc2UitAEKEVJlc3RhdGVBZ2VSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkSFwoPaWRlbXBvdGVuY3lfa2V5GAIgASgJEhYKCWFnZV95ZWFycxgDIAEoBUgAiAEBEg8KB2NvdW50cnkYBCABKAkSOwoTcGFyZW50X2NvbnNlbnRfdGV4dBgFIAEoCzIeLm5vdmF0cmFpbC5hcGkudjEuTGVnYWxUZXh0UmVmQgwKCl9hZ2VfeWVhcnMiQAoSUmVzdGF0ZUFnZVJlc3BvbnNlEioKB3Byb2ZpbGUYASABKAsyGS5ub3ZhdHJhaWwuYXBpLnYxLlByb2ZpbGUiXwoUVXBkYXRlUHJvZmlsZVJlcXVlc3QSEgoKcHJvZmlsZV9pZBgBIAEoCRIzCghzZXR0aW5ncxgCIAEoCzIhLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZVNldHRpbmdzIkMKFVVwZGF0ZVByb2ZpbGVSZXNwb25zZRIqCgdwcm9maWxlGAEgASgLMhkubm92YXRyYWlsLmFwaS52MS5Qcm9maWxlIlMKEVNldFZvaWNpbmdSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkSKgoHdm9pY2luZxgCIAEoCzIZLm5vdmF0cmFpbC5hcGkudjEuVm9pY2luZyJAChJTZXRWb2ljaW5nUmVzcG9uc2USKgoHcHJvZmlsZRgBIAEoCzIZLm5vdmF0cmFpbC5hcGkudjEuUHJvZmlsZSKUAQoVU2V0V29ya1N0b3JhZ2VSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkSKAoGYWN0aW9uGAIgASgOMhgubm92YXRyYWlsLmFwaS52MS5BY3Rpb24SDwoHZW5hYmxlZBgDIAEoCBIsCgR0ZXh0GAQgASgLMh4ubm92YXRyYWlsLmFwaS52MS5MZWdhbFRleHRSZWYiRAoWU2V0V29ya1N0b3JhZ2VSZXNwb25zZRIqCgdwcm9maWxlGAEgASgLMhkubm92YXRyYWlsLmFwaS52MS5Qcm9maWxlIioKFERlbGV0ZVByb2ZpbGVSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkiFwoVRGVsZXRlUHJvZmlsZVJlc3BvbnNlIhYKFERlbGV0ZUFjY291bnRSZXF1ZXN0IhcKFURlbGV0ZUFjY291bnRSZXNwb25zZSJUChRFeHBvcnRQcm9maWxlUmVxdWVzdBISCgpwcm9maWxlX2lkGAEgASgJEigKBmFjdGlvbhgCIAEoDjIYLm5vdmF0cmFpbC5hcGkudjEuQWN0aW9uIkQKFUV4cG9ydFByb2ZpbGVSZXNwb25zZRIMCgRwYXJ0GAEgASgMEh0KFWV4cG9ydF9mb3JtYXRfdmVyc2lvbhgCIAEoCSIWChRFeHBvcnRBY2NvdW50UmVxdWVzdCJEChVFeHBvcnRBY2NvdW50UmVzcG9uc2USDAoEcGFydBgBIAEoDBIdChVleHBvcnRfZm9ybWF0X3ZlcnNpb24YAiABKAkiUwoSQ2hlY2tPd25LZXlSZXF1ZXN0EhIKCnByb2ZpbGVfaWQYASABKAkSKQoHb3duX2tleRgCIAEoCzIYLm5vdmF0cmFpbC5hcGkudjEuT3duS2V5Im8KE0NoZWNrT3duS2V5UmVzcG9uc2USLAoFY2hlY2sYASABKA4yHS5ub3ZhdHJhaWwuYXBpLnYxLk93bktleUNoZWNrEioKB291dGNvbWUYAiABKAsyGS5ub3ZhdHJhaWwuYXBpLnYxLk91dGNvbWUiMAoaTGlzdE93bktleVByb3ZpZGVyc1JlcXVlc3QSEgoKcHJvZmlsZV9pZBgBIAEoCSJSChtMaXN0T3duS2V5UHJvdmlkZXJzUmVzcG9uc2USMwoJcHJvdmlkZXJzGAEgAygLMiAubm92YXRyYWlsLmFwaS52MS5Pd25LZXlQcm92aWRlciIwCg5Pd25LZXlQcm92aWRlchIQCghwcm92aWRlchgBIAEoCRIMCgRuYW1lGAIgASgJKnsKDENvbnNlbnRHaXZlchIdChlDT05TRU5UX0dJVkVSX1VOU1BFQ0lGSUVEEAASFwoTQ09OU0VOVF9HSVZFUl9PV05FUhABEhgKFENPTlNFTlRfR0lWRVJfUEFSRU5UEAISGQoVQ09OU0VOVF9HSVZFUl9MRUFSTkVSEAMqhwEKC0NvbnNlbnROZWVkEhwKGENPTlNFTlRfTkVFRF9VTlNQRUNJRklFRBAAEhUKEUNPTlNFTlRfTkVFRF9OT05FEAESFAoQQ09OU0VOVF9ORUVEX09XThACEhcKE0NPTlNFTlRfTkVFRF9QQVJFTlQQAxIUChBDT05TRU5UX05FRURfQUdFEAQqXwoMVm9pY2luZ1NwZWVkEh0KGVZPSUNJTkdfU1BFRURfVU5TUEVDSUZJRUQQABIYChRWT0lDSU5HX1NQRUVEX05PUk1BTBABEhYKElZPSUNJTkdfU1BFRURfU0xPVxACKj4KBE1vZGUSFAoQTU9ERV9VTlNQRUNJRklFRBAAEhEKDU1PREVfQllfU1RFUFMQARINCglNT0RFX1NFTEYQAipyCglGb3JtU3RhdGUSGgoWRk9STV9TVEFURV9VTlNQRUNJRklFRBAAEhcKE0ZPUk1fU1RBVEVfTk9UX1NFTlQQARITCg9GT1JNX1NUQVRFX1NFTlQQAhIbChdGT1JNX1NUQVRFX05PVF9BQ0NFUFRFRBADKmUKDENvbnNlbnRTdGF0ZRIdChlDT05TRU5UX1NUQVRFX1VOU1BFQ0lGSUVEEAASGQoVQ09OU0VOVF9TVEFURV9XQUlUSU5HEAESGwoXQ09OU0VOVF9TVEFURV9DT05GSVJNRUQQAiqnAQoLT3duS2V5Q2hlY2sSHQoZT1dOX0tFWV9DSEVDS19VTlNQRUNJRklFRBAAEhoKFk9XTl9LRVlfQ0hFQ0tfQUNDRVBURUQQARIZChVPV05fS0VZX0NIRUNLX0lOVkFMSUQQAhIfChtPV05fS0VZX0NIRUNLX05PX1BFUk1JU1NJT04QAxIhCh1PV05fS0VZX0NIRUNLX1BST1ZJREVSX0NMT1NFRBAEMu0RCg5BY2NvdW50U2VydmljZRJXCgpHZXRBY2NvdW50EiMubm92YXRyYWlsLmFwaS52MS5HZXRBY2NvdW50UmVxdWVzdBokLm5vdmF0cmFpbC5hcGkudjEuR2V0QWNjb3VudFJlc3BvbnNlEmAKDUNyZWF0ZUFjY291bnQSJi5ub3ZhdHJhaWwuYXBpLnYxLkNyZWF0ZUFjY291bnRSZXF1ZXN0Gicubm92YXRyYWlsLmFwaS52MS5DcmVhdGVBY2NvdW50UmVzcG9uc2USSwoGU2V0UGluEh8ubm92YXRyYWlsLmFwaS52MS5TZXRQaW5SZXF1ZXN0GiAubm92YXRyYWlsLmFwaS52MS5TZXRQaW5SZXNwb25zZRJUCglWZXJpZnlQaW4SIi5ub3ZhdHJhaWwuYXBpLnYxLlZlcmlmeVBpblJlcXVlc3QaIy5ub3ZhdHJhaWwuYXBpLnYxLlZlcmlmeVBpblJlc3BvbnNlElQKCUNoYW5nZVBpbhIiLm5vdmF0cmFpbC5hcGkudjEuQ2hhbmdlUGluUmVxdWVzdBojLm5vdmF0cmFpbC5hcGkudjEuQ2hhbmdlUGluUmVzcG9uc2USUQoIUmVzZXRQaW4SIS5ub3ZhdHJhaWwuYXBpLnYxLlJlc2V0UGluUmVxdWVzdBoiLm5vdmF0cmFpbC5hcGkudjEuUmVzZXRQaW5SZXNwb25zZRJvChJDcmVhdGVPd25lclByb2ZpbGUSKy5ub3ZhdHJhaWwuYXBpLnYxLkNyZWF0ZU93bmVyUHJvZmlsZVJlcXVlc3QaLC5ub3ZhdHJhaWwuYXBpLnYxLkNyZWF0ZU93bmVyUHJvZmlsZVJlc3BvbnNlEnIKE1JlcXVlc3RDaGlsZENvbnNlbnQSLC5ub3ZhdHJhaWwuYXBpLnYxLlJlcXVlc3RDaGlsZENvbnNlbnRSZXF1ZXN0Gi0ubm92YXRyYWlsLmFwaS52MS5SZXF1ZXN0Q2hpbGRDb25zZW50UmVzcG9uc2USZgoPU2VuZENvbnNlbnRGb3JtEigubm92YXRyYWlsLmFwaS52MS5TZW5kQ29uc2VudEZvcm1SZXF1ZXN0Gikubm92YXRyYWlsLmFwaS52MS5TZW5kQ29uc2VudEZvcm1SZXNwb25zZRJvChJDYW5jZWxDaGlsZENvbnNlbnQSKy5ub3ZhdHJhaWwuYXBpLnYxLkNhbmNlbENoaWxkQ29uc2VudFJlcXVlc3QaLC5ub3ZhdHJhaWwuYXBpLnYxLkNhbmNlbENoaWxkQ29uc2VudFJlc3BvbnNlEm8KEkNyZWF0ZUNoaWxkUHJvZmlsZRIrLm5vdmF0cmFpbC5hcGkudjEuQ3JlYXRlQ2hpbGRQcm9maWxlUmVxdWVzdBosLm5vdmF0cmFpbC5hcGkudjEuQ3JlYXRlQ2hpbGRQcm9maWxlUmVzcG9uc2USYwoOR2l2ZU93bkNvbnNlbnQSJy5ub3ZhdHJhaWwuYXBpLnYxLkdpdmVPd25Db25zZW50UmVxdWVzdBooLm5vdmF0cmFpbC5hcGkudjEuR2l2ZU93bkNvbnNlbnRSZXNwb25zZRJvChJXaXRoZHJhd093bkNvbnNlbnQSKy5ub3ZhdHJhaWwuYXBpLnYxLldpdGhkcmF3T3duQ29uc2VudFJlcXVlc3QaLC5ub3ZhdHJhaWwuYXBpLnYxLldpdGhkcmF3T3duQ29uc2VudFJlc3BvbnNlElcKClJlc3RhdGVBZ2USIy5ub3ZhdHJhaWwuYXBpLnYxLlJlc3RhdGVBZ2VSZXF1ZXN0GiQubm92YXRyYWlsLmFwaS52MS5SZXN0YXRlQWdlUmVzcG9uc2USYAoNVXBkYXRlUHJvZmlsZRImLm5vdmF0cmFpbC5hcGkudjEuVXBkYXRlUHJvZmlsZVJlcXVlc3QaJy5ub3ZhdHJhaWwuYXBpLnYxLlVwZGF0ZVByb2ZpbGVSZXNwb25zZRJXCgpTZXRWb2ljaW5nEiMubm92YXRyYWlsLmFwaS52MS5TZXRWb2ljaW5nUmVxdWVzdBokLm5vdmF0cmFpbC5hcGkudjEuU2V0Vm9pY2luZ1Jlc3BvbnNlEmMKDlNldFdvcmtTdG9yYWdlEicubm92YXRyYWlsLmFwaS52MS5TZXRXb3JrU3RvcmFnZVJlcXVlc3QaKC5ub3ZhdHJhaWwuYXBpLnYxLlNldFdvcmtTdG9yYWdlUmVzcG9uc2USYAoNRGVsZXRlUHJvZmlsZRImLm5vdmF0cmFpbC5hcGkudjEuRGVsZXRlUHJvZmlsZVJlcXVlc3QaJy5ub3ZhdHJhaWwuYXBpLnYxLkRlbGV0ZVByb2ZpbGVSZXNwb25zZRJgCg1EZWxldGVBY2NvdW50EiYubm92YXRyYWlsLmFwaS52MS5EZWxldGVBY2NvdW50UmVxdWVzdBonLm5vdmF0cmFpbC5hcGkudjEuRGVsZXRlQWNjb3VudFJlc3BvbnNlEmAKDUV4cG9ydFByb2ZpbGUSJi5ub3ZhdHJhaWwuYXBpLnYxLkV4cG9ydFByb2ZpbGVSZXF1ZXN0Gicubm92YXRyYWlsLmFwaS52MS5FeHBvcnRQcm9maWxlUmVzcG9uc2USYAoNRXhwb3J0QWNjb3VudBImLm5vdmF0cmFpbC5hcGkudjEuRXhwb3J0QWNjb3VudFJlcXVlc3QaJy5ub3ZhdHJhaWwuYXBpLnYxLkV4cG9ydEFjY291bnRSZXNwb25zZRJaCgtDaGVja093bktleRIkLm5vdmF0cmFpbC5hcGkudjEuQ2hlY2tPd25LZXlSZXF1ZXN0GiUubm92YXRyYWlsLmFwaS52MS5DaGVja093bktleVJlc3BvbnNlEnIKE0xpc3RPd25LZXlQcm92aWRlcnMSLC5ub3ZhdHJhaWwuYXBpLnYxLkxpc3RPd25LZXlQcm92aWRlcnNSZXF1ZXN0Gi0ubm92YXRyYWlsLmFwaS52MS5MaXN0T3duS2V5UHJvdmlkZXJzUmVzcG9uc2VCxQEKFGNvbS5ub3ZhdHJhaWwuYXBpLnYxQgxBY2NvdW50UHJvdG9QAVo9Z2l0aHViLmNvbS9hbHRub3ZhdHJhaWwvc3BlYy9jb250cmFjdHMvbm92YXRyYWlsL2FwaS92MTthcGl2MaICA05BWKoCEE5vdmF0cmFpbC5BcGkuVjHKAhBOb3ZhdHJhaWxcQXBpXFYx4gIcTm92YXRyYWlsXEFwaVxWMVxHUEJNZXRhZGF0YeoCEk5vdmF0cmFpbDo6QXBpOjpWMWIGcHJvdG8z", [file_google_protobuf_timestamp, file_novatrail_api_v1_attempt, file_novatrail_api_v1_cause, file_novatrail_api_v1_learning, file_novatrail_api_v1_legal]);
 
 /**
  * Describes the message novatrail.api.v1.GetAccountRequest.
@@ -64,262 +66,382 @@ export const ProfileSchema = /*@__PURE__*/
   messageDesc(file_novatrail_api_v1_account, 5);
 
 /**
+ * Describes the message novatrail.api.v1.ProfileConsent.
+ * Use `create(ProfileConsentSchema)` to create a new message.
+ */
+export const ProfileConsentSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 6);
+
+/**
  * Describes the message novatrail.api.v1.PresentationStyle.
  * Use `create(PresentationStyleSchema)` to create a new message.
  */
 export const PresentationStyleSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 6);
+  messageDesc(file_novatrail_api_v1_account, 7);
 
 /**
  * Describes the message novatrail.api.v1.Voicing.
  * Use `create(VoicingSchema)` to create a new message.
  */
 export const VoicingSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 7);
+  messageDesc(file_novatrail_api_v1_account, 8);
 
 /**
  * Describes the message novatrail.api.v1.ProfileSettings.
  * Use `create(ProfileSettingsSchema)` to create a new message.
  */
 export const ProfileSettingsSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 8);
+  messageDesc(file_novatrail_api_v1_account, 9);
 
 /**
  * Describes the message novatrail.api.v1.ChildConsent.
  * Use `create(ChildConsentSchema)` to create a new message.
  */
 export const ChildConsentSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 9);
+  messageDesc(file_novatrail_api_v1_account, 10);
 
 /**
  * Describes the message novatrail.api.v1.SetPinRequest.
  * Use `create(SetPinRequestSchema)` to create a new message.
  */
 export const SetPinRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 10);
+  messageDesc(file_novatrail_api_v1_account, 11);
 
 /**
  * Describes the message novatrail.api.v1.SetPinResponse.
  * Use `create(SetPinResponseSchema)` to create a new message.
  */
 export const SetPinResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 11);
+  messageDesc(file_novatrail_api_v1_account, 12);
 
 /**
  * Describes the message novatrail.api.v1.VerifyPinRequest.
  * Use `create(VerifyPinRequestSchema)` to create a new message.
  */
 export const VerifyPinRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 12);
+  messageDesc(file_novatrail_api_v1_account, 13);
 
 /**
  * Describes the message novatrail.api.v1.VerifyPinResponse.
  * Use `create(VerifyPinResponseSchema)` to create a new message.
  */
 export const VerifyPinResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 13);
+  messageDesc(file_novatrail_api_v1_account, 14);
 
 /**
  * Describes the message novatrail.api.v1.ChangePinRequest.
  * Use `create(ChangePinRequestSchema)` to create a new message.
  */
 export const ChangePinRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 14);
+  messageDesc(file_novatrail_api_v1_account, 15);
 
 /**
  * Describes the message novatrail.api.v1.ChangePinResponse.
  * Use `create(ChangePinResponseSchema)` to create a new message.
  */
 export const ChangePinResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 15);
+  messageDesc(file_novatrail_api_v1_account, 16);
 
 /**
  * Describes the message novatrail.api.v1.PinCheck.
  * Use `create(PinCheckSchema)` to create a new message.
  */
 export const PinCheckSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 16);
+  messageDesc(file_novatrail_api_v1_account, 17);
 
 /**
  * Describes the message novatrail.api.v1.ResetPinRequest.
  * Use `create(ResetPinRequestSchema)` to create a new message.
  */
 export const ResetPinRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 17);
+  messageDesc(file_novatrail_api_v1_account, 18);
 
 /**
  * Describes the message novatrail.api.v1.ResetPinResponse.
  * Use `create(ResetPinResponseSchema)` to create a new message.
  */
 export const ResetPinResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 18);
+  messageDesc(file_novatrail_api_v1_account, 19);
 
 /**
  * Describes the message novatrail.api.v1.CreateOwnerProfileRequest.
  * Use `create(CreateOwnerProfileRequestSchema)` to create a new message.
  */
 export const CreateOwnerProfileRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 19);
+  messageDesc(file_novatrail_api_v1_account, 20);
 
 /**
  * Describes the message novatrail.api.v1.CreateOwnerProfileResponse.
  * Use `create(CreateOwnerProfileResponseSchema)` to create a new message.
  */
 export const CreateOwnerProfileResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 20);
+  messageDesc(file_novatrail_api_v1_account, 21);
 
 /**
  * Describes the message novatrail.api.v1.RequestChildConsentRequest.
  * Use `create(RequestChildConsentRequestSchema)` to create a new message.
  */
 export const RequestChildConsentRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 21);
+  messageDesc(file_novatrail_api_v1_account, 22);
 
 /**
  * Describes the message novatrail.api.v1.RequestChildConsentResponse.
  * Use `create(RequestChildConsentResponseSchema)` to create a new message.
  */
 export const RequestChildConsentResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 22);
+  messageDesc(file_novatrail_api_v1_account, 23);
+
+/**
+ * Describes the message novatrail.api.v1.SendConsentFormRequest.
+ * Use `create(SendConsentFormRequestSchema)` to create a new message.
+ */
+export const SendConsentFormRequestSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 24);
+
+/**
+ * Describes the message novatrail.api.v1.SendConsentFormResponse.
+ * Use `create(SendConsentFormResponseSchema)` to create a new message.
+ */
+export const SendConsentFormResponseSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 25);
+
+/**
+ * Describes the message novatrail.api.v1.CancelChildConsentRequest.
+ * Use `create(CancelChildConsentRequestSchema)` to create a new message.
+ */
+export const CancelChildConsentRequestSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 26);
+
+/**
+ * Describes the message novatrail.api.v1.CancelChildConsentResponse.
+ * Use `create(CancelChildConsentResponseSchema)` to create a new message.
+ */
+export const CancelChildConsentResponseSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 27);
 
 /**
  * Describes the message novatrail.api.v1.CreateChildProfileRequest.
  * Use `create(CreateChildProfileRequestSchema)` to create a new message.
  */
 export const CreateChildProfileRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 23);
+  messageDesc(file_novatrail_api_v1_account, 28);
 
 /**
  * Describes the message novatrail.api.v1.CreateChildProfileResponse.
  * Use `create(CreateChildProfileResponseSchema)` to create a new message.
  */
 export const CreateChildProfileResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 24);
+  messageDesc(file_novatrail_api_v1_account, 29);
+
+/**
+ * Describes the message novatrail.api.v1.GiveOwnConsentRequest.
+ * Use `create(GiveOwnConsentRequestSchema)` to create a new message.
+ */
+export const GiveOwnConsentRequestSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 30);
+
+/**
+ * Describes the message novatrail.api.v1.GiveOwnConsentResponse.
+ * Use `create(GiveOwnConsentResponseSchema)` to create a new message.
+ */
+export const GiveOwnConsentResponseSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 31);
+
+/**
+ * Describes the message novatrail.api.v1.WithdrawOwnConsentRequest.
+ * Use `create(WithdrawOwnConsentRequestSchema)` to create a new message.
+ */
+export const WithdrawOwnConsentRequestSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 32);
+
+/**
+ * Describes the message novatrail.api.v1.WithdrawOwnConsentResponse.
+ * Use `create(WithdrawOwnConsentResponseSchema)` to create a new message.
+ */
+export const WithdrawOwnConsentResponseSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 33);
+
+/**
+ * Describes the message novatrail.api.v1.RestateAgeRequest.
+ * Use `create(RestateAgeRequestSchema)` to create a new message.
+ */
+export const RestateAgeRequestSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 34);
+
+/**
+ * Describes the message novatrail.api.v1.RestateAgeResponse.
+ * Use `create(RestateAgeResponseSchema)` to create a new message.
+ */
+export const RestateAgeResponseSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 35);
 
 /**
  * Describes the message novatrail.api.v1.UpdateProfileRequest.
  * Use `create(UpdateProfileRequestSchema)` to create a new message.
  */
 export const UpdateProfileRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 25);
+  messageDesc(file_novatrail_api_v1_account, 36);
 
 /**
  * Describes the message novatrail.api.v1.UpdateProfileResponse.
  * Use `create(UpdateProfileResponseSchema)` to create a new message.
  */
 export const UpdateProfileResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 26);
+  messageDesc(file_novatrail_api_v1_account, 37);
 
 /**
  * Describes the message novatrail.api.v1.SetVoicingRequest.
  * Use `create(SetVoicingRequestSchema)` to create a new message.
  */
 export const SetVoicingRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 27);
+  messageDesc(file_novatrail_api_v1_account, 38);
 
 /**
  * Describes the message novatrail.api.v1.SetVoicingResponse.
  * Use `create(SetVoicingResponseSchema)` to create a new message.
  */
 export const SetVoicingResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 28);
+  messageDesc(file_novatrail_api_v1_account, 39);
+
+/**
+ * Describes the message novatrail.api.v1.SetWorkStorageRequest.
+ * Use `create(SetWorkStorageRequestSchema)` to create a new message.
+ */
+export const SetWorkStorageRequestSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 40);
+
+/**
+ * Describes the message novatrail.api.v1.SetWorkStorageResponse.
+ * Use `create(SetWorkStorageResponseSchema)` to create a new message.
+ */
+export const SetWorkStorageResponseSchema = /*@__PURE__*/
+  messageDesc(file_novatrail_api_v1_account, 41);
 
 /**
  * Describes the message novatrail.api.v1.DeleteProfileRequest.
  * Use `create(DeleteProfileRequestSchema)` to create a new message.
  */
 export const DeleteProfileRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 29);
+  messageDesc(file_novatrail_api_v1_account, 42);
 
 /**
  * Describes the message novatrail.api.v1.DeleteProfileResponse.
  * Use `create(DeleteProfileResponseSchema)` to create a new message.
  */
 export const DeleteProfileResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 30);
+  messageDesc(file_novatrail_api_v1_account, 43);
 
 /**
  * Describes the message novatrail.api.v1.DeleteAccountRequest.
  * Use `create(DeleteAccountRequestSchema)` to create a new message.
  */
 export const DeleteAccountRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 31);
+  messageDesc(file_novatrail_api_v1_account, 44);
 
 /**
  * Describes the message novatrail.api.v1.DeleteAccountResponse.
  * Use `create(DeleteAccountResponseSchema)` to create a new message.
  */
 export const DeleteAccountResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 32);
+  messageDesc(file_novatrail_api_v1_account, 45);
 
 /**
  * Describes the message novatrail.api.v1.ExportProfileRequest.
  * Use `create(ExportProfileRequestSchema)` to create a new message.
  */
 export const ExportProfileRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 33);
+  messageDesc(file_novatrail_api_v1_account, 46);
 
 /**
  * Describes the message novatrail.api.v1.ExportProfileResponse.
  * Use `create(ExportProfileResponseSchema)` to create a new message.
  */
 export const ExportProfileResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 34);
+  messageDesc(file_novatrail_api_v1_account, 47);
 
 /**
  * Describes the message novatrail.api.v1.ExportAccountRequest.
  * Use `create(ExportAccountRequestSchema)` to create a new message.
  */
 export const ExportAccountRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 35);
+  messageDesc(file_novatrail_api_v1_account, 48);
 
 /**
  * Describes the message novatrail.api.v1.ExportAccountResponse.
  * Use `create(ExportAccountResponseSchema)` to create a new message.
  */
 export const ExportAccountResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 36);
+  messageDesc(file_novatrail_api_v1_account, 49);
 
 /**
  * Describes the message novatrail.api.v1.CheckOwnKeyRequest.
  * Use `create(CheckOwnKeyRequestSchema)` to create a new message.
  */
 export const CheckOwnKeyRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 37);
+  messageDesc(file_novatrail_api_v1_account, 50);
 
 /**
  * Describes the message novatrail.api.v1.CheckOwnKeyResponse.
  * Use `create(CheckOwnKeyResponseSchema)` to create a new message.
  */
 export const CheckOwnKeyResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 38);
+  messageDesc(file_novatrail_api_v1_account, 51);
 
 /**
  * Describes the message novatrail.api.v1.ListOwnKeyProvidersRequest.
  * Use `create(ListOwnKeyProvidersRequestSchema)` to create a new message.
  */
 export const ListOwnKeyProvidersRequestSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 39);
+  messageDesc(file_novatrail_api_v1_account, 52);
 
 /**
  * Describes the message novatrail.api.v1.ListOwnKeyProvidersResponse.
  * Use `create(ListOwnKeyProvidersResponseSchema)` to create a new message.
  */
 export const ListOwnKeyProvidersResponseSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 40);
+  messageDesc(file_novatrail_api_v1_account, 53);
 
 /**
  * Describes the message novatrail.api.v1.OwnKeyProvider.
  * Use `create(OwnKeyProviderSchema)` to create a new message.
  */
 export const OwnKeyProviderSchema = /*@__PURE__*/
-  messageDesc(file_novatrail_api_v1_account, 41);
+  messageDesc(file_novatrail_api_v1_account, 54);
+
+/**
+ * Describes the enum novatrail.api.v1.ConsentGiver.
+ */
+export const ConsentGiverSchema = /*@__PURE__*/
+  enumDesc(file_novatrail_api_v1_account, 0);
+
+/**
+ * Who gave a consent. A giver its build does not know `app` reads as a parent.
+ *
+ * @generated from enum novatrail.api.v1.ConsentGiver
+ */
+export const ConsentGiver = /*@__PURE__*/
+  tsEnum(ConsentGiverSchema);
+
+/**
+ * Describes the enum novatrail.api.v1.ConsentNeed.
+ */
+export const ConsentNeedSchema = /*@__PURE__*/
+  enumDesc(file_novatrail_api_v1_account, 1);
+
+/**
+ * What a profile waits for before its next work. A need its build does not know `app` reads as a
+ * profile that may not learn now, and says so.
+ *
+ * @generated from enum novatrail.api.v1.ConsentNeed
+ */
+export const ConsentNeed = /*@__PURE__*/
+  tsEnum(ConsentNeedSchema);
 
 /**
  * Describes the enum novatrail.api.v1.VoicingSpeed.
  */
 export const VoicingSpeedSchema = /*@__PURE__*/
-  enumDesc(file_novatrail_api_v1_account, 0);
+  enumDesc(file_novatrail_api_v1_account, 2);
 
 /**
  * The speed of the voicing. A speed its build does not know `app` reads as normal.
@@ -333,7 +455,7 @@ export const VoicingSpeed = /*@__PURE__*/
  * Describes the enum novatrail.api.v1.Mode.
  */
 export const ModeSchema = /*@__PURE__*/
-  enumDesc(file_novatrail_api_v1_account, 1);
+  enumDesc(file_novatrail_api_v1_account, 3);
 
 /**
  * A mode of the screen of a task (concepts 10). A mode its build does not know `app` reads as "by
@@ -345,10 +467,25 @@ export const Mode = /*@__PURE__*/
   tsEnum(ModeSchema);
 
 /**
+ * Describes the enum novatrail.api.v1.FormState.
+ */
+export const FormStateSchema = /*@__PURE__*/
+  enumDesc(file_novatrail_api_v1_account, 4);
+
+/**
+ * Where the scan of a parent's signed form stands. A state its build does not know `app` reads as
+ * a form sent.
+ *
+ * @generated from enum novatrail.api.v1.FormState
+ */
+export const FormState = /*@__PURE__*/
+  tsEnum(FormStateSchema);
+
+/**
  * Describes the enum novatrail.api.v1.ConsentState.
  */
 export const ConsentStateSchema = /*@__PURE__*/
-  enumDesc(file_novatrail_api_v1_account, 2);
+  enumDesc(file_novatrail_api_v1_account, 5);
 
 /**
  * Where a consent for a child stands. A state its build does not know `app` reads as waiting.
@@ -362,7 +499,7 @@ export const ConsentState = /*@__PURE__*/
  * Describes the enum novatrail.api.v1.OwnKeyCheck.
  */
 export const OwnKeyCheckSchema = /*@__PURE__*/
-  enumDesc(file_novatrail_api_v1_account, 3);
+  enumDesc(file_novatrail_api_v1_account, 6);
 
 /**
  * What the check of an own key gave (R84). A value its build does not know `app` words as a check

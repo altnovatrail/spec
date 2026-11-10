@@ -1,0 +1,35 @@
+# Tables that break consent-age.days: a day the calendar has not.
+
+cases:
+  # 29 February of a year that is no leap year, and 31 April.
+  - table:
+      format: 1
+      outside_table: 18
+      countries:
+        BE:
+          - age: 13
+            from: "2018-02-29"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+        DE:
+          - age: 16
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-04-31"
+          - age: 15
+            from: "2024-02-29"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+    refused_by: consent-age.days
+    names:
+      - countries.BE.0
+      - countries.DE.0

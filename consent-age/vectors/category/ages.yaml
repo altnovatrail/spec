@@ -1,0 +1,132 @@
+# The category of section 6, and when a profile's age is asked again, on one table. Synthetic: the
+# ages, days, laws and sources are no country's — BE is of 13, AT of 14, FR of 15, DE of 16; ES rises
+# from 14 to 16 on a day to come, SE falls from 16 to 13, PT has only an entry still to come, and IN
+# is outside the table. A case of the category gives applied, the age of the country on its day,
+# which api keeps with the category; a case of asking again takes it.
+
+table:
+  format: 1
+  outside_table: 18
+  countries:
+    AT:
+      - age: 14
+        from: "2018-05-25"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+    BE:
+      - age: 13
+        from: "2018-05-25"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+    DE:
+      - age: 16
+        from: "2018-05-25"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+    ES:
+      - age: 14
+        from: "2018-12-07"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+      - age: 16
+        from: "2030-01-01"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+    FR:
+      - age: 15
+        from: "2018-06-21"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+    PT:
+      - age: 13
+        from: "2030-01-01"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+    SE:
+      - age: 16
+        from: "2018-05-25"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+      - age: 13
+        from: "2027-07-01"
+        law: Synthetic Act
+        provision: Article 1
+        quote: The words of the provision.
+        source: https://example.org/act
+        read: "2026-11-10"
+
+cases:
+  # Under 13 everywhere, and 18 and over; applied is the age of the country on the day.
+  - { country: BE, age_years: 0, day: "2026-11-10", category: under_13, applied: 13 }
+  - { country: BE, age_years: 12, day: "2026-11-10", category: under_13, applied: 13 }
+  - { country: DE, age_years: 18, day: "2026-11-10", category: adult, applied: 16 }
+  - { country: IN, age_years: 40, day: "2026-11-10", category: adult, applied: 18 }
+  # A country of 13: from 13 on, the learner consents.
+  - { country: BE, age_years: 13, day: "2026-11-10", category: from_consent_to_18, applied: 13 }
+  # A country of 14 and of 15: below the age, the parent; from it, the learner.
+  - { country: AT, age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 14 }
+  - { country: AT, age_years: 14, day: "2026-11-10", category: from_consent_to_18, applied: 14 }
+  - { country: FR, age_years: 14, day: "2026-11-10", category: from_13_to_consent, applied: 15 }
+  - { country: FR, age_years: 15, day: "2026-11-10", category: from_consent_to_18, applied: 15 }
+  # A country of 16.
+  - { country: DE, age_years: 15, day: "2026-11-10", category: from_13_to_consent, applied: 16 }
+  - { country: DE, age_years: 16, day: "2026-11-10", category: from_consent_to_18, applied: 16 }
+  - { country: DE, age_years: 17, day: "2026-11-10", category: from_consent_to_18, applied: 16 }
+  # Outside the table: 18, so the parent consents up to 18.
+  - { country: IN, age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 18 }
+  - { country: IN, age_years: 17, day: "2026-11-10", category: from_13_to_consent, applied: 18 }
+  # An entry still to come applies only from its day.
+  - { country: ES, age_years: 15, day: "2029-12-31", category: from_consent_to_18, applied: 14 }
+  - { country: ES, age_years: 15, day: "2030-01-01", category: from_13_to_consent, applied: 16 }
+  # A country whose every entry is still to come has the age outside the table.
+  - { country: PT, age_years: 15, day: "2026-11-10", category: from_13_to_consent, applied: 18 }
+  - { country: PT, age_years: 15, day: "2030-01-01", category: from_consent_to_18, applied: 13 }
+  # An age that fell.
+  - { country: SE, age_years: 14, day: "2026-11-10", category: from_13_to_consent, applied: 16 }
+  - { country: SE, age_years: 14, day: "2027-07-01", category: from_consent_to_18, applied: 13 }
+
+  # The age rose: a learner who consented themselves gives the age again once the country's age is
+  # above the one the category was given by.
+  - { country: ES, category: from_consent_to_18, applied: 14, today: "2029-12-31", ask_again: false }
+  - { country: ES, category: from_consent_to_18, applied: 14, today: "2030-01-01", ask_again: true }
+  - { country: ES, category: from_consent_to_18, applied: 14, today: "2031-05-01", ask_again: true }
+  # Given under the new age, it was given by it.
+  - { country: ES, category: from_consent_to_18, applied: 16, today: "2031-05-01", ask_again: false }
+  # A law found late: the entry of AT's 14 stands from 2018, and a category given by 13 — by a table
+  # that did not hold it yet — is asked again, whatever day it was given.
+  - { country: AT, category: from_consent_to_18, applied: 13, today: "2026-11-10", ask_again: true }
+  # A parent's consent stays as strict as it was.
+  - { country: ES, category: from_13_to_consent, applied: 14, today: "2030-01-01", ask_again: false }
+  # The age fell: the category kept is the stricter one, until the yearly check.
+  - { country: SE, category: from_13_to_consent, applied: 16, today: "2027-08-01", ask_again: false }
+  - { country: PT, category: from_13_to_consent, applied: 18, today: "2030-01-01", ask_again: false }
+  - { country: SE, category: from_consent_to_18, applied: 16, today: "2027-08-01", ask_again: false }
+  # A country that did not change, and the categories that never need it.
+  - { country: DE, category: from_consent_to_18, applied: 16, today: "2027-11-10", ask_again: false }
+  - { country: IN, category: from_13_to_consent, applied: 18, today: "2027-11-10", ask_again: false }
+  - { country: ES, category: under_13, applied: 14, today: "2030-01-01", ask_again: false }
+  - { country: ES, category: adult, applied: 14, today: "2030-01-01", ask_again: false }

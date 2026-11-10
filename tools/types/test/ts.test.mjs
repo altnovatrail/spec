@@ -66,12 +66,15 @@ test("names, lists of unions, and what the TypeScript of the model cannot hold",
 
   const keyed = smallModel();
   keyed.types.get("Tiers").type.map.key = { named: "PartKind" };
-  assert.throws(() => tsFiles(keyed, "0.1"), /a map is keyed by the enumeration PartKind/);
+  // A map keyed by an enumeration holds some of its values as keys, not all: Partial.
+  assert.match(tsFiles(keyed, "0.1").get(`${TYPES_DIR}/index.d.ts`), /export type Tiers = Readonly<Partial<Record<PartKind, [^>]+>>>;/);
   // Through another name of the enumeration too.
   const aliased = smallModel();
   aliased.types.set("KindName", { name: "KindName", schema: "part.schema.json", pointer: "/$defs/kind_name", doc: "", kind: "named", type: { named: "PartKind" } });
   aliased.types.get("Tiers").type.map.key = { named: "KindName" };
-  assert.throws(() => tsFiles(aliased, "0.1"), /a map is keyed by the enumeration PartKind/);
+  assert.match(tsFiles(aliased, "0.1").get(`${TYPES_DIR}/index.d.ts`), /export type Tiers = Readonly<Partial<Record<KindName, [^>]+>>>;/);
+  // A map keyed by strings is a Record.
+  assert.match(tsFiles(smallModel(), "0.1").get(`${TYPES_DIR}/index.d.ts`), /export type Tiers = Readonly<Record<PartID, number>>;/);
   const tagged = smallModel();
   tagged.types.get("Piece").fields[0].doc = "Its size, as @altnovatrail names it.";
   assert.throws(() => tsFiles(tagged, "0.1"), /a description holds a word that starts with @/);

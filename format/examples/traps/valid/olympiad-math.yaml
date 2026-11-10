@@ -1,13 +1,14 @@
 # The trap catalog of the official module of olympiad mathematics for grades 1–6: the 20 traps of
 # mathtrail-standalone, in content/catalogs/traps.json at commit 55dd676, each with its description
-# and its advice. Each ID is the trap's, with _ made -. standalone gives the traps no skills: the six
-# it added name, in its SPEC 1.3, the topics they are mostly used in, and those are their skills here,
-# the topics of the module's skill graph, as standalone's reference tasks at commit 42b4408 give them:
-# tasks of ratio-sharing give part-whole-swap, and none gives percent-wrong-base. Four texts are not
-# standalone's. The description of part-whole-swap names a trap by its ID here, percent-wrong-base;
-# that of percent-wrong-base names each wrong quantity its tasks take, not the price alone; and the
-# advice of time-unit-mixup and of wrong-parity holds no number, as section 20 of the format's text
-# asks of a text of the whole module. The traps carry this notice:
+# and its advice, and twelve-hours-off, which modules added for the 12-hour slip at the kind time
+# (R111). Each ID is the trap's, with _ made -. standalone gives the traps no skills: the six it
+# added name, in its SPEC 1.3, the topics they are mostly used in, and those are their skills here,
+# the topics of the module's skill graph, as standalone's reference tasks at commit 42b4408 give
+# them: tasks of ratio-sharing give part-whole-swap, and none gives percent-wrong-base. Four texts
+# are not standalone's. The description of part-whole-swap names a trap by its ID here,
+# percent-wrong-base; that of percent-wrong-base names each wrong quantity its tasks take, not the
+# price alone; and the advice of time-unit-mixup and of wrong-parity holds no number, as section 20
+# of the format's text asks of a text of the whole module. The traps carry this notice:
 #
 # MIT License
 #
@@ -64,6 +65,10 @@ traps:
   time-unit-mixup:
     description: Mixed up hours and minutes, or counted 100 minutes in an hour.
     trap_advice: Draw a clock face and count on in minutes, remembering how many minutes an hour has.
+  twelve-hours-off:
+    description: Wrote an afternoon or evening time as a clock face shows it, counting the hours again from noon.
+    skills: [time-clocks]
+    trap_advice: After noon the hours of the day go on counting, so add the hours from midnight to noon to the hour on the clock face.
   number-from-text:
     description: Answered with a number from the question without computing anything.
     trap_advice: "Before writing a number down, say which calculation it comes from: a number copied from the question is rarely the answer."

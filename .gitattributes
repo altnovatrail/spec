@@ -11,6 +11,10 @@ deployment/** -text
 # And the files of legal/, the legal texts (R130): a version in force stays the same byte for byte
 # (legal.in-force-unchanged), and a consent names the words it was given to.
 legal/** -text
+# And the files of consent-age/, the table of the age of digital consent (R134).
+consent-age/** -text
+# And the files of export/, the format of the export (R135).
+export/** -text
 # The fixtures of release-verify's tests are files of real releases, which their bundles sign
 # byte for byte.
 tools/release/test/fixtures/** -text

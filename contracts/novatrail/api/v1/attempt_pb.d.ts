@@ -10,6 +10,7 @@
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 import type { CloseReason, EngineChoice, Outcome } from "./cause_pb.js";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import type { AnswerSlotPlace, CropBox } from "../../observation/v1/observation_pb.js";
 
 /**
@@ -849,6 +850,104 @@ export declare type ShowSolutionResponse = Message<"novatrail.api.v1.ShowSolutio
 export declare const ShowSolutionResponseSchema: GenMessage<ShowSolutionResponse>;
 
 /**
+ * A report of a problem with the tutor's words.
+ *
+ * @generated from message novatrail.api.v1.ReportProblemRequest
+ */
+export declare type ReportProblemRequest = Message<"novatrail.api.v1.ReportProblemRequest"> & {
+  /**
+   * The profile whose attempt it is.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The attempt.
+   *
+   * @generated from field: string attempt_id = 2;
+   */
+  attemptId: string;
+
+  /**
+   * The idempotency key of this action.
+   *
+   * @generated from field: string idempotency_key = 3;
+   */
+  idempotencyKey: string;
+
+  /**
+   * Which of the tutor's words the report is about.
+   *
+   * @generated from field: novatrail.api.v1.TutorReply reply = 4;
+   */
+  reply: TutorReply;
+
+  /**
+   * Beside the words of a rung and "explain differently": the rung, from 1 to 3.
+   *
+   * @generated from field: int32 rung = 5;
+   */
+  rung: number;
+
+  /**
+   * The tutor's words as `app` showed them, from 1 to 4000 Unicode code points: `api` keeps none of
+   * the words of a correct answer and of the feedback of an essay, and the operator reads what
+   * was said.
+   *
+   * @generated from field: string words = 6;
+   */
+  words: string;
+
+  /**
+   * What is wrong with them, by a word of the closed set.
+   *
+   * @generated from field: novatrail.api.v1.ProblemKind kind = 7;
+   */
+  kind: ProblemKind;
+
+  /**
+   * What the person writes beside it, up to 1000 Unicode code points; empty when nothing.
+   *
+   * @generated from field: string text = 8;
+   */
+  text: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.ReportProblemRequest.
+ * Use `create(ReportProblemRequestSchema)` to create a new message.
+ */
+export declare const ReportProblemRequestSchema: GenMessage<ReportProblemRequest>;
+
+/**
+ * The report received.
+ *
+ * @generated from message novatrail.api.v1.ReportProblemResponse
+ */
+export declare type ReportProblemResponse = Message<"novatrail.api.v1.ReportProblemResponse"> & {
+  /**
+   * The ID of the report.
+   *
+   * @generated from field: string report_id = 1;
+   */
+  reportId: string;
+
+  /**
+   * When the operator reviews it by: 3 days after it came (R123).
+   *
+   * @generated from field: google.protobuf.Timestamp review_by = 2;
+   */
+  reviewBy?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.ReportProblemResponse.
+ * Use `create(ReportProblemResponseSchema)` to create a new message.
+ */
+export declare const ReportProblemResponseSchema: GenMessage<ReportProblemResponse>;
+
+/**
  * The work for checking: a sheet's crop, or the crops of a workbook's filled boxes. Nothing of the
  * writing history, of the context of the submission, of the groups of strokes or of the text of an
  * item goes with it.
@@ -1285,6 +1384,114 @@ export enum SubmissionEnd {
 export declare const SubmissionEndSchema: GenEnum<SubmissionEnd>;
 
 /**
+ * Which of the tutor's words a report is about: the answer that brought them.
+ *
+ * @generated from enum novatrail.api.v1.TutorReply
+ */
+export enum TutorReply {
+  /**
+   * Not named: the request is refused `invalid_argument`.
+   *
+   * @generated from enum value: TUTOR_REPLY_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The words of a rung, `GetRungWords`, or the rung given by `GetHint` after a wrong answer.
+   *
+   * @generated from enum value: TUTOR_REPLY_RUNG = 1;
+   */
+  RUNG = 1,
+
+  /**
+   * The words of "explain differently", `ExplainDifferently`.
+   *
+   * @generated from enum value: TUTOR_REPLY_EXPLAINED_DIFFERENTLY = 2;
+   */
+  EXPLAINED_DIFFERENTLY = 2,
+
+  /**
+   * The words after a correct answer, `GetCorrectAnswerWords`.
+   *
+   * @generated from enum value: TUTOR_REPLY_CORRECT_ANSWER = 3;
+   */
+  CORRECT_ANSWER = 3,
+
+  /**
+   * The feedback of an essay, `SubmitEssay`.
+   *
+   * @generated from enum value: TUTOR_REPLY_ESSAY_FEEDBACK = 4;
+   */
+  ESSAY_FEEDBACK = 4,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.TutorReply.
+ */
+export declare const TutorReplySchema: GenEnum<TutorReply>;
+
+/**
+ * What is wrong with the tutor's words: the closed set the person picks one word of (R123).
+ *
+ * @generated from enum novatrail.api.v1.ProblemKind
+ */
+export enum ProblemKind {
+  /**
+   * Not named: the request is refused `invalid_argument`.
+   *
+   * @generated from enum value: PROBLEM_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Wrong: the words say what is not so.
+   *
+   * @generated from enum value: PROBLEM_KIND_WRONG = 1;
+   */
+  WRONG = 1,
+
+  /**
+   * Unclear: the learner could not follow them.
+   *
+   * @generated from enum value: PROBLEM_KIND_UNCLEAR = 2;
+   */
+  UNCLEAR = 2,
+
+  /**
+   * Not for the learner's age.
+   *
+   * @generated from enum value: PROBLEM_KIND_NOT_FOR_AGE = 3;
+   */
+  NOT_FOR_AGE = 3,
+
+  /**
+   * Harmful or dangerous, or upsetting.
+   *
+   * @generated from enum value: PROBLEM_KIND_HARMFUL = 4;
+   */
+  HARMFUL = 4,
+
+  /**
+   * The words ask for, or speak of, something personal.
+   *
+   * @generated from enum value: PROBLEM_KIND_PERSONAL = 5;
+   */
+  PERSONAL = 5,
+
+  /**
+   * Something else, which the text says.
+   *
+   * @generated from enum value: PROBLEM_KIND_OTHER = 6;
+   */
+  OTHER = 6,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.ProblemKind.
+ */
+export declare const ProblemKindSchema: GenEnum<ProblemKind>;
+
+/**
  * Whose action a request is: the server tells kinds of action apart, not people (R04 api).
  *
  * @generated from enum novatrail.api.v1.Action
@@ -1351,7 +1558,8 @@ export declare const MarkKindSchema: GenEnum<MarkKind>;
  * take — gets the code `invalid_argument` with no `Refusal`. Every method carries the token of the
  * sign-in service and may get the refusals of every request with a token, which the comment of
  * `AccountService` names with what `app` does on each; a request of a profile whose consent is not
- * confirmed gets `CAUSE_NO_CONSENT`. An answer that closes the attempt by a correct answer, by the
+ * confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
+ * `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer, by the
  * solution shown or by "Done" says what comes next, `next`: an attempt begins by
  * `LearningService`.
  *
@@ -1485,6 +1693,23 @@ export declare const AttemptService: GenService<{
     methodKind: "unary";
     input: typeof ShowSolutionRequestSchema;
     output: typeof ShowSolutionResponseSchema;
+  },
+  /**
+   * Reports a problem with the tutor's words of the attempt, from the screen of the task: a
+   * learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
+   * `app` decides (privacy 9, П-26). `api` keeps the report until the operator reviews it, within 3
+   * days, and for a year after, by its own clock, and the operator follows the path of escalation
+   * (R123; R136). Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
+   * the words and the text as they were written, so `app` asks the person to write no name in it.
+   * Refusals: `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency
+   * key gets the same report.
+   *
+   * @generated from rpc novatrail.api.v1.AttemptService.ReportProblem
+   */
+  reportProblem: {
+    methodKind: "unary";
+    input: typeof ReportProblemRequestSchema;
+    output: typeof ReportProblemResponseSchema;
   },
 }>;
 

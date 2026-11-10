@@ -4,12 +4,13 @@
 // 	protoc        (unknown)
 // source: novatrail/api/v1/account.proto
 
-// The account and its profiles in the contract between `app` and `api`: the account and the list
-// of its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of
-// the account's owner and a child's profile, which a consent comes before; the PIN of the section
-// for adults; the voicing a learner sets; the own key checked when it is connected; deletion and
-// export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// The account and its profiles in the contract between `app` and `api`: the account and the list of
+// its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of the
+// account's owner and a child's profile, which a consent comes before; how a consent is given,
+// confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
+// of the section for adults; the voicing a learner sets; the storage of works; the own key checked
+// when it is connected; deletion and export. What each message means, and what `app` does on each
+// refusal, are the rules of contracts/README.md, section 15.
 
 package apiv1
 
@@ -28,6 +29,125 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// Who gave a consent. A giver its build does not know `app` reads as a parent.
+type ConsentGiver int32
+
+const (
+	// Not named: never sent.
+	ConsentGiver_CONSENT_GIVER_UNSPECIFIED ConsentGiver = 0
+	// The owner of the account, of their own profile, by the statement that they are 18 or older.
+	ConsentGiver_CONSENT_GIVER_OWNER ConsentGiver = 1
+	// A parent, by the signed form (R116).
+	ConsentGiver_CONSENT_GIVER_PARENT ConsentGiver = 2
+	// The learner themselves, from the age of digital consent of their country (R116; R134).
+	ConsentGiver_CONSENT_GIVER_LEARNER ConsentGiver = 3
+)
+
+// Enum value maps for ConsentGiver.
+var (
+	ConsentGiver_name = map[int32]string{
+		0: "CONSENT_GIVER_UNSPECIFIED",
+		1: "CONSENT_GIVER_OWNER",
+		2: "CONSENT_GIVER_PARENT",
+		3: "CONSENT_GIVER_LEARNER",
+	}
+	ConsentGiver_value = map[string]int32{
+		"CONSENT_GIVER_UNSPECIFIED": 0,
+		"CONSENT_GIVER_OWNER":       1,
+		"CONSENT_GIVER_PARENT":      2,
+		"CONSENT_GIVER_LEARNER":     3,
+	}
+)
+
+func (x ConsentGiver) Enum() *ConsentGiver {
+	p := new(ConsentGiver)
+	*p = x
+	return p
+}
+
+func (x ConsentGiver) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConsentGiver) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_api_v1_account_proto_enumTypes[0].Descriptor()
+}
+
+func (ConsentGiver) Type() protoreflect.EnumType {
+	return &file_novatrail_api_v1_account_proto_enumTypes[0]
+}
+
+func (x ConsentGiver) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConsentGiver.Descriptor instead.
+func (ConsentGiver) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{0}
+}
+
+// What a profile waits for before its next work. A need its build does not know `app` reads as a
+// profile that may not learn now, and says so.
+type ConsentNeed int32
+
+const (
+	// Not named: never sent.
+	ConsentNeed_CONSENT_NEED_UNSPECIFIED ConsentNeed = 0
+	// Nothing: the profile learns.
+	ConsentNeed_CONSENT_NEED_NONE ConsentNeed = 1
+	// The learner's own consent, `GiveOwnConsent`.
+	ConsentNeed_CONSENT_NEED_OWN ConsentNeed = 2
+	// A parent's consent, by a signed form for the code of the request.
+	ConsentNeed_CONSENT_NEED_PARENT ConsentNeed = 3
+	// The age given again, `RestateAge`: the country raised its age of digital consent.
+	ConsentNeed_CONSENT_NEED_AGE ConsentNeed = 4
+)
+
+// Enum value maps for ConsentNeed.
+var (
+	ConsentNeed_name = map[int32]string{
+		0: "CONSENT_NEED_UNSPECIFIED",
+		1: "CONSENT_NEED_NONE",
+		2: "CONSENT_NEED_OWN",
+		3: "CONSENT_NEED_PARENT",
+		4: "CONSENT_NEED_AGE",
+	}
+	ConsentNeed_value = map[string]int32{
+		"CONSENT_NEED_UNSPECIFIED": 0,
+		"CONSENT_NEED_NONE":        1,
+		"CONSENT_NEED_OWN":         2,
+		"CONSENT_NEED_PARENT":      3,
+		"CONSENT_NEED_AGE":         4,
+	}
+)
+
+func (x ConsentNeed) Enum() *ConsentNeed {
+	p := new(ConsentNeed)
+	*p = x
+	return p
+}
+
+func (x ConsentNeed) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConsentNeed) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_api_v1_account_proto_enumTypes[1].Descriptor()
+}
+
+func (ConsentNeed) Type() protoreflect.EnumType {
+	return &file_novatrail_api_v1_account_proto_enumTypes[1]
+}
+
+func (x ConsentNeed) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConsentNeed.Descriptor instead.
+func (ConsentNeed) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{1}
+}
 
 // The speed of the voicing. A speed its build does not know `app` reads as normal.
 type VoicingSpeed int32
@@ -66,11 +186,11 @@ func (x VoicingSpeed) String() string {
 }
 
 func (VoicingSpeed) Descriptor() protoreflect.EnumDescriptor {
-	return file_novatrail_api_v1_account_proto_enumTypes[0].Descriptor()
+	return file_novatrail_api_v1_account_proto_enumTypes[2].Descriptor()
 }
 
 func (VoicingSpeed) Type() protoreflect.EnumType {
-	return &file_novatrail_api_v1_account_proto_enumTypes[0]
+	return &file_novatrail_api_v1_account_proto_enumTypes[2]
 }
 
 func (x VoicingSpeed) Number() protoreflect.EnumNumber {
@@ -79,7 +199,7 @@ func (x VoicingSpeed) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use VoicingSpeed.Descriptor instead.
 func (VoicingSpeed) EnumDescriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{0}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{2}
 }
 
 // A mode of the screen of a task (concepts 10). A mode its build does not know `app` reads as "by
@@ -120,11 +240,11 @@ func (x Mode) String() string {
 }
 
 func (Mode) Descriptor() protoreflect.EnumDescriptor {
-	return file_novatrail_api_v1_account_proto_enumTypes[1].Descriptor()
+	return file_novatrail_api_v1_account_proto_enumTypes[3].Descriptor()
 }
 
 func (Mode) Type() protoreflect.EnumType {
-	return &file_novatrail_api_v1_account_proto_enumTypes[1]
+	return &file_novatrail_api_v1_account_proto_enumTypes[3]
 }
 
 func (x Mode) Number() protoreflect.EnumNumber {
@@ -133,7 +253,66 @@ func (x Mode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Mode.Descriptor instead.
 func (Mode) EnumDescriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{1}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{3}
+}
+
+// Where the scan of a parent's signed form stands. A state its build does not know `app` reads as
+// a form sent.
+type FormState int32
+
+const (
+	// Not named: a consent with no form.
+	FormState_FORM_STATE_UNSPECIFIED FormState = 0
+	// No form is sent yet.
+	FormState_FORM_STATE_NOT_SENT FormState = 1
+	// A form is sent: the operator checks it, or accepted it once the consent is confirmed.
+	FormState_FORM_STATE_SENT FormState = 2
+	// The operator did not accept the form — it is not legible, or does not name the code of the
+	// request —, and a new one is sent.
+	FormState_FORM_STATE_NOT_ACCEPTED FormState = 3
+)
+
+// Enum value maps for FormState.
+var (
+	FormState_name = map[int32]string{
+		0: "FORM_STATE_UNSPECIFIED",
+		1: "FORM_STATE_NOT_SENT",
+		2: "FORM_STATE_SENT",
+		3: "FORM_STATE_NOT_ACCEPTED",
+	}
+	FormState_value = map[string]int32{
+		"FORM_STATE_UNSPECIFIED":  0,
+		"FORM_STATE_NOT_SENT":     1,
+		"FORM_STATE_SENT":         2,
+		"FORM_STATE_NOT_ACCEPTED": 3,
+	}
+)
+
+func (x FormState) Enum() *FormState {
+	p := new(FormState)
+	*p = x
+	return p
+}
+
+func (x FormState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FormState) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_api_v1_account_proto_enumTypes[4].Descriptor()
+}
+
+func (FormState) Type() protoreflect.EnumType {
+	return &file_novatrail_api_v1_account_proto_enumTypes[4]
+}
+
+func (x FormState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FormState.Descriptor instead.
+func (FormState) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{4}
 }
 
 // Where a consent for a child stands. A state its build does not know `app` reads as waiting.
@@ -142,7 +321,7 @@ type ConsentState int32
 const (
 	// Not named: never sent.
 	ConsentState_CONSENT_STATE_UNSPECIFIED ConsentState = 0
-	// It waits: it is not given and confirmed yet (epic E4 of RUN.md).
+	// It waits: the parent's form is not confirmed yet, or the learner has not given it yet.
 	ConsentState_CONSENT_STATE_WAITING ConsentState = 1
 	// It is confirmed, and the child's profile may be created.
 	ConsentState_CONSENT_STATE_CONFIRMED ConsentState = 2
@@ -173,11 +352,11 @@ func (x ConsentState) String() string {
 }
 
 func (ConsentState) Descriptor() protoreflect.EnumDescriptor {
-	return file_novatrail_api_v1_account_proto_enumTypes[2].Descriptor()
+	return file_novatrail_api_v1_account_proto_enumTypes[5].Descriptor()
 }
 
 func (ConsentState) Type() protoreflect.EnumType {
-	return &file_novatrail_api_v1_account_proto_enumTypes[2]
+	return &file_novatrail_api_v1_account_proto_enumTypes[5]
 }
 
 func (x ConsentState) Number() protoreflect.EnumNumber {
@@ -186,7 +365,7 @@ func (x ConsentState) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ConsentState.Descriptor instead.
 func (ConsentState) EnumDescriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{2}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{5}
 }
 
 // What the check of an own key gave (R84). A value its build does not know `app` words as a check
@@ -236,11 +415,11 @@ func (x OwnKeyCheck) String() string {
 }
 
 func (OwnKeyCheck) Descriptor() protoreflect.EnumDescriptor {
-	return file_novatrail_api_v1_account_proto_enumTypes[3].Descriptor()
+	return file_novatrail_api_v1_account_proto_enumTypes[6].Descriptor()
 }
 
 func (OwnKeyCheck) Type() protoreflect.EnumType {
-	return &file_novatrail_api_v1_account_proto_enumTypes[3]
+	return &file_novatrail_api_v1_account_proto_enumTypes[6]
 }
 
 func (x OwnKeyCheck) Number() protoreflect.EnumNumber {
@@ -249,7 +428,7 @@ func (x OwnKeyCheck) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OwnKeyCheck.Descriptor instead.
 func (OwnKeyCheck) EnumDescriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{3}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{6}
 }
 
 // A request for the account: the user is the token's.
@@ -342,7 +521,10 @@ type CreateAccountRequest struct {
 	InviteCode string `protobuf:"bytes,1,opt,name=invite_code,json=inviteCode,proto3" json:"invite_code,omitempty"`
 	// The owner's statement that they are 18 or older: true, or the request is refused
 	// `invalid_argument`. `api` keeps it with its date (privacy 9, П-6).
-	AdultStated   bool `protobuf:"varint,2,opt,name=adult_stated,json=adultStated,proto3" json:"adult_stated,omitempty"`
+	AdultStated bool `protobuf:"varint,2,opt,name=adult_stated,json=adultStated,proto3" json:"adult_stated,omitempty"`
+	// The versions of `privacy-policy` and `terms-of-use` that the owner accepted, as
+	// `GetLegalTexts` gave them: each of the two that has a version in force, and no other text.
+	AcceptedTexts []*LegalTextRef `protobuf:"bytes,3,rep,name=accepted_texts,json=acceptedTexts,proto3" json:"accepted_texts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -389,6 +571,13 @@ func (x *CreateAccountRequest) GetAdultStated() bool {
 		return x.AdultStated
 	}
 	return false
+}
+
+func (x *CreateAccountRequest) GetAcceptedTexts() []*LegalTextRef {
+	if x != nil {
+		return x.AcceptedTexts
+	}
+	return nil
 }
 
 // The account created.
@@ -449,7 +638,8 @@ type Account struct {
 	// The account's profiles: the owner's, when the owner learns, and the children's.
 	Profiles []*Profile `protobuf:"bytes,3,rep,name=profiles,proto3" json:"profiles,omitempty"`
 	// The consents for a child that have no profile yet: waiting, or confirmed and waiting for the
-	// profile.
+	// profile. A consent taken back or withdrawn is not here: nothing of it is left but the minimal
+	// record, which names no account (R117).
 	ChildConsents []*ChildConsent `protobuf:"bytes,4,rep,name=child_consents,json=childConsents,proto3" json:"child_consents,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -549,8 +739,15 @@ type Profile struct {
 	OpenAttempt *OpenAttemptRef `protobuf:"bytes,12,opt,name=open_attempt,json=openAttempt,proto3" json:"open_attempt,omitempty"`
 	// The profile's open lesson runs, one at most for each lesson.
 	OpenLessonRuns []*LessonRunRef `protobuf:"bytes,13,rep,name=open_lesson_runs,json=openLessonRuns,proto3" json:"open_lesson_runs,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Whose consent the profile learns by, and what it waits for before its next work.
+	Consent *ProfileConsent `protobuf:"bytes,14,opt,name=consent,proto3" json:"consent,omitempty"`
+	// Whether a year has passed since the age was given: `app` asks the adult for the age again,
+	// `RestateAge`, and until then the category stays as it is (privacy 3.3).
+	AgeCheckDue bool `protobuf:"varint,15,opt,name=age_check_due,json=ageCheckDue,proto3" json:"age_check_due,omitempty"`
+	// Whether the storage of the profile's works on the server is on (R113).
+	WorkStorage   bool `protobuf:"varint,16,opt,name=work_storage,json=workStorage,proto3" json:"work_storage,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Profile) Reset() {
@@ -674,6 +871,92 @@ func (x *Profile) GetOpenLessonRuns() []*LessonRunRef {
 	return nil
 }
 
+func (x *Profile) GetConsent() *ProfileConsent {
+	if x != nil {
+		return x.Consent
+	}
+	return nil
+}
+
+func (x *Profile) GetAgeCheckDue() bool {
+	if x != nil {
+		return x.AgeCheckDue
+	}
+	return false
+}
+
+func (x *Profile) GetWorkStorage() bool {
+	if x != nil {
+		return x.WorkStorage
+	}
+	return false
+}
+
+// The consent of a profile.
+type ProfileConsent struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Who gave it.
+	Giver ConsentGiver `protobuf:"varint,1,opt,name=giver,proto3,enum=novatrail.api.v1.ConsentGiver" json:"giver,omitempty"`
+	// What the profile waits for before its next work: `CONSENT_NEED_NONE` when it learns.
+	Need ConsentNeed `protobuf:"varint,2,opt,name=need,proto3,enum=novatrail.api.v1.ConsentNeed" json:"need,omitempty"`
+	// Beside `CONSENT_NEED_PARENT`: the parent's consent that the profile waits for, with the code
+	// of its request.
+	Waiting       *ChildConsent `protobuf:"bytes,3,opt,name=waiting,proto3" json:"waiting,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProfileConsent) Reset() {
+	*x = ProfileConsent{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProfileConsent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProfileConsent) ProtoMessage() {}
+
+func (x *ProfileConsent) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProfileConsent.ProtoReflect.Descriptor instead.
+func (*ProfileConsent) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ProfileConsent) GetGiver() ConsentGiver {
+	if x != nil {
+		return x.Giver
+	}
+	return ConsentGiver_CONSENT_GIVER_UNSPECIFIED
+}
+
+func (x *ProfileConsent) GetNeed() ConsentNeed {
+	if x != nil {
+		return x.Need
+	}
+	return ConsentNeed_CONSENT_NEED_UNSPECIFIED
+}
+
+func (x *ProfileConsent) GetWaiting() *ChildConsent {
+	if x != nil {
+		return x.Waiting
+	}
+	return nil
+}
+
 // The presentation style of a profile. What else it holds comes with what a module may say of it
 // (product 13, О-23).
 type PresentationStyle struct {
@@ -687,7 +970,7 @@ type PresentationStyle struct {
 
 func (x *PresentationStyle) Reset() {
 	*x = PresentationStyle{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[6]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -699,7 +982,7 @@ func (x *PresentationStyle) String() string {
 func (*PresentationStyle) ProtoMessage() {}
 
 func (x *PresentationStyle) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[6]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -712,7 +995,7 @@ func (x *PresentationStyle) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PresentationStyle.ProtoReflect.Descriptor instead.
 func (*PresentationStyle) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{6}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PresentationStyle) GetVoicing() *Voicing {
@@ -737,7 +1020,7 @@ type Voicing struct {
 
 func (x *Voicing) Reset() {
 	*x = Voicing{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[7]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +1032,7 @@ func (x *Voicing) String() string {
 func (*Voicing) ProtoMessage() {}
 
 func (x *Voicing) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[7]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +1045,7 @@ func (x *Voicing) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Voicing.ProtoReflect.Descriptor instead.
 func (*Voicing) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{7}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Voicing) GetEnabled() bool {
@@ -811,7 +1094,7 @@ type ProfileSettings struct {
 
 func (x *ProfileSettings) Reset() {
 	*x = ProfileSettings{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[8]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -823,7 +1106,7 @@ func (x *ProfileSettings) String() string {
 func (*ProfileSettings) ProtoMessage() {}
 
 func (x *ProfileSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[8]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -836,7 +1119,7 @@ func (x *ProfileSettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProfileSettings.ProtoReflect.Descriptor instead.
 func (*ProfileSettings) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{8}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ProfileSettings) GetPseudonym() string {
@@ -898,14 +1181,22 @@ type ChildConsent struct {
 	// The child's country, ISO 3166-1 alpha-2.
 	Country string `protobuf:"bytes,3,opt,name=country,proto3" json:"country,omitempty"`
 	// Where the consent stands.
-	State         ConsentState `protobuf:"varint,4,opt,name=state,proto3,enum=novatrail.api.v1.ConsentState" json:"state,omitempty"`
+	State ConsentState `protobuf:"varint,4,opt,name=state,proto3,enum=novatrail.api.v1.ConsentState" json:"state,omitempty"`
+	// Who gives it: a parent, or the learner themselves in their profile.
+	Giver ConsentGiver `protobuf:"varint,5,opt,name=giver,proto3,enum=novatrail.api.v1.ConsentGiver" json:"giver,omitempty"`
+	// The code of the request, which the parent writes on the signed form and the operator checks the
+	// scan by: ten characters of Crockford's base32 in two groups of five, as "ABCDE-FGHJK", unique
+	// among the consents that wait. Empty at a consent that the learner gives (R116).
+	RequestCode string `protobuf:"bytes,6,opt,name=request_code,json=requestCode,proto3" json:"request_code,omitempty"`
+	// Where the parent's form stands; `FORM_STATE_UNSPECIFIED` at a consent that the learner gives.
+	Form          FormState `protobuf:"varint,7,opt,name=form,proto3,enum=novatrail.api.v1.FormState" json:"form,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChildConsent) Reset() {
 	*x = ChildConsent{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[9]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -917,7 +1208,7 @@ func (x *ChildConsent) String() string {
 func (*ChildConsent) ProtoMessage() {}
 
 func (x *ChildConsent) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[9]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -930,7 +1221,7 @@ func (x *ChildConsent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChildConsent.ProtoReflect.Descriptor instead.
 func (*ChildConsent) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{9}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ChildConsent) GetConsentId() string {
@@ -961,6 +1252,27 @@ func (x *ChildConsent) GetState() ConsentState {
 	return ConsentState_CONSENT_STATE_UNSPECIFIED
 }
 
+func (x *ChildConsent) GetGiver() ConsentGiver {
+	if x != nil {
+		return x.Giver
+	}
+	return ConsentGiver_CONSENT_GIVER_UNSPECIFIED
+}
+
+func (x *ChildConsent) GetRequestCode() string {
+	if x != nil {
+		return x.RequestCode
+	}
+	return ""
+}
+
+func (x *ChildConsent) GetForm() FormState {
+	if x != nil {
+		return x.Form
+	}
+	return FormState_FORM_STATE_UNSPECIFIED
+}
+
 // The setting of the PIN.
 type SetPinRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -974,7 +1286,7 @@ type SetPinRequest struct {
 
 func (x *SetPinRequest) Reset() {
 	*x = SetPinRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[10]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -986,7 +1298,7 @@ func (x *SetPinRequest) String() string {
 func (*SetPinRequest) ProtoMessage() {}
 
 func (x *SetPinRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[10]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -999,7 +1311,7 @@ func (x *SetPinRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPinRequest.ProtoReflect.Descriptor instead.
 func (*SetPinRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{10}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *SetPinRequest) GetPin() string {
@@ -1025,7 +1337,7 @@ type SetPinResponse struct {
 
 func (x *SetPinResponse) Reset() {
 	*x = SetPinResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[11]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1037,7 +1349,7 @@ func (x *SetPinResponse) String() string {
 func (*SetPinResponse) ProtoMessage() {}
 
 func (x *SetPinResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[11]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1050,7 +1362,7 @@ func (x *SetPinResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetPinResponse.ProtoReflect.Descriptor instead.
 func (*SetPinResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{11}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{12}
 }
 
 // A PIN to check.
@@ -1066,7 +1378,7 @@ type VerifyPinRequest struct {
 
 func (x *VerifyPinRequest) Reset() {
 	*x = VerifyPinRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[12]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1078,7 +1390,7 @@ func (x *VerifyPinRequest) String() string {
 func (*VerifyPinRequest) ProtoMessage() {}
 
 func (x *VerifyPinRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[12]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1091,7 +1403,7 @@ func (x *VerifyPinRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyPinRequest.ProtoReflect.Descriptor instead.
 func (*VerifyPinRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{12}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *VerifyPinRequest) GetPin() string {
@@ -1119,7 +1431,7 @@ type VerifyPinResponse struct {
 
 func (x *VerifyPinResponse) Reset() {
 	*x = VerifyPinResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[13]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1131,7 +1443,7 @@ func (x *VerifyPinResponse) String() string {
 func (*VerifyPinResponse) ProtoMessage() {}
 
 func (x *VerifyPinResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[13]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1144,7 +1456,7 @@ func (x *VerifyPinResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyPinResponse.ProtoReflect.Descriptor instead.
 func (*VerifyPinResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{13}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *VerifyPinResponse) GetCheck() *PinCheck {
@@ -1169,7 +1481,7 @@ type ChangePinRequest struct {
 
 func (x *ChangePinRequest) Reset() {
 	*x = ChangePinRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[14]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1181,7 +1493,7 @@ func (x *ChangePinRequest) String() string {
 func (*ChangePinRequest) ProtoMessage() {}
 
 func (x *ChangePinRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[14]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1194,7 +1506,7 @@ func (x *ChangePinRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePinRequest.ProtoReflect.Descriptor instead.
 func (*ChangePinRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{14}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ChangePinRequest) GetPin() string {
@@ -1229,7 +1541,7 @@ type ChangePinResponse struct {
 
 func (x *ChangePinResponse) Reset() {
 	*x = ChangePinResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[15]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1241,7 +1553,7 @@ func (x *ChangePinResponse) String() string {
 func (*ChangePinResponse) ProtoMessage() {}
 
 func (x *ChangePinResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[15]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1254,7 +1566,7 @@ func (x *ChangePinResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangePinResponse.ProtoReflect.Descriptor instead.
 func (*ChangePinResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{15}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ChangePinResponse) GetCheck() *PinCheck {
@@ -1281,7 +1593,7 @@ type PinCheck struct {
 
 func (x *PinCheck) Reset() {
 	*x = PinCheck{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[16]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1293,7 +1605,7 @@ func (x *PinCheck) String() string {
 func (*PinCheck) ProtoMessage() {}
 
 func (x *PinCheck) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[16]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1306,7 +1618,7 @@ func (x *PinCheck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PinCheck.ProtoReflect.Descriptor instead.
 func (*PinCheck) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{16}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *PinCheck) GetMatches() bool {
@@ -1343,7 +1655,7 @@ type ResetPinRequest struct {
 
 func (x *ResetPinRequest) Reset() {
 	*x = ResetPinRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[17]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1355,7 +1667,7 @@ func (x *ResetPinRequest) String() string {
 func (*ResetPinRequest) ProtoMessage() {}
 
 func (x *ResetPinRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[17]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1368,7 +1680,7 @@ func (x *ResetPinRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPinRequest.ProtoReflect.Descriptor instead.
 func (*ResetPinRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{17}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ResetPinRequest) GetNewPin() string {
@@ -1394,7 +1706,7 @@ type ResetPinResponse struct {
 
 func (x *ResetPinResponse) Reset() {
 	*x = ResetPinResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[18]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1718,7 @@ func (x *ResetPinResponse) String() string {
 func (*ResetPinResponse) ProtoMessage() {}
 
 func (x *ResetPinResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[18]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1419,7 +1731,7 @@ func (x *ResetPinResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetPinResponse.ProtoReflect.Descriptor instead.
 func (*ResetPinResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{18}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{19}
 }
 
 // The creation of the owner's profile.
@@ -1435,7 +1747,7 @@ type CreateOwnerProfileRequest struct {
 
 func (x *CreateOwnerProfileRequest) Reset() {
 	*x = CreateOwnerProfileRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[19]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1447,7 +1759,7 @@ func (x *CreateOwnerProfileRequest) String() string {
 func (*CreateOwnerProfileRequest) ProtoMessage() {}
 
 func (x *CreateOwnerProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[19]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1460,7 +1772,7 @@ func (x *CreateOwnerProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOwnerProfileRequest.ProtoReflect.Descriptor instead.
 func (*CreateOwnerProfileRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{19}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreateOwnerProfileRequest) GetCountry() string {
@@ -1488,7 +1800,7 @@ type CreateOwnerProfileResponse struct {
 
 func (x *CreateOwnerProfileResponse) Reset() {
 	*x = CreateOwnerProfileResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[20]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1500,7 +1812,7 @@ func (x *CreateOwnerProfileResponse) String() string {
 func (*CreateOwnerProfileResponse) ProtoMessage() {}
 
 func (x *CreateOwnerProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[20]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1513,7 +1825,7 @@ func (x *CreateOwnerProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOwnerProfileResponse.ProtoReflect.Descriptor instead.
 func (*CreateOwnerProfileResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{20}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CreateOwnerProfileResponse) GetProfile() *Profile {
@@ -1533,14 +1845,18 @@ type RequestChildConsentRequest struct {
 	// `invalid_argument`.
 	AgeYears *int32 `protobuf:"varint,2,opt,name=age_years,json=ageYears,proto3,oneof" json:"age_years,omitempty"`
 	// The child's country, ISO 3166-1 alpha-2.
-	Country       string `protobuf:"bytes,3,opt,name=country,proto3" json:"country,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Country string `protobuf:"bytes,3,opt,name=country,proto3" json:"country,omitempty"`
+	// The version of `parent-consent` that `app` shows with the form, as `GetLegalTexts` gave it:
+	// `app` sends it whenever the text has a version in force, whoever the category makes give the
+	// consent, since only `api` works it out; `api` records it with a parent's consent alone.
+	ParentConsentText *LegalTextRef `protobuf:"bytes,4,opt,name=parent_consent_text,json=parentConsentText,proto3" json:"parent_consent_text,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *RequestChildConsentRequest) Reset() {
 	*x = RequestChildConsentRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[21]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1552,7 +1868,7 @@ func (x *RequestChildConsentRequest) String() string {
 func (*RequestChildConsentRequest) ProtoMessage() {}
 
 func (x *RequestChildConsentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[21]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1565,7 +1881,7 @@ func (x *RequestChildConsentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestChildConsentRequest.ProtoReflect.Descriptor instead.
 func (*RequestChildConsentRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{21}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RequestChildConsentRequest) GetIdempotencyKey() string {
@@ -1589,6 +1905,13 @@ func (x *RequestChildConsentRequest) GetCountry() string {
 	return ""
 }
 
+func (x *RequestChildConsentRequest) GetParentConsentText() *LegalTextRef {
+	if x != nil {
+		return x.ParentConsentText
+	}
+	return nil
+}
+
 // The consent recorded.
 type RequestChildConsentResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1600,7 +1923,7 @@ type RequestChildConsentResponse struct {
 
 func (x *RequestChildConsentResponse) Reset() {
 	*x = RequestChildConsentResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[22]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1612,7 +1935,7 @@ func (x *RequestChildConsentResponse) String() string {
 func (*RequestChildConsentResponse) ProtoMessage() {}
 
 func (x *RequestChildConsentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[22]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1625,7 +1948,7 @@ func (x *RequestChildConsentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestChildConsentResponse.ProtoReflect.Descriptor instead.
 func (*RequestChildConsentResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{22}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *RequestChildConsentResponse) GetConsent() *ChildConsent {
@@ -1633,6 +1956,208 @@ func (x *RequestChildConsentResponse) GetConsent() *ChildConsent {
 		return x.Consent
 	}
 	return nil
+}
+
+// The scan of a parent's signed form.
+type SendConsentFormRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The consent, a parent's that waits: of the account, or one that a profile waits for.
+	ConsentId string `protobuf:"bytes,1,opt,name=consent_id,json=consentId,proto3" json:"consent_id,omitempty"`
+	// The idempotency key of this action of the adult.
+	IdempotencyKey string `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	// The scan: up to 10 MiB.
+	Form []byte `protobuf:"bytes,3,opt,name=form,proto3" json:"form,omitempty"`
+	// Its media type: "image/jpeg", "image/png" or "application/pdf".
+	MediaType     string `protobuf:"bytes,4,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendConsentFormRequest) Reset() {
+	*x = SendConsentFormRequest{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendConsentFormRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendConsentFormRequest) ProtoMessage() {}
+
+func (x *SendConsentFormRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendConsentFormRequest.ProtoReflect.Descriptor instead.
+func (*SendConsentFormRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *SendConsentFormRequest) GetConsentId() string {
+	if x != nil {
+		return x.ConsentId
+	}
+	return ""
+}
+
+func (x *SendConsentFormRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *SendConsentFormRequest) GetForm() []byte {
+	if x != nil {
+		return x.Form
+	}
+	return nil
+}
+
+func (x *SendConsentFormRequest) GetMediaType() string {
+	if x != nil {
+		return x.MediaType
+	}
+	return ""
+}
+
+// The form received.
+type SendConsentFormResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The consent, with its form sent.
+	Consent       *ChildConsent `protobuf:"bytes,1,opt,name=consent,proto3" json:"consent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendConsentFormResponse) Reset() {
+	*x = SendConsentFormResponse{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendConsentFormResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendConsentFormResponse) ProtoMessage() {}
+
+func (x *SendConsentFormResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendConsentFormResponse.ProtoReflect.Descriptor instead.
+func (*SendConsentFormResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *SendConsentFormResponse) GetConsent() *ChildConsent {
+	if x != nil {
+		return x.Consent
+	}
+	return nil
+}
+
+// A consent taken back.
+type CancelChildConsentRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The consent, which has no profile: waiting or confirmed.
+	ConsentId     string `protobuf:"bytes,1,opt,name=consent_id,json=consentId,proto3" json:"consent_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelChildConsentRequest) Reset() {
+	*x = CancelChildConsentRequest{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelChildConsentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelChildConsentRequest) ProtoMessage() {}
+
+func (x *CancelChildConsentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelChildConsentRequest.ProtoReflect.Descriptor instead.
+func (*CancelChildConsentRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *CancelChildConsentRequest) GetConsentId() string {
+	if x != nil {
+		return x.ConsentId
+	}
+	return ""
+}
+
+// "Taken back": nothing of the consent is left but, of one confirmed, its minimal record.
+type CancelChildConsentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelChildConsentResponse) Reset() {
+	*x = CancelChildConsentResponse{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelChildConsentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelChildConsentResponse) ProtoMessage() {}
+
+func (x *CancelChildConsentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelChildConsentResponse.ProtoReflect.Descriptor instead.
+func (*CancelChildConsentResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{27}
 }
 
 // The second step: a child's profile created by its consent.
@@ -1648,7 +2173,7 @@ type CreateChildProfileRequest struct {
 
 func (x *CreateChildProfileRequest) Reset() {
 	*x = CreateChildProfileRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[23]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1660,7 +2185,7 @@ func (x *CreateChildProfileRequest) String() string {
 func (*CreateChildProfileRequest) ProtoMessage() {}
 
 func (x *CreateChildProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[23]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1673,7 +2198,7 @@ func (x *CreateChildProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateChildProfileRequest.ProtoReflect.Descriptor instead.
 func (*CreateChildProfileRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{23}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *CreateChildProfileRequest) GetConsentId() string {
@@ -1701,7 +2226,7 @@ type CreateChildProfileResponse struct {
 
 func (x *CreateChildProfileResponse) Reset() {
 	*x = CreateChildProfileResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[24]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1713,7 +2238,7 @@ func (x *CreateChildProfileResponse) String() string {
 func (*CreateChildProfileResponse) ProtoMessage() {}
 
 func (x *CreateChildProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[24]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1726,10 +2251,326 @@ func (x *CreateChildProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateChildProfileResponse.ProtoReflect.Descriptor instead.
 func (*CreateChildProfileResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{24}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *CreateChildProfileResponse) GetProfile() *Profile {
+	if x != nil {
+		return x.Profile
+	}
+	return nil
+}
+
+// The learner's own consent.
+type GiveOwnConsentRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The learner's profile.
+	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	// The version of `teen-consent` the learner read, as `GetLegalTexts` gave it: absent while the
+	// text has no version in force, and needed once it has.
+	Text          *LegalTextRef `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GiveOwnConsentRequest) Reset() {
+	*x = GiveOwnConsentRequest{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GiveOwnConsentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GiveOwnConsentRequest) ProtoMessage() {}
+
+func (x *GiveOwnConsentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GiveOwnConsentRequest.ProtoReflect.Descriptor instead.
+func (*GiveOwnConsentRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *GiveOwnConsentRequest) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *GiveOwnConsentRequest) GetText() *LegalTextRef {
+	if x != nil {
+		return x.Text
+	}
+	return nil
+}
+
+// The consent given.
+type GiveOwnConsentResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile, whose consent is the learner's.
+	Profile       *Profile `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GiveOwnConsentResponse) Reset() {
+	*x = GiveOwnConsentResponse{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GiveOwnConsentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GiveOwnConsentResponse) ProtoMessage() {}
+
+func (x *GiveOwnConsentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GiveOwnConsentResponse.ProtoReflect.Descriptor instead.
+func (*GiveOwnConsentResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *GiveOwnConsentResponse) GetProfile() *Profile {
+	if x != nil {
+		return x.Profile
+	}
+	return nil
+}
+
+// The withdrawal of the learner's own consent.
+type WithdrawOwnConsentRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The learner's profile.
+	ProfileId     string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WithdrawOwnConsentRequest) Reset() {
+	*x = WithdrawOwnConsentRequest{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WithdrawOwnConsentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WithdrawOwnConsentRequest) ProtoMessage() {}
+
+func (x *WithdrawOwnConsentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WithdrawOwnConsentRequest.ProtoReflect.Descriptor instead.
+func (*WithdrawOwnConsentRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *WithdrawOwnConsentRequest) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+// "Withdrawn": the profile and everything of it are gone.
+type WithdrawOwnConsentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WithdrawOwnConsentResponse) Reset() {
+	*x = WithdrawOwnConsentResponse{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WithdrawOwnConsentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WithdrawOwnConsentResponse) ProtoMessage() {}
+
+func (x *WithdrawOwnConsentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WithdrawOwnConsentResponse.ProtoReflect.Descriptor instead.
+func (*WithdrawOwnConsentResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{33}
+}
+
+// The age and the country given again.
+type RestateAgeRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile.
+	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	// The idempotency key of this action of the adult.
+	IdempotencyKey string `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	// The learner's age in years, from 0 to 17, which `api` keeps nowhere: needed at a child's
+	// profile, and absent at the owner's.
+	AgeYears *int32 `protobuf:"varint,3,opt,name=age_years,json=ageYears,proto3,oneof" json:"age_years,omitempty"`
+	// The learner's country, ISO 3166-1 alpha-2.
+	Country string `protobuf:"bytes,4,opt,name=country,proto3" json:"country,omitempty"`
+	// The version of `parent-consent` that `app` shows, sent as at `RequestChildConsent` whenever the
+	// text has a version in force: `api` records it with a parent's consent that the new category
+	// asks for.
+	ParentConsentText *LegalTextRef `protobuf:"bytes,5,opt,name=parent_consent_text,json=parentConsentText,proto3" json:"parent_consent_text,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *RestateAgeRequest) Reset() {
+	*x = RestateAgeRequest{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RestateAgeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RestateAgeRequest) ProtoMessage() {}
+
+func (x *RestateAgeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RestateAgeRequest.ProtoReflect.Descriptor instead.
+func (*RestateAgeRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *RestateAgeRequest) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *RestateAgeRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *RestateAgeRequest) GetAgeYears() int32 {
+	if x != nil && x.AgeYears != nil {
+		return *x.AgeYears
+	}
+	return 0
+}
+
+func (x *RestateAgeRequest) GetCountry() string {
+	if x != nil {
+		return x.Country
+	}
+	return ""
+}
+
+func (x *RestateAgeRequest) GetParentConsentText() *LegalTextRef {
+	if x != nil {
+		return x.ParentConsentText
+	}
+	return nil
+}
+
+// The profile with its age given again.
+type RestateAgeResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile, of its new category, and what its consent waits for.
+	Profile       *Profile `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RestateAgeResponse) Reset() {
+	*x = RestateAgeResponse{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RestateAgeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RestateAgeResponse) ProtoMessage() {}
+
+func (x *RestateAgeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RestateAgeResponse.ProtoReflect.Descriptor instead.
+func (*RestateAgeResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *RestateAgeResponse) GetProfile() *Profile {
 	if x != nil {
 		return x.Profile
 	}
@@ -1749,7 +2590,7 @@ type UpdateProfileRequest struct {
 
 func (x *UpdateProfileRequest) Reset() {
 	*x = UpdateProfileRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[25]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1761,7 +2602,7 @@ func (x *UpdateProfileRequest) String() string {
 func (*UpdateProfileRequest) ProtoMessage() {}
 
 func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[25]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1774,7 +2615,7 @@ func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{25}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *UpdateProfileRequest) GetProfileId() string {
@@ -1802,7 +2643,7 @@ type UpdateProfileResponse struct {
 
 func (x *UpdateProfileResponse) Reset() {
 	*x = UpdateProfileResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[26]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1814,7 +2655,7 @@ func (x *UpdateProfileResponse) String() string {
 func (*UpdateProfileResponse) ProtoMessage() {}
 
 func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[26]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1827,7 +2668,7 @@ func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProfileResponse.ProtoReflect.Descriptor instead.
 func (*UpdateProfileResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{26}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *UpdateProfileResponse) GetProfile() *Profile {
@@ -1850,7 +2691,7 @@ type SetVoicingRequest struct {
 
 func (x *SetVoicingRequest) Reset() {
 	*x = SetVoicingRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[27]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1862,7 +2703,7 @@ func (x *SetVoicingRequest) String() string {
 func (*SetVoicingRequest) ProtoMessage() {}
 
 func (x *SetVoicingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[27]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1875,7 +2716,7 @@ func (x *SetVoicingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetVoicingRequest.ProtoReflect.Descriptor instead.
 func (*SetVoicingRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{27}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *SetVoicingRequest) GetProfileId() string {
@@ -1903,7 +2744,7 @@ type SetVoicingResponse struct {
 
 func (x *SetVoicingResponse) Reset() {
 	*x = SetVoicingResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[28]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1915,7 +2756,7 @@ func (x *SetVoicingResponse) String() string {
 func (*SetVoicingResponse) ProtoMessage() {}
 
 func (x *SetVoicingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[28]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1928,10 +2769,131 @@ func (x *SetVoicingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetVoicingResponse.ProtoReflect.Descriptor instead.
 func (*SetVoicingResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{28}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *SetVoicingResponse) GetProfile() *Profile {
+	if x != nil {
+		return x.Profile
+	}
+	return nil
+}
+
+// The storage of works switched on or off.
+type SetWorkStorageRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile.
+	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	// Whose action it is: `ACTION_ADULT`, or `ACTION_LEARNING` at a profile whose learner gave their
+	// own consent. `ACTION_UNSPECIFIED` is refused `invalid_argument`.
+	Action Action `protobuf:"varint,2,opt,name=action,proto3,enum=novatrail.api.v1.Action" json:"action,omitempty"`
+	// Whether it is on.
+	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// Beside switching on: the version of `storage-consent` that the person read, as
+	// `GetLegalTexts` gave it; absent while the text has no version in force.
+	Text          *LegalTextRef `protobuf:"bytes,4,opt,name=text,proto3" json:"text,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetWorkStorageRequest) Reset() {
+	*x = SetWorkStorageRequest{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetWorkStorageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetWorkStorageRequest) ProtoMessage() {}
+
+func (x *SetWorkStorageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetWorkStorageRequest.ProtoReflect.Descriptor instead.
+func (*SetWorkStorageRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *SetWorkStorageRequest) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *SetWorkStorageRequest) GetAction() Action {
+	if x != nil {
+		return x.Action
+	}
+	return Action_ACTION_UNSPECIFIED
+}
+
+func (x *SetWorkStorageRequest) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *SetWorkStorageRequest) GetText() *LegalTextRef {
+	if x != nil {
+		return x.Text
+	}
+	return nil
+}
+
+// The profile with its storage of works.
+type SetWorkStorageResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile.
+	Profile       *Profile `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetWorkStorageResponse) Reset() {
+	*x = SetWorkStorageResponse{}
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetWorkStorageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetWorkStorageResponse) ProtoMessage() {}
+
+func (x *SetWorkStorageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetWorkStorageResponse.ProtoReflect.Descriptor instead.
+func (*SetWorkStorageResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *SetWorkStorageResponse) GetProfile() *Profile {
 	if x != nil {
 		return x.Profile
 	}
@@ -1949,7 +2911,7 @@ type DeleteProfileRequest struct {
 
 func (x *DeleteProfileRequest) Reset() {
 	*x = DeleteProfileRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[29]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1961,7 +2923,7 @@ func (x *DeleteProfileRequest) String() string {
 func (*DeleteProfileRequest) ProtoMessage() {}
 
 func (x *DeleteProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[29]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1974,7 +2936,7 @@ func (x *DeleteProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProfileRequest.ProtoReflect.Descriptor instead.
 func (*DeleteProfileRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{29}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *DeleteProfileRequest) GetProfileId() string {
@@ -1993,7 +2955,7 @@ type DeleteProfileResponse struct {
 
 func (x *DeleteProfileResponse) Reset() {
 	*x = DeleteProfileResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[30]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2005,7 +2967,7 @@ func (x *DeleteProfileResponse) String() string {
 func (*DeleteProfileResponse) ProtoMessage() {}
 
 func (x *DeleteProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[30]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2018,7 +2980,7 @@ func (x *DeleteProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProfileResponse.ProtoReflect.Descriptor instead.
 func (*DeleteProfileResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{30}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{43}
 }
 
 // The deletion of the account: the account is the token's.
@@ -2030,7 +2992,7 @@ type DeleteAccountRequest struct {
 
 func (x *DeleteAccountRequest) Reset() {
 	*x = DeleteAccountRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[31]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2042,7 +3004,7 @@ func (x *DeleteAccountRequest) String() string {
 func (*DeleteAccountRequest) ProtoMessage() {}
 
 func (x *DeleteAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[31]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2055,7 +3017,7 @@ func (x *DeleteAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAccountRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAccountRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{31}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{44}
 }
 
 // "Deleted": the account is gone, and what its deletion has still to do `api` finishes itself.
@@ -2067,7 +3029,7 @@ type DeleteAccountResponse struct {
 
 func (x *DeleteAccountResponse) Reset() {
 	*x = DeleteAccountResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[32]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2079,7 +3041,7 @@ func (x *DeleteAccountResponse) String() string {
 func (*DeleteAccountResponse) ProtoMessage() {}
 
 func (x *DeleteAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[32]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2092,21 +3054,25 @@ func (x *DeleteAccountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAccountResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAccountResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{32}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{45}
 }
 
 // A request for a profile's part of the export.
 type ExportProfileRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The profile.
-	ProfileId     string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	// Whose action it is: `ACTION_ADULT`, or `ACTION_LEARNING` at a profile whose learner gave their
+	// own consent. `ACTION_UNSPECIFIED` is read as `ACTION_ADULT`: a request of a build before the
+	// field was there names none.
+	Action        Action `protobuf:"varint,2,opt,name=action,proto3,enum=novatrail.api.v1.Action" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ExportProfileRequest) Reset() {
 	*x = ExportProfileRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[33]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2118,7 +3084,7 @@ func (x *ExportProfileRequest) String() string {
 func (*ExportProfileRequest) ProtoMessage() {}
 
 func (x *ExportProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[33]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2131,7 +3097,7 @@ func (x *ExportProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExportProfileRequest.ProtoReflect.Descriptor instead.
 func (*ExportProfileRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{33}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ExportProfileRequest) GetProfileId() string {
@@ -2141,13 +3107,21 @@ func (x *ExportProfileRequest) GetProfileId() string {
 	return ""
 }
 
+func (x *ExportProfileRequest) GetAction() Action {
+	if x != nil {
+		return x.Action
+	}
+	return Action_ACTION_UNSPECIFIED
+}
+
 // The part of a profile's export that `api` holds.
 type ExportProfileResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The part, in the export format, which `app` puts into the file of the export as it is, without
-	// reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+	// The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+	// the file of the export as it is, without reading it.
 	Part []byte `protobuf:"bytes,1,opt,name=part,proto3" json:"part,omitempty"`
-	// The version of the export format the part is written in.
+	// The version of the export format the part is written in: the integer of `export/VERSION`, in
+	// decimal, such as "1".
 	ExportFormatVersion string `protobuf:"bytes,2,opt,name=export_format_version,json=exportFormatVersion,proto3" json:"export_format_version,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -2155,7 +3129,7 @@ type ExportProfileResponse struct {
 
 func (x *ExportProfileResponse) Reset() {
 	*x = ExportProfileResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[34]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2167,7 +3141,7 @@ func (x *ExportProfileResponse) String() string {
 func (*ExportProfileResponse) ProtoMessage() {}
 
 func (x *ExportProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[34]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2180,7 +3154,7 @@ func (x *ExportProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExportProfileResponse.ProtoReflect.Descriptor instead.
 func (*ExportProfileResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{34}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ExportProfileResponse) GetPart() []byte {
@@ -2206,7 +3180,7 @@ type ExportAccountRequest struct {
 
 func (x *ExportAccountRequest) Reset() {
 	*x = ExportAccountRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[35]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2218,7 +3192,7 @@ func (x *ExportAccountRequest) String() string {
 func (*ExportAccountRequest) ProtoMessage() {}
 
 func (x *ExportAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[35]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2231,16 +3205,17 @@ func (x *ExportAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExportAccountRequest.ProtoReflect.Descriptor instead.
 func (*ExportAccountRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{35}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{48}
 }
 
 // The part of the account's export that `api` holds.
 type ExportAccountResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The part, in the export format, which `app` puts into the file of the export as it is, without
-	// reading it. The format is open and `spec`'s, epic E4 of RUN.md (R09).
+	// The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+	// the file of the export as it is, without reading it.
 	Part []byte `protobuf:"bytes,1,opt,name=part,proto3" json:"part,omitempty"`
-	// The version of the export format the part is written in.
+	// The version of the export format the part is written in: the integer of `export/VERSION`, in
+	// decimal, such as "1".
 	ExportFormatVersion string `protobuf:"bytes,2,opt,name=export_format_version,json=exportFormatVersion,proto3" json:"export_format_version,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -2248,7 +3223,7 @@ type ExportAccountResponse struct {
 
 func (x *ExportAccountResponse) Reset() {
 	*x = ExportAccountResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[36]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2260,7 +3235,7 @@ func (x *ExportAccountResponse) String() string {
 func (*ExportAccountResponse) ProtoMessage() {}
 
 func (x *ExportAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[36]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2273,7 +3248,7 @@ func (x *ExportAccountResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExportAccountResponse.ProtoReflect.Descriptor instead.
 func (*ExportAccountResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{36}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *ExportAccountResponse) GetPart() []byte {
@@ -2303,7 +3278,7 @@ type CheckOwnKeyRequest struct {
 
 func (x *CheckOwnKeyRequest) Reset() {
 	*x = CheckOwnKeyRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[37]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2315,7 +3290,7 @@ func (x *CheckOwnKeyRequest) String() string {
 func (*CheckOwnKeyRequest) ProtoMessage() {}
 
 func (x *CheckOwnKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[37]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2328,7 +3303,7 @@ func (x *CheckOwnKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckOwnKeyRequest.ProtoReflect.Descriptor instead.
 func (*CheckOwnKeyRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{37}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *CheckOwnKeyRequest) GetProfileId() string {
@@ -2359,7 +3334,7 @@ type CheckOwnKeyResponse struct {
 
 func (x *CheckOwnKeyResponse) Reset() {
 	*x = CheckOwnKeyResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[38]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2371,7 +3346,7 @@ func (x *CheckOwnKeyResponse) String() string {
 func (*CheckOwnKeyResponse) ProtoMessage() {}
 
 func (x *CheckOwnKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[38]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2384,7 +3359,7 @@ func (x *CheckOwnKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckOwnKeyResponse.ProtoReflect.Descriptor instead.
 func (*CheckOwnKeyResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{38}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *CheckOwnKeyResponse) GetCheck() OwnKeyCheck {
@@ -2412,7 +3387,7 @@ type ListOwnKeyProvidersRequest struct {
 
 func (x *ListOwnKeyProvidersRequest) Reset() {
 	*x = ListOwnKeyProvidersRequest{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[39]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2424,7 +3399,7 @@ func (x *ListOwnKeyProvidersRequest) String() string {
 func (*ListOwnKeyProvidersRequest) ProtoMessage() {}
 
 func (x *ListOwnKeyProvidersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[39]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2437,7 +3412,7 @@ func (x *ListOwnKeyProvidersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOwnKeyProvidersRequest.ProtoReflect.Descriptor instead.
 func (*ListOwnKeyProvidersRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{39}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *ListOwnKeyProvidersRequest) GetProfileId() string {
@@ -2458,7 +3433,7 @@ type ListOwnKeyProvidersResponse struct {
 
 func (x *ListOwnKeyProvidersResponse) Reset() {
 	*x = ListOwnKeyProvidersResponse{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[40]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2470,7 +3445,7 @@ func (x *ListOwnKeyProvidersResponse) String() string {
 func (*ListOwnKeyProvidersResponse) ProtoMessage() {}
 
 func (x *ListOwnKeyProvidersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[40]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2483,7 +3458,7 @@ func (x *ListOwnKeyProvidersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOwnKeyProvidersResponse.ProtoReflect.Descriptor instead.
 func (*ListOwnKeyProvidersResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{40}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ListOwnKeyProvidersResponse) GetProviders() []*OwnKeyProvider {
@@ -2506,7 +3481,7 @@ type OwnKeyProvider struct {
 
 func (x *OwnKeyProvider) Reset() {
 	*x = OwnKeyProvider{}
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[41]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2518,7 +3493,7 @@ func (x *OwnKeyProvider) String() string {
 func (*OwnKeyProvider) ProtoMessage() {}
 
 func (x *OwnKeyProvider) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_account_proto_msgTypes[41]
+	mi := &file_novatrail_api_v1_account_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2531,7 +3506,7 @@ func (x *OwnKeyProvider) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OwnKeyProvider.ProtoReflect.Descriptor instead.
 func (*OwnKeyProvider) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{41}
+	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *OwnKeyProvider) GetProvider() string {
@@ -2552,14 +3527,15 @@ var File_novatrail_api_v1_account_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\n" +
-	"\x1enovatrail/api/v1/account.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a\x1fnovatrail/api/v1/learning.proto\"\x13\n" +
+	"\x1enovatrail/api/v1/account.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a\x1fnovatrail/api/v1/learning.proto\x1a\x1cnovatrail/api/v1/legal.proto\"\x13\n" +
 	"\x11GetAccountRequest\"I\n" +
 	"\x12GetAccountResponse\x123\n" +
-	"\aaccount\x18\x01 \x01(\v2\x19.novatrail.api.v1.AccountR\aaccount\"Z\n" +
+	"\aaccount\x18\x01 \x01(\v2\x19.novatrail.api.v1.AccountR\aaccount\"\xa1\x01\n" +
 	"\x14CreateAccountRequest\x12\x1f\n" +
 	"\vinvite_code\x18\x01 \x01(\tR\n" +
 	"inviteCode\x12!\n" +
-	"\fadult_stated\x18\x02 \x01(\bR\vadultStated\"L\n" +
+	"\fadult_stated\x18\x02 \x01(\bR\vadultStated\x12E\n" +
+	"\x0eaccepted_texts\x18\x03 \x03(\v2\x1e.novatrail.api.v1.LegalTextRefR\racceptedTexts\"L\n" +
 	"\x15CreateAccountResponse\x123\n" +
 	"\aaccount\x18\x01 \x01(\v2\x19.novatrail.api.v1.AccountR\aaccount\"\xbf\x01\n" +
 	"\aAccount\x12\x1d\n" +
@@ -2567,7 +3543,7 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12\x17\n" +
 	"\apin_set\x18\x02 \x01(\bR\x06pinSet\x125\n" +
 	"\bprofiles\x18\x03 \x03(\v2\x19.novatrail.api.v1.ProfileR\bprofiles\x12E\n" +
-	"\x0echild_consents\x18\x04 \x03(\v2\x1e.novatrail.api.v1.ChildConsentR\rchildConsents\"\xed\x04\n" +
+	"\x0echild_consents\x18\x04 \x03(\v2\x1e.novatrail.api.v1.ChildConsentR\rchildConsents\"\xf0\x05\n" +
 	"\aProfile\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x14\n" +
@@ -2583,9 +3559,16 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	" \x01(\x05H\x01R\x05grade\x88\x01\x01\x12,\n" +
 	"\x12ask_before_showing\x18\v \x01(\bR\x10askBeforeShowing\x12C\n" +
 	"\fopen_attempt\x18\f \x01(\v2 .novatrail.api.v1.OpenAttemptRefR\vopenAttempt\x12H\n" +
-	"\x10open_lesson_runs\x18\r \x03(\v2\x1e.novatrail.api.v1.LessonRunRefR\x0eopenLessonRunsB\x15\n" +
+	"\x10open_lesson_runs\x18\r \x03(\v2\x1e.novatrail.api.v1.LessonRunRefR\x0eopenLessonRuns\x12:\n" +
+	"\aconsent\x18\x0e \x01(\v2 .novatrail.api.v1.ProfileConsentR\aconsent\x12\"\n" +
+	"\rage_check_due\x18\x0f \x01(\bR\vageCheckDue\x12!\n" +
+	"\fwork_storage\x18\x10 \x01(\bR\vworkStorageB\x15\n" +
 	"\x13_interface_languageB\b\n" +
-	"\x06_grade\"H\n" +
+	"\x06_grade\"\xb3\x01\n" +
+	"\x0eProfileConsent\x124\n" +
+	"\x05giver\x18\x01 \x01(\x0e2\x1e.novatrail.api.v1.ConsentGiverR\x05giver\x121\n" +
+	"\x04need\x18\x02 \x01(\x0e2\x1d.novatrail.api.v1.ConsentNeedR\x04need\x128\n" +
+	"\awaiting\x18\x03 \x01(\v2\x1e.novatrail.api.v1.ChildConsentR\awaiting\"H\n" +
 	"\x11PresentationStyle\x123\n" +
 	"\avoicing\x18\x01 \x01(\v2\x19.novatrail.api.v1.VoicingR\avoicing\"j\n" +
 	"\aVoicing\x12\x1d\n" +
@@ -2606,13 +3589,16 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\a_avatarB\x15\n" +
 	"\x13_interface_languageB\b\n" +
 	"\x06_gradeB\x15\n" +
-	"\x13_ask_before_showing\"\xa0\x01\n" +
+	"\x13_ask_before_showing\"\xaa\x02\n" +
 	"\fChildConsent\x12\x1d\n" +
 	"\n" +
 	"consent_id\x18\x01 \x01(\tR\tconsentId\x12!\n" +
 	"\fage_category\x18\x02 \x01(\tR\vageCategory\x12\x18\n" +
 	"\acountry\x18\x03 \x01(\tR\acountry\x124\n" +
-	"\x05state\x18\x04 \x01(\x0e2\x1e.novatrail.api.v1.ConsentStateR\x05state\"J\n" +
+	"\x05state\x18\x04 \x01(\x0e2\x1e.novatrail.api.v1.ConsentStateR\x05state\x124\n" +
+	"\x05giver\x18\x05 \x01(\x0e2\x1e.novatrail.api.v1.ConsentGiverR\x05giver\x12!\n" +
+	"\frequest_code\x18\x06 \x01(\tR\vrequestCode\x12/\n" +
+	"\x04form\x18\a \x01(\x0e2\x1b.novatrail.api.v1.FormStateR\x04form\"J\n" +
 	"\rSetPinRequest\x12\x10\n" +
 	"\x03pin\x18\x01 \x01(\tR\x03pin\x12'\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\"\x10\n" +
@@ -2640,20 +3626,55 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\acountry\x18\x01 \x01(\tR\acountry\x12=\n" +
 	"\bsettings\x18\x02 \x01(\v2!.novatrail.api.v1.ProfileSettingsR\bsettings\"Q\n" +
 	"\x1aCreateOwnerProfileResponse\x123\n" +
-	"\aprofile\x18\x01 \x01(\v2\x19.novatrail.api.v1.ProfileR\aprofile\"\x8f\x01\n" +
+	"\aprofile\x18\x01 \x01(\v2\x19.novatrail.api.v1.ProfileR\aprofile\"\xdf\x01\n" +
 	"\x1aRequestChildConsentRequest\x12'\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0eidempotencyKey\x12 \n" +
 	"\tage_years\x18\x02 \x01(\x05H\x00R\bageYears\x88\x01\x01\x12\x18\n" +
-	"\acountry\x18\x03 \x01(\tR\acountryB\f\n" +
+	"\acountry\x18\x03 \x01(\tR\acountry\x12N\n" +
+	"\x13parent_consent_text\x18\x04 \x01(\v2\x1e.novatrail.api.v1.LegalTextRefR\x11parentConsentTextB\f\n" +
 	"\n" +
 	"_age_years\"W\n" +
 	"\x1bRequestChildConsentResponse\x128\n" +
-	"\aconsent\x18\x01 \x01(\v2\x1e.novatrail.api.v1.ChildConsentR\aconsent\"y\n" +
+	"\aconsent\x18\x01 \x01(\v2\x1e.novatrail.api.v1.ChildConsentR\aconsent\"\x93\x01\n" +
+	"\x16SendConsentFormRequest\x12\x1d\n" +
+	"\n" +
+	"consent_id\x18\x01 \x01(\tR\tconsentId\x12'\n" +
+	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\x12\x12\n" +
+	"\x04form\x18\x03 \x01(\fR\x04form\x12\x1d\n" +
+	"\n" +
+	"media_type\x18\x04 \x01(\tR\tmediaType\"S\n" +
+	"\x17SendConsentFormResponse\x128\n" +
+	"\aconsent\x18\x01 \x01(\v2\x1e.novatrail.api.v1.ChildConsentR\aconsent\":\n" +
+	"\x19CancelChildConsentRequest\x12\x1d\n" +
+	"\n" +
+	"consent_id\x18\x01 \x01(\tR\tconsentId\"\x1c\n" +
+	"\x1aCancelChildConsentResponse\"y\n" +
 	"\x19CreateChildProfileRequest\x12\x1d\n" +
 	"\n" +
 	"consent_id\x18\x01 \x01(\tR\tconsentId\x12=\n" +
 	"\bsettings\x18\x02 \x01(\v2!.novatrail.api.v1.ProfileSettingsR\bsettings\"Q\n" +
 	"\x1aCreateChildProfileResponse\x123\n" +
+	"\aprofile\x18\x01 \x01(\v2\x19.novatrail.api.v1.ProfileR\aprofile\"j\n" +
+	"\x15GiveOwnConsentRequest\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x122\n" +
+	"\x04text\x18\x02 \x01(\v2\x1e.novatrail.api.v1.LegalTextRefR\x04text\"M\n" +
+	"\x16GiveOwnConsentResponse\x123\n" +
+	"\aprofile\x18\x01 \x01(\v2\x19.novatrail.api.v1.ProfileR\aprofile\":\n" +
+	"\x19WithdrawOwnConsentRequest\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\"\x1c\n" +
+	"\x1aWithdrawOwnConsentResponse\"\xf5\x01\n" +
+	"\x11RestateAgeRequest\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x12'\n" +
+	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\x12 \n" +
+	"\tage_years\x18\x03 \x01(\x05H\x00R\bageYears\x88\x01\x01\x12\x18\n" +
+	"\acountry\x18\x04 \x01(\tR\acountry\x12N\n" +
+	"\x13parent_consent_text\x18\x05 \x01(\v2\x1e.novatrail.api.v1.LegalTextRefR\x11parentConsentTextB\f\n" +
+	"\n" +
+	"_age_years\"I\n" +
+	"\x12RestateAgeResponse\x123\n" +
 	"\aprofile\x18\x01 \x01(\v2\x19.novatrail.api.v1.ProfileR\aprofile\"t\n" +
 	"\x14UpdateProfileRequest\x12\x1d\n" +
 	"\n" +
@@ -2666,16 +3687,25 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x123\n" +
 	"\avoicing\x18\x02 \x01(\v2\x19.novatrail.api.v1.VoicingR\avoicing\"I\n" +
 	"\x12SetVoicingResponse\x123\n" +
+	"\aprofile\x18\x01 \x01(\v2\x19.novatrail.api.v1.ProfileR\aprofile\"\xb6\x01\n" +
+	"\x15SetWorkStorageRequest\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x120\n" +
+	"\x06action\x18\x02 \x01(\x0e2\x18.novatrail.api.v1.ActionR\x06action\x12\x18\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\x122\n" +
+	"\x04text\x18\x04 \x01(\v2\x1e.novatrail.api.v1.LegalTextRefR\x04text\"M\n" +
+	"\x16SetWorkStorageResponse\x123\n" +
 	"\aprofile\x18\x01 \x01(\v2\x19.novatrail.api.v1.ProfileR\aprofile\"5\n" +
 	"\x14DeleteProfileRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\"\x17\n" +
 	"\x15DeleteProfileResponse\"\x16\n" +
 	"\x14DeleteAccountRequest\"\x17\n" +
-	"\x15DeleteAccountResponse\"5\n" +
+	"\x15DeleteAccountResponse\"g\n" +
 	"\x14ExportProfileRequest\x12\x1d\n" +
 	"\n" +
-	"profile_id\x18\x01 \x01(\tR\tprofileId\"_\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x120\n" +
+	"\x06action\x18\x02 \x01(\x0e2\x18.novatrail.api.v1.ActionR\x06action\"_\n" +
 	"\x15ExportProfileResponse\x12\x12\n" +
 	"\x04part\x18\x01 \x01(\fR\x04part\x122\n" +
 	"\x15export_format_version\x18\x02 \x01(\tR\x13exportFormatVersion\"\x16\n" +
@@ -2697,7 +3727,18 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\tproviders\x18\x01 \x03(\v2 .novatrail.api.v1.OwnKeyProviderR\tproviders\"@\n" +
 	"\x0eOwnKeyProvider\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name*_\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name*{\n" +
+	"\fConsentGiver\x12\x1d\n" +
+	"\x19CONSENT_GIVER_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13CONSENT_GIVER_OWNER\x10\x01\x12\x18\n" +
+	"\x14CONSENT_GIVER_PARENT\x10\x02\x12\x19\n" +
+	"\x15CONSENT_GIVER_LEARNER\x10\x03*\x87\x01\n" +
+	"\vConsentNeed\x12\x1c\n" +
+	"\x18CONSENT_NEED_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11CONSENT_NEED_NONE\x10\x01\x12\x14\n" +
+	"\x10CONSENT_NEED_OWN\x10\x02\x12\x17\n" +
+	"\x13CONSENT_NEED_PARENT\x10\x03\x12\x14\n" +
+	"\x10CONSENT_NEED_AGE\x10\x04*_\n" +
 	"\fVoicingSpeed\x12\x1d\n" +
 	"\x19VOICING_SPEED_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14VOICING_SPEED_NORMAL\x10\x01\x12\x16\n" +
@@ -2705,7 +3746,12 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\x04Mode\x12\x14\n" +
 	"\x10MODE_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rMODE_BY_STEPS\x10\x01\x12\r\n" +
-	"\tMODE_SELF\x10\x02*e\n" +
+	"\tMODE_SELF\x10\x02*r\n" +
+	"\tFormState\x12\x1a\n" +
+	"\x16FORM_STATE_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13FORM_STATE_NOT_SENT\x10\x01\x12\x13\n" +
+	"\x0fFORM_STATE_SENT\x10\x02\x12\x1b\n" +
+	"\x17FORM_STATE_NOT_ACCEPTED\x10\x03*e\n" +
 	"\fConsentState\x12\x1d\n" +
 	"\x19CONSENT_STATE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15CONSENT_STATE_WAITING\x10\x01\x12\x1b\n" +
@@ -2715,7 +3761,7 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\x16OWN_KEY_CHECK_ACCEPTED\x10\x01\x12\x19\n" +
 	"\x15OWN_KEY_CHECK_INVALID\x10\x02\x12\x1f\n" +
 	"\x1bOWN_KEY_CHECK_NO_PERMISSION\x10\x03\x12!\n" +
-	"\x1dOWN_KEY_CHECK_PROVIDER_CLOSED\x10\x042\x80\r\n" +
+	"\x1dOWN_KEY_CHECK_PROVIDER_CLOSED\x10\x042\xed\x11\n" +
 	"\x0eAccountService\x12W\n" +
 	"\n" +
 	"GetAccount\x12#.novatrail.api.v1.GetAccountRequest\x1a$.novatrail.api.v1.GetAccountResponse\x12`\n" +
@@ -2725,11 +3771,18 @@ const file_novatrail_api_v1_account_proto_rawDesc = "" +
 	"\tChangePin\x12\".novatrail.api.v1.ChangePinRequest\x1a#.novatrail.api.v1.ChangePinResponse\x12Q\n" +
 	"\bResetPin\x12!.novatrail.api.v1.ResetPinRequest\x1a\".novatrail.api.v1.ResetPinResponse\x12o\n" +
 	"\x12CreateOwnerProfile\x12+.novatrail.api.v1.CreateOwnerProfileRequest\x1a,.novatrail.api.v1.CreateOwnerProfileResponse\x12r\n" +
-	"\x13RequestChildConsent\x12,.novatrail.api.v1.RequestChildConsentRequest\x1a-.novatrail.api.v1.RequestChildConsentResponse\x12o\n" +
-	"\x12CreateChildProfile\x12+.novatrail.api.v1.CreateChildProfileRequest\x1a,.novatrail.api.v1.CreateChildProfileResponse\x12`\n" +
+	"\x13RequestChildConsent\x12,.novatrail.api.v1.RequestChildConsentRequest\x1a-.novatrail.api.v1.RequestChildConsentResponse\x12f\n" +
+	"\x0fSendConsentForm\x12(.novatrail.api.v1.SendConsentFormRequest\x1a).novatrail.api.v1.SendConsentFormResponse\x12o\n" +
+	"\x12CancelChildConsent\x12+.novatrail.api.v1.CancelChildConsentRequest\x1a,.novatrail.api.v1.CancelChildConsentResponse\x12o\n" +
+	"\x12CreateChildProfile\x12+.novatrail.api.v1.CreateChildProfileRequest\x1a,.novatrail.api.v1.CreateChildProfileResponse\x12c\n" +
+	"\x0eGiveOwnConsent\x12'.novatrail.api.v1.GiveOwnConsentRequest\x1a(.novatrail.api.v1.GiveOwnConsentResponse\x12o\n" +
+	"\x12WithdrawOwnConsent\x12+.novatrail.api.v1.WithdrawOwnConsentRequest\x1a,.novatrail.api.v1.WithdrawOwnConsentResponse\x12W\n" +
+	"\n" +
+	"RestateAge\x12#.novatrail.api.v1.RestateAgeRequest\x1a$.novatrail.api.v1.RestateAgeResponse\x12`\n" +
 	"\rUpdateProfile\x12&.novatrail.api.v1.UpdateProfileRequest\x1a'.novatrail.api.v1.UpdateProfileResponse\x12W\n" +
 	"\n" +
-	"SetVoicing\x12#.novatrail.api.v1.SetVoicingRequest\x1a$.novatrail.api.v1.SetVoicingResponse\x12`\n" +
+	"SetVoicing\x12#.novatrail.api.v1.SetVoicingRequest\x1a$.novatrail.api.v1.SetVoicingResponse\x12c\n" +
+	"\x0eSetWorkStorage\x12'.novatrail.api.v1.SetWorkStorageRequest\x1a(.novatrail.api.v1.SetWorkStorageResponse\x12`\n" +
 	"\rDeleteProfile\x12&.novatrail.api.v1.DeleteProfileRequest\x1a'.novatrail.api.v1.DeleteProfileResponse\x12`\n" +
 	"\rDeleteAccount\x12&.novatrail.api.v1.DeleteAccountRequest\x1a'.novatrail.api.v1.DeleteAccountResponse\x12`\n" +
 	"\rExportProfile\x12&.novatrail.api.v1.ExportProfileRequest\x1a'.novatrail.api.v1.ExportProfileResponse\x12`\n" +
@@ -2750,130 +3803,177 @@ func file_novatrail_api_v1_account_proto_rawDescGZIP() []byte {
 	return file_novatrail_api_v1_account_proto_rawDescData
 }
 
-var file_novatrail_api_v1_account_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_novatrail_api_v1_account_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
+var file_novatrail_api_v1_account_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_novatrail_api_v1_account_proto_msgTypes = make([]protoimpl.MessageInfo, 55)
 var file_novatrail_api_v1_account_proto_goTypes = []any{
-	(VoicingSpeed)(0),                   // 0: novatrail.api.v1.VoicingSpeed
-	(Mode)(0),                           // 1: novatrail.api.v1.Mode
-	(ConsentState)(0),                   // 2: novatrail.api.v1.ConsentState
-	(OwnKeyCheck)(0),                    // 3: novatrail.api.v1.OwnKeyCheck
-	(*GetAccountRequest)(nil),           // 4: novatrail.api.v1.GetAccountRequest
-	(*GetAccountResponse)(nil),          // 5: novatrail.api.v1.GetAccountResponse
-	(*CreateAccountRequest)(nil),        // 6: novatrail.api.v1.CreateAccountRequest
-	(*CreateAccountResponse)(nil),       // 7: novatrail.api.v1.CreateAccountResponse
-	(*Account)(nil),                     // 8: novatrail.api.v1.Account
-	(*Profile)(nil),                     // 9: novatrail.api.v1.Profile
-	(*PresentationStyle)(nil),           // 10: novatrail.api.v1.PresentationStyle
-	(*Voicing)(nil),                     // 11: novatrail.api.v1.Voicing
-	(*ProfileSettings)(nil),             // 12: novatrail.api.v1.ProfileSettings
-	(*ChildConsent)(nil),                // 13: novatrail.api.v1.ChildConsent
-	(*SetPinRequest)(nil),               // 14: novatrail.api.v1.SetPinRequest
-	(*SetPinResponse)(nil),              // 15: novatrail.api.v1.SetPinResponse
-	(*VerifyPinRequest)(nil),            // 16: novatrail.api.v1.VerifyPinRequest
-	(*VerifyPinResponse)(nil),           // 17: novatrail.api.v1.VerifyPinResponse
-	(*ChangePinRequest)(nil),            // 18: novatrail.api.v1.ChangePinRequest
-	(*ChangePinResponse)(nil),           // 19: novatrail.api.v1.ChangePinResponse
-	(*PinCheck)(nil),                    // 20: novatrail.api.v1.PinCheck
-	(*ResetPinRequest)(nil),             // 21: novatrail.api.v1.ResetPinRequest
-	(*ResetPinResponse)(nil),            // 22: novatrail.api.v1.ResetPinResponse
-	(*CreateOwnerProfileRequest)(nil),   // 23: novatrail.api.v1.CreateOwnerProfileRequest
-	(*CreateOwnerProfileResponse)(nil),  // 24: novatrail.api.v1.CreateOwnerProfileResponse
-	(*RequestChildConsentRequest)(nil),  // 25: novatrail.api.v1.RequestChildConsentRequest
-	(*RequestChildConsentResponse)(nil), // 26: novatrail.api.v1.RequestChildConsentResponse
-	(*CreateChildProfileRequest)(nil),   // 27: novatrail.api.v1.CreateChildProfileRequest
-	(*CreateChildProfileResponse)(nil),  // 28: novatrail.api.v1.CreateChildProfileResponse
-	(*UpdateProfileRequest)(nil),        // 29: novatrail.api.v1.UpdateProfileRequest
-	(*UpdateProfileResponse)(nil),       // 30: novatrail.api.v1.UpdateProfileResponse
-	(*SetVoicingRequest)(nil),           // 31: novatrail.api.v1.SetVoicingRequest
-	(*SetVoicingResponse)(nil),          // 32: novatrail.api.v1.SetVoicingResponse
-	(*DeleteProfileRequest)(nil),        // 33: novatrail.api.v1.DeleteProfileRequest
-	(*DeleteProfileResponse)(nil),       // 34: novatrail.api.v1.DeleteProfileResponse
-	(*DeleteAccountRequest)(nil),        // 35: novatrail.api.v1.DeleteAccountRequest
-	(*DeleteAccountResponse)(nil),       // 36: novatrail.api.v1.DeleteAccountResponse
-	(*ExportProfileRequest)(nil),        // 37: novatrail.api.v1.ExportProfileRequest
-	(*ExportProfileResponse)(nil),       // 38: novatrail.api.v1.ExportProfileResponse
-	(*ExportAccountRequest)(nil),        // 39: novatrail.api.v1.ExportAccountRequest
-	(*ExportAccountResponse)(nil),       // 40: novatrail.api.v1.ExportAccountResponse
-	(*CheckOwnKeyRequest)(nil),          // 41: novatrail.api.v1.CheckOwnKeyRequest
-	(*CheckOwnKeyResponse)(nil),         // 42: novatrail.api.v1.CheckOwnKeyResponse
-	(*ListOwnKeyProvidersRequest)(nil),  // 43: novatrail.api.v1.ListOwnKeyProvidersRequest
-	(*ListOwnKeyProvidersResponse)(nil), // 44: novatrail.api.v1.ListOwnKeyProvidersResponse
-	(*OwnKeyProvider)(nil),              // 45: novatrail.api.v1.OwnKeyProvider
-	(*OpenAttemptRef)(nil),              // 46: novatrail.api.v1.OpenAttemptRef
-	(*LessonRunRef)(nil),                // 47: novatrail.api.v1.LessonRunRef
-	(*timestamppb.Timestamp)(nil),       // 48: google.protobuf.Timestamp
-	(*OwnKey)(nil),                      // 49: novatrail.api.v1.OwnKey
-	(*Outcome)(nil),                     // 50: novatrail.api.v1.Outcome
+	(ConsentGiver)(0),                   // 0: novatrail.api.v1.ConsentGiver
+	(ConsentNeed)(0),                    // 1: novatrail.api.v1.ConsentNeed
+	(VoicingSpeed)(0),                   // 2: novatrail.api.v1.VoicingSpeed
+	(Mode)(0),                           // 3: novatrail.api.v1.Mode
+	(FormState)(0),                      // 4: novatrail.api.v1.FormState
+	(ConsentState)(0),                   // 5: novatrail.api.v1.ConsentState
+	(OwnKeyCheck)(0),                    // 6: novatrail.api.v1.OwnKeyCheck
+	(*GetAccountRequest)(nil),           // 7: novatrail.api.v1.GetAccountRequest
+	(*GetAccountResponse)(nil),          // 8: novatrail.api.v1.GetAccountResponse
+	(*CreateAccountRequest)(nil),        // 9: novatrail.api.v1.CreateAccountRequest
+	(*CreateAccountResponse)(nil),       // 10: novatrail.api.v1.CreateAccountResponse
+	(*Account)(nil),                     // 11: novatrail.api.v1.Account
+	(*Profile)(nil),                     // 12: novatrail.api.v1.Profile
+	(*ProfileConsent)(nil),              // 13: novatrail.api.v1.ProfileConsent
+	(*PresentationStyle)(nil),           // 14: novatrail.api.v1.PresentationStyle
+	(*Voicing)(nil),                     // 15: novatrail.api.v1.Voicing
+	(*ProfileSettings)(nil),             // 16: novatrail.api.v1.ProfileSettings
+	(*ChildConsent)(nil),                // 17: novatrail.api.v1.ChildConsent
+	(*SetPinRequest)(nil),               // 18: novatrail.api.v1.SetPinRequest
+	(*SetPinResponse)(nil),              // 19: novatrail.api.v1.SetPinResponse
+	(*VerifyPinRequest)(nil),            // 20: novatrail.api.v1.VerifyPinRequest
+	(*VerifyPinResponse)(nil),           // 21: novatrail.api.v1.VerifyPinResponse
+	(*ChangePinRequest)(nil),            // 22: novatrail.api.v1.ChangePinRequest
+	(*ChangePinResponse)(nil),           // 23: novatrail.api.v1.ChangePinResponse
+	(*PinCheck)(nil),                    // 24: novatrail.api.v1.PinCheck
+	(*ResetPinRequest)(nil),             // 25: novatrail.api.v1.ResetPinRequest
+	(*ResetPinResponse)(nil),            // 26: novatrail.api.v1.ResetPinResponse
+	(*CreateOwnerProfileRequest)(nil),   // 27: novatrail.api.v1.CreateOwnerProfileRequest
+	(*CreateOwnerProfileResponse)(nil),  // 28: novatrail.api.v1.CreateOwnerProfileResponse
+	(*RequestChildConsentRequest)(nil),  // 29: novatrail.api.v1.RequestChildConsentRequest
+	(*RequestChildConsentResponse)(nil), // 30: novatrail.api.v1.RequestChildConsentResponse
+	(*SendConsentFormRequest)(nil),      // 31: novatrail.api.v1.SendConsentFormRequest
+	(*SendConsentFormResponse)(nil),     // 32: novatrail.api.v1.SendConsentFormResponse
+	(*CancelChildConsentRequest)(nil),   // 33: novatrail.api.v1.CancelChildConsentRequest
+	(*CancelChildConsentResponse)(nil),  // 34: novatrail.api.v1.CancelChildConsentResponse
+	(*CreateChildProfileRequest)(nil),   // 35: novatrail.api.v1.CreateChildProfileRequest
+	(*CreateChildProfileResponse)(nil),  // 36: novatrail.api.v1.CreateChildProfileResponse
+	(*GiveOwnConsentRequest)(nil),       // 37: novatrail.api.v1.GiveOwnConsentRequest
+	(*GiveOwnConsentResponse)(nil),      // 38: novatrail.api.v1.GiveOwnConsentResponse
+	(*WithdrawOwnConsentRequest)(nil),   // 39: novatrail.api.v1.WithdrawOwnConsentRequest
+	(*WithdrawOwnConsentResponse)(nil),  // 40: novatrail.api.v1.WithdrawOwnConsentResponse
+	(*RestateAgeRequest)(nil),           // 41: novatrail.api.v1.RestateAgeRequest
+	(*RestateAgeResponse)(nil),          // 42: novatrail.api.v1.RestateAgeResponse
+	(*UpdateProfileRequest)(nil),        // 43: novatrail.api.v1.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),       // 44: novatrail.api.v1.UpdateProfileResponse
+	(*SetVoicingRequest)(nil),           // 45: novatrail.api.v1.SetVoicingRequest
+	(*SetVoicingResponse)(nil),          // 46: novatrail.api.v1.SetVoicingResponse
+	(*SetWorkStorageRequest)(nil),       // 47: novatrail.api.v1.SetWorkStorageRequest
+	(*SetWorkStorageResponse)(nil),      // 48: novatrail.api.v1.SetWorkStorageResponse
+	(*DeleteProfileRequest)(nil),        // 49: novatrail.api.v1.DeleteProfileRequest
+	(*DeleteProfileResponse)(nil),       // 50: novatrail.api.v1.DeleteProfileResponse
+	(*DeleteAccountRequest)(nil),        // 51: novatrail.api.v1.DeleteAccountRequest
+	(*DeleteAccountResponse)(nil),       // 52: novatrail.api.v1.DeleteAccountResponse
+	(*ExportProfileRequest)(nil),        // 53: novatrail.api.v1.ExportProfileRequest
+	(*ExportProfileResponse)(nil),       // 54: novatrail.api.v1.ExportProfileResponse
+	(*ExportAccountRequest)(nil),        // 55: novatrail.api.v1.ExportAccountRequest
+	(*ExportAccountResponse)(nil),       // 56: novatrail.api.v1.ExportAccountResponse
+	(*CheckOwnKeyRequest)(nil),          // 57: novatrail.api.v1.CheckOwnKeyRequest
+	(*CheckOwnKeyResponse)(nil),         // 58: novatrail.api.v1.CheckOwnKeyResponse
+	(*ListOwnKeyProvidersRequest)(nil),  // 59: novatrail.api.v1.ListOwnKeyProvidersRequest
+	(*ListOwnKeyProvidersResponse)(nil), // 60: novatrail.api.v1.ListOwnKeyProvidersResponse
+	(*OwnKeyProvider)(nil),              // 61: novatrail.api.v1.OwnKeyProvider
+	(*LegalTextRef)(nil),                // 62: novatrail.api.v1.LegalTextRef
+	(*OpenAttemptRef)(nil),              // 63: novatrail.api.v1.OpenAttemptRef
+	(*LessonRunRef)(nil),                // 64: novatrail.api.v1.LessonRunRef
+	(*timestamppb.Timestamp)(nil),       // 65: google.protobuf.Timestamp
+	(Action)(0),                         // 66: novatrail.api.v1.Action
+	(*OwnKey)(nil),                      // 67: novatrail.api.v1.OwnKey
+	(*Outcome)(nil),                     // 68: novatrail.api.v1.Outcome
 }
 var file_novatrail_api_v1_account_proto_depIdxs = []int32{
-	8,  // 0: novatrail.api.v1.GetAccountResponse.account:type_name -> novatrail.api.v1.Account
-	8,  // 1: novatrail.api.v1.CreateAccountResponse.account:type_name -> novatrail.api.v1.Account
-	9,  // 2: novatrail.api.v1.Account.profiles:type_name -> novatrail.api.v1.Profile
-	13, // 3: novatrail.api.v1.Account.child_consents:type_name -> novatrail.api.v1.ChildConsent
-	10, // 4: novatrail.api.v1.Profile.presentation_style:type_name -> novatrail.api.v1.PresentationStyle
-	1,  // 5: novatrail.api.v1.Profile.default_mode:type_name -> novatrail.api.v1.Mode
-	46, // 6: novatrail.api.v1.Profile.open_attempt:type_name -> novatrail.api.v1.OpenAttemptRef
-	47, // 7: novatrail.api.v1.Profile.open_lesson_runs:type_name -> novatrail.api.v1.LessonRunRef
-	11, // 8: novatrail.api.v1.PresentationStyle.voicing:type_name -> novatrail.api.v1.Voicing
-	0,  // 9: novatrail.api.v1.Voicing.speed:type_name -> novatrail.api.v1.VoicingSpeed
-	11, // 10: novatrail.api.v1.ProfileSettings.voicing:type_name -> novatrail.api.v1.Voicing
-	1,  // 11: novatrail.api.v1.ProfileSettings.default_mode:type_name -> novatrail.api.v1.Mode
-	2,  // 12: novatrail.api.v1.ChildConsent.state:type_name -> novatrail.api.v1.ConsentState
-	20, // 13: novatrail.api.v1.VerifyPinResponse.check:type_name -> novatrail.api.v1.PinCheck
-	20, // 14: novatrail.api.v1.ChangePinResponse.check:type_name -> novatrail.api.v1.PinCheck
-	48, // 15: novatrail.api.v1.PinCheck.locked_until:type_name -> google.protobuf.Timestamp
-	12, // 16: novatrail.api.v1.CreateOwnerProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
-	9,  // 17: novatrail.api.v1.CreateOwnerProfileResponse.profile:type_name -> novatrail.api.v1.Profile
-	13, // 18: novatrail.api.v1.RequestChildConsentResponse.consent:type_name -> novatrail.api.v1.ChildConsent
-	12, // 19: novatrail.api.v1.CreateChildProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
-	9,  // 20: novatrail.api.v1.CreateChildProfileResponse.profile:type_name -> novatrail.api.v1.Profile
-	12, // 21: novatrail.api.v1.UpdateProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
-	9,  // 22: novatrail.api.v1.UpdateProfileResponse.profile:type_name -> novatrail.api.v1.Profile
-	11, // 23: novatrail.api.v1.SetVoicingRequest.voicing:type_name -> novatrail.api.v1.Voicing
-	9,  // 24: novatrail.api.v1.SetVoicingResponse.profile:type_name -> novatrail.api.v1.Profile
-	49, // 25: novatrail.api.v1.CheckOwnKeyRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	3,  // 26: novatrail.api.v1.CheckOwnKeyResponse.check:type_name -> novatrail.api.v1.OwnKeyCheck
-	50, // 27: novatrail.api.v1.CheckOwnKeyResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	45, // 28: novatrail.api.v1.ListOwnKeyProvidersResponse.providers:type_name -> novatrail.api.v1.OwnKeyProvider
-	4,  // 29: novatrail.api.v1.AccountService.GetAccount:input_type -> novatrail.api.v1.GetAccountRequest
-	6,  // 30: novatrail.api.v1.AccountService.CreateAccount:input_type -> novatrail.api.v1.CreateAccountRequest
-	14, // 31: novatrail.api.v1.AccountService.SetPin:input_type -> novatrail.api.v1.SetPinRequest
-	16, // 32: novatrail.api.v1.AccountService.VerifyPin:input_type -> novatrail.api.v1.VerifyPinRequest
-	18, // 33: novatrail.api.v1.AccountService.ChangePin:input_type -> novatrail.api.v1.ChangePinRequest
-	21, // 34: novatrail.api.v1.AccountService.ResetPin:input_type -> novatrail.api.v1.ResetPinRequest
-	23, // 35: novatrail.api.v1.AccountService.CreateOwnerProfile:input_type -> novatrail.api.v1.CreateOwnerProfileRequest
-	25, // 36: novatrail.api.v1.AccountService.RequestChildConsent:input_type -> novatrail.api.v1.RequestChildConsentRequest
-	27, // 37: novatrail.api.v1.AccountService.CreateChildProfile:input_type -> novatrail.api.v1.CreateChildProfileRequest
-	29, // 38: novatrail.api.v1.AccountService.UpdateProfile:input_type -> novatrail.api.v1.UpdateProfileRequest
-	31, // 39: novatrail.api.v1.AccountService.SetVoicing:input_type -> novatrail.api.v1.SetVoicingRequest
-	33, // 40: novatrail.api.v1.AccountService.DeleteProfile:input_type -> novatrail.api.v1.DeleteProfileRequest
-	35, // 41: novatrail.api.v1.AccountService.DeleteAccount:input_type -> novatrail.api.v1.DeleteAccountRequest
-	37, // 42: novatrail.api.v1.AccountService.ExportProfile:input_type -> novatrail.api.v1.ExportProfileRequest
-	39, // 43: novatrail.api.v1.AccountService.ExportAccount:input_type -> novatrail.api.v1.ExportAccountRequest
-	41, // 44: novatrail.api.v1.AccountService.CheckOwnKey:input_type -> novatrail.api.v1.CheckOwnKeyRequest
-	43, // 45: novatrail.api.v1.AccountService.ListOwnKeyProviders:input_type -> novatrail.api.v1.ListOwnKeyProvidersRequest
-	5,  // 46: novatrail.api.v1.AccountService.GetAccount:output_type -> novatrail.api.v1.GetAccountResponse
-	7,  // 47: novatrail.api.v1.AccountService.CreateAccount:output_type -> novatrail.api.v1.CreateAccountResponse
-	15, // 48: novatrail.api.v1.AccountService.SetPin:output_type -> novatrail.api.v1.SetPinResponse
-	17, // 49: novatrail.api.v1.AccountService.VerifyPin:output_type -> novatrail.api.v1.VerifyPinResponse
-	19, // 50: novatrail.api.v1.AccountService.ChangePin:output_type -> novatrail.api.v1.ChangePinResponse
-	22, // 51: novatrail.api.v1.AccountService.ResetPin:output_type -> novatrail.api.v1.ResetPinResponse
-	24, // 52: novatrail.api.v1.AccountService.CreateOwnerProfile:output_type -> novatrail.api.v1.CreateOwnerProfileResponse
-	26, // 53: novatrail.api.v1.AccountService.RequestChildConsent:output_type -> novatrail.api.v1.RequestChildConsentResponse
-	28, // 54: novatrail.api.v1.AccountService.CreateChildProfile:output_type -> novatrail.api.v1.CreateChildProfileResponse
-	30, // 55: novatrail.api.v1.AccountService.UpdateProfile:output_type -> novatrail.api.v1.UpdateProfileResponse
-	32, // 56: novatrail.api.v1.AccountService.SetVoicing:output_type -> novatrail.api.v1.SetVoicingResponse
-	34, // 57: novatrail.api.v1.AccountService.DeleteProfile:output_type -> novatrail.api.v1.DeleteProfileResponse
-	36, // 58: novatrail.api.v1.AccountService.DeleteAccount:output_type -> novatrail.api.v1.DeleteAccountResponse
-	38, // 59: novatrail.api.v1.AccountService.ExportProfile:output_type -> novatrail.api.v1.ExportProfileResponse
-	40, // 60: novatrail.api.v1.AccountService.ExportAccount:output_type -> novatrail.api.v1.ExportAccountResponse
-	42, // 61: novatrail.api.v1.AccountService.CheckOwnKey:output_type -> novatrail.api.v1.CheckOwnKeyResponse
-	44, // 62: novatrail.api.v1.AccountService.ListOwnKeyProviders:output_type -> novatrail.api.v1.ListOwnKeyProvidersResponse
-	46, // [46:63] is the sub-list for method output_type
-	29, // [29:46] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	11, // 0: novatrail.api.v1.GetAccountResponse.account:type_name -> novatrail.api.v1.Account
+	62, // 1: novatrail.api.v1.CreateAccountRequest.accepted_texts:type_name -> novatrail.api.v1.LegalTextRef
+	11, // 2: novatrail.api.v1.CreateAccountResponse.account:type_name -> novatrail.api.v1.Account
+	12, // 3: novatrail.api.v1.Account.profiles:type_name -> novatrail.api.v1.Profile
+	17, // 4: novatrail.api.v1.Account.child_consents:type_name -> novatrail.api.v1.ChildConsent
+	14, // 5: novatrail.api.v1.Profile.presentation_style:type_name -> novatrail.api.v1.PresentationStyle
+	3,  // 6: novatrail.api.v1.Profile.default_mode:type_name -> novatrail.api.v1.Mode
+	63, // 7: novatrail.api.v1.Profile.open_attempt:type_name -> novatrail.api.v1.OpenAttemptRef
+	64, // 8: novatrail.api.v1.Profile.open_lesson_runs:type_name -> novatrail.api.v1.LessonRunRef
+	13, // 9: novatrail.api.v1.Profile.consent:type_name -> novatrail.api.v1.ProfileConsent
+	0,  // 10: novatrail.api.v1.ProfileConsent.giver:type_name -> novatrail.api.v1.ConsentGiver
+	1,  // 11: novatrail.api.v1.ProfileConsent.need:type_name -> novatrail.api.v1.ConsentNeed
+	17, // 12: novatrail.api.v1.ProfileConsent.waiting:type_name -> novatrail.api.v1.ChildConsent
+	15, // 13: novatrail.api.v1.PresentationStyle.voicing:type_name -> novatrail.api.v1.Voicing
+	2,  // 14: novatrail.api.v1.Voicing.speed:type_name -> novatrail.api.v1.VoicingSpeed
+	15, // 15: novatrail.api.v1.ProfileSettings.voicing:type_name -> novatrail.api.v1.Voicing
+	3,  // 16: novatrail.api.v1.ProfileSettings.default_mode:type_name -> novatrail.api.v1.Mode
+	5,  // 17: novatrail.api.v1.ChildConsent.state:type_name -> novatrail.api.v1.ConsentState
+	0,  // 18: novatrail.api.v1.ChildConsent.giver:type_name -> novatrail.api.v1.ConsentGiver
+	4,  // 19: novatrail.api.v1.ChildConsent.form:type_name -> novatrail.api.v1.FormState
+	24, // 20: novatrail.api.v1.VerifyPinResponse.check:type_name -> novatrail.api.v1.PinCheck
+	24, // 21: novatrail.api.v1.ChangePinResponse.check:type_name -> novatrail.api.v1.PinCheck
+	65, // 22: novatrail.api.v1.PinCheck.locked_until:type_name -> google.protobuf.Timestamp
+	16, // 23: novatrail.api.v1.CreateOwnerProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
+	12, // 24: novatrail.api.v1.CreateOwnerProfileResponse.profile:type_name -> novatrail.api.v1.Profile
+	62, // 25: novatrail.api.v1.RequestChildConsentRequest.parent_consent_text:type_name -> novatrail.api.v1.LegalTextRef
+	17, // 26: novatrail.api.v1.RequestChildConsentResponse.consent:type_name -> novatrail.api.v1.ChildConsent
+	17, // 27: novatrail.api.v1.SendConsentFormResponse.consent:type_name -> novatrail.api.v1.ChildConsent
+	16, // 28: novatrail.api.v1.CreateChildProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
+	12, // 29: novatrail.api.v1.CreateChildProfileResponse.profile:type_name -> novatrail.api.v1.Profile
+	62, // 30: novatrail.api.v1.GiveOwnConsentRequest.text:type_name -> novatrail.api.v1.LegalTextRef
+	12, // 31: novatrail.api.v1.GiveOwnConsentResponse.profile:type_name -> novatrail.api.v1.Profile
+	62, // 32: novatrail.api.v1.RestateAgeRequest.parent_consent_text:type_name -> novatrail.api.v1.LegalTextRef
+	12, // 33: novatrail.api.v1.RestateAgeResponse.profile:type_name -> novatrail.api.v1.Profile
+	16, // 34: novatrail.api.v1.UpdateProfileRequest.settings:type_name -> novatrail.api.v1.ProfileSettings
+	12, // 35: novatrail.api.v1.UpdateProfileResponse.profile:type_name -> novatrail.api.v1.Profile
+	15, // 36: novatrail.api.v1.SetVoicingRequest.voicing:type_name -> novatrail.api.v1.Voicing
+	12, // 37: novatrail.api.v1.SetVoicingResponse.profile:type_name -> novatrail.api.v1.Profile
+	66, // 38: novatrail.api.v1.SetWorkStorageRequest.action:type_name -> novatrail.api.v1.Action
+	62, // 39: novatrail.api.v1.SetWorkStorageRequest.text:type_name -> novatrail.api.v1.LegalTextRef
+	12, // 40: novatrail.api.v1.SetWorkStorageResponse.profile:type_name -> novatrail.api.v1.Profile
+	66, // 41: novatrail.api.v1.ExportProfileRequest.action:type_name -> novatrail.api.v1.Action
+	67, // 42: novatrail.api.v1.CheckOwnKeyRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	6,  // 43: novatrail.api.v1.CheckOwnKeyResponse.check:type_name -> novatrail.api.v1.OwnKeyCheck
+	68, // 44: novatrail.api.v1.CheckOwnKeyResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	61, // 45: novatrail.api.v1.ListOwnKeyProvidersResponse.providers:type_name -> novatrail.api.v1.OwnKeyProvider
+	7,  // 46: novatrail.api.v1.AccountService.GetAccount:input_type -> novatrail.api.v1.GetAccountRequest
+	9,  // 47: novatrail.api.v1.AccountService.CreateAccount:input_type -> novatrail.api.v1.CreateAccountRequest
+	18, // 48: novatrail.api.v1.AccountService.SetPin:input_type -> novatrail.api.v1.SetPinRequest
+	20, // 49: novatrail.api.v1.AccountService.VerifyPin:input_type -> novatrail.api.v1.VerifyPinRequest
+	22, // 50: novatrail.api.v1.AccountService.ChangePin:input_type -> novatrail.api.v1.ChangePinRequest
+	25, // 51: novatrail.api.v1.AccountService.ResetPin:input_type -> novatrail.api.v1.ResetPinRequest
+	27, // 52: novatrail.api.v1.AccountService.CreateOwnerProfile:input_type -> novatrail.api.v1.CreateOwnerProfileRequest
+	29, // 53: novatrail.api.v1.AccountService.RequestChildConsent:input_type -> novatrail.api.v1.RequestChildConsentRequest
+	31, // 54: novatrail.api.v1.AccountService.SendConsentForm:input_type -> novatrail.api.v1.SendConsentFormRequest
+	33, // 55: novatrail.api.v1.AccountService.CancelChildConsent:input_type -> novatrail.api.v1.CancelChildConsentRequest
+	35, // 56: novatrail.api.v1.AccountService.CreateChildProfile:input_type -> novatrail.api.v1.CreateChildProfileRequest
+	37, // 57: novatrail.api.v1.AccountService.GiveOwnConsent:input_type -> novatrail.api.v1.GiveOwnConsentRequest
+	39, // 58: novatrail.api.v1.AccountService.WithdrawOwnConsent:input_type -> novatrail.api.v1.WithdrawOwnConsentRequest
+	41, // 59: novatrail.api.v1.AccountService.RestateAge:input_type -> novatrail.api.v1.RestateAgeRequest
+	43, // 60: novatrail.api.v1.AccountService.UpdateProfile:input_type -> novatrail.api.v1.UpdateProfileRequest
+	45, // 61: novatrail.api.v1.AccountService.SetVoicing:input_type -> novatrail.api.v1.SetVoicingRequest
+	47, // 62: novatrail.api.v1.AccountService.SetWorkStorage:input_type -> novatrail.api.v1.SetWorkStorageRequest
+	49, // 63: novatrail.api.v1.AccountService.DeleteProfile:input_type -> novatrail.api.v1.DeleteProfileRequest
+	51, // 64: novatrail.api.v1.AccountService.DeleteAccount:input_type -> novatrail.api.v1.DeleteAccountRequest
+	53, // 65: novatrail.api.v1.AccountService.ExportProfile:input_type -> novatrail.api.v1.ExportProfileRequest
+	55, // 66: novatrail.api.v1.AccountService.ExportAccount:input_type -> novatrail.api.v1.ExportAccountRequest
+	57, // 67: novatrail.api.v1.AccountService.CheckOwnKey:input_type -> novatrail.api.v1.CheckOwnKeyRequest
+	59, // 68: novatrail.api.v1.AccountService.ListOwnKeyProviders:input_type -> novatrail.api.v1.ListOwnKeyProvidersRequest
+	8,  // 69: novatrail.api.v1.AccountService.GetAccount:output_type -> novatrail.api.v1.GetAccountResponse
+	10, // 70: novatrail.api.v1.AccountService.CreateAccount:output_type -> novatrail.api.v1.CreateAccountResponse
+	19, // 71: novatrail.api.v1.AccountService.SetPin:output_type -> novatrail.api.v1.SetPinResponse
+	21, // 72: novatrail.api.v1.AccountService.VerifyPin:output_type -> novatrail.api.v1.VerifyPinResponse
+	23, // 73: novatrail.api.v1.AccountService.ChangePin:output_type -> novatrail.api.v1.ChangePinResponse
+	26, // 74: novatrail.api.v1.AccountService.ResetPin:output_type -> novatrail.api.v1.ResetPinResponse
+	28, // 75: novatrail.api.v1.AccountService.CreateOwnerProfile:output_type -> novatrail.api.v1.CreateOwnerProfileResponse
+	30, // 76: novatrail.api.v1.AccountService.RequestChildConsent:output_type -> novatrail.api.v1.RequestChildConsentResponse
+	32, // 77: novatrail.api.v1.AccountService.SendConsentForm:output_type -> novatrail.api.v1.SendConsentFormResponse
+	34, // 78: novatrail.api.v1.AccountService.CancelChildConsent:output_type -> novatrail.api.v1.CancelChildConsentResponse
+	36, // 79: novatrail.api.v1.AccountService.CreateChildProfile:output_type -> novatrail.api.v1.CreateChildProfileResponse
+	38, // 80: novatrail.api.v1.AccountService.GiveOwnConsent:output_type -> novatrail.api.v1.GiveOwnConsentResponse
+	40, // 81: novatrail.api.v1.AccountService.WithdrawOwnConsent:output_type -> novatrail.api.v1.WithdrawOwnConsentResponse
+	42, // 82: novatrail.api.v1.AccountService.RestateAge:output_type -> novatrail.api.v1.RestateAgeResponse
+	44, // 83: novatrail.api.v1.AccountService.UpdateProfile:output_type -> novatrail.api.v1.UpdateProfileResponse
+	46, // 84: novatrail.api.v1.AccountService.SetVoicing:output_type -> novatrail.api.v1.SetVoicingResponse
+	48, // 85: novatrail.api.v1.AccountService.SetWorkStorage:output_type -> novatrail.api.v1.SetWorkStorageResponse
+	50, // 86: novatrail.api.v1.AccountService.DeleteProfile:output_type -> novatrail.api.v1.DeleteProfileResponse
+	52, // 87: novatrail.api.v1.AccountService.DeleteAccount:output_type -> novatrail.api.v1.DeleteAccountResponse
+	54, // 88: novatrail.api.v1.AccountService.ExportProfile:output_type -> novatrail.api.v1.ExportProfileResponse
+	56, // 89: novatrail.api.v1.AccountService.ExportAccount:output_type -> novatrail.api.v1.ExportAccountResponse
+	58, // 90: novatrail.api.v1.AccountService.CheckOwnKey:output_type -> novatrail.api.v1.CheckOwnKeyResponse
+	60, // 91: novatrail.api.v1.AccountService.ListOwnKeyProviders:output_type -> novatrail.api.v1.ListOwnKeyProvidersResponse
+	69, // [69:92] is the sub-list for method output_type
+	46, // [46:69] is the sub-list for method input_type
+	46, // [46:46] is the sub-list for extension type_name
+	46, // [46:46] is the sub-list for extension extendee
+	0,  // [0:46] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_account_proto_init() }
@@ -2884,17 +3984,19 @@ func file_novatrail_api_v1_account_proto_init() {
 	file_novatrail_api_v1_attempt_proto_init()
 	file_novatrail_api_v1_cause_proto_init()
 	file_novatrail_api_v1_learning_proto_init()
+	file_novatrail_api_v1_legal_proto_init()
 	file_novatrail_api_v1_account_proto_msgTypes[5].OneofWrappers = []any{}
-	file_novatrail_api_v1_account_proto_msgTypes[7].OneofWrappers = []any{}
 	file_novatrail_api_v1_account_proto_msgTypes[8].OneofWrappers = []any{}
-	file_novatrail_api_v1_account_proto_msgTypes[21].OneofWrappers = []any{}
+	file_novatrail_api_v1_account_proto_msgTypes[9].OneofWrappers = []any{}
+	file_novatrail_api_v1_account_proto_msgTypes[22].OneofWrappers = []any{}
+	file_novatrail_api_v1_account_proto_msgTypes[34].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_account_proto_rawDesc), len(file_novatrail_api_v1_account_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   42,
+			NumEnums:      7,
+			NumMessages:   55,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1,0 +1,13 @@
+# error: const at #/outside_table
+# A country outside the table is 18, not 16.
+format: 1
+outside_table: 16
+countries:
+  BE:
+    - age: 13
+      from: "2018-05-25"
+      law: Synthetic Act of 2018
+      provision: Article 1
+      quote: The words of the provision.
+      source: https://example.org/act
+      read: "2026-11-10"

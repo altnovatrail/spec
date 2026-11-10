@@ -79,6 +79,7 @@ A reader — `app` at its start, the rollout before it writes the file — accep
 | `deployment.loopback` | `api` MUST be `https`, unless the origin of `app` itself is on a loopback host: work and the token of sign-in would otherwise cross the network in clear text. |
 
 - A loopback host is the host `127.0.0.1`, `localhost` or `[::1]`, written so in an origin as the URL Standard serializes it, and nothing else: not another address of `127.0.0.0/8`, such as `127.0.0.2`, nor a name under `localhost`, such as `dev.localhost`. It is one definition for both: the host of `api`, which the schema holds to it, and the host of the origin of `app`, which `deployment.loopback` reads.
+- On a loopback, `api` over `http` is the origin of `app` itself, its paths led by a proxy of the server of `app`: the rule lets `http` through, but the lower layer of the policy of `app`'s page lets no origin over `http` but its own (architecture 3.7 app).
 - The schema cannot hold either rule: it does not know URL serialization, nor where `app` is open. The rollout of the platform writes no `http`, and checks `deployment.loopback` against the origin of the platform's `app`.
 - A reader MUST NOT accept a file that one step refuses, and MUST NOT read a file in part.
 

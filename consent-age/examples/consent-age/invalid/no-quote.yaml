@@ -1,0 +1,12 @@
+# error: required at #/countries/BE/0
+# An entry with no quote of its provision.
+format: 1
+outside_table: 18
+countries:
+  BE:
+    - age: 13
+      from: "2018-05-25"
+      law: Synthetic Act of 2018
+      provision: Article 1
+      source: https://example.org/act
+      read: "2026-11-10"

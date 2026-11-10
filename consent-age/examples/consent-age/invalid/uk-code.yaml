@@ -1,0 +1,13 @@
+# error: enum at #/countries
+# UK is a code ISO 3166-1 only reserves: the United Kingdom is GB.
+format: 1
+outside_table: 18
+countries:
+  UK:
+    - age: 13
+      from: "2018-05-25"
+      law: Synthetic Act of 2018
+      provision: Article 1
+      quote: The words of the provision.
+      source: https://example.org/act
+      read: "2026-11-10"

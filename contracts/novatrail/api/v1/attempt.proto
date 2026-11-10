@@ -6,6 +6,7 @@ syntax = "proto3";
 // idempotency key answers are the rules of contracts/README.md, section 15.
 package novatrail.api.v1;
 
+import "google/protobuf/timestamp.proto";
 import "novatrail/api/v1/cause.proto";
 import "novatrail/observation/v1/observation.proto";
 
@@ -16,7 +17,8 @@ import "novatrail/observation/v1/observation.proto";
 // take — gets the code `invalid_argument` with no `Refusal`. Every method carries the token of the
 // sign-in service and may get the refusals of every request with a token, which the comment of
 // `AccountService` names with what `app` does on each; a request of a profile whose consent is not
-// confirmed gets `CAUSE_NO_CONSENT`. An answer that closes the attempt by a correct answer, by the
+// confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
+// `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer, by the
 // solution shown or by "Done" says what comes next, `next`: an attempt begins by
 // `LearningService`.
 service AttemptService {
@@ -76,6 +78,15 @@ service AttemptService {
   // `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_ALREADY_USED` and
   // `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the solution again.
   rpc ShowSolution(ShowSolutionRequest) returns (ShowSolutionResponse);
+  // Reports a problem with the tutor's words of the attempt, from the screen of the task: a
+  // learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
+  // `app` decides (privacy 9, П-26). `api` keeps the report until the operator reviews it, within 3
+  // days, and for a year after, by its own clock, and the operator follows the path of escalation
+  // (R123; R136). Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
+  // the words and the text as they were written, so `app` asks the person to write no name in it.
+  // Refusals: `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency
+  // key gets the same report.
+  rpc ReportProblem(ReportProblemRequest) returns (ReportProblemResponse);
 }
 
 // The submission of a task with a verdict.
@@ -353,6 +364,68 @@ message ShowSolutionResponse {
   SolvedTask solved = 1;
   // What comes next.
   Next next = 2;
+}
+
+// A report of a problem with the tutor's words.
+message ReportProblemRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt.
+  string attempt_id = 2;
+  // The idempotency key of this action.
+  string idempotency_key = 3;
+  // Which of the tutor's words the report is about.
+  TutorReply reply = 4;
+  // Beside the words of a rung and "explain differently": the rung, from 1 to 3.
+  int32 rung = 5;
+  // The tutor's words as `app` showed them, from 1 to 4000 Unicode code points: `api` keeps none of
+  // the words of a correct answer and of the feedback of an essay, and the operator reads what
+  // was said.
+  string words = 6;
+  // What is wrong with them, by a word of the closed set.
+  ProblemKind kind = 7;
+  // What the person writes beside it, up to 1000 Unicode code points; empty when nothing.
+  string text = 8;
+}
+
+// The report received.
+message ReportProblemResponse {
+  // The ID of the report.
+  string report_id = 1;
+  // When the operator reviews it by: 3 days after it came (R123).
+  google.protobuf.Timestamp review_by = 2;
+}
+
+// Which of the tutor's words a report is about: the answer that brought them.
+enum TutorReply {
+  // Not named: the request is refused `invalid_argument`.
+  TUTOR_REPLY_UNSPECIFIED = 0;
+  // The words of a rung, `GetRungWords`, or the rung given by `GetHint` after a wrong answer.
+  TUTOR_REPLY_RUNG = 1;
+  // The words of "explain differently", `ExplainDifferently`.
+  TUTOR_REPLY_EXPLAINED_DIFFERENTLY = 2;
+  // The words after a correct answer, `GetCorrectAnswerWords`.
+  TUTOR_REPLY_CORRECT_ANSWER = 3;
+  // The feedback of an essay, `SubmitEssay`.
+  TUTOR_REPLY_ESSAY_FEEDBACK = 4;
+}
+
+// What is wrong with the tutor's words: the closed set the person picks one word of (R123).
+enum ProblemKind {
+  // Not named: the request is refused `invalid_argument`.
+  PROBLEM_KIND_UNSPECIFIED = 0;
+  // Wrong: the words say what is not so.
+  PROBLEM_KIND_WRONG = 1;
+  // Unclear: the learner could not follow them.
+  PROBLEM_KIND_UNCLEAR = 2;
+  // Not for the learner's age.
+  PROBLEM_KIND_NOT_FOR_AGE = 3;
+  // Harmful or dangerous, or upsetting.
+  PROBLEM_KIND_HARMFUL = 4;
+  // The words ask for, or speak of, something personal.
+  PROBLEM_KIND_PERSONAL = 5;
+  // Something else, which the text says.
+  PROBLEM_KIND_OTHER = 6;
 }
 
 // Whose action a request is: the server tells kinds of action apart, not people (R04 api).

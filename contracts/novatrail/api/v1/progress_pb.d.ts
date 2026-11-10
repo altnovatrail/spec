@@ -593,7 +593,8 @@ export declare const CriterionMarkSchema: GenEnum<CriterionMark>;
  * token of the sign-in service and may get the refusals of every request with a token, which the
  * comment of `AccountService` names with what `app` does on each; a profile that is not the
  * account's gets `CAUSE_NO_PROFILE`, a learning request of a profile whose consent is not
- * confirmed `CAUSE_NO_CONSENT`, a request without the right it needs the code `permission_denied`
+ * confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
+ * `CAUSE_AGE_NEEDED`, a request without the right it needs the code `permission_denied`
  * with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
  * with no `Refusal`. Both repeat by the state of the profile, with no idempotency key.
  *

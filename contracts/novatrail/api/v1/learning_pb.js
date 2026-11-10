@@ -156,13 +156,14 @@ export const LessonRunRefSchema = /*@__PURE__*/
  * with the right `can_learn`. Every method carries the token of the sign-in service and may get the
  * refusals of every request with a token, which the comment of `AccountService` names with what
  * `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, a request of a
- * profile whose consent is not confirmed `CAUSE_NO_CONSENT`, and a request whose form the contract
- * refuses the code `invalid_argument` with no `Refusal`. A profile has one open attempt: a new one
- * closes the one before `CLOSE_REASON_LEFT`. A lesson run goes on the package it began on, and
- * every attempt of its task segments too. `app` keeps the place in a lesson and the state of its
- * demos by the key "lesson's full ID, package digest", beside the ID of the run: the state of
- * another run under the same key it drops, and it erases the state of the lesson at every end of
- * the run, in an answer or in a refusal.
+ * profile whose consent is not confirmed `CAUSE_NO_CONSENT`, one of a profile whose age is to be
+ * given again `CAUSE_AGE_NEEDED`, and a request whose form the contract refuses the code
+ * `invalid_argument` with no `Refusal`. A profile has one open attempt: a new one closes the one
+ * before `CLOSE_REASON_LEFT`. A lesson run goes on the package it began on, and every attempt of
+ * its task segments too. `app` keeps the place in a lesson and the state of its demos by the key
+ * "lesson's full ID, package digest", beside the ID of the run: the state of another run under the
+ * same key it drops, and it erases the state of the lesson at every end of the run, in an answer
+ * or in a refusal.
  *
  * @generated from service novatrail.api.v1.LearningService
  */

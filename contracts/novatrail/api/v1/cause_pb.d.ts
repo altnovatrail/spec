@@ -379,7 +379,9 @@ export enum Cause {
 
   /**
    * A learning request to show the solution, while the child's setting "ask before showing" is on:
-   * the solution is shown by an action of an adult. Code `permission_denied`.
+   * the solution is shown by an action of an adult. Or a learning request on what an adult decides
+   * at a profile whose consent an adult gave: the learner's own consent, its withdrawal, the
+   * storage of works and the export (R136). Code `permission_denied`.
    *
    * @generated from enum value: CAUSE_ADULT_NEEDED = 13;
    */
@@ -482,7 +484,8 @@ export enum Cause {
 
   /**
    * What the request creates is there already: the account of the user, the owner's profile, the
-   * profile of a consent, or the attempt of an engine's choice of a task. Code `already_exists`.
+   * profile of a consent, the attempt of an engine's choice of a task, or the confirmation of a
+   * consent that a form is sent for. Code `already_exists`.
    *
    * @generated from enum value: CAUSE_ALREADY_EXISTS = 26;
    */
@@ -497,8 +500,10 @@ export enum Cause {
   COUNTRY_NOT_ACCEPTED = 27,
 
   /**
-   * The consent is not confirmed: a child's profile asked for by a consent that still waits, or a
-   * learning request of a profile without consent. Code `failed_precondition`.
+   * The consent is not confirmed: a child's profile asked for by a consent of a parent that still
+   * waits, or a learning request of a profile without consent — one that waits for the learner's
+   * own consent or for a parent's form —, but for the requests on the consent itself, which section
+   * 15 of contracts/README.md names. Code `failed_precondition`.
    *
    * @generated from enum value: CAUSE_NO_CONSENT = 28;
    */
@@ -587,6 +592,42 @@ export enum Cause {
    * @generated from enum value: CAUSE_SEGMENT_UNAVAILABLE = 38;
    */
   SEGMENT_UNAVAILABLE = 38,
+
+  /**
+   * The account has as many consents that wait, without a profile, as `api` lets it have: one is
+   * taken back by `CancelChildConsent`, or confirmed, before another is asked for. `api` holds the
+   * number (R11 api). Code `resource_exhausted`, with no data.
+   *
+   * @generated from enum value: CAUSE_TOO_MANY_CONSENTS = 39;
+   */
+  TOO_MANY_CONSENTS = 39,
+
+  /**
+   * The age of the profile is to be given again before its next work: the country of a learner who
+   * gave their own consent now asks for an older age of digital consent than the one the category
+   * was given by (R134), but for the requests on the consent itself, which section 15 of
+   * contracts/README.md names. An adult gives it by `RestateAge`. Code `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_AGE_NEEDED = 40;
+   */
+  AGE_NEEDED = 40,
+
+  /**
+   * The version of a legal text that the request names is not the current one, or a text that has
+   * a version in force is not named: `app` reads `GetLegalTexts` again and shows the current
+   * version before it asks once more. Code `failed_precondition`.
+   *
+   * @generated from enum value: CAUSE_TEXT_NOT_CURRENT = 41;
+   */
+  TEXT_NOT_CURRENT = 41,
+
+  /**
+   * An action of an adult on the storage of works at a profile whose learner gave their own
+   * consent: the learner decides it alone (R113; R116). Code `permission_denied`.
+   *
+   * @generated from enum value: CAUSE_LEARNER_DECIDES = 42;
+   */
+  LEARNER_DECIDES = 42,
 }
 
 /**

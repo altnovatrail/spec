@@ -56,3 +56,14 @@ message LegalText {
   // The language the gist is in, its tag as the passport writes it, such as "en" or "ru".
   string summary_language = 6;
 }
+
+// A version of a legal text that a person saw, which a request that gives a consent names and the
+// record of the consent keeps (R130; R136): the current version that `GetLegalTexts` gave. A text
+// with no version in force is named by no request, and a version that is not the current one gets
+// `CAUSE_TEXT_NOT_CURRENT`.
+message LegalTextRef {
+  // The ID of the text in the passport, such as "parent-consent".
+  string id = 1;
+  // The number of the version, from 1 on.
+  int32 version = 2;
+}

@@ -1,0 +1,57 @@
+# Tables that break consent-age.ages-kept: an entry of the release before changed its age or its
+# day, or its country is gone.
+
+cases:
+  - table:
+      format: 1
+      outside_table: 18
+      countries:
+        AT:
+          - age: 16
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+        ES:
+          - age: 14
+            from: "2018-12-08"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+    previous:
+      format: 1
+      outside_table: 18
+      countries:
+        AT:
+          - age: 14
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+        BE:
+          - age: 13
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+        ES:
+          - age: 14
+            from: "2018-12-07"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+    refused_by: consent-age.ages-kept
+    names:
+      - countries.AT
+      - countries.BE
+      - countries.ES

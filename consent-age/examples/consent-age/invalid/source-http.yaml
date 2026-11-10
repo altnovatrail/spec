@@ -1,0 +1,13 @@
+# error: pattern at #/countries/BE/0/source
+# A source read over plain HTTP.
+format: 1
+outside_table: 18
+countries:
+  BE:
+    - age: 13
+      from: "2018-05-25"
+      law: Synthetic Act of 2018
+      provision: Article 1
+      quote: The words of the provision.
+      source: http://example.org/act
+      read: "2026-11-10"

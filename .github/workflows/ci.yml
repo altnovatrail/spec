@@ -1,8 +1,8 @@
 # spec's own checks (R30): the documents, the module format (R45), the admission table (R96), the
-# deployment configuration (R85), the legal texts (R130), the types of each in Go and TypeScript
-# (R72, R73), the Go module
-# code takes from a release and its zip, the licenses of the packages of tools/, the version the
-# next release takes (R31) and the files it carries (R64). The tests of tools/ and of the Go
+# deployment configuration (R85), the legal texts (R130), the age of digital consent (R134), the
+# format of the export (R135), the types of each in Go and TypeScript (R72, R73), the Go module code takes from a release and its
+# zip, the licenses of the packages of tools/, the version the next release takes (R31) and the
+# files it carries (R64). The tests of tools/ and of the Go
 # modules run once here, with their coverage, and a job of its own sends that of tools/ to Codecov
 # (R48). The Go tests run again in "Go / test", and the shared workflow's job "Go / coverage"
 # sends their profile (R16 .github).
@@ -115,6 +115,19 @@ jobs:
       - name: Legal texts
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec legal-check
+
+      # The table of the age of digital consent in consent-age/ (R134): its schemas, its examples,
+      # its test vectors of reading and of the category, which the check computes as sections 5 and 6
+      # of its text do, and the table itself, against the table of the release before.
+      - name: Age of digital consent
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec consent-age-check
+
+      # The format of the export in export/ (R135): its schemas, its examples and its test vectors of
+      # reading, which the check reads as section 5 of its text does.
+      - name: Export format
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
+        run: tools/toolchain/toolchain.sh spec export-check
 
       # The types of the module format (R72, R73): those its schemas give, file for file, and each
       # value of format/ read by its Go type and written back as it was, and taken by tsc as a value

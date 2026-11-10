@@ -1,0 +1,7 @@
+# error: pattern at #/built_at
+# A time is in UTC, with Z.
+format: 1
+scope: "account"
+built_at: "2026-11-10T09:30:00+01:00"
+app_version: "0.1.0"
+api_format: "1"

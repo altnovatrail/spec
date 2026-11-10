@@ -1,0 +1,6 @@
+# error: minItems at #/countries/BE
+# A country with no entry.
+format: 1
+outside_table: 18
+countries:
+  BE: []

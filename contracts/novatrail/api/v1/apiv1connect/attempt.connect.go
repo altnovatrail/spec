@@ -50,6 +50,9 @@ const (
 	// AttemptServiceShowSolutionProcedure is the procedure name of the AttemptService's ShowSolution
 	// RPC.
 	AttemptServiceShowSolutionProcedure = "/novatrail.api.v1.AttemptService/ShowSolution"
+	// AttemptServiceReportProblemProcedure is the procedure name of the AttemptService's ReportProblem
+	// RPC.
+	AttemptServiceReportProblemProcedure = "/novatrail.api.v1.AttemptService/ReportProblem"
 )
 
 var (
@@ -116,6 +119,13 @@ var (
 			Procedure:  AttemptServiceShowSolutionProcedure,
 		}
 	})
+	attemptServiceReportProblemSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("ReportProblem"),
+			Procedure:  AttemptServiceReportProblemProcedure,
+		}
+	})
 )
 
 // AttemptServiceClient is a client for the novatrail.api.v1.AttemptService service.
@@ -176,6 +186,15 @@ type AttemptServiceClient interface {
 	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the solution again.
 	ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error)
+	// Reports a problem with the tutor's words of the attempt, from the screen of the task: a
+	// learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
+	// `app` decides (privacy 9, П-26). `api` keeps the report until the operator reviews it, within 3
+	// days, and for a year after, by its own clock, and the operator follows the path of escalation
+	// (R123; R136). Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
+	// the words and the text as they were written, so `app` asks the person to write no name in it.
+	// Refusals: `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency
+	// key gets the same report.
+	ReportProblem(context.Context, *v1.ReportProblemRequest) (*v1.ReportProblemResponse, error)
 }
 
 // NewAttemptServiceClient constructs a client for the novatrail.api.v1.AttemptService service.
@@ -242,6 +261,15 @@ type AttemptServiceHandler interface {
 	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the solution again.
 	ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error)
+	// Reports a problem with the tutor's words of the attempt, from the screen of the task: a
+	// learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
+	// `app` decides (privacy 9, П-26). `api` keeps the report until the operator reviews it, within 3
+	// days, and for a year after, by its own clock, and the operator follows the path of escalation
+	// (R123; R136). Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
+	// the words and the text as they were written, so `app` asks the person to write no name in it.
+	// Refusals: `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency
+	// key gets the same report.
+	ReportProblem(context.Context, *v1.ReportProblemRequest) (*v1.ReportProblemResponse, error)
 }
 
 // RegisterAttemptServiceHandler registers svc as the novatrail.api.v1.AttemptService implementation
@@ -258,6 +286,7 @@ func RegisterAttemptServiceHandler(server *connect.Server, svc AttemptServiceHan
 		connect.Method{Spec: attemptServiceGetHintSpec(), Handler: adapter.getHint},
 		connect.Method{Spec: attemptServiceBeginStepSpec(), Handler: adapter.beginStep},
 		connect.Method{Spec: attemptServiceShowSolutionSpec(), Handler: adapter.showSolution},
+		connect.Method{Spec: attemptServiceReportProblemSpec(), Handler: adapter.reportProblem},
 	)
 }
 
@@ -298,6 +327,10 @@ func (UnimplementedAttemptServiceHandler) BeginStep(context.Context, *v1.BeginSt
 
 func (UnimplementedAttemptServiceHandler) ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.ShowSolution is not implemented")
+}
+
+func (UnimplementedAttemptServiceHandler) ReportProblem(context.Context, *v1.ReportProblemRequest) (*v1.ReportProblemResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.ReportProblem is not implemented")
 }
 
 type attemptServiceClient struct {
@@ -371,6 +404,14 @@ func (c *attemptServiceClient) BeginStep(ctx context.Context, req *v1.BeginStepR
 func (c *attemptServiceClient) ShowSolution(ctx context.Context, req *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error) {
 	var res v1.ShowSolutionResponse
 	if err := c.client.CallUnary(ctx, attemptServiceShowSolutionSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *attemptServiceClient) ReportProblem(ctx context.Context, req *v1.ReportProblemRequest) (*v1.ReportProblemResponse, error) {
+	var res v1.ReportProblemResponse
+	if err := c.client.CallUnary(ctx, attemptServiceReportProblemSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -480,6 +521,18 @@ func (h attemptServiceHandler) showSolution(ctx context.Context, _ connect.Spec,
 		return err
 	}
 	res, err := h.svc.ShowSolution(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h attemptServiceHandler) reportProblem(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ReportProblemRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ReportProblem(ctx, &req)
 	if err != nil {
 		return err
 	}

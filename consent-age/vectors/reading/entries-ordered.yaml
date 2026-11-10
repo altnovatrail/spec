@@ -1,0 +1,42 @@
+# Tables that break consent-age.entries-ordered: the entries of a country out of the order of their
+# days, or two of one day.
+
+cases:
+  - table:
+      format: 1
+      outside_table: 18
+      countries:
+        AT:
+          - age: 14
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+          - age: 16
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+        ES:
+          - age: 16
+            from: "2030-01-01"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+          - age: 14
+            from: "2018-12-07"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+    refused_by: consent-age.entries-ordered
+    names:
+      - countries.AT
+      - countries.ES
