@@ -65,34 +65,38 @@ texts:
     place: samples_page
     versions:
       - version: 1
-        status: draft
+        status: in_force
+        in_force_since: "2026-11-10"
         summary:
-          en: "Your samples test how well AI reads handwriting. A sample holds your strokes with the history of your writing — the time and course of the pen, with no pressure, which we treat as biometric data — the crops, their markup and your writer code, never your name. The organizer, the runner and Anthropic see it; it is never published, and nobody tells writers apart by their handwriting. You send the file by a one-day upload link; it lies in the operator's closed storage in the United States for 2 years. You can withdraw by your writer code: the organizer erases your samples within 30 days."
-          ru: "Ваши образцы проверяют, как ИИ читает почерк. В образце — штрихи с историей письма: время и ход пера, без нажима, — с ней мы обходимся как с биометрией, вырезки, их разметка и код писавшего, но не имя. Его видят организатор, раннер и Anthropic; он не публикуется, и почерк никто не сравнивает, чтобы узнать, кто писал. Файл вы отправляете по ссылке на загрузку на сутки; он лежит в закрытом хранилище оператора в США 2 года. Отозвать можно по коду писавшего: организатор сотрёт образцы за 30 дней."
+          en: "Your samples test how well AI reads handwriting. A sample holds your strokes with the history of your writing — the pointer, the time and course of the pen and what you erased, with no pressure, which we treat as biometric data — the crops, their markup and your writer code, never your name. The organizer, NovaTrail's measuring program and Anthropic see it; it is never published, and nobody tells writers apart by their handwriting. You send the file by a one-day upload link; it lies in the operator's closed storage in the United States for 2 years. You can withdraw by your writer code, to the organizer or to the operator: your samples are erased within 30 days. The operator is ALT EdTech LLC, in Texas."
+          ru: "Ваши образцы проверяют, как ИИ читает почерк. В образце — штрихи с историей письма: чем писали, время и ход пера и что стёрто, без нажима, — с ней мы обходимся как с биометрией, вырезки, их разметка и код писавшего, но не имя. Его видят организатор, программа NovaTrail, которая меряет чтение, и Anthropic; он не публикуется, и почерк никто не сравнивает, чтобы узнать, кто писал. Файл вы отправляете по ссылке на загрузку на сутки; он лежит в закрытом хранилище оператора в США 2 года. Отозвать можно по коду писавшего — организатору или оператору: образцы сотрут за 30 дней. Оператор — ALT EdTech LLC, Техас."
   measure-form:
     place: form
     versions:
       - version: 1
-        status: draft
+        status: in_force
+        in_force_since: "2026-11-10"
         summary:
-          en: "Consent to write samples for a measurement of how well AI reads handwriting: explicit consent to the history of your writing, treated as biometric data; the organizer, the runner and Anthropic receive the samples, which are never published; 2 years from the session, the form 5 years after the samples are erased; withdrawal by your writer code within 30 days. You declare that you are 18 or older and may make this agreement where you live, and sign with your name and the date."
-          ru: "Согласие писать образцы для замера того, как ИИ читает почерк: явное согласие на историю письма, с которой обходятся как с биометрией; образцы получают организатор, раннер и Anthropic, и они не публикуются; 2 года от сеанса, форма — 5 лет после того, как стёрты образцы; отзыв по коду писавшего за 30 дней. Вы заявляете, что вам 18 или больше и по законам места, где вы живёте, вы вправе заключить этот договор, и подписываете его с именем и датой."
+          en: "Consent to write samples for a measurement of how well AI reads handwriting: explicit consent to the history of your writing, treated as biometric data; the organizer, NovaTrail's measuring program and Anthropic receive the samples, which are never published; 2 years from the session, the form 5 years after the samples are erased; withdrawal by your writer code, to the organizer or the operator, within 30 days. The operator is ALT EdTech LLC, in Texas. You declare that you are 18 or older, may make this agreement where you live, and do not live in the EU, the EEA or the UK, and sign with your name and the date."
+          ru: "Согласие писать образцы для замера того, как ИИ читает почерк: явное согласие на историю письма, с которой обходятся как с биометрией; образцы получают организатор, программа NovaTrail, которая меряет чтение, и Anthropic, и они не публикуются; 2 года от сеанса, форма — 5 лет после того, как стёрты образцы; отзыв по коду писавшего — организатору или оператору — за 30 дней. Оператор — ALT EdTech LLC, Техас. Вы заявляете, что вам 18 или больше, по законам места, где вы живёте, вы вправе заключить этот договор и живёте не в ЕС, ЕЭЗ и Великобритании, и подписываете его с именем и датой."
   eval-set-notice:
     place: samples_page
     versions:
       - version: 1
-        status: draft
+        status: in_force
+        in_force_since: "2026-11-10"
         summary:
-          en: "Your samples join a module's eval set, by which every new AI model is tested. A sample holds the final shapes of what you wrote (not the history of the writing), its crops, its markup and the Apache-2.0 license — no writer code, no name. Write on made-up topics. The organizer checks each sample by hand and erases one with a name. Samples are published with the module for ever and cannot be withdrawn, and in its tests they run at Anthropic and OpenAI. You send the file by a one-day upload link."
-          ru: "Ваши образцы войдут в eval-набор модуля, по которому проверяют каждую новую модель ИИ. В образце — итоговые штрихи без истории письма, вырезки, разметка и лицензия Apache-2.0, без кода писавшего и имени. Пишите на выдуманные темы. Организатор проверяет каждый образец руками и стирает образец с именем. Образцы публикуются с модулем навсегда, и отозвать их нельзя, а в его тестах они идут к Anthropic и OpenAI. Файл вы отправляете по ссылке на загрузку на сутки."
+          en: "Your samples join a module's eval set, by which every new AI model is tested. A sample holds the final shapes of what you wrote (not the history of the writing), its crops, its markup and the Apache-2.0 license — no writer code, no name. Write on made-up topics. The organizer checks each sample by hand and erases one with a name. Samples are published with the module, and a published version keeps them for ever; withdrawing takes a sample out before it is added, or out of the module's next version after. In its tests they run at Anthropic and OpenAI. You send the file by a one-day upload link. The operator is ALT EdTech LLC, in Texas."
+          ru: "Ваши образцы войдут в eval-набор модуля, по которому проверяют каждую новую модель ИИ. В образце — итоговые штрихи без истории письма, вырезки, разметка и лицензия Apache-2.0, без кода писавшего и имени. Пишите на выдуманные темы. Организатор проверяет каждый образец руками и стирает образец с именем. Образцы публикуются с модулем, и вышедшая версия хранит их навсегда; отзыв убирает образец до того, как он внесён, или из следующей версии модуля — после. В тестах модуля они идут к Anthropic и OpenAI. Файл вы отправляете по ссылке на загрузку на сутки. Оператор — ALT EdTech LLC, Техас."
   volunteer-form:
     place: form
     versions:
       - version: 1
-        status: draft
+        status: in_force
+        in_force_since: "2026-11-10"
         summary:
-          en: "The volunteer's agreement for a module's eval set: your samples, without the history of the writing, are published with the module under Apache-2.0 for ever and cannot be withdrawn; they run at Anthropic and OpenAI in its tests; an essay is marked by two people, a third deciding where they differ; samples are for evaluating AI, not for training. The form and the record of your samples' digests are kept while any of them is published, or 12 months if none was added. It carries the Developer Certificate of Origin 1.1, whose point (a) you certify, and your declaration that you are 18 or older and may make this agreement where you live."
-          ru: "Договор добровольца eval-набора модуля: ваши образцы, без истории письма, публикуются с модулем под Apache-2.0 навсегда, и отозвать их нельзя; в его тестах они идут к Anthropic и OpenAI; сочинение оценивают двое, а где они разошлись, решает третий; образцы — для проверки ИИ, а не для обучения. Форма и запись с дайджестами ваших образцов хранятся, пока хоть один из них опубликован, а если ни один не внесён — 12 месяцев. В ней — Developer Certificate of Origin 1.1, пункт (a) которого вы заверяете, и заявление, что вам 18 или больше и по законам места, где вы живёте, вы вправе заключить этот договор."
+          en: "The volunteer's agreement for a module's eval set: your samples, without the history of the writing, are published with the module under Apache-2.0, and a published version keeps them for ever: withdrawing takes a sample out before it is added, or out of the module's next version after; they run at Anthropic and OpenAI in its tests; an essay is marked by two people, a third deciding where they differ; NovaTrail trains no model of its own on them, but once published anyone may use them as Apache-2.0 allows. The form and the record of your samples' digests are kept while any of them is published, or 12 months if none was added. It carries the Developer Certificate of Origin 1.1, whose point (a) you certify, and your declaration that you are 18 or older, may make this agreement where you live, and do not live in the EU, the EEA or the UK. The operator is ALT EdTech LLC, in Texas."
+          ru: "Договор добровольца eval-набора модуля: ваши образцы, без истории письма, публикуются с модулем под Apache-2.0, и вышедшая версия хранит их навсегда: отзыв убирает образец до того, как он внесён, или из следующей версии модуля — после; в его тестах они идут к Anthropic и OpenAI; сочинение оценивают двое, а где они разошлись, решает третий; своей модели NovaTrail на них не учит, но опубликованные любой может брать, как позволяет Apache-2.0. Форма и запись с дайджестами ваших образцов хранятся, пока хоть один из них опубликован, а если ни один не внесён — 12 месяцев. В ней — Developer Certificate of Origin 1.1, пункт (a) которого вы заверяете, и заявление, что вам 18 или больше, по законам места, где вы живёте, вы вправе заключить этот договор и живёте не в ЕС, ЕЭЗ и Великобритании. Оператор — ALT EdTech LLC, Техас."
   child-sample-notice:
     place: samples_page
     versions:
@@ -113,7 +117,8 @@ sets:
   measure:
     versions:
       - version: 1
-        status: draft
+        status: in_force
+        in_force_since: "2026-11-10"
         notice:
           text: measure-notice
           version: 1
@@ -123,7 +128,8 @@ sets:
   eval-set:
     versions:
       - version: 1
-        status: draft
+        status: in_force
+        in_force_since: "2026-11-10"
         notice:
           text: eval-set-notice
           version: 1
