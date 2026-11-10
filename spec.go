@@ -16,7 +16,7 @@ import (
 // leaves out otherwise: a vector of packages holds one on purpose, since a module's package
 // leaves such files out (format/README.md, section 25).
 //
-//go:embed all:format all:admission all:deployment all:legal
+//go:embed all:format all:admission all:deployment all:legal all:consent-age
 var files embed.FS
 
 // Format is the module format as the release has it: format/ at its tag, with the text, VERSION,
@@ -41,6 +41,13 @@ var Deployment = sub("deployment")
 // version of a text is "texts/privacy-policy/1.md". api serves the texts from it
 // (legal/README.md, section 8).
 var Legal = sub("legal")
+
+// ConsentAge is the table of the age of digital consent as the release has it (R134):
+// consent-age/ at its tag, with the text, VERSION, the table, the schemas, the examples and the
+// test vectors (consent-age/README.md, section 3). Its root is consent-age/, so that the table is
+// "consent-age.yaml". api computes a learner's age category by it (consent-age/README.md,
+// section 6).
+var ConsentAge = sub("consent-age")
 
 func sub(dir string) fs.FS {
 	part, err := fs.Sub(files, dir)

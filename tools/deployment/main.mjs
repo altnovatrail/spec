@@ -18,10 +18,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
 import { checkConventions, compileSchemas, isKebabCase, isSchemaName, readSchema } from "../format-check/schemas.mjs";
-import { checkExample, readText } from "../format-check/cases.mjs";
+import { checkExample } from "../format-check/cases.mjs";
 import { readModuleFile } from "../format-check/yaml.mjs";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { describe, filesUnder, printCheck, readVersion as readVersionFile, uniqueErrors, yamlProblems } from "../parts.mjs";
+import { checkFormatField, describe, filesUnder, printCheck, readRules, readVersion as readVersionFile, uniqueErrors, yamlProblems } from "../parts.mjs";
 import { RULES, originOf, readingOf } from "./reading.mjs";
 
 export const FOLDER = "deployment";
@@ -53,8 +53,8 @@ export function checkDeployment(root) {
   for (const term of [FILE_TERM, VECTOR_TERM]) {
     if (!layout.schemas.includes(`${term}.schema.json`)) report(`${FOLDER}/schemas`, 0, `no ${term}.schema.json, which the text names`);
   }
-  checkFormatField(schemas, version, report);
-  stats.rules = readRules(root, report).length;
+  checkFormatField(schemas, version, FOLDER, FILE_TERM, report);
+  stats.rules = readRules(root, FOLDER, RULES, "deployment-check", report).length;
 
   for (const { file, term, kind } of layout.examples) {
     // A schema with an error of its own is not compiled: its examples are read by the YAML rules
@@ -109,34 +109,6 @@ function readLayout(root, report) {
 // The version in deployment/VERSION, an integer as text, or null when it cannot be read.
 function readVersion(root, report) {
   return readVersionFile(root, `${FOLDER}/VERSION`, VERSION, { missing: "no VERSION: the format's version, an integer and a newline", malformed: "the format's version is an integer from 1 and a newline, with no leading zero" }, report);
-}
-
-// The field format of the file holds the version in VERSION, and nothing else (section 2).
-function checkFormatField(schemas, version, report) {
-  const schema = schemas.find((each) => each.name === `${FILE_TERM}.schema.json`);
-  if (!schema?.json || version === null) return;
-  const at = ["properties", "format", "const"];
-  if (schema.json.properties?.format?.const !== Number(version)) report(schema.file, schema.lineOf(at), `the field format is the const ${version}, the version in ${FOLDER}/VERSION`);
-}
-
-// The rules the text lists, each against reading.mjs.
-function readRules(root, report) {
-  const readme = `${FOLDER}/README.md`;
-  if (!fs.existsSync(path.join(root, readme))) {
-    report(readme, 0, "no text");
-    return [];
-  }
-  const { rules, problems } = readText(fs.readFileSync(path.join(root, readme), "utf8"));
-  // The configuration has no layout of a module: readText's complaint of that is the format's alone.
-  for (const problem of problems) if (problem.line > 0) report(readme, problem.line, problem.message);
-  const ids = rules.map((rule) => rule.id);
-  for (const rule of rules) if (!RULES.includes(rule.id)) report(readme, rule.line, `${rule.id}: no rule deployment-check knows`);
-  for (const rule of RULES) if (!ids.includes(rule)) report(readme, 0, `${rule}: a rule deployment-check knows, and the text lists it not`);
-  // The rules are read in the order of the table, and the first one broken refuses the file: the
-  // order is part of what they say.
-  const listed = ids.filter((id) => RULES.includes(id));
-  if (!isDeepStrictEqual(listed, RULES.filter((rule) => ids.includes(rule)))) report(readme, rules[0].line, `the rules stand in the order reading.mjs reads them, ${RULES.join(", ")}`);
-  return rules;
 }
 
 // A vector of reading: it follows the YAML rules and passes its schema, the origin of each case is

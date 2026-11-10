@@ -1,6 +1,6 @@
 # @altnovatrail/spec
 
-The types of [NovaTrail](https://github.com/altnovatrail)'s module format for TypeScript, from 0.8.0 on those of its admission table, from 0.11.0 on those of its deployment configuration, and from 0.13.0 on those of the passport of its legal texts. The package covers:
+The types of [NovaTrail](https://github.com/altnovatrail)'s module format for TypeScript, from 0.8.0 on those of its admission table, from 0.11.0 on those of its deployment configuration, from 0.13.0 on those of the passport of its legal texts, and from 0.14.0 on those of its table of the age of digital consent. The package covers:
 - the parts of a module and their open views;
 - the canonical view and the inventory of a package;
 - the module index;
@@ -17,6 +17,8 @@ From 0.10.0 on, it holds the page of the workbook too, which format 0.4 makes a 
 From 0.11.0 on, it holds the types of the deployment configuration too: the file `/deployment.json`, which the learner's app reads at its start from the root of its origin, with the origin of the platform's API and the parameters of the sign-in service ([the format's text](https://github.com/altnovatrail/spec/blob/main/deployment/README.md)). They are generated from its schemas, `deployment/schemas`, as the format's are, and the fields of the file keep their names in camelCase, such as `signIn.apiKey`.
 
 From 0.13.0 on, it holds the types of the legal texts' passport too, `legal/legal.yaml`: each text of the platform — the privacy policy, the terms of use, the consents and the forms —, where it is shown, its versions with their status, the date each came into force and its gist in each language of the interface, and the sets of texts of the samples page ([the part's text](https://github.com/altnovatrail/spec/blob/main/legal/README.md)). The words of each version are a Markdown file of their own, `legal/texts/<id>/<n>.md`, which no type holds. They are generated from the part's schemas, `legal/schemas`, as the format's are.
+
+From 0.14.0 on, it holds the types of the table of the age of digital consent too, `consent-age/consent-age.yaml`: for each country, by its code of ISO 3166-1 alpha-2, the age from which a learner gives consent themselves, from the day it applies, with the law and the provision that set it, a quote of the provision, its source and the date it was read ([the part's text](https://github.com/altnovatrail/spec/blob/main/consent-age/README.md)). `Country` is the 249 codes ISO 3166-1 assigns officially, which a screen may take as the countries it offers. They are generated from the part's schemas, `consent-age/schemas`, as the format's are.
 
 The types are declarations alone, with no code to run, so import them with `import type`; the page's JSON is data, which a module imports with `with { type: "json" }` or reads as a file:
 
@@ -39,6 +41,7 @@ function show(task: open.Task, manifest: open.Manifest) {
 - **`@altnovatrail/spec/admissionv0`** holds the types of the admission table's major version 0: the table, with its providers, deployment facts, rules of capabilities and cells, and the test vectors of the admission function's answers.
 - **`@altnovatrail/spec/deploymentv1`** holds the types of the deployment configuration's version 1: the file, `Deployment`, and the test vectors of reading it, `ReadingVector`, whose file is any JSON value, `unknown`. A type gives the shape alone: a reader checks the file against its schema and then against the rules of reading, section 5 of the format's text.
 - **`@altnovatrail/spec/legalv1`** holds the types of version 1 of the legal texts: the passport, `Legal`, with each `Text` and its `TextVersion`, each `Set` and its `SetVersion`, and the test vectors of reading the part, `ReadingVector`, whose passport is any JSON value, `unknown`. A type gives the shape alone: a reader checks the passport against its schema and then the part against the rules of reading, section 5 of the part's text.
+- **`@altnovatrail/spec/consentagev1`** holds the types of version 1 of the table of the age of digital consent: the table, `ConsentAge`, with each country's `Entry`, the `Country` codes, and the test vectors of reading the table, `ReadingVector`, whose table is any JSON value, `unknown`, and of the category, `CategoryVector`. A type gives the shape alone: a reader checks the table against its schema and then against the rules of reading, section 5 of the part's text, and computes a learner's category as the part's text says.
 - **`@altnovatrail/spec/canvas`** holds the types of `<novatrail-canvas>`:
   - `CanvasElement`, which describes the element's properties `tool`, `task`, `workedExample`, `demoState`, `manifest`, `media`, `history`, `marks` and `filled` and its method `exportWork()`;
   - `Media`, the function by which the consumer gives the files of the pictures: the canvas goes to no network;

@@ -1,0 +1,61 @@
+# Tables a reader accepts: with no release before, with a new entry and a new country since the
+# release before, and with the words of an entry corrected and read again. Synthetic: the ages, laws
+# and sources are no country's.
+
+cases:
+  # With no release before.
+  - table:
+      format: 1
+      outside_table: 18
+      countries:
+        BE:
+          - age: 13
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+    accepted: true
+  # A new entry of a country and a new country; the entry of the release before is kept, its words
+  # corrected and read again.
+  - table:
+      format: 1
+      outside_table: 18
+      countries:
+        BE:
+          - age: 13
+            from: "2018-05-25"
+            law: Synthetic Act of 2018, as amended
+            provision: Article 1(2)
+            quote: The words of the provision, as corrected.
+            source: https://example.org/act-consolidated
+            read: "2027-03-01"
+          - age: 15
+            from: "2028-01-01"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+        DE:
+          - age: 16
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+    previous:
+      format: 1
+      outside_table: 18
+      countries:
+        BE:
+          - age: 13
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+    accepted: true

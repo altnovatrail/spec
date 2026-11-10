@@ -1,0 +1,13 @@
+# error: const at #/format
+# A table of a version this schema is not.
+format: 2
+outside_table: 18
+countries:
+  BE:
+    - age: 13
+      from: "2018-05-25"
+      law: Synthetic Act of 2018
+      provision: Article 1
+      quote: The words of the provision.
+      source: https://example.org/act
+      read: "2026-11-10"

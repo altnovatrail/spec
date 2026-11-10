@@ -1,0 +1,23 @@
+# A table of two countries, one with an age a law lowered and one with GDPR's own. Synthetic: the
+# ages, laws and sources are no country's.
+
+format: 1
+outside_table: 18
+countries:
+  BE:
+    - age: 13
+      from: "2018-05-25"
+      law: Synthetic Act of 2018
+      provision: Article 1
+      quote: The words of the provision.
+      source: https://example.org/act
+      read: "2026-11-10"
+  DE:
+    - age: 16
+      from: "2018-05-25"
+      law: Synthetic Act of 2018
+      provision: Article 1
+      quote: The words of the provision.
+      source: https://example.org/act
+      read: "2026-11-10"
+      note: The national law sets no age, and GDPR's own applies.

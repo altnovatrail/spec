@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/consent-age/1/reading-vector.schema.json",
+  "title": "Reading vector",
+  "description": "A test vector of reading (section 8 of the text of the part): tables, each perhaps with the table of the release before, and what section 5 gives. A reader implements section 5 and gets exactly this.",
+  "type": "object",
+  "properties": {
+    "cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/case",
+        "unevaluatedProperties": false,
+        "description": "A table, read once."
+      },
+      "minItems": 1,
+      "description": "The tables."
+    }
+  },
+  "required": [
+    "cases"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "case": {
+      "type": "object",
+      "properties": {
+        "table": {
+          "description": "The table as YAML reads it: any value, not only one the schema accepts."
+        },
+        "previous": {
+          "description": "The table of the release before, which consent-age.ages-kept reads: a table its schema accepts. Left out when that release has no consent-age/."
+        },
+        "accepted": {
+          "type": "boolean",
+          "const": true,
+          "description": "The reader accepts the table. Left out when it refuses it."
+        },
+        "refused_by": {
+          "enum": [
+            "schema",
+            "consent-age.days",
+            "consent-age.entries-ordered",
+            "consent-age.ages-kept"
+          ],
+          "description": "The step that refuses the table: the schema, or the ID of the rule. Left out when the reader accepts it."
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "A path of the table, a country as countries.<code>, or an entry as countries.<code>.<index>."
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Every name that step gives, in the order of code units."
+        }
+      },
+      "required": [
+        "table"
+      ],
+      "dependentRequired": {
+        "refused_by": [
+          "names"
+        ],
+        "names": [
+          "refused_by"
+        ]
+      },
+      "oneOf": [
+        {
+          "required": [
+            "accepted"
+          ]
+        },
+        {
+          "required": [
+            "refused_by"
+          ]
+        }
+      ]
+    }
+  }
+}

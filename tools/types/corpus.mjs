@@ -1,10 +1,11 @@
 // The corpus of tools/types/roundtrip (R72; RUN.md, T45): every value of format/ that passes a
 // schema, with the type of formatv0 that reads it, every value of admission/, with the type of
-// admissionv0 (R96), every value of deployment/, with the type of deploymentv1 (R85), and every
-// value of legal/, with the type of legalv1 (R130).
+// admissionv0 (R96), every value of deployment/, with the type of deploymentv1 (R85), every value
+// of legal/, with the type of legalv1 (R130), and every value of consent-age/, with the type of
+// consentagev1 (R134).
 //
 //   node tools/types/corpus.mjs <file>      writes the corpus of spec's own format/, admission/,
-//                                           deployment/ and legal/ to <file>
+//                                           deployment/, legal/ and consent-age/ to <file>
 //
 // The corpus holds:
 // - each valid example of a term, examples/<term>/valid/<case>.yaml;
@@ -23,7 +24,9 @@
 // - of deployment/: each valid example of the file and each vector of reading, whose files are any
 //   JSON value, as a reader gets them;
 // - of legal/: the passport, each valid example of it and each vector of reading, whose passports
-//   are any JSON value, as a reader gets them.
+//   are any JSON value, as a reader gets them;
+// - of consent-age/: the table, each valid example of it, each vector of reading, whose tables are
+//   any JSON value, as a reader gets them, and each vector of the category.
 // Each case is { file, type, value, closed }: closed is true where reading the value fails on a
 // field its type has not. A value that does not pass its schema, or a folder of vectors/ that the
 // corpus does not know, is a problem: format-check names what is wrong with the first, and the task
@@ -44,8 +47,9 @@ import { byCodeUnits, isMain } from "../shared.mjs";
 import { ADMISSION_PART, FOLDER as ADMISSION } from "../admission/main.mjs";
 import { DEPLOYMENT_PART, FOLDER as DEPLOYMENT } from "../deployment/main.mjs";
 import { LEGAL_PART, FOLDER as LEGAL } from "../legal/main.mjs";
-import { ADMISSION_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_PACKAGE, OPEN, PACKAGE } from "./go.mjs";
-import { readAdmission, readDeployment, readFormat, readLegal } from "./main.mjs";
+import { CONSENT_AGE_PART, FOLDER as CONSENT_AGE } from "../consent-age/main.mjs";
+import { ADMISSION_PACKAGE, CONSENT_AGE_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_PACKAGE, OPEN, PACKAGE } from "./go.mjs";
+import { readAdmission, readConsentAge, readDeployment, readFormat, readLegal } from "./main.mjs";
 import { buildModel } from "./model.mjs";
 
 const FORMAT = "format";
@@ -217,12 +221,13 @@ export function admissionCorpusOf(root, model) {
   return { cases, problems };
 }
 
-// The corpus of a normative part at root whose values are its examples, its vectors of reading and
-// the files it names, by the root types of its model: { cases, problems }. part is { folder,
-// schemaPart, packageName, check, files }: the part's folder, its part of the schemas'
-// conventions, the package of its types, the check that names what is wrong with a value, and the
-// files of the part that are values of a term, [file, term] by their paths from root.
-export function partCorpusOf(root, model, { folder, schemaPart, packageName, check, files = [] }) {
+// The corpus of a normative part at root whose values are its examples, its vectors and the files
+// it names, by the root types of its model: { cases, problems }. part is { folder, schemaPart,
+// packageName, check, files, vectors }: the part's folder, its part of the schemas' conventions,
+// the package of its types, the check that names what is wrong with a value, the files of the part
+// that are values of a term, [file, term] by their paths from root, and the term of each folder of
+// vectors, by its name, which is reading's alone unless given.
+export function partCorpusOf(root, model, { folder, schemaPart, packageName, check, files = [], vectors: terms = { reading: "reading-vector" } }) {
   const cases = [];
   const problems = [];
   const schemas = fs
@@ -237,7 +242,7 @@ export function partCorpusOf(root, model, { folder, schemaPart, packageName, che
   }
   for (const vectors of list(`${folder}/vectors`)) {
     const dir = `${folder}/vectors/${vectors.name}`;
-    if (vectors.name === "reading") for (const entry of list(dir)) add(`${dir}/${entry.name}`, "reading-vector", read(`${dir}/${entry.name}`));
+    if (Object.hasOwn(terms, vectors.name)) for (const entry of list(dir)) add(`${dir}/${entry.name}`, terms[vectors.name], read(`${dir}/${entry.name}`));
     else problems.push(`${dir}: tools/types does not know these vectors: the task that brings them extends the corpus`);
   }
   return { cases, problems };
@@ -255,6 +260,12 @@ export function legalCorpusOf(root, model) {
   return partCorpusOf(root, model, { folder: LEGAL, schemaPart: LEGAL_PART, packageName: LEGAL_PACKAGE, check: "legal-check", files: [[`${LEGAL}/legal.yaml`, "legal"]] });
 }
 
+// The corpus of the table of the age of digital consent at root, by the root types of its model:
+// the table, each valid example of it, each vector of reading and each vector of the category.
+export function consentAgeCorpusOf(root, model) {
+  return partCorpusOf(root, model, { folder: CONSENT_AGE, schemaPart: CONSENT_AGE_PART, packageName: CONSENT_AGE_PACKAGE, check: "consent-age-check", files: [[`${CONSENT_AGE}/consent-age.yaml`, "consent-age"]], vectors: { reading: "reading-vector", category: "category-vector" } });
+}
+
 if (isMain(import.meta.url)) {
   const [file, ...rest] = process.argv.slice(2);
   if (!file || rest.length) {
@@ -269,8 +280,10 @@ if (isMain(import.meta.url)) {
   const deployment = deploymentCorpusOf(root, buildModel(configuration.schemas, [], configuration.options));
   const part = readLegal(root);
   const legal = legalCorpusOf(root, buildModel(part.schemas, [], part.options));
-  const cases = [...format.cases, ...admission.cases, ...deployment.cases, ...legal.cases];
-  const problems = [...format.problems, ...admission.problems, ...deployment.problems, ...legal.problems];
+  const ages = readConsentAge(root);
+  const consentAge = consentAgeCorpusOf(root, buildModel(ages.schemas, [], ages.options));
+  const cases = [...format.cases, ...admission.cases, ...deployment.cases, ...legal.cases, ...consentAge.cases];
+  const problems = [...format.problems, ...admission.problems, ...deployment.problems, ...legal.problems, ...consentAge.problems];
   for (const problem of problems) console.error(`corpus: ${problem}`);
   if (problems.length) process.exit(1);
   fs.writeFileSync(file, JSON.stringify(cases));

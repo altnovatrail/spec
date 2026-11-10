@@ -152,6 +152,48 @@ func TestLegalHoldsEveryFile(t *testing.T) {
 	}
 }
 
+// ConsentAge holds every file of consent-age/, and its VERSION is an integer, which the field format
+// of the table's schema holds, as the table itself does.
+func TestConsentAgeHoldsEveryFile(t *testing.T) {
+	embedded := filesOf(t, ConsentAge)
+	onDisk := filesOf(t, os.DirFS("consent-age"))
+	if !slices.Equal(embedded, onDisk) {
+		t.Fatalf("ConsentAge holds %d files, and consent-age/ %d", len(embedded), len(onDisk))
+	}
+	version, err := fs.ReadFile(ConsentAge, "VERSION")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !regexp.MustCompile(`^[1-9][0-9]*\n$`).Match(version) {
+		t.Fatalf("VERSION is %q, not an integer and a newline", version)
+	}
+	data, err := fs.ReadFile(ConsentAge, "schemas/consent-age.schema.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var schema struct {
+		Properties struct {
+			Format struct {
+				Const json.Number `json:"const"`
+			} `json:"format"`
+		} `json:"properties"`
+	}
+	if err := json.Unmarshal(data, &schema); err != nil {
+		t.Fatalf("schemas/consent-age.schema.json is not JSON: %v", err)
+	}
+	want := strings.TrimSuffix(string(version), "\n")
+	if string(schema.Properties.Format.Const) != want {
+		t.Fatalf("the field format of the table is the const %q, and VERSION %q", schema.Properties.Format.Const, want)
+	}
+	table, err := fs.ReadFile(ConsentAge, "consent-age.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !regexp.MustCompile(`(?m)^format: ` + regexp.QuoteMeta(want) + `$`).Match(table) {
+		t.Fatalf("consent-age.yaml does not hold format: %s", want)
+	}
+}
+
 func filesOf(t *testing.T, fsys fs.FS) []string {
 	t.Helper()
 	var names []string

@@ -1,14 +1,15 @@
-// types: the types of the module format, of the admission table, of the deployment configuration
-// and of the legal texts, generated from their schemas (R72, R96, R85, R130; RUN.md, T45, T61,
-// T91).
+// types: the types of the module format, of the admission table, of the deployment configuration,
+// of the legal texts and of the table of the age of digital consent, generated from their schemas
+// (R72, R96, R85, R130, R134; RUN.md, T45, T61, T91, T96, T100).
 //
 //   node tools/types/main.mjs <folder>      writes the files under <folder>, by their paths from
 //                                           the root of the repository
 //
 // Reads spec's own format/, two levels above this file: the schemas, the version, and the parts of
-// a module that the layout of the format text names; and admission/, deployment/ and legal/, the
-// schemas and the version of each. Writes the Go of the models — the packages formatv0 and
-// formatv0/open under types/, admissionv0, deploymentv1 and legalv1 beside them, and the registry
+// a module that the layout of the format text names; and admission/, deployment/, legal/ and
+// consent-age/, the schemas and the version of each. Writes the Go of the models — the packages
+// formatv0 and formatv0/open under types/, admissionv0, deploymentv1, legalv1 and consentagev1
+// beside them, and the registry
 // of tools/types/roundtrip — as gofmt
 // leaves it but for the alignment of a struct's fields, and the TypeScript of the same packages
 // beside it, index.d.ts in each (R73): `just types` runs gofmt on them, and `just types-check`
@@ -30,6 +31,7 @@ const SCHEMAS = "format/schemas";
 const ADMISSION = "admission";
 const DEPLOYMENT = "deployment";
 const LEGAL = "legal";
+const CONSENT_AGE = "consent-age";
 const SUFFIX = ".schema.json";
 
 // What the model is built of: { schemas, version, parts }, each schema { name, json }; version is
@@ -79,6 +81,18 @@ export function readLegal(root) {
   return { schemas: schemasIn(root, `${LEGAL}/schemas`), version, options: { anyValue: true } };
 }
 
+// What the model of the table of the age of digital consent is built of: { schemas, version,
+// options }, of consent-age/schemas and consent-age/VERSION (R134), and the options of buildModel: a
+// vector of reading's table holds any JSON value. It has no open view. Its types are the package
+// consentagev1, which holds the part's version 1 alone: another version is a change of the part's
+// layout, schema or rules (consent-age/README.md, section 2), which would need a package of its
+// own, so another one stops the generator (R72).
+export function readConsentAge(root) {
+  const version = fs.readFileSync(path.join(root, CONSENT_AGE, "VERSION"), "utf8").trim();
+  if (version !== "1") throw new Error(`consent-age/VERSION is ${version}: the types of the table of the age of digital consent are the package consentagev1, of the part's version 1, and another version needs a package of its own`);
+  return { schemas: schemasIn(root, `${CONSENT_AGE}/schemas`), version, options: { anyValue: true } };
+}
+
 // The schemas of a folder of root, { name, json }, in the order of code units of their names.
 function schemasIn(root, dir) {
   return fs
@@ -104,10 +118,11 @@ export function pageFiles(root) {
   return [[`${PAGE_DIR}/page.json`, json("format/page.yaml")], ...cases.map((name) => [`${PAGE_DIR}/vectors/${name.replace(/\.yaml$/, ".json")}`, json(`format/vectors/pages/${name}`)])];
 }
 
-// The models and the files of the format, of the admission table, of the deployment configuration
-// and of the legal texts at root, by their paths from the root of the repository: { model,
-// admission, deployment, legal, files }, admission the table's model, deployment the
-// configuration's and legal the legal texts'.
+// The models and the files of the format, of the admission table, of the deployment configuration,
+// of the legal texts and of the table of the age of digital consent at root, by their paths from
+// the root of the repository: { model, admission, deployment, legal, consentAge, files }, admission
+// the admission table's model, deployment the configuration's, legal the legal texts' and
+// consentAge the table of the age of digital consent's.
 export function generate(root) {
   const { schemas, version, parts } = readFormat(root);
   const model = buildModel(schemas, parts);
@@ -117,8 +132,10 @@ export function generate(root) {
   const deployment = { model: buildModel(configuration.schemas, [], configuration.options), version: configuration.version };
   const part = readLegal(root);
   const legal = { model: buildModel(part.schemas, [], part.options), version: part.version };
-  const files = new Map([...goFiles(model, version, admission, deployment, legal), ...tsFiles(model, version, admission, deployment, legal), ...pageFiles(root)]);
-  return { model, admission: admission.model, deployment: deployment.model, legal: legal.model, files };
+  const ages = readConsentAge(root);
+  const consentAge = { model: buildModel(ages.schemas, [], ages.options), version: ages.version };
+  const files = new Map([...goFiles(model, version, admission, deployment, legal, consentAge), ...tsFiles(model, version, admission, deployment, legal, consentAge), ...pageFiles(root)]);
+  return { model, admission: admission.model, deployment: deployment.model, legal: legal.model, consentAge: consentAge.model, files };
 }
 
 // Writes the files under folder, which holds no file of theirs yet.

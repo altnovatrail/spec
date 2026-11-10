@@ -142,7 +142,7 @@ test("the archive of the contracts' code is bound to its tag as spec's other pac
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive([]), "v0.5.6", source), /names the package undefined/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive(null), "v0.5.6", source), /cannot be read: it holds no object/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", contracts, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
-  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, legal-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
+  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, legal-<version>\.tar\.gz, consent-age-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
 });
 
 // A part's archive as release-files writes it, of a made-up spec whose commit v0.13.0 names:
@@ -169,13 +169,14 @@ function partArchive(name, files, prefix = name.slice(0, -".tar.gz".length)) {
 
 test("the archive of each part is bound to its tag as the format's is, by the commit in its header, and holds what its name says", () => {
   // Each part as release-files writes it: the admission table by MAJOR.MINOR, the deployment
-  // configuration and the legal texts by an integer.
+  // configuration, the legal texts and the table of the age of digital consent by an integer.
   for (const [name, part, version] of [
     ["admission-0.1.tar.gz", "admission", "0.1"],
     ["deployment-1.tar.gz", "deployment", "1"],
     ["deployment-12.tar.gz", "deployment", "12"],
     ["legal-1.tar.gz", "legal", "1"],
     ["legal-23.tar.gz", "legal", "23"],
+    ["consent-age-1.tar.gz", "consent-age", "1"],
   ]) {
     const { bytes, source } = partArchive(name, { [`${part}/VERSION`]: `${version}\n`, [`${part}/schemas/a.schema.json`]: "{}\n" });
     checkSpecContent(name, bytes, "v0.13.0", source);
@@ -186,8 +187,8 @@ test("the archive of each part is bound to its tag as the format's is, by the co
   // v0.5.6, by another part's name, is bound to v0.5.6, and holds format-0.1/, not that part.
   const format = specFile("format-0.1.tar.gz").bytes;
   const source = gitHub();
-  for (const name of ["admission-0.1.tar.gz", "deployment-1.tar.gz", "legal-1.tar.gz", "format-0.2.tar.gz"]) {
-    assert.throws(() => checkSpecContent(name, format, "v0.5.6", source), /holds format-0\.1\/, and the archive of [a-z]+\/ that its name says holds [a-z]+-[0-9.]+\/LICENSE and [a-z]+-[0-9.]+\/[a-z]+\/ alone/, name);
+  for (const name of ["admission-0.1.tar.gz", "deployment-1.tar.gz", "legal-1.tar.gz", "consent-age-1.tar.gz", "format-0.2.tar.gz"]) {
+    assert.throws(() => checkSpecContent(name, format, "v0.5.6", source), /holds format-0\.1\/, and the archive of [a-z-]+\/ that its name says holds [a-z-]+-[0-9.]+\/LICENSE and [a-z-]+-[0-9.]+\/[a-z-]+\/ alone/, name);
   }
   assert.throws(() => checkSpecContent("legal-1.tar.gz", format, "v0.5.5", source), /legal-1\.tar\.gz is git archive's of e6069ae\w+, and spec v0\.5\.5 is c143fa0/);
   // Its VERSION is the version its name says.
@@ -204,9 +205,9 @@ test("the archive of each part is bound to its tag as the format's is, by the co
   // What tar cannot list is no archive of a part, and an archive of nothing holds neither file.
   assert.throws(() => checkPartArchive("legal-1.tar.gz", Buffer.from("no gzip")), /^Error: legal-1\.tar\.gz cannot be listed by tar/);
   assert.throws(() => checkPartArchive("legal-1.tar.gz", zlib.gzipSync(Buffer.alloc(1024))), /^Error: legal-1\.tar\.gz holds no legal-1\/LICENSE$/);
-  // A version is an integer from 1 for the deployment configuration and the legal texts, and
-  // MAJOR.MINOR for the others.
-  for (const name of ["admission-01.tar.gz", "deployment-0.tar.gz", "deployment-01.tar.gz", "deployment-1.0.tar.gz", "admission-1.tar.gz", "format-1.tar.gz", "legal-0.tar.gz", "legal-01.tar.gz", "legal-1.0.tar.gz", "legals-1.tar.gz"]) {
+  // A version is an integer from 1 for the deployment configuration, the legal texts and the table
+  // of the age of digital consent, and MAJOR.MINOR for the others.
+  for (const name of ["admission-01.tar.gz", "deployment-0.tar.gz", "deployment-01.tar.gz", "deployment-1.0.tar.gz", "admission-1.tar.gz", "format-1.tar.gz", "legal-0.tar.gz", "legal-01.tar.gz", "legal-1.0.tar.gz", "legals-1.tar.gz", "consent-age-0.tar.gz", "consent-age-1.0.tar.gz", "consent-1.tar.gz", "age-1.tar.gz"]) {
     assert.throws(() => checkSpecContent(name, format, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag/, name);
   }
 });

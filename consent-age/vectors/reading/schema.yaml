@@ -1,0 +1,40 @@
+# Tables the schema refuses, named by the paths of what it refuses.
+
+cases:
+  # A code ISO 3166-1 only reserves, a key the map refuses as it stands.
+  - table:
+      format: 1
+      outside_table: 18
+      countries:
+        UK:
+          - age: 13
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            quote: The words of the provision.
+            source: https://example.org/act
+            read: "2026-11-10"
+    refused_by: schema
+    names:
+      - countries.UK
+  # An age below 13 and a missing quote.
+  - table:
+      format: 1
+      outside_table: 18
+      countries:
+        BE:
+          - age: 12
+            from: "2018-05-25"
+            law: Synthetic Act of 2018
+            provision: Article 1
+            source: https://example.org/act
+            read: "2026-11-10"
+    refused_by: schema
+    names:
+      - countries.BE.0.age
+      - countries.BE.0.quote
+  # No table at all.
+  - table: null
+    refused_by: schema
+    names:
+      - ""

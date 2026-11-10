@@ -1,7 +1,8 @@
 // release-files: the files spec's release of a commit carries, by the line it is numbered in (R64).
 //
 //   { git show <commit>:format/VERSION; echo --; git show <commit>:admission/VERSION; echo --;
-//     git show <commit>:deployment/VERSION; echo --; git show <commit>:legal/VERSION; } \
+//     git show <commit>:deployment/VERSION; echo --; git show <commit>:legal/VERSION; echo --;
+//     git show <commit>:consent-age/VERSION; } \
 //       | node tools/release/files.mjs <line> [<tag>]
 //
 // From FIRST_FILES_LINE on, a release carries each normative part that has a version of its own
@@ -14,6 +15,9 @@
 // names, an integer, which comes after admission/VERSION and a second line -- (R85). From
 // FIRST_LEGAL_LINE on, it carries the legal texts too, legal-<version>.tar.gz, at the version
 // legal/VERSION names, an integer, which comes after deployment/VERSION and a third line -- (R130).
+// From FIRST_CONSENT_AGE_LINE on, it carries the table of the age of digital consent too,
+// consent-age-<version>.tar.gz, at the version consent-age/VERSION names, an integer, which comes
+// after legal/VERSION and a fourth line -- (R134).
 // Any of the files may be missing from the commit, and then its side of the line is empty.
 // From FIRST_NPM_LINE on, it carries the npm package @altnovatrail/spec as well, the archive npm
 // pack names for the release's version, altnovatrail-spec-<MAJOR.MINOR.PATCH>.tgz (R73): tag is
@@ -22,7 +26,8 @@
 // release.yml tags the Go module of the contracts with the release (R83). A release of an earlier
 // line carries no files, and its stdin, which may be empty, is not read for a version; a release of
 // a line before FIRST_ADMISSION_LINE reads format/VERSION alone, one before
-// FIRST_DEPLOYMENT_LINE no deployment/VERSION, and one before FIRST_LEGAL_LINE no legal/VERSION.
+// FIRST_DEPLOYMENT_LINE no deployment/VERSION, one before FIRST_LEGAL_LINE no legal/VERSION, and
+// one before FIRST_CONSENT_AGE_LINE no consent-age/VERSION.
 // Prints a line for each file: its
 // name, and the path in the repository that the file holds beside LICENSE. `just release-files`
 // builds them, and release.yml checks the files of a release it runs again by the names.
@@ -30,7 +35,7 @@
 // Takes nothing from its command line but the line and the tag, which it checks for their form.
 
 import fs from "node:fs";
-import { FIRST_ADMISSION_LINE, FIRST_DEPLOYMENT_LINE, FIRST_LEGAL_LINE, archiveOf } from "../types/npm.mjs";
+import { FIRST_ADMISSION_LINE, FIRST_CONSENT_AGE_LINE, FIRST_DEPLOYMENT_LINE, FIRST_LEGAL_LINE, archiveOf } from "../types/npm.mjs";
 import { archiveOf as contractsArchiveOf } from "../contracts/npm.mjs";
 import { FIRST_FILES_LINE, LINE, RELEASE_TAG, compareLines } from "./version.mjs";
 import { isMain } from "../shared.mjs";
@@ -49,6 +54,9 @@ export { FIRST_DEPLOYMENT_LINE };
 // spec's first line whose releases carry the legal texts (R130): the line whose npm package of the
 // types holds the types of their passport, one constant for both.
 export { FIRST_LEGAL_LINE };
+// spec's first line whose releases carry the table of the age of digital consent (R134): the line
+// whose npm package of the types holds the types of the table, one constant for both.
+export { FIRST_CONSENT_AGE_LINE };
 
 const VERSION = /^((?:0|[1-9]\d*)\.(?:0|[1-9]\d*))\n$/;
 const INTEGER = /^([1-9]\d*)\n$/;
@@ -74,13 +82,19 @@ export function legalVersion(text) {
   return deploymentVersion(text, "legal/VERSION");
 }
 
-// The text of format/VERSION, of admission/VERSION, of deployment/VERSION and of legal/VERSION,
-// apart by lines --: { format, admission, deployment, legal }, each the file's text, and null for
-// each that no line -- comes before.
+// The version consent-age/VERSION names, an integer from 1 and a newline, as consent-age-check
+// reads it.
+export function consentAgeVersion(text) {
+  return deploymentVersion(text, "consent-age/VERSION");
+}
+
+// The text of format/VERSION, of admission/VERSION, of deployment/VERSION, of legal/VERSION and of
+// consent-age/VERSION, apart by lines --: { format, admission, deployment, legal, consentAge }, each
+// the file's text, and null for each that no line -- comes before.
 export function versionTexts(text) {
   const parts = text.split(/^--\n/m);
-  if (parts.length > 4) throw new Error("the VERSION files are format/VERSION, a line --, admission/VERSION, a line --, deployment/VERSION, a line --, and legal/VERSION: there are more lines --");
-  return { format: parts[0], admission: parts[1] ?? null, deployment: parts[2] ?? null, legal: parts[3] ?? null };
+  if (parts.length > 5) throw new Error("the VERSION files are format/VERSION, a line --, admission/VERSION, a line --, deployment/VERSION, a line --, legal/VERSION, a line --, and consent-age/VERSION: there are more lines --");
+  return { format: parts[0], admission: parts[1] ?? null, deployment: parts[2] ?? null, legal: parts[3] ?? null, consentAge: parts[4] ?? null };
 }
 
 // The files of a release of the line, given format/VERSION and admission/VERSION at its commit and
@@ -105,6 +119,11 @@ export function releaseFiles(line, versionText, tag) {
   if (compareLines(line, FIRST_LEGAL_LINE) >= 0) {
     if (!texts.legal) throw new Error(`a release of the line ${line} carries the legal texts, and the commit has no legal/VERSION`);
     files.push({ name: `legal-${legalVersion(texts.legal)}.tar.gz`, path: "legal" });
+  }
+  // And one before FIRST_CONSENT_AGE_LINE no consent-age/VERSION.
+  if (compareLines(line, FIRST_CONSENT_AGE_LINE) >= 0) {
+    if (!texts.consentAge) throw new Error(`a release of the line ${line} carries the table of the age of digital consent, and the commit has no consent-age/VERSION`);
+    files.push({ name: `consent-age-${consentAgeVersion(texts.consentAge)}.tar.gz`, path: "consent-age" });
   }
   if (compareLines(line, FIRST_NPM_LINE) < 0) return files;
   const match = RELEASE_TAG.exec(tag ?? "");
