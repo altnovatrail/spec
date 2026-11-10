@@ -2,12 +2,13 @@
 //
 // Source: novatrail/api/v1/account.proto
 
-// The account and its profiles in the contract between `app` and `api`: the account and the list
-// of its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of
-// the account's owner and a child's profile, which a consent comes before; the PIN of the section
-// for adults; the voicing a learner sets; the own key checked when it is connected; deletion and
-// export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// The account and its profiles in the contract between `app` and `api`: the account and the list of
+// its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of the
+// account's owner and a child's profile, which a consent comes before; how a consent is given,
+// confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
+// of the section for adults; the voicing a learner sets; the storage of works; the own key checked
+// when it is connected; deletion and export. What each message means, and what `app` does on each
+// refusal, are the rules of contracts/README.md, section 15.
 package apiv1connect
 
 import (
@@ -49,14 +50,31 @@ const (
 	// AccountServiceRequestChildConsentProcedure is the procedure name of the AccountService's
 	// RequestChildConsent RPC.
 	AccountServiceRequestChildConsentProcedure = "/novatrail.api.v1.AccountService/RequestChildConsent"
+	// AccountServiceSendConsentFormProcedure is the procedure name of the AccountService's
+	// SendConsentForm RPC.
+	AccountServiceSendConsentFormProcedure = "/novatrail.api.v1.AccountService/SendConsentForm"
+	// AccountServiceCancelChildConsentProcedure is the procedure name of the AccountService's
+	// CancelChildConsent RPC.
+	AccountServiceCancelChildConsentProcedure = "/novatrail.api.v1.AccountService/CancelChildConsent"
 	// AccountServiceCreateChildProfileProcedure is the procedure name of the AccountService's
 	// CreateChildProfile RPC.
 	AccountServiceCreateChildProfileProcedure = "/novatrail.api.v1.AccountService/CreateChildProfile"
+	// AccountServiceGiveOwnConsentProcedure is the procedure name of the AccountService's
+	// GiveOwnConsent RPC.
+	AccountServiceGiveOwnConsentProcedure = "/novatrail.api.v1.AccountService/GiveOwnConsent"
+	// AccountServiceWithdrawOwnConsentProcedure is the procedure name of the AccountService's
+	// WithdrawOwnConsent RPC.
+	AccountServiceWithdrawOwnConsentProcedure = "/novatrail.api.v1.AccountService/WithdrawOwnConsent"
+	// AccountServiceRestateAgeProcedure is the procedure name of the AccountService's RestateAge RPC.
+	AccountServiceRestateAgeProcedure = "/novatrail.api.v1.AccountService/RestateAge"
 	// AccountServiceUpdateProfileProcedure is the procedure name of the AccountService's UpdateProfile
 	// RPC.
 	AccountServiceUpdateProfileProcedure = "/novatrail.api.v1.AccountService/UpdateProfile"
 	// AccountServiceSetVoicingProcedure is the procedure name of the AccountService's SetVoicing RPC.
 	AccountServiceSetVoicingProcedure = "/novatrail.api.v1.AccountService/SetVoicing"
+	// AccountServiceSetWorkStorageProcedure is the procedure name of the AccountService's
+	// SetWorkStorage RPC.
+	AccountServiceSetWorkStorageProcedure = "/novatrail.api.v1.AccountService/SetWorkStorage"
 	// AccountServiceDeleteProfileProcedure is the procedure name of the AccountService's DeleteProfile
 	// RPC.
 	AccountServiceDeleteProfileProcedure = "/novatrail.api.v1.AccountService/DeleteProfile"
@@ -133,11 +151,46 @@ var (
 			Procedure:  AccountServiceRequestChildConsentProcedure,
 		}
 	})
+	accountServiceSendConsentFormSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("SendConsentForm"),
+			Procedure:  AccountServiceSendConsentFormProcedure,
+		}
+	})
+	accountServiceCancelChildConsentSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("CancelChildConsent"),
+			Procedure:  AccountServiceCancelChildConsentProcedure,
+		}
+	})
 	accountServiceCreateChildProfileSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("CreateChildProfile"),
 			Procedure:  AccountServiceCreateChildProfileProcedure,
+		}
+	})
+	accountServiceGiveOwnConsentSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("GiveOwnConsent"),
+			Procedure:  AccountServiceGiveOwnConsentProcedure,
+		}
+	})
+	accountServiceWithdrawOwnConsentSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("WithdrawOwnConsent"),
+			Procedure:  AccountServiceWithdrawOwnConsentProcedure,
+		}
+	})
+	accountServiceRestateAgeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("RestateAge"),
+			Procedure:  AccountServiceRestateAgeProcedure,
 		}
 	})
 	accountServiceUpdateProfileSpec = sync.OnceValue(func() connect.Spec {
@@ -152,6 +205,13 @@ var (
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("SetVoicing"),
 			Procedure:  AccountServiceSetVoicingProcedure,
+		}
+	})
+	accountServiceSetWorkStorageSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("SetWorkStorage"),
+			Procedure:  AccountServiceSetWorkStorageProcedure,
 		}
 	})
 	accountServiceDeleteProfileSpec = sync.OnceValue(func() connect.Spec {
@@ -207,11 +267,12 @@ type AccountServiceClient interface {
 	// nothing. By the open attempt and runs a device that keeps no state of them finds them. A user
 	// with no account gets `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
 	GetAccount(context.Context, *v1.GetAccountRequest) (*v1.GetAccountResponse, error)
-	// Creates the account of the user signed in, by an invite code and the owner's statement that
-	// they are 18 or older. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already,
-	// checked before the code, so that a repeat gets it rather than a code redeemed; `app` then reads
-	// the account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED`. It carries no idempotency key: it
-	// repeats by the account's state.
+	// Creates the account of the user signed in, by an invite code, the owner's statement that they
+	// are 18 or older, and the versions of the privacy policy and the terms of use the owner
+	// accepted. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already, checked
+	// before the code, so that a repeat gets it rather than a code redeemed; `app` then reads the
+	// account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED` and `CAUSE_TEXT_NOT_CURRENT`. It carries
+	// no idempotency key: it repeats by the account's state.
 	CreateAccount(context.Context, *v1.CreateAccountRequest) (*v1.CreateAccountResponse, error)
 	// Sets the PIN of the section for adults, while the account has none. Refusals:
 	// `CAUSE_PIN_ALREADY_SET`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
@@ -242,15 +303,58 @@ type AccountServiceClient interface {
 	// The first of a child's profile's two steps: the owner gives the child's age in years and the
 	// child's country, and `api` works out the age category and records a consent that waits, with
 	// the category and the country alone: no pseudonym and no other field of the profile. The age in
-	// years `api` keeps nowhere. How the consent is given and confirmed is epic E4 of RUN.md (privacy
-	// 9, П-1). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same consent.
+	// years `api` keeps nowhere. Below the age of digital consent of the country the consent is a
+	// parent's, with the code of the request that the signed form names; from it on, the learner's
+	// own, which they give in their profile (R116; R136). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
+	// `CAUSE_TOO_MANY_CONSENTS`, checked after the key, `CAUSE_TEXT_NOT_CURRENT`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+	// the same consent, at the limit too.
 	RequestChildConsent(context.Context, *v1.RequestChildConsentRequest) (*v1.RequestChildConsentResponse, error)
-	// The second step: creates a child's profile by its consent, once the consent is confirmed.
-	// Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while the consent waits, and
+	// Sends the scan of a parent's signed form, a photo or a PDF, for a consent of a parent that
+	// waits: `api` keeps it apart from its database, where the operator checks it against the code of
+	// the request and confirms the consent or does not accept the form (R116). A form sent again
+	// takes the place of the one before. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_ALREADY_EXISTS` when
+	// the consent is confirmed, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
+	// same idempotency key gets the same consent.
+	SendConsentForm(context.Context, *v1.SendConsentFormRequest) (*v1.SendConsentFormResponse, error)
+	// Takes back a consent with no profile, waiting or confirmed: one that waits `api` erases with
+	// its form, and keeps nothing of it; one confirmed leaves its minimal record and its form for
+	// their term, as a withdrawal does (R117). Either no longer counts toward the limit. Refusals:
+	// `CAUSE_NOT_FOUND`, which is the answer of a repeat too: `app` reads it as taken back already.
+	// It carries no idempotency key: it repeats by the consent's state.
+	CancelChildConsent(context.Context, *v1.CancelChildConsentRequest) (*v1.CancelChildConsentResponse, error)
+	// The second step: creates a child's profile by its consent, once a parent's consent is
+	// confirmed, or at once by a consent that the learner gives themselves, which the profile then
+	// waits for. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while a parent's consent waits, and
 	// `CAUSE_ALREADY_EXISTS`, when the consent has its profile already; `app` then reads the account.
 	// It carries no idempotency key: it repeats by the consent's state.
 	CreateChildProfile(context.Context, *v1.CreateChildProfileRequest) (*v1.CreateChildProfileResponse, error)
+	// The learner's own consent, in their profile, before their first work: a learner from the age
+	// of digital consent of their country gives it, and one who reached that age confirms by it the
+	// consent a parent gave (R116). A learning request with the right `can_learn`, by the text
+	// `teen-consent`. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_ADULT_NEEDED` at a profile below that age,
+	// and `CAUSE_TEXT_NOT_CURRENT`. It carries no idempotency key: it repeats by the profile's state,
+	// and a consent given already is the answer.
+	GiveOwnConsent(context.Context, *v1.GiveOwnConsentRequest) (*v1.GiveOwnConsentResponse, error)
+	// Withdraws the learner's own consent, as easily as it was given: a learning request with the
+	// right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
+	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
+	// (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
+	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. Refusals:
+	// `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave — the adult withdraws it by
+	// `DeleteProfile` —, and `CAUSE_NO_PROFILE`, which is the answer of a repeat too. It carries no
+	// idempotency key: it repeats by the profile's state.
+	WithdrawOwnConsent(context.Context, *v1.WithdrawOwnConsentRequest) (*v1.WithdrawOwnConsentResponse, error)
+	// The age and the country of a profile given again, by an action of an adult with the right
+	// `can_manage`: once the country raised its age of digital consent (`CAUSE_AGE_NEEDED`), at the
+	// yearly refinement of the category, and with a new country (privacy 3.3; R134). The owner's
+	// profile gives its country alone. `api` works out the category again, as `RequestChildConsent`
+	// does, and keeps the age nowhere. A category that needs another consent leaves the profile
+	// waiting for it: the learner's own, or a parent's, asked for with a new code of the request.
+	// Refusals: `CAUSE_NO_PROFILE`, `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_TEXT_NOT_CURRENT`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+	// the same profile.
+	RestateAge(context.Context, *v1.RestateAgeRequest) (*v1.RestateAgeResponse, error)
 	// Changes a profile's settings, by an action of an adult with the right `can_manage`: the fields
 	// sent change, and the others stay as they are. Refusals: `CAUSE_NO_PROFILE`.
 	UpdateProfile(context.Context, *v1.UpdateProfileRequest) (*v1.UpdateProfileResponse, error)
@@ -258,22 +362,37 @@ type AccountServiceClient interface {
 	// screen of a task: a learning request with the right `can_learn`. Refusals:
 	// `CAUSE_NO_PROFILE`.
 	SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error)
+	// Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
+	// consent by the text `storage-consent`, which the one who consents for the learner gives: an
+	// action of an adult with the right `can_manage`, and at a profile whose learner gave their own
+	// consent, the learner's learning request with the right `can_learn`. Switching it off records
+	// when, and erases the copies on the server, and so goes while the profile waits for a consent
+	// too; switching it on then gets `CAUSE_NO_CONSENT`. Refusals: `CAUSE_NO_PROFILE`,
+	// `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED` and `CAUSE_LEARNER_DECIDES`. It carries no
+	// idempotency key: it repeats by the profile's state.
+	SetWorkStorage(context.Context, *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error)
 	// Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
-	// and a fresh sign-in, checked last. The profile of the owner is deleted the same way, and the
-	// last profile leaves the account without profiles. The answer is "deleted", and `app` erases
-	// the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and `CAUSE_NO_PROFILE`, which
-	// is the answer of a repeat too: `app` reads it as deleted already. It carries no idempotency
-	// key: it repeats by the profile's state.
+	// and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,
+	// and leaves its minimal record (R117; R132). The reports of a problem stay to their term without
+	// the IDs of the account, the profile and the attempt (R123). It deletes a profile whose learner
+	// gave their own consent too: the owner holds the account (R21 api). The profile of the owner is
+	// deleted the same way, and the last profile leaves the account without profiles. The answer is
+	// "deleted", and `app` erases the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and
+	// `CAUSE_NO_PROFILE`, which is the answer of a repeat too: `app` reads it as deleted already. It
+	// carries no idempotency key: it repeats by the profile's state.
 	DeleteProfile(context.Context, *v1.DeleteProfileRequest) (*v1.DeleteProfileResponse, error)
 	// Deletes the account and everything of it, with the user of the sign-in service, by a fresh
-	// sign-in, checked last. The answer is "deleted", and `app` erases everything of the account on
-	// the device and signs out, without refreshing the token. Other devices learn of it by
-	// `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat gets
-	// `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
+	// sign-in, checked last; the reports of a problem stay to their term without the IDs of the
+	// account, the profile and the attempt (R123). The answer is "deleted", and `app` erases
+	// everything of the account on the device and signs out, without refreshing the token. Other
+	// devices learn of it by `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat
+	// gets `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
 	DeleteAccount(context.Context, *v1.DeleteAccountRequest) (*v1.DeleteAccountResponse, error)
 	// The part of a profile's export that `api` holds, by an action of an adult with the right
-	// `can_manage`, with no fresh sign-in. `app` makes the file of the export of it and of what the
-	// device holds. Refusals: `CAUSE_NO_PROFILE`.
+	// `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
+	// the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
+	// the export of it and of what the device holds. Refusals: `CAUSE_NO_PROFILE` and
+	// `CAUSE_ADULT_NEEDED`.
 	ExportProfile(context.Context, *v1.ExportProfileRequest) (*v1.ExportProfileResponse, error)
 	// The part of the account's export that `api` holds: the fields of the account and the parts of
 	// every profile, with no fresh sign-in.
@@ -304,11 +423,12 @@ type AccountServiceHandler interface {
 	// nothing. By the open attempt and runs a device that keeps no state of them finds them. A user
 	// with no account gets `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
 	GetAccount(context.Context, *v1.GetAccountRequest) (*v1.GetAccountResponse, error)
-	// Creates the account of the user signed in, by an invite code and the owner's statement that
-	// they are 18 or older. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already,
-	// checked before the code, so that a repeat gets it rather than a code redeemed; `app` then reads
-	// the account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED`. It carries no idempotency key: it
-	// repeats by the account's state.
+	// Creates the account of the user signed in, by an invite code, the owner's statement that they
+	// are 18 or older, and the versions of the privacy policy and the terms of use the owner
+	// accepted. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already, checked
+	// before the code, so that a repeat gets it rather than a code redeemed; `app` then reads the
+	// account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED` and `CAUSE_TEXT_NOT_CURRENT`. It carries
+	// no idempotency key: it repeats by the account's state.
 	CreateAccount(context.Context, *v1.CreateAccountRequest) (*v1.CreateAccountResponse, error)
 	// Sets the PIN of the section for adults, while the account has none. Refusals:
 	// `CAUSE_PIN_ALREADY_SET`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
@@ -339,15 +459,58 @@ type AccountServiceHandler interface {
 	// The first of a child's profile's two steps: the owner gives the child's age in years and the
 	// child's country, and `api` works out the age category and records a consent that waits, with
 	// the category and the country alone: no pseudonym and no other field of the profile. The age in
-	// years `api` keeps nowhere. How the consent is given and confirmed is epic E4 of RUN.md (privacy
-	// 9, П-1). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same consent.
+	// years `api` keeps nowhere. Below the age of digital consent of the country the consent is a
+	// parent's, with the code of the request that the signed form names; from it on, the learner's
+	// own, which they give in their profile (R116; R136). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
+	// `CAUSE_TOO_MANY_CONSENTS`, checked after the key, `CAUSE_TEXT_NOT_CURRENT`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+	// the same consent, at the limit too.
 	RequestChildConsent(context.Context, *v1.RequestChildConsentRequest) (*v1.RequestChildConsentResponse, error)
-	// The second step: creates a child's profile by its consent, once the consent is confirmed.
-	// Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while the consent waits, and
+	// Sends the scan of a parent's signed form, a photo or a PDF, for a consent of a parent that
+	// waits: `api` keeps it apart from its database, where the operator checks it against the code of
+	// the request and confirms the consent or does not accept the form (R116). A form sent again
+	// takes the place of the one before. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_ALREADY_EXISTS` when
+	// the consent is confirmed, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
+	// same idempotency key gets the same consent.
+	SendConsentForm(context.Context, *v1.SendConsentFormRequest) (*v1.SendConsentFormResponse, error)
+	// Takes back a consent with no profile, waiting or confirmed: one that waits `api` erases with
+	// its form, and keeps nothing of it; one confirmed leaves its minimal record and its form for
+	// their term, as a withdrawal does (R117). Either no longer counts toward the limit. Refusals:
+	// `CAUSE_NOT_FOUND`, which is the answer of a repeat too: `app` reads it as taken back already.
+	// It carries no idempotency key: it repeats by the consent's state.
+	CancelChildConsent(context.Context, *v1.CancelChildConsentRequest) (*v1.CancelChildConsentResponse, error)
+	// The second step: creates a child's profile by its consent, once a parent's consent is
+	// confirmed, or at once by a consent that the learner gives themselves, which the profile then
+	// waits for. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while a parent's consent waits, and
 	// `CAUSE_ALREADY_EXISTS`, when the consent has its profile already; `app` then reads the account.
 	// It carries no idempotency key: it repeats by the consent's state.
 	CreateChildProfile(context.Context, *v1.CreateChildProfileRequest) (*v1.CreateChildProfileResponse, error)
+	// The learner's own consent, in their profile, before their first work: a learner from the age
+	// of digital consent of their country gives it, and one who reached that age confirms by it the
+	// consent a parent gave (R116). A learning request with the right `can_learn`, by the text
+	// `teen-consent`. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_ADULT_NEEDED` at a profile below that age,
+	// and `CAUSE_TEXT_NOT_CURRENT`. It carries no idempotency key: it repeats by the profile's state,
+	// and a consent given already is the answer.
+	GiveOwnConsent(context.Context, *v1.GiveOwnConsentRequest) (*v1.GiveOwnConsentResponse, error)
+	// Withdraws the learner's own consent, as easily as it was given: a learning request with the
+	// right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
+	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
+	// (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
+	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. Refusals:
+	// `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave — the adult withdraws it by
+	// `DeleteProfile` —, and `CAUSE_NO_PROFILE`, which is the answer of a repeat too. It carries no
+	// idempotency key: it repeats by the profile's state.
+	WithdrawOwnConsent(context.Context, *v1.WithdrawOwnConsentRequest) (*v1.WithdrawOwnConsentResponse, error)
+	// The age and the country of a profile given again, by an action of an adult with the right
+	// `can_manage`: once the country raised its age of digital consent (`CAUSE_AGE_NEEDED`), at the
+	// yearly refinement of the category, and with a new country (privacy 3.3; R134). The owner's
+	// profile gives its country alone. `api` works out the category again, as `RequestChildConsent`
+	// does, and keeps the age nowhere. A category that needs another consent leaves the profile
+	// waiting for it: the learner's own, or a parent's, asked for with a new code of the request.
+	// Refusals: `CAUSE_NO_PROFILE`, `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_TEXT_NOT_CURRENT`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+	// the same profile.
+	RestateAge(context.Context, *v1.RestateAgeRequest) (*v1.RestateAgeResponse, error)
 	// Changes a profile's settings, by an action of an adult with the right `can_manage`: the fields
 	// sent change, and the others stay as they are. Refusals: `CAUSE_NO_PROFILE`.
 	UpdateProfile(context.Context, *v1.UpdateProfileRequest) (*v1.UpdateProfileResponse, error)
@@ -355,22 +518,37 @@ type AccountServiceHandler interface {
 	// screen of a task: a learning request with the right `can_learn`. Refusals:
 	// `CAUSE_NO_PROFILE`.
 	SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error)
+	// Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
+	// consent by the text `storage-consent`, which the one who consents for the learner gives: an
+	// action of an adult with the right `can_manage`, and at a profile whose learner gave their own
+	// consent, the learner's learning request with the right `can_learn`. Switching it off records
+	// when, and erases the copies on the server, and so goes while the profile waits for a consent
+	// too; switching it on then gets `CAUSE_NO_CONSENT`. Refusals: `CAUSE_NO_PROFILE`,
+	// `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED` and `CAUSE_LEARNER_DECIDES`. It carries no
+	// idempotency key: it repeats by the profile's state.
+	SetWorkStorage(context.Context, *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error)
 	// Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
-	// and a fresh sign-in, checked last. The profile of the owner is deleted the same way, and the
-	// last profile leaves the account without profiles. The answer is "deleted", and `app` erases
-	// the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and `CAUSE_NO_PROFILE`, which
-	// is the answer of a repeat too: `app` reads it as deleted already. It carries no idempotency
-	// key: it repeats by the profile's state.
+	// and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,
+	// and leaves its minimal record (R117; R132). The reports of a problem stay to their term without
+	// the IDs of the account, the profile and the attempt (R123). It deletes a profile whose learner
+	// gave their own consent too: the owner holds the account (R21 api). The profile of the owner is
+	// deleted the same way, and the last profile leaves the account without profiles. The answer is
+	// "deleted", and `app` erases the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and
+	// `CAUSE_NO_PROFILE`, which is the answer of a repeat too: `app` reads it as deleted already. It
+	// carries no idempotency key: it repeats by the profile's state.
 	DeleteProfile(context.Context, *v1.DeleteProfileRequest) (*v1.DeleteProfileResponse, error)
 	// Deletes the account and everything of it, with the user of the sign-in service, by a fresh
-	// sign-in, checked last. The answer is "deleted", and `app` erases everything of the account on
-	// the device and signs out, without refreshing the token. Other devices learn of it by
-	// `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat gets
-	// `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
+	// sign-in, checked last; the reports of a problem stay to their term without the IDs of the
+	// account, the profile and the attempt (R123). The answer is "deleted", and `app` erases
+	// everything of the account on the device and signs out, without refreshing the token. Other
+	// devices learn of it by `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat
+	// gets `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
 	DeleteAccount(context.Context, *v1.DeleteAccountRequest) (*v1.DeleteAccountResponse, error)
 	// The part of a profile's export that `api` holds, by an action of an adult with the right
-	// `can_manage`, with no fresh sign-in. `app` makes the file of the export of it and of what the
-	// device holds. Refusals: `CAUSE_NO_PROFILE`.
+	// `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
+	// the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
+	// the export of it and of what the device holds. Refusals: `CAUSE_NO_PROFILE` and
+	// `CAUSE_ADULT_NEEDED`.
 	ExportProfile(context.Context, *v1.ExportProfileRequest) (*v1.ExportProfileResponse, error)
 	// The part of the account's export that `api` holds: the fields of the account and the parts of
 	// every profile, with no fresh sign-in.
@@ -399,9 +577,15 @@ func RegisterAccountServiceHandler(server *connect.Server, svc AccountServiceHan
 		connect.Method{Spec: accountServiceResetPinSpec(), Handler: adapter.resetPin},
 		connect.Method{Spec: accountServiceCreateOwnerProfileSpec(), Handler: adapter.createOwnerProfile},
 		connect.Method{Spec: accountServiceRequestChildConsentSpec(), Handler: adapter.requestChildConsent},
+		connect.Method{Spec: accountServiceSendConsentFormSpec(), Handler: adapter.sendConsentForm},
+		connect.Method{Spec: accountServiceCancelChildConsentSpec(), Handler: adapter.cancelChildConsent},
 		connect.Method{Spec: accountServiceCreateChildProfileSpec(), Handler: adapter.createChildProfile},
+		connect.Method{Spec: accountServiceGiveOwnConsentSpec(), Handler: adapter.giveOwnConsent},
+		connect.Method{Spec: accountServiceWithdrawOwnConsentSpec(), Handler: adapter.withdrawOwnConsent},
+		connect.Method{Spec: accountServiceRestateAgeSpec(), Handler: adapter.restateAge},
 		connect.Method{Spec: accountServiceUpdateProfileSpec(), Handler: adapter.updateProfile},
 		connect.Method{Spec: accountServiceSetVoicingSpec(), Handler: adapter.setVoicing},
+		connect.Method{Spec: accountServiceSetWorkStorageSpec(), Handler: adapter.setWorkStorage},
 		connect.Method{Spec: accountServiceDeleteProfileSpec(), Handler: adapter.deleteProfile},
 		connect.Method{Spec: accountServiceDeleteAccountSpec(), Handler: adapter.deleteAccount},
 		connect.Method{Spec: accountServiceExportProfileSpec(), Handler: adapter.exportProfile},
@@ -446,8 +630,28 @@ func (UnimplementedAccountServiceHandler) RequestChildConsent(context.Context, *
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.RequestChildConsent is not implemented")
 }
 
+func (UnimplementedAccountServiceHandler) SendConsentForm(context.Context, *v1.SendConsentFormRequest) (*v1.SendConsentFormResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.SendConsentForm is not implemented")
+}
+
+func (UnimplementedAccountServiceHandler) CancelChildConsent(context.Context, *v1.CancelChildConsentRequest) (*v1.CancelChildConsentResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.CancelChildConsent is not implemented")
+}
+
 func (UnimplementedAccountServiceHandler) CreateChildProfile(context.Context, *v1.CreateChildProfileRequest) (*v1.CreateChildProfileResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.CreateChildProfile is not implemented")
+}
+
+func (UnimplementedAccountServiceHandler) GiveOwnConsent(context.Context, *v1.GiveOwnConsentRequest) (*v1.GiveOwnConsentResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.GiveOwnConsent is not implemented")
+}
+
+func (UnimplementedAccountServiceHandler) WithdrawOwnConsent(context.Context, *v1.WithdrawOwnConsentRequest) (*v1.WithdrawOwnConsentResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.WithdrawOwnConsent is not implemented")
+}
+
+func (UnimplementedAccountServiceHandler) RestateAge(context.Context, *v1.RestateAgeRequest) (*v1.RestateAgeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.RestateAge is not implemented")
 }
 
 func (UnimplementedAccountServiceHandler) UpdateProfile(context.Context, *v1.UpdateProfileRequest) (*v1.UpdateProfileResponse, error) {
@@ -456,6 +660,10 @@ func (UnimplementedAccountServiceHandler) UpdateProfile(context.Context, *v1.Upd
 
 func (UnimplementedAccountServiceHandler) SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.SetVoicing is not implemented")
+}
+
+func (UnimplementedAccountServiceHandler) SetWorkStorage(context.Context, *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.SetWorkStorage is not implemented")
 }
 
 func (UnimplementedAccountServiceHandler) DeleteProfile(context.Context, *v1.DeleteProfileRequest) (*v1.DeleteProfileResponse, error) {
@@ -550,9 +758,49 @@ func (c *accountServiceClient) RequestChildConsent(ctx context.Context, req *v1.
 	return &res, nil
 }
 
+func (c *accountServiceClient) SendConsentForm(ctx context.Context, req *v1.SendConsentFormRequest) (*v1.SendConsentFormResponse, error) {
+	var res v1.SendConsentFormResponse
+	if err := c.client.CallUnary(ctx, accountServiceSendConsentFormSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accountServiceClient) CancelChildConsent(ctx context.Context, req *v1.CancelChildConsentRequest) (*v1.CancelChildConsentResponse, error) {
+	var res v1.CancelChildConsentResponse
+	if err := c.client.CallUnary(ctx, accountServiceCancelChildConsentSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 func (c *accountServiceClient) CreateChildProfile(ctx context.Context, req *v1.CreateChildProfileRequest) (*v1.CreateChildProfileResponse, error) {
 	var res v1.CreateChildProfileResponse
 	if err := c.client.CallUnary(ctx, accountServiceCreateChildProfileSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accountServiceClient) GiveOwnConsent(ctx context.Context, req *v1.GiveOwnConsentRequest) (*v1.GiveOwnConsentResponse, error) {
+	var res v1.GiveOwnConsentResponse
+	if err := c.client.CallUnary(ctx, accountServiceGiveOwnConsentSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accountServiceClient) WithdrawOwnConsent(ctx context.Context, req *v1.WithdrawOwnConsentRequest) (*v1.WithdrawOwnConsentResponse, error) {
+	var res v1.WithdrawOwnConsentResponse
+	if err := c.client.CallUnary(ctx, accountServiceWithdrawOwnConsentSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accountServiceClient) RestateAge(ctx context.Context, req *v1.RestateAgeRequest) (*v1.RestateAgeResponse, error) {
+	var res v1.RestateAgeResponse
+	if err := c.client.CallUnary(ctx, accountServiceRestateAgeSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -569,6 +817,14 @@ func (c *accountServiceClient) UpdateProfile(ctx context.Context, req *v1.Update
 func (c *accountServiceClient) SetVoicing(ctx context.Context, req *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error) {
 	var res v1.SetVoicingResponse
 	if err := c.client.CallUnary(ctx, accountServiceSetVoicingSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accountServiceClient) SetWorkStorage(ctx context.Context, req *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error) {
+	var res v1.SetWorkStorageResponse
+	if err := c.client.CallUnary(ctx, accountServiceSetWorkStorageSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -720,12 +976,72 @@ func (h accountServiceHandler) requestChildConsent(ctx context.Context, _ connec
 	return stream.Send(res)
 }
 
+func (h accountServiceHandler) sendConsentForm(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SendConsentFormRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SendConsentForm(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accountServiceHandler) cancelChildConsent(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.CancelChildConsentRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CancelChildConsent(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
 func (h accountServiceHandler) createChildProfile(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
 	var req v1.CreateChildProfileRequest
 	if err := stream.Receive(&req); err != nil {
 		return err
 	}
 	res, err := h.svc.CreateChildProfile(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accountServiceHandler) giveOwnConsent(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GiveOwnConsentRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GiveOwnConsent(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accountServiceHandler) withdrawOwnConsent(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.WithdrawOwnConsentRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.WithdrawOwnConsent(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accountServiceHandler) restateAge(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RestateAgeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RestateAge(ctx, &req)
 	if err != nil {
 		return err
 	}
@@ -750,6 +1066,18 @@ func (h accountServiceHandler) setVoicing(ctx context.Context, _ connect.Spec, s
 		return err
 	}
 	res, err := h.svc.SetVoicing(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accountServiceHandler) setWorkStorage(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetWorkStorageRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SetWorkStorage(ctx, &req)
 	if err != nil {
 		return err
 	}

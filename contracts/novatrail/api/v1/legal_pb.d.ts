@@ -121,6 +121,36 @@ export declare type LegalText = Message<"novatrail.api.v1.LegalText"> & {
 export declare const LegalTextSchema: GenMessage<LegalText>;
 
 /**
+ * A version of a legal text that a person saw, which a request that gives a consent names and the
+ * record of the consent keeps (R130; R136): the current version that `GetLegalTexts` gave. A text
+ * with no version in force is named by no request, and a version that is not the current one gets
+ * `CAUSE_TEXT_NOT_CURRENT`.
+ *
+ * @generated from message novatrail.api.v1.LegalTextRef
+ */
+export declare type LegalTextRef = Message<"novatrail.api.v1.LegalTextRef"> & {
+  /**
+   * The ID of the text in the passport, such as "parent-consent".
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * The number of the version, from 1 on.
+   *
+   * @generated from field: int32 version = 2;
+   */
+  version: number;
+};
+
+/**
+ * Describes the message novatrail.api.v1.LegalTextRef.
+ * Use `create(LegalTextRefSchema)` to create a new message.
+ */
+export declare const LegalTextRefSchema: GenMessage<LegalTextRef>;
+
+/**
  * The legal texts that `app` shows (R130). The method goes without a token and without the ID of a
  * profile, by Connect GET: the policy is read before signing in. It has the idempotency level
  * `NO_SIDE_EFFECTS`, and `app` calls it with no header — no `Connect-Timeout-Ms` either, which

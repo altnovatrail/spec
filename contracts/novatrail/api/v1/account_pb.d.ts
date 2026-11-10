@@ -2,18 +2,20 @@
 // @generated from file novatrail/api/v1/account.proto (package novatrail.api.v1, syntax proto3)
 /* eslint-disable */
 
-// The account and its profiles in the contract between `app` and `api`: the account and the list
-// of its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of
-// the account's owner and a child's profile, which a consent comes before; the PIN of the section
-// for adults; the voicing a learner sets; the own key checked when it is connected; deletion and
-// export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// The account and its profiles in the contract between `app` and `api`: the account and the list of
+// its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of the
+// account's owner and a child's profile, which a consent comes before; how a consent is given,
+// confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
+// of the section for adults; the voicing a learner sets; the storage of works; the own key checked
+// when it is connected; deletion and export. What each message means, and what `app` does on each
+// refusal, are the rules of contracts/README.md, section 15.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
+import type { LegalTextRef } from "./legal_pb.js";
 import type { LessonRunRef, OpenAttemptRef } from "./learning_pb.js";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
-import type { OwnKey } from "./attempt_pb.js";
+import type { Action, OwnKey } from "./attempt_pb.js";
 import type { Outcome } from "./cause_pb.js";
 
 /**
@@ -75,6 +77,14 @@ export declare type CreateAccountRequest = Message<"novatrail.api.v1.CreateAccou
    * @generated from field: bool adult_stated = 2;
    */
   adultStated: boolean;
+
+  /**
+   * The versions of `privacy-policy` and `terms-of-use` that the owner accepted, as
+   * `GetLegalTexts` gave them: each of the two that has a version in force, and no other text.
+   *
+   * @generated from field: repeated novatrail.api.v1.LegalTextRef accepted_texts = 3;
+   */
+  acceptedTexts: LegalTextRef[];
 };
 
 /**
@@ -134,7 +144,8 @@ export declare type Account = Message<"novatrail.api.v1.Account"> & {
 
   /**
    * The consents for a child that have no profile yet: waiting, or confirmed and waiting for the
-   * profile.
+   * profile. A consent taken back or withdrawn is not here: nothing of it is left but the minimal
+   * record, which names no account (R117).
    *
    * @generated from field: repeated novatrail.api.v1.ChildConsent child_consents = 4;
    */
@@ -250,6 +261,28 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
    * @generated from field: repeated novatrail.api.v1.LessonRunRef open_lesson_runs = 13;
    */
   openLessonRuns: LessonRunRef[];
+
+  /**
+   * Whose consent the profile learns by, and what it waits for before its next work.
+   *
+   * @generated from field: novatrail.api.v1.ProfileConsent consent = 14;
+   */
+  consent?: ProfileConsent | undefined;
+
+  /**
+   * Whether a year has passed since the age was given: `app` asks the adult for the age again,
+   * `RestateAge`, and until then the category stays as it is (privacy 3.3).
+   *
+   * @generated from field: bool age_check_due = 15;
+   */
+  ageCheckDue: boolean;
+
+  /**
+   * Whether the storage of the profile's works on the server is on (R113).
+   *
+   * @generated from field: bool work_storage = 16;
+   */
+  workStorage: boolean;
 };
 
 /**
@@ -257,6 +290,41 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
  * Use `create(ProfileSchema)` to create a new message.
  */
 export declare const ProfileSchema: GenMessage<Profile>;
+
+/**
+ * The consent of a profile.
+ *
+ * @generated from message novatrail.api.v1.ProfileConsent
+ */
+export declare type ProfileConsent = Message<"novatrail.api.v1.ProfileConsent"> & {
+  /**
+   * Who gave it.
+   *
+   * @generated from field: novatrail.api.v1.ConsentGiver giver = 1;
+   */
+  giver: ConsentGiver;
+
+  /**
+   * What the profile waits for before its next work: `CONSENT_NEED_NONE` when it learns.
+   *
+   * @generated from field: novatrail.api.v1.ConsentNeed need = 2;
+   */
+  need: ConsentNeed;
+
+  /**
+   * Beside `CONSENT_NEED_PARENT`: the parent's consent that the profile waits for, with the code
+   * of its request.
+   *
+   * @generated from field: novatrail.api.v1.ChildConsent waiting = 3;
+   */
+  waiting?: ChildConsent | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.ProfileConsent.
+ * Use `create(ProfileConsentSchema)` to create a new message.
+ */
+export declare const ProfileConsentSchema: GenMessage<ProfileConsent>;
 
 /**
  * The presentation style of a profile. What else it holds comes with what a module may say of it
@@ -413,6 +481,29 @@ export declare type ChildConsent = Message<"novatrail.api.v1.ChildConsent"> & {
    * @generated from field: novatrail.api.v1.ConsentState state = 4;
    */
   state: ConsentState;
+
+  /**
+   * Who gives it: a parent, or the learner themselves in their profile.
+   *
+   * @generated from field: novatrail.api.v1.ConsentGiver giver = 5;
+   */
+  giver: ConsentGiver;
+
+  /**
+   * The code of the request, which the parent writes on the signed form and the operator checks the
+   * scan by: ten characters of Crockford's base32 in two groups of five, as "ABCDE-FGHJK", unique
+   * among the consents that wait. Empty at a consent that the learner gives (R116).
+   *
+   * @generated from field: string request_code = 6;
+   */
+  requestCode: string;
+
+  /**
+   * Where the parent's form stands; `FORM_STATE_UNSPECIFIED` at a consent that the learner gives.
+   *
+   * @generated from field: novatrail.api.v1.FormState form = 7;
+   */
+  form: FormState;
 };
 
 /**
@@ -715,6 +806,15 @@ export declare type RequestChildConsentRequest = Message<"novatrail.api.v1.Reque
    * @generated from field: string country = 3;
    */
   country: string;
+
+  /**
+   * The version of `parent-consent` that `app` shows with the form, as `GetLegalTexts` gave it:
+   * `app` sends it whenever the text has a version in force, whoever the category makes give the
+   * consent, since only `api` works it out; `api` records it with a parent's consent alone.
+   *
+   * @generated from field: novatrail.api.v1.LegalTextRef parent_consent_text = 4;
+   */
+  parentConsentText?: LegalTextRef | undefined;
 };
 
 /**
@@ -742,6 +842,101 @@ export declare type RequestChildConsentResponse = Message<"novatrail.api.v1.Requ
  * Use `create(RequestChildConsentResponseSchema)` to create a new message.
  */
 export declare const RequestChildConsentResponseSchema: GenMessage<RequestChildConsentResponse>;
+
+/**
+ * The scan of a parent's signed form.
+ *
+ * @generated from message novatrail.api.v1.SendConsentFormRequest
+ */
+export declare type SendConsentFormRequest = Message<"novatrail.api.v1.SendConsentFormRequest"> & {
+  /**
+   * The consent, a parent's that waits: of the account, or one that a profile waits for.
+   *
+   * @generated from field: string consent_id = 1;
+   */
+  consentId: string;
+
+  /**
+   * The idempotency key of this action of the adult.
+   *
+   * @generated from field: string idempotency_key = 2;
+   */
+  idempotencyKey: string;
+
+  /**
+   * The scan: up to 10 MiB.
+   *
+   * @generated from field: bytes form = 3;
+   */
+  form: Uint8Array;
+
+  /**
+   * Its media type: "image/jpeg", "image/png" or "application/pdf".
+   *
+   * @generated from field: string media_type = 4;
+   */
+  mediaType: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SendConsentFormRequest.
+ * Use `create(SendConsentFormRequestSchema)` to create a new message.
+ */
+export declare const SendConsentFormRequestSchema: GenMessage<SendConsentFormRequest>;
+
+/**
+ * The form received.
+ *
+ * @generated from message novatrail.api.v1.SendConsentFormResponse
+ */
+export declare type SendConsentFormResponse = Message<"novatrail.api.v1.SendConsentFormResponse"> & {
+  /**
+   * The consent, with its form sent.
+   *
+   * @generated from field: novatrail.api.v1.ChildConsent consent = 1;
+   */
+  consent?: ChildConsent | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SendConsentFormResponse.
+ * Use `create(SendConsentFormResponseSchema)` to create a new message.
+ */
+export declare const SendConsentFormResponseSchema: GenMessage<SendConsentFormResponse>;
+
+/**
+ * A consent taken back.
+ *
+ * @generated from message novatrail.api.v1.CancelChildConsentRequest
+ */
+export declare type CancelChildConsentRequest = Message<"novatrail.api.v1.CancelChildConsentRequest"> & {
+  /**
+   * The consent, which has no profile: waiting or confirmed.
+   *
+   * @generated from field: string consent_id = 1;
+   */
+  consentId: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.CancelChildConsentRequest.
+ * Use `create(CancelChildConsentRequestSchema)` to create a new message.
+ */
+export declare const CancelChildConsentRequestSchema: GenMessage<CancelChildConsentRequest>;
+
+/**
+ * "Taken back": nothing of the consent is left but, of one confirmed, its minimal record.
+ *
+ * @generated from message novatrail.api.v1.CancelChildConsentResponse
+ */
+export declare type CancelChildConsentResponse = Message<"novatrail.api.v1.CancelChildConsentResponse"> & {
+};
+
+/**
+ * Describes the message novatrail.api.v1.CancelChildConsentResponse.
+ * Use `create(CancelChildConsentResponseSchema)` to create a new message.
+ */
+export declare const CancelChildConsentResponseSchema: GenMessage<CancelChildConsentResponse>;
 
 /**
  * The second step: a child's profile created by its consent.
@@ -789,6 +984,159 @@ export declare type CreateChildProfileResponse = Message<"novatrail.api.v1.Creat
  * Use `create(CreateChildProfileResponseSchema)` to create a new message.
  */
 export declare const CreateChildProfileResponseSchema: GenMessage<CreateChildProfileResponse>;
+
+/**
+ * The learner's own consent.
+ *
+ * @generated from message novatrail.api.v1.GiveOwnConsentRequest
+ */
+export declare type GiveOwnConsentRequest = Message<"novatrail.api.v1.GiveOwnConsentRequest"> & {
+  /**
+   * The learner's profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The version of `teen-consent` the learner read, as `GetLegalTexts` gave it: absent while the
+   * text has no version in force, and needed once it has.
+   *
+   * @generated from field: novatrail.api.v1.LegalTextRef text = 2;
+   */
+  text?: LegalTextRef | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.GiveOwnConsentRequest.
+ * Use `create(GiveOwnConsentRequestSchema)` to create a new message.
+ */
+export declare const GiveOwnConsentRequestSchema: GenMessage<GiveOwnConsentRequest>;
+
+/**
+ * The consent given.
+ *
+ * @generated from message novatrail.api.v1.GiveOwnConsentResponse
+ */
+export declare type GiveOwnConsentResponse = Message<"novatrail.api.v1.GiveOwnConsentResponse"> & {
+  /**
+   * The profile, whose consent is the learner's.
+   *
+   * @generated from field: novatrail.api.v1.Profile profile = 1;
+   */
+  profile?: Profile | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.GiveOwnConsentResponse.
+ * Use `create(GiveOwnConsentResponseSchema)` to create a new message.
+ */
+export declare const GiveOwnConsentResponseSchema: GenMessage<GiveOwnConsentResponse>;
+
+/**
+ * The withdrawal of the learner's own consent.
+ *
+ * @generated from message novatrail.api.v1.WithdrawOwnConsentRequest
+ */
+export declare type WithdrawOwnConsentRequest = Message<"novatrail.api.v1.WithdrawOwnConsentRequest"> & {
+  /**
+   * The learner's profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.WithdrawOwnConsentRequest.
+ * Use `create(WithdrawOwnConsentRequestSchema)` to create a new message.
+ */
+export declare const WithdrawOwnConsentRequestSchema: GenMessage<WithdrawOwnConsentRequest>;
+
+/**
+ * "Withdrawn": the profile and everything of it are gone.
+ *
+ * @generated from message novatrail.api.v1.WithdrawOwnConsentResponse
+ */
+export declare type WithdrawOwnConsentResponse = Message<"novatrail.api.v1.WithdrawOwnConsentResponse"> & {
+};
+
+/**
+ * Describes the message novatrail.api.v1.WithdrawOwnConsentResponse.
+ * Use `create(WithdrawOwnConsentResponseSchema)` to create a new message.
+ */
+export declare const WithdrawOwnConsentResponseSchema: GenMessage<WithdrawOwnConsentResponse>;
+
+/**
+ * The age and the country given again.
+ *
+ * @generated from message novatrail.api.v1.RestateAgeRequest
+ */
+export declare type RestateAgeRequest = Message<"novatrail.api.v1.RestateAgeRequest"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The idempotency key of this action of the adult.
+   *
+   * @generated from field: string idempotency_key = 2;
+   */
+  idempotencyKey: string;
+
+  /**
+   * The learner's age in years, from 0 to 17, which `api` keeps nowhere: needed at a child's
+   * profile, and absent at the owner's.
+   *
+   * @generated from field: optional int32 age_years = 3;
+   */
+  ageYears?: number | undefined;
+
+  /**
+   * The learner's country, ISO 3166-1 alpha-2.
+   *
+   * @generated from field: string country = 4;
+   */
+  country: string;
+
+  /**
+   * The version of `parent-consent` that `app` shows, sent as at `RequestChildConsent` whenever the
+   * text has a version in force: `api` records it with a parent's consent that the new category
+   * asks for.
+   *
+   * @generated from field: novatrail.api.v1.LegalTextRef parent_consent_text = 5;
+   */
+  parentConsentText?: LegalTextRef | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.RestateAgeRequest.
+ * Use `create(RestateAgeRequestSchema)` to create a new message.
+ */
+export declare const RestateAgeRequestSchema: GenMessage<RestateAgeRequest>;
+
+/**
+ * The profile with its age given again.
+ *
+ * @generated from message novatrail.api.v1.RestateAgeResponse
+ */
+export declare type RestateAgeResponse = Message<"novatrail.api.v1.RestateAgeResponse"> & {
+  /**
+   * The profile, of its new category, and what its consent waits for.
+   *
+   * @generated from field: novatrail.api.v1.Profile profile = 1;
+   */
+  profile?: Profile | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.RestateAgeResponse.
+ * Use `create(RestateAgeResponseSchema)` to create a new message.
+ */
+export declare const RestateAgeResponseSchema: GenMessage<RestateAgeResponse>;
 
 /**
  * A change of a profile's settings.
@@ -885,6 +1233,69 @@ export declare type SetVoicingResponse = Message<"novatrail.api.v1.SetVoicingRes
 export declare const SetVoicingResponseSchema: GenMessage<SetVoicingResponse>;
 
 /**
+ * The storage of works switched on or off.
+ *
+ * @generated from message novatrail.api.v1.SetWorkStorageRequest
+ */
+export declare type SetWorkStorageRequest = Message<"novatrail.api.v1.SetWorkStorageRequest"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * Whose action it is: `ACTION_ADULT`, or `ACTION_LEARNING` at a profile whose learner gave their
+   * own consent. `ACTION_UNSPECIFIED` is refused `invalid_argument`.
+   *
+   * @generated from field: novatrail.api.v1.Action action = 2;
+   */
+  action: Action;
+
+  /**
+   * Whether it is on.
+   *
+   * @generated from field: bool enabled = 3;
+   */
+  enabled: boolean;
+
+  /**
+   * Beside switching on: the version of `storage-consent` that the person read, as
+   * `GetLegalTexts` gave it; absent while the text has no version in force.
+   *
+   * @generated from field: novatrail.api.v1.LegalTextRef text = 4;
+   */
+  text?: LegalTextRef | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SetWorkStorageRequest.
+ * Use `create(SetWorkStorageRequestSchema)` to create a new message.
+ */
+export declare const SetWorkStorageRequestSchema: GenMessage<SetWorkStorageRequest>;
+
+/**
+ * The profile with its storage of works.
+ *
+ * @generated from message novatrail.api.v1.SetWorkStorageResponse
+ */
+export declare type SetWorkStorageResponse = Message<"novatrail.api.v1.SetWorkStorageResponse"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: novatrail.api.v1.Profile profile = 1;
+   */
+  profile?: Profile | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SetWorkStorageResponse.
+ * Use `create(SetWorkStorageResponseSchema)` to create a new message.
+ */
+export declare const SetWorkStorageResponseSchema: GenMessage<SetWorkStorageResponse>;
+
+/**
  * The deletion of a profile.
  *
  * @generated from message novatrail.api.v1.DeleteProfileRequest
@@ -958,6 +1369,15 @@ export declare type ExportProfileRequest = Message<"novatrail.api.v1.ExportProfi
    * @generated from field: string profile_id = 1;
    */
   profileId: string;
+
+  /**
+   * Whose action it is: `ACTION_ADULT`, or `ACTION_LEARNING` at a profile whose learner gave their
+   * own consent. `ACTION_UNSPECIFIED` is read as `ACTION_ADULT`: a request of a build before the
+   * field was there names none.
+   *
+   * @generated from field: novatrail.api.v1.Action action = 2;
+   */
+  action: Action;
 };
 
 /**
@@ -1161,6 +1581,94 @@ export declare type OwnKeyProvider = Message<"novatrail.api.v1.OwnKeyProvider"> 
 export declare const OwnKeyProviderSchema: GenMessage<OwnKeyProvider>;
 
 /**
+ * Who gave a consent. A giver its build does not know `app` reads as a parent.
+ *
+ * @generated from enum novatrail.api.v1.ConsentGiver
+ */
+export enum ConsentGiver {
+  /**
+   * Not named: never sent.
+   *
+   * @generated from enum value: CONSENT_GIVER_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * The owner of the account, of their own profile, by the statement that they are 18 or older.
+   *
+   * @generated from enum value: CONSENT_GIVER_OWNER = 1;
+   */
+  OWNER = 1,
+
+  /**
+   * A parent, by the signed form (R116).
+   *
+   * @generated from enum value: CONSENT_GIVER_PARENT = 2;
+   */
+  PARENT = 2,
+
+  /**
+   * The learner themselves, from the age of digital consent of their country (R116; R134).
+   *
+   * @generated from enum value: CONSENT_GIVER_LEARNER = 3;
+   */
+  LEARNER = 3,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.ConsentGiver.
+ */
+export declare const ConsentGiverSchema: GenEnum<ConsentGiver>;
+
+/**
+ * What a profile waits for before its next work. A need its build does not know `app` reads as a
+ * profile that may not learn now, and says so.
+ *
+ * @generated from enum novatrail.api.v1.ConsentNeed
+ */
+export enum ConsentNeed {
+  /**
+   * Not named: never sent.
+   *
+   * @generated from enum value: CONSENT_NEED_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Nothing: the profile learns.
+   *
+   * @generated from enum value: CONSENT_NEED_NONE = 1;
+   */
+  NONE = 1,
+
+  /**
+   * The learner's own consent, `GiveOwnConsent`.
+   *
+   * @generated from enum value: CONSENT_NEED_OWN = 2;
+   */
+  OWN = 2,
+
+  /**
+   * A parent's consent, by a signed form for the code of the request.
+   *
+   * @generated from enum value: CONSENT_NEED_PARENT = 3;
+   */
+  PARENT = 3,
+
+  /**
+   * The age given again, `RestateAge`: the country raised its age of digital consent.
+   *
+   * @generated from enum value: CONSENT_NEED_AGE = 4;
+   */
+  AGE = 4,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.ConsentNeed.
+ */
+export declare const ConsentNeedSchema: GenEnum<ConsentNeed>;
+
+/**
  * The speed of the voicing. A speed its build does not know `app` reads as normal.
  *
  * @generated from enum novatrail.api.v1.VoicingSpeed
@@ -1228,6 +1736,48 @@ export enum Mode {
 export declare const ModeSchema: GenEnum<Mode>;
 
 /**
+ * Where the scan of a parent's signed form stands. A state its build does not know `app` reads as
+ * a form sent.
+ *
+ * @generated from enum novatrail.api.v1.FormState
+ */
+export enum FormState {
+  /**
+   * Not named: a consent with no form.
+   *
+   * @generated from enum value: FORM_STATE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * No form is sent yet.
+   *
+   * @generated from enum value: FORM_STATE_NOT_SENT = 1;
+   */
+  NOT_SENT = 1,
+
+  /**
+   * A form is sent: the operator checks it, or accepted it once the consent is confirmed.
+   *
+   * @generated from enum value: FORM_STATE_SENT = 2;
+   */
+  SENT = 2,
+
+  /**
+   * The operator did not accept the form — it is not legible, or does not name the code of the
+   * request —, and a new one is sent.
+   *
+   * @generated from enum value: FORM_STATE_NOT_ACCEPTED = 3;
+   */
+  NOT_ACCEPTED = 3,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.FormState.
+ */
+export declare const FormStateSchema: GenEnum<FormState>;
+
+/**
  * Where a consent for a child stands. A state its build does not know `app` reads as waiting.
  *
  * @generated from enum novatrail.api.v1.ConsentState
@@ -1241,7 +1791,7 @@ export enum ConsentState {
   UNSPECIFIED = 0,
 
   /**
-   * It waits: it is not given and confirmed yet (epic E4 of RUN.md).
+   * It waits: the parent's form is not confirmed yet, or the learner has not given it yet.
    *
    * @generated from enum value: CONSENT_STATE_WAITING = 1;
    */
@@ -1354,11 +1904,12 @@ export declare const AccountService: GenService<{
     output: typeof GetAccountResponseSchema;
   },
   /**
-   * Creates the account of the user signed in, by an invite code and the owner's statement that
-   * they are 18 or older. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already,
-   * checked before the code, so that a repeat gets it rather than a code redeemed; `app` then reads
-   * the account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED`. It carries no idempotency key: it
-   * repeats by the account's state.
+   * Creates the account of the user signed in, by an invite code, the owner's statement that they
+   * are 18 or older, and the versions of the privacy policy and the terms of use the owner
+   * accepted. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already, checked
+   * before the code, so that a repeat gets it rather than a code redeemed; `app` then reads the
+   * account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED` and `CAUSE_TEXT_NOT_CURRENT`. It carries
+   * no idempotency key: it repeats by the account's state.
    *
    * @generated from rpc novatrail.api.v1.AccountService.CreateAccount
    */
@@ -1437,9 +1988,12 @@ export declare const AccountService: GenService<{
    * The first of a child's profile's two steps: the owner gives the child's age in years and the
    * child's country, and `api` works out the age category and records a consent that waits, with
    * the category and the country alone: no pseudonym and no other field of the profile. The age in
-   * years `api` keeps nowhere. How the consent is given and confirmed is epic E4 of RUN.md (privacy
-   * 9, П-1). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_KEY_ALREADY_USED` and
-   * `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same consent.
+   * years `api` keeps nowhere. Below the age of digital consent of the country the consent is a
+   * parent's, with the code of the request that the signed form names; from it on, the learner's
+   * own, which they give in their profile (R116; R136). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
+   * `CAUSE_TOO_MANY_CONSENTS`, checked after the key, `CAUSE_TEXT_NOT_CURRENT`,
+   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+   * the same consent, at the limit too.
    *
    * @generated from rpc novatrail.api.v1.AccountService.RequestChildConsent
    */
@@ -1449,8 +2003,38 @@ export declare const AccountService: GenService<{
     output: typeof RequestChildConsentResponseSchema;
   },
   /**
-   * The second step: creates a child's profile by its consent, once the consent is confirmed.
-   * Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while the consent waits, and
+   * Sends the scan of a parent's signed form, a photo or a PDF, for a consent of a parent that
+   * waits: `api` keeps it apart from its database, where the operator checks it against the code of
+   * the request and confirms the consent or does not accept the form (R116). A form sent again
+   * takes the place of the one before. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_ALREADY_EXISTS` when
+   * the consent is confirmed, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
+   * same idempotency key gets the same consent.
+   *
+   * @generated from rpc novatrail.api.v1.AccountService.SendConsentForm
+   */
+  sendConsentForm: {
+    methodKind: "unary";
+    input: typeof SendConsentFormRequestSchema;
+    output: typeof SendConsentFormResponseSchema;
+  },
+  /**
+   * Takes back a consent with no profile, waiting or confirmed: one that waits `api` erases with
+   * its form, and keeps nothing of it; one confirmed leaves its minimal record and its form for
+   * their term, as a withdrawal does (R117). Either no longer counts toward the limit. Refusals:
+   * `CAUSE_NOT_FOUND`, which is the answer of a repeat too: `app` reads it as taken back already.
+   * It carries no idempotency key: it repeats by the consent's state.
+   *
+   * @generated from rpc novatrail.api.v1.AccountService.CancelChildConsent
+   */
+  cancelChildConsent: {
+    methodKind: "unary";
+    input: typeof CancelChildConsentRequestSchema;
+    output: typeof CancelChildConsentResponseSchema;
+  },
+  /**
+   * The second step: creates a child's profile by its consent, once a parent's consent is
+   * confirmed, or at once by a consent that the learner gives themselves, which the profile then
+   * waits for. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while a parent's consent waits, and
    * `CAUSE_ALREADY_EXISTS`, when the consent has its profile already; `app` then reads the account.
    * It carries no idempotency key: it repeats by the consent's state.
    *
@@ -1460,6 +2044,56 @@ export declare const AccountService: GenService<{
     methodKind: "unary";
     input: typeof CreateChildProfileRequestSchema;
     output: typeof CreateChildProfileResponseSchema;
+  },
+  /**
+   * The learner's own consent, in their profile, before their first work: a learner from the age
+   * of digital consent of their country gives it, and one who reached that age confirms by it the
+   * consent a parent gave (R116). A learning request with the right `can_learn`, by the text
+   * `teen-consent`. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_ADULT_NEEDED` at a profile below that age,
+   * and `CAUSE_TEXT_NOT_CURRENT`. It carries no idempotency key: it repeats by the profile's state,
+   * and a consent given already is the answer.
+   *
+   * @generated from rpc novatrail.api.v1.AccountService.GiveOwnConsent
+   */
+  giveOwnConsent: {
+    methodKind: "unary";
+    input: typeof GiveOwnConsentRequestSchema;
+    output: typeof GiveOwnConsentResponseSchema;
+  },
+  /**
+   * Withdraws the learner's own consent, as easily as it was given: a learning request with the
+   * right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
+   * leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
+   * (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
+   * refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. Refusals:
+   * `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave — the adult withdraws it by
+   * `DeleteProfile` —, and `CAUSE_NO_PROFILE`, which is the answer of a repeat too. It carries no
+   * idempotency key: it repeats by the profile's state.
+   *
+   * @generated from rpc novatrail.api.v1.AccountService.WithdrawOwnConsent
+   */
+  withdrawOwnConsent: {
+    methodKind: "unary";
+    input: typeof WithdrawOwnConsentRequestSchema;
+    output: typeof WithdrawOwnConsentResponseSchema;
+  },
+  /**
+   * The age and the country of a profile given again, by an action of an adult with the right
+   * `can_manage`: once the country raised its age of digital consent (`CAUSE_AGE_NEEDED`), at the
+   * yearly refinement of the category, and with a new country (privacy 3.3; R134). The owner's
+   * profile gives its country alone. `api` works out the category again, as `RequestChildConsent`
+   * does, and keeps the age nowhere. A category that needs another consent leaves the profile
+   * waiting for it: the learner's own, or a parent's, asked for with a new code of the request.
+   * Refusals: `CAUSE_NO_PROFILE`, `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_TEXT_NOT_CURRENT`,
+   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+   * the same profile.
+   *
+   * @generated from rpc novatrail.api.v1.AccountService.RestateAge
+   */
+  restateAge: {
+    methodKind: "unary";
+    input: typeof RestateAgeRequestSchema;
+    output: typeof RestateAgeResponseSchema;
   },
   /**
    * Changes a profile's settings, by an action of an adult with the right `can_manage`: the fields
@@ -1485,12 +2119,32 @@ export declare const AccountService: GenService<{
     output: typeof SetVoicingResponseSchema;
   },
   /**
+   * Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
+   * consent by the text `storage-consent`, which the one who consents for the learner gives: an
+   * action of an adult with the right `can_manage`, and at a profile whose learner gave their own
+   * consent, the learner's learning request with the right `can_learn`. Switching it off records
+   * when, and erases the copies on the server, and so goes while the profile waits for a consent
+   * too; switching it on then gets `CAUSE_NO_CONSENT`. Refusals: `CAUSE_NO_PROFILE`,
+   * `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED` and `CAUSE_LEARNER_DECIDES`. It carries no
+   * idempotency key: it repeats by the profile's state.
+   *
+   * @generated from rpc novatrail.api.v1.AccountService.SetWorkStorage
+   */
+  setWorkStorage: {
+    methodKind: "unary";
+    input: typeof SetWorkStorageRequestSchema;
+    output: typeof SetWorkStorageResponseSchema;
+  },
+  /**
    * Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
-   * and a fresh sign-in, checked last. The profile of the owner is deleted the same way, and the
-   * last profile leaves the account without profiles. The answer is "deleted", and `app` erases
-   * the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and `CAUSE_NO_PROFILE`, which
-   * is the answer of a repeat too: `app` reads it as deleted already. It carries no idempotency
-   * key: it repeats by the profile's state.
+   * and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,
+   * and leaves its minimal record (R117; R132). The reports of a problem stay to their term without
+   * the IDs of the account, the profile and the attempt (R123). It deletes a profile whose learner
+   * gave their own consent too: the owner holds the account (R21 api). The profile of the owner is
+   * deleted the same way, and the last profile leaves the account without profiles. The answer is
+   * "deleted", and `app` erases the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and
+   * `CAUSE_NO_PROFILE`, which is the answer of a repeat too: `app` reads it as deleted already. It
+   * carries no idempotency key: it repeats by the profile's state.
    *
    * @generated from rpc novatrail.api.v1.AccountService.DeleteProfile
    */
@@ -1501,10 +2155,11 @@ export declare const AccountService: GenService<{
   },
   /**
    * Deletes the account and everything of it, with the user of the sign-in service, by a fresh
-   * sign-in, checked last. The answer is "deleted", and `app` erases everything of the account on
-   * the device and signs out, without refreshing the token. Other devices learn of it by
-   * `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat gets
-   * `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
+   * sign-in, checked last; the reports of a problem stay to their term without the IDs of the
+   * account, the profile and the attempt (R123). The answer is "deleted", and `app` erases
+   * everything of the account on the device and signs out, without refreshing the token. Other
+   * devices learn of it by `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat
+   * gets `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
    *
    * @generated from rpc novatrail.api.v1.AccountService.DeleteAccount
    */
@@ -1515,8 +2170,10 @@ export declare const AccountService: GenService<{
   },
   /**
    * The part of a profile's export that `api` holds, by an action of an adult with the right
-   * `can_manage`, with no fresh sign-in. `app` makes the file of the export of it and of what the
-   * device holds. Refusals: `CAUSE_NO_PROFILE`.
+   * `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
+   * the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
+   * the export of it and of what the device holds. Refusals: `CAUSE_NO_PROFILE` and
+   * `CAUSE_ADULT_NEEDED`.
    *
    * @generated from rpc novatrail.api.v1.AccountService.ExportProfile
    */

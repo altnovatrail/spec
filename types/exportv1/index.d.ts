@@ -96,18 +96,30 @@ export type Day = string;
  */
 export interface Consent {
   /**
-   * The ID of the consent record, which the signed form names and the minimal record keeps after
-   * deletion.
+   * The ID of the consent record, which the minimal record keeps after deletion.
    */
   readonly consent_id: ID;
   /**
-   * Whose consent it is: an adult's own, given with the profile, or one for a child.
+   * Who gave the consent: the owner of the account of their own profile, by the statement that they
+   * are 18 or older; a parent, by the signed form; or the learner themselves, from the age of
+   * digital consent of their country (R116).
    */
-  readonly subject: ConsentSubject;
+  readonly giver: ConsentGiver;
   /**
    * Where the consent stands.
    */
   readonly state: ConsentState;
+  /**
+   * Beside a parent's consent, and only there: the code of the request, which the signed form names
+   * — ten characters of Crockford's base32 in two groups of five.
+   */
+  readonly request_code?: string;
+  /**
+   * Beside a parent's consent: where the scan of the signed form stands — none sent; sent, and
+   * checked by the operator or accepted once the consent is confirmed; or not accepted, so that a
+   * new one is sent.
+   */
+  readonly form?: ConsentForm;
   /**
    * The age category the consent was given for.
    */
@@ -130,22 +142,21 @@ export interface Consent {
    */
   readonly confirmed_at?: Time;
   /**
-   * The ID of the legal text the person saw, as legal.yaml names it (parent-consent, teen-consent,
-   * storage-consent).
+   * The versions of the legal texts the person saw when they gave the consent — privacy-policy and
+   * terms-of-use of the owner's, parent-consent of a parent's, teen-consent of the learner's own —,
+   * each that had a version in force (R130); empty when none had.
    */
-  readonly text_id: string;
-  /**
-   * The version of that text, from 1.
-   */
-  readonly text_version: number;
+  readonly texts: readonly TextRef[];
 }
 
 /**
- * ConsentSubject is the type of common.schema.json#/$defs/consent/properties/subject.
+ * ConsentGiver is the type of common.schema.json#/$defs/consent/properties/giver.
  *
- * Whose consent it is: an adult's own, given with the profile, or one for a child.
+ * Who gave the consent: the owner of the account of their own profile, by the statement that they
+ * are 18 or older; a parent, by the signed form; or the learner themselves, from the age of digital
+ * consent of their country (R116).
  */
-export type ConsentSubject = "adult" | "child";
+export type ConsentGiver = "owner" | "parent" | "learner";
 
 /**
  * ConsentState is the type of common.schema.json#/$defs/consent/properties/state.
@@ -155,11 +166,34 @@ export type ConsentSubject = "adult" | "child";
 export type ConsentState = "waiting" | "confirmed";
 
 /**
+ * ConsentForm is the type of common.schema.json#/$defs/consent/properties/form.
+ *
+ * Beside a parent's consent: where the scan of the signed form stands — none sent; sent, and
+ * checked by the operator or accepted once the consent is confirmed; or not accepted, so that a new
+ * one is sent.
+ */
+export type ConsentForm = "not_sent" | "sent" | "not_accepted";
+
+/**
  * AgeCategory is the type of common.schema.json#/$defs/age_category.
  *
  * An age category, by its code (R46).
  */
 export type AgeCategory = "under_13" | "from_13_to_consent" | "from_consent_to_18" | "adult";
+
+/**
+ * TextRef is the type of common.schema.json#/$defs/text_ref.
+ */
+export interface TextRef {
+  /**
+   * The ID of the text in the passport of the legal texts, such as parent-consent.
+   */
+  readonly id: string;
+  /**
+   * The number of its version, from 1.
+   */
+  readonly version: number;
+}
 
 /**
  * QuotaCounter is the type of common.schema.json#/$defs/quota_counter.
@@ -485,6 +519,20 @@ export interface Profile {
    * Artefacts kept on the server; empty while storage is off.
    */
   readonly artefacts: readonly Artefact[];
+  /**
+   * Whether the storage of the profile's works on the server is on (R113).
+   */
+  readonly work_storage: boolean;
+  /**
+   * Each time the storage of works was switched on, by whom, by which version of storage-consent,
+   * and when it was switched off: the records live as long as the profile (R131; R136).
+   */
+  readonly storage_consents: readonly StorageConsent[];
+  /**
+   * The reports of a problem with the tutor's words of the profile's attempts that api keeps: until
+   * the operator reviewed them, and for a year after (R123; R136).
+   */
+  readonly problem_reports: readonly ProblemReport[];
   /**
    * The profile's quota counters.
    */
@@ -1199,6 +1247,97 @@ export interface Artefact {
  * What the artefact is: an essay, a drawing or a recording.
  */
 export type ArtefactKind = "essay" | "drawing" | "recording";
+
+/**
+ * StorageConsent is the type of profile.schema.json#/$defs/storage_consent.
+ */
+export interface StorageConsent {
+  /**
+   * Who switched it on: whoever consents for the learner.
+   */
+  readonly giver: StorageConsentGiver;
+  /**
+   * When it was switched on.
+   */
+  readonly given_at: Time;
+  /**
+   * When it was switched off; absent while it is on.
+   */
+  readonly withdrawn_at?: Time;
+  /**
+   * The version of storage-consent the person read; empty when it had no version in force.
+   */
+  readonly texts: readonly TextRef[];
+}
+
+/**
+ * StorageConsentGiver is the type of profile.schema.json#/$defs/storage_consent/properties/giver.
+ *
+ * Who switched it on: whoever consents for the learner.
+ */
+export type StorageConsentGiver = "owner" | "parent" | "learner";
+
+/**
+ * ProblemReport is the type of profile.schema.json#/$defs/problem_report.
+ */
+export interface ProblemReport {
+  /**
+   * The ID of the report.
+   */
+  readonly report_id: ID;
+  /**
+   * The attempt whose tutor's words it is about.
+   */
+  readonly attempt_id: ID;
+  /**
+   * The answer that brought the words: a rung's, explain differently, after a correct answer, or
+   * the feedback of an essay.
+   */
+  readonly reply: ProblemReportReply;
+  /**
+   * Beside a rung and explain differently: the rung.
+   */
+  readonly rung?: number;
+  /**
+   * The tutor's words as app showed them.
+   */
+  readonly words: string;
+  /**
+   * The word of the closed set the person picked.
+   */
+  readonly kind: ProblemReportKind;
+  /**
+   * What the person wrote beside it; empty when nothing.
+   */
+  readonly text: string;
+  /**
+   * When it came.
+   */
+  readonly reported_at: Time;
+  /**
+   * When the operator reviews it by: 3 days after it came.
+   */
+  readonly review_by: Time;
+  /**
+   * When the operator reviewed it; absent until then.
+   */
+  readonly reviewed_at?: Time;
+}
+
+/**
+ * ProblemReportReply is the type of profile.schema.json#/$defs/problem_report/properties/reply.
+ *
+ * The answer that brought the words: a rung's, explain differently, after a correct answer, or the
+ * feedback of an essay.
+ */
+export type ProblemReportReply = "rung" | "explained_differently" | "correct_answer" | "essay_feedback";
+
+/**
+ * ProblemReportKind is the type of profile.schema.json#/$defs/problem_report/properties/kind.
+ *
+ * The word of the closed set the person picked.
+ */
+export type ProblemReportKind = "wrong" | "unclear" | "not_for_age" | "harmful" | "personal" | "other";
 
 // The types of reading-vector.schema.json.
 

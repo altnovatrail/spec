@@ -1,17 +1,19 @@
 syntax = "proto3";
 
-// The account and its profiles in the contract between `app` and `api`: the account and the list
-// of its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of
-// the account's owner and a child's profile, which a consent comes before; the PIN of the section
-// for adults; the voicing a learner sets; the own key checked when it is connected; deletion and
-// export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// The account and its profiles in the contract between `app` and `api`: the account and the list of
+// its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of the
+// account's owner and a child's profile, which a consent comes before; how a consent is given,
+// confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
+// of the section for adults; the voicing a learner sets; the storage of works; the own key checked
+// when it is connected; deletion and export. What each message means, and what `app` does on each
+// refusal, are the rules of contracts/README.md, section 15.
 package novatrail.api.v1;
 
 import "google/protobuf/timestamp.proto";
 import "novatrail/api/v1/attempt.proto";
 import "novatrail/api/v1/cause.proto";
 import "novatrail/api/v1/learning.proto";
+import "novatrail/api/v1/legal.proto";
 
 // The requests on the account and its profiles, from the section for adults and from a learner's
 // session. Every method carries the ID token of the sign-in service in the header `Authorization`,
@@ -45,11 +47,12 @@ service AccountService {
   // nothing. By the open attempt and runs a device that keeps no state of them finds them. A user
   // with no account gets `CAUSE_NO_ACCESS`, and `app` asks for an invite code.
   rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
-  // Creates the account of the user signed in, by an invite code and the owner's statement that
-  // they are 18 or older. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already,
-  // checked before the code, so that a repeat gets it rather than a code redeemed; `app` then reads
-  // the account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED`. It carries no idempotency key: it
-  // repeats by the account's state.
+  // Creates the account of the user signed in, by an invite code, the owner's statement that they
+  // are 18 or older, and the versions of the privacy policy and the terms of use the owner
+  // accepted. Refusals: `CAUSE_ALREADY_EXISTS`, when the user has an account already, checked
+  // before the code, so that a repeat gets it rather than a code redeemed; `app` then reads the
+  // account by `GetAccount`. And `CAUSE_CODE_NOT_ACCEPTED` and `CAUSE_TEXT_NOT_CURRENT`. It carries
+  // no idempotency key: it repeats by the account's state.
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
   // Sets the PIN of the section for adults, while the account has none. Refusals:
   // `CAUSE_PIN_ALREADY_SET`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
@@ -80,15 +83,58 @@ service AccountService {
   // The first of a child's profile's two steps: the owner gives the child's age in years and the
   // child's country, and `api` works out the age category and records a consent that waits, with
   // the category and the country alone: no pseudonym and no other field of the profile. The age in
-  // years `api` keeps nowhere. How the consent is given and confirmed is epic E4 of RUN.md (privacy
-  // 9, П-1). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_KEY_ALREADY_USED` and
-  // `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same consent.
+  // years `api` keeps nowhere. Below the age of digital consent of the country the consent is a
+  // parent's, with the code of the request that the signed form names; from it on, the learner's
+  // own, which they give in their profile (R116; R136). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
+  // `CAUSE_TOO_MANY_CONSENTS`, checked after the key, `CAUSE_TEXT_NOT_CURRENT`,
+  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+  // the same consent, at the limit too.
   rpc RequestChildConsent(RequestChildConsentRequest) returns (RequestChildConsentResponse);
-  // The second step: creates a child's profile by its consent, once the consent is confirmed.
-  // Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while the consent waits, and
+  // Sends the scan of a parent's signed form, a photo or a PDF, for a consent of a parent that
+  // waits: `api` keeps it apart from its database, where the operator checks it against the code of
+  // the request and confirms the consent or does not accept the form (R116). A form sent again
+  // takes the place of the one before. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_ALREADY_EXISTS` when
+  // the consent is confirmed, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
+  // same idempotency key gets the same consent.
+  rpc SendConsentForm(SendConsentFormRequest) returns (SendConsentFormResponse);
+  // Takes back a consent with no profile, waiting or confirmed: one that waits `api` erases with
+  // its form, and keeps nothing of it; one confirmed leaves its minimal record and its form for
+  // their term, as a withdrawal does (R117). Either no longer counts toward the limit. Refusals:
+  // `CAUSE_NOT_FOUND`, which is the answer of a repeat too: `app` reads it as taken back already.
+  // It carries no idempotency key: it repeats by the consent's state.
+  rpc CancelChildConsent(CancelChildConsentRequest) returns (CancelChildConsentResponse);
+  // The second step: creates a child's profile by its consent, once a parent's consent is
+  // confirmed, or at once by a consent that the learner gives themselves, which the profile then
+  // waits for. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_NO_CONSENT` while a parent's consent waits, and
   // `CAUSE_ALREADY_EXISTS`, when the consent has its profile already; `app` then reads the account.
   // It carries no idempotency key: it repeats by the consent's state.
   rpc CreateChildProfile(CreateChildProfileRequest) returns (CreateChildProfileResponse);
+  // The learner's own consent, in their profile, before their first work: a learner from the age
+  // of digital consent of their country gives it, and one who reached that age confirms by it the
+  // consent a parent gave (R116). A learning request with the right `can_learn`, by the text
+  // `teen-consent`. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_ADULT_NEEDED` at a profile below that age,
+  // and `CAUSE_TEXT_NOT_CURRENT`. It carries no idempotency key: it repeats by the profile's state,
+  // and a consent given already is the answer.
+  rpc GiveOwnConsent(GiveOwnConsentRequest) returns (GiveOwnConsentResponse);
+  // Withdraws the learner's own consent, as easily as it was given: a learning request with the
+  // right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
+  // leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
+  // (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
+  // refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. Refusals:
+  // `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave — the adult withdraws it by
+  // `DeleteProfile` —, and `CAUSE_NO_PROFILE`, which is the answer of a repeat too. It carries no
+  // idempotency key: it repeats by the profile's state.
+  rpc WithdrawOwnConsent(WithdrawOwnConsentRequest) returns (WithdrawOwnConsentResponse);
+  // The age and the country of a profile given again, by an action of an adult with the right
+  // `can_manage`: once the country raised its age of digital consent (`CAUSE_AGE_NEEDED`), at the
+  // yearly refinement of the category, and with a new country (privacy 3.3; R134). The owner's
+  // profile gives its country alone. `api` works out the category again, as `RequestChildConsent`
+  // does, and keeps the age nowhere. A category that needs another consent leaves the profile
+  // waiting for it: the learner's own, or a parent's, asked for with a new code of the request.
+  // Refusals: `CAUSE_NO_PROFILE`, `CAUSE_COUNTRY_NOT_ACCEPTED`, `CAUSE_TEXT_NOT_CURRENT`,
+  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+  // the same profile.
+  rpc RestateAge(RestateAgeRequest) returns (RestateAgeResponse);
   // Changes a profile's settings, by an action of an adult with the right `can_manage`: the fields
   // sent change, and the others stay as they are. Refusals: `CAUSE_NO_PROFILE`.
   rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
@@ -96,22 +142,37 @@ service AccountService {
   // screen of a task: a learning request with the right `can_learn`. Refusals:
   // `CAUSE_NO_PROFILE`.
   rpc SetVoicing(SetVoicingRequest) returns (SetVoicingResponse);
+  // Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
+  // consent by the text `storage-consent`, which the one who consents for the learner gives: an
+  // action of an adult with the right `can_manage`, and at a profile whose learner gave their own
+  // consent, the learner's learning request with the right `can_learn`. Switching it off records
+  // when, and erases the copies on the server, and so goes while the profile waits for a consent
+  // too; switching it on then gets `CAUSE_NO_CONSENT`. Refusals: `CAUSE_NO_PROFILE`,
+  // `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED` and `CAUSE_LEARNER_DECIDES`. It carries no
+  // idempotency key: it repeats by the profile's state.
+  rpc SetWorkStorage(SetWorkStorageRequest) returns (SetWorkStorageResponse);
   // Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
-  // and a fresh sign-in, checked last. The profile of the owner is deleted the same way, and the
-  // last profile leaves the account without profiles. The answer is "deleted", and `app` erases
-  // the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and `CAUSE_NO_PROFILE`, which
-  // is the answer of a repeat too: `app` reads it as deleted already. It carries no idempotency
-  // key: it repeats by the profile's state.
+  // and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,
+  // and leaves its minimal record (R117; R132). The reports of a problem stay to their term without
+  // the IDs of the account, the profile and the attempt (R123). It deletes a profile whose learner
+  // gave their own consent too: the owner holds the account (R21 api). The profile of the owner is
+  // deleted the same way, and the last profile leaves the account without profiles. The answer is
+  // "deleted", and `app` erases the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and
+  // `CAUSE_NO_PROFILE`, which is the answer of a repeat too: `app` reads it as deleted already. It
+  // carries no idempotency key: it repeats by the profile's state.
   rpc DeleteProfile(DeleteProfileRequest) returns (DeleteProfileResponse);
   // Deletes the account and everything of it, with the user of the sign-in service, by a fresh
-  // sign-in, checked last. The answer is "deleted", and `app` erases everything of the account on
-  // the device and signs out, without refreshing the token. Other devices learn of it by
-  // `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat gets
-  // `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
+  // sign-in, checked last; the reports of a problem stay to their term without the IDs of the
+  // account, the profile and the attempt (R123). The answer is "deleted", and `app` erases
+  // everything of the account on the device and signs out, without refreshing the token. Other
+  // devices learn of it by `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat
+  // gets `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
   rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
   // The part of a profile's export that `api` holds, by an action of an adult with the right
-  // `can_manage`, with no fresh sign-in. `app` makes the file of the export of it and of what the
-  // device holds. Refusals: `CAUSE_NO_PROFILE`.
+  // `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
+  // the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
+  // the export of it and of what the device holds. Refusals: `CAUSE_NO_PROFILE` and
+  // `CAUSE_ADULT_NEEDED`.
   rpc ExportProfile(ExportProfileRequest) returns (ExportProfileResponse);
   // The part of the account's export that `api` holds: the fields of the account and the parts of
   // every profile, with no fresh sign-in.
@@ -143,6 +204,9 @@ message CreateAccountRequest {
   // The owner's statement that they are 18 or older: true, or the request is refused
   // `invalid_argument`. `api` keeps it with its date (privacy 9, П-6).
   bool adult_stated = 2;
+  // The versions of `privacy-policy` and `terms-of-use` that the owner accepted, as
+  // `GetLegalTexts` gave them: each of the two that has a version in force, and no other text.
+  repeated LegalTextRef accepted_texts = 3;
 }
 
 // The account created.
@@ -162,7 +226,8 @@ message Account {
   // The account's profiles: the owner's, when the owner learns, and the children's.
   repeated Profile profiles = 3;
   // The consents for a child that have no profile yet: waiting, or confirmed and waiting for the
-  // profile.
+  // profile. A consent taken back or withdrawn is not here: nothing of it is left but the minimal
+  // record, which names no account (R117).
   repeated ChildConsent child_consents = 4;
 }
 
@@ -201,6 +266,51 @@ message Profile {
   OpenAttemptRef open_attempt = 12;
   // The profile's open lesson runs, one at most for each lesson.
   repeated LessonRunRef open_lesson_runs = 13;
+  // Whose consent the profile learns by, and what it waits for before its next work.
+  ProfileConsent consent = 14;
+  // Whether a year has passed since the age was given: `app` asks the adult for the age again,
+  // `RestateAge`, and until then the category stays as it is (privacy 3.3).
+  bool age_check_due = 15;
+  // Whether the storage of the profile's works on the server is on (R113).
+  bool work_storage = 16;
+}
+
+// The consent of a profile.
+message ProfileConsent {
+  // Who gave it.
+  ConsentGiver giver = 1;
+  // What the profile waits for before its next work: `CONSENT_NEED_NONE` when it learns.
+  ConsentNeed need = 2;
+  // Beside `CONSENT_NEED_PARENT`: the parent's consent that the profile waits for, with the code
+  // of its request.
+  ChildConsent waiting = 3;
+}
+
+// Who gave a consent. A giver its build does not know `app` reads as a parent.
+enum ConsentGiver {
+  // Not named: never sent.
+  CONSENT_GIVER_UNSPECIFIED = 0;
+  // The owner of the account, of their own profile, by the statement that they are 18 or older.
+  CONSENT_GIVER_OWNER = 1;
+  // A parent, by the signed form (R116).
+  CONSENT_GIVER_PARENT = 2;
+  // The learner themselves, from the age of digital consent of their country (R116; R134).
+  CONSENT_GIVER_LEARNER = 3;
+}
+
+// What a profile waits for before its next work. A need its build does not know `app` reads as a
+// profile that may not learn now, and says so.
+enum ConsentNeed {
+  // Not named: never sent.
+  CONSENT_NEED_UNSPECIFIED = 0;
+  // Nothing: the profile learns.
+  CONSENT_NEED_NONE = 1;
+  // The learner's own consent, `GiveOwnConsent`.
+  CONSENT_NEED_OWN = 2;
+  // A parent's consent, by a signed form for the code of the request.
+  CONSENT_NEED_PARENT = 3;
+  // The age given again, `RestateAge`: the country raised its age of digital consent.
+  CONSENT_NEED_AGE = 4;
 }
 
 // The presentation style of a profile. What else it holds comes with what a module may say of it
@@ -279,13 +389,35 @@ message ChildConsent {
   string country = 3;
   // Where the consent stands.
   ConsentState state = 4;
+  // Who gives it: a parent, or the learner themselves in their profile.
+  ConsentGiver giver = 5;
+  // The code of the request, which the parent writes on the signed form and the operator checks the
+  // scan by: ten characters of Crockford's base32 in two groups of five, as "ABCDE-FGHJK", unique
+  // among the consents that wait. Empty at a consent that the learner gives (R116).
+  string request_code = 6;
+  // Where the parent's form stands; `FORM_STATE_UNSPECIFIED` at a consent that the learner gives.
+  FormState form = 7;
+}
+
+// Where the scan of a parent's signed form stands. A state its build does not know `app` reads as
+// a form sent.
+enum FormState {
+  // Not named: a consent with no form.
+  FORM_STATE_UNSPECIFIED = 0;
+  // No form is sent yet.
+  FORM_STATE_NOT_SENT = 1;
+  // A form is sent: the operator checks it, or accepted it once the consent is confirmed.
+  FORM_STATE_SENT = 2;
+  // The operator did not accept the form — it is not legible, or does not name the code of the
+  // request —, and a new one is sent.
+  FORM_STATE_NOT_ACCEPTED = 3;
 }
 
 // Where a consent for a child stands. A state its build does not know `app` reads as waiting.
 enum ConsentState {
   // Not named: never sent.
   CONSENT_STATE_UNSPECIFIED = 0;
-  // It waits: it is not given and confirmed yet (epic E4 of RUN.md).
+  // It waits: the parent's form is not confirmed yet, or the learner has not given it yet.
   CONSENT_STATE_WAITING = 1;
   // It is confirmed, and the child's profile may be created.
   CONSENT_STATE_CONFIRMED = 2;
@@ -379,6 +511,10 @@ message RequestChildConsentRequest {
   optional int32 age_years = 2;
   // The child's country, ISO 3166-1 alpha-2.
   string country = 3;
+  // The version of `parent-consent` that `app` shows with the form, as `GetLegalTexts` gave it:
+  // `app` sends it whenever the text has a version in force, whoever the category makes give the
+  // consent, since only `api` works it out; `api` records it with a parent's consent alone.
+  LegalTextRef parent_consent_text = 4;
 }
 
 // The consent recorded.
@@ -386,6 +522,33 @@ message RequestChildConsentResponse {
   // The consent, which waits.
   ChildConsent consent = 1;
 }
+
+// The scan of a parent's signed form.
+message SendConsentFormRequest {
+  // The consent, a parent's that waits: of the account, or one that a profile waits for.
+  string consent_id = 1;
+  // The idempotency key of this action of the adult.
+  string idempotency_key = 2;
+  // The scan: up to 10 MiB.
+  bytes form = 3;
+  // Its media type: "image/jpeg", "image/png" or "application/pdf".
+  string media_type = 4;
+}
+
+// The form received.
+message SendConsentFormResponse {
+  // The consent, with its form sent.
+  ChildConsent consent = 1;
+}
+
+// A consent taken back.
+message CancelChildConsentRequest {
+  // The consent, which has no profile: waiting or confirmed.
+  string consent_id = 1;
+}
+
+// "Taken back": nothing of the consent is left but, of one confirmed, its minimal record.
+message CancelChildConsentResponse {}
 
 // The second step: a child's profile created by its consent.
 message CreateChildProfileRequest {
@@ -398,6 +561,53 @@ message CreateChildProfileRequest {
 // The child's profile created.
 message CreateChildProfileResponse {
   // The profile, of the consent's age category and country.
+  Profile profile = 1;
+}
+
+// The learner's own consent.
+message GiveOwnConsentRequest {
+  // The learner's profile.
+  string profile_id = 1;
+  // The version of `teen-consent` the learner read, as `GetLegalTexts` gave it: absent while the
+  // text has no version in force, and needed once it has.
+  LegalTextRef text = 2;
+}
+
+// The consent given.
+message GiveOwnConsentResponse {
+  // The profile, whose consent is the learner's.
+  Profile profile = 1;
+}
+
+// The withdrawal of the learner's own consent.
+message WithdrawOwnConsentRequest {
+  // The learner's profile.
+  string profile_id = 1;
+}
+
+// "Withdrawn": the profile and everything of it are gone.
+message WithdrawOwnConsentResponse {}
+
+// The age and the country given again.
+message RestateAgeRequest {
+  // The profile.
+  string profile_id = 1;
+  // The idempotency key of this action of the adult.
+  string idempotency_key = 2;
+  // The learner's age in years, from 0 to 17, which `api` keeps nowhere: needed at a child's
+  // profile, and absent at the owner's.
+  optional int32 age_years = 3;
+  // The learner's country, ISO 3166-1 alpha-2.
+  string country = 4;
+  // The version of `parent-consent` that `app` shows, sent as at `RequestChildConsent` whenever the
+  // text has a version in force: `api` records it with a parent's consent that the new category
+  // asks for.
+  LegalTextRef parent_consent_text = 5;
+}
+
+// The profile with its age given again.
+message RestateAgeResponse {
+  // The profile, of its new category, and what its consent waits for.
   Profile profile = 1;
 }
 
@@ -429,6 +639,26 @@ message SetVoicingResponse {
   Profile profile = 1;
 }
 
+// The storage of works switched on or off.
+message SetWorkStorageRequest {
+  // The profile.
+  string profile_id = 1;
+  // Whose action it is: `ACTION_ADULT`, or `ACTION_LEARNING` at a profile whose learner gave their
+  // own consent. `ACTION_UNSPECIFIED` is refused `invalid_argument`.
+  Action action = 2;
+  // Whether it is on.
+  bool enabled = 3;
+  // Beside switching on: the version of `storage-consent` that the person read, as
+  // `GetLegalTexts` gave it; absent while the text has no version in force.
+  LegalTextRef text = 4;
+}
+
+// The profile with its storage of works.
+message SetWorkStorageResponse {
+  // The profile.
+  Profile profile = 1;
+}
+
 // The deletion of a profile.
 message DeleteProfileRequest {
   // The profile.
@@ -448,6 +678,10 @@ message DeleteAccountResponse {}
 message ExportProfileRequest {
   // The profile.
   string profile_id = 1;
+  // Whose action it is: `ACTION_ADULT`, or `ACTION_LEARNING` at a profile whose learner gave their
+  // own consent. `ACTION_UNSPECIFIED` is read as `ACTION_ADULT`: a request of a build before the
+  // field was there names none.
+  Action action = 2;
 }
 
 // The part of a profile's export that `api` holds.

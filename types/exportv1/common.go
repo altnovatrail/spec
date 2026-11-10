@@ -19,13 +19,21 @@ type Day string
 
 // Consent is the type of common.schema.json#/$defs/consent.
 type Consent struct {
-	// The ID of the consent record, which the signed form names and the minimal record keeps after
-	// deletion.
+	// The ID of the consent record, which the minimal record keeps after deletion.
 	ConsentID ID `json:"consent_id"`
-	// Whose consent it is: an adult's own, given with the profile, or one for a child.
-	Subject ConsentSubject `json:"subject"`
+	// Who gave the consent: the owner of the account of their own profile, by the statement that
+	// they are 18 or older; a parent, by the signed form; or the learner themselves, from the age
+	// of digital consent of their country (R116).
+	Giver ConsentGiver `json:"giver"`
 	// Where the consent stands.
 	State ConsentState `json:"state"`
+	// Beside a parent's consent, and only there: the code of the request, which the signed form
+	// names — ten characters of Crockford's base32 in two groups of five.
+	RequestCode *string `json:"request_code,omitzero"`
+	// Beside a parent's consent: where the scan of the signed form stands — none sent; sent, and
+	// checked by the operator or accepted once the consent is confirmed; or not accepted, so that a
+	// new one is sent.
+	Form *ConsentForm `json:"form,omitzero"`
 	// The age category the consent was given for.
 	AgeCategory AgeCategory `json:"age_category"`
 	// The learner's country, ISO 3166-1 alpha-2.
@@ -37,22 +45,24 @@ type Consent struct {
 	RequestedAt Time `json:"requested_at"`
 	// When the consent was confirmed; absent while it waits.
 	ConfirmedAt *Time `json:"confirmed_at,omitzero"`
-	// The ID of the legal text the person saw, as legal.yaml names it (parent-consent,
-	// teen-consent, storage-consent).
-	TextID string `json:"text_id"`
-	// The version of that text, from 1.
-	TextVersion int64 `json:"text_version"`
+	// The versions of the legal texts the person saw when they gave the consent — privacy-policy
+	// and terms-of-use of the owner's, parent-consent of a parent's, teen-consent of the learner's
+	// own —, each that had a version in force (R130); empty when none had.
+	Texts []TextRef `json:"texts"`
 }
 
-// ConsentSubject is the type of common.schema.json#/$defs/consent/properties/subject.
+// ConsentGiver is the type of common.schema.json#/$defs/consent/properties/giver.
 //
-// Whose consent it is: an adult's own, given with the profile, or one for a child.
-type ConsentSubject string
+// Who gave the consent: the owner of the account of their own profile, by the statement that they
+// are 18 or older; a parent, by the signed form; or the learner themselves, from the age of digital
+// consent of their country (R116).
+type ConsentGiver string
 
-// The values of ConsentSubject.
+// The values of ConsentGiver.
 const (
-	ConsentSubjectAdult ConsentSubject = "adult"
-	ConsentSubjectChild ConsentSubject = "child"
+	ConsentGiverOwner   ConsentGiver = "owner"
+	ConsentGiverParent  ConsentGiver = "parent"
+	ConsentGiverLearner ConsentGiver = "learner"
 )
 
 // ConsentState is the type of common.schema.json#/$defs/consent/properties/state.
@@ -64,6 +74,20 @@ type ConsentState string
 const (
 	ConsentStateWaiting   ConsentState = "waiting"
 	ConsentStateConfirmed ConsentState = "confirmed"
+)
+
+// ConsentForm is the type of common.schema.json#/$defs/consent/properties/form.
+//
+// Beside a parent's consent: where the scan of the signed form stands — none sent; sent, and
+// checked by the operator or accepted once the consent is confirmed; or not accepted, so that a new
+// one is sent.
+type ConsentForm string
+
+// The values of ConsentForm.
+const (
+	ConsentFormNotSent     ConsentForm = "not_sent"
+	ConsentFormSent        ConsentForm = "sent"
+	ConsentFormNotAccepted ConsentForm = "not_accepted"
 )
 
 // AgeCategory is the type of common.schema.json#/$defs/age_category.
@@ -78,6 +102,14 @@ const (
 	AgeCategoryFromConsentTo18 AgeCategory = "from_consent_to_18"
 	AgeCategoryAdult           AgeCategory = "adult"
 )
+
+// TextRef is the type of common.schema.json#/$defs/text_ref.
+type TextRef struct {
+	// The ID of the text in the passport of the legal texts, such as parent-consent.
+	ID string `json:"id"`
+	// The number of its version, from 1.
+	Version int64 `json:"version"`
+}
 
 // QuotaCounter is the type of common.schema.json#/$defs/quota_counter.
 type QuotaCounter struct {

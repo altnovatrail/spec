@@ -56,6 +56,14 @@ type Profile struct {
 	State StateEntry `json:"state"`
 	// Artefacts kept on the server; empty while storage is off.
 	Artefacts []Artefact `json:"artefacts"`
+	// Whether the storage of the profile's works on the server is on (R113).
+	WorkStorage bool `json:"work_storage"`
+	// Each time the storage of works was switched on, by whom, by which version of storage-consent,
+	// and when it was switched off: the records live as long as the profile (R131; R136).
+	StorageConsents []StorageConsent `json:"storage_consents"`
+	// The reports of a problem with the tutor's words of the profile's attempts that api keeps:
+	// until the operator reviewed them, and for a year after (R123; R136).
+	ProblemReports []ProblemReport `json:"problem_reports"`
 	// The profile's quota counters.
 	QuotaCounters []QuotaCounter `json:"quota_counters"`
 }
@@ -608,4 +616,82 @@ const (
 	ArtefactKindEssay     ArtefactKind = "essay"
 	ArtefactKindDrawing   ArtefactKind = "drawing"
 	ArtefactKindRecording ArtefactKind = "recording"
+)
+
+// StorageConsent is the type of profile.schema.json#/$defs/storage_consent.
+type StorageConsent struct {
+	// Who switched it on: whoever consents for the learner.
+	Giver StorageConsentGiver `json:"giver"`
+	// When it was switched on.
+	GivenAt Time `json:"given_at"`
+	// When it was switched off; absent while it is on.
+	WithdrawnAt *Time `json:"withdrawn_at,omitzero"`
+	// The version of storage-consent the person read; empty when it had no version in force.
+	Texts []TextRef `json:"texts"`
+}
+
+// StorageConsentGiver is the type of profile.schema.json#/$defs/storage_consent/properties/giver.
+//
+// Who switched it on: whoever consents for the learner.
+type StorageConsentGiver string
+
+// The values of StorageConsentGiver.
+const (
+	StorageConsentGiverOwner   StorageConsentGiver = "owner"
+	StorageConsentGiverParent  StorageConsentGiver = "parent"
+	StorageConsentGiverLearner StorageConsentGiver = "learner"
+)
+
+// ProblemReport is the type of profile.schema.json#/$defs/problem_report.
+type ProblemReport struct {
+	// The ID of the report.
+	ReportID ID `json:"report_id"`
+	// The attempt whose tutor's words it is about.
+	AttemptID ID `json:"attempt_id"`
+	// The answer that brought the words: a rung's, explain differently, after a correct answer, or
+	// the feedback of an essay.
+	Reply ProblemReportReply `json:"reply"`
+	// Beside a rung and explain differently: the rung.
+	Rung *int64 `json:"rung,omitzero"`
+	// The tutor's words as app showed them.
+	Words string `json:"words"`
+	// The word of the closed set the person picked.
+	Kind ProblemReportKind `json:"kind"`
+	// What the person wrote beside it; empty when nothing.
+	Text string `json:"text"`
+	// When it came.
+	ReportedAt Time `json:"reported_at"`
+	// When the operator reviews it by: 3 days after it came.
+	ReviewBy Time `json:"review_by"`
+	// When the operator reviewed it; absent until then.
+	ReviewedAt *Time `json:"reviewed_at,omitzero"`
+}
+
+// ProblemReportReply is the type of profile.schema.json#/$defs/problem_report/properties/reply.
+//
+// The answer that brought the words: a rung's, explain differently, after a correct answer, or the
+// feedback of an essay.
+type ProblemReportReply string
+
+// The values of ProblemReportReply.
+const (
+	ProblemReportReplyRung                 ProblemReportReply = "rung"
+	ProblemReportReplyExplainedDifferently ProblemReportReply = "explained_differently"
+	ProblemReportReplyCorrectAnswer        ProblemReportReply = "correct_answer"
+	ProblemReportReplyEssayFeedback        ProblemReportReply = "essay_feedback"
+)
+
+// ProblemReportKind is the type of profile.schema.json#/$defs/problem_report/properties/kind.
+//
+// The word of the closed set the person picked.
+type ProblemReportKind string
+
+// The values of ProblemReportKind.
+const (
+	ProblemReportKindWrong     ProblemReportKind = "wrong"
+	ProblemReportKindUnclear   ProblemReportKind = "unclear"
+	ProblemReportKindNotForAge ProblemReportKind = "not_for_age"
+	ProblemReportKindHarmful   ProblemReportKind = "harmful"
+	ProblemReportKindPersonal  ProblemReportKind = "personal"
+	ProblemReportKindOther     ProblemReportKind = "other"
 )

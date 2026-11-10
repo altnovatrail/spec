@@ -9,12 +9,13 @@ profile_ids:
   - "p-1"
 consents:
   - consent_id: "consent-1"
-    subject: "child"
+    giver: "parent"
     state: "confirmed"
+    request_code: "7K2QD-M4XHB"
+    form: "sent"
     age_category: "under_13"
     country: "US"
     requested_at: "2026-11-10T09:30:00Z"
-    text_version: 1
     method: "signed_form"
     confirmed_at: "2026-11-10T10:00:00Z"
 quota_counters:

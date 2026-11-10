@@ -139,6 +139,28 @@
       },
       "description": "Artefacts kept on the server; empty while storage is off."
     },
+    "work_storage": {
+      "type": "boolean",
+      "description": "Whether the storage of the profile's works on the server is on (R113)."
+    },
+    "storage_consents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/storage_consent",
+        "unevaluatedProperties": false,
+        "description": "A consent to the storage of works: one of them."
+      },
+      "description": "Each time the storage of works was switched on, by whom, by which version of storage-consent, and when it was switched off: the records live as long as the profile (R131; R136)."
+    },
+    "problem_reports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/problem_report",
+        "unevaluatedProperties": false,
+        "description": "A report of a problem: one of them."
+      },
+      "description": "The reports of a problem with the tutor's words of the profile's attempts that api keeps: until the operator reviewed them, and for a year after (R123; R136)."
+    },
     "quota_counters": {
       "type": "array",
       "items": {
@@ -169,6 +191,9 @@
     "evidence",
     "state",
     "artefacts",
+    "work_storage",
+    "storage_consents",
+    "problem_reports",
     "quota_counters"
   ],
   "unevaluatedProperties": false,
@@ -1016,6 +1041,113 @@
       },
       "required": [
         "voicing"
+      ]
+    },
+    "storage_consent": {
+      "type": "object",
+      "properties": {
+        "giver": {
+          "enum": [
+            "owner",
+            "parent",
+            "learner"
+          ],
+          "description": "Who switched it on: whoever consents for the learner."
+        },
+        "given_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When it was switched on."
+        },
+        "withdrawn_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When it was switched off; absent while it is on."
+        },
+        "texts": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/text_ref",
+            "unevaluatedProperties": false,
+            "description": "The version of storage-consent the person read: one of them."
+          },
+          "description": "The version of storage-consent the person read; empty when it had no version in force."
+        }
+      },
+      "required": [
+        "giver",
+        "given_at",
+        "texts"
+      ]
+    },
+    "problem_report": {
+      "type": "object",
+      "properties": {
+        "report_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The ID of the report."
+        },
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The attempt whose tutor's words it is about."
+        },
+        "reply": {
+          "enum": [
+            "rung",
+            "explained_differently",
+            "correct_answer",
+            "essay_feedback"
+          ],
+          "description": "The answer that brought the words: a rung's, explain differently, after a correct answer, or the feedback of an essay."
+        },
+        "rung": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3,
+          "description": "Beside a rung and explain differently: the rung."
+        },
+        "words": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "description": "The tutor's words as app showed them."
+        },
+        "kind": {
+          "enum": [
+            "wrong",
+            "unclear",
+            "not_for_age",
+            "harmful",
+            "personal",
+            "other"
+          ],
+          "description": "The word of the closed set the person picked."
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "What the person wrote beside it; empty when nothing."
+        },
+        "reported_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When it came."
+        },
+        "review_by": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the operator reviews it by: 3 days after it came."
+        },
+        "reviewed_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the operator reviewed it; absent until then."
+        }
+      },
+      "required": [
+        "report_id",
+        "attempt_id",
+        "reply",
+        "words",
+        "kind",
+        "text",
+        "reported_at",
+        "review_by"
       ]
     }
   }

@@ -16,13 +16,16 @@ ask_before_showing: false
 active_on: "2026-11-10"
 consent:
   consent_id: "consent-1"
-  subject: "child"
+  giver: "parent"
   state: "confirmed"
+  request_code: "7K2QD-M4XHB"
+  form: "sent"
   age_category: "under_13"
   country: "US"
   requested_at: "2026-11-10T09:30:00Z"
-  text_id: "parent-consent"
-  text_version: 1
+  texts:
+    - id: "parent-consent"
+      version: 1
   method: "signed_form"
   confirmed_at: "2026-11-10T10:00:00Z"
 connected_modules: []
@@ -96,6 +99,9 @@ state:
     - module_id: "olympiad-math"
       module_version: "0.2.0"
 artefacts: []
+work_storage: false
+storage_consents: []
+problem_reports: []
 quota_counters: []
 age_stated_on: "2026-11-10"
 consent_age: 13

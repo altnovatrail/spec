@@ -80,7 +80,9 @@ const (
 	// alone: the call does not move to platform AI.
 	Cause_CAUSE_KEY_REFUSED Cause = 12
 	// A learning request to show the solution, while the child's setting "ask before showing" is on:
-	// the solution is shown by an action of an adult. Code `permission_denied`.
+	// the solution is shown by an action of an adult. Or a learning request on what an adult decides
+	// at a profile whose consent an adult gave: the learner's own consent, its withdrawal, the
+	// storage of works and the export (R136). Code `permission_denied`.
 	Cause_CAUSE_ADULT_NEEDED Cause = 13
 	// A child asks for the solution before the fourth wrong answer. Code `failed_precondition`.
 	Cause_CAUSE_LADDER_NOT_PASSED Cause = 14
@@ -118,13 +120,16 @@ const (
 	// The invite code is not valid, or was redeemed already. Code `invalid_argument`.
 	Cause_CAUSE_CODE_NOT_ACCEPTED Cause = 25
 	// What the request creates is there already: the account of the user, the owner's profile, the
-	// profile of a consent, or the attempt of an engine's choice of a task. Code `already_exists`.
+	// profile of a consent, the attempt of an engine's choice of a task, or the confirmation of a
+	// consent that a form is sent for. Code `already_exists`.
 	Cause_CAUSE_ALREADY_EXISTS Cause = 26
 	// The deployment does not take learners from the country named (privacy 9, П-2). Code
 	// `failed_precondition`.
 	Cause_CAUSE_COUNTRY_NOT_ACCEPTED Cause = 27
-	// The consent is not confirmed: a child's profile asked for by a consent that still waits, or a
-	// learning request of a profile without consent. Code `failed_precondition`.
+	// The consent is not confirmed: a child's profile asked for by a consent of a parent that still
+	// waits, or a learning request of a profile without consent — one that waits for the learner's
+	// own consent or for a parent's form —, but for the requests on the consent itself, which section
+	// 15 of contracts/README.md names. Code `failed_precondition`.
 	Cause_CAUSE_NO_CONSENT Cause = 28
 	// The input of the PIN is closed after too many wrong PINs. The refusal holds when it opens. Code
 	// `resource_exhausted`.
@@ -160,6 +165,22 @@ const (
 	// has ended itself. The refusal holds the places of the task segments that have ended. Code
 	// `failed_precondition`.
 	Cause_CAUSE_SEGMENT_UNAVAILABLE Cause = 38
+	// The account has as many consents that wait, without a profile, as `api` lets it have: one is
+	// taken back by `CancelChildConsent`, or confirmed, before another is asked for. `api` holds the
+	// number (R11 api). Code `resource_exhausted`, with no data.
+	Cause_CAUSE_TOO_MANY_CONSENTS Cause = 39
+	// The age of the profile is to be given again before its next work: the country of a learner who
+	// gave their own consent now asks for an older age of digital consent than the one the category
+	// was given by (R134), but for the requests on the consent itself, which section 15 of
+	// contracts/README.md names. An adult gives it by `RestateAge`. Code `failed_precondition`.
+	Cause_CAUSE_AGE_NEEDED Cause = 40
+	// The version of a legal text that the request names is not the current one, or a text that has
+	// a version in force is not named: `app` reads `GetLegalTexts` again and shows the current
+	// version before it asks once more. Code `failed_precondition`.
+	Cause_CAUSE_TEXT_NOT_CURRENT Cause = 41
+	// An action of an adult on the storage of works at a profile whose learner gave their own
+	// consent: the learner decides it alone (R113; R116). Code `permission_denied`.
+	Cause_CAUSE_LEARNER_DECIDES Cause = 42
 )
 
 // Enum value maps for Cause.
@@ -204,6 +225,10 @@ var (
 		36: "CAUSE_RUN_ENDED",
 		37: "CAUSE_SEGMENTS_NOT_ENDED",
 		38: "CAUSE_SEGMENT_UNAVAILABLE",
+		39: "CAUSE_TOO_MANY_CONSENTS",
+		40: "CAUSE_AGE_NEEDED",
+		41: "CAUSE_TEXT_NOT_CURRENT",
+		42: "CAUSE_LEARNER_DECIDES",
 	}
 	Cause_value = map[string]int32{
 		"CAUSE_UNSPECIFIED":          0,
@@ -245,6 +270,10 @@ var (
 		"CAUSE_RUN_ENDED":            36,
 		"CAUSE_SEGMENTS_NOT_ENDED":   37,
 		"CAUSE_SEGMENT_UNAVAILABLE":  38,
+		"CAUSE_TOO_MANY_CONSENTS":    39,
+		"CAUSE_AGE_NEEDED":           40,
+		"CAUSE_TEXT_NOT_CURRENT":     41,
+		"CAUSE_LEARNER_DECIDES":      42,
 	}
 )
 
@@ -1140,7 +1169,7 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x06reason\x18\x01 \x01(\x0e2\x1e.novatrail.api.v1.RunEndReasonR\x06reason\x126\n" +
 	"\x06choice\x18\x02 \x01(\v2\x1e.novatrail.api.v1.EngineChoiceR\x06choice\"'\n" +
 	"\rEndedSegments\x12\x16\n" +
-	"\x06places\x18\x01 \x03(\x05R\x06places*\xd5\a\n" +
+	"\x06places\x18\x01 \x03(\x05R\x06places*\xbf\b\n" +
 	"\x05Cause\x12\x15\n" +
 	"\x11CAUSE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10CAUSE_NO_PROFILE\x10\x01\x12\x13\n" +
@@ -1181,7 +1210,11 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x12CAUSE_NOT_SUITABLE\x10#\x12\x13\n" +
 	"\x0fCAUSE_RUN_ENDED\x10$\x12\x1c\n" +
 	"\x18CAUSE_SEGMENTS_NOT_ENDED\x10%\x12\x1d\n" +
-	"\x19CAUSE_SEGMENT_UNAVAILABLE\x10&*\x88\x01\n" +
+	"\x19CAUSE_SEGMENT_UNAVAILABLE\x10&\x12\x1b\n" +
+	"\x17CAUSE_TOO_MANY_CONSENTS\x10'\x12\x14\n" +
+	"\x10CAUSE_AGE_NEEDED\x10(\x12\x1a\n" +
+	"\x16CAUSE_TEXT_NOT_CURRENT\x10)\x12\x19\n" +
+	"\x15CAUSE_LEARNER_DECIDES\x10**\x88\x01\n" +
 	"\n" +
 	"LimitCause\x12\x1b\n" +
 	"\x17LIMIT_CAUSE_UNSPECIFIED\x10\x00\x12\x15\n" +

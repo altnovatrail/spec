@@ -15,13 +15,16 @@ ask_before_showing: false
 active_on: "2026-11-10"
 consent:
   consent_id: "consent-1"
-  subject: "child"
+  giver: "parent"
   state: "confirmed"
+  request_code: "7K2QD-M4XHB"
+  form: "sent"
   age_category: "under_13"
   country: "US"
   requested_at: "2026-11-10T09:30:00Z"
-  text_id: "parent-consent"
-  text_version: 1
+  texts:
+    - id: "parent-consent"
+      version: 1
   method: "signed_form"
   confirmed_at: "2026-11-10T10:00:00Z"
 connected_modules: []
@@ -95,6 +98,25 @@ state:
     - module_id: "olympiad-math"
       module_version: "0.2.0"
 artefacts: []
+work_storage: false
+storage_consents:
+  - giver: "parent"
+    given_at: "2026-11-10T10:20:00Z"
+    withdrawn_at: "2026-11-10T11:00:00Z"
+    texts:
+      - id: "storage-consent"
+        version: 1
+problem_reports:
+  - report_id: "report-1"
+    attempt_id: "attempt-1"
+    reply: "rung"
+    rung: 1
+    words: "Look again at how many apples are left after two are eaten."
+    kind: "unclear"
+    text: "The words speak of apples, and the task is about pears."
+    reported_at: "2026-11-10T10:05:00Z"
+    review_by: "2026-11-13T10:05:00Z"
+    reviewed_at: "2026-11-11T08:00:00Z"
 quota_counters: []
 age_stated_on: "2026-11-10"
 consent_age: 13

@@ -34,14 +34,15 @@
       "properties": {
         "consent_id": {
           "$ref": "#/$defs/id",
-          "description": "The ID of the consent record, which the signed form names and the minimal record keeps after deletion."
+          "description": "The ID of the consent record, which the minimal record keeps after deletion."
         },
-        "subject": {
+        "giver": {
           "enum": [
-            "adult",
-            "child"
+            "owner",
+            "parent",
+            "learner"
           ],
-          "description": "Whose consent it is: an adult's own, given with the profile, or one for a child."
+          "description": "Who gave the consent: the owner of the account of their own profile, by the statement that they are 18 or older; a parent, by the signed form; or the learner themselves, from the age of digital consent of their country (R116)."
         },
         "state": {
           "enum": [
@@ -49,6 +50,19 @@
             "confirmed"
           ],
           "description": "Where the consent stands."
+        },
+        "request_code": {
+          "type": "string",
+          "pattern": "^[0-9A-HJKMNP-TV-Z]{5}-[0-9A-HJKMNP-TV-Z]{5}$",
+          "description": "Beside a parent's consent, and only there: the code of the request, which the signed form names — ten characters of Crockford's base32 in two groups of five."
+        },
+        "form": {
+          "enum": [
+            "not_sent",
+            "sent",
+            "not_accepted"
+          ],
+          "description": "Beside a parent's consent: where the scan of the signed form stands — none sent; sent, and checked by the operator or accepted once the consent is confirmed; or not accepted, so that a new one is sent."
         },
         "age_category": {
           "$ref": "#/$defs/age_category",
@@ -72,26 +86,57 @@
           "$ref": "#/$defs/time",
           "description": "When the consent was confirmed; absent while it waits."
         },
-        "text_id": {
-          "type": "string",
-          "maxLength": 10000,
-          "description": "The ID of the legal text the person saw, as legal.yaml names it (parent-consent, teen-consent, storage-consent)."
-        },
-        "text_version": {
-          "type": "integer",
-          "description": "The version of that text, from 1."
+        "texts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text_ref",
+            "unevaluatedProperties": false,
+            "description": "A legal text the person saw: one of them."
+          },
+          "description": "The versions of the legal texts the person saw when they gave the consent — privacy-policy and terms-of-use of the owner's, parent-consent of a parent's, teen-consent of the learner's own —, each that had a version in force (R130); empty when none had."
         }
       },
       "required": [
         "consent_id",
-        "subject",
+        "giver",
         "state",
         "age_category",
         "country",
         "requested_at",
-        "text_id",
-        "text_version"
-      ]
+        "texts"
+      ],
+      "if": {
+        "properties": {
+          "giver": {
+            "const": "parent"
+          }
+        },
+        "required": [
+          "giver"
+        ]
+      },
+      "then": {
+        "required": [
+          "request_code",
+          "form"
+        ]
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "request_code"
+              ]
+            },
+            {
+              "required": [
+                "form"
+              ]
+            }
+          ]
+        }
+      }
     },
     "quota_counter": {
       "type": "object",
@@ -113,6 +158,25 @@
         "day_start",
         "spent_micro_usd",
         "reserved_micro_usd"
+      ]
+    },
+    "text_ref": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+          "description": "The ID of the text in the passport of the legal texts, such as parent-consent."
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The number of its version, from 1."
+        }
+      },
+      "required": [
+        "id",
+        "version"
       ]
     }
   }

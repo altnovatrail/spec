@@ -1,0 +1,53 @@
+# error: enum at #/problem_reports/0/kind
+# A report names a word of the closed set.
+format: 1
+profile_id: "p-2"
+owner: false
+pseudonym: "Orbit"
+avatar: "owl"
+age_category: "under_13"
+country: "US"
+presentation_style:
+  voicing:
+    enabled: false
+    speed: "normal"
+default_mode: "by_steps"
+ask_before_showing: false
+active_on: "2026-11-10"
+consent:
+  consent_id: "consent-1"
+  giver: "parent"
+  state: "waiting"
+  request_code: "7K2QD-M4XHB"
+  form: "sent"
+  age_category: "under_13"
+  country: "US"
+  requested_at: "2026-11-10T09:30:00Z"
+  texts:
+    - id: "parent-consent"
+      version: 1
+connected_modules: []
+lesson_runs: []
+attempts: []
+choices: []
+evidence: []
+state:
+  state: {}
+  learner_model_version: "0.1.0"
+  modules_release: "modules_release"
+  format_window: "format_window"
+  last_seq: 0
+  modules: []
+artefacts: []
+work_storage: false
+storage_consents: []
+problem_reports:
+  - report_id: "report-1"
+    attempt_id: "attempt-1"
+    reply: "correct_answer"
+    words: "Well done."
+    kind: "rude"
+    text: ""
+    reported_at: "2026-11-10T10:05:00Z"
+    review_by: "2026-11-13T10:05:00Z"
+quota_counters: []

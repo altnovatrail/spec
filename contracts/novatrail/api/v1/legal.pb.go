@@ -219,6 +219,64 @@ func (x *LegalText) GetSummaryLanguage() string {
 	return ""
 }
 
+// A version of a legal text that a person saw, which a request that gives a consent names and the
+// record of the consent keeps (R130; R136): the current version that `GetLegalTexts` gave. A text
+// with no version in force is named by no request, and a version that is not the current one gets
+// `CAUSE_TEXT_NOT_CURRENT`.
+type LegalTextRef struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The ID of the text in the passport, such as "parent-consent".
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// The number of the version, from 1 on.
+	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LegalTextRef) Reset() {
+	*x = LegalTextRef{}
+	mi := &file_novatrail_api_v1_legal_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LegalTextRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LegalTextRef) ProtoMessage() {}
+
+func (x *LegalTextRef) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_legal_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LegalTextRef.ProtoReflect.Descriptor instead.
+func (*LegalTextRef) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_legal_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *LegalTextRef) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *LegalTextRef) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
 var File_novatrail_api_v1_legal_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_legal_proto_rawDesc = "" +
@@ -234,7 +292,10 @@ const file_novatrail_api_v1_legal_proto_rawDesc = "" +
 	"\x0ein_force_since\x18\x03 \x01(\tR\finForceSince\x12\x12\n" +
 	"\x04body\x18\x04 \x01(\tR\x04body\x12\x18\n" +
 	"\asummary\x18\x05 \x01(\tR\asummary\x12)\n" +
-	"\x10summary_language\x18\x06 \x01(\tR\x0fsummaryLanguage2u\n" +
+	"\x10summary_language\x18\x06 \x01(\tR\x0fsummaryLanguage\"8\n" +
+	"\fLegalTextRef\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\aversion\x18\x02 \x01(\x05R\aversion2u\n" +
 	"\fLegalService\x12e\n" +
 	"\rGetLegalTexts\x12&.novatrail.api.v1.GetLegalTextsRequest\x1a'.novatrail.api.v1.GetLegalTextsResponse\"\x03\x90\x02\x01B\xc3\x01\n" +
 	"\x14com.novatrail.api.v1B\n" +
@@ -252,11 +313,12 @@ func file_novatrail_api_v1_legal_proto_rawDescGZIP() []byte {
 	return file_novatrail_api_v1_legal_proto_rawDescData
 }
 
-var file_novatrail_api_v1_legal_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_novatrail_api_v1_legal_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_novatrail_api_v1_legal_proto_goTypes = []any{
 	(*GetLegalTextsRequest)(nil),  // 0: novatrail.api.v1.GetLegalTextsRequest
 	(*GetLegalTextsResponse)(nil), // 1: novatrail.api.v1.GetLegalTextsResponse
 	(*LegalText)(nil),             // 2: novatrail.api.v1.LegalText
+	(*LegalTextRef)(nil),          // 3: novatrail.api.v1.LegalTextRef
 }
 var file_novatrail_api_v1_legal_proto_depIdxs = []int32{
 	2, // 0: novatrail.api.v1.GetLegalTextsResponse.texts:type_name -> novatrail.api.v1.LegalText
@@ -280,7 +342,7 @@ func file_novatrail_api_v1_legal_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_legal_proto_rawDesc), len(file_novatrail_api_v1_legal_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

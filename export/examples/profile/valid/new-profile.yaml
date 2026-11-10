@@ -15,13 +15,16 @@ ask_before_showing: false
 active_on: "2026-11-10"
 consent:
   consent_id: "consent-1"
-  subject: "adult"
+  giver: "parent"
   state: "waiting"
+  request_code: "7K2QD-M4XHB"
+  form: "sent"
   age_category: "under_13"
   country: "US"
   requested_at: "2026-11-10T09:30:00Z"
-  text_id: "text-1"
-  text_version: 1
+  texts:
+    - id: "parent-consent"
+      version: 1
 connected_modules: []
 lesson_runs: []
 attempts: []
@@ -35,4 +38,7 @@ state:
   last_seq: 0
   modules: []
 artefacts: []
+work_storage: false
+storage_consents: []
+problem_reports: []
 quota_counters: []
