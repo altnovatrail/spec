@@ -64,48 +64,48 @@ texts:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Measurement: notice. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Замер: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "Your samples test how well AI reads handwriting. A sample holds your strokes with the history of your writing — the time and course of the pen, with no pressure, which we treat as biometric data — the crops, their markup and your writer code, never your name. The organizer, the runner and Anthropic see it; it is never published, and nobody tells writers apart by their handwriting. You send the file by a one-day upload link; it lies in the operator's closed storage in the United States for 2 years. You can withdraw by your writer code: the organizer erases your samples within 30 days."
+          ru: "Ваши образцы проверяют, как ИИ читает почерк. В образце — штрихи с историей письма: время и ход пера, без нажима, — с ней мы обходимся как с биометрией, вырезки, их разметка и код писавшего, но не имя. Его видят организатор, раннер и Anthropic; он не публикуется, и почерк никто не сравнивает, чтобы узнать, кто писал. Файл вы отправляете по ссылке на загрузку на сутки; он лежит в закрытом хранилище оператора в США 2 года. Отозвать можно по коду писавшего: организатор сотрёт образцы за 30 дней."
   measure-form:
     place: form
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Measurement: form of consent. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Замер: форма согласия. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "Consent to write samples for a measurement of how well AI reads handwriting: explicit consent to the history of your writing, treated as biometric data; the organizer, the runner and Anthropic receive the samples, which are never published; 2 years from the session, the form 5 years after the samples are erased; withdrawal by your writer code within 30 days. You declare that you are 18 or older and may make this agreement where you live, and sign with your name and the date."
+          ru: "Согласие писать образцы для замера того, как ИИ читает почерк: явное согласие на историю письма, с которой обходятся как с биометрией; образцы получают организатор, раннер и Anthropic, и они не публикуются; 2 года от сеанса, форма — 5 лет после того, как стёрты образцы; отзыв по коду писавшего за 30 дней. Вы заявляете, что вам 18 или больше и по законам места, где вы живёте, вы вправе заключить этот договор, и подписываете его с именем и датой."
   eval-set-notice:
     place: samples_page
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Eval set: notice. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Eval-набор: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "Your samples join a module's eval set, by which every new AI model is tested. A sample holds the final shapes of what you wrote (not the history of the writing), its crops, its markup and the Apache-2.0 license — no writer code, no name. Write on made-up topics. The organizer checks each sample by hand and erases one with a name. Samples are published with the module for ever and cannot be withdrawn, and in its tests they run at Anthropic and OpenAI. You send the file by a one-day upload link."
+          ru: "Ваши образцы войдут в eval-набор модуля, по которому проверяют каждую новую модель ИИ. В образце — итоговые штрихи без истории письма, вырезки, разметка и лицензия Apache-2.0, без кода писавшего и имени. Пишите на выдуманные темы. Организатор проверяет каждый образец руками и стирает образец с именем. Образцы публикуются с модулем навсегда, и отозвать их нельзя, а в его тестах они идут к Anthropic и OpenAI. Файл вы отправляете по ссылке на загрузку на сутки."
   volunteer-form:
     place: form
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Eval set: the volunteer's form. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Eval-набор: форма добровольца. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "The volunteer's agreement for a module's eval set: your samples, without the history of the writing, are published with the module under Apache-2.0 for ever and cannot be withdrawn; they run at Anthropic and OpenAI in its tests; an essay is marked by two people, a third deciding where they differ; samples are for evaluating AI, not for training. The form and the record of your samples' digests are kept while any of them is published, or 12 months if none was added. It carries the Developer Certificate of Origin 1.1, whose point (a) you certify, and your declaration that you are 18 or older and may make this agreement where you live."
+          ru: "Договор добровольца eval-набора модуля: ваши образцы, без истории письма, публикуются с модулем под Apache-2.0 навсегда, и отозвать их нельзя; в его тестах они идут к Anthropic и OpenAI; сочинение оценивают двое, а где они разошлись, решает третий; образцы — для проверки ИИ, а не для обучения. Форма и запись с дайджестами ваших образцов хранятся, пока хоть один из них опубликован, а если ни один не внесён — 12 месяцев. В ней — Developer Certificate of Origin 1.1, пункт (a) которого вы заверяете, и заявление, что вам 18 или больше и по законам места, где вы живёте, вы вправе заключить этот договор."
   child-sample-notice:
     place: samples_page
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: A child's sample: notice. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Образец ребёнка: уведомление. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "A child writes samples in a session you lead, to test how well AI reads children's handwriting; the parent has signed the parent's form first. A sample holds the final shapes of the writing (not its history), the crops, the markup you write from the child's words, and the child's writer code — no name, grade or age. Only the organizer sees it; it is never published and goes to no AI provider until the platform may give one the work of a child under 13. Send the file by the one-day upload link, check that Safari does not save to iCloud Drive, and erase the file from the device afterwards. It is kept 2 years; the parent can withdraw by the code, within 30 days."
+          ru: "Ребёнок пишет образцы в сеансе, который ведёте вы, чтобы проверить, как ИИ читает детский почерк; родитель заранее подписал свою форму. В образце — итоговые штрихи без истории письма, вырезки, разметка, которую вы пишете со слов ребёнка, и код писавшего — без имени, класса и возраста. Его видит только организатор; он не публикуется и не уходит к поставщику ИИ, пока платформа не может отдать тому работу ребёнка младше 13. Отправьте файл по ссылке на загрузку на сутки, проверьте, что Safari не сохраняет в iCloud Drive, а потом сотрите файл с устройства. Он хранится 2 года; родитель может отозвать согласие по коду, за 30 дней."
   child-sample-form:
     place: form
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: A child's sample: the parent's form. Its gist is written with its words, in T99 of RUN.md."
-          ru: "Черновик: Образец ребёнка: форма родителя. Суть пишется вместе с текстом, в T99 RUN.md."
+          en: "The parent's consent for a child's samples: the final shapes of the writing (not its history), the crops, the markup from the child's words and the child's writer code — no name, grade or age; the band of grades only in the organizer's record. Only the organizer sees them; they are never published and go to no AI provider until the platform may give one the work of a child under 13. Kept 2 years from the session; withdrawal by the code or the form within 30 days; the form kept 5 years after the samples are erased. Signed with the child's writer code, the parent's name and the date."
+          ru: "Согласие родителя на образцы ребёнка: итоговые штрихи без истории письма, вырезки, разметка со слов ребёнка и код писавшего — без имени, класса и возраста; полоса классов — только в записи организатора. Видит их только организатор; они не публикуются и не уходят к поставщику ИИ, пока платформа не может отдать тому работу ребёнка младше 13. Хранятся 2 года от сеанса; отзыв по коду или форме — за 30 дней; форма хранится 5 лет после того, как стёрты образцы. Подписывается с кодом писавшего ребёнка, именем родителя и датой."
 sets:
   measure:
     versions:
