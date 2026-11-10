@@ -191,13 +191,15 @@ test("the part itself is read as section 5 reads it: the schema, then the rules"
   }
 });
 
-// A part in force, for the release before: the policy's version 1 comes into force, found by
-// its entry in the passport rather than by its words, which change while it is a draft.
-const POLICY_DRAFT = "  privacy-policy:\n    place: app\n    versions:\n      - version: 1\n        status: draft\n";
+// A part in force, for the release before: the policy's version 1 is in force from 2026-11-20,
+// found by its entry in the passport rather than by its words, whether spec's own passport holds
+// it as a draft or in force already.
+const POLICY_ENTRY = /( {2}privacy-policy:\n {4}place: app\n {4}versions:\n {6}- version: 1\n {8})status: (?:draft\n|in_force\n {8}in_force_since: "\d{4}-\d{2}-\d{2}"\n)/;
 const inForce = (text) => {
-  assert.ok(text.includes(POLICY_DRAFT), "the passport holds the policy's version 1 as a draft");
-  return text.replace(POLICY_DRAFT, '  privacy-policy:\n    place: app\n    versions:\n      - version: 1\n        status: in_force\n        in_force_since: "2026-11-20"\n');
+  assert.ok(POLICY_ENTRY.test(text), "the passport holds the policy's version 1");
+  return text.replace(POLICY_ENTRY, '$1status: in_force\n        in_force_since: "2026-11-20"\n');
 };
+const versionsInForce = (text) => text.split("status: in_force").length - 1;
 
 test("a passport that is a folder, a texts/ that is a file and a VERSION that is a folder are named, not thrown", () => {
   assert.deepEqual(errorsOf([[PASSPORT, "", null], ["legal/legal.yaml/notes.txt", null, "notes\n"]]), ["legal/legal.yaml:0: the passport is a file, and this is none"]);
@@ -393,9 +395,10 @@ test("a copy's folder breaks no rule by changing a version in force: its operato
   const dir = copyFolder();
   try {
     const own = path.join(dir, "own");
-    fs.writeFileSync(path.join(own, "legal.yaml"), inForce(fs.readFileSync(path.join(own, "legal.yaml"), "utf8")));
+    const passport = inForce(fs.readFileSync(path.join(own, "legal.yaml"), "utf8"));
+    fs.writeFileSync(path.join(own, "legal.yaml"), passport);
     assert.deepEqual(dirErrors(dir), []);
-    assert.equal(checkLegalDir(own, spec).stats.current, 1);
+    assert.equal(checkLegalDir(own, spec).stats.current, versionsInForce(passport));
     // A spec whose schema does not compile cannot check a folder.
     const broken = trialCopy([[PASSPORT_SCHEMA, '"type": "object"', '"type": "objects"']]);
     try {
