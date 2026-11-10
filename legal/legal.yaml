@@ -32,24 +32,32 @@ texts:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Consent for a child. Its gist is written with its words, in T98 of RUN.md."
-          ru: "Черновик: Согласие за ребёнка. Суть пишется вместе с текстом, в T98 RUN.md."
+          en: "You ask NovaTrail to let your child learn with it. We keep a pseudonym, an avatar, the age category and country, the profile's settings and what your child has done — never a name, a date of birth or a photo. Your child's work stays on the device; to be checked, a picture of it goes, with no name or ID, to OpenAI or Anthropic, and to no one else, but where the law requires it. Your child is told that the tutor is an AI, that you see their progress, and where to turn for help. You sign a form with your name and return a scan; the operator checks it before the profile is made. You can withdraw in one step: that deletes the profile and its data, and only the record that consent was given stays, for 5 years."
+          ru: "Вы просите NovaTrail разрешить вашему ребёнку учиться. Мы храним псевдоним, аватар, возрастную категорию и страну, настройки профиля и то, что ребёнок сделал, — никогда имя, дату рождения или фото. Работа ребёнка остаётся на устройстве; на проверку её картинка, без имени и идентификаторов, уходит OpenAI или Anthropic — и больше никому, кроме случаев, когда этого требует закон. Ребёнку говорят, что наставник — ИИ, что вы видите его прогресс и куда обратиться за помощью. Вы подписываете форму со своим именем и присылаете скан; оператор проверяет его до того, как появится профиль. Отозвать согласие можно в один шаг: это удаляет профиль с данными, а остаётся только запись, что согласие было, на 5 лет."
   teen-consent:
     place: app
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: Consent of a teenager. Its gist is written with its words, in T98 of RUN.md."
-          ru: "Черновик: Согласие подростка. Суть пишется вместе с текстом, в T98 RUN.md."
+          en: "You have reached the age at which you decide about your data, so NovaTrail asks you. We keep a pseudonym, an avatar, your age category and country, your settings and what you have done — never your name, date of birth or school. Your work stays on your device; to be checked, a picture of it goes, with no name or ID, to OpenAI or Anthropic. The tutor is an AI, and the adult of the account sees your progress. Keeping your works on our server is your own choice. You can withdraw in one step, in your profile: that deletes your profile and its data."
+          ru: "В твоём возрасте закон твоей страны даёт тебе решать о своих данных, поэтому NovaTrail спрашивает тебя. Мы храним псевдоним, аватар, возрастную категорию и страну, настройки и твои ответы, — никогда имя, дату рождения или школу. Работа остаётся на твоём устройстве; на проверку её картинка, без имени и идентификаторов, уходит OpenAI или Anthropic. Наставник — ИИ, а взрослый аккаунта видит твой прогресс. Хранить ли работы на нашем сервере — решаешь ты. Отозвать согласие можно в один шаг, в своём профиле: это удаляет профиль с данными."
   child-notice:
     place: app
     versions:
       - version: 1
         status: draft
         summary:
-          en: "Draft: For you, the learner. Its gist is written with its words, in T98 of RUN.md."
-          ru: "Черновик: Для тебя, ученик. Суть пишется вместе с текстом, в T98 RUN.md."
+          en: "You write and draw your answers, and a computer program checks them. The tutor is an AI: a computer program, not a person. It gets a picture of your work, but not your name, so do not write your name, or the names of people you know, on your work. On NovaTrail you have a made-up name. We keep what you did, to give you the right next task. The grown-up of your account can see how you are doing, and nobody else. If something makes you sad or scared, tell a grown-up you trust, or call the helpline on the \"Help\" page. If you are in danger right now, tell a grown-up near you, or call the emergency number."
+          ru: "Ты пишешь и рисуешь ответы, а компьютерная программа их проверяет. Наставник — ИИ, компьютерная программа, а не человек. Он получает картинку твоей работы, но не твоё имя, поэтому не пиши на работе своё имя и имена знакомых. В NovaTrail у тебя придуманное имя. Мы храним, что ты делаешь, чтобы давать тебе подходящие задачи. Как у тебя дела, видит взрослый твоего аккаунта, и больше никто. Если тебе грустно или страшно, скажи взрослому, которому доверяешь, или позвони по телефону помощи со страницы «Помощь». Если тебе грозит опасность прямо сейчас, скажи взрослому рядом или позвони в экстренную службу."
+  teen-notice:
+    place: app
+    versions:
+      - version: 1
+        status: draft
+        summary:
+          en: "What you write stays on your device; to be checked, a picture of it goes, with no name or ID, to an AI provider, OpenAI or Anthropic, and our server does not keep it. So do not write your name or the real names of people you know. A program decides whether an answer is right, and the tutor is an AI. We keep a pseudonym, your age category and country, your settings and what you have done. The adult of the account sees your progress; no one buys your data. Until the age of digital consent of your country, that adult decides about your data; then you are asked to confirm or withdraw that consent, and you decide. If something is wrong, tell an adult you trust or call a helpline; if anyone is in danger now, call the emergency number."
+          ru: "То, что ты пишешь, остаётся на твоём устройстве; на проверку его картинка, без имени и идентификаторов, уходит поставщику ИИ — OpenAI или Anthropic, — а наш сервер её не хранит. Поэтому не пиши своё имя и настоящие имена знакомых. Верен ли ответ, решает программа, а наставник — ИИ. Мы храним псевдоним, возрастную категорию и страну, настройки и твои ответы. Взрослый аккаунта видит твой прогресс; твоих данных никто не покупает. До возраста цифрового согласия твоей страны о твоих данных решает он, а потом тебя спросят, подтвердить ли это согласие или отозвать, и решать будешь ты. Если что-то не так, скажи взрослому, которому доверяешь, или позвони по телефону помощи; если кому-то грозит опасность сейчас, звони в экстренную службу."
   measure-notice:
     place: samples_page
     versions:
