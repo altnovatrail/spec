@@ -676,7 +676,7 @@
   - [COORDINATION.md](COORDINATION.md): строка 1.12 и абзац о `v0.14.0`;
   - `RELEASE_LINE` — 0.14 с T100; `just release-version` на пробном коммите с тегами GitHub — `v0.14.0`, `release-files` — восемь файлов, с `consent-age-1.tar.gz` и `export-1.tar.gz`;
   - проверено: `just docs-check`, `coverage`, проверки всех частей, `contracts-check`, `types-check`, `ci-lint`, `go-check`;
-  - pull request ветки `e4` в `main`.
+  - pull request 127 ветки `e4` в `main`; SonarCloud нашёл на нём одну находку — S7739, ключ `then` у объекта в `tools/release/export-line.mjs` из T101 делал его похожим на обещание, — и её исправил коммит на ветке: ключ — `before`.
 - **Открыто:** мерж — шаг автора; после него — релиз `v0.14.0`, архив эпика в `docs/plan/E4.md` и следующий эпик из таблицы 2; переходы репозиториев на тег — каждому своей задачей (Д144, Д166, Д168–Д187).
 
 ## Задачи вне эпика

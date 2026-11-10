@@ -28,7 +28,7 @@ test("another version of the format of the export needs a raised line, and never
 });
 
 const text = (file) => fs.readFileSync(path.join(root, file), "utf8");
-const same = () => Object.fromEntries(SCHEMAS.map((schema) => [schema, { now: text(schema), then: text(schema) }]));
+const same = () => Object.fromEntries(SCHEMAS.map((schema) => [schema, { now: text(schema), before: text(schema) }]));
 
 test("what changed of the shape: each schema of a file, and the IDs of the rules of the text, once", () => {
   assert.deepEqual(SCHEMAS, ["common", "manifest", "account", "profile", "device"].map((term) => `export/schemas/${term}.schema.json`));

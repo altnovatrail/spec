@@ -41,13 +41,13 @@ export function checkExportLine({ version, previous, exportNow, exportThen, chan
 }
 
 // What changed of the shape between two versions of the schemas and of the text: schemas maps each
-// schema's path to { now, then }, each its text or null when the revision has none. A phrase for
+// schema's path to { now, before }, each its text or null when the revision has none. A phrase for
 // each that changed, joined, or null; the text is compared once, by part-line's rule.
 export function shapeChange({ schemas, readmeNow, readmeThen }) {
   const changes = SCHEMAS.map((schema, index) => {
-    const { now, then } = schemas[schema];
+    const { now, before } = schemas[schema];
     const text = index === 0 ? { readmeNow, readmeThen } : { readmeNow: "", readmeThen: "" };
-    return partShapeChange({ schema, readme: README }, { schemaNow: now, schemaThen: then, ...text });
+    return partShapeChange({ schema, readme: README }, { schemaNow: now, schemaThen: before, ...text });
   }).filter(Boolean);
   return changes.length ? changes.join(", and ") : null;
 }
@@ -61,10 +61,10 @@ export function schemasAt(revision, cwd = process.cwd()) {
 // schemas of a file too, since a new kind of file is a new version (export/README.md, section 2).
 export function shapeChangedBetween(revision, previous, cwd = process.cwd()) {
   const at = (revisionOf, file) => fileAt(revisionOf, file, cwd);
-  const schemas = Object.fromEntries(SCHEMAS.map((schema) => [schema, { now: at(revision, schema), then: at(previous, schema) }]));
+  const schemas = Object.fromEntries(SCHEMAS.map((schema) => [schema, { now: at(revision, schema), before: at(previous, schema) }]));
   const change = shapeChange({ schemas, readmeNow: at(revision, README), readmeThen: at(previous, README) });
-  const then = schemasAt(previous, cwd);
-  const set = then.length && JSON.stringify(schemasAt(revision, cwd)) !== JSON.stringify(then) ? "the schemas of export/schemas changed" : null;
+  const earlier = schemasAt(previous, cwd);
+  const set = earlier.length && JSON.stringify(schemasAt(revision, cwd)) !== JSON.stringify(earlier) ? "the schemas of export/schemas changed" : null;
   return [change, set].filter(Boolean).join(", and ") || null;
 }
 
