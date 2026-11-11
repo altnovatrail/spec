@@ -97,6 +97,12 @@ message AnchorSkillState {
   AnchorSkillReason reason = 3;
   // The full IDs of the skills that teach it, in the modules whose graphs the learner model has.
   repeated string teaching_skills = 4;
+  // The IDs of the modules of the catalog that teach it and are not connected to the profile:
+  // those of the pinned index of `api` whose current version suits the profile by its audience and
+  // names it in `teaches` (R63), in the order of their IDs' UTF-16 code units. It is given whatever
+  // the holding, and `app` offers them beside `ANCHOR_SKILL_HOLDING_UNKNOWN`: such a module the
+  // learner may connect by `ConnectModule`.
+  repeated string teaching_modules = 5;
 }
 
 // Whether a learner holds an anchor skill. A value its build does not know `app` reads as

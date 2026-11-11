@@ -212,6 +212,17 @@ export declare type AnchorSkillState = Message<"novatrail.api.v1.AnchorSkillStat
    * @generated from field: repeated string teaching_skills = 4;
    */
   teachingSkills: string[];
+
+  /**
+   * The IDs of the modules of the catalog that teach it and are not connected to the profile:
+   * those of the pinned index of `api` whose current version suits the profile by its audience and
+   * names it in `teaches` (R63), in the order of their IDs' UTF-16 code units. It is given whatever
+   * the holding, and `app` offers them beside `ANCHOR_SKILL_HOLDING_UNKNOWN`: such a module the
+   * learner may connect by `ConnectModule`.
+   *
+   * @generated from field: repeated string teaching_modules = 5;
+   */
+  teachingModules: string[];
 };
 
 /**

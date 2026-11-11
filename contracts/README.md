@@ -544,7 +544,7 @@ A profile has one open attempt: a new one closes the one before `CLOSE_REASON_LE
 
 **The skill map.** `GetSkillMap` gives the state of the skills of a connected module's current version, as `learner-model` reads it at the time of the request (concepts 11), by a learning action with the right `can_learn` or by an action of an adult with `can_view`:
 - each skill whose assessability is `verdict`: how many pieces of evidence it has and when it was last practised; once practised, its estimate and uncertainty on the scale of the module's bands and its retention; once mastered, its mastery band, its cautious probability with retention, and its review date, or that the review is due already;
-- each anchor skill that the graph names: whether the learner holds it, why not or why unknown, and the full IDs of the skills that teach it (concepts 4).
+- each anchor skill that the graph names: whether the learner holds it, why not or why unknown, the full IDs of the skills that teach it (concepts 4), and, whatever the holding, the modules of the catalog not connected to the profile that teach it — those of the pinned index whose current version suits the profile by its audience and names it in `teaches` (R63; section 26 of the module format) —, which `app` offers beside an anchor skill whose holding is unknown.
 
 The graph and its tiers `app` takes by the digest of the answer, so a skill that the current version no longer names, or names nowhere yet, is not on the map (R08 api). No trap is on the map: the trap catalog is closed (R57). How the map shows the state is the detailing of `skill-map`, and what it needs beyond this comes as a field added.
 
