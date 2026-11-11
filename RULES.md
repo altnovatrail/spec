@@ -22,6 +22,7 @@ The name is written **NovaTrail**, with a capital T. Identifiers stay lowercase:
 ## How we work
 
 - The author runs tasks one at a time: «Выполни задачу Txx из RUN.md». Do only that task, by the rules in RUN.md.
+- One task is one session (R143 spec): its inbox triage, its planning and its execution run in one session of Claude Code, and the next task starts in a new session or after `/clear`. A session's cost grows with what it has gathered, not with what it started with (repositories 9.5 spec). The hook `UserPromptSubmit` of `.claude/settings.json`, spec's `tools/session/`, stops a prompt that starts another task in the same session — «Выполни задачу T…», «планируй T…» — and names `/clear`; the inbox triage names no task and goes on. What the next task needs from this one lives in files, not in the session.
 - Before proposing a change, read the repository's decision log, `docs/decisions.md`, and the sections the change touches. Do not re-propose what a decision rejected without new evidence. If a decision has to change, ask the author and record the change.
 - A decision is never rewritten. An amendment with its date goes at the end of the entry, or a new entry replaces it; the old one stays where it is, marked «Заменено», its text unedited.
 - A new number — R, О-, П-, Т- — is the next one still free when it is written down, not when the work began: a parallel session may have taken one meanwhile. Each register's opening names the next free number; keep it current.

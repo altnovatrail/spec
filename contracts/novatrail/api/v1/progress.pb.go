@@ -483,8 +483,14 @@ type AnchorSkillState struct {
 	Reason AnchorSkillReason `protobuf:"varint,3,opt,name=reason,proto3,enum=novatrail.api.v1.AnchorSkillReason" json:"reason,omitempty"`
 	// The full IDs of the skills that teach it, in the modules whose graphs the learner model has.
 	TeachingSkills []string `protobuf:"bytes,4,rep,name=teaching_skills,json=teachingSkills,proto3" json:"teaching_skills,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The IDs of the modules of the catalog that teach it and are not connected to the profile:
+	// those of the pinned index of `api` whose current version suits the profile by its audience and
+	// names it in `teaches` (R63), in the order of their IDs' UTF-16 code units. It is given whatever
+	// the holding, and `app` offers them beside `ANCHOR_SKILL_HOLDING_UNKNOWN`: such a module the
+	// learner may connect by `ConnectModule`.
+	TeachingModules []string `protobuf:"bytes,5,rep,name=teaching_modules,json=teachingModules,proto3" json:"teaching_modules,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AnchorSkillState) Reset() {
@@ -541,6 +547,13 @@ func (x *AnchorSkillState) GetReason() AnchorSkillReason {
 func (x *AnchorSkillState) GetTeachingSkills() []string {
 	if x != nil {
 		return x.TeachingSkills
+	}
+	return nil
+}
+
+func (x *AnchorSkillState) GetTeachingModules() []string {
+	if x != nil {
+		return x.TeachingModules
 	}
 	return nil
 }
@@ -979,12 +992,13 @@ const file_novatrail_api_v1_progress_proto_rawDesc = "" +
 	"\f_uncertaintyB\f\n" +
 	"\n" +
 	"_retentionB\x17\n" +
-	"\x15_cautious_probability\"\xdb\x01\n" +
+	"\x15_cautious_probability\"\x86\x02\n" +
 	"\x10AnchorSkillState\x12!\n" +
 	"\fanchor_skill\x18\x01 \x01(\tR\vanchorSkill\x12>\n" +
 	"\aholding\x18\x02 \x01(\x0e2$.novatrail.api.v1.AnchorSkillHoldingR\aholding\x12;\n" +
 	"\x06reason\x18\x03 \x01(\x0e2#.novatrail.api.v1.AnchorSkillReasonR\x06reason\x12'\n" +
-	"\x0fteaching_skills\x18\x04 \x03(\tR\x0eteachingSkills\"R\n" +
+	"\x0fteaching_skills\x18\x04 \x03(\tR\x0eteachingSkills\x12)\n" +
+	"\x10teaching_modules\x18\x05 \x03(\tR\x0fteachingModules\"R\n" +
 	"\x12GetProgressRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
