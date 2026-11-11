@@ -4,5 +4,20 @@
     "**/.repos/**/CLAUDE.md",
     "**/.repos/.github/CLAUDE.md",
     "**/.repos/.github/**/CLAUDE.md"
-  ]
+  ],
+  "autoCompactWindow": 400000,
+  "disableClaudeAiConnectors": true,
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/tools/session/main.mjs"]
+          }
+        ]
+      }
+    ]
+  }
 }

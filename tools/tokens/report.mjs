@@ -21,6 +21,7 @@ import path from "node:path";
 import os from "node:os";
 import { byCodeUnits } from "../shared.mjs";
 import { costOf, PRICES } from "./prices.mjs";
+import { promptOf } from "../session/session.mjs";
 
 // Tools whose results are counted by the file they read or wrote.
 const BY_FILE = { Read: "file_path", Edit: "file_path", Write: "file_path", NotebookEdit: "notebook_path", Grep: "path", Glob: "path" };
@@ -153,13 +154,6 @@ function resultChars(content) {
   return content.reduce((sum, b) => sum + (b?.type === "text" ? String(b.text ?? "").length : 0), 0);
 }
 
-// What the author typed first in a session: the text of its first prompt, read for a task ID alone.
-function promptText(message) {
-  const content = message?.content;
-  if (typeof content === "string") return content;
-  if (!Array.isArray(content) || content.some((b) => b?.type === "tool_result")) return null;
-  return content.filter((b) => b?.type === "text").map((b) => b.text).join("\n");
-}
 
 function inWindow(timestamp, since, until) {
   return (!since || timestamp >= since) && (!until || timestamp < until);
@@ -216,8 +210,10 @@ export function measure(transcripts, { read, root, since = null, until = null, p
         } else if (r.rendered != null) segment.items.push({ kind: "attachment", key: String(a.type), chars: charsOf(r.rendered) });
       } else if (r.type === "user" && r.message) {
         const content = r.message.content;
-        if (!transcript.subagent && session.task === null && !r.isMeta) {
-          const text = promptText(r.message);
+        // The first prompt the author sent, read for a task ID alone, by the rule the hook of
+        // tools/session/ reads prompts by.
+        if (!transcript.subagent && session.task === null) {
+          const text = promptOf(r);
           if (text != null) session.task = /\bT(\d{1,4})\b/.exec(text)?.[0] ?? "";
         }
         if (Array.isArray(content)) {

@@ -43,6 +43,15 @@ tokens-report *args: _tools
 tokens-test: _tools
     node --test 'tools/tokens/test/*.test.mjs'
 
+# tools/session/ is no recipe: it is the hook UserPromptSubmit that .claude/settings.json runs
+# before each prompt, in spec and, from the spec/ submodule, in every other NovaTrail repository.
+# It stops a prompt that starts a task other than the one the session has led — «Выполни задачу
+# T…», «планируй T…» — and names /clear: one task is one session (R143). It takes nothing from
+# node_modules, since another repository has none in spec/tools/.
+# Run the session hook's own tests, on made-up transcripts.
+session-test:
+    node --test 'tools/session/test/*.test.mjs'
+
 # Reads spec's own format/ by the layout of its text: each schema against the conventions of R45 and
 # the 2020-12 meta-schema, each example against its schema, the YAML rules on every example and test
 # vector, the layout of a module and its rules on the cases laid out as one — the ids of the files at
