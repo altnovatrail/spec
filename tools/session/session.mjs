@@ -9,8 +9,16 @@
 // the hook stops.
 
 // The phrases, found anywhere in a prompt — the author writes «хорошо. далее планируем T…» too —
-// unless «не» comes right before one.
-const TASK = /(?<![\p{L}]не\s+)(?<!^не\s+)(?:выполни(?:те|м)?|выполняем|планиру(?:й|йте|ем))\s+(?:(?:задачу|задачи|реализацию)\s+)?T(\d{1,4})\b/iu;
+// unless the word «не» comes right before one. Spaces are [ \t\r\n], and «не» is checked on the
+// text before a phrase rather than by a lookbehind, so that no pattern backtracks.
+const TASK = /(?:выполни(?:те|м)?|выполняем|планиру(?:й|йте|ем))[ \t\r\n]+(?:(?:задачу|задачи|реализацию)[ \t\r\n]+)?T(\d{1,4})\b/giu;
+
+// Whether the text before a phrase ends in the word «не» and a space.
+function denied(before) {
+  const words = before.trimEnd();
+  if (words.length === before.length || !/не$/iu.test(words)) return false;
+  return !/\p{L}$/u.test(words.slice(0, -2));
+}
 
 // What a prompt holds that the author did not type as their own words: the editor's selection,
 // pasted text, reminders, the output of local commands and the report of a background task, each
@@ -30,8 +38,11 @@ function said(text) {
 
 // The task a prompt starts, such as "T129", or null. T07 and T7 are one task.
 export function taskOf(prompt) {
-  const task = TASK.exec(said(String(prompt ?? "")));
-  return task ? `T${Number(task[1])}` : null;
+  const text = said(String(prompt ?? ""));
+  for (const task of text.matchAll(TASK)) {
+    if (!denied(text.slice(0, task.index))) return `T${Number(task[1])}`;
+  }
+  return null;
 }
 
 // The text of a record of a transcript when it is a prompt the author sent, or null: a result of a

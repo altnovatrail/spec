@@ -1,10 +1,10 @@
 // tokens-report: where the tokens of a repository's Claude Code sessions go (repositories 9).
 //
-//   node tools/tokens/main.mjs [--since <date|time>] [--until <date|time>] [--top <n>] [--project <name|dir>] [--json]
+//   node tools/tokens/main.mjs [--since <date|time>] [--until <date|time>] [--top <n>] [--project <name>] [--json]
 //
 // Reads the transcripts this machine keeps of the sessions of the git repository it runs in —
 // spec, or another NovaTrail repository through `just -f spec/justfile tokens-report` — or of the
-// project --project names, by the name of its folder of transcripts or by a path to it, and
+// project --project names, by the name of its folder of transcripts under <config>/projects, and
 // prints, in all and by session: the calls of the model, cache reads and writes, output, uncached
 // input, the context of a call and its cost at the API's prices; what entered the context between
 // calls — the results of tools by tool, by file and by program, the author's words, reminders,
@@ -20,6 +20,9 @@ import { parseArgs } from "node:util";
 import { byCodeUnits, isMain } from "../shared.mjs";
 import { format, measure, timeOf } from "./report.mjs";
 import { projectsRoot, readTranscript, repositoryRoot, slugOf, transcriptsOf } from "./transcripts.mjs";
+
+// The name of a folder of transcripts, never a path: the report reads nothing outside <config>/projects.
+const PROJECT_NAME = /^[A-Za-z0-9._-]+$/;
 
 const OPTIONS = { since: { type: "string" }, until: { type: "string" }, top: { type: "string" }, project: { type: "string" }, json: { type: "boolean" } };
 
@@ -78,7 +81,8 @@ export function tokensReport(argv, { cwd = process.cwd(), env = process.env } = 
   try {
     options = argumentsOf(argv);
     if (options.project === null) dir = path.join(projectsRoot(env), slugOf(repositoryRoot(cwd)));
-    else dir = options.project.includes("/") ? path.resolve(cwd, options.project) : path.join(projectsRoot(env), options.project);
+    else if (PROJECT_NAME.test(options.project) && !/^\.+$/.test(options.project)) dir = path.join(projectsRoot(env), options.project);
+    else throw new Error(`--project takes the name of a folder under ${projectsRoot(env)}, not a path: ${options.project}`);
     if (!fs.statSync(dir, { throwIfNoEntry: false })?.isDirectory()) throw new Error(`no transcripts of this repository on this machine: ${dir}`);
   } catch (error) {
     return { lines: [`tokens-report: ${error.message}`], status: 2 };

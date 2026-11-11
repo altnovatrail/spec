@@ -359,9 +359,9 @@ test("the report of a repository prints numbers, paths and names, and never what
   assert.equal(JSON.parse(json.lines[0]).main.calls, 2);
 });
 
-test("--project names the folder; no folder, or a wrong argument, is status 2", () => {
+test("--project names the folder; no folder, a path or a wrong argument, is status 2", () => {
   const { dir, config, repository } = machine();
-  const named = tokensReport(["--project", dir, "--top", "2"], { cwd: os.tmpdir(), env: {} });
+  const named = tokensReport([`--project=${path.basename(dir)}`, "--top", "2"], { cwd: os.tmpdir(), env: { CLAUDE_CONFIG_DIR: config } });
   assert.equal(named.status, 0);
   assert.doesNotMatch(named.lines.join("\n"), new RegExp(SECRET));
   // The root comes from where the sessions began, so paths print from it.
@@ -372,9 +372,14 @@ test("--project names the folder; no folder, or a wrong argument, is status 2", 
   assert.equal(rootOfTranscripts([{ file: path.join(dir, "none.jsonl"), subagent: false }, { file: "x", subagent: true }], () => null), null);
   fs.writeFileSync(path.join(config, "plain.jsonl"), JSON.stringify({ type: "queue-operation" }));
   assert.equal(rootOfTranscripts([{ file: path.join(config, "plain.jsonl"), subagent: false }]), null);
-  const none = tokensReport(["--project", path.join(config, "nothing")], { cwd: os.tmpdir(), env: {} });
+  const none = tokensReport(["--project", "nothing"], { cwd: os.tmpdir(), env: { CLAUDE_CONFIG_DIR: config } });
   assert.equal(none.status, 2);
   assert.match(none.lines[0], /no transcripts of this repository/);
+  for (const value of [dir, "../projects", ".."]) {
+    const refused = tokensReport(["--project", value], { cwd: os.tmpdir(), env: { CLAUDE_CONFIG_DIR: config } });
+    assert.equal(refused.status, 2, value);
+    assert.match(refused.lines[0], /--project takes the name of a folder/);
+  }
   assert.equal(tokensReport(["--top"], {}).status, 2);
   const outside = fs.mkdtempSync(path.join(os.tmpdir(), "tokens-outside-"));
   assert.equal(tokensReport([], { cwd: outside, env: { CLAUDE_CONFIG_DIR: config } }).status, 2);

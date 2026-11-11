@@ -33,12 +33,22 @@ const PLAIN_WORD = /^-?[A-Za-z0-9][A-Za-z0-9:._/-]{0,80}$/;
 // Options of a program that take a value before the word that names what ran.
 const OPTIONS_WITH_VALUE = { just: ["-f", "--justfile", "-d", "--working-directory"], git: ["-C", "-c"], timeout: ["-s", "--signal", "-k", "--kill-after"] };
 
+// A part of a shell command without the brackets and spaces around it, by its characters rather
+// than by a pattern, which would backtrack on a long run of them.
+function unbracketed(part) {
+  let start = 0;
+  let end = part.length;
+  while (start < end && "({ \t\r\n".includes(part[start])) start += 1;
+  while (end > start && ")} \t\r\n".includes(part[end - 1])) end -= 1;
+  return part.slice(start, end);
+}
+
 // The simple commands of a shell command, each as its words past the brackets of a subshell and
 // the assignments of variables: `cd tools && (FOO=1 node x.mjs)` gives [cd, tools] and [node, x.mjs].
 function commandsOf(command) {
   const commands = [];
   for (const part of String(command).split(/&&|\|\||[;|\n]/)) {
-    const words = part.trim().replace(/^[({\s]+/, "").replace(/[)}\s]+$/, "").split(/\s+/).filter(Boolean);
+    const words = unbracketed(part).split(/\s+/).filter(Boolean);
     while (words.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(words[0])) words.shift();
     if (words.length) commands.push(words);
   }
@@ -50,7 +60,10 @@ function commandsOf(command) {
 function argumentsOf(program, words) {
   let rest = words.slice(1);
   const withValue = OPTIONS_WITH_VALUE[program] ?? [];
-  while (rest.length && rest[0].startsWith("-") && (program === "timeout" || withValue.includes(rest[0]))) rest = rest.slice(withValue.includes(rest[0]) ? 2 : 1);
+  const anyOption = program === "timeout";
+  for (let word = rest[0]; word?.startsWith("-") && (anyOption || withValue.includes(word)); word = rest[0]) {
+    rest = rest.slice(withValue.includes(word) ? 2 : 1);
+  }
   if (program === "timeout" && /^\d/.test(rest[0] ?? "")) rest = rest.slice(1);
   return rest;
 }
@@ -85,7 +98,10 @@ export function shownPath(file, root, home = os.homedir()) {
   return shown.replace(/\/tool-results\/[^/]+$/, "/tool-results/*");
 }
 
-const PATH_WORD = /^[A-Za-z0-9_.~/-]*[./][A-Za-z0-9_.~/-]*$/;
+// A word of path characters with a dot or a slash among them, by two patterns, so that neither
+// backtracks.
+const PATH_CHARS = /^[A-Za-z0-9_.~/-]+$/;
+const isPathWord = (word) => PATH_CHARS.test(word) && /[./]/.test(word);
 const MAX_FILES = 10;
 
 const home = (word) => (word.startsWith("~/") ? path.join(os.homedir(), word.slice(2)) : word);
@@ -107,7 +123,7 @@ export function filesOf(command, root, isFile) {
     const here = gitC ? path.resolve(folder, home(words[2])) : folder;
     for (const raw of (gitC ? words.slice(3) : words).join(" ").split(/[\s'"=<>()]+/)) {
       if (files.length >= MAX_FILES) return files;
-      if (!raw || !PATH_WORD.test(raw) || raw.startsWith("-") || raw === "." || raw === "..") continue;
+      if (!raw || !isPathWord(raw) || raw.startsWith("-") || raw === "." || raw === "..") continue;
       const absolute = path.resolve(here, home(raw));
       if (isFile(absolute)) {
         const shown = shownPath(absolute, root);
@@ -170,6 +186,9 @@ export function timeOf(text) {
   if (!date || Number.isNaN(date.getTime())) throw new Error(`not a date or a time of ISO 8601: ${text}`);
   return date.toISOString();
 }
+
+// What a group counts for an entry that carries nothing of its own.
+const NOTHING = Object.freeze({ chars: 0 });
 
 // What the transcripts hold, from those `read` returns for each of `transcripts`.
 export function measure(transcripts, { read, root, since = null, until = null, prices = PRICES, isFile = fileCheck() } = {}) {
@@ -308,7 +327,7 @@ function summarize({ calls, sessions, segments, costStates, broken, compactions,
   let chars = 0;
   let tokens = 0;
   const starts = [];
-  const count = (name, share, later, item = { chars: 0 }) => {
+  const count = (name, share, later, item = NOTHING) => {
     const g = groups.get(name) ?? { name, count: 0, partial: 0, chars: 0, tokens: 0, carried: 0 };
     groups.set(name, g);
     g.count += 1;
