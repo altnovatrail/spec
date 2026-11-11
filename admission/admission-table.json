@@ -186,6 +186,38 @@
       ]
     },
     {
+      "capability": "correct_answer_words",
+      "age_category": "under_13",
+      "admission": "open",
+      "basis": [
+        "privacy 3.2"
+      ]
+    },
+    {
+      "capability": "correct_answer_words",
+      "age_category": "from_13_to_consent",
+      "admission": "open",
+      "basis": [
+        "privacy 3.2"
+      ]
+    },
+    {
+      "capability": "correct_answer_words",
+      "age_category": "from_consent_to_18",
+      "admission": "open",
+      "basis": [
+        "privacy 3.2"
+      ]
+    },
+    {
+      "capability": "correct_answer_words",
+      "age_category": "adult",
+      "admission": "open",
+      "basis": [
+        "privacy 3.2"
+      ]
+    },
+    {
       "capability": "voice",
       "age_category": "under_13",
       "admission": "closed",

@@ -65,8 +65,9 @@ type CapabilityRule struct {
 // Capability is the type of admission-table.schema.json#/$defs/capability.
 //
 // A capability of AI (concepts 10): reading handwriting, reading text, the analysis of a solution's
-// steps, the assessment by a rubric, the hint, and voice — the voicing of the tutor by a provider
-// and the learner's voice input, which are one capability for now.
+// steps, the assessment by a rubric, the hint, the words after a correct answer — the praise of a
+// step and the question of which technique helped —, and voice — the voicing of the tutor by a
+// provider and the learner's voice input, which are one capability for now.
 type Capability string
 
 // The values of Capability.
@@ -76,6 +77,7 @@ const (
 	CapabilitySolutionAnalysis   Capability = "solution_analysis"
 	CapabilityRubricAssessment   Capability = "rubric_assessment"
 	CapabilityHint               Capability = "hint"
+	CapabilityCorrectAnswerWords Capability = "correct_answer_words"
 	CapabilityVoice              Capability = "voice"
 )
 

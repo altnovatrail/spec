@@ -1,0 +1,107 @@
+# The words after a correct answer are a capability of their own, correct_answer_words, open to
+# every age category as the hint is: the function reads its rule, not the hint's, and with no rule
+# of the hint at all each category is admitted. Past its rule the request goes to the cell as any
+# other: each category is admitted once its cell's facts are declared, and a minor's cell still
+# waits for minor_safeguards. That the hint open does not open these words, capability-first.yaml
+# shows.
+table:
+  providers:
+    alpha: {name: Alpha}
+  facts:
+    data_processing_agreement: {description: The platform's data processing agreement with the provider is in force.}
+    minimal_retention: {description: The provider keeps none of the content of the platform's requests.}
+    minor_safeguards: {description: The safeguards the provider requires for minors are in place.}
+  capabilities:
+    - {capability: correct_answer_words, age_category: under_13, admission: open, basis: [privacy 3.2]}
+    - {capability: correct_answer_words, age_category: from_13_to_consent, admission: open, basis: [privacy 3.2]}
+    - {capability: correct_answer_words, age_category: from_consent_to_18, admission: open, basis: [privacy 3.2]}
+    - {capability: correct_answer_words, age_category: adult, admission: open, basis: [privacy 3.2]}
+  cells:
+    - provider: alpha
+      ai_route: platform_ai
+      age_category: under_13
+      admission: open_with_facts
+      facts: [data_processing_agreement, minimal_retention, minor_safeguards]
+      terms: [{row: Anthropic, read: "2026-11-09"}]
+      basis: [privacy 5.1, R121, R123]
+    - provider: alpha
+      ai_route: platform_ai
+      age_category: from_13_to_consent
+      admission: open_with_facts
+      facts: [data_processing_agreement, minimal_retention, minor_safeguards]
+      terms: [{row: Anthropic, read: "2026-11-09"}]
+      basis: [privacy 5.1, R121, R123]
+    - provider: alpha
+      ai_route: platform_ai
+      age_category: from_consent_to_18
+      admission: open_with_facts
+      facts: [data_processing_agreement, minimal_retention, minor_safeguards]
+      terms: [{row: Anthropic, read: "2026-11-09"}]
+      basis: [privacy 5.1, R121, R123]
+    - provider: alpha
+      ai_route: platform_ai
+      age_category: adult
+      admission: open_with_facts
+      facts: [data_processing_agreement, minimal_retention]
+      terms: [{row: Anthropic, read: "2026-11-09"}]
+      basis: [privacy 5.1, R121]
+    - provider: alpha
+      ai_route: own_key
+      age_category: adult
+      admission: open
+      terms: [{row: Anthropic, read: "2026-11-09"}]
+      basis: [privacy 5.2, О-4]
+cases:
+  # Each category, its cell's facts declared: admitted.
+  - request: {capability: correct_answer_words, ai_route: platform_ai, provider: alpha, age_category: under_13}
+    facts:
+      alpha:
+        data_processing_agreement: [under_13]
+        minimal_retention: [under_13]
+        minor_safeguards: [under_13]
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}
+  - request: {capability: correct_answer_words, ai_route: platform_ai, provider: alpha, age_category: from_13_to_consent}
+    facts:
+      alpha:
+        data_processing_agreement: [from_13_to_consent]
+        minimal_retention: [from_13_to_consent]
+        minor_safeguards: [from_13_to_consent]
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: platform_ai, age_category: from_13_to_consent}
+  - request: {capability: correct_answer_words, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
+    facts:
+      alpha:
+        data_processing_agreement: [from_consent_to_18]
+        minimal_retention: [from_consent_to_18]
+        minor_safeguards: [from_consent_to_18]
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: platform_ai, age_category: from_consent_to_18}
+  - request: {capability: correct_answer_words, ai_route: platform_ai, provider: alpha, age_category: adult}
+    facts:
+      alpha:
+        data_processing_agreement: [adult]
+        minimal_retention: [adult]
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: platform_ai, age_category: adult}
+  # The own key of an adult needs no fact.
+  - request: {capability: correct_answer_words, ai_route: own_key, provider: alpha, age_category: adult}
+    answer:
+      admitted: true
+      cell: {provider: alpha, ai_route: own_key, age_category: adult}
+  # The rule of the capability lets a minor's request through, and the cell still waits for its
+  # last fact.
+  - request: {capability: correct_answer_words, ai_route: platform_ai, provider: alpha, age_category: under_13}
+    facts:
+      alpha:
+        data_processing_agreement: [under_13]
+        minimal_retention: [under_13]
+    answer:
+      admitted: false
+      reason: fact_missing
+      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}
+      fact: minor_safeguards
