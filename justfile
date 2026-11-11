@@ -27,6 +27,22 @@ inbox: _tools
 inbox-test: _tools
     node --test 'tools/inbox/test/*.test.mjs'
 
+# Reads the transcripts Claude Code keeps on this machine of the sessions of the git repository it
+# is run from — spec, or another NovaTrail repository as `just -f spec/justfile tokens-report` — and
+# prints, in all and by session, the calls of the model, the cache, the output, the context of a
+# call and its cost at the API's prices; what entered the context between calls, by tool, by file
+# and by program, and what each carried; and what a session starts with (repositories 9.1). It
+# prints numbers, paths and names alone, never what a transcript says. --since and --until bound
+# the calls by their time, --top the lists, --project names another folder, --json prints JSON.
+# Print where the tokens of this repository's sessions went.
+[positional-arguments]
+tokens-report *args: _tools
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/tokens/main.mjs")}} "$@"
+
+# Run tokens-report's own tests, on made-up transcripts.
+tokens-test: _tools
+    node --test 'tools/tokens/test/*.test.mjs'
+
 # Reads spec's own format/ by the layout of its text: each schema against the conventions of R45 and
 # the 2020-12 meta-schema, each example against its schema, the YAML rules on every example and test
 # vector, the layout of a module and its rules on the cases laid out as one — the ids of the files at
