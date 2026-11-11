@@ -519,3 +519,52 @@ just tokens-report --since 2026-11-09 --until 2026-11-11T03:59:01Z
 - значит, 1 п.п. пятичасового лимита Max ≈ $0,8–1,1 по ценам API, а 1 п.п. недельного ≈ $5–6,5;
 - Доля лимита считает всё, что автор делал в Claude, — «Your usage of all different Claude product surfaces (claude.ai, Claude Code, Claude Desktop) counts towards the same usage limit» (Т-39). А вес выше — только сессии этой машины, так что пересчёт — верхняя оценка цены пункта. Это одна точка, а не проверка пропорциональности. Цены API как вес R142 оставляет, а пересчёт в доли лимита — по этим числам.
 - Разбор `/usage` за сутки на 2026-11-11 — для T120: «95% of your usage came from subagent-heavy sessions», «84% of your usage was at >150k context», «82% of your usage was while 4+ sessions ran in parallel», «70% of your usage came from sessions active for 8+ hours».
+
+### 9.5. Порядок работы сессий
+
+Какие правки самого порядка работы сокращают контекст сессий — по числам раздела 9.3, по расшифровкам всех 13 репозиториев этой машины, по документации Claude Code и двум пробам (RUN.md, T120). Документация прочитана 2026-11-11.
+
+**Где расход.** У всех 13 репозиториев начало сессии — 41–45 тыс. токенов, а средний контекст вызова — 218–294 тыс., в 5–7 раз больше. Значит, расход задаёт то, что сессия накопила, а не то, с чем она началась. Разбор `/usage` автора за сутки говорит то же: «84% of your usage was at >150k context», «70% of your usage came from sessions active for 8+ hours» (раздел 9.4). Документация ([Manage costs](https://code.claude.com/docs/en/costs.md)): «Use `/clear` to start fresh when switching to unrelated work. Stale context wastes tokens on every subsequent message».
+
+| Правка | Экономия | Риск — что агент перестанет видеть | Как это заметит проверка |
+|---|---|---|---|
+| Одна задача — одна сессия: новая сессия или `/clear` после задачи | −51 % контекста основных сессий E4 и E9 (1 051 → 513 млн), −18 % за всё время | то, что прошлая задача держала в контексте и не записала в файлы; RULES.md уже требует, чтобы контекст жил в файлах | «Сделано» и «Открыто» задачи; `just inbox` |
+| Авто-сжатие раньше: `CLAUDE_CODE_AUTO_COMPACT_WINDOW` на 300–400 тыс. вместо ≈ 967 тыс. | −51 % при 400 тыс. (11 сжатий), −61 % при 300 тыс. (18), −70 % при 200 тыс. (31) — на той же выборке | подробности, которые сводка сжатия опустит; правила `paths`, загруженные до сжатия | ревью и проверки задачи; «Сделано» по файлам, а не по памяти сессии |
+| Тонкий CLAUDE.md: проверки частей — в `.claude/rules/` с `paths` | −5 090 токенов на каждом вызове (44 350 → 39 264), ≈ 2 % контекста вызова линии | правило части грузится, только когда сессия читает или правит файл части; правка скриптом `node` или `sed` его не загрузит; после сжатия оно уходит | CI прогоняет все проверки, и мерж ждёт их; в CLAUDE.md — строка, где лежат правила |
+| Коннекторы и навыки аккаунта вне задач NovaTrail: `ENABLE_CLAUDEAI_MCP_SERVERS=false` или `disableClaudeAiConnectors` | ≈ 10 тыс. токенов на вызов: список навыков ≈ 8 тыс. и инструкции MCP ≈ 2 тыс., ≈ 4 % контекста вызова | коннекторы claude.ai в этих репозиториях не нужны | нет |
+| Субагенту — модель дешевле | нет: Opus — $0,31–0,34, Sonnet — $0,21–0,42, Haiku — $0,27–0,35 за ту же задачу | дешёвая модель ошибается: Haiku — 0 верных из 3, Sonnet — 2 из 3, Opus — 3 из 3 | нет |
+| Процедуры — навыками `.claude/skills/` | входит в тонкий CLAUDE.md. Разбор входящих (правило 13) нужен каждой задаче и навыком ничего не сберегает | — | — |
+| Карта репозитория в правилах | поиск «где что» — `ls` и `find` — несёт 0,65 % линии, Glob — 0 | — | — |
+| Вывод проверок короче | рецепты `just` несут 0,1 % и меньше: `docs-check` уже печатает строку, а длинный вывод сессии режут `tail` и `grep` | — | — |
+| MEMORY.md короче | весь индекс — 3,7 КБ, ≈ 1,6 тыс. токенов на вызов, ≈ 0,7 %. Повторы правил небольшие: «The author commits» пересказывает RULES.md и дополняет его | — | — |
+
+**Пробы** — 2026-11-11, `claude -p` на Opus 5.5 в клоне `spec` ветки E10, только чтение.
+- **Тонкий CLAUDE.md.**
+  - Абзац Environment — 76 % CLAUDE.md, 18,8 из 24,9 КБ — разрезан по предложениям на 11 правил частей с `paths`. CLAUDE.md стал 9,9 КБ.
+  - Пустой вопрос, ×3: контекст первого вызова — 44 350 токенов с полным CLAUDE.md и 39 264 с тонким.
+  - Вопрос «какие проверки ждут правку `legal/schemas/legal.schema.json`», ×2: ответы те же — `just legal-check`, `just types`, `just types-check`. Но правило само не подгрузилось: сессия не открывала файлов `legal/`. Его нашли по строке CLAUDE.md, через Glob и Read, — на 1–2 хода больше.
+  - Документация ([Memory](https://code.claude.com/docs/en/memory.md)): «A path-scoped rule loads when Claude uses the Read, Write, or Edit tool on a matching file», а сжатие такое правило убирает: «If a rule must persist across compaction, drop the `paths:` frontmatter or move it to the project-root CLAUDE.md» ([Context window](https://code.claude.com/docs/en/context-window.md)).
+- **Модель субагента.**
+  - Задача: найти в `docs/decisions.md` записи, где встречается Starlark. Ответ — 12 записей; сессия отдаёт поиск субагенту, у которого модель задана в `--agents`. ×3 на модель.
+  - Верно: Opus — 3 из 3 за 18–24 с; Sonnet — 2 из 3 за 41–159 с; Haiku — 0 из 3 за 86–144 с.
+  - Дешёвая модель читает больше и делает больше ходов, так что денег не сберегает.
+  - Документация ([Subagents](https://code.claude.com/docs/en/sub-agents.md)): модель берётся из вызова, из поля `model`, из `CLAUDE_CODE_SUBAGENT_MODEL` или у основной сессии. Explore и Plan — «start without your CLAUDE.md files», а родителю возвращается только итог субагента.
+
+**Ещё из документации:**
+- Модель с окном в 1 млн «compact[s] before the window fills, at about 967K tokens by default». Порог меняют `autoCompactWindow` и `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, от 100 тыс. до 1 млн ([Model configuration](https://code.claude.com/docs/en/model-config.md)).
+- Вывод Bash идёт в контекст до `BASH_MAX_OUTPUT_LENGTH`, «default: 30000» знаков ([Environment variables](https://code.claude.com/docs/en/env-vars.md)). Длиннее — в файл сессии и начало до 2 000 знаков ([Tools reference](https://code.claude.com/docs/en/tools-reference.md)).
+- Импорт не дешевле текста: «Imported files are expanded and loaded into context alongside the CLAUDE.md that references them» ([Memory](https://code.claude.com/docs/en/memory.md)).
+- Список навыков грузит только описания, «full skill content only loads when invoked». Навыки плагинов `skillOverrides` не выключает ([Skills](https://code.claude.com/docs/en/skills.md)). Коннекторы claude.ai выключают `disableClaudeAiConnectors` и `ENABLE_CLAUDEAI_MCP_SERVERS=false` ([MCP](https://code.claude.com/docs/en/mcp.md)).
+
+**Как считалось.** «Одна задача — одна сессия» и «раньше сжатие» — модели по расшифровкам основных сессий `spec` за линию раздела 9.3, без новых прогонов:
+- граница задачи — реплика автора «Выполни задачу T…», «планируй T…» или «Разбери входящие»; после неё контекст падает до начала сессии и растёт заново;
+- сжатие при пороге оставляет начало сессии и ≈ 20 тыс. токенов сводки.
+
+Сами вызовы сжатия, по одному чтению всего контекста, не посчитаны. Две правки перекрываются, их экономия не складывается.
+
+**Рекомендация для T121** — в порядке экономии:
+1. Одна задача — одна сессия: правило RUN.md, и «Выполни задачу» — в новой сессии или после `/clear`. Планирование и выполнение одной задачи — одна сессия.
+2. `CLAUDE_CODE_AUTO_COMPACT_WINDOW` около 400 тыс. — в `containerEnv` devcontainer заготовки и `spec`.
+3. Тонкий CLAUDE.md с правилами частей по `paths` и строкой о том, где они.
+4. `ENABLE_CLAUDEAI_MCP_SERVERS=false` в devcontainer — если автору не нужны коннекторы claude.ai в репозиториях NovaTrail.
+5. Не делать: дешёвую модель субагентам, карту в правилах, правку вывода проверок.
