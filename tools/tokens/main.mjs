@@ -81,8 +81,14 @@ export function tokensReport(argv, { cwd = process.cwd(), env = process.env } = 
   try {
     options = argumentsOf(argv);
     if (options.project === null) dir = path.join(projectsRoot(env), slugOf(repositoryRoot(cwd)));
-    else if (PROJECT_NAME.test(options.project) && !/^\.+$/.test(options.project)) dir = path.join(projectsRoot(env), options.project);
-    else throw new Error(`--project takes the name of a folder under ${projectsRoot(env)}, not a path: ${options.project}`);
+    else {
+      if (!PROJECT_NAME.test(options.project) || /^\.+$/.test(options.project)) throw new Error(`--project takes the name of a folder under ${projectsRoot(env)}, not a path: ${options.project}`);
+      // The folder is the one of that name among those under <config>/projects, never the argument itself.
+      const projects = projectsRoot(env);
+      const name = (fs.statSync(projects, { throwIfNoEntry: false })?.isDirectory() ? fs.readdirSync(projects) : []).find((entry) => entry === options.project);
+      if (!name) throw new Error(`no transcripts of this repository on this machine: ${projects}/${options.project}`);
+      dir = path.join(projects, name);
+    }
     if (!fs.statSync(dir, { throwIfNoEntry: false })?.isDirectory()) throw new Error(`no transcripts of this repository on this machine: ${dir}`);
   } catch (error) {
     return { lines: [`tokens-report: ${error.message}`], status: 2 };

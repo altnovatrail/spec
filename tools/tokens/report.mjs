@@ -60,9 +60,12 @@ function commandsOf(command) {
 function argumentsOf(program, words) {
   let rest = words.slice(1);
   const withValue = OPTIONS_WITH_VALUE[program] ?? [];
-  const anyOption = program === "timeout";
-  for (let word = rest[0]; word?.startsWith("-") && (anyOption || withValue.includes(word)); word = rest[0]) {
-    rest = rest.slice(withValue.includes(word) ? 2 : 1);
+  for (;;) {
+    const word = rest[0];
+    if (!word?.startsWith("-")) break;
+    if (withValue.includes(word)) rest = rest.slice(2);
+    else if (program === "timeout") rest = rest.slice(1);
+    else break;
   }
   if (program === "timeout" && /^\d/.test(rest[0] ?? "")) rest = rest.slice(1);
   return rest;
