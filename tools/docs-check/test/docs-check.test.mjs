@@ -47,6 +47,7 @@ function applyEdits(root, edits) {
       continue;
     }
     if (from === null) {
+      fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.writeFileSync(target, to);
       continue;
     }
@@ -606,4 +607,102 @@ test("in a repository, git runs without the fsmonitor hook that its config names
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+// The rules of .claude/rules/: front matter with paths that match files, and a link in CLAUDE.md
+// (R143; repositories 9.5).
+
+const rule = (paths = '  - "docs/**"\n', body = "# Docs\n\nSee [the product](../../docs/product.md).\n") => `---\npaths:\n${paths}---\n\n${body}`;
+const claude = "# CLAUDE.md\n\nThe rule of the documents: [docs](.claude/rules/docs.md).\n";
+const withRule = (text, edits = []) => [["CLAUDE.md", null, claude], [".claude/rules/docs.md", null, text], ...edits];
+
+test("a rule with paths that match files, named in CLAUDE.md, is green and counted", async () => {
+  const root = trialCopy(withRule(rule('  - "docs/**"\n  - "README.md"\n')));
+  try {
+    const { errors, stats } = await check(root);
+    assert.deepEqual(errors, []);
+    assert.equal(stats.rules, 1);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a rule's paths may be a comma-separated string, as Claude Code reads them", async () => {
+  assert.deepEqual(await errorsOf(withRule("---\npaths: docs/*.md, draft/**\n---\n\n# Docs\n")), []);
+  // A brace group keeps its comma, and a comma at the end leaves no empty pattern.
+  assert.deepEqual(await errorsOf(withRule("---\npaths: docs/*.{md,txt}, draft/**,\n---\n\n# Docs\n")), []);
+});
+
+test("a pattern is read as Claude Code reads it: a dot begins a name like any letter, / anchors at the root, no slash means any depth", async () => {
+  const dotted = [[".github/workflows/ci.yml", null, "on: push\n"], ["tools/.npmrc", null, "x\n"], [".github/x.go", null, "package x\n"]];
+  assert.deepEqual(await errorsOf(withRule(rule('  - ".github/**"\n  - "tools/**"\n  - "**/*.go"\n  - "/README.md"\n  - "*.md"\n'), dotted)), []);
+  await expectOnly(withRule(rule('  - "/product.md"\n')), /paths: \/product\.md matches no file/);
+});
+
+test("a rule saved with a byte order mark keeps its front matter", async () => {
+  assert.deepEqual(await errorsOf(withRule(`\uFEFF${rule()}`)), []);
+});
+
+test("a rule with no front matter loads in every session", async () => {
+  await expectOnly(withRule("# Docs\n\nAlways.\n"), /^\.claude\/rules\/docs\.md:1: no front matter with paths: the rule loads in every session/);
+});
+
+test("a rule whose front matter is not YAML loads in every session", async () => {
+  await expectOnly(withRule(rule('  - "docs/**\n')), /^\.claude\/rules\/docs\.md:2: the front matter is not YAML/);
+});
+
+test("a rule without paths, or with paths that are no list of patterns, loads in every session", async () => {
+  await expectOnly(withRule("---\nname: docs\n---\n\n# Docs\n"), /^\.claude\/rules\/docs\.md:2: paths: not a list of patterns/);
+  await expectOnly(withRule(rule("  - 3\n")), /paths: not a list of patterns/);
+  await expectOnly(withRule("---\npaths: []\n---\n"), /paths: not a list of patterns/);
+});
+
+test("a pattern that matches no file is named on its line", async () => {
+  await expectOnly(withRule(rule('  - "docs/**"\n  - "format/**"\n')), /^\.claude\/rules\/docs\.md:4: paths: format\/\*\* matches no file of the repository, so the rule never loads$/);
+  // Its own entry, not the first line that holds its text.
+  await expectOnly(withRule(rule('  - "*.md"\n  - "md"\n')), /^\.claude\/rules\/docs\.md:4: paths: md matches no file/);
+});
+
+test("a pattern matches any file, not only a document, and a file of the root by name", async () => {
+  assert.deepEqual(await errorsOf(withRule(rule('  - "justfile"\n  - "**/*.go"\n'), [["justfile", null, "x:\n"], ["tools/a/b.go", null, "package b\n"]])), []);
+});
+
+test("a rule that CLAUDE.md does not name is named, and so is one with no CLAUDE.md at all", async () => {
+  await expectOnly(withRule(rule(), [["CLAUDE.md", claude, "# CLAUDE.md\n"]]), /^\.claude\/rules\/docs\.md:1: CLAUDE\.md names no link to this rule/);
+  await expectOnly([[".claude/rules/docs.md", null, rule()]], /CLAUDE\.md names no link to this rule/);
+});
+
+test("CLAUDE.md names a rule by any link the link check resolves to it, or from .claude/CLAUDE.md", async () => {
+  const named = (text) => withRule(rule(), [["CLAUDE.md", claude, `# CLAUDE.md\n\n${text}\n`]]);
+  assert.deepEqual(await errorsOf(named("[docs](/.claude/rules/docs.md) and [docs](./.claude/rules/../rules/docs.md#docs)")), []);
+  assert.deepEqual(await errorsOf(withRule(rule(), [["CLAUDE.md", claude, null], [".claude/CLAUDE.md", null, "# CLAUDE.md\n\n[docs](rules/docs.md)\n"]])), []);
+  // A link with a stray % is a link the rule check reads as the link check does, not a crash.
+  const errors = await errorsOf(named("[docs](.claude/rules/docs.md) and [odd](docs/100%.md)"));
+  assert.deepEqual(errors, ["CLAUDE.md:3: link docs/100%.md: docs/100%.md does not exist"]);
+});
+
+test("a rule's body is checked as a document, on the lines of the file", async () => {
+  await expectOnly(withRule(rule(undefined, "# Docs\n\nSee [the product](../../docs/nope.md).\n")), /^\.claude\/rules\/docs\.md:8: link \.\.\/\.\.\/docs\/nope\.md: docs\/nope\.md does not exist$/);
+  await expectOnly(withRule(rule(undefined, "# Docs\n\nAs R99 says.\n")), /^\.claude\/rules\/docs\.md:8: .*R99/);
+});
+
+test("in a repository, a pattern is matched against the files git lists, not those it ignores", async () => {
+  const root = inRepository(trialCopy(withRule(rule('  - "docs/**"\n  - "build/**"\n'))));
+  try {
+    fs.writeFileSync(path.join(root, ".gitignore"), "/build/\n");
+    fs.mkdirSync(path.join(root, "build"));
+    fs.writeFileSync(path.join(root, "build", "out.txt"), "x\n");
+    const errors = (await check(root)).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
+    assert.deepEqual(errors, [".claude/rules/docs.md:4: paths: build/** matches no file of the repository, so the rule never loads"]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a repository's rules are checked as spec's are", async () => {
+  const body = "# Docs\n\nSee [the component](../../docs/architecture.md).\n";
+  assert.deepEqual(await componentErrors(withRule(rule(undefined, body))), []);
+  // Claude Code matches files under spec/ too, so a pattern into it is a pattern like any other.
+  assert.deepEqual(await componentErrors(withRule(rule('  - "spec/docs/**"\n', body))), []);
+  await componentOnly(withRule(rule('  - "spec/nope/**"\n', body)), /paths: spec\/nope\/\*\* matches no file/);
 });
