@@ -46,8 +46,9 @@ var (
 
 // LegalServiceClient is a client for the novatrail.api.v1.LegalService service.
 type LegalServiceClient interface {
-	// The current version of every text whose place is `app`, with its body in English and its gist
-	// in the language asked when the passport has it, else in English.
+	// The current version of every text whose place is `app`, with its body in English, its gist in
+	// the language asked when the passport has it, else in English, and its translation into the
+	// language asked when the version has one.
 	GetLegalTexts(context.Context, *v1.GetLegalTextsRequest) (*v1.GetLegalTextsResponse, error)
 }
 
@@ -59,8 +60,9 @@ func NewLegalServiceClient(client *connect.Client) LegalServiceClient {
 
 // LegalServiceHandler is an implementation of the novatrail.api.v1.LegalService service.
 type LegalServiceHandler interface {
-	// The current version of every text whose place is `app`, with its body in English and its gist
-	// in the language asked when the passport has it, else in English.
+	// The current version of every text whose place is `app`, with its body in English, its gist in
+	// the language asked when the passport has it, else in English, and its translation into the
+	// language asked when the version has one.
 	GetLegalTexts(context.Context, *v1.GetLegalTextsRequest) (*v1.GetLegalTextsResponse, error)
 }
 

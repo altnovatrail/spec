@@ -3,7 +3,7 @@
 cases:
   # The set names version 2 of its form, which does not exist.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app
@@ -62,7 +62,7 @@ cases:
       - sets.measure
   # The notice of a set is a text with the place samples_page, not form.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app
@@ -121,7 +121,7 @@ cases:
       - sets.measure
   # A set in force names its form in draft.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app

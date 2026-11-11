@@ -1,5 +1,5 @@
 # A passport whose every version is a draft, with no set: nothing is shown yet.
-format: 1
+format: 2
 texts:
   terms-of-use:
     place: app

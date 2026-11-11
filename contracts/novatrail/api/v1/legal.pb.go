@@ -31,8 +31,8 @@ const (
 type GetLegalTextsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The language of the screen that shows the texts, a well-formed tag of BCP 47, a field of the
-	// message and not the header `Accept-Language` (R92): the language the gists come in. Empty
-	// asks for English.
+	// message and not the header `Accept-Language` (R92): the language the gists and the
+	// translations come in. Empty asks for English.
 	InterfaceLanguage string `protobuf:"bytes,1,opt,name=interface_language,json=interfaceLanguage,proto3" json:"interface_language,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
@@ -143,8 +143,16 @@ type LegalText struct {
 	Summary string `protobuf:"bytes,5,opt,name=summary,proto3" json:"summary,omitempty"`
 	// The language the gist is in, its tag as the passport writes it, such as "en" or "ru".
 	SummaryLanguage string `protobuf:"bytes,6,opt,name=summary_language,json=summaryLanguage,proto3" json:"summary_language,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// The translation of the version into the language asked, found as the gist is, when the version
+	// has one (R141): Markdown as the body is, with no force of its own — the body in English is the
+	// one in force, and a consent names the version, never its translation. Empty when the version
+	// has no translation into that language, and when English is asked.
+	Translation string `protobuf:"bytes,7,opt,name=translation,proto3" json:"translation,omitempty"`
+	// The language the translation is in, its tag as the passport writes it, such as "ru"; empty when
+	// there is no translation.
+	TranslationLanguage string `protobuf:"bytes,8,opt,name=translation_language,json=translationLanguage,proto3" json:"translation_language,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *LegalText) Reset() {
@@ -219,6 +227,20 @@ func (x *LegalText) GetSummaryLanguage() string {
 	return ""
 }
 
+func (x *LegalText) GetTranslation() string {
+	if x != nil {
+		return x.Translation
+	}
+	return ""
+}
+
+func (x *LegalText) GetTranslationLanguage() string {
+	if x != nil {
+		return x.TranslationLanguage
+	}
+	return ""
+}
+
 // A version of a legal text that a person saw, which a request that gives a consent names and the
 // record of the consent keeps (R130; R136): the current version that `GetLegalTexts` gave. A text
 // with no version in force is named by no request, and a version that is not the current one gets
@@ -285,14 +307,16 @@ const file_novatrail_api_v1_legal_proto_rawDesc = "" +
 	"\x14GetLegalTextsRequest\x12-\n" +
 	"\x12interface_language\x18\x01 \x01(\tR\x11interfaceLanguage\"J\n" +
 	"\x15GetLegalTextsResponse\x121\n" +
-	"\x05texts\x18\x01 \x03(\v2\x1b.novatrail.api.v1.LegalTextR\x05texts\"\xb4\x01\n" +
+	"\x05texts\x18\x01 \x03(\v2\x1b.novatrail.api.v1.LegalTextR\x05texts\"\x89\x02\n" +
 	"\tLegalText\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x05R\aversion\x12$\n" +
 	"\x0ein_force_since\x18\x03 \x01(\tR\finForceSince\x12\x12\n" +
 	"\x04body\x18\x04 \x01(\tR\x04body\x12\x18\n" +
 	"\asummary\x18\x05 \x01(\tR\asummary\x12)\n" +
-	"\x10summary_language\x18\x06 \x01(\tR\x0fsummaryLanguage\"8\n" +
+	"\x10summary_language\x18\x06 \x01(\tR\x0fsummaryLanguage\x12 \n" +
+	"\vtranslation\x18\a \x01(\tR\vtranslation\x121\n" +
+	"\x14translation_language\x18\b \x01(\tR\x13translationLanguage\"8\n" +
 	"\fLegalTextRef\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x05R\aversion2u\n" +

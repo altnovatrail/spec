@@ -8,7 +8,8 @@
 // format/page.yaml and format/vectors/pages/, which tools/types writes under types/page/, by which
 // canvas lays its page out (section 14 of the format text; T88), and from the line
 // FIRST_DEPLOYMENT_LINE on the types of the deployment configuration, ./deploymentv1 (R85), and
-// from the line FIRST_LEGAL_LINE on the types of the legal texts, ./legalv1 (R130), and from the
+// from the line FIRST_LEGAL_LINE on the types of the legal texts, ./legalv1, and from the line
+// LEGAL_V2_LINE on ./legalv2 in its place, of the part's version 2 (R130, R141), and from the
 // line FIRST_CONSENT_AGE_LINE on the types of the table of the age of digital consent,
 // ./consentagev1 (R134), and from the line FIRST_EXPORT_LINE on the types of the format of the
 // export, ./exportv1 (R135): what a package
@@ -28,7 +29,7 @@ import path from "node:path";
 import { isMain } from "../shared.mjs";
 import { archiveName, checkPackageArchive, checkedVersion, packPackage, treeOf, writePackageOf } from "../npm-package.mjs";
 import { compareLines } from "../release/version.mjs";
-import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
+import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
 
 export const NAME = "@altnovatrail/spec";
 const DECLARATIONS = "index.d.ts";
@@ -50,6 +51,10 @@ export const FIRST_DEPLOYMENT_LINE = "0.11";
 // spec's first line whose package holds the types of the legal texts, as the release holds the
 // part (tools/release/files.mjs).
 export const FIRST_LEGAL_LINE = "0.13";
+// spec's first line whose package holds the types of the legal texts' version 2, legalv2, in place
+// of legalv1, the types of version 1, which the lines 0.13 and 0.14 hold (R141).
+export const LEGAL_V2_LINE = "0.15";
+const LEGAL_V1 = "legalv1";
 // spec's first line whose package holds the types of the table of the age of digital consent, as
 // the release holds the table (tools/release/files.mjs).
 export const FIRST_CONSENT_AGE_LINE = "0.14";
@@ -81,7 +86,7 @@ export function filesOf(version, tree) {
     }
   }
   if (holdsDeployment(version)) files.push({ file: `${DEPLOYMENT_PACKAGE}/${DECLARATIONS}`, from: `${DEPLOYMENT_DIR}/${DECLARATIONS}` });
-  if (holdsLegal(version)) files.push({ file: `${LEGAL_PACKAGE}/${DECLARATIONS}`, from: `${LEGAL_DIR}/${DECLARATIONS}` });
+  if (holdsLegal(version)) files.push({ file: `${legalPackageOf(version)}/${DECLARATIONS}`, from: `types/${legalPackageOf(version)}/${DECLARATIONS}` });
   if (holdsConsentAge(version)) files.push({ file: `${CONSENT_AGE_PACKAGE}/${DECLARATIONS}`, from: `${CONSENT_AGE_DIR}/${DECLARATIONS}` });
   if (holdsExport(version)) files.push({ file: `${EXPORT_PACKAGE}/${DECLARATIONS}`, from: `${EXPORT_DIR}/${DECLARATIONS}` });
   return files;
@@ -103,6 +108,8 @@ const holdsPage = (version) => fromLine(version, FIRST_PAGE_LINE);
 const holdsDeployment = (version) => fromLine(version, FIRST_DEPLOYMENT_LINE);
 // Whether it holds the types of the legal texts.
 const holdsLegal = (version) => fromLine(version, FIRST_LEGAL_LINE);
+// The package of the types of the legal texts that the package of version holds.
+const legalPackageOf = (version) => (fromLine(version, LEGAL_V2_LINE) ? LEGAL_PACKAGE : LEGAL_V1);
 // Whether it holds the types of the table of the age of digital consent.
 const holdsConsentAge = (version) => fromLine(version, FIRST_CONSENT_AGE_LINE);
 // Whether it holds the types of the format of the export.
@@ -139,12 +146,12 @@ export function manifestOf(version) {
       ...(admission ? { [`./${ADMISSION_PACKAGE}`]: { types: `./${ADMISSION_PACKAGE}/${DECLARATIONS}` } } : {}),
       ...(page ? { "./format/page.json": "./format/page.json", "./format/vectors/pages/*.json": "./format/vectors/pages/*.json" } : {}),
       ...(deployment ? { [`./${DEPLOYMENT_PACKAGE}`]: { types: `./${DEPLOYMENT_PACKAGE}/${DECLARATIONS}` } } : {}),
-      ...(legal ? { [`./${LEGAL_PACKAGE}`]: { types: `./${LEGAL_PACKAGE}/${DECLARATIONS}` } } : {}),
+      ...(legal ? { [`./${legalPackageOf(version)}`]: { types: `./${legalPackageOf(version)}/${DECLARATIONS}` } } : {}),
       ...(consentAge ? { [`./${CONSENT_AGE_PACKAGE}`]: { types: `./${CONSENT_AGE_PACKAGE}/${DECLARATIONS}` } } : {}),
       ...(exported ? { [`./${EXPORT_PACKAGE}`]: { types: `./${EXPORT_PACKAGE}/${DECLARATIONS}` } } : {}),
       "./package.json": "./package.json",
     },
-    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : []), ...(deployment ? [DEPLOYMENT_PACKAGE] : []), ...(legal ? [LEGAL_PACKAGE] : []), ...(consentAge ? [CONSENT_AGE_PACKAGE] : []), ...(exported ? [EXPORT_PACKAGE] : [])],
+    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : []), ...(deployment ? [DEPLOYMENT_PACKAGE] : []), ...(legal ? [legalPackageOf(version)] : []), ...(consentAge ? [CONSENT_AGE_PACKAGE] : []), ...(exported ? [EXPORT_PACKAGE] : [])],
     sideEffects: false,
   };
 }

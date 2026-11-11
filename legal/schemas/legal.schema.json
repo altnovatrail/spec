@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/legal/1/legal.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/legal/2/legal.schema.json",
   "title": "Legal passport",
   "description": "The passport of the legal texts, legal/legal.yaml (section 4 of the legal text): the texts, their versions with their status, date and summary, and the sets of texts of the samples page.",
   "type": "object",
   "properties": {
     "format": {
-      "const": 1,
+      "const": 2,
       "description": "The version of the part, the integer in legal/VERSION."
     },
     "texts": {
@@ -170,6 +170,18 @@
           ],
           "unevaluatedProperties": false,
           "description": "The gist of the version in each language of the interface, by the language's tag: what a screen in that language shows beside the English text in force. A self-hosted copy writes both too: one build of app serves every copy."
+        },
+        "translations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "ru"
+            ],
+            "description": "The tag of a language of the interface other than English."
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "The languages of the interface other than English that the version has a translation in: a file of its own, texts/<id>/<n>.<tag>.md, with no force of its own, which a screen in that language shows beside the English text in force. A version in force keeps its translations as it keeps its file."
         }
       },
       "required": [

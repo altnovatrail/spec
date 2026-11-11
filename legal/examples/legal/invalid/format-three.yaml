@@ -1,6 +1,6 @@
 # error: const at #/format
-# The part's version is 1.
-format: 2
+# The part's version is 2.
+format: 3
 texts:
   privacy-policy:
     place: app

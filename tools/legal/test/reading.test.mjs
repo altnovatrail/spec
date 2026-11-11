@@ -28,7 +28,7 @@ const body = (title) => `# ${title}\n\nThe words.\n`;
 // notice and a form in force. Each change is a function of the passport and the files.
 function part(change = () => {}) {
   const passport = {
-    format: 1,
+    format: 2,
     texts: {
       "privacy-policy": { place: "app", versions: [inForce(1), draft(2)] },
       "measure-notice": { place: "samples_page", versions: [inForce(1)] },
@@ -75,7 +75,7 @@ test("the schema comes first, and names every path it refuses, once, in the orde
     passport.texts["privacy-policy"].place = "website";
     passport.texts["measure-form"].title = "A form";
     delete passport.texts["measure-notice"].versions[0].summary.ru;
-    passport.format = 2;
+    passport.format = 3;
     // A file the passport does not name: the schema refuses first, whatever the rules would say.
   });
   broken.files["texts/other/1.md"] = "no heading";

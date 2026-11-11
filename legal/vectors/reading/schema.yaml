@@ -3,7 +3,7 @@
 cases:
   # A text is shown in app, on the samples page or on a form.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: website
@@ -62,7 +62,7 @@ cases:
       - texts.privacy-policy.place
   # The gist is in each language of the interface: Russian is missing.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app
@@ -120,7 +120,7 @@ cases:
       - texts.privacy-policy.versions.0.summary.ru
   # The passport names no other field: a title belongs in the text itself.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app
@@ -178,9 +178,9 @@ cases:
     refused_by: schema
     names:
       - texts.privacy-policy.title
-  # The part is of version 1.
+  # The part is of version 2.
   - passport:
-      format: 2
+      format: 1
       texts:
         privacy-policy:
           place: app
@@ -237,3 +237,64 @@ cases:
     refused_by: schema
     names:
       - format
+  # A translation is into a language of the interface other than English.
+  - passport:
+      format: 2
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              translations:
+                - en
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+        measure-notice:
+          place: samples_page
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: Your writing history goes to the organizer.
+                ru: История письма уходит организатору.
+        measure-form:
+          place: form
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: You consent to your writing history.
+                ru: Вы соглашаетесь на историю письма.
+      sets:
+        measure:
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              notice:
+                text: measure-notice
+                version: 1
+              form:
+                text: measure-form
+                version: 1
+    files:
+      texts/measure-form/1.md: |
+        # Measurement: form of consent
+
+        The words of this version.
+      texts/measure-notice/1.md: |
+        # Measurement: notice
+
+        The words of this version.
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        The words of this version.
+    refused_by: schema
+    names:
+      - texts.privacy-policy.versions.0.translations.0

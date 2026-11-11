@@ -1,6 +1,6 @@
 # error: propertyNames at #/texts
 # An ID is lower-case words joined by hyphens.
-format: 1
+format: 2
 texts:
   Privacy-Policy:
     place: app

@@ -1,6 +1,6 @@
 # error: unevaluatedProperties at #/texts/privacy-policy
 # The passport names no other field: a title belongs in the text itself.
-format: 1
+format: 2
 texts:
   privacy-policy:
     place: app
