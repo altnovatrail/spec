@@ -1,5 +1,6 @@
-# A passport with a policy in force and its next version in draft, and a set in force.
-format: 1
+# A passport with a policy in force, with its translation into Russian, and its next version in draft,
+# and a set in force.
+format: 2
 texts:
   privacy-policy:
     place: app
@@ -7,6 +8,8 @@ texts:
       - version: 1
         status: in_force
         in_force_since: "2026-11-20"
+        translations:
+          - ru
         summary:
           en: We keep the least data we need, on the device where we can.
           ru: Мы храним минимум данных и, где можем, только на устройстве.

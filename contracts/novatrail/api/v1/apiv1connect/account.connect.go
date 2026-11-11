@@ -340,9 +340,12 @@ type AccountServiceClient interface {
 	// right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
 	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
 	// (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
-	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. Refusals:
-	// `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave — the adult withdraws it by
-	// `DeleteProfile` —, and `CAUSE_NO_PROFILE`, which is the answer of a repeat too. It carries no
+	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. A learner who reached the
+	// age of digital consent of their country while a parent's consent stands, whose profile waits for
+	// their own consent, withdraws that consent by it too, instead of confirming it (R116; R141).
+	// Refusals: `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave and that waits for no
+	// consent of the learner — the adult withdraws it by `DeleteProfile` —, and `CAUSE_NO_PROFILE`,
+	// which is the answer of a repeat too. It carries no
 	// idempotency key: it repeats by the profile's state.
 	WithdrawOwnConsent(context.Context, *v1.WithdrawOwnConsentRequest) (*v1.WithdrawOwnConsentResponse, error)
 	// The age and the country of a profile given again, by an action of an adult with the right
@@ -367,9 +370,11 @@ type AccountServiceClient interface {
 	// action of an adult with the right `can_manage`, and at a profile whose learner gave their own
 	// consent, the learner's learning request with the right `can_learn`. Switching it off records
 	// when, and erases the copies on the server, and so goes while the profile waits for a consent
-	// too; switching it on then gets `CAUSE_NO_CONSENT`. Refusals: `CAUSE_NO_PROFILE`,
-	// `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED` and `CAUSE_LEARNER_DECIDES`. It carries no
-	// idempotency key: it repeats by the profile's state.
+	// too; switching it on then gets `CAUSE_NO_CONSENT`. At a profile whose learner gave their own
+	// consent, the learner switching on a storage that an adult switched on is no repeat: it records
+	// the learner's own consent by `storage-consent`, the learner its giver, in place of the
+	// adult's (R141). Refusals: `CAUSE_NO_PROFILE`, `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED`
+	// and `CAUSE_LEARNER_DECIDES`. It carries no idempotency key: it repeats by the profile's state.
 	SetWorkStorage(context.Context, *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error)
 	// Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
 	// and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,
@@ -496,9 +501,12 @@ type AccountServiceHandler interface {
 	// right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
 	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
 	// (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
-	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. Refusals:
-	// `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave — the adult withdraws it by
-	// `DeleteProfile` —, and `CAUSE_NO_PROFILE`, which is the answer of a repeat too. It carries no
+	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. A learner who reached the
+	// age of digital consent of their country while a parent's consent stands, whose profile waits for
+	// their own consent, withdraws that consent by it too, instead of confirming it (R116; R141).
+	// Refusals: `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave and that waits for no
+	// consent of the learner — the adult withdraws it by `DeleteProfile` —, and `CAUSE_NO_PROFILE`,
+	// which is the answer of a repeat too. It carries no
 	// idempotency key: it repeats by the profile's state.
 	WithdrawOwnConsent(context.Context, *v1.WithdrawOwnConsentRequest) (*v1.WithdrawOwnConsentResponse, error)
 	// The age and the country of a profile given again, by an action of an adult with the right
@@ -523,9 +531,11 @@ type AccountServiceHandler interface {
 	// action of an adult with the right `can_manage`, and at a profile whose learner gave their own
 	// consent, the learner's learning request with the right `can_learn`. Switching it off records
 	// when, and erases the copies on the server, and so goes while the profile waits for a consent
-	// too; switching it on then gets `CAUSE_NO_CONSENT`. Refusals: `CAUSE_NO_PROFILE`,
-	// `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED` and `CAUSE_LEARNER_DECIDES`. It carries no
-	// idempotency key: it repeats by the profile's state.
+	// too; switching it on then gets `CAUSE_NO_CONSENT`. At a profile whose learner gave their own
+	// consent, the learner switching on a storage that an adult switched on is no repeat: it records
+	// the learner's own consent by `storage-consent`, the learner its giver, in place of the
+	// adult's (R141). Refusals: `CAUSE_NO_PROFILE`, `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED`
+	// and `CAUSE_LEARNER_DECIDES`. It carries no idempotency key: it repeats by the profile's state.
 	SetWorkStorage(context.Context, *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error)
 	// Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
 	// and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,

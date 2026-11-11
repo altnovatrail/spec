@@ -10,7 +10,7 @@
 // types are admissionv0/index.d.ts, by the same rules, which the npm package exports as
 // ./admissionv0 (R96), the deployment configuration's deploymentv1/index.d.ts, exported as
 // ./deploymentv1, whose file keeps the names of its fields in camelCase (R85), the legal texts'
-// legalv1/index.d.ts, exported as ./legalv1 (R130), and the table of the age of digital consent's
+// legalv2/index.d.ts, exported as ./legalv2 (R130, R141), and the table of the age of digital consent's
 // consentagev1/index.d.ts, exported as ./consentagev1 (R134), and the format of the export's
 // exportv1/index.d.ts, exported as ./exportv1 (R135).
 
@@ -81,7 +81,7 @@ function consentAgeDoc(version) {
 }
 
 function legalDoc(version) {
-  return `The types of the legal texts, version ${version} of the part, generated from the schemas in legal/schemas by tools/types (R72, R73 and R130 in spec's docs/decisions.md): the same types as the Go package ${LEGAL_PACKAGE}, by the same names — the passport legal/legal.yaml, with the texts, their versions and the sets of texts of the samples page, and the vectors of reading. The words of a version are a file of their own, texts/<id>/<n>.md, which no type holds. A vector's passport is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (legal/README.md, section 5). A field the object always holds is required; any other is optional.`;
+  return `The types of the legal texts, version ${version} of the part, generated from the schemas in legal/schemas by tools/types (R72, R73 and R130 in spec's docs/decisions.md): the same types as the Go package ${LEGAL_PACKAGE}, by the same names — the passport legal/legal.yaml, with the texts, their versions and the sets of texts of the samples page, and the vectors of reading. The words of a version are a file of their own, texts/<id>/<n>.md, and those of its translations too, texts/<id>/<n>.<tag>.md, which no type holds. A vector's passport is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (legal/README.md, section 5). A field the object always holds is required; any other is optional.`;
 }
 
 function formatDoc(version) {

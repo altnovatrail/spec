@@ -11,6 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { LEGAL_PART, checkLegal, checkLegalDir, legalAt, legalCheck, legalCheckDir, previousLegal } from "../main.mjs";
 import { GIT } from "../../shared.mjs";
+import { readModuleFile } from "../../format-check/yaml.mjs";
 import { isolated, scratchRepository } from "../../release/test/repository.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -105,12 +106,12 @@ test("a file the layout does not know is an error, and a file under texts/ that 
 });
 
 test("VERSION is an integer and a newline, and the $id of each schema and the field format name it", () => {
-  const zero = errorsOf([["legal/VERSION", "1\n", "01\n"]]);
+  const zero = errorsOf([["legal/VERSION", "2\n", "02\n"]]);
   assert.ok(zero.includes("legal/VERSION:1: the part's version is an integer from 1 and a newline, with no leading zero"), zero.join("\n"));
-  const two = errorsOf([["legal/VERSION", "1\n", "2\n"]]);
-  assert.ok(two.some((error) => /^legal\/schemas\/legal\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/legal\/2\/legal\.schema\.json/.test(error)), two.join("\n"));
-  assert.ok(two.some((error) => /^legal\/schemas\/legal\.schema\.json:\d+: the field format is the const 2, the version in legal\/VERSION$/.test(error)), two.join("\n"));
-  assert.ok(two.some((error) => /^legal\/schemas\/reading-vector\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/legal\/2\/reading-vector\.schema\.json/.test(error)), two.join("\n"));
+  const three = errorsOf([["legal/VERSION", "2\n", "3\n"]]);
+  assert.ok(three.some((error) => /^legal\/schemas\/legal\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/legal\/3\/legal\.schema\.json/.test(error)), three.join("\n"));
+  assert.ok(three.some((error) => /^legal\/schemas\/legal\.schema\.json:\d+: the field format is the const 3, the version in legal\/VERSION$/.test(error)), three.join("\n"));
+  assert.ok(three.some((error) => /^legal\/schemas\/reading-vector\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/legal\/3\/reading-vector\.schema\.json/.test(error)), three.join("\n"));
   const missing = errorsOf([["legal/VERSION", "", null]]);
   assert.ok(missing.includes("legal/VERSION:0: no VERSION: the part's version, an integer and a newline"), missing.join("\n"));
 });
@@ -139,7 +140,7 @@ test("the rules of the text are the rules reading.mjs knows, in its order", () =
 });
 
 test("an example passes its schema or names the error it gives", () => {
-  expectOnly([["legal/examples/legal/invalid/format-two.yaml", "format: 2", "format: 1"]], /format-two\.yaml:1: passes its schema, and names const at #\/format/);
+  expectOnly([["legal/examples/legal/invalid/format-three.yaml", "format: 3", "format: 2"]], /format-three\.yaml:1: passes its schema, and names const at #\/format/);
   expectOnly([["legal/examples/legal/valid/drafts.yaml", "place: app", "place: website"]], /drafts\.yaml:0: does not pass its schema: enum at #\/texts\/terms-of-use\/place/);
   expectOnly([["legal/examples/rollout/valid/case.yaml", null, "a: b\n"]], /^legal\/examples\/rollout\/valid\/case\.yaml:0: an example of rollout, which has no schema in legal\/schemas$/);
   expectOnly([["legal/examples/legal/valid/drafts.yaml", "texts:", "texts: &t"]], /drafts\.yaml:\d+: yaml\.no-anchors/);
@@ -167,8 +168,8 @@ test("the vectors accept a part and refuse one by the schema and by each rule", 
 });
 
 test("the part itself is read as section 5 reads it: the schema, then the rules", () => {
-  expectOnly([[PASSPORT, "format: 1", "format: 2"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: format$/);
-  expectOnly([[PASSPORT, "format: 1", "format: 1\nextra: true"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: extra$/);
+  expectOnly([[PASSPORT, "format: 2", "format: 3"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: format$/);
+  expectOnly([[PASSPORT, "format: 2", "format: 2\nextra: true"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: extra$/);
   const policy = fs.readFileSync(path.join(spec, POLICY), "utf8");
   expectOnly([[POLICY, policy, `${policy}\nSee [the ICO](https://ico.org.uk).\n`]], /^legal\/texts\/privacy-policy\/1\.md:0: legal\.markdown: it holds link at line \d+$/);
   expectOnly([[POLICY, "", null]], /^legal\/texts\/privacy-policy\/1\.md:0: legal\.files: texts\/privacy-policy\/1\.md$/);
@@ -180,7 +181,7 @@ test("the part itself is read as section 5 reads it: the schema, then the rules"
   ]);
   assert.deepEqual(versions, ["legal/legal.yaml:0: legal.versions: texts.privacy-policy, legal/README.md, section 5"]);
   // The passport and a text are read by their rules first.
-  expectOnly([[PASSPORT, "format: 1", "format: &f 1"]], /^legal\/legal\.yaml:\d+: yaml\.no-anchors/);
+  expectOnly([[PASSPORT, "format: 2", "format: &f 2"]], /^legal\/legal\.yaml:\d+: yaml\.no-anchors/);
   expectOnly([[PASSPORT, "", null]], /^legal\/legal\.yaml:0: no passport$/);
   const root = trialCopy([]);
   try {
@@ -191,15 +192,19 @@ test("the part itself is read as section 5 reads it: the schema, then the rules"
   }
 });
 
-// A part in force, for the release before: the policy's version 1 is in force from 2026-11-20,
-// found by its entry in the passport rather than by its words, whether spec's own passport holds
-// it as a draft or in force already.
+// A part in force, for the release before: the policy's version 1 is in force from 2026-11-01,
+// before every version after it, found by its entry in the passport rather than by its words,
+// whether spec's own passport holds it as a draft or in force already.
 const POLICY_ENTRY = /( {2}privacy-policy:\n {4}place: app\n {4}versions:\n {6}- version: 1\n {8})status: (?:draft\n|in_force\n {8}in_force_since: "\d{4}-\d{2}-\d{2}"\n)/;
 const inForce = (text) => {
   assert.ok(POLICY_ENTRY.test(text), "the passport holds the policy's version 1");
-  return text.replace(POLICY_ENTRY, '$1status: in_force\n        in_force_since: "2026-11-20"\n');
+  return text.replace(POLICY_ENTRY, '$1status: in_force\n        in_force_since: "2026-11-01"\n');
 };
-const versionsInForce = (text) => text.split("status: in_force").length - 1;
+// The texts and the sets of a passport, as text, that have a version in force, and so a current one.
+const currentIn = (text) => {
+  const { texts, sets } = readModuleFile(Buffer.from(text, "utf8")).value;
+  return [...Object.values(texts), ...Object.values(sets)].filter(({ versions }) => versions.some(({ status }) => status === "in_force")).length;
+};
 
 test("a passport that is a folder, a texts/ that is a file and a VERSION that is a folder are named, not thrown", () => {
   assert.deepEqual(errorsOf([[PASSPORT, "", null], ["legal/legal.yaml/notes.txt", null, "notes\n"]]), ["legal/legal.yaml:0: the passport is a file, and this is none"]);
@@ -222,7 +227,7 @@ test("legal.in-force-unchanged reads the part of the release before, which previ
     fs.appendFileSync(policy, "\nAnother sentence.\n");
     assert.deepEqual(checkLegal(root, { previousOf: () => previous }).errors, [{ file: POLICY, line: 0, message: "legal.in-force-unchanged: texts/privacy-policy/1.md, against v0.13.0" }]);
     // Its entry changes too: the passport is named as well.
-    edit(root, PASSPORT, 'in_force_since: "2026-11-20"', 'in_force_since: "2026-11-21"');
+    edit(root, PASSPORT, 'in_force_since: "2026-11-01"', 'in_force_since: "2026-11-02"');
     assert.deepEqual(
       checkLegal(root, { previousOf: () => previous }).errors.map(({ file, message }) => `${file}: ${message}`),
       ["legal/legal.yaml: legal.in-force-unchanged: texts.privacy-policy, legal/README.md, section 5, against v0.13.0", `${POLICY}: legal.in-force-unchanged: texts/privacy-policy/1.md, against v0.13.0`],
@@ -332,7 +337,7 @@ test("a copy's folder is checked against this spec's schema and the rules of sec
     const own = path.join(dir, "own");
     const { errors, stats } = checkLegalDir(own, spec, "own");
     assert.deepEqual(errors, []);
-    assert.equal(stats.version, "1");
+    assert.equal(stats.version, "2");
     assert.ok(stats.texts >= 1);
     // The errors name the files by the path shown, and the folder alone.
     fs.writeFileSync(path.join(own, "README.md"), "# Our texts\n");
@@ -349,8 +354,8 @@ test("a copy's folder is checked against this spec's schema and the rules of sec
     assert.deepEqual(dirErrors(dir), [`own/texts/terms-of-use/1.md:0: legal.markdown: it holds link at line ${fs.readFileSync(path.join(own, "texts/terms-of-use/1.md"), "utf8").split("\n").length - 1}`]);
     fs.copyFileSync(path.join(spec, "legal/texts/terms-of-use/1.md"), path.join(own, "texts/terms-of-use/1.md"));
     // Its version is this spec's.
-    fs.writeFileSync(path.join(own, "VERSION"), "2\n");
-    assert.deepEqual(dirErrors(dir), ["own/VERSION:1: the folder is of version 2, and this spec's legal/ of 1: check it by the spec of its version"]);
+    fs.writeFileSync(path.join(own, "VERSION"), "1\n");
+    assert.deepEqual(dirErrors(dir), ["own/VERSION:1: the folder is of version 1, and this spec's legal/ of 2: check it by the spec of its version"]);
     fs.writeFileSync(path.join(own, "VERSION"), "two\n");
     assert.deepEqual(dirErrors(dir), ["own/VERSION:1: the part's version is an integer from 1 and a newline, with no leading zero"]);
     fs.rmSync(path.join(own, "VERSION"));
@@ -398,7 +403,7 @@ test("a copy's folder breaks no rule by changing a version in force: its operato
     const passport = inForce(fs.readFileSync(path.join(own, "legal.yaml"), "utf8"));
     fs.writeFileSync(path.join(own, "legal.yaml"), passport);
     assert.deepEqual(dirErrors(dir), []);
-    assert.equal(checkLegalDir(own, spec).stats.current, versionsInForce(passport));
+    assert.equal(checkLegalDir(own, spec).stats.current, currentIn(passport));
     // A spec whose schema does not compile cannot check a folder.
     const broken = trialCopy([[PASSPORT_SCHEMA, '"type": "object"', '"type": "objects"']]);
     try {
@@ -453,7 +458,7 @@ test("legal-check-dir runs from another repository, its path from there", () => 
     const run = (folder) => spawnSync(JUST, ["-f", path.join(spec, "justfile"), "legal-check-dir", folder], { cwd: dir, encoding: "utf8", env: isolated });
     const ok = run("own/");
     assert.equal(ok.status, 0, ok.stderr);
-    assert.match(ok.stdout, /^legal-check-dir: ok — own, version 1: \d+ texts, \d+ versions, \d+ current\n$/m);
+    assert.match(ok.stdout, /^legal-check-dir: ok — own, version 2: \d+ texts, \d+ versions, \d+ current\n$/m);
     fs.writeFileSync(path.join(dir, "own/notes.txt"), "notes\n");
     const broken = run("own");
     assert.equal(broken.status, 1);

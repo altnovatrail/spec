@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/legal/1/reading-vector.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/legal/2/reading-vector.schema.json",
   "title": "Reading vector",
   "description": "A test vector of reading (section 7 of the legal text): parts, each perhaps with the part of the release before, and what section 5 gives. A reader implements section 5 and gets exactly this.",
   "type": "object",
@@ -31,8 +31,8 @@
           "type": "object",
           "propertyNames": {
             "type": "string",
-            "pattern": "^texts/[a-z0-9-]+/[a-z0-9-]+\\.md$",
-            "description": "A file's path from the part, such as texts/privacy-policy/1.md."
+            "pattern": "^texts/[a-z0-9-]+/[a-z0-9-]+(\\.[a-z0-9-]+)?\\.md$",
+            "description": "A file's path from the part, such as texts/privacy-policy/1.md, or a translation's, such as texts/privacy-policy/1.ru.md."
           },
           "additionalProperties": {
             "type": "string",

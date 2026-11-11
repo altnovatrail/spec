@@ -24,8 +24,8 @@ export declare const file_novatrail_api_v1_legal: GenFile;
 export declare type GetLegalTextsRequest = Message<"novatrail.api.v1.GetLegalTextsRequest"> & {
   /**
    * The language of the screen that shows the texts, a well-formed tag of BCP 47, a field of the
-   * message and not the header `Accept-Language` (R92): the language the gists come in. Empty
-   * asks for English.
+   * message and not the header `Accept-Language` (R92): the language the gists and the
+   * translations come in. Empty asks for English.
    *
    * @generated from field: string interface_language = 1;
    */
@@ -112,6 +112,24 @@ export declare type LegalText = Message<"novatrail.api.v1.LegalText"> & {
    * @generated from field: string summary_language = 6;
    */
   summaryLanguage: string;
+
+  /**
+   * The translation of the version into the language asked, found as the gist is, when the version
+   * has one (R141): Markdown as the body is, with no force of its own — the body in English is the
+   * one in force, and a consent names the version, never its translation. Empty when the version
+   * has no translation into that language, and when English is asked.
+   *
+   * @generated from field: string translation = 7;
+   */
+  translation: string;
+
+  /**
+   * The language the translation is in, its tag as the passport writes it, such as "ru"; empty when
+   * there is no translation.
+   *
+   * @generated from field: string translation_language = 8;
+   */
+  translationLanguage: string;
 };
 
 /**
@@ -161,8 +179,9 @@ export declare const LegalTextRefSchema: GenMessage<LegalTextRef>;
  */
 export declare const LegalService: GenService<{
   /**
-   * The current version of every text whose place is `app`, with its body in English and its gist
-   * in the language asked when the passport has it, else in English.
+   * The current version of every text whose place is `app`, with its body in English, its gist in
+   * the language asked when the passport has it, else in English, and its translation into the
+   * language asked when the version has one.
    *
    * @generated from rpc novatrail.api.v1.LegalService.GetLegalTexts
    */

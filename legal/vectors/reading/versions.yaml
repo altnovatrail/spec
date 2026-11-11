@@ -3,7 +3,7 @@
 cases:
   # Versions 1 and 3, with no 2.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app
@@ -72,7 +72,7 @@ cases:
       - texts.privacy-policy
   # A draft before a version in force.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app
@@ -140,7 +140,7 @@ cases:
       - texts.privacy-policy
   # Version 2 came into force before version 1.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app
@@ -209,7 +209,7 @@ cases:
       - texts.privacy-policy
   # The versions of a set start at 1 too.
   - passport:
-      format: 1
+      format: 2
       texts:
         privacy-policy:
           place: app

@@ -8,7 +8,7 @@
 // written by hand is a check. The types hold no code: what is valid, the schema decides. The
 // admission table's types are the package admissionv0, by the same rules, with no open view (R96),
 // the deployment configuration's the package deploymentv1, whose file keeps the names of its
-// fields in camelCase, as JSON tags (R85), the legal texts' the package legalv1 (R130), the table
+// fields in camelCase, as JSON tags (R85), the legal texts' the package legalv2 (R130, R141), the table
 // of the age of digital consent's the package consentagev1 (R134), and the format of the export's
 // the package exportv1 (R135).
 
@@ -29,7 +29,7 @@ export const ADMISSION_DIR = `types/${ADMISSION_PACKAGE}`;
 export const DEPLOYMENT_PACKAGE = "deploymentv1";
 export const DEPLOYMENT_DIR = `types/${DEPLOYMENT_PACKAGE}`;
 // The package of the legal texts' types, of the part's version 1, beside them.
-export const LEGAL_PACKAGE = "legalv1";
+export const LEGAL_PACKAGE = "legalv2";
 export const LEGAL_DIR = `types/${LEGAL_PACKAGE}`;
 // The package of the types of the table of the age of digital consent, of the part's version 1.
 export const CONSENT_AGE_PACKAGE = "consentagev1";
@@ -129,7 +129,7 @@ function deploymentDoc(version) {
 }
 
 function legalDoc(version) {
-  return `Package ${LEGAL_PACKAGE} holds the types of the legal texts, version ${version} of the part, generated from the schemas in legal/schemas by tools/types (R72 and R130 in spec's docs/decisions.md): the passport legal/legal.yaml, with the texts, their versions and the sets of texts of the samples page, and the vectors of reading. There is a type for each schema and for each of its $defs, for each object at a place without a name of its own, and for each enumeration of a field; a version of a text or of a set has the fields of Status, as its schema takes them. The words of a version are a file of their own, texts/<id>/<n>.md, which no type holds. A vector's passport is any JSON value, json.RawMessage, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (legal/README.md, section 5). A field the object always holds is a value; any other is a pointer, a slice or a map, left out when nil, so that a value read and written again is the same JSON. Another version of the part is a package of its own.`;
+  return `Package ${LEGAL_PACKAGE} holds the types of the legal texts, version ${version} of the part, generated from the schemas in legal/schemas by tools/types (R72 and R130 in spec's docs/decisions.md): the passport legal/legal.yaml, with the texts, their versions and the sets of texts of the samples page, and the vectors of reading. There is a type for each schema and for each of its $defs, for each object at a place without a name of its own, and for each enumeration of a field; a version of a text or of a set has the fields of Status, as its schema takes them. The words of a version are a file of their own, texts/<id>/<n>.md, and those of its translations too, texts/<id>/<n>.<tag>.md, which no type holds. A vector's passport is any JSON value, json.RawMessage, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (legal/README.md, section 5). A field the object always holds is a value; any other is a pointer, a slice or a map, left out when nil, so that a value read and written again is the same JSON. Another version of the part is a package of its own.`;
 }
 
 function consentAgeDoc(version) {
@@ -235,7 +235,7 @@ function isCollection(ref, model) {
 }
 
 // The registry of the roundtrip command: a new value of each root type, by the name its corpus
-// gives it, of formatv0 and of open, and of admissionv0, deploymentv1, legalv1, consentagev1 and
+// gives it, of formatv0 and of open, and of admissionv0, deploymentv1, legalv2, consentagev1 and
 // exportv1 when their models are given.
 function registryOf(model, admission = undefined, deployment = undefined, legal = undefined, consentAge = undefined, exported = undefined) {
   const entries = [];

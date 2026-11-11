@@ -4,9 +4,9 @@
 // legal-check reads spec's own legal/ and legal-check-dir an operator's folder.
 //
 // A part is { passport, files }: the passport as YAML reads it, and the files under texts/, by
-// their paths from the part, texts/<id>/<n>.md, each its text or its bytes. legal-check reads a
-// file as its bytes, so that a byte order mark is a byte too; a vector writes it as text, its bytes
-// those of UTF-8.
+// their paths from the part, texts/<id>/<n>.md and a translation's texts/<id>/<n>.<tag>.md, each
+// its text or its bytes. legal-check reads a file as its bytes, so that a byte order mark is a byte
+// too; a vector writes it as text, its bytes those of UTF-8.
 
 import { isDeepStrictEqual } from "node:util";
 import { fromMarkdown } from "mdast-util-from-markdown";
@@ -54,15 +54,23 @@ export function readingOf(validate, part, previous = null) {
   return { current: { texts: currentOf(part.passport.texts), sets: currentOf(part.passport.sets) } };
 }
 
-// The file of a version of a text, by its path from the part.
-export function fileOf(id, version) {
-  return `texts/${id}/${version}.md`;
+// The file of a version of a text, by its path from the part, and with a tag, the file of its
+// translation into that language.
+export function fileOf(id, version, tag = null) {
+  return tag === null ? `texts/${id}/${version}.md` : `texts/${id}/${version}.${tag}.md`;
 }
 
-// legal.files: every version has its file, and every file is a version's.
+// The files of a version of a text: its own, then its translations', in the order the passport
+// names them. An entry of the release before passed no schema here, so a field that is no list of
+// translations names none.
+function filesOf(id, { version, translations }) {
+  return [fileOf(id, version), ...(Array.isArray(translations) ? translations : []).map((tag) => fileOf(id, version, tag))];
+}
+
+// legal.files: every version and every translation has its file, and every file is one of theirs.
 function fileBreaches({ passport, files }) {
   const wanted = new Set();
-  for (const [id, text] of Object.entries(passport.texts)) for (const { version } of text.versions) wanted.add(fileOf(id, version));
+  for (const [id, text] of Object.entries(passport.texts)) for (const entry of text.versions) for (const file of filesOf(id, entry)) wanted.add(file);
   return [...[...wanted].filter((file) => !Object.hasOwn(files, file)), ...Object.keys(files).filter((file) => !wanted.has(file))];
 }
 
@@ -112,15 +120,12 @@ function setTextBreaches(passport) {
   return names;
 }
 
-// legal.markdown: each version begins with a heading of the first level and holds no HTML, no image
-// and no link. legal.files has held, so every version has its file.
+// legal.markdown: each version and each translation begins with a heading of the first level and
+// holds no HTML, no image and no link. legal.files has held, so every one has its file.
 function markdownBreaches({ passport, files }) {
   const names = [];
   for (const [id, text] of Object.entries(passport.texts)) {
-    for (const { version } of text.versions) {
-      const file = fileOf(id, version);
-      if (markdownProblem(files[file])) names.push(file);
-    }
+    for (const entry of text.versions) for (const file of filesOf(id, entry)) if (markdownProblem(files[file])) names.push(file);
   }
   return names;
 }
@@ -150,9 +155,9 @@ export function markdownProblem(source) {
 }
 
 // legal.in-force-unchanged: every version in force in the release before is here, its entry the
-// same — and, for a text, its place, where the version is shown — and its file the same, byte for
-// byte. A text or a set whose entry changed or is gone is named by its ID; a file that changed, by
-// its path.
+// same — and, for a text, its place, where the version is shown — and its file and the file of each
+// of its translations the same, byte for byte. A text or a set whose entry changed or is gone is
+// named by its ID; a file that changed, by its path.
 function changedBreaches(part, previous) {
   const names = [];
   const before = previous.passport;
@@ -167,8 +172,7 @@ function changedBreaches(part, previous) {
         const kept = now?.versions.find((each) => each.version === entry.version);
         if (!kept || !isDeepStrictEqual(kept, entry) || (kind === "texts" && now.place !== then.place)) names.push(`${kind}.${id}`);
         if (kind !== "texts" || !kept) continue;
-        const file = fileOf(id, entry.version);
-        if (!sameBytes(part.files[file], previous.files?.[file])) names.push(file);
+        for (const file of filesOf(id, entry)) if (!sameBytes(part.files[file], previous.files?.[file])) names.push(file);
       }
     }
   }

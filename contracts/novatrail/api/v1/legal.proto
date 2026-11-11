@@ -13,8 +13,9 @@ package novatrail.api.v1;
 // would make the request not simple and send a preflight before it. It has no refusal of its own:
 // a tag that is not a well-formed tag of BCP 47 gets `invalid_argument` with no `Refusal`.
 service LegalService {
-  // The current version of every text whose place is `app`, with its body in English and its gist
-  // in the language asked when the passport has it, else in English.
+  // The current version of every text whose place is `app`, with its body in English, its gist in
+  // the language asked when the passport has it, else in English, and its translation into the
+  // language asked when the version has one.
   rpc GetLegalTexts(GetLegalTextsRequest) returns (GetLegalTextsResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
@@ -23,8 +24,8 @@ service LegalService {
 // A request for the legal texts.
 message GetLegalTextsRequest {
   // The language of the screen that shows the texts, a well-formed tag of BCP 47, a field of the
-  // message and not the header `Accept-Language` (R92): the language the gists come in. Empty
-  // asks for English.
+  // message and not the header `Accept-Language` (R92): the language the gists and the
+  // translations come in. Empty asks for English.
   string interface_language = 1;
 }
 
@@ -55,6 +56,14 @@ message LegalText {
   string summary = 5;
   // The language the gist is in, its tag as the passport writes it, such as "en" or "ru".
   string summary_language = 6;
+  // The translation of the version into the language asked, found as the gist is, when the version
+  // has one (R141): Markdown as the body is, with no force of its own — the body in English is the
+  // one in force, and a consent names the version, never its translation. Empty when the version
+  // has no translation into that language, and when English is asked.
+  string translation = 7;
+  // The language the translation is in, its tag as the passport writes it, such as "ru"; empty when
+  // there is no translation.
+  string translation_language = 8;
 }
 
 // A version of a legal text that a person saw, which a request that gives a consent names and the
