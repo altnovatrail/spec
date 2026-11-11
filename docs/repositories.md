@@ -357,6 +357,7 @@ flowchart LR
 
   Путь печатается от корня репозитория или от `~`. ID сессии в пути печатается как `<session>`, имя файла с выводом, сохранённым из контекста, — как `*`.
 - **Начало сессии** — медиана контекста первого вызова и его состав в среднем на сессию: системный промпт, файлы CLAUDE.md, RULES.md и MEMORY.md, список навыков, инструкции MCP и другие вложения. Их знаки переводятся в токены по отношению знаков к токенам всего, что вошло между вызовами за тот же период. «Остаток» — то, чего в расшифровке нет: описания инструментов.
+- **Чего не видит** — вызовов `claude -p --no-session-persistence`: у них нет расшифровки. Так зовёт модель graphify (раздел 9.4).
 - **Что печатается** — только числа, пути, имена инструментов, вложений и программ, ID сессий и первый номер задачи `T…` из первой реплики автора. Программа или второе слово, которые не похожи на имя, печатаются как `other`.
 - **Флаги:**
   - `--since` и `--until` — дата или время ISO 8601. Время без пояса считается в UTC, `--until` не включается, а дата значит начало суток;
@@ -436,3 +437,85 @@ just tokens-report --since 2026-11-09 --until 2026-11-11T03:59:01Z
 - больше всего несут вывод Bash (32,7 %), вывод модели (27,5 %) и Read (14,0 %), а из файлов — RUN.md, через Bash и Read, и `docs/decisions.md`.
 
 Задачи T124 и T126 дописывают свои замеры сюда, строкой рядом с линией, тем же рецептом.
+
+### 9.4. Средства карты кода
+
+Средства, которые дают агенту карту кода вместо чтения файлов, разобраны по первоисточникам и пробой на `tutor` и `spec` (RUN.md, T119). Всё прочитано 2026-11-11.
+
+**По первоисточникам:**
+
+- **Языковой сервер в Claude Code** — плагины `gopls-lsp` и `typescript-lsp` из `claude-plugins-official`.
+  - Что даёт ([Code intelligence](https://code.claude.com/docs/en/plugins/code-intelligence.md)): «gives Claude the live diagnostics and go-to-definition that your editor has… and finds definitions and references by symbol instead of by text search». Инструмент `LSP` — «jump to definitions, find references, report type errors and warnings» ([Tools reference](https://code.claude.com/docs/en/tools-reference.md)).
+  - Сервер ставится отдельно: «It doesn't include the language server. Install the language server binary first».
+  - Диагностика после каждой правки сама идёт в контекст: «each time Claude edits or writes a file the server handles, Claude gets the errors and warnings the server reports».
+  - В облачной сессии не работает: «In cloud sessions, Claude Code doesn't start plugin language servers».
+  - Об экономии токенов страница не говорит ничего.
+  - Документов не читает: только код, для которого есть сервер.
+  - Содержимое никуда, кроме модели сессии, не уходит.
+  - gopls — BSD-3-Clause, и он уже есть в devcontainer у репозиториев Go (R102). Для TypeScript нужен `typescript-language-server`, пакет npm.
+- **Статья [arXiv 2608.13568](https://arxiv.org/abs/2608.13568)** — P. Xu, 29 июня 2026, предварительное исследование на репозиториях Python и TypeScript; Claude Opus 4.8, Sonnet 4.6 и Haiku 4.5.
+  - Главное: «The answer is conditional and usually negative. On symbol-named localization the LSP costs tokens (+6% to +118%) and the agent ignores it when free. On reference-completeness it buys precision but not token savings… it saves tokens only for the weakest model».
+  - На переименованиях по многим файлам: «grep solves multi-file renames perfectly, a location-only LSP fails three-quarters of them by missing a call site».
+- **Serena** ([oraios/serena `v2.1.0`](https://github.com/oraios/serena/blob/v2.1.0/README.md)) — сервер MCP поверх языковых серверов: «semantic code retrieval, editing, refactoring and debugging tools… operating at the symbol level».
+  - Языков больше 40, среди них Go, TypeScript и Markdown, но как языковые серверы, а не чтение текста.
+  - Лицензия ([LICENSE](https://github.com/oraios/serena/blob/v2.1.0/LICENSE)): «SolidLSP under the MIT License and the Serena application under GPL-3.0-or-later», так что пакет `serena-agent` в целом — GPL-3.0-or-later. По R12 он допустим только как средство разработки, которое не поставляется, и только именованным исключением.
+  - Python `>=3.11, <3.15`, ставится через `uv tool install -p 3.13 serena-agent`. Языковые серверы скачивает сама — «downloads or installs certain language server dependencies on demand», с закреплёнными версиями и сверкой хеша ([security](https://github.com/oraios/serena/blob/v2.1.0/docs/02-usage/070_security.md)).
+  - Пишет `.serena/` в репозиторий (настройки проекта и «memories») и `~/.serena/`.
+  - Содержимое по умолчанию остаётся на машине; токены считает локально.
+  - Чисел экономии нет.
+- **graphify** ([Graphify-Labs/graphify `v0.9.106`](https://github.com/Graphify-Labs/graphify/blob/v0.9.106/README.md)) — граф знаний проекта: «maps your entire project (code, docs, PDFs, images, videos) into a knowledge graph you can query instead of grepping».
+  - Код разбирает локально, по tree-sitter, около 40 языков, Go и TypeScript среди них: «Code files: processed locally via tree-sitter. Nothing leaves your machine».
+  - Документы читает модель: «Docs, PDFs, images: sent to your AI assistant for semantic extraction (via the `/graphify` skill, using whatever model your IDE session runs)». Без навыка — через `claude` CLI по подписке или по ключу API другого поставщика.
+  - О цене документов: «semantic extraction of docs, papers and images runs the model over every file, which can cost minutes and tens of thousands of tokens» ([skill.md](https://github.com/Graphify-Labs/graphify/blob/v0.9.106/graphify/skill.md)).
+  - Лицензия — Apache-2.0 ([LICENSE](https://github.com/Graphify-Labs/graphify/blob/v0.9.106/LICENSE)); Python `>=3.10,<3.15`, пакет PyPI `graphifyy`.
+  - Пишет `graphify-out/` (граф, отчёт, кеш). Команда `graphify claude install` дописывает раздел в CLAUDE.md и ставит хуки PreToolUse на Bash, Grep, Read и Glob в `.claude/settings.json`. Обновление — `graphify update` (код, без модели), `watch` и git-хуки.
+  - Числа самого проекта: «71.5x fewer tokens per query» на корпусе из 52 файлов и «~1x» на малой библиотеке ([how-it-works](https://github.com/Graphify-Labs/graphify/blob/v0.9.106/docs/how-it-works.md)).
+- **Индекс по эмбеддингам** — [claude-context](https://github.com/zilliztech/claude-context), MIT, Node.js.
+  - «Languages: TypeScript, JavaScript, Python, Java, C++, C#, Go, Rust, PHP, Ruby, Swift, Kotlin, Scala, Markdown».
+  - Эмбеддинги — «OpenAI, VoyageAI, Ollama, Gemini», а индекс лежит в базе векторов Milvus или Zilliz Cloud. Значит, текст репозитория уходит поставщику эмбеддингов по своему ключу, если не поднимать Ollama локально.
+  - Чисел экономии в README нет. Есть только блог Zilliz, продавца базы векторов.
+  - Независимое исследование [arXiv 2608.01507](https://arxiv.org/abs/2608.01507), 2 августа 2026, о вопросах по репозиторию: «Semantic search answered 65.2% of questions correctly against 46.2% for deep agentic search, and it produced each correct answer at less than half the cost».
+- **Упаковщик** — [repomix](https://github.com/yamadashy/repomix), MIT, `v1.19.0`: весь репозиторий одним файлом. Агенту, который читает по нужде, это противоположно: такой файл весь едет в контексте.
+- **Структурный поиск** — [ast-grep](https://github.com/ast-grep/ast-grep), MIT, `0.51.2`, бинарник Rust: поиск по AST кода, а не по Markdown. Его сервер MCP помечен «experimental».
+- **Карта в духе aider** — [aider](https://aider.chat/docs/repomap.html): «a concise map of your whole git repository that includes the most important classes and functions along with their types and call signatures», по умолчанию «1k tokens». Сервера MCP от самого aider нет, а сторонний RepoMapper без версий не читает Markdown.
+
+В пробу пошли языковой сервер, Serena и graphify. Индекс по эмбеддингам — нет: текст уходит поставщику эмбеддингов, а это новый получатель данных, которого privacy не называет, и ключ. Упаковщик, ast-grep и карта aider тоже не пошли: они либо противоречат чтению по нужде, либо не читают документов, либо не готовы.
+
+**Проба** — 2026-11-11, 13:48–15:07 UTC. Средства:
+- без средства;
+- плагин gopls, `--plugin-dir`, gopls 0.24.0 из lock-файла заготовки;
+- Serena `2.1.0`, сервер MCP;
+- graphify `0.9.106`: граф в клоне и его хуки.
+
+Каждое средство — в своём клоне. `tutor` взят на `main` 34584ba с подмодулем `spec`, а `spec` — на ветке E10. По 4 вопроса на репозиторий, трижды, каждый прогон — свежая сессия `claude -p` на Opus 5.5, только для чтения. Ответы сверены с эталоном: по gopls (`references`, `call_hierarchy`, `implementation`) для `tutor` и по `git grep` для `spec`.
+- Вопросы `tutor`: какие экспортированные методы доходят до `admission.Table.Admit` и через какую цепочку; кто вне тестов реализует `provider.Model`; что сломает правка сигнатуры `provider.Billed`; где определена `provider.CheckImages` и кто её зовёт.
+- Вопросы `spec`: какое решение задаёт образ production; какие файлы цитируют privacy 5.3; что затронет перенумерация R81; что проверяет `legal.in-force-unchanged`.
+
+| Средство | Прогонов | Верных ответов | Стоимость прогона в среднем | Против «без средства» | Ходов в среднем | Пользовался средством |
+|---|---|---|---|---|---|---|
+| `tutor`, без средства | 12 | 12 | $0,172 | — | 5,9 | — |
+| `tutor`, LSP | 12 | 12 | $0,188 | +9 % | 7,3 | 9 вызовов `LSP` |
+| `tutor`, Serena | 12 | 12 | $0,164 | −5 % | 5,4 | ни разу |
+| `tutor`, graphify | 12 | 12 | $0,216 | +25 % | 6,5 | 14 вызовов `graphify` |
+| `spec`, без средства | 12 | 9 | $0,199 | — | 5,0 | — |
+| `spec`, graphify | 12 | 10 | $0,262 | +32 % | 5,3 | 5 вызовов `graphify` |
+
+- **Стоимость** — `total_cost_usd` прогона по ценам раздела 9.2. Разброс одного вопроса между повторами — до 1,5×: у вопроса о цепочке к `Admit` без средства от $0,22 до $0,33. Разница меньше ≈ 10 % — шум.
+- **Неполные ответы** на `spec` — все на первом вопросе: ответ опускал оговорку R105 «иной runtime — только поправкой».
+- **Начало сессии** — 37–43 тыс. токенов в каждой ветке. Это бо́льшая часть контекста короткого вопроса, и ни одно средство её не уменьшает.
+- **Serena** подключилась: её два инструмента лежали среди отложенных, за ToolSearch. Но агент ни разу их не искал и отвечал через `grep`. Её −5 % — шум ветки, которая не отличалась от «без средства».
+- **graphify на `spec`.** Граф строился 69 минут: 7 696 533 токена на входе и 568 346 на выходе у Sonnet 5 через `claude -p` по подписке. Разбивки на кеш graphify не даёт, поэтому по ценам раздела 9.2 это от ≈ $7 (весь ввод из кеша) до ≈ $25 (весь ввод — запись в кеш). Граф — 38 650 узлов, его надо перестраивать с каждой правкой документов, а модель снова читает изменённые файлы. graphify зовёт `claude -p --no-session-persistence`, и расшифровок у этих вызовов нет: `just tokens-report` их не видит.
+- **Хуки graphify** (`graphify claude install`) пишут раздел в CLAUDE.md и `.claude/settings.json` клона. Общие настройки Claude Code при этом не менялись: `~/.claude/settings.json` и список плагинов до и после пробы те же.
+
+**Вывод:**
+- **Код.** На вопросах «где определено», «кто зовёт», «что сломает правка» все средства ответили так же верно, как `grep` и `Read`, но не дешевле. LSP — +9 %, graphify — +25 %, а Serena агент не взял. Это совпадает со статьёй arXiv 2608.13568. Языковой сервер даёт ещё диагностику после правки, которой проба не мерила; это довод про качество правок, а не про токены.
+- **Документы.** Языковой сервер и Serena не читают русского текста как текста. graphify читает, но его ветка дороже на треть, а граф стоит $7–25 и час на сборку при каждой большой правке. Ответы на вопросы по документам у агента и без графа почти все верны.
+- **Где расход на самом деле.** В пробе не было того, что дорого в настоящей работе: длинной сессии, где каждое чтение несёт контекст в каждый следующий вызов (раздел 9.3). Короткий вопрос стоит $0,10–0,33, и его основа — начало сессии. Экономию надо искать в начале сессии, её длине и строении документов — T120 и T125, а не в карте кода.
+- **Рекомендация для T121:** средств карты кода не брать. Плагин gopls можно включить отдельно, ради диагностики после правки, но не как экономию; решать это стоит при деле в репозитории кода, а не в E10.
+
+**Сверка весов (R142)** — по доле лимита из `/usage` до и после всей пробы, как решил автор:
+- лимит сессии на пять часов — 21 % в 13:47 и 87 % в 15:08, то есть +66 п.п.; недельный — 37 % и 48 %, +11 п.п.;
+- за то же окно все сессии этой машины по ценам раздела 9.2 весят $46,48: проба — $12,71, сессии `api`, `canvas`, `learner-model`, `modules` и `spec` — $33,77. Сюда же — проход graphify, ≈ $7–25, которого расшифровки не видят. Итого ≈ $53–72;
+- значит, 1 п.п. пятичасового лимита Max ≈ $0,8–1,1 по ценам API, а 1 п.п. недельного ≈ $5–6,5;
+- Доля лимита считает всё, что автор делал в Claude, — «Your usage of all different Claude product surfaces (claude.ai, Claude Code, Claude Desktop) counts towards the same usage limit» (Т-39). А вес выше — только сессии этой машины, так что пересчёт — верхняя оценка цены пункта. Это одна точка, а не проверка пропорциональности. Цены API как вес R142 оставляет, а пересчёт в доли лимита — по этим числам.
+- Разбор `/usage` за сутки на 2026-11-11 — для T120: «95% of your usage came from subagent-heavy sessions», «84% of your usage was at >150k context», «82% of your usage was while 4+ sessions ran in parallel», «70% of your usage came from sessions active for 8+ hours».
