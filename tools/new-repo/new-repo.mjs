@@ -99,7 +99,7 @@ function extract(specRoot, tag) {
   return dir;
 }
 
-// The card must exist and name the repository: "### 3.8. learner-model и engine".
+// The card must exist and name the repository: "### 3.8. learner-model and engine".
 function checkCard(source, name, card) {
   const text = fs.readFileSync(path.join(source, "docs", "architecture.md"), "utf8");
   const heading = text.split("\n").find((line) => line.startsWith(`### ${card}. `));

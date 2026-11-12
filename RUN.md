@@ -157,7 +157,7 @@
 | [x] | T134 | Плагин gopls для репозиториев Go | я + Claude | да | T121 |
 | [x] | T135 | Английский: `docs-check` и проверка перевода | Claude | да | T130–T133 |
 | [x] | T136 | Перевод: product, concepts, privacy, dpia | Claude | — | T135 |
-| [ ] | T137 | Перевод: architecture, repositories | Claude | — | T135 |
+| [x] | T137 | Перевод: architecture, repositories | Claude | — | T135 |
 | [ ] | T138 | Перевод: журнал решений, R01–R70 | Claude | — | T135 |
 | [ ] | T139 | Перевод: журнал решений, R71–R143 | Claude | — | T138 |
 | [ ] | T126 | Как экономия держится | я + Claude | да | T118, T121, T139 |
@@ -254,14 +254,7 @@
 - T134 — сделана 2026-11-12: плагин `gopls-lsp` — копией в `spec/claude-plugins/`, ключом `claude` вида `go`; проба — диагностика gopls после правки. Тело — [docs/plan/E10.md](docs/plan/E10.md).
 - T135 — сделана 2026-11-12: `translation-check` сверяет перевод с оригиналом единица в единицу, `translation-anchors` переписывает якоря, `sample` выбирает куски для слепого чтения; `docs-check` читает английский; `docs/` заготовки — на английском. Тело — [docs/plan/E10.md](docs/plan/E10.md).
 - T136 — сделана 2026-11-12: product, concepts, privacy и DPIA — на английском; DPIA — версия 14; сверка — чисто, слепое чтение 11 кусков — 5 расхождений, исправлены. Тело — [docs/plan/E10.md](docs/plan/E10.md).
-
-#### T137. Перевод: architecture, repositories
-
-- **Цель:** [architecture](docs/architecture.md) и [repositories](docs/repositories.md) — на английском, без потерь.
-- **Сделать:** так же, как T136; номера карточек architecture 3 и реестр Т- в repositories 8 — те же.
-- **Стоимость:** ≈ 460 КБ русского текста; цену называет пилот до запуска (правило 4).
-- **Как проверить:** как у T136.
-- **Разделы:** R14, R143; T135.
+- T137 — сделана 2026-11-12: architecture, repositories, sources и measurements — на английском; сверка — чисто, слепое чтение 11 кусков — 6 расхождений, исправлены. Тело — [docs/plan/E10.md](docs/plan/E10.md).
 
 #### T138. Перевод: журнал решений, R01–R70
 

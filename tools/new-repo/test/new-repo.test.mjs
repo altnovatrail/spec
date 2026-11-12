@@ -134,7 +134,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
   }
 });
 
-// The badges are written once, in the block of repositories 2.3, with <имя> for the repository
+// The badges are written once, in the block of repositories 2.3, with <name> for the repository
 // and <ID> for the number of its Best Practices project (R48). The template's are the first day's
 // of them, and spec's README takes its own from there.
 const FIRST_DAY = ["CI", "CodeQL", "OpenSSF Scorecard", "License", "Code Smells", "Reliability Rating", "Security Rating", "Maintainability Rating", "Vulnerabilities"];
@@ -144,7 +144,7 @@ const altOf = (line) => line.match(/^\[!\[([^\]]+)\]/)[1];
 // Whether a README's line is a documented badge of the repository `name`: <ID> holds a number,
 // and the same one wherever the line holds it.
 function badgeMatches(documented, line, name) {
-  const parts = documented.replaceAll("<имя>", name).split("<ID>").map(escape);
+  const parts = documented.replaceAll("<name>", name).split("<ID>").map(escape);
   const match = line.match(new RegExp(`^${parts.join("([1-9][0-9]*)")}$`));
   return match !== null && match.slice(1).every((id) => id === match[1]);
 }
@@ -162,7 +162,7 @@ test("the README starts with the first day's badges of repositories 2.3, in two 
   const readme = read(draft(name, "go", "3.8"), "README.md");
   const expected = documentedBadges()
     .filter((line) => FIRST_DAY.includes(altOf(line)))
-    .map((line) => line.replaceAll("<имя>", name));
+    .map((line) => line.replaceAll("<name>", name));
   assert.deepEqual(expected.map(altOf), FIRST_DAY, "repositories 2.3 lists every badge of the first day once, in this order");
   const rows = `${expected.slice(0, 4).join("\n")}\n\n${expected.slice(4).join("\n")}`;
   assert.ok(readme.startsWith(`# ${name}\n\n${rows}\n\n`), "the badges come right under the title, SonarCloud's measures as the second row");
@@ -413,7 +413,7 @@ test("refuses what it cannot build, and leaves nothing behind", () => {
   const build = (name, kind, card) => () => newRepo({ specRoot, name, kind, card, dest, draft: "v0.0.0-test" });
   assert.throws(build("wiki", "docs", "3.8"), /wiki: not one of NovaTrail's repositories/);
   assert.throws(build("engine", "rust", "3.8"), /rust: the kinds are docs, go, typescript/);
-  assert.throws(build("api", "go", "3.8"), /architecture 3\.8 is "3\.8\. learner-model и engine", not the card of api/);
+  assert.throws(build("api", "go", "3.8"), /architecture 3\.8 is "3\.8\. learner-model and engine", not the card of api/);
   assert.throws(build("api", "go", "3.99"), /architecture 3\.99: no such card/);
   assert.throws(build("api", "go", "three"), /a card is a section number/);
   assert.equal(fs.existsSync(dest), false);
