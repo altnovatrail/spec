@@ -26,6 +26,7 @@ The documents are in Russian.
 - [docs/architecture.md](docs/architecture.md) — the component: what it does and does not do, its data and links, and what is still to decide.
 - [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.
 - [RUN.md](RUN.md) — the work plan, in epics.
+- [DEBT.md](DEBT.md) — the technical debt, in Russian: table 4 of the work plan.
 
 The working rules, for people and coding agents alike, are in [CLAUDE.md](CLAUDE.md) and [AGENTS.md](AGENTS.md). The platform's shared vocabulary, formats, contracts and decisions are in [spec](https://github.com/altnovatrail/spec/tree/{{spec_tag}}), checked out here as a git submodule at `{{spec_tag}}`: clone this repository with `git clone --recurse-submodules`.
 

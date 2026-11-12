@@ -1,7 +1,8 @@
 // The registers — R in the decision log, О-, П-, Т- in the open questions — are numbered
 // 1, 2, 3… without gaps or repeats; the register's opening names the next free number, one
-// more than the last; and every number cited anywhere exists. The tables of a RUN.md, В and Д,
-// keep no gapless count: their rows leave, and the next free number is above every row.
+// more than the last; and every number cited anywhere exists. The tables of questions and debt, В
+// in RUN.md and Д in DEBT.md, keep no gapless count: their rows leave, and the next free number is
+// above every row.
 
 import { findNumbers } from "./citations.mjs";
 
@@ -11,7 +12,8 @@ const label = (register, digits) => `${register.prefix}${digits}`;
 // Reads each register from its file: a Map from prefix to { register, numbers: Set, next }.
 export function readRegisters(files, registers, report) {
   const result = new Map();
-  for (const register of registers) {
+  for (const declared of registers) {
+    const register = placeOf(declared, files, report);
     const doc = files.get(register.file);
     if (!doc) {
       report(register.file, 0, `register ${register.prefix}: the file does not exist`);
@@ -62,6 +64,21 @@ export function readRegisters(files, registers, report) {
     result.set(register.prefix, { register, numbers, next: next[0]?.number ?? max + 1 });
   }
   return result;
+}
+
+// The register as it is read: from its own file, or with `fallback` from where it once lived while
+// that file does not exist and a table stands there. A table left there beside the own file is a
+// second copy, and the own file is the one read.
+function placeOf(register, files, report) {
+  const { elsewhere, fallback, ...own } = register;
+  if (!elsewhere) return own;
+  const there = { ...own, ...elsewhere };
+  const doc = files.get(elsewhere.file);
+  const index = doc ? opening(there, doc).index : -1;
+  const table = index >= 0 && doc.tables.some((t) => t.heading === index);
+  if (!files.has(own.file)) return fallback && table ? there : own;
+  if (table) report(elsewhere.file, doc.headings[index].line, `register ${own.prefix}: its table is in ${own.file}, and this one under «${elsewhere.heading} …» is a second copy`);
+  return own;
 }
 
 // "**R01. …**" paragraphs.

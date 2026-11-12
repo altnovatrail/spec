@@ -92,6 +92,7 @@ const EXPECTED_FILES = [
   ".devcontainer/host-network.sh",
   "AGENTS.md",
   "CLAUDE.md",
+  "DEBT.md",
   "LICENSE",
   "README.md",
   "RUN.md",

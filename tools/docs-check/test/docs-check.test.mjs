@@ -323,7 +323,7 @@ test("the script runs through a symlink", () => {
   }
 });
 
-// The tables of a RUN.md, В and Д (RUN.md, T18).
+// The tables of questions and debt: В in RUN.md and Д in DEBT.md (RUN.md, T18 and T132).
 
 test("a В defined twice", async () => {
   await expectOnly([["RUN.md", "| В3 | Третий вопрос |", "| В3 | Третий вопрос |\n| В3 | Повтор |"]], /^RUN\.md:\d+: В3 is defined twice$/);
@@ -334,7 +334,22 @@ test("a next free В that is not above the table", async () => {
 });
 
 test("a table of debt that names no next free number", async () => {
-  await expectOnly([["RUN.md", "Номера не переиспользуются: следующий — Д2.", "Номера не переиспользуются."]], /register Д: its opening does not name the next free number/);
+  await expectOnly([["DEBT.md", "Номера не переиспользуются: следующий — Д2.", "Номера не переиспользуются."]], /^DEBT\.md:\d+: register Д: its opening does not name the next free number/);
+});
+
+test("a next free Д that is not above the table of debt", async () => {
+  await expectOnly([["DEBT.md", "следующий — Д2.", "следующий — Д1."]], /^DEBT\.md:\d+: the next free number is Д1, but Д1 is in the table/);
+});
+
+test("spec's table of debt is DEBT.md alone: without it, table 4 of RUN.md is not read", async () => {
+  const table = "\n\nНомера не переиспользуются: следующий — Д2.\n\n| ID | Долг |\n|---|---|\n| Д1 | Первый долг |\n";
+  const edits = [["DEBT.md", null, null], ["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", table]];
+  assert.deepEqual(await errorsOf(edits), ["DEBT.md:0: register Д: the file does not exist"]);
+});
+
+test("a row of debt written back into table 4 of spec's RUN.md is a second copy", async () => {
+  const edits = [["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", "\n\n| ID | Долг |\n|---|---|\n| Д2 | Новый долг не там |\n"]];
+  await expectOnly(edits, /^RUN\.md:\d+: register Д: its table is in DEBT\.md, and this one under «Таблица 4\. …» is a second copy$/);
 });
 
 test("«раздел N» right after a link outside the repository is that text's section", async () => {
@@ -390,6 +405,38 @@ test("an open question is spec's wherever it is cited", async () => {
 
 test("an example taken out of code is checked as a citation", async () => {
   await componentOnly([["README.md", "`R01`", "R01"]], /R01 is the next free number, not an entry yet \(docs\/decisions\.md\)$/);
+});
+
+test("the repository's table of debt: a Д defined twice in DEBT.md", async () => {
+  await componentOnly([["DEBT.md", "следующий — Д1.\n\n| ID | Долг |\n|---|---|\n", "следующий — Д2.\n\n| ID | Долг |\n|---|---|\n| Д1 | Долг |\n| Д1 | Повтор |\n"]], /^DEBT\.md:\d+: Д1 is defined twice$/);
+});
+
+// A repository that has not moved its table of debt yet (T132; T123): its table 4 is still in
+// RUN.md, and no DEBT.md.
+const debtInRun = (rows = "") => [
+  ["DEBT.md", null, null],
+  ["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", `\n\nНомера не переиспользуются: следующий — Д3.\n\n| ID | Долг |\n|---|---|\n${rows}`],
+];
+
+test("a repository that has not moved its table of debt: table 4 of RUN.md is read", async () => {
+  assert.deepEqual(await componentErrors(debtInRun("| Д2 | Долг |\n")), []);
+  await componentOnly(debtInRun("| Д2 | Долг |\n| Д2 | Повтор |\n"), /^RUN\.md:\d+: Д2 is defined twice$/);
+  await componentOnly(debtInRun("| Д3 | Долг |\n"), /^RUN\.md:\d+: the next free number is Д3, but Д3 is in the table/);
+});
+
+test("a table of debt in both DEBT.md and RUN.md is named, and DEBT.md is read", async () => {
+  const edits = [["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", "\n\n| ID | Долг |\n|---|---|\n| Д9 | Копия |\n"]];
+  await componentOnly(edits, /^RUN\.md:\d+: register Д: its table is in DEBT\.md, and this one under «Таблица 4\. …» is a second copy$/);
+});
+
+test("a repository with neither DEBT.md nor table 4 in RUN.md is told of DEBT.md", async () => {
+  const edits = [["DEBT.md", null, null], ["RUN.md", "## Таблица 4. Технический долг\n\nТаблица — в [DEBT.md](DEBT.md).\n", ""]];
+  await componentOnly(edits, /^DEBT\.md:0: register Д: the file does not exist$/);
+});
+
+test("a repository whose DEBT.md is gone, with only the pointer left in RUN.md, is told of DEBT.md", async () => {
+  const errors = await componentErrors([["DEBT.md", null, null]]);
+  assert.deepEqual(errors, ["DEBT.md:0: register Д: the file does not exist", "RUN.md:15: link DEBT.md: DEBT.md does not exist"]);
 });
 
 test("the repository's tables: a В defined twice", async () => {
@@ -471,7 +518,7 @@ test("--component runs from a repository's spec/ submodule and checks the reposi
     fs.symlinkSync(path.join(here, "..", "..", "node_modules"), path.join(tools, "node_modules"));
     const green = spawnSync(process.execPath, [path.join(tools, "docs-check", "main.mjs"), "--component"], { encoding: "utf8" });
     assert.equal(green.status, 0, green.stdout + green.stderr);
-    assert.match(green.stdout, /^docs-check: ok — 4 files,/m);
+    assert.match(green.stdout, /^docs-check: ok — 5 files,/m);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
