@@ -61,7 +61,7 @@ gh release verify-asset v0.5.6 format-0.1.tar.gz -R altnovatrail/spec
 
 ## Documents
 
-The documents are in Russian; the module format is in English and normative.
+The documents are in English, but for the work plan, its technical debt, the cross-repository plan and the archives of its epics, which are in Russian (R143); the module format is in English and normative.
 
 - [docs/product.md](docs/product.md) — what we build and why: who it is for, the principles, the first slice, the roadmap and the open product questions.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary: module, skill, lesson, task, canvas, check, tutor, learner model and engine, with a glossary that names each term as code and schemas will.
@@ -69,6 +69,8 @@ The documents are in Russian; the module format is in English and normative.
 - [docs/architecture.md](docs/architecture.md) — the platform's big parts and how they connect: the components, one overall diagram, the main flows, and how the interface is put together.
 - [docs/repositories.md](docs/repositories.md) — how the platform is split into repositories: their roles, dependencies, how changes flow between them, the order they appear in, how to set one up, and what is carried over from MathTrail.
 - [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.
+- [docs/sources.md](docs/sources.md) — the sources the documents rest on: providers' terms, laws, standards, other programs' documentation and MathTrail's texts, each with its date and its quote.
+- [docs/measurements.md](docs/measurements.md) — the results of measurements: where the tokens of the Claude Code sessions go, and what each change of epic E10 gave.
 - [admission/](admission/README.md) — the admission table: to which AI provider, on which route to AI, the work of a learner of each age category may go, and which capability of AI may serve each category, with the facts of a deployment that open a cell. Its text, the table, its schemas, examples and test vectors, and `just admission-check` checks them (R96).
 - [deployment/](deployment/README.md) — the deployment configuration: the file `/deployment.json` that the learner's app reads at its start, with the origin of the platform's API and the parameters of the sign-in service, and the rules by which a reader accepts it. Its text, its schemas, examples and test vectors, and `just deployment-check` checks them (R85).
 - [legal/](legal/README.md) — the legal texts of the platform: the privacy policy, the terms of use, the consents, and the sets of texts of the samples page with the volunteer's form, each in versions numbered from 1 that never change once in force, with their gist in the languages of the interface. The app gets them from the API, and the samples page and the organizer from a release file. Its text, the passport, the texts, their schemas, examples and test vectors, and `just legal-check` checks them (R130).
@@ -76,6 +78,7 @@ The documents are in Russian; the module format is in English and normative.
 - [export/](export/README.md) — the format of the export of a learner's profile or of a whole account: a ZIP of files of JSON, with the part of the API byte for byte, what the device holds, and the evidence log and the model's state as the JSON of their protobuf messages beside their `.proto` files. The app builds it, and anyone reads it with no library. Its text, its schemas, examples and test vectors, and `just export-check` checks them (R135).
 - [format/](format/README.md) — the module format: what a module may and must contain and how the platform checks it. Its text, the schemas of the manifest, the skill graph, the trap and technique catalogs, the solving steps, the task, with the checks of the task's answer slots, its hints and its templates, and the lesson, the generator of randomness, the shared taxonomy of skills, the layout of a module, the package of a module — its canonical view and its inventory — and the module index, which names every published version of every module, are written, with their examples, the test vectors of the YAML rules, of a whole module, of the manifest, of the skill graph, of the trap catalog, of the task and of the lesson, and the test vectors of the open view, of verdicts, of the leak check, of the generator, of templates, of tiers, of packages and of the module index, and `just format-check` checks them; the other parts of a module come as they are written.
 - [RUN.md](RUN.md) — the work plan, in epics: the current epic broken into small tasks, run and reviewed one at a time, and the epics that come later.
+- [DEBT.md](DEBT.md) — the technical debt, in Russian: what was put off on purpose, what it risks and when to return; table 4 of the work plan.
 - [COORDINATION.md](COORDINATION.md) — the cross-repository plan, in Russian: in what order the other repositories' tasks run, by repositories 6, and which task waits for which, each row pointing to a task in that repository's RUN.md (R76).
 - [draft/](draft/README.md) — a clickable prototype of the learner's app, and where it differs from the documents.
 

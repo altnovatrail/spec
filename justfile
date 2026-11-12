@@ -31,7 +31,7 @@ inbox-test: _tools
 # is run from — spec, or another NovaTrail repository as `just -f spec/justfile tokens-report` — and
 # prints, in all and by session, the calls of the model, the cache, the output, the context of a
 # call and its cost at the API's prices; what entered the context between calls, by tool, by file
-# and by program, and what each carried; and what a session starts with (repositories 9.1). It
+# and by program, and what each carried; and what a session starts with (measurements 1.1). It
 # prints numbers, paths and names alone, never what a transcript says. --since and --until bound
 # the calls by their time, --top the lists, --project names another folder, --json prints JSON.
 # Print where the tokens of this repository's sessions went.
@@ -42,6 +42,30 @@ tokens-report *args: _tools
 # Run tokens-report's own tests, on made-up transcripts.
 tokens-test: _tools
     node --test 'tools/tokens/test/*.test.mjs'
+
+# Compares each file — a document of docs/ translated into English — with its original, the same
+# file at <ref>, unit by unit: the headings and their numbers, the register numbers and the sections
+# cited, the links, the numbers, the code, the quotes of a source in its own language, the fixed
+# words of the decision log, and the shape, a paragraph for a paragraph and an item for an item; a
+# link into a heading the translation renamed is expected with its new anchor (R143, the 2026-11-12
+# amendment). It runs in the repository it is run from — spec, or another NovaTrail repository as
+# `just -f spec/justfile translation-check` —, and tools/translation/README.md is how a translation runs.
+# Check a translation of documents against their original at a commit.
+[positional-arguments]
+translation-check ref +files: _tools
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/translation/main.mjs")}} check "$@"
+
+# Rewrites, in every Markdown file of the repository it is run from, the links into the files given
+# that lead to a heading their translation renamed since <ref>: the documents, RUN.md, DEBT.md, the
+# archives of docs/plan/ and the README files alike.
+# Rewrite the links to the anchors a translation renamed.
+[positional-arguments]
+translation-anchors ref +files: _tools
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/translation/main.mjs")}} anchors "$@"
+
+# Run translation-check's own tests, on made-up documents and a repository of their own.
+translation-test: _tools
+    node --test 'tools/translation/test/*.test.mjs'
 
 # tools/session/ is no recipe: it is the hook UserPromptSubmit that .claude/settings.json runs
 # before each prompt, in spec and, from the spec/ submodule, in every other NovaTrail repository.

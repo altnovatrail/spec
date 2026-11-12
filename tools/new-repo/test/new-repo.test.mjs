@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import { newRepo } from "../new-repo.mjs";
 import { checkRepo } from "../check.mjs";
 import { goplsVersions, parseJsonc } from "../devcontainer.mjs";
+import { CLAUDE_SETTINGS, addClaudeSettings, checkClaudePlugins } from "../claude.mjs";
 import { FILL, fillPlaceholders, placeholders, walk } from "../copy.mjs";
 import { escape, findNumbers } from "../../docs-check/citations.mjs";
 import { GIT, TAR, byCodeUnits } from "../../shared.mjs";
@@ -55,8 +56,10 @@ function draft(name, kind, card, from = specRoot) {
 // when asked.
 function standIn({ change = () => {}, commit = false, tag = null } = {}) {
   const root = temporary();
-  // What new-repo reads, and what a copy's documents cite of spec: its documents and its rules.
-  for (const source of ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs", "RULES.md"]) {
+  // What new-repo reads, what a copy's documents cite of spec — its documents and its rules —, the
+  // marketplace a copy's .claude/settings.json names in spec/, and the budgets its docs-budgets.json
+  // asks the check of its documents to read from spec/ (R145).
+  for (const source of ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs", "RULES.md", "claude-plugins", "tools/docs-check/budgets.json"]) {
     fs.mkdirSync(path.dirname(path.join(root, source)), { recursive: true });
     fs.cpSync(path.join(specRoot, source), path.join(root, source), { recursive: true, verbatimSymlinks: true });
   }
@@ -92,11 +95,14 @@ const EXPECTED_FILES = [
   ".devcontainer/host-network.sh",
   "AGENTS.md",
   "CLAUDE.md",
+  "DEBT.md",
   "LICENSE",
   "README.md",
   "RUN.md",
+  "docs-budgets.json",
   "docs/architecture.md",
   "docs/decisions.md",
+  "docs/sources.md",
 ];
 // The go kind's folder puts the lock file of gopls beside the Dockerfile (R102).
 const GOPLS_FILES = [".devcontainer/gopls/go.mod", ".devcontainer/gopls/go.sum"];
@@ -115,7 +121,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     for (const file of filesOf(kind)) assert.deepEqual(placeholders(read(dir, file)), [], `${name}: ${file} keeps a placeholder`);
     assert.match(read(dir, "README.md"), new RegExp(`^# ${name}\n`));
     assert.match(read(dir, "CLAUDE.md"), new RegExp(`architecture ${card.replace(".", "\\.")} spec`));
-    assert.match(read(dir, "docs/decisions.md"), /заведён 2026-01-02 из заготовки `spec` v0\.0\.0-test/);
+    assert.match(read(dir, "docs/decisions.md"), /set up 2026-01-02 from the template of `spec` v0\.0\.0-test/);
     for (const file of ["README.md", "CLAUDE.md", "RUN.md", "docs/architecture.md"]) assert.ok(read(dir, file).match(FILL), `${name}: ${file} has no FILL`);
     for (const file of ["LICENSE", "AGENTS.md"]) assert.equal(read(dir, file), read(specRoot, file), `${name}: ${file} is not spec's`);
     // A file docs-check-repo does not read cites no number without a suffix, read as docs-check
@@ -130,7 +136,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
   }
 });
 
-// The badges are written once, in the block of repositories 2.3, with <имя> for the repository
+// The badges are written once, in the block of repositories 2.3, with <name> for the repository
 // and <ID> for the number of its Best Practices project (R48). The template's are the first day's
 // of them, and spec's README takes its own from there.
 const FIRST_DAY = ["CI", "CodeQL", "OpenSSF Scorecard", "License", "Code Smells", "Reliability Rating", "Security Rating", "Maintainability Rating", "Vulnerabilities"];
@@ -140,7 +146,7 @@ const altOf = (line) => line.match(/^\[!\[([^\]]+)\]/)[1];
 // Whether a README's line is a documented badge of the repository `name`: <ID> holds a number,
 // and the same one wherever the line holds it.
 function badgeMatches(documented, line, name) {
-  const parts = documented.replaceAll("<имя>", name).split("<ID>").map(escape);
+  const parts = documented.replaceAll("<name>", name).split("<ID>").map(escape);
   const match = line.match(new RegExp(`^${parts.join("([1-9][0-9]*)")}$`));
   return match !== null && match.slice(1).every((id) => id === match[1]);
 }
@@ -158,7 +164,7 @@ test("the README starts with the first day's badges of repositories 2.3, in two 
   const readme = read(draft(name, "go", "3.8"), "README.md");
   const expected = documentedBadges()
     .filter((line) => FIRST_DAY.includes(altOf(line)))
-    .map((line) => line.replaceAll("<имя>", name));
+    .map((line) => line.replaceAll("<name>", name));
   assert.deepEqual(expected.map(altOf), FIRST_DAY, "repositories 2.3 lists every badge of the first day once, in this order");
   const rows = `${expected.slice(0, 4).join("\n")}\n\n${expected.slice(4).join("\n")}`;
   assert.ok(readme.startsWith(`# ${name}\n\n${rows}\n\n`), "the badges come right under the title, SonarCloud's measures as the second row");
@@ -264,6 +270,9 @@ test("a kind the recipe cannot read stops it, and one written as a list is read 
     [null, /kinds\.json: go: a kind is an object of extensions, settings, toolchain/],
     [{ extensions: "golang.go@0.56.1" }, /kinds\.json: go: extensions is a list of strings/],
     [{ settings: ["files.eol"] }, /kinds\.json: go: settings is an object/],
+    [{ claude: ["enabledPlugins"] }, /kinds\.json: go: claude is an object/],
+    [{ claude: null }, /kinds\.json: go: claude is an object/],
+    [{ claude: { autoCompactWindow: 1, enabledPlugins: {} } }, /the kind's claude: the template's \.claude\/settings\.json already sets autoCompactWindow$/],
     [{ toolchain: "../files/.devcontainer/Dockerfile" }, /kinds\.json: go: toolchain names a file in repo-template\/kinds\/, not "\.\.\/files/],
     [{ toolchain: "" }, /toolchain names a file in repo-template\/kinds\/, not ""/],
     [{ toolchain: "kinds/go.Dockerfile" }, /kinds\.json: go: toolchain names kinds\/go\.Dockerfile, which repo-template does not have/],
@@ -315,6 +324,86 @@ test("the go kind's lock file and its Dockerfile name one version of gopls, and 
   assert.equal(read(folder, "gopls/go.mod").match(/^go (\S+)$/m)[1], read(specRoot, ".devcontainer/Dockerfile").match(/^ARG GO_VERSION=(\S+)$/m)[1], "the lock file's Go is the toolchain stage's");
 });
 
+test("a copy's .claude/settings.json is the template's, with what its kind adds under claude (R143)", () => {
+  const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
+  const template = (name) => fillPlaceholders(read(specRoot, "repo-template/files/.claude/settings.json"), (_, key) => ({ name })[key]);
+  for (const [name, kind, card] of [
+    ["learner-model", "go", "3.8"],
+    ["infra", "docs", "3.11"],
+    ["app", "typescript", "3.1"],
+  ]) {
+    const text = read(draft(name, kind, card), CLAUDE_SETTINGS);
+    const added = kinds[kind].claude ?? {};
+    assert.deepEqual(JSON.parse(text), { ...JSON.parse(template(name)), ...added });
+    if (Object.keys(added).length === 0) assert.equal(text, template(name), `${kind}: the template's file, byte for byte`);
+    else assert.ok(text.startsWith(template(name).slice(0, template(name).lastIndexOf("}")).trimEnd()), `${kind}: the template's lines stay as they are`);
+  }
+  assert.deepEqual(kinds.go.claude.enabledPlugins, { "gopls-lsp@novatrail": true });
+  // A template with no key of its own takes the kind's without a comma before them.
+  const dir = temporary();
+  fs.mkdirSync(path.join(dir, ".claude"));
+  fs.writeFileSync(path.join(dir, CLAUDE_SETTINGS), "{}\n");
+  addClaudeSettings(dir, { enabledPlugins: { "a@b": true } });
+  assert.deepEqual(JSON.parse(read(dir, CLAUDE_SETTINGS)), { enabledPlugins: { "a@b": true } });
+});
+
+test("every plugin a kind turns on lies in spec's marketplace claude-plugins/, and gopls-lsp runs gopls for Go (R143)", () => {
+  const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
+  const root = path.join(specRoot, "claude-plugins");
+  const marketplace = JSON.parse(read(root, ".claude-plugin/marketplace.json"));
+  for (const kind of Object.values(kinds)) {
+    const { extraKnownMarketplaces = {}, enabledPlugins = {} } = kind.claude ?? {};
+    for (const entry of Object.values(extraKnownMarketplaces)) assert.deepEqual(entry, { source: { source: "directory", path: "./spec/claude-plugins" } });
+    for (const key of Object.keys(enabledPlugins)) {
+      const [plugin, from] = key.split("@");
+      assert.ok(Object.hasOwn(extraKnownMarketplaces, from) && from === marketplace.name, `${key}: from spec's marketplace, ${marketplace.name}`);
+      const listed = marketplace.plugins.find((p) => p.name === plugin);
+      assert.ok(listed, `${plugin} is listed`);
+      assert.equal(JSON.parse(read(path.join(root, listed.source), ".claude-plugin/plugin.json")).name, plugin);
+    }
+  }
+  const gopls = JSON.parse(read(root, "gopls-lsp/.claude-plugin/plugin.json"));
+  assert.deepEqual(gopls.lspServers, { gopls: { command: "gopls", extensionToLanguage: { ".go": "go" } } }, "the gopls the go kind builds, from PATH");
+  assert.match(read(root, "gopls-lsp/LICENSE"), /^\s*Apache License\n\s*Version 2\.0, January 2004\n/, "Apache-2.0 (R12)");
+  assert.match(read(root, "README.md"), /at commit `[0-9a-f]{40}`/, "the README names the commit it was copied at");
+});
+
+test("check: the marketplace and the plugins a copy's settings turn on from a local folder", () => {
+  const dir = temporary();
+  fs.mkdirSync(path.join(dir, ".claude"));
+  const found = (settings, reference = specRoot) => {
+    if (settings === undefined) fs.rmSync(path.join(dir, CLAUDE_SETTINGS), { force: true });
+    else fs.writeFileSync(path.join(dir, CLAUDE_SETTINGS), typeof settings === "string" ? settings : JSON.stringify(settings));
+    const errors = [];
+    checkClaudePlugins(dir, reference, (file, line, message) => errors.push(`${file}:${line}: ${message}`));
+    return errors;
+  };
+  const marketplace = (where) => ({ novatrail: { source: { source: "directory", path: where } }, remote: { source: { source: "github", repo: "example/plugins" } } });
+  assert.deepEqual(found(undefined), [], "no file, nothing to check: the file list says it is missing");
+  assert.deepEqual(found("{"), [".claude/settings.json:0: is not JSON"]);
+  assert.deepEqual(found({}), []);
+  const on = { "gopls-lsp@novatrail": true, "other@novatrail": false, "else@remote": true };
+  assert.deepEqual(found({ extraKnownMarketplaces: marketplace("./spec/claude-plugins"), enabledPlugins: on }), [], "spec/ is read from the reference");
+  assert.deepEqual(checkClaudePlugins(dir, specRoot, () => assert.fail("no error")), ["gopls"], "the language servers the plugins start");
+  assert.deepEqual(found({ extraKnownMarketplaces: marketplace("./spec/claude-plugins"), enabledPlugins: { "gopls-lsp@novatral": true, plain: true } }), [
+    ".claude/settings.json:0: gopls-lsp@novatral is turned on from a marketplace that extraKnownMarketplaces does not name",
+    ".claude/settings.json:0: plain is turned on from a marketplace that extraKnownMarketplaces does not name",
+  ]);
+  assert.deepEqual(found({ extraKnownMarketplaces: marketplace(path.join(specRoot, "claude-plugins")), enabledPlugins: on }), [], "an absolute path is read as it is");
+  assert.deepEqual(found({ extraKnownMarketplaces: marketplace("./spec/plugins"), enabledPlugins: on }), [".claude/settings.json:0: the marketplace novatrail is ./spec/plugins, which holds no .claude-plugin/marketplace.json that reads as JSON"]);
+  assert.deepEqual(found({ extraKnownMarketplaces: marketplace("./spec/claude-plugins"), enabledPlugins: { "typescript-lsp@novatrail": true } }), [".claude/settings.json:0: typescript-lsp@novatrail is turned on, and its marketplace lists no typescript-lsp"]);
+  // A folder of the copy's own, outside spec/, is read in the copy; and a listed plugin must be there.
+  fs.mkdirSync(path.join(dir, "plugins/.claude-plugin"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "plugins/.claude-plugin/marketplace.json"), JSON.stringify({ name: "own", plugins: [{ name: "gone", source: "./gone" }, { name: "odd", source: { source: "github" } }, { name: "other", source: "./renamed" }] }));
+  fs.mkdirSync(path.join(dir, "plugins/renamed/.claude-plugin"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "plugins/renamed/.claude-plugin/plugin.json"), JSON.stringify({ name: "renamed" }));
+  assert.deepEqual(found({ extraKnownMarketplaces: { own: { source: { source: "directory", path: "plugins" } } }, enabledPlugins: { "gone@own": true, "odd@own": true, "other@own": true } }), [
+    '.claude/settings.json:0: gone@own is turned on, and its marketplace has no .claude-plugin/plugin.json at "./gone" that reads as JSON',
+    '.claude/settings.json:0: odd@own is turned on, and its marketplace has no .claude-plugin/plugin.json at {"source":"github"} that reads as JSON',
+    '.claude/settings.json:0: other@own is turned on, and the .claude-plugin/plugin.json its marketplace lists is "renamed"',
+  ]);
+});
+
 test(".github gets a container name without the dot", () => {
   const dc = devcontainer(draft(".github", "docs", "3.11"));
   assert.equal(dc.name, "novatrail-github");
@@ -326,7 +415,7 @@ test("refuses what it cannot build, and leaves nothing behind", () => {
   const build = (name, kind, card) => () => newRepo({ specRoot, name, kind, card, dest, draft: "v0.0.0-test" });
   assert.throws(build("wiki", "docs", "3.8"), /wiki: not one of NovaTrail's repositories/);
   assert.throws(build("engine", "rust", "3.8"), /rust: the kinds are docs, go, typescript/);
-  assert.throws(build("api", "go", "3.8"), /architecture 3\.8 is "3\.8\. learner-model и engine", not the card of api/);
+  assert.throws(build("api", "go", "3.8"), /architecture 3\.8 is "3\.8\. learner-model and engine", not the card of api/);
   assert.throws(build("api", "go", "3.99"), /architecture 3\.99: no such card/);
   assert.throws(build("api", "go", "three"), /a card is a section number/);
   assert.equal(fs.existsSync(dest), false);
@@ -403,6 +492,8 @@ test("check: what a careless fill can leave", async () => {
     [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}`, "ARG GOPLS_VERSION=0.0.1", new RegExp(`^\\.devcontainer/gopls/go\\.mod:0: it names gopls ${GOPLS.replaceAll(".", "\\.")}, and \\.devcontainer/Dockerfile has GOPLS_VERSION 0\\.0\\.1: raise them together \\(R102 spec\\)$`)],
     [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}\n`, "", /^\.devcontainer\/gopls\/go\.mod:0: it names gopls [\d.]+, and \.devcontainer\/Dockerfile has GOPLS_VERSION unset/],
     [".devcontainer/gopls/go.sum", "golang.org/x/", "", /^\.devcontainer\/gopls\/go\.sum:0: the file is missing, and \.devcontainer\/Dockerfile builds gopls from it \(R102 spec\)$/, true],
+    // The plugin the go kind turns on, misspelt: the session would start without it (R143).
+    [".claude/settings.json", '"gopls-lsp@novatrail": true', '"gopls@novatrail": true', /^\.claude\/settings\.json:0: gopls@novatrail is turned on, and its marketplace lists no gopls$/],
     ["CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/main).", /the links to spec name different versions: main, v0\.0\.0-test$/],
   ];
   for (const [file, from, to, expected, gone] of cases) {
@@ -414,6 +505,14 @@ test("check: what a careless fill can leave", async () => {
     assert.equal(found.length, 1, `${file}: expected one error, got:\n${found.join("\n")}`);
     assert.match(found[0], expected);
   }
+});
+
+test("check: a go copy without the lock file of gopls, whose plugin runs it, is refused (R102, R143)", async () => {
+  const dir = draft("learner-model", "go", "3.8");
+  fill(dir);
+  fs.rmSync(path.join(dir, ".devcontainer/gopls"), { recursive: true });
+  change(dir, ".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}\n`, "");
+  assert.deepEqual(await messages(dir), [".devcontainer/gopls/go.mod:0: the file is missing, and .claude/settings.json turns on a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)"]);
 });
 
 test("from a tag: the files are the tag's, spec is a submodule at it, all staged, nothing committed", async () => {

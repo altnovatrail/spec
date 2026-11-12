@@ -9,14 +9,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { walk } from "./copy.mjs";
 
-// What a kind of repo-template/kinds.json may add to spec's devcontainer. A key it does not know
-// stops the recipe, so that a misspelt one is not quietly left out of the copy.
-const KIND_KEYS = ["extensions", "settings", "toolchain", "devcontainer"];
+// What a kind of repo-template/kinds.json may add to spec's devcontainer, and to the template's
+// .claude/settings.json ("claude"). A key it does not know stops the recipe, so that a misspelt one
+// is not quietly left out of the copy.
+const KIND_KEYS = ["extensions", "settings", "toolchain", "devcontainer", "claude"];
 
 // A kind, read from kinds.json in the template `template`: VS Code extensions, VS Code settings,
 // lines for the end of the Dockerfile's toolchain stage, from the file in kinds/ that "toolchain"
 // names (R79), and from the folder in kinds/ that "devcontainer" names, lines for the devcontainer
-// stage, its Dockerfile, and the files the image copies, the rest of it (R102). A tag before R79 wrote a kind as its list of extensions alone, and
+// stage, its Dockerfile, and the files the image copies, the rest of it (R102); and the keys "claude"
+// adds to the copy's .claude/settings.json (R143). A tag before R79 wrote a kind as its list of extensions alone, and
 // new-repo builds from the latest tag, so that form is read too.
 export function readKind(template, name, kind) {
   const where = `kinds.json: ${name}`;
@@ -24,12 +26,14 @@ export function readKind(template, name, kind) {
   if (kind === null || typeof kind !== "object") throw new Error(`${where}: a kind is an object of ${KIND_KEYS.join(", ")}`);
   const unknown = Object.keys(kind).filter((key) => !KIND_KEYS.includes(key));
   if (unknown.length > 0) throw new Error(`${where}: ${unknown.join(", ")} is not one of ${KIND_KEYS.join(", ")}`);
-  const { extensions = [], settings = {}, toolchain = null, devcontainer = null } = kind;
+  const { extensions = [], settings = {}, toolchain = null, devcontainer = null, claude = {} } = kind;
   if (!Array.isArray(extensions) || !extensions.every((e) => typeof e === "string")) throw new Error(`${where}: extensions is a list of strings`);
   if (settings === null || typeof settings !== "object" || Array.isArray(settings)) throw new Error(`${where}: settings is an object`);
+  if (claude === null || typeof claude !== "object" || Array.isArray(claude)) throw new Error(`${where}: claude is an object`);
   return {
     extensions,
     settings,
+    claude,
     toolchain: toolchain === null ? null : readToolchain(template, where, toolchain),
     devcontainer: devcontainer === null ? null : readDevcontainerFolder(template, where, devcontainer),
   };

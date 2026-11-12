@@ -1,11 +1,11 @@
-# Журнал решений {{name}}
+# Decision log of {{name}}
 
-> Почему {{name}} устроен именно так. В каждой записи: что решено, почему, что отвергнуто и где это описано.
+> Why {{name}} is built the way it is. Each entry: what was decided, why, what was rejected, and where it is described.
 >
-> **Правило:** не предлагать повторно отвергнутое без новых фактов. Если решение нужно поменять, спросить автора и обновить этот файл. Запись не переписывается: её правит поправка с датой в конце записи или заменяет новая запись, а старая остаётся на месте с пометкой «Заменено».
+> **Rule:** do not propose again what was rejected without new facts. If a decision has to change, ask the author and update this file. An entry is never rewritten: a dated amendment at its end changes it, or a new entry replaces it, and the old one stays where it is, marked "Superseded".
 >
-> Репозиторий заведён {{date}} из заготовки `spec` {{spec_tag}} (R21 spec). Чем он со временем отличается от заготовки — инструментами в devcontainer, правилами в RUN.md, — записывается здесь решением, как R46 canvas-api записал отличия от своего образца. Следующий номер — R01.
+> The repository was set up {{date}} from the template of `spec` {{spec_tag}} (R21 spec). How it comes to differ from the template — tools in the devcontainer, rules in RUN.md — is recorded here as a decision, as R46 canvas-api recorded how it differed from its model. Next number — R01.
 >
-> Здесь записи цитируются как `R03`, в других репозиториях — как `R03 {{name}}`. Решения `spec` цитируются как «R18 spec», решения MathTrail — как «R37 canvas-api», а списком — «canvas-api: R37, R38». У каждого журнала свои номера.
+> Here entries are cited as `R03`, in other repositories as `R03 {{name}}`. The decisions of `spec` are cited as "R18 spec", MathTrail's as "R37 canvas-api", and in a list as "canvas-api: R37, R38". Each log has numbers of its own.
 >
-> Открытые вопросы, которые касаются нескольких репозиториев, — в реестрах `spec`: О- в product 13 spec, П- в privacy 9 spec, Т- в repositories 8 spec. Что ещё предстоит решить в самом компоненте — в [architecture.md](architecture.md), раздел 2.
+> Open questions that concern several repositories are in the registers of `spec`: О- in product 13 spec, П- in privacy 9 spec, Т- in repositories 8 spec. What is still to decide in the component itself is in [architecture.md](architecture.md), section 2.

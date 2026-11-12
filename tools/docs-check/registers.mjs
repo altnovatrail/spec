@@ -1,7 +1,8 @@
 // The registers — R in the decision log, О-, П-, Т- in the open questions — are numbered
 // 1, 2, 3… without gaps or repeats; the register's opening names the next free number, one
-// more than the last; and every number cited anywhere exists. The tables of a RUN.md, В and Д,
-// keep no gapless count: their rows leave, and the next free number is above every row.
+// more than the last; and every number cited anywhere exists. The tables of questions and debt, В
+// in RUN.md and Д in DEBT.md, keep no gapless count: their rows leave, and the next free number is
+// above every row.
 
 import { findNumbers } from "./citations.mjs";
 
@@ -11,7 +12,8 @@ const label = (register, digits) => `${register.prefix}${digits}`;
 // Reads each register from its file: a Map from prefix to { register, numbers: Set, next }.
 export function readRegisters(files, registers, report) {
   const result = new Map();
-  for (const register of registers) {
+  for (const declared of registers) {
+    const register = placeOf(declared, files, report);
     const doc = files.get(register.file);
     if (!doc) {
       report(register.file, 0, `register ${register.prefix}: the file does not exist`);
@@ -51,7 +53,7 @@ export function readRegisters(files, registers, report) {
 
     const next = nextFree(register, doc);
     if (next.length === 0) {
-      report(register.file, where, `register ${register.prefix}: its opening does not name the next free number ("Следующий номер — ${label(register, canonical(register, max + 1))}")`);
+      report(register.file, where, `register ${register.prefix}: its opening does not name the next free number ("Next number — ${label(register, canonical(register, max + 1))}")`);
     } else if (next.length > 1) {
       report(register.file, next[1].line, `register ${register.prefix}: its opening names the next free number more than once`);
     } else if (register.gaps && next[0].number <= max) {
@@ -64,8 +66,23 @@ export function readRegisters(files, registers, report) {
   return result;
 }
 
+// The register as it is read: from its own file, or with `fallback` from where it once lived while
+// that file does not exist and a table stands there. A table left there beside the own file is a
+// second copy, and the own file is the one read.
+function placeOf(register, files, report) {
+  const { elsewhere, fallback, ...own } = register;
+  if (!elsewhere) return own;
+  const there = { ...own, ...elsewhere };
+  const doc = files.get(elsewhere.file);
+  const index = doc ? opening(there, doc).index : -1;
+  const table = index >= 0 && doc.tables.some((t) => t.heading === index);
+  if (!files.has(own.file)) return fallback && table ? there : own;
+  if (table) report(elsewhere.file, doc.headings[index].line, `register ${own.prefix}: its table is in ${own.file}, and this one under «${elsewhere.heading} …» is a second copy`);
+  return own;
+}
+
 // "**R01. …**" paragraphs.
-function entriesOf(register, doc) {
+export function entriesOf(register, doc) {
   const head = new RegExp(`^${register.prefix}(\\d+)\\.\\s`, "u");
   return doc.blocks
     .filter((b) => b.type === "paragraph" && b.strongStart)
@@ -106,9 +123,11 @@ function registerLine(register, doc) {
   return doc.headings[index]?.line ?? 1;
 }
 
-// "Следующий номер — R32", or in a RUN.md's table "следующий — В25".
+// "Следующий номер — R32", or in a RUN.md's table "следующий — В25"; in a document in English,
+// "Next number — R32", "the next free number — R32" or "next — В25" (R143).
 function nextFree(register, doc) {
-  const phrase = new RegExp(`следующ\\p{L}*(?:\\s+номер\\p{L}*)?\\s*[—–-]\\s*${register.prefix}(\\d+)`, "giu");
+  const words = String.raw`(?:следующ\p{L}*(?:\s+номер\p{L}*)?|\bnext(?:\s+free)?(?:\s+number)?)`;
+  const phrase = new RegExp(`${words}\\s*[—–-]\\s*${register.prefix}(\\d+)`, "giu");
   const found = [];
   for (const block of opening(register, doc).blocks) {
     for (const m of block.text.matchAll(phrase)) {

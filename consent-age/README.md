@@ -93,7 +93,7 @@ A reader computes from an accepted table what follows; `api` computes the same, 
 
 ## 9. Who reads it
 
-- **`api`** takes the table from `spec`'s Go module at the tag it pins, as `spec.ConsentAge` (R64), and computes the category and when to ask the age again by section 6; it refuses a country whose code is not one of `$defs.country`. A new entry reaches `api` with a new tag of `spec`, so the session that writes it says so in the row of table 4 of RUN.md that `api` takes (R134).
+- **`api`** takes the table from `spec`'s Go module at the tag it pins, as `spec.ConsentAge` (R64), and computes the category and when to ask the age again by section 6; it refuses a country whose code is not one of `$defs.country`. A new entry reaches `api` with a new tag of `spec`, so the session that writes it says so in the row of table 4, in `DEBT.md`, that `api` takes (R134).
 - **`app`** may take the codes of the countries it offers from the same list, of the npm package `@altnovatrail/spec`; the category it shows is the one `api` gives.
 - **A self-hosted copy** reads the same table, from the same release (section 1). The file `consent-age-<VERSION>.tar.gz` of a release of `spec` holds this folder, for whoever reads it outside Go, once `release-verify` accepted it (R77).
 

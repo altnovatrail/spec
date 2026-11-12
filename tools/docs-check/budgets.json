@@ -1,0 +1,39 @@
+{
+  "spec": {
+    "files": {
+      "CLAUDE.md": 12,
+      "RULES.md": 14,
+      "RUN.md": 96,
+      "DEBT.md": 128,
+      "COORDINATION.md": 72
+    },
+    "rule": 6,
+    "entry": 40,
+    "section": 24,
+    "sections": {
+      "concepts 15": 84,
+      "privacy 9": 68,
+      "repositories 8": 68
+    },
+    "rows": {
+      "RUN.md": 4,
+      "DEBT.md": 4,
+      "COORDINATION.md": 4
+    }
+  },
+  "repository": {
+    "files": {
+      "CLAUDE.md": 12,
+      "RUN.md": 96,
+      "DEBT.md": 128
+    },
+    "rule": 6,
+    "entry": 40,
+    "section": 24,
+    "sections": {},
+    "rows": {
+      "RUN.md": 4,
+      "DEBT.md": 4
+    }
+  }
+}

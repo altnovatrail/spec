@@ -35,6 +35,15 @@ cases:
     answer:
       admitted: false
       reason: capability_closed
+  # The words after a correct answer are a capability of their own: the hint is open for the
+  # category, and they, with no rule, are closed, though the cell would admit them.
+  - request: {capability: correct_answer_words, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
+    facts:
+      alpha:
+        data_processing_agreement: [from_consent_to_18]
+    answer:
+      admitted: false
+      reason: capability_closed
   # The capability's rule refuses before the cell is looked for: alpha has no cell for adults.
   - request: {capability: hint, ai_route: platform_ai, provider: alpha, age_category: adult}
     answer:

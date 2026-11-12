@@ -10,8 +10,9 @@
 //   that text: "- standalone, [SPEC.md](https://…)" over "  - раздел 2.8 — …";
 // - else the document it stands in, when that document has numbered sections;
 // - else the last document linked earlier in the same block, as in CLAUDE.md's list of documents;
-// - else, in a repository of its own, its docs/architecture.md: the one document it has with
-//   numbered sections, which its RUN.md speaks of as "раздел 3".
+// - else, in a repository of its own, its docs/architecture.md: the document its RUN.md speaks of
+//   as "раздел 3". Its docs/sources.md and docs/measurements.md have numbered sections too, once
+//   they have records, but they are cited by name: "sources 1.1", "measurements 1".
 
 import { findSections } from "./citations.mjs";
 import { decode, isExternal, resolveLink } from "./links.mjs";
@@ -29,7 +30,9 @@ export function checkSections(files, context, profile, report) {
         let target;
         if (citation.kind === "document") {
           target = (citation.scope === "spec" ? specDocuments : profile.documents)[citation.name];
-          if (!target && specDocuments[citation.name]) {
+          // A document the repository has no file of its own for — none of spec's, sources or
+          // measurements until it starts one — is spec's, cited without the suffix.
+          if (citation.scope !== "spec" && specDocuments[citation.name] && !context.get(target)) {
             report(file, line, `"${quoted}": ${citation.name} is spec's document; cite it as "${citation.name} ${citation.sections[0]} spec"`);
             continue;
           }

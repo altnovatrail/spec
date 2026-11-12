@@ -109,7 +109,8 @@ function collectLinks(node, doc) {
   for (const child of node.children ?? []) collectLinks(child, doc);
 }
 
-function plainText(node) {
+// The text of a node as GitHub reads it for a heading's anchor: its text and inline code, no markup.
+export function plainText(node) {
   if (node.type === "text" || node.type === "inlineCode") return node.value;
   if (node.type === "break") return "\n";
   return (node.children ?? []).map(plainText).join("");

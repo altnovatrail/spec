@@ -3,7 +3,8 @@
     "**/repo-template/**/CLAUDE.md",
     "**/.repos/**/CLAUDE.md",
     "**/.repos/.github/CLAUDE.md",
-    "**/.repos/.github/**/CLAUDE.md"
+    "**/.repos/.github/**/CLAUDE.md",
+    "**/.repos/**/.claude/rules/**"
   ],
   "autoCompactWindow": 400000,
   "disableClaudeAiConnectors": true,

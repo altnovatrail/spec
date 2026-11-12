@@ -1,7 +1,8 @@
 {
   "claudeMdExcludes": [
     "**/{{name}}/spec/CLAUDE.md",
-    "**/{{name}}/spec/**/CLAUDE.md"
+    "**/{{name}}/spec/**/CLAUDE.md",
+    "**/{{name}}/spec/.claude/rules/**"
   ],
   "autoCompactWindow": 400000,
   "disableClaudeAiConnectors": true,
