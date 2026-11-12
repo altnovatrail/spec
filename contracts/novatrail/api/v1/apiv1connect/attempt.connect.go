@@ -144,9 +144,10 @@ type AttemptServiceClient interface {
 	// the feedback: they are nowhere on the server.
 	SubmitEssay(context.Context, *v1.SubmitEssayRequest) (*v1.SubmitEssayResponse, error)
 	// "Done" on a task with a rubric: the learner ends the attempt, which is closed
-	// `CLOSE_REASON_DONE`, and the task is solved. Refusals: `CAUSE_NO_SUBMISSION` and
-	// `CAUSE_ATTEMPT_CLOSED` with another close reason; a repeat on an attempt closed by "Done" gets the
-	// same answer. It carries no idempotency key: it repeats by the attempt's state.
+	// `CLOSE_REASON_DONE`, and the task is solved. Refusals: `CAUSE_NO_SUBMISSION`,
+	// `CAUSE_ATTEMPT_CLOSED` with another close reason, and `CAUSE_KEY_NOT_FOR_PROFILE`; a repeat on
+	// an attempt closed by "Done" gets the same answer. It carries no idempotency key: it repeats by
+	// the attempt's state.
 	Done(context.Context, *v1.DoneRequest) (*v1.DoneResponse, error)
 	// Asks for the words of the rung that a wrong answer gave, sending the work again: the server
 	// keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
@@ -183,8 +184,9 @@ type AttemptServiceClient interface {
 	// an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
 	// section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
 	// `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
-	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the solution again.
+	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+	// the solution again.
 	ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error)
 	// Reports a problem with the tutor's words of the attempt, from the screen of the task: a
 	// learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
@@ -219,9 +221,10 @@ type AttemptServiceHandler interface {
 	// the feedback: they are nowhere on the server.
 	SubmitEssay(context.Context, *v1.SubmitEssayRequest) (*v1.SubmitEssayResponse, error)
 	// "Done" on a task with a rubric: the learner ends the attempt, which is closed
-	// `CLOSE_REASON_DONE`, and the task is solved. Refusals: `CAUSE_NO_SUBMISSION` and
-	// `CAUSE_ATTEMPT_CLOSED` with another close reason; a repeat on an attempt closed by "Done" gets the
-	// same answer. It carries no idempotency key: it repeats by the attempt's state.
+	// `CLOSE_REASON_DONE`, and the task is solved. Refusals: `CAUSE_NO_SUBMISSION`,
+	// `CAUSE_ATTEMPT_CLOSED` with another close reason, and `CAUSE_KEY_NOT_FOR_PROFILE`; a repeat on
+	// an attempt closed by "Done" gets the same answer. It carries no idempotency key: it repeats by
+	// the attempt's state.
 	Done(context.Context, *v1.DoneRequest) (*v1.DoneResponse, error)
 	// Asks for the words of the rung that a wrong answer gave, sending the work again: the server
 	// keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
@@ -258,8 +261,9 @@ type AttemptServiceHandler interface {
 	// an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
 	// section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
 	// `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
-	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the solution again.
+	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+	// the solution again.
 	ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error)
 	// Reports a problem with the tutor's words of the attempt, from the screen of the task: a
 	// learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,

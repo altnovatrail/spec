@@ -95,9 +95,10 @@ type LearningServiceClient interface {
 	// "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
 	// when the learner asks for it, or when nothing is open. It closes the open attempt
 	// `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to. The
-	// choice gives a lesson or a task, or nothing, with the outcome that says why. Refusals:
-	// `CAUSE_NOT_FOUND`, a skill named that no module connected has, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same choice.
+	// choice gives a lesson or a task, or nothing, with the outcome that says why, by the route the
+	// request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected has,
+	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
+	// the same idempotency key gets the same choice.
 	ChooseNext(context.Context, *v1.ChooseNextRequest) (*v1.ChooseNextResponse, error)
 	// Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
 	// same task again. It closes the open attempt `CLOSE_REASON_LEFT`. A choice begins one attempt:
@@ -128,20 +129,20 @@ type LearningServiceClient interface {
 	// a run whose package the image no longer gives `RUN_END_REASON_UNCHECKED`, after which `app`
 	// asks `CheckPackages`. A choice of a task gets `invalid_argument`. Refusals:
 	// `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-	// `CAUSE_RUN_ENDED` and `CAUSE_NOT_FOUND`. It carries no idempotency key: it repeats by the
-	// state of the run.
+	// `CAUSE_RUN_ENDED`, `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`. It carries no
+	// idempotency key: it repeats by the state of the run.
 	OpenLesson(context.Context, *v1.OpenLessonRequest) (*v1.OpenLessonResponse, error)
 	// An open lesson run again, by its ID: after a restart, and on another device. `api` checks it as
 	// `OpenLesson` does. Refusals: `CAUSE_RUN_ENDED`, with how the run ended, and the engine's choice
-	// when this request ended it; `CAUSE_NOT_FOUND` and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
-	// state of the run.
+	// when this request ended it; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND` and
+	// `CAUSE_PACKAGE_UNKNOWN`. It repeats by the state of the run.
 	GetLessonRun(context.Context, *v1.GetLessonRunRequest) (*v1.GetLessonRunResponse, error)
 	// "Lesson done": `app` sends it when the learner presses "Continue" on the last segment, and
 	// repeats it until `api` answers. It ends the run `RUN_END_REASON_PASSED` once every task segment
 	// has ended, and the answer holds the engine's choice; a repeat on a run that ended so gets the
 	// same answer. Refusals: `CAUSE_SEGMENTS_NOT_ENDED`, with the places of the task segments that
-	// have ended, `CAUSE_RUN_ENDED` with another reason, and `CAUSE_NOT_FOUND`. It carries no
-	// idempotency key: it repeats by the state of the run.
+	// have ended, `CAUSE_RUN_ENDED` with another reason, `CAUSE_KEY_NOT_FOR_PROFILE` and
+	// `CAUSE_NOT_FOUND`. It carries no idempotency key: it repeats by the state of the run.
 	CompleteLesson(context.Context, *v1.CompleteLessonRequest) (*v1.CompleteLessonResponse, error)
 }
 
@@ -156,9 +157,10 @@ type LearningServiceHandler interface {
 	// "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
 	// when the learner asks for it, or when nothing is open. It closes the open attempt
 	// `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to. The
-	// choice gives a lesson or a task, or nothing, with the outcome that says why. Refusals:
-	// `CAUSE_NOT_FOUND`, a skill named that no module connected has, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same choice.
+	// choice gives a lesson or a task, or nothing, with the outcome that says why, by the route the
+	// request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected has,
+	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
+	// the same idempotency key gets the same choice.
 	ChooseNext(context.Context, *v1.ChooseNextRequest) (*v1.ChooseNextResponse, error)
 	// Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
 	// same task again. It closes the open attempt `CLOSE_REASON_LEFT`. A choice begins one attempt:
@@ -189,20 +191,20 @@ type LearningServiceHandler interface {
 	// a run whose package the image no longer gives `RUN_END_REASON_UNCHECKED`, after which `app`
 	// asks `CheckPackages`. A choice of a task gets `invalid_argument`. Refusals:
 	// `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-	// `CAUSE_RUN_ENDED` and `CAUSE_NOT_FOUND`. It carries no idempotency key: it repeats by the
-	// state of the run.
+	// `CAUSE_RUN_ENDED`, `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`. It carries no
+	// idempotency key: it repeats by the state of the run.
 	OpenLesson(context.Context, *v1.OpenLessonRequest) (*v1.OpenLessonResponse, error)
 	// An open lesson run again, by its ID: after a restart, and on another device. `api` checks it as
 	// `OpenLesson` does. Refusals: `CAUSE_RUN_ENDED`, with how the run ended, and the engine's choice
-	// when this request ended it; `CAUSE_NOT_FOUND` and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
-	// state of the run.
+	// when this request ended it; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND` and
+	// `CAUSE_PACKAGE_UNKNOWN`. It repeats by the state of the run.
 	GetLessonRun(context.Context, *v1.GetLessonRunRequest) (*v1.GetLessonRunResponse, error)
 	// "Lesson done": `app` sends it when the learner presses "Continue" on the last segment, and
 	// repeats it until `api` answers. It ends the run `RUN_END_REASON_PASSED` once every task segment
 	// has ended, and the answer holds the engine's choice; a repeat on a run that ended so gets the
 	// same answer. Refusals: `CAUSE_SEGMENTS_NOT_ENDED`, with the places of the task segments that
-	// have ended, `CAUSE_RUN_ENDED` with another reason, and `CAUSE_NOT_FOUND`. It carries no
-	// idempotency key: it repeats by the state of the run.
+	// have ended, `CAUSE_RUN_ENDED` with another reason, `CAUSE_KEY_NOT_FOR_PROFILE` and
+	// `CAUSE_NOT_FOUND`. It carries no idempotency key: it repeats by the state of the run.
 	CompleteLesson(context.Context, *v1.CompleteLessonRequest) (*v1.CompleteLessonResponse, error)
 }
 
