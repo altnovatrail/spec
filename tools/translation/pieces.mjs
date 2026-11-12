@@ -8,7 +8,8 @@ const BOUNDARY = /^(?:#{1,6}\s|\*\*R\d+\.\s)/;
 const PARAGRAPH = /^(?![\s>|]|[-*+]\s|\d+[.)]\s)\S/;
 const ITEM = /^[-*+]\s/;
 const ROW = /^\|/;
-const DELIMITER = /^\|?\s*:?-+:?\s*(?:\|\s*:?-+:?\s*)*\|?\s*$/;
+// The row under a table head: pipes, colons, dashes and spaces, with a dash at least.
+const isDelimiter = (line) => /^[\s|:-]+$/.test(line) && line.includes("-");
 const FENCE = /^\s*(```|~~~)/;
 
 // The pieces of `source`, in order: joined, they are the source byte for byte.
@@ -30,7 +31,7 @@ export function split(source, size = 40_000) {
       open &&
       ((blank && BOUNDARY.test(line) && bytes >= size) ||
         (blank && PARAGRAPH.test(line) && bytes >= size * 1.5) ||
-        (bytes >= size * 2 && (ITEM.test(line) || (rows > 2 && !DELIMITER.test(line)))));
+        (bytes >= size * 2 && (ITEM.test(line) || (rows > 2 && !isDelimiter(line)))));
     if (ends && piece) {
       pieces.push(piece);
       piece = "";
@@ -45,9 +46,9 @@ export function split(source, size = 40_000) {
 // What follows the text of each piece — its newlines, as the original's piece has them — so that
 // the translated pieces join as the original's did: a table or a list cut in two joins with no
 // blank line.
-export const endsOf = (pieces) => pieces.map((p) => /\s*$/.exec(p)[0]);
+export const endsOf = (pieces) => pieces.map((p) => p.slice(p.trimEnd().length));
 
 // The translated pieces joined, each ending as `ends` says, or else with a blank line.
 export function join(pieces, ends = []) {
-  return pieces.map((p, i) => p.replace(/\s+$/, "") + (ends[i] ?? (i === pieces.length - 1 ? "\n" : "\n\n"))).join("");
+  return pieces.map((p, i) => p.trimEnd() + (ends[i] ?? (i === pieces.length - 1 ? "\n" : "\n\n"))).join("");
 }

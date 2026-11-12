@@ -50,7 +50,7 @@ function unquoted(text) {
   return out + text.slice(at);
 }
 // A placeholder in code is always translated: `format-<версия>.tar.gz` becomes `format-<version>.tar.gz`.
-const PLACEHOLDER = /<[^<>]*\p{Script=Cyrillic}[^<>]*>|\{[^{}]*\p{Script=Cyrillic}[^{}]*\}/u;
+const PLACEHOLDER = /<[^<>\p{Script=Cyrillic}]*\p{Script=Cyrillic}[^<>]*>|\{[^{}\p{Script=Cyrillic}]*\p{Script=Cyrillic}[^{}]*\}/u;
 
 export function parse(source) {
   return fromMarkdown(source, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] });
