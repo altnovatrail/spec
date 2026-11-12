@@ -274,7 +274,7 @@ flowchart LR
   |---|---|---|
   | correct, `correct` | the value matched the key or met the predicate | "Correct" and what was read |
   | not yet, `not_yet` | read confidently, by the form, and did not match | what was read, the place of the error and the tutor's question |
-  | unreadable, `unreadable` | illegible, ambiguous — two readers read differently (R68), a digit written mirrored (R56), — not by the form; several final answers or none; the answer slot is empty | a request to rewrite or to circle — this is not an error |
+  | unreadable, `unreadable` | illegible, ambiguous — two readers read differently (R68), a digit written mirrored (R56), — not in notation; several final answers or none; the answer slot is empty | a request to rewrite or to circle — this is not an error |
   | unchecked, `unchecked` | an AI failure, the limit exhausted, the AI not admitted (Т-20); the predicate could not be computed | a neutral phrase — this is not an error |
 
   At any doubt, "unreadable", not "not yet" (R04). Why "unreadable" is said by the cause. For a value the format gives the cause: empty, `blank`, or the value is not in the notation of the kind, `notation` (R56). An observation without a value gives its own: empty, `blank`, illegible, `illegible`, ambiguous, `ambiguous`, no final answer, `no_final_answer`, or several final answers, `several_final_answers` (R86).

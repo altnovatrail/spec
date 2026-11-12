@@ -130,6 +130,13 @@ test("quotes: an English one word for word, a Russian one from the original", ()
   only(broken("«О персональных данных»", "«О данных граждан»"), /the Russian quote «О данных граждан» is not in the original/);
 });
 
+test("quotes nest: a Russian one inside another is the outer one's", () => {
+  const ru = "# Д\n\nКак у canvas-api: «пришлось бы запрещать «no», «never» и «2 ноги»».\n";
+  assert.deepEqual(differences("# D\n\nAs canvas-api has it: «пришлось бы запрещать «no», «never» и «2 ноги»».\n", ru), []);
+  some(differences("# D\n\nAs canvas-api has it: «пришлось бы «no», «never» и «2 ноги»».\n", ru), /the Russian quote «пришлось бы «no», «never» и «2 ноги»» is not in the original/);
+  some(differences("# D\n\nAs canvas-api has it: «no», «never» и «2 ноги».\n", ru), /untranslated: "и/);
+});
+
 test("a Russian word left outside quotes is untranslated", () => {
   only(broken("the author decided so", "the author решил so"), /untranslated: "решил so/);
   assert.deepEqual(broken("and Д12;", "and Д12;"), []);

@@ -23,7 +23,32 @@ const PREFIX = /(?<![\p{L}\p{N}_-])(?:[ОПТ]-(?!\p{L})|(?:Д|В)(?=\d))/gu;
 // A quote of a text in its own language. A quote of an English text keeps its words; a Russian one
 // in a translation is a quote of the original — a law, a heading of RUN.md, a term beside its
 // translation — and the original holds its words.
-const QUOTE = /«([^«»]*)»|“([^“”]*)”/gu;
+// «…» nest, as in «пришлось бы запрещать «no», «never»»: a quote is its outermost marks.
+export function quotes(text) {
+  const found = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === "«") {
+      if (depth++ === 0) start = i;
+    } else if (text[i] === "»" && depth > 0 && --depth === 0) {
+      found.push({ start, end: i + 1, words: text.slice(start + 1, i).trim() });
+    }
+  }
+  const outside = (i) => !found.some((q) => q.start <= i && i < q.end);
+  for (const m of text.matchAll(/“([^“”]*)”/gu)) if (outside(m.index)) found.push({ start: m.index, end: m.index + m[0].length, words: m[1].trim() });
+  return found;
+}
+
+function unquoted(text) {
+  let out = "";
+  let at = 0;
+  for (const q of quotes(text).sort((a, b) => a.start - b.start)) {
+    out += text.slice(at, q.start) + " ";
+    at = q.end;
+  }
+  return out + text.slice(at);
+}
 // A placeholder in code is always translated: `format-<версия>.tar.gz` becomes `format-<version>.tar.gz`.
 const PLACEHOLDER = /<[^<>]*\p{Script=Cyrillic}[^<>]*>|\{[^{}]*\p{Script=Cyrillic}[^{}]*\}/u;
 
@@ -255,19 +280,17 @@ function checkUnit(x, y, line, report) {
   // A quote of an English text keeps its words; a Russian quote is the original's.
   const textA = textOf(x);
   const textB = textOf(y);
-  for (const m of textA.matchAll(QUOTE)) {
-    const words = (m[1] ?? m[2]).trim();
+  for (const { words } of quotes(textA)) {
     if (!words || CYRILLIC.test(words)) continue;
     if (!textB.includes(words)) report(line, `the quote «${words}» of the original (original:${x.line}) is not here word for word`);
   }
   const lowerA = textA.toLowerCase();
-  for (const m of textB.matchAll(QUOTE)) {
-    const words = (m[1] ?? m[2]).trim();
+  for (const { words } of quotes(textB)) {
     if (CYRILLIC.test(words) && !lowerA.includes(words.toLowerCase())) report(line, `the Russian quote «${words}» is not in the original (original:${x.line})`);
   }
 
   // What is left in Russian outside quotes, code and the prefixes of registers is untranslated.
-  const prose = (y.prose ?? "").replace(QUOTE, " ").replace(PREFIX, "");
+  const prose = unquoted(y.prose ?? "").replace(PREFIX, "");
   const left = /[\p{Script=Cyrillic}][\p{Script=Cyrillic}\p{L}\s,.-]*/u.exec(prose);
   if (left) report(line, `untranslated: "${left[0].trim().slice(0, 60)}"`);
   for (const c of y.code ?? []) if (PLACEHOLDER.test(c)) report(line, `untranslated placeholder in code: \`${c}\``);
