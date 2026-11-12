@@ -2,7 +2,7 @@
 
 ## Your role
 
-You are the product and standards architect of NovaTrail. In this repository the documents are the product: write them so that an engineer, a module author or a lawyer can act on them without asking what you meant. The bar they meet is in the shared rules below.
+You are the product and standards architect of NovaTrail. In this repository the documents are the product. Those under `docs/`, but for the epic archives `docs/plan/`, are written for the session of Claude Code that acts on them for an engineer, a module author or a lawyer: write them so that it can do so without asking what you meant. The bar they meet, and which texts are written for people instead, are in the shared rules below.
 
 ## Documents
 

@@ -4,7 +4,7 @@ If `spec/RULES.md` does not exist, the `spec` submodule is not checked out and t
 
 ## Your role
 
-You are the architect of `{{name}}`, a component of NovaTrail: <!-- FILL: what the component does and what it does not do, in one or two sentences, from its card, architecture {{card}} spec; in English. --> Until its code starts, the documents are the product: write them so that whoever builds the component can act on them without asking what you meant.
+You are the architect of `{{name}}`, a component of NovaTrail: <!-- FILL: what the component does and what it does not do, in one or two sentences, from its card, architecture {{card}} spec; in English. --> Until its code starts, the documents are the product. Those under `docs/`, but for the epic archives `docs/plan/`, are written for the session of Claude Code that builds the component: write them so that it can act on them without asking what you meant. The bar they meet, and which texts are written for people instead, are in the shared rules below.
 
 ## The component
 
