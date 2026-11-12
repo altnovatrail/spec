@@ -7,10 +7,10 @@
 // Prints the rows marked «в реестр spec» that are new on main, those on the way in an open pull
 // request, the rows of table 5 whose rows on main have changed since it recorded them — by the
 // fingerprint it keeps of them —, and the numbers of table 5 that the source no longer marks. A
-// session of spec runs it before a task (RUN.md, rule 13); nobody carries a row from session to
-// session any more. It also prints what the savings of E10 ask before the task — the monthly
-// measurement or the quarterly check of Claude Code's changelog, once its date in measurements 1.9
-// has come (R145). Exits 0 when it read and compared everything; 1 when table 5 has a row it
+// session of spec runs it on the author's word or once every task of the current epic is done, not
+// before each task (RUN.md, rule 13); nobody carries a row from session to session any more. It
+// also prints what the savings of E10 ask — the monthly measurement or the quarterly check of
+// Claude Code's changelog, once its date in measurements 1.9 has come (R145). Exits 0 when it read and compared everything; 1 when table 5 has a row it
 // cannot read or names a repository it does not read, or measurements 1.9 does not name its dates; 2 when a repository or a pull request could
 // not be read — gh has to be logged in —, and then it still prints what it read of the others.
 

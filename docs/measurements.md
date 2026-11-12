@@ -524,7 +524,7 @@ How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of 
 
 **The measurement.** `just tokens-report --since … --until … --row` prints one row of the table below; `--project` measures another repository's transcripts on this machine. It runs:
 - at the archive of an epic, for the epic's window, in the repository whose epic it is (RUN.md, «Как устроен план: эпики»);
-- once a month, from `spec`, for each of the 13 repositories' folders of transcripts on this machine, from the window of the last row to the start of the session. `just inbox` prints the date when it has come.
+- once a month, from `spec`, for each of the 13 repositories' folders of transcripts on this machine, from the window of the last row to the start of the session. `just inbox` prints the date when it has come, and it runs on the author's word or once every task of the current epic is done (the second 2026-11-12 amendment to R81), so a monthly row may come later than its date.
 
 | Project | Window, UTC | Sessions | Calls, main / subagents | Context of a call, k, main / subagents | Compactions | Cost at API prices |
 |---|---|---|---|---|---|---|
