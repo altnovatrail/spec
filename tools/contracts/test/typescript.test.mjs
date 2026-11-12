@@ -126,6 +126,9 @@ test("code whose declarations name a message its JavaScript lacks fails under No
   }
 });
 
+// The runtime tools/package.json pins, which the package depends on: Dependabot raises it.
+const PINNED = JSON.parse(fs.readFileSync(new URL("../../package.json", import.meta.url), "utf8")).dependencies["@bufbuild/protobuf"];
+
 test("a runtime other than the one the package depends on, and a package that cannot be built, are refused", () => {
   const modules = scratch("contracts-typescript-modules-");
   fs.mkdirSync(path.join(modules, "@bufbuild", "protobuf"), { recursive: true });
@@ -136,7 +139,7 @@ test("a runtime other than the one the package depends on, and a package that ca
   fs.rmSync(path.join(unbuilt, "tools/contracts/npm/README.md"));
   try {
     assert.deepEqual(checkTypeScript(other).errors.map(({ message }) => message), [
-      "tools/node_modules holds @bufbuild/protobuf 2.15.0, and @altnovatrail/contracts depends on 2.16.0: tools/package-lock.json is out of step with tools/package.json",
+      `tools/node_modules holds @bufbuild/protobuf 2.15.0, and @altnovatrail/contracts depends on ${PINNED}: tools/package-lock.json is out of step with tools/package.json`,
     ]);
     const [missing, ...more] = checkTypeScript(none).errors;
     assert.deepEqual(more, []);

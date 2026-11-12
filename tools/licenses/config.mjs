@@ -20,8 +20,8 @@ export const allowed = [
 // An exception that no longer matches the lock file is an error: it is read again, not kept.
 export const exceptions = {
   elkjs: {
-    license: "EPL-2.0",
-    reason: "mermaid's layout engine, run by docs-check and never shipped: a tool's exception (R12)",
+    license: "EPL-2.0 OR GPL-3.0-or-later",
+    reason: "mermaid's layout engine, run by docs-check and never shipped: a tool's exception, under EPL-2.0 (R12; sources 7.6)",
   },
   khroma: {
     license: null,

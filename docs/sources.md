@@ -210,6 +210,10 @@ TRIPS — [Agreement on Trade-Related Aspects of Intellectual Property Rights](h
 
 ASF — [Assembling LICENSE and NOTICE files](https://infra.apache.org/licensing-howto.html), "Modifications to NOTICE", read 2026-11-02: "Do not add anything to NOTICE which is not legally required." Everyone who distributes a derivative work carries `NOTICE` on — Apache-2.0, clause 4(d) ([LICENSE](../LICENSE)): "any Derivative Works that You distribute must include a readable copy of the attribution notices contained within such NOTICE file". For О-10.
 
+### 7.6. elkjs: EPL-2.0 or GPL-3.0-or-later, 2026-11-12
+
+elkjs — the package [elkjs](https://www.npmjs.com/package/elkjs) 0.12.1 in the npm registry, read 2026-11-12. Its `package.json`: `"license": "EPL-2.0 OR GPL-3.0-or-later"`; the registry gives `EPL-2.0` for 0.9.3, 0.10.0 and 0.11.0 and the dual identifier from 0.12.0, released 2026-07-17. Its `LICENSE.md` is the EPL-2.0 with Exhibit A filled in: "This Source Code may also be made available under the following Secondary Licenses when the conditions for such availability set forth in the Eclipse Public License, v. 2.0 are satisfied: GNU General Public License v3.0 or later". For R12.
+
 ## 8. MathTrail, the prototype and texts outside the repository
 
 ### 8.1. MathTrail Canvas
