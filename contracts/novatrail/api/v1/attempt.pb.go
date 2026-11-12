@@ -333,11 +333,19 @@ type SubmitWorkRequest struct {
 	// the task's order.
 	TappedChoices []*TappedChoice `protobuf:"bytes,5,rep,name=tapped_choices,json=tappedChoices,proto3" json:"tapped_choices,omitempty"`
 	// The learner's own key and its provider: with a profile of its owner, when AI reads the work.
+	// Its provider names the route of the engine's choice in `next` too.
 	OwnKey *OwnKey `protobuf:"bytes,6,opt,name=own_key,json=ownKey,proto3" json:"own_key,omitempty"`
 	// The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
 	ClockOffsetMinutes *int32 `protobuf:"varint,7,opt,name=clock_offset_minutes,json=clockOffsetMinutes,proto3,oneof" json:"clock_offset_minutes,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// The provider of the learner's own key, by its code in the admission table, without the key:
+	// with a profile of its owner that checks the tasks by its own key, on a submission with no
+	// `work`, which AI would read, and so with no `own_key`, so that the engine's choice in `next`
+	// goes by that route (R84; R99). Empty on platform AI. A submission with it beside `work` or
+	// `own_key` gets the code `invalid_argument`: there the route is that of `own_key`, or platform
+	// AI's without one.
+	OwnKeyProvider string `protobuf:"bytes,8,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *SubmitWorkRequest) Reset() {
@@ -417,6 +425,13 @@ func (x *SubmitWorkRequest) GetClockOffsetMinutes() int32 {
 		return *x.ClockOffsetMinutes
 	}
 	return 0
+}
+
+func (x *SubmitWorkRequest) GetOwnKeyProvider() string {
+	if x != nil {
+		return x.OwnKeyProvider
+	}
+	return ""
 }
 
 // The verdict of a submission.
@@ -708,9 +723,13 @@ type DoneRequest struct {
 	// The profile whose attempt it is.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The attempt.
-	AttemptId     string `protobuf:"bytes,2,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	AttemptId string `protobuf:"bytes,2,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
+	// The provider of the learner's own key, by its code in the admission table, without the key: with
+	// a profile of its owner that checks the tasks by its own key, so that the engine's choice in
+	// `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *DoneRequest) Reset() {
@@ -753,6 +772,13 @@ func (x *DoneRequest) GetProfileId() string {
 func (x *DoneRequest) GetAttemptId() string {
 	if x != nil {
 		return x.AttemptId
+	}
+	return ""
+}
+
+func (x *DoneRequest) GetOwnKeyProvider() string {
+	if x != nil {
+		return x.OwnKeyProvider
 	}
 	return ""
 }
@@ -1685,9 +1711,13 @@ type ShowSolutionRequest struct {
 	// The idempotency key of this action.
 	IdempotencyKey string `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	// Whose action it is.
-	Action        Action `protobuf:"varint,4,opt,name=action,proto3,enum=novatrail.api.v1.Action" json:"action,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Action Action `protobuf:"varint,4,opt,name=action,proto3,enum=novatrail.api.v1.Action" json:"action,omitempty"`
+	// The provider of the learner's own key, by its code in the admission table, without the key: with
+	// a profile of its owner that checks the tasks by its own key, so that the engine's choice in
+	// `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+	OwnKeyProvider string `protobuf:"bytes,5,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ShowSolutionRequest) Reset() {
@@ -1746,6 +1776,13 @@ func (x *ShowSolutionRequest) GetAction() Action {
 		return x.Action
 	}
 	return Action_ACTION_UNSPECIFIED
+}
+
+func (x *ShowSolutionRequest) GetOwnKeyProvider() string {
+	if x != nil {
+		return x.OwnKeyProvider
+	}
+	return ""
 }
 
 // The solution shown.
@@ -2622,7 +2659,7 @@ type Next_SegmentsEnded struct {
 }
 
 type Next_Choice struct {
-	// Outside a lesson: the engine's choice.
+	// Outside a lesson: the engine's choice, by the route to AI that the request names.
 	Choice *EngineChoice `protobuf:"bytes,3,opt,name=choice,proto3,oneof"`
 }
 
@@ -2789,7 +2826,7 @@ var File_novatrail_api_v1_attempt_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\n" +
-	"\x1enovatrail/api/v1/attempt.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a*novatrail/observation/v1/observation.proto\"\xf0\x02\n" +
+	"\x1enovatrail/api/v1/attempt.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a*novatrail/observation/v1/observation.proto\"\x9a\x03\n" +
 	"\x11SubmitWorkRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
@@ -2799,7 +2836,8 @@ const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\x04work\x18\x04 \x01(\v2\x16.novatrail.api.v1.WorkR\x04work\x12E\n" +
 	"\x0etapped_choices\x18\x05 \x03(\v2\x1e.novatrail.api.v1.TappedChoiceR\rtappedChoices\x121\n" +
 	"\aown_key\x18\x06 \x01(\v2\x18.novatrail.api.v1.OwnKeyR\x06ownKey\x125\n" +
-	"\x14clock_offset_minutes\x18\a \x01(\x05H\x00R\x12clockOffsetMinutes\x88\x01\x01B\x17\n" +
+	"\x14clock_offset_minutes\x18\a \x01(\x05H\x00R\x12clockOffsetMinutes\x88\x01\x01\x12(\n" +
+	"\x10own_key_provider\x18\b \x01(\tR\x0eownKeyProviderB\x17\n" +
 	"\x15_clock_offset_minutes\"\x85\x02\n" +
 	"\x12SubmitWorkResponse\x123\n" +
 	"\x05items\x18\x01 \x03(\v2\x1d.novatrail.api.v1.ItemVerdictR\x05items\x123\n" +
@@ -2826,12 +2864,13 @@ const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\x06closed\x18\x06 \x01(\x0e2\x1d.novatrail.api.v1.CloseReasonR\x06closed\x12\x1a\n" +
 	"\brepeated\x18\a \x01(\bR\brepeatedB\a\n" +
 	"\x05_textB\v\n" +
-	"\t_feedback\"K\n" +
+	"\t_feedback\"u\n" +
 	"\vDoneRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
 	"\n" +
-	"attempt_id\x18\x02 \x01(\tR\tattemptId\"p\n" +
+	"attempt_id\x18\x02 \x01(\tR\tattemptId\x12(\n" +
+	"\x10own_key_provider\x18\x03 \x01(\tR\x0eownKeyProvider\"p\n" +
 	"\fDoneResponse\x124\n" +
 	"\x06solved\x18\x01 \x01(\v2\x1c.novatrail.api.v1.SolvedTaskR\x06solved\x12*\n" +
 	"\x04next\x18\x02 \x01(\v2\x16.novatrail.api.v1.NextR\x04next\"\xe7\x02\n" +
@@ -2909,14 +2948,15 @@ const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\x11BeginStepResponse\x12<\n" +
 	"\n" +
 	"techniques\x18\x01 \x01(\v2\x1c.novatrail.api.v1.TechniquesR\n" +
-	"techniques\"\xae\x01\n" +
+	"techniques\"\xd8\x01\n" +
 	"\x13ShowSolutionRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
 	"\n" +
 	"attempt_id\x18\x02 \x01(\tR\tattemptId\x12'\n" +
 	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\x120\n" +
-	"\x06action\x18\x04 \x01(\x0e2\x18.novatrail.api.v1.ActionR\x06action\"x\n" +
+	"\x06action\x18\x04 \x01(\x0e2\x18.novatrail.api.v1.ActionR\x06action\x12(\n" +
+	"\x10own_key_provider\x18\x05 \x01(\tR\x0eownKeyProvider\"x\n" +
 	"\x14ShowSolutionResponse\x124\n" +
 	"\x06solved\x18\x01 \x01(\v2\x1c.novatrail.api.v1.SolvedTaskR\x06solved\x12*\n" +
 	"\x04next\x18\x02 \x01(\v2\x16.novatrail.api.v1.NextR\x04next\"\xa2\x02\n" +

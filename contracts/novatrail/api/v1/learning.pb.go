@@ -35,9 +35,14 @@ type ChooseNextRequest struct {
 	IdempotencyKey string `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	// The full ID of the skill that the learner chose on the skill map, "novatrail/olympiad-math/
 	// skill/counting-gaps": empty when the engine leads.
-	Skill         string `protobuf:"bytes,3,opt,name=skill,proto3" json:"skill,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Skill string `protobuf:"bytes,3,opt,name=skill,proto3" json:"skill,omitempty"`
+	// The provider of the learner's own key, by its code in the admission table, without the key: with
+	// a profile of its owner that checks the tasks by its own key, so that `api` judges the engine's
+	// pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route would begin a
+	// task, though the request calls no AI. Empty on platform AI (R84; R99).
+	OwnKeyProvider string `protobuf:"bytes,4,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ChooseNextRequest) Reset() {
@@ -87,6 +92,13 @@ func (x *ChooseNextRequest) GetIdempotencyKey() string {
 func (x *ChooseNextRequest) GetSkill() string {
 	if x != nil {
 		return x.Skill
+	}
+	return ""
+}
+
+func (x *ChooseNextRequest) GetOwnKeyProvider() string {
+	if x != nil {
+		return x.OwnKeyProvider
 	}
 	return ""
 }
@@ -154,9 +166,10 @@ type BeginAttemptRequest struct {
 	Start isBeginAttemptRequest_Start `protobuf_oneof:"start"`
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the task by its own key, so that `api` chooses the
-	// route to AI for the checks of the beginning, and checks no quota. Empty when platform AI checks
-	// it. Each later request on the attempt that calls AI goes by the `own_key` it carries, or on
-	// platform AI without one, and meets the quota there as an outcome (R84).
+	// route to AI for the checks of the beginning, and checks no quota; an engine's choice that a
+	// refusal `CAUSE_RUN_ENDED` gives goes by the same route. Empty when platform AI checks it. Each
+	// later request on the attempt that calls AI goes by the `own_key` it carries, or on platform AI
+	// without one, and meets the quota there as an outcome (R84; R99).
 	OwnKeyProvider string `protobuf:"bytes,6,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -737,9 +750,14 @@ type OpenLessonRequest struct {
 	// The profile.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The engine's choice of the lesson, `CHOICE_KIND_LESSON`.
-	ChoiceId      string `protobuf:"bytes,2,opt,name=choice_id,json=choiceId,proto3" json:"choice_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ChoiceId string `protobuf:"bytes,2,opt,name=choice_id,json=choiceId,proto3" json:"choice_id,omitempty"`
+	// The provider of the learner's own key, by its code in the admission table, without the key: with
+	// a profile of its owner that checks the tasks by its own key, so that an engine's choice that a
+	// refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI. Empty on
+	// platform AI (R84; R99).
+	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *OpenLessonRequest) Reset() {
@@ -782,6 +800,13 @@ func (x *OpenLessonRequest) GetProfileId() string {
 func (x *OpenLessonRequest) GetChoiceId() string {
 	if x != nil {
 		return x.ChoiceId
+	}
+	return ""
+}
+
+func (x *OpenLessonRequest) GetOwnKeyProvider() string {
+	if x != nil {
+		return x.OwnKeyProvider
 	}
 	return ""
 }
@@ -838,9 +863,14 @@ type GetLessonRunRequest struct {
 	// The profile.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The lesson run.
-	LessonRunId   string `protobuf:"bytes,2,opt,name=lesson_run_id,json=lessonRunId,proto3" json:"lesson_run_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LessonRunId string `protobuf:"bytes,2,opt,name=lesson_run_id,json=lessonRunId,proto3" json:"lesson_run_id,omitempty"`
+	// The provider of the learner's own key, by its code in the admission table, without the key: with
+	// a profile of its owner that checks the tasks by its own key, so that an engine's choice that a
+	// refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI. Empty on
+	// platform AI (R84; R99).
+	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetLessonRunRequest) Reset() {
@@ -883,6 +913,13 @@ func (x *GetLessonRunRequest) GetProfileId() string {
 func (x *GetLessonRunRequest) GetLessonRunId() string {
 	if x != nil {
 		return x.LessonRunId
+	}
+	return ""
+}
+
+func (x *GetLessonRunRequest) GetOwnKeyProvider() string {
+	if x != nil {
+		return x.OwnKeyProvider
 	}
 	return ""
 }
@@ -1024,9 +1061,14 @@ type CompleteLessonRequest struct {
 	// The profile.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The lesson run.
-	LessonRunId   string `protobuf:"bytes,2,opt,name=lesson_run_id,json=lessonRunId,proto3" json:"lesson_run_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LessonRunId string `protobuf:"bytes,2,opt,name=lesson_run_id,json=lessonRunId,proto3" json:"lesson_run_id,omitempty"`
+	// The provider of the learner's own key, by its code in the admission table, without the key: with
+	// a profile of its owner that checks the tasks by its own key, so that the engine's choice that
+	// the end of the run gives goes by that route, though the request calls no AI. Empty on platform
+	// AI (R84; R99).
+	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CompleteLessonRequest) Reset() {
@@ -1069,6 +1111,13 @@ func (x *CompleteLessonRequest) GetProfileId() string {
 func (x *CompleteLessonRequest) GetLessonRunId() string {
 	if x != nil {
 		return x.LessonRunId
+	}
+	return ""
+}
+
+func (x *CompleteLessonRequest) GetOwnKeyProvider() string {
+	if x != nil {
+		return x.OwnKeyProvider
 	}
 	return ""
 }
@@ -1243,12 +1292,13 @@ var File_novatrail_api_v1_learning_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\n" +
-	"\x1fnovatrail/api/v1/learning.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a\x1enovatrail/api/v1/package.proto\"q\n" +
+	"\x1fnovatrail/api/v1/learning.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a\x1enovatrail/api/v1/package.proto\"\x9b\x01\n" +
 	"\x11ChooseNextRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12'\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\x12\x14\n" +
-	"\x05skill\x18\x03 \x01(\tR\x05skill\"L\n" +
+	"\x05skill\x18\x03 \x01(\tR\x05skill\x12(\n" +
+	"\x10own_key_provider\x18\x04 \x01(\tR\x0eownKeyProvider\"L\n" +
 	"\x12ChooseNextResponse\x126\n" +
 	"\x06choice\x18\x01 \x01(\v2\x1e.novatrail.api.v1.EngineChoiceR\x06choice\"\x9d\x02\n" +
 	"\x13BeginAttemptRequest\x12\x1d\n" +
@@ -1290,17 +1340,19 @@ const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\x1arequested_leading_question\x18\t \x01(\tR\x18requestedLeadingQuestion\"\x83\x01\n" +
 	"\x0fEssaySubmission\x12=\n" +
 	"\fsubmitted_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vsubmittedAt\x121\n" +
-	"\x03end\x18\x02 \x01(\x0e2\x1f.novatrail.api.v1.SubmissionEndR\x03end\"O\n" +
+	"\x03end\x18\x02 \x01(\x0e2\x1f.novatrail.api.v1.SubmissionEndR\x03end\"y\n" +
 	"\x11OpenLessonRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1b\n" +
-	"\tchoice_id\x18\x02 \x01(\tR\bchoiceId\"C\n" +
+	"\tchoice_id\x18\x02 \x01(\tR\bchoiceId\x12(\n" +
+	"\x10own_key_provider\x18\x03 \x01(\tR\x0eownKeyProvider\"C\n" +
 	"\x12OpenLessonResponse\x12-\n" +
-	"\x03run\x18\x01 \x01(\v2\x1b.novatrail.api.v1.LessonRunR\x03run\"X\n" +
+	"\x03run\x18\x01 \x01(\v2\x1b.novatrail.api.v1.LessonRunR\x03run\"\x82\x01\n" +
 	"\x13GetLessonRunRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\"\n" +
-	"\rlesson_run_id\x18\x02 \x01(\tR\vlessonRunId\"E\n" +
+	"\rlesson_run_id\x18\x02 \x01(\tR\vlessonRunId\x12(\n" +
+	"\x10own_key_provider\x18\x03 \x01(\tR\x0eownKeyProvider\"E\n" +
 	"\x14GetLessonRunResponse\x12-\n" +
 	"\x03run\x18\x01 \x01(\v2\x1b.novatrail.api.v1.LessonRunR\x03run\"\xf6\x01\n" +
 	"\tLessonRun\x12\"\n" +
@@ -1308,11 +1360,12 @@ const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\x06lesson\x18\x02 \x01(\v2\x1a.novatrail.api.v1.OpenViewR\x06lesson\x12%\n" +
 	"\x0epackage_digest\x18\x03 \x01(\tR\rpackageDigest\x12%\n" +
 	"\x0eended_segments\x18\x04 \x03(\x05R\rendedSegments\x12C\n" +
-	"\fopen_attempt\x18\x05 \x01(\v2 .novatrail.api.v1.OpenAttemptRefR\vopenAttempt\"Z\n" +
+	"\fopen_attempt\x18\x05 \x01(\v2 .novatrail.api.v1.OpenAttemptRefR\vopenAttempt\"\x84\x01\n" +
 	"\x15CompleteLessonRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\"\n" +
-	"\rlesson_run_id\x18\x02 \x01(\tR\vlessonRunId\"D\n" +
+	"\rlesson_run_id\x18\x02 \x01(\tR\vlessonRunId\x12(\n" +
+	"\x10own_key_provider\x18\x03 \x01(\tR\x0eownKeyProvider\"D\n" +
 	"\x16CompleteLessonResponse\x12*\n" +
 	"\x03end\x18\x01 \x01(\v2\x18.novatrail.api.v1.RunEndR\x03end\"i\n" +
 	"\x0eOpenAttemptRef\x12\x1d\n" +

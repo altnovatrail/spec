@@ -7,8 +7,9 @@
 // account's owner and a child's profile, which a consent comes before; how a consent is given,
 // confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
 // of the section for adults; the voicing a learner sets; the storage of works; the own key checked
-// when it is connected; deletion and export. What each message means, and what `app` does on each
-// refusal, are the rules of contracts/README.md, section 15.
+// when it is connected; the share of the quota of platform AI; deletion and export. What each
+// message means, and what `app` does on each refusal, are the rules of contracts/README.md,
+// section 15.
 package apiv1connect
 
 import (
@@ -92,6 +93,8 @@ const (
 	// AccountServiceListOwnKeyProvidersProcedure is the procedure name of the AccountService's
 	// ListOwnKeyProviders RPC.
 	AccountServiceListOwnKeyProvidersProcedure = "/novatrail.api.v1.AccountService/ListOwnKeyProviders"
+	// AccountServiceGetQuotaProcedure is the procedure name of the AccountService's GetQuota RPC.
+	AccountServiceGetQuotaProcedure = "/novatrail.api.v1.AccountService/GetQuota"
 )
 
 var (
@@ -256,6 +259,13 @@ var (
 			Procedure:  AccountServiceListOwnKeyProvidersProcedure,
 		}
 	})
+	accountServiceGetQuotaSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("GetQuota"),
+			Procedure:  AccountServiceGetQuotaProcedure,
+		}
+	})
 )
 
 // AccountServiceClient is a client for the novatrail.api.v1.AccountService service.
@@ -411,6 +421,16 @@ type AccountServiceClient interface {
 	// builds no list in: empty at a profile whose age category is not `adult`. An action of an adult
 	// with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
 	ListOwnKeyProviders(context.Context, *v1.ListOwnKeyProvidersRequest) (*v1.ListOwnKeyProvidersResponse, error)
+	// The share of the family day's quota of platform AI that a profile has spent, never a sum in
+	// dollars: a learning action with the right `can_learn` gets the share of its own profile alone,
+	// where the learner begins their work, and an action of an adult with the right `can_view` the
+	// account's share too, in the section for adults, so that a child never sees what the family
+	// spends (concepts 14; R11 api). Beside either, whether a cap is reached and when the next family
+	// day begins. The own key spends none of it. A learning request of a profile whose consent is not
+	// confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
+	// `CAUSE_AGE_NEEDED`. Refusals: `CAUSE_NO_PROFILE`. It carries no idempotency key: it repeats
+	// by the state of the quota.
+	GetQuota(context.Context, *v1.GetQuotaRequest) (*v1.GetQuotaResponse, error)
 }
 
 // NewAccountServiceClient constructs a client for the novatrail.api.v1.AccountService service.
@@ -572,6 +592,16 @@ type AccountServiceHandler interface {
 	// builds no list in: empty at a profile whose age category is not `adult`. An action of an adult
 	// with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
 	ListOwnKeyProviders(context.Context, *v1.ListOwnKeyProvidersRequest) (*v1.ListOwnKeyProvidersResponse, error)
+	// The share of the family day's quota of platform AI that a profile has spent, never a sum in
+	// dollars: a learning action with the right `can_learn` gets the share of its own profile alone,
+	// where the learner begins their work, and an action of an adult with the right `can_view` the
+	// account's share too, in the section for adults, so that a child never sees what the family
+	// spends (concepts 14; R11 api). Beside either, whether a cap is reached and when the next family
+	// day begins. The own key spends none of it. A learning request of a profile whose consent is not
+	// confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
+	// `CAUSE_AGE_NEEDED`. Refusals: `CAUSE_NO_PROFILE`. It carries no idempotency key: it repeats
+	// by the state of the quota.
+	GetQuota(context.Context, *v1.GetQuotaRequest) (*v1.GetQuotaResponse, error)
 }
 
 // RegisterAccountServiceHandler registers svc as the novatrail.api.v1.AccountService implementation
@@ -602,6 +632,7 @@ func RegisterAccountServiceHandler(server *connect.Server, svc AccountServiceHan
 		connect.Method{Spec: accountServiceExportAccountSpec(), Handler: adapter.exportAccount},
 		connect.Method{Spec: accountServiceCheckOwnKeySpec(), Handler: adapter.checkOwnKey},
 		connect.Method{Spec: accountServiceListOwnKeyProvidersSpec(), Handler: adapter.listOwnKeyProviders},
+		connect.Method{Spec: accountServiceGetQuotaSpec(), Handler: adapter.getQuota},
 	)
 }
 
@@ -698,6 +729,10 @@ func (UnimplementedAccountServiceHandler) CheckOwnKey(context.Context, *v1.Check
 
 func (UnimplementedAccountServiceHandler) ListOwnKeyProviders(context.Context, *v1.ListOwnKeyProvidersRequest) (*v1.ListOwnKeyProvidersResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.ListOwnKeyProviders is not implemented")
+}
+
+func (UnimplementedAccountServiceHandler) GetQuota(context.Context, *v1.GetQuotaRequest) (*v1.GetQuotaResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.GetQuota is not implemented")
 }
 
 type accountServiceClient struct {
@@ -883,6 +918,14 @@ func (c *accountServiceClient) CheckOwnKey(ctx context.Context, req *v1.CheckOwn
 func (c *accountServiceClient) ListOwnKeyProviders(ctx context.Context, req *v1.ListOwnKeyProvidersRequest) (*v1.ListOwnKeyProvidersResponse, error) {
 	var res v1.ListOwnKeyProvidersResponse
 	if err := c.client.CallUnary(ctx, accountServiceListOwnKeyProvidersSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accountServiceClient) GetQuota(ctx context.Context, req *v1.GetQuotaRequest) (*v1.GetQuotaResponse, error) {
+	var res v1.GetQuotaResponse
+	if err := c.client.CallUnary(ctx, accountServiceGetQuotaSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -1160,6 +1203,18 @@ func (h accountServiceHandler) listOwnKeyProviders(ctx context.Context, _ connec
 		return err
 	}
 	res, err := h.svc.ListOwnKeyProviders(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accountServiceHandler) getQuota(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetQuotaRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetQuota(ctx, &req)
 	if err != nil {
 		return err
 	}

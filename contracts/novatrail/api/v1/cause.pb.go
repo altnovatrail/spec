@@ -975,10 +975,12 @@ type EngineChoice struct {
 	ChoiceId string `protobuf:"bytes,1,opt,name=choice_id,json=choiceId,proto3" json:"choice_id,omitempty"`
 	// What the choice gives.
 	Kind ChoiceKind `protobuf:"varint,2,opt,name=kind,proto3,enum=novatrail.api.v1.ChoiceKind" json:"kind,omitempty"`
-	// Beside `CHOICE_KIND_NOTHING`, when the AI that checks the tasks is closed to the learner and no
-	// task that a tap checks is left: `CAUSE_QUOTA`, with when the next family day begins,
-	// `CAUSE_PLATFORM_LIMIT` or `CAUSE_NOT_ADMITTED`. Absent when there is nothing to give for
-	// another reason, such as no module connected with a current version.
+	// Beside `CHOICE_KIND_NOTHING`, when the AI that checks the tasks is closed to the learner on the
+	// route to AI that the request names and no task that a tap checks is left: `CAUSE_QUOTA`, with
+	// when the next family day begins, `CAUSE_PLATFORM_LIMIT` or `CAUSE_NOT_ADMITTED`; on the own
+	// key `CAUSE_NOT_ADMITTED` alone, since neither the quota nor the limit of platform AI closes it
+	// (R84; R99). Absent when there is nothing to give for another reason, such as no module connected
+	// with a current version.
 	Outcome       *Outcome `protobuf:"bytes,3,opt,name=outcome,proto3" json:"outcome,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

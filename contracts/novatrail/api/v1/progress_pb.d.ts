@@ -372,6 +372,30 @@ export declare type AttemptRecord = Message<"novatrail.api.v1.AttemptRecord"> & 
    * @generated from field: novatrail.api.v1.ReasonCode reason_code = 10;
    */
   reasonCode: ReasonCode;
+
+  /**
+   * The lesson's `title` whenever `lesson` is set, of an open attempt and a closed one, in the
+   * module's explanation language, from the package of the version the attempt went on (R99).
+   * Empty outside a lesson, and when `api` no longer reads that package: `app` then names the
+   * lesson by its ID.
+   *
+   * @generated from field: string lesson_title = 11;
+   */
+  lessonTitle: string;
+
+  /**
+   * The `title` of each skill that the task trains, of a solved attempt alone, one closed
+   * `CLOSE_REASON_CORRECT`, `CLOSE_REASON_SOLUTION_SHOWN` or `CLOSE_REASON_DONE`: the primary
+   * skills of its items, each item's own or else the task's, each once, in the order of the items
+   * and of their lists, in the module's explanation language, from the skill graph of the package
+   * of the version the attempt went on (R99). Empty at any other attempt: the skills of a task are
+   * closed, since their titles could tell how to solve it, an attempt open or not solved may be
+   * begun again, and on the owner's profile the adult and the learner are one person (section 14
+   * of the module format). Empty too when `api` no longer reads that package.
+   *
+   * @generated from field: repeated string skill_titles = 12;
+   */
+  skillTitles: string[];
 };
 
 /**

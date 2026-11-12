@@ -63,6 +63,7 @@ export declare type SubmitWorkRequest = Message<"novatrail.api.v1.SubmitWorkRequ
 
   /**
    * The learner's own key and its provider: with a profile of its owner, when AI reads the work.
+   * Its provider names the route of the engine's choice in `next` too.
    *
    * @generated from field: novatrail.api.v1.OwnKey own_key = 6;
    */
@@ -74,6 +75,18 @@ export declare type SubmitWorkRequest = Message<"novatrail.api.v1.SubmitWorkRequ
    * @generated from field: optional int32 clock_offset_minutes = 7;
    */
   clockOffsetMinutes?: number | undefined;
+
+  /**
+   * The provider of the learner's own key, by its code in the admission table, without the key:
+   * with a profile of its owner that checks the tasks by its own key, on a submission with no
+   * `work`, which AI would read, and so with no `own_key`, so that the engine's choice in `next`
+   * goes by that route (R84; R99). Empty on platform AI. A submission with it beside `work` or
+   * `own_key` gets the code `invalid_argument`: there the route is that of `own_key`, or platform
+   * AI's without one.
+   *
+   * @generated from field: string own_key_provider = 8;
+   */
+  ownKeyProvider: string;
 };
 
 /**
@@ -276,6 +289,15 @@ export declare type DoneRequest = Message<"novatrail.api.v1.DoneRequest"> & {
    * @generated from field: string attempt_id = 2;
    */
   attemptId: string;
+
+  /**
+   * The provider of the learner's own key, by its code in the admission table, without the key: with
+   * a profile of its owner that checks the tasks by its own key, so that the engine's choice in
+   * `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+   *
+   * @generated from field: string own_key_provider = 3;
+   */
+  ownKeyProvider: string;
 };
 
 /**
@@ -814,6 +836,15 @@ export declare type ShowSolutionRequest = Message<"novatrail.api.v1.ShowSolution
    * @generated from field: novatrail.api.v1.Action action = 4;
    */
   action: Action;
+
+  /**
+   * The provider of the learner's own key, by its code in the admission table, without the key: with
+   * a profile of its owner that checks the tasks by its own key, so that the engine's choice in
+   * `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+   *
+   * @generated from field: string own_key_provider = 5;
+   */
+  ownKeyProvider: string;
 };
 
 /**
@@ -1256,7 +1287,7 @@ export declare type Next = Message<"novatrail.api.v1.Next"> & {
     case: "segmentsEnded";
   } | {
     /**
-     * Outside a lesson: the engine's choice.
+     * Outside a lesson: the engine's choice, by the route to AI that the request names.
      *
      * @generated from field: novatrail.api.v1.EngineChoice choice = 3;
      */
@@ -1561,7 +1592,9 @@ export declare const MarkKindSchema: GenEnum<MarkKind>;
  * confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
  * `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer, by the
  * solution shown or by "Done" says what comes next, `next`: an attempt begins by
- * `LearningService`.
+ * `LearningService`. The engine's choice in `next` goes by the route to AI that the request
+ * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
+ * AI's without either, as `ChooseNext` judges it (R84; R99).
  *
  * @generated from service novatrail.api.v1.AttemptService
  */
@@ -1597,9 +1630,10 @@ export declare const AttemptService: GenService<{
   },
   /**
    * "Done" on a task with a rubric: the learner ends the attempt, which is closed
-   * `CLOSE_REASON_DONE`, and the task is solved. Refusals: `CAUSE_NO_SUBMISSION` and
-   * `CAUSE_ATTEMPT_CLOSED` with another close reason; a repeat on an attempt closed by "Done" gets the
-   * same answer. It carries no idempotency key: it repeats by the attempt's state.
+   * `CLOSE_REASON_DONE`, and the task is solved. Refusals: `CAUSE_NO_SUBMISSION`,
+   * `CAUSE_ATTEMPT_CLOSED` with another close reason, and `CAUSE_KEY_NOT_FOR_PROFILE`; a repeat on
+   * an attempt closed by "Done" gets the same answer. It carries no idempotency key: it repeats by
+   * the attempt's state.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.Done
    */
@@ -1684,8 +1718,9 @@ export declare const AttemptService: GenService<{
    * an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
    * section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
    * `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
-   * `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_ALREADY_USED` and
-   * `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the solution again.
+   * `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+   * the solution again.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.ShowSolution
    */

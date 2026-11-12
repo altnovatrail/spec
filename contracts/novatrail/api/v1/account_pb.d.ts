@@ -7,8 +7,9 @@
 // account's owner and a child's profile, which a consent comes before; how a consent is given,
 // confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
 // of the section for adults; the voicing a learner sets; the storage of works; the own key checked
-// when it is connected; deletion and export. What each message means, and what `app` does on each
-// refusal, are the rules of contracts/README.md, section 15.
+// when it is connected; the share of the quota of platform AI; deletion and export. What each
+// message means, and what `app` does on each refusal, are the rules of contracts/README.md,
+// section 15.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -1581,6 +1582,106 @@ export declare type OwnKeyProvider = Message<"novatrail.api.v1.OwnKeyProvider"> 
 export declare const OwnKeyProviderSchema: GenMessage<OwnKeyProvider>;
 
 /**
+ * A request for the share of the quota of platform AI.
+ *
+ * @generated from message novatrail.api.v1.GetQuotaRequest
+ */
+export declare type GetQuotaRequest = Message<"novatrail.api.v1.GetQuotaRequest"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * Whose action it is: the learner's, where the learner begins their work, or an adult's, in the
+   * section for adults. `ACTION_UNSPECIFIED` is refused `invalid_argument`.
+   *
+   * @generated from field: novatrail.api.v1.Action action = 2;
+   */
+  action: Action;
+};
+
+/**
+ * Describes the message novatrail.api.v1.GetQuotaRequest.
+ * Use `create(GetQuotaRequestSchema)` to create a new message.
+ */
+export declare const GetQuotaRequestSchema: GenMessage<GetQuotaRequest>;
+
+/**
+ * The share of the quota.
+ *
+ * @generated from message novatrail.api.v1.GetQuotaResponse
+ */
+export declare type GetQuotaResponse = Message<"novatrail.api.v1.GetQuotaResponse"> & {
+  /**
+   * The share of the profile, and beside an action of an adult the account's.
+   *
+   * @generated from field: novatrail.api.v1.QuotaShare share = 1;
+   */
+  share?: QuotaShare | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.GetQuotaResponse.
+ * Use `create(GetQuotaResponseSchema)` to create a new message.
+ */
+export declare const GetQuotaResponseSchema: GenMessage<GetQuotaResponse>;
+
+/**
+ * The share of the family day's quota of platform AI that a profile and its account have spent: a
+ * share of a cap, never a sum in dollars and no cap (concepts 14; R11 api). The caps are the
+ * account's tariff's; the tariff itself comes with what is decided of tariffs (product 13, О-14).
+ *
+ * @generated from message novatrail.api.v1.QuotaShare
+ */
+export declare type QuotaShare = Message<"novatrail.api.v1.QuotaShare"> & {
+  /**
+   * The share of the profile's cap that the profile's spending of the family day takes, as its calls
+   * were settled, without the reserves of calls still going, so that within a day it only grows: in
+   * whole percent from 0 to 100, rounded down, so that 100 is the cap reached; spending past the cap
+   * is 100 too. Absent when the account's tariff has no caps: platform AI is closed to it (R11 api).
+   *
+   * @generated from field: optional int32 profile_percent = 1;
+   */
+  profilePercent?: number | undefined;
+
+  /**
+   * Beside an action of an adult: the same share of the account's cap, which every profile of the
+   * account spends. Absent beside a learning action, so that a child never sees what the family
+   * spends, and when the tariff has no caps.
+   *
+   * @generated from field: optional int32 account_percent = 2;
+   */
+  accountPercent?: number | undefined;
+
+  /**
+   * Whether the settled spending of the profile or of the account has reached its cap, so that no
+   * request of the profile on platform AI goes until the next family day: false when the tariff has
+   * no caps. Beside a learning action it tells what a refusal `CAUSE_QUOTA` of a beginning tells
+   * with no call of AI, that the quota is closed to the profile, and gives no share of the account.
+   *
+   * @generated from field: bool cap_reached = 3;
+   */
+  capReached: boolean;
+
+  /**
+   * When the next family day begins, and a new quota with it: by the day that `api` keeps with the
+   * account, since the request carries no clock offset.
+   *
+   * @generated from field: google.protobuf.Timestamp next_family_day = 4;
+   */
+  nextFamilyDay?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.QuotaShare.
+ * Use `create(QuotaShareSchema)` to create a new message.
+ */
+export declare const QuotaShareSchema: GenMessage<QuotaShare>;
+
+/**
  * Who gave a consent. A giver its build does not know `app` reads as a parent.
  *
  * @generated from enum novatrail.api.v1.ConsentGiver
@@ -1866,9 +1967,9 @@ export declare const OwnKeyCheckSchema: GenEnum<OwnKeyCheck>;
  * `unauthenticated` with no `Refusal`, when the token has expired, is revoked or its user is
  * disabled; `CAUSE_ACCOUNT_GONE`; `CAUSE_NO_ACCESS`, but for `CreateAccount`; and `unavailable`
  * with no `Refusal`, when the token could not be checked. A method on a profile names the right it
- * needs, `can_manage` or `can_learn`; a method on the account itself needs the account of the token
- * alone: it is an action of an adult, and the PIN in front of it is a barrier of the interface
- * (R04 api). A request without the right it needs
+ * needs, `can_manage`, `can_learn` or `can_view`; a method on the account itself needs the account
+ * of the token alone: it is an action of an adult, and the PIN in front of it is a barrier of the
+ * interface (R04 api). A request without the right it needs
  * gets the code `permission_denied` with no `Refusal`, and a request whose form the contract
  * refuses the code `invalid_argument` with no `Refusal`. `app` reads the cause of a refusal before
  * it refreshes any token:
@@ -2222,6 +2323,24 @@ export declare const AccountService: GenService<{
     methodKind: "unary";
     input: typeof ListOwnKeyProvidersRequestSchema;
     output: typeof ListOwnKeyProvidersResponseSchema;
+  },
+  /**
+   * The share of the family day's quota of platform AI that a profile has spent, never a sum in
+   * dollars: a learning action with the right `can_learn` gets the share of its own profile alone,
+   * where the learner begins their work, and an action of an adult with the right `can_view` the
+   * account's share too, in the section for adults, so that a child never sees what the family
+   * spends (concepts 14; R11 api). Beside either, whether a cap is reached and when the next family
+   * day begins. The own key spends none of it. A learning request of a profile whose consent is not
+   * confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
+   * `CAUSE_AGE_NEEDED`. Refusals: `CAUSE_NO_PROFILE`. It carries no idempotency key: it repeats
+   * by the state of the quota.
+   *
+   * @generated from rpc novatrail.api.v1.AccountService.GetQuota
+   */
+  getQuota: {
+    methodKind: "unary";
+    input: typeof GetQuotaRequestSchema;
+    output: typeof GetQuotaResponseSchema;
   },
 }>;
 

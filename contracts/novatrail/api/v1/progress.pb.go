@@ -704,7 +704,21 @@ type AttemptRecord struct {
 	EssaySubmissions []*EssayRecord `protobuf:"bytes,9,rep,name=essay_submissions,json=essaySubmissions,proto3" json:"essay_submissions,omitempty"`
 	// The reason code of the choice that `chosen_at` names, which the adult sees and a child is not
 	// told (R100): `REASON_CODE_UNSPECIFIED` where `chosen_at` is absent.
-	ReasonCode    ReasonCode `protobuf:"varint,10,opt,name=reason_code,json=reasonCode,proto3,enum=novatrail.api.v1.ReasonCode" json:"reason_code,omitempty"`
+	ReasonCode ReasonCode `protobuf:"varint,10,opt,name=reason_code,json=reasonCode,proto3,enum=novatrail.api.v1.ReasonCode" json:"reason_code,omitempty"`
+	// The lesson's `title` whenever `lesson` is set, of an open attempt and a closed one, in the
+	// module's explanation language, from the package of the version the attempt went on (R99).
+	// Empty outside a lesson, and when `api` no longer reads that package: `app` then names the
+	// lesson by its ID.
+	LessonTitle string `protobuf:"bytes,11,opt,name=lesson_title,json=lessonTitle,proto3" json:"lesson_title,omitempty"`
+	// The `title` of each skill that the task trains, of a solved attempt alone, one closed
+	// `CLOSE_REASON_CORRECT`, `CLOSE_REASON_SOLUTION_SHOWN` or `CLOSE_REASON_DONE`: the primary
+	// skills of its items, each item's own or else the task's, each once, in the order of the items
+	// and of their lists, in the module's explanation language, from the skill graph of the package
+	// of the version the attempt went on (R99). Empty at any other attempt: the skills of a task are
+	// closed, since their titles could tell how to solve it, an attempt open or not solved may be
+	// begun again, and on the owner's profile the adult and the learner are one person (section 14
+	// of the module format). Empty too when `api` no longer reads that package.
+	SkillTitles   []string `protobuf:"bytes,12,rep,name=skill_titles,json=skillTitles,proto3" json:"skill_titles,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -807,6 +821,20 @@ func (x *AttemptRecord) GetReasonCode() ReasonCode {
 		return x.ReasonCode
 	}
 	return ReasonCode_REASON_CODE_UNSPECIFIED
+}
+
+func (x *AttemptRecord) GetLessonTitle() string {
+	if x != nil {
+		return x.LessonTitle
+	}
+	return ""
+}
+
+func (x *AttemptRecord) GetSkillTitles() []string {
+	if x != nil {
+		return x.SkillTitles
+	}
+	return nil
 }
 
 // A submission of an essay in the progress of a profile.
@@ -1007,7 +1035,7 @@ const file_novatrail_api_v1_progress_proto_rawDesc = "" +
 	"\x13GetProgressResponse\x12;\n" +
 	"\battempts\x18\x01 \x03(\v2\x1f.novatrail.api.v1.AttemptRecordR\battempts\x12H\n" +
 	"\x0frepeating_traps\x18\x02 \x03(\v2\x1f.novatrail.api.v1.RepeatingTrapR\x0erepeatingTraps\x12&\n" +
-	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\"\xfd\x03\n" +
+	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\"\xc3\x04\n" +
 	"\rAttemptRecord\x12\x12\n" +
 	"\x04task\x18\x01 \x01(\tR\x04task\x12%\n" +
 	"\x0emodule_version\x18\x02 \x01(\tR\rmoduleVersion\x12\x16\n" +
@@ -1020,7 +1048,9 @@ const file_novatrail_api_v1_progress_proto_rawDesc = "" +
 	"\x11essay_submissions\x18\t \x03(\v2\x1d.novatrail.api.v1.EssayRecordR\x10essaySubmissions\x12=\n" +
 	"\vreason_code\x18\n" +
 	" \x01(\x0e2\x1c.novatrail.api.v1.ReasonCodeR\n" +
-	"reasonCode\"\xc9\x01\n" +
+	"reasonCode\x12!\n" +
+	"\flesson_title\x18\v \x01(\tR\vlessonTitle\x12!\n" +
+	"\fskill_titles\x18\f \x03(\tR\vskillTitles\"\xc9\x01\n" +
 	"\vEssayRecord\x12=\n" +
 	"\fsubmitted_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vsubmittedAt\x121\n" +
 	"\x03end\x18\x02 \x01(\x0e2\x1f.novatrail.api.v1.SubmissionEndR\x03end\x12H\n" +

@@ -194,10 +194,12 @@ export declare type EngineChoice = Message<"novatrail.api.v1.EngineChoice"> & {
   kind: ChoiceKind;
 
   /**
-   * Beside `CHOICE_KIND_NOTHING`, when the AI that checks the tasks is closed to the learner and no
-   * task that a tap checks is left: `CAUSE_QUOTA`, with when the next family day begins,
-   * `CAUSE_PLATFORM_LIMIT` or `CAUSE_NOT_ADMITTED`. Absent when there is nothing to give for
-   * another reason, such as no module connected with a current version.
+   * Beside `CHOICE_KIND_NOTHING`, when the AI that checks the tasks is closed to the learner on the
+   * route to AI that the request names and no task that a tap checks is left: `CAUSE_QUOTA`, with
+   * when the next family day begins, `CAUSE_PLATFORM_LIMIT` or `CAUSE_NOT_ADMITTED`; on the own
+   * key `CAUSE_NOT_ADMITTED` alone, since neither the quota nor the limit of platform AI closes it
+   * (R84; R99). Absent when there is nothing to give for another reason, such as no module connected
+   * with a current version.
    *
    * @generated from field: novatrail.api.v1.Outcome outcome = 3;
    */
