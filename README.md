@@ -61,7 +61,7 @@ gh release verify-asset v0.5.6 format-0.1.tar.gz -R altnovatrail/spec
 
 ## Documents
 
-The documents are in Russian; the module format is in English and normative.
+The documents are in English, but for the work plan, its technical debt, the cross-repository plan and the archives of its epics, which are in Russian (R143); the module format is in English and normative.
 
 - [docs/product.md](docs/product.md) — what we build and why: who it is for, the principles, the first slice, the roadmap and the open product questions.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary: module, skill, lesson, task, canvas, check, tutor, learner model and engine, with a glossary that names each term as code and schemas will.

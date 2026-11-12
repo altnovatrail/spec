@@ -53,7 +53,7 @@ export function readRegisters(files, registers, report) {
 
     const next = nextFree(register, doc);
     if (next.length === 0) {
-      report(register.file, where, `register ${register.prefix}: its opening does not name the next free number ("Следующий номер — ${label(register, canonical(register, max + 1))}")`);
+      report(register.file, where, `register ${register.prefix}: its opening does not name the next free number ("Next number — ${label(register, canonical(register, max + 1))}")`);
     } else if (next.length > 1) {
       report(register.file, next[1].line, `register ${register.prefix}: its opening names the next free number more than once`);
     } else if (register.gaps && next[0].number <= max) {
@@ -123,9 +123,11 @@ function registerLine(register, doc) {
   return doc.headings[index]?.line ?? 1;
 }
 
-// "Следующий номер — R32", or in a RUN.md's table "следующий — В25".
+// "Следующий номер — R32", or in a RUN.md's table "следующий — В25"; in a document in English,
+// "Next number — R32", "the next free number — R32" or "next — В25" (R143).
 function nextFree(register, doc) {
-  const phrase = new RegExp(`следующ\\p{L}*(?:\\s+номер\\p{L}*)?\\s*[—–-]\\s*${register.prefix}(\\d+)`, "giu");
+  const words = String.raw`(?:следующ\p{L}*(?:\s+номер\p{L}*)?|\bnext(?:\s+free)?(?:\s+number)?)`;
+  const phrase = new RegExp(`${words}\\s*[—–-]\\s*${register.prefix}(\\d+)`, "giu");
   const found = [];
   for (const block of opening(register, doc).blocks) {
     for (const m of block.text.matchAll(phrase)) {

@@ -21,7 +21,7 @@ Detailing. The documents come first: the first epic of [RUN.md](RUN.md) decides 
 
 ## Documents
 
-The documents are in Russian.
+The documents are in English; the work plan, its technical debt and the archives of its epics are in Russian.
 
 - [docs/architecture.md](docs/architecture.md) — the component: what it does and does not do, its data and links, and what is still to decide.
 - [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.

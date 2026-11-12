@@ -205,6 +205,21 @@ test("no next free number", async () => {
   await expectOnly([["docs/decisions.md", " Следующий номер — R04.", ""]], /does not name the next free number/);
 });
 
+// The documents move to English (R143): the registers' openings and the citations read in English too.
+test("the next free number in English", async () => {
+  assert.deepEqual(await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Next number — R04."]]), []);
+  assert.deepEqual(await errorsOf([["docs/repositories.md", "следующий номер — Т-3", "the next free number — Т-3"]]), []);
+  assert.deepEqual(await errorsOf([["RUN.md", "следующий — В4.", "next — В4."]]), []);
+  await expectOnly([["docs/decisions.md", " Следующий номер — R04.", " Next number — R05."]], /the next free number is R05, but the last is R03: it should be R04$/);
+  const errors = await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Nextnumber — R04."]]);
+  assert.ok(errors.some((e) => e.includes('does not name the next free number ("Next number — R04")')), errors.join("\n"));
+});
+
+test("sections cited in English: a list, a link before, and a section of another text", async () => {
+  await expectOnly([["docs/concepts.md", "в разделе 2.", "in sections 1 and 3."]], /docs\/concepts\.md has no section 3$/);
+  assert.deepEqual(await errorsOf([["docs/concepts.md", "в разделе 2.", "in section 3 of the license."]]), []);
+});
+
 test("a cited number that does not exist", async () => {
   await expectOnly([["docs/concepts.md", "R01–R03)", "R01–R03; R05)"]], /^docs\/concepts\.md:11: R05 does not exist \(docs\/decisions\.md\)$/);
 });

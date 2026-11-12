@@ -1,0 +1,34 @@
+# Translating `docs/` into English
+
+The documents under `docs/` move from Russian to English (R143; the 2026-11-11 amendment to R14), one task at a time: in spec T136–T139, in another NovaTrail repository its task of T123. A translation is not a rewrite: every claim, condition, number, citation and link stays, in the same place. This file is the brief a session gives each subagent that translates a piece, and the order the task follows.
+
+## The order of a task
+
+1. **The commit before.** The task notes the commit it starts from, `<ref>`: the original is that commit's text, and `translation-check` reads it from git.
+2. **Pieces.** `node tools/translation/main.mjs split <file> <folder> 15000` cuts each document into pieces of 15–30 KB at a heading or, in a decision log, before an entry's opening paragraph (`**R…`), never inside a block of code. A subagent of Opus takes a batch of consecutive pieces, about 100 KB, with this brief and the glossary; it checks its piece itself with `node spec/tools/translation/main.mjs pair <piece> <translation>` (in spec, `tools/translation/main.mjs`) until it is clean.
+3. **Assembly.** `node tools/translation/main.mjs join <translations> <file> <pieces>` joins the translated pieces in order into the document, in its place, each ending as its original piece did, by the `ends.json` that `split` wrote beside the pieces: a table or a list cut in two joins with no blank line.
+4. **Anchors.** `just translation-anchors <ref> <file>…` rewrites every link of the repository's Markdown files — the documents, RUN.md, DEBT.md, the archives of `docs/plan/`, the README files — that leads to a heading the translation renamed. In another repository, `just -f spec/justfile translation-anchors`.
+5. **The check.** `just translation-check <ref> <file>…` compares each document with its original, unit by unit, and `just docs-check` checks the links, sections and registers.
+6. **The blind reading.** `node tools/translation/main.mjs sample <ref> <folder> <file>…` chooses, by the hash of `<ref>` and not by whoever translated, stretches of about 4 KB of each document until a tenth of it, and writes each in both languages, `<n>.ru.md` and `<n>.en.md`. A fresh subagent, which translated none of it, reads each pair and lists every difference of meaning — a claim, a condition, a negation, a number, a term. Each difference is fixed in the document, and the fix checked again.
+
+## What a translation keeps
+
+`translation-check` holds a translation to these; a difference is an error, with the line.
+
+- **The shape.** A heading for a heading, at the same level and with the same number; a paragraph for a paragraph, a list item for a list item at the same depth, a table row and cell for each row and cell, a block of code for a block of code. Never split a long item into several, join two paragraphs, or turn a sentence of a list into a table.
+- **Every register number and citation, in the same paragraph, item or cell**: `R14`, `О-10`, `П-15`, `Т-24`, `Д218`, `В33`, `T121`, `E10`; `product 7`, `architecture 3.8 spec`, `sources 5.4`; `R37 canvas-api`, `canvas-api: R37, R38`, `R03 modules`. The prefixes О-, П-, Т-, Д and В stay Cyrillic. A repository's name stays right after the number it qualifies: "R03 modules", never "modules' R03". A citation that moved to another paragraph or item is an error too, and the message says where it went: put it back.
+- **«Раздел N» becomes "section N"**, and stays right after the link it belongs to: `[privacy.md](privacy.md), section 10`. `раздел 3 лицензии` becomes `section 3 of the license`; write no other "section N of …", which the documents check reads as a section of another text. A document's name before a number is a citation of its section, in English as in Russian — `product 7`, `sources 2` —, so a phrase that is not one is written otherwise: "the two sources", "the first four measurements", or in code.
+- **Every link**, with its URL as it is, Russian anchor and all: `translation-anchors` rewrites anchors afterwards. Change only the link's text.
+- **Every number**, as digits wherever the original has digits, and as words wherever it has words. Write numbers the English way: "14,878", "2.5", "≈ 3.3 million". Keep dates as they are: 2026-11-12.
+- **Code** in backticks and in blocks, character for character. Translate only Russian words in it: a placeholder `<версия>` becomes `<version>`, a comment of a block becomes English, a label of a Mermaid diagram becomes English; every line of a block without Russian stays as it is. A Russian phrase quoted in code as an example of a Russian text — a prompt that was run, a phrase a check matched — stays Russian.
+- **Quotes of a source in its own language.** A quote of an English text keeps its words exactly. A quote of a Russian law, a Russian heading of RUN.md or COORDINATION.md (they stay Russian), or a phrase of the author stays in Russian, in «…»; whatever is Russian in the translation is in «…», and the original holds its words. Otherwise write English quotation marks, "…".
+- **The fixed words** of the decision log and of the cards, in English, as many as the original has: `tools/translation/vocabulary.mjs` lists them — "— *Why:*", "— *Rejected:*", "— *Consequence:*", "— *Open:*", "— *Amendment 2026-11-12:*", "— *Second amendment 2026-11-12:*", "Superseded", "*To decide when detailed:*", and the others.
+- **No Russian elsewhere.** Every Russian word outside «…», code and the prefixes of the registers is reported as untranslated.
+
+## How to write it
+
+- The reader is a Claude Code session that acts on the documents for an engineer, a module author or a lawyer (RULES.md, The bar). Write plain, exact English: short sentences, one term for one thing, the same English for the same Russian everywhere. Do not explain, soften, summarize or improve: what the original does not say, the translation does not say.
+- **Terms** come from the glossary, concepts 15: the English term of a Russian one is in its first column, with the Russian beside it, and the column "In code and schemas" names it in code. A term the glossary lacks is translated the way the documents already in English say it — CLAUDE.md, RULES.md, the texts in `format/` and the cards translated before — and the same way every time.
+- **Citing decisions and amendments** reads as CLAUDE.md does: `the 2026-11-12 amendment to R76`, `the second 2026-11-12 amendment to R76`, `R12 spec`, `rule 13 of RUN.md`, `table 3 of RUN.md`, `RUN.md, T121`.
+- **Names** stay: NovaTrail, MathTrail, the repositories `api`, `canvas-api`, the organization `altnovatrail`. A Russian law, a body or a document is named in English with its Russian name in «…» the first time a unit names it, when the original names it in Russian.
+- **Register openings** say `Next number — R145.` or, in a table's opening, `next — В34`.

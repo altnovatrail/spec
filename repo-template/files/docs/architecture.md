@@ -1,31 +1,31 @@
-# {{name}} — архитектура
+# {{name}} — architecture
 
-> Статус: каркас из заготовки `spec`, {{date}}.
+> Status: a frame from the template of `spec`, {{date}}.
 >
-> Что делает компонент, чего не делает и что о нём ещё предстоит решить. Это подробности его карточки — architecture {{card}} spec. Карточка остаётся сводкой: если подробности меняют то, что в ней сказано, она правится в `spec` тем же путём, что и вопросы в его реестры (RULES.md, Across repositories).
+> What the component does, what it does not do, and what is still to decide about it. This is the detail of its card — architecture {{card}} spec. The card stays the summary: if the detail changes what the card says, the card is changed in `spec` the same way as the questions for its registers (RULES.md, Across repositories).
 >
-> Почему решено так, а не иначе, — в [decisions.md](decisions.md); план работ — в [RUN.md](../RUN.md). Понятия — concepts spec. Документы и решения `spec` лежат в `spec/docs/` и цитируются с суффиксом «spec».
+> Why it was decided so and not otherwise is in [decisions.md](decisions.md); the work plan is in [RUN.md](../RUN.md). The concepts are concepts spec. The documents and decisions of `spec` are under `spec/docs/` and are cited with the suffix "spec".
 >
-> Внешний факт — условия поставщика, цена, закон, документация библиотеки — встаёт записью в [sources.md](sources.md), с источником и датой прочтения, а утверждение здесь ссылается на запись. Итоги замеров — что мерили, как и какие числа вышли — лежат в `docs/measurements.md`, который заводит первый замер, а здесь — только то, что из них решено (RULES.md, The bar; R143 spec).
+> An external fact — a provider's terms, a price, a law, a library's documentation — becomes a record of [sources.md](sources.md), with its source and the date it was read, and a claim here cites the record. The results of measurements — what was measured, how, and the numbers — go to `docs/measurements.md`, which the first measurement starts, and here goes only what was decided from them (RULES.md, The bar; R143 spec).
 
-## 1. Назначение и границы
+## 1. Purpose and bounds
 
-<!-- FILL: из карточки, architecture {{card}} spec, — своими словами, а не копией, тремя абзацами:
-- **Делает:** …
-- **Не делает:** …
-- **Данные и связи:** какие данные держит и каких не держит никогда, кто его зовёт и кого зовёт он, с чем собирается (repositories 2.1 и 3 spec), этап.
-Каждое утверждение — со ссылкой на раздел или решение spec, откуда оно взято. -->
+<!-- FILL: from the card, architecture {{card}} spec, — in your own words, not a copy, in three paragraphs:
+- **Does:** …
+- **Does not:** …
+- **Data and links:** which data it holds and which it never holds, who calls it and whom it calls, what it is built with (repositories 2.1 and 3 spec), its stage.
+Each claim cites the section or decision of spec it comes from. -->
 
-## 2. Решить при детализации
+## 2. To decide when detailed
 
-Пункты «Решить при детализации» из карточки — по подразделу на пункт. Каждый решает своя задача эпика E1 в [RUN.md](../RUN.md). Решённый пункт называет запись журнала, а само решение переезжает в раздел 3. Вопрос, который выходит за этот репозиторий, уходит «в реестр spec» (RULES.md, Across repositories).
+The points of the card's *To decide when detailed* — a subsection for each. Each is decided by a task of its own in epic E1 of [RUN.md](../RUN.md). A decided point names the entry of the log, and the decision itself moves to section 3. A question that goes beyond this repository goes «в реестр spec» (RULES.md, Across repositories).
 
-<!-- FILL: подраздел «### 2.N. <пункт>» на каждый пункт «Решить при детализации» карточки, в её порядке; пункты, которые порознь не решить, — одним подразделом. В каждом:
-- **Суть:** что решить и почему это решается здесь;
-- **Что известно:** ссылки на spec — разделы, R, Т-, П-, О- — и на MathTrail, если там это уже решали;
-- **Варианты:** пока пусто — их приносит задача;
-- **Задача:** её номер в RUN.md. -->
+<!-- FILL: a subsection "### 2.N. <point>" for each point of the card's *To decide when detailed*, in its order; points that cannot be decided apart — one subsection. In each:
+- **Gist:** what to decide and why it is decided here;
+- **What is known:** citations of spec — sections, R, Т-, П-, О- — and of MathTrail, if it was decided there;
+- **Options:** empty for now — the task brings them;
+- **Task:** its number in RUN.md. -->
 
-## 3. Устройство
+## 3. Design
 
-Пока пусто. Сюда переезжает то, что решено по разделу 2: из каких частей компонент состоит, его типы и данные, как он связан с другими репозиториями.
+Empty for now. What is decided by section 2 moves here: what parts the component is made of, its types and data, how it is linked with other repositories.
