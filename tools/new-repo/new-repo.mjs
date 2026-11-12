@@ -17,6 +17,7 @@ import { execFileSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
 import { escape } from "../docs-check/citations.mjs";
+import { addClaudeSettings } from "./claude.mjs";
 import { editDevcontainer, readKind } from "./devcontainer.mjs";
 import { FILL, fillPlaceholders, isMain, knownRepository, walk } from "./copy.mjs";
 import { newestRelease } from "../release/version.mjs";
@@ -52,6 +53,7 @@ export function newRepo({ specRoot, name, kind, card, dest, draft = null, specUr
     fs.mkdirSync(dest, { recursive: true });
     copyTemplate(path.join(source, "repo-template", "files"), dest, { name, card, spec_tag: tag, date });
     editDevcontainer(dest, name, additions);
+    addClaudeSettings(dest, additions.claude);
     if (released) initGit(dest, specRoot, specUrl, released);
   } catch (error) {
     // Half a copy would only be refused as "not empty" next time. An empty directory that was

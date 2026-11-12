@@ -7,7 +7,8 @@
 // must be spec's own; its documents must pass docs-check as a repository of its own — links,
 // sections, its log and tables, and its citations of spec against the spec it pins; its
 // devcontainer must keep no name of spec's, and the version of gopls its lock file names, when it
-// has one, must be the one its Dockerfile asks for (R102); and every link to spec on GitHub must name the tag
+// has one, must be the one its Dockerfile asks for (R102); the plugins its .claude/settings.json turns
+// on from a marketplace in a local folder must be there (R143); and every link to spec on GitHub must name the tag
 // the spec submodule is checked out at. A draft — a copy without .git — has no submodule: its
 // links to spec need only agree with one another, and spec's working tree stands in for spec/.
 // Prints one line per error, file:line: message, and exits 1 if any.
@@ -21,6 +22,7 @@ import { componentProfile } from "../docs-check/config.mjs";
 import { FILL, isMain, knownRepository, placeholders, walk } from "./copy.mjs";
 import { GIT, byCodeUnits } from "../shared.mjs";
 import { goplsVersions } from "./devcontainer.mjs";
+import { checkClaudePlugins } from "./claude.mjs";
 
 const SPEC_LINK = /https:\/\/github\.com\/altnovatrail\/spec\/(?:tree|blob)\/([^/\s)#>]+)/g;
 
@@ -68,6 +70,11 @@ export async function checkRepo({ dir, specRoot }) {
       if (!files.includes(file)) report(file, 0, `the file is missing, and .devcontainer/Dockerfile builds gopls from it (R102 spec)`);
     }
     if (lock !== arg) report(".devcontainer/gopls/go.mod", 0, `it names gopls ${lock ?? "at no version"}, and .devcontainer/Dockerfile has GOPLS_VERSION ${arg ?? "unset"}: raise them together (R102 spec)`);
+  }
+
+  // The plugin of the go kind runs gopls from PATH, and only the lock file puts it there.
+  if (checkClaudePlugins(dir, reference, report).includes("gopls") && lock === null) {
+    report(".devcontainer/gopls/go.mod", 0, "the file is missing, and .claude/settings.json turns on a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)");
   }
 
   // Links to spec on GitHub, by the version they name.

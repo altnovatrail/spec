@@ -7,7 +7,13 @@
       "go.toolsManagement.checkForUpdates": "off",
       "go.lintOnSave": "off"
     },
-    "devcontainer": "kinds/go"
+    "devcontainer": "kinds/go",
+    "claude": {
+      "extraKnownMarketplaces": {
+        "novatrail": { "source": { "source": "directory", "path": "./spec/claude-plugins" } }
+      },
+      "enabledPlugins": { "gopls-lsp@novatrail": true }
+    }
   },
   "typescript": {
     "extensions": ["biomejs.biome@3.8.1"],

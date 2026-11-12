@@ -41,6 +41,18 @@ Anthropic, [Responsible use of Anthropic's models: guidelines for organizations 
 
 Прочитано 2026-11-09 (R114): Anthropic, [Claude Code — Data usage](https://code.claude.com/docs/en/data-usage); OpenAI, [How your data is used to improve model performance](https://help.openai.com/en/articles/5722486-how-your-data-is-used-to-improve-model-performance) — страница отвечала 403, прочитана её копия в Wayback Machine от 2026-11-01.
 
+### 2.7. Claude Code: плагины и языковой сервер, 2026-11-12
+
+Прочитано 2026-11-12, при планировании T134 (поправка 2026-11-12 к R143). Документация Claude Code, страницы без даты:
+- [Settings reference](https://code.claude.com/docs/en/settings-reference.md), `extraKnownMarketplaces`: «Claude Code honors entries in a repository's `.claude/settings.json` or `.claude/settings.local.json` only after you accept the workspace trust dialog for that folder; in a folder you haven't trusted, including a `-p` run there, it ignores them without a message»; `enabledPlugins` в настройках проекта — «plugins turned on for everyone in the repository. This doesn't install them, so each user installs them».
+- [Plugins for an organization](https://code.claude.com/docs/en/plugins/org.md): «Setting `enabledPlugins` in the repository doesn't install the plugin… Contributors don't need the install when a local `directory` or `file` marketplace lists the plugin with a relative-path `source`»; «If you use a local `directory` or `file` source with a relative path, the path resolves against your repository's main checkout».
+- [Plugin loading](https://code.claude.com/docs/en/plugins/loading.md): «Relative-path plugins in a marketplace you added from a local path: the plugin loads in place from its path inside the marketplace folder… you don't need to increase the version».
+- [Marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference.md): у источника маркетплейса `ref` — «Branch or tag. Defaults to the repository's default branch»; `claude-plugins-official` — среди «Official marketplace names», и такое имя «Reserved unless the marketplace comes from a `github` or `git` marketplace source under `github.com/anthropics/`».
+- [Install plugins](https://code.claude.com/docs/en/plugins/install.md), автообновление маркетплейсов: «**On by default**: `claude-plugins-official` and the other official marketplace names».
+- [Plugin components](https://code.claude.com/docs/en/plugins/components.md): «Claude Code starts `command` by name from the user's `PATH`».
+- [Code intelligence](https://code.claude.com/docs/en/plugins/code-intelligence.md): «In cloud sessions, Claude Code doesn't start plugin language servers, so Claude gets no diagnostics or code navigation there».
+- [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official), `main` — коммит `e37d307bd9f85dab6fea5dfb5e3dc146753b2d2d` от 2026-11-11, тегов и релизов нет. Папка `plugins/gopls-lsp/` — `.claude-plugin/plugin.json` (`"version": "1.0.0"`, `"lspServers": { "gopls": { "command": "gopls", "extensionToLanguage": { ".go": "go" } } }`), `LICENSE` — текст Apache License 2.0 — и README, который велит ставить gopls командой `go install golang.org/x/tools/gopls@latest`. `plugin.json` появился в папке коммитом `cb421c81df4274fd28fd1ead817bc6ffea723fed` от 2026-11-05.
+
 ## 3. Законы, регуляторы и стандарты
 
 ### 3.1. COPPA Rule в редакции 2025 года
@@ -121,6 +133,13 @@ Firebase, [Privacy and Security in Firebase](https://firebase.google.com/support
 
 Прочитано `api` 2026-11-02 (architecture 4 api; П-9, П-11, privacy 2): [Regions](https://neon.com/docs/introduction/regions); [History window](https://neon.com/docs/postgres/backup-restore/history-window), даты на странице нет; [Neon Platform Terms](https://neon.com/platform-terms), «Last Updated: October 14, 2026» — приложение Neon к DPA Databricks, о детях и несовершеннолетних в нём ничего нет; [Databricks Subprocessors](https://www.databricks.com/legal/databricks-subprocessors), «Last Updated: June 9, 2026»: «Amazon Web Services, Inc. Cloud Service Provider United States Customer Selected».
 
+### 4.6. Google: отзыв токена и связь «Вход через Google», 2026-11-12
+
+Прочитано 2026-11-12, разбором строки `api` В52 (R144):
+- Google, [OAuth 2.0 for Client-side Web Applications](https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow) — «Last updated 2026-10-29 UTC», раздел «Token revocation»: «Revocation removes all OAuth 2.0 scopes previously granted to a project, invalidating any issued access or refresh tokens for all clients registered under that project». Адрес отзыва — `https://oauth2.googleapis.com/revoke`, запрос POST. О браузере: «Since the Google's OAuth 2.0 endpoint for revoking tokens does not support Cross-origin Resource Sharing (CORS), the code creates a form and submits the form to the endpoint». Проба разбора 2026-11-12 — POST с заголовком `Origin` и заведомо неверным токеном — получила 400 `invalid_token` с `access-control-allow-origin`, равным этому origin; страница этого не обещает.
+- Firebase, [Authenticate Using Google with JavaScript](https://firebase.google.com/docs/auth/web/google-signin) — «Last updated 2026-11-10 UTC»: вход окном даёт токен доступа Google — «This gives you a Google Access Token. You can use it to access the Google API.» (`GoogleAuthProvider.credentialFromResult(result).accessToken`).
+- Google, [справка о связях с приложениями](https://support.google.com/accounts/answer/13533235), даты на странице нет: «If you delete a link, Google stops automatic sign-in to the app. This doesn’t delete your data on the app». Что связь остаётся после удаления пользователя у сервиса входа, страница не говорит: это наблюдение `api` на dev-проекте 2026-11-12 (T42 `api`; поправка 2026-11-12 к R21 api).
+
 ## 5. Веб-платформа и озвучка
 
 ### 5.1. HTML Standard: `sandbox` у `iframe`
@@ -133,13 +152,6 @@ Firebase, [Privacy and Security in Firebase](https://firebase.google.com/support
 
 Прочитано 2026-10-21 — [HTML Standard](https://html.spec.whatwg.org/multipage/), обновлено 20.10.2026 (architecture 3.4):
 - [Origins](https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque), о непрозрачном origin: «An internal value, with no serialization it can be recreated from (it is serialized as "null" per serialization of an origin), for which the only meaningful operation is testing for equality»;
-### 4.6. Google: отзыв токена и связь «Вход через Google», 2026-11-12
-
-Прочитано 2026-11-12, разбором строки `api` В52 (R144):
-- Google, [OAuth 2.0 for Client-side Web Applications](https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow) — «Last updated 2026-10-29 UTC», раздел «Token revocation»: «Revocation removes all OAuth 2.0 scopes previously granted to a project, invalidating any issued access or refresh tokens for all clients registered under that project». Адрес отзыва — `https://oauth2.googleapis.com/revoke`, запрос POST. О браузере: «Since the Google's OAuth 2.0 endpoint for revoking tokens does not support Cross-origin Resource Sharing (CORS), the code creates a form and submits the form to the endpoint». Проба разбора 2026-11-12 — POST с заголовком `Origin` и заведомо неверным токеном — получила 400 `invalid_token` с `access-control-allow-origin`, равным этому origin; страница этого не обещает.
-- Firebase, [Authenticate Using Google with JavaScript](https://firebase.google.com/docs/auth/web/google-signin) — «Last updated 2026-11-10 UTC»: вход окном даёт токен доступа Google — «This gives you a Google Access Token. You can use it to access the Google API.» (`GoogleAuthProvider.credentialFromResult(result).accessToken`).
-- Google, [справка о связях с приложениями](https://support.google.com/accounts/answer/13533235), даты на странице нет: «If you delete a link, Google stops automatic sign-in to the app. This doesn’t delete your data on the app». Что связь остаётся после удаления пользователя у сервиса входа, страница не говорит: это наблюдение `api` на dev-проекте 2026-11-12 (T42 `api`; поправка 2026-11-12 к R21 api).
-
 - [Cross-document messaging, Authors](https://html.spec.whatwg.org/multipage/web-messaging.html#authors): «Authors should check the origin attribute to ensure that messages are only accepted from domains that they expect to receive messages from»;
 - [Ports as the basis of an object-capability model on the web](https://html.spec.whatwg.org/multipage/web-messaging.html#ports-as-the-basis-of-an-object-capability-model-on-the-web), раздел не нормативный: «Ports can be viewed as a way to expose limited capabilities (in the object-capability model sense) to other actors in the system»;
 - [The WindowProxy exotic object](https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-windowproxy-exotic-object): «Each browsing context has an associated WindowProxy object. When the browsing context is navigated, the Window object wrapped by the browsing context's associated WindowProxy object is changed».

@@ -1,0 +1,14 @@
+{
+  "name": "novatrail",
+  "description": "The Claude Code plugins NovaTrail's repositories turn on, copied into spec at an exact commit of their source",
+  "owner": {
+    "name": "NovaTrail"
+  },
+  "plugins": [
+    {
+      "name": "gopls-lsp",
+      "description": "Go language server for code intelligence and refactoring",
+      "source": "./gopls-lsp"
+    }
+  ]
+}

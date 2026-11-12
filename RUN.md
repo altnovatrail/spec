@@ -154,7 +154,7 @@
 | [x] | T131 | Планка и поправки к изменённым решениям | Claude, проверяю я | — | T121 |
 | [x] | T132 | RUN.md: тела задач — в архив сразу, таблица 4 — `DEBT.md` | я + Claude | да | T121 |
 | [x] | T133 | «Источники» и итоги замеров — в свои файлы | Claude | да | T132 |
-| [ ] | T134 | Плагин gopls для репозиториев Go | я + Claude | да | T121 |
+| [x] | T134 | Плагин gopls для репозиториев Go | я + Claude | да | T121 |
 | [ ] | T135 | Английский: `docs-check` и проверка перевода | Claude | да | T130–T133 |
 | [ ] | T136 | Перевод: product, concepts, privacy, dpia | Claude | — | T135 |
 | [ ] | T137 | Перевод: architecture, repositories | Claude | — | T135 |
@@ -248,15 +248,7 @@
 - T131 — сделана 2026-11-11: планка RULES.md называет читателем `docs/` сессию Claude Code, а решение, которое меняет другое, ставит к нему поправку; обход журнала — Д216. Тело — [docs/plan/E10.md](docs/plan/E10.md).
 - T132 — сделана 2026-11-12: тела сделанных задач — в архив сразу, таблица 4 — в `DEBT.md`; RUN.md — 270 → 71 КБ. Тело — [docs/plan/E10.md](docs/plan/E10.md).
 - T133 — сделана 2026-11-12: «Источники» — в `docs/sources.md`, итоги замеров — в `docs/measurements.md`, утверждение ссылается на запись, прежние разделы — указатели. Тело — [docs/plan/E10.md](docs/plan/E10.md).
-
-#### T134. Плагин gopls для репозиториев Go
-
-- **Цель:** сессия в репозитории кода Go получает диагностику gopls после каждой правки.
-- **Почему:** R143 — ради качества правок, не ради экономии: на пробе T119 LSP стоил +9 % (measurements 1.4).
-- **Сделать:** плагин `gopls-lsp` из `claude-plugins-official` — в настройках вида `go` заготовки ([repo-template/kinds.json](repo-template/kinds.json), [repo-template/kinds/go/](repo-template/kinds/go/)); маркетплейс — на точном коммите (RULES.md, Exact versions); лицензия плагина (R12); список репозиториев Go — для T123.
-- **Решить при планировании:** брать ли gopls в devcontainer `spec`, где тоже есть код Go; как закрепить версию плагина, если маркетплейс её не держит.
-- **Как проверить:** диагностика на пробной копии вида `go` в `.repos/` — правка с ошибкой типа; `just docs-check`; `/code-review high`.
-- **Разделы:** R12, R34, R102, R143; repositories 2.2; measurements 1.4.
+- T134 — сделана 2026-11-12: плагин `gopls-lsp` — копией в `spec/claude-plugins/`, ключом `claude` вида `go`; проба — диагностика gopls после правки. Тело — [docs/plan/E10.md](docs/plan/E10.md).
 
 #### T135. Английский: `docs-check` и проверка перевода
 
@@ -342,7 +334,7 @@
   - тела сделанных задач — в архив сразу, таблица 4 — `DEBT.md` (T132);
   - «Источники» — в `docs/sources.md`, записью на источник, а утверждение ссылается на запись — `sources 1.1`; итоги замеров — в `docs/measurements.md`; на месте прежнего раздела `docs/architecture.md` — указатель, пока на него ссылаются журнал и архивы. Больше всего — у `.github`, `infra`, `canvas` и `tutor`: у `tutor` в measurements.md уходят и «Замеры эпика E4», и «Замер чтения ИИ» (RULES.md, The bar; поправка 2026-11-12 к R143; T133; measurements 1.6);
   - перевод своих `docs/` на английский — `just -f spec/justfile translation-check` по образцу T136–T139;
-  - плагин gopls — репозитории кода Go, по списку T134;
+  - плагин `gopls-lsp` — репозитории вида `go`: `api`, `engine`, `learner-model`, `module-kit`, `sim` и `tutor`; ключи `extraKnownMarketplaces` и `enabledPlugins` вида `go` в `.claude/settings.json` — из того, что строит `new-repo`, — а папке репозитория доверяют в первой сессии (поправка 2026-11-12 к R143; T134);
   - бюджеты своих документов и шаг замера в архиве эпика (T126);
   - замер до и после — `just -f spec/justfile tokens-report`.
 - **Разделы:** R76, R143; repositories 6; T121, T122.
