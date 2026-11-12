@@ -273,7 +273,7 @@ jobs:
   dco:
     name: DCO
     if: github.event_name == 'pull_request'
-    uses: altnovatrail/.github/.github/workflows/dco.yml@89d3ceee0b9977b3334488a4133d084d76474e0d # v0.1.15
+    uses: altnovatrail/.github/.github/workflows/dco.yml@c0234058dc1a85edd7b5d579b90f8fdb98ea826b # v0.1.22
 
   # The Go code — spec's Go module, the module of the contracts and the modules of tools/ — by
   # the ci- recipes of the justfile, in the toolchain stage, as in every Go repository (R16
