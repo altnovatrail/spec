@@ -119,7 +119,7 @@ just tokens-report --since 2026-11-09 --until 2026-11-11T03:59:01Z
 - a session's median is 174 calls, and of the average context 185.8 thousand;
 - the most is carried by Bash output (32.7 %), the model's output (27.5 %) and Read (14.0 %), and of the files by RUN.md, through Bash and Read, and `docs/decisions.md`.
 
-The tasks T124 and T126 add their measurements here, as a row beside the baseline, by the same recipe.
+Later measurements — of T124, of each epic's archive and the monthly ones — are rows of the table of section 1.9, by the same recipe with `--row`; the baseline is its first row (R145).
 
 ### 1.4. Code map tools
 
@@ -318,7 +318,7 @@ The total is 21.24 MB, ≈ 6.5 million tokens. The decision logs are 7.05 MB, th
 - **Gaps:**
   - Bash output where the file is not named — `grep -r` over `docs/` — is not counted for the document, so their share is a lower bound;
   - the report's JSON has no combination of "file and Bash program";
-  - on the transcripts of `module-kit` the report fails (Д209), and its numbers were obtained with a copy of the recipe fixed in the scratchpad.
+  - on the transcripts of `module-kit` the report fails (Д209), and its numbers were obtained with a copy of the recipe fixed in the scratchpad; the recipe itself was fixed by T126 (section 1.9).
 
 **Structure.**
 
@@ -501,3 +501,56 @@ How R143 removed the checks of the parts from `spec`'s CLAUDE.md (RUN.md, T130).
 - **the rule loads:** in the clone with the change, the question "read `legal/VERSION` and name the recipes that an edit of `legal/` waits for" — the Read of the file loaded `legal.md`, and the answer — `legal-check`, `types` and `types-check` — was taken from it;
 - the start of a session before the change is 40.4 thousand, while in section 1.7, with the same question and the same version of Claude Code, it is 28.2 thousand. The characters of what the report sees in the transcript are almost as many — ≈ 56 thousand: the list of skills became half as long, 7,397 characters against 14,646, but the list of agents and the session's context were added. So what grew is what the transcript does not hold — the descriptions of the tools; from where is not found out. So before and after are measured on one day, as here;
 - the nine runs — six of the measurement, the trial of the rule and two trials of other repositories' rules — cost $0.68 at API prices.
+
+### 1.9. Keeping the savings
+
+How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of size in `docs-check` on every pull request, a measurement at each epic's archive and once a month, and a new analysis by a threshold rather than by the calendar. Measured 2026-11-12.
+
+**Budgets.** `docs-check` measures in bytes, in KB of 1,024: English text is at least 2.5 bytes a token and Russian tables 2.7 (section 1.6), and a limit in bytes needs neither a key of the API nor a network, and does not move when a tokenizer does. The limits are [tools/docs-check/budgets.json](../tools/docs-check/budgets.json): its block `spec` for spec, and its block `repository` for another NovaTrail repository, which is checked only once its root holds `docs-budgets.json` — what differs from that block, `{}` when nothing does. What is measured, the largest of each in `spec` on 2026-11-12, KB:
+
+| What | The largest |
+|---|---|
+| CLAUDE.md / RULES.md | 10.2 / 12.8 |
+| RUN.md / `DEBT.md` / COORDINATION.md | 70.3 / 116.5 / 60.0 |
+| a rule of `.claude/rules/` | 5.4, `ci` |
+| an entry of the decision log, with its amendments | 35.7, R83; the median is 6.5 |
+| the own text under a heading of a document, numbered or not, to the next heading | 22.8, measurements 1.6; outside the registers and the glossary |
+| concepts 15 / privacy 9 / repositories 8 — the glossary and two registers | 74.9 / 60.8 / 59.2 |
+| a row of a table of RUN.md / `DEBT.md` / COORDINATION.md | 2.1 / 3.2 / 2.7 |
+
+- Each limit is the largest of its kind plus 10–20%, rounded; RUN.md has more, 96 KB, since a new epic brings the bodies of its tasks.
+- `format/` and `legal/` have none: they are texts for people (R42). Nor do the archives of `docs/plan/`: they are not read whole.
+- On `spec` the check measures 579 things on 2026-11-12. A trial: CLAUDE.md with 2,500 bytes added gave «CLAUDE.md:1: 12,929 bytes, over its budget of 12 KB (12,288 bytes) — tools/docs-check/budgets.json».
+
+**The measurement.** `just tokens-report --since … --until … --row` prints one row of the table below; `--project` measures another repository's transcripts on this machine. It runs:
+- at the archive of an epic, for the epic's window, in the repository whose epic it is (RUN.md, «Как устроен план: эпики»);
+- once a month, from `spec`, for each of the 13 repositories' folders of transcripts on this machine, from the window of the last row to the start of the session. `just inbox` prints the date when it has come.
+
+| Project | Window, UTC | Sessions | Calls, main / subagents | Context of a call, k, main / subagents | Compactions | Cost at API prices |
+|---|---|---|---|---|---|---|
+| `-workspaces-spec` — the baseline, section 1.3 | 2026-11-09T00:00 … 2026-11-11T03:59 | 3 | 2,344 / 3,682 | 448.5 / 109.2 | 9 | $470.99 |
+| `-workspaces-spec` — part 2 of E10, T129 to T126: the reference until T124 | 2026-11-11T17:55 … 2026-11-12T14:27 | 9 | 1,238 / 1,676 | 183.2 / 90.4 | 1 | $156.88 |
+| `-workspaces--github` | 2026-10-13T00:00 … 2026-11-12T14:27 | 14 | 4,196 / 2,565 | 397.5 / 124.0 | 10 | $739.31 |
+| `-workspaces-api` | 2026-10-13T00:00 … 2026-11-12T14:27 | 23 | 6,109 / 4,741 | 371.4 / 104.4 | 17 | $954.57 |
+| `-workspaces-app` | 2026-10-13T00:00 … 2026-11-12T14:27 | 18 | 3,375 / 5,492 | 337.8 / 143.5 | 14 | $673.90 |
+| `-workspaces-canvas` | 2026-10-13T00:00 … 2026-11-12T14:27 | 37 | 12,565 / 7,897 | 369.1 / 114.8 | 99 | $2,040.66 |
+| `-workspaces-engine` | 2026-10-13T00:00 … 2026-11-12T14:27 | 16 | 3,016 / 1,232 | 328.6 / 79.3 | 3 | $400.70 |
+| `-workspaces-infra` | 2026-10-13T00:00 … 2026-11-12T14:27 | 6 | 2,175 / 1,714 | 354.7 / 80.0 | 6 | $321.70 |
+| `-workspaces-learner-model` | 2026-10-13T00:00 … 2026-11-12T14:27 | 20 | 3,458 / 2,293 | 292.4 / 101.2 | 2 | $493.54 |
+| `-workspaces-module-kit` | 2026-10-13T00:00 … 2026-11-12T14:27 | 29 | 4,374 / 1,969 | 326.5 / 98.4 | 0 | $573.80 |
+| `-workspaces-modules` | 2026-10-13T00:00 … 2026-11-12T14:27 | 16 | 3,976 / 2,287 | 351.0 / 91.7 | 6 | $586.03 |
+| `-workspaces-sim` | 2026-10-13T00:00 … 2026-11-12T14:27 | 10 | 3,275 / 1,195 | 325.5 / 79.5 | 6 | $397.59 |
+| `-workspaces-skill-map` | 2026-10-13T00:00 … 2026-11-12T14:27 | 6 | 1,313 / 402 | 329.5 / 81.4 | 1 | $162.58 |
+| `-workspaces-tutor` | 2026-10-13T00:00 … 2026-11-12T14:27 | 28 | 11,509 / 6,806 | 398.5 / 119.5 | 53 | $1,896.62 |
+
+- In `spec`, part 2 of E10 lowered the context of a main call from 448.5 to 183.2 thousand, −59%, and of a subagent's from 109.2 to 90.4. The windows differ in work: E4 and E9 against the edits of E10.
+- The other 12 have not taken R143 yet (RUN.md, T123): their rows are their "before", from 292.4 to 398.5 thousand for a main call, and their reference is their measurement after, T124.
+- The monthly row of `module-kit` needs the fix of 2026-11-12: a path the user may not look at is not a file for the recipe, and the report is printed (`tools/tokens/report.mjs`, `fileCheck`).
+
+**The threshold** of a new analysis is R145: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in RUN.md.
+
+Last analysis: E10, T118–T128, 2026-11-11.
+
+Next measurement: by 2026-12-12.
+
+Next check of Claude Code's changelog: by 2027-02-12.

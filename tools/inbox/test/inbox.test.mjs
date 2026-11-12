@@ -5,6 +5,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { compare, fingerprintOf, ledgerOf, parseNumbers, readRepository, report, rowsForSpec, runGh } from "../inbox.mjs";
 import { inbox, OTHERS } from "../main.mjs";
+import { dueOf } from "../due.mjs";
+
+// measurements 1.9 with its two dates, and a day before both.
+const DATED = "Next measurement: by 2026-12-12.\n\nNext check of Claude Code's changelog: by 2027-02-12.\n";
+const dated = { measurementsSource: DATED, today: new Date("2026-11-12T10:00:00Z") };
 
 const HEADER = "| ID | Вопрос | Откуда | Варианты | Рекомендация |\n|---|---|---|---|---|";
 const A = "a".repeat(40);
@@ -291,16 +296,16 @@ test("inbox reads every other repository, and says what it could not read", () =
     app: { sha: B, run: run(), pulls: [] },
   };
   const print = fingerprintOf(rowsForSpec(run(row(5, "записана"))));
-  const done = inbox({ names: ["api", "app"], ledgerSource: spec(`| \`api\` | В5 | ${print} | Д67 |`), gh: fakeGh(repositories) });
+  const done = inbox({ ...dated, names: ["api", "app"], ledgerSource: spec(`| \`api\` | В5 | ${print} | Д67 |`), gh: fakeGh(repositories) });
   assert.equal(done.status, 0);
   assert.deepEqual(done.lines.slice(0, 2), ["inbox: 2 repositories read; 1 new on main, 0 on the way, 0 changed since recorded, 0 to leave table 5", "new on main — record, or bring to the author:"]);
-  const unprinted = inbox({ names: ["api"], ledgerSource: spec("| `api` | В5 | — | Д67 |"), gh: fakeGh(repositories) });
+  const unprinted = inbox({ ...dated, names: ["api"], ledgerSource: spec("| `api` | В5 | — | Д67 |"), gh: fakeGh(repositories) });
   assert.equal(unprinted.status, 0);
   assert.equal(unprinted.lines.at(-1), `  api В5 (table 5 at RUN.md:7; its RUN.md:7, main aaaaaaa): — → ${print}`);
-  const unreadable = inbox({ names: ["api"], ledgerSource: spec("| `api` | что-то | — | Д67 |"), gh: fakeGh(repositories) });
+  const unreadable = inbox({ ...dated, names: ["api"], ledgerSource: spec("| `api` | что-то | — | Д67 |"), gh: fakeGh(repositories) });
   assert.equal(unreadable.status, 1);
   assert.match(unreadable.lines.at(-1), /a row of table 5 names no repository or no rows В/u);
-  const partly = inbox({ names: ["api", "infra"], ledgerSource: spec("| `infra` | В2 | — | Т-29 |"), gh: fakeGh(repositories) });
+  const partly = inbox({ ...dated, names: ["api", "infra"], ledgerSource: spec("| `infra` | В2 | — | Т-29 |"), gh: fakeGh(repositories) });
   assert.equal(partly.status, 2);
   assert.deepEqual(partly.lines.slice(0, 1), ["inbox: 1 repositories read; 2 new on main, 0 on the way, 0 changed since recorded, 0 to leave table 5"]);
   assert.equal(partly.lines.at(-1), "inbox: cannot read infra — gh api repos/altnovatrail/infra/commits/main: HTTP 404");
@@ -312,4 +317,22 @@ test("runGh gives what the program printed, or throws with what it said", () => 
   assert.throws(() => runGh(["-e", "process.exit(3)"], process.execPath), /exit 3$/u);
   assert.throws(() => runGh([], "/nonexistent/gh"), /\/nonexistent\/gh.*ENOENT/u);
   assert.throws(() => runGh(["-e", "setTimeout(() => {}, 10000)"], process.execPath, 200), /ETIMEDOUT/u);
+});
+
+test("inbox prints the monthly measurement and the check of the changelog once their dates have come", () => {
+  const repositories = { app: { sha: B, run: run(), pulls: [] } };
+  const quiet = inbox({ ...dated, names: ["app"], ledgerSource: spec(""), gh: fakeGh(repositories) });
+  assert.equal(quiet.status, 0);
+  assert.equal(quiet.lines.some((l) => l.startsWith("due:")), false);
+  const later = inbox({ ...dated, today: new Date("2026-12-12T00:00:00Z"), names: ["app"], ledgerSource: spec(""), gh: fakeGh(repositories) });
+  assert.equal(later.status, 0);
+  assert.deepEqual(later.lines.filter((l) => l.startsWith("due:")), ["due: the monthly measurement of the sessions' tokens, by 2026-12-12 (measurements 1.9; RUN.md, rule 13)"]);
+  assert.equal(dueOf(DATED, new Date("2027-03-01T00:00:00Z")).due.length, 2);
+  assert.deepEqual(dueOf(DATED.replace("2026-12-12", "2026-13-12"), new Date("2027-03-01T00:00:00Z")).problems, ['inbox: measurements 1.9 names "Next measurement: by 2026-13-12.", and 2026-13-12 is no date']);
+  const undated = inbox({ ...dated, measurementsSource: "Next measurement: by 2026-12-12.\nNext measurement: by 2026-12-13.\n", names: ["app"], ledgerSource: spec(""), gh: fakeGh(repositories) });
+  assert.equal(undated.status, 1);
+  assert.deepEqual(undated.lines.filter((l) => l.includes("measurements 1.9 should")), [
+    'inbox: measurements 1.9 should name "Next measurement: by YYYY-MM-DD." once, and names it 2 times',
+    'inbox: measurements 1.9 should name "Next check of Claude Code\'s changelog: by YYYY-MM-DD." once, and names it 0 times',
+  ]);
 });

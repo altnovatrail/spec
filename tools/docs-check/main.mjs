@@ -11,7 +11,8 @@
 // files do not keep out — and checks that relative links lead somewhere, that cited sections
 // exist, that the registers are numbered without gaps and every cited number exists, that no
 // number is typed in the wrong script, that every Mermaid diagram parses, and that each rule of
-// .claude/rules/ has paths that match files of root and is named in CLAUDE.md. In a
+// .claude/rules/ has paths that match files of root and is named in CLAUDE.md, and that files,
+// rules, decision entries, sections and rows of tables keep within their budgets of size. In a
 // repository of its own, citations of spec — "architecture 3.8 spec", "R18 spec", "Т-15" — are
 // checked against its spec/ submodule, at the tag it is pinned to, and spec/ itself is not
 // checked. Prints one line per error, file:line: message, and exits 1 if there are any.
@@ -27,6 +28,7 @@ import { checkCitedNumbers, readRegisters } from "./registers.mjs";
 import { findWrongScript, scopeAfter } from "./citations.mjs";
 import { checkDiagrams } from "./mermaid.mjs";
 import { checkRules, isRule, splitFrontMatter } from "./rules.mjs";
+import { checkBudgets, readBudgets } from "./budgets.mjs";
 import { execFileSync } from "node:child_process";
 import { GIT, byCodeUnits, isMain } from "../shared.mjs";
 
@@ -81,6 +83,8 @@ export async function check(root, profile = specProfile) {
   }
   stats.diagrams = await checkDiagrams(files, report);
   stats.rules = checkRules(files, matchable, report);
+  const budgets = readBudgets(root, profile.budgets, report);
+  stats.budgets = budgets ? checkBudgets(root, files, budgets, profile, report) : 0;
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line);
   return { errors, stats };
@@ -114,18 +118,19 @@ function listFiles(root, excluded, fail) {
   return files.filter((file) => !skip(file)).sort(byCodeUnits);
 }
 
-// The Markdown files among `listed`, parsed, by their paths. A rule of .claude/rules/ has its front
-// matter taken off first, as Claude Code does, and kept as the rule's `frontMatter`.
+// The Markdown files among `listed`, parsed, by their paths, each with its `source` as read. A rule
+// of .claude/rules/ has its front matter taken off first, as Claude Code does, and kept as the
+// rule's `frontMatter`.
 function readMarkdown(root, listed) {
   const parsed = new Map();
   for (const file of listed.filter((name) => name.endsWith(".md"))) {
     const source = fs.readFileSync(path.join(root, file), "utf8");
     if (!isRule(file)) {
-      parsed.set(file, parseMarkdown(source));
+      parsed.set(file, { ...parseMarkdown(source), source });
       continue;
     }
     const { yaml, body } = splitFrontMatter(source);
-    parsed.set(file, { ...parseMarkdown(body), frontMatter: yaml });
+    parsed.set(file, { ...parseMarkdown(body), frontMatter: yaml, source });
   }
   return parsed;
 }
@@ -199,7 +204,7 @@ if (isMain(import.meta.url)) {
   } else {
     console.log(
       `docs-check: ok — ${stats.files} files, ${stats.links} links, ${stats.sections} sections, ` +
-        `${stats.numbers} numbers, ${stats.diagrams} diagrams, ${stats.rules} rules`,
+        `${stats.numbers} numbers, ${stats.diagrams} diagrams, ${stats.rules} rules, ${stats.budgets} budgets`,
     );
   }
 }

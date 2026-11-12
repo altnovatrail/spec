@@ -4,6 +4,8 @@
 // Two profiles read them: spec's own, and a NovaTrail repository's, which has documents and
 // registers of its own and cites spec's from its spec/ submodule (RUN.md, T18; R32).
 
+import path from "node:path";
+
 // Documents cited by name and section: "product 7", "architecture 3.6".
 export const documents = {
   product: "docs/product.md",
@@ -76,6 +78,9 @@ function workRegisters(fallback = false) {
   return [table("В", "RUN.md", "Таблица 3."), debt];
 }
 
+// Where the limits of size are, from spec's root (budgets.mjs; R145).
+const BUDGETS = "tools/docs-check/budgets.json";
+
 // spec's own profile: its documents and registers, and spec's citations of itself ("R18 spec")
 // are its own.
 // What is never scanned: `names` wherever they are, `paths` relative to the root. The fixtures
@@ -86,6 +91,8 @@ export const specProfile = {
   documents,
   registers,
   spec: null,
+  // The limits of size of budgets.mjs, from the working tree checked (R145).
+  budgets: { file: BUDGETS, block: "spec" },
   excluded: { names: [".git", "node_modules"], paths: ["tools/docs-check/test/fixtures", "tools/format-check/test/fixtures", ".repos"] },
 };
 
@@ -106,6 +113,9 @@ export function componentProfile(specDir) {
       { prefix: "R", file: "docs/decisions.md", section: null, definedBy: "entry", width: 2, ordered: true, empty: true },
       ...workRegisters(true),
     ],
+    // spec's block "repository" of its limits, from the submodule, with what the repository's
+    // docs-budgets.json names in its place; without that file, there is no check yet (R145).
+    budgets: { file: inSpec(BUDGETS), path: path.join(specDir, BUDGETS), block: "repository", own: "docs-budgets.json" },
     spec: {
       dir: specDir,
       documents: Object.fromEntries(Object.entries(documents).map(([name, file]) => [name, inSpec(file)])),

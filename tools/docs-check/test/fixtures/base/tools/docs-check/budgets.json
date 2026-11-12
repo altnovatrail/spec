@@ -1,0 +1,16 @@
+{
+  "spec": {
+    "files": { "RUN.md": 4, "DEBT.md": 4 },
+    "rule": 2,
+    "entry": 1,
+    "section": 1,
+    "sections": { "product 13": 2 },
+    "rows": { "DEBT.md": 1 }
+  },
+  "repository": {
+    "files": { "RUN.md": 4 },
+    "entry": 1,
+    "section": 1,
+    "rows": { "DEBT.md": 1 }
+  }
+}

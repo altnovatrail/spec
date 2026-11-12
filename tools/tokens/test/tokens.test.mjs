@@ -304,7 +304,9 @@ test("times from the command line, and wrong arguments", () => {
   assert.throws(() => timeOf("1"), /not a date/);
   assert.throws(() => timeOf("2026-11-11 03:59"), /not a date/);
   assert.throws(() => timeOf("2026-13-45"), /not a date/);
-  assert.deepEqual(argumentsOf(["--since", "2026-11-09", "--top", "3", "--json"]), { since: "2026-11-09T00:00:00.000Z", until: null, top: 3, project: null, json: true });
+  assert.deepEqual(argumentsOf(["--since", "2026-11-09", "--top", "3", "--json"]), { since: "2026-11-09T00:00:00.000Z", until: null, top: 3, project: null, json: true, row: false });
+  assert.equal(argumentsOf(["--row"]).row, true);
+  assert.throws(() => argumentsOf(["--row", "--json"]), /one or the other/);
   assert.equal(argumentsOf(["--project=-workspaces-app"]).project, "-workspaces-app");
   assert.throws(() => argumentsOf(["--top", "x"]), /not a number/);
   assert.throws(() => argumentsOf(["--since"]), /argument missing/);
@@ -357,6 +359,33 @@ test("the report of a repository prints numbers, paths and names, and never what
   assert.equal(json.status, 0);
   assert.doesNotMatch(json.lines.join("\n"), new RegExp(SECRET));
   assert.equal(JSON.parse(json.lines[0]).main.calls, 2);
+  // One row of measurements 1.9: the window asked for, or that of the calls.
+  const one = tokensReport(["--row", "--until", "2030-01-01T10:20:30Z"], { cwd: repository, env: { CLAUDE_CONFIG_DIR: config } });
+  assert.equal(one.status, 0);
+  assert.equal(one.lines.length, 1);
+  assert.match(one.lines[0], /^\| -tmp-tokens-repo-\S+ \| \S+ … 2030-01-01T10:20 \| 1 \| 2 \/ 0 \| 1\.\d \/ — \| 0 \| \$\d+\.\d\d \|$/);
+  assert.doesNotMatch(one.lines[0], new RegExp(SECRET));
+});
+
+test("a path the disk will not answer for is not a file", () => {
+  const denied = (code) => () => {
+    throw Object.assign(new Error(code), { code });
+  };
+  assert.equal(fileCheck(denied("EACCES"))("/root/.config/go"), false);
+  assert.equal(fileCheck(denied("EPERM"))("/root/.config/go"), false);
+  assert.equal(fileCheck(denied("ENAMETOOLONG"))("/x"), false);
+  assert.equal(fileCheck()(`/${"a".repeat(300)}.md`), false);
+  // On the disk: a file in a folder this user cannot enter.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tokens-denied-"));
+  fs.mkdirSync(path.join(dir, "closed"));
+  fs.writeFileSync(path.join(dir, "closed", "a.md"), "x");
+  fs.chmodSync(path.join(dir, "closed"), 0o000);
+  try {
+    assert.equal(fileCheck()(path.join(dir, "closed", "a.md")), process.getuid?.() === 0);
+  } finally {
+    fs.chmodSync(path.join(dir, "closed"), 0o755);
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("--project names the folder; no folder, a path or a wrong argument, is status 2", () => {

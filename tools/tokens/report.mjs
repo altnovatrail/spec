@@ -137,11 +137,20 @@ export function filesOf(command, root, isFile) {
   return files;
 }
 
-// Whether a path is a file, asked of the disk once for each path.
-export function fileCheck() {
+// Whether a path is a file, asked of the disk once for each path. A path the disk will not answer for
+// — another user's home, such as /root/.config/go in a command of module-kit, or a word too long to
+// be a name — is not a file here.
+export function fileCheck(stat = fs.statSync) {
   const known = new Map();
+  const isFile = (file) => {
+    try {
+      return Boolean(stat(file, { throwIfNoEntry: false })?.isFile());
+    } catch {
+      return false;
+    }
+  };
   return (file) => {
-    if (!known.has(file)) known.set(file, Boolean(fs.statSync(file, { throwIfNoEntry: false })?.isFile()));
+    if (!known.has(file)) known.set(file, isFile(file));
     return known.get(file);
   };
 }
@@ -465,6 +474,25 @@ function totalsOf(a, b) {
   const t = emptyTotals();
   for (const k of Object.keys(t)) t[k] = k === "maxContext" ? Math.max(a[k], b[k]) : a[k] + b[k];
   return t;
+}
+
+// The report as one row of the table of measurements 1.9: the project, the window, sessions, calls,
+// the context of a call and the cost, main and subagents apart, and compactions. The window is the
+// one asked for, or else that of the calls counted; a time prints to the minute, in UTC.
+export function row(data, { project = "", since = null, until = null } = {}) {
+  const avg = (t) => (t.calls ? thousands(t.context / t.calls) : "—");
+  const minute = (time) => (time ? time.slice(0, 16) : "—");
+  const cost = totalsOf(data.main, data.subagents).cost;
+  const cells = [
+    project,
+    `${minute(since ?? data.first)} … ${minute(until ?? data.last)}`,
+    int(data.sessions),
+    `${int(data.main.calls)} / ${int(data.subagents.calls)}`,
+    `${avg(data.main)} / ${avg(data.subagents)}`,
+    int(data.compactions),
+    `$${cost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+  ];
+  return `| ${cells.join(" | ")} |`;
 }
 
 // The report as lines of text: the totals, the start of a session, the groups by what they carried,

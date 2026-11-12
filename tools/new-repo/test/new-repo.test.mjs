@@ -56,9 +56,10 @@ function draft(name, kind, card, from = specRoot) {
 // when asked.
 function standIn({ change = () => {}, commit = false, tag = null } = {}) {
   const root = temporary();
-  // What new-repo reads, what a copy's documents cite of spec — its documents and its rules —
-  // and the marketplace a copy's .claude/settings.json names in spec/.
-  for (const source of ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs", "RULES.md", "claude-plugins"]) {
+  // What new-repo reads, what a copy's documents cite of spec — its documents and its rules —, the
+  // marketplace a copy's .claude/settings.json names in spec/, and the budgets its docs-budgets.json
+  // asks the check of its documents to read from spec/ (R145).
+  for (const source of ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs", "RULES.md", "claude-plugins", "tools/docs-check/budgets.json"]) {
     fs.mkdirSync(path.dirname(path.join(root, source)), { recursive: true });
     fs.cpSync(path.join(specRoot, source), path.join(root, source), { recursive: true, verbatimSymlinks: true });
   }
@@ -98,6 +99,7 @@ const EXPECTED_FILES = [
   "LICENSE",
   "README.md",
   "RUN.md",
+  "docs-budgets.json",
   "docs/architecture.md",
   "docs/decisions.md",
   "docs/sources.md",

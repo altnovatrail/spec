@@ -9,7 +9,8 @@ import path from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { check } from "../main.mjs";
-import { componentProfile } from "../config.mjs";
+import { componentProfile, specProfile } from "../config.mjs";
+import { readBudgets } from "../budgets.mjs";
 import { GIT } from "../../shared.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -88,12 +89,12 @@ test("the base fixture is green", async () => {
 });
 
 // A copy of docs-check under dir/tools, as it lies in spec, so that run from there it checks dir;
-// the path of its main.mjs.
+// the path of its main.mjs. The fixture's budgets.json stays: spec's limits name spec's sections.
 function toolsInto(dir) {
   const tools = path.join(dir, "tools");
   fs.mkdirSync(tools, { recursive: true });
   const own = path.dirname(main);
-  fs.cpSync(own, path.join(tools, "docs-check"), { recursive: true, filter: (from) => path.relative(own, from).split(path.sep)[0] !== "test" });
+  fs.cpSync(own, path.join(tools, "docs-check"), { recursive: true, filter: (from) => !["test", "budgets.json"].includes(path.relative(own, from).split(path.sep)[0]) });
   fs.cpSync(path.join(here, "..", "..", "shared.mjs"), path.join(tools, "shared.mjs"));
   fs.symlinkSync(path.join(here, "..", "..", "node_modules"), path.join(tools, "node_modules"));
   return path.join(tools, "docs-check", "main.mjs");
@@ -370,7 +371,12 @@ test("a next free Д that is not above the table of debt", async () => {
 test("spec's table of debt is DEBT.md alone: without it, table 4 of RUN.md is not read", async () => {
   const table = "\n\nНомера не переиспользуются: следующий — Д2.\n\n| ID | Долг |\n|---|---|\n| Д1 | Первый долг |\n";
   const edits = [["DEBT.md", null, null], ["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", table]];
-  assert.deepEqual(await errorsOf(edits), ["DEBT.md:0: register Д: the file does not exist"]);
+  // The budgets of DEBT.md hold nothing without it, and say so (R145).
+  assert.deepEqual(await errorsOf(edits), [
+    "DEBT.md:0: register Д: the file does not exist",
+    'tools/docs-check/budgets.json:0: budgets: files "DEBT.md" names no file of the repository',
+    'tools/docs-check/budgets.json:0: budgets: rows "DEBT.md" names no Markdown file of the repository',
+  ]);
 });
 
 test("a row of debt written back into table 4 of spec's RUN.md is a second copy", async () => {
@@ -793,4 +799,81 @@ test("a repository's rules are checked as spec's are", async () => {
   // Claude Code matches files under spec/ too, so a pattern into it is a pattern like any other.
   assert.deepEqual(await componentErrors(withRule(rule('  - "spec/docs/**"\n', body))), []);
   await componentOnly(withRule(rule('  - "spec/nope/**"\n', body)), /paths: spec\/nope\/\*\* matches no file/);
+});
+
+// Budgets of size (R145): the fixture's tools/docs-check/budgets.json holds 4 KB for RUN.md and
+// DEBT.md, 2 KB for a rule, 1 KB for an entry and a section, 2 KB for product 13, 1 KB for a row of
+// DEBT.md; and for a repository, 4 KB for RUN.md, 1 KB for an entry, a section and a row of DEBT.md.
+
+const filler = (n) => `\n\n${"z".repeat(n)}\n`;
+
+test("a file over its budget names its size and its limit, and where the limit is", async () => {
+  await expectOnly([["RUN.md", "# План\n", `# План${filler(4200)}`]], /^RUN\.md:1: 4,\d{3} bytes, over its budget of 4 KB \(4,096 bytes\) — tools\/docs-check\/budgets\.json$/);
+  assert.deepEqual(await errorsOf([["RUN.md", "# План\n", `# План${filler(3000)}`]]), []);
+});
+
+test("a decision entry over its budget, to the next entry", async () => {
+  await expectOnly([["docs/decisions.md", "Как R38 canvas-api.", `Как R38 canvas-api.${filler(1100)}`]], /^docs\/decisions\.md:11: R02: 1,\d{3} bytes, over its budget of 1 KB \(1,024 bytes\)/);
+  assert.deepEqual(await errorsOf([["docs/decisions.md", "Как R38 canvas-api.", `Как R38 canvas-api.${filler(900)}`]]), []);
+});
+
+test("a section over its budget, to the next heading, and a section with a limit of its own", async () => {
+  await expectOnly([["docs/product.md", "## 13. Открытые вопросы\n", `## 12. Ещё${filler(1100)}\n## 13. Открытые вопросы\n`]], /^docs\/product\.md:\d+: section 12: 1,\d{3} bytes, over its budget of 1 KB/);
+  assert.deepEqual(await errorsOf([["docs/product.md", "Номера не меняются.", `Номера не меняются.${filler(1500)}`]]), []);
+  await expectOnly([["docs/product.md", "Номера не меняются.", `Номера не меняются.${filler(2100)}`]], /^docs\/product\.md:\d+: section 13: 2,\d{3} bytes, over its budget of 2 KB/);
+});
+
+test("text under an unnumbered heading, and above the first heading, has the limit of a section", async () => {
+  await expectOnly([["docs/product.md", "## 13. Открытые вопросы\n", `## Приложение${filler(1100)}\n## 13. Открытые вопросы\n`]], /^docs\/product\.md:\d+: under «Приложение»: 1,\d{3} bytes, over its budget of 1 KB/);
+  await expectOnly([["docs/product.md", "# Продукт\n", `${"z".repeat(1100)}\n\n# Продукт\n`]], /^docs\/product\.md:1: above the first heading: 1,\d{3} bytes, over its budget of 1 KB/);
+});
+
+test("a limit of its own for a section that does not exist is an error", async () => {
+  await expectOnly([["tools/docs-check/budgets.json", '"product 13"', '"product 14"']], /^tools\/docs-check\/budgets\.json:0: budgets: sections "product 14" names no numbered section/);
+});
+
+test("a rule over its budget, front matter and all", async () => {
+  await expectOnly(withRule(rule(undefined, `# Docs${filler(2100)}`)), /^\.claude\/rules\/docs\.md:1: a rule: 2,\d{3} bytes, over its budget of 2 KB/);
+});
+
+test("a row of a table over its budget", async () => {
+  await expectOnly([["DEBT.md", "| Д1 | Первый долг |", `| Д1 | Первый долг ${"z".repeat(1100)} |`]], /^DEBT\.md:\d+: a row «Д1» — 1,\d{3} bytes, over its budget of 1 KB/);
+});
+
+test("budgets that are wrong are errors, not a check turned off", async () => {
+  const file = "tools/docs-check/budgets.json";
+  await expectOnly([[file, '"entry": 1,\n    "section"', '"entry": 0,\n    "section"']], /budgets\.json:0: budgets: entry is 0, not a whole number of KB above 0$/);
+  await expectOnly([[file, '"rule": 2,', '"rule": 2, "rules": 2,']], /budgets\.json:0: budgets: unknown key "rules"$/);
+  await expectOnly([[file, '"rows": { "DEBT.md": 1 }\n  },', '"rows": { "DEBT.md": 1.5 }\n  },']], /budgets: rows "DEBT\.md" is 1\.5, not a whole number/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": [],']], /budgets: sections is not an object of limits$/);
+  await expectOnly([[file, '"repository"', '"repo"']], /budgets: unknown block "repo"$/);
+  assert.deepEqual(await errorsOf([[file, '"spec"', '"spek"']]), ['tools/docs-check/budgets.json:0: budgets: unknown block "spek"', 'tools/docs-check/budgets.json:0: budgets: no block "spec"']);
+  await expectOnly([[file, null, "null\n"]], /budgets\.json:0: budgets: not a JSON object$/);
+  await expectOnly([[file, '"RUN.md": 4, "DEBT.md": 4', '"RUN.md": 4, "DEBT.MD": 4']], /budgets\.json:0: budgets: files "DEBT\.MD" names no file of the repository$/);
+  await expectOnly([[file, '"rows": { "DEBT.md": 1 }\n  },', '"rows": { "DEBT.md": 1, "debt.md": 1 }\n  },']], /budgets\.json:0: budgets: rows "debt\.md" names no Markdown file of the repository$/);
+  await expectOnly([[file, "{", "{,"]], /budgets\.json:0: budgets: not JSON/);
+  await expectOnly([[file, null, null]], /budgets\.json:0: budgets: the file is not there$/);
+  await expectOnly([[file, null, null], [`${file}/x`, null, "{}"]], /budgets\.json:0: budgets: the file cannot be read: EISDIR$/);
+});
+
+test("a repository is checked only once it has docs-budgets.json, by spec's block and its own", async () => {
+  const big = ["RUN.md", "# План компонента\n", `# План компонента${filler(4200)}`];
+  assert.deepEqual(await componentErrors([big]), []);
+  await componentOnly([big, ["docs-budgets.json", null, "{}\n"]], /^RUN\.md:1: 4,\d{3} bytes, over its budget of 4 KB \(4,096 bytes\) — spec\/tools\/docs-check\/budgets\.json$/);
+  assert.deepEqual(await componentErrors([big, ["docs-budgets.json", null, '{ "files": { "RUN.md": 8 } }\n']]), []);
+  await componentOnly([big, ["docs-budgets.json", null, '{ "files": { "RUN.md": 3 } }\n']], /over its budget of 3 KB \(3,072 bytes\) — docs-budgets\.json$/);
+  await componentOnly([["docs-budgets.json", null, "[]\n"]], /^docs-budgets\.json:0: budgets: not a JSON object$/);
+  // The repository's own decision log and sections, by the block "repository".
+  await componentOnly([["docs-budgets.json", null, "{}\n"], ["docs/architecture.md", "Пока пусто.", `Пока пусто.${filler(1100)}`]], /^docs\/architecture\.md:\d+: section 3: 1,\d{3} bytes/);
+});
+
+test("spec's own budgets.json is well formed, and names files that are there", () => {
+  const root = path.join(here, "..", "..", "..");
+  const errors = [];
+  const limits = readBudgets(root, specProfile.budgets, (file, line, message) => errors.push(`${file}:${line}: ${message}`));
+  assert.deepEqual(errors, []);
+  for (const file of Object.keys(limits.files)) assert.ok(fs.existsSync(path.join(root, file)), file);
+  const own = readBudgets(root, { ...specProfile.budgets, block: "repository" }, (file, line, message) => errors.push(`${file}:${line}: ${message}`));
+  assert.deepEqual(errors, []);
+  assert.ok(own.entry && own.section && own.files["RUN.md"]);
 });

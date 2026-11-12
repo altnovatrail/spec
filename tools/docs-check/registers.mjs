@@ -82,7 +82,7 @@ function placeOf(register, files, report) {
 }
 
 // "**R01. …**" paragraphs.
-function entriesOf(register, doc) {
+export function entriesOf(register, doc) {
   const head = new RegExp(`^${register.prefix}(\\d+)\\.\\s`, "u");
   return doc.blocks
     .filter((b) => b.type === "paragraph" && b.strongStart)
