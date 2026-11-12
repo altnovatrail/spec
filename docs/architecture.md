@@ -30,7 +30,7 @@
   - Поэтому журналы запросов исключаются в Cloud Logging — фильтром каждого sink: Google принимает запись и отбрасывает её до хранения (R07 infra), — а регион журналов — `us-east4`, как у всей платформы (R109).
   - Хостинг `app` — Firebase Hosting — и сервис входа — Firebase Auth — хранят IP-адреса в своих журналах сами, несколько месяцев и несколько недель; выгрузку журналов Hosting в Cloud Logging `infra` не включает (R06 infra; раздел 3.12; П-9).
 
-  Источники — в разделе 8.
+  Источники — sources 3.1, 4.1, 4.2 и 4.4.
 
 ## 2. Общая схема
 
@@ -191,7 +191,7 @@ flowchart LR
 
 - **Что это:** интерактивные компоненты модуля на канве — код автора модуля (concepts 8).
 - **Как работают** (R16):
-  - в iframe-песочнице без `allow-same-origin`, на отдельном регистрируемом домене. Вместе с `allow-scripts` он позволил бы странице того же origin снять песочницу (раздел 8);
+  - в iframe-песочнице без `allow-same-origin`, на отдельном регистрируемом домене. Вместе с `allow-scripts` он позволил бы странице того же origin снять песочницу (sources 5.1);
   - CSP не даёт коду виджета ходить в сеть: загружается только сам бандл;
   - с приложением виджет говорит только по протоколу из `spec`;
   - бандл подписан и закреплён по хешу в пакете модуля, а пакет закреплён за попыткой;
@@ -199,8 +199,8 @@ flowchart LR
   - детям — только виджеты, прошедшие ревью (О-9).
 - **Этап 4.** В первом срезе виджетов нет: ни одному из трёх его модулей они не нужны (R41). Привязки ячейки к состоянию виджета в формате v0 нет: она придёт с протоколом виджета, минорной версией (R51). Образец для авторов — `widget-template` (раздел 3.13).
 - **Решить при детализации** — в эпике E5 RUN.md:
-  - протокол виджета. Что ему решать сверх R16 — по анализу автора 2026-10-21 (product 14). Сторона протокола в приложении — хост виджетов `canvas`, который `app` собирает в себя (раздел 3.2); «`app`» ниже — это он (В22 `canvas`):
-    - канал. Отправителя сообщения HTML Standard велит проверять по origin, а у виджета без `allow-same-origin` origin непрозрачный и сериализуется как "null". Сверка `event.source` с окном iframe документы не различает: окно у iframe одно, а при переходе меняется только документ за ним. Поэтому анализ советует порт `MessageChannel`: `app` передаёт его виджету один раз, при первой загрузке iframe, и дальше слушает только его, а документ, на который виджет перешёл потом, этого порта не получал (раздел 8). Как `app` замечает такой переход, решает протокол;
+  - протокол виджета. Что ему решать сверх R16 — по анализу автора 2026-10-21 (sources 8.4). Сторона протокола в приложении — хост виджетов `canvas`, который `app` собирает в себя (раздел 3.2); «`app`» ниже — это он (В22 `canvas`):
+    - канал. Отправителя сообщения HTML Standard велит проверять по origin, а у виджета без `allow-same-origin` origin непрозрачный и сериализуется как "null". Сверка `event.source` с окном iframe документы не различает: окно у iframe одно, а при переходе меняется только документ за ним. Поэтому анализ советует порт `MessageChannel`: `app` передаёт его виджету один раз, при первой загрузке iframe, и дальше слушает только его, а документ, на который виджет перешёл потом, этого порта не получал (sources 5.2). Как `app` замечает такой переход, решает протокол;
     - версия состояния в каждом сообщении виджета: `app` знает, к какой версии относятся вердикт и слова наставника, а пометку на части виджета, которая с тех пор изменилась, не рисует — как пометку листа, чьи штрихи стёрты (architecture 3.2 canvas);
     - части виджета для пометок: слой наставника лежит над виджетом (concepts 8), поэтому виджет называет свои части и их рамки, а пометка держится за часть, как на листе — за штрихи;
     - виджет сообщает состояние и события ученика, а не вердикт. Верно ли, решает `module-kit` (concepts 9.2), а по какому состоянию — сообщённому виджетом или повторённому на сервере по зерну и событиям, — решает Т-24. Зерно виджета — своё, не зерно попытки: зерно попытки на устройство не уходит, а как виджет получает своё, решает протокол виджета (R59);
@@ -428,7 +428,7 @@ flowchart LR
   Образец — `infra/` canvas-api: `bootstrap.sh` и один корневой модуль на HCL. Инструмент — OpenTofu, открытый форк Terraform, по точной версии в стадии `toolchain` (поправка 2026-11-08 к R11; Т-29 закрыт). Код — эпик первого кода `infra`.
 - **.github:**
   - профиль организации — `profile/README.md`;
-  - файлы сообщества по умолчанию: CONTRIBUTING, SECURITY, кодекс поведения, а с ними шаблоны issue и pull request — формы «Bug report» и «Change proposal» и чек-лист pull request (поправка 2026-11-01 к R22). GitHub берёт их из публичного репозитория `.github` для всех репозиториев организации, у которых нет своих, и свои шаблоны репозиторий не заводит: они отменили бы общие (раздел 8);
+  - файлы сообщества по умолчанию: CONTRIBUTING, SECURITY, кодекс поведения, а с ними шаблоны issue и pull request — формы «Bug report» и «Change proposal» и чек-лист pull request (поправка 2026-11-01 к R22). GitHub берёт их из публичного репозитория `.github` для всех репозиториев организации, у которых нет своих, и свои шаблоны репозиторий не заводит: они отменили бы общие (sources 6.1);
   - общие workflow, с actions, закреплёнными по SHA (R03–R05 .github):
     - до кода и у всех репозиториев — поиск секретов, DCO, CodeQL, Scorecard и проверка документов; у `spec` проверка документов своя. Scorecard общий: его сервер принимает результат общего workflow, вызванного из другого репозитория. API Scorecard отдаёт результаты `spec` и всех одиннадцати репозиториев компонентов, прочитано 2026-10-20 (RUN.md, T17, T16 и T21; architecture 2.2 .github);
     - для кода — обёртки Go и TypeScript над рецептами репозитория, с проверкой лицензий и загрузкой покрытия тестов в Codecov по OIDC, и релиз с подписью. У обёртки Go — вход `same-bits`: с ним идут прогоны на целях, разностная проверка ассемблера `fma-diff`, прогон на arm64 и тест правил кода инструментом `.github` со списками вызывающего в `.github/coderules.json` (R107; поправки 2026-11-08 к R16 .github). Что у его подписи и у подписи файлов `spec` сверяет потребитель, решил R77, а сверяет её один рецепт `spec`, `release-verify`. `spec` общий релиз позвать не может — тот берёт рецепты из подмодуля `spec`, — и его `release.yml` свой: подписывает файлы тем же cosign без ключа и публикует в npm пакет типов `@altnovatrail/spec` теми же шагами, что общий, а общую обёртку Go `spec` зовёт, как любой репозиторий на Go, — job «Go» со своими рецептами `ci-*` (R64, R72; вторая поправка 2026-10-29 к R37; поправка 2026-11-01 к R30). Список лицензий и проверку lock-файла npm обёртки берут рецептами `spec` (R39), а релиз зовёт рецепты релиза `spec` его скриптом `tools/toolchain/toolchain.sh` (поправки к R31). Пакет интерфейса из подписанного релиза тот же релиз публикует в npm — шаг пишет `.github` (R37). Каждую проверяет настоящий код (R03 .github): обёртка Go и релиз приходят с первым кодом `module-kit`, а обёртка TypeScript — с первым кодом на TypeScript, у `canvas`. Свой код `.github` — один инструмент CI, тест правил кода `tools/coderules/`: его проверяет тот же `go.yml` из `self-ci.yml`, с покрытием в Codecov и CodeQL для Go, а правка инструмента даёт релиз `.github` (R33 .github);
@@ -594,7 +594,7 @@ sequenceDiagram
   - Цена при этом осталась бы: расхождение версий, дубли фреймворка, более сложные CSP, кэш и офлайн.
 - **Как пакеты стыкуются с приложением** — веб-компонентами, с типами данных из релизов `spec` (R36): у пакетов несколько потребителей, а фреймворк каждого решает его репозиторий. Выходят пакеты в npm, в области `@altnovatrail` (R37).
 - **Чужой код** — только виджеты модулей, и только в iframe-песочнице (раздел 3.4).
-  - Shadow DOM — не средство защиты: он изолирует стили и дерево DOM, но не код (раздел 8).
+  - Shadow DOM — не средство защиты: он изолирует стили и дерево DOM, но не код (sources 5.3).
   - Поэтому модуль не встраивается в страницу веб-компонентом через `<script src>`, как предлагал Gemini (R16).
 - **Второй потребитель пакета** — например, сайт или карточка канала MCP — получает вторую сборку того же пакета. Так в standalone собран виджет чата: одна HTML-страница в iframe хоста.
 - **Иконки** — один набор каталога Iconify, Material Symbols, у всех пакетов интерфейса (R78).
@@ -658,51 +658,4 @@ sequenceDiagram
 
 ## 8. Источники
 
-Прочитано 2026-10-18:
-- Google Cloud, [Cloud Run: logging](https://docs.cloud.google.com/run/docs/logging) — обновлено 2026-10-13:
-  - «Request logs (services only): logs of requests sent to Cloud Run services. These logs are created automatically»;
-  - «Although you cannot control the amount of request logs directly from Cloud Run, you can make use of the logs exclusion feature from Cloud Logging».
-- Google Cloud, [LogEntry, HttpRequest](https://docs.cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry) — обновлено 2026-09-04. Поле `remoteIp`: «The IP address (IPv4 or IPv6) of the client that issued the HTTP request».
-- [16 CFR 312.2](https://www.law.cornell.edu/cfr/text/16/312.2), определение «Personal information», пункт (7): «A persistent identifier that can be used to recognize a user over time and across different websites or online services. Such persistent identifier includes, but is not limited to, a customer number held in a cookie, an Internet Protocol (IP) address, a processor or device serial number, or unique device identifier».
-- [Web Speech API](https://webaudio.github.io/web-speech-api/) — Draft Community Group Report от 15.10.2026. Атрибут `localService`: «This attribute is true for voices supplied by a local speech synthesizer, and is false for voices supplied by a remote speech synthesizer service».
-
-Прочитано 2026-10-19:
-- [HTML Standard](https://html.spec.whatwg.org/multipage/iframe-embed-object.html), атрибут `sandbox` у `iframe` — обновлено 16.10.2026:
-  - «When the attribute is set, the content is treated as being from a unique opaque origin, forms, scripts, and various potentially annoying APIs are disabled, and links are prevented from targeting other navigables»;
-  - «Setting both the allow-scripts and allow-same-origin keywords together when the embedded page has the same origin as the page containing the iframe allows the embedded page to simply remove the sandbox attribute and then reload itself, effectively breaking out of the sandbox altogether».
-- web.dev, [Shadow DOM v1 — Self-Contained Web Components](https://web.dev/articles/shadowdom-v1) — обновлено 2016-08-01: «Shadow DOM is not a security feature. It's a lightweight tool for scoping CSS and hiding away DOM trees in component».
-- GitHub Docs:
-  - [Creating a default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file): «You can add default community health files to a repository called .github. The .github repository must be public»;
-  - [Customizing your organization's profile](https://docs.github.com/en/organizations/collaborating-with-groups-in-organizations/customizing-your-organizations-profile): «In your organization's .github repository, create a README.md file in the profile folder».
-
-Прочитано 2026-10-21 — [HTML Standard](https://html.spec.whatwg.org/multipage/), обновлено 20.10.2026 (раздел 3.4):
-- [Origins](https://html.spec.whatwg.org/multipage/browsers.html#concept-origin-opaque), о непрозрачном origin: «An internal value, with no serialization it can be recreated from (it is serialized as "null" per serialization of an origin), for which the only meaningful operation is testing for equality»;
-- [Cross-document messaging, Authors](https://html.spec.whatwg.org/multipage/web-messaging.html#authors): «Authors should check the origin attribute to ensure that messages are only accepted from domains that they expect to receive messages from»;
-- [Ports as the basis of an object-capability model on the web](https://html.spec.whatwg.org/multipage/web-messaging.html#ports-as-the-basis-of-an-object-capability-model-on-the-web), раздел не нормативный: «Ports can be viewed as a way to expose limited capabilities (in the object-capability model sense) to other actors in the system»;
-- [The WindowProxy exotic object](https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-windowproxy-exotic-object): «Each browsing context has an associated WindowProxy object. When the browsing context is navigated, the Window object wrapped by the browsing context's associated WindowProxy object is changed».
-
-Прочитано 2026-11-01 — GitHub Docs:
-- [Creating a default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file): «Store issue templates and their configuration file in `.github/ISSUE_TEMPLATE`» и «if a repository defines valid issue templates or issue template configuration in its own `.github/ISSUE_TEMPLATE` folder, none of the contents of the default `.github/ISSUE_TEMPLATE` folder will be used»;
-- [Creating a pull request template for your repository](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository): «You can create default pull request templates for your organization or personal account».
-
-Прочитано 2026-11-02 — озвучка синтезом речи устройства (Т-13; privacy 6; R07 app). Цитаты сверены `curl` с текстом страниц и файлов; что выведено из кода, а не сказано поставщиком, так и названо:
-- [Web Speech API](https://webaudio.github.io/web-speech-api/) — Draft Community Group Report от 27.10.2026. Его [README](https://github.com/WebAudio/web-speech-api): «This is an incubaiton with no official status. This is not a standard.» — опечатка источника. Атрибут `localService` описан той же фразой, что 2026-10-18, выше. Голос фразы: «If this attribute is unset or null at the time of the speak() method call, then the user agent must use a user agent default voice», а этот голос «can be a local or remote speech service».
-- Chromium, ветка `main`, коммит 88a24da:
-  - [`manifest.json`](https://chromium.googlesource.com/chromium/src/+/88a24da8ad5dbef9b947545887d4da2c33f45759/chrome/browser/resources/network_speech_synthesis/manifest.json): «Component extension providing speech via the Google network text-to-speech service.», а у голосов «Google US English» и «Google русский» — `"remote": true`. [`tts_extension.js`](https://chromium.googlesource.com/chromium/src/+/88a24da8ad5dbef9b947545887d4da2c33f45759/chrome/browser/resources/network_speech_synthesis/tts_extension.js): адрес `https://www.google.com/speech-api/v2/synthesize?` и `url += '&text=' + encodeURIComponent(utterance);`;
-  - [`speech_synthesis_impl.cc`](https://chromium.googlesource.com/chromium/src/+/88a24da8ad5dbef9b947545887d4da2c33f45759/content/browser/speech/speech_synthesis_impl.cc): `out_voice->is_local_service = !voices[i].remote;`. [`component_loader.cc`](https://chromium.googlesource.com/chromium/src/+/88a24da8ad5dbef9b947545887d4da2c33f45759/chrome/browser/extensions/component_loader.cc): `#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)` перед `AddNetworkSpeechSynthesisExtension();` — сетевые голоса Google есть только у Chrome от Google и не у ChromeOS;
-  - [`tts_controller_impl.cc`](https://chromium.googlesource.com/chromium/src/+/88a24da8ad5dbef9b947545887d4da2c33f45759/content/browser/speech/tts_controller_impl.cc): голос, которого фраза не называет, Chrome подбирает по очкам — язык фразы, нужные события, язык приложения — и «Start with a best score of -1, that way even if none of the criteria match, something will be returned if there are any voices». Локальности среди очков нет: это чтение кода;
-  - [`TtsPlatformImpl.java`](https://chromium.googlesource.com/chromium/src/+/88a24da8ad5dbef9b947545887d4da2c33f45759/content/public/android/java/src/org/chromium/content/browser/TtsPlatformImpl.java): на Android голос — `new TtsVoice(name, locale.toString())`, без пометки «сетевой», и `localService` истинен у каждого голоса. Это чтение кода.
-- Microsoft, [Microsoft Edge Privacy Whitepaper](https://learn.microsoft.com/en-us/microsoft-edge/privacy-whitepaper/), дата страницы — 31.08.2026, раздел «Read aloud» — о чтении вслух в Edge, а не о Web Speech API: «If your content is converted to speech by using a client-side library, no information is sent to Microsoft servers.»; «If your content is converted to speech by using Azure Cognitive Services (as indicated by the word "Online" in any of the voice names), the text, along with a randomly generated token, is sent to Microsoft.» Ставит ли Edge голосам «Online» `localService` ложным, Microsoft не пишет.
-- WebKit, ветка `main`, коммит 72780a2, [`PlatformSpeechSynthesizerCocoa.mm`](https://github.com/WebKit/WebKit/blob/72780a2/Source/WebCore/platform/cocoa/PlatformSpeechSynthesizerCocoa.mm): `if (voice.isSystemVoice)` и `/* localService */ true, /* isDefault */ true` — только голоса системы Apple, и `localService` истинен у каждого. Это чтение кода.
-- Android, [Voice](https://developer.android.com/reference/android/speech/tts/Voice), `isNetworkConnectionRequired()`: «Does the Voice require a network connection to work».
-- speech-dispatcher, ветка `master`, коммит 8972b11: [README](https://github.com/brailcom/speechd/blob/8972b11/README.md) называет среди синтезов «Edge TTS», а [`edgetts-generic.conf`](https://github.com/brailcom/speechd/blob/8972b11/config/modules/edgetts-generic.conf) — «It uses the edge-tts command-line client to synthesize speech» и передаёт ему текст `$DATA`. [edge-tts](https://github.com/rany2/edge-tts/blob/bd44c1d/README.md), коммит bd44c1d: «`edge-tts` is a Python module that allows you to use Microsoft Edge's online text-to-speech service».
-- Остальное, что `app` прочитал об озвучке, — architecture 4 app.
-
-MathTrail:
-- MathTrail Canvas, [docs/](https://github.com/mathtrail/canvas-api/tree/main/docs) — коммит 0901af0:
-  - spec и self-hosting;
-  - решения canvas-api: R15, R43, R47, R52;
-  - privacy 4: «Платформенные журналы запросов Cloud Run и Firebase Hosting сами пишут IP-адрес и user agent».
-- [mathtrail-standalone](https://github.com/mathtrail/mathtrail-standalone) — коммит c6cbeb2: SPEC (2 — модель ученика, 6.6 — песочница решателей), `docs/architecture/`, `docs/learners.md`.
-- Диалог автора с Gemini — в репозиторий не входит; доводы, на которые здесь опираемся, пересказаны в R16 и R18.
-- Анализ автора «Базовая канва и контракт „канва ↔ агент“», 2026-10-21, — в репозиторий не входит. Его писала модель, которая не видела ни кода, ни принятых решений NovaTrail: из него взяты вопросы, а не факты (раздел 3.4; Т-30).
+Записи источников — в [sources.md](sources.md). То, что стояло здесь, — sources 3.1, 4.1, 4.2, 5, 6 и 8. Раздел остаётся, потому что на него ссылаются журнал решений и архивы (R143; RUN.md, T133).

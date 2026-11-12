@@ -98,6 +98,7 @@ const EXPECTED_FILES = [
   "RUN.md",
   "docs/architecture.md",
   "docs/decisions.md",
+  "docs/sources.md",
 ];
 // The go kind's folder puts the lock file of gopls beside the Dockerfile (R102).
 const GOPLS_FILES = [".devcontainer/gopls/go.mod", ".devcontainer/gopls/go.sum"];

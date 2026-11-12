@@ -1,4 +1,4 @@
-// tokens-report: where the tokens of a repository's Claude Code sessions go (repositories 9).
+// tokens-report: where the tokens of a repository's Claude Code sessions go (measurements 1).
 //
 //   node tools/tokens/main.mjs [--since <date|time>] [--until <date|time>] [--top <n>] [--project <name>] [--json]
 //

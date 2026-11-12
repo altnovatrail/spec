@@ -1,4 +1,4 @@
-// What tokens-report counts in a project's transcripts, and how it prints it (repositories 9.1).
+// What tokens-report counts in a project's transcripts, and how it prints it (measurements 1.1).
 //
 // A call of the model is an assistant record's message, counted once by its id: a transcript
 // repeats the message, and its usage, in a record for each block of its content. The fields of

@@ -9,7 +9,7 @@ The file is read in every repository, so whatever it cites from spec carries the
 Every document meets one bar and is written for whoever reads it. The documents under `docs/`, but for the epic archives `docs/plan/`, are read by a session of Claude Code, not by the author: the session acts on them for an engineer, a module author or a lawyer. Write them so that it can do so without asking what you meant, and shape them to be read in parts, a section or an entry at a time (R143 spec). The bar is concrete:
 
 - one term means one thing in every document; the vocabulary is concepts 15 spec;
-- every claim about the outside world — a provider's terms, a price, a law — cites its source and the date it was read;
+- every claim about the outside world — a provider's terms, a price, a law — cites its source and the date it was read. The source, its date and its quote are a record of the repository's `docs/sources.md`, and the claim cites the record by its number, as a section: `sources 2.3`;
 - a gap is never filled silently: it becomes an open question with options and a recommendation;
 - a decision says why, and what was rejected.
 
@@ -24,12 +24,12 @@ The name is written **NovaTrail**, with a capital T. Identifiers stay lowercase:
 ## How we work
 
 - The author runs tasks one at a time: «Выполни задачу Txx из RUN.md». Do only that task, by the rules in RUN.md.
-- One task is one session (R143 spec): its inbox triage, its planning and its execution run in one session of Claude Code, and the next task starts in a new session or after `/clear`. A session's cost grows with what it has gathered, not with what it started with (repositories 9.5 spec). The hook `UserPromptSubmit` of `.claude/settings.json`, spec's `tools/session/`, stops a prompt that starts another task in the same session — «Выполни задачу T…», «планируй T…» — and names `/clear`; the inbox triage names no task and goes on. What the next task needs from this one lives in files, not in the session.
+- One task is one session (R143 spec): its inbox triage, its planning and its execution run in one session of Claude Code, and the next task starts in a new session or after `/clear`. A session's cost grows with what it has gathered, not with what it started with (measurements 1.5 spec). The hook `UserPromptSubmit` of `.claude/settings.json`, spec's `tools/session/`, stops a prompt that starts another task in the same session — «Выполни задачу T…», «планируй T…» — and names `/clear`; the inbox triage names no task and goes on. What the next task needs from this one lives in files, not in the session.
 - Before proposing a change, read the repository's decision log, `docs/decisions.md`, and the sections the change touches. Do not re-propose what a decision rejected without new evidence. If a decision has to change, ask the author and record the change.
 - A decision is never rewritten. An amendment with its date goes at the end of the entry, or a new entry replaces it; the old one stays where it is, marked «Заменено», its text unedited.
 - A decision that changes what another entry of the log says puts a dated amendment on that entry too, in the same change: the amendment names the new decision and what it changed. An entry and its amendments are then its whole text in force, and a session that reads them needs no other entry to know it (R143 spec).
 - A new number — R, О-, П-, Т- — is the next one still free when it is written down, not when the work began: a parallel session may have taken one meanwhile. Each register's opening names the next free number; keep it current.
-- Facts about AI providers, laws and prices come from the primary source, quoted with the date read. What could not be verified is not stated as fact: it becomes an open question.
+- Facts about AI providers, laws and prices come from the primary source, quoted with the date read, into a record of `docs/sources.md`. What could not be verified is not stated as fact: it becomes an open question. The results of a measurement — what was measured, how, on what, and the numbers — go to `docs/measurements.md`, which the first measurement starts, and the documents that describe how things are built cite them: `docs/architecture.md` holds neither (R143 spec).
 - Project context lives in the repository's files, not in chat history.
 - Code comes with its tests: a pull request that adds or changes what code does adds or changes the tests of its automated suite too. Where a repository's coverage goes to Codecov, the merge waits for `codecov/patch`, at least 90% of the changed lines covered (R48 spec).
 - Do not commit: the author commits after review.

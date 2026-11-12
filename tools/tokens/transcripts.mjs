@@ -1,5 +1,5 @@
 // Where Claude Code keeps the transcripts of a repository's sessions on this machine, and how
-// tokens-report reads them (repositories 9.1).
+// tokens-report reads them (measurements 1.1).
 //
 // Claude Code writes each session to <config>/projects/<slug>/<session>.jsonl, and each subagent
 // of a session to <config>/projects/<slug>/<session>/subagents/agent-<id>.jsonl. <config> is

@@ -1,6 +1,6 @@
 // The rules of .claude/rules/: Claude Code loads one when the session reads or edits a file that
 // its `paths` match, and CLAUDE.md names each, so that a session that has not opened a part's
-// files yet still finds the part's checks (R143; repositories 9.5). A rule whose front matter
+// files yet still finds the part's checks (R143; measurements 1.5). A rule whose front matter
 // does not parse, or that has no `paths`, Claude Code loads in every session, and a pattern that
 // matches no file never loads it: either way the rule says nothing of where it is meant to apply.
 
@@ -58,7 +58,7 @@ function namedRules(files) {
 }
 
 // Whether a pattern matches a file, as Claude Code reads a pattern of `paths`, relative to the
-// folder that holds .claude (repositories 9.8): "/*.md" only at that root, a pattern without a
+// folder that holds .claude (measurements 1.8): "/*.md" only at that root, a pattern without a
 // slash — "*.md" — at any depth, and "*" and "**" over names that begin with a dot as over any
 // other. path.matchesGlob never lets them match a dot, so a dot that begins a name stands in both
 // for a character it has no rule for.

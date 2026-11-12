@@ -12,6 +12,10 @@ export const documents = {
   architecture: "docs/architecture.md",
   repositories: "docs/repositories.md",
   dpia: "docs/dpia.md",
+  // The records of external facts, and the results of measurements: out of the documents that
+  // describe how things are built (R143, the 2026-11-12 amendment).
+  sources: "docs/sources.md",
+  measurements: "docs/measurements.md",
 };
 
 // The numbered registers. `section` is the numbered section that holds the register, or null
@@ -85,7 +89,8 @@ export const specProfile = {
   excluded: { names: [".git", "node_modules"], paths: ["tools/docs-check/test/fixtures", "tools/format-check/test/fixtures", ".repos"] },
 };
 
-// A NovaTrail repository's profile. Its own: docs/architecture.md, cited as "architecture 2"; its
+// A NovaTrail repository's profile. Its own: docs/architecture.md, cited as "architecture 2", and
+// docs/sources.md and docs/measurements.md once it has them, "sources 2.1" and "measurements 1"; its
 // decision log, which may still be empty; table 3 of its RUN.md and table 4 of its DEBT.md, or of
 // its RUN.md until it moves. spec's documents and the
 // registers R, О-, П-, Т- are read from specDir — the spec/ submodule, or for a draft spec's
@@ -94,7 +99,7 @@ export const specProfile = {
 export function componentProfile(specDir) {
   const inSpec = (file) => `spec/${file}`;
   return {
-    documents: { architecture: "docs/architecture.md" },
+    documents: { architecture: "docs/architecture.md", sources: "docs/sources.md", measurements: "docs/measurements.md" },
     // "раздел 3" in a document with no numbered sections of its own, and no link to tell.
     sectionsDocument: "docs/architecture.md",
     registers: [

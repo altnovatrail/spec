@@ -5,7 +5,7 @@
 // "Claude Opus 5.5 | $4 / MTok | $5 / MTok | $8 / MTok | $0.20 / MTok | $20 / MTok" and
 // "Claude Haiku 4.5 | $1 / MTok | $1.25 / MTok | $2 / MTok | $0.10 / MTok | $5 / MTok". The 1M
 // context window is "at standard pricing", so a long context changes no price. Fast mode has
-// prices of its own, and a call in it is weighed as a model without a price. repositories 9.2
+// prices of its own, and a call in it is weighed as a model without a price. measurements 1.2
 // quotes the same; a new model, or a new price, is a change to both.
 
 export const PRICES = {

@@ -151,6 +151,17 @@ test("dpia N is a section of docs/dpia.md, the DPIA", async () => {
   );
 });
 
+test("sources N and measurements N are sections of docs/sources.md and docs/measurements.md", async () => {
+  const files = [
+    ["docs/sources.md", null, "# Источники\n\n## 1. Как вести\n\n### 1.1. Запись\n"],
+    ["docs/measurements.md", null, "# Замеры\n\n## 1. Сессии\n"],
+  ];
+  const cite = (text) => ["docs/privacy.md", "как П-5 canvas-api (раздел 9) |", `как П-5 canvas-api (раздел 9); ${text} |`];
+  assert.deepEqual(await errorsOf([...files, cite("источник — sources 1.1, замер — measurements 1")]), []);
+  await expectOnly([...files, cite("источник — sources 1.2")], /^docs\/privacy\.md:\d+: docs\/sources\.md has no section 1\.2$/);
+  await expectOnly([...files, cite("замер — measurements 2")], /^docs\/privacy\.md:\d+: docs\/measurements\.md has no section 2$/);
+});
+
 test("«раздел N» after a link means that document's section", async () => {
   await expectOnly([["docs/repositories.md", "раздел 9 |", "раздел 8 |"]], /docs\/privacy\.md has no section 8$/);
 });
@@ -388,6 +399,21 @@ test("a section of spec's that does not exist, also at the end of a list", async
     ],
     /spec\/docs\/dpia\.md has no section 7$/,
   );
+});
+
+test("a repository's own sources and measurements, and spec's", async () => {
+  const own = (text) => ["docs/architecture.md", "Свои разделы — architecture 2.1.", `Свои разделы — architecture 2.1; ${text}.`];
+  const files = [
+    ["docs/sources.md", null, "# Источники\n\n## 1. Поставщики\n\n### 1.1. Запись\n"],
+    ["spec/docs/sources.md", null, "# Источники\n\n## 1. Как вести\n\n## 2. Поставщики\n"],
+    ["spec/docs/measurements.md", null, "# Замеры\n\n## 1. Сессии\n\n### 1.5. Порядок работы\n"],
+  ];
+  assert.deepEqual(await componentErrors([...files, own("источник — sources 1.1, у spec — sources 2 spec; замер — measurements 1.5 spec")]), []);
+  await componentOnly([...files, own("источник — sources 1.2")], /^docs\/architecture\.md:\d+: docs\/sources\.md has no section 1\.2$/);
+  await componentOnly([...files, own("у spec — sources 3 spec")], /spec\/docs\/sources\.md has no section 3$/);
+  // A repository that has no docs/measurements.md yet: a bare citation is of spec's, without the suffix.
+  await componentOnly([...files, own("замер — measurements 1")], /: "[^"]*": measurements is spec's document; cite it as "measurements 1 spec"$/);
+  await componentOnly([own("источник — sources 2")], /: "[^"]*": sources is spec's document; cite it as "sources 2 spec"$/);
 });
 
 test("spec's document cited without the suffix", async () => {
@@ -657,7 +683,7 @@ test("in a repository, git runs without the fsmonitor hook that its config names
 });
 
 // The rules of .claude/rules/: front matter with paths that match files, and a link in CLAUDE.md
-// (R143; repositories 9.5).
+// (R143; measurements 1.5).
 
 const rule = (paths = '  - "docs/**"\n', body = "# Docs\n\nSee [the product](../../docs/product.md).\n") => `---\npaths:\n${paths}---\n\n${body}`;
 const claude = "# CLAUDE.md\n\nThe rule of the documents: [docs](.claude/rules/docs.md).\n";

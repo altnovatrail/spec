@@ -31,7 +31,7 @@ inbox-test: _tools
 # is run from — spec, or another NovaTrail repository as `just -f spec/justfile tokens-report` — and
 # prints, in all and by session, the calls of the model, the cache, the output, the context of a
 # call and its cost at the API's prices; what entered the context between calls, by tool, by file
-# and by program, and what each carried; and what a session starts with (repositories 9.1). It
+# and by program, and what each carried; and what a session starts with (measurements 1.1). It
 # prints numbers, paths and names alone, never what a transcript says. --since and --until bound
 # the calls by their time, --top the lists, --project names another folder, --json prints JSON.
 # Print where the tokens of this repository's sessions went.
