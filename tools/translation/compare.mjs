@@ -289,7 +289,7 @@ function checkUnit(x, y, line, report) {
     }
     la.forEach((text, k) => {
       if (CYRILLIC.test(text)) {
-        if (c.lang === "mermaid" && CYRILLIC.test(lb[k])) report((d.line ?? line) + 1 + k, `untranslated in a diagram: "${lb[k].trim().slice(0, 60)}"`);
+        if (c.lang === "mermaid" && CYRILLIC.test(lb[k].replace(PREFIX, ""))) report((d.line ?? line) + 1 + k, `untranslated in a diagram: "${lb[k].trim().slice(0, 60)}"`);
       } else if (text.trimEnd() !== lb[k].trimEnd()) {
         report((d.line ?? line) + 1 + k, `a line of code is not as in the original (original:${c.line + 1 + k}): "${text.trim().slice(0, 60)}"`);
       }

@@ -159,6 +159,9 @@ test("the shape: an item split in two, a paragraph joined to another, a cell", (
 test("a block of code keeps every line without Russian", () => {
   only(broken("flowchart LR", "flowchart TD"), /a line of code is not as in the original \(original:24\): "flowchart LR"/);
   only(broken("a[Module]", "a[Модуль]"), /untranslated in a diagram: "a\[Модуль\]/);
+  // A register's prefix stays Cyrillic in a diagram's label too.
+  const diagram = (label) => `# T\n\n\`\`\`mermaid\nflowchart LR\n  a -.->|"${label}"| b\n\`\`\`\n`;
+  assert.deepEqual(compare(diagram("О-17 решает"), diagram("О-17 decides")), []);
   // Outside a diagram, a line in Russian may stay as it is — the data of a module that explains in Russian.
   const yaml = (body) => `# T\n\n\`\`\`yaml\n${body}\n\`\`\`\n`;
   assert.deepEqual(compare(yaml('# Иллюстрация.\nstatement: "Найди"'), yaml('# An illustration.\nstatement: "Найди"')), []);
