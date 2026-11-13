@@ -426,6 +426,8 @@ Otherwise the rule is as before: the tool puts nothing of its own into what ship
 
 — *Amendment 2026-11-02:* Go code takes the API contracts as the nested module `github.com/altnovatrail/spec/contracts`, at the tag `contracts/vX.Y.Z` with the number of the same tag of `spec`, and TypeScript code as the npm package `@altnovatrail/contracts` of the same version (R83). The module, the submodule and the package move together, in one move to a tag. — R83; RUN.md, T54.
 
+— *Amendment 2026-11-13:* **the devcontainer of `spec`, and so every copy, also names the container in its network, `--network-alias=<repository>`, right after its own network, the first of `runArgs`: a container that joins the network — `app`'s on `novatrail-api` (R19 app) — reaches the repository by its name, as `http://api:8080`, whatever address a rebuild gives it.** The executor's decision of 2026-11-13 in T115 (RUN.md), by the answer to the row «в реестр spec» `app` В47 (DEBT.md, Д195). Docker gives the name to the first network alone (sources 9.1). `just new-repo` writes it into a copy from a tag before T115 too, and `new-repo-check` holds it. *Rejected:* one network `novatrail` for every NovaTrail container — it would join them all with no need; the address by hand — a manual step after each rebuild of `api`. — repositories 2.2; architecture 3.11; RUN.md, T115.
+
 ## Community files
 
 **R22. The default community files lie in `.github`. The code of conduct is the Contributor Covenant 2.1, vulnerabilities are reported by GitHub's private reports, contributions go under Apache-2.0 with a DCO sign-off. The issue and pull request templates will come with the first code.**

@@ -1,7 +1,8 @@
-// The new repository's devcontainer is spec's own, with a few edits: its own name and network,
-// the VS Code extensions and settings of its kind, the lines its kind adds to the toolchain stage
-// and to the devcontainer stage, with the files of its kind's folder beside the Dockerfile, a start command for the spec submodule, and the suffix "spec" on the decisions its
-// Dockerfile cites. Every edit expects to find its place a known number of times, so that a
+// The new repository's devcontainer is spec's own, with a few edits: its own name, network and
+// name in that network, the VS Code extensions and settings of its kind, the lines its kind adds
+// to the toolchain stage and to the devcontainer stage, with the files of its kind's folder beside
+// the Dockerfile, a start command for the spec submodule, and the suffix "spec" on the decisions
+// its Dockerfile cites. Every edit expects to find its place a known number of times, so that a
 // change to spec's devcontainer stops the recipe rather than producing a copy that is quietly
 // wrong.
 
@@ -74,12 +75,19 @@ function readDevcontainerFolder(template, where, folder) {
 // The edits, given the copy's root, the repository's name and its kind, as readKind gives it.
 export function editDevcontainer(root, name, { extensions, settings, toolchain, devcontainer = null }) {
   const dir = path.join(root, ".devcontainer");
-  // Docker names may not start with a dot, and a container named after .github needs none.
-  const id = `novatrail-${name.replace(/^\./, "")}`;
+  // Docker names may not start with a dot, and a container named after .github needs none; nor
+  // may a name in a network, a name of DNS.
+  const alias = name.replace(/^\./, "");
+  const id = `novatrail-${alias}`;
   const owner = `NovaTrail's ${name}`;
 
   edit(path.join(dir, "devcontainer.json"), (text) => {
     text = replace(text, "novatrail-spec", id, 2, "the container's name and network");
+    // A tag before T115 names no container in its network, and the copy gets its name all the
+    // same, after its network, the first.
+    text = text.includes("--network-alias")
+      ? replace(text, '"--network-alias=spec"', `"--network-alias=${alias}"`, 1, "the container's name in its network")
+      : replace(text, `"--network=${id}"`, `"--network=${id}",\n        "--network-alias=${alias}"`, 1, "the container's network");
     text = replace(text, "the NovaTrail spec", owner, 1, "the opening comment");
     text = remove(text, /^(?:[ \t]*\/\/.*\n)*[ \t]*"git\.repositoryScanMaxDepth":.*\n/m, "the setting only spec needs");
     text = addSettings(text, settings);

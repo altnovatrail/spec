@@ -265,3 +265,9 @@ The standalone prototype — [MathTrail/llm-taskgen-prototype](https://github.co
 ### 8.5. NovaTrail's documents and the prototype
 
 Internal: [decisions.md](decisions.md), [concepts.md](concepts.md), [privacy.md](privacy.md), [architecture.md](architecture.md), [repositories.md](repositories.md); the prototype — [draft/README.md](../draft/README.md).
+
+## 9. Docker
+
+### 9.1. Docker CLI: the name of a container in a network, 2026-11-13
+
+docker/cli — [`cli/command/container/opts.go`](https://github.com/docker/cli/blob/fdd4b8e5da335e1d0d83d29af5045f57280cd694/cli/command/container/opts.go) at the commit fdd4b8e of its `master`, 2026-11-13, read 2026-11-13. The flag: `flags.Var(&copts.aliases, "network-alias", "Add network-scoped alias for the container")`. With several networks, `parseNetworkOpts`: "The first network corresponds with what was previously the "only" network, and what would be used when using the non-advanced syntax `--network-alias`, `--link`, `--ip`, `--ip6`, and `--link-local-ip` are set on this network, to preserve backward compatibility with the non-advanced notation"; and on a network that is not user-defined, "network-scoped aliases are only supported for user-defined networks". For T115 and Д195.

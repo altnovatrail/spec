@@ -210,7 +210,7 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     const dir = draft(name, kind, card);
     const dc = devcontainer(dir);
     assert.equal(dc.name, `novatrail-${name}`);
-    assert.deepEqual(dc.runArgs, [`--network=novatrail-${name}`]);
+    assert.deepEqual(dc.runArgs, [`--network=novatrail-${name}`, `--network-alias=${name}`]);
     assert.match(read(dir, ".devcontainer/host-network.sh"), new RegExp(`^network="novatrail-${name}"$`, "m"));
     const dockerfile = read(dir, ".devcontainer/Dockerfile");
     assert.match(dockerfile, new RegExp(`^# Development container for NovaTrail's ${name}\\.`));
@@ -424,7 +424,7 @@ test("check: the marketplace and the plugins a copy's settings turn on from a lo
 test(".github gets a container name without the dot", () => {
   const dc = devcontainer(draft(".github", "docs", "3.11"));
   assert.equal(dc.name, "novatrail-github");
-  assert.deepEqual(dc.runArgs, ["--network=novatrail-github"]);
+  assert.deepEqual(dc.runArgs, ["--network=novatrail-github", "--network-alias=github"]);
 });
 
 test("refuses what it cannot build, and leaves nothing behind", () => {
@@ -448,6 +448,17 @@ test("a change to spec's devcontainer stops the recipe instead of a quietly wron
   const dest = path.join(temporary(), "engine");
   assert.throws(() => newRepo({ specRoot: root, name: "engine", kind: "go", card: "3.8", dest, draft: "v0.0.0-test" }), /the container's name and network: expected "novatrail-spec" 2 time\(s\).*found 1/);
   assert.equal(fs.existsSync(dest), false, "half a copy was left behind");
+  const unnamed = standIn({ change: (r) => change(r, ".devcontainer/devcontainer.json", '"--network-alias=spec"', '"--network-alias=other"') });
+  assert.throws(() => newRepo({ specRoot: unnamed, name: "engine", kind: "go", card: "3.8", dest, draft: "v0.0.0-test" }), /the container's name in its network: expected "\\"--network-alias=spec\\"" 1 time\(s\).*found 0/);
+  assert.equal(fs.existsSync(dest), false, "half a copy was left behind");
+});
+
+test("a tag before T115, with no name in the network, gives the copy its name all the same", () => {
+  const older = standIn({ change: (r) => fs.writeFileSync(path.join(r, ".devcontainer/devcontainer.json"), read(r, ".devcontainer/devcontainer.json").replace(/,\n(?:[ \t]*\/\/.*\n)*[ \t]*"--network-alias=spec"/, "")) });
+  assert.doesNotMatch(read(older, ".devcontainer/devcontainer.json"), /network-alias/);
+  const dest = path.join(temporary(), "engine");
+  newRepo({ specRoot: older, name: "engine", kind: "go", card: "3.8", dest, draft: "v0.0.0-test" });
+  assert.deepEqual(devcontainer(dest).runArgs, ["--network=novatrail-engine", "--network-alias=engine"]);
 });
 
 test("a change to spec's devcontainer where a kind adds its own stops the recipe too", () => {
@@ -505,6 +516,9 @@ test("check: what a careless fill can leave", async () => {
     ["AGENTS.md", "Codex", "Kodex", /^AGENTS\.md:0: differs from spec's own$/],
     ["RUN.md", "# RUN.md — план работ learner-model", "# RUN.md — план работ {{name}}", /^RUN\.md:1: \{\{name\}\} is left from the template$/],
     [".devcontainer/devcontainer.json", '"name": "novatrail-learner-model"', '"name": "novatrail-spec"', /^\.devcontainer\/devcontainer\.json:\d+: spec's container name or network is left/],
+    [".devcontainer/devcontainer.json", '"--network-alias=learner-model"', '"--network-alias=spec"', /^\.devcontainer\/devcontainer\.json:\d+: spec's name in the network is left/],
+    [".devcontainer/devcontainer.json", '"--network-alias=learner-model"', '"--network-alias=api"', /^\.devcontainer\/devcontainer\.json:0: the container has no name in its network, "--network-alias=learner-model"/],
+    [".devcontainer/devcontainer.json", '"--network=novatrail-learner-model",', '"--network=novatrail-api",\n        "--network=novatrail-learner-model",', /^\.devcontainer\/devcontainer\.json:0: its own network, novatrail-learner-model, is the first of runArgs/],
     // The lock file of gopls and its ARG, raised apart: CI never builds that stage (R102).
     [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}`, "ARG GOPLS_VERSION=0.0.1", new RegExp(`^\\.devcontainer/gopls/go\\.mod:0: it names gopls ${GOPLS.replaceAll(".", "\\.")}, and \\.devcontainer/Dockerfile has GOPLS_VERSION 0\\.0\\.1: raise them together \\(R102 spec\\)$`)],
     [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}\n`, "", /^\.devcontainer\/gopls\/go\.mod:0: it names gopls [\d.]+, and \.devcontainer\/Dockerfile has GOPLS_VERSION unset/],
