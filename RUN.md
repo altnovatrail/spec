@@ -157,7 +157,7 @@
 | `infra` | В33 | `02653997682a` | поправка 2026-11-13 к R125; DPIA версии 17; Д240 |
 | `learner-model` | В46 | `ac2b99a1334c` | закрытая строка 4.13, строки 4.15 и 4.16 [COORDINATION.md](COORDINATION.md) |
 | `learner-model` | В47 | `49595dcab7f6` | architecture 3.8 и concepts 11 |
-| `learner-model` | В49 | `13dfb0e6d1d9` | строка 7.8 [COORDINATION.md](COORDINATION.md) |
+| `learner-model` | В49 | `13dfb0e6d1d9` | закрытая строка 7.8 [COORDINATION.md](COORDINATION.md) |
 | `sim` | В13 | `e99dec9dd7a0` | закрытая строка 7.10 [COORDINATION.md](COORDINATION.md) |
 | `skill-map` | В9 | `91b6009e2a9c` | закрытая строка 7.11 [COORDINATION.md](COORDINATION.md) |
 | `skill-map` | В10 | `b5ce90fa7789` | поправка 2026-11-13 к R19; Д235 |
