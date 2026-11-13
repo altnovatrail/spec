@@ -250,13 +250,30 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
   }
 });
 
-test("the typescript kind brings the browser into the toolchain stage, and Biome into VS Code (R79)", () => {
+test("the typescript kind brings the browsers into the toolchain stage, and Biome into VS Code (R79)", () => {
   const dir = draft("app", "typescript", "3.1");
   const dockerfile = read(dir, ".devcontainer/Dockerfile");
   const toolchain = dockerfile.slice(0, dockerfile.indexOf("\nFROM toolchain AS devcontainer"));
-  assert.match(toolchain, /^COPY --from=mcr\.microsoft\.com\/playwright:v[\d.]+-noble@sha256:[0-9a-f]{64} \\$/m, "the image is pinned by tag and digest");
+  // One COPY for each engine CI checks, each a folder of its own at the revision its ARG names,
+  // and all three from one image, pinned by tag and digest.
+  const copies = [...toolchain.matchAll(/^COPY --from=(\S+) \\\n {4}(\S+) \\\n {4}(\S+)$/gm)];
+  assert.deepEqual(
+    copies.map(([, , from, to]) => [from, to]),
+    ["chromium_headless_shell", "webkit", "firefox"].map((browser) => {
+      const folder = `/ms-playwright/${browser}-\${PLAYWRIGHT_${browser === "chromium_headless_shell" ? "HEADLESS_SHELL" : browser.toUpperCase()}_REVISION}`;
+      return [folder, folder];
+    }),
+    "Chrome Headless Shell, WebKit and Firefox, each into its own folder",
+  );
+  assert.equal(new Set(copies.map(([, image]) => image)).size, 1, "the three browsers come from one image");
+  assert.match(copies[0][1], /^mcr\.microsoft\.com\/playwright:v[\d.]+-noble@sha256:[0-9a-f]{64}$/, "the image is pinned by tag and digest");
+  for (const name of ["HEADLESS_SHELL", "WEBKIT", "FIREFOX"]) assert.match(toolchain, new RegExp(`^ARG PLAYWRIGHT_${name}_REVISION=\\d+$`, "m"));
   assert.match(toolchain, /^ENV PLAYWRIGHT_BROWSERS_PATH=\/ms-playwright$/m);
   assert.match(toolchain, /^ARG UBUNTU_SNAPSHOT=\d{8}T\d{6}Z$/m, "the system libraries come from a snapshot (R40)");
+  const list = toolchain.match(/--snapshot "\$UBUNTU_SNAPSHOT" \\\n([^;]+);/);
+  assert.ok(list, "apt-get install takes its packages after --snapshot, up to the semicolon");
+  const packages = list[1].split(/[\s\\]+/).filter(Boolean);
+  assert.deepEqual(packages.filter((p, i) => packages.indexOf(p) !== i), [], "each package once");
   assert.match(toolchain, /\(R79 spec\)/);
   const dc = devcontainer(dir);
   assert.ok(dc.customizations.vscode.extensions.some((e) => /^biomejs\.biome@\d+\.\d+\.\d+$/.test(e)), "Biome's extension at an exact version");

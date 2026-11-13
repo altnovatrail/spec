@@ -11,13 +11,13 @@
 #
 # Raised by hand, before each new tag of spec, because no ecosystem here reads them: the ARGs of
 # .devcontainer/Dockerfile, each version with the sha256 of its archives (R34), the VS Code
-# extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json, and the browser
+# extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json, and the browsers
 # of the typescript kind in repo-template/kinds/typescript.Dockerfile — Playwright's image by tag
-# and digest, the browser's revision in it and the snapshot of the Ubuntu archive (R79) — and gopls
-# of the go kind, its lock file repo-template/kinds/go/gopls/ with GOPLS_VERSION beside it (R102):
-# no gomod entry below reads it, as the repositories that copy it leave theirs out too, but
-# GitHub's dependency graph does, so an advisory on a module of it still opens an alert, and the
-# fix raises gopls with GOPLS_VERSION rather than the module alone. Every new
+# and digest, the revisions of its three browsers in it and the snapshot of the Ubuntu archive
+# (R79) — and gopls of the go kind, its lock file repo-template/kinds/go/gopls/ with GOPLS_VERSION
+# beside it (R102): no gomod entry below reads it, as the repositories that copy it leave theirs
+# out too, but GitHub's dependency graph does, so an advisory on a module of it still opens an
+# alert, and the fix raises gopls with GOPLS_VERSION rather than the module alone. Every new
 # repository copies this devcontainer at a tag of spec. So is the Codecov CLI of ci.yml, its
 # version with its sha256 (R48): Dependabot moves the SHA of the action that runs it, not the CLI.
 # And so are govulncheck and go-licenses, which the ci- recipes of the justfile run by go run at
