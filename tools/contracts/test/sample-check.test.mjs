@@ -172,3 +172,14 @@ test("--eval-set comes first, with the ID of a module, and then the files of its
   assert.match(unnamed.stdout, /: the module's ID "Novatrail\/Olympiad Math" is not the ID of a module, <publisher>\/<name>, as the module format has it$/m);
   assert.deepEqual(checkSampleFiles(root, [`${FOLDER}/sheet-eval-set.json`], MODULE).errors.map((error) => error.message), [`a sample of the eval set of ${MODULE} is of a task of that module: its source is modules (contracts/README.md, section 13)`]);
 });
+
+// A large set, as modules has, of 631 files of some 600 KB each (T116; Д197), in a model: 60
+// essays of some 260 KB each, whose sheet holds its crops as PNG, under a heap of 64 MB. The code
+// before T116, which held every sample read until the set's rule ran, runs out of it on this model;
+// now each file goes once it is read, and the set's rule keeps its IDs alone.
+test("--eval-set reads a large set one file at a time, its rule kept by the IDs", () => {
+  const files = Object.fromEntries(Array.from({ length: 60 }, (_, i) => [`eval/essay-${i}.json`, textOf({ ...essay, id: `synthetic-${5000 + i}` })]));
+  const run = withRepository(files, (dir) => spawnSync(process.execPath, ["--max-old-space-size=64", main, "--samples", "--eval-set", MODULE, ...Object.keys(files)], { cwd: dir, encoding: "utf8" }));
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  assert.equal(run.stdout, `sample-check: ok — 60 samples of the eval set of ${MODULE}\n`);
+});

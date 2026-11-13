@@ -82,9 +82,9 @@ import { fileURLToPath } from "node:url";
 import { byCodeUnits, inRepository, isMain } from "../shared.mjs";
 import { breaking, build, contractFiles, format, generate, lint, previousRelease } from "./buf.mjs";
 import { FOLDER, PACKAGE, checkVectors, plural } from "./observation.mjs";
-import { checkReport, checkReportExamples, isReport, reportOf, sampleBreaches } from "./report.mjs";
+import { checkReport, checkReportExamples, isReport, reportOf, sampleBreaches, summaryOf } from "./report.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
-import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, evalSetBreaches, isModuleId, sameIds, sampleOf } from "./sample.mjs";
+import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, evalSampleBreaches, evalSetBreaches, isModuleId, sameIds, sampleOf } from "./sample.mjs";
 import { FOLDER as RULES, checkVectors as checkRuleVectors } from "./strokes.mjs";
 import { checkTypeScript } from "./typescript.mjs";
 
@@ -232,7 +232,7 @@ export function checkContracts(root) {
   const reports = ofEval.filter(isReport);
   let held = new Map();
   if (packages.has(EVAL) && samples.length) {
-    const checked = checkExamples(root, built.image, samples);
+    const checked = checkExamples(root, built.image, samples, summaryOf);
     errors.push(...checked.errors);
     // A sample that breaks its rules has its error, and the reports are not held to the samples then.
     held = checked.errors.length ? null : checked.samples;
@@ -303,8 +303,8 @@ export function checkSampleFiles(root, files, module = null) {
   if (files.length === 0) throw new Error(module === null ? "name the sample files to check" : `name the files of the eval set of ${module} to check`);
   const read = namedFiles(root, files, "sample");
   const message = known(sampleOf(specImage()));
-  const checked = checkSamples(message, read);
-  const errors = module === null ? checked.errors : [...checked.errors, ...evalSetBreaches(module, checked.held)];
+  const checked = checkSamples(message, read, { breaches: module === null ? null : (value) => evalSampleBreaches(module, value) });
+  const errors = module === null ? checked.errors : [...checked.errors, ...evalSetBreaches(checked.held)];
   return { errors: errors.sort(byPlace), samples: read.length };
 }
 
@@ -326,7 +326,7 @@ export function checkReportFiles(root, reports, samples = null) {
   const errors = [];
   let held = null;
   if (sampleFiles) {
-    const checked = checkSamples(known(sampleOf(image)), sampleFiles);
+    const checked = checkSamples(known(sampleOf(image)), sampleFiles, { keep: summaryOf });
     errors.push(...checked.errors, ...sameIds(checked.held));
     if (errors.length === 0) held = checked.samples;
   }

@@ -520,13 +520,17 @@ export function checkSample(bytes, message) {
   return { problems, seen, value, lineOf };
 }
 
-// Sample files against the message, each a [name, path to read]: { errors, seen, samples, held },
-// the errors { file, line, message } of each file by its name, seen what they show together,
-// samples the files that hold, by their IDs, and held each that holds, { file, line, value, lineOf },
-// with line that of its ID, in the order of the files. Two of them may share an ID, which samples
-// then holds by the last: sameIds finds them where the files are held together. spec's examples and the files another repository
-// names are read by this same code (R93).
-export function checkSamples(message, files) {
+// Sample files against the message, each a [name, path to read], one at a time, so that only the
+// file being read is held whole (T116): { errors, seen, samples, held }, the errors { file, line,
+// message } of each file by its name, seen what they show together, held each that holds, { file,
+// line, id }, with line that of its ID, in the order of the files, and samples, by their IDs, what
+// keep gives of each that holds — what the caller holds the files to together, such as summaryOf of
+// report.mjs —, empty when keep is null. Of each sample that holds, also, unless null, what breaches
+// gives of it, each { at, message }: the rules of a set that need the sample alone. Two of them may
+// share an ID, which samples then holds by the last: sameIds finds them where the files are held
+// together. spec's examples and the files another repository names are read by this same code
+// (R93).
+export function checkSamples(message, files, { breaches = null, keep = null } = {}) {
   const errors = [];
   const seen = new Set();
   const samples = new Map();
@@ -535,8 +539,9 @@ export function checkSamples(message, files) {
     const { problems, seen: found, value, lineOf } = checkSample(fs.readFileSync(full), message);
     errors.push(...problems.map((one) => ({ file, ...one })));
     if (problems.length === 0) {
-      samples.set(value.id, value);
-      held.push({ file, line: lineOf(["id"]), value, lineOf });
+      if (keep) samples.set(value.id, keep(value));
+      held.push({ file, line: lineOf(["id"]), id: value.id });
+      if (breaches) errors.push(...breaches(value).map(({ at, message: text }) => ({ file, line: lineOf(at), message: text })));
     }
     for (const each of found) seen.add(each);
   }
@@ -550,44 +555,47 @@ const HELD = "a report names a sample by its ID, so the samples it is held to ha
 export function sameIds(held, why = HELD) {
   const first = new Map();
   const errors = [];
-  for (const { file, line, value: { id } } of held) {
+  for (const { file, line, id } of held) {
     if (first.has(id)) errors.push({ file, line, message: `the ID ${id} is ${first.get(id)}'s too: ${why}` });
     else first.set(id, file);
   }
   return errors;
 }
 
-// What the samples of a module's eval set break of the rules of section 13 that need neither the
-// module's package nor a key, held as checkSamples gives them, of the module by its ID: each is of
-// the purpose PURPOSE_EVAL_SET, with its markup, of a task of its own module — its source is
-// modules, with the module's ID —, and no two of the set share an ID. The task itself, and the
-// digest of its open view, are the runner's to check, by the package (contracts/README.md, section
-// 13).
+// What a sample of a module's eval set, one that holds, breaks of the rules of section 13 that need
+// neither the module's package nor a key and the sample alone, each { at, message }, of the module
+// by its ID: it is of the purpose PURPOSE_EVAL_SET, with its markup, of a task of its own module —
+// its source is modules, with the module's ID. checkSamples applies it to each sample as it reads
+// it. The task itself, and the digest of its open view, are the runner's to check, by the package
+// (contracts/README.md, section 13).
 const SET = "contracts/README.md, section 13";
-export function evalSetBreaches(module, held) {
-  const errors = [];
-  for (const { file, value, lineOf } of held) {
-    const breach = (at, message) => errors.push({ file, line: lineOf(at), message });
-    if (value.purpose !== "PURPOSE_EVAL_SET") breach(["purpose"], `a sample of the eval set of ${module} is of the purpose PURPOSE_EVAL_SET, not ${show(value.purpose)} (${SET})`);
-    if (!value.markup) breach([], `a sample of an eval set has its markup, which the runner measures AI by (${SET})`);
-    const source = value.task?.modules;
-    if (!source) breach(["task"], `a sample of the eval set of ${module} is of a task of that module: its source is modules (${SET})`);
-    else if (source.module !== module) breach(["task", "modules", "module"], `a sample of the eval set of ${module} is of a task of that module, not of ${show(source.module)} (${SET})`);
-  }
-  errors.push(...sameIds(held, `no two samples of an eval set share an ID (${SET})`));
-  return errors;
+export function evalSampleBreaches(module, value) {
+  const found = [];
+  const breach = (at, message) => found.push({ at, message });
+  if (value.purpose !== "PURPOSE_EVAL_SET") breach(["purpose"], `a sample of the eval set of ${module} is of the purpose PURPOSE_EVAL_SET, not ${show(value.purpose)} (${SET})`);
+  if (!value.markup) breach([], `a sample of an eval set has its markup, which the runner measures AI by (${SET})`);
+  const source = value.task?.modules;
+  if (!source) breach(["task"], `a sample of the eval set of ${module} is of a task of that module: its source is modules (${SET})`);
+  else if (source.module !== module) breach(["task", "modules", "module"], `a sample of the eval set of ${module} is of a task of that module, not of ${show(source.module)} (${SET})`);
+  return found;
+}
+
+// The rule of section 13 that holds the samples of a module's eval set together, of those that hold,
+// held as checkSamples gives them: no two of the set share an ID. It needs their IDs alone.
+export function evalSetBreaches(held) {
+  return sameIds(held, `no two samples of an eval set share an ID (${SET})`);
 }
 
 // The examples of the sample file at root, files of contracts/, by the image buf builds: the errors,
 // { file, line, message } — each example's, and, when every one holds, what they lack together:
 // every purpose, writer, ink, surface and event of the history of writing, and of a markup every
 // kind of part, parts and marks, a first error, a final answer and a workbook's truth, and two of
-// one ID; and samples, those that hold by their IDs, which the examples of the runner's report are
-// of.
-export function checkExamples(root, image, files) {
+// one ID; and samples, what keep gives of those that hold — the sample itself by default —, by
+// their IDs, which the examples of the runner's report are of.
+export function checkExamples(root, image, files, keep = (sample) => sample) {
   const known = sampleOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }], samples: new Map() };
-  const { errors, seen, samples, held } = checkSamples(known.message, files.map((file) => [file, path.join(root, file)]));
+  const { errors, seen, samples, held } = checkSamples(known.message, files.map((file) => [file, path.join(root, file)]), { keep });
   errors.push(...sameIds(held));
   if (errors.length === 0) {
     for (const each of [...PURPOSES, ...WRITERS, "history", "geometry", "sheet", "workbook", ...EVENTS, ...PART_KINDS, ...MARKUP]) {

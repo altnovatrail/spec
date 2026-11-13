@@ -135,3 +135,18 @@ test("checkReportFiles reads spec's examples by the same code, and throws on a p
   assert.deepEqual(checkReportFiles(root, files.filter(isReport), files.filter((file) => !isReport(file))), { errors: [], reports: 2, samples: samples.length });
   assert.throws(() => checkReportFiles(path.join(root, FOLDER), ["../../../../justfile"]), /not a file of the repository the check runs in/);
 });
+
+// Its samples, as many and as large as sample-check's of a large set (T116; Д197): 60 essays of
+// some 260 KB each, under a heap of 64 MB. A report is held to what it needs of each sample alone,
+// so no file stays in memory once it is read.
+test("report-check holds a report to a large set of samples, one file at a time", () => {
+  const essay = example("sheet-essay.json");
+  const files = Object.fromEntries(Array.from({ length: 60 }, (_, i) => [`eval/essay-${i}.json`, textOf({ ...essay, id: `synthetic-${5000 + i}` })]));
+  const { capability_set: _, ...rest } = example("report-assessment.json");
+  files["eval/report.json"] = textOf({ ...rest, module: { module: "novatrail/olympiad-math", commit: "0".repeat(40) } });
+  files["eval/sheet-essay.json"] = textOf(essay);
+  const samples = Object.keys(files).filter((file) => file !== "eval/report.json");
+  const run = withRepository(files, (dir) => spawnSync(process.execPath, ["--max-old-space-size=64", main, "--reports", "eval/report.json", "--samples", ...samples], { cwd: dir, encoding: "utf8" }));
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  assert.equal(run.stdout, "report-check: ok — 1 report, held to 61 samples\n");
+});
