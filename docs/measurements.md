@@ -119,7 +119,7 @@ just tokens-report --since 2026-11-09 --until 2026-11-11T03:59:01Z
 - a session's median is 174 calls, and of the average context 185.8 thousand;
 - the most is carried by Bash output (32.7 %), the model's output (27.5 %) and Read (14.0 %), and of the files by RUN.md, through Bash and Read, and `docs/decisions.md`.
 
-Later measurements — of T124, of each epic's archive and the monthly ones — are rows of the table of section 1.9, by the same recipe with `--row`; the baseline is its first row (R145).
+Later measurements — of T124, of each epic's archive and the monthly ones — are rows of the table of section 1.9, by the same recipe with `--row`; the baseline is its first row (R145). What each change of E10 gave against this baseline is section 1.10.
 
 ### 1.4. Code map tools
 
@@ -542,18 +542,115 @@ How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of 
 | `-workspaces-sim` | 2026-10-13T00:00 … 2026-11-12T14:27 | 10 | 3,275 / 1,195 | 325.5 / 79.5 | 6 | $397.59 |
 | `-workspaces-skill-map` | 2026-10-13T00:00 … 2026-11-12T14:27 | 6 | 1,313 / 402 | 329.5 / 81.4 | 1 | $162.58 |
 | `-workspaces-tutor` | 2026-10-13T00:00 … 2026-11-12T14:27 | 28 | 11,509 / 6,806 | 398.5 / 119.5 | 53 | $1,896.62 |
+| `-workspaces-spec` — after the release of T122, T124: the reference | 2026-11-12T16:13 … 2026-11-13T21:07 | 9 | 1,062 / 485 | 189.7 / 102.1 | 2 | $92.76 |
+| `-workspaces--github` — after row 7.2, T124 | 2026-11-13T05:00 … 2026-11-13T21:07 | 1 | 136 / 25 | 191.4 / 74.7 | 0 | $9.73 |
+| `-workspaces-api` — after row 7.3, T124: the reference | 2026-11-13T13:43 … 2026-11-13T21:07 | 10 | 860 / 163 | 162.6 / 72.3 | 1 | $59.34 |
+| `-workspaces-app` — after row 7.4, T124 | 2026-11-13T04:29 … 2026-11-13T21:07 | 4 | 188 / 12 | 141.7 / 61.8 | 0 | $11.50 |
+| `-workspaces-canvas` — after row 7.5, T124 | 2026-11-12T22:47 … 2026-11-13T21:07 | 1 | 54 / 0 | 95.8 / — | 0 | $2.49 |
+| `-workspaces-engine` — after row 7.6, T124 | 2026-11-12T22:50 … 2026-11-13T21:07 | 3 | 92 / 0 | 99.9 / — | 0 | $7.53 |
+| `-workspaces-infra` — after row 7.7, T124: the reference | 2026-11-13T03:43 … 2026-11-13T21:07 | 9 | 748 / 200 | 178.4 / 65.6 | 0 | $65.36 |
+| `-workspaces-learner-model` — before row 7.8, without E10's files, T124 | 2026-11-12T14:27 … 2026-11-13T21:03 | 9 | 612 / 83 | 176.1 / 70.3 | 0 | $44.22 |
+| `-workspaces-module-kit` — after row 7.1, T124 | 2026-11-13T04:35 … 2026-11-13T21:07 | 5 | 47 / 0 | 107.0 / — | 0 | $2.52 |
+| `-workspaces-modules` — after row 7.9, T124 | 2026-11-13T04:37 … 2026-11-13T21:07 | 1 | 8 / 0 | 46.6 / — | 0 | $0.35 |
+| `-workspaces-sim` — after row 7.10, T124 | 2026-11-13T05:35 … 2026-11-13T21:07 | 3 | 215 / 60 | 150.7 / 76.3 | 0 | $18.25 |
+| `-workspaces-skill-map` — after row 7.11, T124 | 2026-11-13T03:45 … 2026-11-13T21:07 | 1 | 35 / 0 | 101.4 / — | 0 | $2.12 |
+| `-workspaces-tutor` — after row 7.12, T124: the reference | 2026-11-13T15:36 … 2026-11-13T21:07 | 6 | 519 / 90 | 153.2 / 67.4 | 0 | $35.03 |
+| `-workspaces-spec` — epic E10, at its archive | 2026-11-11T00:00 … 2026-11-13T21:57 | 26 | 3,385 / 2,804 | 210.9 / 90.0 | 4 | $371.88 |
 
 - In `spec`, part 2 of E10 lowered the context of a main call from 448.5 to 183.2 thousand, −59%, and of a subagent's from 109.2 to 90.4. The windows differ in work: E4 and E9 against the edits of E10.
-- The other 12 have not taken R143 yet (RUN.md, T123): their rows are their "before", from 292.4 to 398.5 thousand for a main call, and their reference is their measurement after, T124.
+- The other 12 took R143 by the tasks of row 7 of [COORDINATION.md](../COORDINATION.md), all but `learner-model` by 2026-11-13. Their first rows are their "before", from 292.4 to 398.5 thousand for a main call.
+- The rows of T124 are the sessions after the release of T122 in `spec`, and in another repository the sessions that started after its task's last session, to the start of T124's session. A row of T124 is the reference when it holds at least 300 main calls, as R145's threshold counts them: in `spec`, `api`, `infra` and `tutor`. `spec`'s holds the session of six tasks, an exception by the author's word; its eight sessions of one task are 169.5 thousand.
+- The other eight have fewer: their reference is their first later row with at least 300 main calls, at the archive of an epic or a monthly measurement. A window with the task's own sessions is not a reference: the translation raises it — `canvas` 216.2 thousand with its task against 95.8 after it.
+- `learner-model` has no reference yet: on 2026-11-13 its tasks of row 7.8, T49 and T50 of `learner-model`, are not done. Its row of T124 ends before T49 and stays a measurement without E10's files; its reference is its first row of at least 300 main calls after T50. What each change gave is section 1.10.
+- The row of epic E10 is its window from its first day to the start of the session that archived it, so that the triage at the archive is not in it (RUN.md, «Как устроен план: эпики»). Its 210.9 thousand for a main call hold both the analysis of part 1 and the translation of part 2, and are 11% above `spec`'s reference, 189.7: under R145's 25%. The budgets file has had only its first commit, T126, and the last check of the changelog is not a quarter old. No threshold is met, so no analysis is set.
 - The monthly row of `module-kit` needs the fix of 2026-11-12: a path the user may not look at is not a file for the recipe, and the report is printed (`tools/tokens/report.mjs`, `fileCheck`).
 
-**The threshold** of a new analysis is R145: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in RUN.md.
+**The threshold** of a new analysis is R145: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in RUN.md. A raise is a commit of a file of budgets that raises one limit or more; a repository's first `docs-budgets.json`, a limit held only until a translation and a lowering are not raises (the 2026-11-13 amendment to R145).
 
 Last analysis: E10, T118–T128, 2026-11-11.
 
 Next measurement: by 2026-12-12.
 
 Next check of Claude Code's changelog: by 2027-02-12.
+
+### 1.10. After E10: what each change gave
+
+The measurement after (RUN.md, T124), 2026-11-13: `spec` against its baseline of section 1.3, and the other 12 against their rows "before" of section 1.9. The recipe is section 1.1. Every window ends at the start of T124's session, 2026-11-13T21:07. What the other repositories measured themselves comes from the «Сделано» of their tasks on GitHub, on `main` on 2026-11-13. A cloud session is not on this machine, and none is counted.
+
+**`spec`** — the sessions after the release of T122, from the merge of pull request 135, `v0.16.0`, at 2026-11-12T16:13:24Z: `just tokens-report --since 2026-11-12T16:13:24Z --until 2026-11-13T21:07`.
+
+| | Baseline, section 1.3 | After T122 |
+|---|---|---|
+| Sessions | 3 | 9 |
+| Calls, main / subagents | 2,344 / 3,682 | 1,062 / 485 |
+| Context of a call, k, main / subagents | 448.5 / 109.2 | 189.7 / 102.1 |
+| The largest context, k | 966.0 | 364.5 |
+| Compactions | 9 | 2 |
+| Cost at API prices, in all / per main call | $470.99 / $0.20 | $92.76 / $0.087 |
+| The first call, median, k | 49.3 | 40.5 |
+
+- **The sessions:** the end of T122, T123, T142, T143, the answer to В32 that recorded T148, T146, T141 and T147 — one task each — and one session of six tasks, T145, T148, T144, T116, T115 and T127. That one was an exception by the author's word of 2026-11-13, and both compactions are in it. The recipe prints T142's session as T123: it takes the first task number of the author's first prompt.
+- **One task against six:** the eight sessions of one task — 576 main calls, 169.5 thousand on average; the session of six — 486 calls, 213.8 thousand, +26%.
+
+**The other repositories.** Each did its row 7 of [COORDINATION.md](../COORDINATION.md) by tasks of its own, and `learner-model` had not done it on 2026-11-13. "During" is the main call's context in the task's own sessions, as the task's «Сделано» wrote it; those were mostly sessions of translation. "After" is the sessions that started after the task's last session, by `--since` from the start of the first of them.
+
+| Repository | Row 7 and its tasks | Before, k, main / subagents | During, k, main | After: sessions, main calls | After, k, main / subagents |
+|---|---|---|---|---|---|
+| `.github` | 7.2: E18, T54–T57 | 397.5 / 124.0 | 188.8 | 1, 136 | 191.4 / 74.7 |
+| `api` | 7.3: T61–T65 | 371.4 / 104.4 | 173.9 | 10, 860 | 162.6 / 72.3 |
+| `app` | 7.4: T53–T55 | 337.8 / 143.5 | 183.4 | 4, 188 | 141.7 / 61.8 |
+| `canvas` | 7.5: E13, T110 | 369.1 / 114.8 | 222.8 | 1, 54 | 95.8 / — |
+| `engine` | 7.6: T55, T56 | 328.6 / 79.3 | 186.6 | 3, 92 | 99.9 / — |
+| `infra` | 7.7: T52, T53 | 354.7 / 80.0 | 190.5, 148.7 | 9, 748 | 178.4 / 65.6 |
+| `module-kit` | 7.1: T43, T44 | 326.5 / 98.4 | 199.7 | 5, 47 | 107.0 / — |
+| `modules` | 7.9: T64–T67 | 351.0 / 91.7 | 157.2 | 1, 8 | 46.6 / — |
+| `sim` | 7.10: T50–T53 | 325.5 / 79.5 | 180.3 | 3, 215 | 150.7 / 76.3 |
+| `skill-map` | 7.11: its R18 and T22 | 329.5 / 81.4 | 177.0 | 1, 35 | 101.4 / — |
+| `tutor` | 7.12: T131–T136 | 398.5 / 119.5 | 202.4 | 6, 519 | 153.2 / 67.4 |
+| the 11 together | | 364.8 / 112.6 | | 44, 2,902 | 158.9 / 69.4 |
+| `learner-model` | 7.8: T49, T50 — not done | 292.4 / 101.2 | — | 2026-11-12T14:27 … 2026-11-13T21:03: 9, 612 | 176.1 / 70.3 |
+
+- The numbers of tasks are each repository's own. Where a row is the work of two parts, its «Сделано» gives two numbers.
+- **The 11 together:** the main call's context −56%, a subagent's −38%; 1 compaction in 2,902 main calls against 215 in 55,883; at API prices $0.074 per main call, subagents with it, against $0.157.
+- **What it cost:** the 11 tasks, by their «Сделано», ≈ $627 at API prices, most of it the translators and blind readers, from 0.9 million tokens of subagents (`skill-map`) to 3.5 million (`canvas`). At $0.083 less per main call they pay back over ≈ 7,600 main calls, a few days of work at the pace of the month before.
+
+**What each change gave:**
+
+| Change | What the measurement shows | Verdict |
+|---|---|---|
+| One task is one session and the hook (T129) | `spec` −58% for a main call, and the session of six tasks is +26% against the sessions of one. `learner-model` took none of E10's files by 2026-11-13 — no hook, no compaction key, its long CLAUDE.md, Russian `docs/` — but its sessions held one task each, and its main call fell from 292.4 to 176.1 thousand, −40%. Of E10 it had only the account's skills turned off, for the whole container (В31), ≈ 5 thousand per call. So most of the saving is the order of work that the author keeps, and the hook only catches a slip. In the 12 repositories with the hook it stopped one prompt, in `module-kit`. It does not count «делай T…» as the start of a task: `sim`'s T53 and `spec`'s T141 began so, and another task's phrase would have passed in them | gave the most; keep; the phrases — T149 |
+| Compaction at 400 thousand (T129) | Since 2026-11-12T14:27 the largest context of a main call is at most 367 thousand in every repository but `api`, whose 13 calls over 400 thousand, up to 406.6, are one session before its move. `learner-model`, which has no key, reached 361 thousand: its sessions are short. In `spec` compactions went from 9 to 2, both in the session of six tasks; in the 11, from 215 to 1. The share of what compactions left: 6.9% of what was carried, then 6.6% | keep: it bounds a long session when there is one |
+| The claude.ai connectors and the account's skills turned off (T129, В31) | MCP instructions: 84 entries, 0.46% of what was carried and 2.0 thousand at the start of a session, then none in `spec` and none in any repository after its task; in `learner-model` without the key, 15. The list of skills: 17,147 characters, then 7,397, 8.4 thousand tokens, then 3.4 | keep |
+| A thin CLAUDE.md, the rules of the parts (T130) | CLAUDE.md: 10.2 thousand tokens in every call, then 4.8. RULES.md: 5.2, then 5.9, with E10's rules. The rules loaded 10 times: 9.0 thousand tokens, 0.47% of what was carried. The start of a session is 40.5 thousand against 49.3, although the descriptions of the tools — Claude Code's own, not in the transcript — grew from 12.6 to 16.8 thousand | keep |
+| The bodies of done tasks in the archive, `DEBT.md` (T132) | RUN.md and `DEBT.md` bring 211 tokens per main call, against RUN.md's 257, −18%, with as many readings per call — 0.27 against 0.28. As a share of what was carried, they grew from 4.0% to 5.7%: the sessions became shorter, a reading did not | keep |
+| "Sources" and the measurements in their own files (T133) | In `spec`, architecture brings 26 tokens per main call against 63, but `docs/sources.md` brings 51 more and `docs/measurements.md` 10, 87 together: the window's tasks T141, T145 and T115 wrote records of sources. No saving shows in the window | keep: a source as a record serves the bar (RULES.md, The bar), not only the tokens |
+| `docs/` in English (T135–T139 and the tasks of row 7) | The transcripts cannot tell language from work: the recipe shares a call's growth among what entered by characters (section 1.1). The characters per token of what entered went from 2.05 to 2.20. The direct count is section 1.6, −11.4% of tokens for the same text. The translations made the repositories' `docs/` smaller in bytes: `canvas` 1.74 MB, then 1.33; `module-kit` 852 KB, then 657; `engine` 616, then 472; `infra` 516, then 410; `skill-map` 265, then 200 | keep |
+| The plugin `gopls-lsp` (T134) — for diagnostics, not for savings (R143) | After the tasks, the five repositories of Go that took the plugin called the tool LSP 0 times. The tool is among the deferred tools in the last sessions of `sim` and `module-kit`, but not in those of `api`, `engine` and `tutor`. One attachment of diagnostics came, in `module-kit`; `api` made 83 edits of Go files and got none. `~/.claude/plugins/known_marketplaces.json`, on the volume all containers share, names the marketplace `novatrail` at `/workspaces/sim/spec/claude-plugins`, written 2026-11-13T04:52, a path only `sim`'s container has. That this is the cause is a guess, not verified | gave nothing yet — Д234 |
+| Budgets and the measurement (T126) | `docs-budgets.json` stands in 11 repositories; a budget saves no tokens by itself, and the measurement is this one | keep |
+
+**Where the spending is now** — in `spec`, as a share of what was carried after T122, 249 million:
+- Bash output — 44.2%;
+- the model's output — 18.9%;
+- the starts of sessions — 12.0%, against 1.6% in the baseline. The start is 40.5 thousand of a 189.7 thousand average call. Of it: the descriptions of the tools — 16.8 thousand, RULES.md — 5.9, CLAUDE.md — 4.8, the system prompt — 4.5, the list of skills — 3.4, MEMORY.md — 2.0;
+- Read — 7.8%;
+- what compactions left — 6.6%;
+- the starts of subagents — 6.4%.
+
+Of the files, `docs/decisions.md` brings the most: 262 tokens per main call, against 305 in the baseline. This is the input of the next analysis, when R145's threshold calls it; it is not a task now.
+
+### 1.11. The cost of a translation
+
+What translating `docs/` cost in tokens of subagents, from the «Сделано» of the tasks, read 2026-11-13 on `main`: `spec`'s in the archive of E10, `sim`'s in its archive of E5 (the inbox triage at the end of E10; `tutor` В80).
+
+| Task | Russian text | Translators, batches | Translators, million | A translator, million | All, million | Per MB, million |
+|---|---|---|---|---|---|---|
+| T136–T139 `spec` | 2.35 MB | 31, 40–120 KB | 3.71 | ≈ 0.12 | 4.4 | ≈ 1.9 |
+| T51 `sim` | 235 KB | 3, ≈ 49–93 KB | 0.68 | 0.19–0.26 | 0.81 | ≈ 3.4 |
+| T52 `sim` | 201 KB | 2, 92 and 109 KB | 0.32 | 0.15–0.17 | 0.38 | ≈ 1.9 |
+| T53 `sim` | 229 KB | 2, 118 and 116 KB | 0.40 | 0.19–0.21 | 0.46 | ≈ 2.0 |
+
+- "All" adds the blind readers, 0.06–0.07 million each, and in `spec` the reconciliation of quotes.
+- A translator costs about the same whatever its batch: each first reads the glossary, concepts 15, 75 KB, the rules of translation and its brief. So the cost follows the number of subagents. T51 `sim`, estimated at 1.9 million per MB, paid 1.8 times as much with three translators for 235 KB; by subagents its estimate is ≈ 0.74 million. [tools/translation/README.md](../tools/translation/README.md) estimates by subagents.
 
 ## 2. The browsers of the kind `typescript`
 
