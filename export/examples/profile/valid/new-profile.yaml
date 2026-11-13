@@ -1,5 +1,5 @@
 # Synthetic: no learner's data. IDs, times and values are made up.
-format: 1
+format: 2
 profile_id: "p-2"
 owner: false
 pseudonym: "Orbit"
@@ -37,7 +37,7 @@ state:
   format_window: "format_window"
   last_seq: 0
   modules: []
-artefacts: []
+works: []
 work_storage: false
 storage_consents: []
 problem_reports: []

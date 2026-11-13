@@ -1,6 +1,6 @@
 # error: enum at #/age_category
 # An age category is one of the four codes.
-format: 1
+format: 2
 profile_id: "p-1"
 owner: false
 pseudonym: "Comet"
@@ -98,7 +98,7 @@ state:
   modules:
     - module_id: "olympiad-math"
       module_version: "0.2.0"
-artefacts: []
+works: []
 work_storage: false
 storage_consents: []
 problem_reports: []

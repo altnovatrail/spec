@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/1/device.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/2/device.schema.json",
   "title": "Device",
   "description": "What this device holds of a profile, device/<id>.json (section 4 of the text of the part): its unfinished attempts with their history, its essays and its places in lessons.",
   "type": "object",
   "properties": {
     "format": {
-      "const": 1,
+      "const": 2,
       "description": "The version of the part, the integer in export/VERSION."
     },
     "profile_id": {
@@ -50,22 +50,6 @@
   ],
   "unevaluatedProperties": false,
   "$defs": {
-    "device_attempt_submission": {
-      "type": "object",
-      "properties": {
-        "context": {
-          "description": "The context of the submission, as the element <novatrail-canvas> gave it, in its own names."
-        },
-        "history_length": {
-          "type": "integer",
-          "description": "How many events of the history the submission covers."
-        }
-      },
-      "required": [
-        "context",
-        "history_length"
-      ]
-    },
     "device_attempt_step_state": {
       "type": "object",
       "properties": {
@@ -113,7 +97,7 @@
         "submissions": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/device_attempt_submission",
+            "$ref": "common.schema.json#/$defs/work_submission",
             "unevaluatedProperties": false,
             "description": "Each submission's context (SheetSubmission or WorkbookSubmission, as the canvas gave it) and the history length when it was sent; the PNG work is not exported: one of them."
           },

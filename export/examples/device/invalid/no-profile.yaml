@@ -1,12 +1,14 @@
 # error: required at #
 # A device's file names its profile.
-format: 1
+format: 2
 attempts:
   - attempt_id: "attempt-2"
     history:
-      - type: "stroke"
+      - kind: "write"
+        t: 120
         stroke:
           id: 1
+          kind: "pen"
           points:
             - x: 10
               "y": 20

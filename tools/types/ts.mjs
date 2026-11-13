@@ -12,7 +12,7 @@
 // ./deploymentv1, whose file keeps the names of its fields in camelCase (R85), the legal texts'
 // legalv3/index.d.ts, exported as ./legalv3 (R130, R141), and the table of the age of digital consent's
 // consentagev1/index.d.ts, exported as ./consentagev1 (R134), and the format of the export's
-// exportv1/index.d.ts, exported as ./exportv1 (R135).
+// exportv2/index.d.ts, exported as ./exportv2 (R135).
 
 import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN, OPEN_DIR, PACKAGE, TYPES_DIR, groupBy, linesOf } from "./go.mjs";
 import { openRefOf, placeOf } from "./model.mjs";

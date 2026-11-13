@@ -116,7 +116,8 @@ type LearningServiceClient interface {
 	// view.
 	BeginAttempt(context.Context, *v1.BeginAttemptRequest) (*v1.BeginAttemptResponse, error)
 	// The open attempt, by which the learner goes on with it, on another device too, with a clean
-	// sheet: the strokes stay on the device that wrote them. Refusals: `CAUSE_NOT_FOUND`,
+	// sheet: the strokes stay on the device that wrote them, but for a work another device put by
+	// `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
 	// `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
 	// state of the attempt.
 	GetOpenAttempt(context.Context, *v1.GetOpenAttemptRequest) (*v1.GetOpenAttemptResponse, error)
@@ -178,7 +179,8 @@ type LearningServiceHandler interface {
 	// view.
 	BeginAttempt(context.Context, *v1.BeginAttemptRequest) (*v1.BeginAttemptResponse, error)
 	// The open attempt, by which the learner goes on with it, on another device too, with a clean
-	// sheet: the strokes stay on the device that wrote them. Refusals: `CAUSE_NOT_FOUND`,
+	// sheet: the strokes stay on the device that wrote them, but for a work another device put by
+	// `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
 	// `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
 	// state of the attempt.
 	GetOpenAttempt(context.Context, *v1.GetOpenAttemptRequest) (*v1.GetOpenAttemptResponse, error)

@@ -1,5 +1,5 @@
 # Synthetic: no learner's data. IDs, times and values are made up.
-format: 1
+format: 2
 account_id: "account-1"
 adult_stated_at: "2026-11-10T09:30:00Z"
 tariff: "invite"

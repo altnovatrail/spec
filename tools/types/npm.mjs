@@ -13,7 +13,8 @@
 // LEGAL_V3_LINE on ./legalv3 in place of both, of the part's version 3 (R130), and from the
 // line FIRST_CONSENT_AGE_LINE on the types of the table of the age of digital consent,
 // ./consentagev1 (R134), and from the line FIRST_EXPORT_LINE on the types of the format of the
-// export, ./exportv1 (R135): what a package
+// export, ./exportv1, and from the line EXPORT_V2_LINE on ./exportv2 in its place, of the part's
+// version 2 (R135): what a package
 // holds is the line's of its version, the release's, so that a release of an earlier line, run
 // again, gets the package it got.
 //
@@ -30,7 +31,7 @@ import path from "node:path";
 import { isMain } from "../shared.mjs";
 import { archiveName, checkPackageArchive, checkedVersion, packPackage, treeOf, writePackageOf } from "../npm-package.mjs";
 import { compareLines } from "../release/version.mjs";
-import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
+import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_PACKAGE, OPEN_DIR, TYPES_DIR } from "./go.mjs";
 
 export const NAME = "@altnovatrail/spec";
 const DECLARATIONS = "index.d.ts";
@@ -66,6 +67,10 @@ export const FIRST_CONSENT_AGE_LINE = "0.14";
 // spec's first line whose package holds the types of the format of the export, as the release
 // holds the format (tools/release/files.mjs).
 export const FIRST_EXPORT_LINE = "0.14";
+// spec's first line whose package holds the types of the format of the export's version 2,
+// exportv2, in place of exportv1, which the lines 0.14 to 0.16 hold (R135).
+export const EXPORT_V2_LINE = "0.17";
+const EXPORT_V1 = "exportv1";
 // The package's folder of the page, as format/ holds it, and the repository's, which tools/types
 // writes.
 const PAGE = "format";
@@ -93,7 +98,7 @@ export function filesOf(version, tree) {
   if (holdsDeployment(version)) files.push({ file: `${DEPLOYMENT_PACKAGE}/${DECLARATIONS}`, from: `${DEPLOYMENT_DIR}/${DECLARATIONS}` });
   if (holdsLegal(version)) files.push({ file: `${legalPackageOf(version)}/${DECLARATIONS}`, from: `types/${legalPackageOf(version)}/${DECLARATIONS}` });
   if (holdsConsentAge(version)) files.push({ file: `${CONSENT_AGE_PACKAGE}/${DECLARATIONS}`, from: `${CONSENT_AGE_DIR}/${DECLARATIONS}` });
-  if (holdsExport(version)) files.push({ file: `${EXPORT_PACKAGE}/${DECLARATIONS}`, from: `${EXPORT_DIR}/${DECLARATIONS}` });
+  if (holdsExport(version)) files.push({ file: `${exportPackageOf(version)}/${DECLARATIONS}`, from: `types/${exportPackageOf(version)}/${DECLARATIONS}` });
   return files;
 }
 
@@ -119,6 +124,8 @@ const legalPackageOf = (version) => (fromLine(version, LEGAL_V3_LINE) ? LEGAL_PA
 const holdsConsentAge = (version) => fromLine(version, FIRST_CONSENT_AGE_LINE);
 // Whether it holds the types of the format of the export.
 const holdsExport = (version) => fromLine(version, FIRST_EXPORT_LINE);
+// The package of the types of the format of the export that the package of version holds.
+const exportPackageOf = (version) => (fromLine(version, EXPORT_V2_LINE) ? EXPORT_PACKAGE : EXPORT_V1);
 
 // The name npm pack gives the package's archive of version: the scope's @ dropped, its / a dash.
 export function archiveOf(version) {
@@ -153,10 +160,10 @@ export function manifestOf(version) {
       ...(deployment ? { [`./${DEPLOYMENT_PACKAGE}`]: { types: `./${DEPLOYMENT_PACKAGE}/${DECLARATIONS}` } } : {}),
       ...(legal ? { [`./${legalPackageOf(version)}`]: { types: `./${legalPackageOf(version)}/${DECLARATIONS}` } } : {}),
       ...(consentAge ? { [`./${CONSENT_AGE_PACKAGE}`]: { types: `./${CONSENT_AGE_PACKAGE}/${DECLARATIONS}` } } : {}),
-      ...(exported ? { [`./${EXPORT_PACKAGE}`]: { types: `./${EXPORT_PACKAGE}/${DECLARATIONS}` } } : {}),
+      ...(exported ? { [`./${exportPackageOf(version)}`]: { types: `./${exportPackageOf(version)}/${DECLARATIONS}` } } : {}),
       "./package.json": "./package.json",
     },
-    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : []), ...(deployment ? [DEPLOYMENT_PACKAGE] : []), ...(legal ? [legalPackageOf(version)] : []), ...(consentAge ? [CONSENT_AGE_PACKAGE] : []), ...(exported ? [EXPORT_PACKAGE] : [])],
+    files: [TYPES, ...(canvas ? [CANVAS] : []), ...(admission ? [ADMISSION_PACKAGE] : []), ...(page ? [PAGE] : []), ...(deployment ? [DEPLOYMENT_PACKAGE] : []), ...(legal ? [legalPackageOf(version)] : []), ...(consentAge ? [CONSENT_AGE_PACKAGE] : []), ...(exported ? [exportPackageOf(version)] : [])],
     sideEffects: false,
   };
 }

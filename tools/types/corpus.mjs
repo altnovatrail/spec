@@ -2,7 +2,7 @@
 // schema, with the type of formatv0 that reads it, every value of admission/, with the type of
 // admissionv0 (R96), every value of deployment/, with the type of deploymentv1 (R85), every value
 // of legal/, with the type of legalv3 (R130), every value of consent-age/, with the type of
-// consentagev1 (R134), and every value of export/, with the type of exportv1 (R135).
+// consentagev1 (R134), and every value of export/, with the type of exportv2 (R135).
 //
 //   node tools/types/corpus.mjs <file>      writes the corpus of spec's own format/, admission/,
 //                                           deployment/, legal/, consent-age/ and export/ to

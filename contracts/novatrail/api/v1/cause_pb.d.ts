@@ -631,6 +631,22 @@ export enum Cause {
    * @generated from enum value: CAUSE_LEARNER_DECIDES = 42;
    */
   LEARNER_DECIDES = 42,
+
+  /**
+   * A work put while the storage of the profile's works is off: `app` keeps it on the device alone
+   * (R113). Code `failed_precondition`, with no data.
+   *
+   * @generated from enum value: CAUSE_STORAGE_OFF = 43;
+   */
+  STORAGE_OFF = 43,
+
+  /**
+   * A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps
+   * it on the device alone (R113). Code `invalid_argument`, with no data.
+   *
+   * @generated from enum value: CAUSE_WORK_TOO_LARGE = 44;
+   */
+  WORK_TOO_LARGE = 44,
 }
 
 /**

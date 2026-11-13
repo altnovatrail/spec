@@ -13,7 +13,7 @@
 | Controller | the NovaTrail operator (privacy 2) |
 | DPO | not appointed — why, section 7 |
 | What it covers | the NovaTrail operator's deployment of the platform: `app`, `api`, `tutor`, the sign-in service, hosting and the AI providers, and also the samples from the samples page (privacy 4). It does not cover a self-hosted copy: the controller of that copy is its operator (the 2026-11-09 amendment to R115) |
-| Version | 14, 2026-11-12 — T136: translation into English, the content the same; 13, 2026-11-11 — T140: a new AI capability, correct answer words; 12, 2026-11-11 — T113: there will be no consultation of parents, the author's decision; 11, 2026-11-11 — T112: the texts for the family and version 2 of the policy with its translation, the mail on Gmail for families too — risk 18, the processor agreements against the New York law; 10, 2026-11-10 — T107: US state laws, the assessment for Connecticut, Colorado and Montana; the inbox triage before T107 — the heartbeat of the sign-in SDK; T111: the text sets of the samples page in force, withdrawal of eval-set samples and volunteers from the EU; T110: the operator's mail on Gmail, a recipient without a processor agreement, and the retention period of letters; the other measures and residual risks are those the author accepted in version 1 (section 7) |
+| Version | 15, 2026-11-13 — T144: stored works by methods of their own, the processing and the data the same; 14, 2026-11-12 — T136: translation into English, the content the same; 13, 2026-11-11 — T140: a new AI capability, correct answer words; 12, 2026-11-11 — T113: there will be no consultation of parents, the author's decision; 11, 2026-11-11 — T112: the texts for the family and version 2 of the policy with its translation, the mail on Gmail for families too — risk 18, the processor agreements against the New York law; 10, 2026-11-10 — T107: US state laws, the assessment for Connecticut, Colorado and Montana; the inbox triage before T107 — the heartbeat of the sign-in SDK; T111: the text sets of the samples page in force, withdrawal of eval-set samples and volunteers from the EU; T110: the operator's mail on Gmail, a recipient without a processor agreement, and the retention period of letters; the other measures and residual risks are those the author accepted in version 1 (section 7) |
 | Rests on | privacy 1–7; R112–R128, R130–R134, R136–R141 |
 
 **Review (R129).** The DPIA is reviewed by a task that changes what it rests on:
@@ -43,6 +43,7 @@ Besides, the DPIA is reviewed before the beta, before the public launch and at l
 | 12 | 2026-11-11 | there will be no consultation of parents and children — the author's decision (the 2026-11-11 amendment to R129; RUN.md, T113): section 4 records why; the departure from std 2, Step 3, is new risk 19 and measure 19, accepted by the author; a signal from a family is a new ground for review (section 1); the consultation and the review after it leave the conditions of section 8, and the check against the elements of the assessment of Connecticut, Colorado and Montana, which version 10 put off until T113, moves to T127. This does not change the kinds of data, processors, retention periods or AI routes | Claude — from the author's answer |
 | 13 | 2026-11-11 | a new AI capability — correct answer words, `correct_answer_words`: praise for the step and a question about which technique helped, by a call of its own to `tutor` with the work, the key and the task's solution, with its own eval set; open to all categories, like a hint (the 2026-11-11 amendment to R96; RUN.md, T140). Section 3.1 names these words. Section 6 is checked: the work goes to the same provider, by the same cells of the admission table and under the same agreements, and with it go the task's key, solution and techniques, data of the module and not of the learner (privacy 5.1), and the words fall under risk 4 and measure 4: the capability eval set of their own capability (R07), the safety prompt, the disclosure of AI and "report a problem", which names these words too (the 2026-11-10 amendment to R123). This does not change the kinds of data, processors, retention periods, AI routes, risks or measures | Claude — from the author's answer |
 | 14 | 2026-11-12 | translation into English, like the other documents of `docs/` (R143; RUN.md, T136): the data, retention periods, processors, AI routes, risks and measures are the same, and the check of the translation against the original is held by `translation-check` and a blind reading of a sample | Claude — by the author's decision (R143) |
+| 15 | 2026-11-13 | stored works (the 2026-11-13 amendment to R113; RUN.md, T144): the server keeps each work of a profile while storage is on — the handwriting on a task with a key too, as `storage-consent` version 1 already says, "each work of this profile" — as the device holds it, its writing history, the contexts of its submissions and its picture, up to 4 MiB, put, read back and erased one at a time by `WorkService`, and the export carries it. The processing carries out the consent already given, and the kinds of data, the period — until storage is off or a work is erased —, the processors and the AI routes are the same: the server reads no work and gives none to a provider. Claude's reading of section 3.2: the writing history is the dynamics R124 treats as biometrics in samples that go to others, whose purpose cannot be held; on the platform's own server it is held — nobody reads the history and it serves no identification —, so it is no special category there, but a child's personal information, kept only under the consent and out of any agent's reach (R114). Risk 13 covers it, and measure 13 stands | Claude — the review by R129 |
 
 ## 2. The need for a DPIA
 
@@ -62,7 +63,7 @@ Besides, the DPIA is reviewed before the beta, before the public launch and at l
 - **Collection.**
   - The account owner signs in through the Google window (R16 infra) and creates the learners' profiles themselves. A child does not create an account (R26).
   - What is collected about a child: a pseudonym, an avatar from a set, the age category, the country, the interface language and the presentation style (privacy 4).
-  - The learner's work stays on the device. What goes for checking is a crop or a picture of the work (architecture 4.1).
+  - The learner's work stays on the device. What goes for checking is a crop or a picture of the work (architecture 4.1). While the storage of a profile's works is on, the server keeps each work as the device holds it, a stored work, and reads none (R113).
   - Child consent — by a signed form, which the operator checks (R116).
 - **Use.**
   - The AI reads the work, and a program gives the verdict (R03).
@@ -77,7 +78,7 @@ Besides, the DPIA is reviewed before the beta, before the public launch and at l
 
 - **Kinds of data** — privacy 4. Special categories (Art. 9):
   - what an essay will disclose about the learner's health (R127);
-  - the writing history in measurement samples from adults — it is treated as biometrics (R124).
+  - the writing history in measurement samples from adults — it is treated as biometrics (R124). The writing history of a stored work is not, by Claude's reading of version 15 (section 1): on the platform's server nobody reads it and it serves no identification.
 - **What there is not:** a date of birth, the child's name, geolocation, children's voice (О-6), photos from paper in the first slice ("Task from my paper", «Задача с моей бумаги», comes later, product 4), communication between users, and advertising (privacy 7).
 - **How much.** Until the beta — the families of the closed beta. The scale grows with the public launch, and then the DPIA is reviewed (section 1).
 - **Retention periods** — the retention policy by privacy 9, П-9, and R113, R117, R125, R126 and R128. The texts of T97 and T98 write the policy.
@@ -126,7 +127,7 @@ The operator's mail is consumer Gmail, for families too: Google keeps the letter
   - a category, not a date of birth (privacy 3.3);
   - a crop of the work on the device, not the whole sheet (architecture 4.1);
   - the server does not store the text of an essay (R87);
-  - artifacts on the server — only by choice, and storage is off by default (R113).
+  - stored works on the server — only by choice, and storage is off by default (R113).
 - **Accuracy and bias:**
   - the verdict is given by a program, not by AI (R03);
   - an observation is joined from two readers (R86);
@@ -156,8 +157,8 @@ Std 2 requires explaining "how you conform to each of the standards set out in t
 | 4. Transparency | the gist of consent — briefly and in the language of the screen (R116); the texts for the family and for the child — T98; the samples page says what lies in the file and who will see it (R11 canvas) |
 | 5. Detrimental use of data | neither data for holding attention nor emotion inference (R123); the platform does not look for signs of harm in an essay, and shows the child where to turn (R127) |
 | 6. Policies and community standards | the platform does what privacy 7 promises, and the texts of T97 and T98 name it; the modules of the first slice are official only (О-9) |
-| 7. Default settings | by default — the most private: artifact storage is off (R113), voice is closed to children (О-6), there is no own key under 18 (R122) |
-| 8. Data minimisation | section 5.1. "Separate choices over which elements they wish to activate": the adult connects modules, and turns on voicing and artifact storage separately, and voice is closed to children (privacy 4; R113; О-6) |
+| 7. Default settings | by default — the most private: the storage of works is off (R113), voice is closed to children (О-6), there is no own key under 18 (R122) |
+| 8. Data minimisation | section 5.1. "Separate choices over which elements they wish to activate": the adult connects modules, and turns on voicing and the storage of works separately, and voice is closed to children (privacy 4; R113; О-6) |
 | 9. Data sharing | only to processors under an agreement (section 3.5); at a threat to a child — the operator's escalation path (R123, R127) |
 | 10. Geolocation | there is no geolocation. The owner states the country, and the clock offset of the device is not geolocation (R118) |
 | 11. Parental controls | the adult sees progress, and does not watch in real time. Std 11 requires telling the child about the controls in a form they understand: the texts for the child of T98 and a screen of `app` say that the adult sees their progress (section 6, risk 16) |
@@ -199,7 +200,7 @@ The other risks of std 2 — "access to harmful or inappropriate content", "misi
 | 10 | a child sample with the child's handwriting or name goes to the wrong place or lives longer than its period (R125) | remote | significant | low |
 | 11 | a child from a country with another age of digital consent lands in the wrong category (privacy 3.1; T100) | possible | significant | medium |
 | 12 | the family does not understand the texts in English and agrees to something other than what it thinks (R116) | possible | significant | medium |
-| 13 | an essay with the child's health data, stored on the server, leaks (R113, R127) | remote | severe | medium |
+| 13 | a stored work leaks: an essay with the child's health data, or a work's writing history (R113, R127) | remote | severe | medium |
 | 14 | a child with own key becomes the provider's "Customer" (R122) | remote | significant | low |
 | 15 | a child's voice and photo — biometrics and excess data (О-6; privacy 6) | remote | significant | low |
 | 16 | a child does not know that the adult sees their progress — "loss of autonomy", std 11 | probable | minimal | low |

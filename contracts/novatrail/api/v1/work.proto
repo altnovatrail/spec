@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+// The stored works in the contract between `app` and `api`: the works of a profile that the server
+// keeps while the storage of its works is on, each as the device holds it — the history of
+// writing, the contexts of its submissions and its picture —, put, listed, read back and erased one
+// at a time (R113). What each message means is the rule of contracts/README.md, section 15.
+package novatrail.api.v1;
+
+import "google/protobuf/timestamp.proto";
+import "novatrail/api/v1/attempt.proto";
+
+// The stored works of a profile. Every method carries the token of the sign-in service and may get
+// the refusals of every request with a token, which the comment of `AccountService` names with
+// what `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, an attempt
+// that is not the profile's `CAUSE_NOT_FOUND`, a learning request of a profile whose consent is not
+// confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
+// `CAUSE_AGE_NEEDED`, a request without the right it needs the code `permission_denied` with no
+// `Refusal`, and a request whose form the contract refuses the code `invalid_argument` with no
+// `Refusal`. Each repeats by the state of the profile's works, with no idempotency key. The server
+// reads no work and gives none to an AI provider.
+service WorkService {
+  // Keeps the work of an attempt of the profile, in place of the one kept of it before: a learning
+  // request with the right `can_learn`, while the profile's storage of works is on. `app` puts a
+  // work when it writes it to the device — at each submission and when the attempt closes at
+  // least —, and the last one put stands. The kind of the work `api` takes from the attempt's
+  // task. `api` checks the form of the work alone, as `StoredWork` names it: a work of another form
+  // gets the code `invalid_argument` with no `Refusal`. Refusals: `CAUSE_STORAGE_OFF` and
+  // `CAUSE_WORK_TOO_LARGE`.
+  rpc PutWork(PutWorkRequest) returns (PutWorkResponse);
+  // The works of the profile kept on the server, newest first, without their bytes: a learning
+  // request with the right `can_learn`, or an action of an adult with `can_manage`. While the
+  // storage is off the list is empty: switching it off erased them.
+  rpc ListWorks(ListWorksRequest) returns (ListWorksResponse);
+  // One work kept on the server, whole, as it was put, to restore it on a device or to export it:
+  // as `ListWorks`. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work kept.
+  rpc GetWork(GetWorkRequest) returns (GetWorkResponse);
+  // Erases one work kept on the server, by whoever consents to the storage for the learner, as
+  // `SetWorkStorage`: an action of an adult with `can_manage`, and at a profile whose learner gave
+  // their own consent, the learner's learning request with `can_learn`. The answer is "erased",
+  // and so is a repeat's, of an attempt with no work kept. The work on the device stays. Refusals:
+  // `CAUSE_LEARNER_DECIDES` and `CAUSE_ADULT_NEEDED`.
+  rpc DeleteWork(DeleteWorkRequest) returns (DeleteWorkResponse);
+}
+
+// What a stored work is, which `api` takes from the attempt's task.
+enum WorkKind {
+  // Not named: never sent.
+  WORK_KIND_UNSPECIFIED = 0;
+  // The handwriting on a task with a verdict: an item checked by a key or a predicate.
+  WORK_KIND_HANDWRITING = 1;
+  // An essay: a task with a rubric.
+  WORK_KIND_ESSAY = 2;
+  // A drawing: a task with no item checked and no rubric.
+  WORK_KIND_DRAWING = 3;
+}
+
+// A work as the device holds it. Its size is the sum of the bytes of its history, of the contexts
+// of its submissions and of its picture: at most 4 MiB, 4,194,304 bytes.
+message StoredWork {
+  // The attempt whose work it is.
+  string attempt_id = 1;
+  // What it is: set by `api`, and not sent by `PutWork`.
+  WorkKind kind = 2;
+  // The history of writing, as the element `<novatrail-canvas>` gives it, in its own names: the
+  // JSON array of it, in UTF-8. The server checks that it is one, keeps it as bytes, and reads no
+  // more of it.
+  bytes history = 3;
+  // Each submission of the attempt, in order.
+  repeated WorkSubmission submissions = 4;
+  // The picture of the work: the PNG of the strokes the surface shows at the end, as the device
+  // draws it, beginning with the signature of PNG.
+  bytes picture = 5;
+  // When `api` kept it: set by `api`, and not sent by `PutWork`.
+  google.protobuf.Timestamp stored_at = 6;
+}
+
+// A submission of a stored work.
+message WorkSubmission {
+  // The context of the submission, as the element `<novatrail-canvas>` gave it, in its own names:
+  // the JSON object of it, in UTF-8.
+  bytes context = 1;
+  // How many events of the history the submission covers.
+  int32 history_length = 2;
+}
+
+// A stored work named, without its bytes.
+message StoredWorkInfo {
+  // The attempt whose work it is.
+  string attempt_id = 1;
+  // What it is.
+  WorkKind kind = 2;
+  // When `api` kept it.
+  google.protobuf.Timestamp stored_at = 3;
+  // Its size, in bytes, as `StoredWork` counts it.
+  int64 size_bytes = 4;
+}
+
+// A work to keep.
+message PutWorkRequest {
+  // The profile.
+  string profile_id = 1;
+  // The work, with no `kind` and no `stored_at`.
+  StoredWork work = 2;
+}
+
+// The work kept.
+message PutWorkResponse {
+  // The work named, as `ListWorks` names it.
+  StoredWorkInfo work = 1;
+}
+
+// A request for the list of stored works.
+message ListWorksRequest {
+  // The profile.
+  string profile_id = 1;
+  // Whose action it is: `ACTION_LEARNING` or `ACTION_ADULT`. `ACTION_UNSPECIFIED` is refused
+  // `invalid_argument`.
+  Action action = 2;
+}
+
+// The stored works of the profile.
+message ListWorksResponse {
+  // Each work kept, newest first.
+  repeated StoredWorkInfo works = 1;
+}
+
+// A request for one stored work.
+message GetWorkRequest {
+  // The profile.
+  string profile_id = 1;
+  // The attempt whose work it is.
+  string attempt_id = 2;
+  // Whose action it is, as at `ListWorks`.
+  Action action = 3;
+}
+
+// One stored work.
+message GetWorkResponse {
+  // The work, whole.
+  StoredWork work = 1;
+}
+
+// The erasure of one stored work.
+message DeleteWorkRequest {
+  // The profile.
+  string profile_id = 1;
+  // The attempt whose work it is.
+  string attempt_id = 2;
+  // Whose action it is: `ACTION_ADULT`, or `ACTION_LEARNING` at a profile whose learner gave their
+  // own consent. `ACTION_UNSPECIFIED` is refused `invalid_argument`.
+  Action action = 3;
+}
+
+// "Erased": the server keeps no work of the attempt.
+message DeleteWorkResponse {}

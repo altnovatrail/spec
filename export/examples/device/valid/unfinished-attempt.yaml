@@ -1,12 +1,14 @@
 # Synthetic: no learner's data. IDs, times and values are made up.
-format: 1
+format: 2
 profile_id: "p-1"
 attempts:
   - attempt_id: "attempt-2"
     history:
-      - type: "stroke"
+      - kind: "write"
+        t: 120
         stroke:
           id: 1
+          kind: "pen"
           points:
             - x: 10
               "y": 20

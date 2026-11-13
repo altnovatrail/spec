@@ -3,13 +3,13 @@
 cases:
   - files:
       manifest.json:
-        format: 1
+        format: 2
         scope: "account"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "1"
+        api_format: "2"
       api/account.json:
-        format: 1
+        format: 2
         account_id: "account-1"
         adult_stated_at: "2026-11-10T09:30:00Z"
         tariff: "invite"
@@ -47,7 +47,7 @@ cases:
 
         syntax = \"proto3\";\n"
       api/profiles/p-9.json:
-        format: 1
+        format: 2
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -145,7 +145,7 @@ cases:
           modules:
             - module_id: "olympiad-math"
               module_version: "0.2.0"
-        artefacts: []
+        works: []
         work_storage: false
         storage_consents: []
         problem_reports: []
@@ -153,14 +153,16 @@ cases:
         age_stated_on: "2026-11-10"
         consent_age: 13
       device/p-1.json:
-        format: 1
+        format: 2
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
             history:
-              - type: "stroke"
+              - kind: "write"
+                t: 120
                 stroke:
                   id: 1
+                  kind: "pen"
                   points:
                     - x: 10
                       "y": 20

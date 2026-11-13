@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/1/account.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/2/account.schema.json",
   "title": "Account",
   "description": "The account in an export of the account, api/account.json (section 4 of the text of the part): its fields that are no secret, its consents and its counters of quota.",
   "type": "object",
   "properties": {
     "format": {
-      "const": 1,
+      "const": 2,
       "description": "The version of the part, the integer in export/VERSION."
     },
     "account_id": {

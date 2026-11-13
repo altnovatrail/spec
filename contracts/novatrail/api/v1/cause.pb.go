@@ -182,6 +182,12 @@ const (
 	// An action of an adult on the storage of works at a profile whose learner gave their own
 	// consent: the learner decides it alone (R113; R116). Code `permission_denied`.
 	Cause_CAUSE_LEARNER_DECIDES Cause = 42
+	// A work put while the storage of the profile's works is off: `app` keeps it on the device alone
+	// (R113). Code `failed_precondition`, with no data.
+	Cause_CAUSE_STORAGE_OFF Cause = 43
+	// A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps
+	// it on the device alone (R113). Code `invalid_argument`, with no data.
+	Cause_CAUSE_WORK_TOO_LARGE Cause = 44
 )
 
 // Enum value maps for Cause.
@@ -230,6 +236,8 @@ var (
 		40: "CAUSE_AGE_NEEDED",
 		41: "CAUSE_TEXT_NOT_CURRENT",
 		42: "CAUSE_LEARNER_DECIDES",
+		43: "CAUSE_STORAGE_OFF",
+		44: "CAUSE_WORK_TOO_LARGE",
 	}
 	Cause_value = map[string]int32{
 		"CAUSE_UNSPECIFIED":          0,
@@ -275,6 +283,8 @@ var (
 		"CAUSE_AGE_NEEDED":           40,
 		"CAUSE_TEXT_NOT_CURRENT":     41,
 		"CAUSE_LEARNER_DECIDES":      42,
+		"CAUSE_STORAGE_OFF":          43,
+		"CAUSE_WORK_TOO_LARGE":       44,
 	}
 )
 
@@ -1172,7 +1182,7 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x06reason\x18\x01 \x01(\x0e2\x1e.novatrail.api.v1.RunEndReasonR\x06reason\x126\n" +
 	"\x06choice\x18\x02 \x01(\v2\x1e.novatrail.api.v1.EngineChoiceR\x06choice\"'\n" +
 	"\rEndedSegments\x12\x16\n" +
-	"\x06places\x18\x01 \x03(\x05R\x06places*\xbf\b\n" +
+	"\x06places\x18\x01 \x03(\x05R\x06places*\xf0\b\n" +
 	"\x05Cause\x12\x15\n" +
 	"\x11CAUSE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10CAUSE_NO_PROFILE\x10\x01\x12\x13\n" +
@@ -1217,7 +1227,9 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x17CAUSE_TOO_MANY_CONSENTS\x10'\x12\x14\n" +
 	"\x10CAUSE_AGE_NEEDED\x10(\x12\x1a\n" +
 	"\x16CAUSE_TEXT_NOT_CURRENT\x10)\x12\x19\n" +
-	"\x15CAUSE_LEARNER_DECIDES\x10**\x88\x01\n" +
+	"\x15CAUSE_LEARNER_DECIDES\x10*\x12\x15\n" +
+	"\x11CAUSE_STORAGE_OFF\x10+\x12\x18\n" +
+	"\x14CAUSE_WORK_TOO_LARGE\x10,*\x88\x01\n" +
 	"\n" +
 	"LimitCause\x12\x1b\n" +
 	"\x17LIMIT_CAUSE_UNSPECIFIED\x10\x00\x12\x15\n" +
