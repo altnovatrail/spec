@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/legal/2/legal.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/legal/3/legal.schema.json",
   "title": "Legal passport",
   "description": "The passport of the legal texts, legal/legal.yaml (section 4 of the legal text): the texts, their versions with their status, date and summary, and the sets of texts of the samples page.",
   "type": "object",
   "properties": {
     "format": {
-      "const": 2,
+      "const": 3,
       "description": "The version of the part, the integer in legal/VERSION."
     },
     "texts": {
@@ -117,7 +117,7 @@
         "in_force_since": {
           "type": "string",
           "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
-          "description": "The date the author approved the version, YYYY-MM-DD. Only a version in force has it, and it always has it."
+          "description": "The day from which the version applies, YYYY-MM-DD: the day the author approved it, or, for a text whose place is app, a later day, so that app shows the version before it applies. Only a version in force has it, and it always has it."
         }
       },
       "required": [

@@ -2,8 +2,9 @@
 
 cases:
   # The file of version 1 in force changed.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -56,10 +57,14 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version, edited.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
             place: app
@@ -112,13 +117,18 @@ cases:
         texts/privacy-policy/1.md: |
           # Privacy policy
 
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
+
           The words of this version.
     refused_by: legal.in-force-unchanged
     names:
       - texts/privacy-policy/1.md
   # The entry of version 1 in force changed: its gist.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -171,10 +181,14 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
             place: app
@@ -227,14 +241,28 @@ cases:
         texts/privacy-policy/1.md: |
           # Privacy policy
 
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
+
           The words of this version.
     refused_by: legal.in-force-unchanged
     names:
       - texts.privacy-policy
   # A text with a version in force is gone.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
         measure-notice:
           place: samples_page
           versions:
@@ -266,6 +294,14 @@ cases:
                 text: measure-form
                 version: 1
     files:
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
+        The words of this version.
       texts/measure-form/1.md: |
         # Measurement: form of consent
 
@@ -276,9 +312,18 @@ cases:
         The words of this version.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
+            place: app
+            versions:
+              - version: 1
+                status: in_force
+                in_force_since: "2026-11-20"
+                summary:
+                  en: We keep the least data we need.
+                  ru: Мы храним минимум данных.
+          terms-of-use:
             place: app
             versions:
               - version: 1
@@ -326,16 +371,25 @@ cases:
           # Measurement: notice
 
           The words of this version.
+        texts/terms-of-use/1.md: |
+          # Terms of use
+
+          The words of this version.
         texts/privacy-policy/1.md: |
           # Privacy policy
+
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
 
           The words of this version.
     refused_by: legal.in-force-unchanged
     names:
-      - texts.privacy-policy
+      - texts.terms-of-use
   # The entry of a set in force changed: its date.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -388,10 +442,14 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
             place: app
@@ -444,13 +502,18 @@ cases:
         texts/privacy-policy/1.md: |
           # Privacy policy
 
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
+
           The words of this version.
     refused_by: legal.in-force-unchanged
     names:
       - sets.measure
   # The translation of version 1 in force changed.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -505,6 +568,10 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
       texts/privacy-policy/1.ru.md: |
         # Политика конфиденциальности
@@ -512,7 +579,7 @@ cases:
         Другие слова этой версии.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
             place: app
@@ -567,6 +634,10 @@ cases:
         texts/privacy-policy/1.md: |
           # Privacy policy
 
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
+
           The words of this version.
         texts/privacy-policy/1.ru.md: |
           # Политика конфиденциальности
@@ -576,8 +647,9 @@ cases:
     names:
       - texts/privacy-policy/1.ru.md
   # Version 1 in force lost its translation: its entry and the file are gone.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -630,10 +702,14 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
             place: app
@@ -687,6 +763,10 @@ cases:
           The words of this version.
         texts/privacy-policy/1.md: |
           # Privacy policy
+
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
 
           The words of this version.
         texts/privacy-policy/1.ru.md: |

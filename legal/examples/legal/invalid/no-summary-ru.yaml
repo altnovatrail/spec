@@ -1,6 +1,6 @@
 # error: required at #/texts/privacy-policy/versions/0/summary
 # The gist is in each language of the interface: en and ru.
-format: 2
+format: 3
 texts:
   privacy-policy:
     place: app

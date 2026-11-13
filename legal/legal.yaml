@@ -1,6 +1,6 @@
 # The passport of the legal texts (section 4 of the legal text). Every version is a draft until
 # T97, T98 and T99 of RUN.md write its words and the author approves it (R112).
-format: 2
+format: 3
 texts:
   privacy-policy:
     place: app

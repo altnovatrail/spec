@@ -40,6 +40,7 @@ export const INLINE_NAMES = {
   legal: {
     "legal.schema.json#/$defs/text_version/properties/summary": "Gist",
     "reading-vector.schema.json#/$defs/case/properties/current": "Current",
+    "reading-vector.schema.json#/$defs/case/properties/next": "Next",
   },
 };
 

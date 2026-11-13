@@ -2,8 +2,9 @@
 
 cases:
   # The text begins with no heading of the first level.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -61,8 +62,9 @@ cases:
     names:
       - texts/privacy-policy/1.md
   # HTML in the text.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -114,14 +116,19 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         We keep <b>the least</b> data.
     refused_by: legal.markdown
     names:
       - texts/privacy-policy/1.md
   # An image.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -173,14 +180,19 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         ![A diagram](diagram.png)
     refused_by: legal.markdown
     names:
       - texts/privacy-policy/1.md
   # A link out.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -232,14 +244,19 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         See [the ICO](https://ico.org.uk).
     refused_by: legal.markdown
     names:
       - texts/privacy-policy/1.md
   # An autolink is a link too.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -292,13 +309,18 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         Write to <privacy@example.org>.
     refused_by: legal.markdown
     names:
       - texts/privacy-policy/1.md
   # A link in a translation.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -352,6 +374,10 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
       texts/privacy-policy/1.ru.md: |

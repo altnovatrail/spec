@@ -1,6 +1,6 @@
 # error: enum at #/texts/privacy-policy/versions/0/translations/0
 # A translation is into a language of the interface other than English, whose text is the one in force.
-format: 2
+format: 3
 texts:
   privacy-policy:
     place: app

@@ -9,11 +9,11 @@ import (
 	"github.com/altnovatrail/spec/types/exportv1"
 	"github.com/altnovatrail/spec/types/formatv0"
 	"github.com/altnovatrail/spec/types/formatv0/open"
-	"github.com/altnovatrail/spec/types/legalv2"
+	"github.com/altnovatrail/spec/types/legalv3"
 )
 
 // typesByName gives a new value of each type of formatv0, of open, of admissionv0, of deploymentv1,
-// of legalv2, of consentagev1 and of exportv1, by its name in the corpus.
+// of legalv3, of consentagev1 and of exportv1, by its name in the corpus.
 var typesByName = map[string]func() any{
 	"admissionv0.AdmissionTable":  func() any { return new(admissionv0.AdmissionTable) },
 	"admissionv0.AnswerVector":    func() any { return new(admissionv0.AnswerVector) },
@@ -48,8 +48,8 @@ var typesByName = map[string]func() any{
 	"formatv0.Traps":              func() any { return new(formatv0.Traps) },
 	"formatv0.VerdictVector":      func() any { return new(formatv0.VerdictVector) },
 	"formatv0.VersionVector":      func() any { return new(formatv0.VersionVector) },
-	"legalv2.Legal":               func() any { return new(legalv2.Legal) },
-	"legalv2.ReadingVector":       func() any { return new(legalv2.ReadingVector) },
+	"legalv3.Legal":               func() any { return new(legalv3.Legal) },
+	"legalv3.ReadingVector":       func() any { return new(legalv3.ReadingVector) },
 	"open.AnswerSlot":             func() any { return new(open.AnswerSlot) },
 	"open.Audience":               func() any { return new(open.Audience) },
 	"open.Author":                 func() any { return new(open.Author) },

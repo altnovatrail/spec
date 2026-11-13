@@ -12,7 +12,7 @@
 // (reading.mjs) and compares. Between them, the vectors accept a part and refuse one by the schema
 // and by each rule (section 7). A file the layout does not know is an error. Last, it reads the part
 // itself — legal.yaml and the files under texts/ — as section 5 gives, with the part of the release
-// before for legal.in-force-unchanged (tools/release/previous.mjs).
+// before for legal.in-force-unchanged (tools/release/previous.mjs), on the day it runs, in UTC.
 //
 // With --dir, it reads an operator's folder instead, its paths from where it runs: VERSION, which is
 // this spec's, legal.yaml and texts/, and nothing else, against this spec's schema of the passport
@@ -30,7 +30,7 @@ import { firstInvalidByte, readModuleFile } from "../format-check/yaml.mjs";
 import { byCodeUnits, git, isMain } from "../shared.mjs";
 import { checkFormatField, describe, filesUnder, printCheck, readRules, readVersion as readVersionFile, uniqueErrors, yamlProblems } from "../parts.mjs";
 import { previousReleaseTag } from "../release/previous.mjs";
-import { MARKDOWN, RULES, SCHEMA, markdownProblem, readingOf } from "./reading.mjs";
+import { MARKDOWN, OPERATOR, POLICY, RULES, SCHEMA, markdownProblem, readingOf } from "./reading.mjs";
 
 export const FOLDER = "legal";
 export const LEGAL_PART = { folder: FOLDER, prefix: "https://altnovatrail.github.io/spec/legal/", open: false };
@@ -43,11 +43,12 @@ const VERSION_WORDS = { missing: "no VERSION: the part's version, an integer and
 
 // The errors of root's legal/ and what it holds: { errors: [{ file, line, message }], stats }.
 // previousOf(root) gives the release before, { tag, part } with part null when it has no legal/,
-// or null when there is none; it throws when it cannot tell.
-export function checkLegal(root, { previousOf = previousLegal } = {}) {
+// or null when there is none; it throws when it cannot tell. today is the day the part is read on,
+// YYYY-MM-DD, by default the day in UTC.
+export function checkLegal(root, { previousOf = previousLegal, today = todayInUtc() } = {}) {
   const errors = [];
   const report = (file, line, message) => errors.push({ file, line, message });
-  const stats = { schemas: 0, examples: 0, rules: 0, vectors: 0, cases: 0, texts: 0, versions: 0, current: 0, previous: null };
+  const stats = { schemas: 0, examples: 0, rules: 0, vectors: 0, cases: 0, texts: 0, versions: 0, current: 0, next: 0, previous: null };
   if (!fs.existsSync(path.join(root, FOLDER))) {
     report(FOLDER, 0, "the legal texts' folder is not there");
     return { errors, stats };
@@ -107,7 +108,7 @@ export function checkLegal(root, { previousOf = previousLegal } = {}) {
   }
   stats.previous = previous?.tag ?? null;
   const part = readPart(path.join(root, FOLDER), FOLDER, report);
-  if (part && known && validators.has(PASSPORT_TERM)) readThePart(validators.get(PASSPORT_TERM), part, previous, FOLDER, report, stats);
+  if (part && known && validators.has(PASSPORT_TERM)) readThePart(validators.get(PASSPORT_TERM), part, previous, today, FOLDER, report, stats);
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
   return { errors, stats };
@@ -115,11 +116,11 @@ export function checkLegal(root, { previousOf = previousLegal } = {}) {
 
 // The errors of a self-hosted copy's folder, dir, which the errors name as shown, checked against
 // the schema of the passport of spec at specRoot and the rules of section 5 but
-// legal.in-force-unchanged: { errors, stats }.
-export function checkLegalDir(dir, specRoot, shown = dir) {
+// legal.in-force-unchanged, on the day today: { errors, stats }.
+export function checkLegalDir(dir, specRoot, shown = dir, { today = todayInUtc() } = {}) {
   const errors = [];
   const report = (file, line, message) => errors.push({ file, line, message });
-  const stats = { texts: 0, versions: 0, current: 0, version: null };
+  const stats = { texts: 0, versions: 0, current: 0, next: 0, version: null };
   if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
     report(shown, 0, "no folder there");
     return { errors, stats };
@@ -140,7 +141,7 @@ export function checkLegalDir(dir, specRoot, shown = dir) {
   const validate = compileSchemas([schema]).validators.get(PASSPORT_TERM);
   if (!validate) throw new Error(`${schema.file} of this spec does not compile: run just legal-check`);
   const part = readPart(dir, shown, report);
-  if (part && version === ours) readThePart(validate, part, null, shown, report, stats);
+  if (part && version === ours) readThePart(validate, part, null, today, shown, report, stats);
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message));
   return { errors, stats };
 }
@@ -178,14 +179,22 @@ function readPart(dir, shown, report) {
   return problems.length ? null : { passport: read.value, files };
 }
 
-// Reads the part, with the release before, { tag, part } or null, and reports what refuses it.
-function readThePart(validate, part, previous, shown, report, stats) {
-  const reading = readingOf(validate, part, previous?.part ?? null);
+// The day in UTC, YYYY-MM-DD.
+export function todayInUtc(now = new Date()) {
+  return now.toISOString().slice(0, 10);
+}
+
+// Reads the part on the day today, with the release before, { tag, part } or null, and reports what
+// refuses it.
+function readThePart(validate, part, previous, today, shown, report, stats) {
+  const reading = readingOf(validate, part, previous?.part ?? null, { today });
   if (reading.current) {
     const texts = Object.values(part.passport.texts);
+    const count = ({ texts, sets }) => Object.keys(texts).length + Object.keys(sets).length;
     stats.texts = texts.length;
     stats.versions = texts.reduce((sum, text) => sum + text.versions.length, 0);
-    stats.current = Object.keys(reading.current.texts).length + Object.keys(reading.current.sets).length;
+    stats.current = count(reading.current);
+    stats.next = count(reading.next);
     return;
   }
   for (const name of reading.names) {
@@ -193,6 +202,10 @@ function readThePart(validate, part, previous, shown, report, stats) {
     const file = isFile ? `${shown}/${name}` : `${shown}/${PASSPORT}`;
     if (reading.refused_by === SCHEMA) report(file, 0, `does not pass ${FOLDER}/schemas/${PASSPORT_TERM}.schema.json: ${name || "the root"}`);
     else if (reading.refused_by === MARKDOWN) report(file, 0, `${MARKDOWN}: ${markdownProblem(part.files[name])}`);
+    else if (reading.refused_by === OPERATOR) {
+      const why = isFile ? 'it has no section "Who we are", a heading of the second level' : `the part has no ${POLICY} at the place app with a version in force by ${today}`;
+      report(file, 0, `${OPERATOR}: ${name}: ${why}, ${FOLDER}/README.md, section 5`);
+    }
     else {
       const against = previous ? `, against ${previous.tag}` : "";
       report(file, 0, `${reading.refused_by}: ${name}${isFile ? "" : `, ${FOLDER}/README.md, section 5`}${against}`);
@@ -279,8 +292,8 @@ function vectorProblems(bytes, validate, validatePassport) {
   if (problems.length || !validate || !validatePassport) return { problems, cases: [] };
   if (!validate(read.value)) return { problems: uniqueErrors(validate.errors).map((error) => ({ line: 0, message: `does not pass the schema of a vector of reading: ${describe(error)}` })), cases: [] };
   const { cases } = read.value;
-  cases.forEach(({ passport, files, previous, ...wanted }, index) => {
-    const computed = readingOf(validatePassport, { passport, files }, previous ?? null);
+  cases.forEach(({ passport, files, previous, today, ...wanted }, index) => {
+    const computed = readingOf(validatePassport, { passport, files }, previous ?? null, { today });
     if (!isDeepStrictEqual(computed, { ...wanted })) {
       problems.push({ line: 0, message: `cases/${index}: the reading gives ${JSON.stringify(computed)}, and the vector ${JSON.stringify(wanted)}` });
     }
@@ -292,13 +305,13 @@ function vectorProblems(bytes, validate, validatePassport) {
 export function legalCheck(root, options = {}) {
   printCheck("legal-check", checkLegal(root, options), (stats) => {
     const against = stats.previous ? `, against ${stats.previous}` : ", with no release before";
-    return `${stats.schemas} schemas, ${stats.rules} rules, ${stats.examples} examples, ${stats.vectors} vectors of reading with ${stats.cases} cases; the part: ${stats.texts} texts, ${stats.versions} versions, ${stats.current} current${against}`;
+    return `${stats.schemas} schemas, ${stats.rules} rules, ${stats.examples} examples, ${stats.vectors} vectors of reading with ${stats.cases} cases; the part: ${stats.texts} texts, ${stats.versions} versions, ${stats.current} current, ${stats.next} next${against}`;
   });
 }
 
 // Checks a copy's folder and prints what it finds, setting the exit code to 1 on an error.
 export function legalCheckDir(dir, specRoot, shown = dir) {
-  printCheck("legal-check-dir", checkLegalDir(dir, specRoot, shown), (stats) => `${shown}, version ${stats.version}: ${stats.texts} texts, ${stats.versions} versions, ${stats.current} current`);
+  printCheck("legal-check-dir", checkLegalDir(dir, specRoot, shown), (stats) => `${shown}, version ${stats.version}: ${stats.texts} texts, ${stats.versions} versions, ${stats.current} current, ${stats.next} next`);
 }
 
 if (isMain(import.meta.url)) {

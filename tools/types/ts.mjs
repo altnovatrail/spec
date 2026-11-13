@@ -10,7 +10,7 @@
 // types are admissionv0/index.d.ts, by the same rules, which the npm package exports as
 // ./admissionv0 (R96), the deployment configuration's deploymentv1/index.d.ts, exported as
 // ./deploymentv1, whose file keeps the names of its fields in camelCase (R85), the legal texts'
-// legalv2/index.d.ts, exported as ./legalv2 (R130, R141), and the table of the age of digital consent's
+// legalv3/index.d.ts, exported as ./legalv3 (R130, R141), and the table of the age of digital consent's
 // consentagev1/index.d.ts, exported as ./consentagev1 (R134), and the format of the export's
 // exportv1/index.d.ts, exported as ./exportv1 (R135).
 

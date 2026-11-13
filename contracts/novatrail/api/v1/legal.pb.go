@@ -5,9 +5,9 @@
 // source: novatrail/api/v1/legal.proto
 
 // The legal texts in the contract between `app` and `api`: the privacy policy, the terms of use
-// and the consents that `app` shows as its own pages, each in its current version, with its gist
-// in the language of the screen. The texts are those of the legal part, `legal/` of `spec`, or of a
-// self-hosted copy's operator. What each message means is the rule of contracts/README.md,
+// and the consents that `app` shows as its own pages, each in its current version and its next
+// one, with its gist in the language of the screen. The texts are those of the legal part,
+// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of contracts/README.md,
 // section 15.
 
 package apiv1
@@ -79,9 +79,16 @@ func (x *GetLegalTextsRequest) GetInterfaceLanguage() string {
 type GetLegalTextsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The current version of every text whose place is `app`, in the order of their IDs by code
-	// units. A text with no version in force has none, and is absent: the list is empty while no such
-	// text is in force.
-	Texts         []*LegalText `protobuf:"bytes,1,rep,name=texts,proto3" json:"texts,omitempty"`
+	// units: its version in force with the highest number whose day has come, on the day of the
+	// request in UTC. A text with no such version has none, and is absent: the list is empty while no
+	// such text applies.
+	Texts []*LegalText `protobuf:"bytes,1,rep,name=texts,proto3" json:"texts,omitempty"`
+	// The next version of every text whose place is `app` that has one, in the same order: the
+	// version that becomes current on the nearest day still to come, its version in force with the
+	// highest number among those of that day. `app` shows it before it
+	// applies, as the version that will apply from its day (R130). No request names it in a
+	// consent: a consent names the current version.
+	NextTexts     []*LegalText `protobuf:"bytes,2,rep,name=next_texts,json=nextTexts,proto3" json:"next_texts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -123,7 +130,14 @@ func (x *GetLegalTextsResponse) GetTexts() []*LegalText {
 	return nil
 }
 
-// A legal text in its current version: its version in force with the highest number.
+func (x *GetLegalTextsResponse) GetNextTexts() []*LegalText {
+	if x != nil {
+		return x.NextTexts
+	}
+	return nil
+}
+
+// A legal text in a version in force: its current version or its next one.
 type LegalText struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the text in the passport: lower-case Latin letters and digits in words joined by
@@ -131,7 +145,8 @@ type LegalText struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The number of the version, from 1 on.
 	Version int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
-	// The date the author approved the version, from which it is in force, `YYYY-MM-DD`.
+	// The day from which the version applies, `YYYY-MM-DD`, from 00:00 UTC: the day the author
+	// approved it, or a later day, which comes with the version so that `app` shows it ahead.
 	InForceSince string `protobuf:"bytes,3,opt,name=in_force_since,json=inForceSince,proto3" json:"in_force_since,omitempty"`
 	// The text of the version, in English, the one in force: Markdown, CommonMark with the tables of
 	// GitHub's flavour, that begins with a heading of the first level, the text's title, and holds no
@@ -305,9 +320,11 @@ const file_novatrail_api_v1_legal_proto_rawDesc = "" +
 	"\n" +
 	"\x1cnovatrail/api/v1/legal.proto\x12\x10novatrail.api.v1\"E\n" +
 	"\x14GetLegalTextsRequest\x12-\n" +
-	"\x12interface_language\x18\x01 \x01(\tR\x11interfaceLanguage\"J\n" +
+	"\x12interface_language\x18\x01 \x01(\tR\x11interfaceLanguage\"\x86\x01\n" +
 	"\x15GetLegalTextsResponse\x121\n" +
-	"\x05texts\x18\x01 \x03(\v2\x1b.novatrail.api.v1.LegalTextR\x05texts\"\x89\x02\n" +
+	"\x05texts\x18\x01 \x03(\v2\x1b.novatrail.api.v1.LegalTextR\x05texts\x12:\n" +
+	"\n" +
+	"next_texts\x18\x02 \x03(\v2\x1b.novatrail.api.v1.LegalTextR\tnextTexts\"\x89\x02\n" +
 	"\tLegalText\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x05R\aversion\x12$\n" +
@@ -346,13 +363,14 @@ var file_novatrail_api_v1_legal_proto_goTypes = []any{
 }
 var file_novatrail_api_v1_legal_proto_depIdxs = []int32{
 	2, // 0: novatrail.api.v1.GetLegalTextsResponse.texts:type_name -> novatrail.api.v1.LegalText
-	0, // 1: novatrail.api.v1.LegalService.GetLegalTexts:input_type -> novatrail.api.v1.GetLegalTextsRequest
-	1, // 2: novatrail.api.v1.LegalService.GetLegalTexts:output_type -> novatrail.api.v1.GetLegalTextsResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 1: novatrail.api.v1.GetLegalTextsResponse.next_texts:type_name -> novatrail.api.v1.LegalText
+	0, // 2: novatrail.api.v1.LegalService.GetLegalTexts:input_type -> novatrail.api.v1.GetLegalTextsRequest
+	1, // 3: novatrail.api.v1.LegalService.GetLegalTexts:output_type -> novatrail.api.v1.GetLegalTextsResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_legal_proto_init() }

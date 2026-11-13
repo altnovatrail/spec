@@ -1,6 +1,6 @@
 # error: not at #/texts/privacy-policy/versions/1
 # A draft has no date: only a version in force has one.
-format: 2
+format: 3
 texts:
   privacy-policy:
     place: app

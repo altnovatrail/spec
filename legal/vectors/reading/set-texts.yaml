@@ -2,8 +2,9 @@
 
 cases:
   # The set names version 2 of its form, which does not exist.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -56,13 +57,18 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     refused_by: legal.set-texts
     names:
       - sets.measure
   # The notice of a set is a text with the place samples_page, not form.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -115,13 +121,18 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     refused_by: legal.set-texts
     names:
       - sets.measure
   # A set in force names its form in draft.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -172,6 +183,74 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
+        The words of this version.
+    refused_by: legal.set-texts
+    names:
+      - sets.measure
+  # The set in force names a notice that applies only from a later day than the set.
+  - today: "2026-12-15"
+    passport:
+      format: 3
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+        measure-notice:
+          place: samples_page
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-21"
+              summary:
+                en: Your writing history goes to the organizer.
+                ru: История письма уходит организатору.
+        measure-form:
+          place: form
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: You consent to your writing history.
+                ru: Вы соглашаетесь на историю письма.
+      sets:
+        measure:
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              notice:
+                text: measure-notice
+                version: 1
+              form:
+                text: measure-form
+                version: 1
+    files:
+      texts/measure-form/1.md: |
+        # Measurement: form of consent
+
+        The words of this version.
+      texts/measure-notice/1.md: |
+        # Measurement: notice
+
+        The words of this version.
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
     refused_by: legal.set-texts

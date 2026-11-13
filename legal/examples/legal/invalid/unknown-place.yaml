@@ -1,6 +1,6 @@
 # error: enum at #/texts/privacy-policy/place
 # A text is shown in app, on the samples page or on a form.
-format: 2
+format: 3
 texts:
   privacy-policy:
     place: website

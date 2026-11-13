@@ -2,8 +2,9 @@
 
 cases:
   # Version 1 of the policy has no file.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -57,8 +58,9 @@ cases:
     names:
       - texts/privacy-policy/1.md
   # A file of a version the passport does not name.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -111,17 +113,26 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
       texts/privacy-policy/2.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         A version the passport does not name.
     refused_by: legal.files
     names:
       - texts/privacy-policy/2.md
   # A file of a text the passport does not name.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -173,6 +184,10 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
       texts/cookie-policy/1.md: |
@@ -183,8 +198,9 @@ cases:
     names:
       - texts/cookie-policy/1.md
   # Version 1 of the policy names a translation into Russian, which has no file.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -239,13 +255,18 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     refused_by: legal.files
     names:
       - texts/privacy-policy/1.ru.md
   # A translation that the version does not name.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -297,6 +318,10 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
       texts/privacy-policy/1.ru.md: |

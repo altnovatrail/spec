@@ -9,7 +9,8 @@
 // canvas lays its page out (section 14 of the format text; T88), and from the line
 // FIRST_DEPLOYMENT_LINE on the types of the deployment configuration, ./deploymentv1 (R85), and
 // from the line FIRST_LEGAL_LINE on the types of the legal texts, ./legalv1, and from the line
-// LEGAL_V2_LINE on ./legalv2 in its place, of the part's version 2 (R130, R141), and from the
+// LEGAL_V2_LINE on ./legalv2 in its place, of the part's version 2 (R130, R141), and from the line
+// LEGAL_V3_LINE on ./legalv3 in place of both, of the part's version 3 (R130), and from the
 // line FIRST_CONSENT_AGE_LINE on the types of the table of the age of digital consent,
 // ./consentagev1 (R134), and from the line FIRST_EXPORT_LINE on the types of the format of the
 // export, ./exportv1 (R135): what a package
@@ -55,6 +56,10 @@ export const FIRST_LEGAL_LINE = "0.13";
 // of legalv1, the types of version 1, which the lines 0.13 and 0.14 hold (R141).
 export const LEGAL_V2_LINE = "0.15";
 const LEGAL_V1 = "legalv1";
+// spec's first line whose package holds the types of the legal texts' version 3, legalv3, in place
+// of legalv2, which the lines 0.15 and 0.16 hold (R130).
+export const LEGAL_V3_LINE = "0.17";
+const LEGAL_V2 = "legalv2";
 // spec's first line whose package holds the types of the table of the age of digital consent, as
 // the release holds the table (tools/release/files.mjs).
 export const FIRST_CONSENT_AGE_LINE = "0.14";
@@ -109,7 +114,7 @@ const holdsDeployment = (version) => fromLine(version, FIRST_DEPLOYMENT_LINE);
 // Whether it holds the types of the legal texts.
 const holdsLegal = (version) => fromLine(version, FIRST_LEGAL_LINE);
 // The package of the types of the legal texts that the package of version holds.
-const legalPackageOf = (version) => (fromLine(version, LEGAL_V2_LINE) ? LEGAL_PACKAGE : LEGAL_V1);
+const legalPackageOf = (version) => (fromLine(version, LEGAL_V3_LINE) ? LEGAL_PACKAGE : fromLine(version, LEGAL_V2_LINE) ? LEGAL_V2 : LEGAL_V1);
 // Whether it holds the types of the table of the age of digital consent.
 const holdsConsentAge = (version) => fromLine(version, FIRST_CONSENT_AGE_LINE);
 // Whether it holds the types of the format of the export.

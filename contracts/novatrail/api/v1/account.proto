@@ -221,7 +221,7 @@ message CreateAccountRequest {
   // `invalid_argument`. `api` keeps it with its date (privacy 9, П-6).
   bool adult_stated = 2;
   // The versions of `privacy-policy` and `terms-of-use` that the owner accepted, as
-  // `GetLegalTexts` gave them: each of the two that has a version in force, and no other text.
+  // `GetLegalTexts` gave them: each of the two that has a current version, and no other text.
   repeated LegalTextRef accepted_texts = 3;
 }
 
@@ -528,7 +528,7 @@ message RequestChildConsentRequest {
   // The child's country, ISO 3166-1 alpha-2.
   string country = 3;
   // The version of `parent-consent` that `app` shows with the form, as `GetLegalTexts` gave it:
-  // `app` sends it whenever the text has a version in force, whoever the category makes give the
+  // `app` sends it whenever the text has a current version, whoever the category makes give the
   // consent, since only `api` works it out; `api` records it with a parent's consent alone.
   LegalTextRef parent_consent_text = 4;
 }
@@ -585,7 +585,7 @@ message GiveOwnConsentRequest {
   // The learner's profile.
   string profile_id = 1;
   // The version of `teen-consent` the learner read, as `GetLegalTexts` gave it: absent while the
-  // text has no version in force, and needed once it has.
+  // text has no current version, and needed once it has.
   LegalTextRef text = 2;
 }
 
@@ -616,7 +616,7 @@ message RestateAgeRequest {
   // The learner's country, ISO 3166-1 alpha-2.
   string country = 4;
   // The version of `parent-consent` that `app` shows, sent as at `RequestChildConsent` whenever the
-  // text has a version in force: `api` records it with a parent's consent that the new category
+  // text has a current version: `api` records it with a parent's consent that the new category
   // asks for.
   LegalTextRef parent_consent_text = 5;
 }
@@ -665,7 +665,7 @@ message SetWorkStorageRequest {
   // Whether it is on.
   bool enabled = 3;
   // Beside switching on: the version of `storage-consent` that the person read, as
-  // `GetLegalTexts` gave it; absent while the text has no version in force.
+  // `GetLegalTexts` gave it; absent while the text has no current version.
   LegalTextRef text = 4;
 }
 

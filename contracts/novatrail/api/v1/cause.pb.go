@@ -174,9 +174,10 @@ const (
 	// was given by (R134), but for the requests on the consent itself, which section 15 of
 	// contracts/README.md names. An adult gives it by `RestateAge`. Code `failed_precondition`.
 	Cause_CAUSE_AGE_NEEDED Cause = 40
-	// The version of a legal text that the request names is not the current one, or a text that has
-	// a version in force is not named: `app` reads `GetLegalTexts` again and shows the current
-	// version before it asks once more. Code `failed_precondition`.
+	// The version of a legal text that the request names is not the current one — a next version
+	// before its day among them —, or a text that has a current version is not named: `app` reads
+	// `GetLegalTexts` again and shows the current version before it asks once more. Code
+	// `failed_precondition`.
 	Cause_CAUSE_TEXT_NOT_CURRENT Cause = 41
 	// An action of an adult on the storage of works at a profile whose learner gave their own
 	// consent: the learner decides it alone (R113; R116). Code `permission_denied`.

@@ -615,9 +615,10 @@ export enum Cause {
   AGE_NEEDED = 40,
 
   /**
-   * The version of a legal text that the request names is not the current one, or a text that has
-   * a version in force is not named: `app` reads `GetLegalTexts` again and shows the current
-   * version before it asks once more. Code `failed_precondition`.
+   * The version of a legal text that the request names is not the current one — a next version
+   * before its day among them —, or a text that has a current version is not named: `app` reads
+   * `GetLegalTexts` again and shows the current version before it asks once more. Code
+   * `failed_precondition`.
    *
    * @generated from enum value: CAUSE_TEXT_NOT_CURRENT = 41;
    */

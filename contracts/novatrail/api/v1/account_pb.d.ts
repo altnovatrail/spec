@@ -81,7 +81,7 @@ export declare type CreateAccountRequest = Message<"novatrail.api.v1.CreateAccou
 
   /**
    * The versions of `privacy-policy` and `terms-of-use` that the owner accepted, as
-   * `GetLegalTexts` gave them: each of the two that has a version in force, and no other text.
+   * `GetLegalTexts` gave them: each of the two that has a current version, and no other text.
    *
    * @generated from field: repeated novatrail.api.v1.LegalTextRef accepted_texts = 3;
    */
@@ -810,7 +810,7 @@ export declare type RequestChildConsentRequest = Message<"novatrail.api.v1.Reque
 
   /**
    * The version of `parent-consent` that `app` shows with the form, as `GetLegalTexts` gave it:
-   * `app` sends it whenever the text has a version in force, whoever the category makes give the
+   * `app` sends it whenever the text has a current version, whoever the category makes give the
    * consent, since only `api` works it out; `api` records it with a parent's consent alone.
    *
    * @generated from field: novatrail.api.v1.LegalTextRef parent_consent_text = 4;
@@ -1001,7 +1001,7 @@ export declare type GiveOwnConsentRequest = Message<"novatrail.api.v1.GiveOwnCon
 
   /**
    * The version of `teen-consent` the learner read, as `GetLegalTexts` gave it: absent while the
-   * text has no version in force, and needed once it has.
+   * text has no current version, and needed once it has.
    *
    * @generated from field: novatrail.api.v1.LegalTextRef text = 2;
    */
@@ -1105,7 +1105,7 @@ export declare type RestateAgeRequest = Message<"novatrail.api.v1.RestateAgeRequ
 
   /**
    * The version of `parent-consent` that `app` shows, sent as at `RequestChildConsent` whenever the
-   * text has a version in force: `api` records it with a parent's consent that the new category
+   * text has a current version: `api` records it with a parent's consent that the new category
    * asks for.
    *
    * @generated from field: novatrail.api.v1.LegalTextRef parent_consent_text = 5;
@@ -1263,7 +1263,7 @@ export declare type SetWorkStorageRequest = Message<"novatrail.api.v1.SetWorkSto
 
   /**
    * Beside switching on: the version of `storage-consent` that the person read, as
-   * `GetLegalTexts` gave it; absent while the text has no version in force.
+   * `GetLegalTexts` gave it; absent while the text has no current version.
    *
    * @generated from field: novatrail.api.v1.LegalTextRef text = 4;
    */

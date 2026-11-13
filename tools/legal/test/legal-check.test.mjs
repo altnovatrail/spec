@@ -9,7 +9,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { LEGAL_PART, checkLegal, checkLegalDir, legalAt, legalCheck, legalCheckDir, previousLegal } from "../main.mjs";
+import { LEGAL_PART, checkLegal, checkLegalDir, legalAt, legalCheck, legalCheckDir, previousLegal, todayInUtc } from "../main.mjs";
 import { GIT } from "../../shared.mjs";
 import { readModuleFile } from "../../format-check/yaml.mjs";
 import { isolated, scratchRepository } from "../../release/test/repository.mjs";
@@ -78,7 +78,7 @@ test("spec's own legal/ passes, and the stats count what it holds", () => {
     const { errors, stats } = checkLegal(root, { previousOf: none });
     assert.deepEqual(errors, []);
     assert.equal(stats.schemas, 2);
-    assert.equal(stats.rules, 5);
+    assert.equal(stats.rules, 6);
     assert.ok(stats.examples >= 2 && stats.vectors >= 7 && stats.cases >= 7);
     assert.ok(stats.texts >= 1 && stats.versions >= stats.texts);
     assert.equal(stats.previous, null);
@@ -106,12 +106,12 @@ test("a file the layout does not know is an error, and a file under texts/ that 
 });
 
 test("VERSION is an integer and a newline, and the $id of each schema and the field format name it", () => {
-  const zero = errorsOf([["legal/VERSION", "2\n", "02\n"]]);
+  const zero = errorsOf([["legal/VERSION", "3\n", "03\n"]]);
   assert.ok(zero.includes("legal/VERSION:1: the part's version is an integer from 1 and a newline, with no leading zero"), zero.join("\n"));
-  const three = errorsOf([["legal/VERSION", "2\n", "3\n"]]);
-  assert.ok(three.some((error) => /^legal\/schemas\/legal\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/legal\/3\/legal\.schema\.json/.test(error)), three.join("\n"));
-  assert.ok(three.some((error) => /^legal\/schemas\/legal\.schema\.json:\d+: the field format is the const 3, the version in legal\/VERSION$/.test(error)), three.join("\n"));
-  assert.ok(three.some((error) => /^legal\/schemas\/reading-vector\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/legal\/3\/reading-vector\.schema\.json/.test(error)), three.join("\n"));
+  const four = errorsOf([["legal/VERSION", "3\n", "4\n"]]);
+  assert.ok(four.some((error) => /^legal\/schemas\/legal\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/legal\/4\/legal\.schema\.json/.test(error)), four.join("\n"));
+  assert.ok(four.some((error) => /^legal\/schemas\/legal\.schema\.json:\d+: the field format is the const 4, the version in legal\/VERSION$/.test(error)), four.join("\n"));
+  assert.ok(four.some((error) => /^legal\/schemas\/reading-vector\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/legal\/4\/reading-vector\.schema\.json/.test(error)), four.join("\n"));
   const missing = errorsOf([["legal/VERSION", "", null]]);
   assert.ok(missing.includes("legal/VERSION:0: no VERSION: the part's version, an integer and a newline"), missing.join("\n"));
 });
@@ -127,20 +127,21 @@ test("a schema follows the conventions of the format's, in snake_case, and marks
 
 test("the rules of the text are the rules reading.mjs knows, in its order", () => {
   const markdown = "| `legal.markdown` |";
+  const operator = "| `legal.operator` |";
   const unchanged = "| `legal.in-force-unchanged` |";
   const errors = errorsOf([[README, unchanged, "| `legal.in-force-kept` |"]]);
   assert.deepEqual(errors, [`${README}:0: legal.in-force-unchanged: a rule legal-check knows, and the text lists it not`, `${README}:${ruleLine("legal.in-force-unchanged")}: legal.in-force-kept: no rule legal-check knows`]);
   const text = fs.readFileSync(path.join(spec, README), "utf8");
-  const rows = text.split("\n").filter((line) => line.startsWith(markdown) || line.startsWith(unchanged));
+  const rows = text.split("\n").filter((line) => line.startsWith(markdown) || line.startsWith(operator));
   const swapped = errorsOf([[README, `${rows[0]}\n${rows[1]}`, `${rows[1]}\n${rows[0]}`]]);
-  assert.deepEqual(swapped, [`${README}:${ruleLine("legal.files")}: the rules stand in the order reading.mjs reads them, legal.files, legal.versions, legal.set-texts, legal.markdown, legal.in-force-unchanged`]);
+  assert.deepEqual(swapped, [`${README}:${ruleLine("legal.files")}: the rules stand in the order reading.mjs reads them, legal.files, legal.versions, legal.set-texts, legal.markdown, legal.operator, legal.in-force-unchanged`]);
   const at = ruleLine("legal.markdown");
   assert.deepEqual(errorsOf([[README, markdown, `${markdown} A rule. |\n| \`Markdown\` | A row. |\n${markdown}`]]), [`${README}:${at + 1}: "Markdown": a rule's ID is <part>.<name>, each in kebab-case`, `${README}:${at + 2}: the rule legal.markdown again, after line ${at}`]);
   expectOnly([[README, "", null]], /^legal\/README\.md:0: no text$/);
 });
 
 test("an example passes its schema or names the error it gives", () => {
-  expectOnly([["legal/examples/legal/invalid/format-three.yaml", "format: 3", "format: 2"]], /format-three\.yaml:1: passes its schema, and names const at #\/format/);
+  expectOnly([["legal/examples/legal/invalid/format-four.yaml", "format: 4", "format: 3"]], /format-four\.yaml:1: passes its schema, and names const at #\/format/);
   expectOnly([["legal/examples/legal/valid/drafts.yaml", "place: app", "place: website"]], /drafts\.yaml:0: does not pass its schema: enum at #\/texts\/terms-of-use\/place/);
   expectOnly([["legal/examples/rollout/valid/case.yaml", null, "a: b\n"]], /^legal\/examples\/rollout\/valid\/case\.yaml:0: an example of rollout, which has no schema in legal\/schemas$/);
   expectOnly([["legal/examples/legal/valid/drafts.yaml", "texts:", "texts: &t"]], /drafts\.yaml:\d+: yaml\.no-anchors/);
@@ -168,8 +169,8 @@ test("the vectors accept a part and refuse one by the schema and by each rule", 
 });
 
 test("the part itself is read as section 5 reads it: the schema, then the rules", () => {
-  expectOnly([[PASSPORT, "format: 2", "format: 3"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: format$/);
-  expectOnly([[PASSPORT, "format: 2", "format: 2\nextra: true"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: extra$/);
+  expectOnly([[PASSPORT, "format: 3", "format: 4"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: format$/);
+  expectOnly([[PASSPORT, "format: 3", "format: 3\nextra: true"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: extra$/);
   const policy = fs.readFileSync(path.join(spec, POLICY), "utf8");
   expectOnly([[POLICY, policy, `${policy}\nSee [the ICO](https://ico.org.uk).\n`]], /^legal\/texts\/privacy-policy\/1\.md:0: legal\.markdown: it holds link at line \d+$/);
   expectOnly([[POLICY, "", null]], /^legal\/texts\/privacy-policy\/1\.md:0: legal\.files: texts\/privacy-policy\/1\.md$/);
@@ -180,8 +181,21 @@ test("the part itself is read as section 5 reads it: the schema, then the rules"
     ["legal/texts/privacy-policy/2.md", null, policy],
   ]);
   assert.deepEqual(versions, ["legal/legal.yaml:0: legal.versions: texts.privacy-policy, legal/README.md, section 5"]);
+  // legal.operator names the policy's version with no section "Who we are" by its file, and the
+  // passport when no version of the policy applies on the day of the check.
+  expectOnly([[POLICY, "## Who we are", "## About us"]], /^legal\/texts\/privacy-policy\/1\.md:0: legal\.operator: texts\/privacy-policy\/1\.md: it has no section "Who we are", a heading of the second level, legal\/README\.md, section 5$/);
+  const early = trialCopy([]);
+  try {
+    assert.deepEqual(
+      checkLegal(early, { previousOf: none, today: "2026-11-09" }).errors.map(({ file, message }) => `${file}: ${message}`),
+      ["legal/legal.yaml: legal.operator: texts.privacy-policy: the part has no privacy-policy at the place app with a version in force by 2026-11-09, legal/README.md, section 5"],
+    );
+    assert.deepEqual(checkLegal(early, { previousOf: none, today: "2026-11-10" }).errors, []);
+  } finally {
+    fs.rmSync(early, { recursive: true, force: true });
+  }
   // The passport and a text are read by their rules first.
-  expectOnly([[PASSPORT, "format: 2", "format: &f 2"]], /^legal\/legal\.yaml:\d+: yaml\.no-anchors/);
+  expectOnly([[PASSPORT, "format: 3", "format: &f 3"]], /^legal\/legal\.yaml:\d+: yaml\.no-anchors/);
   expectOnly([[PASSPORT, "", null]], /^legal\/legal\.yaml:0: no passport$/);
   const root = trialCopy([]);
   try {
@@ -200,10 +214,11 @@ const inForce = (text) => {
   assert.ok(POLICY_ENTRY.test(text), "the passport holds the policy's version 1");
   return text.replace(POLICY_ENTRY, '$1status: in_force\n        in_force_since: "2026-11-01"\n');
 };
-// The texts and the sets of a passport, as text, that have a version in force, and so a current one.
-const currentIn = (text) => {
+// The texts and the sets of a passport, as text, that have a version in force whose day has come
+// by today, and so a current one.
+const currentIn = (text, today = todayInUtc()) => {
   const { texts, sets } = readModuleFile(Buffer.from(text, "utf8")).value;
-  return [...Object.values(texts), ...Object.values(sets)].filter(({ versions }) => versions.some(({ status }) => status === "in_force")).length;
+  return [...Object.values(texts), ...Object.values(sets)].filter(({ versions }) => versions.some(({ status, in_force_since: day }) => status === "in_force" && day <= today)).length;
 };
 
 test("a passport that is a folder, a texts/ that is a file and a VERSION that is a folder are named, not thrown", () => {
@@ -337,7 +352,7 @@ test("a copy's folder is checked against this spec's schema and the rules of sec
     const own = path.join(dir, "own");
     const { errors, stats } = checkLegalDir(own, spec, "own");
     assert.deepEqual(errors, []);
-    assert.equal(stats.version, "2");
+    assert.equal(stats.version, "3");
     assert.ok(stats.texts >= 1);
     // The errors name the files by the path shown, and the folder alone.
     fs.writeFileSync(path.join(own, "README.md"), "# Our texts\n");
@@ -353,9 +368,17 @@ test("a copy's folder is checked against this spec's schema and the rules of sec
     fs.appendFileSync(path.join(own, "texts/terms-of-use/1.md"), "\nWrite to <privacy@example.org>.\n");
     assert.deepEqual(dirErrors(dir), [`own/texts/terms-of-use/1.md:0: legal.markdown: it holds link at line ${fs.readFileSync(path.join(own, "texts/terms-of-use/1.md"), "utf8").split("\n").length - 1}`]);
     fs.copyFileSync(path.join(spec, "legal/texts/terms-of-use/1.md"), path.join(own, "texts/terms-of-use/1.md"));
+    // Its policy names its operator in "Who we are", and a folder whose policy does not apply yet is refused.
+    edit(dir, "own/texts/privacy-policy/2.md", "## Who we are", "## About us");
+    assert.deepEqual(dirErrors(dir), ['own/texts/privacy-policy/2.md:0: legal.operator: texts/privacy-policy/2.md: it has no section "Who we are", a heading of the second level, legal/README.md, section 5']);
+    fs.copyFileSync(path.join(spec, "legal/texts/privacy-policy/2.md"), path.join(own, "texts/privacy-policy/2.md"));
+    assert.deepEqual(
+      checkLegalDir(own, spec, "own", { today: "2026-11-09" }).errors.map(({ file, message }) => `${file}: ${message}`),
+      ["own/legal.yaml: legal.operator: texts.privacy-policy: the part has no privacy-policy at the place app with a version in force by 2026-11-09, legal/README.md, section 5"],
+    );
     // Its version is this spec's.
     fs.writeFileSync(path.join(own, "VERSION"), "1\n");
-    assert.deepEqual(dirErrors(dir), ["own/VERSION:1: the folder is of version 1, and this spec's legal/ of 2: check it by the spec of its version"]);
+    assert.deepEqual(dirErrors(dir), ["own/VERSION:1: the folder is of version 1, and this spec's legal/ of 3: check it by the spec of its version"]);
     fs.writeFileSync(path.join(own, "VERSION"), "two\n");
     assert.deepEqual(dirErrors(dir), ["own/VERSION:1: the part's version is an integer from 1 and a newline, with no leading zero"]);
     fs.rmSync(path.join(own, "VERSION"));
@@ -420,7 +443,7 @@ test("the commands print ok, and the errors of a broken copy", () => {
   const main = path.join(spec, "tools/legal/main.mjs");
   const ok = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(ok.status, 0, ok.stderr);
-  assert.match(ok.stdout, /^legal-check: ok — 2 schemas, 5 rules, \d+ examples, \d+ vectors of reading with \d+ cases; the part: \d+ texts, \d+ versions, \d+ current(, against v\d+\.\d+\.\d+|, with no release before)\n$/);
+  assert.match(ok.stdout, /^legal-check: ok — 2 schemas, 6 rules, \d+ examples, \d+ vectors of reading with \d+ cases; the part: \d+ texts, \d+ versions, \d+ current, \d+ next(, against v\d+\.\d+\.\d+|, with no release before)\n$/);
   for (const args of [["extra"], ["--dir"], ["--dir", ""], ["--dir", "a", "b"]]) {
     const usage = spawnSync(process.execPath, [main, ...args], { encoding: "utf8" });
     assert.equal(usage.status, 2, args.join(" "));
@@ -458,7 +481,7 @@ test("legal-check-dir runs from another repository, its path from there", () => 
     const run = (folder) => spawnSync(JUST, ["-f", path.join(spec, "justfile"), "legal-check-dir", folder], { cwd: dir, encoding: "utf8", env: isolated });
     const ok = run("own/");
     assert.equal(ok.status, 0, ok.stderr);
-    assert.match(ok.stdout, /^legal-check-dir: ok — own, version 2: \d+ texts, \d+ versions, \d+ current\n$/m);
+    assert.match(ok.stdout, /^legal-check-dir: ok — own, version 3: \d+ texts, \d+ versions, \d+ current, \d+ next\n$/m);
     fs.writeFileSync(path.join(dir, "own/notes.txt"), "notes\n");
     const broken = run("own");
     assert.equal(broken.status, 1);

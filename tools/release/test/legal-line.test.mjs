@@ -44,7 +44,7 @@ const schema = fs.readFileSync(path.join(root, "legal/schemas/legal.schema.json"
 const readme = fs.readFileSync(path.join(root, "legal/README.md"), "utf8");
 
 test("what changed of the shape: the passport's schema without its annotations, the IDs of the rules, both, or neither", () => {
-  assert.deepEqual(ruleIdsOf(readme), ["legal.files", "legal.versions", "legal.set-texts", "legal.markdown", "legal.in-force-unchanged"]);
+  assert.deepEqual(ruleIdsOf(readme), ["legal.files", "legal.versions", "legal.set-texts", "legal.markdown", "legal.operator", "legal.in-force-unchanged"]);
   const same = { schemaNow: schema, schemaThen: schema, readmeNow: readme, readmeThen: readme };
   assert.equal(shapeChange(same), null);
   const json = JSON.parse(schema);

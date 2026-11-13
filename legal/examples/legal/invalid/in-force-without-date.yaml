@@ -1,6 +1,6 @@
 # error: required at #/texts/privacy-policy/versions/0
-# A version in force has the date the author approved it.
-format: 2
+# A version in force has the day from which it applies.
+format: 3
 texts:
   privacy-policy:
     place: app

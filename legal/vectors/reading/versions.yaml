@@ -2,8 +2,9 @@
 
 cases:
   # Versions 1 and 3, with no 2.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -62,17 +63,26 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
       texts/privacy-policy/3.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
     refused_by: legal.versions
     names:
       - texts.privacy-policy
   # A draft before a version in force.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -130,17 +140,26 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
       texts/privacy-policy/2.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
     refused_by: legal.versions
     names:
       - texts.privacy-policy
   # Version 2 came into force before version 1.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -199,17 +218,26 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
       texts/privacy-policy/2.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
     refused_by: legal.versions
     names:
       - texts.privacy-policy
   # The versions of a set start at 1 too.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -261,6 +289,10 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
     refused_by: legal.versions

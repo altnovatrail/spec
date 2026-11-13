@@ -1,6 +1,6 @@
 # error: maxLength at #/texts/privacy-policy/versions/0/summary/en
 # The gist is at most 1000 characters.
-format: 2
+format: 3
 texts:
   privacy-policy:
     place: app
