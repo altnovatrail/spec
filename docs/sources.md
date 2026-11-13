@@ -117,6 +117,12 @@ Read 2026-11-13 (R130; RUN.md, T145): CGS §42-520 as amended by section 9 of PA
 
 The law sets no number of days for the notice: it asks for "a reasonable opportunity" to withdraw consent and "all reasonable electronic measures". §42-520(b)(4): "Nothing in this subsection shall be construed to require a controller to provide a privacy notice that is specific to this state if the controller provides a generally applicable privacy notice that satisfies the requirements established in this subsection."
 
+### 3.12. The assessments of Connecticut, Colorado and Montana, 2026-11-13
+
+Read 2026-11-13 (R140, its 2026-11-13 amendment; privacy 3.4; RUN.md, T127). The texts and the elements of each assessment, with their quotes, are the DPIA's own sources — dpia 9 and 10 (section 1 of this file). What privacy 3.4 and privacy 9 rest on besides:
+- Montana, [MCA 30-14-2803](https://mca.legmt.gov/bills/mca/title_0300/chapter_0140/part_0280/section_0030/0300-0140-0280-0030.html), the 2025 edition: subsection (2): "… 30-14-2811, 30-14-2818, and 30-14-2819 apply to persons that conduct business in this state or deliver commercial products or services that are intentionally targeted to residents of this state." Subsection (1), the thresholds of 25,000 and 15,000 consumers, excludes those three sections.
+- Colorado, the Colorado Privacy Act Rules, [4 CCR 904-3](https://www.sos.state.co.us/CCR/GenerateRulePdf.do?ruleVersionId=12259&fileName=4+CCR+904-3), the Secretary of State's PDF, the last amendments "eff. 12/01/2025". Rule 8.04(A): "At a minimum, a data protection assessment must include the following information: … 13. Dates the data protection assessment was reviewed and approved, and names, positions, and signatures of the individuals responsible for the review and approval." Rule 9.06(F): a profiling assessment holds also "10. How the Profiling system is evaluated for fairness and disparate impact, and the results of any such evaluation".
+
 ## 4. Cloud services
 
 ### 4.1. Google Cloud: Cloud Run request logs
