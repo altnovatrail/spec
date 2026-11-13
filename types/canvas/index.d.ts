@@ -217,7 +217,8 @@ export interface CropNumbers {
 /**
  * The context of one submission of a sheet, which the element gives with its crop and takes back
  * with the tutor's marks: the crop's numbers, the groups of the strokes, and the digest of it all.
- * app keeps it on the device as it is, through JSON, unrounded, and sends it nowhere.
+ * app keeps it on the device as it is, through JSON, unrounded, and sends it only within a stored
+ * work, while the storage of the profile's works is on (R113).
  */
 export interface SheetSubmission {
   readonly crop: CropNumbers;
@@ -233,7 +234,8 @@ export interface SheetSubmission {
  * The context of one submission of a workbook: the table «box → stroke IDs», each filled box by its
  * place, in the task's order, and the digest of its strokes, of every box of the page and of the
  * table's rows. A context of another layout of the page the element does not take back. app keeps
- * it on the device as it is, and sends it nowhere.
+ * it on the device as it is, and sends it only within a stored work, while the storage of the
+ * profile's works is on (R113).
  */
 export interface WorkbookSubmission {
   readonly boxes: readonly Filling[];

@@ -9,8 +9,8 @@
 // Reads spec's own format/, two levels above this file: the schemas, the version, and the parts of
 // a module that the layout of the format text names; and admission/, deployment/, legal/,
 // consent-age/ and export/, the schemas and the version of each. Writes the Go of the models — the
-// packages formatv0 and formatv0/open under types/, admissionv0, deploymentv1, legalv2,
-// consentagev1 and exportv1 beside them, and the registry
+// packages formatv0 and formatv0/open under types/, admissionv0, deploymentv1, legalv3,
+// consentagev1 and exportv2 beside them, and the registry
 // of tools/types/roundtrip — as gofmt
 // leaves it but for the alignment of a struct's fields, and the TypeScript of the same packages
 // beside it, index.d.ts in each (R73): `just types` runs gofmt on them, and `just types-check`
@@ -74,12 +74,12 @@ export function readDeployment(root) {
 
 // What the legal texts' model is built of: { schemas, version, options }, of legal/schemas and
 // legal/VERSION (R130), and the options of buildModel: a vector's passport holds any JSON value.
-// It has no open view. Its types are the package legalv2, which holds the part's version 2 alone:
+// It has no open view. Its types are the package legalv3, which holds the part's version 3 alone:
 // another version is a change of the part's layout, schema or rules (legal/README.md, section 2),
 // which would need a package of its own, so another one stops the generator (R72).
 export function readLegal(root) {
   const version = fs.readFileSync(path.join(root, LEGAL, "VERSION"), "utf8").trim();
-  if (version !== "2") throw new Error(`legal/VERSION is ${version}: the types of the legal texts are the package legalv2, of the part's version 2, and another version needs a package of its own`);
+  if (version !== "3") throw new Error(`legal/VERSION is ${version}: the types of the legal texts are the package legalv3, of the part's version 3, and another version needs a package of its own`);
   return { schemas: schemasIn(root, `${LEGAL}/schemas`), version, options: { anyValue: true } };
 }
 
@@ -98,11 +98,11 @@ export function readConsentAge(root) {
 // What the model of the format of the export is built of: { schemas, version, options }, of
 // export/schemas and export/VERSION (R135), and the options of buildModel: a field of the JSON of a
 // message of protobuf, or of a value of <novatrail-canvas>, and a vector's file, hold any JSON value.
-// It has no open view. Its types are the package exportv1, which holds the part's version 1 alone
+// It has no open view. Its types are the package exportv2, which holds the part's version 2 alone
 // (export/README.md, section 2), so another one stops the generator (R72).
 export function readExport(root) {
   const version = fs.readFileSync(path.join(root, EXPORT, "VERSION"), "utf8").trim();
-  if (version !== "1") throw new Error(`export/VERSION is ${version}: the types of the format of the export are the package exportv1, of the part's version 1, and another version needs a package of its own`);
+  if (version !== "2") throw new Error(`export/VERSION is ${version}: the types of the format of the export are the package exportv2, of the part's version 2, and another version needs a package of its own`);
   return { schemas: schemasIn(root, `${EXPORT}/schemas`), version, options: { anyValue: true } };
 }
 

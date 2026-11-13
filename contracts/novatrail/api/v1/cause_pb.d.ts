@@ -615,9 +615,10 @@ export enum Cause {
   AGE_NEEDED = 40,
 
   /**
-   * The version of a legal text that the request names is not the current one, or a text that has
-   * a version in force is not named: `app` reads `GetLegalTexts` again and shows the current
-   * version before it asks once more. Code `failed_precondition`.
+   * The version of a legal text that the request names is not the current one — a next version
+   * before its day among them —, or a text that has a current version is not named: `app` reads
+   * `GetLegalTexts` again and shows the current version before it asks once more. Code
+   * `failed_precondition`.
    *
    * @generated from enum value: CAUSE_TEXT_NOT_CURRENT = 41;
    */
@@ -630,6 +631,22 @@ export enum Cause {
    * @generated from enum value: CAUSE_LEARNER_DECIDES = 42;
    */
   LEARNER_DECIDES = 42,
+
+  /**
+   * A work put while the storage of the profile's works is off: `app` keeps it on the device alone
+   * (R113). Code `failed_precondition`, with no data.
+   *
+   * @generated from enum value: CAUSE_STORAGE_OFF = 43;
+   */
+  STORAGE_OFF = 43,
+
+  /**
+   * A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps
+   * it on the device alone (R113). Code `invalid_argument`, with no data.
+   *
+   * @generated from enum value: CAUSE_WORK_TOO_LARGE = 44;
+   */
+  WORK_TOO_LARGE = 44,
 }
 
 /**

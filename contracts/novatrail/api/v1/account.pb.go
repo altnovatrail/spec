@@ -524,7 +524,7 @@ type CreateAccountRequest struct {
 	// `invalid_argument`. `api` keeps it with its date (privacy 9, П-6).
 	AdultStated bool `protobuf:"varint,2,opt,name=adult_stated,json=adultStated,proto3" json:"adult_stated,omitempty"`
 	// The versions of `privacy-policy` and `terms-of-use` that the owner accepted, as
-	// `GetLegalTexts` gave them: each of the two that has a version in force, and no other text.
+	// `GetLegalTexts` gave them: each of the two that has a current version, and no other text.
 	AcceptedTexts []*LegalTextRef `protobuf:"bytes,3,rep,name=accepted_texts,json=acceptedTexts,proto3" json:"accepted_texts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1848,7 +1848,7 @@ type RequestChildConsentRequest struct {
 	// The child's country, ISO 3166-1 alpha-2.
 	Country string `protobuf:"bytes,3,opt,name=country,proto3" json:"country,omitempty"`
 	// The version of `parent-consent` that `app` shows with the form, as `GetLegalTexts` gave it:
-	// `app` sends it whenever the text has a version in force, whoever the category makes give the
+	// `app` sends it whenever the text has a current version, whoever the category makes give the
 	// consent, since only `api` works it out; `api` records it with a parent's consent alone.
 	ParentConsentText *LegalTextRef `protobuf:"bytes,4,opt,name=parent_consent_text,json=parentConsentText,proto3" json:"parent_consent_text,omitempty"`
 	unknownFields     protoimpl.UnknownFields
@@ -2268,7 +2268,7 @@ type GiveOwnConsentRequest struct {
 	// The learner's profile.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The version of `teen-consent` the learner read, as `GetLegalTexts` gave it: absent while the
-	// text has no version in force, and needed once it has.
+	// text has no current version, and needed once it has.
 	Text          *LegalTextRef `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2460,7 +2460,7 @@ type RestateAgeRequest struct {
 	// The learner's country, ISO 3166-1 alpha-2.
 	Country string `protobuf:"bytes,4,opt,name=country,proto3" json:"country,omitempty"`
 	// The version of `parent-consent` that `app` shows, sent as at `RequestChildConsent` whenever the
-	// text has a version in force: `api` records it with a parent's consent that the new category
+	// text has a current version: `api` records it with a parent's consent that the new category
 	// asks for.
 	ParentConsentText *LegalTextRef `protobuf:"bytes,5,opt,name=parent_consent_text,json=parentConsentText,proto3" json:"parent_consent_text,omitempty"`
 	unknownFields     protoimpl.UnknownFields
@@ -2791,7 +2791,7 @@ type SetWorkStorageRequest struct {
 	// Whether it is on.
 	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	// Beside switching on: the version of `storage-consent` that the person read, as
-	// `GetLegalTexts` gave it; absent while the text has no version in force.
+	// `GetLegalTexts` gave it; absent while the text has no current version.
 	Text          *LegalTextRef `protobuf:"bytes,4,opt,name=text,proto3" json:"text,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/legal/2/reading-vector.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/legal/3/reading-vector.schema.json",
   "title": "Reading vector",
-  "description": "A test vector of reading (section 7 of the legal text): parts, each perhaps with the part of the release before, and what section 5 gives. A reader implements section 5 and gets exactly this.",
+  "description": "A test vector of reading (section 7 of the legal text): parts, each read on a day and perhaps with the part of the release before, and what section 5 gives. A reader implements section 5 and gets exactly this.",
   "type": "object",
   "properties": {
     "cases": {
@@ -54,6 +54,11 @@
         }
       ],
       "properties": {
+        "today": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+          "description": "The day the part is read on, YYYY-MM-DD: a version in force applies from its in_force_since, and legal.operator and the current and next versions depend on it."
+        },
         "previous": {
           "$ref": "#/$defs/part",
           "unevaluatedProperties": false,
@@ -64,7 +69,7 @@
           "properties": {
             "texts": {
               "$ref": "#/$defs/versions",
-              "description": "The current version of every text that has one."
+              "description": "The current version of every text that has one: its version in force with the highest number whose day has come."
             },
             "sets": {
               "$ref": "#/$defs/versions",
@@ -76,7 +81,26 @@
             "sets"
           ],
           "unevaluatedProperties": false,
-          "description": "What the reader gives a part it accepts. Left out when it refuses the part."
+          "description": "What the reader gives a part it accepts: its current versions. Left out when it refuses the part."
+        },
+        "next": {
+          "type": "object",
+          "properties": {
+            "texts": {
+              "$ref": "#/$defs/versions",
+              "description": "The next version of every text that has one: the one that becomes current on the nearest day still to come, its version in force with the highest number among those of that day."
+            },
+            "sets": {
+              "$ref": "#/$defs/versions",
+              "description": "The next version of every set that has one."
+            }
+          },
+          "required": [
+            "texts",
+            "sets"
+          ],
+          "unevaluatedProperties": false,
+          "description": "What the reader gives a part it accepts besides its current versions: the versions in force whose day is still to come. Left out when it refuses the part."
         },
         "refused_by": {
           "enum": [
@@ -85,6 +109,7 @@
             "legal.versions",
             "legal.set-texts",
             "legal.markdown",
+            "legal.operator",
             "legal.in-force-unchanged"
           ],
           "description": "The step that refuses the part: the schema, or the ID of the rule. Left out when the reader accepts it."
@@ -100,7 +125,16 @@
           "description": "Every name that step gives, in the order of code units."
         }
       },
+      "required": [
+        "today"
+      ],
       "dependentRequired": {
+        "current": [
+          "next"
+        ],
+        "next": [
+          "current"
+        ],
         "refused_by": [
           "names"
         ],

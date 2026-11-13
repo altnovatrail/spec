@@ -1,9 +1,9 @@
 syntax = "proto3";
 
 // The legal texts in the contract between `app` and `api`: the privacy policy, the terms of use
-// and the consents that `app` shows as its own pages, each in its current version, with its gist
-// in the language of the screen. The texts are those of the legal part, `legal/` of `spec`, or of a
-// self-hosted copy's operator. What each message means is the rule of contracts/README.md,
+// and the consents that `app` shows as its own pages, each in its current version and its next
+// one, with its gist in the language of the screen. The texts are those of the legal part,
+// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of contracts/README.md,
 // section 15.
 package novatrail.api.v1;
 
@@ -13,9 +13,9 @@ package novatrail.api.v1;
 // would make the request not simple and send a preflight before it. It has no refusal of its own:
 // a tag that is not a well-formed tag of BCP 47 gets `invalid_argument` with no `Refusal`.
 service LegalService {
-  // The current version of every text whose place is `app`, with its body in English, its gist in
-  // the language asked when the passport has it, else in English, and its translation into the
-  // language asked when the version has one.
+  // The current version of every text whose place is `app`, and its next version, each with its
+  // body in English, its gist in the language asked when the passport has it, else in English, and
+  // its translation into the language asked when the version has one.
   rpc GetLegalTexts(GetLegalTextsRequest) returns (GetLegalTextsResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
@@ -32,19 +32,27 @@ message GetLegalTextsRequest {
 // The legal texts.
 message GetLegalTextsResponse {
   // The current version of every text whose place is `app`, in the order of their IDs by code
-  // units. A text with no version in force has none, and is absent: the list is empty while no such
-  // text is in force.
+  // units: its version in force with the highest number whose day has come, on the day of the
+  // request in UTC. A text with no such version has none, and is absent: the list is empty while no
+  // such text applies.
   repeated LegalText texts = 1;
+  // The next version of every text whose place is `app` that has one, in the same order: the
+  // version that becomes current on the nearest day still to come, its version in force with the
+  // highest number among those of that day. `app` shows it before it
+  // applies, as the version that will apply from its day (R130). No request names it in a
+  // consent: a consent names the current version.
+  repeated LegalText next_texts = 2;
 }
 
-// A legal text in its current version: its version in force with the highest number.
+// A legal text in a version in force: its current version or its next one.
 message LegalText {
   // The ID of the text in the passport: lower-case Latin letters and digits in words joined by
   // hyphens, such as "privacy-policy".
   string id = 1;
   // The number of the version, from 1 on.
   int32 version = 2;
-  // The date the author approved the version, from which it is in force, `YYYY-MM-DD`.
+  // The day from which the version applies, `YYYY-MM-DD`, from 00:00 UTC: the day the author
+  // approved it, or a later day, which comes with the version so that `app` shows it ahead.
   string in_force_since = 3;
   // The text of the version, in English, the one in force: Markdown, CommonMark with the tables of
   // GitHub's flavour, that begins with a heading of the first level, the text's title, and holds no

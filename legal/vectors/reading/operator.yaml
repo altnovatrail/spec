@@ -1,0 +1,114 @@
+# Parts that legal.operator refuses: the privacy policy, whose section "Who we are" names the
+# operator, is missing, not yet in force, or has a version without that section.
+
+cases:
+  # No privacy policy: the terms of use alone are in force.
+  - today: "2026-12-15"
+    passport:
+      format: 3
+      texts:
+        terms-of-use:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: The agreement.
+                ru: Договор.
+      sets: {}
+    files:
+      texts/terms-of-use/1.md: |
+        # Terms of use
+
+        The words of this version.
+    refused_by: legal.operator
+    names:
+      - texts.privacy-policy
+  # The privacy policy is a draft: no version of it is in force.
+  - today: "2026-12-15"
+    passport:
+      format: 3
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: draft
+              summary:
+                en: A draft.
+                ru: Черновик.
+      sets: {}
+    files:
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+    refused_by: legal.operator
+    names:
+      - texts.privacy-policy
+  # The privacy policy is in force from a day still to come.
+  - today: "2026-11-19"
+    passport:
+      format: 3
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+      sets: {}
+    files:
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+    refused_by: legal.operator
+    names:
+      - texts.privacy-policy
+  # Version 1 names its section in other words, and the draft after it has the words at the third
+  # level: each is named by its file.
+  - today: "2026-12-15"
+    passport:
+      format: 3
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+            - version: 2
+              status: draft
+              summary:
+                en: A draft of the next wording.
+                ru: Черновик следующей редакции.
+      sets: {}
+    files:
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who We Are
+
+        ALT EdTech LLC, in Texas.
+      texts/privacy-policy/2.md: |
+        # Privacy policy
+
+        ### Who we are
+
+        ALT EdTech LLC, in Texas.
+    refused_by: legal.operator
+    names:
+      - texts/privacy-policy/1.md
+      - texts/privacy-policy/2.md

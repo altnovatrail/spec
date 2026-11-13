@@ -206,8 +206,21 @@ const measures = (capability, sample) => (capability === RUBRIC) === Boolean(sam
 // What sampleBreaches calls spec's examples beside a report, in its messages.
 export const EXAMPLES = { measured: "the examples its capability measures", none: "no example that holds its rules" };
 
-// What a report breaks of its samples, the ones that hold, by their IDs — spec's examples beside the
-// report, or the samples a call of report-check names, which of names in the messages: a report on
+// What a report is held to of a sample by sampleBreaches, and all it reads of one: its ID, its
+// writer, its markup, whether its sheet has crops, and the answer slots of its workbook's filled
+// boxes — none of its strokes, history or PNG, so that report-check keeps no more of a large set
+// of samples than this (T116).
+export function summaryOf(sample) {
+  const summary = { id: sample.id, writer: sample.writer };
+  if (sample.markup) summary.markup = sample.markup;
+  if (sample.sheet) summary.sheet = sample.sheet.crops ? { crops: true } : {};
+  if (sample.workbook) summary.workbook = { filled_boxes: sample.workbook.filled_boxes.map((box) => ({ answer_slot: box.answer_slot })) };
+  return summary;
+}
+
+// What a report breaks of its samples, the ones that hold, by their IDs, whole or as summaryOf gives
+// them — spec's examples beside the report, or the samples a call of report-check names, which of
+// names in the messages: a report on
 // a capability set names every one of them that its capability measures; each sample it names is
 // one of them; a child's is refused as REFUSAL_CHILD, one without markup as REFUSAL_NO_MARKUP, and
 // any other is measured; a measured sample's answer slots are the

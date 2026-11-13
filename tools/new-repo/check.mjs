@@ -24,6 +24,12 @@ import { GIT, byCodeUnits } from "../shared.mjs";
 import { goplsVersions } from "./devcontainer.mjs";
 import { checkClaudePlugins } from "./claude.mjs";
 
+// What of spec's own names a copy's devcontainer must not keep, each with what it is.
+const SPEC_NAMES = [
+  [/novatrail-spec/, "spec's container name or network is left in the devcontainer"],
+  [/--network-alias\W+spec\b/, "spec's name in the network is left in the devcontainer"],
+];
+
 const SPEC_LINK = /https:\/\/github\.com\/altnovatrail\/spec\/(?:tree|blob)\/([^/\s)#>]+)/g;
 
 export async function checkRepo({ dir, specRoot }) {
@@ -59,8 +65,17 @@ export async function checkRepo({ dir, specRoot }) {
 
   for (const file of files.filter((f) => f.startsWith(".devcontainer/"))) {
     eachLine(file, (line, n) => {
-      if (line.includes("novatrail-spec")) report(file, n, "spec's container name or network is left in the devcontainer");
+      for (const [pattern, message] of SPEC_NAMES) if (pattern.test(line)) report(file, n, message);
     });
+  }
+  const container = text.get(".devcontainer/devcontainer.json");
+  const own = container?.match(/"name": "novatrail-([^"]+)"/)?.[1];
+  if (own && own !== "spec") {
+    // Docker names the container in the first network alone (architecture 3.11 spec).
+    const networks = [...container.matchAll(/"--network=([^"]+)"/g)].map((match) => match[1]);
+    if (networks[0] !== `novatrail-${own}`) report(".devcontainer/devcontainer.json", 0, `its own network, novatrail-${own}, is the first of runArgs, which the container's name in the network goes to (repositories 2.2 spec)`);
+    // spec's own name left has its error above.
+    if (!container.includes(`"--network-alias=${own}"`) && !SPEC_NAMES[1][0].test(container)) report(".devcontainer/devcontainer.json", 0, `the container has no name in its network, "--network-alias=${own}" (repositories 2.2 spec)`);
   }
   // CI never builds the devcontainer stage, so nothing else holds the lock and the ARG together,
   // nor finds the lock gone while the step that copies it stays.

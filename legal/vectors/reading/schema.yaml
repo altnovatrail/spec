@@ -2,8 +2,9 @@
 
 cases:
   # A text is shown in app, on the samples page or on a form.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: website
@@ -56,13 +57,18 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     refused_by: schema
     names:
       - texts.privacy-policy.place
   # The gist is in each language of the interface: Russian is missing.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -114,13 +120,18 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     refused_by: schema
     names:
       - texts.privacy-policy.versions.0.summary.ru
   # The passport names no other field: a title belongs in the text itself.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -174,12 +185,17 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     refused_by: schema
     names:
       - texts.privacy-policy.title
   # The part is of version 2.
-  - passport:
+  - today: "2026-12-15"
+    passport:
       format: 1
       texts:
         privacy-policy:
@@ -233,13 +249,18 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     refused_by: schema
     names:
       - format
   # A translation is into a language of the interface other than English.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -293,6 +314,10 @@ cases:
         The words of this version.
       texts/privacy-policy/1.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         The words of this version.
     refused_by: schema

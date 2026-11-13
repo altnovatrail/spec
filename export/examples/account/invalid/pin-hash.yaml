@@ -1,6 +1,6 @@
 # error: unevaluatedProperties at #
 # No secret of api goes into the export: the hash of the PIN is none of its fields.
-format: 1
+format: 2
 account_id: "account-1"
 adult_stated_at: "2026-11-10T09:30:00Z"
 tariff: "invite"

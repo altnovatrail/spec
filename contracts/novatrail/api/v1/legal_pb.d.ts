@@ -3,9 +3,9 @@
 /* eslint-disable */
 
 // The legal texts in the contract between `app` and `api`: the privacy policy, the terms of use
-// and the consents that `app` shows as its own pages, each in its current version, with its gist
-// in the language of the screen. The texts are those of the legal part, `legal/` of `spec`, or of a
-// self-hosted copy's operator. What each message means is the rule of contracts/README.md,
+// and the consents that `app` shows as its own pages, each in its current version and its next
+// one, with its gist in the language of the screen. The texts are those of the legal part,
+// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of contracts/README.md,
 // section 15.
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
@@ -46,12 +46,24 @@ export declare const GetLegalTextsRequestSchema: GenMessage<GetLegalTextsRequest
 export declare type GetLegalTextsResponse = Message<"novatrail.api.v1.GetLegalTextsResponse"> & {
   /**
    * The current version of every text whose place is `app`, in the order of their IDs by code
-   * units. A text with no version in force has none, and is absent: the list is empty while no such
-   * text is in force.
+   * units: its version in force with the highest number whose day has come, on the day of the
+   * request in UTC. A text with no such version has none, and is absent: the list is empty while no
+   * such text applies.
    *
    * @generated from field: repeated novatrail.api.v1.LegalText texts = 1;
    */
   texts: LegalText[];
+
+  /**
+   * The next version of every text whose place is `app` that has one, in the same order: the
+   * version that becomes current on the nearest day still to come, its version in force with the
+   * highest number among those of that day. `app` shows it before it
+   * applies, as the version that will apply from its day (R130). No request names it in a
+   * consent: a consent names the current version.
+   *
+   * @generated from field: repeated novatrail.api.v1.LegalText next_texts = 2;
+   */
+  nextTexts: LegalText[];
 };
 
 /**
@@ -61,7 +73,7 @@ export declare type GetLegalTextsResponse = Message<"novatrail.api.v1.GetLegalTe
 export declare const GetLegalTextsResponseSchema: GenMessage<GetLegalTextsResponse>;
 
 /**
- * A legal text in its current version: its version in force with the highest number.
+ * A legal text in a version in force: its current version or its next one.
  *
  * @generated from message novatrail.api.v1.LegalText
  */
@@ -82,7 +94,8 @@ export declare type LegalText = Message<"novatrail.api.v1.LegalText"> & {
   version: number;
 
   /**
-   * The date the author approved the version, from which it is in force, `YYYY-MM-DD`.
+   * The day from which the version applies, `YYYY-MM-DD`, from 00:00 UTC: the day the author
+   * approved it, or a later day, which comes with the version so that `app` shows it ahead.
    *
    * @generated from field: string in_force_since = 3;
    */
@@ -179,9 +192,9 @@ export declare const LegalTextRefSchema: GenMessage<LegalTextRef>;
  */
 export declare const LegalService: GenService<{
   /**
-   * The current version of every text whose place is `app`, with its body in English, its gist in
-   * the language asked when the passport has it, else in English, and its translation into the
-   * language asked when the version has one.
+   * The current version of every text whose place is `app`, and its next version, each with its
+   * body in English, its gist in the language asked when the passport has it, else in English, and
+   * its translation into the language asked when the version has one.
    *
    * @generated from rpc novatrail.api.v1.LegalService.GetLegalTexts
    */

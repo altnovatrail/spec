@@ -9,7 +9,7 @@ import path from "node:path";
 import { before, test } from "node:test";
 import { root } from "../../release/test/repository.mjs";
 import { build } from "../buf.mjs";
-import { breaches, checkReport, checkReportExamples, isReport, reportOf, sampleBreaches } from "../report.mjs";
+import { breaches, checkReport, checkReportExamples, isReport, reportOf, sampleBreaches, summaryOf } from "../report.mjs";
 import { FOLDER } from "../sample.mjs";
 
 let image;
@@ -43,7 +43,13 @@ function expectOnly(value, ...patterns) {
   for (const pattern of patterns) assert.ok(problems.some((problem) => pattern.test(problem)), `missing: ${pattern}\nall:\n${problems.join("\n")}`);
 }
 // What a report breaks of the samples beside it, by their messages.
-const ofSamples = (value, map = sampleMap()) => sampleBreaches(value, map).map((one) => one.message);
+// What sampleBreaches gives of a report and the samples, whole and as summaryOf gives them, which
+// report-check keeps: the same.
+const ofSamples = (value, map = sampleMap()) => {
+  const found = sampleBreaches(value, map);
+  assert.deepEqual(sampleBreaches(value, new Map([...map].map(([id, sample]) => [id, summaryOf(sample)]))), found, "a summary gives what the sample gives");
+  return found.map((one) => one.message);
+};
 
 test("spec's own reports pass, are of the samples beside them, and together show what a report holds", () => {
   assert.ok(reports.length > 0 && samples.length > 0);

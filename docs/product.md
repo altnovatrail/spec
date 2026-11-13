@@ -161,7 +161,7 @@ Hence the recommendation: an own key is for adults, children learn through platf
 - The platform is for any age (R06). A child learns under an adult's account, an adult under their own.
 - The learner's age and country are given by the account owner. The platform keeps the age category, not the date of birth (concepts 13).
 - A minimum is kept about a child: the pseudonym, the avatar, the age category, the country, the interface language and the presentation style, and interests — once the format gives tasks a dressing for them (privacy 4).
-- Strokes stay on the device. AI gets a picture of the work without a name or identifiers (privacy 1).
+- Strokes stay on the device, and on the server only within a stored work, while the storage of the profile's works is on (R113). AI gets a picture of the work without a name or identifiers (privacy 1).
 
 In detail — in [privacy.md](privacy.md).
 

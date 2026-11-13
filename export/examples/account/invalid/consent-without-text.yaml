@@ -1,6 +1,6 @@
 # error: required at #/consents/0
 # A consent names the text it was given to.
-format: 1
+format: 2
 account_id: "account-1"
 adult_stated_at: "2026-11-10T09:30:00Z"
 tariff: "invite"

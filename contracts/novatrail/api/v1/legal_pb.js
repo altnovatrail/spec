@@ -3,9 +3,9 @@
 /* eslint-disable */
 
 // The legal texts in the contract between `app` and `api`: the privacy policy, the terms of use
-// and the consents that `app` shows as its own pages, each in its current version, with its gist
-// in the language of the screen. The texts are those of the legal part, `legal/` of `spec`, or of a
-// self-hosted copy's operator. What each message means is the rule of contracts/README.md,
+// and the consents that `app` shows as its own pages, each in its current version and its next
+// one, with its gist in the language of the screen. The texts are those of the legal part,
+// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of contracts/README.md,
 // section 15.
 
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
@@ -14,7 +14,7 @@ import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2
  * Describes the file novatrail/api/v1/legal.proto.
  */
 export const file_novatrail_api_v1_legal = /*@__PURE__*/
-  fileDesc("Chxub3ZhdHJhaWwvYXBpL3YxL2xlZ2FsLnByb3RvEhBub3ZhdHJhaWwuYXBpLnYxIjIKFEdldExlZ2FsVGV4dHNSZXF1ZXN0EhoKEmludGVyZmFjZV9sYW5ndWFnZRgBIAEoCSJDChVHZXRMZWdhbFRleHRzUmVzcG9uc2USKgoFdGV4dHMYASADKAsyGy5ub3ZhdHJhaWwuYXBpLnYxLkxlZ2FsVGV4dCKsAQoJTGVnYWxUZXh0EgoKAmlkGAEgASgJEg8KB3ZlcnNpb24YAiABKAUSFgoOaW5fZm9yY2Vfc2luY2UYAyABKAkSDAoEYm9keRgEIAEoCRIPCgdzdW1tYXJ5GAUgASgJEhgKEHN1bW1hcnlfbGFuZ3VhZ2UYBiABKAkSEwoLdHJhbnNsYXRpb24YByABKAkSHAoUdHJhbnNsYXRpb25fbGFuZ3VhZ2UYCCABKAkiKwoMTGVnYWxUZXh0UmVmEgoKAmlkGAEgASgJEg8KB3ZlcnNpb24YAiABKAUydQoMTGVnYWxTZXJ2aWNlEmUKDUdldExlZ2FsVGV4dHMSJi5ub3ZhdHJhaWwuYXBpLnYxLkdldExlZ2FsVGV4dHNSZXF1ZXN0Gicubm92YXRyYWlsLmFwaS52MS5HZXRMZWdhbFRleHRzUmVzcG9uc2UiA5ACAULDAQoUY29tLm5vdmF0cmFpbC5hcGkudjFCCkxlZ2FsUHJvdG9QAVo9Z2l0aHViLmNvbS9hbHRub3ZhdHJhaWwvc3BlYy9jb250cmFjdHMvbm92YXRyYWlsL2FwaS92MTthcGl2MaICA05BWKoCEE5vdmF0cmFpbC5BcGkuVjHKAhBOb3ZhdHJhaWxcQXBpXFYx4gIcTm92YXRyYWlsXEFwaVxWMVxHUEJNZXRhZGF0YeoCEk5vdmF0cmFpbDo6QXBpOjpWMWIGcHJvdG8z");
+  fileDesc("Chxub3ZhdHJhaWwvYXBpL3YxL2xlZ2FsLnByb3RvEhBub3ZhdHJhaWwuYXBpLnYxIjIKFEdldExlZ2FsVGV4dHNSZXF1ZXN0EhoKEmludGVyZmFjZV9sYW5ndWFnZRgBIAEoCSJ0ChVHZXRMZWdhbFRleHRzUmVzcG9uc2USKgoFdGV4dHMYASADKAsyGy5ub3ZhdHJhaWwuYXBpLnYxLkxlZ2FsVGV4dBIvCgpuZXh0X3RleHRzGAIgAygLMhsubm92YXRyYWlsLmFwaS52MS5MZWdhbFRleHQirAEKCUxlZ2FsVGV4dBIKCgJpZBgBIAEoCRIPCgd2ZXJzaW9uGAIgASgFEhYKDmluX2ZvcmNlX3NpbmNlGAMgASgJEgwKBGJvZHkYBCABKAkSDwoHc3VtbWFyeRgFIAEoCRIYChBzdW1tYXJ5X2xhbmd1YWdlGAYgASgJEhMKC3RyYW5zbGF0aW9uGAcgASgJEhwKFHRyYW5zbGF0aW9uX2xhbmd1YWdlGAggASgJIisKDExlZ2FsVGV4dFJlZhIKCgJpZBgBIAEoCRIPCgd2ZXJzaW9uGAIgASgFMnUKDExlZ2FsU2VydmljZRJlCg1HZXRMZWdhbFRleHRzEiYubm92YXRyYWlsLmFwaS52MS5HZXRMZWdhbFRleHRzUmVxdWVzdBonLm5vdmF0cmFpbC5hcGkudjEuR2V0TGVnYWxUZXh0c1Jlc3BvbnNlIgOQAgFCwwEKFGNvbS5ub3ZhdHJhaWwuYXBpLnYxQgpMZWdhbFByb3RvUAFaPWdpdGh1Yi5jb20vYWx0bm92YXRyYWlsL3NwZWMvY29udHJhY3RzL25vdmF0cmFpbC9hcGkvdjE7YXBpdjGiAgNOQViqAhBOb3ZhdHJhaWwuQXBpLlYxygIQTm92YXRyYWlsXEFwaVxWMeICHE5vdmF0cmFpbFxBcGlcVjFcR1BCTWV0YWRhdGHqAhJOb3ZhdHJhaWw6OkFwaTo6VjFiBnByb3RvMw");
 
 /**
  * Describes the message novatrail.api.v1.GetLegalTextsRequest.

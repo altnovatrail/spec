@@ -22,7 +22,8 @@
 # on the admission table's, from the line 0.11 on the deployment configuration's, and from the
 # line 0.13 on the legal texts' passport's, from the line 0.14 on the table of the age of
 # digital consent's and the format of the export's, and from the line 0.15 on those of the legal
-# texts' version 2, legalv2, in place of legalv1 (R141).
+# texts' version 2, legalv2, in place of legalv1 (R141), and from the line 0.17 on those of its
+# version 3, legalv3, in place of legalv2 (R130).
 # From the line 0.7 on, it carries the npm package of the API contracts' code as well,
 # altnovatrail-contracts-<X.Y.Z>.tgz (R83). Each is signed without a key, with its bundle
 # <file>.sigstore.json beside it, as the shared release of .github signs its callers' files. Go code
@@ -67,7 +68,7 @@ permissions:
 # The line the releases are numbered in: the major and minor version every release carries, the
 # patch counting up within it. just release-version reads it from here.
 env:
-  RELEASE_LINE: "0.16"
+  RELEASE_LINE: "0.17"
 
 jobs:
   release:

@@ -747,7 +747,8 @@ export declare const LearningService: GenService<{
   },
   /**
    * The open attempt, by which the learner goes on with it, on another device too, with a clean
-   * sheet: the strokes stay on the device that wrote them. Refusals: `CAUSE_NOT_FOUND`,
+   * sheet: the strokes stay on the device that wrote them, but for a work another device put by
+   * `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
    * `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
    * state of the attempt.
    *

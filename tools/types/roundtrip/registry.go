@@ -6,14 +6,14 @@ import (
 	"github.com/altnovatrail/spec/types/admissionv0"
 	"github.com/altnovatrail/spec/types/consentagev1"
 	"github.com/altnovatrail/spec/types/deploymentv1"
-	"github.com/altnovatrail/spec/types/exportv1"
+	"github.com/altnovatrail/spec/types/exportv2"
 	"github.com/altnovatrail/spec/types/formatv0"
 	"github.com/altnovatrail/spec/types/formatv0/open"
-	"github.com/altnovatrail/spec/types/legalv2"
+	"github.com/altnovatrail/spec/types/legalv3"
 )
 
 // typesByName gives a new value of each type of formatv0, of open, of admissionv0, of deploymentv1,
-// of legalv2, of consentagev1 and of exportv1, by its name in the corpus.
+// of legalv3, of consentagev1 and of exportv2, by its name in the corpus.
 var typesByName = map[string]func() any{
 	"admissionv0.AdmissionTable":  func() any { return new(admissionv0.AdmissionTable) },
 	"admissionv0.AnswerVector":    func() any { return new(admissionv0.AnswerVector) },
@@ -22,11 +22,11 @@ var typesByName = map[string]func() any{
 	"consentagev1.ReadingVector":  func() any { return new(consentagev1.ReadingVector) },
 	"deploymentv1.Deployment":     func() any { return new(deploymentv1.Deployment) },
 	"deploymentv1.ReadingVector":  func() any { return new(deploymentv1.ReadingVector) },
-	"exportv1.Account":            func() any { return new(exportv1.Account) },
-	"exportv1.Device":             func() any { return new(exportv1.Device) },
-	"exportv1.Manifest":           func() any { return new(exportv1.Manifest) },
-	"exportv1.Profile":            func() any { return new(exportv1.Profile) },
-	"exportv1.ReadingVector":      func() any { return new(exportv1.ReadingVector) },
+	"exportv2.Account":            func() any { return new(exportv2.Account) },
+	"exportv2.Device":             func() any { return new(exportv2.Device) },
+	"exportv2.Manifest":           func() any { return new(exportv2.Manifest) },
+	"exportv2.Profile":            func() any { return new(exportv2.Profile) },
+	"exportv2.ReadingVector":      func() any { return new(exportv2.ReadingVector) },
 	"formatv0.CanonicalView":      func() any { return new(formatv0.CanonicalView) },
 	"formatv0.IndexVector":        func() any { return new(formatv0.IndexVector) },
 	"formatv0.Inventory":          func() any { return new(formatv0.Inventory) },
@@ -48,8 +48,8 @@ var typesByName = map[string]func() any{
 	"formatv0.Traps":              func() any { return new(formatv0.Traps) },
 	"formatv0.VerdictVector":      func() any { return new(formatv0.VerdictVector) },
 	"formatv0.VersionVector":      func() any { return new(formatv0.VersionVector) },
-	"legalv2.Legal":               func() any { return new(legalv2.Legal) },
-	"legalv2.ReadingVector":       func() any { return new(legalv2.ReadingVector) },
+	"legalv3.Legal":               func() any { return new(legalv3.Legal) },
+	"legalv3.ReadingVector":       func() any { return new(legalv3.ReadingVector) },
 	"open.AnswerSlot":             func() any { return new(open.AnswerSlot) },
 	"open.Audience":               func() any { return new(open.Audience) },
 	"open.Author":                 func() any { return new(open.Author) },

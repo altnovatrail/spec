@@ -86,7 +86,7 @@ test("a file the layout does not know is an error", () => {
 
 test("VERSION is an integer, and the field format of each file's schema names it", () => {
   expectSome([["export/VERSION", null, "01\n"]], /^export\/VERSION:1: the part's version is an integer from 1/);
-  expectSome([[MANIFEST_SCHEMA, '"const": 1,', '"const": 2,']], /^export\/schemas\/manifest\.schema\.json:\d+: the field format is the const 1, the version in export\/VERSION$/);
+  expectSome([[MANIFEST_SCHEMA, '"const": 2,', '"const": 3,']], /^export\/schemas\/manifest\.schema\.json:\d+: the field format is the const 2, the version in export\/VERSION$/);
   expectSome([["export/schemas/device.schema.json", null, null]], /^export\/schemas:0: no device\.schema\.json, which the text names$/);
 });
 
@@ -96,7 +96,7 @@ test("the rules of the text are the rules reading.mjs knows, in its order", () =
 });
 
 test("an example passes its schema or names the error it gives, and needs its schema", () => {
-  expectSome([["export/examples/manifest/invalid/format-two.yaml", "# error: const at #/format", "# error: enum at #/scope"]], /format-two\.yaml/);
+  expectSome([["export/examples/manifest/invalid/format-three.yaml", "# error: const at #/format", "# error: enum at #/scope"]], /format-three\.yaml/);
   expectOnly([["export/examples/other/valid/case.yaml", null, "a: 1\n"]], /^export\/examples\/other\/valid\/case\.yaml:0: an example of other, which has no schema in export\/schemas$/);
 });
 

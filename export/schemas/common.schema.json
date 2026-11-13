@@ -1,9 +1,26 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/1/common.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/2/common.schema.json",
   "title": "Common definitions",
   "description": "What the files of an export share: IDs, times, days, the age categories, consents and counters of quota (section 4 of the text of the part).",
   "$defs": {
+    "work_submission": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "description": "The context of the submission, as the element <novatrail-canvas> gave it, in its own names."
+        },
+        "history_length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How many events of the history the submission covers."
+        }
+      },
+      "required": [
+        "context",
+        "history_length"
+      ]
+    },
     "id": {
       "type": "string",
       "minLength": 1,

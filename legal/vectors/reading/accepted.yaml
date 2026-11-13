@@ -1,10 +1,20 @@
 # Parts that a reader accepts, and the current versions it gives.
 
 cases:
-  # Every version a draft: nothing is current, and nothing is shown.
-  - passport:
-      format: 2
+  # The policy in force, and the terms of use a draft: the policy alone is current.
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
         terms-of-use:
           place: app
           versions:
@@ -15,16 +25,29 @@ cases:
                 ru: Черновик.
       sets: {}
     files:
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
+        The words of this version.
       texts/terms-of-use/1.md: |
         # Terms of use
 
         The words of this version.
     current:
+      texts:
+        privacy-policy: 1
+      sets: {}
+    next:
       texts: {}
       sets: {}
   # A version in force and its next version in draft: the one in force is current.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -82,9 +105,17 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
       texts/privacy-policy/2.md: |
         # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
 
         A draft.
     current:
@@ -94,9 +125,13 @@ cases:
         privacy-policy: 1
       sets:
         measure: 1
+    next:
+      texts: {}
+      sets: {}
   # The release before had version 1 in force; it is here unchanged, and version 2 now in force is current.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -155,14 +190,22 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
       texts/privacy-policy/2.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The second wording.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
             place: app
@@ -215,6 +258,10 @@ cases:
         texts/privacy-policy/1.md: |
           # Privacy policy
 
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
+
           The words of this version.
     current:
       texts:
@@ -223,9 +270,13 @@ cases:
         privacy-policy: 2
       sets:
         measure: 1
+    next:
+      texts: {}
+      sets: {}
   # The release before had version 1 in draft: a draft may change, and come into force.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -278,10 +329,14 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
             place: app
@@ -333,6 +388,10 @@ cases:
         texts/privacy-policy/1.md: |
           # Privacy policy
 
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
+
           An earlier draft.
     current:
       texts:
@@ -341,9 +400,13 @@ cases:
         privacy-policy: 1
       sets:
         measure: 1
+    next:
+      texts: {}
+      sets: {}
   # A version in force with its translation into Russian, unchanged since the release before.
-  - passport:
-      format: 2
+  - today: "2026-12-15"
+    passport:
+      format: 3
       texts:
         privacy-policy:
           place: app
@@ -398,6 +461,10 @@ cases:
       texts/privacy-policy/1.md: |
         # Privacy policy
 
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
         The words of this version.
       texts/privacy-policy/1.ru.md: |
         # Политика конфиденциальности
@@ -405,7 +472,7 @@ cases:
         Слова этой версии.
     previous:
       passport:
-        format: 2
+        format: 3
         texts:
           privacy-policy:
             place: app
@@ -460,6 +527,10 @@ cases:
         texts/privacy-policy/1.md: |
           # Privacy policy
 
+          ## Who we are
+
+          ALT EdTech LLC, in Texas.
+
           The words of this version.
         texts/privacy-policy/1.ru.md: |
           # Политика конфиденциальности
@@ -472,3 +543,153 @@ cases:
         privacy-policy: 1
       sets:
         measure: 1
+    next:
+      texts: {}
+      sets: {}
+  # Version 2 is in force from a day still to come: version 1 is current, and version 2 is next, so
+  # that app shows it before it applies.
+  - today: "2026-12-15"
+    passport:
+      format: 3
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+            - version: 2
+              status: in_force
+              in_force_since: "2026-12-20"
+              summary:
+                en: We keep the least data we need, and say what goes to AI.
+                ru: Мы храним минимум данных и говорим, что уходит к ИИ.
+      sets: {}
+    files:
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+      texts/privacy-policy/2.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
+        What goes to AI.
+    current:
+      texts:
+        privacy-policy: 1
+      sets: {}
+    next:
+      texts:
+        privacy-policy: 2
+      sets: {}
+  # The same part on the day version 2 applies: it is current, and nothing is next.
+  - today: "2026-12-20"
+    passport:
+      format: 3
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+            - version: 2
+              status: in_force
+              in_force_since: "2026-12-20"
+              summary:
+                en: We keep the least data we need, and say what goes to AI.
+                ru: Мы храним минимум данных и говорим, что уходит к ИИ.
+      sets: {}
+    files:
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+      texts/privacy-policy/2.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
+        What goes to AI.
+    current:
+      texts:
+        privacy-policy: 2
+      sets: {}
+    next:
+      texts: {}
+      sets: {}
+  # Versions 2 and 3 apply from one day still to come: version 3 is next, since it is the one that
+  # becomes current that day.
+  - today: "2026-12-15"
+    passport:
+      format: 3
+      texts:
+        privacy-policy:
+          place: app
+          versions:
+            - version: 1
+              status: in_force
+              in_force_since: "2026-11-20"
+              summary:
+                en: We keep the least data we need.
+                ru: Мы храним минимум данных.
+            - version: 2
+              status: in_force
+              in_force_since: "2026-12-20"
+              summary:
+                en: We keep the least data we need, and say what goes to AI.
+                ru: Мы храним минимум данных и говорим, что уходит к ИИ.
+            - version: 3
+              status: in_force
+              in_force_since: "2026-12-20"
+              summary:
+                en: We keep the least data we need, and say what goes to AI and why.
+                ru: Мы храним минимум данных и говорим, что уходит к ИИ и зачем.
+      sets: {}
+    files:
+      texts/privacy-policy/1.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+      texts/privacy-policy/2.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
+        What goes to AI.
+      texts/privacy-policy/3.md: |
+        # Privacy policy
+
+        ## Who we are
+
+        ALT EdTech LLC, in Texas.
+
+        What goes to AI, and why.
+    current:
+      texts:
+        privacy-policy: 1
+      sets: {}
+    next:
+      texts:
+        privacy-policy: 3
+      sets: {}

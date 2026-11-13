@@ -1,7 +1,7 @@
 # error: enum at #/scope
 # The scope is a profile or the account.
-format: 1
+format: 2
 scope: "family"
 built_at: "2026-11-10T09:30:00Z"
 app_version: "0.1.0"
-api_format: "1"
+api_format: "2"

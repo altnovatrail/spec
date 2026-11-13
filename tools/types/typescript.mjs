@@ -54,7 +54,7 @@ export function sourceOf(cases) {
     if (!Object.hasOwn(PACKAGES, name) || rest.length !== 1) throw new Error(`${file}: the type ${type} is of no package of ${NAME}`);
   }
   // Only the packages the cases are of: a package of an earlier line exports no admissionv0, nor
-  // deploymentv1, nor legalv2, nor consentagev1, nor exportv1.
+  // deploymentv1, nor legalv3, nor consentagev1, nor exportv2.
   const used = new Set(cases.map(({ type }) => type.split(".")[0]));
   for (const [name, from] of Object.entries(PACKAGES)) if (used.has(name)) lines.push(`import type * as ${name} from ${JSON.stringify(from)};`);
   cases.forEach(({ file, type, value, closed }, index) => {
