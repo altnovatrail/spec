@@ -268,6 +268,8 @@ In `privacy-policy`, T98 added "Reporting a problem" to "Where AI comes in": the
 | What we never do | there is no targeted advertising — §42-520(b)(1)(F) |
 | Changes to this policy | withdrawal of consent on a new version — §42-520(b)(3) |
 
+**The privacy policy, version 3**, with a translation into Russian, approved 2026-11-13 and applying from 2026-11-27, so that `app` shows it ahead (the 2026-11-13 amendment to R130; sources 3.11), is the same as version 2, except for "Where AI comes in": the words the AI writes, the correct answer words among them — concepts 10, the 2026-11-11 amendment to R96; what goes to the provider — what the program found, as far as the words need it, and for the correct answer words the task's key, solution and techniques — privacy 5.1, Д214, the author's answer to В32 of RUN.md. The texts for the family need no new version: they name the learner's data that goes, the work, and the key, the solution and the techniques are the module's data (RUN.md, T148).
+
 **The child consent** — `parent-consent`, version 1:
 
 | Section | What it rests on |
