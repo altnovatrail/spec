@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Photographed page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 600px; height: 848px; background: {{paperBg}}; color: #1C1C1C; font-family: Inter, 'Helvetica Neue', Arial, sans-serif; overflow: hidden">
+
+<sc-if value="{{isWorksheet}}" hint-placeholder-val="{{ true }}">
+  <div style="position: absolute; left: 0; top: 0; width: 600px; height: 96px; background: #E3EBF6"></div>
+  <div style="position: absolute; left: 24px; top: 18px; width: 60px; height: 60px; border-radius: 30px; background: #FFFFFF; border: 3px solid #1F4E8C; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: #1F4E8C">7</div>
+  <div style="position: absolute; left: 100px; top: 22px; font-size: 26px; font-weight: 700; color: #1F3B66; letter-spacing: -0.3px">Linear equations</div>
+  <div style="position: absolute; left: 101px; top: 58px; font-size: 12px; color: #3D5A85">Level 2 · one unknown</div>
+  <div style="position: absolute; right: 24px; top: 16px; display: flex; flex-direction: column; gap: 6px">
+    <div style="width: 180px; height: 26px; background: #FFFFFF; border-radius: 4px; font-size: 10px; color: #6B7A90; padding: 3px 6px; box-sizing: border-box">Name</div>
+    <div style="width: 180px; height: 26px; background: #FFFFFF; border-radius: 4px; font-size: 10px; color: #6B7A90; padding: 3px 6px; box-sizing: border-box">Date</div>
+  </div>
+  <div style="position: absolute; left: 24px; top: 112px; right: 24px; display: flex; align-items: center; gap: 10px">
+    <span style="width: 22px; height: 22px; border-radius: 11px; border: 1.5px solid #1C1C1C; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700">1</span>
+    <span style="font-size: 15px; font-weight: 700">Solve each equation. Show your work.</span>
+    <span style="margin-left: auto; font-size: 11px; color: #555555">10 points each</span>
+  </div>
+
+  <div style="position: absolute; left: 24px; top: 150px; width: 272px; height: 216px; box-sizing: border-box; padding: 12px 10px; display: flex; align-items: baseline; gap: 10px; font-size: 19px"><span style="font-size: 13px">(1)</span><span>3<i>x</i> + 5 = 20</span></div>
+  <div style="position: absolute; left: 304px; top: 150px; width: 272px; height: 216px; box-sizing: border-box; padding: 12px 10px; display: flex; align-items: baseline; gap: 10px; font-size: 19px"><span style="font-size: 13px">(2)</span><span>2(<i>x</i> − 4) = 10</span></div>
+  <div style="position: absolute; left: 24px; top: 372px; width: 272px; height: 48px; box-sizing: border-box; padding: 6px 10px; display: flex; align-items: center; gap: 10px; font-size: 19px"><span style="font-size: 13px">(3)</span><span style="display: inline-flex; flex-direction: column; align-items: center; font-size: 16px; line-height: 1.15"><span style="padding: 0 3px; border-bottom: 1.3px solid #1C1C1C"><i>x</i></span><span>3</span></span><span>+ 2 = 6</span></div>
+  <div style="position: absolute; left: 304px; top: 372px; width: 272px; height: 216px; box-sizing: border-box; padding: 12px 10px; display: flex; align-items: baseline; gap: 10px; font-size: 19px"><span style="font-size: 13px">(4)</span><span>5<i>x</i> − 7 = 3<i>x</i> + 9</span></div>
+  <div style="position: absolute; left: 24px; top: 594px; width: 272px; height: 216px; box-sizing: border-box; padding: 12px 10px; display: flex; align-items: baseline; gap: 10px; font-size: 19px"><span style="font-size: 13px">(5)</span><span>4 − <i>x</i> = 2<i>x</i> − 11</span></div>
+  <div style="position: absolute; left: 304px; top: 594px; width: 272px; height: 48px; box-sizing: border-box; padding: 6px 10px; display: flex; align-items: center; gap: 10px; font-size: 19px"><span style="font-size: 13px">(6)</span><span style="display: inline-flex; flex-direction: column; align-items: center; font-size: 16px; line-height: 1.15"><span style="padding: 0 3px; border-bottom: 1.3px solid #1C1C1C"><i>x</i> + 1</span><span>2</span></span><span>=</span><span style="display: inline-flex; flex-direction: column; align-items: center; font-size: 16px; line-height: 1.15"><span style="padding: 0 3px; border-bottom: 1.3px solid #1C1C1C"><i>x</i> − 2</span><span>5</span></span></div>
+
+  <div style="position: absolute; left: 24px; top: 820px; font-size: 11px; color: #555555">14</div>
+  <div style="position: absolute; right: 24px; top: 820px; font-size: 10px; color: #6B6B6B">NovaTrail sample worksheet</div>
+</sc-if>
+
+<sc-if value="{{isOlympiad}}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; left: 28px; top: 20px; width: 256px; height: 30px; border-radius: 15px; background: #DCEFD9; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #2E5E2A">3 points each</div>
+  <div style="position: absolute; right: 28px; top: 28px; font-size: 11px; color: #6B6B6B">Set 3 · grades 3–4</div>
+  <div style="position: absolute; left: 300px; top: 62px; width: 1px; height: 632px; background: #D9D9D9"></div>
+
+  <div style="position: absolute; left: 20px; top: 62px; width: 272px; height: 258px; box-sizing: border-box; padding: 8px; font-size: 12.5px; line-height: 1.38">
+    <div style="display: flex; gap: 7px"><span style="flex: none; width: 18px; height: 18px; border-radius: 9px; background: #2E5E2A; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">1</span><span>A square is cut into 4 equal strips. The perimeter of each strip is 20 cm. What is the perimeter of the square?</span></div>
+    <div style="display: flex; gap: 28px; margin: 12px 0 0 25px; align-items: flex-start">
+      <div style="display: flex; flex-direction: column; gap: 3px"><span data-opt="1A">(A) 16 cm</span><span data-opt="1B">(B) 24 cm</span><span data-opt="1C">(C) 40 cm</span><span data-opt="1D">(D) 32 cm</span><span data-opt="1E">(E) 80 cm</span></div>
+      <svg width="96" height="96" viewBox="0 0 96 96" aria-hidden="true"><rect x="2" y="2" width="92" height="92" fill="none" stroke="#1C1C1C" stroke-width="1.6"></rect><path d="M25 2v92M48 2v92M71 2v92" stroke="#1C1C1C" stroke-width="1.2"></path></svg>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 20px; top: 326px; width: 272px; height: 166px; box-sizing: border-box; padding: 8px; font-size: 12.5px; line-height: 1.38">
+    <div style="display: flex; gap: 7px"><span style="flex: none; width: 18px; height: 18px; border-radius: 9px; background: #2E5E2A; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">2</span><span>After we simplify</span></div>
+    <div style="margin: 6px 0 0 25px; font-size: 14px">2 + 2 − 2 + 2 − 2 + 2</div>
+    <div style="margin: 4px 0 0 25px">the result will be:</div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px 8px; margin: 10px 0 0 25px"><span data-opt="2A">(A) 0</span><span data-opt="2B">(B) 2</span><span data-opt="2C">(C) 4</span><span data-opt="2D">(D) 6</span><span data-opt="2E">(E) 12</span></div>
+  </div>
+
+  <div style="position: absolute; left: 20px; top: 498px; width: 272px; height: 196px; box-sizing: border-box; padding: 8px; font-size: 12.5px; line-height: 1.38">
+    <div style="display: flex; gap: 7px"><span style="flex: none; width: 18px; height: 18px; border-radius: 9px; background: #2E5E2A; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">3</span><span>Ann, Ben and Cleo have 15 sweets together. Ann has 2 more than Ben, and Ben has 2 more than Cleo. How many sweets does Ann have?</span></div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px 8px; margin: 12px 0 0 25px"><span data-opt="3A">(A) 5</span><span data-opt="3B">(B) 7</span><span data-opt="3C">(C) 6</span><span data-opt="3D">(D) 9</span><span data-opt="3E">(E) 8</span></div>
+  </div>
+
+  <div style="position: absolute; left: 308px; top: 62px; width: 272px; height: 160px; box-sizing: border-box; padding: 8px; font-size: 12.5px; line-height: 1.38">
+    <div style="display: flex; gap: 7px"><span style="flex: none; width: 18px; height: 18px; border-radius: 9px; background: #2E5E2A; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">4</span><span>A heart beats 70 times a minute. How many times does it beat in one hour?</span></div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px 8px; margin: 12px 0 0 25px"><span data-opt="4A">(A) 4200</span><span data-opt="4B">(B) 420</span><span data-opt="4C">(C) 700</span><span data-opt="4D">(D) 7000</span><span data-opt="4E">(E) 42 000</span></div>
+  </div>
+
+  <div style="position: absolute; left: 308px; top: 228px; width: 272px; height: 274px; box-sizing: border-box; padding: 8px; font-size: 12.5px; line-height: 1.38">
+    <div style="display: flex; gap: 7px"><span style="flex: none; width: 18px; height: 18px; border-radius: 9px; background: #2E5E2A; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">5</span><span>This staircase of 3 steps is made of 6 squares. How many squares are needed for a staircase of 5 steps?</span></div>
+    <svg width="72" height="72" viewBox="0 0 72 72" style="display: block; margin: 12px 0 0 25px" aria-hidden="true"><g fill="#F2E8C9" stroke="#1C1C1C" stroke-width="1.3"><rect x="1" y="49" width="22" height="22"></rect><rect x="23" y="49" width="22" height="22"></rect><rect x="45" y="49" width="22" height="22"></rect><rect x="23" y="27" width="22" height="22"></rect><rect x="45" y="27" width="22" height="22"></rect><rect x="45" y="5" width="22" height="22"></rect></g></svg>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px 8px; margin: 12px 0 0 25px"><span data-opt="5A">(A) 10</span><span data-opt="5B">(B) 12</span><span data-opt="5C">(C) 14</span><span data-opt="5D">(D) 15</span><span data-opt="5E">(E) 20</span></div>
+  </div>
+
+  <div style="position: absolute; left: 308px; top: 508px; width: 272px; height: 186px; box-sizing: border-box; padding: 8px; font-size: 12.5px; line-height: 1.38">
+    <div style="display: flex; gap: 7px"><span style="flex: none; width: 18px; height: 18px; border-radius: 9px; background: #2E5E2A; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">6</span><span>Today is Wednesday. What day of the week will it be in 100 days?</span></div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px 8px; margin: 12px 0 0 25px"><span data-opt="6A">(A) Monday</span><span data-opt="6B">(B) Tuesday</span><span data-opt="6C">(C) Thursday</span><span data-opt="6D">(D) Saturday</span><span data-opt="6E">(E) Friday</span></div>
+  </div>
+
+  <div style="position: absolute; left: 28px; top: 716px; right: 28px; border-top: 1px solid #D9D9D9; padding-top: 12px; display: flex; align-items: center; gap: 14px; font-size: 11px">
+    <span style="font-weight: 700; color: #2E5E2A">Answers</span>
+    <span style="display: flex; align-items: center; gap: 4px">1 <span style="width: 26px; height: 22px; border: 1px solid #9A9A9A; border-radius: 3px"></span></span>
+    <span style="display: flex; align-items: center; gap: 4px">2 <span style="width: 26px; height: 22px; border: 1px solid #9A9A9A; border-radius: 3px"></span></span>
+    <span style="display: flex; align-items: center; gap: 4px">3 <span style="width: 26px; height: 22px; border: 1px solid #9A9A9A; border-radius: 3px"></span></span>
+    <span style="display: flex; align-items: center; gap: 4px">4 <span style="width: 26px; height: 22px; border: 1px solid #9A9A9A; border-radius: 3px"></span></span>
+    <span style="display: flex; align-items: center; gap: 4px">5 <span style="width: 26px; height: 22px; border: 1px solid #9A9A9A; border-radius: 3px"></span></span>
+    <span style="display: flex; align-items: center; gap: 4px">6 <span style="width: 26px; height: 22px; border: 1px solid #9A9A9A; border-radius: 3px"></span></span>
+  </div>
+  <div style="position: absolute; left: 28px; top: 820px; font-size: 10px; color: #6B6B6B">NovaTrail sample olympiad set</div>
+  <div style="position: absolute; right: 28px; top: 820px; font-size: 11px; color: #555555">22</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"page":{"editor":"enum","options":["worksheet","olympiad"],"default":"worksheet"},"bare":{"editor":"boolean","default":false},"$preview":{"width":600,"height":848}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const page = this.props.page ?? 'worksheet';
+    // bare: no paper under the print, for a crop that lies over the sheet like tracing paper
+    return { isWorksheet: page !== 'olympiad', isOlympiad: page === 'olympiad', paperBg: this.props.bare ? 'transparent' : '#FDFDFB' };
+  }
+}
+</script>
+</body>
+</html>
