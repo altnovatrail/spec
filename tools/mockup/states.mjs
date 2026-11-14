@@ -1,0 +1,205 @@
+// mockup: the named states of the interface mockup, which the page opens by its address —
+// ?screen=<name>&device=ipad|phone — and the test draws, each on both devices (RUN.md, T156).
+//
+// A state is reached the way the learner or the adult reaches it in Play: from the state named by
+// from, by the steps of run, which call the handlers that renderVals of Main.dc.html gives its
+// buttons — what a tap on the button does. A step that must not wait for a timer of the mockup sets
+// the state itself. shows is a text the drawn state holds, so a state that no longer reaches its
+// screen fails the test. The table "Screens and states" of draft/mockup/README.md lists the same
+// names, and the test holds the two to each other.
+
+export const OLYMPIAD = "Olympiad maths 1–6";
+export const WORKBOOK = "School maths · grade 3";
+export const ESSAYS = "Short essays";
+
+// What a step gets: the component of Main.dc.html, its values now, and synthetic work on the sheet.
+export function helpers(c) {
+  const v = () => c.renderVals();
+  return {
+    c,
+    v,
+    les: () => v().les,
+    // A stroke of the pen on the sheet or page open now: synthetic, no learner's work.
+    ink: (d = "M300 420 C330 400 360 440 390 420") => {
+      const key = c.inkKey();
+      const list = c.state.strokes[key] || [];
+      c.setState({ strokes: { ...c.state.strokes, [key]: list.concat([{ d, tool: "pen", x: 300, y: 420, ts: 0, bb: [300, 400, 390, 440], closed: false }]) } });
+    },
+  };
+}
+
+// Ticks every given and the unknown of the task open now, and goes past its steps up to the one
+// whose exit is the work on the sheet.
+function toWork(t) {
+  for (const g of t.les().givens) t.les().givens.find((x) => x.t === g.t).tick();
+  for (const u of t.les().unknown) u.tick();
+  t.les().stepDone();
+  t.les().stepDone();
+}
+
+const lesson = (name) => (t) => t.c.openLesson(name);
+const cont = (t) => t.les().cont();
+
+export const STATES = [
+  // Sign-in, by invitation, of a grown-up alone.
+  { name: "signin", title: "Sign-in", shows: "Continue with Google", run: () => {} },
+  { name: "signin-signing", title: "Sign-in, Google's window open", from: "signin", shows: "Accounts are for grown-ups", run: (t) => t.c.setState({ auth: "signing" }) },
+  { name: "invite", title: "The invite code, empty", from: "signin", shows: "Tap the boxes to paste the code", run: (t) => t.v().signIn() },
+  { name: "invite-filled", title: "The invite code, accepted", from: "invite", shows: "Code accepted", run: (t) => t.v().fillCode() },
+  { name: "agree", title: "18 or older, and the texts", from: "invite-filled", shows: "I am 18 or older", run: (t) => t.v().codeNext() },
+  { name: "agree-ticked", title: "18 or older, and the texts, ticked", from: "agree", shows: "Create account", run: (t) => (t.v().toggle18(), t.v().toggleTerms()) },
+  { name: "legal-privacy", title: "The gist of the Privacy Policy", from: "agree", shows: "Privacy Policy", run: (t) => t.v().openPrivacy() },
+  { name: "legal-terms", title: "The gist of the Terms of Use", from: "agree", shows: "Terms of Use", run: (t) => t.v().openTerms() },
+
+  // The owner's profile, after "Create account" (CreateOwnerProfile).
+  { name: "owner", title: "The owner's profile, empty", from: "agree-ticked", shows: "Use a made-up name", run: (t) => t.v().createAccount() },
+  { name: "owner-avatars", title: "The owner's profile, the avatars", from: "owner", shows: "Comet", run: (t) => t.v().toggleAvatars() },
+  { name: "owner-countries", title: "The owner's profile, the countries", from: "owner", shows: "New Zealand", run: (t) => t.v().toggleCountries() },
+  {
+    name: "owner-filled",
+    title: "The owner's profile, filled in",
+    from: "owner",
+    shows: "United States",
+    run: (t) => {
+      t.c.setState({ ownerName: "Sam" });
+      t.v().avatars[5].pick();
+      t.v().countries[0].pick();
+    },
+  },
+
+  // "Who's learning?" and home, in the first slice: the owner's profile alone.
+  { name: "who", title: "Who's learning?", from: "owner-filled", shows: "Add a learner", run: (t) => t.v().ownerDone() },
+  { name: "home", title: "Home", from: "who", shows: "Skill map", run: (t) => t.v().profiles[0].pick() },
+  { name: "home-help", title: "Home, the adult's Help", from: "home", shows: "Report a problem", run: (t) => t.v().toggleHelp() },
+  { name: "home-switch", title: "Home, the profile's menu", from: "home", shows: "Switch learner", run: (t) => t.v().toggleSwitch() },
+  { name: "home-legend", title: "Home, what the marks mean", from: "home", shows: "Time to review", run: (t) => t.v().toggleLegend() },
+  { name: "legal-access", title: "The page Accessibility", from: "home-help", shows: "WCAG 2.2", run: (t) => t.v().openAccess() },
+  { name: "map", title: "The skill map of a module", from: "home", shows: "Number patterns", run: (t) => t.v().mods[0].map() },
+  { name: "map-essays", title: "The skill map of a module with a rubric", from: "home", shows: "Feedback by criteria", run: (t) => t.v().mods[2].map() },
+
+  // A lesson of olympiad maths: the explanation, the worked example, a task on the sheet and a choice.
+  { name: "lesson", title: "A lesson, the explanation", from: "home", shows: "Patterns that grow", run: lesson(OLYMPIAD) },
+  { name: "lesson-segments", title: "A lesson, its segments", from: "lesson", shows: "Not open yet", run: (t) => t.les().toggleSegs() },
+  { name: "example", title: "A worked example", from: "lesson", shows: "Squares of matches", run: cont },
+  {
+    name: "example-demo",
+    title: "A worked example, its parts shown",
+    from: "example",
+    shows: "Answer: 19 matches.",
+    run: (t) => {
+      for (let i = 0; i < 4; i++) t.les().demoNext();
+    },
+  },
+  { name: "task", title: "A task, step by step, the tutor's panel open", from: "example", shows: "Dots in rows", run: cont },
+  { name: "task-steps", title: "A task, the list of its steps", from: "task", shows: "Check the answer", run: (t) => t.les().toggleSteps() },
+  { name: "task-mode", title: "A task, the solving mode", from: "task", shows: "On my own", run: (t) => t.les().toggleMode() },
+  { name: "task-pill", title: "A task, the step's pill, the panel closed", from: "task", shows: "Understand the task", run: (t) => t.c.closeChat() },
+  { name: "task-hint", title: "A task, a hint before a wrong answer", from: "task", shows: "What we know", run: (t) => t.c.askHint() },
+  { name: "task-empty", title: "A task, Check without work", from: "task-pill", shows: "Write an answer on the sheet", run: (t) => t.les().check() },
+  {
+    name: "task-reading",
+    title: "A task, the work being read",
+    from: "task-pill",
+    shows: "Reading your work",
+    settle: false,
+    run: (t) => {
+      toWork(t);
+      t.ink();
+      t.les().check();
+    },
+  },
+  { name: "task-not-yet", title: "A task, Not yet, the card", from: "task-reading", shows: "Not yet", run: (t) => t.c.closeChat() },
+  { name: "task-rung", title: "A task, the rung in the panel", from: "task-not-yet", shows: "Report a problem", run: (t) => t.c.openChat() },
+  { name: "task-alt", title: "A task, Explain differently", from: "task-rung", shows: "In other words", run: (t) => t.v().acts.find((a) => a.label === "Explain differently").go() },
+  { name: "task-report", title: "A task, Report a problem", from: "task-rung", shows: "Send", run: (t) => t.v().msgs.find((m) => m.report).doReport() },
+  { name: "task-correct", title: "A task, Correct", from: "task-not-yet", shows: "Correct", run: (t) => t.les().check() },
+  { name: "task-full", title: "A task, the tutor's sheet over the whole screen", from: "task-rung", shows: "Report a problem", run: (t) => t.v().toggleTutorFull() },
+  { name: "choice", title: "A task with a choice, its options", from: "task-correct", shows: "Choose an answer", run: (t) => (cont(t), t.les().toggleChoice()) },
+  { name: "choice-wrong", title: "A task with a choice, Not yet", from: "choice", shows: "Not yet", run: (t) => (t.les().options[0].pick(), t.les().check()) },
+  { name: "solution-ask", title: "Show the solution, asked first", from: "choice-wrong", shows: "Once the solution is shown", run: (t) => t.les().askSol() },
+  {
+    name: "quota",
+    title: "A task, the tutor's time used up",
+    from: "choice",
+    shows: "Today’s tutor time is used up",
+    run: (t) => {
+      t.les().toggleQuota();
+      t.les().options[0].pick();
+      t.les().check();
+      t.c.openChat();
+    },
+  },
+  {
+    name: "lesson-end",
+    title: "Lesson complete",
+    from: "choice-wrong",
+    shows: "Lesson complete",
+    run: (t) => {
+      t.les().options[2].pick();
+      t.les().check();
+      cont(t);
+    },
+  },
+
+  // A lesson of the workbook of grade 3: a page of six lines.
+  { name: "workbook", title: "A task on a workbook page", from: "home", shows: "Division with a remainder", run: (t) => (lesson(WORKBOOK)(t), cont(t), cont(t)) },
+  { name: "workbook-not-yet", title: "A workbook page, two lines Not yet", from: "workbook", shows: "2 items of 6", run: (t) => (t.c.closeChat(), t.ink(), t.les().check()) },
+  { name: "workbook-shown", title: "A workbook page, the solution shown", from: "workbook-not-yet", shows: "Continue", run: (t) => (t.les().askSol(), t.les().showSol()) },
+
+  // A lesson of short essays: the best first sentence, and an essay with feedback by a rubric.
+  { name: "essay", title: "An essay, written to a rubric", from: "home", shows: "Write no names", run: (t) => (lesson(ESSAYS)(t), cont(t), t.les().toggleChoice(), t.les().options[1].pick(), t.les().check(), cont(t)) },
+  { name: "essay-feedback", title: "An essay, its feedback", from: "essay", shows: "Feedback", run: (t) => (t.c.closeChat(), t.ink(), t.les().check()) },
+  { name: "essay-done", title: "An essay, Done: the marks by the criteria", from: "essay-feedback", shows: "Not assessed", run: (t) => t.les().essayDone() },
+
+  // What comes later — the children of epic E4 of app, and the paper flow of epic E11 — under "Later".
+  { name: "later-who", title: "Later: Who's learning?, with the children", slice: "later", from: "who", shows: "Juniper", run: (t) => t.v().sliceLater() },
+  { name: "later-add", title: "Later: Add a learner, a parent's consent", slice: "later", from: "later-who", shows: "A parent’s consent", run: (t) => t.v().openAdd() },
+  { name: "later-pin", title: "Later: the owner's PIN", slice: "later", from: "later-who", shows: "Enter your PIN", run: (t) => t.v().profiles.find((p) => p.owner).pick() },
+  { name: "later-home", title: "Later: a child's home, Take from my paper", slice: "later", from: "later-who", shows: "Take from my paper", run: (t) => t.v().profiles[0].pick() },
+  { name: "later-help", title: "Later: a child's Help", slice: "later", from: "later-home", shows: "call a helpline", run: (t) => t.v().toggleHelp() },
+  { name: "later-pip", title: "Later: Pip, a child's tutor", slice: "later", from: "later-home", shows: "Hi, I’m Pip", run: (t) => (lesson(OLYMPIAD)(t), cont(t), cont(t)) },
+  { name: "later-camera", title: "Later: the camera", slice: "later", from: "later-home", shows: "Worksheet", run: (t) => t.v().openCamera() },
+  { name: "later-pick", title: "Later: the tasks found on the page", slice: "later", from: "later-camera", shows: "tap to pick", run: (t) => t.v().capture() },
+  {
+    name: "later-solve",
+    title: "Later: a task from the page, on a clean sheet",
+    slice: "later",
+    from: "later-pick",
+    shows: "from your page",
+    run: (t) => {
+      t.v().regions[1].toggle();
+      t.v().regions[3].toggle();
+      t.v().start();
+    },
+  },
+  { name: "later-snap", title: "Later: Snap work, read", slice: "later", from: "later-solve", shows: "Read on your photo", run: (t) => t.v().snap() },
+  { name: "later-tasks", title: "Later: the picked tasks", slice: "later", from: "later-solve", shows: "Key · solver", run: (t) => t.v().toggleTasks() },
+  { name: "later-hints", title: "Later: the adult's hint mode", slice: "later", from: "later-solve", shows: "Show where", run: (t) => t.v().toggleProfile() },
+  { name: "later-kinds", title: "Later: the canvas kinds", slice: "later", from: "later-solve", shows: "Number line", run: (t) => t.v().toggleMore() },
+];
+
+const BY_NAME = new Map(STATES.map((s) => [s.name, s]));
+
+// The state's chain, from the first screen to it.
+export function chain(name) {
+  const out = [];
+  for (let s = BY_NAME.get(name); s; s = s.from ? BY_NAME.get(s.from) : null) {
+    if (out.includes(s)) throw new Error(`the states loop at ${s.name}`);
+    out.unshift(s);
+  }
+  if (!out.length) throw new Error(`no state ${name}`);
+  return out;
+}
+
+// Brings the app with its Main to the state name: each step of the chain, settled; the last one
+// settled unless it says not to, so that a snapshot shows the state the step leaves.
+export function reach(app, comp, name) {
+  const t = helpers(comp);
+  const steps = chain(name);
+  steps.forEach((s, i) => {
+    s.run(t);
+    if (i < steps.length - 1 || s.settle !== false) app.settle();
+    else app.flush();
+  });
+  return BY_NAME.get(name);
+}

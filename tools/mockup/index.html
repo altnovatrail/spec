@@ -1,0 +1,23 @@
+<!doctype html>
+<!-- The page of the interface mockup: tools/mockup/page.mjs opens the state its address names (RUN.md, T156). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The interface mockup</title>
+<style>
+body{margin:0;background:#FFFFFF}
+#frame{display:inline-block;vertical-align:top}
+#frame.index,.error{display:block;padding:16px 24px;font:15px/1.5 system-ui,sans-serif;color:#1D1D1F}
+.states{padding-left:20px}
+.error{color:#B3261E}
+</style>
+<script type="module">
+import { start } from "./page.mjs";
+start(window);
+</script>
+</head>
+<body>
+<div id="frame"></div>
+</body>
+</html>
