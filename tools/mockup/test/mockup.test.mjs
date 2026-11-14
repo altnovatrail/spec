@@ -12,7 +12,7 @@ import { JSDOM } from "jsdom";
 import { App, Clock, compileTemplate, parseSource } from "../runtime.mjs";
 import { STATES, chain, reach } from "../states.mjs";
 import { start, sourceLoader } from "../page.mjs";
-import { FOLDERS, ROOT, createServer, fileOf, main, portOf } from "../serve.mjs";
+import { FOLDERS, ROOT, createServer, fileOf, main, portOf, servedFiles } from "../serve.mjs";
 
 const SOURCES = path.join(ROOT, "draft", "mockup");
 const README = path.join(SOURCES, "README.md");
@@ -383,6 +383,9 @@ test("a path out of the folders by a link is not served", () => {
     assert.equal(fileOf(root, "/draft/mockup/a.html"), fs.realpathSync(path.join(root, "draft/mockup/a.html")));
     assert.equal(fileOf(root, "/draft/mockup/link.html"), null);
     assert.equal(fileOf(root, "/draft/mockup/a.html%00.html"), null);
+    assert.deepEqual([...servedFiles(root).keys()], ["/draft/mockup/a.html"]);
+    fs.rmSync(path.join(root, "tools"), { recursive: true });
+    assert.deepEqual([...servedFiles(root).keys()], ["/draft/mockup/a.html"], "a folder that is not there gives nothing");
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

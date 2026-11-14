@@ -17,28 +17,45 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 export const FOLDERS = ["tools/mockup/", "draft/mockup/"];
 const TYPES = { ".html": "text/html; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".md": "text/markdown; charset=utf-8" };
 
-// The file of the spec at root that a request's path names, or null: only a file inside one of the
-// folders, with a type of TYPES — by its path, before the file system is asked, and again by its
-// real path, so that a link out of the folders is not followed.
+// The files the server gives, by the path a request names: every file of the folders with a type
+// of TYPES, by its real path inside them, read again for each request; a folder's path names its
+// index.html. A link out of the folders is left out. A request's path is only looked up here, so
+// it never reaches the file system.
+export function servedFiles(root) {
+  const realRoot = fs.realpathSync(root);
+  const files = new Map();
+  const walk = (rel) => {
+    let entries;
+    try {
+      entries = fs.readdirSync(path.join(realRoot, rel), { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      const child = rel + e.name;
+      if (e.isDirectory()) walk(child + "/");
+      else if (Object.hasOwn(TYPES, path.extname(e.name))) {
+        const real = fs.realpathSync(path.join(realRoot, child));
+        if (FOLDERS.some((f) => real.startsWith(path.join(realRoot, f))) && fs.statSync(real).isFile()) {
+          files.set("/" + child, real);
+          if (e.name === "index.html") files.set("/" + rel, real);
+        }
+      }
+    }
+  };
+  for (const folder of FOLDERS) walk(folder);
+  return files;
+}
+
+// The file a request's path names, or null.
 export function fileOf(root, urlPath) {
-  let rel;
+  let where;
   try {
-    rel = decodeURIComponent(urlPath.split("?")[0]).replace(/^\/+/, "");
+    where = decodeURIComponent(urlPath.split("?")[0]);
   } catch {
     return null;
   }
-  if (rel.endsWith("/")) rel += "index.html";
-  if (rel.includes("\0") || !Object.hasOwn(TYPES, path.extname(rel))) return null;
-  const full = path.resolve(root, rel);
-  const within = (p, base) => FOLDERS.some((folder) => p.startsWith(path.resolve(base, folder) + path.sep));
-  if (!within(full, root)) return null;
-  let real;
-  try {
-    real = fs.realpathSync(full);
-  } catch {
-    return null;
-  }
-  return within(real, fs.realpathSync(root)) && fs.statSync(real).isFile() ? real : null;
+  return servedFiles(root).get(where) ?? null;
 }
 
 export function createServer(root = ROOT) {
