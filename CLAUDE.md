@@ -30,7 +30,7 @@ The documents under `docs/` are in English, but for the epic archives `docs/plan
 - [RULES.md](RULES.md) — the rules every NovaTrail repository shares, imported below.
 - [repo-template/](repo-template/README.md) — the template every other NovaTrail repository starts from (repositories 2.2).
 - [.bestpractices.json](.bestpractices.json) — spec's answers, in English, to the criteria of its OpenSSF Best Practices badge, project 15977. bestpractices.dev proposes them in its form, and the author saves them there (R48). A change that alters an answer changes the file too. The site takes no changed answer from the file by itself, so the session also gives the author a link to the form that proposes the changed fields with `overrides`, and the author saves them (the 2026-10-27 amendment to R48).
-- [draft/](draft/README.md) — the prototype; where it differs from the documents, the documents win.
+- [draft/](draft/README.md) — the prototype, and from T156 the interface mockup in `draft/mockup/`: the look of `app` and of the tool panel of `canvas` (R148). Where either differs from the documents, the documents win.
 
 ## Shared rules
 
