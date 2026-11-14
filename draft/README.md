@@ -8,7 +8,7 @@ It is a single file: open it in a browser, with no server. It opens on *My subje
 
 It shows where the product is heading, not what it must be. Where it differs from the documents in [docs/](../docs/), the documents win.
 
-Its design is outdated. The newest design is in the mockups below: for the flow of a task from paper, take the interface from [Take from my paper](https://claude.ai/artifact/Vt9G8W392cMTTMykiByrcb#play-15dd8cd198dd), not from this prototype.
+Its design is outdated. The newest design is in the mockups below: for sign-in, the home screen and the flow of a task from paper, take the interface from [Take from my paper](https://claude.ai/artifact/Vt9G8W392cMTTMykiByrcb#play-15dd8cd198dd), not from this prototype.
 
 ## What it shows
 
@@ -64,7 +64,10 @@ Its design is outdated. The newest design is in the mockups below: for the flow 
 
 Mockups made after the prototype, of one flow each:
 
-- [Take from my paper](https://claude.ai/artifact/Vt9G8W392cMTTMykiByrcb#play-15dd8cd198dd), 2026-11-13, the link opens it in Play: an interactive iPad mockup of the paper flow.
+- [Take from my paper](https://claude.ai/artifact/Vt9G8W392cMTTMykiByrcb#play-15dd8cd198dd), 2026-11-13, the link opens it in Play: an interactive iPad mockup of the paper flow, and since 2026-11-14 of sign-in and the home screen before it.
+  - Sign-in. Only a grown-up signs in, with Google and an invite code, states once that they are 18 or older and accepts the Terms of Use and the Privacy Policy, each shown as its gist with the English text in force. A child never signs in.
+  - "Who's learning?": the account's profiles, with made-up names and avatars. The grown-up's own profile opens with the PIN while children learn on the device, and adding a child starts with a parent's consent.
+  - Home: the next lesson the engine chose, with no reason given; the entry "Take from my paper", which opens the camera; the first slice's three modules with their skill states; Help, and the line that the tutor is an AI. Back on a canvas leads home.
   - The canvas kinds in the top bar, with the kinds of other authors under «…».
   - The camera, and picking the tasks on the photo of the page.
   - One way to solve, whatever shape the page has: each picked task is a canvas of its own, a clean squared sheet with the task's crop over its top, for a worksheet of equations and an olympiad page alike. The crop is transparent, with its print over what is drawn on the sheet, and it is tracing paper: a stroke begun on it stays over the task and moves with it, to mark up its text and pictures. Its grip drags it anywhere on the sheet, and a button at the side, atop the tools, shows or hides it.
@@ -78,7 +81,7 @@ Mockups made after the prototype, of one flow each:
     - The verdict comes from the program: into the chat as a line while it is open, and as the card while it is closed. Pip says only what comes next, and a dot on its button marks a message not yet read.
     - The microphone is simulated. The documents give voice input to adults only until П-5 is decided (О-6), so a child would not have it yet. What the tutor answers to a free question the documents do not say: here it answers with the rung, the rung in other words, or a fixed text.
 
-  It is a Design canvas on claude.ai, private to the author: open it to someone from its Share menu before giving them the link. It puts From paper among the canvas kinds, while the documents make it an entry into the app (product 4). Like the prototype, where it differs from the documents, the documents win.
+  It is a Design canvas on claude.ai, private to the author: open it to someone from its Share menu before giving them the link. From paper is an entry on its home screen, as in the documents (product 4), and also one of the canvas kinds, which the documents do not have. The documents put tasks from paper at stage 5 and out of the first slice (product 10, 11); epic E11 of [RUN.md](../RUN.md) decides it. Like the prototype, where it differs from the documents, the documents win.
 
 ## Where it differs from the documents
 
