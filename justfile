@@ -76,6 +76,21 @@ translation-test: _tools
 session-test:
     node --test 'tools/session/test/*.test.mjs'
 
+# Serves the interface mockup of draft/mockup/ on 127.0.0.1, port 8156 or --port N, through the
+# runtime of NovaTrail's own in tools/mockup/: its page opens a state by its address,
+# /tools/mockup/?screen=home&device=phone, for a browser and for Playwright (R148; RUN.md, T156).
+# Another NovaTrail repository runs it as `just -f spec/justfile mockup`, or node
+# spec/tools/mockup/serve.mjs. It takes nothing from node_modules, since another repository has
+# none in spec/tools/. draft/mockup/README.md is what the mockup holds and how to compare with it.
+# Serve the interface mockup in a browser.
+[positional-arguments]
+mockup *args:
+    node {{quote(justfile_directory() / "tools/mockup/serve.mjs")}} "$@"
+
+# Run the mockup's own tests: every state on the iPad and the phone, under jsdom.
+mockup-test: _tools
+    node --test 'tools/mockup/test/*.test.mjs'
+
 # Reads spec's own format/ by the layout of its text: each schema against the conventions of R45 and
 # the 2020-12 meta-schema, each example against its schema, the YAML rules on every example and test
 # vector, the layout of a module and its rules on the cases laid out as one — the ids of the files at
