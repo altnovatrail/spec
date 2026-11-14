@@ -140,6 +140,16 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone .ph-legal{left:0!important;right:0!important;top:0!important;bottom:0!important;width:auto!important;margin:0!important;border-radius:0!important;padding:52px 20px 20px!important;display:flex;flex-direction:column}
 .nt-phone .ph-chip{height:auto!important;min-height:24px;padding:3px 10px!important}
 .nt-phone .ph-gist{max-height:none!important;flex:1;min-height:0}
+/* The lesson and the task of the first slice (RUN.md, T155): the same pieces on both devices, placed by these rules on the phone. */
+.nt-phone .ph-stmt{left:76px!important;right:12px!important;width:auto!important;top:70px!important}
+.nt-phone .ph-read{left:12px!important;right:12px!important;width:auto!important;margin-left:0!important;top:70px!important;bottom:84px!important;padding:20px 18px!important}
+.nt-phone .ph-row{left:12px!important;right:12px!important;transform:none!important;justify-content:center;flex-wrap:wrap;height:auto!important;min-height:56px;row-gap:4px!important}
+.nt-phone .ph-rowfull{flex:1 1 100%!important;max-width:none!important;justify-content:center!important}
+.nt-phone .ph-rowsep{display:none!important}
+.nt-phone .ph-stepcard{max-height:172px!important}
+.nt-phone .ph-endcard{left:16px!important;right:16px!important;width:auto!important;margin-left:0!important}
+.nt-phone .ph-mode{right:12px!important}
+.nt-phone .ph-report{max-height:none!important}
 </style>
 </helmet>
 <div class="{{devCls}}" style="position: relative; width: {{dim.W}}px; height: {{dim.VH}}px; overflow: hidden; background: #F2F2F7; color: #1D1D1F; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none">
@@ -178,6 +188,47 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 <sc-if value="{{isSolve}}" hint-placeholder-val="{{ false }}">
   <div style="position: absolute; inset: 0; background-color: #FCFCFD; background-image: linear-gradient(#ECECF1 1px, transparent 1px), linear-gradient(90deg, #ECECF1 1px, transparent 1px); background-size: 28px 28px"></div>
 </sc-if>
+
+<!-- A lesson's canvas is the module's choice (concepts 8; R148): a handwriting sheet in squares or in lines, or a workbook page.
+     On a worked example the demo's parts open one at a time and hide all at once; the learner does not write on it (R58; R42 canvas). -->
+<sc-if value="{{les.sq}}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; inset: 0; background-color: #FCFCFD; background-image: linear-gradient(#ECECF1 1px, transparent 1px), linear-gradient(90deg, #ECECF1 1px, transparent 1px); background-size: 28px 28px"></div>
+</sc-if>
+<sc-if value="{{les.lined}}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; inset: 0; background-color: #FFFFFF; background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 39px, #DCE6F2 39px, #DCE6F2 40px)"></div>
+</sc-if>
+<sc-if value="{{les.wb}}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; left: {{les.wbBox.x}}px; top: {{les.wbBox.y}}px; width: {{les.wbBox.w}}px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 12px 40px rgba(0,0,0,0.08); box-sizing: border-box; padding: {{les.wbBox.pad}}; display: flex; flex-direction: column">
+    <div style="font-size: 12px; font-weight: 600; color: #6E6E73; letter-spacing: 0.2px; margin-bottom: 8px">{{les.wbEyebrow}}</div>
+    <sc-for list="{{les.lines}}" as="l" hint-placeholder-count="6">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; column-gap: 10px; row-gap: 2px; min-height: 60px; padding: 6px 0; border-top: 1px solid #F0F0F3; font-size: 24px; font-variant-numeric: tabular-nums">
+        <span style="min-width: {{les.wbBox.aw}}px">{{l.a}}</span>
+        <span role="img" aria-label="{{l.b0.lab}}" style="width: 56px; height: 44px; border-radius: 10px; box-shadow: {{l.b0.sh}}; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 500; color: #0058B8">{{l.b0.v}}</span>
+        <span style="font-size: 20px; color: #3A3A3C">r</span>
+        <span role="img" aria-label="{{l.b1.lab}}" style="width: 56px; height: 44px; border-radius: 10px; box-shadow: {{l.b1.sh}}; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 500; color: #0058B8">{{l.b1.v}}</span>
+        <sc-if value="{{l.hasRead}}" hint-placeholder-val="{{ false }}">
+          <span style="flex: 1 0 auto; display: flex; justify-content: flex-end; align-items: center; gap: 5px; font-size: 13px; font-weight: 500; color: {{l.fg}}"><sc-if value="{{l.ok}}" hint-placeholder-val="{{ false }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#248A3D" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if><sc-if value="{{l.no}}" hint-placeholder-val="{{ false }}"><span style="width: 7px; height: 7px; border-radius: 4px; background: #C93400"></span></sc-if>{{l.read}}</span>
+        </sc-if>
+      </div>
+    </sc-for>
+    <sc-if value="{{les.wbParts}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px; padding-top: 14px; border-top: 1px solid #F0F0F3">
+        <sc-for list="{{les.parts}}" as="p" hint-placeholder-count="0">
+          <div class="nt-in" style="display: flex; align-items: baseline; gap: 10px; font-size: {{p.fs}}px; line-height: 1.4; color: #0058B8">
+            <span style="flex: none; width: 24px; height: 24px; border-radius: 12px; background: rgba(0,88,184,0.10); font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; transform: translateY(-2px)">{{p.n}}</span>
+            <span>{{p.t}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+<sc-for list="{{les.sheetParts}}" as="p" hint-placeholder-count="0">
+  <div class="nt-in" style="position: absolute; left: {{p.x}}px; top: {{p.y}}px; width: {{p.w}}px; display: flex; align-items: baseline; gap: 10px; font-size: {{p.fs}}px; line-height: 1.4; color: #0058B8">
+    <span style="flex: none; width: 24px; height: 24px; border-radius: 12px; background: rgba(0,88,184,0.10); font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; transform: translateY(-2px)">{{p.n}}</span>
+    <span style="font-weight: {{p.fw}}">{{p.t}}</span>
+  </div>
+</sc-for>
 </div>
 
 <!-- ============ Camera ============ -->
@@ -254,6 +305,9 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   <sc-if value="{{liveScreen}}" hint-placeholder-val="{{ false }}">
     <svg width="{{dim.W}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{live}}" style="fill: none; stroke: {{liveSty.color}}; stroke-width: {{liveSty.w}}px; opacity: {{liveSty.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
   </sc-if>
+  <sc-for list="{{les.marks}}" as="k" hint-placeholder-count="0">
+    <div role="img" aria-label="{{k.label}}" style="position: absolute; left: {{k.x}}px; top: {{k.y}}px; width: {{k.w}}px; height: {{k.h}}px; border-radius: 12px; box-shadow: 0 0 0 2.5px #FF9F0A; pointer-events: none"></div>
+  </sc-for>
   <sc-if value="{{eraseScreen}}" hint-placeholder-val="{{ false }}">
     <sc-for list="{{screenPaths}}" as="p" hint-placeholder-count="0">
       <svg width="{{dim.W}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" onPointerDown="{{p.erase}}" onPointerEnter="{{p.eraseEnter}}" style="fill: none; stroke: rgba(0,0,0,0.001); stroke-width: 22px; stroke-linecap: round; pointer-events: stroke; cursor: pointer"></path></svg>
@@ -324,16 +378,68 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   </div>
 </sc-if>
 
+<!-- ============ A lesson: the explanation, and the statement above the canvas (RUN.md, T155) ============ -->
+<sc-if value="{{les.isExpl}}" hint-placeholder-val="{{ false }}">
+  <div class="glass ph-read" tabindex="0" role="region" aria-label="{{les.seg.title}}" style="position: absolute; left: 50%; top: 76px; bottom: 88px; width: 640px; margin-left: -320px; border-radius: 26px; background: rgba(255,255,255,0.94); padding: 28px 34px; box-sizing: border-box; overflow-y: auto; font-size: 17px; line-height: 1.5; user-select: text">
+    <div style="display: flex; align-items: flex-start; gap: 8px">
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; font-weight: 600; color: #6E6E73">Explanation</span>
+        <span style="font-size: 24px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.2">{{les.seg.title}}</span>
+      </div>
+      <button class="ib tip tip-bl" aria-label="Read aloud" data-tip="Read aloud" onClick="{{les.readSeg}}" style="flex: none; color: #0071E3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"></path><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+    </div>
+    <sc-for list="{{les.seg.paras}}" as="p" hint-placeholder-count="2"><p style="margin: 14px 0 0">{{p.t}}</p></sc-for>
+    <sc-if value="{{les.seg.hasPic}}" hint-placeholder-val="{{ false }}">
+      <div role="img" aria-label="{{les.seg.alt}}" style="margin-top: 18px; padding: 16px; border-radius: 16px; background: #F5F5F7; display: flex; justify-content: center"><sc-if value="{{les.seg.pic.stairs}}" hint-placeholder-val="{{ false }}"><svg width="260" height="84" viewBox="0 0 260 84" aria-hidden="true" style="display: block"><g fill="#B9D7FF" stroke="#0A84FF" stroke-width="1.5"><rect x="4" y="56" width="24" height="24" rx="3"></rect><rect x="64" y="56" width="24" height="24" rx="3"></rect><rect x="88" y="56" width="24" height="24" rx="3"></rect><rect x="64" y="32" width="24" height="24" rx="3"></rect><rect x="148" y="56" width="24" height="24" rx="3"></rect><rect x="172" y="56" width="24" height="24" rx="3"></rect><rect x="196" y="56" width="24" height="24" rx="3"></rect><rect x="148" y="32" width="24" height="24" rx="3"></rect><rect x="148" y="8" width="24" height="24" rx="3"></rect></g></svg></sc-if><sc-if value="{{les.seg.pic.dots}}" hint-placeholder-val="{{ false }}"><svg width="200" height="70" viewBox="0 0 200 70" aria-hidden="true" style="display: block"><g fill="#1D1D1F"><circle cx="10" cy="10" r="5"></circle><circle cx="28" cy="10" r="5"></circle><circle cx="10" cy="34" r="5"></circle><circle cx="28" cy="34" r="5"></circle><circle cx="46" cy="34" r="5"></circle><circle cx="64" cy="34" r="5"></circle><circle cx="82" cy="34" r="5"></circle><circle cx="10" cy="58" r="5"></circle><circle cx="28" cy="58" r="5"></circle><circle cx="46" cy="58" r="5"></circle><circle cx="64" cy="58" r="5"></circle><circle cx="82" cy="58" r="5"></circle><circle cx="100" cy="58" r="5"></circle><circle cx="118" cy="58" r="5"></circle><circle cx="136" cy="58" r="5"></circle></g></svg></sc-if><sc-if value="{{les.seg.pic.share}}" hint-placeholder-val="{{ false }}"><svg width="320" height="36" viewBox="0 0 320 36" aria-hidden="true" style="display: block"><g fill="none" stroke="#C7C7CC" stroke-width="1.5"><rect x="2" y="2" width="60" height="32" rx="10"></rect><rect x="70" y="2" width="60" height="32" rx="10"></rect><rect x="138" y="2" width="60" height="32" rx="10"></rect><rect x="206" y="2" width="60" height="32" rx="10"></rect></g><g fill="#0A84FF"><circle cx="16" cy="18" r="6"></circle><circle cx="32" cy="18" r="6"></circle><circle cx="48" cy="18" r="6"></circle><circle cx="84" cy="18" r="6"></circle><circle cx="100" cy="18" r="6"></circle><circle cx="116" cy="18" r="6"></circle><circle cx="152" cy="18" r="6"></circle><circle cx="168" cy="18" r="6"></circle><circle cx="184" cy="18" r="6"></circle><circle cx="220" cy="18" r="6"></circle><circle cx="236" cy="18" r="6"></circle><circle cx="252" cy="18" r="6"></circle></g><g fill="#FF9F0A"><circle cx="290" cy="18" r="6"></circle><circle cx="308" cy="18" r="6"></circle></g></svg></sc-if></div>
+    </sc-if>
+    <sc-if value="{{les.seg.hasList}}" hint-placeholder-val="{{ false }}">
+      <ol style="margin: 18px 0 0; padding-left: 26px">
+        <sc-for list="{{les.seg.list}}" as="i" hint-placeholder-count="3"><li style="margin-top: 6px; padding-left: 4px">{{i.t}}</li></sc-for>
+      </ol>
+    </sc-if>
+  </div>
+</sc-if>
+<sc-if value="{{les.stmtShow}}" hint-placeholder-val="{{ false }}">
+  <div class="glass ph-stmt" style="position: absolute; left: 84px; top: 74px; width: 620px; border-radius: 22px; background: rgba(255,255,255,0.94); padding: 12px 6px 12px 18px; box-sizing: border-box; display: flex; gap: 8px; align-items: flex-start">
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding-top: 2px">
+      <span style="font-size: 11.5px; font-weight: 600; color: #6E6E73">{{les.stmtCap}}</span>
+      <sc-if value="{{les.stmtFull}}" hint-placeholder-val="{{ true }}">
+        <span style="font-size: 16px; line-height: 1.42; user-select: text">{{les.stmt}}</span>
+        <sc-if value="{{les.stmtPic}}" hint-placeholder-val="{{ false }}">
+          <div role="img" aria-label="{{les.stmtAlt}}" style="margin-top: 4px"><sc-if value="{{les.sPic.stairs}}" hint-placeholder-val="{{ false }}"><svg width="260" height="84" viewBox="0 0 260 84" aria-hidden="true" style="display: block"><g fill="#B9D7FF" stroke="#0A84FF" stroke-width="1.5"><rect x="4" y="56" width="24" height="24" rx="3"></rect><rect x="64" y="56" width="24" height="24" rx="3"></rect><rect x="88" y="56" width="24" height="24" rx="3"></rect><rect x="64" y="32" width="24" height="24" rx="3"></rect><rect x="148" y="56" width="24" height="24" rx="3"></rect><rect x="172" y="56" width="24" height="24" rx="3"></rect><rect x="196" y="56" width="24" height="24" rx="3"></rect><rect x="148" y="32" width="24" height="24" rx="3"></rect><rect x="148" y="8" width="24" height="24" rx="3"></rect></g></svg></sc-if><sc-if value="{{les.sPic.dots}}" hint-placeholder-val="{{ false }}"><svg width="200" height="70" viewBox="0 0 200 70" aria-hidden="true" style="display: block"><g fill="#1D1D1F"><circle cx="10" cy="10" r="5"></circle><circle cx="28" cy="10" r="5"></circle><circle cx="10" cy="34" r="5"></circle><circle cx="28" cy="34" r="5"></circle><circle cx="46" cy="34" r="5"></circle><circle cx="64" cy="34" r="5"></circle><circle cx="82" cy="34" r="5"></circle><circle cx="10" cy="58" r="5"></circle><circle cx="28" cy="58" r="5"></circle><circle cx="46" cy="58" r="5"></circle><circle cx="64" cy="58" r="5"></circle><circle cx="82" cy="58" r="5"></circle><circle cx="100" cy="58" r="5"></circle><circle cx="118" cy="58" r="5"></circle><circle cx="136" cy="58" r="5"></circle></g></svg></sc-if><sc-if value="{{les.sPic.share}}" hint-placeholder-val="{{ false }}"><svg width="320" height="36" viewBox="0 0 320 36" aria-hidden="true" style="display: block"><g fill="none" stroke="#C7C7CC" stroke-width="1.5"><rect x="2" y="2" width="60" height="32" rx="10"></rect><rect x="70" y="2" width="60" height="32" rx="10"></rect><rect x="138" y="2" width="60" height="32" rx="10"></rect><rect x="206" y="2" width="60" height="32" rx="10"></rect></g><g fill="#0A84FF"><circle cx="16" cy="18" r="6"></circle><circle cx="32" cy="18" r="6"></circle><circle cx="48" cy="18" r="6"></circle><circle cx="84" cy="18" r="6"></circle><circle cx="100" cy="18" r="6"></circle><circle cx="116" cy="18" r="6"></circle><circle cx="152" cy="18" r="6"></circle><circle cx="168" cy="18" r="6"></circle><circle cx="184" cy="18" r="6"></circle><circle cx="220" cy="18" r="6"></circle><circle cx="236" cy="18" r="6"></circle><circle cx="252" cy="18" r="6"></circle></g><g fill="#FF9F0A"><circle cx="290" cy="18" r="6"></circle><circle cx="308" cy="18" r="6"></circle></g></svg></sc-if></div>
+        </sc-if>
+        <sc-if value="{{les.stmtNote}}" hint-placeholder-val="{{ false }}">
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #6E6E73"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>{{les.stmtNote}}</span>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{les.stmtFold}}" hint-placeholder-val="{{ false }}">
+        <span style="font-size: 15px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{les.stmt}}</span>
+      </sc-if>
+      <button class="ph-only" onClick="{{les.toggleFold}}" aria-expanded="{{les.stmtFull}}" style="align-self: flex-start; height: 44px; margin: -6px 0 -12px; padding: 0 2px; font-size: 13px; font-weight: 600; color: #0066CC">{{les.foldLabel}}</button>
+    </div>
+    <button class="ib tip tip-bl" aria-label="Read aloud" data-tip="Read aloud" onClick="{{les.readStmt}}" style="flex: none; color: #0071E3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"></path><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+  </div>
+</sc-if>
+
 <!-- ============ Top bar ============ -->
 <sc-if value="{{showChrome}}" hint-placeholder-val="{{ true }}">
   <div class="glass {{pillCls}}" style="position: absolute; left: 16px; top: 14px; height: 48px; border-radius: 24px; padding: 2px 16px 2px 2px; box-sizing: border-box; display: flex; align-items: center; gap: 6px">
-    <button class="ib tip tip-b" aria-label="Back" data-tip="Back" onClick="{{back}}">
+    <button class="ib tip tip-b" aria-label="{{backLabel}}" data-tip="{{backLabel}}" onClick="{{back}}">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
     </button>
+    <sc-if value="{{ttlPlain}}" hint-placeholder-val="{{ true }}">
     <div class="ph-ttl" style="display: flex; flex-direction: column; line-height: 1.15">
       <span style="font-size: 14px; font-weight: 600; letter-spacing: -0.1px">{{title}}</span>
       <span style="font-size: 11.5px; color: #6E6E73">{{subtitle}}</span>
     </div>
+    </sc-if>
+    <!-- The lesson's segments are behind its title, a pop-over, not a strip on the screen (RUN.md, T155; R23 app). -->
+    <sc-if value="{{les.on}}" hint-placeholder-val="{{ false }}">
+    <button class="ph-ttl" onClick="{{les.toggleSegs}}" aria-expanded="{{les.segsOpen}}" aria-label="{{les.segsAria}}" style="height: 44px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left; line-height: 1.15">
+      <span style="font-size: 14px; font-weight: 600; letter-spacing: -0.1px">{{title}}</span>
+      <span style="display: flex; align-items: center; gap: 3px; font-size: 11.5px; color: #6E6E73">{{subtitle}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></span>
+    </button>
+    </sc-if>
   </div>
 
   <!-- The switch of canvas kinds waits for epic E11: in a lesson the kind is the module's choice (concepts 8; R148). -->
@@ -392,6 +498,13 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </span>
     </button>
     </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- The solving mode, at the task: the adult's default, and the learner's choice holds to the end of the attempt (product 4; concepts 10). -->
+  <sc-if value="{{les.modeShow}}" hint-placeholder-val="{{ false }}">
+  <div class="glass ph-mode" style="position: absolute; right: 16px; top: 14px; height: 48px; border-radius: 24px; padding: 2px; box-sizing: border-box; display: flex; align-items: center">
+    <button onClick="{{les.toggleMode}}" aria-expanded="{{les.modeOpen}}" aria-label="Mode: {{les.modeName}}" style="height: 44px; padding: 0 12px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600">{{les.modeName}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
   </div>
   </sc-if>
 </sc-if>
@@ -556,7 +669,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
           <span style="overflow: hidden; text-overflow: ellipsis">{{status.text}}</span>
         </span>
       </div>
-      <button class="ib tip tip-b" aria-label="Read aloud" data-tip="Read aloud" aria-pressed="{{voiceOn}}" onClick="{{toggleVoice}}" style="flex: none; color: {{voiceFg}}; background: {{voiceBg}}">
+      <button class="ib tip tip-b" aria-label="Voicing" data-tip="Voicing" aria-pressed="{{voiceOn}}" onClick="{{toggleVoice}}" style="flex: none; color: {{voiceFg}}; background: {{voiceBg}}">
         <sc-if value="{{voiceOn}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"></path><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></sc-if>
         <sc-if value="{{voiceOff}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg></sc-if>
       </button>
@@ -565,6 +678,56 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </button>
     </div>
     <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div>
+    <!-- "Step by step": the module's solving steps, the program's, without AI; "Step done" never reads the work (concepts 7; R05 app). -->
+    <sc-if value="{{les.stepShow}}" hint-placeholder-val="{{ false }}">
+    <div class="ph-stepcard" tabindex="0" role="region" aria-label="The step" style="flex: none; max-height: 330px; overflow-y: auto; margin: 10px 12px 0; padding: 4px 4px 12px 14px; border-radius: 18px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; align-items: center; gap: 2px">
+        <button onClick="{{les.toggleSteps}}" aria-expanded="{{les.stepsOpen}}" style="flex: 1; min-width: 0; min-height: 48px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left; line-height: 1.2">
+          <span style="display: flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 600; color: #6E6E73">{{les.stepOf}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></span>
+          <span style="font-size: 15px; font-weight: 600">{{les.step.t}}</span>
+        </button>
+        <button class="ib tip tip-bl" aria-label="Read aloud" data-tip="Read aloud" onClick="{{les.readStep}}" style="flex: none; color: #0071E3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"></path><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></button>
+      </div>
+      <sc-if value="{{les.stepsOpen}}" hint-placeholder-val="{{ false }}">
+        <div role="list" aria-label="Steps" style="display: flex; flex-direction: column; margin: -4px 8px 2px 0; padding: 4px; border-radius: 14px; background: rgba(118,118,128,0.08)">
+          <sc-for list="{{les.stepList}}" as="x" hint-placeholder-count="4">
+            <div role="listitem" style="display: flex">
+            <button onClick="{{x.go}}" disabled="{{x.off}}" aria-current="{{x.cur}}" style="flex: 1; min-height: 44px; display: flex; align-items: center; gap: 10px; padding: 4px 8px; border-radius: 10px; text-align: left; background: {{x.bg}}">
+              <span style="flex: none; width: 22px; height: 22px; border-radius: 11px; background: {{x.nb}}; color: {{x.nf}}; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{x.n}}</span>
+              <span style="flex: 1; font-size: 13.5px; font-weight: 500">{{x.t}}</span>
+              <span style="font-size: 11.5px; color: #6E6E73">{{x.cap}}</span>
+            </button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div style="margin-right: 10px; font-size: 13.5px; line-height: 1.4; color: #3A3A3C">{{les.step.d}}</div>
+      <sc-if value="{{les.giveGivens}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-right: 10px">
+          <span style="font-size: 11.5px; font-weight: 600; color: #6E6E73">What we know</span>
+          <sc-for list="{{les.givens}}" as="g" hint-placeholder-count="2">
+            <button aria-pressed="{{g.on}}" onClick="{{g.tick}}" style="min-height: 44px; padding: 8px 12px 8px 10px; border-radius: 14px; display: flex; align-items: flex-start; gap: 8px; text-align: left; font-size: 13px; line-height: 1.35; background: {{g.bg}}; box-shadow: {{g.sh}}"><span style="flex: none; width: 18px; height: 18px; border-radius: 9px; margin-top: 1px; box-shadow: {{g.ring}}; background: {{g.dot}}; display: flex; align-items: center; justify-content: center"><sc-if value="{{g.on}}" hint-placeholder-val="{{ false }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if></span>{{g.t}}</button>
+          </sc-for>
+          <span style="margin-top: 2px; font-size: 11.5px; font-weight: 600; color: #6E6E73">What to find</span>
+          <sc-for list="{{les.unknown}}" as="g" hint-placeholder-count="1">
+            <button aria-pressed="{{g.on}}" onClick="{{g.tick}}" style="min-height: 44px; padding: 8px 12px 8px 10px; border-radius: 14px; display: flex; align-items: flex-start; gap: 8px; text-align: left; font-size: 13px; line-height: 1.35; background: {{g.bg}}; box-shadow: {{g.sh}}"><span style="flex: none; width: 18px; height: 18px; border-radius: 9px; margin-top: 1px; box-shadow: {{g.ring}}; background: {{g.dot}}; display: flex; align-items: center; justify-content: center"><sc-if value="{{g.on}}" hint-placeholder-val="{{ false }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if></span>{{g.t}}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{les.giveTech}}" hint-placeholder-val="{{ false }}">
+        <span style="margin-bottom: -2px; font-size: 11.5px; font-weight: 600; color: #6E6E73">Techniques</span>
+        <div role="list" aria-label="Techniques" style="display: flex; flex-direction: column; gap: 6px; margin-right: 10px">
+          <sc-for list="{{les.techs}}" as="q" hint-placeholder-count="2">
+            <div role="listitem" style="padding: 8px 12px; border-radius: 12px; background: rgba(0,113,227,0.06)"><div style="font-size: 13px; font-weight: 600">{{q.t}}</div><div style="margin-top: 2px; font-size: 12.5px; line-height: 1.35; color: #3A3A3C">{{q.d}}</div></div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{les.exitLine}}" hint-placeholder-val="{{ false }}"><span style="margin-right: 10px; font-size: 12px; color: #6E6E73">{{les.exitLine}}</span></sc-if>
+      <sc-if value="{{les.stepDoneShow}}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{les.stepDone}}" aria-disabled="{{les.stepDoneOff}}" style="align-self: flex-start; height: 44px; padding: 0 18px; border-radius: 22px; background: {{les.sdBtn.bg}}; color: {{les.sdBtn.fg}}; font-size: 14px; font-weight: 600">Step done</button>
+      </sc-if>
+    </div>
+    </sc-if>
 
     <!-- The conversation, newest at the bottom: column-reverse keeps it scrolled down. -->
     <div tabindex="0" role="region" aria-label="Conversation" style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column-reverse; padding: 0 12px">
@@ -576,6 +739,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
           <sc-if value="{{m.isPip}}" hint-placeholder-val="{{ true }}">
             <div class="nt-in" style="align-self: flex-start; max-width: 88%; display: flex; align-items: flex-end; gap: 6px">
               <div style="padding: 9px 13px; border-radius: 18px 18px 18px 6px; background: {{m.bg}}; font-size: 14.5px; line-height: 1.38">
+                <sc-if value="{{m.isFb}}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 3px; font-size: 11.5px; font-weight: 600; color: #7A2EA8">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg>
+                    Feedback
+                  </div>
+                </sc-if>
                 <sc-if value="{{m.isHint}}" hint-placeholder-val="{{ false }}">
                   <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 3px; font-size: 11.5px; font-weight: 600; color: #9A5B00">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"></path><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"></path></svg>
@@ -604,11 +773,30 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
               </sc-if>
             </div>
           </sc-if>
+          <sc-if value="{{m.report}}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{m.doReport}}" style="align-self: flex-start; height: 44px; margin: -8px 0 -6px 2px; padding: 0 8px; border-radius: 22px; font-size: 12.5px; font-weight: 500; color: #0066CC">Report a problem</button>
+          </sc-if>
+          <sc-if value="{{m.isSol}}" hint-placeholder-val="{{ false }}">
+            <div class="nt-in" style="align-self: stretch; margin: 4px 0; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); font-size: 14px; line-height: 1.4">
+              <div style="font-size: 12px; font-weight: 600; color: #6E6E73; margin-bottom: 4px">Solution</div>
+              <sc-for list="{{m.lines}}" as="ln" hint-placeholder-count="2"><div style="margin-top: 4px">{{ln.t}}</div></sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{m.isCrit}}" hint-placeholder-val="{{ false }}">
+            <div class="nt-in" style="align-self: stretch; margin: 4px 0; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)">
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #7A2EA8; margin-bottom: 6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path><path d="M12 7.6l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z"></path></svg>Feedback by criteria</div>
+              <sc-for list="{{m.crit}}" as="cr" hint-placeholder-count="3">
+                <div style="display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-top: 0.5px solid rgba(0,0,0,0.06); font-size: 13px; line-height: 1.35"><span style="flex: 1">{{cr.t}}</span><span style="flex: none; font-weight: 600; color: {{cr.fg}}">{{cr.w}}</span></div>
+              </sc-for>
+              <div style="margin-top: 4px; font-size: 11.5px; line-height: 1.35; color: #6E6E73">Marks by the author’s criteria, not a verdict.</div>
+            </div>
+          </sc-if>
           <sc-if value="{{m.isRes}}" hint-placeholder-val="{{ false }}">
             <div class="nt-in" style="align-self: center; max-width: 94%; display: flex; align-items: center; gap: 8px; margin: 4px 0; padding: 7px 12px 7px 8px; border-radius: 14px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)">
               <span style="flex: none; width: 22px; height: 22px; border-radius: 11px; background: {{m.dotBg}}; color: {{m.dotFg}}; display: flex; align-items: center; justify-content: center">
                 <sc-if value="{{m.rOk}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
                 <sc-if value="{{m.rNo}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M12 6v8M12 18v.5"></path></svg></sc-if>
+                <sc-if value="{{m.rShown}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M7 8h10M7 12h10M7 16h6"></path></svg></sc-if>
                 <sc-if value="{{m.rInfo}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"></path></svg></sc-if>
                 <sc-if value="{{m.rDone}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"></path></svg></sc-if>
               </span>
@@ -627,6 +815,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
               <span class="nt-dot" style="width: 6px; height: 6px; border-radius: 3px; background: #8E8E93; animation-delay: 0.3s"></span>
             </span>
             <sc-if value="{{readingShow}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #6E6E73">Reading your work</span></sc-if>
+            <sc-if value="{{writingShow}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #6E6E73">The tutor is writing…</span></sc-if>
           </div>
         </sc-if>
       </div>
@@ -677,6 +866,170 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     </div>
     </sc-if>
   </div>
+</sc-if>
+
+<!-- ============ A lesson: the row, the step, the pop-overs (RUN.md, T155) ============ -->
+<sc-if value="{{les.any}}" hint-placeholder-val="{{ false }}">
+  <!-- The step while the tutor's panel is closed: a small pill above the row; a tap opens the panel. -->
+  <sc-if value="{{les.pillShow}}" hint-placeholder-val="{{ false }}">
+    <div class="glass nt-up ph-verdict" style="position: absolute; left: {{les.rowX}}px; bottom: {{les.above}}px; transform: translateX(-50%); border-radius: 26px; padding: 4px; box-sizing: border-box; display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.92); white-space: nowrap">
+      <button onClick="{{openChat}}" aria-label="{{les.stepOf}}: {{les.step.t}}. Open the tutor" style="flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0 12px; border-radius: 22px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left; line-height: 1.2">
+        <span style="font-size: 11.5px; font-weight: 600; color: #6E6E73">{{les.stepOf}}</span>
+        <span style="max-width: 100%; font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis">{{les.step.t}}</span>
+      </button>
+      <sc-if value="{{les.stepDoneShow}}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{les.stepDone}}" aria-disabled="{{les.stepDoneOff}}" style="flex: none; height: 44px; padding: 0 16px; border-radius: 22px; background: {{les.sdBtn.bg2}}; color: {{les.sdBtn.fg2}}; font-size: 14px; font-weight: 600">Step done</button>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <div class="glass ph-row {{barCls}}" style="position: absolute; left: {{les.rowX}}px; bottom: 16px; transform: translateX(-50%); height: 56px; border-radius: 28px; padding: 6px; box-sizing: border-box; display: flex; align-items: center; gap: 4px; white-space: nowrap">
+    <sc-if value="{{les.rowExpl}}" hint-placeholder-val="{{ false }}"><button onClick="{{les.cont}}" style="height: 44px; padding: 0 18px 0 22px; border-radius: 22px; background: #0071E3; color: #FFFFFF; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600">Continue<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M13 8.5l3.5 3.5-3.5 3.5"></path></svg></button></sc-if>
+    <!-- "Next" and "Demo" are the element's own buttons of canvas, beside "Continue" of app (R42 canvas; R90). -->
+    <sc-if value="{{les.rowEx}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{les.demoNext}}" disabled="{{les.demoNextOff}}" style="height: 44px; padding: 0 14px 0 12px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; opacity: {{les.demoNextOp}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>Next</button>
+      <button onClick="{{les.demoToggle}}" aria-expanded="{{les.demoOpen}}" style="height: 44px; padding: 0 14px 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 500"><sc-if value="{{les.demoOpen}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></sc-if><sc-if value="{{les.demoShut}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></sc-if>Demo</button>
+      <div class="ph-rowsep" style="width: 1px; height: 24px; background: rgba(0,0,0,0.1); margin: 0 4px"></div>
+      <button onClick="{{les.cont}}" style="height: 44px; padding: 0 18px 0 22px; border-radius: 22px; background: #0071E3; color: #FFFFFF; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600">Continue<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M13 8.5l3.5 3.5-3.5 3.5"></path></svg></button>
+    </sc-if>
+    <sc-if value="{{les.rowTask}}" hint-placeholder-val="{{ false }}">
+      <!-- Hint always stands beside Check (R22 app). The options of a choice are behind a button, a pop-over (RUN.md, T155). -->
+      <sc-if value="{{les.hasChoice}}" hint-placeholder-val="{{ false }}">
+        <button class="ph-rowfull" onClick="{{les.toggleChoice}}" aria-expanded="{{les.choiceOpen}}" aria-label="{{les.choiceAria}}" style="height: 44px; max-width: 250px; padding: 0 12px 0 14px; border-radius: 22px; background: rgba(118,118,128,0.10); display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500">
+          <sc-if value="{{les.choiceOk}}" hint-placeholder-val="{{ false }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#248A3D" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+          <sc-if value="{{les.choiceNo}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 7px; height: 7px; border-radius: 4px; background: #C93400"></span></sc-if>
+          <span style="min-width: 0; overflow: hidden; text-overflow: ellipsis">{{les.choiceLabel}}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+        </button>
+      </sc-if>
+      <button onClick="{{askHint}}" style="height: 44px; padding: 0 14px 0 12px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"></path><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"></path></svg>Hint</button>
+      <sc-if value="{{les.solBtn}}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{les.askSol}}" aria-expanded="{{les.solAsk}}" style="height: 44px; padding: 0 12px; border-radius: 22px; font-size: 14px; font-weight: 500; color: #0066CC">Show the solution</button>
+      </sc-if>
+      <!-- An essay with a rubric ends by the learner's "Done", after at least one submission; it has no solution to show (R87; concepts 5). -->
+      <sc-if value="{{les.doneBtn}}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{les.essayDone}}" aria-disabled="{{les.doneOff}}" style="height: 44px; padding: 0 16px; border-radius: 22px; font-size: 14px; font-weight: 600; color: {{les.doneFg}}">Done</button>
+      </sc-if>
+      <div class="ph-rowsep" style="width: 1px; height: 24px; background: rgba(0,0,0,0.1); margin: 0 4px"></div>
+      <button onClick="{{les.check}}" aria-disabled="{{les.checkOff}}" style="height: 44px; padding: 0 22px; border-radius: 22px; background: {{les.checkBg}}; color: {{les.checkFg}}; font-size: 14px; font-weight: 600">Check</button>
+    </sc-if>
+    <sc-if value="{{les.rowCont}}" hint-placeholder-val="{{ false }}"><button onClick="{{les.cont}}" style="height: 44px; padding: 0 18px 0 22px; border-radius: 22px; background: #0071E3; color: #FFFFFF; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600">Continue<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M13 8.5l3.5 3.5-3.5 3.5"></path></svg></button></sc-if>
+  </div>
+
+  <sc-if value="{{les.choiceOpen}}" hint-placeholder-val="{{ false }}">
+    <button class="ph-scrim" aria-label="Close" onClick="{{les.toggleChoice}}" style="position: absolute; inset: 0; cursor: default"></button>
+    <div class="glass nt-pop ph-sheet ph-sheetx" role="radiogroup" aria-label="Choose an answer" style="position: absolute; left: {{les.popL}}px; bottom: {{les.above}}px; width: 400px; border-radius: 20px; padding: 12px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 4px">
+      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{les.toggleChoice}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <span style="padding: 2px 6px 6px; font-size: 13px; font-weight: 600">Choose an answer</span>
+      <sc-for list="{{les.options}}" as="o" hint-placeholder-count="4">
+        <button class="row" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="width: 100%; min-height: 48px; padding: 8px 10px; border-radius: 12px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; text-align: left; background: {{o.bg}}">
+          <span style="flex: none; width: 22px; height: 22px; border-radius: 11px; box-shadow: {{o.ring}}; background: {{o.dot}}; display: flex; align-items: center; justify-content: center"><sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><span style="width: 8px; height: 8px; border-radius: 4px; background: #FFFFFF"></span></sc-if></span>
+          <span style="flex: 1; font-size: 15px; line-height: 1.35">{{o.t}}</span>
+          <sc-if value="{{o.ok}}" hint-placeholder-val="{{ false }}"><span style="flex: none; display: flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; color: #1E7A35"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#248A3D" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Correct</span></sc-if>
+          <sc-if value="{{o.no}}" hint-placeholder-val="{{ false }}"><span style="flex: none; display: flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600; color: #C93400"><span style="width: 7px; height: 7px; border-radius: 4px; background: #C93400"></span>Not yet</span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- "Show the solution" asks first: once shown, the task is over (R82; R22 app). -->
+  <sc-if value="{{les.solAsk}}" hint-placeholder-val="{{ false }}">
+    <button class="ph-scrim" aria-label="Close" onClick="{{les.solCancel}}" style="position: absolute; inset: 0; cursor: default"></button>
+    <div class="glass nt-pop ph-sheet ph-sheetx" role="dialog" aria-label="Show the solution" style="position: absolute; left: {{les.popL2}}px; bottom: {{les.above}}px; width: 340px; border-radius: 20px; padding: 16px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 12px">
+      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{les.solCancel}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <span style="font-size: 15px; font-weight: 600; line-height: 1.3">Once the solution is shown, the task is over</span>
+      <div style="display: flex; gap: 8px; justify-content: flex-end">
+        <button onClick="{{les.solCancel}}" style="height: 44px; padding: 0 16px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0071E3">Cancel</button>
+        <button onClick="{{les.showSol}}" style="height: 44px; padding: 0 18px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 14px; font-weight: 600">Show it</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{les.modeOpen}}" hint-placeholder-val="{{ false }}">
+    <button class="ph-scrim" aria-label="Close" onClick="{{les.toggleMode}}" style="position: absolute; inset: 0; cursor: default"></button>
+    <div class="glass nt-pop ph-sheet ph-sheetx" style="position: absolute; right: 16px; top: 68px; width: 300px; border-radius: 20px; padding: 12px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 6px">
+      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{les.toggleMode}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <button onClick="{{les.modeSteps}}" aria-pressed="{{les.mSteps.on}}" style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 14px; text-align: left; background: {{les.mSteps.bg}}; box-shadow: {{les.mSteps.sh}}">
+        <span style="font-size: 14px; font-weight: 600">Step by step</span>
+        <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">The task’s steps, one at a time, in the tutor’s panel</span>
+      </button>
+      <button onClick="{{les.modeOwn}}" aria-pressed="{{les.mOwn.on}}" style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 14px; text-align: left; background: {{les.mOwn.bg}}; box-shadow: {{les.mOwn.sh}}">
+        <span style="font-size: 14px; font-weight: 600">On my own</span>
+        <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">The tutor waits until called</span>
+      </button>
+      <span style="padding: 2px 4px 0; font-size: 11.5px; line-height: 1.35; color: #6E6E73">For this task. A grown-up sets which one a task starts with.</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{les.segsOpen}}" hint-placeholder-val="{{ false }}">
+    <button class="ph-scrim" aria-label="Close" onClick="{{les.toggleSegs}}" style="position: absolute; inset: 0; cursor: default"></button>
+    <div class="glass nt-pop ph-sheet ph-sheetx" style="position: absolute; left: 16px; top: 68px; width: 340px; border-radius: 20px; padding: 12px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 4px; transform-origin: top left">
+      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{les.toggleSegs}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <span style="padding: 2px 8px 6px; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 13px; font-weight: 600">{{title}}</span><span style="font-size: 12px; color: #6E6E73">{{les.modName}}</span></span>
+      <nav aria-label="Segments of the lesson" style="display: flex; flex-direction: column; gap: 2px">
+        <sc-for list="{{les.segRows}}" as="r" hint-placeholder-count="4">
+          <button class="row" onClick="{{r.go}}" aria-disabled="{{r.off}}" aria-label="{{r.lab}}" aria-current="{{r.cur}}" style="width: 100%; min-height: 52px; padding: 6px 8px; border-radius: 12px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; text-align: left; background: {{r.bg}}">
+            <span style="flex: none; width: 26px; height: 26px; border-radius: 13px; background: {{r.nb}}; color: {{r.nf}}; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center"><sc-if value="{{r.passed}}" hint-placeholder-val="{{ false }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if><sc-if value="{{r.notPassed}}" hint-placeholder-val="{{ true }}">{{r.n}}</sc-if></span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2">
+              <span style="font-size: 13.5px; font-weight: 500; color: {{r.fg}}">{{r.kind}} · {{r.t}}</span>
+              <span style="font-size: 11.5px; color: #6E6E73">{{r.cap}}</span>
+            </span>
+          </button>
+        </sc-for>
+      </nav>
+      <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 4px 8px"></div>
+      <button class="row" onClick="{{back}}" style="width: 100%; height: 44px; padding: 0 8px; border-radius: 12px; display: flex; align-items: center; font-size: 14px; font-weight: 500; color: #0066CC">Leave the lesson</button>
+      <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 4px 8px"></div>
+      <!-- DEMO: the quota's end, to see its lines. In the app the quota is GetQuota's (R98). -->
+      <button role="switch" aria-checked="{{les.quotaOut}}" onClick="{{les.toggleQuota}}" style="min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 4px 4px 4px 8px; text-align: left">
+        <span style="flex: none; padding: 2px 6px; border-radius: 6px; background: rgba(118,118,128,0.14); font-size: 10.5px; font-weight: 700; color: #3A3A3C">DEMO</span>
+        <span style="flex: 1; font-size: 13.5px; font-weight: 500">Tutor time used up</span>
+        <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{les.qsw.bg}}; transition: background 0.2s"><span style="position: absolute; top: 2px; left: {{les.qsw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: left 0.2s"></span></span>
+      </button>
+    </div>
+  </sc-if>
+
+  <!-- "Report a problem" with the tutor's words: the operator reviews it (R136; R33 app). Names are not written in it. -->
+  <sc-if value="{{les.reportOpen}}" hint-placeholder-val="{{ false }}">
+    <button class="ph-scrim" aria-label="Close" onClick="{{les.reportCancel}}" style="position: absolute; inset: 0; cursor: default; background: rgba(0,0,0,0.18)"></button>
+    <div class="glass nt-pop ph-sheet ph-sheetx ph-report" role="dialog" aria-label="Report a problem with these words" style="position: absolute; left: 50%; top: 40px; width: 440px; margin-left: -220px; max-height: 760px; overflow-y: auto; border-radius: 20px; padding: 18px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 8px; transform-origin: 50% 0">
+      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{les.reportCancel}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <span style="font-size: 17px; font-weight: 700">Report a problem with these words</span>
+      <div style="padding: 10px 12px; border-radius: 12px; background: rgba(118,118,128,0.10); font-size: 13.5px; line-height: 1.4; color: #3A3A3C">{{les.reportWords}}</div>
+      <span style="font-size: 11.5px; color: #6E6E73">The tutor’s words above go with the report, as the app showed them.</span>
+      <div role="radiogroup" aria-label="What is wrong with the words?" style="display: flex; flex-direction: column">
+        <span style="padding: 6px 0 2px; font-size: 13px; font-weight: 600">What is wrong with the words?</span>
+        <sc-for list="{{les.kinds}}" as="o" hint-placeholder-count="6">
+          <button class="row" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="min-height: 44px; padding: 4px 6px; border-radius: 10px; display: flex; align-items: center; gap: 10px; text-align: left; font-size: 14px">
+            <span style="flex: none; width: 20px; height: 20px; border-radius: 10px; box-shadow: {{o.ring}}; background: {{o.dot}}; display: flex; align-items: center; justify-content: center"><sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><span style="width: 7px; height: 7px; border-radius: 4px; background: #FFFFFF"></span></sc-if></span>{{o.t}}
+          </button>
+        </sc-for>
+        <sc-if value="{{les.reportErr}}" hint-placeholder-val="{{ false }}"><span role="alert" style="padding: 2px 0; font-size: 12.5px; font-weight: 500; color: #C93400">Choose what is wrong</span></sc-if>
+      </div>
+      <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">What else to say, if anything
+        <textarea rows="3" style="font: inherit; font-size: 14px; font-weight: 400; padding: 10px 12px; border: 0; border-radius: 12px; background: rgba(118,118,128,0.10); resize: none; user-select: text; -webkit-user-select: text"></textarea>
+      </label>
+      <span style="font-size: 11.5px; line-height: 1.35; color: #6E6E73">Up to 1000 characters. Please write no names in it, yours or anyone else’s: the report keeps it as it is written.</span>
+      <span style="font-size: 11.5px; line-height: 1.35; color: #6E6E73">If anyone is in danger now, call your country’s emergency number: don’t wait for the review.</span>
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px">
+        <button onClick="{{les.reportCancel}}" style="height: 44px; padding: 0 16px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0071E3">Cancel</button>
+        <button onClick="{{les.reportSend}}" aria-disabled="{{les.sendOff}}" style="height: 44px; padding: 0 20px; border-radius: 22px; background: {{les.sendBtn.bg}}; color: {{les.sendBtn.fg}}; font-size: 14px; font-weight: 600">Send</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- The end of the lesson: its title and "Lesson complete", and what the engine chose; no score (R06 app). -->
+  <sc-if value="{{les.end}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: #F2F2F7">
+      <div class="ph-endcard nt-pop" role="region" aria-label="Lesson complete" style="position: absolute; left: 50%; top: 50%; width: 460px; margin-left: -230px; transform: translateY(-50%); border-radius: 28px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 16px 44px rgba(0,0,0,0.08); padding: 32px 28px 24px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px">
+        <span style="width: 64px; height: 64px; border-radius: 18px; background: {{les.modColor}}; color: #FFFFFF; font-family: 'SF Pro Display', -apple-system, system-ui, sans-serif; font-size: 28px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{les.modGlyph}}</span>
+        <span style="margin-top: 12px; font-size: 13px; color: #6E6E73">{{les.modName}}</span>
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px">{{title}}</h1>
+        <span style="margin-top: 6px; display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 600; color: #1E7A35"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"></path></svg>Lesson complete</span>
+        <button onClick="{{les.nextLesson}}" style="margin-top: 22px; align-self: stretch; height: 52px; border-radius: 14px; background: #0071E3; color: #FFFFFF; font-size: 16px; font-weight: 600">Next lesson</button>
+        <button onClick="{{les.toHome}}" style="align-self: stretch; height: 48px; border-radius: 14px; font-size: 15px; font-weight: 600; color: #0071E3">Back to My subjects</button>
+      </div>
+    </div>
+  </sc-if>
 </sc-if>
 
 <!-- ============ Pick: the tasks to solve ============ -->
@@ -735,25 +1088,30 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <div style="width: 1px; height: 24px; background: rgba(0,0,0,0.1); margin: 0 4px"></div>
     <button onClick="{{check}}" style="height: 44px; padding: 0 22px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 14px; font-weight: 600">Check</button>
   </div>
+</sc-if>
 
+<!-- The program's verdict: a card while the tutor's panel is closed, and a line in it while it is open (R148). -->
   <sc-if value="{{vShow}}" hint-placeholder-val="{{ false }}">
-    <div class="glass nt-up ph-verdict" style="position: absolute; left: 50%; bottom: 86px; transform: translateX(-50%); width: 460px; border-radius: 22px; padding: 12px 12px 12px 14px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.92)">
+    <div class="glass nt-up ph-verdict" style="position: absolute; left: {{vX}}; bottom: {{vB}}px; transform: translateX(-50%); width: 460px; border-radius: 22px; padding: 12px 12px 12px 14px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.92)">
       <sc-if value="{{vOk}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 36px; height: 36px; border-radius: 18px; background: #248A3D; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></sc-if>
       <sc-if value="{{vNo}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 36px; height: 36px; border-radius: 18px; background: #C93400; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M12 6v8M12 18v.5"></path></svg></span></sc-if>
       <sc-if value="{{vInfo}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 36px; height: 36px; border-radius: 18px; background: rgba(0,113,227,0.12); color: #0071E3; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"></path></svg></span></sc-if>
       <sc-if value="{{vReading}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center"><span class="nt-spin" style="width: 22px; height: 22px; border-radius: 11px; border: 2.5px solid rgba(0,113,227,0.18); border-top-color: #0071E3; box-sizing: border-box"></span></span></sc-if>
+      <sc-if value="{{vFb}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 36px; height: 36px; border-radius: 18px; background: rgba(175,82,222,0.14); color: #7A2EA8; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg></span></sc-if>
+      <sc-if value="{{vShown}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 36px; height: 36px; border-radius: 18px; background: rgba(118,118,128,0.14); color: #3A3A3C; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3.5h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 19V5A1.5 1.5 0 0 1 7 3.5z"></path><path d="M8.5 12h7M8.5 15.5h5"></path></svg></span></sc-if>
       <sc-if value="{{vDone}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 36px; height: 36px; border-radius: 18px; background: #248A3D; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"></path></svg></span></sc-if>
       <div class="ph-vtext" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
         <span style="font-size: 15px; font-weight: 600">{{vTitle}}</span>
         <span style="font-size: 13px; line-height: 1.35; color: #6E6E73">{{vLine}}</span>
       </div>
-      <sc-if value="{{vOk}}" hint-placeholder-val="{{ false }}"><button onClick="{{next}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 14px; font-weight: 600">Next</button></sc-if>
+      <sc-if value="{{vNext}}" hint-placeholder-val="{{ false }}"><button onClick="{{next}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 14px; font-weight: 600">Next</button></sc-if>
       <sc-if value="{{vNo}}" hint-placeholder-val="{{ false }}"><button onClick="{{askHint}}" style="height: 44px; padding: 0 14px; border-radius: 22px; color: #0071E3; font-size: 14px; font-weight: 600">Hint</button><button onClick="{{dismiss}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 14px; font-weight: 600">Try again</button></sc-if>
       <sc-if value="{{vInfo}}" hint-placeholder-val="{{ false }}"><button onClick="{{dismiss}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 14px; font-weight: 600">OK</button></sc-if>
       <sc-if value="{{vDone}}" hint-placeholder-val="{{ false }}"><button onClick="{{retake}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 14px; font-weight: 600">New photo</button></sc-if>
+      <sc-if value="{{vCont}}" hint-placeholder-val="{{ false }}"><button onClick="{{les.cont}}" style="height: 44px; padding: 0 18px 0 22px; border-radius: 22px; background: #0071E3; color: #FFFFFF; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600">Continue<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M13 8.5l3.5 3.5-3.5 3.5"></path></svg></button></sc-if>
+      <sc-if value="{{vFb}}" hint-placeholder-val="{{ false }}"><button onClick="{{les.essayDone}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 14px; font-weight: 600">Done</button></sc-if>
     </div>
   </sc-if>
-</sc-if>
 
 <sc-if value="{{flash}}" hint-placeholder-val="{{ false }}">
   <div class="nt-flash" style="position: absolute; inset: 0; background: #FFFFFF; pointer-events: none"></div>
@@ -1042,7 +1400,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <div class="ph-nexttext" style="position: absolute; left: 26px; top: 24px; width: 300px; display: flex; flex-direction: column">
       <span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #A85A00"><span style="width: 8px; height: 8px; border-radius: 4px; background: #FF9F0A"></span>Next up · Olympiad maths 1–6</span>
       <span style="margin-top: 8px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px">Number patterns</span>
-      <span style="margin-top: 4px; font-size: 14px; color: #6E6E73">Lesson 3 · six tasks</span>
+      <span style="margin-top: 4px; font-size: 14px; color: #6E6E73">Lesson 3 · two tasks</span>
       <button onClick="{{continueNext}}" style="align-self: flex-start; margin-top: 22px; height: 44px; padding: 0 22px 0 24px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px">Continue<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
     </div>
     <!-- The quota: the share of today's that this profile has spent, as GetQuota gives it — never a number of calls (R98; R148). -->
@@ -1372,6 +1730,95 @@ const ADD_STEPS = [
 ];
 const WAVE = [8, 14, 20, 12, 18, 10, 22, 16, 9, 19, 13, 21, 11, 17, 8, 15].map((h, i) => ({ h, d: -(i * 0.11).toFixed(2) }));
 
+// ---- The lessons of the first slice, one of each module (product 10; R41; RUN.md, T155). Synthetic: written in the style
+// of the modules, not taken from them. A key (key, right) is only ever compared with; the demo's first Check of a task
+// is "Not yet" and the second "Correct", so that every part shows. The words of the rungs (rungs, alts) and the praise
+// stand for what the AI words; the hint before the first wrong answer — the givens, the techniques, the leading question — is the module's.
+const KINDS = { explanation: 'Explanation', example: 'Worked example', task: 'Task' };
+const POLYA = [
+  { t: 'Understand the task', d: 'Read the task again, and tick what is known and what you are to find.', gives: 'givens', exit: 'givens' },
+  { t: 'Make a plan', d: 'Choose how to go about it. A technique may help.', gives: 'techniques', exit: 'none' },
+  { t: 'Solve it', d: 'Carry out the plan, and give the answer.', exit: 'slots' },
+  { t: 'Check the answer', d: 'Put your answer back into the task, and see whether everything fits.', exit: 'none' }
+];
+const WB_STEPS = [
+  { t: 'Fill in the boxes', d: 'Write the quotient and the remainder in the boxes of each line.', exit: 'slots' },
+  { t: 'Check each line', d: 'Multiply back, and add what is left over.', gives: 'techniques', exit: 'none' }
+];
+const ESSAY_STEPS = [
+  { t: 'Plan the essay', d: 'Think what each sentence is to do before you write it.', gives: 'techniques', exit: 'none' },
+  { t: 'Write it', d: 'Write on the lines, in your own words.', exit: 'none' },
+  { t: 'Read it again', d: 'Read it as a reader would, and mend what trips you.', exit: 'none' }
+];
+const LESSONS = {
+  'Olympiad maths 1–6': { title: 'Number patterns', steps: POLYA, segs: [
+    { k: 'explanation', title: 'Patterns that grow', alt: 'Three figures of squares: 1 square, then 3, then 5.', pic: 'stairs',
+      paras: ['Some rows of numbers grow by the same amount each time: 1, 3, 5, 7, … grows by 2.', 'To find a number far along the row, you need not write them all. Count the steps from the first number, and add the same amount once for each step.'],
+      list: ['Find what is added each time.', 'Count the steps from the first number.', 'Add the amount once for every step.'] },
+    { k: 'example', title: 'Squares of matches', canvas: 'squares', statement: 'One square takes 4 matches. Two squares in a row take 7, and three take 10. How many matches do 6 squares in a row take?',
+      parts: ['Each new square adds 3 matches: it shares a side with the one before.', 'From 1 square to 6 squares there are 5 steps.', '4 + 5 × 3 = 19.', 'Answer: 19 matches.'] },
+    { k: 'task', title: 'Dots in rows', canvas: 'squares', pic: 'dots', alt: 'Three rows of dots: 2 dots, then 5, then 8.',
+      statement: 'Row 1 has 2 dots, row 2 has 5 dots, and row 3 has 8 dots: each row has 3 more dots than the row before. How many dots are there in row 10?',
+      givens: ['Row 1 has 2 dots.', 'Each row has 3 more dots than the row before.'], unknown: 'How many dots there are in row 10.',
+      techs: [['Make a table', 'Write the rows and their dots in two lines, and look at how they change.'], ['Look for a pattern', 'Find what stays the same from one row to the next.']],
+      lead: 'How many steps of 3 are there from row 1 to row 10?', wrong: '32', right: '29',
+      rungs: ['Count the steps again: from row 1 to row 10, how many times are 3 dots added?', 'Is the number of steps the same as the number of the row?', 'Try a smaller case: how many dots are in row 3, and how many steps of 3 led there?'],
+      alts: ['Write rows 1 to 4 and their dots in a table. By row 4, how many 3s have been added?', 'Row 1 already has its 2 dots. Which rows add 3 more?', 'Draw rows 1, 2 and 3. Which of them have new dots?'],
+      praise: 'Right: 9 steps of 3 after the first 2. Which helped — the table, or the pattern?',
+      solution: ['From row 1 to row 10 there are 9 steps.', 'Each step adds 3 dots: 2 + 9 × 3 = 29.', 'Row 10 has 29 dots.'] },
+    { k: 'task', title: 'Which comes next', canvas: 'squares', statement: 'Which number comes next: 1, 4, 9, 16, …?', options: ['20', '24', '25', '36'], key: 2,
+      givens: ['The numbers are 1, 4, 9 and 16.'], unknown: 'The number that comes after 16.',
+      techs: [['Look for a pattern', 'Find what stays the same from one number to the next.'], ['Start with small numbers', 'See what 1, 2 and 3 do, then go on.']],
+      lead: 'What is added each time: 3, then 5, then …?',
+      rungs: ['Look at the steps between the numbers: 4 − 1, 9 − 4, 16 − 9. What do you see?', 'The steps are 3, 5 and 7. What would the next step be?', 'Try small numbers: what are 1 × 1, 2 × 2 and 3 × 3?'],
+      alts: ['Write the numbers in a row, and the differences under them. What comes next under them?', 'Each step grows by the same amount. By how much?', 'Draw 1, 4 and 9 as squares of dots. What is the next square?'],
+      praise: 'Right: 5 × 5 = 25. Which helped — the steps, or the squares?',
+      solution: ['The steps grow by 2 each time: 3, 5, 7, so the next step is 9.', '16 + 9 = 25. The numbers are 1 × 1, 2 × 2, 3 × 3, 4 × 4, and then 5 × 5.'] }
+  ] },
+  'School maths · grade 3': { title: 'Division with a remainder', steps: WB_STEPS, segs: [
+    { k: 'explanation', title: 'Sharing with some left over', pic: 'share', alt: '14 dots: four groups of 3, and 2 dots left over.',
+      paras: ['Not every number shares out exactly. When it does not, some is left over: that is the remainder.', '14 sweets shared among 4 friends: each gets 3, and 2 are left. We write 14 ÷ 4 = 3 r 2.'],
+      list: ['Find the biggest times-table number that fits.', 'Take it away: what is left is the remainder.', 'The remainder is always smaller than the number you divide by.'] },
+    { k: 'example', title: 'Two lines worked out', canvas: 'workbook', statement: 'Divide, and write the quotient and the remainder.',
+      lines: [{ a: '26 ÷ 3 =', v: ['8', '2'] }, { a: '34 ÷ 6 =', v: ['5', '4'] }],
+      parts: [{ t: '3 × 8 = 24 is the closest to 26 without going over.', fill: [[0, 0]] }, { t: '26 − 24 = 2 is left over.', fill: [[0, 1]] }, { t: '6 × 5 = 30, and 34 − 30 = 4.', fill: [[1, 0], [1, 1]] }] },
+    { k: 'task', title: 'Remainders', canvas: 'workbook', statement: 'Divide, and write the quotient and the remainder.',
+      lines: [{ a: '47 ÷ 6 =', ok: '7 r 5' }, { a: '38 ÷ 5 =', ok: '7 r 3', bad: '6 r 8', boxes: [0, 1] }, { a: '29 ÷ 4 =', ok: '7 r 1' }, { a: '52 ÷ 7 =', ok: '7 r 3' }, { a: '44 ÷ 9 =', ok: '4 r 8', bad: '4 r 7', boxes: [1] }, { a: '33 ÷ 8 =', ok: '4 r 1' }],
+      techs: [['Count up in steps', 'Say the times table of the number until you pass the number you divide.'], ['Undo it', 'To check a division, multiply back and add what is left over.']],
+      lead: 'Which number of the 6 times table is closest to 47 without going over?',
+      rungs: ['Look at line 2: is the remainder smaller than 5?', 'A remainder is always smaller than the number you divide by. Which lines break that?', 'Try 38 ÷ 5 with counters: how many fives fit into 38?'],
+      alts: ['In line 2, could one more 5 fit into what is left?', 'Multiply back in line 5: does 9 × 4 + 7 make 44?', 'Count up in fives: 5, 10, 15, … How far do you get before 38?'],
+      praise: 'Every line fits. Which helped — counting up in steps, or undoing it?',
+      solution: ['38 ÷ 5: 5 × 7 = 35, and 38 − 35 = 3, so 7 r 3.', '44 ÷ 9: 9 × 4 = 36, and 44 − 36 = 8, so 4 r 8.', 'Each remainder is smaller than the number you divide by.'] }
+  ] },
+  'Short essays': { title: 'First sentences', steps: ESSAY_STEPS, segs: [
+    { k: 'explanation', title: 'The first sentence',
+      paras: ['The first sentence of an essay makes a reader want to go on — or not.', 'A good one starts where something is already happening, or leaves the reader with a question they want answered.'],
+      list: ['Start in the middle of something.', 'Leave the reader with a question.', 'Leave out “This essay is about…”.'] },
+    { k: 'task', title: 'The best first sentence', canvas: 'lined', statement: 'Which first sentence makes a reader want to go on?',
+      options: ['It was an ordinary Tuesday.', 'The lift stopped between two floors, and the lights went out.', 'This essay is about a lift.'], key: 1,
+      steps: [{ t: 'Read each sentence', d: 'Read each one as a reader would, and ask what it makes you want to know.', gives: 'techniques', exit: 'none' }, { t: 'Choose one', d: 'Choose the sentence that makes you want to read on.', exit: 'slots' }],
+      techs: [['Start in the middle', 'Begin where something is already happening, and let the reader catch up.']],
+      lead: 'Which sentence makes you ask “What happens next?”',
+      rungs: ['Read each sentence: which one leaves a question in your head?', 'Which sentence starts in the middle of something happening?', 'Picture each sentence as the first line of a film. Which would you watch on?'],
+      alts: ['Which sentence tells you something you want to know more about?', 'Which one could not be the start of any day at all?', 'Cover the other two. Which one alone pulls you in?'],
+      praise: 'Right: it starts in the middle of the story. What question does it leave?',
+      solution: ['“The lift stopped between two floors, and the lights went out.” starts where something is already happening.', 'The other two tell the reader nothing they want to know more about.'] },
+    { k: 'task', title: 'The talking umbrella', canvas: 'lined', rubric: true, note: 'Write no names — yours or anyone else’s.',
+      statement: 'A shop sells an umbrella that can talk, but only when it rains. Write three different first sentences for an essay about it. Then put a ring round the one you would keep.',
+      techs: [['Start in the middle', 'Begin where something is already happening, and let the reader catch up.'], ['Read it aloud', 'Hear where a sentence trips, and mend it.']],
+      lead: 'Which of your three sentences would make you read on?',
+      feedback: '“The umbrella cleared its throat” makes a reader want to know why. The other two tell what happens before it happens. Which one did you ring?',
+      criteria: [['Three different first sentences', 'met'], ['Each makes a reader want to go on', 'not_met'], ['One sentence is ringed', 'not_assessed']] }
+  ] }
+};
+const MARK = { met: ['Met', '#1E7A35'], not_met: ['Not met', '#C93400'], not_assessed: ['Not assessed', '#6E6E73'] };
+// The kinds of a report on the tutor's words (R136; AttemptService.ReportProblem).
+const REPORT_KINDS = ['Wrong', 'Unclear', 'Not right for the learner’s age', 'Harmful, dangerous or upsetting', 'Asks about something personal, or talks of it', 'Something else'];
+// The quota's end, in app's words (api.quota-tomorrow, quota.reached); the time is the next family day's (R98).
+const QUOTA_LINE = 'Today’s tutor time is used up. It comes back tomorrow at 08:00';
+const QUOTA_READ = 'Today’s tutor time is used up: until it renews, the platform’s AI checks no work of this profile';
+
 function toD(pts) {
   const f = (n) => Math.round(n * 10) / 10;
   if (pts.length === 1) return 'M' + f(pts[0][0]) + ' ' + f(pts[0][1]) + ' l0.1 0';
@@ -1398,7 +1845,11 @@ class Component extends DCLogic {
     slice: 'first', ownerName: '', ownerAvatar: null, ownerCountry: null, avatarOpen: false, countryOpen: false,
     view: { z: 1, x: 0, y: 0 }, finger: true, panning: false,
     // The phone's own: the legend of home as a sheet, and the tutor's sheet over the whole screen.
-    legendOpen: false, tutorFull: false };
+    legendOpen: false, tutorFull: false,
+    // A lesson (RUN.md, T155): the segment shown and the place reached, the demo, the solving mode and step, and each task's attempt.
+    seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {},
+    picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, choiceOpen: false, solAsk: false, segsOpen: false, fold: false,
+    report: null, reportKind: null, reportErr: false, reported: {}, quotaOut: false, inkN: {} };
   ink = null;
   timers = [];
   mid = 1;
@@ -1417,7 +1868,18 @@ class Component extends DCLogic {
   // ---- The tutor, Pip. It lives in the app, not in a canvas: the same button and panel on every canvas.
   // Its replies are the hint ladder's rung (one question), the same rung in other words (R82), or fixed texts;
   // it never names the answer. Every verdict comes from the program and lands in the conversation too.
-  tutorHere(st) { return st.screen === 'canvas' && (st.surface !== 'paper' || st.stage === 'solve'); }
+  tutorHere(st) {
+    if (this.lesNow(st)) return this.segNow(st).k === 'task' && !st.lesEnd;
+    return st.screen === 'canvas' && (st.surface !== 'paper' || st.stage === 'solve');
+  }
+  // ---- A lesson: its segments in the author's order — explanations, worked examples, tasks (concepts 5; R06 app).
+  lesNow(st) { st = st || this.state; return st.screen === 'canvas' && st.surface === 'sheet' && st.lesson && LESSONS[st.lesson] ? LESSONS[st.lesson] : null; }
+  segNow(st) { st = st || this.state; const L = this.lesNow(st); return L ? L.segs[st.seg] : null; }
+  lesKey(st, i) { st = st || this.state; return 'lesson:' + st.lesson + ':' + (i == null ? st.seg : i); }
+  ended(i) { const t = this.state.tstat[this.lesKey(null, i)]; return t === 'done' || t === 'shown' || t === 'ended'; }
+  // The solving steps of a task: its own, or its lesson's (concepts 7).
+  stepsOf(st) { st = st || this.state; const g = this.segNow(st); return (g && g.steps) || this.lesNow(st).steps; }
+  taskNo(st) { st = st || this.state; const L = this.lesNow(st), ts = L.segs.filter((g) => g.k === 'task'); return { n: ts.indexOf(this.segNow(st)) + 1, of: ts.length }; }
   // Pip is the children's friend persona, epic E4 of app; to an adult the tutor is neutral (R148; О-13).
   isPip(st) { st = st || this.state; return st.slice === 'later' && st.learner !== 'owner'; }
 
@@ -1427,6 +1889,8 @@ class Component extends DCLogic {
       const ol = st.captured === 'olympiad', ts = ol ? OL : WS, t = ts.find((x) => x.id === st.current) || ts[0];
       return { key: st.captured + '-' + t.id, label: (ol ? 'Problem ' + t.id : 'Equation (' + t.id + ')') + ' · ' + t.label, tut: t };
     }
+    const g = this.segNow(st);
+    if (g) { const tn = this.taskNo(st); return { key: this.lesKey(st), label: 'Task ' + tn.n + ' of ' + tn.of + ' · ' + g.title, tut: { hint: g.lead, alt: g.lead } }; }
     const names = { sheet: 'Scratch sheet', workbook: 'Lesson 3 · Equations', numberline: 'Number line', geo: 'Geometry board' };
     const lesson = st.surface === 'sheet' && st.lesson;
     return { key: lesson ? 'lesson:' + lesson : st.surface, label: lesson || names[st.surface] || 'This canvas', tut: st.surface === 'workbook' ? WB : GEN };
@@ -1442,6 +1906,7 @@ class Component extends DCLogic {
     if (list.length && list[list.length - 1].who === 'div') return list.slice(0, -1).concat(add);
     if (!list.length) add.push({ id: this.mid++, who: 'pip', text: this.isPip(st)
       ? 'Hi, I’m Pip. Ask me ' + (st.micOn ? 'by voice or text' : 'anything') + ' — I’ll help you find the answer, not give it.'
+      : this.lesNow(st) ? 'The tutor is an AI, not a person. Hints come here, a question at a time, and a program checks every answer.'
       : 'Hints for this task come here, a question at a time. A program checks every answer.' });
     return list.concat(add);
   }
@@ -1496,8 +1961,9 @@ class Component extends DCLogic {
     } catch (e) { return null; }
   }
 
+  // "Read aloud" speaks a text once, whether the tutor's voicing is on or not (R90).
   speak(m) {
-    if (!this.state.voiceOn) return;
+    if (!this.state.voiceOn && !m.force) return;
     this.setState({ speaking: m.id });
     const end = () => { if (this.state.speaking === m.id) this.setState({ speaking: null }); };
     let real = false;
@@ -1538,7 +2004,10 @@ class Component extends DCLogic {
 
   openChat = () => this.setState({ chatOpen: true, tutorFull: false, unread: false, more: false, coach: false, profileOpen: false, tasksOpen: false });
   closeChat = () => { this.micCancel(); this.setState({ chatOpen: false, tutorFull: false }); };
-  askHint = () => { this.setState({ chatOpen: true, unread: false, verdict: null, tasksOpen: false }); this.reply('hint'); };
+  askHint = () => {
+    if (this.segNow()) return this.lesHint();
+    this.setState({ chatOpen: true, unread: false, verdict: null, tasksOpen: false }); this.reply('hint');
+  };
 
   send = () => {
     const x = this.state.draft.trim();
@@ -1581,7 +2050,140 @@ class Component extends DCLogic {
 
   // From home into a canvas: the camera of Take from my paper, or a module's lesson.
   openCamera = () => { if (this.state.slice === 'later') this.setState({ screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', coach: false, more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, view: { z: 1, x: 0, y: 0 } }); };
-  openLesson(name) { this.setState({ screen: 'canvas', surface: 'sheet', lesson: name, coach: false, more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, view: { z: 1, x: 0, y: 0 } }); }
+  openLesson(name) {
+    this.setState({ screen: 'canvas', surface: 'sheet', lesson: name, coach: false, more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, view: { z: 1, x: 0, y: 0 },
+      seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {}, picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, inkN: {}, strokes: without(this.state.strokes, 'lesson:' + name + ':'),
+      choiceOpen: false, solAsk: false, segsOpen: false, fold: false, report: null, reportKind: null, chat: [], typing: false });
+  }
+
+  // A segment opens with its demo hidden and, for a task, a new attempt: the solving mode is the adult's default, "Step by step"
+  // for a new profile (product 4), and in it the tutor's panel opens with the first step.
+  goSeg(i, extra) {
+    const L = this.lesNow(), g = L.segs[i], k = this.lesKey(null, i), over = g.k === 'task' && this.ended(i);
+    this.setState({ ...(extra || {}), seg: i, demoN: 0, demoHide: false, stepI: 0, stepsOpen: false, mode: 'steps', modeOpen: false, verdict: null, choiceOpen: false, solAsk: false, segsOpen: false, fold: false,
+      view: { z: 1, x: 0, y: 0 }, chatOpen: g.k === 'task' && !over, tutorFull: false, unread: false, ticks: without(this.state.ticks, k + ':') });
+  }
+
+  // "Continue": on a segment gone back to, on to the place reached, past the tasks that are over; at the end, the lesson's end (R06 app).
+  lesCont = () => {
+    const s = this.state, L = this.lesNow();
+    if (s.seg < s.at) { let i = s.seg + 1; while (i < s.at && L.segs[i].k === 'task' && this.ended(i)) i++; return this.goSeg(i); }
+    if (s.seg + 1 >= L.segs.length) return this.setState({ lesEnd: true, chatOpen: false, verdict: null, segsOpen: false });
+    this.goSeg(s.seg + 1, { at: s.seg + 1 });
+  };
+
+  // The work of a task: the strokes on its sheet or page, or the option chosen.
+  lesWork() { const s = this.state, g = this.segNow(); return g.options ? s.picks[this.lesKey()] != null : (s.strokes[this.inkKey()] || []).length > 0; }
+  stepOk() {
+    const s = this.state, g = this.segNow(), st = this.stepsOf()[s.stepI], k = this.lesKey();
+    if (st.exit === 'slots') return this.lesWork();
+    if (st.exit === 'givens') return (g.givens || []).every((_, i) => s.ticks[k + ':g' + i]) && !!s.ticks[k + ':u'];
+    return true;
+  }
+
+  // The tutor's rows, put into the conversation at once: the module's words, without AI.
+  say(rows, up) {
+    const ms = rows.map((r) => ({ id: this.mid++, ...r }));
+    this.setState({ ...(up || {}), chat: this.withCtx(this.state.chat).concat(ms), unread: this.state.unread || !(up && up.chatOpen) && !this.state.chatOpen });
+    const first = ms.find((m) => m.who === 'pip');
+    if (first) this.speak(first);
+  }
+  // The AI's words — a rung, "Explain differently", praise, feedback — come after "The tutor is writing…".
+  // At the quota's end the line of the quota comes instead, and the module's own text where it has one (R82; R37 app).
+  aiSay(text, extra, after, fallback) {
+    const key = this.ctx().key;
+    this.setState({ typing: true });
+    this.later(() => {
+      const s = this.state;
+      if (this.ctx().key !== key || !this.tutorHere(s)) return this.setState({ typing: false });
+      const rows = s.quotaOut ? [{ who: 'res', res: 'info', title: QUOTA_LINE }].concat(fallback || [])
+        : [{ who: 'pip', ai: true, text, ...(extra || {}) }].concat(after || []);
+      const ms = rows.map((r) => ({ id: this.mid++, ...r }));
+      this.setState({ typing: false, chat: this.withCtx(s.chat).concat(ms), unread: s.unread || !s.chatOpen });
+      const first = ms.find((m) => m.who === 'pip');
+      if (first) this.speak(first);
+    }, 1100);
+  }
+
+  // Hint: before the first wrong answer the givens, the techniques and the leading question; after it, the rung's words again (concepts 10).
+  lesHint() {
+    const s = this.state, g = this.segNow(), k = this.lesKey(), w = s.wrongs[k] || 0, base = { chatOpen: true, unread: false, verdict: null, choiceOpen: false };
+    if (w && g.rungs) return this.say([{ who: 'pip', kind: 'hint', label: 'Hint', text: g.rungs[Math.min(w, 3) - 1] }], base);
+    const rows = [];
+    if (g.givens) rows.push({ who: 'pip', kind: 'hint', label: 'What we know', text: g.givens.join(' ') }, { who: 'pip', kind: 'hint', label: 'What to find', text: g.unknown });
+    if (g.techs) rows.push({ who: 'pip', kind: 'hint', label: 'A technique', text: g.techs[0][0] + ': ' + g.techs[0][1] });
+    rows.push({ who: 'pip', kind: 'hint', label: 'Hint', text: g.lead });
+    this.say(rows, base);
+  }
+  lesAlt() {
+    const s = this.state, g = this.segNow(), k = this.lesKey(), w = s.wrongs[k] || 0;
+    const rung = Math.min(w, 3);
+    if (!w || s.altAt[k] === rung) return;
+    if (!s.quotaOut) this.setState({ altAt: { ...s.altAt, [k]: rung } });
+    this.aiSay(g.alts[Math.min(w, 3) - 1], { kind: 'hint', label: 'In other words' });
+  }
+
+  // Check: a choice is checked by the program at once, without AI; handwriting is read by the AI first (product 4).
+  lesCheck = () => {
+    const s = this.state, g = this.segNow(), k = this.lesKey();
+    if (this.ended()) return;
+    if (!this.lesWork()) return this.setState({ verdict: { kind: 'info', title: g.options ? 'Choose an answer in each item' : 'Write an answer on the sheet', line: g.options ? 'Choose one of the answers, then Check.' : 'Write it with the pen, then Check.' }, choiceOpen: false });
+    const n = s.tries[k] || 0, up = { tries: { ...s.tries, [k]: n + 1 }, inkN: { ...s.inkN, [k]: (s.strokes[this.inkKey()] || []).length }, choiceOpen: false };
+    if (g.options) { const p = s.picks[k]; return this.lesVerdict(p === g.key, 'You chose: ' + g.options[p], up); }
+    if (s.quotaOut) return this.setState({ verdict: { kind: 'info', title: 'Not checked', line: QUOTA_READ } });
+    this.setState({ ...up, verdict: { kind: 'reading', title: 'Reading your work…', line: 'A picture of the work goes to be read, with no name.' } });
+    this.later(() => {
+      if (this.ctx().key !== k) return;
+      if (g.rubric) {
+        if (n === 0) {
+          this.settle({ kind: 'fb', title: 'Feedback', line: 'The feedback is in the tutor’s panel. Write again, or tap Done.' }, '', { tstat: { ...this.state.tstat, [k]: 'fed' } });
+          return this.aiSay(g.feedback, { kind: 'fb' });
+        }
+        return this.settle({ kind: 'info', title: 'No feedback this time', line: 'The work was read. Write again, or tap Done.' }, '', null);
+      }
+      if (g.lines) return this.lesVerdict(n >= 1, n >= 1 ? 'Every line fits' : 'Not right yet: 2 items of 6', {});
+      this.lesVerdict(n >= 1, 'Read: ' + (n >= 1 ? g.right : g.wrong), {});
+    }, 1300);
+  };
+
+  // The program's verdict, then the AI's words: praise and the solution, or the rung (R21, R22 app).
+  lesVerdict(ok, brief, up) {
+    const s = this.state, g = this.segNow(), k = this.lesKey();
+    if (ok) {
+      this.settle({ kind: 'ok', title: 'Correct', line: brief }, brief, { ...up, tstat: { ...s.tstat, [k]: 'done' } });
+      return this.aiSay(g.praise, {}, [{ who: 'sol', lines: g.solution }], [{ who: 'sol', lines: g.solution }]);
+    }
+    const w = (s.wrongs[k] || 0) + 1;
+    this.settle({ kind: 'no', title: 'Not yet', line: brief }, brief, { ...up, wrongs: { ...s.wrongs, [k]: w }, tstat: { ...s.tstat, [k]: 'wrong' } });
+    if (w >= 4) return this.say([{ who: 'pip', kind: 'hint', label: 'Hint', text: 'This task has nothing more to hint' }].concat(this.isPip()
+      ? [{ who: 'res', res: 'info', title: 'A grown-up can show the solution', text: 'Call a grown-up, or try again' }] : []));
+    const r = g.rungs[w - 1];
+    this.aiSay(r, { kind: 'hint', label: 'Hint' }, [], [{ who: 'pip', kind: 'hint', label: 'From the task', text: r }]);
+  }
+
+  lesShow = () => {
+    const s = this.state, g = this.segNow(), k = this.lesKey();
+    this.say([{ who: 'res', res: 'shown', title: 'Solution shown' }, { who: 'sol', lines: g.solution }],
+      { solAsk: false, tstat: { ...s.tstat, [k]: 'shown' }, verdict: { kind: 'shown', title: 'Solution shown', line: 'The solution is in the tutor’s panel.' } });
+  };
+  // "Done" ends an essay's attempt after a submission; the marks by the criteria come to an adult with it (R87).
+  lesDone = () => {
+    const s = this.state, g = this.segNow(), k = this.lesKey();
+    if (!s.tries[k] || this.ended()) return;
+    const rows = [{ who: 'res', res: 'done', title: 'It was finished with Done' }];
+    if (!this.isPip()) rows.push({ who: 'crit', crit: g.criteria });
+    this.say(rows, { tstat: { ...s.tstat, [k]: 'ended' }, verdict: null, chatOpen: true });
+  };
+  stepDone = () => {
+    const s = this.state, L = this.lesNow();
+    if (s.stepI >= this.stepsOf().length - 1 || !this.stepOk()) return;
+    this.setState({ stepI: s.stepI + 1, stepsOpen: false });
+  };
+  reportSend = () => {
+    const s = this.state;
+    if (s.reportKind == null) return this.setState({ reportErr: true });
+    this.say([{ who: 'res', res: 'info', title: 'Thank you: the report is sent. It will be reviewed by 17 November' }], { report: null, reportKind: null, reportErr: false, reported: { ...s.reported, [s.report]: true } });
+  };
 
   // The program's verdict goes to the card, and into the conversation; Pip words only what comes next.
   settle(v, brief, up, pip, k) {
@@ -1601,7 +2203,7 @@ class Component extends DCLogic {
   tkey(id) { return this.state.captured + '-' + id; }
   inkKey() {
     const s = this.state;
-    if (s.surface === 'sheet' && s.lesson) return 'lesson:' + s.lesson;
+    if (s.surface === 'sheet' && s.lesson) return this.lesKey(s);
     if (s.surface !== 'paper') return s.surface;
     return s.captured + '-' + s.current;
   }
@@ -1618,7 +2220,7 @@ class Component extends DCLogic {
 
   back = () => {
     const s = this.state;
-    if (s.surface !== 'paper') return this.setState({ screen: 'home', chatOpen: false });
+    if (s.surface !== 'paper') return this.setState({ screen: 'home', chatOpen: false, lesson: null, segsOpen: false, verdict: null });
     if (s.stage === 'solve') this.setState({ stage: 'pick', verdict: null });
     else if (s.stage === 'pick') this.setState({ stage: 'camera' });
     else if (s.back === 'home') this.setState({ screen: 'home', surface: 'sheet' });
@@ -1876,6 +2478,121 @@ class Component extends DCLogic {
     this.setState({ current: n, verdict: null, cardOpen: true });
   };
 
+  // ---- What a lesson draws: the row, the step, the segments and the pop-overs, on both devices (RUN.md, T155).
+  lesVals(s, L, g, inLes, isTask, PH) {
+    const off = { sheetParts: [], wbParts: false, any: false, on: false, end: false, sq: false, lined: false, wb: false, isExpl: false, stmtShow: false, modeShow: false, stepShow: false, reportOpen: false, rowX: 597, above: 86, parts: [], marks: [], lines: [], seg: { title: '', paras: [], list: [], pic: {} }, sPic: {}, step: { t: '', d: '' }, wbBox: {}, sdBtn: {}, qsw: {}, mSteps: {}, mOwn: {}, sendBtn: {} };
+    if (!L) return off;
+    const k = this.lesKey(s), tstat = s.tstat[k], over = isTask && this.ended(), choice = isTask && !!g.options;
+    const steps = this.stepsOf(s), st = steps[s.stepI] || steps[0], last = s.stepI >= steps.length - 1, pip = this.isPip(s);
+    const rowX = !PH && s.chatOpen && isTask ? 451 : 597;
+    const rowH = PH && choice && !over ? 108 : 56;
+    const above = 16 + rowH + 14;
+    const work = isTask && this.lesWork(), stepOk = isTask && this.stepOk();
+    const wrongs = s.wrongs[k] || 0, tries = s.tries[k] || 0;
+    const showMode = isTask && !over && !!steps;
+    const stepShow = isTask && !over && s.mode === 'steps';
+    const pic = (id) => ({ stairs: id === 'stairs', dots: id === 'dots', share: id === 'share' });
+    const dot = (on) => ({ ring: on ? 'none' : 'inset 0 0 0 1.5px #C7C7CC', dot: on ? '#0071E3' : '#FFFFFF' });
+    const chip = (key, t) => { const on = !!s.ticks[key]; return { t, on, ...dot(on), bg: on ? 'rgba(0,113,227,0.08)' : 'rgba(118,118,128,0.08)', sh: on ? 'inset 0 0 0 1.5px rgba(0,113,227,0.5)' : 'none', tick: () => this.setState({ ticks: { ...this.state.ticks, [key]: !this.state.ticks[key] } }) }; };
+    const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.06)' : '#FFFFFF', sh: on ? 'inset 0 0 0 2px #0071E3' : 'inset 0 0 0 1px rgba(0,0,0,0.10)' });
+    // The demo: the parts opened so far, on the sheet under the statement, or under the workbook page.
+    const isEx = inLes && g.k === 'example', wb = (isEx || isTask) && g.canvas === 'workbook';
+    // The page stands under the statement, at its left edge and as wide; on the iPad it stays clear of the tutor's panel (344 at the right).
+    const wbBox = PH ? { x: 76, y: 236, w: 302, pad: '16px 14px', aw: 92 } : { x: 84, y: 168, w: 620, pad: '20px 28px', aw: 130 };
+    const shown = isEx && !s.demoHide ? s.demoN : 0;
+    const parts = isEx ? g.parts.slice(0, shown).map((p, i) => {
+      const t = typeof p === 'string' ? p : p.t, y0 = PH ? (s.fold ? 150 : 380) : 248;
+      return { n: i + 1, t, x: PH ? 24 : 102, w: PH ? 342 : 800, y: y0 + i * (PH ? 78 : 58), fs: wb ? (PH ? 15 : 18) : PH ? 17 : 20, fw: i === g.parts.length - 1 && !wb ? 600 : 400 };
+    }) : [];
+    const filled = {};
+    if (isEx && wb) g.parts.slice(0, shown).forEach((p) => (p.fill || []).forEach(([a, b]) => { filled[a + ':' + b] = true; }));
+    // A box's name: its line and answer, and the tutor's mark on it (task.slot, task.mark-box of app).
+    let markN = 0;
+    const markAll = isTask && wb && tstat === 'wrong' ? g.lines.reduce((n, l) => n + (l.bad ? l.boxes.length : 0), 0) : 0;
+    const box = (v, mark, i, j) => ({ v: v || '', lab: 'Line ' + (i + 1) + '. Answer ' + (j + 1) + (mark ? '. Tutor’s mark ' + (++markN) + ' of ' + markAll + ': line ' + (i + 1) + ', box ' + (j + 1) : ''), sh: mark ? '0 0 0 3px #FF9F0A, inset 0 0 0 1px #D1D1D6' : 'inset 0 0 0 1px #D1D1D6' });
+    const wrongNow = tstat === 'wrong' && (s.strokes[this.inkKey()] || []).length === s.inkN[k];
+    const lines = wb ? g.lines.map((l, i) => {
+      if (isEx) return { a: l.a, b0: box(filled[i + ':0'] ? l.v[0] : '', false, i, 0), b1: box(filled[i + ':1'] ? l.v[1] : '', false, i, 1), hasRead: false };
+      const read = tstat === 'done' || tstat === 'shown' ? l.ok : wrongNow ? (l.bad || l.ok) : null;
+      const bad = wrongNow && !!l.bad;
+      return { a: l.a, b0: box('', bad && l.boxes.includes(0), i, 0), b1: box('', bad && l.boxes.includes(1), i, 1), hasRead: !!read && tstat !== 'shown', read: 'Read: ' + read + (bad ? ' · Not yet' : ''), ok: !!read && !bad, no: bad, fg: bad ? '#C93400' : '#1E7A35' };
+    }) : [];
+    // The tutor's marks: on a sheet a box beside the learner's work, by the place the work is in (concepts 8).
+    const marks = [];
+    if (isTask && !wb && !choice && wrongNow) {
+      const ss = s.strokes[this.inkKey()] || [];
+      const bb = ss.filter((x) => x.bb).map((x) => x.bb);
+      if (bb.length) {
+        const x0 = Math.min(...bb.map((b) => b[0])), y0 = Math.min(...bb.map((b) => b[1])), x1 = Math.max(...bb.map((b) => b[2])), y1 = Math.max(...bb.map((b) => b[3]));
+        marks.push({ x: Math.round(x0 - 12), y: Math.round(y0 - 12), w: Math.round(x1 - x0 + 24), h: Math.round(y1 - y0 + 24), label: 'Tutor’s mark 1 of 1' });
+      }
+    }
+    const tn = isTask ? this.taskNo(s) : { n: 0, of: 0 };
+    const stmt = inLes && g.statement ? g.statement : '';
+    const segRows = L.segs.map((x, i) => {
+      const passed = i < s.at || (i === s.at && x.k === 'task' && this.ended(i)), cur = i === s.seg, later = i > s.at, overT = x.k === 'task' && this.ended(i);
+      const open = !later && !(overT && !cur);
+      return { n: i + 1, kind: KINDS[x.k], t: x.title, lab: later ? (i + 1) + ' ' + KINDS[x.k] + ': not open yet' : overT && !cur ? (i + 1) + ' ' + KINDS[x.k] + ': already over' : (i + 1) + ' ' + KINDS[x.k] + ' · ' + x.title, passed: passed && !cur, notPassed: !(passed && !cur), cur: cur ? 'step' : 'false', off: !open,
+        cap: cur ? 'now' : later ? 'Not open yet' : overT ? 'This task is over' : 'passed', fg: later ? '#6E6E73' : '#1D1D1F',
+        bg: cur ? 'rgba(0,113,227,0.10)' : 'transparent', nb: cur ? '#0071E3' : passed ? '#248A3D' : 'rgba(118,118,128,0.14)', nf: cur || passed ? '#FFFFFF' : '#3A3A3C',
+        go: () => (open && !cur ? this.goSeg(i) : this.setState({ segsOpen: false })) };
+    });
+    const pickN = s.picks[k], judged = choice && tries > 0 && tstat !== 'shown';
+    const okPick = judged && (tstat === 'done') , noPick = judged && tstat === 'wrong';
+    const canShow = isTask && !over && !g.rubric && !!g.solution && !pip;
+    const doneOff = !tries;
+    const mod = MODS.find((m) => m.name === s.lesson) || MODS[0];
+    const rw = s.report != null ? (s.chat.find((m) => m.id === s.report) || {}).text || '' : '';
+    return {
+      any: true, on: inLes, end: !!L && s.lesEnd, rowX, above, popL: rowX - 200, popL2: rowX - 170, modName: s.lesson, modGlyph: mod.glyph, modColor: mod.color,
+      segsAria: L.title + ', ' + KINDS[g.k] + ' ' + (s.seg + 1) + ' of ' + L.segs.length + '. The segments of the lesson',
+      segsOpen: s.segsOpen && inLes, toggleSegs: () => this.setState({ segsOpen: !this.state.segsOpen, modeOpen: false, choiceOpen: false }), segRows,
+      isExpl: inLes && g.k === 'explanation',
+      seg: { title: g.title, paras: (g.paras || []).map((t) => ({ t })), list: (g.list || []).map((t) => ({ t })), hasList: !!g.list, hasPic: !!g.pic && g.k === 'explanation', pic: pic(g.pic), alt: g.alt || '' },
+      readSeg: () => this.speak({ id: 'ra', force: true, text: [g.title].concat(g.paras || [], g.list || []).join(' ') }),
+      sq: (isEx || isTask) && g.canvas === 'squares', lined: (isEx || isTask) && g.canvas === 'lined', wb, wbBox, lines, wbEyebrow: !wb ? '' : L.title.toUpperCase() + (isEx ? ' · WORKED EXAMPLE' : ' · ' + g.lines.length + ' LINES'),
+      parts, sheetParts: wb ? [] : parts, wbParts: wb && parts.length > 0, marks,
+      stmtShow: (isEx || isTask) && !!stmt, stmt, stmtCap: isEx ? 'Worked example · ' + g.title : 'Task ' + tn.n + ' of ' + tn.of + ' · ' + g.title,
+      stmtFull: !(PH && s.fold), stmtFold: PH && s.fold, foldLabel: s.fold ? 'Show all' : 'Show less', toggleFold: () => this.setState({ fold: !this.state.fold }),
+      stmtPic: !!g.pic && g.k !== 'explanation', sPic: pic(g.pic), stmtAlt: g.alt || '', stmtNote: g.note || '',
+      readStmt: () => this.speak({ id: 'ra', force: true, text: stmt }),
+      rowExpl: inLes && g.k === 'explanation', rowEx: isEx, rowTask: isTask && !over, rowCont: isTask && over,
+      cont: this.lesCont,
+      demoNext: () => this.setState({ demoN: Math.min(g.parts.length, this.state.demoN + 1), demoHide: false }), demoNextOff: isEx && s.demoN >= g.parts.length, demoNextOp: isEx && s.demoN >= g.parts.length ? 0.4 : 1,
+      demoOpen: isEx && !s.demoHide, demoShut: isEx && s.demoHide, demoToggle: () => this.setState({ demoHide: !this.state.demoHide }),
+      hasChoice: choice, choiceOpen: s.choiceOpen && choice, toggleChoice: () => this.setState({ choiceOpen: !this.state.choiceOpen, solAsk: false }),
+      choiceLabel: pickN != null ? g.options[pickN] : 'Choose an answer', choiceAria: pickN != null ? 'Your answer: ' + g.options[pickN] + '. Change it' : 'Choose an answer',
+      choiceOk: okPick, choiceNo: noPick,
+      options: choice ? g.options.map((t, i) => { const on = pickN === i; return { t, on, ...dot(on), bg: on ? 'rgba(0,113,227,0.08)' : 'transparent', ok: on && okPick, no: on && noPick,
+        pick: () => (over ? null : this.setState({ picks: { ...this.state.picks, [k]: i }, tstat: this.state.tstat[k] === 'wrong' ? { ...this.state.tstat, [k]: 'trying' } : this.state.tstat, verdict: null })) }; }) : [],
+      solBtn: canShow, solAsk: s.solAsk && canShow, askSol: () => this.setState({ solAsk: true, choiceOpen: false }), solCancel: () => this.setState({ solAsk: false }), showSol: this.lesShow,
+      doneBtn: isTask && !!g.rubric && !over, doneOff, doneFg: doneOff ? '#6E6E73' : '#0071E3', essayDone: this.lesDone,
+      check: this.lesCheck, checkOff: !work, checkBg: work ? '#0071E3' : 'rgba(118,118,128,0.16)', checkFg: work ? '#FFFFFF' : '#6E6E73',
+      modeShow: showMode, modeName: s.mode === 'steps' ? 'Step by step' : 'On my own', modeOpen: s.modeOpen && showMode,
+      toggleMode: () => this.setState({ modeOpen: !this.state.modeOpen, segsOpen: false, choiceOpen: false }),
+      mSteps: lay(s.mode === 'steps'), mOwn: lay(s.mode === 'own'),
+      modeSteps: () => this.setState({ mode: 'steps', modeOpen: false, chatOpen: true }), modeOwn: () => this.setState({ mode: 'own', modeOpen: false, chatOpen: false }),
+      stepShow, step: { t: st.t, d: st.d }, readStep: () => this.speak({ id: 'ra', force: true, text: st.t + '. ' + st.d }), stepOf: 'Step ' + (s.stepI + 1) + ' of ' + steps.length,
+      stepsOpen: s.stepsOpen && stepShow, toggleSteps: () => this.setState({ stepsOpen: !this.state.stepsOpen }),
+      stepList: steps.map((x, i) => ({ n: i + 1, t: x.t, cur: i === s.stepI ? 'step' : 'false', off: i > s.stepI, cap: i < s.stepI ? 'done' : i === s.stepI ? 'now' : 'later',
+        bg: i === s.stepI ? 'rgba(0,113,227,0.10)' : 'transparent', nb: i < s.stepI ? '#248A3D' : i === s.stepI ? '#0071E3' : 'rgba(118,118,128,0.16)', nf: i <= s.stepI ? '#FFFFFF' : '#3A3A3C',
+        go: () => (i <= this.state.stepI ? this.setState({ stepI: i, stepsOpen: false }) : null) })),
+      giveGivens: stepShow && st.gives === 'givens' && !!g.givens, givens: (g.givens || []).map((t, i) => chip(k + ':g' + i, t)), unknown: g.unknown ? [chip(k + ':u', g.unknown)] : [],
+      giveTech: stepShow && st.gives === 'techniques' && !!g.techs, techs: (g.techs || []).map(([t, d]) => ({ t, d })),
+      exitLine: !stepShow || last ? '' : st.exit === 'givens' ? 'Mark what we know and what to find' : st.exit === 'slots' ? (g.options ? 'Choose an answer in each item' : wb ? 'Write an answer in each slot' : 'Write an answer on the sheet') : '',
+      stepDoneShow: stepShow && !last, stepDone: this.stepDone, stepDoneOff: !stepOk,
+      sdBtn: { bg: stepOk ? '#0071E3' : 'rgba(118,118,128,0.16)', fg: stepOk ? '#FFFFFF' : '#6E6E73', bg2: stepOk ? 'rgba(0,113,227,0.10)' : 'rgba(118,118,128,0.12)', fg2: stepOk ? '#0071E3' : '#6E6E73' },
+      pillShow: stepShow && !s.chatOpen && !s.verdict && !s.choiceOpen && !s.solAsk,
+      quotaOut: s.quotaOut, toggleQuota: () => this.setState({ quotaOut: !this.state.quotaOut }), qsw: { bg: s.quotaOut ? '#34C759' : 'rgba(120,120,128,0.24)', x: s.quotaOut ? 20 : 2 },
+      reportOpen: s.report != null && inLes, reportWords: rw, reportCancel: () => this.setState({ report: null, reportKind: null, reportErr: false }), reportSend: this.reportSend,
+      kinds: REPORT_KINDS.map((t, i) => ({ t, on: s.reportKind === i, ...dot(s.reportKind === i), pick: () => this.setState({ reportKind: i, reportErr: false }) })),
+      reportErr: s.reportErr && s.reportKind == null,
+      sendOff: s.reportKind == null, sendBtn: { bg: s.reportKind == null ? 'rgba(118,118,128,0.16)' : '#0071E3', fg: s.reportKind == null ? '#6E6E73' : '#FFFFFF' },
+      nextLesson: () => { const i = MODS.findIndex((m) => m.name === this.state.lesson); this.openLesson(MODS[(i + 1) % MODS.length].name); },
+      toHome: () => this.setState({ screen: 'home', lesson: null, lesEnd: false, chatOpen: false, verdict: null })
+    };
+  }
+
   renderVals() {
     const s = this.state;
     const isPaper = s.surface === 'paper';
@@ -1893,7 +2610,8 @@ class Component extends DCLogic {
     const pillW = 4 + 92 + 2 + 124 + 2 + moreW + 4;
     const pillLeft = 597 - pillW / 2;
 
-    let title = s.lesson || 'Scratch sheet', subtitle = s.lesson ? 'Free board' : 'Blank canvas';
+    const L = this.lesNow(s), g = this.segNow(s), inLes = !!L && !s.lesEnd, isTask = inLes && g.k === 'task';
+    let title = L ? L.title : 'Scratch sheet', subtitle = L ? KINDS[g.k] + ' · ' + (s.seg + 1) + ' of ' + L.segs.length : 'Blank canvas';
     if (s.surface === 'workbook') { title = 'Lesson 3 · Equations'; subtitle = 'Workbook'; }
     if (s.surface === 'numberline') { title = 'Number line'; subtitle = 'by Kite Math'; }
     if (s.surface === 'geo') { title = 'Geometry board'; subtitle = 'by Tangent Lab'; }
@@ -1913,7 +2631,7 @@ class Component extends DCLogic {
     const paths = toPaths(key, sty);
     const clipPaths = isSolve ? toPaths(this.clipKey(), sty) : [];
     const isEraser = s.tool === 'eraser';
-    const showScreenInk = !isPaper || isSolve;
+    const showScreenInk = L ? isTask : !isPaper || isSolve;
     const showPagePane = isPick;
 
     const tb = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.12)' : 'transparent', fg: on ? '#0071E3' : '#1D1D1F' });
@@ -1944,28 +2662,34 @@ class Component extends DCLogic {
     // Pip: the conversation, its state line and the quick replies.
     const tutorHere = this.tutorHere(s);
     const reading = !!v && v.kind === 'reading';
-    const resDot = { ok: ['#248A3D', '#FFFFFF'], no: ['#C93400', '#FFFFFF'], info: ['rgba(0,113,227,0.14)', '#0071E3'], done: ['#248A3D', '#FFFFFF'] };
+    const resDot = { ok: ['#248A3D', '#FFFFFF'], no: ['#C93400', '#FFFFFF'], info: ['rgba(0,113,227,0.14)', '#0071E3'], done: ['#248A3D', '#FFFFFF'], shown: ['rgba(118,118,128,0.16)', '#3A3A3C'] };
     const msgs = s.chat.map((m) => ({
       isDiv: m.who === 'div', isPip: m.who === 'pip', isMe: m.who === 'me', isRes: m.who === 'res',
       text: m.text || '', hasText: !!m.text, title: m.title || '', isHint: m.kind === 'hint', label: m.label || '',
       bg: m.kind === 'hint' ? 'rgba(255,204,0,0.20)' : 'rgba(118,118,128,0.12)',
       talking: s.speaking === m.id, voice: !!m.voice, dur: m.dur || '',
-      rOk: m.res === 'ok', rNo: m.res === 'no', rInfo: m.res === 'info', rDone: m.res === 'done',
-      dotBg: (resDot[m.res] || resDot.info)[0], dotFg: (resDot[m.res] || resDot.info)[1]
+      rOk: m.res === 'ok', rNo: m.res === 'no', rInfo: m.res === 'info', rDone: m.res === 'done', rShown: m.res === 'shown',
+      dotBg: (resDot[m.res] || resDot.info)[0], dotFg: (resDot[m.res] || resDot.info)[1],
+      isFb: m.kind === 'fb', isSol: m.who === 'sol', isCrit: m.who === 'crit', lines: (m.lines || []).map((t) => ({ t })),
+      crit: (m.crit || []).map(([t, w]) => ({ t, w: MARK[w][0], fg: MARK[w][1] })),
+      // "Report a problem" stands at each of the AI's answers, to an adult (R127).
+      report: !!m.ai && !this.isPip(s) && !s.reported[m.id], doReport: () => this.setState({ report: m.id, reportKind: null, reportErr: false })
     }));
     const c = this.ctx();
-    const st = isSolve ? s.status[c.key] : null;
-    // The tutor's buttons: Hint, and "Explain it differently" once there is a rung to word anew (R82).
-    const hinted = !!s.hinted[c.key] || st === 'wrong';
+    const st = isSolve ? s.status[c.key] : isTask ? s.tstat[c.key] : null;
+    // The tutor's buttons: Hint, and "Explain differently" once there is a rung to word anew (R82).
+    const hinted = isTask ? !!s.wrongs[c.key] && s.altAt[c.key] !== Math.min(s.wrongs[c.key], 3) && !g.rubric : !!s.hinted[c.key] || st === 'wrong';
     const act = (label, go, off, bulb) => ({ label, go, off, bulb, bg: off ? 'rgba(118,118,128,0.08)' : 'rgba(255,255,255,0.9)', fg: off ? '#6E6E73' : '#0071E3' });
-    const acts = st === 'done' ? [act('Next task', () => this.next(), false, false)]
-      : [act('Hint', this.askHint, false, true), act('Explain it differently', () => this.reply('alt'), !hinted, false)];
+    const acts = isTask ? (this.ended() ? [] : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.lesAlt(), !hinted, false)])
+      : st === 'done' ? [act('Next task', () => this.next(), false, false)]
+      : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.reply('alt'), !hinted, false)];
     const pip = this.isPip(s), later = s.slice === 'later';
     const short = isSolve ? (isOl ? 'Problem ' + t.id : 'Equation (' + t.id + ')') : title;
     const status = s.listening ? { text: 'Listening…', fg: '#0071E3', bars: true }
       : s.speaking != null ? { text: 'Speaking…', fg: '#0071E3', bars: true }
       : reading ? { text: 'Reading your work…', fg: '#6E6E73', bars: false }
       : s.typing ? { text: 'Typing…', fg: '#6E6E73', bars: false }
+      : isTask ? { text: 'Tutor time today: ' + (s.quotaOut ? 100 : 20) + '% used', fg: '#6E6E73', bars: false }
       : { text: (pip ? 'Your tutor · ' : 'AI tutor · ') + short, fg: '#6E6E73', bars: false };
     const hasDraft = !!s.draft.trim();
 
@@ -1984,14 +2708,18 @@ class Component extends DCLogic {
 
     const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.06)' : '#FFFFFF', sh: on ? 'inset 0 0 0 2px #0071E3' : 'inset 0 0 0 1px rgba(0,0,0,0.10)' });
 
+    const les = this.lesVals(s, L, g, inLes, isTask, PH);
     return {
-      isSheet: s.surface === 'sheet', isWorkbook: s.surface === 'workbook', isNumberline: s.surface === 'numberline', isGeo: s.surface === 'geo', isExt,
+      les, ttlPlain: !inLes, backLabel: inLes ? 'Leave the lesson' : 'Back', writingShow: s.typing && inLes,
+      vX: isSolve ? '50%' : les.rowX + 'px', vB: isSolve ? 86 : les.above, vNext: !!v && v.kind === 'ok' && isSolve,
+      vCont: !!v && isTask && (v.kind === 'ok' || v.kind === 'shown'), vFb: !!v && v.kind === 'fb', vShown: !!v && v.kind === 'shown',
+      isSheet: s.surface === 'sheet' && !L, isWorkbook: s.surface === 'workbook', isNumberline: s.surface === 'numberline', isGeo: s.surface === 'geo', isExt,
       isCamera, isPick, isSolve, isOl, showPagePane, showScreenInk,
-      showChrome: !isCamera, showTools: !isPaper || isSolve, showCoach: later && s.coach && s.surface === 'sheet' && !s.more,
-      showKinds: later, showAvatar: later, showRightBar: isSolve || isPick || later,
+      showChrome: !isCamera, showTools: L ? isTask : !isPaper || isSolve, showCoach: later && s.coach && s.surface === 'sheet' && !s.more && !L,
+      showKinds: later && !L, showAvatar: later && !L, showRightBar: (isSolve || isPick || later) && !L,
       devCls: PH ? 'nt-phone' : 'nt-pad', dim, nl, devName: this.devName(), scrollTab: PH ? '0' : '-1',
       pillCls: PH && isSolve ? 'ph-backonly' : '', barCls: PH && s.chatOpen ? 'nt-hide' : '', railCls: PH && s.chatOpen ? 'nt-hide' : '',
-      kindPill: later && !isSolve && !isPick, kindName: s.surface === 'numberline' ? 'Number line' : s.surface === 'geo' ? 'Geometry' : s.surface === 'workbook' ? 'Workbook' : 'Sheet',
+      kindPill: later && !isSolve && !isPick && !L, kindName: s.surface === 'numberline' ? 'Number line' : s.surface === 'geo' ? 'Geometry' : s.surface === 'workbook' ? 'Workbook' : 'Sheet',
       viewTf: 'translate(' + (-s.view.x * s.view.z) + 'px, ' + (-s.view.y * s.view.z) + 'px) scale(' + s.view.z + ')',
       vw: { inOff: s.view.z >= 2, inOp: s.view.z >= 2 ? 0.35 : 1, outOff: s.view.z <= 1, outOp: s.view.z <= 1 ? 0.35 : 1 },
       viewTr: s.panning ? 'none' : 'transform 0.25s cubic-bezier(.2,.8,.2,1)', wheel: this.wheel,
@@ -2012,7 +2740,7 @@ class Component extends DCLogic {
       inkCursor: isEraser ? 'cell' : 'crosshair',
       tools: { pen: tb(s.tool === 'pen'), er: tb(isEraser) },
       taskRows,
-      vShow: !!v && !s.chatOpen, vOk: !!v && v.kind === 'ok', vNo: !!v && v.kind === 'no', vInfo: !!v && v.kind === 'info', vReading: !!v && v.kind === 'reading', vDone: !!v && v.kind === 'done',
+      vShow: !!v && !s.chatOpen && (isSolve || isTask), vOk: !!v && v.kind === 'ok', vNo: !!v && v.kind === 'no', vInfo: !!v && v.kind === 'info', vReading: !!v && v.kind === 'reading', vDone: !!v && v.kind === 'done',
       vTitle: v ? v.title : '', vLine: v ? v.line : '',
       cardOpen: s.cardOpen, cardChevron: s.cardOpen ? 0 : -90, cardToggleLabel: s.cardOpen ? 'Hide the task' : 'Show the task',
       clipDown: this.clipDown, clipMove: this.clipMove, clipUp: this.clipUp,
