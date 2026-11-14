@@ -8,6 +8,8 @@ It is a single file: open it in a browser, with no server. It opens on *My subje
 
 It shows where the product is heading, not what it must be. Where it differs from the documents in [docs/](../docs/), the documents win.
 
+Its design is outdated. The newest design is in the mockups below: for the flow of a task from paper, take the interface from [Take from my paper](https://claude.ai/artifact/Vt9G8W392cMTTMykiByrcb#play-15dd8cd198dd), not from this prototype.
+
 ## What it shows
 
 - **The header.**
@@ -57,6 +59,26 @@ It shows where the product is heading, not what it must be. Where it differs fro
   - The plan: a free daily allowance of the coach's help, or Plus at $10 a month with five times more.
   - The coach's settings and a daily goal.
   - The profile, and where its data lives.
+
+## Mockups
+
+Mockups made after the prototype, of one flow each:
+
+- [Take from my paper](https://claude.ai/artifact/Vt9G8W392cMTTMykiByrcb#play-15dd8cd198dd), 2026-11-13, the link opens it in Play: an interactive iPad mockup of the paper flow.
+  - The canvas kinds in the top bar, with the kinds of other authors under «…».
+  - The camera, and picking the tasks on the photo of the page.
+  - One way to solve, whatever shape the page has: each picked task is a canvas of its own, a clean squared sheet with the task's crop over its top, for a worksheet of equations and an olympiad page alike. The crop is transparent, with its print over what is drawn on the sheet, and it is tracing paper: a stroke begun on it stays over the task and moves with it, to mark up its text and pictures. Its grip drags it anywhere on the sheet, and a button at the side, atop the tools, shows or hides it.
+  - "Snap work" for work done on real paper. It only photographs and reads the learner's own work, and the letter they circled: it writes nothing and picks nothing for them.
+  - One bar for every task — Hint, Snap work, Check — with no answer buttons: tasks from paper take any answer. The learner answers as on paper, circling an option on the task's tracing paper or writing the answer, and Check reads the work.
+  - The verdict, by the key, says only whether the learner's answer fits it, and never names the right answer or the solution.
+  - A hint mode that a grown-up sets, behind the profile button: with "Show where", after a wrong answer the tutor also underlines the place of the mistake in the learner's own work, and corrects nothing. The documents have no such setting of the profile yet.
+  - Pip, the tutor, behind a button at the right edge on every canvas: it belongs to the app, not to a canvas. The button opens a chat at the side, the page slides left to keep the task in view, and a cross closes the chat.
+    - Pip helps by text and by voice. It speaks with a voice of the device (privacy 6), and a speaker button mutes it. The learner types or speaks to it, and a grown-up turns the microphone on in the profile.
+    - Hint opens the chat with the hint, and "Explain it differently" gives the same rung in other words (R82). Pip never names the answer.
+    - The verdict comes from the program: into the chat as a line while it is open, and as the card while it is closed. Pip says only what comes next, and a dot on its button marks a message not yet read.
+    - The microphone is simulated. The documents give voice input to adults only until П-5 is decided (О-6), so a child would not have it yet. What the tutor answers to a free question the documents do not say: here it answers with the rung, the rung in other words, or a fixed text.
+
+  It is a Design canvas on claude.ai, private to the author: open it to someone from its Share menu before giving them the link. It puts From paper among the canvas kinds, while the documents make it an entry into the app (product 4). Like the prototype, where it differs from the documents, the documents win.
 
 ## Where it differs from the documents
 
