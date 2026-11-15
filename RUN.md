@@ -6,7 +6,7 @@ Language (R154): rules and tables in English, terse, for the session; the bodies
 
 ## Rules
 
-A task starts with «Выполни задачу T01 из RUN.md» in a new session in the devcontainer. One task — one session (R143): the hook [tools/session/](tools/session/main.mjs) stops another task's phrase in the same session. An epic across repositories starts with «Сделай эпик E…» in spec's orchestrator container, `.devcontainer/orchestrator/`: the orchestrator runs each task as a fresh `claude -p` in its repository's container and merges its pull request (R156).
+A task starts with «Выполни задачу T01 из RUN.md» in a new session in the devcontainer. One task — one session (R143): the hook [tools/session/](tools/session/main.mjs) stops another task's phrase in the same session. An epic across repositories starts with «Сделай эпик E…» in spec's orchestrator container, `.devcontainer/orchestrator/`: the orchestrator runs each task as a fresh `claude -p` in its repository's container and merges its pull request (R156), by [its procedure](tools/orchestrator/README.md#сделай-эпик-e); the hook counts the epic as one task.
 
 1. Do only the named task; touch other tasks' files only where it requires.
 2. Read first: [CLAUDE.md](CLAUDE.md), the task — in table 1, or only its own body of `run/TASKS.md` (its opening says how) —, the sections it cites, `docs/decisions.md`.
@@ -93,7 +93,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T167 | Решение об оркестраторе и правила прогона | Claude, проверяю я | — | — |
 | [x] | T168 | Контейнер оркестратора | я + Claude | — | T167 |
 | [x] | T169 | `tools/orchestrator`: запуск исполнителя | Claude | да | T168 |
-| [ ] | T170 | Процедура «Сделай эпик E…» | Claude, проверяю я | — | T169 |
+| [x] | T170 | Процедура «Сделай эпик E…» | Claude, проверяю я | — | T169 |
 | [ ] | T171 | Пилот: строки 4.17 и 4.18 | я + Claude | — | T170 |
 | [ ] | T172 | Итог эпика E14 | Claude | — | T171 |
 
@@ -103,23 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - T171 идёт после T170, когда T167–T170 смержены: релиз spec выходит сам (R31), и волна 0 пилота переводит репозитории на тег с ними.
 
 ## Эпик E14. Оркестратор
-
-#### T170. Процедура «Сделай эпик E…»
-
-- **Цель:** сессия в контейнере оркестратора по фразе «Сделай эпик E…» сама ведёт эпик до конца по записанной процедуре.
-- **Сделать:**
-  - Процедура — раздел Rules COORDINATION.md или `tools/orchestrator/README.md`, по месту при выполнении:
-    - граф задач — из плана эпика и строк «Порядка»;
-    - волна 0 — переход каждого репозитория эпика на последний тег spec, если тот не на нём: стандартный текст задачи `tools/orchestrator/tasks/spec-tag.md`, по-русски, по образцу T56 `sim` и T123;
-    - задачи, которой ещё нет в репозитории, исполнитель записывает и выполняет по тексту оркестратора (правило 6 COORDINATION.md);
-    - волны — запуск T169 фоном, ожидание через Monitor;
-    - вопросы — очередь; мелкие технические внутри репозитория — сам, в отчёт; прочие — автору через AskUserQuestion по одному, с вариантами и рекомендацией; затем `resume`;
-    - мерж: `gh pr checks`, замечания SonarCloud по `api/issues/search?pullRequest=N` — зелёная проверка их не показывает, обновление ветки, `gh pr merge --merge`;
-    - две попытки, затем к автору; лимит — пауза до `resetsAt` и `resume`; потолок стоимости;
-    - уведомление автору, когда ждут его ответы; отчёт по-русски в конце.
-  - Хук `tools/session` узнаёт «Сделай эпик E…» как начало задачи; тесты хука.
-- **Как проверить:** `just session-test`; `just docs-check`; прогон процедуры на учебном графе из двух задач «ответь одним словом» в двух контейнерах; `/code-review high`.
-- **Разделы:** R76, R81, R143, решение T167; COORDINATION.md — Rules.
 
 #### T171. Пилот: строки 4.17 и 4.18
 

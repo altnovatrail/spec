@@ -71,7 +71,7 @@ translation-test: _tools
 # tools/session/ is no recipe: it is the hook UserPromptSubmit that .claude/settings.json runs
 # before each prompt, in spec and, from the spec/ submodule, in every other NovaTrail repository.
 # It stops a prompt that starts a task other than the one the session has led — «Выполни задачу
-# T…», «планируй T…» — and names /clear: one task is one session (R143). It takes nothing from
+# T…», «планируй T…», «Сделай эпик E…» — and names /clear: one task is one session (R143). It takes nothing from
 # node_modules, since another repository has none in spec/tools/.
 # Run the session hook's own tests, on made-up transcripts.
 session-test:

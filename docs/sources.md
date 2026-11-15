@@ -281,6 +281,12 @@ GitHub Docs:
 
 Read 2026-11-15, for T168 and the 2026-11-15 amendment to R30. GitHub Docs, [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), the part `on.<push|pull_request|pull_request_target>.<paths|paths-ignore>`, from its source in [github/docs](https://github.com/github/docs) at the commit `d59b2631959db46d71ca5f7748ec04311c6d0870` of 2026-11-13, `data/reusables/actions/workflows/triggering-a-workflow-paths2.md`: "If a workflow is skipped due to path filtering, branch filtering, or a commit message, then checks associated with that workflow will remain in a "Pending" state. A pull request that requires those checks to be successful will be blocked from merging." And `triggering-a-workflow-paths5.md`: "The filter determines if a workflow should run by evaluating the changed files and running them against the `paths-ignore` or `paths` list. If there are no files changed, the workflow will not run."
 
+### 6.3. GitHub CLI: `gh pr checks --watch` and its exits, 2026-11-15
+
+Read 2026-11-15, for T170 and the T170 amendment to R156: GitHub CLI 2.101.0, the version of `GH_VERSION` in `.devcontainer/Dockerfile` — its help, and its source at the tag `v2.101.0`, the commit `0cf1092493af067646fc5f3db9421c6a6ec9c938` of [cli/cli](https://github.com/cli/cli), `pkg/cmd/pr/checks/checks.go`.
+- `gh pr checks --help`: "Additional exit codes: 8: Checks pending"; "--watch  Watch checks until they finish"; "--required  Only show checks that are required". `gh help exit-codes`: "If a command fails for any reason, the exit code will be 1". `gh pr diff --help`: "--name-only  Display only names of changed files".
+- The source: with no check on the pull request, `populateStatusChecks` returns `fmt.Errorf("no checks reported on the '%s' branch", pr.HeadRefName)`. The watch reads every check again each `--interval` and prints the table each time, and ends at `if counts.Pending == 0 || !opts.Watch { break }`, so a check not posted yet is not waited for; then `if counts.Failed > 0 { return cmdutil.SilentError } else if counts.Pending > 0 { return cmdutil.PendingError }`, and otherwise `nil`.
+
 ## 7. Go, licenses and rights to texts
 
 ### 7.1. Go: a program's exit

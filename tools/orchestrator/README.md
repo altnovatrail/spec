@@ -1,6 +1,6 @@
 # tools/orchestrator
 
-The orchestrator's commands (R156 in [docs/decisions.md](../../docs/decisions.md)). They run a task of a NovaTrail repository as one `claude -p` in that repository's devcontainer, read how it went, and continue the same session with the author's answers. «Сделай эпик E…» calls them from a session of spec in its orchestrator container, `.devcontainer/orchestrator/`, which sees the host's Docker. The procedure that calls them is RUN.md, T170.
+The orchestrator's commands (R156 in [docs/decisions.md](../../docs/decisions.md)). They run a task of a NovaTrail repository as one `claude -p` in that repository's devcontainer, read how it went, and continue the same session with the author's answers. «Сделай эпик E…» calls them from a session of spec in its orchestrator container, `.devcontainer/orchestrator/`, which sees the host's Docker, by the procedure in [«Сделай эпик E…»](#сделай-эпик-e) below.
 
 The code takes only Node's own modules. It runs from the orchestrator's own clone of spec, which has no `node_modules`:
 
@@ -79,3 +79,97 @@ The phases:
 | `lost` | no exit code, and its process is gone: the container stopped, or it was killed |
 
 The tests are `just orchestrator-test`.
+
+## «Сделай эпик E…»
+
+The procedure the orchestrator's session follows (R156 and its amendment of T170). It is written for that session. `$O` below stands for `node ~/.claude/novatrail-orchestrator/spec/tools/orchestrator/main.mjs`, and `$E` for `~/.claude/novatrail-orchestrator/epics/<epic>/`, the epic's folder on the volume `novatrail-claude`.
+
+### 1. Before the first run
+
+1. The session is in the orchestrator's container: `NOVATRAIL_DEVCONTAINER` is `1`, and `docker ps` answers. In spec's documents container, stop: the author reopens spec in the configuration «NovaTrail orchestrator».
+2. `$O sync` — the first time, when the clone is not there yet, `just orchestrator sync` from the working tree. Read the plan from the clone, not from the working tree: the working tree may be on any branch, and a task of spec run in the documents container switches it. Run `sync` again after each merge into spec.
+3. The epic is the current epic of spec, table 1 of the clone's RUN.md, whose number the phrase names. An epic of `run/EPICS.md` is not split into tasks yet: stop, and tell the author to plan it first (RUN.md, Epics). A task of spec may run the procedure on the rows of «Порядок» it names instead of an epic, as T171 does; its epic's folder is then named after the task.
+4. If `$E/epic.json` exists, an earlier session ran this epic: take the graph from it, and each run's state from `$O status <run>…`, then go on from section 4. A run outlives the session that started it.
+
+### 2. The graph
+
+Its nodes are tasks, each of one repository; an edge says which waits for which.
+
+- **The epic's own tasks of spec** — table 1 of the clone's RUN.md: each open task is a node of `spec`, which runs in spec's documents container. Its «Зависит от» are its edges.
+- **The rows of «Порядок»** that the epic's description and its tasks' bodies name. For each, read the repository's plan on `main` by rule 3 of [COORDINATION.md](../../COORDINATION.md): RUN.md, and `run/TASKS.md` where it exists. The row's open tasks are its nodes, `[ ]` alone: `[x]`, `[-]` and `[?]` are not run. Their order and dependencies inside the repository are its RUN.md's; between rows, the row's «Зависит от», for the part it names.
+- **A task the repository does not have yet** — «задачи нет» in the row — is a node whose prompt gives its text (section 3). Where the row names a text — «по тексту T157» —, it is that text, from its task's body in spec, in table 1 or an archive. Where it names none, write it by rule 6 of COORDINATION.md: «Цель», «Сделать», «Как проверить», «Разделы», and in «Почему» R76 spec, R156 spec and the row's number. Where the row says the repository's session writes an epic — «записывает эпиком» —, the text is to record and plan that epic, and the node grows into the epic's tasks once it is merged (section 5).
+- **One repository runs one task at a time** (the fifth 2026-11-15 amendment to R19): its next node starts when the one before is merged. Different repositories run in parallel, with no limit on how many.
+- **A node that needs another repository's release** — a tag of `sim` for a judgement, a tag of `spec` with a task of the epic — waits for that release, not for the merge (the second 2026-11-15 amendment to R31).
+
+Write the graph to `$E/epic.json` before the first run, and update it at each event: each node's repository, task, prompt's file, edges, run's id, attempts, pull request, merge commit and state — `waiting-deps`, `running`, `questions`, `merging`, `merged`, `released`, `done`, `with-author`, `stopped`. That file and the runs' folders are the epic's whole state: a compaction or a new session takes it from them.
+
+### 3. Wave 0 and the prompts
+
+**Wave 0.** For each repository of the graph but spec, compare the commit of its submodule, `gh api repos/altnovatrail/<repo>/contents/spec --jq .sha`, with the commit of spec's latest release, `gh api repos/altnovatrail/spec/releases/latest --jq .tag_name` and `gh api repos/altnovatrail/spec/commits/<tag> --jq .sha`. A repository not on it gets a node of wave 0 before all its others:
+- its plan's open task of a move to a tag of spec, if it has one, to the latest tag (R156 decides the tag);
+- otherwise the standard text [tasks/spec-tag.md](tasks/spec-tag.md), without its opening comment and with its fields filled in.
+
+Wave 0 runs in parallel, a node in each repository behind.
+
+**The prompt** of a task the repository has is the default, «Выполни задачу Txx из RUN.md»: `start` gives it without `--prompt`. The repository's own task of wave 0 gets a prompt that names the tag, since R156 decides it rather than the task's body: «Выполни задачу Txx из RUN.md. Переход — на последний тег spec, <tag> (R156 spec), даже если тело называет другой.» A task it does not have yet gets its number when it starts, not when the graph is written: the next one free on its `main` then — one more than the largest of the numbers of its own tasks, the headings `#### T…` and the rows of the task tables of RUN.md, `run/TASKS.md` and `docs/plan/`, not the numbers it cites of other repositories. The number the executor's report names is the node's from then on, in `$E/epic.json`. Its prompt, a file of `$E` given by `--prompt`, is:
+
+```text
+Выполни задачу T<n> из RUN.md. Её ещё нет в этом репозитории: запиши её по тексту ниже в свой план, по его правилам, под номером T<n>, если он ещё свободен, а иначе под следующим свободным, и назови номер в отчёте; затем выполни её (правило 6 COORDINATION.md spec).
+
+<the task's text>
+```
+
+### 4. Waves
+
+1. Each node whose edges are done, whose repository runs nothing, and that waits on no question or pause: `$O start <repo> <task> [--prompt <file>]`. The ceiling is the default, $75 (measurements 1.12).
+2. For each run started, a Monitor of `$O wait <run>`, with the longest `timeout_ms`: its one line is the run's state as it ends. On expiry with no line, the run still goes: arm it again. Never wait in the foreground.
+3. When a line comes, act on its `phase`:
+
+| Phase | What the orchestrator does |
+|---|---|
+| `done` | with a `pull_request`, section 5; with none, check that the task is `[x]` on its `main`, or that its report says why it needed no change, and mark the node done |
+| `waiting` | its `questions` go to the queue (section 6); the rest of the graph goes on |
+| `failed`, `lost` | an attempt (section 7): `resume` with what failed — the `failure`, or that the container stopped |
+| `limited` | a pause (section 7) |
+| `over-ceiling` | a question to the author (section 7) |
+
+Each event and what was done goes to `$E/epic.json` before the next.
+
+### 5. The merge
+
+The orchestrator merges each pull request itself, without the author's review (R156). For pull request `<n>` of `altnovatrail/<repo>`:
+1. `gh pr view <n> -R altnovatrail/<repo> --json number,state,isDraft,mergeStateStatus,files`. A draft is the task's own product — a candidate for a judgement — and is not merged: the node is done by its report; a draft whose report does not say why is a question to the author.
+2. The checks: once `gh pr checks <n> -R altnovatrail/<repo> --json name` lists any — before, it exits 1 with «no checks reported», which is no failure —, `gh pr checks <n> -R altnovatrail/<repo> --watch --interval 60 > $E/checks-<repo>-<n>.txt` in the background, Bash's `run_in_background`, not a Monitor: it prints the whole table at each interval. It exits 0 once no check reported is pending and none failed, and 1 when one failed (sources 6.3). A check posted late is missed by it: after it exits 0, `gh pr checks <n> -R altnovatrail/<repo> --json name,bucket` must hold `codecov/patch` and SonarCloud's check, where the repository's earlier pull requests have them, each `pass`; one missing or pending — read it again in a minute. CI, `codecov/patch` and SonarCloud must pass.
+3. SonarCloud's issues, which a green check can hide: `curl -s 'https://sonarcloud.io/api/issues/search?componentKeys=altnovatrail_<repo>&pullRequest=<n>&resolved=false'` — `total` must be 0 — and the gate, `api/qualitygates/project_status?projectKey=altnovatrail_<repo>&pullRequest=<n>` — `OK`. A repository with no project on SonarCloud has neither, and the report says so.
+4. A failed check or an issue is an attempt (section 7): `resume <run> --answers <file>`, the file naming each check with its link and `gh run view <workflow run's id> -R altnovatrail/<repo> --log-failed`, cut to what failed, and each issue with its rule, file, line and message. Then from step 2.
+5. `mergeStateStatus`, read again now, after the checks, by `gh pr view <n> -R altnovatrail/<repo> --json mergeStateStatus`: `BEHIND` — `gh pr update-branch <n> -R altnovatrail/<repo>`, then from step 2; `DIRTY` — an attempt: `resume` with the conflict with `main`; `BLOCKED` with every check green — a question to the author: the ruleset asks for what the orchestrator does not give.
+6. `gh pr merge <n> -R altnovatrail/<repo> --merge`: never `--admin`, never a push to `main`, never a tag (the second 2026-11-15 amendment to R31).
+7. After the merge:
+   - CI of `main` on the merge commit: `gh run list -R altnovatrail/<repo> --branch main --commit <sha> --json status,conclusion`, until it lists runs and each has ended — an empty list right after the merge means GitHub has not made them yet; none after ten minutes is a question to the author. The repository's next node starts once it is green; red is a question to the author — the orchestrator mends no `main`.
+   - The task, by the number its report names, is `[x]` on `main`; if not, `resume` the run to mark it, as an attempt.
+   - If the pull request changed `.devcontainer/` — `gh pr diff <n> -R altnovatrail/<repo> --name-only` (sources 6.3) —, the container is rebuilt before the repository's next run: `docker start` rebuilds nothing. A question to the author — rebuild it in VS Code, «Rebuild Container», and close its window —, which pauses that repository alone.
+   - A node waiting on this repository's release starts once a release holds the merge: `gh api repos/altnovatrail/<repo>/releases/latest --jq .tag_name`, then `gh api repos/altnovatrail/<repo>/compare/<sha>...<tag> --jq .status` is `identical` or `ahead`.
+   - A merge into spec: `$O sync` again.
+   - A node that recorded an epic of its repository: read its RUN.md on `main` again, and add the epic's open tasks to the graph as nodes of that repository.
+
+### 6. Questions
+
+1. The queue is `$E/questions.json`: each question with its run, repository, task, the row of table 3 that holds it, its options and its recommendation, and the answer once given. It pauses the node that asked it alone; the rest of the graph goes on.
+2. A small technical question inside one repository, which no document reserves for the author, the orchestrator decides itself, by the recommendation unless the documents say otherwise, and names in its report as its own decision (R156). Anything else goes to the author: a decision the log does not hold, a gap in the documents, a change of a decision, a question «В реестр spec», a step outside the repositories, a ceiling, a red `main`. In doubt, the author.
+3. When the queue has a question for the author and nothing else is in hand, PushNotification first, under 200 characters: how many questions, and whose — «E15: 2 вопроса — sim T70, api T95». Then AskUserQuestion, one question per call, in Russian: the header — the repository and the task; the question — what is asked, with the row of table 3 that holds it; two to four options, the recommended first with «(рекомендую)» in its label, each with what it means.
+4. Each answer goes to the run's file of answers in `$E`, in Russian, a line for each: «Ответ автора на вопрос строки <row>: <the option, or the author's own words, verbatim>.», and the file ends with «Запиши ответы по правилам своего RUN.md и продолжай задачу.» Once all of a run's questions are answered, and not before, `$O resume <run> --answers <file>` — once, with all of them — and a Monitor of its `wait`.
+5. A question «В реестр spec» answered here is still a row of that repository's table 3: spec's inbox records it by rule 13 of RUN.md, with the answer given.
+
+### 7. Attempts, limits and the ceiling
+
+- **Two attempts.** A failed or lost run, a red check, SonarCloud's issues, a conflict, a task not marked `[x]`: each is one `resume` in the same session, two at most for a node. The third goes to the author as a question: what failed each time, with options — another attempt with what to change, stop the node, or the author's own way. Answers, a limit's reset and a new ceiling are not attempts.
+- **A limit.** A run `limited` pauses every start and resume until its `resets_at`: the subscription's limit is one for all sessions (sources 2.12). Wait in the background, `until [ "$(date -u +%s)" -ge "$(date -u -d '<resets_at>' +%s)" ]; do sleep 60; done`, then resume each limited run with «Лимит подписки сбросился: продолжай задачу с того места, где она остановилась.» With no `resets_at`, wait an hour. A reset more than five hours away is the weekly ceiling: PushNotification with the date, and the wait goes on. Usage bought beyond the subscription the orchestrator never turns on (R156). The orchestrator's own session stops at the limit too, and goes on after it, as an interactive session does (sources 2.11), from `$E/epic.json`.
+- **The ceiling.** A run `over-ceiling` is a question to the author, with what it spent, what its report says is left, and options: a new ceiling, by its report — `$O resume <run> --ceiling <usd>` —, or stop the node.
+- **A rebuilt container** has a new id, and `resume` of an earlier run in it fails: start the task anew, its prompt saying where the earlier run stopped, by its report and its branch.
+
+### 8. The end
+
+The epic ends when every node is done, or waits on the author with nothing else to run.
+- The orchestrator edits no file of spec's working tree. Rows of «Порядок» whose tasks are all done are named in the report, and the epic's task of spec that closes it — or the task of spec that ran the procedure, as T171 — deletes them by rule 4 of COORDINATION.md.
+- PushNotification: the epic has ended, or waits on the author.
+- The report, in Russian: for each repository, its tasks, pull requests and merges, and the cost of each run — `spent_usd`, `num_turns`, `duration_ms`; the questions, their answers, and what the orchestrator decided itself; pauses at the limit and attempts; the plans the executors wrote; what is still open, and the rows «в реестр spec» for spec's inbox (rule 13 of RUN.md).

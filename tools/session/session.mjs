@@ -1,5 +1,6 @@
 // One task, one session (R143): which task a prompt of the author starts, which tasks a session's
-// transcript has led, and whether a new prompt may go on in that session.
+// transcript has led, and whether a new prompt may go on in that session. An epic the orchestrator
+// runs counts as one task (R156).
 //
 // A task starts by a phrase that names it: RUN.md's «Выполни задачу T…» or «планируй T…», in the
 // forms the author writes them — «Планируем задачу T…», «планируй реализацию T…», «делай T…»,
@@ -7,6 +8,10 @@
 // к реализации T…» and «продолжай T…» (measurements 1.7). «продолжай» names the task the session
 // goes on with: the same task passes, and another is stopped. A session may plan and carry out one
 // task; a prompt that starts another is stopped, and the author runs /clear.
+// «Сделай эпик E…» starts a run of the orchestrator, in the forms «делай эпик E…», «выполни эпик
+// E…», «продолжай эпик E…» and the other verbs of a task but planning: the orchestrator's session is
+// one epic (fifth amendment 2026-11-15 to R143), so it goes on with the same epic and stops another
+// epic or a task. «планируй эпик E…» splits an epic into tasks and starts nothing.
 // «Разбери входящие» names no task, and R143 counts the triage into the session of the task it
 // serves, before or after its planning, so it always goes on: the next task's own phrase is what
 // the hook stops.
@@ -16,10 +21,16 @@
 // «переделай T…» start nothing, and the task's number comes right after it or after «задачу»,
 // «задачи» or «реализацию»: «делай как в T24» only names a task. A number that goes on with «.» or
 // «-» and a digit, «T6.1», is not a task's, and a question mark right after the number makes the
-// phrase a question, «делаем T42?», which starts nothing. Spaces are [ \t\r\n], and «не» is checked on the text
-// before a phrase rather than by a lookbehind of many letters, so that no pattern backtracks.
-const TASK =
-  /(?<!\p{L})(?:выполни(?:те|м)?|выполня(?:ем|й)|планиру(?:й|йте|ем)|спланируй|с?делай|делаем|реализуй|начинай|продолжай|приступай[ \t\r\n]+к[ \t\r\n]+реализации)[ \t\r\n]+(?:(?:задачу|задачи|реализацию)[ \t\r\n]+)?T(\d{1,4})(?![\p{L}\p{N}_]|[.-]\d|[ \t]*\?)/giu;
+// phrase a question, «делаем T42?», which starts nothing. An epic's number comes right after «эпик»,
+// under the same rules. Spaces are [ \t\r\n], and «не» is checked on the text before a phrase
+// rather than by a lookbehind of many letters, so that no pattern backtracks.
+// The verbs that start a task or an epic, and those of a task alone: planning, and «приступай к
+// реализации», which the author says of a task.
+const DOING = String.raw`выполни(?:те|м)?|выполня(?:ем|й)|с?делай|делаем|реализуй|начинай|продолжай`;
+const TASK_ONLY = String.raw`планиру(?:й|йте|ем)|спланируй|приступай[ \t\r\n]+к[ \t\r\n]+реализации`;
+const END = String.raw`(?![\p{L}\p{N}_]|[.-]\d|[ \t]*\?)`;
+const TASK = new RegExp(String.raw`(?<!\p{L})(?:${DOING}|${TASK_ONLY})[ \t\r\n]+(?:(?:задачу|задачи|реализацию)[ \t\r\n]+)?T(\d{1,4})${END}`, "giu");
+const EPIC = new RegExp(String.raw`(?<!\p{L})(?:${DOING})[ \t\r\n]+эпик[ \t\r\n]+E(\d{1,3})${END}`, "giu");
 
 // Whether the text before a phrase ends in the word «не» and a space.
 function denied(before) {
@@ -44,11 +55,14 @@ function said(text) {
   return QUOTED.reduce((rest, pattern) => rest.replace(pattern, " "), text);
 }
 
-// The task a prompt starts, such as "T129", or null. T07 and T7 are one task.
+// The task a prompt starts, such as "T129", or the epic, such as "E14", or null: the first phrase
+// the prompt says. T07 and T7 are one task.
 export function taskOf(prompt) {
   const text = said(String(prompt ?? ""));
-  for (const task of text.matchAll(TASK)) {
-    if (!denied(text.slice(0, task.index))) return `T${Number(task[1])}`;
+  const found = (pattern, letter) => [...text.matchAll(pattern)].map((phrase) => ({ at: phrase.index, id: `${letter}${Number(phrase[1])}` }));
+  const phrases = [...found(TASK, "T"), ...found(EPIC, "E")].sort((one, other) => one.at - other.at);
+  for (const { at, id } of phrases) {
+    if (!denied(text.slice(0, at))) return id;
   }
   return null;
 }

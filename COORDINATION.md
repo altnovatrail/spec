@@ -4,7 +4,7 @@ The order in which the other repositories' tasks lead to the plan's goal, and wh
 
 ## Rules
 
-The coordinator is a session of `spec`, started by «Что дальше по COORDINATION.md?» in spec's devcontainer. It changes no other repository: it reads them on GitHub and tells the author which task to run, where and with what phrase. The orchestrator is the same role carried to the end, in spec's orchestrator container: started by «Сделай эпик E…», it runs the tasks itself and merges their pull requests (R156).
+The coordinator is a session of `spec`, started by «Что дальше по COORDINATION.md?» in spec's devcontainer. It changes no other repository: it reads them on GitHub and tells the author which task to run, where and with what phrase. The orchestrator is the same role carried to the end, in spec's orchestrator container: started by «Сделай эпик E…», it runs the tasks itself and merges their pull requests (R156), by the procedure of [tools/orchestrator/README.md](tools/orchestrator/README.md#сделай-эпик-e).
 
 1. Read [CLAUDE.md](CLAUDE.md), this file, R76 and the decisions the open rows cite.
 2. Devcontainer only (RUN.md rule 3).

@@ -6593,6 +6593,8 @@ Normative — format 0.3: a new section of the format text on versions of a modu
 
 — *Fifth amendment 2026-11-15 (R156):* **a run of the orchestrator's executor — one fresh `claude -p` in its repository's container — is one task in one session, and the fresh run is its `/clear`; `--resume` continues the same task's session with the author's answers, never another task. The hook runs in `-p` too (sources 2.11), and a fresh session's first prompt names its one task, so it passes. The orchestrator's own session is one epic, which «Сделай эпик E…» starts; the hook learns that phrase with T170.** — R156; RUN.md, T167.
 
+— *Sixth amendment 2026-11-15 (T170):* **the hook takes «Сделай эпик E…» as the start of a task, the epic, `E14`, in the forms «делай», «выполни», «продолжай эпик E…» and the other verbs of a task but planning: the orchestrator's session goes on with its epic and stops another epic or a task. «планируй эпик E…» splits an epic into tasks and starts nothing, and a Cyrillic «Е» is no epic's number, as a Cyrillic «Т» is no task's.** The executor's decision in T170; the procedure the session follows is the T170 amendment to R156. — `tools/session/`; RUN.md, T170.
+
 ## Account deletion and the Google sign-in
 
 **R144. Account deletion also removes the "Sign in with Google" connection in the owner's Google account: `app` revokes the Google access token that the fresh sign-in by the window before the deletion gives, and `api` does not get this token.** The author's answer of 2026-11-12 to the row «в реестр spec» `api` В52 (RUN.md of `api`, `main` 77fbf21), its first option (the 2026-11-12 amendment to R21 api); the triage before T134.
@@ -6887,3 +6889,18 @@ The rejected options:
 - a ceiling of $50, or none by default.
 
 — RUN.md, T169; `tools/orchestrator/README.md`.
+
+— *Amendment 2026-11-15 (T170):* **the procedure of «Сделай эпик E…» is the section «Сделай эпик E…» of `tools/orchestrator/README.md`, beside the commands it calls, and the hook of `tools/session/` counts the phrase as one task.** The executor's decisions in T170, which the author reviews line by line (RUN.md, table 1, «Claude, проверяю я»).
+- **What the phrase names.** E… is spec's current epic, table 1 of RUN.md in the orchestrator's clone; an epic of `run/EPICS.md` is planned first, by RUN.md, Epics. Its graph is the epic's own open tasks of spec, which run in spec's documents container, and the open tasks of the rows of «Порядок» it names, read from each repository's `main`; one repository runs one task at a time, different ones in parallel. A task of spec may run the procedure on the rows it names, as T171 does.
+- **The state** is the epic's folder on the volume `novatrail-claude`, `~/.claude/novatrail-orchestrator/epics/<epic>/`: the graph, `epic.json`, and the queue of questions, `questions.json`, beside the runs' folders. A compaction, or a new session after a limit, takes the epic from them. The orchestrator edits no file of spec's working tree: the rows done are named in its report, and a task of spec deletes them.
+- **Wave 0** compares each repository's submodule with the commit of spec's latest release. A repository behind runs its own open task of a move to a tag, to the latest one, or else the standard text `tools/orchestrator/tasks/spec-tag.md`, in Russian, after T56 of `sim` and T123. The repository's own task gets a prompt that names the latest tag, which R156 decides rather than its body. A task a repository does not have yet gets the next number free on its `main` when it starts, and the number the executor's report names is the node's from then on.
+- **The merge**, beyond R156: a draft pull request is the task's product — a candidate for a judgement — and is not merged; `BLOCKED` with every check green is a question to the author; the repository's next task starts once CI of `main` on the merge is green, and red is the author's, never mended by the orchestrator; a pull request that changed `.devcontainer/` waits for the author to rebuild the container, since `docker start` rebuilds nothing; a node that needs a release waits until a release holds the merge commit.
+- **Questions** go to the author by AskUserQuestion, one a call, after a PushNotification; a run's answers resume it once, together. A small technical question the orchestrator decides itself is named in the report as its own.
+- **The hook** reads «Сделай эпик E…», «делай», «выполни», «продолжай эпик E…» and the other verbs of a task but planning as a task, `E14`: the orchestrator's session goes on with its epic and stops another epic or a task; «планируй эпик E…» splits an epic and starts nothing, and a Cyrillic «Е» is no epic's number, as a Cyrillic «Т» is no task's.
+
+The rejected options:
+- the procedure in the Rules of `COORDINATION.md` — every coordinator's session would read it, and the file is at its budget;
+- the graph and its waves in code — a deterministic loop is T172's, should the session prove too little;
+- the orchestrator closing rows of «Порядок» itself — spec's working tree may be on any branch, and its clone is never edited.
+
+— RUN.md, T170; `tools/orchestrator/README.md`, `tools/orchestrator/tasks/spec-tag.md`, `tools/session/`.
