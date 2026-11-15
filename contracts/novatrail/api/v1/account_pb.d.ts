@@ -1541,7 +1541,8 @@ export declare const ListOwnKeyProvidersRequestSchema: GenMessage<ListOwnKeyProv
  */
 export declare type ListOwnKeyProvidersResponse = Message<"novatrail.api.v1.ListOwnKeyProvidersResponse"> & {
   /**
-   * The providers open to an own key, in the order of the admission table.
+   * The providers open to an own key, as `ListOwnKeyProviders` names them, in the order of the
+   * admission table.
    *
    * @generated from field: repeated novatrail.api.v1.OwnKeyProvider providers = 1;
    */
@@ -1947,8 +1948,9 @@ export enum OwnKeyCheck {
   NO_PERMISSION = 3,
 
   /**
-   * The admission function does not open the provider to an own key at this profile, or the
-   * admission table does not know the provider: no call went.
+   * The provider is not one that `ListOwnKeyProviders` names at this profile — `tutor` admits its
+   * own key there for no kind of call of `api` —, or the admission table does not know it: no call
+   * went.
    *
    * @generated from enum value: OWN_KEY_CHECK_PROVIDER_CLOSED = 4;
    */
@@ -2166,9 +2168,11 @@ export declare const AccountService: GenService<{
    * right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
    * leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
    * (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
-   * refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. A learner who reached the
-   * age of digital consent of their country while a parent's consent stands, whose profile waits for
-   * their own consent, withdraws that consent by it too, instead of confirming it (R116; R141).
+   * refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`, `ListWorks` and `GetWork`,
+   * by which `app` builds the export, nor the other requests on the consent that section 15 of
+   * contracts/README.md names. A learner who reached the age of digital consent of their country
+   * while a parent's consent stands, whose profile waits for their own consent, withdraws that
+   * consent by it too, instead of confirming it (R116; R141).
    * Refusals: `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave and that waits for no
    * consent of the learner — the adult withdraws it by `DeleteProfile` —, and `CAUSE_NO_PROFILE`,
    * which is the answer of a repeat too. It carries no
@@ -2278,7 +2282,8 @@ export declare const AccountService: GenService<{
    * The part of a profile's export that `api` holds, by an action of an adult with the right
    * `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
    * the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
-   * the export of it and of what the device holds. Refusals: `CAUSE_NO_PROFILE` and
+   * the export of it, of what the device holds and of the stored works its profile's file names,
+   * each by `WorkService.GetWork` (R151). Refusals: `CAUSE_NO_PROFILE` and
    * `CAUSE_ADULT_NEEDED`.
    *
    * @generated from rpc novatrail.api.v1.AccountService.ExportProfile
@@ -2303,7 +2308,10 @@ export declare const AccountService: GenService<{
    * Checks a key of the owner's at its provider, when it is connected, by a request with nothing of
    * a learner's: on the page where the key is entered, an action of an adult with the right
    * `can_manage` on the owner's profile of the age category `adult` (R84). A provider that gave no
-   * answer is an outcome. Refusals: `CAUSE_NO_PROFILE` and `CAUSE_KEY_NOT_FOR_PROFILE`.
+   * answer is an outcome. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_KEY_NOT_FOR_PROFILE`, and
+   * `CAUSE_KEY_CHECKS_EXHAUSTED` beyond the checks `api` lets the account make, with no call and
+   * with when the next check opens, which `app` tells the owner. The limit is checked after the
+   * profile, the form of the key and the category: a request refused by them counts no check.
    *
    * @generated from rpc novatrail.api.v1.AccountService.CheckOwnKey
    */
@@ -2313,9 +2321,12 @@ export declare const AccountService: GenService<{
     output: typeof CheckOwnKeyResponseSchema;
   },
   /**
-   * The providers that the admission function opens to an own key at a profile, so that `app`
-   * builds no list in: empty at a profile whose age category is not `adult`. An action of an adult
-   * with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
+   * The providers whose own key `tutor` admits at the profile's age category for one kind of call
+   * of AI that `api` makes at least — the reading of a work, the words sent with the work, and
+   * "explain differently", sent without it —, by the admission table and the models admitted at the
+   * deployment's rung, so that `app` builds no list in and offers no provider that `CheckOwnKey`
+   * finds closed: empty at a profile whose age category is not `adult` (R96). An action of an
+   * adult with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
    *
    * @generated from rpc novatrail.api.v1.AccountService.ListOwnKeyProviders
    */

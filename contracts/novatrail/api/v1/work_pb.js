@@ -114,10 +114,11 @@ export const WorkKind = /*@__PURE__*/
  * what `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, an attempt
  * that is not the profile's `CAUSE_NOT_FOUND`, a learning request of a profile whose consent is not
  * confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
- * `CAUSE_AGE_NEEDED`, a request without the right it needs the code `permission_denied` with no
- * `Refusal`, and a request whose form the contract refuses the code `invalid_argument` with no
- * `Refusal`. Each repeats by the state of the profile's works, with no idempotency key. The server
- * reads no work and gives none to an AI provider.
+ * `CAUSE_AGE_NEEDED` — but for `DeleteWork` and the learner's `ListWorks` and `GetWork`, which
+ * neither refuses (R113) —, a request without the right it needs the code `permission_denied`
+ * with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
+ * with no `Refusal`. Each repeats by the state of the profile's works, with no idempotency key.
+ * The server reads no work and gives none to an AI provider.
  *
  * @generated from service novatrail.api.v1.WorkService
  */

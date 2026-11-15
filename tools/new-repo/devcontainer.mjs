@@ -13,13 +13,22 @@ import { walk } from "./copy.mjs";
 // What a kind of repo-template/kinds.json may add to spec's devcontainer, and to the template's
 // .claude/settings.json ("claude"). A key it does not know stops the recipe, so that a misspelt one
 // is not quietly left out of the copy.
-const KIND_KEYS = ["extensions", "settings", "toolchain", "devcontainer", "claude"];
+const KIND_KEYS = ["extensions", "settings", "toolchain", "devcontainer", "claude", "claudePlugins"];
+
+// The plugins of spec's claude-plugins/ that a kind loads in every Claude Code session of the
+// container: CLAUDE_CODE_PLUGIN_DIRS in containerEnv names their folders through the spec submodule,
+// by a path of the container's own. A marketplace would be recorded in ~/.claude, the volume every
+// NovaTrail container shares, by the absolute path of the container that recorded it last, and the
+// sessions of the others would lose its plugins (R143).
+export const PLUGIN_DIRS = "CLAUDE_CODE_PLUGIN_DIRS";
+export const WORKSPACE = "${containerWorkspaceFolder}";
+const PLUGIN_NAME = /^[a-z0-9][a-z0-9-]*$/;
 
 // A kind, read from kinds.json in the template `template`: VS Code extensions, VS Code settings,
 // lines for the end of the Dockerfile's toolchain stage, from the file in kinds/ that "toolchain"
 // names (R79), and from the folder in kinds/ that "devcontainer" names, lines for the devcontainer
-// stage, its Dockerfile, and the files the image copies, the rest of it (R102); and the keys "claude"
-// adds to the copy's .claude/settings.json (R143). A tag before R79 wrote a kind as its list of extensions alone, and
+// stage, its Dockerfile, and the files the image copies, the rest of it (R102); the keys "claude"
+// adds to the copy's .claude/settings.json, and the plugins "claudePlugins" loads (R143). A tag before R79 wrote a kind as its list of extensions alone, and
 // new-repo builds from the latest tag, so that form is read too.
 export function readKind(template, name, kind) {
   const where = `kinds.json: ${name}`;
@@ -27,14 +36,30 @@ export function readKind(template, name, kind) {
   if (kind === null || typeof kind !== "object") throw new Error(`${where}: a kind is an object of ${KIND_KEYS.join(", ")}`);
   const unknown = Object.keys(kind).filter((key) => !KIND_KEYS.includes(key));
   if (unknown.length > 0) throw new Error(`${where}: ${unknown.join(", ")} is not one of ${KIND_KEYS.join(", ")}`);
-  const { extensions = [], settings = {}, toolchain = null, devcontainer = null, claude = {} } = kind;
+  const { extensions = [], settings = {}, toolchain = null, devcontainer = null, claude = {}, claudePlugins = [] } = kind;
   if (!Array.isArray(extensions) || !extensions.every((e) => typeof e === "string")) throw new Error(`${where}: extensions is a list of strings`);
   if (settings === null || typeof settings !== "object" || Array.isArray(settings)) throw new Error(`${where}: settings is an object`);
   if (claude === null || typeof claude !== "object" || Array.isArray(claude)) throw new Error(`${where}: claude is an object`);
+  if (!Array.isArray(claudePlugins) || !claudePlugins.every((p) => typeof p === "string" && PLUGIN_NAME.test(p))) {
+    throw new Error(`${where}: claudePlugins is a list of names of folders in spec's claude-plugins/`);
+  }
+  // Each plugin lies in claude-plugins/ beside the template, under its own name: a misspelt one would
+  // be written into the copy's devcontainer, and its sessions would start without the plugin.
+  for (const plugin of claudePlugins) {
+    const manifest = path.join(template, "..", "claude-plugins", plugin, ".claude-plugin", "plugin.json");
+    let named;
+    try {
+      named = JSON.parse(fs.readFileSync(manifest, "utf8")).name;
+    } catch {
+      throw new Error(`${where}: claudePlugins names ${plugin}, and spec's claude-plugins/${plugin}/ holds no .claude-plugin/plugin.json that reads as JSON`);
+    }
+    if (named !== plugin) throw new Error(`${where}: claudePlugins names ${plugin}, whose plugin.json names the plugin ${JSON.stringify(named)}`);
+  }
   return {
     extensions,
     settings,
     claude,
+    claudePlugins,
     toolchain: toolchain === null ? null : readToolchain(template, where, toolchain),
     devcontainer: devcontainer === null ? null : readDevcontainerFolder(template, where, devcontainer),
   };
@@ -73,7 +98,7 @@ function readDevcontainerFolder(template, where, folder) {
 }
 
 // The edits, given the copy's root, the repository's name and its kind, as readKind gives it.
-export function editDevcontainer(root, name, { extensions, settings, toolchain, devcontainer = null }) {
+export function editDevcontainer(root, name, { extensions, settings, toolchain, devcontainer = null, claudePlugins = [] }) {
   const dir = path.join(root, ".devcontainer");
   // Docker names may not start with a dot, and a container named after .github needs none; nor
   // may a name in a network, a name of DNS.
@@ -92,6 +117,7 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
     text = remove(text, /^(?:[ \t]*\/\/.*\n)*[ \t]*"git\.repositoryScanMaxDepth":.*\n/m, "the setting only spec needs");
     text = addSettings(text, settings);
     text = addExtensions(text, extensions);
+    text = addPluginDirs(text, claudePlugins);
     text = addContext(text, devcontainer);
     return replace(
       text,
@@ -211,6 +237,22 @@ function addExtensions(text, extensions) {
   return append(text, EXTENSIONS, "extensions", extensions.map((e) => JSON.stringify(e)));
 }
 
+// The kind's plugins go at the end of spec's containerEnv, as one variable, with why it is there.
+const CONTAINER_ENV = /^(?<head>(?<indent>[ \t]*)"containerEnv": \{\n)(?<body>[\s\S]*?)(?<tail>\n\k<indent>\})/m;
+
+function addPluginDirs(text, plugins) {
+  if (plugins.length === 0) return text;
+  if (Object.hasOwn(parseJsonc(text).containerEnv ?? {}, PLUGIN_DIRS)) throw new Error(`the environment: spec's devcontainer already sets ${PLUGIN_DIRS}`);
+  const folders = plugins.map((plugin) => `${WORKSPACE}/spec/claude-plugins/${plugin}`).join(":");
+  const comment = [
+    "// Claude Code loads the plugins of spec's claude-plugins/ that this repository's kind names in",
+    "// every session here, from this container's own path: a marketplace would be recorded in the",
+    "// ~/.claude that the containers share, by the path of one of them, and the sessions of the",
+    "// others would lose it (R143 spec).",
+  ];
+  return append(text, CONTAINER_ENV, "environment", [`${JSON.stringify(PLUGIN_DIRS)}: ${JSON.stringify(folders)}`], comment);
+}
+
 // A setting spec already has would be a second key of the same name: the kind does not override.
 function addSettings(text, settings) {
   const own = parseJsonc(text).customizations?.vscode?.settings ?? {};
@@ -221,7 +263,7 @@ function addSettings(text, settings) {
 
 // Entries go after a comma on the last entry of spec's own, one level deeper than the key that
 // opens the list, under a comment that says where they come from.
-function append(text, pattern, what, entries) {
+function append(text, pattern, what, entries, comment = [`// The ${what} of this repository's kind.`]) {
   if (entries.length === 0) return text;
   const all = [...text.matchAll(new RegExp(pattern.source, `${pattern.flags}g`))];
   if (all.length !== 1) throw new Error(`the ${what}: expected once in spec's devcontainer, found ${all.length}`);
@@ -235,7 +277,7 @@ function append(text, pattern, what, entries) {
   if (!code.endsWith(",")) lines[last] = `${code},${lines[last].slice(code.length)}`;
   const inner = `${indent}    `;
   const added = entries.map((e, i) => `${inner}${e.replaceAll("\n", `\n${inner}`)}${i < entries.length - 1 ? "," : ""}`);
-  return text.replace(found[0], () => head + [...lines, `${inner}// The ${what} of this repository's kind.`, ...added].join("\n") + tail);
+  return text.replace(found[0], () => head + [...lines, ...comment.map((line) => `${inner}${line}`), ...added].join("\n") + tail);
 }
 
 // JSON with comments, as devcontainer.json is written: the comments go, then JSON.parse.

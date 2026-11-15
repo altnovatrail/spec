@@ -185,7 +185,8 @@ type WorkSubmission struct {
 	// The context of the submission, as the element `<novatrail-canvas>` gave it, in its own names:
 	// the JSON object of it, in UTF-8.
 	Context []byte `protobuf:"bytes,1,opt,name=context,proto3" json:"context,omitempty"`
-	// How many events of the history the submission covers.
+	// How many events of the history the submission covers, from 0: below it, `PutWork` is refused
+	// `invalid_argument`.
 	HistoryLength int32 `protobuf:"varint,2,opt,name=history_length,json=historyLength,proto3" json:"history_length,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

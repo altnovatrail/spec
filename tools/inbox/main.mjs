@@ -2,8 +2,9 @@
 //
 //   node tools/inbox/main.mjs
 //
-// Reads table 3 of each repository's RUN.md on GitHub through gh — on main, and in each open
-// pull request — and table 5 of spec's RUN.md in the working tree, the rows spec has recorded.
+// Reads table 3 of each repository on GitHub through gh — its run/QUESTIONS.md, or its RUN.md until
+// it moves its tables (R153), on main and in each open pull request — and table 5 of spec,
+// run/INBOX.md in the working tree, the rows spec has recorded.
 // Prints the rows marked «в реестр spec» that are new on main, those on the way in an open pull
 // request, the rows of table 5 whose rows on main have changed since it recorded them — by the
 // fingerprint it keeps of them —, and the numbers of table 5 that the source no longer marks. A
@@ -19,11 +20,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { REPOSITORIES } from "../release/repositories.mjs";
 import { byCodeUnits, isMain } from "../shared.mjs";
-import { compare, ledgerOf, readRepository, report, runGh } from "./inbox.mjs";
+import { compare, LEDGER, ledgerOf, readRepository, report, runGh } from "./inbox.mjs";
 import { dueOf } from "./due.mjs";
 
 const SPEC = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const RUN = path.join(SPEC, "RUN.md");
+const INBOX = path.join(SPEC, LEDGER);
 const MEASUREMENTS = path.join(SPEC, "docs", "measurements.md");
 
 // Every repository of the organization but spec itself, in a stable order.
@@ -34,7 +35,7 @@ export const OTHERS = Object.keys(REPOSITORIES)
 // The whole run: { lines, status }.
 export function inbox({
   names = OTHERS,
-  ledgerSource = fs.readFileSync(RUN, "utf8"),
+  ledgerSource = fs.readFileSync(INBOX, "utf8"),
   measurementsSource = fs.readFileSync(MEASUREMENTS, "utf8"),
   today = new Date(),
   gh = runGh,

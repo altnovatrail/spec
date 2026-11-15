@@ -14,31 +14,46 @@ import "novatrail/api/v1/attempt.proto";
 // what `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, an attempt
 // that is not the profile's `CAUSE_NOT_FOUND`, a learning request of a profile whose consent is not
 // confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
-// `CAUSE_AGE_NEEDED`, a request without the right it needs the code `permission_denied` with no
-// `Refusal`, and a request whose form the contract refuses the code `invalid_argument` with no
-// `Refusal`. Each repeats by the state of the profile's works, with no idempotency key. The server
-// reads no work and gives none to an AI provider.
+// `CAUSE_AGE_NEEDED` — but for `DeleteWork` and the learner's `ListWorks` and `GetWork`, which
+// neither refuses (R113) —, a request without the right it needs the code `permission_denied`
+// with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
+// with no `Refusal`. Each repeats by the state of the profile's works, with no idempotency key.
+// The server reads no work and gives none to an AI provider.
 service WorkService {
   // Keeps the work of an attempt of the profile, in place of the one kept of it before: a learning
   // request with the right `can_learn`, while the profile's storage of works is on. `app` puts a
   // work when it writes it to the device — at each submission and when the attempt closes at
   // least —, and the last one put stands. The kind of the work `api` takes from the attempt's
-  // task. `api` checks the form of the work alone, as `StoredWork` names it: a work of another form
-  // gets the code `invalid_argument` with no `Refusal`. Refusals: `CAUSE_STORAGE_OFF` and
-  // `CAUSE_WORK_TOO_LARGE`.
+  // task, or from the work kept of it before. `api` checks the form of the work alone, as
+  // `StoredWork` names it: a work of another form gets the code `invalid_argument` with no
+  // `Refusal`. A message larger than `api` reads gets the code `resource_exhausted` with no
+  // `Refusal`, before it is parsed, and `app` reads it as `CAUSE_WORK_TOO_LARGE`. Refusals:
+  // `CAUSE_STORAGE_OFF`, `CAUSE_WORK_TOO_LARGE`, `CAUSE_PACKAGE_UNKNOWN` when the index of the
+  // image does not know the attempt's package digest, whatever work of the attempt was kept before,
+  // and `CAUSE_VERSION_NOT_GIVEN` when the attempt's version is out of the window of formats that
+  // `api` reads and no work of the attempt was kept before, so that its kind cannot be known; a
+  // withdrawn version, which the image still holds, gives the kind by its task. On each refusal
+  // `api` keeps nothing of the work, and `app` keeps it on the device alone.
   rpc PutWork(PutWorkRequest) returns (PutWorkResponse);
   // The works of the profile kept on the server, newest first, without their bytes: a learning
   // request with the right `can_learn`, or an action of an adult with `can_manage`. While the
-  // storage is off the list is empty: switching it off erased them.
+  // storage is off the list is empty: switching it off erased them. While the profile waits for a
+  // consent or for its age, neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses the
+  // learner's request, by which `app` builds the export, as neither refuses the learner's
+  // `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile (R113).
   rpc ListWorks(ListWorksRequest) returns (ListWorksResponse);
-  // One work kept on the server, whole, as it was put, to restore it on a device or to export it:
-  // as `ListWorks`. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work kept.
+  // One work kept on the server, whole, as it was put, to restore it on a device or to export it,
+  // beside the part of the export `ExportProfile` and `ExportAccount` give (R151): as `ListWorks`,
+  // while the profile waits too. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work
+  // kept.
   rpc GetWork(GetWorkRequest) returns (GetWorkResponse);
   // Erases one work kept on the server, by whoever consents to the storage for the learner, as
   // `SetWorkStorage`: an action of an adult with `can_manage`, and at a profile whose learner gave
   // their own consent, the learner's learning request with `can_learn`. The answer is "erased",
-  // and so is a repeat's, of an attempt with no work kept. The work on the device stays. Refusals:
-  // `CAUSE_LEARNER_DECIDES` and `CAUSE_ADULT_NEEDED`.
+  // and so is a repeat's, of an attempt with no work kept. The work on the device stays. While the
+  // profile waits for a consent or for its age, it goes as switching the storage off goes: neither
+  // `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it (R113). Refusals: `CAUSE_LEARNER_DECIDES`
+  // and `CAUSE_ADULT_NEEDED`.
   rpc DeleteWork(DeleteWorkRequest) returns (DeleteWorkResponse);
 }
 
@@ -79,7 +94,8 @@ message WorkSubmission {
   // The context of the submission, as the element `<novatrail-canvas>` gave it, in its own names:
   // the JSON object of it, in UTF-8.
   bytes context = 1;
-  // How many events of the history the submission covers.
+  // How many events of the history the submission covers, from 0: below it, `PutWork` is refused
+  // `invalid_argument`.
   int32 history_length = 2;
 }
 

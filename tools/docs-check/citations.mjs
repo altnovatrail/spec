@@ -50,17 +50,22 @@ const DOCUMENT_SECTION = new RegExp(
   "gu",
 );
 const WORD_SECTION = new RegExp(`(?<!\\p{L})(?:раздел(?:а|е|у|ом|ы|ов|ам|ами|ах)?|sections?)\\s+(${SECTION.source})(?![\\p{L}\\p{N}])`, "giu");
-// One more section of the same citation: ", 4", " и 8", "–7". A number followed by a word is a
-// count, not a section: "product 7, 12 модулей". A range is an en dash without spaces: "5–7".
+// One more section of the same citation: ", 4", " и 8", "–7". A number after a comma or «и»
+// followed by a word is a count, not a section, and so is a range there: "product 7, 12 модулей",
+// "product 7, 10–12 модулей". A range is an en dash without spaces, "5–7", and the last number of
+// a range that goes on from a section is a section whatever follows it: "measurements 1.1–1.99
+// records" cites 1.99.
+const WORD_AFTER = `\\s+(?!(?:и|and)\\s+\\d|${FOREIGN}|${SPEC})\\p{L}`;
 const SECTION_MORE = new RegExp(
-  `(\\s*,\\s*|\\s+и\\s+|\\s+and\\s+|–)(${SECTION.source})` +
-    `(?![\\p{L}\\p{N}]|[.-]\\d|\\s+(?!(?:и|and)\\s+\\d|${FOREIGN}|${SPEC})\\p{L})`,
+  `(\\s*,\\s*|\\s+и\\s+|\\s+and\\s+)(${SECTION.source})` +
+    `(?![\\p{L}\\p{N}]|[.-]\\d|${WORD_AFTER}|–${SECTION.source}${WORD_AFTER})` +
+    `|(–)(${SECTION.source})(?![\\p{L}\\p{N}]|[.-]\\d)`,
   "uy",
 );
-// "раздел 3 лицензии", "разделы 3 и 4 лицензии", "section 3 of the license": a section of some
-// other text. Tested on the text after the first number.
+// "раздел 3 лицензии", "разделы 3 и 4 лицензии", "section 3 of the license", "sections 9–11 in SB
+// 297": a section of some other text. Tested on the text after the first number.
 const SECTION_OF_SOMETHING = new RegExp(
-  `^(?:(?:\\s*,\\s*|\\s+(?:и|and)\\s+|–)${SECTION.source})*\\s+(?:${[...otherTexts, "of"].map(escape).join("|")})(?!\\p{L})`,
+  `^(?:(?:\\s*,\\s*|\\s+(?:и|and)\\s+|–)${SECTION.source})*\\s+(?:${[...otherTexts, "of", "in"].map(escape).join("|")})(?!\\p{L})`,
   "u",
 );
 
@@ -169,10 +174,11 @@ function sectionList(text, first, at) {
     SECTION_MORE.lastIndex = at;
     const m = SECTION_MORE.exec(text);
     if (!m) break;
-    if (m[1] === "–" && /^\d+$/.test(list.at(-1)) && /^\d+$/.test(m[2])) {
-      for (let n = Number(list.at(-1)) + 1; n < Number(m[2]); n++) list.push(String(n));
+    const number = m[2] ?? m[4];
+    if (m[3] && /^\d+$/.test(list.at(-1)) && /^\d+$/.test(number)) {
+      for (let n = Number(list.at(-1)) + 1; n < Number(number); n++) list.push(String(n));
     }
-    list.push(m[2]);
+    list.push(number);
     at = m.index + m[0].length;
   }
   return { list, end: at };

@@ -1,13 +1,12 @@
 # claude-plugins
 
-The Claude Code plugins that NovaTrail's repositories turn on, as a marketplace of their own: `novatrail`, the folder Claude Code reads as a `directory` marketplace. A repository of the `go` kind names it in its `.claude/settings.json`, which `just new-repo` writes from [repo-template/kinds.json](../repo-template/kinds.json):
+The Claude Code plugins that NovaTrail's repositories load, each a folder of its own. A repository of the `go` kind loads `gopls-lsp` by its devcontainer, which `just new-repo` writes from [repo-template/kinds.json](../repo-template/kinds.json) (`claudePlugins`): `containerEnv` of `.devcontainer/devcontainer.json` names the folder in the variable `CLAUDE_CODE_PLUGIN_DIRS`, and Claude Code loads it in every session in that container as the flag `--plugin-dir` would (sources 2.10):
 
-```json
-"extraKnownMarketplaces": { "novatrail": { "source": { "source": "directory", "path": "./spec/claude-plugins" } } },
-"enabledPlugins": { "gopls-lsp@novatrail": true }
+```jsonc
+"CLAUDE_CODE_PLUGIN_DIRS": "${containerWorkspaceFolder}/spec/claude-plugins/gopls-lsp"
 ```
 
-The path goes through the repository's `spec` submodule, so the plugin is the one of the tag of spec the repository pins, and it comes with a move to a newer tag, as the lock file of gopls does (R102, R143). Claude Code loads a plugin of a local marketplace in place, from this folder: nothing is fetched, and nobody runs `claude plugin install`. It reads the project's settings only once the folder is trusted (sources 2.7).
+The path goes through the repository's `spec` submodule, so the plugin is the one of the tag of spec the repository pins, and it comes with a move to a newer tag, as the lock file of gopls does (R102, R143). Nothing is fetched, nobody runs `claude plugin install`, and no path of it is recorded in `~/.claude`, which every NovaTrail container shares. A marketplace is not used: Claude Code records a local one there by an absolute path, the path of the container that recorded it last, and the sessions of the other containers lose its plugins (the 2026-11-15 amendment to R143). The variable is not in `.claude/settings.json`, because Claude Code ignores it there (sources 2.10). Several plugins are separated by `:` (sources 2.10).
 
 ## gopls-lsp
 

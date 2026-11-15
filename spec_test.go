@@ -217,7 +217,7 @@ func TestExportHoldsEveryFile(t *testing.T) {
 		t.Fatalf("VERSION is %q, not an integer and a newline", version)
 	}
 	want := strings.TrimSuffix(string(version), "\n")
-	for _, term := range []string{"manifest", "account", "profile", "device"} {
+	for _, term := range []string{"manifest", "account", "profile", "device", "work"} {
 		data, err := fs.ReadFile(Export, "schemas/"+term+".schema.json")
 		if err != nil {
 			t.Fatal(err)

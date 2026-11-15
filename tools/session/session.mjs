@@ -1,17 +1,25 @@
 // One task, one session (R143): which task a prompt of the author starts, which tasks a session's
 // transcript has led, and whether a new prompt may go on in that session.
 //
-// A task starts by a phrase of RUN.md that names it: «Выполни задачу T…» or «планируй T…», in the
-// forms the author writes them — «Планируем задачу T…», «планируй реализацию T…». A session may
-// plan and carry out one task; a prompt that starts another is stopped, and the author runs /clear.
+// A task starts by a phrase that names it: RUN.md's «Выполни задачу T…» or «планируй T…», in the
+// forms the author writes them — «Планируем задачу T…», «планируй реализацию T…», «делай T…»,
+// «сделай T…», «делаем T…», «выполняй T…», «реализуй T…», «спланируй T…», «начинай T…», «приступай
+// к реализации T…» and «продолжай T…» (measurements 1.7). «продолжай» names the task the session
+// goes on with: the same task passes, and another is stopped. A session may plan and carry out one
+// task; a prompt that starts another is stopped, and the author runs /clear.
 // «Разбери входящие» names no task, and R143 counts the triage into the session of the task it
 // serves, before or after its planning, so it always goes on: the next task's own phrase is what
 // the hook stops.
 
 // The phrases, found anywhere in a prompt — the author writes «хорошо. далее планируем T…» too —
-// unless the word «не» comes right before one. Spaces are [ \t\r\n], and «не» is checked on the
-// text before a phrase rather than by a lookbehind, so that no pattern backtracks.
-const TASK = /(?:выполни(?:те|м)?|выполняем|планиру(?:й|йте|ем))[ \t\r\n]+(?:(?:задачу|задачи|реализацию)[ \t\r\n]+)?T(\d{1,4})\b/giu;
+// unless the word «не» comes right before one. The verb is a whole word, so «доделай T…» and
+// «переделай T…» start nothing, and the task's number comes right after it or after «задачу»,
+// «задачи» or «реализацию»: «делай как в T24» only names a task. A number that goes on with «.» or
+// «-» and a digit, «T6.1», is not a task's, and a question mark right after the number makes the
+// phrase a question, «делаем T42?», which starts nothing. Spaces are [ \t\r\n], and «не» is checked on the text
+// before a phrase rather than by a lookbehind of many letters, so that no pattern backtracks.
+const TASK =
+  /(?<!\p{L})(?:выполни(?:те|м)?|выполня(?:ем|й)|планиру(?:й|йте|ем)|спланируй|с?делай|делаем|реализуй|начинай|продолжай|приступай[ \t\r\n]+к[ \t\r\n]+реализации)[ \t\r\n]+(?:(?:задачу|задачи|реализацию)[ \t\r\n]+)?T(\d{1,4})(?![\p{L}\p{N}_]|[.-]\d|[ \t]*\?)/giu;
 
 // Whether the text before a phrase ends in the word «не» and a space.
 function denied(before) {

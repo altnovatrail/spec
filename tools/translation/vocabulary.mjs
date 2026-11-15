@@ -26,6 +26,9 @@ const WORDS = [
   [String.raw`\*Выяснилось:\*`, String.raw`\*Found:\*`],
   [String.raw`\*Поправка ${DATE}:\*`, String.raw`\*Amendment ${DATE}:\*`],
   ...ORDINALS.map(([ru, en]) => [String.raw`\*${ru} поправка ${DATE}:\*`, String.raw`\*${en} amendment ${DATE}:\*`]),
+  // The logs of `engine` and `infra` also write «*Поправка ДАТА, вторая:*», translated as
+  // "*Amendment ДАТА, second:*" (RUN.md, T149).
+  ...ORDINALS.map(([ru, en]) => [String.raw`\*Поправка ${DATE}, ${ru.toLowerCase()}:\*`, String.raw`\*Amendment ${DATE}, ${en.toLowerCase()}:\*`]),
   [String.raw`«Заменено»`, String.raw`"Superseded"`],
   [String.raw`\*Решить при детализации:\*`, String.raw`\*To decide when detailed:\*`],
   [String.raw`\*Делает:\*`, String.raw`\*Does:\*`],

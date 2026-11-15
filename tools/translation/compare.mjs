@@ -15,7 +15,7 @@ import { vocabulary } from "./vocabulary.mjs";
 
 const CYRILLIC = /\p{Script=Cyrillic}/u;
 // Register and work numbers: R, О-, П-, Т- through docs-check's patterns, with the scope their
-// suffix gives them; Д and В of the tables of RUN.md and DEBT.md, the tasks T and the epics E here.
+// suffix gives them; Д and В of the tables of run/, the tasks T and the epics E here.
 const WORK_NUMBER = /(?<![\p{L}\p{N}_-])(Д|В|T|E)(\d+)(?![\p{L}\p{N}])/gu;
 // A prefix of a register in an English text stays Cyrillic: "О-10", "П-15", "Т-24", "Д218", "В33",
 // and "О-" alone, as a register is named. Д and В alone are words, and count only before a number.

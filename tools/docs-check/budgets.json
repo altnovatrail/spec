@@ -4,8 +4,12 @@
       "CLAUDE.md": 12,
       "RULES.md": 14,
       "RUN.md": 96,
-      "DEBT.md": 132,
-      "COORDINATION.md": 72
+      "run/EPICS.md": 16,
+      "run/QUESTIONS.md": 24,
+      "run/DEBT.md": 48,
+      "run/INBOX.md": 12,
+      "run/TASKS.md": 48,
+      "COORDINATION.md": 24
     },
     "rule": 6,
     "entry": 40,
@@ -17,7 +21,10 @@
     },
     "rows": {
       "RUN.md": 4,
-      "DEBT.md": 4,
+      "run/EPICS.md": 4,
+      "run/QUESTIONS.md": 4,
+      "run/DEBT.md": 4,
+      "run/INBOX.md": 2,
       "COORDINATION.md": 4
     }
   },
@@ -25,7 +32,11 @@
     "files": {
       "CLAUDE.md": 12,
       "RUN.md": 96,
-      "DEBT.md": 128
+      "DEBT.md": 128,
+      "run/EPICS.md": 16,
+      "run/QUESTIONS.md": 24,
+      "run/DEBT.md": 128,
+      "run/TASKS.md": 48
     },
     "rule": 6,
     "entry": 40,
@@ -33,7 +44,10 @@
     "sections": {},
     "rows": {
       "RUN.md": 4,
-      "DEBT.md": 4
+      "DEBT.md": 4,
+      "run/EPICS.md": 4,
+      "run/QUESTIONS.md": 4,
+      "run/DEBT.md": 4
     }
   }
 }

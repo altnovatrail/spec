@@ -27,7 +27,7 @@ import { RULES, SCHEMA, readingOf } from "./reading.mjs";
 export const FOLDER = "export";
 export const EXPORT_PART = { folder: FOLDER, prefix: "https://altnovatrail.github.io/spec/export/", open: false };
 // The schemas of the files of an export, by term (section 4), and of a vector of reading.
-export const FILE_TERMS = ["manifest", "account", "profile", "device"];
+export const FILE_TERMS = ["manifest", "account", "profile", "device", "work"];
 const VECTOR_TERM = "reading-vector";
 const VERSION = /^([1-9]\d*)\n$/;
 const VERSION_WORDS = { missing: "no VERSION: the part's version, an integer and a newline", malformed: "the part's version is an integer from 1 and a newline, with no leading zero" };

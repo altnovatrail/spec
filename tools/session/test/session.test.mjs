@@ -40,6 +40,26 @@ test("a task starts by each phrase of RUN.md, wherever the prompt says it", () =
     ["Разбери входящие и выполни задачу T3", "T3"],
     ["Сначала не T1, а выполни задачу T5", "T5"],
     ["не планируй T6, планируй T7", "T7"],
+    // The author's own words (measurements 1.7).
+    ["делай T141", "T141"],
+    ["контейнер перестроил. Делай T10", "T10"],
+    ["Делай задачу T05 и учти, что рядом идёт другая сессия", "T5"],
+    ["делай задачи T13 и T14 последовательно", "T13"],
+    ["сделай T46", "T46"],
+    ["делаем задачу T26", "T26"],
+    ["выполняй T04", "T4"],
+    ["Последовательно выполняй задачи T23, T24", "T23"],
+    ["Реализуй задачу T32", "T32"],
+    ["Создай бранч и реализуй T06", "T6"],
+    ["спланируй задачу T23", "T23"],
+    ["начинай T47", "T47"],
+    ["Также начинай реализацию T13 в этом бранче", "T13"],
+    ["приступай к реализации T40", "T40"],
+    ["приступай к реализации задачи T41", "T41"],
+    ["делай T25 так же, как в T24", "T25"],
+    ["пока не делаем T42, а делай T43", "T43"],
+    ["продолжай T42", "T42"],
+    ["делай T6. Потом T7", "T6"],
   ]) {
     assert.equal(taskOf(prompt), task, prompt);
   }
@@ -67,6 +87,29 @@ test("a phrase quoted, denied or only near a task ID starts nothing", () => {
     "<command-name>/clear</command-name><command-args>Выполни задачу T4</command-args>",
     "Выполни задачу Т129", // a Cyrillic Т is no task ID
     "Выполни задачу T12345",
+    // Words that only name a task, or go on with the same one.
+    "делай как в T24",
+    "сделай так же, как T36",
+    "сделай в ней T33 отдельным комитом", // a word between the verb and the number
+    "доделай T5",
+    "переделай T5",
+    "сделали T5?",
+    "почему не стал делать T66?",
+    "можем делать T83?",
+    "пока не делаем T42",
+    "не делай T5",
+    "приступай к выполнению T17",
+    // Forms the author does not write, and a question.
+    "сделаем T8",
+    "реализуем T8",
+    "начинаем задачу T27",
+    "спланируем T7",
+    "делайте T9",
+    "делаем T42?",
+    "Выполни задачу T5 ?",
+    // A number that goes on is not a task's.
+    "делай T6.1",
+    "выполни задачу T6-2",
     "",
   ]) {
     assert.equal(taskOf(prompt), null, prompt);
@@ -126,6 +169,12 @@ test("a session goes on with its own task and stops another", () => {
   const other = verdict("Выполни задачу T4 из RUN.md", planned);
   assert.match(other, /^This prompt starts T4, and this session has led T3: one task is one session \(RULES\.md, How we work\)\. Run \/clear/);
   assert.equal(verdict("Выполни задачу T4", [...planned, typed("Выполни задачу T4")]), other.replace("led T3", "led T3, T4"));
+  // A session begun by «делай T…» has led its task: «продолжай» goes on with it and stops another.
+  const begun = [typed("делай T53"), answer("сделано")];
+  assert.match(verdict("Выполни задачу T54", begun), /starts T54, and this session has led T53/);
+  assert.equal(verdict("продолжай T53", begun), null);
+  assert.match(verdict("продолжай T54", begun), /starts T54, and this session has led T53/);
+  assert.equal(verdict("сделай T53", begun), null);
   // A session that led two tasks before the hook goes on with neither.
   assert.match(verdict("Выполни задачу T3", [typed("Выполни задачу T3"), typed("Выполни задачу T4")]), /led T3, T4/);
 });

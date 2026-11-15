@@ -140,6 +140,19 @@ test("a section that does not exist", async () => {
 test("a section in a list and in a range", async () => {
   await expectOnly([["docs/repositories.md", "architecture 3, 3.6", "architecture 3, 3.7"]], /has no section 3\.7$/);
   await expectOnly([["docs/concepts.md", "в разделе 2.", "в разделах 1–3."]], /docs\/concepts\.md has no section 3$/);
+  // The last number of a range is a section even when a word follows it, and a count after a comma
+  // is not one (T124 measured "measurements 1.1–1.99 records" passing).
+  const range = (text) => [["docs/architecture.md", "(repositories 8; privacy 9)", `(repositories 8; privacy 9; ${text})`]];
+  await expectOnly(range("product 13.1–13.9 records"), /^docs\/architecture\.md:\d+: docs\/product\.md has no section 13\.9$/);
+  await expectOnly(range("product 13–14 модулей"), /docs\/product\.md has no section 14$/);
+  assert.deepEqual(await errorsOf(range("product 13.1–13.2 records, 14 модулей")), []);
+  assert.deepEqual(await errorsOf(range("sections 9–11 of the license")), []);
+  // A range after a comma or «и» before a word is a count, as a number there is.
+  assert.deepEqual(await errorsOf(range("product 13, 10–12 модулей; product 13 и 2–3 недели")), []);
+  await expectOnly(range("product 1, 13–14"), /docs\/product\.md has no section 14$/);
+  // "sections 9–11 in SB 297" are a law's, as "of the license" is another text's.
+  assert.deepEqual(await errorsOf(range("sections 9–11 in SB 297")), []);
+  await expectOnly(range("sections 3–4 here"), /docs\/architecture\.md has no section 4$/);
 });
 
 test("dpia N is a section of docs/dpia.md, the DPIA", async () => {
@@ -210,7 +223,10 @@ test("no next free number", async () => {
 test("the next free number in English", async () => {
   assert.deepEqual(await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Next number — R04."]]), []);
   assert.deepEqual(await errorsOf([["docs/repositories.md", "следующий номер — Т-3", "the next free number — Т-3"]]), []);
-  assert.deepEqual(await errorsOf([["RUN.md", "следующий — В4.", "next — В4."]]), []);
+  // spec's tables are in English (R154), and a Russian opening still reads until every plan is.
+  assert.deepEqual(await errorsOf([["run/QUESTIONS.md", "next — В4.", "следующий — В4."]]), []);
+  // The English opening is read: a next free number below a row is named.
+  await expectOnly([["run/QUESTIONS.md", "next — В4.", "next — В2."]], /^run\/QUESTIONS\.md:\d+: the next free number is В2, but В3 is in the table/);
   await expectOnly([["docs/decisions.md", " Следующий номер — R04.", " Next number — R05."]], /the next free number is R05, but the last is R03: it should be R04$/);
   const errors = await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Nextnumber — R04."]]);
   assert.ok(errors.some((e) => e.includes('does not name the next free number ("Next number — R04")')), errors.join("\n"));
@@ -350,38 +366,46 @@ test("the script runs through a symlink", () => {
   }
 });
 
-// The tables of questions and debt: В in RUN.md and Д in DEBT.md (RUN.md, T18 and T132).
+// The tables of questions and debt: В in run/QUESTIONS.md and Д in run/DEBT.md (RUN.md, T18, T132
+// and T165; R153).
 
 test("a В defined twice", async () => {
-  await expectOnly([["RUN.md", "| В3 | Третий вопрос |", "| В3 | Третий вопрос |\n| В3 | Повтор |"]], /^RUN\.md:\d+: В3 is defined twice$/);
+  await expectOnly([["run/QUESTIONS.md", "| В3 | The third question |", "| В3 | The third question |\n| В3 | A repeat |"]], /^run\/QUESTIONS\.md:\d+: В3 is defined twice$/);
 });
 
 test("a next free В that is not above the table", async () => {
-  await expectOnly([["RUN.md", "следующий — В4.", "следующий — В3."]], /^RUN\.md:7: the next free number is В3, but В3 is in the table: it should be above every number in it$/);
+  await expectOnly([["run/QUESTIONS.md", "next — В4.", "next — В3."]], /^run\/QUESTIONS\.md:7: the next free number is В3, but В3 is in the table: it should be above every number in it$/);
 });
 
 test("a table of debt that names no next free number", async () => {
-  await expectOnly([["DEBT.md", "Номера не переиспользуются: следующий — Д2.", "Номера не переиспользуются."]], /^DEBT\.md:\d+: register Д: its opening does not name the next free number/);
+  await expectOnly([["run/DEBT.md", "Numbers are not reused: next — Д2.", "Numbers are not reused."]], /^run\/DEBT\.md:\d+: register Д: its opening does not name the next free number/);
 });
 
 test("a next free Д that is not above the table of debt", async () => {
-  await expectOnly([["DEBT.md", "следующий — Д2.", "следующий — Д1."]], /^DEBT\.md:\d+: the next free number is Д1, but Д1 is in the table/);
+  await expectOnly([["run/DEBT.md", "next — Д2.", "next — Д1."]], /^run\/DEBT\.md:\d+: the next free number is Д1, but Д1 is in the table/);
 });
 
-test("spec's table of debt is DEBT.md alone: without it, table 4 of RUN.md is not read", async () => {
-  const table = "\n\nНомера не переиспользуются: следующий — Д2.\n\n| ID | Долг |\n|---|---|\n| Д1 | Первый долг |\n";
-  const edits = [["DEBT.md", null, null], ["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", table]];
-  // The budgets of DEBT.md hold nothing without it, and say so (R145).
-  assert.deepEqual(await errorsOf(edits), [
-    "DEBT.md:0: register Д: the file does not exist",
-    'tools/docs-check/budgets.json:0: budgets: files "DEBT.md" names no file of the repository',
-    'tools/docs-check/budgets.json:0: budgets: rows "DEBT.md" names no Markdown file of the repository',
-  ]);
+const debtTable = "# Долг\n\n## Таблица 4. Технический долг\n\nНомера не переиспользуются: следующий — Д2.\n\n| ID | Долг |\n|---|---|\n| Д1 | Первый долг |\n";
+
+test("spec's tables are in run/ alone: without run/DEBT.md, a table in DEBT.md or RUN.md is not read", async () => {
+  const errors = [
+    "RUN.md:3: link run/DEBT.md: run/DEBT.md does not exist",
+    "run/DEBT.md:0: register Д: the file does not exist",
+    'tools/docs-check/budgets.json:0: budgets: files "run/DEBT.md" names no file of the repository',
+    'tools/docs-check/budgets.json:0: budgets: rows "run/DEBT.md" names no Markdown file of the repository',
+  ];
+  // The budgets of run/DEBT.md hold nothing without it, and say so (R145).
+  assert.deepEqual(await errorsOf([["run/DEBT.md", null, null], ["DEBT.md", null, debtTable]]), errors);
+  assert.deepEqual(await errorsOf([["run/DEBT.md", null, null], ["RUN.md", "(run/DEBT.md).\n", `(run/DEBT.md).\n\n${debtTable.slice("# Долг\n\n".length)}`]]), errors);
+  assert.deepEqual(await errorsOf([["run/QUESTIONS.md", null, null]]), ["RUN.md:3: link run/QUESTIONS.md: run/QUESTIONS.md does not exist", "run/QUESTIONS.md:0: register В: the file does not exist"]);
 });
 
-test("a row of debt written back into table 4 of spec's RUN.md is a second copy", async () => {
-  const edits = [["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", "\n\n| ID | Долг |\n|---|---|\n| Д2 | Новый долг не там |\n"]];
-  await expectOnly(edits, /^RUN\.md:\d+: register Д: its table is in DEBT\.md, and this one under «Таблица 4\. …» is a second copy$/);
+test("a table written back where it once lived, beside its file in run/, is a second copy", async () => {
+  const table4 = "\n## Таблица 4. Технический долг\n\n| ID | Долг |\n|---|---|\n| Д2 | Новый долг не там |\n";
+  await expectOnly([["RUN.md", "(run/DEBT.md).\n", `(run/DEBT.md).\n${table4}`]], /^RUN\.md:\d+: register Д: its table is in run\/DEBT\.md, and this one under «Таблица 4\. …» is a second copy$/);
+  await expectOnly([["DEBT.md", null, debtTable]], /^DEBT\.md:3: register Д: its table is in run\/DEBT\.md, and this one under «Таблица 4\. …» is a second copy$/);
+  const table3 = "\n## Таблица 3. Вопросы автору без ответа\n\n| ID | Вопрос |\n|---|---|\n";
+  await expectOnly([["RUN.md", "(run/DEBT.md).\n", `(run/DEBT.md).\n${table3}`]], /^RUN\.md:\d+: register В: its table is in run\/QUESTIONS\.md, and this one under «Таблица 3\. …» is a second copy$/);
 });
 
 test("«раздел N» right after a link outside the repository is that text's section", async () => {
@@ -454,40 +478,65 @@ test("an example taken out of code is checked as a citation", async () => {
   await componentOnly([["README.md", "`R01`", "R01"]], /R01 is the next free number, not an entry yet \(docs\/decisions\.md\)$/);
 });
 
-test("the repository's table of debt: a Д defined twice in DEBT.md", async () => {
-  await componentOnly([["DEBT.md", "следующий — Д1.\n\n| ID | Долг |\n|---|---|\n", "следующий — Д2.\n\n| ID | Долг |\n|---|---|\n| Д1 | Долг |\n| Д1 | Повтор |\n"]], /^DEBT\.md:\d+: Д1 is defined twice$/);
+test("the repository's table of debt: a Д defined twice in run/DEBT.md", async () => {
+  await componentOnly([["run/DEBT.md", "следующий — Д1.\n\n| ID | Долг |\n|---|---|\n", "следующий — Д2.\n\n| ID | Долг |\n|---|---|\n| Д1 | Долг |\n| Д1 | Повтор |\n"]], /^run\/DEBT\.md:\d+: Д1 is defined twice$/);
 });
 
-// A repository that has not moved its table of debt yet (T132; T123): its table 4 is still in
-// RUN.md, and no DEBT.md.
-const debtInRun = (rows = "") => [
-  ["DEBT.md", null, null],
-  ["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", `\n\nНомера не переиспользуются: следующий — Д3.\n\n| ID | Долг |\n|---|---|\n${rows}`],
+// A repository that has not moved its tables to run/ yet (R153; its row Д250 spec): table 3 in its
+// RUN.md, and table 4 in its DEBT.md (T132) or, before that, in its RUN.md too.
+const table3InRun = (rows = "") =>
+  `## Таблица 3. Вопросы автору без ответа\n\nНомера не переиспользуются: следующий — В3.\n\n| ID | Вопрос |\n|---|---|\n${rows}`;
+const table4 = (rows = "") => `## Таблица 4. Технический долг\n\nНомера не переиспользуются: следующий — Д3.\n\n| ID | Долг |\n|---|---|\n${rows}`;
+const notMoved = (run, debt) => [
+  ["run/QUESTIONS.md", null, null],
+  ["run/DEBT.md", null, null],
+  ["RUN.md", "Вопросы — в [run/QUESTIONS.md](run/QUESTIONS.md), долг — в [run/DEBT.md](run/DEBT.md).\n", run],
+  ...(debt === undefined ? [] : [["DEBT.md", null, `# Долг компонента\n\n${debt}`]]),
 ];
+const layoutOfT132 = (questions, debt) => notMoved(`${table3InRun(questions)}\n## Таблица 4. Технический долг\n\nТаблица — в [DEBT.md](DEBT.md).\n`, table4(debt));
+const layoutBeforeT132 = (questions, debt) => notMoved(`${table3InRun(questions)}\n${table4(debt)}`);
 
-test("a repository that has not moved its table of debt: table 4 of RUN.md is read", async () => {
-  assert.deepEqual(await componentErrors(debtInRun("| Д2 | Долг |\n")), []);
-  await componentOnly(debtInRun("| Д2 | Долг |\n| Д2 | Повтор |\n"), /^RUN\.md:\d+: Д2 is defined twice$/);
-  await componentOnly(debtInRun("| Д3 | Долг |\n"), /^RUN\.md:\d+: the next free number is Д3, but Д3 is in the table/);
+test("a repository that has not moved its tables: table 3 of RUN.md, and table 4 of DEBT.md or RUN.md, are read", async () => {
+  assert.deepEqual(await componentErrors(layoutOfT132("| В2 | Вопрос |\n", "| Д2 | Долг |\n")), []);
+  assert.deepEqual(await componentErrors(layoutBeforeT132("| В2 | Вопрос |\n", "| Д2 | Долг |\n")), []);
+  await componentOnly(layoutOfT132("| В2 | Вопрос |\n| В2 | Повтор |\n"), /^RUN\.md:\d+: В2 is defined twice$/);
+  await componentOnly(layoutOfT132("", "| Д2 | Долг |\n| Д2 | Повтор |\n"), /^DEBT\.md:\d+: Д2 is defined twice$/);
+  await componentOnly(layoutBeforeT132("", "| Д3 | Долг |\n"), /^RUN\.md:\d+: the next free number is Д3, but Д3 is in the table/);
 });
 
-test("a table of debt in both DEBT.md and RUN.md is named, and DEBT.md is read", async () => {
-  const edits = [["RUN.md", "\n\nТаблица — в [DEBT.md](DEBT.md).\n", "\n\n| ID | Долг |\n|---|---|\n| Д9 | Копия |\n"]];
+test("a repository that has not moved, with its tables still empty: an opening with the next free number holds them", async () => {
+  const empty = (n, heading, prefix) => `## Таблица ${n}. ${heading}\n\nПока пусто. Номера не переиспользуются: следующий — ${prefix}5.\n`;
+  const table3 = empty(3, "Вопросы автору без ответа", "В");
+  const table4 = empty(4, "Технический долг", "Д");
+  assert.deepEqual(await componentErrors(notMoved(`${table3}\n## Таблица 4. Технический долг\n\nТаблица — в [DEBT.md](DEBT.md).\n`, table4)), []);
+  assert.deepEqual(await componentErrors(notMoved(`${table3}\n${table4}`)), []);
+  // The table read is the one of RUN.md: a row there must stay below its next free number.
+  await componentOnly(notMoved(`${table3}\n| ID | Вопрос |\n|---|---|\n| В5 | Вопрос |\n\n${table4}`), /^RUN\.md:\d+: the next free number is В5, but В5 is in the table/);
+  // Without the next free number, the empty heading holds nothing, and the own file is named.
+  await componentOnly(notMoved(`## Таблица 3. Вопросы автору без ответа\n\nПока пусто.\n\n${table4}`), /^run\/QUESTIONS\.md:0: register В: the file does not exist$/);
+});
+
+test("a table of debt in DEBT.md and RUN.md both is named, and DEBT.md is read", async () => {
+  const edits = notMoved(`${table3InRun()}\n${table4("| Д9 | Копия |\n")}`, table4("| Д2 | Долг |\n"));
   await componentOnly(edits, /^RUN\.md:\d+: register Д: its table is in DEBT\.md, and this one under «Таблица 4\. …» is a second copy$/);
 });
 
-test("a repository with neither DEBT.md nor table 4 in RUN.md is told of DEBT.md", async () => {
-  const edits = [["DEBT.md", null, null], ["RUN.md", "## Таблица 4. Технический долг\n\nТаблица — в [DEBT.md](DEBT.md).\n", ""]];
-  await componentOnly(edits, /^DEBT\.md:0: register Д: the file does not exist$/);
+test("a table of debt in run/DEBT.md and DEBT.md both is named, and run/DEBT.md is read", async () => {
+  await componentOnly([["DEBT.md", null, `# Долг компонента\n\n${table4("| Д2 | Долг |\n")}`]], /^DEBT\.md:3: register Д: its table is in run\/DEBT\.md, and this one under «Таблица 4\. …» is a second copy$/);
 });
 
-test("a repository whose DEBT.md is gone, with only the pointer left in RUN.md, is told of DEBT.md", async () => {
-  const errors = await componentErrors([["DEBT.md", null, null]]);
-  assert.deepEqual(errors, ["DEBT.md:0: register Д: the file does not exist", "RUN.md:15: link DEBT.md: DEBT.md does not exist"]);
+test("a repository with no table of debt anywhere is told of run/DEBT.md", async () => {
+  const edits = notMoved(`${table3InRun()}\n## Таблица 4. Технический долг\n\nТаблица — в своём файле.\n`);
+  await componentOnly(edits, /^run\/DEBT\.md:0: register Д: the file does not exist$/);
+});
+
+test("a repository whose run/DEBT.md is gone, with only the link left in RUN.md, is told of run/DEBT.md", async () => {
+  const errors = await componentErrors([["run/DEBT.md", null, null]]);
+  assert.deepEqual(errors, ["RUN.md:5: link run/DEBT.md: run/DEBT.md does not exist", "run/DEBT.md:0: register Д: the file does not exist"]);
 });
 
 test("the repository's tables: a В defined twice", async () => {
-  await componentOnly([["RUN.md", "| В2 | Второй, в реестр spec |", "| В2 | Второй, в реестр spec |\n| В2 | Повтор |"]], /В2 is defined twice$/);
+  await componentOnly([["run/QUESTIONS.md", "| В2 | Второй, в реестр spec |", "| В2 | Второй, в реестр spec |\n| В2 | Повтор |"]], /В2 is defined twice$/);
 });
 
 test("an empty spec/ is named, not taken for spec", async () => {
@@ -531,8 +580,16 @@ test("«раздел N spec» with no document of spec's to tell", async () => {
   await componentOnly([["RUN.md", "раздел 2.1", "раздел 2.1 spec"]], /a section of spec's document; cite it by name/);
 });
 
+test("a table is read under its English heading or its Russian one (R154)", async () => {
+  const english = "\n## Table 4. Technical debt\n\n| ID | Debt |\n|---|---|\n| Д2 | A copy |\n";
+  await expectOnly([["RUN.md", "(run/DEBT.md).\n", `(run/DEBT.md).\n${english}`]], /^RUN\.md:\d+: register Д: its table is in run\/DEBT\.md, and this one under «Table 4\. …» is a second copy$/);
+  assert.deepEqual(await errorsOf([["run/DEBT.md", "## Table 4. Technical debt", "## Таблица 4. Технический долг"]]), []);
+  assert.deepEqual(await componentErrors([["run/QUESTIONS.md", "## Таблица 3. Вопросы автору без ответа", "## Table 3. Questions to the author"]]), []);
+  await expectOnly([["run/DEBT.md", "## Table 4. Technical debt", "## Table 5. Technical debt"]], /^run\/DEBT\.md:0: register Д: no heading «Table 4\. …» to hold it$/);
+});
+
 test("a table whose heading is gone is named", async () => {
-  await componentOnly([["RUN.md", "## Таблица 3. Вопросы автору без ответа", "## Вопросы"]], /^RUN\.md:0: register В: no heading «Таблица 3\. …» to hold it$/);
+  await componentOnly([["run/QUESTIONS.md", "## Таблица 3. Вопросы автору без ответа", "## Вопросы"]], /^run\/QUESTIONS\.md:0: register В: no heading «Table 3\. …» to hold it$/);
 });
 
 // Cases from the second round of the code review of T18.
@@ -552,7 +609,7 @@ test("«раздел N» in an item under one that links outside is that text's 
 });
 
 test("the tables need no order: a row may stand above a lower number", async () => {
-  assert.deepEqual(await componentErrors([["RUN.md", "| В2 | Второй, в реестр spec |", "| В2 | Второй, в реестр spec |\n| В1 | Первый, вернулся |"]]), []);
+  assert.deepEqual(await componentErrors([["run/QUESTIONS.md", "| В2 | Второй, в реестр spec |", "| В2 | Второй, в реестр spec |\n| В1 | Первый, вернулся |"]]), []);
 });
 
 test("--component runs from a repository's spec/ submodule and checks the repository", () => {
@@ -565,7 +622,7 @@ test("--component runs from a repository's spec/ submodule and checks the reposi
     fs.symlinkSync(path.join(here, "..", "..", "node_modules"), path.join(tools, "node_modules"));
     const green = spawnSync(process.execPath, [path.join(tools, "docs-check", "main.mjs"), "--component"], { encoding: "utf8" });
     assert.equal(green.status, 0, green.stdout + green.stderr);
-    assert.match(green.stdout, /^docs-check: ok — 5 files,/m);
+    assert.match(green.stdout, /^docs-check: ok — 6 files,/m);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -802,8 +859,9 @@ test("a repository's rules are checked as spec's are", async () => {
 });
 
 // Budgets of size (R145): the fixture's tools/docs-check/budgets.json holds 4 KB for RUN.md and
-// DEBT.md, 2 KB for a rule, 1 KB for an entry and a section, 2 KB for product 13, 1 KB for a row of
-// DEBT.md; and for a repository, 4 KB for RUN.md, 1 KB for an entry, a section and a row of DEBT.md.
+// run/DEBT.md, 2 KB for a rule, 1 KB for an entry and a section, 2 KB for product 13, 1 KB for a row
+// of run/DEBT.md; and for a repository, 4 KB for RUN.md, 1 KB for an entry, a section and a row of
+// DEBT.md and of run/DEBT.md.
 
 const filler = (n) => `\n\n${"z".repeat(n)}\n`;
 
@@ -815,6 +873,18 @@ test("a file over its budget names its size and its limit, and where the limit i
 test("a decision entry over its budget, to the next entry", async () => {
   await expectOnly([["docs/decisions.md", "Как R38 canvas-api.", `Как R38 canvas-api.${filler(1100)}`]], /^docs\/decisions\.md:11: R02: 1,\d{3} bytes, over its budget of 1 KB \(1,024 bytes\)/);
   assert.deepEqual(await errorsOf([["docs/decisions.md", "Как R38 canvas-api.", `Как R38 canvas-api.${filler(900)}`]]), []);
+});
+
+test("an entry with a limit of its own, by its number, and the others with theirs", async () => {
+  const budgets = ["tools/docs-check/budgets.json", '"entry": 1,\n    "section"', '"entry": 1,\n    "entries": { "R02": 2 },\n    "section"'];
+  const grow = (n) => ["docs/decisions.md", "Как R38 canvas-api.", `Как R38 canvas-api.${filler(n)}`];
+  assert.deepEqual(await errorsOf([budgets, grow(1500)]), []);
+  // By its number: "R2" is R02.
+  assert.deepEqual(await errorsOf([[budgets[0], budgets[1], budgets[2].replace('"R02"', '"R2"')], grow(1500)]), []);
+  await expectOnly([budgets, grow(2100)], /^docs\/decisions\.md:11: R02: 2,\d{3} bytes, over its budget of 2 KB \(2,048 bytes\) — tools\/docs-check\/budgets\.json$/);
+  await expectOnly([budgets, ["docs/decisions.md", "так проще (раздел 3 лицензии).", `так проще (раздел 3 лицензии).${filler(1100)}`]], /^docs\/decisions\.md:9: R01: 1,\d{3} bytes, over its budget of 1 KB/);
+  // A repository's docs-budgets.json names its own; a number not in the log is an error.
+  await componentOnly([["docs-budgets.json", null, '{ "entries": { "R01": 3 } }\n']], /^docs-budgets\.json:0: budgets: entries "R01" names no entry of the decision log$/);
 });
 
 test("a section over its budget, to the next heading, and a section with a limit of its own", async () => {
@@ -837,20 +907,24 @@ test("a rule over its budget, front matter and all", async () => {
 });
 
 test("a row of a table over its budget", async () => {
-  await expectOnly([["DEBT.md", "| Д1 | Первый долг |", `| Д1 | Первый долг ${"z".repeat(1100)} |`]], /^DEBT\.md:\d+: a row «Д1» — 1,\d{3} bytes, over its budget of 1 KB/);
+  await expectOnly([["run/DEBT.md", "| Д1 | The first debt |", `| Д1 | The first debt ${"z".repeat(1100)} |`]], /^run\/DEBT\.md:\d+: a row «Д1» — 1,\d{3} bytes, over its budget of 1 KB/);
 });
 
 test("budgets that are wrong are errors, not a check turned off", async () => {
   const file = "tools/docs-check/budgets.json";
   await expectOnly([[file, '"entry": 1,\n    "section"', '"entry": 0,\n    "section"']], /budgets\.json:0: budgets: entry is 0, not a whole number of KB above 0$/);
   await expectOnly([[file, '"rule": 2,', '"rule": 2, "rules": 2,']], /budgets\.json:0: budgets: unknown key "rules"$/);
-  await expectOnly([[file, '"rows": { "DEBT.md": 1 }\n  },', '"rows": { "DEBT.md": 1.5 }\n  },']], /budgets: rows "DEBT\.md" is 1\.5, not a whole number/);
+  await expectOnly([[file, '"rows": { "run/DEBT.md": 1 }\n  },', '"rows": { "run/DEBT.md": 1.5 }\n  },']], /budgets: rows "run\/DEBT\.md" is 1\.5, not a whole number/);
   await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": [],']], /budgets: sections is not an object of limits$/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "R02": 0 },']], /budgets: entries "R02" is 0, not a whole number of KB above 0$/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "R9": 2 },']], /^tools\/docs-check\/budgets\.json:0: budgets: entries "R9" names no entry of the decision log$/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "02": 2 },']], /budgets: entries "02" names no entry of the decision log$/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "R02": 2, "R2": 2 },']], /budgets: entries "R02" and "R2" name one entry$/);
   await expectOnly([[file, '"repository"', '"repo"']], /budgets: unknown block "repo"$/);
   assert.deepEqual(await errorsOf([[file, '"spec"', '"spek"']]), ['tools/docs-check/budgets.json:0: budgets: unknown block "spek"', 'tools/docs-check/budgets.json:0: budgets: no block "spec"']);
   await expectOnly([[file, null, "null\n"]], /budgets\.json:0: budgets: not a JSON object$/);
-  await expectOnly([[file, '"RUN.md": 4, "DEBT.md": 4', '"RUN.md": 4, "DEBT.MD": 4']], /budgets\.json:0: budgets: files "DEBT\.MD" names no file of the repository$/);
-  await expectOnly([[file, '"rows": { "DEBT.md": 1 }\n  },', '"rows": { "DEBT.md": 1, "debt.md": 1 }\n  },']], /budgets\.json:0: budgets: rows "debt\.md" names no Markdown file of the repository$/);
+  await expectOnly([[file, '"RUN.md": 4, "run/DEBT.md": 4', '"RUN.md": 4, "run/DEBT.MD": 4']], /budgets\.json:0: budgets: files "run\/DEBT\.MD" names no file of the repository$/);
+  await expectOnly([[file, '"rows": { "run/DEBT.md": 1 }\n  },', '"rows": { "run/DEBT.md": 1, "debt.md": 1 }\n  },']], /budgets\.json:0: budgets: rows "debt\.md" names no Markdown file of the repository$/);
   await expectOnly([[file, "{", "{,"]], /budgets\.json:0: budgets: not JSON/);
   await expectOnly([[file, null, null]], /budgets\.json:0: budgets: the file is not there$/);
   await expectOnly([[file, null, null], [`${file}/x`, null, "{}"]], /budgets\.json:0: budgets: the file cannot be read: EISDIR$/);
@@ -863,6 +937,16 @@ test("a repository is checked only once it has docs-budgets.json, by spec's bloc
   assert.deepEqual(await componentErrors([big, ["docs-budgets.json", null, '{ "files": { "RUN.md": 8 } }\n']]), []);
   await componentOnly([big, ["docs-budgets.json", null, '{ "files": { "RUN.md": 3 } }\n']], /over its budget of 3 KB \(3,072 bytes\) — docs-budgets\.json$/);
   await componentOnly([["docs-budgets.json", null, "[]\n"]], /^docs-budgets\.json:0: budgets: not a JSON object$/);
+  // spec's block names the files of both layouts of the work plan (R153): a file of it the
+  // repository does not have holds nothing and is no error, and one its own file names is.
+  assert.deepEqual(await componentErrors([["docs-budgets.json", null, "{}\n"]]), []);
+  assert.deepEqual(await componentErrors([...layoutOfT132("", ""), ["docs-budgets.json", null, "{}\n"]]), []);
+  await componentOnly([["docs-budgets.json", null, '{ "files": { "DEBT.md": 4 } }\n']], /^docs-budgets\.json:0: budgets: files "DEBT\.md" names no file of the repository$/);
+  await componentOnly([["docs-budgets.json", null, '{ "rows": { "DEBT.md": 4 } }\n']], /^docs-budgets\.json:0: budgets: rows "DEBT\.md" names no Markdown file of the repository$/);
+  await componentOnly([...layoutOfT132("", `| Д2 | ${"z".repeat(1100)} |\n`), ["docs-budgets.json", null, "{}\n"]], /^DEBT\.md:\d+: a row «Д2» — 1,\d{3} bytes, over its budget of 1 KB \(1,024 bytes\) — spec\/tools\/docs-check\/budgets\.json$/);
+  // Any other file of spec's block, or a path of the plan mistyped, is an error all the same.
+  await componentOnly([["docs-budgets.json", null, "{}\n"], ["spec/tools/docs-check/budgets.json", '"files": { "RUN.md": 4 },\n    "entry"', '"files": { "RUN.MD": 4 },\n    "entry"']], /^spec\/tools\/docs-check\/budgets\.json:0: budgets: files "RUN\.MD" names no file of the repository$/);
+  await componentOnly([["docs-budgets.json", null, "{}\n"], ["spec/tools/docs-check/budgets.json", '"rows": { "DEBT.md": 1, "run/DEBT.md": 1 }', '"rows": { "DEBT.md": 1, "run/DEBT.MD": 1 }']], /^spec\/tools\/docs-check\/budgets\.json:0: budgets: rows "run\/DEBT\.MD" names no Markdown file of the repository$/);
   // The repository's own decision log and sections, by the block "repository".
   await componentOnly([["docs-budgets.json", null, "{}\n"], ["docs/architecture.md", "Пока пусто.", `Пока пусто.${filler(1100)}`]], /^docs\/architecture\.md:\d+: section 3: 1,\d{3} bytes/);
 });

@@ -14,7 +14,8 @@
 // line FIRST_CONSENT_AGE_LINE on the types of the table of the age of digital consent,
 // ./consentagev1 (R134), and from the line FIRST_EXPORT_LINE on the types of the format of the
 // export, ./exportv1, and from the line EXPORT_V2_LINE on ./exportv2 in its place, of the part's
-// version 2 (R135): what a package
+// version 2, and from the line EXPORT_V3_LINE on ./exportv3 in place of both, of the part's
+// version 3 (R135, R151): what a package
 // holds is the line's of its version, the release's, so that a release of an earlier line, run
 // again, gets the package it got.
 //
@@ -71,6 +72,10 @@ export const FIRST_EXPORT_LINE = "0.14";
 // exportv2, in place of exportv1, which the lines 0.14 to 0.16 hold (R135).
 export const EXPORT_V2_LINE = "0.17";
 const EXPORT_V1 = "exportv1";
+// spec's first line whose package holds the types of the format of the export's version 3,
+// exportv3, in place of exportv2, which the line 0.17 holds (R151).
+export const EXPORT_V3_LINE = "0.18";
+const EXPORT_V2 = "exportv2";
 // The package's folder of the page, as format/ holds it, and the repository's, which tools/types
 // writes.
 const PAGE = "format";
@@ -125,7 +130,7 @@ const holdsConsentAge = (version) => fromLine(version, FIRST_CONSENT_AGE_LINE);
 // Whether it holds the types of the format of the export.
 const holdsExport = (version) => fromLine(version, FIRST_EXPORT_LINE);
 // The package of the types of the format of the export that the package of version holds.
-const exportPackageOf = (version) => (fromLine(version, EXPORT_V2_LINE) ? EXPORT_PACKAGE : EXPORT_V1);
+const exportPackageOf = (version) => (fromLine(version, EXPORT_V3_LINE) ? EXPORT_PACKAGE : fromLine(version, EXPORT_V2_LINE) ? EXPORT_V2 : EXPORT_V1);
 
 // The name npm pack gives the package's archive of version: the scope's @ dropped, its / a dash.
 export function archiveOf(version) {

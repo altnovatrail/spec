@@ -7,18 +7,18 @@
 // The part is held from a release of FIRST_EXPORT_LINE on. Its version is the layout of export/,
 // the schemas of the files of an export and the rules of section 5 (export/README.md, section 2),
 // and the release holds it to the shape alone, as it holds the deployment configuration's: the
-// schema of each file of an export — the manifest, the account, a profile and a device's part — and
-// their common definitions, with
-// its annotations taken out at every level, and the IDs of the rules of section 5, in their order,
-// which readText reads as format-check does. Under the same version a change of any is refused; a
-// change of the vector's schema, of a description, an example or a vector passes.
+// schema of each file of an export — the manifest, the account, a profile, a device's part and a
+// stored work — and their common definitions, with its annotations taken out at every level, and
+// the IDs of the rules of section 5, in their order, which readText reads as format-check does.
+// Under the same version a change of any is refused; a change of the vector's schema, of a
+// description, an example or a vector passes.
 
 import { FIRST_EXPORT_LINE, exportVersion } from "./files.mjs";
 import { checkPartLine, checked as partChecked, fileAt, runPartLine, shapeChange as partShapeChange } from "./part-line.mjs";
 import { git, isMain } from "../shared.mjs";
 
 // What the rule holds the part's shape by: the schema of each file of an export, and the text.
-export const SCHEMAS = ["common", "manifest", "account", "profile", "device"].map((term) => `export/schemas/${term}.schema.json`);
+export const SCHEMAS = ["common", "manifest", "account", "profile", "device", "work"].map((term) => `export/schemas/${term}.schema.json`);
 const README = "export/README.md";
 
 export const EXPORT = {

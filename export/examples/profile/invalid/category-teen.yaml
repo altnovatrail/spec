@@ -1,6 +1,6 @@
 # error: enum at #/age_category
 # An age category is one of the four codes.
-format: 2
+format: 3
 profile_id: "p-1"
 owner: false
 pseudonym: "Comet"

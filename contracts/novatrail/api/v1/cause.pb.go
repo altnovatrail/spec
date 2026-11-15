@@ -98,8 +98,9 @@ const (
 	// on this rung is spent. An outcome alone.
 	Cause_CAUSE_NO_OTHER_WORDS Cause = 18
 	// The words asked for are not given: the words after a correct answer on an attempt that no
-	// correct answer closed, a second time, or once the profile began another attempt; the words of a
-	// rung from the fourth wrong answer on, where no rung is new. Code `failed_precondition`.
+	// correct answer closed, once `api` gave the words, or once the profile began another
+	// attempt; the words of a rung from the fourth wrong answer on, where no rung is new. Code
+	// `failed_precondition`.
 	Cause_CAUSE_NO_MORE_WORDS Cause = 19
 	// "Done" before the attempt's first submission. Code `failed_precondition`.
 	Cause_CAUSE_NO_SUBMISSION Cause = 20
@@ -143,7 +144,9 @@ const (
 	// gives: its index marks the version withdrawn, or the version's module format is out of the
 	// window of formats that `api` reads. `app` asks `CheckPackages` about the digests it keeps,
 	// and erases what it keeps of the version. An attempt or a lesson run on such a version is closed
-	// or ended `unchecked` instead. Code `failed_precondition`.
+	// or ended `unchecked` instead. A work put of an attempt on a version out of that window, with
+	// no work of the attempt kept before, gets it too: its kind cannot be known. Code
+	// `failed_precondition`.
 	Cause_CAUSE_VERSION_NOT_GIVEN Cause = 32
 	// The index of the image of `api` does not know the package digest: a deployment is going on,
 	// and a repeat reaches the new image. Code `unavailable`.
@@ -186,8 +189,15 @@ const (
 	// (R113). Code `failed_precondition`, with no data.
 	Cause_CAUSE_STORAGE_OFF Cause = 43
 	// A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps
-	// it on the device alone (R113). Code `invalid_argument`, with no data.
+	// it on the device alone (R113). Code `invalid_argument`, with no data. A `PutWork` message
+	// larger than `api` reads gets `resource_exhausted` with no `Refusal` instead (contracts/README.md,
+	// section 15): `app` reads it as this cause.
 	Cause_CAUSE_WORK_TOO_LARGE Cause = 44
+	// A check of an own key beyond the checks that `api` lets an account make in a sliding window:
+	// every check that is not refused before it counts, a provider closed with no call too. `api`
+	// holds the number and the window (R78 api). The refusal holds when the next check opens. Code
+	// `resource_exhausted`.
+	Cause_CAUSE_KEY_CHECKS_EXHAUSTED Cause = 45
 )
 
 // Enum value maps for Cause.
@@ -238,6 +248,7 @@ var (
 		42: "CAUSE_LEARNER_DECIDES",
 		43: "CAUSE_STORAGE_OFF",
 		44: "CAUSE_WORK_TOO_LARGE",
+		45: "CAUSE_KEY_CHECKS_EXHAUSTED",
 	}
 	Cause_value = map[string]int32{
 		"CAUSE_UNSPECIFIED":          0,
@@ -285,6 +296,7 @@ var (
 		"CAUSE_LEARNER_DECIDES":      42,
 		"CAUSE_STORAGE_OFF":          43,
 		"CAUSE_WORK_TOO_LARGE":       44,
+		"CAUSE_KEY_CHECKS_EXHAUSTED": 45,
 	}
 )
 
@@ -684,6 +696,7 @@ type Refusal struct {
 	//	*Refusal_MaxAuthAgeSeconds
 	//	*Refusal_RunEnd
 	//	*Refusal_EndedSegments
+	//	*Refusal_NextKeyCheck
 	Data          isRefusal_Data `protobuf_oneof:"data"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -796,6 +809,15 @@ func (x *Refusal) GetEndedSegments() *EndedSegments {
 	return nil
 }
 
+func (x *Refusal) GetNextKeyCheck() *timestamppb.Timestamp {
+	if x != nil {
+		if x, ok := x.Data.(*Refusal_NextKeyCheck); ok {
+			return x.NextKeyCheck
+		}
+	}
+	return nil
+}
+
 type isRefusal_Data interface {
 	isRefusal_Data()
 }
@@ -837,6 +859,11 @@ type Refusal_EndedSegments struct {
 	EndedSegments *EndedSegments `protobuf:"bytes,8,opt,name=ended_segments,json=endedSegments,proto3,oneof"`
 }
 
+type Refusal_NextKeyCheck struct {
+	// Beside `CAUSE_KEY_CHECKS_EXHAUSTED`: when the next check of an own key opens.
+	NextKeyCheck *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=next_key_check,json=nextKeyCheck,proto3,oneof"`
+}
+
 func (*Refusal_CloseReason) isRefusal_Data() {}
 
 func (*Refusal_NextFamilyDay) isRefusal_Data() {}
@@ -850,6 +877,8 @@ func (*Refusal_MaxAuthAgeSeconds) isRefusal_Data() {}
 func (*Refusal_RunEnd) isRefusal_Data() {}
 
 func (*Refusal_EndedSegments) isRefusal_Data() {}
+
+func (*Refusal_NextKeyCheck) isRefusal_Data() {}
 
 // An outcome: what a call of AI came to when the answer holds no reading, or no words, of AI; and
 // why the engine's choice gives nothing, when the AI that checks the tasks is closed to the learner.
@@ -1156,7 +1185,7 @@ var File_novatrail_api_v1_cause_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\n" +
-	"\x1cnovatrail/api/v1/cause.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe4\x03\n" +
+	"\x1cnovatrail/api/v1/cause.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa8\x04\n" +
 	"\aRefusal\x12-\n" +
 	"\x05cause\x18\x01 \x01(\x0e2\x17.novatrail.api.v1.CauseR\x05cause\x12B\n" +
 	"\fclose_reason\x18\x02 \x01(\x0e2\x1d.novatrail.api.v1.CloseReasonH\x00R\vcloseReason\x12D\n" +
@@ -1165,7 +1194,8 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\flocked_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\vlockedUntil\x121\n" +
 	"\x14max_auth_age_seconds\x18\x06 \x01(\x05H\x00R\x11maxAuthAgeSeconds\x123\n" +
 	"\arun_end\x18\a \x01(\v2\x18.novatrail.api.v1.RunEndH\x00R\x06runEnd\x12H\n" +
-	"\x0eended_segments\x18\b \x01(\v2\x1f.novatrail.api.v1.EndedSegmentsH\x00R\rendedSegmentsB\x06\n" +
+	"\x0eended_segments\x18\b \x01(\v2\x1f.novatrail.api.v1.EndedSegmentsH\x00R\rendedSegments\x12B\n" +
+	"\x0enext_key_check\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x00R\fnextKeyCheckB\x06\n" +
 	"\x04data\"\xbf\x01\n" +
 	"\aOutcome\x12-\n" +
 	"\x05cause\x18\x01 \x01(\x0e2\x17.novatrail.api.v1.CauseR\x05cause\x12B\n" +
@@ -1182,7 +1212,7 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x06reason\x18\x01 \x01(\x0e2\x1e.novatrail.api.v1.RunEndReasonR\x06reason\x126\n" +
 	"\x06choice\x18\x02 \x01(\v2\x1e.novatrail.api.v1.EngineChoiceR\x06choice\"'\n" +
 	"\rEndedSegments\x12\x16\n" +
-	"\x06places\x18\x01 \x03(\x05R\x06places*\xf0\b\n" +
+	"\x06places\x18\x01 \x03(\x05R\x06places*\x90\t\n" +
 	"\x05Cause\x12\x15\n" +
 	"\x11CAUSE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10CAUSE_NO_PROFILE\x10\x01\x12\x13\n" +
@@ -1229,7 +1259,8 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x16CAUSE_TEXT_NOT_CURRENT\x10)\x12\x19\n" +
 	"\x15CAUSE_LEARNER_DECIDES\x10*\x12\x15\n" +
 	"\x11CAUSE_STORAGE_OFF\x10+\x12\x18\n" +
-	"\x14CAUSE_WORK_TOO_LARGE\x10,*\x88\x01\n" +
+	"\x14CAUSE_WORK_TOO_LARGE\x10,\x12\x1e\n" +
+	"\x1aCAUSE_KEY_CHECKS_EXHAUSTED\x10-*\x88\x01\n" +
 	"\n" +
 	"LimitCause\x12\x1b\n" +
 	"\x17LIMIT_CAUSE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -1309,20 +1340,21 @@ var file_novatrail_api_v1_cause_proto_depIdxs = []int32{
 	12, // 3: novatrail.api.v1.Refusal.locked_until:type_name -> google.protobuf.Timestamp
 	10, // 4: novatrail.api.v1.Refusal.run_end:type_name -> novatrail.api.v1.RunEnd
 	11, // 5: novatrail.api.v1.Refusal.ended_segments:type_name -> novatrail.api.v1.EndedSegments
-	0,  // 6: novatrail.api.v1.Outcome.cause:type_name -> novatrail.api.v1.Cause
-	12, // 7: novatrail.api.v1.Outcome.next_family_day:type_name -> google.protobuf.Timestamp
-	8,  // 8: novatrail.api.v1.Outcome.own_key_limit:type_name -> novatrail.api.v1.OwnKeyLimit
-	1,  // 9: novatrail.api.v1.OwnKeyLimit.cause:type_name -> novatrail.api.v1.LimitCause
-	12, // 10: novatrail.api.v1.OwnKeyLimit.access_returns:type_name -> google.protobuf.Timestamp
-	3,  // 11: novatrail.api.v1.EngineChoice.kind:type_name -> novatrail.api.v1.ChoiceKind
-	7,  // 12: novatrail.api.v1.EngineChoice.outcome:type_name -> novatrail.api.v1.Outcome
-	5,  // 13: novatrail.api.v1.RunEnd.reason:type_name -> novatrail.api.v1.RunEndReason
-	9,  // 14: novatrail.api.v1.RunEnd.choice:type_name -> novatrail.api.v1.EngineChoice
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	12, // 6: novatrail.api.v1.Refusal.next_key_check:type_name -> google.protobuf.Timestamp
+	0,  // 7: novatrail.api.v1.Outcome.cause:type_name -> novatrail.api.v1.Cause
+	12, // 8: novatrail.api.v1.Outcome.next_family_day:type_name -> google.protobuf.Timestamp
+	8,  // 9: novatrail.api.v1.Outcome.own_key_limit:type_name -> novatrail.api.v1.OwnKeyLimit
+	1,  // 10: novatrail.api.v1.OwnKeyLimit.cause:type_name -> novatrail.api.v1.LimitCause
+	12, // 11: novatrail.api.v1.OwnKeyLimit.access_returns:type_name -> google.protobuf.Timestamp
+	3,  // 12: novatrail.api.v1.EngineChoice.kind:type_name -> novatrail.api.v1.ChoiceKind
+	7,  // 13: novatrail.api.v1.EngineChoice.outcome:type_name -> novatrail.api.v1.Outcome
+	5,  // 14: novatrail.api.v1.RunEnd.reason:type_name -> novatrail.api.v1.RunEndReason
+	9,  // 15: novatrail.api.v1.RunEnd.choice:type_name -> novatrail.api.v1.EngineChoice
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_cause_proto_init() }
@@ -1338,6 +1370,7 @@ func file_novatrail_api_v1_cause_proto_init() {
 		(*Refusal_MaxAuthAgeSeconds)(nil),
 		(*Refusal_RunEnd)(nil),
 		(*Refusal_EndedSegments)(nil),
+		(*Refusal_NextKeyCheck)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
