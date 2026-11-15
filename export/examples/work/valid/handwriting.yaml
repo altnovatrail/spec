@@ -1,0 +1,19 @@
+# Synthetic: no learner's data. IDs, times and values are made up.
+format: 3
+profile_id: "p-1"
+attempt_id: "attempt-1"
+kind: "handwriting"
+stored_at: "2026-11-10T10:45:00Z"
+history:
+  - kind: "write"
+    t: 120
+    stroke:
+      id: 1
+      kind: "pen"
+      points:
+        - x: 10
+          "y": 20
+          t: 0
+          p: 0.5
+submissions: []
+picture: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="

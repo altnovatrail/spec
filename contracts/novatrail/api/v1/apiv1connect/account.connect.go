@@ -350,9 +350,11 @@ type AccountServiceClient interface {
 	// right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
 	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
 	// (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
-	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. A learner who reached the
-	// age of digital consent of their country while a parent's consent stands, whose profile waits for
-	// their own consent, withdraws that consent by it too, instead of confirming it (R116; R141).
+	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`, `ListWorks` and `GetWork`,
+	// by which `app` builds the export, nor the other requests on the consent that section 15 of
+	// contracts/README.md names. A learner who reached the age of digital consent of their country
+	// while a parent's consent stands, whose profile waits for their own consent, withdraws that
+	// consent by it too, instead of confirming it (R116; R141).
 	// Refusals: `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave and that waits for no
 	// consent of the learner — the adult withdraws it by `DeleteProfile` —, and `CAUSE_NO_PROFILE`,
 	// which is the answer of a repeat too. It carries no
@@ -406,7 +408,8 @@ type AccountServiceClient interface {
 	// The part of a profile's export that `api` holds, by an action of an adult with the right
 	// `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
 	// the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
-	// the export of it and of what the device holds. Refusals: `CAUSE_NO_PROFILE` and
+	// the export of it, of what the device holds and of the stored works its profile's file names,
+	// each by `WorkService.GetWork` (R151). Refusals: `CAUSE_NO_PROFILE` and
 	// `CAUSE_ADULT_NEEDED`.
 	ExportProfile(context.Context, *v1.ExportProfileRequest) (*v1.ExportProfileResponse, error)
 	// The part of the account's export that `api` holds: the fields of the account and the parts of
@@ -527,9 +530,11 @@ type AccountServiceHandler interface {
 	// right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
 	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
 	// (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
-	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`. A learner who reached the
-	// age of digital consent of their country while a parent's consent stands, whose profile waits for
-	// their own consent, withdraws that consent by it too, instead of confirming it (R116; R141).
+	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`, `ListWorks` and `GetWork`,
+	// by which `app` builds the export, nor the other requests on the consent that section 15 of
+	// contracts/README.md names. A learner who reached the age of digital consent of their country
+	// while a parent's consent stands, whose profile waits for their own consent, withdraws that
+	// consent by it too, instead of confirming it (R116; R141).
 	// Refusals: `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave and that waits for no
 	// consent of the learner — the adult withdraws it by `DeleteProfile` —, and `CAUSE_NO_PROFILE`,
 	// which is the answer of a repeat too. It carries no
@@ -583,7 +588,8 @@ type AccountServiceHandler interface {
 	// The part of a profile's export that `api` holds, by an action of an adult with the right
 	// `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
 	// the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
-	// the export of it and of what the device holds. Refusals: `CAUSE_NO_PROFILE` and
+	// the export of it, of what the device holds and of the stored works its profile's file names,
+	// each by `WorkService.GetWork` (R151). Refusals: `CAUSE_NO_PROFILE` and
 	// `CAUSE_ADULT_NEEDED`.
 	ExportProfile(context.Context, *v1.ExportProfileRequest) (*v1.ExportProfileResponse, error)
 	// The part of the account's export that `api` holds: the fields of the account and the parts of

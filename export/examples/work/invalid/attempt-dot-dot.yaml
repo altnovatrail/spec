@@ -1,0 +1,10 @@
+# error: pattern at #/attempt_id
+# The attempt's ID names the work's file, works/<id>/<attempt>.json: it is never . or .., nor holds a /.
+format: 3
+profile_id: "p-1"
+attempt_id: ".."
+kind: "handwriting"
+stored_at: "2026-11-10T10:45:00Z"
+history: []
+submissions: []
+picture: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="

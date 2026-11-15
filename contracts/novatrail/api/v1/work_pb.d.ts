@@ -390,10 +390,11 @@ export declare const WorkKindSchema: GenEnum<WorkKind>;
  * what `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, an attempt
  * that is not the profile's `CAUSE_NOT_FOUND`, a learning request of a profile whose consent is not
  * confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
- * `CAUSE_AGE_NEEDED`, a request without the right it needs the code `permission_denied` with no
- * `Refusal`, and a request whose form the contract refuses the code `invalid_argument` with no
- * `Refusal`. Each repeats by the state of the profile's works, with no idempotency key. The server
- * reads no work and gives none to an AI provider.
+ * `CAUSE_AGE_NEEDED` — but for `DeleteWork` and the learner's `ListWorks` and `GetWork`, which
+ * neither refuses (R113) —, a request without the right it needs the code `permission_denied`
+ * with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
+ * with no `Refusal`. Each repeats by the state of the profile's works, with no idempotency key.
+ * The server reads no work and gives none to an AI provider.
  *
  * @generated from service novatrail.api.v1.WorkService
  */
@@ -424,7 +425,10 @@ export declare const WorkService: GenService<{
   /**
    * The works of the profile kept on the server, newest first, without their bytes: a learning
    * request with the right `can_learn`, or an action of an adult with `can_manage`. While the
-   * storage is off the list is empty: switching it off erased them.
+   * storage is off the list is empty: switching it off erased them. While the profile waits for a
+   * consent or for its age, neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses the
+   * learner's request, by which `app` builds the export, as neither refuses the learner's
+   * `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile (R113).
    *
    * @generated from rpc novatrail.api.v1.WorkService.ListWorks
    */
@@ -434,8 +438,10 @@ export declare const WorkService: GenService<{
     output: typeof ListWorksResponseSchema;
   },
   /**
-   * One work kept on the server, whole, as it was put, to restore it on a device or to export it:
-   * as `ListWorks`. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work kept.
+   * One work kept on the server, whole, as it was put, to restore it on a device or to export it,
+   * beside the part of the export `ExportProfile` and `ExportAccount` give (R151): as `ListWorks`,
+   * while the profile waits too. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work
+   * kept.
    *
    * @generated from rpc novatrail.api.v1.WorkService.GetWork
    */

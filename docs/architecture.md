@@ -551,8 +551,8 @@ Module → CI of `modules` (`module-kit`, `sim`; from stage 2 eval) → package 
 
 - **The export is assembled by `app`.**
   - Strokes, artifacts and tasks from paper lie on the device, and `api` gives its own part.
-  - Works from other devices are exported from them, but for the stored works: while the storage of works is on, `api` keeps the last work each device put, and its part of the export carries them (R113; R135, the 2026-11-13 amendment).
-  - The export format is open, in `spec`: [the part `export/`](../export/README.md) — a ZIP of JSON files, where the manifest and the device's files are written by `app`, and `api.zip` is the part of `api`, byte for byte; the evidence log, the state and the observation are the JSON of their protobuf messages with their own `.proto` (R09, R135).
+  - Works from other devices are exported from them, but for the stored works: while the storage of works is on, `api` keeps the last work each device put, its part of the export names them, and `app` writes each into the export beside that part, by `GetWork`, one at a time, so that no answer is larger than a work (R113; R151).
+  - The export format is open, in `spec`: [the part `export/`](../export/README.md) — a ZIP of JSON files, where the manifest, the device's files and the stored works are written by `app`, and `api.zip` is the part of `api`, byte for byte; the evidence log, the state and the observation are the JSON of their protobuf messages with their own `.proto` (R09, R135).
   - There is no own key in the export: the export is learners' data, and the key is a secret of the key's owner (R84; privacy 5.2).
 - **Deletion is confirmed by a fresh sign-in.**
   - `api` deletes the data from the database and deletes the account at the sign-in service. Without a fresh sign-in the deletion gets the refusal "fresh sign-in needed", `CAUSE_FRESH_SIGN_IN_NEEDED` (R98; [contracts text](../contracts/README.md), section 15).

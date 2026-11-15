@@ -9,8 +9,9 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TAR } from "../../shared.mjs";
-import { EXPORT_V2_LINE, FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, FIRST_CONSENT_AGE_LINE, FIRST_DEPLOYMENT_LINE, FIRST_EXPORT_LINE, FIRST_LEGAL_LINE, LEGAL_V2_LINE, LEGAL_V3_LINE, FIRST_PAGE_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
+import { EXPORT_V2_LINE, EXPORT_V3_LINE, FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, FIRST_CONSENT_AGE_LINE, FIRST_DEPLOYMENT_LINE, FIRST_EXPORT_LINE, FIRST_LEGAL_LINE, LEGAL_V2_LINE, LEGAL_V3_LINE, FIRST_PAGE_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
 import { treeOf } from "../../npm-package.mjs";
+import { compareLines } from "../../release/version.mjs";
 import { scratchRepository, writeFile } from "../../release/test/repository.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -33,6 +34,14 @@ function tree() {
 }
 
 const listing = (archive) => spawnSync(TAR, ["-tzf", archive], { encoding: "utf8" }).stdout.split("\n").filter(Boolean).sort();
+
+// The package of the types of the format of the export that the package of version holds, by the
+// lines npm.mjs names: exportv1 before EXPORT_V2_LINE, exportv2 before EXPORT_V3_LINE, exportv3 after.
+const exportOfLine = (version) => {
+  const line = version.split(".").slice(0, 2).join(".");
+  if (compareLines(line, EXPORT_V3_LINE) >= 0) return "exportv3";
+  return compareLines(line, EXPORT_V2_LINE) >= 0 ? "exportv2" : "exportv1";
+};
 
 test("the package is named and versioned as the release, and exports each package of the types", () => {
   assert.equal(NAME, "@altnovatrail/spec");
@@ -180,24 +189,27 @@ test("from the line 0.17 on, the package holds and exports the types of the lega
     assert.ok(files.some(({ file, from }) => file === "legalv3/index.d.ts" && from === "types/legalv3/index.d.ts"), version);
     assert.ok(!files.some(({ file }) => file.startsWith("legalv2/") || file.startsWith("legalv1/")), version);
     const manifest = manifestOf(version);
-    assert.deepEqual(manifest.files, ["formatv0", "canvas", "admissionv0", "format", "deploymentv1", "legalv3", "consentagev1", "exportv2"]);
+    assert.deepEqual(manifest.files, ["formatv0", "canvas", "admissionv0", "format", "deploymentv1", "legalv3", "consentagev1", exportOfLine(version)]);
     assert.deepEqual(manifest.exports["./legalv3"], { types: "./legalv3/index.d.ts" });
     assert.equal(manifest.exports["./legalv2"], undefined);
   }
 });
 
-test("from the line 0.17 on, the package holds and exports the types of the export's version 2, exportv2, in place of exportv1", () => {
+test("from the line 0.17 on, the package holds and exports the types of the export's version 2, exportv2, in place of exportv1, and from the line 0.18 on exportv3 in place of both", () => {
   assert.equal(EXPORT_V2_LINE, "0.17");
+  assert.equal(EXPORT_V3_LINE, "0.18");
   const tree = treeOf(spec);
-  for (const version of ["0.17.0", "1.0.0"]) {
+  for (const version of ["0.17.0", "0.18.0", "1.0.0"]) {
+    const name = exportOfLine(version);
     const files = filesOf(version, tree);
-    assert.deepEqual(files.at(-1), { file: "exportv2/index.d.ts", from: "types/exportv2/index.d.ts" }, version);
-    assert.ok(!files.some(({ file }) => file.startsWith("exportv1/")), version);
+    assert.deepEqual(files.at(-1), { file: `${name}/index.d.ts`, from: `types/${name}/index.d.ts` }, version);
+    assert.equal(files.filter(({ file }) => file.startsWith("export")).length, 1, version);
     const manifest = manifestOf(version);
-    assert.deepEqual(manifest.exports["./exportv2"], { types: "./exportv2/index.d.ts" });
-    assert.equal(manifest.exports["./exportv1"], undefined);
+    assert.deepEqual(manifest.exports[`./${name}`], { types: `./${name}/index.d.ts` });
+    for (const other of ["exportv1", "exportv2", "exportv3"].filter((each) => each !== name)) assert.equal(manifest.exports[`./${other}`], undefined, version);
   }
   // A release of the line 0.16, run again, gets the package it got: exportv1.
+  assert.equal(exportOfLine("0.16.9"), "exportv1");
   assert.deepEqual(filesOf("0.16.9", tree).at(-1), { file: "exportv1/index.d.ts", from: "types/exportv1/index.d.ts" });
   assert.equal(manifestOf("0.16.9").files.at(-1), "exportv1");
 });

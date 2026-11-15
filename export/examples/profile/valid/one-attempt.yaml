@@ -1,5 +1,5 @@
 # Synthetic: no learner's data. IDs, times and values are made up.
-format: 2
+format: 3
 profile_id: "p-1"
 owner: false
 pseudonym: "Comet"

@@ -12,7 +12,7 @@
 // ./deploymentv1, whose file keeps the names of its fields in camelCase (R85), the legal texts'
 // legalv3/index.d.ts, exported as ./legalv3 (R130, R141), and the table of the age of digital consent's
 // consentagev1/index.d.ts, exported as ./consentagev1 (R134), and the format of the export's
-// exportv2/index.d.ts, exported as ./exportv2 (R135).
+// exportv3/index.d.ts, exported as ./exportv3 (R135).
 
 import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN, OPEN_DIR, PACKAGE, TYPES_DIR, groupBy, linesOf } from "./go.mjs";
 import { openRefOf, placeOf } from "./model.mjs";
@@ -73,7 +73,7 @@ function deploymentDoc(version) {
 }
 
 function exportDoc(version) {
-  return `The types of the format of the export, version ${version} of the part, generated from the schemas in export/schemas by tools/types (R72, R73 and R135 in spec's docs/decisions.md): the same types as the Go package ${EXPORT_PACKAGE}, by the same names — the files of an export, the manifest, the account, a profile with every record of it and what a device holds of it, and the vectors of reading. A field that holds the JSON of a message of protobuf, or a value as the element <novatrail-canvas> gives it, is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (export/README.md, section 5). A field the object always holds is required; any other is optional.`;
+  return `The types of the format of the export, version ${version} of the part, generated from the schemas in export/schemas by tools/types (R72, R73 and R135 in spec's docs/decisions.md): the same types as the Go package ${EXPORT_PACKAGE}, by the same names — the files of an export, the manifest, the account, a profile with every record of it, what a device holds of it and a stored work, and the vectors of reading. A field that holds the JSON of a message of protobuf, or a value as the element <novatrail-canvas> gives it, is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (export/README.md, section 5). A field the object always holds is required; any other is optional.`;
 }
 
 function consentAgeDoc(version) {

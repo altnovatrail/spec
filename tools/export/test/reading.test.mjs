@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { compileSchemas, readSchema } from "../../format-check/schemas.mjs";
 import { readModuleFile } from "../../format-check/yaml.mjs";
 import { EXPORT_PART } from "../main.mjs";
-import { LEARNER_MODEL_PROTO, OBSERVATION_PROTO, RULES, readingOf, termOf } from "../reading.mjs";
+import { LEARNER_MODEL_PROTO, OBSERVATION_PROTO, RULES, instantOf, readingOf, termOf } from "../reading.mjs";
 
 const spec = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const schemas = fs.readdirSync(path.join(spec, "export/schemas")).map((name) => readSchema(spec, name, EXPORT_PART));
@@ -20,13 +20,15 @@ const profile = example("profile/valid/one-attempt.yaml");
 const exportOf = (files) => ({ "manifest.json": manifest, [`api/profiles/${profile.profile_id}.json`]: profile, ...protos, ...files });
 
 test("the rules are read in the order of the text, and each file of JSON has its schema", () => {
-  assert.deepEqual(RULES, ["export.files", "export.scope", "export.profiles", "export.proto"]);
+  assert.deepEqual(RULES, ["export.files", "export.scope", "export.profiles", "export.works", "export.proto"]);
   const readme = fs.readFileSync(path.join(spec, "export/README.md"), "utf8");
   assert.deepEqual([...readme.matchAll(/^\| `(export\.[a-z-]+)` \|/gm)].map((match) => match[1]), RULES);
   assert.equal(termOf("manifest.json"), "manifest");
   assert.equal(termOf("api/account.json"), "account");
   assert.equal(termOf("api/profiles/p.json"), "profile");
   assert.equal(termOf("device/p.json"), "device");
+  assert.equal(termOf("works/p/a.json"), "work");
+  assert.equal(termOf("works/a.json"), null);
   assert.equal(termOf("api/proto/a/b.proto"), null);
 });
 
@@ -63,6 +65,33 @@ test("export.profiles names a profile's file by its ID, and a device's file by a
   assert.deepEqual(readingOf(validators, ofAccount([profile.profile_id])), { accepted: true });
   assert.deepEqual(readingOf(validators, ofAccount([profile.profile_id, "p-2"])), { refused_by: "export.profiles", names: ["api/account.json#profile_ids"] });
   assert.deepEqual(readingOf(validators, ofAccount(["p-2"])), { refused_by: "export.profiles", names: ["api/account.json#profile_ids"] });
+});
+
+test("export.works holds the works a profile names to their files, by the profile, the attempt, the kind and the time", () => {
+  const work = example("work/valid/handwriting.yaml");
+  const named = { attempt_id: work.attempt_id, kind: work.kind, stored_at: work.stored_at, size_bytes: 168 };
+  const withWork = { ...profile, works: [named], work_storage: true };
+  const file = `works/${profile.profile_id}/${work.attempt_id}.json`;
+  const of = (works, files) => exportOf({ [`api/profiles/${profile.profile_id}.json`]: { ...withWork, works }, ...files });
+  assert.deepEqual(readingOf(validators, of([named], { [file]: work })), { accepted: true });
+  // The same instant, written with a fraction of a second, is the same time.
+  assert.deepEqual(readingOf(validators, of([named], { [file]: { ...work, stored_at: "2026-11-10T10:45:00.000000Z" } })), { accepted: true });
+  assert.deepEqual(readingOf(validators, of([named], {})), { refused_by: "export.works", names: [file] });
+  assert.deepEqual(readingOf(validators, of([], { [file]: work })), { refused_by: "export.works", names: [file] });
+  assert.deepEqual(readingOf(validators, of([named], { [file]: { ...work, profile_id: "p-9", kind: "drawing", stored_at: "2026-11-10T10:45:00.5Z" } })), {
+    refused_by: "export.works",
+    names: [`${file}#kind`, `${file}#profile_id`, `${file}#stored_at`],
+  });
+  assert.deepEqual(readingOf(validators, of([named], { [file]: work, "works/p-9/attempt-1.json": { ...work, profile_id: "p-9" } })), { refused_by: "export.works", names: ["works/p-9/attempt-1.json"] });
+  // One stored work for each attempt: a second naming of it is named by its place.
+  assert.deepEqual(readingOf(validators, of([named, named], { [file]: work })), { refused_by: "export.works", names: [`api/profiles/${profile.profile_id}.json#works.1`] });
+  // An ID that names a file is one part of a path: never . or .., nor with a /.
+  for (const id of ["..", ".", "../p-2", "a/b"]) {
+    assert.deepEqual(readingOf(validators, of([{ ...named, attempt_id: id }], {})), { refused_by: "schema", names: [`api/profiles/${profile.profile_id}.json#works.0.attempt_id`] }, id);
+  }
+  assert.equal(validators.get("work")({ ...work, attempt_id: "0b9f6c1e-1c2d-4e5f-8a9b-0c1d2e3f4a5b" }), true);
+  assert.equal(instantOf("2026-11-10T10:45:00Z"), "2026-11-10T10:45:00.000000000Z");
+  assert.equal(instantOf("2026-11-10T10:45:00.25Z"), "2026-11-10T10:45:00.250000000Z");
 });
 
 test("export.proto wants learner-model's .proto with a profile, and the observation's with a submission", () => {

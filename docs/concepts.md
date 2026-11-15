@@ -243,7 +243,7 @@ In format v0 the canvas kinds are the handwriting sheet, `handwriting_sheet`, an
 
 **The learner's artifact** is work that is itself a result: a drawing, an essay or a recording. It belongs to the learner, it can be exported and deleted (privacy 4), and it is not "a picture for checking". Work on a task with a key — strokes, answers, the context of a submission — is not an artifact: it only needs to be checked, and the device erases it with the end of the attempt (П-9; R04 app).
 
-**A stored work** is a work of a profile that the server keeps while the storage of the profile's works is on: any work, the handwriting on a task with a key as well as an essay or a drawing, as the device holds it — its writing history, the context of each submission and its picture, at most 4 MiB. `app` puts it by `PutWork`, and it is read back, erased one at a time and exported ([the contracts text](../contracts/README.md), section 15; R113, the 2026-11-13 amendment). Switching storage off erases every stored work; the work on the device stays as long as the device keeps it.
+**A stored work** is a work of a profile that the server keeps while the storage of the profile's works is on: any work, the handwriting on a task with a key as well as an essay or a drawing, as the device holds it — its writing history, the context of each submission and its picture, at most 4 MiB. `app` puts it by `PutWork`, and it is read back, erased one at a time and exported, as a file of its own beside the part of `api` ([the contracts text](../contracts/README.md), section 15; R113, the 2026-11-13 amendment; R151). Switching storage off erases every stored work; the work on the device stays as long as the device keeps it.
 
 ## 9. Checking
 

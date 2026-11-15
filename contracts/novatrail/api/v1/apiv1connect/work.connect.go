@@ -88,10 +88,15 @@ type WorkServiceClient interface {
 	PutWork(context.Context, *v1.PutWorkRequest) (*v1.PutWorkResponse, error)
 	// The works of the profile kept on the server, newest first, without their bytes: a learning
 	// request with the right `can_learn`, or an action of an adult with `can_manage`. While the
-	// storage is off the list is empty: switching it off erased them.
+	// storage is off the list is empty: switching it off erased them. While the profile waits for a
+	// consent or for its age, neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses the
+	// learner's request, by which `app` builds the export, as neither refuses the learner's
+	// `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile (R113).
 	ListWorks(context.Context, *v1.ListWorksRequest) (*v1.ListWorksResponse, error)
-	// One work kept on the server, whole, as it was put, to restore it on a device or to export it:
-	// as `ListWorks`. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work kept.
+	// One work kept on the server, whole, as it was put, to restore it on a device or to export it,
+	// beside the part of the export `ExportProfile` and `ExportAccount` give (R151): as `ListWorks`,
+	// while the profile waits too. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work
+	// kept.
 	GetWork(context.Context, *v1.GetWorkRequest) (*v1.GetWorkResponse, error)
 	// Erases one work kept on the server, by whoever consents to the storage for the learner, as
 	// `SetWorkStorage`: an action of an adult with `can_manage`, and at a profile whose learner gave
@@ -128,10 +133,15 @@ type WorkServiceHandler interface {
 	PutWork(context.Context, *v1.PutWorkRequest) (*v1.PutWorkResponse, error)
 	// The works of the profile kept on the server, newest first, without their bytes: a learning
 	// request with the right `can_learn`, or an action of an adult with `can_manage`. While the
-	// storage is off the list is empty: switching it off erased them.
+	// storage is off the list is empty: switching it off erased them. While the profile waits for a
+	// consent or for its age, neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses the
+	// learner's request, by which `app` builds the export, as neither refuses the learner's
+	// `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile (R113).
 	ListWorks(context.Context, *v1.ListWorksRequest) (*v1.ListWorksResponse, error)
-	// One work kept on the server, whole, as it was put, to restore it on a device or to export it:
-	// as `ListWorks`. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work kept.
+	// One work kept on the server, whole, as it was put, to restore it on a device or to export it,
+	// beside the part of the export `ExportProfile` and `ExportAccount` give (R151): as `ListWorks`,
+	// while the profile waits too. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work
+	// kept.
 	GetWork(context.Context, *v1.GetWorkRequest) (*v1.GetWorkResponse, error)
 	// Erases one work kept on the server, by whoever consents to the storage for the learner, as
 	// `SetWorkStorage`: an action of an adult with `can_manage`, and at a profile whose learner gave
