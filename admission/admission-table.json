@@ -394,18 +394,18 @@
       "age_category": "adult",
       "admission": "open_with_facts",
       "facts": [
-        "data_processing_agreement",
-        "minimal_retention"
+        "data_processing_agreement"
       ],
       "terms": [
         {
           "row": "Anthropic",
-          "read": "2026-11-09"
+          "read": "2026-11-15"
         }
       ],
       "basis": [
         "privacy 5.1",
-        "R121"
+        "R121",
+        "R149"
       ]
     },
     {
@@ -698,8 +698,7 @@
       "age_category": "adult",
       "admission": "open_with_facts",
       "facts": [
-        "data_processing_agreement",
-        "minimal_retention"
+        "data_processing_agreement"
       ],
       "terms": [
         {
@@ -709,7 +708,8 @@
       ],
       "basis": [
         "privacy 5.1",
-        "R121"
+        "R121",
+        "R149"
       ]
     }
   ]
