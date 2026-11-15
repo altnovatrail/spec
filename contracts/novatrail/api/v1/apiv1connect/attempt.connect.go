@@ -156,11 +156,15 @@ type AttemptServiceClient interface {
 	// rung's fallback text and names the outcome. A repeat with the same idempotency key, or a request
 	// for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
 	GetRungWords(context.Context, *v1.GetRungWordsRequest) (*v1.GetRungWordsResponse, error)
-	// Asks for the tutor's words after a correct answer, sending the work again, once, on the attempt
-	// that the answer has just closed. Refusals: `CAUSE_NO_MORE_WORDS`, also on an attempt that no
-	// correct answer closed, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-	// an answer without words: the server keeps none.
+	// Asks for the tutor's words after a correct answer, sending the work again, on the attempt that
+	// the answer has just closed. The right is one answer with words: `api` spends it when it gives
+	// the words, and only then. An answer without words — a call of AI that gave none, or words that
+	// failed a check — leaves it, and a request with a new idempotency key sends the work again and
+	// calls AI again, bounded by the quota on platform AI and, on an own key, by its limit at its
+	// provider. An answer with words that was lost has spent it: its repeat with the same
+	// idempotency key gets an answer `repeated` without words, since the server keeps none.
+	// Refusals: `CAUSE_NO_MORE_WORDS` once the words were given, also on an attempt that no correct
+	// answer closed, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`.
 	GetCorrectAnswerWords(context.Context, *v1.GetCorrectAnswerWordsRequest) (*v1.GetCorrectAnswerWordsResponse, error)
 	// "Explain differently": the words of the same rung in other words, one call of AI on a rung,
 	// without the work, for the wrong answer it names. Refusals: `CAUSE_NOT_CURRENT`,
@@ -233,11 +237,15 @@ type AttemptServiceHandler interface {
 	// rung's fallback text and names the outcome. A repeat with the same idempotency key, or a request
 	// for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
 	GetRungWords(context.Context, *v1.GetRungWordsRequest) (*v1.GetRungWordsResponse, error)
-	// Asks for the tutor's words after a correct answer, sending the work again, once, on the attempt
-	// that the answer has just closed. Refusals: `CAUSE_NO_MORE_WORDS`, also on an attempt that no
-	// correct answer closed, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-	// an answer without words: the server keeps none.
+	// Asks for the tutor's words after a correct answer, sending the work again, on the attempt that
+	// the answer has just closed. The right is one answer with words: `api` spends it when it gives
+	// the words, and only then. An answer without words — a call of AI that gave none, or words that
+	// failed a check — leaves it, and a request with a new idempotency key sends the work again and
+	// calls AI again, bounded by the quota on platform AI and, on an own key, by its limit at its
+	// provider. An answer with words that was lost has spent it: its repeat with the same
+	// idempotency key gets an answer `repeated` without words, since the server keeps none.
+	// Refusals: `CAUSE_NO_MORE_WORDS` once the words were given, also on an attempt that no correct
+	// answer closed, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`.
 	GetCorrectAnswerWords(context.Context, *v1.GetCorrectAnswerWordsRequest) (*v1.GetCorrectAnswerWordsResponse, error)
 	// "Explain differently": the words of the same rung in other words, one call of AI on a rung,
 	// without the work, for the wrong answer it names. Refusals: `CAUSE_NOT_CURRENT`,

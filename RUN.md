@@ -196,18 +196,7 @@ E12 сделан 2026-11-14 и перенесён в архив 2026-11-15. Сл
 
 Сделанные — в архиве эпика, при котором их сделали, а между эпиками — в архиве последнего сделанного (правило 9).
 
-
-#### T160. Ответы `api`, которых контракт не называет
-
-- **Цель:** комментарии `.proto` и [текст контрактов](contracts/README.md), раздел 15, называют то, что `api` уже отвечает, и `app` строит по тексту.
-- **Почему:** разбор входящих 2026-11-15, в конце E12: строки `api` В68, В70, В75 и В76 (RUN.md `api`, `main` ca0f246 и 5d5fd95).
-- **Сделать:**
-  - `work.proto`: `PutWork` — дайджест, которого индекс не знает, `CAUSE_PACKAGE_UNKNOWN`; пакет вне окна форматов, когда вида работы не узнать, — `failed_precondition` с `CAUSE_VERSION_NOT_GIVEN`, а не без `Refusal`: в контракте этот код всегда несёт причину (ответ автора 2026-11-15 на В68, вариант (2а)), и строка Д для `api`; сообщение больше предела чтения `api` — `resource_exhausted` без `Refusal`, до разбора, а `app` читает его как `CAUSE_WORK_TOO_LARGE`; `history_length` — от 0, ниже — `invalid_argument`; `DeleteWork` — в исключениях ожидающего согласия (поправка 2026-11-15 к R113);
-  - `account.proto` и architecture 3.5: `ListOwnKeyProviders` и `OWN_KEY_CHECK_PROVIDER_CLOSED` — по допуску `tutor` хоть одному виду вызова `api` (строка В70);
-  - `attempt.proto`: «once» `GetCorrectAnswerWords` — по словам, дошедшим до ученика (строка В75);
-  - `cause.proto` и `account.proto`: отказ `CheckOwnKey` сверх предела проверок `api` — 10 за скользящий час на аккаунт (R78 api) — новой причиной с кодом `resource_exhausted`, например `CAUSE_KEY_CHECKS_EXHAUSTED`, и в `Refusal` время, когда откроется следующая проверка (`Timestamp`, как `locked_until` у PIN); число и окно — у `api`, как у `CAUSE_TOO_MANY_CONSENTS` (ответ автора 2026-11-15 на строку `api` В76, вариант (а)); `api` ставит её переходом на тег — строкой [DEBT.md](DEBT.md) рядом с Д245.
-- **Как проверить:** `just contracts`; `just contracts-check`; `just docs-check`; `/code-review high`.
-- **Разделы:** contracts 15; architecture 3.5; R83, R84, R113; R47, R70, R72 api.
+- T160 — сделана 2026-11-15: комментарии `.proto` и [текст контрактов](contracts/README.md), раздел 15, называют ответы `PutWork`, `DeleteWork`, `GetCorrectAnswerWords` и `ListOwnKeyProviders`, которые `api` уже даёт, а `CheckOwnKey` сверх предела проверок получил причину `CAUSE_KEY_CHECKS_EXHAUSTED` со временем следующей проверки (Д246, Д247). Тело — [docs/plan/E12.md](docs/plan/E12.md)
 
 #### T161. Выгрузка версии 3: хранимые работы — файлами рядом с `api.zip` (Т-40)
 

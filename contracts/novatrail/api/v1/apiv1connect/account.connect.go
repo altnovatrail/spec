@@ -415,11 +415,17 @@ type AccountServiceClient interface {
 	// Checks a key of the owner's at its provider, when it is connected, by a request with nothing of
 	// a learner's: on the page where the key is entered, an action of an adult with the right
 	// `can_manage` on the owner's profile of the age category `adult` (R84). A provider that gave no
-	// answer is an outcome. Refusals: `CAUSE_NO_PROFILE` and `CAUSE_KEY_NOT_FOR_PROFILE`.
+	// answer is an outcome. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_KEY_NOT_FOR_PROFILE`, and
+	// `CAUSE_KEY_CHECKS_EXHAUSTED` beyond the checks `api` lets the account make, with no call and
+	// with when the next check opens, which `app` tells the owner. The limit is checked after the
+	// profile, the form of the key and the category: a request refused by them counts no check.
 	CheckOwnKey(context.Context, *v1.CheckOwnKeyRequest) (*v1.CheckOwnKeyResponse, error)
-	// The providers that the admission function opens to an own key at a profile, so that `app`
-	// builds no list in: empty at a profile whose age category is not `adult`. An action of an adult
-	// with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
+	// The providers whose own key `tutor` admits at the profile's age category for one kind of call
+	// of AI that `api` makes at least — the reading of a work, the words sent with the work, and
+	// "explain differently", sent without it —, by the admission table and the models admitted at the
+	// deployment's rung, so that `app` builds no list in and offers no provider that `CheckOwnKey`
+	// finds closed: empty at a profile whose age category is not `adult` (R96). An action of an
+	// adult with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
 	ListOwnKeyProviders(context.Context, *v1.ListOwnKeyProvidersRequest) (*v1.ListOwnKeyProvidersResponse, error)
 	// The share of the family day's quota of platform AI that a profile has spent, never a sum in
 	// dollars: a learning action with the right `can_learn` gets the share of its own profile alone,
@@ -586,11 +592,17 @@ type AccountServiceHandler interface {
 	// Checks a key of the owner's at its provider, when it is connected, by a request with nothing of
 	// a learner's: on the page where the key is entered, an action of an adult with the right
 	// `can_manage` on the owner's profile of the age category `adult` (R84). A provider that gave no
-	// answer is an outcome. Refusals: `CAUSE_NO_PROFILE` and `CAUSE_KEY_NOT_FOR_PROFILE`.
+	// answer is an outcome. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_KEY_NOT_FOR_PROFILE`, and
+	// `CAUSE_KEY_CHECKS_EXHAUSTED` beyond the checks `api` lets the account make, with no call and
+	// with when the next check opens, which `app` tells the owner. The limit is checked after the
+	// profile, the form of the key and the category: a request refused by them counts no check.
 	CheckOwnKey(context.Context, *v1.CheckOwnKeyRequest) (*v1.CheckOwnKeyResponse, error)
-	// The providers that the admission function opens to an own key at a profile, so that `app`
-	// builds no list in: empty at a profile whose age category is not `adult`. An action of an adult
-	// with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
+	// The providers whose own key `tutor` admits at the profile's age category for one kind of call
+	// of AI that `api` makes at least — the reading of a work, the words sent with the work, and
+	// "explain differently", sent without it —, by the admission table and the models admitted at the
+	// deployment's rung, so that `app` builds no list in and offers no provider that `CheckOwnKey`
+	// finds closed: empty at a profile whose age category is not `adult` (R96). An action of an
+	// adult with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
 	ListOwnKeyProviders(context.Context, *v1.ListOwnKeyProvidersRequest) (*v1.ListOwnKeyProvidersResponse, error)
 	// The share of the family day's quota of platform AI that a profile has spent, never a sum in
 	// dollars: a learning action with the right `can_learn` gets the share of its own profile alone,

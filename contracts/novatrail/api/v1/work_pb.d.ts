@@ -91,7 +91,8 @@ export declare type WorkSubmission = Message<"novatrail.api.v1.WorkSubmission"> 
   context: Uint8Array;
 
   /**
-   * How many events of the history the submission covers.
+   * How many events of the history the submission covers, from 0: below it, `PutWork` is refused
+   * `invalid_argument`.
    *
    * @generated from field: int32 history_length = 2;
    */
@@ -402,9 +403,16 @@ export declare const WorkService: GenService<{
    * request with the right `can_learn`, while the profile's storage of works is on. `app` puts a
    * work when it writes it to the device — at each submission and when the attempt closes at
    * least —, and the last one put stands. The kind of the work `api` takes from the attempt's
-   * task. `api` checks the form of the work alone, as `StoredWork` names it: a work of another form
-   * gets the code `invalid_argument` with no `Refusal`. Refusals: `CAUSE_STORAGE_OFF` and
-   * `CAUSE_WORK_TOO_LARGE`.
+   * task, or from the work kept of it before. `api` checks the form of the work alone, as
+   * `StoredWork` names it: a work of another form gets the code `invalid_argument` with no
+   * `Refusal`. A message larger than `api` reads gets the code `resource_exhausted` with no
+   * `Refusal`, before it is parsed, and `app` reads it as `CAUSE_WORK_TOO_LARGE`. Refusals:
+   * `CAUSE_STORAGE_OFF`, `CAUSE_WORK_TOO_LARGE`, `CAUSE_PACKAGE_UNKNOWN` when the index of the
+   * image does not know the attempt's package digest, whatever work of the attempt was kept before,
+   * and `CAUSE_VERSION_NOT_GIVEN` when the attempt's version is out of the window of formats that
+   * `api` reads and no work of the attempt was kept before, so that its kind cannot be known; a
+   * withdrawn version, which the image still holds, gives the kind by its task. On each refusal
+   * `api` keeps nothing of the work, and `app` keeps it on the device alone.
    *
    * @generated from rpc novatrail.api.v1.WorkService.PutWork
    */
@@ -440,8 +448,10 @@ export declare const WorkService: GenService<{
    * Erases one work kept on the server, by whoever consents to the storage for the learner, as
    * `SetWorkStorage`: an action of an adult with `can_manage`, and at a profile whose learner gave
    * their own consent, the learner's learning request with `can_learn`. The answer is "erased",
-   * and so is a repeat's, of an attempt with no work kept. The work on the device stays. Refusals:
-   * `CAUSE_LEARNER_DECIDES` and `CAUSE_ADULT_NEEDED`.
+   * and so is a repeat's, of an attempt with no work kept. The work on the device stays. While the
+   * profile waits for a consent or for its age, it goes as switching the storage off goes: neither
+   * `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it (R113). Refusals: `CAUSE_LEARNER_DECIDES`
+   * and `CAUSE_ADULT_NEEDED`.
    *
    * @generated from rpc novatrail.api.v1.WorkService.DeleteWork
    */

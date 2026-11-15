@@ -94,6 +94,14 @@ export declare type Refusal = Message<"novatrail.api.v1.Refusal"> & {
      */
     value: EndedSegments;
     case: "endedSegments";
+  } | {
+    /**
+     * Beside `CAUSE_KEY_CHECKS_EXHAUSTED`: when the next check of an own key opens.
+     *
+     * @generated from field: google.protobuf.Timestamp next_key_check = 9;
+     */
+    value: Timestamp;
+    case: "nextKeyCheck";
   } | { case: undefined; value?: undefined };
 };
 
@@ -429,8 +437,9 @@ export enum Cause {
 
   /**
    * The words asked for are not given: the words after a correct answer on an attempt that no
-   * correct answer closed, a second time, or once the profile began another attempt; the words of a
-   * rung from the fourth wrong answer on, where no rung is new. Code `failed_precondition`.
+   * correct answer closed, once `api` gave the words, or once the profile began another
+   * attempt; the words of a rung from the fourth wrong answer on, where no rung is new. Code
+   * `failed_precondition`.
    *
    * @generated from enum value: CAUSE_NO_MORE_WORDS = 19;
    */
@@ -539,7 +548,9 @@ export enum Cause {
    * gives: its index marks the version withdrawn, or the version's module format is out of the
    * window of formats that `api` reads. `app` asks `CheckPackages` about the digests it keeps,
    * and erases what it keeps of the version. An attempt or a lesson run on such a version is closed
-   * or ended `unchecked` instead. Code `failed_precondition`.
+   * or ended `unchecked` instead. A work put of an attempt on a version out of that window, with
+   * no work of the attempt kept before, gets it too: its kind cannot be known. Code
+   * `failed_precondition`.
    *
    * @generated from enum value: CAUSE_VERSION_NOT_GIVEN = 32;
    */
@@ -642,11 +653,23 @@ export enum Cause {
 
   /**
    * A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps
-   * it on the device alone (R113). Code `invalid_argument`, with no data.
+   * it on the device alone (R113). Code `invalid_argument`, with no data. A `PutWork` message
+   * larger than `api` reads gets `resource_exhausted` with no `Refusal` instead (contracts/README.md,
+   * section 15): `app` reads it as this cause.
    *
    * @generated from enum value: CAUSE_WORK_TOO_LARGE = 44;
    */
   WORK_TOO_LARGE = 44,
+
+  /**
+   * A check of an own key beyond the checks that `api` lets an account make in a sliding window:
+   * every check that is not refused before it counts, a provider closed with no call too. `api`
+   * holds the number and the window (R78 api). The refusal holds when the next check opens. Code
+   * `resource_exhausted`.
+   *
+   * @generated from enum value: CAUSE_KEY_CHECKS_EXHAUSTED = 45;
+   */
+  KEY_CHECKS_EXHAUSTED = 45,
 }
 
 /**

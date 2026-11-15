@@ -382,8 +382,9 @@ const (
 	OwnKeyCheck_OWN_KEY_CHECK_INVALID OwnKeyCheck = 2
 	// The key is valid, but has no right to the models it is needed for.
 	OwnKeyCheck_OWN_KEY_CHECK_NO_PERMISSION OwnKeyCheck = 3
-	// The admission function does not open the provider to an own key at this profile, or the
-	// admission table does not know the provider: no call went.
+	// The provider is not one that `ListOwnKeyProviders` names at this profile — `tutor` admits its
+	// own key there for no kind of call of `api` —, or the admission table does not know it: no call
+	// went.
 	OwnKeyCheck_OWN_KEY_CHECK_PROVIDER_CLOSED OwnKeyCheck = 4
 )
 
@@ -3426,7 +3427,8 @@ func (x *ListOwnKeyProvidersRequest) GetProfileId() string {
 // The providers of an own key at a profile.
 type ListOwnKeyProvidersResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The providers open to an own key, in the order of the admission table.
+	// The providers open to an own key, as `ListOwnKeyProviders` names them, in the order of the
+	// admission table.
 	Providers     []*OwnKeyProvider `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
