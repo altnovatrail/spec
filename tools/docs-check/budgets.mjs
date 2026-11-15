@@ -14,6 +14,8 @@
 // - files — the whole file, by its path from the root;
 // - rule — each rule of .claude/rules/, front matter and all;
 // - entry — each entry of the decision log, from its "**R01. …**" to the next entry or heading;
+//   entries names a limit of its own for one entry by its number: "R18" — an entry is never
+//   rewritten, so a long one gets its own limit, and the others keep theirs;
 // - section — the own text under each heading of a document cited by name, numbered or not, to the
 //   next heading of any depth, and the text above its first heading; sections names a limit of its
 //   own for a numbered one: "concepts 15";
@@ -26,7 +28,7 @@ import { isRule } from "./rules.mjs";
 
 const KB = 1024;
 const LIMITS = ["rule", "entry", "section"];
-const MAPS = ["files", "sections", "rows"];
+const MAPS = ["files", "entries", "sections", "rows"];
 const bytes = (n) => n.toLocaleString("en-US");
 
 // The limits that hold at root, each { kb, from } with the file it came from, or null when the
@@ -50,7 +52,7 @@ export function readBudgets(root, settings, report) {
     report(settings.file, 0, `budgets: no block "${settings.block}"`);
     return null;
   }
-  const limits = { files: {}, sections: {}, rows: {} };
+  const limits = { files: {}, entries: {}, sections: {}, rows: {} };
   const take = (block, from) => {
     for (const [key, value] of Object.entries(block)) {
       if (LIMITS.includes(key)) {
@@ -108,13 +110,28 @@ export function checkBudgets(root, files, limits, profile, report) {
   const register = profile.registers.find((r) => r.prefix === "R");
   const log = register?.file;
   const doc = log && files.get(log);
-  if (limits.entry && doc) {
-    const entries = entriesOf(register, doc).map((e) => ({ number: `R${e.digits}`, line: e.line }));
-    const bounds = [...entries.map((e) => e.line), ...doc.headings.map((h) => h.line)].sort((a, b) => a - b);
+  // An entry's own limit is named by its number, "R4" and "R04" alike.
+  const own = new Map();
+  for (const [key, limit] of Object.entries(limits.entries)) {
+    const number = /^R\d+$/.test(key) ? Number(key.slice(1)) : key;
+    if (own.has(number)) report(limit.from, 0, `budgets: entries "${own.get(number).key}" and "${key}" name one entry`);
+    else own.set(number, { key, limit, found: false });
+  }
+  if (doc && (limits.entry || own.size)) {
+    const entries = entriesOf(register, doc).map((e) => ({ number: Number(e.digits), name: `R${e.digits}`, line: e.line }));
+    const bounds = [...entries.map((e) => e.line), ...doc.headings.map((h) => h.line)].sort((x, y) => x - y);
     for (const entry of entries) {
+      const mine = own.get(entry.number);
+      if (mine) mine.found = true;
+      const limit = mine?.limit ?? limits.entry;
+      if (!limit) continue;
       const end = bounds.find((line) => line > entry.line) ?? linesOf(log).length + 1;
-      over(log, entry.line, `${entry.number}: `, size(log, entry.line, end), limits.entry);
+      over(log, entry.line, `${entry.name}: `, size(log, entry.line, end), limit);
     }
+  }
+  // A limit of its own for an entry that is not in the log would hold nothing, and say nothing.
+  for (const { key, limit, found } of own.values()) {
+    if (!found) report(limit.from, 0, `budgets: entries "${key}" names no entry of the decision log`);
   }
 
   const named = new Set();

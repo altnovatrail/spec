@@ -140,6 +140,19 @@ test("a section that does not exist", async () => {
 test("a section in a list and in a range", async () => {
   await expectOnly([["docs/repositories.md", "architecture 3, 3.6", "architecture 3, 3.7"]], /has no section 3\.7$/);
   await expectOnly([["docs/concepts.md", "в разделе 2.", "в разделах 1–3."]], /docs\/concepts\.md has no section 3$/);
+  // The last number of a range is a section even when a word follows it, and a count after a comma
+  // is not one (T124 measured "measurements 1.1–1.99 records" passing).
+  const range = (text) => [["docs/architecture.md", "(repositories 8; privacy 9)", `(repositories 8; privacy 9; ${text})`]];
+  await expectOnly(range("product 13.1–13.9 records"), /^docs\/architecture\.md:\d+: docs\/product\.md has no section 13\.9$/);
+  await expectOnly(range("product 13–14 модулей"), /docs\/product\.md has no section 14$/);
+  assert.deepEqual(await errorsOf(range("product 13.1–13.2 records, 14 модулей")), []);
+  assert.deepEqual(await errorsOf(range("sections 9–11 of the license")), []);
+  // A range after a comma or «и» before a word is a count, as a number there is.
+  assert.deepEqual(await errorsOf(range("product 13, 10–12 модулей; product 13 и 2–3 недели")), []);
+  await expectOnly(range("product 1, 13–14"), /docs\/product\.md has no section 14$/);
+  // "sections 9–11 in SB 297" are a law's, as "of the license" is another text's.
+  assert.deepEqual(await errorsOf(range("sections 9–11 in SB 297")), []);
+  await expectOnly(range("sections 3–4 here"), /docs\/architecture\.md has no section 4$/);
 });
 
 test("dpia N is a section of docs/dpia.md, the DPIA", async () => {
@@ -817,6 +830,18 @@ test("a decision entry over its budget, to the next entry", async () => {
   assert.deepEqual(await errorsOf([["docs/decisions.md", "Как R38 canvas-api.", `Как R38 canvas-api.${filler(900)}`]]), []);
 });
 
+test("an entry with a limit of its own, by its number, and the others with theirs", async () => {
+  const budgets = ["tools/docs-check/budgets.json", '"entry": 1,\n    "section"', '"entry": 1,\n    "entries": { "R02": 2 },\n    "section"'];
+  const grow = (n) => ["docs/decisions.md", "Как R38 canvas-api.", `Как R38 canvas-api.${filler(n)}`];
+  assert.deepEqual(await errorsOf([budgets, grow(1500)]), []);
+  // By its number: "R2" is R02.
+  assert.deepEqual(await errorsOf([[budgets[0], budgets[1], budgets[2].replace('"R02"', '"R2"')], grow(1500)]), []);
+  await expectOnly([budgets, grow(2100)], /^docs\/decisions\.md:11: R02: 2,\d{3} bytes, over its budget of 2 KB \(2,048 bytes\) — tools\/docs-check\/budgets\.json$/);
+  await expectOnly([budgets, ["docs/decisions.md", "так проще (раздел 3 лицензии).", `так проще (раздел 3 лицензии).${filler(1100)}`]], /^docs\/decisions\.md:9: R01: 1,\d{3} bytes, over its budget of 1 KB/);
+  // A repository's docs-budgets.json names its own; a number not in the log is an error.
+  await componentOnly([["docs-budgets.json", null, '{ "entries": { "R01": 3 } }\n']], /^docs-budgets\.json:0: budgets: entries "R01" names no entry of the decision log$/);
+});
+
 test("a section over its budget, to the next heading, and a section with a limit of its own", async () => {
   await expectOnly([["docs/product.md", "## 13. Открытые вопросы\n", `## 12. Ещё${filler(1100)}\n## 13. Открытые вопросы\n`]], /^docs\/product\.md:\d+: section 12: 1,\d{3} bytes, over its budget of 1 KB/);
   assert.deepEqual(await errorsOf([["docs/product.md", "Номера не меняются.", `Номера не меняются.${filler(1500)}`]]), []);
@@ -846,6 +871,10 @@ test("budgets that are wrong are errors, not a check turned off", async () => {
   await expectOnly([[file, '"rule": 2,', '"rule": 2, "rules": 2,']], /budgets\.json:0: budgets: unknown key "rules"$/);
   await expectOnly([[file, '"rows": { "DEBT.md": 1 }\n  },', '"rows": { "DEBT.md": 1.5 }\n  },']], /budgets: rows "DEBT\.md" is 1\.5, not a whole number/);
   await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": [],']], /budgets: sections is not an object of limits$/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "R02": 0 },']], /budgets: entries "R02" is 0, not a whole number of KB above 0$/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "R9": 2 },']], /^tools\/docs-check\/budgets\.json:0: budgets: entries "R9" names no entry of the decision log$/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "02": 2 },']], /budgets: entries "02" names no entry of the decision log$/);
+  await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "R02": 2, "R2": 2 },']], /budgets: entries "R02" and "R2" name one entry$/);
   await expectOnly([[file, '"repository"', '"repo"']], /budgets: unknown block "repo"$/);
   assert.deepEqual(await errorsOf([[file, '"spec"', '"spek"']]), ['tools/docs-check/budgets.json:0: budgets: unknown block "spek"', 'tools/docs-check/budgets.json:0: budgets: no block "spec"']);
   await expectOnly([[file, null, "null\n"]], /budgets\.json:0: budgets: not a JSON object$/);

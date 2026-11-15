@@ -154,6 +154,12 @@ test("the fixed words of the log, as many as the original has", () => {
   only(broken("*Why:*", "*Because:*"), /fixed word "\*Why:\*" of the original/);
   some(broken("*Second amendment 2026-11-12:*", "*Amendment 2026-11-12:*"), /fixed word "\*Second amendment YYYY-MM-DD:\*" of the original/);
   assert.ok(vocabulary.length === table.length && table.every(([ru, en]) => ru && en));
+  // «*Поправка ДАТА, вторая:*», as the logs of engine and infra write it, is "*Amendment ДАТА, second:*".
+  const ru = RU.replace("*Вторая поправка 2026-11-12:*", "*Поправка 2026-11-08, четвёртая:*");
+  const en = (mark) => EN.replace("*Second amendment 2026-11-12:*", mark);
+  assert.deepEqual(differences(en("*Amendment 2026-11-08, fourth:*"), ru), []);
+  some(differences(en("*Fourth amendment 2026-11-08:*"), ru), /fixed word "\*Amendment YYYY-MM-DD, fourth:\*" of the original/);
+  assert.ok(table.some(([r, e]) => r === "*Поправка YYYY-MM-DD, вторая:*" && e === "*Amendment YYYY-MM-DD, second:*"));
 });
 
 test("the shape: an item split in two, a paragraph joined to another, a cell", () => {
