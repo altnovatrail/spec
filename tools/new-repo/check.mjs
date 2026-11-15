@@ -7,10 +7,11 @@
 // must be spec's own; its documents must pass docs-check as a repository of its own — links,
 // sections, its log and tables, and its citations of spec against the spec it pins; its
 // devcontainer must keep no name of spec's, and the version of gopls its lock file names, when it
-// has one, must be the one its Dockerfile asks for (R102); the plugins its .claude/settings.json turns
-// on from a marketplace in a local folder must be there (R143); and every link to spec on GitHub must name the tag
-// the spec submodule is checked out at. A draft — a copy without .git — has no submodule: its
-// links to spec need only agree with one another, and spec's working tree stands in for spec/.
+// has one, must be the one its Dockerfile asks for (R102); the plugins its devcontainer loads in Claude
+// Code must be there, and its .claude/settings.json may name no marketplace in a local folder (R143);
+// and every link to spec on GitHub must name the tag the spec submodule is checked out at. A draft —
+// a copy without .git — has no submodule: its links to spec need only agree with one another, and
+// spec's working tree stands in for spec/.
 // Prints one line per error, file:line: message, and exits 1 if any.
 
 import fs from "node:fs";
@@ -88,8 +89,8 @@ export async function checkRepo({ dir, specRoot }) {
   }
 
   // The plugin of the go kind runs gopls from PATH, and only the lock file puts it there.
-  if (checkClaudePlugins(dir, reference, report).includes("gopls") && lock === null) {
-    report(".devcontainer/gopls/go.mod", 0, "the file is missing, and .claude/settings.json turns on a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)");
+  if (checkClaudePlugins(dir, reference, report, container).includes("gopls") && lock === null) {
+    report(".devcontainer/gopls/go.mod", 0, "the file is missing, and .devcontainer/devcontainer.json loads a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)");
   }
 
   // Links to spec on GitHub, by the version they name.

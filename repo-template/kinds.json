@@ -8,12 +8,7 @@
       "go.lintOnSave": "off"
     },
     "devcontainer": "kinds/go",
-    "claude": {
-      "extraKnownMarketplaces": {
-        "novatrail": { "source": { "source": "directory", "path": "./spec/claude-plugins" } }
-      },
-      "enabledPlugins": { "gopls-lsp@novatrail": true }
-    }
+    "claudePlugins": ["gopls-lsp"]
   },
   "typescript": {
     "extensions": ["biomejs.biome@3.8.1"],

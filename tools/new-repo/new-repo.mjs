@@ -25,8 +25,9 @@ import { GIT, TAR } from "../shared.mjs";
 
 export const SPEC_URL = "https://github.com/altnovatrail/spec.git";
 
-// What a copy is built from: the template, what its files link to, and the cards.
-const SOURCES = ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs/architecture.md"];
+// What a copy is built from: the template, the plugins its kind loads, what its files link to, and
+// the cards.
+const SOURCES = ["repo-template", "claude-plugins", "LICENSE", "AGENTS.md", ".devcontainer", "docs/architecture.md"];
 
 export function newRepo({ specRoot, name, kind, card, dest, draft = null, specUrl = SPEC_URL, date = today() }) {
   if (!knownRepository(name)) throw new Error(`${name}: not one of NovaTrail's repositories (tools/docs-check/config.mjs)`);

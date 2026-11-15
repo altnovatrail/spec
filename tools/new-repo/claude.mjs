@@ -1,14 +1,18 @@
 // The copy's .claude/settings.json is the template's, with the keys its kind adds under "claude"
-// in repo-template/kinds.json: the go kind turns on gopls-lsp from spec's own marketplace,
-// claude-plugins/, through the spec submodule (R143). new-repo adds the keys; new-repo-check
-// finds the marketplace and the plugins the file turns on from it.
+// in repo-template/kinds.json; a tag of spec before T162 turned on gopls-lsp there, from a
+// marketplace in spec/claude-plugins/. Since T162 a kind's plugins are loaded by its devcontainer
+// (claudePlugins, devcontainer.mjs), and new-repo-check finds the folders it names (R143).
 
 import fs from "node:fs";
 import path from "node:path";
+import { PLUGIN_DIRS, WORKSPACE, parseJsonc } from "./devcontainer.mjs";
 
 export const CLAUDE_SETTINGS = ".claude/settings.json";
-const MARKETPLACE = ".claude-plugin/marketplace.json";
+const DEVCONTAINER = ".devcontainer/devcontainer.json";
 const PLUGIN = ".claude-plugin/plugin.json";
+// The marketplace spec had before T162, through which the go kind turned its plugin on.
+const OLD_MARKETPLACE_NAME = "novatrail";
+const OLD_MARKETPLACE = "claude-plugins/.claude-plugin/marketplace.json";
 
 // The kind's keys go at the end of the template's file, one level in, after a comma on its last
 // key, so the template's own lines stay as they are. A key the template already sets would be a
@@ -27,48 +31,61 @@ export function addClaudeSettings(dest, settings) {
   fs.writeFileSync(file, `${body}${body.endsWith("{") ? "" : ","}\n${added.join(",\n")}\n${text.slice(end)}`);
 }
 
-// Every plugin the copy's settings turn on comes from a marketplace they name; every marketplace in a
-// local folder must hold its list, and every plugin turned on from it must be listed there and lie
-// where the list says, under its own name: a copy on a tag of spec without claude-plugins/, or a
-// misspelt name, would otherwise leave its sessions without the plugin, and nothing would say why. A
-// path into spec/ is read from `reference`: the submodule, or for a draft, which has none, spec's
-// working tree. Returns the commands of the language servers those plugins start, which the
-// copy's image must have.
-export function checkClaudePlugins(dir, reference, report) {
+// The plugins of a copy's sessions come from its devcontainer, by CLAUDE_CODE_PLUGIN_DIRS in its
+// containerEnv: every folder the variable names lies inside the container's workspace and holds a
+// plugin.json that reads as JSON and names the plugin as the folder does. A copy on a tag of spec
+// without the plugin, or a misspelt name, would otherwise leave its sessions without it, and nothing
+// would say why. Its .claude/settings.json names no marketplace in a local folder and turns on no
+// plugin of the marketplace novatrail, or of the plugins the variable loads: Claude Code records a
+// marketplace in the ~/.claude that the containers share, by the path of one of them, and a key left
+// would take novatrail from there (R143). A spec before T162 still has the marketplace and its
+// template still writes those keys, and the message says so. A path into spec/ is read from
+// `reference`: the submodule, or for a draft, which has none, spec's working tree. `container` is
+// the text of the copy's devcontainer.json, undefined when it has none. Returns the commands of the
+// language servers those plugins start, which the copy's image must have.
+export function checkClaudePlugins(dir, reference, report, container) {
   const commands = [];
-  const settings = readJson(path.join(dir, CLAUDE_SETTINGS));
-  if (settings === undefined) return commands;
-  if (settings === null) {
-    report(CLAUDE_SETTINGS, 0, "is not JSON");
-    return commands;
-  }
-  const named = settings.extraKnownMarketplaces ?? {};
-  const local = new Map();
-  for (const [name, entry] of Object.entries(named)) {
-    const { source, path: where } = entry?.source ?? {};
-    if (source !== "directory" || typeof where !== "string") continue;
-    const relative = path.normalize(where);
-    const root = relative === "spec" || relative.startsWith(`spec${path.sep}`) ? path.join(reference, path.relative("spec", relative)) : path.resolve(dir, relative);
-    const list = readJson(path.join(root, MARKETPLACE));
-    if (!list) report(CLAUDE_SETTINGS, 0, `the marketplace ${name} is ${where}, which holds no ${MARKETPLACE} that reads as JSON`);
-    else local.set(name, { root, plugins: Array.isArray(list.plugins) ? list.plugins : [] });
-  }
-  for (const [key, on] of Object.entries(settings.enabledPlugins ?? {})) {
-    const at = key.lastIndexOf("@");
-    if (on !== true) continue;
-    if (at < 0 || !Object.hasOwn(named, key.slice(at + 1))) {
-      report(CLAUDE_SETTINGS, 0, `${key} is turned on from a marketplace that extraKnownMarketplaces does not name`);
-      continue;
+  const loaded = new Set();
+  let env;
+  if (container !== undefined) {
+    try {
+      env = parseJsonc(container)?.containerEnv;
+    } catch {
+      report(DEVCONTAINER, 0, "is not JSON with comments");
     }
-    const marketplace = local.get(key.slice(at + 1));
-    if (!marketplace) continue;
-    const plugin = key.slice(0, at);
-    const listed = marketplace.plugins.find((p) => p?.name === plugin);
-    const manifest = typeof listed?.source === "string" ? readJson(path.join(marketplace.root, listed.source, PLUGIN)) : undefined;
-    if (!listed) report(CLAUDE_SETTINGS, 0, `${key} is turned on, and its marketplace lists no ${plugin}`);
-    else if (!manifest) report(CLAUDE_SETTINGS, 0, `${key} is turned on, and its marketplace has no ${PLUGIN} at ${JSON.stringify(listed.source)} that reads as JSON`);
-    else if (manifest.name !== plugin) report(CLAUDE_SETTINGS, 0, `${key} is turned on, and the ${PLUGIN} its marketplace lists is ${JSON.stringify(manifest.name)}`);
-    else for (const server of Object.values(manifest.lspServers ?? {})) if (typeof server?.command === "string") commands.push(server.command);
+  }
+  const folders = env?.[PLUGIN_DIRS];
+  for (const folder of folders === undefined ? [] : String(folders).split(":")) {
+    const relative = folder.startsWith(`${WORKSPACE}/`) ? path.normalize(folder.slice(WORKSPACE.length + 1)) : null;
+    if (folder === "") report(DEVCONTAINER, 0, `${PLUGIN_DIRS} holds an empty path: a ":" too many`);
+    else if (relative === null) report(DEVCONTAINER, 0, `${PLUGIN_DIRS} names ${folder}, which does not start with ${WORKSPACE}/, the one path that is the container's own wherever it opens the repository`);
+    else if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) report(DEVCONTAINER, 0, `${PLUGIN_DIRS} names ${folder}, which leads out of the workspace`);
+    else {
+      const where = relative === "spec" || relative.startsWith(`spec${path.sep}`) ? path.join(reference, path.relative("spec", relative)) : path.join(dir, relative);
+      const manifest = readJson(path.join(where, PLUGIN));
+      if (!manifest) report(DEVCONTAINER, 0, `${PLUGIN_DIRS} names ${folder}, which holds no ${PLUGIN} that reads as JSON`);
+      else if (manifest.name !== path.basename(where)) report(DEVCONTAINER, 0, `${PLUGIN_DIRS} names ${folder}, whose ${PLUGIN} names the plugin ${JSON.stringify(manifest.name)}`);
+      else {
+        loaded.add(manifest.name);
+        for (const server of Object.values(manifest.lspServers ?? {})) if (typeof server?.command === "string") commands.push(server.command);
+      }
+    }
+  }
+
+  const settings = readJson(path.join(dir, CLAUDE_SETTINGS));
+  if (settings === null) report(CLAUDE_SETTINGS, 0, "is not JSON");
+  // The spec a copy pins, when it is older than T162, wrote these keys itself.
+  const old = fs.existsSync(path.join(reference, OLD_MARKETPLACE)) ? `; the spec it pins, a tag before T162, still writes it: take a tag of spec with T162 and build the copy again` : "";
+  const why = `Claude Code records a marketplace in the ~/.claude that the containers share, by the path of one of them, and the sessions of the others lose its plugins: load them by ${PLUGIN_DIRS} of ${DEVCONTAINER} (R143 spec)${old}`;
+  for (const [name, entry] of Object.entries(settings?.extraKnownMarketplaces ?? {})) {
+    const source = entry?.source?.source;
+    if (source === "directory" || source === "file") report(CLAUDE_SETTINGS, 0, `the marketplace ${name} is a local ${source}: ${why}`);
+  }
+  for (const [key, on] of Object.entries(settings?.enabledPlugins ?? {})) {
+    const at = key.lastIndexOf("@");
+    if (on !== true || at < 0) continue;
+    if (key.slice(at + 1) === OLD_MARKETPLACE_NAME) report(CLAUDE_SETTINGS, 0, `${key} is turned on from the marketplace ${OLD_MARKETPLACE_NAME}, which spec no longer has: ${why}`);
+    else if (loaded.has(key.slice(0, at))) report(CLAUDE_SETTINGS, 0, `${key} is turned on, and ${PLUGIN_DIRS} of ${DEVCONTAINER} loads ${key.slice(0, at)} already`);
   }
   return commands;
 }

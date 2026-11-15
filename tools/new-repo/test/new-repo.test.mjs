@@ -57,7 +57,7 @@ function draft(name, kind, card, from = specRoot) {
 function standIn({ change = () => {}, commit = false, tag = null } = {}) {
   const root = temporary();
   // What new-repo reads, what a copy's documents cite of spec — its documents and its rules —, the
-  // marketplace a copy's .claude/settings.json names in spec/, and the budgets its docs-budgets.json
+  // plugins a copy's devcontainer loads from spec/, and the budgets its docs-budgets.json
   // asks the check of its documents to read from spec/ (R145).
   for (const source of ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs", "RULES.md", "claude-plugins", "tools/docs-check/budgets.json"]) {
     fs.mkdirSync(path.dirname(path.join(root, source)), { recursive: true });
@@ -245,8 +245,10 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     }
     assert.equal(without, ownName(specDockerfile));
     assert.equal(/PLAYWRIGHT_BROWSERS_PATH/.test(dockerfile), kind === "typescript", "the browser comes with the typescript kind alone");
+    // The kind's plugins come last in containerEnv, after spec's own (R143).
+    const plugins = (kinds[kind].claudePlugins ?? []).map((p) => `\${containerWorkspaceFolder}/spec/claude-plugins/${p}`).join(":");
     const rest = ({ name: _n, runArgs: _r, postStartCommand: _p, customizations: _c, ...others }) => others;
-    assert.deepEqual(rest(dc), rest(spec));
+    assert.deepEqual(rest(dc), { ...rest(spec), containerEnv: { ...spec.containerEnv, ...(plugins ? { CLAUDE_CODE_PLUGIN_DIRS: plugins } : {}) } });
   }
 });
 
@@ -290,6 +292,9 @@ test("a kind the recipe cannot read stops it, and one written as a list is read 
     [{ claude: ["enabledPlugins"] }, /kinds\.json: go: claude is an object/],
     [{ claude: null }, /kinds\.json: go: claude is an object/],
     [{ claude: { autoCompactWindow: 1, enabledPlugins: {} } }, /the kind's claude: the template's \.claude\/settings\.json already sets autoCompactWindow$/],
+    [{ claudePlugins: "gopls-lsp" }, /kinds\.json: go: claudePlugins is a list of names of folders in spec's claude-plugins\/$/],
+    [{ claudePlugins: ["../gopls-lsp"] }, /kinds\.json: go: claudePlugins is a list of names of folders in spec's claude-plugins\/$/],
+    [{ claudePlugins: ["gopls"] }, /kinds\.json: go: claudePlugins names gopls, and spec's claude-plugins\/gopls\/ holds no \.claude-plugin\/plugin\.json that reads as JSON$/],
     [{ toolchain: "../files/.devcontainer/Dockerfile" }, /kinds\.json: go: toolchain names a file in repo-template\/kinds\/, not "\.\.\/files/],
     [{ toolchain: "" }, /toolchain names a file in repo-template\/kinds\/, not ""/],
     [{ toolchain: "kinds/go.Dockerfile" }, /kinds\.json: go: toolchain names kinds\/go\.Dockerfile, which repo-template does not have/],
@@ -355,7 +360,8 @@ test("a copy's .claude/settings.json is the template's, with what its kind adds 
     if (Object.keys(added).length === 0) assert.equal(text, template(name), `${kind}: the template's file, byte for byte`);
     else assert.ok(text.startsWith(template(name).slice(0, template(name).lastIndexOf("}")).trimEnd()), `${kind}: the template's lines stay as they are`);
   }
-  assert.deepEqual(kinds.go.claude.enabledPlugins, { "gopls-lsp@novatrail": true });
+  // A marketplace in .claude/settings.json is recorded in the ~/.claude the containers share (R143).
+  for (const kind of Object.values(kinds)) assert.equal(kind.claude?.extraKnownMarketplaces, undefined, "no kind names a marketplace");
   // A template with no key of its own takes the kind's without a comma before them.
   const dir = temporary();
   fs.mkdirSync(path.join(dir, ".claude"));
@@ -364,61 +370,95 @@ test("a copy's .claude/settings.json is the template's, with what its kind adds 
   assert.deepEqual(JSON.parse(read(dir, CLAUDE_SETTINGS)), { enabledPlugins: { "a@b": true } });
 });
 
-test("every plugin a kind turns on lies in spec's marketplace claude-plugins/, and gopls-lsp runs gopls for Go (R143)", () => {
+test("every plugin a kind loads lies in spec's claude-plugins/, its devcontainer names it by CLAUDE_CODE_PLUGIN_DIRS, and gopls-lsp runs gopls for Go (R143)", () => {
   const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
   const root = path.join(specRoot, "claude-plugins");
-  const marketplace = JSON.parse(read(root, ".claude-plugin/marketplace.json"));
-  for (const kind of Object.values(kinds)) {
-    const { extraKnownMarketplaces = {}, enabledPlugins = {} } = kind.claude ?? {};
-    for (const entry of Object.values(extraKnownMarketplaces)) assert.deepEqual(entry, { source: { source: "directory", path: "./spec/claude-plugins" } });
-    for (const key of Object.keys(enabledPlugins)) {
-      const [plugin, from] = key.split("@");
-      assert.ok(Object.hasOwn(extraKnownMarketplaces, from) && from === marketplace.name, `${key}: from spec's marketplace, ${marketplace.name}`);
-      const listed = marketplace.plugins.find((p) => p.name === plugin);
-      assert.ok(listed, `${plugin} is listed`);
-      assert.equal(JSON.parse(read(path.join(root, listed.source), ".claude-plugin/plugin.json")).name, plugin);
-    }
+  assert.ok(!fs.existsSync(path.join(root, ".claude-plugin")), "no marketplace: Claude Code would record it in the ~/.claude the containers share");
+  assert.deepEqual(kinds.go.claudePlugins, ["gopls-lsp"]);
+  for (const [name, kind] of Object.entries(kinds)) {
+    for (const plugin of kind.claudePlugins ?? []) assert.equal(JSON.parse(read(path.join(root, plugin), ".claude-plugin/plugin.json")).name, plugin, `${name}: ${plugin}`);
+  }
+  for (const [name, kind, card] of [
+    ["learner-model", "go", "3.8"],
+    ["infra", "docs", "3.11"],
+    ["app", "typescript", "3.1"],
+  ]) {
+    const dir = draft(name, kind, card);
+    const folders = (kinds[kind].claudePlugins ?? []).map((plugin) => `\${containerWorkspaceFolder}/spec/claude-plugins/${plugin}`);
+    assert.equal(devcontainer(dir).containerEnv.CLAUDE_CODE_PLUGIN_DIRS, folders.length > 0 ? folders.join(":") : undefined, kind);
+    assert.deepEqual(Object.keys(devcontainer(dir).containerEnv).slice(0, 3), ["NOVATRAIL_DEVCONTAINER", "CLAUDE_CONFIG_DIR", "DISABLE_AUTOUPDATER"], `${kind}: spec's own come first`);
   }
   const gopls = JSON.parse(read(root, "gopls-lsp/.claude-plugin/plugin.json"));
   assert.deepEqual(gopls.lspServers, { gopls: { command: "gopls", extensionToLanguage: { ".go": "go" } } }, "the gopls the go kind builds, from PATH");
   assert.match(read(root, "gopls-lsp/LICENSE"), /^\s*Apache License\n\s*Version 2\.0, January 2004\n/, "Apache-2.0 (R12)");
   assert.match(read(root, "README.md"), /at commit `[0-9a-f]{40}`/, "the README names the commit it was copied at");
+  // A kind's plugins do not override a variable spec's devcontainer sets itself.
+  const root2 = standIn({ change: (r) => change(r, ".devcontainer/devcontainer.json", '"DISABLE_AUTOUPDATER": "1"', '"DISABLE_AUTOUPDATER": "1",\n        "CLAUDE_CODE_PLUGIN_DIRS": "/elsewhere"') });
+  assert.throws(() => draft("engine", "go", "3.8", root2), /^Error: the environment: spec's devcontainer already sets CLAUDE_CODE_PLUGIN_DIRS$/);
+  // A folder whose plugin is named otherwise would be loaded under that name.
+  const root3 = standIn({ change: (r) => change(r, "claude-plugins/gopls-lsp/.claude-plugin/plugin.json", '"name": "gopls-lsp"', '"name": "gopls"') });
+  assert.throws(() => draft("engine", "go", "3.8", root3), /^Error: kinds\.json: go: claudePlugins names gopls-lsp, whose plugin\.json names the plugin "gopls"$/);
+  // One comment over the variable, the why of it.
+  const env = read(draft("engine", "go", "3.8"), ".devcontainer/devcontainer.json").match(/"DISABLE_AUTOUPDATER": "1",\n((?:\s*\/\/.*\n)+)\s*"CLAUDE_CODE_PLUGIN_DIRS"/);
+  assert.ok(env, "the variable follows spec's own, under its comment");
+  assert.doesNotMatch(env[1], /The environment of this repository's kind/);
 });
 
-test("check: the marketplace and the plugins a copy's settings turn on from a local folder", () => {
+test("check: the plugins a copy's devcontainer loads, and no marketplace in a local folder in its settings", () => {
   const dir = temporary();
   fs.mkdirSync(path.join(dir, ".claude"));
-  const found = (settings, reference = specRoot) => {
+  const found = ({ settings, folders, container }, reference = specRoot) => {
     if (settings === undefined) fs.rmSync(path.join(dir, CLAUDE_SETTINGS), { force: true });
     else fs.writeFileSync(path.join(dir, CLAUDE_SETTINGS), typeof settings === "string" ? settings : JSON.stringify(settings));
+    const text = container ?? (folders === undefined ? undefined : `{\n  // the variable\n  "containerEnv": ${JSON.stringify({ A: "1", CLAUDE_CODE_PLUGIN_DIRS: folders })}\n}\n`);
     const errors = [];
-    checkClaudePlugins(dir, reference, (file, line, message) => errors.push(`${file}:${line}: ${message}`));
+    checkClaudePlugins(dir, reference, (f, line, message) => errors.push(`${f}:${line}: ${message}`), text);
     return errors;
   };
-  const marketplace = (where) => ({ novatrail: { source: { source: "directory", path: where } }, remote: { source: { source: "github", repo: "example/plugins" } } });
-  assert.deepEqual(found(undefined), [], "no file, nothing to check: the file list says it is missing");
-  assert.deepEqual(found("{"), [".claude/settings.json:0: is not JSON"]);
-  assert.deepEqual(found({}), []);
-  const on = { "gopls-lsp@novatrail": true, "other@novatrail": false, "else@remote": true };
-  assert.deepEqual(found({ extraKnownMarketplaces: marketplace("./spec/claude-plugins"), enabledPlugins: on }), [], "spec/ is read from the reference");
-  assert.deepEqual(checkClaudePlugins(dir, specRoot, () => assert.fail("no error")), ["gopls"], "the language servers the plugins start");
-  assert.deepEqual(found({ extraKnownMarketplaces: marketplace("./spec/claude-plugins"), enabledPlugins: { "gopls-lsp@novatral": true, plain: true } }), [
-    ".claude/settings.json:0: gopls-lsp@novatral is turned on from a marketplace that extraKnownMarketplaces does not name",
-    ".claude/settings.json:0: plain is turned on from a marketplace that extraKnownMarketplaces does not name",
+  const gopls = "${containerWorkspaceFolder}/spec/claude-plugins/gopls-lsp";
+  const why = "Claude Code records a marketplace in the ~/.claude that the containers share, by the path of one of them, and the sessions of the others lose its plugins: load them by CLAUDE_CODE_PLUGIN_DIRS of .devcontainer/devcontainer.json (R143 spec)";
+  assert.deepEqual(found({}), [], "no file, nothing to check: the file list says it is missing");
+  assert.deepEqual(found({ settings: "{" }), [".claude/settings.json:0: is not JSON"]);
+  assert.deepEqual(found({ settings: {}, container: "{}" }), []);
+  assert.deepEqual(found({ settings: {}, container: "{ // no variable\n}" }), []);
+  assert.deepEqual(found({ container: "{" }), [".devcontainer/devcontainer.json:0: is not JSON with comments"]);
+  assert.deepEqual(found({ settings: {}, folders: gopls }), [], "spec/ is read from the reference");
+  assert.deepEqual(checkClaudePlugins(dir, specRoot, () => assert.fail("no error"), `{"containerEnv": {"CLAUDE_CODE_PLUGIN_DIRS": "${gopls}"}}`), ["gopls"], "the language servers the plugins start");
+  assert.deepEqual(found({ settings: { extraKnownMarketplaces: { novatrail: { source: { source: "directory", path: "./spec/claude-plugins" } }, own: { source: { source: "file", path: "x/.claude-plugin/marketplace.json" } }, remote: { source: { source: "github", repo: "example/plugins" } } } } }), [
+    `.claude/settings.json:0: the marketplace novatrail is a local directory: ${why}`,
+    `.claude/settings.json:0: the marketplace own is a local file: ${why}`,
   ]);
-  assert.deepEqual(found({ extraKnownMarketplaces: marketplace(path.join(specRoot, "claude-plugins")), enabledPlugins: on }), [], "an absolute path is read as it is");
-  assert.deepEqual(found({ extraKnownMarketplaces: marketplace("./spec/plugins"), enabledPlugins: on }), [".claude/settings.json:0: the marketplace novatrail is ./spec/plugins, which holds no .claude-plugin/marketplace.json that reads as JSON"]);
-  assert.deepEqual(found({ extraKnownMarketplaces: marketplace("./spec/claude-plugins"), enabledPlugins: { "typescript-lsp@novatrail": true } }), [".claude/settings.json:0: typescript-lsp@novatrail is turned on, and its marketplace lists no typescript-lsp"]);
-  // A folder of the copy's own, outside spec/, is read in the copy; and a listed plugin must be there.
-  fs.mkdirSync(path.join(dir, "plugins/.claude-plugin"), { recursive: true });
-  fs.writeFileSync(path.join(dir, "plugins/.claude-plugin/marketplace.json"), JSON.stringify({ name: "own", plugins: [{ name: "gone", source: "./gone" }, { name: "odd", source: { source: "github" } }, { name: "other", source: "./renamed" }] }));
+  // A key left from the marketplace would take novatrail from the record in ~/.claude; one of a
+  // plugin the variable loads would load it twice. Others, and keys turned off, are the copy's own.
+  assert.deepEqual(found({ settings: { enabledPlugins: { "gopls-lsp@novatrail": true, "other@novatrail": false, "gopls-lsp@elsewhere": true, "else@remote": true, plain: true } }, folders: gopls }), [
+    `.claude/settings.json:0: gopls-lsp@novatrail is turned on from the marketplace novatrail, which spec no longer has: ${why}`,
+    ".claude/settings.json:0: gopls-lsp@elsewhere is turned on, and CLAUDE_CODE_PLUGIN_DIRS of .devcontainer/devcontainer.json loads gopls-lsp already",
+  ]);
+  // A copy on a tag before T162: its spec still has the marketplace, and the message says what to take.
+  const before = temporary();
+  fs.mkdirSync(path.join(before, "claude-plugins/.claude-plugin"), { recursive: true });
+  fs.writeFileSync(path.join(before, "claude-plugins/.claude-plugin/marketplace.json"), "{}");
+  assert.deepEqual(found({ settings: { enabledPlugins: { "gopls-lsp@novatrail": true } } }, before), [
+    `.claude/settings.json:0: gopls-lsp@novatrail is turned on from the marketplace novatrail, which spec no longer has: ${why}; the spec it pins, a tag before T162, still writes it: take a tag of spec with T162 and build the copy again`,
+  ]);
+  assert.deepEqual(found({ folders: "/workspaces/api/spec/claude-plugins/gopls-lsp" }), [
+    ".devcontainer/devcontainer.json:0: CLAUDE_CODE_PLUGIN_DIRS names /workspaces/api/spec/claude-plugins/gopls-lsp, which does not start with ${containerWorkspaceFolder}/, the one path that is the container's own wherever it opens the repository",
+  ]);
+  assert.deepEqual(found({ folders: `${gopls}::${gopls}:` }), [
+    '.devcontainer/devcontainer.json:0: CLAUDE_CODE_PLUGIN_DIRS holds an empty path: a ":" too many',
+    '.devcontainer/devcontainer.json:0: CLAUDE_CODE_PLUGIN_DIRS holds an empty path: a ":" too many',
+  ]);
+  // A path out of the workspace would reach another repository's working copy beside it.
+  for (const out of ["..", "../sim/spec/claude-plugins/gopls-lsp", "spec/../../sim/spec/claude-plugins/gopls-lsp"]) {
+    assert.deepEqual(found({ folders: `\${containerWorkspaceFolder}/${out}` }), [`.devcontainer/devcontainer.json:0: CLAUDE_CODE_PLUGIN_DIRS names \${containerWorkspaceFolder}/${out}, which leads out of the workspace`], out);
+  }
+  assert.deepEqual(found({ folders: `${gopls}:\${containerWorkspaceFolder}/spec/claude-plugins/typescript-lsp` }), [
+    ".devcontainer/devcontainer.json:0: CLAUDE_CODE_PLUGIN_DIRS names ${containerWorkspaceFolder}/spec/claude-plugins/typescript-lsp, which holds no .claude-plugin/plugin.json that reads as JSON",
+  ]);
+  // A folder of the copy's own, outside spec/, is read in the copy; and its plugin must be named as the folder is.
   fs.mkdirSync(path.join(dir, "plugins/renamed/.claude-plugin"), { recursive: true });
-  fs.writeFileSync(path.join(dir, "plugins/renamed/.claude-plugin/plugin.json"), JSON.stringify({ name: "renamed" }));
-  assert.deepEqual(found({ extraKnownMarketplaces: { own: { source: { source: "directory", path: "plugins" } } }, enabledPlugins: { "gone@own": true, "odd@own": true, "other@own": true } }), [
-    '.claude/settings.json:0: gone@own is turned on, and its marketplace has no .claude-plugin/plugin.json at "./gone" that reads as JSON',
-    '.claude/settings.json:0: odd@own is turned on, and its marketplace has no .claude-plugin/plugin.json at {"source":"github"} that reads as JSON',
-    '.claude/settings.json:0: other@own is turned on, and the .claude-plugin/plugin.json its marketplace lists is "renamed"',
-  ]);
+  fs.writeFileSync(path.join(dir, "plugins/renamed/.claude-plugin/plugin.json"), JSON.stringify({ name: "other" }));
+  assert.deepEqual(found({ folders: "${containerWorkspaceFolder}/plugins/renamed" }), ['.devcontainer/devcontainer.json:0: CLAUDE_CODE_PLUGIN_DIRS names ${containerWorkspaceFolder}/plugins/renamed, whose .claude-plugin/plugin.json names the plugin "other"']);
 });
 
 test(".github gets a container name without the dot", () => {
@@ -524,7 +564,7 @@ test("check: what a careless fill can leave", async () => {
     [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}\n`, "", /^\.devcontainer\/gopls\/go\.mod:0: it names gopls [\d.]+, and \.devcontainer\/Dockerfile has GOPLS_VERSION unset/],
     [".devcontainer/gopls/go.sum", "golang.org/x/", "", /^\.devcontainer\/gopls\/go\.sum:0: the file is missing, and \.devcontainer\/Dockerfile builds gopls from it \(R102 spec\)$/, true],
     // The plugin the go kind turns on, misspelt: the session would start without it (R143).
-    [".claude/settings.json", '"gopls-lsp@novatrail": true', '"gopls@novatrail": true', /^\.claude\/settings\.json:0: gopls@novatrail is turned on, and its marketplace lists no gopls$/],
+    [".devcontainer/devcontainer.json", "/spec/claude-plugins/gopls-lsp\"", "/spec/claude-plugins/gopls\"", /^\.devcontainer\/devcontainer\.json:0: CLAUDE_CODE_PLUGIN_DIRS names \$\{containerWorkspaceFolder\}\/spec\/claude-plugins\/gopls, which holds no \.claude-plugin\/plugin\.json that reads as JSON$/],
     ["CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/main).", /the links to spec name different versions: main, v0\.0\.0-test$/],
   ];
   for (const [file, from, to, expected, gone] of cases) {
@@ -543,7 +583,7 @@ test("check: a go copy without the lock file of gopls, whose plugin runs it, is 
   fill(dir);
   fs.rmSync(path.join(dir, ".devcontainer/gopls"), { recursive: true });
   change(dir, ".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}\n`, "");
-  assert.deepEqual(await messages(dir), [".devcontainer/gopls/go.mod:0: the file is missing, and .claude/settings.json turns on a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)"]);
+  assert.deepEqual(await messages(dir), [".devcontainer/gopls/go.mod:0: the file is missing, and .devcontainer/devcontainer.json loads a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)"]);
 });
 
 test("from a tag: the files are the tag's, spec is a submodule at it, all staged, nothing committed", async () => {

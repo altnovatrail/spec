@@ -630,6 +630,12 @@ The measurement after (RUN.md, T124), 2026-11-13: `spec` against its baseline of
 | The plugin `gopls-lsp` (T134) — for diagnostics, not for savings (R143) | After the tasks, the five repositories of Go that took the plugin called the tool LSP 0 times. The tool is among the deferred tools in the last sessions of `sim` and `module-kit`, but not in those of `api`, `engine` and `tutor`. One attachment of diagnostics came, in `module-kit`; `api` made 83 edits of Go files and got none. `~/.claude/plugins/known_marketplaces.json`, on the volume all containers share, names the marketplace `novatrail` at `/workspaces/sim/spec/claude-plugins`, written 2026-11-13T04:52, a path only `sim`'s container has. That this is the cause is a guess, not verified | gave nothing yet — Д234 |
 | Budgets and the measurement (T126) | `docs-budgets.json` stands in 11 repositories; a budget saves no tokens by itself, and the measurement is this one | keep |
 
+**The plugin `gopls-lsp`, the trial of 2026-11-15** (RUN.md, T162; Д234). The transcripts on this machine agree with the guess: the tool LSP is named in the last four sessions of `sim`, of 2026-11-14 and 2026-11-15, and in those of `module-kit` that ended by 2026-11-13T04:51, but not in the one that ended at 04:59, after the record went to `sim`'s path at 04:52; it is named in none of the last four of `api`, `engine` and `tutor`. `~/.claude/.claude.json` trusts only `/workspaces/sim` and `/workspaces/module-kit`. The trial: a copy of the kind `go` in a folder not trusted, gopls 0.24.0 from the template's lock file on `PATH`, Claude Code 2.1.280, `claude -p --output-format stream-json --verbose` on Haiku, a Write of a file with a type error and, from the second run, a Read of it, with the record `novatrail` of `/workspaces/sim/spec/claude-plugins` in place:
+- the template's settings by `--settings` — the plugin is named in the init event, `tools` has no `LSP`, no diagnostics; the record is rewritten to the copy's path, and the next session gets `LSP` and the diagnostics;
+- `CLAUDE_CODE_PLUGIN_DIRS` with the plugin's folder, no settings — the first session loads `gopls-lsp@inline`, has `LSP`, and after the Write gets "cannot use "x" (untyped string constant) as int value in return statement [IncompatibleAssign]"; `known_marketplaces.json` is not touched.
+
+Three runs, $0.057 at API prices. The change: the 2026-11-15 amendment to R143.
+
 **Where the spending is now** — in `spec`, as a share of what was carried after T122, 249 million:
 - Bash output — 44.2%;
 - the model's output — 18.9%;
