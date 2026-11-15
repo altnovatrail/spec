@@ -69,7 +69,8 @@ test("start runs the task in its container by the contract, and wait gives its s
 test("resume continues the same session with the answers and what is left of the ceiling", async (t) => {
   const h = host();
   t.after(h.done);
-  const answers = path.join(h.root, "answers.md");
+  fs.mkdirSync(h.deps.home, { recursive: true });
+  const answers = path.join(h.deps.home, "answers.md");
   fs.writeFileSync(answers, "Ответ на В7: первый.");
   h.plan(1, { lines: [init(), result(2.5, { ...STATUS, status: "waiting", pull_request: null, questions: [QUESTION] })] });
   h.plan(2, { lines: [init(), result(4, STATUS)] });
@@ -248,8 +249,15 @@ test("an attempt that printed no result failed, and the attempts after the last 
 test("start takes a prompt, a container by name and a folder, and refuses what is not a task or a ceiling", async (t) => {
   const h = host();
   t.after(h.done);
-  const prompt = path.join(h.root, "prompt.md");
+  fs.mkdirSync(h.deps.home, { recursive: true });
+  const prompt = path.join(h.deps.home, "prompt.md");
   fs.writeFileSync(prompt, "Запиши задачу T9 и выполни её.");
+  // A prompt's file outside the orchestrator's folder is not read.
+  const outside = path.join(h.root, "prompt.md");
+  fs.writeFileSync(outside, "x");
+  for (const file of [outside, path.join(h.deps.home, "..", "prompt.md")]) {
+    assert.match((await run(h, ["start", "sim", "T9", "--prompt", file])).err, /a prompt's file must lie in /);
+  }
   h.plan(1, { lines: [init(), result(1)] });
   h.plan(2, { lines: [init(), result(1)] });
   assert.equal((await run(h, ["start", "dup", "T9", "--container", "dup_two", "--prompt", prompt])).status, 0);
@@ -259,6 +267,11 @@ test("start takes a prompt, a container by name and a folder, and refuses what i
   const byFolder = await run(h, ["start", "infra", "T3", "--folder", "/home/someone/projects/mathtrail/infra"]);
   assert.equal(byFolder.out[0].container, "elastic_liskov");
   assert.match((await run(h, ["start", "sim", "7"])).err, /not a task: 7/);
+  // T09 and T9 are one task, and the run is named by the number.
+  h.plan(3, { lines: [init(), result(1)] });
+  h.tick(1000);
+  assert.equal((await run(h, ["start", "sim", "T09"])).out[0].run, "sim-T9-20261115T220002Z");
+  h.tick(-1000);
   assert.match((await run(h, ["start", "tutor", "T7"])).err, /no container of tutor/);
   assert.match((await run(h, ["start", "bare", "T7"])).err, /the volume novatrail-claude is not mounted/);
   // Two starts of one task in the same second would share a folder.
@@ -292,10 +305,10 @@ test("a wrong command line exits 2 with what is wrong", async (t) => {
     [["start", "sim"], /^orchestrator: start <repo>/],
     [["wait"], /^orchestrator: start <repo>/],
     [["sync", "x"], /^orchestrator: start <repo>/],
-    [["start", "sim", "T7", "--model", "sonnet"], /^start: Unknown option '--model'/],
-    [["start", "sim", "T7", "--ceiling", "-1"], /^start: Option '--ceiling'|^--ceiling: not a positive number/],
-    [["start", "sim", "T7", "--ceiling", "lots"], /^--ceiling: not a positive number: lots/],
-    [["wait", RUN, "--timeout", "0"], /^--timeout: not a positive number: 0/],
+    [["start", "sim", "T7", "--model", "sonnet"], /^start: an unknown option$/],
+    [["start", "sim", "T7", "--ceiling", "-1"], /^start: an option without its value$|^--ceiling: not a positive number$/],
+    [["start", "sim", "T7", "--ceiling", "lots"], /^--ceiling: not a positive number$/],
+    [["wait", RUN, "--timeout", "0"], /^--timeout: not a positive number$/],
   ]) {
     const done = await run(h, argv);
     assert.equal(done.status, 2, argv.join(" "));

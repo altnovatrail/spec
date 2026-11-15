@@ -47,14 +47,21 @@ export function ownFolder(docker, hostname = os.hostname()) {
 // The container of a repository, by the options the author may give: `container`, its name or id;
 // or else `folder`, the host's folder of its clone, by default the one named `repo` beside the
 // orchestrator's own. Of several with the same labels, the one running; none, or several running,
-// is an error that says what to do.
+// is an error that says what to do. A name or a folder comes from a command line that a session of
+// Claude Code writes, so docker gets neither as it is: a name is looked up among docker's own
+// containers, and a folder is the repository's, an absolute path with no step back.
 export function findContainer(repo, { docker, container = null, folder = null, hostname } = {}) {
   if (!REPOSITORY.test(repo) || /^\.+$/.test(repo)) throw new Error(`not a repository's name: ${repo}`);
   if (container) {
-    const [found] = inspect([container], docker);
+    const all = docker(["ps", "--all", "--no-trunc", "--format", "{{.ID}}"]).split("\n").filter(Boolean);
+    const found = inspect(all, docker).find((c) => c.Id === container || c.Id.startsWith(container) || nameOf(c) === container);
+    if (!found) throw new Error(`no container named ${container}`);
     const its = found.Config?.Labels?.[FOLDER_LABEL] ?? "";
     if (path.posix.basename(its) !== repo) throw new Error(`${nameOf(found)} is the container of ${its || "no clone"}, not of ${repo}`);
     return found;
+  }
+  if (folder !== null && (!path.posix.isAbsolute(folder) || path.posix.normalize(folder) !== folder || path.posix.basename(folder) !== repo)) {
+    throw new Error(`--folder must be the absolute path of a clone named ${repo}`);
   }
   const local = folder ?? path.posix.join(path.posix.dirname(ownFolder(docker, hostname)), repo);
   const config = path.posix.join(local, ".devcontainer", "devcontainer.json");

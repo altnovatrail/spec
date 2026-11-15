@@ -67,9 +67,11 @@ function groupStep(gid) {
     const calls = path.join(dir, "calls");
     fs.writeFileSync(path.join(bin, "getent"), `#!/bin/sh\nif [ "$2" = 999 ]; then echo systemd-journal:x:999:; else exit 2; fi\n`, { mode: 0o755 });
     for (const tool of ["groupadd", "usermod"]) fs.writeFileSync(path.join(bin, tool), `#!/bin/sh\necho "${tool} $*" >> "${calls}"\n`, { mode: 0o755 });
-    const result = spawnSync("bash", ["-euo", "pipefail", "-c", script.replaceAll("/tmp/orchestrator", folder)], {
+    // The step names the folder outside quotes only, so a variable stands in for it, and the
+    // temporary path reaches bash by the environment rather than in the script's text.
+    const result = spawnSync("bash", ["-euo", "pipefail", "-c", script.replaceAll("/tmp/orchestrator", '"$ORCHESTRATOR_FOLDER"')], {
       encoding: "utf8",
-      env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, ORCHESTRATOR_FOLDER: folder },
     });
     assert.ok(!fs.existsSync(folder), "the step leaves no copy of the folder in the image");
     return { ...result, calls: fs.existsSync(calls) ? fs.readFileSync(calls, "utf8") : "" };

@@ -39,6 +39,12 @@ const COMMANDS = {
 
 class UsageError extends Error {}
 
+// What parseArgs found wrong, by its error's code.
+const PARSE_ERRORS = {
+  ERR_PARSE_ARGS_UNKNOWN_OPTION: "an unknown option",
+  ERR_PARSE_ARGS_INVALID_OPTION_VALUE: "an option without its value",
+};
+
 // The command, its words and its options, or a UsageError.
 export function argumentsOf(argv) {
   const [command, ...rest] = argv;
@@ -48,14 +54,15 @@ export function argumentsOf(argv) {
   try {
     parsed = parseArgs({ args: rest, options: spec.options, strict: true, allowPositionals: true });
   } catch (error) {
-    throw new UsageError(`${command}: ${error.message}`);
+    // Node's message repeats the word of the command line; its code does not.
+    throw new UsageError(`${command}: ${PARSE_ERRORS[error.code] ?? "a wrong option"}`);
   }
   const words = parsed.positionals;
   if (words.length < spec.min || words.length > spec.max) throw new UsageError(USAGE);
   const values = { ...parsed.values };
   for (const key of ["ceiling", "timeout"]) {
     if (values[key] === undefined) continue;
-    if (!/^\d+(\.\d+)?$/.test(values[key]) || Number(values[key]) <= 0) throw new UsageError(`--${key}: not a positive number: ${values[key]}`);
+    if (!/^\d+(\.\d+)?$/.test(values[key]) || Number(values[key]) <= 0) throw new UsageError(`--${key}: not a positive number`);
     values[key] = Number(values[key]);
   }
   return { command, words, values };
@@ -89,7 +96,14 @@ export async function main(argv, overrides = {}) {
     return 2;
   }
   const { command, words, values } = args;
-  const read = (file) => fs.readFileSync(path.resolve(file), "utf8");
+  // A prompt's file lies in the orchestrator's folder, where the procedure writes it (README.md):
+  // the command line that names it is written by a session of Claude Code.
+  const read = (file) => {
+    const inside = path.resolve(deps.home) + path.sep;
+    const full = path.resolve(file);
+    if (!full.startsWith(inside)) throw new Error(`a prompt's file must lie in ${deps.home}`);
+    return fs.readFileSync(full, "utf8");
+  };
   try {
     if (command === "start") {
       const prompt = values.prompt === undefined ? null : read(values.prompt);

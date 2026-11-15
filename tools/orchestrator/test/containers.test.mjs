@@ -37,7 +37,13 @@ test("no container, no label of its own, and not a repository's name each say wh
   h.edit((cs) => delete cs[0].Config.Labels["devcontainer.local_folder"]);
   assert.throws(() => ownFolder(h.docker, "aaaa1111"), /has no label devcontainer.local_folder: run in spec's orchestrator container, or name the repository's folder with --folder/);
   for (const name of ["..", "../sim", "Sim", ""]) assert.throws(() => findContainer(name, { docker: h.docker }), /not a repository's name/);
-  assert.throws(() => findContainer("sim", { docker: h.docker, container: "nobody" }), /No such object: nobody/);
+  assert.throws(() => findContainer("sim", { docker: h.docker, container: "nobody" }), /no container named nobody/);
+  // docker gets no name or folder as the command line spells it.
+  assert.throws(() => findContainer("sim", { docker: h.docker, container: "--format={{.Id}}" }), /no container named --format/);
+  assert.ok(!h.dockerCalls().some((c) => c.includes("--format={{.Id}}")));
+  for (const folder of ["sim", "/home/someone/projects/novatrail/../novatrail/sim", "/home/someone/projects/novatrail/learner-model"]) {
+    assert.throws(() => findContainer("sim", { docker: h.docker, folder }), /--folder must be the absolute path of a clone named sim/);
+  }
 });
 
 test("the place of a run: the clone's folder inside, and the volume of Claude Code, or an error", (t) => {

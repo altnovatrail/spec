@@ -15,9 +15,11 @@ In spec's working tree, it runs as `just orchestrator <command> …`. Each comma
 - `sync` clones spec's `main` from GitHub into `~/.claude/novatrail-orchestrator/spec`, or moves it forward to `main`'s head, and prints its path and commit. The two configurations of spec open the same folder, and a task of spec run in the documents container switches its branches. The clone keeps the code and the plan at one commit of `main`. Nobody edits it: a change in it stops `sync`.
 - `start <repo> <task>` runs the task in the container of `<repo>` and returns at once. Its options:
   - `--ceiling <usd>` — the task's ceiling of cost, $75 by default (measurements 1.12);
-  - `--prompt <file>` — a prompt other than «Выполни задачу <task> из RUN.md»: the standard text of wave 0, or a task the orchestrator gives in full;
-  - `--container <name or id>` — the container itself;
-  - `--folder <host's folder>` — the clone on the host, when it does not lie beside spec's.
+  - `--prompt <file>` — a prompt other than «Выполни задачу <task> из RUN.md»: the standard text of wave 0, or a task the orchestrator gives in full; the file lies in `~/.claude/novatrail-orchestrator/`, as `--answers`'s does;
+  - `--container <name or id>` — the container itself, one of those `docker ps --all` lists;
+  - `--folder <host's folder>` — the clone on the host, when it does not lie beside spec's: an absolute path whose last folder is named as the repository.
+
+  A session of Claude Code writes these command lines, so docker and the files get none of their words as they are: the run's folder is named by the clone's folder and the task's number, a run is one of those in the runs' folder, and an error repeats no option's value.
 - `resume <run>` continues a run that has ended, in the same session, and returns at once. Its options:
   - `--answers <file>` — the prompt: the author's answers, or what the orchestrator has to say, such as the checks that failed; without it, «Continue the task from where it stopped.»;
   - `--ceiling <usd>` — the author's new ceiling.

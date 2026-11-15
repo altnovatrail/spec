@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { git as runGit } from "../shared.mjs";
-import { ensureRunning, findContainer, inspect, placeOf } from "./containers.mjs";
+import { ensureRunning, FOLDER_LABEL, findContainer, inspect, placeOf } from "./containers.mjs";
 import { outcomeOf, readStream } from "./stream.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -65,11 +65,13 @@ export function runId(repo, task, time) {
   return `${repo}-${task}-${time.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}`;
 }
 
+// A run's folder, for an id a command line gave: the folder is one of those the orchestrator made,
+// never a path the id spells.
 function folderOf(home, id) {
   if (!/^[.a-z0-9][a-z0-9._-]*-T\d+-\d{8}T\d{6}Z$/.test(id)) throw new Error(`not a run's id: ${id}`);
-  const dir = path.join(runsOf(home), id);
-  if (!fs.existsSync(path.join(dir, "run.json"))) throw new Error(`no run ${id} in ${runsOf(home)}`);
-  return dir;
+  const found = allRuns(home).find((run) => run === id);
+  if (!found) throw new Error(`no run ${id} in ${runsOf(home)}`);
+  return path.join(runsOf(home), found);
 }
 
 export function loadRun(home, id) {
@@ -132,7 +134,11 @@ export function start({ repo, task, ceiling = DEFAULT_CEILING, prompt = null, co
   if (!(Number.isFinite(ceiling) && ceiling > 0)) throw new Error(`not a ceiling of cost: ${ceiling}`);
   const found = ensureRunning(findContainer(repo, { docker: deps.docker, container, folder, hostname: deps.hostname }), deps);
   const place = placeOf(found);
-  const run = { id: runId(repo, task, deps.now()), repo, task, session: deps.uuid(), ceiling_usd: ceiling, container: place, attempts: [] };
+  // The run's folder is named by what docker and the number say, not by the command line's words:
+  // the repository is the clone's folder, which findContainer has held to `repo`.
+  const name = path.posix.basename(found.Config.Labels[FOLDER_LABEL]);
+  const number = `T${Number(task.slice(1))}`;
+  const run = { id: runId(name, number, deps.now()), repo: name, task: number, session: deps.uuid(), ceiling_usd: ceiling, container: place, attempts: [] };
   const dir = path.join(runsOf(deps.home), run.id);
   fs.mkdirSync(runsOf(deps.home), { recursive: true });
   fs.mkdirSync(dir);
