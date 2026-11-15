@@ -53,6 +53,13 @@ Read 2026-11-12, in the planning of T134 (the 2026-11-12 amendment to R143). The
 - [Code intelligence](https://code.claude.com/docs/en/plugins/code-intelligence.md): "In cloud sessions, Claude Code doesn't start plugin language servers, so Claude gets no diagnostics or code navigation there".
 - [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official), `main` — the commit `e37d307bd9f85dab6fea5dfb5e3dc146753b2d2d` of 2026-11-11, no tags or releases. The folder `plugins/gopls-lsp/` — `.claude-plugin/plugin.json` (`"version": "1.0.0"`, `"lspServers": { "gopls": { "command": "gopls", "extensionToLanguage": { ".go": "go" } } }`), `LICENSE` — the text of the Apache License 2.0 — and a README that tells to install gopls with the command `go install golang.org/x/tools/gopls@latest`. `plugin.json` appeared in the folder with the commit `cb421c81df4274fd28fd1ead817bc6ffea723fed` of 2026-11-05.
 
+### 2.8. Anthropic: when a key's limit lets it go again, 2026-11-15
+
+For `access_returns` of `OwnKeyLimit` (R84; R55 tutor) and COORDINATION.md, row 5.13. [Rate limits](https://platform.claude.com/docs/en/api/rate-limits), the page has no date, read 2026-11-15:
+- the section "Reaching your spend cap": "Once you reach your tier’s spend cap, API usage pauses until 00:00 UTC on the first day of the next month, unless you request a higher limit sooner. While usage is paused, API requests return HTTP 429"; "The error type is `rate_limit_error`, the same as for a rate limit, but the response has no `retry-after` header"; "On the Messages API, `error.details.error_code` is `enforced_spend_limit_reached`. Use it to tell this response apart from a rate limit". The example of the page has the date in the message too: "You will regain access on 2026-09-01 at 00:00 UTC.";
+- a spend limit the owner sets: "When usage reaches a spend limit you set, requests return HTTP 400 with error type `invalid_request_error`. The message starts with `You have reached your specified API usage limits`, or `You have reached your specified workspace API usage limits` for a workspace limit, and states when access resumes" — the time is in the text of the message alone;
+- the header `retry-after`: "Not every 429 carries it; the spend-cap 429 never does".
+
 ## 3. Laws, regulators and standards
 
 ### 3.1. The COPPA Rule as amended in 2025
@@ -161,6 +168,10 @@ Read 2026-11-12, in the triage of the `api` row В52 (R144):
 - Google, [OAuth 2.0 for Client-side Web Applications](https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow) — "Last updated 2026-10-29 UTC", the section "Token revocation": "Revocation removes all OAuth 2.0 scopes previously granted to a project, invalidating any issued access or refresh tokens for all clients registered under that project". The revocation address is `https://oauth2.googleapis.com/revoke`, a POST request. On the browser: "Since the Google's OAuth 2.0 endpoint for revoking tokens does not support Cross-origin Resource Sharing (CORS), the code creates a form and submits the form to the endpoint". A probe of the triage on 2026-11-12 — a POST with an `Origin` header and a token known to be wrong — got 400 `invalid_token` with `access-control-allow-origin` equal to that origin; the page does not promise this.
 - Firebase, [Authenticate Using Google with JavaScript](https://firebase.google.com/docs/auth/web/google-signin) — "Last updated 2026-11-10 UTC": sign-in with a popup gives a Google access token — "This gives you a Google Access Token. You can use it to access the Google API." (`GoogleAuthProvider.credentialFromResult(result).accessToken`).
 - Google, [the help page on links with apps](https://support.google.com/accounts/answer/13533235), the page has no date: "If you delete a link, Google stops automatic sign-in to the app. This doesn’t delete your data on the app". That the link stays after the user is deleted at the sign-in service, the page does not say: it is an observation of `api` on a dev project on 2026-11-12 (T42 `api`; the 2026-11-12 amendment to R21 api).
+
+### 4.7. Google Cloud: the size of a response of Cloud Run, 2026-11-15
+
+For repositories 8, Т-40, and R151. [Cloud Run quotas and limits](https://docs.cloud.google.com/run/quotas) — "Last updated 2026-11-10 UTC", read 2026-11-15, a row of its table: "Maximum HTTP/1 response size | 32 MiB | per response | Limit applies if not using `Transfer-Encoding: chunked` or streaming." The same limit `api` read on 2026-11-14 (sources 11.8 api).
 
 ## 5. The web platform and voicing
 
