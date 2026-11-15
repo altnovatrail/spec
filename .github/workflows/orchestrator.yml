@@ -1,0 +1,63 @@
+# The stage orchestrator of .devcontainer/Dockerfile, spec's second devcontainer (R156), in which no
+# check runs: built as its configuration builds it on the host, through the devcontainer stage,
+# which no other workflow builds, and then asked, as the user vscode, for the containers of the
+# runner's Docker. The runner is a host with Docker on Linux, so docker-group.sh reads its socket as
+# it reads the author's. Both architectures, so that each sum of the Dockerfile is checked by a
+# build (R34). The image comes from no cache and goes nowhere.
+#
+# It runs when what it builds changes, and its job is no required check of the ruleset of main: a
+# required check whose workflow a filter of paths skips stays "Pending" and blocks the merge
+# (GitHub Docs, Workflow syntax, read 2026-11-15; the 2026-11-15 amendment to R30).
+name: Orchestrator
+
+on:
+  pull_request:
+    paths:
+      - ".devcontainer/**"
+      - ".github/workflows/orchestrator.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".devcontainer/**"
+      - ".github/workflows/orchestrator.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orchestrator-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  image:
+    name: Orchestrator image (${{ matrix.runner }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: The group of the Docker socket
+        run: bash .devcontainer/orchestrator/docker-group.sh
+
+      - name: Orchestrator stage
+        run: docker build --target orchestrator --tag novatrail-orchestrator .devcontainer
+
+      - name: The runner's Docker from the stage
+        run: docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock novatrail-orchestrator docker ps
+
+      # As spec's ordinary configuration builds it on a host without buildx: the Dev Containers CLI
+      # falls back to Docker's legacy builder, which builds every stage before its target, this one
+      # too, and no docker-gid is written (sources 9.4). One architecture is enough for that.
+      - name: Without docker-gid, by the legacy builder
+        if: ${{ matrix.runner == 'ubuntu-24.04' }}
+        env:
+          DOCKER_BUILDKIT: "0"
+        run: |
+          rm -- .devcontainer/orchestrator/docker-gid
+          docker build --target orchestrator --tag novatrail-orchestrator-legacy .devcontainer

@@ -10,7 +10,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { newRepo } from "../new-repo.mjs";
 import { checkRepo } from "../check.mjs";
-import { goplsVersions, parseJsonc } from "../devcontainer.mjs";
+import { ORCHESTRATOR_STAGE, goplsVersions, parseJsonc } from "../devcontainer.mjs";
 import { CLAUDE_SETTINGS, addClaudeSettings, checkClaudePlugins } from "../claude.mjs";
 import { FILL, fillPlaceholders, placeholders, walk } from "../copy.mjs";
 import { escape, findNumbers } from "../../docs-check/citations.mjs";
@@ -206,6 +206,9 @@ test("the Best Practices badge holds its project's number for <ID>, the same in 
 test("the devcontainer is spec's, with the repository's name, network and kind", () => {
   const spec = parseJsonc(read(specRoot, ".devcontainer/devcontainer.json"));
   const specDockerfile = read(specRoot, ".devcontainer/Dockerfile");
+  // spec's orchestrator is its alone, the last stage of its Dockerfile (R156).
+  const orchestrator = specDockerfile.indexOf(ORCHESTRATOR_STAGE);
+  assert.ok(orchestrator > 0 && specDockerfile.indexOf(ORCHESTRATOR_STAGE, orchestrator + 1) === -1, "spec's Dockerfile has the orchestrator's stage once");
   const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
   for (const [name, kind, card] of [
     ["learner-model", "go", "3.8"],
@@ -248,7 +251,9 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
       for (const file of ["gopls/go.mod", "gopls/go.sum"]) assert.equal(read(dir, `.devcontainer/${file}`), read(folder, file), `${file} is the kind's`);
       assert.match(read(dir, ".devcontainer/devcontainer.json"), /\/\/ The image copies nothing from the repository but what its kind puts in this folder,\n\s+\/\/ gopls\/, so it is built from this folder alone\.\n/);
     }
-    assert.equal(without, ownName(specDockerfile));
+    assert.equal(without, ownName(specDockerfile.slice(0, orchestrator)));
+    assert.doesNotMatch(dockerfile, /\bAS orchestrator\b/, "the copy has no orchestrator's stage");
+    assert.ok(!fs.existsSync(path.join(dir, ".devcontainer", "orchestrator")), "the copy has no orchestrator's configuration");
     assert.equal(/PLAYWRIGHT_BROWSERS_PATH/.test(dockerfile), kind === "typescript", "the browser comes with the typescript kind alone");
     // The kind's plugins come last in containerEnv, after spec's own (R143).
     const plugins = (kinds[kind].claudePlugins ?? []).map((p) => `\${containerWorkspaceFolder}/spec/claude-plugins/${p}`).join(":");

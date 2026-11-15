@@ -11,3 +11,7 @@ coverage/
 
 # The files of a release, which `just release-files` builds when it is given this folder (R64).
 dist/
+
+# The number of the group of the host's Docker socket, which the orchestrator's initializeCommand
+# writes for its build (R156).
+.devcontainer/orchestrator/docker-gid
