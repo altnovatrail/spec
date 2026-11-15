@@ -1,8 +1,8 @@
 // The registers — R in the decision log, О-, П-, Т- in the open questions — are numbered
 // 1, 2, 3… without gaps or repeats; the register's opening names the next free number, one
 // more than the last; and every number cited anywhere exists. The tables of questions and debt, В
-// in RUN.md and Д in DEBT.md, keep no gapless count: their rows leave, and the next free number is
-// above every row.
+// in run/QUESTIONS.md and Д in run/DEBT.md, keep no gapless count: their rows leave, and the next
+// free number is above every row.
 
 import { findNumbers } from "./citations.mjs";
 
@@ -66,19 +66,29 @@ export function readRegisters(files, registers, report) {
   return result;
 }
 
-// The register as it is read: from its own file, or with `fallback` from where it once lived while
-// that file does not exist and a table stands there. A table left there beside the own file is a
-// second copy, and the own file is the one read.
+// The register as it is read: from its own file, or with `fallback`, while that file does not
+// exist, from the first place it once lived that holds it — a table under its heading, or, while the
+// table is still empty, an opening that names the next free number. Beside the place read, a table
+// left in any other of those places is a second copy, and the place read is named.
 function placeOf(register, files, report) {
   const { elsewhere, fallback, ...own } = register;
   if (!elsewhere) return own;
-  const there = { ...own, ...elsewhere };
-  const doc = files.get(elsewhere.file);
-  const index = doc ? opening(there, doc).index : -1;
-  const table = index >= 0 && doc.tables.some((t) => t.heading === index);
-  if (!files.has(own.file)) return fallback && table ? there : own;
-  if (table) report(elsewhere.file, doc.headings[index].line, `register ${own.prefix}: its table is in ${own.file}, and this one under «${elsewhere.heading} …» is a second copy`);
-  return own;
+  const places = elsewhere.map((where) => {
+    const there = { ...own, ...where };
+    const doc = files.get(where.file);
+    const index = doc ? opening(there, doc).index : -1;
+    const table = index >= 0 && doc.tables.some((t) => t.heading === index);
+    return { there, doc, index, table, holds: table || (index >= 0 && nextFree(there, doc).length > 0) };
+  });
+  const read = files.has(own.file) || !fallback ? null : places.find((p) => p.holds);
+  const chosen = read?.there ?? own;
+  if (!files.has(chosen.file)) return chosen;
+  for (const place of places) {
+    if (place !== read && place.table) {
+      report(place.there.file, place.doc.headings[place.index].line, `register ${own.prefix}: its table is in ${chosen.file}, and this one under «${place.there.heading} …» is a second copy`);
+    }
+  }
+  return chosen;
 }
 
 // "**R01. …**" paragraphs.

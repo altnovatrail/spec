@@ -1,6 +1,7 @@
-// What inbox reads and compares: the rows «в реестр spec» of table 3 in the other repositories'
-// RUN.md, and table 5 of spec's own, the rows spec has recorded (R81). Reading GitHub goes through
-// a gh function the caller gives, so that the tests run with no network.
+// What inbox reads and compares: the rows «в реестр spec» of table 3 of the other repositories —
+// in their run/QUESTIONS.md, or in their RUN.md until they move their tables to run/ (R153) —, and
+// table 5 of spec, run/INBOX.md, the rows spec has recorded (R81). Reading GitHub goes through a gh
+// function the caller gives, so that the tests run with no network.
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -26,16 +27,21 @@ function tablesUnder(doc, prefix) {
 
 const fold = (text) => text.replace(/\s+/gu, " ").trim();
 
-// The rows of table 3 marked for spec: { number, text, cells, line }, text being the question's
-// cell and cells every cell of the row, each with its white space folded. parseMarkdown gives a
-// cell's plain text, so **В реестр spec.** reads as В реестр spec.
-export function rowsForSpec(source) {
+// Where table 3 of a repository is: its own file of run/, and where it was before (R153).
+export const QUESTIONS = "run/QUESTIONS.md";
+export const RUN = "RUN.md";
+
+// The rows of table 3 marked for spec: { number, text, cells, file, line }, text being the
+// question's cell and cells every cell of the row, each with its white space folded, and file the
+// file read, which the caller names. parseMarkdown gives a cell's plain text, so **В реестр spec.**
+// reads as В реестр spec.
+export function rowsForSpec(source, file) {
   const rows = [];
   for (const table of tablesUnder(parseMarkdown(source), "Таблица 3.")) {
     for (const row of table.rows) {
       const number = ROW.exec(row.cells[0] ?? "")?.[1];
       const text = fold(row.cells[1] ?? "");
-      if (number && MARK.test(text)) rows.push({ number: Number(number), text, cells: row.cells.map(fold), line: row.line });
+      if (number && MARK.test(text)) rows.push({ number: Number(number), text, cells: row.cells.map(fold), file, line: row.line });
     }
   }
   return rows;
@@ -69,11 +75,13 @@ export function parseNumbers(text) {
   return numbers;
 }
 
-// Table 5 of spec's RUN.md: the ledger, repository → the numbers spec has recorded, and its
+// Table 5 of spec, in run/INBOX.md: the ledger, repository → the numbers spec has recorded, and its
 // entries, one a row: { repository, list, numbers, fingerprint, line }, fingerprint being null
 // while the row has none, written —. A row it cannot read is a problem, with its line; a row whose
 // fingerprint is no fingerprint is one too, and counts as having none.
-export function ledgerOf(source) {
+export const LEDGER = "run/INBOX.md";
+
+export function ledgerOf(source, file = LEDGER) {
   const ledger = new Map();
   const entries = [];
   const problems = [];
@@ -82,11 +90,11 @@ export function ledgerOf(source) {
       const [name = "", list = "", print = ""] = row.cells;
       const numbers = parseNumbers(list);
       if (!name || !numbers) {
-        problems.push(`RUN.md:${row.line}: a row of table 5 names no repository or no rows В: "${row.cells.join(" | ")}"`);
+        problems.push(`${file}:${row.line}: a row of table 5 names no repository or no rows В: "${row.cells.join(" | ")}"`);
         continue;
       }
       if (print !== "—" && !FINGERPRINT.test(print)) {
-        problems.push(`RUN.md:${row.line}: the fingerprint of a row of table 5 is 12 hexadecimal digits, or — while it has none: "${print}"`);
+        problems.push(`${file}:${row.line}: the fingerprint of a row of table 5 is 12 hexadecimal digits, or — while it has none: "${print}"`);
       }
       const recorded = ledger.get(name) ?? new Set();
       for (const n of numbers) recorded.add(n);
@@ -110,27 +118,45 @@ export function runGh(args, program = GH, timeout = TIMEOUT) {
 }
 
 // One repository as GitHub holds it: the commit of main and its rows for spec, and each open pull
-// request with the rows it adds. RUN.md is read at a commit, once a commit, so that the rows and the
-// commit named agree. A pull request adds the rows its head has and its merge base with main has
-// not: one that leaves RUN.md alone adds none, however old its branch — Dependabot's keep the RUN.md
-// of their day —, and one cut long ago does not bring back the rows main has closed since. Lists come
-// page by page. A pull request that cannot be read is a problem of its own, and the rest is read.
+// request with the rows it adds. Table 3 is read at a commit, once a commit, so that the rows and the
+// commit named agree: from run/QUESTIONS.md, and from RUN.md where that commit has no such file — a
+// repository that has not moved its tables yet (R153). The file main has is tried first at every
+// other commit, so a repository costs one read a commit; the head of a pull request that changes
+// run/QUESTIONS.md tries that file first. A pull request adds the rows its head has and
+// its merge base with main has not: one that leaves both files alone adds none, however old its
+// branch — Dependabot's keep the RUN.md of their day —, and one cut long ago does not bring back the
+// rows main has closed since. Lists come page by page. A pull request that cannot be read is a
+// problem of its own, and the rest is read.
 export function readRepository(name, gh = runGh) {
   const repo = `repos/${ORGANIZATION.name}/${name}`;
   const pages = (endpoint) => JSON.parse(gh(["api", "--paginate", "--slurp", endpoint])).flat();
   const read = new Map();
-  const runAt = (sha) => {
-    if (!read.has(sha)) read.set(sha, rowsForSpec(gh(["api", `${repo}/contents/RUN.md?ref=${sha}`, "-H", "Accept: application/vnd.github.raw"])));
+  const raw = (file, sha) => gh(["api", `${repo}/contents/${file}?ref=${sha}`, "-H", "Accept: application/vnd.github.raw"]);
+  // The table at a commit, { file, rows }: from `first`, or from the other file where the commit
+  // has no such file.
+  const tableAt = (sha, first) => {
+    const other = first === QUESTIONS ? RUN : QUESTIONS;
+    try {
+      return { file: first, rows: rowsForSpec(raw(first, sha), first) };
+    } catch (error) {
+      if (!/HTTP 404/u.test(error.message)) throw error;
+      return { file: other, rows: rowsForSpec(raw(other, sha), other) };
+    }
+  };
+  const runAt = (sha, first) => {
+    if (!read.has(sha)) read.set(sha, tableAt(sha, first));
     return read.get(sha);
   };
-  const added = (pull) => {
-    if (!pages(`${repo}/pulls/${pull.number}/files?per_page=100`).some((file) => file.filename === "RUN.md")) return [];
-    const base = gh(["api", `${repo}/compare/main...${pull.head.sha}`, "--jq", ".merge_base_commit.sha"]).trim();
-    const before = new Set(runAt(base).map((row) => row.number));
-    return runAt(pull.head.sha).filter((row) => !before.has(row.number));
-  };
   const sha = gh(["api", `${repo}/commits/main`, "--jq", ".sha"]).trim();
-  const main = { sha, rows: runAt(sha) };
+  const atMain = runAt(sha, QUESTIONS);
+  const main = { sha, rows: atMain.rows };
+  const added = (pull) => {
+    const changed = pages(`${repo}/pulls/${pull.number}/files?per_page=100`).map((file) => file.filename);
+    if (!changed.includes(QUESTIONS) && !changed.includes(RUN)) return [];
+    const base = gh(["api", `${repo}/compare/main...${pull.head.sha}`, "--jq", ".merge_base_commit.sha"]).trim();
+    const before = new Set(runAt(base, atMain.file).rows.map((row) => row.number));
+    return runAt(pull.head.sha, changed.includes(QUESTIONS) ? QUESTIONS : atMain.file).rows.filter((row) => !before.has(row.number));
+  };
   const problems = [];
   const pulls = [];
   for (const pull of pages(`${repo}/pulls?state=open&per_page=100`)) {
@@ -174,7 +200,7 @@ export function compare(repositories, ledger, known = repositories.map((r) => r.
       if (rows.length === 0) continue;
       const fingerprint = fingerprintOf(rows);
       if (fingerprint !== entry.fingerprint) {
-        changed.push({ repository: repository.name, list: entry.list, line: entry.line, sha: repository.main.sha, lines: rows.map((row) => row.line), recorded: entry.fingerprint, fingerprint });
+        changed.push({ repository: repository.name, list: entry.list, line: entry.line, sha: repository.main.sha, file: rows[0].file, lines: rows.map((row) => row.line), recorded: entry.fingerprint, fingerprint });
       }
     }
     for (const n of [...recorded].sort((a, b) => a - b)) {
@@ -195,17 +221,17 @@ export function report({ fresh, coming, changed = [], gone }, count) {
   const lines = [`inbox: ${count} repositories read; ${fresh.length} new on main, ${coming.length} on the way, ${changed.length} changed since recorded, ${gone.length} to leave table 5`];
   if (fresh.length) {
     lines.push("new on main — record, or bring to the author:");
-    for (const r of fresh) lines.push(`  ${r.repository} В${r.number} (RUN.md:${r.line}, main ${short(r.sha)}): ${excerpt(r.text)}`);
+    for (const r of fresh) lines.push(`  ${r.repository} В${r.number} (${r.file}:${r.line}, main ${short(r.sha)}): ${excerpt(r.text)}`);
   }
   if (coming.length) {
     lines.push("on the way, in open pull requests — recorded only on the author's word:");
-    for (const r of coming) lines.push(`  ${r.repository} В${r.number} (pull request #${r.pull} "${r.title}", ${short(r.sha)}, RUN.md:${r.line}): ${excerpt(r.text)}`);
+    for (const r of coming) lines.push(`  ${r.repository} В${r.number} (pull request #${r.pull} "${r.title}", ${short(r.sha)}, ${r.file}:${r.line}): ${excerpt(r.text)}`);
   }
   if (changed.length) {
     lines.push("changed on main since table 5 recorded them — read the rows again, record what is new, then write the fingerprint in table 5:");
     for (const r of changed) {
       const at = r.lines.length === 1 ? r.lines[0] : `${Math.min(...r.lines)}–${Math.max(...r.lines)}`;
-      lines.push(`  ${r.repository} ${r.list} (table 5 at RUN.md:${r.line}; its RUN.md:${at}, main ${short(r.sha)}): ${r.recorded ?? "—"} → ${r.fingerprint}`);
+      lines.push(`  ${r.repository} ${r.list} (table 5 at ${LEDGER}:${r.line}; its ${r.file}:${at}, main ${short(r.sha)}): ${r.recorded ?? "—"} → ${r.fingerprint}`);
     }
   }
   if (gone.length) {

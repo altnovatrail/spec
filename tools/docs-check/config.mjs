@@ -23,11 +23,12 @@ export const documents = {
 // The numbered registers. `section` is the numbered section that holds the register, or null
 // for the preamble before the first section; `heading` instead names a heading by how its text
 // begins. The register's opening names the next free number in the text directly under that
-// heading. A register with `elsewhere`, a file and a heading, once lived there: a table left
-// under that heading beside the register's own file is a second copy, and an error. With
-// `fallback` too, a repository whose own file does not exist yet is read from there, if a table
-// stands under that heading; with no table there either, the error names the own file. A register with `gaps` keeps the numbers of rows that left it: no number is reused,
-// so the next free one is above every row. Its numbers are never checked where they are cited:
+// heading. A register with `elsewhere`, a list of files and headings, once lived there: a table
+// left under such a heading beside the table read is a second copy, and an error. With `fallback`
+// too, a repository whose own file does not exist yet is read from the first of them that has a
+// table under its heading; with no table in any, the error names the own file. A register with
+// `gaps` keeps the numbers of rows that left it: no number is reused, so the next free one is
+// above every row. Its numbers are never checked where they are cited:
 // the citation patterns know R, О-, П-, Т- alone.
 export const registers = [
   {
@@ -68,14 +69,21 @@ export const registers = [
   ...workRegisters(),
 ];
 
-// Table 3 of RUN.md, the questions to the author, and table 4, the debt, which lives in DEBT.md
-// (R19, the 2026-11-11 amendment). Rows leave when they are answered or closed, and their numbers
-// are not reused. A repository that has not moved its table 4 to DEBT.md yet keeps it in RUN.md
-// (`fallback`), until it takes the rule with a tag of spec, by its task of T123 spec.
+// The tables of the work plan in run/ (R153): table 3, the questions to the author, in
+// run/QUESTIONS.md, and table 4, the debt, in run/DEBT.md. Rows leave when they are answered or
+// closed, and their numbers are not reused. Where each table lived before is `elsewhere`: table 3
+// in RUN.md, table 4 in DEBT.md at the root (R19, the 2026-11-11 amendment) and before that in
+// RUN.md. A repository that has not moved its tables yet is read from there (`fallback`), until it
+// takes the layout with a tag of spec, by its row Д250 spec; in spec a table left there is a copy.
 function workRegisters(fallback = false) {
-  const table = (prefix, file, heading) => ({ prefix, file, heading, definedBy: "table", width: 1, ordered: false, gaps: true, empty: true });
-  const debt = { ...table("Д", "DEBT.md", "Таблица 4."), elsewhere: { file: "RUN.md", heading: "Таблица 4." }, fallback };
-  return [table("В", "RUN.md", "Таблица 3."), debt];
+  const table = (prefix, file, heading, elsewhere) => ({ prefix, file, heading, definedBy: "table", width: 1, ordered: false, gaps: true, empty: true, elsewhere, fallback });
+  return [
+    table("В", "run/QUESTIONS.md", "Таблица 3.", [{ file: "RUN.md", heading: "Таблица 3." }]),
+    table("Д", "run/DEBT.md", "Таблица 4.", [
+      { file: "DEBT.md", heading: "Таблица 4." },
+      { file: "RUN.md", heading: "Таблица 4." },
+    ]),
+  ];
 }
 
 // Where the limits of size are, from spec's root (budgets.mjs; R145).
@@ -98,8 +106,8 @@ export const specProfile = {
 
 // A NovaTrail repository's profile. Its own: docs/architecture.md, cited as "architecture 2", and
 // docs/sources.md and docs/measurements.md once it has them, "sources 2.1" and "measurements 1"; its
-// decision log, which may still be empty; table 3 of its RUN.md and table 4 of its DEBT.md, or of
-// its RUN.md until it moves. spec's documents and the
+// decision log, which may still be empty; tables 3 and 4 in its run/, or where they were until it
+// moves (workRegisters). spec's documents and the
 // registers R, О-, П-, Т- are read from specDir — the spec/ submodule, or for a draft spec's
 // working tree — and cited "architecture 3.8 spec", "R18 spec", "Т-15". What is wrong in spec's
 // own files is spec's to report, not the repository's.
