@@ -41,5 +41,6 @@ const (
 	CaseRefusedByExportScope    CaseRefusedBy = "export.scope"
 	CaseRefusedByExportProfiles CaseRefusedBy = "export.profiles"
 	CaseRefusedByExportWorks    CaseRefusedBy = "export.works"
+	CaseRefusedByExportCase     CaseRefusedBy = "export.case"
 	CaseRefusedByExportProto    CaseRefusedBy = "export.proto"
 )

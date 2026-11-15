@@ -14,8 +14,9 @@ export const FILES = "export.files";
 export const SCOPE = "export.scope";
 export const PROFILES = "export.profiles";
 export const WORKS = "export.works";
+export const CASE = "export.case";
 export const PROTO = "export.proto";
-export const RULES = [FILES, SCOPE, PROFILES, WORKS, PROTO];
+export const RULES = [FILES, SCOPE, PROFILES, WORKS, CASE, PROTO];
 
 export const MANIFEST = "manifest.json";
 export const ACCOUNT = "api/account.json";
@@ -57,6 +58,7 @@ export function readingOf(validators, files) {
     [SCOPE, () => scopeBreaches(files)],
     [PROFILES, () => profileBreaches(files)],
     [WORKS, () => workBreaches(files)],
+    [CASE, () => caseBreaches(files)],
     [PROTO, () => protoBreaches(files)],
   ]) {
     const names = breaches();
@@ -138,6 +140,28 @@ function workBreaches(files) {
     if (value.kind !== work.kind) names.push(`${file}#kind`);
     if (instantOf(value.stored_at) !== instantOf(work.stored_at)) names.push(`${file}#stored_at`);
   }
+  return names;
+}
+
+// export.case: no two profiles, and no two stored works of a profile, have IDs that are one once
+// the capital letters A–Z are read as small, since a file system that does not tell letter case
+// apart would make their files and folders one. Names the files of each such profile, or work. Run
+// after export.works, so that each work's file is of a work its profile names.
+function caseBreaches(files) {
+  const names = [];
+  const folded = (id) => id.replace(/[A-Z]/g, (letter) => letter.toLowerCase());
+  const clash = (pattern, keyOf) => {
+    const byKey = new Map();
+    for (const file of Object.keys(files)) {
+      const match = pattern.exec(file);
+      if (!match) continue;
+      const key = keyOf(match);
+      byKey.set(key, [...(byKey.get(key) ?? []), file]);
+    }
+    for (const clashing of byKey.values()) if (clashing.length > 1) names.push(...clashing);
+  };
+  clash(PROFILE, ([, profile]) => folded(profile));
+  clash(WORK, ([, profile, attempt]) => `${profile}/${folded(attempt)}`);
   return names;
 }
 

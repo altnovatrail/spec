@@ -1403,7 +1403,7 @@ export interface Case {
  * The step that refuses the export: the schema, or the ID of the rule. Left out when the reader
  * accepts it.
  */
-export type CaseRefusedBy = "schema" | "export.files" | "export.scope" | "export.profiles" | "export.works" | "export.proto";
+export type CaseRefusedBy = "schema" | "export.files" | "export.scope" | "export.profiles" | "export.works" | "export.case" | "export.proto";
 
 // The types of work.schema.json.
 

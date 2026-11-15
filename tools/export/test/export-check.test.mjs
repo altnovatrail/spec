@@ -62,7 +62,7 @@ test("spec's own export/ passes, and the stats count what it holds", () => {
     const { errors, stats } = checkExport(root);
     assert.deepEqual(errors, []);
     assert.equal(stats.schemas, 7);
-    assert.equal(stats.rules, 5);
+    assert.equal(stats.rules, 6);
     assert.ok(stats.examples >= 4 && stats.vectors >= 6 && stats.cases >= 6, JSON.stringify(stats));
     assert.equal(EXPORT_PART.folder, "export");
     assert.deepEqual(FILE_TERMS, ["manifest", "account", "profile", "device", "work"]);
@@ -119,7 +119,7 @@ test("the command prints ok, and the errors of a broken copy", () => {
   const main = path.join(spec, "tools/export/main.mjs");
   const ok = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(ok.status, 0, ok.stderr);
-  assert.match(ok.stdout, /^export-check: ok — 7 schemas, 5 rules, \d+ examples, \d+ vectors of reading with \d+ cases\n$/);
+  assert.match(ok.stdout, /^export-check: ok — 7 schemas, 6 rules, \d+ examples, \d+ vectors of reading with \d+ cases\n$/);
   const usage = spawnSync(process.execPath, [main, "extra"], { encoding: "utf8" });
   assert.equal(usage.status, 2);
   assert.match(usage.stderr, /^usage: node tools\/export\/main\.mjs/);

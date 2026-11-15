@@ -39,6 +39,7 @@
             "export.scope",
             "export.profiles",
             "export.works",
+            "export.case",
             "export.proto"
           ],
           "description": "The step that refuses the export: the schema, or the ID of the rule. Left out when the reader accepts it."

@@ -20,7 +20,7 @@ const profile = example("profile/valid/one-attempt.yaml");
 const exportOf = (files) => ({ "manifest.json": manifest, [`api/profiles/${profile.profile_id}.json`]: profile, ...protos, ...files });
 
 test("the rules are read in the order of the text, and each file of JSON has its schema", () => {
-  assert.deepEqual(RULES, ["export.files", "export.scope", "export.profiles", "export.works", "export.proto"]);
+  assert.deepEqual(RULES, ["export.files", "export.scope", "export.profiles", "export.works", "export.case", "export.proto"]);
   const readme = fs.readFileSync(path.join(spec, "export/README.md"), "utf8");
   assert.deepEqual([...readme.matchAll(/^\| `(export\.[a-z-]+)` \|/gm)].map((match) => match[1]), RULES);
   assert.equal(termOf("manifest.json"), "manifest");
@@ -92,6 +92,25 @@ test("export.works holds the works a profile names to their files, by the profil
   assert.equal(validators.get("work")({ ...work, attempt_id: "0b9f6c1e-1c2d-4e5f-8a9b-0c1d2e3f4a5b" }), true);
   assert.equal(instantOf("2026-11-10T10:45:00Z"), "2026-11-10T10:45:00.000000000Z");
   assert.equal(instantOf("2026-11-10T10:45:00.25Z"), "2026-11-10T10:45:00.250000000Z");
+});
+
+test("export.case refuses two profiles, or two works of a profile, whose IDs differ in letter case alone", () => {
+  const work = example("work/valid/handwriting.yaml");
+  const named = { attempt_id: work.attempt_id, kind: work.kind, stored_at: work.stored_at, size_bytes: 168 };
+  const upper = work.attempt_id.toUpperCase();
+  const file = (attempt) => `works/${profile.profile_id}/${attempt}.json`;
+  const of = (works, files) => exportOf({ [`api/profiles/${profile.profile_id}.json`]: { ...profile, works, work_storage: true }, ...files });
+  assert.deepEqual(readingOf(validators, of([named, { ...named, attempt_id: upper }], { [file(work.attempt_id)]: work, [file(upper)]: { ...work, attempt_id: upper } })), {
+    refused_by: "export.case",
+    names: [file(upper), file(work.attempt_id)],
+  });
+  // IDs that differ in more than the case of their letters are no clash.
+  assert.deepEqual(readingOf(validators, of([named, { ...named, attempt_id: `${work.attempt_id}-b` }], { [file(work.attempt_id)]: work, [file(`${work.attempt_id}-b`)]: { ...work, attempt_id: `${work.attempt_id}-b` } })), { accepted: true });
+  // Two profiles of an account.
+  const account = example("account/valid/one-child.yaml");
+  const other = profile.profile_id.toUpperCase();
+  const accountOf = exportOf({ "manifest.json": { ...manifest, scope: "account" }, "api/account.json": { ...account, profile_ids: [profile.profile_id, other] }, [`api/profiles/${other}.json`]: { ...profile, profile_id: other } });
+  assert.deepEqual(readingOf(validators, accountOf), { refused_by: "export.case", names: [`api/profiles/${other}.json`, `api/profiles/${profile.profile_id}.json`] });
 });
 
 test("export.proto wants learner-model's .proto with a profile, and the observation's with a submission", () => {
