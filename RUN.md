@@ -6,7 +6,7 @@ Language (R154): rules and tables in English, terse, for the session; the bodies
 
 ## Rules
 
-A task starts with «Выполни задачу T01 из RUN.md» in a new session in the devcontainer. One task — one session (R143): the hook [tools/session/](tools/session/main.mjs) stops another task's phrase in the same session.
+A task starts with «Выполни задачу T01 из RUN.md» in a new session in the devcontainer. One task — one session (R143): the hook [tools/session/](tools/session/main.mjs) stops another task's phrase in the same session. An epic across repositories starts with «Сделай эпик E…» in spec's orchestrator container, `.devcontainer/orchestrator/`: the orchestrator runs each task as a fresh `claude -p` in its repository's container and merges its pull request (R156).
 
 1. Do only the named task; touch other tasks' files only where it requires.
 2. Read first: [CLAUDE.md](CLAUDE.md), the task — in table 1, or only its own body of `run/TASKS.md` (its opening says how) —, the sections it cites, `docs/decisions.md`.
@@ -15,10 +15,11 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
    - From `run/DEBT.md` and `run/QUESTIONS.md` take only the rows the task and its sections name and those `grep -n` finds by the paths and parts it changes (R143).
 3. Devcontainer only (RULES.md, Hard rules, with its cloud-session exception): on the host stop before the first edit.
 4. Outside this repository — creating or configuring repositories, pushing to them, organization settings, anything that costs money — only after a warning (what, where, cost) and the author's confirmation.
+   - Exception, no confirmation: «Сделай эпик E…» (R156) — running the epic's tasks in their repositories' containers, the executors' pushes and pull requests, and their merge on green checks. Whatever else a task does outside its repository still needs confirmation, a question in the orchestrator's queue; usage bought beyond the subscription, never.
    - Exception, no confirmation: the task's checks by R146 — browser: Playwright in the devcontainer, custom-token sign-in on the dev project; AI: the `tutor` stub in `api` dev mode. A real AI call only where the task checks the model's words: dev key under the author's spend limit, within the task's ceiling, or with confirmation where it has none; «Сделано» names the provider, the calls and the cost. Nothing on devices: what only a device shows stays debt of the repository of those screens.
 5. Facts on AI providers, laws, prices and other platforms — from the primary source, as a record of `docs/sources.md` (RULES.md, How we work).
 6. End with green checks of the parts changed — their rule `.claude/rules/<part>.md` (CLAUDE.md, Environment) — and always `just docs-check`. Then `/code-review high`, one round: fix the findings, do not rerun. A small change may skip the review even if «Как проверить» names it.
-7. Do not commit — here or in repositories an epic creates — unless the task says so: the author commits after review.
+7. Do not commit — here or in repositories an epic creates — unless the task or the author's word says so: the author commits after review. In an orchestrator's run the executor commits, pushes and opens the pull request by `tools/orchestrator/executor.md`, and the orchestrator merges it (R156).
 8. End with a short report in Russian: what was done, files and repositories, how to check (commands), what the review found or why there was none, what is open.
 9. When done: table 1 `[ ]` → `[x]`; append to the body «Сделано (дата)» — what was done, how checked — and «Открыто». A question for the author from «Открыто» is also a row of `run/QUESTIONS.md`; what is put off, a row of `run/DEBT.md`.
    - Then move the body verbatim, relative links fixed, to the epic archive `docs/plan/<epic>.md`, with a gist sentence — an unheaded list item at the start of the receiving section: «T129 — сделана 2026-11-11: <итог одной фразой>». Neither stays here (R153).
@@ -89,7 +90,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 
 | Статус | ID | Задача | Кто | План | Зависит от |
 |---|---|---|---|---|---|
-| [ ] | T167 | Решение об оркестраторе и правила прогона | Claude, проверяю я | — | — |
+| [x] | T167 | Решение об оркестраторе и правила прогона | Claude, проверяю я | — | — |
 | [ ] | T168 | Контейнер оркестратора | я + Claude | — | T167 |
 | [ ] | T169 | `tools/orchestrator`: запуск исполнителя | Claude | да | T168 |
 | [ ] | T170 | Процедура «Сделай эпик E…» | Claude, проверяю я | — | T169 |
@@ -102,21 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - T171 идёт после T170, когда T167–T170 смержены: релиз spec выходит сам (R31), и волна 0 пилота переводит репозитории на тег с ними.
 
 ## Эпик E14. Оркестратор
-
-#### T167. Решение об оркестраторе и правила прогона
-
-- **Цель:** решения автора 2026-11-15 об оркестраторе записаны; правила, которые запрещали коммит и запуск чужих задач, говорят, что делает прогон оркестратора; любая сессия любого репозитория знает контракт исполнителя.
-- **Сделать:**
-  - Новое решение «Оркестратор» — всё из «Решено автором» эпика, с отвергнутым и «Почему».
-  - Поправки с той же датой: R76 — оркестратор запускает задачи других репозиториев и мержит их PR; R143 — свежий headless-запуск — это одна задача, одна сессия; R19; R31 — где его касается мерж по чужим репозиториям; R12 — Docker CLI (Apache-2.0) в стадии, которую не публикуют.
-  - RULES.md: «Do not commit» и «Devcontainer only» — что меняется для прогона оркестратора: его контракт — слово автора на задачу, как «доведи до мержа».
-  - RUN.md: правило 7 и первая строка Rules — фраза «Сделай эпик E…»; COORDINATION.md: правило 8 и строка о том, что оркестратор — та же роль в контейнере оркестратора.
-  - `repo-template/files/RUN.md`: одна строка — запуск оркестратора идёт по контракту `spec/tools/orchestrator/executor.md` (сам файл пишет T169), и тест `new-repo`.
-  - `docs/sources.md`: headless-флаги Claude Code и `result`; `rate_limit_event` и текст ошибки лимита; лимиты подписки Pro и Max и что они общие; `devcontainer.local_folder` и оговорка `docker-outside-of-docker` о путях хоста. Каждая — с цитатой и датой чтения.
-  - CLAUDE.md: `tools/orchestrator/` и вторая конфигурация — в Environment, коротко.
-- **Не делать:** код, Dockerfile — T168 и T169.
-- **Как проверить:** `just docs-check`; `just new-repo-test`; правило [new-repo](.claude/rules/new-repo.md); `/code-review high`.
-- **Разделы:** R12, R19, R31, R76, R143, R153, R154; RULES.md — How we work, Hard rules; COORDINATION.md — Rules; repositories 2.2.
 
 #### T168. Контейнер оркестратора
 

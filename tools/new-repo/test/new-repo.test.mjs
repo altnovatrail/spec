@@ -126,6 +126,8 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     assert.match(read(dir, "CLAUDE.md"), new RegExp(`architecture ${card.replace(".", "\\.")} spec`));
     assert.match(read(dir, "docs/decisions.md"), /set up 2026-01-02 from the template of `spec` v0\.0\.0-test/);
     for (const file of ["README.md", "CLAUDE.md", "RUN.md", "docs/architecture.md"]) assert.ok(read(dir, file).match(FILL), `${name}: ${file} has no FILL`);
+    // An orchestrator's run of a task goes by the executor's contract in spec (R156).
+    assert.match(read(dir, "RUN.md"), /^7\. Do not commit: .*`spec\/tools\/orchestrator\/executor\.md`.*\(R156 spec\)\.$/m, `${name}: RUN.md rule 7 does not name the executor's contract`);
     for (const file of ["LICENSE", "AGENTS.md"]) assert.equal(read(dir, file), read(specRoot, file), `${name}: ${file} is not spec's`);
     // A file docs-check-repo does not read cites no number without a suffix, read as docs-check
     // reads a citation: in the copy it would be one of the repository's own (RULES.md, Citations).
