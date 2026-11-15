@@ -217,7 +217,9 @@
 | `api` | В62 | `6e0744c0caf4` | architecture 4.5 и sources 4.5 — ссылки на sources 11.1 и 3.1 `api` |
 | `api` | В64 | `542cff2febc6` | Д227 — формы обрезка заглушки (R66 api) |
 | `api` | В65 | `ee7e4ce855ec` | Д227 — том и `just dev-app` (R67 api); Д226 закрыт |
+| `api` | В69 | `51c587306ec9` | R149; закрытая строка 6.17, строки 6.20 и 6.21 [COORDINATION.md](COORDINATION.md) |
 | `app` | В61 | `f0a1fa3ccdba` | поправка 2026-11-13 к R76; закрытая строка 6.9 и строка 6.16 [COORDINATION.md](COORDINATION.md) |
+| `app` | В63 | `172831a479cf` | закрытая строка 6.16 [COORDINATION.md](COORDINATION.md) |
 | `engine` | В42 | `b157002c90f9` | закрытая строка 7.6 [COORDINATION.md](COORDINATION.md); [tools/translation/README.md](tools/translation/README.md), шаг 7 |
 | `engine` | В43 | `dfb14fdb2059` | T149; [tools/translation/README.md](tools/translation/README.md), вариант (б) |
 | `infra` | В24 | `536629083999` | поправка 2026-11-13 к R128; privacy 4, П-9; architecture 3.11, 3.12 |
@@ -230,6 +232,8 @@
 | `infra` | В31 | `0ef203f04256` | поправки 2026-11-13 к R116 и R125; architecture 3.11, 3.12; Д156 |
 | `infra` | В32 | `ffb000b329d2` | поправка 2026-11-13 к R126; T151; Д239; DPIA версии 17 |
 | `infra` | В33 | `02653997682a` | поправка 2026-11-13 к R125; DPIA версии 17; Д240 |
+| `infra` | В34 | `70d93df55c09` | закрытые строки 6.16 и 6.17, строки 6.14 и 6.21 [COORDINATION.md](COORDINATION.md) |
+| `infra` | В35 | — | R149, R150; строки 6.20 и 6.21 [COORDINATION.md](COORDINATION.md); T159 |
 | `learner-model` | В46 | `ac2b99a1334c` | закрытая строка 4.13, строки 4.15 и 4.16 [COORDINATION.md](COORDINATION.md) |
 | `learner-model` | В47 | `49595dcab7f6` | architecture 3.8 и concepts 11 |
 | `learner-model` | В49 | `13dfb0e6d1d9` | закрытая строка 7.8 [COORDINATION.md](COORDINATION.md) |
@@ -258,6 +262,21 @@
 ## Задачи вне эпика
 
 Сделанные — в архиве эпика, при котором их сделали, а между эпиками — в архиве последнего сделанного (правило 9).
+
+- T158 — сделана 2026-11-15: ИИ платформы на `novatrail` для автора сейчас — ступень `author`, ключ и факты, как в первом приложении (R149), и каталог развёртывания без сочинений (R150); поправки 2026-11-15 к R76, R96, R99 и R121, DPIA версии 18, строки 6.20 `api` и 6.21 `infra`, закрыты 3.10, 6.16 и 6.17. Тело — [docs/plan/E12.md](docs/plan/E12.md).
+
+#### T159. ИИ платформы для взрослых без нулевого хранения: таблица допуска 0.4 и политика версии 4
+
+- **Цель:** до первого ученика `novatrail`, кроме автора, политика говорит, что хранит поставщик ИИ, таблица допуска открывает ИИ платформы взрослым без `minimal_retention`, и факт развёртывания перестаёт быть ложным (R149; поправки 2026-11-15 к R76 и R121).
+- **Почему:** политика в силе, версии 1–3, обещает: «We use them only once the provider has approved zero data retention, or has excluded the content from its abuse monitoring: until then the platform's AI is closed», а у Anthropic хранение «On · 30 days» (поправка 2026-11-10 к R76). Слово автора: кто работает с программой, работает с ИИ (R149).
+- **Сделать:**
+  - перечитать условия Anthropic и OpenAI — их строки privacy 5.3, хранение и DPA — записью sources с датой ([таблица допуска](admission/README.md), раздел 10);
+  - таблица допуска 0.4: ячейки `platform_ai` категории `adult` — `open_with_facts` с одним `data_processing_agreement`, ячейки до 18 — как были; поправка к R96, новая линия релизов;
+  - `privacy-policy` версии 4 по [.claude/rules/legal.md](.claude/rules/legal.md): ИИ платформы взрослым — при обычном хранении поставщика, со сроками; детям — только при нулевом хранении; модели проверены на почерке одного человека (ступень `author`); гист `en` и `ru`, перевод `ru`; `in_force_since` — день, который назову я, с уведомлением заранее (sources 3.11);
+  - privacy 5.1 и 7; пересмотр DPIA (R129); строка COORDINATION.md `infra` — факты без `minimal_retention` и коды `api invite` другим взрослым с дня версии 4.
+- **Мой шаг:** утвердить текст и день.
+- **Как проверить:** `just admission-check`; `just legal-check`; `just docs-check`; `/code-review high`.
+- **Разделы:** privacy 5, 7; R76, R96, R121, R130, R149; sources 3.11; T158.
 
 #### T117. Набор `child-sample` — в силу
 
