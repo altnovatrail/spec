@@ -3838,6 +3838,8 @@ A separate file is the author's request. That it is not the "one shared plan for
 
 — *Amendment 2026-11-15:* **a question to the author is a row of table 3 in `run/QUESTIONS.md` (R153), and the coordinator reads a repository's `run/EPICS.md` beside its RUN.md, or its RUN.md alone until it moves its tables (rule 3 of COORDINATION.md).** — R153; RUN.md, T165.
 
+— *Amendment 2026-11-15 (the second inbox triage of the day):* **rows 4.19, 6.15, 6.20 and 6.22 of `COORDINATION.md` are closed, and two rows are new: 6.25 — a task of `api` that has `just dev-app` give the stub server a child's facts and a synthetic child of 9 with a confirmed consent, so that T48 of `app` can open the workbook (`api` В78); 6.26 — epic E6 of `infra`, its move to the line 0.17 and the lifecycle rule on `eval-set/samples/`, which the first eval-set link waits for and the first measurement link does not (`infra` В36). Row 6.21 names the variables `API_ADMISSION_RUNG=author` and `API_CATALOG_MODULES`, for the service and the job `check` alike, and pairs `api` `v0.1.48` or newer (`api` В77); `access_returns` goes to `api` after row 5.13 (`api` В73).** The rows «в реестр spec» `api` В73, В77–В79, `engine` В45, В47 and В49 and `infra` В36, by their recommendations, which the author took on 2026-11-15 (rule 13 of RUN.md). Rejected for В78: `app` making the child itself — it has no way to confirm the consent, which is the operator's command in `api`'s container —, and a workbook module for adults in `modules`, a module for a test alone. — COORDINATION.md, items 4 and 6; R82.
+
 ## The check of a release's signature
 
 **R77. The signature of a NovaTrail release file is checked by one recipe of `spec`, `release-verify`, where the file enters NovaTrail, and it checks everything the certificate names: who signed, by whose call, on what branch and from what commit. A file of a shared release is signed by the shared `release.yml` of `.github` at the SHA of its release no lower than v0.1.7, on the history of its `main`, and a file of `spec` is bound to its tag by its content. The library `module-kit` does not check signatures: it trusts a package by the chain of digests from a pinned index. Т-27 is closed.** The author's answers in the planning of T37 (RUN.md), 2026-11-01.
@@ -4194,6 +4196,8 @@ Sources, read 2026-11-01: the npm registry — the packages' versions, licenses 
 
 — *Amendment 2026-11-15:* **on a task with a rubric, an essay, which has no incorrect answers and no hint ladder, "Hint" gives what it gives before the first incorrect answer: the task's techniques and, from format 0.4, its leading question, without AI and without the work. A task that names neither gets the empty answer, and `app` says there is nothing to hint; the button stays, since the techniques are closed and the device does not know them before it asks.** The author's answer of 2026-11-15 to В38 of RUN.md, table 3, by its recommendation (a), and to the refinement that the button cannot hang on a closed field; the review of T164 found the gap. [The contracts text](../contracts/README.md), section 15, already has `GetHint` so, and does not change. *Why:* no new call of AI and no new data; an essay is helped enough by the technique — the plan of a text from the module's author —, and the learner gets the feedback by the rubric after the submission anyway. *Rejected:* no "Hint" on a task with a rubric, only "Done"; the tutor's question by the criteria of the rubric — a call of AI with the work, a new capability and its eval set; no button where the task names no technique — a new open field of the format or the contract that says whether a hint exists. — R41, the second 2026-11-15 amendment; R57; R87; R148; concepts 10; product 13, О-21.
 
+— *Second amendment 2026-11-15 (the inbox triage, `api` В79):* **"a task whose solution has already gone to the learner's device" above is a task with a key. The solution of a task with a rubric, open after "Done" (R87), is a sample, not a key: it does not count in the summary of issues as a solution that went to the device, and the engine's pause of 24 hours does not hold for such a task, which `engine` reads by its own rule for a task with a rubric (`RubricDone`, `engine` v0.1.8).** The row «в реестр spec» `api` В79 (RUN.md of `api`, `main` 0a65ddb), by its recommendation, which the author took on 2026-11-15; `api` counts so since T90. Rejected: a day's pause after "Done" with a solution — the learner saw no key that a repeat would give away. — R87, R104; concepts 12; architecture 3.8.
+
 ## Contracts: protobuf, buf and Connect
 
 **R83. `spec`'s contracts are proto3 files in `contracts/`, packages `novatrail.<part>.v1`, by buf's rules `STANDARD`, `COMMENTS` and `UNARY_RPC` and with the compatibility `FILE` against the previous release of `spec`. A field's name in JSON is its proto name, snake_case. A contract's version is the package's suffix and the tag of `spec`, and a breaking change is a new package and a new line of `spec`. The code from the contracts is generated by `spec`: in Go, the nested module `github.com/altnovatrail/spec/contracts`, in TypeScript, the npm package `@altnovatrail/contracts`. `app` and `api` talk over Connect.** The author's answers of 2026-11-02 in the planning of T54 (RUN.md), all by the plan's recommendations. The primary sources were read the same day.
@@ -4531,6 +4535,8 @@ The arguments — R14 and R15 api.
 - RUN.md — T62; the components get the answer with their move to a tag — RUN.md, Д83.
 
 — R04, R05, R56, R68, R70, R71, R75; П-8, П-19, О-17; R11, R13, R14 and R15 api.
+
+— *Amendment 2026-11-15:* **the solution that "Done" opens is not a solution that went to the device in the summary of issues, and the engine does not pause the task for it (the second 2026-11-15 amendment to R82).** — R82, R104; `api` В79.
 
 ## The format's Starlark
 
@@ -5465,6 +5471,8 @@ Normative — format 0.3: a new section of the format text on versions of a modu
 — R03, R23, R82, R99, R100; R03 learner-model; R03 engine; R03 skill-map; SPEC 3.2 standalone; RUN.md, Д112.
 
 — *Amendment 2026-11-07:* **the summary of issues comes with additions this answer did not see** (В12 `engine`; R107). The issue of a lesson is the issue of each of its skills; for a module, the number of choices, of a task and of a lesson one each, not of tasks issued; for a skill, the result of the last closed attempt if it is a probe or a repetition, not only a probe; and the result comes as facts — how many items where the skill is primary got a first verdict, at how many of them it is "correct" and whether the solution was shown — not as a mark "correct": the engine computes "failure". A skill from the map holds until the learner asks for something else, and the record of the choice carries it into the next one (В6 `engine`). — R107; concepts 12; architecture 3.8.
+
+— *Amendment 2026-11-15:* **"for a task, when its solution last went to the device" is about a task with a key: the solution of a task with a rubric, open after "Done", does not count (the second 2026-11-15 amendment to R82).** — R82, R87; concepts 12; `api` В79.
 
 ## Production images
 
