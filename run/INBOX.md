@@ -1,55 +1,53 @@
-# INBOX.md — строки других репозиториев, записанные в `spec`
+# INBOX.md — rows of other repositories recorded in spec
 
-> Таблица 5 плана работ [RUN.md](../RUN.md) — строки «в реестр spec» из таблиц 3 других репозиториев, которые `spec` уже записал, — в своём файле папки `run/`, на русском, как RUN.md (R153). По ней `just inbox` отличает новое от записанного и видит, что записанная строка изменилась (R81).
->
-> - **Файл читает разбор входящих**, а не каждая задача: по слову автора или когда сделаны все задачи текущего эпика (правило 13 RUN.md).
-> - **Как идёт разбор.** `just inbox` (нужен `gh` с входом) читает на GitHub таблицы 3 других репозиториев — их `run/QUESTIONS.md`, а пока репозиторий не перешёл на раскладку R153, его RUN.md — и печатает строки «в реестр spec», которых здесь нет, — на `main` и «на подходе», в открытых pull request, — и строки этой таблицы, чей отпечаток на `main` изменился.
->   - Новую строку исполнитель записывает решением, поправкой, правкой документа, открытым вопросом или строкой [DEBT.md](DEBT.md). Что автор уже решил — записывает сразу, а что ждёт его решения — приносит ему с вариантами и рекомендацией. Затем строка встаёт сюда, с тем, где лёг ответ.
->   - Строку «на подходе» — только по слову автора: до мержа она может измениться.
->   - В изменившейся строке то, что прибавилось, записывается так же. Отпечаток сюда — тот, что назвал рецепт; у новой строки до него — «—». Строку, ушедшую у источника, исполнитель убирает.
->   - Разбор больше одной проверки — отдельной задачей (правило 11 RUN.md). Его правки — отдельным абзацем отчёта, как по правилу 12.
->   - Строка `due:` — срок из measurements 1.9 (R145). Ежемесячный замер: исполнитель меряет все 13 репозиториев этой машины, `just tokens-report --project=… --since … --row`, от конца последней строки до начала сессии, и вписывает строки в measurements 1.9. Квартальная сверка с журналом изменений Claude Code: задача анализа — в «Задачи вне эпика» RUN.md. Затем он сдвигает дату и сверяет порог R145.
+Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repositories' tables 3 that `spec` has recorded, and where the answer went. `just inbox` tells new from recorded by it and sees a recorded row change (R81, R153, R154).
 
-## Таблица 5. Строки других репозиториев, записанные в `spec`
+- Read by the inbox triage only — on the author's word or once every task of the current epic is done (RUN.md rule 13).
+- **Triage.** `just inbox` (needs `gh` signed in) reads other repositories' tables 3 on GitHub — `run/QUESTIONS.md`, or RUN.md until a repository moves to the layout of R153 — and prints the rows «в реестр spec» missing here, on `main` and "on the way" in open pull requests, and the rows here whose fingerprint on `main` changed.
+  - A new row: record it as a decision, amendment, document change, open question or row of [DEBT.md](DEBT.md) — what the author has decided at once, the rest to the author with options and a recommendation. Then add it here with where the answer went.
+  - A row "on the way" — only on the author's word: it may change before the merge.
+  - A changed row: record what was added, the same way; write the fingerprint the recipe names (`—` until it names one). A row gone at its source — delete it here.
+  - A triage larger than one review is a task of its own (RUN.md rule 11). Report its edits in a separate paragraph, as by rule 12.
+  - A `due:` line is a date of measurements 1.9 (R145). Monthly measurement: measure all 13 repositories of this machine, `just tokens-report --project=… --since … --row`, from the end of the last row to the session's start, into measurements 1.9. Quarterly check of the Claude Code changelog: a task of analysis in [TASKS.md](TASKS.md). Then move the date and check the threshold of R145.
+- Closed rows of COORDINATION.md, marked «(closed)» here: `git show 6eb3243:COORDINATION.md`, section «Закрытые строки».
+- **Fingerprint:** the first 12 hexadecimal digits of the SHA-256 of all the cells of the rows a row of this table names, as the source's `main` holds them (2026-11-04 amendment to R81).
 
-Строки «в реестр spec» из таблиц 3 других репозиториев, которые `spec` уже записал, и где лёг ответ (R81; правило 13).
+## Table 5. Rows of other repositories recorded in spec
 
-Отпечаток — первые 12 шестнадцатеричных цифр SHA-256 всех ячеек строк, которые называет строка таблицы, как их держит `main` источника (поправка 2026-11-04 к R81). Когда сняты отпечатки и какие строки ушли, — в архивах эпиков `docs/plan/`, раздел «Начала таблиц 3, 4 и 5 RUN.md». Второй разбор входящих 2026-11-15, вне эпика, записал восемь строк по рекомендациям, которые принял автор, — `api` В73, В77–В79, `engine` В45, В47 и В49, `infra` В36, — и убрал 22: `api` В66–В72, В74–В76 и `infra` В24–В35 — источники сняли с них пометку «в реестр spec». Первый, в конце E12, записал 27 строк — пять по ответам автора (`api` В68, В72 и В76, `engine` В47, `sim` В22), остальные по рекомендациям разбора — и убрал 7: `api` В62, В64 и В65, `app` В61, `engine` В42 и В43 и `sim` В13 — источники сняли с них пометку «в реестр spec» переходом на линию 0.17.
-
-| Репозиторий | Строки | Отпечаток | Где ответ |
+| Repository | Rows | Fingerprint | Where the answer is |
 |---|---|---|---|
-| `.github` | В37 | `4d00f444967f` | T149 — вторая поправка 2026-11-15 к R143; measurements 1.7 |
-| `.github` | В38 | `bc46602307ce` | T149 — поправка 2026-11-15 к R145; Д236 |
-| `api` | В73 | `66f14a386ca0` | строка 5.13 и закрытая строка 6.22 [COORDINATION.md](../COORDINATION.md): `access_returns` — задачей `api` после строки 5.13; sources 2.8 |
-| `api` | В77 | `bef02eff03d0` | закрытая строка 6.20, строка 6.21 [COORDINATION.md](../COORDINATION.md) — `API_ADMISSION_RUNG`, `API_CATALOG_MODULES`, пара `api` `v0.1.48`; поправка 2026-11-15 к R76 |
-| `api` | В78 | `40d016cbe27f` | строка 6.25 [COORDINATION.md](../COORDINATION.md), вариант (а); строка 6.14; поправка 2026-11-15 к R76 |
-| `api` | В79 | `974837816a16` | вариант (а): вторая поправка 2026-11-15 к R82, поправки 2026-11-15 к R87 и R104; concepts 12; architecture 3.8 |
-| `app` | В62 | `c65b0cefa0d7` | architecture 3.12; privacy 4, строка «Logs»; строка 6.14 [COORDINATION.md](../COORDINATION.md) |
-| `app` | В63 | `172831a479cf` | закрытая строка 6.16 [COORDINATION.md](../COORDINATION.md) |
-| `app` | В65 | `d0f00ba64518` | строка `api` В73: `own_key_limit` — T85 `api`, срок — строка 5.13; закрытая строка 6.13 и строка 6.14 [COORDINATION.md](../COORDINATION.md) |
-| `engine` | В44 | `0b4d5733d830` | закрытая строка 4.14 [COORDINATION.md](../COORDINATION.md) |
-| `engine` | В45 | `ae38d14d0b13` | закрытые строки 4.14 и 4.19 [COORDINATION.md](../COORDINATION.md) |
-| `engine` | В47 | `77d6867ef465` | закрытая строка 4.19 [COORDINATION.md](../COORDINATION.md): порядка судов нет (R59 sim), записывать нечего |
-| `engine` | В49 | `14ce5f7be857` | закрытая строка 4.19 [COORDINATION.md](../COORDINATION.md), вариант (а); поправка 2026-11-15 к R76 |
-| `infra` | В36 | `1145af686e59` | закрытая строка 6.15 и строка 6.26 [COORDINATION.md](../COORDINATION.md), вариант (а); поправка 2026-11-15 к R76 |
-| `learner-model` | В46 | `ac2b99a1334c` | закрытая строка 4.13, строки 4.15 и 4.16 [COORDINATION.md](../COORDINATION.md) |
-| `learner-model` | В47 | `49595dcab7f6` | architecture 3.8 и concepts 11 |
-| `learner-model` | В49 | `13dfb0e6d1d9` | закрытая строка 7.8 [COORDINATION.md](../COORDINATION.md) |
-| `learner-model` | В50 | `4eff276fb5be` | строка 4.17 [COORDINATION.md](../COORDINATION.md); строки `sim` В16 и В24, R59 sim |
+| `.github` | В37 | `4d00f444967f` | T149 — second 2026-11-15 amendment to R143; measurements 1.7 |
+| `.github` | В38 | `bc46602307ce` | T149 — 2026-11-15 amendment to R145; Д236 |
+| `api` | В73 | `66f14a386ca0` | COORDINATION rows 5.13 and 6.22 (closed): `access_returns` — an `api` task after row 5.13; sources 2.8 |
+| `api` | В77 | `bef02eff03d0` | COORDINATION rows 6.20 (closed) and 6.21 — `API_ADMISSION_RUNG`, `API_CATALOG_MODULES`, pair `api` `v0.1.48`; 2026-11-15 amendment to R76 |
+| `api` | В78 | `40d016cbe27f` | COORDINATION row 6.25, option (a); row 6.14; 2026-11-15 amendment to R76 |
+| `api` | В79 | `974837816a16` | option (a): second 2026-11-15 amendment to R82, 2026-11-15 amendments to R87 and R104; concepts 12; architecture 3.8 |
+| `app` | В62 | `c65b0cefa0d7` | architecture 3.12; privacy 4, row «Logs»; COORDINATION row 6.14 |
+| `app` | В63 | `172831a479cf` | COORDINATION row 6.16 (closed) |
+| `app` | В65 | `d0f00ba64518` | `api` row В73: `own_key_limit` — T85 `api`, the return date — COORDINATION row 5.13; rows 6.13 (closed) and 6.14 |
+| `engine` | В44 | `0b4d5733d830` | COORDINATION row 4.14 (closed) |
+| `engine` | В45 | `ae38d14d0b13` | COORDINATION rows 4.14 (closed) and 4.19 (closed) |
+| `engine` | В47 | `77d6867ef465` | COORDINATION row 4.19 (closed): no order of trials (R59 sim), nothing to record |
+| `engine` | В49 | `14ce5f7be857` | COORDINATION row 4.19 (closed), option (a); 2026-11-15 amendment to R76 |
+| `infra` | В36 | `1145af686e59` | COORDINATION rows 6.15 (closed) and 6.26, option (a); 2026-11-15 amendment to R76 |
+| `learner-model` | В46 | `ac2b99a1334c` | COORDINATION rows 4.13 (closed), 4.15 (closed) and 4.16 (closed) |
+| `learner-model` | В47 | `49595dcab7f6` | architecture 3.8 and concepts 11 |
+| `learner-model` | В49 | `13dfb0e6d1d9` | COORDINATION row 7.8 (closed) |
+| `learner-model` | В50 | `4eff276fb5be` | COORDINATION row 4.17; `sim` rows В16 and В24, R59 sim |
 | `modules` | В40 | `48f8d58e80ac` | architecture 3.10 |
-| `sim` | В15 | `f52cd5a8b9d9` | закрытая строка 4.15 [COORDINATION.md](../COORDINATION.md) |
-| `sim` | В16 | `9d2a1da19964` | строки 4.17 и 4.18 [COORDINATION.md](../COORDINATION.md); R59 sim |
-| `sim` | В18 | `ee0369381801` | закрытая строка 4.16 [COORDINATION.md](../COORDINATION.md) |
-| `sim` | В19 | `1886df158d51` | закрытые строки 4.14 и 4.15 [COORDINATION.md](../COORDINATION.md) |
-| `sim` | В20 | `0670f1de2597` | строка 4.19 [COORDINATION.md](../COORDINATION.md) |
-| `sim` | В21 | `91e57199ee3e` | поправка 2026-11-15 к R147; dpia 10.2, DPIA версии 19; закрытая строка 4.16 [COORDINATION.md](../COORDINATION.md) |
-| `sim` | В22 | `284e30d5a4df` | поправка 2026-11-15 к R147; dpia 6.2, мера 7, и dpia 8; строки 4.17 и 4.18 [COORDINATION.md](../COORDINATION.md) |
+| `sim` | В15 | `f52cd5a8b9d9` | COORDINATION row 4.15 (closed) |
+| `sim` | В16 | `9d2a1da19964` | COORDINATION rows 4.17 and 4.18; R59 sim |
+| `sim` | В18 | `ee0369381801` | COORDINATION row 4.16 (closed) |
+| `sim` | В19 | `1886df158d51` | COORDINATION rows 4.14 (closed) and 4.15 (closed) |
+| `sim` | В20 | `0670f1de2597` | COORDINATION row 4.19 (closed) |
+| `sim` | В21 | `91e57199ee3e` | 2026-11-15 amendment to R147; dpia 10.2, DPIA version 19; COORDINATION row 4.16 (closed) |
+| `sim` | В22 | `284e30d5a4df` | 2026-11-15 amendment to R147; dpia 6.2, measure 7, and dpia 8; COORDINATION rows 4.17 and 4.18 |
 | `sim` | В23 | `752109310518` | architecture 3.9 |
-| `sim` | В24 | `1dfcfbb17ae4` | строки 4.17–4.19 [COORDINATION.md](../COORDINATION.md), пункт 4; R59 sim |
-| `skill-map` | В9 | `91b6009e2a9c` | закрытая строка 7.11 [COORDINATION.md](../COORDINATION.md) |
-| `skill-map` | В10 | `b5ce90fa7789` | поправка 2026-11-13 к R19; Д235 |
-| `tutor` | В79 | `0d6b22b7108f` | закрытая строка 7.12 [COORDINATION.md](../COORDINATION.md); [repo-template/files/CLAUDE.md](../repo-template/files/CLAUDE.md), Environment; поправка 2026-11-13 к R19 |
-| `tutor` | В80 | `8b4c92816494` | закрытая строка 7.12; [tools/translation/README.md](../tools/translation/README.md); measurements 1.11; поправка 2026-11-13 к R145 |
-| `tutor` | В81 | `43937f568736` | закрытая строка 5.9 и строка 6.13 [COORDINATION.md](../COORDINATION.md); Д222, Д223, Д225 |
-| `tutor` | В83 | `70a1d451d540` | поправка 2026-11-13 к R146 |
-| `tutor` | В84 | `5954d959dba4` | Д188 закрыт, Д214 сужен до T84 `api` (со строкой `api` В75); состояние `tutor` в [COORDINATION.md](../COORDINATION.md) |
+| `sim` | В24 | `1dfcfbb17ae4` | COORDINATION rows 4.17–4.19 (4.19 closed), item 4; R59 sim |
+| `skill-map` | В9 | `91b6009e2a9c` | COORDINATION row 7.11 (closed) |
+| `skill-map` | В10 | `b5ce90fa7789` | 2026-11-13 amendment to R19; Д235 |
+| `tutor` | В79 | `0d6b22b7108f` | COORDINATION row 7.12 (closed); [repo-template/files/CLAUDE.md](../repo-template/files/CLAUDE.md), Environment; 2026-11-13 amendment to R19 |
+| `tutor` | В80 | `8b4c92816494` | COORDINATION row 7.12 (closed); [tools/translation/README.md](../tools/translation/README.md); measurements 1.11; 2026-11-13 amendment to R145 |
+| `tutor` | В81 | `43937f568736` | COORDINATION rows 5.9 (closed) and 6.13 (closed); Д222, Д223, Д225 |
+| `tutor` | В83 | `70a1d451d540` | 2026-11-13 amendment to R146 |
+| `tutor` | В84 | `5954d959dba4` | Д188 closed, Д214 narrowed to T84 `api` (with `api` row В75); the state of `tutor` in COORDINATION, section «Состояние» (closed) |

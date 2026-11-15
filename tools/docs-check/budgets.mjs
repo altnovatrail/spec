@@ -28,8 +28,9 @@ import { isRule } from "./rules.mjs";
 
 const KB = 1024;
 // The files of the work plan's tables that one of its two layouts has and the other has not: DEBT.md
-// at the root before R153, run/ after it. Once every repository has moved, DEBT.md leaves (Д250).
-const PLAN_LAYOUTS = ["DEBT.md", "run/EPICS.md", "run/QUESTIONS.md", "run/DEBT.md"];
+// at the root before R153, run/ after it, and run/TASKS.md after R155. Once every repository has
+// moved, DEBT.md leaves (Д250).
+const PLAN_LAYOUTS = ["DEBT.md", "run/EPICS.md", "run/QUESTIONS.md", "run/DEBT.md", "run/TASKS.md"];
 const LIMITS = ["rule", "entry", "section"];
 const MAPS = ["files", "entries", "sections", "rows"];
 const bytes = (n) => n.toLocaleString("en-US");

@@ -1,13 +1,14 @@
-# QUESTIONS.md — вопросы автору без ответа `spec`
+# QUESTIONS.md — questions to the author of spec
 
-> Таблица 3 плана работ [RUN.md](../RUN.md) — вопросы автору из «Открыто» задач — в своём файле папки `run/`, на русском, как RUN.md (R153).
->
-> - **Файл не читается целиком.** Задача берёт из него строки, которые называют она сама и её разделы, — `grep -n '^| В35 ' run/QUESTIONS.md`.
-> - Вопрос встаёт сюда из «Открыто» задачи (правило 9 RUN.md). Ответ автора записывается туда, куда он относится, — в задачу, документ или [DEBT.md](DEBT.md), — и строка уходит. С архивом эпика запись начала таблицы уходит в него («Как устроен план: эпики» RUN.md).
+Table 3 of [RUN.md](../RUN.md): the author's open questions from tasks' «Открыто» (R153, R154).
 
-## Таблица 3. Вопросы автору без ответа
+- Never read whole: take the rows the task and its sections name — `grep -n '^| В35 ' run/QUESTIONS.md`.
+- A row comes from a task's «Открыто» (RUN.md rule 9). Record the author's answer where it belongs — the task, a document or [DEBT.md](DEBT.md) — and delete the row.
+- Rows «в реестр spec» of other repositories are triaged by RUN.md rule 13 into table 5, [INBOX.md](INBOX.md), not here.
 
-Закрытые вопросы — в архивах эпиков `docs/plan/`, раздел «Начала таблиц 3, 4 и 5 RUN.md». Строки «в реестр spec» других репозиториев — правило 13 и таблица 5. Номера не переиспользуются: следующий — В41.
+## Table 3. Questions to the author
 
-| ID | Вопрос | Откуда | Варианты | Рекомендация |
+Numbers are not reused: next — В41.
+
+| ID | Question | From | Options | Recommendation |
 |---|---|---|---|---|

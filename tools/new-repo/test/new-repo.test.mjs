@@ -105,6 +105,7 @@ const EXPECTED_FILES = [
   "run/DEBT.md",
   "run/EPICS.md",
   "run/QUESTIONS.md",
+  "run/TASKS.md",
 ];
 // The go kind's folder puts the lock file of gopls beside the Dockerfile (R102).
 const GOPLS_FILES = [".devcontainer/gopls/go.mod", ".devcontainer/gopls/go.sum"];
@@ -556,7 +557,7 @@ test("check: what a careless fill can leave", async () => {
   const cases = [
     ["README.md", "(docs/decisions.md)", "(docs/decision.md)", /^README\.md:\d+: link docs\/decision\.md: docs\/decision\.md does not exist$/],
     ["AGENTS.md", "Codex", "Kodex", /^AGENTS\.md:0: differs from spec's own$/],
-    ["RUN.md", "# RUN.md — план работ learner-model", "# RUN.md — план работ {{name}}", /^RUN\.md:1: \{\{name\}\} is left from the template$/],
+    ["RUN.md", "# RUN.md — work plan of learner-model", "# RUN.md — work plan of {{name}}", /^RUN\.md:1: \{\{name\}\} is left from the template$/],
     [".devcontainer/devcontainer.json", '"name": "novatrail-learner-model"', '"name": "novatrail-spec"', /^\.devcontainer\/devcontainer\.json:\d+: spec's container name or network is left/],
     [".devcontainer/devcontainer.json", '"--network-alias=learner-model"', '"--network-alias=spec"', /^\.devcontainer\/devcontainer\.json:\d+: spec's name in the network is left/],
     [".devcontainer/devcontainer.json", '"--network-alias=learner-model"', '"--network-alias=api"', /^\.devcontainer\/devcontainer\.json:0: the container has no name in its network, "--network-alias=learner-model"/],

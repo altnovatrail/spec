@@ -10,6 +10,12 @@ import GithubSlugger from "github-slugger";
 // such as "standalone: `tools/learners`, R163" has to keep its shape.
 export const CODE = "\uE000";
 
+// Whether a heading opens a table of the work plan: "Table 3. …", or "Таблица 3. …" in a plan not yet
+// in English (R154); `heading` is the English prefix, "Table 3.".
+export function isTableHeading(text, heading) {
+  return text.startsWith(heading) || text.startsWith(heading.replace(/^Table /u, "Таблица "));
+}
+
 export function parseMarkdown(source) {
   const tree = fromMarkdown(source, {
     extensions: [gfm()],

@@ -1,11 +1,11 @@
-# Долг
+# Debt
 
-Синтетический технический долг.
+A synthetic technical debt.
 
-## Таблица 4. Технический долг
+## Table 4. Technical debt
 
-Номера не переиспользуются: следующий — Д2.
+Numbers are not reused: next — Д2.
 
-| ID | Долг |
+| ID | Debt |
 |---|---|
-| Д1 | Первый долг |
+| Д1 | The first debt |

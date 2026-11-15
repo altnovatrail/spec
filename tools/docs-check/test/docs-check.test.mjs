@@ -223,7 +223,10 @@ test("no next free number", async () => {
 test("the next free number in English", async () => {
   assert.deepEqual(await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Next number — R04."]]), []);
   assert.deepEqual(await errorsOf([["docs/repositories.md", "следующий номер — Т-3", "the next free number — Т-3"]]), []);
-  assert.deepEqual(await errorsOf([["run/QUESTIONS.md", "следующий — В4.", "next — В4."]]), []);
+  // spec's tables are in English (R154), and a Russian opening still reads until every plan is.
+  assert.deepEqual(await errorsOf([["run/QUESTIONS.md", "next — В4.", "следующий — В4."]]), []);
+  // The English opening is read: a next free number below a row is named.
+  await expectOnly([["run/QUESTIONS.md", "next — В4.", "next — В2."]], /^run\/QUESTIONS\.md:\d+: the next free number is В2, but В3 is in the table/);
   await expectOnly([["docs/decisions.md", " Следующий номер — R04.", " Next number — R05."]], /the next free number is R05, but the last is R03: it should be R04$/);
   const errors = await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Nextnumber — R04."]]);
   assert.ok(errors.some((e) => e.includes('does not name the next free number ("Next number — R04")')), errors.join("\n"));
@@ -367,19 +370,19 @@ test("the script runs through a symlink", () => {
 // and T165; R153).
 
 test("a В defined twice", async () => {
-  await expectOnly([["run/QUESTIONS.md", "| В3 | Третий вопрос |", "| В3 | Третий вопрос |\n| В3 | Повтор |"]], /^run\/QUESTIONS\.md:\d+: В3 is defined twice$/);
+  await expectOnly([["run/QUESTIONS.md", "| В3 | The third question |", "| В3 | The third question |\n| В3 | A repeat |"]], /^run\/QUESTIONS\.md:\d+: В3 is defined twice$/);
 });
 
 test("a next free В that is not above the table", async () => {
-  await expectOnly([["run/QUESTIONS.md", "следующий — В4.", "следующий — В3."]], /^run\/QUESTIONS\.md:7: the next free number is В3, but В3 is in the table: it should be above every number in it$/);
+  await expectOnly([["run/QUESTIONS.md", "next — В4.", "next — В3."]], /^run\/QUESTIONS\.md:7: the next free number is В3, but В3 is in the table: it should be above every number in it$/);
 });
 
 test("a table of debt that names no next free number", async () => {
-  await expectOnly([["run/DEBT.md", "Номера не переиспользуются: следующий — Д2.", "Номера не переиспользуются."]], /^run\/DEBT\.md:\d+: register Д: its opening does not name the next free number/);
+  await expectOnly([["run/DEBT.md", "Numbers are not reused: next — Д2.", "Numbers are not reused."]], /^run\/DEBT\.md:\d+: register Д: its opening does not name the next free number/);
 });
 
 test("a next free Д that is not above the table of debt", async () => {
-  await expectOnly([["run/DEBT.md", "следующий — Д2.", "следующий — Д1."]], /^run\/DEBT\.md:\d+: the next free number is Д1, but Д1 is in the table/);
+  await expectOnly([["run/DEBT.md", "next — Д2.", "next — Д1."]], /^run\/DEBT\.md:\d+: the next free number is Д1, but Д1 is in the table/);
 });
 
 const debtTable = "# Долг\n\n## Таблица 4. Технический долг\n\nНомера не переиспользуются: следующий — Д2.\n\n| ID | Долг |\n|---|---|\n| Д1 | Первый долг |\n";
@@ -577,8 +580,16 @@ test("«раздел N spec» with no document of spec's to tell", async () => {
   await componentOnly([["RUN.md", "раздел 2.1", "раздел 2.1 spec"]], /a section of spec's document; cite it by name/);
 });
 
+test("a table is read under its English heading or its Russian one (R154)", async () => {
+  const english = "\n## Table 4. Technical debt\n\n| ID | Debt |\n|---|---|\n| Д2 | A copy |\n";
+  await expectOnly([["RUN.md", "(run/DEBT.md).\n", `(run/DEBT.md).\n${english}`]], /^RUN\.md:\d+: register Д: its table is in run\/DEBT\.md, and this one under «Table 4\. …» is a second copy$/);
+  assert.deepEqual(await errorsOf([["run/DEBT.md", "## Table 4. Technical debt", "## Таблица 4. Технический долг"]]), []);
+  assert.deepEqual(await componentErrors([["run/QUESTIONS.md", "## Таблица 3. Вопросы автору без ответа", "## Table 3. Questions to the author"]]), []);
+  await expectOnly([["run/DEBT.md", "## Table 4. Technical debt", "## Table 5. Technical debt"]], /^run\/DEBT\.md:0: register Д: no heading «Table 4\. …» to hold it$/);
+});
+
 test("a table whose heading is gone is named", async () => {
-  await componentOnly([["run/QUESTIONS.md", "## Таблица 3. Вопросы автору без ответа", "## Вопросы"]], /^run\/QUESTIONS\.md:0: register В: no heading «Таблица 3\. …» to hold it$/);
+  await componentOnly([["run/QUESTIONS.md", "## Таблица 3. Вопросы автору без ответа", "## Вопросы"]], /^run\/QUESTIONS\.md:0: register В: no heading «Table 3\. …» to hold it$/);
 });
 
 // Cases from the second round of the code review of T18.
@@ -896,7 +907,7 @@ test("a rule over its budget, front matter and all", async () => {
 });
 
 test("a row of a table over its budget", async () => {
-  await expectOnly([["run/DEBT.md", "| Д1 | Первый долг |", `| Д1 | Первый долг ${"z".repeat(1100)} |`]], /^run\/DEBT\.md:\d+: a row «Д1» — 1,\d{3} bytes, over its budget of 1 KB/);
+  await expectOnly([["run/DEBT.md", "| Д1 | The first debt |", `| Д1 | The first debt ${"z".repeat(1100)} |`]], /^run\/DEBT\.md:\d+: a row «Д1» — 1,\d{3} bytes, over its budget of 1 KB/);
 });
 
 test("budgets that are wrong are errors, not a check turned off", async () => {

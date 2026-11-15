@@ -5,7 +5,7 @@
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { parseMarkdown } from "../docs-check/markdown.mjs";
+import { isTableHeading, parseMarkdown } from "../docs-check/markdown.mjs";
 import { ORGANIZATION } from "../release/repositories.mjs";
 import { byCodeUnits, GH } from "../shared.mjs";
 
@@ -19,9 +19,10 @@ const ROW = /^В(\d+)$/u;
 // "В7", "В7–В10", "В7–10", with an en dash or a hyphen.
 const NUMBERS = /^В(\d+)(?:\s*[–-]\s*В?(\d+))?$/u;
 
-// The table under the heading whose text begins `prefix`, as parseMarkdown gives it, or none.
+// The table under the heading "Table N." — or "Таблица N." in a plan not yet in English (R154) —,
+// as parseMarkdown gives it, or none.
 function tablesUnder(doc, prefix) {
-  const index = doc.headings.findIndex((h) => h.text.startsWith(prefix));
+  const index = doc.headings.findIndex((h) => isTableHeading(h.text, prefix));
   return index < 0 ? [] : doc.tables.filter((table) => table.heading === index);
 }
 
@@ -37,7 +38,7 @@ export const RUN = "RUN.md";
 // reads as В реестр spec.
 export function rowsForSpec(source, file) {
   const rows = [];
-  for (const table of tablesUnder(parseMarkdown(source), "Таблица 3.")) {
+  for (const table of tablesUnder(parseMarkdown(source), "Table 3.")) {
     for (const row of table.rows) {
       const number = ROW.exec(row.cells[0] ?? "")?.[1];
       const text = fold(row.cells[1] ?? "");
@@ -85,7 +86,7 @@ export function ledgerOf(source, file = LEDGER) {
   const ledger = new Map();
   const entries = [];
   const problems = [];
-  for (const table of tablesUnder(parseMarkdown(source), "Таблица 5.")) {
+  for (const table of tablesUnder(parseMarkdown(source), "Table 5.")) {
     for (const row of table.rows) {
       const [name = "", list = "", print = ""] = row.cells;
       const numbers = parseNumbers(list);

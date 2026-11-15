@@ -1,12 +1,12 @@
-# Вопросы
+# Questions
 
-Синтетическая таблица вопросов.
+A synthetic table of questions.
 
-## Таблица 3. Вопросы автору без ответа
+## Table 3. Questions to the author
 
-В1 закрыт. Номера не переиспользуются: следующий — В4.
+В1 is closed. Numbers are not reused: next — В4.
 
-| ID | Вопрос |
+| ID | Question |
 |---|---|
-| В2 | Второй вопрос |
-| В3 | Третий вопрос |
+| В2 | The second question |
+| В3 | The third question |

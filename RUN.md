@@ -1,74 +1,51 @@
-# RUN.md — план работ spec
+# RUN.md — work plan of spec
 
-> Что строим — [docs/product.md](docs/product.md); из каких частей — [docs/architecture.md](docs/architecture.md); какие репозитории и в каком порядке — [docs/repositories.md](docs/repositories.md); данные учеников и законы — [docs/privacy.md](docs/privacy.md); почему именно так — [docs/decisions.md](docs/decisions.md).
->
-> Маленькие задачи, по одной: после каждой я проверяю результат и только потом запускаю следующую. Задачи собраны в эпики; подробно расписан только текущий (R19). Этот план — о `spec` и об общем для организации `altnovatrail`; порядок задач других репозиториев ведёт [COORDINATION.md](COORDINATION.md) (R76).
->
-> Здесь — только то, что нужно задачам: правила, текущий эпик и задачи вне эпика. Прочие таблицы плана — в папке `run/`, каждая в своём файле, с её правилами в начале (R153):
-> - таблица 2, эпики на потом, — [run/EPICS.md](run/EPICS.md);
-> - таблица 3, вопросы автору без ответа, — [run/QUESTIONS.md](run/QUESTIONS.md);
-> - таблица 4, технический долг, — [run/DEBT.md](run/DEBT.md);
-> - таблица 5, строки других репозиториев, записанные в `spec`, — [run/INBOX.md](run/INBOX.md).
+Plan of `spec` and of organization-wide work; the order of the other repositories' tasks is [COORDINATION.md](COORDINATION.md) (R76). Context: [product](docs/product.md), [architecture](docs/architecture.md), [repositories](docs/repositories.md), [privacy](docs/privacy.md), [decisions](docs/decisions.md). Other tables, each a file opening with its rules (R153): 2, epics for later — [run/EPICS.md](run/EPICS.md); 3, questions to the author — [run/QUESTIONS.md](run/QUESTIONS.md); 4, debt — [run/DEBT.md](run/DEBT.md); 5, rows of other repositories recorded — [run/INBOX.md](run/INBOX.md). Open tasks outside an epic — [run/TASKS.md](run/TASKS.md) (R155).
 
-## Как пользоваться
+Language (R154): rules and tables in English, terse, for the session; the bodies of tasks in table 1 and in `run/TASKS.md` in Russian — the author writes and reviews them.
 
-Задача запускается фразой «Выполни задачу T01 из RUN.md» в новой сессии Claude Code внутри devcontainer. Одна задача — одна сессия (RULES.md, «How we work»; R143): следующая — в новой сессии или после `/clear`, а фразу другой задачи в той же сессии останавливает хук [tools/session/](tools/session/main.mjs).
+## Rules
 
-**Правила для исполнителя (Claude):**
+A task starts with «Выполни задачу T01 из RUN.md» in a new session in the devcontainer. One task — one session (R143): the hook [tools/session/](tools/session/main.mjs) stops another task's phrase in the same session.
 
-1. Делать только указанную задачу; файлы других задач не трогать, кроме того, что она прямо требует.
-2. **Сначала прочитать** [CLAUDE.md](CLAUDE.md), саму задачу, разделы документов, на которые она ссылается, и `docs/decisions.md`.
-   - Задача противоречит документам или чего-то не хватает — остановиться и спросить, а не додумывать.
-   - Дыра — открытый вопрос; номер — следующий свободный по началу реестра: О- в product 13, П- в privacy 9, Т- в repositories 8.
-   - Долг и вопросы задачи — в [run/DEBT.md](run/DEBT.md) и [run/QUESTIONS.md](run/QUESTIONS.md), не целиком: строки, которые называют задача и её разделы, и те, что `grep -n` находит по путям и частям её правки (R143).
-3. **Только внутри devcontainer** — RULES.md, «Hard rules», с его исключением для облачной сессии: на хосте остановиться до первой правки.
-4. **Действия вне этого репозитория — после предупреждения и моего подтверждения:** создание и настройка репозиториев, push в них, настройки организации и всё, что стоит денег. Предупреждение называет, что, где и сколько это стоит.
-   - **Исключение — проверки задачи по R146**, без меня: браузер — Playwright в devcontainer со входом по custom token на dev-проекте, ИИ — заглушка `tutor` в режиме разработки `api`. Настоящий вызов ИИ — только где задача проверяет слова модели, на dev-ключе с моим лимитом трат и в пределах потолка из задачи, а без потолка — с подтверждением; «Сделано» называет поставщика, число вызовов и сумму. На устройствах — ничего: видимое только там остаётся долгом репозитория этих экранов.
-5. Факты о поставщиках ИИ, законах, ценах и чужих платформах — из первоисточника, записью `docs/sources.md` (RULES.md, «How we work»).
-6. **Задача заканчивается зелёными проверками** частей, которые она правит, — их правило `.claude/rules/<часть>.md` (CLAUDE.md, Environment), а документы — всегда `just docs-check`. Затем — `/code-review high`, один круг: исправив находки, ревью не повторяют. Небольшую правку исполнитель может сдать без ревью, даже если «Как проверить» его называет.
-7. Не коммитить: коммит делаю я после проверки — и в репозиториях, которые заводит эпик, если задача прямо не говорит иначе.
-8. В конце — короткий отчёт по-русски: что сделано, какие файлы и репозитории, как проверить (команды), что нашло ревью или почему его не было, что осталось открытым.
-9. **После выполнения** — отметить задачу в таблице 1 (`[ ]` → `[x]`) и дописать в её тело «Сделано (дата)» — что сделано и чем проверено — и «Открыто». Вопрос ко мне из «Открыто» — ещё и строкой [run/QUESTIONS.md](run/QUESTIONS.md), отложенное — строкой [run/DEBT.md](run/DEBT.md).
-   - Затем тело уходит дословно, с поправленными относительными ссылками, в архив эпика `docs/plan/<эпик>.md`, а с ним — фраза итога: пункт без заголовка в начале раздела, куда легло тело, «T129 — сделана 2026-11-11: <итог одной фразой>». Здесь не остаётся ни тела, ни фразы (R153).
-   - Задача вне эпика уходит в архив текущего эпика, раздел «Задачи вне эпика, сделанные за его время», а без текущего — в архив последнего сделанного, раздел «Задачи вне эпика, сделанные после него» (поправки 2026-11-12 и 2026-11-13 к R19).
-10. Язык — RULES.md, «Hard rules»: этот план, папка `run/`, `COORDINATION.md`, `docs/plan/` и отчёты — на русском; перевод документа — по [tools/translation/README.md](tools/translation/README.md).
-11. Задача больше одной проверки (≈ 30–60 минут чтения) — до начала предложить, как её разбить.
-12. **Перед новой задачей — закрыть находки по прошлой** (разрешённое отступление от правила 1): SonarCloud — [New Code](https://sonarcloud.io/summary/new_code?id=altnovatrail_spec), после мержа; CodeQL и Scorecard — `gh api 'repos/altnovatrail/spec/code-scanning/alerts?state=open'`. Сначала чинить кодом; «ложное» — крайняя мера, с причиной словами; что не закрыть — открытым, с причиной в журнале (общие — R33). Молча не пропускать. Эти правки — отдельным абзацем отчёта: я коммичу их отдельно.
-13. **Входящие — по моему слову или когда сделаны все задачи текущего эпика** (R81, вторая поправка 2026-11-12): по фразе «Разбери входящие» или когда отмечена последняя задача эпика, а не перед каждой задачей; это разрешённое отступление от правила 1. Как идёт разбор — начало [run/INBOX.md](run/INBOX.md).
+1. Do only the named task; touch other tasks' files only where it requires.
+2. Read first: [CLAUDE.md](CLAUDE.md), the task — in table 1, or only its own body of `run/TASKS.md` (its opening says how) —, the sections it cites, `docs/decisions.md`.
+   - Conflict with the documents or something missing — stop and ask; never guess.
+   - A gap is an open question, the next free number by the register's opening: О- product 13, П- privacy 9, Т- repositories 8.
+   - From `run/DEBT.md` and `run/QUESTIONS.md` take only the rows the task and its sections name and those `grep -n` finds by the paths and parts it changes (R143).
+3. Devcontainer only (RULES.md, Hard rules, with its cloud-session exception): on the host stop before the first edit.
+4. Outside this repository — creating or configuring repositories, pushing to them, organization settings, anything that costs money — only after a warning (what, where, cost) and the author's confirmation.
+   - Exception, no confirmation: the task's checks by R146 — browser: Playwright in the devcontainer, custom-token sign-in on the dev project; AI: the `tutor` stub in `api` dev mode. A real AI call only where the task checks the model's words: dev key under the author's spend limit, within the task's ceiling, or with confirmation where it has none; «Сделано» names the provider, the calls and the cost. Nothing on devices: what only a device shows stays debt of the repository of those screens.
+5. Facts on AI providers, laws, prices and other platforms — from the primary source, as a record of `docs/sources.md` (RULES.md, How we work).
+6. End with green checks of the parts changed — their rule `.claude/rules/<part>.md` (CLAUDE.md, Environment) — and always `just docs-check`. Then `/code-review high`, one round: fix the findings, do not rerun. A small change may skip the review even if «Как проверить» names it.
+7. Do not commit — here or in repositories an epic creates — unless the task says so: the author commits after review.
+8. End with a short report in Russian: what was done, files and repositories, how to check (commands), what the review found or why there was none, what is open.
+9. When done: table 1 `[ ]` → `[x]`; append to the body «Сделано (дата)» — what was done, how checked — and «Открыто». A question for the author from «Открыто» is also a row of `run/QUESTIONS.md`; what is put off, a row of `run/DEBT.md`.
+   - Then move the body verbatim, relative links fixed, to the epic archive `docs/plan/<epic>.md`, with a gist sentence — an unheaded list item at the start of the receiving section: «T129 — сделана 2026-11-11: <итог одной фразой>». Neither stays here (R153).
+   - A task outside an epic leaves `run/TASKS.md` for the current epic's archive, section «Задачи вне эпика, сделанные за его время»; with no current epic, to the last done epic's archive, section «Задачи вне эпика, сделанные после него» (R19, amendments 2026-11-12 and 2026-11-13).
+10. Language — RULES.md, Hard rules (R154); translating a document — [tools/translation/README.md](tools/translation/README.md).
+11. A task larger than one review (≈ 30–60 minutes of reading): propose a split before starting.
+12. Before a new task, close the findings on the previous one (allowed departure from rule 1): SonarCloud — [New Code](https://sonarcloud.io/summary/new_code?id=altnovatrail_spec), after the merge; CodeQL and Scorecard — `gh api 'repos/altnovatrail/spec/code-scanning/alerts?state=open'`. Fix in code first; "false positive" is the last resort, with the reason in words; what stays open gets its reason in the log (shared ones — R33). Never skip silently. Report these fixes in a separate paragraph: the author commits them separately.
+13. Inbox — on the author's word («Разбери входящие») or once the last task of the current epic is checked, not before each task (R81, second amendment 2026-11-12); an allowed departure from rule 1. Procedure — [run/INBOX.md](run/INBOX.md).
 
-**Статусы:** `[ ]` — не начата; `[x]` — выполнена, отмечает исполнитель; `[-]` — не делаем: решение автора, причина — в задаче; `[?]` — отложена: решение автора, в задаче — причина и когда вернуться. Если при проверке что-то не так, возвращаю задачу в `[ ]` и пишу, что поправить.
+**Statuses:** `[ ]` not started; `[x]` done, the executor marks it; `[-]` not done — the author's decision, reason in the task; `[?]` deferred — the author's decision, reason and when to return in the task. A task that fails the author's review returns to `[ ]` with what to fix.
 
-**Кто:** «Claude» — делает исполнитель, я проверяю; «Claude, проверяю я» — тексты, которые я вычитываю построчно; «я + Claude» — часть шагов делаю я: решения, вход в сервисы, настройки GitHub, подтверждения по правилу 4.
+**Who:** «Claude» — the executor does it, the author reviews; «Claude, проверяю я» — texts the author reads line by line; «я + Claude» — the author does some steps: decisions, sign-ins, GitHub settings, confirmations by rule 4.
 
-**План:** «да» — сначала прогнать в режиме планирования: нужны решения, которых нет в документах, или задача заведомо больше одной проверки (правило 11); «—» — запускать сразу.
+**Plan:** «да» — plan mode first: decisions missing from the documents, or larger than one review (rule 11); «—» — run at once.
 
-**Тело задачи** — «Цель», «Сделать», «Как проверить» и «Разделы», а где нужно — «Не делать», «Решить при планировании», «Мой шаг», «Стоимость» и «Риски»; при планировании — ещё «Почему», «Решено автором (дата)» и «Выяснилось при планировании»; после выполнения — «Сделано (дата)» и «Открыто» (правило 9).
+**Task body** (Russian): «Цель», «Сделать», «Как проверить», «Разделы»; as needed «Не делать», «Решить при планировании», «Мой шаг», «Стоимость», «Риски»; from planning «Почему», «Решено автором (дата)», «Выяснилось при планировании»; when done «Сделано (дата)», «Открыто» (rule 9).
 
-**Ссылки** — по RULES.md, «Citations». Ссылка на задачу — её номер: «T03», «RUN.md, T03»; задачу, которой здесь нет, ищут в архиве по заголовку: `grep -n '^#### T03\.' RUN.md docs/plan/*.md`. Номера задач сквозные и не переиспользуются: новая получает номер, свободный в момент записи, — параллельная сессия может занять следующий.
+**Citations** — RULES.md, Citations. A task is cited by number: «T03», «RUN.md, T03»; one not here is in `run/TASKS.md` or an archive: `grep -n '^#### T03\.' RUN.md run/TASKS.md docs/plan/*.md`. Task numbers are global and never reused: take the one free when writing it down.
 
-## Как устроен план: эпики
+## Epics
 
-- **Таблица 1 — текущий эпик:** его задачи расписаны подробно и идут по одной, по правилам выше.
-- **Следующий эпик.** Когда в таблице 1 отмечены все задачи, исполнитель разбирает входящие (правило 13), а я выбираю следующий эпик из [run/EPICS.md](run/EPICS.md) и с Claude в режиме планирования дроблю его на задачи — каждая на одну проверку; они встают в таблицу 1 и в тело этого файла.
-- **Сделанный эпик уходит в архив** `docs/plan/<эпик>.md`, как в canvas-api (R59 canvas-api): тела и фразы итога задач уже там (правило 9); дословно переезжают описание и таблица задач, а с ними — записи начал таблиц 3, 4 и 5 из `run/`, раздел «Начала таблиц 3, 4 и 5 RUN.md»; вопросы и долги остаются в `run/`, пока их не закроют; здесь — строка в «Сделанных эпиках»; замер — `just tokens-report --since <первый день эпика> --row` — строкой в measurements 1.9 (R145). Архив целиком не читается: из него берут задачу, на которую есть ссылка.
-- **DPIA** — [docs/dpia.md](docs/dpia.md) — пересматривает задача, которая меняет то, на чём она стоит: вид данных или срок хранения, поставщика или обработчика, возможность или путь ИИ, открытие возраста, страны или функции детям. Её «Сделано» называет пересмотр, а журнал в начале DPIA — версию. Кроме того — перед бетой, перед публичным запуском и не реже раза в год (R129).
-- **Экономия токенов держится** (R145): пределы `docs-check` — [tools/docs-check/budgets.json](tools/docs-check/budgets.json), подъём предела виден в ревью; замер — при архиве эпика и раз в месяц, о сроке напоминает `just inbox` (правило 13); задача анализа встаёт в «Задачи вне эпика» по порогу R145, и её планирование решает, нужен ли эпик; опорные линии, даты и прошлый анализ — measurements 1.9.
+- **Table 1** is the current epic: its tasks in detail, run one at a time.
+- **Next epic.** Once table 1 is all checked: the inbox (rule 13); the author picks the next epic from `run/EPICS.md` and splits it with Claude in plan mode into tasks of one review each, into table 1 and this file.
+- **A done epic** goes to `docs/plan/<epic>.md` (R59 canvas-api): bodies and gist sentences are there already (rule 9); move its description and table of tasks verbatim; questions and debt stay in `run/`; measure — `just tokens-report --since <first day of the epic> --row` — as a row of measurements 1.9 (R145); table 1 names it as the last done epic. Never read an archive whole: take the task cited.
+- **DPIA** ([docs/dpia.md](docs/dpia.md), R129): a task that changes what it rests on — a kind of data or retention, a provider or processor, an AI capability or route, opening an age, a country or a feature to children — reviews it; its «Сделано» names the review, the DPIA's log the version. Also before the beta, before the public launch and at least yearly.
+- **Token savings** (R145): the limits of `docs-check` — [tools/docs-check/budgets.json](tools/docs-check/budgets.json), a raise shows in review; measure at an epic's archive and monthly (`just inbox` reminds, rule 13); a task of analysis goes to `run/TASKS.md` by the threshold of R145, and its planning decides whether it needs an epic; baselines, dates, last analysis — measurements 1.9.
 
-**Сделанные эпики** — архивы `docs/plan/<эпик>.md`: E1–E4, E6, E7, E9, E10 и последний — [E12](docs/plan/E12.md), интерфейс приложения по макету, 2026-11-14; E0, основание, задач не имел.
+## Table 1. Current epic — none
 
-## Таблица 1. Текущий эпик — нет
-
-E12 сделан 2026-11-14 и перенесён в архив 2026-11-15. Следующий эпик я выбираю из [run/EPICS.md](run/EPICS.md) и дроблю на задачи с Claude в режиме планирования («Как устроен план: эпики»); до того задачи идут вне эпика, а сделанные уходят в архив E12 (правило 9).
-
-## Задачи вне эпика
-
-Задача, которая не входит в текущий эпик, стоит здесь телом, пока её не сделали; сделанная уходит в архив (правило 9).
-
-#### T117. Набор `child-sample` — в силу
-
-- **Цель:** набор `child-sample` — `child-sample-notice` и `child-sample-form` — в силе, и страница образцов `canvas` открывает сеансы детей, когда у оператора есть закрытый бакет для их образцов (R125; Д156).
-- **Сделать:** вычитать тексты против R124–R126, R133 и R137–R141 — как T111 наборы для взрослых: «Who we are» и «Why we may» — ст. 6(1)(a) и 8, проверка, как у профиля ребёнка, — путь отзыва, почта на Gmail и запрос без данных ребёнка; снять пометки *Draft*; перевести тексты и набор в `in_force` с датой; DPIA — пересмотр по R129.
-- **Когда:** после того как `infra` создаст бакет (Д156): до того тексты в силе описывали бы хранилище, которого нет (R141).
-- **Мой шаг:** вычитать и утвердить.
-- **Как проверить:** `just legal-check`; `just docs-check`; `/code-review high`.
-- **Разделы:** privacy 4, 7; R124–R126, R133, R139, R141; Д156; T99, T111, T112.
+Last done epic — E12, [docs/plan/E12.md](docs/plan/E12.md).

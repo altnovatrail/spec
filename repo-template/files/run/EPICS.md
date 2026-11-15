@@ -1,13 +1,13 @@
-# EPICS.md — эпики на потом `{{name}}`
+# EPICS.md — epics for later of `{{name}}`
 
-> Таблица 2 плана работ [RUN.md](../RUN.md) — эпики на потом — в своём файле папки `run/`, на русском, как RUN.md (R153 spec).
->
-> - У каждого эпика — результат и основа, но ещё не задачи. Порядок строк — порядок, в котором эпики берутся, пока автор не решит иначе.
-> - **Файл читает выбор и планирование следующего эпика**, а не каждая задача. Когда эпик разбит на задачи, они встают в таблицу 1 и в тело RUN.md, а его строка уходит отсюда («Как устроен план: эпики» RUN.md).
+Table 2 of [RUN.md](../RUN.md) (R153 spec, R154 spec).
 
-## Таблица 2. Эпики на потом
+- A row has a result and a basis, no tasks yet. Row order is the order epics are taken, until the author decides otherwise.
+- Read by the choice and planning of the next epic, not by each task. Once an epic is split into tasks, they go to table 1 and the body of RUN.md, and its row leaves (RUN.md, Epics).
 
-Пока пусто: следующий эпик предлагает последняя задача E1, когда ясно, что строить.
+## Table 2. Epics for later
 
-| ID | Эпик | Результат | Основа |
+Empty: the last task of E1 proposes the next epic once it is clear what to build.
+
+| ID | Epic | Result | Basis |
 |---|---|---|---|

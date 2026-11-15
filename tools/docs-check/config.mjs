@@ -75,13 +75,15 @@ export const registers = [
 // in RUN.md, table 4 in DEBT.md at the root (R19, the 2026-11-11 amendment) and before that in
 // RUN.md. A repository that has not moved its tables yet is read from there (`fallback`), until it
 // takes the layout with a tag of spec, by its row Д250 spec; in spec a table left there is a copy.
+// A heading is read in English, "Table 3.", or in Russian, "Таблица 3.", until the plan is
+// translated (R154).
 function workRegisters(fallback = false) {
   const table = (prefix, file, heading, elsewhere) => ({ prefix, file, heading, definedBy: "table", width: 1, ordered: false, gaps: true, empty: true, elsewhere, fallback });
   return [
-    table("В", "run/QUESTIONS.md", "Таблица 3.", [{ file: "RUN.md", heading: "Таблица 3." }]),
-    table("Д", "run/DEBT.md", "Таблица 4.", [
-      { file: "DEBT.md", heading: "Таблица 4." },
-      { file: "RUN.md", heading: "Таблица 4." },
+    table("В", "run/QUESTIONS.md", "Table 3.", [{ file: "RUN.md", heading: "Table 3." }]),
+    table("Д", "run/DEBT.md", "Table 4.", [
+      { file: "DEBT.md", heading: "Table 4." },
+      { file: "RUN.md", heading: "Table 4." },
     ]),
   ];
 }

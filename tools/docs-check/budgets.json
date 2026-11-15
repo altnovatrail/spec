@@ -6,9 +6,10 @@
       "RUN.md": 96,
       "run/EPICS.md": 16,
       "run/QUESTIONS.md": 24,
-      "run/DEBT.md": 132,
-      "run/INBOX.md": 24,
-      "COORDINATION.md": 72
+      "run/DEBT.md": 48,
+      "run/INBOX.md": 12,
+      "run/TASKS.md": 48,
+      "COORDINATION.md": 24
     },
     "rule": 6,
     "entry": 40,
@@ -34,7 +35,8 @@
       "DEBT.md": 128,
       "run/EPICS.md": 16,
       "run/QUESTIONS.md": 24,
-      "run/DEBT.md": 128
+      "run/DEBT.md": 128,
+      "run/TASKS.md": 48
     },
     "rule": 6,
     "entry": 40,

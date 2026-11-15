@@ -1,13 +1,13 @@
-# DEBT.md — технический долг `{{name}}`
+# DEBT.md — technical debt of `{{name}}`
 
-> Таблица 4 плана работ [RUN.md](../RUN.md) — что отложено сознательно, чем это грозит и когда вернуться — в своём файле папки `run/`, на русском, как RUN.md (R153 spec; R143 spec).
->
-> - **Файл не читается целиком.** Задача берёт из него строки, которые называют она сама и её разделы, — `grep -n '^| Д1 ' run/DEBT.md`, — и строки, которые `grep -n` находит по путям и частям её правки (правило 2 RUN.md).
-> - Долг встаёт сюда из «Открыто» задачи (правило 9 RUN.md). Строка уходит, когда долг закрыт.
+Table 4 of [RUN.md](../RUN.md): what was put off on purpose, its risk, when to return (R153 spec, R154 spec).
 
-## Таблица 4. Технический долг
+- Never read whole: take the rows the task and its sections name — `grep -n '^| Д1 ' run/DEBT.md` — and those `grep -n` finds by the paths and parts it changes (RUN.md rule 2).
+- A row comes from a task's «Открыто» (RUN.md rule 9) and holds only what is open: drop a closed part, delete the row once closed.
 
-Номера не переиспользуются: следующий — Д1.
+## Table 4. Technical debt
 
-| ID | Долг | Откуда | Чем грозит, пока не закрыт | Когда вернуться |
+Numbers are not reused: next — Д1.
+
+| ID | Debt | From | Risk while open | When to return |
 |---|---|---|---|---|

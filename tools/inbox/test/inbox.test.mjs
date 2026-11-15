@@ -132,6 +132,15 @@ test("a RUN.md with no table 3, or a row with no number, holds nothing for spec"
   assert.deepEqual(rowsOfRun(run("| — | «В реестр spec» без номера | T01 | — | — |")), []);
 });
 
+test("table 3 and table 5 are read under their English headings too (R154)", () => {
+  const english = questions(row(2, "a row of a plan in English")).replace("## Таблица 3. Вопросы автору без ответа", "## Table 3. Questions to the author");
+  assert.deepEqual(rowsForSpec(english, "run/QUESTIONS.md").map((r) => r.number), [2]);
+  const ledger = spec("| `api` | В1 | — | R80 |").replace("## Таблица 5. Строки других репозиториев, записанные в `spec`", "## Table 5. Rows of other repositories recorded in spec");
+  assert.deepEqual([...ledgerOf(ledger).ledger.get("api")], [1]);
+  // Another table's heading in English holds nothing for spec.
+  assert.deepEqual(rowsForSpec(english.replace("## Table 3.", "## Table 4."), "run/QUESTIONS.md"), []);
+});
+
 test("numbers, ranges and lists of rows В", () => {
   assert.deepEqual(parseNumbers("В7"), [7]);
   assert.deepEqual(parseNumbers("В7–В10"), [7, 8, 9, 10]);

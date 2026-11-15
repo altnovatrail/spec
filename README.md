@@ -61,7 +61,7 @@ gh release verify-asset v0.5.6 format-0.1.tar.gz -R altnovatrail/spec
 
 ## Documents
 
-The documents are in English, but for the work plan, its technical debt, the cross-repository plan and the archives of its epics, which are in Russian (R143); the module format is in English and normative.
+The documents and the work plan are in English, but for the bodies of the plan's tasks, the order of the cross-repository plan and the archives of its epics, which are in Russian (R143, R154); the module format is in English and normative.
 
 - [docs/product.md](docs/product.md) — what we build and why: who it is for, the principles, the first slice, the roadmap and the open product questions.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary: module, skill, lesson, task, canvas, check, tutor, learner model and engine, with a glossary that names each term as code and schemas will.
@@ -78,8 +78,8 @@ The documents are in English, but for the work plan, its technical debt, the cro
 - [export/](export/README.md) — the format of the export of a learner's profile or of a whole account: a ZIP of files of JSON, with the part of the API byte for byte, what the device holds, and the evidence log and the model's state as the JSON of their protobuf messages beside their `.proto` files. The app builds it, and anyone reads it with no library. Its text, its schemas, examples and test vectors, and `just export-check` checks them (R135).
 - [format/](format/README.md) — the module format: what a module may and must contain and how the platform checks it. Its text, the schemas of the manifest, the skill graph, the trap and technique catalogs, the solving steps, the task, with the checks of the task's answer slots, its hints and its templates, and the lesson, the generator of randomness, the shared taxonomy of skills, the layout of a module, the package of a module — its canonical view and its inventory — and the module index, which names every published version of every module, are written, with their examples, the test vectors of the YAML rules, of a whole module, of the manifest, of the skill graph, of the trap catalog, of the task and of the lesson, and the test vectors of the open view, of verdicts, of the leak check, of the generator, of templates, of tiers, of packages and of the module index, and `just format-check` checks them; the other parts of a module come as they are written.
 - [RUN.md](RUN.md) — the work plan, in epics: the current epic broken into small tasks, run and reviewed one at a time.
-- `run/` — the plan's other tables, in Russian: [the epics that come later](run/EPICS.md), [the open questions to the author](run/QUESTIONS.md), [the technical debt](run/DEBT.md) — what was put off on purpose, what it risks and when to return — and [what spec has recorded of the other repositories' rows](run/INBOX.md).
-- [COORDINATION.md](COORDINATION.md) — the cross-repository plan, in Russian: in what order the other repositories' tasks run, by repositories 6, and which task waits for which, each row pointing to a task in that repository's RUN.md (R76).
+- `run/` — the plan's other tables: [the epics that come later](run/EPICS.md), [the open questions to the author](run/QUESTIONS.md), [the technical debt](run/DEBT.md) — what was put off on purpose, what it risks and when to return — [what spec has recorded of the other repositories' rows](run/INBOX.md) and [the open tasks outside an epic](run/TASKS.md).
+- [COORDINATION.md](COORDINATION.md) — the cross-repository plan, its order in Russian: in what order the other repositories' tasks run, by repositories 6, and which task waits for which, each row pointing to a task in that repository's RUN.md (R76).
 - [draft/](draft/README.md) — a clickable prototype of the learner's app, and where it differs from the documents.
 
 ## Contributing

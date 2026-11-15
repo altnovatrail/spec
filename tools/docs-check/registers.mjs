@@ -5,6 +5,7 @@
 // free number is above every row.
 
 import { findNumbers } from "./citations.mjs";
+import { isTableHeading } from "./markdown.mjs";
 
 const canonical = (register, number) => String(number).padStart(register.width, "0");
 const label = (register, digits) => `${register.prefix}${digits}`;
@@ -85,7 +86,10 @@ function placeOf(register, files, report) {
   if (!files.has(chosen.file)) return chosen;
   for (const place of places) {
     if (place !== read && place.table) {
-      report(place.there.file, place.doc.headings[place.index].line, `register ${own.prefix}: its table is in ${chosen.file}, and this one under «${place.there.heading} …» is a second copy`);
+      // The heading as the file has it, «Таблица 4. …» in a plan not yet in English (R154).
+      const heading = place.doc.headings[place.index];
+      const named = /^\S+ \d+\./u.exec(heading.text)?.[0] ?? place.there.heading;
+      report(place.there.file, heading.line, `register ${own.prefix}: its table is in ${chosen.file}, and this one under «${named} …» is a second copy`);
     }
   }
   return chosen;
@@ -122,7 +126,7 @@ function rowsOf(register, doc, report) {
 // The blocks directly under the register's heading: the preamble when section is null.
 function opening(register, doc) {
   let index;
-  if (register.heading) index = doc.headings.findIndex((h) => h.text.startsWith(register.heading));
+  if (register.heading) index = doc.headings.findIndex((h) => isTableHeading(h.text, register.heading));
   else if (register.section === null) index = doc.headings.findIndex((h) => h.depth === 1);
   else index = doc.headings.findIndex((h) => h.number === register.section);
   return { index, blocks: doc.blocks.filter((b) => b.type !== "heading" && b.heading === index) };
