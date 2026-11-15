@@ -92,7 +92,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 |---|---|---|---|---|---|
 | [x] | T167 | Решение об оркестраторе и правила прогона | Claude, проверяю я | — | — |
 | [x] | T168 | Контейнер оркестратора | я + Claude | — | T167 |
-| [ ] | T169 | `tools/orchestrator`: запуск исполнителя | Claude | да | T168 |
+| [x] | T169 | `tools/orchestrator`: запуск исполнителя | Claude | да | T168 |
 | [ ] | T170 | Процедура «Сделай эпик E…» | Claude, проверяю я | — | T169 |
 | [ ] | T171 | Пилот: строки 4.17 и 4.18 | я + Claude | — | T170 |
 | [ ] | T172 | Итог эпика E14 | Claude | — | T171 |
@@ -103,20 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - T171 идёт после T170, когда T167–T170 смержены: релиз spec выходит сам (R31), и волна 0 пилота переводит репозитории на тег с ними.
 
 ## Эпик E14. Оркестратор
-
-#### T169. `tools/orchestrator`: запуск исполнителя
-
-- **Цель:** одна команда запускает задачу в контейнере её репозитория, ждёт её конца, отдаёт статус, вопросы и стоимость и продолжает ту же сессию с ответами.
-- **Сделать:**
-  - Найти контейнер репозитория — по метке `devcontainer.local_folder` или по имени; остановленный — `docker start`; нет контейнера — ошибка с тем, что сделать автору.
-  - Запуск: `docker exec -u vscode -w /workspaces/<repo>` и `claude -p` с `--output-format stream-json --verbose --model opus --effort high --permission-mode bypassPermissions --json-schema <статус> --append-system-prompt <контракт> --max-budget-usd <потолок>`; git — с помощником `gh auth git-credential` через `GIT_CONFIG_*`.
-  - Контракт `tools/orchestrator/executor.md`, по-английски (R14): выполнить задачу по RUN.md своего репозитория; вопрос, что требует автора, — в таблицу 3 и в статус `waiting`, не решать за автора; довести до PR, не мержить; отчёт по-русски — в статус.
-  - Схема статуса — `done`, `waiting`, `failed`; вопросы с вариантами и рекомендацией; PR; отчёт — в `types/` по правилу [types](.claude/rules/types.md).
-  - Разбор stream-json: `session_id`, `modelUsage`, `total_cost_usd`, `rate_limit_event`. Состояние прогона и журнал событий — в каталоге прогона на томе `novatrail-claude`, не в репозитории.
-  - Команды `start`, `resume <run> --answers <file>`, `status`, `wait`; рецепты justfile.
-- **Решить при планировании:** Node или Go; где каталог прогона; как передать контракт, если его размер велик для аргумента.
-- **Как проверить:** `just orchestrator-test` с поддельными `docker` и `claude`; `just coverage`; `just licenses-check`; правило [tools](.claude/rules/tools.md); один настоящий запуск в контейнере `sim` с задачей «ответь одним словом» — статус, стоимость и `resume`; `/code-review high`.
-- **Разделы:** R14, R143, решение T167; measurements 1.9; правила tools и types.
 
 #### T170. Процедура «Сделай эпик E…»
 

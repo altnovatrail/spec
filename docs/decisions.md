@@ -6871,3 +6871,19 @@ The author's decisions of 2026-11-14 while RUN.md, T155 was planned, all by the 
 - rewriting E7 of `learner-model` for the round of fairness, or leaving the choice to its session.
 
 — *Consequence:* RULES.md — How we work and Hard rules; RUN.md — rules 4 and 7 and the first line of Rules; COORDINATION.md — its opening and rule 8; `repo-template/files/RUN.md`, rule 7, and the test of `new-repo`; CLAUDE.md, Environment; sources 2.11, 2.12, 9.2 and 9.3; the second 2026-11-15 amendment to R12, the fifth to R19, the second to R31, the seventh to R76 and the fifth to R143; T168–T172. — RUN.md, T167.
+
+— *Amendment 2026-11-15 (T169):* **what R156 left to T169 is decided, by the author's answers in planning it, by the recommendation, and by what its real run showed.**
+- **The orchestrator's copy.** It runs from a clone of spec's `main` from GitHub in `~/.claude/novatrail-orchestrator/spec`, on the volume `novatrail-claude`, which the command `sync` makes or moves forward and nobody edits. The code and the plan are then at one commit of `main`, whatever branch a task of spec in the documents container has checked out. The code takes only Node's own modules, so the clone needs no `npm ci`.
+- **A run's folder** is `~/.claude/novatrail-orchestrator/runs/<repo>-<task>-<UTC time>/` on the same volume, which every NovaTrail devcontainer mounts in `~/.claude`. The executor's container writes its stream, its stderr, its pid and its exit code there itself, so a run outlives the orchestrator's session.
+- **The container** is found by both labels, for the folder beside the orchestrator's own on the host, and by its name only when `start --container` gives one: Docker names the containers of Dev Containers itself (RUN.md, T168).
+- **The contract, the schema and the prompt** are files of the run's folder, which the run's `sh` reads inside the container: `docker exec`'s arguments stay short whatever their size. The first attempt gives the session the id the orchestrator chose, `--session-id`, and each later one resumes it.
+- **The status's schema** is `tools/orchestrator/status.schema.json`, not a part in `types/`: a package of `types/` is a normative part, with its version, examples and vectors, which goes into the Go module and the npm package `@altnovatrail/spec` and needs a new line of the release. It is in draft-07, since Claude Code 2.1.280 refuses the dialect 2020-12 in `--json-schema` (sources 2.11). The orchestrator checks a status against it by hand, and its tests hold that check and the schema to the same values.
+- **A limit** shows in `-p` as an event `rate_limit_event`, which a run prints with `status: "allowed"` too. The orchestrator counts a run as limited by any of three signs: that event with `status: "rejected"`, a message of the model with `error: "rate_limit"` as a transcript records it, or a result with the limit's text (sources 2.11). A limit reached in `-p` itself has not been seen yet.
+- **The ceiling** of a task is $75 by default, about the 95th percentile of a session's cost (measurements 1.12). What a task spent is the largest `total_cost_usd` any attempt printed, the session's whole total.
+
+The rejected options:
+- a part in `types/` for the schema;
+- a `git worktree` for the copy — it shares `.git` with the working tree —, or the working tree with no copy;
+- a ceiling of $50, or none by default.
+
+— RUN.md, T169; `tools/orchestrator/README.md`.

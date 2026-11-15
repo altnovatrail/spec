@@ -77,6 +77,22 @@ translation-test: _tools
 session-test:
     node --test 'tools/session/test/*.test.mjs'
 
+# The orchestrator's commands (R156), in spec's orchestrator container, which sees the host's
+# Docker: start runs a task of a repository as claude -p in that repository's container and returns
+# at once; resume continues the same session with the author's answers; status and wait read the
+# run's files on the volume novatrail-claude; sync keeps the orchestrator's own clone of spec's
+# main. «Сделай эпик E…» runs them from that clone, where this recipe is not needed: they take
+# nothing from node_modules (tools/orchestrator/README.md).
+# Run a command of the orchestrator: start, resume, status, wait or sync.
+[positional-arguments]
+orchestrator *args:
+    node tools/orchestrator/main.mjs "$@"
+
+# Run the orchestrator's own tests, on made-up containers and streams, with stand-ins for docker
+# and claude, and a repository of their own for sync.
+orchestrator-test: _tools
+    node --test 'tools/orchestrator/test/*.test.mjs'
+
 # Serves the interface mockup of draft/mockup/ on 127.0.0.1, port 8156 or --port N, through the
 # runtime of NovaTrail's own in tools/mockup/: its page opens a state by its address,
 # /tools/mockup/?screen=home&device=phone, for a browser and for Playwright (R148; RUN.md, T156).
