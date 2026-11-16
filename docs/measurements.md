@@ -682,6 +682,161 @@ What a session of Claude Code costs, for the orchestrator's ceiling of a task's 
 - **The ceiling.** $75 by default, about the 95th percentile of all sessions — the author's answer of 2026-11-15 in planning T169, by the recommendation; the rejected options were $50 and a ceiling given every time. `tools/orchestrator/runs.mjs` holds it as `DEFAULT_CEILING`, and `start --ceiling` gives another. The ceiling counts `total_cost_usd`, Claude Code's own estimate at the API's prices, which counts as section 1.2 does: on a subscription, it measures the share of the limit a task takes, not a bill.
 - **A run of the orchestrator.** Its first real run, in `sim`'s container, 2026-11-15: a prompt that asked for one word and the status, Opus at effort `high`. It cost $0.2099: 2 tokens of input, 163 of output, 25,832 of a cache write — the start of a session. The `--resume` of the same session reported $0.2207 in all: $0.0108 more, 25,832 read from the cache, 292 written and 163 of output. The start of a session is the price of a run before it does anything.
 
+### 1.13. The orchestrator's pilot, T171, 2026-11-16
+
+What the runs of the orchestrator cost, and how often they stopped for the author (R156; RUN.md, T171). Measured 2026-11-16.
+
+**How it was measured.** The sample is every run from 2026-11-15T22:26 to 2026-11-16T17:55 UTC: 106 runs in 13 repositories, read from their folders on the volume `novatrail-claude`. Every run used Opus at effort `high`.
+- *$* is `spent_usd` of `status`: the largest `total_cost_usd` that any attempt printed. That number is Claude Code's own estimate at the API's prices (section 1.12).
+- *Turns* and *minutes* are `num_turns` and `duration_ms`, summed over every `result` of every attempt's stream. `status` gives only the last one (Д256).
+- *Wall* runs from the run's start to the last write to its streams, and includes the waits for the author and for checks.
+
+**The totals.**
+- 106 runs, with 121 attempts: the first, and each `resume`, with answers or after a failure. 15 runs had more than one.
+- $600.08, 9,567 turns, 49.8 hours of running and 81.7 hours of wall. Up to 13 runs went at once, the waiting ones included.
+- 92 runs ended with a pull request, for $592.98.
+- 14 runs ended with none, for $7.10:
+  - 10 runs of the night's work found no task free, for $4.37: median $0.45, at most $0.58;
+  - 3 were the first trial runs of 2026-11-15, `T0` of `sim` and `learner-model`;
+  - one failed, `skill-map` T27 at 11:09, for $2.08: the hook refused its resume (Д254), and a new run did its task.
+
+| | Median | 90th percentile | 95th | The largest |
+|---|---|---|---|---|
+| $, all runs | 5.37 | 10.66 | 12.11 | 17.25 |
+| $, runs with a pull request | 5.67 | 10.87 | 12.69 | 17.25 |
+| Turns, runs with a pull request | 99 | 157 | 168 | 235 |
+| Minutes, runs with a pull request | 25 | 60 | 75 | 117 |
+| Wall, runs with a pull request | 28 | 75 | 152 | 641 |
+
+**Against an interactive session.** No task of the pilot had been run in an interactive session, so there is no pair of the same task to compare. The comparison is with section 1.12: the sessions since one task has been one session cost median $8.83, 90th percentile $22.70, 95th $26.70.
+- A run with a pull request cost about two thirds of that at the median and half at the tail.
+- Part of the difference is in the tasks. The pilot's were mostly moves to a tag and changes of CI, and none was planned together with the author.
+- No run reached the ceiling of $75. The largest, `spec` T166, took 23% of it.
+
+**The window of the subscription.** What a window of five hours holds is still not measured: the cost is a run's, not an hour's. The runs that started in the busiest five hours, from 02:35 UTC, spent $336.76, but over about eleven hours of their running. No limit of the subscription was reached in about twenty hours of runs and $600 at the API's prices (Д252). The transcripts of the executors' sessions time each message, so a later measurement can sum the cost by hour.
+
+**Questions and pauses.**
+- *The executors' questions:* 9, in 7 waits. `sim` T70 returned three at once, В26–В28. В13 of `skill-map`, В80 of `canvas`, В37 of `infra` and В50 of `engine` waited for the author's morning, В13 from 06:08 to 14:23 UTC.
+- *The orchestrator's own questions:* 2, an uncommitted plan in `app`'s working copy and a red `main` of `modules`.
+- *The author's word:* it changed the plan four times. That was wave 0 for every repository in batches of four, the night's rules, wave 7.14 at once, and the round of fairness, three decisions (R157).
+- *Rebuilds:* the author rebuilt a container after each merge that changed `.devcontainer/`. That was most repositories twice, after the move to v0.18.4 and after the stage `toolchain-core`. Each rebuild paused that repository alone, and at night it waited for the morning.
+- *Not seen:* a limit and the ceiling.
+
+**What is not counted.**
+- `learner-model` T61's first attempt ran about ten hours of wall, most of it `sim`'s runs in its background. It was stopped by hand and printed no `result` (Д253). Its turns and minutes are not in the table, and its $ is counted only as far as the second attempt's total holds it.
+- The orchestrator's own session, interactive in `spec`, is not counted here. The monthly measurement counts it with the others (section 1.9).
+
+**The runs.** The time is the start, UTC, on 2026-11-16 unless it says 15. ¹ means no pull request.
+
+| Run | Att. | $ | Turns | Min | Wall |
+|---|---|---|---|---|---|
+| `.github` T59, 02:39 | 1 | 6.07 | 94 | 17 | 17 |
+| `.github` T60, 05:17 | 1 | 12.11 | 139 | 62 | 62 |
+| `.github` T61, 06:22 | 1 | 12.69 | 146 | 57 | 57 |
+| `.github` T62, 07:23 | 1 | 11.54 | 157 | 56 | 56 |
+| `.github` T63, 08:22 | 1 | 10.96 | 165 | 58 | 58 |
+| `.github` T64, 09:23 | 1 | 8.36 | 147 | 54 | 54 |
+| `.github` T65, 10:21 | 1 | 10.66 | 161 | 43 | 43 |
+| `.github` T66, 14:52 | 1 | 16.33 | 205 | 75 | 75 |
+| `.github` T67, 14:23 | 1 | 3.95 | 78 | 17 | 17 |
+| `api` T100, 16:11 | 1 | 6.01 | 118 | 14 | 14 |
+| `api` T101, 07:24 | 1 | 4.95 | 122 | 22 | 26 |
+| `api` T101 ¹, 08:25 | 1 | 0.57 | 16 | 2 | 2 |
+| `api` T94, 03:39 | 2 | 14.22 | 202 | 49 | 70 |
+| `api` T95, 05:04 | 1 | 2.19 | 48 | 6 | 6 |
+| `api` T96, 05:51 | 1 | 4.17 | 78 | 11 | 11 |
+| `api` T98, 06:18 | 2 | 4.19 | 84 | 50 | 56 |
+| `api` T99, 11:09 | 1 | 4.48 | 99 | 42 | 42 |
+| `app` T62, 03:39 | 1 | 7.46 | 114 | 17 | 17 |
+| `app` T64, 04:46 | 2 | 5.37 | 65 | 14 | 15 |
+| `app` T65, 05:23 | 1 | 1.77 | 49 | 20 | 20 |
+| `app` T66, 05:56 | 1 | 3.54 | 73 | 33 | 33 |
+| `app` T67 ¹, 06:42 | 1 | 0.47 | 12 | 1 | 1 |
+| `app` T67, 11:09 | 1 | 3.37 | 82 | 46 | 46 |
+| `app` T67, 17:55 | 1 | 0.83 | 21 | 8 | 8 |
+| `app` T68, 16:08 | 1 | 3.88 | 88 | 19 | 19 |
+| `app` T69, 16:37 | 1 | 5.39 | 102 | 33 | 33 |
+| `canvas` T113, 02:59 | 1 | 9.50 | 145 | 25 | 25 |
+| `canvas` T114, 04:15 | 1 | 2.36 | 46 | 6 | 6 |
+| `canvas` T115, 05:16 | 1 | 10.87 | 184 | 117 | 117 |
+| `canvas` T116, 11:09 | 1 | 9.92 | 168 | 23 | 37 |
+| `canvas` T117, 16:48 | 1 | 8.84 | 145 | 41 | 41 |
+| `canvas` T118, 07:56 | 2 | 10.31 | 159 | 57 | 433 |
+| `engine` T62, 02:59 | 1 | 5.03 | 90 | 21 | 21 |
+| `engine` T63, 04:15 | 1 | 4.30 | 62 | 11 | 11 |
+| `engine` T64, 04:56 | 1 | 4.80 | 99 | 13 | 19 |
+| `engine` T65, 05:40 | 1 | 3.57 | 69 | 29 | 29 |
+| `engine` T66, 06:34 | 1 | 6.08 | 103 | 41 | 41 |
+| `engine` T67, 11:09 | 1 | 6.41 | 106 | 32 | 32 |
+| `engine` T68, 16:37 | 1 | 6.13 | 100 | 28 | 28 |
+| `engine` T69 ¹, 06:17 | 1 | 0.42 | 9 | 1 | 1 |
+| `engine` T69 ¹, 07:22 | 1 | 0.37 | 10 | 1 | 1 |
+| `engine` T69, 11:53 | 2 | 1.28 | 25 | 6 | 152 |
+| `infra` T56, 02:39 | 1 | 7.20 | 126 | 19 | 19 |
+| `infra` T62, 03:16 | 1 | 6.01 | 80 | 19 | 19 |
+| `infra` T63, 04:15 | 1 | 4.12 | 88 | 10 | 10 |
+| `infra` T64, 05:16 | 1 | 5.52 | 81 | 51 | 51 |
+| `infra` T65, 11:09 | 1 | 4.38 | 72 | 20 | 20 |
+| `infra` T66, 16:11 | 1 | 8.13 | 121 | 22 | 24 |
+| `infra` T67, 06:16 | 1 | 5.83 | 91 | 18 | 18 |
+| `infra` T67 ¹, 06:44 | 1 | 0.58 | 14 | 2 | 2 |
+| `infra` T67, 11:42 | 2 | 10.30 | 141 | 33 | 186 |
+| `learner-model` T0 ¹, 15 23:01 | 1 | 0.21 | 2 | 0 | 0 |
+| `learner-model` T56, 00:50 | 1 | 5.05 | 88 | 13 | 13 |
+| `learner-model` T57, 01:24 | 1 | 5.39 | 64 | 23 | 23 |
+| `learner-model` T58, 01:54 | 1 | 8.39 | 117 | 31 | 31 |
+| `learner-model` T59, 02:35 | 1 | 9.72 | 140 | 76 | 76 |
+| `learner-model` T60, 04:56 | 1 | 3.38 | 71 | 25 | 25 |
+| `learner-model` T61, 05:34 | 2 | 14.62 | 46 | 29 | 641 |
+| `learner-model` T64, 16:24 | 1 | 3.54 | 55 | 17 | 17 |
+| `learner-model` T66, 16:55 | 1 | 9.85 | 141 | 32 | 32 |
+| `module-kit` T45, 02:39 | 1 | 5.10 | 71 | 15 | 15 |
+| `module-kit` T46, 03:15 | 1 | 4.69 | 82 | 19 | 19 |
+| `module-kit` T47, 05:16 | 1 | 6.02 | 125 | 65 | 65 |
+| `module-kit` T48, 11:09 | 1 | 6.97 | 106 | 34 | 42 |
+| `module-kit` T49, 16:39 | 1 | 5.40 | 106 | 15 | 15 |
+| `module-kit` T50, 06:31 | 1 | 5.31 | 113 | 50 | 50 |
+| `module-kit` T51 ¹, 07:30 | 1 | 0.28 | 7 | 1 | 1 |
+| `modules` T72, 02:59 | 1 | 6.75 | 105 | 24 | 24 |
+| `modules` T73, 04:48 | 1 | 3.94 | 72 | 12 | 12 |
+| `modules` T74, 05:16 | 1 | 6.12 | 109 | 50 | 50 |
+| `modules` T75, 11:09 | 1 | 5.97 | 90 | 27 | 27 |
+| `modules` T76, 16:11 | 1 | 6.24 | 100 | 27 | 27 |
+| `modules` T77, 06:13 | 1 | 2.97 | 66 | 60 | 60 |
+| `modules` T78, 07:23 | 1 | 5.67 | 80 | 42 | 42 |
+| `modules` T79 ¹, 08:16 | 1 | 0.50 | 11 | 1 | 1 |
+| `modules` T79 ¹, 11:45 | 1 | 0.30 | 9 | 1 | 1 |
+| `sim` T0 ¹, 15 22:26 | 2 | 0.22 | 4 | 0 | 1 |
+| `sim` T0 ¹, 15 23:01 | 2 | 0.23 | 4 | 0 | 2 |
+| `sim` T66, 00:50 | 1 | 6.62 | 108 | 17 | 17 |
+| `sim` T67, 01:27 | 2 | 5.19 | 72 | 13 | 20 |
+| `sim` T68, 02:03 | 1 | 5.07 | 113 | 16 | 22 |
+| `sim` T69, 02:43 | 1 | 4.37 | 54 | 22 | 22 |
+| `sim` T70, 03:17 | 2 | 3.84 | 60 | 9 | 26 |
+| `sim` T71, 04:15 | 1 | 6.85 | 133 | 20 | 20 |
+| `sim` T74, 05:16 | 1 | 11.10 | 160 | 67 | 67 |
+| `sim` T75, 11:09 | 1 | 7.08 | 108 | 43 | 43 |
+| `sim` T76, 16:45 | 1 | 6.08 | 103 | 34 | 34 |
+| `sim` T77 ¹, 06:34 | 1 | 0.50 | 14 | 2 | 2 |
+| `sim` T77, 16:16 | 1 | 3.63 | 61 | 18 | 18 |
+| `skill-map` T21, 02:39 | 1 | 6.59 | 93 | 17 | 17 |
+| `skill-map` T24, 03:18 | 1 | 3.95 | 65 | 10 | 10 |
+| `skill-map` T25, 04:15 | 1 | 2.95 | 66 | 19 | 19 |
+| `skill-map` T27, 05:17 | 2 | 4.57 | 78 | 14 | 28 |
+| `skill-map` T27, 06:04 | 2 | 3.26 | 59 | 23 | 516 |
+| `skill-map` T27 ¹, 11:09 | 2 | 2.08 | 37 | 8 | 9 |
+| `skill-map` T28, 11:19 | 1 | 5.35 | 123 | 114 | 114 |
+| `skill-map` T29, 16:55 | 1 | 7.68 | 130 | 34 | 34 |
+| `spec` T166, 05:16 | 2 | 17.25 | 235 | 100 | 101 |
+| `tutor` T145, 02:59 | 1 | 9.98 | 135 | 31 | 32 |
+| `tutor` T146, 04:15 | 1 | 5.10 | 65 | 22 | 22 |
+| `tutor` T147, 04:56 | 1 | 5.41 | 90 | 39 | 39 |
+| `tutor` T148, 05:55 | 1 | 5.44 | 97 | 61 | 61 |
+| `tutor` T149, 11:09 | 1 | 6.58 | 106 | 39 | 39 |
+| `tutor` T150, 16:11 | 1 | 9.22 | 154 | 22 | 37 |
+| `tutor` T151, 07:10 | 1 | 3.39 | 57 | 12 | 12 |
+| `tutor` T152 ¹, 07:33 | 1 | 0.36 | 8 | 1 | 1 |
+
 ## 2. The browsers of the kind `typescript`
 
 ### 2.1. WebKit and Firefox in the stage, T141, 2026-11-13
