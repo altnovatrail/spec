@@ -3,9 +3,9 @@
 /* eslint-disable */
 
 // The skill map and the adult's progress in the contract between `app` and `api`: the state of a
-// learner's skills in a module, as the learner model reads it, and the attempts of a profile with
-// the traps that repeat in them. What each message means is the rule of contracts/README.md,
-// section 15.
+// learner's skills in a module, as the learner model reads it, the attempts of a profile with the
+// traps that repeat in them, and the adult's correction of a module's level (R157). What each
+// message means is the rule of contracts/README.md, section 15.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -81,6 +81,26 @@ export declare type GetSkillMapResponse = Message<"novatrail.api.v1.GetSkillMapR
    * @generated from field: repeated novatrail.api.v1.AnchorSkillState anchor_skills = 3;
    */
   anchorSkills: AnchorSkillState[];
+
+  /**
+   * The ID of the band of the module's level, as `learner-model` reads it on the scale of the
+   * module's bands (concepts 11): the highest band while the level stands above it, and empty
+   * while it stands below the lowest band, where a learner whose grade is in the lowest band starts
+   * (R157). A band keeps its place and its ID in every version of the module (section 27 of the
+   * module format), so the manifest of the current version names it: by it and the order of the
+   * bands of that manifest `app` names the bands next to it, which `SetModuleLevel` takes.
+   *
+   * @generated from field: string level_band = 4;
+   */
+  levelBand: string;
+
+  /**
+   * When an adult last set the module's level by `SetModuleLevel`: absent when no adult has. The
+   * learner sees it, whoever gave the consent (R157).
+   *
+   * @generated from field: google.protobuf.Timestamp level_set_at = 5;
+   */
+  levelSetAt?: Timestamp | undefined;
 };
 
 /**
@@ -285,6 +305,15 @@ export declare type GetProgressResponse = Message<"novatrail.api.v1.GetProgressR
    * @generated from field: string next_page_token = 3;
    */
   nextPageToken: string;
+
+  /**
+   * The adult's last correction of the level of each module of the profile that has one, connected
+   * or not since, while the evidence log keeps it, in the order of the modules' IDs' UTF-16 code
+   * units: on the first page alone, and empty on the others.
+   *
+   * @generated from field: repeated novatrail.api.v1.LevelSetting level_settings = 4;
+   */
+  levelSettings: LevelSetting[];
 };
 
 /**
@@ -292,6 +321,108 @@ export declare type GetProgressResponse = Message<"novatrail.api.v1.GetProgressR
  * Use `create(GetProgressResponseSchema)` to create a new message.
  */
 export declare const GetProgressResponseSchema: GenMessage<GetProgressResponse>;
+
+/**
+ * The adult's last correction of a module's level (R157).
+ *
+ * @generated from message novatrail.api.v1.LevelSetting
+ */
+export declare type LevelSetting = Message<"novatrail.api.v1.LevelSetting"> & {
+  /**
+   * The module's ID.
+   *
+   * @generated from field: string module_id = 1;
+   */
+  moduleId: string;
+
+  /**
+   * The ID of the band the adult set the level in. The level may have moved since, by the
+   * evidence: the skill map gives where it stands.
+   *
+   * @generated from field: string band = 2;
+   */
+  band: string;
+
+  /**
+   * When the adult set it.
+   *
+   * @generated from field: google.protobuf.Timestamp set_at = 3;
+   */
+  setAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.LevelSetting.
+ * Use `create(LevelSettingSchema)` to create a new message.
+ */
+export declare const LevelSettingSchema: GenMessage<LevelSetting>;
+
+/**
+ * The adult's correction of a module's level.
+ *
+ * @generated from message novatrail.api.v1.SetModuleLevelRequest
+ */
+export declare type SetModuleLevelRequest = Message<"novatrail.api.v1.SetModuleLevelRequest"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The ID of a module connected to the profile.
+   *
+   * @generated from field: string module_id = 2;
+   */
+  moduleId: string;
+
+  /**
+   * The ID of the band to set the level in: the band next to the band of the level, the one before
+   * it, easier, or the one after it, harder, in the order of the bands of the manifest of the
+   * module's current version, and the lowest band while the level stands below it; or the band of
+   * the level itself, which changes nothing. No band comes before the lowest, so at the lowest band
+   * there is no "Easier" to name, and none after the highest. Needed: empty, the request is
+   * refused `invalid_argument`.
+   *
+   * @generated from field: string band = 3;
+   */
+  band: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SetModuleLevelRequest.
+ * Use `create(SetModuleLevelRequestSchema)` to create a new message.
+ */
+export declare const SetModuleLevelRequestSchema: GenMessage<SetModuleLevelRequest>;
+
+/**
+ * The module's level after the correction.
+ *
+ * @generated from message novatrail.api.v1.SetModuleLevelResponse
+ */
+export declare type SetModuleLevelResponse = Message<"novatrail.api.v1.SetModuleLevelResponse"> & {
+  /**
+   * The ID of the band of the module's level: the band named.
+   *
+   * @generated from field: string level_band = 1;
+   */
+  levelBand: string;
+
+  /**
+   * When an adult last set the module's level: by this request, or by the one before it when this
+   * one named the band of the level already. Absent when no adult has.
+   *
+   * @generated from field: google.protobuf.Timestamp level_set_at = 2;
+   */
+  levelSetAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SetModuleLevelResponse.
+ * Use `create(SetModuleLevelResponseSchema)` to create a new message.
+ */
+export declare const SetModuleLevelResponseSchema: GenMessage<SetModuleLevelResponse>;
 
 /**
  * An attempt in the progress of a profile. How it came out follows from its close reason and its
@@ -624,14 +755,15 @@ export declare const CriterionMarkSchema: GenEnum<CriterionMark>;
 
 /**
  * What the learner model and the history of a profile show: the skill map, on the learner's screen
- * and in the section for adults, and the progress, which the adult views. Every method carries the
- * token of the sign-in service and may get the refusals of every request with a token, which the
- * comment of `AccountService` names with what `app` does on each; a profile that is not the
- * account's gets `CAUSE_NO_PROFILE`, a learning request of a profile whose consent is not
- * confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
- * `CAUSE_AGE_NEEDED`, a request without the right it needs the code `permission_denied`
- * with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
- * with no `Refusal`. Both repeat by the state of the profile, with no idempotency key.
+ * and in the section for adults, and the progress, which the adult views; and the adult's
+ * correction of a module's level. Every method carries the token of the sign-in service and may
+ * get the refusals of every request with a token, which the comment of `AccountService` names with
+ * what `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, a learning
+ * request of a profile whose consent is not confirmed `CAUSE_NO_CONSENT` and one of a profile
+ * whose age is to be given again `CAUSE_AGE_NEEDED`, a request without the right it needs the code
+ * `permission_denied` with no `Refusal`, and a request whose form the contract refuses the code
+ * `invalid_argument` with no `Refusal`. Each repeats by the state of the profile, with no
+ * idempotency key.
  *
  * @generated from service novatrail.api.v1.ProgressService
  */
@@ -654,7 +786,8 @@ export declare const ProgressService: GenService<{
   /**
    * The progress of a profile, which an adult views with the right `can_view`: its attempts, newest
    * first, a page at a time, and the traps that repeat in its closed attempts, with their
-   * descriptions and advice (section 16 of the module format).
+   * descriptions and advice (section 16 of the module format), and the adult's last correction of
+   * the level of each module that has one.
    *
    * @generated from rpc novatrail.api.v1.ProgressService.GetProgress
    */
@@ -662,6 +795,25 @@ export declare const ProgressService: GenService<{
     methodKind: "unary";
     input: typeof GetProgressRequestSchema;
     output: typeof GetProgressResponseSchema;
+  },
+  /**
+   * The adult's correction of the level of a connected module (R157): "Easier" or "Harder" in the
+   * section for adults, which sets the module's level in the band named, next to the band of the
+   * level, by an action of an adult with the right `can_manage`, at every profile of the account:
+   * the owner's, a child's and that of a learner who gave their own consent. `api` appends it to
+   * the evidence log, a fact for `learner-model`, and every learner sees on the skill map that an
+   * adult set the level, and when. A request that names the band of the level already appends
+   * nothing and answers as the level is: so a repeat after an answer lost sets the band the adult
+   * chose, and changes nothing once the level stands in it. Refusals: `CAUSE_NOT_FOUND`, a module
+   * not connected; `CAUSE_NO_CURRENT_VERSION`; `CAUSE_NO_CONSENT` and `CAUSE_AGE_NEEDED`, as at a
+   * learning request; and `CAUSE_BAND_NOT_NEXT`.
+   *
+   * @generated from rpc novatrail.api.v1.ProgressService.SetModuleLevel
+   */
+  setModuleLevel: {
+    methodKind: "unary";
+    input: typeof SetModuleLevelRequestSchema;
+    output: typeof SetModuleLevelResponseSchema;
   },
 }>;
 

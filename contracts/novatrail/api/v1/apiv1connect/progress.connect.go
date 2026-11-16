@@ -3,9 +3,9 @@
 // Source: novatrail/api/v1/progress.proto
 
 // The skill map and the adult's progress in the contract between `app` and `api`: the state of a
-// learner's skills in a module, as the learner model reads it, and the attempts of a profile with
-// the traps that repeat in them. What each message means is the rule of contracts/README.md,
-// section 15.
+// learner's skills in a module, as the learner model reads it, the attempts of a profile with the
+// traps that repeat in them, and the adult's correction of a module's level (R157). What each
+// message means is the rule of contracts/README.md, section 15.
 package apiv1connect
 
 import (
@@ -34,6 +34,9 @@ const (
 	// ProgressServiceGetProgressProcedure is the procedure name of the ProgressService's GetProgress
 	// RPC.
 	ProgressServiceGetProgressProcedure = "/novatrail.api.v1.ProgressService/GetProgress"
+	// ProgressServiceSetModuleLevelProcedure is the procedure name of the ProgressService's
+	// SetModuleLevel RPC.
+	ProgressServiceSetModuleLevelProcedure = "/novatrail.api.v1.ProgressService/SetModuleLevel"
 )
 
 var (
@@ -51,6 +54,13 @@ var (
 			Procedure:  ProgressServiceGetProgressProcedure,
 		}
 	})
+	progressServiceSetModuleLevelSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_progress_proto.Services().ByName("ProgressService").Methods().ByName("SetModuleLevel"),
+			Procedure:  ProgressServiceSetModuleLevelProcedure,
+		}
+	})
 )
 
 // ProgressServiceClient is a client for the novatrail.api.v1.ProgressService service.
@@ -64,8 +74,20 @@ type ProgressServiceClient interface {
 	GetSkillMap(context.Context, *v1.GetSkillMapRequest) (*v1.GetSkillMapResponse, error)
 	// The progress of a profile, which an adult views with the right `can_view`: its attempts, newest
 	// first, a page at a time, and the traps that repeat in its closed attempts, with their
-	// descriptions and advice (section 16 of the module format).
+	// descriptions and advice (section 16 of the module format), and the adult's last correction of
+	// the level of each module that has one.
 	GetProgress(context.Context, *v1.GetProgressRequest) (*v1.GetProgressResponse, error)
+	// The adult's correction of the level of a connected module (R157): "Easier" or "Harder" in the
+	// section for adults, which sets the module's level in the band named, next to the band of the
+	// level, by an action of an adult with the right `can_manage`, at every profile of the account:
+	// the owner's, a child's and that of a learner who gave their own consent. `api` appends it to
+	// the evidence log, a fact for `learner-model`, and every learner sees on the skill map that an
+	// adult set the level, and when. A request that names the band of the level already appends
+	// nothing and answers as the level is: so a repeat after an answer lost sets the band the adult
+	// chose, and changes nothing once the level stands in it. Refusals: `CAUSE_NOT_FOUND`, a module
+	// not connected; `CAUSE_NO_CURRENT_VERSION`; `CAUSE_NO_CONSENT` and `CAUSE_AGE_NEEDED`, as at a
+	// learning request; and `CAUSE_BAND_NOT_NEXT`.
+	SetModuleLevel(context.Context, *v1.SetModuleLevelRequest) (*v1.SetModuleLevelResponse, error)
 }
 
 // NewProgressServiceClient constructs a client for the novatrail.api.v1.ProgressService service.
@@ -85,8 +107,20 @@ type ProgressServiceHandler interface {
 	GetSkillMap(context.Context, *v1.GetSkillMapRequest) (*v1.GetSkillMapResponse, error)
 	// The progress of a profile, which an adult views with the right `can_view`: its attempts, newest
 	// first, a page at a time, and the traps that repeat in its closed attempts, with their
-	// descriptions and advice (section 16 of the module format).
+	// descriptions and advice (section 16 of the module format), and the adult's last correction of
+	// the level of each module that has one.
 	GetProgress(context.Context, *v1.GetProgressRequest) (*v1.GetProgressResponse, error)
+	// The adult's correction of the level of a connected module (R157): "Easier" or "Harder" in the
+	// section for adults, which sets the module's level in the band named, next to the band of the
+	// level, by an action of an adult with the right `can_manage`, at every profile of the account:
+	// the owner's, a child's and that of a learner who gave their own consent. `api` appends it to
+	// the evidence log, a fact for `learner-model`, and every learner sees on the skill map that an
+	// adult set the level, and when. A request that names the band of the level already appends
+	// nothing and answers as the level is: so a repeat after an answer lost sets the band the adult
+	// chose, and changes nothing once the level stands in it. Refusals: `CAUSE_NOT_FOUND`, a module
+	// not connected; `CAUSE_NO_CURRENT_VERSION`; `CAUSE_NO_CONSENT` and `CAUSE_AGE_NEEDED`, as at a
+	// learning request; and `CAUSE_BAND_NOT_NEXT`.
+	SetModuleLevel(context.Context, *v1.SetModuleLevelRequest) (*v1.SetModuleLevelResponse, error)
 }
 
 // RegisterProgressServiceHandler registers svc as the novatrail.api.v1.ProgressService
@@ -96,6 +130,7 @@ func RegisterProgressServiceHandler(server *connect.Server, svc ProgressServiceH
 	server.Register(
 		connect.Method{Spec: progressServiceGetSkillMapSpec(), Handler: adapter.getSkillMap},
 		connect.Method{Spec: progressServiceGetProgressSpec(), Handler: adapter.getProgress},
+		connect.Method{Spec: progressServiceSetModuleLevelSpec(), Handler: adapter.setModuleLevel},
 	)
 }
 
@@ -108,6 +143,10 @@ func (UnimplementedProgressServiceHandler) GetSkillMap(context.Context, *v1.GetS
 
 func (UnimplementedProgressServiceHandler) GetProgress(context.Context, *v1.GetProgressRequest) (*v1.GetProgressResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.ProgressService.GetProgress is not implemented")
+}
+
+func (UnimplementedProgressServiceHandler) SetModuleLevel(context.Context, *v1.SetModuleLevelRequest) (*v1.SetModuleLevelResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.ProgressService.SetModuleLevel is not implemented")
 }
 
 type progressServiceClient struct {
@@ -125,6 +164,14 @@ func (c *progressServiceClient) GetSkillMap(ctx context.Context, req *v1.GetSkil
 func (c *progressServiceClient) GetProgress(ctx context.Context, req *v1.GetProgressRequest) (*v1.GetProgressResponse, error) {
 	var res v1.GetProgressResponse
 	if err := c.client.CallUnary(ctx, progressServiceGetProgressSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *progressServiceClient) SetModuleLevel(ctx context.Context, req *v1.SetModuleLevelRequest) (*v1.SetModuleLevelResponse, error) {
+	var res v1.SetModuleLevelResponse
+	if err := c.client.CallUnary(ctx, progressServiceSetModuleLevelSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -150,6 +197,18 @@ func (h progressServiceHandler) getProgress(ctx context.Context, _ connect.Spec,
 		return err
 	}
 	res, err := h.svc.GetProgress(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h progressServiceHandler) setModuleLevel(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetModuleLevelRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SetModuleLevel(ctx, &req)
 	if err != nil {
 		return err
 	}
