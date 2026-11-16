@@ -36,6 +36,7 @@ test("the orchestrator's stage ends the Dockerfile: the devcontainer with the cl
   const dockerfile = read("Dockerfile");
   const stages = [...dockerfile.matchAll(/^FROM (\S+)(?: AS (\S+))?$/gm)].map((m) => m.slice(1, 3));
   assert.deepEqual(stages.slice(1), [
+    ["toolchain-core", "toolchain"],
     ["toolchain", "devcontainer"],
     ["devcontainer", "orchestrator"],
   ]);

@@ -30,10 +30,23 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 # versions by itself, so they come from the Ubuntu archive as it was at one moment: a snapshot,
 # whose ID is raised by hand like a version (R40) — with the image above, or when a newer base
 # image needs a newer archive. apt checks the archive's signatures as it does on any update.
+#
+# apt reads the snapshot alone, from a source of its own that names the snapshot in its URI, with
+# the suites and components of the base image's ubuntu.sources: apt-get update --snapshot reads
+# the live archive's indexes as well as the snapshot's, 67.6 MB against 33.6 MB, and resolves the
+# same packages at the same versions (measurements 3.2; the 2026-11-16 amendment to R40). The
+# base image's own sources stay as they are, for whoever runs apt in the devcontainer, and this
+# RUN reads none of them. snapshot.ubuntu.com/ubuntu serves arm64 as well as amd64. The suites are
+# those of noble, the base image's Ubuntu: a base image of a newer one changes them with the ID.
 ARG UBUNTU_SNAPSHOT=20261021T000000Z
-RUN apt-get update --snapshot "$UBUNTU_SNAPSHOT"; \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        --snapshot "$UBUNTU_SNAPSHOT" \
+RUN sources="$(mktemp -d)"; \
+    printf '%s\n' 'Types: deb' "URIs: https://snapshot.ubuntu.com/ubuntu/${UBUNTU_SNAPSHOT}/" \
+        'Suites: noble noble-updates noble-backports noble-security' \
+        'Components: main universe restricted multiverse' \
+        'Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg' > "$sources/snapshot.sources"; \
+    apt_sources=(-o "Dir::Etc::SourceList=/dev/null" -o "Dir::Etc::SourceParts=$sources"); \
+    apt-get "${apt_sources[@]}" update; \
+    DEBIAN_FRONTEND=noninteractive apt-get "${apt_sources[@]}" install -y --no-install-recommends \
         libasound2t64 libatk-bridge2.0-0t64 libatk1.0-0t64 libatspi2.0-0t64 libcairo2 \
         libcups2t64 libdbus-1-3 libdrm2 libgbm1 libglib2.0-0t64 libnspr4 libnss3 \
         libpango-1.0-0 libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 \
@@ -50,4 +63,4 @@ RUN apt-get update --snapshot "$UBUNTU_SNAPSHOT"; \
         fonts-noto-color-emoji fonts-unifont libfontconfig1 libfreetype6 xfonts-cyrillic \
         xfonts-scalable fonts-liberation fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf \
         fonts-freefont-ttf; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf "$sources" /var/lib/apt/lists/*

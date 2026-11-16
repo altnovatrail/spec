@@ -232,3 +232,20 @@ test("U+FEFF stands in a quoted scalar, and nowhere else in a document (YAML 1.2
     assert.ok(!notYaml.some((one) => one.message.startsWith("U+FEFF")), JSON.stringify(source));
   }
 });
+
+// A file is read once in the process, by the sha256 of its bytes (RUN.md, T166).
+test("the same bytes give the same reading, frozen, and other bytes another", () => {
+  const first = read("title: A title\nitems: [1, 2]\n");
+  assert.equal(read("title: A title\nitems: [1, 2]\n"), first);
+  assert.equal(readModuleFile(new Uint8Array(Buffer.from("title: A title\nitems: [1, 2]\n"))), first);
+  assert.deepEqual(first.value, { title: "A title", items: [1, 2] });
+  assert.throws(() => first.value.items.push(3), TypeError);
+  assert.throws(() => { first.value.title = "changed"; }, TypeError);
+  assert.throws(() => first.violations.push({}), TypeError);
+  const other = read("title: Another\n");
+  assert.notEqual(other, first);
+  assert.deepEqual(other.value, { title: "Another" });
+  const broken = read("a: 1\na: 2\n");
+  assert.equal(read("a: 1\na: 2\n"), broken);
+  assert.ok(Object.isFrozen(broken.violations[0]));
+});

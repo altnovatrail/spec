@@ -146,18 +146,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # In the toolchain stage, as CI runs it, with the Node and just of the devcontainer, by
-      # tools/toolchain/toolchain.sh, which CI runs and another repository's release runs from
-      # its spec submodule: it mounts the runner's temporary directory, read-only and at the same
-      # path, where gh leaves the error of a refused release for the publish step. In spec the
-      # script, the recipes and their tests are one commit, so the dry run of release-refusal that
-      # another repository's release asks first is not asked here. The recipe prints the step's
-      # outputs: version — empty when there is nothing to release — previous, where the notes
-      # start, released, the release this commit has already, and behind, the newest release when
-      # this commit is older than it. The recipe refuses a commit that gives the module format
-      # another version than the release before it in the same line (R44). A tag with no release
-      # behind it was pushed by hand, against R31: on this commit, or as the newest "release" off
-      # main's history, it would stop every release quietly, so the run stops on it instead.
+      # In the toolchain-core stage, under the toolchain stage CI runs it in, with the Node and just
+      # of the devcontainer, by tools/toolchain/toolchain.sh, which CI runs and another repository's
+      # release runs from its spec submodule: it mounts the runner's temporary directory, read-only
+      # and at the same path, where gh leaves the error of a refused release for the publish step.
+      # In spec the script, the recipes and their tests are one commit, so the dry run of
+      # release-refusal that another repository's release asks first is not asked here. The recipe
+      # prints the step's outputs: version — empty when there is nothing to release — previous,
+      # where the notes start, released, the release this commit has already, and behind, the newest
+      # release when this commit is older than it. The recipe refuses a commit that gives the module
+      # format another version than the release before it in the same line (R44). A tag with no
+      # release behind it was pushed by hand, against R31: on this commit, or as the newest
+      # "release" off main's history, it would stop every release quietly, so the run stops on it
+      # instead.
       #
       # Every container the script starts has the folder it runs from mounted read-write, .git
       # and all, so the script runs from a copy of the checkout, in RUNNER_TEMP, taken before the
@@ -169,11 +170,15 @@ jobs:
       #
       # The stage is built from the Dockerfile, never from the cache that CI fills: the step sets
       # no TOOLCHAIN_IMAGE_FILE, so the image of the job that signs is what the Dockerfile builds
-      # (the 2026-11-09 amendment to R31).
+      # (the 2026-11-09 amendment to R31). It is toolchain-core, Node, just, Go and buf: every
+      # recipe the release runs takes no more, and a copy's toolchain stage adds what only its
+      # tests need, such as the browsers and the system packages of the kind typescript (the
+      # 2026-11-16 amendment to R31).
       - id: version
         name: Work out the version
         env:
           GH_TOKEN: ${{ github.token }}
+          TOOLCHAIN_STAGE: toolchain-core
         run: |
           cp -a . "$RUNNER_TEMP/checkout"
           (
@@ -334,12 +339,13 @@ jobs:
       # file of a NovaTrail release enters CI (R77; RULES.md, Hard rules): this workflow at main, in
       # this repository, and the version in the archive's package.json, which ties it to its tag,
       # since the certificate names main's tip as the run that signed began. The recipe runs in the
-      # toolchain stage, as the shared release.yml of .github runs it (R18 .github), once for each
-      # archive and each time from a new copy of the checkout, since no script runs from a copy
-      # after its container (the 2026-10-22 amendment to R31). It reads Sigstore, GitHub and the
-      # npm registry: when one cannot be read, it refuses, and the job is run again. Only this step
-      # has the token, which neither the recipe's container nor npm, which reads an archive the
-      # toolchain stage built, ever sees.
+      # toolchain-core stage that the step of the version built, as the shared release.yml of
+      # .github runs it in its stage (R18 .github), once for each archive and each time from a new
+      # copy of the checkout, since no script runs from a copy after its container (the 2026-10-22
+      # amendment to R31). It reads Sigstore, GitHub and the npm registry: when one cannot be read,
+      # it refuses, and the job is run again. Only this step has the token, which neither the
+      # recipe's container nor npm, which reads an archive the toolchain-core stage built, ever
+      # sees.
       - name: The npm package of the release
         if: steps.version.outputs.released != '' && steps.files.outputs.npm != ''
         env:
@@ -912,7 +918,7 @@ jobs:
       # each module it has not got yet, in rounds a minute apart, 36 of them for all the modules
       # together, which outlast that memory, and a run again asks again. From the line 0.7 on it
       # asks for the Go module of the contracts too, at its tag contracts/<tag>, as Go asks for it,
-      # when the step above set it: the version is the release's. It runs in the toolchain stage,
+      # when the step above set it: the version is the release's. It runs in the toolchain-core stage,
       # from an empty folder, which is all the container mounts, by the checkout's script, which no
       # container has had.
       - name: Verify the Go module

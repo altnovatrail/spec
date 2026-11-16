@@ -1,14 +1,15 @@
 # What Codecov does with the coverage of the tests of tools/ and of the Go modules (R48). There are
-# two reports, each with an upload of its own, and both leave the tests out by themselves. Node's,
-# coverage/lcov.info, which the job "Coverage" of ci.yml uploads, leaves node_modules/ out too, and
-# `just coverage`, which writes it, fails on a module of tools/ that no test loads. Go's,
-# coverage/go.out, which ci-test writes and the job "Go / coverage" of .github's shared go.yml
-# uploads, holds every package of every Go module, one that no test runs at zero; it names a file
-# by its import path, which Codecov cuts down to the path in the repository by a default rule of
-# its own, "Golang specific rule to strip out the github portion of a file path" (Codecov docs,
-# Fixing paths, read 2026-11-01). The generated types of types/ hold no statement, so nothing here
-# needs ignoring. Node measures JavaScript and Go measures Go, so the shell of toolchain.sh and of
-# the justfile's recipes counts nowhere.
+# two kinds of report, each with an upload of its own, and both leave the tests out by themselves.
+# Node's, coverage/lcov.info of each of the three parts of the tests (coverage-part), which the job
+# "Coverage" of ci.yml uploads together, in one upload (sources 11.1), leaves node_modules/ out
+# too, and the job "Documents and tools" fails on a module of tools/ that none of the three loads,
+# as `just coverage` does on its one report. Go's, coverage/go.out, which ci-test writes and the
+# job "Go / coverage" of .github's shared go.yml uploads, holds every package of every Go module,
+# one that no test runs at zero; it names a file by its import path, which Codecov cuts down to the
+# path in the repository by a default rule of its own, "Golang specific rule to strip out the
+# github portion of a file path" (Codecov docs, Fixing paths, read 2026-11-01). The generated types
+# of types/ hold no statement, so nothing here needs ignoring. Node measures JavaScript and Go
+# measures Go, so the shell of toolchain.sh and of the justfile's recipes counts nowhere.
 
 # Both uploads, before any status: "How many uploaded reports Codecov should wait to receive before
 # sending statuses", 1 by default (Codecov docs, codecov.yml reference, read 2026-11-04). With one,

@@ -230,8 +230,8 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     const { "git.repositoryScanMaxDepth": onlySpec, ...settings } = spec.customizations.vscode.settings;
     assert.equal(onlySpec, 2);
     assert.deepEqual(dc.customizations.vscode.settings, { ...settings, ...(kinds[kind].settings ?? {}) });
-    // The kind's lines close the toolchain stage, before the devcontainer stage's heading, and
-    // without them the Dockerfile is spec's.
+    // The kind's lines close the toolchain stage, before the devcontainer stage's heading, not
+    // toolchain-core, and without them the Dockerfile is spec's.
     const lines = kinds[kind].toolchain ? suffixed(read(specRoot, path.join("repo-template", kinds[kind].toolchain)).trimEnd()) : null;
     const ownName = (text) => suffixed(text.replace("the NovaTrail spec", `NovaTrail's ${name}`));
     // The lines of the kind's folder stand in the devcontainer stage, right before the step of
@@ -242,6 +242,8 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     if (lines) {
       const toolchainStage = dockerfile.slice(0, dockerfile.indexOf("\n# -- devcontainer:"));
       assert.ok(toolchainStage.endsWith(`\n\n${lines}\n`), "the kind's lines end the toolchain stage");
+      const core = toolchainStage.indexOf("\nFROM toolchain-core AS toolchain\n");
+      assert.ok(core >= 0 && toolchainStage.indexOf(lines) > core, "the kind's lines are in toolchain-core");
       without = without.replace(`${lines}\n\n`, "");
     }
     if (stage) {
@@ -282,8 +284,16 @@ test("the typescript kind brings the browsers into the toolchain stage, and Biom
   for (const name of ["HEADLESS_SHELL", "WEBKIT", "FIREFOX"]) assert.match(toolchain, new RegExp(`^ARG PLAYWRIGHT_${name}_REVISION=\\d+$`, "m"));
   assert.match(toolchain, /^ENV PLAYWRIGHT_BROWSERS_PATH=\/ms-playwright$/m);
   assert.match(toolchain, /^ARG UBUNTU_SNAPSHOT=\d{8}T\d{6}Z$/m, "the system libraries come from a snapshot (R40)");
-  const list = toolchain.match(/--snapshot "\$UBUNTU_SNAPSHOT" \\\n([^;]+);/);
-  assert.ok(list, "apt-get install takes its packages after --snapshot, up to the semicolon");
+  // apt reads the snapshot alone, from a source of its own, and none of the base image's (the
+  // 2026-11-16 amendment to R40).
+  assert.ok(toolchain.includes('"URIs: https://snapshot.ubuntu.com/ubuntu/${UBUNTU_SNAPSHOT}/"'), "the source names the snapshot in its URI");
+  assert.match(toolchain, /apt_sources=\(-o "Dir::Etc::SourceList=\/dev\/null" -o "Dir::Etc::SourceParts=\$sources"\)/, "apt reads that source alone");
+  const code = toolchain.split("\n").filter((line) => !line.startsWith("#")).join("\n");
+  assert.equal(code.match(/apt-get /g).length, 2);
+  assert.equal(code.match(/apt-get "\$\{apt_sources\[@\]\}" /g).length, 2, "both update and install read the snapshot's source alone");
+  assert.doesNotMatch(code, /--snapshot/);
+  const list = toolchain.match(/install -y --no-install-recommends \\\n([^;]+);/);
+  assert.ok(list, "apt-get install takes its packages after its options, up to the semicolon");
   const packages = list[1].split(/[\s\\]+/).filter(Boolean);
   assert.deepEqual(packages.filter((p, i) => packages.indexOf(p) !== i), [], "each package once");
   assert.match(toolchain, /\(R79 spec\)/);

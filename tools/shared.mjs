@@ -1,6 +1,7 @@
 // What every tool under tools/ shares: how a module tells that it runs as a script, the
 // programs the tools run, which paths of another repository they read, and how they order names.
 
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -74,6 +75,27 @@ export function inRepository(file, root = process.cwd()) {
 
 // Names in the order of their UTF-16 code units, as sort() puts them with no compare function:
 // a stable order, the same on every machine, whatever its locale.
+// What make(input) gives, kept in cache by the sha256 of input, a text or its bytes, and frozen
+// through and through, so that a caller that changed it would fail rather than change the next
+// caller's: the parses of documents that a check reads again, as its tests do on one trial copy
+// after another (RUN.md, T166). A Set alone cannot be frozen, and only make may fill one.
+export function cachedBy(cache, input, make) {
+  const key = createHash("sha256").update(input).digest("hex");
+  let value = cache.get(key);
+  if (value === undefined) {
+    value = deepFreeze(make(input));
+    cache.set(key, value);
+  }
+  return value;
+}
+
+function deepFreeze(value) {
+  if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value;
+  Object.freeze(value);
+  for (const child of Object.values(value)) deepFreeze(child);
+  return value;
+}
+
 export function byCodeUnits(a, b) {
   if (a < b) return -1;
   return a > b ? 1 : 0;

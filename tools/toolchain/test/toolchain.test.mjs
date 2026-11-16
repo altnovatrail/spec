@@ -21,8 +21,9 @@ const user = `${process.getuid()}:${process.getgid()}`;
 // each, and a record separator after the call — and for build what it read; that answers each
 // subcommand with the code DOCKER_EXIT_<subcommand> names, 0 by default, and on a save that
 // succeeds writes the file; RUNNER_TEMP; and a repository with the script where `inSpec` puts it —
-// in tools/ of spec itself, or in spec/tools/ of a repository with spec as its submodule.
-function runner({ inSpec = false } = {}) {
+// in tools/ of spec itself, or in spec/tools/ of a repository with spec as its submodule —, with
+// `dockerfile` as its .devcontainer/Dockerfile.
+function runner({ inSpec = false, dockerfile = "FROM scratch AS toolchain\n" } = {}) {
   const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "toolchain-")));
   const bin = path.join(root, "bin");
   fs.mkdirSync(bin);
@@ -49,7 +50,7 @@ function runner({ inSpec = false } = {}) {
   fs.mkdirSync(path.join(specDir, "tools", "toolchain"), { recursive: true });
   fs.copyFileSync(script, path.join(specDir, "tools", "toolchain", "toolchain.sh"));
   fs.mkdirSync(path.join(repo, ".devcontainer"));
-  fs.writeFileSync(path.join(repo, ".devcontainer", "Dockerfile"), "FROM scratch AS toolchain\n");
+  fs.writeFileSync(path.join(repo, ".devcontainer", "Dockerfile"), dockerfile);
   const relative = inSpec ? "tools/toolchain/toolchain.sh" : "spec/tools/toolchain/toolchain.sh";
 
   // The script run as a workflow step runs it: by its path from the repository's root, or from cwd.
@@ -158,6 +159,62 @@ test("with no file there, the stage is built and saved to it; a save that fails 
     const failed = r.toolchain(["build"], { env: { TOOLCHAIN_IMAGE_FILE: file, DOCKER_EXIT_build: "5" } });
     assert.equal(failed.status, 5);
     assert.deepEqual(failed.calls, [BUILD]);
+  } finally {
+    r.done();
+  }
+});
+
+// A Dockerfile with both stages, as spec's and a copy's of this tag have them.
+const BOTH = "FROM scratch AS toolchain-core\n\nFROM toolchain-core AS toolchain\n";
+const BUILD_CORE = ["build", "--target", "toolchain-core", "--tag", "novatrail-toolchain", "-"];
+
+test("TOOLCHAIN_STAGE=toolchain-core builds the core stage, from the cache file as the other stage is", () => {
+  const r = runner({ dockerfile: BOTH });
+  try {
+    const env = { TOOLCHAIN_STAGE: "toolchain-core" };
+    const core = r.toolchain(["build"], { env });
+    assert.equal(core.status, 0, core.stderr);
+    assert.deepEqual(core.calls, [BUILD_CORE]);
+    assert.equal(core.stdin, BOTH);
+    assert.doesNotMatch(core.stdout, /::notice::/);
+    // Unset, empty or toolchain, it is the stage the checks run in.
+    for (const stage of [{}, { TOOLCHAIN_STAGE: "" }, { TOOLCHAIN_STAGE: "toolchain" }]) {
+      assert.deepEqual(r.toolchain(["build"], { env: stage }).calls, [BUILD]);
+    }
+    const file = imageFile(r);
+    const miss = r.toolchain(["build"], { env: { ...env, TOOLCHAIN_IMAGE_FILE: file } });
+    assert.equal(miss.status, 0, miss.stderr);
+    assert.deepEqual(miss.calls, [BUILD_CORE, SAVE(file)]);
+    const hit = r.toolchain(["build"], { env: { ...env, TOOLCHAIN_IMAGE_FILE: file } });
+    assert.equal(hit.status, 0, hit.stderr);
+    assert.deepEqual(hit.calls, [LOAD(file), INSPECT]);
+  } finally {
+    r.done();
+  }
+});
+
+test("a Dockerfile with no stage toolchain-core gets toolchain, with a notice, and a stage the script does not know stops it", () => {
+  for (const dockerfile of ["FROM scratch AS toolchain\n", "FROM scratch AS toolchain-core-x\nFROM scratch AS toolchain\n# AS toolchain-core\n"]) {
+    const r = runner({ dockerfile });
+    try {
+      const old = r.toolchain(["build"], { env: { TOOLCHAIN_STAGE: "toolchain-core" } });
+      assert.equal(old.status, 0, old.stderr);
+      assert.deepEqual(old.calls, [BUILD]);
+      assert.match(old.stdout, /^::notice::toolchain\.sh: \.devcontainer\/Dockerfile has no stage toolchain-core, so toolchain is built$/m);
+    } finally {
+      r.done();
+    }
+  }
+  // The keywords of a Dockerfile are read in any case, and the line may be indented.
+  const r = runner({ dockerfile: "  from scratch as toolchain-core\nFROM toolchain-core AS toolchain\n" });
+  try {
+    assert.deepEqual(r.toolchain(["build"], { env: { TOOLCHAIN_STAGE: "toolchain-core" } }).calls, [BUILD_CORE]);
+    for (const stage of ["devcontainer", "toolchain core", "Toolchain"]) {
+      const refused = r.toolchain(["build"], { env: { TOOLCHAIN_STAGE: stage } });
+      assert.equal(refused.status, 2);
+      assert.equal(refused.docker, null);
+      assert.match(refused.stderr, /TOOLCHAIN_STAGE: .* is not toolchain or toolchain-core/);
+    }
   } finally {
     r.done();
   }

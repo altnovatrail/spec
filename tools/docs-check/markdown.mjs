@@ -5,6 +5,7 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { gfm } from "micromark-extension-gfm";
 import GithubSlugger from "github-slugger";
+import { cachedBy } from "../shared.mjs";
 
 // Stands in for inline code in a block's text: what is in code is never a citation, but a list
 // such as "standalone: `tools/learners`, R163" has to keep its shape.
@@ -16,11 +17,29 @@ export function isTableHeading(text, heading) {
   return text.startsWith(heading) || text.startsWith(heading.replace(/^Table /u, "Таблица "));
 }
 
+// The documents parsed in this process, by the sha256 of their text (cachedBy): a check that
+// reads the same text again — the tests run a check on one trial copy after another, each in a
+// temporary folder of its own, and most of each copy is spec's documents as they are — takes the
+// parse it had, since the parse is the text's alone, not its path's (RUN.md, T166).
+const parsed = new Map();
+const trees = new Map();
+
 export function parseMarkdown(source) {
-  const tree = fromMarkdown(source, {
-    extensions: [gfm()],
-    mdastExtensions: [gfmFromMarkdown()],
-  });
+  return cachedBy(parsed, source, parse);
+}
+
+// The syntax tree of a text, as mdast-util-from-markdown gives it with GFM, cached and frozen the
+// same way, for a check that reads the tree itself. parseMarkdown builds its own and keeps none:
+// the trees of every document docs-check reads would stay in memory for the few texts that both
+// read, format/README.md and the legal texts.
+export function markdownTree(source) {
+  return cachedBy(trees, source, treeOf);
+}
+
+const treeOf = (source) => fromMarkdown(source, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] });
+
+function parse(source) {
+  const tree = treeOf(source);
   const slugger = new GithubSlugger();
   const doc = {
     headings: [], // { depth, text, number, line }

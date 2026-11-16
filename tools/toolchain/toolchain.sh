@@ -8,7 +8,8 @@
 # tag.
 #
 #   toolchain.sh build                                   build the stage as the image novatrail-toolchain,
-#                                                        or load it from TOOLCHAIN_IMAGE_FILE (below)
+#                                                        or load it from TOOLCHAIN_IMAGE_FILE (below);
+#                                                        TOOLCHAIN_STAGE names the stage (below)
 #   toolchain.sh run <command> [<argument>...]           run a command in it
 #   toolchain.sh spec [--dry-run] <recipe> [<argument>...]
 #                                                        run one of spec's recipes, from spec's justfile
@@ -20,8 +21,18 @@
 # arguments, never as the text of a script, so no character in them is read as shell syntax. A
 # colon is the one character they may not hold: docker's --volume splits on it.
 #
+# The stage is toolchain, the one the checks run in, unless TOOLCHAIN_STAGE names toolchain-core:
+# Node, just, Go and buf alone, which a release builds, and a check that runs no browser may (R31).
+# A variable rather than an argument, as TOOLCHAIN_IMAGE_FILE is: a script of an older tag of spec
+# takes no argument to build and builds toolchain whatever the variable says, and toolchain holds
+# all the core does. For the same reason a Dockerfile older than the core stage, in a repository
+# whose submodule has moved before its .devcontainer/, gets toolchain, with a notice; a stage the
+# Dockerfile has is found by its FROM line, "FROM <image> AS <stage>".
+#
 # The image may come from a file of docker save, which the caller keeps in the cache of GitHub
-# Actions by the sha256 of the Dockerfile (R31): TOOLCHAIN_IMAGE_FILE names it, its whole path.
+# Actions by the sha256 of the Dockerfile (R31): TOOLCHAIN_IMAGE_FILE names it, its whole path. The
+# file holds no name of its stage, and a file of either stage loads as novatrail-toolchain: a caller
+# that builds both keeps them under keys that name the stage.
 # Unset or empty, build builds the stage, as ever; a release sets it never, so the image of the job
 # that signs is built from the Dockerfile. Set, build
 #   - loads the file, if it is there, and holds that it gave the image novatrail-toolchain, then
@@ -87,7 +98,7 @@ forget() {
 
 # The Dockerfile copies nothing from the repository, so it is built without a context.
 build_stage() {
-    docker build --target toolchain --tag "$image" - < .devcontainer/Dockerfile
+    docker build --target "$stage" --tag "$image" - < .devcontainer/Dockerfile
 }
 
 if [ $# -eq 0 ]; then
@@ -103,6 +114,17 @@ case "$what" in
         if [ ! -f .devcontainer/Dockerfile ]; then
             fail "no .devcontainer/Dockerfile in ${here}: run it from the root of the repository"
         fi
+        stage=${TOOLCHAIN_STAGE:-toolchain}
+        case "$stage" in
+            toolchain) ;;
+            toolchain-core)
+                if ! grep -Eiq '^[[:space:]]*FROM[[:space:]].*[[:space:]]AS[[:space:]]+toolchain-core[[:space:]]*$' .devcontainer/Dockerfile; then
+                    stage=toolchain
+                    echo "::notice::toolchain.sh: .devcontainer/Dockerfile has no stage toolchain-core, so toolchain is built"
+                fi
+                ;;
+            *) fail "TOOLCHAIN_STAGE: ${stage} is not toolchain or toolchain-core" ;;
+        esac
         file=${TOOLCHAIN_IMAGE_FILE:-}
         if [ -z "$file" ]; then
             build_stage

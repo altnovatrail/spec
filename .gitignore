@@ -2,8 +2,8 @@
 tools/node_modules/
 
 # The coverage of the tests of tools/ and of the Go modules, written by `just coverage` and
-# `just ci-test` for Codecov (R48).
-coverage/
+# `just ci-test` for Codecov (R48), at the root alone: tools/coverage/ is code.
+/coverage/
 
 # Working copies of new NovaTrail repositories, built by `just new-repo`: each is a repository
 # of its own.
