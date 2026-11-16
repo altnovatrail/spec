@@ -32,7 +32,6 @@
     "files": {
       "CLAUDE.md": 12,
       "RUN.md": 96,
-      "DEBT.md": 128,
       "run/EPICS.md": 16,
       "run/QUESTIONS.md": 24,
       "run/DEBT.md": 128,
@@ -44,7 +43,6 @@
     "sections": {},
     "rows": {
       "RUN.md": 4,
-      "DEBT.md": 4,
       "run/EPICS.md": 4,
       "run/QUESTIONS.md": 4,
       "run/DEBT.md": 4

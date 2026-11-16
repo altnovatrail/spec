@@ -9,8 +9,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { git as runGit } from "../shared.mjs";
+import { RUN_TASKS } from "../session/session.mjs";
 import { ensureRunning, FOLDER_LABEL, findContainer, inspect, placeOf } from "./containers.mjs";
 import { outcomeOf, readStream } from "./stream.mjs";
+import { sessionCost } from "./transcript.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -27,6 +29,10 @@ export const CONTINUE = "Continue the task from where it stopped.";
 export const SPEC_URL = "https://github.com/altnovatrail/spec.git";
 // How long an attempt may take to write its pid before it counts as lost.
 const STARTING_MS = 60_000;
+// How many seconds `stop` waits for claude to end after SIGTERM, and then after SIGKILL.
+export const STOP_WAIT = { TERM: 30, KILL: 10 };
+// What docker says of a container that is no longer there, or no longer runs.
+const GONE = /No such (object|container)|is not running/;
 
 // The executor's command in its container, by sh: the run's folder and the attempt's number, then
 // the arguments of claude. It reads the contract, the schema and the prompt from files of the run,
@@ -84,9 +90,55 @@ function saveRun(home, run) {
   fs.renameSync(`${file}.part`, file);
 }
 
+// Changes run.json by `change` on the file as it is now, not on the copy `run` was loaded from:
+// a `wait` in the background and a `stop` or `resume` each hold a copy, and a write of a whole
+// old copy would undo what the other saved. `run` is then the file's.
+function updateRun(home, run, change) {
+  const fresh = loadRun(home, run.id);
+  change(fresh);
+  saveRun(home, fresh);
+  Object.assign(run, fresh);
+}
+
 // The orchestrator's own log of the run: what it did, a line of JSON each.
 function logEvent(home, run, event) {
   fs.appendFileSync(path.join(runsOf(home), run.id, "events.jsonl"), `${JSON.stringify(event)}\n`);
+}
+
+// The numbers a run goes by: every one it has had, `labels`, the one it started under first, and
+// the one it goes by now (T175). The hook of tools/session/ counts them as one task, so that a
+// resume whose prompt names the real number is not refused in the session that started under
+// another.
+export function tasksOf(run) {
+  return [...new Set([...(run.labels ?? []), run.task])];
+}
+
+// The run's container found again by its labels, when docker no longer has the one it stored —
+// the author rebuilt it, and a rebuilt container has a new id (T175): the same folder of the host
+// and its configuration, as start found it. run.json and the log take the new one.
+function relocate(home, run, deps) {
+  const found = findContainer(run.repo, { docker: deps.docker, folder: run.container.folder });
+  const place = placeOf(found);
+  if (place.id !== run.container.id) {
+    const from = run.container.name;
+    updateRun(home, run, (r) => {
+      // The attempts so far ran in the old one, and their pids are not looked for in the new.
+      for (const attempt of r.attempts) attempt.container ??= r.container.id;
+      r.container = place;
+    });
+    logEvent(home, run, { time: deps.now().toISOString(), event: "container", from, to: place.name, id: place.id });
+  }
+  return found;
+}
+
+// What docker says of the run's container now: the one it stored, or the one its labels find.
+function containerOf(home, run, deps) {
+  try {
+    return inspect([run.container.id], deps.docker)[0];
+  } catch (error) {
+    if (!GONE.test(error.message)) throw error;
+    return relocate(home, run, deps);
+  }
 }
 
 // The arguments of claude for an attempt (sources 2.11): the first gives the session the id the
@@ -118,11 +170,10 @@ function launch(home, run, prompt, budget, deps) {
   const dir = path.join(runsOf(home), run.id);
   fs.writeFileSync(path.join(dir, `prompt-${n}.txt`), prompt);
   const inside = path.posix.join(run.container.claude, path.relative(path.dirname(home), dir).split(path.sep).join("/"));
-  const env = Object.entries(GIT_ENV).flatMap(([k, v]) => ["--env", `${k}=${v}`]);
+  const env = Object.entries({ ...GIT_ENV, [RUN_TASKS]: tasksOf(run).join(" ") }).flatMap(([k, v]) => ["--env", `${k}=${v}`]);
   deps.docker(["exec", "--detach", "--user", "vscode", "--workdir", run.container.workdir, ...env, run.container.id, "sh", "-c", SCRIPT, "sh", inside, String(n), ...claudeArgs(run, n, budget)]);
-  const attempt = { n, kind: n === 1 ? "start" : "resume", started: deps.now().toISOString(), budget_usd: Number(budget.toFixed(2)) };
-  run.attempts.push(attempt);
-  saveRun(home, run);
+  const attempt = { n, kind: n === 1 ? "start" : "resume", started: deps.now().toISOString(), budget_usd: Number(budget.toFixed(2)), container: run.container.id };
+  updateRun(home, run, (r) => r.attempts.push(attempt));
   logEvent(home, run, { time: attempt.started, event: attempt.kind, attempt: n, budget_usd: attempt.budget_usd, container: run.container.name });
 }
 
@@ -143,6 +194,7 @@ export function start({ repo, task, ceiling = DEFAULT_CEILING, prompt = null, co
   fs.mkdirSync(runsOf(deps.home), { recursive: true });
   fs.mkdirSync(dir);
   for (const name of ["executor.md", "status.schema.json"]) fs.copyFileSync(path.join(HERE, name), path.join(dir, name));
+  saveRun(deps.home, run);
   launch(deps.home, run, prompt ?? `Выполни задачу ${task} из RUN.md`, ceiling, deps);
   return run;
 }
@@ -159,22 +211,71 @@ const ALIVE = [
 
 // Whether an attempt with no exit code still runs: its container runs, and its sh is alive in it.
 // One whose pid is not written yet is starting, for a while. A container that is gone or stopped
-// has lost it; any other failure of docker is an error, not an answer.
-function alive(run, attempt, dir, deps) {
+// has lost it — a gone one is looked for again by its labels, for the run's next attempt —; any
+// other failure of docker is an error, not an answer.
+function alive(home, run, attempt, dir, deps) {
   const pidFile = path.join(dir, `pid-${attempt.n}`);
   if (!fs.existsSync(pidFile)) return deps.now() - new Date(attempt.started) < STARTING_MS;
   const pid = fs.readFileSync(pidFile, "utf8").trim();
   if (!/^\d+$/.test(pid)) return false;
-  const gone = (error) => /No such (object|container)|is not running/.test(error.message);
+  // An attempt of a container that was rebuilt since is gone with it.
+  if ((attempt.container ?? run.container.id) !== run.container.id) return false;
+  let now;
   try {
-    const [now] = inspect([run.container.id], deps.docker);
-    if (!now.State?.Running) return false;
+    [now] = inspect([run.container.id], deps.docker);
+  } catch (error) {
+    if (!GONE.test(error.message)) throw error;
+    try {
+      relocate(home, run, deps);
+    } catch {
+      // No container by its labels either: the run keeps the one it had, and resume says why.
+    }
+    return false;
+  }
+  if (!now.State?.Running) return false;
+  try {
     return deps.docker(["exec", "--user", "vscode", run.container.id, "sh", "-c", ALIVE, "sh", pid]).trim() === "alive";
   } catch (error) {
-    if (gone(error)) return false;
+    if (GONE.test(error.message)) return false;
     throw error;
   }
 }
+
+// Signals with $1 the processes of a container below the process $2 — claude, which the attempt's
+// sh wraps, and all that claude started, the commands it left in the background too — and those of
+// the rest of its words, each `<pid>:<start>`, that still run with the same time of start, and
+// prints each one it signalled as `<pid>:<start>`; $1 "-" signals none, and only names them. The sh
+// itself is left to write claude's exit code: a signal to the sh alone would not reach claude
+// (T175). A process that claude's end left to the container's first process is no longer below the
+// sh, so stop gives back what its first round named; the time of start tells that the pid has not
+// passed to another process since. A zombie is no process here. The fields of /proc/<pid>/stat are
+// taken after the last ") ", since the name before may hold spaces and parentheses: the state is
+// the first, the parent the second, the time of start the twentieth. Everything here is sh's own,
+// as in ALIVE: an image need not have pkill or ps.
+export const STOP = [
+  'sig=$1; root=$2; shift 2; given=" $* "; rows=',
+  'for f in /proc/[0-9]*/stat; do',
+  '  stat=; { read -r stat < "$f"; } 2>/dev/null || continue',
+  '  p=${f#/proc/}; set -- ${stat##*") "}',
+  '  [ "$1" = Z ] || rows="$rows ${p%/stat}:$2:${20}"',
+  'done',
+  'found=" $root "; more=1',
+  'while [ -n "$more" ]; do',
+  '  more=',
+  '  for row in $rows; do',
+  '    pid=${row%%:*}; rest=${row#*:}',
+  '    case "$found" in *" ${rest%%:*} "*) case "$found" in *" $pid "*) ;; *) found="$found$pid "; more=1 ;; esac ;; esac',
+  '  done',
+  'done',
+  'targets=; pids=',
+  'for row in $rows; do',
+  '  pid=${row%%:*}; mark=$pid:${row##*:}',
+  '  [ "$pid" = "$root" ] && continue',
+  '  case "$found$given" in *" $pid "*|*" $mark "*) targets="$targets $mark"; pids="$pids $pid" ;; esac',
+  'done',
+  '[ "$sig" = - ] || [ -z "$pids" ] || kill -s "$sig" $pids 2>/dev/null',
+  'echo $targets',
+].join("\n");
 
 // How an attempt went. Only the last one may still run: an earlier one with no exit code was lost
 // before the next began, and its pid is not looked for again — a container started anew may have
@@ -184,36 +285,79 @@ function attemptOf(home, run, attempt, deps, last) {
   const file = (name) => path.join(dir, `${name}-${attempt.n}${name === "stream" ? ".jsonl" : ""}`);
   const read = () => readStream(fs.existsSync(file("stream")) ? fs.readFileSync(file("stream"), "utf8") : "");
   const exited = () => fs.existsSync(file("exit"));
-  if (!exited() && last && alive(run, attempt, dir, deps)) return { phase: "running", read: read() };
+  if (!exited() && last && alive(home, run, attempt, dir, deps)) return { phase: "running", read: read() };
   // The exit code may have come between the two looks.
-  if (!exited()) return { phase: "lost", status: null, reason: "the attempt's process is gone with no exit code: its container stopped, or it was killed", resetsAt: null, read: read() };
-  const code = Number(fs.readFileSync(file("exit"), "utf8").trim());
   const stream = read();
-  return { ...outcomeOf(stream, code), read: stream };
+  const outcome = exited()
+    ? outcomeOf(stream, Number(fs.readFileSync(file("exit"), "utf8").trim()), earlier(dir) ? run.task : null)
+    : { phase: "lost", status: null, reason: "the attempt's process is gone with no exit code: its container stopped, or it was killed", resetsAt: null };
+  // An attempt the orchestrator stopped is stopped, whatever it printed before it ended.
+  if (attempt.stopped) return { ...outcome, phase: "stopped", reason: `stopped by the ${attempt.stopped.by} at ${attempt.stopped.time}`, read: stream };
+  return { ...outcome, read: stream };
+}
+
+// Whether a run was started by the earlier contract, whose status named no task: its folder keeps
+// the schema it was given. One whose schema cannot be read is held to this copy's.
+function earlier(dir) {
+  try {
+    return !JSON.parse(fs.readFileSync(path.join(dir, "status.schema.json"), "utf8")).required.includes("task");
+  } catch {
+    return false;
+  }
+}
+
+// Takes the number the executor's status names for its task, when it is not the run's: the
+// executor wrote the task under the next free number, its own being taken (T175). Every number the
+// run has gone by stays in `labels`, the first first; the log says when it changed.
+function relabel(home, run, named, deps) {
+  const number = `T${Number(named.slice(1))}`;
+  if (number === run.task) return;
+  logEvent(home, run, { time: deps.now().toISOString(), event: "relabel", from: run.task, to: number });
+  updateRun(home, run, (r) => {
+    r.labels = [...new Set([...(r.labels ?? [r.task]), number])];
+    r.task = number;
+  });
 }
 
 // Where a run stands: the phase of its last attempt, the executor's status, why it stopped, when a
 // limit resets, and what it cost. A resumed run's total_cost_usd is the session's whole total
-// (sources 2.11), so what the task spent is the largest of them; an attempt after it that printed
-// none adds what it spent unseen, and is counted.
+// (sources 2.11), so what the task spent is the largest of them. An attempt after it that printed
+// none — stopped, lost, cut short — spent what only the session's transcript shows: the transcript
+// is read then, and the larger of the two is the spend, with where it came from. Such an attempt
+// is counted as unpriced unless the transcript, every call of it priced, comes to more than the
+// results' total: one that comes to less does not show what the attempt spent. Turns and time are summed over every result of every attempt (T175);
+// the usage of the models is the last result's.
 export function stateOf(home, run, deps) {
   const results = run.attempts.map((a, i) => attemptOf(home, run, a, deps, i === run.attempts.length - 1));
   const last = results.at(-1);
+  const named = results.map((r) => r.status?.task).filter(Boolean).at(-1);
+  if (named) relabel(home, run, named, deps);
   let spent = 0;
   let pricedAt = -1;
   results.forEach((r, i) => {
-    const cost = r.read.result?.total_cost_usd;
+    const cost = r.read.cost;
     if (typeof cost === "number" && cost >= spent) {
       spent = cost;
       pricedAt = i;
     }
   });
-  const unpriced = results.slice(pricedAt + 1).filter((r) => r.phase !== "running").length;
+  let from = pricedAt >= 0 ? "result" : null;
+  let unpriced = results.slice(pricedAt + 1).filter((r) => r.phase !== "running").length;
+  if (unpriced > 0) {
+    const transcript = sessionCost(path.dirname(home), run.container.workdir, run.session);
+    if (transcript && transcript.usd > spent) {
+      spent = transcript.usd;
+      from = "transcript";
+      if (transcript.unpriced === 0) unpriced = 0;
+    }
+  }
   const result = last.read.result;
+  const summed = results.filter((r) => r.read.results > 0);
   return {
     run: run.id,
     repo: run.repo,
     task: run.task,
+    labels: tasksOf(run),
     container: run.container.name,
     session: run.session,
     attempt: run.attempts.length,
@@ -222,12 +366,34 @@ export function stateOf(home, run, deps) {
     reason: last.reason ?? null,
     resets_at: last.resetsAt ?? null,
     spent_usd: Number(spent.toFixed(4)),
+    spent_from: from,
     unpriced_attempts: unpriced,
     ceiling_usd: run.ceiling_usd,
     model_usage: result?.modelUsage ?? null,
-    num_turns: result?.num_turns ?? null,
-    duration_ms: result?.duration_ms ?? null,
+    num_turns: summed.length ? summed.reduce((sum, r) => sum + r.read.turns, 0) : null,
+    duration_ms: summed.length ? summed.reduce((sum, r) => sum + r.read.durationMs, 0) : null,
   };
+}
+
+// The runs of a repository not known to be done, each with every number it has gone by: what
+// `next` counts beside the repository's own plan. Known done is a last attempt that exited with
+// the executor's status done, by the run's files alone: no docker, and nothing written. A run done
+// whose number a pull request or main holds is counted by them anyway.
+export function openRuns(home, repo) {
+  return allRuns(home)
+    .map((id) => loadRun(home, id))
+    .filter((run) => run.repo === repo && !knownDone(home, run))
+    .map((run) => ({ run: run.id, tasks: tasksOf(run) }));
+}
+
+function knownDone(home, run) {
+  const attempt = run.attempts.at(-1);
+  const dir = path.join(runsOf(home), run.id);
+  const exit = path.join(dir, `exit-${attempt?.n}`);
+  const stream = path.join(dir, `stream-${attempt?.n}.jsonl`);
+  if (!attempt || attempt.stopped || !fs.existsSync(exit) || !fs.existsSync(stream)) return false;
+  const code = Number(fs.readFileSync(exit, "utf8").trim());
+  return outcomeOf(readStream(fs.readFileSync(stream, "utf8")), code, earlier(dir) ? run.task : null).phase === "done";
 }
 
 // Every run in the orchestrator's folder, oldest first.
@@ -251,13 +417,63 @@ export function resume(id, { prompt = null, ceiling = null }, deps) {
   if (state.phase === "limited" && state.resets_at && new Date(state.resets_at) > deps.now()) throw new Error(`${id}: the limit resets at ${state.resets_at}; resume it after`);
   if (ceiling !== null) {
     if (!(Number.isFinite(ceiling) && ceiling > 0)) throw new Error(`not a ceiling of cost: ${ceiling}`);
-    run.ceiling_usd = ceiling;
+    updateRun(deps.home, run, (r) => {
+      r.ceiling_usd = ceiling;
+    });
   }
   const left = run.ceiling_usd - state.spent_usd;
   if (left < 0.01) throw new Error(`${id}: spent $${state.spent_usd} of its ceiling of $${run.ceiling_usd}; the author may raise it with --ceiling`);
-  const [now] = inspect([run.container.id], deps.docker);
-  ensureRunning(now, deps);
+  ensureRunning(containerOf(deps.home, run, deps), deps);
   launch(deps.home, run, prompt ?? CONTINUE, left, deps);
+  return run;
+}
+
+// Stops the last attempt of a run that runs, so that the orchestrator may resume it with a new word
+// (T175): SIGTERM to claude and every process below it; then, once STOP_WAIT.TERM seconds have
+// passed with any of them still there, SIGKILL to what is left of them and to what is below the sh
+// now. A process that outlived claude, which the container's first process took over, is still one
+// of them: STOP names each by its pid and its time of start, so that a pid passed on since is never
+// signalled. It returns once the attempt has ended — its sh wrote the exit code, or is gone —, with
+// the attempt recorded as stopped: when, by whom, by which signal last; the log names how many
+// processes it signalled, and how many outlived SIGKILL. What the attempt spent comes from the
+// session's transcript (stateOf).
+export function stop(id, deps) {
+  const run = loadRun(deps.home, id);
+  const state = stateOf(deps.home, run, deps);
+  if (state.phase !== "running") throw new Error(`${id} does not run: its last attempt is ${state.phase}`);
+  const attempt = run.attempts.at(-1);
+  const dir = path.join(runsOf(deps.home), run.id);
+  const pidFile = path.join(dir, `pid-${attempt.n}`);
+  if (!fs.existsSync(pidFile)) throw new Error(`${id}: attempt ${attempt.n} has not written its pid yet; stop it in a minute`);
+  // alive() has held it to digits.
+  const pid = fs.readFileSync(pidFile, "utf8").trim();
+  const waits = deps.stopWait ?? STOP_WAIT;
+  // The words STOP gets back are its own output, `<pid>:<start>`, digits alone.
+  const signal = (sig, known) =>
+    deps
+      .docker(["exec", "--user", "vscode", run.container.id, "sh", "-c", STOP, "sh", sig, pid, ...known])
+      .split(/\s+/)
+      .filter((word) => /^\d+:\d+$/.test(word));
+  const ended = () => fs.existsSync(path.join(dir, `exit-${attempt.n}`)) || !alive(deps.home, run, attempt, dir, deps);
+  const over = (known) => ended() && signal("-", known).length === 0;
+  const waitOver = (seconds, known) => {
+    for (let i = 0; i < seconds && !over(known); i += 1) deps.sleep(1000);
+  };
+  let known = signal("TERM", []);
+  let last = "TERM";
+  waitOver(waits.TERM, known);
+  if (!over(known)) {
+    known = [...new Set([...known, ...signal("KILL", known)])];
+    last = "KILL";
+    waitOver(waits.KILL, known);
+  }
+  if (!ended()) throw new Error(`${id}: attempt ${attempt.n} still runs after SIGKILL`);
+  const survivors = signal("-", known).length;
+  const stopped = { time: deps.now().toISOString(), by: "orchestrator", signal: last };
+  updateRun(deps.home, run, (r) => {
+    r.attempts[attempt.n - 1].stopped = stopped;
+  });
+  logEvent(deps.home, run, { time: stopped.time, event: "stop", attempt: attempt.n, signal: last, processes: known.length, survivors, container: run.container.name });
   return run;
 }
 

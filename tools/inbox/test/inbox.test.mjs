@@ -1,9 +1,9 @@
-// Each test reads made-up RUN.md and run/QUESTIONS.md files, and GitHub through a stand-in for gh:
+// Each test reads made-up run/QUESTIONS.md files, and GitHub through a stand-in for gh:
 // none goes to the network. runGh itself runs node in place of gh.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compare, fingerprintOf, ledgerOf, parseNumbers, readRepository, report, rowsForSpec, runGh } from "../inbox.mjs";
+import { compare, fingerprintOf, ledgerOf, parseNumbers, QUESTIONS, readRepository, report, rowsForSpec, runGh } from "../inbox.mjs";
 import { inbox, OTHERS } from "../main.mjs";
 import { dueOf } from "../due.mjs";
 
@@ -11,52 +11,46 @@ import { dueOf } from "../due.mjs";
 const DATED = "Next measurement: by 2026-12-12.\n\nNext check of Claude Code's changelog: by 2027-02-12.\n";
 const dated = { measurementsSource: DATED, today: new Date("2026-11-12T10:00:00Z") };
 
-const HEADER = "| ID | Вопрос | Откуда | Варианты | Рекомендация |\n|---|---|---|---|---|";
+const HEADER = "| ID | Question | From | Options | Recommendation |\n|---|---|---|---|---|";
 const A = "a".repeat(40);
 const B = "b".repeat(40);
 const C = "c".repeat(40);
 const D = "d".repeat(40);
 
-// A RUN.md of a repository that has not moved its tables to run/ (R153): its table 3 holds the rows
-// given, and its table 4 a row marked for spec, which is not a question and is never read.
-function run(...rows) {
+// A repository's run/QUESTIONS.md, its table 3 holding the rows given; below it a table 4 with a row
+// marked for spec, which is not a question and is never read.
+function questions(...rows) {
   return [
-    "# RUN.md — план работ api",
+    "# Questions to the author — table 3 of the plan of api",
     "",
-    "## Таблица 3. Вопросы автору без ответа",
+    "## Table 3. Questions to the author",
     "",
     HEADER,
     ...rows,
     "",
-    "## Таблица 4. Технический долг",
+    "## Table 4. Technical debt",
     "",
-    "| ID | Долг | Откуда | Чем грозит | Когда вернуться |\n|---|---|---|---|---|",
-    "| Д1 | «В реестр spec»: долг, а не вопрос | T01 | — | — |",
+    "| ID | Debt | From | Risk | When to return |\n|---|---|---|---|---|",
+    "| Д1 | «В реестр spec»: a debt, not a question | T01 | — | — |",
     "",
   ].join("\n");
 }
 
-// The run/QUESTIONS.md of a repository that has moved them, its table 3 holding the rows given.
-function questions(...rows) {
-  return ["# Вопросы автору без ответа — таблица 3 плана api", "", "## Таблица 3. Вопросы автору без ответа", "", HEADER, ...rows, ""].join("\n");
-}
-
-// The rows of a RUN.md read as table 3 of a repository that has not moved.
-const rowsOfRun = (source) => rowsForSpec(source, "RUN.md");
+const rowsOf = (source) => rowsForSpec(source, QUESTIONS);
 
 const row = (n, text) => `| В${n} | «В реестр spec»: ${text} | T01 | — | — |`;
 
 // spec's run/INBOX.md with table 5 holding the rows given.
 function spec(...rows) {
-  return ["# Строки других репозиториев, записанные в spec — таблица 5 плана spec", "", "## Таблица 5. Строки других репозиториев, записанные в `spec`", "", "| Репозиторий | Строки | Отпечаток | Где ответ |\n|---|---|---|---|", ...rows, ""].join("\n");
+  return ["# Rows of other repositories recorded in spec", "", "## Table 5. Rows of other repositories recorded in spec", "", "| Repository | Rows | Fingerprint | Where answered |\n|---|---|---|---|", ...rows, ""].join("\n");
 }
 
-// A stand-in for gh over { name: { sha, run, runs, questions, pulls: [{ number, title, sha, base,
-// files, run, questions }] } }, a missing `base` being main, `runs` the RUN.md of other commits and
-// `questions` the run/QUESTIONS.md of a commit — a map of commits in the repository's, the text in a
-// pull request's —, which is not there where it is not given. Lists come in two pages, as
-// --paginate --slurp gives them; a pull request whose files are null cannot be read, and the
-// questions "502" cannot be read either.
+// A stand-in for gh over { name: { sha, questions, pulls: [{ number, title, sha, base, files,
+// questions }] } }, a missing `base` being main, and `questions` the run/QUESTIONS.md of commits — a
+// map of commits in the repository's, the text of its head in a pull request's —, which is not there
+// where it is not given; no other file is. Lists come in two pages, as --paginate --slurp gives
+// them; a pull request whose files are null cannot be read, and the questions "502" cannot be read
+// either.
 function fakeGh(repositories) {
   return (args) => {
     const endpoint = args.find((a) => a.startsWith("repos/"));
@@ -75,14 +69,10 @@ function fakeGh(repositories) {
     }
     const head = /^compare\/main\.\.\.(\w+)$/u.exec(tail)?.[1];
     if (head) return `${repository.pulls.find((p) => p.sha === head).base ?? repository.sha}\n`;
-    const [, file, ref] = /^contents\/(RUN\.md|run\/QUESTIONS\.md)\?ref=(\w+)$/u.exec(tail) ?? [];
-    const runs = { [repository.sha]: repository.run, ...repository.runs };
+    const ref = /^contents\/run\/QUESTIONS\.md\?ref=(\w+)$/u.exec(tail)?.[1];
     const asked = { ...repository.questions };
-    for (const p of repository.pulls) {
-      runs[p.sha] = p.run;
-      asked[p.sha] = p.questions;
-    }
-    const text = (file === "RUN.md" ? runs : asked)[ref];
+    for (const p of repository.pulls) asked[p.sha] = p.questions;
+    const text = ref && asked[ref];
     if (text === "502") throw new Error(`gh api ${endpoint}: HTTP 502`);
     if (text !== undefined) return text;
     throw new Error(`gh api ${endpoint}: HTTP 404`);
@@ -90,8 +80,8 @@ function fakeGh(repositories) {
 }
 
 test("the rows marked for spec, whatever the mark's case, quotes and spaces, at the start of the question and only in table 3", () => {
-  const rows = rowsOfRun(
-    run(
+  const rows = rowsOf(
+    questions(
       "| В1 | «В реестр spec», к П-17: как   ребёнок \t не попадёт | T01 | а; б | а |",
       "| В2 | **В реестр spec.** Лимит трат | T03 | — | — |",
       "| В3 | Своё, не для spec | T04 | — | — |",
@@ -115,30 +105,32 @@ test("the rows marked for spec, whatever the mark's case, quotes and spaces, at 
 });
 
 test("a fingerprint is of every cell of the rows, in the order of their numbers, and of nothing else", () => {
-  const [one, two] = rowsOfRun(run(row(5, "раскладка релиза"), row(6, "перенос")));
+  const [one, two] = rowsOf(questions(row(5, "раскладка релиза"), row(6, "перенос")));
   const print = fingerprintOf([one, two]);
   assert.match(print, /^[0-9a-f]{12}$/u);
   assert.equal(fingerprintOf([two, one]), print);
   // Its place in the file, its white space and its Markdown marks are no change of the row.
-  const moved = rowsOfRun(run("| В0 | Своё | T01 | — | — |", "| В5 | «В реестр spec»:  **раскладка**   релиза | T01 | — | — |", row(6, "перенос")));
+  const moved = rowsOf(questions("| В0 | Своё | T01 | — | — |", "| В5 | «В реестр spec»:  **раскладка**   релиза | T01 | — | — |", row(6, "перенос")));
   assert.equal(fingerprintOf(moved), print);
   // A word in any cell is.
-  assert.notEqual(fingerprintOf(rowsOfRun(run(row(5, "раскладка релиза"), "| В6 | «В реестр spec»: перенос | T01 | — | (а) |"))), print);
+  assert.notEqual(fingerprintOf(rowsOf(questions(row(5, "раскладка релиза"), "| В6 | «В реестр spec»: перенос | T01 | — | (а) |"))), print);
   assert.notEqual(fingerprintOf([one]), print);
 });
 
-test("a RUN.md with no table 3, or a row with no number, holds nothing for spec", () => {
-  assert.deepEqual(rowsOfRun("# RUN.md\n\nНичего.\n"), []);
-  assert.deepEqual(rowsOfRun(run("| — | «В реестр spec» без номера | T01 | — | — |")), []);
+test("a file with no table 3, or a row with no number, holds nothing for spec", () => {
+  assert.deepEqual(rowsOf("# Questions\n\nNothing.\n"), []);
+  assert.deepEqual(rowsOf(questions("| — | «В реестр spec» без номера | T01 | — | — |")), []);
 });
 
-test("table 3 and table 5 are read under their English headings too (R154)", () => {
-  const english = questions(row(2, "a row of a plan in English")).replace("## Таблица 3. Вопросы автору без ответа", "## Table 3. Questions to the author");
-  assert.deepEqual(rowsForSpec(english, "run/QUESTIONS.md").map((r) => r.number), [2]);
-  const ledger = spec("| `api` | В1 | — | R80 |").replace("## Таблица 5. Строки других репозиториев, записанные в `spec`", "## Table 5. Rows of other repositories recorded in spec");
-  assert.deepEqual([...ledgerOf(ledger).ledger.get("api")], [1]);
-  // Another table's heading in English holds nothing for spec.
-  assert.deepEqual(rowsForSpec(english.replace("## Table 3.", "## Table 4."), "run/QUESTIONS.md"), []);
+test("table 3 and table 5 are read under their English headings alone (R154; T177)", () => {
+  const source = questions(row(2, "a row of a plan in English"));
+  assert.deepEqual(rowsOf(source).map((r) => r.number), [2]);
+  assert.deepEqual([...ledgerOf(spec("| `api` | В1 | — | R80 |")).ledger.get("api")], [1]);
+  // A heading in Russian, as a plan had before R154, or another table's, holds nothing for spec.
+  assert.deepEqual(rowsOf(source.replace("## Table 3. Questions to the author", "## Таблица 3. Вопросы автору без ответа")), []);
+  assert.deepEqual(rowsOf(source.replace("## Table 3.", "## Table 2.")), []);
+  const russian = spec("| `api` | В1 | — | R80 |").replace("## Table 5. Rows of other repositories recorded in spec", "## Таблица 5. Строки других репозиториев, записанные в `spec`");
+  assert.equal(ledgerOf(russian).ledger.size, 0);
 });
 
 test("numbers, ranges and lists of rows В", () => {
@@ -169,7 +161,7 @@ test("table 5 gives each repository its numbers, and names a row it cannot read"
     'run/INBOX.md:9: the fingerprint of a row of table 5 is 12 hexadecimal digits, or — while it has none: "Д66"',
     'run/INBOX.md:10: a row of table 5 names no repository or no rows В: "app | все | — | Д68"',
   ]);
-  assert.equal(ledgerOf("# RUN.md\n").ledger.size, 0);
+  assert.equal(ledgerOf("# Inbox\n").ledger.size, 0);
 });
 
 test("compare: new on main, on the way, and what can leave table 5", () => {
@@ -222,15 +214,15 @@ test("compare: new on main, on the way, and what can leave table 5", () => {
 });
 
 test("compare: rows of table 5 whose rows on main changed, or have no fingerprint yet", () => {
-  const rows = rowsOfRun(run(row(5, "записана"), row(6, "тоже записана"), row(7, "одна")));
+  const rows = rowsOf(questions(row(5, "записана"), row(6, "тоже записана"), row(7, "одна")));
   const both = fingerprintOf(rows.slice(0, 2));
   const repositories = [{ name: "api", main: { sha: A, rows }, pulls: [] }];
   const ledger = new Map([["api", new Set([5, 6, 7, 9])]]);
   const entry = (list, numbers, fingerprint, line) => ({ repository: "api", list, numbers, fingerprint, line });
   const result = compare(repositories, ledger, ["api"], [entry("В5–В6", [5, 6], both, 20), entry("В7", [7], null, 21), entry("В9", [9], "0123456789ab", 22)]);
-  assert.deepEqual(result.changed, [{ repository: "api", list: "В7", line: 21, sha: A, file: "RUN.md", lines: [rows[2].line], recorded: null, fingerprint: fingerprintOf([rows[2]]) }]);
+  assert.deepEqual(result.changed, [{ repository: "api", list: "В7", line: 21, sha: A, file: QUESTIONS, lines: [rows[2].line], recorded: null, fingerprint: fingerprintOf([rows[2]]) }]);
   // A row edited at the source; and one that left it, whose rest no longer has the fingerprint.
-  const edited = rowsOfRun(run(row(5, "записана, с дополнением"), row(6, "тоже записана")));
+  const edited = rowsOf(questions(row(5, "записана, с дополнением"), row(6, "тоже записана")));
   const again = compare([{ name: "api", main: { sha: B, rows: edited }, pulls: [] }], ledger, ["api"], [entry("В5–В6", [5, 6], both, 20)]);
   assert.deepEqual(
     again.changed.map((c) => [c.list, c.recorded, c.fingerprint, c.lines]),
@@ -252,10 +244,10 @@ test("the report names each row with its place, and cuts a long question", () =>
   const lines = report(
     {
       fresh: [{ repository: "api", number: 6, sha: A, file: "run/QUESTIONS.md", line: 12, text: long }],
-      coming: [{ repository: "app", number: 11, pull: 13, title: "T03", sha: C, file: "RUN.md", line: 14, text: "на подходе" }],
+      coming: [{ repository: "app", number: 11, pull: 13, title: "T03", sha: C, file: "run/QUESTIONS.md", line: 14, text: "на подходе" }],
       changed: [
         { repository: "api", list: "В5–В6", line: 20, sha: B, file: "run/QUESTIONS.md", lines: [11, 12], recorded: "0123456789ab", fingerprint: "ba9876543210" },
-        { repository: "app", list: "В7", line: 21, sha: D, file: "RUN.md", lines: [13], recorded: null, fingerprint: "00112233aabb" },
+        { repository: "app", list: "В7", line: 21, sha: D, file: "run/QUESTIONS.md", lines: [13], recorded: null, fingerprint: "00112233aabb" },
       ],
       gone: [{ repository: "tutor", number: 33 }],
     },
@@ -266,29 +258,39 @@ test("the report names each row with its place, and cuts a long question", () =>
     "new on main — record, or bring to the author:",
     `  api В6 (run/QUESTIONS.md:12, main aaaaaaa): ${"x".repeat(199)}…`,
     "on the way, in open pull requests — recorded only on the author's word:",
-    '  app В11 (pull request #13 "T03", ccccccc, RUN.md:14): на подходе',
+    '  app В11 (pull request #13 "T03", ccccccc, run/QUESTIONS.md:14): на подходе',
     "changed on main since table 5 recorded them — read the rows again, record what is new, then write the fingerprint in table 5:",
     "  api В5–В6 (table 5 at run/INBOX.md:20; its run/QUESTIONS.md:11–12, main bbbbbbb): 0123456789ab → ba9876543210",
-    "  app В7 (table 5 at run/INBOX.md:21; its RUN.md:13, main ddddddd): — → 00112233aabb",
+    "  app В7 (table 5 at run/INBOX.md:21; its run/QUESTIONS.md:13, main ddddddd): — → 00112233aabb",
     "in table 5, but no longer marked for spec at the source — the row can leave:",
     "  tutor В33",
   ]);
   assert.deepEqual(report({ fresh: [], coming: [], gone: [] }, 12), ["inbox: 12 repositories read; 0 new on main, 0 on the way, 0 changed since recorded, 0 to leave table 5"]);
 });
 
-test("a repository that has not moved its tables: a pull request adds the rows its merge base with main has not, each RUN.md read once", () => {
+test("table 3 is read from run/QUESTIONS.md alone, once a commit: a pull request adds the rows its merge base with main has not", () => {
   const calls = [];
   const old = "e".repeat(40);
+  const older = "0".repeat(40);
   const gh = fakeGh({
     api: {
       sha: A,
-      run: run(row(6, "раскладка релиза")),
-      runs: { [old]: run(row(3, "закрыта на main с тех пор")) },
+      questions: { [A]: questions(row(6, "раскладка релиза")), [old]: questions(row(3, "закрыта на main с тех пор")) },
       pulls: [
-        { number: 13, title: "T04", sha: C, files: ["docs/architecture.md", "RUN.md"], run: run(row(6, "раскладка релиза"), row(8, "перенос")) },
-        { number: 9, title: "Bump devcontainers/base", sha: D, files: [".devcontainer/Dockerfile"], run: run(row(2, "давно записана")) },
-        { number: 7, title: "T02, ветка давняя", sha: B, base: old, files: ["RUN.md"], run: run(row(3, "закрыта на main с тех пор"), row(10, "своя")) },
-        { number: 5, title: "не читается", sha: "f".repeat(40), files: null, run: "" },
+        { number: 13, title: "T04", sha: C, files: ["docs/architecture.md", QUESTIONS], questions: questions(row(6, "раскладка релиза"), row(8, "перенос")) },
+        { number: 9, title: "Bump devcontainers/base", sha: D, files: [".devcontainer/Dockerfile"], questions: questions(row(2, "давно записана")) },
+        { number: 7, title: "T02, ветка давняя", sha: B, base: old, files: [QUESTIONS], questions: questions(row(3, "закрыта на main с тех пор"), row(10, "своя")) },
+        // A branch cut before run/ (R153): its merge base has no run/QUESTIONS.md, so what it adds
+        // cannot be told — a row main closed since would look new —, and it is to be rebased.
+        { number: 11, title: "T01, ветка до run/", sha: "1".repeat(40), base: older, files: ["RUN.md", QUESTIONS], questions: questions(row(6, "раскладка релиза"), row(12, "с давней ветки")) },
+        // One that changes RUN.md alone adds nothing, whatever its RUN.md holds.
+        { number: 6, title: "T03", sha: "2".repeat(40), files: ["RUN.md"] },
+        { number: 5, title: "не читается", sha: "f".repeat(40), files: null },
+        { number: 4, title: "не читается", sha: "3".repeat(40), files: [QUESTIONS], questions: "502" },
+        // Its head without run/QUESTIONS.md: a read that fails.
+        { number: 3, title: "без таблицы", sha: "4".repeat(40), files: [QUESTIONS] },
+        // Whose merge base is that head: the read failed once, and fails here too, from the cache.
+        { number: 2, title: "на ветке без таблицы", sha: "5".repeat(40), base: "4".repeat(40), files: [QUESTIONS], questions: questions(row(14, "своя")) },
       ],
     },
   });
@@ -298,87 +300,55 @@ test("a repository that has not moved its tables: a pull request adds the rows i
   });
   assert.equal(read.main.sha, A);
   assert.deepEqual(
-    read.main.rows.map((r) => r.number),
-    [6],
-  );
-  assert.deepEqual(
-    read.pulls.map((p) => [p.number, p.rows.map((r) => r.number)]),
-    [
-      [13, [8]],
-      [9, []],
-      [7, [10]],
-    ],
-  );
-  assert.deepEqual(read.problems, ["cannot read pull request #5 of api — gh api repos/altnovatrail/api/pulls/5/files?per_page=100: HTTP 502"]);
-  assert.equal(calls.filter((c) => c === `repos/altnovatrail/api/contents/RUN.md?ref=${A}`).length, 1);
-  assert.deepEqual(calls.slice(0, 4), [
-    "repos/altnovatrail/api/commits/main",
-    `repos/altnovatrail/api/contents/run/QUESTIONS.md?ref=${A}`,
-    `repos/altnovatrail/api/contents/RUN.md?ref=${A}`,
-    "repos/altnovatrail/api/pulls?state=open&per_page=100",
-  ]);
-  assert.deepEqual([...new Set(read.main.rows.map((r) => r.file))], ["RUN.md"]);
-  // run/QUESTIONS.md is asked for once, at main: the other commits are read from RUN.md, as main is.
-  assert.equal(calls.filter((c) => c.includes("contents/run/QUESTIONS.md")).length, 1);
-});
-
-test("a repository that has moved its tables: table 3 is read from run/QUESTIONS.md, and a move adds no row", () => {
-  const old = "e".repeat(40);
-  const gh = fakeGh({
-    api: {
-      sha: A,
-      // A table 3 left in RUN.md beside run/QUESTIONS.md is not read: the repository's docs-check names it.
-      run: run(row(1, "копия в RUN.md")),
-      questions: { [A]: questions(row(6, "раскладка релиза")) },
-      runs: { [old]: run(row(6, "раскладка релиза")) },
-      pulls: [
-        { number: 13, title: "T05", sha: C, files: ["run/QUESTIONS.md"], questions: questions(row(6, "раскладка релиза"), row(8, "перенос")) },
-        { number: 11, title: "T04, перенос таблиц", sha: B, base: old, files: ["RUN.md", "run/QUESTIONS.md"], run: run(), questions: questions(row(6, "раскладка релиза")) },
-        { number: 9, title: "не читается", sha: D, files: ["run/QUESTIONS.md"], questions: "502" },
-      ],
-    },
-  });
-  const calls = [];
-  const read = readRepository("api", (args) => {
-    calls.push(args.filter((a) => a.startsWith("repos/")).join(" "));
-    return gh(args);
-  });
-  assert.deepEqual(
     read.main.rows.map((r) => [r.number, r.file]),
-    [[6, "run/QUESTIONS.md"]],
-  );
-  // RUN.md is read only at the old merge base, which has no run/QUESTIONS.md.
-  assert.deepEqual(
-    calls.filter((c) => c.includes("contents/RUN.md")),
-    [`repos/altnovatrail/api/contents/RUN.md?ref=${old}`],
+    [[6, QUESTIONS]],
   );
   assert.deepEqual(
     read.pulls.map((p) => [p.number, p.rows.map((r) => [r.number, r.file])]),
     [
-      [13, [[8, "run/QUESTIONS.md"]]],
-      [11, []],
+      [13, [[8, QUESTIONS]]],
+      [9, []],
+      [7, [[10, QUESTIONS]]],
+      [6, []],
     ],
   );
-  assert.deepEqual(read.problems, [`cannot read pull request #9 of api — gh api repos/altnovatrail/api/contents/run/QUESTIONS.md?ref=${D}: HTTP 502`]);
+  assert.deepEqual(read.problems, [
+    `cannot read pull request #11 of api — its merge base ${older.slice(0, 7)} has no run/QUESTIONS.md: rebase it on main`,
+    "cannot read pull request #5 of api — gh api repos/altnovatrail/api/pulls/5/files?per_page=100: HTTP 502",
+    `cannot read pull request #4 of api — gh api repos/altnovatrail/api/contents/run/QUESTIONS.md?ref=${"3".repeat(40)}: HTTP 502`,
+    `cannot read pull request #3 of api — gh api repos/altnovatrail/api/contents/run/QUESTIONS.md?ref=${"4".repeat(40)}: HTTP 404`,
+    `cannot read pull request #2 of api — its merge base ${"4".repeat(7)} has no run/QUESTIONS.md: rebase it on main`,
+  ]);
+  assert.deepEqual(calls.slice(0, 3), ["repos/altnovatrail/api/commits/main", `repos/altnovatrail/api/contents/run/QUESTIONS.md?ref=${A}`, "repos/altnovatrail/api/pulls?state=open&per_page=100"]);
+  // Each commit is read once — main is the merge base of #13 too —, and RUN.md never.
+  const contents = calls.filter((c) => c.includes("/contents/"));
+  assert.deepEqual(contents, [...new Set(contents)]);
+  assert.equal(contents.filter((c) => c.endsWith(`ref=${A}`)).length, 1);
+  assert.equal(calls.some((c) => c.includes("contents/RUN.md")), false);
   const done = inbox({ ...dated, names: ["api"], ledgerSource: spec("| `api` | В6 | — | Д67 |"), gh });
   assert.equal(done.status, 2);
   assert.ok(done.lines.includes(`  api В6 (table 5 at run/INBOX.md:7; its run/QUESTIONS.md:7, main aaaaaaa): — → ${fingerprintOf(read.main.rows)}`), done.lines.join("\n"));
+  assert.ok(done.lines.some((l) => l.startsWith("  api В10 (pull request #7")), done.lines.join("\n"));
+  assert.equal(done.lines.some((l) => l.startsWith("  api В12 ")), false, "a pull request cut before run/ adds nothing");
+  assert.equal(done.lines.some((l) => l.startsWith("  api В6 (pull request")), false);
 });
 
 test("inbox reads every other repository, and says what it could not read", () => {
   assert.equal(OTHERS.includes("spec"), false);
   assert.ok(OTHERS.includes("api") && OTHERS.includes(".github"));
   const repositories = {
-    api: { sha: A, run: run(row(5, "записана"), row(6, "новая")), pulls: [] },
-    app: { sha: B, run: run(), pulls: [] },
+    api: { sha: A, questions: { [A]: questions(row(5, "записана"), row(6, "новая")) }, pulls: [] },
+    app: { sha: B, questions: { [B]: questions() }, pulls: [] },
+    // Main without run/QUESTIONS.md is a repository that cannot be read, not one with no rows.
+    sim: { sha: C, pulls: [] },
   };
-  const print = fingerprintOf(rowsOfRun(run(row(5, "записана"))));
+  const print = fingerprintOf(rowsOf(questions(row(5, "записана"))));
   const done = inbox({ ...dated, names: ["api", "app"], ledgerSource: spec(`| \`api\` | В5 | ${print} | Д67 |`), gh: fakeGh(repositories) });
   assert.equal(done.status, 0);
   assert.deepEqual(done.lines.slice(0, 2), ["inbox: 2 repositories read; 1 new on main, 0 on the way, 0 changed since recorded, 0 to leave table 5", "new on main — record, or bring to the author:"]);
   const unprinted = inbox({ ...dated, names: ["api"], ledgerSource: spec("| `api` | В5 | — | Д67 |"), gh: fakeGh(repositories) });
   assert.equal(unprinted.status, 0);
-  assert.equal(unprinted.lines.at(-1), `  api В5 (table 5 at run/INBOX.md:7; its RUN.md:7, main aaaaaaa): — → ${print}`);
+  assert.equal(unprinted.lines.at(-1), `  api В5 (table 5 at run/INBOX.md:7; its run/QUESTIONS.md:7, main aaaaaaa): — → ${print}`);
   const unreadable = inbox({ ...dated, names: ["api"], ledgerSource: spec("| `api` | что-то | — | Д67 |"), gh: fakeGh(repositories) });
   assert.equal(unreadable.status, 1);
   assert.match(unreadable.lines.at(-1), /a row of table 5 names no repository or no rows В/u);
@@ -386,6 +356,9 @@ test("inbox reads every other repository, and says what it could not read", () =
   assert.equal(partly.status, 2);
   assert.deepEqual(partly.lines.slice(0, 1), ["inbox: 1 repositories read; 2 new on main, 0 on the way, 0 changed since recorded, 0 to leave table 5"]);
   assert.equal(partly.lines.at(-1), "inbox: cannot read infra — gh api repos/altnovatrail/infra/commits/main: HTTP 404");
+  const missing = inbox({ ...dated, names: ["sim"], ledgerSource: spec(""), gh: fakeGh(repositories) });
+  assert.equal(missing.status, 2);
+  assert.equal(missing.lines.at(-1), `inbox: cannot read sim — gh api repos/altnovatrail/sim/contents/run/QUESTIONS.md?ref=${C}: HTTP 404`);
 });
 
 test("runGh gives what the program printed, or throws with what it said", () => {
@@ -397,7 +370,7 @@ test("runGh gives what the program printed, or throws with what it said", () => 
 });
 
 test("inbox prints the monthly measurement and the check of the changelog once their dates have come", () => {
-  const repositories = { app: { sha: B, run: run(), pulls: [] } };
+  const repositories = { app: { sha: B, questions: { [B]: questions() }, pulls: [] } };
   const quiet = inbox({ ...dated, names: ["app"], ledgerSource: spec(""), gh: fakeGh(repositories) });
   assert.equal(quiet.status, 0);
   assert.equal(quiet.lines.some((l) => l.startsWith("due:")), false);

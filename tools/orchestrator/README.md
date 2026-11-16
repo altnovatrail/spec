@@ -24,9 +24,11 @@ In spec's working tree, it runs as `just orchestrator <command> …`. Each comma
   - `--answers <file>` — the prompt: the author's answers, or what the orchestrator has to say, such as the checks that failed; without it, «Continue the task from where it stopped.»;
   - `--ceiling <usd>` — the author's new ceiling.
 
-  It refuses a run that still runs, a limit that has not reset yet, and a run with nothing left of its ceiling.
+  It refuses a run that still runs, a limit that has not reset yet, and a run with nothing left of its ceiling. A container that docker no longer has — the author rebuilt it — is found again by its labels, as `start` found it, and the run goes on in the same session there.
+- `stop <run>` stops the run's last attempt and returns once it has ended (T175). `run.json`'s pid is the `sh` that wraps `claude`, and a signal to it would not reach `claude`: `stop` sends SIGTERM to `claude` and every process below it in the container, the commands it left in the background too, found by the parent of each in `/proc/<pid>/stat`. If any of them is still there after 30 seconds — `claude`, or a command that outlived it and that the container's first process took over —, it sends SIGKILL to what is left of them and to what is below the `sh` then. It names each process by its pid and its time of start, and signals a pid again only while its time of start is the same, so a pid passed to another process is never signalled. The `sh` writes the exit code, and `stop` returns once it has and the processes are gone, or after 10 more seconds. The attempt is recorded as stopped in `run.json` — when, by the orchestrator, by which signal last —, and `events.jsonl` names how many processes it signalled and how many outlived SIGKILL; it refuses a run that does not run.
 - `status [<run>…]` prints where each run stands, every run when none is named.
 - `wait <run>… [--timeout <seconds>]` waits until each run has ended and prints its state as it ends; it suits a background command or Monitor.
+- `next <repo>` prints the next free number of a task of the repository, one above the largest the repository's plan defines (T175): on its `main`, at the head of each of its open pull requests and of each other branch, and in every number the orchestrator's runs of it have gone by, but those of the runs known to be done — by their files, the last attempt's status `done`. A number counts where the plan defines it — the first or second cell of a row of a table and a heading `#### T….` of RUN.md, `run/TASKS.md` and `docs/plan/*.md` —, not where it cites one. It reads GitHub by `gh api` and prints each source's largest beside `next`.
 
 ## Finding the container
 
@@ -44,12 +46,16 @@ Every attempt is Opus at effort `high`, with `--permission-mode bypassPermission
 
 git in the executor's container pushes through `gh auth git-credential`, set by `GIT_CONFIG_*` for the run: the container's own helper is VS Code's, which a `docker exec` without a window cannot reach (sources 9.3).
 
+Each attempt also gets `NOVATRAIL_RUN_TASKS`: every number the run has gone by, the one it started under and each its status named. The hook of `tools/session/` counts them as one task, so it does not refuse a resume whose prompt names the run's real number (T175). A repository runs the hook from its `spec/` submodule, so this holds there from its move to a tag of spec that has it. Until then, a resume prompt does not name the new number with a verb of a task — «сделай T28» —, as skill-map's T27 of T171 did.
+
+The executor's status names the task's number, `task`. When it is not the run's — the executor wrote the task under the next free number, its own being taken —, the run takes it, keeps every number it has had in `labels`, and `next` and later prompts go by it. The run's id and folder keep the first.
+
 A run's folder is `~/.claude/novatrail-orchestrator/runs/<repo>-<task>-<UTC time>/`. It is on the volume `novatrail-claude`, which every NovaTrail devcontainer mounts in `~/.claude`. The executor's container writes its files there itself, so a run outlives the orchestrator's session, and its container is all it needs. The files:
 
 | File | What it holds |
 |---|---|
-| `run.json` | the repository, the task, the container, the session's id, the ceiling, and each attempt with when it started and its budget |
-| `events.jsonl` | the orchestrator's own log of the run: each start and resume |
+| `run.json` | the repository, the task, and `labels`, every number it has gone by, the first first, once its status named another; the container, the session's id, the ceiling, and each attempt with when it started, its budget, its container, and `stopped` when `stop` ended it |
+| `events.jsonl` | the orchestrator's own log of the run: each `start`, `resume` and `stop`, a `container` found again by its labels, and a `relabel` |
 | `executor.md`, `status.schema.json` | the contract and the schema of the copy of the orchestrator that started the run |
 | `prompt-<n>.txt` | the prompt of attempt n, which claude reads on stdin |
 | `pid-<n>` | the pid of the attempt's `sh` in its container |
@@ -62,12 +68,18 @@ The contract, the schema and the prompt go as files rather than arguments, so `d
 ## Where a run stands
 
 `status` and `wait` print, for each run, its `phase` and the following fields:
+- `task`, the number the run goes by, and `labels`, every number it has gone by, the first first;
+- `container` — its name, after a rebuild the new one's;
 - `status` — the executor's status by the schema;
 - `reason` — why it stopped otherwise;
 - `resets_at` — when the limit resets;
-- `spent_usd` and `ceiling_usd`;
-- `unpriced_attempts` — the attempts after the last one that printed a cost;
-- `model_usage`, `num_turns` and `duration_ms` of the last result.
+- `spent_usd` and `ceiling_usd`, and `spent_from`, where the spend came from:
+  - `result` — the largest `total_cost_usd` any result printed, the session's whole total;
+  - `transcript` — the session's transcript, larger: an attempt after the last result printed none, as one stopped or cut short (T175). It is read again only when the size or the time of change of a file of it has changed. It is `~/.claude/projects/<the container's workdir, each character but a letter or a digit a dash>/<session>.jsonl` on the volume, with its subagents', and each message of the model counts once, by its id, at the prices of `tools/tokens/prices.mjs`;
+  - `null` — neither;
+- `unpriced_attempts` — the attempts after the last result that the transcript does not cover either: none was found, a call in it has no price, or it comes to no more than the results' total, and so does not show what they spent;
+- `num_turns` and `duration_ms`, summed over every result of every attempt (T175): a stream may hold several, as an executor that waits on CI in the background ends its turn and is woken again;
+- `model_usage` of the last result.
 
 The phases:
 
@@ -78,7 +90,8 @@ The phases:
 | `limited` | the subscription's limit stopped it: a `rate_limit_event` with `status: "rejected"`, a message of the model with `error: "rate_limit"`, or a result with the limit's text |
 | `over-ceiling` | it reached its `--max-budget-usd` |
 | `failed` | also: no status by the schema, an error of the run, or no result at all |
-| `lost` | no exit code, and its process is gone: the container stopped, or it was killed |
+| `lost` | no exit code, and its process is gone: the container stopped or was rebuilt, or it was killed |
+| `stopped` | `stop` ended it |
 
 The tests are `just orchestrator-test`.
 
@@ -113,7 +126,7 @@ Write the graph to `$E/epic.json` before the first run, and update it at each ev
 
 Wave 0 runs in parallel, a node in each repository behind.
 
-**The prompt** of a task the repository has is the default, «Выполни задачу Txx из RUN.md»: `start` gives it without `--prompt`. The repository's own task of wave 0 gets a prompt that names the tag, since R156 decides it rather than the task's body: «Выполни задачу Txx из RUN.md. Переход — на последний тег spec, <tag> (R156 spec), даже если тело называет другой.» A task it does not have yet gets its number when it starts, not when the graph is written: the next one free on its `main` then — one more than the largest of the numbers of its own tasks, the headings `#### T…` and the rows of the task tables of RUN.md, `run/TASKS.md` and `docs/plan/`, not the numbers it cites of other repositories. The number the executor's report names is the node's from then on, in `$E/epic.json`. Its prompt, a file of `$E` given by `--prompt`, is:
+**The prompt** of a task the repository has is the default, «Выполни задачу Txx из RUN.md»: `start` gives it without `--prompt`. The repository's own task of wave 0 gets a prompt that names the tag, since R156 decides it rather than the task's body: «Выполни задачу Txx из RUN.md. Переход — на последний тег spec, <tag> (R156 spec), даже если тело называет другой.» A task it does not have yet gets its number when it starts, not when the graph is written: `$O next <repo>` then, which counts its `main`, its branches, those of its open pull requests among them, and the orchestrator's runs of it not known to be done. The number the executor's status names in `task` is the node's from then on, in `$E/epic.json` and in the run. Its prompt, a file of `$E` given by `--prompt`, is:
 
 ```text
 Выполни задачу T<n> из RUN.md. Её ещё нет в этом репозитории: запиши её по тексту ниже в свой план, по его правилам, под номером T<n>, если он ещё свободен, а иначе под следующим свободным, и назови номер в отчёте; затем выполни её (правило 6 COORDINATION.md spec).
@@ -134,6 +147,7 @@ Wave 0 runs in parallel, a node in each repository behind.
 | `failed`, `lost` | an attempt (section 7): `resume` with what failed — the `failure`, or that the container stopped |
 | `limited` | a pause (section 7) |
 | `over-ceiling` | a question to the author (section 7) |
+| `stopped` | the orchestrator's own `stop` (section 7): `resume` with the new word |
 
 Each event and what was done goes to `$E/epic.json` before the next.
 
@@ -149,7 +163,7 @@ The orchestrator merges each pull request itself, without the author's review (R
 7. After the merge:
    - CI of `main` on the merge commit: `gh run list -R altnovatrail/<repo> --branch main --commit <sha> --json status,conclusion`, until it lists runs and each has ended — an empty list right after the merge means GitHub has not made them yet; none after ten minutes is a question to the author. The repository's next node starts once it is green; red is a question to the author — the orchestrator mends no `main`.
    - The task, by the number its report names, is `[x]` on `main`; if not, `resume` the run to mark it — an attempt, unless the report said the task is marked only after its merge.
-   - If the pull request changed `.devcontainer/` — `gh pr diff <n> -R altnovatrail/<repo> --name-only` (sources 6.3) —, the container is rebuilt before the repository's next run: `docker start` rebuilds nothing. A question to the author — rebuild it in VS Code, «Rebuild Container», and close its window —, which pauses that repository alone.
+   - If the pull request changed `.devcontainer/` — `gh pr diff <n> -R altnovatrail/<repo> --name-only` (sources 6.3) —, the container is rebuilt before the repository's next run: `docker start` rebuilds nothing. A question to the author — rebuild it in VS Code, «Rebuild Container», and close its window —, which pauses that repository alone. A run that waits in it, such as one to mark its task after the merge, resumes in the rebuilt container (section 7).
    - A node waiting on this repository's release starts once a release holds the merge: `gh api repos/altnovatrail/<repo>/releases/latest --jq .tag_name`, then `gh api repos/altnovatrail/<repo>/compare/<sha>...<tag> --jq .status` is `identical` or `ahead`.
    - A merge into spec: `$O sync` again.
    - A node that recorded an epic of its repository: read its RUN.md on `main` again, and add the epic's open tasks to the graph as nodes of that repository.
@@ -167,8 +181,8 @@ The orchestrator merges each pull request itself, without the author's review (R
 - **Two attempts.** A failed or lost run, a red check, SonarCloud's issues, a conflict, a task not marked `[x]`: each is one `resume` in the same session, two at most for a node. The third goes to the author as a question: what failed each time, with options — another attempt with what to change, stop the node, or the author's own way. Answers, a limit's reset and a new ceiling are not attempts.
 - **A limit.** A run `limited` pauses every start and resume until its `resets_at`: the subscription's limit is one for all sessions (sources 2.12). Wait in the background, `until [ "$(date -u +%s)" -ge "$(date -u -d '<resets_at>' +%s)" ]; do sleep 60; done`, then resume each limited run with «Лимит подписки сбросился: продолжай задачу с того места, где она остановилась.» With no `resets_at`, wait an hour. A reset more than five hours away is the weekly ceiling: PushNotification with the date, and the wait goes on. Usage bought beyond the subscription the orchestrator never turns on (R156). The orchestrator's own session stops at the limit too, and goes on after it, as an interactive session does (sources 2.11), from `$E/epic.json`.
 - **The ceiling.** A run `over-ceiling` is a question to the author, with what it spent, what its report says is left, and options: a new ceiling, by its report — `$O resume <run> --ceiling <usd>` —, or stop the node.
-- **Stopping a run** the author redirected: there is no command for it (Д253). `run.json`'s pid is the `sh` that wraps `claude`, and a signal to it does not reach `claude`: `docker exec <container> pkill -TERM -f <session id>`, or `kill -TERM` of the `claude` child the container lists. A run stopped so prints no `result`, and what it spent is counted only as far as a later attempt's total holds it; then `resume` with the new word.
-- **A rebuilt container** has a new id, and `resume` of an earlier run in it fails: start the task anew, its prompt saying where the earlier run stopped, by its report and its branch.
+- **Stopping a run** the author redirected: `$O stop <run>`, then `$O resume <run> --answers <file>` with the new word. The attempt is `stopped`, and what it spent comes from the session's transcript, `spent_from: "transcript"`. A stop is no attempt.
+- **A rebuilt container** has a new id. `resume`, `stop` and `status` find it again by its labels and record it in `run.json` and `events.jsonl`, and the run goes on in the same session: the transcript is on the volume, under the same workdir. An attempt that was running in the old container is `lost`: `resume` it with «Контейнер пересобран: продолжай задачу с того места, где она остановилась.» Closing a repository's window of VS Code stops its container under a running executor, unless its `devcontainer.json` sets `shutdownAction` to `none` (sources 9.4), as spec's does since T175 and a repository's does from its move to a tag that has it (the 2026-11-16 amendment of T175 to R156). Until then the attempt is `lost`, and `resume` starts the container again.
 
 ### 8. The end
 

@@ -15,7 +15,9 @@
 #
 # The image keeps the number it was built with, and a start of the container does not build it
 # again: when the socket's group is no longer the one written, this says so, and the container
-# is to be rebuilt.
+# is to be rebuilt. The file is written only when it is missing or its number changes: a file of
+# the build's context written at every start, by the same number, looks like a change to whoever
+# watches the build's files (RUN.md, T174).
 #
 #   docker-group.sh [<socket>]        the socket is /var/run/docker.sock unless given
 
@@ -35,11 +37,14 @@ if [[ ! -S "$socket" ]]; then
 fi
 
 gid="$(stat -L -c %g -- "$socket")"
+was=""
 if [[ -f "$out" ]]; then
     was="$(cat -- "$out")"
     if [[ "$was" != "$gid" ]]; then
         echo "docker-group.sh: the socket's group was ${was} and is ${gid} now: rebuild the orchestrator's container (Dev Containers: Rebuild Container)" >&2
     fi
 fi
-echo "$gid" > "$out"
+if [[ ! -f "$out" || "$was" != "$gid" ]]; then
+    echo "$gid" > "$out"
+fi
 echo "docker socket ${socket}: group ${gid}"

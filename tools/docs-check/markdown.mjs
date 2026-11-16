@@ -11,10 +11,11 @@ import { cachedBy } from "../shared.mjs";
 // such as "standalone: `tools/learners`, R163" has to keep its shape.
 export const CODE = "\uE000";
 
-// Whether a heading opens a table of the work plan: "Table 3. …", or "Таблица 3. …" in a plan not yet
-// in English (R154); `heading` is the English prefix, "Table 3.".
-export function isTableHeading(text, heading) {
-  return text.startsWith(heading) || text.startsWith(heading.replace(/^Table /u, "Таблица "));
+// Whether a heading opens a table of the work plan: `heading` is its prefix, "Table 3.". Every plan
+// is in English (R154; T177), so «Таблица 3. …» opens none that is read; with `old`, it
+// does, for a copy left where the table lived before.
+export function isTableHeading(text, heading, old = false) {
+  return text.startsWith(heading) || (old && text.startsWith(heading.replace(/^Table /u, "Таблица ")));
 }
 
 // The documents parsed in this process, by the sha256 of their text (cachedBy): a check that

@@ -151,6 +151,50 @@ test("docker-group.sh leaves the number of the socket's group beside itself, thr
   }
 });
 
+test("docker-group.sh leaves docker-gid untouched when the socket's group is the one it holds", async () => {
+  const { dir, run, gid } = groupScript();
+  const socket = path.join(dir, "docker.sock");
+  const server = await listen(socket);
+  try {
+    const group = fs.statSync(socket).gid;
+    // An old time, so that a write would show whatever the clock's resolution. The file is
+    // written, timed and read by a descriptor of its own each time, not checked by its path and
+    // then used.
+    const old = new Date("2026-01-01T00:00:00Z");
+    const plant = (text) => {
+      const fd = fs.openSync(gid, "w");
+      try {
+        fs.writeSync(fd, text);
+        fs.futimesSync(fd, old, old);
+      } finally {
+        fs.closeSync(fd);
+      }
+    };
+    const seen = () => {
+      const fd = fs.openSync(gid, "r");
+      try {
+        return { text: fs.readFileSync(fd, "utf8"), mtime: fs.fstatSync(fd).mtimeMs };
+      } finally {
+        fs.closeSync(fd);
+      }
+    };
+    plant(`${group}\n`);
+    const result = run(socket);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stderr, "");
+    assert.equal(seen().mtime, old.getTime(), "the same number is not written again");
+    // Another number is written, and its time moves.
+    plant(`${group + 1}\n`);
+    assert.equal(run(socket).status, 0);
+    const after = seen();
+    assert.equal(after.text, `${group}\n`);
+    assert.notEqual(after.mtime, old.getTime());
+  } finally {
+    server.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("docker-group.sh says to rebuild when the socket's group is no longer the one the image was built with", async () => {
   const { dir, run, gid } = groupScript();
   const socket = path.join(dir, "docker.sock");

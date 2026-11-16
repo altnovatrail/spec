@@ -4,15 +4,19 @@
 //   node tools/orchestrator/main.mjs start <repo> <task> [--ceiling <usd>] [--prompt <file>]
 //                                          [--container <name or id>] [--folder <host's folder>]
 //   node tools/orchestrator/main.mjs resume <run> [--answers <file>] [--ceiling <usd>]
+//   node tools/orchestrator/main.mjs stop <run>
 //   node tools/orchestrator/main.mjs status [<run>…]
 //   node tools/orchestrator/main.mjs wait <run>… [--timeout <seconds>]
+//   node tools/orchestrator/main.mjs next <repo>
 //   node tools/orchestrator/main.mjs sync
 //
 // It runs in spec's orchestrator container, which sees the host's Docker, and is what «Сделай эпик
 // E…» calls (RUN.md, T170). start and resume return at once; the run goes on in its container and
-// writes its files to the run's folder, and status and wait read them. Each command prints JSON, a
-// line for each run; sync, the path and the commit of the orchestrator's clone of spec. Exits 0 when
-// done, 1 when what it was asked cannot be done or wait's time ran out, 2 on a wrong command line.
+// writes its files to the run's folder, and status and wait read them; stop ends the run's attempt
+// and returns once it has ended. Each command prints JSON, a line for each run; next, the next free
+// number of a repository's task, by GitHub and the runs; sync, the path and the commit of the
+// orchestrator's clone of spec. Exits 0 when done, 1 when what it was asked cannot be done or wait's
+// time ran out, 2 on a wrong command line.
 // README.md says what each file of a run holds. It takes only Node's own modules, so that it runs
 // from the clone that sync keeps, which has no node_modules.
 
@@ -23,17 +27,20 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { isMain } from "../shared.mjs";
 import { runDocker } from "./containers.mjs";
-import { allRuns, DEFAULT_CEILING, homeOf, loadRun, resume, SPEC_URL, start, stateOf, sync, waitFor } from "./runs.mjs";
+import { nextTask, runGh } from "./numbers.mjs";
+import { allRuns, DEFAULT_CEILING, homeOf, loadRun, openRuns, resume, SPEC_URL, start, stateOf, stop, sync, waitFor } from "./runs.mjs";
 
 const USAGE =
-  "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], status [<run>…], wait <run>… [--timeout <seconds>] or sync";
+  "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], stop <run>, status [<run>…], wait <run>… [--timeout <seconds>], next <repo> or sync";
 
 // The options of each command, and how many runs or names it takes.
 const COMMANDS = {
   start: { options: { ceiling: { type: "string" }, prompt: { type: "string" }, container: { type: "string" }, folder: { type: "string" } }, min: 2, max: 2 },
   resume: { options: { answers: { type: "string" }, ceiling: { type: "string" } }, min: 1, max: 1 },
+  stop: { options: {}, min: 1, max: 1 },
   status: { options: {}, min: 0, max: Infinity },
   wait: { options: { timeout: { type: "string" } }, min: 1, max: Infinity },
+  next: { options: {}, min: 1, max: 1 },
   sync: { options: {}, min: 0, max: 0 },
 };
 
@@ -68,11 +75,12 @@ export function argumentsOf(argv) {
   return { command, words, values };
 }
 
-// What the commands run on by default: the host's Docker, the volume's folder, spec on GitHub,
-// the clock.
+// What the commands run on by default: the host's Docker, GitHub, the volume's folder, spec on
+// GitHub, the clock.
 export function defaults(env = process.env) {
   return {
     docker: (args) => runDocker(args, { env }),
+    gh: (args) => runGh(args, { env }),
     home: homeOf(env),
     specUrl: SPEC_URL,
     hostname: os.hostname(),
@@ -113,6 +121,10 @@ export async function main(argv, overrides = {}) {
       const prompt = values.answers === undefined ? null : read(values.answers);
       const run = resume(words[0], { prompt, ceiling: values.ceiling ?? null }, deps);
       deps.out(JSON.stringify(stateOf(deps.home, run, deps)));
+    } else if (command === "stop") {
+      deps.out(JSON.stringify(stateOf(deps.home, stop(words[0], deps), deps)));
+    } else if (command === "next") {
+      deps.out(JSON.stringify(nextTask(words[0], { gh: deps.gh, runs: openRuns(deps.home, words[0]) })));
     } else if (command === "status") {
       for (const id of words.length ? words : allRuns(deps.home)) deps.out(JSON.stringify(stateOf(deps.home, loadRun(deps.home, id), deps)));
     } else if (command === "wait") {

@@ -15,8 +15,8 @@ docs-check-repo: _tools
 docs-check-test: _tools
     node --test 'tools/docs-check/test/*.test.mjs'
 
-# Reads table 3 of every other NovaTrail repository on GitHub, through gh — its run/QUESTIONS.md, or
-# its RUN.md until it moves (R153); on main and in each open pull request — and prints the rows
+# Reads table 3 of every other NovaTrail repository on GitHub, through gh — its run/QUESTIONS.md
+# (R153), on main and in each open pull request — and prints the rows
 # «в реестр spec» that table 5, run/INBOX.md, does not hold yet, and those of table 5 the source no
 # longer marks (R81). A session of spec runs it on the author's word or at the end of an epic, rule
 # 13 of RUN.md; gh has to be logged in.
@@ -24,7 +24,7 @@ docs-check-test: _tools
 inbox: _tools
     node tools/inbox/main.mjs
 
-# Run inbox's own tests, on made-up RUN.md and run/QUESTIONS.md files and a stand-in for gh.
+# Run inbox's own tests, on made-up run/QUESTIONS.md files and a stand-in for gh.
 inbox-test: _tools
     node --test 'tools/inbox/test/*.test.mjs'
 
@@ -79,11 +79,12 @@ session-test:
 
 # The orchestrator's commands (R156), in spec's orchestrator container, which sees the host's
 # Docker: start runs a task of a repository as claude -p in that repository's container and returns
-# at once; resume continues the same session with the author's answers; status and wait read the
-# run's files on the volume novatrail-claude; sync keeps the orchestrator's own clone of spec's
-# main. «Сделай эпик E…» runs them from that clone, where this recipe is not needed: they take
-# nothing from node_modules (tools/orchestrator/README.md).
-# Run a command of the orchestrator: start, resume, status, wait or sync.
+# at once; resume continues the same session with the author's answers; stop ends a run's attempt;
+# status and wait read the run's files on the volume novatrail-claude; next names a repository's
+# next free number of a task; sync keeps the orchestrator's own clone of spec's main. «Сделай
+# эпик E…» runs them from that clone, where this recipe is not needed: they take nothing from
+# node_modules (tools/orchestrator/README.md).
+# Run a command of the orchestrator: start, resume, stop, status, wait, next or sync.
 [positional-arguments]
 orchestrator *args:
     node tools/orchestrator/main.mjs "$@"

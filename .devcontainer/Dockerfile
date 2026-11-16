@@ -108,9 +108,10 @@ ENV PATH="/usr/local/node/bin:/usr/local/go/bin:/home/vscode/.local/bin:${PATH}"
 
 # -- toolchain: the core, plus what the repository's tests need ---------------
 #
-# spec's tests need nothing the core lacks, so here the stage adds nothing. A copy's kind adds its
-# lines at the end of this stage (repo-template/kinds.json): what they install, a release never
-# builds.
+# What the repository's tests need beyond the core: in spec, nothing; in a copy, the lines its kind
+# adds at the end of this stage, if it adds any. What they install, a release never builds, and
+# neither do the checks that run no browser: what the release and those ci- recipes call belongs in
+# toolchain-core.
 
 FROM toolchain-core AS toolchain
 

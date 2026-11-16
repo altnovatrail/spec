@@ -12,7 +12,7 @@
 
 import fs from "node:fs";
 import { isMain } from "../shared.mjs";
-import { taskOf, verdict } from "./session.mjs";
+import { runTasksOf, taskOf, verdict } from "./session.mjs";
 
 // The records of a transcript that may be the author's prompts, read from its JSON Lines. A line
 // of any other type, or one that holds a result of a tool, is not parsed: a long session's
@@ -33,14 +33,15 @@ export function promptRecords(text) {
 
 // What the hook prints for its input, the JSON Claude Code gives it: the decision that stops the
 // prompt, or "" to let it through. A prompt that starts no task — most of them — goes through
-// without the transcript being read.
-export function hook(input, readFile = (file) => fs.readFileSync(file, "utf8")) {
+// without the transcript being read. The numbers a run of the orchestrator goes by come from the
+// environment, which Claude Code passes on to its hooks.
+export function hook(input, readFile = (file) => fs.readFileSync(file, "utf8"), env = process.env) {
   let reason;
   try {
     const { prompt, transcript_path: transcript } = JSON.parse(input);
     if (typeof prompt !== "string" || !taskOf(prompt)) return "";
     const records = typeof transcript === "string" && transcript ? promptRecords(readFile(transcript)) : [];
-    reason = verdict(prompt, records);
+    reason = verdict(prompt, records, runTasksOf(env));
   } catch {
     return "";
   }

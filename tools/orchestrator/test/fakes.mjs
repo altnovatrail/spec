@@ -63,8 +63,20 @@ const fs = require("node:fs");
 const dir = process.env.FAKE_CLAUDE;
 const n = fs.readdirSync(dir).filter((f) => /^call-\\d+\\.json$/.test(f)).length + 1;
 const git = Object.fromEntries(Object.entries(process.env).filter(([k]) => k.startsWith("GIT_CONFIG_")));
-fs.writeFileSync(dir + "/call-" + n + ".json", JSON.stringify({ argv: process.argv.slice(2), stdin: fs.readFileSync(0, "utf8"), git }));
+fs.writeFileSync(dir + "/call-" + n + ".json", JSON.stringify({ argv: process.argv.slice(2), stdin: fs.readFileSync(0, "utf8"), git, tasks: process.env.NOVATRAIL_RUN_TASKS ?? null }));
 const plan = fs.existsSync(dir + "/plan-" + n + ".json") ? JSON.parse(fs.readFileSync(dir + "/plan-" + n + ".json", "utf8")) : { lines: [], exit: 0 };
+// A command it leaves in the background, as claude's Bash may, and the pids of both.
+if (plan.child) {
+  const child = require("node:child_process").spawn("sleep", ["300"], { stdio: "ignore" });
+  fs.writeFileSync(dir + "/pids-" + n + ".json", JSON.stringify({ claude: process.pid, child: child.pid }));
+}
+// A command in the background that outlives SIGTERM, and claude: the container's first process
+// takes it over when claude ends.
+if (plan.stubbornChild) {
+  const child = require("node:child_process").spawn(process.execPath, ["-e", "process.on('SIGTERM', () => {}); setInterval(() => {}, 1000)"], { stdio: "ignore" });
+  fs.writeFileSync(dir + "/pids-" + n + ".json", JSON.stringify({ claude: process.pid, child: child.pid }));
+}
+if (plan.ignoreTerm) process.on("SIGTERM", () => {});
 for (const line of plan.lines) process.stdout.write((typeof line === "string" ? line : JSON.stringify(line)) + "\\n");
 const end = () => process.exit(plan.exit ?? 0);
 if (plan.hold) { const t = setInterval(() => { if (fs.existsSync(dir + "/release-" + n)) { clearInterval(t); end(); } }, 20); } else end();
@@ -137,6 +149,21 @@ export function host() {
     // Lays out what the fake claude prints on its n-th call.
     plan: (n, plan) => fs.writeFileSync(path.join(claudeDir, `plan-${n}.json`), JSON.stringify(plan)),
     release: (n) => fs.writeFileSync(path.join(claudeDir, `release-${n}`), ""),
+    // The pids of the n-th call of claude and of the command it left in the background, once both run.
+    pids: async (n) => {
+      const file = path.join(claudeDir, `pids-${n}.json`);
+      while (!fs.existsSync(file)) await new Promise((r) => setTimeout(r, 10));
+      return JSON.parse(fs.readFileSync(file, "utf8"));
+    },
+    // Writes the transcript of a session in a repository's container, and of its subagents, as
+    // Claude Code keeps them on the volume: records of JSON, or lines as they are.
+    transcript: (repo, session, records, subagents = {}) => {
+      const dir = path.join(volume, "projects", path.join(root, "workspaces", repo).replace(/[^a-zA-Z0-9]/g, "-"));
+      const lines = (list) => list.map((r) => (typeof r === "string" ? r : JSON.stringify(r))).join("\n");
+      fs.mkdirSync(path.join(dir, session, "subagents"), { recursive: true });
+      fs.writeFileSync(path.join(dir, `${session}.jsonl`), lines(records));
+      for (const [name, list] of Object.entries(subagents)) fs.writeFileSync(path.join(dir, session, "subagents", name), lines(list));
+    },
     call: (n) => JSON.parse(fs.readFileSync(path.join(claudeDir, `call-${n}.json`), "utf8")),
     dockerCalls: () => fs.readFileSync(path.join(dockerDir, "calls.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)),
     edit: (change) => {
@@ -152,10 +179,13 @@ export function host() {
   };
 }
 
+// A message of the model in a transcript, one record of its blocks: its id, model and usage.
+export const message = (id, usage, model = "claude-opus-5-5") => ({ type: "assistant", message: { id, model, usage } });
+
 // The events of a made-up stream.
 export const init = (session = "0f0e0d0c-0b0a-4908-8706-050403020100") => ({ type: "system", subtype: "init", session_id: session, model: "claude-opus-5-5" });
 export const allowed = { type: "rate_limit_event", rate_limit_info: { status: "allowed", resetsAt: 1795352400, rateLimitType: "seven_day" } };
-export const STATUS = { status: "done", report: "Сделано: проверка.", plan: "", pull_request: "https://github.com/altnovatrail/sim/pull/1", questions: [], failure: null };
+export const STATUS = { status: "done", task: "T7", report: "Сделано: проверка.", plan: "", pull_request: "https://github.com/altnovatrail/sim/pull/1", questions: [], failure: null };
 export const QUESTION = {
   row: "В7",
   question: "Какой критерий взять?",

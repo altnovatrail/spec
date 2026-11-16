@@ -27,10 +27,10 @@ import { entriesOf } from "./registers.mjs";
 import { isRule } from "./rules.mjs";
 
 const KB = 1024;
-// The files of the work plan's tables that one of its two layouts has and the other has not: DEBT.md
-// at the root before R153, run/ after it, and run/TASKS.md after R155. Once every repository has
-// moved, DEBT.md leaves (Д250).
-const PLAN_LAYOUTS = ["DEBT.md", "run/EPICS.md", "run/QUESTIONS.md", "run/DEBT.md", "run/TASKS.md"];
+// The file of the work plan in run/ that a repository may lack: one with no open task outside an
+// epic has no run/TASKS.md (R155). Every repository has the other files of run/ (R153), and a limit
+// for one it lacks is an error.
+const OPTIONAL = ["run/TASKS.md"];
 const LIMITS = ["rule", "entry", "section"];
 const MAPS = ["files", "entries", "sections", "rows"];
 const bytes = (n) => n.toLocaleString("en-US");
@@ -99,11 +99,10 @@ export function checkBudgets(root, files, limits, profile, report) {
     }
   };
 
-  // A limit for a file that is not there would hold nothing, and say nothing. In a repository,
-  // spec's block names the tables of the work plan in both layouts while the repositories move them
-  // to run/ (R153), so a limit of spec's for one of those files that the repository does not have is
-  // none; for any other file, or from its own docs-budgets.json, it is an error.
-  const optional = (limit, file) => Boolean(profile.budgets?.own) && limit.from !== profile.budgets.own && PLAN_LAYOUTS.includes(file);
+  // A limit for a file that is not there would hold nothing, and say nothing. In a repository, a
+  // limit of spec's for run/TASKS.md that the repository does not have is none; for any other file,
+  // or from its own docs-budgets.json, it is an error.
+  const optional = (limit, file) => Boolean(profile.budgets?.own) && limit.from !== profile.budgets.own && OPTIONAL.includes(file);
   for (const [file, limit] of Object.entries(limits.files)) {
     const stat = fs.statSync(path.join(root, file), { throwIfNoEntry: false });
     if (stat?.isFile()) over(file, 1, "", stat.size, limit);

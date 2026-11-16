@@ -20,6 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { byCodeUnits } from "../shared.mjs";
+import { callOf, tokensOf } from "./calls.mjs";
 import { costOf, PRICES } from "./prices.mjs";
 import { promptOf } from "../session/session.mjs";
 
@@ -257,7 +258,7 @@ export function measure(transcripts, { read, root, since = null, until = null, p
         } else if (typeof content === "string") {
           segment.items.push({ kind: r.isMeta || r.isCompactSummary ? "reminder" : "prompt", key: null, chars: content.length });
         }
-      } else if (r.type === "assistant" && r.message?.id && r.message.usage && r.message.model !== "<synthetic>") {
+      } else if (callOf(r)) {
         const m = r.message;
         for (const b of Array.isArray(m.content) ? m.content : []) if (b?.type === "tool_use") uses.set(b.id, describe(b, root, isFile));
         const u = m.usage;
@@ -271,21 +272,13 @@ export function measure(transcripts, { read, root, since = null, until = null, p
           if (known.file !== transcript.file) segment = { before: known, items: [], window, start: false, resumed: true };
           continue;
         }
-        const write = u.cache_creation_input_tokens ?? 0;
-        const write1h = u.cache_creation?.ephemeral_1h_input_tokens ?? 0;
         const call = {
           file: transcript.file,
           session: transcript.session,
           subagent: transcript.subagent,
           model: m.model,
-          speed: u.speed,
           timestamp: r.timestamp ?? "",
-          input: u.input_tokens ?? 0,
-          read: u.cache_read_input_tokens ?? 0,
-          write,
-          write1h,
-          write5m: u.cache_creation ? (u.cache_creation.ephemeral_5m_input_tokens ?? 0) : write,
-          output: u.output_tokens ?? 0,
+          ...tokensOf(u),
         };
         call.context = call.input + call.read + call.write;
         call.counted = inWindow(call.timestamp, since, until);
