@@ -147,6 +147,16 @@ export function start({ repo, task, ceiling = DEFAULT_CEILING, prompt = null, co
   return run;
 }
 
+// Whether the process $1 of a container lives: kill -0 answers for a zombie too, which a container
+// whose first process reaps no children keeps — the one a test runs in, and maybe an executor's —,
+// so the state in /proc that says Z is no life. Everything here is sh's own: an image need not have
+// the programs.
+const ALIVE = [
+  'kill -0 "$1" 2>/dev/null || exit 0',
+  'stat=; read -r stat 2>/dev/null < "/proc/$1/stat"',
+  'case "${stat##*") "}" in Z*) ;; *) echo alive ;; esac',
+].join("\n");
+
 // Whether an attempt with no exit code still runs: its container runs, and its sh is alive in it.
 // One whose pid is not written yet is starting, for a while. A container that is gone or stopped
 // has lost it; any other failure of docker is an error, not an answer.
@@ -159,8 +169,7 @@ function alive(run, attempt, dir, deps) {
   try {
     const [now] = inspect([run.container.id], deps.docker);
     if (!now.State?.Running) return false;
-    // kill is sh's own: an image need not have the program.
-    return deps.docker(["exec", "--user", "vscode", run.container.id, "sh", "-c", 'if kill -0 "$1" 2>/dev/null; then echo alive; fi', "sh", pid]).trim() === "alive";
+    return deps.docker(["exec", "--user", "vscode", run.container.id, "sh", "-c", ALIVE, "sh", pid]).trim() === "alive";
   } catch (error) {
     if (gone(error)) return false;
     throw error;

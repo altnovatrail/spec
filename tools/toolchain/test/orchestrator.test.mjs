@@ -69,8 +69,11 @@ function groupStep(gid) {
     for (const tool of ["groupadd", "usermod"]) fs.writeFileSync(path.join(bin, tool), `#!/bin/sh\necho "${tool} $*" >> "${calls}"\n`, { mode: 0o755 });
     // The step names the folder outside quotes only, so a variable stands in for it, and the
     // temporary path reaches bash by the environment rather than in the script's text.
+    // stdin is /dev/null: Node gives a child a socket, and Ubuntu's bash with a socket on stdin and no
+    // SHLVL, as in CI's container, takes itself for rsh's and reads /etc/bash.bashrc.
     const result = spawnSync("bash", ["-euo", "pipefail", "-c", script.replaceAll("/tmp/orchestrator", '"$ORCHESTRATOR_FOLDER"')], {
       encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
       env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, ORCHESTRATOR_FOLDER: folder },
     });
     assert.ok(!fs.existsSync(folder), "the step leaves no copy of the folder in the image");
