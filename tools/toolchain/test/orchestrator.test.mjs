@@ -151,6 +151,32 @@ test("docker-group.sh leaves the number of the socket's group beside itself, thr
   }
 });
 
+test("docker-group.sh leaves docker-gid untouched when the socket's group is the one it holds", async () => {
+  const { dir, run, gid } = groupScript();
+  const socket = path.join(dir, "docker.sock");
+  const server = await listen(socket);
+  try {
+    const group = fs.statSync(socket).gid;
+    fs.writeFileSync(gid, `${group}\n`);
+    // An old time, so that a write would show whatever the clock's resolution.
+    const old = new Date("2026-01-01T00:00:00Z");
+    fs.utimesSync(gid, old, old);
+    const result = run(socket);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stderr, "");
+    assert.equal(fs.statSync(gid).mtimeMs, old.getTime(), "the same number is not written again");
+    // Another number is written, and its time moves.
+    fs.writeFileSync(gid, `${group + 1}\n`);
+    fs.utimesSync(gid, old, old);
+    assert.equal(run(socket).status, 0);
+    assert.equal(fs.readFileSync(gid, "utf8"), `${group}\n`);
+    assert.notEqual(fs.statSync(gid).mtimeMs, old.getTime());
+  } finally {
+    server.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("docker-group.sh says to rebuild when the socket's group is no longer the one the image was built with", async () => {
   const { dir, run, gid } = groupScript();
   const socket = path.join(dir, "docker.sock");
