@@ -9,12 +9,12 @@
 set -euo pipefail
 export LC_ALL=C
 
-if [ $# -eq 0 ]; then
+if [[ $# -eq 0 ]]; then
     echo "untested.sh: name the lcov reports" >&2
     exit 2
 fi
 for report in "$@"; do
-    if [ ! -f "$report" ]; then
+    if [[ ! -f "$report" ]]; then
         echo "untested.sh: ${report}: no such report" >&2
         exit 2
     fi
@@ -23,7 +23,7 @@ done
 modules=$(git ls-files --cached --others --exclude-standard -- 'tools/*.mjs' | grep -v '/test/')
 reported=$(sed -n 's/^SF://p' "$@")
 missing=$(comm -23 <(sort -u <<< "$modules") <(sort -u <<< "$reported"))
-if [ -n "$missing" ]; then
+if [[ -n "$missing" ]]; then
     echo "untested.sh: no test loads these modules of tools/, so codecov/patch would never count their lines:" >&2
     echo "$missing" >&2
     exit 1
