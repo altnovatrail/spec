@@ -514,7 +514,8 @@ export enum Cause {
    * The consent is not confirmed: a child's profile asked for by a consent of a parent that still
    * waits, or a learning request of a profile without consent — one that waits for the learner's
    * own consent or for a parent's form —, but for the requests on the consent itself, which section
-   * 15 of contracts/README.md names. Code `failed_precondition`.
+   * 15 of contracts/README.md names; or the adult's correction of a module's level at such a
+   * profile. Code `failed_precondition`.
    *
    * @generated from enum value: CAUSE_NO_CONSENT = 28;
    */
@@ -619,7 +620,8 @@ export enum Cause {
    * The age of the profile is to be given again before its next work: the country of a learner who
    * gave their own consent now asks for an older age of digital consent than the one the category
    * was given by (R134), but for the requests on the consent itself, which section 15 of
-   * contracts/README.md names. An adult gives it by `RestateAge`. Code `failed_precondition`.
+   * contracts/README.md names; the adult's correction of a module's level at such a profile gets it
+   * too. An adult gives it by `RestateAge`. Code `failed_precondition`.
    *
    * @generated from enum value: CAUSE_AGE_NEEDED = 40;
    */
@@ -670,6 +672,17 @@ export enum Cause {
    * @generated from enum value: CAUSE_KEY_CHECKS_EXHAUSTED = 45;
    */
   KEY_CHECKS_EXHAUSTED = 45,
+
+  /**
+   * The adult's correction of a module's level names a band that is neither the band of the level
+   * nor one next to it, by the bands of the manifest of the module's current version: the level
+   * has moved since `app` read it, or the module has no such band. `app` reads `GetSkillMap`
+   * again and offers the bands next to the level it gives (R157). Code `failed_precondition`,
+   * with no data.
+   *
+   * @generated from enum value: CAUSE_BAND_NOT_NEXT = 46;
+   */
+  BAND_NOT_NEXT = 46,
 }
 
 /**

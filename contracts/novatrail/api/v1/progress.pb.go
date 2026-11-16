@@ -5,9 +5,9 @@
 // source: novatrail/api/v1/progress.proto
 
 // The skill map and the adult's progress in the contract between `app` and `api`: the state of a
-// learner's skills in a module, as the learner model reads it, and the attempts of a profile with
-// the traps that repeat in them. What each message means is the rule of contracts/README.md,
-// section 15.
+// learner's skills in a module, as the learner model reads it, the attempts of a profile with the
+// traps that repeat in them, and the adult's correction of a module's level (R157). What each
+// message means is the rule of contracts/README.md, section 15.
 
 package apiv1
 
@@ -282,7 +282,17 @@ type GetSkillMapResponse struct {
 	// of `rubric` or `none` has none.
 	Skills []*SkillState `protobuf:"bytes,2,rep,name=skills,proto3" json:"skills,omitempty"`
 	// The state of each anchor skill that the graph names as a prerequisite or in `teaches`.
-	AnchorSkills  []*AnchorSkillState `protobuf:"bytes,3,rep,name=anchor_skills,json=anchorSkills,proto3" json:"anchor_skills,omitempty"`
+	AnchorSkills []*AnchorSkillState `protobuf:"bytes,3,rep,name=anchor_skills,json=anchorSkills,proto3" json:"anchor_skills,omitempty"`
+	// The ID of the band of the module's level, as `learner-model` reads it on the scale of the
+	// module's bands (concepts 11): the highest band while the level stands above it, and empty
+	// while it stands below the lowest band, where a learner whose grade is in the lowest band starts
+	// (R157). A band keeps its place and its ID in every version of the module (section 27 of the
+	// module format), so the manifest of the current version names it: by it and the order of the
+	// bands of that manifest `app` names the bands next to it, which `SetModuleLevel` takes.
+	LevelBand string `protobuf:"bytes,4,opt,name=level_band,json=levelBand,proto3" json:"level_band,omitempty"`
+	// When an adult last set the module's level by `SetModuleLevel`: absent when no adult has. The
+	// learner sees it, whoever gave the consent (R157).
+	LevelSetAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=level_set_at,json=levelSetAt,proto3" json:"level_set_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -334,6 +344,20 @@ func (x *GetSkillMapResponse) GetSkills() []*SkillState {
 func (x *GetSkillMapResponse) GetAnchorSkills() []*AnchorSkillState {
 	if x != nil {
 		return x.AnchorSkills
+	}
+	return nil
+}
+
+func (x *GetSkillMapResponse) GetLevelBand() string {
+	if x != nil {
+		return x.LevelBand
+	}
+	return ""
+}
+
+func (x *GetSkillMapResponse) GetLevelSetAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LevelSetAt
 	}
 	return nil
 }
@@ -623,6 +647,10 @@ type GetProgressResponse struct {
 	RepeatingTraps []*RepeatingTrap `protobuf:"bytes,2,rep,name=repeating_traps,json=repeatingTraps,proto3" json:"repeating_traps,omitempty"`
 	// The token of the next page: empty on the last.
 	NextPageToken string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// The adult's last correction of the level of each module of the profile that has one, connected
+	// or not since, while the evidence log keeps it, in the order of the modules' IDs' UTF-16 code
+	// units: on the first page alone, and empty on the others.
+	LevelSettings []*LevelSetting `protobuf:"bytes,4,rep,name=level_settings,json=levelSettings,proto3" json:"level_settings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -678,6 +706,203 @@ func (x *GetProgressResponse) GetNextPageToken() string {
 	return ""
 }
 
+func (x *GetProgressResponse) GetLevelSettings() []*LevelSetting {
+	if x != nil {
+		return x.LevelSettings
+	}
+	return nil
+}
+
+// The adult's last correction of a module's level (R157).
+type LevelSetting struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The module's ID.
+	ModuleId string `protobuf:"bytes,1,opt,name=module_id,json=moduleId,proto3" json:"module_id,omitempty"`
+	// The ID of the band the adult set the level in. The level may have moved since, by the
+	// evidence: the skill map gives where it stands.
+	Band string `protobuf:"bytes,2,opt,name=band,proto3" json:"band,omitempty"`
+	// When the adult set it.
+	SetAt         *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=set_at,json=setAt,proto3" json:"set_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LevelSetting) Reset() {
+	*x = LevelSetting{}
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LevelSetting) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LevelSetting) ProtoMessage() {}
+
+func (x *LevelSetting) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LevelSetting.ProtoReflect.Descriptor instead.
+func (*LevelSetting) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *LevelSetting) GetModuleId() string {
+	if x != nil {
+		return x.ModuleId
+	}
+	return ""
+}
+
+func (x *LevelSetting) GetBand() string {
+	if x != nil {
+		return x.Band
+	}
+	return ""
+}
+
+func (x *LevelSetting) GetSetAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SetAt
+	}
+	return nil
+}
+
+// The adult's correction of a module's level.
+type SetModuleLevelRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile.
+	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	// The ID of a module connected to the profile.
+	ModuleId string `protobuf:"bytes,2,opt,name=module_id,json=moduleId,proto3" json:"module_id,omitempty"`
+	// The ID of the band to set the level in: the band next to the band of the level, the one before
+	// it, easier, or the one after it, harder, in the order of the bands of the manifest of the
+	// module's current version, and the lowest band while the level stands below it; or the band of
+	// the level itself, which changes nothing. No band comes before the lowest, so at the lowest band
+	// there is no "Easier" to name, and none after the highest. Needed: empty, the request is
+	// refused `invalid_argument`.
+	Band          string `protobuf:"bytes,3,opt,name=band,proto3" json:"band,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetModuleLevelRequest) Reset() {
+	*x = SetModuleLevelRequest{}
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetModuleLevelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetModuleLevelRequest) ProtoMessage() {}
+
+func (x *SetModuleLevelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetModuleLevelRequest.ProtoReflect.Descriptor instead.
+func (*SetModuleLevelRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SetModuleLevelRequest) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *SetModuleLevelRequest) GetModuleId() string {
+	if x != nil {
+		return x.ModuleId
+	}
+	return ""
+}
+
+func (x *SetModuleLevelRequest) GetBand() string {
+	if x != nil {
+		return x.Band
+	}
+	return ""
+}
+
+// The module's level after the correction.
+type SetModuleLevelResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The ID of the band of the module's level: the band named.
+	LevelBand string `protobuf:"bytes,1,opt,name=level_band,json=levelBand,proto3" json:"level_band,omitempty"`
+	// When an adult last set the module's level: by this request, or by the one before it when this
+	// one named the band of the level already. Absent when no adult has.
+	LevelSetAt    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=level_set_at,json=levelSetAt,proto3" json:"level_set_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetModuleLevelResponse) Reset() {
+	*x = SetModuleLevelResponse{}
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetModuleLevelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetModuleLevelResponse) ProtoMessage() {}
+
+func (x *SetModuleLevelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetModuleLevelResponse.ProtoReflect.Descriptor instead.
+func (*SetModuleLevelResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SetModuleLevelResponse) GetLevelBand() string {
+	if x != nil {
+		return x.LevelBand
+	}
+	return ""
+}
+
+func (x *SetModuleLevelResponse) GetLevelSetAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LevelSetAt
+	}
+	return nil
+}
+
 // An attempt in the progress of a profile. How it came out follows from its close reason and its
 // wrong answers: correct with none is correct at the first submission.
 type AttemptRecord struct {
@@ -725,7 +950,7 @@ type AttemptRecord struct {
 
 func (x *AttemptRecord) Reset() {
 	*x = AttemptRecord{}
-	mi := &file_novatrail_api_v1_progress_proto_msgTypes[6]
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -737,7 +962,7 @@ func (x *AttemptRecord) String() string {
 func (*AttemptRecord) ProtoMessage() {}
 
 func (x *AttemptRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_progress_proto_msgTypes[6]
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -750,7 +975,7 @@ func (x *AttemptRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AttemptRecord.ProtoReflect.Descriptor instead.
 func (*AttemptRecord) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{6}
+	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AttemptRecord) GetTask() string {
@@ -853,7 +1078,7 @@ type EssayRecord struct {
 
 func (x *EssayRecord) Reset() {
 	*x = EssayRecord{}
-	mi := &file_novatrail_api_v1_progress_proto_msgTypes[7]
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -865,7 +1090,7 @@ func (x *EssayRecord) String() string {
 func (*EssayRecord) ProtoMessage() {}
 
 func (x *EssayRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_progress_proto_msgTypes[7]
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -878,7 +1103,7 @@ func (x *EssayRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EssayRecord.ProtoReflect.Descriptor instead.
 func (*EssayRecord) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{7}
+	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *EssayRecord) GetSubmittedAt() *timestamppb.Timestamp {
@@ -924,7 +1149,7 @@ type RepeatingTrap struct {
 
 func (x *RepeatingTrap) Reset() {
 	*x = RepeatingTrap{}
-	mi := &file_novatrail_api_v1_progress_proto_msgTypes[8]
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -936,7 +1161,7 @@ func (x *RepeatingTrap) String() string {
 func (*RepeatingTrap) ProtoMessage() {}
 
 func (x *RepeatingTrap) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_progress_proto_msgTypes[8]
+	mi := &file_novatrail_api_v1_progress_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -949,7 +1174,7 @@ func (x *RepeatingTrap) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RepeatingTrap.ProtoReflect.Descriptor instead.
 func (*RepeatingTrap) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{8}
+	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RepeatingTrap) GetTrap() string {
@@ -996,11 +1221,15 @@ const file_novatrail_api_v1_progress_proto_rawDesc = "" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1b\n" +
 	"\tmodule_id\x18\x02 \x01(\tR\bmoduleId\x120\n" +
-	"\x06action\x18\x03 \x01(\x0e2\x18.novatrail.api.v1.ActionR\x06action\"\xbb\x01\n" +
+	"\x06action\x18\x03 \x01(\x0e2\x18.novatrail.api.v1.ActionR\x06action\"\x98\x02\n" +
 	"\x13GetSkillMapResponse\x12%\n" +
 	"\x0epackage_digest\x18\x01 \x01(\tR\rpackageDigest\x124\n" +
 	"\x06skills\x18\x02 \x03(\v2\x1c.novatrail.api.v1.SkillStateR\x06skills\x12G\n" +
-	"\ranchor_skills\x18\x03 \x03(\v2\".novatrail.api.v1.AnchorSkillStateR\fanchorSkills\"\xf7\x03\n" +
+	"\ranchor_skills\x18\x03 \x03(\v2\".novatrail.api.v1.AnchorSkillStateR\fanchorSkills\x12\x1d\n" +
+	"\n" +
+	"level_band\x18\x04 \x01(\tR\tlevelBand\x12<\n" +
+	"\flevel_set_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"levelSetAt\"\xf7\x03\n" +
 	"\n" +
 	"SkillState\x12\x14\n" +
 	"\x05skill\x18\x01 \x01(\tR\x05skill\x12%\n" +
@@ -1031,11 +1260,26 @@ const file_novatrail_api_v1_progress_proto_rawDesc = "" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tR\tpageToken\"\xc4\x01\n" +
+	"page_token\x18\x02 \x01(\tR\tpageToken\"\x8b\x02\n" +
 	"\x13GetProgressResponse\x12;\n" +
 	"\battempts\x18\x01 \x03(\v2\x1f.novatrail.api.v1.AttemptRecordR\battempts\x12H\n" +
 	"\x0frepeating_traps\x18\x02 \x03(\v2\x1f.novatrail.api.v1.RepeatingTrapR\x0erepeatingTraps\x12&\n" +
-	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\"\xc3\x04\n" +
+	"\x0fnext_page_token\x18\x03 \x01(\tR\rnextPageToken\x12E\n" +
+	"\x0elevel_settings\x18\x04 \x03(\v2\x1e.novatrail.api.v1.LevelSettingR\rlevelSettings\"r\n" +
+	"\fLevelSetting\x12\x1b\n" +
+	"\tmodule_id\x18\x01 \x01(\tR\bmoduleId\x12\x12\n" +
+	"\x04band\x18\x02 \x01(\tR\x04band\x121\n" +
+	"\x06set_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05setAt\"g\n" +
+	"\x15SetModuleLevelRequest\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1b\n" +
+	"\tmodule_id\x18\x02 \x01(\tR\bmoduleId\x12\x12\n" +
+	"\x04band\x18\x03 \x01(\tR\x04band\"u\n" +
+	"\x16SetModuleLevelResponse\x12\x1d\n" +
+	"\n" +
+	"level_band\x18\x01 \x01(\tR\tlevelBand\x12<\n" +
+	"\flevel_set_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"levelSetAt\"\xc3\x04\n" +
 	"\rAttemptRecord\x12\x12\n" +
 	"\x04task\x18\x01 \x01(\tR\x04task\x12%\n" +
 	"\x0emodule_version\x18\x02 \x01(\tR\rmoduleVersion\x12\x16\n" +
@@ -1077,10 +1321,11 @@ const file_novatrail_api_v1_progress_proto_rawDesc = "" +
 	"\x1aCRITERION_MARK_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12CRITERION_MARK_MET\x10\x01\x12\x1a\n" +
 	"\x16CRITERION_MARK_NOT_MET\x10\x02\x12\x1f\n" +
-	"\x1bCRITERION_MARK_NOT_ASSESSED\x10\x032\xc9\x01\n" +
+	"\x1bCRITERION_MARK_NOT_ASSESSED\x10\x032\xae\x02\n" +
 	"\x0fProgressService\x12Z\n" +
 	"\vGetSkillMap\x12$.novatrail.api.v1.GetSkillMapRequest\x1a%.novatrail.api.v1.GetSkillMapResponse\x12Z\n" +
-	"\vGetProgress\x12$.novatrail.api.v1.GetProgressRequest\x1a%.novatrail.api.v1.GetProgressResponseB\xc6\x01\n" +
+	"\vGetProgress\x12$.novatrail.api.v1.GetProgressRequest\x1a%.novatrail.api.v1.GetProgressResponse\x12c\n" +
+	"\x0eSetModuleLevel\x12'.novatrail.api.v1.SetModuleLevelRequest\x1a(.novatrail.api.v1.SetModuleLevelResponseB\xc6\x01\n" +
 	"\x14com.novatrail.api.v1B\rProgressProtoP\x01Z=github.com/altnovatrail/spec/contracts/novatrail/api/v1;apiv1\xa2\x02\x03NAX\xaa\x02\x10Novatrail.Api.V1\xca\x02\x10Novatrail\\Api\\V1\xe2\x02\x1cNovatrail\\Api\\V1\\GPBMetadata\xea\x02\x12Novatrail::Api::V1b\x06proto3"
 
 var (
@@ -1096,55 +1341,64 @@ func file_novatrail_api_v1_progress_proto_rawDescGZIP() []byte {
 }
 
 var file_novatrail_api_v1_progress_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_novatrail_api_v1_progress_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_novatrail_api_v1_progress_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_novatrail_api_v1_progress_proto_goTypes = []any{
-	(AnchorSkillHolding)(0),       // 0: novatrail.api.v1.AnchorSkillHolding
-	(AnchorSkillReason)(0),        // 1: novatrail.api.v1.AnchorSkillReason
-	(CriterionMark)(0),            // 2: novatrail.api.v1.CriterionMark
-	(*GetSkillMapRequest)(nil),    // 3: novatrail.api.v1.GetSkillMapRequest
-	(*GetSkillMapResponse)(nil),   // 4: novatrail.api.v1.GetSkillMapResponse
-	(*SkillState)(nil),            // 5: novatrail.api.v1.SkillState
-	(*AnchorSkillState)(nil),      // 6: novatrail.api.v1.AnchorSkillState
-	(*GetProgressRequest)(nil),    // 7: novatrail.api.v1.GetProgressRequest
-	(*GetProgressResponse)(nil),   // 8: novatrail.api.v1.GetProgressResponse
-	(*AttemptRecord)(nil),         // 9: novatrail.api.v1.AttemptRecord
-	(*EssayRecord)(nil),           // 10: novatrail.api.v1.EssayRecord
-	(*RepeatingTrap)(nil),         // 11: novatrail.api.v1.RepeatingTrap
-	(Action)(0),                   // 12: novatrail.api.v1.Action
-	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
-	(CloseReason)(0),              // 14: novatrail.api.v1.CloseReason
-	(ReasonCode)(0),               // 15: novatrail.api.v1.ReasonCode
-	(SubmissionEnd)(0),            // 16: novatrail.api.v1.SubmissionEnd
+	(AnchorSkillHolding)(0),        // 0: novatrail.api.v1.AnchorSkillHolding
+	(AnchorSkillReason)(0),         // 1: novatrail.api.v1.AnchorSkillReason
+	(CriterionMark)(0),             // 2: novatrail.api.v1.CriterionMark
+	(*GetSkillMapRequest)(nil),     // 3: novatrail.api.v1.GetSkillMapRequest
+	(*GetSkillMapResponse)(nil),    // 4: novatrail.api.v1.GetSkillMapResponse
+	(*SkillState)(nil),             // 5: novatrail.api.v1.SkillState
+	(*AnchorSkillState)(nil),       // 6: novatrail.api.v1.AnchorSkillState
+	(*GetProgressRequest)(nil),     // 7: novatrail.api.v1.GetProgressRequest
+	(*GetProgressResponse)(nil),    // 8: novatrail.api.v1.GetProgressResponse
+	(*LevelSetting)(nil),           // 9: novatrail.api.v1.LevelSetting
+	(*SetModuleLevelRequest)(nil),  // 10: novatrail.api.v1.SetModuleLevelRequest
+	(*SetModuleLevelResponse)(nil), // 11: novatrail.api.v1.SetModuleLevelResponse
+	(*AttemptRecord)(nil),          // 12: novatrail.api.v1.AttemptRecord
+	(*EssayRecord)(nil),            // 13: novatrail.api.v1.EssayRecord
+	(*RepeatingTrap)(nil),          // 14: novatrail.api.v1.RepeatingTrap
+	(Action)(0),                    // 15: novatrail.api.v1.Action
+	(*timestamppb.Timestamp)(nil),  // 16: google.protobuf.Timestamp
+	(CloseReason)(0),               // 17: novatrail.api.v1.CloseReason
+	(ReasonCode)(0),                // 18: novatrail.api.v1.ReasonCode
+	(SubmissionEnd)(0),             // 19: novatrail.api.v1.SubmissionEnd
 }
 var file_novatrail_api_v1_progress_proto_depIdxs = []int32{
-	12, // 0: novatrail.api.v1.GetSkillMapRequest.action:type_name -> novatrail.api.v1.Action
+	15, // 0: novatrail.api.v1.GetSkillMapRequest.action:type_name -> novatrail.api.v1.Action
 	5,  // 1: novatrail.api.v1.GetSkillMapResponse.skills:type_name -> novatrail.api.v1.SkillState
 	6,  // 2: novatrail.api.v1.GetSkillMapResponse.anchor_skills:type_name -> novatrail.api.v1.AnchorSkillState
-	13, // 3: novatrail.api.v1.SkillState.last_practiced_at:type_name -> google.protobuf.Timestamp
-	13, // 4: novatrail.api.v1.SkillState.review_date:type_name -> google.protobuf.Timestamp
-	0,  // 5: novatrail.api.v1.AnchorSkillState.holding:type_name -> novatrail.api.v1.AnchorSkillHolding
-	1,  // 6: novatrail.api.v1.AnchorSkillState.reason:type_name -> novatrail.api.v1.AnchorSkillReason
-	9,  // 7: novatrail.api.v1.GetProgressResponse.attempts:type_name -> novatrail.api.v1.AttemptRecord
-	11, // 8: novatrail.api.v1.GetProgressResponse.repeating_traps:type_name -> novatrail.api.v1.RepeatingTrap
-	14, // 9: novatrail.api.v1.AttemptRecord.close_reason:type_name -> novatrail.api.v1.CloseReason
-	13, // 10: novatrail.api.v1.AttemptRecord.begun_at:type_name -> google.protobuf.Timestamp
-	13, // 11: novatrail.api.v1.AttemptRecord.closed_at:type_name -> google.protobuf.Timestamp
-	13, // 12: novatrail.api.v1.AttemptRecord.chosen_at:type_name -> google.protobuf.Timestamp
-	10, // 13: novatrail.api.v1.AttemptRecord.essay_submissions:type_name -> novatrail.api.v1.EssayRecord
-	15, // 14: novatrail.api.v1.AttemptRecord.reason_code:type_name -> novatrail.api.v1.ReasonCode
-	13, // 15: novatrail.api.v1.EssayRecord.submitted_at:type_name -> google.protobuf.Timestamp
-	16, // 16: novatrail.api.v1.EssayRecord.end:type_name -> novatrail.api.v1.SubmissionEnd
-	2,  // 17: novatrail.api.v1.EssayRecord.criterion_marks:type_name -> novatrail.api.v1.CriterionMark
-	13, // 18: novatrail.api.v1.RepeatingTrap.last_closed_at:type_name -> google.protobuf.Timestamp
-	3,  // 19: novatrail.api.v1.ProgressService.GetSkillMap:input_type -> novatrail.api.v1.GetSkillMapRequest
-	7,  // 20: novatrail.api.v1.ProgressService.GetProgress:input_type -> novatrail.api.v1.GetProgressRequest
-	4,  // 21: novatrail.api.v1.ProgressService.GetSkillMap:output_type -> novatrail.api.v1.GetSkillMapResponse
-	8,  // 22: novatrail.api.v1.ProgressService.GetProgress:output_type -> novatrail.api.v1.GetProgressResponse
-	21, // [21:23] is the sub-list for method output_type
-	19, // [19:21] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	16, // 3: novatrail.api.v1.GetSkillMapResponse.level_set_at:type_name -> google.protobuf.Timestamp
+	16, // 4: novatrail.api.v1.SkillState.last_practiced_at:type_name -> google.protobuf.Timestamp
+	16, // 5: novatrail.api.v1.SkillState.review_date:type_name -> google.protobuf.Timestamp
+	0,  // 6: novatrail.api.v1.AnchorSkillState.holding:type_name -> novatrail.api.v1.AnchorSkillHolding
+	1,  // 7: novatrail.api.v1.AnchorSkillState.reason:type_name -> novatrail.api.v1.AnchorSkillReason
+	12, // 8: novatrail.api.v1.GetProgressResponse.attempts:type_name -> novatrail.api.v1.AttemptRecord
+	14, // 9: novatrail.api.v1.GetProgressResponse.repeating_traps:type_name -> novatrail.api.v1.RepeatingTrap
+	9,  // 10: novatrail.api.v1.GetProgressResponse.level_settings:type_name -> novatrail.api.v1.LevelSetting
+	16, // 11: novatrail.api.v1.LevelSetting.set_at:type_name -> google.protobuf.Timestamp
+	16, // 12: novatrail.api.v1.SetModuleLevelResponse.level_set_at:type_name -> google.protobuf.Timestamp
+	17, // 13: novatrail.api.v1.AttemptRecord.close_reason:type_name -> novatrail.api.v1.CloseReason
+	16, // 14: novatrail.api.v1.AttemptRecord.begun_at:type_name -> google.protobuf.Timestamp
+	16, // 15: novatrail.api.v1.AttemptRecord.closed_at:type_name -> google.protobuf.Timestamp
+	16, // 16: novatrail.api.v1.AttemptRecord.chosen_at:type_name -> google.protobuf.Timestamp
+	13, // 17: novatrail.api.v1.AttemptRecord.essay_submissions:type_name -> novatrail.api.v1.EssayRecord
+	18, // 18: novatrail.api.v1.AttemptRecord.reason_code:type_name -> novatrail.api.v1.ReasonCode
+	16, // 19: novatrail.api.v1.EssayRecord.submitted_at:type_name -> google.protobuf.Timestamp
+	19, // 20: novatrail.api.v1.EssayRecord.end:type_name -> novatrail.api.v1.SubmissionEnd
+	2,  // 21: novatrail.api.v1.EssayRecord.criterion_marks:type_name -> novatrail.api.v1.CriterionMark
+	16, // 22: novatrail.api.v1.RepeatingTrap.last_closed_at:type_name -> google.protobuf.Timestamp
+	3,  // 23: novatrail.api.v1.ProgressService.GetSkillMap:input_type -> novatrail.api.v1.GetSkillMapRequest
+	7,  // 24: novatrail.api.v1.ProgressService.GetProgress:input_type -> novatrail.api.v1.GetProgressRequest
+	10, // 25: novatrail.api.v1.ProgressService.SetModuleLevel:input_type -> novatrail.api.v1.SetModuleLevelRequest
+	4,  // 26: novatrail.api.v1.ProgressService.GetSkillMap:output_type -> novatrail.api.v1.GetSkillMapResponse
+	8,  // 27: novatrail.api.v1.ProgressService.GetProgress:output_type -> novatrail.api.v1.GetProgressResponse
+	11, // 28: novatrail.api.v1.ProgressService.SetModuleLevel:output_type -> novatrail.api.v1.SetModuleLevelResponse
+	26, // [26:29] is the sub-list for method output_type
+	23, // [23:26] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_progress_proto_init() }
@@ -1161,7 +1415,7 @@ func file_novatrail_api_v1_progress_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_progress_proto_rawDesc), len(file_novatrail_api_v1_progress_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   9,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

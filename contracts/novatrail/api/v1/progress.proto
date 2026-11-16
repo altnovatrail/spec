@@ -1,9 +1,9 @@
 syntax = "proto3";
 
 // The skill map and the adult's progress in the contract between `app` and `api`: the state of a
-// learner's skills in a module, as the learner model reads it, and the attempts of a profile with
-// the traps that repeat in them. What each message means is the rule of contracts/README.md,
-// section 15.
+// learner's skills in a module, as the learner model reads it, the attempts of a profile with the
+// traps that repeat in them, and the adult's correction of a module's level (R157). What each
+// message means is the rule of contracts/README.md, section 15.
 package novatrail.api.v1;
 
 import "google/protobuf/timestamp.proto";
@@ -11,14 +11,15 @@ import "novatrail/api/v1/attempt.proto";
 import "novatrail/api/v1/cause.proto";
 
 // What the learner model and the history of a profile show: the skill map, on the learner's screen
-// and in the section for adults, and the progress, which the adult views. Every method carries the
-// token of the sign-in service and may get the refusals of every request with a token, which the
-// comment of `AccountService` names with what `app` does on each; a profile that is not the
-// account's gets `CAUSE_NO_PROFILE`, a learning request of a profile whose consent is not
-// confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
-// `CAUSE_AGE_NEEDED`, a request without the right it needs the code `permission_denied`
-// with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
-// with no `Refusal`. Both repeat by the state of the profile, with no idempotency key.
+// and in the section for adults, and the progress, which the adult views; and the adult's
+// correction of a module's level. Every method carries the token of the sign-in service and may
+// get the refusals of every request with a token, which the comment of `AccountService` names with
+// what `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, a learning
+// request of a profile whose consent is not confirmed `CAUSE_NO_CONSENT` and one of a profile
+// whose age is to be given again `CAUSE_AGE_NEEDED`, a request without the right it needs the code
+// `permission_denied` with no `Refusal`, and a request whose form the contract refuses the code
+// `invalid_argument` with no `Refusal`. Each repeats by the state of the profile, with no
+// idempotency key.
 service ProgressService {
   // The state of the skills of a connected module's current version, for the skill map (concepts
   // 11), as `learner-model` reads it at the time of the request. The graph and its tiers `app`
@@ -29,8 +30,20 @@ service ProgressService {
   rpc GetSkillMap(GetSkillMapRequest) returns (GetSkillMapResponse);
   // The progress of a profile, which an adult views with the right `can_view`: its attempts, newest
   // first, a page at a time, and the traps that repeat in its closed attempts, with their
-  // descriptions and advice (section 16 of the module format).
+  // descriptions and advice (section 16 of the module format), and the adult's last correction of
+  // the level of each module that has one.
   rpc GetProgress(GetProgressRequest) returns (GetProgressResponse);
+  // The adult's correction of the level of a connected module (R157): "Easier" or "Harder" in the
+  // section for adults, which sets the module's level in the band named, next to the band of the
+  // level, by an action of an adult with the right `can_manage`, at every profile of the account:
+  // the owner's, a child's and that of a learner who gave their own consent. `api` appends it to
+  // the evidence log, a fact for `learner-model`, and every learner sees on the skill map that an
+  // adult set the level, and when. A request that names the band of the level already appends
+  // nothing and answers as the level is: so a repeat after an answer lost sets the band the adult
+  // chose, and changes nothing once the level stands in it. Refusals: `CAUSE_NOT_FOUND`, a module
+  // not connected; `CAUSE_NO_CURRENT_VERSION`; `CAUSE_NO_CONSENT` and `CAUSE_AGE_NEEDED`, as at a
+  // learning request; and `CAUSE_BAND_NOT_NEXT`.
+  rpc SetModuleLevel(SetModuleLevelRequest) returns (SetModuleLevelResponse);
 }
 
 // A request for the skill map of a module.
@@ -54,6 +67,16 @@ message GetSkillMapResponse {
   repeated SkillState skills = 2;
   // The state of each anchor skill that the graph names as a prerequisite or in `teaches`.
   repeated AnchorSkillState anchor_skills = 3;
+  // The ID of the band of the module's level, as `learner-model` reads it on the scale of the
+  // module's bands (concepts 11): the highest band while the level stands above it, and empty
+  // while it stands below the lowest band, where a learner whose grade is in the lowest band starts
+  // (R157). A band keeps its place and its ID in every version of the module (section 27 of the
+  // module format), so the manifest of the current version names it: by it and the order of the
+  // bands of that manifest `app` names the bands next to it, which `SetModuleLevel` takes.
+  string level_band = 4;
+  // When an adult last set the module's level by `SetModuleLevel`: absent when no adult has. The
+  // learner sees it, whoever gave the consent (R157).
+  google.protobuf.Timestamp level_set_at = 5;
 }
 
 // The state of a skill of a module, as `learner-model` reads it (concepts 11). No trap is in it:
@@ -152,6 +175,45 @@ message GetProgressResponse {
   repeated RepeatingTrap repeating_traps = 2;
   // The token of the next page: empty on the last.
   string next_page_token = 3;
+  // The adult's last correction of the level of each module of the profile that has one, connected
+  // or not since, while the evidence log keeps it, in the order of the modules' IDs' UTF-16 code
+  // units: on the first page alone, and empty on the others.
+  repeated LevelSetting level_settings = 4;
+}
+
+// The adult's last correction of a module's level (R157).
+message LevelSetting {
+  // The module's ID.
+  string module_id = 1;
+  // The ID of the band the adult set the level in. The level may have moved since, by the
+  // evidence: the skill map gives where it stands.
+  string band = 2;
+  // When the adult set it.
+  google.protobuf.Timestamp set_at = 3;
+}
+
+// The adult's correction of a module's level.
+message SetModuleLevelRequest {
+  // The profile.
+  string profile_id = 1;
+  // The ID of a module connected to the profile.
+  string module_id = 2;
+  // The ID of the band to set the level in: the band next to the band of the level, the one before
+  // it, easier, or the one after it, harder, in the order of the bands of the manifest of the
+  // module's current version, and the lowest band while the level stands below it; or the band of
+  // the level itself, which changes nothing. No band comes before the lowest, so at the lowest band
+  // there is no "Easier" to name, and none after the highest. Needed: empty, the request is
+  // refused `invalid_argument`.
+  string band = 3;
+}
+
+// The module's level after the correction.
+message SetModuleLevelResponse {
+  // The ID of the band of the module's level: the band named.
+  string level_band = 1;
+  // When an adult last set the module's level: by this request, or by the one before it when this
+  // one named the band of the level already. Absent when no adult has.
+  google.protobuf.Timestamp level_set_at = 2;
 }
 
 // An attempt in the progress of a profile. How it came out follows from its close reason and its

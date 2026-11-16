@@ -130,7 +130,8 @@ const (
 	// The consent is not confirmed: a child's profile asked for by a consent of a parent that still
 	// waits, or a learning request of a profile without consent — one that waits for the learner's
 	// own consent or for a parent's form —, but for the requests on the consent itself, which section
-	// 15 of contracts/README.md names. Code `failed_precondition`.
+	// 15 of contracts/README.md names; or the adult's correction of a module's level at such a
+	// profile. Code `failed_precondition`.
 	Cause_CAUSE_NO_CONSENT Cause = 28
 	// The input of the PIN is closed after too many wrong PINs. The refusal holds when it opens. Code
 	// `resource_exhausted`.
@@ -175,7 +176,8 @@ const (
 	// The age of the profile is to be given again before its next work: the country of a learner who
 	// gave their own consent now asks for an older age of digital consent than the one the category
 	// was given by (R134), but for the requests on the consent itself, which section 15 of
-	// contracts/README.md names. An adult gives it by `RestateAge`. Code `failed_precondition`.
+	// contracts/README.md names; the adult's correction of a module's level at such a profile gets it
+	// too. An adult gives it by `RestateAge`. Code `failed_precondition`.
 	Cause_CAUSE_AGE_NEEDED Cause = 40
 	// The version of a legal text that the request names is not the current one — a next version
 	// before its day among them —, or a text that has a current version is not named: `app` reads
@@ -198,6 +200,12 @@ const (
 	// holds the number and the window (R78 api). The refusal holds when the next check opens. Code
 	// `resource_exhausted`.
 	Cause_CAUSE_KEY_CHECKS_EXHAUSTED Cause = 45
+	// The adult's correction of a module's level names a band that is neither the band of the level
+	// nor one next to it, by the bands of the manifest of the module's current version: the level
+	// has moved since `app` read it, or the module has no such band. `app` reads `GetSkillMap`
+	// again and offers the bands next to the level it gives (R157). Code `failed_precondition`,
+	// with no data.
+	Cause_CAUSE_BAND_NOT_NEXT Cause = 46
 )
 
 // Enum value maps for Cause.
@@ -249,6 +257,7 @@ var (
 		43: "CAUSE_STORAGE_OFF",
 		44: "CAUSE_WORK_TOO_LARGE",
 		45: "CAUSE_KEY_CHECKS_EXHAUSTED",
+		46: "CAUSE_BAND_NOT_NEXT",
 	}
 	Cause_value = map[string]int32{
 		"CAUSE_UNSPECIFIED":          0,
@@ -297,6 +306,7 @@ var (
 		"CAUSE_STORAGE_OFF":          43,
 		"CAUSE_WORK_TOO_LARGE":       44,
 		"CAUSE_KEY_CHECKS_EXHAUSTED": 45,
+		"CAUSE_BAND_NOT_NEXT":        46,
 	}
 )
 
@@ -1212,7 +1222,7 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x06reason\x18\x01 \x01(\x0e2\x1e.novatrail.api.v1.RunEndReasonR\x06reason\x126\n" +
 	"\x06choice\x18\x02 \x01(\v2\x1e.novatrail.api.v1.EngineChoiceR\x06choice\"'\n" +
 	"\rEndedSegments\x12\x16\n" +
-	"\x06places\x18\x01 \x03(\x05R\x06places*\x90\t\n" +
+	"\x06places\x18\x01 \x03(\x05R\x06places*\xa9\t\n" +
 	"\x05Cause\x12\x15\n" +
 	"\x11CAUSE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10CAUSE_NO_PROFILE\x10\x01\x12\x13\n" +
@@ -1260,7 +1270,8 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x15CAUSE_LEARNER_DECIDES\x10*\x12\x15\n" +
 	"\x11CAUSE_STORAGE_OFF\x10+\x12\x18\n" +
 	"\x14CAUSE_WORK_TOO_LARGE\x10,\x12\x1e\n" +
-	"\x1aCAUSE_KEY_CHECKS_EXHAUSTED\x10-*\x88\x01\n" +
+	"\x1aCAUSE_KEY_CHECKS_EXHAUSTED\x10-\x12\x17\n" +
+	"\x13CAUSE_BAND_NOT_NEXT\x10.*\x88\x01\n" +
 	"\n" +
 	"LimitCause\x12\x1b\n" +
 	"\x17LIMIT_CAUSE_UNSPECIFIED\x10\x00\x12\x15\n" +
