@@ -25,6 +25,7 @@ A question that concerns more than one repository is still a row «В реест
 - Work on a branch of its own from the up-to-date `main`. Commit with sign-off, `git commit -s`, by the repository's rules for commit messages.
 - Push the branch and open a pull request with `gh pr create`; its description holds the plan, when there is one, and the report. `git push` here goes through `gh auth git-credential`, which the orchestrator sets for this run.
 - Never merge, never push to `main`, never tag a release: the orchestrator merges the pull request once its checks are green (R156 spec).
+- Return `done` only once every check of the pull request has finished, the late ones included, where the repository's earlier pull requests have them: `codecov/patch`, SonarCloud with 0 issues of the pull request — read them by its API, since a green check can hide them —, and a trial Release. Fix what they find on the same branch. A failure of the infrastructure — a job that got no runner, a service outside the repository that did not answer — is no finding: rerun the failed jobs once, `gh run rerun <workflow run's id> --failed`; failing again, return `done` and name it in the report, and the orchestrator asks the author. If the task can be marked `[x]` only after its merge, say so in the report: the orchestrator resumes you after the merge to mark it.
 - Change no other repository, and nothing of spec from here; spec stays read-only at the tag its submodule pins.
 
 ## When the orchestrator resumes you
@@ -33,7 +34,8 @@ The prompt of a resumed run is one of these:
 - the author's answers to the questions you returned;
 - the checks of the pull request that failed, with what they said;
 - word that a limit of the subscription has reset;
-- a new ceiling of cost.
+- a new ceiling of cost;
+- word that the pull request is merged, to mark a task that is marked only after its merge.
 
 Go on with the same task from where it stopped, by the same rules.
 
