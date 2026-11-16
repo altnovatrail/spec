@@ -67,6 +67,43 @@ test("a task starts by each phrase of RUN.md, wherever the prompt says it", () =
   assert.equal(taskOf("Разбери входящие"), null);
 });
 
+test("a run of the orchestrator starts by «Сделай эпик E…», and counts as one task", () => {
+  for (const [prompt, epic] of [
+    ["Сделай эпик E14", "E14"],
+    ["сделай эпик E015 по COORDINATION.md", "E15"],
+    ["контейнеры созданы. Делай эпик E15", "E15"],
+    ["выполни эпик E16", "E16"],
+    ["продолжай эпик E14", "E14"],
+    ["не делай T5, сделай эпик E15", "E15"],
+    ["сделай эпик E15, а потом выполни задачу T3", "E15"],
+    ["выполни задачу T3, а потом сделай эпик E15", "T3"],
+  ]) {
+    assert.equal(taskOf(prompt), epic, prompt);
+  }
+  for (const prompt of [
+    "планируй эпик E15", // splitting an epic into tasks is no run
+    "спланируй эпик E15",
+    "Сделай эпик E", // no number
+    "сделай эпик E1234",
+    "сделай эпик Е15", // a Cyrillic Е is no epic's ID
+    "сделай эпик E15?",
+    "сделай эпик E15.1",
+    "сделай эпик, как E14",
+    "не делай эпик E15",
+    "доделай эпик E15",
+    "в RUN.md стоит «Сделай эпик E15» — поправь",
+    "фраза `Сделай эпик E15` — вот так",
+  ]) {
+    assert.equal(taskOf(prompt), null, prompt);
+  }
+  const epic = [typed("Сделай эпик E14"), answer("волна 0 идёт")];
+  assert.equal(verdict("продолжай эпик E14", epic), null);
+  assert.equal(verdict("ответ: вариант (а)", epic), null);
+  assert.match(verdict("Сделай эпик E15", epic), /^This prompt starts E15, and this session has led E14: one task is one session/);
+  assert.match(verdict("Выполни задачу T170", epic), /starts T170, and this session has led E14/);
+  assert.match(verdict("Сделай эпик E14", [typed("Выполни задачу T170")]), /starts E14, and this session has led T170/);
+});
+
 test("a phrase quoted, denied or only near a task ID starts nothing", () => {
   for (const prompt of [
     "что дальше по COORDINATION.md?",

@@ -1,0 +1,61 @@
+// The orchestrator's devcontainer, spec's second configuration (R156): spec's own, with the host's
+// Docker. «Сделай эпик E…» runs here, and so do the tasks that build and check the orchestrator
+// itself, T169–T171 of spec's RUN.md (CLAUDE.md, Environment); nothing else does. The socket below
+// is root on the host, so no code but NovaTrail's own is opened in this container. Tasks on spec's
+// documents run in spec's ordinary container, ../devcontainer.json, which has no Docker. What is
+// not said below is the same as there, and a test of tools/toolchain holds the two together.
+{
+    "name": "NovaTrail orchestrator",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        // The devcontainer stage, with the Docker CLI on top.
+        "target": "orchestrator",
+        // The image copies one file, orchestrator/docker-gid, which initializeCommand writes, so it
+        // is built from spec's .devcontainer/ alone.
+        "context": ".."
+    },
+    "remoteUser": "vscode",
+    // Runs on the host before the container starts: the network of spec's container, and the
+    // number of the socket's group, which the build gives the user vscode (docker-group.sh).
+    "initializeCommand": "bash .devcontainer/host-network.sh && bash .devcontainer/orchestrator/docker-group.sh",
+    "runArgs": [
+        // spec's network, for its MTU (../host-network.sh). No name in it: spec's container takes
+        // the name spec, and nothing reaches the orchestrator by a name.
+        "--network=novatrail-spec"
+    ],
+    "mounts": [
+        "source=novatrail-claude,target=/home/vscode/.claude,type=volume",
+        "source=novatrail-codex,target=/home/vscode/.codex,type=volume",
+        "source=novatrail-gh,target=/home/vscode/.config/gh,type=volume",
+        // ${devcontainerId} differs from that of spec's container, whose configuration is another
+        // file: each keeps its extensions in a volume of its own.
+        "source=novatrail-vscode-extensions-${devcontainerId},target=/home/vscode/.vscode-server/extensions,type=volume",
+        // The host's Docker: docker ps here lists the host's containers, and docker exec runs a task
+        // in a repository's container (R156).
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ],
+    "containerEnv": {
+        "NOVATRAIL_DEVCONTAINER": "1",
+        "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+        "DISABLE_AUTOUPDATER": "1"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "files.eol": "\n",
+                "files.insertFinalNewline": true,
+                "git.alwaysSignOff": true,
+                "git.repositoryScanMaxDepth": 2,
+                "git.detectSubmodules": false
+            },
+            "extensions": [
+                "anthropic.claude-code@2.1.280",
+                "openai.chatgpt@26.1007.21434",
+                "redhat.vscode-yaml@1.24.0",
+                "nefrob.vscode-just-syntax@0.10.2",
+                "bierner.markdown-mermaid@1.32.1",
+                "eamodio.gitlens@19.2.0"
+            ]
+        }
+    }
+}

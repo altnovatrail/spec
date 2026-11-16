@@ -4,7 +4,8 @@
 // the Dockerfile, a start command for the spec submodule, and the suffix "spec" on the decisions
 // its Dockerfile cites. Every edit expects to find its place a known number of times, so that a
 // change to spec's devcontainer stops the recipe rather than producing a copy that is quietly
-// wrong.
+// wrong. spec's orchestrator, its second configuration and the last stage of its Dockerfile, is
+// spec's alone (R156), and stays out of the copy.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -106,6 +107,8 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
   const id = `novatrail-${alias}`;
   const owner = `NovaTrail's ${name}`;
 
+  // A tag before T168 has no orchestrator.
+  fs.rmSync(path.join(dir, "orchestrator"), { recursive: true, force: true });
   edit(path.join(dir, "devcontainer.json"), (text) => {
     text = replace(text, "novatrail-spec", id, 2, "the container's name and network");
     // A tag before T115 names no container in its network, and the copy gets its name all the
@@ -133,7 +136,7 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
   });
   edit(path.join(dir, "host-network.sh"), (text) => replace(text, '"novatrail-spec"', `"${id}"`, 1, "the network's name"));
   edit(path.join(dir, "Dockerfile"), (text) =>
-    suffixDecisions(addDevcontainerLines(addToolchain(replace(text, "the NovaTrail spec", owner, 1, "the opening comment"), toolchain), devcontainer)),
+    suffixDecisions(addDevcontainerLines(addToolchain(replace(dropOrchestrator(text), "the NovaTrail spec", owner, 1, "the opening comment"), toolchain), devcontainer)),
   );
   for (const file of devcontainer?.files ?? []) {
     const target = path.join(dir, file.path);
@@ -165,6 +168,16 @@ function remove(text, pattern, what) {
   const found = text.match(new RegExp(pattern.source, `${pattern.flags}g`))?.length ?? 0;
   if (found !== 1) throw new Error(`${what}: expected it once in spec's devcontainer, found ${found}`);
   return text.replace(pattern, "");
+}
+
+// The orchestrator's stage ends spec's Dockerfile, from its heading on, and the copy ends where it
+// begins: with the devcontainer stage, the one a build with no target gives.
+export const ORCHESTRATOR_STAGE = "\n# -- orchestrator:";
+
+function dropOrchestrator(text) {
+  const found = text.split(ORCHESTRATOR_STAGE).length - 1;
+  if (found > 1) throw new Error(`the orchestrator's stage: expected it at most once in spec's Dockerfile, found ${found}`);
+  return found === 0 ? text : text.slice(0, text.indexOf(ORCHESTRATOR_STAGE));
 }
 
 // A decision the Dockerfile cites — "(R34)", "(R12, R34)" or "R34" in a sentence — is one of

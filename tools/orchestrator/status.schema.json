@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "The status of an executor's run",
+  "description": "What a run of claude -p returns to spec's orchestrator as its structured output, by the contract tools/orchestrator/executor.md (R156): whether the task is done, waits on the author or failed, the questions it waits on, the pull request and the report.",
+  "type": "object",
+  "properties": {
+    "status": {
+      "description": "done: the task is carried to an open pull request with green local checks, or needs none; waiting: it cannot go on until the author answers the questions; failed: it cannot go on, and failure says why.",
+      "enum": ["done", "waiting", "failed"]
+    },
+    "report": {
+      "description": "The report to the author, in Russian, by the RUN.md of the repository: what was done, which files, how it was checked, what the review found, what is open.",
+      "type": "string"
+    },
+    "plan": {
+      "description": "The plan the task was done by, when it was planned, as the pull request's description gives it; an empty string when it was not.",
+      "type": "string"
+    },
+    "pull_request": {
+      "description": "The address of the pull request the run opened or updated, or null when there is none.",
+      "type": ["string", "null"]
+    },
+    "questions": {
+      "description": "The questions to the author the run waits on, each a row the run wrote into table 3 of its repository; empty unless status is waiting.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "description": "The row of table 3 that holds the question, by its number or its first words.",
+            "type": "string"
+          },
+          "question": {
+            "description": "The question, in Russian, with what the author needs to decide it.",
+            "type": "string"
+          },
+          "options": {
+            "description": "Two to four options, the recommended one first.",
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 4,
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "description": "The option in a few words.", "type": "string" },
+                "description": { "description": "What the option means and what it costs.", "type": "string" }
+              },
+              "required": ["label", "description"],
+              "additionalProperties": false
+            }
+          },
+          "recommendation": {
+            "description": "The label of the recommended option, and why, in one sentence.",
+            "type": "string"
+          }
+        },
+        "required": ["row", "question", "options", "recommendation"],
+        "additionalProperties": false
+      }
+    },
+    "failure": {
+      "description": "Why the task cannot go on, when status is failed; null otherwise.",
+      "type": ["string", "null"]
+    }
+  },
+  "required": ["status", "report", "plan", "pull_request", "questions", "failure"],
+  "additionalProperties": false,
+  "if": { "properties": { "status": { "const": "waiting" } } },
+  "then": { "properties": { "questions": { "type": "array", "minItems": 1 } } }
+}

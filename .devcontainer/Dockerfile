@@ -6,8 +6,12 @@
 #
 # Two stages. `toolchain` holds what it takes to check the repository — its documents, and its
 # code where it has any — and is the stage the automated checks run inside. `devcontainer` adds
-# what a person needs on top of that and is the default stage, so building this file with no
-# target gives the full environment.
+# what a person needs on top of that, and devcontainer.json names it as its target. spec's own
+# file ends with a third, `orchestrator`, the devcontainer with the Docker CLI (R156), which
+# `just new-repo` leaves out of a copy: in a copy `devcontainer` is the last stage, the one a
+# build with no target gives, and in spec every build names its stage. A builder that builds every
+# stage before its target builds `orchestrator` for the ordinary configuration too, and the stage
+# builds there as well, without the file only its own configuration writes.
 
 # -- toolchain: checks the repository ----------------------------------------
 
@@ -173,3 +177,83 @@ RUN echo "claude code ${CLAUDE_CODE_VERSION}" \
 USER vscode
 RUN mkdir -p /home/vscode/.claude /home/vscode/.codex /home/vscode/.config/gh \
         /home/vscode/.vscode-server/extensions
+
+# -- orchestrator: the devcontainer, plus the Docker CLI ---------------------
+#
+# spec's alone, for its second configuration, orchestrator/devcontainer.json, which mounts the
+# host's Docker socket: from here «Сделай эпик E…» runs each task in its repository's container
+# (R156). `just new-repo` leaves this stage and orchestrator/ out of a copy. The helper that
+# fetches is the toolchain stage's, written again as the devcontainer stage writes it: a change to
+# one is a change to all three.
+
+FROM devcontainer AS orchestrator
+
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+
+USER root
+
+# The Docker CLI, from Docker's static archive: of its binaries the client, docker, alone — built
+# from docker/cli under Apache-2.0 —, and none of the daemon's, which is the host's (R12).
+ARG DOCKER_VERSION=29.9.3
+# Docker publishes no list of sums beside its static archives, so each sum is the sha256 of the
+# archive as it was downloaded over HTTPS on 2026-11-15, for each architecture, and is taken the
+# same way with every raise of the version (R34, sources 9.2).
+ARG DOCKER_SHA256_AMD64=3fb5d1f13014c18cc54945bc177c58a9056a482dada031e17d12cf2e6922c973
+ARG DOCKER_SHA256_ARM64=1b27fd739378ef938401e81ce5afb73b7ad7432d4f598814a9ff5f826bb464d2
+
+RUN arch="$(dpkg --print-architecture)"; \
+    case "$arch" in \
+        amd64) gnu_arch=x86_64; docker_sha256="$DOCKER_SHA256_AMD64" ;; \
+        arm64) gnu_arch=aarch64; docker_sha256="$DOCKER_SHA256_ARM64" ;; \
+        *) echo "unsupported architecture: $arch" >&2; exit 1 ;; \
+    esac; \
+    workdir="$(mktemp -d)"; \
+    fetch() { \
+        local url="$1" out="$2" sha256="$3"; \
+        curl -fsSL --proto "=https" --proto-redir "=https" --retry 3 --retry-all-errors \
+            -o "$out" "$url"; \
+        echo "${sha256}  ${out}" | sha256sum --check --strict -; \
+    }; \
+    \
+    echo "docker ${DOCKER_VERSION}"; \
+    fetch "https://download.docker.com/linux/static/stable/${gnu_arch}/docker-${DOCKER_VERSION}.tgz" \
+        "$workdir/docker-${DOCKER_VERSION}-${gnu_arch}.tgz" "$docker_sha256"; \
+    tar -C "$workdir" -xzf "$workdir/docker-${DOCKER_VERSION}-${gnu_arch}.tgz" docker/docker; \
+    install -m 0755 "$workdir/docker/docker" /usr/local/bin/docker; \
+    docker --version; \
+    \
+    rm -rf "$workdir"
+
+# The socket's group, by the number docker-group.sh read on the host and left in the context. A
+# group of the image may have that number already — 999 is systemd-journal's here, 0 root's where
+# the socket is root's own —, and then vscode joins that one: whatever else the group opens in the
+# container, the socket itself is root on the host. The group is in /etc/group before the
+# container starts, so every process of vscode has it, VS Code's server and each docker exec
+# alike. getent answers 2 for a number no group has, which pipefail would take for a failure.
+#
+# The folder comes whole, and docker-gid may be missing from it: Docker's legacy builder, which the
+# Dev Containers CLI falls back to on a host without buildx, builds every stage before its target,
+# and the CLI's target follows the end of this file, so spec's ordinary configuration builds this
+# stage too, with no docker-gid (sources 9.4). Without the file vscode joins no group; the
+# orchestrator's own configuration always writes it, or stops before the build.
+COPY orchestrator/ /tmp/orchestrator/
+RUN gid_file=/tmp/orchestrator/docker-gid; \
+    if [[ ! -f "$gid_file" ]]; then \
+        echo "orchestrator/docker-gid is not in the context: vscode joins no group of the Docker socket"; \
+        rm -rf /tmp/orchestrator; \
+        exit 0; \
+    fi; \
+    gid="$(cat "$gid_file")"; \
+    rm -rf /tmp/orchestrator; \
+    if [[ ! "$gid" =~ ^[0-9]+$ ]]; then \
+        echo "orchestrator/docker-gid holds no group number: ${gid}" >&2; exit 1; \
+    fi; \
+    group="$(getent group "$gid" | cut -d: -f1 || true)"; \
+    if [[ -z "$group" ]]; then \
+        group=docker-host; \
+        groupadd --gid "$gid" "$group"; \
+    fi; \
+    usermod --append --groups "$group" vscode; \
+    echo "vscode joins ${group}, group ${gid}"
+
+USER vscode

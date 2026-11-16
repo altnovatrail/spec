@@ -661,6 +661,27 @@ What translating `docs/` cost in tokens of subagents, from the «Сделано�
 - "All" adds the blind readers, 0.06–0.07 million each, and in `spec` the reconciliation of quotes.
 - A translator costs about the same whatever its batch: each first reads the glossary, concepts 15, 75 KB, the rules of translation and its brief. So the cost follows the number of subagents. T51 `sim`, estimated at 1.9 million per MB, paid 1.8 times as much with three translators for 235 KB; by subagents its estimate is ≈ 0.74 million. [tools/translation/README.md](../tools/translation/README.md) estimates by subagents.
 
+### 1.12. The ceiling of a task's cost
+
+What a session of Claude Code costs, for the orchestrator's ceiling of a task's cost (R156; RUN.md, T169). Measured 2026-11-15.
+- **How.** The transcripts on this machine of the 13 repositories' folders, `-workspaces-*`, each session with its subagents. The cost is each call's usage at the prices of section 1.2, each message of the model counted once. The sessions are those that started from 2026-11-01 until 2026-11-15T22:00 UTC and cost more than $0.50.
+- **All sessions**, 432:
+
+  | Median | 75th percentile | 90th | 95th | The largest |
+  |---|---|---|---|---|
+  | $11.67 | $23.04 | $48.42 | $69.31 | $373.25 |
+
+  17 cost more than $75, and 42 more than $50.
+- **Since one task has been one session**, from 2026-11-12T14:27, the end of the window of the rows of E10 in section 1.9 (R143; section 1.7), 202 sessions:
+
+  | Median | 90th percentile | 95th | The largest |
+  |---|---|---|---|
+  | $8.83 | $22.70 | $26.70 | $93.62 |
+
+  One cost more than $75. Before that, a session often held several tasks, and the largest sessions are of that time.
+- **The ceiling.** $75 by default, about the 95th percentile of all sessions — the author's answer of 2026-11-15 in planning T169, by the recommendation; the rejected options were $50 and a ceiling given every time. `tools/orchestrator/runs.mjs` holds it as `DEFAULT_CEILING`, and `start --ceiling` gives another. The ceiling counts `total_cost_usd`, Claude Code's own estimate at the API's prices, which counts as section 1.2 does: on a subscription, it measures the share of the limit a task takes, not a bill.
+- **A run of the orchestrator.** Its first real run, in `sim`'s container, 2026-11-15: a prompt that asked for one word and the status, Opus at effort `high`. It cost $0.2099: 2 tokens of input, 163 of output, 25,832 of a cache write — the start of a session. The `--resume` of the same session reported $0.2207 in all: $0.0108 more, 25,832 read from the cache, 292 written and 163 of output. The start of a session is the price of a run before it does anything.
+
 ## 2. The browsers of the kind `typescript`
 
 ### 2.1. WebKit and Firefox in the stage, T141, 2026-11-13
