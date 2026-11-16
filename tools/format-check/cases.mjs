@@ -4,9 +4,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fromMarkdown } from "mdast-util-from-markdown";
-import { gfmFromMarkdown } from "mdast-util-gfm";
-import { gfm } from "micromark-extension-gfm";
+import { markdownTree } from "../docs-check/markdown.mjs";
 import { byCodeUnits } from "../shared.mjs";
 import { INDEX_PART, INDEX_RULES, indexFormProblems, indexOf } from "./index.mjs";
 import { MANIFEST_PART, MODULE_RULES, VERSION_FIELD, VERSION_RULE, idOf, listFolder, listModule, mediaBreaches, placeFiles, textBreaches, versionProblem } from "./module.mjs";
@@ -78,7 +76,7 @@ export function readText(readme) {
       }
     }
   };
-  visit(fromMarkdown(readme, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] }));
+  visit(markdownTree(readme));
   if (!layoutRows) problems.push({ line: 0, message: "the text has no layout of a module: a table whose first column is headed Path" });
   return { rules, layoutRows, problems };
 }

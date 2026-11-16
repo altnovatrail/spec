@@ -2,10 +2,9 @@
 # deployment configuration (R85), the legal texts (R130), the age of digital consent (R134), the
 # format of the export (R135), the types of each in Go and TypeScript (R72, R73), the Go module code takes from a release and its
 # zip, the licenses of the packages of tools/, the version the next release takes (R31) and the
-# files it carries (R64). The tests of tools/ and of the Go
-# modules run once here, with their coverage, and a job of its own sends that of tools/ to Codecov
-# (R48). The Go tests run again in "Go / test", and the shared workflow's job "Go / coverage"
-# sends their profile (R16 .github).
+# files it carries (R64). The tests of tools/ run here in three parts, a job each, with their
+# coverage, and a job of its own sends the reports of all three to Codecov (R48). The Go tests run
+# in "Go / test", and the shared workflow's job "Go / coverage" sends their profile (R16 .github).
 # They run in the toolchain stage of .devcontainer/Dockerfile, with the Node, Go and just of the
 # devcontainer, so a check that is green locally is green here. The image is built from the
 # Dockerfile, or loaded from the cache of GitHub Actions by its sha256, and published nowhere. Beside them, three of the checks every repository shares, from
@@ -14,7 +13,8 @@
 # own job checks its documents.
 #
 # The required checks of the ruleset of main are named after these jobs: "Documents and tools",
-# and for a shared check the job here and the job of the shared workflow, "Secrets / gitleaks",
+# the job that passes only when the checks and every part of the tests have, and for a shared
+# check the job here and the job of the shared workflow, "Secrets / gitleaks",
 # "DCO / sign-off", and "Go / lint", "Go / test", "Go / vuln" and "Go / licenses". Renaming
 # either breaks that rule. "Coverage" is not one of them: the check that answers for coverage is
 # codecov/patch, which Codecov sets from the upload, and the ruleset requires it once a pull
@@ -37,7 +37,7 @@ concurrency:
 
 jobs:
   checks:
-    name: Documents and tools
+    name: Checks
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # The toolchain stage, built once; every check below runs one command in it. How it is built
+      # The toolchain stage; every check below runs one command in it. How it is built
       # and how a command runs in it is tools/toolchain/toolchain.sh, which release.yml runs too,
       # and another repository's workflows from their spec submodule (R31).
       #
@@ -183,28 +183,97 @@ jobs:
           fi
           tools/toolchain/toolchain.sh spec release-files HEAD /tmp/release-files "$TAG"
 
-      # The tests of every tool in one run, which names every test that fails, with the coverage
-      # of the code they test in coverage/lcov.info. The recipe fails on a module of tools/ that
-      # no test loads, since codecov/patch would never count its lines. Then the tests of the Go
-      # modules, as "Go / test" runs them, with their profile in coverage/go.out, which stays
-      # here: "Go / coverage" sends the profile of its own run.
-      - id: tests
-        name: Tests
-        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
-        run: tools/toolchain/toolchain.sh spec coverage
+  # The tests of tools/ in three parts, a job each, every third test file from the part's own
+  # (coverage-part; RUN.md, T166) — the number stands in the matrix, the job's name, the recipe's
+  # call and the files of the job Coverage, which change together: on 2026-11-15 they took 425 s of
+  # the job that also ran every check (measurements 3.1). Each part writes the coverage of the code
+  # its tests load to coverage/lcov.info, and the job Coverage sends the reports of the three to
+  # Codecov. The image is the one the job Checks builds and saves: a part loads it from the cache on
+  # a hit, and on a miss builds it and writes no file, so that one job saves the entry; on a miss
+  # the four jobs build at once, each from the network. Each part runs even when another fails, so
+  # that a run names every failure.
+  tests:
+    name: Tests (${{ matrix.part }}/3)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [1, 2, 3]
+    steps:
+      # The whole history, with every tag: the tests of the release and of the contracts read it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - id: cache
+        name: Toolchain image from the cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/novatrail-toolchain.tar
+          key: toolchain-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.devcontainer/Dockerfile') }}
+
+      - name: Toolchain image
+        env:
+          TOOLCHAIN_IMAGE_FILE: ${{ steps.cache.outputs.cache-hit == 'true' && format('{0}/novatrail-toolchain.tar', runner.temp) || '' }}
+        run: tools/toolchain/toolchain.sh build
+
+      - name: Free the file of the toolchain image
+        if: ${{ !cancelled() }}
+        run: rm -f -- "$RUNNER_TEMP/novatrail-toolchain.tar"
+
+      - name: Tests
+        run: tools/toolchain/toolchain.sh spec coverage-part ${{ matrix.part }} 3
 
       # The report goes to the job that uploads it, the one job here that may ask for an OIDC
       # token. It is kept a week, so that the job can be run again after an outage of Codecov.
       - name: Coverage report
-        if: ${{ !cancelled() && steps.tests.outcome == 'success' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: coverage
+          name: coverage-${{ matrix.part }}
           path: coverage/lcov.info
           retention-days: 7
           if-no-files-found: error
 
-  # Codecov takes the report of tools/ by OIDC, with no secret (R48). This job alone here may ask
+  # The required check: it passes only when the checks and every part of the tests have, and when
+  # every module of tools/ is in the report of some part — a module that no test loads is in none,
+  # and codecov/patch would never count its lines (tools/coverage/untested.sh; R48). It runs
+  # whatever the jobs before it gave, always(), so that a failed or cancelled one fails it rather
+  # than leave it skipped, which a required check would count as passed; the price is a red job
+  # on a commit whose run a newer push cancelled. untested.sh runs on the
+  # runner itself: git, sed, sort and comm are all it takes, and the toolchain image would cost a
+  # load for them.
+  tools:
+    name: Documents and tools
+    needs: [checks, tests]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: The checks and the tests
+        env:
+          CHECKS: ${{ needs.checks.result }}
+          TESTS: ${{ needs.tests.result }}
+        run: |
+          if [ "$CHECKS" != success ] || [ "$TESTS" != success ]; then
+              echo "::error::The checks gave ${CHECKS}, and the tests ${TESTS}: each must succeed."
+              exit 1
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: coverage-*
+          path: coverage
+
+      - name: Every module of tools/ in a report
+        run: tools/coverage/untested.sh coverage/coverage-*/lcov.info
+
+  # Codecov takes the reports of tools/, one of each part of the tests, by OIDC, with no secret (R48). This job alone here may ask
   # GitHub for the token, which only Codecov accepts and which grants nothing in the repository,
   # and it runs none of the repository's code. A pull request from a fork gets no token: the action
   # then sends the report without one, as Codecov takes it from a fork's branch. The profile of Go
@@ -217,7 +286,7 @@ jobs:
   # failing when a job fails" (GitHub Docs, Workflow syntax, read 2026-10-23).
   coverage:
     name: Coverage
-    needs: checks
+    needs: tools
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     continue-on-error: ${{ github.event_name != 'pull_request' }}
@@ -232,9 +301,10 @@ jobs:
         with:
           persist-credentials: false
 
+      # Each part's report in a folder of its own, by its artifact's name.
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: coverage
+          pattern: coverage-*
           path: coverage
 
       # The Codecov CLI at an exact version, checked against its sha256 here, as R34 checks the
@@ -251,13 +321,15 @@ jobs:
           echo "${CLI_SHA256}  ${RUNNER_TEMP}/codecov" | sha256sum -c -
           chmod +x "$RUNNER_TEMP/codecov"
 
-      # The one report alone: no search for others, and no plugins, which would run coverage
-      # tools of their own. A failed upload fails the job, as any of its steps does.
+      # The three reports alone: no search for others, and no plugins, which would run coverage
+      # tools of their own. The CLI sends every file it is given in one upload (sources 11.1), so
+      # Codecov still waits for two uploads, this one and Go's (.github/codecov.yml). A failed
+      # upload fails the job, as any of its steps does.
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           binary: ${{ runner.temp }}/codecov
           use_oidc: true
-          files: coverage/lcov.info
+          files: coverage/coverage-1/lcov.info,coverage/coverage-2/lcov.info,coverage/coverage-3/lcov.info
           disable_search: true
           plugins: noop
           disable_telem: true

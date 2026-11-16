@@ -13,9 +13,7 @@
 // and the next one the version that becomes current on the nearest day still to come (section 2).
 
 import { isDeepStrictEqual } from "node:util";
-import { fromMarkdown } from "mdast-util-from-markdown";
-import { gfmFromMarkdown } from "mdast-util-gfm";
-import { gfm } from "micromark-extension-gfm";
+import { markdownTree } from "../docs-check/markdown.mjs";
 import { byCodeUnits } from "../shared.mjs";
 import { namesOf } from "../parts.mjs";
 import { isDay } from "../consent-age/reading.mjs";
@@ -167,7 +165,7 @@ function operatorBreaches({ passport, files }, today) {
 // "Who we are", its text alone, as CommonMark reads it.
 export function hasWhoWeAre(source) {
   const text = typeof source === "string" ? source : new TextDecoder("utf-8", { ignoreBOM: true }).decode(source);
-  const tree = fromMarkdown(text, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] });
+  const tree = markdownTree(text);
   return tree.children.some((node) => node.type === "heading" && node.depth === 2 && node.children.length === 1 && node.children[0].type === "text" && node.children[0].value === WHO_WE_ARE);
 }
 
@@ -183,7 +181,7 @@ export function sameBytes(a, b) {
 // does not. A byte order mark is kept, as micromark reads one.
 export function markdownProblem(source) {
   const text = typeof source === "string" ? source : new TextDecoder("utf-8", { ignoreBOM: true }).decode(source);
-  const tree = fromMarkdown(text, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] });
+  const tree = markdownTree(text);
   const first = tree.children[0];
   if (first?.type !== "heading" || first.depth !== 1) return "it begins with no heading of the first level";
   const found = [];

@@ -9,6 +9,7 @@
 // through and YAML forbids is refused here as not YAML.
 
 import { LineCounter, Parser, Scalar, isAlias, isMap, isScalar, isSeq, parseAllDocuments, visit } from "yaml";
+import { cachedBy } from "../shared.mjs";
 
 // The rules of section 4, in its order.
 export const YAML_RULES = [
@@ -36,8 +37,18 @@ const OTHER_WORDS = new Set(["y", "n", "yes", "no", "on", "off", "true", "false"
 const OTHER_STARTS = new Set("+-.~<=");
 
 // The file's JSON value when it breaks nothing, and otherwise undefined; the rules it breaks, each
-// { rule, line, message }; and why it is not YAML at all, each { line, message }.
+// { rule, line, message }; and why it is not YAML at all, each { line, message }. A file is read
+// once in a process, by the sha256 of its bytes (cachedBy), as parseMarkdown reads a document
+// (RUN.md, T166): the tests read the same examples and vectors in one trial copy after another.
+// What it gives is frozen, so that a caller that changed a value would fail rather than change the
+// next caller's.
+const read = new Map();
+
 export function readModuleFile(bytes) {
+  return cachedBy(read, bytes, readBytes);
+}
+
+function readBytes(bytes) {
   const violations = [];
   const notYaml = [];
   const breach = (rule, line, message) => violations.push({ rule, line, message });

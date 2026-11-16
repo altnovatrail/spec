@@ -828,34 +828,56 @@ new-repo-check name: _tools
 new-repo-test: _tools
     node --test 'tools/new-repo/test/*.test.mjs'
 
-# The tests of every tool above in one run, as CI runs them, with the coverage of the code they
-# test: a summary after the tests, and coverage/lcov.info, its paths from the repository's root,
-# which a job of CI sends to Codecov (R48). Node leaves the tests themselves and node_modules/ out
-# of the report. A module that no test loads is not in it at all, and codecov/patch would never
-# count its lines, so the recipe fails on any module of tools/ the report does not name. Node
-# measures JavaScript alone: toolchain.sh and the bash recipes here have their tests, but no
-# coverage. Then the tests of every Go module, as ci-test runs them, with their profile in
-# coverage/go.out, which "Go / coverage" sends from its own run of ci-test (R48).
+# The tests of every tool above in one run, with the coverage of the code they test: a summary
+# after the tests, and coverage/lcov.info, its paths from the repository's root (R48). Node leaves
+# the tests themselves and node_modules/ out of the report. A module that no test loads is not in
+# it at all, and codecov/patch would never count its lines, so the recipe fails on any module of
+# tools/ the report does not name, by tools/coverage/untested.sh. Node measures JavaScript alone:
+# toolchain.sh and the bash recipes here have their tests, but no coverage. Then the tests of every
+# Go module, as ci-test runs them, with their profile in coverage/go.out, which "Go / coverage"
+# sends from its own run of ci-test (R48). CI runs the same tests of tools/ in parts, by
+# coverage-part, and the Go tests in "Go / test" alone.
 # Run every test of tools/ and of the Go modules once, and write their coverage.
 coverage: _tools
     #!/usr/bin/env bash
     set -euo pipefail
+    {{quote(just_executable())}} _tools-coverage
+    tools/coverage/untested.sh coverage/lcov.info
+    {{quote(just_executable())}} ci-test
+
+# Part <k> of <n> of the tests of tools/, as a job of CI runs it: the test files that node --test
+# --test-shard gives that part — every n-th of them, from the k-th, in the order of their paths —,
+# with their coverage in coverage/lcov.info, which CI sends to Codecov with the reports of the
+# other parts (R48). Whether every module of tools/ is in a report, CI asks of the reports of all
+# the parts together, by tools/coverage/untested.sh (RUN.md, T166).
+# Run one part of the tests of tools/, and write its coverage.
+coverage-part k n: _tools
+    #!/usr/bin/env bash
+    set -euo pipefail
+    k={{quote(k)}} n={{quote(n)}}
+    if [[ ! "$k" =~ ^[1-9][0-9]*$ || ! "$n" =~ ^[1-9][0-9]*$ ]] || (( k > n )); then
+        echo "coverage-part: part <k> of <n>, whole numbers from 1, k no more than n: not ${k} of ${n}" >&2
+        exit 2
+    fi
+    {{quote(just_executable())}} _tools-coverage "--test-shard=${k}/${n}"
+
+# untested.sh, in repositories of its own with made-up reports, and the refusals of coverage-part.
+# Run the tests of the coverage recipes' own script.
+coverage-test:
+    JUST={{quote(just_executable())}} node --test 'tools/coverage/test/*.test.mjs'
+
+# The tests of tools/, all of them or those its arguments to node --test choose, with their
+# coverage in coverage/lcov.info.
+[private]
+_tools-coverage *options:
+    #!/usr/bin/env bash
+    set -euo pipefail
     mkdir -p coverage
     rm -f coverage/lcov.info
-    JUST={{quote(just_executable())}} node --test --experimental-test-coverage \
+    JUST={{quote(just_executable())}} node --test {{options}} --experimental-test-coverage \
         --test-reporter=spec --test-reporter-destination=stdout \
         --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \
         'tools/*/test/*.test.mjs'
-    # Both lists first, so that a git or a sed that fails stops the recipe rather than empty a list.
-    modules=$(git ls-files --cached --others --exclude-standard -- 'tools/*.mjs' | grep -v '/test/')
-    reported=$(sed -n 's/^SF://p' coverage/lcov.info)
-    missing=$(comm -23 <(sort <<< "$modules") <(sort <<< "$reported"))
-    if [ -n "$missing" ]; then
-        echo "coverage: no test loads these modules of tools/, so codecov/patch would never count their lines:" >&2
-        echo "$missing" >&2
-        exit 1
-    fi
-    {{quote(just_executable())}} ci-test
 
 # Install tools/ from its lock file, again whenever package.json or the lock file changes:
 # the stamp holds their hashes, so a restored file with an old mtime is noticed too.
