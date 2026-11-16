@@ -1,9 +1,9 @@
-# Вопросы компонента
+# Questions of the component
 
-## Таблица 3. Вопросы автору без ответа
+## Table 3. Questions to the author
 
-В1 закрыт. Номера не переиспользуются: следующий — В3.
+В1 is closed. Numbers are not reused: next — В3.
 
-| ID | Вопрос |
+| ID | Question |
 |---|---|
-| В2 | Второй, в реестр spec |
+| В2 | The second, в реестр spec |

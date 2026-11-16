@@ -2,8 +2,8 @@
 //
 //   node tools/inbox/main.mjs
 //
-// Reads table 3 of each repository on GitHub through gh — its run/QUESTIONS.md, or its RUN.md until
-// it moves its tables (R153), on main and in each open pull request — and table 5 of spec,
+// Reads table 3 of each repository on GitHub through gh — its run/QUESTIONS.md (R153), on main and
+// in each open pull request — and table 5 of spec,
 // run/INBOX.md in the working tree, the rows spec has recorded.
 // Prints the rows marked «в реестр spec» that are new on main, those on the way in an open pull
 // request, the rows of table 5 whose rows on main have changed since it recorded them — by the

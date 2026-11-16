@@ -1,7 +1,7 @@
-// What inbox reads and compares: the rows «в реестр spec» of table 3 of the other repositories —
-// in their run/QUESTIONS.md, or in their RUN.md until they move their tables to run/ (R153) —, and
-// table 5 of spec, run/INBOX.md, the rows spec has recorded (R81). Reading GitHub goes through a gh
-// function the caller gives, so that the tests run with no network.
+// What inbox reads and compares: the rows «в реестр spec» of table 3 of the other repositories, in
+// their run/QUESTIONS.md (R153), and table 5 of spec, run/INBOX.md, the rows spec has recorded
+// (R81). Reading GitHub goes through a gh function the caller gives, so that the tests run with no
+// network.
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -19,8 +19,7 @@ const ROW = /^В(\d+)$/u;
 // "В7", "В7–В10", "В7–10", with an en dash or a hyphen.
 const NUMBERS = /^В(\d+)(?:\s*[–-]\s*В?(\d+))?$/u;
 
-// The table under the heading "Table N." — or "Таблица N." in a plan not yet in English (R154) —,
-// as parseMarkdown gives it, or none.
+// The table under the heading "Table N." (R154), as parseMarkdown gives it, or none.
 function tablesUnder(doc, prefix) {
   const index = doc.headings.findIndex((h) => isTableHeading(h.text, prefix));
   return index < 0 ? [] : doc.tables.filter((table) => table.heading === index);
@@ -28,9 +27,8 @@ function tablesUnder(doc, prefix) {
 
 const fold = (text) => text.replace(/\s+/gu, " ").trim();
 
-// Where table 3 of a repository is: its own file of run/, and where it was before (R153).
+// Where table 3 of a repository is: its own file of run/ (R153; T177).
 export const QUESTIONS = "run/QUESTIONS.md";
-export const RUN = "RUN.md";
 
 // The rows of table 3 marked for spec: { number, text, cells, file, line }, text being the
 // question's cell and cells every cell of the row, each with its white space folded, and file the
@@ -119,44 +117,47 @@ export function runGh(args, program = GH, timeout = TIMEOUT) {
 }
 
 // One repository as GitHub holds it: the commit of main and its rows for spec, and each open pull
-// request with the rows it adds. Table 3 is read at a commit, once a commit, so that the rows and the
-// commit named agree: from run/QUESTIONS.md, and from RUN.md where that commit has no such file — a
-// repository that has not moved its tables yet (R153). The file main has is tried first at every
-// other commit, so a repository costs one read a commit; the head of a pull request that changes
-// run/QUESTIONS.md tries that file first. A pull request adds the rows its head has and
-// its merge base with main has not: one that leaves both files alone adds none, however old its
-// branch — Dependabot's keep the RUN.md of their day —, and one cut long ago does not bring back the
-// rows main has closed since. Lists come page by page. A pull request that cannot be read is a
-// problem of its own, and the rest is read.
+// request with the rows it adds. Table 3 is read from run/QUESTIONS.md at a commit, once a commit, so
+// that the rows and the commit named agree; main without the file is an error, as any read that
+// fails. A pull request adds the rows its head has and its merge base with main has not: one that
+// leaves run/QUESTIONS.md alone adds none, however old its branch, and one cut long ago does not
+// bring back the rows main has closed since. A merge base older than run/ has no such file, so what
+// the pull request adds cannot be told, and the pull request is a problem: it is to be rebased (R153).
+// Lists come page by page. A pull request that cannot be read is a problem of its
+// own, and the rest is read.
 export function readRepository(name, gh = runGh) {
   const repo = `repos/${ORGANIZATION.name}/${name}`;
   const pages = (endpoint) => JSON.parse(gh(["api", "--paginate", "--slurp", endpoint])).flat();
   const read = new Map();
   const raw = (file, sha) => gh(["api", `${repo}/contents/${file}?ref=${sha}`, "-H", "Accept: application/vnd.github.raw"]);
-  // The table at a commit, { file, rows }: from `first`, or from the other file where the commit
-  // has no such file.
-  const tableAt = (sha, first) => {
-    const other = first === QUESTIONS ? RUN : QUESTIONS;
-    try {
-      return { file: first, rows: rowsForSpec(raw(first, sha), first) };
-    } catch (error) {
-      if (!/HTTP 404/u.test(error.message)) throw error;
-      return { file: other, rows: rowsForSpec(raw(other, sha), other) };
+  // The rows of table 3 at a commit, read once a commit: a read that failed fails again for every
+  // caller, whatever it asks of the commit.
+  const rowsAt = (sha) => {
+    if (!read.has(sha)) {
+      try {
+        read.set(sha, { rows: rowsForSpec(raw(QUESTIONS, sha), QUESTIONS) });
+      } catch (error) {
+        read.set(sha, { error });
+      }
     }
-  };
-  const runAt = (sha, first) => {
-    if (!read.has(sha)) read.set(sha, tableAt(sha, first));
-    return read.get(sha);
+    const at = read.get(sha);
+    if (at.error) throw at.error;
+    return at.rows;
   };
   const sha = gh(["api", `${repo}/commits/main`, "--jq", ".sha"]).trim();
-  const atMain = runAt(sha, QUESTIONS);
-  const main = { sha, rows: atMain.rows };
+  const main = { sha, rows: rowsAt(sha) };
   const added = (pull) => {
     const changed = pages(`${repo}/pulls/${pull.number}/files?per_page=100`).map((file) => file.filename);
-    if (!changed.includes(QUESTIONS) && !changed.includes(RUN)) return [];
+    if (!changed.includes(QUESTIONS)) return [];
     const base = gh(["api", `${repo}/compare/main...${pull.head.sha}`, "--jq", ".merge_base_commit.sha"]).trim();
-    const before = new Set(runAt(base, atMain.file).rows.map((row) => row.number));
-    return runAt(pull.head.sha, changed.includes(QUESTIONS) ? QUESTIONS : atMain.file).rows.filter((row) => !before.has(row.number));
+    let before;
+    try {
+      before = new Set(rowsAt(base).map((row) => row.number));
+    } catch (error) {
+      if (/HTTP 404/u.test(error.message)) throw new Error(`its merge base ${base.slice(0, 7)} has no ${QUESTIONS}: rebase it on main`);
+      throw error;
+    }
+    return rowsAt(pull.head.sha).filter((row) => !before.has(row.number));
   };
   const problems = [];
   const pulls = [];

@@ -24,9 +24,7 @@ export const documents = {
 // for the preamble before the first section; `heading` instead names a heading by how its text
 // begins. The register's opening names the next free number in the text directly under that
 // heading. A register with `elsewhere`, a list of files and headings, once lived there: a table
-// left under such a heading beside the table read is a second copy, and an error. With `fallback`
-// too, a repository whose own file does not exist yet is read from the first of them that has a
-// table under its heading; with no table in any, the error names the own file. A register with
+// left under such a heading beside its own file is a second copy, and an error. A register with
 // `gaps` keeps the numbers of rows that left it: no number is reused, so the next free one is
 // above every row. Its numbers are never checked where they are cited:
 // the citation patterns know R, О-, П-, Т- alone.
@@ -73,12 +71,11 @@ export const registers = [
 // run/QUESTIONS.md, and table 4, the debt, in run/DEBT.md. Rows leave when they are answered or
 // closed, and their numbers are not reused. Where each table lived before is `elsewhere`: table 3
 // in RUN.md, table 4 in DEBT.md at the root (R19, the 2026-11-11 amendment) and before that in
-// RUN.md. A repository that has not moved its tables yet is read from there (`fallback`), until it
-// takes the layout with a tag of spec, by its row Д250 spec; in spec a table left there is a copy.
-// A heading is read in English, "Table 3.", or in Russian, "Таблица 3.", until the plan is
-// translated (R154).
-function workRegisters(fallback = false) {
-  const table = (prefix, file, heading, elsewhere) => ({ prefix, file, heading, definedBy: "table", width: 1, ordered: false, gaps: true, empty: true, elsewhere, fallback });
+// RUN.md. Every repository has moved (T177), so a table back in one of them is a second copy, in
+// spec and in a repository alike. Headings are English, "Table 3." (R154); a copy under the
+// Russian heading it had before, «Таблица 3.», is a copy all the same.
+function workRegisters() {
+  const table = (prefix, file, heading, elsewhere) => ({ prefix, file, heading, definedBy: "table", width: 1, ordered: false, gaps: true, empty: true, elsewhere });
   return [
     table("В", "run/QUESTIONS.md", "Table 3.", [{ file: "RUN.md", heading: "Table 3." }]),
     table("Д", "run/DEBT.md", "Table 4.", [
@@ -108,8 +105,8 @@ export const specProfile = {
 
 // A NovaTrail repository's profile. Its own: docs/architecture.md, cited as "architecture 2", and
 // docs/sources.md and docs/measurements.md once it has them, "sources 2.1" and "measurements 1"; its
-// decision log, which may still be empty; tables 3 and 4 in its run/, or where they were until it
-// moves (workRegisters). spec's documents and the
+// decision log, which may still be empty; tables 3 and 4 in its run/ (workRegisters). spec's
+// documents and the
 // registers R, О-, П-, Т- are read from specDir — the spec/ submodule, or for a draft spec's
 // working tree — and cited "architecture 3.8 spec", "R18 spec", "Т-15". What is wrong in spec's
 // own files is spec's to report, not the repository's.
@@ -121,7 +118,7 @@ export function componentProfile(specDir) {
     sectionsDocument: "docs/architecture.md",
     registers: [
       { prefix: "R", file: "docs/decisions.md", section: null, definedBy: "entry", width: 2, ordered: true, empty: true },
-      ...workRegisters(true),
+      ...workRegisters(),
     ],
     // spec's block "repository" of its limits, from the submodule, with what the repository's
     // docs-budgets.json names in its place; without that file, there is no check yet (R145).

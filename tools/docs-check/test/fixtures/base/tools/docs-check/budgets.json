@@ -8,9 +8,9 @@
     "rows": { "run/DEBT.md": 1 }
   },
   "repository": {
-    "files": { "RUN.md": 4 },
+    "files": { "RUN.md": 4, "run/TASKS.md": 4 },
     "entry": 1,
     "section": 1,
-    "rows": { "DEBT.md": 1, "run/DEBT.md": 1 }
+    "rows": { "run/DEBT.md": 1, "run/TASKS.md": 1 }
   }
 }

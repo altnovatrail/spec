@@ -67,32 +67,22 @@ export function readRegisters(files, registers, report) {
   return result;
 }
 
-// The register as it is read: from its own file, or with `fallback`, while that file does not
-// exist, from the first place it once lived that holds it — a table under its heading, or, while the
-// table is still empty, an opening that names the next free number. Beside the place read, a table
-// left in any other of those places is a second copy, and the place read is named.
+// The register as it is read: always from its own file, which the caller reports when it does not
+// exist (R153). Beside it, a table left under a heading of a place it once lived is a second copy,
+// under the English heading or the Russian one it had before R154, and its own file is named.
 function placeOf(register, files, report) {
-  const { elsewhere, fallback, ...own } = register;
-  if (!elsewhere) return own;
-  const places = elsewhere.map((where) => {
+  const { elsewhere, ...own } = register;
+  if (!elsewhere || !files.has(own.file)) return own;
+  for (const where of elsewhere) {
     const there = { ...own, ...where };
     const doc = files.get(where.file);
-    const index = doc ? opening(there, doc).index : -1;
-    const table = index >= 0 && doc.tables.some((t) => t.heading === index);
-    return { there, doc, index, table, holds: table || (index >= 0 && nextFree(there, doc).length > 0) };
-  });
-  const read = files.has(own.file) || !fallback ? null : places.find((p) => p.holds);
-  const chosen = read?.there ?? own;
-  if (!files.has(chosen.file)) return chosen;
-  for (const place of places) {
-    if (place !== read && place.table) {
-      // The heading as the file has it, «Таблица 4. …» in a plan not yet in English (R154).
-      const heading = place.doc.headings[place.index];
-      const named = /^\S+ \d+\./u.exec(heading.text)?.[0] ?? place.there.heading;
-      report(place.there.file, heading.line, `register ${own.prefix}: its table is in ${chosen.file}, and this one under «${named} …» is a second copy`);
+    const index = doc ? opening(there, doc, true).index : -1;
+    if (index >= 0 && doc.tables.some((t) => t.heading === index)) {
+      const named = /^\S+ \d+\./u.exec(doc.headings[index].text)[0];
+      report(there.file, doc.headings[index].line, `register ${own.prefix}: its table is in ${own.file}, and this one under «${named} …» is a second copy`);
     }
   }
-  return chosen;
+  return own;
 }
 
 // "**R01. …**" paragraphs.
@@ -123,10 +113,11 @@ function rowsOf(register, doc, report) {
   return entries;
 }
 
-// The blocks directly under the register's heading: the preamble when section is null.
-function opening(register, doc) {
+// The blocks directly under the register's heading: the preamble when section is null; with `old`,
+// a table's heading in Russian too.
+function opening(register, doc, old = false) {
   let index;
-  if (register.heading) index = doc.headings.findIndex((h) => isTableHeading(h.text, register.heading));
+  if (register.heading) index = doc.headings.findIndex((h) => isTableHeading(h.text, register.heading, old));
   else if (register.section === null) index = doc.headings.findIndex((h) => h.depth === 1);
   else index = doc.headings.findIndex((h) => h.number === register.section);
   return { index, blocks: doc.blocks.filter((b) => b.type !== "heading" && b.heading === index) };

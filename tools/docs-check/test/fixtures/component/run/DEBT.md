@@ -1,8 +1,8 @@
-# Долг компонента
+# Debt of the component
 
-## Таблица 4. Технический долг
+## Table 4. Technical debt
 
-Номера не переиспользуются: следующий — Д1.
+Numbers are not reused: next — Д1.
 
-| ID | Долг |
+| ID | Debt |
 |---|---|
