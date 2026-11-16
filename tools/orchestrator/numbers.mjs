@@ -11,7 +11,7 @@
 
 import { spawnSync } from "node:child_process";
 import { GH } from "../shared.mjs";
-import { REPOSITORY } from "./containers.mjs";
+import { REPOSITORIES } from "../release/repositories.mjs";
 
 export const OWNER = "altnovatrail";
 
@@ -71,8 +71,11 @@ const label = (n) => (n > 0 ? `T${n}` : null);
 // The next free number of `repo`: one above the largest of main's, of the head of each open pull
 // request, of each other branch, and of `runs` — the orchestrator's runs of the repository not
 // known to be done, each { run, tasks }, every number it has gone by —, with where each came from.
-export function nextTask(repo, { gh = runGh, runs = [] } = {}) {
-  if (!REPOSITORY.test(repo) || /^\.+$/.test(repo)) throw new Error(`not a repository's name: ${repo}`);
+// The name that goes to GitHub is NovaTrail's own, from spec's list of its repositories, never the
+// word given: a repository not in it has no plan to read.
+export function nextTask(given, { gh = runGh, runs = [] } = {}) {
+  const repo = Object.keys(REPOSITORIES).find((name) => name === given);
+  if (repo === undefined) throw new Error(`not a repository's name: ${given}`);
   const api = `repos/${OWNER}/${repo}`;
   const list = (endpoint) => JSON.parse(gh(["api", "--paginate", "--slurp", "--", `${api}/${endpoint}`])).flat();
   const blobs = new Map();

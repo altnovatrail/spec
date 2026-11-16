@@ -96,7 +96,7 @@ test("a repository with no task yet starts at T1; a tree cut short, or not a rep
   assert.deepEqual(nextTask(".github", { gh: empty.gh }), { repo: ".github", next: "T1", main: null, pull_requests: [], branches: [], runs: [] });
   const cut = github({ trees: { main: { truncated: true, tree: [] } }, files: {} });
   assert.throws(() => nextTask("sim", { gh: cut.gh }), /sim: GitHub gave the tree of main cut short/);
-  for (const name of ["..", "../sim", "Sim", "sim/x"]) assert.throws(() => nextTask(name, { gh: empty.gh }), /not a repository's name/);
+  for (const name of ["..", "../sim", "Sim", "sim/x", "mathtrail", "-sim"]) assert.throws(() => nextTask(name, { gh: empty.gh }), /not a repository's name/);
   // What GitHub names is never read as an option of gh.
   const head = github({ trees: { main: { truncated: false, tree: [] } }, files: {}, pulls: [{ number: 3, head: { sha: "--paginate" } }] });
   assert.throws(() => nextTask("sim", { gh: head.gh }), /sim: not a commit or a branch's head: "--paginate"/);
