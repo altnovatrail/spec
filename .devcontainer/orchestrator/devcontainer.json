@@ -15,6 +15,8 @@
         "context": ".."
     },
     "remoteUser": "vscode",
+    // As there: the window's closing does not stop the container.
+    "shutdownAction": "none",
     // Runs on the host before the container starts: the network of spec's container, and the
     // number of the socket's group, which the build gives the user vscode (docker-group.sh).
     "initializeCommand": "bash .devcontainer/host-network.sh && bash .devcontainer/orchestrator/docker-group.sh",

@@ -20,7 +20,7 @@ export const CONFIG_LABEL = "devcontainer.config_file";
 export const CLAUDE_VOLUME = "novatrail-claude";
 
 // A repository's name, as GitHub has it: .github is one.
-const REPOSITORY = /^\.?[a-z0-9][a-z0-9._-]*$/;
+export const REPOSITORY = /^\.?[a-z0-9][a-z0-9._-]*$/;
 
 // docker with its arguments: what it printed, or an error with what it said.
 export function runDocker(args, { program = DOCKER, env = process.env } = {}) {

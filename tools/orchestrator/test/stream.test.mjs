@@ -26,9 +26,23 @@ test("a stream gives its session, model, last limit and result, and skips half a
   assert.deepEqual(outcomeOf(read, 0), { phase: "done", status: STATUS, reason: null, resetsAt: null });
 });
 
+test("a stream of several results — an executor woken again — sums their turns and time, and keeps the largest total", () => {
+  const waking = result(1.5, STATUS, { num_turns: 40, duration_ms: 600_000 });
+  const read = readStream(lines(init(), waking, { type: "result", subtype: "success", is_error: false, total_cost_usd: 1.2, duration_ms: 5 }, result(3, STATUS, { num_turns: 2 })));
+  assert.equal(read.results, 3);
+  assert.equal(read.turns, 42);
+  assert.equal(read.durationMs, 600_000 + 5 + 1200);
+  assert.equal(read.cost, 3);
+  assert.equal(read.result.num_turns, 2, "the last result is the run's outcome");
+  assert.equal(readStream(lines(result(2), { type: "result", subtype: "success", total_cost_usd: 1 })).cost, 2);
+  // A total of nothing is a total: the run spent $0, not an unknown sum.
+  assert.equal(readStream(lines(result(0))).cost, 0);
+  assert.equal(readStream(lines(result(0), { type: "result", subtype: "success" })).cost, 0);
+});
+
 test("an empty stream has nothing, and a run that printed nothing failed with its exit code", () => {
   const read = readStream("");
-  assert.deepEqual(read, { session: null, model: null, limit: null, limitHit: false, resetsAt: null, result: null, broken: 0 });
+  assert.deepEqual(read, { session: null, model: null, limit: null, limitHit: false, resetsAt: null, result: null, results: 0, turns: 0, durationMs: 0, cost: null, broken: 0 });
   assert.equal(outcomeOf(read, 1).reason, "claude exited with 1 and printed no result");
   assert.equal(outcomeOf(read, 1).phase, "failed");
 });
@@ -79,6 +93,13 @@ const VALUES = [
   [{ ...STATUS, status: "waiting", questions: [QUESTION] }, true],
   [{ ...STATUS, pull_request: null, failure: "x" }, true],
   [{ ...STATUS, status: "merged" }, false],
+  [{ ...STATUS, task: "T028" }, true],
+  [(({ task, ...rest }) => rest)(STATUS), false],
+  [{ ...STATUS, task: 28 }, false],
+  [{ ...STATUS, task: "28" }, false],
+  [{ ...STATUS, task: "T28a" }, false],
+  [{ ...STATUS, task: "T" }, false],
+  [{ ...STATUS, task: "Т28" }, false],
   [{ ...STATUS, extra: 1 }, false],
   [(({ plan, ...rest }) => rest)(STATUS), false],
   [{ ...STATUS, report: null }, false],

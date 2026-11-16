@@ -122,7 +122,9 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
     text = addExtensions(text, extensions);
     text = addPluginDirs(text, claudePlugins);
     text = addContext(text, devcontainer);
-    return replace(
+    // Its comments cite spec's decisions too, as shutdownAction's does (R156): a tag before T175
+    // has none there.
+    return suffixCitations(replace(
       text,
       '    "customizations": {',
       [
@@ -132,7 +134,7 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
       ].join("\n"),
       1,
       "the place for the start command",
-    );
+    ), false);
   });
   edit(path.join(dir, "host-network.sh"), (text) => replace(text, '"novatrail-spec"', `"${id}"`, 1, "the network's name"));
   edit(path.join(dir, "Dockerfile"), (text) =>
@@ -188,9 +190,9 @@ function dropOrchestrator(text) {
 // A section ends where its number does, not before a further ".2".
 export const SPEC_CITATION = /\b(?:R\d+|(?:product|concepts|privacy|dpia|architecture|repositories|sources|measurements) \d+(?:\.\d+)*)(?!\.?\d)\b(?! spec\b)/g;
 
-function suffixCitations(text) {
+function suffixCitations(text, required = true) {
   const found = text.match(/\bR\d+\b/g)?.length ?? 0;
-  if (found === 0) throw new Error("the decisions the comments cite: none found in spec's Dockerfile");
+  if (found === 0 && required) throw new Error("the decisions the comments cite: none found in spec's Dockerfile");
   return text.replace(SPEC_CITATION, "$& spec");
 }
 

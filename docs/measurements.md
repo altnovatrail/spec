@@ -690,7 +690,7 @@ What the runs of the orchestrator cost, and how often they stopped for the autho
 
 **How it was measured.** The sample is every run from 2026-11-15T22:26 to 2026-11-16T17:55 UTC: 106 runs in 13 repositories, read from their folders on the volume `novatrail-claude`. Every run used Opus at effort `high`.
 - *$* is `spent_usd` of `status`: the largest `total_cost_usd` that any attempt printed. That number is Claude Code's own estimate at the API's prices (section 1.12).
-- *Turns* and *minutes* are `num_turns` and `duration_ms`, summed over every `result` of every attempt's stream. `status` gives only the last one (Д256).
+- *Turns* and *minutes* are `num_turns` and `duration_ms`, summed over every `result` of every attempt's stream. `status` gave only the last one until T175, which sums them.
 - *Wall* runs from the run's start to the last write to its streams, and includes the waits for the author and for checks.
 
 **The totals.**
@@ -700,7 +700,7 @@ What the runs of the orchestrator cost, and how often they stopped for the autho
 - 14 runs ended with none, for $7.10:
   - 10 runs of the night's work found no task free, for $4.37: median $0.45, at most $0.58;
   - 3 were the first trial runs of 2026-11-15, `T0` of `sim` and `learner-model`;
-  - one failed, `skill-map` T27 at 11:09, for $2.08: the hook refused its resume (Д254), and a new run did its task.
+  - one failed, `skill-map` T27 at 11:09, for $2.08: the hook refused its resume, which named the number its executor had taken instead (T175), and a new run did its task.
 
 | | Median | 90th percentile | 95th | The largest |
 |---|---|---|---|---|
@@ -725,7 +725,7 @@ What the runs of the orchestrator cost, and how often they stopped for the autho
 - *Not seen:* a limit and the ceiling.
 
 **What is not counted.**
-- `learner-model` T61's first attempt ran about ten hours of wall, most of it `sim`'s runs in its background. It was stopped by hand and printed no `result` (Д253). Its turns and minutes are not in the table, and its $ is counted only as far as the second attempt's total holds it.
+- `learner-model` T61's first attempt ran about ten hours of wall, most of it `sim`'s runs in its background. It was stopped by hand and printed no `result`; since T175 `stop` does it and takes such an attempt's spend from its transcript. Its turns and minutes are not in the table, and its $ is counted only as far as the second attempt's total holds it.
 - The orchestrator's own session, interactive in `spec`, is not counted here. The monthly measurement counts it with the others (section 1.9).
 
 **The runs.** The time is the start, UTC, on 2026-11-16 unless it says 15. ¹ means no pull request.

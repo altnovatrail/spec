@@ -3,18 +3,20 @@
 // session's id and model, an event `rate_limit_event` with the state of the subscription's limit,
 // the messages of the model and the tools, and last an event `result` with the run's cost and,
 // under --json-schema, its `structured_output`. A run cut short leaves half a line at the end, or
-// no `result` at all.
+// no `result` at all. A stream may hold several `result` events: an executor that waits on CI in
+// the background ends its turn, and is woken again when the task it waits on ends (T175).
 
 // A limit's text, by the error reference of Claude Code: "You've hit your session limit · resets
 // 3:45pm", and so for the weekly, Opus and Sonnet limits (sources 2.11).
 const LIMIT_TEXT = /\byou['’]ve hit your [a-z ]*limit\b/i;
 
 // What the stream says: the session, the model, the last state of the limit and whether it was
-// hit — the last event of the limit rejected, the model's error, or the result's text —, and the
-// `result`, or null when the run printed none. A line that is not JSON is counted in
-// `broken` and skipped.
+// hit — the last event of the limit rejected, the model's error, or the result's text —, the last
+// `result`, or null when the run printed none, and of every `result`: how many, their turns and
+// time summed, and the largest total of cost, the session's whole so far. A line that is not JSON is
+// counted in `broken` and skipped.
 export function readStream(text) {
-  const read = { session: null, model: null, limit: null, limitHit: false, resetsAt: null, result: null, broken: 0 };
+  const read = { session: null, model: null, limit: null, limitHit: false, resetsAt: null, result: null, results: 0, turns: 0, durationMs: 0, cost: null, broken: 0 };
   for (const line of text.split("\n")) {
     if (!line.trim()) continue;
     let event;
@@ -36,6 +38,10 @@ export function readStream(text) {
       hit(read, event.quotaLimits?.resetsAt);
     } else if (event?.type === "result") {
       read.result = event;
+      read.results += 1;
+      if (typeof event.num_turns === "number") read.turns += event.num_turns;
+      if (typeof event.duration_ms === "number") read.durationMs += event.duration_ms;
+      if (typeof event.total_cost_usd === "number" && (read.cost === null || event.total_cost_usd > read.cost)) read.cost = event.total_cost_usd;
     }
   }
   if (read.limit?.status === "rejected") hit(read, read.limit.resetsAt);
@@ -54,8 +60,9 @@ export function isStatus(value) {
   const text = (v) => typeof v === "string";
   const textOrNull = (v) => v === null || text(v);
   const only = (object, keys) => isObject(object) && Object.keys(object).every((k) => keys.includes(k)) && keys.every((k) => k in object);
-  if (!only(value, ["status", "report", "plan", "pull_request", "questions", "failure"])) return false;
+  if (!only(value, ["status", "task", "report", "plan", "pull_request", "questions", "failure"])) return false;
   if (!["done", "waiting", "failed"].includes(value.status)) return false;
+  if (!text(value.task) || !TASK.test(value.task)) return false;
   if (!text(value.report) || !text(value.plan) || !textOrNull(value.pull_request) || !textOrNull(value.failure)) return false;
   if (!Array.isArray(value.questions) || (value.status === "waiting" && value.questions.length === 0)) return false;
   return value.questions.every(
@@ -71,6 +78,9 @@ export function isStatus(value) {
   );
 }
 
+// A task's number, as a repository's RUN.md writes it, and as the schema's pattern has it.
+export const TASK = /^T\d+$/;
+
 function isObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -79,11 +89,15 @@ function isObject(value) {
 // executor's status when it gave one, why it stopped otherwise, and when the limit resets, as an
 // ISO time. A status the executor gave is what the run came to, and so is the budget it ran out of;
 // short of either, a limit is: a run stopped by one may still print a `result`, with its text.
-export function outcomeOf(read, exit) {
+// `task` is the number a status of a run started before the status named its task is read with:
+// such a run has the earlier schema in its folder, and its executor was never asked for one.
+export function outcomeOf(read, exit, task = null) {
   const result = read.result;
   const resetsAt = read.resetsAt === null ? null : new Date(read.resetsAt * 1000).toISOString();
   const succeeded = result?.subtype === "success" && !result.is_error;
-  if (succeeded && isStatus(result.structured_output)) return { phase: result.structured_output.status, status: result.structured_output, reason: null, resetsAt };
+  const given = result?.structured_output;
+  const status = task && isObject(given) && !("task" in given) ? { ...given, task } : given;
+  if (succeeded && isStatus(status)) return { phase: status.status, status, reason: null, resetsAt };
   if (result?.subtype === "error_max_budget_usd") return { phase: "over-ceiling", status: null, reason: "the run reached its --max-budget-usd", resetsAt };
   if (read.limitHit) return { phase: "limited", status: null, reason: "the subscription's limit", resetsAt };
   if (succeeded) return { phase: "failed", status: null, reason: "the run gave no status by status.schema.json", resetsAt };

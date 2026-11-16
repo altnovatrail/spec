@@ -15,6 +15,10 @@
 // «Разбери входящие» names no task, and R143 counts the triage into the session of the task it
 // serves, before or after its planning, so it always goes on: the next task's own phrase is what
 // the hook stops.
+// A run of the orchestrator may take its task under another number than its prompt named — the
+// executor wrote the task into its plan under the next one free (T175) —, and resumes the same
+// session under the new one. The orchestrator gives the run's numbers in NOVATRAIL_RUN_TASKS, and
+// they count as one task.
 
 // The phrases, found anywhere in a prompt — the author writes «хорошо. далее планируем T…» too —
 // unless the word «не» comes right before one. The verb is a whole word, so «доделай T…» and
@@ -92,13 +96,25 @@ export function ledBy(records) {
   return tasks;
 }
 
+// The variable of the environment in which the orchestrator gives an executor's session the numbers
+// its run goes by, separated by spaces, and those numbers as taskOf writes them.
+export const RUN_TASKS = "NOVATRAIL_RUN_TASKS";
+
+export function runTasksOf(env = {}) {
+  return String(env[RUN_TASKS] ?? "")
+    .split(/[ \t]+/)
+    .filter((word) => /^T\d{1,4}$/.test(word))
+    .map((word) => `T${Number(word.slice(1))}`);
+}
+
 // Whether a prompt goes on in the session whose transcript holds these records: null when it does,
 // or the reason it is stopped, for the author. The transcript may not hold the prompt yet, or may
-// hold it already: Claude Code writes it as it goes.
-export function verdict(prompt, records) {
+// hold it already: Claude Code writes it as it goes. The numbers of `same` are one task.
+export function verdict(prompt, records, same = []) {
   const task = taskOf(prompt);
   if (!task) return null;
   const tasks = ledBy(records);
-  if (tasks.every((led) => led === task)) return null;
+  const one = (led) => led === task || (same.includes(led) && same.includes(task));
+  if (tasks.every(one)) return null;
   return `This prompt starts ${task}, and this session has led ${tasks.join(", ")}: one task is one session (RULES.md, How we work). Run /clear, or open a new session, and send the prompt there.`;
 }

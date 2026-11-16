@@ -7,7 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ledBy, promptOf, taskOf, verdict } from "../session.mjs";
+import { ledBy, promptOf, RUN_TASKS, runTasksOf, taskOf, verdict } from "../session.mjs";
 import { hook, promptRecords } from "../main.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -216,6 +216,21 @@ test("a session goes on with its own task and stops another", () => {
   assert.match(verdict("Выполни задачу T3", [typed("Выполни задачу T3"), typed("Выполни задачу T4")]), /led T3, T4/);
 });
 
+test("a run of the orchestrator goes on under each number it goes by, and stops any other task", () => {
+  // skill-map's T27 of T171: the prompt named T27, the executor wrote the task as T28 (T175).
+  const led = [typed("Выполни задачу T27 из RUN.md. Её ещё нет в этом репозитории"), answer("T28")];
+  assert.match(verdict("Сделай T28 сейчас, на ветке t28-ci-speed", led), /starts T28, and this session has led T27/);
+  assert.equal(verdict("Сделай T28 сейчас, на ветке t28-ci-speed", led, ["T27", "T28"]), null);
+  assert.equal(verdict("Выполни задачу T27", led, ["T27", "T28"]), null);
+  assert.match(verdict("Выполни задачу T29", led, ["T27", "T28"]), /starts T29, and this session has led T27/);
+  // A number the run does not go by is no alias of the one it led.
+  assert.match(verdict("Сделай T28", led, ["T28"]), /starts T28/);
+  assert.deepEqual(runTasksOf({ [RUN_TASKS]: "T27 T028\tT12345 Т5 x" }), ["T27", "T28"]);
+  assert.deepEqual(runTasksOf({}), []);
+  assert.deepEqual(runTasksOf(), []);
+  assert.equal(RUN_TASKS, "NOVATRAIL_RUN_TASKS");
+});
+
 test("the records read are those of the author's type, whole, but results of tools", () => {
   const lines = [
     JSON.stringify(typed("Выполни задачу T1")),
@@ -245,6 +260,9 @@ test("the hook stops a prompt by the decision of Claude Code, and lets every oth
   assert.deepEqual(out.hookSpecificOutput, { hookEventName: "UserPromptSubmit" });
 
   assert.equal(hook(input("Выполни задачу T1"), read), "");
+  // The numbers of the orchestrator's run come from the environment.
+  assert.equal(hook(input("Выполни задачу T2 из RUN.md"), read, { NOVATRAIL_RUN_TASKS: "T1 T2" }), "");
+  assert.equal(JSON.parse(hook(input("Выполни задачу T2 из RUN.md"), read, { NOVATRAIL_RUN_TASKS: "T2 T3" })).decision, "block");
   // A prompt that starts no task goes through unread.
   const unread = () => assert.fail("the transcript is read");
   assert.equal(hook(input("спасибо"), unread), "");

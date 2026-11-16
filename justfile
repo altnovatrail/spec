@@ -79,11 +79,12 @@ session-test:
 
 # The orchestrator's commands (R156), in spec's orchestrator container, which sees the host's
 # Docker: start runs a task of a repository as claude -p in that repository's container and returns
-# at once; resume continues the same session with the author's answers; status and wait read the
-# run's files on the volume novatrail-claude; sync keeps the orchestrator's own clone of spec's
-# main. «Сделай эпик E…» runs them from that clone, where this recipe is not needed: they take
-# nothing from node_modules (tools/orchestrator/README.md).
-# Run a command of the orchestrator: start, resume, status, wait or sync.
+# at once; resume continues the same session with the author's answers; stop ends a run's attempt;
+# status and wait read the run's files on the volume novatrail-claude; next names a repository's
+# next free number of a task; sync keeps the orchestrator's own clone of spec's main. «Сделай
+# эпик E…» runs them from that clone, where this recipe is not needed: they take nothing from
+# node_modules (tools/orchestrator/README.md).
+# Run a command of the orchestrator: start, resume, stop, status, wait, next or sync.
 [positional-arguments]
 orchestrator *args:
     node tools/orchestrator/main.mjs "$@"

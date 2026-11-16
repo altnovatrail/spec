@@ -46,6 +46,7 @@ The run ends with its structured output, by the schema the orchestrator gives (`
   - `done` — the task is carried to its open pull request, or needed none;
   - `waiting` — it waits on the questions;
   - `failed` — it cannot go on, and `failure` says why.
+- `task` — the number of the task you did, as this repository's RUN.md numbers it: the one the prompt named, or the one you wrote the task under when that one was taken. The orchestrator knows the run by it from then on.
 - `report` — the report to the author in Russian, by rule 8 of RUN.md.
 - `plan` — the plan, or an empty string.
 - `pull_request` — its address, or `null`.
