@@ -49,3 +49,37 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Мой шаг:** после мержа пересобрать контейнер оркестратора и сказать, появилось ли уведомление снова.
 - **Как проверить:** `just toolchain-test`; `.github/workflows/orchestrator.yml` зелёный; `/code-review high`.
 - **Разделы:** R156; RUN.md, T168; `.claude/rules/ci.md`.
+
+#### T175. `tools/orchestrator` перед следующим «Сделай эпик E…»: Д253–Д256
+
+- **Цель:** находки пилота T171, что мешают следующему прогону, исправлены в коде: запуск останавливается командой, номер задачи не занят чужой веткой, `resume` находит пересобранный контейнер, а `status` считает все ходы запуска.
+- **Почему:** Д253–Д256; measurements 1.13; R156 и поправка 2026-11-16 к нему. Решение автора 2026-11-16 в T172: правки — задачей вне эпика до следующего «Сделай эпик E…», а доска вопросов и `devcontainer up` — эпик E15 `run/EPICS.md`.
+- **Сделать:**
+  - `stop <run>` (Д253): сигнал группе процессов `claude` в контейнере, а не `sh`; попытка записана как остановленная; что она потратила, берётся из её транскрипта, если `result` нет.
+  - Номер задачи (Д254): следующий свободный — по `main`, открытым веткам и узлам эпика, что идут; узел, чей отчёт назвал другой номер, переименован по нему, и `resume` с таким номером хук не отклоняет.
+  - `resume` (Д255): контейнер ищется по меткам заново при каждом `resume`; пересобранный контейнер не теряет запуск. Ставить ли шаблону `shutdownAction: none` — вопрос автору с вариантами.
+  - `status` (Д256): `num_turns` и `duration_ms` — сумма всех `result` потока.
+  - [README оркестратора](../tools/orchestrator/README.md), разделы 5 и 7, — по новым командам; Д253–Д256 закрыты.
+- **Мой шаг:** открыть `spec` в конфигурации оркестратора — задача проверяет себя на настоящем Docker (CLAUDE.md, Environment); держать созданным контейнер репозитория для пробного запуска и пересобрать его, когда задача попросит.
+- **Как проверить:** `just orchestrator-test`; настоящий запуск в контейнере одного репозитория: `start`, `stop`, пересборка, `resume`; `just docs-check`; `/code-review high`.
+- **Разделы:** R156; Д253–Д256; measurements 1.13; [README оркестратора](../tools/orchestrator/README.md), разделы 5 и 7; `.claude/rules/tools.md`.
+
+#### T176. Dockerfile шаблона: комментарии, верные и в копии
+
+- **Цель:** копия шаблона не говорит о `spec` в своём `.devcontainer/Dockerfile`: заголовок стадии `toolchain`, шаг gopls вида `go` и ссылки на `measurements` верны и в `spec`, и в копии каждого вида.
+- **Почему:** строки «в реестр spec» `.github` В39 и В40, `engine` В51, `app` В67, `skill-map` В14, `tutor` В85. Решение автора 2026-11-16 в T172: одна фраза, верная для всех, без логики вида в `new-repo`; отвергнуто — `new-repo` пишет каждой копии свою фразу, или оставить как есть.
+- **Сделать:**
+  - `.devcontainer/Dockerfile`: заголовок `toolchain` — что нужно тестам репозитория сверх ядра: в `spec` ничего, в копии — строки её вида ниже; ядро держит всё, что запускают релиз и рецепты `ci-` без браузера (`.github` В40); без пути `repo-template/`, которого в копии нет.
+  - `repo-template/kinds/go/Dockerfile`: gopls собран Go из `toolchain-core`, который `toolchain` берёт.
+  - `tools/new-repo/`: суффикс «spec» у ссылок на `measurements`, как у R; тест.
+  - Как копия возьмёт правку — переходом на тег: строки COORDINATION.md не нужны.
+- **Как проверить:** `just new-repo-test`; `just toolchain-test`; `just docs-check`; `/code-review high`.
+- **Разделы:** R21, R40, R79; T166; `.claude/rules/new-repo.md` и `ci.md`.
+
+#### T177. Код без старой раскладки плана (Д250)
+
+- **Цель:** `docs-check` и `just inbox` читают план только в раскладке R153–R155: таблицы — в `run/`, заголовки — английские.
+- **Почему:** Д250; на 2026-11-16 все двенадцать репозиториев на `spec` v0.18.4, и `just inbox` читает таблицу 3 каждого из `run/QUESTIONS.md` (T172).
+- **Сделать:** убрать `fallback` из `workRegisters` `tools/docs-check/config.mjs` (`elsewhere` оставить: он ловит таблицу, вернувшуюся в RUN.md или `DEBT.md`), чтение RUN.md в `readRepository` `tools/inbox/inbox.mjs`, `DEBT.md` из блока `repository` `budgets.json` и из `PLAN_LAYOUTS` `tools/docs-check/budgets.mjs`, русское «Таблица N.» из `isTableHeading` `tools/docs-check/markdown.mjs`; их тесты; Д250 закрыт.
+- **Как проверить:** `just coverage`; `just docs-check`; `just inbox` — те же строки, что до правки; `just -f spec/justfile docs-check-repo` в одном репозитории на v0.18.4 — зелёный; `/code-review high`.
+- **Разделы:** R153–R155; Д250; `.claude/rules/tools.md`.
