@@ -64,18 +64,6 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Как проверить:** `just orchestrator-test`; настоящий запуск в контейнере одного репозитория: `start`, `stop`, пересборка, `resume`; `just docs-check`; `/code-review high`.
 - **Разделы:** R156; Д253–Д256; measurements 1.13; [README оркестратора](../tools/orchestrator/README.md), разделы 5 и 7; `.claude/rules/tools.md`.
 
-#### T176. Dockerfile шаблона: комментарии, верные и в копии
-
-- **Цель:** копия шаблона не говорит о `spec` в своём `.devcontainer/Dockerfile`: заголовок стадии `toolchain`, шаг gopls вида `go` и ссылки на `measurements` верны и в `spec`, и в копии каждого вида.
-- **Почему:** строки «в реестр spec» `.github` В39 и В40, `engine` В51, `app` В67, `skill-map` В14, `tutor` В85. Решение автора 2026-11-16 в T172: одна фраза, верная для всех, без логики вида в `new-repo`; отвергнуто — `new-repo` пишет каждой копии свою фразу, или оставить как есть.
-- **Сделать:**
-  - `.devcontainer/Dockerfile`: заголовок `toolchain` — что нужно тестам репозитория сверх ядра: в `spec` ничего, в копии — строки её вида ниже; ядро держит всё, что запускают релиз и рецепты `ci-` без браузера (`.github` В40); без пути `repo-template/`, которого в копии нет.
-  - `repo-template/kinds/go/Dockerfile`: gopls собран Go из `toolchain-core`, который `toolchain` берёт.
-  - `tools/new-repo/`: суффикс «spec» у ссылок на `measurements`, как у R; тест.
-  - Как копия возьмёт правку — переходом на тег: строки COORDINATION.md не нужны.
-- **Как проверить:** `just new-repo-test`; `just toolchain-test`; `just docs-check`; `/code-review high`.
-- **Разделы:** R21, R40, R79; T166; `.claude/rules/new-repo.md` и `ci.md`.
-
 #### T177. Код без старой раскладки плана (Д250)
 
 - **Цель:** `docs-check` и `just inbox` читают план только в раскладке R153–R155: таблицы — в `run/`, заголовки — английские.

@@ -10,7 +10,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { newRepo } from "../new-repo.mjs";
 import { checkRepo } from "../check.mjs";
-import { ORCHESTRATOR_STAGE, goplsVersions, parseJsonc } from "../devcontainer.mjs";
+import { ORCHESTRATOR_STAGE, SPEC_CITATION, goplsVersions, parseJsonc } from "../devcontainer.mjs";
 import { CLAUDE_SETTINGS, addClaudeSettings, checkClaudePlugins } from "../claude.mjs";
 import { FILL, fillPlaceholders, placeholders, walk } from "../copy.mjs";
 import { escape, findNumbers } from "../../docs-check/citations.mjs";
@@ -36,8 +36,9 @@ function temporary() {
 }
 
 const read = (dir, file) => fs.readFileSync(path.join(dir, file), "utf8");
-// A decision of spec's, as a copy cites it: "R34" becomes "R34 spec".
-const suffixed = (text) => text.replace(/\bR\d+\b/g, "$& spec");
+// A decision or a section of spec's, as a copy cites it: "R34" becomes "R34 spec", and
+// "measurements 3.2" "measurements 3.2 spec".
+const suffixed = (text) => text.replace(SPEC_CITATION, "$& spec");
 const devcontainer = (dir) => parseJsonc(read(dir, ".devcontainer/devcontainer.json"));
 const git = (dir, ...args) => execFileSync(GIT, ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 const commitAll = (dir, message) => {
@@ -224,6 +225,12 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     assert.match(dockerfile, new RegExp(`^# Development container for NovaTrail's ${name}\\.`));
     assert.match(dockerfile, /\(R34 spec\)/, "a decision the Dockerfile cites is spec's");
     assert.doesNotMatch(dockerfile, /\bR\d+\b(?! spec\b)/, "no decision of spec's is cited without its suffix");
+    assert.doesNotMatch(dockerfile, /\bmeasurements \d+(?:\.\d+)*(?!\.?\d)\b(?! spec\b)/, "no section of spec's measurements is cited without its suffix");
+    // The heading of the toolchain stage holds for spec and every copy alike (RUN.md, T176).
+    assert.match(dockerfile, /^# What the repository's tests need beyond the core: in spec, nothing; in a copy, the lines its kind$/m);
+    assert.doesNotMatch(dockerfile, /spec's tests need nothing|repo-template\/kinds\.json/, "the copy's Dockerfile does not speak of spec's tests or its template");
+    if (kind === "typescript") assert.match(dockerfile, /\(measurements 3\.2 spec; the 2026-11-16 amendment to R40 spec\)/);
+    if (kind === "go") assert.match(dockerfile, /built\n# with the Go that toolchain-core installs/);
     assert.deepEqual(dc.mounts, spec.mounts, "the sign-in volumes are shared, the extensions' named by ${devcontainerId}");
     assert.deepEqual(dc.customizations.vscode.extensions, [...spec.customizations.vscode.extensions, ...(kinds[kind].extensions ?? [])]);
     assert.match(dc.postStartCommand, /git submodule update --init spec$/);

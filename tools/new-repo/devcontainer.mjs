@@ -136,7 +136,7 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
   });
   edit(path.join(dir, "host-network.sh"), (text) => replace(text, '"novatrail-spec"', `"${id}"`, 1, "the network's name"));
   edit(path.join(dir, "Dockerfile"), (text) =>
-    suffixDecisions(addDevcontainerLines(addToolchain(replace(dropOrchestrator(text), "the NovaTrail spec", owner, 1, "the opening comment"), toolchain), devcontainer)),
+    suffixCitations(addDevcontainerLines(addToolchain(replace(dropOrchestrator(text), "the NovaTrail spec", owner, 1, "the opening comment"), toolchain), devcontainer)),
   );
   for (const file of devcontainer?.files ?? []) {
     const target = path.join(dir, file.path);
@@ -182,13 +182,16 @@ function dropOrchestrator(text) {
 
 // A decision the Dockerfile cites — "(R34)", "(R12, R34)" or "R34" in a sentence — is one of
 // spec's: in the copy it reads "R34 spec", or it would name a decision of the repository's own
-// log (RULES.md, Citations). Every citation gets the suffix, however it is written, so that a new
-// one in spec's Dockerfile is not left behind.
-function suffixDecisions(text) {
-  const cited = /\bR\d+\b(?! spec\b)/g;
-  const found = text.match(cited)?.length ?? 0;
+// log (RULES.md, Citations). So is a section of spec's documents, "measurements 3.2": a copy's
+// own measurements has no such section, or another one. Every citation gets the suffix, however
+// it is written, so that a new one in spec's Dockerfile or a kind's lines is not left behind.
+// A section ends where its number does, not before a further ".2".
+export const SPEC_CITATION = /\b(?:R\d+|(?:product|concepts|privacy|dpia|architecture|repositories|sources|measurements) \d+(?:\.\d+)*)(?!\.?\d)\b(?! spec\b)/g;
+
+function suffixCitations(text) {
+  const found = text.match(/\bR\d+\b/g)?.length ?? 0;
   if (found === 0) throw new Error("the decisions the comments cite: none found in spec's Dockerfile");
-  return text.replace(cited, "$& spec");
+  return text.replace(SPEC_CITATION, "$& spec");
 }
 
 // The kind's lines go at the end of the toolchain stage, after everything spec's own stage does,
