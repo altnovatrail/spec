@@ -157,20 +157,38 @@ test("docker-group.sh leaves docker-gid untouched when the socket's group is the
   const server = await listen(socket);
   try {
     const group = fs.statSync(socket).gid;
-    fs.writeFileSync(gid, `${group}\n`);
-    // An old time, so that a write would show whatever the clock's resolution.
+    // An old time, so that a write would show whatever the clock's resolution. The file is
+    // written, timed and read by a descriptor of its own each time, not checked by its path and
+    // then used.
     const old = new Date("2026-01-01T00:00:00Z");
-    fs.utimesSync(gid, old, old);
+    const plant = (text) => {
+      const fd = fs.openSync(gid, "w");
+      try {
+        fs.writeSync(fd, text);
+        fs.futimesSync(fd, old, old);
+      } finally {
+        fs.closeSync(fd);
+      }
+    };
+    const seen = () => {
+      const fd = fs.openSync(gid, "r");
+      try {
+        return { text: fs.readFileSync(fd, "utf8"), mtime: fs.fstatSync(fd).mtimeMs };
+      } finally {
+        fs.closeSync(fd);
+      }
+    };
+    plant(`${group}\n`);
     const result = run(socket);
     assert.equal(result.status, 0, result.stderr);
     assert.equal(result.stderr, "");
-    assert.equal(fs.statSync(gid).mtimeMs, old.getTime(), "the same number is not written again");
+    assert.equal(seen().mtime, old.getTime(), "the same number is not written again");
     // Another number is written, and its time moves.
-    fs.writeFileSync(gid, `${group + 1}\n`);
-    fs.utimesSync(gid, old, old);
+    plant(`${group + 1}\n`);
     assert.equal(run(socket).status, 0);
-    assert.equal(fs.readFileSync(gid, "utf8"), `${group}\n`);
-    assert.notEqual(fs.statSync(gid).mtimeMs, old.getTime());
+    const after = seen();
+    assert.equal(after.text, `${group}\n`);
+    assert.notEqual(after.mtime, old.getTime());
   } finally {
     server.close();
     fs.rmSync(dir, { recursive: true, force: true });

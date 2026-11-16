@@ -30,14 +30,16 @@ function github({ trees, files, pulls = [], branches = [] }) {
   const calls = [];
   const gh = (args) => {
     calls.push(args);
-    const endpoint = args.find((a) => a.startsWith("repos/"));
+    // Every endpoint comes after "--", and is the last word.
+    assert.equal(args.at(-2), "--", args.join(" "));
+    const endpoint = args.at(-1);
     if (endpoint.includes("/pulls?")) return JSON.stringify([pulls.slice(0, 1), pulls.slice(1)]);
     if (endpoint.includes("/branches?")) return JSON.stringify([branches]);
     const tree = /git\/trees\/([^?]+)\?recursive=1$/.exec(endpoint);
     if (tree) return JSON.stringify(trees[tree[1]]);
     const blob = /git\/blobs\/(\w+)$/.exec(endpoint);
     assert.ok(blob, endpoint);
-    assert.deepEqual(args.slice(-2), ["-H", "Accept: application/vnd.github.raw"]);
+    assert.deepEqual(args.slice(0, 4), ["api", "-H", "Accept: application/vnd.github.raw", "--"]);
     return files[blob[1]];
   };
   return { gh, calls };
@@ -76,11 +78,11 @@ test("next reads main, each open pull request's head and each other branch, each
     branches: [{ name: "t31-pushed", task: "T31" }],
     runs: [],
   });
-  const blobs = calls.filter((c) => c[1].includes("/git/blobs/")).map((c) => c[1].split("/").at(-1));
+  const blobs = calls.filter((c) => c.at(-1).includes("/git/blobs/")).map((c) => c.at(-1).split("/").at(-1));
   assert.deepEqual(blobs, ["a", "b", "c", "a2", "b3"], "a file the branches share is read once, and no other file is read");
-  assert.equal(calls.filter((c) => c[1].includes("/git/trees/")).length, 4);
-  assert.ok(calls.some((c) => c.join(" ") === "api --paginate --slurp repos/altnovatrail/skill-map/branches?per_page=100"));
-  assert.ok(calls.some((c) => c.join(" ") === "api --paginate --slurp repos/altnovatrail/skill-map/pulls?state=open&per_page=100"));
+  assert.equal(calls.filter((c) => c.at(-1).includes("/git/trees/")).length, 4);
+  assert.ok(calls.some((c) => c.join(" ") === "api --paginate --slurp -- repos/altnovatrail/skill-map/branches?per_page=100"));
+  assert.ok(calls.some((c) => c.join(" ") === "api --paginate --slurp -- repos/altnovatrail/skill-map/pulls?state=open&per_page=100"));
   assert.ok(calls.every((c) => c.some((a) => a.startsWith("repos/altnovatrail/skill-map/"))));
 
   // A run not done holds every number it has gone by.
@@ -95,6 +97,11 @@ test("a repository with no task yet starts at T1; a tree cut short, or not a rep
   const cut = github({ trees: { main: { truncated: true, tree: [] } }, files: {} });
   assert.throws(() => nextTask("sim", { gh: cut.gh }), /sim: GitHub gave the tree of main cut short/);
   for (const name of ["..", "../sim", "Sim", "sim/x"]) assert.throws(() => nextTask(name, { gh: empty.gh }), /not a repository's name/);
+  // What GitHub names is never read as an option of gh.
+  const head = github({ trees: { main: { truncated: false, tree: [] } }, files: {}, pulls: [{ number: 3, head: { sha: "--paginate" } }] });
+  assert.throws(() => nextTask("sim", { gh: head.gh }), /sim: not a commit or a branch's head: "--paginate"/);
+  const blob = github({ trees: { main: { truncated: false, tree: [entry("RUN.md", "-H")] } }, files: {} });
+  assert.throws(() => nextTask("sim", { gh: blob.gh }), /sim: not a file's blob: "-H"/);
 });
 
 test("gh that cannot start, or that fails, is an error with what it said", () => {

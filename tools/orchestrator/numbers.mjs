@@ -21,6 +21,10 @@ const ROW = /^\|([^|\n]*)\|([^|\n]*)\|/gm;
 const HEADING = /^#{2,6}[ \t]+T(\d+)\./gm;
 const NUMBER = /^\**T(\d+)\**$/;
 
+// A commit, a branch's head or a file's blob, as GitHub names it: never a word gh would take for an
+// option. Every endpoint goes after "--" too, so that no word of it reads as one.
+const REF = /^[0-9A-Za-z][\w.-]*$/;
+
 // How long one call of gh may take: a stalled network ends in an error that says so.
 const TIMEOUT = 120_000;
 
@@ -49,12 +53,14 @@ export function highestIn(text) {
 // GitHub. A file read once is not read again: a pull request's branch shares most of main's.
 function highestAt(repo, ref, gh, blobs) {
   const api = `repos/${OWNER}/${repo}`;
-  const tree = JSON.parse(gh(["api", `${api}/git/trees/${ref}?recursive=1`]));
+  if (!REF.test(ref)) throw new Error(`${repo}: not a commit or a branch's head: ${JSON.stringify(ref)}`);
+  const tree = JSON.parse(gh(["api", "--", `${api}/git/trees/${ref}?recursive=1`]));
   if (tree.truncated) throw new Error(`${repo}: GitHub gave the tree of ${ref} cut short`);
   let top = 0;
   for (const entry of tree.tree ?? []) {
     if (entry.type !== "blob" || !PLAN_FILE.test(entry.path)) continue;
-    if (!blobs.has(entry.sha)) blobs.set(entry.sha, highestIn(gh(["api", `${api}/git/blobs/${entry.sha}`, "-H", "Accept: application/vnd.github.raw"])));
+    if (!REF.test(entry.sha)) throw new Error(`${repo}: not a file's blob: ${JSON.stringify(entry.sha)}`);
+    if (!blobs.has(entry.sha)) blobs.set(entry.sha, highestIn(gh(["api", "-H", "Accept: application/vnd.github.raw", "--", `${api}/git/blobs/${entry.sha}`])));
     top = Math.max(top, blobs.get(entry.sha));
   }
   return top;
@@ -68,7 +74,7 @@ const label = (n) => (n > 0 ? `T${n}` : null);
 export function nextTask(repo, { gh = runGh, runs = [] } = {}) {
   if (!REPOSITORY.test(repo) || /^\.+$/.test(repo)) throw new Error(`not a repository's name: ${repo}`);
   const api = `repos/${OWNER}/${repo}`;
-  const list = (endpoint) => JSON.parse(gh(["api", "--paginate", "--slurp", `${api}/${endpoint}`])).flat();
+  const list = (endpoint) => JSON.parse(gh(["api", "--paginate", "--slurp", "--", `${api}/${endpoint}`])).flat();
   const blobs = new Map();
   const main = highestAt(repo, "main", gh, blobs);
   const open = list("pulls?state=open&per_page=100");
