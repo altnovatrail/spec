@@ -22,8 +22,8 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 | `app` | В67 | `edf21547ab7f` | T176, option (a) |
 | `canvas` | В81 | `a00f4b93d5c2` | option (a): RULES.md, Hard rules, «Exact versions only»; second 2026-11-16 amendment to R40 |
 | `engine` | В51 | `4261d173691e` | T176, option (b) — one sentence for all |
-| `learner-model` | В52 | `8a29683e8ce8` | R157 — the rule «the estimate starts low»; T173 decides where it lives, `learner-model` or the trial series of `engine` |
-| `learner-model` | В53 | `6bb501df02a5` | R157 — its fairness condition of dpia 8; T173 — dpia 7, 8 and 10.2, item 10 |
+| `learner-model` | В52 | `8a29683e8ce8` | R157 and its 2026-11-16 amendment (T173): the start in `learner-model`, a band below; option (a), the trial series of `engine`, not taken; COORDINATION.md, row 4.20 |
+| `learner-model` | В53 | `6bb501df02a5` | R157 and its 2026-11-16 amendment (T173): option (b), the risk accepted now, in version 24 of the DPIA — dpia 7, 8 and 10.2, item 10 |
 | `module-kit` | В36 | `a7719f50f81c` | option 1: COORDINATION rows 2.5 and 3.11, their texts in T172 |
 | `skill-map` | В12 | `bc314de2eccd` | option (a): architecture 3.3; COORDINATION row 6.19 (closed) |
 | `skill-map` | В14 | `04791fad12e6` | T176: one sentence for all, and `measurements` suffixed «spec», as its option (a) |
