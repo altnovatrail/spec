@@ -178,6 +178,23 @@ test("the README starts with the first day's badges of repositories 2.3, in two 
   assert.ok(readme.startsWith(`# ${name}\n\n${rows}\n\n`), "the badges come right under the title, SonarCloud's measures as the second row");
 });
 
+// The author's word of 2026-11-17 (the 2026-11-17 amendment to R21): a README holds no status, no
+// section of the license, which LICENSE and the badge give, no sentence of the languages, and no
+// version of spec, which the submodule pins; spec's own README neither.
+test("a README has no Status or License section, no sentence of the languages and no version of spec", () => {
+  const readmes = [
+    ["the template's README.md", read(draft("learner-model", "go", "3.8"), "README.md")],
+    ...["README.md", "tools/types/npm/README.md", "tools/contracts/npm/README.md"].map((file) => [file, read(specRoot, file)]),
+  ];
+  for (const [file, readme] of readmes) {
+    assert.doesNotMatch(readme, /^## (Status|License)$/m, `${file} has a section the author removed`);
+    const documents = readme.match(/^## Documents\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1] ?? "";
+    // A line of the list may say a file's language; a paragraph of its own says those of them all.
+    assert.doesNotMatch(documents, /^(?!- )[^\n]*\b(English|Russian)\b/m, `${file} says the languages of its documents`);
+    assert.doesNotMatch(readme, /altnovatrail\/spec\/(tree|blob)\/v|submodule at /, `${file} names a version of spec`);
+  }
+});
+
 test("spec's own README takes its badges from repositories 2.3, in their order", () => {
   const documented = documentedBadges();
   const own = badgeLines(read(specRoot, "README.md"));
@@ -594,7 +611,9 @@ test("check: what a careless fill can leave", async () => {
     [".devcontainer/gopls/go.sum", "golang.org/x/", "", /^\.devcontainer\/gopls\/go\.sum:0: the file is missing, and \.devcontainer\/Dockerfile builds gopls from it \(R102 spec\)$/, true],
     // The plugin the go kind turns on, misspelt: the session would start without it (R143).
     [".devcontainer/devcontainer.json", "/spec/claude-plugins/gopls-lsp\"", "/spec/claude-plugins/gopls\"", /^\.devcontainer\/devcontainer\.json:0: CLAUDE_CODE_PLUGIN_DIRS names \$\{containerWorkspaceFolder\}\/spec\/claude-plugins\/gopls, which holds no \.claude-plugin\/plugin\.json that reads as JSON$/],
-    ["CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/main).", /the links to spec name different versions: main, v0\.0\.0-test$/],
+    ["CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/main).", /spec is named at different versions: main, v0\.0\.0-test$/],
+    // The tag CLAUDE.md gives spec/, apart from RUN.md's: no README holds one to check it by.
+    ["CLAUDE.md", "spec at `v0.0.0-test`", "spec at `v0.0.1`", /spec is named at different versions: v0\.0\.0-test, v0\.0\.1$/],
   ];
   for (const [file, from, to, expected, gone] of cases) {
     const dir = draft("learner-model", "go", "3.8");
@@ -617,13 +636,13 @@ test("check: a go copy without the lock file of gopls, whose plugin runs it, is 
 
 test("from a tag: the files are the tag's, spec is a submodule at it, all staged, nothing committed", async () => {
   const root = standIn({ tag: "v9.9.9" });
-  change(root, "repo-template/files/README.md", "## Status", "WORKING TREE ONLY\n\n## Status");
+  change(root, "repo-template/files/README.md", "## Documents", "WORKING TREE ONLY\n\n## Documents");
   const dest = path.join(temporary(), "engine");
   const { tag } = newRepo({ specRoot: root, name: "engine", kind: "go", card: "3.8", dest, specUrl: root, date: "2026-01-02" });
 
   assert.equal(tag, "v9.9.9");
   assert.doesNotMatch(read(dest, "README.md"), /WORKING TREE ONLY/);
-  assert.match(read(dest, "README.md"), /altnovatrail\/spec\/tree\/v9\.9\.9/);
+  assert.match(read(dest, "CLAUDE.md"), /spec at `v9\.9\.9`/);
   assert.equal(git(path.join(dest, "spec"), "describe", "--tags", "--exact-match", "HEAD"), "v9.9.9");
   const status = git(dest, "status", "--porcelain").split("\n");
   assert.ok(status.includes("A  .gitmodules") && status.includes("A  spec") && status.includes("A  CLAUDE.md"), status.join("\n"));
@@ -637,6 +656,8 @@ test("from a tag: the files are the tag's, spec is a submodule at it, all staged
     (await messages(dest, root)).map((m) => m.replace(/:\d+:/, ":N:")),
     ["CLAUDE.md:N: links to spec at v9.9.8, but the submodule is at v9.9.9"],
   );
+  change(dest, "RUN.md", "a submodule at tag v9.9.9", "a submodule at tag v9.9.7");
+  assert.ok((await messages(dest, root)).some((m) => /^RUN\.md:3: names spec at v9\.9\.7, but the submodule is at v9\.9\.9$/.test(m)), "RUN.md's tag of spec/ is not held to the submodule's");
 });
 
 test("without a tag nothing is built", () => {
@@ -658,7 +679,7 @@ test("from a tag older than the template: refused", () => {
 
 test("from a tag: the highest version, even when HEAD is behind it", () => {
   const root = standIn({ tag: "v0.1.0" });
-  change(root, "repo-template/files/README.md", "## Status", "FROM v0.2.0\n\n## Status");
+  change(root, "repo-template/files/README.md", "## Documents", "FROM v0.2.0\n\n## Documents");
   commitAll(root, "a newer template");
   git(root, "tag", "v0.2.0");
   git(root, "checkout", "--quiet", "--detach", "v0.1.0");
@@ -707,7 +728,7 @@ test("check: an empty spec/ is not taken for the copy's own tag", async () => {
 
 test("from a tag: a pre-release is not the latest release", () => {
   const root = standIn({ tag: "v0.1.0" });
-  change(root, "repo-template/files/README.md", "## Status", "FROM A RELEASE CANDIDATE\n\n## Status");
+  change(root, "repo-template/files/README.md", "## Documents", "FROM A RELEASE CANDIDATE\n\n## Documents");
   commitAll(root, "a release candidate");
   git(root, "tag", "v0.2.0-rc.1");
   const dest = path.join(temporary(), "engine");

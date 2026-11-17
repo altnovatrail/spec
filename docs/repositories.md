@@ -61,7 +61,7 @@ A new repository is assembled from the template `repo-template/` in `spec` (R21)
 
 1. The name comes from the table; the repository is public (R18). The license is Apache-2.0, for code and for content (R12, R20).
 2. `just new-repo <name> <kind> <card>` — for example, `just new-repo learner-model go 3.8` — assembles a working copy in `.repos/<name>` from the files of the latest release of `spec`, the highest tag of the form `vX.Y.Z`. The tag must already be on GitHub: the submodule is taken from there, and the recipe checks that it is the same commit there. A release with its tag comes out by itself, after CI is green on `main` (R31). The kind is `go`, `typescript` or `docs`, the card is the number of a section of architecture 3. In the copy:
-   - `README.md` (en) — the day-one status badges (section 2.3), the purpose, the stage and a link to `spec`;
+   - `README.md` (en) — the day-one status badges (section 2.3), the purpose, the stage and a link to `spec` that names no version of it; no section of status or of the license, and no sentence of the languages of the documents (the 2026-11-17 amendment to R21);
    - `CLAUDE.md` (en) — the component's role and its place in the platform, its own documents, the environment and the line `@spec/RULES.md`. The shared rules are one file, `RULES.md` in `spec`, and the CLAUDE.md of every repository imports it: devcontainer only, exact versions, languages, no learners' data and no secrets, Apache-2.0, citations and work across repositories;
    - `AGENTS.md` and `LICENSE` — the same as in `spec`;
    - `docs/architecture.md` (en) — the purpose and the bounds from the card and a subsection for each of its items "To decide when detailed";

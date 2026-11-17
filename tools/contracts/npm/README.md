@@ -12,7 +12,7 @@ const observation = fromJson(ObservationSchema, json);
 const written = toJson(ObservationSchema, observation, { useProtoFieldName: true });
 ```
 
-The code imports the runtime of protobuf-es, `@bufbuild/protobuf`, which the package depends on at the exact version of `protoc-gen-es` that wrote it. Take the runtime at that version too, or let npm install it with the package.
+The code imports the runtime of protobuf-es, `@bufbuild/protobuf`, under Apache-2.0 and BSD-3-Clause, which the package depends on at the exact version of `protoc-gen-es` that wrote it. Take the runtime at that version too, or let npm install it with the package.
 
 JSON of a contract names each field by its protobuf name, in snake case, as the files of `spec` do: whatever writes it passes `useProtoFieldName: true` to `toJson`. A reader takes both the protobuf name and the lowerCamelCase one, as `fromJson` does ([the contracts' text](https://github.com/altnovatrail/spec/blob/main/contracts/README.md), section 6). The package has no types of JSON: `protoc-gen-es` would spell them in lowerCamelCase.
 
@@ -59,7 +59,3 @@ gh release verify-asset v0.7.0 altnovatrail-contracts-0.7.0.tgz -R altnovatrail/
 ```
 
 The release publishes that file to npm itself, by trusted publishing, and npm gives each version it publishes that way a provenance attestation. The provenance names `.github/workflows/release.yml` of `altnovatrail/spec` and the commit of the run that published it, which is the tip of `main` when the run began rather than always the commit the release was cut from. 0.7.0 was published by hand and has no provenance. A release whose run did not publish its version — one that came out before the release published this package, or one whose publish failed and was not run again — has none in npm, so take a tag whose version is there.
-
-## License
-
-[Apache-2.0](https://github.com/altnovatrail/spec/blob/main/LICENSE). The runtime, `@bufbuild/protobuf`, is under Apache-2.0 and BSD-3-Clause.

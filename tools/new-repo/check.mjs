@@ -9,9 +9,9 @@
 // devcontainer must keep no name of spec's, and the version of gopls its lock file names, when it
 // has one, must be the one its Dockerfile asks for (R102); the plugins its devcontainer loads in Claude
 // Code must be there, and its .claude/settings.json may name no marketplace in a local folder (R143);
-// and every link to spec on GitHub must name the tag the spec submodule is checked out at. A draft —
-// a copy without .git — has no submodule: its links to spec need only agree with one another, and
-// spec's working tree stands in for spec/.
+// and every link to spec on GitHub that names a version, and the tag CLAUDE.md and the opening of
+// RUN.md give spec/, must be the tag the spec submodule is checked out at. A draft — a copy without .git — has no submodule: its links to spec need only agree
+// with one another, and spec's working tree stands in for spec/.
 // Prints one line per error, file:line: message, and exits 1 if any.
 
 import fs from "node:fs";
@@ -32,6 +32,9 @@ const SPEC_NAMES = [
 ];
 
 const SPEC_LINK = /https:\/\/github\.com\/altnovatrail\/spec\/(?:tree|blob)\/([^/\s)#>]+)/g;
+// The tag the template's CLAUDE.md and RUN.md give spec/, as a move to a tag keeps it: no README
+// names one (the 2026-11-17 amendment to R21 spec).
+const SPEC_TAG = /`spec\/`(?: — spec at `|, a submodule at tag )(v[^`\s:;,)]+)/g;
 
 export async function checkRepo({ dir, specRoot }) {
   const errors = [];
@@ -93,21 +96,22 @@ export async function checkRepo({ dir, specRoot }) {
     report(".devcontainer/gopls/go.mod", 0, "the file is missing, and .devcontainer/devcontainer.json loads a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)");
   }
 
-  // Links to spec on GitHub, by the version they name.
+  // Links to spec on GitHub and the tag the text gives spec/, by the version they name.
   const refs = [];
   for (const file of markdown) {
     eachLine(file, (line, n) => {
-      for (const m of line.matchAll(SPEC_LINK)) refs.push({ file, line: n, ref: m[1] });
+      for (const m of line.matchAll(SPEC_LINK)) refs.push({ file, line: n, ref: m[1], how: "links to" });
+      for (const m of line.matchAll(SPEC_TAG)) refs.push({ file, line: n, ref: m[1], how: "names" });
     });
   }
   if (draft) {
     const named = [...new Set(refs.map((r) => r.ref))].sort(byCodeUnits);
-    if (named.length > 1) report(refs[0].file, refs[0].line, `the links to spec name different versions: ${named.join(", ")}`);
+    if (named.length > 1) report(refs[0].file, refs[0].line, `spec is named at different versions: ${named.join(", ")}`);
   } else {
     const tags = submoduleTags(dir);
     if (tags.length === 0) report("spec", 0, "the spec submodule is not checked out at a tag");
     for (const r of refs) {
-      if (tags.length > 0 && !tags.includes(r.ref)) report(r.file, r.line, `links to spec at ${r.ref}, but the submodule is at ${tags.join(", ")}`);
+      if (tags.length > 0 && !tags.includes(r.ref)) report(r.file, r.line, `${r.how} spec at ${r.ref}, but the submodule is at ${tags.join(", ")}`);
     }
   }
 
