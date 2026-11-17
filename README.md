@@ -17,11 +17,7 @@
 
 Official standards, schemas, and guidelines for NovaTrail, a universal open platform for adaptive learning, interactive lessons, and AI tutoring.
 
-NovaTrail turns any subject into interactive lessons with an AI tutor, for children and adults alike. A subject comes as a module that anyone can author: a graph of skills, lessons, tasks, typical mistakes, and the kind of canvas the learner works on. The learner writes, draws, types, moves things or speaks. The AI reads the work and talks with the learner, but whether an answer is right is decided by a program against the task's key, never by the model. A learner model brings together the skills of every module, and an engine picks what comes next.
-
-## Status
-
-Early design. This repository holds the platform's documents and the module format, in [format/](format/README.md): its text, schemas, examples and test vectors. Version 0.1 came out as files for code from the release v0.3.0, with its types for Go from v0.3.4 and for TypeScript from v0.4.0; version 0.2, whose digit on a crop is 24 px high unless the module gives it, came out from v0.6.0; version 0.3, which names the version of go.starlark.net that runs all its Starlark and brings the rules by which the versions of a module compare, came out from v0.9.0; and version 0.4, which brings what the three modules of the first slice asked of it — times, words written by hand, the page of a workbook, worked examples on it and leading questions among them —, comes out from v0.10.0. The first contract between components, the types of the element `<novatrail-canvas>` between `canvas` and `app`, comes out from v0.5.0 (R74), and the other contracts come after it. NovaTrail succeeds [MathTrail](https://github.com/mathtrail), olympiad maths for grades 1–6, which is now frozen.
+NovaTrail turns any subject into interactive lessons with an AI tutor, for children and adults alike. A subject comes as a module that anyone can author: a graph of skills, lessons, tasks, typical mistakes, and the kind of canvas the learner works on. The learner writes, draws, types, moves things or speaks. The AI reads the work and talks with the learner, but whether an answer is right is decided by a program against the task's key, never by the model. A learner model brings together the skills of every module, and an engine picks what comes next. NovaTrail succeeds [MathTrail](https://github.com/mathtrail), olympiad maths for grades 1–6, which is now frozen.
 
 ## Repositories
 
@@ -60,8 +56,6 @@ gh release verify-asset v0.5.6 format-0.1.tar.gz -R altnovatrail/spec
 ```
 
 ## Documents
-
-The documents and the work plan are in English, but for the bodies of the plan's tasks, the order of the cross-repository plan and the archives of its epics, which are in Russian (R143, R154); the module format is in English and normative.
 
 - [docs/product.md](docs/product.md) — what we build and why: who it is for, the principles, the first slice, the roadmap and the open product questions.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary: module, skill, lesson, task, canvas, check, tutor, learner model and engine, with a glossary that names each term as code and schemas will.
@@ -104,7 +98,3 @@ Work in the devcontainer: open the repository in VS Code and choose "Reopen in C
 - `just coverage` runs every test of `tools/` and writes their coverage to `coverage/lcov.info`, then the tests of the Go modules, as `ci-test` runs them.
 
 A check prints a line for each problem it finds, `file:line: message` for the documents, the format and the contracts, and exits with a non-zero status if it finds any. CI runs them all on every pull request and on `main`, and a pull request merges only when they pass. Another NovaTrail repository checks its own documents with `just -f spec/justfile docs-check-repo`, and its sample files of the eval protocol with `just -f spec/justfile sample-check <file>…`, by the code that checks the examples. The environment and the checks are described in more detail in the Environment section of [CLAUDE.md](CLAUDE.md).
-
-## License
-
-[Apache-2.0](LICENSE).
