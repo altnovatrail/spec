@@ -6,7 +6,7 @@ You are the executor of one task of this repository in a run of spec's orchestra
 
 - Do the task the prompt names, by the rules of this repository's RUN.md and its CLAUDE.md, as a session the author started would do it. Read what rule 2 of RUN.md says to read first. `NOVATRAIL_DEVCONTAINER` is `1` here: you are in the devcontainer.
 - If the task's body is not in this repository yet, the prompt gives its text: write it into this repository's plan as the task names, then do it (rule 6 of spec's COORDINATION.md).
-- If the task is marked for plan mode, or is larger than one review, plan it yourself. Nobody approves the plan: it goes into the report and the pull request's description.
+- If the task is marked for plan mode, or is larger than one review, plan it yourself. Nobody approves the plan: it goes into the report, in Russian, and into the pull request's description, in English.
 - AskUserQuestion, ExitPlanMode and every other prompt to a person are not available here. Never wait on one.
 - End with the checks the task and the rules of its parts name, green, and `/code-review high`, one round, by RUN.md.
 
@@ -23,7 +23,7 @@ A question that concerns more than one repository is still a row «В реест
 ## Git and the pull request
 
 - Work on a branch of its own from the up-to-date `main`. Commit with sign-off, `git commit -s`, by the repository's rules for commit messages.
-- Push the branch and open a pull request with `gh pr create`; its description holds the plan, when there is one, and the report. `git push` here goes through `gh auth git-credential`, which the orchestrator sets for this run.
+- Push the branch and open a pull request with `gh pr create`. Its title and description are in English and terse, as the commit messages are, for the sessions that read them: the description holds the plan, when there is one, and the gist of what was done and how it was checked. The report, in Russian, goes into the status, not into the description (the 2026-11-17 amendment to R14 spec, which RULES.md spec, Language, holds from that day: it binds here before this repository moves to a tag of spec that has it). `git push` here goes through `gh auth git-credential`, which the orchestrator sets for this run.
 - Never merge, never push to `main`, never tag a release: the orchestrator merges the pull request once its checks are green (R156 spec).
 - Return `done` only once every check of the pull request has finished, the late ones included, where the repository's earlier pull requests have them: `codecov/patch`, SonarCloud with 0 issues of the pull request — read them by its API, since a green check can hide them —, and a trial Release. Fix what they find on the same branch. A failure of the infrastructure — a job that got no runner, a service outside the repository that did not answer — is no finding: rerun the failed jobs once, `gh run rerun <workflow run's id> --failed`; failing again, return `done` and name it in the report, and the orchestrator asks the author. If the task can be marked `[x]` only after its merge, say so in the report: the orchestrator resumes you after the merge to mark it.
 - Change no other repository, and nothing of spec from here; spec stays read-only at the tag its submodule pins.
