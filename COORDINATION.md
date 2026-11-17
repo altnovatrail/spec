@@ -37,7 +37,7 @@ The coordinator is a session of `spec`, started by «Что дальше по CO
 
 | Статус | № | Репозиторий | Задачи там | Что нужно | Зависит от |
 |---|---|---|---|---|---|
-| [ ] | 2.5 | `.github` | T69 `.github`: смёржена, релиз `v0.1.32` вышел и его берёт `module-kit` (T52 `module-kit`); `[x]` и архив E22 — после мержа, по её «Открыто» | составное действие (composite action) `.github` — образ `toolchain` и кеши Go из кеша и их сохранение на `main`, шаги job `arm64` общего `go.yml`, — которым пользуется и сам `go.yml`; вызывающий берёт его по SHA, и Dependabot двигает его в группе `shared-workflows`; релиз (строка `module-kit` В36) | — |
+| [ ] | 2.5 | `.github` | T69 `.github` — на `main` ещё `[ ]`, хотя её pull request #138 смёржен и релиз `v0.1.32` вышел (его берёт T52 `module-kit`): строке осталась отметка `[x]` и архив E22 сессией `.github` | составное действие (composite action) `.github` — образ `toolchain` и кеши Go из кеша и их сохранение на `main`, шаги job `arm64` общего `go.yml`, — которым пользуется и сам `go.yml`; вызывающий берёт его по SHA, и Dependabot двигает его в группе `shared-workflows`; релиз (строка `module-kit` В36) | — |
 
 **Пункт 3 — `module-kit` и `modules`.** Открытых строк нет. Следующая — 3.12.
 
