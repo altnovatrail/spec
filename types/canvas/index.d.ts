@@ -4,11 +4,11 @@
 /**
  * The types of the element `<novatrail-canvas>`: the contract of canvas and app (R36). The element
  * takes a task and its module's manifest, the files of its pictures and the learner's history of
- * writing, by properties; it gives the work for checking by a method, and tells what the learner did
- * by events. In place of a task it may show a lesson's worked example, whose demo the learner opens
- * part by part with its buttons, and how far they have gone is a property and an event too. The
- * types of the task, of the worked example and of the manifest are the module format's open views,
- * formatv0/open.
+ * writing, by properties; it gives the work for checking and the work's picture by its methods, and
+ * tells what the learner did by events. In place of a task it may show a lesson's worked example,
+ * whose demo the learner opens part by part with its buttons, and how far they have gone is a
+ * property and an event too. The types of the task, of the worked example and of the manifest are
+ * the module format's open views, formatv0/open.
  *
  * It takes the tutor's marks of a submission too, by a property, with the submission's context:
  * their kind and their place come from the contract between app and api, novatrail.api.v1, whose
@@ -413,4 +413,11 @@ export interface CanvasElement extends HTMLElement {
    * worked example give `null`.
    */
   exportWork(): Promise<ExportedWork | null>;
+  /**
+   * The picture of the work, which app puts as the stored work's `picture` (contracts/README.md,
+   * section 15): always a Blob of a PNG, with no condition, of the strokes of the whole surface — the
+   * sheet or the workbook's page — as it is when it is called, within the limit of a stored work
+   * there. Its size and its colours are canvas's (R83 canvas).
+   */
+  exportPicture(): Promise<Blob>;
 }

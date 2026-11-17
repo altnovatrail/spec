@@ -919,7 +919,8 @@ export interface Submission {
    */
   readonly items: readonly SubmissionItem[];
   /**
-   * The observation merged from the two readings; absent when only taps were sent.
+   * The observation of the reading: merged from the two readings in the reading mode pair, the one
+   * reader's in the mode single; absent when only taps were sent.
    */
   readonly observation?: unknown;
   /**
@@ -1176,11 +1177,14 @@ export interface EvidenceEntry {
    */
   readonly seq: number;
   /**
-   * The attempt the evidence is of; one per attempt.
+   * The attempt the evidence is of; one per attempt. An adult's correction of the module's level,
+   * whose evidence has level_set_by_adult, is of no attempt: it holds the correction's ID.
    */
   readonly attempt_id: ID;
   /**
-   * The digest of the attempt's package, by which wrong_key versions are filtered.
+   * The digest of the attempt's package, by which wrong_key versions are filtered. For an adult's
+   * correction of the module's level, the digest of the package of the module's current version,
+   * which no wrong_key version filters out.
    */
   readonly package_digest: string;
   /**
