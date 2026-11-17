@@ -75,7 +75,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
   - On a handwriting sheet, these are the slots bound `anywhere`, `zone` and `sheet` (section 14 of the module format).
   - On a workbook, every box. A box that the learner left empty sends no crop, and its reader gives it as blank without calling a model. The reader takes the boxes from the open view of the task, since the work lists only the filled ones (R53).
   - A slot bound `choice` is tapped, not read, and is not in the observation. Its value is the text of the option tapped (section 15 of the module format), which `api` gives `module-kit` beside the observation and keeps beside it.
-- A task whose answer slot is bound `sheet`, an essay, is read by one reader. Any other task that AI reads is read by two readers of one provider, in two calls (R68): so in the reading mode `pair`, the default. In the mode `single`, which the operator of a deployment chooses at the rung "author", it is read by one reader, and its observation goes to the verdict as it is, with nothing to join (the 2026-11-17 amendment to R68).
+- A task whose answer slot is bound `sheet`, an essay, is read by one reader. Any other task that AI reads is read by two readers of one provider, in two calls (R68): so in the reading mode `pair`, the default. In the mode `single`, which the operator of a deployment chooses, at any rung, it is read by one reader, and its observation goes to the verdict as it is, with nothing to join (the 2026-11-17 amendment and the second 2026-11-17 amendment to R68).
 
 **What a reader gives.**
 
