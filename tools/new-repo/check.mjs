@@ -96,6 +96,8 @@ export async function checkRepo({ dir, specRoot }) {
     report(".devcontainer/gopls/go.mod", 0, "the file is missing, and .devcontainer/devcontainer.json loads a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)");
   }
 
+  if (text.has("README.md")) for (const { line, message } of readmeProblems(text.get("README.md"))) report("README.md", line, message);
+
   // Links to spec on GitHub and the tag the text gives spec/, by the version they name.
   const refs = [];
   for (const file of markdown) {
@@ -117,6 +119,30 @@ export async function checkRepo({ dir, specRoot }) {
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line);
   return errors;
+}
+
+// What the README may not hold: it is the title, the badges and a description of the component
+// and its place in NovaTrail, which leads to docs/README.md for the rest (the second 2026-11-17
+// amendment to R21 spec). The FILL markers are left out, as they say what not to write.
+const README_RULE = "the README is the title, the badges and a description alone (R21 spec)";
+const COMMAND = /`(just|git|gh|npm|npx|go|node|buf|docker|devcontainer|claude) /;
+
+export function readmeProblems(readme) {
+  const problems = [];
+  let titled = false;
+  let fenced = false;
+  readme.replace(/<!--[\s\S]*?-->/g, (comment) => comment.replace(/[^\n]/g, "")).split("\n").forEach((line, i) => {
+    const at = i + 1;
+    if (/^(```|~~~)/.test(line)) {
+      if (!fenced) problems.push({ line: at, message: `a block of code: ${README_RULE}` });
+      fenced = !fenced;
+    } else if (fenced) return;
+    else if (/^# /.test(line) && !titled) titled = true;
+    else if (/^#/.test(line)) problems.push({ line: at, message: `a heading below the title: ${README_RULE}` });
+    else if (COMMAND.test(line)) problems.push({ line: at, message: `a command: ${README_RULE}` });
+  });
+  if (!readme.includes("](docs/README.md)")) problems.push({ line: 0, message: "no link to docs/README.md, which holds what the README does not (R21 spec)" });
+  return problems;
 }
 
 // The tags at the commit spec/ is checked out at; one commit may carry several. An empty spec/

@@ -16,6 +16,7 @@ Its card in spec is architecture {{card}} spec. The card is the summary and this
 
 The documents under `docs/` are in English, but for the epic archives `docs/plan/`, which stay in Russian; RUN.md and `run/` are in English, but for the bodies of tasks (R143 spec, R153 spec, R154 spec). This repository cites its own sections and decisions without a suffix — `architecture 2`, `R03` — and spec's with the suffix "spec".
 
+- [docs/README.md](docs/README.md) — for people: the index of the documents, with how to build, run, release and contribute as they come; the README only says what the component is and where it stands (R21 spec).
 - [docs/architecture.md](docs/architecture.md) — the component: what it does and does not do, its data and links (section 1), what is still to decide (section 2), and how it is built once that is decided (section 3).
 - [docs/decisions.md](docs/decisions.md) — this repository's decision log, `R01`…: read it before proposing a change. Other repositories cite its entries as `R03 {{name}}`.
 - [docs/sources.md](docs/sources.md) — the records of external facts — a provider's terms, a price, a law, a library's documentation — each with its source, its date and its quote; a claim in another document cites its record, as `sources 1.1` (R143 spec). The results of a measurement go to `docs/measurements.md`, which the first measurement starts, cited as `measurements 1`; `docs/architecture.md` holds neither.
