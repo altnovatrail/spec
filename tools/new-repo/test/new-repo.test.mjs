@@ -9,7 +9,7 @@ import path from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { newRepo } from "../new-repo.mjs";
-import { checkRepo } from "../check.mjs";
+import { checkRepo, readmeProblems } from "../check.mjs";
 import { ORCHESTRATOR_STAGE, SPEC_CITATION, goplsVersions, parseJsonc } from "../devcontainer.mjs";
 import { CLAUDE_SETTINGS, addClaudeSettings, checkClaudePlugins } from "../claude.mjs";
 import { FILL, fillPlaceholders, placeholders, walk } from "../copy.mjs";
@@ -100,6 +100,7 @@ const EXPECTED_FILES = [
   "README.md",
   "RUN.md",
   "docs-budgets.json",
+  "docs/README.md",
   "docs/architecture.md",
   "docs/decisions.md",
   "docs/sources.md",
@@ -184,7 +185,8 @@ test("the README starts with the first day's badges of repositories 2.3, in two 
 test("a README has no Status or License section, no sentence of the languages and no version of spec", () => {
   const readmes = [
     ["the template's README.md", read(draft("learner-model", "go", "3.8"), "README.md")],
-    ...["README.md", "tools/types/npm/README.md", "tools/contracts/npm/README.md"].map((file) => [file, read(specRoot, file)]),
+    ["the template's docs/README.md", read(draft("learner-model", "go", "3.8"), "docs/README.md")],
+    ...["README.md", "docs/README.md", "tools/types/npm/README.md", "tools/contracts/npm/README.md"].map((file) => [file, read(specRoot, file)]),
   ];
   for (const [file, readme] of readmes) {
     assert.doesNotMatch(readme, /^## (Status|License)$/m, `${file} has a section the author removed`);
@@ -193,6 +195,28 @@ test("a README has no Status or License section, no sentence of the languages an
     assert.doesNotMatch(documents, /^(?!- )[^\n]*\b(English|Russian)\b/m, `${file} says the languages of its documents`);
     assert.doesNotMatch(readme, /altnovatrail\/spec\/(tree|blob)\/v|submodule at /, `${file} names a version of spec`);
   }
+});
+
+// The author's word of 2026-11-17 (the second 2026-11-17 amendment to R21): a README is the title,
+// the badges and a description of the component and its place in NovaTrail — no section, no
+// command or code block, no language; what it held before is docs/README.md.
+test("a README is the title, the badges and a description alone", () => {
+  const readmes = [
+    ["the template's README.md", read(draft("learner-model", "go", "3.8"), "README.md")],
+    ["README.md", read(specRoot, "README.md")],
+  ];
+  for (const [file, readme] of readmes) {
+    // What a reader sees: the text around the FILL markers, which say what not to write.
+    const text = readme.split("<!--").map((part, i) => (i === 0 ? part : part.slice(part.indexOf("-->") + 3))).join("");
+    assert.match(text, /^# \S/, `${file} has no title`);
+    assert.equal(text.match(/^#.*$/gm).length, 1, `${file} has a heading below its title`);
+    assert.doesNotMatch(text, /^(```|~~~| {4}\S)/m, `${file} has a block of code`);
+    assert.doesNotMatch(text, /`(just|git|gh|npm|npx|go|node|buf|docker|devcontainer|claude) /, `${file} names a command`);
+    assert.doesNotMatch(text, /\b(English|Russian)\b/, `${file} names a language`);
+    assert.match(text, /\]\(docs\/README\.md\)/, `${file} does not lead to docs/`);
+    assert.deepEqual(readmeProblems(readme), [], `${file} breaks what new-repo-check holds a copy to`);
+  }
+  assert.match(read(draft("learner-model", "go", "3.8"), "README.md"), /architecture 3\.8 spec/, "the template's README does not cite the card");
 });
 
 test("spec's own README takes its badges from repositories 2.3, in their order", () => {
@@ -598,7 +622,12 @@ test("check: red while a FILL marker is left, green once all are written", async
 
 test("check: what a careless fill can leave", async () => {
   const cases = [
-    ["README.md", "(docs/decisions.md)", "(docs/decision.md)", /^README\.md:\d+: link docs\/decision\.md: docs\/decision\.md does not exist$/],
+    ["docs/README.md", "(architecture.md)", "(architectur.md)", /^docs\/README\.md:\d+: link [^:]*architectur\.md: docs\/architectur\.md does not exist$/],
+    // The README is a description alone, and docs/README.md the rest (R21, its second 2026-11-17 amendment).
+    ["README.md", "A component of", "## Build\n\nA component of", /^README\.md:\d+: a heading below the title: /],
+    ["README.md", "A component of", "\x60\x60\x60sh\n# a comment, not a heading\nmake\n\x60\x60\x60\n\nA component of", /^README\.md:\d+: a block of code: /],
+    ["README.md", "A component of", "Run \x60just ci-test\x60.\n\nA component of", /^README\.md:\d+: a command: /],
+    ["README.md", "[docs/](docs/README.md)", "docs/", /^README\.md:0: no link to docs\/README\.md/],
     ["AGENTS.md", "Codex", "Kodex", /^AGENTS\.md:0: differs from spec's own$/],
     ["RUN.md", "# RUN.md — work plan of learner-model", "# RUN.md — work plan of {{name}}", /^RUN\.md:1: \{\{name\}\} is left from the template$/],
     [".devcontainer/devcontainer.json", '"name": "novatrail-learner-model"', '"name": "novatrail-spec"', /^\.devcontainer\/devcontainer\.json:\d+: spec's container name or network is left/],
@@ -636,7 +665,7 @@ test("check: a go copy without the lock file of gopls, whose plugin runs it, is 
 
 test("from a tag: the files are the tag's, spec is a submodule at it, all staged, nothing committed", async () => {
   const root = standIn({ tag: "v9.9.9" });
-  change(root, "repo-template/files/README.md", "## Documents", "WORKING TREE ONLY\n\n## Documents");
+  change(root, "repo-template/files/README.md", "A component of", "WORKING TREE ONLY\n\nA component of");
   const dest = path.join(temporary(), "engine");
   const { tag } = newRepo({ specRoot: root, name: "engine", kind: "go", card: "3.8", dest, specUrl: root, date: "2026-01-02" });
 
@@ -679,7 +708,7 @@ test("from a tag older than the template: refused", () => {
 
 test("from a tag: the highest version, even when HEAD is behind it", () => {
   const root = standIn({ tag: "v0.1.0" });
-  change(root, "repo-template/files/README.md", "## Documents", "FROM v0.2.0\n\n## Documents");
+  change(root, "repo-template/files/README.md", "A component of", "FROM v0.2.0\n\nA component of");
   commitAll(root, "a newer template");
   git(root, "tag", "v0.2.0");
   git(root, "checkout", "--quiet", "--detach", "v0.1.0");
@@ -728,7 +757,7 @@ test("check: an empty spec/ is not taken for the copy's own tag", async () => {
 
 test("from a tag: a pre-release is not the latest release", () => {
   const root = standIn({ tag: "v0.1.0" });
-  change(root, "repo-template/files/README.md", "## Documents", "FROM A RELEASE CANDIDATE\n\n## Documents");
+  change(root, "repo-template/files/README.md", "A component of", "FROM A RELEASE CANDIDATE\n\nA component of");
   commitAll(root, "a release candidate");
   git(root, "tag", "v0.2.0-rc.1");
   const dest = path.join(temporary(), "engine");
