@@ -133,7 +133,9 @@ function up({ repo, mode, folder, config, mount }, deps) {
   const dir = path.join(deps.home, "containers");
   fs.mkdirSync(dir, { recursive: true });
   const time = deps.now().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
-  const log = path.join(dir, `${repo}-${mode}-${time}.log`);
+  // The name comes from a command line or a label, so the log is held to the folder of logs.
+  const log = path.resolve(dir, `${repo}-${mode}-${time}.log`);
+  if (!REPOSITORY.test(repo) || !log.startsWith(path.resolve(dir) + path.sep)) throw new Error(`not a repository's name: ${repo}`);
   const { status, stdout, timedOut } = deps.dockerLong(helperArgs({ image, repo, mode, folder, config, mount, organization: deps.organization }), { log });
   if (timedOut) {
     // docker's client is gone, and the helper may not be: it must not build on unseen.
