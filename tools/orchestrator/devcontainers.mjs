@@ -23,26 +23,38 @@ export const UP_TIMEOUT_MS = 60 * 60 * 1000;
 // of its clone and the configuration. A clone that is not there yet is made from GitHub's main, with
 // spec as its submodule. A clone of another origin is not built, and neither is one whose
 // .devcontainer/ is not main's on GitHub — its working tree changed, or a branch not merged —, so
-// what the CLI builds is what main names, and the author's working tree is never changed.
+// what the CLI builds is what main names. Files the repository's .gitignore names are not looked
+// at: spec's orchestrator/docker-gid is one, which its initializeCommand writes on the host.
+//
+// The helper holds the host's socket, and the clone's .git/ is writable from the repository's own
+// container, which has none: so git never runs with the clone's configuration, whose hooks and
+// fsmonitor would run here. Its origin is read from the file alone, main is a fresh clone in the
+// helper's own folder, and the clone's .devcontainer/ is compared as that clone's work tree. The
+// CLI does not look for a git root either: the folder is the clone. Nothing of the author's clone
+// is written.
 export const UP_SCRIPT = [
   "set -eu",
-  'mode=$1; repo=$2; folder=$3; config=$4; url=$5/$repo.git',
+  'mode=$1; repo=$2; folder=$3; config=$4; url=$5/$repo.git; ssh=git@github.com:${url#https://github.com/}',
   'if [ "$mode" = create ] && [ ! -e "$folder" ]; then git clone --quiet --recurse-submodules "$url" "$folder" >&2; fi',
-  'origin=$(git -C "$folder" remote get-url origin 2>/dev/null || true)',
-  'case "$origin" in "$url" | "${url%.git}") ;; *) echo "$folder is not a clone of $url: its origin is ${origin:-none}" >&2; exit 3 ;; esac',
-  'git -C "$folder" fetch --quiet "$url" main',
-  'if ! git -C "$folder" diff --quiet FETCH_HEAD -- .devcontainer || [ -n "$(git -C "$folder" status --porcelain -- .devcontainer)" ]; then echo "$folder: its .devcontainer/ is not that of main on GitHub" >&2; exit 4; fi',
-  'echo "commit $(git -C "$folder" rev-parse HEAD) on $(git -C "$folder" rev-parse --abbrev-ref HEAD), main $(git -C "$folder" rev-parse FETCH_HEAD)" >&2',
+  'origin=$(git config --file "$folder/.git/config" --get remote.origin.url 2>/dev/null || true)',
+  'case "$origin" in "$url" | "${url%.git}" | "$ssh" | "${ssh%.git}") ;; *) echo "$folder is not a clone of $url: its origin is ${origin:-none}" >&2; exit 3 ;; esac',
+  'main=$(mktemp -d)',
+  'git clone --quiet --no-checkout --depth 1 --branch main "$url" "$main" >&2',
+  'git -C "$main" read-tree HEAD',
+  'if ! git --git-dir="$main/.git" --work-tree="$folder" diff --quiet HEAD -- .devcontainer || [ -n "$(git --git-dir="$main/.git" --work-tree="$folder" status --porcelain --untracked-files=all -- .devcontainer)" ]; then echo "$folder: its .devcontainer/ is not that of main on GitHub" >&2; exit 4; fi',
+  'echo "main $(git -C "$main" rev-parse HEAD): $folder has its .devcontainer/" >&2',
+  'rm -rf "$main"',
   'if [ "$mode" = rebuild ]; then set -- --remove-existing-container; else set --; fi',
-  'exec devcontainer up --workspace-folder "$folder" --config "$config" "$@"',
+  'exec devcontainer up --workspace-folder "$folder" --config "$config" --mount-workspace-git-root false "$@"',
 ].join("\n");
 
-// The long docker run of the helper: what it printed on stdout and its exit status, with what it
-// said on stderr written to `log`.
+// The long docker run of the helper: what it printed on stdout and its exit status, or that its
+// time ran out, with what it said on stderr written to `log`.
 export function runLong(args, { log, program = DOCKER, env = process.env, timeout = UP_TIMEOUT_MS } = {}) {
   const fd = fs.openSync(log, "a");
   try {
     const result = spawnSync(program, args, { encoding: "utf8", env, stdio: ["ignore", "pipe", fd], maxBuffer: 64 * 1024 * 1024, timeout });
+    if (result.error?.code === "ETIMEDOUT") return { status: null, stdout: result.stdout ?? "", timedOut: true };
     if (result.error) throw new Error(`docker ${args[0]}: ${result.error.message}`);
     return { status: result.status, stdout: result.stdout };
   } finally {
@@ -57,14 +69,21 @@ export function ownImage(docker, hostname) {
   return self.Image;
 }
 
+// The helper's name: one build of a repository at a time.
+export function helperName(repo) {
+  return `novatrail-up-${repo}`;
+}
+
 // The arguments of docker for the helper: the socket, the folder of the host at the same path —
 // the clone's own, or for a clone still to make the folder that will hold it —, and the script.
 export function helperArgs({ image, repo, mode, folder, config, mount, organization = ORGANIZATION }) {
   return [
     "run",
     "--rm",
+    // The CLI is not the first process: a signal from docker, as at the time-out, ends it.
+    "--init",
     "--name",
-    `novatrail-up-${repo}`,
+    helperName(repo),
     "--network",
     "host",
     "--user",
@@ -115,7 +134,16 @@ function up({ repo, mode, folder, config, mount }, deps) {
   fs.mkdirSync(dir, { recursive: true });
   const time = deps.now().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
   const log = path.join(dir, `${repo}-${mode}-${time}.log`);
-  const { status, stdout } = deps.dockerLong(helperArgs({ image, repo, mode, folder, config, mount, organization: deps.organization }), { log });
+  const { status, stdout, timedOut } = deps.dockerLong(helperArgs({ image, repo, mode, folder, config, mount, organization: deps.organization }), { log });
+  if (timedOut) {
+    // docker's client is gone, and the helper may not be: it must not build on unseen.
+    try {
+      deps.docker(["rm", "--force", helperName(repo)]);
+    } catch {
+      // Gone already.
+    }
+    throw new Error(`${mode} of ${repo} took more than ${UP_TIMEOUT_MS / 60_000} minutes, and its helper is removed; its log is ${log}`);
+  }
   const outcome = outcomeOfUp(stdout);
   if (status !== 0 || outcome?.outcome !== "success" || !outcome.containerId) {
     throw new Error(`${mode} of ${repo} failed, exit ${status}${outcome?.message ? `: ${outcome.message}` : ""}; its log is ${log}`);
@@ -135,7 +163,10 @@ export function rebuild(repo, { container = null, folder = null }, deps) {
   if (found.Id.startsWith(deps.hostname)) {
     throw new Error(`${nameOf(found)} is the orchestrator's own container: the author rebuilds it`);
   }
-  if (!config?.startsWith(`${local}/`)) throw new Error(`${nameOf(found)}: its configuration, ${config ?? "none"}, is not in its folder ${local}`);
+  if (!config?.startsWith(`${local}/`) || path.posix.normalize(config) !== config) throw new Error(`${nameOf(found)}: its configuration, ${config ?? "none"}, is not in its folder ${local}`);
+  // The CLI removes the container it finds by the labels, which need not be the one found here.
+  const same = deps.docker(["ps", "--all", "--no-trunc", "--filter", `label=${FOLDER_LABEL}=${local}`, "--filter", `label=${CONFIG_LABEL}=${config}`, "--format", "{{.Names}}"]).split("\n").filter(Boolean);
+  if (same.length > 1) throw new Error(`${same.length} containers of ${repo} have the labels of ${nameOf(found)}: ${same.join(", ")}; remove the old ones, then rebuild`);
   if (found.State?.Running) {
     const sessions = sessionsIn(found, deps.docker);
     if (sessions) throw new Error(`${nameOf(found)}: ${sessions} process(es) of Claude Code run in it; rebuild it once they have ended`);

@@ -15,7 +15,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
    - From `run/DEBT.md` and `run/QUESTIONS.md` take only the rows the task and its sections name and those `grep -n` finds by the paths and parts it changes (R143).
 3. Devcontainer only (RULES.md, Hard rules, with its cloud-session exception): on the host stop before the first edit.
 4. Outside this repository — creating or configuring repositories, pushing to them, organization settings, anything that costs money — only after a warning (what, where, cost) and the author's confirmation.
-   - Exception, no confirmation: «Сделай эпик E…» (R156) — running the epic's tasks in their repositories' containers, the executors' pushes and pull requests, and their merge on green checks. Whatever else a task does outside its repository still needs confirmation, a question in the orchestrator's queue; usage bought beyond the subscription, never.
+   - Exception, no confirmation: «Сделай эпик E…» (R156) — running the epic's tasks in their repositories' containers, the executors' pushes and pull requests, their merge on green checks, and rebuilding and creating the containers of NovaTrail's repositories (R158). Whatever else a task does outside its repository still needs confirmation, a question in the orchestrator's queue; usage bought beyond the subscription, never.
    - Exception, no confirmation: the task's checks by R146 — browser: Playwright in the devcontainer, custom-token sign-in on the dev project; AI: the `tutor` stub in `api` dev mode. A real AI call only where the task checks the model's words: dev key under the author's spend limit, within the task's ceiling, or with confirmation where it has none; «Сделано» names the provider, the calls and the cost. Nothing on devices: what only a device shows stays debt of the repository of those screens.
 5. Facts on AI providers, laws, prices and other platforms — from the primary source, as a record of `docs/sources.md` (RULES.md, How we work).
 6. End with green checks of the parts changed — their rule `.claude/rules/<part>.md` (CLAUDE.md, Environment) — and always `just docs-check`. Then `/code-review high`, one round: fix the findings, do not rerun. A small change may skip the review even if «Как проверить» names it.
@@ -83,7 +83,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T190 | Эпик E15: открыть и спланировать | Claude | — | — |
 | [x] | T191 | Решение E15: Remote Control — канал автора, поправки к R156 | Claude, проверяю я | — | T190 |
 | [x] | T192 | CLI Dev Containers в стадии `orchestrator` | я + Claude | — | T191 |
-| [ ] | T193 | Пересборка и создание контейнера оркестратором | Claude | да | T192 |
+| [x] | T193 | Пересборка и создание контейнера оркестратором | Claude | да | T192 |
 | [ ] | T194 | Итог эпика E15 | Claude | — | T193 |
 
 - **В контейнере оркестратора** — T193: сессия, которую автор открывает там («Выполни задачу T193 из RUN.md»), как T169–T171 и T175, а не исполнитель spec — ей нужен Docker. T192 меняет стадию — автор пересобирает контейнер оркестратора. T191 и T194 — по документам, их может вести исполнитель spec.
@@ -91,15 +91,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - T192 после T191: стадия и команды ссылаются на решение; T193 после T192: команды зовут CLI стадии.
 
 ## Эпик E15. Оркестратор вдали от VS Code
-
-#### T193. Пересборка и создание контейнера оркестратором
-
-- **Цель:** после мержа, менявшего `.devcontainer/`, оркестратор пересобирает контейнер репозитория сам и создаёт контейнер, которого у репозитория не было, — только репозитории NovaTrail и только после своего мержа с зелёным CI; вопрос автору «Rebuild Container» уходит.
-- **Где:** контейнер оркестратора, настоящий Docker.
-- **Решить при планировании:** как CLI видит клон по пути хоста — вспомогательный контейнер с папкой хоста по тому же пути или папка клонов в контейнере оркестратора (sources 9.3, 9.5); путь — из метки `devcontainer.local_folder` контейнера, а для нового — папка рядом со spec на хосте, и кто клонирует; открытое окно VS Code репозитория; поправка к «Where» R156.
-- **Сделать:** команды `tools/orchestrator` — пересборка и создание — с тестами; [README оркестратора](tools/orchestrator/README.md), раздел 5, шаг 7, и его раздел 7 — вместо вопроса автору; правило 4 RUN.md — исключение «Сделай эпик E…» называет пересборку и создание контейнеров (R158); запуск в пересобранном контейнере продолжается, как сейчас.
-- **Как проверить:** пересборка контейнера одного репозитория и создание контейнера временного клона; тесты `tools/` — `just coverage`; `just docs-check`; `/code-review high`.
-- **Разделы:** R156; sources 9.3, 9.5; [README оркестратора](tools/orchestrator/README.md), разделы 5, 7; T191, T192.
 
 #### T194. Итог эпика E15
 

@@ -60,6 +60,11 @@ if (command === "ps") {
   const options = { cwd: workdir, env: { ...process.env, ...env } };
   if (detach) spawn(program, more, { ...options, detached: true, stdio: "ignore" }).unref();
   else process.exit(spawnSync(program, more, { ...options, stdio: "inherit" }).status ?? 1);
+} else if (command === "rm") {
+  const c = find(rest.at(-1));
+  if (!c) fail("Error response from daemon: No such container: " + rest.at(-1));
+  state.containers = state.containers.filter((x) => x !== c);
+  fs.writeFileSync(file, JSON.stringify(state));
 } else if (command === "top") {
   const c = find(rest[0]);
   if (!c) fail("Error: No such container: " + rest[0]);
@@ -68,7 +73,7 @@ if (command === "ps") {
 } else if (command === "run") {
   let workdir = null, i = 0;
   for (; i < rest.length && rest[i].startsWith("--"); i += 1) {
-    if (rest[i] === "--rm") continue;
+    if (rest[i] === "--rm" || rest[i] === "--init") continue;
     const value = rest[++i];
     if (rest[i - 1] === "--workdir") workdir = value;
     const source = rest[i - 1] === "--mount" && /(?:^|,)source=([^,]+)/.exec(value)?.[1];
