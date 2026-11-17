@@ -275,7 +275,7 @@ flowchart LR
   | Verdict | When | What the learner sees |
   |---|---|---|
   | correct, `correct` | the value matched the key or met the predicate | "Correct" and what was read |
-  | not yet, `not_yet` | read confidently, by the form, and did not match | what was read, the place of the error and the tutor's question |
+  | not yet, `not_yet` | read confidently, by the form, and did not match | what was read, and while the tutor's panel is open or when it opens, the place of the error and the tutor's question |
   | unreadable, `unreadable` | illegible, ambiguous — two readers read differently (R68), a digit written mirrored (R56), — not in notation; several final answers or none; the answer slot is empty | a request to rewrite or to circle — this is not an error |
   | unchecked, `unchecked` | an AI failure, the limit reached, the AI not admitted (Т-20); the predicate could not be computed | a neutral phrase — this is not an error |
 

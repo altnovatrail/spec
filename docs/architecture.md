@@ -506,7 +506,7 @@ sequenceDiagram
     T-->>P: the observations of two readers, or of one in single
     Note over P: module-kit — one observation from two, or the one in single, and the verdict by the key and the provenance
     P-->>A: "Not yet. Read: 6"
-    A->>P: the tutor's words — the work once more and the number of the incorrect answer
+    A->>P: with the tutor's panel open, or when it opens — the tutor's words: the work once more and the number of the incorrect answer
     Note over P: hint ladder — which rung
     P->>T: analysis of the course of solution and a hint — the work, the key and the solution of the task, the trap, the rung, the task's past questions, the presentation style, the explanation language, the age category, the AI route
     T->>T: admission
@@ -523,8 +523,8 @@ sequenceDiagram
 - The work is read only on the learner's action — on "Check"; "Step done" in format v0 does not read the work (the 2026-11-02 amendment to R69), and on a pause AI is not called (R69). `module-kit` gives the verdict by the observation as a whole, not by lines while they come (the 2026-10-28 amendment to R54).
 - Evidence is the result of an attempt, not of a separate submission (concepts 11).
 - A failure of AI or an exhausted quota is a neutral phrase, not "not yet" (R04).
-- The server does not store the picture, so for the analysis the application sends the work once more (R09).
-- **A hint on request** sends no work and does not call reading (R69). Before the first incorrect answer it gives "givens and unknown" and the task's technique, after it the words of the current rung once more, without AI. "Explain differently" is the same call of a hint as on the diagram, but without the work: the key and the solution of the task, the trap of the rung's slot, the rung, the task's past questions, the presentation style, the explanation language, the age category and the AI route — once per rung. The past questions of the same task each call of the attempt's words gets, so as not to repeat them (R82; privacy 4).
+- The server does not store the picture, so for the analysis the application sends the work once more (R09). It asks for the tutor's words only while the tutor's panel is open, or once when it opens; with the panel closed, "Check" ends at the verdict (the second 2026-11-17 amendment to R148).
+- **A hint on request** sends no work and does not call reading (R69). Hint with the tutor's panel closed opens it, and the opening asks the rung's words of the last wrong answer, when they were not asked, as on the diagram, with the work (the second 2026-11-17 amendment to R148). Before the first incorrect answer it gives "givens and unknown" and the task's technique, after it the words of the current rung once more, without AI. "Explain differently" is the same call of a hint as on the diagram, but without the work: the key and the solution of the task, the trap of the rung's slot, the rung, the task's past questions, the presentation style, the explanation language, the age category and the AI route — once per rung. The past questions of the same task each call of the attempt's words gets, so as not to repeat them (R82; privacy 4).
 - On a workbook the work is the crops of the filled boxes with their places, without the item's text, and the place in the observation is the answer slot (the 2026-10-27 and 2026-10-28 amendments to R53).
 - **A task with a rubric** is also two calls, but other ones: reading an essay and the assessment by the rubric (R75). An item with a rubric has no verdict: instead of `module-kit` and the hint ladder, an assessment and feedback.
   1. `app` sends the work — a crop of the handwriting sheet.
