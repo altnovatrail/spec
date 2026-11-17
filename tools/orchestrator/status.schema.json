@@ -18,7 +18,7 @@
       "type": "string"
     },
     "plan": {
-      "description": "The plan the task was done by, when it was planned, as the pull request's description gives it; an empty string when it was not.",
+      "description": "The plan the task was done by, when it was planned, in English, as the pull request's description gives it; an empty string when it was not.",
       "type": "string"
     },
     "pull_request": {
