@@ -1,14 +1,19 @@
-// Stand-ins for docker and claude, and a host of made-up containers for them: none of it is a real
-// container, session or stream. The fake docker keeps its containers in a JSON file, writes down
-// each call, and runs the command of an exec here, with the environment the exec gives; the fake
-// claude writes down its arguments, its stdin and the git variables it got, and prints the stream
-// that the test laid out for its call.
+// Stand-ins for docker, claude and the Dev Containers CLI, and a host of made-up containers for
+// them: none of it is a real container, session or stream. The fake docker keeps its containers in a
+// JSON file, writes down each call, runs the command of an exec here, with the environment the exec
+// gives, and the command of a run here too, in its workdir, once each folder it mounts is there;
+// top prints the processes a test gave a container. The fake claude writes down its arguments, its
+// stdin and the git variables it got, and prints the stream that the test laid out for its call. The
+// fake devcontainer writes down its arguments, and makes a container labelled by its folder and
+// configuration, removing the one there with --remove-existing-container, unless the test laid out
+// that it fails.
 
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { homeOf } from "../runs.mjs";
 import { runDocker } from "../containers.mjs";
+import { runLong } from "../devcontainers.mjs";
 
 const DOCKER = `#!/usr/bin/env node
 const fs = require("node:fs");
@@ -55,6 +60,22 @@ if (command === "ps") {
   const options = { cwd: workdir, env: { ...process.env, ...env } };
   if (detach) spawn(program, more, { ...options, detached: true, stdio: "ignore" }).unref();
   else process.exit(spawnSync(program, more, { ...options, stdio: "inherit" }).status ?? 1);
+} else if (command === "top") {
+  const c = find(rest[0]);
+  if (!c) fail("Error: No such container: " + rest[0]);
+  console.log("PID                 COMMAND");
+  for (const p of c.processes || []) console.log(p);
+} else if (command === "run") {
+  let workdir = null, i = 0;
+  for (; i < rest.length && rest[i].startsWith("--"); i += 1) {
+    if (rest[i] === "--rm") continue;
+    const value = rest[++i];
+    if (rest[i - 1] === "--workdir") workdir = value;
+    const source = rest[i - 1] === "--mount" && /(?:^|,)source=([^,]+)/.exec(value)?.[1];
+    if (source && source !== "/var/run/docker.sock" && !fs.existsSync(source)) fail("docker: Error response from daemon: invalid mount config for type bind: bind source path does not exist: " + source);
+  }
+  const [program, ...more] = rest.slice(i + 1);
+  process.exit(spawnSync(program, more, { cwd: workdir, stdio: "inherit" }).status ?? 1);
 } else fail("fake docker: no " + command);
 `;
 
@@ -82,11 +103,36 @@ const end = () => process.exit(plan.exit ?? 0);
 if (plan.hold) { const t = setInterval(() => { if (fs.existsSync(dir + "/release-" + n)) { clearInterval(t); end(); } }, 20); } else end();
 `;
 
+const DEVCONTAINER = `#!/usr/bin/env node
+const fs = require("node:fs");
+const dir = process.env.FAKE_DOCKER;
+const args = process.argv.slice(2);
+fs.appendFileSync(dir + "/devcontainer.jsonl", JSON.stringify(args) + "\\n");
+const plan = fs.existsSync(dir + "/up.json") ? JSON.parse(fs.readFileSync(dir + "/up.json", "utf8")) : {};
+if (plan.fail) {
+  process.stderr.write("fake devcontainer: " + plan.fail + "\\n");
+  console.log(JSON.stringify({ outcome: "error", message: plan.fail }));
+  process.exit(1);
+}
+const value = (key) => args[args.indexOf(key) + 1];
+const folder = value("--workspace-folder");
+const config = value("--config");
+const file = dir + "/containers.json";
+const state = JSON.parse(fs.readFileSync(file, "utf8"));
+const same = (c) => c.Config.Labels["devcontainer.local_folder"] === folder && c.Config.Labels["devcontainer.config_file"] === config;
+if (args.includes("--remove-existing-container")) state.containers = state.containers.filter((c) => !same(c));
+const id = "beef" + state.containers.length + "made";
+state.containers.push({ Id: id, Name: "/made_" + state.containers.length, State: { Running: true }, Config: { Labels: { "devcontainer.local_folder": folder, "devcontainer.config_file": config } }, Mounts: [] });
+fs.writeFileSync(file, JSON.stringify(state));
+console.log("[made] " + folder);
+console.log(JSON.stringify({ outcome: "success", containerId: id, remoteUser: "vscode" }));
+`;
+
 // The host's folders of the clones, as Dev Containers labels the containers.
 export const HOST = "/home/someone/projects/novatrail";
 
-function container(id, name, folder, { config = `${folder}/.devcontainer/devcontainer.json`, running = false, mounts = [] } = {}) {
-  return { Id: id, Name: `/${name}`, State: { Running: running }, Config: { Labels: { "devcontainer.local_folder": folder, "devcontainer.config_file": config } }, Mounts: mounts };
+export function container(id, name, folder, { config = `${folder}/.devcontainer/devcontainer.json`, running = false, mounts = [], image = `sha256:image-of-${name}` } = {}) {
+  return { Id: id, Name: `/${name}`, Image: image, State: { Running: running }, Config: { Labels: { "devcontainer.local_folder": folder, "devcontainer.config_file": config } }, Mounts: mounts };
 }
 
 // A host in a temporary folder: the fake programs, the volume of Claude Code, the clones' folders
@@ -102,6 +148,7 @@ export function host() {
   for (const d of [bin, dockerDir, claudeDir, volume]) fs.mkdirSync(d);
   fs.writeFileSync(path.join(bin, "docker"), DOCKER, { mode: 0o755 });
   fs.writeFileSync(path.join(bin, "claude"), CLAUDE, { mode: 0o755 });
+  fs.writeFileSync(path.join(bin, "devcontainer"), DEVCONTAINER, { mode: 0o755 });
   const work = (repo) => {
     const dir = path.join(root, "workspaces", repo);
     fs.mkdirSync(dir, { recursive: true });
@@ -130,6 +177,7 @@ export function host() {
   let clock = new Date("2026-11-15T22:00:00Z");
   const deps = {
     docker,
+    dockerLong: (args, options) => runLong(args, { program: path.join(bin, "docker"), env, ...options }),
     home: homeOf({ CLAUDE_CONFIG_DIR: volume }),
     hostname: "aaaa1111",
     now: () => clock,
@@ -165,6 +213,9 @@ export function host() {
       for (const [name, list] of Object.entries(subagents)) fs.writeFileSync(path.join(dir, session, "subagents", name), lines(list));
     },
     call: (n) => JSON.parse(fs.readFileSync(path.join(claudeDir, `call-${n}.json`), "utf8")),
+    // Lays out that the fake devcontainer fails, and what it says.
+    failUp: (message) => fs.writeFileSync(path.join(dockerDir, "up.json"), JSON.stringify({ fail: message })),
+    upCalls: () => (fs.existsSync(path.join(dockerDir, "devcontainer.jsonl")) ? fs.readFileSync(path.join(dockerDir, "devcontainer.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)) : []),
     dockerCalls: () => fs.readFileSync(path.join(dockerDir, "calls.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)),
     edit: (change) => {
       const file = path.join(dockerDir, "containers.json");

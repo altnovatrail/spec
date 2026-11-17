@@ -33,7 +33,7 @@ test("of two with the same labels the running one; MathTrail's clone of the same
 test("no container, no label of its own, and not a repository's name each say what to do", (t) => {
   const h = host();
   t.after(h.done);
-  assert.throws(() => findContainer("tutor", { docker: h.docker, hostname: "aaaa1111" }), new RegExp(`no container of tutor by devcontainer.local_folder=${HOST}/tutor: open ${HOST}/tutor in VS Code and «Reopen in Container» once`));
+  assert.throws(() => findContainer("tutor", { docker: h.docker, hostname: "aaaa1111" }), new RegExp(`no container of tutor by devcontainer.local_folder=${HOST}/tutor: create it, or open ${HOST}/tutor in VS Code and «Reopen in Container» once`));
   h.edit((cs) => delete cs[0].Config.Labels["devcontainer.local_folder"]);
   assert.throws(() => ownFolder(h.docker, "aaaa1111"), /has no label devcontainer.local_folder: run in spec's orchestrator container, or name the repository's folder with --folder/);
   for (const name of ["..", "../sim", "Sim", ""]) assert.throws(() => findContainer(name, { docker: h.docker }), /not a repository's name/);

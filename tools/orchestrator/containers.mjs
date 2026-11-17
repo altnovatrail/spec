@@ -1,5 +1,6 @@
 // Where a task of a repository runs: the container of that repository's clone on the host, which
-// Dev Containers created when the author opened the clone in VS Code (R156; sources 9.3).
+// Dev Containers created when the author opened the clone in VS Code, or the orchestrator's own
+// rebuild or create by the Dev Containers CLI (R156, R158; sources 9.3).
 //
 // Dev Containers labels each container with the host's folder it was opened from,
 // devcontainer.local_folder, and the configuration it was built by, devcontainer.config_file; spec's
@@ -70,7 +71,7 @@ export function findContainer(repo, { docker, container = null, folder = null, h
     .filter(Boolean);
   const found = inspect(ids, docker);
   if (found.length === 0) {
-    throw new Error(`no container of ${repo} by ${FOLDER_LABEL}=${local}: open ${local} in VS Code and «Reopen in Container» once, then close its window`);
+    throw new Error(`no container of ${repo} by ${FOLDER_LABEL}=${local}: create it, or open ${local} in VS Code and «Reopen in Container» once, then close its window`);
   }
   if (found.length === 1) return found[0];
   const running = found.filter((c) => c.State?.Running);
