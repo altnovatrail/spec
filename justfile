@@ -81,16 +81,17 @@ session-test:
 # Docker: start runs a task of a repository as claude -p in that repository's container and returns
 # at once; resume continues the same session with the author's answers; stop ends a run's attempt;
 # status and wait read the run's files on the volume novatrail-claude; next names a repository's
-# next free number of a task; sync keeps the orchestrator's own clone of spec's main. «Сделай
+# next free number of a task; rebuild and create build a repository's container by the Dev
+# Containers CLI (R158); sync keeps the orchestrator's own clone of spec's main. «Сделай
 # эпик E…» runs them from that clone, where this recipe is not needed: they take nothing from
 # node_modules (tools/orchestrator/README.md).
-# Run a command of the orchestrator: start, resume, stop, status, wait, next or sync.
+# Run a command of the orchestrator: start, resume, stop, status, wait, next, rebuild, create or sync.
 [positional-arguments]
 orchestrator *args:
     node tools/orchestrator/main.mjs "$@"
 
-# Run the orchestrator's own tests, on made-up containers and streams, with stand-ins for docker
-# and claude, and a repository of their own for sync.
+# Run the orchestrator's own tests, on made-up containers and streams, with stand-ins for docker,
+# claude and devcontainer, and repositories of their own for sync, rebuild and create.
 orchestrator-test: _tools
     node --test 'tools/orchestrator/test/*.test.mjs'
 
