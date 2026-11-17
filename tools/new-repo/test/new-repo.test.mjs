@@ -206,7 +206,8 @@ test("a README is the title, the badges and a description alone", () => {
     ["README.md", read(specRoot, "README.md")],
   ];
   for (const [file, readme] of readmes) {
-    const text = readme.replace(/<!--[\s\S]*?-->/g, "");
+    // What a reader sees: the text around the FILL markers, which say what not to write.
+    const text = readme.split("<!--").map((part, i) => (i === 0 ? part : part.slice(part.indexOf("-->") + 3))).join("");
     assert.match(text, /^# \S/, `${file} has no title`);
     assert.equal(text.match(/^#.*$/gm).length, 1, `${file} has a heading below its title`);
     assert.doesNotMatch(text, /^(```|~~~| {4}\S)/m, `${file} has a block of code`);
