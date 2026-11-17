@@ -102,9 +102,10 @@ The procedure the orchestrator's session follows (R156 and its amendment of T170
 ### 1. Before the first run
 
 1. The session is in the orchestrator's container: `NOVATRAIL_DEVCONTAINER` is `1`, and `docker ps` answers. In spec's documents container, stop: the author reopens spec in the configuration «NovaTrail orchestrator».
-2. `$O sync` — the first time, when the clone is not there yet, `just orchestrator sync` from the working tree. Read the plan from the clone, not from the working tree: the working tree may be on any branch, and a task of spec run in the documents container switches it. Run `sync` again after each merge into spec.
-3. The epic is the current epic of spec, table 1 of the clone's RUN.md, whose number the phrase names. An epic of `run/EPICS.md` is not split into tasks yet: stop, and tell the author to plan it first (RUN.md, Epics). A task of spec may run the procedure on the rows of «Порядок» it names instead of an epic, as T171 does; its epic's folder is then named after the task.
-4. If `$E/epic.json` exists, an earlier session ran this epic: take the graph from it, and each run's state from `$O status <run>…`, then go on from section 4. A run outlives the session that started it.
+2. Remote Control is on, so that the author drives the session from the Claude app away from VS Code (R158): `/remote-control` in this session, and in `/config` «Push when actions required», for AskUserQuestion, and «Push when Claude decides», for PushNotification (sources 2.13). The session then shows in the app's Code tab while the host is on and this window's `claude` runs. The author turns them on, since the session runs no slash command of its own, and the session cannot see whether they are: in its first reply, before the first wave, it names the three in a line, for the author who has just typed the phrase in the window.
+3. `$O sync` — the first time, when the clone is not there yet, `just orchestrator sync` from the working tree. Read the plan from the clone, not from the working tree: the working tree may be on any branch, and a task of spec run in the documents container switches it. Run `sync` again after each merge into spec.
+4. The epic is the current epic of spec, table 1 of the clone's RUN.md, whose number the phrase names. An epic of `run/EPICS.md` is not split into tasks yet: stop, and tell the author to plan it first (RUN.md, Epics). A task of spec may run the procedure on the rows of «Порядок» it names instead of an epic, as T171 does; its epic's folder is then named after the task.
+5. If `$E/epic.json` exists, an earlier session ran this epic: take the graph from it, and each run's state from `$O status <run>…`, then go on from section 4. A run outlives the session that started it.
 
 ### 2. The graph
 
@@ -147,7 +148,7 @@ Wave 0 runs in parallel, a node in each repository behind.
 | `failed`, `lost` | an attempt (section 7): `resume` with what failed — the `failure`, or that the container stopped |
 | `limited` | a pause (section 7) |
 | `over-ceiling` | a question to the author (section 7) |
-| `stopped` | the orchestrator's own `stop` (section 7): `resume` with the new word |
+| `stopped` | the orchestrator's own `stop` (section 7): `resume` with the new word, unless the author stopped the node (section 6) |
 
 Each event and what was done goes to `$E/epic.json` before the next.
 
@@ -172,9 +173,11 @@ The orchestrator merges each pull request itself, without the author's review (R
 
 1. The queue is `$E/questions.json`: each question with its run, repository, task, the row of table 3 that holds it, its options and its recommendation, and the answer once given. It pauses the node that asked it alone; the rest of the graph goes on.
 2. A small technical question inside one repository, which no document reserves for the author, the orchestrator decides itself, by the recommendation unless the documents say otherwise, and names in its report as its own decision (R156). Anything else goes to the author: a decision the log does not hold, a gap in the documents, a change of a decision, a question «В реестр spec», a step outside the repositories, a ceiling, a red `main`. In doubt, the author.
-3. When the queue has a question for the author and nothing else is in hand, PushNotification first, under 200 characters: how many questions, and whose — «E15: 2 вопроса — sim T70, api T95». Then AskUserQuestion, one question per call, in Russian: the header — the repository and the task; the question — what is asked, with the row of table 3 that holds it; two to four options, the recommended first with «(рекомендую)» in its label, each with what it means.
+3. When the queue has a question for the author and nothing else is in hand, PushNotification first — it reaches the phone only with Remote Control on (section 1), and is a notification on the computer alone without it (sources 2.13) —, under 200 characters: how many questions, and whose — «E15: 2 вопроса — sim T70, api T95». Then AskUserQuestion, one question per call, in Russian: the header — the repository and the task; the question — what is asked, with the row of table 3 that holds it; two to four options, the recommended first with «(рекомендую)» in its label, each with what it means.
 4. Each answer goes to the run's file of answers in `$E`, in Russian, a line for each: «Ответ автора на вопрос строки <row>: <the option, or the author's own words, verbatim>.», and the file ends with «Запиши ответы по правилам своего RUN.md и продолжай задачу.» Once all of a run's questions are answered, and not before, `$O resume <run> --answers <file>` — once, with all of them — and a Monitor of its `wait`.
 5. A question «В реестр spec» answered here is still a row of that repository's table 3: spec's inbox records it by rule 13 of RUN.md, with the answer given.
+6. An answer may come from the window or from the Claude app, and is the same either way. A question with no answer waits, however long: only its node stands, and nobody decides it for the author (R158).
+7. Free text the author sends from the app, typed or dictated, is the author's word in the session, as if typed in the window (R158): a new task — «сделай параллельно ещё …» — is a new node of the graph, by sections 2 and 3, its number from `$O next <repo>` when it starts where the repository has no such task yet; a change of order changes the nodes' edges; «стоп» of a node is its state `stopped`, never resumed until the author's next word on it: a run going is stopped by `$O stop <run>` (section 7), the node's questions leave the queue, and the nodes that wait on it stay, named in the report. Each goes to `$E/epic.json` at once, and the orchestrator answers in the session what it did. A word it cannot tell how to apply is a question back, by AskUserQuestion. The hook of `tools/session/` stops a phrase in this session that starts a task by its number right after the verb — «сделай T45», «выполни задачу T45» — and names `/clear`, which is not for this session (the 2026-11-15 amendment (T170) to R156): a new task is said otherwise, «добавь T45 `api` в граф», «сделай параллельно ещё T45 в `api`».
 
 ### 7. Attempts, limits and the ceiling
 
@@ -186,7 +189,7 @@ The orchestrator merges each pull request itself, without the author's review (R
 
 ### 8. The end
 
-The epic ends when every node is done, or waits on the author with nothing else to run.
+The epic ends when every node is done, stopped by the author, or waits on the author, with nothing else to run.
 - The orchestrator edits no file of spec's working tree. Rows of «Порядок» whose tasks are all done are named in the report, and the epic's task of spec that closes it — or the task of spec that ran the procedure, as T171 — deletes them by rule 4 of COORDINATION.md.
 - PushNotification: the epic has ended, or waits on the author.
 - The report, in Russian: for each repository, its tasks, pull requests and merges, the gist of each executor's report — what was done, what its review found, what is open —, and the cost of each run — `spent_usd`, `num_turns`, `duration_ms`; the questions, their answers, and what the orchestrator decided itself; pauses at the limit and attempts; the plans the executors wrote; what is still open, and the rows «в реестр spec» for spec's inbox (rule 13 of RUN.md).
