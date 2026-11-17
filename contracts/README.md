@@ -70,12 +70,12 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## 10. The observation
 
-- The observation is what AI read in a learner's work, answer slot by answer slot, before any check runs: the message `Observation` of the package `novatrail.observation.v1` (R03, R86). A reader of `tutor` gives one, without the key. `module-kit` joins two of them into one and gives the verdict on it. `api` passes them from one to the other in its process (R15) and keeps the one joined. Which models read is `tutor`'s to decide, by eval (R07).
+- The observation is what AI read in a learner's work, answer slot by answer slot, before any check runs: the message `Observation` of the package `novatrail.observation.v1` (R03, R86). A reader of `tutor` gives one, without the key. `module-kit` joins two of them into one and gives the verdict on it. `api` passes them from one to the other in its process (R15) and keeps the one joined. Which models read is `tutor`'s to decide, by eval (R07), and the mode `single`, in which one of the pair reads alone, is the operator's choice by the author's decision (the 2026-11-17 amendment to R68).
 - An answer slot whose answer AI reads is in the observation once, in the task's order: items by their place, answer slots by their place in the item, each named by its place (`AnswerSlotPlace`, R53).
   - On a handwriting sheet, these are the slots bound `anywhere`, `zone` and `sheet` (section 14 of the module format).
   - On a workbook, every box. A box that the learner left empty sends no crop, and its reader gives it as blank without calling a model. The reader takes the boxes from the open view of the task, since the work lists only the filled ones (R53).
   - A slot bound `choice` is tapped, not read, and is not in the observation. Its value is the text of the option tapped (section 15 of the module format), which `api` gives `module-kit` beside the observation and keeps beside it.
-- A task whose answer slot is bound `sheet`, an essay, is read by one reader. Any other task that AI reads is read by two readers of one provider, in two calls (R68).
+- A task whose answer slot is bound `sheet`, an essay, is read by one reader. Any other task that AI reads is read by two readers of one provider, in two calls (R68): so in the reading mode `pair`, the default. In the mode `single`, which the operator of a deployment chooses at the rung "author", it is read by one reader, and its observation goes to the verdict as it is, with nothing to join (the 2026-11-17 amendment to R68).
 
 **What a reader gives.**
 
@@ -101,7 +101,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - Two reasons that are the same join into that reason.
 - Every other pair joins into `UNREADABLE_AMBIGUOUS`: two values that do not join, a value and a reason, or two reasons that differ. The readers read the slot differently.
 - When either observation is not valid, there is no joined observation: as after a failure of AI, every answer slot that AI reads gets `unchecked`. A slot bound `choice` still gets the verdict of the option tapped, and the item's verdict is made of all its answer slots'.
-- The observation of an essay has one reader and nothing to join.
+- The observation of an essay has one reader and nothing to join, and so has every observation in the reading mode `single`: `module-kit` gives the verdict on it as given, once it is valid, and one that is not valid is as a failure of AI.
 
 **The verdict.** `module-kit` gives the verdict on the observation once the reading has ended, on the whole observation, not on parts of it while they come (R54): each answer slot's, and then the item's, as section 15 of the module format makes it of its answer slots'.
 - A value gets the verdict that section 15 of the module format gives that value read, with its reason and its trap. A value that the kind normalizes to nothing is blank.
@@ -119,7 +119,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - A slot bound `choice` gets the verdict that section 15 of the module format gives the text of the option tapped.
 - A rubric gives no verdict. An essay with a value goes on to the assessment by the rubric; a blank or illegible one does not: its submission ends unreadable, which is no verdict either, and the learner writes the sheet again (R75; R87).
 
-**What is kept.** `api` keeps the joined observation with the values of the slots tapped, and the same release of `module-kit` gives the same verdict on them again, with no AI (R03). The two readers' observations are not kept. Of an essay, `api` keeps no observation: the text read lives in the memory of the request and on the device. It keeps how each submission ended and, with feedback, the mark of each criterion (R87; privacy 9, П-19).
+**What is kept.** `api` keeps the joined observation, or in the mode `single` the one reader's, with the values of the slots tapped, and the same release of `module-kit` gives the same verdict on them again, with no AI (R03). The two readers' observations are not kept. Of an essay, `api` keeps no observation: the text read lives in the memory of the request and on the device. It keeps how each submission ended and, with feedback, the mark of each criterion (R87; privacy 9, П-19).
 
 **Test vectors.** The test vectors hold the rules of this section: `contracts/vectors/observation/v1/<case>.json`. `spec`'s checks compute each, as a second implementation (`just contracts-check`), and `module-kit`'s CI passes them all, from `contracts.Vectors` at the tag it takes (section 8).
 - A vector is a JSON file: `description`, what it holds; `canvas`, the task's canvas, and `items`, the task's items, as the module format writes them, with the checks of their answer slots; and `cases`.
