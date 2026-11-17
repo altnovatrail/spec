@@ -4,6 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import net from "node:net";
 import os from "node:os";
@@ -32,7 +33,7 @@ test("the orchestrator's configuration is spec's, with the host's Docker and no 
   assert.deepEqual(rest(orchestrator), rest(spec));
 });
 
-test("the orchestrator's stage ends the Dockerfile: the devcontainer with the client of Docker, checked by its sum", () => {
+test("the orchestrator's stage ends the Dockerfile: the devcontainer with the client of Docker and the Dev Containers CLI, each checked by its sum", () => {
   const dockerfile = read("Dockerfile");
   const stages = [...dockerfile.matchAll(/^FROM (\S+)(?: AS (\S+))?$/gm)].map((m) => m.slice(1, 3));
   assert.deepEqual(stages.slice(1), [
@@ -46,6 +47,12 @@ test("the orchestrator's stage ends the Dockerfile: the devcontainer with the cl
   assert.match(stage, /sha256sum --check --strict -/);
   // The client alone, of the archive's binaries (R12).
   assert.match(stage, /-xzf "\$workdir\/docker-\$\{DOCKER_VERSION\}-\$\{gnu_arch\}\.tgz" docker\/docker;/);
+  // The Dev Containers CLI: the npm registry's archive at its exact version, a sum for each
+  // architecture, unpacked rather than installed by npm, so that no script of it runs (R34, R158).
+  assert.match(stage, /^ARG DEVCONTAINERS_CLI_VERSION=\d+\.\d+\.\d+$/m);
+  for (const arch of ["AMD64", "ARM64"]) assert.match(stage, new RegExp(`^ARG DEVCONTAINERS_CLI_SHA256_${arch}=[0-9a-f]{64}$`, "m"));
+  const code = stage.split("\n").filter((line) => !line.startsWith("#")).join("\n");
+  assert.doesNotMatch(code, /\bnp[mx]\b/, "no npm or npx runs in the stage");
   assert.match(stage, /^COPY orchestrator\/ \/tmp\/orchestrator\/$/m);
   assert.ok(stage.trimEnd().endsWith("\nUSER vscode"), "the image is left to vscode");
 });
@@ -107,6 +114,79 @@ test("the stage builds without docker-gid, as the ordinary configuration builds 
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout, "orchestrator/docker-gid is not in the context: vscode joins no group of the Docker socket\n");
   assert.equal(result.calls, "");
+});
+
+// The step of the stage that installs the Dev Containers CLI, run as the build runs it, with
+// /usr/local/ in a temporary directory, a dpkg that answers `arch` and a curl that copies the
+// archive a test makes in place of the registry's, whose bin reports `reported`, the stage's
+// version unless a test says otherwise: { status, stdout, stderr, version, url, listing }.
+function cliStep({ arch = "amd64", tamper = false, reported } = {}) {
+  const stage = read("Dockerfile").slice(read("Dockerfile").indexOf("FROM devcontainer AS orchestrator"));
+  const version = stage.match(/^ARG DEVCONTAINERS_CLI_VERSION=(\S+)$/m)[1];
+  const marker = '\nRUN arch="$(dpkg --print-architecture)"; \\\n    case "$arch" in \\\n        amd64) cli_sha256=';
+  const step = stage.slice(stage.indexOf(marker) + "\nRUN ".length);
+  // bash joins the lines of a continued command as the build's shell does.
+  const script = step.slice(0, step.indexOf("\n\n"));
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "orchestrator-cli-")));
+  try {
+    // The package as the registry lays it out: package/, with a bin that prints its version.
+    const source = path.join(dir, "source", "package");
+    fs.mkdirSync(path.join(source, "dist"), { recursive: true });
+    fs.writeFileSync(path.join(source, "package.json"), JSON.stringify({ name: "@devcontainers/cli", version: reported ?? version }));
+    fs.writeFileSync(path.join(source, "devcontainer.js"), '#!/usr/bin/env node\nconsole.log(require("./package.json").version);\n', { mode: 0o755 });
+    fs.writeFileSync(path.join(source, "dist", "bundle.js"), "");
+    const archive = path.join(dir, "cli.tgz");
+    assert.equal(spawnSync("tar", ["-C", path.dirname(source), "-czf", archive, "package"]).status, 0);
+    const sum = crypto.createHash("sha256").update(fs.readFileSync(archive)).digest("hex");
+    if (tamper) fs.appendFileSync(archive, "x");
+    const bin = path.join(dir, "bin");
+    const prefix = path.join(dir, "usr-local");
+    fs.mkdirSync(bin);
+    fs.mkdirSync(path.join(prefix, "bin"), { recursive: true });
+    fs.mkdirSync(path.join(prefix, "lib"));
+    const url = path.join(dir, "url");
+    fs.writeFileSync(path.join(bin, "dpkg"), `#!/bin/sh\necho ${arch}\n`, { mode: 0o755 });
+    // curl … -o <file> <url>: the file is the next argument after -o, and the address the last.
+    fs.writeFileSync(path.join(bin, "curl"), `#!/bin/bash\nwhile (($#)) && [[ "$1" != -o ]]; do shift; done\ncp "${archive}" "$2"\necho "$3" > "${url}"\n`, { mode: 0o755 });
+    const result = spawnSync("bash", ["-euo", "pipefail", "-c", script.replaceAll("/usr/local/", '"$PREFIX"/')], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      env: {
+        ...process.env,
+        PATH: `${bin}:${prefix}/bin:${process.env.PATH}`,
+        PREFIX: prefix,
+        DEVCONTAINERS_CLI_VERSION: version,
+        DEVCONTAINERS_CLI_SHA256_AMD64: sum,
+        DEVCONTAINERS_CLI_SHA256_ARM64: sum,
+      },
+    });
+    return { ...result, version, url: fs.existsSync(url) ? fs.readFileSync(url, "utf8").trim() : "", listing: fs.readdirSync(path.join(prefix, "lib")) };
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test("the stage unpacks the Dev Containers CLI from the registry's archive of its version, checked by the sum of the architecture", () => {
+  for (const arch of ["amd64", "arm64"]) {
+    const result = cliStep({ arch });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.url, `https://registry.npmjs.org/@devcontainers/cli/-/cli-${result.version}.tgz`);
+    assert.match(result.stdout, new RegExp(`^devcontainers cli ${result.version.replaceAll(".", "\\.")}\n.*: OK\n$`));
+    assert.deepEqual(result.listing, ["devcontainers-cli"], "the package's own folder, package/ stripped");
+  }
+});
+
+test("the stage stops on an archive whose sum is not the file's, and on a version the CLI does not report", () => {
+  const tampered = cliStep({ tamper: true });
+  assert.notEqual(tampered.status, 0);
+  assert.match(tampered.stdout, /: FAILED\n/);
+  assert.deepEqual(tampered.listing, [], "nothing is unpacked");
+  const wrong = cliStep({ reported: "0.0.1" });
+  assert.equal(wrong.status, 1);
+  assert.equal(wrong.stderr, `devcontainer --version says 0.0.1, not ${wrong.version}\n`);
+  const other = cliStep({ arch: "s390x" });
+  assert.equal(other.status, 1);
+  assert.equal(other.stderr, "unsupported architecture: s390x\n");
 });
 
 // docker-group.sh copied into a folder of its own, since it writes beside itself, and run there,

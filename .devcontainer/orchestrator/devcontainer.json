@@ -8,7 +8,7 @@
     "name": "NovaTrail orchestrator",
     "build": {
         "dockerfile": "../Dockerfile",
-        // The devcontainer stage, with the Docker CLI on top.
+        // The devcontainer stage, with the Docker CLI and the Dev Containers CLI on top.
         "target": "orchestrator",
         // The image copies one file, orchestrator/docker-gid, which initializeCommand writes, so it
         // is built from spec's .devcontainer/ alone.
