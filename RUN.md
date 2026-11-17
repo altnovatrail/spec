@@ -82,7 +82,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 |---|---|---|---|---|---|
 | [x] | T190 | Эпик E15: открыть и спланировать | Claude | — | — |
 | [x] | T191 | Решение E15: Remote Control — канал автора, поправки к R156 | Claude, проверяю я | — | T190 |
-| [ ] | T192 | CLI Dev Containers в стадии `orchestrator` | я + Claude | — | T191 |
+| [x] | T192 | CLI Dev Containers в стадии `orchestrator` | я + Claude | — | T191 |
 | [ ] | T193 | Пересборка и создание контейнера оркестратором | Claude | да | T192 |
 | [ ] | T194 | Итог эпика E15 | Claude | — | T193 |
 
@@ -91,14 +91,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - T192 после T191: стадия и команды ссылаются на решение; T193 после T192: команды зовут CLI стадии.
 
 ## Эпик E15. Оркестратор вдали от VS Code
-
-#### T192. CLI Dev Containers в стадии `orchestrator`
-
-- **Цель:** в стадии `orchestrator` — `@devcontainers/cli` точной версии, с проверкой целостности; CI собирает стадию.
-- **Сделать:** `ARG` версии в `.devcontainer/Dockerfile`, установка из npm без скриптов и проверка архива (R34); лицензия MIT — категория A (R12), без исключения; `orchestrator.yml` собирает стадию; запись sources 9.5 — если версия другая.
-- **Мой шаг:** пересобрать контейнер оркестратора.
-- **Как проверить:** `devcontainer --version` в пересобранном контейнере; CI `orchestrator.yml`; проверки правила ci; `just docs-check`.
-- **Разделы:** R12, R34, R156; sources 9.5; `.claude/rules/ci.md`; T168, T191.
 
 #### T193. Пересборка и создание контейнера оркестратором
 
