@@ -133,7 +133,7 @@ flowchart LR
 - **platform AI** — by subscription, through the platform's agreements with providers;
 - **own key** — an account owner who learns themselves connects their own key of OpenAI, Anthropic or another provider to their own profile of the category `adult` and uses the platform for free (R84; the 2026-11-02 amendment to R07).
 
-**Models are admitted by eval.** Each AI capability has its own list of exact IDs of the models that passed that capability's eval. An own key does not open a model that did not pass eval (concepts 14).
+**Models are admitted by eval.** Each AI capability has its own list of exact IDs of the models that passed that capability's eval. An own key does not open a model that did not pass eval (concepts 14). Until 2027-01-17, while only the author learns on the deployment, the author's word admits a model at the rung "author" instead of an eval, on both routes; the rung "full" stays by eval (the third 2026-11-17 amendment to R07).
 
 **Age.** Providers have their own rules on minors, and the platform follows them (privacy 5.3). The check of 2026-10-18:
 - The Gemini API may not be used in a service that people under 18 are likely to use. Since the platform is open to children, this route is closed for all its learners, adults too, — both through platform AI and with an own key. The check of 2026-10-22 found the same ban for Google Cloud's generative AI, Vertex AI too: Google's models are closed on the whole platform, for all learners, and whether they may be used in a separate deployment for adults only is a question for a lawyer (R47; П-3).
