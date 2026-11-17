@@ -20,7 +20,9 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 | `.github` | В40 | `10c52b8885da` | T176: the heading of `toolchain` says the core holds what the release and the `ci-` recipes run; rows 7.15–7.25 are closed, every caller moved green (T171) |
 | `app` | В66 | `274c164fd612` | option (a): COORDINATION row 5.14, its text in T172; architecture 3.2; row 6.14 — T62 waits for 5.14 |
 | `app` | В67 | `edf21547ab7f` | T176, option (a) |
+| `app` | В68 | `7a7209c72097` | option (a), from pull request #74 on the author's word (T181): the 2026-11-17 amendment to R127; Д152 — the next `english-essays` after the release of `app` with T47 is deployed |
 | `canvas` | В81 | `a00f4b93d5c2` | option (a): RULES.md, Hard rules, «Exact versions only»; second 2026-11-16 amendment to R40 |
+| `canvas` | В83–В85 | `4494b23362eb` | options (a), from branch `t121-glass-bar`, b262201, before its pull request, on the author's word (T181) — keep it while `just inbox` names it to leave, until T121 `canvas` opens its pull request or merges: the 2026-11-17 amendments to R36 (В83, В85), R90 (В84) and R148; architecture 3.1, 3.2, 6; COORDINATION rows 5.11 and 6.18 |
 | `engine` | В51 | `4261d173691e` | T176, option (b) — one sentence for all |
 | `learner-model` | В52 | `8a29683e8ce8` | R157 and its 2026-11-16 amendment (T173): the start in `learner-model`, a band below; option (a), the trial series of `engine`, not taken; COORDINATION.md, row 4.20 |
 | `learner-model` | В53 | `6bb501df02a5` | R157 and its 2026-11-16 amendment (T173): option (b), the risk accepted now, in version 24 of the DPIA — dpia 7, 8 and 10.2, item 10 |
