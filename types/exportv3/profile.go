@@ -342,7 +342,8 @@ type Submission struct {
 	// The verdict of every item and answer slot and what was read, as ItemVerdict/AnswerSlotVerdict
 	// hold them.
 	Items []SubmissionItem `json:"items"`
-	// The observation merged from the two readings; absent when only taps were sent.
+	// The observation of the reading: merged from the two readings in the reading mode pair, the
+	// one reader's in the mode single; absent when only taps were sent.
 	Observation *json.RawMessage `json:"observation,omitzero"`
 	// The options tapped, beside the observation.
 	TappedChoices []SubmissionTappedChoice `json:"tapped_choices"`
@@ -560,9 +561,12 @@ type ChoicePackageDigest struct {
 type EvidenceEntry struct {
 	// The number in the profile's log, from 1.
 	Seq int64 `json:"seq"`
-	// The attempt the evidence is of; one per attempt.
+	// The attempt the evidence is of; one per attempt. An adult's correction of the module's level,
+	// whose evidence has level_set_by_adult, is of no attempt: it holds the correction's ID.
 	AttemptID ID `json:"attempt_id"`
-	// The digest of the attempt's package, by which wrong_key versions are filtered.
+	// The digest of the attempt's package, by which wrong_key versions are filtered. For an adult's
+	// correction of the module's level, the digest of the package of the module's current version,
+	// which no wrong_key version filters out.
 	PackageDigest string `json:"package_digest"`
 	// The module's ID.
 	ModuleID string `json:"module_id"`

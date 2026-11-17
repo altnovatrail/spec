@@ -13,7 +13,7 @@ The coordinator is a session of `spec`, started by «Что дальше по CO
    - the tag of its `spec` submodule: `gh api repos/altnovatrail/<repo>/contents/spec --jq .sha` against `gh api repos/altnovatrail/spec/tags`;
    - open pull requests: `gh pr list -R altnovatrail/<repo> --state open`;
    - rows «в реестр spec» not recorded: `just inbox` (R81) — name them; spec's session triages them (RUN.md rule 13).
-4. A task is done when `[x]` on its repository's `main`. A row whose tasks are all done, or that is `[-]` by that repository's RUN.md, is deleted, and its number leaves «Зависит от». Numbers are not reused: each item names its next free one. In an open row, done tasks are numbers only, «сделаны T01–T05». `[?]` stays, with its reason. Rows closed by 2026-11-15, which older texts cite: `git show 6eb3243:COORDINATION.md`, section «Закрытые строки»; rows 7.13 and 7.15–7.25, closed by T171: `git show 5867a6c:COORDINATION.md`; rows 5.13, 6.19 and 6.23, closed by T172: `git show dc51e41:COORDINATION.md`. Rows 4.17 and 4.18 `[?]`, moved to run/DEBT.md as Д261 by the author 2026-11-16 (amendment to R157): `git show b99d983:COORDINATION.md`. Rows 1.22, 3.11, 4.20, 4.21, 5.11, 5.12, 5.14–5.16, 6.14, 6.21, 6.24, 6.25 and 6.27–6.33, done by the orchestrator's run of 2026-11-16 — 2026-11-17 and closed by T187: `git show 7ec30fd:COORDINATION.md`. Row 2.5, done by T69 and T72 `.github`, closed by T188: `git show dbefaee:COORDINATION.md`.
+4. A task is done when `[x]` on its repository's `main`. A row whose tasks are all done, or that is `[-]` by that repository's RUN.md, is deleted, and its number leaves «Зависит от». Numbers are not reused: each item names its next free one. In an open row, done tasks are numbers only, «сделаны T01–T05». `[?]` stays, with its reason. Rows closed by 2026-11-15, which older texts cite: `git show 6eb3243:COORDINATION.md`, section «Закрытые строки»; rows 7.13 and 7.15–7.25, closed by T171: `git show 5867a6c:COORDINATION.md`; rows 5.13, 6.19 and 6.23, closed by T172: `git show dc51e41:COORDINATION.md`. Rows 4.17 and 4.18 `[?]`, moved to run/DEBT.md as Д261 by the author 2026-11-16 (amendment to R157): `git show b99d983:COORDINATION.md`. Rows 1.22, 3.11, 4.20, 4.21, 5.11, 5.12, 5.14–5.16, 6.14, 6.21, 6.24, 6.25 and 6.27–6.33, done by the orchestrator's run of 2026-11-16 — 2026-11-17 and closed by T187: `git show 7ec30fd:COORDINATION.md`. Row 2.5, done by T69 and T72 `.github`, closed by T188: `git show dbefaee:COORDINATION.md`. Row 1.23, done and closed by T189: `git show 5752146:COORDINATION.md`.
 5. Name the next task from the first open row whose «Зависит от» is done: repository and task number; the phrase «Выполни задачу Txx из RUN.md»; where — the container of that repository's clone (CLAUDE.md, Environment), a `spec` task here; which other rows wait only on done ones — any order.
 6. A task not yet in its repository (a code epic, a move to a tag): give its session a text in Russian — «Цель», «Сделать», «Как проверить», «Разделы», and in «Почему» R76 spec and the row number. That session records and numbers it; then write the number into the row.
 7. Inside a repository its RUN.md wins — a task's number, title, internal dependency: fix the row here. A conflict of order between repositories is a question to the author: a row of [run/QUESTIONS.md](run/QUESTIONS.md).
@@ -31,11 +31,7 @@ The coordinator is a session of `spec`, started by «Что дальше по CO
 
 Задачи внутри строки идут по RUN.md своего репозитория. В «Зависит от» — номера открытых строк; «—» — строка ждёт только сделанного.
 
-**Пункт 1 — `spec`.** Следующая — 1.24.
-
-| Статус | № | Репозиторий | Задачи там | Что нужно | Зависит от |
-|---|---|---|---|---|---|
-| [ ] | 1.23 | `spec` | T189 (run/TASKS.md) | `exportPicture(): Promise<Blob>` в `CanvasElement` с комментарием (вторая поправка 2026-11-17 к R36; R74); описания `attempt_id`, `package_digest` и `observation` выгрузки версии 3 и [её текст](export/README.md), раздел 9 (поправка 2026-11-17 к R135; Д263); заливка подсказки эталона — `#1d1d1f` (третья поправка 2026-11-17 к R148); релиз | — |
+**Пункт 1 — `spec`.** Открытых строк нет. Следующая — 1.24.
 
 **Пункт 2 — `.github`.** Открытых строк нет. Следующая — 2.6.
 
@@ -54,7 +50,7 @@ The coordinator is a session of `spec`, started by «Что дальше по CO
 |---|---|---|---|---|---|
 | [ ] | 5.17 | `tutor` | задачи нет | кеш инструкций слов наставника в адаптере Claude: `cache_control` на блоке инструкций `GetRungWords`, `GetCorrectAnswerWords` и `GetHint`, после него — только данные задачи и работы; тест, что работа ученика не попадает в кешируемый префикс, а отпечаток промпта и записи допуска не меняются; `Price` считает запись и чтение кеша; модель слов — Opus 5.5, как есть; релиз (строка `tutor` В92) | — |
 | [ ] | 5.18 | `tutor` | Д18 `tutor` | один платный прогон: Haiku 5.5 · `medium` на 60 листах автора на 24 px против 32 px, ≈ 600 вызовов, ≈ $0.25, ключом dev под лимитом автора — исключение из приостановки платных прогонов, только для него (четвёртая поправка 2026-11-17 к R07; поправка 2026-11-17 к R51); итог — в measurements `tutor` и строкой «в реестр spec»: не хуже — R51 стоит, строка 3.12 удаляется; хуже — она идёт, и с ней 6.38 и 6.39 | — |
-| [ ] | 5.19 | `canvas` | задачи нет | переход на тег `spec` с T189: в `src/element/interface.check.ts` снять `@ts-expect-error` у `exportPicture()` и держать метод на соглашении; поправки к R83 canvas (метод в соглашении) и R84 canvas (эталон взял `#1d1d1f`); В82 и В86 — из таблицы 3 | 1.23 |
+| [ ] | 5.19 | `canvas` | задачи нет | переход на тег `spec` с T189: в `src/element/interface.check.ts` снять `@ts-expect-error` у `exportPicture()` и держать метод на соглашении; поправки к R83 canvas (метод в соглашении) и R84 canvas (эталон взял `#1d1d1f`); В82 и В86 — из таблицы 3 | — |
 
 **Пункт 6 — `api`, `app`, `skill-map` и `infra`.** Следующая — 6.40.
 
@@ -65,7 +61,7 @@ The coordinator is a session of `spec`, started by «Что дальше по CO
 | [ ] | 6.34 | `api` | задачи нет | переход на релиз `tutor` строки 5.17; `ai_usage` пишет токены записи и чтения кеша — проверить; релиз | 5.17 |
 | [ ] | 6.35 | `infra` | задачи нет | выкладка `api` строки 6.34 на `novatrail` (R29 infra); через неделю — доля чтения кеша у слов в `ai_usage`, в отчёт | 6.34 |
 | [ ] | 6.36 | `infra` | задачи нет | `novatrail/english-essays` — в `api_catalog_modules`, путём фактов (поправка 2026-11-16 к R05 infra; поправка 2026-11-17 к R150), `api check` проходит; с переходом на тег `spec` с T188 — `SELF-HOSTING.md`, «Your list», ссылается на пятую поправку 2026-11-17 к R07 и называет срок 2027-01-17; В49, В51 и В52 — из таблицы 3 | — |
-| [ ] | 6.37 | `app` | задачи нет: после E5, строки 6.18 | переход на тег `spec` с T189: `ElementHoldsContract` (`src/canvas/jsx.ts`) держит `exportPicture()` по `CanvasElement`, без своего типа из `NovatrailCanvas`; комментарии `jsx.ts` и `src/works/picture.ts` — без «not yet in spec's types»; поправка к R15 app; В69 — из таблицы 3 | 6.18, 1.23 |
+| [ ] | 6.37 | `app` | задачи нет: после E5, строки 6.18 | переход на тег `spec` с T189: `ElementHoldsContract` (`src/canvas/jsx.ts`) держит `exportPicture()` по `CanvasElement`, без своего типа из `NovatrailCanvas`; комментарии `jsx.ts` и `src/works/picture.ts` — без «not yet in spec's types»; поправка к R15 app; В69 — из таблицы 3 | 6.18 |
 | [ ] | 6.38 | `api` | задачи нет | индекс `modules` с версией `english-essays` строки 3.13 и, если строка 3.12 идёт, с её версиями модулей; релиз | 3.13 |
 | [ ] | 6.39 | `infra` | задачи нет | выкладка `api` строки 6.38 на `novatrail` | 6.38 |
 

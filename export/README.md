@@ -102,4 +102,4 @@ A vector of reading, `vectors/reading/<case>.yaml`, passes `schemas/reading-vect
 
 ## 9. Changing the part
 
-The part's layout, schemas and rules change only by a decision that amends R135 or replaces it, and with a new `VERSION` (section 2).
+The part's layout, the shape of its schemas and its rules change only by a decision that amends R135 or replaces it, and with a new `VERSION` (section 2): a new field, a new kind of record, a new rule or a new file. The annotations of a schema — `title`, `description`, `$comment` and `examples` — and the examples and test vectors change within a version, as `release-version` lets them (`tools/release/export-line.mjs`; the 2026-11-17 amendment to R135).

@@ -28,6 +28,7 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   set marks(marks: canvas.Marks | undefined);
   get filled(): canvas.Filled | null;
   exportWork(): Promise<canvas.ExportedWork | null>;
+  exportPicture(): Promise<Blob>;
   undo(): boolean;
   clear(): boolean;
 }
@@ -134,6 +135,7 @@ export const kept: readonly canvas.HistoryEvent[] = sheet.history;
 export const filled: canvas.Filled | null = sheet.filled;
 export const first: boolean | undefined = sheet.filled?.[0]?.[0];
 export const work: Promise<canvas.ExportedWork | null> = sheet.exportWork();
+export const picture: Promise<Blob> = sheet.exportPicture();
 
 /** A worked example in place of the task, and how far its demo has gone, which app keeps. */
 sheet.task = undefined;
@@ -175,6 +177,8 @@ sheet.manifest = null;
 sheet.media = null;
 // @ts-expect-error A picture's file comes as a Blob, not as its address.
 sheet.media = async (ref: string) => ref;
+// @ts-expect-error The work's picture comes with no condition: a canvas that may give none breaks the contract.
+export const none: canvas.CanvasElement["exportPicture"] = async () => null;
 // @ts-expect-error The commands are canvas's own, which its buttons call: the contract has none.
 sheet.undo();
 // @ts-expect-error null is no worked example: undefined, and undefined alone, is none.

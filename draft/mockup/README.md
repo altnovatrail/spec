@@ -183,7 +183,7 @@ The mockup is drawn in absolute CSS px for its two sizes; `app` and `canvas` lay
 | The grey fills of fields, chips and disabled buttons | `rgba(118,118,128,…)` at 0.08, 0.10, 0.12 and 0.16 |
 | The tutor's mark | a gradient `#5E5CE6` → `#0A84FF`, white glyph |
 | A message not yet read | a dot `#FF3B30` with a white ring |
-| A tooltip | white on `rgba(29,29,31,0.92)`, 12.5 px, radius 9 |
+| A tooltip | white on an opaque `#1D1D1F`, 12.5 px, radius 9: a translucent fill over the canvas would give a contrast that depends on the strokes beneath it, which axe cannot check. `canvas` draws its tooltip so (R84 canvas), and `app` draws its own so with the look of the mockup, row 6.18 of `COORDINATION.md` (the third 2026-11-17 amendment to R148) |
 
 **Glass.** The bars and the tutor's panel float over the sheet as glass: `.glass` of the helmet — `rgba(255,255,255,0.76)`, `backdrop-filter: blur(22px) saturate(180%)`, and a shadow `0 0 0 0.5px rgba(0,0,0,0.08), 0 8px 28px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)`. The tutor's panel is more opaque, `rgba(255,255,255,0.86)`, and on the phone 0.96; a sheet of the phone 0.98. Over the camera, `.glass-dark`: `rgba(44,44,46,0.58)`. Where `backdrop-filter` is not supported, the fill alone holds the contrast below.
 
@@ -233,7 +233,7 @@ The pairs of the mockup's colours by WCAG 2.2: 1.4.3 for text, 4.5:1, or 3:1 for
 | A grey fill of 0.10–0.12 on `#FFFFFF` | the edge of a text field | 1.13–1.15 | no | a border of 1 px `#8E8E93` |
 | The borders of the skill map's nodes on their fills | `#FFD8A8` on `#FFF4E5` and the like | 1.24–1.29 | the node is told by its word and icon | `skill-map`'s own, by its rule |
 | `#FFD60A` on `.glass-dark` over the camera | flash, "Auto" | 12.3 | 1.4.3 | — |
-| White on a tooltip | the tooltips | 13.4 | 1.4.3 | — |
+| White on a tooltip | the tooltips | 16.8 | 1.4.3 | — |
 
 ## Where it differs from the documents
 
