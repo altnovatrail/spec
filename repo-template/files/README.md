@@ -11,15 +11,10 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=altnovatrail_{{name}}&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=altnovatrail_{{name}})
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=altnovatrail_{{name}}&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=altnovatrail_{{name}})
 
-<!-- FILL: what the component is and does, in two or three sentences, from its card, architecture {{card}} spec; in English. -->
+<!-- FILL: what the component is and does, and why, in one to three short paragraphs, from its card, architecture {{card}} spec; in English. A description alone: no command, code block or instruction, and no status, version, date, number or language. -->
 
-A component of [NovaTrail](https://github.com/altnovatrail/spec), a universal open platform for adaptive learning, interactive lessons and AI tutoring. <!-- FILL: the stage it belongs to, from repositories 2.1 spec, as "It belongs to stage N, …" with the stage's name from product 11 spec. -->
+A component of [NovaTrail](https://github.com/altnovatrail/spec), a universal open platform for adaptive learning, interactive lessons and AI tutoring.
 
-## Documents
+<!-- FILL: its place in NovaTrail's architecture, from architecture 2 spec and its card: the components it is linked with and how, in one sentence or a short list. -->
 
-- [docs/architecture.md](docs/architecture.md) — the component: what it does and does not do, its data and links, and what is still to decide.
-- [docs/decisions.md](docs/decisions.md) — the decision log: what was decided, why, and what was rejected.
-- [RUN.md](RUN.md) — the work plan, in epics.
-- `run/` — the plan's other tables: [the epics for later](run/EPICS.md), [the open questions](run/QUESTIONS.md), [the technical debt](run/DEBT.md) and [the tasks outside an epic](run/TASKS.md).
-
-The working rules, for people and coding agents alike, are in [CLAUDE.md](CLAUDE.md) and [AGENTS.md](AGENTS.md). The platform's shared vocabulary, formats, contracts and decisions are in [spec](https://github.com/altnovatrail/spec), checked out here as a git submodule: clone this repository with `git clone --recurse-submodules`.
+Its card is architecture {{card}} spec, among the documents of [spec](https://github.com/altnovatrail/spec); its own documents, its decisions and its plan are in [docs/](docs/README.md).

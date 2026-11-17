@@ -8,6 +8,7 @@ You are the product and standards architect of NovaTrail. In this repository the
 
 The documents under `docs/` are in English, but for the epic archives `docs/plan/`, which stay in Russian; RUN.md, `run/` and COORDINATION.md are in English, but for the bodies of tasks and COORDINATION.md's «Порядок» (R14, R143, R153, R154). They are cited by section: "product 7", "concepts 9", "privacy 5", "architecture 3", "repositories 8".
 
+- [docs/README.md](docs/README.md) — for people: the index of the documents, the releases and how to contribute; the README only says what spec is (R21).
 - [docs/product.md](docs/product.md) — what we build and why. Open product questions О-… are in section 13.
 - [docs/concepts.md](docs/concepts.md) — the shared vocabulary and the glossary.
 - [docs/privacy.md](docs/privacy.md) — privacy and age. Open questions П-… are in section 9.
