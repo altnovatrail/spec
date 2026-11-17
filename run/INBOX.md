@@ -21,10 +21,6 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 | `app` | В69 | `06d1aaf478e1` | one answer with `canvas` В82, option 1: the second 2026-11-17 amendment to R36 and the 2026-11-17 amendment to R74; architecture 3.2; the types — T189; COORDINATION rows 1.23 and 6.37 |
 | `canvas` | В82 | `49a7284d0f7e` | as `app` В69; COORDINATION rows 1.23 and 5.19 |
 | `canvas` | В86 | `5780f56f8aa3` | option 1: the third 2026-11-17 amendment to R148; the mockup — T189; COORDINATION rows 1.23, 5.19 and 6.18 |
-| `infra` | В42, В44 | — | removed at source — В42 by T69 `infra`, В44 by T72 `infra`; В44 answered by the 2026-11-17 amendment to R68, the mode `single`; recorded on the author's word (T188), they leave at the next triage |
-| `infra` | В49 | `d0458796c1fa` | option 1: privacy 4, «Logs», and architecture 3.11, the logs; `legal/` unchanged |
-| `infra` | В51 | `c6c0d80248f4` | option (a): the 2026-11-17 amendment to R150; COORDINATION row 6.36; Д152 |
-| `infra` | В52 | `d343f6d1e2e3` | option (a): the fifth 2026-11-17 amendment to R07; COORDINATION row 6.36 |
 | `learner-model` | В54 | `887ae8041541` | option (a), the author's answer of 2026-11-16: the 2026-11-17 amendment to R157 — rows 4.20 and 4.21 done in R103's order, `sim` v0.1.28 and `learner-model` v0.1.13 |
 | `sim` | В33 | `d2a441b49026` | option 1, with В31 and В32, removed at source in c92c331: the 2026-11-17 amendment to R157; dpia 6.2, 7, 8 and 10.2, version 28, whose PDF the author signs (R147) |
 | `tutor` | В89 | `8cc27f8ea1a3` | option (a), the author's answer of 2026-11-16: the 2026-11-17 amendment to R71; product 10 |
