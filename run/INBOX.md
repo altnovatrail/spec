@@ -16,17 +16,19 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 
 | Repository | Rows | Fingerprint | Where the answer is |
 |---|---|---|---|
-| `.github` | В39 | `0bdd5bea10d9` | T176 `run/TASKS.md`: one sentence for spec and every copy (author 2026-11-16, T172) |
-| `.github` | В40 | `10c52b8885da` | T176: the heading of `toolchain` says the core holds what the release and the `ci-` recipes run; rows 7.15–7.25 are closed, every caller moved green (T171) |
-| `app` | В66 | `274c164fd612` | option (a): COORDINATION row 5.14, its text in T172; architecture 3.2; row 6.14 — T62 waits for 5.14 |
-| `app` | В67 | `edf21547ab7f` | T176, option (a) |
-| `app` | В68 | `7a7209c72097` | option (a), from pull request #74 on the author's word (T181): the 2026-11-17 amendment to R127; Д152 — the next `english-essays` after the release of `app` with T47 is deployed |
-| `canvas` | В81 | `a00f4b93d5c2` | option (a): RULES.md, Hard rules, «Exact versions only»; second 2026-11-16 amendment to R40 |
-| `canvas` | В83–В85 | `4494b23362eb` | options (a), from branch `t121-glass-bar`, b262201, before its pull request, on the author's word (T181) — keep it while `just inbox` names it to leave, until T121 `canvas` opens its pull request or merges: the 2026-11-17 amendments to R36 (В83, В85), R90 (В84) and R148; architecture 3.1, 3.2, 6; COORDINATION rows 5.11 and 6.18 |
-| `engine` | В51 | `4261d173691e` | T176, option (b) — one sentence for all |
-| `learner-model` | В52 | `8a29683e8ce8` | R157 and its 2026-11-16 amendment (T173): the start in `learner-model`, a band below; option (a), the trial series of `engine`, not taken; COORDINATION.md, row 4.20 |
-| `learner-model` | В53 | `6bb501df02a5` | R157 and its 2026-11-16 amendment (T173): option (b), the risk accepted now, in version 24 of the DPIA — dpia 7, 8 and 10.2, item 10 |
-| `module-kit` | В36 | `a7719f50f81c` | option 1: COORDINATION rows 2.5 and 3.11, their texts in T172 |
-| `skill-map` | В12 | `bc314de2eccd` | option (a): architecture 3.3; COORDINATION row 6.19 (closed) |
-| `skill-map` | В14 | `04791fad12e6` | T176: one sentence for all, and `measurements` suffixed «spec», as its option (a) |
-| `tutor` | В85 | `d66629cadc52` | T176, one sentence for all rather than a copy's own |
+| `.github` | В41 | `d4456a496679` | option 1: architecture 3.11, card `.github` — the composite action `toolchain` (R49 .github); COORDINATION row 2.5 closed, T69 and T72 `.github` done |
+| `api` | В82 | `32b3cd3e5cf1` | option 1: the 2026-11-17 amendment to R135; the descriptions of `attempt_id`, `package_digest` and `observation` and export 9 — T189, COORDINATION row 1.23; Д263 closes with it; `correction_id` in version 4 — Д267 |
+| `app` | В69 | `06d1aaf478e1` | one answer with `canvas` В82, option 1: the second 2026-11-17 amendment to R36 and the 2026-11-17 amendment to R74; architecture 3.2; the types — T189; COORDINATION rows 1.23 and 6.37 |
+| `canvas` | В82 | `49a7284d0f7e` | as `app` В69; COORDINATION rows 1.23 and 5.19 |
+| `canvas` | В86 | `5780f56f8aa3` | option 1: the third 2026-11-17 amendment to R148; the mockup — T189; COORDINATION rows 1.23, 5.19 and 6.18 |
+| `infra` | В42, В44 | — | removed at source — В42 by T69 `infra`, В44 by T72 `infra`; В44 answered by the 2026-11-17 amendment to R68, the mode `single`; recorded on the author's word (T188), they leave at the next triage |
+| `infra` | В49 | `d0458796c1fa` | option 1: privacy 4, «Logs», and architecture 3.11, the logs; `legal/` unchanged |
+| `infra` | В51 | `c6c0d80248f4` | option (a): the 2026-11-17 amendment to R150; COORDINATION row 6.36; Д152 |
+| `infra` | В52 | `d343f6d1e2e3` | option (a): the fifth 2026-11-17 amendment to R07; COORDINATION row 6.36 |
+| `learner-model` | В54 | `887ae8041541` | option (a), the author's answer of 2026-11-16: the 2026-11-17 amendment to R157 — rows 4.20 and 4.21 done in R103's order, `sim` v0.1.28 and `learner-model` v0.1.13 |
+| `sim` | В33 | `d2a441b49026` | option 1, with В31 and В32, removed at source in c92c331: the 2026-11-17 amendment to R157; dpia 6.2, 7, 8 and 10.2, version 28, whose PDF the author signs (R147) |
+| `tutor` | В89 | `8cc27f8ea1a3` | option (a), the author's answer of 2026-11-16: the 2026-11-17 amendment to R71; product 10 |
+| `tutor` | В91 | `1f887c6a4fe3` | option (a), the author's answer of 2026-11-16: the fifth 2026-11-17 amendment to R149; dpia 8 |
+| `tutor` | В92 | `497d384c76bd` | option (a): the cache of the words' instructions in the Claude adapter, the words' model Opus 5.5 as it is, no decision changed; COORDINATION rows 5.17, 6.34 and 6.35 |
+| `tutor` | В93 | `49561f549ec3` | the author's word of 2026-11-17, not the recommendation: one paid run of Д18 `tutor` now — the fourth 2026-11-17 amendment to R07 and the 2026-11-17 amendment to R51; COORDINATION rows 5.18, 3.12, 6.38 and 6.39 |
+| `tutor` | В94 | `c7a2b1b71eba` | nothing to record: row 5.12 deleted by T187 (rule 4 of COORDINATION.md), `tutor` v0.1.46; the rung "full" — Д19 tutor, П-16 |
