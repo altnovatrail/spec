@@ -10,9 +10,9 @@
 # adds at the end of the stage, such as the browsers of the kind typescript —, and is the stage
 # the automated checks run inside. `devcontainer` adds what a person needs on top of that, and
 # devcontainer.json names it as its target. spec's own file ends with a fourth, `orchestrator`,
-# the devcontainer with the Docker CLI (R156), which `just new-repo` leaves out of a copy: in a
-# copy `devcontainer` is the last stage, the one a build with no target gives, and in spec every
-# build names its stage. A builder that builds every stage before its target builds `orchestrator`
+# the devcontainer with the Docker CLI and the Dev Containers CLI (R156, R158), which
+# `just new-repo` leaves out of a copy: in a copy `devcontainer` is the last stage, the one a
+# build with no target gives, and in spec every build names its stage. A builder that builds every stage before its target builds `orchestrator`
 # for the ordinary configuration too, and the stage builds there as well, without the file only
 # its own configuration writes.
 
@@ -192,7 +192,7 @@ USER vscode
 RUN mkdir -p /home/vscode/.claude /home/vscode/.codex /home/vscode/.config/gh \
         /home/vscode/.vscode-server/extensions
 
-# -- orchestrator: the devcontainer, plus the Docker CLI ---------------------
+# -- orchestrator: the devcontainer, plus the Docker and Dev Containers CLIs --
 #
 # spec's alone, for its second configuration, orchestrator/devcontainer.json, which mounts the
 # host's Docker socket: from here «Сделай эпик E…» runs each task in its repository's container
@@ -235,6 +235,46 @@ RUN arch="$(dpkg --print-architecture)"; \
     tar -C "$workdir" -xzf "$workdir/docker-${DOCKER_VERSION}-${gnu_arch}.tgz" docker/docker; \
     install -m 0755 "$workdir/docker/docker" /usr/local/bin/docker; \
     docker --version; \
+    \
+    rm -rf "$workdir"
+
+# The Dev Containers CLI, `devcontainer`, by which the orchestrator rebuilds a repository's
+# container and creates one a repository never had (R158). It is MIT, has no dependencies, and
+# what it bundles is under MIT, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD and Python-2.0: R12's list
+# all, so it needs no exception (sources 7.8). Its archive comes from the npm registry at its exact
+# version, and is unpacked by hand, as npm would lay out a package with no dependencies, rather than
+# installed by npm: npm would check it against the registry's integrity, not against a sum in this
+# file, and the package has no script of its own to run (sources 9.5).
+ARG DEVCONTAINERS_CLI_VERSION=0.90.0
+# The registry lists the archive's sha512, its integrity, and a SHA-1, and no sha256. So each sum
+# is the sha256 of the archive as it was downloaded over HTTPS on 2026-11-17, checked against the
+# registry's integrity, and is taken the same way with every raise of the version (R34, amendment
+# 2026-11-15; sources 9.5). The package is JavaScript alone: the two sums are one archive's.
+ARG DEVCONTAINERS_CLI_SHA256_AMD64=b3d40fec9d274a303a29ea91a24852887cf287701bc8d340bfc1cf970542495a
+ARG DEVCONTAINERS_CLI_SHA256_ARM64=b3d40fec9d274a303a29ea91a24852887cf287701bc8d340bfc1cf970542495a
+
+# A layer of its own, so that a raise of either version leaves the other's download in the cache.
+# The archive is fetched as the helper above fetches.
+RUN arch="$(dpkg --print-architecture)"; \
+    case "$arch" in \
+        amd64) cli_sha256="$DEVCONTAINERS_CLI_SHA256_AMD64" ;; \
+        arm64) cli_sha256="$DEVCONTAINERS_CLI_SHA256_ARM64" ;; \
+        *) echo "unsupported architecture: $arch" >&2; exit 1 ;; \
+    esac; \
+    workdir="$(mktemp -d)"; \
+    archive="$workdir/devcontainers-cli-${DEVCONTAINERS_CLI_VERSION}.tgz"; \
+    \
+    echo "devcontainers cli ${DEVCONTAINERS_CLI_VERSION}"; \
+    curl -fsSL --proto "=https" --proto-redir "=https" --retry 3 --retry-all-errors \
+        -o "$archive" "https://registry.npmjs.org/@devcontainers/cli/-/cli-${DEVCONTAINERS_CLI_VERSION}.tgz"; \
+    echo "${cli_sha256}  ${archive}" | sha256sum --check --strict -; \
+    install -d /usr/local/lib/devcontainers-cli; \
+    tar -C /usr/local/lib/devcontainers-cli --strip-components=1 --no-same-owner -xzf "$archive" package; \
+    ln -s /usr/local/lib/devcontainers-cli/devcontainer.js /usr/local/bin/devcontainer; \
+    version="$(devcontainer --version)"; \
+    if [[ "$version" != "$DEVCONTAINERS_CLI_VERSION" ]]; then \
+        echo "devcontainer --version says ${version}, not ${DEVCONTAINERS_CLI_VERSION}" >&2; exit 1; \
+    fi; \
     \
     rm -rf "$workdir"
 
