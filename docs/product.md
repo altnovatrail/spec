@@ -98,6 +98,8 @@ A typed answer or a choice is not read by AI: a program checks it at once.
   - Step by step — the app leads through the module's solving steps, and the tutor speaks at each: in olympiad maths these are Pólya's steps.
   - On my own — the learner solves alone, and the tutor answers only when called.
 
+  In either mode the tutor speaks of the work only while its panel is open: with the panel closed, "Check" gives the reading and the program's verdict, and the tutor's words about the last submission come when the learner opens the panel (the second 2026-11-17 amendment to R148).
+
   The default solving mode is chosen by an adult, for a new profile it is "by steps", and the learner switches it on a task (concepts 10).
 - **The screens** are described in the prototype's README ([draft/README.md](../draft/README.md)): subjects and modules, the friend persona, canvases with tools, the steps panel, hints, the check, progress, the section for adults. Their look is the interface mockup — in `draft/mockup/` from RUN.md, T156 — sign-in, "Who's learning?", the home screen, the lesson and the task, the tutor's panel at the side —, and where it differs from the documents, the documents win (R148).
 
