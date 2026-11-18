@@ -13,9 +13,9 @@ const novatrail = novatrailRepositories.map(escape).join("|");
 
 // "… canvas-api" right after a citation. A repository's name counts wherever a word ends with it,
 // MathTrail's and NovaTrail's alike, though most of NovaTrail's are also English words: "R03 modules
-// сравнивает граф" is R03 of modules, and "R10 engine решил" R10 of engine (R32, the 2026-11-08
-// amendment). So the name of a repository never comes right after an own citation as a word of
-// prose: "modules берут его по R07", not "по R07 modules берут".
+// сравнивает граф" is R03 of modules, and "R10 engine решил" R10 of engine. So the name of a
+// repository never comes right after an own citation as a word of prose: "modules берут его по
+// R07", not "по R07 modules берут" (R32).
 const FOREIGN = `(?:${mathtrail}|${novatrail})(?![\\p{L}\\p{N}-])`;
 const FOREIGN_SUFFIX = new RegExp(`^\\s+(?:${FOREIGN})`, "u");
 // "… engine" after О-, П- or Т-: spec's registers wherever they are cited, which no other

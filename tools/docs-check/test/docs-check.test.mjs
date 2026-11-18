@@ -97,6 +97,11 @@ function toolsInto(dir) {
   fs.cpSync(own, path.join(tools, "docs-check"), { recursive: true, filter: (from) => !["test", "budgets.json"].includes(path.relative(own, from).split(path.sep)[0]) });
   fs.cpSync(path.join(here, "..", "..", "shared.mjs"), path.join(tools, "shared.mjs"));
   fs.symlinkSync(path.join(here, "..", "..", "node_modules"), path.join(tools, "node_modules"));
+  // The copy's comments cite spec's log, not the fixture's: dir's budgets read no comments.
+  const budgets = path.join(tools, "docs-check", "budgets.json");
+  const limits = JSON.parse(fs.readFileSync(budgets, "utf8"));
+  delete limits.spec.comments;
+  fs.writeFileSync(budgets, JSON.stringify(limits));
   return path.join(tools, "docs-check", "main.mjs");
 }
 
@@ -305,7 +310,7 @@ test("dates and counts after a section are not sections", async () => {
 
 test("a NovaTrail repository's name after a citation is its suffix, even where the phrase goes on", async () => {
   // "R03 modules сравнивает граф" is R03 of modules, and "R10 engine решил" R10 of engine: neither
-  // is looked up in the own register (R32, the 2026-11-08 amendment).
+  // is looked up in the own register (R32).
   assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02; R99 modules сравнивает граф, R98 engine решил, R97 app и R96 api, and"]]), []);
   assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02, architecture 9.9 canvas говорит, and"]]), []);
   // With the name in code, and in a list, too.
@@ -611,7 +616,7 @@ test("--component runs from a repository's spec/ submodule and checks the reposi
 });
 
 // Cases from В22 .github: a name that no prose has is a suffix wherever a word ends with it — and,
-// since В5 sim, so is every NovaTrail name (R32, the 2026-11-08 amendment).
+// since В5 sim, so is every NovaTrail name (R32).
 
 test(".github and a hyphenated name are another repository's even when the phrase goes on", async () => {
   const edits = [["README.md", "Its own log starts at `R01`.", "Its own log starts at `R01`. R19 .github и его цитаты, R03 module-kit и его рецепты, R06 и R07 skill-map, architecture 9.9 .github и её тексты."]];
@@ -630,7 +635,7 @@ test("a hyphen that goes on is part of another word, not the name", async () => 
 });
 
 // Which files are read: in a repository, those git tracks or does not ignore; elsewhere, all
-// (В29 tutor; R32, the 2026-10-26 amendment).
+// (В29 tutor; R32).
 
 const brokenReport = "# Run\n\n[the sheets](nope.md)\n";
 
@@ -862,7 +867,7 @@ test("an entry with a limit of its own, by its number, and the others with their
   const budgets = ["tools/docs-check/budgets.json", '"entry": 1,\n    "section"', '"entry": 1,\n    "entries": { "R02": 2 },\n    "section"'];
   const grow = (n) => ["docs/decisions.md", "Как R38 canvas-api.", `Как R38 canvas-api.${filler(n)}`];
   assert.deepEqual(await errorsOf([budgets, grow(1500)]), []);
-  // By its number: "R2" is R02.
+  // By its number: `R2` is `R02`.
   assert.deepEqual(await errorsOf([[budgets[0], budgets[1], budgets[2].replace('"R02"', '"R2"')], grow(1500)]), []);
   await expectOnly([budgets, grow(2100)], /^docs\/decisions\.md:11: R02: 2,\d{3} bytes, over its budget of 2 KB \(2,048 bytes\) — tools\/docs-check\/budgets\.json$/);
   await expectOnly([budgets, ["docs/decisions.md", "так проще (раздел 3 лицензии).", `так проще (раздел 3 лицензии).${filler(1100)}`]], /^docs\/decisions\.md:9: R01: 1,\d{3} bytes, over its budget of 1 KB/);
@@ -897,7 +902,7 @@ test("budgets that are wrong are errors, not a check turned off", async () => {
   const file = "tools/docs-check/budgets.json";
   await expectOnly([[file, '"entry": 1,\n    "section"', '"entry": 0,\n    "section"']], /budgets\.json:0: budgets: entry is 0, not a whole number of KB above 0$/);
   await expectOnly([[file, '"rule": 2,', '"rule": 2, "rules": 2,']], /budgets\.json:0: budgets: unknown key "rules"$/);
-  await expectOnly([[file, '"rows": { "run/DEBT.md": 1 }\n  },', '"rows": { "run/DEBT.md": 1.5 }\n  },']], /budgets: rows "run\/DEBT\.md" is 1\.5, not a whole number/);
+  await expectOnly([[file, '"rows": { "run/DEBT.md": 1 },', '"rows": { "run/DEBT.md": 1.5 },']], /budgets: rows "run\/DEBT\.md" is 1\.5, not a whole number/);
   await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": [],']], /budgets: sections is not an object of limits$/);
   await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "R02": 0 },']], /budgets: entries "R02" is 0, not a whole number of KB above 0$/);
   await expectOnly([[file, '"sections": { "product 13": 2 },', '"sections": { "product 13": 2 }, "entries": { "R9": 2 },']], /^tools\/docs-check\/budgets\.json:0: budgets: entries "R9" names no entry of the decision log$/);
@@ -907,7 +912,7 @@ test("budgets that are wrong are errors, not a check turned off", async () => {
   assert.deepEqual(await errorsOf([[file, '"spec"', '"spek"']]), ['tools/docs-check/budgets.json:0: budgets: unknown block "spek"', 'tools/docs-check/budgets.json:0: budgets: no block "spec"']);
   await expectOnly([[file, null, "null\n"]], /budgets\.json:0: budgets: not a JSON object$/);
   await expectOnly([[file, '"RUN.md": 4, "run/DEBT.md": 4', '"RUN.md": 4, "run/DEBT.MD": 4']], /budgets\.json:0: budgets: files "run\/DEBT\.MD" names no file of the repository$/);
-  await expectOnly([[file, '"rows": { "run/DEBT.md": 1 }\n  },', '"rows": { "run/DEBT.md": 1, "debt.md": 1 }\n  },']], /budgets\.json:0: budgets: rows "debt\.md" names no Markdown file of the repository$/);
+  await expectOnly([[file, '"rows": { "run/DEBT.md": 1 },', '"rows": { "run/DEBT.md": 1, "debt.md": 1 },']], /budgets\.json:0: budgets: rows "debt\.md" names no Markdown file of the repository$/);
   await expectOnly([[file, "{", "{,"]], /budgets\.json:0: budgets: not JSON/);
   await expectOnly([[file, null, null]], /budgets\.json:0: budgets: the file is not there$/);
   await expectOnly([[file, null, null], [`${file}/x`, null, "{}"]], /budgets\.json:0: budgets: the file cannot be read: EISDIR$/);
@@ -935,6 +940,42 @@ test("a repository is checked only once it has docs-budgets.json, by spec's bloc
   await componentOnly([["docs-budgets.json", null, "{}\n"], ["spec/tools/docs-check/budgets.json", '"rows": { "run/DEBT.md": 1, "run/TASKS.md": 1 }', '"rows": { "run/DEBT.MD": 1, "run/TASKS.md": 1 }']], /^spec\/tools\/docs-check\/budgets\.json:0: budgets: rows "run\/DEBT\.MD" names no Markdown file of the repository$/);
   // The repository's own decision log and sections, by the block "repository".
   await componentOnly([["docs-budgets.json", null, "{}\n"], ["docs/architecture.md", "Пока пусто.", `Пока пусто.${filler(1100)}`]], /^docs\/architecture\.md:\d+: section 3: 1,\d{3} bytes/);
+});
+
+// The numbers of decisions in comments of code (R32): the fixture's log holds R01–R03, and its
+// block "spec" turns the check on.
+test("a number of a decision in a comment names an entry of the log", async () => {
+  const code = (file, text) => [file, null, text];
+  await expectOnly([code("tools/a.mjs", "// Why (R09).\nconst a = 1;\n")], /^tools\/a\.mjs:1: R09 in a comment names no entry of the decision log \(docs\/decisions\.md\)$/);
+  await expectOnly([code("tools/a.mjs", "const a = 1;\n/* one\n * R2 */\n")], /^tools\/a\.mjs:3: R2 in a comment: write R02$/);
+  await expectOnly([code(".github/workflows/a.yml", "on: push\n# Why (R04).\n")], /^\.github\/workflows\/a\.yml:2: R04 in a comment names no entry/);
+  await expectOnly([code("justfile", "a:\n    echo \"R09\" # R08\n")], /^justfile:2: R08 in a comment/);
+  await expectOnly([code("x/Dockerfile", "# R07\nFROM a\n")], /^x\/Dockerfile:1: R07 in a comment/);
+  await expectOnly([code("a.go", "package a\n\n// The anchor\n// (R05,\n// R03).\n")], /^a\.go:4: R05 in a comment/);
+  const fine = [
+    code("tools/a.mjs", "// (R01; R02 spec) R37 canvas-api, R03 api, `R99` and \"standalone: `x/y`, R163\".\nconst a = \"R99\"; const b = `R98 ${c}`;\n"),
+    code("tools/b.ts", "// Code generated by a tool. DO NOT EDIT.\n// R99\n"),
+    code("a.sh", "echo \"# R99\"\n"),
+    code("a.md", "Not code: R03.\n"),
+    code("a.json", '{ "R99": 1 }\n'),
+  ];
+  assert.deepEqual(await errorsOf(fine), []);
+  // Without the switch nothing is read; a switch that is not true or false is an error.
+  const off = ["tools/docs-check/budgets.json", '"rows": { "run/DEBT.md": 1 },\n    "comments": true', '"rows": { "run/DEBT.md": 1 }'];
+  assert.deepEqual(await errorsOf([off, code("tools/a.mjs", "// R09\n")]), []);
+  await expectOnly([["tools/docs-check/budgets.json", '"comments": true', '"comments": "yes"']], /^tools\/docs-check\/budgets\.json:0: budgets: comments is "yes", not true or false$/);
+});
+
+test("in a repository, comments are checked once its docs-budgets.json turns them on", async () => {
+  const code = ["tools/a.mjs", null, "// R01; R02 spec; R03 api.\n// R09 spec.\n"];
+  assert.deepEqual(await componentErrors([code]), []);
+  assert.deepEqual(await componentErrors([code, ["docs-budgets.json", null, "{}\n"]]), []);
+  assert.deepEqual(await componentErrors([code, ["docs-budgets.json", null, '{ "comments": true }\n']]), [
+    "tools/a.mjs:1: R01 in a comment names no entry of the decision log (docs/decisions.md)",
+    "tools/a.mjs:2: R09 in a comment names no entry of the decision log (spec/docs/decisions.md)",
+  ]);
+  // spec/ is spec's, not the repository's.
+  assert.deepEqual(await componentErrors([["spec/tools/a.mjs", null, "// R09\n"], ["docs-budgets.json", null, '{ "comments": true }\n']]), []);
 });
 
 test("spec's own budgets.json is well formed, and names files that are there", () => {

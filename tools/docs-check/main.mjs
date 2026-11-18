@@ -5,17 +5,18 @@
 //   node tools/docs-check/main.mjs --component the repository this spec is the submodule of
 //
 // The root is never a path from the command line: given to git as its working directory, such a
-// path would let whoever writes the command run git in any folder (R32, the 2026-10-26 amendment).
+// path would let whoever writes the command run git in any folder (R32).
 //
 // Reads every Markdown file of root — in a repository, those git tracks and those its .gitignore
 // files do not keep out — and checks that relative links lead somewhere, that cited sections
 // exist, that the registers are numbered without gaps and every cited number exists, that no
 // number is typed in the wrong script, that every Mermaid diagram parses, and that each rule of
 // .claude/rules/ has paths that match files of root and is named in CLAUDE.md, and that files,
-// rules, decision entries, sections and rows of tables keep within their budgets of size. In a
-// repository of its own, citations of spec — "architecture 3.8 spec", "R18 spec", "Т-15" — are
-// checked against its spec/ submodule, at the tag it is pinned to, and spec/ itself is not
-// checked. Prints one line per error, file:line: message, and exits 1 if there are any.
+// rules, decision entries, sections and rows of tables keep within their budgets of size, and,
+// where the budgets turn it on, that each number of a decision in a comment of code names an entry
+// of its log. In a repository of its own, citations of spec — "architecture 3.8 spec", "R18 spec",
+// "Т-15" — are checked against its spec/ submodule, at the tag it is pinned to, and spec/ itself is
+// not checked. Prints one line per error, file:line: message, and exits 1 if there are any.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -29,6 +30,7 @@ import { findWrongScript, scopeAfter } from "./citations.mjs";
 import { checkDiagrams } from "./mermaid.mjs";
 import { checkRules, isRule, splitFrontMatter } from "./rules.mjs";
 import { checkBudgets, readBudgets } from "./budgets.mjs";
+import { checkComments } from "./comments.mjs";
 import { execFileSync } from "node:child_process";
 import { GIT, byCodeUnits, isMain } from "../shared.mjs";
 
@@ -85,6 +87,7 @@ export async function check(root, profile = specProfile) {
   stats.rules = checkRules(files, matchable, report);
   const budgets = readBudgets(root, profile.budgets, report);
   stats.budgets = budgets ? checkBudgets(root, files, budgets, profile, report) : 0;
+  stats.comments = budgets?.comments ? checkComments(root, listed, (scope) => registerOf("R", scope), report) : 0;
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line);
   return { errors, stats };
@@ -95,7 +98,7 @@ export async function check(root, profile = specProfile) {
 // has its files listed by git: the tracked ones still in the working tree and the untracked ones
 // that the repository's .gitignore files do not keep out. So a document not committed yet is read,
 // and what the repository keeps out of git, such as tutor's samples/, is not: git does not even
-// enter a folder it ignores (R32, the 2026-10-26 amendment). Only the repository's own rules
+// enter a folder it ignores (R32). Only the repository's own rules
 // count, not the user's global ones or .git/info/exclude, so the list is the same on every machine.
 // If git cannot list the files, `fail` hears why, and the result is null. A root without a .git —
 // a draft new-repo built, the copies of the tests — is walked whole. What `excluded` names is left
@@ -204,7 +207,7 @@ if (isMain(import.meta.url)) {
   } else {
     console.log(
       `docs-check: ok — ${stats.files} files, ${stats.links} links, ${stats.sections} sections, ` +
-        `${stats.numbers} numbers, ${stats.diagrams} diagrams, ${stats.rules} rules, ${stats.budgets} budgets`,
+        `${stats.numbers} numbers, ${stats.diagrams} diagrams, ${stats.rules} rules, ${stats.budgets} budgets, ${stats.comments} numbers in comments`,
     );
   }
 }

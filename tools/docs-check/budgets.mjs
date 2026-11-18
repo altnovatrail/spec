@@ -20,6 +20,8 @@
 //   next heading of any depth, and the text above its first heading; sections names a limit of its
 //   own for a numbered one: "concepts 15";
 // - rows — each row of every table of the file named.
+// The block, or a repository's file, may also hold "comments": true, which is no limit: it turns on
+// the check of the numbers of decisions in comments of code (comments.mjs; R32).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -32,6 +34,7 @@ const KB = 1024;
 // for one it lacks is an error.
 const OPTIONAL = ["run/TASKS.md"];
 const LIMITS = ["rule", "entry", "section"];
+const SWITCHES = ["comments"];
 const MAPS = ["files", "entries", "sections", "rows"];
 const bytes = (n) => n.toLocaleString("en-US");
 
@@ -56,12 +59,15 @@ export function readBudgets(root, settings, report) {
     report(settings.file, 0, `budgets: no block "${settings.block}"`);
     return null;
   }
-  const limits = { files: {}, entries: {}, sections: {}, rows: {} };
+  const limits = { files: {}, entries: {}, sections: {}, rows: {}, comments: false };
   const take = (block, from) => {
     for (const [key, value] of Object.entries(block)) {
       if (LIMITS.includes(key)) {
         if (isKb(value)) limits[key] = { kb: value, from };
         else report(from, 0, `budgets: ${key} is ${JSON.stringify(value)}, not a whole number of KB above 0`);
+      } else if (SWITCHES.includes(key)) {
+        if (typeof value === "boolean") limits[key] = value;
+        else report(from, 0, `budgets: ${key} is ${JSON.stringify(value)}, not true or false`);
       } else if (MAPS.includes(key) && isObject(value)) {
         for (const [name, kb] of Object.entries(value)) {
           if (isKb(kb)) limits[key][name] = { kb, from };
@@ -117,7 +123,7 @@ export function checkBudgets(root, files, limits, profile, report) {
   const register = profile.registers.find((r) => r.prefix === "R");
   const log = register?.file;
   const doc = log && files.get(log);
-  // An entry's own limit is named by its number, "R4" and "R04" alike.
+  // An entry's own limit is named by its number, `R4` and `R04` alike.
   const own = new Map();
   for (const [key, limit] of Object.entries(limits.entries)) {
     const number = /^R\d+$/.test(key) ? Number(key.slice(1)) : key;

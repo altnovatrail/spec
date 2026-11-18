@@ -11,6 +11,10 @@ import { cachedBy } from "../shared.mjs";
 // such as "standalone: `tools/learners`, R163" has to keep its shape.
 export const CODE = "\uE000";
 
+// What inline code stands as in a text that is read for citations: a name in code, such as a
+// repository's `api`, still reads as a word, "R3 `api`"; anything else is CODE.
+export const inlineCode = (value) => (/^[\p{L}.][\p{L}-]*$/u.test(value) ? value : CODE);
+
 // Whether a heading opens a table of the work plan: `heading` is its prefix, "Table 3.". Every plan
 // is in English (R154; T177), so «Таблица 3. …» opens none that is read; with `old`, it
 // does, for a copy left where the table lived before.
@@ -163,8 +167,7 @@ export class Block {
         this.#push(node.value, node);
         return;
       case "inlineCode":
-        // A name in code, such as a repository's `api`, still reads as a word: "R3 `api`".
-        this.#push(/^[\p{L}.][\p{L}-]*$/u.test(node.value) ? node.value : CODE, node);
+        this.#push(inlineCode(node.value), node);
         return;
       case "break":
         this.#push("\n", node);

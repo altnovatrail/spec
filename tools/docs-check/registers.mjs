@@ -7,7 +7,7 @@
 import { findNumbers } from "./citations.mjs";
 import { isTableHeading } from "./markdown.mjs";
 
-const canonical = (register, number) => String(number).padStart(register.width, "0");
+export const canonical = (register, number) => String(number).padStart(register.width, "0");
 const label = (register, digits) => `${register.prefix}${digits}`;
 
 // Reads each register from its file: a Map from prefix to { register, numbers: Set, next }.
