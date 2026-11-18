@@ -99,7 +99,9 @@ function toolsInto(dir) {
   fs.symlinkSync(path.join(here, "..", "..", "node_modules"), path.join(tools, "node_modules"));
   // The copy's comments cite spec's log, not the fixture's: dir's budgets read no comments.
   const budgets = path.join(tools, "docs-check", "budgets.json");
-  fs.writeFileSync(budgets, fs.readFileSync(budgets, "utf8").replace(/,\n\s*"comments": true/, ""));
+  const limits = JSON.parse(fs.readFileSync(budgets, "utf8"));
+  delete limits.spec.comments;
+  fs.writeFileSync(budgets, JSON.stringify(limits));
   return path.join(tools, "docs-check", "main.mjs");
 }
 
