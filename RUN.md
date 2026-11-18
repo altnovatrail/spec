@@ -88,7 +88,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T196 | Анализ токенов по порогу R145: третье повышение бюджета | Claude | — | T203 |
 | [x] | T208 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей | Claude | — | T203 |
 | [x] | T209 | Документы `spec`: architecture 1, 2, 3.1–3.6 | Claude | — | T203 |
-| [ ] | T210 | Документы `spec`: architecture 3.7–8 | Claude | — | T209 |
+| [x] | T210 | Документы `spec`: architecture 3.7–8 | Claude | — | T209 |
 | [ ] | T211 | Документы `spec`: privacy | Claude | — | T203 |
 | [ ] | T212 | Документы `spec`: concepts | Claude | — | T203 |
 | [ ] | T213 | Комментарии кода: `tools/format-check/`, `tools/types/` | Claude | — | T205 |
@@ -103,13 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T210. Документы `spec`: architecture 3.7–8
-
-- **Цель:** как T209 — для architecture 3.7–3.13 и 4–8 (≈ 95 КБ).
-- **Сделать:** как T209.
-- **Как проверить:** `just docs-check`; `/code-review high`.
-- **Разделы:** architecture 3.7–8; T209.
 
 #### T211. Документы `spec`: privacy
 
