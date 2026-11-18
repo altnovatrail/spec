@@ -81,7 +81,8 @@
       "run/TASKS.md": 48
     },
     "rule": 6,
-    "entry": 40,
+    "entry": 12,
+    "comments": true,
     "section": 24,
     "sections": {},
     "rows": {
