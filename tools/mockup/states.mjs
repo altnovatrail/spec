@@ -12,12 +12,14 @@ export const OLYMPIAD = "Olympiad maths 1–6";
 export const WORKBOOK = "School maths · grade 3";
 export const ESSAYS = "Short essays";
 
-// What a step gets: the component of Main.dc.html, its values now, and synthetic work on the sheet.
-export function helpers(c) {
+// What a step gets: the component of Main.dc.html, its values now, synthetic work on the sheet, and the app's
+// clock for a step that must let a timer end — a Check — before the next one.
+export function helpers(c, app) {
   const v = () => c.renderVals();
   return {
     c,
     v,
+    settle: () => app && app.settle(),
     les: () => v().les,
     // A stroke of the pen on the sheet or page open now: synthetic, no learner's work.
     ink: (d = "M300 420 C330 400 360 440 390 420") => {
@@ -151,20 +153,16 @@ export const STATES = [
   { name: "essay-feedback", title: "An essay, its feedback", from: "essay", shows: "Feedback", run: (t) => (t.c.closeChat(), t.ink(), t.les().check()) },
   { name: "essay-done", title: "An essay, Done: the marks by the criteria", from: "essay-feedback", shows: "Not assessed", run: (t) => t.les().essayDone() },
 
-  // What comes later — the children, and the paper flow — under "Later".
-  { name: "later-who", title: "Later: Who's learning?, with the children", slice: "later", from: "who", shows: "Juniper", run: (t) => t.v().sliceLater() },
-  { name: "later-add", title: "Later: Add a learner, a parent's consent", slice: "later", from: "later-who", shows: "A parent’s consent", run: (t) => t.v().openAdd() },
-  { name: "later-pin", title: "Later: the owner's PIN", slice: "later", from: "later-who", shows: "Enter your PIN", run: (t) => t.v().profiles.find((p) => p.owner).pick() },
-  { name: "later-home", title: "Later: a child's home, Take from my paper", slice: "later", from: "later-who", shows: "Take from my paper", run: (t) => t.v().profiles[0].pick() },
-  { name: "later-help", title: "Later: a child's Help", slice: "later", from: "later-home", shows: "call a helpline", run: (t) => t.v().toggleHelp() },
-  { name: "later-pip", title: "Later: Pip, a child's tutor", slice: "later", from: "later-home", shows: "Hi, I’m Pip", run: (t) => (lesson(OLYMPIAD)(t), cont(t), cont(t)) },
-  { name: "later-camera", title: "Later: the camera", slice: "later", from: "later-home", shows: "Worksheet", run: (t) => t.v().openCamera() },
-  { name: "later-pick", title: "Later: the tasks found on the page", slice: "later", from: "later-camera", shows: "tap to pick", run: (t) => t.v().capture() },
+  // Take from my paper, the main feature of the app, open to every profile: the camera, the tasks the AI
+  // found on the page and one framed by hand, each picked task on a clean sheet under its crop, Check by the key.
+  { name: "camera", title: "The camera of the paper flow", from: "home", shows: "Worksheet", run: (t) => t.v().openCamera() },
+  { name: "pick", title: "The tasks the AI found on the page, every one picked", from: "camera", shows: "tap one to leave it out", run: (t) => t.v().capture() },
+  // A loop drawn round equation (6), which the AI missed: its box becomes the learner's frame.
+  { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([[310, 598], [576, 598], [576, 644], [310, 644]]) },
   {
-    name: "later-solve",
-    title: "Later: a task from the page, on a clean sheet",
-    slice: "later",
-    from: "later-pick",
+    name: "solve",
+    title: "A task from the page, on a clean sheet",
+    from: "pick-frame",
     shows: "from your page",
     run: (t) => {
       t.v().regions[1].toggle();
@@ -172,10 +170,40 @@ export const STATES = [
       t.v().start();
     },
   },
-  { name: "later-snap", title: "Later: Snap work, read", slice: "later", from: "later-solve", shows: "Read on your photo", run: (t) => t.v().snap() },
-  { name: "later-tasks", title: "Later: the picked tasks", slice: "later", from: "later-solve", shows: "Key · solver", run: (t) => t.v().toggleTasks() },
-  { name: "later-hints", title: "Later: the adult's hint mode", slice: "later", from: "later-solve", shows: "Show where", run: (t) => t.v().toggleProfile() },
-  { name: "later-kinds", title: "Later: the canvas kinds", slice: "later", from: "later-solve", shows: "Number line", run: (t) => t.v().toggleMore() },
+  { name: "solve-tasks", title: "The list of the picked tasks", from: "solve", shows: "Framed by you", run: (t) => t.v().toggleTasks() },
+  { name: "solve-empty", title: "Check without work", from: "solve", shows: "Write your solution first", run: (t) => t.v().check() },
+  { name: "solve-reading", title: "The work being read", from: "solve", shows: "Reading your work", settle: false, run: (t) => (t.ink(), t.v().check()) },
+  { name: "solve-not-yet", title: "Not yet, and the tutor's wavy mark where the mistake is", from: "solve", shows: "Not yet", run: (t) => (t.ink(), t.v().check()) },
+  { name: "solve-correct", title: "Correct", from: "solve-not-yet", shows: "Correct", run: (t) => t.v().check() },
+  {
+    name: "solve-all",
+    title: "Every task of the page over",
+    from: "pick",
+    shows: "All 1 done",
+    run: (t) => {
+      t.v().selectAll();
+      t.v().regions[0].toggle();
+      t.v().start();
+      t.ink();
+      t.v().check();
+      t.settle();
+      t.v().check();
+      t.settle();
+      t.v().next();
+    },
+  },
+  { name: "olympiad", title: "A problem of an olympiad book: an option is circled on the crop", from: "camera", shows: "Problem 1", run: (t) => (t.v().demoOl(), t.v().capture(), t.settle(), t.v().start()) },
+  { name: "solve-circle", title: "Check with no option circled", from: "olympiad", shows: "Circle an answer first", run: (t) => t.v().check() },
+  { name: "solve-nokey", title: "A task that could not be checked: the two readings differed", from: "olympiad", shows: "Couldn’t check this one", run: (t) => (t.v().taskRows[4].pick(), t.ink(), t.v().check()) },
+
+  // What comes later — the children, and the paper flow — under "Later".
+  { name: "later-who", title: "Later: Who's learning?, with the children", slice: "later", from: "who", shows: "Juniper", run: (t) => t.v().sliceLater() },
+  { name: "later-add", title: "Later: Add a learner, a parent's consent", slice: "later", from: "later-who", shows: "A parent’s consent", run: (t) => t.v().openAdd() },
+  { name: "later-pin", title: "Later: the owner's PIN", slice: "later", from: "later-who", shows: "Enter your PIN", run: (t) => t.v().profiles.find((p) => p.owner).pick() },
+  { name: "later-home", title: "Later: a child's home", slice: "later", from: "later-who", shows: "Take from my paper", run: (t) => t.v().profiles[0].pick() },
+  { name: "later-help", title: "Later: a child's Help", slice: "later", from: "later-home", shows: "call a helpline", run: (t) => t.v().toggleHelp() },
+  { name: "later-pip", title: "Later: Pip, a child's tutor", slice: "later", from: "later-home", shows: "Hi, I’m Pip", run: (t) => (lesson(OLYMPIAD)(t), cont(t), cont(t)) },
+  { name: "later-kinds", title: "Later: the canvas kinds of other authors", slice: "later", from: "later-home", shows: "Number line", run: (t) => (t.v().openCamera(), t.v().capture(), t.settle(), t.v().start(), t.v().toggleMore()) },
 ];
 
 const BY_NAME = new Map(STATES.map((s) => [s.name, s]));
@@ -194,7 +222,7 @@ export function chain(name) {
 // Brings the app with its Main to the state name: each step of the chain, settled; the last one
 // settled unless it says not to, so that a snapshot shows the state the step leaves.
 export function reach(app, comp, name) {
-  const t = helpers(comp);
+  const t = helpers(comp, app);
   const steps = chain(name);
   steps.forEach((s, i) => {
     s.run(t);
