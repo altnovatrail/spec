@@ -38,3 +38,4 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
   - предложения с оценкой минут на задачу; решения — вопросами автору.
 - **Как проверить:** `just docs-check`; числа замера воспроизводятся командой, записанной рядом с ними; `/code-review high`, один круг.
 - **Разделы:** R143, R156; measurements 1.13, 1.14; T200; `tools/orchestrator/executor.md`.
+- **Выяснилось при выполнении (2026-11-18):** замер — measurements 1.15, записи sources 2.15 и 11.3; решения — вопросы автору В66–В68 `run/QUESTIONS.md`.
