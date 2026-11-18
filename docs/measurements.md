@@ -1237,7 +1237,7 @@ if (process.env.ALL) for (const k of Object.keys(S).sort((a, b) => S[b].carried 
 
 ### 1.15. The time of the executors' tasks, T201, 2026-11-18
 
-Where the time of the orchestrator's executors goes besides the model — the loops of tests and CI, the cores of the container, the waits on long runs — and what would shorten it (run/TASKS.md, T201; R143, R156). Measured 2026-11-18 on the volume `novatrail-claude`, read-only: the transcripts of the executors, the runs of `tools/orchestrator` and the sampler of CPU of the epic `coord-2026-11-16`; and on the GitHub API, read-only. Nothing was changed in any repository. The commands are section 1.15.6.
+Where the time of the orchestrator's executors goes besides the model — the loops of tests and CI, the cores of the container, the waits on long runs — and what would shorten it (run/TASKS.md, T201; R143, R156). Measured 2026-11-18 on the volume `novatrail-claude`, read-only: the transcripts of the executors, the runs of `tools/orchestrator` and the sampler of CPU of the epic `coord-2026-11-16`; and on the GitHub API, read-only. Nothing was changed in any repository. The commands are section 1.15.6. The orchestrator's choices of 2026-11-18 on В66–В68, each by the recommendation and before the author's check, are R159.
 
 **The sample.** Every session of an executor, `entrypoint: sdk-cli`, that started from 2026-11-16T00:00 to 2026-11-18T05:30 UTC, read until 05:30: 230 sessions of 3 minutes or more, 116.7 hours. `learner-model` T61 is left out: 694 minutes, most of them runs of `sim` (section 1.13; R157).
 - *Active time* is the session's wall time without its gaps of more than 15 minutes with no tool call outstanding: those are waits for a resume, not the model.
