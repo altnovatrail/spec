@@ -7,7 +7,7 @@
 // Only a commit that gets a release is checked, and only against a release that carried the
 // format as files, of FIRST_FILES_LINE or a later line: a commit released already, or behind the
 // newest release, gets none, and the releases of the lines before carried 0.1 as a draft. Then
-// format/VERSION at the commit and at the release before it, previous=, follow R44:
+// format/VERSION at the commit and at the release before it, previous=, hold to these rules (R44):
 //
 //   - the same version, in the same line or a raised one;
 //   - another version, only a higher one and only in a raised line, so that a line holds one
@@ -46,7 +46,7 @@ export function checked({ version, previous }) {
   return Boolean(version) && Boolean(previous) && compareLines(lineOf(previous), FIRST_FILES_LINE) >= 0;
 }
 
-// R44's rules, for the release of version after previous, with the format versions at each.
+// The rules for the release of version after previous, with the format versions at each (R44).
 export function checkFormatLine({ version, previous, formatNow, formatThen }) {
   const line = lineOf(version);
   const previousLine = lineOf(previous);

@@ -35,7 +35,6 @@ export function checkLinks(files, root, report, { context = files, locate = (res
   return count;
 }
 
-// A URL with a scheme, or one that starts with "//", leads outside the repository's files.
 export const isExternal = (url) => /^[a-z][a-z0-9+.-]*:/i.test(url) || url.startsWith("//");
 
 // The target as a path relative to the root, or null when it leaves the root.

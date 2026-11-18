@@ -1,13 +1,11 @@
-// contracts: the code buf generates from the API contracts, put beside the files it comes from
-// (R83; contracts/README.md, section 8; RUN.md, T55).
+// contracts: the code buf generates from the API contracts, put beside the files it comes from.
 //
 //   node tools/contracts/generate.mjs      spec's own contracts/, two levels above this file
 //
-// buf generate writes the code of buf.gen.yaml into a new folder; then every generated file of
-// contracts/ goes, and the new ones take their place, so that a file no .proto gives any more goes
-// too, as just types puts the types of the format in place. buf does not run while buf.yaml or
-// buf.gen.yaml breaks R83, nor while a file of contracts/ is not where the layout has it; with no
-// .proto file, only the generated files go.
+// Every generated file of contracts/ is replaced, so that a file no .proto gives any more goes too,
+// as just types puts the types of the format in place. buf does not run while buf.yaml or
+// buf.gen.yaml breaks its rules, nor while a file of contracts/ is not where the layout has it
+// (R83).
 
 import fs from "node:fs";
 import os from "node:os";

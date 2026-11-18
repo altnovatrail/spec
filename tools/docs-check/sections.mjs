@@ -1,18 +1,18 @@
-// Citations of sections — "product 7", "architecture 3.5, 4", "раздел 9.4", "section 15" —
-// lead to sections that exist. "architecture 3.8 spec" is a section of spec's architecture; in a
-// repository of its own, bare "architecture 2" is the repository's.
+// Citations of sections — `product 7`, `architecture 3.5, 4`, `раздел 9.4`, `section 15` —
+// lead to sections that exist. `architecture 3.8 spec` is a section of spec's architecture; in a
+// repository of its own, bare `architecture 2` is the repository's.
 //
-// Which document "раздел N" means:
-// - the one linked right before it: "[privacy.md](privacy.md), раздел 10", "… (раздел 10)".
+// Which document `раздел N` means:
+// - the one linked right before it: `[privacy.md](privacy.md), раздел 10`, `… (раздел 10)`.
 //   A link outside the repository there makes it a section of another text, not checked; a link
 //   to a file that is not Markdown, or to an anchor, leaves it to the rules below;
 // - else, in a list item under one whose last link leads outside the repository, a section of
-//   that text: "- standalone, [SPEC.md](https://…)" over "  - раздел 2.8 — …";
+//   that text: `- standalone, [SPEC.md](https://…)` over `  - раздел 2.8 — …`;
 // - else the document it stands in, when that document has numbered sections;
 // - else the last document linked earlier in the same block, as in CLAUDE.md's list of documents;
 // - else, in a repository of its own, its docs/architecture.md: the document its RUN.md speaks of
-//   as "раздел 3". Its docs/sources.md and docs/measurements.md have numbered sections too, once
-//   they have records, but they are cited by name: "sources 1.1", "measurements 1".
+//   as `раздел 3`. Its docs/sources.md and docs/measurements.md have numbered sections too, once
+//   they have records, but they are cited by name: `sources 1.1`, `measurements 1`.
 
 import { findSections } from "./citations.mjs";
 import { decode, isExternal, resolveLink } from "./links.mjs";
@@ -39,7 +39,7 @@ export function checkSections(files, context, profile, report) {
         } else {
           target = targetOf(context, file, block, citation.start, profile.sectionsDocument);
           if (target === ELSEWHERE) continue;
-          // "раздел 9 spec" is a section of spec's: of the spec document linked right before it.
+          // `раздел 9 spec` is a section of spec's: of the spec document linked right before it.
           if (profile.spec && citation.scope === "spec" && !target?.startsWith("spec/")) {
             report(file, line, `"${quoted}": a section of spec's document; cite it by name — "architecture 3.8 spec" — or link the document right before it`);
             continue;
@@ -64,7 +64,7 @@ export function checkSections(files, context, profile, report) {
   return count;
 }
 
-// A section of a text outside the repository: "[SPEC.md](https://…), раздел 6".
+// A section of a text outside the repository: `[SPEC.md](https://…), раздел 6`.
 const ELSEWHERE = Symbol("elsewhere");
 
 function targetOf(files, file, block, start, fallback) {

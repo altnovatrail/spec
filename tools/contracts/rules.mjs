@@ -9,9 +9,7 @@ import { LineCounter, isMap, isSeq, parseDocument } from "yaml";
 // Where the rules come from, named in each message.
 const TEXT = "contracts/README.md";
 
-// buf.yaml, as R83 fixes every part of it: one module, contracts/, no deps, the lint categories
-// STANDARD, COMMENTS and UNARY_RPC with no exception and no comment that switches a rule off, and
-// the breaking category FILE.
+// buf.yaml, every part of it fixed (R83).
 export const BUF_YAML = {
   version: "v2",
   modules: [{ path: "contracts" }],
@@ -100,8 +98,8 @@ export function checkBufYaml(text) {
 }
 
 // buf.gen.yaml: buf generates from the workspace of buf.yaml alone, with local plugins only, into
-// contracts/, and never cleans a folder (R83; the text, section 8). Which plugins and which of
-// their options is the file's: the generated code is held to what it gives.
+// contracts/, and never cleans a folder (R83). Which plugins and which of their options is the
+// file's: the generated code is held to what it gives.
 export function checkBufGenYaml(text) {
   const file = "buf.gen.yaml";
   const { value, lineAt, error } = read(file, text);
@@ -138,12 +136,9 @@ export function checkBufGenYaml(text) {
   return errors;
 }
 
-// The layout of contracts/ (the text, section 3): its text, the module of the generated Go code
-// with the package that embeds the test vectors, vectors.go and its test, the contracts,
-// contracts/novatrail/<part>/vN/<name>.proto, the code buf generates from each — <name>.pb.go,
-// <part>vNconnect/<name>.connect.go, <name>_pb.js and <name>_pb.d.ts beside it —, the test
-// vectors of a package, contracts/vectors/<part>/vN/<case>.json (the text, section 10), and the
-// examples of a package, contracts/examples/<part>/vN/<case>.json (the text, section 11).
+// The layout of contracts/: its text, the module of the generated Go code with the package that
+// embeds the test vectors, vectors.go and its test, the contracts, the code buf generates from
+// each beside it, and the test vectors and the examples of a package.
 const NAME = "[a-z][a-z0-9_]*";
 const FOLDER = `contracts/novatrail/(${NAME})/v([1-9][0-9]*)`;
 const PROTO = new RegExp(`^${FOLDER}/(${NAME})\\.proto$`);
@@ -195,10 +190,10 @@ export function unknownFile(file) {
 }
 
 // What buf lets pass in a file, by the image buf builds of contracts/, with its source info: the
-// syntax (the text, section 4), the prefix of the package (section 3), and of every field, at any
-// depth, a json_name set in the file (section 6) or an unsigned type (section 5) — a scalar, a
-// wrapper of one, or the key of a map, which the image holds as the field key of the map's entry,
-// a nested message of its own with no place in the file but its map field's.
+// syntax, the prefix of the package, and of every field, at any depth, a json_name set in the file
+// or an unsigned type — a scalar, a wrapper of one, or the key of a map, which the image holds as
+// the field key of the map's entry, a nested message of its own with no place in the file but its
+// map field's.
 const UNSIGNED = new Set(["TYPE_UINT32", "TYPE_UINT64", "TYPE_FIXED32", "TYPE_FIXED64"]);
 const UNSIGNED_WRAPPERS = new Set([".google.protobuf.UInt32Value", ".google.protobuf.UInt64Value"]);
 // The field numbers of descriptor.proto that the paths of the source info go through.

@@ -50,7 +50,7 @@ function bufErrors(result, command, file) {
   return errors;
 }
 
-// buf on the workspace at root: build, its image into a temporary folder, read back as JSON.
+// The image buf builds of the workspace at root, as JSON, or the errors buf reports.
 export function build(root, buf = BUF) {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), "contracts-image-"));
   try {
@@ -67,8 +67,7 @@ export function lint(root, buf = BUF) {
   return bufErrors(run(buf, ["lint", "--error-format", "json"], root), "lint", "buf.yaml");
 }
 
-// Each .proto file buf format would write otherwise: buf writes the formatted module into a
-// temporary folder, and each file is compared with it.
+// An error for each .proto file that buf format would write otherwise.
 export function format(root, protos, buf = BUF) {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), "contracts-format-"));
   try {
@@ -85,14 +84,12 @@ export function format(root, protos, buf = BUF) {
   }
 }
 
-// The release spec's buf breaking compares with (R83): the newest release tag in the history of
-// HEAD, other than a tag of HEAD itself — unless the working tree changes buf.yaml or contracts/:
-// what it would commit comes after HEAD, so a release of HEAD is the previous one then (the
-// amendment of 2026-11-04 to R83), as tools/release/previous.mjs finds it. Its buf.yaml and
-// contracts/, as git archive gives them, go into folder, when one is named and the release has a
-// .proto file. Returns the tag and how many .proto files it has, or null when HEAD descends from
-// no release. A shallow clone has no tags to count from and is refused, as release-version
-// refuses it.
+// The release buf breaking compares with: the newest release tag in the history of HEAD, other
+// than a tag of HEAD itself — unless the working tree changes buf.yaml or contracts/: what it
+// would commit comes after HEAD, so a release of HEAD is the previous one then. Its buf.yaml and
+// contracts/ are unpacked into folder, when one is named and the release has a .proto file.
+// Returns the tag and how many .proto files it has, or null when HEAD descends from no release. A
+// shallow clone has no tags to count from and is refused, as release-version refuses it (R83).
 export function previousRelease(root, folder = null) {
   const tag = previousReleaseTag(root, ["buf.yaml", "contracts"]);
   if (!tag) return null;
@@ -109,7 +106,6 @@ export function previousRelease(root, folder = null) {
   return { tag, protos: protos.length };
 }
 
-// buf breaking against the release unpacked in folder.
 export function breaking(root, folder, tag, buf = BUF) {
   const result = run(buf, ["breaking", "--against", folder, "--error-format", "json"], root);
   return bufErrors(result, `breaking against ${tag}`, "buf.yaml");

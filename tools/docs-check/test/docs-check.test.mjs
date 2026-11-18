@@ -146,7 +146,7 @@ test("a section in a list and in a range", async () => {
   await expectOnly([["docs/repositories.md", "architecture 3, 3.6", "architecture 3, 3.7"]], /has no section 3\.7$/);
   await expectOnly([["docs/concepts.md", "в разделе 2.", "в разделах 1–3."]], /docs\/concepts\.md has no section 3$/);
   // The last number of a range is a section even when a word follows it, and a count after a comma
-  // is not one (T124 measured "measurements 1.1–1.99 records" passing).
+  // is not one.
   const range = (text) => [["docs/architecture.md", "(repositories 8; privacy 9)", `(repositories 8; privacy 9; ${text})`]];
   await expectOnly(range("product 13.1–13.9 records"), /^docs\/architecture\.md:\d+: docs\/product\.md has no section 13\.9$/);
   await expectOnly(range("product 13–14 модулей"), /docs\/product\.md has no section 14$/);
@@ -155,7 +155,7 @@ test("a section in a list and in a range", async () => {
   // A range after a comma or «и» before a word is a count, as a number there is.
   assert.deepEqual(await errorsOf(range("product 13, 10–12 модулей; product 13 и 2–3 недели")), []);
   await expectOnly(range("product 1, 13–14"), /docs\/product\.md has no section 14$/);
-  // "sections 9–11 in SB 297" are a law's, as "of the license" is another text's.
+  // `sections 9–11 in SB 297` are a law's, as `of the license` is another text's.
   assert.deepEqual(await errorsOf(range("sections 9–11 in SB 297")), []);
   await expectOnly(range("sections 3–4 here"), /docs\/architecture\.md has no section 4$/);
 });
@@ -224,13 +224,12 @@ test("no next free number", async () => {
   await expectOnly([["docs/decisions.md", " Следующий номер — R04.", ""]], /does not name the next free number/);
 });
 
-// The documents move to English (R143): the registers' openings and the citations read in English too.
+// The registers' openings and the citations read in English too (R143).
 test("the next free number in English", async () => {
   assert.deepEqual(await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Next number — R04."]]), []);
   assert.deepEqual(await errorsOf([["docs/repositories.md", "следующий номер — Т-3", "the next free number — Т-3"]]), []);
-  // spec's tables are in English (R154), and a Russian opening still reads until every plan is.
+  // spec's tables are in English, and a Russian opening still reads (R154).
   assert.deepEqual(await errorsOf([["run/QUESTIONS.md", "next — В4.", "следующий — В4."]]), []);
-  // The English opening is read: a next free number below a row is named.
   await expectOnly([["run/QUESTIONS.md", "next — В4.", "next — В2."]], /^run\/QUESTIONS\.md:\d+: the next free number is В2, but В3 is in the table/);
   await expectOnly([["docs/decisions.md", " Следующий номер — R04.", " Next number — R05."]], /the next free number is R05, but the last is R03: it should be R04$/);
   const errors = await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Nextnumber — R04."]]);
@@ -290,8 +289,6 @@ test("a broken diagram", async () => {
   await expectOnly([["docs/product.md", '--> b["урок"]', '--> b["урок"\n    -->']], /^docs\/product\.md:13: the Mermaid diagram does not parse: Parse error on line 4:/);
 });
 
-// Cases from the code review of T01.
-
 test("a table under an unnumbered heading after a register is not in the register", async () => {
   const appendix = "\n## Приложение\n\n| ключ | значение |\n|---|---|\n| k | v |\n";
   const root = trialCopy();
@@ -309,7 +306,7 @@ test("dates and counts after a section are not sections", async () => {
 });
 
 test("a NovaTrail repository's name after a citation is its suffix, even where the phrase goes on", async () => {
-  // "R03 modules сравнивает граф" is R03 of modules, and "R10 engine решил" R10 of engine: neither
+  // `R03 modules сравнивает граф` is R03 of modules, and `R10 engine решил` R10 of engine: neither
   // is looked up in the own register (R32).
   assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02; R99 modules сравнивает граф, R98 engine решил, R97 app и R96 api, and"]]), []);
   assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02, architecture 9.9 canvas говорит, and"]]), []);
@@ -332,8 +329,6 @@ test("«(раздел N)» right after a link means that document's section", as
 test("«раздел N» followed by a word is still checked, unless the word names another text", async () => {
   await expectOnly([["docs/concepts.md", "Словарь — в разделе 2.", "Словарь описывает раздел 99 подробно."]], /docs\/concepts\.md has no section 99$/);
 });
-
-// Cases from the second round of the code review of T01.
 
 test("a MathTrail list ends at a citation of our own documents", async () => {
   await expectOnly([["README.md", '"canvas-api: R37, R38"', '"canvas-api: R37, concepts 9, R02"']], /^README\.md:8: docs\/concepts\.md has no section 9$/);
@@ -371,8 +366,7 @@ test("the script runs through a symlink", () => {
   }
 });
 
-// The tables of questions and debt: В in run/QUESTIONS.md and Д in run/DEBT.md (RUN.md, T18, T132
-// and T165; R153).
+// The tables of questions and debt: В in run/QUESTIONS.md and Д in run/DEBT.md (R153).
 
 test("a В defined twice", async () => {
   await expectOnly([["run/QUESTIONS.md", "| В3 | The third question |", "| В3 | The third question |\n| В3 | A repeat |"]], /^run\/QUESTIONS\.md:\d+: В3 is defined twice$/);
@@ -417,8 +411,6 @@ test("«раздел N» right after a link outside the repository is that text'
   assert.deepEqual(await errorsOf([["docs/concepts.md", "Словарь — в разделе 2.", "Словарь — [чужой](https://example.org/x.md), раздел 99."]]), []);
   assert.deepEqual(await errorsOf([["docs/concepts.md", "Словарь — в разделе 2.", "Словарь — как `docs/spec.md` canvas-api, раздел 99."]]), []);
 });
-
-// A repository of its own: its documents, and its citations of spec against its spec/ (T18).
 
 test("a repository of its own: the base component is green", async () => {
   assert.deepEqual(await componentErrors(), []);
@@ -487,9 +479,8 @@ test("the repository's table of debt: a Д defined twice in run/DEBT.md", async 
   await componentOnly([["run/DEBT.md", "next — Д1.\n\n| ID | Debt |\n|---|---|\n", "next — Д2.\n\n| ID | Debt |\n|---|---|\n| Д1 | A debt |\n| Д1 | A repeat |\n"]], /^run\/DEBT\.md:\d+: Д1 is defined twice$/);
 });
 
-// The places a repository's tables once lived, before R153: table 3 in its RUN.md, table 4 in its
-// DEBT.md (T132) or in its RUN.md. Every repository has moved (T177): a table there is a second
-// copy, and none is read in place of its file of run/.
+// A table of a repository's plan in its RUN.md or DEBT.md is a second copy, and none is read in
+// place of its file of run/ (R153).
 const table3 = (rows = "") => `## Table 3. Questions to the author\n\nNumbers are not reused: next — В3.\n\n| ID | Question |\n|---|---|\n${rows}`;
 const table4 = (rows = "") => `## Table 4. Technical debt\n\nNumbers are not reused: next — Д3.\n\n| ID | Debt |\n|---|---|\n${rows}`;
 const inRun = (tables) => ["RUN.md", "долг — в [run/DEBT.md](run/DEBT.md).\n", `долг — в [run/DEBT.md](run/DEBT.md).\n\n${tables}`];
@@ -534,8 +525,6 @@ test("--component refuses to run where spec is not a repository's submodule", ()
   assert.match(run.stderr, /--component runs from the spec\/ submodule of a NovaTrail repository/);
 });
 
-// Cases from the code review of T18.
-
 test("a list of numbers takes the suffix after its last", async () => {
   await componentOnly([["README.md", "R02 spec, R01–R03 spec", "R02, R09 spec"]], /^README\.md:\d+: R09 does not exist \(spec\/docs\/decisions\.md\)$/);
 });
@@ -568,7 +557,7 @@ test("a table is read under its English heading alone (R154; T177)", async () =>
   await expectOnly([["run/DEBT.md", "## Table 4. Technical debt", "## Таблица 4. Технический долг"]], /^run\/DEBT\.md:0: register Д: no heading «Table 4\. …» to hold it$/);
   await componentOnly([["run/QUESTIONS.md", "## Table 3. Questions to the author", "## Таблица 3. Вопросы автору без ответа"]], /^run\/QUESTIONS\.md:0: register В: no heading «Table 3\. …» to hold it$/);
   await expectOnly([["run/DEBT.md", "## Table 4. Technical debt", "## Table 5. Technical debt"]], /^run\/DEBT\.md:0: register Д: no heading «Table 4\. …» to hold it$/);
-  // A table left where it once lived is a second copy, under its English heading or its Russian one.
+  // A table left in RUN.md is a second copy, under its English heading or its Russian one.
   await expectOnly([["RUN.md", "(run/DEBT.md).\n", "(run/DEBT.md).\n\n## Таблица 4. Технический долг\n\n| ID | Долг |\n|---|---|\n| Д2 | Копия |\n"]], /^RUN\.md:\d+: register Д: its table is in run\/DEBT\.md, and this one under «Таблица 4\. …» is a second copy$/);
   await expectOnly([["RUN.md", "(run/DEBT.md).\n", "(run/DEBT.md).\n\n## Table 4. Technical debt\n\n| ID | Debt |\n|---|---|\n| Д2 | A copy |\n"]], /^RUN\.md:\d+: register Д: its table is in run\/DEBT\.md, and this one under «Table 4\. …» is a second copy$/);
   // A heading in Russian with no table under it is prose.
@@ -578,8 +567,6 @@ test("a table is read under its English heading alone (R154; T177)", async () =>
 test("a table whose heading is gone is named", async () => {
   await componentOnly([["run/QUESTIONS.md", "## Table 3. Questions to the author", "## Questions"]], /^run\/QUESTIONS\.md:0: register В: no heading «Table 3\. …» to hold it$/);
 });
-
-// Cases from the second round of the code review of T18.
 
 test("a spec citation in the wrong script is measured against spec's register", async () => {
   await componentOnly([["README.md", "R02 spec,", "Р03 spec,"]], /^README\.md:\d+: Р03: a register number typed in the wrong script/);
@@ -615,8 +602,8 @@ test("--component runs from a repository's spec/ submodule and checks the reposi
   }
 });
 
-// Cases from В22 .github: a name that no prose has is a suffix wherever a word ends with it — and,
-// since В5 sim, so is every NovaTrail name (R32).
+// A repository's name is a suffix wherever a word ends with it, a name no prose has and one that
+// is also a word alike (R32).
 
 test(".github and a hyphenated name are another repository's even when the phrase goes on", async () => {
   const edits = [["README.md", "Its own log starts at `R01`.", "Its own log starts at `R01`. R19 .github и его цитаты, R03 module-kit и его рецепты, R06 и R07 skill-map, architecture 9.9 .github и её тексты."]];
@@ -635,7 +622,7 @@ test("a hyphen that goes on is part of another word, not the name", async () => 
 });
 
 // Which files are read: in a repository, those git tracks or does not ignore; elsewhere, all
-// (В29 tutor; R32).
+// (R32).
 
 const brokenReport = "# Run\n\n[the sheets](nope.md)\n";
 
@@ -748,7 +735,7 @@ test("in a repository, git runs without the fsmonitor hook that its config names
 });
 
 // The rules of .claude/rules/: front matter with paths that match files, and a link in CLAUDE.md
-// (R143; measurements 1.5).
+// (R143).
 
 const rule = (paths = '  - "docs/**"\n', body = "# Docs\n\nSee [the product](../../docs/product.md).\n") => `---\npaths:\n${paths}---\n\n${body}`;
 const claude = "# CLAUDE.md\n\nThe rule of the documents: [docs](.claude/rules/docs.md).\n";
@@ -845,11 +832,11 @@ test("a repository's rules are checked as spec's are", async () => {
   await componentOnly(withRule(rule('  - "spec/nope/**"\n', body)), /paths: spec\/nope\/\*\* matches no file/);
 });
 
-// Budgets of size (R145): the fixture's tools/docs-check/budgets.json holds 4 KB for RUN.md and
-// run/DEBT.md, 2 KB for a rule, 1 KB for an entry and a section, 2 KB for product 13, 1 KB for a row
-// of run/DEBT.md; and for a repository, 4 KB for RUN.md and run/TASKS.md, 1 KB for an entry, a
+// Budgets of size: the fixture's tools/docs-check/budgets.json holds 4 KB for RUN.md and
+// run/DEBT.md, 2 KB for a rule, 1 KB for an entry and a section, 2 KB for `product 13`, 1 KB for a
+// row of run/DEBT.md; and for a repository, 4 KB for RUN.md and run/TASKS.md, 1 KB for an entry, a
 // section and a row of run/DEBT.md and of run/TASKS.md — a limit for rows of run/TASKS.md the real
-// block does not set, here to hold the file's absence for rows as for files.
+// block does not set, here to hold the file's absence for rows as for files (R145).
 
 const filler = (n) => `\n\n${"z".repeat(n)}\n`;
 
@@ -933,7 +920,7 @@ test("a repository is checked only once it has docs-budgets.json, by spec's bloc
   await componentOnly([["docs-budgets.json", null, '{ "rows": { "run/TASKS.md": 4 } }\n']], /^docs-budgets\.json:0: budgets: rows "run\/TASKS\.md" names no Markdown file of the repository$/);
   await componentOnly([["run/DEBT.md", "next — Д1.\n\n| ID | Debt |\n|---|---|\n", `next — Д3.\n\n| ID | Debt |\n|---|---|\n| Д2 | ${"z".repeat(1100)} |\n`], ["docs-budgets.json", null, "{}\n"]], /^run\/DEBT\.md:\d+: a row «Д2» — 1,\d{3} bytes, over its budget of 1 KB \(1,024 bytes\) — spec\/tools\/docs-check\/budgets\.json$/);
   await componentOnly([["docs-budgets.json", null, "{}\n"], ["spec/tools/docs-check/budgets.json", '"files": { "RUN.md": 4, "run/TASKS.md": 4 },', '"files": { "RUN.md": 4, "run/EPICS.md": 4, "run/TASKS.md": 4 },']], /^spec\/tools\/docs-check\/budgets\.json:0: budgets: files "run\/EPICS\.md" names no file of the repository$/);
-  // DEBT.md at the root is no table of the plan any more (T177): spec's block naming it is an error.
+  // DEBT.md at the root is no table of the plan: spec's block naming it is an error.
   await componentOnly([["docs-budgets.json", null, "{}\n"], ["spec/tools/docs-check/budgets.json", '"rows": { "run/DEBT.md": 1,', '"rows": { "DEBT.md": 1, "run/DEBT.md": 1,']], /^spec\/tools\/docs-check\/budgets\.json:0: budgets: rows "DEBT\.md" names no Markdown file of the repository$/);
   // Any other file of spec's block, or a path of the plan mistyped, is an error all the same.
   await componentOnly([["docs-budgets.json", null, "{}\n"], ["spec/tools/docs-check/budgets.json", '"files": { "RUN.md": 4, "run/TASKS.md": 4 },\n    "entry"', '"files": { "RUN.MD": 4, "run/TASKS.md": 4 },\n    "entry"']], /^spec\/tools\/docs-check\/budgets\.json:0: budgets: files "RUN\.MD" names no file of the repository$/);

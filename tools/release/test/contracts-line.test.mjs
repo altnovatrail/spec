@@ -1,5 +1,6 @@
-// A new major package of an API contract starts a new line (R83): the rule, the script that
-// release-version passes its lines through in spec, and the recipe, in a made-up copy of spec.
+// A new major package of an API contract starts a new line: the rule, the script that
+// release-version passes its lines through in spec, and the recipe, in a made-up copy of spec
+// (R83).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

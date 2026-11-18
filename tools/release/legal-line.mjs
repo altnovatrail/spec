@@ -1,16 +1,15 @@
-// legal-line: a new version of the legal texts starts a new line of spec's releases (R130), by the
-// rule of part-line.mjs. In spec, `just release-version` passes what deployment-line.mjs prints
+// legal-line: a new version of the legal texts starts a new line of spec's releases, by the rule
+// of part-line.mjs (R130). In spec, `just release-version` passes what deployment-line.mjs prints
 // through it, with the commit, and it prints the same lines, or refuses:
 //
 //   ... | node tools/release/deployment-line.mjs <commit> | node tools/release/legal-line.mjs <commit>
 //
 // The part is held from a release of FIRST_LEGAL_LINE on. Its version is the layout of legal/, the
-// passport's schema and the rules of section 5 (legal/README.md, section 2), and the release holds
-// it to the shape alone, as it holds the deployment configuration's: legal/schemas/legal.schema.json
-// with its annotations taken out at every level, and the IDs of the rules of section 5, in their
-// order, which readText reads as format-check does. Under the same version a change of either is
-// refused; a new text, a new version of a text, the words of a draft, a change of
-// reading-vector.schema.json, of a description, an example or a vector pass.
+// passport's schema and the rules its README lists, and the release holds it to the shape alone:
+// legal/schemas/legal.schema.json with its annotations taken out at every level, and the IDs of
+// those rules, in their order, which readText reads as format-check does. Under the same version a
+// change of either is refused; a new text, a new version of a text, the words of a draft, a change
+// of reading-vector.schema.json, of a description, an example or a vector pass.
 
 import { FIRST_LEGAL_LINE, legalVersion } from "./files.mjs";
 import { checkPartLine, checked as partChecked, runPartLine, shapeChange as partShapeChange, shapeChangedBetween as partShapeChangedBetween } from "./part-line.mjs";
@@ -32,8 +31,8 @@ export const LEGAL = {
 // Whether the release of version, after previous, is held to the part's version at all.
 export const checked = (outputs) => partChecked(LEGAL, outputs);
 
-// R130's rule, for the release of version after previous, with the part's versions at each and
-// what changed of its shape between them, as a phrase, or null.
+// The rule for the release of version after previous, with the part's versions at each and what
+// changed of its shape between them, as a phrase, or null (R130).
 export function checkLegalLine({ version, previous, legalNow, legalThen, changed = null }) {
   checkPartLine(LEGAL, { version, previous, now: legalNow, before: legalThen, changed });
 }

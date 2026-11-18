@@ -2,11 +2,11 @@
 // is added or renamed, this is the file to change.
 //
 // Two profiles read them: spec's own, and a NovaTrail repository's, which has documents and
-// registers of its own and cites spec's from its spec/ submodule (RUN.md, T18; R32).
+// registers of its own and cites spec's from its spec/ submodule (R32).
 
 import path from "node:path";
 
-// Documents cited by name and section: "product 7", "architecture 3.6".
+// Documents cited by name and section: `product 7`, `architecture 3.6`.
 export const documents = {
   product: "docs/product.md",
   concepts: "docs/concepts.md",
@@ -33,7 +33,7 @@ export const registers = [
     prefix: "R",
     file: "docs/decisions.md",
     section: null,
-    // Entries are paragraphs that open with "**R01. …**".
+    // Entries are paragraphs that open with `**R01. …**`.
     definedBy: "entry",
     width: 2,
     ordered: true,
@@ -42,8 +42,8 @@ export const registers = [
     prefix: "О-",
     file: "docs/product.md",
     section: "13",
-    // Rows of the tables in section 13 and its subsections. Decided questions move to 13.1,
-    // so the order in the file is not the order of the numbers.
+    // Rows of the tables in the section and its subsections. Decided questions move to its first
+    // subsection, so the order in the file is not the order of the numbers.
     definedBy: "table",
     width: 1,
     ordered: false,
@@ -67,13 +67,11 @@ export const registers = [
   ...workRegisters(),
 ];
 
-// The tables of the work plan in run/ (R153): table 3, the questions to the author, in
-// run/QUESTIONS.md, and table 4, the debt, in run/DEBT.md. Rows leave when they are answered or
-// closed, and their numbers are not reused. Where each table lived before is `elsewhere`: table 3
-// in RUN.md, table 4 in DEBT.md at the root (R19, the 2026-11-11 amendment) and before that in
-// RUN.md. Every repository has moved (T177), so a table back in one of them is a second copy, in
-// spec and in a repository alike. Headings are English, "Table 3." (R154); a copy under the
-// Russian heading it had before, «Таблица 3.», is a copy all the same.
+// The tables of the work plan in run/: table 3, the questions to the author, and table 4, the
+// debt. Rows leave when they are answered or closed, and their numbers are not reused. A table
+// back in a place of `elsewhere` is a second copy, in spec and in a repository alike. Headings are
+// English, `Table 3.`; a copy under the Russian heading, «Таблица 3.», is a copy all the same
+// (R153, R154).
 function workRegisters() {
   const table = (prefix, file, heading, elsewhere) => ({ prefix, file, heading, definedBy: "table", width: 1, ordered: false, gaps: true, empty: true, elsewhere });
   return [
@@ -85,10 +83,10 @@ function workRegisters() {
   ];
 }
 
-// Where the limits of size are, from spec's root (budgets.mjs; R145).
+// Where the limits of size are, from spec's root (R145).
 const BUDGETS = "tools/docs-check/budgets.json";
 
-// spec's own profile: its documents and registers, and spec's citations of itself ("R18 spec")
+// spec's own profile: its documents and registers, and spec's citations of itself (`R18 spec`)
 // are its own.
 // What is never scanned: `names` wherever they are, `paths` relative to the root. The fixtures
 // of docs-check break the rules on purpose, and those of format-check are a trial format, not
@@ -103,18 +101,17 @@ export const specProfile = {
   excluded: { names: [".git", "node_modules"], paths: ["tools/docs-check/test/fixtures", "tools/format-check/test/fixtures", ".repos"] },
 };
 
-// A NovaTrail repository's profile. Its own: docs/architecture.md, cited as "architecture 2", and
-// docs/sources.md and docs/measurements.md once it has them, "sources 2.1" and "measurements 1"; its
-// decision log, which may still be empty; tables 3 and 4 in its run/ (workRegisters). spec's
-// documents and the
+// A NovaTrail repository's profile. Its own: docs/architecture.md, cited as `architecture 2`, and
+// docs/sources.md and docs/measurements.md once it has them, `sources 2.1` and `measurements 1`;
+// its decision log, which may still be empty; tables 3 and 4 in its run/. spec's documents and the
 // registers R, О-, П-, Т- are read from specDir — the spec/ submodule, or for a draft spec's
-// working tree — and cited "architecture 3.8 spec", "R18 spec", "Т-15". What is wrong in spec's
+// working tree — and cited `architecture 3.8 spec`, `R18 spec`, `Т-15`. What is wrong in spec's
 // own files is spec's to report, not the repository's.
 export function componentProfile(specDir) {
   const inSpec = (file) => `spec/${file}`;
   return {
     documents: { architecture: "docs/architecture.md", sources: "docs/sources.md", measurements: "docs/measurements.md" },
-    // "раздел 3" in a document with no numbered sections of its own, and no link to tell.
+    // `раздел 3` in a document with no numbered sections of its own, and no link to tell.
     sectionsDocument: "docs/architecture.md",
     registers: [
       { prefix: "R", file: "docs/decisions.md", section: null, definedBy: "entry", width: 2, ordered: true, empty: true },
@@ -133,12 +130,12 @@ export function componentProfile(specDir) {
   };
 }
 
-// MathTrail's repositories: their decisions and documents are cited as "R37 canvas-api",
-// "product 5.4 canvas-api", or in a list as "canvas-api: R37, R38". Not checked.
+// MathTrail's repositories: their decisions and documents are cited as `R37 canvas-api`,
+// `product 5.4 canvas-api`, or in a list as `canvas-api: R37, R38`. Not checked.
 export const mathtrailRepositories = ["canvas-api", "standalone", "mathtrail-standalone"];
 
-// NovaTrail's other repositories keep logs of their own, cited as "R03 api" (repositories 2.2).
-// Not checked either. "R19 spec" is this repository's own.
+// NovaTrail's other repositories keep logs of their own, cited as `R03 api`. Not checked either.
+// `R19 spec` is this repository's own.
 export const novatrailRepositories = [
   ".github",
   "modules",
@@ -158,6 +155,6 @@ export const novatrailRepositories = [
   "widget-template",
 ];
 
-// Words after "раздел N" that make it a section of some other text, not of our documents:
-// "раздел 3 лицензии" in R12 is section 3 of the Apache License.
+// Words after `раздел N` that make it a section of some other text, not of our documents:
+// `раздел 3 лицензии` in R12 is section 3 of the Apache License.
 export const otherTexts = ["лицензии"];

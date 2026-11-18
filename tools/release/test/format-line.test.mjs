@@ -1,6 +1,6 @@
-// A new version of the module format starts a new line (R44): the rules, the script that
+// A new version of the module format starts a new line: the rules, the script that
 // release-version passes its lines through in spec, and the recipe, in made-up copies of spec
-// and in another repository, which the rule does not reach.
+// and in another repository, which the rule does not reach (R44).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

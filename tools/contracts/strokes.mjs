@@ -1,8 +1,8 @@
-// The rules that the device and the runner share (contracts/README.md, section 12; R94; RUN.md,
-// T59): how a history of writing folds into the strokes a sheet shows, the groups of strokes and
-// the groups of a stroke taken off, the crop and its numbers, how a box of a model snaps to the
-// strokes, and which box of a workbook a stroke fills. A second implementation, written from the
-// text, beside canvas's, whose CI passes the same vectors, and tutor's runner's.
+// The rules that the device and the runner share: how a history of writing folds into the strokes a
+// sheet shows, the groups of strokes and the groups of a stroke taken off, the crop and its numbers,
+// how a box of a model snaps to the strokes, and which box of a workbook a stroke fills. A second
+// implementation, written from the text, beside canvas's, whose CI passes the same vectors, and
+// tutor's runner's (R94).
 //
 // Every rule counts in whole numbers: a place in whole tenths of a unit, round(10 × v) with a half
 // rounded up, a time in whole milliseconds, and after that only adds, subtracts, multiplies and
@@ -10,7 +10,7 @@
 // stays below 2^53, so a double holds it exactly.
 //
 // The test vectors of the rules are four JSON files, contracts/vectors/eval/v1/<rule>.json, each
-// { description, rule, cases }: rule, the rule's numbers, which are section 12's; and each case
+// { description, rule, cases }: rule, the rule's numbers, as the text gives them; and each case
 // { name, description, ... } with the input of the rule and what it gives, the messages of the
 // package as JSON with the protobuf names and every field written, and beside them what no message
 // holds:
@@ -26,7 +26,7 @@
 //   stroke's box, { stroke_id, answer_slot }, an AnswerSlotPlace or null; and filled_boxes, each a
 //   FilledBox without its crops.
 // The messages are read by @bufbuild/protobuf with the descriptors of the image buf builds of
-// contracts/, as the vectors of the observation are (tools/contracts/observation.mjs).
+// contracts/, as the vectors of the observation are.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -40,7 +40,7 @@ export const PACKAGE = "novatrail.eval.v1";
 export const FOLDER = "contracts/vectors/eval/v1";
 const TEXT = "contracts/README.md, section 12";
 
-// The rules' numbers, as section 12 gives them and the vectors repeat them.
+// The rules' numbers, as the text gives them and the vectors repeat them.
 export const GROUP_RULE = { pause: 2000, across: 50, down: 50 };
 export const CROP_RULE = { margin: 12, flat: 15, ceiling: 100, side: 200, edge: 1568, tokens: 1568, patch: 28, heights: [16, 24, 32, 48] };
 export const SNAP_RULE = { margin: 250, share: [2, 3] };
@@ -49,7 +49,7 @@ export const BOX_RULE = { margin: 120, limit: 1600 };
 const byNumber = (a, b) => a - b;
 
 // A place in whole tenths of a unit: round(10 × v), a half rounded up. Every place is on the sheet,
-// so never below 0, where Math.round rounds a half up as section 12 does.
+// so never below 0, where Math.round rounds a half up as the rule does.
 export const tenths = (value) => Math.round(10 * value);
 
 // a / b rounded down and up, for whole a and b with |a| below 2^53 and b above 0. It is exact: a
@@ -74,14 +74,14 @@ export function extentOf(points) {
 // How far apart two boxes are across and down, 0 where they touch or overlap.
 const gapsOf = (a, b) => [Math.max(0, b.xmin - a.xmax, a.xmin - b.xmax), Math.max(0, b.ymin - a.ymax, a.ymin - b.ymax)];
 
-// What a history of writing, events of novatrail.eval.v1.HistoryEvent as JSON, breaks of section
-// 11: each event no sooner than the one before it; a stroke written with an ID from 1 that no
-// other has, the type of its pointer and its points, which never go back in time, the last no
-// later than the event — a stroke is written when its last point is, or later, when another action
-// landed while it was written; erase, clear and undo taking off strokes the sheet shows, a clear all
-// of them, and an undo putting back strokes written and not shown. breach(at, message) gets each,
-// with at its path from the events, and point(point, at) each point to check its place. The IDs the
-// sheet shows at the end.
+// What a history of writing, events of novatrail.eval.v1.HistoryEvent as JSON, breaks of the rules
+// of the sample file: each event no sooner than the one before it; a stroke written with an ID from
+// 1 that no other has, the type of its pointer and its points, which never go back in time, the
+// last no later than the event — a stroke is written when its last point is, or later, when another
+// action landed while it was written; erase, clear and undo taking off strokes the sheet shows, a
+// clear all of them, and an undo putting back strokes written and not shown. breach(at, message)
+// gets each, with at its path from the events, and point(point, at) each point to check its place.
+// The IDs the sheet shows at the end.
 export function historyBreaches(events, breach, point) {
   const visible = new Set();
   const known = new Set();
@@ -450,7 +450,6 @@ const VECTORS = {
 };
 export const VECTOR_FILES = Object.keys(VECTORS);
 
-// Each point on the sheet, 1000 × 1400 units.
 function onSheet(here, prefix) {
   return (point, at) => {
     for (const [axis, most] of [["x", SHEET.width], ["y", SHEET.height]]) {

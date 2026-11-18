@@ -1,22 +1,16 @@
-// The check of the contracts' code for TypeScript (R83; RUN.md, T57): the npm package
-// @altnovatrail/contracts of the working tree, as a consumer installs it, under TypeScript and Node.
+// The check of the contracts' code for TypeScript: the npm package @altnovatrail/contracts of the
+// working tree, as a consumer installs it, under TypeScript and Node (R83).
 //
 // The package goes into the node_modules of a project in a temporary folder, beside the runtime of
 // protobuf-es at the version the package depends on, from tools/node_modules. The project imports
 // every file of code the package exports:
-// - every.ts, a declaration of each message — made, written in binary and in JSON with protobuf
-//   names, and read back — and an import of each vector the package exports, as JSON, as its README
-//   shows, which tsc of tools/ checks under each resolution of modules a consumer may use, nodenext
-//   and bundler, as strictly as tools/types checks the types of the format, the package's
+// - every.ts, a declaration of each message and an import of each vector the package exports, as
+//   JSON, as its README shows, which tsc of tools/ checks under each resolution of modules a
+//   consumer may use, as strictly as tools/types checks the types of the format, the package's
 //   declarations and the runtime's included;
-// - runtime.mjs, the same for each message under Node, by contracts.check.mjs beside this module:
-//   a message with no field set and one with a value in every field, nested ones too, read back the
-//   same from the binary form and both spellings of JSON, and JSON written with useProtoFieldName
-//   names each field by its protobuf name (contracts/README.md, section 6). It imports every vector
-//   the package exports, as JSON, and the package's code reads each message of it back as it is
-//   written (section 12).
-// Both are written from the package's declarations, so a contract that comes with a later task is
-// checked as the first one is.
+// - runtime.mjs, the same for each message and each vector under Node, by contracts.check.mjs.
+// Both are written from the package's declarations, so a new contract is checked as the first one
+// is.
 
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";

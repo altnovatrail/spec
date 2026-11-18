@@ -16,8 +16,8 @@ export const CODE = "\uE000";
 export const inlineCode = (value) => (/^[\p{L}.][\p{L}-]*$/u.test(value) ? value : CODE);
 
 // Whether a heading opens a table of the work plan: `heading` is its prefix, "Table 3.". Every plan
-// is in English (R154; T177), so «Таблица 3. …» opens none that is read; with `old`, it
-// does, for a copy left where the table lived before.
+// is in English, so «Таблица 3. …» opens none that is read; with `old`, it does, for a copy left
+// where the table lived before (R154).
 export function isTableHeading(text, heading, old = false) {
   return text.startsWith(heading) || (old && text.startsWith(heading.replace(/^Table /u, "Таблица ")));
 }
@@ -25,7 +25,7 @@ export function isTableHeading(text, heading, old = false) {
 // The documents parsed in this process, by the sha256 of their text (cachedBy): a check that
 // reads the same text again — the tests run a check on one trial copy after another, each in a
 // temporary folder of its own, and most of each copy is spec's documents as they are — takes the
-// parse it had, since the parse is the text's alone, not its path's (RUN.md, T166).
+// parse it had, since the parse is the text's alone, not its path's.
 const parsed = new Map();
 const trees = new Map();
 

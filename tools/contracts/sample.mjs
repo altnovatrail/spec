@@ -1,17 +1,17 @@
-// The sample file of the eval protocol, novatrail.eval.v1.Sample (contracts/README.md, section 11;
-// R93, R95; RUN.md, T58, T60): whether a file is a sample as a writer writes it and as the rules of
-// section 11 let it be — the fields its purpose and its writer give it, its strokes, its sheet or
-// page, its crops and their PNG, and its markup, as far as the file alone holds it. The samples
-// among the examples of contracts/examples/eval/v1/ pass it, and together show every purpose,
-// writer, ink, surface and event of the history of writing, and every kind of part of a markup.
+// The sample file of the eval protocol, novatrail.eval.v1.Sample: whether a file is a sample as a
+// writer writes it and as its rules let it be — the fields its purpose and its writer give it, its
+// strokes, its sheet or page, its crops and their PNG, and its markup, as far as the file alone
+// holds it (R93, R95). The samples among the examples of contracts/examples/eval/v1/ pass it, and
+// together show every purpose, writer, ink, surface and event of the history of writing, and every
+// kind of part of a markup.
 //
-// A sample is read as section 11 reads one: UTF-8 JSON with no key twice, which @bufbuild/protobuf
-// reads strictly by the descriptors of the image buf builds of contracts/ — a field it does not know
-// is refused — and whose text is the one it writes back with the protobuf names and every field, its
-// zero too. Then the rules no descriptor holds, and, once its sheet or page holds its form, those
-// of section 12 (tools/contracts/strokes.mjs): the numbers of every crop are those the rule of the
-// crop gives the strokes the file holds, and the groups and the boxes of a history those its rules
-// give. A PNG is held to its chunks, its header and its size, not to its pixels.
+// A sample is UTF-8 JSON with no key twice, which @bufbuild/protobuf reads strictly by the
+// descriptors of the image buf builds of contracts/ — a field it does not know is refused — and whose
+// text is the one it writes back with the protobuf names and every field, its zero too. Then the
+// rules no descriptor holds, and, once its sheet or page holds its form, the rules the device and
+// the runner share (strokes.mjs): the numbers of every crop are those the rule of the crop gives the
+// strokes the file holds, and the groups and the boxes of a history those its rules give. A PNG is
+// held to its chunks, its header and its size, not to its pixels.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -35,14 +35,14 @@ const WRITTEN = { useProtoFieldName: true, alwaysEmitImplicit: true };
 export const HEIGHTS = CROP_RULE.heights;
 const TALLEST = 256;
 const LICENSE = "Apache-2.0";
-// Each purpose and each writer, as the rules of section 11 name them; a value the package adds is
-// named here by the task that adds it.
+// Each purpose and each writer the rules name: a value the package adds is named here too, or
+// sampleOf refuses the image.
 export const PURPOSES = ["PURPOSE_MEASUREMENT", "PURPOSE_EVAL_SET"];
 export const WRITERS = ["WRITER_ADULT", "WRITER_ADULT_AS_CHILD", "WRITER_CHILD"];
 const ADULTS = new Set(["WRITER_ADULT", "WRITER_ADULT_AS_CHILD"]);
 const EVENTS = ["write", "erase", "clear", "undo"];
-// Each kind of a part of the writing, as the rules of section 11 name them; what a markup shows of
-// the examples' coverage beside them.
+// Each kind of a part of the writing the rules name; MARKUP, what a markup shows of the examples'
+// coverage beside them.
 export const PART_KINDS = ["PART_KIND_TEXT", "PART_KIND_DRAWING"];
 const MARKUP = ["parts", "marks", "first_error", "final_answer", "a workbook's truth"];
 const BLANK = "UNREADABLE_BLANK";
@@ -53,8 +53,7 @@ const SOURCES = ["modules", "tutor", "file"];
 
 export const ID = /^[a-z0-9-]{1,64}$/;
 // Whether a string is the ID of a module, or a local ID — of a trap, say —, as the module format's
-// schemas define them (format/schemas/common.schema.json, $defs module_id and local_id): the
-// pattern, the length, and no name Windows reserves for a device.
+// schemas define them: the pattern, the length, and no name Windows reserves for a device.
 const COMMON = JSON.parse(fs.readFileSync(new URL("../../format/schemas/common.schema.json", import.meta.url), "utf8")).$defs;
 const idOf = ({ pattern, maxLength, not }) => (value) => typeof value === "string" && new RegExp(pattern, "u").test(value) && [...value].length <= maxLength && !new RegExp(not.pattern, "u").test(value);
 export const isModuleId = idOf(COMMON.module_id);
@@ -62,8 +61,8 @@ export const isLocalId = idOf(COMMON.local_id);
 const CODE = /^[0-9A-Z]{6,16}$/;
 const TEXT_SET = /^[A-Za-z0-9.-]{1,32}$/;
 const VERSION = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
-// The versions of a file that the samples page did not write (the amendment of 2026-11-07 to R93):
-// no release of canvas is 0.0.0, and its page names no set of texts "none".
+// The versions of a file that the samples page did not write: no release of canvas is 0.0.0, and
+// its page names no set of texts "none" (R93).
 const NOT_THE_PAGE = { canvas_version: "0.0.0", text_set_version: "none" };
 export const TAG = /^v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
@@ -76,8 +75,7 @@ export const placeOf = ({ item, slot }) => `${item}.${slot}`;
 export const byPlace = (a, b) => a.item - b.item || a.slot - b.slot;
 
 // A message of the package, of the image buf builds of contracts/: { message }, or { error }, also
-// when an enum named has a value that the rules of the text do not name. The sample file's and the
-// runner's report's (tools/contracts/report.mjs).
+// when an enum named has a value that the rules of the text do not name.
 export function messageOf(image, { name, what, text, enums }) {
   const set = fromJson(wkt.FileDescriptorSetSchema, image, { ignoreUnknownFields: true });
   const known = new Map(Object.values(wkt).filter((value) => value?.kind === "file").map((file) => [file.proto.name, file]));
@@ -94,11 +92,11 @@ export function messageOf(image, { name, what, text, enums }) {
 }
 
 // The message Sample: { message }, or { error }, also when an enum of the sample has a value that the
-// rules of section 11 do not name.
+// rules do not name.
 export const sampleOf = (image) => messageOf(image, { name: "Sample", what: "the message of the sample file", text: TEXT, enums: [["Purpose", PURPOSES], ["Writer", WRITERS], ["PartKind", PART_KINDS]] });
 
-// A file of the package, its bytes, read as section 11 reads a sample — UTF-8 JSON with no key twice,
-// read strictly by the message and as a writer writes it, with the text of the rules named —:
+// A file of the package, its bytes, read as a sample is — UTF-8 JSON with no key twice, read
+// strictly by the message and as a writer writes it, with the text of the rules named —:
 // { value, lineOf }, or { problems }.
 export function readMessage(bytes, message, { what, text }) {
   const read = readVector(bytes);
@@ -118,7 +116,7 @@ export function readMessage(bytes, message, { what, text }) {
   return { value, lineOf };
 }
 
-// What a PNG breaks of a crop's (section 11): its signature, every chunk whole with its CRC, the
+// What a PNG breaks of a crop's: its signature, every chunk whole with its CRC, the
 // chunks IHDR, IDAT and IEND alone, in that order, a grey image of 8 bits of the crop's width and
 // height, not interlaced, whose data is one zlib stream, nothing after it, that inflates to its
 // rows, each with a filter of PNG.
@@ -239,11 +237,12 @@ function cropRuleBreaches(given, strokes, groups, digit, at) {
   return parted ? [{ at: [...at, ...parted.at], message: `${parted.at.join(".")} of the crops is ${show(parted.given)}, and the rule of the crop gives ${show(parted.computed)} (contracts/README.md, section 12)` }] : [];
 }
 
-// What a sample, whose form holds, breaks of the rules of section 12. The crops are drawn from the
-// strokes the file holds — those a history shows at the end, or the final geometry —, a sheet's
-// with its groups and a box's with none. A history holds the strokes as they came, so its groups
-// on a sheet and its table of boxes on a workbook are what the rules give them; the final geometry
-// holds them no more as the device saw them, so its groups and table are the device's.
+// What a sample, whose form holds, breaks of the rules the device and the runner share. The crops
+// are drawn from the strokes the file holds — those a history shows at the end, or the final
+// geometry —, a sheet's with its groups and a box's with none. A history holds the strokes as they
+// came, so its groups on a sheet and its table of boxes on a workbook are what the rules give them;
+// the final geometry holds them no more as the device saw them, so its groups and table are the
+// device's.
 function rulesBreaches(sample, kind) {
   const found = [];
   const surface = sample[kind];
@@ -266,10 +265,10 @@ function rulesBreaches(sample, kind) {
   return found;
 }
 
-// What a sample's markup breaks of the rules of section 11 that the file alone holds: its truth,
-// its notes, and its parts or marks by the surface, with the strokes the surface shows. What only
-// the task holds — that the truth is a valid observation of it, a final answer only beside a slot
-// bound anywhere, the marks of criteria its rubric has — is the runner's (section 13).
+// What a sample's markup breaks of the rules that the file alone holds: its truth, its notes, and
+// its parts or marks by the surface, with the strokes the surface shows. What only the task holds —
+// that the truth is a valid observation of it, a final answer only beside a slot bound anywhere,
+// the marks of criteria its rubric has — is the runner's.
 function markupBreaches(sample, kind, visible, breach) {
   const { markup } = sample;
   const at = (...rest) => ["markup", ...rest];
@@ -371,8 +370,8 @@ function marksBreaches(markup, truth, at, breach) {
   });
 }
 
-// What a sample, as JSON with the protobuf names, breaks of the rules of section 11: each { at,
-// message }, with at its path in the file; none when it is valid.
+// What a sample, as JSON with the protobuf names, breaks of the rules of the sample file: each
+// { at, message }, with at its path in the file; none when it is valid.
 export function breaches(sample) {
   const found = [];
   const breach = (at, message) => found.push({ at, message });
@@ -486,9 +485,9 @@ export function breaches(sample) {
     });
     if (visible && "geometry" in sample) for (const id of visible) if (!filled.has(id)) breach(["geometry"], `the stroke ${id} is in no box: the final geometry of a workbook holds the strokes of its boxes alone, and the draft goes nowhere`);
   }
-  // The rules of section 12, once the sheet or the page holds its form.
+  // The rules the device and the runner share, only once the sheet or the page holds its form.
   if (found.length === formed) found.push(...rulesBreaches(sample, kind));
-  // The markup, which a sample may lack: the runner then measures nothing on it (section 13).
+  // The markup, which a sample may lack: the runner then measures nothing on it.
   if ("markup" in sample) markupBreaches(sample, kind, visible, breach);
   return found;
 }
@@ -521,7 +520,7 @@ export function checkSample(bytes, message) {
 }
 
 // Sample files against the message, each a [name, path to read], one at a time, so that only the
-// file being read is held whole (T116): { errors, seen, samples, held }, the errors { file, line,
+// file being read is held whole: { errors, seen, samples, held }, the errors { file, line,
 // message } of each file by its name, seen what they show together, held each that holds, { file,
 // line, id }, with line that of its ID, in the order of the files, and samples, by their IDs, what
 // keep gives of each that holds — what the caller holds the files to together, such as summaryOf of
@@ -562,12 +561,11 @@ export function sameIds(held, why = HELD) {
   return errors;
 }
 
-// What a sample of a module's eval set, one that holds, breaks of the rules of section 13 that need
-// neither the module's package nor a key and the sample alone, each { at, message }, of the module
-// by its ID: it is of the purpose PURPOSE_EVAL_SET, with its markup, of a task of its own module —
-// its source is modules, with the module's ID. checkSamples applies it to each sample as it reads
-// it. The task itself, and the digest of its open view, are the runner's to check, by the package
-// (contracts/README.md, section 13).
+// What a sample of a module's eval set, one that holds, breaks of the rules of an eval set that
+// need neither the module's package nor a key, but the sample alone, each { at, message }, of the
+// module by its ID: it is of the purpose PURPOSE_EVAL_SET, with its markup, of a task of its own
+// module. The task itself, and the digest of its open view, are the runner's to check, by the
+// package.
 const SET = "contracts/README.md, section 13";
 export function evalSampleBreaches(module, value) {
   const found = [];
@@ -580,8 +578,8 @@ export function evalSampleBreaches(module, value) {
   return found;
 }
 
-// The rule of section 13 that holds the samples of a module's eval set together, of those that hold,
-// held as checkSamples gives them: no two of the set share an ID. It needs their IDs alone.
+// The rule that holds the samples of a module's eval set together, of those that hold, held as
+// checkSamples gives them: no two of the set share an ID.
 export function evalSetBreaches(held) {
   return sameIds(held, `no two samples of an eval set share an ID (${SET})`);
 }

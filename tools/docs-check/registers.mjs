@@ -68,8 +68,8 @@ export function readRegisters(files, registers, report) {
 }
 
 // The register as it is read: always from its own file, which the caller reports when it does not
-// exist (R153). Beside it, a table left under a heading of a place it once lived is a second copy,
-// under the English heading or the Russian one it had before R154, and its own file is named.
+// exist. Beside it, a table left under a heading of a place in `elsewhere` is a second copy, under
+// the English heading or the Russian one, and its own file is named (R153, R154).
 function placeOf(register, files, report) {
   const { elsewhere, ...own } = register;
   if (!elsewhere || !files.has(own.file)) return own;
@@ -85,7 +85,7 @@ function placeOf(register, files, report) {
   return own;
 }
 
-// "**R01. …**" paragraphs.
+// `**R01. …**` paragraphs.
 export function entriesOf(register, doc) {
   const head = new RegExp(`^${register.prefix}(\\d+)\\.\\s`, "u");
   return doc.blocks
@@ -128,8 +128,8 @@ function registerLine(register, doc) {
   return doc.headings[index]?.line ?? 1;
 }
 
-// "Следующий номер — R32", or in a RUN.md's table "следующий — В25"; in a document in English,
-// "Next number — R32", "the next free number — R32" or "next — В25" (R143).
+// `Следующий номер — R32`, or in a RUN.md's table `следующий — В25`; in a document in English,
+// `Next number — R32`, `the next free number — R32` or `next — В25` (R143).
 function nextFree(register, doc) {
   const words = String.raw`(?:следующ\p{L}*(?:\s+номер\p{L}*)?|\bnext(?:\s+free)?(?:\s+number)?)`;
   const phrase = new RegExp(`${words}\\s*[—–-]\\s*${register.prefix}(\\d+)`, "giu");
@@ -143,7 +143,7 @@ function nextFree(register, doc) {
 }
 
 // Every register number cited in the documents exists, in the register of the scope it is cited
-// in: "R01" in the repository's own log, "R18 spec" in spec's. О-, П-, Т- are spec's registers
+// in: `R01` in the repository's own log, `R18 spec` in spec's. О-, П-, Т- are spec's registers
 // wherever they are cited. The next free number may be named only in a sentence that says it is
 // the next one. `registerOf(prefix, scope)` is the register read for that prefix and scope.
 export function checkCitedNumbers(files, registerOf, report) {

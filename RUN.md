@@ -92,7 +92,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T211 | Документы `spec`: privacy | Claude | — | T203 |
 | [x] | T212 | Документы `spec`: concepts | Claude | — | T203 |
 | [x] | T213 | Комментарии кода: `tools/format-check/`, `tools/types/` | Claude | — | T205 |
-| [ ] | T214 | Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/` | Claude | — | T205 |
+| [x] | T214 | Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/` | Claude | — | T205 |
 | [ ] | T215 | Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/` | Claude | — | T205 |
 | [ ] | T216 | Комментарии кода: остальное `tools/` | Claude | — | T205 |
 | [ ] | T217 | Комментарии CI и окружения: `.github/`, justfile, `.devcontainer/`, `spec.go`, `repo-template/` | Claude | — | T205 |
@@ -103,13 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T214. Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/`
-
-- **Цель:** как T213 — для `tools/contracts/`, `tools/release/` и `tools/docs-check/` (≈ 145 КБ).
-- **Сделать:** как T213.
-- **Как проверить:** как T213, и проверки правила ci — `tools/release/`.
-- **Разделы:** T213; `.claude/rules/tools.md`, `.claude/rules/ci.md`.
 
 #### T215. Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/`
 

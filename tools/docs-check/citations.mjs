@@ -1,8 +1,8 @@
-// Finds citations in a block's text: register numbers ("R15", "Т-7", "R15–R18"), sections
-// ("product 7", "architecture 3.5, 4", "раздел 9.4"), and numbers typed in the wrong script.
-// Each citation has a scope: "foreign" for other repositories ("R37 canvas-api", "canvas-api:
-// R37, R38", "R3 api"), whose numbers belong to another log and are not checked; "spec" for
-// spec's, cited with the suffix ("R18 spec", "concepts 9, 10 spec"); "own" for the rest.
+// Finds citations in a block's text: register numbers (`R15`, `Т-7`, `R15–R18`), sections
+// (`product 7`, `architecture 3.5, 4`, `раздел 9.4`), and numbers typed in the wrong script.
+// Each citation has a scope: "foreign" for other repositories (`R37 canvas-api`,
+// `canvas-api: R37, R38`, `R3 api`), whose numbers belong to another log and are not checked;
+// "spec" for spec's, cited with the suffix (`R18 spec`, `concepts 9, 10 spec`); "own" for the rest.
 
 import { CODE } from "./markdown.mjs";
 import { documents, mathtrailRepositories, novatrailRepositories, otherTexts } from "./config.mjs";
@@ -11,28 +11,28 @@ export const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const mathtrail = mathtrailRepositories.map(escape).join("|");
 const novatrail = novatrailRepositories.map(escape).join("|");
 
-// "… canvas-api" right after a citation. A repository's name counts wherever a word ends with it,
-// MathTrail's and NovaTrail's alike, though most of NovaTrail's are also English words: "R03 modules
-// сравнивает граф" is R03 of modules, and "R10 engine решил" R10 of engine. So the name of a
-// repository never comes right after an own citation as a word of prose: "modules берут его по
-// R07", not "по R07 modules берут" (R32).
+// `… canvas-api` right after a citation. A repository's name counts wherever a word ends with it,
+// MathTrail's and NovaTrail's alike, though most of NovaTrail's are also English words:
+// `R03 modules сравнивает граф` is R03 of modules, and `R10 engine решил` R10 of engine. So the
+// name of a repository never comes right after an own citation as a word of prose:
+// `modules берут его по R07`, not `по R07 modules берут` (R32).
 const FOREIGN = `(?:${mathtrail}|${novatrail})(?![\\p{L}\\p{N}-])`;
 const FOREIGN_SUFFIX = new RegExp(`^\\s+(?:${FOREIGN})`, "u");
-// "… engine" after О-, П- or Т-: spec's registers wherever they are cited, which no other
-// NovaTrail repository keeps, so such a name after one is a word of the phrase: "П-15 app
-// показывает его всем".
+// `… engine` after О-, П- or Т-: spec's registers wherever they are cited, which no other
+// NovaTrail repository keeps, so such a name after one is a word of the phrase:
+// `П-15 app показывает его всем`.
 const NOVATRAIL_SUFFIX = new RegExp(`^\\s+(?:${novatrail})(?![\\p{L}\\p{N}-])`, "u");
-// "`docs/spec.md` canvas-api, раздел 4.2": a MathTrail repository's name, a whole word, and a
-// comma right before "раздел N" make it a section of that repository's document. NovaTrail's
-// names are also words of prose — "в приложении app, раздел 3" — and do not count here.
+// A path in code, then `canvas-api, раздел 4.2`: a MathTrail repository's name, a whole word, and
+// a comma right before `раздел N` make it a section of that repository's document. NovaTrail's
+// names are also words of prose — `в приложении app, раздел 3` — and do not count here.
 const FOREIGN_BEFORE = new RegExp(`(?<![\\p{L}\\p{N}_.-])(?:${mathtrail})\\s*,\\s*$`, "u");
-// "… spec" right after a citation: spec's own documents and registers.
+// `… spec` right after a citation: spec's own documents and registers.
 const SPEC = "spec(?![\\p{L}\\p{N}_-])";
 const SPEC_SUFFIX = new RegExp(`^\\s+${SPEC}`, "u");
-// "canvas-api: R37, R38, R39" — the head of a list of MathTrail's citations.
+// `canvas-api: R37, R38, R39` — the head of a list of MathTrail's citations.
 const FOREIGN_LIST = new RegExp(`(?<![\\p{L}\\p{N}-])(?:${mathtrail}):\\s*`, "gu");
-// One item of such a list: a number, a range, a section of its spec ("spec 4", "SPEC 2"), or a
-// path in code. A citation of our own documents, "privacy 5", ends the list.
+// One item of such a list: a number, a range, a section of its spec (`spec 4`, `SPEC 2`), or a
+// path in code. A citation of our own documents, `privacy 5`, ends the list.
 const LIST_ITEM = new RegExp(
   `(?:R\\d+(?:\\s*[–—-]\\s*R\\d+)?|[ОПТ]-\\d+(?:\\s*[–—-]\\s*[ОПТ]-\\d+)?` +
     `|(?:SPEC|spec)\\s+\\d+(?:\\.\\d+)*(?:\\s*[–—-]\\s*\\d+(?:\\.\\d+)*)?|${CODE})`,
@@ -43,18 +43,18 @@ const LIST_SEPARATOR = /(?:,\s*|\s+и\s+|\s+and\s+)/uy;
 const NUMBER = /(?<![\p{L}\p{N}_-])(?:(R)(\d+)|([ОПТ])-(\d+))(?![\p{L}\p{N}])/gu;
 const RANGE_DASH = /^\s*[–—-]\s*$/u;
 
-// Sections are numbered 1–99 at every level, so "2026" in a date is never one.
+// Sections are numbered 1–99 at every level, so `2026` in a date is never one.
 const SECTION = /\d{1,2}(?:\.\d{1,2})*/;
 const DOCUMENT_SECTION = new RegExp(
   `(?<![\\p{L}\\p{N}_./-])(${Object.keys(documents).join("|")})\\s+(${SECTION.source})(?![\\p{L}\\p{N}])`,
   "gu",
 );
 const WORD_SECTION = new RegExp(`(?<!\\p{L})(?:раздел(?:а|е|у|ом|ы|ов|ам|ами|ах)?|sections?)\\s+(${SECTION.source})(?![\\p{L}\\p{N}])`, "giu");
-// One more section of the same citation: ", 4", " и 8", "–7". A number after a comma or «и»
-// followed by a word is a count, not a section, and so is a range there: "product 7, 12 модулей",
-// "product 7, 10–12 модулей". A range is an en dash without spaces, "5–7", and the last number of
-// a range that goes on from a section is a section whatever follows it: "measurements 1.1–1.99
-// records" cites 1.99.
+// One more section of the same citation: `, 4`, ` и 8`, `–7`. A number after a comma or «и»
+// followed by a word is a count, not a section, and so is a range there: `product 7, 12 модулей`,
+// `product 7, 10–12 модулей`. A range is an en dash without spaces, `5–7`, and the last number of
+// a range that goes on from a section is a section whatever follows it:
+// `measurements 1.1–1.99 records` cites 1.99.
 const WORD_AFTER = `\\s+(?!(?:и|and)\\s+\\d|${FOREIGN}|${SPEC})\\p{L}`;
 const SECTION_MORE = new RegExp(
   `(\\s*,\\s*|\\s+и\\s+|\\s+and\\s+)(${SECTION.source})` +
@@ -62,8 +62,9 @@ const SECTION_MORE = new RegExp(
     `|(–)(${SECTION.source})(?![\\p{L}\\p{N}]|[.-]\\d)`,
   "uy",
 );
-// "раздел 3 лицензии", "разделы 3 и 4 лицензии", "section 3 of the license", "sections 9–11 in SB
-// 297": a section of some other text. Tested on the text after the first number.
+// `раздел 3 лицензии`, `разделы 3 и 4 лицензии`, `section 3 of the license`,
+// `sections 9–11 in SB 297`: a section of some other text. Tested on the text after the first
+// number.
 const SECTION_OF_SOMETHING = new RegExp(
   `^(?:(?:\\s*,\\s*|\\s+(?:и|and)\\s+|–)${SECTION.source})*\\s+(?:${[...otherTexts, "of", "in"].map(escape).join("|")})(?!\\p{L})`,
   "u",
@@ -74,7 +75,7 @@ const SECTION_OF_SOMETHING = new RegExp(
 const WRONG_SCRIPT = /(?<![\p{L}\p{N}_-])(?:(Р|R-)|([OPT])-|([ОПТ]))(\d+)(?![\p{L}\p{N}])/gu;
 const LOOKS_LIKE = { O: "О-", P: "П-", T: "Т-", О: "О-", П: "П-", Т: "Т-" };
 
-// The spans of a block covered by lists such as "canvas-api: R37, R38".
+// The spans of a block covered by lists such as `canvas-api: R37, R38`.
 function foreignSpans(text) {
   const spans = [];
   for (const head of text.matchAll(FOREIGN_LIST)) {
@@ -104,11 +105,11 @@ export function scopeAfter(text, end) {
   return SPEC_SUFFIX.test(after) ? "spec" : "own";
 }
 
-// A list of numbers takes the suffix after its last: "R02, R03 spec", "R37 и R38 canvas-api".
+// A list of numbers takes the suffix after its last: `R02, R03 spec`, `R37 и R38 canvas-api`.
 const NUMBER_LIST_SEPARATOR = /^(?:\s*,\s*|\s+и\s+|\s+and\s+)$/u;
 
 // Register numbers in a block: [{ prefix, digits, number, start, end, scope }].
-// A range "R15–R18" yields every number from 15 to 18.
+// A range `R15–R18` yields every number from 15 to 18.
 export function findNumbers(block) {
   const { text } = block;
   const spans = foreignSpans(text);
@@ -167,7 +168,7 @@ export function findNumbers(block) {
   return result;
 }
 
-// The section numbers after a citation's first one: ", 4", " и 8", "–7".
+// The section numbers after a citation's first one: `, 4`, ` и 8`, `–7`.
 function sectionList(text, first, at) {
   const list = [first];
   for (;;) {
@@ -185,8 +186,8 @@ function sectionList(text, first, at) {
 }
 
 // Citations of a document's sections in a block, other repositories' left out:
-// { kind: "document", name, sections, start, scope } for "product 7" and "concepts 9 spec";
-// { kind: "word", sections, start, scope } for "раздел 9.4" — the document is resolved by the caller.
+// { kind: "document", name, sections, start, scope } for `product 7` and `concepts 9 spec`;
+// { kind: "word", sections, start, scope } for `раздел 9.4` — the document is resolved by the caller.
 export function findSections(block) {
   const { text } = block;
   const spans = foreignSpans(text);

@@ -1,17 +1,16 @@
-// The runner's report of the eval protocol, novatrail.eval.v1.Report (contracts/README.md, section
-// 14; R95; RUN.md, T60): whether a file is a report as a writer writes it and as the rules of
-// section 14 let it be — who ran it, the capability it measured, its models, the code of its
-// verdicts, its eval set, and each sample's result: refused with its reason, or its answer slots or
-// its essay, with what each repeat gave. The reports among the examples of
-// contracts/examples/eval/v1/, report-<case>.json, pass it, are of the samples beside them, and
+// The runner's report of the eval protocol, novatrail.eval.v1.Report: whether a file is a report as
+// a writer writes it and as its rules let it be — who ran it, the capability it measured, its
+// models, the code of its verdicts, its eval set, and each sample's result: refused with its reason,
+// or its answer slots or its essay, with what each repeat gave (R95). The reports among the examples
+// of contracts/examples/eval/v1/, report-<case>.json, pass it, are of the samples beside them, and
 // together show every capability, a refused and a measured sample, every verdict a reading gives
 // and every mark AI gives a criterion.
 //
-// A report is read as a sample is (tools/contracts/sample.mjs): UTF-8 JSON with no key twice, read
-// strictly by the descriptors of the image buf builds of contracts/, whose text is the one written
-// back with the protobuf names and every field. Then the rules no descriptor holds. The measures
-// that section 14 counts from a report are not computed here: tutor's runner counts them, and the
-// records of a report let anyone count them again.
+// A report is read as a sample is: UTF-8 JSON with no key twice, read strictly by the descriptors of
+// the image buf builds of contracts/, whose text is the one written back with the protobuf names and
+// every field. Then the rules no descriptor holds. The measures counted from a report are not
+// computed here: tutor's runner counts them, and the records of a report let anyone count them
+// again.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -22,8 +21,8 @@ import { FOLDER, ID, PACKAGE, TAG, byPlace, isLocalId, isModuleId, messageOf, pl
 
 const TEXT = "contracts/README.md, section 14";
 
-// The values of each enum of the report, as the rules of section 14 name them; a value the package
-// adds is named here by the task that adds it.
+// The values of each enum of the report the rules name: a value the package adds is named here too,
+// or reportOf refuses the image.
 const HANDWRITING = "CAPABILITY_HANDWRITING_READING";
 const RUBRIC = "CAPABILITY_RUBRIC_ASSESSMENT";
 export const CAPABILITIES = [HANDWRITING, RUBRIC];
@@ -33,7 +32,7 @@ export const CAUSES = ["UNCHECKED_CAUSE_FAILURE", "UNCHECKED_CAUSE_LIMIT", "UNCH
 export const ASSESSMENTS = ["CRITERION_ASSESSMENT_MET", "CRITERION_ASSESSMENT_NOT_MET", "CRITERION_ASSESSMENT_NONE"];
 const ENUMS = [["Capability", CAPABILITIES], ["VerdictCode", CODES], ["Refusal", REFUSALS], ["UncheckedCause", CAUSES], ["CriterionAssessment", ASSESSMENTS]];
 // The reasons of the verdict "unreadable": the module format's, blank and notation, and the
-// observation's (section 10); and what an essay is read as when it holds no text.
+// observation's; and what an essay is read as when it holds no text.
 const VERDICT_REASONS = new Set(["blank", "notation", ...REASONS.values()]);
 const ESSAY_READ = [...ESSAY_REASONS].join(" or ");
 const NO_MARK = "UNCHECKED_CAUSE_NO_MARK";
@@ -45,11 +44,11 @@ const ESSAY_CAUSES = CAUSES.filter((cause) => cause !== CHECK);
 
 const COMMIT = /^[0-9a-f]{40}$/;
 
-// Whether an example of the package is a report, by its name: report-<case>.json (section 3).
+// Whether an example of the package is a report, by its name: report-<case>.json.
 export const isReport = (file) => path.basename(file).startsWith("report-");
 
 // The message Report, of the image buf builds of contracts/: { message }, or { error }, also when an
-// enum of the report has a value that the rules of section 14 do not name.
+// enum of the report has a value that the rules do not name.
 export const reportOf = (image) => messageOf(image, { name: "Report", what: "the message of the runner's report", text: TEXT, enums: ENUMS });
 
 // What a verdict breaks, as the vectors of verdicts of the module format write one: its verdict, a
@@ -134,8 +133,8 @@ function essayBreaches(measured, repeats, at, breach) {
   });
 }
 
-// What a report, as JSON with the protobuf names, breaks of the rules of section 14: each { at,
-// message }, with at its path in the file; none when it is valid.
+// What a report, as JSON with the protobuf names, breaks of the rules of the report: each
+// { at, message }, with at its path in the file; none when it is valid.
 export function breaches(report) {
   const found = [];
   const breach = (at, message) => found.push({ at, message });
@@ -209,7 +208,7 @@ export const EXAMPLES = { measured: "the examples its capability measures", none
 // What a report is held to of a sample by sampleBreaches, and all it reads of one: its ID, its
 // writer, its markup, whether its sheet has crops, and the answer slots of its workbook's filled
 // boxes — none of its strokes, history or PNG, so that report-check keeps no more of a large set
-// of samples than this (T116).
+// of samples than this.
 export function summaryOf(sample) {
   const summary = { id: sample.id, writer: sample.writer };
   if (sample.markup) summary.markup = sample.markup;
@@ -220,13 +219,12 @@ export function summaryOf(sample) {
 
 // What a report breaks of its samples, the ones that hold, by their IDs, whole or as summaryOf gives
 // them — spec's examples beside the report, or the samples a call of report-check names, which of
-// names in the messages: a report on
-// a capability set names every one of them that its capability measures; each sample it names is
-// one of them; a child's is refused as REFUSAL_CHILD, one without markup as REFUSAL_NO_MARKUP, and
-// any other is measured; a measured sample's answer slots are the
-// truth's that a model reads — on a workbook, its filled boxes, and on a sheet that shows no stroke,
-// which has no crops, none — with the markup's notes, and its essay the truth's and the marks of its
-// markup.
+// names in the messages: a report on a capability set names every one of them that its capability
+// measures; each sample it names is one of them; a child's is refused as REFUSAL_CHILD, one without
+// markup as REFUSAL_NO_MARKUP, and any other is measured; a measured sample's answer slots are the
+// truth's that a model reads — on a workbook, its filled boxes, and on a sheet that shows no
+// stroke, which has no crops, none — with the markup's notes, and its essay the truth's and the
+// marks of its markup.
 export function sampleBreaches(report, samples, of = EXAMPLES) {
   const found = [];
   const breach = (at, message) => found.push({ at, message });
@@ -264,7 +262,7 @@ export function sampleBreaches(report, samples, of = EXAMPLES) {
       breach([...at, "measured"], `the sample ${result.sample} is an essay, which a run of reading does not measure`);
       return;
     }
-    // A sheet that shows no stroke has no crops (section 11): like an empty box, it goes to no model.
+    // A sheet that shows no stroke has no crops: like an empty box, it goes to no model.
     const blank = sample.sheet && !sample.sheet.crops;
     const filled = sample.workbook && new Set(sample.workbook.filled_boxes.map((box) => placeOf(box.answer_slot ?? {})));
     const read = blank ? [] : truth.filter((slot) => !filled || filled.has(placeOf(slot.answer_slot ?? {}))).map((slot) => placeOf(slot.answer_slot ?? {}));
@@ -280,11 +278,11 @@ export function sampleBreaches(report, samples, of = EXAMPLES) {
 }
 
 // The examples of the runner's report at root, files of contracts/, by the image buf builds, and the
-// samples beside them, by their IDs (tools/contracts/sample.mjs, checkExamples), or null while one
-// of them breaks its rules, whose error is its own: the errors, { file, line, message } — each
-// report's, of itself and, unless null, of the samples it names, and, when
-// every one holds, what they lack together: every capability, a refused and a measured sample,
-// every verdict a reading gives and every mark AI gives a criterion.
+// samples beside them, by their IDs as checkExamples gives them, or null while one of them breaks
+// its rules, whose error is its own: the errors, { file, line, message } — each report's, of itself
+// and, unless null, of the samples it names, and, when every one holds, what they lack together:
+// every capability, a refused and a measured sample, every verdict a reading gives and every mark
+// AI gives a criterion.
 export function checkReportExamples(root, image, files, samples) {
   const known = reportOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }] };

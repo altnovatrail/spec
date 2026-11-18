@@ -1,6 +1,6 @@
-// A new version of the table of the age of digital consent starts a new line (R134): the rule, the shape it compares, the
-// script that release-version passes its lines through in spec, and the recipe, in a made-up copy
-// of spec.
+// A new version of the table of the age of digital consent starts a new line: the rule, the shape
+// it compares, the script that release-version passes its lines through in spec, and the recipe,
+// in a made-up copy of spec (R134).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

@@ -1,6 +1,6 @@
-// A new version of the deployment configuration starts a new line (R85): the rule, the shape it
+// A new version of the deployment configuration starts a new line: the rule, the shape it
 // compares, the script that release-version passes its lines through in spec, and the recipe, in a
-// made-up copy of spec.
+// made-up copy of spec (R85).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

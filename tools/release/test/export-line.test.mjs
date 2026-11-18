@@ -1,5 +1,5 @@
-// A new version of the format of the export starts a new line (R135): the rule, the shape of each
-// schema it compares, and the script that release-version passes its lines through in spec.
+// A new version of the format of the export starts a new line: the rule, the shape of each schema
+// it compares, and the script that release-version passes its lines through in spec (R135).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
