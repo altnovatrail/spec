@@ -90,7 +90,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T209 | Документы `spec`: architecture 1, 2, 3.1–3.6 | Claude | — | T203 |
 | [x] | T210 | Документы `spec`: architecture 3.7–8 | Claude | — | T209 |
 | [x] | T211 | Документы `spec`: privacy | Claude | — | T203 |
-| [ ] | T212 | Документы `spec`: concepts | Claude | — | T203 |
+| [x] | T212 | Документы `spec`: concepts | Claude | — | T203 |
 | [ ] | T213 | Комментарии кода: `tools/format-check/`, `tools/types/` | Claude | — | T205 |
 | [ ] | T214 | Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/` | Claude | — | T205 |
 | [ ] | T215 | Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/` | Claude | — | T205 |
@@ -103,13 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T212. Документы `spec`: concepts
-
-- **Цель:** `docs/concepts.md` (164 КБ, из них словарь concepts 15 — 79) — по правилу T203.
-- **Сделать:** как T208; термины словаря не менять — их держат все документы (RULES.md, The bar).
-- **Как проверить:** `just docs-check`; `/code-review high`.
-- **Разделы:** concepts 1–16; measurements 1.14.4; T203, T208.
 
 #### T213. Комментарии кода: `tools/format-check/`, `tools/types/`
 
