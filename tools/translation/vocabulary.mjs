@@ -1,7 +1,7 @@
 // The fixed words of the documents, with the English that stands for each in a translation: the
-// marks of the decision log and of a component's card in architecture 3. A translation keeps as
-// many of each as its original has, unit by unit (R143). A word that is
-// added here is added in both languages, with the italics or the bold it is written in.
+// marks of the decision log and of a component's card in the architecture. A translation keeps as
+// many of each as its original has, unit by unit. A word added here is added in both languages,
+// with the italics or the bold it is written in (R143).
 
 const DATE = String.raw`\d{4}-\d{2}-\d{2}`;
 const ORDINALS = [
@@ -27,7 +27,7 @@ const WORDS = [
   [String.raw`\*Поправка ${DATE}:\*`, String.raw`\*Amendment ${DATE}:\*`],
   ...ORDINALS.map(([ru, en]) => [String.raw`\*${ru} поправка ${DATE}:\*`, String.raw`\*${en} amendment ${DATE}:\*`]),
   // The logs of `engine` and `infra` also write «*Поправка ДАТА, вторая:*», translated as
-  // "*Amendment ДАТА, second:*" (RUN.md, T149).
+  // "*Amendment ДАТА, second:*".
   ...ORDINALS.map(([ru, en]) => [String.raw`\*Поправка ${DATE}, ${ru.toLowerCase()}:\*`, String.raw`\*Amendment ${DATE}, ${en.toLowerCase()}:\*`]),
   [String.raw`«Заменено»`, String.raw`"Superseded"`],
   [String.raw`\*Решить при детализации:\*`, String.raw`\*To decide when detailed:\*`],

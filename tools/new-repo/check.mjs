@@ -4,14 +4,14 @@
 //
 // The copy checked is .repos/<name>, for a name from the list of NovaTrail's repositories.
 // Nothing of the template may be left in it — no {{…}} and no FILL marker. LICENSE and AGENTS.md
-// must be spec's own; its documents must pass docs-check as a repository of its own — links,
-// sections, its log and tables, and its citations of spec against the spec it pins; its
-// devcontainer must keep no name of spec's, and the version of gopls its lock file names, when it
-// has one, must be the one its Dockerfile asks for (R102); the plugins its devcontainer loads in Claude
-// Code must be there, and its .claude/settings.json may name no marketplace in a local folder (R143);
-// and every link to spec on GitHub that names a version, and the tag CLAUDE.md and the opening of
-// RUN.md give spec/, must be the tag the spec submodule is checked out at. A draft — a copy without .git — has no submodule: its links to spec need only agree
-// with one another, and spec's working tree stands in for spec/.
+// must be spec's own; its documents must pass docs-check as a repository of its own, its citations
+// of spec against the spec it pins; its devcontainer must keep no name of spec's, and the version
+// of gopls its lock file names, when it has one, must be the one its Dockerfile asks for (R102);
+// the plugins its devcontainer loads must be there, and its .claude/settings.json may name no
+// marketplace in a local folder (R143); and every link to spec on GitHub that names a version, and
+// the tag CLAUDE.md and the opening of RUN.md give spec/, must be the tag the spec submodule is
+// checked out at. A draft — a copy without .git — has no submodule: its links to spec need only
+// agree with one another, and spec's working tree stands in for spec/.
 // Prints one line per error, file:line: message, and exits 1 if any.
 
 import fs from "node:fs";
@@ -33,7 +33,7 @@ const SPEC_NAMES = [
 
 const SPEC_LINK = /https:\/\/github\.com\/altnovatrail\/spec\/(?:tree|blob)\/([^/\s)#>]+)/g;
 // The tag the template's CLAUDE.md and RUN.md give spec/, as a move to a tag keeps it: no README
-// names one (the 2026-11-17 amendment to R21 spec).
+// names one (R21).
 const SPEC_TAG = /`spec\/`(?: — spec at `|, a submodule at tag )(v[^`\s:;,)]+)/g;
 
 export async function checkRepo({ dir, specRoot }) {
@@ -75,7 +75,7 @@ export async function checkRepo({ dir, specRoot }) {
   const container = text.get(".devcontainer/devcontainer.json");
   const own = container?.match(/"name": "novatrail-([^"]+)"/)?.[1];
   if (own && own !== "spec") {
-    // Docker names the container in the first network alone (architecture 3.11 spec).
+    // Docker names the container in the first network alone.
     const networks = [...container.matchAll(/"--network=([^"]+)"/g)].map((match) => match[1]);
     if (networks[0] !== `novatrail-${own}`) report(".devcontainer/devcontainer.json", 0, `its own network, novatrail-${own}, is the first of runArgs, which the container's name in the network goes to (repositories 2.2 spec)`);
     // spec's own name left has its error above.
@@ -121,9 +121,9 @@ export async function checkRepo({ dir, specRoot }) {
   return errors;
 }
 
-// What the README may not hold: it is the title, the badges and a description of the component
-// and its place in NovaTrail, which leads to docs/README.md for the rest (the second 2026-11-17
-// amendment to R21 spec). The FILL markers are left out, as they say what not to write.
+// The README is the title, the badges and a description of the component and its place in
+// NovaTrail, which leads to docs/README.md for the rest; the FILL markers are left out, as they
+// say what not to write (R21).
 const README_RULE = "the README is the title, the badges and a description alone (R21 spec)";
 const COMMAND = /`(just|git|gh|npm|npx|go|node|buf|docker|devcontainer|claude) /;
 

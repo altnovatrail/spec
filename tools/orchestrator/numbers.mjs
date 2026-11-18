@@ -1,9 +1,9 @@
-// The next free number of a task in a repository (T175). A node of an epic that the repository has
-// no task for yet gets one when it starts (README.md, section 3), and `main` alone is not enough: a
-// branch — of an open pull request, or one pushed with none yet —, or a run of the orchestrator
-// that has not merged yet, may hold a number `main` has not seen: T171 gave `skill-map`'s T27 to two
-// tasks so. A NovaTrail repository has a handful of branches, so each is read: a tree, and the files
-// of the plan that differ from those read already.
+// The next free number of a task in a repository. A node of an epic that the repository has no task
+// for yet gets one when it starts, and `main` alone is not enough: a branch — of an open pull
+// request, or one pushed with none yet —, or a run of the orchestrator that has not merged yet, may
+// hold a number `main` has not seen, and the number would go to two tasks. A NovaTrail repository
+// has a handful of branches, so each is read: a tree, and the files of the plan that differ from
+// those read already.
 //
 // A number is the repository's own where its plan defines it: the first or second cell of a row of a
 // table — «| [x] | T27 | …» — and a heading «#### T27.», in RUN.md, run/TASKS.md and the archives
@@ -15,7 +15,6 @@ import { REPOSITORIES } from "../release/repositories.mjs";
 
 export const OWNER = "altnovatrail";
 
-// The files of a plan that define its tasks' numbers.
 const PLAN_FILE = /^(?:RUN\.md|run\/TASKS\.md|docs\/plan\/[^/]+\.md)$/;
 const ROW = /^\|([^|\n]*)\|([^|\n]*)\|/gm;
 const HEADING = /^#{2,6}[ \t]+T(\d+)\./gm;
@@ -25,7 +24,7 @@ const NUMBER = /^\**T(\d+)\**$/;
 // option. Every endpoint goes after "--" too, so that no word of it reads as one.
 const REF = /^[0-9A-Za-z][\w.-]*$/;
 
-// How long one call of gh may take: a stalled network ends in an error that says so.
+// A stalled network ends in an error that says so.
 const TIMEOUT = 120_000;
 
 // gh with its arguments: what it printed, or an error with what it said.
@@ -49,8 +48,8 @@ export function highestIn(text) {
   return top;
 }
 
-// The largest number the plan's files define at a commit or branch of the repository, through
-// GitHub. A file read once is not read again: a pull request's branch shares most of main's.
+// The largest number the plan's files define at a commit or branch, through GitHub. A file read
+// once is not read again: a pull request's branch shares most of main's.
 function highestAt(repo, ref, gh, blobs) {
   const api = `repos/${OWNER}/${repo}`;
   if (!REF.test(ref)) throw new Error(`${repo}: not a commit or a branch's head: ${JSON.stringify(ref)}`);

@@ -13,13 +13,13 @@
 //   node tools/orchestrator/main.mjs sync
 //
 // It runs in spec's orchestrator container, which sees the host's Docker, and is what «Сделай эпик
-// E…» calls (RUN.md, T170). start and resume return at once; the run goes on in its container and
-// writes its files to the run's folder, and status and wait read them; stop ends the run's attempt
-// and returns once it has ended. Each command prints JSON, a line for each run; next, the next free
-// number of a repository's task, by GitHub and the runs; sync, the path and the commit of the
-// orchestrator's clone of spec; rebuild and create, the container before and after, once the Dev
-// Containers CLI has built it (R158). Exits 0 when done, 1 when what it was asked cannot be done or wait's
-// time ran out, 2 on a wrong command line.
+// E…» calls. start and resume return at once; the run goes on in its container and writes its files
+// to the run's folder, and status and wait read them; stop ends the run's attempt and returns once
+// it has ended. Each command prints JSON, a line for each run; next, the next free number of a
+// repository's task, by GitHub and the runs; sync, the path and the commit of the orchestrator's
+// clone of spec; rebuild and create, the container before and after, once the Dev Containers CLI
+// has built it (R158). Exits 0 when done, 1 when what it was asked cannot be done or wait's time ran
+// out, 2 on a wrong command line.
 // README.md says what each file of a run holds. It takes only Node's own modules, so that it runs
 // from the clone that sync keeps, which has no node_modules.
 
@@ -37,7 +37,6 @@ import { allRuns, DEFAULT_CEILING, homeOf, loadRun, openRuns, resume, SPEC_URL, 
 const USAGE =
   "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], stop <run>, status [<run>…], wait <run>… [--timeout <seconds>], next <repo>, rebuild <repo> [--container <name>] [--folder <folder>], create <repo> [--folder <folder>] or sync";
 
-// The options of each command, and how many runs or names it takes.
 const COMMANDS = {
   start: { options: { ceiling: { type: "string" }, prompt: { type: "string" }, container: { type: "string" }, folder: { type: "string" } }, min: 2, max: 2 },
   resume: { options: { answers: { type: "string" }, ceiling: { type: "string" } }, min: 1, max: 1 },
@@ -52,7 +51,6 @@ const COMMANDS = {
 
 class UsageError extends Error {}
 
-// What parseArgs found wrong, by its error's code.
 const PARSE_ERRORS = {
   ERR_PARSE_ARGS_UNKNOWN_OPTION: "an unknown option",
   ERR_PARSE_ARGS_INVALID_OPTION_VALUE: "an option without its value",
@@ -111,8 +109,8 @@ export async function main(argv, overrides = {}) {
     return 2;
   }
   const { command, words, values } = args;
-  // A prompt's file lies in the orchestrator's folder, where the procedure writes it (README.md):
-  // the command line that names it is written by a session of Claude Code.
+  // A prompt's file must lie in the orchestrator's folder, where the procedure writes it: the
+  // command line that names it is written by a session of Claude Code.
   const read = (file) => {
     const inside = path.resolve(deps.home) + path.sep;
     const full = path.resolve(file);

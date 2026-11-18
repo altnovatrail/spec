@@ -1,22 +1,16 @@
-// tokens-report: where the tokens of a repository's Claude Code sessions go (measurements 1).
+// tokens-report: where the tokens of a repository's Claude Code sessions go.
 //
 //   node tools/tokens/main.mjs [--since <date|time>] [--until <date|time>] [--top <n>] [--project <name>]... [--json | --row | --classes]
 //
 // Reads the transcripts this machine keeps of the sessions of the git repository it runs in —
 // spec, or another NovaTrail repository through `just -f spec/justfile tokens-report` — or of the
-// projects --project names, by the names of their folders of transcripts under <config>/projects, and
-// prints, in all and by session: the calls of the model, cache reads and writes, output, uncached
-// input, the context of a call and its cost at the API's prices, and in all that of a main call
-// among the first FIRST_CALLS of its session; what entered the context between calls — the
-// results of tools by tool, by file and by program, the author's words, reminders, attachments —
-// and what each carried; and what a session starts with. --since and --until bound
-// the calls by their time, in UTC unless it names a zone, --until not included; a date is its
-// first moment. --json prints what it counted as JSON instead; --row one row of the table of
-// measurements 1.9, which the monthly measurement and the archive of an epic add (R145); and
-// --classes the main calls of the orchestrator's executors by what they did, by the class of the
-// paths they named (classes.mjs). Prints numbers, paths and names
-// alone, never what a transcript says. Exits 0 when it read the folder; 2 when there is none, or
-// an argument is wrong.
+// projects --project names, by the names of their folders of transcripts under <config>/projects.
+// --since and --until bound the calls by their time, in UTC unless it names a zone, --until not
+// included; a date is its first moment. --json prints what it counted as JSON instead; --row one
+// row of the table that the monthly measurement and the archive of an epic add (R145); and
+// --classes the main calls of the orchestrator's executors by the class of the paths they named
+// (classes.mjs). Prints numbers, paths and names alone, never what a transcript says. Exits 0
+// when it read the folder; 2 when there is none, or an argument is wrong.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -102,7 +96,6 @@ export function tokensReport(argv, { cwd = process.cwd(), env = process.env } = 
     return own.map((t) => ({ ...t, root: ownRoot }));
   });
   const data = measure(transcripts, { read: readTranscript, root, since: options.since, until: options.until });
-  // The project, or the projects joined, when --project names several.
   const project = dirs.map((dir) => path.basename(dir)).join(", ");
   // The project's folder, or null when --project names several; projects, every folder read.
   if (options.json) return { lines: [JSON.stringify({ project: dirs.length === 1 ? dirs[0] : null, projects: dirs, since: options.since, until: options.until, ...data }, null, 1)], status: 0 };

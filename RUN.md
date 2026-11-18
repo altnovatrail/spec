@@ -93,7 +93,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T212 | Документы `spec`: concepts | Claude | — | T203 |
 | [x] | T213 | Комментарии кода: `tools/format-check/`, `tools/types/` | Claude | — | T205 |
 | [x] | T214 | Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/` | Claude | — | T205 |
-| [ ] | T215 | Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/` | Claude | — | T205 |
+| [x] | T215 | Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/` | Claude | — | T205 |
 | [ ] | T216 | Комментарии кода: остальное `tools/` | Claude | — | T205 |
 | [ ] | T217 | Комментарии CI и окружения: `.github/`, justfile, `.devcontainer/`, `spec.go`, `repo-template/` | Claude | — | T205 |
 | [ ] | T218 | Итог эпика E16: замер после, архив | Claude | — | T196, T206–T217; строки T206 в COORDINATION.md |
@@ -103,13 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T215. Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/`
-
-- **Цель:** как T213 — для этих папок (≈ 90 КБ комментариев); `tools/orchestrator/README.md` и `executor.md` (≈ 40 КБ) — по правилу T203: номера задач — только где они содержание.
-- **Сделать:** как T213; `executor.md` — договор исполнителя: смысл не менять.
-- **Как проверить:** как T213, и `just orchestrator-test`, `just new-repo-test`.
-- **Разделы:** T213; R156, R159; `.claude/rules/tools.md`, `.claude/rules/new-repo.md`.
 
 #### T216. Комментарии кода: остальное `tools/`
 

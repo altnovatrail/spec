@@ -1,4 +1,4 @@
-// The reading of the legal texts, section 5 of legal/README.md: the passport's schema first, then
+// The reading of the legal texts, as legal/README.md gives it: the passport's schema first, then
 // the rules in the order of the text's table. A second implementation, beside api's and the build
 // of the samples page, which computes what each vector of reading gives, and by which
 // legal-check reads spec's own legal/ and legal-check-dir an operator's folder.
@@ -10,7 +10,7 @@
 //
 // A version in force applies from its day, in_force_since, and a reader reads the part on a day of
 // its own, today, YYYY-MM-DD in UTC: the current version is the newest in force whose day has come,
-// and the next one the version that becomes current on the nearest day still to come (section 2).
+// and the next one the version that becomes current on the nearest day still to come.
 
 import { isDeepStrictEqual } from "node:util";
 import { markdownTree } from "../docs-check/markdown.mjs";
@@ -30,16 +30,16 @@ export const IN_FORCE_UNCHANGED = "legal.in-force-unchanged";
 export const RULES = [FILES, VERSIONS, SET_TEXTS, MARKDOWN, OPERATOR, IN_FORCE_UNCHANGED];
 
 const IN_FORCE = "in_force";
-// Where the notice and the form of a set stand (section 4).
+// Where the notice and the form of a set stand.
 const SET_PLACES = [
   ["notice", "samples_page"],
   ["form", "form"],
 ];
 // What a version of a text never holds: HTML, an image, and a link of any form — a literal
-// autolink of GFM and an autolink in <…> among them, which mdast gives as links (section 4).
+// autolink of GFM and an autolink in <…> among them, which mdast gives as links.
 const FORBIDDEN = new Set(["html", "image", "imageReference", "link", "linkReference", "definition"]);
 // The privacy policy, whose section "Who we are" names the operator, and that section's heading,
-// of the second level (R115; section 5).
+// of the second level (R115).
 export const POLICY = "privacy-policy";
 const WHO_WE_ARE = "Who we are";
 const DAY = /^\d{4}-\d{2}-\d{2}$/;

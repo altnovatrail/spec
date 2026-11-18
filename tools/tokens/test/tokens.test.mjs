@@ -362,7 +362,7 @@ test("the report of a repository prints numbers, paths and names, and never what
   assert.equal(json.status, 0);
   assert.doesNotMatch(json.lines.join("\n"), new RegExp(SECRET));
   assert.equal(JSON.parse(json.lines[0]).main.calls, 2);
-  // One row of measurements 1.9: the window asked for, or that of the calls.
+  // One row of the monthly measurement: the window asked for, or that of the calls.
   const one = tokensReport(["--row", "--until", "2030-01-01T10:20:30Z"], { cwd: repository, env: { CLAUDE_CONFIG_DIR: config } });
   assert.equal(one.status, 0);
   assert.equal(one.lines.length, 1);

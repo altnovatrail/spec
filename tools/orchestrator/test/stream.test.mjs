@@ -1,4 +1,4 @@
-// Each test reads a made-up stream of claude -p, in the shape a real run printed (RUN.md, T169):
+// Each test reads a made-up stream of claude -p, in the shape a real run printed:
 // none is a real session's.
 
 import { test } from "node:test";
@@ -120,7 +120,7 @@ const VALUES = [
 ];
 
 test("the schema is draft-07, which Claude Code 2.1.280 takes, and strict ajv compiles it", () => {
-  // `--json-schema` with the 2020-12 dialect: "no schema with key or ref" (RUN.md, T169).
+  // `--json-schema` with the 2020-12 dialect: "no schema with key or ref".
   assert.equal(SCHEMA.$schema, "http://json-schema.org/draft-07/schema#");
   new Ajv({ strict: true, allErrors: true }).compile(SCHEMA);
 });

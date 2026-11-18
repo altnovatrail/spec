@@ -128,14 +128,13 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     assert.match(read(dir, "CLAUDE.md"), new RegExp(`architecture ${card.replace(".", "\\.")} spec`));
     assert.match(read(dir, "docs/decisions.md"), /set up 2026-01-02 from the template of `spec` v0\.0\.0-test/);
     for (const file of ["README.md", "CLAUDE.md", "RUN.md", "docs/architecture.md"]) assert.ok(read(dir, file).match(FILL), `${name}: ${file} has no FILL`);
-    // The window's closing leaves the container to the orchestrator's executor (R156, T175).
+    // The window's closing leaves the container to the orchestrator's executor (R156).
     assert.match(read(dir, ".devcontainer/devcontainer.json"), /\(R156 spec, its 2026-11-16 amendment; sources 9\.4 spec\)[^\n]*\n\s*"shutdownAction": "none",/, `${name}: devcontainer.json does not keep its container running`);
     // An orchestrator's run of a task goes by the executor's contract in spec (R156).
     assert.match(read(dir, "RUN.md"), /^7\. Do not commit: .*`spec\/tools\/orchestrator\/executor\.md`.*\(R156 spec\)\.$/m, `${name}: RUN.md rule 7 does not name the executor's contract`);
     for (const file of ["LICENSE", "AGENTS.md"]) assert.equal(read(dir, file), read(specRoot, file), `${name}: ${file} is not spec's`);
     // A file docs-check-repo does not read cites no number without a suffix, read as docs-check
-    // reads a citation: in the copy it would be one of the repository's own (RULES.md, Citations).
-    // В17 .github.
+    // reads a citation: in the copy it would be one of the repository's own.
     for (const file of filesOf(kind).filter((f) => !f.endsWith(".md"))) {
       const own = findNumbers({ text: read(dir, file) }).filter((n) => n.scope === "own");
       assert.deepEqual(own.map((n) => n.prefix + n.digits), [], `${name}: ${file} cites a number of spec's without its suffix`);
@@ -145,7 +144,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
   }
 });
 
-// The badges are written once, in the block of repositories 2.3, with <name> for the repository
+// The badges are written once, in the block of docs/repositories.md, with <name> for the repository
 // and <ID> for the number of its Best Practices project (R48). The template's are the first day's
 // of them, and spec's README takes its own from there.
 const FIRST_DAY = ["CI", "CodeQL", "OpenSSF Scorecard", "License", "Code Smells", "Reliability Rating", "Security Rating", "Maintainability Rating", "Vulnerabilities"];
@@ -179,9 +178,9 @@ test("the README starts with the first day's badges of repositories 2.3, in two 
   assert.ok(readme.startsWith(`# ${name}\n\n${rows}\n\n`), "the badges come right under the title, SonarCloud's measures as the second row");
 });
 
-// The author's word of 2026-11-17 (the 2026-11-17 amendment to R21): a README holds no status, no
-// section of the license, which LICENSE and the badge give, no sentence of the languages, and no
-// version of spec, which the submodule pins; spec's own README neither.
+// A README holds no status, no section of the license, which LICENSE and the badge give, no
+// sentence of the languages, and no version of spec, which the submodule pins; spec's own README
+// neither (R21).
 test("a README has no Status or License section, no sentence of the languages and no version of spec", () => {
   const readmes = [
     ["the template's README.md", read(draft("learner-model", "go", "3.8"), "README.md")],
@@ -197,9 +196,8 @@ test("a README has no Status or License section, no sentence of the languages an
   }
 });
 
-// The author's word of 2026-11-17 (the second 2026-11-17 amendment to R21): a README is the title,
-// the badges and a description of the component and its place in NovaTrail — no section, no
-// command or code block, no language; what it held before is docs/README.md.
+// A README is the title, the badges and a description of the component and its place in
+// NovaTrail — no section, no command or code block, no language; the rest is docs/README.md (R21).
 test("a README is the title, the badges and a description alone", () => {
   const readmes = [
     ["the template's README.md", read(draft("learner-model", "go", "3.8"), "README.md")],
@@ -269,7 +267,7 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     assert.match(dockerfile, /\(R34 spec\)/, "a decision the Dockerfile cites is spec's");
     assert.doesNotMatch(dockerfile, /\bR\d+\b(?! spec\b)/, "no decision of spec's is cited without its suffix");
     assert.doesNotMatch(dockerfile, /\bmeasurements \d+(?:\.\d+)*(?!\.?\d)\b(?! spec\b)/, "no section of spec's measurements is cited without its suffix");
-    // The heading of the toolchain stage holds for spec and every copy alike (RUN.md, T176).
+    // The heading of the toolchain stage holds for spec and every copy alike.
     assert.match(dockerfile, /^# What the repository's tests need beyond the core: in spec, nothing; in a copy, the lines its kind$/m);
     assert.doesNotMatch(dockerfile, /spec's tests need nothing|repo-template\/kinds\.json/, "the copy's Dockerfile does not speak of spec's tests or its template");
     if (kind === "typescript") assert.match(dockerfile, /\(measurements 3\.2 spec; the 2026-11-16 amendment to R40 spec\)/);
@@ -334,8 +332,7 @@ test("the typescript kind brings the browsers into the toolchain stage, and Biom
   for (const name of ["HEADLESS_SHELL", "WEBKIT", "FIREFOX"]) assert.match(toolchain, new RegExp(`^ARG PLAYWRIGHT_${name}_REVISION=\\d+$`, "m"));
   assert.match(toolchain, /^ENV PLAYWRIGHT_BROWSERS_PATH=\/ms-playwright$/m);
   assert.match(toolchain, /^ARG UBUNTU_SNAPSHOT=\d{8}T\d{6}Z$/m, "the system libraries come from a snapshot (R40)");
-  // apt reads the snapshot alone, from a source of its own, and none of the base image's (the
-  // 2026-11-16 amendment to R40).
+  // apt reads the snapshot alone, from a source of its own, and none of the base image's (R40).
   assert.ok(toolchain.includes('"URIs: https://snapshot.ubuntu.com/ubuntu/${UBUNTU_SNAPSHOT}/"'), "the source names the snapshot in its URI");
   assert.match(toolchain, /apt_sources=\(-o "Dir::Etc::SourceList=\/dev\/null" -o "Dir::Etc::SourceParts=\$sources"\)/, "apt reads that source alone");
   const code = toolchain.split("\n").filter((line) => !line.startsWith("#")).join("\n");
@@ -388,7 +385,7 @@ test("a kind the recipe cannot read stops it, and one written as a list is read 
   // A file of the kind's folder keeps its mode in the copy, as the template's own files do.
   const withScript = standIn({ change: (r) => fs.writeFileSync(path.join(r, "repo-template/kinds/go/gopls/build.sh"), "#!/bin/sh\n", { mode: 0o755 }) });
   assert.ok(fs.statSync(path.join(draft("engine", "go", "3.8", withScript), ".devcontainer/gopls/build.sh")).mode & 0o100, "a script of the kind's folder lost its executable bit");
-  // The latest tag before R79 writes a kind as its list of extensions: `just new-repo` still builds.
+  // A kind written as its list of extensions alone, as an older tag may hold it, still builds.
   const root = standIn({ change: (r) => fs.writeFileSync(path.join(r, "repo-template/kinds.json"), JSON.stringify({ docs: [], go: ["golang.go@0.56.1"], typescript: [] })) });
   const spec = parseJsonc(read(specRoot, ".devcontainer/devcontainer.json")).customizations.vscode.extensions;
   for (const [kind, extensions] of [["go", ["golang.go@0.56.1"]], ["typescript", []]]) {
@@ -504,7 +501,7 @@ test("check: the plugins a copy's devcontainer loads, and no marketplace in a lo
     `.claude/settings.json:0: gopls-lsp@novatrail is turned on from the marketplace novatrail, which spec no longer has: ${why}`,
     ".claude/settings.json:0: gopls-lsp@elsewhere is turned on, and CLAUDE_CODE_PLUGIN_DIRS of .devcontainer/devcontainer.json loads gopls-lsp already",
   ]);
-  // A copy on a tag before T162: its spec still has the marketplace, and the message says what to take.
+  // A copy on a tag of spec that still has the marketplace: the message says what to take.
   const before = temporary();
   fs.mkdirSync(path.join(before, "claude-plugins/.claude-plugin"), { recursive: true });
   fs.writeFileSync(path.join(before, "claude-plugins/.claude-plugin/marketplace.json"), "{}");
@@ -623,7 +620,7 @@ test("check: red while a FILL marker is left, green once all are written", async
 test("check: what a careless fill can leave", async () => {
   const cases = [
     ["docs/README.md", "(architecture.md)", "(architectur.md)", /^docs\/README\.md:\d+: link [^:]*architectur\.md: docs\/architectur\.md does not exist$/],
-    // The README is a description alone, and docs/README.md the rest (R21, its second 2026-11-17 amendment).
+    // The README is a description alone, and docs/README.md the rest (R21).
     ["README.md", "A component of", "## Build\n\nA component of", /^README\.md:\d+: a heading below the title: /],
     ["README.md", "A component of", "\x60\x60\x60sh\n# a comment, not a heading\nmake\n\x60\x60\x60\n\nA component of", /^README\.md:\d+: a block of code: /],
     ["README.md", "A component of", "Run \x60just ci-test\x60.\n\nA component of", /^README\.md:\d+: a command: /],
@@ -788,7 +785,7 @@ test("check: a link may name any tag of the submodule's commit", async () => {
   assert.deepEqual(await messages(dest, root), []);
 });
 
-// The findings SonarCloud raised on these tools (RUN.md, T19), each kept closed by a test.
+// The findings SonarCloud raised on these tools, each kept closed by a test.
 
 test("the programs run by absolute path are git and tar", () => {
   assert.match(execFileSync(GIT, ["--version"], { encoding: "utf8" }), /^git version /);

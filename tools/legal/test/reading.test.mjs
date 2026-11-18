@@ -1,5 +1,5 @@
-// The steps of reading the legal texts, one by one, on parts written here (legal/README.md,
-// section 5): the schema of spec's own legal/, then the rules.
+// The steps of reading the legal texts, one by one, on parts written here: the schema of spec's
+// own legal/, then the rules.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

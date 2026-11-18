@@ -1,13 +1,13 @@
 // What a run of `claude -p --output-format stream-json --verbose` printed, and what it came to
-// (R156; sources 2.11). The stream is JSON Lines: an event `system` of subtype `init` with the
-// session's id and model, an event `rate_limit_event` with the state of the subscription's limit,
-// the messages of the model and the tools, and last an event `result` with the run's cost and,
-// under --json-schema, its `structured_output`. A run cut short leaves half a line at the end, or
-// no `result` at all. A stream may hold several `result` events: an executor that waits on CI in
-// the background ends its turn, and is woken again when the task it waits on ends (T175).
+// (R156). The stream is JSON Lines: an event `system` of subtype `init` with the session's id and
+// model, an event `rate_limit_event` with the state of the subscription's limit, the messages of
+// the model and the tools, and last an event `result` with the run's cost and, under --json-schema,
+// its `structured_output`. A run cut short leaves half a line at the end, or no `result` at all. A
+// stream may hold several `result` events: an executor that waits on CI in the background ends its
+// turn, and is woken again when the task it waits on ends.
 
 // A limit's text, by the error reference of Claude Code: "You've hit your session limit · resets
-// 3:45pm", and so for the weekly, Opus and Sonnet limits (sources 2.11).
+// 3:45pm", and so for the weekly, Opus and Sonnet limits.
 const LIMIT_TEXT = /\byou['’]ve hit your [a-z ]*limit\b/i;
 
 // What the stream says: the session, the model, the last state of the limit and whether it was
@@ -34,7 +34,7 @@ export function readStream(text) {
       read.limit = event.rate_limit_info;
     } else if (event?.type === "assistant" && event.error === "rate_limit") {
       // How a transcript records the limit: a message of the model with the error, the limit's
-      // text and the quota's state beside it (RUN.md, T169).
+      // text and the quota's state beside it.
       hit(read, event.quotaLimits?.resetsAt);
     } else if (event?.type === "result") {
       read.result = event;
@@ -78,7 +78,7 @@ export function isStatus(value) {
   );
 }
 
-// A task's number, as a repository's RUN.md writes it, and as the schema's pattern has it.
+// A task's number, as the schema's pattern has it.
 export const TASK = /^T\d+$/;
 
 function isObject(value) {
@@ -89,8 +89,7 @@ function isObject(value) {
 // executor's status when it gave one, why it stopped otherwise, and when the limit resets, as an
 // ISO time. A status the executor gave is what the run came to, and so is the budget it ran out of;
 // short of either, a limit is: a run stopped by one may still print a `result`, with its text.
-// `task` is the number a status of a run started before the status named its task is read with:
-// such a run has the earlier schema in its folder, and its executor was never asked for one.
+// `task` completes a status whose schema, the one in the run's folder, asks for no task.
 export function outcomeOf(read, exit, task = null) {
   const result = read.result;
   const resetsAt = read.resetsAt === null ? null : new Date(read.resetsAt * 1000).toISOString();

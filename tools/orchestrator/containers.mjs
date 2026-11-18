@@ -1,13 +1,12 @@
 // Where a task of a repository runs: the container of that repository's clone on the host, which
 // Dev Containers created when the author opened the clone in VS Code, or the orchestrator's own
-// rebuild or create by the Dev Containers CLI (R156, R158; sources 9.3).
+// rebuild or create by the Dev Containers CLI (R156, R158).
 //
-// Dev Containers labels each container with the host's folder it was opened from,
-// devcontainer.local_folder, and the configuration it was built by, devcontainer.config_file; spec's
-// folder has two configurations, so both labels together find one. Docker names the container
-// itself — busy_gauss, modest_lichterman —, so a name finds it only when given (RUN.md, T168). The
-// clones lie side by side on the host, so a repository's folder is the one beside the folder of the
-// orchestrator's own container, unless the author names it.
+// Dev Containers labels each container with the host's folder it was opened from and the
+// configuration it was built by; spec's folder has two configurations, so only both labels together
+// find one. Docker names the container itself — busy_gauss, modest_lichterman —, so a name finds it
+// only when given. The clones lie side by side on the host, so a repository's folder is the one
+// beside the folder of the orchestrator's own container, unless the author names it.
 
 import { spawnSync } from "node:child_process";
 import os from "node:os";
@@ -17,7 +16,7 @@ import { DOCKER } from "../shared.mjs";
 export const FOLDER_LABEL = "devcontainer.local_folder";
 export const CONFIG_LABEL = "devcontainer.config_file";
 // The volume of Claude Code's sign-in and transcripts, which every NovaTrail devcontainer mounts in
-// ~/.claude, and where the orchestrator keeps its runs (README.md).
+// ~/.claude, and where the orchestrator keeps its runs.
 export const CLAUDE_VOLUME = "novatrail-claude";
 
 // A repository's name, as GitHub has it: .github is one.
@@ -45,12 +44,12 @@ export function ownFolder(docker, hostname = os.hostname()) {
   return folder;
 }
 
-// The container of a repository, by the options the author may give: `container`, its name or id;
-// or else `folder`, the host's folder of its clone, by default the one named `repo` beside the
-// orchestrator's own. Of several with the same labels, the one running; none, or several running,
-// is an error that says what to do. A name or a folder comes from a command line that a session of
-// Claude Code writes, so docker gets neither as it is: a name is looked up among docker's own
-// containers, and a folder is the repository's, an absolute path with no step back.
+// The container of a repository: `container`, its name or id; or else `folder`, the host's folder
+// of its clone, by default the one named `repo` beside the orchestrator's own. Of several with the
+// same labels, the one running; none, or several running, is an error that says what to do. A name
+// or a folder comes from a command line that a session of Claude Code writes, so docker gets
+// neither as it is: a name is looked up among docker's own containers, and a folder must be the
+// repository's, an absolute path with no step back.
 export function findContainer(repo, { docker, container = null, folder = null, hostname } = {}) {
   if (!REPOSITORY.test(repo) || /^\.+$/.test(repo)) throw new Error(`not a repository's name: ${repo}`);
   if (container) {
@@ -84,9 +83,9 @@ export function nameOf(container) {
   return String(container.Name ?? container.Id).replace(/^\//, "");
 }
 
-// Where the run goes in a container: the folder its clone is mounted at, the folder of its own
-// labels, and where it mounts the volume of Claude Code. A container without that volume cannot
-// share the run's files with the orchestrator, nor sign in to Claude.
+// Where the run goes in a container: where its clone and the volume of Claude Code are mounted. A
+// container without that volume cannot share the run's files with the orchestrator, nor sign in to
+// Claude.
 export function placeOf(container) {
   const folder = container.Config?.Labels?.[FOLDER_LABEL];
   const mounts = container.Mounts ?? [];
@@ -97,7 +96,6 @@ export function placeOf(container) {
   return { id: container.Id, name: nameOf(container), folder, workdir: clone.Destination, claude: claude.Destination };
 }
 
-// Starts a stopped container and waits until docker says it runs, `tries` times `pause` apart.
 export function ensureRunning(container, { docker, sleep, tries = 30, pause = 1000 }) {
   if (container.State?.Running) return container;
   docker(["start", container.Id]);

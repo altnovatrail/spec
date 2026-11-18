@@ -1,12 +1,12 @@
 // Rebuilding a repository's container, and creating the container a repository never had, by the
-// Dev Containers CLI of the orchestrator's image (R158; RUN.md, T193). `devcontainer up` reads the
-// configuration at the folder it is given and gives Docker the same path to mount (sources 9.5), and
-// the orchestrator's container sees only spec's folder. So the CLI runs in a helper: a container of
-// the orchestrator's own image, with the host's Docker and the clone's folder of the host at the
-// same path, on the host's network, so that a repository's initializeCommand, which Dev Containers
-// runs "on the host machine" (sources 9.4), reads the host's routes; it is removed once it ends.
-// It labels the container as VS Code does, by the folder and the configuration (sources 9.3), so
-// findContainer, a window of VS Code and a run's resume find the new one again.
+// Dev Containers CLI of the orchestrator's image (R158). `devcontainer up` reads the configuration
+// at the folder it is given and gives Docker the same path to mount, and the orchestrator's
+// container sees only spec's folder. So the CLI runs in a helper: a container of the orchestrator's
+// own image, with the host's Docker and the clone's folder of the host at the same path, on the
+// host's network, so that a repository's initializeCommand, which Dev Containers runs "on the host
+// machine", reads the host's routes; it is removed once it ends. It labels the container as VS Code
+// does, by the folder and the configuration, so findContainer, a window of VS Code and a run's
+// resume find the new one again.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -16,7 +16,6 @@ import { CONFIG_LABEL, FOLDER_LABEL, findContainer, inspect, nameOf, ownFolder, 
 
 // A repository the CLI may build: NovaTrail's own, on GitHub (R158). The socket is root on the host.
 export const ORGANIZATION = "https://github.com/altnovatrail";
-// How long a build may take before the orchestrator gives up on it.
 export const UP_TIMEOUT_MS = 60 * 60 * 1000;
 
 // What the helper runs, by sh: the mode, `rebuild` or `create`, the repository, the host's folder
@@ -62,14 +61,14 @@ export function runLong(args, { log, program = DOCKER, env = process.env, timeou
   }
 }
 
-// The image of the orchestrator's own container, which holds the Dev Containers CLI (T192).
+// The image of the orchestrator's own container, which holds the Dev Containers CLI.
 export function ownImage(docker, hostname) {
   const [self] = inspect([hostname], docker);
   if (!self?.Image) throw new Error(`this container, ${hostname}, has no image docker names`);
   return self.Image;
 }
 
-// The helper's name: one build of a repository at a time.
+// One name per repository: one build of a repository at a time.
 export function helperName(repo) {
   return `novatrail-up-${repo}`;
 }
@@ -127,7 +126,7 @@ function outcomeOfUp(stdout) {
   }
 }
 
-// Runs the helper and reads what the CLI did; a failure names the log.
+// A failure names the log.
 function up({ repo, mode, folder, config, mount }, deps) {
   const image = ownImage(deps.docker, deps.hostname);
   const dir = path.join(deps.home, "containers");
@@ -154,9 +153,9 @@ function up({ repo, mode, folder, config, mount }, deps) {
   return { id: made.Id, name: nameOf(made), log };
 }
 
-// Rebuilds a repository's container from its clone, by its own labels: the folder and the
-// configuration. Not the orchestrator's own container, and not one in which a session of Claude Code
-// runs — an executor's run, which ends before its merge, or the author's in a window.
+// Rebuilds a repository's container from its clone, by its own labels. Never the orchestrator's own
+// container, nor one in which a session of Claude Code runs — an executor's run, which ends before
+// its merge, or the author's in a window.
 export function rebuild(repo, { container = null, folder = null }, deps) {
   const found = findContainer(repo, { docker: deps.docker, container, folder, hostname: deps.hostname });
   const labels = found.Config?.Labels ?? {};
@@ -179,7 +178,7 @@ export function rebuild(repo, { container = null, folder = null }, deps) {
 
 // Creates the container of a repository that has none: its clone beside spec's on the host, or
 // the folder named, cloned from GitHub's main when it is not there yet, by its default
-// configuration. A repository with a container already is rebuilt instead.
+// configuration. A repository with a container already is refused: that one is rebuilt instead.
 export function create(repo, { folder = null }, deps) {
   if (!REPOSITORY.test(repo) || /^\.+$/.test(repo)) throw new Error(`not a repository's name: ${repo}`);
   if (folder !== null && (!path.posix.isAbsolute(folder) || path.posix.normalize(folder) !== folder || path.posix.basename(folder) !== repo)) {
