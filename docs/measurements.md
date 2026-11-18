@@ -1245,16 +1245,16 @@ Where the time of the orchestrator's executors goes besides the model — the lo
 
 **The answer in short.**
 - A task takes 30.4 minutes of active time: the model 13.9, the wait on GitHub's checks 7.7, the review 2.8, the local checks 3.7, the task's own long runs 1.5, the rest 1.0 (section 1.15.1).
-- The checks of GitHub are the largest part after the model, a quarter of the time. About 3.3 minutes of a task's 7.7 are rounds after the first. The bookkeeping — «Сделано», the archive, the mark — started 40 of 150 such rounds; the fixes of the review started 41 (section 1.15.2).
+- The checks of GitHub are the largest part after the model, a quarter of the time. About 3.2 minutes of a task's 7.7 are rounds after the first. The bookkeeping — «Сделано», the archive, the mark — started 40 of 150 such rounds; the fixes of the review started 39 (section 1.15.2).
 - The local checks are 12% of the time, and 21% in `app`. The cores are not what limits a task. The container of `app` sat under one core in 79% of its samples, because it waited on the model or on GitHub. During `just ci` it took 5.9 cores on average, 15.4 at most (section 1.15.3).
 - Under `claude -p --json-schema` a wait in the background often lost its result. Until the orchestrator asked for the wait in the foreground, 59 of 301 attempts ended with a background command stopped after their last status, 49 of them a wait on CI. With that word, 0 of 17 did (section 1.15.4).
-- What the changes give, by what was measured: about 1.2 minutes of a task's 30, up to 2 in `app`, a round of CI in the tasks whose fix only CI checked, and the end of the lost waits. The rest is the model and the first round of CI (section 1.15.5).
+- What the changes give, by what was measured: about 1.1 minutes of a task's 30, up to 2 in `app`, a round of CI in the tasks whose fix only CI checked, and the end of the lost waits. The rest is the model and the first round of CI (section 1.15.5).
 
 #### 1.15.1. Where a task's time goes
 
 Minutes a session, by repository:
 - *CI* is every call that waits on or reads the checks of GitHub, SonarCloud's and codecov's included;
-- *review* is `/code-review`;
+- *review* is `/code-review`, with the few subagents, 0.1% of the time;
 - *local* is the local checks: tests, `just ci*`, `mockup-compare`, the checks of documents, lint, types and builds;
 - *own runs* is a task's own long runs, such as `sim`'s and `tutor-eval`'s.
 
@@ -1287,38 +1287,38 @@ Every pull request of the 13 repositories merged from 2026-11-16T00:00 to 2026-1
 
 | Repository | Pull requests | Runs a pull request | CI, median | All checks, median |
 |---|---|---|---|---|
-| `.github` | 18 | 1.2 | 2.0 | 2.5 |
-| `api` | 20 | 1.4 | 5.9 | 6.9 |
-| `app` | 34 | 2.2 | 4.2 | 5.0 |
+| `.github` | 18 | 1.2 | 1.9 | 2.5 |
+| `api` | 20 | 1.4 | 5.8 | 6.8 |
+| `app` | 34 | 2.2 | 4.1 | 5.0 |
 | `canvas` | 15 | 1.6 | 3.0 | 9.1 |
 | `engine` | 11 | 1.8 | 6.5 | 6.4 |
-| `infra` | 36 | 1.4 | 3.1 | 3.0 |
+| `infra` | 36 | 1.4 | 3.0 | 3.0 |
 | `learner-model` | 15 | 1.4 | 7.3 | 7.2 |
-| `module-kit` | 10 | 1.6 | 3.9 | 5.0 |
+| `module-kit` | 10 | 1.6 | 3.5 | 4.7 |
 | `modules` | 10 | 1.5 | 6.0 | 6.3 |
 | `sim` | 15 | 1.6 | 8.4 | 8.3 |
-| `skill-map` | 12 | 1.6 | 4.2 | 6.6 |
+| `skill-map` | 12 | 1.6 | 4.0 | 5.5 |
 | `spec` | 25 | 1.9 | 3.0 | 3.8 |
 | `tutor` | 21 | 1.2 | 3.6 | 4.2 |
 | All | 242 | 1.6 | 4.2 | 5.3 |
 
 Every CI of a pull request cancels its older run on a new push: `concurrency` with `cancel-in-progress` in `.github/workflows/ci.yml` of each repository on `main`, `self-ci.yml` in `.github`.
 
-**Why another round.** The executors pushed 150 times after their pull request was opened. Each push is classed by its commit's message, and its minutes are the executor's waits on CI until its next push:
+**Why another round.** The executors pushed 150 times after their pull request was opened. Each push is classed by its commit's message, and its minutes are the time of the class CI of section 1.15.1 until its next push, in the same 230 sessions:
 
 | Cause, by the message | Pushes | Minutes of CI waited after them |
 |---|---|---|
-| a fix of the task's code — after CI, SonarCloud or the review, which the message does not tell | 48 | 210 |
-| the review: "Fix the review", "Close the review of T68" | 41 | 215 |
-| the bookkeeping: «Сделано», the archive, the mark, the answers — "Mark T82 done, move its body to the archive of E5" | 40 | 268 |
+| a fix of the task's code — after CI, SonarCloud or the review, which the message does not tell | 50 | 217 |
+| the review: "Fix the review", "Close the review of T68" | 39 | 215 |
+| the bookkeeping: «Сделано», the archive, the mark, the answers — "Mark T82 done, move its body to the archive of E5" | 40, in 38 sessions | 251 |
 | the same message again: an amend, or a second push | 10 | 33 |
 | coverage or tests | 6 | 18 |
 | SonarCloud or CodeQL | 5 | 13 |
-| All | 150 | 757 |
+| All | 150 | 747 |
 
-- 757 minutes are 3.3 of a task's 7.7 minutes of CI. The first round, 4.4 minutes, is how fast CI is (sections 3.1 and 3.2).
+- 747 minutes are 3.2 of a task's 7.7 minutes of CI. The first round, 4.5 minutes, is how fast CI is (sections 3.1 and 3.2).
 - 145 sessions ran the review before their first push and 59 after it. With `cancel-in-progress` the order changes little: a review after the push overlaps CI, and its fix starts the next round when the fix would have started it anyway.
-- The local rerun after a fix covers less than CI. In T87 `app` a fix of SonarCloud's S6845 broke a check of axe at 320 px, which only CI ran: 27 minutes (section 1.14.3). After an edit the executors of `app` mostly reran one file or one project in Chromium, where CI runs three engines and the comparison with the mockup.
+- The local rerun after a fix covers less than CI. In T87 `app` a fix of SonarCloud's S6845 broke a check of axe at 320 px, which only CI ran: 27 minutes (section 1.14.3). After an edit the executors of `app` ran tests at a median 0.8 cores (section 1.15.3), one file or one project, where CI runs three engines and the comparison with the mockup.
 
 #### 1.15.3. The local checks and the cores
 
@@ -1332,7 +1332,7 @@ The container of `app`, `festive_shannon`, by the log `cpu-festive_shannon.log` 
 | tests | 65 | 2.1 | 0.8 | 15.7 |
 | just ci | 63 | 5.9 | 4.2 | 15.4 |
 | review | 32 | 0.0 | 0.0 | 0.2 |
-| lint, types, build | 2 | 2.5 | 3.9 | 3.9 |
+| lint, types, build | 2 | 2.5 | 2.5 | 3.9 |
 | install | 1 | 0.2 | 0.2 | 0.2 |
 | other shell | 1 | 0.3 | 0.3 | 0.3 |
 | docs checks | 1 | 1.0 | 1.0 | 1.0 |
@@ -1341,7 +1341,7 @@ The container of `app`, `festive_shannon`, by the log `cpu-festive_shannon.log` 
 - `just ci` of `app` runs its recipes one after another: `ci: ci-lint ci-test ci-engines ci-vuln ci-licenses`. In CI they are jobs side by side. The steps of run 44241161972 of `app`'s CI on `main`, 2026-11-18, took 132 s `ci-test`, 285 s `ci-engines`, 15 s `ci-licenses`, and under 30 s each lint and vuln: 285 s of about 460.
   - just 1.58.0, the version of the image, runs a recipe's dependencies at once with `[parallel]` (sources 11.3).
   - A full run would be at most 38% shorter, less what the engines take from each other on the same cores. `just ci*` take 2.0 minutes a task of `app`, some of it single recipes, so it gives under 0.8 minutes a task of `app`.
-- Tests: 2.0 cores on average and 0.8 at the median. The executor runs one file or one project after an edit, and one file is one worker of Vitest in one engine.
+- Tests: 2.1 cores on average and 0.8 at the median. The executor runs one file or one project after an edit, and one file is one worker of Vitest in one engine.
 - The host is shared: up to 13 executors ran at once (section 1.13), and measurements 3.2 saw a load average of 58–104 on its 20 cores. More cores for one container would take them from another.
 
 #### 1.15.4. Waiting under `claude -p`
@@ -1353,10 +1353,10 @@ An executor runs as `claude -p --output-format stream-json --json-schema` (R156)
   - Of 117 waits, 79 went on: 78 by the notification of the background work, the run kept open for it (sources 2.15), and one by the orchestrator's prompt. 38 ended there.
 - In the streams of the runs, by the attempts that had ended by 06:30 UTC:
 
-| Prompts | Attempts with a result | A background command stopped after the last result | Of them, a wait on CI | More than one result |
-|---|---|---|---|---|
-| before the word to wait in the foreground | 301 | 59 | 49 | 52 |
-| with it, from 2026-11-18T02:23 | 17 | 0 | 0 | 0 |
+| Prompts | Attempts with a result | A background command stopped after the last result | Of them, a wait on CI | More than one result | Both |
+|---|---|---|---|---|---|
+| before the word to wait in the foreground | 301 | 59 | 49 | 52 | 13 |
+| with it, from 2026-11-18T02:23 | 17 | 0 | 0 | 0 | 0 |
 
 - The word is a paragraph of the orchestrator's prompt: long work runs in the foreground, under Bash's `timeout` of 600000 ms, the call repeated until it is done.
   - The ceiling of a foreground command is ten minutes by default, `BASH_MAX_TIMEOUT_MS` (sources 2.15). A command that reaches its timeout moves to the background, so a wait runs under `timeout 590` in its own command.
@@ -1372,7 +1372,7 @@ An executor runs as `claude -p --output-format stream-json --json-schema` (R156)
 | Proposal | Minutes a task | What changes | Question |
 |---|---|---|---|
 | The executor waits in the foreground: `timeout 590` inside, Bash's `timeout` 600000 ms, repeated; never `run_in_background`, Monitor or `ScheduleWakeup` for a wait | 0 of time; the lost waits, 59 of 301 attempts, go | `executor.md`; amendments to R143 and R156; one clause of RULES.md | В66 |
-| The bookkeeping goes into the round of CI that is waited for: «Сделано», the archive and the mark committed before the wait, the pull request's number in them, and a push after a green CI only for what a check found | 1.2 on average; 6.7 in the 40 tasks that pushed it after | `executor.md` | В67 |
+| The bookkeeping goes into the round of CI that is waited for: «Сделано», the archive and the mark committed before the wait, the pull request's number in them, and a push after a green CI only for what a check found | 1.1 on average; 6.6 in the 38 tasks that pushed it after | `executor.md` | В67 |
 | After a fix that follows a finding of CI, SonarCloud or the review, the recipe of CI that covers the changed files, not one file | not measured; 27 in T87 | `executor.md` | В67 |
 | `[parallel]` for `just ci` where its recipes are independent, as in `app` | under 0.8 in `app` | the justfiles of the repositories | В68 |
 
@@ -1380,30 +1380,34 @@ An executor runs as `claude -p --output-format stream-json --json-schema` (R156)
   - The order of the review and the push: with `cancel-in-progress` it changes little (section 1.15.2).
   - A shorter interval of polling: the executors poll every 20–30 s, so it would give seconds a round.
   - The executor not waiting on CI at all, leaving it to the orchestrator: a failure would then resume the session and write its context to the cache again, $0.7–1.2 at 146 thousand tokens and $5–8 a million (section 1.2), against $0.03 a call of the wait.
-- What stays is the first round of CI, 4.4 minutes a task: the gates of `sim`, `engine` and `learner-model` and the tests of `api` (sections 3.1 and 3.2). No new estimate here.
+- What stays is the first round of CI, 4.5 minutes a task: the gates of `sim`, `engine` and `learner-model` and the tests of `api` (sections 3.1 and 3.2). No new estimate here.
 
 #### 1.15.6. The commands
 
-In a folder with the scripts below; `run.sh` prints every number of section 1.15. `prci.sh` reads the GitHub API, once, into `prci.tsv`. The transcripts are read only up to 05:30, and the runs only by the attempts that had ended by 06:30, so a later run gives the same numbers.
+In a folder with the scripts below; `run.sh` prints the numbers of section 1.15. What it reads from the GitHub API, `prci.tsv` by `prci.sh` and the steps of a run of `app`'s CI, runs once, as its comments say. The transcripts are read only up to 05:30, and the runs only by the attempts that had ended by 06:30, so a later run gives the same numbers.
 
 `run.sh`:
 ```sh
 #!/bin/bash
-# run.sh — every number of measurements 1.15 from the transcripts and the runs on the volume novatrail-claude.
+# run.sh — the numbers of measurements 1.15 from the transcripts and the runs on the volume novatrail-claude.
 cd "$(dirname "$0")"; S=2026-11-16; U=2026-11-18T05:30
 P=/home/vscode/.claude/projects; D=$(ls -d $P/-workspaces-* | grep -v -- '--repos-')
 node durations.mjs $S $U $D | grep -v -P '^learner-model\tT61\t' > s.tsv
-node table.mjs s.tsv; node agg.mjs s.tsv | head -15
+node table.mjs s.tsv; node agg.mjs s.tsv | head -15; grep -P '^app\tT87\t' s.tsv | cut -f4,5
 node forced.mjs $S $U $D; node order.mjs $S $U $D
-for d in $D; do r=$(basename $d | sed 's/-workspaces-//; s/^-github$/.github/'); node why.mjs $S $U $d | sed "s/^/$r\t/"; done > why.tsv
-awk -F'\t' '{m=$4; k = (m=="") ? "same message" : (m ~ /[Rr]eview/) ? "review" : (m ~ /Sonar|S[0-9][0-9][0-9][0-9]|CodeQL|duplicat/) ? "SonarCloud or CodeQL" : (m ~ /^(Mark|Move|Record|Name|Archive|Close)|archive|[Dd]one/) ? "bookkeeping" : (m ~ /[Cc]over|test/) ? "coverage or tests" : "other"; n[k]++; c[k]+=$5; t++; tc+=$5} END {for (k in n) printf "%s: %d pushes, %.0f min of CI wait after them\n", k, n[k], c[k]; printf "all: %d pushes, %.0f min\n", t, tc}' why.tsv
+PUSHES=1 node durations.mjs $S $U $D | grep -v -P '^learner-model\tT61\t' > why.tsv
+awk -F'\t' '{m=$4; k = (m=="") ? "same message" : (m ~ /[Rr]eview/) ? "review" : (m ~ /Sonar|S[0-9][0-9][0-9][0-9]|CodeQL|duplicat/) ? "SonarCloud or CodeQL" : (m ~ /^(Mark|Move|Record|Name|Archive|Close)|archive|[Dd]one/) ? "bookkeeping" : (m ~ /[Cc]over|test/) ? "coverage or tests" : "other"; n[k]++; c[k]+=$5; if (!((k, $3) in seen)) { seen[k, $3]; s[k]++ } t++; tc+=$5} END {for (k in n) printf "%s: %d pushes in %d sessions, %.0f min of CI wait after them\n", k, n[k], s[k], c[k]; printf "all: %d pushes, %.0f min\n", t, tc}' why.tsv
 node streams.mjs /home/vscode/.claude/novatrail-orchestrator/runs 20261118T063000Z
+# How often the executors poll the checks, over all the transcripts of the folders.
+for d in $D; do cat $d/*.jsonl; done | grep -oE 'gh pr checks [^"]{0,200}' | grep -oE -- '--interval [0-9]+|sleep [0-9]+' | sort | uniq -c | sort -rn | head -5
 # Once, by the GitHub API: for r in .github api app canvas engine infra learner-model module-kit modules sim skill-map spec tutor; do ./prci.sh $r; done > prci.tsv
 node prci-table.mjs prci.tsv
+# Once, by the GitHub API: the steps of over 10 s of each job of app's run of CI 44241161972.
+# gh api repos/altnovatrail/app/actions/runs/44241161972/jobs --jq '.jobs[] | [.name, ([.steps[] | select(((.completed_at|fromdateiso8601) - (.started_at|fromdateiso8601)) > 10) | "\(.name)=\((.completed_at|fromdateiso8601) - (.started_at|fromdateiso8601))s"] | join(", "))] | @tsv'
 # The container of app: the samples of 03:46:03–05:44:28 UTC, and T87, T89 and T90 of app.
 awk '$1 >= "03:46" && $1 <= "05:44:28"' $HOME/.claude/novatrail-orchestrator/epics/coord-2026-11-16/cpu-festive_shannon.log > cpu.log
 node cpu.mjs cpu.log 2026-11-18 $P/-workspaces-app/{760b18b4-ed79-4cfe-a440-4c3fd8d8bea1,74ad0bae-b3f0-4dc0-9b95-b6cfaefcb927,41acb6b3-3868-4629-90d1-195ba5c554e9}.jsonl
-awk '{v = $2 + 0; n++; s += v; if (v < 100) lo++} END {printf "%d samples, mean %.2f cores, %d under one core\n", n, s/n/100, lo}' cpu.log
+awk '{v = $2 + 0; n++; s += v; if (v < 100) lo++; if (v > m) m = v} END {printf "%d samples, mean %.2f cores, %d under one core, the most %.0f%%\n", n, s/n/100, lo, m}' cpu.log
 ```
 
 `durations.mjs`:
@@ -1411,6 +1415,8 @@ awk '{v = $2 + 0; n++; s += v; if (v < 100) lo++} END {printf "%d samples, mean 
 // node durations.mjs <since> <until> <folder>... — the wall time of the orchestrator's executors (entrypoint sdk-cli)
 // whose session started in the window, by what it waited on: the model, or a tool call by its class. Prints one TSV row
 // a session — repo, task, start, active minutes, then minutes by class, forced statuses, of them after a background wait.
+// With PUSHES=1 it prints instead each push after the session opened its pull request: repo, task, session, the first
+// line of the commit message pushed, and the minutes of the class "ci wait" from that push to the next.
 import fs from 'node:fs';
 const [since, until, ...dirs] = process.argv.slice(2);
 const IDLE = 15 * 60e3; // a gap with no tool outstanding longer than this is a wait for a resume, not the model
@@ -1450,12 +1456,20 @@ for (const dir of dirs) for (const f of fs.readdirSync(dir).filter((f) => f.ends
   const task = ((q?.content || JSON.stringify(first.message.content)).match(/T\d+/) || ['?'])[0];
   const repo = dir.replace(/.*-workspaces-/, '').replace(/^-github$/, '.github');
   const open = new Map(), spans = [], times = [];
-  let forced = 0, forcedBg = 0, lastUses = [];
+  let forced = 0, forcedBg = 0, lastUses = [], pr = false, msg = '';
+  const pushes = [];
   for (const e of L) {
     if (e.timestamp >= until) break;
     if (e.isSidechain || !e.timestamp || e.type === 'queue-operation') continue;
     const t = Date.parse(e.timestamp); times.push(t);
-    if (e.type === 'assistant') for (const b of e.message?.content || []) if (b.type === 'tool_use') { open.set(b.id, { t, k: klass(b), u: b }); lastUses = [...lastUses.slice(-2), b]; }
+    if (e.type === 'assistant') for (const b of e.message?.content || []) if (b.type === 'tool_use') {
+      open.set(b.id, { t, k: klass(b), u: b }); lastUses = [...lastUses.slice(-2), b];
+      const c = b.name === 'Bash' ? b.input?.command || '' : '';
+      const m = c.match(/git commit[\s\S]*?<<'?EOF'?\n([^\n]{0,110})/) || c.match(/git commit[^\n]*?-m\s+["']([^"'\n]{0,110})/);
+      if (m) msg = m[1];
+      if (/gh pr create/.test(c)) pr = true;
+      else if (pr && /git push/.test(c) && !/--delete/.test(c)) pushes.push({ t, msg, ci: 0 }), (msg = '');
+    }
     if (e.type === 'user' && Array.isArray(e.message?.content)) for (const b of e.message.content) if (b.type === 'tool_result' && open.has(b.tool_use_id)) { const o = open.get(b.tool_use_id);
       const bid = (JSON.stringify(b.content).match(/running in background with ID: (\w+)/) || [])[1];
       if (bid && o.u) { const c = (o.u.input.command || '').replace(/^\s*(cd [^&;]+(&&|;)\s*)+/, ''); const k = rule(c); bgClass.set(bid, ['other shell', 'git and gh', 'background wait'].includes(k) ? 'own runs' : k); } open.delete(b.tool_use_id); spans.push([o.t, t, o.k]); }
@@ -1465,11 +1479,16 @@ for (const dir of dirs) for (const f of fs.readdirSync(dir).filter((f) => f.ends
   for (let i = 1; i < times.length; i++) {
     const [a, b] = [times[i - 1], times[i]]; if (b <= a) continue;
     const on = spans.filter(([s, e]) => s <= a && e >= b);
-    if (on.length) for (const [, , k] of on) M[k] = (M[k] || 0) + (b - a) / on.length;
+    if (on.length) for (const [, , k] of on) {
+      M[k] = (M[k] || 0) + (b - a) / on.length;
+      const p = k === 'ci wait' && pushes.findLast((x) => x.t <= a);
+      if (p) p.ci += (b - a) / on.length;
+    }
     else if (b - a > IDLE) continue;
     else M.model = (M.model || 0) + (b - a);
     active += b - a;
   }
+  if (process.env.PUSHES) { if (active >= 3 * 6e4) for (const p of pushes) console.log([repo, task, f.slice(0, 8), p.msg, (p.ci / 6e4).toFixed(1)].join('\t')); continue; }
   console.log([repo, task, first.timestamp.slice(0, 16), (active / 6e4).toFixed(1), JSON.stringify(Object.fromEntries(Object.entries(M).map(([k, v]) => [k, +(v / 6e4).toFixed(2)]))), forced, forcedBg].join('\t'));
 }
 ```
@@ -1528,7 +1547,7 @@ for (const dir of dirs) for (const f of fs.readdirSync(dir).filter((f) => f.ends
   if (pending) { const k = kind + ' -> nothing: the run ended'; out.prompts[k] = (out.prompts[k] || 0) + 1; }
 }
 out.gaps.sort((a, b) => a - b);
-console.log(`${out.events} forced statuses after a background wait, in ${out.sessions.size} sessions; ${out.resumed} resumes after one; minutes to the resume: median ${out.gaps[out.gaps.length >> 1]?.toFixed(0)}, sum ${out.gaps.reduce((s, x) => s + x, 0).toFixed(0)}`);
+console.log(`${out.events} forced statuses after a background wait, in ${out.sessions.size} sessions; ${out.resumed} resumes after one; minutes to the resume: median ${(out.gaps.length % 2 ? out.gaps[out.gaps.length >> 1] : (out.gaps[out.gaps.length / 2 - 1] + out.gaps[out.gaps.length / 2]) / 2).toFixed(0)}, sum ${out.gaps.reduce((s, x) => s + x, 0).toFixed(0)}`);
 for (const [k, n] of Object.entries(out.prompts).sort((a, b) => b[1] - a[1])) console.log(`${n}\t${k}`);
 ```
 
@@ -1553,43 +1572,12 @@ for (const dir of dirs) for (const f of fs.readdirSync(dir).filter((f) => f.ends
 console.log(C);
 ```
 
-`why.mjs`:
-```js
-// node why.mjs <since> <until> <folder>... — each push after the pull request opened: the session's task and the
-// first lines of the commit message it pushed, to read why another round of CI ran.
-import fs from 'node:fs';
-const [since, until, ...dirs] = process.argv.slice(2);
-for (const dir of dirs) for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.jsonl'))) {
-  const L = fs.readFileSync(`${dir}/${f}`, 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return {}; } });
-  const first = L.find((e) => e.type === 'user' && !e.isSidechain);
-  if (first?.entrypoint !== 'sdk-cli' || !(first.timestamp >= since && first.timestamp < until)) continue;
-  const q = L.find((e) => e.type === 'queue-operation' && e.content);
-  const task = ((q?.content || '').match(/T\d+/) || ['?'])[0];
-  let pr = false, msg = '', cur = null; const rows = [], st = new Map();
-  const CI = /gh (pr checks|run (watch|view|list))|check-runs|\/statuses|codecov|sonarcloud|issues\/search|statusCheckRollup|\.output/;
-  for (const e of L) {
-    if (e.timestamp >= until) break;
-    if (e.isSidechain) continue;
-    if (e.type === 'user' && Array.isArray(e.message?.content)) for (const b of e.message.content) if (b.type === 'tool_result' && st.has(b.tool_use_id)) { if (cur) cur.ci += (Date.parse(e.timestamp) - st.get(b.tool_use_id)) / 6e4; st.delete(b.tool_use_id); }
-    if (e.type !== 'assistant') continue;
-    for (const b of e.message?.content || []) if (b.type === 'tool_use') {
-      const c = b.input?.command || '';
-      if (b.name === 'Bash' && !b.input.run_in_background && CI.test(c)) st.set(b.id, Date.parse(e.timestamp));
-      const m = c.match(/git commit[^\n]*?-m\s+["']([^"'\n]{0,110})/) || c.match(/git commit[^\n]*-F[\s\S]*?<<'?EOF'?\n([^\n]{0,110})/);
-      if (m) msg = m[1];
-      if (/gh pr create/.test(c)) pr = true;
-      else if (pr && /git push/.test(c) && !/--delete/.test(c)) rows.push((cur = { task, t: e.timestamp.slice(5, 16), msg, ci: 0 })), (msg = '');
-    }
-  }
-  for (const r of rows) console.log(`${r.task}\t${r.t}\t${r.msg}\t${r.ci.toFixed(1)}`);
-}
-```
-
 `streams.mjs`:
 ```js
 // node streams.mjs <runs folder> <until, YYYYMMDDTHHMMSSZ> — the attempts of the orchestrator's runs started before it,
 // by whether their prompt asked for the wait in the foreground: how many printed a result, how many had a background
-// command stopped after their last result (of them, a wait on CI), and how many printed more than one result; an
+// command stopped after their last result (of them, a wait on CI), how many printed more than one result, and how many
+// did both; an
 // attempt counts once its exit-<n> was written before the time.
 import fs from 'node:fs';
 const [dir, until] = process.argv.slice(2);
@@ -1605,9 +1593,9 @@ for (const d of fs.readdirSync(dir)) {
     const L = fs.readFileSync(`${dir}/${d}/${f}`, 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return {}; } });
     let last = -1, n = 0; L.forEach((e, i) => { if (e.type === 'result') { last = i; n++; } });
     if (last < 0) continue;
-    const c = (C[k] ||= { attempts: 0, stopped: 0, ci: 0, woken: 0 }); c.attempts++;
+    const c = (C[k] ||= { attempts: 0, stopped: 0, ci: 0, woken: 0, both: 0 }); c.attempts++;
     const st = L.slice(last + 1).filter((e) => e.subtype === 'task_notification' && e.status === 'stopped');
-    if (st.length) c.stopped++; if (st.some((e) => /gh pr checks|gh run/.test(e.summary || ''))) c.ci++; if (n > 1) c.woken++;
+    if (st.length) c.stopped++; if (st.some((e) => /gh pr checks|gh run/.test(e.summary || ''))) c.ci++; if (n > 1) c.woken++; if (st.length && n > 1) c.both++;
   }
 }
 console.log(C);
@@ -1621,8 +1609,7 @@ console.log(C);
 # minutes from the last commit's first check to the last check or status of that commit (codecov, SonarCloud included).
 r=$1
 gh pr list -R altnovatrail/$r --state merged --search 'merged:2026-11-16T00:00:00Z..2026-11-18T05:30:00Z' --limit 100 --json number,headRefName,headRefOid,author --jq '.[] | select(.author.login != "app/dependabot") | [.number, .headRefName, .headRefOid] | @tsv' |
-while IFS=
-\t' read -r n br sha; do
+while IFS=$'\t' read -r n br sha; do
   runs=$(gh api "repos/altnovatrail/$r/actions/runs?branch=$br&event=pull_request&per_page=100" --jq '[.workflow_runs[] | select(.name=="CI")] | length')
   last=$(gh api "repos/altnovatrail/$r/actions/runs?head_sha=$sha&per_page=100" --jq '[.workflow_runs[] | select(.name=="CI") | ((.updated_at|fromdateiso8601) - (.run_started_at|fromdateiso8601))/60] | max // 0')
   span=$(gh api "repos/altnovatrail/$r/commits/$sha/check-runs?per_page=100" --jq '[.check_runs[] | select(.completed_at) | [(.started_at|fromdateiso8601), (.completed_at|fromdateiso8601)]] | [ (map(.[0])|min), (map(.[1])|max) ] | @tsv')
@@ -1636,7 +1623,7 @@ done
 // node prci-table.mjs <prci.tsv> — per repository: pull requests, runs of CI a pull request, the medians of its last CI and of all its checks.
 import fs from 'node:fs';
 const L = fs.readFileSync(process.argv[2], 'utf8').trim().split('\n').map((l) => l.split('\t'));
-const med = (a) => [...a].sort((x, y) => x - y)[a.length >> 1], by = {};
+const med = (a) => { const v = [...a].sort((x, y) => x - y); return v.length % 2 ? v[v.length >> 1] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2; }, by = {};
 for (const r of L) (by[r[0]] ||= []).push(r);
 by.All = L;
 for (const [k, v] of Object.entries(by)) console.log(`| ${k === 'All' ? k : '`' + k + '`'} | ${v.length} | ${(v.reduce((s, r) => s + +r[2], 0) / v.length).toFixed(1)} | ${med(v.map((r) => +r[3])).toFixed(1)} | ${med(v.map((r) => +r[4])).toFixed(1)} |`);
@@ -1665,6 +1652,7 @@ for (const f of files) {
     }
   }
 }
+const median = (v) => (v.length % 2 ? v[v.length >> 1] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2);
 const S = {};
 for (const line of fs.readFileSync(log, 'utf8').trim().split('\n')) {
   const [hms, pct] = line.trim().split(/\s+/); const t = Date.parse(`${date}T${hms}Z`), v = parseFloat(pct) / 100;
@@ -1675,7 +1663,7 @@ for (const line of fs.readFileSync(log, 'utf8').trim().split('\n')) {
 }
 for (const [k, v] of Object.entries(S).sort((a, b) => b[1].length - a[1].length)) {
   v.sort((a, b) => a - b);
-  console.log(`| ${k} | ${v.length} | ${(v.reduce((s, x) => s + x, 0) / v.length).toFixed(1)} | ${v[Math.floor(v.length / 2)].toFixed(1)} | ${v[v.length - 1].toFixed(1)} |`);
+  console.log(`| ${k} | ${v.length} | ${(v.reduce((s, x) => s + x, 0) / v.length).toFixed(1)} | ${median(v).toFixed(1)} | ${v[v.length - 1].toFixed(1)} |`);
 }
 ```
 
