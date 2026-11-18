@@ -61,8 +61,6 @@ func TestAValueWithAnotherAfterItFails(t *testing.T) {
 	}
 }
 
-// The part of a vector of the open view with a closed field fails to be read by the open view's
-// type, on that field and on nothing else.
 func TestAClosedFieldFailsTheOpenView(t *testing.T) {
 	if _, failures, err := checkCorpus(corpusOf(t, corpusCase{File: "a.yaml", Type: "open.Traps", Value: json.RawMessage(`{"traps": {}}`), Closed: true})); err != nil || len(failures) != 0 {
 		t.Errorf("a closed field: failures %v, error %v", failures, err)
@@ -133,7 +131,6 @@ func TestTheCommandGivesItsStatus(t *testing.T) {
 	}
 }
 
-// Every type of the registry gives a value to read into: a pointer to a value of its own name.
 func TestEveryTypeGivesAValueToReadInto(t *testing.T) {
 	for name, newValue := range typesByName {
 		value := reflect.ValueOf(newValue())

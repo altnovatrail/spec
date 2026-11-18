@@ -1,5 +1,5 @@
-// The module index of section 26: the entry of a package, the build of an index from the index of
-// the release before, and the four rules that refuse a build.
+// The module index: the entry of a package, the build of an index from the index of the release
+// before, and the four rules that refuse a build.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -41,7 +41,6 @@ test("a later release keeps every entry, a package built again among them, and a
   assert.deepEqual(breaches, []);
   assert.equal(index.modules["example/a"]["0.1.0"].release, "v0.1.0");
   assert.equal(index.modules["example/a"]["0.2.0"].release, "v0.2.0");
-  // The previous index is read, never changed.
   assert.deepEqual(first, before);
 });
 
@@ -76,14 +75,13 @@ test("an index names the format version in VERSION, its previous one no later, a
     "the teaches of example/a 0.1.0 are not in the order of code units: core.division, core.times",
   ]);
   assert.deepEqual(indexFormProblems({ module_format_version: "0.1", modules: {} }, null), []);
-  // The index of the release before may be built by an earlier version, never a later one.
   assert.deepEqual(indexFormProblems({ module_format_version: "0.9", modules: {} }, "1.0", true), []);
   assert.deepEqual(indexFormProblems({ module_format_version: "1.0", modules: {} }, "1.1", true), []);
   assert.deepEqual(indexFormProblems({ module_format_version: "1.1", modules: {} }, "1.0", true), ["the index names the format version 1.1, newer than 1.0, which format/VERSION has"]);
   assert.deepEqual(indexFormProblems({ module_format_version: "2.0", modules: {} }, "1.3", true), ["the index names the format version 2.0, newer than 1.3, which format/VERSION has"]);
 });
 
-// R102, В31 module-kit: a release whose previous index the build cannot read fails, by no rule.
+// A release whose previous index the build cannot read fails, by no rule (R102; В31 module-kit).
 test("the build reads no previous index of a later format version, nor one that the schema of its own refuses", () => {
   const packages = [built("example/a", "0.2.0", B)];
   const previous = (version, extra = {}) => ({ module_format_version: version, modules: { "example/a": { "0.1.0": { module_format_version: "0.1", package_digest: A, release: "v0.1.0" } } }, ...extra });
@@ -99,7 +97,6 @@ test("the build reads no previous index of a later format version, nor one that 
   assert.match(unreadablePrevious(previous("0.2", { registry: {} }), "0.1", validate), /format version 0\.2, later than 0\.1/);
   assert.equal(unreadablePrevious(previous("0.1", { registry: {} }), "0.1", validate), "the previous index is not valid against the schema of the module index of the format version 0.1");
   assert.equal(indexOf({ version: "0.1", previous: previous("0.1", { registry: {} }), packages, release: "v0.2.0", validate }).index, undefined);
-  // The same version, or an earlier one, that the schema takes, is read.
   for (const [version, built] of [["0.1", "0.1"], ["0.1", "0.2"], ["0.9", "1.0"]]) assert.equal(unreadablePrevious(previous(version), built, validate), undefined, `${version} by ${built}`);
   assert.deepEqual(indexOf({ version: "0.2", previous: previous("0.1"), packages, release: "v0.2.0", validate }).breaches, []);
   // With format/VERSION unread, no version is later: the missing VERSION is the error, not this.

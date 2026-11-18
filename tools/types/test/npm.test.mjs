@@ -35,8 +35,6 @@ function tree() {
 
 const listing = (archive) => spawnSync(TAR, ["-tzf", archive], { encoding: "utf8" }).stdout.split("\n").filter(Boolean).sort();
 
-// The package of the types of the format of the export that the package of version holds, by the
-// lines npm.mjs names: exportv1 before EXPORT_V2_LINE, exportv2 before EXPORT_V3_LINE, exportv3 after.
 const exportOfLine = (version) => {
   const line = version.split(".").slice(0, 2).join(".");
   if (compareLines(line, EXPORT_V3_LINE) >= 0) return "exportv3";
@@ -88,7 +86,7 @@ test("from the line 0.8 on, the package holds and exports the types of the admis
   assert.doesNotMatch(manifestOf("0.7.9").description, /admission/);
 });
 
-// T88: canvas lays its page out by the numbers and widths of format 0.4, from this package.
+// canvas lays its page out by the workbook's numbers and widths from this package.
 test("from the line 0.10 on, the package holds the page of the workbook and its vectors, as JSON", () => {
   assert.equal(FIRST_PAGE_LINE, "0.10");
   const tree = treeOf(spec);
@@ -103,7 +101,7 @@ test("from the line 0.10 on, the package holds the page of the workbook and its 
     assert.equal(manifest.exports["./format/page.json"], "./format/page.json");
     assert.equal(manifest.exports["./format/vectors/pages/*.json"], "./format/vectors/pages/*.json");
     assert.deepEqual(manifest.files, ["formatv0", "canvas", "admissionv0", "format"]);
-    // The types of the lines before stay as they were.
+    // The earlier lines' types keep their places.
     assert.deepEqual(files.slice(4, 6), [{ file: "canvas/index.d.ts", from: "types/canvas/index.d.ts" }, { file: "admissionv0/index.d.ts", from: "types/admissionv0/index.d.ts" }], version);
     assert.deepEqual(Object.keys(manifest.exports), ["./formatv0", "./formatv0/open", "./canvas", "./admissionv0", "./format/page.json", "./format/vectors/pages/*.json", "./package.json"]);
     assert.match(manifest.description, /the numbers and widths of the workbook's page and its test vectors, as JSON/);
@@ -119,7 +117,7 @@ test("from the line 0.11 on, the package holds and exports the types of the depl
   for (const version of ["0.11.0", "0.12.4"]) {
     const files = filesOf(version, tree);
     assert.deepEqual(files.at(-1), { file: "deploymentv1/index.d.ts", from: "types/deploymentv1/index.d.ts" }, version);
-    // The types and the page of the lines before stay as they were.
+    // The earlier lines' types and page keep their places.
     assert.deepEqual(files.slice(4, 7), [{ file: "canvas/index.d.ts", from: "types/canvas/index.d.ts" }, { file: "admissionv0/index.d.ts", from: "types/admissionv0/index.d.ts" }, { file: "format/page.json", from: "types/page/page.json" }], version);
     const manifest = manifestOf(version);
     assert.deepEqual(manifest.files, ["formatv0", "canvas", "admissionv0", "format", "deploymentv1"]);
@@ -177,7 +175,7 @@ test("from the line 0.15 on, the package holds and exports the types of the lega
     assert.deepEqual(manifest.exports["./legalv2"], { types: "./legalv2/index.d.ts" });
     assert.equal(manifest.exports["./legalv1"], undefined);
   }
-  // A release of the line 0.14, run again, gets the package it got: legalv1.
+  // A release of the line 0.14 built again must get the same package: legalv1.
   assert.ok(filesOf("0.14.9", tree).some(({ file }) => file === "legalv1/index.d.ts"));
 });
 
@@ -208,7 +206,7 @@ test("from the line 0.17 on, the package holds and exports the types of the expo
     assert.deepEqual(manifest.exports[`./${name}`], { types: `./${name}/index.d.ts` });
     for (const other of ["exportv1", "exportv2", "exportv3"].filter((each) => each !== name)) assert.equal(manifest.exports[`./${other}`], undefined, version);
   }
-  // A release of the line 0.16, run again, gets the package it got: exportv1.
+  // A release of the line 0.16 built again must get the same package: exportv1.
   assert.equal(exportOfLine("0.16.9"), "exportv1");
   assert.deepEqual(filesOf("0.16.9", tree).at(-1), { file: "exportv1/index.d.ts", from: "types/exportv1/index.d.ts" });
   assert.equal(manifestOf("0.16.9").files.at(-1), "exportv1");
@@ -229,7 +227,7 @@ test("from the line 0.5 on, the package holds and exports the types of <novatrai
     assert.deepEqual(manifest.files, ["formatv0", "canvas"]);
     assert.match(manifest.description, /^The types of NovaTrail's module format .* And the types of the element <novatrail-canvas>/);
   }
-  // A package of the line 0.4 is the one its releases got: the package.json of the archive of
+  // A package of the line 0.4 must be the one published: the package.json of the archive of
   // v0.4.1, as npm holds it, field for field and in its order.
   assert.equal(
     JSON.stringify(manifestOf("0.4.1"), null, 2),
@@ -263,7 +261,6 @@ test("the package is written of the working tree, of files alone", () => {
     writePackage(root, "1.2.3", path.join(root, "out"));
     for (const { file, from } of FILES) assert.equal(fs.readFileSync(path.join(root, "out", file), "utf8"), `${from}\n`);
     assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, "out", "package.json"), "utf8")), manifestOf("1.2.3"));
-    // The package of an earlier line leaves the types of <novatrail-canvas> out.
     writePackage(root, "0.4.3", path.join(root, "earlier"));
     assert.equal(fs.existsSync(path.join(root, "earlier", "canvas")), false);
     assert.equal(fs.readFileSync(path.join(root, "earlier", "formatv0/index.d.ts"), "utf8"), "types/formatv0/index.d.ts\n");
@@ -323,7 +320,6 @@ test("npm packs the package, and the archive is read back", () => {
     assert.deepEqual(listing(later), ["package/LICENSE", "package/README.md", "package/canvas/index.d.ts", "package/formatv0/index.d.ts", "package/formatv0/open/index.d.ts", "package/package.json"]);
     assert.throws(() => packOf(root, "0.4.0", dir), /altnovatrail-spec-0\.4\.0\.tgz is there already/);
 
-    // An npm that fails is named, and its work folder goes.
     const failing = path.join(dir, "npm-cli.js");
     fs.writeFileSync(failing, "process.stderr.write('no registry here\\n'); process.exit(1);\n");
     assert.throws(() => packOf(root, "0.4.1", dir, undefined, failing), /npm pack failed: no registry here/);
@@ -354,7 +350,6 @@ test("an archive with a file too many, or with another package.json, is refused"
     assert.throws(() => checkArchive(archiveWith("extra", "index.js", manifestOf("0.4.0")), "0.4.0"), /extra\.tgz holds \[.*package\/index\.js.*\], not \[/);
     assert.throws(() => checkArchive(archiveWith("other", null, manifestOf("0.4.1")), "0.4.0"), /the package\.json of other\.tgz is not the one of @altnovatrail\/spec@0\.4\.0/);
     assert.throws(() => checkArchive(path.join(dir, "none.tgz"), "0.4.0"), /tar .* failed/);
-    // A package of the line 0.5 holds the types of <novatrail-canvas>; one of 0.4 that does is refused.
     checkArchive(archiveWith("later", null, manifestOf("0.5.0"), "0.5.0"), "0.5.0");
     assert.throws(() => checkArchive(archiveWith("lacking", null, manifestOf("0.5.0")), "0.5.0"), /lacking\.tgz holds \[.*\], not \[.*package\/canvas\/index\.d\.ts/);
     assert.throws(() => checkArchive(archiveWith("early", null, manifestOf("0.4.0"), "0.5.0"), "0.4.0"), /early\.tgz holds \[.*package\/canvas\/index\.d\.ts.*\], not \[/);

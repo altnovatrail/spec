@@ -1,8 +1,6 @@
-// The templates of tasks (sections 23 and 24 of the format text), as templates.mjs counts their
-// instances, picks the instance of a seed and replaces their placeholders, and knows where the
-// results of a solver stand and what it gets. The pick rests on random.mjs, which
-// its own tests hold to Go's golden outputs; what is pinned here is the order of the combinations,
-// the names of the place and the substitution, which the vectors of templates then show.
+// The templates of tasks. The pick rests on random.mjs, which its own tests hold to Go's golden
+// outputs; what is pinned here is the order of the combinations, the names of the place and the
+// substitution, which the vectors of templates then show.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

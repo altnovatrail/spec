@@ -1,6 +1,5 @@
-// The examples and test vectors of the module format, and the rules and the layout of a module its
-// text lists (format/README.md, sections 7–12, 15, 20–23, 25 and 26; R45 and its amendment of
-// 2026-10-22, R46, R56, R57, R58, R59, R60, R62, R63).
+// The examples and test vectors of the module format, and the rules and the module layout its text
+// lists (R45, R46, R56, R57, R58, R59, R60, R62, R63).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -20,33 +19,26 @@ import { answerSlotsOf, itemVerdict, slotBreaches, slotVerdict, trapOf } from ".
 import { PACKAGE_FILES, VERSION_PART, VERSION_RULES, compareVersions, formatVersionCompare, isPackageFolder, packageFromFiles, placesOf, semverOf, shownAt } from "./versions.mjs";
 import { YAML_RULES, readModuleFile } from "./yaml.mjs";
 
-// What an invalid example never names: the keyword that failed inside them is named instead
-// (format/README.md, section 8).
+// What an invalid example never names: it names the keyword that failed inside them instead.
 const NEVER_NAMED = new Set(["$ref", "allOf", "properties", "items", "if", "then", "else"]);
 const HEADER = "# error: ";
-// The part of a task, whose rules format-check implements in part.
 const TASK_PART = "task";
-// The rules of a task that format-check implements, and so checks on every task it reads: those
-// that an answer slot's check shows by itself (section 15), task.no-leaks (section 20), and the rules
-// of templates (section 23), which it checks with the others on every instance of a template. Not
-// task.template-solver: only module-kit runs a solver (section 24).
+// Checked on every task read and on every instance of a template: the rules an answer slot's check
+// shows by itself, task.no-leaks and the template rules. Not task.template-solver: only module-kit
+// runs a solver.
 const TASK_RULES = ["task.choice-key", "task.choice-options", "task.fraction-key", "task.trap-values", "task.workbook-page", "task.no-leaks", "task.template-names", "task.template-expressions", "task.placeholders", "task.template-instances", "task.instances"];
-// The part of a lesson, and the rule of a lesson that format-check implements, with its leak check
-// (section 21). The rule spans a lesson and its tasks, so its cases are laid out as modules.
 const LESSON_PART = "lesson";
+// Spans a lesson and its tasks, so its cases are laid out as modules.
 export const LESSON_LEAKS = "lesson.no-leaks";
-// Every rule of a part that format-check implements: a case of one breaks it, and a case of any
-// other rule breaks none of them.
-// The rules of a lesson that format-check implements on a lesson's file alone: the boxes that the
-// demo of a worked example on a workbook fills, and the page of its lines (section 21).
+// Checked on a lesson's file alone.
 const LESSON_RULES = ["lesson.example-fills", "lesson.workbook-page"];
+// A case of one of these breaks it, and a case of any other rule breaks none of them.
 const IMPLEMENTED_RULES = [...TASK_RULES, ...LESSON_RULES, LESSON_LEAKS];
 
-// What the text lists in its tables: the rows of each table whose first column is headed ID, each a
-// rule's ID, <part>.<name>, and its statement (section 7); and the rows of the table whose first
-// column is headed Path, the layout of a module, each a path and its part (section 10). Other tables
-// are neither, whatever their first cells look like. { rules: [{ id, line }], layoutRows: [{ path,
-// part, line }] or null when no table is headed Path, problems: [{ line, message }] }.
+// The rules, from the rows of each table whose first column is headed ID, and the module layout, from
+// the one table headed Path; other tables are neither, whatever their first cells look like.
+// { rules: [{ id, line }], layoutRows: [{ path, part, line }] or null when no table is headed Path,
+// problems: [{ line, message }] }.
 export function readText(readme) {
   const rules = [];
   let layoutRows = null;
@@ -97,11 +89,10 @@ export function partOf(rule) {
   return rule.split(".")[0];
 }
 
-// The rules format-check checks itself against those the text lists: the YAML rules, the rules of a
-// whole module, when the format has a schema of the module index, the rules of the index, and, when it
-// has a schema of version vectors, the rules of versions of a module, each side with every rule of
-// the other; and manifest.format-version, whose cases it tells apart by the version they name.
-// Problems at the rules' lines in README.md, or at none.
+// The rules format-check checks against those the text lists, both ways: the YAML rules, the
+// whole-module rules, the index rules when hasIndex and the version rules when hasVersions; and
+// manifest.format-version, whose cases it tells apart by the version they name. Problems at the
+// rules' lines in README.md, or at line 0.
 export function compareOwnRules(rules, hasIndex = false, hasVersions = false) {
   const problems = [];
   for (const [part, own, file] of [
@@ -111,8 +102,7 @@ export function compareOwnRules(rules, hasIndex = false, hasVersions = false) {
     [VERSION_PART, VERSION_RULES, "versions.mjs"],
   ]) {
     const listed = new Set(rules.filter((rule) => partOf(rule.id) === part).map((rule) => rule.id));
-    // A format without a module index, or without versions of a module, as a trial one may be, has
-    // none of their rules.
+    // A trial format may have no module index or no versions of a module, and so none of their rules.
     if ((part === INDEX_PART && !hasIndex) || (part === VERSION_PART && !hasVersions)) continue;
     for (const id of listed) {
       if (!own.includes(id)) problems.push({ line: rules.find((rule) => rule.id === id).line, message: `format-check does not check ${id}: tools/format-check/${file} has to` });
@@ -124,10 +114,10 @@ export function compareOwnRules(rules, hasIndex = false, hasVersions = false) {
 }
 
 // An example in a file: a valid one passes its schema, an invalid one gives the error its first line
-// names, and both follow the YAML rules; an example of the manifest names the version of
-// format/VERSION, and a valid example of the module index names it at its root and lists each
-// entry's teaches in the order of code units (section 26). validate is its term's validator, or undefined when there is none; version is
-// format/VERSION's, or null. Returns problems, each { line, message }.
+// names, and both follow the YAML rules; a manifest example names format/VERSION's version, and a
+// valid module index example names it at its root and lists each entry's teaches in code-unit order.
+// validate is its term's validator, or undefined; version is format/VERSION's, or null. Returns
+// problems, each { line, message }.
 export function checkExample(bytes, { kind, term, validate, version }) {
   const { value, violations, notYaml } = readModuleFile(bytes);
   const problems = yamlProblems(violations, notYaml);
@@ -162,8 +152,7 @@ export function checkExample(bytes, { kind, term, validate, version }) {
 
 // A case of a rule's test vectors, in a file. A case of a YAML rule breaks that rule and no other; a
 // case of a part's rule follows the YAML rules and passes the part's schema, so that only the rule
-// refuses it (section 9). validate is the part's validator, or undefined; version is
-// format/VERSION's, or null.
+// refuses it. validate is the part's validator, or undefined; version is format/VERSION's, or null.
 export function checkVector(bytes, { rule, validate, version }) {
   const read = readModuleFile(bytes);
   if (partOf(rule) !== "yaml") {
@@ -183,12 +172,11 @@ export function checkVector(bytes, { rule, validate, version }) {
 // A case laid out as a module: a whole-module example, or a vector of a rule that spans files. Each
 // file of the case with a part follows the YAML rules and passes that part's schema; a manifest names
 // the format's version; and the rules of a whole module hold, except in a vector of one of them,
-// which breaks that rule and no other (sections 8–10). A vector of a part's rule holds a file of
-// that part. rule is the vector's rule, or null for an example; validatorOf(part) gives a part's
-// validator, or undefined; forms holds isLocalId and isMediaPath, the forms of common's local_id and
-// media_path. An example of a whole module builds its canonical view too (section 25), which passes
-// the schema of a canonical view by validateView, when it is given. Returns problems, each { file,
-// line, message }, where file is the path of a file in the case, or "" for the case itself.
+// which breaks that rule and no other. A vector of a part's rule holds a file of that part. rule is
+// the vector's rule, or null for an example; validatorOf(part) gives a part's validator, or
+// undefined; forms holds isLocalId and isMediaPath, the forms of common's local_id and media_path. An
+// example also builds its canonical view, which passes validateView when it is given. Returns
+// problems, each { file, line, message }, where file is a path in the case, or "" for the case itself.
 export function checkModuleCase(folder, { rule, layout, validatorOf, version, forms, validateView }) {
   const { problems, members, partsOk } = readModuleCase(folder, { rule, layout, validatorOf, version, forms });
   if (rule !== null || !validateView || problems.length || !partsOk) return problems;
@@ -200,19 +188,18 @@ export function checkModuleCase(folder, { rule, layout, validatorOf, version, fo
 
 // The same, and what a case holds: { problems, files, members, partsOk }. files are the files of the
 // case that stand at a path of the layout, and members the value of each file of a part that passed
-// its schema, under the member of a canonical view that holds the part, by local ID for a part with
-// <id> (section 25); partsOk is false when a file of a part did not pass, so that members lacks it.
+// its schema, under the canonical view's member for the part, by local ID for a part with <id>;
+// partsOk is false when a file of a part did not pass, so that members lacks it.
 function readModuleCase(folder, { rule, layout, validatorOf, version, forms }) {
   const listing = listModule(folder);
   const { rows, breaches } = placeFiles(listing, layout, forms);
   const problems = [];
   const parts = new Set();
   const members = {};
-  // The values of the files that passed their schemas, by part, for the rules that format-check
-  // implements. A task is known by the name of its file, as module.file-ids has it.
+  // A task is known by the name of its file, as module.file-ids has it.
   const values = { tasks: [], lessons: [], partsOk: true };
-  // The rules of a whole module that could not be checked on this case: no vector of one then
-  // says that it breaks no such rule.
+  // Whole-module rules that could not be checked on this case: a vector of one is then not told
+  // that it breaks no such rule.
   const unchecked = new Set(forms.isMediaPath ? [] : ["module.media"]);
   for (const [file, row] of rows) {
     if (!row?.part) continue;
@@ -229,8 +216,8 @@ function readModuleCase(folder, { rule, layout, validatorOf, version, forms }) {
       else if (row.part === LESSON_PART) values.lessons.push({ file, lesson: read.value });
       else values[row.part] = read.value;
     }
-    // module.file-ids: an entry's file holds its own name in id, read only from a file that passed
-    // its schema, so that a file the schema refuses breaks that and nothing more.
+    // module.file-ids is read only from a file that passed its schema, so that a file the schema
+    // refuses breaks that and nothing more.
     const id = read.value?.id;
     if (row.id === null) continue;
     if (!validate || fileProblems.length > 0) unchecked.add("module.file-ids");
@@ -249,13 +236,13 @@ function readModuleCase(folder, { rule, layout, validatorOf, version, forms }) {
   return { problems, files, members, partsOk: values.partsOk };
 }
 
-// A vector of packages (section 9): module/, laid out as a module, holds a module that breaks no rule
-// that format-check checks, as an example of a whole module does; package.yaml follows the YAML rules
-// and passes the schema of package vectors, by its validator validate; and the package that section 25
-// builds of module/ is package.yaml's — its server part, the listing of its device part, its
-// inventory and its digest, whatever the order of keys. The results of the solvers are the vector's
-// own, in the instances of its server part: spec runs no Starlark, so it takes them as given. Returns
-// problems, each { file, line, message }, where file is package.yaml, or module/ and a path in it.
+// A vector of packages: module/ holds a module that breaks no rule format-check checks, as a
+// whole-module example does; package.yaml follows the YAML rules and passes the schema of package
+// vectors, by validate; and the package built of module/ is package.yaml's — its server part, the
+// listing of its device part, its inventory and its digest, whatever the order of keys. The solvers'
+// results are the vector's own, in its server part's instances: spec runs no Starlark, so it takes
+// them as given. Returns problems, each { file, line, message }, where file is package.yaml, or
+// module/ and a path in it.
 export function checkPackageVector(folder, { layout, validatorOf, version, forms, validate }) {
   const moduleFolder = path.join(folder, PACKAGE_MODULE);
   const read = readModuleCase(moduleFolder, { rule: null, layout, validatorOf, version, forms });
@@ -278,18 +265,18 @@ export function checkPackageVector(folder, { layout, validatorOf, version, forms
   return problems;
 }
 
-// The folder of the module in a vector of packages, and the file of the package it gives.
+// The layout of a vector of packages.
 export const PACKAGE_MODULE = "module";
 export const PACKAGE_FILE = "package.yaml";
 
-// A vector of the module index (section 9): each folder of modules/ holds a module, laid out as one,
-// that breaks no rule that format-check checks, as an example of a whole module does, and whose
-// templates have no solver, since spec runs none; index.yaml follows the YAML rules and passes the
-// schema of index vectors, by its validator validate, and each index in it names the format version
-// in VERSION — the previous one, it or an earlier one — and lists teaches in order; and section 26 builds of the release's packages the index
-// that index.yaml gives, whatever the order of keys, or refuses the build by its refusal and by no
-// other rule. { problems, refusal }: problems, each { file, line, message }, where file is index.yaml,
-// modules/ or a path in it; and the rule that the case says refuses the build, if it says one.
+// A vector of the module index: each folder of modules/ holds a module, laid out as one, that breaks
+// no rule format-check checks, as a whole-module example does, and whose templates have no solver,
+// since spec runs none; index.yaml follows the YAML rules and passes the schema of index vectors, by
+// validate, and each index in it names the format version in VERSION — the previous one, it or an
+// earlier one — and lists teaches in order; and the release's packages build the index index.yaml
+// gives, whatever the order of keys, or the build is refused by its refusal and by no other rule.
+// { problems, refusal }: problems, each { file, line, message }, where file is index.yaml, modules/
+// or a path in it; and the rule that the case says refuses the build, if it says one.
 export function checkIndexVector(folder, { layout, validatorOf, version, forms, validate }) {
   const problems = [];
   const packages = [];
@@ -315,9 +302,8 @@ export function checkIndexVector(folder, { layout, validatorOf, version, forms, 
     for (const message of indexFormProblems(value[field], version, field === "previous")) problems.push({ file: INDEX_FILE, line: 0, message: `${field}: ${message}` });
   }
   if (problems.length || !built) return { problems, refusal: value.refusal };
-  // The form above holds the previous index to what the build reads: valid against the schema of the
-  // index, by the schema of index vectors, and of no later format version. So no vector fails a
-  // release (section 26).
+  // The form check above holds the previous index to what the build reads: valid against the index
+  // schema and of no later format version. So no vector fails a release.
   const { index, breaches } = indexOf({ version, previous: value.previous, packages, release: value.release, withdrawals: value.withdrawals });
   problems.push(...refusalProblems(breaches, value.refusal, INDEX_FILE, "the build"));
   const at = breaches.length || value.refusal !== undefined ? null : differenceOf(index, value.index);
@@ -325,9 +311,9 @@ export function checkIndexVector(folder, { layout, validatorOf, version, forms, 
   return { problems, refusal: value.refusal };
 }
 
-// A module of a vector of the index or of versions, at in folder: read as an example of a whole module
-// is, and built into its package, which has no solver, since spec runs none (sections 9 and 24). The
-// package, or null, with what is wrong in problems. what names the vectors.
+// A module of a vector of the index or of versions, at in folder: read as a whole-module example is,
+// and built into its package, which has no solver, since spec runs none. The package, or null, with
+// what is wrong in problems. what names the vectors.
 function builtModule(folder, at, options, problems, what) {
   const moduleFolder = path.join(folder, at);
   const read = readModuleCase(moduleFolder, { rule: null, ...options });
@@ -356,21 +342,20 @@ function refusalProblems(breaches, refusal, file, subject) {
   return problems;
 }
 
-// The folder of the modules of a release in a vector of the module index, and the file of the release.
+// The layout of a vector of the module index.
 export const INDEX_MODULES = "modules";
 export const INDEX_FILE = "index.yaml";
 
-// A vector of versions of a module (section 9): module/ holds the new version, laid out as a module;
-// published/ holds a folder X.Y.Z for each published version of the module, at least one, named by
-// its version — laid out as a module, when it names the format version in VERSION, or, when it names
-// an earlier one, the files of its package that every version keeps, inventory.json and server.json,
-// which format-check reads only by their places (section 2). Every module of the case breaks no rule
-// that format-check checks, as an example of a whole module does, and has no solver, since spec runs
-// none; every version is of the module of module/. version.yaml follows the YAML rules and passes the schema of version vectors, by its
-// validator validate, and section 27 finds the part that it gives, or refuses the new version by its
-// refusal and by no other rule. { problems, refusal }: problems, each { file, line, message }, where
-// file is version.yaml, module/, published/ or a path in them; and the rule that the case says
-// refuses the new version, if it says one.
+// A vector of versions of a module: module/ holds the new version, laid out as a module; published/
+// holds a folder X.Y.Z for each published version of the module, at least one, named by its version —
+// laid out as a module when it names the format version in VERSION, or, when it names an earlier one,
+// the files of its package that every version keeps, inventory.json and server.json, read only by
+// their places. Every module of the case breaks no rule format-check checks and has no solver, since
+// spec runs none; every version is of module/'s module. version.yaml follows the YAML rules and passes
+// the schema of version vectors, by validate, and the comparison finds the part it gives, or refuses
+// the new version by its refusal and by no other rule. { problems, refusal }: problems, each { file,
+// line, message }, where file is version.yaml, module/, published/ or a path in them; and the rule
+// that the case says refuses the new version, if it says one.
 export function checkVersionVector(folder, { layout, validatorOf, version, forms, validate }) {
   const problems = [];
   const options = { layout, validatorOf, version, forms };
@@ -411,20 +396,20 @@ export function checkVersionVector(folder, { layout, validatorOf, version, forms
   return { problems, refusal: value.refusal };
 }
 
-// The folders and the file of a vector of versions.
+// The layout of a vector of versions.
 export const VERSION_MODULE = "module";
 export const VERSION_PUBLISHED = "published";
 export const VERSION_FILE = "version.yaml";
 
-// A version of a vector of versions laid out as a module, at in folder, built as builtModule builds
-// it: { digest, places, view, device }, or null, with what is wrong in problems.
+// A version laid out as a module, at in folder: { digest, places, view, device }, or null, with what
+// is wrong in problems.
 function builtVersion(folder, at, options, problems) {
   const pkg = builtModule(folder, at, options, problems, "versions");
   return pkg && { digest: pkg.digest, places: placesOf(pkg.inventory, pkg.server).places, view: pkg.server, device: pkg.device };
 }
 
-// A published version of an earlier version of the format, a package as files at at in folder, read
-// by its places alone (section 2). { digest, places }, or null, with what is wrong in problems.
+// A published version of an earlier format version, a package as files at at in folder, read by its
+// places alone: { digest, places }, or null, with what is wrong in problems.
 function readPackageFolder(folder, at, version, problems) {
   const files = Object.fromEntries(PACKAGE_FILES.map((name) => [name, fs.readFileSync(path.join(folder, name))]));
   const { pkg, problems: own } = packageFromFiles(files);
@@ -458,13 +443,13 @@ function resultsGiven(members, view) {
   return results;
 }
 
-// The parts of a module beside its tasks whose texts task.no-leaks searches (section 20), as
-// textsShownBefore takes them: one place, so that both callers pass the same.
+// The parts of a module beside its tasks whose texts task.no-leaks searches, in one place so that
+// both callers pass the same.
 const leakPartsOf = (manifest, traps, techniques, solvingSteps) => ({ manifest, traps, techniques, solvingSteps });
 
-// The rules of a task that format-check implements, on every instance of each template with a solver,
-// filled with the results that a vector of packages gives: they make the instances that module-kit
-// checks, as the results of an attempt of a vector of templates do (section 24).
+// The implemented task rules on every instance of each template with a solver, filled with the
+// results a vector of packages gives: they make the instances module-kit checks, as an attempt's
+// results do in a vector of templates.
 function solvedProblems(members, instances = {}) {
   const problems = [];
   const parts = leakPartsOf(members.manifest, members.traps, members.techniques, members.solving_steps);
@@ -481,8 +466,8 @@ function solvedProblems(members, instances = {}) {
   return problems;
 }
 
-// A vector of tiers (section 9): it follows the YAML rules and passes the schema of tier vectors, by
-// its validator validate, and the tier of each skill of its skill graph is the one section 12 gives.
+// A vector of tiers: it follows the YAML rules and passes the schema of tier vectors, by validate,
+// and each skill's tier is the one the format gives for its skill graph.
 export function checkTierVector(bytes, { validate }) {
   const { problems, value } = vectorStart(bytes, validate, "tier vectors");
   if (!value) return problems;
@@ -493,13 +478,13 @@ export function checkTierVector(bytes, { validate }) {
   return problems;
 }
 
-// format/page.yaml (section 14): the YAML rules and its schema, by validate. { problems, value }.
+// format/page.yaml: the YAML rules and its schema, by validate. { problems, value }.
 export function checkPageFile(bytes, { validate }) {
   return vectorStart(bytes, validate, "the page");
 }
 
-// A vector of the page (section 9): the YAML rules, the schema of such vectors, by validate, and the
-// page that section 14 lays out of its items, or the item at whose row it has no room.
+// A vector of the page: the YAML rules, the schema of such vectors, by validate, and the page laid out
+// of its items, or the item at whose row it has no room.
 export function checkPageVector(bytes, { validate }) {
   const { problems, value } = vectorStart(bytes, validate, "page vectors");
   if (!value) return problems;
@@ -513,7 +498,7 @@ export function checkPageVector(bytes, { validate }) {
   return problems;
 }
 
-// The rules of a lesson that format-check implements on its file alone (section 21), a Map from each
+// The rules of a lesson that format-check implements on its file alone, a Map from each
 // that it breaks to a detail: on a worked example on a workbook, every fill of its demo names a box
 // of its lines, and fills each box once (lesson.example-fills); and its lines fit the page as a
 // task's do (lesson.workbook-page).
@@ -545,7 +530,7 @@ export function lessonRuleBreaches(lesson) {
 }
 
 // The breach of task.workbook-page by a task on a workbook, a detail, or null: its lines do not fit
-// the page as section 14 lays them out, by format/page.yaml. None without the file.
+// the page format/page.yaml gives. None without the file.
 function pageBreach(task) {
   if (task.canvas?.kind !== "workbook" || !hasPage() || !Array.isArray(task.items)) return null;
   const noRoomAt = noRoomOf(task.items);
@@ -553,18 +538,17 @@ function pageBreach(task) {
 }
 
 // The line, from 0, at whose row the page of lines has no room, or undefined: one place for a task's
-// items and a worked example's lines, which section 14 lays out alike.
+// items and a worked example's lines, which the page lays out alike.
 const noRoomOf = (lines) => pageOf(lines).noRoomAt;
 
-// The digest of an open view, as a sample of the eval protocol names it: sha256: and the SHA-256 of
-// its canonical text (section 25; contracts/README.md, section 11).
+// The digest of an open view, as a sample of the eval protocol names it.
 export const openViewDigestOf = (view) => digestOf(canonicalBytes(view));
 
 // What digest.yaml of a vector of a task's open view holds: its one member, open_view_digest.
 export const DIGEST_FILE = "digest.yaml";
 const DIGEST_KEY = "open_view_digest";
 
-// A vector of the open view (section 9): part.yaml, a part of term, follows the YAML rules, names
+// A vector of the open view: part.yaml, a part of term, follows the YAML rules, names
 // the format's version when it is a manifest, and passes the part's schema, by its validator
 // validate; open-view.yaml follows the YAML rules; and the open view of the part, built by openView
 // — byName and schemaAt —, is open-view.yaml, whatever the order of keys. Of a task, digestBytes is
@@ -597,11 +581,11 @@ export function checkOpenView(partBytes, viewBytes, { term, validate, version, o
   return problems;
 }
 
-// A vector of verdicts (section 9): it follows the YAML rules and passes the schema of verdict vectors,
-// by its validator validate; every answer slot of its item is checked by kind, the kind of its
-// folder, and breaks none of the rules of a task that its check shows by itself; each reading names
-// every answer slot; and each verdict is the one section 15 gives — the
-// item's made of its answer slots', and an answer slot's computed from its check and the value read.
+// A vector of verdicts: it follows the YAML rules and passes the schema of verdict vectors, by
+// validate; every answer slot of its item is checked by kind, the kind of its folder, and breaks none
+// of the rules of a task that its check shows by itself; each reading names every answer slot; and
+// each verdict is the format's — the item's made of its answer slots', and an answer slot's computed
+// from its check and the value read.
 // A predicate's value in notation gets no verdict here: only module-kit runs Starlark. Returns
 // problems, each { line, message }.
 export function checkVerdictVector(bytes, { kind, validate }) {
@@ -644,7 +628,7 @@ function shown({ verdict, reason }) {
 
 const trapShown = (trap) => (trap ? `the trap ${trap}` : "no trap");
 
-// A test vector of the leak check (section 20): the YAML rules, the schema of leak vectors, the rules
+// A test vector of the leak check: the YAML rules, the schema of leak vectors, the rules
 // of a task that its answer slots' checks show by themselves, and what the leak check finds in each
 // text, as a set.
 export function checkLeakVector(bytes, { validate }) {
@@ -662,7 +646,7 @@ export function checkLeakVector(bytes, { validate }) {
   return problems;
 }
 
-// A vector of the generator (section 22): the YAML rules, the schema of such vectors, the state that
+// A vector of the generator: the YAML rules, the schema of such vectors, the state that
 // its seed and names derive, and the value of each draw, in order, on the stream from its state. A
 // state that its seed and names do not derive, or a draw whose arguments the functions do not take,
 // ends the vector.
@@ -689,7 +673,7 @@ export function checkRandomVector(bytes, { validate }) {
   return problems;
 }
 
-// A vector of templates (sections 23 and 24): the YAML rules, the schema of such vectors, the rules of
+// A vector of templates: the YAML rules, the schema of such vectors, the rules of
 // a task on every instance of its template, the number of its instances, the numbers that its solver
 // gets, and for each attempt the instance that its seed picks — its numbers, and the task it is,
 // whatever the order of keys. The results of a solver are the vector's own: spec runs no Starlark, so
@@ -755,7 +739,7 @@ const isSigned = (text) => {
 };
 const ends = (message) => ({ message, ends: true });
 
-// Each function of section 22 that a vector may call, by its field: what is wrong with its
+// Each generator function that a vector may call, by its field: what is wrong with its
 // arguments, or null, and its value on a stream.
 const DRAWS = {
   integer: { refused: (args) => (isUnsigned(args.value) ? null : `its value, ${args.value}, is past 2^64 − 1`), value: (stream) => stream.integer() },
@@ -795,8 +779,8 @@ function drawProblem(stream, draw) {
   return same ? null : { message: `${fn} gives ${shown}, not ${given}`, ends: false };
 }
 
-// The start of a vector of verdicts, of the leak check, of the generator, of templates, of packages,
-// of tiers or of the module index: the YAML rules, then the schema of such vectors. { problems, value }, with no value when the vector goes no further.
+// The start of a vector: the YAML rules, then the schema of such vectors. { problems, value }, with no
+// value when the vector goes no further.
 function vectorStart(bytes, validate, what) {
   const read = readModuleFile(bytes);
   const problems = yamlProblems(read.violations, read.notYaml);
@@ -812,11 +796,11 @@ const taskRuleBreaches = (task, parts = {}, validateTask = undefined) => expande
 // The same, and the tasks that a lesson naming the task searches for: { breaches, tasks }. A task
 // that is no template is itself. A template breaks its own rules, and the others through its
 // instances, which are its tasks: each passes the task's schema by validateTask, when it is given,
-// and is checked as a task (section 23). counted is the template's instances, when they are known.
+// and is checked as a task. counted is the template's instances, when they are known.
 function expandedOf(task, parts, validateTask, counted = undefined) {
   if (task.template === undefined) {
     const breaches = plainBreaches(task, parts);
-    // A picture path holds a placeholder only in a template (section 23; R108).
+    // A picture path holds a placeholder only in a template (R108).
     const pictures = [...(task.statement ?? []), ...(task.solution ?? [])].map((part) => part.picture);
     if (pictures.some(holdsPlaceholder)) breaches.set("task.placeholders", "a picture path holds a brace, and only a template's holds placeholders");
     return { breaches, tasks: [task] };
@@ -825,7 +809,7 @@ function expandedOf(task, parts, validateTask, counted = undefined) {
   const tasks = [];
   if (!instances) return { breaches, tasks };
   const make = instanceMaker(task);
-  // The results of a solver come from Starlark, so an instance here lacks them (section 24).
+  // The results of a solver come from Starlark, which spec does not run, so an instance here lacks them.
   const unsolved = resultsOf(task).length > 0;
   const known = withoutResults(task);
   for (const numbers of instances) {

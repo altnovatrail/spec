@@ -1,8 +1,8 @@
-// The corpus of tools/types/roundtrip (R72; RUN.md, T45): every value of format/ that passes a
-// schema, with the type of formatv0 that reads it, every value of admission/, with the type of
-// admissionv0 (R96), every value of deployment/, with the type of deploymentv1 (R85), every value
-// of legal/, with the type of legalv3 (R130), every value of consent-age/, with the type of
-// consentagev1 (R134), and every value of export/, with the type of exportv3 (R135).
+// The corpus of tools/types/roundtrip: every value of format/ that passes a schema, with the type
+// of formatv0 that reads it, every value of admission/, with the type of admissionv0, every value
+// of deployment/, with the type of deploymentv1, every value of legal/, with the type of legalv3,
+// every value of consent-age/, with the type of consentagev1, and every value of export/, with the
+// type of exportv3 (R72, R85, R96, R130, R134, R135).
 //
 //   node tools/types/corpus.mjs <file>      writes the corpus of spec's own format/, admission/,
 //                                           deployment/, legal/, consent-age/ and export/ to
@@ -14,7 +14,7 @@
 //   of each module of the vectors of packages and of the module index, and of each version laid out
 //   as a module in the vectors of versions; and the canonical view of each example of a whole module;
 // - each case of a part's rule that is a file, vectors/rules/<rule>/<case>.yaml: it passes the
-//   part's schema (format/README.md, section 9);
+//   part's schema;
 // - each vector of verdicts, of the leak check, of the generator, of templates, of tiers, of
 //   packages, of the module index and of versions;
 // - each vector of the open view: its part, read by the part's type; its open view, read by the
@@ -111,7 +111,7 @@ export function corpusOf(root, model) {
     else add(`${dir} (its canonical view)`, CANONICAL_VIEW, built.view);
   };
 
-  // The numbers and widths of the workbook's page, the one value of page.schema.json (section 14).
+  // The numbers and widths of the workbook's page, the one value of page.schema.json.
   if (fs.existsSync(path.join(root, FORMAT, "page.yaml"))) add(`${FORMAT}/page.yaml`, "page", read(`${FORMAT}/page.yaml`));
 
   for (const term of list(`${FORMAT}/examples`).map((entry) => entry.name)) {
@@ -157,7 +157,6 @@ export function corpusOf(root, model) {
     } else problems.push(`${dir}: tools/types does not know these vectors: the task that brings them extends the corpus`);
   }
 
-  // A vector of the open view: its part, its open view, and its part read by the open view's type.
   function addOpenView(dir, term) {
     const part = read(`${dir}/part.yaml`);
     const view = read(`${dir}/open-view.yaml`);

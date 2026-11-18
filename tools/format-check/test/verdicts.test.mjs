@@ -1,6 +1,5 @@
-// The verdicts of section 15 of the format text, edge by edge, as verdicts.mjs computes them, the
-// traps that wrong values match, and a vector of a predicate, of which spec computes only blank and
-// notation.
+// The verdicts, edge by edge, the traps that wrong values match, and a vector of a predicate, of
+// which spec computes only blank and notation.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -102,7 +101,7 @@ test("a choice compares the value with its options in lowercase, dropping nothin
   assert.deepEqual(verdictOf(tapped, "B", ["A", "B"]), CORRECT);
 });
 
-// R111, В28 modules: the key and the value are one word, and an option may be a phrase.
+// The key and the value are one word, and an option may be a phrase (R111; В28 modules).
 test("a choice of notation word takes one word that is none of the options as not yet right", () => {
   const names = { kind: "choice", notation: "word", options: ["Kim", "Lea", "It is impossible to tell"], key: "Kim" };
   for (const value of ["Kim", "kim.", "KIM!", "Kim ?", "Kim...", " kim "]) assert.deepEqual(verdictOf(names, value), CORRECT, value);
@@ -123,7 +122,7 @@ test("a choice of notation word takes one word that is none of the options as no
   assert.equal(choiceForm("Kim?! "), "kim?!");
   for (const form of ["kim", "zoë", "ёлка", "名前", "नमस्ते", "e\u0301"]) assert.ok(isWord(form), form);
   for (const form of ["", "kim lea", "ann-marie", "kim2", "o'neil", "\u0301e"]) assert.ok(!isWord(form), form);
-  // The key of such a choice is one word; and a full stop no longer tells two options apart.
+  // The key of such a choice is one word; and with its end dropped, a full stop tells no two options apart.
   assert.deepEqual(slotBreaches(slot({ ...names, key: "It is impossible to tell" })), ["task.choice-key"]);
   assert.deepEqual(slotBreaches(slot({ ...names, options: ["Kim.", "Lea"], key: "Kim." })), ["task.choice-key"], "the key is a word as written, so the leak check finds it");
   assert.deepEqual(slotBreaches(slot({ ...names, options: ["Kim", "Kim.", "Lea"] })), ["task.choice-options"]);
@@ -138,7 +137,7 @@ test("a choice of notation word takes one word that is none of the options as no
   assert.deepEqual(readingOf(slot(names), "Kim and Lea"), { notation: "kim and lea" });
 });
 
-// R111, В29 modules: hours and minutes as numbers, never the sum of minutes, and 24 hours.
+// Hours and minutes as numbers, never the sum of minutes, and 24 hours (R111; В29 modules).
 test("a time is right by its hours and minutes as numbers, and a time of 60 minutes or more is a wrong one", () => {
   const time = { kind: "time", key: "6:00" };
   for (const value of ["6:00", "06:00", "= 6:00.", " 6:00 "]) assert.deepEqual(verdictOf(time, value), CORRECT, value);

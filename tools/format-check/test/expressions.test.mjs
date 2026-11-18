@@ -1,10 +1,8 @@
-// The expressions of templates (section 23 of the format text), as expressions.mjs reads and
-// evaluates them, against the Starlark they are a subset of. The examples and rules cited are from
-// the specification of Starlark, spec.md of github.com/bazelbuild/starlark at commit c0af0ea03d, and
-// the parser of go.starlark.net, syntax/parse.go of github.com/google/starlark-go at commit
-// 4f4267fb14, both read on 2026-10-27 (Apache-2.0 and BSD-3-Clause). There is no Starlark here, so
-// module-kit's CI, which evaluates the vectors of templates with go.starlark.net, is the check that
-// does not rest on this file.
+// The expressions of templates against the Starlark they are a subset of. The examples and rules
+// quoted are from spec.md of github.com/bazelbuild/starlark at commit c0af0ea03d and syntax/parse.go
+// of github.com/google/starlark-go at commit 4f4267fb14 (Apache-2.0 and BSD-3-Clause). There is no
+// Starlark here, so module-kit's CI, which evaluates the vectors of templates with go.starlark.net,
+// is the check that does not rest on this file.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -82,7 +80,7 @@ test("comparisons do not chain, and the subset takes only its own tokens", () =>
   assert.deepEqual(tokensOf("a<=b//2").tokens.map((token) => token.text), ["a", "<=", "b", "//", "2"], "tokens need no spaces between them");
 });
 
-// R102, В28 module-kit: what the dialect of the format does not parse is none of the subset.
+// What the dialect of the format does not parse is none of the subset (R102; В28 module-kit).
 test("an expression begins with a token and nests at most 64 levels of parentheses, unary - and not", () => {
   assert.match(problemOf(" a + 1"), /begins with a space/);
   assert.equal(problemOf("a + 1 "), undefined, "a space after it is no indent");
@@ -94,7 +92,7 @@ test("an expression begins with a token and nests at most 64 levels of parenthes
   }
   // Levels are counted along a path, not over the whole expression.
   assert.equal(problemOf(Array.from({ length: 100 }, () => "(a)").join(" + ")), undefined);
-  // The limit that section 23 of the format text names.
+  // The limit is the format text's, not this code's.
   assert.equal(MOST_LEVELS, 64);
 });
 

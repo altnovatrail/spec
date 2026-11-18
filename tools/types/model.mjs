@@ -1,19 +1,18 @@
-// The model of the module format's types, built of its schemas (R72): the types every schema
-// names — its root and each of its $defs —, the objects without a name of their own, named by
+// The model of the module format's types, built of its schemas: the types every schema names —
+// its root and each of its $defs —, the objects without a name of their own, named by
 // INLINE_NAMES, and the enumerations of a field, named after the field. A type is a struct, a
 // string, an integer or another type under a name of its own; a struct has fields, each with its
-// type, whether the object always holds it, and whether the open view keeps it.
+// type, whether the object always holds it, and whether the open view keeps it (R72).
 //
 // The model takes the shape of a value and leaves the rest to the schema: pattern, bounds, not,
 // contains, and what one field says of another. A field that a branch of if/then/else declares is
-// a field of the object, which holds it in some cases. The schemas of version 0.1 are read as they
-// are (RUN.md, T24 and T45): a form the model does not know is an error that names its place in
-// the schema, not a field left out.
+// a field of the object, which holds it in some cases. The schemas are read as they are: a form
+// the model does not know is an error that names its place in the schema, not a field left out.
 
 import { byCodeUnits } from "../shared.mjs";
 
 // The objects whose place gives them no name: a field's object, an array's element, a map's value.
-// Each takes a term of concepts 15, by the normative part its schema is of — the folder its $id
+// Each takes a term of the vocabulary, by the normative part its schema is of — the folder its $id
 // names after the prefix of spec, PART_PREFIX — and by the schema and the JSON Pointer of its
 // place there, since two parts may hold schemas of one name, such as reading-vector.schema.json.
 // A struct at a place that is neither here nor a schema's root or $defs is an error.
@@ -36,7 +35,6 @@ export const INLINE_NAMES = {
     "random-vector.schema.json#/$defs/draw/properties/fraction": "FractionDraw",
     "random-vector.schema.json#/$defs/draw/properties/permutation": "PermutationDraw",
   },
-  // The legal texts' (R130).
   legal: {
     "legal.schema.json#/$defs/text_version/properties/summary": "Gist",
     "reading-vector.schema.json#/$defs/case/properties/current": "Current",
@@ -65,10 +63,10 @@ const PRIMITIVES = new Set(["string", "integer", "number", "boolean"]);
 // terms of the parts of a module, whose open views the model gives. Returns { types, roots, open }:
 // types by name, in the order of the schemas and of their places; roots, the type of each schema
 // that has one, by term; open, the open view of each struct the open view of a part reaches, by
-// name. Throws a ModelError at the first form it does not know. anyValue, which only the deployment
-// configuration's model and the legal texts' set (R85, R130), lets a field whose every subschema
-// holds a description alone hold any JSON value, as a vector's file or passport does; anywhere else
-// such a field has no shape.
+// name. Throws a ModelError at the first form it does not know. anyValue lets a field whose every
+// subschema holds a description alone hold any JSON value, as a vector's file or passport does;
+// anywhere else such a field has no shape. Only the deployment configuration and the legal texts
+// set it (R85, R130).
 export function buildModel(schemas, parts, { anyValue = false } = {}) {
   const byName = new Map(schemas.map((schema) => [schema.name, schema.json]));
   const types = new Map();
@@ -153,12 +151,10 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
       if (rest.length === 0 && second === "null" && PRIMITIVES.has(first)) return { nullable: { primitive: first } };
       throw new ModelError(at(schema, pointer), `has the types ${node.type.join(", ")}: the model knows one, or one and null`);
     }
-    // A map: its keys by propertyNames, its values by additionalProperties.
     if (node.type === "object" && isObject(node.additionalProperties) && node.properties === undefined) {
       const key = node.propertyNames === undefined ? { primitive: "string" } : refOf(node.propertyNames, schema, `${pointer}/propertyNames`, null);
       if (!isStringRef(key)) throw new ModelError(at(schema, `${pointer}/propertyNames`), "names keys by no string type");
       const value = refOf(node.additionalProperties, schema, `${pointer}/additionalProperties`, name) ?? fail(schema, `${pointer}/additionalProperties`);
-      // An entry of a map is open when its subschema carries the mark (format/README.md, section 6).
       return { map: { key, value, open: node.additionalProperties["x-open"] === true } };
     }
     if (isStruct(node)) return { named: typeAt(schema, pointer) };
@@ -200,8 +196,6 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
     return Array.isArray(branches) && branches.length > 0 && branches.every((branch) => isString(branch, schema));
   };
 
-  // Whether the value of a subschema is a string: by its type, its enum or const, or what it
-  // refers to.
   const isString = (node, schema) => {
     if (node.type === "string" || typeof node.const === "string" || enumOf(node) !== null) return true;
     if (node.$ref !== undefined) {
@@ -229,7 +223,7 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
   // always: required at the object or in an allOf of it, not in a branch. A member of allOf may be
   // a $ref to another struct, whose fields the object takes as they are, with the types they have
   // there: an enumeration of a field of that struct is one type, named after it, whichever object
-  // takes its fields (legal/schemas, R130).
+  // takes its fields, as legal/schemas needs (R130).
   const fieldsOf = (node, schema, pointer) => {
     const declarations = new Map();
     const required = new Set();
@@ -266,9 +260,8 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
       // subschema shapes — by a const, or by the items or the fields of its value alone.
       const strongest = Math.max(...list.map(({ subschema }) => strengthOf(subschema)));
       const defining = strongest === 0 ? [] : list.filter(({ subschema }) => strengthOf(subschema) === strongest);
-      // A field whose every subschema holds a description alone holds any JSON value, where the
-      // model lets it: a vector's file of the deployment configuration, as JSON reads it, for a
-      // reader to check.
+      // A field whose every subschema holds a description alone holds any JSON value where
+      // anyValue lets it: a vector's file, as JSON reads it, for a reader to check.
       const any = anyValue && list.every(({ subschema }) => isObject(subschema) && Object.keys(subschema).every((key) => key === "description"));
       if (defining.length === 0 && !any) throw new ModelError(at(list[0].schema, list[0].place), `gives the field ${field} no shape anywhere`);
       const [first, ...others] = defining;
@@ -323,11 +316,11 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
   return { types, roots, open: openViewsOf(types, parts.map((part) => roots.get(part)).filter(Boolean)) };
 }
 
-// The open view of each struct that the open view of a part reaches from its root (format/README.md,
-// section 6): the struct with its open fields alone, each of a type of the open view when it is a
-// struct's. A field is open when a subschema of its place marks it. That is what the open view of
-// every value keeps, since the model refuses a field marked in a branch alone that another of its
-// subschemas leaves unmarked (fieldsOf), and an open map whose entries are closed.
+// The open view of each struct that the open view of a part reaches from its root: the struct
+// with its open fields alone, each of a type of the open view when it is a struct's. A field is
+// open when a subschema of its place marks it. That is what the open view of every value keeps,
+// since the model refuses a field marked in a branch alone that another of its subschemas leaves
+// unmarked (fieldsOf), and an open map whose entries are closed.
 export function openViewsOf(types, roots) {
   const open = new Map();
   // An open map whose entries are closed has an empty open view, which no type of a map holds.
@@ -413,7 +406,6 @@ export class ModelError extends Error {
   }
 }
 
-// The words Go writes in capitals, as its initialisms: id and api.
 const INITIALISMS = new Set(["id", "api"]);
 
 // A name in PascalCase of a snake_case, kebab-case or camelCase one, with each initialism in

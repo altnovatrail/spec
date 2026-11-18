@@ -1,9 +1,9 @@
-// The generator of section 22 of the format text, as random.mjs computes it, against what it is
-// not: the golden outputs of Go's own tests of math/rand/v2 and the test vectors of RFC 9923. So
-// the vectors that format-check computes with random.mjs rest on Go and on the RFC, not on itself.
+// The generator of random.mjs against what it is not: the golden outputs of Go's own tests of
+// math/rand/v2 and the test vectors of RFC 9923. So the vectors that format-check computes with
+// random.mjs rest on Go and on the RFC, not on itself.
 //
-// The values of Go are from src/math/rand/v2/pcg_test.go (TestPCG, last changed in fd985d23dc) and
-// regress_test.go (regressGolden, last changed in 9c4849bf20), read at commit b98d22c1 on 2026-10-27:
+// The values of Go are from src/math/rand/v2/pcg_test.go (TestPCG) and regress_test.go
+// (regressGolden) at commit b98d22c1:
 // Copyright 2014 and 2023 The Go Authors, under a BSD-style license. Each method of regressGolden
 // runs on a fresh New(NewPCG(1, 2)).
 

@@ -1,17 +1,15 @@
-// A file of a module, read as the format text says in section 4: YAML 1.2.2 under its Core schema,
-// with the rules yaml.* over it (R45 and its amendment of 2026-10-22). The examples and test
-// vectors of format/ are such files.
+// A file of a module: YAML 1.2.2 under its Core schema, with the rules yaml.* over it (R45).
 //
-// YAML parsers differ, and the rules keep a file to what every parser reads alike. The parser here
-// is yaml (eemeli/yaml), whose tree keeps the source of each node beside its value: a rule about how
-// a value is written — an escape, a tag, an anchor — reads the source, and a rule about the value
-// reads the value. yaml itself is lenient where the YAML specification is not, so what it lets
-// through and YAML forbids is refused here as not YAML.
+// YAML parsers differ, and the rules keep a file to what every parser reads alike. yaml (eemeli/yaml)
+// keeps the source of each node beside its value: a rule about how a value is written — an escape,
+// a tag, an anchor — reads the source, and a rule about the value reads the value. yaml is lenient
+// where the YAML specification is not, so what it lets through and YAML forbids is refused here as
+// not YAML.
 
 import { LineCounter, Parser, Scalar, isAlias, isMap, isScalar, isSeq, parseAllDocuments, visit } from "yaml";
 import { cachedBy } from "../shared.mjs";
 
-// The rules of section 4, in its order.
+// In the order of the format text.
 export const YAML_RULES = [
   "yaml.encoding",
   "yaml.printable",
@@ -38,10 +36,9 @@ const OTHER_STARTS = new Set("+-.~<=");
 
 // The file's JSON value when it breaks nothing, and otherwise undefined; the rules it breaks, each
 // { rule, line, message }; and why it is not YAML at all, each { line, message }. A file is read
-// once in a process, by the sha256 of its bytes (cachedBy), as parseMarkdown reads a document
-// (RUN.md, T166): the tests read the same examples and vectors in one trial copy after another.
-// What it gives is frozen, so that a caller that changed a value would fail rather than change the
-// next caller's.
+// once in a process, by the sha256 of its bytes: the tests read the same examples and vectors in one
+// trial copy after another. The result is frozen, so that a caller that changed a value would fail
+// rather than change the next caller's.
 const read = new Map();
 
 export function readModuleFile(bytes) {
@@ -56,16 +53,14 @@ function readBytes(bytes) {
   const invalid = firstInvalidByte(bytes);
   if (invalid >= 0) breach("yaml.encoding", lineOfByte(bytes, invalid), `byte ${invalid + 1} is not UTF-8`);
   // The rest is read even so, with each byte that is not UTF-8 replaced, so that every rule is seen.
-  // A line break is CR LF, CR or LF, and the processor reads each as LF (YAML 1.2.2, 5.4, read
-  // 2026-11-08: «Line breaks inside scalar content must be normalized by the YAML processor»): yaml
+  // A line break is CR LF, CR or LF, and the processor reads each as LF (YAML 1.2.2, 5.4): yaml
   // takes LF alone, and would read a CR as a character of the line.
   const text = new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes).replace(/\r\n?/g, "\n");
 
-  // "To ensure readability, YAML streams use only the printable subset of the Unicode character
-  // set" (YAML 1.2.2, 5.1), and yaml.printable holds it in quotes too, where YAML 1.2.2 takes DEL,
-  // C1, U+FFFE and U+FFFF (R102, В20 module-kit). yaml reads control characters and U+FFFE all the
-  // same; go-yaml does not. A file with one is read no further, as module-kit reads it: so a written
-  // U+FFFE breaks yaml.printable alone, not yaml.characters too.
+  // YAML streams use only the printable set (YAML 1.2.2, 5.1); yaml.printable holds it in quotes too,
+  // where YAML takes DEL, C1, U+FFFE and U+FFFF. yaml reads control characters and U+FFFE all the
+  // same; go-yaml does not. A file with one is read no further, as module-kit reads it, so a written
+  // U+FFFE breaks yaml.printable alone, not yaml.characters too (R102).
   let line = 1;
   for (const char of text) {
     if (char === "\n") line++;
@@ -78,18 +73,17 @@ function readBytes(bytes) {
   const tokens = [...new Parser().parse(text)];
   // A document suffix, "...", with no document before it is no document: the stream is
   // «l-document-prefix* l-any-document? ( l-document-suffix+ l-document-prefix* l-any-document? …
-  // )*» (YAML 1.2.2, 9.2, production 211, read 2026-11-08). yaml makes a document of it, whose token
+  // )*» (YAML 1.2.2, production 211). yaml makes a document of it, whose token
   // has no "---", no property and no node; any other is a document, a tag or an anchor alone too.
   const parts = tokens.filter((token) => token.type === "document");
   const documents = parseAllDocuments(text, { ...OPTIONS, lineCounter: lines }).filter((document, i) => document.errors.length || parts[i]?.start.length || parts[i]?.value);
   for (const document of documents) {
     for (const error of document.errors) notYaml.push({ line: lineAt(error.pos[0]), message: error.message.split("\n")[0] });
   }
-  // U+FEFF, the byte order mark, «may appear at the start of any document», and «byte order marks
-  // are also allowed inside quoted scalars» (YAML 1.2.2, 5.2, read 2026-11-08); it is no nb-char,
-  // so no plain or block scalar and no comment holds it, while yaml reads it anywhere. One at the
-  // start of a document is yaml.encoding's, as yaml's own token of it is; any other outside quotes is
-  // no YAML.
+  // U+FEFF may stand at the start of a document or inside a quoted scalar (YAML 1.2.2, 5.2); it is
+  // no nb-char, so no plain or block scalar and no comment holds it, while yaml reads it anywhere.
+  // One at the start of a document is yaml.encoding's, as yaml's own token of it is; any other
+  // outside quotes is no YAML.
   if (text.includes("\uFEFF")) {
     const marks = new Set(tokens.filter((token) => token.type === "byte-order-mark").map((token) => token.offset));
     const quoted = [];
@@ -104,7 +98,6 @@ function readBytes(bytes) {
   }
   if (notYaml.length) return { value: undefined, violations, notYaml };
 
-  // What stands between documents: a byte order mark, a directive.
   for (const token of tokens) {
     if (token.type === "byte-order-mark") breach("yaml.encoding", lineAt(token.offset), "a byte order mark");
     else if (token.type === "directive") breach("yaml.no-directives", lineAt(token.offset), `the directive ${token.source}`);
@@ -119,7 +112,6 @@ function readBytes(bytes) {
   return { value, violations, notYaml };
 }
 
-// Every node of a document, each checked against the rules about nodes.
 class Walker {
   constructor(breach, lineAt) {
     this.breach = breach;
@@ -173,8 +165,7 @@ class Walker {
     if (node.type === Scalar.QUOTE_DOUBLE && node.srcToken) this.escapes(node.srcToken.source, node.srcToken.offset);
   }
 
-  // A plain scalar is null, true, false or a JSON number, as written, or else a string (yaml.json-
-  // scalars, yaml.plain-strings).
+  // A plain scalar is null, true, false or a JSON number, as written, or else a string.
   plain(source, isKey, line) {
     if (source === "null" || source === "true" || source === "false") {
       if (isKey) this.breach("yaml.string-keys", line, `a key that is ${source}, not a string`);
@@ -242,7 +233,7 @@ function stringKey(node) {
   return source;
 }
 
-// The JSON grammar of a number (RFC 8259, 6), read by hand.
+// The JSON grammar of a number (RFC 8259, 6).
 function isJsonNumber(text) {
   let at = 0;
   if (text[at] === "-") at++;
@@ -292,7 +283,6 @@ function startsDocument(text, at) {
   return start === 0 || /^\uFEFF*(?:---|\.\.\.|#|\n|$)/u.test(text.slice(at + 1));
 }
 
-// U+FDD0 to U+FDEF, and the last two code points of every plane.
 function isNoncharacter(code) {
   return (code >= 0xfdd0 && code <= 0xfdef) || (code & 0xfffe) === 0xfffe;
 }

@@ -91,7 +91,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T210 | Документы `spec`: architecture 3.7–8 | Claude | — | T209 |
 | [x] | T211 | Документы `spec`: privacy | Claude | — | T203 |
 | [x] | T212 | Документы `spec`: concepts | Claude | — | T203 |
-| [ ] | T213 | Комментарии кода: `tools/format-check/`, `tools/types/` | Claude | — | T205 |
+| [x] | T213 | Комментарии кода: `tools/format-check/`, `tools/types/` | Claude | — | T205 |
 | [ ] | T214 | Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/` | Claude | — | T205 |
 | [ ] | T215 | Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/` | Claude | — | T205 |
 | [ ] | T216 | Комментарии кода: остальное `tools/` | Claude | — | T205 |
@@ -103,13 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T213. Комментарии кода: `tools/format-check/`, `tools/types/`
-
-- **Цель:** комментарии `tools/format-check/` и `tools/types/` (≈ 155 КБ) — по В62: только «почему», ограничение, ловушка или контракт экспортируемой функции; номер решения — якорем `(R25)` в конце; без пересказа кода, истории, номеров задач и разделов.
-- **Сделать:** переписать комментарии; поведение кода не меняется, тесты — как были; объём комментариев до и после — `comments.awk` measurements 1.14.6.
-- **Как проверить:** тесты `tools/` — `just coverage`; проверки правила tools; `just docs-check` с проверкой T205; `/code-review high`.
-- **Разделы:** measurements 1.14.4, 1.14.6; T203, T205; `.claude/rules/tools.md`.
 
 #### T214. Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/`
 

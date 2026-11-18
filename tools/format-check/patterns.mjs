@@ -1,9 +1,9 @@
 // The patterns of the module format's schemas — the value of `pattern`, and every key of
-// `patternProperties` — in the subset that the format text, section 5, allows (R45 and its
-// amendment of 2026-10-22): the tokens JSON Schema 2020-12 recommends ("individual Unicode
-// characters", classes, the quantifiers and their lazy forms, ^ and $, grouping and alternation;
-// json-schema-core 2020-12, 6.4), written so that Go and JavaScript read them alike. ajv compiles a
-// pattern as a JavaScript RegExp in Unicode mode; module-kit's validator, by Go's regexp.
+// `patternProperties` — in the subset that the format allows: the tokens JSON Schema 2020-12
+// recommends ("individual Unicode characters", classes, the quantifiers and their lazy forms, ^ and
+// $, grouping and alternation; json-schema-core 2020-12, 6.4), written so that Go and JavaScript read
+// them alike (R45). ajv compiles a pattern as a JavaScript RegExp in Unicode mode; module-kit's
+// validator, by Go's regexp.
 //
 // Where the two differ even within those tokens, the subset takes the form both read the same way:
 //
@@ -20,8 +20,8 @@
 // - Outside a class, a "{", "}" or "]" that is no quantifier is a letter to Go and an error to
 //   JavaScript. So it is escaped.
 //
-// Go: src/regexp/syntax/doc.go and parse.go, master fb3c20e, read 2026-10-22. JavaScript: Node 24
-// of the devcontainer, new RegExp(pattern, "u"), 2026-10-22.
+// Go: src/regexp/syntax/doc.go and parse.go, master fb3c20e. JavaScript: Node 24 of the
+// devcontainer, new RegExp(pattern, "u").
 //
 // The parser reads by hand, one character after another: a regular expression that checked regular
 // expressions would backtrack on just the patterns it has to refuse.
@@ -125,7 +125,6 @@ class PatternParser {
     }
   }
 
-  // The quantifier after an atom, if any, and the product of counts it makes.
   quantified(inner) {
     const char = this.peek();
     if (char === "*" || char === "+" || char === "?") {

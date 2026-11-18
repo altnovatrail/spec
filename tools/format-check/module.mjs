@@ -1,7 +1,5 @@
-// A module laid out as a folder (format/README.md, sections 10 and 11; R46, R51): the layout of its
-// files, the rules of a whole module, and the format version its manifest names. format-check reads
-// the whole-module examples and the test vectors laid out as a module this way, and checks the rules
-// of the part module itself, as it checks the YAML rules.
+// A module laid out as a folder: the layout of its files, the rules of a whole module, and the
+// format version its manifest names (R46, R51).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -9,20 +7,18 @@ import { byCodeUnits } from "../shared.mjs";
 import { isKebabCase } from "./schemas.mjs";
 import { firstInvalidByte } from "./yaml.mjs";
 
-// The rules of section 10, in its order.
+// In the order of the format text.
 export const MODULE_RULES = ["module.manifest", "module.layout", "module.file-ids", "module.media", "module.license", "module.plain-text"];
 
-// The manifest: where it stands, its part, and the field that names the format version, whose place
-// is the same in every version of the format (R44). The rule that refuses a version the reader does
-// not read is a rule of the part manifest, and format-check tells its cases apart by the version
-// they name.
+// The field that names the format version stands at the same place in every version of the format.
+// The rule that refuses a version the reader does not read is a rule of the part manifest, and its
+// cases are told apart by the version they name (R44).
 export const MANIFEST = "manifest.yaml";
 export const MANIFEST_PART = "manifest";
 export const VERSION_FIELD = "module_format_version";
 export const VERSION_RULE = "manifest.format-version";
-// The text of the license that the manifest names, which every module holds, and the notices that
-// the licenses of its content require, which a module holds when they require any: plain text, which
-// goes into the device part of the package byte for byte (section 25).
+// The license text every module holds, and the notices a module holds when its content's licenses
+// require any: plain text, which goes into the device part of the package byte for byte.
 export const LICENSE = "LICENSE";
 export const NOTICE = "NOTICE";
 
@@ -35,10 +31,9 @@ const ID_EXTENSION = /^\.[a-z0-9]+$/;
 const NO_PART = "—";
 // A name in a path of the layout: what a file name of a module may be, with no "." first.
 const NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
-// The folder of the module's media files, which module.media checks.
 const MEDIA = "media";
 
-// The entries of a folder in the order of their names' code units, the same on every machine.
+// In the order of the names' code units, the same on every machine.
 export function listFolder(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => byCodeUnits(a.name, b.name));
 }
@@ -160,8 +155,7 @@ export function idOf(file, row) {
   return file.split("/").at(-1).slice(0, -row.id.length);
 }
 
-// The file signatures of the media formats, by extension (format/README.md, section 10; WHATWG MIME
-// Sniffing, 6.1 and 6.2): bytes at their offsets, and for MP3 an ID3 tag or the header of an MPEG
+// The file signatures of the media formats, by extension (WHATWG MIME Sniffing, 6.1 and 6.2): bytes at their offsets, and for MP3 an ID3 tag or the header of an MPEG
 // audio frame of layer III.
 const SIGNATURES = {
   png: (bytes) => startsWith(bytes, 0, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
@@ -184,8 +178,8 @@ function isMp3Header(bytes) {
 // What breaks module.media in the files of media/ of a module's folder: a path from media/ of
 // another form than media_path, by isMediaPath(path), or a file that does not begin with the
 // signature of the format its extension names. An extension media_path takes and SIGNATURES does not
-// know is a breach too, until format-check knows its signature. Each breach { rule, file, message };
-// none when isMediaPath is null, as the rule then goes unchecked.
+// know is a breach too. Each breach { rule, file, message }; none when isMediaPath is null, as the
+// rule then goes unchecked.
 export function mediaBreaches(folder, files, { isMediaPath }) {
   const breaches = [];
   if (!isMediaPath) return breaches;
@@ -245,7 +239,7 @@ export function versionProblem(manifest, version, rule) {
   return named === version ? null : `names the format version ${named}: it names ${version}, as format/VERSION has it, or it breaks ${VERSION_RULE}`;
 }
 
-// Whether a reader of format version `version` reads a module that names `named` (section 2): while
+// Whether a reader of format version `version` reads a module that names `named`: while
 // the format is v0, only its current version; from v1 on, every minor version of the current major
 // up to the reader's, and the previous major, though never v0.
 function reads(version, named) {

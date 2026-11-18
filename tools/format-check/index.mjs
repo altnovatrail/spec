@@ -1,15 +1,14 @@
-// The module index, as section 26 of the format text gives it (format/README.md; R63): every
-// published version of every module, each by the digest of its package (section 25), with the tag of
-// the release of modules whose files hold it, the anchor skills it teaches and its withdrawal from
-// publication. A release builds it from the index of the release before it, its own packages, its
-// tag and its withdrawals. A second implementation beside module-kit's, by which spec's CI computes
-// the test vectors of the module index.
+// The module index: every published version of every module, each by the digest of its package,
+// with the tag of the release of modules whose files hold it, the anchor skills it teaches and its
+// withdrawal from publication (R63). A release builds it from the index of the release before it,
+// its own packages, its tag and its withdrawals. A second implementation beside module-kit's, by
+// which spec's CI computes the test vectors of the module index.
 
 import { byCodeUnits } from "../shared.mjs";
 import { VERSION_FIELD } from "./module.mjs";
 import { formatVersionCompare, semverCompare } from "./versions.mjs";
 
-// The rules of the module index, which refuse to build an index rather than a module (section 7).
+// The rules of the module index, which refuse to build an index rather than a module.
 export const ENTRIES_KEPT = "module-index.entries-kept";
 export const ONE_PACKAGE = "module-index.one-package";
 export const KNOWN_WITHDRAWALS = "module-index.known-withdrawals";
@@ -39,11 +38,11 @@ export function entryOf(built, release) {
   return entry;
 }
 
-// Why the build cannot read previous, the index of the release before, or undefined (section 26;
-// R102, В31 module-kit): it was built by a format version later than version, or validate, the
-// schema of the module index of version, refuses it — such as one with a member or a reason that a
-// later version adds. The format version is read first, at the place every version keeps (section
-// 2), so that an index of a later version is named so rather than by what that version added.
+// Why the build cannot read previous, the index of the release before, or undefined: it was built by
+// a format version later than version, or validate, the schema of the module index of version,
+// refuses it — such as one with a member or a reason that a later version adds. The format version
+// is read first, at the place every version keeps, so that an index of a later version is named so
+// rather than by what that version added (R102).
 export function unreadablePrevious(previous, version, validate) {
   const named = laterVersionOf(previous, version);
   if (named) return `the previous index was built by the format version ${named}, later than ${version}, by which the release builds`;
@@ -51,7 +50,7 @@ export function unreadablePrevious(previous, version, validate) {
   return undefined;
 }
 
-// The index that a release builds (section 26). version is the format version it is built by;
+// The index that a release builds. version is the format version it is built by;
 // previous the index of the release before, or undefined for the first release; packages the
 // release's packages as packageOf builds them; release its tag; withdrawals an object from a module's
 // ID to each version that the release withdraws to the reason; validate the schema of the module
@@ -81,7 +80,7 @@ export function indexOf({ version, previous, packages, release, withdrawals = {}
     if (kept === undefined) {
       // A version new in this release stands above every version of its module that the previous
       // index names, withdrawn ones too: so the index catches a release whose CI did not compare the
-      // versions (section 27). The entry stands even so, so that a withdrawal of it breaks no other
+      // versions. The entry stands even so, so that a withdrawal of it breaks no other
       // rule.
       const above = Object.keys(Object.hasOwn(before, id) ? before[id] : {}).filter((published) => semverCompare(moduleVersion, published) < 0);
       if (above.length) breaches.push({ rule: VERSION_ABOVE, message: `${key} is new in the release, and the previous index names ${above.sort(semverCompare).join(", ")} above it: a new version stands above every published one` });
@@ -113,7 +112,7 @@ function laterVersionOf(index, version) {
   return later ? named : undefined;
 }
 
-// What an index of an example or a vector does against section 26 that its schema cannot see: its
+// What an index of an example or a vector breaks that its schema cannot see: its
 // root names a format version other than version, the one in format/VERSION — or, for an index
 // built before, with earlier true, one newer than version —, or an entry lists teaches out of the
 // order of code units. Messages, each a sentence.
