@@ -7280,18 +7280,18 @@ The rejected options:
 **R159. The orchestrator's executor waits on a long run in the foreground — the wait under `timeout 590` in its own command and Bash's `timeout` of 600000 ms, the call repeated until the run is done — and never by `run_in_background`, Monitor or `ScheduleWakeup`. The background of RULES.md, How we work, is for a session a person leads. The executor commits a task's bookkeeping — «Сделано», the archive, the mark — before it waits on CI, so that a push after a green CI is only for what a check found. After a fix that follows a finding of CI, SonarCloud or the review, it runs the local recipe of CI that covers the changed files before it pushes, not one file. `tools/orchestrator/executor.md` says all three. `[parallel]` for `just ci` is debt, Д273.** The orchestrator's choices of 2026-11-18 on В66–В68 (run/TASKS.md, T201), each by the executor's recommendation. They rest on the author's word of 2026-11-18, «по возможности сам доведи всё до конца. завтра я всё проверю», and the author has not yet checked them; a different choice of the author comes as a new amendment.
 
 *Why:* measurements 1.15.
-- Under `claude -p --json-schema` a turn that ends to wait in the background is made to give its status at once (sources 2.15). Before the orchestrator's prompt asked for the foreground, 59 of 301 attempts ended with the background command stopped after their last status, 49 of them a wait on CI; with it, 0 of 17 (section 1.15.4).
+- Under `claude -p --json-schema` a turn that ends to wait in the background is made to give its status at once (sources 2.15). Before the orchestrator's prompt asked for the foreground, 59 of 301 attempts ended with the background command stopped after their last status, 49 of them a wait on CI; with it, 0 of 17 (measurements 1.15.4).
 - A call of the wait in the foreground reads the context from the cache, about $0.03, once each ten minutes at most. T61 `learner-model`, which led to the 2026-11-17 amendment to R143, waited by short loops in 76 calls.
-- 40 pushes of bookkeeping after the pull request opened, in 38 tasks, were followed by 251 minutes of waiting on CI: 1.1 minutes a task, 6.6 in a task that did it (section 1.15.2).
-- In T87 `app` a fix that only CI checked cost 27 minutes (section 1.14.3).
-- `[parallel]` would shorten a full `just ci` of `app` by at most 38%, under 0.8 minutes a task of `app`. The container sat under one core in 79% of its samples, waiting on the model or GitHub (section 1.15.3).
+- 40 pushes of bookkeeping after the pull request opened, in 38 tasks, were followed by 251 minutes of waiting on CI: 1.1 minutes a task, 6.6 in a task that did it (measurements 1.15.2).
+- In T87 `app` a fix that only CI checked cost 27 minutes (measurements 1.14.3).
+- `[parallel]` would shorten a full `just ci` of `app` by at most 38%, under 0.8 minutes a task of `app`. The container sat under one core in 79% of its samples, waiting on the model or GitHub (measurements 1.15.3).
 
 *Rejected:*
 - (В66) starting the executor with `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` and without Monitor and `ScheduleWakeup`: a task of `tools/orchestrator` and a trial on 2.1.280, while the word alone held in 17 attempts of 17; it comes back if a run breaks the rule;
 - (В66) the word in the orchestrator's prompt alone: RULES.md would go on saying the opposite;
 - (В67) only the bookkeeping, or no change: each rule is a line of the contract, and neither costs a round;
 - (В68) `[parallel]` now, by a row of COORDINATION.md: the gain is under a minute a task, and engines run at once share their cores with the other executors;
-- the executor leaving CI to the orchestrator: a failure would resume the session and write its context to the cache again, $0.7–1.2 against $0.03 a call of the wait (section 1.15.5);
+- the executor leaving CI to the orchestrator: a failure would resume the session and write its context to the cache again, $0.7–1.2 against $0.03 a call of the wait (measurements 1.15.5);
 - a shorter interval of polling: the executors poll every 20–30 s, so it gives seconds a round.
 
 — *Consequence:* [tools/orchestrator/executor.md](../tools/orchestrator/executor.md), The task and Git and the pull request; RULES.md, How we work; the 2026-11-18 amendments (T201) to R143 and R156; Д273. — run/TASKS.md, T201 (`docs/plan/E15.md`); measurements 1.15; sources 2.15, 11.3.
