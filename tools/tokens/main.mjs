@@ -6,9 +6,10 @@
 // spec, or another NovaTrail repository through `just -f spec/justfile tokens-report` — or of the
 // project --project names, by the name of its folder of transcripts under <config>/projects, and
 // prints, in all and by session: the calls of the model, cache reads and writes, output, uncached
-// input, the context of a call and its cost at the API's prices; what entered the context between
-// calls — the results of tools by tool, by file and by program, the author's words, reminders,
-// attachments — and what each carried; and what a session starts with. --since and --until bound
+// input, the context of a call and its cost at the API's prices, and in all that of a main call
+// among the first FIRST_CALLS of its session; what entered the context between calls — the
+// results of tools by tool, by file and by program, the author's words, reminders, attachments —
+// and what each carried; and what a session starts with. --since and --until bound
 // the calls by their time, in UTC unless it names a zone, --until not included; a date is its
 // first moment. --json prints what it counted as JSON instead, and --row one row of the table of
 // measurements 1.9, which the monthly measurement and the archive of an epic add (R145). Prints numbers, paths and names
