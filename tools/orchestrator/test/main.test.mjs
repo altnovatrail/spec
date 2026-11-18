@@ -736,6 +736,19 @@ test("stop ends a child that outlived claude and SIGTERM, by the pid and time of
   assert.ok(kill.some((word) => word.startsWith(`${child}:`)), "SIGKILL names the child the first round named");
 });
 
+for (const kind of ["child", "stubbornChild"]) {
+  test(`a host's end leaves none of its runs' processes: a claude held and never released, and its ${kind}`, async () => {
+    const h = host();
+    h.plan(1, { lines: [init()], hold: true, [kind]: true });
+    await run(h, ["start", "sim", "T7"]);
+    const sh = await pidOf(h);
+    const { claude, child } = await h.pids(1);
+    h.done();
+    await pause(50);
+    assert.ok(ended(sh) && ended(claude) && ended(child));
+  });
+}
+
 test("STOP signals a process it was given only while its time of start is the same: a pid passed on is left alone", () => {
   const start = (pid) => fs.readFileSync(`/proc/${pid}/stat`, "utf8").split(") ").at(-1).split(" ")[19];
   const child = spawnSync(process.execPath, ["-e", "1"]);
