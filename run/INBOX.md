@@ -16,5 +16,11 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 
 | Repository | Rows | Fingerprint | Where the answer is |
 |---|---|---|---|
+| `.github` | В44 | `98fe25d21ea1` | T218 (В73), option (1): `.github` leaves Д217, which keeps `skill-map` alone |
+| `api` | В84 | `77f59e82e91d` | T218 (В74), option (1): nothing to record — T123 `api` took `learner-model` v0.1.16 with `"comments": true`; a copy is fixed at its source |
+| `api` | В85 | `7651836e1f67` | T218 (В75), option (1): `learner-model` cites its own decisions in its `.proto` files as `R10 learner-model` — COORDINATION rows 4.22 and 6.42 |
 | `app` | В71 | `fa75441ffd4a` | T194 (В48), option (a): the README of `draft/mockup/`, «Sizes», names 700 and 22–38 px as the template draws — T198 |
 | `app` | В72 | `9da92a92a0ed` | T194 (В49), option (a): every country, `api`'s refusal the answer — architecture 3.1 and Д271, back to a method of `api` — T198 |
+| `app` | В74 | `970eae2501b5` | T218 (В76), option (a): `canvas` leaves the statement out by `statement-hidden`, and `app` draws the card — architecture 3.1 and 3.2, COORDINATION rows 5.21 and 6.43 |
+| `sim` | В34 | `10fe89bb6d62` | T218 (В77), option (a): COORDINATION rows 3.14, 4.23 and 4.24 |
+| `tutor` | В97 | `93042212e44e` | T218 (В78), option (a): a citation is repointed when a task touches its entry (R160), by this map to measurements tutor: «Итог замера свободной записи» — 3.4, «Итог замера чтения» — 3.5, «Итог замера подсказок» and «Итог прогонов на листах автора» — 3.6, «Итог замера тетради» — 3.7, «Итог замера сочинений» — 3.8, «Выводы E4» — 3.9, «Итог новых конфигураций», «Итог двух вызовов сочинений» and «Итог десяти листов автора» — 3.11, «Итог большого прогона» — 3.12, «Итог зеркальной цифры» — 3.15 |
