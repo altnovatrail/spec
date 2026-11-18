@@ -43,7 +43,7 @@ Read 2026-11-09 (R114): Anthropic, [Claude Code — Data usage](https://code.cla
 
 ### 2.7. Claude Code: plugins and the language server, 2026-11-12
 
-Read 2026-11-12, in the planning of T134 (the 2026-11-12 amendment to R143). The documentation of Claude Code, pages without a date:
+Read 2026-11-12, in the planning of T134 (R143). The documentation of Claude Code, pages without a date:
 - [Settings reference](https://code.claude.com/docs/en/settings-reference.md), `extraKnownMarketplaces`: "Claude Code honors entries in a repository's `.claude/settings.json` or `.claude/settings.local.json` only after you accept the workspace trust dialog for that folder; in a folder you haven't trusted, including a `-p` run there, it ignores them without a message"; `enabledPlugins` in the project settings — "plugins turned on for everyone in the repository. This doesn't install them, so each user installs them".
 - [Plugins for an organization](https://code.claude.com/docs/en/plugins/org.md): "Setting `enabledPlugins` in the repository doesn't install the plugin… Contributors don't need the install when a local `directory` or `file` marketplace lists the plugin with a relative-path `source`"; "If you use a local `directory` or `file` source with a relative path, the path resolves against your repository's main checkout".
 - [Plugin loading](https://code.claude.com/docs/en/plugins/loading.md): "Relative-path plugins in a marketplace you added from a local path: the plugin loads in place from its path inside the marketplace folder… you don't need to increase the version".
@@ -76,7 +76,7 @@ Read 2026-11-15, for the admission table 0.4 and version 4 of the privacy policy
 
 ### 2.10. Claude Code: a plugin per container, 2026-11-15
 
-Read 2026-11-15, for the 2026-11-15 amendment to R143 (RUN.md, T162). The documentation of Claude Code, pages without a date, for Claude Code 2.1.280:
+Read 2026-11-15, for R143 (RUN.md, T162). The documentation of Claude Code, pages without a date, for Claude Code 2.1.280:
 - [Plugin loading](https://code.claude.com/docs/en/plugins/loading.md): "`known_marketplaces.json` records each marketplace Claude Code has fetched, with its `source`, `installLocation`, `lastUpdated`, and `autoUpdate`. There is one `known_marketplaces.json` per user, so a marketplace you add in one project is available in every project"; "Name conflicts": "An enabled `--plugin-dir`, `--plugin-url`, or `CLAUDE_CODE_PLUGIN_DIRS` plugin. It replaces a same-named installed marketplace plugin or skills-directory plugin".
 - [Environment variables](https://code.claude.com/docs/en/env-vars.md), `CLAUDE_CODE_PLUGIN_DIRS`: "Plugin directories to load for the session, each loaded the way a `--plugin-dir` flag loads it. Separate multiple paths with `:` on Unix or `;` on Windows. Give each path as an absolute path or start it with `~`, because Claude Code skips relative paths. Requires Claude Code v2.1.280 or later"; `CLAUDE_CODE_PLUGIN_CACHE_DIR`: "Override the plugins root directory… marketplaces and the plugin cache live in subdirectories under this path".
 - [Create plugins](https://code.claude.com/docs/en/plugins/create.md), "Load a plugin for one session": "To load plugins in a session where you can't add the `--plugin-dir` flag, list their absolute paths in the `CLAUDE_CODE_PLUGIN_DIRS` environment variable instead… Project and local settings can't set this variable".
