@@ -87,7 +87,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T207 | `tokens-report --classes`; Д272 | Claude | — | T202 |
 | [x] | T196 | Анализ токенов по порогу R145: третье повышение бюджета | Claude | — | T203 |
 | [x] | T208 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей | Claude | — | T203 |
-| [ ] | T209 | Документы `spec`: architecture 1, 2, 3.1–3.6 | Claude | — | T203 |
+| [x] | T209 | Документы `spec`: architecture 1, 2, 3.1–3.6 | Claude | — | T203 |
 | [ ] | T210 | Документы `spec`: architecture 3.7–8 | Claude | — | T209 |
 | [ ] | T211 | Документы `spec`: privacy | Claude | — | T203 |
 | [ ] | T212 | Документы `spec`: concepts | Claude | — | T203 |
@@ -103,13 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T209. Документы `spec`: architecture 1, 2, 3.1–3.6
-
-- **Цель:** architecture 1, 2 и 3.1–3.6 (≈ 90 КБ) — по правилу T203: текущее устройство, решения — номером, без пересказа, поправок, хроник версий и статусов.
-- **Сделать:** как T208; карточки компонентов — что делает и чего не делает, данные, связи — по смыслу не менять: это сводка для других репозиториев (RULES.md, Across repositories).
-- **Как проверить:** `just docs-check`; `/code-review high`.
-- **Разделы:** architecture 1–3.6; measurements 1.14.4; T203, T208.
 
 #### T210. Документы `spec`: architecture 3.7–8
 
