@@ -1676,6 +1676,33 @@ for (const [k, v] of Object.entries(S).sort((a, b) => b[1].length - a[1].length)
 }
 ```
 
+#### 1.15.7. A batch on one branch, T219, 2026-11-18
+
+What a batch of tasks on one branch gave against a pull request for each task (R159). The batch is `spec` T212–T217 of E16, on the branch `e16-spec`: T212–T216 each committed and pushed with no checks and no pull request, and T217 ran every local check of the batch, `/code-review high` over it, opened pull request #202 and waited on its checks. Measured 2026-11-18 from the runs of `tools/orchestrator` on the volume `novatrail-claude`, each attempt's last `result` in its `stream-1.jsonl`, and from the GitHub API, read-only.
+
+| Task | Minutes | Cost, $ | Turns |
+|---|---|---|---|
+| T212 | 3.7 | 1.32 | 29 |
+| T213 | 5.9 | 6.82 | 32 |
+| T214 | 7.8 | 6.43 | 26 |
+| T215 | 5.1 | 4.76 | 38 |
+| T216 | 5.9 | 4.13 | 37 |
+| T217, with the batch's checks, review and pull request | 34.2 | 10.46 | 64 |
+| The batch | 62.6 | 33.92 | 226 |
+
+- Pull request #202, ten commits: one round of CI, its run 3.3 minutes, and all the checks of its last commit, `codecov/patch` and SonarCloud's among them, 4.0 minutes from the first to the last. A first run on the same commit was cancelled by the second at once. From the first task's start to the merge, 63.4 minutes.
+- Against it: a run of E16 for a task with a pull request of its own, 20.8 minutes and $5.05 on average, by the orchestrator's count of 90 runs on 2026-11-18; a recount at T219 of every attempt started from 2026-11-18T07:06:43Z that has a `result`, 87 of them, gives 21.7 minutes and $5.24. Both count attempts, so a task with a resume counts twice and its average is lower than a task's; each task of the batch ran in one attempt. Six such runs are about 125 minutes and $30.
+- A task of section 1.15.1 is 30.4 minutes, of them 7.7 on GitHub's checks and 3.7 on the local checks: the batch pays them once.
+- So the batch halved the time, 62.6 minutes against about 125, and did not lower the cost, $34 against about $30: T213 and T214 read the most code, and T217 carried the review and the checks of all six.
+
+The commands, in `~/.claude/novatrail-orchestrator/runs` of the orchestrator's volume, and `gh` in `spec`:
+```sh
+for r in spec-T21[2-7]-20261118T1*; do grep '"type":"result"' $r/stream-1.jsonl | tail -1 | jq -c '{cost: .total_cost_usd, ms: .duration_ms, turns: .num_turns}'; done
+for r in *-20261118T*; do [[ ${r##*-} > 20261118T070643Z ]] || continue; for s in $r/stream-*.jsonl; do grep '"type":"result"' $s | tail -1 | jq -r '[.duration_ms, .total_cost_usd] | @tsv'; done; done | awk 'NF == 2 {n++; d += $1; c += $2} END {print n, d / n / 60000, c / n}'
+gh run list --branch e16-spec --workflow CI --json databaseId,headSha,createdAt,updatedAt,conclusion
+gh api repos/altnovatrail/spec/commits/c58ec092e82174aa12043d5033af4997686e9e38/check-runs --paginate --jq '.check_runs[] | [.name, .started_at, .completed_at, .conclusion] | @tsv'
+```
+
 ## 2. The browsers of the kind `typescript`
 
 ### 2.1. WebKit and Firefox in the stage, T141, 2026-11-13
