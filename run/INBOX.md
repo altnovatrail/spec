@@ -20,11 +20,11 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 | `.github` | В42 | `f911aa1104f1` | T194 (В44), the author's word, not the recommendation: all in English — commits, pull requests and issues, a person's too; amendments to R22 and R14, COORDINATION row 2.6 for `.github` — T198 |
 | `.github` | В43 | `4acd380e9e8e` | T194 (В45), option 1: Д134, Д195 and Д236 closed — done in every repository they named, checked on `main` 2026-11-17 |
 | `api` | В82 | `32b3cd3e5cf1` | option 1: the 2026-11-17 amendment to R135; the descriptions of `attempt_id`, `package_digest` and `observation` and export 9 — T189, COORDINATION row 1.23; Д263 closes with it; `correction_id` in version 4 — Д267 |
-| `api` | В83 | `2afbffa6b175` | T194 (В46), option (а) without its growth: a restore key by the prefix without the hash of `go.sum`, `mod` dropped on a partial hit, `build` and `lint` not touched — COORDINATION row 2.7 for `.github`, an amendment to R41 .github, T198 |
+| `api` | В83 | `2afbffa6b175` | T194 (В46), option (а) without its growth: a restore key by the prefix without the hash of `go.sum`, `mod` dropped on a partial hit, `build` and `lint` not touched — COORDINATION row 2.7 for `.github`, amendments to R41 and R49 .github, T198 |
 | `app` | В69 | `e7ae2810b23f` | one answer with `canvas` В82, option 1: the second 2026-11-17 amendment to R36 and the 2026-11-17 amendment to R74; architecture 3.2; the types — T189; COORDINATION rows 1.23 and 6.37 |
 | `app` | В71 | `fa75441ffd4a` | T194 (В48), option (a): the README of `draft/mockup/`, «Sizes», names 700 and 22–38 px as the template draws — T198 |
-| `app` | В72 | `9da92a92a0ed` | T194 (В49), option (a): every country, `api`'s refusal the answer — architecture 3.1 and a row of DEBT.md back to a method of `api`, T198 |
-| `app` | В73 | `a576333b2d29` | T194 (В50), option (a) then (b) as one rule: an amendment to R78 — the packages raise the icon set together and on purpose, a row of COORDINATION.md each raise, Dependabot raises none; first `canvas` to 1.2.99 — T198 |
+| `app` | В72 | `9da92a92a0ed` | T194 (В49), option (a): every country, `api`'s refusal the answer — architecture 3.1 and Д271, back to a method of `api` — T198 |
+| `app` | В73 | `a576333b2d29` | T194 (В50), option (a) then (b) as one rule: an amendment to R78 — the packages raise the icon set together and on purpose, a row of COORDINATION.md each raise, Dependabot raises none; first `canvas` to 1.2.99 — T198, COORDINATION rows 5.20, 6.40 and 6.41 |
 | `canvas` | В82 | `49a7284d0f7e` | as `app` В69; COORDINATION rows 1.23 and 5.19 |
 | `canvas` | В86 | `5780f56f8aa3` | option 1: the third 2026-11-17 amendment to R148; the mockup — T189; COORDINATION rows 1.23, 5.19 and 6.18 |
 | `infra` | В56 | `c3ccd2adfd58` | T194 (В55), option (a): COORDINATION row 6.26 closed, no row for E7 `infra` (Д240, Д249) — T198; Д239 closed by T194 |

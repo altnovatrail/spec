@@ -193,7 +193,7 @@ The mockup is drawn in absolute CSS px for its two sizes; `app` and `canvas` lay
 - An icon is 20 px in its target of 44, back 18; its lines 1.9 px, and 2.2 for arrows.
 - The top bar: 48 high, 14 from the top, 16 from the left. The tool bar: 52 wide, 16 from the left, centred in height. The tutor's button: 56 round, 16 from the right, centred; on the phone, above the row.
 - A primary button: 52 high, radius 14, 16 px semibold.
-- Type: 14 px for the body; 11.5–13 for captions; 15–17 for emphasis; 22–34 for headings. Weights 400, 500 and 600.
+- Type: 14 px for the body; 11.5–13 for captions; 15–17 for emphasis; 22–38 for headings. Weight 700 for headings of every size, from 17 px — those of 22–38 px with a negative `letter-spacing` of −0.2 to −0.8 px —, for the headings of cards and for the digits of badges and steps, from 11 px; 400, 500 and 600 for the rest (`app` В71).
 
 **The font** is the system font of `app` (R17 app): `-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif`, as the template's root has it. Caveat, with which the mockup writes the tutor's notes on the sheet and the example of "Show where", and Inter, the type of the photographed page, are not taken (R148): the tutor's notes are in the system font until a font of their own comes by architecture 3.9 app.
 
