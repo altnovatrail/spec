@@ -86,7 +86,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T206 | Строки COORDINATION.md: правило E16 в 12 репозиториях | Claude | — | T205 |
 | [x] | T207 | `tokens-report --classes`; Д272 | Claude | — | T202 |
 | [x] | T196 | Анализ токенов по порогу R145: третье повышение бюджета | Claude | — | T203 |
-| [ ] | T208 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей | Claude | — | T203 |
+| [x] | T208 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей | Claude | — | T203 |
 | [ ] | T209 | Документы `spec`: architecture 1, 2, 3.1–3.6 | Claude | — | T203 |
 | [ ] | T210 | Документы `spec`: architecture 3.7–8 | Claude | — | T209 |
 | [ ] | T211 | Документы `spec`: privacy | Claude | — | T203 |
@@ -103,16 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T208. Документы `spec`: product, repositories, README, CLAUDE.md, правила частей
-
-- **Цель:** `docs/product.md`, `docs/repositories.md`, `docs/README.md`, CLAUDE.md и `.claude/rules/` — по правилу T203: без хроник версий и статусов, факт — в одном месте, решение — номером.
-- **Сделать:**
-  - Классы (а) и (г) measurements 1.14.4: версия — файлом, где она задаётся; история — git и архивы; пересказ решения — его номер; дата и номер задачи — только где они содержание, не история.
-  - Номера разделов, на которые ссылаются, не менять: `docs-check` проверяет ссылки.
-  - Размер каждого файла до и после — в «Сделано»; пределы `budgets.json` не поднимать, снизить, где упали.
-- **Как проверить:** `just docs-check`; `/code-review high`.
-- **Разделы:** measurements 1.14.4, 1.14.5; T203; R145.
 
 #### T209. Документы `spec`: architecture 1, 2, 3.1–3.6
 
