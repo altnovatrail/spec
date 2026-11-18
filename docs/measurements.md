@@ -563,6 +563,7 @@ How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of 
 | `-workspaces-spec` — epic E12, at its archive | 2026-11-14T00:00 … 2026-11-15T01:14 | 12 | 1,124 / 589 | 201.4 / 110.4 | 4 | $128.88 | — |
 | `-workspaces-spec` — epic E14, at its archive | 2026-11-15T00:00 … 2026-11-16T18:54 | 19 | 2,404 / 4,177 | 187.8 / 124.7 | 2 | $348.33 | — |
 | `-workspaces-spec` — epic E15, at its archive | 2026-11-17T00:00 … 2026-11-17T23:32 | 21 | 2,240 / 576 | 161.3 / 67.7 | 3 | $153.80 | — |
+| `-workspaces-spec` — epic E16, at its archive | 2026-11-18T07:06 … 2026-11-18T17:14 | 20 | 1,366 / 868 | 141.6 / 71.4 | 1 | $120.27 | 107.3 |
 
 - In `spec`, part 2 of E10 lowered the context of a main call from 448.5 to 183.2 thousand, −59%, and of a subagent's from 109.2 to 90.4. The windows differ in work: E4 and E9 against the edits of E10.
 - The other 12 took R143 by the tasks of row 7 of [COORDINATION.md](../COORDINATION.md), all but `learner-model` by 2026-11-13. Their first rows are their "before", from 292.4 to 398.5 thousand for a main call.
@@ -574,6 +575,7 @@ How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of 
 - The row of epic E14 is its window from its first day, 2026-11-15, to the start of the session that archived it, 2026-11-16T18:54. Its first day holds the sessions of that day before the epic was planned too — the archive of E12, T165 and R154 —, and its first 74 minutes are also the end of E12's row, and the window holds T166, run by the orchestrator in `spec`, and the orchestrator's own session of T171: from 2026-11-16T00:47 to 18:52, 897 main calls at 198.9 thousand a call, the largest 367.1, both compactions of the row, $51.36 against $600.08 of the 106 runs it led (section 1.13; Д258). The executors' sessions in the other repositories are not in it. Its 187.8 thousand for a main call are 1% below `spec`'s reference, 189.7. The budgets file has had two raises since the last analysis, `DEBT.md` in T156 and COORDINATION.md from 24 to 25 KB in T167, of the three the threshold counts. A new file's first limit raises none: the files of `run/` got theirs in T165 and R154 — `run/TASKS.md` its 48 KB in R154 —, and R154 lowered the others. The last check of the changelog is not a quarter old. No threshold is met, so no analysis is set.
 - The row of epic E15 is its window from its first day, 2026-11-17, to the start of the session that archived it, 2026-11-17T23:32. The whole day ran in the orchestrator's run of COORDINATION.md (R156), and the window holds its sessions in `spec`: 16 of its executors, T179 to T197, the four tasks of E15 among them, and 3 of the orchestrator's own, 1,097 main calls for $74.36 (Д258); the other 2 are short sessions of the author outside it, 34 main calls for $1.98. The executors' sessions in the other repositories are not in it. Its 161.3 thousand for a main call are 15% below `spec`'s reference, 189.7. The budgets file has had a third raise since the last analysis, `dpia 1` in T195, after `DEBT.md` in T156 and COORDINATION.md in T167: the threshold is met, and its analysis is T196, set by T195 and taken into epic E16. The last check of the changelog is not a quarter old.
 - The analysis of that threshold is section 1.14 and T196, 2026-11-18. Of the four raises since E10, `DEBT.md` (T156) grew by rows of debt, which R154 then cut to 48 KB; COORDINATION.md (T167), from 24 to 25 KB, by the rules of the orchestrator's run; RULES.md (T198), from 14 to 15 KB, by a rule of how a session waits on a long run; and `dpia 1` (T195) by its review log, up to 1.2 KB a version retelling the decisions it cited. R160 holds each of them: a row of debt and «Сделано» are one line, a decision is rewritten in its place, and the log's row of a version is one sentence with its pull request, which took `dpia 1` from 25.3 KB to 6.2 and under the default limit of a section, 24 KB, without a limit of its own. The context of a main call in `spec` on 2026-11-18 to 11:12, 168.3 thousand over 1,162 calls, is 11% below the reference, 189.7. What the analysis found beyond the log is in E16's tasks (RUN.md, table 1), so it puts no question to the author.
+- The row of epic E16 is its window from the merge of T201, 2026-11-18T07:06:43Z — T200 and T201 are E15's, and their sessions are in the window of section 1.14 —, to the start of the session that archived it, 2026-11-18T17:14. Its 141.6 thousand for a main call are 25% below `spec`'s reference, 189.7, and its 107.3 among the first 80 are 24% below 141.8. The budgets file has had no raise since the last analysis, T196: E16 only lowered its limits. The last check of the changelog is not a quarter old. No threshold is met, so no analysis is set. What the rule gave is section 1.16.
 - The monthly row of `module-kit` needs the fix of 2026-11-12: a path the user may not look at is not a file for the recipe, and the report is printed (`tools/tokens/report.mjs`, `fileCheck`).
 
 **The threshold** of a new analysis is R145: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in `run/TASKS.md` (R155). A raise is a commit of a file of budgets that raises one limit or more; a repository's first `docs-budgets.json`, a limit held only until a translation and a lowering are not raises (R145). The threshold counts every main call; an analysis by its first condition begins with the context of a session's first 80: at the reference or below it, the excess is the length of tasks, which rule 11 of RUN.md splits, not what the sessions read. In `spec`, the window of the reference holds 141.8 thousand for a call among the first 80, read 2026-11-18.
@@ -1702,6 +1704,44 @@ for r in *-20261118T*; do [[ ${r##*-} > 20261118T070643Z ]] || continue; for s i
 gh run list --branch e16-spec --workflow CI --json databaseId,headSha,createdAt,updatedAt,conclusion
 gh api repos/altnovatrail/spec/commits/c58ec092e82174aa12043d5033af4997686e9e38/check-runs --paginate --jq '.check_runs[] | [.name, .started_at, .completed_at, .conclusion] | @tsv'
 ```
+
+### 1.16. After E16, T218, 2026-11-18
+
+What the rule of E16, R160, gave against section 1.14 (RUN.md, T218). Measured 2026-11-18 on `main` of the 13 repositories, once every row of COORDINATION.md that T206 wrote was done, by the commands of section 1.14.6 on fresh clones, and on the executors' transcripts after each repository moved to the tag of T205.
+
+**The repositories**, all 13, KB of 1,024, as in section 1.14.1:
+
+| What | Before, section 1.14.1 | After | Change |
+|---|---|---|---|
+| Docs, without the archives | 13,860 | 13,220 | −4.6% |
+| Decision logs | 8,091 | 7,994 | −1.2% |
+| Architecture | 2,833 | 2,270 | −19.9% |
+| Archives | 13,011 | 13,615 | +4.6% |
+| Plan | 384 | 359 | −6.5% |
+| CLAUDE.md | 119 | 117 | −1.7% |
+| Comment lines / their characters | 47,583 / 3.62 M | 46,122 / 3.46 M | −3.1% / −4.4% |
+| Comment blocks citing a decision | 3,398 of 20,726, 16% | 3,955 of 20,436, 19% | +3 points |
+| Versions / dates / task numbers in the docs | 10,245 / 13,736 / 18,212 | 9,043 / 11,209 / 15,235 | −12% / −18% / −16% |
+
+- The architecture fell in every repository: most in `canvas`, 319 → 218, `tutor`, 399 → 272, `modules`, 168 → 118, and `sim`, 172 → 121.
+- The logs barely moved. By R160 an entry is rewritten when a task touches it, and E16 rewrote few of them (RUN.md, table 1 of E16, «Решено при планировании»). The amendments are still 4–43% of a log and the tag moves 0–32%.
+  - `skill-map` alone rewrote its whole log: 206 → 109 KB, its amendments 13% → 4% and its tag moves 38% → 0%.
+  - In `spec` the log is 1,649 → 1,608 KB, with 45% → 43% in amendments.
+  - The rest shrinks as tasks touch it, and the next measurement shows how fast.
+- The archives grew by E16's own bodies of tasks.
+- The comments lost what retold the code and kept the anchors. That is why more blocks cite a decision, and `docs-check` now checks every such number (R32).
+- The code grew from 302,667 lines to 304,211.
+
+**The sessions.** 86 sessions of the executors started after their repository's move to the tag: in `spec` after T205's merge, 2026-11-18T09:30:19Z, and elsewhere from 10:24 to 10:45 UTC, all until 17:14. They made 4,841 main calls, fewer than the 100 sessions that T218 asks of a comparison. Most of them are E16's own tasks, which read and wrote the documents in order to rewrite them:
+- read documents: 26.1% of the context carried, against 25.5% before;
+- write documents: 27.3% of the output, against 23.0%;
+- cost: $2.97 a session, with $2.08 of subagents, against $4.90 and $0.83.
+
+They do not measure the rule. The comparison with section 1.14.2 waits for at least 100 sessions after the moves, at the monthly measurement (Д275).
+
+**The commands.**
+- The repositories: section 1.14.6 as it stands.
+- The sessions: `text-classes.mjs` of section 1.14.6, with the window opened per folder. Its first argument is the end, and each folder is `<folder>@<start>`. The start is the merge that brought `"entry": 12` into the folder's repository's `docs-budgets.json`, the first that `git log --first-parent --reverse -S'"entry": 12' -- docs-budgets.json` lists; for `spec`, which has no such file, it is T205's merge, 2026-11-18T09:30:19Z.
 
 ## 2. The browsers of the kind `typescript`
 
