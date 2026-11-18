@@ -1,5 +1,5 @@
-# The stage orchestrator of .devcontainer/Dockerfile, spec's second devcontainer (R156), in which no
-# check runs: built as its configuration builds it on the host, through the devcontainer stage,
+# The stage orchestrator of .devcontainer/Dockerfile, spec's second devcontainer, in which no check
+# runs (R156): built as its configuration builds it on the host, through the devcontainer stage,
 # which no other workflow builds, and then asked, as the user vscode, for the containers of the
 # runner's Docker and for the version of the Dev Containers CLI. The runner is a host with Docker on
 # Linux, so docker-group.sh reads its socket as it reads the author's. Both architectures, so that
@@ -8,7 +8,7 @@
 #
 # It runs when what it builds changes, and its job is no required check of the ruleset of main: a
 # required check whose workflow a filter of paths skips stays "Pending" and blocks the merge
-# (GitHub Docs, Workflow syntax, read 2026-11-15; the 2026-11-15 amendment to R30).
+# (GitHub Docs, Workflow syntax, read 2026-11-15; R30).
 name: Orchestrator
 
 on:
@@ -58,7 +58,7 @@ jobs:
 
       # As spec's ordinary configuration builds it on a host without buildx: the Dev Containers CLI
       # falls back to Docker's legacy builder, which builds every stage before its target, this one
-      # too, and no docker-gid is written (sources 9.4). One architecture is enough for that.
+      # too, and no docker-gid is written. One architecture is enough for that.
       - name: Without docker-gid, by the legacy builder
         if: ${{ matrix.runner == 'ubuntu-24.04' }}
         env:

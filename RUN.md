@@ -95,7 +95,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T214 | Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/` | Claude | — | T205 |
 | [x] | T215 | Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/` | Claude | — | T205 |
 | [x] | T216 | Комментарии кода: остальное `tools/` | Claude | — | T205 |
-| [ ] | T217 | Комментарии CI и окружения: `.github/`, justfile, `.devcontainer/`, `spec.go`, `repo-template/` | Claude | — | T205 |
+| [x] | T217 | Комментарии CI и окружения: `.github/`, justfile, `.devcontainer/`, `spec.go`, `repo-template/` | Claude | — | T205 |
 | [ ] | T218 | Итог эпика E16: замер после, архив | Claude | — | T196, T206–T217; строки T206 в COORDINATION.md |
 
 - Порядок в `spec`: T203–T206 первыми — тег с правилом и проверками выходит раньше, и другие репозитории идут параллельно с документами `spec`. T207 зависит только от T202.
@@ -103,13 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T217. Комментарии CI и окружения: `.github/`, justfile, `.devcontainer/`, `spec.go`, `repo-template/`
-
-- **Цель:** как T213 — для `#` и `//` комментариев `.github/` (≈ 48 КБ), justfile (≈ 38), `.devcontainer/` (≈ 12), `spec.go` и `repo-template/` (≈ 8).
-- **Сделать:** как T213; версии и дайджесты в `ARG` и `uses:` — не трогать: это и есть текущее состояние (R34); комментарий `spec.go` о версии — файлом, где она задаётся.
-- **Как проверить:** проверки правила ci — линтеры workflow и justfile; `just new-repo-test`; `just docs-check` с проверкой T205; `/code-review high`.
-- **Разделы:** T213; R34; `.claude/rules/ci.md`, `.claude/rules/new-repo.md`.
 
 #### T218. Итог эпика E16: замер после, архив
 

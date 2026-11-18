@@ -1,20 +1,16 @@
 # Development container for the NovaTrail spec.
 # Exact versions only: the base image is pinned by digest, every tool below by an ARG default.
 # Anything a builder understands: no heredocs, no RUN --mount, no TARGETARCH — architecture is
-# detected at RUN time via dpkg instead. A host that has Docker can build this, and that is the
-# whole requirement.
+# detected at RUN time via dpkg instead, so any host that has Docker can build this.
 #
-# Three stages. `toolchain-core` holds Node, just, Go and buf: what a release needs — its version
-# and its files — and every check that runs no browser, and a release builds it alone (R31).
-# `toolchain` is the core with what the repository's tests need on top — in a copy, what its kind
-# adds at the end of the stage, such as the browsers of the kind typescript —, and is the stage
-# the automated checks run inside. `devcontainer` adds what a person needs on top of that, and
-# devcontainer.json names it as its target. spec's own file ends with a fourth, `orchestrator`,
-# the devcontainer with the Docker CLI and the Dev Containers CLI (R156, R158), which
-# `just new-repo` leaves out of a copy: in a copy `devcontainer` is the last stage, the one a
-# build with no target gives, and in spec every build names its stage. A builder that builds every stage before its target builds `orchestrator`
-# for the ordinary configuration too, and the stage builds there as well, without the file only
-# its own configuration writes.
+# `toolchain-core` holds Node, just, Go and buf: what a release needs — its version and its files —
+# and every check that runs no browser, and a release builds it alone (R31). `toolchain` adds what
+# the repository's tests need — in a copy, its kind's lines at the end of the stage — and is the
+# stage the automated checks run inside. `devcontainer` adds what a person needs, and
+# devcontainer.json names it as its target. spec's own file ends with `orchestrator`, the
+# devcontainer with the Docker CLI and the Dev Containers CLI, which `just new-repo` leaves out of
+# a copy (R156, R158): in a copy `devcontainer` is the last stage, the one a build with no target
+# gives, and in spec every build names its stage.
 
 # -- toolchain-core: releases the repository, checks it without a browser -----
 
@@ -22,28 +18,22 @@ FROM mcr.microsoft.com/devcontainers/base:3.0.13-noble@sha256:48be4adec1c1ecbe03
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
-# Node.js LTS: the checks of spec's justfile — of the documents, of the licenses, of the files of
-# a release and, in spec, of the schemas — are npm packages, and a repository's TypeScript runs
+# Node.js LTS: the checks of spec's justfile are npm packages, and a repository's TypeScript runs
 # on it too.
 ARG NODE_VERSION=24.21.0
 ARG JUST_VERSION=1.58.0
-# Go: a repository's Go code is built, vetted and tested with it, and CodeQL reads that code from
-# a build with it, in /usr/local/go, where the shared CodeQL workflow of .github looks for Go in
-# this stage. In spec that code is its Go module, which code of the platform takes from a
-# release, and the Go tools in tools/, and spec's checks build the module's zip as the Go module
-# proxy will (R64). Go comes with this file into the copy of every NovaTrail repository, whatever
-# its kind, and stays unused in one without Go code (R64).
+# Go, in /usr/local/go, where the shared CodeQL workflow of .github looks for it: a repository's
+# Go code is built, vetted, tested and read by CodeQL with it. In spec that code is its Go module
+# and the Go tools in tools/, and the checks build the module's zip as the Go module proxy will.
+# Every copy gets Go whatever its kind, unused where there is no Go code (R64).
 ARG GO_VERSION=1.27.4
-# buf: the API contracts are protobuf files that buf formats, lints, compares with the previous
-# release and generates code from, and spec's checks run it on its contracts/ (R83). It comes
-# with this file into the copy of every NovaTrail repository, as Go does, and stays unused in one
-# without contracts: the other repositories take the generated code from a release of spec.
+# buf formats, lints, compares with the previous release and generates code from the protobuf
+# API contracts, spec's contracts/ (R83). Every copy gets it as it gets Go, unused where there are
+# no contracts: the other repositories take the generated code from a release of spec.
 ARG BUF_VERSION=1.75.0
-# The sha256 of every archive, per architecture, as its publisher lists it: SHASUMS256.txt of
-# the Node release, SHA256SUMS of the just release, the sha256 go.dev/dl lists for Go,
-# sha256.txt of the buf release, whose binary comes as it is, with no archive. A sum written here
-# keeps a download from being swapped once it has been read (R34), and is raised together with
-# its version.
+# Each archive's sha256 per architecture, as its publisher lists it: SHASUMS256.txt of the Node
+# release, SHA256SUMS of just's, go.dev/dl for Go, sha256.txt of buf's, whose binary comes bare. A
+# sum written here keeps a download from being swapped, and is raised with its version (R34).
 ARG NODE_SHA256_AMD64=6e1db87ef58b8819e5d5402eff1536491b18edd8eb7bee5ef7897876e88dc5ff
 ARG NODE_SHA256_ARM64=724282c3b43aec998aa9527380465b45d229e021b58035f5f4f63095eabfe5d5
 ARG JUST_SHA256_AMD64=4a5cc2f53e6f0f8c59092a6cc38291eb729d46a7dd95d3ae582008881b84931d
@@ -53,10 +43,10 @@ ARG GO_SHA256_ARM64=3392582988a273a87ab5043ee1b2c9c17a2c3c00580bf9326c47a2e0aaae
 ARG BUF_SHA256_AMD64=fad1e38d6909bbb583a4da81d8c02a01046e2cd663bde7e337dd24277393764b
 ARG BUF_SHA256_ARM64=00eb190aa82df17f393e05b04889cc60a0b13b3259d336e21a87d5f23ab4fd26
 
-# Every archive comes through one helper, so that every download is retried the same way and
-# checked against its sum before anything unpacks it. --retry-all-errors is the point of it: a
-# transfer that dies partway is not something a plain --retry repeats, and that is exactly the
-# failure a small tunnel MTU produces. An archive that still comes short fails its sum.
+# One helper fetches every archive, so each is retried the same way and checked against its sum
+# before anything unpacks it. --retry-all-errors is the point: a plain --retry does not repeat a
+# transfer that dies partway, the failure a small tunnel MTU produces. An archive still short fails
+# its sum.
 RUN arch="$(dpkg --print-architecture)"; \
     case "$arch" in \
         amd64) node_arch=x64; gnu_arch=x86_64; \
@@ -132,8 +122,8 @@ ARG JUST_LSP_VERSION=0.10.0
 # Claude Code CLI. The VS Code extension in devcontainer.json must have the same version.
 ARG CLAUDE_CODE_VERSION=2.1.280
 # The sums, as above: gh_<version>_checksums.txt of the gh release, SHA256SUMS of just-lsp's.
-# The helper below is the toolchain-core stage's, written again rather than left in that image as
-# a script: the toolchain images are the ones the checks run in, and nothing there needs it.
+# The helper below repeats toolchain-core's rather than leaving it in that image as a script: the
+# checks run in the toolchain images, and nothing there needs it.
 ARG GH_SHA256_AMD64=9bca2d1c16825f109907a23307628a2f0698fbf99662b73a5cf0b020293072b8
 ARG GH_SHA256_ARM64=b57e8063f18862647c9d22727c32e9da1b963f8bf9db648fe123a6975695640f
 ARG JUST_LSP_SHA256_AMD64=3c35e10e76db6cc1931495bb3abdaef02576eaeb406c217420f4fd37e1ebe22c
@@ -169,16 +159,13 @@ RUN arch="$(dpkg --print-architecture)"; \
     \
     rm -rf "$workdir"
 
-# Claude Code comes from the registry at an exact version, rather than from an installer
-# script run off the network: what arrives is the package that version names, and npm checks
-# the archive against the hash the registry publishes for it. No package's install script runs.
-# The one step the package needs — install.cjs, which puts the native binary from its platform
-# package in place of the stub it ships with — is run by name, after the install. Without it
-# `claude` is that stub, a shell script that says the native binary is not installed and exits
-# 1; the package's Node wrapper is a fallback a person starts by hand. install.cjs exits 0 even
-# when the platform's binary is missing, and leaves the stub in place: claude --version stops
-# the build on it. npm's download cache under root's home is cleared in the same layer, since
-# the container runs as vscode.
+# Claude Code comes from the registry at an exact version, not from an installer script off the
+# network: npm checks the archive against the hash the registry publishes, and no install script
+# runs. The one step the package needs, install.cjs, which puts the native binary of its platform
+# package in place of the stub it ships, runs by name afterwards; without it `claude` is a stub
+# that says the binary is not installed and exits 1 (the Node wrapper is a fallback started by
+# hand). install.cjs exits 0 even when the binary is missing, so claude --version stops the build
+# on the stub. npm's cache under root's home goes in the same layer: the container runs as vscode.
 RUN echo "claude code ${CLAUDE_CODE_VERSION}" \
     && npm install -g --ignore-scripts "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
     && node "$(npm root -g)/@anthropic-ai/claude-code/install.cjs" \
@@ -194,11 +181,9 @@ RUN mkdir -p /home/vscode/.claude /home/vscode/.codex /home/vscode/.config/gh \
 
 # -- orchestrator: the devcontainer, plus the Docker and Dev Containers CLIs --
 #
-# spec's alone, for its second configuration, orchestrator/devcontainer.json, which mounts the
-# host's Docker socket: from here «Сделай эпик E…» runs each task in its repository's container
-# (R156). `just new-repo` leaves this stage and orchestrator/ out of a copy. The helper that
-# fetches is the toolchain-core stage's, written again as the devcontainer stage writes it: a change
-# to one is a change to all three.
+# spec's alone, for orchestrator/devcontainer.json, which mounts the host's Docker socket so that
+# «Сделай эпик E…» runs each task in its repository's container (R156). The fetch helper repeats
+# toolchain-core's, as the devcontainer stage's does: a change to one is a change to all three.
 
 FROM devcontainer AS orchestrator
 
@@ -209,9 +194,8 @@ USER root
 # The Docker CLI, from Docker's static archive: of its binaries the client, docker, alone — built
 # from docker/cli under Apache-2.0 —, and none of the daemon's, which is the host's (R12).
 ARG DOCKER_VERSION=29.9.3
-# Docker publishes no list of sums beside its static archives, so each sum is the sha256 of the
-# archive as it was downloaded over HTTPS on 2026-11-15, for each architecture, and is taken the
-# same way with every raise of the version (R34, sources 9.2).
+# Docker publishes no sums beside its static archives, so each is the sha256 of the archive as
+# downloaded over HTTPS, taken again with every raise of the version (R34).
 ARG DOCKER_SHA256_AMD64=3fb5d1f13014c18cc54945bc177c58a9056a482dada031e17d12cf2e6922c973
 ARG DOCKER_SHA256_ARM64=1b27fd739378ef938401e81ce5afb73b7ad7432d4f598814a9ff5f826bb464d2
 
@@ -239,22 +223,21 @@ RUN arch="$(dpkg --print-architecture)"; \
     rm -rf "$workdir"
 
 # The Dev Containers CLI, `devcontainer`, by which the orchestrator rebuilds a repository's
-# container and creates one a repository never had (R158). It is MIT, has no dependencies, and
-# what it bundles is under MIT, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD and Python-2.0: R12's list
-# all, so it needs no exception (sources 7.8). Its archive comes from the npm registry at its exact
-# version, and is unpacked by hand, as npm would lay out a package with no dependencies, rather than
-# installed by npm: npm would check it against the registry's integrity, not against a sum in this
-# file, and the package has no script of its own to run (sources 9.5).
+# container or creates its first (R158). It is MIT with no dependencies, and what it bundles is
+# under MIT, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD and Python-2.0, all on the allowed list, so it
+# needs no exception (R12). Its archive comes from the npm registry at its exact version and is
+# unpacked by hand, as npm lays out a package with no dependencies: npm would check it against the
+# registry's integrity, not a sum in this file, and the package has no script of its own to run.
 ARG DEVCONTAINERS_CLI_VERSION=0.90.0
-# The registry lists the archive's sha512, its integrity, and a SHA-1, and no sha256. So each sum
-# is the sha256 of the archive as it was downloaded over HTTPS on 2026-11-17, checked against the
-# registry's integrity, and is taken the same way with every raise of the version (R34, amendment
-# 2026-11-15; sources 9.5). The package is JavaScript alone: the two sums are one archive's.
+# The registry lists the archive's sha512, its integrity, and a SHA-1, but no sha256, so each sum
+# is the sha256 of the archive as downloaded over HTTPS and checked against that integrity, taken
+# again with every raise of the version (R34). The package is JavaScript alone: both sums are one
+# archive's.
 ARG DEVCONTAINERS_CLI_SHA256_AMD64=b3d40fec9d274a303a29ea91a24852887cf287701bc8d340bfc1cf970542495a
 ARG DEVCONTAINERS_CLI_SHA256_ARM64=b3d40fec9d274a303a29ea91a24852887cf287701bc8d340bfc1cf970542495a
 
 # A layer of its own, so that a raise of either version leaves the other's download in the cache.
-# The archive is fetched as the helper above fetches.
+# Its curl takes the helper's flags.
 RUN arch="$(dpkg --print-architecture)"; \
     case "$arch" in \
         amd64) cli_sha256="$DEVCONTAINERS_CLI_SHA256_AMD64" ;; \
@@ -285,10 +268,10 @@ RUN arch="$(dpkg --print-architecture)"; \
 # container starts, so every process of vscode has it, VS Code's server and each docker exec
 # alike. getent answers 2 for a number no group has, which pipefail would take for a failure.
 #
-# The folder comes whole, and docker-gid may be missing from it: Docker's legacy builder, which the
-# Dev Containers CLI falls back to on a host without buildx, builds every stage before its target,
-# and the CLI's target follows the end of this file, so spec's ordinary configuration builds this
-# stage too, with no docker-gid (sources 9.4). Without the file vscode joins no group; the
+# The folder comes whole, since docker-gid may be missing from it: Docker's legacy builder, which
+# the Dev Containers CLI falls back to on a host without buildx, builds every stage before its
+# target, and the CLI's target follows the end of this file, so spec's ordinary configuration
+# builds this stage too, with no docker-gid. Without the file vscode joins no group; the
 # orchestrator's own configuration always writes it, or stops before the build.
 COPY orchestrator/ /tmp/orchestrator/
 RUN gid_file=/tmp/orchestrator/docker-gid; \

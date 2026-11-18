@@ -10,8 +10,8 @@
         "context": "."
     },
     "remoteUser": "vscode",
-    // Closing the window leaves the container running: the orchestrator's executor runs in it by
-    // docker exec, with no window (R156, its 2026-11-16 amendment; sources 9.4). docker stop ends it.
+    // Closing the window leaves the container running, and docker stop ends it: the orchestrator's
+    // executor runs in it by docker exec, with no window (R156).
     "shutdownAction": "none",
     // Runs on the host before the container starts: gives it a network whose MTU is the
     // host's own, so a tunnel on the host does not silently truncate large downloads here.

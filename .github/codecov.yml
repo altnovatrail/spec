@@ -1,9 +1,9 @@
 # What Codecov does with the coverage of the tests of tools/ and of the Go modules (R48). There are
 # two kinds of report, each with an upload of its own, and both leave the tests out by themselves.
 # Node's, coverage/lcov.info of each of the three parts of the tests (coverage-part), which the job
-# "Coverage" of ci.yml uploads together, in one upload (sources 11.1), leaves node_modules/ out
-# too, and the job "Documents and tools" fails on a module of tools/ that none of the three loads,
-# as `just coverage` does on its one report. Go's, coverage/go.out, which ci-test writes and the
+# "Coverage" of ci.yml uploads together, in one upload, leaves node_modules/ out too, and the job
+# "Documents and tools" fails on a module of tools/ that none of the three loads, as
+# `just coverage` does on its one report. Go's, coverage/go.out, which ci-test writes and the
 # job "Go / coverage" of .github's shared go.yml uploads, holds every package of every Go module,
 # one that no test runs at zero; it names a file by its import path, which Codecov cuts down to the
 # path in the repository by a default rule of its own, "Golang specific rule to strip out the
@@ -23,9 +23,8 @@ codecov:
 coverage:
   status:
     # New and changed lines are covered at 90 % at least, as R38 standalone. The ruleset of main
-    # requires this check once a pull request of Dependabot has shown that it comes (R30). A pull
-    # request that changes no line of the report, the documents alone, passes as "Coverage not
-    # affected".
+    # requires this check (R30). A pull request that changes no line of the report, the documents
+    # alone, passes as "Coverage not affected".
     patch:
       default:
         target: 90%

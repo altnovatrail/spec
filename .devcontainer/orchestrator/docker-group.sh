@@ -17,7 +17,7 @@
 # again: when the socket's group is no longer the one written, this says so, and the container
 # is to be rebuilt. The file is written only when it is missing or its number changes: a file of
 # the build's context written at every start, by the same number, looks like a change to whoever
-# watches the build's files (RUN.md, T174).
+# watches the build's files.
 #
 #   docker-group.sh [<socket>]        the socket is /var/run/docker.sock unless given
 

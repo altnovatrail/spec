@@ -129,7 +129,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     assert.match(read(dir, "docs/decisions.md"), /set up 2026-01-02 from the template of `spec` v0\.0\.0-test/);
     for (const file of ["README.md", "CLAUDE.md", "RUN.md", "docs/architecture.md"]) assert.ok(read(dir, file).match(FILL), `${name}: ${file} has no FILL`);
     // The window's closing leaves the container to the orchestrator's executor (R156).
-    assert.match(read(dir, ".devcontainer/devcontainer.json"), /\(R156 spec, its 2026-11-16 amendment; sources 9\.4 spec\)[^\n]*\n\s*"shutdownAction": "none",/, `${name}: devcontainer.json does not keep its container running`);
+    assert.match(read(dir, ".devcontainer/devcontainer.json"), /\(R156 spec\)\n\s*"shutdownAction": "none",/, `${name}: devcontainer.json does not keep its container running`);
     // An orchestrator's run of a task goes by the executor's contract in spec (R156).
     assert.match(read(dir, "RUN.md"), /^7\. Do not commit: .*`spec\/tools\/orchestrator\/executor\.md`.*\(R156 spec\)\.$/m, `${name}: RUN.md rule 7 does not name the executor's contract`);
     for (const file of ["LICENSE", "AGENTS.md"]) assert.equal(read(dir, file), read(specRoot, file), `${name}: ${file} is not spec's`);
@@ -270,7 +270,7 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     // The heading of the toolchain stage holds for spec and every copy alike.
     assert.match(dockerfile, /^# What the repository's tests need beyond the core: in spec, nothing; in a copy, the lines its kind$/m);
     assert.doesNotMatch(dockerfile, /spec's tests need nothing|repo-template\/kinds\.json/, "the copy's Dockerfile does not speak of spec's tests or its template");
-    if (kind === "typescript") assert.match(dockerfile, /\(measurements 3\.2 spec; the 2026-11-16 amendment to R40 spec\)/);
+    if (kind === "typescript") assert.match(dockerfile, /twice the download, and resolves the same\n# packages at the same versions \(R40 spec\)/);
     if (kind === "go") assert.match(dockerfile, /built\n# with the Go that toolchain-core installs/);
     assert.deepEqual(dc.mounts, spec.mounts, "the sign-in volumes are shared, the extensions' named by ${devcontainerId}");
     assert.deepEqual(dc.customizations.vscode.extensions, [...spec.customizations.vscode.extensions, ...(kinds[kind].extensions ?? [])]);
