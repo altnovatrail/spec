@@ -5,7 +5,8 @@
     "entry": 1,
     "section": 1,
     "sections": { "product 13": 2 },
-    "rows": { "run/DEBT.md": 1 }
+    "rows": { "run/DEBT.md": 1 },
+    "comments": true
   },
   "repository": {
     "files": { "RUN.md": 4, "run/TASKS.md": 4 },
