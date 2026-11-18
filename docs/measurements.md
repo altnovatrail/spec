@@ -844,7 +844,7 @@ What the runs of the orchestrator cost, and how often they stopped for the autho
 
 ### 1.14. Documents and comments: what a session needs, T200, 2026-11-18
 
-Which part of the documents and the code comments of the 13 repositories helps a session do its task, and which only costs tokens and time and makes the texts unreadable for the author (run/TASKS.md, T200; R143, R145, R154). Measured 2026-11-18 on `main` of each repository, read-only, from clones in a temporary folder, and on the transcripts of the orchestrator's executors on the volume `novatrail-claude`. The commands are section 1.14.6. What the author decides is В60–В65 of [run/QUESTIONS.md](../run/QUESTIONS.md).
+Which part of the documents and the code comments of the 13 repositories helps a session do its task, and which only costs tokens and time and makes the texts unreadable for the author (run/TASKS.md, T200; R143, R145, R154). Measured 2026-11-18 on `main` of each repository, read-only, from clones in a temporary folder, and on the transcripts of the orchestrator's executors on the volume `novatrail-claude`. The commands are section 1.14.6. The author's answers of 2026-11-18 to В60–В65 took every recommendation (T200, `docs/plan/E15.md`): the rule of section 1.14.5 is epic E16 of [run/EPICS.md](../run/EPICS.md), and the time of the tasks is T201 of [run/TASKS.md](../run/TASKS.md).
 
 **The answer in short.**
 - The documents cost the executors about a third of what they read and a quarter of what they write: 28% of the context their main calls carry and 23% of their output (section 1.14.2).
@@ -1045,12 +1045,12 @@ The counts: W 34% of the blocks, D 42%, C 22%, R 2%, H 0%. Over all the code, 3,
 - `tokens-report` takes a grouping by class of path, which section 1.14.2 had to do by hand, so that the epic can measure before and after.
 
 **The plan proposed** (В64).
-- An epic in `run/EPICS.md`, E16 if still free.
+- An epic in `run/EPICS.md`, E16.
   - First, `spec`: the rule as a decision, and RULES.md, R143 and R154 amended; the checks; `tokens-report --classes`; and `spec`'s own documents.
   - T196 joins it: the log of versions of `dpia 1` is class (a).
   - Then a row of COORDINATION.md for each of the other 12 repositories, from one text, each with its move to the tag.
   - The measurement by section 1.14.6 at its archive.
-- Not a part of it: the time of the executors' tasks, which is the loops of tests and CI (section 1.14.3) and a task of its own (В65).
+- Not a part of it: the time of the executors' tasks, which is the loops of tests and CI (section 1.14.3) and a task of its own (В65), T201.
 
 #### 1.14.6. The commands
 
