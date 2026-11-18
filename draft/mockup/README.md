@@ -13,7 +13,7 @@ The files of the claude.ai Design canvas [Take from my paper](https://claude.ai/
 - `Paper.dc.html` — the photographed page of the paper flow, synthetic.
 - `canvas.json` — the boards and the canvas's notes, in Russian: `howto` is the path through Play, and `t155` names what of the task screen of `app` the mockup does not draw, by the key of its string, and why.
 
-The canvas is behind these files: the account of the session that ran T220 could not read it, so T220's publish did not go through (RUN.md, T220, «Риски»). Until a publish goes through, the newest sources are here, and a change of the look is made in these files, with `states.mjs` below.
+The canvas is behind these files: the account of the session that ran T220 could not read it, so T220's publish did not go through (Д278). Until a publish goes through, the newest sources are here, and a change of the look is made in these files, with `states.mjs` below.
 
 The files of the canvas's own runtime, `support.js` and `artifact-type/`, are not here: they are not NovaTrail's, and their license is unknown. NovaTrail's own runtime, Apache-2.0 (R12), opens these files instead: [tools/mockup/](../../tools/mockup/runtime.mjs).
 
