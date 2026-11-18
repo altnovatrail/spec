@@ -59,3 +59,43 @@ export function readTranscript(file) {
   }
   return { records, broken };
 }
+
+// The first record of a transcript that `wanted` takes, or null: read a line at a time from its
+// start, so that a transcript of hundreds of MB is not read whole for its start.
+export function firstRecordOf(file, wanted, chunk = 1 << 16) {
+  const take = (line) => {
+    try {
+      const record = JSON.parse(line);
+      return wanted(record) ? record : null;
+    } catch {
+      return null;
+    }
+  };
+  const fd = fs.openSync(file, "r");
+  try {
+    // The pieces of the line read so far, which a chunk may cut.
+    const pieces = [];
+    for (;;) {
+      const buffer = Buffer.alloc(chunk);
+      const length = fs.readSync(fd, buffer, 0, chunk, null);
+      if (length === 0) return pieces.length ? take(Buffer.concat(pieces).toString("utf8")) : null;
+      let start = 0;
+      for (let end = buffer.indexOf(10, start); end !== -1 && end < length; end = buffer.indexOf(10, start)) {
+        pieces.push(buffer.subarray(start, end));
+        const found = take(Buffer.concat(pieces).toString("utf8"));
+        if (found) return found;
+        pieces.length = 0;
+        start = end + 1;
+      }
+      pieces.push(buffer.subarray(start, length));
+    }
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+// The first time a transcript gives, or null: a session's first record, or what a transcript that
+// resumes one copied of it.
+export function firstTimeOf(file) {
+  return firstRecordOf(file, (r) => typeof r?.timestamp === "string")?.timestamp ?? null;
+}

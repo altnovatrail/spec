@@ -40,14 +40,16 @@ How the spending of Claude Code sessions in NovaTrail's repositories is measured
 
   A path is printed from the root of the repository or from `~`. A session ID in a path is printed as `<session>`, the name of a file with output saved from the context as `*`.
 - **The start of a session** is the median context of the first call and its makeup on average per session: the system prompt, the files CLAUDE.md, RULES.md and MEMORY.md, the list of skills, MCP instructions and other attachments. Their characters are converted into tokens by the ratio of characters to tokens of everything that entered between calls in the same period. The "rest" is what the transcript does not hold: the tool descriptions.
-- **A session's first 80 main calls** are measured apart too: the context of a call among them, beside that of every main call. A session's context grows with its length, so the two apart tell a long task from heavier reading: a call keeps its place among its session's main calls when the window starts after the session did, and the calls before the window are not counted. A session continued in a new transcript goes on from the places of the calls it copied (R145; RUN.md, T199).
+- **A session's first 80 main calls** are measured apart too: the context of a call among them, beside that of every main call. A session's context grows with its length, so the two apart tell a long task from heavier reading: a call keeps its place among its session's main calls when the window starts after the session did, and the calls before the window are not counted. A session continued in a new transcript goes on from the places of the calls it copied (R145; RUN.md, T199): the transcripts are read in the order their sessions began, by the first time each holds, so the one it copied from has given those calls their places first, when it copied only the tail after a compaction too.
 - **What it does not see** — calls of `claude -p --no-session-persistence`: they have no transcript. graphify calls the model so (section 1.4).
 - **What is printed** — only numbers, paths, the names of tools, attachments and programs, session IDs and the first task number `T…` from the author's first prompt. A program or second word that does not look like a name is printed as `other`.
 - **Flags:**
   - `--since` and `--until` — an ISO 8601 date or time. A time without a zone is taken in UTC, `--until` is not included, and a date means the start of the day;
-  - `--project` — the transcript folder of another project: a name under `<config>/projects`, which starts with "-" and is therefore written with "=" (`--project=-workspaces-app`). The recipe takes no path and reads nothing outside `<config>/projects`: SonarCloud takes a path from the command line for a directory traversal (S8707), and a name is enough. Paths are printed from the folder where most of its sessions started;
+  - `--project` — the transcript folder of another project: a name under `<config>/projects`, which starts with "-" and is therefore written with "=" (`--project=-workspaces-app`). The recipe takes no path and reads nothing outside `<config>/projects`: SonarCloud takes a path from the command line for a directory traversal (S8707), and a name is enough. Paths are printed from the folder where most of its sessions started. Given several times, it reads the folders of several projects as one, each with the paths from its own folder;
   - `--top` — the length of the lists, 20 by default;
-  - `--json` — the same numbers in JSON, for comparing baselines.
+  - `--json` — the same numbers in JSON, for comparing baselines, with `classes` among them;
+  - `--classes` — the table of section 1.14.2: the main calls of the orchestrator's executors, the sessions whose first prompt came by `claude -p` (`entrypoint: sdk-cli`), by what each did, by the class of the paths its tools named. A Bash command's paths are its words alone, as the files of the other repositories are not on this machine; its output and time are shared among its tools;
+  - one of `--json`, `--row` and `--classes`.
 
 ### 1.2. The weights
 
@@ -847,9 +849,9 @@ What the runs of the orchestrator cost, and how often they stopped for the autho
 Which part of the documents and the code comments of the 13 repositories helps a session do its task, and which only costs tokens and time and makes the texts unreadable for the author (run/TASKS.md, T200; R143, R145, R154). Measured 2026-11-18 on `main` of each repository, read-only, from clones in a temporary folder, and on the transcripts of the orchestrator's executors on the volume `novatrail-claude`. The commands are section 1.14.6. The author's answers of 2026-11-18 to В60–В65 took every recommendation (T200, `docs/plan/E15.md`): the rule of section 1.14.5 is epic E16 of [run/EPICS.md](../run/EPICS.md), and the time of the tasks is T201 of [run/TASKS.md](../run/TASKS.md).
 
 **The answer in short.**
-- The documents cost the executors about a third of what they read and a quarter of what they write: 28% of the context their main calls carry and 23% of their output (section 1.14.2).
+- The documents cost the executors about a quarter of what they read and of what they write: 26% of the context their main calls carry and 23% of their output (section 1.14.2).
 - Three tasks were traced by their transcripts (section 1.14.3). In two of them 40% and 70% of the documents read could have been avoided, and half to two thirds of the documents written: navigation, process, and the same fact written six to nine times.
-- Removing that would save about 2–3 minutes and $0.56–0.92 of a session's 28.8 minutes and $5.51 with its subagents: 7–10% of the time, 10–17% of the cost.
+- Removing that would save about 2–3 minutes and $0.51–0.85 of a session's 28.8 minutes and $5.72 with its subagents: 7–10% of the time, 9–15% of the cost.
 - It is not why a task of E5 of `app` takes 45–110 minutes. Its longest task, T87 `app`, spent about 5% of its time on documents and 64% on tools: tests, the comparison with the mockup, and waiting for CI.
 - 10–100 times shorter holds for single texts, not for the whole. The status paragraph of `infra`, a chronicle of 1,171 characters, has no reader and can go. R29 `infra`, 25.9 thousand characters, holds about one paragraph in force. Over all of it, the decision logs would shrink by about half and the comments by about 45%.
 
@@ -899,31 +901,31 @@ Notes on the table:
 
 #### 1.14.2. Where the executors' sessions spend
 
-The sample has 246 sessions of the orchestrator's executors, `entrypoint: sdk-cli`, that started from 2026-11-16T00:00 to 2026-11-18T04:33 UTC, in all 13 folders. They made 21,103 main calls until its end, with 3,083 million tokens of context and 12.56 million of output. A session averages 28.8 minutes of wall time and 10.6 of the model's own, $4.90 at the API's prices (section 1.2), $3.88 of it input. Its subagents cost $0.61 more and are not attributed: the review and the searches it gives them. The sessions were not resumed into new transcripts, and they compacted 15 times; the start counts in every call, after a compaction too.
+The sample has 246 sessions of the orchestrator's executors, `entrypoint: sdk-cli`, that started from 2026-11-16T00:00 to 2026-11-18T04:33 UTC, in all 13 folders. They made 21,103 main calls until its end, with 3,083 million tokens of context and 12.56 million of output. A session averages 28.8 minutes of wall time and 10.6 of the model's own, $4.90 at the API's prices (section 1.2), $3.88 of it input. Its subagents cost $0.83 more and are not attributed: the review and the searches it gives them. The sessions were not resumed into new transcripts, and they compacted 15 times. `tokens-report --classes` prints the table below, and the script of section 1.14.6 gives the same numbers.
 
 How the calls are attributed:
 - Each main call is attributed to what its tool calls did, the files they name read by their path: `docs/decisions.md`, `docs/architecture.md`, other `docs/`, RUN.md and `run/`, the archives, CLAUDE.md and the rules, README files.
-- `tokens-report` cannot do this for another repository: it counts a file a Bash command names only if the file exists on this machine, and the other repositories are not checked out here (section 1.1).
-- What a result carried is measured as in section 1.1: the context it added, times the calls after it.
+- A Bash command's files are its words: the groups by file of `tokens-report` count a file only if it exists on this machine, and the other repositories are not checked out here (section 1.1), so `--classes` reads the words alone.
+- What a result carried is measured as in section 1.1: the context it added, times the calls after it until a compaction. What a compaction left is carried whole, like the start, and counts in "git, gh, other shell", 1.7%, with the author's words, the reminders, the other tools and the reads of the session's own files, in `/tmp/` and among its transcripts.
 - A call's output and its time, from the previous entry to its last block, are shared among its tool calls.
 
 | What a call did | Context it carried | Output | Model time | Model minutes a session |
 |---|---|---|---|---|
-| read documents | 28.1% | 17.3% | 21.2% | 2.2 |
-| read code and data | 19.4% | 13.5% | 15.0% | 1.6 |
-| the start of the session | 19.2% | — | — | — |
-| git, gh, other shell | 18.8% | 18.2% | 23.8% | 2.5 |
-| write code and data | 1.9% | 21.4% | 16.5% | 1.7 |
-| write documents | 0.7% | 22.9% | 18.8% | 2.0 |
+| read documents | 25.5% | 17.3% | 21.2% | 2.2 |
+| git, gh, other shell | 19.9% | 18.6% | 24.3% | 2.6 |
+| the start of the session | 18.1% | — | — | — |
+| read code and data | 13.7% | 13.1% | 14.5% | 1.5 |
+| write code and data | 1.5% | 21.3% | 16.4% | 1.7 |
+| write documents | 0.7% | 23.0% | 18.9% | 2.0 |
 | the status, the report to the author | — | 6.7% | 4.7% | 0.5 |
 
 The documents read, by share of the context carried:
 
-| Decisions | Several at once | Plan | Architecture | README | Archives | Other docs | Rules | Other `.md` |
+| Decisions | Several at once | Plan | Architecture | Archives | README | Other docs | Rules | Other `.md` |
 |---|---|---|---|---|---|---|---|---|
-| 7.2% | 6.4% | 5.4% | 3.0% | 1.7% | 1.5% | 1.4% | 0.8% | 0.7% |
+| 6.5% | 6.1% | 5.0% | 2.4% | 1.4% | 1.3% | 1.3% | 0.8% | 0.6% |
 
-- The session writes documents with as much output as code, 22.9% against 21.4%, and spends more of the model's time on them, 18.8% against 16.5%.
+- The session writes documents with as much output as code, 23.0% against 21.3%, and spends more of the model's time on them, 18.9% against 16.4%.
 - Most of it, 13.8% of the output, is scripts of `node` and `sed` that edit several documents at once: the amendments, the archive and «Сделано».
 - The start of a session holds CLAUDE.md and RULES.md, 22–26 KB.
 
@@ -1014,11 +1016,11 @@ The counts: W 34% of the blocks, D 42%, C 22%, R 2%, H 0%. Over all the code, 3,
    - The architecture describes the current design and cites a decision by its number, without retelling it (В63).
 
 **What it gives.**
-- Of a session's main calls, $4.90 and 28.8 minutes, the documents read are about $1.09 and 2.2 minutes of the model, and the documents written about $0.23 and 2.0 minutes (section 1.14.2).
+- Of a session's main calls, $4.90 and 28.8 minutes, the documents read are about $0.99 and 2.2 minutes of the model, and the documents written about $0.23 and 2.0 minutes (section 1.14.2).
 - By the shares that served nothing in section 1.14.3:
-  - reading: 40–70%, $0.44–0.76 and 0.9–1.5 minutes;
+  - reading: 40–70%, $0.40–0.69 and 0.9–1.5 minutes;
   - writing: 50–67%, $0.12–0.16 and 1.0–1.3 minutes.
-- Together $0.56–0.92 and about 2–3 minutes a session: 10–17% of its $5.51 with the subagents, 7–10% of its time.
+- Together $0.51–0.85 and about 2–3 minutes a session: 9–15% of its $5.72 with the subagents, 7–10% of its time.
 - The review checks fewer claims: in T82, about 70% of its subagent's 7.4 thousand tokens of output went on the documents.
 - The author can read a decision as one text.
 
@@ -1028,7 +1030,7 @@ The counts: W 34% of the blocks, D 42%, C 22%, R 2%, H 0%. Over all the code, 3,
 - Rewriting an entry in place could lose what it rejected. The rule keeps "Rejected" in the entry.
 - A number in a comment can be wrong (2 of 8). A check that every number cited in a comment names an entry of the log would catch the half that names no entry.
 - R143 rejected a consolidation of the decisions in force beside the log, by the sample of T128 (section 1.6): 60% of the size, 17–24% less read, 0.5–0.7% of what the sessions carried, and every amendment dragged an edit of the copy after it. Rewriting the entry in its place keeps no second copy.
-  - The new facts: in the executors' sessions the logs carry 7.2% of the context, not 2.6%.
+  - The new facts: in the executors' sessions the logs carry 6.5% of the context, not 2.6%.
   - The amendments that restate another entry cost output and review.
   - The author cannot read the logs.
   - By T128's 17–24% less read, rule 2 alone saves 1.2–1.7% of the context, and more of the output: the amendments that restate go.
@@ -1135,8 +1137,9 @@ for(const r of ['.github','api','app','canvas','engine','infra','learner-model',
 JS
 ```
 
-**The executors' sessions** — section 1.14.2, `ALL=1` adds the rows by kind:
+**The executors' sessions** — section 1.14.2: `tokens-report --classes` over the same folders, with the rows by kind under each group; the script `text-classes.mjs` gives the same, its rows by kind with `ALL=1`:
 ```sh
+P=/home/vscode/.claude/projects; just tokens-report --since 2026-11-16 --until 2026-11-18T04:33 --classes $(ls -d $P/-workspaces-* | grep -v -- '--repos-' | xargs -n1 basename | sed 's/^/--project=/')
 P=/home/vscode/.claude/projects; ALL=1 node text-classes.mjs 2026-11-16 2026-11-18T04:33 $(ls -d $P/-workspaces-* | grep -v -- '--repos-')
 ```
 
@@ -1158,13 +1161,13 @@ const cls = (p) => {
   if (/(^|\/)README\.md$/.test(p)) return 'readme';
   return /\.md$/.test(p) ? 'md other' : 'code and data';
 };
-const PATH = /(?:^|[\s'"=(:])((?:\.{0,2}\/|[\w.-]+\/)*[\w.-]+\.(?:md|go|ts|tsx|mjs|js|cjs|json|ya?ml|proto|sh|css|html|txt)|(?:docs|run|src|internal|cmd|tools|format|contracts|deploy)\/[\w./-]+)/g;
-const WRITE = /sed -i|perl -pi|>\s*[\w./-]+\.(md|go|ts|tsx|json|mjs|ya?ml)|\btee\b|writeFileSync|cat\s*>>?/;
+const PATH = /(?:^|[\s'"=(:<>])((?:\.{0,2}\/|[\w.-]+\/)*[\w.-]+\.(?:md|go|ts|tsx|mjs|js|cjs|json|ya?ml|proto|sh|css|html|txt)(?!\w)|(?:docs|run|src|internal|cmd|tools|format|contracts|deploy)\/[\w./-]+)/g;
+const WRITE = /sed -i|perl -pi|(?<!=)>\s*[\w./-]+\.(md|go|ts|tsx|json|mjs|ya?ml)(?!\w)|\btee\b|writeFileSync|cat\s*>>?/;
 function kind(b) {
   const i = b.input || {};
   if (['Read', 'Grep', 'Glob'].includes(b.name)) {
     const p = (i.file_path || i.path || '').replace(/^\/workspaces\/[^/]+\/?/, '').replace(/^spec\/?/, '');
-    const c = p === '' ? 'other' : /^docs\/?$/.test(p) ? 'docs other' : /^run\/?$/.test(p) ? 'plan' : cls(p);
+    const c = p === '' || /^\/tmp\/|\.claude\/projects/.test(p) ? 'other' : { docs: 'docs other', 'docs/plan': 'archive', run: 'plan', '.claude/rules': 'rules' }[p.replace(/\/$/, '')] ?? cls(p);
     return c === 'other' ? 'other' : 'read ' + (DOCS.test(c) ? c : 'code and data');
   }
   if (['Edit', 'Write', 'MultiEdit', 'NotebookEdit'].includes(b.name)) return 'write ' + cls(i.file_path || i.notebook_path || '');
@@ -1188,12 +1191,13 @@ for (const dir of dirs) for (const f of fs.readdirSync(dir).filter((f) => f.ends
   const lines = fs.readFileSync(`${dir}/${f}`, 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return {}; } });
   const first = lines.find((e) => e.type === 'user' && !e.isSidechain);
   if (first?.entrypoint !== 'sdk-cli' || !(first.timestamp >= since && first.timestamp < until)) continue;
-  const list = [], ids = new Map(), kinds = new Map();
+  const list = [], ids = new Map(), kinds = new Map(), bounds = [];
   let pending = [], prev = Date.parse(first.timestamp), cost;
   for (const e of lines) {
     if (e.timestamp >= until) break;
     if (e.type === 'cost-state') cost = e;
     if (e.isSidechain || !e.type) continue;
+    if (e.type === 'system' && e.subtype === 'compact_boundary') bounds.push(list.length);
     const t = Date.parse(e.timestamp || '') || prev;
     if (e.type === 'assistant' && e.message?.model !== '<synthetic>') {
       const m = e.message, u = m.usage || {};
@@ -1207,22 +1211,26 @@ for (const dir of dirs) for (const f of fs.readdirSync(dir).filter((f) => f.ends
     prev = t;
   }
   sessions++; wall += cost?.totalDuration || 0;
-  const sub = `${dir}/${f.slice(0, -6)}/subagents`, seen = new Set();
+  const sub = `${dir}/${f.slice(0, -6)}/subagents`, seen = new Map();
   for (const g of fs.existsSync(sub) ? fs.readdirSync(sub).filter((g) => g.endsWith('.jsonl')) : [])
     for (const l of fs.readFileSync(`${sub}/${g}`, 'utf8').split('\n')) {
       let e; try { e = JSON.parse(l); } catch { continue; }
       const u = e.message?.usage;
-      if (e.type !== 'assistant' || !u || e.timestamp >= until || seen.has(e.message.id)) continue;
-      seen.add(e.message.id);
-      subUsd += ((u.input_tokens || 0) * 4 + (u.cache_read_input_tokens || 0) * 0.2 + (u.cache_creation?.ephemeral_1h_input_tokens || 0) * 8 + (u.cache_creation?.ephemeral_5m_input_tokens || 0) * 5 + (u.output_tokens || 0) * 20) / 1e6;
+      if (e.type !== 'assistant' || !u || e.timestamp >= until) continue;
+      if (!seen.has(e.message.id)) subUsd += ((u.input_tokens || 0) * 4 + (u.cache_read_input_tokens || 0) * 0.2 + (u.cache_creation?.ephemeral_1h_input_tokens || 0) * 8 + (u.cache_creation?.ephemeral_5m_input_tokens || 0) * 5) / 1e6;
+      seen.set(e.message.id, Math.max(seen.get(e.message.id) || 0, u.output_tokens || 0));
     }
+  for (const o of seen.values()) subUsd += (o * 20) / 1e6;
+  // A result rides until the next compaction; what a compaction left is carried whole.
+  const end = (i) => bounds.find((b) => b > i) ?? list.length;
   list.forEach((c, i) => {
     calls++; context += c.context; output += c.output; usd += c.usd + (c.output * 20) / 1e6;
-    if (i === 0) add('start', 'carried', c.context * list.length);
+    if (i === 0) add('start', 'carried', c.context * end(0));
+    else if (bounds.includes(i)) add('after a compaction', 'carried', c.context * (end(i) - i));
     const ks = c.kinds.length ? c.kinds : ['other'];
     for (const k of ks) { add(k, 'output', c.output / ks.length); add(k, 'ms', (c.end - c.start) / ks.length); }
     const growth = i ? c.context - list[i - 1].context - list[i - 1].output : 0, chars = c.before.reduce((s, [x]) => s + x, 0);
-    if (growth > 0 && chars > 0) for (const [x, k] of c.before) add(k, 'carried', ((growth * x) / chars) * (list.length - i));
+    if (growth > 0 && chars > 0) for (const [x, k] of c.before) add(k, 'carried', ((growth * x) / chars) * (end(i) - i));
   });
 }
 const G = {};
