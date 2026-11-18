@@ -319,6 +319,16 @@ Otherwise the rule is as before: the tool puts nothing of its own into what ship
 
 — R154, R156; run/TASKS.md, T184.
 
+— *Second amendment 2026-11-17 (T198):* **the amendment of T184 above holds for a person too: issues, and a pull request's title and description, are in English whoever writes them — the author, a contributor or a contributor's agent —, in every NovaTrail repository, and so are the issue forms and the pull request template of `.github`, which no longer offer Russian (the 2026-11-17 amendment to R22).** A session writes them terse; a person writes in English as they will. RULES.md, Language, says it in the same phrase as the T184 amendment.
+
+*Why:* the author's word of 2026-11-17 on the row «в реестр spec» `.github` В42, not its recommendation: «всё на английском». A person's issue or description is read by a session too — the one that takes the issue up, the orchestrator at the merge —, and one rule for every writer needs no line in each template saying which language whom.
+
+*Rejected:*
+- the rule for sessions alone, a person writing in English or Russian — the recommendation: R22 had opened Russian to people on purpose, and no outside contributor writes yet;
+- pull requests in English for everyone, issues in either language.
+
+— R22; COORDINATION.md, row 2.6; run/TASKS.md, T198.
+
 
 ## Components and repositories
 
@@ -617,6 +627,8 @@ Rejected:
 - templates in two languages — two texts that would have to be kept in agreement; in Russian — against R14.
 
 — *Amendment 2026-11-15:* **the sign-off of commits from the command line is checked by the shared check "DCO / sign-off", a required check of the ruleset of `main` of every repository (R30); T17 brought it, and Д5 is closed. "T15 and T16 only check that private reports are enabled" reads so: T15 checks them in `spec` and `module-kit`, T16 in `tutor` and T21 in the nine other component repositories (the first 2026-10-20 amendment to R30), and T21 is done.** — R30; R143; RUN.md, T164.
+
+— *Amendment 2026-11-17 (T198):* **"Languages" above is replaced: issues and pull requests are written in English, a person's too (the second 2026-11-17 amendment to R14). CONTRIBUTING.md of `.github` says English alone, and the line of the issue forms and of the pull request template "Write in English or Russian." — "The language" of the 2026-11-01 amendment above — goes too; the session of `.github` edits them by row 2.6 of COORDINATION.md.** The argument of "Languages", "R14 speaks of files, not of correspondence", no longer holds since the 2026-11-17 amendment of T184 to R14 brought a pull request's description under R14. *Why:* the author's word of 2026-11-17 on the row «в реестр spec» `.github` В42, not its recommendation. *Rejected:* people writing in English or Russian, as "Languages" said; pull requests in English, issues in either. — R14; COORDINATION.md, row 2.6; run/TASKS.md, T198.
 
 ## Questions of the components' detailing
 
@@ -2478,6 +2490,8 @@ Rejected:
 
 — *Amendment 2026-11-17:* **the "Recheck" of the 2026-10-28 amendment above on the default digit height did not come before the modules: the modules of the slice came out without `canvas.digit_height`, and `novatrail` reads them at 24 px, while the reading was admitted at 32 px (T115 and T126 of `tutor`; R80 and R82 tutor). The recheck is one paid run of Д18 `tutor`, now, on the author's handwriting, not the volunteers': Haiku 5.5 · `medium` at 24 px against 32 px on the author's 60 sheets, about 600 calls, about $0.25 (the fourth 2026-11-17 amendment to R07). If 24 px is no worse, this decision stands as it is. If it is worse, the modules for adults set `canvas.digit_height: 32` (COORDINATION.md, rows 5.18, 3.12, 6.38 and 6.39), and the format's default stays 24 px.** The author's word of 2026-11-17 on the row «в реестр spec» `tutor` В93. *Rejected:* 24 px with Д18 left until runs return, as the row recommended — the author wants the answer now; the modules for adults at 32 px until the run — a change of three modules before anything shows 24 px worse; an entry of `tutor`'s list naming the height it was measured at — code of `tutor` and a rule of `spec` for one case. — R48 tutor; Д18 tutor; RUN.md, T188.
 
+— *Second amendment 2026-11-17 (T198):* **the run of the amendment above is done, and 24 px is no worse: this decision stands as it is, and the modules for adults set no `canvas.digit_height`.** T166 `tutor` (R130 tutor, v0.1.48) read the author's 60 sheets with Haiku 5.5 · `medium` at 24 px and at 32 px, 645 calls, $0.2610: at 24 px one more "unreadable", p 0.5, no false alarm of 35 and no false "correct" of 25. Rows 5.18 and 3.12 of COORDINATION.md are deleted, and row 6.38 no longer waits on 3.12. A column fraction at 24 px was not measured; Д18 `tutor` holds it. The author's answer of 2026-11-17 to the row «в реестр spec» `tutor` В93 as it changed, by the branch decided beforehand. *Rejected:* a task to measure the column fraction at 24 px now — calls to AI and money by R07, for what Д18 `tutor` holds. — R130 tutor; Д18 tutor; run/TASKS.md, T198.
+
 ## The course of writing and AI
 
 **R52. Nothing of the learner's writing history goes to AI — neither the order of writing, nor the action log, nor the frames before erasure, neither into reading nor into analysis: what goes to the check is an image or a crop, as by R09. So it stays until a measurement on live handwriting and free notation shows that the course of writing helps.** П-21 is closed. The author's answer to the row «в реестр spec» `tutor` В30 (RUN.md of `tutor`, commit 7efa0f8), its first option.
@@ -4175,6 +4189,17 @@ Sources, read 2026-11-01: the npm registry — the packages' versions, licenses 
 — *Amendment 2026-11-10:* **the way of `app` is the same as that of `canvas` and `skill-map`: a script on `@iconify/utils` that builds the icons in at build time; `unplugin-icons` with `compiler: 'jsx'` does not suit a UI package on React: it requires `@svgr/core`, and that, through `@babel/core`, pulls `caniuse-lite` under CC-BY-4.0, which is not in the list of R12.** The author's answer to the row «в реестр spec» `app` В45 (RUN.md of `app`, `main` 59725f7), by its recommendation (a); the record of the 2026-11-02 amendment about the way of `app` is replaced by this (the 2026-11-10 amendment to R03 app). *Rejected:* keeping the record — it would name a way that does not exist. — R12, R39; R03 app.
 
 — *Amendment 2026-11-14:* **the second 2026-11-02 amendment — "the packages have no buttons with an icon alone and the caption in `aria-label`" — holds outside the closed list of the 2026-11-14 amendment to R90: a button of that list shows its icon alone, and its caption from the package's table of captions is its accessible name. The values of `app` in the list — back, close, the previous and the next task (‹ ›), the speaker of voicing, Help and the tutor's button — are values of `app` of its own: it chooses their icons from the set itself, not from those in the table, and records them in its `docs/architecture.md`; so ‹ › do not take `arrow-forward` of the value "next". The five states and the two marks of the skills enter the table of values: the map of `skill-map` and the module card of `app` show them (R148).** The author's decisions of 2026-11-14 while epic E12 and T152 were planned (RUN.md, T152). — *Why:* the icons of the list are those whose meaning a learner reads without a word, and a value of one package needs no row of the table; the states become shared when `app` draws them on its card. — *Rejected:* captions beside every icon; a row of the table for each value of `app` in the list. — R90, R91, R148; R03 and R10 skill-map; architecture 6.
+
+— *Amendment 2026-11-17 (T198):* **`canvas`, `skill-map` and `app` raise the set's package `@iconify-json/material-symbols` together and on purpose, not each by itself: Dependabot raises it in none of them — an `ignore` of the package in the `dependabot.yml` of each —, and each raise is a row of COORDINATION.md: `canvas` and `skill-map` come out with the new version, then `app` takes both with its own set at the same version.** "Each package raises its version of the set itself" above is replaced by this, and "Dependabot and the license check see the set as any dependency" reads: the license check sees the set as any dependency, and Dependabot does not raise it. The first raise is rows 5.20, 6.40 and 6.41: `canvas` goes to 1.2.99, the version of `skill-map` since 0.1.13, and closes its Dependabot pull request #134; `skill-map` ignores the package; `app` takes both.
+
+*Why:* the author's answer of 2026-11-17 to the row «в реестр spec» `app` В73, by its recommendation. `skill-map` 0.1.13 and newer build with 1.2.99 and `canvas` 0.3.29 with 1.2.98, so `app` could take only `skill-map` 0.1.12 (T82 `app`). By the row, the set comes out every two or three days, and a Dependabot pull request that raises it fails in `canvas`, whose `icons --check` wants the icons and `NOTICE` written anew. One raise of `canvas` closes the gap, and a raise made together keeps the packages from parting again.
+
+*Rejected:*
+- catching up now without a rule: the packages part again at the next raise;
+- a row of COORDINATION.md for each version of the set — one every few days;
+- the same paths of the icons instead of the same version: a check of its own in `app`, while the packages raise the set apart.
+
+— architecture 6; COORDINATION.md, rows 5.20, 6.40 and 6.41; run/TASKS.md, T198.
 
 ## The template's kind `typescript`
 
@@ -6764,6 +6789,16 @@ Normative — format 0.3: a new section of the format text on versions of a modu
 — *Sixth amendment 2026-11-15 (T170):* **the hook takes «Сделай эпик E…» as the start of a task, the epic, `E14`, in the forms «делай», «выполни», «продолжай эпик E…» and the other verbs of a task but planning: the orchestrator's session goes on with its epic and stops another epic or a task. «планируй эпик E…» splits an epic into tasks and starts nothing, and a Cyrillic «Е» is no epic's number, as a Cyrillic «Т» is no task's.** The executor's decision in T170; the procedure the session follows is the T170 amendment to R156. — `tools/session/`; RUN.md, T170.
 
 — *Amendment 2026-11-16 (T175):* **the hook of `tools/session/` counts the numbers of `NOVATRAIL_RUN_TASKS` as one task: a run of the orchestrator whose executor wrote its task under another number is resumed by a prompt that names either, and is not refused** (the 2026-11-16 amendment of T175 to R156). A repository runs the hook from its `spec/` submodule, so this holds there from its move to a tag that has it. — run/TASKS.md, T175.
+
+— *Amendment 2026-11-17 (T198):* **a run longer than a few minutes — a suite of tests, a simulation, a build, a wait on CI — goes to the background, and the session waits for its notification or for a Monitor of its condition, not in a loop of `sleep` in the foreground. RULES.md, How we work, says it in one sentence, and its budget in `tools/docs-check/budgets.json` is 15 KB (R145).**
+
+*Why:* the author's answer of 2026-11-17 to the row «в реестр spec» `learner-model` В57, by its recommendation. T61 `learner-model` waited for 19 background runs of `sim` by loops `until grep …; do sleep …; done` in the foreground: 76 main calls at 203 thousand tokens of context, 15.4 M of the session's 45.9 M, $3.08 of $14.62, 8.5% of the cost of E8 (measurements 10 learner-model). Each turn of such a loop is a main call that reads the whole context again, while a command in the background tells the session itself when it ends. Neither RULES.md nor RUN.md said so, and one sentence that every session reads costs far less than one such wait.
+
+*Rejected:*
+- the rule in the template's RUN.md and in spec's RUN.md: the budget of RULES.md stays, but the rule lives in two places;
+- nothing, relying on the description of the Bash tool: it did not hold in T61.
+
+— RULES.md, How we work; R145; run/TASKS.md, T198.
 
 ## Account deletion and the Google sign-in
 
