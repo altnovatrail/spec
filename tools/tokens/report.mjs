@@ -22,6 +22,8 @@ import os from "node:os";
 import { byCodeUnits } from "../shared.mjs";
 import { callOf, tokensOf } from "./calls.mjs";
 import { costOf, PRICES } from "./prices.mjs";
+import { classesOf, kindOf } from "./classes.mjs";
+import { firstTimeOf } from "./transcripts.mjs";
 import { promptOf } from "../session/session.mjs";
 
 // Tools whose results are counted by the file they read or wrote.
@@ -156,16 +158,18 @@ export function fileCheck(stat = fs.statSync) {
   };
 }
 
-// How a tool's call is grouped: { tool, key, partial, files }.
+// How a tool's call is grouped: { tool, key, partial, files }, and what it did, by kindOf of
+// classes.mjs.
 function describe(block, root, isFile) {
   const tool = String(block.name);
   const input = block.input ?? {};
-  if (tool === "Bash") return { tool, key: programOf(input.command ?? ""), files: filesOf(input.command ?? "", root, isFile) };
+  const did = kindOf(block);
+  if (tool === "Bash") return { tool, did, key: programOf(input.command ?? ""), files: filesOf(input.command ?? "", root, isFile) };
   if (tool in BY_FILE) {
     const partial = tool === "Read" && (input.offset != null || input.limit != null || input.pages != null);
-    return { tool, key: shownPath(input[BY_FILE[tool]], root), partial };
+    return { tool, did, key: shownPath(input[BY_FILE[tool]], root), partial };
   }
-  return { tool, key: null };
+  return { tool, did, key: null };
 }
 
 // The characters of every string in a value: what an attachment puts into the context.
@@ -207,8 +211,12 @@ export const FIRST_CALLS = 80;
 // What a group counts for an entry that carries nothing of its own.
 const NOTHING = Object.freeze({ chars: 0 });
 
-// What the transcripts hold, from those `read` returns for each of `transcripts`.
-export function measure(transcripts, { read, root, since = null, until = null, prices = PRICES, isFile = fileCheck() } = {}) {
+// What the transcripts hold, from those `read` returns for each of `transcripts`, read in the
+// order their sessions began, by `startOf`: a transcript that resumes a session and copies part of
+// its history goes on from the places of the calls it copied only once the transcript it copied
+// them from has given them their places. A transcript's `root`, when it has one, is the root its
+// paths print from instead of `root`.
+export function measure(transcripts, { read, root, since = null, until = null, prices = PRICES, isFile = fileCheck(), startOf = firstTimeOf } = {}) {
   const calls = new Map();
   const sessions = new Map();
   const segments = [];
@@ -216,19 +224,29 @@ export function measure(transcripts, { read, root, since = null, until = null, p
   let broken = 0;
   let compactions = 0;
   let resumed = 0;
-  for (const transcript of transcripts) {
+  for (const transcript of inOrderOfStart(transcripts, startOf)) {
     const { records, broken: bad } = read(transcript.file);
     broken += bad;
+    const rootOf = transcript.root ?? root;
     const uses = new Map();
     let window = [];
     let segment = { before: null, items: [], window, start: !transcript.subagent };
-    const session = sessions.get(transcript.session) ?? { id: transcript.session, task: null, start: null, transcripts: 0, subagents: 0, mainCalls: 0 };
+    const session = sessions.get(transcript.session) ?? { id: transcript.session, task: null, start: null, transcripts: 0, subagents: 0, mainCalls: 0, executor: null, wallMs: 0, began: null };
     sessions.set(transcript.session, session);
     if (transcript.subagent) session.subagents += 1;
     else session.transcripts += 1;
+    // The time of the record before this one, and whether a record at or past --until has come.
+    let previous = null;
+    let past = false;
     for (const r of records) {
+      const before = previous;
+      if (!r.isSidechain && r.type) previous = Date.parse(r.timestamp ?? "") || previous;
+      if (!transcript.subagent && session.began === null && typeof r.timestamp === "string") session.began = r.timestamp;
+      if (until && r.timestamp >= until) past = true;
       if (r.type === "cost-state" && typeof r.totalCostUSD === "number") {
         costStates.set(r.sessionId ?? transcript.session, Math.max(costStates.get(r.sessionId ?? transcript.session) ?? 0, r.totalCostUSD));
+        // The session's wall time so far, as the last of its states before the window ends says.
+        if (!transcript.subagent && !past && typeof r.totalDuration === "number") session.wallMs = r.totalDuration;
       } else if (r.type === "system" && r.subtype === "compact_boundary") {
         if (inWindow(r.timestamp ?? "", since, until)) compactions += 1;
         window = [];
@@ -240,7 +258,7 @@ export function measure(transcripts, { read, root, since = null, until = null, p
         // the start of a session. Other records without a rendering — of deferred tools, of
         // dropped thinking — put nothing in.
         if (a.type === "instructions" && Array.isArray(a.files)) {
-          for (const f of a.files) segment.items.push({ kind: "instructions", key: shownPath(f.path, root), chars: String(f.content ?? "").length });
+          for (const f of a.files) segment.items.push({ kind: "instructions", key: shownPath(f.path, rootOf), chars: String(f.content ?? "").length });
         } else if (a.type === "prompt_snapshot") {
           if (segment.start && !segment.items.some((i) => i.kind === "system prompt")) segment.items.push({ kind: "system prompt", key: null, chars: charsOf(a.systemPrompt) + charsOf(a.tools) });
         } else if (r.rendered != null) segment.items.push({ kind: "attachment", key: String(a.type), chars: charsOf(r.rendered) });
@@ -252,6 +270,8 @@ export function measure(transcripts, { read, root, since = null, until = null, p
           const text = promptOf(r);
           if (text != null) session.task = /\bT(\d{1,4})\b/.exec(text)?.[0] ?? "";
         }
+        // An executor of the orchestrator is a session whose first prompt came by `claude -p` (R156).
+        if (!transcript.subagent && session.executor === null && !r.isSidechain) session.executor = r.entrypoint === "sdk-cli";
         if (Array.isArray(content)) {
           for (const b of content) {
             if (b?.type === "tool_result") {
@@ -264,11 +284,21 @@ export function measure(transcripts, { read, root, since = null, until = null, p
         }
       } else if (callOf(r)) {
         const m = r.message;
-        for (const b of Array.isArray(m.content) ? m.content : []) if (b?.type === "tool_use") uses.set(b.id, describe(b, root, isFile));
+        const described = [];
+        for (const b of Array.isArray(m.content) ? m.content : []) {
+          if (b?.type !== "tool_use") continue;
+          const use = describe(b, rootOf, isFile);
+          uses.set(b.id, use);
+          described.push(use.did);
+        }
         const u = m.usage;
         const known = calls.get(m.id);
         if (known) {
           known.output = Math.max(known.output, u.output_tokens ?? 0);
+          if (known.file === transcript.file) {
+            known.kinds.push(...described);
+            known.end = previous ?? known.end;
+          }
           // A call of another transcript: this one resumes a session and copies its history, which
           // that transcript has counted. What came with the copy is dropped, and the next call of
           // this transcript grows from the copied call.
@@ -285,6 +315,10 @@ export function measure(transcripts, { read, root, since = null, until = null, p
           model: m.model,
           timestamp: r.timestamp ?? "",
           ...tokensOf(u),
+          // What its tool calls did, and its time: from the record before its first to its last.
+          kinds: described,
+          start: before ?? previous ?? 0,
+          end: previous ?? 0,
         };
         call.context = call.input + call.read + call.write;
         call.counted = inWindow(call.timestamp, since, until);
@@ -305,7 +339,16 @@ export function measure(transcripts, { read, root, since = null, until = null, p
       }
     }
   }
-  return summarize({ calls: [...calls.values()], sessions, segments, costStates, broken, compactions, resumed, prices });
+  return summarize({ calls: [...calls.values()], sessions, segments, costStates, broken, compactions, resumed, prices, since });
+}
+
+// The transcripts of sessions in the order their sessions began, by the first time each holds;
+// those that hold none, and those of subagents, which copy no history, last; the order they came in
+// where it is the same.
+function inOrderOfStart(transcripts, startOf) {
+  const keyed = transcripts.map((t, i) => ({ t, i, start: t.subagent ? null : startOf(t.file) }));
+  keyed.sort((a, b) => (a.start === b.start ? a.i - b.i : a.start === null ? 1 : b.start === null ? -1 : byCodeUnits(a.start, b.start)));
+  return keyed.map((k) => k.t);
 }
 
 function emptyTotals() {
@@ -326,7 +369,7 @@ function add(totals, call, prices) {
   else totals.cost += cost;
 }
 
-function summarize({ calls, sessions, segments, costStates, broken, compactions, resumed, prices }) {
+function summarize({ calls, sessions, segments, costStates, broken, compactions, resumed, prices, since }) {
   const main = emptyTotals();
   const firstCalls = emptyTotals();
   const subagents = emptyTotals();
@@ -367,10 +410,14 @@ function summarize({ calls, sessions, segments, costStates, broken, compactions,
     }
     return suffix[at];
   };
+  // What entered the context of the executors' main calls, by what the call that brought it did.
+  const executor = (call) => !call.subagent && sessions.get(call.session)?.executor === true;
+  const entries = [];
   for (const segment of segments) {
     const { before, after, items } = segment;
     if (!after.counted) continue;
     const later = laterOf(segment);
+    if (executor(after)) entries.push(...classEntries(segment, later));
     // The history a resumed session copied rides on as a whole, like what a compaction leaves.
     if (segment.resumed) count("history of a resumed session", before.context, later);
     // What a transcript starts with — a session's or a subagent's —, and what a compaction leaves,
@@ -415,10 +462,17 @@ function summarize({ calls, sessions, segments, costStates, broken, compactions,
   }
 
   const sessionRows = [];
+  const executors = [];
   for (const [id, s] of bySession) {
     const info = sessions.get(id);
     sessionRows.push({ id, start: info.start, task: info.task || null, subagentTranscripts: info.subagents, main: s.main, subagents: s.subagents });
+    // A session's wall time is its whole time so far, so only one that began in the window has it.
+    if (info.executor && s.main.calls) executors.push({ wallMs: inWindow(info.began ?? "", since, null) ? info.wallMs : null, subagentCost: s.subagents.cost });
   }
+  const executorCalls = calls
+    .filter((c) => c.counted && executor(c))
+    .map((c) => ({ ...c, cost: costOf(c.model, c, prices) ?? 0, inputCost: costOf(c.model, { ...c, output: 0 }, prices) ?? 0 }));
+  const classes = classesOf({ calls: executorCalls, entries, sessions: executors });
   sessionRows.sort((a, b) => byCodeUnits(a.start ?? "", b.start ?? "") || byCodeUnits(a.id, b.id));
   const costState = sessionRows.reduce((sum, s) => sum + (costStates.get(s.id) ?? 0), 0);
   const contexts = starts.map((s) => s.context).sort((a, b) => a - b);
@@ -447,7 +501,21 @@ function summarize({ calls, sessions, segments, costStates, broken, compactions,
       parts: [...start.values()].map((g) => ({ name: g.name, chars: g.chars / (starts.length || 1), tokens: g.tokens / (starts.length || 1) })),
     },
     bySession: sessionRows,
+    classes,
   };
+}
+
+// What a segment brought into the context of the call after it, by kind, as classesOf takes it:
+// a tool's result by what its call did, whatever else as "other"; the start of a session, what a
+// compaction left and the history a resumed session copied, whole. The model's output is not
+// counted: it is the output of the call before.
+function classEntries({ before, after, items, start, compacted, resumed }, later) {
+  if (resumed) return [{ kind: "history of a resumed session", carried: before.context * later }];
+  if (!before) return [{ kind: start ? "start" : compacted ? "after a compaction" : "other", carried: after.context * later }];
+  const growth = Math.max(0, after.context - before.context - before.output);
+  const total = items.reduce((sum, i) => sum + i.chars, 0);
+  if (!growth || !total) return [];
+  return items.map((i) => ({ kind: (i.kind === "tool" && i.did) || "other", carried: ((growth * i.chars) / total) * later }));
 }
 
 // The groups an item counts in, each with the part of it that counts there: by tool or kind; by

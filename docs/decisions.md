@@ -7202,7 +7202,7 @@ The rejected options:
 - **Where it is said.** RULES.md — The bar, How we work and Across repositories; the openings of `docs/decisions.md` and of the template's; rule 9 of RUN.md and of the template's RUN.md, and the openings of `run/QUESTIONS.md` and `run/DEBT.md` and of the template's; `run/INBOX.md`; [docs/sources.md](sources.md), section 1; R154, whose "no history" holds for `docs/` and comments too. The tasks of epic E16 apply it to `spec` and to the checks (RUN.md, table 1).
 
 — *Why:* measurements 1.14.
-- The documents are 28% of the context of an executor's main calls and 23% of their output; the rule saves about 2–3 minutes and $0.56–0.92 of a session's 28.8 minutes and $5.51 (measurements 1.14.5).
+- The documents are 26% of the context of an executor's main calls and 23% of their output; the rule saves about 2–3 minutes and $0.51–0.85 of a session's 28.8 minutes and $5.72 (measurements 1.14.5).
 - None of the three tasks traced needed a chronicle: the session takes a version from where it is set, while 9 of the last 20 pull requests of `infra` rewrote its status paragraph, which none read (measurements 1.14.3, 1.14.4).
 - Amendments are 7–45% of a log: R29 `infra`, 25.9 thousand characters, holds about one paragraph in force. A session reads a whole entry to find what holds and writes amendments that restate another entry, and the author cannot read the logs.
 - 42% of the comment blocks sampled retell the code; 2 of 8 numbers of decisions checked in comments were wrong, which no check saw.
@@ -7211,7 +7211,7 @@ The rejected options:
 — *Rejected:*
 - (В60) one line of the current version, rewritten by each raise: a version written twice goes stale;
 - (В61) a log kept append-only, without the amendments that only restate or raise: it keeps the history in the file and saves about half as much;
-- the decisions in force consolidated beside the log, which R143 rejected by the sample of T128 (measurements 1.6): a second copy that every change drags an edit after. Rewriting in place keeps one copy, and the facts since — the logs are 7.2% of the executors' context, not 2.6%, the amendments that restate cost output and review, and the author cannot read the logs — weigh for it (measurements 1.14.5);
+- the decisions in force consolidated beside the log, which R143 rejected by the sample of T128 (measurements 1.6): a second copy that every change drags an edit after. Rewriting in place keeps one copy, and the facts since — the logs are 6.5% of the executors' context, not 2.6%, the amendments that restate cost output and review, and the author cannot read the logs — weigh for it (measurements 1.14.5);
 - rewriting every log in E16 — 8.1 MB, 1.7 MB in `spec` alone —: cheaper by entry, when a task touches one;
 - (В62) no numbers of decisions in code: the anchor is the cheapest way from a line to its reason, and the check of R32 catches one that names no entry;
 - (В63) «Сделано» and «Открыто» as before: they restate the pull request and the rows;

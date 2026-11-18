@@ -34,7 +34,8 @@ inbox-test: _tools
 # call and its cost at the API's prices; what entered the context between calls, by tool, by file
 # and by program, and what each carried; and what a session starts with (measurements 1.1). It
 # prints numbers, paths and names alone, never what a transcript says. --since and --until bound
-# the calls by their time, --top the lists, --project names another folder, --json prints JSON.
+# the calls by their time, --top the lists, --project names another folder, or several, --json
+# prints JSON, --row a row of measurements 1.9 and --classes the executors' calls by what they did.
 # Print where the tokens of this repository's sessions went.
 [positional-arguments]
 tokens-report *args: _tools
