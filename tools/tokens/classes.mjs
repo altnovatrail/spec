@@ -88,8 +88,10 @@ function pastCd(command) {
 // The classes of the folders of documents that a Grep or a Glob may search.
 const FOLDER_CLASSES = { docs: "docs other", "docs/plan": "archive", run: "plan", ".claude/rules": "rules" };
 
-// A file of /tmp/ or of the transcripts is the session's own, not the repository's.
-const ownFile = (p) => p.startsWith("/tmp/") || p.includes(".claude/projects");
+// A file of the temporary folder or of the transcripts is the session's own, not the repository's.
+// The report names such a path; it never opens it.
+const TEMPORARY = /^\/tmp\//;
+const ownFile = (p) => TEMPORARY.test(p) || p.includes(".claude/projects");
 
 // What a tool's call did, as a kind: "read <class>", "write <class>", "git and gh", "checks and
 // builds", "status" or "other".
@@ -115,7 +117,7 @@ export function kindOf(block) {
   if (/^(just|npm|npx|go|buf)\b/.test(program) && !write) return "checks and builds";
   if (write && classes.includes("code and data")) return "write code and data";
   if (docs.length) return (write ? "write " : "read ") + (docs.length === 1 ? docs[0] : "several docs");
-  if (write) return named.some((p) => p.startsWith("/tmp/") && p.endsWith(".md")) ? "write md other" : "write code and data";
+  if (write) return named.some((p) => TEMPORARY.test(p) && p.endsWith(".md")) ? "write md other" : "write code and data";
   return classes.length ? "read code and data" : "other";
 }
 
