@@ -10,7 +10,7 @@
 // task; a prompt that starts another is stopped, and the author runs /clear.
 // «Сделай эпик E…» starts a run of the orchestrator, in the forms «делай эпик E…», «выполни эпик
 // E…», «продолжай эпик E…» and the other verbs of a task but planning: the orchestrator's session is
-// one epic (fifth amendment 2026-11-15 to R143), so it goes on with the same epic and stops another
+// one epic (R143), so it goes on with the same epic and stops another
 // epic or a task. «планируй эпик E…» splits an epic into tasks and starts nothing.
 // «Разбери входящие» names no task, and R143 counts the triage into the session of the task it
 // serves, before or after its planning, so it always goes on: the next task's own phrase is what

@@ -14,8 +14,8 @@
 // - files — the whole file, by its path from the root;
 // - rule — each rule of .claude/rules/, front matter and all;
 // - entry — each entry of the decision log, from its "**R01. …**" to the next entry or heading;
-//   entries names a limit of its own for one entry by its number: "R18" — an entry is never
-//   rewritten, so a long one gets its own limit, and the others keep theirs;
+//   entries names a limit of its own for one entry by its number: "R18" — a long entry keeps its
+//   size until a task rewrites it (R160), and the others keep theirs;
 // - section — the own text under each heading of a document cited by name, numbered or not, to the
 //   next heading of any depth, and the text above its first heading; sections names a limit of its
 //   own for a numbered one: "concepts 15";

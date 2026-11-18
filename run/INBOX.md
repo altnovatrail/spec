@@ -31,8 +31,8 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 | `infra` | В57 | `002552bf6b2a` | T194 (В56), option (a): rows 6.36, 6.39, 3.13 and 6.38 close, and Д152, once T78 `infra` is `[x]` in its archive — T198 |
 | `learner-model` | В54 | `887ae8041541` | option (a), the author's answer of 2026-11-16: the 2026-11-17 amendment to R157 — rows 4.20 and 4.21 done in R103's order, `sim` v0.1.28 and `learner-model` v0.1.13 |
 | `learner-model` | В55 | `6fb838e6b319` | nothing to record — T194 (В57): rows 4.20, 4.21 and 6.28 deleted by T187, `api` on v0.1.13, as `learner-model` В54 |
-| `learner-model` | В56 | `6194ca215b70` | T194 (В58), option (a): `tokens-report` prints the context of each session's first 80 main calls, a column of `--row`; an amendment to R145 — T199 |
-| `learner-model` | В57 | `eb211eb41758` | T194 (В59), option (a): a sentence of RULES.md, How we work — a long run in the background, waited for by its notification or a Monitor; an amendment to R143 — T198 |
+| `learner-model` | В56 | `6194ca215b70` | T194 (В58), option (a): `tokens-report` prints the context of each session's first 80 main calls, a column of `--row`; R145 — T199 |
+| `learner-model` | В57 | `eb211eb41758` | T194 (В59), option (a): a sentence of RULES.md, How we work — a long run in the background, waited for by its notification or a Monitor; R143 — T198 |
 | `sim` | В33 | `dc9e55f87f13` | option 1, with В31 and В32 (those two removed at source in c92c331): the 2026-11-17 amendment to R157; dpia 6.2, 7, 8 and 10.2, version 28, whose PDF the author signs (R147) |
 | `tutor` | В89 | `8cc27f8ea1a3` | option (a), the author's answer of 2026-11-16: the 2026-11-17 amendment to R71; product 10 |
 | `tutor` | В91 | `1f887c6a4fe3` | option (a), the author's answer of 2026-11-16: the fifth 2026-11-17 amendment to R149; dpia 8 |

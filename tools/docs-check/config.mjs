@@ -15,7 +15,7 @@ export const documents = {
   repositories: "docs/repositories.md",
   dpia: "docs/dpia.md",
   // The records of external facts, and the results of measurements: out of the documents that
-  // describe how things are built (R143, the 2026-11-12 amendment).
+  // describe how things are built (R143).
   sources: "docs/sources.md",
   measurements: "docs/measurements.md",
 };

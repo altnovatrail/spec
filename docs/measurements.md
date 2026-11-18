@@ -508,7 +508,7 @@ How R143 removed the checks of the parts from `spec`'s CLAUDE.md (RUN.md, T130).
 
 How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of size in `docs-check` on every pull request, a measurement at each epic's archive and once a month, and a new analysis by a threshold rather than by the calendar. Measured 2026-11-12.
 
-**Budgets.** `docs-check` measures in bytes, in KB of 1,024: English text is at least 2.5 bytes a token and Russian tables 2.7 (section 1.6), and a limit in bytes needs neither a key of the API nor a network, and does not move when a tokenizer does. The limits are [tools/docs-check/budgets.json](../tools/docs-check/budgets.json): its block `spec` for spec, and its block `repository` for another NovaTrail repository, which is checked only once its root holds `docs-budgets.json` — what differs from that block, `{}` when nothing does. The key `entries` gives one entry of a log a limit of its own by its number, `{"R18": 56}`, as `sections` gives one to a section, and a number not in the log is an error (the 2026-11-15 amendment to R145). What is measured, the largest of each in `spec` on 2026-11-12, KB:
+**Budgets.** `docs-check` measures in bytes, in KB of 1,024: English text is at least 2.5 bytes a token and Russian tables 2.7 (section 1.6), and a limit in bytes needs neither a key of the API nor a network, and does not move when a tokenizer does. The limits are [tools/docs-check/budgets.json](../tools/docs-check/budgets.json): its block `spec` for spec, and its block `repository` for another NovaTrail repository, which is checked only once its root holds `docs-budgets.json` — what differs from that block, `{}` when nothing does. The key `entries` gives one entry of a log a limit of its own by its number, `{"R18": 56}`, as `sections` gives one to a section, and a number not in the log is an error (R145). What is measured, the largest of each in `spec` on 2026-11-12, KB:
 
 | What | The largest |
 |---|---|
@@ -573,7 +573,7 @@ How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of 
 - The row of epic E15 is its window from its first day, 2026-11-17, to the start of the session that archived it, 2026-11-17T23:32. The whole day ran in the orchestrator's run of COORDINATION.md (R156), and the window holds its sessions in `spec`: 16 of its executors, T179 to T197, the four tasks of E15 among them, and 3 of the orchestrator's own, 1,097 main calls for $74.36 (Д258); the other 2 are short sessions of the author outside it, 34 main calls for $1.98. The executors' sessions in the other repositories are not in it. Its 161.3 thousand for a main call are 15% below `spec`'s reference, 189.7. The budgets file has had a third raise since the last analysis, `dpia 1` in T195, after `DEBT.md` in T156 and COORDINATION.md in T167: the threshold is met, and its analysis is T196, set by T195 and taken into epic E16. The last check of the changelog is not a quarter old.
 - The monthly row of `module-kit` needs the fix of 2026-11-12: a path the user may not look at is not a file for the recipe, and the report is printed (`tools/tokens/report.mjs`, `fileCheck`).
 
-**The threshold** of a new analysis is R145: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in `run/TASKS.md` (R155). A raise is a commit of a file of budgets that raises one limit or more; a repository's first `docs-budgets.json`, a limit held only until a translation and a lowering are not raises (the 2026-11-13 amendment to R145). The threshold counts every main call; an analysis by its first condition begins with the context of a session's first 80: at the reference or below it, the excess is the length of tasks, which rule 11 of RUN.md splits, not what the sessions read. In `spec`, the window of the reference holds 141.8 thousand for a call among the first 80, read 2026-11-18 (the 2026-11-17 amendment to R145).
+**The threshold** of a new analysis is R145: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in `run/TASKS.md` (R155). A raise is a commit of a file of budgets that raises one limit or more; a repository's first `docs-budgets.json`, a limit held only until a translation and a lowering are not raises (R145). The threshold counts every main call; an analysis by its first condition begins with the context of a session's first 80: at the reference or below it, the excess is the length of tasks, which rule 11 of RUN.md splits, not what the sessions read. In `spec`, the window of the reference holds 141.8 thousand for a call among the first 80, read 2026-11-18.
 
 Last analysis: E10, T118–T128, 2026-11-11.
 
@@ -640,7 +640,7 @@ The measurement after (RUN.md, T124), 2026-11-13: `spec` against its baseline of
 - the template's settings by `--settings` — the plugin is named in the init event, `tools` has no `LSP`, no diagnostics; the record is rewritten to the copy's path, and the next session gets `LSP` and the diagnostics;
 - `CLAUDE_CODE_PLUGIN_DIRS` with the plugin's folder, no settings — the first session loads `gopls-lsp@inline`, has `LSP`, and after the Write gets "cannot use "x" (untyped string constant) as int value in return statement [IncompatibleAssign]"; `known_marketplaces.json` is not touched.
 
-Three runs, $0.057 at API prices. The change: the 2026-11-15 amendment to R143.
+Three runs, $0.057 at API prices. The change: R143, the loading of gopls.
 
 **Where the spending is now** — in `spec`, as a share of what was carried after T122, 249 million:
 - Bash output — 44.2%;
@@ -1361,9 +1361,9 @@ An executor runs as `claude -p --output-format stream-json --json-schema` (R156)
 - The word is a paragraph of the orchestrator's prompt: long work runs in the foreground, under Bash's `timeout` of 600000 ms, the call repeated until it is done.
   - The ceiling of a foreground command is ten minutes by default, `BASH_MAX_TIMEOUT_MS` (sources 2.15). A command that reaches its timeout moves to the background, so a wait runs under `timeout 590` in its own command.
   - Each call of the wait is one main call, which reads the context from the cache. At the 146 thousand tokens of an average call (section 1.14.2) that is $0.03, so a task's 7.7 minutes of CI cost one or two such calls.
-  - Against T61 `learner-model`, which waited by short loops in 76 calls (R143, the 2026-11-17 amendment), that is one call each ten minutes.
+  - Against T61 `learner-model`, which waited by short loops in 76 calls (R143), that is one call each ten minutes.
 - What it changes:
-  - The 2026-11-17 amendment to R143 and RULES.md, How we work, hold for a session a person leads. A session of `claude -p` with a schema gives its status whenever a turn ends, and whether the run then waits for the background work is not up to it: 38 of 117 waits ended there.
+  - R143's rule of long runs and RULES.md, How we work, hold for a session a person leads. A session of `claude -p` with a schema gives its status whenever a turn ends, and whether the run then waits for the background work is not up to it: 38 of 117 waits ended there.
   - `tools/orchestrator/executor.md` says none of it; the orchestrator's prompt does. In the contract, which the orchestrator gives every run, it would hold over RULES.md for the executor.
   - The orchestrator could also keep the tools away: `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` takes `run_in_background` off Bash and the subagents, but Monitor still runs in the background (sources 2.15). Whether 2.1.280 honours it was not tried.
 
@@ -1371,7 +1371,7 @@ An executor runs as `claude -p --output-format stream-json --json-schema` (R156)
 
 | Proposal | Minutes a task | What changes | Question |
 |---|---|---|---|
-| The executor waits in the foreground: `timeout 590` inside, Bash's `timeout` 600000 ms, repeated; never `run_in_background`, Monitor or `ScheduleWakeup` for a wait | 0 of time; the lost waits, 59 of 301 attempts, go | `executor.md`; amendments to R143 and R156; one clause of RULES.md | В66 |
+| The executor waits in the foreground: `timeout 590` inside, Bash's `timeout` 600000 ms, repeated; never `run_in_background`, Monitor or `ScheduleWakeup` for a wait | 0 of time; the lost waits, 59 of 301 attempts, go | `executor.md`; R143 and an amendment to R156; one clause of RULES.md | В66 |
 | The bookkeeping goes into the round of CI that is waited for: «Сделано», the archive and the mark committed before the wait, the pull request's number in them, and a push after a green CI only for what a check found | 1.1 on average; 6.6 in the 38 tasks that pushed it after | `executor.md` | В67 |
 | After a fix that follows a finding of CI, SonarCloud or the review, the recipe of CI that covers the changed files, not one file | not measured; 27 in T87 | `executor.md` | В67 |
 | `[parallel]` for `just ci` where its recipes are independent, as in `app` | under 0.8 in `app` | the justfiles of the repositories | В68 |

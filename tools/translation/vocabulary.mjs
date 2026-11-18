@@ -1,6 +1,6 @@
 // The fixed words of the documents, with the English that stands for each in a translation: the
 // marks of the decision log and of a component's card in architecture 3. A translation keeps as
-// many of each as its original has, unit by unit (R143, the 2026-11-12 amendment). A word that is
+// many of each as its original has, unit by unit (R143). A word that is
 // added here is added in both languages, with the italics or the bold it is written in.
 
 const DATE = String.raw`\d{4}-\d{2}-\d{2}`;
