@@ -40,6 +40,7 @@ How the spending of Claude Code sessions in NovaTrail's repositories is measured
 
   A path is printed from the root of the repository or from `~`. A session ID in a path is printed as `<session>`, the name of a file with output saved from the context as `*`.
 - **The start of a session** is the median context of the first call and its makeup on average per session: the system prompt, the files CLAUDE.md, RULES.md and MEMORY.md, the list of skills, MCP instructions and other attachments. Their characters are converted into tokens by the ratio of characters to tokens of everything that entered between calls in the same period. The "rest" is what the transcript does not hold: the tool descriptions.
+- **A session's first 80 main calls** are measured apart too: the context of a call among them, beside that of every main call. A session's context grows with its length, so the two apart tell a long task from heavier reading: a call keeps its place among its session's main calls when the window starts after the session did, and the calls before the window are not counted. A session continued in a new transcript goes on from the places of the calls it copied (R145; RUN.md, T199).
 - **What it does not see** — calls of `claude -p --no-session-persistence`: they have no transcript. graphify calls the model so (section 1.4).
 - **What is printed** — only numbers, paths, the names of tools, attachments and programs, session IDs and the first task number `T…` from the author's first prompt. A program or second word that does not look like a name is printed as `other`.
 - **Flags:**
@@ -523,43 +524,43 @@ How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of 
 - `format/` and `legal/` have none: they are texts for people (R42). Nor do the archives of `docs/plan/`: they are not read whole.
 - On `spec` the check measures 579 things on 2026-11-12. A trial: CLAUDE.md with 2,500 bytes added gave «CLAUDE.md:1: 12,929 bytes, over its budget of 12 KB (12,288 bytes) — tools/docs-check/budgets.json».
 
-**The measurement.** `just tokens-report --since … --until … --row` prints one row of the table below; `--project` measures another repository's transcripts on this machine. It runs:
+**The measurement.** `just tokens-report --since … --until … --row` prints one row of the table below, its last column, a session's first 80 main calls, since T199, 2026-11-18, and "—" in the rows before; a table of seven columns that has not taken it drops the cell and keeps the others in place; `--project` measures another repository's transcripts on this machine. It runs:
 - at the archive of an epic, for the epic's window, in the repository whose epic it is (RUN.md, Epics);
 - once a month, from `spec`, for each of the 13 repositories' folders of transcripts on this machine, from the window of the last row to the start of the session. `just inbox` prints the date when it has come, and it runs on the author's word or once every task of the current epic is done (the second 2026-11-12 amendment to R81), so a monthly row may come later than its date.
 
-| Project | Window, UTC | Sessions | Calls, main / subagents | Context of a call, k, main / subagents | Compactions | Cost at API prices |
-|---|---|---|---|---|---|---|
-| `-workspaces-spec` — the baseline, section 1.3 | 2026-11-09T00:00 … 2026-11-11T03:59 | 3 | 2,344 / 3,682 | 448.5 / 109.2 | 9 | $470.99 |
-| `-workspaces-spec` — part 2 of E10, T129 to T126: the reference until T124 | 2026-11-11T17:55 … 2026-11-12T14:27 | 9 | 1,238 / 1,676 | 183.2 / 90.4 | 1 | $156.88 |
-| `-workspaces--github` | 2026-10-13T00:00 … 2026-11-12T14:27 | 14 | 4,196 / 2,565 | 397.5 / 124.0 | 10 | $739.31 |
-| `-workspaces-api` | 2026-10-13T00:00 … 2026-11-12T14:27 | 23 | 6,109 / 4,741 | 371.4 / 104.4 | 17 | $954.57 |
-| `-workspaces-app` | 2026-10-13T00:00 … 2026-11-12T14:27 | 18 | 3,375 / 5,492 | 337.8 / 143.5 | 14 | $673.90 |
-| `-workspaces-canvas` | 2026-10-13T00:00 … 2026-11-12T14:27 | 37 | 12,565 / 7,897 | 369.1 / 114.8 | 99 | $2,040.66 |
-| `-workspaces-engine` | 2026-10-13T00:00 … 2026-11-12T14:27 | 16 | 3,016 / 1,232 | 328.6 / 79.3 | 3 | $400.70 |
-| `-workspaces-infra` | 2026-10-13T00:00 … 2026-11-12T14:27 | 6 | 2,175 / 1,714 | 354.7 / 80.0 | 6 | $321.70 |
-| `-workspaces-learner-model` | 2026-10-13T00:00 … 2026-11-12T14:27 | 20 | 3,458 / 2,293 | 292.4 / 101.2 | 2 | $493.54 |
-| `-workspaces-module-kit` | 2026-10-13T00:00 … 2026-11-12T14:27 | 29 | 4,374 / 1,969 | 326.5 / 98.4 | 0 | $573.80 |
-| `-workspaces-modules` | 2026-10-13T00:00 … 2026-11-12T14:27 | 16 | 3,976 / 2,287 | 351.0 / 91.7 | 6 | $586.03 |
-| `-workspaces-sim` | 2026-10-13T00:00 … 2026-11-12T14:27 | 10 | 3,275 / 1,195 | 325.5 / 79.5 | 6 | $397.59 |
-| `-workspaces-skill-map` | 2026-10-13T00:00 … 2026-11-12T14:27 | 6 | 1,313 / 402 | 329.5 / 81.4 | 1 | $162.58 |
-| `-workspaces-tutor` | 2026-10-13T00:00 … 2026-11-12T14:27 | 28 | 11,509 / 6,806 | 398.5 / 119.5 | 53 | $1,896.62 |
-| `-workspaces-spec` — after the release of T122, T124: the reference | 2026-11-12T16:13 … 2026-11-13T21:07 | 9 | 1,062 / 485 | 189.7 / 102.1 | 2 | $92.76 |
-| `-workspaces--github` — after row 7.2, T124 | 2026-11-13T05:00 … 2026-11-13T21:07 | 1 | 136 / 25 | 191.4 / 74.7 | 0 | $9.73 |
-| `-workspaces-api` — after row 7.3, T124: the reference | 2026-11-13T13:43 … 2026-11-13T21:07 | 10 | 860 / 163 | 162.6 / 72.3 | 1 | $59.34 |
-| `-workspaces-app` — after row 7.4, T124 | 2026-11-13T04:29 … 2026-11-13T21:07 | 4 | 188 / 12 | 141.7 / 61.8 | 0 | $11.50 |
-| `-workspaces-canvas` — after row 7.5, T124 | 2026-11-12T22:47 … 2026-11-13T21:07 | 1 | 54 / 0 | 95.8 / — | 0 | $2.49 |
-| `-workspaces-engine` — after row 7.6, T124 | 2026-11-12T22:50 … 2026-11-13T21:07 | 3 | 92 / 0 | 99.9 / — | 0 | $7.53 |
-| `-workspaces-infra` — after row 7.7, T124: the reference | 2026-11-13T03:43 … 2026-11-13T21:07 | 9 | 748 / 200 | 178.4 / 65.6 | 0 | $65.36 |
-| `-workspaces-learner-model` — before row 7.8, without E10's files, T124 | 2026-11-12T14:27 … 2026-11-13T21:03 | 9 | 612 / 83 | 176.1 / 70.3 | 0 | $44.22 |
-| `-workspaces-module-kit` — after row 7.1, T124 | 2026-11-13T04:35 … 2026-11-13T21:07 | 5 | 47 / 0 | 107.0 / — | 0 | $2.52 |
-| `-workspaces-modules` — after row 7.9, T124 | 2026-11-13T04:37 … 2026-11-13T21:07 | 1 | 8 / 0 | 46.6 / — | 0 | $0.35 |
-| `-workspaces-sim` — after row 7.10, T124 | 2026-11-13T05:35 … 2026-11-13T21:07 | 3 | 215 / 60 | 150.7 / 76.3 | 0 | $18.25 |
-| `-workspaces-skill-map` — after row 7.11, T124 | 2026-11-13T03:45 … 2026-11-13T21:07 | 1 | 35 / 0 | 101.4 / — | 0 | $2.12 |
-| `-workspaces-tutor` — after row 7.12, T124: the reference | 2026-11-13T15:36 … 2026-11-13T21:07 | 6 | 519 / 90 | 153.2 / 67.4 | 0 | $35.03 |
-| `-workspaces-spec` — epic E10, at its archive | 2026-11-11T00:00 … 2026-11-13T21:57 | 26 | 3,385 / 2,804 | 210.9 / 90.0 | 4 | $371.88 |
-| `-workspaces-spec` — epic E12, at its archive | 2026-11-14T00:00 … 2026-11-15T01:14 | 12 | 1,124 / 589 | 201.4 / 110.4 | 4 | $128.88 |
-| `-workspaces-spec` — epic E14, at its archive | 2026-11-15T00:00 … 2026-11-16T18:54 | 19 | 2,404 / 4,177 | 187.8 / 124.7 | 2 | $348.33 |
-| `-workspaces-spec` — epic E15, at its archive | 2026-11-17T00:00 … 2026-11-17T23:32 | 21 | 2,240 / 576 | 161.3 / 67.7 | 3 | $153.80 |
+| Project | Window, UTC | Sessions | Calls, main / subagents | Context of a call, k, main / subagents | Compactions | Cost at API prices | Context of a main call among its session's first 80, k |
+|---|---|---|---|---|---|---|---|
+| `-workspaces-spec` — the baseline, section 1.3 | 2026-11-09T00:00 … 2026-11-11T03:59 | 3 | 2,344 / 3,682 | 448.5 / 109.2 | 9 | $470.99 | — |
+| `-workspaces-spec` — part 2 of E10, T129 to T126: the reference until T124 | 2026-11-11T17:55 … 2026-11-12T14:27 | 9 | 1,238 / 1,676 | 183.2 / 90.4 | 1 | $156.88 | — |
+| `-workspaces--github` | 2026-10-13T00:00 … 2026-11-12T14:27 | 14 | 4,196 / 2,565 | 397.5 / 124.0 | 10 | $739.31 | — |
+| `-workspaces-api` | 2026-10-13T00:00 … 2026-11-12T14:27 | 23 | 6,109 / 4,741 | 371.4 / 104.4 | 17 | $954.57 | — |
+| `-workspaces-app` | 2026-10-13T00:00 … 2026-11-12T14:27 | 18 | 3,375 / 5,492 | 337.8 / 143.5 | 14 | $673.90 | — |
+| `-workspaces-canvas` | 2026-10-13T00:00 … 2026-11-12T14:27 | 37 | 12,565 / 7,897 | 369.1 / 114.8 | 99 | $2,040.66 | — |
+| `-workspaces-engine` | 2026-10-13T00:00 … 2026-11-12T14:27 | 16 | 3,016 / 1,232 | 328.6 / 79.3 | 3 | $400.70 | — |
+| `-workspaces-infra` | 2026-10-13T00:00 … 2026-11-12T14:27 | 6 | 2,175 / 1,714 | 354.7 / 80.0 | 6 | $321.70 | — |
+| `-workspaces-learner-model` | 2026-10-13T00:00 … 2026-11-12T14:27 | 20 | 3,458 / 2,293 | 292.4 / 101.2 | 2 | $493.54 | — |
+| `-workspaces-module-kit` | 2026-10-13T00:00 … 2026-11-12T14:27 | 29 | 4,374 / 1,969 | 326.5 / 98.4 | 0 | $573.80 | — |
+| `-workspaces-modules` | 2026-10-13T00:00 … 2026-11-12T14:27 | 16 | 3,976 / 2,287 | 351.0 / 91.7 | 6 | $586.03 | — |
+| `-workspaces-sim` | 2026-10-13T00:00 … 2026-11-12T14:27 | 10 | 3,275 / 1,195 | 325.5 / 79.5 | 6 | $397.59 | — |
+| `-workspaces-skill-map` | 2026-10-13T00:00 … 2026-11-12T14:27 | 6 | 1,313 / 402 | 329.5 / 81.4 | 1 | $162.58 | — |
+| `-workspaces-tutor` | 2026-10-13T00:00 … 2026-11-12T14:27 | 28 | 11,509 / 6,806 | 398.5 / 119.5 | 53 | $1,896.62 | — |
+| `-workspaces-spec` — after the release of T122, T124: the reference | 2026-11-12T16:13 … 2026-11-13T21:07 | 9 | 1,062 / 485 | 189.7 / 102.1 | 2 | $92.76 | — |
+| `-workspaces--github` — after row 7.2, T124 | 2026-11-13T05:00 … 2026-11-13T21:07 | 1 | 136 / 25 | 191.4 / 74.7 | 0 | $9.73 | — |
+| `-workspaces-api` — after row 7.3, T124: the reference | 2026-11-13T13:43 … 2026-11-13T21:07 | 10 | 860 / 163 | 162.6 / 72.3 | 1 | $59.34 | — |
+| `-workspaces-app` — after row 7.4, T124 | 2026-11-13T04:29 … 2026-11-13T21:07 | 4 | 188 / 12 | 141.7 / 61.8 | 0 | $11.50 | — |
+| `-workspaces-canvas` — after row 7.5, T124 | 2026-11-12T22:47 … 2026-11-13T21:07 | 1 | 54 / 0 | 95.8 / — | 0 | $2.49 | — |
+| `-workspaces-engine` — after row 7.6, T124 | 2026-11-12T22:50 … 2026-11-13T21:07 | 3 | 92 / 0 | 99.9 / — | 0 | $7.53 | — |
+| `-workspaces-infra` — after row 7.7, T124: the reference | 2026-11-13T03:43 … 2026-11-13T21:07 | 9 | 748 / 200 | 178.4 / 65.6 | 0 | $65.36 | — |
+| `-workspaces-learner-model` — before row 7.8, without E10's files, T124 | 2026-11-12T14:27 … 2026-11-13T21:03 | 9 | 612 / 83 | 176.1 / 70.3 | 0 | $44.22 | — |
+| `-workspaces-module-kit` — after row 7.1, T124 | 2026-11-13T04:35 … 2026-11-13T21:07 | 5 | 47 / 0 | 107.0 / — | 0 | $2.52 | — |
+| `-workspaces-modules` — after row 7.9, T124 | 2026-11-13T04:37 … 2026-11-13T21:07 | 1 | 8 / 0 | 46.6 / — | 0 | $0.35 | — |
+| `-workspaces-sim` — after row 7.10, T124 | 2026-11-13T05:35 … 2026-11-13T21:07 | 3 | 215 / 60 | 150.7 / 76.3 | 0 | $18.25 | — |
+| `-workspaces-skill-map` — after row 7.11, T124 | 2026-11-13T03:45 … 2026-11-13T21:07 | 1 | 35 / 0 | 101.4 / — | 0 | $2.12 | — |
+| `-workspaces-tutor` — after row 7.12, T124: the reference | 2026-11-13T15:36 … 2026-11-13T21:07 | 6 | 519 / 90 | 153.2 / 67.4 | 0 | $35.03 | — |
+| `-workspaces-spec` — epic E10, at its archive | 2026-11-11T00:00 … 2026-11-13T21:57 | 26 | 3,385 / 2,804 | 210.9 / 90.0 | 4 | $371.88 | — |
+| `-workspaces-spec` — epic E12, at its archive | 2026-11-14T00:00 … 2026-11-15T01:14 | 12 | 1,124 / 589 | 201.4 / 110.4 | 4 | $128.88 | — |
+| `-workspaces-spec` — epic E14, at its archive | 2026-11-15T00:00 … 2026-11-16T18:54 | 19 | 2,404 / 4,177 | 187.8 / 124.7 | 2 | $348.33 | — |
+| `-workspaces-spec` — epic E15, at its archive | 2026-11-17T00:00 … 2026-11-17T23:32 | 21 | 2,240 / 576 | 161.3 / 67.7 | 3 | $153.80 | — |
 
 - In `spec`, part 2 of E10 lowered the context of a main call from 448.5 to 183.2 thousand, −59%, and of a subagent's from 109.2 to 90.4. The windows differ in work: E4 and E9 against the edits of E10.
 - The other 12 took R143 by the tasks of row 7 of [COORDINATION.md](../COORDINATION.md), all but `learner-model` by 2026-11-13. Their first rows are their "before", from 292.4 to 398.5 thousand for a main call.
@@ -572,7 +573,7 @@ How R145 keeps what epic E10 saved from growing back (RUN.md, T126): budgets of 
 - The row of epic E15 is its window from its first day, 2026-11-17, to the start of the session that archived it, 2026-11-17T23:32. The whole day ran in the orchestrator's run of COORDINATION.md (R156), and the window holds its sessions in `spec`: 16 of its executors, T179 to T197, the four tasks of E15 among them, and 3 of the orchestrator's own, 1,097 main calls for $74.36 (Д258); the other 2 are short sessions of the author outside it, 34 main calls for $1.98. The executors' sessions in the other repositories are not in it. Its 161.3 thousand for a main call are 15% below `spec`'s reference, 189.7. The budgets file has had a third raise since the last analysis, `dpia 1` in T195, after `DEBT.md` in T156 and COORDINATION.md in T167: the threshold is met, and its analysis is T196 of `run/TASKS.md`, set by T195. The last check of the changelog is not a quarter old.
 - The monthly row of `module-kit` needs the fix of 2026-11-12: a path the user may not look at is not a file for the recipe, and the report is printed (`tools/tokens/report.mjs`, `fileCheck`).
 
-**The threshold** of a new analysis is R145: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in `run/TASKS.md` (R155). A raise is a commit of a file of budgets that raises one limit or more; a repository's first `docs-budgets.json`, a limit held only until a translation and a lowering are not raises (the 2026-11-13 amendment to R145).
+**The threshold** of a new analysis is R145: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in `run/TASKS.md` (R155). A raise is a commit of a file of budgets that raises one limit or more; a repository's first `docs-budgets.json`, a limit held only until a translation and a lowering are not raises (the 2026-11-13 amendment to R145). The threshold counts every main call; an analysis by its first condition begins with the context of a session's first 80: at the reference or below it, the excess is the length of tasks, which rule 11 of RUN.md splits, not what the sessions read. In `spec`, the window of the reference holds 141.8 thousand for a call among the first 80, read 2026-11-18 (the 2026-11-17 amendment to R145).
 
 Last analysis: E10, T118–T128, 2026-11-11.
 

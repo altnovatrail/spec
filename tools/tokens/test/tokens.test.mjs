@@ -9,7 +9,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { GIT } from "../../shared.mjs";
 import { costOf, PRICES } from "../prices.mjs";
-import { filesOf, fileCheck, format, measure, programOf, shownPath, timeOf } from "../report.mjs";
+import { FIRST_CALLS, filesOf, fileCheck, format, measure, programOf, row, shownPath, timeOf } from "../report.mjs";
 import { projectsRoot, readTranscript, repositoryRoot, slugOf, transcriptsOf } from "../transcripts.mjs";
 import { argumentsOf, rootOfTranscripts, tokensReport } from "../main.mjs";
 
@@ -363,7 +363,7 @@ test("the report of a repository prints numbers, paths and names, and never what
   const one = tokensReport(["--row", "--until", "2030-01-01T10:20:30Z"], { cwd: repository, env: { CLAUDE_CONFIG_DIR: config } });
   assert.equal(one.status, 0);
   assert.equal(one.lines.length, 1);
-  assert.match(one.lines[0], /^\| -tmp-tokens-repo-\S+ \| \S+ … 2030-01-01T10:20 \| 1 \| 2 \/ 0 \| 1\.\d \/ — \| 0 \| \$\d+\.\d\d \|$/);
+  assert.match(one.lines[0], /^\| -tmp-tokens-repo-\S+ \| \S+ … 2030-01-01T10:20 \| 1 \| 2 \/ 0 \| 1\.\d \/ — \| 0 \| \$\d+\.\d\d \| 1\.\d \|$/);
   assert.doesNotMatch(one.lines[0], new RegExp(SECRET));
 });
 
@@ -418,4 +418,39 @@ test("an empty project prints a report with dashes", () => {
   const lines = format(run(project({})), { project: "p" });
   assert.match(lines[0], /^tokens: p — 0 sessions, 0 subagent transcripts, — … —$/);
   assert.ok(lines.some((l) => /^context per call, k\s+—\s+—\s+—$/.test(l)));
+  assert.ok(lines.some((l) => /^context per call, first 80 of a session, k\s+—\s+—\s+—$/.test(l)));
+});
+
+test("a transcript that resumes a session goes on from the places of the calls it copied, read first or last", () => {
+  const history = Array.from({ length: FIRST_CALLS - 1 }, (_, i) => call(`h${i}`, 1000));
+  // "a" resumes "z" and sorts before it, "y" resumes "b" and sorts after it: each copies 79 calls and adds two.
+  for (const [parent, child] of [["z", "a"], ["b", "y"]]) {
+    const data = run(project({ [parent]: history, [child]: [...history, call("n1", 5000), call("n2", 5000)] }));
+    assert.equal(data.main.calls, FIRST_CALLS + 1, child);
+    assert.equal(data.firstCalls.calls, FIRST_CALLS, child);
+    assert.equal(data.firstCalls.context, (FIRST_CALLS - 1) * 1000 + 5000, child);
+  }
+});
+
+test("the context of a session's first main calls is measured apart, those before the window among them", () => {
+  const minute = (i) => `2026-11-09T${String(10 + Math.floor(i / 60)).padStart(2, "0")}:${String(i % 60).padStart(2, "0")}:00Z`;
+  // A long session: its first FIRST_CALLS calls at 1,000 tokens, then 20 at 11,000; and a short one at 2,000.
+  const long = Array.from({ length: FIRST_CALLS + 20 }, (_, i) => call(`l${i}`, i < FIRST_CALLS ? 1000 : 11_000, { ts: minute(i) }));
+  const short = [call("s0", 2000, { ts: minute(0) }), call("s1", 2000, { ts: minute(1) })];
+  const agent = [call("a0", 50_000, { ts: minute(0) })];
+  const data = run(project({ s1: long, s2: short }, { s1: { x: agent } }));
+  assert.equal(FIRST_CALLS, 80);
+  assert.equal(data.main.calls, 102);
+  assert.equal(data.firstCalls.calls, 82);
+  assert.equal(data.firstCalls.context, 80 * 1000 + 2 * 2000);
+  const cells = row(data, { project: "p" }).split(" | ");
+  assert.equal(cells[4], "3.0 / 50.0");
+  assert.equal(cells[7], "1.0 |");
+  assert.ok(format(data).some((l) => /^context per call, first 80 of a session, k\s+1\.0\s+—\s+1\.0$/.test(l)));
+  // A window from the 70th call on: the long session's calls 71 to 80 are among its first, the
+  // calls before the window are not counted but keep their places.
+  const late = run(project({ s1: long }), { since: minute(70) });
+  assert.equal(late.main.calls, 30);
+  assert.equal(late.firstCalls.calls, 10);
+  assert.equal(late.firstCalls.context, 10 * 1000);
 });

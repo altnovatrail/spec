@@ -200,6 +200,10 @@ export function timeOf(text) {
   return date.toISOString();
 }
 
+// How many of a session's first main calls the report measures apart: a session's context grows
+// with its length, and these calls show what it starts and works with before it has grown (R145).
+export const FIRST_CALLS = 80;
+
 // What a group counts for an entry that carries nothing of its own.
 const NOTHING = Object.freeze({ chars: 0 });
 
@@ -218,7 +222,7 @@ export function measure(transcripts, { read, root, since = null, until = null, p
     const uses = new Map();
     let window = [];
     let segment = { before: null, items: [], window, start: !transcript.subagent };
-    const session = sessions.get(transcript.session) ?? { id: transcript.session, task: null, start: null, transcripts: 0, subagents: 0 };
+    const session = sessions.get(transcript.session) ?? { id: transcript.session, task: null, start: null, transcripts: 0, subagents: 0, mainCalls: 0 };
     sessions.set(transcript.session, session);
     if (transcript.subagent) session.subagents += 1;
     else session.transcripts += 1;
@@ -269,6 +273,8 @@ export function measure(transcripts, { read, root, since = null, until = null, p
           // that transcript has counted. What came with the copy is dropped, and the next call of
           // this transcript grows from the copied call.
           if (known.file !== transcript.file && !segment.resumed) resumed += 1;
+          // The session goes on from the place of the call it copied, whichever transcript is read first.
+          if (!transcript.subagent && known.place) session.mainCalls = Math.max(session.mainCalls, known.place);
           if (known.file !== transcript.file) segment = { before: known, items: [], window, start: false, resumed: true };
           continue;
         }
@@ -282,6 +288,13 @@ export function measure(transcripts, { read, root, since = null, until = null, p
         };
         call.context = call.input + call.read + call.write;
         call.counted = inWindow(call.timestamp, since, until);
+        // Its place among the session's main calls, those before the window too: a session that
+        // began before --since has had its first calls there. A transcript that resumes a session
+        // goes on from the places of the calls it copied.
+        if (!transcript.subagent) {
+          call.place = session.mainCalls += 1;
+          call.first = call.place <= FIRST_CALLS;
+        }
         calls.set(m.id, call);
         window.push(call);
         segment.after = call;
@@ -315,12 +328,14 @@ function add(totals, call, prices) {
 
 function summarize({ calls, sessions, segments, costStates, broken, compactions, resumed, prices }) {
   const main = emptyTotals();
+  const firstCalls = emptyTotals();
   const subagents = emptyTotals();
   const models = new Map();
   const bySession = new Map();
   for (const call of calls) {
     if (!call.counted) continue;
     add(call.subagent ? subagents : main, call, prices);
+    if (call.first) add(firstCalls, call, prices);
     const s = bySession.get(call.session) ?? { main: emptyTotals(), subagents: emptyTotals() };
     bySession.set(call.session, s);
     add(call.subagent ? s.subagents : s.main, call, prices);
@@ -416,6 +431,7 @@ function summarize({ calls, sessions, segments, costStates, broken, compactions,
     first: sessionRows[0]?.start ?? null,
     last: calls.filter((c) => c.counted).reduce((max, c) => (c.timestamp > max ? c.timestamp : max), "") || null,
     main,
+    firstCalls,
     subagents,
     models: Object.fromEntries([...models].sort((a, b) => byCodeUnits(a[0], b[0]))),
     compactions,
@@ -470,8 +486,10 @@ function totalsOf(a, b) {
 }
 
 // The report as one row of the table of measurements 1.9: the project, the window, sessions, calls,
-// the context of a call and the cost, main and subagents apart, and compactions. The window is the
-// one asked for, or else that of the calls counted; a time prints to the minute, in UTC.
+// the context of a call, main and subagents apart, compactions, the cost, and the context of the
+// main calls among the first FIRST_CALLS of their session, last, so that a table of seven columns
+// that has not taken it shows the others in place. The window is the one asked for, or else
+// that of the calls counted; a time prints to the minute, in UTC.
 export function row(data, { project = "", since = null, until = null } = {}) {
   const avg = (t) => (t.calls ? thousands(t.context / t.calls) : "—");
   const minute = (time) => (time ? time.slice(0, 16) : "—");
@@ -484,6 +502,7 @@ export function row(data, { project = "", since = null, until = null } = {}) {
     `${avg(data.main)} / ${avg(data.subagents)}`,
     int(data.compactions),
     `$${cost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    avg(data.firstCalls),
   ];
   return `| ${cells.join(" | ")} |`;
 }
@@ -506,6 +525,7 @@ export function format(data, { top = 20, project = "" } = {}) {
         ["output, M", millions(data.main.output), millions(data.subagents.output), millions(both.output)],
         ["uncached input", int(data.main.input), int(data.subagents.input), int(both.input)],
         ["context per call, k", avg(data.main), avg(data.subagents), avg(both)],
+        [`context per call, first ${FIRST_CALLS} of a session, k`, avg(data.firstCalls), "—", avg(data.firstCalls)],
         ["largest context, k", thousands(data.main.maxContext), thousands(data.subagents.maxContext), thousands(both.maxContext)],
         ["cost at API prices", dollars(data.main.cost), dollars(data.subagents.cost), dollars(both.cost)],
       ],
