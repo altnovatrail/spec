@@ -9,7 +9,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { git } from "../../shared.mjs";
 import { main } from "../main.mjs";
-import { create, helperArgs, ORGANIZATION, rebuild, runLong, sessionsIn } from "../devcontainers.mjs";
+import { create, helperArgs, ORGANIZATION, rebuild, runLong, sessionsIn, UP_SCRIPT } from "../devcontainers.mjs";
 import { container, host } from "./fakes.mjs";
 
 const IDENTITY = ["-c", "user.name=t", "-c", "user.email=t@example.com"];
@@ -204,7 +204,9 @@ test("a clone by SSH is NovaTrail's too; several containers on the labels, and a
   git(sim, ["remote", "set-url", "origin", "git@github.com:altnovatrail/sim.git"]);
   // The address by SSH is GitHub's: with a made-up GitHub, it does not match, and with GitHub's, it does.
   assert.throws(() => rebuild("sim", {}, deps), /exit 3/);
-  const script = helperArgs({ image: "i", repo: "sim", mode: "rebuild", folder: sim, config: "c", mount: sim }).at(-7);
+  // The helper's script is a constant: the clone's folder reaches it as an argument, never in its text.
+  assert.equal(helperArgs({ image: "i", repo: "sim", mode: "rebuild", folder: sim, config: "c", mount: sim }).at(-7), UP_SCRIPT);
+  const script = UP_SCRIPT;
   const shell = (origin) => {
     git(sim, ["remote", "set-url", "origin", origin]);
     return spawnSync("sh", ["-c", script.replace("main=$(mktemp -d)", "exit 0"), "sh", "rebuild", "sim", sim, "c", ORGANIZATION], { encoding: "utf8" });
