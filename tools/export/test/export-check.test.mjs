@@ -61,11 +61,11 @@ test("spec's own export/ passes, and the stats count what it holds", () => {
   try {
     const { errors, stats } = checkExport(root);
     assert.deepEqual(errors, []);
-    assert.equal(stats.schemas, 7);
-    assert.equal(stats.rules, 6);
+    assert.equal(stats.schemas, 8);
+    assert.equal(stats.rules, 7);
     assert.ok(stats.examples >= 4 && stats.vectors >= 6 && stats.cases >= 6, JSON.stringify(stats));
     assert.equal(EXPORT_PART.folder, "export");
-    assert.deepEqual(FILE_TERMS, ["manifest", "account", "profile", "device", "work"]);
+    assert.deepEqual(FILE_TERMS, ["manifest", "account", "profile", "device", "work", "paper"]);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -86,9 +86,10 @@ test("a file the layout does not know is an error", () => {
 
 test("VERSION is an integer, and the field format of each file's schema names it", () => {
   expectSome([["export/VERSION", null, "01\n"]], /^export\/VERSION:1: the part's version is an integer from 1/);
-  expectSome([[MANIFEST_SCHEMA, '"const": 3,', '"const": 2,']], /^export\/schemas\/manifest\.schema\.json:\d+: the field format is the const 3, the version in export\/VERSION$/);
+  expectSome([[MANIFEST_SCHEMA, '"const": 4,', '"const": 3,']], /^export\/schemas\/manifest\.schema\.json:\d+: the field format is the const 4, the version in export\/VERSION$/);
   expectSome([["export/schemas/work.schema.json", null, null]], /^export\/schemas:0: no work\.schema\.json, which the text names$/);
   expectSome([["export/schemas/device.schema.json", null, null]], /^export\/schemas:0: no device\.schema\.json, which the text names$/);
+  expectSome([["export/schemas/paper.schema.json", null, null]], /^export\/schemas:0: no paper\.schema\.json, which the text names$/);
 });
 
 test("the rules of the text are the rules reading.mjs knows, in its order", () => {
@@ -97,7 +98,7 @@ test("the rules of the text are the rules reading.mjs knows, in its order", () =
 });
 
 test("an example passes its schema or names the error it gives, and needs its schema", () => {
-  expectSome([["export/examples/manifest/invalid/format-four.yaml", "# error: const at #/format", "# error: enum at #/scope"]], /format-four\.yaml/);
+  expectSome([["export/examples/manifest/invalid/format-five.yaml", "# error: const at #/format", "# error: enum at #/scope"]], /format-five\.yaml/);
   expectOnly([["export/examples/other/valid/case.yaml", null, "a: 1\n"]], /^export\/examples\/other\/valid\/case\.yaml:0: an example of other, which has no schema in export\/schemas$/);
 });
 
@@ -111,6 +112,7 @@ test("a vector of reading passes its schema, its files are a map, and each case 
 test("the vectors accept an export and refuse one by the schema and by each rule", () => {
   expectOnly([["export/vectors/reading/proto.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.proto \(export\/README\.md, section 7\)$/);
   expectOnly([["export/vectors/reading/works.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.works \(export\/README\.md, section 7\)$/);
+  expectOnly([["export/vectors/reading/paper.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.paper \(export\/README\.md, section 7\)$/);
   expectOnly([["export/vectors/reading/schema.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by the schema/);
   expectOnly([[ACCEPTED, null, null]], /^export\/vectors\/reading:0: no vector of reading accepts an export/);
 });
@@ -119,7 +121,7 @@ test("the command prints ok, and the errors of a broken copy", () => {
   const main = path.join(spec, "tools/export/main.mjs");
   const ok = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(ok.status, 0, ok.stderr);
-  assert.match(ok.stdout, /^export-check: ok — 7 schemas, 6 rules, \d+ examples, \d+ vectors of reading with \d+ cases\n$/);
+  assert.match(ok.stdout, /^export-check: ok — 8 schemas, 7 rules, \d+ examples, \d+ vectors of reading with \d+ cases\n$/);
   const usage = spawnSync(process.execPath, [main, "extra"], { encoding: "utf8" });
   assert.equal(usage.status, 2);
   assert.match(usage.stderr, /^usage: node tools\/export\/main\.mjs/);

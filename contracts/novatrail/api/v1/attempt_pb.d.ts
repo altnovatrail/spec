@@ -3,9 +3,10 @@
 /* eslint-disable */
 
 // The checking of an attempt in the contract between `app` and `api`: the submission of the work
-// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task with
-// a rubric. What each message means, what never reaches the device, and what a repeat with the same
-// idempotency key answers are the rules of contracts/README.md, section 15.
+// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
+// with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
+// `PaperService` begins. What each message means, what never reaches the device, and what a repeat
+// with the same idempotency key answers are the rules of contracts/README.md, section 15.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -126,14 +127,15 @@ export declare type SubmitWorkResponse = Message<"novatrail.api.v1.SubmitWorkRes
   wrongAnswers: number;
 
   /**
-   * The solved task, when every item is correct and the attempt is closed `CLOSE_REASON_CORRECT`.
+   * The solved task, when every item is correct and the attempt is closed `CLOSE_REASON_CORRECT`:
+   * empty on a task from paper, which shows neither its key nor a solution (R05).
    *
    * @generated from field: novatrail.api.v1.SolvedTask solved = 4;
    */
   solved?: SolvedTask | undefined;
 
   /**
-   * What comes next, beside `solved`.
+   * What comes next, beside `solved`: absent on a task from paper.
    *
    * @generated from field: novatrail.api.v1.Next next = 5;
    */
@@ -291,9 +293,9 @@ export declare type DoneRequest = Message<"novatrail.api.v1.DoneRequest"> & {
   attemptId: string;
 
   /**
-   * The provider of the learner's own key, by its code in the admission table, without the key: with
-   * a profile of its owner that checks the tasks by its own key, so that the engine's choice in
-   * `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+   * The provider of the learner's own key, by its code in the admission table, without the key:
+   * with a profile of its owner that checks the tasks by its own key, so that the engine's choice
+   * in `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
    *
    * @generated from field: string own_key_provider = 3;
    */
@@ -611,8 +613,8 @@ export declare type ExplainDifferentlyResponse = Message<"novatrail.api.v1.Expla
   words: string;
 
   /**
-   * What the call came to, when the words are not the model's: a failure of AI, a refusal of the own
-   * key, or `CAUSE_NO_OTHER_WORDS` when they are the words the learner reads already.
+   * What the call came to, when the words are not the model's: a failure of AI, a refusal of the
+   * own key, or `CAUSE_NO_OTHER_WORDS` when they are the words the learner reads already.
    *
    * @generated from field: novatrail.api.v1.Outcome outcome = 2;
    */
@@ -660,8 +662,8 @@ export declare const GetHintRequestSchema: GenMessage<GetHintRequest>;
  */
 export declare type GetHintResponse = Message<"novatrail.api.v1.GetHintResponse"> & {
   /**
-   * Before the first wrong answer, and on a task with a rubric, the task's techniques; after it, the
-   * current rung's words.
+   * Before the first wrong answer, and on a task with a rubric, the task's techniques; after it,
+   * the current rung's words.
    *
    * @generated from oneof novatrail.api.v1.GetHintResponse.hint
    */
@@ -838,9 +840,9 @@ export declare type ShowSolutionRequest = Message<"novatrail.api.v1.ShowSolution
   action: Action;
 
   /**
-   * The provider of the learner's own key, by its code in the admission table, without the key: with
-   * a profile of its owner that checks the tasks by its own key, so that the engine's choice in
-   * `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+   * The provider of the learner's own key, by its code in the admission table, without the key:
+   * with a profile of its owner that checks the tasks by its own key, so that the engine's choice
+   * in `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
    *
    * @generated from field: string own_key_provider = 5;
    */
@@ -979,9 +981,10 @@ export declare type ReportProblemResponse = Message<"novatrail.api.v1.ReportProb
 export declare const ReportProblemResponseSchema: GenMessage<ReportProblemResponse>;
 
 /**
- * The work for checking: a sheet's crop, or the crops of a workbook's filled boxes. Nothing of the
- * writing history, of the context of the submission, of the groups of strokes or of the text of an
- * item goes with it.
+ * The work for checking: a sheet's crop, the crops of a workbook's filled boxes, or the work of a
+ * task from paper. Nothing of the writing history, of the context of the submission, of the groups
+ * of strokes or of the text of an item goes with it. An attempt of a task from paper takes `paper`
+ * alone, and an attempt of a task of a module never takes it: another gets `invalid_argument`.
  *
  * @generated from message novatrail.api.v1.Work
  */
@@ -1007,6 +1010,14 @@ export declare type Work = Message<"novatrail.api.v1.Work"> & {
      */
     value: WorkbookWork;
     case: "workbook";
+  } | {
+    /**
+     * A dotted sheet under the crop of a task from paper, as tracing paper (R162).
+     *
+     * @generated from field: novatrail.api.v1.PaperWork paper = 3;
+     */
+    value: PaperWork;
+    case: "paper";
   } | { case: undefined; value?: undefined };
 };
 
@@ -1056,6 +1067,38 @@ export declare type WorkbookWork = Message<"novatrail.api.v1.WorkbookWork"> & {
  * Use `create(WorkbookWorkSchema)` to create a new message.
  */
 export declare const WorkbookWorkSchema: GenMessage<WorkbookWork>;
+
+/**
+ * The work of a task from paper: the task's crop, by which `api` derives the key and the analysis
+ * reads the statement, and the crop of what the learner wrote, which the readers read. Every
+ * request that carries the work of a task from paper carries both: the server keeps no crop.
+ *
+ * @generated from message novatrail.api.v1.PaperWork
+ */
+export declare type PaperWork = Message<"novatrail.api.v1.PaperWork"> & {
+  /**
+   * The task's crop as `app` cut it from the photo of the page by its frame, without the learner's
+   * strokes: a JPEG or a PNG of at most 4 MiB.
+   *
+   * @generated from field: bytes statement = 1;
+   */
+  statement: Uint8Array;
+
+  /**
+   * The PNG of the crop of the work, without its `sheet_box`: the tracing paper at its place, with
+   * the strokes on it, and the sheet's visible strokes, whether the tracing paper is shown or
+   * hidden. A box of a mark is a box on this crop.
+   *
+   * @generated from field: bytes crop = 2;
+   */
+  crop: Uint8Array;
+};
+
+/**
+ * Describes the message novatrail.api.v1.PaperWork.
+ * Use `create(PaperWorkSchema)` to create a new message.
+ */
+export declare const PaperWorkSchema: GenMessage<PaperWork>;
 
 /**
  * The crop of one filled box.
@@ -1256,9 +1299,9 @@ export declare type SolvedTask = Message<"novatrail.api.v1.SolvedTask"> & {
 export declare const SolvedTaskSchema: GenMessage<SolvedTask>;
 
 /**
- * What comes next once an attempt is closed by a correct answer, by the solution shown or by "Done".
- * A repeat gets the same: of `SubmitWork` and `ShowSolution` with the same idempotency key, and of
- * `Done` by the state of the attempt.
+ * What comes next once an attempt is closed by a correct answer, by the solution shown or by
+ * "Done". A repeat gets the same: of `SubmitWork` and `ShowSolution` with the same idempotency key,
+ * and of `Done` by the state of the attempt.
  *
  * @generated from message novatrail.api.v1.Next
  */
@@ -1359,7 +1402,8 @@ export declare type Mark = Message<"novatrail.api.v1.Mark"> & {
     case: "answerSlot";
   } | {
     /**
-     * A box on the crop the device sent, in whole thousandths: on a handwriting sheet alone.
+     * A box on the crop the device sent, in whole thousandths: on a handwriting sheet and on a task
+     * from paper alone.
      *
      * @generated from field: novatrail.observation.v1.CropBox crop_box = 3;
      */
@@ -1574,6 +1618,14 @@ export enum MarkKind {
    * @generated from enum value: MARK_KIND_FRAME = 1;
    */
   FRAME = 1,
+
+  /**
+   * A wavy line under the place of the first mistake: on a task from paper alone, at a box on the
+   * crop, and only while the profile's hint mode is `HINT_MODE_SHOW_WHERE` (R162).
+   *
+   * @generated from enum value: MARK_KIND_WAVY_LINE = 2;
+   */
+  WAVY_LINE = 2,
 }
 
 /**
@@ -1594,7 +1646,10 @@ export declare const MarkKindSchema: GenEnum<MarkKind>;
  * solution shown or by "Done" says what comes next, `next`: an attempt begins by
  * `LearningService`. The engine's choice in `next` goes by the route to AI that the request
  * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
- * AI's without either, as `ChooseNext` judges it (R84; R99).
+ * AI's without either, as `ChooseNext` judges it (R84; R99). An attempt of a task from paper
+ * (R162) has one item with one answer slot, no `next`, and nothing to show: its key, the
+ * solver's or the AI's, the first submission derives, `api` keeps it while the attempt is open,
+ * and it never reaches the device (R05).
  *
  * @generated from service novatrail.api.v1.AttemptService
  */
@@ -1602,10 +1657,13 @@ export declare const AttemptService: GenService<{
   /**
    * Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
    * both. The answer is the verdict of every item and answer slot, on the whole observation, and
-   * what was read. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no reading is no
-   * refusal: its slots get "unchecked", and the answer names the outcome. A repeat with the same
-   * idempotency key gets the verdicts and the reading recorded, with no AI.
+   * what was read. On a task from paper the first submission derives the key too, from the task's
+   * crop: a key the two solutions of AI do not agree on is none, the outcome `CAUSE_NO_KEY`, which
+   * every later submission of the attempt gets with no AI. Refusals: `CAUSE_ATTEMPT_CLOSED`,
+   * `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
+   * that gives no reading is no refusal: its slots get "unchecked", and the answer names the
+   * outcome. A repeat with the same idempotency key gets the verdicts and the reading recorded,
+   * with no AI.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.SubmitWork
    */
@@ -1647,8 +1705,8 @@ export declare const AttemptService: GenService<{
    * keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
    * `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
    * `CAUSE_STILL_GOING`. A call of AI that gives no words is no refusal: the answer holds the
-   * rung's fallback text and names the outcome. A repeat with the same idempotency key, or a request
-   * for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
+   * rung's fallback text and names the outcome. A repeat with the same idempotency key, or a
+   * request for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.GetRungWords
    */
@@ -1680,9 +1738,9 @@ export declare const AttemptService: GenService<{
    * without the work, for the wrong answer it names. Refusals: `CAUSE_NOT_CURRENT`,
    * `CAUSE_ALREADY_ASKED`, `CAUSE_NO_RUNG`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
    * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
-   * `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of the
-   * quota, and the right to it on the rung stays. A repeat with the same idempotency key gets the
-   * words the attempt keeps, with no AI.
+   * `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
+   * the quota, and the right to it on the rung stays. A repeat with the same idempotency key gets
+   * the words the attempt keeps, with no AI.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.ExplainDifferently
    */
@@ -1694,7 +1752,8 @@ export declare const AttemptService: GenService<{
   /**
    * "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
    * answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
-   * when it has one; after it, the words of the current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
+   * when it has one, both empty on a task from paper, which has neither; after it, the words of the
+   * current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
    * carries no idempotency key: it repeats by the attempt's state.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.GetHint
@@ -1718,7 +1777,8 @@ export declare const AttemptService: GenService<{
   },
   /**
    * Shows the solution, by a learning action or by an action of an adult, and closes the attempt
-   * `CLOSE_REASON_SOLUTION_SHOWN`. A learning action needs the right `can_learn`, and an action of
+   * `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
+   * `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
    * an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
    * section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
    * `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,

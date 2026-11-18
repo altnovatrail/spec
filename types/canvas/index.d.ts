@@ -7,8 +7,11 @@
  * writing, by properties; it gives the work for checking and the work's picture by its methods, and
  * tells what the learner did by events. In place of a task it may show a lesson's worked example,
  * whose demo the learner opens part by part with its buttons, and how far they have gone is a
- * property and an event too. The types of the task, of the worked example and of the manifest are
- * the module format's open views, formatv0/open.
+ * property and an event too. In place of either it may show a task from the learner's paper: the
+ * task's crop over a dotted sheet as tracing paper, which the learner moves, hides and writes on,
+ * and where the tracing paper lies is a property and an event as well (R162). The types of the
+ * task, of the worked example and of the manifest are the module format's open views,
+ * formatv0/open.
  *
  * It takes the tutor's marks of a submission too, by a property, with the submission's context:
  * their kind and their place come from the contract between app and api, novatrail.api.v1, whose
@@ -62,6 +65,39 @@ export interface DemoState {
 export type DemoChangeEvent = CustomEvent<DemoState>;
 
 /**
+ * A task from the learner's paper (concepts 8; R162): the task's crop, which app cut on the device
+ * from the photo of the page by its task frame. The element lays it over a sheet in dots — the
+ * sheet of a task from paper has no other grid and no choice of one — as tracing paper, in place of
+ * a task's statement and template. It has no answer slot of the format: its one slot is the whole
+ * work, at the place 1, 1. The tools are the pen and the eraser.
+ */
+export interface PaperTask {
+  /** The task's crop, a JPEG or a PNG, as app cut it, without the learner's strokes. */
+  readonly statement: Blob;
+}
+
+/**
+ * Where the tracing paper of a task from paper lies on the sheet, and whether it is hidden. A new
+ * task from paper starts at the element's own place for it, shown.
+ */
+export interface TracingState {
+  /** Its top left corner on the sheet, in the sheet's units: [x, y]. */
+  readonly at: readonly [x: number, y: number];
+  /**
+   * Whether the tracing paper is hidden, with the strokes on it: they stay in the history and in
+   * the work for checking, out of sight.
+   */
+  readonly hidden: boolean;
+}
+
+/**
+ * The event the element sends from its host, bubbling and composed, when the learner moves the
+ * tracing paper by its grip "Move the task", or hides or shows it by its button atop the tools —
+ * not when the consumer sets `tracing`. Its detail is the new state, frozen.
+ */
+export type TracingChangeEvent = CustomEvent<TracingState>;
+
+/**
  * A point of a stroke: where it lies on the sheet, in its logical units, when it was written and
  * how hard the pointer pressed.
  */
@@ -104,9 +140,12 @@ export interface Stroke {
 export type HistoryEvent =
   /**
    * A stroke written, and when it landed: its last point's time, or later, if it ended without its
-   * pointerup after an action that landed while it was under way.
+   * pointerup after an action that landed while it was under way. On a task from paper, `on` is
+   * `"tracing"` for a stroke written on the tracing paper, whose points are in the sheet's units
+   * from the tracing paper's top left corner, so that it moves with it; a stroke of the sheet has
+   * no `on`.
    */
-  | { readonly kind: "write"; readonly t: number; readonly stroke: Stroke }
+  | { readonly kind: "write"; readonly t: number; readonly stroke: Stroke; readonly on?: "tracing" }
   /** One press of the eraser: the strokes it took off, in the sheet's order, when it lifted. */
   | { readonly kind: "erase"; readonly t: number; readonly ids: readonly number[] }
   /** The sheet cleared: every stroke that was on it, in the sheet's order. */
@@ -228,6 +267,8 @@ export interface SheetSubmission {
    * forged.
    */
   readonly digest: string;
+  /** Never on a sheet's context, so that a task from paper's is never taken for one. */
+  readonly tracing?: never;
 }
 
 /**
@@ -243,13 +284,30 @@ export interface WorkbookSubmission {
   readonly digest: string;
 }
 
-/** The context of one submission, of a sheet or of a workbook: its keys tell which. */
-export type Submission = SheetSubmission | WorkbookSubmission;
+/**
+ * The context of one submission of a task from paper: the numbers of the crop of the work — the
+ * tracing paper at its place with the strokes on it, and the sheet's strokes —, the groups of the
+ * strokes of both, where the tracing paper lay, and the digest of it all. A context of the tracing
+ * paper at another place the element does not take back. app keeps it on the device, in the
+ * profile's history of tasks from paper, and never sends it (R162).
+ */
+export interface PaperSubmission {
+  readonly crop: CropNumbers;
+  readonly groups: readonly Group[];
+  readonly tracing: TracingState;
+  /** What the submission was made of: 16 hex digits. */
+  readonly digest: string;
+}
+
+/** The context of one submission, of a sheet, of a workbook or of a task from paper: its keys tell which. */
+export type Submission = SheetSubmission | WorkbookSubmission | PaperSubmission;
 
 /** The work of a sheet for checking: the PNG of the crop, and the context of the submission. */
 export interface ExportedSheet {
   readonly png: Blob;
   readonly submission: SheetSubmission;
+  /** Never on a sheet's work, so that a task from paper's is never taken for one. */
+  readonly statement?: never;
 }
 
 /**
@@ -269,8 +327,23 @@ export interface ExportedWorkbook {
   readonly submission: WorkbookSubmission;
 }
 
-/** The work for checking, of a sheet or of a workbook: its key, `png` or `cells`, tells which. */
-export type ExportedWork = ExportedSheet | ExportedWorkbook;
+/**
+ * The work of a task from paper for checking, the two images of `PaperWork` of the contract: the
+ * task's crop as it was given, and the PNG of the crop of the work — the tracing paper at its place
+ * with the strokes on it, and the sheet's visible strokes, whether the tracing paper is shown or
+ * hidden —, with the context of the submission (contracts/README.md, section 15).
+ */
+export interface ExportedPaper {
+  readonly statement: Blob;
+  readonly png: Blob;
+  readonly submission: PaperSubmission;
+}
+
+/**
+ * The work for checking, of a sheet, of a workbook or of a task from paper: its keys tell which —
+ * `cells` a workbook, `statement` a task from paper, and `png` without it a sheet.
+ */
+export type ExportedWork = ExportedSheet | ExportedWorkbook | ExportedPaper;
 
 /**
  * Where a tutor's mark is: a group of strokes by its label, an answer cell by its place, or a box on
@@ -284,8 +357,11 @@ export type Anchor =
   /** [ymin, xmin, ymax, xmax] in whole thousandths of the crop's height and width; min < max. */
   | { readonly box: readonly [number, number, number, number] };
 
-/** A mark of the tutor's layer: a frame, so far, with where it is and its name. */
-export interface Mark {
+/** A mark of the tutor's layer: a frame, or a wavy line, with where it is and its name. */
+export type Mark = FrameMark | WavyLineMark;
+
+/** A frame round the place: on a sheet, on a workbook and on a task from paper. */
+export interface FrameMark {
   readonly kind: "frame";
   readonly at: Anchor;
   /**
@@ -296,8 +372,26 @@ export interface Mark {
 }
 
 /**
+ * A wavy line under the place of the first mistake, on a task from paper alone, at a box on the
+ * crop of its work, which the profile's hint mode "Show where" brings with the words of a rung
+ * (concepts 10; R162). The element draws it under the strokes the box takes, on the sheet or on the
+ * tracing paper, over a light halo, so that it holds the contrast of 3:1 over the sheet and over the
+ * photo of any page, and puts it in the accessibility tree as it puts a frame, by its name (R90).
+ */
+export interface WavyLineMark {
+  readonly kind: "wavy_line";
+  /** [ymin, xmin, ymax, xmax] in whole thousandths of the crop's height and width; min < max. */
+  readonly at: { readonly box: readonly [number, number, number, number] };
+  /**
+   * What a screen reader names it, in app's words, in the language of its screen: "Tutor's mark:
+   * where the mistake is". A name empty or of white space alone is a TypeError.
+   */
+  readonly name: string;
+}
+
+/**
  * The tutor's marks of one submission, with the context of the submission that the element gave
- * with its work and app kept: a sheet's or a workbook's. The marks are those of one answer of
+ * with its work and app kept: a sheet's, a workbook's or a task from paper's. The marks are those of one answer of
  * api, in its order.
  */
 export interface Marks {
@@ -310,6 +404,7 @@ export interface CanvasEventMap {
   historychange: HistoryChangeEvent;
   toolchange: ToolChangeEvent;
   demochange: DemoChangeEvent;
+  tracingchange: TracingChangeEvent;
 }
 
 /**
@@ -343,6 +438,23 @@ export interface CanvasElement extends HTMLElement {
    * a task with an answer slot bound `zone`, which no module of the first slice takes.
    */
   task: open.Task | undefined;
+  /**
+   * A task from the learner's paper, in place of a task of a module and of a worked example: one
+   * given while the element shows either is a TypeError, and so are a task or an example given
+   * while it shows one. Its manifest is none: the height of a digit on the crop is the default of
+   * the module format, and the element's buttons speak its `lang`. Given before the history, the
+   * tracing paper's state and the marks.
+   */
+  paper: PaperTask | undefined;
+  /**
+   * Where the tracing paper lies and whether it is hidden, frozen: `undefined` without a task from
+   * paper. The learner changes it by the grip and the button, which a `tracingchange` tells; the
+   * consumer keeps it and gives it back to open the task as it was, which tells nothing. A state
+   * given before the task from paper is a TypeError, and so is one that puts the tracing paper
+   * wholly off the sheet; `undefined` changes nothing.
+   */
+  get tracing(): TracingState | undefined;
+  set tracing(state: TracingState | undefined);
   /**
    * The open view of a lesson's worked example, its segment `worked_example`, in place of a task;
    * its module's manifest is `manifest`, as a task's is. The element shows the example's statement
@@ -396,29 +508,33 @@ export interface CanvasElement extends HTMLElement {
    * sheet or the page it was made on, as its digest tells: one of other strokes or other boxes is a
    * TypeError, and so are marks given before the task and the history, a mark of another kind, a
    * name empty or of white space alone, a group's label the submission has not, a box that is not
-   * whole thousandths with min < max, and on a workbook any place but a cell. A new history puts the
+   * whole thousandths with min < max, on a workbook any place but a cell, and a wavy line anywhere
+   * but on a task from paper. A new history puts the
    * marks back on their strokes, or takes them off. `undefined` takes the marks off. A worked
    * example's sheet has nothing to mark: marks are a TypeError there.
    */
   get marks(): Marks | undefined;
   set marks(marks: Marks | undefined);
   /**
-   * Which answer slots are filled, frozen: a workbook's boxes, and on a sheet the task's one slot
-   * bound `anywhere` or `sheet`. `null` on a sheet whose slots are bound `choice`, whose options app
+   * Which answer slots are filled, frozen: a workbook's boxes, on a sheet the task's one slot
+   * bound `anywhere` or `sheet`, and on a task from paper its one slot, the sheet and the tracing
+   * paper both. `null` on a sheet whose slots are bound `choice`, whose options app
    * marks, on a sheet with no task, and for a worked example. An action on the sheet changes it
    * before its `historychange`, and a task or a history given changes it with no event.
    */
   readonly filled: Filled | null;
   /**
-   * The work for checking, as the sheet is when it is called: a sheet's crop or a workbook's boxes,
-   * with the context of the submission. A sheet without strokes, a workbook with no box filled and a
-   * worked example give `null`.
+   * The work for checking, as the sheet is when it is called: a sheet's crop, a workbook's boxes, or
+   * a task from paper's crop of its work with the task's crop, with the context of the submission. A
+   * sheet without strokes, a task from paper with no stroke on the sheet or on the tracing paper, a
+   * workbook with no box filled and a worked example give `null`.
    */
   exportWork(): Promise<ExportedWork | null>;
   /**
    * The picture of the work, which app puts as the stored work's `picture` (contracts/README.md,
    * section 15): always a Blob of a PNG, with no condition, of the strokes of the whole surface — the
-   * sheet or the workbook's page — as it is when it is called, within the limit of a stored work
+   * sheet, with the tracing paper of a task from paper, or the workbook's page — as it is when it is
+   * called, within the limit of a stored work
    * there. Its size and its colours are canvas's (R83 canvas).
    */
   exportPicture(): Promise<Blob>;

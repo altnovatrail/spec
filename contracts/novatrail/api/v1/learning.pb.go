@@ -36,10 +36,10 @@ type ChooseNextRequest struct {
 	// The full ID of the skill that the learner chose on the skill map, "novatrail/olympiad-math/
 	// skill/counting-gaps": empty when the engine leads.
 	Skill string `protobuf:"bytes,3,opt,name=skill,proto3" json:"skill,omitempty"`
-	// The provider of the learner's own key, by its code in the admission table, without the key: with
-	// a profile of its owner that checks the tasks by its own key, so that `api` judges the engine's
-	// pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route would begin a
-	// task, though the request calls no AI. Empty on platform AI (R84; R99).
+	// The provider of the learner's own key, by its code in the admission table, without the key:
+	// with a profile of its owner that checks the tasks by its own key, so that `api` judges the
+	// engine's pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route
+	// would begin a task, though the request calls no AI. Empty on platform AI (R84; R99).
 	OwnKeyProvider string `protobuf:"bytes,4,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -751,10 +751,10 @@ type OpenLessonRequest struct {
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The engine's choice of the lesson, `CHOICE_KIND_LESSON`.
 	ChoiceId string `protobuf:"bytes,2,opt,name=choice_id,json=choiceId,proto3" json:"choice_id,omitempty"`
-	// The provider of the learner's own key, by its code in the admission table, without the key: with
-	// a profile of its owner that checks the tasks by its own key, so that an engine's choice that a
-	// refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI. Empty on
-	// platform AI (R84; R99).
+	// The provider of the learner's own key, by its code in the admission table, without the key:
+	// with a profile of its owner that checks the tasks by its own key, so that an engine's choice
+	// that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
+	// Empty on platform AI (R84; R99).
 	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -864,10 +864,10 @@ type GetLessonRunRequest struct {
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The lesson run.
 	LessonRunId string `protobuf:"bytes,2,opt,name=lesson_run_id,json=lessonRunId,proto3" json:"lesson_run_id,omitempty"`
-	// The provider of the learner's own key, by its code in the admission table, without the key: with
-	// a profile of its owner that checks the tasks by its own key, so that an engine's choice that a
-	// refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI. Empty on
-	// platform AI (R84; R99).
+	// The provider of the learner's own key, by its code in the admission table, without the key:
+	// with a profile of its owner that checks the tasks by its own key, so that an engine's choice
+	// that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
+	// Empty on platform AI (R84; R99).
 	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -1062,10 +1062,10 @@ type CompleteLessonRequest struct {
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The lesson run.
 	LessonRunId string `protobuf:"bytes,2,opt,name=lesson_run_id,json=lessonRunId,proto3" json:"lesson_run_id,omitempty"`
-	// The provider of the learner's own key, by its code in the admission table, without the key: with
-	// a profile of its owner that checks the tasks by its own key, so that the engine's choice that
-	// the end of the run gives goes by that route, though the request calls no AI. Empty on platform
-	// AI (R84; R99).
+	// The provider of the learner's own key, by its code in the admission table, without the key:
+	// with a profile of its owner that checks the tasks by its own key, so that the engine's choice
+	// that the end of the run gives goes by that route, though the request calls no AI. Empty on
+	// platform AI (R84; R99).
 	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache

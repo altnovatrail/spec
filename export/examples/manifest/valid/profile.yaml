@@ -1,6 +1,6 @@
 # Synthetic: no learner's data. IDs, times and values are made up.
-format: 3
+format: 4
 scope: "profile"
 built_at: "2026-11-10T09:30:00Z"
 app_version: "0.1.0"
-api_format: "3"
+api_format: "4"

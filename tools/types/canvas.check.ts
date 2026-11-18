@@ -13,6 +13,9 @@ import type * as open from "@altnovatrail/spec/formatv0/open";
 declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   tool: canvas.Tool;
   task: open.Task | undefined;
+  paper: canvas.PaperTask | undefined;
+  get tracing(): canvas.TracingState | undefined;
+  set tracing(state: canvas.TracingState | undefined);
   workedExample: open.WorkedExample | undefined;
   get demoState(): canvas.DemoState | undefined;
   set demoState(state: canvas.DemoState | undefined);
@@ -52,6 +55,12 @@ export const history: readonly canvas.HistoryEvent[] = [
   { kind: "clear", t: 2000, ids: [1, 2] },
 ];
 
+/** A history of a task from paper: a stroke on the tracing paper, and one on the sheet. */
+export const traced: readonly canvas.HistoryEvent[] = [
+  { kind: "write", t: 300, on: "tracing", stroke: { id: 1, kind: "pen", points: [{ x: 40, y: 20, t: 0, p: 0.5 }] } },
+  { kind: "write", t: 800, stroke: { id: 2, kind: "pen", points: [{ x: 100, y: 700, t: 500, p: 0.5 }] } },
+];
+
 export const sheetSubmission: canvas.SheetSubmission = {
   crop: {
     drawn: 16,
@@ -66,7 +75,13 @@ export const sheetSubmission: canvas.SheetSubmission = {
   digest: "0123456789abcdef",
 };
 export const workbookSubmission: canvas.WorkbookSubmission = { boxes: [{ item: 1, slot: 2, ids: [1, 3] }], digest: "fedcba9876543210" };
-export const submissions: readonly canvas.Submission[] = [sheetSubmission, workbookSubmission];
+export const paperSubmission: canvas.PaperSubmission = {
+  crop: sheetSubmission.crop,
+  groups: [{ label: "A", ids: [1, 2] }],
+  tracing: { at: [60, 40], hidden: false },
+  digest: "00112233445566ff",
+};
+export const submissions: readonly canvas.Submission[] = [sheetSubmission, workbookSubmission, paperSubmission];
 
 sheet.tool = "eraser";
 sheet.task = task;
@@ -88,26 +103,30 @@ function unknown(value: never): never {
  * never sends.
  */
 export function markOf(mark: api.Mark, name: string): canvas.Mark | undefined {
-  let kind: canvas.Mark["kind"];
-  switch (mark.kind) {
-    case MarkKind.FRAME:
-      kind = "frame";
-      break;
-    case MarkKind.UNSPECIFIED:
-      return undefined;
-    default:
-      return unknown(mark.kind);
-  }
   const { place } = mark;
+  let at: canvas.Anchor;
   switch (place.case) {
     case "answerSlot":
-      return { kind, at: { cell: { item: place.value.item, slot: place.value.slot } }, name };
+      at = { cell: { item: place.value.item, slot: place.value.slot } };
+      break;
     case "cropBox":
-      return { kind, at: { box: [place.value.ymin, place.value.xmin, place.value.ymax, place.value.xmax] }, name };
+      at = { box: [place.value.ymin, place.value.xmin, place.value.ymax, place.value.xmax] };
+      break;
     case undefined:
       return undefined;
     default:
       return unknown(place);
+  }
+  switch (mark.kind) {
+    case MarkKind.FRAME:
+      return { kind: "frame", at, name };
+    case MarkKind.WAVY_LINE:
+      // A wavy line stands at a box alone: api sends it at no other place.
+      return "box" in at ? { kind: "wavy_line", at, name } : undefined;
+    case MarkKind.UNSPECIFIED:
+      return undefined;
+    default:
+      return unknown(mark.kind);
   }
 }
 
@@ -121,6 +140,7 @@ export const given: canvas.Marks = {
 sheet.marks = given;
 sheet.marks = { submission: workbookSubmission, marks: [{ kind: "frame", at: { cell: { item: 1, slot: 2 } }, name: "Tutor's mark 1 of 1: line 1, box 2" }] };
 sheet.marks = { submission: sheetSubmission, marks: [{ kind: "frame", at: { group: "A" }, name: "Tutor's mark 1 of 1" }] };
+sheet.marks = { submission: paperSubmission, marks: [{ kind: "wavy_line", at: { box: [400, 100, 480, 600] }, name: "Tutor's mark: where the mistake is" }] };
 sheet.marks = undefined;
 export const shown: canvas.Marks | undefined = sheet.marks;
 export const kept: readonly canvas.HistoryEvent[] = sheet.history;
@@ -137,8 +157,21 @@ sheet.demoState = { opened: 2, hidden: true };
 sheet.demoState = undefined;
 sheet.workedExample = undefined;
 
-/** The work's key tells its kind: the crop of a sheet, or the crops of a workbook's boxes. */
-export const sent: Blob | readonly Blob[] = "png" in done ? done.png : done.cells.map(({ png }) => png);
+/** A task from paper in place of the task, and where its tracing paper lies, which app keeps. */
+declare const statement: Blob;
+sheet.paper = { statement };
+sheet.history = traced;
+export const tracing: canvas.TracingState | undefined = sheet.tracing;
+sheet.tracing = { at: [0, 120], hidden: true };
+sheet.tracing = undefined;
+sheet.paper = undefined;
+
+/**
+ * The work's keys tell its kind: the crop of a sheet, the crops of a workbook's boxes, or a task
+ * from paper's two images.
+ */
+export const sent: Blob | readonly Blob[] =
+  "statement" in done ? [done.statement, done.png] : "png" in done ? done.png : done.cells.map(({ png }) => png);
 export const places: readonly canvas.CellPlace[] = "cells" in done ? done.cells : [];
 export const context: canvas.Submission = done.submission;
 
@@ -155,6 +188,10 @@ document.addEventListener("toolchange", (change) => {
 document.addEventListener("demochange", (change) => {
   const state: canvas.DemoState = change.detail;
   return state.opened;
+});
+document.addEventListener("tracingchange", (change) => {
+  const state: canvas.TracingState = change.detail;
+  return state.hidden;
 });
 
 // @ts-expect-error The filled boxes are the element's to tell, not the consumer's to set.
@@ -185,8 +222,25 @@ sheet.marks = null;
 sheet.marks = { marks: [] };
 // @ts-expect-error A mark has a name, which app writes: the element words nothing.
 export const unnamed: canvas.Mark = { kind: "frame", at: { cell: { item: 1, slot: 1 } } };
-// @ts-expect-error A frame is the one kind of a mark so far.
+// @ts-expect-error A frame and a wavy line are the kinds of a mark.
 export const arrow: canvas.Mark = { kind: "arrow", at: { group: "A" }, name: "Tutor's mark 1 of 1" };
+// @ts-expect-error A wavy line stands at a box on the crop alone, never at a cell.
+export const wavyCell: canvas.Mark = { kind: "wavy_line", at: { cell: { item: 1, slot: 1 } }, name: "Tutor's mark: where the mistake is" };
+// @ts-expect-error Nor at a group.
+export const wavyGroup: canvas.Mark = { kind: "wavy_line", at: { group: "A" }, name: "Tutor's mark: where the mistake is" };
+// @ts-expect-error A task from paper is its crop, not the address of one.
+sheet.paper = { statement: "page-1.jpg" };
+// @ts-expect-error The tracing paper's place is two numbers, [x, y].
+sheet.tracing = { at: [0], hidden: false };
+// @ts-expect-error A stroke goes on the tracing paper or on the sheet: no other layer.
+export const layered: canvas.HistoryEvent = { kind: "write", t: 0, on: "template", stroke: { id: 1, kind: "pen", points: [] } };
+// @ts-expect-error A context of a task from paper names where its tracing paper lay.
+export const untraced: canvas.PaperSubmission = { crop: sheetSubmission.crop, groups: [], digest: "00112233445566ff" };
+// @ts-expect-error A context of a task from paper is no sheet's: the union is exact.
+export const asSheet: canvas.SheetSubmission = paperSubmission;
+declare const paperWork: canvas.ExportedPaper;
+// @ts-expect-error Nor is its work a sheet's, though both have a PNG.
+export const asSheetWork: canvas.ExportedSheet = paperWork;
 // @ts-expect-error A box on the crop is four numbers, [ymin, xmin, ymax, xmax].
 export const corner: canvas.Anchor = { box: [0, 0] };
 document.addEventListener("historychange", (change) => {
@@ -200,6 +254,10 @@ document.addEventListener("toolchange", (change) => {
 document.addEventListener("demochange", (change) => {
   // @ts-expect-error The state told is how far the learner went, to read.
   change.detail.opened = 0;
+});
+document.addEventListener("tracingchange", (change) => {
+  // @ts-expect-error The state told is where the learner put the tracing paper, to read.
+  change.detail.hidden = true;
 });
 // @ts-expect-error A workbook's work has no PNG of a sheet: its key tells which it is.
 export const png: Blob = done.png;

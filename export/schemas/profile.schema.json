@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/3/profile.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/4/profile.schema.json",
   "title": "Profile",
   "description": "A profile and every record of it, api/profiles/<id>.json (section 4 of the text of the part).",
   "type": "object",
   "properties": {
     "format": {
-      "const": 3,
+      "const": 4,
       "description": "The version of the part, the integer in export/VERSION."
     },
     "profile_id": {
@@ -58,6 +58,13 @@
       ],
       "description": "The default mode of the screen of a task."
     },
+    "hint_mode": {
+      "enum": [
+        "questions_only",
+        "show_where"
+      ],
+      "description": "The hint mode: whether a task from paper gets the wavy line with the words of a rung, \"show_where\", or the words alone, \"questions_only\" (R162)."
+    },
     "interface_language": {
       "type": "string",
       "maxLength": 10000,
@@ -106,6 +113,15 @@
         "description": "The profile's attempts, open and closed: one of them."
       },
       "description": "The profile's attempts, open and closed."
+    },
+    "paper_attempts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/paper_attempt",
+        "unevaluatedProperties": false,
+        "description": "An open attempt of a task from paper: one of them."
+      },
+      "description": "The profile's open attempts of tasks from paper, those of one page: api keeps one only while it is open, and nothing of it once it ends (R162; privacy 4.1). Their page, crops and work are the device's, under paper/."
     },
     "choices": {
       "type": "array",
@@ -181,12 +197,14 @@
     "country",
     "presentation_style",
     "default_mode",
+    "hint_mode",
     "ask_before_showing",
     "active_on",
     "consent",
     "connected_modules",
     "lesson_runs",
     "attempts",
+    "paper_attempts",
     "choices",
     "evidence",
     "state",
@@ -534,6 +552,66 @@
         "step_technique_ids",
         "requested_technique_ids",
         "traps",
+        "rungs",
+        "correct_answer_words_given",
+        "submissions"
+      ]
+    },
+    "paper_attempt": {
+      "type": "object",
+      "properties": {
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The attempt's ID, which the task of its page in paper/ names."
+        },
+        "begun_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the attempt began."
+        },
+        "last_action_at": {
+          "$ref": "common.schema.json#/$defs/time",
+          "description": "When the learner last acted on it."
+        },
+        "key_source": {
+          "enum": [
+            "solver",
+            "ai",
+            "none"
+          ],
+          "description": "Where the attempt's key came from: the solver, two agreeing solutions of AI, or none, when they did not agree; absent before a submission derived it. The key itself is the program's and never reaches the device (R05)."
+        },
+        "wrong_answers": {
+          "type": "integer",
+          "description": "The attempt's wrong answers."
+        },
+        "rungs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rung",
+            "unevaluatedProperties": false,
+            "description": "A rung given: one of them."
+          },
+          "description": "The rungs given, in order, with their words."
+        },
+        "correct_answer_words_given": {
+          "type": "boolean",
+          "description": "Whether the words after a correct answer were given."
+        },
+        "submissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/submission",
+            "unevaluatedProperties": false,
+            "description": "A submission: one of them."
+          },
+          "description": "Each submission, in order, with its verdict, what was read and its observation."
+        }
+      },
+      "required": [
+        "attempt_id",
+        "begun_at",
+        "last_action_at",
+        "wrong_answers",
         "rungs",
         "correct_answer_words_given",
         "submissions"
@@ -894,12 +972,16 @@
         },
         "attempt_id": {
           "$ref": "common.schema.json#/$defs/id",
-          "description": "The attempt the evidence is of; one per attempt. An adult's correction of the module's level, whose evidence has level_set_by_adult, is of no attempt: it holds the correction's ID."
+          "description": "The attempt the evidence is of; one per attempt. Absent from an adult's correction of the module's level, whose evidence has level_set_by_adult and which is of no attempt."
+        },
+        "correction_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The ID of an adult's correction of the module's level, whose evidence has level_set_by_adult (R157): absent from the evidence of an attempt."
         },
         "package_digest": {
           "type": "string",
           "maxLength": 10000,
-          "description": "The digest of the attempt's package, by which wrong_key versions are filtered. For an adult's correction of the module's level, the digest of the package of the module's current version, which no wrong_key version filters out."
+          "description": "The digest of the package the evidence is of: of the attempt, by which wrong_key versions filter the evidence of attempts; of an adult's correction, the package of the module's current version, which no wrong_key version filters out."
         },
         "module_id": {
           "type": "string",
@@ -916,11 +998,24 @@
       },
       "required": [
         "seq",
-        "attempt_id",
         "package_digest",
         "module_id",
         "recorded_at",
         "evidence"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "attempt_id"
+          ],
+          "description": "The evidence of an attempt."
+        },
+        {
+          "required": [
+            "correction_id"
+          ],
+          "description": "The evidence of an adult's correction of the module's level."
+        }
       ]
     },
     "state_entry_module": {

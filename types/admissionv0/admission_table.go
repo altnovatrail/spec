@@ -66,8 +66,10 @@ type CapabilityRule struct {
 //
 // A capability of AI (concepts 10): reading handwriting, reading text, the analysis of a solution's
 // steps, the assessment by a rubric, the hint, the words after a correct answer — the praise of a
-// step and the question of which technique helped —, and voice — the voicing of the tutor by a
-// provider and the learner's voice input, which are one capability for now.
+// step and the question of which technique helped —, voice — the voicing of the tutor by a provider
+// and the learner's voice input, which are one capability for now —, and for a task from paper the
+// finding of the tasks on the photo of a page, the reading of a task's statement into a formula for
+// the solver, and the solving of a task for its key.
 type Capability string
 
 // The values of Capability.
@@ -79,6 +81,9 @@ const (
 	CapabilityHint               Capability = "hint"
 	CapabilityCorrectAnswerWords Capability = "correct_answer_words"
 	CapabilityVoice              Capability = "voice"
+	CapabilityTaskFinding        Capability = "task_finding"
+	CapabilityStatementReading   Capability = "statement_reading"
+	CapabilityTaskSolving        Capability = "task_solving"
 )
 
 // AgeCategory is the type of admission-table.schema.json#/$defs/age_category.

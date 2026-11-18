@@ -158,15 +158,17 @@ export const LessonRunRefSchema = /*@__PURE__*/
  * `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, a request of a
  * profile whose consent is not confirmed `CAUSE_NO_CONSENT`, one of a profile whose age is to be
  * given again `CAUSE_AGE_NEEDED`, and a request whose form the contract refuses the code
- * `invalid_argument` with no `Refusal`. A profile has one open attempt: a new one closes the one
- * before `CLOSE_REASON_LEFT`. A lesson run goes on the package it began on, and every attempt of
- * its task segments too. `app` keeps the place in a lesson and the state of its demos by the key
- * "lesson's full ID, package digest", beside the ID of the run: the state of another run under the
- * same key it drops, and it erases the state of the lesson at every end of the run, in an answer
- * or in a refusal. An engine's choice that an answer or a refusal gives goes by the route to AI that
- * the request names, the own key's by `own_key_provider` or platform AI's without it, so that it
- * gives nothing that `BeginAttempt` by the same route would refuse; a profile not of the category
- * `adult` that names a provider gets `CAUSE_KEY_NOT_FOR_PROFILE` (R84; R99).
+ * `invalid_argument` with no `Refusal`. A profile has one open attempt of a task of a module: a new
+ * one closes the one before `CLOSE_REASON_LEFT`, and leaves as they are the open attempts of tasks
+ * from paper, which `PaperService` begins (R162). A lesson run goes on the package it began on, and
+ * every attempt of its task segments too. `app` keeps the place in a lesson and the state of its
+ * demos by the key "lesson's full ID, package digest", beside the ID of the run: the state of
+ * another run under the same key it drops, and it erases the state of the lesson at every end of
+ * the run, in an answer or in a refusal. An engine's choice that an answer or a refusal gives goes
+ * by the route to AI that the request names, the own key's by `own_key_provider` or platform AI's
+ * without it, so that it gives nothing that `BeginAttempt` by the same route would refuse; a
+ * profile not of the category `adult` that names a provider gets `CAUSE_KEY_NOT_FOR_PROFILE` (R84;
+ * R99).
  *
  * @generated from service novatrail.api.v1.LearningService
  */

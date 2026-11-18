@@ -61,6 +61,10 @@ const EXPORT_V1 = "exportv1";
 // exportv3, in place of exportv2, which the line 0.17 holds (R151).
 export const EXPORT_V3_LINE = "0.18";
 const EXPORT_V2 = "exportv2";
+// spec's first line whose package holds the types of the format of the export's version 4,
+// exportv4, in place of exportv3, which the line 0.18 holds: the works of tasks from paper (R162).
+export const EXPORT_V4_LINE = "0.19";
+const EXPORT_V3 = "exportv3";
 // The package's folder of the page, as format/ holds it, and the repository's, which tools/types
 // writes.
 const PAGE = "format";
@@ -106,7 +110,8 @@ const holdsLegal = (version) => fromLine(version, FIRST_LEGAL_LINE);
 const legalPackageOf = (version) => (fromLine(version, LEGAL_V3_LINE) ? LEGAL_PACKAGE : fromLine(version, LEGAL_V2_LINE) ? LEGAL_V2 : LEGAL_V1);
 const holdsConsentAge = (version) => fromLine(version, FIRST_CONSENT_AGE_LINE);
 const holdsExport = (version) => fromLine(version, FIRST_EXPORT_LINE);
-const exportPackageOf = (version) => (fromLine(version, EXPORT_V3_LINE) ? EXPORT_PACKAGE : fromLine(version, EXPORT_V2_LINE) ? EXPORT_V2 : EXPORT_V1);
+const exportPackageOf = (version) =>
+  fromLine(version, EXPORT_V4_LINE) ? EXPORT_PACKAGE : fromLine(version, EXPORT_V3_LINE) ? EXPORT_V3 : fromLine(version, EXPORT_V2_LINE) ? EXPORT_V2 : EXPORT_V1;
 
 // The name npm pack gives the package's archive of version: the scope's @ dropped, its / a dash.
 export function archiveOf(version) {

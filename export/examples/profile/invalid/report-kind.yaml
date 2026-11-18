@@ -1,6 +1,6 @@
 # error: enum at #/problem_reports/0/kind
 # A report names a word of the closed set.
-format: 3
+format: 4
 profile_id: "p-2"
 owner: false
 pseudonym: "Orbit"
@@ -12,6 +12,7 @@ presentation_style:
     enabled: false
     speed: "normal"
 default_mode: "by_steps"
+hint_mode: "show_where"
 ask_before_showing: false
 active_on: "2026-11-10"
 consent:
@@ -29,6 +30,7 @@ consent:
 connected_modules: []
 lesson_runs: []
 attempts: []
+paper_attempts: []
 choices: []
 evidence: []
 state:

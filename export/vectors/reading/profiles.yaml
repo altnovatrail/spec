@@ -3,13 +3,13 @@
 cases:
   - files:
       manifest.json:
-        format: 3
+        format: 4
         scope: "account"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "3"
+        api_format: "4"
       api/account.json:
-        format: 3
+        format: 4
         account_id: "account-1"
         adult_stated_at: "2026-11-10T09:30:00Z"
         tariff: "invite"
@@ -47,7 +47,7 @@ cases:
 
         syntax = \"proto3\";\n"
       api/profiles/p-9.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -59,6 +59,7 @@ cases:
             enabled: false
             speed: "normal"
         default_mode: "by_steps"
+        hint_mode: "show_where"
         ask_before_showing: false
         active_on: "2026-11-10"
         consent:
@@ -114,6 +115,7 @@ cases:
                       value: "12"
             close_reason: "correct"
             closed_at: "2026-11-10T09:40:00Z"
+        paper_attempts: []
         choices: []
         evidence:
           - seq: 1
@@ -153,7 +155,7 @@ cases:
         age_stated_on: "2026-11-10"
         consent_age: 13
       device/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"

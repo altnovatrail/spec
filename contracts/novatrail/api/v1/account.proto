@@ -4,10 +4,10 @@ syntax = "proto3";
 // its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of the
 // account's owner and a child's profile, which a consent comes before; how a consent is given,
 // confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
-// of the section for adults; the voicing a learner sets; the storage of works; the own key checked
-// when it is connected; the share of the quota of platform AI; deletion and export. What each
-// message means, and what `app` does on each refusal, are the rules of contracts/README.md,
-// section 15.
+// of the section for adults; the voicing and the hint mode a learner sets; the storage of works;
+// the own key checked when it is connected; the share of the quota of platform AI; deletion and
+// export. What each message means, and what `app` does on each refusal, are the rules of
+// contracts/README.md, section 15.
 package novatrail.api.v1;
 
 import "google/protobuf/timestamp.proto";
@@ -148,6 +148,9 @@ service AccountService {
   // screen of a task: a learning request with the right `can_learn`. Refusals:
   // `CAUSE_NO_PROFILE`.
   rpc SetVoicing(SetVoicingRequest) returns (SetVoicingResponse);
+  // Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
+  // with the right `can_learn` (R162). Refusals: `CAUSE_NO_PROFILE`.
+  rpc SetHintMode(SetHintModeRequest) returns (SetHintModeResponse);
   // Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
   // consent by the text `storage-consent`, which the one who consents for the learner gives: an
   // action of an adult with the right `can_manage`, and at a profile whose learner gave their own
@@ -287,7 +290,9 @@ message Profile {
   // A child's setting, which an adult sets: the solution is shown by an action of an adult.
   // Always false on a profile of the category `adult`.
   bool ask_before_showing = 11;
-  // The profile's open attempt: absent when it has none. A profile has one open attempt at most.
+  // The profile's open attempt of a task of a module: absent when it has none. A profile has one
+  // at most; the open attempts of tasks from paper are not named here, since only the device that
+  // holds their page goes on with them (R162).
   OpenAttemptRef open_attempt = 12;
   // The profile's open lesson runs, one at most for each lesson.
   repeated LessonRunRef open_lesson_runs = 13;
@@ -298,6 +303,9 @@ message Profile {
   bool age_check_due = 15;
   // Whether the storage of the profile's works on the server is on (R113).
   bool work_storage = 16;
+  // The hint mode: whether a task from paper gets the wavy line with the words of a rung. It goes
+  // to no AI (R162).
+  HintMode hint_mode = 17;
 }
 
 // The consent of a profile.
@@ -379,10 +387,10 @@ enum Mode {
 
 // The settings of a profile that an adult sets, when a profile is created or changed. A field sent
 // is set; a field left out stays as it is, and on a new profile takes its default: the mode "by
-// steps", the voicing on at the category `under_13` and off at the others, at normal speed, and on
-// a child's profile "ask before showing" on. `app` sends only what changed, so it never writes back
-// a value its build does not know. A field whose form the contract refuses gets the code
-// `invalid_argument`.
+// steps", the hint mode "Show where", the voicing on at the category `under_13` and off at the
+// others, at normal speed, and on a child's profile "ask before showing" on. `app` sends only what
+// changed, so it never writes back a value its build does not know. A field whose form the contract
+// refuses gets the code `invalid_argument`.
 message ProfileSettings {
   // The pseudonym: from 1 to 30 Unicode code points once the spaces at its ends are trimmed.
   // Needed when a profile is created.
@@ -402,6 +410,19 @@ message ProfileSettings {
   // "Ask before showing" the solution: a child's alone, and on a profile of the category `adult`
   // the request is refused `invalid_argument`.
   optional bool ask_before_showing = 7;
+  // The hint mode: `HINT_MODE_UNSPECIFIED` leaves it as it is.
+  HintMode hint_mode = 8;
+}
+
+// The hint mode of a profile (concepts 10; R162).
+enum HintMode {
+  // Not named: in a request, the mode stays as it is, and a new profile's is "Show where".
+  HINT_MODE_UNSPECIFIED = 0;
+  // "Questions only": after "not yet" a task from paper gets the words of the rung alone.
+  HINT_MODE_QUESTIONS_ONLY = 1;
+  // "Show where": after "not yet" a task from paper gets, with the words of the rung, the wavy line
+  // under the place of the first mistake. A task of a module keeps its frame in either mode.
+  HINT_MODE_SHOW_WHERE = 2;
 }
 
 // A consent for a child: what `api` records before the child's profile exists.
@@ -664,6 +685,20 @@ message SetVoicingResponse {
   Profile profile = 1;
 }
 
+// The hint mode set from the profile's menu.
+message SetHintModeRequest {
+  // The profile.
+  string profile_id = 1;
+  // The hint mode: `HINT_MODE_UNSPECIFIED` gets `invalid_argument`.
+  HintMode hint_mode = 2;
+}
+
+// The profile with its hint mode.
+message SetHintModeResponse {
+  // The profile.
+  Profile profile = 1;
+}
+
 // The storage of works switched on or off.
 message SetWorkStorageRequest {
   // The profile.
@@ -806,10 +841,11 @@ message GetQuotaResponse {
 // share of a cap, never a sum in dollars and no cap (concepts 14; R11 api). The caps are the
 // account's tariff's; the tariff itself comes with what is decided of tariffs (product 13, О-14).
 message QuotaShare {
-  // The share of the profile's cap that the profile's spending of the family day takes, as its calls
-  // were settled, without the reserves of calls still going, so that within a day it only grows: in
-  // whole percent from 0 to 100, rounded down, so that 100 is the cap reached; spending past the cap
-  // is 100 too. Absent when the account's tariff has no caps: platform AI is closed to it (R11 api).
+  // The share of the profile's cap that the profile's spending of the family day takes, as its
+  // calls were settled, without the reserves of calls still going, so that within a day it only
+  // grows: in whole percent from 0 to 100, rounded down, so that 100 is the cap reached; spending
+  // past the cap is 100 too. Absent when the account's tariff has no caps: platform AI is closed to
+  // it (R11 api).
   optional int32 profile_percent = 1;
   // Beside an action of an adult: the same share of the account's cap, which every profile of the
   // account spends. Absent beside a learning action, so that a child never sees what the family

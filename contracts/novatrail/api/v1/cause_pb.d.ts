@@ -120,7 +120,8 @@ export declare const RefusalSchema: GenMessage<Refusal>;
 export declare type Outcome = Message<"novatrail.api.v1.Outcome"> & {
   /**
    * The outcome: `CAUSE_AI_FAILURE`, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT`,
-   * `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED` or `CAUSE_NO_OTHER_WORDS`.
+   * `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED`, `CAUSE_NO_OTHER_WORDS` or,
+   * on a task from paper, `CAUSE_NO_KEY`.
    * "Explain differently" makes no call without the reserve of the quota: there the quota, the limit
    * of platform AI and no admission are refusals, and the right to it on the rung stays. Beside an
    * engine's choice that gives nothing: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` or
@@ -405,8 +406,8 @@ export enum Cause {
   LADDER_NOT_PASSED = 14,
 
   /**
-   * The task has nothing to show by this request: a task with a rubric, which "Done" ends. Code
-   * `failed_precondition`.
+   * The task has nothing to show by this request: a task with a rubric, which "Done" ends, and a
+   * task from paper, whose solution is never shown (R162). Code `failed_precondition`.
    *
    * @generated from enum value: CAUSE_NO_SHOWING = 15;
    */
@@ -683,6 +684,15 @@ export enum Cause {
    * @generated from enum value: CAUSE_BAND_NOT_NEXT = 46;
    */
   BAND_NOT_NEXT = 46,
+
+  /**
+   * A task from paper has no key: the two independent solutions of AI gave different answers, so
+   * no verdict is given, "Couldn't check this one", and the hints still are (R162). An outcome
+   * alone, of every submission of the attempt, with no AI once the first gave it.
+   *
+   * @generated from enum value: CAUSE_NO_KEY = 47;
+   */
+  NO_KEY = 47,
 }
 
 /**

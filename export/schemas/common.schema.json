@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/3/common.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/4/common.schema.json",
   "title": "Common definitions",
-  "description": "What the files of an export share: IDs, times, days, the age categories, consents, counters of quota and what a stored work is (section 4 of the text of the part).",
+  "description": "What the files of an export share: IDs, times, days, the age categories, consents, counters of quota, what a stored work is, and an image and a frame of a page from paper (section 4 of the text of the part).",
   "$defs": {
     "work_submission": {
       "type": "object",
@@ -40,7 +40,42 @@
       "pattern": "^[A-Za-z0-9_-][A-Za-z0-9._-]*$",
       "minLength": 1,
       "maxLength": 200,
-      "description": "An ID that names a file of the export, a profile's or an attempt's, as api gives it: 1 to 200 letters, digits, -, _ and ., the first not a ., so that it is one part of a path, never . or .. (section 3)."
+      "description": "An ID that names a file of the export — a profile's or an attempt's, as api gives it, or a page's from paper, as app gives it —: 1 to 200 letters, digits, -, _ and ., the first not a ., so that it is one part of a path, never . or .. (section 3)."
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "media_type": {
+          "enum": [
+            "image/jpeg",
+            "image/png"
+          ],
+          "description": "What the image is: a JPEG or a PNG."
+        },
+        "data": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 5592408,
+          "pattern": "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+          "description": "The image's bytes, at most 4 MiB, in base64 (RFC 4648, section 4)."
+        }
+      },
+      "required": [
+        "media_type",
+        "data"
+      ],
+      "description": "An image of a page from paper, as the device holds it: its type and its bytes in base64."
+    },
+    "thousandths_box": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1000
+      },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "A box [ymin, xmin, ymax, xmax] in whole thousandths of the height and the width of an image."
     },
     "time": {
       "type": "string",

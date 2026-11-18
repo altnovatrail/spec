@@ -6,10 +6,10 @@
 // its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of the
 // account's owner and a child's profile, which a consent comes before; how a consent is given,
 // confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
-// of the section for adults; the voicing a learner sets; the storage of works; the own key checked
-// when it is connected; the share of the quota of platform AI; deletion and export. What each
-// message means, and what `app` does on each refusal, are the rules of contracts/README.md,
-// section 15.
+// of the section for adults; the voicing and the hint mode a learner sets; the storage of works;
+// the own key checked when it is connected; the share of the quota of platform AI; deletion and
+// export. What each message means, and what `app` does on each refusal, are the rules of
+// contracts/README.md, section 15.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -250,7 +250,9 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
   askBeforeShowing: boolean;
 
   /**
-   * The profile's open attempt: absent when it has none. A profile has one open attempt at most.
+   * The profile's open attempt of a task of a module: absent when it has none. A profile has one
+   * at most; the open attempts of tasks from paper are not named here, since only the device that
+   * holds their page goes on with them (R162).
    *
    * @generated from field: novatrail.api.v1.OpenAttemptRef open_attempt = 12;
    */
@@ -284,6 +286,14 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
    * @generated from field: bool work_storage = 16;
    */
   workStorage: boolean;
+
+  /**
+   * The hint mode: whether a task from paper gets the wavy line with the words of a rung. It goes
+   * to no AI (R162).
+   *
+   * @generated from field: novatrail.api.v1.HintMode hint_mode = 17;
+   */
+  hintMode: HintMode;
 };
 
 /**
@@ -381,10 +391,10 @@ export declare const VoicingSchema: GenMessage<Voicing>;
 /**
  * The settings of a profile that an adult sets, when a profile is created or changed. A field sent
  * is set; a field left out stays as it is, and on a new profile takes its default: the mode "by
- * steps", the voicing on at the category `under_13` and off at the others, at normal speed, and on
- * a child's profile "ask before showing" on. `app` sends only what changed, so it never writes back
- * a value its build does not know. A field whose form the contract refuses gets the code
- * `invalid_argument`.
+ * steps", the hint mode "Show where", the voicing on at the category `under_13` and off at the
+ * others, at normal speed, and on a child's profile "ask before showing" on. `app` sends only what
+ * changed, so it never writes back a value its build does not know. A field whose form the contract
+ * refuses gets the code `invalid_argument`.
  *
  * @generated from message novatrail.api.v1.ProfileSettings
  */
@@ -441,6 +451,13 @@ export declare type ProfileSettings = Message<"novatrail.api.v1.ProfileSettings"
    * @generated from field: optional bool ask_before_showing = 7;
    */
   askBeforeShowing?: boolean | undefined;
+
+  /**
+   * The hint mode: `HINT_MODE_UNSPECIFIED` leaves it as it is.
+   *
+   * @generated from field: novatrail.api.v1.HintMode hint_mode = 8;
+   */
+  hintMode: HintMode;
 };
 
 /**
@@ -1234,6 +1251,53 @@ export declare type SetVoicingResponse = Message<"novatrail.api.v1.SetVoicingRes
 export declare const SetVoicingResponseSchema: GenMessage<SetVoicingResponse>;
 
 /**
+ * The hint mode set from the profile's menu.
+ *
+ * @generated from message novatrail.api.v1.SetHintModeRequest
+ */
+export declare type SetHintModeRequest = Message<"novatrail.api.v1.SetHintModeRequest"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The hint mode: `HINT_MODE_UNSPECIFIED` gets `invalid_argument`.
+   *
+   * @generated from field: novatrail.api.v1.HintMode hint_mode = 2;
+   */
+  hintMode: HintMode;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SetHintModeRequest.
+ * Use `create(SetHintModeRequestSchema)` to create a new message.
+ */
+export declare const SetHintModeRequestSchema: GenMessage<SetHintModeRequest>;
+
+/**
+ * The profile with its hint mode.
+ *
+ * @generated from message novatrail.api.v1.SetHintModeResponse
+ */
+export declare type SetHintModeResponse = Message<"novatrail.api.v1.SetHintModeResponse"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: novatrail.api.v1.Profile profile = 1;
+   */
+  profile?: Profile | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SetHintModeResponse.
+ * Use `create(SetHintModeResponseSchema)` to create a new message.
+ */
+export declare const SetHintModeResponseSchema: GenMessage<SetHintModeResponse>;
+
+/**
  * The storage of works switched on or off.
  *
  * @generated from message novatrail.api.v1.SetWorkStorageRequest
@@ -1639,10 +1703,11 @@ export declare const GetQuotaResponseSchema: GenMessage<GetQuotaResponse>;
  */
 export declare type QuotaShare = Message<"novatrail.api.v1.QuotaShare"> & {
   /**
-   * The share of the profile's cap that the profile's spending of the family day takes, as its calls
-   * were settled, without the reserves of calls still going, so that within a day it only grows: in
-   * whole percent from 0 to 100, rounded down, so that 100 is the cap reached; spending past the cap
-   * is 100 too. Absent when the account's tariff has no caps: platform AI is closed to it (R11 api).
+   * The share of the profile's cap that the profile's spending of the family day takes, as its
+   * calls were settled, without the reserves of calls still going, so that within a day it only
+   * grows: in whole percent from 0 to 100, rounded down, so that 100 is the cap reached; spending
+   * past the cap is 100 too. Absent when the account's tariff has no caps: platform AI is closed to
+   * it (R11 api).
    *
    * @generated from field: optional int32 profile_percent = 1;
    */
@@ -1836,6 +1901,40 @@ export enum Mode {
  * Describes the enum novatrail.api.v1.Mode.
  */
 export declare const ModeSchema: GenEnum<Mode>;
+
+/**
+ * The hint mode of a profile (concepts 10; R162).
+ *
+ * @generated from enum novatrail.api.v1.HintMode
+ */
+export enum HintMode {
+  /**
+   * Not named: in a request, the mode stays as it is, and a new profile's is "Show where".
+   *
+   * @generated from enum value: HINT_MODE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * "Questions only": after "not yet" a task from paper gets the words of the rung alone.
+   *
+   * @generated from enum value: HINT_MODE_QUESTIONS_ONLY = 1;
+   */
+  QUESTIONS_ONLY = 1,
+
+  /**
+   * "Show where": after "not yet" a task from paper gets, with the words of the rung, the wavy line
+   * under the place of the first mistake. A task of a module keeps its frame in either mode.
+   *
+   * @generated from enum value: HINT_MODE_SHOW_WHERE = 2;
+   */
+  SHOW_WHERE = 2,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.HintMode.
+ */
+export declare const HintModeSchema: GenEnum<HintMode>;
 
 /**
  * Where the scan of a parent's signed form stands. A state its build does not know `app` reads as
@@ -2225,6 +2324,17 @@ export declare const AccountService: GenService<{
     methodKind: "unary";
     input: typeof SetVoicingRequestSchema;
     output: typeof SetVoicingResponseSchema;
+  },
+  /**
+   * Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
+   * with the right `can_learn` (R162). Refusals: `CAUSE_NO_PROFILE`.
+   *
+   * @generated from rpc novatrail.api.v1.AccountService.SetHintMode
+   */
+  setHintMode: {
+    methodKind: "unary";
+    input: typeof SetHintModeRequestSchema;
+    output: typeof SetHintModeResponseSchema;
   },
   /**
    * Switches the storage of a profile's works on the server on or off (R113). Switching it on is a

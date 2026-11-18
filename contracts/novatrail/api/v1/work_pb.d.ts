@@ -412,8 +412,10 @@ export declare const WorkService: GenService<{
    * image does not know the attempt's package digest, whatever work of the attempt was kept before,
    * and `CAUSE_VERSION_NOT_GIVEN` when the attempt's version is out of the window of formats that
    * `api` reads and no work of the attempt was kept before, so that its kind cannot be known; a
-   * withdrawn version, which the image still holds, gives the kind by its task. On each refusal
-   * `api` keeps nothing of the work, and `app` keeps it on the device alone.
+   * withdrawn version, which the image still holds, gives the kind by its task. An attempt of a
+   * task from paper gets `invalid_argument`: its work is never a stored work, and stays in the
+   * profile's history on the device (R162). On each refusal `api` keeps nothing of the work, and
+   * `app` keeps it on the device alone.
    *
    * @generated from rpc novatrail.api.v1.WorkService.PutWork
    */

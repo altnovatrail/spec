@@ -3,7 +3,8 @@
 // which computes what each vector of reading gives.
 //
 // An export is read unpacked: its files by their paths, the outer ZIP's at the root — the stored
-// works among them, under works/ — and the files of api.zip under api/, as the text lays them out.
+// works among them, under works/, and the pages from paper, under paper/ — and the files of api.zip
+// under api/, as the text lays them out.
 // A file of JSON is its value as JSON reads it, and a .proto file its text.
 
 import { byCodeUnits } from "../shared.mjs";
@@ -14,15 +15,17 @@ export const FILES = "export.files";
 export const SCOPE = "export.scope";
 export const PROFILES = "export.profiles";
 export const WORKS = "export.works";
+export const PAPER = "export.paper";
 export const CASE = "export.case";
 export const PROTO = "export.proto";
-export const RULES = [FILES, SCOPE, PROFILES, WORKS, CASE, PROTO];
+export const RULES = [FILES, SCOPE, PROFILES, WORKS, PAPER, CASE, PROTO];
 
 export const MANIFEST = "manifest.json";
 export const ACCOUNT = "api/account.json";
 const PROFILE = /^api\/profiles\/([^/]+)\.json$/;
 const DEVICE = /^device\/([^/]+)\.json$/;
 const WORK = /^works\/([^/]+)\/([^/]+)\.json$/;
+const PAGE = /^paper\/([^/]+)\/([^/]+)\.json$/;
 const PROTO_FILE = /^api\/proto\/(?:[a-z0-9_]+\/)+[a-z0-9_]+\.proto$/;
 // The schemas of .proto that a profile's records are written by: the messages of
 // learner-model for the log and the state, and the observation of the contracts.
@@ -37,6 +40,7 @@ export function termOf(file) {
   if (PROFILE.test(file)) return "profile";
   if (DEVICE.test(file)) return "device";
   if (WORK.test(file)) return "work";
+  if (PAGE.test(file)) return "paper";
   return null;
 }
 
@@ -58,6 +62,7 @@ export function readingOf(validators, files) {
     [SCOPE, () => scopeBreaches(files)],
     [PROFILES, () => profileBreaches(files)],
     [WORKS, () => workBreaches(files)],
+    [PAPER, () => paperBreaches(files)],
     [CASE, () => caseBreaches(files)],
     [PROTO, () => protoBreaches(files)],
   ]) {
@@ -143,10 +148,36 @@ function workBreaches(files) {
   return names;
 }
 
-// export.case: no two profiles, and no two stored works of a profile, have IDs that are one once
-// the capital letters A–Z are read as small, since a file system that does not tell letter case
-// apart would make their files and folders one. Names the files of each such profile, or work. Run
-// after export.works, so that each work's file is of a work its profile names.
+// export.paper: each page from paper is of a profile the part of api holds, and of the profile and
+// the page its path names; each of its tasks names one of its frames; and no attempt is the task
+// of two pages, or twice of one, of a profile. Run after export.profiles, so that the part of api
+// holds a profile's file by its ID.
+function paperBreaches(files) {
+  const names = [];
+  const profiles = new Set(Object.keys(files).flatMap((file) => PROFILE.exec(file)?.slice(1, 2) ?? []));
+  const attempts = new Map();
+  for (const [file, value] of Object.entries(files).sort(([a], [b]) => byCodeUnits(a, b))) {
+    const match = PAGE.exec(file);
+    if (!match) continue;
+    if (!profiles.has(match[1])) names.push(file);
+    if (value.profile_id !== match[1]) names.push(`${file}#profile_id`);
+    if (value.page_id !== match[2]) names.push(`${file}#page_id`);
+    value.tasks.forEach((task, index) => {
+      if (task.frame > value.frames.length) names.push(`${file}#tasks.${index}.frame`);
+      const key = `${match[1]}/${task.attempt_id}`;
+      // An attempt is the task of one page once: a second is named by its place.
+      if (attempts.has(key)) names.push(`${file}#tasks.${index}.attempt_id`);
+      else attempts.set(key, file);
+    });
+  }
+  return names;
+}
+
+// export.case: no two profiles, no two stored works of a profile, and no two pages from paper of a
+// profile have IDs that are one once the capital letters A–Z are read as small, since a file system
+// that does not tell letter case apart would make their files and folders one. Names the files of
+// each such profile, work or page. Run after export.works and export.paper, so that each work's file
+// is of a work its profile names, and each page's of its profile.
 function caseBreaches(files) {
   const names = [];
   const folded = (id) => id.replace(/[A-Z]/g, (letter) => letter.toLowerCase());
@@ -162,6 +193,7 @@ function caseBreaches(files) {
   };
   clash(PROFILE, ([, profile]) => folded(profile));
   clash(WORK, ([, profile, attempt]) => `${profile}/${folded(attempt)}`);
+  clash(PAGE, ([, profile, page]) => `${profile}/${folded(page)}`);
   return names;
 }
 
@@ -174,13 +206,15 @@ export function instantOf(time) {
 
 // export.proto: a profile comes with the .proto files its records of protobuf are written by, in
 // api/proto/: learner-model's always, as a profile always has its state, and the observation's when
-// it has a submission, whose answer slots and observation are messages of it.
+// it has a submission, of a task of a module or of a task from paper, whose answer slots and
+// observation are messages of it.
 function protoBreaches(files) {
   const needed = new Set();
   for (const [file, value] of Object.entries(files)) {
     if (!PROFILE.test(file)) continue;
     for (const proto of LEARNER_MODEL_PROTO) needed.add(proto);
-    if (value.attempts.some((attempt) => attempt.submissions.length)) for (const proto of OBSERVATION_PROTO) needed.add(proto);
+    const attempts = [...value.attempts, ...value.paper_attempts];
+    if (attempts.some((attempt) => attempt.submissions.length)) for (const proto of OBSERVATION_PROTO) needed.add(proto);
   }
   return [...needed].filter((proto) => !Object.hasOwn(files, proto));
 }

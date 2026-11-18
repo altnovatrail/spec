@@ -93,33 +93,34 @@ var (
 // LearningServiceClient is a client for the novatrail.api.v1.LearningService service.
 type LearningServiceClient interface {
 	// "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
-	// when the learner asks for it, or when nothing is open. It closes the open attempt
-	// `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to. The
-	// choice gives a lesson or a task, or nothing, with the outcome that says why, by the route the
-	// request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected has,
-	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
-	// the same idempotency key gets the same choice.
+	// when the learner asks for it, or when nothing is open. It closes the open attempt of a task of
+	// a module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back
+	// to. The choice gives a lesson or a task, or nothing, with the outcome that says why, by the
+	// route the request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected
+	// has, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
+	// with the same idempotency key gets the same choice.
 	ChooseNext(context.Context, *v1.ChooseNextRequest) (*v1.ChooseNextResponse, error)
 	// Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
-	// same task again. It closes the open attempt `CLOSE_REASON_LEFT`. A choice begins one attempt:
-	// once it has, another request by it gets `CAUSE_ALREADY_EXISTS`, and `app` reads the open
-	// attempt of the profile; a choice of a lesson gets `invalid_argument`. An attempt on a segment
-	// of a run whose package the image no longer gives ends the run `RUN_END_REASON_UNCHECKED` and
-	// gets `CAUSE_RUN_ENDED`, and `app` then asks `CheckPackages`. The answer is the attempt with
-	// the open view of its task, of an instance when the task is a template; the seed of the attempt
-	// never goes to the device. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and
-	// `CAUSE_NOT_ADMITTED`, when platform AI checks the task, and a lesson run stays open on them;
-	// `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-	// `CAUSE_RUN_ENDED`, `CAUSE_SEGMENT_UNAVAILABLE`, `CAUSE_ALREADY_EXISTS`,
-	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND`, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same attempt and its open
-	// view.
+	// same task again. It closes the open attempt of a task of a module `CLOSE_REASON_LEFT`. A choice
+	// begins one attempt: once it has, another request by it gets `CAUSE_ALREADY_EXISTS`, and `app`
+	// reads the open attempt of the profile; a choice of a lesson gets `invalid_argument`. An attempt
+	// on a segment of a run whose package the image no longer gives ends the run
+	// `RUN_END_REASON_UNCHECKED` and gets `CAUSE_RUN_ENDED`, and `app` then asks `CheckPackages`. The
+	// answer is the attempt with the open view of its task, of an instance when the task is a
+	// template; the seed of the attempt never goes to the device. Refusals: `CAUSE_QUOTA`,
+	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, when platform AI checks the task, and a lesson
+	// run stays open on them; `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`,
+	// `CAUSE_PACKAGE_UNKNOWN`, `CAUSE_RUN_ENDED`, `CAUSE_SEGMENT_UNAVAILABLE`,
+	// `CAUSE_ALREADY_EXISTS`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+	// the same attempt and its open view.
 	BeginAttempt(context.Context, *v1.BeginAttemptRequest) (*v1.BeginAttemptResponse, error)
 	// The open attempt, by which the learner goes on with it, on another device too, with a clean
 	// sheet: the strokes stay on the device that wrote them, but for a work another device put by
 	// `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
-	// `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
-	// state of the attempt.
+	// `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. An attempt of a task
+	// from paper gets `invalid_argument`: it has no open view, and only the device that holds its
+	// page goes on with it (R162). It repeats by the state of the attempt.
 	GetOpenAttempt(context.Context, *v1.GetOpenAttemptRequest) (*v1.GetOpenAttemptResponse, error)
 	// Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
 	// or else a new run on the package of the module's current version. A choice opens one run: once
@@ -156,33 +157,34 @@ func NewLearningServiceClient(client *connect.Client) LearningServiceClient {
 // LearningServiceHandler is an implementation of the novatrail.api.v1.LearningService service.
 type LearningServiceHandler interface {
 	// "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
-	// when the learner asks for it, or when nothing is open. It closes the open attempt
-	// `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to. The
-	// choice gives a lesson or a task, or nothing, with the outcome that says why, by the route the
-	// request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected has,
-	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
-	// the same idempotency key gets the same choice.
+	// when the learner asks for it, or when nothing is open. It closes the open attempt of a task of
+	// a module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back
+	// to. The choice gives a lesson or a task, or nothing, with the outcome that says why, by the
+	// route the request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected
+	// has, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
+	// with the same idempotency key gets the same choice.
 	ChooseNext(context.Context, *v1.ChooseNextRequest) (*v1.ChooseNextResponse, error)
 	// Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
-	// same task again. It closes the open attempt `CLOSE_REASON_LEFT`. A choice begins one attempt:
-	// once it has, another request by it gets `CAUSE_ALREADY_EXISTS`, and `app` reads the open
-	// attempt of the profile; a choice of a lesson gets `invalid_argument`. An attempt on a segment
-	// of a run whose package the image no longer gives ends the run `RUN_END_REASON_UNCHECKED` and
-	// gets `CAUSE_RUN_ENDED`, and `app` then asks `CheckPackages`. The answer is the attempt with
-	// the open view of its task, of an instance when the task is a template; the seed of the attempt
-	// never goes to the device. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and
-	// `CAUSE_NOT_ADMITTED`, when platform AI checks the task, and a lesson run stays open on them;
-	// `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-	// `CAUSE_RUN_ENDED`, `CAUSE_SEGMENT_UNAVAILABLE`, `CAUSE_ALREADY_EXISTS`,
-	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND`, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same attempt and its open
-	// view.
+	// same task again. It closes the open attempt of a task of a module `CLOSE_REASON_LEFT`. A choice
+	// begins one attempt: once it has, another request by it gets `CAUSE_ALREADY_EXISTS`, and `app`
+	// reads the open attempt of the profile; a choice of a lesson gets `invalid_argument`. An attempt
+	// on a segment of a run whose package the image no longer gives ends the run
+	// `RUN_END_REASON_UNCHECKED` and gets `CAUSE_RUN_ENDED`, and `app` then asks `CheckPackages`. The
+	// answer is the attempt with the open view of its task, of an instance when the task is a
+	// template; the seed of the attempt never goes to the device. Refusals: `CAUSE_QUOTA`,
+	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, when platform AI checks the task, and a lesson
+	// run stays open on them; `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`,
+	// `CAUSE_PACKAGE_UNKNOWN`, `CAUSE_RUN_ENDED`, `CAUSE_SEGMENT_UNAVAILABLE`,
+	// `CAUSE_ALREADY_EXISTS`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+	// the same attempt and its open view.
 	BeginAttempt(context.Context, *v1.BeginAttemptRequest) (*v1.BeginAttemptResponse, error)
 	// The open attempt, by which the learner goes on with it, on another device too, with a clean
 	// sheet: the strokes stay on the device that wrote them, but for a work another device put by
 	// `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
-	// `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
-	// state of the attempt.
+	// `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. An attempt of a task
+	// from paper gets `invalid_argument`: it has no open view, and only the device that holds its
+	// page goes on with it (R162). It repeats by the state of the attempt.
 	GetOpenAttempt(context.Context, *v1.GetOpenAttemptRequest) (*v1.GetOpenAttemptResponse, error)
 	// Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
 	// or else a new run on the package of the module's current version. A choice opens one run: once
