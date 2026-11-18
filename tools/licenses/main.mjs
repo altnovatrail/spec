@@ -35,15 +35,15 @@ export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS
     };
   }
   // With devOnly, for another repository's lock file, whose packages may ship: an exception that
-  // takes a license off the list is for a tool that never ships (R12), and holds only for a package
-  // the lock file marks dev — "If the package is strictly part of the devDependencies tree, then
-  // dev will be true" (npm Docs, package-lock.json, v11, read 2026-10-22). It also covers the
-  // packages such a tool names in its optionalDependencies, its builds for each platform, while
-  // they are dev too and carry its license; any other package it names is checked as every
-  // package is (the 2026-10-22 amendment to R39, as R14 canvas). An exception for a lock file that
-  // names no license, or names the package's own file for it, corrects what the lock file says
-  // rather than taking a license off the list, and holds for any package. spec's own tools/ never
-  // ships at all, and its lock file marks none of its packages dev.
+  // takes a license off the list is for a tool that never ships, and holds only for a package the
+  // lock file marks dev — "If the package is strictly part of the devDependencies tree, then dev
+  // will be true" (npm Docs, package-lock.json, v11, read 2026-10-22). It also covers the packages
+  // such a tool names in its optionalDependencies, its builds for each platform, while they are dev
+  // too and carry its license; any other package it names is checked as every package is. An
+  // exception for a lock file that names no license, or names the package's own file for it,
+  // corrects what the lock file says rather than taking a license off the list, and holds for any
+  // package. spec's own tools/ never ships at all, and its lock file marks none of its packages
+  // dev (R12, R39, R14 canvas).
   const tools = new Set(devOnly ? Object.keys(exceptions).filter((name) => offTheList(exceptions[name].license, allowed)) : []);
   const builds = new Map();
   for (const [where, entry] of Object.entries(lock.packages)) {
@@ -125,8 +125,8 @@ function offTheList(license, allowed) {
 
 // The exceptions another repository names in its file: a JSON object of packages, each with the
 // license its lock file says — null when it says none — and why it is accepted, the decision that
-// brings it in among it, as config.mjs gives spec's own (R12). Anything else in the file stops
-// the check rather than being skipped.
+// brings it in among it, as config.mjs gives spec's own. Anything else in the file stops the check
+// rather than being skipped (R12).
 export function readExceptions(text, file) {
   const read = parseJson(text, file);
   if (!isObject(read)) throw new Error(`${file}: not an object of packages`);

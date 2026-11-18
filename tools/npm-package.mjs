@@ -1,7 +1,8 @@
 // An npm package of spec: its files, read from a tree of the repository, and its package.json,
-// written into a folder that npm packs into the archive of a release (R73; R83). Two packages
+// written into a folder that npm packs into the archive of a release. Two packages
 // use it: @altnovatrail/spec, the types of the module format (tools/types/npm.mjs), and
-// @altnovatrail/contracts, the code of the API contracts for TypeScript (tools/contracts/npm.mjs).
+// @altnovatrail/contracts, the code of the API contracts for TypeScript (tools/contracts/npm.mjs)
+// (R73, R83).
 //
 // A tree is the working tree at a root, for the checks, or a commit of the repository at that
 // root, its objects alone, for `just release-files`. npm pack builds the archive: the npm of the

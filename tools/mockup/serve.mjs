@@ -1,4 +1,4 @@
-// mockup: serves the interface mockup on this machine, for a browser and for Playwright (RUN.md, T156):
+// mockup: serves the interface mockup on this machine, for a browser and for Playwright:
 //
 //   node tools/mockup/serve.mjs [--port 8156]       in spec, as `just mockup`
 //   node spec/tools/mockup/serve.mjs [--port 8156]  in another NovaTrail repository

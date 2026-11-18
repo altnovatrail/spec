@@ -1,7 +1,7 @@
-// What the savings of epic E10 ask of a session of spec before its task (R145): the monthly
-// measurement of the transcripts of every repository of this machine, and the quarterly check of
-// Claude Code's changelog. Their dates are lines of measurements 1.9, which each measurement and
-// each check move on; inbox prints the one whose date has come.
+// What a session of spec is reminded of before its task: the monthly measurement of the
+// transcripts of every repository of this machine, and the quarterly check of Claude Code's
+// changelog. Their dates are lines of docs/measurements.md, which each measurement and each check
+// move on; inbox prints the one whose date has come (R145).
 
 export const DATES = [
   { phrase: "Next measurement: by", what: "the monthly measurement of the sessions' tokens" },

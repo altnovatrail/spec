@@ -1,5 +1,5 @@
 // The steps of reading a deployment configuration, one by one, on files written here
-// (deployment/README.md, section 5): the schema of spec's own deployment/, then the rules.
+// (deployment/README.md): the schema of spec's own deployment/, then the rules.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

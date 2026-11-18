@@ -1,11 +1,11 @@
-// The reading of a deployment configuration, section 5 of deployment/README.md: the schema first,
-// then the rules in the order of the text's table. A second implementation, beside app's and the
+// The reading of a deployment configuration by deployment/README.md: the schema first, then the
+// rules in the order of the text's table. A second implementation, beside app's and the
 // rollout's, which computes what each vector of reading gives.
 
 import { byCodeUnits } from "../shared.mjs";
 
 export const RULES = ["deployment.api-origin", "deployment.loopback"];
-// The loopback hosts, as section 5 defines them: these three, written so, and nothing else — not
+// The loopback hosts, as the text defines them: these three, written so, and nothing else — not
 // another address of 127.0.0.0/8, nor a name under localhost.
 export const LOOPBACK = new Set(["127.0.0.1", "localhost", "[::1]"]);
 

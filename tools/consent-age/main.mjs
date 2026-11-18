@@ -1,18 +1,18 @@
-// consent-age-check: spec's own consent-age/, the table of the age of digital consent (R134), by the
-// layout of its text, consent-age/README.md, section 3:
+// consent-age-check: spec's own consent-age/, the table of the age of digital consent, by the
+// layout of its text, consent-age/README.md (R134):
 //
 //   node tools/consent-age/main.mjs
 //
 // It checks VERSION, an integer; each schema against the conventions of the module format's
-// schemas (format/README.md, section 5) under the prefix of the part, with no x-open, and against
-// the 2020-12 meta-schema; that the table's field format holds the version in VERSION; the rules the
-// text lists against those reading.mjs knows, in their order; each example against its schema; each
-// vector of reading, whose cases it reads as section 5 of the text gives (reading.mjs) and
-// compares; and each vector of the category, whose table section 5 accepts and whose cases it
-// computes as section 6 gives. Between them, the vectors of reading accept a table and refuse one by
+// schemas (format/README.md) under the prefix of the part, with no x-open, and against the 2020-12
+// meta-schema; that the table's field format holds the version in VERSION; the rules the text
+// lists against those reading.mjs knows, in their order; each example against its schema; each
+// vector of reading, whose cases it reads as the text's reading gives (reading.mjs) and compares;
+// and each vector of the category, whose table the reading accepts and whose cases it computes
+// (caseOf). Between them, the vectors of reading accept a table and refuse one by
 // the schema and by each rule, and those of the category give every category and both answers to
-// asking the age again (section 8). A file the layout does not know is an error. Last, it reads the
-// table itself, consent-age.yaml, as section 5 gives, with the table of the release before for
+// asking the age again. A file the layout does not know is an error. Last, it reads the table
+// itself, consent-age.yaml, by the reading, with the table of the release before for
 // consent-age.ages-kept (tools/release/previous.mjs). Prints each error as file:line: message, the
 // line 0 when there is none, and exits 1 when there is one.
 
@@ -227,8 +227,8 @@ function readingVectorProblems(bytes, validate, validateTable) {
   return { problems, cases: value.cases };
 }
 
-// A vector of the category: it follows the YAML rules and passes its schema, section 5 accepts its
-// table, and each case gives what section 6 computes. { problems, cases: [the cases it holds] }.
+// A vector of the category: it follows the YAML rules and passes its schema, the reading accepts its
+// table, and each case gives what caseOf computes. { problems, cases: [the cases it holds] }.
 function categoryVectorProblems(bytes, validate, validateTable) {
   const { problems, value } = readVector(bytes, validate, "the category");
   if (value === undefined || !validateTable) return { problems, cases: [] };

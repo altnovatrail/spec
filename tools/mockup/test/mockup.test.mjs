@@ -1,5 +1,5 @@
 // The tests of the mockup's runtime, its states, its page and its server. They draw the sources of
-// draft/mockup/ as they are, under jsdom: spec's container has no browser (RUN.md, T156).
+// draft/mockup/ as they are, under jsdom: spec's container has no browser.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

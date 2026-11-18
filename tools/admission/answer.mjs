@@ -1,6 +1,6 @@
-// The answer of the admission function by the table (admission/README.md, section 6): what spec's
-// check computes for each vector of answers, as tutor's admission function computes it in Go
-// (R57 tutor). The steps, in order, to the first refusal:
+// The answer of the admission function by the table, by the rules of admission/README.md: what
+// spec's check computes for each vector of answers, as tutor's admission function computes it in
+// Go (R57 tutor). The steps, in order, to the first refusal:
 //
 //   1. the rule of the capability for the age category: closed or missing, capability_closed;
 //   2. the cell of the provider, the AI route and the age category: closed or missing,

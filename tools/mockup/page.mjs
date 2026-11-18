@@ -1,14 +1,14 @@
-// mockup: the page that opens one state of the interface mockup by its address (RUN.md, T156):
+// mockup: the page that opens one state of the interface mockup by its address:
 //
 //   /tools/mockup/?screen=home&device=phone
 //
 // screen is a state of states.mjs, and device is ipad — 1194 × 834 in landscape, the board
-// Main.dc.html — or phone — 390 × 844 in portrait, the board Phone.dc.html (R148). The page draws
+// Main.dc.html — or phone — 390 × 844 in portrait, the board Phone.dc.html. The page draws
 // the board, brings it to the state, runs its pending timers, and then sets data-ready on <html>:
 // "true", or "error" with the reason in the page. From there it is the mockup in Play, with its
 // timers live — but for a state that shows what a timer would end, such as the work being read: its
 // timers wait for the first tap or key, so that a snapshot cannot race them. Without screen it
-// lists every state, with a link for each device.
+// lists every state, with a link for each device (R148).
 
 import { App } from "./runtime.mjs";
 import { STATES, reach } from "./states.mjs";

@@ -1,7 +1,7 @@
-// The reading of the table of the age of digital consent, section 5 of consent-age/README.md — the
-// table's schema first, then the rules in the order of the text's table — and the category of
-// section 6. A second implementation, beside api's, which computes what each vector gives, and by
-// which consent-age-check reads spec's own table.
+// The reading of the table of the age of digital consent by consent-age/README.md — the table's
+// schema first, then the rules in the order of the text's table — and the category of a learner.
+// A second implementation, beside api's, which computes what each vector gives, and by which
+// consent-age-check reads spec's own table.
 
 import { isDeepStrictEqual } from "node:util";
 import { byCodeUnits } from "../shared.mjs";
@@ -75,14 +75,14 @@ function keptBreaches(table, previous) {
 }
 
 // The age of digital consent of country on day, by an accepted table: the age of its latest entry
-// whose from is not after day, or outside_table when it has none (section 6).
+// whose from is not after day, or outside_table when it has none.
 export function ageOn(table, country, day) {
   const entries = Object.hasOwn(table.countries, country) ? table.countries[country] : [];
   const applying = entries.filter((entry) => entry.from <= day);
   return applying.length ? applying[applying.length - 1].age : table.outside_table;
 }
 
-// The category of a learner of ageYears years in country on day (section 6).
+// The category of a learner of ageYears years in country on day.
 export function categoryOf(table, country, ageYears, day) {
   if (ageYears < 13) return UNDER_13;
   if (ageYears < ageOn(table, country, day)) return FROM_13_TO_CONSENT;
@@ -92,13 +92,13 @@ export function categoryOf(table, country, ageYears, day) {
 
 // Whether a profile of country, whose category was given by the age of digital consent applied,
 // needs its age given again on the day today: only from_consent_to_18, and only when the age of its
-// country on today is above applied (section 6). The age it was given by is kept, not the day: an
-// entry written after its day — a law found late — would otherwise change what the day gave.
+// country on today is above applied. The age it was given by is kept, not the day: an entry
+// written after its day — a law found late — would otherwise change what the day gave.
 export function asksAgain(table, country, category, applied, today) {
   return category === FROM_CONSENT_TO_18 && ageOn(table, country, today) > applied;
 }
 
-// What section 6 gives a case of a vector of the category: { category, applied } of a learner, or
+// What a case of a vector of the category gives: { category, applied } of a learner, or
 // { ask_again } of a profile.
 export function caseOf(table, { country, category, age_years: ageYears, day, applied, today }) {
   if (ageYears !== undefined) return { category: categoryOf(table, country, ageYears, day), applied: ageOn(table, country, day) };

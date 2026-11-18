@@ -1,5 +1,5 @@
 // The steps of the admission function, one by one, on a table written here, and the rules of a
-// table (admission/README.md, sections 6 and 7).
+// table (admission/README.md).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

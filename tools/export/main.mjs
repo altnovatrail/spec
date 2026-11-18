@@ -1,17 +1,16 @@
-// export-check: spec's own export/, the format of the export (R135), by the layout of its text,
-// export/README.md, section 3:
+// export-check: spec's own export/, the format of the export, by the layout of its text,
+// export/README.md (R135):
 //
 //   node tools/export/main.mjs
 //
 // It checks VERSION, an integer; each schema against the conventions of the module format's
-// schemas (format/README.md, section 5) under the prefix of the part, with no x-open, and against
-// the 2020-12 meta-schema; that the field format of each file's schema holds the version in
-// VERSION; the rules the text lists against those reading.mjs knows, in their order; each example
-// against its schema; and each vector of reading, whose cases — exports, unpacked — it reads as
-// section 5 of the text gives (reading.mjs) and compares. Between them, the vectors accept an
-// export and refuse one by the schema and by each rule (section 7). A file the layout does not know
-// is an error. Prints each error as file:line: message, the line 0 when there is none, and exits 1
-// when there is one.
+// schemas (format/README.md) under the prefix of the part, with no x-open, and against the 2020-12
+// meta-schema; that the field format of each file's schema holds the version in VERSION; the rules
+// the text lists against those reading.mjs knows, in their order; each example against its schema;
+// and each vector of reading, whose cases — exports, unpacked — it reads as the text's reading
+// gives (reading.mjs) and compares. Between them, the vectors accept an export and refuse one by
+// the schema and by each rule. A file the layout does not know is an error. Prints each error as
+// file:line: message, the line 0 when there is none, and exits 1 when there is one.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -26,7 +25,7 @@ import { RULES, SCHEMA, readingOf } from "./reading.mjs";
 
 export const FOLDER = "export";
 export const EXPORT_PART = { folder: FOLDER, prefix: "https://altnovatrail.github.io/spec/export/", open: false };
-// The schemas of the files of an export, by term (section 4), and of a vector of reading.
+// The schemas of the files of an export, by term, and of a vector of reading.
 export const FILE_TERMS = ["manifest", "account", "profile", "device", "work"];
 const VECTOR_TERM = "reading-vector";
 const VERSION = /^([1-9]\d*)\n$/;

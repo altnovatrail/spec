@@ -17,10 +17,10 @@ export const TAR = first(["/usr/bin/tar", "/bin/tar"]);
 // gh is the devcontainer's, which its Dockerfile puts in /usr/local/bin, or the system's. Only
 // inbox runs it, in a session: the toolchain image and CI have none.
 export const GH = first(["/usr/local/bin/gh", "/usr/bin/gh"]);
-// buf is the toolchain stage's, which its Dockerfile puts in /usr/local/bin at an exact version
-// (R83). Only the check of the contracts and their generation run it.
+// buf is the toolchain stage's, which its Dockerfile puts in /usr/local/bin at an exact version.
+// Only the check of the contracts and their generation run it (R83).
 export const BUF = first(["/usr/local/bin/buf"]);
-// docker is the client the stage orchestrator of the Dockerfile puts in /usr/local/bin (T168), or
+// docker is the client the stage orchestrator of the Dockerfile puts in /usr/local/bin, or
 // the system's. Only the orchestrator runs it, in its own container (R156).
 export const DOCKER = first(["/usr/local/bin/docker", "/usr/bin/docker"]);
 
@@ -73,12 +73,10 @@ export function inRepository(file, root = process.cwd()) {
   return real;
 }
 
-// Names in the order of their UTF-16 code units, as sort() puts them with no compare function:
-// a stable order, the same on every machine, whatever its locale.
 // What make(input) gives, kept in cache by the sha256 of input, a text or its bytes, and frozen
 // through and through, so that a caller that changed it would fail rather than change the next
 // caller's: the parses of documents that a check reads again, as its tests do on one trial copy
-// after another (RUN.md, T166). A Set alone cannot be frozen, and only make may fill one.
+// after another. A Set alone cannot be frozen, and only make may fill one.
 export function cachedBy(cache, input, make) {
   const key = createHash("sha256").update(input).digest("hex");
   let value = cache.get(key);
@@ -96,6 +94,8 @@ function deepFreeze(value) {
   return value;
 }
 
+// Names in the order of their UTF-16 code units, as sort() puts them with no compare function:
+// a stable order, the same on every machine, whatever its locale.
 export function byCodeUnits(a, b) {
   if (a < b) return -1;
   return a > b ? 1 : 0;

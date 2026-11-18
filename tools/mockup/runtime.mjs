@@ -1,5 +1,5 @@
 // mockup: the runtime of NovaTrail's own that opens the interface mockup's sources, the files
-// *.dc.html of draft/mockup/, in a browser and under jsdom (RUN.md, T156; R148).
+// *.dc.html of draft/mockup/, in a browser and under jsdom.
 //
 // The sources were written for the runtime of the claude.ai Design canvas, support.js, which is not
 // NovaTrail's and whose license is unknown, so it is not in the repository. This file does what the
@@ -21,7 +21,7 @@
 // its pointer capture, an input's caret — from one drawing to the next. Timers go through a clock
 // of the app: settle() runs those pending at once, for a snapshot, and they run live otherwise.
 // It takes no package and touches no global but globalThis.__novatrailMockup, which the compiled
-// classes read their DCLogic and their timers from.
+// classes read their DCLogic and their timers from (R148).
 
 const BOOLEAN = new Set(["disabled", "checked", "selected", "hidden", "readonly", "required", "multiple", "autofocus", "open"]);
 const KNOWN = new Set(["sc-if", "sc-for", "dc-import"]);
@@ -305,8 +305,8 @@ export class App {
   }
 
   // A source and, before it is drawn, every source it imports; its helmet goes into the head once,
-// but for its links to other origins — the fonts of Google, Caveat and Inter, which are not taken
-// (R148): the mockup loads nothing from the network, and a snapshot does not wait on a font.
+// but for its links to other origins — the fonts of Google, Caveat and Inter, which are not taken:
+// the mockup loads nothing from the network, and a snapshot does not wait on a font (R148).
   async define(name) {
     if (!SOURCE_NAME.test(name)) throw new Error(`not a source's name: ${name}`);
     if (this.defs.has(name)) return this.defs.get(name);
