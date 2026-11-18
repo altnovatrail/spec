@@ -1,6 +1,6 @@
-// The leak check of section 20 of the format text, edge by edge, as leaks.mjs computes it: the normal
-// form, the numbers of a text, a phrase as a whole, which keys are searched for, and what is found;
-// and the texts of a lesson, searched for the keys of its tasks (section 21).
+// The leak check, edge by edge: the normal form, the numbers of a text, a phrase as a whole, which
+// keys are searched for, and what is found; and the texts of a lesson, searched for the keys of its
+// tasks.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -30,7 +30,7 @@ test("a number begins at a digit that no letter, mark or digit stands before, an
   assert.deepEqual(numbers("a5-3"), ["3/1"], "a sign ends a run");
 });
 
-// R111, В29 modules: a key of a time is found by its hours and minutes.
+// A key of a time is found by its hours and minutes (R111; В29 modules).
 test("a time is a run of digits, : and digits that no letter, mark or digit stands right outside", () => {
   assert.deepEqual(timesIn(leakForm("At 07:30, or 19:05; not 7:305x or x7:30 or 7:")), ["7:30", "19:5"]);
   assert.deepEqual(timesIn(leakForm("12:00:30")), ["12:0"], "the search goes on after the run, and :30 begins at no digit");
@@ -163,7 +163,7 @@ test("lesson.no-leaks searches every text of a lesson for the keys of each task 
   assert.deepEqual(lessonTexts({ segments: [{ task: "ladder" }] }), [], "a lesson with no title and no texts");
 });
 
-// R111, В19 modules: a worked example on a workbook leaks where one of its lines solves a task's.
+// A worked example on a workbook leaks where one of its lines solves a task's (R111; В19 modules).
 test("lesson.no-leaks searches no number in the lines of a worked example on a workbook, and finds a line that solves a task's", () => {
   const box = (key) => ({ binding: "box", check: { kind: "number", key } });
   const workbookTask = (line) => ({ canvas: { kind: "workbook" }, statement: [{ text: "Write the quotient and the remainder." }], items: [{ line }] });

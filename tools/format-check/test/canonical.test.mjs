@@ -1,12 +1,12 @@
-// The canonical text of section 25 against RFC 8785, the JSON Canonicalization Scheme, and the
-// digests against the known answer of SHA-256.
+// The canonical text against RFC 8785, the JSON Canonicalization Scheme, and the digests against
+// the known answer of SHA-256.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { canonicalBytes, canonicalText, descriptorOf, digestOf } from "../canonical.mjs";
 
 test("keys are sorted by their UTF-16 code units, recursively, and integer keys get no place of their own", () => {
-  // RFC 8785, section 3.2.3: the property names of its example, in the order it gives — "\r", "1",
+  // The property names of RFC 8785's example of sorting, in the order it gives — "\r", "1",
   // U+0080, ö, €, an emoji outside the Basic Multilingual Plane and U+FB33. JavaScript enumerates the
   // integer key "1" first, which the canonical text does not.
   const names = ["€", "\r", "דּ", "1", "😀", "\u0080", "ö"];
@@ -17,7 +17,7 @@ test("keys are sorted by their UTF-16 code units, recursively, and integer keys 
 });
 
 test("strings are escaped as RFC 8785 asks, and only so", () => {
-  // RFC 8785, section 3.2.2.2: its example string, with a control character, a line feed, quotation
+  // RFC 8785's example string, with a control character, a line feed, quotation
   // marks and backslashes.
   assert.equal(canonicalText("€$\u000f\nA'B\"\\\\\"/"), '"€$\\u000f\\nA\'B\\"\\\\\\\\\\"/"');
   assert.equal(canonicalText("\b\t\n\f\r\u0007\u001f"), '"\\b\\t\\n\\f\\r\\u0007\\u001f"');

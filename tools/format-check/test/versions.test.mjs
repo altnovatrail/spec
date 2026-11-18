@@ -1,4 +1,4 @@
-// The versions of a module of section 27: the steps between versions, the places of a package that
+// The versions of a module: the steps between versions, the places of a package that
 // every version of the format keeps, a package as files, the meaning of a check, the part that a
 // comparison finds and the eight rules of versions.
 
@@ -253,7 +253,7 @@ test("through a move of the format the part is major, and the rules read the pla
   assert.equal(compareVersions({ published: [old], next: version("2.0.0") }).part, "major");
   assert.deepEqual(rulesOf([old], version("1.1.0")), [STEP]);
   assert.deepEqual(rulesOf([old], version("2.0.0", (view) => delete view.skill_graph.skills.b)), [RETIRED_COMPLETE]);
-  // Section 27 gives the part of a move only while the format is v0.
+  // The format text gives the part of a move only while the format is v0.
   assert.throws(() => compareVersions({ published: [version("1.0.0", () => {}, "1.0")], next: version("2.0.0", () => {}, "1.1") }), /only while the format is v0/);
 });
 

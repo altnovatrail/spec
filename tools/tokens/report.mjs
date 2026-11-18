@@ -1,4 +1,4 @@
-// What tokens-report counts in a project's transcripts, and how it prints it (measurements 1.1).
+// What tokens-report counts in a project's transcripts, and how it prints it.
 //
 // A call of the model is an assistant record's message, counted once by its id: a transcript
 // repeats the message, and its usage, in a record for each block of its content. The fields of
@@ -553,11 +553,11 @@ function totalsOf(a, b) {
   return t;
 }
 
-// The report as one row of the table of measurements 1.9: the project, the window, sessions, calls,
-// the context of a call, main and subagents apart, compactions, the cost, and the context of the
-// main calls among the first FIRST_CALLS of their session, last, so that a table of seven columns
-// that has not taken it shows the others in place. The window is the one asked for, or else
-// that of the calls counted; a time prints to the minute, in UTC.
+// The report as one row of the table of the monthly measurement: the project, the window,
+// sessions, calls, the context of a call, main and subagents apart, compactions, the cost, and the
+// context of the main calls among the first FIRST_CALLS of their session, last, so that a table of
+// seven columns that has not taken it shows the others in place. The window is the one asked for,
+// or else that of the calls counted; a time prints to the minute, in UTC.
 export function row(data, { project = "", since = null, until = null } = {}) {
   const avg = (t) => (t.calls ? thousands(t.context / t.calls) : "—");
   const minute = (time) => (time ? time.slice(0, 16) : "—");

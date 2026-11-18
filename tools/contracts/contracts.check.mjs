@@ -1,10 +1,8 @@
 // The run of the contracts' code under Node (tools/contracts/typescript.mjs): copied into the
 // project beside the package, as check.mjs, and called by its runtime.mjs with every message of
-// every file of code, and with every vector the package carries. For each, a message with no field set and one with a value in every field — a
-// member of each oneof, an element of each list and map, a message in each field of a message, to
-// a depth — must come back the same from its binary form and from both spellings of its JSON, and
-// its JSON written with useProtoFieldName must name each field, nested ones too, by its protobuf
-// name (contracts/README.md, section 6).
+// every file of code, and with every vector the package carries. Each message, empty and with every
+// field set to a depth, must read back the same from its binary form and both spellings of its
+// JSON, and its JSON with useProtoFieldName must name each field by its protobuf name.
 
 import { isDeepStrictEqual } from "node:util";
 import { ScalarType, create, equals, fromBinary, fromJson, toBinary, toJson } from "@bufbuild/protobuf";
@@ -95,9 +93,9 @@ export function checkMessages(cases) {
   return failures;
 }
 
-// The messages a case of a vector of the rules the device and the runner share holds (contracts/
-// README.md, section 12): by its key, a message or a list of them, and by its key and a key within
-// each member of a list, the message there or null.
+// The messages a case of a vector of the rules the device and the runner share holds: by its key,
+// a message or a list of them, and by its key and a key within each member of a list, the message
+// there or null.
 const VECTOR_MESSAGES = {
   history: "novatrail.eval.v1.History",
   strokes: "novatrail.eval.v1.FinalStroke",

@@ -1,17 +1,16 @@
-// deployment-check: spec's own deployment/, the format of the deployment configuration (R85), by
-// the layout of its text, deployment/README.md, section 3:
+// deployment-check: spec's own deployment/, the format of the deployment configuration, by the
+// layout of its text, deployment/README.md (R85):
 //
 //   node tools/deployment/main.mjs
 //
 // It checks VERSION, an integer; each schema against the conventions of the module format's
-// schemas (format/README.md, section 5) under the prefix of the deployment configuration, with no
-// x-open and with the fields of the file in camelCase, and against the 2020-12 meta-schema; that the
-// file's field format holds the version in VERSION; the rules the text lists against those
-// reading.mjs knows; each example against its schema; and each vector of reading, whose cases it
-// reads as section 5 of the text gives (reading.mjs) and compares. Between them, the vectors accept
-// a file and refuse one by the schema and by each rule (section 7). A file the layout does not know
-// is an error. Prints each error as file:line: message, the line 0 when there is none, and exits 1
-// when there is one.
+// schemas (format/README.md) under the prefix of the deployment configuration, with no x-open and
+// with the fields of the file in camelCase, and against the 2020-12 meta-schema; that the file's
+// field format holds the version in VERSION; the rules the text lists against those reading.mjs
+// knows; each example against its schema; and each vector of reading, whose cases it reads as the
+// text's reading gives (reading.mjs) and compares. Between them, the vectors accept a file and
+// refuse one by the schema and by each rule. A file the layout does not know is an error. Prints
+// each error as file:line: message, the line 0 when there is none, and exits 1 when there is one.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -25,8 +24,7 @@ import { checkFormatField, describe, filesUnder, printCheck, readRules, readVers
 import { RULES, originOf, readingOf } from "./reading.mjs";
 
 export const FOLDER = "deployment";
-// The fields of the file keep the names of R09 app, in camelCase; a vector's are in snake_case
-// (deployment/README.md, section 3).
+// The fields of the file keep app's names, in camelCase; a vector's are in snake_case (R09 app).
 export const DEPLOYMENT_PART = { folder: FOLDER, prefix: "https://altnovatrail.github.io/spec/deployment/", open: false, camelCase: ["deployment.schema.json"] };
 const FILE_TERM = "deployment";
 const VECTOR_TERM = "reading-vector";

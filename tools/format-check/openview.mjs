@@ -1,12 +1,12 @@
-// The open view of a part of a module (format/README.md, section 6; R45, R51): the part without its
-// closed fields, built from the marks x-open in the schemas. A mark counts only where its subschema
+// The open view of a part of a module: the part without its closed fields, built from the marks
+// x-open in the schemas. A mark counts only where its subschema
 // applies and passes, as an annotation of JSON Schema 2020-12 is collected only from subschemas that
 // pass: the walk follows $ref beside its sibling keywords, every branch of allOf, the branches of
 // anyOf and oneOf that pass, then or else by if, and dependentSchemas whose key is present. A field
 // is open when a subschema that applies to it — under properties, a matching patternProperties, or
 // else additionalProperties — carries the mark; an element of an open array is open; and the root of
 // a part is open. format-check builds the open view of each vector in vectors/open-view/ and compares
-// it with the one the vector gives, as module-kit does (R45).
+// it with the one the vector gives, as module-kit does (R45, R51).
 
 import { fragmentOf } from "./schemas.mjs";
 import { byCodeUnits } from "../shared.mjs";

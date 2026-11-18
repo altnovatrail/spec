@@ -40,7 +40,7 @@ test("a task starts by each phrase of RUN.md, wherever the prompt says it", () =
     ["Разбери входящие и выполни задачу T3", "T3"],
     ["Сначала не T1, а выполни задачу T5", "T5"],
     ["не планируй T6, планируй T7", "T7"],
-    // The author's own words (measurements 1.7).
+    // The author's own words.
     ["делай T141", "T141"],
     ["контейнер перестроил. Делай T10", "T10"],
     ["Делай задачу T05 и учти, что рядом идёт другая сессия", "T5"],
@@ -217,7 +217,7 @@ test("a session goes on with its own task and stops another", () => {
 });
 
 test("a run of the orchestrator goes on under each number it goes by, and stops any other task", () => {
-  // skill-map's T27 of T171: the prompt named T27, the executor wrote the task as T28 (T175).
+  // The prompt named T27, and the executor wrote the task into its plan as T28, the next number free.
   const led = [typed("Выполни задачу T27 из RUN.md. Её ещё нет в этом репозитории"), answer("T28")];
   assert.match(verdict("Сделай T28 сейчас, на ветке t28-ci-speed", led), /starts T28, and this session has led T27/);
   assert.equal(verdict("Сделай T28 сейчас, на ветке t28-ci-speed", led, ["T27", "T28"]), null);

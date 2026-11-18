@@ -8,8 +8,7 @@ import (
 	"testing"
 )
 
-// A made-up spec: go.mod, LICENSE, a small format/, a small admission/, a small deployment/, a
-// small legal/, a small consent-age/, a small export/ and a type of the format, committed on main.
+// A made-up spec with a file in each folder its module carries, committed on main.
 func scratch(t *testing.T, goMod string) string {
 	t.Helper()
 	t.Setenv("GIT_CONFIG_GLOBAL", os.DevNull)
@@ -166,8 +165,7 @@ func TestNoLicenseIsFound(t *testing.T) {
 // The module of the contracts, in a folder of its own, with what its go.mod requires (R83).
 const contractsMod = "module github.com/altnovatrail/spec/contracts\n\ngo 1.27.0\n\nrequire (\n\tconnectrpc.com/connect/v2 v2.0.2\n\tgoogle.golang.org/protobuf v1.36.12\n)\n"
 
-// A made-up spec with the module of the contracts beside its own: a README, a .proto, a file of
-// generated code, and a test vector with the package that embeds it.
+// A made-up spec with the module of the contracts beside its own.
 func scratchContracts(t *testing.T, goMod string) string {
 	t.Helper()
 	root := scratch(t, v0)
@@ -192,7 +190,7 @@ func TestTheContractsModuleCarriesEveryFile(t *testing.T) {
 	if !strings.Contains(report, "github.com/altnovatrail/spec/contracts@v0.7.0") || !strings.Contains(report, "LICENSE and the 7 files of contracts/") {
 		t.Fatalf("report: %s", report)
 	}
-	// spec's own module no longer carries contracts/, and its check is the same as before.
+	// spec's own module leaves contracts/, a module of its own, out.
 	if report, err := check(root, "HEAD", "0.7", "."); err != nil || !strings.Contains(report, "the 8 files of format/, admission/, deployment/, legal/, consent-age/, export/ and types/") {
 		t.Fatalf("the root beside the contracts: %s, %v", report, err)
 	}

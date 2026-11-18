@@ -147,7 +147,6 @@ test("the admission table gives its types beside the format's, and its corpus ev
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "types-admission-"));
   try {
     fs.cpSync(path.join(spec, "admission"), path.join(root, "admission"), { recursive: true });
-    // The package admissionv0 holds the major version 0 alone.
     fs.writeFileSync(path.join(root, "admission/VERSION"), "1.0\n");
     assert.throws(() => readAdmission(root), /admission\/VERSION is 1\.0: the types of the admission table are the package admissionv0, of its major version 0/);
     fs.mkdirSync(path.join(root, "admission/vectors/unknown"));
@@ -209,7 +208,6 @@ test("the deployment configuration gives its types beside them, by the names of 
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "types-deployment-"));
   try {
     fs.cpSync(path.join(spec, "deployment"), path.join(root, "deployment"), { recursive: true });
-    // The package deploymentv1 holds the version 1 alone.
     fs.writeFileSync(path.join(root, "deployment/VERSION"), "2\n");
     assert.throws(() => readDeployment(root), /deployment\/VERSION is 2: the types of the deployment configuration are the package deploymentv1, of its version 1/);
     fs.mkdirSync(path.join(root, "deployment/vectors/unknown"));
@@ -268,7 +266,6 @@ test("the legal texts give their types beside them, a version of a text taking t
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "types-legal-"));
   try {
     fs.cpSync(path.join(spec, "legal"), path.join(root, "legal"), { recursive: true });
-    // The package legalv3 holds the part's version 3 alone.
     fs.writeFileSync(path.join(root, "legal/VERSION"), "4\n");
     assert.throws(() => readLegal(root), /legal\/VERSION is 4: the types of the legal texts are the package legalv3, of the part's version 3/);
     fs.writeFileSync(path.join(root, "legal/legal.yaml"), "format: 3\n");
@@ -324,7 +321,6 @@ test("the table of the age of digital consent gives its types beside them, its c
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "types-consent-age-"));
   try {
     fs.cpSync(path.join(spec, "consent-age"), path.join(root, "consent-age"), { recursive: true });
-    // The package consentagev1 holds the part's version 1 alone.
     fs.writeFileSync(path.join(root, "consent-age/VERSION"), "2\n");
     assert.throws(() => readConsentAge(root), /consent-age\/VERSION is 2: the types of the table of the age of digital consent are the package consentagev1, of the part's version 1/);
     fs.mkdirSync(path.join(root, "consent-age/vectors/unknown"));

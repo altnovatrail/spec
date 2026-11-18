@@ -1,6 +1,6 @@
-// spec's second devcontainer, the orchestrator's (R156): its configuration is spec's own but for
-// what the host's Docker asks, its stage ends the Dockerfile, and docker-group.sh, which runs on the
-// host, leaves the number of the socket's group where the stage copies it from.
+// spec's second devcontainer, the orchestrator's: its configuration is spec's own but for what
+// the host's Docker asks, its stage ends the Dockerfile, and docker-group.sh, which runs on the
+// host, leaves the number of the socket's group where the stage copies it from (R156).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

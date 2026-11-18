@@ -1,12 +1,11 @@
-// The generator of the module format, as section 22 of its text gives it (format/README.md; R59): a
-// second implementation beside module-kit's, by which spec's CI computes the test vectors of the
-// generator. It is PCG as Go's math/rand/v2 has it, a place of randomness's stream derived as
-// mathtrail-standalone's simulator derives it, and the functions on a stream as Go's methods are,
-// drawing as many integers as they do. Every number is a BigInt, so that 64 and 128 bits are exact.
+// The module format's generator, a second implementation beside module-kit's by which CI computes
+// its test vectors. Every number is a BigInt, so that 64 and 128 bits are exact. It is PCG as Go's
+// math/rand/v2 has it, a place of randomness's stream derived as mathtrail-standalone's simulator
+// derives it, and each function on a stream draws as many integers as Go's method does (R59).
 
 const WORD = (1n << 64n) - 1n;
 const STATE = (1n << 128n) - 1n;
-// The step: state · M + C modulo 2^128.
+// The LCG step: state · M + C modulo 2^128.
 const M = (2549297995355413924n << 64n) | 4865540595714422341n;
 const C = (6364136223846793005n << 64n) | 1442695040888963407n;
 // The multiplier of the output DXSM.
@@ -17,7 +16,7 @@ export const MAX_UNSIGNED = WORD;
 export const MIN_SIGNED = -(1n << 63n);
 export const MAX_SIGNED = (1n << 63n) - 1n;
 
-// A stream of the generator, started from its two words as they are: { integer() }.
+// Started from its two words as they are, unmixed: { integer() }.
 export function streamOf(high, low) {
   let state = (high << 64n) | low;
   return {
@@ -33,7 +32,7 @@ export function streamOf(high, low) {
   };
 }
 
-// FNV-1a of 64 bits of the UTF-8 bytes of a text (RFC 9923).
+// Over the text's UTF-8 bytes (RFC 9923).
 export function fnv1a64(text) {
   let hash = FNV_OFFSET;
   for (const byte of new TextEncoder().encode(text)) hash = ((hash ^ BigInt(byte)) * FNV_PRIME) & WORD;
@@ -44,7 +43,7 @@ export function fnv1a64(text) {
 // and each name after |, and the seed.
 export const stateOf = (seed, names) => ({ high: fnv1a64([seed.toString(), ...names].join("|")), low: seed });
 
-// The functions on a stream (section 22), each drawing as many integers as Go's method does.
+// Each function on a stream draws as many integers as Go's method does.
 export function below(stream, bound) {
   if ((bound & (bound - 1n)) === 0n) return stream.integer() & (bound - 1n);
   let product = stream.integer() * bound;

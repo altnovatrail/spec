@@ -1,6 +1,6 @@
-// A new version of the legal texts starts a new line (R130): the rule, the shape it compares, the
-// script that release-version passes its lines through in spec, and the recipe, in a made-up copy
-// of spec.
+// A new version of the legal texts starts a new line: the rule, the shape it compares, the script
+// that release-version passes its lines through in spec, and the recipe, in a made-up copy of spec
+// (R130).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

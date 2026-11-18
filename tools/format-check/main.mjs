@@ -1,72 +1,13 @@
-// format-check: the checks of the module format in spec's format/ (R45 and its amendments, R46,
-// R51, R56, R57, R58, R59, R60, R62, R63; RUN.md, T25, T26, T28, T29, T30, T31, T32, T33, T34 and
-// T44).
+// format-check: the schemas, examples and test vectors of the module format in spec's format/,
+// against the format text and against what its rules compute (R45, R46, R51, R56, R57, R58, R59,
+// R60, R62, R63).
 //
 //   node tools/format-check/main.mjs      spec's own format/, two levels above this file
 //
-// Finds the files by the layout of the format text, section 3, and checks:
-// - VERSION: MAJOR.MINOR (R44);
-// - each schema, schemas/<term>.schema.json, against the conventions of section 5 and the 2020-12
-//   meta-schema, and that the schemas compile together;
-// - each example, examples/<term>/valid/<case>.yaml and invalid/<case>.yaml: the YAML rules of
-//   section 4, and its schema — a valid one passes it, an invalid one gives the error its first line
-//   names (section 8);
-// - each example of a whole module, examples/module/valid/<case>/, laid out as a module: its files
-//   by the layout of section 10, the YAML rules and the schema of each file's part, and the rules of
-//   a whole module — its manifest, its layout, the ids of the files at <id>, its media files, its
-//   LICENSE and its plain texts —, and its canonical view passes the schema of a canonical view;
-// - the rules the text lists, each with test vectors in vectors/rules/<rule>/, and each such folder
-//   with its rule: a case of a YAML rule breaks that rule and no other; a case of a rule of a whole
-//   module is a folder that breaks that rule and no other; a case of a part's rule follows the YAML
-//   rules and passes the part's schema, and one laid out as a module follows the rules of a whole
-//   module too (section 9). Of the rules of a task and of a lesson that it implements — those that
-//   an answer slot's check shows by itself, task.no-leaks, lesson.no-leaks and the rules of
-//   templates —, a case of one breaks it, and no other case breaks any, nor a valid example of a task
-//   or of a whole module: a rule of a lesson spans files, so a valid example of a lesson alone goes
-//   unchecked by it. A template breaks the rules of a task through its instances (sections 9, 20, 21
-//   and 23);
-// - the format version that each manifest names: the one in VERSION, but in the cases of
-//   manifest.format-version, which name one no reader of it reads (section 11);
-// - each vector of the open view, vectors/open-view/<part>/<case>/: part.yaml follows the YAML rules
-//   and passes the part's schema, open-view.yaml follows the YAML rules, and the open view of the
-//   part, built from the marks x-open (section 6), is open-view.yaml; a task's holds digest.yaml
-//   too, the digest of its open view, as a sample of the eval protocol names it;
-// - the vectors of verdicts, vectors/verdicts/<kind>/<case>.yaml, a folder for each check kind of the
-//   task's schema that gives verdicts: each case follows the YAML rules and passes the schema of
-//   verdict vectors, checks every answer slot by its folder's kind, and gives the verdicts that
-//   section 15 computes — of a predicate, only blank and notation, since spec has no Starlark —
-//   with the trap that each wrong value matches;
-// - the vectors of the leak check, vectors/leaks/<case>.yaml: each case follows the YAML rules and
-//   passes the schema of leak vectors, and the leak check of section 20 finds in each text what the
-//   case lists;
-// - the vectors of the generator, vectors/random/<case>.yaml: each case follows the YAML rules and
-//   passes the schema of such vectors, its seed and names derive its state, and the functions of
-//   section 22 give each value it lists, in order, on its stream;
-// - the vectors of templates, vectors/templates/<case>.yaml: each case follows the YAML rules and
-//   passes the schema of such vectors, its template breaks no rule of a task on any instance, and
-//   section 23 gives the number of instances it lists and, for each seed, the instance it lists;
-// - the vectors of tiers, vectors/tiers/<case>.yaml: each case follows the YAML rules and passes the
-//   schema of such vectors, and section 12 gives the tier it lists for each skill of its graph;
-// - the vectors of packages, vectors/packages/<case>/: module/ holds a module as an example of a
-//   whole module does, package.yaml follows the YAML rules and passes the schema of such vectors, and
-//   section 25 builds of module/ the server part, the listing of the device part, the inventory and
-//   the digest that package.yaml lists, with the results of the solvers that it gives;
-// - the vectors of the module index, vectors/indexes/<case>/: each module of modules/ is held as an
-//   example of a whole module is, and has no solver; index.yaml follows the YAML rules and passes the
-//   schema of such vectors, its indexes name the format version in VERSION, and section 26 builds of
-//   the release the index that index.yaml lists, or refuses it by the rule it names and by no other.
-//   The rules of the module index have their vectors there, each at least one refusal, and none in
-//   vectors/rules/;
-// - the vectors of versions of a module, vectors/versions/<case>/: module/ and each published version
-//   in published/<X.Y.Z>/ laid out as a module are held as an example of a whole module is, and have
-//   no solver, and a published version of an earlier version of the format is a package as files
-//   whose digests hold; version.yaml follows the YAML rules and passes the schema of such vectors,
-//   and section 27 finds the part of the version that it lists, or refuses the new version by the
-//   rule it names and by no other. The rules of versions have their vectors there, each at least one
-//   refusal, and none in vectors/rules/.
-// Anything else in format/ is an error: what this check does not know would go unchecked, so the
-// task that brings it extends the check. Prints one line per error, file:line: message, and exits 1
-// if there are any.
+// Of a predicate's verdicts only blank and notation are checked: spec runs no Starlark. A rule of a
+// lesson spans files, so a valid example of a lesson alone goes unchecked by it. Anything
+// else in format/ is an error: what this check does not know would go unchecked, so whatever brings
+// it extends the check. Prints one line per error, file:line: message, and exits 1 if there are any.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -81,49 +22,49 @@ import { FEEDBACK_KINDS, VERDICT_KINDS } from "./verdicts.mjs";
 import { VERSION_PART } from "./versions.mjs";
 
 const UNKNOWN = "format-check does not know it: the task that brings it to format/ extends the check";
-// The vectors of the open view (section 9): a part, and the open view it gives.
+// The vectors of the open view: a part, and the open view it gives.
 const OPEN_VIEW = "open-view";
 const OPEN_VIEW_FILES = ["part.yaml", "open-view.yaml"];
 // A vector of a task's open view holds digest.yaml too: the digest of the open view, as a sample of
 // the eval protocol names it.
 const openViewFilesOf = (term) => (term === TASK ? [...OPEN_VIEW_FILES, DIGEST_FILE] : OPEN_VIEW_FILES);
-// The vectors of verdicts (section 9), and the schemas they read: theirs, and the task's, whose
+// The vectors of verdicts, and the schemas they read: theirs, and the task's, whose
 // check kinds they are of.
 const VERDICTS = "verdicts";
 const VERDICT_VECTOR = "verdict-vector";
 const TASK = "task";
-// The vectors of the leak check (section 9), and their schema.
+// The vectors of the leak check, and their schema.
 const LEAKS = "leaks";
 const LEAK_VECTOR = "leak-vector";
-// The vectors of the generator (section 22), and their schema.
+// The vectors of the generator, and their schema.
 const RANDOM = "random";
 const RANDOM_VECTOR = "random-vector";
-// The vectors of templates (section 23), and their schema.
+// The vectors of templates, and their schema.
 const TEMPLATES = "templates";
 const TEMPLATE_VECTOR = "template-vector";
-// The vectors of tiers (section 12), and their schema.
+// The vectors of tiers, and their schema.
 const TIERS = "tiers";
 const TIER_VECTOR = "tier-vector";
 // The numbers and widths of the workbook's page, format/page.yaml, and its schema; and the vectors
-// of the page (section 14), and theirs.
+// of the page, and theirs.
 const PAGE_FILE = "format/page.yaml";
 const PAGE = "page";
 const PAGES = "pages";
 const PAGE_VECTOR = "page-vector";
-// The vectors of packages (section 25), and their schema, and the schema of the canonical view, by
+// The vectors of packages, and their schema, and the schema of the canonical view, by
 // which the canonical view of each example of a whole module is checked.
 const PACKAGES = "packages";
 const PACKAGE_VECTOR = "package-vector";
 const CANONICAL_VIEW = "canonical-view";
-// The vectors of the module index (section 26), and their schema.
+// The vectors of the module index, and their schema.
 const INDEXES = "indexes";
 const INDEX_VECTOR = "index-vector";
-// The vectors of versions of a module (section 27), and their schema.
+// The vectors of versions of a module, and their schema.
 const VERSIONS = "versions";
 const VERSION_VECTOR = "version-vector";
 const README = "format/README.md";
 // The parts of the rules whose vectors are refusals among vectors of their own kind, not in
-// vectors/rules/: the rules of the module index and of versions of a module (section 7).
+// vectors/rules/: the rules of the module index and of versions of a module.
 const OWN_VECTORS = [INDEX_PART, VERSION_PART];
 // The schema of the definitions that the parts share.
 const COMMON = "common";
@@ -148,7 +89,7 @@ export function checkFormat(root) {
 }
 
 // format/page.yaml, against its schema, which the page of every workbook and task.workbook-page take
-// for this run (section 14); none, when the format has neither the file nor its schema.
+// for this run; none, when the format has neither the file nor its schema.
 function readPage(root, schemas, report) {
   usePage(null);
   const there = fs.existsSync(path.join(root, PAGE_FILE));
@@ -165,7 +106,7 @@ function readPage(root, schemas, report) {
   if (value) usePage(value);
 }
 
-// format/VERSION, MAJOR.MINOR and a newline (R44), or null.
+// format/VERSION, MAJOR.MINOR and a newline, or null (R44).
 function readVersion(root, report) {
   const file = "format/VERSION";
   if (!fs.existsSync(path.join(root, file))) {
@@ -303,9 +244,8 @@ function checkCases(root, files, { rules, layout, version, schemas }, report) {
   for (const kind of REFUSAL_VECTORS) checkRefusalVectors(root, files, { rules, layout, version, schemas }, report, waitForLayout, kind);
 }
 
-// The vectors whose cases are refusals by rules of their own (section 7): of the module index, by the
-// index that section 26 builds of each release, and of versions of a module, by the comparison of
-// section 27. Each case against the rules of a whole module, the schema of such vectors and what its
+// The vectors whose cases are refusals by rules of their own: of the module index, by the index
+// built of each release, and of versions of a module, by the comparison of versions. Each case against the rules of a whole module, the schema of such vectors and what its
 // check computes; and each rule of the kind that the text lists with a refusal among them, and each
 // refusal with its rule in the text.
 const REFUSAL_VECTORS = [
@@ -336,7 +276,6 @@ function checkRefusalVectors(root, files, { rules, layout, version, schemas }, r
   }
 }
 
-// The vectors of tiers: each case against the schema of such vectors and the tiers of section 12.
 function checkTiers(root, files, schemas, report) {
   if (!files.tiers.length) return;
   if (!schemas.has(TIER_VECTOR)) {
@@ -349,8 +288,7 @@ function checkTiers(root, files, schemas, report) {
   }
 }
 
-// The vectors of the page: each case against the schema of such vectors and the page that section 14
-// lays out, by format/page.yaml.
+// The vectors of the page against the page that format/page.yaml lays out.
 function checkPages(root, files, schemas, report) {
   if (!files.pages.length) return;
   if (!schemas.has(PAGE_VECTOR)) {
@@ -367,8 +305,7 @@ function checkPages(root, files, schemas, report) {
   }
 }
 
-// The vectors of packages: each case's module against the rules of a whole module, and its package
-// against the schema of such vectors and the package that section 25 builds.
+// The vectors of packages: each case's module against the rules of a whole module too.
 function checkPackages(root, files, { layout, version, schemas }, report, waitForLayout) {
   if (!files.packages.length) return;
   if (!schemas.has(PACKAGE_VECTOR)) {
@@ -384,8 +321,6 @@ function checkPackages(root, files, { layout, version, schemas }, report, waitFo
   }
 }
 
-// The vectors of the leak check: each case against the schema of leak vectors and the leak check of
-// section 20.
 function checkLeaks(root, files, schemas, report) {
   if (!files.leaks.length) return;
   if (!schemas.has(LEAK_VECTOR)) {
@@ -398,8 +333,6 @@ function checkLeaks(root, files, schemas, report) {
   }
 }
 
-// The vectors of the generator: each case against the schema of such vectors and the generator of
-// section 22.
 function checkRandom(root, files, schemas, report) {
   if (!files.random.length) return;
   if (!schemas.has(RANDOM_VECTOR)) {
@@ -412,8 +345,7 @@ function checkRandom(root, files, schemas, report) {
   }
 }
 
-// The vectors of templates: each case against the schema of such vectors, the rules of a task on its
-// instances, and the instances of section 23.
+// The vectors of templates: the rules of a task hold on every instance too.
 function checkTemplates(root, files, schemas, report) {
   if (!files.templates.length) return;
   if (!schemas.has(TEMPLATE_VECTOR)) {
@@ -428,8 +360,7 @@ function checkTemplates(root, files, schemas, report) {
 }
 
 // The vectors of verdicts: a folder for each check kind of the task's schema that gives verdicts,
-// with its cases, and no other folder; each case against the schema of verdict vectors and the
-// verdicts of section 15. A kind that format-check cannot compute is named at the task's schema.
+// with its cases, and no other folder. A kind that format-check cannot compute is named at the task's schema.
 function checkVerdicts(root, files, schemas, report) {
   const kinds = schemas.checkKinds;
   const schemaFile = `format/schemas/${TASK}.schema.json`;
@@ -476,18 +407,9 @@ function checkRuleFolders(files, rules, report) {
   }
 }
 
-// The files of format/ by the layout of section 3, and an error for each one outside it. A case is a
-// file, <case>.yaml, or a folder laid out as a module, <case>/: an example of a whole module is a
-// folder, a case of a YAML rule a file, and a case of a rule of a whole module a folder. A vector of
-// the open view is a folder of its own kind, vectors/open-view/<part>/<case>/, which holds
-// part.yaml and open-view.yaml and nothing else, and a task's digest.yaml too; a vector of verdicts is a file,
-// vectors/verdicts/<kind>/<case>.yaml, and so are a vector of the leak check, vectors/leaks/<case>.yaml,
-// a vector of the generator, vectors/random/<case>.yaml, a vector of templates,
-// vectors/templates/<case>.yaml, and a vector of tiers, vectors/tiers/<case>.yaml. A vector of
-// packages is a folder, vectors/packages/<case>/, which holds module/ and package.yaml and nothing
-// else, and so is a vector of the module index, vectors/indexes/<case>/, which holds modules/ and
-// index.yaml, and a vector of versions of a module, vectors/versions/<case>/, which holds module/,
-// published/ and version.yaml.
+// The files of format/ by the layout of the format text, and an error for each one outside it. A
+// case is a file, <case>.yaml, or a folder laid out as a module, <case>/: an example of a whole
+// module is a folder, a case of a YAML rule a file, and a case of a rule of a whole module a folder.
 function readFiles(root, report) {
   const files = { schemas: [], examples: [], vectors: [], ruleFolders: [], openViews: [], verdicts: [], verdictFolders: [], leaks: [], random: [], templates: [], tiers: [], pages: [], packages: [], indexes: [], versions: [] };
   if (!fs.existsSync(path.join(root, "format"))) {

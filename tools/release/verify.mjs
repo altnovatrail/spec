@@ -1,5 +1,5 @@
-// release-verify: whether a file of a NovaTrail release is one R77 lets in — signed by whom, at
-// whose call, on which branch and of which commit — where the file enters NovaTrail.
+// release-verify: whether a file of a NovaTrail release may enter NovaTrail — signed by whom, at
+// whose call, on which branch and of which commit —, checked where the file enters it (R77).
 //
 //   node tools/release/verify.mjs <repository> <tag> <file> [<bundle>]
 //   node tools/release/verify.mjs --npm <lock file>
@@ -13,23 +13,19 @@
 // The bundle must hold for the file's bytes against Sigstore's trust root, which TUF reads afresh
 // from Sigstore on every run: when it cannot be read, nothing is verified and the file is refused.
 // Then the certificate's own fields, read from the certificate the bundle was verified with, are
-// held to R77, and last what they name is held to GitHub, read through git with no token
-// (github.mjs): the commit of the tag, and the release of .github that signed.
+// held to what they must be, and last what they name is held to GitHub, read through git with no
+// token (github.mjs): the commit of the tag, and the release of .github that signed.
 // - A file of any repository but spec is signed by the shared release.yml of .github, at the
 //   commit S of a release of it, v* on its main and no older than MINIMUM, at the call of the
 //   repository's own release.yml on main, of the commit of the tag.
 // - A file of spec is signed by spec's own release.yml on main, whose certificate names the tip
 //   of main as the run began rather than the commit of the tag. The file's content binds it to
-//   its tag instead: the commit git archive writes into the header of format-<version>.tar.gz, of
-//   admission-<version>.tar.gz, the admission table's (R96), of deployment-<version>.tar.gz, the
-//   deployment configuration's (R85), of legal-<version>.tar.gz, the legal texts' (R130), and of
-//   consent-age-<version>.tar.gz, the table of the age of digital consent's (R134), and of
-//   export-<version>.tar.gz, the format of the export's (R135) —
-//   each of which holds what its name says, as release-files writes it: a folder
-//   <part>-<version>/ with LICENSE and <part>/, whose VERSION is that version —, and the version in
-//   the
-//   package.json of altnovatrail-spec-<version>.tgz and of altnovatrail-contracts-<version>.tgz,
-//   the package of the contracts' code (R83).
+//   its tag instead: for the archive of each normative part with a version of its own,
+//   <part>-<version>.tar.gz, the commit git archive writes into its header, and the archive holds
+//   what its name says, as release-files writes it — a folder <part>-<version>/ with LICENSE and
+//   <part>/, whose VERSION is that version —; for altnovatrail-spec-<version>.tgz and
+//   altnovatrail-contracts-<version>.tgz, the package of the contracts' code, the version in its
+//   package.json (R96, R85, R130, R134, R135, R83).
 //
 // Prints a line for each file verified; a refusal is an error, with what was wanted and found.
 
@@ -48,10 +44,10 @@ import { ORGANIZATION, REPOSITORIES } from "./repositories.mjs";
 import { RELEASE_TAG } from "./version.mjs";
 
 export const ISSUER = "https://token.actions.githubusercontent.com";
-// The lowest release of .github whose shared release.yml signs a file that R77 lets in: from
-// v0.1.6 it checks the caller's spec submodule and the sum of spec's script, and from v0.1.7
-// spec's recipes run in a copy of the checkout. The minimum is its commit, not its name, and it
-// must lie in the history of the commit that signed. Only an amendment to R77 raises it.
+// The lowest release of .github whose shared release.yml signs a file that may enter: from v0.1.6
+// it checks the caller's spec submodule and the sum of spec's script, and from v0.1.7 spec's
+// recipes run in a copy of the checkout. The minimum is its commit, not its name, and it must lie
+// in the history of the commit that signed. Only a change of the decision raises it (R77).
 export const MINIMUM = Object.freeze({ tag: "v0.1.7", commit: "0acbf75e5c8362b649924bf1abdae973ce71085e" });
 
 const SHARED = ".github";
@@ -60,20 +56,20 @@ const BUNDLE = "application/vnd.dev.sigstore.bundle.v0.3+json";
 const SHA = /^[0-9a-f]{40}$/;
 const ORGANIZATION_URI = `https://github.com/${ORGANIZATION.name}`;
 // The normative parts with a version of their own, each one archive of git archive: the module
-// format and the admission table (R96), by MAJOR.MINOR, and the deployment configuration (R85),
-// the legal texts (R130), the table of the age of digital consent (R134) and the format of the
-// export (R135), by an integer.
+// format and the admission table by MAJOR.MINOR, and the deployment configuration, the legal
+// texts, the table of the age of digital consent and the format of the export by an integer (R96,
+// R85, R130, R134, R135).
 const PART_FILE = /^(?:(?:format|admission)-(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)|(?:deployment|legal|consent-age|export)-[1-9]\d*)\.tar\.gz$/;
 // The npm packages of spec's release, by the name of their archive: the types of the format, and
 // the code of the contracts.
 const NPM_FILE = /^altnovatrail-(spec|contracts)-((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))\.tgz$/;
 const SCOPE = "@altnovatrail/";
 // A package of @altnovatrail that is not named for the repository whose release carries it: the
-// code of the contracts comes out in spec's (R83). Every other package is its repository's.
+// code of the contracts comes out in spec's. Every other package is its repository's (R83).
 export const RELEASED_BY = Object.freeze({ "@altnovatrail/contracts": "spec" });
 const REGISTRY = "https://registry.npmjs.org/";
 
-// The fields of a Fulcio certificate that R77 holds a signature to, by Fulcio's names and OIDs.
+// The fields of a Fulcio certificate that a signature is held to, by Fulcio's names and OIDs (R77).
 // Not held: Build Trigger (…1.20), since a release runs by workflow_run and by workflow_dispatch
 // alike, Run Invocation URI (…1.21) and Source Repository Visibility At Signing (…1.22), which
 // say nothing about trust, and the deprecated …1.1 to …1.6.
@@ -110,8 +106,8 @@ export async function sigstoreRoot(options = {}) {
 // The identity of the bundle's signature, once the bundle holds for the bytes against the trust
 // root. A bundle v0.3 with one Fulcio certificate, as cosign writes it, and at least one RFC 3161
 // timestamp: the verifier would count the time of the transparency log's entry as a timestamp
-// too, and R77 names the timestamp apart. The verifier checks the certificate's chain to Fulcio
-// and its SCT, the entry in the transparency log with its proof, each timestamp, and the
+// too, and the timestamp is wanted apart (R77). The verifier checks the certificate's chain to
+// Fulcio and its SCT, the entry in the transparency log with its proof, each timestamp, and the
 // signature of the bytes, by Sigstore's defaults: at least one of each.
 export function verifySignature(bytes, bundleJSON, trustedRoot) {
   let bundle;
@@ -132,7 +128,7 @@ export function verifySignature(bytes, bundleJSON, trustedRoot) {
   }
 }
 
-// The SAN and the fields R77 reads, from a verified identity: each field there once, its value a
+// The SAN and the fields of FIELDS, from a verified identity: each field there once, its value a
 // DER UTF8String, as Fulcio writes the fields from …1.8 on.
 export function readIdentity(identity) {
   const san = identity?.subjectAlternativeName;
@@ -225,8 +221,8 @@ export function checkGitHub(fields, { repository, tag, signer }, { source, minim
   return named;
 }
 
-// A file of spec, bound to its tag by what it holds (R77). A new kind of file names its binding
-// in the task that brings it in, and until then it is refused.
+// A file of spec, bound to its tag by what it holds. A new kind of file is refused until its
+// binding is written here (R77).
 export function checkSpecContent(name, bytes, tag, source) {
   if (PART_FILE.test(name)) {
     const archived = tarCommit(name, bytes);
@@ -254,7 +250,7 @@ export function checkSpecContent(name, bytes, tag, source) {
 // A part's archive holds what its name says, as release-files writes it (tools/release/files.mjs
 // and the justfile): one folder named as the file, <part>-<version>/, with LICENSE and the part's
 // folder in it and nothing else, whose VERSION is the version the name gives. The format's archive
-// of v0.5.6 by the admission table's name holds format-0.1/, and is refused.
+// under another part's name holds format-<version>/, and is refused.
 export function checkPartArchive(name, bytes) {
   // A part's name is words of letters joined by hyphens, consent-age among them; its version starts
   // with a digit.

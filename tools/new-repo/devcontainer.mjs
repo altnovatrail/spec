@@ -29,8 +29,8 @@ const PLUGIN_NAME = /^[a-z0-9][a-z0-9-]*$/;
 // lines for the end of the Dockerfile's toolchain stage, from the file in kinds/ that "toolchain"
 // names (R79), and from the folder in kinds/ that "devcontainer" names, lines for the devcontainer
 // stage, its Dockerfile, and the files the image copies, the rest of it (R102); the keys "claude"
-// adds to the copy's .claude/settings.json, and the plugins "claudePlugins" loads (R143). A tag before R79 wrote a kind as its list of extensions alone, and
-// new-repo builds from the latest tag, so that form is read too.
+// adds to the copy's .claude/settings.json, and the plugins "claudePlugins" loads (R143). A kind
+// written as its list of extensions alone, as an older tag of spec may hold it, is read too.
 export function readKind(template, name, kind) {
   const where = `kinds.json: ${name}`;
   if (Array.isArray(kind)) kind = { extensions: kind };
@@ -107,11 +107,11 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
   const id = `novatrail-${alias}`;
   const owner = `NovaTrail's ${name}`;
 
-  // A tag before T168 has no orchestrator.
+  // The orchestrator is spec's alone (R156); a tag of spec may have none.
   fs.rmSync(path.join(dir, "orchestrator"), { recursive: true, force: true });
   edit(path.join(dir, "devcontainer.json"), (text) => {
     text = replace(text, "novatrail-spec", id, 2, "the container's name and network");
-    // A tag before T115 names no container in its network, and the copy gets its name all the
+    // A tag of spec may name no container in its network, and the copy gets its name all the
     // same, after its network, the first.
     text = text.includes("--network-alias")
       ? replace(text, '"--network-alias=spec"', `"--network-alias=${alias}"`, 1, "the container's name in its network")
@@ -122,8 +122,8 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
     text = addExtensions(text, extensions);
     text = addPluginDirs(text, claudePlugins);
     text = addContext(text, devcontainer);
-    // Its comments cite spec's decisions too, as shutdownAction's does (R156): a tag before T175
-    // has none there.
+    // Its comments cite spec's decisions too, as shutdownAction's does, but a tag of spec may
+    // have none there (R156).
     return suffixCitations(replace(
       text,
       '    "customizations": {',
@@ -184,7 +184,7 @@ function dropOrchestrator(text) {
 
 // A decision the Dockerfile cites — "(R34)", "(R12, R34)" or "R34" in a sentence — is one of
 // spec's: in the copy it reads "R34 spec", or it would name a decision of the repository's own
-// log (RULES.md, Citations). So is a section of spec's documents, "measurements 3.2": a copy's
+// log. So is a section of spec's documents, "measurements 3.2": a copy's
 // own measurements has no such section, or another one. Every citation gets the suffix, however
 // it is written, so that a new one in spec's Dockerfile or a kind's lines is not left behind.
 // A section ends where its number does, not before a further ".2".

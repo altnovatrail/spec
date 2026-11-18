@@ -307,8 +307,8 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
     assert.equal(entry(code, "novatrail/trial/v1/trial_pb.js"), "export const TrialSchema = 1;\n");
     assert.deepEqual(JSON.parse(entry(code, "package.json")).dependencies, { "@bufbuild/protobuf": "2.16.0" });
 
-    // From the line 0.8 on, the admission table comes too, by its own version (R96), and a commit
-    // of the line without admission/VERSION is refused.
+    // From the line 0.8 on, the admission table comes too, by its own version, and a commit of the
+    // line without admission/VERSION is refused (R96).
     releaseLine(dir, git, "0.8");
     git("commit", "--quiet", "-m", "the line 0.8, with no table yet");
     const missing = recipe(dir, { name: "release-files", args: ["HEAD", "no-table", "v0.8.0"] });
@@ -324,8 +324,8 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
     assert.deepEqual(fs.readdirSync(path.join(dir, "with-admission")).sort(), ["admission-0.1.tar.gz", "altnovatrail-contracts-0.8.0.tgz", "altnovatrail-spec-0.8.0.tgz", "format-0.2.tar.gz"]);
     assert.deepEqual(listing(path.join(dir, "with-admission", "admission-0.1.tar.gz")), ["admission-0.1/LICENSE", "admission-0.1/admission/VERSION", "admission-0.1/admission/admission-table.json"]);
 
-    // From the line 0.11 on, the deployment configuration comes too, by its integer (R85), and a
-    // commit of the line without deployment/VERSION is refused.
+    // From the line 0.11 on, the deployment configuration comes too, by its integer, and a commit
+    // of the line without deployment/VERSION is refused (R85).
     releaseLine(dir, git, "0.11");
     git("commit", "--quiet", "-m", "the line 0.11, with no deployment configuration yet");
     const unconfigured = recipe(dir, { name: "release-files", args: ["HEAD", "no-deployment", "v0.11.0"] });
@@ -344,8 +344,8 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
     assert.deepEqual(fs.readdirSync(path.join(dir, "with-deployment")).sort(), ["admission-0.1.tar.gz", "altnovatrail-contracts-0.11.0.tgz", "altnovatrail-spec-0.11.0.tgz", "deployment-1.tar.gz", "format-0.2.tar.gz"]);
     assert.deepEqual(listing(path.join(dir, "with-deployment", "deployment-1.tar.gz")), ["deployment-1/LICENSE", "deployment-1/deployment/VERSION", "deployment-1/deployment/schemas/deployment.schema.json"]);
 
-    // From the line 0.13 on, the legal texts come too, by their integer (R130), and a commit of the
-    // line without legal/VERSION is refused.
+    // From the line 0.13 on, the legal texts come too, by their integer, and a commit of the line
+    // without legal/VERSION is refused (R130).
     releaseLine(dir, git, "0.13");
     git("commit", "--quiet", "-m", "the line 0.13, with no legal texts yet");
     const unwritten = recipe(dir, { name: "release-files", args: ["HEAD", "no-legal", "v0.13.0"] });
@@ -362,8 +362,8 @@ test("release-files builds the format of the commit, with LICENSE, in a folder n
     assert.deepEqual(fs.readdirSync(path.join(dir, "with-legal")).sort(), ["admission-0.1.tar.gz", "altnovatrail-contracts-0.13.0.tgz", "altnovatrail-spec-0.13.0.tgz", "deployment-1.tar.gz", "format-0.2.tar.gz", "legal-1.tar.gz"]);
     assert.deepEqual(listing(path.join(dir, "with-legal", "legal-1.tar.gz")), ["legal-1/LICENSE", "legal-1/legal/VERSION", "legal-1/legal/legal.yaml", "legal-1/legal/texts/privacy-policy/1.md"]);
 
-    // From the line 0.14 on, the table of the age of digital consent comes too, by its integer
-    // (R134), and a commit of the line without consent-age/VERSION is refused.
+    // From the line 0.14 on, the table of the age of digital consent comes too, by its integer,
+    // and a commit of the line without consent-age/VERSION is refused (R134).
     releaseLine(dir, git, "0.14");
     git("commit", "--quiet", "-m", "the line 0.14, with no table yet");
     const untabled = recipe(dir, { name: "release-files", args: ["HEAD", "no-consent-age", "v0.14.0"] });

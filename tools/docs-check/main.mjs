@@ -7,16 +7,9 @@
 // The root is never a path from the command line: given to git as its working directory, such a
 // path would let whoever writes the command run git in any folder (R32).
 //
-// Reads every Markdown file of root — in a repository, those git tracks and those its .gitignore
-// files do not keep out — and checks that relative links lead somewhere, that cited sections
-// exist, that the registers are numbered without gaps and every cited number exists, that no
-// number is typed in the wrong script, that every Mermaid diagram parses, and that each rule of
-// .claude/rules/ has paths that match files of root and is named in CLAUDE.md, and that files,
-// rules, decision entries, sections and rows of tables keep within their budgets of size, and,
-// where the budgets turn it on, that each number of a decision in a comment of code names an entry
-// of its log. In a repository of its own, citations of spec — "architecture 3.8 spec", "R18 spec",
-// "Т-15" — are checked against its spec/ submodule, at the tag it is pinned to, and spec/ itself is
-// not checked. Prints one line per error, file:line: message, and exits 1 if there are any.
+// In a repository of its own, citations of spec — `architecture 3.8 spec`, `R18 spec`, `Т-15` —
+// are checked against its spec/ submodule, at the tag it is pinned to, and spec/ itself is not
+// checked. Prints one line per error, file:line: message, and exits 1 if there are any.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -95,14 +88,12 @@ export async function check(root, profile = specProfile) {
 
 // The files of root, by their paths relative to it with forward slashes, in a stable order. A
 // root with a .git of its own — a repository, the spec/ submodule, a copy that new-repo built —
-// has its files listed by git: the tracked ones still in the working tree and the untracked ones
-// that the repository's .gitignore files do not keep out. So a document not committed yet is read,
-// and what the repository keeps out of git, such as tutor's samples/, is not: git does not even
-// enter a folder it ignores (R32). Only the repository's own rules
-// count, not the user's global ones or .git/info/exclude, so the list is the same on every machine.
-// If git cannot list the files, `fail` hears why, and the result is null. A root without a .git —
-// a draft new-repo built, the copies of the tests — is walked whole. What `excluded` names is left
-// out either way.
+// has its files listed by git, so a document not committed yet is read, and what the repository
+// keeps out of git, such as tutor's samples/, is not: git does not even enter a folder it ignores.
+// Only the repository's own rules count, not the user's global ones or .git/info/exclude, so the
+// list is the same on every machine. If git cannot list the files, `fail` hears why, and the
+// result is null. A root without a .git — a draft new-repo built, the copies of the tests — is
+// walked whole. What `excluded` names is left out either way (R32).
 function listFiles(root, excluded, fail) {
   const skip = (relative) =>
     relative.split("/").some((name) => excluded.names.includes(name)) ||
@@ -148,7 +139,6 @@ function listedByGit(root) {
   return [...new Set(listed.split("\0"))].filter((file) => file && fs.lstatSync(path.join(root, file), { throwIfNoEntry: false })?.isFile());
 }
 
-// Every file under root, by its relative path, but none in a folder that `skip` leaves out.
 function walkedTree(root, skip) {
   const found = [];
   const walk = (dir) => {
@@ -188,7 +178,6 @@ if (isMain(import.meta.url)) {
   let root;
   let profile;
   if (args[0] === "--component") {
-    // The repository around this spec, never a path from the command line.
     root = path.dirname(specRoot);
     if (!isRepositoryAround(root, specRoot)) {
       console.error(`docs-check: --component runs from the spec/ submodule of a NovaTrail repository, and ${specRoot} is not one`);

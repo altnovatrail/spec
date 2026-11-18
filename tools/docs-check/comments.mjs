@@ -1,6 +1,6 @@
-// The numbers of decisions in the comments of code: each "R…" a comment gives names an entry of
-// its log — "R25" the repository's own, "R25 spec" spec's —, so that the anchor a comment ends with
-// leads to its reason (R160). "R37 canvas-api" and "R03 api" are another repository's and are not
+// The numbers of decisions in the comments of code: each `R…` a comment gives names an entry of
+// its log — `R25` the repository's own, `R25 spec` spec's —, so that the anchor a comment ends with
+// leads to its reason (R160). `R37 canvas-api` and `R03 api` are another repository's and are not
 // checked, and an example in inline code, `R03`, is no citation (R32).
 //
 // What is read is the comments alone, not strings: `//` and `/* */` in Go, TypeScript, JavaScript,
@@ -38,7 +38,7 @@ export function commentKind(file) {
 export const isGenerated = (source) => GENERATED.test(source.split("\n", GENERATED_LINES).join("\n"));
 
 // The comments of a source, each { text, lineAt }: the comment's text with its markers taken off,
-// one block for a run of line comments on consecutive lines, so that "R32\n spec" is one citation;
+// one block for a run of line comments on consecutive lines, so that `R32\n spec` is one citation;
 // lineAt(offset) is the line of the source an offset of the text is on.
 export function commentsOf(source, kind) {
   const pieces = kind === "hash" ? hashComments(source) : slashComments(source, kind === "js");

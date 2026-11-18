@@ -1,7 +1,6 @@
-// The leak check of the module format, as section 20 of its text gives it (format/README.md; R57, R58):
-// a second implementation beside module-kit's, by which spec's CI computes the test vectors of the leak
-// check and checks task.no-leaks and lesson.no-leaks. The scans are loops over the characters: a
-// regular expression over a text of any length could backtrack.
+// The format's leak check: a second implementation beside module-kit's, by which spec's CI computes
+// the test vectors of the leak check and checks task.no-leaks and lesson.no-leaks (R57, R58). The
+// scans are loops over the characters: a regular expression over a text of any length could backtrack.
 
 import { VERDICT_KINDS as KINDS_WITH_VERDICTS, absolute, answerSlotsOf, comparableOf, equal, lowercase, normalized, rationalOf, scriptsReplaced, timeOf } from "./verdicts.mjs";
 
@@ -13,14 +12,13 @@ const isDigit = (char) => char !== undefined && char >= "0" && char <= "9";
 const VERDICT_KINDS = new Set(KINDS_WITH_VERDICTS);
 const KEYED_KINDS = new Set(KINDS_WITH_VERDICTS.filter((kind) => kind !== "predicate"));
 
-// The normal form of a text, of a key of a choice and of a leak phrase: step 1 of section 15, NFKC,
+// The normal form of a text, of a key of a choice and of a leak phrase: script digits replaced, NFKC,
 // the dashes and slashes, the white space, and each character to its simple lowercase mapping. An
 // array of characters, so that a character outside the Basic Multilingual Plane is one.
 export function leakForm(text) {
   return [...lowercase(normalized(scriptsReplaced(text)))];
 }
 
-// Where the digits from at end.
 function digitsEnd(chars, at) {
   let end = at;
   while (isDigit(chars[end])) end++;
@@ -100,7 +98,6 @@ export function timesIn(chars) {
 
 const magnitudeOf = ({ numerator, denominator }) => ({ numerator: absolute(numerator), denominator });
 
-// Whether a needle's normal form stands in a text's normal form at at.
 function standsAt(chars, form, at) {
   for (let i = 0; i < form.length; i++) if (chars[at + i] !== form[i]) return false;
   return true;
@@ -130,15 +127,14 @@ function searched(text) {
 }
 
 // A needle, normalized once: a key of a number or a fraction by its magnitude, a key of a time by its
-// hours and minutes, and a key of a choice
-// or a leak phrase by its normal form. written is how the task writes it.
+// hours and minutes, and a key of a choice or a leak phrase by its normal form. written is how the
+// task writes it.
 function needleOf(written, kind) {
   if (kind === "number" || kind === "fraction") return { written, magnitude: magnitudeOf(rationalOf(written, kind)) };
   if (kind === "time") return { written, time: timeOf(written) };
   return { written, form: leakForm(written) };
 }
 
-// Whether a needle is found in a searched text.
 function holds(text, needle) {
   if (needle.form) return holdsForm(text.chars, needle.form);
   if (needle.time) return text.times.includes(needle.time);
@@ -161,13 +157,13 @@ function ownTextsOf(task, item) {
 }
 
 // A key of a number or a fraction is searched for only when it is in notation: a key that holds a
-// placeholder, outside a template, breaks task.placeholders instead (section 23).
+// placeholder, outside a template, breaks task.placeholders instead.
 const isSearchable = (check) => {
   if (check.kind === "time") return timeOf(check.key) !== null;
   return (check.kind !== "number" && check.kind !== "fraction") || rationalOf(check.key, check.kind) !== null;
 };
 
-// What the leak check searches a text for (section 20): the key of every check of a number, a
+// What the leak check searches a text for: the key of every check of a number, a
 // fraction, a choice or a time that the texts of its own item do not show, and every leak phrase.
 export function needlesOf(task) {
   const needles = [];
@@ -200,11 +196,12 @@ export const trapsNamed = (task) => [...(task.traps ?? []), ...trapValuesOf(task
 
 // The texts of a module that the learner can see before a task is solved, which task.no-leaks
 // searches: the task's givens, unknown and leading question, the text of each trap value and the
-// simpler case of each item; of an instance of a template, the path of each picture of its statement and its solution,
-// whose names its numbers fill (section 23; R108) — not a task's that is no template, whose names the
-// author wrote, often with the numbers of its ID; and, of the module's other parts when they are given, the title
-// and description of each technique the task names, the advice of each trap it names, the description
-// and title of each solving step and, for a task with an item with a verdict, the manifest's rung templates.
+// simpler case of each item; of an instance of a template, the path of each picture of its
+// statement and its solution, whose names its numbers fill — not a task's that is no template,
+// whose names the author wrote, often with the numbers of its ID (R108); and, of the module's other
+// parts when they are given, the title and description of each technique the task names, the advice
+// of each trap it names, the description and title of each solving step and, for a task with an
+// item with a verdict, the manifest's rung templates.
 export function textsShownBefore(task, { manifest, traps, techniques, solvingSteps } = {}, instance = false) {
   const texts = [...(task.givens ?? []), task.unknown, task.leading_question, ...(task.items ?? []).map((item) => item.simpler_case), ...trapValuesOf(task).map((trapValue) => trapValue.text)];
   if (instance) texts.push(...[...(task.statement ?? []), ...(task.solution ?? [])].map((part) => part.picture));
@@ -222,12 +219,11 @@ export function leaksBefore(task, parts, instance = false) {
   return textsShownBefore(task, parts, instance).some((text) => leaksIn(text, needles).length > 0);
 }
 
-// The texts of a lesson, which lesson.no-leaks searches (section 21): its title; the paragraphs, the
+// The texts of a lesson, which lesson.no-leaks searches: its title; the paragraphs, the
 // alt of the pictures and the texts of the numbered lists of each explanation, whose numbers the app
 // draws (R111); and the paragraphs and the alt of the pictures of each worked example's statement and
-// demo.
-// The open view of a lesson reaches the learner's app whole, so a text after a task is seen before
-// the task is solved too.
+// demo. The open view of a lesson reaches the learner's app whole, so a text after a task is seen
+// before the task is solved too.
 export function lessonTexts(lesson) {
   const segments = lesson.segments ?? [];
   const parts = segments.flatMap((segment) => [...(segment.explanation ?? []), ...(segment.worked_example?.statement ?? []), ...(segment.worked_example?.demo ?? [])]);
@@ -237,7 +233,7 @@ export function lessonTexts(lesson) {
 
 // Whether a lesson breaks lesson.no-leaks: one of its texts holds a key or a leak phrase of a task
 // that it names. tasks maps the local ID of each task of the module to the tasks that it is: the task
-// itself, or the instances of a template (section 23); a task that the module does not hold is
+// itself, or the instances of a template; a task that the module does not hold is
 // lesson.known-tasks', not this rule's. Each text is normalized once.
 export function lessonLeaks(lesson, tasks) {
   const texts = lessonTexts(lesson).map(searched);

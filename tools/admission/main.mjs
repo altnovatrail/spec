@@ -1,17 +1,18 @@
-// admission-check: spec's own admission/, the admission table (R96), by the layout of its text,
-// admission/README.md, section 3:
+// admission-check: spec's own admission/, the admission table, by the layout of its text,
+// admission/README.md (R96):
 //
 //   node tools/admission/main.mjs
 //
 // It checks VERSION; each schema against the conventions of the module format's schemas
-// (format/README.md, section 5) under the prefix of the admission table, with no x-open, and
-// against the 2020-12 meta-schema; that the codes of the age categories are the format's (R46);
+// (format/README.md) under the prefix of the admission table, with no x-open, and against the
+// 2020-12 meta-schema; that the codes of the age categories are the format's (R46);
 // the table, admission-table.json, against its schema and the rules of the text, and each of its
-// terms and citations against spec's documents: the row of privacy 5.3 that a cell reads, and the
-// decision, the open question or the section that a rule or a cell rests on; each example against
+// terms and citations against spec's documents: the row of the providers' terms on age, in
+// privacy.md, that a cell reads, and the decision, the open question or the section that a rule
+// or a cell rests on; each example against
 // its schema, and a valid example of a table against the rules too; each vector of a rule — that it
 // passes the schema and breaks that rule and no other; and each vector of answers, whose answers it
-// computes as section 6 of the text gives them (answer.mjs) and compares. Every reason of a refusal
+// computes as the text gives them (answer.mjs) and compares. Every reason of a refusal
 // has a vector. A file the layout does not know is an error. Prints each error as file:line:
 // message, the line 0 when there is none, and exits 1 when there is one.
 
@@ -147,9 +148,9 @@ function readVersion(root, report) {
   return readVersionFile(root, `${FOLDER}/VERSION`, VERSION, { missing: "no VERSION: the table's version, MAJOR.MINOR and a newline", malformed: "the table's version is MAJOR.MINOR and a newline, with no leading zeros" }, report);
 }
 
-// The codes of the age categories are the format's, R46's: the table's schema and the format's
-// common schema list the same ones, in the same order. What is wrong with the common schema itself
-// is format-check's to say.
+// The codes of the age categories are the format's: the table's schema and the format's common
+// schema list the same ones, in the same order. What is wrong with the common schema itself is
+// format-check's to say (R46).
 function checkAgeCategories(root, schemas, report) {
   const table = schemas.find((schema) => schema.name === `${TABLE_TERM}.schema.json`);
   const ours = table?.json?.$defs?.age_category?.enum;
@@ -225,8 +226,9 @@ function readDocuments(root) {
   return { files, registers: readRegisters(files, registers, () => {}) };
 }
 
-// What a table cites that spec's documents do not hold: a row of privacy 5.3 that a cell's terms
-// name, and a decision, an open question or a section that a rule or a cell rests on. [{ at, message }].
+// What a table cites that spec's documents do not hold: a row of privacy.md's table of the
+// providers' terms on age that a cell's terms name, and a decision, an open question or a section
+// that a rule or a cell rests on. [{ at, message }].
 export function documentProblems(table, docs) {
   const problems = [];
   const privacy = docs.files.get(documents.privacy);
@@ -287,7 +289,7 @@ function answerVectorProblems(bytes, validate, docs) {
   for (const problem of documentProblems(table, docs)) problems.push({ line: 0, message: `table/${problem.at.join("/")}: ${problem.message}` });
   if (breaches.length) return { problems, cases: [] };
   cases.forEach(({ request, facts, answer }, index) => {
-    // A reader refuses facts its table does not know (section 5), so a vector declares none.
+    // A reader refuses facts its table does not know, so a vector declares none.
     for (const [provider, declared] of Object.entries(facts ?? {})) {
       if (!Object.hasOwn(table.providers, provider)) problems.push({ line: 0, message: `cases/${index}/facts/${provider}: no provider of the table` });
       for (const fact of Object.keys(declared)) {

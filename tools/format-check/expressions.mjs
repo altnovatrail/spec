@@ -1,7 +1,7 @@
-// The expressions of templates, as section 23 of the format text gives them (format/README.md; R60):
-// a narrow subset of Starlark — integers and names, + - * // %, comparisons, and, or and not — that
-// spec's CI reads and evaluates itself, as module-kit evaluates it with go.starlark.net. Every int is
-// a BigInt, so that it has no bound, as an int of Starlark has none.
+// The expressions of templates: a narrow subset of Starlark — integers and names, + - * // %,
+// comparisons, and, or and not — that spec's CI reads and evaluates itself, as module-kit evaluates
+// it with go.starlark.net (R60). Every int is a BigInt, so that it has no bound, as an int of
+// Starlark has none.
 
 // The tokens of two characters, then those of one, that the subset takes.
 const SYMBOLS = ["==", "!=", "<=", ">=", "//", "<", ">", "+", "-", "*", "%", "(", ")"];
@@ -9,8 +9,8 @@ const COMPARISONS = new Set(["==", "!=", "<", "<=", ">", ">="]);
 const WORDS = new Set(["and", "or", "not"]);
 // How deep an expression nests at most: each parenthesis, unary - and not is a level within the one
 // around it. go.starlark.net at the version of the format parses no deeper than about 75
-// parentheses, or 987 unary - in a row, as module-kit found (R102; R32 module-kit, its
-// template/expression.go at aa7686c, read 2026-11-09), and 64 is below both with room to spare.
+// parentheses, or 987 unary - in a row, as module-kit found (R32 module-kit), and 64 is below both
+// with room to spare (R102).
 export const MOST_LEVELS = 64;
 
 // What reading or typing an expression throws, with the problem to name: any other error is a fault
@@ -57,7 +57,7 @@ export function tokensOf(text) {
 
 // The tree of an expression: { tree } or { problem }. A node is { int }, { name }, { op, operand } for
 // not and unary -, or { op, left, right }. It begins with a token, since go.starlark.net reads a space
-// before it as an indent, and nests at most MOST_LEVELS levels (R102, В28 module-kit).
+// before it as an indent, and nests at most MOST_LEVELS levels (R102).
 export function parseExpression(text) {
   if (text.startsWith(" ")) return { problem: "it begins with a space: an expression begins with a token" };
   const { tokens, problem } = tokensOf(text);

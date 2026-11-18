@@ -5,35 +5,21 @@
 //     git show <commit>:consent-age/VERSION; echo --; git show <commit>:export/VERSION; } \
 //       | node tools/release/files.mjs <line> [<tag>]
 //
-// From FIRST_FILES_LINE on, a release carries each normative part that has a version of its own
-// as one file, <part>-<version>.tar.gz, for each version of it the platform reads (R44): while
-// the format is v0 that is one file of the format, at the version format/VERSION names at the
-// commit. From FIRST_ADMISSION_LINE on, it carries the admission table too,
-// admission-<version>.tar.gz, at the version admission/VERSION names, which comes on stdin after
-// format/VERSION and a line -- (R96). From FIRST_DEPLOYMENT_LINE on, it carries the format of the
-// deployment configuration as well, deployment-<version>.tar.gz, at the version deployment/VERSION
-// names, an integer, which comes after admission/VERSION and a second line -- (R85). From
-// FIRST_LEGAL_LINE on, it carries the legal texts too, legal-<version>.tar.gz, at the version
-// legal/VERSION names, an integer, which comes after deployment/VERSION and a third line -- (R130).
-// From FIRST_CONSENT_AGE_LINE on, it carries the table of the age of digital consent too,
-// consent-age-<version>.tar.gz, at the version consent-age/VERSION names, an integer, which comes
-// after legal/VERSION and a fourth line -- (R134). From FIRST_EXPORT_LINE on, it carries the format
-// of the export too, export-<version>.tar.gz, at the version export/VERSION names, an integer, which
-// comes after consent-age/VERSION and a fifth line -- (R135).
-// Any of the files may be missing from the commit, and then its side of the line is empty.
-// From FIRST_NPM_LINE on, it carries the npm package @altnovatrail/spec as well, the archive npm
-// pack names for the release's version, altnovatrail-spec-<MAJOR.MINOR.PATCH>.tgz (R73): tag is
-// the release's, in the line. From FIRST_CONTRACTS_LINE on, it carries the npm package of the
-// contracts' code too, @altnovatrail/contracts, altnovatrail-contracts-<MAJOR.MINOR.PATCH>.tgz, and
-// release.yml tags the Go module of the contracts with the release (R83). A release of an earlier
-// line carries no files, and its stdin, which may be empty, is not read for a version; a release of
-// a line before FIRST_ADMISSION_LINE reads format/VERSION alone, one before
-// FIRST_DEPLOYMENT_LINE no deployment/VERSION, one before FIRST_LEGAL_LINE no legal/VERSION, and
-// one before FIRST_CONSENT_AGE_LINE no consent-age/VERSION, and one before FIRST_EXPORT_LINE no
-// export/VERSION.
-// Prints a line for each file: its
-// name, and the path in the repository that the file holds beside LICENSE. `just release-files`
-// builds them, and release.yml checks the files of a release it runs again by the names.
+// A release carries each normative part that has a version of its own as one file,
+// <part>-<version>.tar.gz, for each version of it the platform reads, at the version its VERSION
+// names at the commit: the format from FIRST_FILES_LINE on, and the admission table, the
+// deployment configuration, the legal texts, the table of the age of digital consent and the
+// format of the export each from its own FIRST_<PART>_LINE on (R44, R96, R85, R130, R134, R135).
+// Their VERSION files come on stdin in that order, apart by lines --. Any of them may be missing
+// from the commit, and then its side of the line is empty; a release of a line before a part's
+// first reads no VERSION of that part. From FIRST_NPM_LINE on, it carries the npm package
+// @altnovatrail/spec as well, the archive npm pack names for the release's version (R73), and from
+// FIRST_CONTRACTS_LINE on the npm package of the contracts' code, @altnovatrail/contracts, whose Go
+// module release.yml tags with the release (R83): tag is the release's, in the line. A release of
+// an earlier line carries no files, and its stdin, which may be empty, is not read for a version.
+// Prints a line for each file: its name, and the path in the repository that the file holds beside
+// LICENSE. `just release-files` builds them, and release.yml checks the files of a release it runs
+// again by the names.
 //
 // Takes nothing from its command line but the line and the tag, which it checks for their form.
 
@@ -45,23 +31,15 @@ import { isMain } from "../shared.mjs";
 
 // spec's first line whose releases carry the npm package of the types (R73).
 export const FIRST_NPM_LINE = "0.4";
-// spec's first line whose releases carry the npm package of the contracts' code (R83): a release
-// of an earlier line, run again, builds the files it got, though its commit may hold contracts.
+// spec's first line whose releases carry the npm package of the contracts' code: a release of an
+// earlier line, run again, builds the files it got, though its commit may hold contracts (R83).
 export const FIRST_CONTRACTS_LINE = "0.7";
-// spec's first line whose releases carry the admission table (R96): the line whose npm package of
-// the types holds its types, one constant for both.
+// spec's first line whose releases carry each part: the line whose npm package of the types holds
+// the part's types, one constant for both (R96, R85, R130, R134, R135).
 export { FIRST_ADMISSION_LINE };
-// spec's first line whose releases carry the format of the deployment configuration (R85): the
-// line whose npm package of the types holds its types, one constant for both.
 export { FIRST_DEPLOYMENT_LINE };
-// spec's first line whose releases carry the legal texts (R130): the line whose npm package of the
-// types holds the types of their passport, one constant for both.
 export { FIRST_LEGAL_LINE };
-// spec's first line whose releases carry the table of the age of digital consent (R134): the line
-// whose npm package of the types holds the types of the table, one constant for both.
 export { FIRST_CONSENT_AGE_LINE };
-// spec's first line whose releases carry the format of the export (R135): the line whose npm
-// package of the types holds the types of its files, one constant for both.
 export { FIRST_EXPORT_LINE };
 
 const VERSION = /^((?:0|[1-9]\d*)\.(?:0|[1-9]\d*))\n$/;
@@ -108,35 +86,31 @@ export function versionTexts(text) {
   return { format: parts[0], admission: parts[1] ?? null, deployment: parts[2] ?? null, legal: parts[3] ?? null, consentAge: parts[4] ?? null, export: parts[5] ?? null };
 }
 
-// The files of a release of the line, given format/VERSION and admission/VERSION at its commit and
-// the release's tag: name and path. The tag is read only in a line whose releases carry the npm
-// package.
+// The files of a release of the line, given the VERSION files at its commit, as versionTexts reads
+// them, and the release's tag: name and path. The tag is read only in a line whose releases carry
+// the npm package.
 export function releaseFiles(line, versionText, tag) {
   if (!LINE.test(line)) throw new Error(`the line '${line}' is not MAJOR.MINOR`);
   if (compareLines(line, FIRST_FILES_LINE) < 0) return [];
   const texts = versionTexts(versionText);
   const files = [{ name: `format-${formatVersion(texts.format)}.tar.gz`, path: "format" }];
-  // A release of an earlier line reads format/VERSION alone, whatever admission/VERSION says.
+  // A release of a line before a part's first reads no VERSION of that part, whatever it says.
   if (compareLines(line, FIRST_ADMISSION_LINE) >= 0) {
     if (!texts.admission) throw new Error(`a release of the line ${line} carries the admission table, and the commit has no admission/VERSION`);
     files.push({ name: `admission-${formatVersion(texts.admission, "admission/VERSION")}.tar.gz`, path: "admission" });
   }
-  // And one before FIRST_DEPLOYMENT_LINE no deployment/VERSION, whatever it says.
   if (compareLines(line, FIRST_DEPLOYMENT_LINE) >= 0) {
     if (!texts.deployment) throw new Error(`a release of the line ${line} carries the deployment configuration, and the commit has no deployment/VERSION`);
     files.push({ name: `deployment-${deploymentVersion(texts.deployment)}.tar.gz`, path: "deployment" });
   }
-  // And one before FIRST_LEGAL_LINE no legal/VERSION.
   if (compareLines(line, FIRST_LEGAL_LINE) >= 0) {
     if (!texts.legal) throw new Error(`a release of the line ${line} carries the legal texts, and the commit has no legal/VERSION`);
     files.push({ name: `legal-${legalVersion(texts.legal)}.tar.gz`, path: "legal" });
   }
-  // And one before FIRST_CONSENT_AGE_LINE no consent-age/VERSION.
   if (compareLines(line, FIRST_CONSENT_AGE_LINE) >= 0) {
     if (!texts.consentAge) throw new Error(`a release of the line ${line} carries the table of the age of digital consent, and the commit has no consent-age/VERSION`);
     files.push({ name: `consent-age-${consentAgeVersion(texts.consentAge)}.tar.gz`, path: "consent-age" });
   }
-  // And one before FIRST_EXPORT_LINE no export/VERSION.
   if (compareLines(line, FIRST_EXPORT_LINE) >= 0) {
     if (!texts.export) throw new Error(`a release of the line ${line} carries the format of the export, and the commit has no export/VERSION`);
     files.push({ name: `export-${exportVersion(texts.export)}.tar.gz`, path: "export" });

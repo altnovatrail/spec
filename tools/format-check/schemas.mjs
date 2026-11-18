@@ -1,10 +1,5 @@
-// The schemas of the module format, format/schemas/<term>.schema.json: read, checked against the
-// conventions of the format text, section 5 (R45 and its amendment of 2026-10-22), and compiled by
-// ajv, the JSON Schema 2020-12 validator that checks the examples and the vectors against them. The
-// schemas of another normative part with a version of its own, such as the admission table's in
-// admission/schemas/, follow the same conventions under the prefix of their part (R96), and so do
-// the deployment configuration's, but for the names of its file's fields (R85), the legal texts'
-// (R130), the table of the age of digital consent's (R134) and the format of the export's (R135).
+// The schemas of the format and of the other versioned normative parts: read, checked against the
+// format's schema conventions, and compiled by ajv (R45, R96, R85, R130, R134, R135).
 //
 // ajv's strict mode is no check of the conventions: it accepts nullable, definitions, dependencies
 // and $dynamicRef, and none of those is the format's. So the conventions are checked on the
@@ -21,20 +16,17 @@ import { patternProblem } from "./patterns.mjs";
 export const DIALECT = "https://json-schema.org/draft/2020-12/schema";
 export const ID_PREFIX = "https://altnovatrail.github.io/spec/format/";
 
-// A normative part whose schemas follow the conventions: its folder, the prefix of each $id, and
-// whether its schemas may mark fields x-open, which only the format does, for the open view. A part
-// may name, in camelCase, the schemas whose fields keep names in camelCase rather than snake_case:
-// only the deployment configuration does, for the file of deployment.schema.json, whose names are
-// those of R09 app and of a Firebase project (deployment/README.md, section 3). The names of $defs
-// stay in snake_case everywhere.
+// A part: its folder, the prefix of each $id, whether its schemas may mark fields x-open (only the
+// format has an open view), and in camelCase the schemas whose fields are named in camelCase rather
+// than snake_case — deployment.schema.json alone, whose names are those of R09 app and of a Firebase
+// project (R85). The names of $defs stay in snake_case everywhere.
 export const FORMAT_PART = { folder: "format", prefix: ID_PREFIX, open: true };
 
-// The keywords a schema may use, by what their values hold (format/README.md, section 5). Left out
-// of 2020-12: $anchor, $dynamicRef, $dynamicAnchor and $vocabulary, since a reference names only
+// The keywords a schema may use, by what their values hold. Left out of 2020-12: $anchor, $dynamicRef, $dynamicAnchor and $vocabulary, since a reference names only
 // $defs; minContains and maxContains, whose failure ajv names "contains"; unevaluatedItems, whose
 // meeting with contains ajv's own test runner skips in the JSON Schema Test Suite; and the content
 // keywords, which the format has no use for. dependentSchemas is walked, so that what it holds is
-// checked too, and refused with its reason (checkSubschema).
+// checked too, and refused with its reason (R45).
 const ONE_SUBSCHEMA = new Set(["not", "if", "then", "else", "items", "contains", "additionalProperties", "propertyNames", "unevaluatedProperties"]);
 const SUBSCHEMA_LIST = new Set(["allOf", "anyOf", "oneOf", "prefixItems"]);
 const SUBSCHEMA_MAP = new Set(["$defs", "properties", "patternProperties", "dependentSchemas"]);
@@ -78,7 +70,7 @@ const PLACES = new Set([...FIELDS, "items", "prefixItems", "contains"]);
 // What a condition holds is no field and no place.
 const CONDITIONS = new Set(["if", "not"]);
 // Where a mark x-open counts for nothing, besides a condition: what contains or propertyNames holds
-// says nothing of which places are open (format/README.md, section 6).
+// says nothing of which places are open.
 const UNMARKED = new Set(["contains", "propertyNames"]);
 
 // Reads <folder>/schemas/<name> of the part, the format's unless named: { name, term, file, part,
@@ -205,8 +197,7 @@ function checkSubschema({ schema, at, under, inCondition, unmarked }, file, byNa
   }
   // Two forms that ajv 8.20.0 validates wrongly beside unevaluatedProperties: false, which closes
   // every object at its place: it counts the fields of the place as unevaluated, and refuses a
-  // valid value (R45 and its amendment of 2026-11-04). When ajv mends them, the amendment that
-  // lifts this rule follows the test that pins them.
+  // valid value; a test pins the bug, and the rule is lifted only once ajv mends it (R45).
   if ("dependentSchemas" in schema) {
     report([...at, "dependentSchemas"], "dependentSchemas: ajv 8.20.0 counts the fields of the place as unevaluated when its key is absent; write allOf with if: {required: [<key>]} and then");
   }
@@ -338,7 +329,6 @@ function resolveRef(ref, file, byName) {
   return isObject(found) ? { schema: found, file: schema } : null;
 }
 
-// The names of the schemas a schema refers to.
 function referencedNames(schema) {
   const names = new Set();
   for (const { schema: node } of subschemas(schema.json)) {
@@ -352,9 +342,9 @@ function referencedNames(schema) {
 // Compiles the schemas with no problems, after checking every schema against the 2020-12
 // meta-schema. Returns { validators, schemaAt }: the validator of each term that compiled with no
 // word from ajv, by term, and schemaAt(uri), the validator of the subschema a URI names — a schema's
-// $id and a JSON Pointer — in a schema that compiled, or undefined. What goes wrong is added to the schema's problems. A
-// schema that refers, directly or through others, to one with problems gets one line, not the
-// MissingRefError of each reference.
+// $id and a JSON Pointer — in a schema that compiled, or undefined. What goes wrong is added to the
+// schema's problems; a schema that refers, directly or through others, to one with problems gets
+// one line, not the MissingRefError of each reference.
 export function compileSchemas(schemas) {
   const warnings = [];
   const note = (...words) => warnings.push(words.join(" "));
@@ -370,9 +360,9 @@ export function compileSchemas(schemas) {
     for (const warning of warnings) schema.problems.push({ line: 1, message: `ajv: ${warning}` });
     return result;
   };
-  // Every option the check relies on, written out: all errors, not the first; format an annotation
-  // only (2020-12 validation, 7.2.1); strictTypes and strictTuples off, since their default, "log",
-  // prints warnings for conventions the format does not have.
+  // Every option the check relies on is written out. format is an annotation only, as 2020-12
+  // validation 7.2.1 has it; strictTypes and strictTuples default to "log", which prints warnings
+  // for conventions the format does not have.
   const ajv = new Ajv2020({
     allErrors: true,
     validateFormats: false,

@@ -1,5 +1,5 @@
-// The package of section 25: the members of a canonical view, the tiers of section 12, the numbers
-// of the instances of templates, the listing of the device part and the inventory.
+// The package: the members of a canonical view, the tiers, the numbers of the instances of
+// templates, the listing of the device part and the inventory.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

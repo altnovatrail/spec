@@ -1,6 +1,6 @@
-// The parses of parseMarkdown and markdownTree are kept in the process by the sha256 of the text
-// (RUN.md, T166): the same text gives the same parse, frozen, whichever path it was read from, and
-// another text a parse of its own.
+// The parses of parseMarkdown and markdownTree are kept in the process by the sha256 of the text:
+// the same text gives the same parse, frozen, whichever path it was read from, and another text a
+// parse of its own.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

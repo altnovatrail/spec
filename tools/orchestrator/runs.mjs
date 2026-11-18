@@ -2,7 +2,7 @@
 // the first, `claude -p` with a new session's id, and each `--resume` of it with the author's
 // answers or the orchestrator's word (R156). Its folder is on the volume novatrail-claude, which the
 // orchestrator's container and every repository's container mount, so the executor writes its
-// stream there itself and the run outlives the orchestrator's session (README.md).
+// stream there itself and the run outlives the orchestrator's session.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -17,7 +17,7 @@ import { sessionCost } from "./transcript.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 // A task's ceiling of cost by default, in dollars at the API's prices, as total_cost_usd counts
-// them: about the 95th percentile of a session's cost (measurements 1.12).
+// them: about the 95th percentile of a session's cost.
 export const DEFAULT_CEILING = 75;
 // Every run is Opus at effort high, unless the author's word or a measurement says otherwise (R156).
 export const MODEL = "opus";
@@ -25,13 +25,11 @@ export const EFFORT = "high";
 // What a resumed run is told when the orchestrator has nothing else to say: after a limit's reset,
 // or a run that stopped.
 export const CONTINUE = "Continue the task from where it stopped.";
-// spec on GitHub, which `sync` clones.
 export const SPEC_URL = "https://github.com/altnovatrail/spec.git";
-// How long an attempt may take to write its pid before it counts as lost.
+// An attempt that has not written its pid by then counts as lost.
 const STARTING_MS = 60_000;
 // How many seconds `stop` waits for claude to end after SIGTERM, and then after SIGKILL.
 export const STOP_WAIT = { TERM: 30, KILL: 10 };
-// What docker says of a container that is no longer there, or no longer runs.
 const GONE = /No such (object|container)|is not running/;
 
 // The executor's command in its container, by sh: the run's folder and the attempt's number, then
@@ -47,8 +45,8 @@ export const SCRIPT = [
 ].join("\n");
 
 // git in the executor's container pushes through gh: the helper the container's git has is VS
-// Code's, which needs a window that a docker exec has not (sources 9.3). An empty helper first
-// clears the ones the configuration files name.
+// Code's, which needs a window that a docker exec has not. An empty helper first clears the ones
+// the configuration files name.
 export const GIT_ENV = {
   GIT_CONFIG_COUNT: "2",
   GIT_CONFIG_KEY_0: "credential.helper",
@@ -66,7 +64,7 @@ function runsOf(home) {
   return path.join(home, "runs");
 }
 
-// A run's id: the repository, the task and the time it started, to the second, in UTC.
+// To the second, in UTC.
 export function runId(repo, task, time) {
   return `${repo}-${task}-${time.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}`;
 }
@@ -100,22 +98,19 @@ function updateRun(home, run, change) {
   Object.assign(run, fresh);
 }
 
-// The orchestrator's own log of the run: what it did, a line of JSON each.
 function logEvent(home, run, event) {
   fs.appendFileSync(path.join(runsOf(home), run.id, "events.jsonl"), `${JSON.stringify(event)}\n`);
 }
 
 // The numbers a run goes by: every one it has had, `labels`, the one it started under first, and
-// the one it goes by now (T175). The hook of tools/session/ counts them as one task, so that a
-// resume whose prompt names the real number is not refused in the session that started under
-// another.
+// the one it goes by now. The hook of tools/session/ counts them as one task, so that a resume
+// whose prompt names the real number is not refused in the session that started under another.
 export function tasksOf(run) {
   return [...new Set([...(run.labels ?? []), run.task])];
 }
 
-// The run's container found again by its labels, when docker no longer has the one it stored —
-// the author rebuilt it, and a rebuilt container has a new id (T175): the same folder of the host
-// and its configuration, as start found it. run.json and the log take the new one.
+// The run's container found again by its labels, when docker no longer has the one it stored: a
+// rebuilt container has a new id. run.json and the log take the new one.
 function relocate(home, run, deps) {
   const found = findContainer(run.repo, { docker: deps.docker, folder: run.container.folder });
   const place = placeOf(found);
@@ -141,9 +136,9 @@ function containerOf(home, run, deps) {
   }
 }
 
-// The arguments of claude for an attempt (sources 2.11): the first gives the session the id the
-// orchestrator chose, a later one resumes it; each gets what is left of the task's ceiling, since
-// on a resume --max-budget-usd counts only what the new run spends (sources 2.11).
+// The first attempt gives the session the id the orchestrator chose, a later one resumes it; each
+// gets what is left of the task's ceiling, since on a resume --max-budget-usd counts only what the
+// new run spends.
 export function claudeArgs(run, attempt, budget) {
   return [
     "-p",
@@ -163,8 +158,7 @@ export function claudeArgs(run, attempt, budget) {
   ];
 }
 
-// Starts the next attempt of a run in its container, detached: docker exec returns at once, and
-// the attempt's files say how it goes.
+// Detached: docker exec returns at once, and the attempt's files say how it goes.
 function launch(home, run, prompt, budget, deps) {
   const n = run.attempts.length + 1;
   const dir = path.join(runsOf(home), run.id);
@@ -177,9 +171,9 @@ function launch(home, run, prompt, budget, deps) {
   logEvent(home, run, { time: attempt.started, event: attempt.kind, attempt: n, budget_usd: attempt.budget_usd, container: run.container.name });
 }
 
-// Starts a task in its repository's container: finds the container, starts it if it is stopped,
-// makes the run's folder with the contract and the schema of this copy of the orchestrator, and
-// runs the first attempt with the prompt, «Выполни задачу <task> из RUN.md» by default.
+// Starts a task in its repository's container, starting the container if it is stopped. The run's
+// folder gets the contract and the schema of this copy of the orchestrator, which every attempt of
+// the run is held to.
 export function start({ repo, task, ceiling = DEFAULT_CEILING, prompt = null, container = null, folder = null }, deps) {
   if (!/^T\d+$/.test(task)) throw new Error(`not a task: ${task}`);
   if (!(Number.isFinite(ceiling) && ceiling > 0)) throw new Error(`not a ceiling of cost: ${ceiling}`);
@@ -245,10 +239,10 @@ function alive(home, run, attempt, dir, deps) {
 // sh wraps, and all that claude started, the commands it left in the background too — and those of
 // the rest of its words, each `<pid>:<start>`, that still run with the same time of start, and
 // prints each one it signalled as `<pid>:<start>`; $1 "-" signals none, and only names them. The sh
-// itself is left to write claude's exit code: a signal to the sh alone would not reach claude
-// (T175). A process that claude's end left to the container's first process is no longer below the
-// sh, so stop gives back what its first round named; the time of start tells that the pid has not
-// passed to another process since. A zombie is no process here. The fields of /proc/<pid>/stat are
+// itself is left to write claude's exit code: a signal to the sh alone would not reach claude. A
+// process that claude's end left to the container's first process is not below the sh, so stop
+// gives back what its first round named; the time of start tells that the pid has not passed to
+// another process since. A zombie is no process here. The fields of /proc/<pid>/stat are
 // taken after the last ") ", since the name before may hold spaces and parentheses: the state is
 // the first, the parent the second, the time of start the twentieth. Everything here is sh's own,
 // as in ALIVE: an image need not have pkill or ps.
@@ -296,8 +290,8 @@ function attemptOf(home, run, attempt, deps, last) {
   return { ...outcome, read: stream };
 }
 
-// Whether a run was started by the earlier contract, whose status named no task: its folder keeps
-// the schema it was given. One whose schema cannot be read is held to this copy's.
+// Whether the schema in a run's folder asks for no task in the status. One whose schema cannot be
+// read is held to this copy's.
 function earlier(dir) {
   try {
     return !JSON.parse(fs.readFileSync(path.join(dir, "status.schema.json"), "utf8")).required.includes("task");
@@ -307,7 +301,7 @@ function earlier(dir) {
 }
 
 // Takes the number the executor's status names for its task, when it is not the run's: the
-// executor wrote the task under the next free number, its own being taken (T175). Every number the
+// executor wrote the task under the next free number, its own being taken. Every number the
 // run has gone by stays in `labels`, the first first; the log says when it changed.
 function relabel(home, run, named, deps) {
   const number = `T${Number(named.slice(1))}`;
@@ -321,12 +315,12 @@ function relabel(home, run, named, deps) {
 
 // Where a run stands: the phase of its last attempt, the executor's status, why it stopped, when a
 // limit resets, and what it cost. A resumed run's total_cost_usd is the session's whole total
-// (sources 2.11), so what the task spent is the largest of them. An attempt after it that printed
+// so what the task spent is the largest of them. An attempt after it that printed
 // none — stopped, lost, cut short — spent what only the session's transcript shows: the transcript
 // is read then, and the larger of the two is the spend, with where it came from. Such an attempt
 // is counted as unpriced unless the transcript, every call of it priced, comes to more than the
-// results' total: one that comes to less does not show what the attempt spent. Turns and time are summed over every result of every attempt (T175);
-// the usage of the models is the last result's.
+// results' total: one that comes to less does not show what the attempt spent. Turns and time are
+// summed over every result of every attempt; the usage of the models is the last result's.
 export function stateOf(home, run, deps) {
   const results = run.attempts.map((a, i) => attemptOf(home, run, a, deps, i === run.attempts.length - 1));
   const last = results.at(-1);
@@ -396,7 +390,7 @@ function knownDone(home, run) {
   return outcomeOf(readStream(fs.readFileSync(stream, "utf8")), code, earlier(dir) ? run.task : null).phase === "done";
 }
 
-// Every run in the orchestrator's folder, oldest first.
+// Oldest first.
 export function allRuns(home) {
   const dir = runsOf(home);
   if (!fs.existsSync(dir)) return [];
@@ -428,8 +422,8 @@ export function resume(id, { prompt = null, ceiling = null }, deps) {
   return run;
 }
 
-// Stops the last attempt of a run that runs, so that the orchestrator may resume it with a new word
-// (T175): SIGTERM to claude and every process below it; then, once STOP_WAIT.TERM seconds have
+// Stops the last attempt of a run that runs, so that the orchestrator may resume it with a new word:
+// SIGTERM to claude and every process below it; then, once STOP_WAIT.TERM seconds have
 // passed with any of them still there, SIGKILL to what is left of them and to what is below the sh
 // now. A process that outlived claude, which the container's first process took over, is still one
 // of them: STOP names each by its pid and its time of start, so that a pid passed on since is never
@@ -499,8 +493,8 @@ export async function waitFor(ids, { interval = 10_000, timeout = 0, ended }, de
 
 // The orchestrator's own copy of spec — its code and its plan at one commit of main —, cloned from
 // GitHub into its folder or moved forward to main's head. Both configurations of spec open the same
-// folder, and a task of spec run in the other switches its branches (R156); the clone is never
-// edited, so a change in it is an error rather than something to lose.
+// folder, and a task of spec run in the other switches its branches; the clone is never edited, so
+// a change in it is an error rather than something to lose (R156).
 export function sync({ home, url = SPEC_URL, git = runGit }) {
   const dir = path.join(home, "spec");
   if (fs.existsSync(dir)) {

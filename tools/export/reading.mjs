@@ -1,9 +1,9 @@
-// The reading of an export, section 5 of export/README.md: each file of JSON by its schema first,
-// then the rules in the order of the text's table. A second implementation, beside app's and any
-// reader's, which computes what each vector of reading gives.
+// The reading of an export by export/README.md: each file of JSON by its schema first, then the
+// rules in the order of the text's table. A second implementation, beside app's and any reader's,
+// which computes what each vector of reading gives.
 //
 // An export is read unpacked: its files by their paths, the outer ZIP's at the root — the stored
-// works among them, under works/ — and the files of api.zip under api/, as section 3 lays them out.
+// works among them, under works/ — and the files of api.zip under api/, as the text lays them out.
 // A file of JSON is its value as JSON reads it, and a .proto file its text.
 
 import { byCodeUnits } from "../shared.mjs";
@@ -24,7 +24,7 @@ const PROFILE = /^api\/profiles\/([^/]+)\.json$/;
 const DEVICE = /^device\/([^/]+)\.json$/;
 const WORK = /^works\/([^/]+)\/([^/]+)\.json$/;
 const PROTO_FILE = /^api\/proto\/(?:[a-z0-9_]+\/)+[a-z0-9_]+\.proto$/;
-// The schemas of .proto that a profile's records are written by (section 1): the messages of
+// The schemas of .proto that a profile's records are written by: the messages of
 // learner-model for the log and the state, and the observation of the contracts.
 export const LEARNER_MODEL_PROTO = ["api/proto/novatrail/learnermodel/v1/common.proto", "api/proto/novatrail/learnermodel/v1/evidence.proto", "api/proto/novatrail/learnermodel/v1/state.proto"];
 export const OBSERVATION_PROTO = ["api/proto/novatrail/observation/v1/observation.proto"];

@@ -1,12 +1,12 @@
 // The numeric IDs GitHub gave the organization altnovatrail and each of its repositories, which
-// release-verify holds a signature's certificate to (R77): Source Repository Identifier and
-// Source Repository Owner Identifier. A repository's address changes when it is renamed, and its
-// ID does not; a repository made anew under an old name gets a new ID. That is why the IDs are
-// held here, in spec, rather than read from GitHub when a file is checked: read then, they would
-// follow whatever repository has the name now.
+// release-verify holds a signature's certificate to: Source Repository Identifier and Source
+// Repository Owner Identifier. A repository's address changes when it is renamed, and its ID does
+// not; a repository made anew under an old name gets a new ID. That is why the IDs are held here,
+// in spec, rather than read from GitHub when a file is checked: read then, they would follow
+// whatever repository has the name now (R77).
 //
-// A new repository's ID comes in with the task of spec that makes it, after `gh repo create`
-// (repositories 2.2): until then release-verify refuses the files of its releases.
+// A new repository's ID comes in here once `gh repo create` has made it: until then
+// release-verify refuses the files of its releases.
 
 export const ORGANIZATION = Object.freeze({ name: "altnovatrail", id: "344507087" });
 

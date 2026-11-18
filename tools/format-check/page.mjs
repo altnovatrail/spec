@@ -1,24 +1,19 @@
-// The page of a workbook, as section 14 of the format text gives it (format/README.md; the
-// 2026-11-01 amendment to R51): where the template puts each item's number, the pieces of its line
-// and its boxes, in whole units of the page, from the task's items alone, by the numbers and the
-// table of widths of format/page.yaml. A second implementation beside module-kit's, by which spec's
-// CI computes the vectors of the page and checks task.workbook-page. It is the layout of canvas,
-// src/core/page.ts and src/core/widths.ts at its commit 73807f2 (Apache-2.0, as all of NovaTrail),
-// ported to JavaScript with its numbers read from page.yaml rather than held in the code. Which
-// character is which comes from explicit ranges of code points alone, never from the engine's
-// Unicode tables, so that every engine lays a page out alike.
+// The page of a workbook: where the template puts each item's number, the pieces of its line and its
+// boxes, in whole units of the page, from the task's items alone, by the numbers and the table of
+// widths of format/page.yaml (R51). A second implementation beside module-kit's, by which spec's CI
+// computes the vectors of the page and checks task.workbook-page. It ports canvas's
+// src/core/page.ts and src/core/widths.ts at commit 73807f2, with its numbers read from page.yaml
+// rather than held in the code. Which character is which comes from explicit ranges of code points
+// alone, never from the engine's Unicode tables, so that every engine lays a page out alike.
 
-// The table that a run of format-check reads from format/page.yaml, or null when it has none:
-// task.workbook-page is then not checked.
+// Null when the run has no format/page.yaml: task.workbook-page is then not checked.
 let current = null;
 
-// Takes the value of format/page.yaml, valid against its schema, for the checks that follow, or
-// null.
+// Takes the value of format/page.yaml, valid against its schema, or null.
 export function usePage(value) {
   current = value ? tableOf(value) : null;
 }
 
-// Whether a run has a table to lay pages out by.
 export const hasPage = () => current !== null;
 
 // "U+00A0" as a code point; "U+0300–U+036F" as a range [from, to].
@@ -28,7 +23,6 @@ const rangeOf = (text) => {
   return [codeOf(from), codeOf(to)];
 };
 
-// The table of a value of page.yaml: the numbers, the widths by code point and the ranges.
 function tableOf({ sheet, numbers, most_items: most, widths, joints }) {
   const own = new Map();
   for (const { width, characters } of widths.characters) for (const char of characters) own.set(char.codePointAt(0), width);
@@ -129,7 +123,7 @@ function measuresOf(table) {
 }
 
 // Whether a value written in a box, as a worked example's is, fits the box: as a text of the line,
-// it is no wider than numbers.box_width (section 21).
+// it is no wider than numbers.box_width.
 export function fitsBox(value, table = current) {
   if (!table) throw new Error("format-check lays out no page without format/page.yaml");
   return textWidth(table, wordsOf(table, value).reduce((sum, word) => sum + wordWidth(table, word), 0) + table.space * Math.max(wordsOf(table, value).length - 1, 0)) <= table.numbers.box_width;
@@ -172,7 +166,6 @@ export function pageOf(items, table = current) {
   return { page: { items: placed, bottom } };
 }
 
-// The tokens of an item's line: the words of its pieces of text, and its boxes, in order.
 function tokensOf(table, item) {
   return item.line.flatMap((part, piece) => (part.binding !== undefined ? [{ piece, box: true }] : wordsOf(table, part.text).map((word) => ({ piece, word, width: wordWidth(table, word) }))));
 }

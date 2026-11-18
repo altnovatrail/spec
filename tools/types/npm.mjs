@@ -1,32 +1,17 @@
-// The npm package @altnovatrail/spec (R73): the TypeScript of the module format's types, which
+// The npm package @altnovatrail/spec: the TypeScript of the module format's types, which
 // tools/types writes under types/, with spec's LICENSE and the package's README, tools/types/npm/.
-// It holds declarations, and from FIRST_PAGE_LINE on the page's JSON, no code, and exports each package of the types by its Go path: ./formatv0 and
-// ./formatv0/open. From the line FIRST_CANVAS_LINE on, it holds and exports the types of the element
-// <novatrail-canvas> too, ./canvas, which types/canvas holds, written by hand (R74), and from the
-// line FIRST_ADMISSION_LINE on the types of the admission table, ./admissionv0 (R96), and from the
-// line FIRST_PAGE_LINE on the numbers and widths of the workbook's page and its vectors, as JSON of
-// format/page.yaml and format/vectors/pages/, which tools/types writes under types/page/, by which
-// canvas lays its page out (section 14 of the format text; T88), and from the line
-// FIRST_DEPLOYMENT_LINE on the types of the deployment configuration, ./deploymentv1 (R85), and
-// from the line FIRST_LEGAL_LINE on the types of the legal texts, ./legalv1, and from the line
-// LEGAL_V2_LINE on ./legalv2 in its place, of the part's version 2 (R130, R141), and from the line
-// LEGAL_V3_LINE on ./legalv3 in place of both, of the part's version 3 (R130), and from the
-// line FIRST_CONSENT_AGE_LINE on the types of the table of the age of digital consent,
-// ./consentagev1 (R134), and from the line FIRST_EXPORT_LINE on the types of the format of the
-// export, ./exportv1, and from the line EXPORT_V2_LINE on ./exportv2 in its place, of the part's
-// version 2, and from the line EXPORT_V3_LINE on ./exportv3 in place of both, of the part's
-// version 3 (R135, R151): what a package
-// holds is the line's of its version, the release's, so that a release of an earlier line, run
-// again, gets the package it got.
+// It holds declarations and the page's JSON, no code, and exports each package of the types by its
+// Go path. What a package holds is what the line of its version held, by the constants *_LINE
+// below, so that a release of an earlier line, run again, gets the package it got (R73).
 //
 //   node tools/types/npm.mjs <root> <version> <folder> [<commit>]
 //
 // builds the package's archive into the folder, and prints its path: of the working tree at root,
 // for `just types-check`, which checks the types through the package, or of a commit of the
 // repository at root, its objects alone, for `just release-files`, which puts the archive in the
-// release (tools/release/files.mjs). version is the release's, MAJOR.MINOR.PATCH without its v. npm pack
-// builds the archive and tar reads it back, as tools/npm-package.mjs does for each package of spec:
-// it holds the files of the package, and only them, and the package.json written here.
+// release. version is the release's, MAJOR.MINOR.PATCH without its v. npm pack builds the archive
+// and tar reads it back: it holds the files of the package, and only them, and the package.json
+// written here.
 
 import path from "node:path";
 import { isMain } from "../shared.mjs";
@@ -44,15 +29,15 @@ const CANVAS_DIR = "types/canvas";
 // spec's first line whose package holds them.
 export const FIRST_CANVAS_LINE = "0.5";
 // spec's first line whose package holds the types of the admission table, as the release holds the
-// table (tools/release/files.mjs).
+// table, in tools/release/files.mjs (R96).
 export const FIRST_ADMISSION_LINE = "0.8";
-// spec's first line whose package holds the page of the workbook, format 0.4's.
+// spec's first line whose package holds the page of the workbook, by which canvas lays its page out.
 export const FIRST_PAGE_LINE = "0.10";
 // spec's first line whose package holds the types of the deployment configuration, as the release
-// holds the configuration's format (tools/release/files.mjs).
+// holds the configuration's format, in tools/release/files.mjs (R85).
 export const FIRST_DEPLOYMENT_LINE = "0.11";
 // spec's first line whose package holds the types of the legal texts, as the release holds the
-// part (tools/release/files.mjs).
+// part, in tools/release/files.mjs (R130).
 export const FIRST_LEGAL_LINE = "0.13";
 // spec's first line whose package holds the types of the legal texts' version 2, legalv2, in place
 // of legalv1, the types of version 1, which the lines 0.13 and 0.14 hold (R141).
@@ -63,10 +48,10 @@ const LEGAL_V1 = "legalv1";
 export const LEGAL_V3_LINE = "0.17";
 const LEGAL_V2 = "legalv2";
 // spec's first line whose package holds the types of the table of the age of digital consent, as
-// the release holds the table (tools/release/files.mjs).
+// the release holds the table, in tools/release/files.mjs (R134).
 export const FIRST_CONSENT_AGE_LINE = "0.14";
 // spec's first line whose package holds the types of the format of the export, as the release
-// holds the format (tools/release/files.mjs).
+// holds the format, in tools/release/files.mjs (R135).
 export const FIRST_EXPORT_LINE = "0.14";
 // spec's first line whose package holds the types of the format of the export's version 2,
 // exportv2, in place of exportv1, which the lines 0.14 to 0.16 hold (R135).
@@ -113,23 +98,14 @@ function fromLine(version, first) {
   return compareLines(`${major}.${minor}`, first) >= 0;
 }
 
-// Whether the package of version holds the types of <novatrail-canvas>.
 const holdsCanvas = (version) => fromLine(version, FIRST_CANVAS_LINE);
-// Whether it holds the types of the admission table.
 const holdsAdmission = (version) => fromLine(version, FIRST_ADMISSION_LINE);
-// Whether it holds the page of the workbook.
 const holdsPage = (version) => fromLine(version, FIRST_PAGE_LINE);
-// Whether it holds the types of the deployment configuration.
 const holdsDeployment = (version) => fromLine(version, FIRST_DEPLOYMENT_LINE);
-// Whether it holds the types of the legal texts.
 const holdsLegal = (version) => fromLine(version, FIRST_LEGAL_LINE);
-// The package of the types of the legal texts that the package of version holds.
 const legalPackageOf = (version) => (fromLine(version, LEGAL_V3_LINE) ? LEGAL_PACKAGE : fromLine(version, LEGAL_V2_LINE) ? LEGAL_V2 : LEGAL_V1);
-// Whether it holds the types of the table of the age of digital consent.
 const holdsConsentAge = (version) => fromLine(version, FIRST_CONSENT_AGE_LINE);
-// Whether it holds the types of the format of the export.
 const holdsExport = (version) => fromLine(version, FIRST_EXPORT_LINE);
-// The package of the types of the format of the export that the package of version holds.
 const exportPackageOf = (version) => (fromLine(version, EXPORT_V3_LINE) ? EXPORT_PACKAGE : fromLine(version, EXPORT_V2_LINE) ? EXPORT_V2 : EXPORT_V1);
 
 // The name npm pack gives the package's archive of version: the scope's @ dropped, its / a dash.
@@ -173,7 +149,6 @@ export function manifestOf(version) {
   };
 }
 
-// The package of version, of the tree: its files and its package.json.
 function packageOf(version, tree) {
   return { files: filesOf(version, tree), manifest: manifestOf(version) };
 }

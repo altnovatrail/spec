@@ -2,10 +2,9 @@
 # the references to .github's shared workflows, each with the version comment beside its SHA
 # (R04 .github); the base image of the devcontainer, tag and digest; the packages of tools/; the
 # Go module of tools/gomod, the check of the zip of spec's own Go module; and the module of the
-# contracts, contracts/go.mod (R83). That module,
-# go.mod at the root, requires nothing, and `just go-check` keeps it so (R64): there is nothing
-# there to raise. Nor in tools/types/roundtrip, the check of the types, which requires spec's own
-# module alone, from the working tree (R72).
+# contracts, contracts/go.mod (R83). spec's own module, go.mod at the root, requires nothing, and
+# `just go-check` keeps it so (R64): there is nothing there to raise. Nor in tools/types/roundtrip,
+# the check of the types, which requires spec's own module alone, from the working tree (R72).
 # For npm a pull request rewrites the lock file too, with whatever packages the new version
 # brings along: licenses-check reads every one of them in CI.
 #
@@ -42,8 +41,7 @@ updates:
       # of CI here, with a sixth reference waiting for the five open ones to be merged. Dependabot
       # names each altnovatrail/.github/.github/workflows/<file>.yml, and `*` matches `/` too; the
       # three-day pause holds the group as it holds each reference. Actions of other owners stay a
-      # pull request each: they break in their own ways (the 2026-11-08 amendment to R04 .github;
-      # architecture 3.3 .github).
+      # pull request each: they break in their own ways (R04 .github).
       shared-workflows:
         patterns: ["altnovatrail/.github/*"]
 
@@ -63,7 +61,7 @@ updates:
   # new @bufbuild/protoc-gen-es writes other code of the contracts: its pull request runs
   # `just contracts`, or contracts-check fails it (R83). @bufbuild/protobuf, the runtime the npm
   # package of that code depends on, moves with it in the group bufbuild, at the same version;
-  # contracts-check then runs the code under tsc and Node (RUN.md, T57).
+  # contracts-check then runs the code under tsc and Node.
   - package-ecosystem: npm
     directory: /tools
     schedule:
@@ -73,10 +71,10 @@ updates:
     groups:
       # protoc-gen-es writes code for the runtime of its own version, and the npm package of the
       # contracts depends on that runtime at that version, or is not built: the two travel in one
-      # pull request, a major version too (RUN.md, T57). The group comes first: "If a dependency
-      # matches more than one rule, it's included in the first group that it matches", and "by
-      # default, a group will include updates for all semantic versions" (GitHub Docs, Dependabot
-      # options reference, read 2026-11-03).
+      # pull request, a major version too. The group comes first: "If a dependency matches more
+      # than one rule, it's included in the first group that it matches", and "by default, a group
+      # will include updates for all semantic versions" (GitHub Docs, Dependabot options reference,
+      # read 2026-11-03).
       bufbuild:
         patterns: ["@bufbuild/*"]
       # Routine bumps travel together. A major version arrives on its own, because it is the

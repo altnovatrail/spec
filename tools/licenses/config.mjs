@@ -1,4 +1,4 @@
-// What licenses-check accepts in tools/package-lock.json (R12 and its amendment of 2026-10-19).
+// What licenses-check accepts in tools/package-lock.json (R12).
 
 // Compatible with Apache-2.0: the ASF's Category A, "we consider the following licenses to be
 // similar in terms to the Apache License 2.0", as SPDX identifiers. CC0 is on the ASF's list of

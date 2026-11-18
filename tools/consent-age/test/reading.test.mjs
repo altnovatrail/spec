@@ -1,4 +1,4 @@
-// The reading of section 5 and the category of section 6, on tables written here.
+// The reading of a table and the category of a learner, on tables written here.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

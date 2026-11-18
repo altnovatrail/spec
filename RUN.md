@@ -90,12 +90,12 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T209 | Документы `spec`: architecture 1, 2, 3.1–3.6 | Claude | — | T203 |
 | [x] | T210 | Документы `spec`: architecture 3.7–8 | Claude | — | T209 |
 | [x] | T211 | Документы `spec`: privacy | Claude | — | T203 |
-| [ ] | T212 | Документы `spec`: concepts | Claude | — | T203 |
-| [ ] | T213 | Комментарии кода: `tools/format-check/`, `tools/types/` | Claude | — | T205 |
-| [ ] | T214 | Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/` | Claude | — | T205 |
-| [ ] | T215 | Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/` | Claude | — | T205 |
-| [ ] | T216 | Комментарии кода: остальное `tools/` | Claude | — | T205 |
-| [ ] | T217 | Комментарии CI и окружения: `.github/`, justfile, `.devcontainer/`, `spec.go`, `repo-template/` | Claude | — | T205 |
+| [x] | T212 | Документы `spec`: concepts | Claude | — | T203 |
+| [x] | T213 | Комментарии кода: `tools/format-check/`, `tools/types/` | Claude | — | T205 |
+| [x] | T214 | Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/` | Claude | — | T205 |
+| [x] | T215 | Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/` | Claude | — | T205 |
+| [x] | T216 | Комментарии кода: остальное `tools/` | Claude | — | T205 |
+| [x] | T217 | Комментарии CI и окружения: `.github/`, justfile, `.devcontainer/`, `spec.go`, `repo-template/` | Claude | — | T205 |
 | [ ] | T218 | Итог эпика E16: замер после, архив | Claude | — | T196, T206–T217; строки T206 в COORDINATION.md |
 
 - Порядок в `spec`: T203–T206 первыми — тег с правилом и проверками выходит раньше, и другие репозитории идут параллельно с документами `spec`. T207 зависит только от T202.
@@ -103,48 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T212. Документы `spec`: concepts
-
-- **Цель:** `docs/concepts.md` (164 КБ, из них словарь concepts 15 — 79) — по правилу T203.
-- **Сделать:** как T208; термины словаря не менять — их держат все документы (RULES.md, The bar).
-- **Как проверить:** `just docs-check`; `/code-review high`.
-- **Разделы:** concepts 1–16; measurements 1.14.4; T203, T208.
-
-#### T213. Комментарии кода: `tools/format-check/`, `tools/types/`
-
-- **Цель:** комментарии `tools/format-check/` и `tools/types/` (≈ 155 КБ) — по В62: только «почему», ограничение, ловушка или контракт экспортируемой функции; номер решения — якорем `(R25)` в конце; без пересказа кода, истории, номеров задач и разделов.
-- **Сделать:** переписать комментарии; поведение кода не меняется, тесты — как были; объём комментариев до и после — `comments.awk` measurements 1.14.6.
-- **Как проверить:** тесты `tools/` — `just coverage`; проверки правила tools; `just docs-check` с проверкой T205; `/code-review high`.
-- **Разделы:** measurements 1.14.4, 1.14.6; T203, T205; `.claude/rules/tools.md`.
-
-#### T214. Комментарии кода: `tools/contracts/`, `tools/release/`, `tools/docs-check/`
-
-- **Цель:** как T213 — для `tools/contracts/`, `tools/release/` и `tools/docs-check/` (≈ 145 КБ).
-- **Сделать:** как T213.
-- **Как проверить:** как T213, и проверки правила ci — `tools/release/`.
-- **Разделы:** T213; `.claude/rules/tools.md`, `.claude/rules/ci.md`.
-
-#### T215. Комментарии кода: `tools/orchestrator/` с README и `executor.md`, `tools/new-repo/`, `tools/legal/`, `tools/tokens/`, `tools/translation/`
-
-- **Цель:** как T213 — для этих папок (≈ 90 КБ комментариев); `tools/orchestrator/README.md` и `executor.md` (≈ 40 КБ) — по правилу T203: номера задач — только где они содержание.
-- **Сделать:** как T213; `executor.md` — договор исполнителя: смысл не менять.
-- **Как проверить:** как T213, и `just orchestrator-test`, `just new-repo-test`.
-- **Разделы:** T213; R156, R159; `.claude/rules/tools.md`, `.claude/rules/new-repo.md`.
-
-#### T216. Комментарии кода: остальное `tools/`
-
-- **Цель:** как T213 — для `tools/mockup/`, `consent-age/`, `inbox/`, `session/`, `export/`, `licenses/`, `admission/`, `gomod/`, `toolchain/`, `deployment/`, `coverage/` и файлов в корне `tools/` (≈ 60 КБ).
-- **Сделать:** как T213.
-- **Как проверить:** как T213.
-- **Разделы:** T213; `.claude/rules/tools.md`.
-
-#### T217. Комментарии CI и окружения: `.github/`, justfile, `.devcontainer/`, `spec.go`, `repo-template/`
-
-- **Цель:** как T213 — для `#` и `//` комментариев `.github/` (≈ 48 КБ), justfile (≈ 38), `.devcontainer/` (≈ 12), `spec.go` и `repo-template/` (≈ 8).
-- **Сделать:** как T213; версии и дайджесты в `ARG` и `uses:` — не трогать: это и есть текущее состояние (R34); комментарий `spec.go` о версии — файлом, где она задаётся.
-- **Как проверить:** проверки правила ci — линтеры workflow и justfile; `just new-repo-test`; `just docs-check` с проверкой T205; `/code-review high`.
-- **Разделы:** T213; R34; `.claude/rules/ci.md`, `.claude/rules/new-repo.md`.
 
 #### T218. Итог эпика E16: замер после, архив
 

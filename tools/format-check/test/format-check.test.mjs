@@ -200,7 +200,7 @@ test("$id and $schema stand only at the root", () => {
   expectEach([sampleSchema((s) => (s.properties.details.$id = "details.json"))], [/sample\.schema\.json:\d+: \$id stands only at the root/, /go unchecked/]);
 });
 
-// Schemas: the conventions of section 5.
+// Schemas: the conventions.
 
 const unchecked = /^format\/schemas\/sample\.schema\.json:0: its examples and vectors go unchecked/;
 const sampleBreaks = (change, pattern) => expectEach([sampleSchema(change)], [pattern, unchecked]);
@@ -664,9 +664,8 @@ test("the open view follows dependentSchemas when its key is present, and a refe
 
 test("why: ajv drops the properties of a place beside dependentSchemas whose key is absent, and beside $ref with oneOf", () => {
   // 2020-12 counts the properties of the place as evaluated in both, and the value is valid; ajv
-  // 8.20.0 refuses it. So the conventions refuse both forms (R45 and its amendment of 2026-11-04),
-  // and the forms the refusal points to pass. When ajv changes, this test says so, and the
-  // amendment can be lifted.
+  // 8.20.0 refuses it. So the conventions refuse both forms, and the forms the refusal points to
+  // pass. When ajv changes, this test says so, and the refusal can be lifted (R45).
   const ajv = new Ajv2020({ allErrors: true });
   ajv.addSchema({ $id: "https://x.test/c.json", $defs: { base: { type: "object", properties: { id: { type: "string" }, kind: { type: "string" } } } } });
   const dependent = ajv.compile({ type: "object", properties: { title: { type: "string" }, count: { type: "integer" } }, dependentSchemas: { count: { properties: { title: { minLength: 1 } } } }, unevaluatedProperties: false });
@@ -1018,7 +1017,7 @@ test("spec's vectors of yaml.plain-strings hold the words their names say", () =
   }
 });
 
-// What the review of T25 found, each kept by a test.
+// Edge cases, each kept by a test.
 
 test("with no VERSION, a schema with no $id is named, and nothing crashes", () => {
   expectEach(
@@ -1067,9 +1066,9 @@ test("a schema that reaches a broken one through another is not compiled, in one
   );
 });
 
-// The vectors of packages and of tiers (sections 9, 12 and 25; RUN.md, T34): fixtures/packages adds
-// to the base fixture the schemas of a canonical view, an inventory and the two kinds of vectors, a
-// vector of tiers and a vector of the package of the smallest trial module.
+// The vectors of packages and of tiers: fixtures/packages adds to the base fixture the schemas of a
+// canonical view, an inventory and the two kinds of vectors, a vector of tiers and a vector of the
+// package of the smallest trial module.
 
 const packages = path.join(here, "fixtures", "packages");
 const PACKAGE = "format/vectors/packages/smallest";
@@ -1221,9 +1220,9 @@ test("an example whose skills need each other in a cycle builds no canonical vie
   assert.deepEqual(errors, [`format/examples/module/valid/with-skill-graph:0: its canonical view cannot be built: the prerequisites of ${first} run in a cycle: its tier is no number`]);
 });
 
-// The vectors of the module index (sections 9 and 26; RUN.md, T44): fixtures/indexes adds to the
-// fixture of packages the schemas of the module index and of its vectors, an example of the index, a
-// vector of a first release and a refusal by each rule of the index, and the text lists those rules.
+// The vectors of the module index: fixtures/indexes adds to the fixture of packages the schemas of
+// the module index and of its vectors, an example of the index, a vector of a first release and a
+// refusal by each rule of the index, and the text lists those rules.
 
 const indexes = path.join(here, "fixtures", "indexes");
 const FIRST = "format/vectors/indexes/first-release";
@@ -1308,7 +1307,7 @@ test("an entry of the index lists the anchor skills that its version teaches, an
   assert.deepEqual(solver, ["format/vectors/indexes/first-release/modules/with-solver:0: the template number-thought-of has a solver: spec runs none, so a module of a vector of the index has no solver"]);
 });
 
-// The vectors of versions of a module (sections 9 and 27; RUN.md, T69), on copies of spec's format/:
+// The vectors of versions of a module, on copies of spec's format/:
 // the trial fixtures have no schema of a manifest with languages and bands, which the rules read.
 const VERSIONS = "format/vectors/versions";
 
@@ -1396,8 +1395,8 @@ test("a published version of an earlier version of the format is a package as fi
   assert.deepEqual(placeless, [`${files}:0: holds no manifest.languages where the format keeps it in every version (section 2)`]);
 });
 
-// R108: the path of a task's picture is a media path whose names may hold placeholders, and
-// nothing else, so that what its instances name is a file that media/ can hold.
+// The path of a task's picture is a media path whose names may hold placeholders, and nothing
+// else, so that what its instances name is a file that media/ can hold (R108).
 test("task_picture_path is media_path for pictures, with placeholders after a -", () => {
   const { $defs } = JSON.parse(fs.readFileSync(path.join(spec, "format", "schemas", "common.schema.json"), "utf8"));
   const task = $defs.task_picture_path;
@@ -1410,8 +1409,8 @@ test("task_picture_path is media_path for pictures, with placeholders after a -"
   for (const text of ["pictures/{total}-apples.png", "pictures/split{total}.png", "pictures/split--3.png", "pictures/split-{Total}.png", "sound-{a}.mp3"]) assert.ok(!takes(text), text);
 });
 
-// T88: the page of a workbook. The fixture takes spec's own page.yaml, its two schemas and two of
-// its vectors, a page and a refusal: they refer to no other schema.
+// The page of a workbook: the fixture takes spec's own page.yaml, its two schemas and two of its
+// vectors, a page and a refusal, which refer to no other schema.
 const PAGE_FROM = (file) => fs.readFileSync(path.join(spec, "format", file), "utf8");
 const pageFixture = () => [
   ["format/schemas/page.schema.json", null, PAGE_FROM("schemas/page.schema.json").replace("/format/0.4/", "/format/0.1/").replace("/format/0.3/", "/format/0.1/")],
@@ -1459,7 +1458,6 @@ test("pageOf lays out no page without a table, and the table reads code points a
   usePage(null);
 });
 
-// T89: the rules of a worked example on a workbook, on a lesson's file alone.
 test("a worked example on a workbook fills each box of its lines once, and its lines and values fit the page", () => {
   const lessonOf = (fills, lines = [[{ text: "23 ÷ 4 =" }, { binding: "box", value: "5" }, { text: "r" }, { binding: "box", value: "3" }]], kind = "workbook") => ({
     segments: [{ worked_example: { canvas: { kind }, lines: lines.map((line) => ({ line })), demo: [{ text: "Count." }, ...fills.map(([line, box]) => ({ fill: { line, box } }))] } }],

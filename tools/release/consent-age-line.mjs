@@ -1,17 +1,16 @@
 // consent-age-line: a new version of the table of the age of digital consent starts a new line of
-// spec's releases (R134), by the rule of part-line.mjs. In spec, `just release-version` passes what
+// spec's releases, by the rule of part-line.mjs (R134). In spec, `just release-version` passes what
 // legal-line.mjs prints through it, with the commit, and it prints the same lines, or refuses:
 //
 //   ... | node tools/release/legal-line.mjs <commit> | node tools/release/consent-age-line.mjs <commit>
 //
 // The part is held from a release of FIRST_CONSENT_AGE_LINE on. Its version is the layout of
-// consent-age/, the table's schema and the rules of section 5 (consent-age/README.md, section 2),
-// and the release holds it to the shape alone, as it holds the legal texts':
-// consent-age/schemas/consent-age.schema.json with its annotations taken out at every level, and the
-// IDs of the rules of section 5, in their order, which readText reads as format-check does. Under
-// the same version a change of either is refused — a new code of ISO 3166-1 among them; a new entry,
-// a new country, the words of an entry, a change of a vector's schema, of a description, an example
-// or a vector pass.
+// consent-age/, the table's schema and the rules its README lists, and the release holds it to the
+// shape alone: consent-age/schemas/consent-age.schema.json with its annotations taken out at every
+// level, and the IDs of those rules, in their order, which readText reads as format-check does.
+// Under the same version a change of either is refused — a new code of ISO 3166-1 among them; a
+// new entry, a new country, the words of an entry, a change of a vector's schema, of a
+// description, an example or a vector pass.
 
 import { FIRST_CONSENT_AGE_LINE, consentAgeVersion } from "./files.mjs";
 import { checkPartLine, checked as partChecked, runPartLine, shapeChange as partShapeChange, shapeChangedBetween as partShapeChangedBetween } from "./part-line.mjs";
@@ -33,8 +32,8 @@ export const CONSENT_AGE = {
 // Whether the release of version, after previous, is held to the part's version at all.
 export const checked = (outputs) => partChecked(CONSENT_AGE, outputs);
 
-// R134's rule, for the release of version after previous, with the part's versions at each and
-// what changed of its shape between them, as a phrase, or null.
+// The rule for the release of version after previous, with the part's versions at each and what
+// changed of its shape between them, as a phrase, or null (R134).
 export function checkConsentAgeLine({ version, previous, consentAgeNow, consentAgeThen, changed = null }) {
   checkPartLine(CONSENT_AGE, { version, previous, now: consentAgeNow, before: consentAgeThen, changed });
 }

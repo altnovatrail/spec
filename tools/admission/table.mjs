@@ -1,4 +1,4 @@
-// The rules of a table that its schema cannot say (admission/README.md, section 7). A table that
+// The rules of a table that its schema cannot say, as admission/README.md lists them. A table that
 // passes the schema and breaks one of them a reader refuses, naming the rule's ID.
 
 export const RULES = [

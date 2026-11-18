@@ -1,11 +1,11 @@
 #!/bin/sh
 # toolchain.sh: on a CI runner, the toolchain stage of the repository's .devcontainer/Dockerfile
-# and the commands that run in it, as they run in the devcontainer (R30, R31). The runner runs
-# this file with its own shell, from the repository's root: spec's CI and release run
+# and the commands that run in it, as they run in the devcontainer. The runner runs this file
+# with its own shell, from the repository's root: spec's CI and release run
 # tools/toolchain/toolchain.sh, and another repository's workflows run the one in its spec
 # submodule, at the tag it pins. How the stage is built, how a command runs in it and where
-# spec's recipes are are written here once, and a change to them reaches every caller with the
-# tag.
+# spec's recipes are written here once, and a change to them reaches every caller with the
+# tag (R30, R31).
 #
 #   toolchain.sh build                                   build the stage as the image novatrail-toolchain,
 #                                                        or load it from TOOLCHAIN_IMAGE_FILE (below);
@@ -30,11 +30,11 @@
 # Dockerfile has is found by its FROM line, "FROM <image> AS <stage>".
 #
 # The image may come from a file of docker save, which the caller keeps in the cache of GitHub
-# Actions by the sha256 of the Dockerfile (R31): TOOLCHAIN_IMAGE_FILE names it, its whole path. The
+# Actions by the sha256 of the Dockerfile: TOOLCHAIN_IMAGE_FILE names it, its whole path. The
 # file holds no name of its stage, and a file of either stage loads as novatrail-toolchain: a caller
 # that builds both keeps them under keys that name the stage.
-# Unset or empty, build builds the stage, as ever; a release sets it never, so the image of the job
-# that signs is built from the Dockerfile. Set, build
+# Unset or empty, build builds the stage; a release sets it never, so the image of the job that
+# signs is built from the Dockerfile (R31). Set, build
 #   - loads the file, if it is there, and holds that it gave the image novatrail-toolchain, then
 #     removes the file and builds nothing. A file that does not load, or loads another image, is
 #     removed and the stage is built, with a warning, and no file is written: the cache was hit,

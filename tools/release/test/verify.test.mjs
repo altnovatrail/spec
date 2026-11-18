@@ -1,5 +1,5 @@
-// release-verify on files of real releases, with no network: what R77 lets in, and each way a
-// file is refused — by its signature, its certificate's fields, GitHub, or what it holds.
+// release-verify on files of real releases, with no network: what it lets in, and each way a file
+// is refused — by its signature, its certificate's fields, GitHub, or what it holds (R77).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

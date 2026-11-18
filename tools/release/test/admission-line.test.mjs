@@ -1,5 +1,6 @@
-// A new version of the admission table starts a new line (R96): the rule, the script that
-// release-version passes its lines through in spec, and the recipe, in a made-up copy of spec.
+// A new version of the admission table starts a new line: the rule, the script that
+// release-version passes its lines through in spec, and the recipe, in a made-up copy of spec
+// (R96).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";

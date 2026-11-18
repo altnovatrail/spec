@@ -1,11 +1,9 @@
-// The versions of a module, as section 27 of the format text gives them (format/README.md; R89,
-// R101): the part of its version that a new version of a module raises, which a comparison of its
-// package with the package of the newest published version finds, and the rules by which a new
-// version is compared with every published version of its module, withdrawn ones too. A second
-// implementation beside module-kit's diff, by which spec's CI computes the test vectors of versions.
-// It compares packages as section 25 builds them, and reads a package of an earlier version of the
-// format only by the places that section 2 keeps in every version. It runs no Starlark: the results
-// of a solver stand among the numbers of the instances.
+// The versions of a module: the part that a new version raises, which a comparison of its package
+// with that of the newest published version finds, and the rules by which a new version is compared
+// with every published version of its module, withdrawn ones too. A second implementation beside
+// module-kit's diff, by which spec's CI computes the test vectors of versions. A package of an
+// earlier version of the format is read only by the places that every version keeps. It runs no
+// Starlark: the results of a solver stand among the numbers of the instances (R89, R101).
 
 import { byCodeUnits } from "../shared.mjs";
 import { DIGEST_PREFIX, canonicalText, descriptorOf, digestOf } from "./canonical.mjs";
@@ -13,7 +11,7 @@ import { VERSION_FIELD } from "./module.mjs";
 import { instanceMaker } from "./templates.mjs";
 import { answerSlotsOf, choiceForm, comparableOf, unitForm } from "./verdicts.mjs";
 
-// The rules of versions of a module, which refuse a new version rather than a module (section 7).
+// The rules of versions of a module, which refuse a new version rather than a module.
 export const ABOVE = "module-version.above";
 export const STEP = "module-version.step";
 export const RETIRED_COMPLETE = "module-version.retired-complete";
@@ -32,8 +30,8 @@ export const PARTS = ["none", "patch", "minor", "major"];
 const rank = (part) => PARTS.indexOf(part);
 export const higherPart = (a, b) => (rank(a) >= rank(b) ? a : b);
 
-// The files of a package as files (section 25) that every version of the format keeps (section 2),
-// of which a vector gives a published version of an earlier version of the format.
+// The files of a package as files that every version of the format keeps, of which a vector gives a
+// published version of an earlier version of the format.
 export const INVENTORY_FILE = "inventory.json";
 export const SERVER_FILE = "server.json";
 export const PACKAGE_FILES = [INVENTORY_FILE, SERVER_FILE];
@@ -66,7 +64,7 @@ export function formatVersionCompare(a, b) {
 }
 
 // The part that the step from version from to version to raises, when to is the next version after
-// from by one of its parts, or null (section 27). From X.Y.Z with X at least 1: X.Y.(Z+1) a patch,
+// from by one of its parts, or null. From X.Y.Z with X at least 1: X.Y.(Z+1) a patch,
 // X.(Y+1).0 a minor and (X+1).0.0 a major. While X is 0, y plays the major: from 0.y.z with y at
 // least 1, 0.y.(z+1) is a minor step, which serves a patch too, and 0.(y+1).0 and 1.0.0 are major
 // steps; and every step from 0.0.z is a major one.
@@ -86,8 +84,8 @@ const isObject = (value) => value !== null && typeof value === "object" && !Arra
 const isStrings = (value) => Array.isArray(value) && value.every((item) => typeof item === "string");
 const keysOf = (value) => (isObject(value) ? Object.keys(value) : []);
 
-// What the comparison reads of a package by the places that the format keeps in every version
-// (section 2): from its inventory, the format version, the module's ID and version and the digest
+// What the comparison reads of a package by the places that the format keeps in every version:
+// from its inventory, the format version, the module's ID and version and the digest
 // form of its server part; from its canonical view, the manifest's languages, the IDs of its bands in
 // order, the keys of the skills of its skill graph and its retired skills with what replaced each,
 // and the keys of its tasks, its lessons, its traps and its techniques. { places }, or { problem }
@@ -130,7 +128,7 @@ export function placesOf(inventory, view) {
 }
 
 // A package as files of an earlier version of the format, each a Buffer, as a vector gives a published
-// version, read by the places that every version keeps (section 2): inventory.json and server.json,
+// version, read by the places that every version keeps: inventory.json and server.json,
 // each a JSON value, the inventory naming the server part by the digest and the size of the bytes of
 // server.json, and the digest of the package that of the bytes of inventory.json. How a later
 // version writes its canonical text or its device part is not read. { pkg: { inventory, view, digest } },
@@ -153,14 +151,14 @@ export function packageFromFiles(files) {
   return { pkg: { inventory, view: values[SERVER_FILE], digest: digestOf(files[INVENTORY_FILE]) } };
 }
 
-// What decides the verdict and the trap of an answer slot, which a comparison compares by meaning
-// (section 27): the kind always; for number, the key as a rational and the set of units as a unit
-// compares; for fraction, the key as a rational and the form, any unless given; for choice, the
-// notation, options unless given, and the key and the set of options — the check's own, or the
-// slot's when it is bound choice — as a choice of that notation compares them; for time, the key
-// by its hours and minutes; for predicate, the predicate as written; and the set of trap values, each the value as the check compares it with
-// its trap. A rubric gives no verdict: its criteria are compared apart.
-// A canonical text, so that two checks of one meaning give the same one.
+// What decides the verdict and the trap of an answer slot, which a comparison compares by meaning:
+// the kind always; for number, the key as a rational and the set of units as a unit compares; for
+// fraction, the key as a rational and the form, any unless given; for choice, the notation, options
+// unless given, and the key and the set of options — the check's own, or the slot's when it is bound
+// choice — as a choice of that notation compares them; for time, the key by its hours and minutes;
+// for predicate, the predicate as written; and the set of trap values, each the value as the check
+// compares it with its trap. A rubric gives no verdict: its criteria are compared apart. A canonical
+// text, so that two checks of one meaning give the same one.
 export function checkMeaningOf(slot) {
   const { check } = slot;
   const set = (items) => [...new Set(items)].sort(byCodeUnits);
@@ -185,7 +183,7 @@ const sameSet = (a, b) => a.size === b.size && [...a].every((item) => b.has(item
 const without = (a, b) => [...a].filter((item) => !b.has(item));
 
 // The changes from the canonical view and the device listing of before to those of after, both of
-// one version of the format, by the table of section 27, and the part that they raise: { part,
+// one version of the format, and the part that they raise: { part,
 // changes }, each change { at, part, what }, at a JSON Pointer in the canonical view, or in the
 // listing of the device part when it begins with #device. Anything else that differs, but the
 // version in the manifest, is a patch.
@@ -205,7 +203,7 @@ export function foundPartOf(before, after) {
   return { part, changes };
 }
 
-// The age categories that a task or a lesson suits: its own, or else the module's (sections 14 and 21).
+// The age categories that a task or a lesson suits: its own, or else the module's.
 const suited = (entry, manifest) => setOf(entry.age_categories ?? manifest.audience?.age_categories);
 
 // A set that narrows is a major change, and one that widens a minor one.
@@ -250,7 +248,7 @@ function compareSkillGraphs(before, after, change) {
     if (was.assessability !== is.assessability) change(`${at}/${id}/assessability`, "major", `the assessability of ${id} changes`);
   }
   // A new entry of retired_skills comes with a retirement, and replaced_by changes only as a skill
-  // that it names is retired in turn: either goes with a major change (section 27). replaced_by is a
+  // that it names is retired in turn: either goes with a major change. replaced_by is a
   // set: its order carries no meaning.
   const table = (graph) => Object.fromEntries(Object.entries(graph.retired_skills ?? {}).map(([id, entry]) => [id, [...setOf(entry.replaced_by)].sort(byCodeUnits)]));
   if (differ(table(before), table(after))) change("#/skill_graph/retired_skills", "major", "the retired skills change");
@@ -275,7 +273,7 @@ function compareSolvingSteps(before, after, change) {
 }
 
 // The items and answer slots of two tasks, by their places: their number, the binding of each slot,
-// what decides its verdict and trap, and the criteria of a rubric (section 27). withChecks is false
+// what decides its verdict and trap, and the criteria of a rubric. withChecks is false
 // for a template as written, whose checks are compared through its instances.
 function compareItems(at, before, after, change, withChecks = true) {
   if (before.items.length !== after.items.length) return change(`${at}/items`, "major", "the number of items changes");
@@ -294,7 +292,7 @@ function compareItems(at, before, after, change, withChecks = true) {
 }
 
 // What a task gives the learner model and the engine beside its checks: its skills and those of its
-// items, its band, its difficulty, its techniques and its traps (section 27).
+// items, its band, its difficulty, its techniques and its traps.
 function compareGuidance(at, before, after, change) {
   // The skills of each role as a set: their order in a list carries no meaning.
   const roles = (skills) => (skills ? { primary: [...setOf(skills.primary)].sort(byCodeUnits), supporting: [...setOf(skills.supporting)].sort(byCodeUnits) } : null);
@@ -331,7 +329,7 @@ function compareTasks(before, after, change) {
 }
 
 // The instances of a template in both versions, matched by the numbers of their parameters, not by
-// their places (section 27): parameters of other names match none, a major change; an instance in
+// their places: parameters of other names match none, a major change; an instance in
 // one version alone is a minor change; and on each pair the checks are compared, each with its
 // numbers in place, so that a key that changes is a major change.
 function compareInstances(id, before, after, change) {
@@ -354,7 +352,7 @@ function compareInstances(id, before, after, change) {
   for (const key of now.keys()) if (!old.has(key)) change(`#/instances/${id}`, "minor", `the instance ${key} is new`);
 }
 
-// Segments of a lesson, by their places: what each is, and for a task the task (section 27). A
+// Segments of a lesson, by their places: what each is, and for a task the task. A
 // segment added after the last is a minor change; any other change of the segments a major one.
 function compareLessons(before, after, change) {
   const at = "#/lessons";
@@ -372,7 +370,7 @@ function compareLessons(before, after, change) {
 
 // A new version, next, against the published versions of its module, published, each { digest,
 // places } as placesOf gives them, with view and device, its canonical view and the listing of its
-// device part, when its format version is next's (section 27). next is the same, with its view and
+// device part, when its format version is next's. next is the same, with its view and
 // device. { part, changes, breaches, unchanged }: the part that the comparison with the newest
 // published version finds, the changes it finds, and each rule that the new version breaks,
 // { rule, message }. unchanged is true when next is the newest published version as it was: then
@@ -402,7 +400,7 @@ export function compareVersions({ published, next }) {
 }
 
 // The part of a move of a module from one version of the format to another: major while the format is
-// v0. Section 27 gives no part of a move from v1 on, and format-check computes none.
+// v0. The format gives no part of a move from v1 on, and format-check computes none.
 function movePart(from, to) {
   if (![from, to].every((version) => version.startsWith("0."))) throw new Error(`section 27 gives no part of a move from version ${from} of the format to ${to}: only while the format is v0`);
   return { part: "major", changes: [{ at: "#", part: "major", what: `the module moves from version ${from} of the format to ${to}` }] };
@@ -411,8 +409,8 @@ function movePart(from, to) {
 // The changes of one part, as a reader reads them.
 export const shownAt = (changes, part) => changes.filter((change) => change.part === part).map((change) => `${change.at}: ${change.what}`).join("; ");
 
-// The rules that read only the places of section 2: they hold through a move to another version of
-// the format too (section 27). versions are the published ones, in the order of their versions.
+// The rules that read only the places that every version of the format keeps: they hold through a
+// move to another version of the format too. versions are the published ones, in the order of their versions.
 function placeBreaches(versions, next) {
   const breaches = [];
   const breach = (rule, message) => breaches.push({ rule, message });

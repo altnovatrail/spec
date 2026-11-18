@@ -136,9 +136,9 @@ test("checkReportFiles reads spec's examples by the same code, and throws on a p
   assert.throws(() => checkReportFiles(path.join(root, FOLDER), ["../../../../justfile"]), /not a file of the repository the check runs in/);
 });
 
-// Its samples, as many and as large as sample-check's of a large set (T116; Д197): 60 essays of
-// some 260 KB each, under a heap of 64 MB. A report is held to what it needs of each sample alone,
-// so no file stays in memory once it is read.
+// Its samples, as many and as large as sample-check's of a large set: 60 essays of some 260 KB
+// each, under a heap of 64 MB. A report is held to what it needs of each sample alone, so no file
+// stays in memory once it is read.
 test("report-check holds a report to a large set of samples, one file at a time", () => {
   const essay = example("sheet-essay.json");
   const files = Object.fromEntries(Array.from({ length: 60 }, (_, i) => [`eval/essay-${i}.json`, textOf({ ...essay, id: `synthetic-${5000 + i}` })]));

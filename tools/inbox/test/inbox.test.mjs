@@ -7,7 +7,7 @@ import { compare, fingerprintOf, ledgerOf, parseNumbers, QUESTIONS, readReposito
 import { inbox, OTHERS } from "../main.mjs";
 import { dueOf } from "../due.mjs";
 
-// measurements 1.9 with its two dates, and a day before both.
+// The two dates of docs/measurements.md, and a day before both.
 const DATED = "Next measurement: by 2026-12-12.\n\nNext check of Claude Code's changelog: by 2027-02-12.\n";
 const dated = { measurementsSource: DATED, today: new Date("2026-11-12T10:00:00Z") };
 
@@ -126,7 +126,7 @@ test("table 3 and table 5 are read under their English headings alone (R154; T17
   const source = questions(row(2, "a row of a plan in English"));
   assert.deepEqual(rowsOf(source).map((r) => r.number), [2]);
   assert.deepEqual([...ledgerOf(spec("| `api` | В1 | — | R80 |")).ledger.get("api")], [1]);
-  // A heading in Russian, as a plan had before R154, or another table's, holds nothing for spec.
+  // A heading in Russian, or another table's, holds nothing for spec (R154).
   assert.deepEqual(rowsOf(source.replace("## Table 3. Questions to the author", "## Таблица 3. Вопросы автору без ответа")), []);
   assert.deepEqual(rowsOf(source.replace("## Table 3.", "## Table 2.")), []);
   const russian = spec("| `api` | В1 | — | R80 |").replace("## Table 5. Rows of other repositories recorded in spec", "## Таблица 5. Строки других репозиториев, записанные в `spec`");
@@ -280,8 +280,8 @@ test("table 3 is read from run/QUESTIONS.md alone, once a commit: a pull request
         { number: 13, title: "T04", sha: C, files: ["docs/architecture.md", QUESTIONS], questions: questions(row(6, "раскладка релиза"), row(8, "перенос")) },
         { number: 9, title: "Bump devcontainers/base", sha: D, files: [".devcontainer/Dockerfile"], questions: questions(row(2, "давно записана")) },
         { number: 7, title: "T02, ветка давняя", sha: B, base: old, files: [QUESTIONS], questions: questions(row(3, "закрыта на main с тех пор"), row(10, "своя")) },
-        // A branch cut before run/ (R153): its merge base has no run/QUESTIONS.md, so what it adds
-        // cannot be told — a row main closed since would look new —, and it is to be rebased.
+        // A branch cut before run/: its merge base has no run/QUESTIONS.md, so what it adds cannot
+        // be told — a row main closed since would look new —, and it is to be rebased (R153).
         { number: 11, title: "T01, ветка до run/", sha: "1".repeat(40), base: older, files: ["RUN.md", QUESTIONS], questions: questions(row(6, "раскладка релиза"), row(12, "с давней ветки")) },
         // One that changes RUN.md alone adds nothing, whatever its RUN.md holds.
         { number: 6, title: "T03", sha: "2".repeat(40), files: ["RUN.md"] },

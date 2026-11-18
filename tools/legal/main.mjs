@@ -1,24 +1,20 @@
-// legal-check: spec's own legal/, the legal texts (R130), by the layout of its text,
-// legal/README.md, section 3:
+// legal-check: spec's own legal/, the legal texts (R130), by the layout and the rules of
+// legal/README.md:
 //
 //   node tools/legal/main.mjs                  checks spec's own legal/
-//   node tools/legal/main.mjs --dir <folder>   checks a self-hosted copy's folder (section 8)
+//   node tools/legal/main.mjs --dir <folder>   checks a self-hosted copy's folder
 //
-// It checks VERSION, an integer; each schema against the conventions of the module format's
-// schemas (format/README.md, section 5) under the prefix of the legal texts, with no x-open, and
-// against the 2020-12 meta-schema; that the passport's field format holds the version in VERSION;
-// the rules the text lists against those reading.mjs knows, in their order; each example against
-// its schema; and each vector of reading, whose cases it reads as section 5 of the text gives
-// (reading.mjs) and compares. Between them, the vectors accept a part and refuse one by the schema
-// and by each rule (section 7). A file the layout does not know is an error. Last, it reads the part
-// itself — legal.yaml and the files under texts/ — as section 5 gives, with the part of the release
-// before for legal.in-force-unchanged (tools/release/previous.mjs), on the day it runs, in UTC.
+// Each schema is held to the conventions of the module format's schemas under the prefix of the
+// legal texts, with no x-open. Between them, the vectors of reading accept a part and refuse one by
+// the schema and by each rule, and each case gives what reading.mjs computes. A file the layout
+// does not know is an error. The part itself — legal.yaml and texts/ — is read with the part of the
+// release before, for legal.in-force-unchanged, on the day the check runs, in UTC.
 //
-// With --dir, it reads an operator's folder instead, its paths from where it runs: VERSION, which is
-// this spec's, legal.yaml and texts/, and nothing else, against this spec's schema of the passport
-// and the rules of section 5 but legal.in-force-unchanged, since the copy's operator keeps its own
-// history (section 5). Prints each error as file:line: message, the line 0 when there is none, and
-// exits 1 when there is one, or 2 on a wrong command line.
+// With --dir, an operator's folder, its path from where it runs, holds VERSION, which is this
+// spec's, legal.yaml and texts/, and nothing else; it is held to this spec's schema of the passport
+// and the rules but legal.in-force-unchanged, since the copy's operator keeps its own history.
+// Prints each error as file:line: message, the line 0 when there is none, and exits 1 when there is
+// one, or 2 on a wrong command line.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -95,7 +91,6 @@ export function checkLegal(root, { previousOf = previousLegal, today = todayInUt
     }
   }
 
-  // The part itself, against the release before.
   // A part whose release before cannot be read is not read: legal.in-force-unchanged would hold
   // for nothing.
   let previous = null;
@@ -115,8 +110,8 @@ export function checkLegal(root, { previousOf = previousLegal, today = todayInUt
 }
 
 // The errors of a self-hosted copy's folder, dir, which the errors name as shown, checked against
-// the schema of the passport of spec at specRoot and the rules of section 5 but
-// legal.in-force-unchanged, on the day today: { errors, stats }.
+// the schema of the passport of spec at specRoot and the rules but legal.in-force-unchanged, on
+// the day today: { errors, stats }.
 export function checkLegalDir(dir, specRoot, shown = dir, { today = todayInUtc() } = {}) {
   const errors = [];
   const report = (file, line, message) => errors.push({ file, line, message });
@@ -264,8 +259,7 @@ function blobsOf(output, count) {
 }
 
 // The files of legal/, by the layout of the text: { schemas: [name], examples: [{ file, term,
-// kind }], vectors: [file] }. Reports a file it does not know; the passport and every file under
-// texts/ are the part's, which the reading names.
+// kind }], vectors: [file] }. Reports a file it does not know.
 function readLayout(root, report) {
   const layout = { schemas: [], examples: [], vectors: [] };
   const isCase = (name) => name.endsWith(".yaml") && isKebabCase(name.slice(0, -".yaml".length));

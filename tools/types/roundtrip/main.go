@@ -1,15 +1,12 @@
-// Command roundtrip reads each value of a corpus into the Go type it names and writes it back
-// (R72):
+// Command roundtrip reads each value of a corpus into the Go type it names and writes it back:
 //
 //	go -C tools/types/roundtrip run . <corpus>
 //
-// The corpus, which tools/types/corpus.mjs writes, holds the values of format/ that pass a schema,
-// each with the type of formatv0 that reads it, and the open view of each vector of the open view
-// with the type of open that reads it. A value is read strictly — a field its type has not fails
-// it, as does anything after it — and written again, and the JSON written is the value read,
-// whatever the order of its keys. A case marked closed is the part of a vector of the open view
-// that holds a closed field, read by the type of its open view: reading it fails on that field, or
-// the check does. Prints one line per failure and the count of cases, and exits 1 on any failure.
+// The corpus, which tools/types/corpus.mjs writes, holds each value that passes a schema with the
+// type that reads it. A value is read strictly — a field its type has not fails it, as does
+// anything after it — and the JSON written must be the value read, whatever the order of its keys.
+// A case marked closed, the part of a vector of the open view that holds a closed field, must fail
+// on that field when read by its open view's type. Exits 1 on any failure (R72).
 package main
 
 import (
@@ -23,7 +20,6 @@ import (
 	"strings"
 )
 
-// A case of the corpus.
 type corpusCase struct {
 	File   string          `json:"file"`
 	Type   string          `json:"type"`
@@ -62,7 +58,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	return 0
 }
 
-// checkCorpus checks each case of a corpus: the count of cases, and a line for each that fails.
+// checkCorpus gives the count of cases and a line for each that fails.
 func checkCorpus(data []byte) (int, []string, error) {
 	var cases []corpusCase
 	if err := json.Unmarshal(data, &cases); err != nil {

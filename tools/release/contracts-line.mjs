@@ -1,7 +1,7 @@
-// contracts-line: a new major package of an API contract starts a new line of spec's releases
-// (R83; contracts/README.md, section 2), as a new version of the module format does (R44),
-// checked where the next version is worked out. In spec, `just release-version` passes what
-// format-line.mjs prints through it, with the commit, and it prints the same lines, or refuses:
+// contracts-line: a new major package of an API contract starts a new line of spec's releases, as
+// a new version of the module format does, checked where the next version is worked out (R83,
+// R44). In spec, `just release-version` passes what format-line.mjs prints through it, with the
+// commit, and it prints the same lines, or refuses:
 //
 //   ... | node tools/release/format-line.mjs <commit> | node tools/release/contracts-line.mjs <commit>
 //
@@ -31,8 +31,8 @@ export function packagesOf(files) {
   return packages;
 }
 
-// R83's rule, for the release of version after previous, with the packages at each: every new
-// major package, v2 or later, needs a raised line.
+// The rule for the release of version after previous, with the packages at each: every new major
+// package, v2 or later, needs a raised line (R83).
 export function checkContractsLine({ version, previous, packagesNow, packagesThen }) {
   const previousLine = lineOf(previous);
   const opened = [...packagesNow].filter((name) => !packagesThen.has(name) && Number(name.split(".v").at(-1)) >= 2).sort(byCodeUnits);

@@ -5,9 +5,9 @@
 // prefix: ./novatrail/observation/v1/observation_pb.js, its types from the declarations beside it.
 // It carries the test vectors of the packages whose rules code on TypeScript runs, too, each by its
 // path from contracts/: ./vectors/eval/v1/groups.json, the rules the device and the runner share,
-// which canvas runs (contracts/README.md, section 12; R94). The observation's are Go's alone:
-// TypeScript gives no verdict. What the package holds is what the tree holds, so the package of a
-// commit with no such vectors is the one it was.
+// which canvas runs (R94). The observation's are Go's alone: TypeScript gives no verdict. What the
+// package holds is what the tree holds, so the package of a commit with no such vectors is the one
+// it was.
 // The code imports the runtime of protobuf-es, @bufbuild/protobuf, which the package depends on at
 // the exact version tools/package.json pins, the version of protoc-gen-es that writes the code.
 //

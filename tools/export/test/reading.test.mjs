@@ -1,4 +1,4 @@
-// The reading of section 5, on exports written here from spec's own examples.
+// The reading of an export, on exports written here from spec's own examples.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -119,8 +119,8 @@ test("export.proto wants learner-model's .proto with a profile, and the observat
   // A profile with no submission needs none: its answer slots and observations are the observation's.
   const plain = { ...profile, attempts: [] };
   assert.deepEqual(readingOf(validators, { ...noObservation, [`api/profiles/${profile.profile_id}.json`]: plain }), { accepted: true });
-  // A profile always has its state — the row of the cache comes with the profile (R43 api) —, so
-  // it always comes with learner-model's .proto.
+  // A profile always has its state, as the row of the cache comes with the profile, so it always
+  // comes with learner-model's .proto (R43 api).
   const stateless = { ...plain };
   delete stateless.state;
   assert.equal(validators.get("profile")(stateless), false);

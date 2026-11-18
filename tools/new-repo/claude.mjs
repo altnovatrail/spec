@@ -1,7 +1,7 @@
 // The copy's .claude/settings.json is the template's, with the keys its kind adds under "claude"
-// in repo-template/kinds.json; a tag of spec before T162 turned on gopls-lsp there, from a
-// marketplace in spec/claude-plugins/. Since T162 a kind's plugins are loaded by its devcontainer
-// (claudePlugins, devcontainer.mjs), and new-repo-check finds the folders it names (R143).
+// in repo-template/kinds.json. A kind's plugins are loaded by its devcontainer (claudePlugins,
+// devcontainer.mjs), not by a marketplace in these settings, and new-repo-check finds the folders
+// it names (R143).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -10,7 +10,8 @@ import { PLUGIN_DIRS, WORKSPACE, parseJsonc } from "./devcontainer.mjs";
 export const CLAUDE_SETTINGS = ".claude/settings.json";
 const DEVCONTAINER = ".devcontainer/devcontainer.json";
 const PLUGIN = ".claude-plugin/plugin.json";
-// The marketplace spec had before T162, through which the go kind turned its plugin on.
+// The marketplace an older tag of spec carries, which a copy may still pin, through which the go
+// kind turned its plugin on.
 const OLD_MARKETPLACE_NAME = "novatrail";
 const OLD_MARKETPLACE = "claude-plugins/.claude-plugin/marketplace.json";
 
@@ -38,8 +39,8 @@ export function addClaudeSettings(dest, settings) {
 // would say why. Its .claude/settings.json names no marketplace in a local folder and turns on no
 // plugin of the marketplace novatrail, or of the plugins the variable loads: Claude Code records a
 // marketplace in the ~/.claude that the containers share, by the path of one of them, and a key left
-// would take novatrail from there (R143). A spec before T162 still has the marketplace and its
-// template still writes those keys, and the message says so. A path into spec/ is read from
+// would take novatrail from there (R143). A spec that still has the marketplace has a template that
+// writes those keys, and the message says so. A path into spec/ is read from
 // `reference`: the submodule, or for a draft, which has none, spec's working tree. `container` is
 // the text of the copy's devcontainer.json, undefined when it has none. Returns the commands of the
 // language servers those plugins start, which the copy's image must have.
@@ -74,7 +75,7 @@ export function checkClaudePlugins(dir, reference, report, container) {
 
   const settings = readJson(path.join(dir, CLAUDE_SETTINGS));
   if (settings === null) report(CLAUDE_SETTINGS, 0, "is not JSON");
-  // The spec a copy pins, when it is older than T162, wrote these keys itself.
+  // A spec that still has the marketplace writes these keys itself.
   const old = fs.existsSync(path.join(reference, OLD_MARKETPLACE)) ? `; the spec it pins, a tag before T162, still writes it: take a tag of spec with T162 and build the copy again` : "";
   const why = `Claude Code records a marketplace in the ~/.claude that the containers share, by the path of one of them, and the sessions of the others lose its plugins: load them by ${PLUGIN_DIRS} of ${DEVCONTAINER} (R143 spec)${old}`;
   for (const [name, entry] of Object.entries(settings?.extraKnownMarketplaces ?? {})) {

@@ -1,6 +1,6 @@
-// translation-check: a translation of documents against their original at a commit (R143, the
-// 2026-11-12 amendment). Runs in the repository it is run from — spec, or another NovaTrail
-// repository as `just -f spec/justfile translation-check`.
+// translation-check: a translation of documents against their original at a commit (R143). Runs
+// in the repository it is run from — spec, or another NovaTrail repository as
+// `just -f spec/justfile translation-check`.
 //
 //   node tools/translation/main.mjs check <ref> <file>…    each file against itself at <ref>
 //   node tools/translation/main.mjs anchors <ref> <file>…  rewrites the links of the repository's

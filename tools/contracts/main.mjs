@@ -1,4 +1,5 @@
-// contracts-check: the checks of the API contracts in spec's contracts/ (R83; RUN.md, T55).
+// contracts-check: the checks of the API contracts in spec's contracts/, and sample-check and
+// report-check, which another NovaTrail repository runs on its own files (R83, R93, R95).
 //
 //   node tools/contracts/main.mjs                       spec's own contracts/, two levels above this file
 //   node tools/contracts/main.mjs --samples <file>...   sample files of the repository it runs from
@@ -7,73 +8,19 @@
 //   node tools/contracts/main.mjs --reports <file>... [--samples <file>...]
 //                                                       report files of it, and their samples
 //
-// Checks, in order:
-// - buf.yaml, as R83 fixes it — one module, contracts/, no deps, the lint categories STANDARD,
-//   COMMENTS and UNARY_RPC with no exception and no comment that switches a rule off, the breaking
-//   category FILE —, and buf.gen.yaml: local plugins only, out to contracts/, no input from
-//   outside and no folder cleaned. While either breaks R83, buf does not run, since it could then
-//   reach a service outside the repository;
-// - the layout of contracts/ (contracts/README.md, section 3): its README, go.mod and go.sum,
-//   vectors.go and its test, the contracts at contracts/novatrail/<part>/vN/<name>.proto, the code
-//   buf generates from them, the test vectors of a package at contracts/vectors/<part>/vN/, and its
-//   examples at contracts/examples/<part>/vN/. Anything else is an error, so the task that brings
-//   it extends the check, and while a .proto file is out of place buf does not run. A vector is of
-//   a package that contracts/ has, and of one whose vectors the check runs: so far
-//   novatrail.observation.v1 and novatrail.eval.v1, which have them; an example likewise, so far of
-//   novatrail.eval.v1;
-// - with no .proto file, nothing more but that the previous release has none either: buf refuses a
-//   module without one, and a package is never removed;
-// - buf build, and of the image it builds what buf lets pass: a syntax other than proto3, a package
-//   without the prefix novatrail., a json_name, an unsigned type (sections 3–6);
-// - buf format and buf lint;
-// - the test vectors of the observation, by the image: each observation as the package reads and a
-//   writer writes it, whether it is valid, the joined observation and the verdicts, as section 10
-//   gives them, and that the vectors hold every rule of it (tools/contracts/observation.mjs);
-// - the test vectors of the rules the device and the runner share, by the image: the messages of
-//   each case as the package reads and a writer writes them, and what the fold of a history, the
-//   groups, the crop, snapping and the boxes give, as section 12 has them, and that the four files
-//   hold every rule of it (tools/contracts/strokes.mjs);
-// - the examples of the sample file, by the image: each sample as the package reads and a writer
-//   writes it, and the rules of section 11 — its fields by its purpose and writer, its strokes,
-//   groups, boxes and crops, the chunks of its PNG, its markup — and of section 12 — the groups and
-//   boxes of a history, and the numbers of every crop —, and that together they show every
-//   purpose, writer, ink, surface and event, and every kind of part of a markup
-//   (tools/contracts/sample.mjs);
-// - the examples of the runner's report, report-<case>.json among them, by the image: each report
-//   as the package reads and a writer writes it, the rules of section 14 — its capability, models,
-//   code of verdicts, eval set, and each sample refused or measured, a reading for each repeat —,
-//   that it is of the samples beside it, and that together they show every capability, a refused
-//   and a measured sample, every verdict a reading gives and every mark of a criterion
-//   (tools/contracts/report.mjs);
-// - buf breaking against the previous release of spec, the newest release tag in the history of
-//   HEAD other than HEAD's own, whose buf.yaml and contracts/ git archive unpacks into a temporary
-//   folder; a release with no .proto file has nothing to compare with (section 7);
-// - the generated code: what buf generate writes from the files is what contracts/ holds, file for
-//   file and byte for byte, and contracts/ holds no generated file buf no longer writes (section 8);
-// - with the code as buf writes it, its npm package, @altnovatrail/contracts, of the working tree:
-//   tsc of tools/ takes every message of it under nodenext and bundler, and Node runs it, its binary
-//   form and its JSON with protobuf names read back; tsc takes each vector it carries as JSON, and
-//   Node reads each message of them by its code (tools/contracts/typescript.mjs).
-// Prints one line per error, file:line: message, and exits 1 if there are any.
+// buf does not run while buf.yaml or buf.gen.yaml breaks R83, since it could then reach a service
+// outside the repository, nor while a .proto file is out of place. Anything in contracts/ that the
+// layout does not have is an error: what this check does not know would go unchecked, so whatever
+// brings it extends the check. Prints one line per error, file:line: message, and exits 1 if there
+// are any.
 //
-// With --samples, sample-check: the sample files another NovaTrail repository names, by their
-// paths from the folder it runs from, its root (R93). Each path is a file of that folder, or the
-// check stops before buf runs; then buf builds the image of this spec's contracts/ — the spec/
-// submodule's, at the tag the repository pins —, and each file is read as the examples of spec are
-// and held to the rules of contracts/README.md, sections 11 and 12, by the same code, which asks
-// nothing of the files together but in the mode of an eval set. Prints one line per error, file:line: message, and exits 1 if
-// there are any, or 2 when it cannot check at all. With --eval-set and a module's ID before the
-// files, they are the files of the folder eval/ of that module, and are held together to the rules
-// of section 13 that need neither the module's package nor a key: each is of the purpose
-// PURPOSE_EVAL_SET, with its markup, of a task of that module, and no two share an ID (the
-// amendment of 2026-11-06 to R93).
-//
-// With --reports, report-check: the files of the runner's report another NovaTrail repository
-// names, the same way (the second and the fourth amendments of 2026-11-08 to R95). Each is read as
-// spec's examples of the report are and held to the rules of section 14 by the same code; with
-// --samples and the sample files after it, each sample is checked as sample-check checks it, no two
-// share an ID, and each report is held to them as the examples of the report are held to the
-// samples beside them.
+// sample-check reads each file as spec's examples are read and holds it to the same rules, by the
+// image buf builds of this spec's contracts/ — the spec/ submodule's, at the tag the repository
+// pins. With --eval-set the files are the folder eval/ of that module, held together to the rules
+// of an eval set that need neither the module's package nor a key (R93). report-check holds each
+// report to the rules spec's examples of the report are held to and, with --samples, to those
+// samples (R95). Both print one line per error and exit 1 when a file breaks a rule, and 2 when they
+// cannot check at all.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -91,7 +38,7 @@ import { checkTypeScript } from "./typescript.mjs";
 // The spec this file is part of: spec itself, or the spec/ submodule of another repository.
 const SPEC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-// buf.yaml and buf.gen.yaml at root, against R83: the errors, with a missing file one of them.
+// buf.yaml and buf.gen.yaml at root against R83: the errors, a missing file one of them.
 export function checkConfig(root) {
   const errors = [];
   for (const [file, check] of [["buf.yaml", checkBufYaml], ["buf.gen.yaml", checkBufGenYaml]]) {
@@ -120,15 +67,14 @@ export function layout(root) {
   return { protos, generated, vectors, examples, errors };
 }
 
-// The packages whose vectors the check runs, each with the folder of its vectors and the section of
-// the text whose rules they hold.
+// The packages whose vectors the check runs.
 const VECTORS = new Map([
   [PACKAGE, { folder: FOLDER, section: 10 }],
   [EVAL, { folder: RULES, section: 12 }],
 ]);
 
-// The test vectors against the packages: each is of a package that contracts/ has and whose vectors
-// the check runs, and each such package has some, since review alone would hold its rules otherwise.
+// Each vector is of a package that contracts/ has and whose vectors the check runs, and each such
+// package has some: review alone would hold its rules otherwise.
 export function vectorErrors(vectors, packages) {
   const errors = [];
   for (const vector of vectors) {
@@ -143,9 +89,8 @@ export function vectorErrors(vectors, packages) {
   return errors;
 }
 
-// The examples against the packages: each is of a package that contracts/ has and whose examples
-// the check reads, and the sample file and the runner's report have some, since nothing else would
-// show them whole.
+// Each example is of a package that contracts/ has and whose examples the check reads, and the
+// sample file and the runner's report have some: nothing else would show them whole.
 export function exampleErrors(examples, packages) {
   const errors = [];
   for (const example of examples) {
@@ -182,7 +127,6 @@ export function compareGenerated(root, generated, written) {
   return errors;
 }
 
-// Errors in the order of their files, lines and messages.
 const byPlace = (a, b) => byCodeUnits(a.file, b.file) || a.line - b.line || byCodeUnits(a.message, b.message);
 
 // Every check of the contracts at root: { errors, stats }.
@@ -198,7 +142,7 @@ export function checkContracts(root) {
   if (protos.length === 0) {
     errors.push(...compareGenerated(root, generated, new Map()));
     // buf refuses a module with no .proto file, so it cannot hold that every package of the
-    // previous release is still here: a package is never removed (the text, section 2).
+    // previous release is still here: a package is never removed.
     const previous = previousRelease(root);
     stats.previous = previous;
     if (previous?.protos) {
@@ -295,7 +239,7 @@ function known({ message, error }) {
 // The sample files another repository names, by their paths from root, the folder sample-check
 // runs from, and, unless null, the ID of the module whose eval set they are: { errors, samples },
 // the errors by the paths given, and a file named twice checked once, by its first name. Of a
-// module's eval set, the samples that hold are held together to the rules of section 13 that need
+// module's eval set, the samples that hold are held together to the rules of an eval set that need
 // neither the package nor a key. A path that leaves root or names no file throws before buf runs,
 // and so does an ID that is no module's, or an image of this spec's contracts/ with no Sample.
 export function checkSampleFiles(root, files, module = null) {
@@ -357,7 +301,6 @@ function run(name, check, ok) {
   }
 }
 
-// sample-check: the sample files, or, after --eval-set, a module's ID and the files of its eval set.
 function sampleCheck(args) {
   const set = args[0] === "--eval-set";
   const module = set ? args[1] ?? "" : null;
@@ -365,7 +308,6 @@ function sampleCheck(args) {
   run("sample-check", () => checkSampleFiles(process.cwd(), files, module), ({ samples }) => plural(samples, "sample") + (set ? ` of the eval set of ${module}` : ""));
 }
 
-// report-check: the report files before --samples, and the sample files after it.
 function reportCheck(args) {
   const at = args.indexOf("--samples");
   const reports = at < 0 ? args : args.slice(0, at);
@@ -388,7 +330,6 @@ export function summary({ protos, packages, generated, vectors, cases, examples,
   return `${protos} .proto file${protos === 1 ? "" : "s"} in ${packages} package${packages === 1 ? "" : "s"}, ${generated} file${generated === 1 ? "" : "s"} of generated code${tested}, ${against}; tsc and Node take the ${messages} message${messages === 1 ? "" : "s"} of its npm package${packaged ? ` and the ${packaged} file${packaged === 1 ? "" : "s"} of vectors it carries` : ""}`;
 }
 
-// contracts-check: what it found in spec's contracts/, a line each, and its verdict.
 function contractsCheck() {
   try {
     const { errors, stats } = checkContracts(SPEC);
@@ -406,9 +347,9 @@ function contractsCheck() {
 }
 
 if (isMain(import.meta.url)) {
-  // Every argument after --samples is a file, one beginning with - too, but a first --eval-set, and the
-  // module's ID after it; after --reports, every one
-  // but the first --samples, which divides the reports from their samples.
+  // Every argument after --samples is a file, one beginning with - too, but a first --eval-set and
+  // the module's ID after it; after --reports, every one but the first --samples, which divides the
+  // reports from their samples.
   const args = process.argv.slice(2);
   if (args[0] === "--samples") sampleCheck(args.slice(1));
   else if (args[0] === "--reports") reportCheck(args.slice(1));

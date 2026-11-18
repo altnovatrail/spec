@@ -1,10 +1,9 @@
-// The package of a module, as section 25 of the format text gives it (format/README.md; R62): its
-// canonical view, which is its server part, with the tier of each skill (section 12) and the numbers
-// of every instance of each template (section 23); its device part, named by a listing of its files;
-// and its inventory, which names both parts by their digests, and whose digest is the package's. A
-// second implementation beside module-kit's, by which spec's CI computes the test vectors of
-// packages and of tiers. The results of a solver come from Starlark, which spec does not run
-// (section 24): format-check takes them from a vector.
+// The package of a module: its canonical view, which is its server part, with the tier of each skill
+// and the numbers of every instance of each template; its device part, named by a listing of its
+// files; and its inventory, which names both parts by their digests, and whose digest is the
+// package's (R62). A second implementation beside module-kit's, by which spec's CI computes the test
+// vectors of packages and of tiers. spec runs no Starlark, so a solver's results come from a vector
+// (R61).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -20,7 +19,7 @@ const SKILL_TIERS = "skill_tiers";
 const TASKS = "tasks";
 const INSTANCES = "instances";
 const MEDIA = "media";
-// An anchor skill of the shared taxonomy, core.<name>, counts for no tier (section 12).
+// An anchor skill of the shared taxonomy, core.<name>, counts for no tier.
 const isAnchor = (id) => id.startsWith("core.");
 
 // The name of the member of a canonical view that holds a part, by its row of the layout: a part
@@ -28,7 +27,7 @@ const isAnchor = (id) => id.startsWith("core.");
 // the name of its folder, tasks, an object by local ID.
 export const memberOf = (row) => (row.id === null ? row.part.replaceAll("-", "_") : row.names.join("_"));
 
-// The tier of each skill of a skill graph (section 12): { tiers }, an object from each skill's local
+// The tier of each skill of a skill graph: { tiers }, an object from each skill's local
 // ID to its tier, or { problem } when a prerequisite names no skill of the module and no anchor skill,
 // or the prerequisites run in a cycle, which only module-kit refuses by its rule.
 export function tiersOf(skillGraph) {
@@ -57,9 +56,9 @@ export function tiersOf(skillGraph) {
   return problem ? { problem } : { tiers };
 }
 
-// The canonical view of a module from its members, each part's value under memberOf its row (section
-// 25): the members as they are, then skill_tiers when there is a skill graph, and instances when a
-// task is a template — each template's instances in order, each an object from every parameter,
+// The canonical view of a module from its members, each part's value under memberOf its row: the
+// members as they are, then skill_tiers when there is a skill graph, and instances when a task is a
+// template — each template's instances in order, each an object from every parameter,
 // derived number and result of its solver to its number. results, an object from a template's ID to
 // the results of its solver on each instance, in order, as a vector gives them, adds them; without
 // them, an instance holds the numbers that spec computes. { view }, or { problem, inResults }, where
@@ -92,7 +91,7 @@ export function canonicalViewOf(members, results = {}) {
   return { view };
 }
 
-// The listing of a module's device part (section 25): LICENSE, NOTICE when the module has one, and
+// The listing of a module's device part: LICENSE, NOTICE when the module has one, and
 // each file of media/ by its path from media/, each named by its digest and size. files are the
 // module's files by their paths from its folder.
 export function deviceListingOf(folder, files) {
@@ -104,11 +103,9 @@ export function deviceListingOf(folder, files) {
   return listing;
 }
 
-// The package of a module: { server, device, inventory, digest } — its canonical view, the listing of
-// its device part, its inventory and its digest —, or { problem, inResults } as canonicalViewOf
-// gives it. folder is the module's folder,
-// files its files, members its parts as canonicalViewOf takes them, and results the results of its
-// solvers.
+// { server, device, inventory, digest } — its canonical view, the listing of its device part, its
+// inventory and its digest —, or { problem, inResults } as canonicalViewOf gives it. members are its
+// parts as canonicalViewOf takes them, and results the results of its solvers.
 export function packageOf(folder, files, members, results = {}) {
   const { view, problem, inResults } = canonicalViewOf(members, results);
   if (problem) return { problem, inResults };

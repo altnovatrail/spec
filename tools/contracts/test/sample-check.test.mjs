@@ -138,8 +138,8 @@ test("with --eval-set, sample-check holds the files of a module's eval set toget
     `eval/u.json:1: a sample of an eval set has its markup, which the runner measures AI by (contracts/README.md, section 13)`,
     "sample-check: 5 errors",
   ]);
-  // A file named twice, and through a link, is one sample, and a sample that breaks section 11 has
-  // that error alone.
+  // A file named twice, and through a link, is one sample, and a sample that breaks its own rules
+  // is not held to those of the set.
   const linked = recipe({ ...set, "more/a.json": { link: "../eval/a.json" } }, ["--eval-set", MODULE, "eval/a.json", "./eval/a.json", "more/a.json"]);
   assert.equal(linked.status, 0, linked.stdout + linked.stderr);
   assert.equal(linked.stdout, `sample-check: ok — 1 sample of the eval set of ${MODULE}\n`);
@@ -173,10 +173,10 @@ test("--eval-set comes first, with the ID of a module, and then the files of its
   assert.deepEqual(checkSampleFiles(root, [`${FOLDER}/sheet-eval-set.json`], MODULE).errors.map((error) => error.message), [`a sample of the eval set of ${MODULE} is of a task of that module: its source is modules (contracts/README.md, section 13)`]);
 });
 
-// A large set, as modules has, of 631 files of some 600 KB each (T116; Д197), in a model: 60
-// essays of some 260 KB each, whose sheet holds its crops as PNG, under a heap of 64 MB. The code
-// before T116, which held every sample read until the set's rule ran, runs out of it on this model;
-// now each file goes once it is read, and the set's rule keeps its IDs alone.
+// A large set, as modules has, of 631 files of some 600 KB each, in a model: 60 essays of some
+// 260 KB each, whose sheet holds its crops as PNG, under a heap of 64 MB. Code that holds every
+// sample read until the set's rule runs runs out of it on this model: each file has to go once it
+// is read, and the set's rule keeps its IDs alone.
 test("--eval-set reads a large set one file at a time, its rule kept by the IDs", () => {
   const files = Object.fromEntries(Array.from({ length: 60 }, (_, i) => [`eval/essay-${i}.json`, textOf({ ...essay, id: `synthetic-${5000 + i}` })]));
   const run = withRepository(files, (dir) => spawnSync(process.execPath, ["--max-old-space-size=64", main, "--samples", "--eval-set", MODULE, ...Object.keys(files)], { cwd: dir, encoding: "utf8" }));

@@ -1,12 +1,9 @@
-// The verdicts of the check kinds of the module format, and the traps that wrong values match, as
-// section 15 of its text gives them (format/README.md; R56, R57): a second implementation beside
-// module-kit's, by which spec's CI computes the test vectors of verdicts. It computes every verdict
-// but that of a predicate that runs: spec has no Starlark, so a predicate whose value is in notation
-// gets null, and only module-kit computes it.
+// The verdicts of the format's check kinds and the traps that wrong values match: a second
+// implementation beside module-kit's, by which spec's CI computes the test vectors of verdicts. spec
+// has no Starlark, so a predicate whose value is in notation gets null (R56, R57).
 
 import { holdsPlaceholder } from "./templates.mjs";
 
-// The check kinds that give verdicts, and those that give feedback instead.
 export const VERDICT_KINDS = ["number", "fraction", "choice", "time", "predicate"];
 export const FEEDBACK_KINDS = ["rubric"];
 
@@ -17,7 +14,7 @@ const SCRIPT_DIGIT = /[\u00B2\u00B3\u00B9\u2070-\u209F]/u;
 const VULGAR_FRACTION = /[\u00BC-\u00BE\u2150-\u215F\u2189]/u;
 const NUMBER_CHARACTER = /\p{N}/u;
 const REPLACEMENT = "\uFFFD";
-// The hyphens and dashes, and the minus sign, that become "-"; the slashes that become "/" (step 3).
+// Step 3: the hyphens, the dashes and the minus sign become "-", the slashes "/".
 const DASHES = /[\u2010\u2012-\u2015\u2212]/gu;
 const SLASHES = /[\u2044\u2215]/gu;
 // White space is the characters with the Unicode property White_Space (step 4): JavaScript's \s
@@ -44,7 +41,7 @@ const NOTATION = { verdict: "unreadable", reason: "notation" };
 const CORRECT = { verdict: "correct" };
 const NOT_YET = { verdict: "not_yet" };
 
-// Steps 2 to 4 of section 15: NFKC, the dashes and slashes, the white space.
+// Steps 2 to 4: NFKC, the dashes and slashes, the white space.
 export function normalized(text) {
   return trimmed(text.normalize("NFKC").replace(DASHES, "-").replace(SLASHES, "/").replace(WHITE_SPACE, " "));
 }
@@ -58,7 +55,7 @@ export function lowercase(text) {
 }
 
 // Step 1, before NFKC: the superscript and subscript digits, and the vulgar fractions that touch a
-// number, become U+FFFD. The leak check takes the same step (section 20).
+// number, become U+FFFD. The leak check takes the same step.
 export function scriptsReplaced(text) {
   const chars = [...text];
   const touchesNumber = (at) => NUMBER_CHARACTER.test(chars[at - 1] ?? "") || NUMBER_CHARACTER.test(chars[at + 1] ?? "");
@@ -77,9 +74,9 @@ export function readNumber(value, units = []) {
   return text === "" ? { reason: "blank" } : { text };
 }
 
-// A time as a value read is in notation (section 15; R111): H:MM or HH:MM, the minutes two digits,
-// or three that begin with no zero, so that 5:60 and 10:100 are times a trap can show. Anchored and
-// with no nested repeat, so it cannot backtrack.
+// A time as a value read is in notation: H:MM or HH:MM, the minutes two digits,
+// or three that begin with no zero, so that 5:60 and 10:100 are times a trap can show (R111).
+// Anchored and with no nested repeat, so it cannot backtrack.
 const TIME = /^([0-9]{1,2}):([0-9]{2}|[1-9][0-9]{2})$/;
 
 // The hours and the minutes of a time as numbers, "h:m", so that 07:30 is 7:30; or null when the
@@ -101,7 +98,7 @@ function timeOfValue(value) {
 
 // What a unit compares by: steps 1 to 5, as the value goes through them, white space at either end
 // dropped, and each character in lowercase (step 6). The comparison of two versions of a module
-// compares units so too (section 27).
+// compares units so too.
 export const unitForm = (unit) => lowercase(trimmed(steps1To5(unit)));
 
 // Step 6: of the units that end the text, with a space before it or none, the longest; dropped
@@ -176,7 +173,7 @@ export function slotVerdict(slot, value) {
 }
 
 // What a choice compares: the text normalized and in lowercase, and with notation word, without
-// the ., !, ? and spaces at its end (section 15; R111).
+// the ., !, ? and spaces at its end (R111).
 export const choiceForm = (text, notation = "options") => {
   const form = lowercase(normalized(text));
   return notation === "word" ? withoutEnd(form, ".!? ") : form;
@@ -209,18 +206,17 @@ export function comparableOf(slot, value) {
   return number ? lowestTerms(number) : null;
 }
 
-// A rational in lowest terms, as a string: "n/d".
 function lowestTerms({ numerator, denominator }) {
   const divisor = gcd(absolute(numerator), denominator);
   return `${numerator / divisor}/${denominator / divisor}`;
 }
 
-// What the check of an answer slot reads a value as, by which two readers' values join
-// (contracts/README.md, section 10): { blank: true }, a value that the kind normalizes to nothing;
-// { notation }, a value out of the kind's notation, as the kind normalizes it — steps 1 to 7, a
-// choice in lowercase too; or { compared, verdict }, a value in notation: what the check compares
-// it by — a choice its normal form, a number, a fraction or a predicate's integer its value in
-// lowest terms, a time its hours and minutes — and its verdict, null for a predicate, whose verdict Starlark gives. Two values
+// What the check of an answer slot reads a value as, by which two readers' values join:
+// { blank: true }, a value that the kind normalizes to nothing; { notation }, a value out of the
+// kind's notation, as the kind normalizes it — steps 1 to 7, a choice in lowercase too; or
+// { compared, verdict }, a value in notation: what the check compares it by — a choice its normal
+// form, a number, a fraction or a predicate's integer its value in lowest terms, a time its hours
+// and minutes — and its verdict, null for a predicate, whose verdict Starlark gives. Two values
 // join when they read as the same and are not blank. Kept apart from comparableOf: a value out of
 // notation, normalized, can spell a comparable, as 1/100000000000000 does.
 export function readingOf(slot, value) {
@@ -237,24 +233,24 @@ export function readingOf(slot, value) {
 }
 
 // The trap that a value read in an answer slot matches: the trap of the trap value that its check
-// compares it equal to, for a value that is not yet right (section 15); otherwise null.
+// compares it equal to, for a value that is not yet right; otherwise null.
 export function trapOf(slot, value) {
   if (value === null || slotVerdict(slot, value)?.verdict !== "not_yet") return null;
   const read = comparableOf(slot, value);
   return (slot.check.trap_values ?? []).find((trapValue) => comparableOf(slot, trapValue.value) === read)?.trap ?? null;
 }
 
-// The rules of a task that an answer slot's check breaks by itself (section 15): task.choice-key, a
-// key that is none of the options as written, or with notation word no word of letters as written,
-// normalized but with its end kept; task.choice-options, two options alike once normalized with the
-// notation, or with notation word an option with nothing left; task.fraction-key, a key not in lowest terms when the form is reduced;
-// task.trap-values, a trap value that is not yet right, for a choice not an option as written, or
-// two trap values that the check compares equal. A key or a trap value of a number or a fraction
-// that holds a placeholder, outside a template, breaks task.placeholders, and nothing else is read
-// (section 23): a template is checked through its instances, which hold numbers in its place. In an
-// instance whose solver's results are unknown, unsolved, such a placeholder is a result (section 24):
-// a trap value that holds one is passed over, and against a key that holds one no trap value is
-// compared, while the others are still compared with one another.
+// The rules of a task that an answer slot's check breaks by itself: task.choice-key, a key that is
+// none of the options as written, or with notation word no word of letters as written, normalized
+// but with its end kept; task.choice-options, two options alike once normalized with the notation,
+// or with notation word an option with nothing left; task.fraction-key, a key not in lowest terms
+// when the form is reduced; task.trap-values, a trap value that is not yet right, for a choice not
+// an option as written, or two trap values that the check compares equal. A key or a trap value of
+// a number or a fraction that holds a placeholder, outside a template, breaks task.placeholders,
+// and nothing else is read: a template is checked through its instances, which hold numbers in its
+// place. In an instance whose solver's results are unknown, unsolved, such a placeholder is a
+// result: a trap value that holds one is passed over, and against a key that holds one no trap
+// value is compared, while the others are still compared with one another.
 export function slotBreaches(slot, unsolved = false) {
   const { check } = slot;
   const numeric = check.kind === "number" || check.kind === "fraction";
@@ -279,7 +275,6 @@ export function slotBreaches(slot, unsolved = false) {
   return breaches;
 }
 
-// The verdict of an item, made of its answer slots' verdicts.
 export function itemVerdict(verdicts) {
   if (verdicts.every((verdict) => verdict === "correct")) return "correct";
   for (const verdict of ["not_yet", "unreadable"]) if (verdicts.includes(verdict)) return verdict;

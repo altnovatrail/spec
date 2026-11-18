@@ -1,13 +1,13 @@
 // What a run's session spent by its transcript, for an attempt that printed no `result` — one the
-// orchestrator stopped, or one cut short (T175). Claude Code writes the session's transcript to the
-// volume novatrail-claude in the executor's container, beside the orchestrator's own folder:
+// orchestrator stopped, or one cut short. Claude Code writes the session's transcript to the volume
+// novatrail-claude in the executor's container, beside the orchestrator's own folder:
 // `projects/<the workdir, each character but a letter or a digit a dash>/<session>.jsonl`, and the
 // transcripts of its subagents in `<session>/subagents/`. Every attempt of a run resumes the one
-// session, so the transcript holds them all, as a result's total_cost_usd does (sources 2.11).
+// session, so the transcript holds them all, as a result's total_cost_usd does.
 //
 // Each call of the model is counted once, by its message's id, with its largest output, as
-// tokens-report counts it (measurements 1): the call and its tokens are tools/tokens/calls.mjs, its
-// prices tools/tokens/prices.mjs, and neither takes a package.
+// tokens-report counts it: tools/tokens/calls.mjs and tools/tokens/prices.mjs, neither of which
+// takes a package.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -18,7 +18,6 @@ import { costOf } from "../tokens/prices.mjs";
 // every few seconds, and a long session's transcript runs to megabytes.
 const CACHE = new Map();
 
-// The folder of a session's transcripts for a container's workdir, under the volume's root.
 export function projectOf(root, workdir) {
   return path.join(root, "projects", workdir.replace(/[^a-zA-Z0-9]/g, "-"));
 }

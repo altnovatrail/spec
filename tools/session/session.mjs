@@ -1,22 +1,22 @@
-// One task, one session (R143): which task a prompt of the author starts, which tasks a session's
+// One task, one session: which task a prompt of the author starts, which tasks a session's
 // transcript has led, and whether a new prompt may go on in that session. An epic the orchestrator
-// runs counts as one task (R156).
+// runs counts as one task (R143, R156).
 //
 // A task starts by a phrase that names it: RUN.md's «Выполни задачу T…» or «планируй T…», in the
 // forms the author writes them — «Планируем задачу T…», «планируй реализацию T…», «делай T…»,
 // «сделай T…», «делаем T…», «выполняй T…», «реализуй T…», «спланируй T…», «начинай T…», «приступай
-// к реализации T…» and «продолжай T…» (measurements 1.7). «продолжай» names the task the session
+// к реализации T…» and «продолжай T…». «продолжай» names the task the session
 // goes on with: the same task passes, and another is stopped. A session may plan and carry out one
 // task; a prompt that starts another is stopped, and the author runs /clear.
 // «Сделай эпик E…» starts a run of the orchestrator, in the forms «делай эпик E…», «выполни эпик
 // E…», «продолжай эпик E…» and the other verbs of a task but planning: the orchestrator's session is
-// one epic (R143), so it goes on with the same epic and stops another
-// epic or a task. «планируй эпик E…» splits an epic into tasks and starts nothing.
-// «Разбери входящие» names no task, and R143 counts the triage into the session of the task it
+// one epic, so it goes on with the same epic and stops another epic or a task (R143).
+// «планируй эпик E…» splits an epic into tasks and starts nothing.
+// «Разбери входящие» names no task, and the triage counts into the session of the task it
 // serves, before or after its planning, so it always goes on: the next task's own phrase is what
-// the hook stops.
+// the hook stops (R143).
 // A run of the orchestrator may take its task under another number than its prompt named — the
-// executor wrote the task into its plan under the next one free (T175) —, and resumes the same
+// executor wrote the task into its plan under the next one free —, and resumes the same
 // session under the new one. The orchestrator gives the run's numbers in NOVATRAIL_RUN_TASKS, and
 // they count as one task.
 

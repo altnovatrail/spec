@@ -3,11 +3,11 @@
 # pinned by tag and digest, and only the builds a headless test starts: Chrome Headless Shell,
 # WebKit and Firefox. The image's tag is the version of the playwright package in
 # package-lock.json, and each revision is the one that version's browsers.json names: otherwise
-# Playwright finds no browser, and ci-test fails on it. The tag, the digest and the three revisions
-# are raised by hand, together, in spec's repo-template, which a move to its new tag brings here, or
-# here first, in the pull request that raises the package (R79): Dependabot reads FROM lines only,
-# and this image is not in one. COPY takes a folder's contents, not the folder, so each browser has
-# a COPY of its own, all three from the one image.
+# Playwright finds no browser, and ci-test fails on it. Dependabot reads FROM lines only, and this
+# image is in none, so the tag, the digest and the three revisions are raised by hand, together:
+# in spec's repo-template, which a move to its new tag brings here, or here first, in the pull
+# request that raises the package (R79). COPY takes a folder's contents, not the folder, so each
+# browser has a COPY of its own, all three from the one image.
 ARG PLAYWRIGHT_HEADLESS_SHELL_REVISION=1254
 ARG PLAYWRIGHT_WEBKIT_REVISION=2388
 ARG PLAYWRIGHT_FIREFOX_REVISION=1572
@@ -33,11 +33,11 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 #
 # apt reads the snapshot alone, from a source of its own that names the snapshot in its URI, with
 # the suites and components of the base image's ubuntu.sources: apt-get update --snapshot reads
-# the live archive's indexes as well as the snapshot's, 67.6 MB against 33.6 MB, and resolves the
-# same packages at the same versions (measurements 3.2; the 2026-11-16 amendment to R40). The
-# base image's own sources stay as they are, for whoever runs apt in the devcontainer, and this
-# RUN reads none of them. snapshot.ubuntu.com/ubuntu serves arm64 as well as amd64. The suites are
-# those of noble, the base image's Ubuntu: a base image of a newer one changes them with the ID.
+# the live archive's indexes as well as the snapshot's, twice the download, and resolves the same
+# packages at the same versions (R40). The base image's own sources stay as they are, for whoever
+# runs apt in the devcontainer, and this RUN reads none of them. snapshot.ubuntu.com/ubuntu serves
+# arm64 as well as amd64. The suites are those of noble, the base image's Ubuntu: a base image of a
+# newer one changes them with the ID.
 ARG UBUNTU_SNAPSHOT=20261021T000000Z
 RUN sources="$(mktemp -d)"; \
     printf '%s\n' 'Types: deb' "URIs: https://snapshot.ubuntu.com/ubuntu/${UBUNTU_SNAPSHOT}/" \

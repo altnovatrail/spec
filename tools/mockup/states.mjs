@@ -1,5 +1,5 @@
 // mockup: the named states of the interface mockup, which the page opens by its address —
-// ?screen=<name>&device=ipad|phone — and the test draws, each on both devices (RUN.md, T156).
+// ?screen=<name>&device=ipad|phone — and the test draws, each on both devices.
 //
 // A state is reached the way the learner or the adult reaches it in Play: from the state named by
 // from, by the steps of run, which call the handlers that renderVals of Main.dc.html gives its
@@ -151,7 +151,7 @@ export const STATES = [
   { name: "essay-feedback", title: "An essay, its feedback", from: "essay", shows: "Feedback", run: (t) => (t.c.closeChat(), t.ink(), t.les().check()) },
   { name: "essay-done", title: "An essay, Done: the marks by the criteria", from: "essay-feedback", shows: "Not assessed", run: (t) => t.les().essayDone() },
 
-  // What comes later — the children of epic E4 of app, and the paper flow of epic E11 — under "Later".
+  // What comes later — the children, and the paper flow — under "Later".
   { name: "later-who", title: "Later: Who's learning?, with the children", slice: "later", from: "who", shows: "Juniper", run: (t) => t.v().sliceLater() },
   { name: "later-add", title: "Later: Add a learner, a parent's consent", slice: "later", from: "later-who", shows: "A parent’s consent", run: (t) => t.v().openAdd() },
   { name: "later-pin", title: "Later: the owner's PIN", slice: "later", from: "later-who", shows: "Enter your PIN", run: (t) => t.v().profiles.find((p) => p.owner).pick() },

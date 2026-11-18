@@ -8,7 +8,7 @@
 // - spec-v0.7.0/: altnovatrail-contracts-0.7.0.tgz of spec's release v0.7.0, the first with the
 //   contracts' code, with its bundle, signed by spec's own release.yml (R83), read 2026-11-03;
 // - module-kit-v0.1.0/: LICENSE of module-kit's release v0.1.0, with its bundle, signed by the
-//   shared release.yml of .github v0.1.4, below the minimum of R77;
+//   shared release.yml of .github v0.1.4, below the minimum (R77);
 // - tutor-v0.1.0/: SHA256SUMS of tutor's release v0.1.0, with its bundle, signed by the shared
 //   release.yml of .github v0.1.11, above that minimum: the first release so signed, published
 //   2026-11-01 and read 2026-11-02;

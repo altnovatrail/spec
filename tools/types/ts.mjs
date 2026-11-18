@@ -1,18 +1,13 @@
-// The TypeScript of the model (R73): the declarations of the package formatv0 and of its subpackage
-// open, each one file, index.d.ts, beside the Go of the same package, which the npm package
-// @altnovatrail/spec exports as ./formatv0 and ./formatv0/open. The types are those of the Go, by
-// the same names and of the same shape: a struct is an interface, whose field the object always
-// holds is required and any other optional; a field that the branches of a schema give is a field
-// of the object, as in Go (RUN.md, T49). Every field and list is readonly: a value is data read
-// from a module. A string, an integer or an ID under a name of its own is an alias, since a brand
-// would take a cast on every value read from JSON. The declarations hold no code: no constants, no
-// generator of random numbers, and a consumer imports them with import type. The admission table's
-// types are admissionv0/index.d.ts, by the same rules, which the npm package exports as
-// ./admissionv0 (R96), the deployment configuration's deploymentv1/index.d.ts, exported as
-// ./deploymentv1, whose file keeps the names of its fields in camelCase (R85), the legal texts'
-// legalv3/index.d.ts, exported as ./legalv3 (R130, R141), and the table of the age of digital consent's
-// consentagev1/index.d.ts, exported as ./consentagev1 (R134), and the format of the export's
-// exportv3/index.d.ts, exported as ./exportv3 (R135).
+// The TypeScript of the model: one index.d.ts beside the Go of each package, which the npm package
+// @altnovatrail/spec exports by the package's path, as ./formatv0 and ./formatv0/open. The types
+// are the Go's, by the same names and of the same shape: a field the object always holds is
+// required, any other optional, and a field that only some branches of a schema give is a field of
+// the object. Every field and list is readonly: a value is data read from a module. A string, an
+// integer or an ID under a name of its own is an alias, since a brand would take a cast on every
+// value read from JSON. The declarations hold no code, no constants, so a consumer imports them
+// with import type (R73). The other parts follow the same rules: admissionv0 (R96), deploymentv1,
+// whose fields keep the file's camelCase (R85), legalv3 (R130, R141), consentagev1 (R134) and
+// exportv3 (R135).
 
 import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN, OPEN_DIR, PACKAGE, TYPES_DIR, groupBy, linesOf } from "./go.mjs";
 import { openRefOf, placeOf } from "./model.mjs";
@@ -30,17 +25,14 @@ const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 // An object without a field of its own: an empty interface would take any object, closed fields
 // and all, so it is an object whose every field is never.
 const EMPTY = "{ readonly [field: string]: never }";
-// The tag of a file's first comment, which documents the module.
 const PACKAGE_DOC = "@packageDocumentation";
 // The global types the declarations refer to: a type of the model by one of these names would take
 // their place in the file.
 const GLOBALS = new Set(["Readonly", "Record"]);
 
-// The declarations of the model, by their paths from the root of the repository: formatv0's and
-// open's. version is the format's, which the files name. admission, when it is given, is the
-// admission table's { model, version }, whose declarations go beside, and so are deployment, the
-// deployment configuration's, legal, the legal texts', consentAge, the table of the age of digital
-// consent's, and exported, the format of the export's.
+// The declarations of the model, by their paths from the root of the repository. version is the
+// format's, which the files name. Each other part, when given, is its { model, version }, whose
+// declarations go beside.
 export function tsFiles(model, version, admission = null, deployment = null, legal = null, consentAge = null, exported = null) {
   const files = new Map();
   files.set(`${TYPES_DIR}/${FILE}`, `${HEADER}\n\n${docOf(formatDoc(version), "", [PACKAGE_DOC])}\n${baseOf(model).join("\n")}`);
@@ -57,7 +49,6 @@ export function tsFiles(model, version, admission = null, deployment = null, leg
   return files;
 }
 
-// The declarations of each schema's types.
 function baseOf(model) {
   for (const name of model.types.keys()) if (GLOBALS.has(name)) throw new Error(`a type is named ${name}, as a global type of TypeScript the declarations use is`);
   const groups = groupBy([...model.types.values()], (type) => type.schema);
@@ -92,7 +83,6 @@ function openDoc(version) {
   return `The open view of each part of a module (format/README.md, section 6): the type of each struct the open view of a part reaches, by the name it has in ${PACKAGE}, with the fields marked x-open alone, of version ${version}. An open view has no check, no template and no solver; a task's has its givens and its unknown. Strings, integers and enumerations are ${PACKAGE}'s.`;
 }
 
-// The declaration of a type of the model in formatv0.
 function declarationOf(type, model) {
   const doc = docOf(`${type.name} is the type of ${placeOf(type)}.${type.doc ? `\n\n${type.doc}` : ""}`, "");
   switch (type.kind) {
@@ -107,14 +97,12 @@ function declarationOf(type, model) {
   }
 }
 
-// The declaration of an open view in open.
 function openDeclarationOf(view, model, uses) {
   const type = model.types.get(view.name);
   const doc = docOf(`${view.name} is the open view of ${PACKAGE}.${view.name}, the type of ${placeOf(type)}: its fields marked x-open.${type.doc ? `\n\n${type.doc}` : ""}`, "");
   return `${doc}${structOf(view.name, view.fields, (ref) => openTsOf(ref, model, uses))}\n`;
 }
 
-// An interface of its fields, or the empty object of EMPTY.
 function structOf(name, fields, render) {
   if (fields.length === 0) return `export type ${name} = ${EMPTY};`;
   const lines = fields.map((field) => {
@@ -125,8 +113,8 @@ function structOf(name, fields, render) {
   return `export interface ${name} {\n${lines.join("")}}`;
 }
 
-// The TypeScript of a type, each named type written as named writes it: by its name in formatv0,
-// and with formatv0's name in open. An open view, which openRefOf gives, is open's own.
+// named writes a named type: by its bare name in formatv0, qualified in open. An open view, which
+// openRefOf gives, is open's own.
 function tsOf(ref, model, named) {
   if (ref.primitive) return PRIMITIVE_TS[ref.primitive];
   if (ref.any) return "unknown";
@@ -137,8 +125,6 @@ function tsOf(ref, model, named) {
   return `${tsOf(ref.nullable, model, named)} | null`;
 }
 
-// The TypeScript of a type in open: a struct's open view by its own name, any other named type
-// formatv0's.
 function openTsOf(ref, model, uses) {
   return tsOf(openRefOf(ref, model.types), model, (name) => {
     uses.base = true;
@@ -146,15 +132,14 @@ function openTsOf(ref, model, uses) {
   });
 }
 
-// A readonly list: an element that is a union or a readonly list itself goes in parentheses, since
-// readonly binds to the array next to it alone.
+// An element that is a union or a readonly list goes in parentheses, since readonly binds to the
+// array next to it alone.
 function listOf(element) {
   return element.includes(" | ") || element.startsWith("readonly ") ? `readonly (${element})[]` : `readonly ${element}[]`;
 }
 
-// A map by its keys' type. A key of an enumeration would make Record want every value as a key,
-// as no map of a schema holds them all: such a map is Partial, each key of the enumeration
-// optional, as the countries of the table of the age of digital consent are (R134).
+// A key of an enumeration would make Record want every value as a key, which no map of a schema
+// holds: such a map is Partial, as the countries of the table of the age of digital consent are (R134).
 function mapOf(map, model, render) {
   const record = `Record<${render(map.key)}, ${render(map.value)}>`;
   return enumBehind(map.key, model) ? `Readonly<Partial<${record}>>` : `Readonly<${record}>`;
@@ -167,9 +152,9 @@ function enumBehind(ref, model) {
   return type?.kind === "named" ? enumBehind(type.type, model) : undefined;
 }
 
-// A doc comment of text and then its tags, each a paragraph of its own; its paragraphs apart by an
-// empty line, each line no wider than WIDTH with the indent. Text that holds the end of a comment,
-// or a word that starts with @, which would read as a tag when a line begins with it, is refused.
+// A doc comment of text and then its tags, each a paragraph, each line no wider than WIDTH with the
+// indent. Throws on text that holds */ or a word that starts with @, which would read as a tag at
+// the start of a line.
 export function docOf(text, indent, tags = []) {
   if (text.includes("*/")) throw new Error(`a description holds */, which would end the doc comment: ${text.slice(0, 60)}`);
   if (/(^|\s)@/.test(text)) throw new Error(`a description holds a word that starts with @, which would read as a tag: ${text.slice(0, 60)}`);

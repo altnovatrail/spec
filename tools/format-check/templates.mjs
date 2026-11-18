@@ -1,16 +1,14 @@
-// The templates of tasks, as section 23 of the format text gives them (format/README.md; R60): their
-// names, expressions and placeholders, their instances in the order of an odometer, the instance that
-// the seed of an attempt picks, and the task that an instance is. A second implementation beside
-// module-kit's, by which spec's CI computes the test vectors of templates. A solver's results come
-// from Starlark, which spec does not run (section 24; R61): format-check knows where they stand and
-// what the solver gets, and takes their numbers only from the vectors.
+// The templates of tasks: their names, expressions and placeholders, their instances in the order of
+// an odometer, the instance that the seed of an attempt picks, and the task that an instance is
+// (R60). A second implementation beside module-kit's, by which spec's CI computes the test vectors of
+// templates. spec runs no Starlark, so a solver's results come only from the vectors (R61).
 
 import { byCodeUnits } from "../shared.mjs";
 import { EvaluationError, evaluate, isName, parseExpression, typeOf } from "./expressions.mjs";
 import { below, stateOf, streamOf } from "./random.mjs";
 
 export const MAX_COMBINATIONS = 10_000n;
-// A derived number lies within an integer of YAML (section 4).
+// A derived number lies within an integer of YAML.
 const LIMIT = 2n ** 53n - 1n;
 // The names of the place of randomness of an attempt on a template, around the task's ID.
 const PLACE_FIRST = "template";
@@ -20,12 +18,11 @@ const PLACE_LAST = "instance";
 // their schemas take a brace only in one.
 export const holdsPlaceholder = (text) => typeof text === "string" && text.includes("{");
 
-// The names of the results of a template's solver: none when it has no solver (section 24).
 export const resultsOf = (task) => task.template?.solver?.results ?? [];
 
-// Where a result of the solver may stand (section 24): in the key or a trap value of a check of a
-// number or a fraction, in the text of the solution and in a leak phrase, but in no picture path,
-// which is open (section 23; R108). at is the path of keys to a string of the task, as stringsOf
+// Where a result of the solver may stand: in the key or a trap value of a check of a number or a
+// fraction, in the text of the solution and in a leak phrase, but in no picture path, which is open
+// (R108). at is the path of keys to a string of the task, as stringsOf
 // gives it.
 function takesResults(task, at) {
   const [field, , list, , part, which, , inner] = at;
@@ -73,7 +70,6 @@ export function piecesOf(text) {
   return { pieces };
 }
 
-// Every string of a task outside its template, with the path of keys to it.
 function stringsOf(value, at = []) {
   if (typeof value === "string") return [{ at, text: value }];
   if (Array.isArray(value)) return value.flatMap((item, index) => stringsOf(item, [...at, index]));
@@ -93,8 +89,8 @@ export const numbersShown = (numbers, names = [...numbers.keys()]) => names.map(
 // A template's own rules, and its instances: { breaches, instances }. breaches maps each rule of a
 // template that the task breaks to what breaks it; instances lists, in order, each instance's numbers,
 // a Map from every parameter and derived number to its BigInt, or is null when a breach leaves them
-// uncounted. A task read once is counted once: the checks of its rules and its package's canonical
-// view share what this gives, and none of them changes it.
+// uncounted. Counted once per task: the checks of its rules and its package's canonical view share
+// the result, and none of them may change it.
 const counted = new WeakMap();
 
 export function templateOf(task) {
@@ -116,7 +112,7 @@ function countedOf(task) {
     else if (Object.hasOwn(derived, name)) breach("task.template-names", `${name} is both a derived number and a result of the solver`);
   }
 
-  // The tree of an expression of the type it has to have, or null after its breach.
+  // Null after its breach.
   const typedAs = (what, text, allowed, type) => {
     const parsed = parseExpression(text);
     const typed = parsed.tree ? typeOf(parsed.tree, allowed) : parsed;
@@ -187,7 +183,7 @@ function* odometer(domains) {
 }
 
 // The number of the instance that an attempt with seed gets, among count: below(count) of the place of
-// the seed whose names are template, the task's ID and instance (section 22).
+// the seed whose names are template, the task's ID and instance.
 export function pickOf(seed, id, count) {
   const { high, low } = stateOf(seed, [PLACE_FIRST, id, PLACE_LAST]);
   return Number(below(streamOf(high, low), BigInt(count)));
@@ -195,8 +191,7 @@ export function pickOf(seed, id, count) {
 
 // What makes the instances of a template: a function from an instance's numbers to the task it is —
 // the template with every placeholder replaced by its number in decimal digits, and every doubled
-// brace by one, in a single pass, and without its template. Each string is read into pieces once. A
-// placeholder of a result of the solver whose number is not given, which spec does not know, stays as
+// brace by one, in a single pass, and without its template. A placeholder of a result of the solver whose number is not given, which spec does not know, stays as
 // it is written.
 export function instanceMaker(task) {
   const results = new Set(resultsOf(task));
@@ -226,7 +221,7 @@ export const instanceShown = (task, numbers) => numbersShown(numbers, Object.key
 
 // What spec checks of an instance whose solver's results it does not know: a function from the
 // instance to the instance without the leak phrases that name a result. Its keys and trap values that
-// name one keep their placeholders, which the rules of an answer slot pass over (section 24).
+// name one keep their placeholders, which the rules of an answer slot pass over.
 export function withoutResults(task) {
   const results = new Set(resultsOf(task));
   const dropped = new Set((task.leak_phrases ?? []).flatMap((phrase, index) => (namesIn(phrase).some((name) => results.has(name)) ? [index] : [])));
@@ -238,7 +233,7 @@ export function withoutResults(task) {
 }
 
 // The names of the numbers that the solver of a template gets on each instance, in the order of their
-// names (section 24): the parameters and the derived numbers whose placeholders stand in the open
+// names: the parameters and the derived numbers whose placeholders stand in the open
 // view of the template, openView.
 export function solverInputsOf(task, openView) {
   const { parameters, derived = {} } = task.template;

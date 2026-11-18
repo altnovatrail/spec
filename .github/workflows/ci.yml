@@ -1,24 +1,23 @@
 # spec's own checks (R30): the documents, the module format (R45), the admission table (R96), the
 # deployment configuration (R85), the legal texts (R130), the age of digital consent (R134), the
-# format of the export (R135), the types of each in Go and TypeScript (R72, R73), the Go module code takes from a release and its
-# zip, the licenses of the packages of tools/, the version the next release takes (R31) and the
-# files it carries (R64). The tests of tools/ run here in three parts, a job each, with their
-# coverage, and a job of its own sends the reports of all three to Codecov (R48). The Go tests run
-# in "Go / test", and the shared workflow's job "Go / coverage" sends their profile (R16 .github).
-# They run in the toolchain stage of .devcontainer/Dockerfile, with the Node, Go and just of the
-# devcontainer, so a check that is green locally is green here. The image is built from the
-# Dockerfile, or loaded from the cache of GitHub Actions by its sha256, and published nowhere. Beside them, three of the checks every repository shares, from
-# .github: secrets, DCO and the Go code, by the ci- recipes of the justfile (R03, R16 .github).
-# The fourth, the documents of a repository with spec as its submodule, spec does not take: its
-# own job checks its documents.
+# format of the export (R135), the types of each in Go and TypeScript (R72, R73), the Go module
+# code takes from a release and its zip, the licenses of the packages of tools/, the version the
+# next release takes (R31) and the files it carries (R64). The tests of tools/ run in three jobs,
+# and one job of its own sends their coverage to Codecov (R48); the Go tests run in "Go / test",
+# and the shared workflow's "Go / coverage" sends their profile (R16 .github).
+# Everything runs in the toolchain stage of .devcontainer/Dockerfile, so a check green locally is
+# green here; the image is built from the Dockerfile or loaded from the Actions cache, and
+# published nowhere. Three of the checks every repository shares come from .github: secrets, DCO
+# and the Go code, by the ci- recipes of the justfile (R03, R16 .github). The fourth, the
+# documents of a repository with spec as its submodule, spec does not take: its own job checks
+# its documents.
 #
 # The required checks of the ruleset of main are named after these jobs: "Documents and tools",
-# the job that passes only when the checks and every part of the tests have, and for a shared
-# check the job here and the job of the shared workflow, "Secrets / gitleaks",
-# "DCO / sign-off", and "Go / lint", "Go / test", "Go / vuln" and "Go / licenses". Renaming
-# either breaks that rule. "Coverage" is not one of them: the check that answers for coverage is
-# codecov/patch, which Codecov sets from the upload, and the ruleset requires it once a pull
-# request of Dependabot has shown that it comes (R30).
+# which passes only when the checks and every part of the tests have, and for a shared check the
+# job here and the job of the shared workflow, "Secrets / gitleaks", "DCO / sign-off", and
+# "Go / lint", "Go / test", "Go / vuln" and "Go / licenses". Renaming either breaks the ruleset.
+# "Coverage" is not one of them: codecov/patch, which Codecov sets from the upload, answers for
+# coverage, and the ruleset requires it (R30).
 
 name: CI
 
@@ -47,19 +46,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # The toolchain stage; every check below runs one command in it. How it is built
-      # and how a command runs in it is tools/toolchain/toolchain.sh, which release.yml runs too,
-      # and another repository's workflows from their spec submodule (R31).
+      # tools/toolchain/toolchain.sh builds the toolchain stage and runs each check below in it,
+      # for release.yml too and for another repository's workflows from their spec submodule (R31).
       #
-      # The image comes from the cache of GitHub Actions, as a file of docker save, by the sha256
-      # of the Dockerfile, which pins everything it fetches (R34, R40): on a hit the Dockerfile
-      # does not run, and a failure of nodejs.org, GitHub or the Ubuntu snapshot fails no check.
-      # toolchain.sh loads the file, or builds the stage and writes it; the file is saved only on
-      # a miss, since an entry never changes. The scope of main is filled by the runs on main; a
-      # pull request's entry serves only its own re-runs (GitHub Docs, Dependency caching
+      # The image is a file of docker save in the Actions cache, keyed by the sha256 of the
+      # Dockerfile, which pins everything it fetches (R34, R40): on a hit the Dockerfile does not
+      # run, so an outage of nodejs.org, GitHub or the Ubuntu snapshot fails no check. The file is
+      # saved only on a miss, since an entry never changes. The scope of main is filled by the runs
+      # on main; a pull request's entry serves only its own re-runs (GitHub Docs, Dependency caching
       # reference, read 2026-11-09). A broken entry stays until it is deleted: toolchain.sh warns
-      # of it and builds. release.yml takes no cache (R31). The job "Go" runs .github's go.yml,
-      # which takes the cache with its own release.
+      # of it and builds. release.yml takes no cache (R31); the job "Go" runs .github's go.yml,
+      # which caches by its own release.
       - id: cache
         name: Toolchain image from the cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -73,9 +70,8 @@ jobs:
           TOOLCHAIN_IMAGE_FILE: ${{ runner.temp }}/novatrail-toolchain.tar
         run: tools/toolchain/toolchain.sh build
 
-      # A file that docker save could not write is no file, and the save only warns of it: its
-      # errors become warnings (src/saveImpl.ts of v6.1.0, read 2026-11-09). The key is the one the
-      # restore asked for.
+      # When docker save wrote no file, the save only warns: it turns its errors into warnings
+      # (src/saveImpl.ts of v6.1.0, read 2026-11-09). The key is the one the restore asked for.
       - name: Toolchain image to the cache
         if: ${{ steps.image.outcome == 'success' && steps.cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -83,7 +79,7 @@ jobs:
           path: ${{ runner.temp }}/novatrail-toolchain.tar
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
-      # The file is in the image now, and the checks need the disk.
+      # The file is loaded into the image, and the checks need the disk.
       - name: Free the file of the toolchain image
         if: ${{ !cancelled() }}
         run: rm -f -- "$RUNNER_TEMP/novatrail-toolchain.tar"
@@ -97,59 +93,58 @@ jobs:
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec format-check
 
-      # The admission table in admission/ (R96): its schemas, the table and the documents it cites,
-      # its examples, and its test vectors, whose answers the check computes.
+      # admission/: its schemas, the table and the documents it cites, its examples, and its test
+      # vectors, whose answers the check computes (R96).
       - name: Admission table
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec admission-check
 
-      # The format of the deployment configuration in deployment/ (R85): its schemas, its examples,
-      # and its test vectors, which the check reads as section 5 of its text does.
+      # deployment/: its schemas, its examples, and its test vectors, read as deployment/README.md
+      # has a reader read them (R85).
       - name: Deployment configuration
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec deployment-check
 
-      # The legal texts in legal/ (R130): its schemas, its examples, its test vectors, which the
-      # check reads as section 5 of its text does, and the part itself, against the part of the
-      # release before, which the whole history of the checkout holds.
+      # legal/: its schemas, its examples, its test vectors, read as legal/README.md has a reader
+      # read them, and the part against the part of the release before, which the whole history of
+      # the checkout holds (R130).
       - name: Legal texts
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec legal-check
 
-      # The table of the age of digital consent in consent-age/ (R134): its schemas, its examples,
-      # its test vectors of reading and of the category, which the check computes as sections 5 and 6
-      # of its text do, and the table itself, against the table of the release before.
+      # consent-age/: its schemas, its examples, its test vectors of reading and of the category,
+      # computed as consent-age/README.md has them, and the table against the table of the release
+      # before (R134).
       - name: Age of digital consent
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec consent-age-check
 
-      # The format of the export in export/ (R135): its schemas, its examples and its test vectors of
-      # reading, which the check reads as section 5 of its text does.
+      # export/: its schemas, its examples and its test vectors of reading, read as export/README.md
+      # has a reader read them (R135).
       - name: Export format
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec export-check
 
-      # The types of the module format (R72, R73): those its schemas give, file for file, and each
-      # value of format/ read by its Go type and written back as it was, and taken by tsc as a value
-      # of its TypeScript type, from the npm package packed of the checkout.
+      # The types of the module format: those its schemas give, file for file, and each value of
+      # format/ read by its Go type and written back as it was, and taken by tsc as a value of its
+      # TypeScript type, from the npm package packed of the checkout (R72, R73).
       - name: Types
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec types-check
 
-      # The API contracts in contracts/ (R83): buf.yaml and buf.gen.yaml as R83 has them, buf
-      # format, buf lint, R83's own rules, buf breaking against the previous release of spec by
-      # its tag, which the whole history above holds, and the code buf generates, which
-      # contracts/ holds file for file. buf is the toolchain stage's; the Go generators come
-      # through the Go module proxy, as the module of go-check does.
+      # contracts/: buf.yaml and buf.gen.yaml, buf format, buf lint, rules of its own, buf breaking
+      # against the previous release of spec by its tag, which the whole history above holds, and
+      # the code buf generates, which contracts/ holds file for file (R83). buf is the toolchain
+      # stage's; the Go generators come through the Go module proxy, as the module of go-check does.
       - name: Contracts
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec contracts-check
 
-      # spec's Go module (R64), with the types of the module format (R72): with no requirement,
-      # and its zip built of the commit as the Go module proxy will build it from the release's
-      # tag; and the module of the contracts, contracts/ (R83), with the runtime of protobuf and
-      # Connect alone, and its zip too. go fetches the module the zips are built with,
-      # golang.org/x/mod, by tools/gomod/go.sum. Their vet and their tests are the job Go's, below.
+      # spec's Go module, with the types of the module format (R72), with no requirement, and its
+      # zip built of the commit as the Go module proxy will build it from the release's tag (R64);
+      # and the module of the contracts, contracts/, with the runtime of protobuf and Connect alone,
+      # and its zip too (R83). go fetches golang.org/x/mod, which builds the zips, by
+      # tools/gomod/go.sum. Their vet and their tests are the job Go's, below.
       - name: Go module
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec go-check
@@ -158,14 +153,13 @@ jobs:
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         run: tools/toolchain/toolchain.sh spec licenses-check
 
-      # What release.yml will publish once this is on main: the recipes it runs, run here first.
-      # The version, which a commit that gives the module format a new version without a new
-      # line does not get (R44), and the files, built into the container's /tmp and thrown away
-      # with it: release-files checks each against the commit. The npm package among the files is
-      # of the version (R73), which the recipe prints as the step's outputs, as it does for
-      # release.yml; with pipefail, so that a failed recipe fails the step. A commit that gets no
-      # release — older than the newest one, when its checks are run again — gets no files from
-      # release.yml either, and none are built.
+      # What release.yml will publish once this is on main, by the recipes it runs. The version,
+      # which a commit that gives the module format a new version without a new line does not get
+      # (R44), and the files, built into the container's /tmp and thrown away with it: release-files
+      # checks each against the commit. The npm package among the files is of the version (R73),
+      # which the recipe prints as the step's outputs, as for release.yml; pipefail makes a failed
+      # recipe fail the step. A commit that gets no release — older than the newest one, when its
+      # checks are run again — gets no files from release.yml either, and none are built.
       - id: release-version
         name: Release version
         if: ${{ !cancelled() && steps.image.outcome == 'success' }}
@@ -183,15 +177,14 @@ jobs:
           fi
           tools/toolchain/toolchain.sh spec release-files HEAD /tmp/release-files "$TAG"
 
-  # The tests of tools/ in three parts, a job each, every third test file from the part's own
-  # (coverage-part; RUN.md, T166) — the number stands in the matrix, the job's name, the recipe's
-  # call and the files of the job Coverage, which change together: on 2026-11-15 they took 425 s of
-  # the job that also ran every check (measurements 3.1). Each part writes the coverage of the code
-  # its tests load to coverage/lcov.info, and the job Coverage sends the reports of the three to
-  # Codecov. The image is the one the job Checks builds and saves: a part loads it from the cache on
-  # a hit, and on a miss builds it and writes no file, so that one job saves the entry; on a miss
-  # the four jobs build at once, each from the network. Each part runs even when another fails, so
-  # that a run names every failure.
+  # The tests of tools/ in three parts, a job each and apart from the checks, for the time they
+  # take: every third test file, from the part's own (coverage-part). The number stands in the
+  # matrix, the job's name, the recipe's call and the files of the job Coverage, which change
+  # together. Each part writes the coverage of the code its tests load to coverage/lcov.info, for
+  # the job Coverage. The image is the one the job Checks builds and saves: a part loads it from the
+  # cache on a hit, and on a miss builds it and writes no file, so that one job saves the entry; on
+  # a miss the four jobs build at once, each from the network. Each part runs even when another
+  # fails, so that a run names every failure.
   tests:
     name: Tests (${{ matrix.part }}/3)
     runs-on: ubuntu-24.04
@@ -241,9 +234,8 @@ jobs:
   # and codecov/patch would never count its lines (tools/coverage/untested.sh; R48). It runs
   # whatever the jobs before it gave, always(), so that a failed or cancelled one fails it rather
   # than leave it skipped, which a required check would count as passed; the price is a red job
-  # on a commit whose run a newer push cancelled. untested.sh runs on the
-  # runner itself: git, sed, sort and comm are all it takes, and the toolchain image would cost a
-  # load for them.
+  # on a commit whose run a newer push cancelled. untested.sh runs on the runner itself: git, sed,
+  # sort and comm are all it takes, and the toolchain image would cost a load for them.
   tools:
     name: Documents and tools
     needs: [checks, tests]
@@ -273,12 +265,12 @@ jobs:
       - name: Every module of tools/ in a report
         run: tools/coverage/untested.sh coverage/coverage-*/lcov.info
 
-  # Codecov takes the reports of tools/, one of each part of the tests, by OIDC, with no secret (R48). This job alone here may ask
-  # GitHub for the token, which only Codecov accepts and which grants nothing in the repository,
-  # and it runs none of the repository's code. A pull request from a fork gets no token: the action
-  # then sends the report without one, as Codecov takes it from a fork's branch. The profile of Go
-  # goes up from "Go / coverage", the same way, and Codecov waits for both uploads before it sets
-  # codecov/patch (.github/codecov.yml).
+  # Codecov takes the reports of tools/, one of each part of the tests, by OIDC, with no secret.
+  # This job alone here may ask GitHub for the token, which only Codecov accepts and which grants
+  # nothing in the repository, and it runs none of the repository's code (R48). A pull request
+  # from a fork gets no token: the action then sends the report without one, as Codecov takes it
+  # from a fork's branch. The profile of Go goes up from "Go / coverage", the same way, and Codecov
+  # waits for both uploads before it sets codecov/patch (.github/codecov.yml).
   #
   # Any failure of the job fails a pull request, so that a missing codecov/patch has its reason
   # in sight. On main it does not fail the run: the release waits for CI to pass (R31), and an
@@ -307,8 +299,8 @@ jobs:
           pattern: coverage-*
           path: coverage
 
-      # The Codecov CLI at an exact version, checked against its sha256 here, as R34 checks the
-      # archives of the Dockerfile, rather than against a key that the action would fetch from
+      # The Codecov CLI at an exact version, checked against its sha256 here, as the archives of
+      # the Dockerfile are (R34), rather than against a key that the action would fetch from
       # Keybase during the run (R48). Dependabot moves the action's SHA alone: the version and its
       # sum are raised by hand, together.
       - name: Codecov CLI
@@ -322,9 +314,9 @@ jobs:
           chmod +x "$RUNNER_TEMP/codecov"
 
       # The three reports alone: no search for others, and no plugins, which would run coverage
-      # tools of their own. The CLI sends every file it is given in one upload (sources 11.1), so
-      # Codecov still waits for two uploads, this one and Go's (.github/codecov.yml). A failed
-      # upload fails the job, as any of its steps does.
+      # tools of their own. The CLI sends every file it is given in one upload, so Codecov still
+      # waits for two uploads, this one and Go's (.github/codecov.yml). A failed upload fails the
+      # job, as any of its steps does.
       - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           binary: ${{ runner.temp }}/codecov
@@ -348,10 +340,10 @@ jobs:
     uses: altnovatrail/.github/.github/workflows/dco.yml@c0234058dc1a85edd7b5d579b90f8fdb98ea826b # v0.1.22
 
   # The Go code — spec's Go module, the module of the contracts and the modules of tools/ — by
-  # the ci- recipes of the justfile, in the toolchain stage, as in every Go repository (R16
-  # .github; R30). From v0.1.12 on, the job coverage of go.yml sends the profile ci-test writes to
-  # Codecov by OIDC, as "Go / coverage", and a nested job has no more than this one gives it:
-  # without id-token: write the run would not start at all (R30).
+  # the ci- recipes of the justfile, in the toolchain stage, as in every Go repository
+  # (R16 .github). go.yml's job coverage sends the profile ci-test writes to Codecov by OIDC, as
+  # "Go / coverage", and a nested job has no more than this one gives it: without id-token: write
+  # the run would not start at all (R30).
   go:
     name: Go
     permissions:

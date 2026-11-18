@@ -1,12 +1,8 @@
-// The check of the types of <novatrail-canvas> by tsc, never run (R74): the element as canvas
-// declares it and app uses it, imported from the npm package. `just types-check` copies it into its
-// project as canvas.ts, beside the corpus, and tsc takes it under each resolution of modules, with
-// the DOM (tools/types/typescript.mjs). What canvas and app may do type-checks; each line under a
-// directive must be an error, and were it not, the directive would go unused, and that would be the
-// error instead. The marks are checked against the message `Mark` of the contract between app and
-// api, from the npm package of its code, which the recipe installs beside (R83): app makes the
-// element's mark of the contract's, and a kind or a place the contract adds that the element has
-// no type for fails tsc.
+// The check of the types of <novatrail-canvas> by tsc, never run: the element as canvas declares it
+// and app uses it, imported from the npm package (R74). What canvas and app may do type-checks;
+// each line under a directive must be an error, or the unused directive is. app makes the element's
+// mark of the contract's `Mark`, so a kind or a place the contract adds that the element has no
+// type for fails tsc (R83).
 
 import { MarkKind } from "@altnovatrail/contracts/novatrail/api/v1/attempt_pb.js";
 import type * as api from "@altnovatrail/contracts/novatrail/api/v1/attempt_pb.js";
@@ -56,7 +52,6 @@ export const history: readonly canvas.HistoryEvent[] = [
   { kind: "clear", t: 2000, ids: [1, 2] },
 ];
 
-/** The context of a sheet's submission and of a workbook's, as app keeps them. */
 export const sheetSubmission: canvas.SheetSubmission = {
   crop: {
     drawn: 16,
@@ -89,8 +84,8 @@ function unknown(value: never): never {
 }
 
 /**
- * The element's mark of the contract's, with the name app writes: undefined for a mark with no
- * kind or no place, which api never sends (contracts/README.md, section 15).
+ * The element's mark of the contract's: undefined for a mark with no kind or no place, which api
+ * never sends.
  */
 export function markOf(mark: api.Mark, name: string): canvas.Mark | undefined {
   let kind: canvas.Mark["kind"];
@@ -116,10 +111,7 @@ export function markOf(mark: api.Mark, name: string): canvas.Mark | undefined {
   }
 }
 
-/**
- * The marks of an answer of api, given with the context app kept of its submission: numbered among
- * those the element takes.
- */
+/** The marks of an answer of api, numbered among those the element takes. */
 declare const answer: api.GetRungWordsResponse;
 const placed = answer.marks.filter((mark) => markOf(mark, "") !== undefined);
 export const given: canvas.Marks = {

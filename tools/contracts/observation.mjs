@@ -1,10 +1,9 @@
-// The test vectors of the observation, novatrail.observation.v1 (contracts/README.md, section 10;
-// R86; RUN.md, T68): a second implementation of what module-kit does with observations — which
-// one is valid, how two readers' observations join into one, and which verdict the joined one
-// gives — beside module-kit's own, whose CI passes the same vectors. The verdicts of the check
-// kinds are format-check's (tools/format-check/verdicts.mjs): spec has no Starlark, so the verdict
-// of a predicate on a value in its notation is the vector's, while the join of two such values,
-// which compares the integers read, is computed here too.
+// The test vectors of the observation, novatrail.observation.v1: a second implementation of what
+// module-kit does with observations — which one is valid, how two readers' observations join into
+// one, and which verdict the joined one gives — beside module-kit's own, whose CI passes the same
+// vectors (R86). The verdicts of the check kinds are format-check's: spec has no Starlark, so the
+// verdict of a predicate on a value in its notation is the vector's, while the join of two such
+// values, which compares the integers read, is computed here too.
 //
 // A vector is a JSON file, contracts/vectors/observation/v1/<case>.json:
 // - description, what the file is about; canvas, the task's canvas as the module format writes it;
@@ -20,7 +19,7 @@
 //   own, as a vector of verdicts of the module format writes them.
 // The observations are read by @bufbuild/protobuf with the descriptors of the image buf builds of
 // contracts/: the generated JavaScript beside the .proto files imports the runtime by a bare name,
-// which resolves only where the npm package is installed (tools/contracts/typescript.mjs).
+// which resolves only where the npm package is installed.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -42,8 +41,8 @@ const UNSPECIFIED = "UNREADABLE_UNSPECIFIED";
 const BLANK = "UNREADABLE_BLANK";
 const AMBIGUOUS = "UNREADABLE_AMBIGUOUS";
 
-// Each reason of the observation, with the reason of the verdict it gives: the table of section 10.
-// A reason the package adds is named here by the task that adds it.
+// Each reason of the observation, with the reason of the verdict it gives. A reason the package
+// adds is named here too, or packageOf refuses the image.
 export const REASONS = new Map([
   [BLANK, "blank"],
   ["UNREADABLE_ILLEGIBLE", "illegible"],
@@ -56,10 +55,10 @@ const FINAL_ANSWER = new Set(["UNREADABLE_NO_FINAL_ANSWER", "UNREADABLE_SEVERAL_
 export const ESSAY_REASONS = new Set([BLANK, "UNREADABLE_ILLEGIBLE"]);
 export const VERDICTS = ["correct", "not_yet", "unreadable", "unchecked"];
 const SUBMISSIONS = ["assessment", "unreadable", "unchecked"];
-// The form of the items on each canvas kind (format/README.md, section 14).
+// The form of the items on each canvas kind.
 const ITEM_FORM = { workbook: "line", handwriting_sheet: "answer_slots" };
-// Writing an observation as a vector holds it: the protobuf names (contracts/README.md, section 6),
-// and every field with its zero too, so that a box at 0 says so.
+// Writing an observation as a vector holds it: the protobuf names, and every field with its zero
+// too, so that a box at 0 says so.
 const WRITTEN = { useProtoFieldName: true, alwaysEmitImplicit: true };
 export const WHITE_SPACE = /^\p{White_Space}*$/u;
 
@@ -159,7 +158,7 @@ export function keysOf(object, required, optional = []) {
 
 // What makes an observation not valid, given the answer slots that AI reads, in order, each { item,
 // slot, at } with at the answer slot of the module format, and the reasons the package knows: the
-// conditions of section 10 it breaks, none when it is valid.
+// conditions of validity it breaks, none when it is valid.
 export function breaches(observation, places, reasons) {
   const found = [];
   const slots = observation.answer_slots;
@@ -198,9 +197,9 @@ function sideOf(slot, read) {
   return reading.blank ? { reason: BLANK } : { value: read.value, box: read.crop_box, reading };
 }
 
-// The joined observation of two valid ones, answer slot by answer slot (section 10): two values that
-// read as the same join into the first, with the first's box or else the second's; two reasons
-// that are the same into that reason; every other pair into UNREADABLE_AMBIGUOUS.
+// The joined observation of two valid ones, answer slot by answer slot: two values that read as the
+// same join into the first, with the first's box or else the second's; two reasons that are the
+// same into that reason; every other pair into UNREADABLE_AMBIGUOUS.
 export function join(first, second, places) {
   return {
     answer_slots: places.map((place, i) => {
@@ -215,9 +214,9 @@ export function join(first, second, places) {
   };
 }
 
-// What an answer slot gets on a value, a string or null: { verdict, reason?, trap? } as section 15
-// of the module format gives it, or { verdict: null } for a predicate on a value in its notation,
-// whose verdict Starlark gives.
+// What an answer slot gets on a value, a string or null: { verdict, reason?, trap? } as the module
+// format gives it, or { verdict: null } for a predicate on a value in its notation, whose verdict
+// Starlark gives.
 function verdictOn(slot, value) {
   const computed = slotVerdict(slot, value);
   const trap = trapOf(slot, value);
@@ -381,8 +380,8 @@ export function checkVector(bytes, { message, reasons, canvas, item }) {
 
 // The vectors of the observation at root, files of contracts/, by the image buf builds: the
 // errors, { file, line, message } — each vector's, and, when every one holds, what they lack
-// together: every reason of the table of section 10 that a joined observation gives, every check
-// kind, an observation that is not valid and a choice tapped — and how many cases they hold.
+// together: every reason that a joined observation gives, every check kind, an observation that is
+// not valid and a choice tapped — and how many cases they hold.
 export function checkVectors(root, image, files) {
   const known = packageOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }], cases: 0 };
