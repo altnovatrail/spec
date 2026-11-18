@@ -1741,7 +1741,7 @@ They do not measure the rule. The comparison with section 1.14.2 waits for at le
 
 **The commands.**
 - The repositories: section 1.14.6 as it stands.
-- The sessions: `text-classes.mjs` of section 1.14.6, with the window opened per folder. Its first argument is the end, and each folder is `<folder>@<start>`. The start is the merge that brought `"entry": 12` into the folder's repository's `docs-budgets.json`, `git log --first-parent -S'"entry": 12' -- docs-budgets.json`.
+- The sessions: `text-classes.mjs` of section 1.14.6, with the window opened per folder. Its first argument is the end, and each folder is `<folder>@<start>`. The start is the merge that brought `"entry": 12` into the folder's repository's `docs-budgets.json`, the first that `git log --first-parent --reverse -S'"entry": 12' -- docs-budgets.json` lists; for `spec`, which has no such file, it is T205's merge, 2026-11-18T09:30:19Z.
 
 ## 2. The browsers of the kind `typescript`
 

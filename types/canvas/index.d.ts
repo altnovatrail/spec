@@ -323,7 +323,9 @@ export type Media = (ref: string) => Promise<Blob>;
  * The element `<novatrail-canvas>` as its contract with app has it. The language of its buttons is
  * its own attribute `lang`. While it has the boolean attribute `tools-hidden`, its bar of tools — and
  * on a worked example its row, with the slot `actions` — is out of sight and out of the
- * accessibility tree: app sets it on a phone while its tutor's sheet is open. Among the style properties `--novatrail-canvas-*` that app sets, `--novatrail-canvas-accent`
+ * accessibility tree: app sets it on a phone while its tutor's sheet is open. While it has the boolean
+ * attribute `statement-hidden`, it draws no task statement, and app draws the statement as its card
+ * above the element (R161). Among the style properties `--novatrail-canvas-*` that app sets, `--novatrail-canvas-accent`
  * is the accent of the tool in use and of the focus ring, `--novatrail-canvas-glass` the fill of the
  * bar's glass, and `--novatrail-canvas-top` the offset of the band in whose middle the bar stands. On
  * a worked example, app puts its own "Continue" into the element's named slot `actions`, a child
