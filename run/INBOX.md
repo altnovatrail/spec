@@ -27,7 +27,7 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 | `app` | В73 | `a576333b2d29` | T194 (В50), option (a) then (b) as one rule: an amendment to R78 — the packages raise the icon set together and on purpose, a row of COORDINATION.md each raise, Dependabot raises none; first `canvas` to 1.2.99 — T198 |
 | `canvas` | В82 | `49a7284d0f7e` | as `app` В69; COORDINATION rows 1.23 and 5.19 |
 | `canvas` | В86 | `5780f56f8aa3` | option 1: the third 2026-11-17 amendment to R148; the mockup — T189; COORDINATION rows 1.23, 5.19 and 6.18 |
-| `infra` | В56 | `c3ccd2adfd58` | T194 (В55), option (a): COORDINATION row 6.26 closed, no row for E7 `infra` (Д240, Д249); Д239 closed — T198 |
+| `infra` | В56 | `c3ccd2adfd58` | T194 (В55), option (a): COORDINATION row 6.26 closed, no row for E7 `infra` (Д240, Д249) — T198; Д239 closed by T194 |
 | `infra` | В57 | `002552bf6b2a` | T194 (В56), option (a): rows 6.36, 6.39, 3.13 and 6.38 close, and Д152, once T78 `infra` is `[x]` in its archive — T198 |
 | `learner-model` | В54 | `887ae8041541` | option (a), the author's answer of 2026-11-16: the 2026-11-17 amendment to R157 — rows 4.20 and 4.21 done in R103's order, `sim` v0.1.28 and `learner-model` v0.1.13 |
 | `learner-model` | В55 | `6fb838e6b319` | nothing to record — T194 (В57): rows 4.20, 4.21 and 6.28 deleted by T187, `api` on v0.1.13, as `learner-model` В54 |
