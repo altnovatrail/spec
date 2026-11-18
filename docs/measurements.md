@@ -842,6 +842,377 @@ What the runs of the orchestrator cost, and how often they stopped for the autho
 | `tutor` T151, 07:10 | 1 | 3.39 | 57 | 12 | 12 |
 | `tutor` T152 ¹, 07:33 | 1 | 0.36 | 8 | 1 | 1 |
 
+### 1.14. Documents and comments: what a session needs, T200, 2026-11-18
+
+Which part of the documents and the code comments of the 13 repositories helps a session do its task, and which only costs tokens and time and makes the texts unreadable for the author (run/TASKS.md, T200; R143, R145, R154). Measured 2026-11-18 on `main` of each repository, read-only, from clones in a temporary folder, and on the transcripts of the orchestrator's executors on the volume `novatrail-claude`. The commands are section 1.14.6. What the author decides is В60–В65 of [run/QUESTIONS.md](../run/QUESTIONS.md).
+
+**The answer in short.**
+- The documents cost the executors about a third of what they read and a quarter of what they write: 28% of the context their main calls carry and 23% of their output (section 1.14.2).
+- In three tasks traced by their transcripts, 40–70% of the documents read and half to two thirds of the documents written could have been avoided: navigation, process, and the same fact written six to nine times (section 1.14.3).
+- Removing that would save about 2–3 minutes and $0.56–0.92 of a session's 28.8 minutes and $4.90: 7–10% of the time, 11–19% of the cost.
+- It is not why a task of E5 of `app` takes 45–110 minutes. Its longest task, T87 `app`, spent about 5% of its time on documents and 64% on tools: tests, the comparison with the mockup, and waiting for CI.
+- 10–100 times shorter holds for single texts, not for the whole. The status paragraph of `infra`, a chronicle of 1,171 characters, has no reader and can go. R29 `infra`, 25.9 thousand characters, holds about one paragraph in force. Over all of it, the decision logs would shrink by about half and the comments by about 45%.
+
+#### 1.14.1. What the repositories hold and what grows
+
+Sizes in KB of 1,024 on `main`, 2026-11-18. "Docs" is `docs/` without the archives; "plan" is RUN.md and `run/`. The comment columns cover hand-written code, `.go`, `.ts`, `.tsx`, `.js`, `.mjs`, `.cjs` and `.sh`, tests included and generated files excluded:
+- *share* is comment lines among non-empty lines;
+- *chars* is the mean length of a comment line;
+- *R…* is the share of comment lines that cite a decision.
+
+The log columns:
+- *amendments* is the share of a decision log's bytes in its dated amendments;
+- *tag moves* is the share in the entries that move the repository to a tag of `spec`, with their amendments.
+
+| Repository | Docs | Decisions | Architecture | Archives | Plan | CLAUDE.md | Comments: share | chars | R… | Log: amendments | tag moves |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `.github` | 796 | 415 | 126 | 806 | 13 | 11 | 11% | 80 | 8% | 34% | 30% |
+| `api` | 1,378 | 853 | 363 | 1,104 | 28 | 9 | 15% | 67 | 12% | 23% | 17% |
+| `app` | 1,186 | 593 | 434 | 1,025 | 57 | 7 | 11% | 74 | 12% | 19% | 17% |
+| `canvas` | 1,435 | 868 | 319 | 1,580 | 21 | 10 | 15% | 71 | 14% | 27% | 18% |
+| `engine` | 641 | 329 | 176 | 594 | 17 | 9 | 14% | 81 | 6% | 41% | 31% |
+| `infra` | 695 | 424 | 116 | 717 | 53 | 10 | 14% | 83 | 12% | 39% | 21% |
+| `learner-model` | 753 | 470 | 184 | 716 | 30 | 8 | 15% | 75 | 3% | 21% | 24% |
+| `module-kit` | 764 | 545 | 144 | 638 | 10 | 8 | 14% | 81 | 4% | 7% | 26% |
+| `modules` | 629 | 408 | 168 | 684 | 14 | 9 | 9% | 82 | 7% | 24% | 31% |
+| `sim` | 839 | 534 | 172 | 759 | 36 | 8 | 12% | 82 | 12% | 26% | 16% |
+| `skill-map` | 298 | 206 | 54 | 295 | 14 | 8 | 14% | 72 | 13% | 13% | 38% |
+| `spec` | 2,840 | 1,649 | 178 | 2,324 | 64 | 11 | 16% | 80 | 7% | 45% | 0% |
+| `tutor` | 1,606 | 797 | 399 | 1,769 | 27 | 11 | 13% | 81 | 6% | 15% | 19% |
+| All | 13,860 | 8,091 | 2,833 | 13,011 | 384 | 119 | 47,657 lines, 3.62 M characters, in 302,593 lines of code | | | | |
+
+Notes on the table:
+- The decision logs are 58% of the documents.
+- In the documents, without the archives, there are 10,245 version numbers `vX.Y.Z`, 13,736 dates and 18,212 task numbers.
+- In `spec` the tag moves are 0%: it moves to no tag.
+
+**What grows with each task.** 214 commits reached the first parent of `main` in the 13 repositories from 2026-11-16 to the start of this measurement, almost all of them a task's pull request. Bytes added / removed, KB:
+
+| Decisions | Other docs | Plan | Archives | Other `.md` | Code, tests and data |
+|---|---|---|---|---|---|
+| 1,190 / 168 | 1,320 / 724 | 680 / 671 | 1,720 / 23 | 400 / 542 | 2,483 / 845 |
+
+- The documents grew by 3.3 MB net in two days and the code by 1.6 MB: an average task adds 4.8 KB to its decision log, 7.9 KB to its archive and 2.8 KB to its other documents.
+- The plan stays level: R154 keeps it without history.
+- The archives are not read whole (RUN.md, Epics), and the sessions carry 1.5% of their context from them.
+- What grows and is read is the decision log and the architecture.
+
+#### 1.14.2. Where the executors' sessions spend
+
+The sample has 246 sessions of the orchestrator's executors, `entrypoint: sdk-cli`, that started from 2026-11-16T00:00 to 2026-11-18T04:33 UTC, in all 13 folders. They made 21,103 main calls until its end, with 3,083 million tokens of context and 12.56 million of output. A session averages 28.8 minutes of wall time and 10.6 of the model's own, $4.90 at the API's prices (section 1.2), $3.88 of it input.
+
+How the calls are attributed:
+- Each main call is attributed to what its tool calls did, the files they name read by their path: `docs/decisions.md`, `docs/architecture.md`, other `docs/`, RUN.md and `run/`, the archives, CLAUDE.md and the rules, README files.
+- `tokens-report` cannot do this for another repository: it counts a file a Bash command names only if the file exists on this machine, and the other repositories are not checked out here (section 1.1).
+- What a result carried is measured as in section 1.1: the context it added, times the calls after it.
+- A call's output and its time, from the previous entry to its last block, are shared among its tool calls.
+
+| What a call did | Context it carried | Output | Model time | Model minutes a session |
+|---|---|---|---|---|
+| read documents | 28.1% | 17.3% | 21.2% | 2.2 |
+| read code and data | 19.4% | 13.5% | 15.0% | 1.6 |
+| the start of the session | 19.2% | — | — | — |
+| git, gh, other shell | 18.8% | 18.2% | 23.8% | 2.5 |
+| write code and data | 1.9% | 21.4% | 16.5% | 1.7 |
+| write documents | 0.7% | 22.9% | 18.8% | 2.0 |
+| the status, the report to the author | — | 6.7% | 4.7% | 0.5 |
+
+The documents read, by share of the context carried:
+
+| Decisions | Several at once | Plan | Architecture | README | Archives | Other docs | Rules |
+|---|---|---|---|---|---|---|---|
+| 7.2% | 6.4% | 5.4% | 3.0% | 1.7% | 1.5% | 1.4% | 0.8% |
+
+- The session writes documents with as much output as code, 22.9% against 21.4%, and spends more of the model's time on them, 18.8% against 16.5%.
+- Most of it, 13.8% of the output, is scripts of `node` and `sed` that edit several documents at once: the amendments, the archive and «Сделано».
+- The start of a session holds CLAUDE.md and RULES.md, 22–26 KB.
+
+#### 1.14.3. Three tasks by their transcripts
+
+Each transcript was read whole: what the session read, whether a fact of it shaped a decision, a command, a line of code or a test, and what it wrote. They are T86 `app`, the screen of the essay; T87 `app`, the tutor's panel, the longest task of E5; and T82 `infra`, a raise of `app` on the project `novatrail`, with T80 and T81 `infra`, raises like it.
+
+| | T86 `app` | T87 `app` | T82 `infra` |
+|---|---|---|---|
+| Wall, minutes / main calls | 42.6 / 197 | 110.6 / 355 | 9.1 / 32 |
+| Documents read, thousand characters / of it used | ≈150 / ≈40 | ≈150 / ≈40 | ≈41 / ≈6.4 |
+| Documents written, output | 13% | 8%, ≈4.5 minutes | 31% |
+| The same fact written in | 9 places | 6 places | 6 in the repository, 3 in git and GitHub |
+
+**What paid off:**
+- The task's body.
+- The decisions in force it named: R53, R54, R65 `app` and R87 spec in T86; R148 spec in T87.
+- The README of the mockup, `draft/mockup/README.md` spec.
+- The rule of the part, which names the checks.
+- In T82, `deploy/production.json` and BREACH.md part 1.
+- The precedent: the «Сделано» of T85 `app` gave T86 its recipe of checks, and in T82 `git show` of the commit of T80 was the most useful read, the template of all five edits.
+
+**What did not:**
+- RUN.md read whole for its rules: 15–23 thousand characters, carried by every later call.
+- A grep of the bold lines of the decision log as an index: 19.6 thousand characters in T86.
+- R29 `infra` read whole in T81, 20.3 thousand characters, 10 of its 11 amendments being raises of a version.
+- The architecture and the archive read only to write more of them.
+- In T82 the status paragraph of `docs/architecture.md` `infra`: the session read 200 characters of it only to find where to append, took the versions from `deploy/production.json` and `gh release view`, and added 87 characters.
+- That paragraph is 2,891 characters, of them a chronicle of 1,171 with 16 versions and 12 task numbers. 33 commits changed it, and 9 of the last 20 pull requests.
+
+**What was written twice:**
+- In T86 the decision R66 `app`, then amendments to R53 and R54 that restate it, the architecture, «Сделано», the gist sentence, the commit, the pull request and the report.
+- In T86, the size budget of the architecture then took six edits and four runs of `docs-check`, to a net change of zero characters.
+- In T82 an amendment to R29 `infra` of 2,679 characters and a body in `run/TASKS.md` of 3,444 restate the release, the list and the output of `deploy-check`. All five findings of its review were about the documents.
+
+**The code comments of these tasks:**
+- In T86, 82 comment lines with 17 citations of decisions, most of them retelling the code. The header of `EssayScreen.tsx` is 12 lines.
+- In T87 comments are 29% of the characters added, 45% outside the tests, and the header of `TaskLayout.tsx` is 2,141 characters that repeat R67 `app`.
+- Neither session looked up a decision by a number found in a comment. Every decision it read came from the task, the archive or another decision.
+
+**Where T87's time went.**
+- The model: 39.3 minutes.
+- Tools: 71.3 — tests 21.4, `just ci-*` 12.6, the comparison with the mockup 12.1, waiting for the checks of GitHub 19.1, the review 3.6, `docs-check` 0.5.
+- A fix of SonarCloud's S6845 broke a check of axe at 320 px in CI that the local rerun did not cover, and cost 27 minutes.
+
+#### 1.14.4. The classes of text
+
+The comments were read in a sample: 8 comment blocks of each repository, 104 in all, chosen by the sha1 of "file:line" (section 1.14.6). Each block was classed by the code beside it:
+- W, why: a reason, a constraint, a pitfall;
+- D, what the code already says;
+- C, the contract of an exported API;
+- R, mostly a reference;
+- H, history.
+
+The counts: W 34% of the blocks, D 42%, C 22%, R 2%, H 0%. References stand in 24% of all 20,201 blocks, and the references in parentheses are 3.2% of the characters of the comments. Of eight references checked against their decisions:
+- five name a constraint the code cannot show;
+- one names the wrong part: R05 `canvas` for what R25 `canvas` says;
+- one names the wrong entry: R36 `api` for the twelve months of R05 `api`, in `internal/store/profiles.go:131`;
+- one is decoration.
+
+| Class | Examples | Verdict | Why |
+|---|---|---|---|
+| (a) Versions and statuses in the documents | the status paragraph of `docs/architecture.md` `infra`; 10,245 versions and 13,736 dates in the documents; the entries of tag moves, 0–38% of a log | hinders | Nobody reads the history: the session takes the current version from `deploy/*.json`, the submodule, `package.json` and the releases, and the history from git. Each deployment rewrites it, and 9 of 20 pull requests of `infra` did. |
+| (b) Dated amendments to decisions | 7–45% of a log; R29 `infra` 25.9 thousand characters, mostly raises | helps in what is in force, hinders as history | The session needs the text in force. It reads the whole entry to find it, and writes amendments that restate another entry, as RULES.md and R143 require ("A decision that changes what another entry of the log says puts a dated amendment on that entry too"). |
+| (c) References to decisions in comments | `(R25)` `canvas`; "A page of the section for adults (R29 and R68 in docs/decisions.md; section 3.10 of docs/architecture.md)…" `app` | a short anchor is neutral to helpful; a retelling of the code hinders | The sessions did not follow them; 5 of 8 hold a real constraint, and 2 are wrong, which no check sees. What D blocks retell, the code already says: 42% of the blocks. |
+| (d) One fact in several documents | the decision, amendments to others, the architecture, «Сделано», the gist sentence, the commit, the pull request, the report | hinders | Six to nine copies a task, and each copy is read again by the review and by the next task. |
+| (e) Texts the author reads | the bodies of tasks, the reports, README | helps, where short | They are the author's way into the work (R154), and the status takes 6.7% of the output. «Сделано» and «Открыто» restate the pull request. |
+
+#### 1.14.5. The rule proposed, what it gives, and the plan
+
+**The rule** — one for the documents and the comments of every repository; its points are В60–В63:
+1. Each fact has one home.
+   - The current state lives where it is set, the history in git, the releases and the archives:
+     - a version in `deploy/*.json`, the submodule, `package.json` or the `ARG` of the Dockerfile;
+     - what a task did in its pull request.
+   - A document names the file to look at, not the version, and keeps no chronicle (В60).
+2. A decision is its text in force, with its why and what it rejected.
+   - A change rewrites the entry in its place, and git keeps the old text; the commit says why.
+   - A decision that changes another entry rewrites that entry too, instead of adding an amendment that restates it.
+   - A tag move is a commit and a line of the README, not an entry (В61).
+3. A comment says what the code and its names cannot: why, a constraint, a pitfall, the contract of an exported API.
+   - It never retells the code, its history or its task.
+   - Where the reason is a decision, the comment gives the constraint in one clause and ends with its number, `(R25)`, as an anchor for `grep`; it cites no section of a document (В62).
+4. A done task writes one line of «Сделано» with its pull request, and what stays open as rows of its tables.
+   - How it was checked is in the pull request.
+   - The architecture describes the current design and cites a decision by its number, without retelling it (В63).
+
+**What it gives.**
+- Of a session's $4.90 and 28.8 minutes, the documents read are about $1.09 and 2.2 minutes of the model, and the documents written about $0.23 and 2.0 minutes (section 1.14.2).
+- By the shares that served nothing in section 1.14.3:
+  - reading: 40–70%, $0.44–0.76 and 0.9–1.5 minutes;
+  - writing: 50–67%, $0.12–0.16 and 1.0–1.3 minutes.
+- Together $0.56–0.92 and about 2–3 minutes a session: 11–19% of the cost, 7–10% of the time.
+- The review checks fewer claims: in T82, about 70% of its subagent's 7.4 thousand tokens of output went on the documents.
+- The author can read a decision as one text.
+
+**Risks — what a session stops knowing.**
+- Why a decision changed, and when. Git keeps it (`git log -p`, `git log -L`), but a session reads it only if asked to.
+- A precedent: the earlier task's «Сделано», which gave T86 its recipe. A short recipe in the rule of the part does that better.
+- Rewriting an entry in place could lose what it rejected. The rule keeps "Rejected" in the entry.
+- A number in a comment can be wrong (2 of 8). A check that every number cited in a comment names an entry of the log would catch the half that names no entry.
+- R143 rejected a consolidation of the decisions in force beside the log, by the sample of T128 (section 1.6): 60% of the size, 17–24% less read, 0.5–0.7% of what the sessions carried, and every amendment dragged an edit of the copy after it. Rewriting the entry in its place keeps no second copy.
+  - The new facts: in the executors' sessions the logs carry 7.2% of the context, not 2.6%.
+  - The amendments that restate another entry cost output and review.
+  - The author cannot read the logs.
+  - By T128's 17–40%, rule 2 alone saves 1.2–2.9% of the context.
+- The rewrite of the logs, 8.1 MB, is itself a large task. It is cheaper by entry, when a task touches one, than all at once.
+
+**What it changes** (В64):
+- RULES.md, How we work: "A decision is never rewritten", and the rule of amendments to other entries.
+- The 2026-11-12 rule of R143 that an entry and its amendments are its whole text in force.
+- R154 extends from the plan to `docs/` and the comments.
+- `docs-check` and `docs-check-repo`:
+  - the limit of an entry, 40 KB, can fall to about 12;
+  - a check that each `R…` cited in a comment of code names an entry;
+  - the budgets of R145 go on as they are.
+- `tokens-report` takes a grouping by class of path, which section 1.14.2 had to do by hand, so that the epic can measure before and after.
+
+**The plan proposed** (В64).
+- An epic in `run/EPICS.md`, E16 if still free.
+  - First, `spec`: the rule as a decision, and RULES.md, R143 and R154 amended; the checks; `tokens-report --classes`; and `spec`'s own documents.
+  - T196 joins it: the log of versions of `dpia 1` is class (a).
+  - Then a row of COORDINATION.md for each of the other 12 repositories, from one text, each with its move to the tag.
+  - The measurement by section 1.14.6 at its archive.
+- Not a part of it: the time of the executors' tasks, which is the loops of tests and CI (section 1.14.3) and a task of its own (В65).
+
+#### 1.14.6. The commands
+
+**The repositories** — in an empty folder, clones of the 13 at `main`. The awk programs are below; `repos.sh` prints the rows of the first table of section 1.14.1, and the second is `growth.awk`:
+```sh
+for r in .github api app canvas engine infra learner-model module-kit modules sim skill-map spec tutor; do git clone -q https://github.com/altnovatrail/$r.git; done
+bash repos.sh
+for r in .github api app canvas engine infra learner-model module-kit modules sim skill-map spec tutor; do git -C $r log --first-parent --diff-merges=first-parent --since=2026-11-16 --until=2026-11-18T04:33 -p --format='@@C %H' origin/HEAD | awk -f growth.awk; done
+for r in .github api app canvas engine infra learner-model module-kit modules sim skill-map spec tutor; do find $r/docs -path '*/docs/plan' -prune -o -name '*.md' -type f -print | xargs cat | grep -oE '\bv[0-9]+\.[0-9]+\.[0-9]+\b|\b20[0-9]{2}-[0-9]{2}-[0-9]{2}\b|\bT[0-9]{2,3}\b' | sed -E 's/^v.*/version/; s/^20.*/date/; s/^T.*/task/' | sort | uniq -c; done
+```
+
+`repos.sh`, run in that folder, with the awk programs beside it:
+```sh
+# In a folder of clones of the 13 repositories at main: the sizes in KB, the comments of the code, the decision log.
+kb() { cat "$@" 2>/dev/null | wc -c | awk '{printf "%d", $1/1024}'; }
+for r in .github api app canvas engine infra learner-model module-kit modules sim skill-map spec tutor; do (cd $r
+  docs=$(find docs -path docs/plan -prune -o -name '*.md' -type f -print | xargs cat | wc -c | awk '{printf "%d", $1/1024}')
+  c=$(git ls-files -z '*.go' '*.ts' '*.tsx' '*.js' '*.mjs' '*.cjs' '*.sh' ':!:*.pb.go' ':!:*_pb.ts' ':!:*_pb.js' ':!:*connect.go' ':!:*connect.ts' | xargs -0 awk -f ../comments.awk | awk '{printf "%.0f%% | %.0f | %.0f%%", 100*$2/($1+$2), $3/$2, 100*$5/$2}')
+  d=$(awk -f ../decisions.awk docs/decisions.md | awk '{print $4 " | " $5}')
+  echo "| \`$r\` | $docs | $(kb docs/decisions.md) | $(kb docs/architecture.md) | $(kb docs/plan/*.md) | $(kb RUN.md run/*.md) | $(kb CLAUDE.md) | $c | $d |"); done
+```
+
+`comments.awk` — a repository's code lines, comment lines, their characters, blocks, and lines citing `R…`, `T…` and a section:
+```awk
+# Per repository: code lines, comment lines, blocks, references. Input: hand-written code files.
+FNR==1 { gen=0; inb=0 }
+FNR<=5 && /Code generated|@generated/ { gen=1 }
+gen { next }
+/^[[:space:]]*$/ { inb=0; next }
+{
+  l=$0; sub(/^[[:space:]]+/, "", l)
+  if (l ~ /^(\/\/|\/\*|\*)/ || (FILENAME ~ /\.sh$/ && l ~ /^#[^!]/)) {
+    cl++; cc+=length(l); if (!inb) { blocks++; inb=1 }
+    if (l ~ /(^|[^A-Za-z0-9])R[0-9][0-9]+([^0-9]|$)/) rr++
+    if (l ~ /(^|[^A-Za-z0-9])T[0-9][0-9]+([^0-9]|$)/) tt++
+    if (l ~ /(section|architecture|decisions|product|privacy|concepts|repositories|measurements|format) [0-9]+(\.[0-9]+)?/) ss++
+  } else { code++; inb=0 }
+}
+END { printf "%d %d %d %d %d %d %d\n", code, cl, cc, blocks, rr, tt, ss }
+```
+
+`decisions.awk` — a log's entries, amendments, KB, and the shares of amendments and of tag moves:
+```awk
+# The bytes of a decision log by kind of paragraph: the entry's text, its amendments, the entries of a move to a tag of spec.
+/^\*\*R[0-9]+\./ { e++; tag = ($0 ~ /^\*\*R[0-9]+\. (`[a-z.-]+` (stands|is|moves) (on|to) (the tag )?`?spec`? v|`spec` is at the tag|[^*]*(moves|stands) (to|on) (the tag )?`?spec`? v)/); k = "text" }
+/^— \*/ { k = ($0 ~ /^— \*[^*]*[Aa]mendment/) ? "amend" : "text" }
+/^#/ { k = "head" }
+e { b[tag ? "tag" : k] += length($0) + 1 }
+/^— \*[^*]*[Aa]mendment/ { n++ }
+END { all = b["text"] + b["amend"] + b["tag"]; printf "%d %d %d %.0f%% %.0f%%\n", e, n, all/1024, 100*b["amend"]/all, 100*b["tag"]/all }
+```
+
+`growth.awk` — commits, then KB added/removed: decisions, other docs, plan, archives, other `.md`, code:
+```awk
+# Bytes added and removed by class of file, over the commits of main's first parent.
+/^@@C / { n++; next }
+/^diff --git / { f=$3; sub(/^a\//, "", f)
+  c = (f=="docs/decisions.md") ? "dec" : (f ~ /^docs\/plan\//) ? "arch" : (f ~ /^(RUN\.md|run\/|COORDINATION\.md)/) ? "plan" : (f ~ /^docs\//) ? "docs" : (f ~ /\.md$/) ? "md" : "code"; next }
+/^(\+\+\+|---) / { next }
+/^\+/ { a[c]+=length($0)-1; next }
+/^-/ { d[c]+=length($0)-1 }
+END { printf "%d", n; split("dec docs plan arch md code", k, " "); for (i=1;i<=6;i++) printf " %d/%d", a[k[i]]/1024, d[k[i]]/1024; print "" }
+```
+
+**The sample of comments** — 8 blocks of each repository, by the sha1 of "file:line", printed with the six lines of code after each:
+```sh
+node - <<'JS'
+const {execSync}=require('child_process'),fs=require('fs'),crypto=require('crypto');
+for(const r of ['.github','api','app','canvas','engine','infra','learner-model','module-kit','modules','sim','skill-map','spec','tutor']){
+ const files=execSync('git ls-files',{cwd:r}).toString().split('\n').filter(f=>/\.(go|ts|tsx|mjs|js)$/.test(f)&&!/(^|\/)(node_modules|vendor)\//.test(f)&&!/\.pb\.go$|_pb\.ts$/.test(f));
+ const B=[];for(const f of files){const t=fs.readFileSync(r+'/'+f,'utf8');if(/Code generated|@generated/.test(t.split('\n').slice(0,10).join('\n')))continue;
+  const L=t.split('\n'),c=s=>/^\s*(\/\/|\/\*|\*)/.test(s);for(let i=0;i<L.length;i++){if(!c(L[i]))continue;let j=i;while(j+1<L.length&&c(L[j+1]))j++;
+  B.push({f,line:i+1,text:L.slice(i,j+1).map(s=>s.trim()).join('\n'),ctx:L.slice(j+1,j+7).join('\n'),k:crypto.createHash('sha1').update(f+':'+(i+1)).digest('hex')});i=j;}}
+ B.sort((a,b)=>a.k<b.k?-1:1);for(const b of B.slice(0,8))console.log(`=== ${r}/${b.f}:${b.line} (${b.text.length} ch)\n${b.text}\n--- code:\n${b.ctx}\n`);}
+JS
+```
+
+**The executors' sessions** — section 1.14.2, `ALL=1` adds the rows by kind:
+```sh
+P=/home/vscode/.claude/projects; ALL=1 node text-classes.mjs 2026-11-16 2026-11-18T04:33 $(ls -d $P/-workspaces-* | grep -v -- '--repos-')
+```
+
+`text-classes.mjs`:
+```js
+// node text-classes.mjs <since> <until> <folder of transcripts>... — the main calls of the orchestrator's
+// executors (entrypoint sdk-cli) whose session started in the window, until its end, by what each call did. Sums only.
+import fs from 'node:fs';
+const [since, until, ...dirs] = process.argv.slice(2);
+const DOCS = /^(decisions|plan|architecture|docs other|archive|rules|readme|md other|several docs)$/;
+const cls = (p) => {
+  p = p.replace(/^\/workspaces\/[^/]+\//, '').replace(/^\.\//, '').replace(/^spec\//, '');
+  if (p === 'docs/decisions.md') return 'decisions';
+  if (p.startsWith('docs/plan/')) return 'archive';
+  if (/^(RUN\.md|run\/|COORDINATION\.md)/.test(p)) return 'plan';
+  if (p === 'docs/architecture.md') return 'architecture';
+  if (/^docs\/.*\.md$/.test(p)) return 'docs other';
+  if (/^(CLAUDE\.md|RULES\.md|AGENTS\.md|\.claude\/rules\/)/.test(p)) return 'rules';
+  if (/(^|\/)README\.md$/.test(p)) return 'readme';
+  return /\.md$/.test(p) ? 'md other' : 'code and data';
+};
+const PATH = /(?:^|[\s'"=(:])((?:\.{0,2}\/|[\w.-]+\/)*[\w.-]+\.(?:md|go|ts|tsx|mjs|js|cjs|json|ya?ml|proto|sh|css|html|txt)|(?:docs|run|src|internal|cmd|tools|format|contracts|deploy)\/[\w./-]+)/g;
+const WRITE = /sed -i|perl -pi|>\s*[\w./-]+\.(md|go|ts|tsx|json|mjs|ya?ml)|\btee\b|writeFileSync|cat\s*>>?/;
+function kind(b) {
+  const i = b.input || {};
+  if (['Read', 'Grep', 'Glob'].includes(b.name)) { const c = cls(i.file_path || i.path || ''); return 'read ' + (DOCS.test(c) ? c : 'code and data'); }
+  if (['Edit', 'Write', 'MultiEdit', 'NotebookEdit'].includes(b.name)) return 'write ' + cls(i.file_path || i.notebook_path || '');
+  if (b.name !== 'Bash') return b.name === 'StructuredOutput' ? 'status' : 'other';
+  const cmd = i.command || '', named = [...cmd.matchAll(PATH)].map((m) => m[1]);
+  const files = named.filter((f) => !f.startsWith('/tmp/') && !f.includes('.claude/projects'));
+  const classes = [...new Set(files.map(cls))], docs = classes.filter((c) => DOCS.test(c)), write = WRITE.test(cmd);
+  const prog = cmd.trim().replace(/^(cd [^&;]+&&\s*)+/, '');
+  if (/^(git |gh )/.test(prog)) return 'git and gh';
+  if (/^(just|npm|npx|go|buf)\b/.test(prog) && !write) return 'checks and builds';
+  if (write && classes.includes('code and data')) return 'write code and data';
+  if (docs.length) return (write ? 'write ' : 'read ') + (docs.length === 1 ? docs[0] : 'several docs');
+  if (write) return named.some((f) => /^\/tmp\/.*\.md$/.test(f)) ? 'write md other' : 'write code and data';
+  return classes.length ? 'read code and data' : 'other';
+}
+const group = (k) => (k === 'start' || k === 'status' ? k : /^(read|write) /.test(k) ? k.split(' ')[0] + (DOCS.test(k.slice(k.indexOf(' ') + 1)) ? ' docs' : ' code and data') : 'other');
+const len = (c) => (typeof c === 'string' ? c.length : Array.isArray(c) ? c.reduce((s, x) => s + (x.text ? x.text.length : len(x.content)), 0) : 0);
+const S = {}, add = (k, f, v) => ((S[k] ||= { carried: 0, output: 0, ms: 0 })[f] += v);
+let sessions = 0, calls = 0, context = 0, output = 0, wall = 0, usd = 0;
+for (const dir of dirs) for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.jsonl'))) {
+  const lines = fs.readFileSync(`${dir}/${f}`, 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return {}; } });
+  const first = lines.find((e) => e.type === 'user' && !e.isSidechain);
+  if (first?.entrypoint !== 'sdk-cli' || !(first.timestamp >= since && first.timestamp < until)) continue;
+  const list = [], ids = new Map(), kinds = new Map();
+  let pending = [], prev = Date.parse(first.timestamp);
+  for (const e of lines) {
+    if (e.timestamp >= until) break;
+    if (e.isSidechain || !e.type) continue;
+    const t = Date.parse(e.timestamp || '') || prev;
+    if (e.type === 'assistant' && e.message?.model !== '<synthetic>') {
+      const m = e.message, u = m.usage || {};
+      let c = ids.get(m.id);
+      if (!c) ids.set(m.id, (c = { start: prev, context: (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0), output: 0, kinds: [], before: pending })), list.push(c), (pending = []);
+      c.end = t; c.output = Math.max(c.output, u.output_tokens || 0); c.usd = ((u.input_tokens || 0) * 4 + (u.cache_read_input_tokens || 0) * 0.2 + (u.cache_creation?.ephemeral_1h_input_tokens || 0) * 8 + (u.cache_creation?.ephemeral_5m_input_tokens || 0) * 5) / 1e6;
+      for (const b of m.content || []) if (b.type === 'tool_use') { const k = kind(b); c.kinds.push(k); kinds.set(b.id, k); }
+    } else if (e.type === 'user' && Array.isArray(e.message?.content)) {
+      for (const b of e.message.content) if (b.type === 'tool_result') pending.push([len(b.content), kinds.get(b.tool_use_id) || 'other']);
+    } else if (e.type === 'user' || e.type === 'attachment') pending.push([len(e.message?.content || e.rendered || ''), 'other']);
+    prev = t;
+  }
+  const cost = lines.filter((e) => e.type === 'cost-state').pop();
+  sessions++; wall += cost?.totalDuration || 0;
+  list.forEach((c, i) => {
+    calls++; context += c.context; output += c.output; usd += c.usd + (c.output * 20) / 1e6;
+    if (i === 0) add('start', 'carried', c.context * list.length);
+    const ks = c.kinds.length ? c.kinds : ['other'];
+    for (const k of ks) { add(k, 'output', c.output / ks.length); add(k, 'ms', (c.end - c.start) / ks.length); }
+    const growth = i ? c.context - list[i - 1].context - list[i - 1].output : 0, chars = c.before.reduce((s, [x]) => s + x, 0);
+    if (growth > 0 && chars > 0) for (const [x, k] of c.before) add(k, 'carried', ((growth * x) / chars) * (list.length - i));
+  });
+}
+const G = {};
+for (const k in S) for (const f in S[k]) ((G[group(k)] ||= { carried: 0, output: 0, ms: 0 })[f] += S[k][f]);
+const ms = Object.values(S).reduce((s, x) => s + x.ms, 0);
+console.log(`${sessions} sessions, ${calls} main calls, ${(context / 1e6).toFixed(0)}M tokens of context, ${(output / 1e6).toFixed(2)}M output; wall ${(wall / 6e4 / sessions).toFixed(1)}, model ${(ms / 6e4 / sessions).toFixed(1)} min a session; $${(usd / sessions).toFixed(2)} a session at API prices, $${((usd - (output * 20) / 1e6) / sessions).toFixed(2)} of it input`);
+const row = (k, x) => console.log(`| ${k} | ${((100 * x.carried) / context).toFixed(1)}% | ${((100 * x.output) / output).toFixed(1)}% | ${((100 * x.ms) / ms).toFixed(1)}% | ${(x.ms / 6e4 / sessions).toFixed(1)} |`);
+console.log('| What a call did | Context it carried | Output | Model time | Model minutes a session |');
+for (const k of Object.keys(G).sort((a, b) => G[b].carried - G[a].carried)) row(k, G[k]);
+if (process.env.ALL) for (const k of Object.keys(S).sort((a, b) => S[b].carried - S[a].carried)) row('  ' + k, S[k]);
+```
+
 ## 2. The browsers of the kind `typescript`
 
 ### 2.1. WebKit and Firefox in the stage, T141, 2026-11-13
