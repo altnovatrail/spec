@@ -126,31 +126,32 @@ function slashComments(source, js) {
   let previous = "";
   let i = 0;
   const n = source.length;
-  const advance = (to) => {
-    for (let k = i; k < to; k++) if (source[k] === "\n") line++;
-    i = to;
+  // The offset `to`, with the lines from `from` to it counted.
+  const move = (from, to) => {
+    for (let k = from; k < to; k++) if (source[k] === "\n") line++;
+    return to;
   };
   while (i < n) {
     const c = source[i];
     const top = stack.at(-1);
     if (top?.template) {
-      if (c === "\\") advance(i + 2);
+      if (c === "\\") i = move(i, i + 2);
       else if (c === "`") {
         stack.pop();
         previous = "`";
-        advance(i + 1);
+        i = move(i, i + 1);
       } else if (c === "$" && source[i + 1] === "{") {
         stack.push({ depth: 0 });
         previous = "{";
-        advance(i + 2);
-      } else advance(i + 1);
+        i = move(i, i + 2);
+      } else i = move(i, i + 1);
       continue;
     }
     if (c === "/" && source[i + 1] === "/") {
       const end = source.indexOf("\n", i);
       const stop = end < 0 ? n : end;
       pieces.push({ text: source.slice(i + 2, stop), startLine: line, endLine: line, line: true });
-      advance(stop);
+      i = move(i, stop);
       continue;
     }
     if (c === "/" && source[i + 1] === "*") {
@@ -162,14 +163,14 @@ function slashComments(source, js) {
         .split("\n")
         .map((l, k) => (k === 0 ? l : l.replace(/^\s*\*(?!\/)/, " ")))
         .join("\n");
-      advance(end < 0 ? n : end + 2);
+      i = move(i, end < 0 ? n : end + 2);
       pieces.push({ text, startLine, endLine: line, line: false });
       continue;
     }
     if (c === '"' || c === "'" || c === "`") {
       if (c === "`" && js) {
         stack.push({ template: true });
-        advance(i + 1);
+        i = move(i, i + 1);
         continue;
       }
       // A Go raw string, `…`, has no escapes and may span lines; the others end at their line.
@@ -180,7 +181,7 @@ function slashComments(source, js) {
         k++;
       }
       previous = c;
-      advance(Math.min(k + 1, n));
+      i = move(i, Math.min(k + 1, n));
       continue;
     }
     if (c === "/" && js && (previous === "" || REGEX_AFTER.has(previous) || REGEX_AFTER_WORD.has(previous))) {
@@ -196,7 +197,7 @@ function slashComments(source, js) {
       }
       if (source[k] === "/") {
         previous = "/regex";
-        advance(k + 1);
+        i = move(i, k + 1);
         continue;
       }
     }
@@ -204,7 +205,7 @@ function slashComments(source, js) {
     if (top && c === "}") {
       if (top.depth === 0) {
         stack.pop();
-        advance(i + 1);
+        i = move(i, i + 1);
         continue;
       }
       top.depth--;
@@ -213,16 +214,16 @@ function slashComments(source, js) {
       let k = i;
       while (k < n && /[\p{L}\p{N}_$]/u.test(source[k])) k++;
       previous = source.slice(i, k);
-      advance(k);
+      i = move(i, k);
       continue;
     }
     if ((c === "+" || c === "-") && source[i + 1] === c) {
       previous = c + c;
-      advance(i + 2);
+      i = move(i, i + 2);
       continue;
     }
     if (!/\s/.test(c)) previous = c;
-    advance(i + 1);
+    i = move(i, i + 1);
   }
   return pieces;
 }
