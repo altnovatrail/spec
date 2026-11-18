@@ -5,7 +5,7 @@
   "type": "object",
   "properties": {
     "status": {
-      "description": "done: the task is carried to an open pull request with green local checks, or needs none; waiting: it cannot go on until the author answers the questions; failed: it cannot go on, and failure says why.",
+      "description": "done: the task is carried to an open pull request with green local checks, to its pushed commit on a batch's branch, or needs none; waiting: it cannot go on until the author answers the questions; failed: it cannot go on, and failure says why.",
       "enum": ["done", "waiting", "failed"]
     },
     "task": {
