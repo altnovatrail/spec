@@ -3,7 +3,7 @@
 Table 4 of [RUN.md](../RUN.md): what was put off on purpose, its risk, when to return (R153, R154).
 
 - Never read whole: take the rows the task and its sections name — `grep -n '^| Д173 ' run/DEBT.md` — and those `grep -n` finds by the paths and parts it changes — `grep -n 'docs-check' run/DEBT.md` (RUN.md rule 2).
-- A row comes from a task's «Открыто» (RUN.md rule 9) and holds only what is open: drop a closed part, delete the row once closed. What closed it is named by the «Сделано» of the task that closed it, or by the triage's commit.
+- A row is what a task leaves open (RUN.md rule 9) and holds only what is open: drop a closed part, delete the row once closed. What closed it is named by the «Сделано» of the task that closed it, or by the triage's commit.
 - «Д173 RUN.md» in texts before T132 and «Д173» of the root `DEBT.md` before T165 are the same row: open — here, closed — in the archive of the epic it closed in. Cite «Д173»; another repository cites «Д173 spec».
 
 ## Table 4. Technical debt
