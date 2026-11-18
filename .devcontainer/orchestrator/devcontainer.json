@@ -1,5 +1,6 @@
 // The orchestrator's devcontainer, spec's second configuration, with the host's Docker (R156).
-// «Сделай эпик E…» runs here, and so do the tasks that build or check the orchestrator itself;
+// «Сделай эпик E…» runs here, and so do the tasks that build or check the orchestrator itself
+// and a task across repositories, which edits and checks each one in its container (R159);
 // nothing else does. The socket below is root on the host, so no code but NovaTrail's own is
 // opened in this container. Tasks on spec's documents run in spec's ordinary container,
 // ../devcontainer.json, which has no Docker. What is not said below is the same as there, and a

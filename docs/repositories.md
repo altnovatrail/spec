@@ -161,7 +161,7 @@ The flows while the platform works are in architecture 4. Here is how changes pa
 1. A module lies in `modules`: YAML, media, an eval set.
 2. CI checks it:
    - `module-kit` — the schema, a graph without cycles, the references, the media files, the keys, the leaks in the author's texts that the learner sees before solving, — and in the texts of a lesson that names the task (R57; R58);
-   - `sim` — if what the simulator reads from the package changed — on the pull request's package, with invariants and absolute thresholds, without bands; from the first tag of `sim`: before it there is no gate (R76; R103). A pull request that changes the tag of `sim` runs all the graphs;
+   - `sim` — if what the simulator reads from the package changed — on the pull request's package, with invariants and absolute thresholds, without bands; from the first tag of `sim`: before it there is no gate (R103). A pull request that changes the tag of `sim` runs all the graphs;
    - from stage 2, the eval runner of `tutor` on the module's eval set.
 3. On release, `module-kit` builds the package — the canonical view for the server, the device part and the inventory with their digests, without the eval set (R62), — and the module index: from the index of the previous release, with an entry for each published version and the marks of withdrawal (R63). The shared release workflow from `.github` signs them (R17).
 4. `api` takes the packages by the index of a release of `modules` that its configuration pins — the release's tag and the index's digest, and the index names the packages' digests (R63; R07 api); an attempt stores the digest of its package, the digest of its inventory (R62).
@@ -234,7 +234,7 @@ What is not in `spec`: the code of the platform's services and libraries, the co
 1. **spec** — the vocabulary, decisions, privacy, architecture; then the module format v0, the package, the observation and the eval protocol.
 2. **.github** — the shared checks, before the first repository with code. The shared workflows for code come with the code they are checked on (R03 .github): the Go wrapper and the release with the first code of `module-kit`, the TypeScript wrapper with the first TypeScript code, that of `canvas`.
 3. **modules and module-kit:**
-   - the port of the reference tasks of standalone with their traps and of the templates with solvers (section 7): 19 of the templates are carried over, and the others are named with a reason (R05 and R22 modules); six, whose solver reads a picture, wait for the pictures of instances of format 0.4 (R108). First the first batch of olympiad maths: 20–30 tasks on three bands, without templates and solvers, in lessons; the manifest also names `adult` in the audience. The rest of the port after it (R76);
+   - the port of the reference tasks of standalone with their traps and of the templates with solvers (section 7): 19 of the templates are carried over, and the others are named with a reason (R05 and R22 modules); six, whose solver reads a picture, wait for the pictures of instances of format 0.4 (R108). First the first batch of olympiad maths: 20–30 tasks on three bands, without templates and solvers, in lessons; the manifest also names `adult` in the audience. The rest of the port after it (R05 modules);
    - small sets of school maths of grade 3 and of short essays in English (R41);
    - the CLI of `module-kit` checks the modules and builds the packages and the index, and the shared release workflow signs them (R17).
 
@@ -247,7 +247,7 @@ What is not in `spec`: the code of the platform's services and libraries, the co
    - The measurements of `tutor` do not wait for items 3 and 4 (R01 tutor).
    - The code of `canvas` also goes earlier than items 3 and 4, beside the detailing (R02 canvas). First goes the handwriting sheet, the element `<novatrail-canvas>` (R17 canvas); the samples page, the synthetic samples and the build that opens from a file wait until the measurement needs the samples of volunteers or children (R43). While `modules` and `module-kit` have no code, the page's build takes the measurement tasks from the release of `tutor` (R25).
 6. **api, app, skill-map and infra** — the first slice with a learner. Before the first child: parental consent and the agreements with AI providers (П-1, П-3). The data region before the first deployment (П-11).
-   - The first app is the first build of `app` with `api`, on which the author personally solves tasks in the browser, locally: with handwriting, lessons and the engine, with sign-in, without children and without deployment (R76).
+   - The goal of the order is «Первый срез со взрослыми» of `COORDINATION.md` (R76).
 7. **site** — by the beta, stage 3. **module-registry, module-pipeline and widget-template** — with the third module and third-party authors, after the format v1 (stage 4; R08; product 11).
 
 A repository can be set up before its code begins: the detailing begins with the documents (section 2.2).

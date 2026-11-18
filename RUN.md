@@ -6,7 +6,7 @@ Language (R154): rules and tables in English, terse, for the session; the bodies
 
 ## Rules
 
-A task starts with «Выполни задачу T01 из RUN.md» in a new session in the devcontainer. One task — one session (R143): the hook [tools/session/](tools/session/main.mjs) stops another task's phrase in the same session. An epic across repositories starts with «Сделай эпик E…» in spec's orchestrator container, `.devcontainer/orchestrator/`: the orchestrator runs each task as a fresh `claude -p` in its repository's container and merges its pull request (R156), by [its procedure](tools/orchestrator/README.md#сделай-эпик-e); the hook counts the epic as one task.
+A task starts with «Выполни задачу T01 из RUN.md» in a new session in the devcontainer. One task — one session (R143): the hook [tools/session/](tools/session/main.mjs) stops another task's phrase in the same session. An epic across repositories starts with «Сделай эпик E…» in spec's orchestrator container, `.devcontainer/orchestrator/`: the orchestrator runs each task as a fresh `claude -p` in its repository's container and merges its pull request (R156), by [its procedure](tools/orchestrator/README.md#сделай-эпик-e); the hook counts the epic as one task. A task across repositories runs there too, as one session the author leads (R159).
 
 1. Do only the named task; touch other tasks' files only where it requires.
 2. Read first: [CLAUDE.md](CLAUDE.md), the task — in table 1, or only its own body of `run/TASKS.md` (its opening says how) —, the sections it cites, `docs/decisions.md`.
@@ -16,6 +16,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 3. Devcontainer only (RULES.md, Hard rules, with its cloud-session exception): on the host stop before the first edit.
 4. Outside this repository — creating or configuring repositories, pushing to them, organization settings, anything that costs money — only after a warning (what, where, cost) and the author's confirmation.
    - Exception, no confirmation: «Сделай эпик E…» (R156) — running the epic's tasks in their repositories' containers, the executors' pushes and pull requests, their merge on green checks, and rebuilding and creating the containers of NovaTrail's repositories (R158). Whatever else a task does outside its repository still needs confirmation, a question in the orchestrator's queue; usage bought beyond the subscription, never.
+   - Exception, no confirmation: a task across repositories (R159) — its branch, edits and local checks and servers in the clones of the repositories it names, from the orchestrator's container. Its pushes, pull requests and merges still need confirmation.
    - Exception, no confirmation: the task's checks by R146 — browser: Playwright in the devcontainer, custom-token sign-in on the dev project; AI: the `tutor` stub in `api` dev mode. A real AI call only where the task checks the model's words: dev key under the author's spend limit, within the task's ceiling, or with confirmation where it has none; «Сделано» names the provider, the calls and the cost. Nothing on devices: what only a device shows stays debt of the repository of those screens.
 5. Facts on AI providers, laws, prices and other platforms — from the primary source, as a record of `docs/sources.md` (RULES.md, How we work).
 6. End with green checks of the parts changed — their rule `.claude/rules/<part>.md` (CLAUDE.md, Environment) — and always `just docs-check`. Then `/code-review high`, one round: fix the findings, do not rerun. A small change may skip the review even if «Как проверить» names it.
@@ -45,7 +46,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - **Next epic.** Once table 1 is all checked: the inbox (rule 13); the author picks the next epic from `run/EPICS.md` and splits it with Claude in plan mode into tasks of one review each, into table 1 and this file.
 - **Grouping** (R159; RULES.md, How we work): the plan takes the grouping with the fewest pull requests; a pull request of its own only where a dependency needs it.
   - *A batch*: tasks of one repository in a row, none needing another's release — one branch `<epic>-<repo>`, as `e16-spec`. Where the executor commits (rule 7), a task is one commit with its bookkeeping, «Сделано» naming «ветка …», pushed, with no pull request and no checks. The last runs every local check of the batch's parts, `/code-review high` over the batch, opens one pull request, writes its number into every «Сделано», and waits on CI; the merge is a merge commit. The batch ends early at a task whose release another needs, one after which a container is rebuilt (`.devcontainer/`), or one waiting on the author. A single task has a branch of its own.
-  - *A task across repositories*: one branch of one name in each; all the code there, wired locally before any release — Go `replace`, npm by a path, the `spec` submodule at the branch's commit —, none of which reaches a pull request (R34, R77); every check and the end-to-end path run locally; then the pull requests, merged and released by dependency, `spec` first. Who edits each repository, and CI that needs another's release: the author's word for E11, table 1, which T221 writes here.
+  - *A task across repositories* (R159): a task of table 1 that names its repositories, with no row of COORDINATION.md; one branch of one name in each, all the code there. One session in the orchestrator's container, `.devcontainer/orchestrator/`, writes in each and runs its checks by `docker exec` in its container (R156). Wired locally before any release — Go `replace` to the clone beside, npm by a path or `just dev-canvas`, the `spec` submodule at the branch's commit —, none of which reaches a pull request (R34, R77). Locally: each repository's unit tests and `just docs-check`; the end-to-end path is the author's check by hand on the local servers; `just walk`, `dev-check`, browsers and CI wait for the pull requests. Commits only after the author's check; then the pull requests by dependency, `spec` first: the dependency merged and released, the dependent's pins moved to the release, one round of CI each.
 - **A done epic** goes to `docs/plan/<epic>.md` (R59 canvas-api): bodies and gist sentences are there already (rule 9); move its description and table of tasks verbatim; questions and debt stay in `run/`; measure — `just tokens-report --since <first day of the epic> --row` — as a row of measurements 1.9 (R145); table 1 names it as the last done epic. Never read an archive whole: take the task cited.
 - **DPIA** ([docs/dpia.md](docs/dpia.md), R129): a task that changes what it rests on — a kind of data or retention, a provider or processor, an AI capability or route, opening an age, a country or a feature to children — reviews it; its «Сделано» names the review, the DPIA's log the version. Also before the beta, before the public launch and at least yearly.
 - **Token savings** (R145): the limits of `docs-check` — [tools/docs-check/budgets.json](tools/docs-check/budgets.json), a raise shows in review; measure at an epic's archive and monthly (`just inbox` reminds, rule 13); a task of analysis goes to `run/TASKS.md` by the threshold of R145, and its planning decides whether it needs an epic; baselines, dates, last analysis — measurements 1.9.
@@ -98,7 +99,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | Статус | ID | Задача | Кто | План | Зависит от |
 |---|---|---|---|---|---|
 | [x] | T220 | Макет: как будет после E11 | я + Claude | — | — |
-| [ ] | T221 | Решения E11: журнал, product, порядок работы | Claude, проверяю я | — | T220 |
+| [x] | T221 | Решения E11: журнал, product, порядок работы | Claude, проверяю я | — | T220 |
 | [ ] | T222 | concepts и architecture | Claude | — | T221 |
 | [ ] | T223 | privacy и DPIA | Claude, проверяю я | — | T221 |
 | [ ] | T224 | Политика конфиденциальности: новая версия | Claude, проверяю я | — | T223 |
@@ -116,19 +117,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Push, pull request и мерж — только T232, с подтверждения автора (правило 4).
 
 ## Эпик E11. Задача с моей бумаги
-
-#### T221. Решения E11: журнал, product, порядок работы
-
-- **Цель:** решения автора 2026-11-18 — в журнале решений и в product; порядок работы эпика — в общих правилах.
-- **Почему:** решения эпика E11 (описание выше), макет T220.
-- **Сделать:**
-  - новое решение «Задачи с бумаги» — следующий свободный номер R: для всех профилей, поиск задач ИИ по всей странице и ручная рамка, ключ решателя или ИИ без пометки, два решения ИИ, обводка как почерк, «Show where», лист в точку без выбора, только история; с «почему» и отвергнутым;
-  - поправки R03, R04 (вердикт по ключу ИИ для задач с бумаги), R05 («приложение ничего не делает за ученика»), R76 (бумага в первом срезе), R148 (что из «Later» ушло в срез);
-  - product 4, 7, 10, 11 и О-11 — закрыть по решению; О-6 и П-5 не меняются;
-  - порядок работы: RULES.md, «Across repositories», и R156 — одна сессия в контейнере оркестратора пишет во все клоны на ветке задачи; R159 и RUN.md, Epics, — только юнит-тесты, ручная проверка автора, pull request по зависимостям, пины на выпуск;
-  - [docs/dpia.md](docs/dpia.md) — не здесь, это T223.
-- **Как проверить:** `just docs-check`; автор читает решение и поправки.
-- **Разделы:** R03, R04, R05, R76, R148, R156, R159; product 4, 7, 10, 11; О-11; RULES.md, Across repositories.
 
 #### T222. concepts и architecture
 
@@ -202,6 +190,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 
 - **Цель:** Hint и «Explain differently» у задачи с бумаги; волнистая линия под ошибкой при режиме подсказок.
 - **Сделать:** `tutor` — слова для задач с бумаги; `canvas` — волнистая метка; `api` — лестница и настройка профиля; `app` — настройка и метка.
+- **Решить при планировании:** что даёт Hint до первой ошибки у задачи с бумаги — у неё нет модуля: ни приёма, ни наводящего вопроса, ни «дано и найти» — и запасной текст её ступеней (R82).
 - **Как проверить:** юнит-тесты; автор на заглушке и на моделях.
 - **Стоимость:** как T229.
 - **Разделы:** R82; concepts 10.

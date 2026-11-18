@@ -154,7 +154,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 <div class="{{devCls}}" style="position: relative; width: {{dim.W}}px; height: {{dim.VH}}px; overflow: hidden; background: #F2F2F7; color: #1D1D1F; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none">
 
 <!-- ============ Surfaces ============ -->
-<!-- The sheet is two screens tall, and as wide as the screen: on the phone 390 × 1688. It moves under the hand — two fingers, or one while "Draw with finger" is off, or the wheel — and Zoom in and Zoom out enlarge it up to 200 % (R90, the second 2026-11-14 amendment). -->
+<!-- The sheet is two screens tall, and as wide as the screen: on the phone 390 × 1688. It moves under the hand — two fingers, or one while "Draw with finger" is off, or the wheel — and Zoom in and Zoom out enlarge it up to 200 % (R90). -->
 <div style="position: absolute; left: 0; top: 0; width: {{dim.W}}px; height: {{dim.H}}px; transform-origin: 0 0; transform: {{viewTf}}; transition: {{viewTr}}">
 <sc-if value="{{isNumberline}}" hint-placeholder-val="{{ false }}">
   <div style="position: absolute; inset: 0; background: #FFFFFF">
@@ -1228,7 +1228,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   <div class="glass ph-demo" style="position: absolute; left: 20px; top: 20px; height: 52px; border-radius: 26px; padding: 4px; box-sizing: border-box; display: flex; align-items: center; gap: 2px">
     <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.4px; color: #6E6E73; padding: 0 8px 0 10px">DEMO</span>
     <button onClick="{{sliceFirst}}" aria-pressed="{{isFirst}}" style="height: 44px; padding: 0 14px; border-radius: 22px; font-size: 13px; font-weight: 600; background: {{sl.first.bg}}; box-shadow: {{sl.first.sh}}">First slice</button>
-    <button onClick="{{sliceLater}}" aria-pressed="{{isLater}}" style="height: 44px; padding: 0 14px; border-radius: 22px; font-size: 13px; font-weight: 600; background: {{sl.later.bg}}; box-shadow: {{sl.later.sh}}"><span class="pad-only">Later · E4 app, E11</span><span class="ph-only">Later · E4, E11</span></button>
+    <button onClick="{{sliceLater}}" aria-pressed="{{isLater}}" style="height: 44px; padding: 0 14px; border-radius: 22px; font-size: 13px; font-weight: 600; background: {{sl.later.bg}}; box-shadow: {{sl.later.sh}}"><span class="pad-only">Later · E4 app, E5</span><span class="ph-only">Later · E4, E5</span></button>
   </div>
   <button class="ph-signout" onClick="{{signOut}}" style="position: absolute; right: 24px; top: 24px; height: 44px; padding: 0 16px; border-radius: 22px; font-size: 14px; color: #0066CC">Sign out</button>
   <div class="ph-whotitle" style="position: absolute; left: 0; right: 0; top: 196px; text-align: center">
@@ -1566,7 +1566,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["ipad","phone"],"default":"ipad"},"$preview":{"width":1194,"height":834}}'>
 // The tasks the AI finds on each demo page. The key is only ever compared with, never shown: for an equation the solver
-// computes it from the statement the AI read; for any other task the AI derives it, from two readings that must agree,
+// computes it from the statement the AI read; for any other task the AI derives it, from two solutions that must agree,
 // and the verdict is the same "Correct" or "Not yet", with no mark between them. The demo's first Check is "Not yet" and the second
 // "Correct" (the convention of draft/mockup/README.md): wrong is what the first reading of the work gives.
 // found: false — a task the AI missed on the page, which the learner frames by hand (equation (6)).
@@ -1578,7 +1578,7 @@ const WS = [
   { id: 5, x: 24, y: 594, w: 272, h: 216, ch: 54, label: '4 − x = 2x − 11', ans: 'x = 5', wrong: 'x = −5', hint: 'How can you get all the x’s on one side of the equation?', alt: 'What happens to both sides if you add x to each of them?' },
   { id: 6, x: 304, y: 594, w: 272, h: 216, ch: 54, found: false, label: '(x + 1)/2 = (x − 2)/5', ans: 'x = −3', wrong: 'x = 3', hint: 'Which number can you multiply both sides by to clear both fractions?', alt: 'What number can both 2 and 5 divide into without a remainder?' }
 ];
-// nokey: the two readings of the AI gave different answers, so the task has no key and no verdict (R68).
+// nokey: the two solutions of the AI gave different answers, so the task has no key and no verdict (R162).
 const OL = [
   { id: 1, x: 20, y: 62, w: 272, h: 258, ch: 212, label: 'Strips of a square', key: 'D', hint: 'Call the side of the square s. How long and how wide is one strip?', alt: 'One strip is as long as the square’s side and a quarter as wide. What is its perimeter in terms of s?' },
   { id: 2, x: 20, y: 326, w: 272, h: 166, ch: 138, label: '2 + 2 − 2 + 2 − 2 + 2', key: 'C', hint: 'Count the +2s and the −2s. Which ones cancel out?', alt: 'Go from left to right and write the total after each step. What is it at the end?' },
@@ -2417,7 +2417,7 @@ class Component extends DCLogic {
       if (this.ctx().key !== k) return;
       if (t.nokey) {
         const v = { kind: 'nokey', title: 'Couldn’t check this one', line: 'Two readings of the task gave different answers, so it has no key. Hints still work.' };
-        return this.settle(v, 'No key: the two readings differed', { status: { ...this.state.status, [k]: 'nokey' } }, 'The key for this one could not be worked out. A hint, or the next task?', k);
+        return this.settle(v, 'No key: the two solutions differed', { status: { ...this.state.status, [k]: 'nokey' } }, 'The key for this one could not be worked out. A hint, or the next task?', k);
       }
       if (ol && got.length !== 1) {
         const v = got.length ? { kind: 'info', title: 'Two answers are circled', line: 'Leave one circled — erase the other — then Check.' } : { kind: 'info', title: 'No circled answer found', line: 'Circle one option on the task, then Check.' };
