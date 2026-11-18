@@ -1,8 +1,8 @@
 // Budgets: how large a file, a rule of .claude/rules/, an entry of the decision log, a section of a
 // document or a row of a table may grow, in KB of 1,024 bytes (R145). A session pays for what it
 // reads by tokens, but a limit in bytes holds without a key or a network, and does not move when a
-// tokenizer does: English text is at least 2.5 bytes a token and Russian tables 2.7, as measured,
-// so 24 KB of English is at most ≈ 9.8 thousand tokens.
+// tokenizer does: English text is at least 2.5 bytes a token and Russian tables 2.7, as
+// docs/measurements.md has it, so 24 KB of English is at most ≈ 9.8 thousand tokens.
 //
 // The limits are tools/docs-check/budgets.json: its block "spec" holds spec's own, and its block
 // "repository" those of a NovaTrail repository, read from its spec/ submodule. A repository is

@@ -1,4 +1,4 @@
-// What a session of spec is reminded of before its task: the monthly measurement of the
+// What inbox reminds a session of spec of: the monthly measurement of the
 // transcripts of every repository of this machine, and the quarterly check of Claude Code's
 // changelog. Their dates are lines of docs/measurements.md, which each measurement and each check
 // move on; inbox prints the one whose date has come (R145).

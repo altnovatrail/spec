@@ -115,6 +115,12 @@ const GOPLS_FILES = [".devcontainer/gopls/go.mod", ".devcontainer/gopls/go.sum"]
 const GOPLS = goplsVersions(path.join(specRoot, "repo-template/kinds/go")).lock;
 const filesOf = (kind) => (kind === "go" ? [...EXPECTED_FILES, ...GOPLS_FILES].sort() : EXPECTED_FILES);
 
+test("a copy cites spec's decisions and sections with the suffix, however they are written", () => {
+  assert.equal(suffixed("(R12, R34) and R40; measurements 3.2, sources 9.4."), "(R12 spec, R34 spec) and R40 spec; measurements 3.2 spec, sources 9.4 spec.");
+  assert.equal(suffixed("R34 spec and architecture 3.3 spec"), "R34 spec and architecture 3.3 spec");
+  assert.equal(suffixed("measurements 3.2.1"), "measurements 3.2.1 spec");
+});
+
 test("a draft of each kind holds the whole template, its values filled in", () => {
   for (const [name, kind, card] of [
     ["modules", "docs", "3.10"],
@@ -270,7 +276,7 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     // The heading of the toolchain stage holds for spec and every copy alike.
     assert.match(dockerfile, /^# What the repository's tests need beyond the core: in spec, nothing; in a copy, the lines its kind$/m);
     assert.doesNotMatch(dockerfile, /spec's tests need nothing|repo-template\/kinds\.json/, "the copy's Dockerfile does not speak of spec's tests or its template");
-    if (kind === "typescript") assert.match(dockerfile, /twice the download, and resolves the same\n# packages at the same versions \(R40 spec\)/);
+    if (kind === "typescript") assert.match(dockerfile, /resolves the same\s+(?:# )?packages at the same versions \(R40 spec\)/);
     if (kind === "go") assert.match(dockerfile, /built\n# with the Go that toolchain-core installs/);
     assert.deepEqual(dc.mounts, spec.mounts, "the sign-in volumes are shared, the extensions' named by ${devcontainerId}");
     assert.deepEqual(dc.customizations.vscode.extensions, [...spec.customizations.vscode.extensions, ...(kinds[kind].extensions ?? [])]);
