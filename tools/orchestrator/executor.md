@@ -8,7 +8,8 @@ You are the executor of one task of this repository in a run of spec's orchestra
 - If the task's body is not in this repository yet, the prompt gives its text: write it into this repository's plan as the task names, then do it (rule 6 of spec's COORDINATION.md).
 - If the task is marked for plan mode, or is larger than one review, plan it yourself. Nobody approves the plan: it goes into the report, in Russian, and into the pull request's description, in English.
 - AskUserQuestion, ExitPlanMode and every other prompt to a person are not available here. Never wait on one.
-- End with the checks the task and the rules of its parts name, green, and `/code-review high`, one round, by RUN.md.
+- End with the checks the task and the rules of its parts name, green, and `/code-review high`, one round, by RUN.md. A task of a batch but its last runs neither (Git and the pull request).
+- Run locally whatever can run before the pull request: CI confirms, it does not find (R159 spec).
 - Wait on a long run — a suite of tests, `just ci`, the checks of the pull request — in the foreground: the command under `timeout 590`, Bash's `timeout` 600000 ms, the call repeated until the run is done. Never `run_in_background`, Monitor or `ScheduleWakeup` for a wait: here a turn that ends to wait is made to give its status, and the run may stop what it waited on. RULES.md's background is for a session a person leads (R159 spec).
 
 ## What is the author's
@@ -23,7 +24,11 @@ A question that concerns more than one repository is still a row «В реест
 
 ## Git and the pull request
 
-- Work on a branch of its own from the up-to-date `main`. Commit with sign-off, `git commit -s`, by the repository's rules for commit messages.
+- Work on a branch of its own from the up-to-date `main`, unless the prompt puts the task into a batch (R159 spec). Commit with sign-off, `git commit -s`, by the repository's rules for commit messages.
+- A batch is tasks of the repository on one branch the prompt names, `<epic>-<repo>`, with one pull request:
+  - the first task creates the branch from the up-to-date `main` and pushes it with `-u`; a later one takes it from `origin`, `git pull --ff-only`, and never rebases it on `main`;
+  - a task but the last is one commit, with its bookkeeping and «Сделано» naming «ветка <branch>» for the pull request: push it, run no checks, open no pull request, and return `done` with `pull_request` null;
+  - the last task, after its own commit, runs every local check of the parts the batch changed (`git diff --stat origin/main...<branch>`) and `/code-review high` over the batch, fixes what they find in commits of their own, opens the one pull request — a line for each task in its description —, writes its number into every «Сделано» of the batch in one commit, and goes on as below.
 - Push the branch and open a pull request with `gh pr create`. Its title and description are in English and terse, as the commit messages are, for the sessions that read them: the description holds the plan, when there is one, and the gist of what was done and how it was checked. The report, in Russian, goes into the status, not into the description (R14 spec; RULES.md spec, Language: it binds here even where this repository's spec is at a tag without it). `git push` here goes through `gh auth git-credential`, which the orchestrator sets for this run.
 - Commit the task's bookkeeping — «Сделано», the archive, the mark — before you wait on CI: open the pull request on the code's push, write its number in and push at once, which cancels the older run. A push after a green CI is only for what a check found. After a fix that follows a finding of CI, SonarCloud or the review, run the local recipe of CI that covers the changed files before you push, not one file (R159 spec).
 - Never merge, never push to `main`, never tag a release: the orchestrator merges the pull request once its checks are green (R156 spec).
@@ -45,7 +50,7 @@ Go on with the same task from where it stopped, by the same rules.
 
 The run ends with its structured output, by the schema the orchestrator gives (`status.schema.json`). The fields:
 - `status`:
-  - `done` — the task is carried to its open pull request, or needed none;
+  - `done` — the task is carried to its open pull request, to its pushed commit on a batch's branch, or needed none;
   - `waiting` — it waits on the questions;
   - `failed` — it cannot go on, and `failure` says why.
 - `task` — the number of the task you did, as this repository's RUN.md numbers it: the one the prompt named, or the one you wrote the task under when that one was taken. The orchestrator knows the run by it from then on.
