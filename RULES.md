@@ -11,7 +11,9 @@ Every document meets one bar and is written for whoever reads it. The documents 
 - one term means one thing in every document; the vocabulary is concepts 15 spec;
 - every claim about the outside world — a provider's terms, a price, a law — cites its source and the date it was read. The source, its date and its quote are a record of the repository's `docs/sources.md`, and the claim cites the record by its number, as a section: `sources 2.3`;
 - a gap is never filled silently: it becomes an open question with options and a recommendation;
-- a decision says why, and what was rejected.
+- a decision says why, and what was rejected;
+- each fact has one home, and a text holds the current state, not its history: a document names the file where a value is set — `deploy/*.json`, the submodule, `package.json`, a Dockerfile's `ARG` —, not the value, and keeps no chronicle; the history is git, the releases and the archives (R160 spec);
+- a code comment says only what the code cannot — why, a constraint, a pitfall, an exported API's contract —, never the code again, its history, its task or a section of a document; where its reason is a decision, it ends with its number, `(R25)`.
 
 The texts people read are written for them: spec's legal texts in `legal/`, the normative texts for authors (R42 spec), README files, the bodies of the plan's tasks, the order of spec's COORDINATION.md, the epic archives and the reports to the author.
 
@@ -26,8 +28,7 @@ The name is written **NovaTrail**, with a capital T. Identifiers stay lowercase:
 - The author runs tasks one at a time: «Выполни задачу Txx из RUN.md». Do only that task, by the rules in RUN.md. An epic across repositories runs itself: «Сделай эпик E…» in spec's orchestrator container (R156 spec).
 - One task is one session (R143 spec): its planning and its execution run in one session of Claude Code, and an inbox triage runs in the session it was started in, and the next task starts in a new session or after `/clear`. A session's cost grows with what it has gathered, not with what it started with (measurements 1.5 spec). The hook `UserPromptSubmit` of `.claude/settings.json`, spec's `tools/session/`, stops a prompt that starts another task in the same session — «Выполни задачу T…», «планируй T…» — and names `/clear`; the inbox triage names no task and goes on. What the next task needs from this one lives in files, not in the session.
 - Before proposing a change, read the repository's decision log, `docs/decisions.md`, and the sections the change touches. Do not re-propose what a decision rejected without new evidence. If a decision has to change, ask the author and record the change.
-- A decision is never rewritten. An amendment with its date goes at the end of the entry, or a new entry replaces it; the old one stays where it is, marked «Заменено», its text unedited.
-- A decision that changes what another entry of the log says puts a dated amendment on that entry too, in the same change: the amendment names the new decision and what it changed. An entry and its amendments are then its whole text in force, and a session that reads them needs no other entry to know it (R143 spec).
+- A decision is its text in force, with its why and what it rejected. A change rewrites the entry in its place, and every entry it changes too; git keeps the old text, and the commit says why. An entry that still has dated amendments is rewritten whole when a task touches it (R160 spec).
 - A new number — R, О-, П-, Т- — is the next one still free when it is written down, not when the work began: a parallel session may have taken one meanwhile. Each register's opening names the next free number; keep it current.
 - Facts about AI providers, laws and prices come from the primary source, quoted with the date read, into a record of `docs/sources.md`. What could not be verified is not stated as fact: it becomes an open question. The results of a measurement — what was measured, how, on what, and the numbers — go to `docs/measurements.md`, which the first measurement starts, and the documents that describe how things are built cite them: `docs/architecture.md` holds neither (R143 spec).
 - Project context lives in the repository's files, not in chat history.
@@ -49,7 +50,7 @@ The name is written **NovaTrail**, with a capital T. Identifiers stay lowercase:
 
 - Some things belong in spec: a question that concerns more than one repository, a decision that settles one of spec's open questions, and any change to a component's card in architecture 3 spec. Outside spec, the session writes such a thing into table 3 of its plan — `run/QUESTIONS.md` (R153 spec) —, its question opening with the mark «В реестр spec», with its options and recommendation, and names it in its report. Nobody carries the row to spec: on the author's word, or once every task of spec's current epic is done, spec's session reads table 3 of every repository on GitHub, on main, finds the rows it has not recorded yet (R81 spec), and has the author decide them there. That is where the row gets its number. Whatever else a session has for spec goes the same way, as a row of table 3: what a repository took with a move to a tag, spec sees by its submodule.
 - A component's card in architecture 3 spec is the summary; the repository's own `docs/architecture.md` is the detail. When the detail changes what the card says — what the component does and does not do, its data, its links — the card changes too, by the same route.
-- A repository moves to a newer tag of spec on purpose, in a task of its own, and records it as a decision.
+- A repository moves to a newer tag of spec on purpose, in a task of its own: its commit says why, and the lines of its CLAUDE.md and RUN.md that name the tag change with it; it is no entry of the log (R160 spec).
 
 ## Hard rules
 

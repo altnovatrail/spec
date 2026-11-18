@@ -21,7 +21,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 6. End with green checks of the parts changed — their rule `.claude/rules/<part>.md` (CLAUDE.md, Environment) — and always `just docs-check`. Then `/code-review high`, one round: fix the findings, do not rerun. A small change may skip the review even if «Как проверить» names it.
 7. Do not commit — here or in repositories an epic creates — unless the task or the author's word says so: the author commits after review. In an orchestrator's run the executor commits, pushes and opens the pull request by `tools/orchestrator/executor.md`, and the orchestrator merges it (R156).
 8. End with a short report in Russian: what was done, files and repositories, how to check (commands), what the review found or why there was none, what is open.
-9. When done: table 1 `[ ]` → `[x]`; append to the body «Сделано (дата)» — what was done, how checked — and «Открыто». A question for the author from «Открыто» is also a row of `run/QUESTIONS.md`; what is put off, a row of `run/DEBT.md`.
+9. When done: table 1 `[ ]` → `[x]`; append to the body «Сделано (дата)» — one line, what was done and its pull request, which says how it was checked; where the author commits after review, the report says it. What stays open is rows, not text: a question for the author, of `run/QUESTIONS.md`; what is put off, of `run/DEBT.md` (R160).
    - Then move the body verbatim, relative links fixed, to the epic archive `docs/plan/<epic>.md`, with a gist sentence — an unheaded list item at the start of the receiving section: «T129 — сделана 2026-11-11: <итог одной фразой>». Neither stays here (R153).
    - A task outside an epic leaves `run/TASKS.md` for the current epic's archive, section «Задачи вне эпика, сделанные за его время»; with no current epic, to the last done epic's archive, section «Задачи вне эпика, сделанные после него» (R19, amendments 2026-11-12 and 2026-11-13).
 10. Language — RULES.md, Hard rules (R154); translating a document — [tools/translation/README.md](tools/translation/README.md).
@@ -35,7 +35,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 
 **Plan:** «да» — plan mode first: decisions missing from the documents, or larger than one review (rule 11); «—» — run at once.
 
-**Task body** (Russian): «Цель», «Сделать», «Как проверить», «Разделы»; as needed «Не делать», «Решить при планировании», «Мой шаг», «Стоимость», «Риски»; from planning «Почему», «Решено автором (дата)», «Выяснилось при планировании»; when done «Сделано (дата)», «Открыто» (rule 9).
+**Task body** (Russian): «Цель», «Сделать», «Как проверить», «Разделы»; as needed «Не делать», «Решить при планировании», «Мой шаг», «Стоимость», «Риски»; from planning «Почему», «Решено автором (дата)», «Выяснилось при планировании»; when done «Сделано (дата)» (rule 9).
 
 **Citations** — RULES.md, Citations. A task is cited by number: «T03», «RUN.md, T03»; one not here is in `run/TASKS.md` or an archive: `grep -n '^#### T03\.' RUN.md run/TASKS.md docs/plan/*.md`. Task numbers are global and never reused: take the one free when writing it down.
 
@@ -80,7 +80,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | Статус | ID | Задача | Кто | План | Зависит от |
 |---|---|---|---|---|---|
 | [x] | T202 | Эпик E16: открыть и спланировать | Claude | — | — |
-| [ ] | T203 | Решение E16: тексты без истории; RULES.md, R154 | Claude | — | T202 |
+| [x] | T203 | Решение E16: тексты без истории; RULES.md, R154 | Claude | — | T202 |
 | [ ] | T204 | R143 и R145 — переписать на месте | Claude | — | T203 |
 | [ ] | T205 | `docs-check`: запись до 12 КБ, `R…` в комментариях кода | Claude | — | T204 |
 | [ ] | T206 | Строки COORDINATION.md: правило E16 в 12 репозиториях | Claude | — | T205 |
@@ -103,19 +103,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - Ни одной задаче E16 не нужен Docker: все их ведёт исполнитель `spec`.
 
 ## Эпик E16. Тексты без истории
-
-#### T203. Решение E16: тексты без истории; RULES.md, R154
-
-- **Цель:** правило В60–В63 — решение журнала; RULES.md, вводная журнала и правила плана говорят его; R154 переписана на месте по нему.
-- **Сделать:**
-  - Новое решение, следующий свободный номер (сейчас R160): четыре пункта measurements 1.14.5, «The rule», с «Почему» — measurements 1.14 — и отвергнутым, в том числе консолидацией решений рядом с журналом (R143, T128) и почему переписывание на месте — не она; как правило приходит в другие репозитории — переходом на тег, строками T206.
-  - RULES.md: How we work — «A decision is never rewritten…» и правило поправок к другим записям — по В61; Across repositories — переход на тег: коммит и строка README, не решение; The bar — текст без истории и комментарии по В62. Предел файла 15 КБ не поднимать.
-  - Вводная `docs/decisions.md` — то же правило.
-  - R154: «No history» — с плана на `docs/` и комментарии кода; запись переписать на месте, её поправки — в действующий текст.
-  - RUN.md, правило 9: «Сделано» — одна строка с pull request, как проверено — в pull request, открытое — строки таблиц 3 и 4; то же — `repo-template/files/RUN.md`.
-  - R143 и R145 не переписывать — T204; «Сделано» называет их места, которые правило меняет.
-- **Как проверить:** `just docs-check`; проверки правила new-repo — `just new-repo-test`; `/code-review high`.
-- **Разделы:** measurements 1.14.4, 1.14.5; R143, R145, R154; RULES.md, How we work; T200.
 
 #### T204. R143 и R145 — переписать на месте
 
