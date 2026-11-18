@@ -209,7 +209,8 @@ test("a clone by SSH is NovaTrail's too; several containers on the labels, and a
   const script = UP_SCRIPT;
   const shell = (origin) => {
     git(sim, ["remote", "set-url", "origin", origin]);
-    return spawnSync("sh", ["-c", script.replace("main=$(mktemp -d)", "exit 0"), "sh", "rebuild", "sim", sim, "c", ORGANIZATION], { encoding: "utf8" });
+    // The folder is the clone itself, by the working directory: no path of the machine reaches the shell's arguments.
+    return spawnSync("sh", ["-c", script.replace("main=$(mktemp -d)", "exit 0"), "sh", "rebuild", "sim", ".", "c", ORGANIZATION], { cwd: sim, encoding: "utf8" });
   };
   for (const origin of ["git@github.com:altnovatrail/sim.git", "git@github.com:altnovatrail/sim", "https://github.com/altnovatrail/sim"]) assert.equal(shell(origin).status, 0, origin);
   assert.equal(shell("git@github.com:someone/sim.git").status, 3);
