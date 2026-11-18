@@ -15,6 +15,9 @@ import { homeOf } from "../runs.mjs";
 import { runDocker } from "../containers.mjs";
 import { runLong } from "../devcontainers.mjs";
 
+// The program of the fake claude's background command that outlives SIGTERM.
+const STUBBORN = "process.on('SIGTERM', () => {}); setInterval(() => {}, 1000)";
+
 const DOCKER = `#!/usr/bin/env node
 const fs = require("node:fs");
 const { spawn, spawnSync } = require("node:child_process");
@@ -99,13 +102,14 @@ if (plan.child) {
 // A command in the background that outlives SIGTERM, and claude: the container's first process
 // takes it over when claude ends.
 if (plan.stubbornChild) {
-  const child = require("node:child_process").spawn(process.execPath, ["-e", "process.on('SIGTERM', () => {}); setInterval(() => {}, 1000)"], { stdio: "ignore" });
+  const child = require("node:child_process").spawn(process.execPath, ["-e", ${JSON.stringify(STUBBORN)}], { stdio: "ignore" });
   fs.writeFileSync(dir + "/pids-" + n + ".json", JSON.stringify({ claude: process.pid, child: child.pid }));
 }
 if (plan.ignoreTerm) process.on("SIGTERM", () => {});
 for (const line of plan.lines) process.stdout.write((typeof line === "string" ? line : JSON.stringify(line)) + "\\n");
 const end = () => process.exit(plan.exit ?? 0);
-if (plan.hold) { const t = setInterval(() => { if (fs.existsSync(dir + "/release-" + n)) { clearInterval(t); end(); } }, 20); } else end();
+// A held claude also ends once its test's folder is gone, so that it never outlives the test.
+if (plan.hold) { const t = setInterval(() => { if (fs.existsSync(dir + "/release-" + n)) { clearInterval(t); end(); } else if (!fs.existsSync(dir)) process.exit(1); }, 20); } else end();
 `;
 
 const DEVCONTAINER = `#!/usr/bin/env node
@@ -231,8 +235,53 @@ export function host() {
     tick: (ms) => {
       clock = new Date(clock.getTime() + ms);
     },
-    done: () => fs.rmSync(root, { recursive: true, force: true }),
+    // Ends whatever the host's runs left — the attempts' sh, a claude the test held and never
+    // released, the commands it left in the background — before the folder goes: a held claude
+    // waits for its release file forever, and a test that ends without it would leave it running.
+    done: () => {
+      for (const pid of leftovers(root, claudeDir)) {
+        try {
+          process.kill(pid, "SIGKILL");
+        } catch {
+          // Gone between the look and the signal.
+        }
+      }
+      fs.rmSync(root, { recursive: true, force: true });
+    },
   };
+}
+
+// The processes a host started: those whose command line names its folder, and the background
+// commands of its claude, which do not. Linux's /proc, as the orchestrator's STOP reads it.
+export function leftovers(root, claudeDir) {
+  const pids = new Set();
+  for (const name of fs.readdirSync("/proc")) {
+    if (!/^\d+$/.test(name) || Number(name) === process.pid) continue;
+    let line;
+    try {
+      line = fs.readFileSync(`/proc/${name}/cmdline`, "utf8");
+    } catch {
+      continue;
+    }
+    if (line.includes(root)) pids.add(Number(name));
+  }
+  // A background command's pid may have passed to another process since: only one with the same
+  // command line is the fake's.
+  const background = (pid) => {
+    try {
+      const line = fs.readFileSync(`/proc/${pid}/cmdline`, "utf8");
+      return line === "sleep\x00300\x00" || line.includes(STUBBORN);
+    } catch {
+      return false;
+    }
+  };
+  if (fs.existsSync(claudeDir)) {
+    for (const file of fs.readdirSync(claudeDir).filter((f) => /^pids-\d+\.json$/.test(f))) {
+      const { child } = JSON.parse(fs.readFileSync(path.join(claudeDir, file), "utf8"));
+      if (background(child)) pids.add(child);
+    }
+  }
+  return [...pids];
 }
 
 // A message of the model in a transcript, one record of its blocks: its id, model and usage.
