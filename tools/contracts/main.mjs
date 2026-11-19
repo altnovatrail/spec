@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 import { byCodeUnits, inRepository, isMain } from "../shared.mjs";
 import { breaking, build, contractFiles, format, generate, lint, previousRelease } from "./buf.mjs";
 import { FOLDER, PACKAGE, checkVectors, plural } from "./observation.mjs";
+import { FOLDER as PAPER_FOLDER, PACKAGE as PAPER, checkVectors as checkPaperVectors } from "./paper.mjs";
 import { checkReport, checkReportExamples, isReport, reportOf, sampleBreaches, summaryOf } from "./report.mjs";
 import { UNKNOWN, checkBufGenYaml, checkBufYaml, checkImage, classify, unknownFile } from "./rules.mjs";
 import { FOLDER as SAMPLES, PACKAGE as EVAL, checkExamples, checkSamples, evalSampleBreaches, evalSetBreaches, isModuleId, sameIds, sampleOf } from "./sample.mjs";
@@ -71,6 +72,7 @@ export function layout(root) {
 const VECTORS = new Map([
   [PACKAGE, { folder: FOLDER, section: 10 }],
   [EVAL, { folder: RULES, section: 12 }],
+  [PAPER, { folder: PAPER_FOLDER, section: 16 }],
 ]);
 
 // Each vector is of a package that contracts/ has and whose vectors the check runs, and each such
@@ -164,7 +166,7 @@ export function checkContracts(root) {
     return done();
   }
   errors.push(...checkImage(built.image), ...format(root, protos), ...lint(root));
-  for (const [name, check] of [[PACKAGE, checkVectors], [EVAL, checkRuleVectors]]) {
+  for (const [name, check] of [[PACKAGE, checkVectors], [EVAL, checkRuleVectors], [PAPER, checkPaperVectors]]) {
     const files = vectors.filter((vector) => vector.package === name).map((vector) => vector.file);
     if (!packages.has(name) || files.length === 0) continue;
     const checked = check(root, built.image, files);

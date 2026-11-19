@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+// The key of a task from the learner's paper (R162): the answer a program compares the reading of
+// the work with, and where it came from. `tutor` gives an answer of AI, the solver of `module-kit`
+// gives one from the formula AI read of the statement, and `api` keeps the key on the attempt while
+// it is open; it never reaches the device (R05). The formula, the solver, the key and the verdict
+// by it are the rules of contracts/README.md, section 16.
+package novatrail.paper.v1;
+
+// An answer of a task from paper: a number or an option, of the check kinds `number` and `choice`
+// of the module format (section 15 of its text).
+message Answer {
+  // The kind of the answer and what it holds.
+  oneof kind {
+    // A number.
+    Number number = 1;
+    // An option of the ones the statement prints.
+    Choice choice = 2;
+  }
+}
+
+// An answer that is a number.
+message Number {
+  // The number, in the notation of the check kind `number`: an integer, a decimal with a point or a
+  // simple fraction, at most 16 characters, such as "7", "-3", "2.5" or "3/4".
+  string value = 1;
+  // The words that may follow the number in the answer, as "cm" and "centimetres" in "12 cm", as
+  // the `units` of the check kind `number`; none when the answer takes none.
+  repeated string units = 2;
+  // The letter of the unknown, such as "x", when the learner may write the answer as "x = 4"; empty
+  // otherwise.
+  string unknown = 3;
+}
+
+// An answer that is one of the options the statement prints.
+message Choice {
+  // The labels of the options as the statement prints them, without their brackets, such as "A",
+  // "B", "C" and "D", in the statement's order.
+  repeated string options = 1;
+  // The label of the right option, one of `options`.
+  string key = 2;
+}
+
+// Where a key of a task from paper came from (concepts 9.4).
+enum Provenance {
+  // Not given: no key has it.
+  PROVENANCE_UNSPECIFIED = 0;
+  // The solver of `module-kit` computed it from the formula AI read of the statement.
+  PROVENANCE_SOLVER = 1;
+  // AI derived it, by solving the task from its crop.
+  PROVENANCE_AI = 2;
+}
+
+// The key of an attempt of a task from paper, which `api` keeps on the attempt while it is open.
+message Key {
+  // Where the key came from.
+  Provenance provenance = 1;
+  // The answer, or none when AI solved the task and gave no one answer a program can compare: the
+  // task has no key, and every submission of the attempt gets the outcome `CAUSE_NO_KEY`.
+  Answer answer = 2;
+}

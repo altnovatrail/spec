@@ -9,7 +9,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 - An API contract — a contract, in this text — is a protobuf package: its messages, and the services one part of the platform calls on another (R11). The contract of the element `<novatrail-canvas>` with `app` is not one: it is TypeScript types, written by hand (R36, R74). The first ones are the observation, which `tutor`, `module-kit` and `api` exchange in one process (R15), and the contract between `app` and `api`.
 - The contracts are the `.proto` files under `contracts/` and this text. The code generated from them is no part of the contract: it follows from the files (section 8).
 - The names in the contracts are the English terms of the glossary, concepts 15. A value or an ID of the module format keeps the spelling the format gives it (section 5).
-- The first package is `novatrail.observation.v1`, the observation (section 10). The second is `novatrail.eval.v1`, the eval protocol: the sample file with its markup (section 11), the rules of the strokes on a sheet that the device and the runner share (section 12), eval sets (section 13) and the runner's report (section 14). The third is `novatrail.api.v1`, the contract between `app` and `api` (section 15). The other tasks of epic E3 add theirs, each by the rules of this text.
+- The first package is `novatrail.observation.v1`, the observation (section 10). The second is `novatrail.eval.v1`, the eval protocol: the sample file with its markup (section 11), the rules of the strokes on a sheet that the device and the runner share (section 12), eval sets (section 13) and the runner's report (section 14). The third is `novatrail.api.v1`, the contract between `app` and `api` (section 15). The fourth is `novatrail.paper.v1`, the key of a task from the learner's paper, which `tutor`, `module-kit` and `api` exchange in one process: the formula, the solver, the answer of AI and the verdict by the key (section 16; R162). The other tasks of epic E3 add theirs, each by the rules of this text.
 
 ## 2. Versions
 
@@ -557,8 +557,9 @@ A profile has one open attempt of a task of a module: a new one closes the one b
 - `FindTasks` sends the photo of the page once: a JPEG or a PNG of at most 4 MiB, without the metadata of its file, which `app` scales down to fit (privacy 6). One call of AI, the capability `task_finding` of [the admission table](../admission/README.md), gives the task frames alone, each a box in whole thousandths of the photo, in the order of the page; no text of the page comes back. It makes no call without the reserve of the quota: there the quota, the limit of platform AI and no admission are refusals. A call that gives no frames is an outcome, and the learner frames the tasks by hand. The server keeps neither the photo nor the frames.
 - `app` cuts each picked task's crop on the device, by a frame the AI found or one the learner drew, and `BeginPaperAttempts` begins one attempt for each, from 1 to 20, its IDs in the order of the tasks. It closes the open attempts of tasks from paper that the profile has, an earlier page's, `CLOSE_REASON_LEFT`; the open attempt of a task of a module stays, and beginning one closes no attempt of paper. So a profile has, beside its one open attempt of a module, the open attempts of one page, each closed by a correct answer, by a new page or after 7 days without an action (R10 api). It meets the quota and the route to AI as `BeginAttempt` does.
 - An attempt of a task from paper has one item with one answer slot, at the place 1, 1. Its work is `PaperWork` ("The work" above), which every request that carries a work sends whole.
-- **The key.** The first `SubmitWork` of the attempt derives the key from `statement`, as the work's reading goes: the statement read into a formula, `statement_reading`, whose answer the solver of `module-kit` computes, for arithmetic and an equation in one unknown, or else two independent solutions, `task_solving`, whose answer is the key when they agree. `api` keeps the key, with whether the solver or AI gave it, on the attempt while it is open, and erases it with the attempt's verdicts, wrong answers and words once it ends; it never reaches the device (R05; privacy 4.1). Two solutions that do not agree give no key: the slot is `unchecked` with the outcome `CAUSE_NO_KEY`, "Couldn't check this one", and every later submission of the attempt gets the same, with no call of AI; the hints are still given. A call of AI that gives no key is an outcome as any, and the next submission derives it again.
-- The work is read as handwriting is, by the readers of R68 in the deployment's reading mode, and the program gives the verdict by the key: `correct`, `not_yet` or `unreadable`, an option circled read as any value, none or two circled `no_final_answer` or `several_final_answers` (R03; R68). A correct answer closes the attempt `CLOSE_REASON_CORRECT` with an empty `solved`, no key and no solution, and no `next`: no engine chooses after a task from paper, and its attempts give no evidence.
+- **The key.** The first `SubmitWork` of the attempt derives the key from `statement`, while the work is read beside it: the statement read into a formula, `statement_reading`, whose answer the solver of `module-kit` computes, for arithmetic and an equation in one unknown, or, when the statement is no formula or the solver does not take it, one solution of AI, `task_solving`, whose answer is the key (section 16). `api` keeps the key, `Key` of `novatrail.paper.v1` with its provenance, on the attempt while it is open, and erases it with the attempt's verdicts, wrong answers and words once it ends; it never reaches the device (R05; privacy 4.1). A solution that gives no one answer a program can compare gives no key: the slot is `unchecked` with the outcome `CAUSE_NO_KEY`, "Couldn't check this one", and every later submission of the attempt gets the same, with no call of AI; the hints are still given. A call of AI that gives no key — a failure, the quota, a limit, no admission — is an outcome as any, the slot `unchecked`, and the next submission derives it again.
+- The first submission reserves the quota for the calls of the key beside the reading's — the statement, a solution and the readers —, as any request reserves its calls, and is settled call by call; a later one reserves the reading's alone.
+- The work is read as handwriting is, by the readers of R68 in the deployment's reading mode, and the program gives the verdict by the key: `correct`, `not_yet` or `unreadable`, an option circled read as any value, none or two circled `no_final_answer` or `several_final_answers` (R03; R68; section 16). A correct answer closes the attempt `CLOSE_REASON_CORRECT` with an empty `solved`, no key and no solution, and no `next`: no engine chooses after a task from paper, and its attempts give no evidence.
 - The rung's words, "explain differently", the words after a correct answer and a report of a problem go as on any attempt; "Hint" before the first wrong answer gives empty techniques and no leading question, since the task has none. `ShowSolution` gets `CAUSE_NO_SHOWING`; `BeginStep`, `SubmitEssay`, `Done`, `GetOpenAttempt` and `PutWork` get `invalid_argument`: a task from paper has no steps, no rubric and no open view, its work is never a stored work, and only the device that holds its page goes on with it (R113). `Profile.open_attempt` names the attempt of a module alone.
 
 **What comes next.** The answer that closes an attempt by a correct answer, `SubmitWork`, by the solution shown, `ShowSolution`, or by "Done", `Done`, holds `next` beside the solved task, and its repeat the same:
@@ -593,3 +594,73 @@ The graph and its tiers `app` takes by the digest of the answer, so a skill that
 - `api` appends the correction to the evidence log, a fact for `learner-model` beside the attempts: the module, the band set, and when. It gives no evidence of a skill, and the model sets the module's level in that band in one step (concepts 11). The answer gives the band of the level and when the adult set it.
 - It names the band, not a step, so that it repeats by the state of the profile, with no idempotency key: a request that names the band of the level already appends nothing and answers as the level is. A repeat after an answer lost sets the band the adult chose, and changes nothing once the level stands in it; should evidence have moved the level meanwhile, the repeat is judged against where it stands, as a new request is.
 - The fact goes into the export and is deleted with the evidence log (R135; privacy 4).
+
+## 16. The key of a task from paper
+
+- A task from the learner's paper has no key of an author, so the platform derives one at the attempt's first check (R162; section 15, "A task from paper"). The package `novatrail.paper.v1`, `key.proto`, is what `tutor`, `module-kit` and `api` exchange of it in one process (R15): `tutor` reads the statement into a formula, `statement_reading`, and solves the task, `task_solving`; the solver of `module-kit` computes the answer of a formula and gives the verdict by the key; `api` keeps the key, `Key`, on the attempt while it is open. None of it reaches the device (R05).
+- AI reads, and a program computes and judges (R03): a formula goes to the solver, and only a statement that is no formula, or one the solver does not take, goes to AI's solution. One solution of AI is the key for now, whose answer the program compares with the reading as any key: a second, independent one, whose answer the first must agree with, is put off until the author has seen how often one errs (the author's word of 2026-11-19; R162).
+
+**The formula.** `statement_reading` gives the statement on the task's crop as a formula: one line of ASCII of at most 200 bytes, or nothing, when the statement is no formula.
+- A formula is a statement that is written as an expression or an equation, as `37 + 48 =`, `3x − 5 = 16` and `☐ + 5 = 12` are. A word problem, a statement of several tasks, one that asks to count in a picture, to compare, to draw or to prove is no formula, and the reader gives none: to put words into a formula is to solve the task, which is AI's solution, not a reading (R03).
+- The grammar, in EBNF, with any number of spaces, U+0020, between two tokens:
+
+  ```
+  formula    = expression [ "=" expression ] ;
+  expression = term { ( "+" | "-" ) term } ;
+  term       = factor { ( "*" | "/" ) factor } ;
+  factor     = "-" factor | power ;
+  power      = primary [ "^" exponent ] ;
+  primary    = number | unknown | "(" expression ")" ;
+  number     = digits [ "." digits ] ;
+  exponent   = digits ;
+  digits     = digit { digit } ;
+  unknown    = "a" | "b" | … | "z" ;
+  ```
+
+  `^` binds tighter than a minus before it, so `-2^2` is −4; `*` and `/`, and `+` and `-`, go from left to right. A number has at most 15 digits, and an exponent is from 0 to 10.
+- The reader writes every sign of the statement in this grammar: `×` and `·` as `*`, `÷` and `:` as `/`, the minus sign `−` as `-`, a decimal comma as `.`, a fraction with a bar as `(3/4)` and a mixed number as `(2+1/2)`, and every multiplication with its `*`, so `3x` is `3*x`. A box, a blank or a gap to fill is the unknown, `x` unless the statement names its letter, and the `=` at the end, with the empty place after it, goes: `37 + 48 =` is `37+48`, `☐ + 5 = 12` is `x+5=12`. The words of the instruction, such as "Solve" or "Compute", go too.
+
+**The solver.** The solver of `module-kit` computes in rational numbers, exactly, with no floating point, no Starlark and no network (R162).
+- A formula with no `=` is an expression, with no unknown: its answer is its value.
+- A formula with `=` is an equation in one unknown, one letter in it once or more, linear in it: each side is `a·x + b` once its operations are done, and its answer is its one root.
+- `b^0` is 1 for every `b`, 0 too. A power of what holds the unknown is that itself for the exponent 1, 1 for 0, and not linear from 2 on.
+- The answer is a `Number`: `value` the integer, or the fraction in lowest terms `p/q` with its sign before `p`, such as `-7/2`; no `units`; and `unknown`, the letter of an equation, empty for an expression.
+- The solver does not take a formula, and names why:
+
+  | Reason | The formula |
+  |---|---|
+  | `syntax` | is not of the grammar, is longer than 200 bytes, or holds a number of more than 15 digits or an exponent above 10 |
+  | `unknown_in_expression` | is an expression with an unknown |
+  | `no_unknown` | is an equation with no unknown |
+  | `two_unknowns` | holds two letters or more |
+  | `not_linear` | multiplies two parts whose coefficients of the unknown are not 0, divides by such a part, or raises it to 2 or more, as the operations come out: `x*x`, `1/x` and `(x+1)^2`, but not `(x-x)*x` |
+  | `division_by_zero` | divides by zero |
+  | `no_root` | is an equation that no number solves, as `x+1=x` |
+  | `every_root` | is an equation that every number solves, as `x+1=1+x` |
+  | `too_large` | has, on the way, a numerator or a denominator of more than 100 digits, or an answer longer than 16 characters |
+
+  Of several reasons, the first that applies is named: `syntax`, then `two_unknowns`, then `unknown_in_expression` and `no_unknown`; then those of the operations, `not_linear`, `division_by_zero` and `too_large`, as the operations are done, each part before its operation and the left before the right; then `no_root` and `every_root`; and last `too_large` of the answer.
+
+  A formula it does not take, and a statement that is no formula, go on to AI's solution: neither is an outcome, and the learner sees nothing of it.
+
+**The answer of AI.** `task_solving` solves the task from its crop and gives an `Answer`, or none when the task has no one answer of these kinds — a proof, a drawing, a construction, several answers, a text:
+- a `Number`: `value` in the notation of `number`, at most 16 characters (section 15 of the module format); `units`, the words that may follow it, none empty and no two the same once they went through the steps of units; `unknown`, one letter from `a` to `z`, or empty;
+- a `Choice`: `options`, from 2 to 10 labels as the statement prints them without their brackets, each from 1 to 16 characters, and none empty and no two the same once normalized as a choice; and `key`, one of them as written.
+
+An answer that breaks any of these is none. With none, the task has no key: `Key` with no `answer`, and the outcome `CAUSE_NO_KEY` on every submission of the attempt (section 15).
+
+**The key.** The solver's answer, with the provenance `PROVENANCE_SOLVER`, or AI's, with `PROVENANCE_AI` (concepts 9.4). The provenance is the attempt's and is never shown: the verdict is the same "Correct" or "Not yet" by either (R04).
+
+**The verdict.** The key gives the task its one item, with one answer slot bound `anywhere` at the place 1, 1, and its check:
+- a `Number`, the check kind `number` with its `value` as `key` and its `units`;
+- a `Choice`, the check kind `choice` written by hand, with its `key`, its `options` and `notation: options`.
+
+The check has no trap values. The readings are joined and judged by section 10 and by section 15 of the module format, as on a task of a module, once each value read is brought to the key:
+- with a `Number` whose `unknown` is a letter, a value that after steps 1 to 4 of numbers begins with that letter, in either case, an optional space and `=`, loses the letter and the space, and step 5 drops the `=`: `x = 4` and `X=4` read as 4;
+- with a `Choice`, a value that after NFKC and steps 3 and 4 of numbers is a label in brackets — `(C)`, `[C]`, or `C)` with a bracket at its end alone — loses its brackets.
+
+**Test vectors.** The test vectors hold the rules of this section: `contracts/vectors/paper/v1/<case>.json`. `spec`'s checks compute each, as a second implementation (`just contracts-check`), and `module-kit`'s CI passes them all, from `contracts.Vectors` at the tag it takes (section 8).
+- `solver.json`: `description` and `cases`, each with its `description`, `formula`, and either `answer`, the `Number` the solver gives, or `refused`, the reason it does not take the formula.
+- `answers.json`: `description` and `cases`, each with its `description`, `answer`, an `Answer` of AI, and `key`, whether it is an answer, `true`, or none, `false`.
+- `verdicts.json`: `description` and `cases`, each with its `description`, `key`, the `Answer` of the key, `value`, the value read, or `null` when nothing was, and `verdict`, `{ verdict, reason }` as the test vectors of verdicts of the module format write them (section 9 of its text).
+- The messages are written as section 6 has it, with the protobuf names. Together the vectors give every reason of the solver, every rule of an answer of AI, and both ways a value is brought to the key.

@@ -309,7 +309,9 @@ types-test: _tools
 # without the prefix novatrail. —, by the image buf builds; buf format and buf lint; and, read by the
 # same image, the vectors of the observation, whose joins and verdicts it computes as
 # contracts/README.md gives them, but for what Starlark gives a predicate (R86), the vectors of the
-# rules the device and the runner share, computed the same way (R94), the examples of the sample
+# rules the device and the runner share, computed the same way (R94), the vectors of the key of a
+# task from paper, whose solver, answers and verdicts it computes as section 16 gives them (R162),
+# the examples of the sample
 # file, strictly, held to its rules, their markup too (R93, R94, R95), and the examples of the
 # runner's report, report-<case>.json, held to its form and to the samples beside them (R95); buf
 # breaking against the previous release, the newest release tag in the history of HEAD other than

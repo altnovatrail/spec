@@ -686,9 +686,10 @@ export enum Cause {
   BAND_NOT_NEXT = 46,
 
   /**
-   * A task from paper has no key: the two independent solutions of AI gave different answers, so
-   * no verdict is given, "Couldn't check this one", and the hints still are (R162). An outcome
-   * alone, of every submission of the attempt, with no AI once the first gave it.
+   * A task from paper has no key: the solution of AI gave no one answer that a program can compare,
+   * such as a proof, a drawing or several answers, so no verdict is given, "Couldn't check this
+   * one", and the hints still are (R162). An outcome alone, of every submission of the attempt,
+   * with no AI once the first gave it.
    *
    * @generated from enum value: CAUSE_NO_KEY = 47;
    */

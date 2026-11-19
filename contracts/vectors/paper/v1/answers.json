@@ -1,0 +1,26 @@
+{
+  "description": "Answers of AI to a task from paper: which are answers, and which break a rule of one and are none.",
+  "cases": [
+    {"description":"An integer.","answer":{"number":{"value":"12","units":[],"unknown":""}},"key":true},
+    {"description":"A decimal with its units.","answer":{"number":{"value":"2.5","units":["cm","centimetres"],"unknown":""}},"key":true},
+    {"description":"A simple fraction, with spaces round its bar.","answer":{"number":{"value":"3 / 4","units":[],"unknown":""}},"key":true},
+    {"description":"A negative number with the letter of its unknown.","answer":{"number":{"value":"-3","units":[],"unknown":"x"}},"key":true},
+    {"description":"The options of a choice, and its key.","answer":{"choice":{"options":["A","B","C","D"],"key":"C"}},"key":true},
+    {"description":"Labels that are numbers.","answer":{"choice":{"options":["1","2","3"],"key":"2"}},"key":true},
+    {"description":"No kind: AI gave no one answer.","answer":{},"key":false},
+    {"description":"A value not in the notation of number: a decimal comma.","answer":{"number":{"value":"2,5","units":[],"unknown":""}},"key":false},
+    {"description":"A value longer than 16 characters.","answer":{"number":{"value":"12345678901234567","units":[],"unknown":""}},"key":false},
+    {"description":"A value that is a word.","answer":{"number":{"value":"seven","units":[],"unknown":""}},"key":false},
+    {"description":"A unit that is empty once it went through the steps of units.","answer":{"number":{"value":"12","units":["."],"unknown":""}},"key":false},
+    {"description":"Two units the same in lowercase.","answer":{"number":{"value":"12","units":["cm","CM"],"unknown":""}},"key":false},
+    {"description":"An unknown that is no one letter.","answer":{"number":{"value":"4","units":[],"unknown":"xy"}},"key":false},
+    {"description":"A capital letter as the unknown.","answer":{"number":{"value":"4","units":[],"unknown":"X"}},"key":false},
+    {"description":"One option alone.","answer":{"choice":{"options":["A"],"key":"A"}},"key":false},
+    {"description":"Eleven options.","answer":{"choice":{"options":["A","B","C","D","E","F","G","H","I","J","K"],"key":"A"}},"key":false},
+    {"description":"A label longer than 16 characters.","answer":{"choice":{"options":["A","a very long label of an option"],"key":"A"}},"key":false},
+    {"description":"An empty label.","answer":{"choice":{"options":["A",""],"key":"A"}},"key":false},
+    {"description":"Two labels the same once normalized.","answer":{"choice":{"options":["a","A"],"key":"a"}},"key":false},
+    {"description":"A key that is no option.","answer":{"choice":{"options":["A","B"],"key":"E"}},"key":false},
+    {"description":"A key written otherwise than its option.","answer":{"choice":{"options":["A","B"],"key":"a"}},"key":false}
+  ]
+}

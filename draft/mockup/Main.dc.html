@@ -1566,7 +1566,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["ipad","phone"],"default":"ipad"},"$preview":{"width":1194,"height":834}}'>
 // The tasks the AI finds on each demo page. The key is only ever compared with, never shown: for an equation the solver
-// computes it from the statement the AI read; for any other task the AI derives it, from two solutions that must agree,
+// computes it from the statement the AI read; for any other task the AI derives it, from its solution of the task,
 // and the verdict is the same "Correct" or "Not yet", with no mark between them. The demo's first Check is "Not yet" and the second
 // "Correct" (the convention of draft/mockup/README.md): wrong is what the first reading of the work gives.
 // found: false — a task the AI missed on the page, which the learner frames by hand (equation (6)).
@@ -1578,7 +1578,7 @@ const WS = [
   { id: 5, x: 24, y: 594, w: 272, h: 216, ch: 54, label: '4 − x = 2x − 11', ans: 'x = 5', wrong: 'x = −5', hint: 'How can you get all the x’s on one side of the equation?', alt: 'What happens to both sides if you add x to each of them?' },
   { id: 6, x: 304, y: 594, w: 272, h: 216, ch: 54, found: false, label: '(x + 1)/2 = (x − 2)/5', ans: 'x = −3', wrong: 'x = 3', hint: 'Which number can you multiply both sides by to clear both fractions?', alt: 'What number can both 2 and 5 divide into without a remainder?' }
 ];
-// nokey: the two solutions of the AI gave different answers, so the task has no key and no verdict (R162).
+// nokey: the AI's solution gave no one answer that a program can compare, so the task has no key and no verdict (R162).
 const OL = [
   { id: 1, x: 20, y: 62, w: 272, h: 258, ch: 212, label: 'Strips of a square', key: 'D', hint: 'Call the side of the square s. How long and how wide is one strip?', alt: 'One strip is as long as the square’s side and a quarter as wide. What is its perimeter in terms of s?' },
   { id: 2, x: 20, y: 326, w: 272, h: 166, ch: 138, label: '2 + 2 − 2 + 2 − 2 + 2', key: 'C', hint: 'Count the +2s and the −2s. Which ones cancel out?', alt: 'Go from left to right and write the total after each step. What is it at the end?' },
@@ -2416,8 +2416,8 @@ class Component extends DCLogic {
     this.later(() => {
       if (this.ctx().key !== k) return;
       if (t.nokey) {
-        const v = { kind: 'nokey', title: 'Couldn’t check this one', line: 'Two readings of the task gave different answers, so it has no key. Hints still work.' };
-        return this.settle(v, 'No key: the two solutions differed', { status: { ...this.state.status, [k]: 'nokey' } }, 'The key for this one could not be worked out. A hint, or the next task?', k);
+        const v = { kind: 'nokey', title: 'Couldn’t check this one', line: 'This task has no answer that can be checked. Hints still work.' };
+        return this.settle(v, 'No key: no answer to compare', { status: { ...this.state.status, [k]: 'nokey' } }, 'The key for this one could not be worked out. A hint, or the next task?', k);
       }
       if (ol && got.length !== 1) {
         const v = got.length ? { kind: 'info', title: 'Two answers are circled', line: 'Leave one circled — erase the other — then Check.' } : { kind: 'info', title: 'No circled answer found', line: 'Circle one option on the task, then Check.' };
