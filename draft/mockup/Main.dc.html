@@ -149,6 +149,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone .ph-endcard{left:16px!important;right:16px!important;width:auto!important;margin-left:0!important}
 .nt-phone .ph-mode{right:12px!important}
 .nt-phone .ph-report{max-height:none!important}
+@keyframes ntDRing{0%{box-shadow:0 0 0 0 rgba(255,159,10,.55)}100%{box-shadow:0 0 0 9px rgba(255,159,10,0)}}
+.nt-dring{animation:ntDRing 1.3s ease-out infinite}
+.nt-phone .ph-dbgbtn{top:auto!important;bottom:172px!important;margin-top:0!important}
+.nt-phone .ph-dbgbtn.ph-dbg-up{bottom:240px!important}
+.nt-phone .ph-dbg{left:0!important;right:0!important;bottom:0!important;top:300px!important;width:auto!important;border-radius:28px 28px 0 0!important;transform-origin:50% 100%!important;background:rgba(255,255,255,0.97)!important;box-shadow:0 -10px 40px rgba(0,0,0,0.14)!important}
+.nt-phone .ph-dbg.ph-full{top:70px!important}
 </style>
 </helmet>
 <div class="{{devCls}}" style="position: relative; width: {{dim.W}}px; height: {{dim.VH}}px; overflow: hidden; background: #F2F2F7; color: #1D1D1F; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none">
@@ -1051,6 +1057,180 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   <div class="nt-flash" style="position: absolute; inset: 0; background: #FFFFFF; pointer-events: none"></div>
 </sc-if>
 
+<!-- ============ Debug: the models, what each returned and its cost — only with api's debug flag, on a local run (RUN.md, T233) ============ -->
+<sc-if value="{{dbg.show}}" hint-placeholder-val="{{ false }}">
+  <button class="glass tip tip-l ph-dbgbtn {{dbg.btnCls}}" aria-label="Debug: the models and their answers" data-tip="{{dbg.tip}}" aria-expanded="{{dbg.open}}" onClick="{{dbg.toggle}}" style="position: absolute; right: 16px; top: 50%; margin-top: {{dbg.mt}}px; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; opacity: {{dbg.btn.op}}; transform: scale({{dbg.btn.sc}}); visibility: {{dbg.btn.vis}}; transition: opacity 0.2s, transform 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.3s">
+    <span class="{{dbg.ring}}" style="width: 44px; height: 44px; border-radius: 22px; background: linear-gradient(135deg, #48484A 0%, #1C1C1E 100%); color: #FF9F0A; display: flex; align-items: center; justify-content: center">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 8.5V7a3.5 3.5 0 0 1 7 0v1.5"></path><path d="M7 10.5a5 5 0 0 1 10 0V15a5 5 0 0 1-10 0z"></path><path d="M12 11v8.5M7 13H3.5M20.5 13H17M7.5 17.5l-3 2M16.5 17.5l3 2M7.5 9.5l-3-2M16.5 9.5l3-2"></path></svg>
+    </span>
+  </button>
+
+  <div class="glass ph-dbg {{dbg.panel.cls}}" role="dialog" aria-label="Debug" style="position: absolute; right: 16px; top: 74px; bottom: 16px; width: 400px; border-radius: 28px; background: rgba(255,255,255,0.94); display: flex; flex-direction: column; overflow: hidden; z-index: 8; transform-origin: 100% 50%; opacity: {{dbg.panel.op}}; transform: {{dbg.panel.tf}}; visibility: {{dbg.panel.vis}}; transition: opacity 0.22s, transform 0.35s cubic-bezier(.2,.8,.2,1), visibility 0.35s">
+    <button class="ph-only ph-grab tip tip-b" aria-label="{{dbg.panel.grab}}" data-tip="{{dbg.panel.grab}}" aria-expanded="{{dbg.full}}" onClick="{{dbg.toggleFull}}"><span></span></button>
+    <div class="ph-tuthead" style="display: flex; align-items: center; gap: 10px; padding: 10px 6px 8px 14px">
+      <span style="flex: none; width: 38px; height: 38px; border-radius: 19px; background: linear-gradient(135deg, #48484A 0%, #1C1C1E 100%); color: #FF9F0A; display: flex; align-items: center; justify-content: center">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 8.5V7a3.5 3.5 0 0 1 7 0v1.5"></path><path d="M7 10.5a5 5 0 0 1 10 0V15a5 5 0 0 1-10 0z"></path><path d="M12 11v8.5M7 13H3.5M20.5 13H17M7.5 17.5l-3 2M16.5 17.5l3 2M7.5 9.5l-3-2M16.5 9.5l3-2"></path></svg>
+      </span>
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; line-height: 1.2">
+        <span style="font-size: 15px; font-weight: 600">Debug</span>
+        <span style="font-size: 12px; color: #6E6E73; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{dbg.head}}</span>
+      </div>
+      <button class="ib tip tip-bl" aria-label="Close" data-tip="Close" onClick="{{dbg.close}}" style="flex: none; color: #6E6E73">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+    <div role="tablist" aria-label="Debug" style="flex: none; margin: 2px 14px 10px; height: 36px; padding: 2px; box-sizing: border-box; border-radius: 10px; background: rgba(118,118,128,0.12); display: flex">
+      <sc-for list="{{dbg.tabs}}" as="tb" hint-placeholder-count="2">
+        <button role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="flex: 1; height: 32px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1D1D1F; background: {{tb.bg}}; box-shadow: {{tb.sh}}; display: flex; align-items: center; justify-content: center; gap: 6px">{{tb.label}}<sc-if value="{{tb.hasN}}" hint-placeholder-val="{{ false }}"><span style="min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #1D1D1F; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">{{tb.n}}</span></sc-if></button>
+      </sc-for>
+    </div>
+
+    <!-- Models: the first model serves every call of the paper flow, the second only reads the work, as the pair of R68. -->
+    <sc-if value="{{dbg.isModels}}" hint-placeholder-val="{{ true }}">
+    <div tabindex="0" role="region" aria-label="Models" style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 16px; display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{dbg.slots}}" as="sl" hint-placeholder-count="2">
+        <div style="padding: 8px 4px 0; display: flex; flex-direction: column; gap: 1px">
+          <span style="font-size: 13px; font-weight: 600">{{sl.title}}</span>
+          <span style="font-size: 12px; color: #6E6E73">{{sl.sub}}</span>
+        </div>
+        <div style="position: relative; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column">
+          <sc-if value="{{sl.hasSwitch}}" hint-placeholder-val="{{ false }}">
+            <button role="switch" aria-checked="{{sl.on}}" onClick="{{sl.toggleOn}}" style="min-height: 48px; padding: 0 12px 0 14px; display: flex; align-items: center; gap: 10px; text-align: left">
+              <span style="flex: 1; font-size: 14px">Second reader</span>
+              <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{sl.sw.bg}}; transition: background 0.2s"><span style="position: absolute; top: 2px; left: {{sl.sw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 0.2s"></span></span>
+            </button>
+          </sc-if>
+          <sc-if value="{{sl.rows}}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{sl.hasSwitch}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div></sc-if>
+            <button aria-haspopup="menu" aria-expanded="{{sl.menuOpen}}" onClick="{{sl.toggleMenu}}" style="min-height: 48px; padding: 0 10px 0 14px; display: flex; align-items: center; gap: 10px; text-align: left">
+              <span style="flex: 1; font-size: 14px">Model</span>
+              <span style="display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; color: #0071E3">{{sl.model}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"></path></svg></span>
+            </button>
+            <sc-if value="{{sl.admitted}}" hint-placeholder-val="{{ false }}">
+              <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div>
+              <div style="padding: 8px 14px 10px; display: flex; flex-direction: column; gap: 6px">
+                <sc-for list="{{dbg.admittedRows}}" as="ar" hint-placeholder-count="4">
+                  <div style="display: flex; align-items: baseline; gap: 10px; font-size: 13px"><span style="flex: 1; color: #3A3A3C">{{ar.call}}</span><span style="font-weight: 600">{{ar.model}}</span></div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{sl.chosen}}" hint-placeholder-val="{{ true }}">
+              <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div>
+              <div style="padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 8px">
+                <span id="{{sl.effId}}" style="font-size: 14px">Effort</span>
+                <div role="radiogroup" aria-labelledby="{{sl.effId}}" style="height: 36px; padding: 2px; box-sizing: border-box; border-radius: 10px; background: rgba(118,118,128,0.12); display: flex">
+                  <sc-for list="{{sl.efforts}}" as="ef" hint-placeholder-count="5">
+                    <button role="radio" aria-checked="{{ef.on}}" onClick="{{ef.pick}}" style="flex: 1; min-width: 0; height: 32px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: #1D1D1F; background: {{ef.bg}}; box-shadow: {{ef.sh}}">{{ef.label}}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div>
+              <button role="switch" aria-checked="{{sl.think}}" aria-disabled="{{sl.thinkFixed}}" onClick="{{sl.toggleThink}}" style="min-height: 52px; padding: 6px 12px 6px 14px; display: flex; align-items: center; gap: 10px; text-align: left; cursor: {{sl.thinkCur}}">
+                <span style="flex: 1; display: flex; flex-direction: column; gap: 1px; line-height: 1.25"><span style="font-size: 14px">Thinking</span><sc-if value="{{sl.thinkNote}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #6E6E73">{{sl.thinkNote}}</span></sc-if></span>
+                <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{sl.tsw.bg}}; opacity: {{sl.tsw.op}}; transition: background 0.2s"><span style="position: absolute; top: 2px; left: {{sl.tsw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 0.2s"></span></span>
+              </button>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{sl.menuOpen}}" hint-placeholder-val="{{ false }}">
+            <div class="glass nt-pop" role="menu" aria-label="Model" style="position: absolute; right: 8px; top: {{sl.menuTop}}px; width: 286px; border-radius: 18px; padding: 6px; box-sizing: border-box; background: rgba(255,255,255,0.97); z-index: 3">
+              <sc-for list="{{sl.menu}}" as="mi" hint-placeholder-count="5">
+                <button class="row" role="menuitemradio" aria-checked="{{mi.on}}" onClick="{{mi.pick}}" style="width: 100%; min-height: 50px; border-radius: 12px; padding: 6px 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; text-align: left">
+                  <span style="flex: none; width: 16px; color: #0071E3"><sc-if value="{{mi.on}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if></span>
+                  <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; line-height: 1.25"><span style="font-size: 14px; font-weight: 600">{{mi.name}}</span><span style="font-size: 12px; color: #6E6E73">{{mi.sub}}</span></span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+        <sc-if value="{{sl.foot}}" hint-placeholder-val="{{ false }}"><span style="padding: 0 4px; font-size: 12px; color: #6E6E73">{{sl.foot}}</span></sc-if>
+      </sc-for>
+      <div style="margin-top: 6px; padding: 10px 12px; border-radius: 14px; background: rgba(255,159,10,0.12); display: flex; gap: 8px; font-size: 12px; line-height: 1.35; color: #3A3A3C">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C93400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M12 3.5l9.5 16.5h-19z"></path><path d="M12 10v4.5M12 17.2h.01"></path></svg>
+        <span>The choice bypasses the admission list. Only a local run with api’s debug flag has this window; a build for people has none of it.</span>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- Log: every call of the session, by what the learner did; a call opens to what the model returned, as it returned it. -->
+    <sc-if value="{{dbg.isLog}}" hint-placeholder-val="{{ false }}">
+    <div tabindex="0" role="region" aria-label="Log of the models" style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 12px; display: flex; flex-direction: column; gap: 6px">
+      <sc-if value="{{dbg.empty}}" hint-placeholder-val="{{ false }}">
+        <div style="margin: 40px 20px; text-align: center; font-size: 13px; line-height: 1.4; color: #6E6E73">No calls yet. Take a photo of a page, or Check a task.</div>
+      </sc-if>
+      <sc-for list="{{dbg.groups}}" as="g" hint-placeholder-count="2">
+        <div style="padding: 10px 4px 2px; display: flex; align-items: baseline; gap: 8px">
+          <span style="font-size: 13px; font-weight: 600">{{g.title}}</span>
+          <span style="flex: 1; font-size: 12px; color: #6E6E73">{{g.at}}</span>
+          <span style="font-size: 12px; font-weight: 600; color: #3A3A3C; font-variant-numeric: tabular-nums">{{g.sum}}</span>
+          <sc-if value="{{g.check}}" hint-placeholder-val="{{ false }}"><button aria-expanded="{{g.exp}}" onClick="{{g.toggleExport}}" style="flex: none; padding: 2px 4px; font-size: 12px; font-weight: 600; color: #0071E3">Export</button></sc-if>
+        </div>
+        <div style="border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden">
+          <sc-for list="{{g.calls}}" as="c" hint-placeholder-count="3">
+            <sc-if value="{{c.sep}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div></sc-if>
+            <button class="row" aria-expanded="{{c.open}}" onClick="{{c.toggle}}" style="min-height: 52px; padding: 7px 12px 7px 14px; display: flex; align-items: center; gap: 10px; text-align: left">
+              <span style="flex: none; width: 8px; height: 8px; border-radius: 4px; background: {{c.dot}}"></span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; line-height: 1.25">
+                <span style="font-size: 14px; font-weight: 600">{{c.kind}}</span>
+                <span style="font-size: 12px; color: #6E6E73; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.model}}</span>
+              </span>
+              <span style="flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; line-height: 1.25; font-variant-numeric: tabular-nums">
+                <span style="font-size: 13px; font-weight: 600">{{c.cost}}</span>
+                <span style="font-size: 12px; color: #6E6E73">{{c.took}}</span>
+              </span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; transform: rotate({{c.rot}}deg); transition: transform 0.2s"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+            <sc-if value="{{c.open}}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 0 14px 12px 32px; display: flex; flex-direction: column; gap: 8px">
+                <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 10px">
+                  <sc-for list="{{c.stats}}" as="st" hint-placeholder-count="6">
+                    <div style="display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 11px; font-weight: 600; color: #6E6E73">{{st.k}}</span><span style="font-size: 13px; font-variant-numeric: tabular-nums">{{st.v}}</span></div>
+                  </sc-for>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span style="flex: 1; font-size: 11px; font-weight: 600; color: #6E6E73">{{c.jsonTitle}} · <span style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-weight: 500">{{c.api}}</span></span>
+                  <button class="tip tip-bl" aria-label="Copy the answer" data-tip="{{c.copyTip}}" onClick="{{c.copy}}" style="flex: none; height: 32px; padding: 0 10px; border-radius: 16px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"></rect><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"></path></svg>{{c.copyLabel}}</button>
+                </div>
+                <pre style="margin: 0; max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: #F2F2F7; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 11.5px; line-height: 1.45; color: #1D1D1F; white-space: pre-wrap; word-break: break-word; user-select: text">{{c.json}}</pre>
+                <sc-if value="{{c.note}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; line-height: 1.35; color: {{c.noteFg}}">{{c.note}}</span></sc-if>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+        <sc-if value="{{g.join}}" hint-placeholder-val="{{ false }}"><span style="padding: 2px 4px 0; font-size: 12px; line-height: 1.35; color: #3A3A3C">{{g.join}}</span></sc-if>
+        <sc-if value="{{g.saved}}" hint-placeholder-val="{{ false }}"><span style="padding: 2px 4px 0; font-size: 12px; line-height: 1.35; color: #248A3D">{{g.saved}}</span></sc-if>
+        <!-- Export: the Check as a case of tutor-eval, its truth filled in from the calls for the developer to correct (R163). -->
+        <sc-if value="{{g.exp}}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 6px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 12px; line-height: 1.35; color: #6E6E73">What the models should have given, from the calls: correct what they got wrong.</span>
+            <sc-for list="{{g.fields}}" as="f" hint-placeholder-count="4">
+              <label style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; font-weight: 600; color: #6E6E73">{{f.label}}</span>
+                <input value="{{f.value}}" placeholder="{{f.hint}}" spellcheck="false" style="height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: #F2F2F7; font-family: ui-monospace, &apos;SF Mono&apos;, Menlo, monospace; font-size: 12.5px; color: #1D1D1F"></label>
+            </sc-for>
+            <span style="font-size: 11px; font-weight: 600; color: #6E6E73">Verdict</span>
+            <div role="group" aria-label="Verdict" style="height: 36px; padding: 2px; border-radius: 10px; background: rgba(118,118,128,0.12); display: flex">
+              <sc-for list="{{g.outcomes}}" as="o" hint-placeholder-count="4">
+                <button aria-pressed="{{o.on}}" onClick="{{o.pick}}" style="flex: 1; border-radius: 8px; font-size: 12.5px; font-weight: {{o.fw}}; background: {{o.bg}}; box-shadow: {{o.sh}}">{{o.name}}</button>
+              </sc-for>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px">
+              <button onClick="{{g.toggleExport}}" style="height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 13px; font-weight: 600">Cancel</button>
+              <button onClick="{{g.save}}" style="height: 36px; padding: 0 14px; border-radius: 18px; background: #0071E3; color: #FFFFFF; font-size: 13px; font-weight: 600">Save case</button>
+            </div>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+    <div style="flex: none; padding: 10px 14px 14px; border-top: 0.5px solid rgba(0,0,0,0.08); display: flex; align-items: center; gap: 10px">
+      <span style="flex: 1; display: flex; flex-direction: column; gap: 1px; line-height: 1.25">
+        <span style="font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums">Session total {{dbg.sum}}</span>
+        <span style="font-size: 12px; color: #6E6E73">Counted in the tutor time, like any call</span>
+      </span>
+      <button onClick="{{dbg.clear}}" aria-disabled="{{dbg.empty}}" style="flex: none; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(118,118,128,0.12); font-size: 13px; font-weight: 600; color: #1D1D1F">Clear log</button>
+    </div>
+    </sc-if>
+  </div>
+</sc-if>
+
 <!-- ============ Sign-in: only a grown-up signs in, with Google; by invitation ============ -->
 <sc-if value="{{isSignin}}" hint-placeholder-val="{{ true }}">
 <div class="ph-signin" style="position: absolute; inset: 0; display: flex; background: #FFFFFF">
@@ -1564,7 +1744,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["ipad","phone"],"default":"ipad"},"$preview":{"width":1194,"height":834}}'>
+<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["ipad","phone"],"default":"ipad"},"debug":{"editor":"boolean","default":false},"at":{"editor":"enum","options":["","pick","pick-models","solve","solve-log","solve-pair","solve-export"],"default":""},"$preview":{"width":1194,"height":834}}'>
 // The tasks the AI finds on each demo page. The key is only ever compared with, never shown: for an equation the solver
 // computes it from the statement the AI read; for any other task the AI derives it, from its solution of the task,
 // and the verdict is the same "Correct" or "Not yet", with no mark between them. The demo's first Check is "Not yet" and the second
@@ -1773,6 +1953,27 @@ function without(obj, prefix) {
   return r;
 }
 
+// Debug (RUN.md, T233): only with api's debug flag, on a local run. The models of tutor's Claude adapter, with its prices
+// per million tokens, input and output (tutor/provider/claude/catalog); off: whether its thinking can be turned off.
+const DBG_MODELS = [
+  { id: 'haiku', name: 'Haiku 5.5', api: 'claude-haiku-5-5', pin: 0.10, pout: 0.50, off: true, speed: 1 },
+  { id: 'sonnet', name: 'Sonnet 5.5', api: 'claude-sonnet-5-5', pin: 2, pout: 10, off: true, speed: 2.1 },
+  { id: 'opus', name: 'Opus 5.5', api: 'claude-opus-5-5', pin: 4, pout: 20, off: false, speed: 2.8 },
+  { id: 'fable', name: 'Fable 5.1', api: 'claude-fable-5-1', pin: 10, pout: 50, off: false, speed: 4 }
+];
+const DBG_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
+const DBG_EF = { low: 0.55, medium: 1, high: 1.7, xhigh: 2.6, max: 3.8 };
+// The four calls of the paper flow, the model tutor's admission list gives each, and the demo's synthetic tokens.
+const DBG_CALLS = {
+  finding: { name: 'Find tasks', adm: 'opus', in: 2380, out: 520, th: 900 },
+  statement: { name: 'Statement', adm: 'haiku', in: 1210, out: 40, th: 260 },
+  solving: { name: 'Solution', adm: 'haiku', in: 1460, out: 120, th: 1400 },
+  paper: { name: 'Read the work', adm: 'haiku', in: 1880, out: 210, th: 640 }
+};
+const dbgModel = (id) => DBG_MODELS.find((m) => m.id === id);
+const dbgUsd = (x) => '$' + (x < 0.01 ? x.toFixed(5) : x.toFixed(4));
+const dbgNum = (n) => n.toLocaleString('en-US');
+
 class Component extends DCLogic {
   // The paper flow: the page photographed, the tasks picked, the learner's own frames on each page, the sheet chosen, each task's tries and status.
   // hintMode is the profile's setting, 'questions' or 'where'; the demo's profile has "Show where" on.
@@ -1787,10 +1988,15 @@ class Component extends DCLogic {
     // A lesson (RUN.md, T155): the segment shown and the place reached, the demo, the solving mode and step, and each task's attempt.
     seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {},
     picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, choiceOpen: false, solAsk: false, segsOpen: false, fold: false,
-    report: null, reportKind: null, reportErr: false, reported: {}, quotaOut: false, inkN: {} };
+    report: null, reportKind: null, reportErr: false, reported: {}, quotaOut: false, inkN: {},
+    // Debug (RUN.md, T233): the window, the models chosen, the log of the session's calls.
+    dbgFlag: false, dbgOpen: false, dbgTab: 'models', dbgFirst: { model: 'admitted', effort: 'medium', think: true }, dbgSecond: { on: false, model: 'sonnet', effort: 'low', think: true },
+    dbgLog: [], dbgRow: null, dbgMenu: null, dbgBusy: false, dbgFull: false, dbgCopied: null, dbgExport: null, dbgOutcome: {}, dbgSaved: {} };
   ink = null;
   timers = [];
   mid = 1;
+  dbgN = 0;
+  dbgG = 0;
 
   // The device the mockup is drawn for: an iPad in landscape, 1194 × 834, or a phone in portrait, 390 × 844 (R148).
   phone() { return this.props.device === 'phone'; }
@@ -1799,9 +2005,161 @@ class Component extends DCLogic {
   // The scale of a task's clipping over the sheet: on the phone it fits between the tool bar and the edge.
   cf() { return this.phone() ? 1.12 : 1.6; }
 
-  componentDidMount() { try { window.speechSynthesis.getVoices(); } catch (e) { /* no speech synthesis */ } }
+  componentDidMount() {
+    try { window.speechSynthesis.getVoices(); } catch (e) { /* no speech synthesis */ }
+    if (this.props.at) this.dbgStart(this.props.at);
+  }
   componentWillUnmount() { this.timers.forEach((t) => clearTimeout(t)); clearTimeout(this.micT); try { window.speechSynthesis.cancel(); } catch (e) { /* none */ } }
   later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+
+  // ---- Debug (RUN.md, T233): the models of the paper flow, what each returned and its cost. Only with api's debug flag on a
+  // local run, so the demo shows it by the prop debug or the state dbgFlag. The first model serves all four calls, the second only reads the work.
+  dbgOn() { return !!this.state.dbgFlag || this.props.debug === true || this.props.debug === 'true'; }
+  dbgPick(s, call, reader) {
+    if (reader === 2) return { m: dbgModel(s.dbgSecond.model), effort: s.dbgSecond.effort, think: this.dbgThink(s.dbgSecond) };
+    const f = s.dbgFirst;
+    if (f.model === 'admitted') return { m: dbgModel(DBG_CALLS[call].adm), effort: 'medium', think: true };
+    return { m: dbgModel(f.model), effort: f.effort, think: this.dbgThink(f) };
+  }
+  // Thinking can be off only on a model that turns it off, and only up to high (tutor/provider/claude).
+  dbgThinkFixed(c) { const m = dbgModel(c.model); return !m || !m.off || c.effort === 'xhigh' || c.effort === 'max'; }
+  dbgThink(c) { return this.dbgThinkFixed(c) ? true : c.think; }
+  // One model call, with synthetic tokens and its cost by the prices above.
+  dbgCall(s, call, answer, reader, extra) {
+    const p = this.dbgPick(s, call, reader), k = DBG_CALLS[call], f = DBG_EF[p.effort], n = ++this.dbgN, x = extra || {};
+    const jit = 0.9 + ((n * 37) % 21) / 100;
+    const input = Math.round(k.in * jit), cached = call !== 'paper' && n > 1 ? 1024 : 0;
+    const th = p.think ? Math.round(k.th * f * jit) : 0, out = Math.round(k.out * jit) + th;
+    const usd = ((input - cached) * p.m.pin + cached * p.m.pin * 0.1 + out * p.m.pout) / 1e6;
+    const took = (0.7 + out / 240) * p.m.speed;
+    return { id: 'c' + n, call, kind: k.name + (reader ? ' · reader ' + reader : ''), model: p.m.name + ' · ' + p.effort + (p.think ? ' · thinking' : ' · no thinking'), api: p.m.api,
+      input, cached, out, th, usd, took, first: took * (th ? 0.55 + th / out / 3 : 0.25), retries: x.retries || 0, json: JSON.stringify(answer, null, 2), note: x.note || '', bad: !!x.bad };
+  }
+  // The solver of module-kit: the key from the formula the AI read, with no AI and no cost.
+  dbgSolver(key) {
+    return { id: 'c' + (++this.dbgN), call: 'solver', kind: 'Solver', model: 'module-kit · no AI', api: 'paper.Solve', input: 0, cached: 0, out: 0, th: 0, usd: 0, took: 0.002, first: 0, retries: 0,
+      json: JSON.stringify(key, null, 2), note: 'The key, from the formula. It stays on the server; the device never gets it.', bad: false, ai: false };
+  }
+  dbgClock() { const t = 14 * 3600 + 2 * 60 + 10 + 17 * (this.dbgG++); const p = (v) => String(v).padStart(2, '0'); return p(Math.floor(t / 3600)) + ':' + p(Math.floor(t / 60) % 60) + ':' + p(t % 60); }
+  // The page photographed: one call finds the tasks; its boxes are in the photo's pixels.
+  dbgFind(s, d) {
+    const list = (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false);
+    const tasks = list.map((r) => ({ x1: r.x * 4, y1: r.y * 4, x2: (r.x + r.w) * 4, y2: (r.y + r.h) * 4 }));
+    const miss = d === 'olympiad' ? '' : ' It missed equation (6): frame it by hand.';
+    const c = this.dbgCall(s, 'finding', { tasks }, 0, { note: list.length + ' tasks found.' + miss });
+    return { id: 'g' + this.dbgN, title: 'Find tasks', at: this.dbgClock(), calls: [c], join: '' };
+  }
+  // A Check: at the first one the key — the statement read, then the solver or the AI's solution —; at each, the work read.
+  dbgCheck(s, t, n, ol, got) {
+    const calls = [], first = n === 0, ok = n >= 1, nokey = !!t.nokey;
+    if (first) {
+      const formula = ol || t.manual && s.captured === 'olympiad' ? null : (t.manual ? '(x+1)/2=(x−2)/5' : t.label.replace(/\s/g, ''));
+      calls.push(this.dbgCall(s, 'statement', { formula }, 0, { note: formula ? 'A formula: the solver takes it.' : 'No formula: a task in words or with options goes to the AI’s solution.' }));
+      if (formula) {
+        const v = (t.manual ? 'x = −3' : t.ans).split('= ')[1];
+        calls.push(this.dbgSolver({ kind: 'number', value: v, unknown: 'x' }));
+      } else if (nokey) {
+        calls.push(this.dbgCall(s, 'solving', { kind: 'none', value: '', units: [], unknown: '', options: [], key: '' }, 0, { bad: true, retries: 1, note: 'No one answer a program can compare: “Couldn’t check this one” (CAUSE_NO_KEY).' }));
+      } else {
+        calls.push(this.dbgCall(s, 'solving', { kind: 'choice', value: '', units: [], unknown: '', options: ['A', 'B', 'C', 'D', 'E'], key: t.key }, 0, { note: 'The key, from the AI’s solution. It stays on the server.' }));
+      }
+    }
+    const read = ol ? (got.length === 1 ? '(' + got[0] + ')' : '') : t.manual ? 'x = −3' : ok ? t.ans : t.wrong;
+    const obs = (text) => ({ parts: text ? [{ kind: 'answer', text, legible: true, other_readings: [] }] : [], results: text ? [{ part: 1, value: text.replace(/^x = |[()]/g, ''), other_values: [] }] : [] });
+    const pair = s.dbgSecond.on;
+    calls.push(this.dbgCall(s, 'paper', obs(read), pair ? 1 : 0, { note: read ? 'Read “' + read + '”.' : 'No circled answer found.' }));
+    if (pair) calls.push(this.dbgCall(s, 'paper', obs(read), 2, { note: read ? 'Read “' + read + '”.' : 'No circled answer found.' }));
+    const verdict = nokey ? 'no key, no verdict' : !read ? 'no answer to compare' : ok ? 'Correct' : 'Not yet';
+    const join = (pair ? 'Both readers read “' + (read || '—') + '”: the pair agrees' : 'One reader') + ' → compared with the key: ' + verdict + '.';
+    // The truth an export begins from: the formula and the key of the attempt's first Check, the value read, the verdict.
+    this.dbgKeys = this.dbgKeys || {};
+    if (first) {
+      const sv = calls.find((c) => c.ai === false);
+      this.dbgKeys[t.id] = { formula: (calls[0].json.match(/"formula": "(.*)"/) || [, ''])[1], key: sv ? sv.json.replace(/\s+/g, '') : '' };
+    }
+    const kept = this.dbgKeys[t.id] || { formula: '', key: '' };
+    const truth = { formula: kept.formula, key: kept.key, read: read.replace(/^x = |[()]/g, ''), outcome: nokey ? 'unchecked' : !read ? 'unreadable' : ok ? 'correct' : 'not yet' };
+    return { id: 'g' + this.dbgN, check: true, truth, title: 'Check · ' + (t.manual ? 'your frame' : 'task ' + t.id), at: this.dbgClock(), calls, join: first || pair ? join : join + ' The key is the first Check’s.' };
+  }
+  dbgAdd(g) { this.setState({ dbgLog: this.state.dbgLog.concat([g]), dbgBusy: false, dbgRow: g.calls[g.calls.length - 1].id }); }
+
+  // The boards of the canvas open at a state, by the prop at: the page photographed, a Check, and the window open.
+  dbgStart(at) {
+    const s0 = this.state, sel = WS.filter((r) => r.found !== false).map((r) => r.id);
+    const pair = at === 'solve-pair';
+    const s = { ...s0, dbgSecond: pair ? { on: true, model: 'sonnet', effort: 'low', think: false } : s0.dbgSecond };
+    const log = [this.dbgFind(s, 'worksheet')];
+    const up = { screen: 'canvas', surface: 'paper', stage: 'pick', back: 'home', learner: 'owner', ownerName: 'Sam', captured: 'worksheet', selected: sel, frames: { worksheet: [] }, dbgSecond: s.dbgSecond };
+    if (at === 'pick-models') Object.assign(up, { dbgOpen: true, dbgTab: 'models' });
+    if (at.indexOf('solve') === 0) {
+      const t = WS[0], k = 'worksheet-1', st = { d: 'M330 430 C350 400 380 450 410 420 M440 430 l40 -10', tool: 'pen', x: 330, y: 420, ts: 1, bb: [330, 400, 480, 450], closed: false };
+      Object.assign(up, { stage: 'solve', current: 1, selected: [1, 2, 4], strokes: { [k]: [st] }, ptries: { [k]: 1 }, status: { [k]: 'wrong' },
+        verdict: { kind: 'no', title: 'Not yet', line: 'Read: ' + t.wrong } });
+      log.push(this.dbgCheck(s, t, 0, false, []));
+      if (at !== 'solve') Object.assign(up, { dbgOpen: true, dbgTab: 'log', dbgRow: log[1].calls[pair ? 3 : 2].id, verdict: null });
+      if (at === 'solve-export') Object.assign(up, { dbgRow: null, dbgExport: log[1].id });
+    }
+    this.setState({ ...up, dbgLog: log });
+  }
+
+  dbgVals(s, PH, isPick, isSolve) {
+    const show = this.dbgOn() && s.screen === 'canvas' && (isPick || isSolve);
+    const calls = [].concat(...s.dbgLog.map((g) => g.calls)), ai = calls.filter((c) => c.ai !== false);
+    const total = calls.reduce((a, c) => a + c.usd, 0), open = show && s.dbgOpen;
+    const seg = (on) => ({ bg: on ? '#FFFFFF' : 'transparent', sh: on ? '0 1px 3px rgba(0,0,0,0.12)' : 'none' });
+    const sw = (on) => ({ bg: on ? '#34C759' : 'rgba(120,120,128,0.24)', x: on ? 20 : 2 });
+    const setSlot = (key, up) => this.setState({ [key]: { ...this.state[key], ...up } });
+    const slot = (key, title, sub) => {
+      const c = s[key], second = key === 'dbgSecond', rows = !second || c.on, admitted = c.model === 'admitted', fixed = this.dbgThinkFixed(c), m = dbgModel(c.model);
+      const menuOpen = open && s.dbgMenu === key;
+      const items = (second ? [] : [{ id: 'admitted', name: 'As admitted', sub: 'Each call its model of tutor’s list' }]).concat(DBG_MODELS.map((x) => ({ id: x.id, name: x.name, sub: x.api + ' · $' + x.pin + ' / $' + x.pout + ' per Mtok' })));
+      return { title, sub, hasSwitch: second, on: !!c.on, sw: sw(!!c.on), rows, admitted: rows && admitted, chosen: rows && !admitted,
+        toggleOn: () => setSlot(key, { on: !this.state[key].on }),
+        model: admitted ? 'As admitted' : m.name, menuOpen, menuTop: second ? 96 : 48,
+        toggleMenu: () => this.setState({ dbgMenu: this.state.dbgMenu === key ? null : key }),
+        menu: items.map((x) => ({ ...x, on: x.id === c.model, pick: () => { setSlot(key, { model: x.id }); this.setState({ dbgMenu: null }); } })),
+        effId: 'dbg-eff-' + key,
+        efforts: DBG_EFFORTS.map((e) => ({ label: e, on: c.effort === e, ...seg(c.effort === e), pick: () => setSlot(key, { effort: e }) })),
+        think: this.dbgThink(c), thinkFixed: fixed, thinkCur: fixed ? 'default' : 'pointer',
+        thinkNote: fixed ? (m && !m.off ? 'Always on for ' + m.name : 'Always on at ' + c.effort) : '',
+        tsw: { ...sw(this.dbgThink(c)), op: fixed ? 0.45 : 1 },
+        toggleThink: () => { if (!this.dbgThinkFixed(this.state[key])) setSlot(key, { think: !this.state[key].think }); },
+        foot: second ? (c.on ? 'Two readers of the work: a place they read differently is unreadable (R68).' : 'Off: one reader, the first model.') : '' };
+    };
+    const groups = s.dbgLog.slice().reverse().map((g) => ({ ...g, sum: dbgUsd(g.calls.reduce((a, c) => a + c.usd, 0)),
+      check: !!g.check, exp: s.dbgExport === g.id, saved: s.dbgSaved[g.id] || '',
+      toggleExport: () => this.setState({ dbgExport: this.state.dbgExport === g.id ? null : g.id }),
+      fields: g.check ? [{ label: 'Formula', value: g.truth.formula, hint: 'none: a word problem, a choice' }, { label: 'Key · JSON of paper.v1.Answer', value: g.truth.key, hint: '{"number":{"value":"85"}}' },
+        { label: 'Read · the answer the work holds', value: g.truth.read, hint: 'none: no answer' }, { label: 'Note', value: '', hint: 'what went wrong' }] : [],
+      outcomes: ['correct', 'not yet', 'unreadable', 'unchecked'].map((name) => { const on = (s.dbgOutcome[g.id] || (g.truth && g.truth.outcome)) === name;
+        return { name, on, fw: on ? 600 : 500, bg: on ? '#FFFFFF' : 'transparent', sh: on ? '0 1px 3px rgba(0,0,0,0.12)' : 'none', pick: () => this.setState({ dbgOutcome: { ...this.state.dbgOutcome, [g.id]: name } }) }; }),
+      save: () => this.setState({ dbgExport: null, dbgSaved: { ...this.state.dbgSaved, [g.id]: 'Saved case-20261119T150405-' + g.id + '.json — a case of tutor-eval -paper.' } }),
+      calls: g.calls.map((c, i) => {
+        const on = s.dbgRow === c.id;
+        const stats = c.ai === false ? [{ k: 'Time', v: (c.took * 1000).toFixed(0) + ' ms' }, { k: 'Cost', v: '$0' }]
+          : [{ k: 'Input', v: dbgNum(c.input) }, { k: 'Cache read', v: dbgNum(c.cached) }, { k: 'Output', v: dbgNum(c.out) }, { k: 'Thinking', v: dbgNum(c.th) },
+            { k: 'Time · first token', v: c.took.toFixed(1) + ' s · ' + c.first.toFixed(1) + ' s' }, { k: 'Retries', v: String(c.retries) }];
+        return { ...c, sep: i > 0, open: on, rot: on ? 90 : 0, cost: c.ai === false ? '$0' : dbgUsd(c.usd), took: c.took < 0.1 ? '2 ms' : c.took.toFixed(1) + ' s',
+          dot: c.bad ? '#FF9F0A' : c.ai === false ? '#8E8E93' : '#34C759', stats, jsonTitle: c.ai === false ? 'The key' : 'What the model returned',
+          noteFg: c.bad ? '#C93400' : '#6E6E73', copyLabel: s.dbgCopied === c.id ? 'Copied' : 'Copy', copyTip: 'Copy the JSON',
+          toggle: () => this.setState({ dbgRow: this.state.dbgRow === c.id ? null : c.id }),
+          copy: () => { try { navigator.clipboard.writeText(c.json); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: c.id }); } };
+      }) }));
+    const tab = s.dbgTab;
+    return { show, open, tip: 'Debug · ' + dbgUsd(total), mt: isSolve && !PH ? -100 : -28, btnCls: isSolve ? 'ph-dbg-up' : '', ring: s.dbgBusy ? 'nt-dring' : '',
+      btn: { op: open ? 0 : 1, sc: open ? 0.6 : 1, vis: open ? 'hidden' : 'visible' },
+      panel: { op: open ? 1 : 0, vis: open ? 'visible' : 'hidden', cls: PH ? (s.dbgFull ? 'ph-full' : 'ph-half') : '',
+        tf: PH ? 'translateY(' + (open ? 0 : 40) + 'px)' : 'translateX(' + (open ? 0 : 24) + 'px) scale(' + (open ? 1 : 0.96) + ')', grab: s.dbgFull ? 'Half screen' : 'Full screen' },
+      full: s.dbgFull, toggleFull: () => this.setState({ dbgFull: !this.state.dbgFull }),
+      head: dbgUsd(total) + ' · ' + ai.length + (ai.length === 1 ? ' call' : ' calls') + ' this session',
+      toggle: () => this.setState({ dbgOpen: !this.state.dbgOpen, dbgMenu: null, chatOpen: false, tasksOpen: false, more: false }),
+      close: () => this.setState({ dbgOpen: false, dbgMenu: null }),
+      tabs: [{ label: 'Models', id: 'models', hasN: false, n: '' }, { label: 'Log', id: 'log', hasN: ai.length > 0, n: String(ai.length) }].map((x) => ({ ...x, on: tab === x.id, ...seg(tab === x.id), pick: () => this.setState({ dbgTab: x.id, dbgMenu: null }) })),
+      isModels: tab === 'models', isLog: tab === 'log',
+      slots: [slot('dbgFirst', 'First model — every call', 'Find tasks, the statement, the solution and reading the work'), slot('dbgSecond', 'Second model — reading the work', 'A second reader of the crop with the strokes')],
+      admittedRows: Object.keys(DBG_CALLS).map((k) => ({ call: DBG_CALLS[k].name, model: dbgModel(DBG_CALLS[k].adm).name + ' · medium' })),
+      groups, empty: !groups.length, sum: dbgUsd(total), clear: () => this.setState({ dbgLog: [], dbgRow: null, dbgExport: null, dbgSaved: {} }) };
+  }
 
   // ---- The tutor, Pip. It lives in the app, not in a canvas: the same button and panel on every canvas.
   // Its replies are the hint ladder's rung (one question), the same rung in other words (R82), or fixed texts;
@@ -1940,11 +2298,11 @@ class Component extends DCLogic {
 
   micCancel() { clearTimeout(this.micT); if (this.state.listening) this.setState({ listening: false }); }
 
-  openChat = () => this.setState({ chatOpen: true, tutorFull: false, unread: false, more: false, tasksOpen: false });
+  openChat = () => this.setState({ chatOpen: true, dbgOpen: false, tutorFull: false, unread: false, more: false, tasksOpen: false });
   closeChat = () => { this.micCancel(); this.setState({ chatOpen: false, tutorFull: false }); };
   askHint = () => {
     if (this.segNow()) return this.lesHint();
-    this.setState({ chatOpen: true, unread: false, verdict: null, tasksOpen: false }); this.reply('hint');
+    this.setState({ chatOpen: true, unread: false, verdict: null, tasksOpen: false, dbgOpen: false }); this.reply('hint');
   };
 
   send = () => {
@@ -2171,12 +2529,13 @@ class Component extends DCLogic {
 
   capture = () => {
     const d = this.state.demo;
-    this.setState({ flash: true });
+    this.setState({ flash: true, dbgBusy: this.dbgOn() });
     this.later(() => {
       const s = this.state, p = d + '-';
       // Every task found starts picked: the learner leaves out what they will not solve, and frames what the AI missed.
       this.setState({ flash: false, stage: 'pick', captured: d, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
         strokes: without(s.strokes, p), answers: without(s.answers, p), status: without(s.status, p), ptries: without(s.ptries, p), pmark: null, verdict: null });
+      if (this.dbgOn()) this.dbgAdd(this.dbgFind(this.state, d));
     }, 380);
   };
 
@@ -2412,9 +2771,10 @@ class Component extends DCLogic {
     }
     const got = ol ? this.circled(t) : [];
     const n = s.ptries[k] || 0, tried = !t.nokey && (!ol || got.length === 1);
-    this.setState({ verdict: { kind: 'reading', title: 'Reading your work…', line: 'The crop of this task with your strokes goes to be read, with no name.' }, ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null });
+    this.setState({ dbgBusy: this.dbgOn(), verdict: { kind: 'reading', title: 'Reading your work…', line: 'The crop of this task with your strokes goes to be read, with no name.' }, ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null });
     this.later(() => {
       if (this.ctx().key !== k) return;
+      if (this.dbgOn()) this.dbgAdd(this.dbgCheck(this.state, t, n, ol, got));
       if (t.nokey) {
         const v = { kind: 'nokey', title: 'Couldn’t check this one', line: 'This task has no answer that can be checked. Hints still work.' };
         return this.settle(v, 'No key: no answer to compare', { status: { ...this.state.status, [k]: 'nokey' } }, 'The key for this one could not be worked out. A hint, or the next task?', k);
@@ -2699,6 +3059,7 @@ class Component extends DCLogic {
 
     const les = this.lesVals(s, L, g, inLes, isTask, PH);
     return {
+      dbg: this.dbgVals(s, PH, isPick, isSolve),
       les, ttlPlain: !inLes, backLabel: inLes ? 'Leave the lesson' : 'Back', writingShow: s.typing && inLes,
       vX: isSolve ? '50%' : les.rowX + 'px', vB: isSolve ? 86 : les.above, vNext: !!v && v.kind === 'ok' && isSolve,
       vCont: !!v && isTask && (v.kind === 'ok' || v.kind === 'shown'), vFb: !!v && v.kind === 'fb', vShown: !!v && v.kind === 'shown', vNoKey: !!v && v.kind === 'nokey',

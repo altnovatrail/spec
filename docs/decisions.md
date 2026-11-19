@@ -9,7 +9,7 @@
 > - MathTrail's decisions that carry over here;
 > - the plan of these documents, which the author approved 2026-10-18.
 >
-> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R163.
+> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R164.
 >
 > MathTrail's decisions are cited as "R37 canvas-api" and "R213 standalone", and in a list as "canvas-api: R37, R38". Each repository has its own log and its own numbering.
 >
@@ -7112,3 +7112,21 @@ What a session stops knowing — why and when a decision changed — is in git (
 - one attempt for the whole page; the tasks one at a time, each closing the one before; the key derived when the attempts begin; two pictures of the work, the tracing paper's and the sheet's — a mark would have to name its picture; the wavy line only on the sheet's layer, or as the mockup draws it, without the halo — the options of the question of T221 on its contrast; the key of an open attempt in the export, or those attempts left out of it (T225).
 
 — *Consequence:* R03, R04, R05, R74, R76, R82, R90, R96, R97, R135, R148, R156 and R159; R10 api, by RUN.md, T227; product 4, 7, 10, 11 and 13, О-11; RULES.md, Across repositories; RUN.md, Epics; CLAUDE.md, Environment; [draft/README.md](../draft/README.md), the prototype's differences, and [draft/mockup/README.md](../draft/mockup/README.md), the differences from the documents. — RUN.md, T221–T231.
+
+**R163. A local run has a debug mode of the models of a task from paper: with `api`'s debug flag, which a deployment refuses, `app`'s development server shows a debug button at the tutor's place on the page to pick from, and above it on the solving screen. Its window chooses the models — the first for all four calls, a second to read the work, each with its effort and thinking — and shows each call of the session: what the model returned, the tokens, the time, the retries and the cost, and the session's sum; a Check of the log exports as a case of `tutor`'s eval of a task from paper, with the truth the developer gives. The choice bypasses the admission list; no build or deployment for people has the mode.** The author's word of 2026-11-19 (RUN.md, T233): to find the errors of reading and to choose models without changing code; the window as the canvas [NovaTrail · Debug panel](https://claude.ai/artifact/2rt34xc3FMdz5a3i1CJLKS#play-DebugPlay), approved by the author that day, the export of a Check the author's word of the same day, and the states `pick-debug` and `solve-debug-log` of [the interface mockup](../draft/mockup/README.md); the rest the recommendations of T233's planning, which the author approved.
+- **Only on a local run, twice over.** `api` serves `DebugService` only with `API_DEBUG_MODELS=1`, which it refuses on a deployment and beside the stub of `tutor`; `just dev-ai`, and `just dev-app` on the models, set it. Anywhere else each method answers `unimplemented`. `app` asks `GetDebug` only in a build of its development server, `import.meta.env.DEV`, and shows the button only when the answer comes: a build for people holds none of the code.
+- **The choice.** The first model serves the four calls of a task from paper — `task_finding`, `statement_reading`, `task_solving` and the work read — or none is chosen, and each call has its model of `tutor`'s list, which `GetDebug` names for an adult on platform AI. A second model, if chosen, reads the work beside the first, and the two readings are joined as a pair's (R68). The models are those of `tutor`'s adapters with a key on the run, with its prices; thinking is off only where the model and the effort allow it. The choice is the account's, in the memory of `api`'s process.
+- **The log.** Each `FindTasks` and each `SubmitWork` of a task from paper, with its calls in the order they ended, the solver's key among them: the model as the provider gave it back, its effort and thinking, its answer as it returned it, the tokens, the time, the retries and the cost. `api` holds them in its memory until `app` takes them, `TakeDebugCalls`, and `app` in the memory of its tab; neither the log of `api` nor its database gets them (R09), since the readings of the work are in them.
+- **The export.** A Check of the log exports as a `DebugCase`, a file of JSON: the `PaperWork` `app` sent, the action it took, and the truth — the formula, the key, the value read and the verdict —, which `app` fills in from what the calls gave and the developer corrects. `tutor-eval` reads a folder of such files as a set of a task from paper, so that a task a model misread on the developer's own paper becomes a case the runs measure (R136 tutor). The file holds the pictures of the developer's own work, never a learner's, and is kept in `eval/paper-cases/` of `tutor`, by the author's word of the same day.
+- **The cost** is that of `cost_micro_usd`, by `tutor`'s prices, and is charged to the quota as any call is (R11 api).
+- **Where.** [The contracts text](../contracts/README.md), section 15, and `debug.proto`; architecture 3.5, 3.6; the code — R136 tutor, R97 api, R72 app.
+
+— *Why:* the author's word. The reading of the work and of the statement is where a task from paper errs, and only the model's own answer shows how; changing the list of `tutor` for each try costs a build and hides the comparison. A mode that bypasses admission and shows the readings of a learner's work is safe only where no learner is: a local run of the developer, by a flag that a deployment refuses and code that a build for people does not hold. The DPIA does not change: the mode reaches no person but the developer (R129).
+
+— *Rejected:*
+- the fields of the debug mode in `FindTasks` and `SubmitWork`: they would sit in the messages of every build;
+- a flag of `app`'s build alone, with no word of `api`;
+- the log in `api`'s log or database;
+- a choice for each of the four calls, and a second model for the solution too (T233).
+
+— *Consequence:* R07, R68, R126 tutor and R162 are unchanged for people; [draft/mockup/README.md](../draft/mockup/README.md) and [draft/README.md](../draft/README.md).

@@ -195,6 +195,41 @@ export const STATES = [
   { name: "olympiad", title: "A problem of an olympiad book: an option is circled on the crop", from: "camera", shows: "Problem 1", run: (t) => (t.v().demoOl(), t.v().capture(), t.settle(), t.v().start()) },
   { name: "solve-circle", title: "Check with no option circled", from: "olympiad", shows: "Circle an answer first", run: (t) => t.v().check() },
   { name: "solve-nokey", title: "A task that could not be checked: no answer to compare", from: "olympiad", shows: "Couldn’t check this one", run: (t) => (t.v().taskRows[4].pick(), t.ink(), t.v().check()) },
+  // Debug, only on a local run with api's debug flag (RUN.md, T233): the models of the paper flow, their answers and their cost.
+  {
+    name: "pick-debug",
+    title: "Debug on a local run: the page photographed, the window's Models",
+    from: "camera",
+    shows: "First model — every call",
+    run: (t) => {
+      t.c.setState({ dbgFlag: true });
+      t.v().capture();
+      t.settle();
+      t.v().dbg.toggle();
+    },
+  },
+  {
+    name: "solve-debug-log",
+    title: "Debug on a local run: a Check, the window's Log",
+    from: "pick-debug",
+    shows: "Session total",
+    run: (t) => {
+      t.v().dbg.close();
+      t.v().start();
+      t.ink();
+      t.v().check();
+      t.settle();
+      t.v().dbg.toggle();
+      t.v().dbg.tabs[1].pick();
+    },
+  },
+  {
+    name: "solve-debug-export",
+    title: "Debug on a local run: a Check exported as a case of tutor-eval",
+    from: "solve-debug-log",
+    shows: "Save case",
+    run: (t) => t.v().dbg.groups[0].toggleExport(),
+  },
 
   // What comes later — the children and the canvases of other authors — under "Later".
   { name: "later-who", title: "Later: Who's learning?, with the children", slice: "later", from: "who", shows: "Juniper", run: (t) => t.v().sliceLater() },

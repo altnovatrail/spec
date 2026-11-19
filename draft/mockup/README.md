@@ -13,7 +13,7 @@ The files of the claude.ai Design canvas [Take from my paper](https://claude.ai/
 - `Paper.dc.html` — the photographed page of the paper flow, synthetic.
 - `canvas.json` — the boards and the canvas's notes, in Russian: `howto` is the path through Play, and `t155` names what of the task screen of `app` the mockup does not draw, by the key of its string, and why.
 
-The canvas is behind these files: the account of the session that ran T220 could not read it, so T220's publish did not go through (Д278). Until a publish goes through, the newest sources are here, and a change of the look is made in these files, with `states.mjs` below.
+The canvas is behind these files: the account of the session that ran T220 could not read it, so T220's publish did not go through (Д278). The debug button and window of a local run, RUN.md, T233, are on a canvas of their own, [NovaTrail · Debug panel](https://claude.ai/artifact/2rt34xc3FMdz5a3i1CJLKS#play-DebugPlay), approved by the author on 2026-11-19: `Main.dc.html` of here with its prop `debug` on, and boards that open it at a state by its prop `at`. Until a publish goes through, the newest sources are here, and a change of the look is made in these files, with `states.mjs` below.
 
 The files of the canvas's own runtime, `support.js` and `artifact-type/`, are not here: they are not NovaTrail's, and their license is unknown. NovaTrail's own runtime, Apache-2.0 (R12), opens these files instead: [tools/mockup/](../../tools/mockup/runtime.mjs).
 
@@ -117,6 +117,9 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `olympiad` | A problem of an olympiad book on its sheet: the answer is an option circled on the crop | First slice |
 | `solve-circle` | Check with no option circled: "Circle an answer first" | First slice |
 | `solve-nokey` | A task that could not be checked: the AI's solution gave no answer a program can compare, so it has no key; hints still work | First slice |
+| `pick-debug` | The page photographed on a local run with `api`'s debug flag: the debug button where the tutor's is, and its window's Models — the first model for every call, a second to read the work | Local run alone (RUN.md, T233) |
+| `solve-debug-log` | A Check on a local run with the debug flag: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check | Local run alone (RUN.md, T233) |
+| `solve-debug-export` | A Check of the Log exported: its truth — the formula, the key, the value read, the verdict, a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | Local run alone (RUN.md, T233) |
 | `later-who` | "Who's learning?" with the children Comet and Juniper | Later · E4 app |
 | `later-add` | "Add a learner": the steps of a parent's consent | Later · E4 app |
 | `later-pin` | The owner's profile behind the PIN | Later · E4 app |
@@ -133,26 +136,27 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 
 | Line and part | What it draws |
 |---|---|
-| `Main.dc.html:156` — Surfaces | The sheet, two screens tall and as wide as the screen: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
-| `Main.dc.html:220` — Camera | The camera's viewfinder |
-| `Main.dc.html:262` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the loop being drawn |
-| `Main.dc.html:300` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
-| `Main.dc.html:325` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
-| `Main.dc.html:356` — Author canvases | The sandbox's chip |
-| `Main.dc.html:364` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
-| `Main.dc.html:407` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
-| `Main.dc.html:484` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
-| `Main.dc.html:514` — Tool rail | The tools of `canvas` as a vertical glass bar, and above them the crop's show and hide |
-| `Main.dc.html:550` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
-| `Main.dc.html:796` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:960` — Pick | What left the device, Select all, Start |
-| `Main.dc.html:977` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1054` — Sign-in | Welcome, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1160` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1220` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:1307` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
-| `Main.dc.html:1502` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
-| `Main.dc.html:1539` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:162` — Surfaces | The sheet, two screens tall and as wide as the screen: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
+| `Main.dc.html:226` — Camera | The camera's viewfinder |
+| `Main.dc.html:268` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the loop being drawn |
+| `Main.dc.html:306` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
+| `Main.dc.html:331` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
+| `Main.dc.html:362` — Author canvases | The sandbox's chip |
+| `Main.dc.html:370` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
+| `Main.dc.html:413` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
+| `Main.dc.html:490` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
+| `Main.dc.html:520` — Tool rail | The tools of `canvas` as a vertical glass bar, and above them the crop's show and hide |
+| `Main.dc.html:556` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
+| `Main.dc.html:802` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:966` — Pick | What left the device, Select all, Start |
+| `Main.dc.html:983` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1060` — Debug | Only on a local run with `api`'s debug flag: the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
+| `Main.dc.html:1234` — Sign-in | Welcome, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1340` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1400` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:1487` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
+| `Main.dc.html:1682` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
+| `Main.dc.html:1719` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -199,7 +203,7 @@ The mockup is drawn in absolute CSS px for its two sizes; `app` and `canvas` lay
 
 **Sizes.**
 - An icon is 20 px in its target of 44, back 18; its lines 1.9 px, and 2.2 for arrows.
-- The top bar: 48 high, 14 from the top, 16 from the left. The tool bar: 52 wide, 16 from the left, centred in height. The tutor's button: 56 round, 16 from the right, centred; on the phone, above the row.
+- The top bar: 48 high, 14 from the top, 16 from the left. The tool bar: 52 wide, 16 from the left, centred in height. The tutor's button: 56 round, 16 from the right, centred; on the phone, above the row. The debug button of a local run (RUN.md, T233): the same, graphite with an orange glyph — where the tutor's is when there is none, as on the page to pick from, and 16 above it when there is; its window is the tutor's panel, 400 wide.
 - A primary button: 52 high, radius 14, 16 px semibold.
 - Type: 14 px for the body; 11.5–13 for captions; 15–17 for emphasis; 22–38 for headings. Weight 700 for headings of every size, from 17 px — those of 22–38 px with a negative `letter-spacing` of −0.2 to −0.8 px —, for the headings of cards and for the digits of badges and steps, from 11 px; 400, 500 and 600 for the rest (`app` В71).
 
@@ -273,3 +277,4 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | "Hide the task" is a switch with `aria-pressed`, its name changing too | Its name tells the state, with no `aria-pressed`: the state is told once | `canvas` (R87 canvas) |
 | Under "Later": the canvas kinds of other authors, under «…» in the top bar of a task from paper | Other authors' widgets come at stage 4, in a sandbox (R16; product 10) | Epic E5 |
 | The demo's switch "First slice" / "Later", and the DEMO "Tutor time used up" | Not part of the app | Nobody: the mockup's own |
+| The debug button and its window: the models chosen past the admission list, what each returned, the cost in dollars, and a Check exported as a case of `tutor-eval`; the button has no caption, outside R90's list | Only with `api`'s debug flag on a local run; no build or deployment for people has them (RUN.md, T233) | `spec`, `tutor`, `api`, `app` in RUN.md, T233 |
