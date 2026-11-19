@@ -218,7 +218,7 @@ In detail — in [privacy.md](privacy.md).
 - the text canvas and language modules (R41);
 - the registry service and the pipeline;
 - voice input;
-- the learner's own text to the tutor: the conversation line of the first slice is buttons of requests, a hint and "explain differently" (R82; architecture 3.1). Own text — later, as an AI capability of its own of `tutor`, with its eval, a leak check in the reply and a row in privacy 4;
+- the learner's own text to the tutor: the conversation line of the first slice is buttons of requests, a hint and "explain differently" (R82; architecture 3.1). Own text — later, as an AI capability of its own of `tutor`, with its eval, a leak check in the reply and a row in privacy 4. The one field now is on the page to pick from of a task from paper, for a request about which tasks to take and how to split them, whose answer is frames alone (R165);
 - a paid subscription;
 - schools and teachers;
 - the MCP channel;

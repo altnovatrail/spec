@@ -107,6 +107,8 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `camera` | The camera of the paper flow, from "Take from my paper" | First slice |
 | `pick` | The tasks the AI found on the photographed page, every one picked | First slice |
 | `pick-frame` | A task the AI missed, framed by hand: a loop drawn round it became a frame, with its cross and its corner | First slice |
+| `pick-ask` | The tutor's panel on the page to pick from: its line on what it takes, the field with a request about the frames typed, the reminder to write no names, the microphone there and off | First slice (RUN.md, T236) |
+| `pick-asked` | The request sent: the left column's three equations found anew and picked, the learner's request and the program's line "Found 3 tasks" in the conversation, and Undo | First slice (RUN.md, T236) |
 | `solve` | A picked task on a clean sheet, its crop as tracing paper | First slice |
 | `solve-tasks` | The list of the picked tasks, the framed one among them | First slice |
 | `solve-empty` | Check without work: "Write your solution first" | First slice |
@@ -119,7 +121,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `olympiad` | A problem of an olympiad book on its sheet: the answer is an option circled on the crop | First slice |
 | `solve-circle` | Check with no option circled: "Circle an answer first" | First slice |
 | `solve-nokey` | A task that could not be checked: the AI's solution gave no answer a program can compare, so it has no key; hints still work | First slice |
-| `pick-debug` | The page photographed on a local run with `api`'s debug flag: the debug button where the tutor's is, and its window's Models — the first model for every call, a second to read the work | Local run alone (RUN.md, T233) |
+| `pick-debug` | The page photographed on a local run with `api`'s debug flag: the debug button above the tutor's, and its window's Models — the first model for every call, a second to read the work | Local run alone (RUN.md, T233) |
 | `solve-debug-log` | A Check on a local run with the debug flag: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check; as admitted, the work read in two attempts, Haiku's unreadable and then Sonnet's (R164) | Local run alone (RUN.md, T233, T234) |
 | `solve-debug-export` | A Check of the Log exported: its truth — for each task of the frame its statement, formula, key, value read and verdict, and a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | Local run alone (RUN.md, T233) |
 | `later-who` | "Who's learning?" with the children Comet and Juniper | Later · E4 app |
@@ -149,16 +151,16 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:494` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
 | `Main.dc.html:524` — Tool rail | The tools of `canvas` as a vertical glass bar, and above them the crop's show and hide |
 | `Main.dc.html:560` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
-| `Main.dc.html:806` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:970` — Pick | What left the device, Select all, Start |
-| `Main.dc.html:987` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1064` — Debug | Only on a local run with `api`'s debug flag: the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
-| `Main.dc.html:1245` — Sign-in | Welcome, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1351` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1411` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:1498` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
-| `Main.dc.html:1693` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
-| `Main.dc.html:1730` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:811` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:975` — Pick | What left the device, Select all, Start |
+| `Main.dc.html:992` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1069` — Debug | Only on a local run with `api`'s debug flag: the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
+| `Main.dc.html:1250` — Sign-in | Welcome, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1356` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1416` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:1503` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
+| `Main.dc.html:1698` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
+| `Main.dc.html:1735` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -205,7 +207,7 @@ The mockup is drawn in absolute CSS px for its two sizes; `app` and `canvas` lay
 
 **Sizes.**
 - An icon is 20 px in its target of 44, back 18; its lines 1.9 px, and 2.2 for arrows.
-- The top bar: 48 high, 14 from the top, 16 from the left. The tool bar: 52 wide, 16 from the left, centred in height. The tutor's button: 56 round, 16 from the right, centred; on the phone, above the row. The debug button of a local run (RUN.md, T233): the same, graphite with an orange glyph — where the tutor's is when there is none, as on the page to pick from, and 16 above it when there is; its window is the tutor's panel, 400 wide.
+- The top bar: 48 high, 14 from the top, 16 from the left. The tool bar: 52 wide, 16 from the left, centred in height. The tutor's button: 56 round, 16 from the right, centred; on the phone, above the row. The debug button of a local run (RUN.md, T233): the same, graphite with an orange glyph, 16 above the tutor's — on the page to pick from too, where the tutor is since RUN.md, T236, and hidden while the tutor's panel is open; its window is the tutor's panel, 400 wide.
 - A primary button: 52 high, radius 14, 16 px semibold.
 - Type: 14 px for the body; 11.5–13 for captions; 15–17 for emphasis; 22–38 for headings. Weight 700 for headings of every size, from 17 px — those of 22–38 px with a negative `letter-spacing` of −0.2 to −0.8 px —, for the headings of cards and for the digits of badges and steps, from 11 px; 400, 500 and 600 for the rest (`app` В71).
 
@@ -267,7 +269,7 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | The task screen's states that the mockup does not draw — a task already over, the failures, the reasons of an unreadable answer, the lines of a hidden button | `app` draws them by the rules of style here (R148) | `app`; the canvas note `t155` names each by the key of its string |
 | The texts' gists and versions written into the mockup, and five countries | The texts come from `api` (`LegalService`), and the countries are those the deployment accepts | `app` reads them; the mockup's are a sample |
 | The skill map in the frame is a sketch | `skill-map` draws a module's map (architecture 3.3) | `skill-map` |
-| Under "Later": Pip with a text field and a microphone, simulated | The conversation line of the first slice is buttons; voice input for children waits for П-5 (product 10; R82; О-6) | Epic E4 of `app` |
+| Under "Later": Pip with a text field and a microphone, simulated | The conversation line of the first slice is buttons, but for the field of a request about the frames on the page to pick from (R165); voice input for children waits for П-5 (product 10; R82; О-6) | Epic E4 of `app` |
 | Pip's greeting "Hi, I'm Pip…", in the first person | Strings do not speak in the first person of AI (R91) | Epic E4 of `app` rewords it |
 | What the tutor answers to a free question of Pip's field: the rung, the rung in other words, or a fixed text | The documents do not say | Epic E4 of `app` |
 | The camera gives no reminder to keep names out of the photo | Before the camera, `app` reminds the learner to keep names out of it (privacy 6; R127) | `app`: the line under "Open camera" on the card and on the camera's screen (R71 app) |
@@ -280,5 +282,7 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | The crop over the sheet is fixed on the screen, in one place for every task | The tracing paper lies in sheet units, and each task has its own place, `TracingState.at` (R162) | `canvas` (R87 canvas) |
 | "Hide the task" is a switch with `aria-pressed`, its name changing too | Its name tells the state, with no `aria-pressed`: the state is told once | `canvas` (R87 canvas) |
 | Under "Later": the canvas kinds of other authors, under «…» in the top bar of a task from paper | Other authors' widgets come at stage 4, in a sandbox (R16; product 10) | Epic E5 |
+| The demo's request is understood by its words — "left", "right", "each" —, and gives the tasks of the demo page | The finding gets the request as data, with the photo and the frames, and its answer is frames alone (R165) | Nobody: a convention of the demo |
+| The field of a request about the page: Send and the microphone are icons alone | Neither is on the closed list of icons alone (R90): `app` shows each with its caption, "Send" and "Voice comes later" (R74 app) | Nobody: `app` follows R90 |
 | The demo's switch "First slice" / "Later", and the DEMO "Tutor time used up" | Not part of the app | Nobody: the mockup's own |
 | The debug button and its window: the models chosen past the admission list, what each returned, the cost in dollars, and a Check exported as a case of `tutor-eval`; the button has no caption, outside R90's list | Only with `api`'s debug flag on a local run; no build or deployment for people has them (RUN.md, T233) | `spec`, `tutor`, `api`, `app` in RUN.md, T233 |

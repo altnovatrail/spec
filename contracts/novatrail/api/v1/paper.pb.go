@@ -27,7 +27,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// The photo of a page, for its tasks to be found.
+// The photo of a page, for its tasks to be found, and the learner's request about them.
 type FindTasksRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The profile.
@@ -42,8 +42,19 @@ type FindTasksRequest struct {
 	OwnKey *OwnKey `protobuf:"bytes,4,opt,name=own_key,json=ownKey,proto3" json:"own_key,omitempty"`
 	// The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
 	ClockOffsetMinutes *int32 `protobuf:"varint,5,opt,name=clock_offset_minutes,json=clockOffsetMinutes,proto3,oneof" json:"clock_offset_minutes,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// The learner's request about the page, in their own words: which tasks to take and how to split
+	// them, as "only the first column, each example a task of its own". At most 200 code points,
+	// with no control character, not spaces alone; empty finds the tasks as the finding's rule alone gives them. It
+	// goes to the AI as data, never as an instruction, and the server keeps none of it (R165).
+	Request string `protobuf:"bytes,6,opt,name=request,proto3" json:"request,omitempty"`
+	// The frames the AI found on the page and that are on it now, at most 20, in the order of the
+	// page: with a request alone.
+	Found []*TaskFrame `protobuf:"bytes,7,rep,name=found,proto3" json:"found,omitempty"`
+	// The frames the learner drew on the page, at most 40, in the order of the page: with a request
+	// alone. The answer repeats none of them.
+	Drawn         []*TaskFrame `protobuf:"bytes,8,rep,name=drawn,proto3" json:"drawn,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FindTasksRequest) Reset() {
@@ -109,6 +120,27 @@ func (x *FindTasksRequest) GetClockOffsetMinutes() int32 {
 		return *x.ClockOffsetMinutes
 	}
 	return 0
+}
+
+func (x *FindTasksRequest) GetRequest() string {
+	if x != nil {
+		return x.Request
+	}
+	return ""
+}
+
+func (x *FindTasksRequest) GetFound() []*TaskFrame {
+	if x != nil {
+		return x.Found
+	}
+	return nil
+}
+
+func (x *FindTasksRequest) GetDrawn() []*TaskFrame {
+	if x != nil {
+		return x.Drawn
+	}
+	return nil
 }
 
 // The tasks found on a page.
@@ -351,14 +383,17 @@ var File_novatrail_api_v1_paper_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_paper_proto_rawDesc = "" +
 	"\n" +
-	"\x1cnovatrail/api/v1/paper.proto\x12\x10novatrail.api.v1\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a*novatrail/observation/v1/observation.proto\"\xf3\x01\n" +
+	"\x1cnovatrail/api/v1/paper.proto\x12\x10novatrail.api.v1\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a*novatrail/observation/v1/observation.proto\"\xf3\x02\n" +
 	"\x10FindTasksRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12'\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\x12\x14\n" +
 	"\x05photo\x18\x03 \x01(\fR\x05photo\x121\n" +
 	"\aown_key\x18\x04 \x01(\v2\x18.novatrail.api.v1.OwnKeyR\x06ownKey\x125\n" +
-	"\x14clock_offset_minutes\x18\x05 \x01(\x05H\x00R\x12clockOffsetMinutes\x88\x01\x01B\x17\n" +
+	"\x14clock_offset_minutes\x18\x05 \x01(\x05H\x00R\x12clockOffsetMinutes\x88\x01\x01\x12\x18\n" +
+	"\arequest\x18\x06 \x01(\tR\arequest\x121\n" +
+	"\x05found\x18\a \x03(\v2\x1b.novatrail.api.v1.TaskFrameR\x05found\x121\n" +
+	"\x05drawn\x18\b \x03(\v2\x1b.novatrail.api.v1.TaskFrameR\x05drawnB\x17\n" +
 	"\x15_clock_offset_minutes\"\x99\x01\n" +
 	"\x11FindTasksResponse\x123\n" +
 	"\x06frames\x18\x01 \x03(\v2\x1b.novatrail.api.v1.TaskFrameR\x06frames\x123\n" +
@@ -406,18 +441,20 @@ var file_novatrail_api_v1_paper_proto_goTypes = []any{
 }
 var file_novatrail_api_v1_paper_proto_depIdxs = []int32{
 	5, // 0: novatrail.api.v1.FindTasksRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	2, // 1: novatrail.api.v1.FindTasksResponse.frames:type_name -> novatrail.api.v1.TaskFrame
-	6, // 2: novatrail.api.v1.FindTasksResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	7, // 3: novatrail.api.v1.TaskFrame.box:type_name -> novatrail.observation.v1.CropBox
-	0, // 4: novatrail.api.v1.PaperService.FindTasks:input_type -> novatrail.api.v1.FindTasksRequest
-	3, // 5: novatrail.api.v1.PaperService.BeginPaperAttempts:input_type -> novatrail.api.v1.BeginPaperAttemptsRequest
-	1, // 6: novatrail.api.v1.PaperService.FindTasks:output_type -> novatrail.api.v1.FindTasksResponse
-	4, // 7: novatrail.api.v1.PaperService.BeginPaperAttempts:output_type -> novatrail.api.v1.BeginPaperAttemptsResponse
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2, // 1: novatrail.api.v1.FindTasksRequest.found:type_name -> novatrail.api.v1.TaskFrame
+	2, // 2: novatrail.api.v1.FindTasksRequest.drawn:type_name -> novatrail.api.v1.TaskFrame
+	2, // 3: novatrail.api.v1.FindTasksResponse.frames:type_name -> novatrail.api.v1.TaskFrame
+	6, // 4: novatrail.api.v1.FindTasksResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	7, // 5: novatrail.api.v1.TaskFrame.box:type_name -> novatrail.observation.v1.CropBox
+	0, // 6: novatrail.api.v1.PaperService.FindTasks:input_type -> novatrail.api.v1.FindTasksRequest
+	3, // 7: novatrail.api.v1.PaperService.BeginPaperAttempts:input_type -> novatrail.api.v1.BeginPaperAttemptsRequest
+	1, // 8: novatrail.api.v1.PaperService.FindTasks:output_type -> novatrail.api.v1.FindTasksResponse
+	4, // 9: novatrail.api.v1.PaperService.BeginPaperAttempts:output_type -> novatrail.api.v1.BeginPaperAttemptsResponse
+	8, // [8:10] is the sub-list for method output_type
+	6, // [6:8] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_paper_proto_init() }

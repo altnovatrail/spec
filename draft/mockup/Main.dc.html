@@ -750,6 +750,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
               <span class="nt-dot" style="width: 6px; height: 6px; border-radius: 3px; background: #8E8E93; animation-delay: 0.3s"></span>
             </span>
             <sc-if value="{{readingShow}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #6E6E73">Reading your work</span></sc-if>
+            <sc-if value="{{findingShow}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #6E6E73">Finding the tasks on the page</span></sc-if>
             <sc-if value="{{writingShow}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #6E6E73">The tutor is writing…</span></sc-if>
           </div>
         </sc-if>
@@ -766,9 +767,13 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </sc-for>
     </div>
 
-    <!-- The text field and the microphone are Pip's, a child's tutor of epic E4 of app; the adult has none (R82; О-6). -->
+    <!-- The text field and the microphone are Pip's, a child's tutor of epic E4 of app; the adult's field is only on the page to pick from, for a request about the frames, and its microphone waits for voice (R165; R82; О-6). -->
     <sc-if value="{{chatInput}}" hint-placeholder-val="{{ false }}">
     <div style="padding: 0 10px 10px">
+      <!-- The request goes to the AI with the photo: no names in it, as on the page itself (R127; privacy 6). -->
+      <sc-if value="{{askNames}}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 0 6px 6px; font-size: 11.5px; line-height: 1.35; color: #6E6E73">Write no names, yours or anyone else’s.</div>
+      </sc-if>
       <sc-if value="{{listening}}" hint-placeholder-val="{{ false }}">
         <div style="height: 52px; border-radius: 26px; background: rgba(0,113,227,0.10); display: flex; align-items: center; gap: 10px; padding: 0 4px 0 14px">
           <span class="nt-pulse" style="flex: none; width: 8px; height: 8px; border-radius: 4px; background: #FF3B30"></span>
@@ -787,7 +792,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         <div style="height: 52px; border-radius: 26px; background: rgba(118,118,128,0.10); display: flex; align-items: center; gap: 4px; padding: 0 4px 0 16px">
           <input class="chat-in" aria-label="{{inputLabel}}" placeholder="{{inputPlaceholder}}" value="{{draft}}" onChange="{{onDraft}}" onKeyDown="{{onKey}}" style="flex: 1; min-width: 0; height: 32px; border: 0; outline: 0; padding: 0; background: transparent; font: inherit; font-size: 14.5px; color: #1D1D1F; user-select: text; -webkit-user-select: text">
           <sc-if value="{{micShow}}" hint-placeholder-val="{{ true }}">
-            <button aria-label="Speak" onClick="{{micStart}}" style="flex: none; width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #1D1D1F">
+            <button class="tip tip-l" aria-label="{{micLabel}}" data-tip="{{micLabel}}" aria-disabled="{{micOff}}" onClick="{{micStart}}" style="flex: none; width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: {{micFg}}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"></path></svg>
             </button>
           </sc-if>
@@ -970,7 +975,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 <!-- ============ Pick: the tasks to solve ============ -->
 <sc-if value="{{isPick}}" hint-placeholder-val="{{ false }}">
   <!-- The photo went to the AI once, to find the tasks, and stays on the device alone; a picked task's crop goes to be read at Check (privacy 6). -->
-  <div class="ph-picknote" style="position: absolute; left: 50%; bottom: 82px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6E6E73; white-space: nowrap">
+  <div class="ph-picknote" style="position: absolute; left: 50%; bottom: 82px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6E6E73; white-space: {{noteWrap.ws}}; width: {{noteWrap.w}}; justify-content: center; text-align: center">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
     {{pickNote}}
   </div>
@@ -2002,6 +2007,8 @@ class Component extends DCLogic {
     seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {},
     picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, choiceOpen: false, solAsk: false, segsOpen: false, fold: false,
     report: null, reportKind: null, reportErr: false, reported: {}, quotaOut: false, inkN: {},
+    // The learner's request about the page (R165): the tasks the finding gave on it, by page, and the frames before it, for Undo.
+    asked: {}, askUndo: null,
     // Debug (RUN.md, T233): the window, the models chosen, the log of the session's calls.
     dbgFlag: false, dbgOpen: false, dbgTab: 'models', dbgFirst: { model: 'admitted', effort: 'medium', think: true }, dbgSecond: { on: false, model: 'sonnet', effort: 'low', think: true },
     dbgLog: [], dbgRow: null, dbgMenu: null, dbgBusy: false, dbgFull: false, dbgCopied: null, dbgExport: null, dbgOutcome: {}, dbgSaved: {} };
@@ -2055,12 +2062,12 @@ class Component extends DCLogic {
   }
   dbgClock() { const t = 14 * 3600 + 2 * 60 + 10 + 17 * (this.dbgG++); const p = (v) => String(v).padStart(2, '0'); return p(Math.floor(t / 3600)) + ':' + p(Math.floor(t / 60) % 60) + ':' + p(t % 60); }
   // The page photographed: one call finds the tasks; its boxes are in the photo's pixels.
-  dbgFind(s, d) {
-    const list = (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false);
+  dbgFind(s, d, request) {
+    const list = request ? this.found(s) : (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false);
     const tasks = list.map((r) => ({ x1: r.x * 4, y1: r.y * 4, x2: (r.x + r.w) * 4, y2: (r.y + r.h) * 4 }));
-    const miss = d === 'olympiad' ? '' : ' It missed equation (6): frame it by hand.';
+    const miss = d === 'olympiad' || request ? '' : ' It missed equation (6): frame it by hand.';
     const c = this.dbgCall(s, 'finding', { tasks }, 0, { note: list.length + ' tasks found.' + miss });
-    return { id: 'g' + this.dbgN, title: 'Find tasks', at: this.dbgClock(), calls: [c], join: '' };
+    return { id: 'g' + this.dbgN, title: 'Find tasks', at: this.dbgClock(), calls: [c], join: request ? 'Request: “' + request + '”' : '' };
   }
   // A Check: at the first one the key — the tasks of the statement read, then the solver for each formula or the AI's solution —;
   // at each, the work read, each answer with its task and its box.
@@ -2139,7 +2146,7 @@ class Component extends DCLogic {
   dbgVals(s, PH, isPick, isSolve) {
     const show = this.dbgOn() && s.screen === 'canvas' && (isPick || isSolve);
     const calls = [].concat(...s.dbgLog.map((g) => g.calls)), ai = calls.filter((c) => c.ai !== false);
-    const total = calls.reduce((a, c) => a + c.usd, 0), open = show && s.dbgOpen;
+    const total = calls.reduce((a, c) => a + c.usd, 0), open = show && s.dbgOpen, talk = s.chatOpen && this.tutorHere(s);
     const seg = (on) => ({ bg: on ? '#FFFFFF' : 'transparent', sh: on ? '0 1px 3px rgba(0,0,0,0.12)' : 'none' });
     const sw = (on) => ({ bg: on ? '#34C759' : 'rgba(120,120,128,0.24)', x: on ? 20 : 2 });
     const setSlot = (key, up) => this.setState({ [key]: { ...this.state[key], ...up } });
@@ -2181,8 +2188,9 @@ class Component extends DCLogic {
           copy: () => { try { navigator.clipboard.writeText(c.json); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: c.id }); } };
       }) }));
     const tab = s.dbgTab;
-    return { show, open, tip: 'Debug · ' + dbgUsd(total), mt: isSolve && !PH ? -100 : -28, btnCls: isSolve ? 'ph-dbg-up' : '', ring: s.dbgBusy ? 'nt-dring' : '',
-      btn: { op: open ? 0 : 1, sc: open ? 0.6 : 1, vis: open ? 'hidden' : 'visible' },
+    return { show, open, tip: 'Debug · ' + dbgUsd(total), mt: !PH ? -100 : -28, btnCls: 'ph-dbg-up', ring: s.dbgBusy ? 'nt-dring' : '',
+      // While the tutor's panel is open the button is not there: the panel stands in its place.
+      btn: { op: open || talk ? 0 : 1, sc: open || talk ? 0.6 : 1, vis: open || talk ? 'hidden' : 'visible' },
       panel: { op: open ? 1 : 0, vis: open ? 'visible' : 'hidden', cls: PH ? (s.dbgFull ? 'ph-full' : 'ph-half') : '',
         tf: PH ? 'translateY(' + (open ? 0 : 40) + 'px)' : 'translateX(' + (open ? 0 : 24) + 'px) scale(' + (open ? 1 : 0.96) + ')', grab: s.dbgFull ? 'Half screen' : 'Full screen' },
       full: s.dbgFull, toggleFull: () => this.setState({ dbgFull: !this.state.dbgFull }),
@@ -2201,7 +2209,7 @@ class Component extends DCLogic {
   // it never names the answer. Every verdict comes from the program and lands in the conversation too.
   tutorHere(st) {
     if (this.lesNow(st)) return this.segNow(st).k === 'task' && !st.lesEnd;
-    return st.screen === 'canvas' && (st.surface !== 'paper' || st.stage === 'solve');
+    return st.screen === 'canvas' && (st.surface !== 'paper' || st.stage === 'solve' || st.stage === 'pick');
   }
   // ---- A lesson: its segments in the author's order — explanations, worked examples, tasks (concepts 5; R06 app).
   lesNow(st) { st = st || this.state; return st.screen === 'canvas' && st.surface === 'sheet' && st.lesson && LESSONS[st.lesson] ? LESSONS[st.lesson] : null; }
@@ -2216,6 +2224,7 @@ class Component extends DCLogic {
 
   ctx(st) {
     st = st || this.state;
+    if (st.surface === 'paper' && st.stage === 'pick') return { key: st.captured + '-page', label: 'Your page', tut: GEN, page: true };
     if (st.surface === 'paper' && st.stage === 'solve') {
       const t = this.task(st);
       return { key: st.captured + '-' + t.id, label: this.tname(t, st) + ' · ' + t.label, tut: t.manual ? GEN : t };
@@ -2235,7 +2244,9 @@ class Component extends DCLogic {
     const add = [{ id: this.mid++, who: 'div', ctx: c.key, text: c.label }];
     // A task passed by with nothing said leaves no divider behind.
     if (list.length && list[list.length - 1].who === 'div') return list.slice(0, -1).concat(add);
-    if (!list.length) add.push({ id: this.mid++, who: 'pip', text: this.isPip(st)
+    // On the page to pick from, the tutor takes a request about the frames alone, and says so (R165).
+    if (c.page) add.push({ id: this.mid++, who: 'pip', text: 'Tell me which tasks to take from this page and how to split them: a column, a row, each example on its own. I only change the frames.' });
+    else if (!list.length) add.push({ id: this.mid++, who: 'pip', text: this.isPip(st)
       ? 'Hi, I’m Pip. Ask me ' + (st.micOn ? 'by voice or text' : 'anything') + ' — I’ll help you find the answer, not give it.'
       : this.lesNow(st) ? 'The tutor is an AI, not a person. Hints come here, a question at a time, and a program checks every answer.'
       : 'Hints for this task come here, a question at a time. A program checks every answer.' });
@@ -2315,7 +2326,7 @@ class Component extends DCLogic {
   }
 
   micStart = () => {
-    if (!this.state.micOn) return;
+    if (!this.state.micOn || this.ctx().page) return;
     this.stopSpeak();
     clearTimeout(this.micT);
     this.setState({ listening: true });
@@ -2345,7 +2356,39 @@ class Component extends DCLogic {
     if (!x) return;
     this.setState({ draft: '' });
     this.me(x);
+    if (this.ctx().page) return this.askPage(x);
     this.reply(this.intentOf(x));
+  };
+
+  // A request about the page goes to the finding with the photo and the frames on it now; its answer is frames alone,
+  // which replace the frames found before, while the learner's own stay. The line under it is the program's (R165).
+  askPage(x) {
+    const s = this.state, d = s.captured, key = this.ctx().key, q = x.toLowerCase(), all = d === 'olympiad' ? OL : WS;
+    const ids = /left|first column|лев|перв/.test(q) ? all.filter((r) => r.x < 300).map((r) => r.id)
+      : /right|second column|прав|втор/.test(q) ? all.filter((r) => r.x >= 300).map((r) => r.id)
+      : /each|every|all|кажд|все/.test(q) ? all.map((r) => r.id) : [];
+    this.setState({ typing: true, dbgBusy: this.dbgOn() });
+    this.later(() => {
+      const st = this.state;
+      if (this.ctx().key !== key) return this.setState({ typing: false, dbgBusy: false });
+      const line = ids.length ? { title: 'Found ' + ids.length + ' tasks', text: 'Your own frames stay. Undo brings back the frames before.' }
+        : { title: 'No tasks found for that', text: 'The frames stay as they were.' };
+      const up = { typing: false, chat: this.withCtx(st.chat).concat([{ id: this.mid++, who: 'res', res: 'info', ...line }]) };
+      if (ids.length) {
+        const own = this.framesOf(st).map((f) => f.id);
+        Object.assign(up, { asked: { ...st.asked, [d]: ids }, selected: ids.concat(st.selected.filter((i) => own.includes(i))),
+          askUndo: { d, asked: st.asked[d] || null, selected: st.selected } });
+      }
+      this.setState(up);
+      if (this.dbgOn()) this.dbgAdd(this.dbgFind(this.state, d, x));
+    }, 900);
+  }
+  // Undo of a request: the frames found before it and the picks, while the learner has changed nothing since.
+  undoAsk = () => {
+    const s = this.state, u = s.askUndo;
+    if (!u || u.d !== s.captured) return;
+    this.setState({ asked: { ...s.asked, [u.d]: u.asked }, selected: u.selected, askUndo: null,
+      chat: this.withCtx(s.chat).concat([{ id: this.mid++, who: 'res', res: 'info', title: 'The frames are back as they were' }]) });
   };
 
   // ---- The view of the sheet: moved by hand or by the wheel, and zoomed up to 200 %.
@@ -2529,7 +2572,12 @@ class Component extends DCLogic {
   }
 
   // The tasks of the page: those the AI found, then the learner's frames, each a task of its own with its crop (ids from 101).
-  found(st) { st = st || this.state; return (st.captured === 'olympiad' ? OL : WS).filter((t) => t.found !== false); }
+  // A request about the page gives the tasks anew: those of its answer replace the ones found before (R165).
+  found(st) {
+    st = st || this.state;
+    const all = st.captured === 'olympiad' ? OL : WS, ids = st.asked[st.captured];
+    return ids ? all.filter((t) => ids.includes(t.id)) : all.filter((t) => t.found !== false);
+  }
   framesOf(st) { st = st || this.state; return st.frames[st.captured] || []; }
   // The tasks of the page a frame by hand holds: round two or more, the reading of its statement lists each, and each is checked (R162).
   within(t, st) {
@@ -2575,7 +2623,7 @@ class Component extends DCLogic {
     this.later(() => {
       const s = this.state, p = d + '-';
       // Every task found starts picked: the learner leaves out what they will not solve, and frames what the AI missed.
-      this.setState({ flash: false, stage: 'pick', captured: d, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
+      this.setState({ flash: false, stage: 'pick', captured: d, asked: { ...s.asked, [d]: null }, askUndo: null, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
         strokes: without(s.strokes, p), answers: without(s.answers, p), status: without(s.status, p), ptries: without(s.ptries, p), pmark: null, vmarks: null, verdict: null });
       if (this.dbgOn()) this.dbgAdd(this.dbgFind(this.state, d));
     }, 380);
@@ -2611,15 +2659,15 @@ class Component extends DCLogic {
     if (x1 - x0 < 40 || y1 - y0 < 30) return;
     const list = this.framesOf(), id = 101 + list.reduce((m, f) => Math.max(m, f.id - 100), 0);
     const f = { id, x: Math.round(x0), y: Math.round(y0), w: Math.round(x1 - x0), h: Math.round(y1 - y0) };
-    this.setState({ frames: { ...s.frames, [s.captured]: list.concat([f]) }, selected: s.selected.concat([id]) });
+    this.setState({ frames: { ...s.frames, [s.captured]: list.concat([f]) }, selected: s.selected.concat([id]), askUndo: null });
   }
   setFrame(id, up) {
     const s = this.state;
-    this.setState({ frames: { ...s.frames, [s.captured]: this.framesOf().map((f) => (f.id === id ? { ...f, ...up } : f)) } });
+    this.setState({ frames: { ...s.frames, [s.captured]: this.framesOf().map((f) => (f.id === id ? { ...f, ...up } : f)) }, askUndo: null });
   }
   removeFrame(id) {
     const s = this.state;
-    this.setState({ frames: { ...s.frames, [s.captured]: this.framesOf().filter((f) => f.id !== id) }, selected: s.selected.filter((x) => x !== id) });
+    this.setState({ frames: { ...s.frames, [s.captured]: this.framesOf().filter((f) => f.id !== id) }, selected: s.selected.filter((x) => x !== id), askUndo: null });
   }
   // The corner of a frame resizes it: at least 40 × 30 on the page, and never past its edge.
   resizeDown(f, e) {
@@ -2637,7 +2685,7 @@ class Component extends DCLogic {
 
   toggle(id) {
     const sel = this.state.selected;
-    this.setState({ selected: sel.includes(id) ? sel.filter((x) => x !== id) : sel.concat([id]) });
+    this.setState({ selected: sel.includes(id) ? sel.filter((x) => x !== id) : sel.concat([id]), askUndo: null });
   }
 
   start = () => {
@@ -3089,7 +3137,8 @@ class Component extends DCLogic {
     // The tutor's buttons: Hint, and "Explain differently" once there is a rung to word anew (R82).
     const hinted = isTask ? !!s.wrongs[c.key] && s.altAt[c.key] !== Math.min(s.wrongs[c.key], 3) && !g.rubric : !!s.hinted[c.key] || st === 'wrong';
     const act = (label, go, off, bulb) => ({ label, go, off, bulb, bg: off ? 'rgba(118,118,128,0.08)' : 'rgba(255,255,255,0.9)', fg: off ? '#6E6E73' : '#0071E3' });
-    const acts = isTask ? (this.ended() ? [] : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.lesAlt(), !hinted, false)])
+    const acts = isPick ? (s.askUndo && s.askUndo.d === s.captured ? [act('Undo', this.undoAsk, false, false)] : [])
+      : isTask ? (this.ended() ? [] : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.lesAlt(), !hinted, false)])
       : pOver ? [act('Next task', () => this.next(), false, false)]
       : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.reply('alt'), !hinted, false)];
     const pip = this.isPip(s), later = s.slice === 'later';
@@ -3097,7 +3146,7 @@ class Component extends DCLogic {
     const status = s.listening ? { text: 'Listening…', fg: '#0071E3', bars: true }
       : s.speaking != null ? { text: 'Speaking…', fg: '#0071E3', bars: true }
       : reading ? { text: 'Reading your work…', fg: '#6E6E73', bars: false }
-      : s.typing ? { text: 'Typing…', fg: '#6E6E73', bars: false }
+      : s.typing ? { text: isPick ? 'Finding the tasks…' : 'Typing…', fg: '#6E6E73', bars: false }
       : isTask ? { text: 'Tutor time today: ' + (s.quotaOut ? 100 : 20) + '% used', fg: '#6E6E73', bars: false }
       : { text: (pip ? 'Your tutor · ' : 'AI tutor · ') + short, fg: '#6E6E73', bars: false };
     const hasDraft = !!s.draft.trim();
@@ -3130,6 +3179,8 @@ class Component extends DCLogic {
       showKinds: isSolve && later, showRightBar: (isSolve || isPick || isExt) && !L,
       devCls: PH ? 'nt-phone' : 'nt-pad', dim, nl, devName: this.devName(), scrollTab: PH ? '0' : '-1',
       pillCls: PH && isSolve ? 'ph-backonly' : '', barCls: PH && s.chatOpen ? 'nt-hide' : '', railCls: PH && s.chatOpen ? 'nt-hide' : '',
+      // With the tutor's panel open on the iPad the line keeps to the width of the page, clear of the panel.
+      noteWrap: !PH && s.chatOpen ? { ws: 'normal', w: '456px' } : { ws: 'nowrap', w: 'auto' },
       pickNote: 'The AI looked at the whole page to find the tasks. The photo stays on this ' + this.devName() + '. Draw round a task it missed.',
       frames, frameDown: this.frameDown, frameMove: this.frameMove, frameUp: this.frameUp, liveFrame: !!s.live && s.liveLayer === 'frame',
       wavy: markOn && pm.layer === 'main' ? mark : [], clipWavy: markOn && pm.layer === 'clip' ? mark : [],
@@ -3181,7 +3232,7 @@ class Component extends DCLogic {
       backToPick: () => this.setState({ stage: 'pick', verdict: null }),
       demoWs: () => this.setState({ demo: 'worksheet' }), demoOl: () => this.setState({ demo: 'olympiad' }),
       capture: this.capture, start: this.start,
-      selectAll: () => this.setState({ selected: this.state.selected.length === tasks.length ? [] : tasks.map((r) => r.id) }),
+      selectAll: () => this.setState({ selected: this.state.selected.length === tasks.length ? [] : tasks.map((r) => r.id), askUndo: null }),
       allLabel: sel.length === tasks.length ? 'Select none' : 'Select all',
       tasksOpen: s.tasksOpen, tasksBtnBg: s.tasksOpen ? 'rgba(0,113,227,0.12)' : 'rgba(118,118,128,0.10)',
       navLabel: (sel.indexOf(t.id) + 1) + ' / ' + sel.length, doneLabel: doneN + ' of ' + sel.length + ' done',
@@ -3196,7 +3247,10 @@ class Component extends DCLogic {
       showTutor: tutorHere, chatOpen: s.chatOpen, unread: s.unread && !s.chatOpen,
       isPip: pip, isNeutral: !pip, tutorName: pip ? 'Pip, your tutor' : 'Tutor', tutorTitle: pip ? 'Pip' : 'Tutor',
       micSwitch: pip ? 'Talk to Pip by voice' : 'Talk to the tutor by voice',
-      chatInput: pip, inputLabel: pip ? 'Message to Pip' : 'Message to the tutor', inputPlaceholder: pip ? 'Ask Pip…' : 'Ask the tutor…',
+      // The adult's field is on the page to pick from alone, for a request about the frames (R165); Pip's is a child's of epic E4 of app.
+      chatInput: pip || isPick, askNames: isPick,
+      inputLabel: isPick ? 'Which tasks to take, and how to split them' : pip ? 'Message to Pip' : 'Message to the tutor',
+      inputPlaceholder: isPick ? 'Say which tasks to take…' : pip ? 'Ask Pip…' : 'Ask the tutor…',
       pipBtn: { op: s.chatOpen ? 0 : 1, sc: s.chatOpen ? 0.6 : 1, vis: s.chatOpen ? 'hidden' : 'visible' },
       // At the side on the iPad; a sheet from the bottom on the phone, half the height or the whole.
       panel: { op: s.chatOpen ? 1 : 0, vis: s.chatOpen ? 'visible' : 'hidden', cls: PH ? (s.tutorFull ? 'ph-full' : 'ph-half') : '',
@@ -3205,13 +3259,15 @@ class Component extends DCLogic {
       tutorFull: s.tutorFull, toggleTutorFull: () => this.setState({ tutorFull: !this.state.tutorFull }),
       pipRing: s.speaking != null || s.listening ? 'nt-ring' : '',
       status, msgs, acts, wave: WAVE,
-      typingShow: s.typing || reading, readingShow: reading && !s.typing,
+      typingShow: s.typing || reading, readingShow: reading && !s.typing, findingShow: s.typing && isPick,
       voiceOn: s.voiceOn, voiceOff: !s.voiceOn, voiceFg: s.voiceOn ? '#0071E3' : '#6E6E73', voiceBg: s.voiceOn ? 'rgba(0,113,227,0.10)' : 'transparent',
       toggleVoice: () => { if (this.state.voiceOn) this.stopSpeak(); this.setState({ voiceOn: !this.state.voiceOn }); },
       micOn: s.micOn, sw: { bg: s.micOn ? '#34C759' : 'rgba(120,120,128,0.24)', x: s.micOn ? 20 : 2 },
       toggleMic: () => { if (this.state.micOn) this.micCancel(); this.setState({ micOn: !this.state.micOn }); },
       listening: s.listening, notListening: !s.listening,
-      micShow: s.micOn && !hasDraft, sendShow: hasDraft || !s.micOn, sendBg: hasDraft ? '#0071E3' : 'rgba(118,118,128,0.28)',
+      // On the page the microphone is there and off: voice comes later (R165).
+      micShow: (s.micOn || isPick) && !hasDraft, sendShow: hasDraft || (!s.micOn && !isPick), sendBg: hasDraft ? '#0071E3' : 'rgba(118,118,128,0.28)',
+      micOff: isPick, micLabel: isPick ? 'Speak — voice comes later' : 'Speak', micFg: isPick ? '#AEAEB2' : '#1D1D1F',
       draft: s.draft, onDraft: (e) => this.setState({ draft: e.target.value }),
       onKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.send(); } },
       send: this.send, micStart: this.micStart, micStop: this.micStop,

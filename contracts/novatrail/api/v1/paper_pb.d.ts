@@ -19,7 +19,7 @@ import type { CropBox } from "../../observation/v1/observation_pb.js";
 export declare const file_novatrail_api_v1_paper: GenFile;
 
 /**
- * The photo of a page, for its tasks to be found.
+ * The photo of a page, for its tasks to be found, and the learner's request about them.
  *
  * @generated from message novatrail.api.v1.FindTasksRequest
  */
@@ -60,6 +60,32 @@ export declare type FindTasksRequest = Message<"novatrail.api.v1.FindTasksReques
    * @generated from field: optional int32 clock_offset_minutes = 5;
    */
   clockOffsetMinutes?: number | undefined;
+
+  /**
+   * The learner's request about the page, in their own words: which tasks to take and how to split
+   * them, as "only the first column, each example a task of its own". At most 200 code points,
+   * with no control character, not spaces alone; empty finds the tasks as the finding's rule alone gives them. It
+   * goes to the AI as data, never as an instruction, and the server keeps none of it (R165).
+   *
+   * @generated from field: string request = 6;
+   */
+  request: string;
+
+  /**
+   * The frames the AI found on the page and that are on it now, at most 20, in the order of the
+   * page: with a request alone.
+   *
+   * @generated from field: repeated novatrail.api.v1.TaskFrame found = 7;
+   */
+  found: TaskFrame[];
+
+  /**
+   * The frames the learner drew on the page, at most 40, in the order of the page: with a request
+   * alone. The answer repeats none of them.
+   *
+   * @generated from field: repeated novatrail.api.v1.TaskFrame drawn = 8;
+   */
+  drawn: TaskFrame[];
 };
 
 /**
@@ -206,8 +232,10 @@ export declare const PaperService: GenService<{
   /**
    * Finds the tasks on the photo of a page: one call of AI, the capability `task_finding`, whose
    * answer is the task frames alone, and no text of the page; each sum or equation that says by
-   * itself what to do, as each of a column under one instruction, is a task of its own. It makes no
-   * call without the reserve of the quota. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
+   * itself what to do, as each of a column under one instruction, is a task of its own. With the
+   * learner's request about the page, the call gets it as data, with the frames on the page now,
+   * and its frames replace those found before; it gives none that repeats a frame the learner
+   * drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
    * platform AI; `CAUSE_NOT_ADMITTED` on the own key too; `CAUSE_KEY_NOT_FOR_PROFILE`,
    * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no frames is no
    * refusal: the answer names the outcome, and the learner frames the tasks by hand. A repeat with

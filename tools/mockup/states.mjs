@@ -159,6 +159,15 @@ export const STATES = [
   { name: "pick", title: "The tasks the AI found on the page, every one picked", from: "camera", shows: "tap one to leave it out", run: (t) => t.v().capture() },
   // A loop drawn round equation (6), which the AI missed: its box becomes the learner's frame.
   { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([[310, 598], [576, 598], [576, 644], [310, 644]]) },
+  // The learner's request about the page, to the tutor (R165): the finding gives the frames anew, the program words the line.
+  {
+    name: "pick-ask",
+    title: "The tutor on the page: a request about the frames",
+    from: "pick",
+    shows: "Write no names",
+    run: (t) => (t.v().openChat(), t.c.setState({ draft: "Take only the left column, each example as its own task" })),
+  },
+  { name: "pick-asked", title: "The frames found anew by the request, and Undo", from: "pick-ask", shows: "Found 3 tasks", run: (t) => t.v().send() },
   {
     name: "solve",
     title: "A task from the page, on a clean sheet",
