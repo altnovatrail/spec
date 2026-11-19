@@ -318,9 +318,9 @@ type GetDebugResponse struct {
 	Models []*DebugModel `protobuf:"bytes,1,rep,name=models,proto3" json:"models,omitempty"`
 	// The choice now.
 	Choice *DebugChoice `protobuf:"bytes,2,opt,name=choice,proto3" json:"choice,omitempty"`
-	// The model of each call of a task from paper by the admission list of `tutor`, for an adult on
-	// platform AI: what serves the call with no first model. A call the list admits no model for is
-	// absent.
+	// The models of each call of a task from paper by the admission list of `tutor`, for an adult on
+	// platform AI, one for each model in the order of their attempts (R164): what serves the call
+	// with no first model. A call the list admits no model for is absent.
 	Admitted      []*DebugAdmitted `protobuf:"bytes,3,rep,name=admitted,proto3" json:"admitted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -377,7 +377,7 @@ func (x *GetDebugResponse) GetAdmitted() []*DebugAdmitted {
 	return nil
 }
 
-// The model the admission list gives a call.
+// A model the admission list gives a call.
 type DebugAdmitted struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The call.
@@ -536,7 +536,8 @@ func (x *DebugModel) GetThinkingOffEfforts() []DebugEffort {
 type DebugChoice struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The model of all four calls — the tasks found, the statement read, the solution and the work
-	// read: absent, each call has its model of the admission list of `tutor`.
+	// read —, one attempt each: absent, each call has its models of the admission list of `tutor`,
+	// in turn (R164).
 	First *DebugModelChoice `protobuf:"bytes,1,opt,name=first,proto3" json:"first,omitempty"`
 	// A second reader of the work, beside the first model's reading, the two joined as a pair is
 	// (R68): absent, one reader.
@@ -949,7 +950,10 @@ type DebugCall struct {
 	// Whether the provider's bill of the call is whole.
 	Billed bool `protobuf:"varint,16,opt,name=billed,proto3" json:"billed,omitempty"`
 	// What the call came to when it gave no answer that was read: as `Outcome` names it.
-	Failure       Cause `protobuf:"varint,17,opt,name=failure,proto3,enum=novatrail.api.v1.Cause" json:"failure,omitempty"`
+	Failure Cause `protobuf:"varint,17,opt,name=failure,proto3,enum=novatrail.api.v1.Cause" json:"failure,omitempty"`
+	// The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
+	// the one before did not do (R164). 1 for the solver and for a model the debug mode chose.
+	Attempt       int32 `protobuf:"varint,18,opt,name=attempt,proto3" json:"attempt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1103,6 +1107,13 @@ func (x *DebugCall) GetFailure() Cause {
 	return Cause_CAUSE_UNSPECIFIED
 }
 
+func (x *DebugCall) GetAttempt() int32 {
+	if x != nil {
+		return x.Attempt
+	}
+	return 0
+}
+
 // A Check of a task from paper as the debug mode exports it, a case of the set of a task from
 // paper of the eval runner of `tutor`: the pictures its calls saw, what they gave, and the truth as
 // the developer says it. `app` writes it as the JSON of this message, a file a case; `tutor-eval`
@@ -1251,7 +1262,7 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"attempt_id\x18\x02 \x01(\tR\tattemptId\x12*\n" +
 	"\x02at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x121\n" +
 	"\x05calls\x18\x04 \x03(\v2\x1b.novatrail.api.v1.DebugCallR\x05calls\x12%\n" +
-	"\x0ereaders_differ\x18\x05 \x01(\bR\rreadersDiffer\"\xf6\x04\n" +
+	"\x0ereaders_differ\x18\x05 \x01(\bR\rreadersDiffer\"\x90\x05\n" +
 	"\tDebugCall\x123\n" +
 	"\x04kind\x18\x01 \x01(\x0e2\x1f.novatrail.api.v1.DebugCallKindR\x04kind\x12\x16\n" +
 	"\x06reader\x18\x02 \x01(\x05R\x06reader\x12\x14\n" +
@@ -1271,7 +1282,8 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\aretries\x18\x0e \x01(\x05R\aretries\x12$\n" +
 	"\x0ecost_micro_usd\x18\x0f \x01(\x03R\fcostMicroUsd\x12\x16\n" +
 	"\x06billed\x18\x10 \x01(\bR\x06billed\x121\n" +
-	"\afailure\x18\x11 \x01(\x0e2\x17.novatrail.api.v1.CauseR\afailure\"\x9d\x02\n" +
+	"\afailure\x18\x11 \x01(\x0e2\x17.novatrail.api.v1.CauseR\afailure\x12\x18\n" +
+	"\aattempt\x18\x12 \x01(\x05R\aattempt\"\x9d\x02\n" +
 	"\tDebugCase\x12/\n" +
 	"\x04work\x18\x01 \x01(\v2\x1b.novatrail.api.v1.PaperWorkR\x04work\x12\x18\n" +
 	"\aformula\x18\x02 \x01(\tR\aformula\x12,\n" +

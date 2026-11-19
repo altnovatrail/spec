@@ -118,7 +118,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `solve-circle` | Check with no option circled: "Circle an answer first" | First slice |
 | `solve-nokey` | A task that could not be checked: the AI's solution gave no answer a program can compare, so it has no key; hints still work | First slice |
 | `pick-debug` | The page photographed on a local run with `api`'s debug flag: the debug button where the tutor's is, and its window's Models — the first model for every call, a second to read the work | Local run alone (RUN.md, T233) |
-| `solve-debug-log` | A Check on a local run with the debug flag: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check | Local run alone (RUN.md, T233) |
+| `solve-debug-log` | A Check on a local run with the debug flag: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check; as admitted, the work read in two attempts, Haiku's unreadable and then Sonnet's (R164) | Local run alone (RUN.md, T233, T234) |
 | `solve-debug-export` | A Check of the Log exported: its truth — the formula, the key, the value read, the verdict, a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | Local run alone (RUN.md, T233) |
 | `later-who` | "Who's learning?" with the children Comet and Juniper | Later · E4 app |
 | `later-add` | "Add a learner": the steps of a parent's consent | Later · E4 app |

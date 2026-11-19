@@ -212,7 +212,7 @@ export const STATES = [
     name: "solve-debug-log",
     title: "Debug on a local run: a Check, the window's Log",
     from: "pick-debug",
-    shows: "Session total",
+    shows: "attempt 2",
     run: (t) => {
       t.v().dbg.close();
       t.v().start();

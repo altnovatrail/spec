@@ -1963,12 +1963,14 @@ const DBG_MODELS = [
 ];
 const DBG_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
 const DBG_EF = { low: 0.55, medium: 1, high: 1.7, xhigh: 2.6, max: 3.8 };
-// The four calls of the paper flow, the model tutor's admission list gives each, and the demo's synthetic tokens.
+// The four calls of the paper flow and the demo's synthetic tokens. Each call's models of tutor's admission list are its
+// attempts in turn, the next only when the one before did not do (R164): Haiku at high, then Sonnet and Opus at medium.
+const DBG_CASCADE = [{ model: 'haiku', effort: 'high' }, { model: 'sonnet', effort: 'medium' }, { model: 'opus', effort: 'medium' }];
 const DBG_CALLS = {
-  finding: { name: 'Find tasks', adm: 'opus', in: 2380, out: 520, th: 900 },
-  statement: { name: 'Statement', adm: 'haiku', in: 1210, out: 40, th: 260 },
-  solving: { name: 'Solution', adm: 'haiku', in: 1460, out: 120, th: 1400 },
-  paper: { name: 'Read the work', adm: 'haiku', in: 1880, out: 210, th: 640 }
+  finding: { name: 'Find tasks', in: 2380, out: 520, th: 900 },
+  statement: { name: 'Statement', in: 1210, out: 40, th: 260 },
+  solving: { name: 'Solution', in: 1460, out: 120, th: 1400 },
+  paper: { name: 'Read the work', in: 1880, out: 210, th: 640 }
 };
 const dbgModel = (id) => DBG_MODELS.find((m) => m.id === id);
 const dbgUsd = (x) => '$' + (x < 0.01 ? x.toFixed(5) : x.toFixed(4));
@@ -2015,10 +2017,10 @@ class Component extends DCLogic {
   // ---- Debug (RUN.md, T233): the models of the paper flow, what each returned and its cost. Only with api's debug flag on a
   // local run, so the demo shows it by the prop debug or the state dbgFlag. The first model serves all four calls, the second only reads the work.
   dbgOn() { return !!this.state.dbgFlag || this.props.debug === true || this.props.debug === 'true'; }
-  dbgPick(s, call, reader) {
+  dbgPick(s, call, reader, attempt) {
     if (reader === 2) return { m: dbgModel(s.dbgSecond.model), effort: s.dbgSecond.effort, think: this.dbgThink(s.dbgSecond) };
     const f = s.dbgFirst;
-    if (f.model === 'admitted') return { m: dbgModel(DBG_CALLS[call].adm), effort: 'medium', think: true };
+    if (f.model === 'admitted') { const a = DBG_CASCADE[(attempt || 1) - 1]; return { m: dbgModel(a.model), effort: a.effort, think: true }; }
     return { m: dbgModel(f.model), effort: f.effort, think: this.dbgThink(f) };
   }
   // Thinking can be off only on a model that turns it off, and only up to high (tutor/provider/claude).
@@ -2026,13 +2028,13 @@ class Component extends DCLogic {
   dbgThink(c) { return this.dbgThinkFixed(c) ? true : c.think; }
   // One model call, with synthetic tokens and its cost by the prices above.
   dbgCall(s, call, answer, reader, extra) {
-    const p = this.dbgPick(s, call, reader), k = DBG_CALLS[call], f = DBG_EF[p.effort], n = ++this.dbgN, x = extra || {};
+    const x = extra || {}, p = this.dbgPick(s, call, reader, x.attempt), k = DBG_CALLS[call], f = DBG_EF[p.effort], n = ++this.dbgN;
     const jit = 0.9 + ((n * 37) % 21) / 100;
     const input = Math.round(k.in * jit), cached = call !== 'paper' && n > 1 ? 1024 : 0;
     const th = p.think ? Math.round(k.th * f * jit) : 0, out = Math.round(k.out * jit) + th;
     const usd = ((input - cached) * p.m.pin + cached * p.m.pin * 0.1 + out * p.m.pout) / 1e6;
     const took = (0.7 + out / 240) * p.m.speed;
-    return { id: 'c' + n, call, kind: k.name + (reader ? ' · reader ' + reader : ''), model: p.m.name + ' · ' + p.effort + (p.think ? ' · thinking' : ' · no thinking'), api: p.m.api,
+    return { id: 'c' + n, call, kind: k.name + (reader ? ' · reader ' + reader : '') + (x.attempt > 1 ? ' · attempt ' + x.attempt : ''), model: p.m.name + ' · ' + p.effort + (p.think ? ' · thinking' : ' · no thinking'), api: p.m.api,
       input, cached, out, th, usd, took, first: took * (th ? 0.55 + th / out / 3 : 0.25), retries: x.retries || 0, json: JSON.stringify(answer, null, 2), note: x.note || '', bad: !!x.bad };
   }
   // The solver of module-kit: the key from the formula the AI read, with no AI and no cost.
@@ -2059,7 +2061,10 @@ class Component extends DCLogic {
         const v = (t.manual ? 'x = −3' : t.ans).split('= ')[1];
         calls.push(this.dbgSolver({ kind: 'number', value: v, unknown: 'x' }));
       } else if (nokey) {
-        calls.push(this.dbgCall(s, 'solving', { kind: 'none', value: '', units: [], unknown: '', options: [], key: '' }, 0, { bad: true, retries: 1, note: 'No one answer a program can compare: “Couldn’t check this one” (CAUSE_NO_KEY).' }));
+        // As admitted, a solution with no answer a key may hold goes to the next model, up to the third (R164).
+        const none = { kind: 'none', value: '', units: [], unknown: '', options: [], key: '' }, tries = s.dbgFirst.model === 'admitted' ? 3 : 1;
+        for (let a = 1; a < tries; a++) calls.push(this.dbgCall(s, 'solving', none, 0, { attempt: a, note: 'No one answer a key may hold: the next model solves it.' }));
+        calls.push(this.dbgCall(s, 'solving', none, 0, { attempt: tries, bad: true, retries: 1, note: 'No one answer a program can compare: “Couldn’t check this one” (CAUSE_NO_KEY).' }));
       } else {
         calls.push(this.dbgCall(s, 'solving', { kind: 'choice', value: '', units: [], unknown: '', options: ['A', 'B', 'C', 'D', 'E'], key: t.key }, 0, { note: 'The key, from the AI’s solution. It stays on the server.' }));
       }
@@ -2067,7 +2072,12 @@ class Component extends DCLogic {
     const read = ol ? (got.length === 1 ? '(' + got[0] + ')' : '') : t.manual ? 'x = −3' : ok ? t.ans : t.wrong;
     const obs = (text) => ({ parts: text ? [{ kind: 'answer', text, legible: true, other_readings: [] }] : [], results: text ? [{ part: 1, value: text.replace(/^x = |[()]/g, ''), other_values: [] }] : [] });
     const pair = s.dbgSecond.on;
-    calls.push(this.dbgCall(s, 'paper', obs(read), pair ? 1 : 0, { note: read ? 'Read “' + read + '”.' : 'No circled answer found.' }));
+    // As admitted, the first Check shows a reading in two attempts: Haiku leaves the answer unreadable, and Sonnet reads it.
+    if (first && read && !pair && s.dbgFirst.model === 'admitted') {
+      const blur = { parts: [{ kind: 'answer', text: '?', legible: false, other_readings: [] }], results: [{ part: 1, value: '', other_values: [] }] };
+      calls.push(this.dbgCall(s, 'paper', blur, 0, { attempt: 1, note: 'Unreadable (illegible): the next model reads it.' }));
+      calls.push(this.dbgCall(s, 'paper', obs(read), 0, { attempt: 2, note: 'Read “' + read + '”.' }));
+    } else calls.push(this.dbgCall(s, 'paper', obs(read), pair ? 1 : 0, { note: read ? 'Read “' + read + '”.' : 'No circled answer found.' }));
     if (pair) calls.push(this.dbgCall(s, 'paper', obs(read), 2, { note: read ? 'Read “' + read + '”.' : 'No circled answer found.' }));
     const verdict = nokey ? 'no key, no verdict' : !read ? 'no answer to compare' : ok ? 'Correct' : 'Not yet';
     const join = (pair ? 'Both readers read “' + (read || '—') + '”: the pair agrees' : 'One reader') + ' → compared with the key: ' + verdict + '.';
@@ -2096,7 +2106,7 @@ class Component extends DCLogic {
       Object.assign(up, { stage: 'solve', current: 1, selected: [1, 2, 4], strokes: { [k]: [st] }, ptries: { [k]: 1 }, status: { [k]: 'wrong' },
         verdict: { kind: 'no', title: 'Not yet', line: 'Read: ' + t.wrong } });
       log.push(this.dbgCheck(s, t, 0, false, []));
-      if (at !== 'solve') Object.assign(up, { dbgOpen: true, dbgTab: 'log', dbgRow: log[1].calls[pair ? 3 : 2].id, verdict: null });
+      if (at !== 'solve') Object.assign(up, { dbgOpen: true, dbgTab: 'log', dbgRow: log[1].calls[log[1].calls.length - 1].id, verdict: null });
       if (at === 'solve-export') Object.assign(up, { dbgRow: null, dbgExport: log[1].id });
     }
     this.setState({ ...up, dbgLog: log });
@@ -2112,7 +2122,7 @@ class Component extends DCLogic {
     const slot = (key, title, sub) => {
       const c = s[key], second = key === 'dbgSecond', rows = !second || c.on, admitted = c.model === 'admitted', fixed = this.dbgThinkFixed(c), m = dbgModel(c.model);
       const menuOpen = open && s.dbgMenu === key;
-      const items = (second ? [] : [{ id: 'admitted', name: 'As admitted', sub: 'Each call its model of tutor’s list' }]).concat(DBG_MODELS.map((x) => ({ id: x.id, name: x.name, sub: x.api + ' · $' + x.pin + ' / $' + x.pout + ' per Mtok' })));
+      const items = (second ? [] : [{ id: 'admitted', name: 'As admitted', sub: 'Each call its models of tutor’s list, in turn' }]).concat(DBG_MODELS.map((x) => ({ id: x.id, name: x.name, sub: x.api + ' · $' + x.pin + ' / $' + x.pout + ' per Mtok' })));
       return { title, sub, hasSwitch: second, on: !!c.on, sw: sw(!!c.on), rows, admitted: rows && admitted, chosen: rows && !admitted,
         toggleOn: () => setSlot(key, { on: !this.state[key].on }),
         model: admitted ? 'As admitted' : m.name, menuOpen, menuTop: second ? 96 : 48,
@@ -2157,7 +2167,7 @@ class Component extends DCLogic {
       tabs: [{ label: 'Models', id: 'models', hasN: false, n: '' }, { label: 'Log', id: 'log', hasN: ai.length > 0, n: String(ai.length) }].map((x) => ({ ...x, on: tab === x.id, ...seg(tab === x.id), pick: () => this.setState({ dbgTab: x.id, dbgMenu: null }) })),
       isModels: tab === 'models', isLog: tab === 'log',
       slots: [slot('dbgFirst', 'First model — every call', 'Find tasks, the statement, the solution and reading the work'), slot('dbgSecond', 'Second model — reading the work', 'A second reader of the crop with the strokes')],
-      admittedRows: Object.keys(DBG_CALLS).map((k) => ({ call: DBG_CALLS[k].name, model: dbgModel(DBG_CALLS[k].adm).name + ' · medium' })),
+      admittedRows: Object.keys(DBG_CALLS).map((k) => ({ call: DBG_CALLS[k].name, model: DBG_CASCADE.map((a) => dbgModel(a.model).name.replace(' 5.5', '') + ' · ' + a.effort).join(' → ') })),
       groups, empty: !groups.length, sum: dbgUsd(total), clear: () => this.setState({ dbgLog: [], dbgRow: null, dbgExport: null, dbgSaved: {} }) };
   }
 

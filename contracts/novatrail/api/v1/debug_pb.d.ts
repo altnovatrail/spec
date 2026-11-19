@@ -56,9 +56,9 @@ export declare type GetDebugResponse = Message<"novatrail.api.v1.GetDebugRespons
   choice?: DebugChoice | undefined;
 
   /**
-   * The model of each call of a task from paper by the admission list of `tutor`, for an adult on
-   * platform AI: what serves the call with no first model. A call the list admits no model for is
-   * absent.
+   * The models of each call of a task from paper by the admission list of `tutor`, for an adult on
+   * platform AI, one for each model in the order of their attempts (R164): what serves the call
+   * with no first model. A call the list admits no model for is absent.
    *
    * @generated from field: repeated novatrail.api.v1.DebugAdmitted admitted = 3;
    */
@@ -72,7 +72,7 @@ export declare type GetDebugResponse = Message<"novatrail.api.v1.GetDebugRespons
 export declare const GetDebugResponseSchema: GenMessage<GetDebugResponse>;
 
 /**
- * The model the admission list gives a call.
+ * A model the admission list gives a call.
  *
  * @generated from message novatrail.api.v1.DebugAdmitted
  */
@@ -168,7 +168,8 @@ export declare const DebugModelSchema: GenMessage<DebugModel>;
 export declare type DebugChoice = Message<"novatrail.api.v1.DebugChoice"> & {
   /**
    * The model of all four calls — the tasks found, the statement read, the solution and the work
-   * read: absent, each call has its model of the admission list of `tutor`.
+   * read —, one attempt each: absent, each call has its models of the admission list of `tutor`,
+   * in turn (R164).
    *
    * @generated from field: novatrail.api.v1.DebugModelChoice first = 1;
    */
@@ -472,6 +473,14 @@ export declare type DebugCall = Message<"novatrail.api.v1.DebugCall"> & {
    * @generated from field: novatrail.api.v1.Cause failure = 17;
    */
   failure: Cause;
+
+  /**
+   * The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
+   * the one before did not do (R164). 1 for the solver and for a model the debug mode chose.
+   *
+   * @generated from field: int32 attempt = 18;
+   */
+  attempt: number;
 };
 
 /**

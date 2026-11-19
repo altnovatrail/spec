@@ -39,13 +39,13 @@ message GetDebugResponse {
   repeated DebugModel models = 1;
   // The choice now.
   DebugChoice choice = 2;
-  // The model of each call of a task from paper by the admission list of `tutor`, for an adult on
-  // platform AI: what serves the call with no first model. A call the list admits no model for is
-  // absent.
+  // The models of each call of a task from paper by the admission list of `tutor`, for an adult on
+  // platform AI, one for each model in the order of their attempts (R164): what serves the call
+  // with no first model. A call the list admits no model for is absent.
   repeated DebugAdmitted admitted = 3;
 }
 
-// The model the admission list gives a call.
+// A model the admission list gives a call.
 message DebugAdmitted {
   // The call.
   DebugCallKind kind = 1;
@@ -90,7 +90,8 @@ enum DebugEffort {
 // Which models serve the calls of a task from paper.
 message DebugChoice {
   // The model of all four calls — the tasks found, the statement read, the solution and the work
-  // read: absent, each call has its model of the admission list of `tutor`.
+  // read —, one attempt each: absent, each call has its models of the admission list of `tutor`,
+  // in turn (R164).
   DebugModelChoice first = 1;
   // A second reader of the work, beside the first model's reading, the two joined as a pair is
   // (R68): absent, one reader.
@@ -191,6 +192,9 @@ message DebugCall {
   bool billed = 16;
   // What the call came to when it gave no answer that was read: as `Outcome` names it.
   Cause failure = 17;
+  // The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
+  // the one before did not do (R164). 1 for the solver and for a model the debug mode chose.
+  int32 attempt = 18;
 }
 
 // What a call does.
