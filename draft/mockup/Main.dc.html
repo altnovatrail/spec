@@ -283,7 +283,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </sc-for>
       <!-- A frame's own controls stand outside its button, at the size of a target on the screen: the page is drawn scaled. -->
       <sc-for list="{{frames}}" as="f" hint-placeholder-count="0">
-        <button class="tip tip-bl" aria-label="Remove your frame" data-tip="Remove the frame" onClick="{{f.remove}}" style="position: absolute; left: {{f.xx}}px; top: {{f.xy}}px; width: {{f.ui}}px; height: {{f.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center">
+        <button class="tip tip-bl" aria-label="Remove the frame" data-tip="Remove the frame" onClick="{{f.remove}}" style="position: absolute; left: {{f.xx}}px; top: {{f.xy}}px; width: {{f.ui}}px; height: {{f.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center">
           <span style="width: 60%; height: 60%; border-radius: 50%; background: #FFFFFF; color: #1D1D1F; box-shadow: 0 0 0 1.5px rgba(0,113,227,0.55), 0 2px 6px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center"><svg width="55%" height="55%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></span>
         </button>
         <button aria-label="Resize your frame" data-w="600" onPointerDown="{{f.down}}" onPointerMove="{{f.move}}" onPointerUp="{{f.up}}" onPointerCancel="{{f.up}}" style="position: absolute; left: {{f.hx}}px; top: {{f.hy}}px; width: {{f.ui}}px; height: {{f.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: nwse-resize">
