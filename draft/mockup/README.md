@@ -114,12 +114,14 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `solve-not-yet` | "Not yet" as a card, the first rung in the tutor's panel, and the wavy line under the place of the mistake: the demo's profile has "Show where" on | First slice |
 | `solve-correct` | "Correct", and "Next task" | First slice |
 | `solve-all` | Every task of the page over: "New photo" | First slice |
+| `pick-several` | A frame drawn by hand round two equations of the page at once | First slice (RUN.md, T235) |
+| `solve-several` | Check of a frame of two tasks, each by its own key: "Not yet · 1 of 2 correct", and a tick or a cross on a white halo by each answer on the crop; a second Check, "Correct · 2 of 2" | First slice (RUN.md, T235) |
 | `olympiad` | A problem of an olympiad book on its sheet: the answer is an option circled on the crop | First slice |
 | `solve-circle` | Check with no option circled: "Circle an answer first" | First slice |
 | `solve-nokey` | A task that could not be checked: the AI's solution gave no answer a program can compare, so it has no key; hints still work | First slice |
 | `pick-debug` | The page photographed on a local run with `api`'s debug flag: the debug button where the tutor's is, and its window's Models — the first model for every call, a second to read the work | Local run alone (RUN.md, T233) |
 | `solve-debug-log` | A Check on a local run with the debug flag: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check; as admitted, the work read in two attempts, Haiku's unreadable and then Sonnet's (R164) | Local run alone (RUN.md, T233, T234) |
-| `solve-debug-export` | A Check of the Log exported: its truth — the formula, the key, the value read, the verdict, a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | Local run alone (RUN.md, T233) |
+| `solve-debug-export` | A Check of the Log exported: its truth — for each task of the frame its statement, formula, key, value read and verdict, and a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | Local run alone (RUN.md, T233) |
 | `later-who` | "Who's learning?" with the children Comet and Juniper | Later · E4 app |
 | `later-add` | "Add a learner": the steps of a parent's consent | Later · E4 app |
 | `later-pin` | The owner's profile behind the PIN | Later · E4 app |
@@ -141,22 +143,22 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:268` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the loop being drawn |
 | `Main.dc.html:306` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
 | `Main.dc.html:331` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
-| `Main.dc.html:362` — Author canvases | The sandbox's chip |
-| `Main.dc.html:370` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
-| `Main.dc.html:413` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
-| `Main.dc.html:490` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
-| `Main.dc.html:520` — Tool rail | The tools of `canvas` as a vertical glass bar, and above them the crop's show and hide |
-| `Main.dc.html:556` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
-| `Main.dc.html:802` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:966` — Pick | What left the device, Select all, Start |
-| `Main.dc.html:983` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1060` — Debug | Only on a local run with `api`'s debug flag: the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
-| `Main.dc.html:1234` — Sign-in | Welcome, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1340` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1400` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:1487` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
-| `Main.dc.html:1682` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
-| `Main.dc.html:1719` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:366` — Author canvases | The sandbox's chip |
+| `Main.dc.html:374` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
+| `Main.dc.html:417` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
+| `Main.dc.html:494` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
+| `Main.dc.html:524` — Tool rail | The tools of `canvas` as a vertical glass bar, and above them the crop's show and hide |
+| `Main.dc.html:560` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
+| `Main.dc.html:806` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:970` — Pick | What left the device, Select all, Start |
+| `Main.dc.html:987` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1064` — Debug | Only on a local run with `api`'s debug flag: the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
+| `Main.dc.html:1245` — Sign-in | Welcome, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1351` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1411` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:1498` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
+| `Main.dc.html:1693` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
+| `Main.dc.html:1730` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -271,6 +273,8 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | The camera gives no reminder to keep names out of the photo | Before the camera, `app` reminds the learner to keep names out of it (privacy 6; R127) | `app`: the line under "Open camera" on the card and on the camera's screen (R71 app) |
 | The camera finds the page, "Page found · hold still", with a flash and "Auto", and a strip "DEMO PAGE" | `app`'s camera finds no page and has no flash: the first slice has no model on the device (R66) | `app` builds none of them (R71 app); the strip is the mockup's own |
 | A frame the AI found has no cross | Every frame's cross removes it, the AI's too (R162), by the author's word of 2026-11-19 | `app` (R71 app) |
+| The pick screen's top bar holds Retake alone | "Remove all frames" beside Retake, while there is a frame, clears the photo for the learner's own frames, by the author's word of 2026-11-19 | `app` (R71 app) |
+| The demo page has fewer than 20 tasks, and no line says the limit | With 20 found, a line says that is the most at once, and with more than 20 picked, why Start is shut (R162) | `app` (R71 app) |
 | A frame by hand is a loop alone | A loop, or two taps on opposite corners, which need no path (R90; WCAG 2.5.1, 2.5.7) | `app` (R71 app), by the author's answer (a) to В79, 2026-11-19 |
 | The paper flow's buttons without a caption have no tooltip | R90: a tooltip of the same words as the accessible name | `app` draws them by R60 app, `canvas` the grip's and the button's by R84 canvas (R87 canvas) |
 | The crop over the sheet is fixed on the screen, in one place for every task | The tracing paper lies in sheet units, and each task has its own place, `TracingState.at` (R162) | `canvas` (R87 canvas) |

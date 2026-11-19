@@ -205,8 +205,9 @@ export declare const BeginPaperAttemptsResponseSchema: GenMessage<BeginPaperAtte
 export declare const PaperService: GenService<{
   /**
    * Finds the tasks on the photo of a page: one call of AI, the capability `task_finding`, whose
-   * answer is the task frames alone, and no text of the page. It makes no call without the reserve
-   * of the quota. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
+   * answer is the task frames alone, and no text of the page; each sum or equation that says by
+   * itself what to do, as each of a column under one instruction, is a task of its own. It makes no
+   * call without the reserve of the quota. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
    * platform AI; `CAUSE_NOT_ADMITTED` on the own key too; `CAUSE_KEY_NOT_FOR_PROFILE`,
    * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no frames is no
    * refusal: the answer names the outcome, and the learner frames the tasks by hand. A repeat with

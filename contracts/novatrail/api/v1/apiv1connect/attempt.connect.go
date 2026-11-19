@@ -134,9 +134,10 @@ type AttemptServiceClient interface {
 	// Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
 	// both. The answer is the verdict of every item and answer slot, on the whole observation, and
 	// what was read. On a task from paper the first submission derives the key too, from the task's
-	// crop: a solution of AI that gives no one answer a program can compare is no key, the outcome
-	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals: `CAUSE_ATTEMPT_CLOSED`,
-	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
+	// crop, a key for each task on it: a task whose solution of AI gives no one answer a program
+	// can compare has none, and its item is unchecked; with none in any task the outcome is
+	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
 	// that gives no reading is no refusal: its slots get "unchecked", and the answer names the
 	// outcome. A repeat with the same idempotency key gets the verdicts and the reading recorded,
 	// with no AI.
@@ -220,9 +221,10 @@ type AttemptServiceHandler interface {
 	// Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
 	// both. The answer is the verdict of every item and answer slot, on the whole observation, and
 	// what was read. On a task from paper the first submission derives the key too, from the task's
-	// crop: a solution of AI that gives no one answer a program can compare is no key, the outcome
-	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals: `CAUSE_ATTEMPT_CLOSED`,
-	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
+	// crop, a key for each task on it: a task whose solution of AI gives no one answer a program
+	// can compare has none, and its item is unchecked; with none in any task the outcome is
+	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
 	// that gives no reading is no refusal: its slots get "unchecked", and the answer names the
 	// outcome. A repeat with the same idempotency key gets the verdicts and the reading recorded,
 	// with no AI.

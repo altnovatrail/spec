@@ -221,20 +221,30 @@ message DebugCase {
   // The work as the Check sent it: the task's crop, which the statement's reading and the
   // solution see, and the crop of the work, which the readers see.
   PaperWork work = 1;
-  // The formula the statement holds, as the solver of `module-kit` takes it; empty for a statement
-  // that holds none, a word problem, a choice or an open task.
-  string formula = 2;
-  // The task's key; none for an open task, which has no one answer.
-  novatrail.paper.v1.Answer key = 3;
-  // The value of the answer the work holds, brought to the key, as `x = 4` is `4`; empty where
-  // the work holds no answer.
-  string read = 4;
-  // The verdict the work should get by the key.
-  DebugOutcome outcome = 5;
+  // Each task the crop holds, from 1 to 20, in the order of the page, as the attempt's items: the
+  // work is `correct` when every task with a key is.
+  repeated DebugTask tasks = 2;
   // What the developer saw, in their words; may be empty.
-  string note = 6;
+  string note = 3;
   // The Check as the debug mode took it: its calls, what each returned and cost.
-  DebugAction action = 7;
+  DebugAction action = 4;
+}
+
+// One task of a case of the debug mode, as the developer says its truth.
+message DebugTask {
+  // The task's statement as printed, at most 200 bytes, as the reading of the statement gave it:
+  // the reading of the work is given it.
+  string statement = 5;
+  // The formula the task's statement holds, as the solver of `module-kit` takes it; empty for a
+  // statement that holds none, a word problem, a choice or an open task.
+  string formula = 1;
+  // The task's key; none for an open task, which has no one answer.
+  novatrail.paper.v1.Answer key = 2;
+  // The value of the answer the work holds for the task, brought to the key, as `x = 4` is `4`;
+  // empty where the work holds none.
+  string read = 3;
+  // The verdict the task's item should get by its key.
+  DebugOutcome outcome = 4;
 }
 
 // The verdict a case of the debug mode should get, as the set of a task from paper names it.

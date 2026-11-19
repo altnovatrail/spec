@@ -510,10 +510,10 @@ type PaperAttempt struct {
 	BegunAt Time `json:"begun_at"`
 	// When the learner last acted on it.
 	LastActionAt Time `json:"last_action_at"`
-	// Where the attempt's key came from: the solver, two agreeing solutions of AI, or none, when
-	// they did not agree; absent before a submission derived it. The key itself is the program's
-	// and never reaches the device (R05).
-	KeySource *PaperAttemptKeySource `json:"key_source,omitzero"`
+	// Where the key of each task of the attempt's crop came from, in the order of the page, as its
+	// items; absent before a submission derived them. The keys themselves are the program's and
+	// never reach the device (R05).
+	KeySources []PaperAttemptKeySources `json:"key_sources,omitzero"`
 	// The attempt's wrong answers.
 	WrongAnswers int64 `json:"wrong_answers"`
 	// The rungs given, in order, with their words.
@@ -524,19 +524,18 @@ type PaperAttempt struct {
 	Submissions []Submission `json:"submissions"`
 }
 
-// PaperAttemptKeySource is the type of
-// profile.schema.json#/$defs/paper_attempt/properties/key_source.
+// PaperAttemptKeySources is the type of
+// profile.schema.json#/$defs/paper_attempt/properties/key_sources/items.
 //
-// Where the attempt's key came from: the solver, two agreeing solutions of AI, or none, when they
-// did not agree; absent before a submission derived it. The key itself is the program's and never
-// reaches the device (R05).
-type PaperAttemptKeySource string
+// Where one task's key came from: the solver, one solution of AI, or none, when the solution gave
+// no one answer a program can compare.
+type PaperAttemptKeySources string
 
-// The values of PaperAttemptKeySource.
+// The values of PaperAttemptKeySources.
 const (
-	PaperAttemptKeySourceSolver PaperAttemptKeySource = "solver"
-	PaperAttemptKeySourceAi     PaperAttemptKeySource = "ai"
-	PaperAttemptKeySourceNone   PaperAttemptKeySource = "none"
+	PaperAttemptKeySourcesSolver PaperAttemptKeySources = "solver"
+	PaperAttemptKeySourcesAi     PaperAttemptKeySources = "ai"
+	PaperAttemptKeySourcesNone   PaperAttemptKeySources = "none"
 )
 
 // Choice is the type of profile.schema.json#/$defs/choice.

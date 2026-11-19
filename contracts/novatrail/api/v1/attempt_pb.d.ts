@@ -1245,6 +1245,15 @@ export declare type AnswerSlotVerdict = Message<"novatrail.api.v1.AnswerSlotVerd
    * @generated from field: optional string value = 4;
    */
   value?: string | undefined;
+
+  /**
+   * Where on the crop the answer was read, in whole thousandths of the crop's height and width:
+   * on a task from paper alone, and only when the reading gave a value, so that `app` puts the
+   * slot's verdict by the answer.
+   *
+   * @generated from field: novatrail.observation.v1.CropBox crop_box = 5;
+   */
+  cropBox?: CropBox | undefined;
 };
 
 /**
@@ -1647,7 +1656,7 @@ export declare const MarkKindSchema: GenEnum<MarkKind>;
  * `LearningService`. The engine's choice in `next` goes by the route to AI that the request
  * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
  * AI's without either, as `ChooseNext` judges it (R84; R99). An attempt of a task from paper
- * (R162) has one item with one answer slot, no `next`, and nothing to show: its key, the
+ * (R162) has an item with one answer slot for each task its crop holds, from 1 to 20, no `next`, and nothing to show: its key, the
  * solver's or the AI's, the first submission derives, `api` keeps it while the attempt is open,
  * and it never reaches the device (R05).
  *
@@ -1658,9 +1667,10 @@ export declare const AttemptService: GenService<{
    * Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
    * both. The answer is the verdict of every item and answer slot, on the whole observation, and
    * what was read. On a task from paper the first submission derives the key too, from the task's
-   * crop: a solution of AI that gives no one answer a program can compare is no key, the outcome
-   * `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals: `CAUSE_ATTEMPT_CLOSED`,
-   * `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
+   * crop, a key for each task on it: a task whose solution of AI gives no one answer a program
+   * can compare has none, and its item is unchecked; with none in any task the outcome is
+   * `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
+   * `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
    * that gives no reading is no refusal: its slots get "unchecked", and the answer names the
    * outcome. A repeat with the same idempotency key gets the verdicts and the reading recorded,
    * with no AI.

@@ -34,7 +34,7 @@ paper_attempts:
   - attempt_id: "attempt-7"
     begun_at: "2026-11-18T16:06:00Z"
     last_action_at: "2026-11-18T16:12:00Z"
-    key_source: "solver"
+    key_sources: ["solver"]
     wrong_answers: 1
     rungs:
       - rung: 1

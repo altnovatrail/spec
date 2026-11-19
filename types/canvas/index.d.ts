@@ -357,8 +357,8 @@ export type Anchor =
   /** [ymin, xmin, ymax, xmax] in whole thousandths of the crop's height and width; min < max. */
   | { readonly box: readonly [number, number, number, number] };
 
-/** A mark of the tutor's layer: a frame, or a wavy line, with where it is and its name. */
-export type Mark = FrameMark | WavyLineMark;
+/** A mark of the tutor's layer: a frame, a wavy line or a verdict, with where it is and its name. */
+export type Mark = FrameMark | WavyLineMark | VerdictMark;
 
 /** A frame round the place: on a sheet, on a workbook and on a task from paper. */
 export interface FrameMark {
@@ -385,6 +385,28 @@ export interface WavyLineMark {
   /**
    * What a screen reader names it, in app's words, in the language of its screen: "Tutor's mark:
    * where the mistake is". A name empty or of white space alone is a TypeError.
+   */
+  readonly name: string;
+}
+
+/**
+ * The verdict of one answer of a task from paper, by the answer on the crop of its work: a tick
+ * when it is right, a cross when it is not, which app gives for each task of a frame of several
+ * by the box its reading gave (R162). It is app's, not a mark of api's: the verdict of the answer
+ * says it. The element draws it at the right of the group of the learner's strokes nearest the box,
+ * one group a verdict, or of the box when none is near, over a light halo, so that it holds the
+ * contrast of 3:1 over the sheet and over the photo of any page, and puts it in the accessibility
+ * tree as it puts a frame, by its name (R90).
+ */
+export interface VerdictMark {
+  readonly kind: "verdict";
+  /** [ymin, xmin, ymax, xmax] in whole thousandths of the crop's height and width; min < max. */
+  readonly at: { readonly box: readonly [number, number, number, number] };
+  /** Whether the answer is right: a tick, or a cross. */
+  readonly correct: boolean;
+  /**
+   * What a screen reader names it, in app's words, in the language of its screen: "Task 2: not
+   * yet". A name empty or of white space alone is a TypeError.
    */
   readonly name: string;
 }

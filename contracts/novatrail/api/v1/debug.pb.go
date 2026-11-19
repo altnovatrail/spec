@@ -1123,20 +1123,13 @@ type DebugCase struct {
 	// The work as the Check sent it: the task's crop, which the statement's reading and the
 	// solution see, and the crop of the work, which the readers see.
 	Work *PaperWork `protobuf:"bytes,1,opt,name=work,proto3" json:"work,omitempty"`
-	// The formula the statement holds, as the solver of `module-kit` takes it; empty for a statement
-	// that holds none, a word problem, a choice or an open task.
-	Formula string `protobuf:"bytes,2,opt,name=formula,proto3" json:"formula,omitempty"`
-	// The task's key; none for an open task, which has no one answer.
-	Key *v1.Answer `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
-	// The value of the answer the work holds, brought to the key, as `x = 4` is `4`; empty where
-	// the work holds no answer.
-	Read string `protobuf:"bytes,4,opt,name=read,proto3" json:"read,omitempty"`
-	// The verdict the work should get by the key.
-	Outcome DebugOutcome `protobuf:"varint,5,opt,name=outcome,proto3,enum=novatrail.api.v1.DebugOutcome" json:"outcome,omitempty"`
+	// Each task the crop holds, from 1 to 20, in the order of the page, as the attempt's items: the
+	// work is `correct` when every task with a key is.
+	Tasks []*DebugTask `protobuf:"bytes,2,rep,name=tasks,proto3" json:"tasks,omitempty"`
 	// What the developer saw, in their words; may be empty.
-	Note string `protobuf:"bytes,6,opt,name=note,proto3" json:"note,omitempty"`
+	Note string `protobuf:"bytes,3,opt,name=note,proto3" json:"note,omitempty"`
 	// The Check as the debug mode took it: its calls, what each returned and cost.
-	Action        *DebugAction `protobuf:"bytes,7,opt,name=action,proto3" json:"action,omitempty"`
+	Action        *DebugAction `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1178,32 +1171,11 @@ func (x *DebugCase) GetWork() *PaperWork {
 	return nil
 }
 
-func (x *DebugCase) GetFormula() string {
+func (x *DebugCase) GetTasks() []*DebugTask {
 	if x != nil {
-		return x.Formula
-	}
-	return ""
-}
-
-func (x *DebugCase) GetKey() *v1.Answer {
-	if x != nil {
-		return x.Key
+		return x.Tasks
 	}
 	return nil
-}
-
-func (x *DebugCase) GetRead() string {
-	if x != nil {
-		return x.Read
-	}
-	return ""
-}
-
-func (x *DebugCase) GetOutcome() DebugOutcome {
-	if x != nil {
-		return x.Outcome
-	}
-	return DebugOutcome_DEBUG_OUTCOME_UNSPECIFIED
 }
 
 func (x *DebugCase) GetNote() string {
@@ -1218,6 +1190,91 @@ func (x *DebugCase) GetAction() *DebugAction {
 		return x.Action
 	}
 	return nil
+}
+
+// One task of a case of the debug mode, as the developer says its truth.
+type DebugTask struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The task's statement as printed, at most 200 bytes, as the reading of the statement gave it:
+	// the reading of the work is given it.
+	Statement string `protobuf:"bytes,5,opt,name=statement,proto3" json:"statement,omitempty"`
+	// The formula the task's statement holds, as the solver of `module-kit` takes it; empty for a
+	// statement that holds none, a word problem, a choice or an open task.
+	Formula string `protobuf:"bytes,1,opt,name=formula,proto3" json:"formula,omitempty"`
+	// The task's key; none for an open task, which has no one answer.
+	Key *v1.Answer `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	// The value of the answer the work holds for the task, brought to the key, as `x = 4` is `4`;
+	// empty where the work holds none.
+	Read string `protobuf:"bytes,3,opt,name=read,proto3" json:"read,omitempty"`
+	// The verdict the task's item should get by its key.
+	Outcome       DebugOutcome `protobuf:"varint,4,opt,name=outcome,proto3,enum=novatrail.api.v1.DebugOutcome" json:"outcome,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DebugTask) Reset() {
+	*x = DebugTask{}
+	mi := &file_novatrail_api_v1_debug_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DebugTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DebugTask) ProtoMessage() {}
+
+func (x *DebugTask) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_debug_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DebugTask.ProtoReflect.Descriptor instead.
+func (*DebugTask) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_debug_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *DebugTask) GetStatement() string {
+	if x != nil {
+		return x.Statement
+	}
+	return ""
+}
+
+func (x *DebugTask) GetFormula() string {
+	if x != nil {
+		return x.Formula
+	}
+	return ""
+}
+
+func (x *DebugTask) GetKey() *v1.Answer {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *DebugTask) GetRead() string {
+	if x != nil {
+		return x.Read
+	}
+	return ""
+}
+
+func (x *DebugTask) GetOutcome() DebugOutcome {
+	if x != nil {
+		return x.Outcome
+	}
+	return DebugOutcome_DEBUG_OUTCOME_UNSPECIFIED
 }
 
 var File_novatrail_api_v1_debug_proto protoreflect.FileDescriptor
@@ -1283,15 +1340,18 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x0ecost_micro_usd\x18\x0f \x01(\x03R\fcostMicroUsd\x12\x16\n" +
 	"\x06billed\x18\x10 \x01(\bR\x06billed\x121\n" +
 	"\afailure\x18\x11 \x01(\x0e2\x17.novatrail.api.v1.CauseR\afailure\x12\x18\n" +
-	"\aattempt\x18\x12 \x01(\x05R\aattempt\"\x9d\x02\n" +
+	"\aattempt\x18\x12 \x01(\x05R\aattempt\"\xba\x01\n" +
 	"\tDebugCase\x12/\n" +
-	"\x04work\x18\x01 \x01(\v2\x1b.novatrail.api.v1.PaperWorkR\x04work\x12\x18\n" +
-	"\aformula\x18\x02 \x01(\tR\aformula\x12,\n" +
-	"\x03key\x18\x03 \x01(\v2\x1a.novatrail.paper.v1.AnswerR\x03key\x12\x12\n" +
-	"\x04read\x18\x04 \x01(\tR\x04read\x128\n" +
-	"\aoutcome\x18\x05 \x01(\x0e2\x1e.novatrail.api.v1.DebugOutcomeR\aoutcome\x12\x12\n" +
-	"\x04note\x18\x06 \x01(\tR\x04note\x125\n" +
-	"\x06action\x18\a \x01(\v2\x1d.novatrail.api.v1.DebugActionR\x06action*\x9f\x01\n" +
+	"\x04work\x18\x01 \x01(\v2\x1b.novatrail.api.v1.PaperWorkR\x04work\x121\n" +
+	"\x05tasks\x18\x02 \x03(\v2\x1b.novatrail.api.v1.DebugTaskR\x05tasks\x12\x12\n" +
+	"\x04note\x18\x03 \x01(\tR\x04note\x125\n" +
+	"\x06action\x18\x04 \x01(\v2\x1d.novatrail.api.v1.DebugActionR\x06action\"\xbf\x01\n" +
+	"\tDebugTask\x12\x1c\n" +
+	"\tstatement\x18\x05 \x01(\tR\tstatement\x12\x18\n" +
+	"\aformula\x18\x01 \x01(\tR\aformula\x12,\n" +
+	"\x03key\x18\x02 \x01(\v2\x1a.novatrail.paper.v1.AnswerR\x03key\x12\x12\n" +
+	"\x04read\x18\x03 \x01(\tR\x04read\x128\n" +
+	"\aoutcome\x18\x04 \x01(\x0e2\x1e.novatrail.api.v1.DebugOutcomeR\aoutcome*\x9f\x01\n" +
 	"\vDebugEffort\x12\x1c\n" +
 	"\x18DEBUG_EFFORT_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10DEBUG_EFFORT_LOW\x10\x01\x12\x17\n" +
@@ -1336,7 +1396,7 @@ func file_novatrail_api_v1_debug_proto_rawDescGZIP() []byte {
 }
 
 var file_novatrail_api_v1_debug_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_novatrail_api_v1_debug_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_novatrail_api_v1_debug_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_novatrail_api_v1_debug_proto_goTypes = []any{
 	(DebugEffort)(0),               // 0: novatrail.api.v1.DebugEffort
 	(DebugActionKind)(0),           // 1: novatrail.api.v1.DebugActionKind
@@ -1355,10 +1415,11 @@ var file_novatrail_api_v1_debug_proto_goTypes = []any{
 	(*DebugAction)(nil),            // 14: novatrail.api.v1.DebugAction
 	(*DebugCall)(nil),              // 15: novatrail.api.v1.DebugCall
 	(*DebugCase)(nil),              // 16: novatrail.api.v1.DebugCase
-	(*timestamppb.Timestamp)(nil),  // 17: google.protobuf.Timestamp
-	(Cause)(0),                     // 18: novatrail.api.v1.Cause
-	(*PaperWork)(nil),              // 19: novatrail.api.v1.PaperWork
-	(*v1.Answer)(nil),              // 20: novatrail.paper.v1.Answer
+	(*DebugTask)(nil),              // 17: novatrail.api.v1.DebugTask
+	(*timestamppb.Timestamp)(nil),  // 18: google.protobuf.Timestamp
+	(Cause)(0),                     // 19: novatrail.api.v1.Cause
+	(*PaperWork)(nil),              // 20: novatrail.api.v1.PaperWork
+	(*v1.Answer)(nil),              // 21: novatrail.paper.v1.Answer
 }
 var file_novatrail_api_v1_debug_proto_depIdxs = []int32{
 	7,  // 0: novatrail.api.v1.GetDebugResponse.models:type_name -> novatrail.api.v1.DebugModel
@@ -1375,26 +1436,27 @@ var file_novatrail_api_v1_debug_proto_depIdxs = []int32{
 	8,  // 11: novatrail.api.v1.SetDebugModelsResponse.choice:type_name -> novatrail.api.v1.DebugChoice
 	14, // 12: novatrail.api.v1.TakeDebugCallsResponse.actions:type_name -> novatrail.api.v1.DebugAction
 	1,  // 13: novatrail.api.v1.DebugAction.kind:type_name -> novatrail.api.v1.DebugActionKind
-	17, // 14: novatrail.api.v1.DebugAction.at:type_name -> google.protobuf.Timestamp
+	18, // 14: novatrail.api.v1.DebugAction.at:type_name -> google.protobuf.Timestamp
 	15, // 15: novatrail.api.v1.DebugAction.calls:type_name -> novatrail.api.v1.DebugCall
 	2,  // 16: novatrail.api.v1.DebugCall.kind:type_name -> novatrail.api.v1.DebugCallKind
 	0,  // 17: novatrail.api.v1.DebugCall.effort:type_name -> novatrail.api.v1.DebugEffort
-	18, // 18: novatrail.api.v1.DebugCall.failure:type_name -> novatrail.api.v1.Cause
-	19, // 19: novatrail.api.v1.DebugCase.work:type_name -> novatrail.api.v1.PaperWork
-	20, // 20: novatrail.api.v1.DebugCase.key:type_name -> novatrail.paper.v1.Answer
-	3,  // 21: novatrail.api.v1.DebugCase.outcome:type_name -> novatrail.api.v1.DebugOutcome
-	14, // 22: novatrail.api.v1.DebugCase.action:type_name -> novatrail.api.v1.DebugAction
-	4,  // 23: novatrail.api.v1.DebugService.GetDebug:input_type -> novatrail.api.v1.GetDebugRequest
-	10, // 24: novatrail.api.v1.DebugService.SetDebugModels:input_type -> novatrail.api.v1.SetDebugModelsRequest
-	12, // 25: novatrail.api.v1.DebugService.TakeDebugCalls:input_type -> novatrail.api.v1.TakeDebugCallsRequest
-	5,  // 26: novatrail.api.v1.DebugService.GetDebug:output_type -> novatrail.api.v1.GetDebugResponse
-	11, // 27: novatrail.api.v1.DebugService.SetDebugModels:output_type -> novatrail.api.v1.SetDebugModelsResponse
-	13, // 28: novatrail.api.v1.DebugService.TakeDebugCalls:output_type -> novatrail.api.v1.TakeDebugCallsResponse
-	26, // [26:29] is the sub-list for method output_type
-	23, // [23:26] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	19, // 18: novatrail.api.v1.DebugCall.failure:type_name -> novatrail.api.v1.Cause
+	20, // 19: novatrail.api.v1.DebugCase.work:type_name -> novatrail.api.v1.PaperWork
+	17, // 20: novatrail.api.v1.DebugCase.tasks:type_name -> novatrail.api.v1.DebugTask
+	14, // 21: novatrail.api.v1.DebugCase.action:type_name -> novatrail.api.v1.DebugAction
+	21, // 22: novatrail.api.v1.DebugTask.key:type_name -> novatrail.paper.v1.Answer
+	3,  // 23: novatrail.api.v1.DebugTask.outcome:type_name -> novatrail.api.v1.DebugOutcome
+	4,  // 24: novatrail.api.v1.DebugService.GetDebug:input_type -> novatrail.api.v1.GetDebugRequest
+	10, // 25: novatrail.api.v1.DebugService.SetDebugModels:input_type -> novatrail.api.v1.SetDebugModelsRequest
+	12, // 26: novatrail.api.v1.DebugService.TakeDebugCalls:input_type -> novatrail.api.v1.TakeDebugCallsRequest
+	5,  // 27: novatrail.api.v1.DebugService.GetDebug:output_type -> novatrail.api.v1.GetDebugResponse
+	11, // 28: novatrail.api.v1.DebugService.SetDebugModels:output_type -> novatrail.api.v1.SetDebugModelsResponse
+	13, // 29: novatrail.api.v1.DebugService.TakeDebugCalls:output_type -> novatrail.api.v1.TakeDebugCallsResponse
+	27, // [27:30] is the sub-list for method output_type
+	24, // [24:27] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_debug_proto_init() }
@@ -1410,7 +1472,7 @@ func file_novatrail_api_v1_debug_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_debug_proto_rawDesc), len(file_novatrail_api_v1_debug_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   13,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -572,13 +572,19 @@
           "$ref": "common.schema.json#/$defs/time",
           "description": "When the learner last acted on it."
         },
-        "key_source": {
-          "enum": [
-            "solver",
-            "ai",
-            "none"
-          ],
-          "description": "Where the attempt's key came from: the solver, two agreeing solutions of AI, or none, when they did not agree; absent before a submission derived it. The key itself is the program's and never reaches the device (R05)."
+        "key_sources": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "enum": [
+              "solver",
+              "ai",
+              "none"
+            ],
+            "description": "Where one task's key came from: the solver, one solution of AI, or none, when the solution gave no one answer a program can compare."
+          },
+          "description": "Where the key of each task of the attempt's crop came from, in the order of the page, as its items; absent before a submission derived them. The keys themselves are the program's and never reach the device (R05)."
         },
         "wrong_answers": {
           "type": "integer",

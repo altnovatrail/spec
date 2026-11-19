@@ -1235,11 +1235,11 @@ export interface PaperAttempt {
    */
   readonly last_action_at: Time;
   /**
-   * Where the attempt's key came from: the solver, two agreeing solutions of AI, or none, when they
-   * did not agree; absent before a submission derived it. The key itself is the program's and never
-   * reaches the device (R05).
+   * Where the key of each task of the attempt's crop came from, in the order of the page, as its
+   * items; absent before a submission derived them. The keys themselves are the program's and never
+   * reach the device (R05).
    */
-  readonly key_source?: PaperAttemptKeySource;
+  readonly key_sources?: readonly PaperAttemptKeySources[];
   /**
    * The attempt's wrong answers.
    */
@@ -1259,14 +1259,13 @@ export interface PaperAttempt {
 }
 
 /**
- * PaperAttemptKeySource is the type of
- * profile.schema.json#/$defs/paper_attempt/properties/key_source.
+ * PaperAttemptKeySources is the type of
+ * profile.schema.json#/$defs/paper_attempt/properties/key_sources/items.
  *
- * Where the attempt's key came from: the solver, two agreeing solutions of AI, or none, when they
- * did not agree; absent before a submission derived it. The key itself is the program's and never
- * reaches the device (R05).
+ * Where one task's key came from: the solver, one solution of AI, or none, when the solution gave
+ * no one answer a program can compare.
  */
-export type PaperAttemptKeySource = "solver" | "ai" | "none";
+export type PaperAttemptKeySources = "solver" | "ai" | "none";
 
 /**
  * Choice is the type of profile.schema.json#/$defs/choice.

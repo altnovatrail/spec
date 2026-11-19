@@ -119,25 +119,20 @@ export declare type Choice = Message<"novatrail.paper.v1.Choice"> & {
 export declare const ChoiceSchema: GenMessage<Choice>;
 
 /**
- * The key of an attempt of a task from paper, which `api` keeps on the attempt while it is open.
+ * The key of an attempt of a task from paper, which `api` keeps on the attempt while it is open:
+ * the tasks the reading of the statement found on the crop, as each of a column of sums framed
+ * together, each with its own key.
  *
  * @generated from message novatrail.paper.v1.Key
  */
 export declare type Key = Message<"novatrail.paper.v1.Key"> & {
   /**
-   * Where the key came from.
+   * The tasks on the crop, from 1 to 20, in the order of the page: top to bottom, and left to
+   * right in a row. The task at the place n is the item n of the attempt's submissions.
    *
-   * @generated from field: novatrail.paper.v1.Provenance provenance = 1;
+   * @generated from field: repeated novatrail.paper.v1.TaskKey tasks = 1;
    */
-  provenance: Provenance;
-
-  /**
-   * The answer, or none when AI solved the task and gave no one answer a program can compare: the
-   * task has no key, and every submission of the attempt gets the outcome `CAUSE_NO_KEY`.
-   *
-   * @generated from field: novatrail.paper.v1.Answer answer = 2;
-   */
-  answer?: Answer | undefined;
+  tasks: TaskKey[];
 };
 
 /**
@@ -145,6 +140,43 @@ export declare type Key = Message<"novatrail.paper.v1.Key"> & {
  * Use `create(KeySchema)` to create a new message.
  */
 export declare const KeySchema: GenMessage<Key>;
+
+/**
+ * One task on the crop of a task from paper, and its key.
+ *
+ * @generated from message novatrail.paper.v1.TaskKey
+ */
+export declare type TaskKey = Message<"novatrail.paper.v1.TaskKey"> & {
+  /**
+   * The task as the page prints it, at most 200 bytes of UTF-8, as "□ − 3 = 7": the reading of the
+   * work is given it, to tell which task each answer is of. It is the printed statement alone,
+   * never the learner's writing.
+   *
+   * @generated from field: string statement = 1;
+   */
+  statement: string;
+
+  /**
+   * Where the key came from; not given when the task has none.
+   *
+   * @generated from field: novatrail.paper.v1.Provenance provenance = 2;
+   */
+  provenance: Provenance;
+
+  /**
+   * The answer, or none when the task has no one answer a program can compare: its item is
+   * unchecked, and with no answer in any task every submission gets the outcome `CAUSE_NO_KEY`.
+   *
+   * @generated from field: novatrail.paper.v1.Answer answer = 3;
+   */
+  answer?: Answer | undefined;
+};
+
+/**
+ * Describes the message novatrail.paper.v1.TaskKey.
+ * Use `create(TaskKeySchema)` to create a new message.
+ */
+export declare const TaskKeySchema: GenMessage<TaskKey>;
 
 /**
  * Where a key of a task from paper came from (concepts 9.4).

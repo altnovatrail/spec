@@ -507,46 +507,24 @@ export declare type DebugCase = Message<"novatrail.api.v1.DebugCase"> & {
   work?: PaperWork | undefined;
 
   /**
-   * The formula the statement holds, as the solver of `module-kit` takes it; empty for a statement
-   * that holds none, a word problem, a choice or an open task.
+   * Each task the crop holds, from 1 to 20, in the order of the page, as the attempt's items: the
+   * work is `correct` when every task with a key is.
    *
-   * @generated from field: string formula = 2;
+   * @generated from field: repeated novatrail.api.v1.DebugTask tasks = 2;
    */
-  formula: string;
-
-  /**
-   * The task's key; none for an open task, which has no one answer.
-   *
-   * @generated from field: novatrail.paper.v1.Answer key = 3;
-   */
-  key?: Answer | undefined;
-
-  /**
-   * The value of the answer the work holds, brought to the key, as `x = 4` is `4`; empty where
-   * the work holds no answer.
-   *
-   * @generated from field: string read = 4;
-   */
-  read: string;
-
-  /**
-   * The verdict the work should get by the key.
-   *
-   * @generated from field: novatrail.api.v1.DebugOutcome outcome = 5;
-   */
-  outcome: DebugOutcome;
+  tasks: DebugTask[];
 
   /**
    * What the developer saw, in their words; may be empty.
    *
-   * @generated from field: string note = 6;
+   * @generated from field: string note = 3;
    */
   note: string;
 
   /**
    * The Check as the debug mode took it: its calls, what each returned and cost.
    *
-   * @generated from field: novatrail.api.v1.DebugAction action = 7;
+   * @generated from field: novatrail.api.v1.DebugAction action = 4;
    */
   action?: DebugAction | undefined;
 };
@@ -556,6 +534,57 @@ export declare type DebugCase = Message<"novatrail.api.v1.DebugCase"> & {
  * Use `create(DebugCaseSchema)` to create a new message.
  */
 export declare const DebugCaseSchema: GenMessage<DebugCase>;
+
+/**
+ * One task of a case of the debug mode, as the developer says its truth.
+ *
+ * @generated from message novatrail.api.v1.DebugTask
+ */
+export declare type DebugTask = Message<"novatrail.api.v1.DebugTask"> & {
+  /**
+   * The task's statement as printed, at most 200 bytes, as the reading of the statement gave it:
+   * the reading of the work is given it.
+   *
+   * @generated from field: string statement = 5;
+   */
+  statement: string;
+
+  /**
+   * The formula the task's statement holds, as the solver of `module-kit` takes it; empty for a
+   * statement that holds none, a word problem, a choice or an open task.
+   *
+   * @generated from field: string formula = 1;
+   */
+  formula: string;
+
+  /**
+   * The task's key; none for an open task, which has no one answer.
+   *
+   * @generated from field: novatrail.paper.v1.Answer key = 2;
+   */
+  key?: Answer | undefined;
+
+  /**
+   * The value of the answer the work holds for the task, brought to the key, as `x = 4` is `4`;
+   * empty where the work holds none.
+   *
+   * @generated from field: string read = 3;
+   */
+  read: string;
+
+  /**
+   * The verdict the task's item should get by its key.
+   *
+   * @generated from field: novatrail.api.v1.DebugOutcome outcome = 4;
+   */
+  outcome: DebugOutcome;
+};
+
+/**
+ * Describes the message novatrail.api.v1.DebugTask.
+ * Use `create(DebugTaskSchema)` to create a new message.
+ */
+export declare const DebugTaskSchema: GenMessage<DebugTask>;
 
 /**
  * The effort of a call, as the provider names it.

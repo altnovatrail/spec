@@ -291,14 +291,14 @@ func (x *Choice) GetKey() string {
 	return ""
 }
 
-// The key of an attempt of a task from paper, which `api` keeps on the attempt while it is open.
+// The key of an attempt of a task from paper, which `api` keeps on the attempt while it is open:
+// the tasks the reading of the statement found on the crop, as each of a column of sums framed
+// together, each with its own key.
 type Key struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Where the key came from.
-	Provenance Provenance `protobuf:"varint,1,opt,name=provenance,proto3,enum=novatrail.paper.v1.Provenance" json:"provenance,omitempty"`
-	// The answer, or none when AI solved the task and gave no one answer a program can compare: the
-	// task has no key, and every submission of the attempt gets the outcome `CAUSE_NO_KEY`.
-	Answer        *Answer `protobuf:"bytes,2,opt,name=answer,proto3" json:"answer,omitempty"`
+	// The tasks on the crop, from 1 to 20, in the order of the page: top to bottom, and left to
+	// right in a row. The task at the place n is the item n of the attempt's submissions.
+	Tasks         []*TaskKey `protobuf:"bytes,1,rep,name=tasks,proto3" json:"tasks,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -333,14 +333,74 @@ func (*Key) Descriptor() ([]byte, []int) {
 	return file_novatrail_paper_v1_key_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *Key) GetProvenance() Provenance {
+func (x *Key) GetTasks() []*TaskKey {
+	if x != nil {
+		return x.Tasks
+	}
+	return nil
+}
+
+// One task on the crop of a task from paper, and its key.
+type TaskKey struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The task as the page prints it, at most 200 bytes of UTF-8, as "□ − 3 = 7": the reading of the
+	// work is given it, to tell which task each answer is of. It is the printed statement alone,
+	// never the learner's writing.
+	Statement string `protobuf:"bytes,1,opt,name=statement,proto3" json:"statement,omitempty"`
+	// Where the key came from; not given when the task has none.
+	Provenance Provenance `protobuf:"varint,2,opt,name=provenance,proto3,enum=novatrail.paper.v1.Provenance" json:"provenance,omitempty"`
+	// The answer, or none when the task has no one answer a program can compare: its item is
+	// unchecked, and with no answer in any task every submission gets the outcome `CAUSE_NO_KEY`.
+	Answer        *Answer `protobuf:"bytes,3,opt,name=answer,proto3" json:"answer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskKey) Reset() {
+	*x = TaskKey{}
+	mi := &file_novatrail_paper_v1_key_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskKey) ProtoMessage() {}
+
+func (x *TaskKey) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_paper_v1_key_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskKey.ProtoReflect.Descriptor instead.
+func (*TaskKey) Descriptor() ([]byte, []int) {
+	return file_novatrail_paper_v1_key_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *TaskKey) GetStatement() string {
+	if x != nil {
+		return x.Statement
+	}
+	return ""
+}
+
+func (x *TaskKey) GetProvenance() Provenance {
 	if x != nil {
 		return x.Provenance
 	}
 	return Provenance_PROVENANCE_UNSPECIFIED
 }
 
-func (x *Key) GetAnswer() *Answer {
+func (x *TaskKey) GetAnswer() *Answer {
 	if x != nil {
 		return x.Answer
 	}
@@ -362,12 +422,15 @@ const file_novatrail_paper_v1_key_proto_rawDesc = "" +
 	"\aunknown\x18\x03 \x01(\tR\aunknown\"4\n" +
 	"\x06Choice\x12\x18\n" +
 	"\aoptions\x18\x01 \x03(\tR\aoptions\x12\x10\n" +
-	"\x03key\x18\x02 \x01(\tR\x03key\"y\n" +
-	"\x03Key\x12>\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"8\n" +
+	"\x03Key\x121\n" +
+	"\x05tasks\x18\x01 \x03(\v2\x1b.novatrail.paper.v1.TaskKeyR\x05tasks\"\x9b\x01\n" +
+	"\aTaskKey\x12\x1c\n" +
+	"\tstatement\x18\x01 \x01(\tR\tstatement\x12>\n" +
 	"\n" +
-	"provenance\x18\x01 \x01(\x0e2\x1e.novatrail.paper.v1.ProvenanceR\n" +
+	"provenance\x18\x02 \x01(\x0e2\x1e.novatrail.paper.v1.ProvenanceR\n" +
 	"provenance\x122\n" +
-	"\x06answer\x18\x02 \x01(\v2\x1a.novatrail.paper.v1.AnswerR\x06answer*R\n" +
+	"\x06answer\x18\x03 \x01(\v2\x1a.novatrail.paper.v1.AnswerR\x06answer*R\n" +
 	"\n" +
 	"Provenance\x12\x1a\n" +
 	"\x16PROVENANCE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -388,24 +451,26 @@ func file_novatrail_paper_v1_key_proto_rawDescGZIP() []byte {
 }
 
 var file_novatrail_paper_v1_key_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_novatrail_paper_v1_key_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_novatrail_paper_v1_key_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_novatrail_paper_v1_key_proto_goTypes = []any{
 	(Provenance)(0), // 0: novatrail.paper.v1.Provenance
 	(*Answer)(nil),  // 1: novatrail.paper.v1.Answer
 	(*Number)(nil),  // 2: novatrail.paper.v1.Number
 	(*Choice)(nil),  // 3: novatrail.paper.v1.Choice
 	(*Key)(nil),     // 4: novatrail.paper.v1.Key
+	(*TaskKey)(nil), // 5: novatrail.paper.v1.TaskKey
 }
 var file_novatrail_paper_v1_key_proto_depIdxs = []int32{
 	2, // 0: novatrail.paper.v1.Answer.number:type_name -> novatrail.paper.v1.Number
 	3, // 1: novatrail.paper.v1.Answer.choice:type_name -> novatrail.paper.v1.Choice
-	0, // 2: novatrail.paper.v1.Key.provenance:type_name -> novatrail.paper.v1.Provenance
-	1, // 3: novatrail.paper.v1.Key.answer:type_name -> novatrail.paper.v1.Answer
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 2: novatrail.paper.v1.Key.tasks:type_name -> novatrail.paper.v1.TaskKey
+	0, // 3: novatrail.paper.v1.TaskKey.provenance:type_name -> novatrail.paper.v1.Provenance
+	1, // 4: novatrail.paper.v1.TaskKey.answer:type_name -> novatrail.paper.v1.Answer
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_paper_v1_key_proto_init() }
@@ -423,7 +488,7 @@ func file_novatrail_paper_v1_key_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_paper_v1_key_proto_rawDesc), len(file_novatrail_paper_v1_key_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

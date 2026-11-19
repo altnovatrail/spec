@@ -192,6 +192,21 @@ export const STATES = [
       t.v().next();
     },
   },
+  // A loop drawn round equations (1) and (3) at once: the reading of its statement lists both, and Check checks each.
+  { name: "pick-several", title: "A frame drawn round two tasks", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([[22, 148], [298, 148], [298, 590], [22, 590]]) },
+  {
+    name: "solve-several",
+    title: "A frame of several tasks, each checked: the count, and a tick or a cross by each answer",
+    from: "pick-several",
+    shows: "Not yet · 1 of 2 correct",
+    run: (t) => {
+      t.v().selectAll();
+      t.v().regions[5].toggle();
+      t.v().start();
+      t.ink();
+      t.v().check();
+    },
+  },
   { name: "olympiad", title: "A problem of an olympiad book: an option is circled on the crop", from: "camera", shows: "Problem 1", run: (t) => (t.v().demoOl(), t.v().capture(), t.settle(), t.v().start()) },
   { name: "solve-circle", title: "Check with no option circled", from: "olympiad", shows: "Circle an answer first", run: (t) => t.v().check() },
   { name: "solve-nokey", title: "A task that could not be checked: no answer to compare", from: "olympiad", shows: "Couldn’t check this one", run: (t) => (t.v().taskRows[4].pick(), t.ink(), t.v().check()) },

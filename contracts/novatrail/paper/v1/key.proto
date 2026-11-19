@@ -51,11 +51,24 @@ enum Provenance {
   PROVENANCE_AI = 2;
 }
 
-// The key of an attempt of a task from paper, which `api` keeps on the attempt while it is open.
+// The key of an attempt of a task from paper, which `api` keeps on the attempt while it is open:
+// the tasks the reading of the statement found on the crop, as each of a column of sums framed
+// together, each with its own key.
 message Key {
-  // Where the key came from.
-  Provenance provenance = 1;
-  // The answer, or none when AI solved the task and gave no one answer a program can compare: the
-  // task has no key, and every submission of the attempt gets the outcome `CAUSE_NO_KEY`.
-  Answer answer = 2;
+  // The tasks on the crop, from 1 to 20, in the order of the page: top to bottom, and left to
+  // right in a row. The task at the place n is the item n of the attempt's submissions.
+  repeated TaskKey tasks = 1;
+}
+
+// One task on the crop of a task from paper, and its key.
+message TaskKey {
+  // The task as the page prints it, at most 200 bytes of UTF-8, as "□ − 3 = 7": the reading of the
+  // work is given it, to tell which task each answer is of. It is the printed statement alone,
+  // never the learner's writing.
+  string statement = 1;
+  // Where the key came from; not given when the task has none.
+  Provenance provenance = 2;
+  // The answer, or none when the task has no one answer a program can compare: its item is
+  // unchecked, and with no answer in any task every submission gets the outcome `CAUSE_NO_KEY`.
+  Answer answer = 3;
 }

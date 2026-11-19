@@ -141,6 +141,7 @@ sheet.marks = given;
 sheet.marks = { submission: workbookSubmission, marks: [{ kind: "frame", at: { cell: { item: 1, slot: 2 } }, name: "Tutor's mark 1 of 1: line 1, box 2" }] };
 sheet.marks = { submission: sheetSubmission, marks: [{ kind: "frame", at: { group: "A" }, name: "Tutor's mark 1 of 1" }] };
 sheet.marks = { submission: paperSubmission, marks: [{ kind: "wavy_line", at: { box: [400, 100, 480, 600] }, name: "Tutor's mark: where the mistake is" }] };
+sheet.marks = { submission: paperSubmission, marks: [{ kind: "verdict", at: { box: [100, 600, 180, 700] }, correct: false, name: "Task 2: not yet" }] };
 sheet.marks = undefined;
 export const shown: canvas.Marks | undefined = sheet.marks;
 export const kept: readonly canvas.HistoryEvent[] = sheet.history;
@@ -222,8 +223,12 @@ sheet.marks = null;
 sheet.marks = { marks: [] };
 // @ts-expect-error A mark has a name, which app writes: the element words nothing.
 export const unnamed: canvas.Mark = { kind: "frame", at: { cell: { item: 1, slot: 1 } } };
-// @ts-expect-error A frame and a wavy line are the kinds of a mark.
+// @ts-expect-error A frame, a wavy line and a verdict are the kinds of a mark.
 export const arrow: canvas.Mark = { kind: "arrow", at: { group: "A" }, name: "Tutor's mark 1 of 1" };
+// @ts-expect-error A verdict says whether the answer is right.
+export const verdictBare: canvas.Mark = { kind: "verdict", at: { box: [100, 600, 180, 700] }, name: "Task 2" };
+// @ts-expect-error A verdict stands at a box on the crop alone.
+export const verdictCell: canvas.Mark = { kind: "verdict", at: { cell: { item: 1, slot: 1 } }, correct: true, name: "Task 1: correct" };
 // @ts-expect-error A wavy line stands at a box on the crop alone, never at a cell.
 export const wavyCell: canvas.Mark = { kind: "wavy_line", at: { cell: { item: 1, slot: 1 } }, name: "Tutor's mark: where the mistake is" };
 // @ts-expect-error Nor at a group.

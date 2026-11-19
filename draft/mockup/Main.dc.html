@@ -350,6 +350,10 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <sc-for list="{{clipWavy}}" as="k" hint-placeholder-count="0">
         <svg role="img" aria-label="{{k.label}}" width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none"><path d="{{k.d}}" style="fill: none; stroke: #E8590C; stroke-width: 2.4px; stroke-linecap: round; stroke-linejoin: round"></path></svg>
       </sc-for>
+      <!-- A frame of several tasks: a tick or a cross on a white halo by each answer, where its reading found it (R162). -->
+      <sc-for list="{{clipVerdicts}}" as="k" hint-placeholder-count="0">
+        <svg role="img" aria-label="{{k.label}}" width="28" height="28" viewBox="0 0 24 24" style="position: absolute; left: {{k.x}}px; top: {{k.y}}px; overflow: visible; pointer-events: none"><circle cx="12" cy="12" r="11.5" style="fill: #FFFFFF; stroke: rgba(0,0,0,0.2); stroke-width: 1px"></circle><path d="{{k.d}}" style="fill: none; stroke: {{k.color}}; stroke-width: 3px; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+      </sc-for>
       <sc-if value="{{eraseClip}}" hint-placeholder-val="{{ false }}">
         <sc-for list="{{clipPaths}}" as="p" hint-placeholder-count="0">
           <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" onPointerDown="{{p.erase}}" onPointerEnter="{{p.eraseEnter}}" style="fill: none; stroke: rgba(0,0,0,0.001); stroke-width: 22px; stroke-linecap: round; pointer-events: stroke; cursor: pointer"></path></svg>
@@ -1202,16 +1206,23 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         <sc-if value="{{g.exp}}" hint-placeholder-val="{{ false }}">
           <div style="margin-top: 6px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px">
             <span style="font-size: 12px; line-height: 1.35; color: #6E6E73">What the models should have given, from the calls: correct what they got wrong.</span>
-            <sc-for list="{{g.fields}}" as="f" hint-placeholder-count="4">
-              <label style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; font-weight: 600; color: #6E6E73">{{f.label}}</span>
-                <input value="{{f.value}}" placeholder="{{f.hint}}" spellcheck="false" style="height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: #F2F2F7; font-family: ui-monospace, &apos;SF Mono&apos;, Menlo, monospace; font-size: 12.5px; color: #1D1D1F"></label>
-            </sc-for>
-            <span style="font-size: 11px; font-weight: 600; color: #6E6E73">Verdict</span>
-            <div role="group" aria-label="Verdict" style="height: 36px; padding: 2px; border-radius: 10px; background: rgba(118,118,128,0.12); display: flex">
-              <sc-for list="{{g.outcomes}}" as="o" hint-placeholder-count="4">
-                <button aria-pressed="{{o.on}}" onClick="{{o.pick}}" style="flex: 1; border-radius: 8px; font-size: 12.5px; font-weight: {{o.fw}}; background: {{o.bg}}; box-shadow: {{o.sh}}">{{o.name}}</button>
+            <!-- Each task of the frame, in its order: its statement, formula, key and value read, and its verdict (R162). -->
+            <sc-for list="{{g.tasks}}" as="x" hint-placeholder-count="1">
+              <sc-if value="{{x.sep}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08)"></div></sc-if>
+              <span style="font-size: 12px; font-weight: 600; color: #1D1D1F">{{x.title}}</span>
+              <sc-for list="{{x.fields}}" as="f" hint-placeholder-count="4">
+                <label style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; font-weight: 600; color: #6E6E73">{{f.label}}</span>
+                  <input value="{{f.value}}" placeholder="{{f.hint}}" spellcheck="false" style="height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: #F2F2F7; font-family: ui-monospace, &apos;SF Mono&apos;, Menlo, monospace; font-size: 12.5px; color: #1D1D1F"></label>
               </sc-for>
-            </div>
+              <span style="font-size: 11px; font-weight: 600; color: #6E6E73">Verdict</span>
+              <div role="group" aria-label="{{x.legend}}" style="height: 36px; padding: 2px; border-radius: 10px; background: rgba(118,118,128,0.12); display: flex">
+                <sc-for list="{{x.outcomes}}" as="o" hint-placeholder-count="4">
+                  <button aria-pressed="{{o.on}}" onClick="{{o.pick}}" style="flex: 1; border-radius: 8px; font-size: 12.5px; font-weight: {{o.fw}}; background: {{o.bg}}; box-shadow: {{o.sh}}">{{o.name}}</button>
+                </sc-for>
+              </div>
+            </sc-for>
+            <label style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 11px; font-weight: 600; color: #6E6E73">Note</span>
+              <input value="" placeholder="what went wrong" spellcheck="false" style="height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: #F2F2F7; font-family: ui-monospace, &apos;SF Mono&apos;, Menlo, monospace; font-size: 12.5px; color: #1D1D1F"></label>
             <div style="display: flex; justify-content: flex-end; gap: 8px">
               <button onClick="{{g.toggleExport}}" style="height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 13px; font-weight: 600">Cancel</button>
               <button onClick="{{g.save}}" style="height: 36px; padding: 0 14px; border-radius: 18px; background: #0071E3; color: #FFFFFF; font-size: 13px; font-weight: 600">Save case</button>
@@ -1979,7 +1990,7 @@ const dbgNum = (n) => n.toLocaleString('en-US');
 class Component extends DCLogic {
   // The paper flow: the page photographed, the tasks picked, the learner's own frames on each page, the sheet chosen, each task's tries and status.
   // hintMode is the profile's setting, 'questions' or 'where'; the demo's profile has "Show where" on.
-  state = { surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, answers: {}, status: {}, ptries: {}, pmark: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
+  state = { surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
     chatOpen: false, chat: [], typing: false, listening: false, speaking: null, voiceOn: true, micOn: true, unread: false, draft: '', said: {}, hinted: {},
     screen: 'signin', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
     // slice: the demo's switch — 'first', the first slice with adults, or 'later', with what epics E4 of app and E11 bring.
@@ -2051,44 +2062,57 @@ class Component extends DCLogic {
     const c = this.dbgCall(s, 'finding', { tasks }, 0, { note: list.length + ' tasks found.' + miss });
     return { id: 'g' + this.dbgN, title: 'Find tasks', at: this.dbgClock(), calls: [c], join: '' };
   }
-  // A Check: at the first one the key — the statement read, then the solver or the AI's solution —; at each, the work read.
+  // A Check: at the first one the key — the tasks of the statement read, then the solver for each formula or the AI's solution —;
+  // at each, the work read, each answer with its task and its box.
   dbgCheck(s, t, n, ol, got) {
-    const calls = [], first = n === 0, ok = n >= 1, nokey = !!t.nokey;
-    if (first) {
-      const formula = ol || t.manual && s.captured === 'olympiad' ? null : (t.manual ? '(x+1)/2=(x−2)/5' : t.label.replace(/\s/g, ''));
-      calls.push(this.dbgCall(s, 'statement', { formula }, 0, { note: formula ? 'A formula: the solver takes it.' : 'No formula: a task in words or with options goes to the AI’s solution.' }));
+    const calls = [], first = n === 0, ok = n >= 1, inner = this.within(t, s), several = inner.length > 1, nokey = !!t.nokey;
+    const value = (ans) => ans.split('= ')[1];
+    if (first && several) {
+      calls.push(this.dbgCall(s, 'statement', { tasks: inner.map((r) => ({ statement: r.label, formula: r.label.replace(/\s/g, '') })) }, 0, { note: inner.length + ' tasks in the frame, each a formula: the solver takes each.' }));
+      calls.push(this.dbgSolver({ tasks: inner.map((r) => ({ statement: r.label, provenance: 'PROVENANCE_SOLVER', answer: { number: { value: value(r.ans) } } })) }));
+    } else if (first) {
+      const formula = ol || t.manual && s.captured === 'olympiad' ? '' : (t.manual ? '(x+1)/2=(x−2)/5' : t.label.replace(/\s/g, ''));
+      const statement = t.manual ? '(x + 1)/2 = (x − 2)/5' : t.label;
+      calls.push(this.dbgCall(s, 'statement', { tasks: [{ statement, formula }] }, 0, { note: formula ? 'A formula: the solver takes it.' : 'No formula: a task in words or with options goes to the AI’s solution.' }));
       if (formula) {
-        const v = (t.manual ? 'x = −3' : t.ans).split('= ')[1];
-        calls.push(this.dbgSolver({ kind: 'number', value: v, unknown: 'x' }));
+        calls.push(this.dbgSolver({ tasks: [{ statement, provenance: 'PROVENANCE_SOLVER', answer: { number: { value: value(t.manual ? 'x = −3' : t.ans) } } }] }));
       } else if (nokey) {
         // As admitted, a solution with no answer a key may hold goes to the next model, up to the third (R164).
-        const none = { kind: 'none', value: '', units: [], unknown: '', options: [], key: '' }, tries = s.dbgFirst.model === 'admitted' ? 3 : 1;
+        const none = { answers: [{ task: 1, kind: 'none', value: '', units: [], unknown: '', options: [], key: '' }] }, tries = s.dbgFirst.model === 'admitted' ? 3 : 1;
         for (let a = 1; a < tries; a++) calls.push(this.dbgCall(s, 'solving', none, 0, { attempt: a, note: 'No one answer a key may hold: the next model solves it.' }));
         calls.push(this.dbgCall(s, 'solving', none, 0, { attempt: tries, bad: true, retries: 1, note: 'No one answer a program can compare: “Couldn’t check this one” (CAUSE_NO_KEY).' }));
       } else {
-        calls.push(this.dbgCall(s, 'solving', { kind: 'choice', value: '', units: [], unknown: '', options: ['A', 'B', 'C', 'D', 'E'], key: t.key }, 0, { note: 'The key, from the AI’s solution. It stays on the server.' }));
+        calls.push(this.dbgCall(s, 'solving', { answers: [{ task: 1, kind: 'choice', value: '', units: [], unknown: '', options: ['A', 'B', 'C', 'D', 'E'], key: t.key }] }, 0, { note: 'The key, from the AI’s solution. It stays on the server.' }));
       }
     }
-    const read = ol ? (got.length === 1 ? '(' + got[0] + ')' : '') : t.manual ? 'x = −3' : ok ? t.ans : t.wrong;
-    const obs = (text) => ({ parts: text ? [{ kind: 'answer', text, legible: true, other_readings: [] }] : [], results: text ? [{ part: 1, value: text.replace(/^x = |[()]/g, ''), other_values: [] }] : [] });
+    // What the work holds of each task: on the first Check the last task of a frame of several is wrong.
+    const reads = several ? inner.map((r, i) => ok || i < inner.length - 1 ? r.ans : r.wrong)
+      : [ol ? (got.length === 1 ? '(' + got[0] + ')' : '') : t.manual ? 'x = −3' : ok ? t.ans : t.wrong];
+    const plain = (text) => text.replace(/^x = |[()]/g, '');
+    const obs = (texts) => ({ parts: texts.filter(Boolean).map((text) => ({ kind: 'text', text, legible: true, other_readings: [] })),
+      results: texts.flatMap((text, i) => text ? [{ task: i + 1, part: 1, box: [Math.round((i * 1000) / texts.length), 600, Math.round(((i + 1) * 1000) / texts.length), 950], value: plain(text), other_values: [] }] : []) });
+    const said = reads.filter(Boolean).map((r) => '“' + r + '”').join(', ');
     const pair = s.dbgSecond.on;
-    // As admitted, the first Check shows a reading in two attempts: Haiku leaves the answer unreadable, and Sonnet reads it.
-    if (first && read && !pair && s.dbgFirst.model === 'admitted') {
-      const blur = { parts: [{ kind: 'answer', text: '?', legible: false, other_readings: [] }], results: [{ part: 1, value: '', other_values: [] }] };
+    // As admitted, the first Check shows a reading in two attempts: Haiku leaves an answer unreadable, and Sonnet reads it.
+    if (first && said && !pair && s.dbgFirst.model === 'admitted') {
+      const blur = { parts: [{ kind: 'text', text: '?', legible: false, other_readings: [] }], results: [{ task: 1, part: 1, box: [], value: '', other_values: [] }] };
       calls.push(this.dbgCall(s, 'paper', blur, 0, { attempt: 1, note: 'Unreadable (illegible): the next model reads it.' }));
-      calls.push(this.dbgCall(s, 'paper', obs(read), 0, { attempt: 2, note: 'Read “' + read + '”.' }));
-    } else calls.push(this.dbgCall(s, 'paper', obs(read), pair ? 1 : 0, { note: read ? 'Read “' + read + '”.' : 'No circled answer found.' }));
-    if (pair) calls.push(this.dbgCall(s, 'paper', obs(read), 2, { note: read ? 'Read “' + read + '”.' : 'No circled answer found.' }));
-    const verdict = nokey ? 'no key, no verdict' : !read ? 'no answer to compare' : ok ? 'Correct' : 'Not yet';
-    const join = (pair ? 'Both readers read “' + (read || '—') + '”: the pair agrees' : 'One reader') + ' → compared with the key: ' + verdict + '.';
-    // The truth an export begins from: the formula and the key of the attempt's first Check, the value read, the verdict.
+      calls.push(this.dbgCall(s, 'paper', obs(reads), 0, { attempt: 2, note: 'Read ' + said + '.' }));
+    } else calls.push(this.dbgCall(s, 'paper', obs(reads), pair ? 1 : 0, { note: said ? 'Read ' + said + '.' : 'No circled answer found.' }));
+    if (pair) calls.push(this.dbgCall(s, 'paper', obs(reads), 2, { note: said ? 'Read ' + said + '.' : 'No circled answer found.' }));
+    const right = reads.filter((r, i) => several ? r === inner[i].ans : ok).length;
+    const verdict = several ? (right === reads.length ? 'Correct · ' : 'Not yet · ') + right + ' of ' + reads.length + ' correct'
+      : nokey ? 'no key, no verdict' : !said ? 'no answer to compare' : ok ? 'Correct' : 'Not yet';
+    const join = (pair ? 'Both readers read ' + (said || '—') + ': the pair agrees' : 'One reader') + ' → compared with the key' + (several ? ' of each task' : '') + ': ' + verdict + '.';
+    // The truth an export begins from: the tasks and their keys of the attempt's first Check, the values read, the verdicts.
     this.dbgKeys = this.dbgKeys || {};
     if (first) {
-      const sv = calls.find((c) => c.ai === false);
-      this.dbgKeys[t.id] = { formula: (calls[0].json.match(/"formula": "(.*)"/) || [, ''])[1], key: sv ? sv.json.replace(/\s+/g, '') : '' };
+      const st = JSON.parse(calls[0].json).tasks, sv = calls.find((c) => c.ai === false), keys = sv ? JSON.parse(sv.json).tasks : [];
+      this.dbgKeys[t.id] = st.map((x, i) => ({ statement: x.statement, formula: x.formula, key: keys[i] ? JSON.stringify(keys[i].answer) : '' }));
     }
-    const kept = this.dbgKeys[t.id] || { formula: '', key: '' };
-    const truth = { formula: kept.formula, key: kept.key, read: read.replace(/^x = |[()]/g, ''), outcome: nokey ? 'unchecked' : !read ? 'unreadable' : ok ? 'correct' : 'not yet' };
+    const kept = this.dbgKeys[t.id] || reads.map(() => ({ statement: '', formula: '', key: '' }));
+    const truth = { tasks: kept.map((k, i) => ({ ...k, read: plain(reads[i] || ''),
+      outcome: nokey ? 'unchecked' : !reads[i] ? 'unreadable' : (several ? reads[i] === inner[i].ans : ok) ? 'correct' : 'not yet' })) };
     return { id: 'g' + this.dbgN, check: true, truth, title: 'Check · ' + (t.manual ? 'your frame' : 'task ' + t.id), at: this.dbgClock(), calls, join: first || pair ? join : join + ' The key is the first Check’s.' };
   }
   dbgAdd(g) { this.setState({ dbgLog: this.state.dbgLog.concat([g]), dbgBusy: false, dbgRow: g.calls[g.calls.length - 1].id }); }
@@ -2139,10 +2163,11 @@ class Component extends DCLogic {
     const groups = s.dbgLog.slice().reverse().map((g) => ({ ...g, sum: dbgUsd(g.calls.reduce((a, c) => a + c.usd, 0)),
       check: !!g.check, exp: s.dbgExport === g.id, saved: s.dbgSaved[g.id] || '',
       toggleExport: () => this.setState({ dbgExport: this.state.dbgExport === g.id ? null : g.id }),
-      fields: g.check ? [{ label: 'Formula', value: g.truth.formula, hint: 'none: a word problem, a choice' }, { label: 'Key · JSON of paper.v1.Answer', value: g.truth.key, hint: '{"number":{"value":"85"}}' },
-        { label: 'Read · the answer the work holds', value: g.truth.read, hint: 'none: no answer' }, { label: 'Note', value: '', hint: 'what went wrong' }] : [],
-      outcomes: ['correct', 'not yet', 'unreadable', 'unchecked'].map((name) => { const on = (s.dbgOutcome[g.id] || (g.truth && g.truth.outcome)) === name;
-        return { name, on, fw: on ? 600 : 500, bg: on ? '#FFFFFF' : 'transparent', sh: on ? '0 1px 3px rgba(0,0,0,0.12)' : 'none', pick: () => this.setState({ dbgOutcome: { ...this.state.dbgOutcome, [g.id]: name } }) }; }),
+      tasks: g.check ? g.truth.tasks.map((x, i) => ({ title: 'Task ' + (i + 1), legend: 'Verdict of task ' + (i + 1), sep: i > 0,
+        fields: [{ label: 'Statement', value: x.statement, hint: 'as printed: 37 + 48 =' }, { label: 'Formula', value: x.formula, hint: 'none: a word problem, a choice' },
+          { label: 'Key · JSON of paper.v1.Answer', value: x.key, hint: '{"number":{"value":"85"}}' }, { label: 'Read · the answer the work holds', value: x.read, hint: 'none: no answer' }],
+        outcomes: ['correct', 'not yet', 'unreadable', 'unchecked'].map((name) => { const at = g.id + '-' + i, on = (s.dbgOutcome[at] || x.outcome) === name;
+          return { name, on, fw: on ? 600 : 500, bg: on ? '#FFFFFF' : 'transparent', sh: on ? '0 1px 3px rgba(0,0,0,0.12)' : 'none', pick: () => this.setState({ dbgOutcome: { ...this.state.dbgOutcome, [at]: name } }) }; }) })) : [],
       save: () => this.setState({ dbgExport: null, dbgSaved: { ...this.state.dbgSaved, [g.id]: 'Saved case-20261119T150405-' + g.id + '.json — a case of tutor-eval -paper.' } }),
       calls: g.calls.map((c, i) => {
         const on = s.dbgRow === c.id;
@@ -2506,6 +2531,13 @@ class Component extends DCLogic {
   // The tasks of the page: those the AI found, then the learner's frames, each a task of its own with its crop (ids from 101).
   found(st) { st = st || this.state; return (st.captured === 'olympiad' ? OL : WS).filter((t) => t.found !== false); }
   framesOf(st) { st = st || this.state; return st.frames[st.captured] || []; }
+  // The tasks of the page a frame by hand holds: round two or more, the reading of its statement lists each, and each is checked (R162).
+  within(t, st) {
+    st = st || this.state;
+    if (!t.manual) return [];
+    const inside = (r) => r.x >= t.x - 8 && r.y >= t.y - 8 && r.x + r.w <= t.x + t.w + 8 && r.y + r.h <= t.y + t.h + 8;
+    return (st.captured === 'olympiad' ? OL : WS).filter(inside);
+  }
   tasks(st) { st = st || this.state; return this.found(st).concat(this.framesOf(st).map((f) => ({ ...f, ch: f.h, manual: true, label: 'Framed by you' }))); }
   task(st) { st = st || this.state; const ts = this.tasks(st); return ts.find((t) => t.id === st.current) || ts[0]; }
   tname(t, st) { st = st || this.state; return t.manual ? 'Your frame ' + (this.framesOf(st).findIndex((f) => f.id === t.id) + 1) : st.captured === 'olympiad' ? 'Problem ' + t.id : 'Equation (' + t.id + ')'; }
@@ -2544,7 +2576,7 @@ class Component extends DCLogic {
       const s = this.state, p = d + '-';
       // Every task found starts picked: the learner leaves out what they will not solve, and frames what the AI missed.
       this.setState({ flash: false, stage: 'pick', captured: d, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
-        strokes: without(s.strokes, p), answers: without(s.answers, p), status: without(s.status, p), ptries: without(s.ptries, p), pmark: null, verdict: null });
+        strokes: without(s.strokes, p), answers: without(s.answers, p), status: without(s.status, p), ptries: without(s.ptries, p), pmark: null, vmarks: null, verdict: null });
       if (this.dbgOn()) this.dbgAdd(this.dbgFind(this.state, d));
     }, 380);
   };
@@ -2780,11 +2812,25 @@ class Component extends DCLogic {
       return this.settle(v, '', null, v.line, k);
     }
     const got = ol ? this.circled(t) : [];
-    const n = s.ptries[k] || 0, tried = !t.nokey && (!ol || got.length === 1);
-    this.setState({ dbgBusy: this.dbgOn(), verdict: { kind: 'reading', title: 'Reading your work…', line: 'The crop of this task with your strokes goes to be read, with no name.' }, ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null });
+    const inner = this.within(t), n = s.ptries[k] || 0, tried = !t.nokey && (!ol || got.length === 1);
+    this.setState({ dbgBusy: this.dbgOn(), verdict: { kind: 'reading', title: 'Reading your work…', line: 'The crop of this task with your strokes goes to be read, with no name.' }, ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null, vmarks: null });
     this.later(() => {
       if (this.ctx().key !== k) return;
       if (this.dbgOn()) this.dbgAdd(this.dbgCheck(this.state, t, n, ol, got));
+      // A frame of several tasks: each answer by its own task's key, the count on the card, a tick or a cross by each answer.
+      // The demo's first Check finds the last task wrong, and the second all of them right.
+      if (inner.length > 1) {
+        const all = n >= 1, right = all ? inner.length : inner.length - 1;
+        const vmarks = { key: k, n: this.strokesOf(t), marks: inner.map((r, i) => ({ r, ok: all || i < inner.length - 1 })) };
+        if (all) {
+          const v = { kind: 'ok', title: 'Correct · ' + right + ' of ' + inner.length, line: 'Every answer of this frame is right' };
+          this.settle(v, v.title, { status: { ...this.state.status, [k]: 'done' }, vmarks }, null, k);
+          return this.aiSay('All ' + inner.length + ' — well done. Which one was the hardest?');
+        }
+        const v = { kind: 'no', title: 'Not yet · ' + right + ' of ' + inner.length + ' correct', line: 'Look again at the answer with the cross' };
+        this.settle(v, v.title, { status: { ...this.state.status, [k]: 'wrong' }, vmarks }, null, k);
+        return this.aiSay(inner[inner.length - 1].hint, { kind: 'hint', label: 'Hint' });
+      }
       if (t.nokey) {
         const v = { kind: 'nokey', title: 'Couldn’t check this one', line: 'This task has no answer that can be checked. Hints still work.' };
         return this.settle(v, 'No key: no answer to compare', { status: { ...this.state.status, [k]: 'nokey' } }, 'The key for this one could not be worked out. A hint, or the next task?', k);
@@ -2803,6 +2849,8 @@ class Component extends DCLogic {
       this.aiSay(t.manual ? GEN.hint : t.hint, { kind: 'hint', label: 'Hint' });
     }, 1300);
   };
+
+  strokesOf(t) { const s = this.state; return (s.strokes[this.tkey(t.id)] || []).length + (s.strokes[this.clipKey()] || []).length; }
 
   // The latest stroke of the work, on the sheet or on the tracing paper, and how many strokes there are: the mark goes once the work changes.
   markAt(t) {
@@ -3008,6 +3056,8 @@ class Component extends DCLogic {
     const pm = s.pmark, markOn = isSolve && s.hintMode === 'where' && pm && pm.key === this.tkey(t.id) && s.status[pm.key] === 'wrong'
       && (s.strokes[pm.key] || []).length + (s.strokes[this.clipKey()] || []).length === pm.n;
     const mark = markOn ? [{ d: this.wavyD(pm.bb), label: 'Tutor’s mark: where the mistake is' }] : [];
+    // The ticks and crosses of a frame of several tasks: while its verdict stands and the work has not changed since.
+    const vm = s.vmarks, vmOn = isSolve && vm && vm.key === this.tkey(t.id) && s.status[vm.key] && this.strokesOf(t) === vm.n;
 
     const v = s.verdict;
     const ticks = [];
@@ -3083,6 +3133,8 @@ class Component extends DCLogic {
       pickNote: 'The AI looked at the whole page to find the tasks. The photo stays on this ' + this.devName() + '. Draw round a task it missed.',
       frames, frameDown: this.frameDown, frameMove: this.frameMove, frameUp: this.frameUp, liveFrame: !!s.live && s.liveLayer === 'frame',
       wavy: markOn && pm.layer === 'main' ? mark : [], clipWavy: markOn && pm.layer === 'clip' ? mark : [],
+      clipVerdicts: vmOn ? vm.marks.map(({ r, ok }, i) => ({ x: Math.round((r.x + r.w - 44 - t.x) * cf), y: Math.round((r.y + 22 - t.y) * cf),
+        d: ok ? 'M7 12.5l3.5 3.5L17 8.5' : 'M8 8l8 8M16 8l-8 8', color: ok ? '#15803D' : '#B45309', label: 'Task ' + (i + 1) + ': ' + (ok ? 'correct' : 'not yet') })) : [],
       pbar: isSolve && !pOver, pover: pOver,
       viewTf: 'translate(' + (-s.view.x * s.view.z) + 'px, ' + (-s.view.y * s.view.z) + 'px) scale(' + s.view.z + ')',
       vw: { inOff: s.view.z >= 2, inOp: s.view.z >= 2 ? 0.35 : 1, outOff: s.view.z <= 1, outOp: s.view.z <= 1 ? 0.35 : 1 },
