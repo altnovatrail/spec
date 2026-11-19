@@ -265,7 +265,9 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | What the tutor answers to a free question of Pip's field: the rung, the rung in other words, or a fixed text | The documents do not say | Epic E4 of `app` |
 | The camera gives no reminder to keep names out of the photo | Before the camera, `app` reminds the learner to keep names out of it (privacy 6; R127) | `app`: the line under "Open camera" on the card and on the camera's screen (R71 app) |
 | The camera finds the page, "Page found · hold still", with a flash and "Auto", and a strip "DEMO PAGE" | `app`'s camera finds no page and has no flash: the first slice has no model on the device (R66) | `app` builds none of them (R71 app); the strip is the mockup's own |
-| A frame by hand is a loop alone | A loop, or two taps on opposite corners, which need no path (R90; WCAG 2.5.1, 2.5.7) | `app` (R71 app); В79 waits for the author's confirmation |
-| The paper flow's buttons without a caption have no tooltip, and the cross's tooltip is «Remove the frame» | R90: a tooltip of the same words as the accessible name | `app` draws them by R60 app; `canvas` the crop's, in T228 of epic E11 |
+| A frame by hand is a loop alone | A loop, or two taps on opposite corners, which need no path (R90; WCAG 2.5.1, 2.5.7) | `app` (R71 app), by the author's answer (a) to В79, 2026-11-19 |
+| The paper flow's buttons without a caption have no tooltip, and the cross's tooltip is «Remove the frame» | R90: a tooltip of the same words as the accessible name | `app` draws them by R60 app, `canvas` the grip's and the button's by R84 canvas (R87 canvas) |
+| The crop over the sheet is fixed on the screen, in one place for every task | The tracing paper lies in sheet units, and each task has its own place, `TracingState.at` (R162) | `canvas` (R87 canvas) |
+| "Hide the task" is a switch with `aria-pressed`, its name changing too | Its name tells the state, with no `aria-pressed`: the state is told once | `canvas` (R87 canvas) |
 | Under "Later": the canvas kinds of other authors, under «…» in the top bar of a task from paper | Other authors' widgets come at stage 4, in a sandbox (R16; product 10) | Epic E5 |
 | The demo's switch "First slice" / "Later", and the DEMO "Tutor time used up" | Not part of the app | Nobody: the mockup's own |

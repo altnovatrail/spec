@@ -635,6 +635,7 @@ The fields, periods and places of storage are privacy 4 and R128.
   | demo open | `canvas`: "Demo", when the demo is visible | `keyboard-arrow-down` | — | as is |
   | demo hidden | `canvas`: "Demo", when the demo is hidden | `keyboard-arrow-right` | — | mirrored |
   | draw with finger | `canvas`: "Draw with finger" | `touch-app` | when the mode is on | as is |
+  | task from paper | `canvas`: "Hide the task" and "Show the task", atop the tools of a task from paper | `article` | while the task is shown | as is |
   | time to review | `skill-map`, `app`: the state of a skill | `update` | — | as is |
   | mastered | `skill-map`, `app`: the state of a skill | `check-circle` | — | as is |
   | in progress | `skill-map`, `app`: the state of a skill | `timelapse` | — | as is |
@@ -665,6 +666,9 @@ The fields, periods and places of storage are privacy 4 and R128.
   | next | Next | «Дальше» | `canvas`, `app` |
   | demo | Demo | «Показ» | `canvas`, `app` |
   | draw with finger | Draw with finger | «Рисовать пальцем» | `canvas`, `app` |
+  | hide the task | Hide the task | «Спрятать задачу» | `canvas` |
+  | show the task | Show the task | «Показать задачу» | `canvas` |
+  | move the task | Move the task | «Подвинуть задачу» | `canvas` |
   | time to review | Time to review | «Пора повторить» | `skill-map`, `app` |
   | mastered | Mastered | «Освоено» | `skill-map`, `app` |
   | in progress | In progress | «В работе» | `skill-map`, `app` |
