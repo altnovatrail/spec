@@ -21,6 +21,7 @@ import { absolute, choiceForm, gcd, lowercase, normalized, rationalOf, scriptsRe
 import { readVector } from "./observation.mjs";
 import { isObject } from "./rules.mjs";
 import { show } from "./sample.mjs";
+import { byCodeUnits } from "../shared.mjs";
 
 export const PACKAGE = "novatrail.paper.v1";
 export const FOLDER = "contracts/vectors/paper/v1";
@@ -298,7 +299,7 @@ function message(schema, json) {
 function checkCase(file, item, known, seen, problem) {
   if (!isObject(item) || typeof item.description !== "string" || item.description === "") return problem("a case is an object with its description");
   if (file === "solver.json") {
-    const keys = Object.keys(item).sort();
+    const keys = Object.keys(item).sort(byCodeUnits);
     if (!isDeepStrictEqual(keys, ["answer", "description", "formula"]) && !isDeepStrictEqual(keys, ["description", "formula", "refused"])) return problem("a case of the solver has description, formula, and answer or refused");
     if (typeof item.formula !== "string") return problem("formula is a string");
     const got = solve(item.formula);
@@ -316,7 +317,7 @@ function checkCase(file, item, known, seen, problem) {
     return;
   }
   if (file === "answers.json") {
-    if (!isDeepStrictEqual(Object.keys(item).sort(), ["answer", "description", "key"]) || typeof item.key !== "boolean") return problem("a case of an answer has description, answer and key, a boolean");
+    if (!isDeepStrictEqual(Object.keys(item).sort(byCodeUnits), ["answer", "description", "key"]) || typeof item.key !== "boolean") return problem("a case of an answer has description, answer and key, a boolean");
     const read = message(known.answer, item.answer);
     if (read.error) return problem(`answer is no ${PACKAGE}.Answer: ${read.error}`);
     if (!isDeepStrictEqual(read.json, item.answer)) return problem(`answer is written ${show(read.json)}, with every field`);
@@ -326,7 +327,7 @@ function checkCase(file, item, known, seen, problem) {
     else seen.kinds.add(item.answer.number ? "number" : "choice");
     return;
   }
-  if (!isDeepStrictEqual(Object.keys(item).sort(), ["description", "key", "value", "verdict"])) return problem("a case of a verdict has description, key, value and verdict");
+  if (!isDeepStrictEqual(Object.keys(item).sort(byCodeUnits), ["description", "key", "value", "verdict"])) return problem("a case of a verdict has description, key, value and verdict");
   const read = message(known.answer, item.key);
   if (read.error) return problem(`key is no ${PACKAGE}.Answer: ${read.error}`);
   if (!isDeepStrictEqual(read.json, item.key)) return problem(`key is written ${show(read.json)}, with every field`);
