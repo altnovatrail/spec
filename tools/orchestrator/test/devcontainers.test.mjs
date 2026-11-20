@@ -5,6 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { git } from "../../shared.mjs";
@@ -49,17 +50,18 @@ function clones(t) {
 }
 
 test("rebuild runs the CLI in a helper of the orchestrator's image, at the host's path, and the new container takes the labels", (t) => {
-  const { h, deps, sim, github, log } = clones(t);
+  const { h, deps, sim, projects, github, log } = clones(t);
   const made = rebuild("sim", {}, deps);
   assert.equal(made.repo, "sim");
   assert.equal(made.folder, sim);
   assert.deepEqual(made.from, { id: "cccc3333sim", name: "jovial_cannon" });
   assert.equal(made.to.name, "made_8");
   assert.match(log(made.to.log), new RegExp(`^main [0-9a-f]{40}: ${sim} has its \\.devcontainer/$`, "m"));
-  // The helper: the socket and the clone's folder at the same path, the host's network, removed.
+  // The helper: the socket and the folder that holds the clone at the same path, where the clone's
+  // initializeCommand makes .epics, the host's network, removed.
   const run = h.dockerCalls().find((c) => c[0] === "run");
-  assert.deepEqual(run, helperArgs({ image: "sha256:image-of-busy_gauss", repo: "sim", mode: "rebuild", folder: sim, config: `${sim}/.devcontainer/devcontainer.json`, mount: sim, organization: github }));
-  assert.deepEqual(run.slice(0, 16), ["run", "--rm", "--init", "--name", "novatrail-up-sim", "--network", "host", "--user", "vscode", "--mount", "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock", "--mount", `type=bind,source=${sim},target=${sim}`, "--workdir", sim, "sha256:image-of-busy_gauss"]);
+  assert.deepEqual(run, helperArgs({ image: "sha256:image-of-busy_gauss", repo: "sim", mode: "rebuild", folder: sim, config: `${sim}/.devcontainer/devcontainer.json`, mount: projects, organization: github }));
+  assert.deepEqual(run.slice(0, 16), ["run", "--rm", "--init", "--name", "novatrail-up-sim", "--network", "host", "--user", "vscode", "--mount", "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock", "--mount", `type=bind,source=${projects},target=${projects}`, "--workdir", projects, "sha256:image-of-busy_gauss"]);
   assert.deepEqual(h.upCalls(), [["up", "--workspace-folder", sim, "--config", `${sim}/.devcontainer/devcontainer.json`, "--mount-workspace-git-root", "false", "--remove-existing-container"]]);
   // The old one is gone, and the repository's container is the new one by its labels.
   assert.ok(!h.dockerCalls().some((c) => c[0] === "rm"));
@@ -94,7 +96,15 @@ test("rebuild refuses the orchestrator's own container, one where Claude Code ru
 });
 
 test("rebuild builds only a clone of the repository on GitHub whose .devcontainer/ is main's", (t) => {
+  // The helper's temporary folder, which may be the host's /tmp: the clone of main leaves none behind.
+  // The fakes take the environment as the host is made.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "helper-tmp-"));
+  const before = process.env.TMPDIR;
+  process.env.TMPDIR = tmp;
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
   const { h, deps, sim, log } = clones(t);
+  if (before === undefined) delete process.env.TMPDIR;
+  else process.env.TMPDIR = before;
   const failed = (pattern, why) => {
     assert.throws(() => rebuild("sim", {}, deps), (error) => {
       assert.match(error.message, pattern);
@@ -105,6 +115,7 @@ test("rebuild builds only a clone of the repository on GitHub whose .devcontaine
   };
   fs.writeFileSync(path.join(sim, ".devcontainer", "devcontainer.json"), `{ "name": "changed" }\n`);
   failed(/rebuild of sim failed, exit 4; its log is /, /its \.devcontainer\/ is not that of main on GitHub/);
+  assert.deepEqual(fs.readdirSync(tmp), [path.basename(h.root)]);
   git(sim, ["checkout", "--quiet", "--", "."]);
   fs.writeFileSync(path.join(sim, ".devcontainer", "extra.sh"), "true\n");
   failed(/exit 4/, /is not that of main on GitHub/);
@@ -123,6 +134,7 @@ test("rebuild builds only a clone of the repository on GitHub whose .devcontaine
   assert.deepEqual(h.upCalls(), []);
   git(sim, ["remote", "add", "origin", `${deps.organization}/sim`]);
   assert.match(log(rebuild("sim", {}, deps).to.log), /has its \.devcontainer\//);
+  assert.deepEqual(fs.readdirSync(tmp), [path.basename(h.root)]);
 });
 
 test("a build that fails names its message and its log, and the container stays", (t) => {

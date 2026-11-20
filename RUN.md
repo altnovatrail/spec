@@ -88,7 +88,7 @@ Last done epic — E11, [docs/plan/E11.md](docs/plan/E11.md).
 | Status | ID | Task | Who | Plan | Depends on |
 |---|---|---|---|---|---|
 | [x] | T241 | Решения: `R166`, R159, R156, R158; RULES.md, RUN.md, CLAUDE.md | Claude, проверяю я | — | — |
-| [ ] | T242 | Монтирование `.epics` в devcontainer `spec` и оркестратора | Claude | — | T241 |
+| [x] | T242 | Монтирование `.epics` в devcontainer `spec` и оркестратора | Claude | — | T241 |
 | [ ] | T243 | Волна: все 12 репозиториев на тег `spec` с `.epics`, пересборка | я + Claude | — | T242 |
 | [ ] | T244 | `xrepo`: среда и стенд — up, status, test, serve, stop, down | Claude | да | T242 |
 | [ ] | T245 | `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк | Claude | да | T244 |
@@ -96,15 +96,6 @@ Last done epic — E11, [docs/plan/E11.md](docs/plan/E11.md).
 | [ ] | T246 | Итог обкатки: замер против E11, поправки, архив | Claude | — | T247, обкатка |
 
 - Задачи обкатки встают в таблицу перед T246 по слову автора, «я + Claude», план «да»; первая — T247.
-
-#### T242. Монтирование `.epics` в devcontainer `spec` и оркестратора
-
-- **Цель:** каждый контейнер `spec` видит `.epics` хоста по пути `/workspaces/.epics`; копии в других репозиториях получают это с тегом.
-- **Сделать:** `.devcontainer/devcontainer.json` и `.devcontainer/orchestrator/devcontainer.json` — `source=${localWorkspaceFolder}/../.epics,target=/workspaces/.epics,type=bind`, в оркестраторе — перед сокетом (`tools/toolchain/test/orchestrator.test.mjs` требует `[...spec.mounts, SOCKET]` и тот же `initializeCommand`); `initializeCommand` создаёт `../.epics` на хосте; `tools/orchestrator/devcontainers.mjs` — `rebuild` монтирует в helper родительскую папку, как `create`, иначе `mkdir` из `initializeCommand` уйдёт в helper; запись `docs/sources.md` о `${localWorkspaceFolder}` в `mounts`; в первом комментарии `.devcontainer/orchestrator/devcontainer.json` задача через несколько репозиториев ссылается на `R166`, а не на R159. Проверить, нужна ли `rebuild` родительская папка: `.epics` на хосте уже создал контейнер оркестратора, а `mkdir` в helper безвреден; если нужна — R158, «The helper», и README оркестратора, Commands.
-- **Не делать:** упоминать `novatrail-spec` в новых комментариях `devcontainer.json` — `tools/new-repo/devcontainer.mjs` считает вхождения.
-- **Как проверить:** `just toolchain-test`, `just new-repo-test`, `just orchestrator-test`, `just coverage`, `just docs-check`; после пересборки — `docker inspect`: `/workspaces/.epics` в контейнере `spec` и оркестратора.
-- **Мой шаг:** после выпуска — «Rebuild Container» своего контейнера оркестратора и `spec` (R158: свой контейнер оркестратор не пересобирает).
-- **Разделы:** R34, R156, R158, `R166`; `.claude/rules/ci.md`, `tools.md`, `new-repo.md`.
 
 #### T243. Волна: все 12 репозиториев на тег `spec` с `.epics`, пересборка
 
