@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://altnovatrail.github.io/spec/export/4/paper.schema.json",
+  "title": "Page from paper",
+  "description": "A page from the learner's paper that the device holds, paper/<profile id>/<page id>.json, which app writes beside api.zip: the photo of the page, its task frames, and each picked task's crop and work (section 4 of the text of the part; R162). The server keeps none of it.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": 4,
+      "description": "The version of the part, the integer in export/VERSION."
+    },
+    "profile_id": {
+      "$ref": "common.schema.json#/$defs/file_id",
+      "description": "The ID of the profile whose page it is."
+    },
+    "page_id": {
+      "$ref": "common.schema.json#/$defs/file_id",
+      "description": "The ID of the page, as app gave it."
+    },
+    "taken_at": {
+      "$ref": "common.schema.json#/$defs/time",
+      "description": "When the learner took the photo, or picked it."
+    },
+    "photo": {
+      "$ref": "common.schema.json#/$defs/image",
+      "description": "The photo of the page, without the metadata of its file, as it was sent to find its tasks.",
+      "unevaluatedProperties": false
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/task_frame",
+        "description": "One task frame.",
+        "unevaluatedProperties": false
+      },
+      "description": "The task frames of the page, those the AI found and those the learner drew, in the order app shows them; a frame the learner removed is not here."
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/task",
+        "description": "One picked task.",
+        "unevaluatedProperties": false
+      },
+      "description": "The tasks picked on the page, in the order of their attempts."
+    }
+  },
+  "required": [
+    "format",
+    "profile_id",
+    "page_id",
+    "taken_at",
+    "photo",
+    "frames",
+    "tasks"
+  ],
+  "unevaluatedProperties": false,
+  "$defs": {
+    "task_frame": {
+      "type": "object",
+      "properties": {
+        "box": {
+          "$ref": "common.schema.json#/$defs/thousandths_box",
+          "description": "The frame on the photo."
+        },
+        "by": {
+          "enum": [
+            "ai",
+            "learner"
+          ],
+          "description": "Who framed the task: the AI that found the tasks, or the learner by hand."
+        }
+      },
+      "required": [
+        "box",
+        "by"
+      ],
+      "description": "A rectangle round one task on the photo of the page."
+    },
+    "task": {
+      "type": "object",
+      "properties": {
+        "attempt_id": {
+          "$ref": "common.schema.json#/$defs/id",
+          "description": "The attempt of the task, as api gave it."
+        },
+        "frame": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The task's frame, by its place in frames, from 1."
+        },
+        "statement": {
+          "$ref": "common.schema.json#/$defs/image",
+          "description": "The task's crop as app cut it by its frame, without the learner's strokes.",
+          "unevaluatedProperties": false
+        },
+        "history": {
+          "description": "The history of writing as the canvas gave it, the strokes of the sheet and of the tracing paper: write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p; on a stroke of the tracing paper, on \"tracing\"."
+        },
+        "tracing": {
+          "description": "Where the tracing paper lay at the end and whether it was hidden, as the canvas gave it: at [x, y] and hidden."
+        },
+        "submissions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/work_submission",
+            "unevaluatedProperties": false,
+            "description": "A submission's context, as the canvas gave it, and the history length when it was sent: one of them."
+          },
+          "description": "Each submission of the task, in order: its context, as the canvas gave it, and the history length when it was sent."
+        }
+      },
+      "required": [
+        "attempt_id",
+        "frame",
+        "statement",
+        "history",
+        "tracing",
+        "submissions"
+      ],
+      "description": "A picked task of the page: its crop and its work, as the device holds them."
+    }
+  }
+}

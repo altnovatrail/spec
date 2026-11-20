@@ -65,8 +65,8 @@ enum Cause {
   CAUSE_ADULT_NEEDED = 13;
   // A child asks for the solution before the fourth wrong answer. Code `failed_precondition`.
   CAUSE_LADDER_NOT_PASSED = 14;
-  // The task has nothing to show by this request: a task with a rubric, which "Done" ends. Code
-  // `failed_precondition`.
+  // The task has nothing to show by this request: a task with a rubric, which "Done" ends, and a
+  // task from paper, whose solution is never shown (R162). Code `failed_precondition`.
   CAUSE_NO_SHOWING = 15;
   // The attempt has no rung: no wrong answer yet, or a task with a rubric. Code
   // `failed_precondition`.
@@ -185,6 +185,11 @@ enum Cause {
   // again and offers the bands next to the level it gives (R157). Code `failed_precondition`,
   // with no data.
   CAUSE_BAND_NOT_NEXT = 46;
+  // A task from paper has no key: the solution of AI gave no one answer that a program can compare,
+  // such as a proof, a drawing or several answers, so no verdict is given, "Couldn't check this
+  // one", and the hints still are (R162). An outcome alone, of every submission of the attempt,
+  // with no AI once the first gave it.
+  CAUSE_NO_KEY = 47;
 }
 
 // A refusal: the detail of an error of Connect when the request was not done.
@@ -218,7 +223,8 @@ message Refusal {
 // why the engine's choice gives nothing, when the AI that checks the tasks is closed to the learner.
 message Outcome {
   // The outcome: `CAUSE_AI_FAILURE`, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT`,
-  // `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED` or `CAUSE_NO_OTHER_WORDS`.
+  // `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED`, `CAUSE_NO_OTHER_WORDS` or,
+  // on a task from paper, `CAUSE_NO_KEY`.
   // "Explain differently" makes no call without the reserve of the quota: there the quota, the limit
   // of platform AI and no admission are refusals, and the right to it on the rung stays. Beside an
   // engine's choice that gives nothing: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` or

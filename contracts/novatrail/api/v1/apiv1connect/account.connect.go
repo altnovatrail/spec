@@ -6,10 +6,10 @@
 // its profiles, by which `app` erases on the device what was deleted elsewhere; the profile of the
 // account's owner and a child's profile, which a consent comes before; how a consent is given,
 // confirmed by a parent's signed form, withdrawn and taken back, and the age given again; the PIN
-// of the section for adults; the voicing a learner sets; the storage of works; the own key checked
-// when it is connected; the share of the quota of platform AI; deletion and export. What each
-// message means, and what `app` does on each refusal, are the rules of contracts/README.md,
-// section 15.
+// of the section for adults; the voicing and the hint mode a learner sets; the storage of works;
+// the own key checked when it is connected; the share of the quota of platform AI; deletion and
+// export. What each message means, and what `app` does on each refusal, are the rules of
+// contracts/README.md, section 15.
 package apiv1connect
 
 import (
@@ -73,6 +73,8 @@ const (
 	AccountServiceUpdateProfileProcedure = "/novatrail.api.v1.AccountService/UpdateProfile"
 	// AccountServiceSetVoicingProcedure is the procedure name of the AccountService's SetVoicing RPC.
 	AccountServiceSetVoicingProcedure = "/novatrail.api.v1.AccountService/SetVoicing"
+	// AccountServiceSetHintModeProcedure is the procedure name of the AccountService's SetHintMode RPC.
+	AccountServiceSetHintModeProcedure = "/novatrail.api.v1.AccountService/SetHintMode"
 	// AccountServiceSetWorkStorageProcedure is the procedure name of the AccountService's
 	// SetWorkStorage RPC.
 	AccountServiceSetWorkStorageProcedure = "/novatrail.api.v1.AccountService/SetWorkStorage"
@@ -208,6 +210,13 @@ var (
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("SetVoicing"),
 			Procedure:  AccountServiceSetVoicingProcedure,
+		}
+	})
+	accountServiceSetHintModeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_account_proto.Services().ByName("AccountService").Methods().ByName("SetHintMode"),
+			Procedure:  AccountServiceSetHintModeProcedure,
 		}
 	})
 	accountServiceSetWorkStorageSpec = sync.OnceValue(func() connect.Spec {
@@ -377,6 +386,11 @@ type AccountServiceClient interface {
 	// screen of a task: a learning request with the right `can_learn`. Refusals:
 	// `CAUSE_NO_PROFILE`.
 	SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error)
+	// Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
+	// with the right `can_learn`, of a profile of the category `adult` (R162). Refusals:
+	// `CAUSE_NO_PROFILE`, and `CAUSE_ADULT_NEEDED` for a child's profile, whose mode an adult sets
+	// with `UpdateProfile`.
+	SetHintMode(context.Context, *v1.SetHintModeRequest) (*v1.SetHintModeResponse, error)
 	// Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
 	// consent by the text `storage-consent`, which the one who consents for the learner gives: an
 	// action of an adult with the right `can_manage`, and at a profile whose learner gave their own
@@ -557,6 +571,11 @@ type AccountServiceHandler interface {
 	// screen of a task: a learning request with the right `can_learn`. Refusals:
 	// `CAUSE_NO_PROFILE`.
 	SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error)
+	// Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
+	// with the right `can_learn`, of a profile of the category `adult` (R162). Refusals:
+	// `CAUSE_NO_PROFILE`, and `CAUSE_ADULT_NEEDED` for a child's profile, whose mode an adult sets
+	// with `UpdateProfile`.
+	SetHintMode(context.Context, *v1.SetHintModeRequest) (*v1.SetHintModeResponse, error)
 	// Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
 	// consent by the text `storage-consent`, which the one who consents for the learner gives: an
 	// action of an adult with the right `can_manage`, and at a profile whose learner gave their own
@@ -643,6 +662,7 @@ func RegisterAccountServiceHandler(server *connect.Server, svc AccountServiceHan
 		connect.Method{Spec: accountServiceRestateAgeSpec(), Handler: adapter.restateAge},
 		connect.Method{Spec: accountServiceUpdateProfileSpec(), Handler: adapter.updateProfile},
 		connect.Method{Spec: accountServiceSetVoicingSpec(), Handler: adapter.setVoicing},
+		connect.Method{Spec: accountServiceSetHintModeSpec(), Handler: adapter.setHintMode},
 		connect.Method{Spec: accountServiceSetWorkStorageSpec(), Handler: adapter.setWorkStorage},
 		connect.Method{Spec: accountServiceDeleteProfileSpec(), Handler: adapter.deleteProfile},
 		connect.Method{Spec: accountServiceDeleteAccountSpec(), Handler: adapter.deleteAccount},
@@ -719,6 +739,10 @@ func (UnimplementedAccountServiceHandler) UpdateProfile(context.Context, *v1.Upd
 
 func (UnimplementedAccountServiceHandler) SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.SetVoicing is not implemented")
+}
+
+func (UnimplementedAccountServiceHandler) SetHintMode(context.Context, *v1.SetHintModeRequest) (*v1.SetHintModeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AccountService.SetHintMode is not implemented")
 }
 
 func (UnimplementedAccountServiceHandler) SetWorkStorage(context.Context, *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error) {
@@ -880,6 +904,14 @@ func (c *accountServiceClient) UpdateProfile(ctx context.Context, req *v1.Update
 func (c *accountServiceClient) SetVoicing(ctx context.Context, req *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error) {
 	var res v1.SetVoicingResponse
 	if err := c.client.CallUnary(ctx, accountServiceSetVoicingSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accountServiceClient) SetHintMode(ctx context.Context, req *v1.SetHintModeRequest) (*v1.SetHintModeResponse, error) {
+	var res v1.SetHintModeResponse
+	if err := c.client.CallUnary(ctx, accountServiceSetHintModeSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -1137,6 +1169,18 @@ func (h accountServiceHandler) setVoicing(ctx context.Context, _ connect.Spec, s
 		return err
 	}
 	res, err := h.svc.SetVoicing(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accountServiceHandler) setHintMode(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetHintModeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SetHintMode(ctx, &req)
 	if err != nil {
 		return err
 	}

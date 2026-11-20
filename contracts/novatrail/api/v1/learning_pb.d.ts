@@ -47,10 +47,10 @@ export declare type ChooseNextRequest = Message<"novatrail.api.v1.ChooseNextRequ
   skill: string;
 
   /**
-   * The provider of the learner's own key, by its code in the admission table, without the key: with
-   * a profile of its owner that checks the tasks by its own key, so that `api` judges the engine's
-   * pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route would begin a
-   * task, though the request calls no AI. Empty on platform AI (R84; R99).
+   * The provider of the learner's own key, by its code in the admission table, without the key:
+   * with a profile of its owner that checks the tasks by its own key, so that `api` judges the
+   * engine's pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route
+   * would begin a task, though the request calls no AI. Empty on platform AI (R84; R99).
    *
    * @generated from field: string own_key_provider = 4;
    */
@@ -423,10 +423,10 @@ export declare type OpenLessonRequest = Message<"novatrail.api.v1.OpenLessonRequ
   choiceId: string;
 
   /**
-   * The provider of the learner's own key, by its code in the admission table, without the key: with
-   * a profile of its owner that checks the tasks by its own key, so that an engine's choice that a
-   * refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI. Empty on
-   * platform AI (R84; R99).
+   * The provider of the learner's own key, by its code in the admission table, without the key:
+   * with a profile of its owner that checks the tasks by its own key, so that an engine's choice
+   * that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
+   * Empty on platform AI (R84; R99).
    *
    * @generated from field: string own_key_provider = 3;
    */
@@ -480,10 +480,10 @@ export declare type GetLessonRunRequest = Message<"novatrail.api.v1.GetLessonRun
   lessonRunId: string;
 
   /**
-   * The provider of the learner's own key, by its code in the admission table, without the key: with
-   * a profile of its owner that checks the tasks by its own key, so that an engine's choice that a
-   * refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI. Empty on
-   * platform AI (R84; R99).
+   * The provider of the learner's own key, by its code in the admission table, without the key:
+   * with a profile of its owner that checks the tasks by its own key, so that an engine's choice
+   * that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
+   * Empty on platform AI (R84; R99).
    *
    * @generated from field: string own_key_provider = 3;
    */
@@ -588,10 +588,10 @@ export declare type CompleteLessonRequest = Message<"novatrail.api.v1.CompleteLe
   lessonRunId: string;
 
   /**
-   * The provider of the learner's own key, by its code in the admission table, without the key: with
-   * a profile of its owner that checks the tasks by its own key, so that the engine's choice that
-   * the end of the run gives goes by that route, though the request calls no AI. Empty on platform
-   * AI (R84; R99).
+   * The provider of the learner's own key, by its code in the admission table, without the key:
+   * with a profile of its owner that checks the tasks by its own key, so that the engine's choice
+   * that the end of the run gives goes by that route, though the request calls no AI. Empty on
+   * platform AI (R84; R99).
    *
    * @generated from field: string own_key_provider = 3;
    */
@@ -693,27 +693,29 @@ export declare const LessonRunRefSchema: GenMessage<LessonRunRef>;
  * `app` does on each; a profile that is not the account's gets `CAUSE_NO_PROFILE`, a request of a
  * profile whose consent is not confirmed `CAUSE_NO_CONSENT`, one of a profile whose age is to be
  * given again `CAUSE_AGE_NEEDED`, and a request whose form the contract refuses the code
- * `invalid_argument` with no `Refusal`. A profile has one open attempt: a new one closes the one
- * before `CLOSE_REASON_LEFT`. A lesson run goes on the package it began on, and every attempt of
- * its task segments too. `app` keeps the place in a lesson and the state of its demos by the key
- * "lesson's full ID, package digest", beside the ID of the run: the state of another run under the
- * same key it drops, and it erases the state of the lesson at every end of the run, in an answer
- * or in a refusal. An engine's choice that an answer or a refusal gives goes by the route to AI that
- * the request names, the own key's by `own_key_provider` or platform AI's without it, so that it
- * gives nothing that `BeginAttempt` by the same route would refuse; a profile not of the category
- * `adult` that names a provider gets `CAUSE_KEY_NOT_FOR_PROFILE` (R84; R99).
+ * `invalid_argument` with no `Refusal`. A profile has one open attempt of a task of a module: a new
+ * one closes the one before `CLOSE_REASON_LEFT`, and leaves as they are the open attempts of tasks
+ * from paper, which `PaperService` begins (R162). A lesson run goes on the package it began on, and
+ * every attempt of its task segments too. `app` keeps the place in a lesson and the state of its
+ * demos by the key "lesson's full ID, package digest", beside the ID of the run: the state of
+ * another run under the same key it drops, and it erases the state of the lesson at every end of
+ * the run, in an answer or in a refusal. An engine's choice that an answer or a refusal gives goes
+ * by the route to AI that the request names, the own key's by `own_key_provider` or platform AI's
+ * without it, so that it gives nothing that `BeginAttempt` by the same route would refuse; a
+ * profile not of the category `adult` that names a provider gets `CAUSE_KEY_NOT_FOR_PROFILE` (R84;
+ * R99).
  *
  * @generated from service novatrail.api.v1.LearningService
  */
 export declare const LearningService: GenService<{
   /**
    * "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
-   * when the learner asks for it, or when nothing is open. It closes the open attempt
-   * `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to. The
-   * choice gives a lesson or a task, or nothing, with the outcome that says why, by the route the
-   * request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected has,
-   * `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
-   * the same idempotency key gets the same choice.
+   * when the learner asks for it, or when nothing is open. It closes the open attempt of a task of
+   * a module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back
+   * to. The choice gives a lesson or a task, or nothing, with the outcome that says why, by the
+   * route the request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected
+   * has, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
+   * with the same idempotency key gets the same choice.
    *
    * @generated from rpc novatrail.api.v1.LearningService.ChooseNext
    */
@@ -724,19 +726,19 @@ export declare const LearningService: GenService<{
   },
   /**
    * Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
-   * same task again. It closes the open attempt `CLOSE_REASON_LEFT`. A choice begins one attempt:
-   * once it has, another request by it gets `CAUSE_ALREADY_EXISTS`, and `app` reads the open
-   * attempt of the profile; a choice of a lesson gets `invalid_argument`. An attempt on a segment
-   * of a run whose package the image no longer gives ends the run `RUN_END_REASON_UNCHECKED` and
-   * gets `CAUSE_RUN_ENDED`, and `app` then asks `CheckPackages`. The answer is the attempt with
-   * the open view of its task, of an instance when the task is a template; the seed of the attempt
-   * never goes to the device. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and
-   * `CAUSE_NOT_ADMITTED`, when platform AI checks the task, and a lesson run stays open on them;
-   * `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-   * `CAUSE_RUN_ENDED`, `CAUSE_SEGMENT_UNAVAILABLE`, `CAUSE_ALREADY_EXISTS`,
-   * `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND`, `CAUSE_KEY_ALREADY_USED` and
-   * `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets the same attempt and its open
-   * view.
+   * same task again. It closes the open attempt of a task of a module `CLOSE_REASON_LEFT`. A choice
+   * begins one attempt: once it has, another request by it gets `CAUSE_ALREADY_EXISTS`, and `app`
+   * reads the open attempt of the profile; a choice of a lesson gets `invalid_argument`. An attempt
+   * on a segment of a run whose package the image no longer gives ends the run
+   * `RUN_END_REASON_UNCHECKED` and gets `CAUSE_RUN_ENDED`, and `app` then asks `CheckPackages`. The
+   * answer is the attempt with the open view of its task, of an instance when the task is a
+   * template; the seed of the attempt never goes to the device. Refusals: `CAUSE_QUOTA`,
+   * `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, when platform AI checks the task, and a lesson
+   * run stays open on them; `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`,
+   * `CAUSE_PACKAGE_UNKNOWN`, `CAUSE_RUN_ENDED`, `CAUSE_SEGMENT_UNAVAILABLE`,
+   * `CAUSE_ALREADY_EXISTS`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND`,
+   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
+   * the same attempt and its open view.
    *
    * @generated from rpc novatrail.api.v1.LearningService.BeginAttempt
    */
@@ -749,8 +751,9 @@ export declare const LearningService: GenService<{
    * The open attempt, by which the learner goes on with it, on another device too, with a clean
    * sheet: the strokes stay on the device that wrote them, but for a work another device put by
    * `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
-   * `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. It repeats by the
-   * state of the attempt.
+   * `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. An attempt of a task
+   * from paper gets `invalid_argument`: it has no open view, and only the device that holds its
+   * page goes on with it (R162). It repeats by the state of the attempt.
    *
    * @generated from rpc novatrail.api.v1.LearningService.GetOpenAttempt
    */

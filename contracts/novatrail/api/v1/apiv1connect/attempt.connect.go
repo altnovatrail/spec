@@ -3,9 +3,10 @@
 // Source: novatrail/api/v1/attempt.proto
 
 // The checking of an attempt in the contract between `app` and `api`: the submission of the work
-// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task with
-// a rubric. What each message means, what never reaches the device, and what a repeat with the same
-// idempotency key answers are the rules of contracts/README.md, section 15.
+// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
+// with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
+// `PaperService` begins. What each message means, what never reaches the device, and what a repeat
+// with the same idempotency key answers are the rules of contracts/README.md, section 15.
 package apiv1connect
 
 import (
@@ -45,6 +46,9 @@ const (
 	AttemptServiceExplainDifferentlyProcedure = "/novatrail.api.v1.AttemptService/ExplainDifferently"
 	// AttemptServiceGetHintProcedure is the procedure name of the AttemptService's GetHint RPC.
 	AttemptServiceGetHintProcedure = "/novatrail.api.v1.AttemptService/GetHint"
+	// AttemptServiceGetOpeningWordsProcedure is the procedure name of the AttemptService's
+	// GetOpeningWords RPC.
+	AttemptServiceGetOpeningWordsProcedure = "/novatrail.api.v1.AttemptService/GetOpeningWords"
 	// AttemptServiceBeginStepProcedure is the procedure name of the AttemptService's BeginStep RPC.
 	AttemptServiceBeginStepProcedure = "/novatrail.api.v1.AttemptService/BeginStep"
 	// AttemptServiceShowSolutionProcedure is the procedure name of the AttemptService's ShowSolution
@@ -105,6 +109,13 @@ var (
 			Procedure:  AttemptServiceGetHintProcedure,
 		}
 	})
+	attemptServiceGetOpeningWordsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("GetOpeningWords"),
+			Procedure:  AttemptServiceGetOpeningWordsProcedure,
+		}
+	})
 	attemptServiceBeginStepSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
@@ -132,10 +143,14 @@ var (
 type AttemptServiceClient interface {
 	// Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
 	// both. The answer is the verdict of every item and answer slot, on the whole observation, and
-	// what was read. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no reading is no
-	// refusal: its slots get "unchecked", and the answer names the outcome. A repeat with the same
-	// idempotency key gets the verdicts and the reading recorded, with no AI.
+	// what was read. On a task from paper the first submission derives the key too, from the task's
+	// crop, a key for each task on it: a task whose solution of AI gives no one answer a program
+	// can compare has none, and its item is unchecked; with none in any task the outcome is
+	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`. A call of AI that gives no reading is no refusal: its slots get
+	// "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
+	// verdicts and the reading recorded, with no AI.
 	SubmitWork(context.Context, *v1.SubmitWorkRequest) (*v1.SubmitWorkResponse, error)
 	// Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and
 	// assessment both. Refusals: `CAUSE_ATTEMPT_CLOSED`, before any call of AI,
@@ -153,8 +168,8 @@ type AttemptServiceClient interface {
 	// keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
 	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`. A call of AI that gives no words is no refusal: the answer holds the
-	// rung's fallback text and names the outcome. A repeat with the same idempotency key, or a request
-	// for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
+	// rung's fallback text and names the outcome. A repeat with the same idempotency key, or a
+	// request for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
 	GetRungWords(context.Context, *v1.GetRungWordsRequest) (*v1.GetRungWordsResponse, error)
 	// Asks for the tutor's words after a correct answer, sending the work again, on the attempt that
 	// the answer has just closed. The right is one answer with words: `api` spends it when it gives
@@ -170,21 +185,33 @@ type AttemptServiceClient interface {
 	// without the work, for the wrong answer it names. Refusals: `CAUSE_NOT_CURRENT`,
 	// `CAUSE_ALREADY_ASKED`, `CAUSE_NO_RUNG`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
-	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of the
-	// quota, and the right to it on the rung stays. A repeat with the same idempotency key gets the
-	// words the attempt keeps, with no AI.
+	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
+	// the quota, and the right to it on the rung stays. A repeat with the same idempotency key gets
+	// the words the attempt keeps, with no AI.
 	ExplainDifferently(context.Context, *v1.ExplainDifferentlyRequest) (*v1.ExplainDifferentlyResponse, error)
 	// "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
 	// answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
-	// when it has one; after it, the words of the current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
-	// carries no idempotency key: it repeats by the attempt's state.
+	// when it has one, both empty on a task from paper, which has neither and asks
+	// `GetOpeningWords` instead; after it, the words of the current rung. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
+	// "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
+	// call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
+	// how to begin the task it holds, or the first of a frame of several (R82; R162). Refusals:
+	// `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
+	// words is no refusal: the answer holds the opening question's fallback text and names the
+	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
+	// request once it keeps them, gets them with no AI; a fallback text is not kept.
+	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
 	BeginStep(context.Context, *v1.BeginStepRequest) (*v1.BeginStepResponse, error)
 	// Shows the solution, by a learning action or by an action of an adult, and closes the attempt
-	// `CLOSE_REASON_SOLUTION_SHOWN`. A learning action needs the right `can_learn`, and an action of
+	// `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
+	// `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
 	// an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
 	// section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
 	// `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
@@ -213,10 +240,14 @@ func NewAttemptServiceClient(client *connect.Client) AttemptServiceClient {
 type AttemptServiceHandler interface {
 	// Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
 	// both. The answer is the verdict of every item and answer slot, on the whole observation, and
-	// what was read. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no reading is no
-	// refusal: its slots get "unchecked", and the answer names the outcome. A repeat with the same
-	// idempotency key gets the verdicts and the reading recorded, with no AI.
+	// what was read. On a task from paper the first submission derives the key too, from the task's
+	// crop, a key for each task on it: a task whose solution of AI gives no one answer a program
+	// can compare has none, and its item is unchecked; with none in any task the outcome is
+	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`. A call of AI that gives no reading is no refusal: its slots get
+	// "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
+	// verdicts and the reading recorded, with no AI.
 	SubmitWork(context.Context, *v1.SubmitWorkRequest) (*v1.SubmitWorkResponse, error)
 	// Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and
 	// assessment both. Refusals: `CAUSE_ATTEMPT_CLOSED`, before any call of AI,
@@ -234,8 +265,8 @@ type AttemptServiceHandler interface {
 	// keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
 	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`. A call of AI that gives no words is no refusal: the answer holds the
-	// rung's fallback text and names the outcome. A repeat with the same idempotency key, or a request
-	// for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
+	// rung's fallback text and names the outcome. A repeat with the same idempotency key, or a
+	// request for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
 	GetRungWords(context.Context, *v1.GetRungWordsRequest) (*v1.GetRungWordsResponse, error)
 	// Asks for the tutor's words after a correct answer, sending the work again, on the attempt that
 	// the answer has just closed. The right is one answer with words: `api` spends it when it gives
@@ -251,21 +282,33 @@ type AttemptServiceHandler interface {
 	// without the work, for the wrong answer it names. Refusals: `CAUSE_NOT_CURRENT`,
 	// `CAUSE_ALREADY_ASKED`, `CAUSE_NO_RUNG`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
-	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of the
-	// quota, and the right to it on the rung stays. A repeat with the same idempotency key gets the
-	// words the attempt keeps, with no AI.
+	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
+	// the quota, and the right to it on the rung stays. A repeat with the same idempotency key gets
+	// the words the attempt keeps, with no AI.
 	ExplainDifferently(context.Context, *v1.ExplainDifferentlyRequest) (*v1.ExplainDifferentlyResponse, error)
 	// "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
 	// answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
-	// when it has one; after it, the words of the current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
-	// carries no idempotency key: it repeats by the attempt's state.
+	// when it has one, both empty on a task from paper, which has neither and asks
+	// `GetOpeningWords` instead; after it, the words of the current rung. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
+	// "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
+	// call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
+	// how to begin the task it holds, or the first of a frame of several (R82; R162). Refusals:
+	// `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
+	// words is no refusal: the answer holds the opening question's fallback text and names the
+	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
+	// request once it keeps them, gets them with no AI; a fallback text is not kept.
+	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
 	BeginStep(context.Context, *v1.BeginStepRequest) (*v1.BeginStepResponse, error)
 	// Shows the solution, by a learning action or by an action of an adult, and closes the attempt
-	// `CLOSE_REASON_SOLUTION_SHOWN`. A learning action needs the right `can_learn`, and an action of
+	// `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
+	// `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
 	// an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
 	// section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
 	// `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
@@ -296,6 +339,7 @@ func RegisterAttemptServiceHandler(server *connect.Server, svc AttemptServiceHan
 		connect.Method{Spec: attemptServiceGetCorrectAnswerWordsSpec(), Handler: adapter.getCorrectAnswerWords},
 		connect.Method{Spec: attemptServiceExplainDifferentlySpec(), Handler: adapter.explainDifferently},
 		connect.Method{Spec: attemptServiceGetHintSpec(), Handler: adapter.getHint},
+		connect.Method{Spec: attemptServiceGetOpeningWordsSpec(), Handler: adapter.getOpeningWords},
 		connect.Method{Spec: attemptServiceBeginStepSpec(), Handler: adapter.beginStep},
 		connect.Method{Spec: attemptServiceShowSolutionSpec(), Handler: adapter.showSolution},
 		connect.Method{Spec: attemptServiceReportProblemSpec(), Handler: adapter.reportProblem},
@@ -331,6 +375,10 @@ func (UnimplementedAttemptServiceHandler) ExplainDifferently(context.Context, *v
 
 func (UnimplementedAttemptServiceHandler) GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.GetHint is not implemented")
+}
+
+func (UnimplementedAttemptServiceHandler) GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.GetOpeningWords is not implemented")
 }
 
 func (UnimplementedAttemptServiceHandler) BeginStep(context.Context, *v1.BeginStepRequest) (*v1.BeginStepResponse, error) {
@@ -400,6 +448,14 @@ func (c *attemptServiceClient) ExplainDifferently(ctx context.Context, req *v1.E
 func (c *attemptServiceClient) GetHint(ctx context.Context, req *v1.GetHintRequest) (*v1.GetHintResponse, error) {
 	var res v1.GetHintResponse
 	if err := c.client.CallUnary(ctx, attemptServiceGetHintSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *attemptServiceClient) GetOpeningWords(ctx context.Context, req *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error) {
+	var res v1.GetOpeningWordsResponse
+	if err := c.client.CallUnary(ctx, attemptServiceGetOpeningWordsSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -509,6 +565,18 @@ func (h attemptServiceHandler) getHint(ctx context.Context, _ connect.Spec, stre
 		return err
 	}
 	res, err := h.svc.GetHint(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h attemptServiceHandler) getOpeningWords(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetOpeningWordsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetOpeningWords(ctx, &req)
 	if err != nil {
 		return err
 	}

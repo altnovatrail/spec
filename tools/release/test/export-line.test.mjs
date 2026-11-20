@@ -31,7 +31,7 @@ const text = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const same = () => Object.fromEntries(SCHEMAS.map((schema) => [schema, { now: text(schema), before: text(schema) }]));
 
 test("what changed of the shape: each schema of a file, and the IDs of the rules of the text, once", () => {
-  assert.deepEqual(SCHEMAS, ["common", "manifest", "account", "profile", "device", "work"].map((term) => `export/schemas/${term}.schema.json`));
+  assert.deepEqual(SCHEMAS, ["common", "manifest", "account", "profile", "device", "work", "paper"].map((term) => `export/schemas/${term}.schema.json`));
   const readme = text("export/README.md");
   assert.equal(shapeChange({ schemas: same(), readmeNow: readme, readmeThen: readme }), null);
   const schemas = same();
@@ -63,7 +63,7 @@ test("the script passes the lines through, and reads each schema by git", () => 
     writeFile(dir, git, "export/schemas/report.schema.json", '{"type": "object"}\n');
     git("commit", "--quiet", "-m", "a new kind of file");
     assert.equal(shapeChangedBetween(git("rev-parse", "HEAD"), "v0.14.0", dir), "the schemas of export/schemas changed");
-    assert.equal(schemasAt("v0.14.0", dir).length, 6);
+    assert.equal(schemasAt("v0.14.0", dir).length, SCHEMAS.length);
     writeFile(dir, git, "export/schemas/manifest.schema.json", '{"type": "array"}\n');
     git("commit", "--quiet", "-m", "a shape");
     const refused = run(input, [git("rev-parse", "HEAD")], dir);

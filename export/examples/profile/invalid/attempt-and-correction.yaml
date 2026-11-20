@@ -1,0 +1,55 @@
+# error: oneOf at #/evidence/0
+# A record of the evidence log is of an attempt or of an adult's correction, never both.
+format: 4
+profile_id: "p-2"
+owner: false
+pseudonym: "Orbit"
+avatar: "owl"
+age_category: "under_13"
+country: "US"
+presentation_style:
+  voicing:
+    enabled: false
+    speed: "normal"
+default_mode: "by_steps"
+hint_mode: "show_where"
+ask_before_showing: false
+active_on: "2026-11-10"
+consent:
+  consent_id: "consent-1"
+  giver: "parent"
+  state: "waiting"
+  request_code: "7K2QD-M4XHB"
+  form: "sent"
+  age_category: "under_13"
+  country: "US"
+  requested_at: "2026-11-10T09:30:00Z"
+  texts:
+    - id: "parent-consent"
+      version: 1
+connected_modules: []
+lesson_runs: []
+attempts: []
+paper_attempts: []
+choices: []
+evidence:
+  - seq: 1
+    attempt_id: "attempt-1"
+    correction_id: "correction-1"
+    package_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    module_id: "olympiad-math"
+    recorded_at: "2026-11-18T15:00:00Z"
+    evidence:
+      kind: 1
+state:
+  state: {}
+  learner_model_version: "0.1.0"
+  modules_release: "modules_release"
+  format_window: "format_window"
+  last_seq: 0
+  modules: []
+works: []
+work_storage: false
+storage_consents: []
+problem_reports: []
+quota_counters: []

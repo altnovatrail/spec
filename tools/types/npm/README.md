@@ -30,6 +30,8 @@ From 0.17.0 on, `@altnovatrail/spec/exportv2` takes the place of `@altnovatrail/
 
 From 0.18.0 on, `@altnovatrail/spec/exportv3` takes the place of `@altnovatrail/spec/exportv2`: the types of the part's version 3, whose profile names its stored works without their bytes, `WorkInfo`, and each stored work is a file of its own beside the part of `api`, `Work`. A consumer of 0.17 that imports `exportv2` imports `exportv3` from 0.18 on.
 
+From 0.19.0 on, `@altnovatrail/spec/exportv4` takes the place of `@altnovatrail/spec/exportv3`: the types of the part's version 4, which adds the pages from the learner's paper, each a file of its own, `Paper`, and to a profile its hint mode and its open attempts of tasks from paper, `PaperAttempt`, and to a record of the evidence log the ID of an adult's correction, `correction_id`. A consumer of 0.18 that imports `exportv3` imports `exportv4` from 0.19 on.
+
 The types are declarations alone, with no code to run, so import them with `import type`; the page's JSON is data, which a module imports with `with { type: "json" }` or reads as a file:
 
 ```ts
@@ -52,17 +54,18 @@ function show(task: open.Task, manifest: open.Manifest) {
 - **`@altnovatrail/spec/deploymentv1`** holds the types of the deployment configuration's version 1: the file, `Deployment`, and the test vectors of reading it, `ReadingVector`, whose file is any JSON value, `unknown`. A type gives the shape alone: a reader checks the file against its schema and then against the rules of reading, section 5 of the format's text.
 - **`@altnovatrail/spec/legalv3`** holds the types of version 3 of the legal texts: the passport, `Legal`, with each `Text` and its `TextVersion` with its `translations`, each `Set` and its `SetVersion`, and the test vectors of reading the part, `ReadingVector`, whose passport is any JSON value, `unknown`. A type gives the shape alone: a reader checks the passport against its schema and then the part against the rules of reading, section 5 of the part's text.
 - **`@altnovatrail/spec/consentagev1`** holds the types of version 1 of the table of the age of digital consent: the table, `ConsentAge`, with each country's `Entry`, the `Country` codes, and the test vectors of reading the table, `ReadingVector`, whose table is any JSON value, `unknown`, and of the category, `CategoryVector`. A type gives the shape alone: a reader checks the table against its schema and then against the rules of reading, section 5 of the part's text, and computes a learner's category as the part's text says.
-- **`@altnovatrail/spec/exportv3`** holds the types of version 3 of the format of the export: `Manifest`, `Account`, `Profile` with its `Attempt`, `Submission`, `Choice`, `EvidenceEntry`, `StateEntry` and `WorkInfo`, `Device`, `Work`, and the test vectors of reading an export, `ReadingVector`. A type gives the shape alone: a reader checks each file against its schema and then the export against the rules of reading, section 5 of the part's text.
+- **`@altnovatrail/spec/exportv4`** holds the types of version 4 of the format of the export: `Manifest`, `Account`, `Profile` with its `Attempt`, `PaperAttempt`, `Submission`, `Choice`, `EvidenceEntry`, `StateEntry` and `WorkInfo`, `Device`, `Work`, `Paper` with its `TaskFrame` and `Task`, `Image`, and the test vectors of reading an export, `ReadingVector`. A type gives the shape alone: a reader checks each file against its schema and then the export against the rules of reading, section 5 of the part's text.
 - **`@altnovatrail/spec/canvas`** holds the types of `<novatrail-canvas>`:
-  - `CanvasElement`, which describes the element's properties `tool`, `task`, `workedExample`, `demoState`, `manifest`, `media`, `history`, `marks` and `filled` and its methods `exportWork()` and `exportPicture()`, the PNG of the work that the app stores;
+  - `CanvasElement`, which describes the element's properties `tool`, `task`, `paper`, `tracing`, `workedExample`, `demoState`, `manifest`, `media`, `history`, `marks` and `filled` and its methods `exportWork()` and `exportPicture()`, the PNG of the work that the app stores;
   - `Media`, the function by which the consumer gives the files of the pictures: the canvas goes to no network;
-  - the events `toolchange`, `historychange` and `demochange`, with `CanvasEventMap` naming them;
+  - the events `toolchange`, `historychange`, `demochange` and `tracingchange`, with `CanvasEventMap` naming them;
   - the state of a worked example's demo, `DemoState`;
+  - a task from the learner's paper, `PaperTask`, and where its tracing paper lies, `TracingState`;
   - the history of writing;
   - the work for checking, with the context of its submission;
-  - the tutor's marks of a submission, `Marks`, `Mark` and `Anchor`: their kind and place come from the contract between the app and the platform's API, the message `Mark` of `novatrail.api.v1` in the npm package `@altnovatrail/contracts`, and their name from the app.
+  - the tutor's marks of a submission, `Marks`, `Mark` — a frame, `FrameMark`, or a wavy line, `WavyLineMark` — and `Anchor`: their kind and place come from the contract between the app and the platform's API, the message `Mark` of `novatrail.api.v1` in the npm package `@altnovatrail/contracts`, and their name from the app.
 
-  Its unions are exact: an event of the history is told by its `kind`, and the work of a sheet or of a workbook by its key, `png` or `cells`. The declarations need the DOM's types, so the consumer's `lib` must include `dom`. The package registers nothing. The canvas's own package puts the element in `HTMLElementTagNameMap` and its events in `GlobalEventHandlersEventMap`.
+  Its unions are exact: an event of the history is told by its `kind`, and the work of a sheet, of a workbook or of a task from paper by its keys: `cells` a workbook, `statement` a task from paper, `png` without it a sheet. The declarations need the DOM's types, so the consumer's `lib` must include `dom`. The package registers nothing. The canvas's own package puts the element in `HTMLElementTagNameMap` and its events in `GlobalEventHandlersEventMap`.
 
 A type gives the shape of a value and nothing more: the schemas decide what is valid. Code that reads a value from elsewhere checks it against its schema first.
 

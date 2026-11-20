@@ -7,7 +7,7 @@
 // value read from JSON. The declarations hold no code, no constants, so a consumer imports them
 // with import type (R73). The other parts follow the same rules: admissionv0 (R96), deploymentv1,
 // whose fields keep the file's camelCase (R85), legalv3 (R130, R141), consentagev1 (R134) and
-// exportv3 (R135).
+// exportv4 (R135).
 
 import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN, OPEN_DIR, PACKAGE, TYPES_DIR, groupBy, linesOf } from "./go.mjs";
 import { openRefOf, placeOf } from "./model.mjs";

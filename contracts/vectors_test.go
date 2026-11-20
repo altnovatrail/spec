@@ -16,6 +16,7 @@ import (
 
 	evalv1 "github.com/altnovatrail/spec/contracts/novatrail/eval/v1"
 	observationv1 "github.com/altnovatrail/spec/contracts/novatrail/observation/v1"
+	paperv1 "github.com/altnovatrail/spec/contracts/novatrail/paper/v1"
 )
 
 // Vectors holds every file of vectors/ as the module has it.
@@ -130,6 +131,42 @@ func TestRuleVectorsReadInGo(t *testing.T) {
 	}
 	if read == 0 {
 		t.Fatal("the vectors of the rules hold no message")
+	}
+}
+
+// Go reads every message of the vectors of the key of a task from paper as protobuf-es does in
+// contracts-check: the solver's Number, and an answer of AI and a key, each an Answer, strictly and
+// back as the vector writes them (contracts/README.md, sections 6 and 16).
+func TestPaperVectorsReadInGo(t *testing.T) {
+	files := map[string]struct {
+		key     string
+		message func() proto.Message
+	}{
+		"solver.json":   {"answer", func() proto.Message { return &paperv1.Number{} }},
+		"answers.json":  {"answer", func() proto.Message { return &paperv1.Answer{} }},
+		"verdicts.json": {"key", func() proto.Message { return &paperv1.Answer{} }},
+	}
+	read := 0
+	for name, file := range files {
+		data, err := fs.ReadFile(Vectors, "paper/v1/"+name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var vector struct {
+			Cases []map[string]json.RawMessage `json:"cases"`
+		}
+		if err := json.Unmarshal(data, &vector); err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		for k, one := range vector.Cases {
+			if raw, ok := one[file.key]; ok {
+				readBack(t, fmt.Sprintf("%s, case %d", name, k+1), raw, file.message())
+				read++
+			}
+		}
+	}
+	if read == 0 {
+		t.Fatal("the vectors of the key hold no message")
 	}
 }
 

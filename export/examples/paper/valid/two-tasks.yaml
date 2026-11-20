@@ -1,0 +1,65 @@
+# Synthetic: no learner's data. IDs, times, values and images are made up.
+format: 4
+profile_id: "p-1"
+page_id: "page-1"
+taken_at: "2026-11-18T16:05:00Z"
+photo:
+  media_type: "image/jpeg"
+  data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+frames:
+  - box: [120, 60, 310, 940]
+    by: "ai"
+  - box: [420, 60, 560, 620]
+    by: "learner"
+tasks:
+  - attempt_id: "attempt-7"
+    frame: 1
+    statement:
+      media_type: "image/png"
+      data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    history:
+      - kind: "write"
+        t: 300
+        "on": "tracing"
+        stroke:
+          id: 1
+          kind: "pen"
+          points:
+            - x: 40
+              "y": 20
+              t: 0
+              p: 0.5
+      - kind: "write"
+        t: 900
+        stroke:
+          id: 2
+          kind: "pen"
+          points:
+            - x: 100
+              "y": 700
+              t: 600
+              p: 0.5
+    tracing:
+      at: [60, 40]
+      hidden: false
+    submissions:
+      - context:
+          crop:
+            drawn: 24
+            width: 320
+            height: 410
+          tracing:
+            at: [60, 40]
+            hidden: false
+          digest: "00112233445566ff"
+        history_length: 2
+  - attempt_id: "attempt-8"
+    frame: 2
+    statement:
+      media_type: "image/png"
+      data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    history: []
+    tracing:
+      at: [60, 40]
+      hidden: true
+    submissions: []

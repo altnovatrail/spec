@@ -9,6 +9,7 @@ table:
     - {capability: voice, age_category: adult, admission: open, basis: [privacy 6, О-6]}
     - {capability: voice, age_category: from_consent_to_18, admission: closed, basis: [privacy 6, О-6, П-5]}
     - {capability: hint, age_category: from_consent_to_18, admission: open, basis: [privacy 3.2]}
+    - {capability: handwriting_reading, age_category: from_consent_to_18, admission: open, basis: [privacy 3.2]}
   cells:
     - provider: alpha
       ai_route: platform_ai
@@ -38,6 +39,15 @@ cases:
   # The words after a correct answer are a capability of their own: the hint is open for the
   # category, and they, with no rule, are closed, though the cell would admit them.
   - request: {capability: correct_answer_words, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
+    facts:
+      alpha:
+        data_processing_agreement: [from_consent_to_18]
+    answer:
+      admitted: false
+      reason: capability_closed
+  # Finding the tasks on a page is a capability of its own: the reading of handwriting is open for
+  # the category, and the finding, with no rule, is closed, though the cell would admit it.
+  - request: {capability: task_finding, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
     facts:
       alpha:
         data_processing_agreement: [from_consent_to_18]

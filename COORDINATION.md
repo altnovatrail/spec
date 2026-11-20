@@ -1,6 +1,6 @@
 # COORDINATION.md — cross-repository plan of NovaTrail
 
-The order of the other repositories' tasks toward the plan's goal, and which waits for which (R76). Tasks live in their repositories' RUN.md (R19); a row names them. Items follow repositories 6. spec's own plan — [RUN.md](RUN.md). Rules in English, «Порядок» in Russian (R154).
+The order of the other repositories' tasks toward the plan's goal, and which waits for which (R76). Tasks live in their repositories' RUN.md (R19); a row names them. An epic of tasks across repositories that spec plans, as E11, keeps them in spec's table 1, with no rows here; the author leads each, not «Сделай эпик E…» (R159). Items follow repositories 6. spec's own plan — [RUN.md](RUN.md). Rules in English, «Порядок» in Russian (R154).
 
 ## Rules
 
@@ -27,7 +27,7 @@ The coordinator — a session of `spec` started by «Что дальше по CO
 
 ## Порядок
 
-Цель — первый срез со взрослыми: на `novatrail` учатся автор и взрослые из США по коду `api invite`, с телефона, планшета и компьютера — рукопись, уроки, движок и слова наставника под квотой ИИ платформы, по E3 `app` (R76, R149). Не входят дети (R147; Д240) и проверки на настоящих устройствах (R146).
+Цель — первый срез со взрослыми: на `novatrail` учатся автор и взрослые из США по коду `api invite`, с телефона, планшета и компьютера — рукопись, уроки, движок и слова наставника под квотой ИИ платформы, по E3 `app`, и задачи с бумаги ученика, по эпику E11 (RUN.md, таблица 1) (R76, R149, R162). Не входят дети (R147; Д240) и проверки на настоящих устройствах (R146).
 
 Задачи строки идут по RUN.md своего репозитория. «Зависит от» — номера открытых строк; «—» — ждёт только сделанного.
 

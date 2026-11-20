@@ -86,8 +86,8 @@ const (
 	Cause_CAUSE_ADULT_NEEDED Cause = 13
 	// A child asks for the solution before the fourth wrong answer. Code `failed_precondition`.
 	Cause_CAUSE_LADDER_NOT_PASSED Cause = 14
-	// The task has nothing to show by this request: a task with a rubric, which "Done" ends. Code
-	// `failed_precondition`.
+	// The task has nothing to show by this request: a task with a rubric, which "Done" ends, and a
+	// task from paper, whose solution is never shown (R162). Code `failed_precondition`.
 	Cause_CAUSE_NO_SHOWING Cause = 15
 	// The attempt has no rung: no wrong answer yet, or a task with a rubric. Code
 	// `failed_precondition`.
@@ -206,6 +206,11 @@ const (
 	// again and offers the bands next to the level it gives (R157). Code `failed_precondition`,
 	// with no data.
 	Cause_CAUSE_BAND_NOT_NEXT Cause = 46
+	// A task from paper has no key: the solution of AI gave no one answer that a program can compare,
+	// such as a proof, a drawing or several answers, so no verdict is given, "Couldn't check this
+	// one", and the hints still are (R162). An outcome alone, of every submission of the attempt,
+	// with no AI once the first gave it.
+	Cause_CAUSE_NO_KEY Cause = 47
 )
 
 // Enum value maps for Cause.
@@ -258,6 +263,7 @@ var (
 		44: "CAUSE_WORK_TOO_LARGE",
 		45: "CAUSE_KEY_CHECKS_EXHAUSTED",
 		46: "CAUSE_BAND_NOT_NEXT",
+		47: "CAUSE_NO_KEY",
 	}
 	Cause_value = map[string]int32{
 		"CAUSE_UNSPECIFIED":          0,
@@ -307,6 +313,7 @@ var (
 		"CAUSE_WORK_TOO_LARGE":       44,
 		"CAUSE_KEY_CHECKS_EXHAUSTED": 45,
 		"CAUSE_BAND_NOT_NEXT":        46,
+		"CAUSE_NO_KEY":               47,
 	}
 )
 
@@ -895,7 +902,8 @@ func (*Refusal_NextKeyCheck) isRefusal_Data() {}
 type Outcome struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The outcome: `CAUSE_AI_FAILURE`, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT`,
-	// `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED` or `CAUSE_NO_OTHER_WORDS`.
+	// `CAUSE_NOT_ADMITTED`, `CAUSE_LIMIT_REACHED`, `CAUSE_KEY_REFUSED`, `CAUSE_NO_OTHER_WORDS` or,
+	// on a task from paper, `CAUSE_NO_KEY`.
 	// "Explain differently" makes no call without the reserve of the quota: there the quota, the limit
 	// of platform AI and no admission are refusals, and the right to it on the rung stays. Beside an
 	// engine's choice that gives nothing: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` or
@@ -1222,7 +1230,7 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x06reason\x18\x01 \x01(\x0e2\x1e.novatrail.api.v1.RunEndReasonR\x06reason\x126\n" +
 	"\x06choice\x18\x02 \x01(\v2\x1e.novatrail.api.v1.EngineChoiceR\x06choice\"'\n" +
 	"\rEndedSegments\x12\x16\n" +
-	"\x06places\x18\x01 \x03(\x05R\x06places*\xa9\t\n" +
+	"\x06places\x18\x01 \x03(\x05R\x06places*\xbb\t\n" +
 	"\x05Cause\x12\x15\n" +
 	"\x11CAUSE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10CAUSE_NO_PROFILE\x10\x01\x12\x13\n" +
@@ -1271,7 +1279,8 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x11CAUSE_STORAGE_OFF\x10+\x12\x18\n" +
 	"\x14CAUSE_WORK_TOO_LARGE\x10,\x12\x1e\n" +
 	"\x1aCAUSE_KEY_CHECKS_EXHAUSTED\x10-\x12\x17\n" +
-	"\x13CAUSE_BAND_NOT_NEXT\x10.*\x88\x01\n" +
+	"\x13CAUSE_BAND_NOT_NEXT\x10.\x12\x10\n" +
+	"\fCAUSE_NO_KEY\x10/*\x88\x01\n" +
 	"\n" +
 	"LimitCause\x12\x1b\n" +
 	"\x17LIMIT_CAUSE_UNSPECIFIED\x10\x00\x12\x15\n" +

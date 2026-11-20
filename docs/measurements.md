@@ -1382,7 +1382,7 @@ An executor runs as `claude -p --output-format stream-json --json-schema` (R156)
 
 | Proposal | Minutes a task | What changes | Question |
 |---|---|---|---|
-| The executor waits in the foreground: `timeout 590` inside, Bash's `timeout` 600000 ms, repeated; never `run_in_background`, Monitor or `ScheduleWakeup` for a wait | 0 of time; the lost waits, 59 of 301 attempts, go | `executor.md`; R143 and an amendment to R156; one clause of RULES.md | В66 |
+| The executor waits in the foreground: `timeout 590` inside, Bash's `timeout` 600000 ms, repeated; never `run_in_background`, Monitor or `ScheduleWakeup` for a wait | 0 of time; the lost waits, 59 of 301 attempts, go | `executor.md`; R143 and R156; one clause of RULES.md | В66 |
 | The bookkeeping goes into the round of CI that is waited for: «Сделано», the archive and the mark committed before the wait, the pull request's number in them, and a push after a green CI only for what a check found | 1.1 on average; 6.6 in the 38 tasks that pushed it after | `executor.md` | В67 |
 | After a fix that follows a finding of CI, SonarCloud or the review, the recipe of CI that covers the changed files, not one file | not measured; 27 in T87 | `executor.md` | В67 |
 | `[parallel]` for `just ci` where its recipes are independent, as in `app` | under 0.8 in `app` | the justfiles of the repositories | В68 |

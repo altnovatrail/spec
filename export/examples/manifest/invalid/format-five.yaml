@@ -1,7 +1,7 @@
 # error: const at #/format
-# The part's version is 3.
-format: 4
+# The part's version is 4.
+format: 5
 scope: "account"
 built_at: "2026-11-10T09:30:00Z"
 app_version: "0.1.0"
-api_format: "3"
+api_format: "4"

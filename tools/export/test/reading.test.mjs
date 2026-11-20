@@ -20,7 +20,7 @@ const profile = example("profile/valid/one-attempt.yaml");
 const exportOf = (files) => ({ "manifest.json": manifest, [`api/profiles/${profile.profile_id}.json`]: profile, ...protos, ...files });
 
 test("the rules are read in the order of the text, and each file of JSON has its schema", () => {
-  assert.deepEqual(RULES, ["export.files", "export.scope", "export.profiles", "export.works", "export.case", "export.proto"]);
+  assert.deepEqual(RULES, ["export.files", "export.scope", "export.profiles", "export.works", "export.paper", "export.case", "export.proto"]);
   const readme = fs.readFileSync(path.join(spec, "export/README.md"), "utf8");
   assert.deepEqual([...readme.matchAll(/^\| `(export\.[a-z-]+)` \|/gm)].map((match) => match[1]), RULES);
   assert.equal(termOf("manifest.json"), "manifest");
@@ -29,6 +29,8 @@ test("the rules are read in the order of the text, and each file of JSON has its
   assert.equal(termOf("device/p.json"), "device");
   assert.equal(termOf("works/p/a.json"), "work");
   assert.equal(termOf("works/a.json"), null);
+  assert.equal(termOf("paper/p/x.json"), "paper");
+  assert.equal(termOf("paper/x.json"), null);
   assert.equal(termOf("api/proto/a/b.proto"), null);
 });
 
@@ -94,6 +96,29 @@ test("export.works holds the works a profile names to their files, by the profil
   assert.equal(instantOf("2026-11-10T10:45:00.25Z"), "2026-11-10T10:45:00.250000000Z");
 });
 
+test("export.paper holds a page to a profile of api's part and to its path, each task to a frame, and an attempt to one task", () => {
+  const page = example("paper/valid/two-tasks.yaml");
+  const own = { ...page, profile_id: profile.profile_id };
+  const file = (id) => `paper/${profile.profile_id}/${id}.json`;
+  assert.deepEqual(readingOf(validators, exportOf({ [file(page.page_id)]: own })), { accepted: true });
+  // A page of a profile the part of api does not hold.
+  assert.deepEqual(readingOf(validators, exportOf({ "paper/p-9/page-1.json": { ...page, profile_id: "p-9" } })), { refused_by: "export.paper", names: ["paper/p-9/page-1.json"] });
+  assert.deepEqual(readingOf(validators, exportOf({ [file("page-2")]: own })), { refused_by: "export.paper", names: [`${file("page-2")}#page_id`] });
+  assert.deepEqual(readingOf(validators, exportOf({ [file(page.page_id)]: { ...own, profile_id: "p-9" } })), { refused_by: "export.paper", names: [`${file(page.page_id)}#profile_id`] });
+  // A task names one of the page's frames: the last is the frames' count.
+  const beyond = { ...own, tasks: [own.tasks[0], { ...own.tasks[1], frame: own.frames.length + 1 }] };
+  assert.deepEqual(readingOf(validators, exportOf({ [file(page.page_id)]: beyond })), { refused_by: "export.paper", names: [`${file(page.page_id)}#tasks.1.frame`] });
+  // An attempt twice on one page, or on two pages, is named at its second place.
+  const twice = { ...own, tasks: [own.tasks[0], { ...own.tasks[1], attempt_id: own.tasks[0].attempt_id }] };
+  assert.deepEqual(readingOf(validators, exportOf({ [file(page.page_id)]: twice })), { refused_by: "export.paper", names: [`${file(page.page_id)}#tasks.1.attempt_id`] });
+  const second = { ...own, page_id: "page-2", tasks: [own.tasks[1]] };
+  assert.deepEqual(readingOf(validators, exportOf({ [file(page.page_id)]: own, [file("page-2")]: second })), { refused_by: "export.paper", names: [`${file("page-2")}#tasks.0.attempt_id`] });
+  // Pages whose IDs differ in letter case alone clash, after export.paper.
+  const upper = page.page_id.toUpperCase();
+  const clash = { [file(page.page_id)]: own, [file(upper)]: { ...own, page_id: upper, tasks: [] } };
+  assert.deepEqual(readingOf(validators, exportOf(clash)), { refused_by: "export.case", names: [file(upper), file(page.page_id)] });
+});
+
 test("export.case refuses two profiles, or two works of a profile, whose IDs differ in letter case alone", () => {
   const work = example("work/valid/handwriting.yaml");
   const named = { attempt_id: work.attempt_id, kind: work.kind, stored_at: work.stored_at, size_bytes: 168 };
@@ -126,4 +151,9 @@ test("export.proto wants learner-model's .proto with a profile, and the observat
   assert.equal(validators.get("profile")(stateless), false);
   const { [LEARNER_MODEL_PROTO[0]]: __, ...noModel } = noObservation;
   assert.deepEqual(readingOf(validators, { ...noModel, [`api/profiles/${profile.profile_id}.json`]: plain }), { refused_by: "export.proto", names: [LEARNER_MODEL_PROTO[0]] });
+  // A submission of an open attempt of a task from paper needs the observation's too.
+  const paper = example("profile/valid/correction-and-paper.yaml");
+  assert.ok(paper.paper_attempts.some((attempt) => attempt.submissions.length));
+  const fromPaper = { ...paper, profile_id: profile.profile_id, attempts: [] };
+  assert.deepEqual(readingOf(validators, { ...noObservation, [`api/profiles/${profile.profile_id}.json`]: fromPaper }), { refused_by: "export.proto", names: OBSERVATION_PROTO });
 });

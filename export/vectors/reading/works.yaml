@@ -3,13 +3,13 @@
 cases:
   - files:
       manifest.json:
-        format: 3
+        format: 4
         scope: "profile"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "3"
+        api_format: "4"
       api/profiles/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -21,6 +21,7 @@ cases:
             enabled: false
             speed: "normal"
         default_mode: "by_steps"
+        hint_mode: "show_where"
         ask_before_showing: false
         active_on: "2026-11-10"
         consent:
@@ -76,6 +77,7 @@ cases:
                       value: "12"
             close_reason: "correct"
             closed_at: "2026-11-10T09:40:00Z"
+        paper_attempts: []
         choices: []
         evidence:
           - seq: 1
@@ -136,7 +138,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
@@ -159,13 +161,13 @@ cases:
       - "works/p-1/attempt-1.json"
   - files:
       manifest.json:
-        format: 3
+        format: 4
         scope: "profile"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "3"
+        api_format: "4"
       api/profiles/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -177,6 +179,7 @@ cases:
             enabled: false
             speed: "normal"
         default_mode: "by_steps"
+        hint_mode: "show_where"
         ask_before_showing: false
         active_on: "2026-11-10"
         consent:
@@ -232,6 +235,7 @@ cases:
                       value: "12"
             close_reason: "correct"
             closed_at: "2026-11-10T09:40:00Z"
+        paper_attempts: []
         choices: []
         evidence:
           - seq: 1
@@ -292,7 +296,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
@@ -311,7 +315,7 @@ cases:
         essays: []
         lessons: []
       works/p-1/attempt-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         attempt_id: "attempt-9"
         kind: "essay"
@@ -336,13 +340,13 @@ cases:
       - "works/p-1/attempt-1.json#stored_at"
   - files:
       manifest.json:
-        format: 3
+        format: 4
         scope: "profile"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "3"
+        api_format: "4"
       api/profiles/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -354,6 +358,7 @@ cases:
             enabled: false
             speed: "normal"
         default_mode: "by_steps"
+        hint_mode: "show_where"
         ask_before_showing: false
         active_on: "2026-11-10"
         consent:
@@ -409,6 +414,7 @@ cases:
                       value: "12"
             close_reason: "correct"
             closed_at: "2026-11-10T09:40:00Z"
+        paper_attempts: []
         choices: []
         evidence:
           - seq: 1
@@ -460,7 +466,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
@@ -479,7 +485,7 @@ cases:
         essays: []
         lessons: []
       works/p-1/attempt-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         attempt_id: "attempt-1"
         kind: "handwriting"
@@ -498,7 +504,7 @@ cases:
         submissions: []
         picture: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
       works/p-9/attempt-1.json:
-        format: 3
+        format: 4
         profile_id: "p-9"
         attempt_id: "attempt-1"
         kind: "handwriting"
@@ -522,13 +528,13 @@ cases:
       - "works/p-9/attempt-1.json"
   - files:
       manifest.json:
-        format: 3
+        format: 4
         scope: "profile"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "3"
+        api_format: "4"
       api/profiles/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -540,6 +546,7 @@ cases:
             enabled: false
             speed: "normal"
         default_mode: "by_steps"
+        hint_mode: "show_where"
         ask_before_showing: false
         active_on: "2026-11-10"
         consent:
@@ -595,6 +602,7 @@ cases:
                       value: "12"
             close_reason: "correct"
             closed_at: "2026-11-10T09:40:00Z"
+        paper_attempts: []
         choices: []
         evidence:
           - seq: 1
@@ -659,7 +667,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
@@ -678,7 +686,7 @@ cases:
         essays: []
         lessons: []
       works/p-1/attempt-1.json:
-        format: 3
+        format: 4
         profile_id: "p-1"
         attempt_id: "attempt-1"
         kind: "handwriting"

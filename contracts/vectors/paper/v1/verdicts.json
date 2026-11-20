@@ -1,0 +1,23 @@
+{
+  "description": "Verdicts by the key of a task from paper on the value read, brought to the key: by the letter of its unknown and by the brackets of a label.",
+  "cases": [
+    {"description":"The solver's key and the value read.","key":{"number":{"value":"85","units":[],"unknown":""}},"value":"85","verdict":{"verdict":"correct"}},
+    {"description":"A wrong value.","key":{"number":{"value":"85","units":[],"unknown":""}},"value":"75","verdict":{"verdict":"not_yet"}},
+    {"description":"The same value as a decimal.","key":{"number":{"value":"3/2","units":[],"unknown":""}},"value":"1.5","verdict":{"verdict":"correct"}},
+    {"description":"The answer as an equation of the unknown.","key":{"number":{"value":"7","units":[],"unknown":"x"}},"value":"x = 7","verdict":{"verdict":"correct"}},
+    {"description":"The unknown as a capital letter, with no space.","key":{"number":{"value":"7","units":[],"unknown":"x"}},"value":"X=7","verdict":{"verdict":"correct"}},
+    {"description":"A wrong value written with the unknown.","key":{"number":{"value":"7","units":[],"unknown":"x"}},"value":"x = 8","verdict":{"verdict":"not_yet"}},
+    {"description":"Another letter than the unknown is no answer of the key.","key":{"number":{"value":"7","units":[],"unknown":"x"}},"value":"y = 7","verdict":{"verdict":"unreadable","reason":"notation"}},
+    {"description":"The letter of an expression's answer is not dropped.","key":{"number":{"value":"85","units":[],"unknown":""}},"value":"x = 85","verdict":{"verdict":"unreadable","reason":"notation"}},
+    {"description":"Nothing read.","key":{"number":{"value":"85","units":[],"unknown":""}},"value":null,"verdict":{"verdict":"unreadable","reason":"blank"}},
+    {"description":"Units after the number.","key":{"number":{"value":"12","units":["cm"],"unknown":""}},"value":"12 cm","verdict":{"verdict":"correct"}},
+    {"description":"The circled option.","key":{"choice":{"options":["A","B","C","D"],"key":"C"}},"value":"C","verdict":{"verdict":"correct"}},
+    {"description":"The circled option in lowercase.","key":{"choice":{"options":["A","B","C","D"],"key":"C"}},"value":"c","verdict":{"verdict":"correct"}},
+    {"description":"The circled option in its brackets.","key":{"choice":{"options":["A","B","C","D"],"key":"C"}},"value":"(C)","verdict":{"verdict":"correct"}},
+    {"description":"A label with a bracket at its end alone.","key":{"choice":{"options":["A","B","C","D"],"key":"C"}},"value":"C)","verdict":{"verdict":"correct"}},
+    {"description":"A label in square brackets.","key":{"choice":{"options":["A","B","C","D"],"key":"C"}},"value":"[ B ]","verdict":{"verdict":"not_yet"}},
+    {"description":"Another option.","key":{"choice":{"options":["A","B","C","D"],"key":"C"}},"value":"B","verdict":{"verdict":"not_yet"}},
+    {"description":"What the option says, not its label.","key":{"choice":{"options":["A","B","C","D"],"key":"C"}},"value":"15","verdict":{"verdict":"unreadable","reason":"notation"}},
+    {"description":"Labels that are numbers.","key":{"choice":{"options":["1","2","3"],"key":"2"}},"value":"(2)","verdict":{"verdict":"correct"}}
+  ]
+}

@@ -1,0 +1,268 @@
+syntax = "proto3";
+
+// The debug mode of a local run in the contract between `app` and `api` (R163): which models serve
+// the calls of AI of a task from paper, past the admission list, and what each call returned and
+// cost. `api` serves it only with its debug flag, which a deployment refuses; anywhere else each
+// method answers `unimplemented`, and `app` shows no debug button. Its rules are
+// contracts/README.md, section 15.
+package novatrail.api.v1;
+
+import "google/protobuf/timestamp.proto";
+import "novatrail/api/v1/attempt.proto";
+import "novatrail/api/v1/cause.proto";
+import "novatrail/paper/v1/key.proto";
+
+// The debug mode, from a session of the account on a local run. Every method carries the token of
+// the sign-in service and may get the refusals of every request with a token, which the comment of
+// `AccountService` names; it needs the account of the token alone. The choice and the calls are the
+// account's, in the memory of the process of `api`, and go with it: `api` writes neither to its
+// log nor to its database.
+service DebugService {
+  // The models that can be chosen, with their prices, and the choice now.
+  rpc GetDebug(GetDebugRequest) returns (GetDebugResponse);
+  // Sets the models of the account's calls of a task from paper, from its next call on. A model
+  // the list does not name, an effort it does not take, or thinking off where the model or the
+  // effort keeps it on, get the code `invalid_argument` with no `Refusal`.
+  rpc SetDebugModels(SetDebugModelsRequest) returns (SetDebugModelsResponse);
+  // Gives the account's actions since the last take, each with its calls, oldest first, and
+  // forgets them.
+  rpc TakeDebugCalls(TakeDebugCallsRequest) returns (TakeDebugCallsResponse);
+}
+
+// The request of the debug mode's state.
+message GetDebugRequest {}
+
+// The debug mode's state.
+message GetDebugResponse {
+  // The models that can be chosen: those of the adapters of `tutor` with a key on this run, in
+  // the order of their prices.
+  repeated DebugModel models = 1;
+  // The choice now.
+  DebugChoice choice = 2;
+  // The models of each call of a task from paper by the admission list of `tutor`, for an adult on
+  // platform AI, one for each model in the order of their attempts (R164): what serves the call
+  // with no first model. A call the list admits no model for is absent.
+  repeated DebugAdmitted admitted = 3;
+}
+
+// A model the admission list gives a call.
+message DebugAdmitted {
+  // The call.
+  DebugCallKind kind = 1;
+  // Its model, with how it is called.
+  DebugModelChoice model = 2;
+}
+
+// A model that can be chosen.
+message DebugModel {
+  // The model's ID at its provider, as `claude-haiku-5-5`.
+  string id = 1;
+  // The model's name, as `Haiku 5.5`.
+  string name = 2;
+  // The provider, as the admission table names it, as `anthropic`.
+  string provider = 3;
+  // The price of a million input tokens, in micro-dollars, by the prices of `tutor`.
+  int64 input_micro_usd = 4;
+  // The price of a million output tokens, in micro-dollars, by the prices of `tutor`.
+  int64 output_micro_usd = 5;
+  // The efforts it takes.
+  repeated DebugEffort efforts = 6;
+  // The efforts at which its thinking may be off: none for a model that always thinks.
+  repeated DebugEffort thinking_off_efforts = 7;
+}
+
+// The effort of a call, as the provider names it.
+enum DebugEffort {
+  // Not named: `app` reads it as `medium`.
+  DEBUG_EFFORT_UNSPECIFIED = 0;
+  // `low`.
+  DEBUG_EFFORT_LOW = 1;
+  // `medium`.
+  DEBUG_EFFORT_MEDIUM = 2;
+  // `high`.
+  DEBUG_EFFORT_HIGH = 3;
+  // `xhigh`.
+  DEBUG_EFFORT_XHIGH = 4;
+  // `max`.
+  DEBUG_EFFORT_MAX = 5;
+}
+
+// Which models serve the calls of a task from paper.
+message DebugChoice {
+  // The model of every call of a task from paper — the tasks found, the statement read, the
+  // solution, the work read and the tutor's words —, one attempt each: absent, each call has its
+  // models of the admission list of `tutor`, in turn (R164).
+  DebugModelChoice first = 1;
+  // A second reader of the work, beside the first model's reading, the two joined as a pair is
+  // (R68): absent, one reader.
+  DebugModelChoice second = 2;
+}
+
+// One model chosen, with how it is called.
+message DebugModelChoice {
+  // The model's ID at its provider, one of `GetDebugResponse.models`.
+  string model = 1;
+  // The effort.
+  DebugEffort effort = 2;
+  // Whether the model thinks: off only at an effort of its `thinking_off_efforts`.
+  bool thinking = 3;
+}
+
+// The choice to set.
+message SetDebugModelsRequest {
+  // The choice.
+  DebugChoice choice = 1;
+}
+
+// The choice set.
+message SetDebugModelsResponse {
+  // The choice, as `api` holds it now.
+  DebugChoice choice = 1;
+}
+
+// The request of the calls since the last take.
+message TakeDebugCallsRequest {}
+
+// The calls since the last take.
+message TakeDebugCallsResponse {
+  // The actions, oldest first.
+  repeated DebugAction actions = 1;
+}
+
+// One request of a task from paper and the calls it made.
+message DebugAction {
+  // Which request.
+  DebugActionKind kind = 1;
+  // The attempt, beside `DEBUG_ACTION_KIND_CHECK` and `DEBUG_ACTION_KIND_WORDS`.
+  string attempt_id = 2;
+  // When `api` took the request.
+  google.protobuf.Timestamp at = 3;
+  // Its calls, in the order they ended; the solver's among them.
+  repeated DebugCall calls = 4;
+  // Beside two readers: whether a place of the work was read differently by them, and so is
+  // unreadable (R68).
+  bool readers_differ = 5;
+}
+
+// Which request of a task from paper.
+enum DebugActionKind {
+  // Not named.
+  DEBUG_ACTION_KIND_UNSPECIFIED = 0;
+  // `FindTasks`.
+  DEBUG_ACTION_KIND_FIND_TASKS = 1;
+  // `SubmitWork` of an attempt of a task from paper.
+  DEBUG_ACTION_KIND_CHECK = 2;
+  // A request for the tutor's words on an attempt of a task from paper: `GetOpeningWords`,
+  // `GetRungWords` or `ExplainDifferently`.
+  DEBUG_ACTION_KIND_WORDS = 3;
+}
+
+// One call of a request: of a model, or of the solver of `module-kit`.
+message DebugCall {
+  // What the call does.
+  DebugCallKind kind = 1;
+  // Beside the work read: the reader, 1 or 2.
+  int32 reader = 2;
+  // The model's ID as the provider gave it back; empty for the solver.
+  string model = 3;
+  // The effort it was called with.
+  DebugEffort effort = 4;
+  // Whether it was called with thinking on.
+  bool thinking = 5;
+  // What it returned, as it returned it: the model's JSON, or the solver's key as the JSON of
+  // `novatrail.paper.v1.Answer`. Empty when it returned nothing.
+  string answer = 6;
+  // The input tokens, without those of the cache.
+  int64 input_tokens = 7;
+  // The tokens written to the cache.
+  int64 cache_write_tokens = 8;
+  // The tokens read from the cache.
+  int64 cache_read_tokens = 9;
+  // The output tokens, thinking among them.
+  int64 output_tokens = 10;
+  // The thinking tokens.
+  int64 thinking_tokens = 11;
+  // How long the call took, in milliseconds.
+  int64 duration_ms = 12;
+  // How long until its first token, in milliseconds: 0 when none came.
+  int64 first_token_ms = 13;
+  // How many times the call was repeated.
+  int32 retries = 14;
+  // Its cost in micro-dollars, as `api` charges the quota: by the prices of `tutor`, or the worst
+  // when the provider's bill is not whole.
+  int64 cost_micro_usd = 15;
+  // Whether the provider's bill of the call is whole.
+  bool billed = 16;
+  // What the call came to when it gave no answer that was read: as `Outcome` names it.
+  Cause failure = 17;
+  // The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
+  // the one before did not do (R164). 1 for the solver and for a model the debug mode chose.
+  int32 attempt = 18;
+}
+
+// What a call does.
+enum DebugCallKind {
+  // Not named.
+  DEBUG_CALL_KIND_UNSPECIFIED = 0;
+  // The tasks found on the photo, `task_finding`.
+  DEBUG_CALL_KIND_TASK_FINDING = 1;
+  // The statement read into a formula, `statement_reading`.
+  DEBUG_CALL_KIND_STATEMENT_READING = 2;
+  // The solver of `module-kit`, with no AI.
+  DEBUG_CALL_KIND_SOLVER = 3;
+  // The AI's solution, `task_solving`.
+  DEBUG_CALL_KIND_TASK_SOLVING = 4;
+  // The work read, `handwriting_reading`.
+  DEBUG_CALL_KIND_WORK_READING = 5;
+  // The tutor's words — the opening question, a rung's words with the place of the first mistake,
+  // or a rung in other words —, `solution_analysis` with the work and `hint` without it.
+  DEBUG_CALL_KIND_TUTOR_WORDS = 6;
+}
+
+// A Check of a task from paper as the debug mode exports it, a case of the set of a task from
+// paper of the eval runner of `tutor`: the pictures its calls saw, what they gave, and the truth as
+// the developer says it. `app` writes it as the JSON of this message, a file a case; `tutor-eval`
+// reads a folder of such files as a set, whose truth is the developer's (R163).
+message DebugCase {
+  // The work as the Check sent it: the task's crop, which the statement's reading and the
+  // solution see, and the crop of the work, which the readers see.
+  PaperWork work = 1;
+  // Each task the crop holds, from 1 to 20, in the order of the page, as the attempt's items: the
+  // work is `correct` when every task with a key is.
+  repeated DebugTask tasks = 2;
+  // What the developer saw, in their words; may be empty.
+  string note = 3;
+  // The Check as the debug mode took it: its calls, what each returned and cost.
+  DebugAction action = 4;
+}
+
+// One task of a case of the debug mode, as the developer says its truth.
+message DebugTask {
+  // The task's statement as printed, at most 200 bytes, as the reading of the statement gave it:
+  // the reading of the work is given it.
+  string statement = 5;
+  // The formula the task's statement holds, as the solver of `module-kit` takes it; empty for a
+  // statement that holds none, a word problem, a choice or an open task.
+  string formula = 1;
+  // The task's key; none for an open task, which has no one answer.
+  novatrail.paper.v1.Answer key = 2;
+  // The value of the answer the work holds for the task, brought to the key, as `x = 4` is `4`;
+  // empty where the work holds none.
+  string read = 3;
+  // The verdict the task's item should get by its key.
+  DebugOutcome outcome = 4;
+}
+
+// The verdict a case of the debug mode should get, as the set of a task from paper names it.
+enum DebugOutcome {
+  // Not named: no case.
+  DEBUG_OUTCOME_UNSPECIFIED = 0;
+  // `correct`.
+  DEBUG_OUTCOME_CORRECT = 1;
+  // `not_yet`.
+  DEBUG_OUTCOME_NOT_YET = 2;
+  // `unreadable`.
+  DEBUG_OUTCOME_UNREADABLE = 3;
+  // `unchecked`: an open task, with no key.
+  DEBUG_OUTCOME_UNCHECKED = 4;
+}

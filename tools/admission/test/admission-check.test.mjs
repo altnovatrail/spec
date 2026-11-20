@@ -19,6 +19,7 @@ const TABLE_SCHEMA = "admission/schemas/admission-table.schema.json";
 const MINIMAL = "admission/examples/admission-table/valid/minimal.yaml";
 const FACTS = "admission/vectors/answers/facts.yaml";
 const WORDS = "admission/vectors/answers/correct-answer-words.yaml";
+const PAPER = "admission/vectors/answers/paper-tasks.yaml";
 
 // A copy of spec's files with each [file, from, to] edit applied: from null writes the file anew
 // with to, to null deletes it.
@@ -82,7 +83,7 @@ test("spec's own admission/ passes, and the stats count what it holds", () => {
     assert.equal(stats.schemas, 2);
     assert.equal(stats.providers, 3);
     assert.equal(stats.cells, 24);
-    assert.equal(stats.capabilities, 28);
+    assert.equal(stats.capabilities, 40);
     assert.ok(stats.examples >= 2 && stats.ruleVectors >= 4 && stats.cases >= 4);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -105,9 +106,9 @@ test("a file the layout does not know is an error, and so is a case not in kebab
 });
 
 test("VERSION is MAJOR.MINOR and a newline, and the $id of each schema names it", () => {
-  const errors = errorsOf([["admission/VERSION", "0.4\n", "0.04\n"]]);
+  const errors = errorsOf([["admission/VERSION", "0.5\n", "0.05\n"]]);
   assert.ok(errors.includes("admission/VERSION:1: the table's version is MAJOR.MINOR and a newline, with no leading zeros"), errors.join("\n"));
-  expectAll([["admission/VERSION", null, "0.5\n"]], /^admission\/schemas\/(admission-table|answer-vector)\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/admission\/0\.5\/[a-z-]+\.schema\.json: the prefix, the version in admission\/VERSION/, 2);
+  expectAll([["admission/VERSION", null, "0.6\n"]], /^admission\/schemas\/(admission-table|answer-vector)\.schema\.json:3: \$id is https:\/\/altnovatrail\.github\.io\/spec\/admission\/0\.6\/[a-z-]+\.schema\.json: the prefix, the version in admission\/VERSION/, 2);
   const missing = errorsOf([["admission/VERSION", "", null]]);
   assert.ok(missing.includes("admission/VERSION:0: no VERSION: the table's version, MAJOR.MINOR and a newline"), missing.join("\n"));
 });
@@ -183,9 +184,9 @@ test("the rules of the text are the rules admission-check knows", () => {
 
 test("a vector of answers gives the answer section 6 computes", () => {
   expectOnly([[FACTS, "      fact: zero_data_retention\n  # The safeguards", "      fact: minor_safeguards\n  # The safeguards"]], /^admission\/vectors\/answers\/facts\.yaml:0: cases\/2: the answer is .*"fact":"zero_data_retention".*, and the vector gives .*"fact":"minor_safeguards"/);
-  // With the other vector of fact_missing gone, the one left breaks a rule, so it gives no answers,
+  // With the other vectors of fact_missing gone, the one left breaks a rule, so it gives no answers,
   // and that reason has none.
-  assert.deepEqual(errorsOf([[FACTS, "    alpha: {name: Alpha}\n", "    gamma: {name: Gamma}\n"], [WORDS, "", null]]), [
+  assert.deepEqual(errorsOf([[FACTS, "    alpha: {name: Alpha}\n", "    gamma: {name: Gamma}\n"], [WORDS, "", null], [PAPER, "", null]]), [
     "admission/vectors/answers:0: no vector of answers gives the refusal fact_missing",
     "admission/vectors/answers/facts.yaml:0: table/cells/0/provider: admission-table.known-providers: alpha: no provider of providers",
   ]);
@@ -216,6 +217,7 @@ test("the vectors of answers give an admission and every reason of a refusal", (
     ["admission/vectors/answers/facts.yaml", "", null],
     ["admission/vectors/answers/open-cells.yaml", "", null],
     [WORDS, "", null],
+    [PAPER, "", null],
   ]);
   assert.deepEqual(none, [
     "admission/vectors/answers:0: no vector of answers gives an admission",
@@ -229,7 +231,7 @@ test("the command prints ok on spec's own admission/, and the errors of a broken
   const main = path.join(spec, "tools/admission/main.mjs");
   const ok = spawnSync(process.execPath, [main], { encoding: "utf8" });
   assert.equal(ok.status, 0, ok.stderr);
-  assert.match(ok.stdout, /^admission-check: ok — 2 schemas; the table: 3 providers, 4 deployment facts, 28 rules of capabilities and 24 cells; /);
+  assert.match(ok.stdout, /^admission-check: ok — 2 schemas; the table: 3 providers, 4 deployment facts, 40 rules of capabilities and 24 cells; /);
   const usage = spawnSync(process.execPath, [main, "extra"], { encoding: "utf8" });
   assert.equal(usage.status, 2);
   assert.match(usage.stderr, /^usage: node tools\/admission\/main\.mjs/);

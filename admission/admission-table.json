@@ -255,6 +255,114 @@
         "privacy 6",
         "О-6"
       ]
+    },
+    {
+      "capability": "task_finding",
+      "age_category": "under_13",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "task_finding",
+      "age_category": "from_13_to_consent",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "task_finding",
+      "age_category": "from_consent_to_18",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "task_finding",
+      "age_category": "adult",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "statement_reading",
+      "age_category": "under_13",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "statement_reading",
+      "age_category": "from_13_to_consent",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "statement_reading",
+      "age_category": "from_consent_to_18",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "statement_reading",
+      "age_category": "adult",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "task_solving",
+      "age_category": "under_13",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "task_solving",
+      "age_category": "from_13_to_consent",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "task_solving",
+      "age_category": "from_consent_to_18",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
+    },
+    {
+      "capability": "task_solving",
+      "age_category": "adult",
+      "admission": "open",
+      "basis": [
+        "privacy 6",
+        "R162"
+      ]
     }
   ],
   "cells": [

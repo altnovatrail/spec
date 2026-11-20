@@ -305,20 +305,21 @@ types-test: _tools
 
 # Reads spec's API contracts in contracts/ by the rules of R83 and contracts/README.md: buf.yaml as
 # R83 fixes it and buf.gen.yaml with local plugins alone, before buf runs; the layout of contracts/;
-# what buf lets pass in a file — a syntax other than proto3, a json_name, an unsigned type, a package
-# without the prefix novatrail. —, by the image buf builds; buf format and buf lint; and, read by the
-# same image, the vectors of the observation, whose joins and verdicts it computes as
+# what buf lets pass in a file — a syntax other than proto3, a json_name, an unsigned type, a
+# package without the prefix novatrail. —, by the image buf builds; buf format and buf lint; and,
+# read by the same image, the vectors of the observation, whose joins and verdicts it computes as
 # contracts/README.md gives them, but for what Starlark gives a predicate (R86), the vectors of the
-# rules the device and the runner share, computed the same way (R94), the examples of the sample
-# file, strictly, held to its rules, their markup too (R93, R94, R95), and the examples of the
-# runner's report, report-<case>.json, held to its form and to the samples beside them (R95); buf
-# breaking against the previous release, the newest release tag in the history of HEAD other than
-# HEAD's own, whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds
-# every release and no file of a release is needed; and the code buf generates, which contracts/
-# holds file for file. buf is the toolchain stage's; its Go plugins are the tools of
-# contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file the check stops
-# after the layout, since buf refuses a module without one. A file it does not know is an error:
-# whatever brings a new kind of file extends the check.
+# rules the device and the runner share, computed the same way (R94), the vectors of the key of a
+# task from paper, whose solver, answers and verdicts it computes as contracts/README.md gives them
+# (R162), the examples of the sample file, strictly, held to its rules, their markup too (R93, R94,
+# R95), and the examples of the runner's report, report-<case>.json, held to its form and to the
+# samples beside them (R95); buf breaking against the previous release, the newest release tag in
+# the history of HEAD other than HEAD's own, whose buf.yaml and contracts/ git archive unpacks,
+# since spec's own history holds every release and no file of a release is needed; and the code buf
+# generates, which contracts/ holds file for file. buf is the toolchain stage's; its Go plugins are
+# the tools of contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file the
+# check stops after the layout, since buf refuses a module without one. A file it does not know is
+# an error: whatever brings a new kind of file extends the check.
 # Check the API contracts in contracts/: buf's rules, R83's own, the generated code, vectors, examples.
 contracts-check: _tools
     node tools/contracts/main.mjs

@@ -1,6 +1,6 @@
 # error: required at #
 # A device's file names its profile.
-format: 3
+format: 4
 attempts:
   - attempt_id: "attempt-2"
     history:

@@ -247,7 +247,7 @@ test("a shallow clone is refused: it has no tags to find the previous release by
 // made-up repository reads that one. Returns the copy of main.mjs.
 function withCommands(dir) {
   const tools = ["tools/shared.mjs", "tools/npm-package.mjs", "tools/release/version.mjs", "tools/release/previous.mjs"];
-  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "sample", "report", "strokes"].map((name) => `tools/contracts/${name}.mjs`);
+  const contracts = ["main", "buf", "rules", "generate", "npm", "typescript", "contracts.check", "observation", "paper", "sample", "report", "strokes"].map((name) => `tools/contracts/${name}.mjs`);
   const format = ["verdicts", "templates", "expressions", "random", "schemas", "patterns"].map((name) => `tools/format-check/${name}.mjs`);
   // sample.mjs reads the IDs of the module format from its schemas.
   for (const file of [...tools, ...contracts, ...format, "format/schemas/common.schema.json"]) {
