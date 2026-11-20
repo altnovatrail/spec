@@ -73,6 +73,8 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `home-help` | Home, the adult's Help | First slice |
 | `home-switch` | Home, the profile's menu: the hint mode — "Questions only" or "Show where" — and "Switch learner" | First slice |
 | `home-legend` | Home, what the marks mean: on the phone a sheet, on the iPad the legend that stands under the modules | First slice |
+| `home-pages` | Home, "Your pages" by "Open camera": the profile's pages from paper on this device, newest first, each with its date and its number of tasks | First slice (RUN.md, T231) |
+| `solve-kept` | A page opened from "Your pages": its picked tasks with the work kept, and no verdict, which the device does not keep | First slice (RUN.md, T231) |
 | `legal-access` | The page Accessibility, from Help | First slice |
 | `map` | The skill map of olympiad maths, in its frame | First slice |
 | `map-essays` | The skill map of short essays: every skill "Feedback by criteria" | First slice |
@@ -159,8 +161,8 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:1356` — The owner's profile | The name, the country, the avatar |
 | `Main.dc.html:1416` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
 | `Main.dc.html:1503` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
-| `Main.dc.html:1698` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
-| `Main.dc.html:1735` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:1724` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
+| `Main.dc.html:1761` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 

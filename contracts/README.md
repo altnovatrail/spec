@@ -320,7 +320,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
   | Method | A repeat gets |
   |---|---|
-  | `SubmitWork` | the verdicts and the reading recorded, and the same `next` |
+  | `SubmitWork` | the verdicts and the reading recorded, and the same `next`; of the Check that solved a task from paper, `solved` alone, since its close erased its submissions with their verdicts (privacy 4.1) |
   | `SubmitEssay` | how the submission ended, `repeated`, without the text read and the words of the feedback: they are nowhere on the server (R87) |
   | `GetRungWords`, `ExplainDifferently` | the words the attempt keeps, while it is open; the words of a rung `repeated` and without marks, which the server does not keep |
   | `GetCorrectAnswerWords` | an answer `repeated` without words: the server keeps none, and a response lost is words lost |

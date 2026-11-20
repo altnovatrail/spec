@@ -1565,10 +1565,17 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </span>
       <span style="margin-top: 14px; font-size: 24px; font-weight: 700; letter-spacing: -0.4px">Take from my paper</span>
       <span style="margin-top: 4px; font-size: 14px; line-height: 1.4; color: rgba(255,255,255,0.88)">Snap a page from your book, pick the tasks, and solve each one here.</span>
-      <button onClick="{{openCamera}}" style="align-self: flex-start; margin-top: 16px; height: 44px; padding: 0 20px; border-radius: 22px; background: #FFFFFF; color: #1D1D1F; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
-        Open camera
-      </button>
+      <!-- The pages from paper this device keeps for the profile, its history: behind a small button, as a pop-over (R162). -->
+      <span style="margin-top: 16px; display: flex; align-items: center; gap: 8px">
+        <button onClick="{{openCamera}}" style="height: 44px; padding: 0 20px; border-radius: 22px; background: #FFFFFF; color: #1D1D1F; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
+          Open camera
+        </button>
+        <button onClick="{{togglePages}}" aria-expanded="{{pagesOpen}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(255,255,255,0.22); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.45); color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h8l4 4v12H7z"></path><path d="M4 7v14h11"></path></svg>
+          Your pages
+        </button>
+      </span>
     </div>
   </div>
   <div style="position: absolute; left: 40px; right: 40px; top: 436px; display: flex; align-items: baseline">
@@ -1628,6 +1635,25 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <span style="display: flex; align-items: center; gap: 5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5h15v10.5h-9.5l-5.5 4z"></path><path d="M12 7.4l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"></path></svg>Feedback by criteria</span>
     <span style="display: flex; align-items: center; gap: 5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13l4 4 4.5-4.5M15 9.5l1.5-1.5"></path><path d="M4 4l16 16"></path></svg>Not assessed</span>
   </div>
+  <!-- The profile's pages from paper on this device, newest first: a page opens on the screen of solving with its work kept; a task over there is read only (R162). -->
+  <sc-if value="{{pagesOpen}}" hint-placeholder-val="{{ false }}">
+    <button class="ph-scrim" aria-label="Close" onClick="{{togglePages}}" style="position: absolute; inset: 0; cursor: default"></button>
+    <div class="glass nt-pop ph-sheet ph-sheetx" role="dialog" aria-label="Your pages" style="position: absolute; left: 820px; top: 400px; width: 300px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: rgba(255,255,255,0.94); transform-origin: top left">
+      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{togglePages}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Your pages · on this device</div>
+      <sc-for list="{{pages}}" as="pg" hint-placeholder-count="2">
+        <button onClick="{{pg.open}}" style="width: 100%; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-radius: 12px; box-sizing: border-box; text-align: left">
+          <span aria-hidden="true" style="flex: none; width: 34px; height: 44px; border-radius: 4px; background: #FDFDFB; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.10); display: flex; flex-direction: column; gap: 4px; padding: 7px 5px; box-sizing: border-box"><span style="height: 3px; border-radius: 2px; background: #9AA7BA"></span><span style="height: 3px; border-radius: 2px; background: #D9D4CA"></span><span style="height: 3px; border-radius: 2px; background: #D9D4CA"></span></span>
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <span style="font-size: 15px; font-weight: 600">{{pg.when}}</span>
+            <span style="font-size: 12.5px; color: #6E6E73">{{pg.meta}}</span>
+          </span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+        </button>
+      </sc-for>
+      <div style="padding: 6px 10px 6px; font-size: 12px; line-height: 1.35; color: #6E6E73">Kept on this device until the profile is deleted, and in its export.</div>
+    </div>
+  </sc-if>
   <sc-if value="{{switchOpen}}" hint-placeholder-val="{{ false }}">
     <button class="ph-scrim" aria-label="Close" onClick="{{toggleSwitch}}" style="position: absolute; inset: 0; cursor: default"></button>
     <div class="glass nt-pop ph-sheet ph-sheetx" style="position: absolute; left: 16px; top: 68px; width: 270px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: rgba(255,255,255,0.94); transform-origin: top left">
@@ -2002,7 +2028,7 @@ class Component extends DCLogic {
     slice: 'first', ownerName: '', ownerAvatar: null, ownerCountry: null, avatarOpen: false, countryOpen: false,
     view: { z: 1, x: 0, y: 0 }, finger: true, panning: false,
     // The phone's own: the legend of home as a sheet, and the tutor's sheet over the whole screen.
-    legendOpen: false, tutorFull: false,
+    legendOpen: false, pagesOpen: false, tutorFull: false,
     // A lesson (RUN.md, T155): the segment shown and the place reached, the demo, the solving mode and step, and each task's attempt.
     seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {},
     picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, choiceOpen: false, solAsk: false, segsOpen: false, fold: false,
@@ -2423,7 +2449,13 @@ class Component extends DCLogic {
   }
 
   // From home into a canvas: the camera of Take from my paper, or a module's lesson.
-  openCamera = () => this.setState({ screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, view: { z: 1, x: 0, y: 0 } });
+  openCamera = () => this.setState({ screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
+  // A page of "Your pages": the worksheet as it was left, its picked tasks with the work kept and no verdict, which the device does not keep.
+  openPage = () => {
+    const k = 'worksheet-1', st = { d: 'M330 430 C350 400 380 450 410 420 M440 430 l40 -10', tool: 'pen', x: 330, y: 420, ts: 1, bb: [330, 400, 480, 450], closed: false };
+    this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured: 'worksheet', frames: { worksheet: [] }, selected: [1, 2, 4], current: 1,
+      strokes: { [k]: [st] }, ptries: {}, status: {}, verdict: null, cardOpen: true, tasksOpen: false, more: false, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
+  };
   openLesson(name) {
     this.setState({ screen: 'canvas', surface: 'sheet', lesson: name, more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, view: { z: 1, x: 0, y: 0 },
       seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {}, picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, inkN: {}, strokes: without(this.state.strokes, 'lesson:' + name + ':'),
@@ -3343,6 +3375,8 @@ class Component extends DCLogic {
       switchOpen: s.switchOpen, toggleSwitch: () => this.setState({ switchOpen: !this.state.switchOpen, helpOpen: false }),
       switchLearner: () => this.setState({ screen: 'who', switchOpen: false, pinOpen: false, chat: [] }),
       legendOpen: s.legendOpen, legendCls: s.legendOpen ? 'on' : '', toggleLegend: () => this.setState({ legendOpen: !this.state.legendOpen }),
+      pagesOpen: s.pagesOpen, togglePages: () => this.setState({ pagesOpen: !this.state.pagesOpen, helpOpen: false, switchOpen: false }),
+      pages: [{ when: 'Today, 16:05', meta: '3 tasks', open: this.openPage }, { when: '18 November', meta: '1 task', open: this.openPage }],
       helpOpen: s.helpOpen, toggleHelp: () => this.setState({ helpOpen: !this.state.helpOpen, switchOpen: false }),
       openCamera: this.openCamera, continueNext: () => this.openLesson('Olympiad maths 1–6'),       mods: MODS.map((m) => {
         const go = { open: () => this.openLesson(m.name), openAria: 'Continue ' + m.name, mapAria: 'Skill map of ' + m.name,
