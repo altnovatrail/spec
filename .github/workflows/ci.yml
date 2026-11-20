@@ -331,13 +331,13 @@ jobs:
   # Dependabot moves both (R04 .github).
   secrets:
     name: Secrets
-    uses: altnovatrail/.github/.github/workflows/secrets.yml@c0234058dc1a85edd7b5d579b90f8fdb98ea826b # v0.1.22
+    uses: altnovatrail/.github/.github/workflows/secrets.yml@1704f782e76cee50ea5392cc0ea0d4b76c4b3672 # v0.1.32
 
   # A pull request's commits are what it checks; a push to main has been checked as one.
   dco:
     name: DCO
     if: github.event_name == 'pull_request'
-    uses: altnovatrail/.github/.github/workflows/dco.yml@c0234058dc1a85edd7b5d579b90f8fdb98ea826b # v0.1.22
+    uses: altnovatrail/.github/.github/workflows/dco.yml@1704f782e76cee50ea5392cc0ea0d4b76c4b3672 # v0.1.32
 
   # The Go code — spec's Go module, the module of the contracts and the modules of tools/ — by
   # the ci- recipes of the justfile, in the toolchain stage, as in every Go repository
@@ -349,4 +349,4 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    uses: altnovatrail/.github/.github/workflows/go.yml@c0234058dc1a85edd7b5d579b90f8fdb98ea826b # v0.1.22
+    uses: altnovatrail/.github/.github/workflows/go.yml@1704f782e76cee50ea5392cc0ea0d4b76c4b3672 # v0.1.32
