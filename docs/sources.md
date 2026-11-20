@@ -1225,3 +1225,7 @@ Read 2026-11-16, for T166: Node.js 24.21.0, the version that `NODE_VERSION` of `
 ### 11.3. just 1.58.0: `[parallel]`, 2026-11-18
 
 Read 2026-11-18, for T201: just 1.58.0, the version that `JUST_VERSION` of `.devcontainer/Dockerfile` names, its [README.md](https://github.com/casey/just/blob/1.58.0/README.md) at the tag `1.58.0`, section "Parallelism": "Dependencies may be run in parallel with the `[parallel]` attribute"; "The number of simultaneously running recipes may be limited with the `--jobs` option<sup>1.56.0</sup>". The table of attributes: "`[parallel]`<sup>1.42.0</sup> | recipe | Run this recipe's dependencies in parallel."
+
+### 11.4. git 2.56.1: several checkouts of a superproject, 2026-11-20
+
+Read 2026-11-20, for T241: git 2.56.1, the version of the devcontainer, [Documentation/git-worktree.adoc](https://github.com/git/git/blob/v2.56.1/Documentation/git-worktree.adoc) at the tag `v2.56.1`, section "BUGS": "Multiple checkout in general is still experimental, and the support for submodules is incomplete. It is NOT recommended to make multiple checkouts of a superproject."
