@@ -24,18 +24,18 @@ service PaperService {
   // itself what to do, as each of a column under one instruction, is a task of its own. With the
   // learner's request about the page, the call gets it as data, with the frames on the page now,
   // and its frames replace those found before; it gives none that repeats a frame the learner
-  // drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
-  // platform AI; `CAUSE_NOT_ADMITTED` on the own key too; `CAUSE_KEY_NOT_FOR_PROFILE`,
-  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no frames is no
-  // refusal: the answer names the outcome, and the learner frames the tasks by hand. A repeat with
-  // the same idempotency key gets an answer `repeated` without frames, with no AI: the server keeps
-  // none.
+  // drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`,
+  // `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on platform AI; `CAUSE_NOT_ADMITTED` on the
+  // own key too; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A
+  // call of AI that gives no frames is no refusal: the answer names the outcome, and the learner
+  // frames the tasks by hand. A repeat with the same idempotency key gets an answer `repeated`
+  // without frames, with no AI: the server keeps none.
   rpc FindTasks(FindTasksRequest) returns (FindTasksResponse);
   // Begins the attempts of the tasks picked on a page, one for each, in the order of the tasks. It
-  // closes the open attempts of tasks from paper that the profile has, those of an earlier page,
-  // `CLOSE_REASON_LEFT`, and leaves the open attempt of a task of a module as it is. Refusals:
-  // `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on platform AI, as
-  // `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
+  // closes the open attempts of tasks from paper that the profile has on another page,
+  // `CLOSE_REASON_LEFT`, and none of the same page, and leaves the open attempt of a task of a
+  // module as it is. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
+  // platform AI, as `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
   // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
   // the same attempts.
   rpc BeginPaperAttempts(BeginPaperAttemptsRequest) returns (BeginPaperAttemptsResponse);
@@ -57,8 +57,9 @@ message FindTasksRequest {
   optional int32 clock_offset_minutes = 5;
   // The learner's request about the page, in their own words: which tasks to take and how to split
   // them, as "only the first column, each example a task of its own". At most 200 code points,
-  // with no control character, not spaces alone; empty finds the tasks as the finding's rule alone gives them. It
-  // goes to the AI as data, never as an instruction, and the server keeps none of it (R165).
+  // with no control character, not spaces alone; empty finds the tasks as the finding's rule alone
+  // gives them. It goes to the AI as data, never as an instruction, and the server keeps none of it
+  // (R165).
   string request = 6;
   // The frames the AI found on the page and that are on it now, at most 20, in the order of the
   // page: with a request alone.
@@ -101,9 +102,9 @@ message BeginPaperAttemptsRequest {
   // quota. Empty on platform AI. Each later request on an attempt that calls AI goes by the
   // `own_key` it carries, or on platform AI without one (R84).
   string own_key_provider = 4;
-  // The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to 200
-  // letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after "Add",
-  // names it again and closes none of its attempts; another page closes them (R162).
+  // The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to
+  // 200 letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after
+  // "Add", names it again and closes none of its attempts; another page closes them (R162).
   string page_id = 5;
 }
 

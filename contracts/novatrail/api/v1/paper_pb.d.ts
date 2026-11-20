@@ -64,8 +64,9 @@ export declare type FindTasksRequest = Message<"novatrail.api.v1.FindTasksReques
   /**
    * The learner's request about the page, in their own words: which tasks to take and how to split
    * them, as "only the first column, each example a task of its own". At most 200 code points,
-   * with no control character, not spaces alone; empty finds the tasks as the finding's rule alone gives them. It
-   * goes to the AI as data, never as an instruction, and the server keeps none of it (R165).
+   * with no control character, not spaces alone; empty finds the tasks as the finding's rule alone
+   * gives them. It goes to the AI as data, never as an instruction, and the server keeps none of it
+   * (R165).
    *
    * @generated from field: string request = 6;
    */
@@ -190,9 +191,9 @@ export declare type BeginPaperAttemptsRequest = Message<"novatrail.api.v1.BeginP
   ownKeyProvider: string;
 
   /**
-   * The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to 200
-   * letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after "Add",
-   * names it again and closes none of its attempts; another page closes them (R162).
+   * The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to
+   * 200 letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after
+   * "Add", names it again and closes none of its attempts; another page closes them (R162).
    *
    * @generated from field: string page_id = 5;
    */
@@ -244,12 +245,12 @@ export declare const PaperService: GenService<{
    * itself what to do, as each of a column under one instruction, is a task of its own. With the
    * learner's request about the page, the call gets it as data, with the frames on the page now,
    * and its frames replace those found before; it gives none that repeats a frame the learner
-   * drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
-   * platform AI; `CAUSE_NOT_ADMITTED` on the own key too; `CAUSE_KEY_NOT_FOR_PROFILE`,
-   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no frames is no
-   * refusal: the answer names the outcome, and the learner frames the tasks by hand. A repeat with
-   * the same idempotency key gets an answer `repeated` without frames, with no AI: the server keeps
-   * none.
+   * drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`,
+   * `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on platform AI; `CAUSE_NOT_ADMITTED` on the
+   * own key too; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A
+   * call of AI that gives no frames is no refusal: the answer names the outcome, and the learner
+   * frames the tasks by hand. A repeat with the same idempotency key gets an answer `repeated`
+   * without frames, with no AI: the server keeps none.
    *
    * @generated from rpc novatrail.api.v1.PaperService.FindTasks
    */
@@ -260,10 +261,10 @@ export declare const PaperService: GenService<{
   },
   /**
    * Begins the attempts of the tasks picked on a page, one for each, in the order of the tasks. It
-   * closes the open attempts of tasks from paper that the profile has, those of an earlier page,
-   * `CLOSE_REASON_LEFT`, and leaves the open attempt of a task of a module as it is. Refusals:
-   * `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on platform AI, as
-   * `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
+   * closes the open attempts of tasks from paper that the profile has on another page,
+   * `CLOSE_REASON_LEFT`, and none of the same page, and leaves the open attempt of a task of a
+   * module as it is. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
+   * platform AI, as `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
    * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
    * the same attempts.
    *

@@ -140,7 +140,7 @@ export function rationalOf(text, kind) {
 
 export const equal = (a, b) => a.numerator * b.denominator === b.numerator * a.denominator;
 export const absolute = (n) => (n < 0n ? -n : n);
-const gcd = (a, b) => (b === 0n ? a : gcd(b, a % b));
+export const gcd = (a, b) => (b === 0n ? a : gcd(b, a % b));
 
 // A value as number, fraction and predicate read it, steps 1 to 7 and the notation of the kind:
 // { number }, or { reason }, blank or notation.

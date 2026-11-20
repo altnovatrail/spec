@@ -1,8 +1,7 @@
 // The test vectors of the key of a task from paper, novatrail.paper.v1: a second implementation of
 // what module-kit does with it — the solver of a formula, the rules of an answer of AI, and the
 // verdict by the key — beside module-kit's own, whose CI passes the same vectors (R162). The
-// verdicts are format-check's, on the value brought to the key as contracts/README.md, section 16,
-// brings it.
+// verdicts are format-check's, on the value brought to the key as contracts/README.md brings it.
 //
 // The vectors are JSON files of contracts/vectors/paper/v1/, each { description, cases }:
 // - solver.json: a case has its formula, and either answer, the Number the solver gives, or refused,
@@ -18,9 +17,10 @@ import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { createFileRegistry, fromJson, toJson } from "@bufbuild/protobuf";
 import * as wkt from "@bufbuild/protobuf/wkt";
-import { choiceForm, lowercase, normalized, scriptsReplaced, slotVerdict, unitForm } from "../format-check/verdicts.mjs";
+import { absolute, choiceForm, gcd, lowercase, normalized, rationalOf, scriptsReplaced, slotVerdict, unitForm } from "../format-check/verdicts.mjs";
 import { readVector } from "./observation.mjs";
 import { isObject } from "./rules.mjs";
+import { show } from "./sample.mjs";
 
 export const PACKAGE = "novatrail.paper.v1";
 export const FOLDER = "contracts/vectors/paper/v1";
@@ -28,7 +28,7 @@ const TEXT = "contracts/README.md, section 16";
 const WRITTEN = { useProtoFieldName: true, alwaysEmitImplicit: true };
 const FILES = ["answers.json", "solver.json", "verdicts.json"];
 
-// The reasons the solver names, in the order it names the first that applies (section 16).
+// The reasons the solver names, in the order it names the first that applies.
 export const REASONS = ["syntax", "two_unknowns", "unknown_in_expression", "no_unknown", "not_linear", "division_by_zero", "too_large", "no_root", "every_root"];
 // The rules of an answer of AI, each that an answer breaks named by its own word.
 export const RULES = ["no_kind", "value", "units_empty", "units_same", "unknown", "options_count", "option_length", "options_same", "choice_key"];
@@ -40,14 +40,11 @@ const MAX_DIGITS = 15;
 const MAX_EXPONENT = 10n;
 const MAX_PART = 100;
 const MAX_ANSWER = 16;
-const show = (value) => JSON.stringify(value);
 
 // Rational numbers, { n, d } with d positive and the two coprime; and the linear parts a·x + b.
-const gcd = (a, b) => (b === 0n ? a : gcd(b, a % b));
-const abs = (n) => (n < 0n ? -n : n);
 function rational(n, d = 1n) {
   if (d < 0n) [n, d] = [-n, -d];
-  const g = gcd(abs(n), d) || 1n;
+  const g = gcd(absolute(n), d) || 1n;
   return { n: n / g, d: d / g };
 }
 const ZERO = rational(0n);
@@ -56,7 +53,7 @@ const add = (p, q) => rational(p.n * q.d + q.n * p.d, p.d * q.d);
 const negate = (p) => ({ n: -p.n, d: p.d });
 const times = (p, q) => rational(p.n * q.n, p.d * q.d);
 const isZero = (p) => p.n === 0n;
-const digitsOf = (n) => abs(n).toString().length;
+const digitsOf = (n) => absolute(n).toString().length;
 
 class Refusal extends Error {
   constructor(reason) {
@@ -73,8 +70,8 @@ function bounded(part) {
 }
 const constant = (b) => ({ a: ZERO, b });
 
-// The tokens of a formula: numbers, letters, signs; null when a character is none of them or a
-// number has more than 15 digits.
+// The tokens of a formula: numbers, letters, signs, with spaces skipped wherever they stand; null
+// when a character is none of them or a number has more than 15 digits.
 function tokensOf(formula) {
   const tokens = [];
   for (let at = 0; at < formula.length; ) {
@@ -97,7 +94,7 @@ function tokensOf(formula) {
   return tokens;
 }
 
-// The tree of a formula by the grammar of section 16, or null when it is not of it.
+// The tree of a formula by its grammar, or null when it is not of it.
 export function parse(formula) {
   if (typeof formula !== "string" || formula.length > MAX_FORMULA || !/^[\x20-\x7E]*$/.test(formula)) return null;
   const tokens = tokensOf(formula);
@@ -202,8 +199,7 @@ export function solve(formula) {
     if (!tree.right) value = left.b;
     else {
       const right = evaluate(tree.right);
-      const a = add(left.a, negate(right.a));
-      const b = add(right.b, negate(left.b));
+      const { a, b } = bounded({ a: add(left.a, negate(right.a)), b: add(right.b, negate(left.b)) });
       if (isZero(a)) return { refused: isZero(b) ? "every_root" : "no_root" };
       value = times(b, rational(a.d, a.n));
     }
@@ -216,17 +212,13 @@ export function solve(formula) {
   return { answer: { value: text, units: [], unknown: letter ?? "" } };
 }
 
-// The notation of a key of number, at most 16 characters: an integer, a decimal or a simple
-// fraction (section 15 of the module format).
-const NOTATION = /^-?(0|[1-9][0-9]*)(\.[0-9]+| ?\/ ?[1-9][0-9]*)?$/;
 const characters = (text) => [...text].length;
 
-// The rule of section 16 that an answer of AI, as protobuf JSON, breaks first, or null when it is
-// an answer.
+// The rule that an answer of AI, as protobuf JSON, breaks first, or null when it is an answer.
 export function breachOf(answer) {
   if (answer.number) {
     const { value = "", units = [], unknown = "" } = answer.number;
-    if (characters(value) > MAX_ANSWER || !NOTATION.test(value)) return "value";
+    if (rationalOf(value, "number") === null) return "value";
     const forms = units.map(unitForm);
     if (forms.some((form) => form === "")) return "units_empty";
     if (new Set(forms).size !== forms.length) return "units_same";
@@ -362,7 +354,7 @@ function checkFile(file, bytes, known, seen) {
   return found;
 }
 
-// The vectors of the package against section 16: { errors, cases }.
+// The vectors of the package against the rules of the key of a task from paper: { errors, cases }.
 export function checkVectors(root, image, files) {
   const known = packageOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }], cases: 0 };

@@ -613,7 +613,7 @@ The graph and its tiers `app` takes by the digest of the answer, so a skill that
 
 **The formula.** `statement_reading` gives the tasks on the task's crop, from 1 to 20 in the order of the page, or none: each with its statement as the page prints it, at most 200 bytes of UTF-8, and as a formula, one line of ASCII of at most 200 bytes, or nothing, when the statement is no formula. Each sum or equation with an answer of its own is a task, though one instruction stands above several; the parts of one task under one statement or picture, as a), b) and c) of one word problem, are one task, and so are the numbers under an instruction that alone says what to do with them.
 - A formula is a statement that is written as an expression or an equation, as `37 + 48 =`, `3x − 5 = 16` and `☐ + 5 = 12` are. A word problem, one that asks to count in a picture, to compare, to draw or to prove is no formula, and the reader gives none: to put words into a formula is to solve the task, which is AI's solution, not a reading (R03).
-- The grammar, in EBNF, with any number of spaces, U+0020, between two tokens:
+- The grammar, in EBNF, with any number of spaces, U+0020, between two tokens and at either end:
 
   ```
   formula    = expression [ "=" expression ] ;

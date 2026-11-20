@@ -59,18 +59,18 @@ type PaperServiceClient interface {
 	// itself what to do, as each of a column under one instruction, is a task of its own. With the
 	// learner's request about the page, the call gets it as data, with the frames on the page now,
 	// and its frames replace those found before; it gives none that repeats a frame the learner
-	// drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
-	// platform AI; `CAUSE_NOT_ADMITTED` on the own key too; `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no frames is no
-	// refusal: the answer names the outcome, and the learner frames the tasks by hand. A repeat with
-	// the same idempotency key gets an answer `repeated` without frames, with no AI: the server keeps
-	// none.
+	// drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`,
+	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on platform AI; `CAUSE_NOT_ADMITTED` on the
+	// own key too; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A
+	// call of AI that gives no frames is no refusal: the answer names the outcome, and the learner
+	// frames the tasks by hand. A repeat with the same idempotency key gets an answer `repeated`
+	// without frames, with no AI: the server keeps none.
 	FindTasks(context.Context, *v1.FindTasksRequest) (*v1.FindTasksResponse, error)
 	// Begins the attempts of the tasks picked on a page, one for each, in the order of the tasks. It
-	// closes the open attempts of tasks from paper that the profile has, those of an earlier page,
-	// `CLOSE_REASON_LEFT`, and leaves the open attempt of a task of a module as it is. Refusals:
-	// `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on platform AI, as
-	// `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// closes the open attempts of tasks from paper that the profile has on another page,
+	// `CLOSE_REASON_LEFT`, and none of the same page, and leaves the open attempt of a task of a
+	// module as it is. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
+	// platform AI, as `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
 	// the same attempts.
 	BeginPaperAttempts(context.Context, *v1.BeginPaperAttemptsRequest) (*v1.BeginPaperAttemptsResponse, error)
@@ -89,18 +89,18 @@ type PaperServiceHandler interface {
 	// itself what to do, as each of a column under one instruction, is a task of its own. With the
 	// learner's request about the page, the call gets it as data, with the frames on the page now,
 	// and its frames replace those found before; it gives none that repeats a frame the learner
-	// drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
-	// platform AI; `CAUSE_NOT_ADMITTED` on the own key too; `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no frames is no
-	// refusal: the answer names the outcome, and the learner frames the tasks by hand. A repeat with
-	// the same idempotency key gets an answer `repeated` without frames, with no AI: the server keeps
-	// none.
+	// drew. It makes no call without the reserve of the quota. Refusals: `CAUSE_QUOTA`,
+	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on platform AI; `CAUSE_NOT_ADMITTED` on the
+	// own key too; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A
+	// call of AI that gives no frames is no refusal: the answer names the outcome, and the learner
+	// frames the tasks by hand. A repeat with the same idempotency key gets an answer `repeated`
+	// without frames, with no AI: the server keeps none.
 	FindTasks(context.Context, *v1.FindTasksRequest) (*v1.FindTasksResponse, error)
 	// Begins the attempts of the tasks picked on a page, one for each, in the order of the tasks. It
-	// closes the open attempts of tasks from paper that the profile has, those of an earlier page,
-	// `CLOSE_REASON_LEFT`, and leaves the open attempt of a task of a module as it is. Refusals:
-	// `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on platform AI, as
-	// `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// closes the open attempts of tasks from paper that the profile has on another page,
+	// `CLOSE_REASON_LEFT`, and none of the same page, and leaves the open attempt of a task of a
+	// module as it is. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
+	// platform AI, as `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
 	// the same attempts.
 	BeginPaperAttempts(context.Context, *v1.BeginPaperAttemptsRequest) (*v1.BeginPaperAttemptsResponse, error)

@@ -362,9 +362,9 @@ export const MarkKind = /*@__PURE__*/
  * `LearningService`. The engine's choice in `next` goes by the route to AI that the request
  * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
  * AI's without either, as `ChooseNext` judges it (R84; R99). An attempt of a task from paper
- * (R162) has an item with one answer slot for each task its crop holds, from 1 to 20, no `next`, and nothing to show: its key, the
- * solver's or the AI's, the first submission derives, `api` keeps it while the attempt is open,
- * and it never reaches the device (R05).
+ * (R162) has an item with one answer slot for each task its crop holds, from 1 to 20, no `next`,
+ * and nothing to show: its key, the solver's or the AI's, the first submission derives, `api`
+ * keeps it while the attempt is open, and it never reaches the device (R05).
  *
  * @generated from service novatrail.api.v1.AttemptService
  */

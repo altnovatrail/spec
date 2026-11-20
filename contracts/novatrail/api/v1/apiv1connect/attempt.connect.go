@@ -147,10 +147,10 @@ type AttemptServiceClient interface {
 	// crop, a key for each task on it: a task whose solution of AI gives no one answer a program
 	// can compare has none, and its item is unchecked; with none in any task the outcome is
 	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
-	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
-	// that gives no reading is no refusal: its slots get "unchecked", and the answer names the
-	// outcome. A repeat with the same idempotency key gets the verdicts and the reading recorded,
-	// with no AI.
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`. A call of AI that gives no reading is no refusal: its slots get
+	// "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
+	// verdicts and the reading recorded, with no AI.
 	SubmitWork(context.Context, *v1.SubmitWorkRequest) (*v1.SubmitWorkResponse, error)
 	// Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and
 	// assessment both. Refusals: `CAUSE_ATTEMPT_CLOSED`, before any call of AI,
@@ -244,10 +244,10 @@ type AttemptServiceHandler interface {
 	// crop, a key for each task on it: a task whose solution of AI gives no one answer a program
 	// can compare has none, and its item is unchecked; with none in any task the outcome is
 	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
-	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI
-	// that gives no reading is no refusal: its slots get "unchecked", and the answer names the
-	// outcome. A repeat with the same idempotency key gets the verdicts and the reading recorded,
-	// with no AI.
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`. A call of AI that gives no reading is no refusal: its slots get
+	// "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
+	// verdicts and the reading recorded, with no AI.
 	SubmitWork(context.Context, *v1.SubmitWorkRequest) (*v1.SubmitWorkResponse, error)
 	// Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and
 	// assessment both. Refusals: `CAUSE_ATTEMPT_CLOSED`, before any call of AI,

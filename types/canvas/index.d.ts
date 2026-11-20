@@ -299,7 +299,10 @@ export interface PaperSubmission {
   readonly digest: string;
 }
 
-/** The context of one submission, of a sheet, of a workbook or of a task from paper: its keys tell which. */
+/**
+ * The context of one submission, of a sheet, of a workbook or of a task from paper: its keys tell
+ * which.
+ */
 export type Submission = SheetSubmission | WorkbookSubmission | PaperSubmission;
 
 /** The work of a sheet for checking: the PNG of the crop, and the context of the submission. */
@@ -413,8 +416,8 @@ export interface VerdictMark {
 
 /**
  * The tutor's marks of one submission, with the context of the submission that the element gave
- * with its work and app kept: a sheet's, a workbook's or a task from paper's. The marks are those of one answer of
- * api, in its order.
+ * with its work and app kept: a sheet's, a workbook's or a task from paper's. The marks are those of
+ * one answer of api, in its order.
  */
 export interface Marks {
   readonly submission: Submission;

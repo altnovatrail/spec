@@ -221,7 +221,8 @@ export const STATES = [
   { name: "olympiad", title: "A problem of an olympiad book: an option is circled on the crop", from: "camera", shows: "Problem 1", run: (t) => (t.v().demoOl(), t.v().capture(), t.settle(), t.v().start()) },
   { name: "solve-circle", title: "Check with no option circled", from: "olympiad", shows: "Circle an answer first", run: (t) => t.v().check() },
   { name: "solve-nokey", title: "A task that could not be checked: no answer to compare", from: "olympiad", shows: "Couldn’t check this one", run: (t) => (t.v().taskRows[4].pick(), t.ink(), t.v().check()) },
-  // Debug, only on a local run with api's debug flag (RUN.md, T233): the models of the paper flow, their answers and their cost.
+  // Debug, only on a local run with api's debug flag: the models of the paper flow, their answers
+  // and their cost (R163).
   {
     name: "pick-debug",
     title: "Debug on a local run: the page photographed, the window's Models",

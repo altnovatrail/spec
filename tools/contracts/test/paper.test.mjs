@@ -69,6 +69,9 @@ test("the solver names the first reason that applies", () => {
   assert.equal(solve("(x-x)^2+x=1").answer.value, "1");
   assert.equal(solve("x/(x-x)=1").refused, "division_by_zero");
   assert.equal(solve("x/(2*x)=1").refused, "not_linear");
+  // The equation brought to a·x = b is on the way too, before its roots are counted.
+  assert.equal(solve("x+5*100000000000^9=x-5*100000000000^9").refused, "too_large");
+  assert.equal(solve("x+4*100000000000^9=x-4*100000000000^9").refused, "no_root");
   for (const reason of REASONS) assert.ok(typeof reason === "string");
 });
 
@@ -86,6 +89,9 @@ test("an answer of AI breaks one rule at most, the first", () => {
   assert.equal(breachOf({}), "no_kind");
   assert.equal(breachOf(number("07")), "value");
   assert.equal(breachOf(number("1/0")), "value");
+  assert.equal(breachOf(number("1 / 2")), null);
+  assert.equal(breachOf(number("-0.125")), null);
+  assert.equal(breachOf(number("12345678901234567")), "value");
   assert.equal(breachOf(choice(["A", " "], "A")), "options_same");
   for (const rule of RULES) assert.ok(typeof rule === "string");
 });

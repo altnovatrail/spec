@@ -44,8 +44,9 @@ type FindTasksRequest struct {
 	ClockOffsetMinutes *int32 `protobuf:"varint,5,opt,name=clock_offset_minutes,json=clockOffsetMinutes,proto3,oneof" json:"clock_offset_minutes,omitempty"`
 	// The learner's request about the page, in their own words: which tasks to take and how to split
 	// them, as "only the first column, each example a task of its own". At most 200 code points,
-	// with no control character, not spaces alone; empty finds the tasks as the finding's rule alone gives them. It
-	// goes to the AI as data, never as an instruction, and the server keeps none of it (R165).
+	// with no control character, not spaces alone; empty finds the tasks as the finding's rule alone
+	// gives them. It goes to the AI as data, never as an instruction, and the server keeps none of it
+	// (R165).
 	Request string `protobuf:"bytes,6,opt,name=request,proto3" json:"request,omitempty"`
 	// The frames the AI found on the page and that are on it now, at most 20, in the order of the
 	// page: with a request alone.
@@ -271,9 +272,9 @@ type BeginPaperAttemptsRequest struct {
 	// quota. Empty on platform AI. Each later request on an attempt that calls AI goes by the
 	// `own_key` it carries, or on platform AI without one (R84).
 	OwnKeyProvider string `protobuf:"bytes,4,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
-	// The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to 200
-	// letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after "Add",
-	// names it again and closes none of its attempts; another page closes them (R162).
+	// The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to
+	// 200 letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after
+	// "Add", names it again and closes none of its attempts; another page closes them (R162).
 	PageId        string `protobuf:"bytes,5,opt,name=page_id,json=pageId,proto3" json:"page_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
