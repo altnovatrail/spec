@@ -271,8 +271,12 @@ type BeginPaperAttemptsRequest struct {
 	// quota. Empty on platform AI. Each later request on an attempt that calls AI goes by the
 	// `own_key` it carries, or on platform AI without one (R84).
 	OwnKeyProvider string `protobuf:"bytes,4,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to 200
+	// letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after "Add",
+	// names it again and closes none of its attempts; another page closes them (R162).
+	PageId        string `protobuf:"bytes,5,opt,name=page_id,json=pageId,proto3" json:"page_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BeginPaperAttemptsRequest) Reset() {
@@ -329,6 +333,13 @@ func (x *BeginPaperAttemptsRequest) GetTasks() int32 {
 func (x *BeginPaperAttemptsRequest) GetOwnKeyProvider() string {
 	if x != nil {
 		return x.OwnKeyProvider
+	}
+	return ""
+}
+
+func (x *BeginPaperAttemptsRequest) GetPageId() string {
+	if x != nil {
+		return x.PageId
 	}
 	return ""
 }
@@ -400,13 +411,14 @@ const file_novatrail_api_v1_paper_proto_rawDesc = "" +
 	"\aoutcome\x18\x02 \x01(\v2\x19.novatrail.api.v1.OutcomeR\aoutcome\x12\x1a\n" +
 	"\brepeated\x18\x03 \x01(\bR\brepeated\"@\n" +
 	"\tTaskFrame\x123\n" +
-	"\x03box\x18\x01 \x01(\v2!.novatrail.observation.v1.CropBoxR\x03box\"\xa3\x01\n" +
+	"\x03box\x18\x01 \x01(\v2!.novatrail.observation.v1.CropBoxR\x03box\"\xbc\x01\n" +
 	"\x19BeginPaperAttemptsRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12'\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\x12\x14\n" +
 	"\x05tasks\x18\x03 \x01(\x05R\x05tasks\x12(\n" +
-	"\x10own_key_provider\x18\x04 \x01(\tR\x0eownKeyProvider\"=\n" +
+	"\x10own_key_provider\x18\x04 \x01(\tR\x0eownKeyProvider\x12\x17\n" +
+	"\apage_id\x18\x05 \x01(\tR\x06pageId\"=\n" +
 	"\x1aBeginPaperAttemptsResponse\x12\x1f\n" +
 	"\vattempt_ids\x18\x01 \x03(\tR\n" +
 	"attemptIds2\xd5\x01\n" +

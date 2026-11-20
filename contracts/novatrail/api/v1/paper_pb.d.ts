@@ -188,6 +188,15 @@ export declare type BeginPaperAttemptsRequest = Message<"novatrail.api.v1.BeginP
    * @generated from field: string own_key_provider = 4;
    */
   ownKeyProvider: string;
+
+  /**
+   * The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to 200
+   * letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after "Add",
+   * names it again and closes none of its attempts; another page closes them (R162).
+   *
+   * @generated from field: string page_id = 5;
+   */
+  pageId: string;
 };
 
 /**
