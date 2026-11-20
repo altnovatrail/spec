@@ -11,6 +11,10 @@
 //   node tools/orchestrator/main.mjs rebuild <repo> [--container <name or id>] [--folder <host's folder>]
 //   node tools/orchestrator/main.mjs create <repo> [--folder <host's folder>]
 //   node tools/orchestrator/main.mjs sync
+//   node tools/orchestrator/main.mjs xrepo up <epic> [<repo>…]
+//   node tools/orchestrator/main.mjs xrepo status|stop|down [--epic <epic>]
+//   node tools/orchestrator/main.mjs xrepo test <repo> [<target>…] [--epic <epic>]
+//   node tools/orchestrator/main.mjs xrepo serve [--ai] [--limit <usd>] [--mockup] [--epic <epic>]
 //
 // It runs in spec's orchestrator container, which sees the host's Docker, and is what «Сделай эпик
 // E…» calls. start and resume return at once; the run goes on in its container and writes its files
@@ -18,7 +22,8 @@
 // it has ended. Each command prints JSON, a line for each run; next, the next free number of a
 // repository's task, by GitHub and the runs; sync, the path and the commit of the orchestrator's
 // clone of spec; rebuild and create, the container before and after, once the Dev Containers CLI
-// has built it (R158). Exits 0 when done, 1 when what it was asked cannot be done or wait's time ran
+// has built it (R158); xrepo, a task across repositories in the clones of .epics and its stand
+// (R166), xrepo.mjs. Exits 0 when done, 1 when what it was asked cannot be done or wait's time ran
 // out, 2 on a wrong command line.
 // README.md says what each file of a run holds. It takes only Node's own modules, so that it runs
 // from the clone that sync keeps, which has no node_modules.
@@ -32,10 +37,11 @@ import { isMain } from "../shared.mjs";
 import { runDocker } from "./containers.mjs";
 import { create, rebuild, runLong } from "./devcontainers.mjs";
 import { nextTask, runGh } from "./numbers.mjs";
+import { down as xrepoDown, serve, status as xrepoStatus, stop as xrepoStop, test as xrepoTest, up } from "./xrepo.mjs";
 import { allRuns, DEFAULT_CEILING, homeOf, loadRun, openRuns, resume, SPEC_URL, start, stateOf, stop, sync, waitFor } from "./runs.mjs";
 
 const USAGE =
-  "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], stop <run>, status [<run>…], wait <run>… [--timeout <seconds>], next <repo>, rebuild <repo> [--container <name>] [--folder <folder>], create <repo> [--folder <folder>] or sync";
+  "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], stop <run>, status [<run>…], wait <run>… [--timeout <seconds>], next <repo>, rebuild <repo> [--container <name>] [--folder <folder>], create <repo> [--folder <folder>], sync, or xrepo up <epic> [<repo>…], xrepo status|stop|down [--epic <epic>], xrepo test <repo> [<target>…] [--epic <epic>], xrepo serve [--ai] [--limit <usd>] [--mockup] [--epic <epic>]";
 
 const COMMANDS = {
   start: { options: { ceiling: { type: "string" }, prompt: { type: "string" }, container: { type: "string" }, folder: { type: "string" } }, min: 2, max: 2 },
@@ -47,6 +53,12 @@ const COMMANDS = {
   rebuild: { options: { container: { type: "string" }, folder: { type: "string" } }, min: 1, max: 1 },
   create: { options: { folder: { type: "string" } }, min: 1, max: 1 },
   sync: { options: {}, min: 0, max: 0 },
+  "xrepo up": { options: {}, min: 1, max: Infinity },
+  "xrepo status": { options: { epic: { type: "string" } }, min: 0, max: 0 },
+  "xrepo test": { options: { epic: { type: "string" } }, min: 1, max: Infinity },
+  "xrepo serve": { options: { epic: { type: "string" }, ai: { type: "boolean" }, limit: { type: "string" }, mockup: { type: "boolean" } }, min: 0, max: 0 },
+  "xrepo stop": { options: { epic: { type: "string" } }, min: 0, max: 0 },
+  "xrepo down": { options: { epic: { type: "string" } }, min: 0, max: 0 },
 };
 
 class UsageError extends Error {}
@@ -58,8 +70,10 @@ const PARSE_ERRORS = {
 
 // The command, its words and its options, or a UsageError.
 export function argumentsOf(argv) {
-  const [command, ...rest] = argv;
-  const spec = COMMANDS[command];
+  const [first, ...more] = argv;
+  // xrepo's commands are its second word.
+  const [command, rest] = first === "xrepo" ? [`xrepo ${more[0]}`, more.slice(1)] : [first, more];
+  const spec = Object.hasOwn(COMMANDS, command) ? COMMANDS[command] : null;
   if (!spec) throw new UsageError(USAGE);
   let parsed;
   try {
@@ -71,7 +85,7 @@ export function argumentsOf(argv) {
   const words = parsed.positionals;
   if (words.length < spec.min || words.length > spec.max) throw new UsageError(USAGE);
   const values = { ...parsed.values };
-  for (const key of ["ceiling", "timeout"]) {
+  for (const key of ["ceiling", "timeout", "limit"]) {
     if (values[key] === undefined) continue;
     if (!/^\d+(\.\d+)?$/.test(values[key]) || Number(values[key]) <= 0) throw new UsageError(`--${key}: not a positive number`);
     values[key] = Number(values[key]);
@@ -80,12 +94,13 @@ export function argumentsOf(argv) {
 }
 
 // What the commands run on by default: the host's Docker, GitHub, the volume's folder, spec on
-// GitHub, the clock.
+// GitHub, the clock; xrepo's .epics and organization are xrepo.mjs's own.
 export function defaults(env = process.env) {
   return {
     docker: (args) => runDocker(args, { env }),
     dockerLong: (args, options) => runLong(args, { env, ...options }),
     gh: (args) => runGh(args, { env }),
+    env,
     home: homeOf(env),
     specUrl: SPEC_URL,
     hostname: os.hostname(),
@@ -142,8 +157,22 @@ export async function main(argv, overrides = {}) {
         deps.err(`orchestrator: --timeout of ${values.timeout} s came before every run ended`);
         return 1;
       }
-    } else {
+    } else if (command === "sync") {
       deps.out(JSON.stringify(sync({ home: deps.home, url: deps.specUrl })));
+    } else if (command === "xrepo up") {
+      for (const row of up(words[0], words.slice(1), deps)) deps.out(JSON.stringify(row));
+    } else if (command === "xrepo status") {
+      deps.out(JSON.stringify(xrepoStatus(values.epic ?? null, deps)));
+    } else if (command === "xrepo test") {
+      const result = xrepoTest(words[0], words.slice(1), values.epic ?? null, deps);
+      deps.out(JSON.stringify(result));
+      if (result.status !== 0) return 1;
+    } else if (command === "xrepo serve") {
+      deps.out(JSON.stringify(await serve({ named: values.epic ?? null, ai: values.ai ?? false, limit: values.limit ?? null, mockup: values.mockup ?? false }, deps)));
+    } else if (command === "xrepo stop") {
+      deps.out(JSON.stringify(await xrepoStop(values.epic ?? null, deps)));
+    } else {
+      deps.out(JSON.stringify(await xrepoDown(values.epic ?? null, deps)));
     }
   } catch (error) {
     deps.err(`orchestrator: ${error.message}`);

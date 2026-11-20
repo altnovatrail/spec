@@ -90,25 +90,12 @@ Last done epic — E11, [docs/plan/E11.md](docs/plan/E11.md).
 | [x] | T241 | Решения: `R166`, R159, R156, R158; RULES.md, RUN.md, CLAUDE.md | Claude, проверяю я | — | — |
 | [x] | T242 | Монтирование `.epics` в devcontainer `spec` и оркестратора | Claude | — | T241 |
 | [x] | T243 | Волна: все 12 репозиториев на тег `spec` с `.epics`, пересборка | я + Claude | — | T242 |
-| [ ] | T244 | `xrepo`: среда и стенд — up, status, test, serve, stop, down | Claude | да | T242 |
+| [x] | T244 | `xrepo`: среда и стенд — up, status, test, serve, stop, down | Claude | да | T242 |
 | [ ] | T245 | `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк | Claude | да | T244 |
 | [ ] | T247 | Доработки интерфейса приложения — первая обкатка `xrepo` | я + Claude | да | T243, T245 |
 | [ ] | T246 | Итог обкатки: замер против E11, поправки, архив | Claude | — | T247, обкатка |
 
 - Задачи обкатки встают в таблицу перед T246 по слову автора, «я + Claude», план «да»; первая — T247.
-
-#### T244. `xrepo`: среда и стенд — up, status, test, serve, stop, down
-
-- **Цель:** среду задачи через несколько репозиториев поднимает и снимает одна команда, стенд api + app + canvas — тоже.
-- **Сделать:** `tools/orchestrator/xrepo.mjs` и команды в `main.mjs` (`COMMANDS`), только встроенные модули Node; `findContainer` и `runDocker` из `containers.mjs`, `GIT_ENV` из `runs.mjs`, подделки `test/fakes.mjs`.
-  - `up <эпик> <репозитории…>` — клоны в `.epics/<эпик>/`, всегда и `spec`; ветка `<эпик>` — с GitHub, если эпик её уже запушил, иначе новая от `main`; `go.work` с `replace` на `../spec`, `../spec/contracts` и соседние модули по `go.mod`, в `.git/info/exclude`; пакеты `spec` и `contracts` из клона `spec` (упаковка рабочего дерева — `tools/types/npm.mjs`, `tools/contracts/npm/`) без правки `package.json` и lock; `deployment.local.json` из клона хоста; `<эпик>.code-workspace`; `README.md` папки со стражами пинов — `tutor`: `TestSpecVersion`, `TestReadingLogOfTheStub`, `TestAdmitExamples`, `TestMeasuresOfSpecExamples`; `api`: `TestTheVersionOfModuleKitIsTheOneGoModPins`, `TestSpecAndItsContractsAreAtOneTag`.
-  - `status`; `test <репозиторий> [цели…]` — быстрые проверки в контейнере репозитория.
-  - `serve [--ai]` и `stop` — `api` `just dev-app` (`API_DEV_APP_AI=1` — модели под лимитом $2), `canvas` в watch, перезапуск `api` при правке Go, `app` `just dev-canvas ../canvas`, макет `spec` по желанию; relay портов по списку (5173, 8156) — как `relay.mjs` E11; pid-файлы, старые процессы гасятся; «готово» только после `/` 200, `/deployment.json` 200, RPC 401.
-  - `down` — README и заметки в `epics/<эпик>/` на томе, клон с незамерженной веткой не удаляется, `git pull` клонов хоста.
-  - README оркестратора — раздел о задаче через несколько репозиториев; `.claude/rules/tools.md` — список команд.
-- **Решить при планировании:** механизм пакетов npm — архивы `--no-save` или алиас Vite, как `dev-canvas`; наблюдатель Go; где живут pid и логи.
-- **Как проверить:** `just orchestrator-test`, `just coverage`; пробный `up` → `serve` → `down` на `module-kit`, `tutor`, `api`, `app` и `canvas` без push — автор входит на стенде.
-- **Разделы:** R156, `R166`; [tools/orchestrator/README.md](tools/orchestrator/README.md); [docs/plan/E11.md](docs/plan/E11.md), T226.
 
 #### T245. `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк
 

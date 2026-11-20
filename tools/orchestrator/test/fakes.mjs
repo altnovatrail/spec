@@ -1,12 +1,12 @@
 // Stand-ins for docker, claude and the Dev Containers CLI, and a host of made-up containers for
 // them: none of it is a real container, session or stream. The fake docker keeps its containers in a
 // JSON file, writes down each call, runs the command of an exec here, with the environment the exec
-// gives, and the command of a run here too, in its workdir, once each folder it mounts is there;
-// top prints the processes a test gave a container. The fake claude writes down its arguments, its
-// stdin and the git variables it got, and prints the stream that the test laid out for its call. The
-// fake devcontainer writes down its arguments, and makes a container labelled by its folder and
-// configuration, removing the one there with --remove-existing-container, unless the test laid out
-// that it fails.
+// gives — a login bash as a plain one —, and the command of a run here too, in its workdir, once
+// each folder it mounts is there; top prints the processes a test gave a container. The fake claude
+// writes down its arguments, its stdin and the git variables it got, and prints the stream that the
+// test laid out for its call. The fake devcontainer writes down its arguments, and makes a container
+// labelled by its folder and configuration, removing the one there with --remove-existing-container,
+// unless the test laid out that it fails.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -51,6 +51,7 @@ if (command === "ps") {
   let detach = false, workdir = null; const env = {}; let i = 0;
   for (; i < rest.length; i += 1) {
     if (rest[i] === "--detach") detach = true;
+    else if (rest[i] === "--interactive") continue;
     else if (rest[i] === "--user") i += 1;
     else if (rest[i] === "--workdir") workdir = rest[++i];
     else if (rest[i] === "--env") { const kv = rest[++i]; const at = kv.indexOf("="); env[kv.slice(0, at)] = kv.slice(at + 1); }
@@ -60,6 +61,9 @@ if (command === "ps") {
   if (!c) fail("Error: No such container: " + rest[i]);
   if (!c.State.Running) fail("Error response from daemon: container " + c.Id + " is not running");
   const [program, ...more] = rest.slice(i + 1);
+  // A login shell here would read this machine's profile, which may set PATH anew.
+  if (program === "bash" && more[0] === "-lc") more[0] = "-c";
+  if (program === "setsid" && more[0] === "bash" && more[1] === "-lc") more[1] = "-c";
   const options = { cwd: workdir, env: { ...process.env, ...env } };
   if (detach) spawn(program, more, { ...options, detached: true, stdio: "ignore" }).unref();
   else process.exit(spawnSync(program, more, { ...options, stdio: "inherit" }).status ?? 1);
@@ -199,6 +203,8 @@ export function host() {
   return {
     root,
     volume,
+    bin,
+    env,
     deps,
     docker,
     out,
