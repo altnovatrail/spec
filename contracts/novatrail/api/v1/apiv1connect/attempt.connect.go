@@ -46,6 +46,9 @@ const (
 	AttemptServiceExplainDifferentlyProcedure = "/novatrail.api.v1.AttemptService/ExplainDifferently"
 	// AttemptServiceGetHintProcedure is the procedure name of the AttemptService's GetHint RPC.
 	AttemptServiceGetHintProcedure = "/novatrail.api.v1.AttemptService/GetHint"
+	// AttemptServiceGetOpeningWordsProcedure is the procedure name of the AttemptService's
+	// GetOpeningWords RPC.
+	AttemptServiceGetOpeningWordsProcedure = "/novatrail.api.v1.AttemptService/GetOpeningWords"
 	// AttemptServiceBeginStepProcedure is the procedure name of the AttemptService's BeginStep RPC.
 	AttemptServiceBeginStepProcedure = "/novatrail.api.v1.AttemptService/BeginStep"
 	// AttemptServiceShowSolutionProcedure is the procedure name of the AttemptService's ShowSolution
@@ -104,6 +107,13 @@ var (
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("GetHint"),
 			Procedure:  AttemptServiceGetHintProcedure,
+		}
+	})
+	attemptServiceGetOpeningWordsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("GetOpeningWords"),
+			Procedure:  AttemptServiceGetOpeningWordsProcedure,
 		}
 	})
 	attemptServiceBeginStepSpec = sync.OnceValue(func() connect.Spec {
@@ -181,10 +191,20 @@ type AttemptServiceClient interface {
 	ExplainDifferently(context.Context, *v1.ExplainDifferentlyRequest) (*v1.ExplainDifferentlyResponse, error)
 	// "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
 	// answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
-	// when it has one, both empty on a task from paper, which has neither; after it, the words of the
-	// current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
-	// carries no idempotency key: it repeats by the attempt's state.
+	// when it has one, both empty on a task from paper, which has neither and asks
+	// `GetOpeningWords` instead; after it, the words of the current rung. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
+	// "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
+	// call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
+	// how to begin the task it holds, or the first of a frame of several (R82; R162). Refusals:
+	// `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
+	// words is no refusal: the answer holds the opening question's fallback text and names the
+	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
+	// request once it keeps them, gets them with no AI; a fallback text is not kept.
+	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
@@ -268,10 +288,20 @@ type AttemptServiceHandler interface {
 	ExplainDifferently(context.Context, *v1.ExplainDifferentlyRequest) (*v1.ExplainDifferentlyResponse, error)
 	// "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
 	// answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
-	// when it has one, both empty on a task from paper, which has neither; after it, the words of the
-	// current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
-	// carries no idempotency key: it repeats by the attempt's state.
+	// when it has one, both empty on a task from paper, which has neither and asks
+	// `GetOpeningWords` instead; after it, the words of the current rung. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
+	// "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
+	// call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
+	// how to begin the task it holds, or the first of a frame of several (R82; R162). Refusals:
+	// `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
+	// words is no refusal: the answer holds the opening question's fallback text and names the
+	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
+	// request once it keeps them, gets them with no AI; a fallback text is not kept.
+	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
@@ -309,6 +339,7 @@ func RegisterAttemptServiceHandler(server *connect.Server, svc AttemptServiceHan
 		connect.Method{Spec: attemptServiceGetCorrectAnswerWordsSpec(), Handler: adapter.getCorrectAnswerWords},
 		connect.Method{Spec: attemptServiceExplainDifferentlySpec(), Handler: adapter.explainDifferently},
 		connect.Method{Spec: attemptServiceGetHintSpec(), Handler: adapter.getHint},
+		connect.Method{Spec: attemptServiceGetOpeningWordsSpec(), Handler: adapter.getOpeningWords},
 		connect.Method{Spec: attemptServiceBeginStepSpec(), Handler: adapter.beginStep},
 		connect.Method{Spec: attemptServiceShowSolutionSpec(), Handler: adapter.showSolution},
 		connect.Method{Spec: attemptServiceReportProblemSpec(), Handler: adapter.reportProblem},
@@ -344,6 +375,10 @@ func (UnimplementedAttemptServiceHandler) ExplainDifferently(context.Context, *v
 
 func (UnimplementedAttemptServiceHandler) GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.GetHint is not implemented")
+}
+
+func (UnimplementedAttemptServiceHandler) GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.GetOpeningWords is not implemented")
 }
 
 func (UnimplementedAttemptServiceHandler) BeginStep(context.Context, *v1.BeginStepRequest) (*v1.BeginStepResponse, error) {
@@ -413,6 +448,14 @@ func (c *attemptServiceClient) ExplainDifferently(ctx context.Context, req *v1.E
 func (c *attemptServiceClient) GetHint(ctx context.Context, req *v1.GetHintRequest) (*v1.GetHintResponse, error) {
 	var res v1.GetHintResponse
 	if err := c.client.CallUnary(ctx, attemptServiceGetHintSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *attemptServiceClient) GetOpeningWords(ctx context.Context, req *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error) {
+	var res v1.GetOpeningWordsResponse
+	if err := c.client.CallUnary(ctx, attemptServiceGetOpeningWordsSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -522,6 +565,18 @@ func (h attemptServiceHandler) getHint(ctx context.Context, _ connect.Spec, stre
 		return err
 	}
 	res, err := h.svc.GetHint(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h attemptServiceHandler) getOpeningWords(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetOpeningWordsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetOpeningWords(ctx, &req)
 	if err != nil {
 		return err
 	}

@@ -89,9 +89,9 @@ enum DebugEffort {
 
 // Which models serve the calls of a task from paper.
 message DebugChoice {
-  // The model of all four calls — the tasks found, the statement read, the solution and the work
-  // read —, one attempt each: absent, each call has its models of the admission list of `tutor`,
-  // in turn (R164).
+  // The model of every call of a task from paper — the tasks found, the statement read, the
+  // solution, the work read and the tutor's words —, one attempt each: absent, each call has its
+  // models of the admission list of `tutor`, in turn (R164).
   DebugModelChoice first = 1;
   // A second reader of the work, beside the first model's reading, the two joined as a pair is
   // (R68): absent, one reader.
@@ -133,7 +133,7 @@ message TakeDebugCallsResponse {
 message DebugAction {
   // Which request.
   DebugActionKind kind = 1;
-  // The attempt, beside `DEBUG_ACTION_KIND_CHECK`.
+  // The attempt, beside `DEBUG_ACTION_KIND_CHECK` and `DEBUG_ACTION_KIND_WORDS`.
   string attempt_id = 2;
   // When `api` took the request.
   google.protobuf.Timestamp at = 3;
@@ -152,6 +152,9 @@ enum DebugActionKind {
   DEBUG_ACTION_KIND_FIND_TASKS = 1;
   // `SubmitWork` of an attempt of a task from paper.
   DEBUG_ACTION_KIND_CHECK = 2;
+  // A request for the tutor's words on an attempt of a task from paper: `GetOpeningWords`,
+  // `GetRungWords` or `ExplainDifferently`.
+  DEBUG_ACTION_KIND_WORDS = 3;
 }
 
 // One call of a request: of a model, or of the solver of `module-kit`.
@@ -211,6 +214,9 @@ enum DebugCallKind {
   DEBUG_CALL_KIND_TASK_SOLVING = 4;
   // The work read, `handwriting_reading`.
   DEBUG_CALL_KIND_WORK_READING = 5;
+  // The tutor's words — the opening question, a rung's words with the place of the first mistake,
+  // or a rung in other words —, `solution_analysis` with the work and `hint` without it.
+  DEBUG_CALL_KIND_TUTOR_WORDS = 6;
 }
 
 // A Check of a task from paper as the debug mode exports it, a case of the set of a task from

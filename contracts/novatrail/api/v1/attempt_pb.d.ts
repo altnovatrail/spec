@@ -655,6 +655,98 @@ export declare type GetHintRequest = Message<"novatrail.api.v1.GetHintRequest"> 
 export declare const GetHintRequestSchema: GenMessage<GetHintRequest>;
 
 /**
+ * The opening question of a task from paper.
+ *
+ * @generated from message novatrail.api.v1.GetOpeningWordsRequest
+ */
+export declare type GetOpeningWordsRequest = Message<"novatrail.api.v1.GetOpeningWordsRequest"> & {
+  /**
+   * The profile whose attempt it is.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The attempt, of a task from paper.
+   *
+   * @generated from field: string attempt_id = 2;
+   */
+  attemptId: string;
+
+  /**
+   * The idempotency key of this action of the learner.
+   *
+   * @generated from field: string idempotency_key = 3;
+   */
+  idempotencyKey: string;
+
+  /**
+   * The task's crop without the learner's strokes, as `PaperWork.statement`: a JPEG or a PNG of at
+   * most 4 MiB.
+   *
+   * @generated from field: bytes statement = 4;
+   */
+  statement: Uint8Array;
+
+  /**
+   * The learner's own key and its provider: with a profile of its owner.
+   *
+   * @generated from field: novatrail.api.v1.OwnKey own_key = 5;
+   */
+  ownKey?: OwnKey | undefined;
+
+  /**
+   * The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+   *
+   * @generated from field: optional int32 clock_offset_minutes = 6;
+   */
+  clockOffsetMinutes?: number | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.GetOpeningWordsRequest.
+ * Use `create(GetOpeningWordsRequestSchema)` to create a new message.
+ */
+export declare const GetOpeningWordsRequestSchema: GenMessage<GetOpeningWordsRequest>;
+
+/**
+ * The tutor's opening question.
+ *
+ * @generated from message novatrail.api.v1.GetOpeningWordsResponse
+ */
+export declare type GetOpeningWordsResponse = Message<"novatrail.api.v1.GetOpeningWordsResponse"> & {
+  /**
+   * The tutor's words, whole, once they passed the leak check and the form check, or the opening
+   * question's fallback text.
+   *
+   * @generated from field: string words = 1;
+   */
+  words: string;
+
+  /**
+   * Why the words are the fallback text, when a call of AI came to an outcome. Absent when the
+   * model's words came, or when they failed a check.
+   *
+   * @generated from field: novatrail.api.v1.Outcome outcome = 2;
+   */
+  outcome?: Outcome | undefined;
+
+  /**
+   * The answer of a repeat, or of a request once the attempt keeps the words: no AI was called.
+   *
+   * @generated from field: bool repeated = 3;
+   */
+  repeated: boolean;
+};
+
+/**
+ * Describes the message novatrail.api.v1.GetOpeningWordsResponse.
+ * Use `create(GetOpeningWordsResponseSchema)` to create a new message.
+ */
+export declare const GetOpeningWordsResponseSchema: GenMessage<GetOpeningWordsResponse>;
+
+/**
  * What a hint asked for gives. "What is known and what to find" `app` shows from the open view of
  * the task: they are open, and the server records nothing of them.
  *
@@ -1507,6 +1599,13 @@ export enum TutorReply {
    * @generated from enum value: TUTOR_REPLY_ESSAY_FEEDBACK = 4;
    */
   ESSAY_FEEDBACK = 4,
+
+  /**
+   * The opening question of a task from paper, `GetOpeningWords`.
+   *
+   * @generated from enum value: TUTOR_REPLY_OPENING = 5;
+   */
+  OPENING = 5,
 }
 
 /**
@@ -1762,9 +1861,9 @@ export declare const AttemptService: GenService<{
   /**
    * "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
    * answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
-   * when it has one, both empty on a task from paper, which has neither; after it, the words of the
-   * current rung. Refusals: `CAUSE_ATTEMPT_CLOSED`. It
-   * carries no idempotency key: it repeats by the attempt's state.
+   * when it has one, both empty on a task from paper, which has neither and asks
+   * `GetOpeningWords` instead; after it, the words of the current rung. Refusals:
+   * `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.GetHint
    */
@@ -1772,6 +1871,24 @@ export declare const AttemptService: GenService<{
     methodKind: "unary";
     input: typeof GetHintRequestSchema;
     output: typeof GetHintResponseSchema;
+  },
+  /**
+   * "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
+   * call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
+   * how to begin the task it holds, or the first of a frame of several (R82; R162). Refusals:
+   * `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
+   * `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+   * `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
+   * words is no refusal: the answer holds the opening question's fallback text and names the
+   * outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
+   * request once it keeps them, gets them with no AI; a fallback text is not kept.
+   *
+   * @generated from rpc novatrail.api.v1.AttemptService.GetOpeningWords
+   */
+  getOpeningWords: {
+    methodKind: "unary";
+    input: typeof GetOpeningWordsRequestSchema;
+    output: typeof GetOpeningWordsResponseSchema;
   },
   /**
    * Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by

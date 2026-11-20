@@ -2327,7 +2327,9 @@ export declare const AccountService: GenService<{
   },
   /**
    * Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
-   * with the right `can_learn` (R162). Refusals: `CAUSE_NO_PROFILE`.
+   * with the right `can_learn`, of a profile of the category `adult` (R162). Refusals:
+   * `CAUSE_NO_PROFILE`, and `CAUSE_ADULT_NEEDED` for a child's profile, whose mode an adult sets
+   * with `UpdateProfile`.
    *
    * @generated from rpc novatrail.api.v1.AccountService.SetHintMode
    */

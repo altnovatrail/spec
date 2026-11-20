@@ -104,6 +104,9 @@ const (
 	DebugActionKind_DEBUG_ACTION_KIND_FIND_TASKS DebugActionKind = 1
 	// `SubmitWork` of an attempt of a task from paper.
 	DebugActionKind_DEBUG_ACTION_KIND_CHECK DebugActionKind = 2
+	// A request for the tutor's words on an attempt of a task from paper: `GetOpeningWords`,
+	// `GetRungWords` or `ExplainDifferently`.
+	DebugActionKind_DEBUG_ACTION_KIND_WORDS DebugActionKind = 3
 )
 
 // Enum value maps for DebugActionKind.
@@ -112,11 +115,13 @@ var (
 		0: "DEBUG_ACTION_KIND_UNSPECIFIED",
 		1: "DEBUG_ACTION_KIND_FIND_TASKS",
 		2: "DEBUG_ACTION_KIND_CHECK",
+		3: "DEBUG_ACTION_KIND_WORDS",
 	}
 	DebugActionKind_value = map[string]int32{
 		"DEBUG_ACTION_KIND_UNSPECIFIED": 0,
 		"DEBUG_ACTION_KIND_FIND_TASKS":  1,
 		"DEBUG_ACTION_KIND_CHECK":       2,
+		"DEBUG_ACTION_KIND_WORDS":       3,
 	}
 )
 
@@ -163,6 +168,9 @@ const (
 	DebugCallKind_DEBUG_CALL_KIND_TASK_SOLVING DebugCallKind = 4
 	// The work read, `handwriting_reading`.
 	DebugCallKind_DEBUG_CALL_KIND_WORK_READING DebugCallKind = 5
+	// The tutor's words — the opening question, a rung's words with the place of the first mistake,
+	// or a rung in other words —, `solution_analysis` with the work and `hint` without it.
+	DebugCallKind_DEBUG_CALL_KIND_TUTOR_WORDS DebugCallKind = 6
 )
 
 // Enum value maps for DebugCallKind.
@@ -174,6 +182,7 @@ var (
 		3: "DEBUG_CALL_KIND_SOLVER",
 		4: "DEBUG_CALL_KIND_TASK_SOLVING",
 		5: "DEBUG_CALL_KIND_WORK_READING",
+		6: "DEBUG_CALL_KIND_TUTOR_WORDS",
 	}
 	DebugCallKind_value = map[string]int32{
 		"DEBUG_CALL_KIND_UNSPECIFIED":       0,
@@ -182,6 +191,7 @@ var (
 		"DEBUG_CALL_KIND_SOLVER":            3,
 		"DEBUG_CALL_KIND_TASK_SOLVING":      4,
 		"DEBUG_CALL_KIND_WORK_READING":      5,
+		"DEBUG_CALL_KIND_TUTOR_WORDS":       6,
 	}
 )
 
@@ -535,9 +545,9 @@ func (x *DebugModel) GetThinkingOffEfforts() []DebugEffort {
 // Which models serve the calls of a task from paper.
 type DebugChoice struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The model of all four calls — the tasks found, the statement read, the solution and the work
-	// read —, one attempt each: absent, each call has its models of the admission list of `tutor`,
-	// in turn (R164).
+	// The model of every call of a task from paper — the tasks found, the statement read, the
+	// solution, the work read and the tutor's words —, one attempt each: absent, each call has its
+	// models of the admission list of `tutor`, in turn (R164).
 	First *DebugModelChoice `protobuf:"bytes,1,opt,name=first,proto3" json:"first,omitempty"`
 	// A second reader of the work, beside the first model's reading, the two joined as a pair is
 	// (R68): absent, one reader.
@@ -834,7 +844,7 @@ type DebugAction struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Which request.
 	Kind DebugActionKind `protobuf:"varint,1,opt,name=kind,proto3,enum=novatrail.api.v1.DebugActionKind" json:"kind,omitempty"`
-	// The attempt, beside `DEBUG_ACTION_KIND_CHECK`.
+	// The attempt, beside `DEBUG_ACTION_KIND_CHECK` and `DEBUG_ACTION_KIND_WORDS`.
 	AttemptId string `protobuf:"bytes,2,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
 	// When `api` took the request.
 	At *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=at,proto3" json:"at,omitempty"`
@@ -1358,18 +1368,20 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x13DEBUG_EFFORT_MEDIUM\x10\x02\x12\x15\n" +
 	"\x11DEBUG_EFFORT_HIGH\x10\x03\x12\x16\n" +
 	"\x12DEBUG_EFFORT_XHIGH\x10\x04\x12\x14\n" +
-	"\x10DEBUG_EFFORT_MAX\x10\x05*s\n" +
+	"\x10DEBUG_EFFORT_MAX\x10\x05*\x90\x01\n" +
 	"\x0fDebugActionKind\x12!\n" +
 	"\x1dDEBUG_ACTION_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cDEBUG_ACTION_KIND_FIND_TASKS\x10\x01\x12\x1b\n" +
-	"\x17DEBUG_ACTION_KIND_CHECK\x10\x02*\xd9\x01\n" +
+	"\x17DEBUG_ACTION_KIND_CHECK\x10\x02\x12\x1b\n" +
+	"\x17DEBUG_ACTION_KIND_WORDS\x10\x03*\xfa\x01\n" +
 	"\rDebugCallKind\x12\x1f\n" +
 	"\x1bDEBUG_CALL_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cDEBUG_CALL_KIND_TASK_FINDING\x10\x01\x12%\n" +
 	"!DEBUG_CALL_KIND_STATEMENT_READING\x10\x02\x12\x1a\n" +
 	"\x16DEBUG_CALL_KIND_SOLVER\x10\x03\x12 \n" +
 	"\x1cDEBUG_CALL_KIND_TASK_SOLVING\x10\x04\x12 \n" +
-	"\x1cDEBUG_CALL_KIND_WORK_READING\x10\x05*\x9e\x01\n" +
+	"\x1cDEBUG_CALL_KIND_WORK_READING\x10\x05\x12\x1f\n" +
+	"\x1bDEBUG_CALL_KIND_TUTOR_WORDS\x10\x06*\x9e\x01\n" +
 	"\fDebugOutcome\x12\x1d\n" +
 	"\x19DEBUG_OUTCOME_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15DEBUG_OUTCOME_CORRECT\x10\x01\x12\x19\n" +

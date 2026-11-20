@@ -167,9 +167,9 @@ export declare const DebugModelSchema: GenMessage<DebugModel>;
  */
 export declare type DebugChoice = Message<"novatrail.api.v1.DebugChoice"> & {
   /**
-   * The model of all four calls — the tasks found, the statement read, the solution and the work
-   * read —, one attempt each: absent, each call has its models of the admission list of `tutor`,
-   * in turn (R164).
+   * The model of every call of a task from paper — the tasks found, the statement read, the
+   * solution, the work read and the tutor's words —, one attempt each: absent, each call has its
+   * models of the admission list of `tutor`, in turn (R164).
    *
    * @generated from field: novatrail.api.v1.DebugModelChoice first = 1;
    */
@@ -312,7 +312,7 @@ export declare type DebugAction = Message<"novatrail.api.v1.DebugAction"> & {
   kind: DebugActionKind;
 
   /**
-   * The attempt, beside `DEBUG_ACTION_KIND_CHECK`.
+   * The attempt, beside `DEBUG_ACTION_KIND_CHECK` and `DEBUG_ACTION_KIND_WORDS`.
    *
    * @generated from field: string attempt_id = 2;
    */
@@ -666,6 +666,14 @@ export enum DebugActionKind {
    * @generated from enum value: DEBUG_ACTION_KIND_CHECK = 2;
    */
   CHECK = 2,
+
+  /**
+   * A request for the tutor's words on an attempt of a task from paper: `GetOpeningWords`,
+   * `GetRungWords` or `ExplainDifferently`.
+   *
+   * @generated from enum value: DEBUG_ACTION_KIND_WORDS = 3;
+   */
+  WORDS = 3,
 }
 
 /**
@@ -720,6 +728,14 @@ export enum DebugCallKind {
    * @generated from enum value: DEBUG_CALL_KIND_WORK_READING = 5;
    */
   WORK_READING = 5,
+
+  /**
+   * The tutor's words — the opening question, a rung's words with the place of the first mistake,
+   * or a rung in other words —, `solution_analysis` with the work and `hint` without it.
+   *
+   * @generated from enum value: DEBUG_CALL_KIND_TUTOR_WORDS = 6;
+   */
+  TUTOR_WORDS = 6,
 }
 
 /**

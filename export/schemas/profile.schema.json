@@ -772,7 +772,7 @@
       "properties": {
         "rung": {
           "type": "integer",
-          "description": "The rung, 1 to 3."
+          "description": "The rung, 1 to 3; on an attempt of a task from paper, 0 is its opening question, the model's words alone (R82)."
         },
         "source": {
           "enum": [
@@ -1199,9 +1199,10 @@
             "rung",
             "explained_differently",
             "correct_answer",
-            "essay_feedback"
+            "essay_feedback",
+            "opening"
           ],
-          "description": "The answer that brought the words: a rung's, explain differently, after a correct answer, or the feedback of an essay."
+          "description": "The answer that brought the words: a rung's, explain differently, after a correct answer, the feedback of an essay, or the opening question of a task from paper."
         },
         "rung": {
           "type": "integer",

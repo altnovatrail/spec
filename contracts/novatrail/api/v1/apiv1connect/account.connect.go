@@ -387,7 +387,9 @@ type AccountServiceClient interface {
 	// `CAUSE_NO_PROFILE`.
 	SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error)
 	// Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
-	// with the right `can_learn` (R162). Refusals: `CAUSE_NO_PROFILE`.
+	// with the right `can_learn`, of a profile of the category `adult` (R162). Refusals:
+	// `CAUSE_NO_PROFILE`, and `CAUSE_ADULT_NEEDED` for a child's profile, whose mode an adult sets
+	// with `UpdateProfile`.
 	SetHintMode(context.Context, *v1.SetHintModeRequest) (*v1.SetHintModeResponse, error)
 	// Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
 	// consent by the text `storage-consent`, which the one who consents for the learner gives: an
@@ -570,7 +572,9 @@ type AccountServiceHandler interface {
 	// `CAUSE_NO_PROFILE`.
 	SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error)
 	// Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
-	// with the right `can_learn` (R162). Refusals: `CAUSE_NO_PROFILE`.
+	// with the right `can_learn`, of a profile of the category `adult` (R162). Refusals:
+	// `CAUSE_NO_PROFILE`, and `CAUSE_ADULT_NEEDED` for a child's profile, whose mode an adult sets
+	// with `UpdateProfile`.
 	SetHintMode(context.Context, *v1.SetHintModeRequest) (*v1.SetHintModeResponse, error)
 	// Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
 	// consent by the text `storage-consent`, which the one who consents for the learner gives: an

@@ -258,7 +258,8 @@ const (
 
 // Rung is the type of profile.schema.json#/$defs/rung.
 type Rung struct {
-	// The rung, 1 to 3.
+	// The rung, 1 to 3; on an attempt of a task from paper, 0 is its opening question, the model's
+	// words alone (R82).
 	Rung int64 `json:"rung"`
 	// Whether its words came from the model or are the fallback text.
 	Source RungSource `json:"source"`
@@ -703,8 +704,8 @@ type ProblemReport struct {
 	ReportID ID `json:"report_id"`
 	// The attempt whose tutor's words it is about.
 	AttemptID ID `json:"attempt_id"`
-	// The answer that brought the words: a rung's, explain differently, after a correct answer, or
-	// the feedback of an essay.
+	// The answer that brought the words: a rung's, explain differently, after a correct answer, the
+	// feedback of an essay, or the opening question of a task from paper.
 	Reply ProblemReportReply `json:"reply"`
 	// Beside a rung and explain differently: the rung.
 	Rung *int64 `json:"rung,omitzero"`
@@ -724,8 +725,8 @@ type ProblemReport struct {
 
 // ProblemReportReply is the type of profile.schema.json#/$defs/problem_report/properties/reply.
 //
-// The answer that brought the words: a rung's, explain differently, after a correct answer, or the
-// feedback of an essay.
+// The answer that brought the words: a rung's, explain differently, after a correct answer, the
+// feedback of an essay, or the opening question of a task from paper.
 type ProblemReportReply string
 
 // The values of ProblemReportReply.
@@ -734,6 +735,7 @@ const (
 	ProblemReportReplyExplainedDifferently ProblemReportReply = "explained_differently"
 	ProblemReportReplyCorrectAnswer        ProblemReportReply = "correct_answer"
 	ProblemReportReplyEssayFeedback        ProblemReportReply = "essay_feedback"
+	ProblemReportReplyOpening              ProblemReportReply = "opening"
 )
 
 // ProblemReportKind is the type of profile.schema.json#/$defs/problem_report/properties/kind.

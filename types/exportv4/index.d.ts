@@ -956,7 +956,8 @@ export type AttemptCloseReason = "correct" | "solution_shown" | "left" | "abando
  */
 export interface Rung {
   /**
-   * The rung, 1 to 3.
+   * The rung, 1 to 3; on an attempt of a task from paper, 0 is its opening question, the model's
+   * words alone (R82).
    */
   readonly rung: number;
   /**
@@ -1515,8 +1516,8 @@ export interface ProblemReport {
    */
   readonly attempt_id: ID;
   /**
-   * The answer that brought the words: a rung's, explain differently, after a correct answer, or
-   * the feedback of an essay.
+   * The answer that brought the words: a rung's, explain differently, after a correct answer, the
+   * feedback of an essay, or the opening question of a task from paper.
    */
   readonly reply: ProblemReportReply;
   /**
@@ -1552,10 +1553,10 @@ export interface ProblemReport {
 /**
  * ProblemReportReply is the type of profile.schema.json#/$defs/problem_report/properties/reply.
  *
- * The answer that brought the words: a rung's, explain differently, after a correct answer, or the
- * feedback of an essay.
+ * The answer that brought the words: a rung's, explain differently, after a correct answer, the
+ * feedback of an essay, or the opening question of a task from paper.
  */
-export type ProblemReportReply = "rung" | "explained_differently" | "correct_answer" | "essay_feedback";
+export type ProblemReportReply = "rung" | "explained_differently" | "correct_answer" | "essay_feedback" | "opening";
 
 /**
  * ProblemReportKind is the type of profile.schema.json#/$defs/problem_report/properties/kind.
