@@ -1,12 +1,12 @@
 // Rebuilding a repository's container, and creating the container a repository never had, by the
 // Dev Containers CLI of the orchestrator's image (R158). `devcontainer up` reads the configuration
 // at the folder it is given and gives Docker the same path to mount, and the orchestrator's
-// container sees only spec's folder. So the CLI runs in a helper: a container of the orchestrator's
-// own image, with the host's Docker and the clone's folder of the host at the same path, on the
-// host's network, so that a repository's initializeCommand, which Dev Containers runs "on the host
-// machine", reads the host's routes; it is removed once it ends. It labels the container as VS Code
-// does, by the folder and the configuration, so findContainer, a window of VS Code and a run's
-// resume find the new one again.
+// container sees only spec's folder and .epics. So the CLI runs in a helper: a container of the
+// orchestrator's own image, with the host's Docker and the folder of the host that holds the clone at
+// the same path, on the host's network, so that a repository's initializeCommand, which Dev
+// Containers runs "on the host machine", reads the host's routes and makes .epics beside the clone on
+// the host; it is removed once it ends. It labels the container as VS Code does, by the folder and
+// the configuration, so findContainer, a window of VS Code and a run's resume find the new one again.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -38,6 +38,8 @@ export const UP_SCRIPT = [
   'origin=$(git config --file "$folder/.git/config" --get remote.origin.url 2>/dev/null || true)',
   'case "$origin" in "$url" | "${url%.git}" | "$ssh" | "${ssh%.git}") ;; *) echo "$folder is not a clone of $url: its origin is ${origin:-none}" >&2; exit 3 ;; esac',
   'main=$(mktemp -d)',
+  // The helper's /tmp may be the host's, when the clone lies there and its folder is mounted.
+  'trap \'rm -rf "$main"\' EXIT',
   'git clone --quiet --no-checkout --depth 1 --branch main "$url" "$main" >&2',
   'git -C "$main" read-tree HEAD',
   'if ! git --git-dir="$main/.git" --work-tree="$folder" diff --quiet HEAD -- .devcontainer || [ -n "$(git --git-dir="$main/.git" --work-tree="$folder" status --porcelain --untracked-files=all -- .devcontainer)" ]; then echo "$folder: its .devcontainer/ is not that of main on GitHub" >&2; exit 4; fi',
@@ -73,8 +75,8 @@ export function helperName(repo) {
   return `novatrail-up-${repo}`;
 }
 
-// The arguments of docker for the helper: the socket, the folder of the host at the same path —
-// the clone's own, or for a clone still to make the folder that will hold it —, and the script.
+// The arguments of docker for the helper: the socket, the folder of the host that holds the clone at
+// the same path, and the script.
 export function helperArgs({ image, repo, mode, folder, config, mount, organization = ORGANIZATION }) {
   return [
     "run",
@@ -172,7 +174,10 @@ export function rebuild(repo, { container = null, folder = null }, deps) {
     const sessions = sessionsIn(found, deps.docker);
     if (sessions) throw new Error(`${nameOf(found)}: ${sessions} process(es) of Claude Code run in it; rebuild it once they have ended`);
   }
-  const made = up({ repo: path.posix.basename(local), mode: "rebuild", folder: local, config, mount: local }, deps);
+  // The folder that holds the clone, not the clone alone: with the clone alone, the mkdir of .epics in
+  // its initializeCommand would make it, if at all, in the helper rather than on the host, and the
+  // container's bind of .epics needs it there (R166).
+  const made = up({ repo: path.posix.basename(local), mode: "rebuild", folder: local, config, mount: path.posix.dirname(local) }, deps);
   return { repo: path.posix.basename(local), folder: local, config, from: { id: found.Id, name: nameOf(found) }, to: made };
 }
 

@@ -1,6 +1,6 @@
 // The orchestrator's devcontainer, spec's second configuration, with the host's Docker (R156).
 // «Сделай эпик E…» runs here, and so do the tasks that build or check the orchestrator itself
-// and a task across repositories, which edits and checks each one in its container (R159);
+// and a task across repositories, which edits and checks each one in its container (R166);
 // nothing else does. The socket below is root on the host, so no code but NovaTrail's own is
 // opened in this container. Tasks on spec's documents run in spec's ordinary container,
 // ../devcontainer.json, which has no Docker. What is not said below is the same as there, and a
@@ -18,9 +18,10 @@
     "remoteUser": "vscode",
     // As there: the window's closing does not stop the container.
     "shutdownAction": "none",
-    // Runs on the host before the container starts: the network of spec's container, and the
-    // number of the socket's group, which the build gives the user vscode (docker-group.sh).
-    "initializeCommand": "bash .devcontainer/host-network.sh && bash .devcontainer/orchestrator/docker-group.sh",
+    // Runs on the host before the container starts: the network of spec's container and the folder
+    // of the epics, as there, and the number of the socket's group, which the build gives the user
+    // vscode (docker-group.sh).
+    "initializeCommand": "bash .devcontainer/host-network.sh && mkdir -p ../.epics && bash .devcontainer/orchestrator/docker-group.sh",
     "runArgs": [
         // spec's network, for its MTU (../host-network.sh). No name in it: spec's container takes
         // the name spec, and nothing reaches the orchestrator by a name.
@@ -33,6 +34,7 @@
         // ${devcontainerId} differs from that of spec's container, whose configuration is another
         // file: each keeps its extensions in a volume of its own.
         "source=novatrail-vscode-extensions-${devcontainerId},target=/home/vscode/.vscode-server/extensions,type=volume",
+        "source=${localWorkspaceFolder}/../.epics,target=/workspaces/.epics,type=bind",
         // The host's Docker: docker ps here lists the host's containers, and docker exec runs a task
         // in a repository's container (R156).
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"

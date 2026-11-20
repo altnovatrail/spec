@@ -27,6 +27,10 @@ test("the orchestrator's configuration is spec's, with the host's Docker and no 
   assert.equal(orchestrator.initializeCommand, `${spec.initializeCommand} && bash .devcontainer/orchestrator/docker-group.sh`);
   assert.deepEqual(orchestrator.runArgs, spec.runArgs.filter((arg) => !arg.startsWith("--network-alias=")));
   assert.deepEqual(orchestrator.mounts, [...spec.mounts, SOCKET]);
+  // The folder of the epics beside the clones, which every copy of spec's configuration mounts and
+  // makes on the host before Docker binds it (R166).
+  assert.equal(spec.mounts.at(-1), "source=${localWorkspaceFolder}/../.epics,target=/workspaces/.epics,type=bind");
+  assert.match(spec.initializeCommand, /(?:^|&& )mkdir -p \.\.\/\.epics(?: &&|$)/);
   // Everything else — the user, the environment, the extensions at their versions, the settings
   // — is spec's container's, so that a raise there is a raise here.
   const rest = ({ name: _n, build: _b, initializeCommand: _i, runArgs: _r, mounts: _m, ...others }) => others;
