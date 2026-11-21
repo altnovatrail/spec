@@ -15,6 +15,10 @@
 //   node tools/orchestrator/main.mjs xrepo status|stop|down [--epic <epic>]
 //   node tools/orchestrator/main.mjs xrepo test <repo> [<target>…] [--epic <epic>]
 //   node tools/orchestrator/main.mjs xrepo serve [--ai] [--limit <usd>] [--mockup] [--epic <epic>]
+//   node tools/orchestrator/main.mjs xrepo sync|push|ship [--epic <epic>]
+//   node tools/orchestrator/main.mjs xrepo gate [<repo>…] [--epic <epic>]
+//   node tools/orchestrator/main.mjs xrepo pin <repo> [<tag>] [--epic <epic>]
+//   node tools/orchestrator/main.mjs xrepo wait-release <repo> <tag>
 //
 // It runs in spec's orchestrator container, which sees the host's Docker, and is what «Сделай эпик
 // E…» calls. start and resume return at once; the run goes on in its container and writes its files
@@ -23,7 +27,7 @@
 // repository's task, by GitHub and the runs; sync, the path and the commit of the orchestrator's
 // clone of spec; rebuild and create, the container before and after, once the Dev Containers CLI
 // has built it (R158); xrepo, a task across repositories in the clones of .epics and its stand
-// (R166), xrepo.mjs. Exits 0 when done, 1 when what it was asked cannot be done or wait's time ran
+// (R166), xrepo.mjs, its gate, gate.mjs, and its ship after the author's «да», ship.mjs. Exits 0 when done, 1 when what it was asked cannot be done or wait's time ran
 // out, 2 on a wrong command line.
 // README.md says what each file of a run holds. It takes only Node's own modules, so that it runs
 // from the clone that sync keeps, which has no node_modules.
@@ -38,10 +42,12 @@ import { runDocker } from "./containers.mjs";
 import { create, rebuild, runLong } from "./devcontainers.mjs";
 import { nextTask, runGh } from "./numbers.mjs";
 import { down as xrepoDown, serve, status as xrepoStatus, stop as xrepoStop, test as xrepoTest, up } from "./xrepo.mjs";
+import { gate, push, sync as xrepoSync } from "./gate.mjs";
+import { pin, ship, waitRelease } from "./ship.mjs";
 import { allRuns, DEFAULT_CEILING, homeOf, loadRun, openRuns, resume, SPEC_URL, start, stateOf, stop, sync, waitFor } from "./runs.mjs";
 
 const USAGE =
-  "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], stop <run>, status [<run>…], wait <run>… [--timeout <seconds>], next <repo>, rebuild <repo> [--container <name>] [--folder <folder>], create <repo> [--folder <folder>], sync, or xrepo up <epic> [<repo>…], xrepo status|stop|down [--epic <epic>], xrepo test <repo> [<target>…] [--epic <epic>], xrepo serve [--ai] [--limit <usd>] [--mockup] [--epic <epic>]";
+  "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], stop <run>, status [<run>…], wait <run>… [--timeout <seconds>], next <repo>, rebuild <repo> [--container <name>] [--folder <folder>], create <repo> [--folder <folder>], sync, or xrepo up <epic> [<repo>…], xrepo status|stop|down [--epic <epic>], xrepo test <repo> [<target>…] [--epic <epic>], xrepo serve [--ai] [--limit <usd>] [--mockup] [--epic <epic>], xrepo sync|push|ship [--epic <epic>], xrepo gate [<repo>…] [--epic <epic>], xrepo pin <repo> [<tag>] [--epic <epic>], xrepo wait-release <repo> <tag>";
 
 const COMMANDS = {
   start: { options: { ceiling: { type: "string" }, prompt: { type: "string" }, container: { type: "string" }, folder: { type: "string" } }, min: 2, max: 2 },
@@ -59,6 +65,12 @@ const COMMANDS = {
   "xrepo serve": { options: { epic: { type: "string" }, ai: { type: "boolean" }, limit: { type: "string" }, mockup: { type: "boolean" } }, min: 0, max: 0 },
   "xrepo stop": { options: { epic: { type: "string" } }, min: 0, max: 0 },
   "xrepo down": { options: { epic: { type: "string" } }, min: 0, max: 0 },
+  "xrepo sync": { options: { epic: { type: "string" } }, min: 0, max: 0 },
+  "xrepo push": { options: { epic: { type: "string" } }, min: 0, max: 0 },
+  "xrepo gate": { options: { epic: { type: "string" } }, min: 0, max: Infinity },
+  "xrepo pin": { options: { epic: { type: "string" } }, min: 1, max: 2 },
+  "xrepo wait-release": { options: {}, min: 2, max: 2 },
+  "xrepo ship": { options: { epic: { type: "string" } }, min: 0, max: 0 },
 };
 
 class UsageError extends Error {}
@@ -106,6 +118,7 @@ export function defaults(env = process.env) {
     hostname: os.hostname(),
     now: () => new Date(),
     uuid: randomUUID,
+    fetch: (url, options) => fetch(url, options),
     sleep: (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms),
     interval: 10_000,
     out: (line) => console.log(line),
@@ -171,6 +184,24 @@ export async function main(argv, overrides = {}) {
       deps.out(JSON.stringify(await serve({ named: values.epic ?? null, ai: values.ai ?? false, limit: values.limit ?? null, mockup: values.mockup ?? false }, deps)));
     } else if (command === "xrepo stop") {
       deps.out(JSON.stringify(await xrepoStop(values.epic ?? null, deps)));
+    } else if (command === "xrepo sync") {
+      const result = xrepoSync(values.epic ?? null, deps);
+      deps.out(JSON.stringify(result));
+      if (result.conflicts.length) return 1;
+    } else if (command === "xrepo push") {
+      for (const row of push(values.epic ?? null, deps)) deps.out(JSON.stringify(row));
+    } else if (command === "xrepo gate") {
+      const result = await gate(values.epic ?? null, words, deps);
+      deps.out(JSON.stringify(result));
+      if (!result.pass) return 1;
+    } else if (command === "xrepo pin") {
+      deps.out(JSON.stringify(pin(values.epic ?? null, words[0], words[1] ?? null, deps)));
+    } else if (command === "xrepo wait-release") {
+      deps.out(JSON.stringify(await waitRelease(words[0], words[1], deps)));
+    } else if (command === "xrepo ship") {
+      const result = await ship(values.epic ?? null, { ...deps, progress: (event) => deps.out(JSON.stringify(event)) });
+      deps.out(JSON.stringify(result));
+      if (result.stopped) return 1;
     } else {
       deps.out(JSON.stringify(await xrepoDown(values.epic ?? null, deps)));
     }

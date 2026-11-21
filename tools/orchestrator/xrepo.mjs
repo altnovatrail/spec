@@ -42,21 +42,32 @@ const SERVE_MS = 35 * 60_000;
 // SIGINT and 10 after SIGKILL, before it kills the process and stops what is left itself.
 const STAND_WAIT_S = 4 * 40 + 10;
 
+// ci-lint's check of the pin of spec, by the last line it prints when it fails: its last step, so
+// that every step before it passed.
+const SPEC_PIN = /^ci-lint: the submodule spec\/ is at .*; move them to one tag together \(R64 spec; R\d+\)$/;
+
 // The guards of pins that fail under the wiring, by repository: each reads the version of a module
-// that the go.work replaces. Only these may fail at the gate (R166).
+// that the go.work replaces. Only these may fail at the gate, and only while the clone has a
+// go.work (R166): a test is skipped, by -skip in GOFLAGS of ci-test, so that ci-test still writes
+// its profile; the check of ci-lint is a failure allowed by its message.
+const SPEC_PIN_GUARD = { kind: "ci-lint", name: "just ci-lint: the pin of spec", why: "go list -m names the replaced modules, not the submodule's tag", pattern: SPEC_PIN };
+const testGuard = (name, why) => ({ kind: "test", name, why });
 export const GUARDS = {
   tutor: [
-    ["TestSpecVersion", "spec and its contracts are replaced by the clone, not at the tag CLAUDE.md names"],
-    ["TestReadingLogOfTheStub", "module-kit replaced reports v0.0.0 in the golden log"],
-    ["TestAdmitExamples", "spec's examples are read from the module cache, which the replace bypasses"],
-    ["TestMeasuresOfSpecExamples", "spec's examples are read from the module cache, which the replace bypasses"],
+    testGuard("TestSpecVersion", "spec and its contracts are replaced by the clone, not at the tag CLAUDE.md names"),
+    testGuard("TestReadingLogOfTheStub", "module-kit replaced reports v0.0.0 in the golden log"),
+    testGuard("TestAdmitExamples", "spec's examples are read from the module cache, which the replace bypasses"),
+    testGuard("TestMeasuresOfSpecExamples", "spec's examples are read from the module cache, which the replace bypasses"),
+    testGuard("TestExamplesFollowTheRules", "spec's examples of the eval protocol are read from the module cache, which the replace bypasses"),
+    testGuard("TestExamplesReadBack", "spec's examples of the eval protocol are read from the module cache, which the replace bypasses"),
+    testGuard("TestExamples", "spec's examples are read from the module cache, which the replace bypasses; -skip names no package, so admission's and protocoltest's TestExamples are skipped too"),
   ],
   api: [
-    ["TestTheVersionOfModuleKitIsTheOneGoModPins", "module-kit replaced is (devel)"],
-    ["TestSpecAndItsContractsAreAtOneTag", "a dependency is replaced"],
-    ["just ci-lint: the pin of spec", "go list -m names the replaced modules, not the submodule's tag"],
+    testGuard("TestTheVersionOfModuleKitIsTheOneGoModPins", "module-kit replaced is (devel)"),
+    testGuard("TestSpecAndItsContractsAreAtOneTag", "a dependency is replaced"),
+    SPEC_PIN_GUARD,
   ],
-  "module-kit": [["just ci-lint: the pin of spec", "go list -m names the replaced modules, not the submodule's tag"]],
+  "module-kit": [SPEC_PIN_GUARD],
 };
 
 // Packs spec's npm packages from the clone $1's working tree into a folder of $2 named by the
@@ -92,8 +103,8 @@ export const PULL = [
   'git pull --ff-only --quiet && echo pulled',
 ].join("\n");
 
-const git = (deps, dir, args) => (deps.git ?? runGit)(dir, [...SAFE, ...args]);
-const docker = (deps, args, options = {}) => (deps.dockerRun ?? ((a, o) => runDocker(a, { program: deps.dockerProgram ?? DOCKER, env: deps.env ?? process.env, ...o })))(args, options);
+export const git = (deps, dir, args) => (deps.git ?? runGit)(dir, [...SAFE, ...args]);
+export const docker = (deps, args, options = {}) => (deps.dockerRun ?? ((a, o) => runDocker(a, { program: deps.dockerProgram ?? DOCKER, env: deps.env ?? process.env, ...o })))(args, options);
 
 function rootOf(deps) {
   return deps.epics ?? EPICS;
@@ -103,7 +114,7 @@ function checkEpic(epic) {
   if (!EPIC.test(epic)) throw new Error(`not an epic's name: ${epic}`);
 }
 
-function checkRepo(repo) {
+export function checkRepo(repo) {
   if (!REPOSITORY.test(repo) || /^\.+$/.test(repo)) throw new Error(`not a repository's name: ${repo}`);
 }
 
@@ -129,7 +140,7 @@ export function clonesOf(dir) {
     .sort((a, b) => (a === "spec" ? -1 : b === "spec" ? 1 : a.localeCompare(b)));
 }
 
-function containerId(repo, deps) {
+export function containerId(repo, deps) {
   const run = (args) => docker(deps, args);
   return ensureRunning(findContainer(repo, { docker: run, hostname: deps.hostname }), { docker: run, sleep: deps.sleep }).Id;
 }
@@ -159,9 +170,9 @@ const newer = (a, b) => {
 };
 
 // The go.work of a Go clone: `use .`, and a replace for each module of NovaTrail its go.mod
-// requires whose repository has a clone in the epic — spec's always —, the go line the newest of
+// requires whose repository has a clone in the epic — spec's always — and is not in skip, the go line the newest of
 // theirs, which Go asks of a workspace. None when it requires none. The text, or null.
-export function goWorkOf(dir, repo) {
+export function goWorkOf(dir, repo, skip = new Set()) {
   let mod;
   try {
     mod = fs.readFileSync(path.join(dir, repo, "go.mod"), "utf8");
@@ -172,7 +183,7 @@ export function goWorkOf(dir, repo) {
   let version = goVersion(mod);
   for (const [, module] of mod.matchAll(/^\s*(?:require\s+)?(github\.com\/altnovatrail\/\S+)\s+v\S+/gm)) {
     const [target, ...sub] = module.slice(MODULE.length).split("/");
-    if (target === repo || !REPOSITORY.test(target) || !fs.existsSync(path.join(dir, target, ".git"))) continue;
+    if (target === repo || skip.has(target) || !REPOSITORY.test(target) || !fs.existsSync(path.join(dir, target, ".git"))) continue;
     const folder = ["..", target, ...sub].join("/");
     let theirs = null;
     try {
@@ -188,7 +199,7 @@ export function goWorkOf(dir, repo) {
 }
 
 // Keeps names out of git by the clone's own .git/info/exclude, which no pull request carries.
-function exclude(clone, names) {
+export function exclude(clone, names) {
   const file = path.join(clone, ".git", "info", "exclude");
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const text = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
@@ -197,13 +208,27 @@ function exclude(clone, names) {
   if (add.length) fs.writeFileSync(file, `${text}${text && !text.endsWith("\n") ? "\n" : ""}${add.map((n) => `/${n}`).join("\n")}\n`);
 }
 
-function wireGo(dir, repo) {
-  const text = goWorkOf(dir, repo);
-  if (!text) return null;
+// Writes the clone's go.work, without the repositories already pinned to their release, or removes
+// it when nothing is left to replace.
+export function wireGo(dir, repo, skip = new Set(Object.keys(pinnedOf(dir)))) {
   const clone = path.join(dir, repo);
+  const text = goWorkOf(dir, repo, skip);
+  if (!text) {
+    for (const f of ["go.work", "go.work.sum"]) fs.rmSync(path.join(clone, f), { force: true });
+    return null;
+  }
   fs.writeFileSync(path.join(clone, "go.work"), text);
   exclude(clone, ["go.work", "go.work.sum"]);
   return text.split("\n").filter((l) => l.startsWith("replace ")).map((l) => l.slice("replace ".length));
+}
+
+// The repositories ship has pinned their dependents to, by the release: .stand/pinned.json.
+export function pinnedOf(dir) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(dir, STAND, "pinned.json"), "utf8"));
+  } catch {
+    return {};
+  }
 }
 
 // spec's packages a clone's package.json names, by the folder each takes.
@@ -218,7 +243,7 @@ export function packagesOf(clone) {
   return Object.keys(PACKAGES).filter((name) => Object.hasOwn(named, name));
 }
 
-const markOf = (clone, name) => {
+export const markOf = (clone, name) => {
   try {
     return fs.readFileSync(path.join(clone, "node_modules", name, ".xrepo"), "utf8").trim();
   } catch {
@@ -227,7 +252,7 @@ const markOf = (clone, name) => {
 };
 
 // The fingerprint of spec's clone, and its packages packed by it, in spec's container.
-function packSpec(dir, deps, mode = "pack") {
+export function packSpec(dir, deps, mode = "pack") {
   const out = path.join(dir, STAND, "packages");
   fs.mkdirSync(out, { recursive: true });
   const print = docker(deps, ["exec", "--user", "vscode", "--workdir", path.join(dir, "spec"), containerId("spec", deps), "bash", "-lc", PACK, "bash", path.join(dir, "spec"), out, mode], { timeout: INSTALL_MS }).trim().split("\n").at(-1);
@@ -238,7 +263,9 @@ function packSpec(dir, deps, mode = "pack") {
 // Installs a consumer by its own recipe, which runs npm ci only when package.json or the lock
 // file changed, then lays spec's packages over node_modules where their mark is not the clone's
 // fingerprint now. The consumers' wiring, by repository.
-function wireNpm(dir, repos, deps, { install = true } = {}) {
+export function wireNpm(dir, repos, deps, { install = true } = {}) {
+  // Once ship has pinned the dependents to spec's release, their packages are the registry's.
+  if (pinnedOf(dir).spec) return {};
   const consumers = repos.filter((r) => r !== "spec").map((repo) => ({ repo, names: packagesOf(path.join(dir, repo)) })).filter((c) => c.names.length);
   if (!consumers.length) return {};
   const { print, folder } = packSpec(dir, deps);
@@ -300,11 +327,12 @@ export function readmeOf(epic, rows) {
     "",
     "## Guards of pins that fail under the wiring",
     "",
-    "Only these may fail at the gate (R166 spec).",
+    "Only these may fail at the gate, and only while the clone has its `go.work` (R166 spec): a test is skipped by `-skip` in `GOFLAGS` of `ci-test`, which then still writes its profile; a check of `ci-lint` fails, its message the one allowed.",
     "",
-    "| Repository | Guard | Why |",
-    "|---|---|---|",
-    ...rows.filter((r) => r.go && GUARDS[r.repo]).flatMap((r) => GUARDS[r.repo].map(([g, why]) => `| ${r.repo} | \`${g}\` | ${why} |`)),
+    "| Repository | Guard | At the gate | Why |",
+    "|---|---|---|---|",
+    ...rows.filter((r) => r.go && GUARDS[r.repo]).flatMap((r) => GUARDS[r.repo].map((g) => `| ${r.repo} | \`${g.name}\` | ${g.kind === "test" ? "skipped" : "allowed to fail"} | ${g.why} |`)),
+    ...rows.filter((r) => r.go && r.repo !== "spec").map((r) => `| ${r.repo} | \`just ci-licenses\` | allowed to fail, only on libraries of the modules go.work replaces | go-licenses finds no LICENSE in a replaced module, as spec/contracts, whose LICENSE is at spec's root |`),
     "",
     "## Commands",
     "",
@@ -313,6 +341,9 @@ export function readmeOf(epic, rows) {
     `- \`xrepo up ${epic} <repos…>\` — more clones, and the wiring renewed;`,
     "- `xrepo status`; `xrepo test <repo> [targets…]` — the quick checks in the repository's container;",
     "- `xrepo serve [--ai] [--limit <usd>] [--mockup]` — the stand on http://127.0.0.1:5173, forwarded by the orchestrator's window; `xrepo stop`;",
+    "- `xrepo sync` — `main` into the epic's branch of each clone, by a merge commit; `xrepo push` — each clone's branch to GitHub;",
+    "- `xrepo gate [<repo>…]` — the full CI of each touched repository in its container, then `patchcov`; `.stand/gate.json`;",
+    "- after the author's «да»: `xrepo ship` — the pull requests one at a time, `spec` first, each merged on green checks, its release awaited and its dependents pinned to it; `xrepo pin <repo> [<tag>]` and `xrepo wait-release <repo> <tag>` are its steps;",
     "- `xrepo down` — the end of the task.",
     "",
   ];

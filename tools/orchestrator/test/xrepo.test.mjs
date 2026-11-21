@@ -25,7 +25,7 @@ test("xrepo's command lines: its command is the second word, and each holds its 
   assert.deepEqual(argumentsOf(["xrepo", "up", "e18", "api", "app"]), { command: "xrepo up", words: ["e18", "api", "app"], values: {} });
   assert.deepEqual(argumentsOf(["xrepo", "serve", "--ai", "--limit", "3.5", "--epic", "e18"]), { command: "xrepo serve", words: [], values: { ai: true, limit: 3.5, epic: "e18" } });
   assert.deepEqual(argumentsOf(["xrepo", "test", "tutor", "./internal/report"]).words, ["tutor", "./internal/report"]);
-  for (const argv of [["xrepo", "up"], ["xrepo"], ["xrepo", "ship"], ["xrepo", "serve", "--limit", "0"], ["xrepo", "status", "--ai"], ["xrepo", "toString"]]) {
+  for (const argv of [["xrepo", "up"], ["xrepo"], ["xrepo", "ship", "e1"], ["xrepo", "pin"], ["xrepo", "wait-release", "spec"], ["xrepo", "serve", "--limit", "0"], ["xrepo", "status", "--ai"], ["xrepo", "toString"]]) {
     assert.throws(() => argumentsOf(argv), argv.join(" "));
   }
 });

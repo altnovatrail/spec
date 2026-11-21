@@ -91,22 +91,11 @@ Last done epic — E11, [docs/plan/E11.md](docs/plan/E11.md).
 | [x] | T242 | Монтирование `.epics` в devcontainer `spec` и оркестратора | Claude | — | T241 |
 | [x] | T243 | Волна: все 12 репозиториев на тег `spec` с `.epics`, пересборка | я + Claude | — | T242 |
 | [x] | T244 | `xrepo`: среда и стенд — up, status, test, serve, stop, down | Claude | да | T242 |
-| [ ] | T245 | `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк | Claude | да | T244 |
+| [x] | T245 | `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк | Claude | да | T244 |
 | [ ] | T247 | Доработки интерфейса приложения — первая обкатка `xrepo` | я + Claude | да | T243, T245 |
 | [ ] | T246 | Итог обкатки: замер против E11, поправки, архив | Claude | — | T247, обкатка |
 
 - Задачи обкатки встают в таблицу перед T246 по слову автора, «я + Claude», план «да»; первая — T247.
-
-#### T245. `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк
-
-- **Цель:** до PR всё решение проверено локально так, как проверит CI; PR, мерж и выпуски идут по зависимостям одной командой после «да» автора.
-- **Сделать:**
-  - `tools/patchcov/` и рецепт `patchcov` — покрытие изменённых строк от merge-base по `coverage/go.out` и `coverage/lcov.info`, частично покрытая строка — промах (формула Codecov — `docs/sources.md`), порог — из `.github/codecov.yml` репозитория; свои тесты.
-  - `gate` — в контейнере каждого тронутого репозитория его рецепты `ci-*` (`app`, `canvas` — `just ci`; Go — `ci-lint ci-test ci-vuln ci-licenses` с `ALLOWED_LICENSES` из `just -f spec/justfile licenses-allowed`), браузеры — движки его CI, затем `patchcov`; разрешены только падения стражей из README; `spec` — `just docs-check` и проверки его частей.
-  - `sync` — `main` в ветку эпика merge-коммитом; `push` — из клона в `.epics` через `GIT_ENV`; `pin <репозиторий>` — подмодуль, `go get`, `package.json` на вышедший выпуск, снять `go.work` и связку npm; `wait-release <репозиторий> <тег>` — `gh release`, npm, прокси Go `.info` 200.
-  - `ship` — процедура README: после «да» — PR, проверки и SonarCloud по API ([tools/orchestrator/README.md](tools/orchestrator/README.md), раздел 5), мерж, `wait-release`, `pin` зависимых, их PR; узел `infra`, если изменение доходит до выкладки.
-- **Как проверить:** тесты `tools/patchcov` и `just orchestrator-test`; `patchcov` на профиле `app` PR #106 даёт 84.65%, как Codecov; пробный `gate` на `module-kit` и `tutor`.
-- **Разделы:** R48, R77, R156, R159, `R166`; [tools/orchestrator/README.md](tools/orchestrator/README.md), раздел 5.
 
 #### T247. Доработки интерфейса приложения — первая обкатка `xrepo`
 
