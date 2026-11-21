@@ -55,7 +55,7 @@ export const STATES = [
   { name: "legal-terms", title: "The gist of the Terms of Use", from: "agree", shows: "Terms of Use", run: (t) => t.v().openTerms() },
 
   // The owner's profile, after "Create account" (CreateOwnerProfile).
-  { name: "owner", title: "The owner's profile, empty", from: "agree-ticked", shows: "Use a made-up name", run: (t) => t.v().createAccount() },
+  { name: "owner", title: "The owner's profile, empty", from: "agree-ticked", shows: "Choose an avatar", run: (t) => t.v().createAccount() },
   { name: "owner-avatars", title: "The owner's profile, the avatars", from: "owner", shows: "Comet", run: (t) => t.v().toggleAvatars() },
   { name: "owner-countries", title: "The owner's profile, the countries", from: "owner", shows: "New Zealand", run: (t) => t.v().toggleCountries() },
   {

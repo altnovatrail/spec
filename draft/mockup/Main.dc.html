@@ -107,7 +107,11 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone .ph-code{width:33px!important}
 .nt-phone .ph-codesep{width:8px!important;margin:0 1px!important}
 /* The owner's profile and "Who's learning?": one column; the profiles' cards two by two. */
-.nt-phone .ph-owncol{left:16px!important;right:16px!important;width:auto!important;margin-left:0!important;top:84px!important}
+.nt-phone .ph-owncol{left:16px!important;right:16px!important;width:auto!important;margin-left:0!important;top:76px!important;padding:28px 20px 24px!important;border-radius:28px!important}
+.nt-phone .ph-owncol>div:first-child{font-size:32px!important;line-height:40px!important;letter-spacing:-0.6px!important}
+.ph-own .chat-in::placeholder{color:rgba(255,255,255,0.55)}
+/* Over the dark sky a pop-over is opaque white: at 0.96 or 0.98 the sky shows through it. */
+.nt-phone .ph-own .ph-sheet{background:#FFFFFF!important}
 .ph-who button:focus-visible{outline-color:#FFFFFF}
 .nt-phone .ph-whobrand{top:12px!important;font-size:18px!important;gap:6px!important}
 .nt-phone .ph-signout{right:16px!important;top:12px!important;padding:0 14px 0 12px!important;font-size:15px!important}
@@ -1383,39 +1387,43 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
 <!-- ============ The owner's profile, right after "Create account": CreateOwnerProfile (R98; R148) ============ -->
 <sc-if value="{{isOwner}}" hint-placeholder-val="{{ false }}">
-<div style="position: absolute; inset: 0; background-color: #F5F5F7; background-image: radial-gradient(70% 55% at 50% 0%, rgba(94,92,230,0.14) 0%, rgba(94,92,230,0) 70%), radial-gradient(40% 40% at 90% 100%, rgba(255,159,10,0.12) 0%, rgba(255,159,10,0) 70%)">
-  <div style="position: absolute; left: 0; right: 0; top: 34px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #1D1D1F">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="#5E5CE6" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
-    <span style="font-size: 17px; font-weight: 700; letter-spacing: -0.2px">NovaTrail</span>
+<div class="ph-who ph-own" style="position: absolute; inset: 0; overflow: hidden; color: #FFFFFF; background-color: #0B0D2E; background-image: radial-gradient(circle at 18% 28%, #5B5FE0 0, rgba(91,95,224,0) 38%), radial-gradient(circle at 88% 42%, #0A6BD6 0, rgba(10,107,214,0) 34%), radial-gradient(circle at 8% 100%, #B8325A 0, rgba(184,50,90,0) 34%), radial-gradient(circle at 58% 108%, #E0901E 0, rgba(224,144,30,0) 44%)">
+  <div aria-hidden="true">
+    <sc-for list="{{whoStars}}" as="st" hint-placeholder-count="6">
+      <span style="position: absolute; left: {{st.x}}px; top: {{st.y}}px; width: {{st.r}}px; height: {{st.r}}px; border-radius: 50%; background: rgba(255,255,255,{{st.a}}); box-shadow: {{st.sh}}"></span>
+    </sc-for>
   </div>
-  <div class="ph-owncol" style="position: absolute; left: 50%; top: 104px; width: 420px; margin-left: -210px; display: flex; flex-direction: column; align-items: center">
-    <div style="font-size: 32px; font-weight: 700; letter-spacing: -0.7px">Your profile</div>
-    <div style="margin-top: 8px; font-size: 15px; line-height: 1.45; color: #6E6E73; text-align: center">This is how you learn here. Use a made-up name — never your real one.</div>
+  <div class="ph-whobrand" style="position: absolute; left: 0; right: 0; top: 50px; height: 44px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; pointer-events: none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="#7B7FFF" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
+    <span>NovaTrail</span>
+  </div>
+  <!-- The card: the heading, the avatar and its button, the rows, the hint and Continue. -->
+  <div class="ph-owncol" style="position: absolute; left: 50%; top: 118px; width: 520px; margin-left: -260px; padding: 40px 44px 36px; border-radius: 36px; box-sizing: border-box; background: #161A3D; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 30px 80px rgba(0,0,0,0.35); display: flex; flex-direction: column; align-items: center">
+    <div style="font-size: 40px; font-weight: 700; letter-spacing: -0.8px; line-height: 48px">Your profile</div>
 
-    <span style="margin-top: 26px; width: 112px; height: 112px; border-radius: 56px; background: {{ownerAv.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 28px rgba(0,0,0,0.14)">
-      <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ownerAv.glyph}}"></path></svg>
+    <span style="margin-top: 22px; width: 120px; height: 120px; border-radius: 60px; background: {{ownerAv.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 10px rgba(255,255,255,0.08), 0 20px 50px rgba(30,90,230,0.45)">
+      <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ownerAv.glyph}}"></path></svg>
     </span>
-    <button onClick="{{toggleAvatars}}" aria-expanded="{{avatarOpen}}" style="margin-top: 10px; height: 44px; padding: 0 16px; border-radius: 22px; font-size: 15px; font-weight: 600; color: #0066CC">{{avatarBtn}}</button>
+    <button onClick="{{toggleAvatars}}" aria-expanded="{{avatarOpen}}" style="margin-top: 2px; height: 44px; padding: 0 16px; border-radius: 22px; font-size: 16px; font-weight: 600; color: #8FB8FF">{{avatarBtn}}</button>
 
-    <div style="align-self: stretch; margin-top: 14px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.05); padding: 4px 0">
-      <label style="display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 16px">
-        <span style="flex: none; width: 76px; font-size: 15px; font-weight: 600">Name</span>
-        <input class="chat-in" placeholder="A made-up name" maxlength="30" value="{{ownerName}}" onChange="{{onOwnerName}}" style="flex: 1; min-width: 0; height: 44px; border: 0; outline: 0; padding: 0; background: transparent; font: inherit; font-size: 16px; color: #1D1D1F; user-select: text; -webkit-user-select: text">
+    <div style="align-self: stretch; margin-top: 20px; border-radius: 18px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); overflow: hidden">
+      <label style="display: flex; align-items: center; gap: 24px; height: 58px; padding: 0 20px">
+        <span style="flex: none; width: 84px; font-size: 17px; font-weight: 600">Name</span>
+        <input class="chat-in" placeholder="A made-up name" maxlength="30" value="{{ownerName}}" onChange="{{onOwnerName}}" style="flex: 1; min-width: 0; height: 44px; border: 0; outline: 0; padding: 0; background: transparent; font: inherit; font-size: 17px; color: rgba(255,255,255,0.85); user-select: text; -webkit-user-select: text">
       </label>
-      <div style="height: 0.5px; background: rgba(0,0,0,0.1); margin-left: 16px"></div>
-      <button onClick="{{toggleCountries}}" aria-expanded="{{countryOpen}}" style="width: 100%; display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 12px 0 16px; text-align: left">
-        <span style="flex: none; width: 76px; font-size: 15px; font-weight: 600">Country</span>
-        <span style="flex: 1; font-size: 16px; color: {{countryFg}}">{{countryName}}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+      <button onClick="{{toggleCountries}}" aria-expanded="{{countryOpen}}" style="width: 100%; display: flex; align-items: center; gap: 24px; height: 58px; padding: 0 18px 0 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: left">
+        <span style="flex: none; width: 84px; font-size: 17px; font-weight: 600">Country</span>
+        <span style="flex: 1; font-size: 17px; color: {{countryFg}}">{{countryName}}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
       </button>
     </div>
-    <div style="align-self: stretch; margin-top: 10px; font-size: 12.5px; line-height: 1.4; color: #6E6E73">The name shows on your profile and your work. A grown-up’s profile needs no age: you stated that you are 18 or older.</div>
-    <button onClick="{{ownerDone}}" disabled="{{ownerOff}}" style="align-self: stretch; margin-top: 22px; height: 52px; border-radius: 14px; background: {{ownerBtn.bg}}; color: {{ownerBtn.fg}}; font-size: 16px; font-weight: 600; transition: background 0.2s">Continue</button>
+    <div style="align-self: stretch; margin-top: 16px; padding: 0 4px; font-size: 13px; line-height: 1.45; color: rgba(255,255,255,0.55)">The name shows on your profile and your work. A grown-up’s profile needs no age: you stated that you are 18 or older.</div>
+    <button onClick="{{ownerDone}}" disabled="{{ownerOff}}" style="align-self: stretch; margin-top: 22px; height: 54px; border-radius: 27px; background: {{ownerBtn.bg}}; color: {{ownerBtn.fg}}; font-size: 18px; font-weight: 600; transition: background 0.2s">Continue</button>
   </div>
 
   <sc-if value="{{avatarOpen}}" hint-placeholder-val="{{ false }}">
     <button class="ph-scrim" aria-label="Close" onClick="{{toggleAvatars}}" style="position: absolute; inset: 0; cursor: default"></button>
-    <div class="glass nt-pop ph-sheet" role="radiogroup" aria-label="Avatar" style="position: absolute; left: 50%; top: 392px; width: 372px; margin-left: -186px; border-radius: 22px; padding: 12px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; transform-origin: 50% 0">
+    <div class="glass nt-pop ph-sheet" role="radiogroup" aria-label="Avatar" style="color: #1D1D1F; position: absolute; left: 50%; top: 398px; width: 372px; margin-left: -186px; border-radius: 22px; padding: 12px; box-sizing: border-box; background: #FFFFFF; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; transform-origin: 50% 0">
       <sc-for list="{{avatars}}" as="a" hint-placeholder-count="8">
         <button role="radio" aria-checked="{{a.on}}" onClick="{{a.pick}}" style="height: 84px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: {{a.bg}}">
           <span style="width: 48px; height: 48px; border-radius: 24px; background: {{a.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: {{a.ring}}">
@@ -1428,7 +1436,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   </sc-if>
   <sc-if value="{{countryOpen}}" hint-placeholder-val="{{ false }}">
     <button class="ph-scrim" aria-label="Close" onClick="{{toggleCountries}}" style="position: absolute; inset: 0; cursor: default"></button>
-    <div class="glass nt-pop ph-sheet" role="listbox" aria-label="Country" style="position: absolute; left: 50%; top: 514px; width: 300px; margin-left: -90px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: rgba(255,255,255,0.96); transform-origin: 30% 0">
+    <div class="glass nt-pop ph-sheet" role="listbox" aria-label="Country" style="color: #1D1D1F; position: absolute; left: 50%; top: 538px; width: 300px; margin-left: -90px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: #FFFFFF; transform-origin: 30% 0">
       <sc-for list="{{countries}}" as="c" hint-placeholder-count="5">
         <button class="row" role="option" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="width: 100%; height: 44px; border-radius: 12px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; font-size: 15px; text-align: left">
           {{c.name}}
@@ -3378,8 +3386,8 @@ class Component extends DCLogic {
         ring: s.ownerAvatar === a.id ? '0 0 0 3px #FFFFFF, 0 0 0 5px #0071E3' : 'none', pick: () => this.setState({ ownerAvatar: a.id, avatarOpen: false }) })),
       countryOpen: s.countryOpen, toggleCountries: () => this.setState({ countryOpen: !this.state.countryOpen, avatarOpen: false }),
       countries: COUNTRIES.map(([code, name]) => ({ name, on: s.ownerCountry === code, pick: () => this.setState({ ownerCountry: code, countryOpen: false }) })),
-      countryName: s.ownerCountry ? COUNTRIES.find((c) => c[0] === s.ownerCountry)[1] : 'Choose', countryFg: s.ownerCountry ? '#1D1D1F' : '#0066CC',
-      ownerOff: !(s.ownerName.trim() && s.ownerCountry), ownerBtn: btn(!!(s.ownerName.trim() && s.ownerCountry)),
+      countryName: s.ownerCountry ? COUNTRIES.find((c) => c[0] === s.ownerCountry)[1] : 'Choose', countryFg: s.ownerCountry ? 'rgba(255,255,255,0.85)' : '#8FB8FF',
+      ownerOff: !(s.ownerName.trim() && s.ownerCountry), ownerBtn: s.ownerName.trim() && s.ownerCountry ? { bg: '#2B66F6', fg: '#FFFFFF' } : btnD(false),
       ownerDone: () => { if (this.state.ownerName.trim() && this.state.ownerCountry) this.setState({ screen: 'who', learner: 'owner', avatarOpen: false, countryOpen: false }); },
 
       // The demo's switch on "Who's learning?".

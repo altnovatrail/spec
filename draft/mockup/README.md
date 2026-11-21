@@ -66,7 +66,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `agree-ticked` | The same, ticked: "Create account" on | First slice |
 | `legal-privacy` | The gist of the Privacy Policy in force, and its next version | First slice |
 | `legal-terms` | The gist of the Terms of Use in force | First slice |
-| `owner` | The owner's profile after "Create account", empty | First slice |
+| `owner` | The owner's profile after "Create account", empty: on the sky of "Who's learning?", the name at the top and a dark card — the heading, the avatar and its button, the name and the country, the hint and "Continue" | First slice |
 | `owner-avatars` | The owner's profile, the avatars of the set | First slice |
 | `owner-countries` | The owner's profile, the countries | First slice |
 | `owner-filled` | The owner's profile, filled in | First slice |
@@ -144,27 +144,27 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 
 | Line and part | What it draws |
 |---|---|
-| `Main.dc.html:170` — Surfaces | The sheet, two screens tall and as wide as the screen: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
-| `Main.dc.html:234` — Camera | The camera's viewfinder |
-| `Main.dc.html:276` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the loop being drawn |
-| `Main.dc.html:314` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
-| `Main.dc.html:339` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
-| `Main.dc.html:374` — Author canvases | The sandbox's chip |
-| `Main.dc.html:382` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
-| `Main.dc.html:425` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
-| `Main.dc.html:502` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
-| `Main.dc.html:532` — Tool rail | The tools of `canvas` as a vertical glass bar, and above them the crop's show and hide |
-| `Main.dc.html:568` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
-| `Main.dc.html:819` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:983` — Pick | What left the device, Select all, Start |
-| `Main.dc.html:1000` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1077` — Debug | Only on a local run with `api`'s debug flag: the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
-| `Main.dc.html:1258` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1384` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1444` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:1541` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
-| `Main.dc.html:1762` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
-| `Main.dc.html:1799` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:174` — Surfaces | The sheet, two screens tall and as wide as the screen: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
+| `Main.dc.html:238` — Camera | The camera's viewfinder |
+| `Main.dc.html:280` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the loop being drawn |
+| `Main.dc.html:318` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
+| `Main.dc.html:343` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
+| `Main.dc.html:378` — Author canvases | The sandbox's chip |
+| `Main.dc.html:386` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
+| `Main.dc.html:429` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
+| `Main.dc.html:506` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
+| `Main.dc.html:536` — Tool rail | The tools of `canvas` as a vertical glass bar, and above them the crop's show and hide |
+| `Main.dc.html:572` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
+| `Main.dc.html:823` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:987` — Pick | What left the device, Select all, Start |
+| `Main.dc.html:1004` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1081` — Debug | Only on a local run with `api`'s debug flag: the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
+| `Main.dc.html:1262` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1388` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1452` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:1549` — Home | The next lesson, the quota, "Take from my paper", the module cards, the legend, Help, the profile's menu with the hint mode |
+| `Main.dc.html:1770` — The skill map | The frame, and in it the sketch of what `skill-map` draws |
+| `Main.dc.html:1807` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -184,9 +184,10 @@ The mockup is drawn in absolute CSS px for its two sizes, and the sign-in for a 
 
 | Role | Colour |
 |---|---|
-| The page | `#F2F2F7`; the owner's profile `#F5F5F7` |
-| The sky of the sign-in and of "Who's learning?" | `#0B0D2E` under four radial glows — `#5B5FE0`, `#0A6BD6`, `#B8325A`, `#E0901E` —, its stars and the trail's stops white at 0.3–0.9 and 0.14; the language's pill `#161A3D` at 0.4 with a ring of white at 0.4 |
+| The page | `#F2F2F7` |
+| The sky of the sign-in, of the owner's profile and of "Who's learning?" | `#0B0D2E` under four radial glows — `#5B5FE0`, `#0A6BD6`, `#B8325A`, `#E0901E` —, its stars and the trail's stops white at 0.3–0.9 and 0.14; the language's pill `#161A3D` at 0.4 with a ring of white at 0.4 |
 | "Who's learning?" | "Sign out" `#FFFFFF` on glass of white at 0.12 with a ring at 0.25; a profile's card `#161A3D` with a ring of white at 0.14, the avatar's ring white at 0.16, the name `#FFFFFF`, whose profile white at 0.6, "Start" `#2B66F6` with white words; "Add a learner" glass of white at 0.12 with a ring at 0.25, its dashed circle white at 0.35 and its plus at 0.55, its name white at 0.8 while disabled and `#FFFFFF` once open, the line why white at 0.9; the focus ring white |
+| The owner's profile | the card `#161A3D` with a ring of white at 0.12, its heading `#FFFFFF`; the avatar's ring white at 0.08; "Choose an avatar" and "Choose" `#8FB8FF`; the rows white at 0.07 with a ring and a line between them of white at 0.1, the labels `#FFFFFF`, the values white at 0.85, the placeholder at 0.55, the chevron at 0.4; the hint white at 0.55; "Continue" `#2B66F6` with white words, white at 0.12 with its words at 0.5 while disabled; a pop-over opaque white, as the sky would show through the light screens' glass |
 | The sign-in's card | `#161A3D`, a ring of white at 0.12; on it text `#FFFFFF`, secondary text white at 0.8 and 0.72, "Privacy and legal information" white at 0.6; the line for grown-ups white at 0.1 with a ring at 0.18, its words at 0.88; a link and Back `#64A8FF`; a field or a box white at 0.08 with an edge of white at 0.5, `#64A8FF` 2 px for the one to fill; an unticked checkbox a ring of white at 0.55; a disabled button white at 0.12 with its words at 0.5; the tick of "Signed in with Google" `#30D158` |
 | Google's button | Google's own, its light theme: `#FFFFFF`, a stroke of 1 px `#747775` inside, `#1F1F1F` text and the standard "G" (sources 4.8) |
 | A card, a pop-over, the sheet | `#FFFFFF` |
@@ -266,6 +267,8 @@ The pairs of the mockup's colours by WCAG 2.2: 1.4.3 for text, 4.5:1, or 3:1 for
 | `#0071E3` on `#161A3D` | a primary button's fill, the focus ring, on the sign-in's card | 3.58 | 1.4.11 | — |
 | White at 0.5 on a field of white at 0.08 over `#161A3D`; white at 0.55 on `#161A3D` | the edge of a code box; the ring of an unticked checkbox | 5.74, 5.89 | 1.4.11 | — |
 | `#1F1F1F` on `#FFFFFF`; `#FFFFFF` on `#161A3D` | Google's button: its words; its fill on the card | 16.5, 16.8 | 1.4.3, 1.4.11 | — |
+| `#FFFFFF`, white at 0.85 and 0.55, `#8FB8FF` on the rows, white at 0.07 over `#161A3D`; white at 0.55 and `#8FB8FF` on `#161A3D`; `#FFFFFF` on `#2B66F6` | the owner's profile: the labels, the values, the placeholder, "Choose"; the hint, "Choose an avatar"; "Continue" | 13.9, 10.4, 5.29, 6.91; 5.88, 8.38; 4.85 | 1.4.3 | — |
+| White at 0.1 on `#161A3D`; white at 0.4 on the rows | the ring of the rows, the edge of the name's field; the chevron | 1.33; 3.52 | no; 1.4.11 | the name's field a border of 1 px white at 0.5, 4.65 on the rows, as the sign-in's fields; the chevron — |
 | `#FFFFFF` on white at 0.12 over the sky | "Sign out" on "Who's learning?" | 9.46 where the sky under it is brightest | 1.4.3 | — |
 | `#FFFFFF`, white at 0.7 over the sky | the heading and the line under it on "Who's learning?" | 11.2, 6.91 | 1.4.3 | — |
 | `#FFFFFF`, white at 0.6 on `#161A3D`; `#FFFFFF` on `#2B66F6` | a profile's card: the name, whose profile; "Start" | 16.8, 6.75; 4.85 | 1.4.3 | — : the design's `#2F6BFF` gives 4.499 |
