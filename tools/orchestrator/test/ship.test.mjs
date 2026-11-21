@@ -93,6 +93,16 @@ test("ship: spec's pull request, merged and released, then each dependent pinned
   const manifest = JSON.parse(read(path.join(app, "package.json")));
   assert.deepEqual([manifest.dependencies["@altnovatrail/contracts"], manifest.devDependencies["@altnovatrail/spec"], manifest.dependencies["@altnovatrail/canvas"]], ["0.20.1", "0.20.1", "0.3.36"]);
   assert.equal(read(path.join(app, "justfile")), 'spec_tag := "v0.20.1"\n');
+  // NOTICE's lines of the packages moved, but a version the lock file still holds nested; the tag
+  // named in backticks or after «tag», not a link's or a move's; parts/ from spec's release, verified.
+  assert.equal(read(path.join(app, "NOTICE")), "@altnovatrail/canvas 0.3.36 — Apache-2.0\n@altnovatrail/contracts 0.19.4 — Apache-2.0\n@altnovatrail/spec 0.19.0 — Apache-2.0\n@altnovatrail/spec 0.20.1 — Apache-2.0\n");
+  assert.equal(read(path.join(app, "RUN.md")), "# app\n\nspec at tag v0.20.1, `v0.20.1`; tag v0.19.40 is another; moved to spec v0.19.4 by T1, [notes](https://github.com/altnovatrail/spec/releases/tag/v0.19.4).\n");
+  assert.equal(read(path.join(app, "parts", "deployment-1.tar.gz")), "spec v0.20.1: deployment-1.tar.gz\n");
+  assert.equal(read(path.join(app, "parts", "deployment-1.tar.gz.sigstore.json")), "spec v0.20.1: deployment-1.tar.gz.sigstore.json\n");
+  assert.ok(!fs.existsSync(path.join(app, "parts", "SHA256SUMS")));
+  assert.ok(w.calls("just").some((c) => c.recipe === "release-verify" && c.cwd === app));
+  assert.ok(!fs.existsSync(path.join(app, "parts", "SHA256SUMS")) && fs.existsSync(path.join(dir, ".stand", "parts-app", "deployment-1.tar.gz")));
+  assert.deepEqual(git(app, ["show", "--name-only", "--format=", "HEAD"]).split("\n").filter(Boolean).sort(), ["NOTICE", "RUN.md", "justfile", "package-lock.json", "package.json", "parts/deployment-1.tar.gz", "parts/deployment-1.tar.gz.sigstore.json"].filter((p) => fs.existsSync(path.join(app, p))).sort());
   assert.ok(w.calls("npm").some((c) => c.cwd === app && c.args.includes("@altnovatrail/spec@0.20.1") && c.args.includes("--save-exact")));
   assert.ok(w.calls("just").some((c) => c.recipe === "release-verify-npm" && c.cwd === app));
   assert.ok(!fs.existsSync(path.join(app, "node_modules", "@altnovatrail", "spec", ".xrepo")));
@@ -161,6 +171,8 @@ test("ship stops on a conflict, a block, a head not the clone's, a check that ne
   const { w, g, dir } = await changed(t, { on: { spec: (p) => {
     p.mergeState = state.spec;
     p.checks = state.late ? [{ __typename: "CheckRun", name: "CI / test", status: "COMPLETED", conclusion: "SUCCESS" }] : undefined;
+    p.stale = state.stale ? "0".repeat(40) : undefined;
+    state.stale = false;
   } } });
   let ship = await run(w, ["xrepo", "ship"]);
   assert.match(ship.out.at(-1).stopped, /conflicts with main: xrepo sync/);
@@ -178,7 +190,9 @@ test("ship stops on a conflict, a block, a head not the clone's, a check that ne
   ship = await run(w, ["xrepo", "ship"]);
   assert.match(ship.out.at(-1).stopped, /is not the clone's/);
   git(path.join(dir, "spec"), ["reset", "--quiet", "--hard", "HEAD~1"]);
-  // main's CI red on the merge.
+  // A head GitHub does not name yet, though origin has it, is waited for; then main's CI red on
+  // the merge.
+  state.stale = true;
   const merge = g.gh;
   w.deps.gh = (args) => {
     const out = merge(args);
@@ -251,12 +265,32 @@ test("pin moves the dependents to a release, by default the latest; wait-release
   assert.match((await run(w, ["xrepo", "pin", "module-kit", "v0.3.18"])).err, /tutor has changes not committed/);
   assert.match((await run(w, ["xrepo", "pin", "module-kit", "latest"])).err, /not a release's tag: latest/);
 
+  assert.match((await run(w, ["xrepo", "pin", "kit", "v0.3.18"])).err, /not a repository of NovaTrail: kit/);
+  assert.match((await run(w, ["xrepo", "wait-release", "kit", "v0.3.18"])).err, /not a repository of NovaTrail: kit/);
+  // A tag in another form than its one is refused, not rewritten.
+  assert.match((await run(w, ["xrepo", "wait-release", "module-kit", "v0.3.018"])).err, /not a release's tag: v0\.3\.018/);
   const waited = await run(w, ["xrepo", "wait-release", "module-kit", "v0.3.18"]);
   assert.deepEqual(waited.out[0], { repo: "module-kit", tag: "v0.3.18", release: true, npm: {}, go: { "github.com/altnovatrail/module-kit": true } });
   w.deps.releaseMs = -1;
   const late = await run(w, ["xrepo", "wait-release", "canvas", "v0.3.40"]);
   assert.equal(late.status, 1);
   assert.match(late.err, /canvas v0\.3\.40: not all its files came in/);
+});
+
+test("a release of app with no clone of infra stops the ship until infra is cloned and ships", async (t) => {
+  const { w, g, dir } = await changed(t, { releases: { spec: "v0.20.1", app: "v0.1.44" }, repos: ["module-kit", "app"] });
+  let ship = await run(w, ["xrepo", "ship"]);
+  assert.match(ship.out.at(-1).stopped, /^infra: app v0\.1\.44 reach the deployment, and the epic has no clone of infra: xrepo up e1 infra/);
+  assert.equal(ship.status, 1);
+  assert.equal((await run(w, ["xrepo", "up", "e1", "infra"])).status, 0);
+  ship = await run(w, ["xrepo", "ship"]);
+  assert.match(ship.out.at(-1).stopped, /^infra: raise deploy\/production\.json to app v0\.1\.44/);
+  write(path.join(dir, "infra"), { "deploy/production.json": '{"app":{"release":"v0.1.44"}}\n' });
+  commit(path.join(dir, "infra"), "infra: deploy app v0.1.44");
+  write(dir, { "pr-infra.md": PR("infra") });
+  ship = await run(w, ["xrepo", "ship"]);
+  assert.equal(ship.out.at(-1).shipped, true, JSON.stringify(ship.out.at(-1)));
+  assert.deepEqual(g.prs.map((p) => p.repo), ["spec", "app", "module-kit", "infra"]);
 });
 
 test("infra the epic changed itself waits for the deployment of the releases too", async (t) => {

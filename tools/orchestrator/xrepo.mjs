@@ -31,7 +31,7 @@ const SAFE = ["-c", "core.hooksPath=/dev/null", "-c", "core.fsmonitor=false"];
 const MODULE = "github.com/altnovatrail/";
 // spec's npm packages, by the folder of node_modules/@altnovatrail/ they take.
 export const PACKAGES = { "@altnovatrail/spec": "spec", "@altnovatrail/contracts": "contracts" };
-// The tests that open browsers, which wait for the gate: the quick checks leave them out.
+// The tests that open browsers, which wait for the gate: the quick checks leave them out, but with --browser.
 export const BROWSER_TESTS = { app: ["scripts/site.test.ts", "scripts/page.test.ts"] };
 const INSTALL_MS = 30 * 60_000;
 const TEST_MS = 60 * 60_000;
@@ -423,23 +423,26 @@ function startHere(pid) {
 
 const livesHere = (record) => Boolean(record) && startHere(record.pid) === record.start;
 
-// A command of the quick checks of a repository in its container, and its arguments.
-export function quickCheckOf(dir, repo, targets) {
+// A command of the quick checks of a repository in its container, and its arguments; with browser,
+// every project of Vitest on the targets, the browsers' too.
+export function quickCheckOf(dir, repo, targets, { browser = false } = {}) {
   const clone = path.join(dir, repo);
+  if (browser && (repo === "spec" || !fs.existsSync(path.join(clone, "package.json")))) throw new Error(`--browser: ${repo} has no Vitest of its own`);
   if (repo === "spec") return targets.length ? { script: 'just _tools && exec node --test "$@"', args: targets } : { script: "exec just docs-check", args: [] };
   if (fs.existsSync(path.join(clone, "go.mod"))) return { script: 'exec go test -count=1 "$@"', args: targets.length ? targets : ["./..."] };
   if (fs.existsSync(path.join(clone, "package.json"))) {
-    const excluded = (BROWSER_TESTS[repo] ?? []).flatMap((f) => ["--exclude", f]);
-    return { script: 'exec node_modules/.bin/vitest run --project node "$@"', args: [...excluded, ...targets], npm: true };
+    const excluded = browser ? [] : (BROWSER_TESTS[repo] ?? []).flatMap((f) => ["--exclude", f]);
+    return { script: browser ? 'exec node_modules/.bin/vitest run "$@"' : 'exec node_modules/.bin/vitest run --project node "$@"', args: [...excluded, ...targets], npm: true };
   }
   throw new Error(`${repo}: neither go.mod nor package.json, and no quick check is known`);
 }
 
 // The quick checks of a repository in its container (R156), its output as it goes: Go's tests,
-// Vitest's project node without the browsers, spec's docs-check or tests. A target is a package,
+// Vitest's project node without the browsers — with browser, its every project —, spec's
+// docs-check or tests. A target is a package,
 // a folder or a file of the clone, passed on from its root as ./<target>, so that none is ever an
 // option: a session of Claude Code writes the command line, and go test's -exec would run a program.
-export function test(asked, targets, named, deps) {
+export function test(asked, targets, named, deps, { browser = false } = {}) {
   checkRepo(asked);
   const local = targets.map((t) => {
     const inside = /^[\w./@:=+-]+$/.test(t) ? path.posix.normalize(t) : "..";
@@ -450,7 +453,7 @@ export function test(asked, targets, named, deps) {
   // The name as the epic's clones have it, not as the command line has it.
   const repo = clonesOf(dir).find((r) => r === asked);
   if (repo === undefined) throw new Error(`${asked} has no clone in ${dir}`);
-  const check = quickCheckOf(dir, repo, local);
+  const check = quickCheckOf(dir, repo, local, { browser });
   if (check.npm) wireNpm(dir, [repo], deps);
   const program = deps.dockerProgram ?? DOCKER;
   const args = ["exec", "--user", "vscode", "--workdir", path.join(dir, repo), containerId(repo, deps), "bash", "-lc", check.script, "bash", ...check.args];

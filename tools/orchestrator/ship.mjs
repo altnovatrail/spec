@@ -18,7 +18,10 @@ const MODULE = "github.com/altnovatrail/";
 // The npm packages each repository releases, and the repository each package comes from.
 export const NPM_OF = { spec: ["@altnovatrail/spec", "@altnovatrail/contracts"], canvas: ["@altnovatrail/canvas"], "skill-map": ["@altnovatrail/skill-map"] };
 const REPO_OF = Object.fromEntries(Object.entries(NPM_OF).flatMap(([repo, names]) => names.map((n) => [n, repo])));
-const TAG = /^v\d+\.\d+\.\d+$/;
+// A release's tag in its one form: no leading zero, no number past what JavaScript holds exactly.
+const TAG = /^v(0|[1-9]\d{0,14})\.(0|[1-9]\d{0,14})\.(0|[1-9]\d{0,14})$/;
+// The repositories whose releases ship waits for: each that has a gate, and infra.
+const RELEASING = [...Object.keys(GATES), "infra"];
 const MINUTE = 60_000;
 // How long ship waits: for a release's files, for a pull request's checks, for a check posted late
 // and for the runs of main to appear.
@@ -26,14 +29,26 @@ const RELEASE_MS = 45 * MINUTE;
 const CHECKS_MS = 90 * MINUTE;
 const LATE_MS = 10 * MINUTE;
 const RUNS_MS = 10 * MINUTE;
+// How long a head pushed reaches the pull request: GitHub names it a little after the push.
+const HEAD_MS = 3 * MINUTE;
 const MAIN_MS = 90 * MINUTE;
 
 const pause = (deps) => new Promise((resolve) => setTimeout(resolve, deps.pollMs ?? MINUTE));
 const gh = (deps, args) => deps.gh(args);
 const json = (deps, args) => JSON.parse(gh(deps, args));
 
+// A release's tag, written anew from its numbers: what goes into gh is never the command line's text.
 function checkTag(tag) {
-  if (!TAG.test(tag)) throw new Error(`not a release's tag: ${tag}`);
+  const found = TAG.exec(tag);
+  if (!found) throw new Error(`not a release's tag: ${tag}`);
+  return `v${found.slice(1).map(Number).join(".")}`;
+}
+
+// The name as NovaTrail has it, not as the command line has it: only it goes into gh and git.
+function releasingOf(asked) {
+  const repo = RELEASING.find((r) => r === asked);
+  if (repo === undefined) throw new Error(`not a repository of NovaTrail: ${asked}`);
+  return repo;
 }
 
 const readText = (file) => {
@@ -123,9 +138,10 @@ async function fetchOk(deps, url, { asJson = false } = {}) {
 // (the step of spec's release.yml that publishes to npm waits for the same);
 // each Go module on the proxy — asked only once the tag is on GitHub, since the proxy remembers a
 // module it did not find for half an hour (R64).
-export async function waitRelease(repo, tag, deps) {
-  checkRepo(repo);
-  checkTag(tag);
+export async function waitRelease(asked, named, deps) {
+  checkRepo(asked);
+  const tag = checkTag(named);
+  const repo = releasingOf(asked);
   const deadline = deps.now().getTime() + (deps.releaseMs ?? RELEASE_MS);
   const state = { repo, tag, release: false, npm: Object.fromEntries((NPM_OF[repo] ?? []).map((n) => [n, false])), go: null };
   for (;;) {
@@ -182,6 +198,15 @@ function specTagOf(clone, mod, named) {
   }
 }
 
+// The line with the tag before put by the new one where it names the pin: in backticks, or after the
+// word «tag» and not inside a longer version. A link's address and a mention of a move keep theirs.
+function retagLine(line, before, tag) {
+  const parts = line.replaceAll(`\`${before}\``, `\`${tag}\``).split(`tag ${before}`);
+  let out = parts[0];
+  for (const next of parts.slice(1)) out += (/^(?:[\w-]|\.\d)/.test(next) ? `tag ${before}` : `tag ${tag}`) + next;
+  return out;
+}
+
 // The lines of CLAUDE.md and RUN.md that name spec at the tag before, and the justfile's spec_tag,
 // at the new tag.
 function retag(clone, before, tag) {
@@ -190,7 +215,7 @@ function retag(clone, before, tag) {
     const full = path.join(clone, file);
     const text = readText(full);
     if (text === null) continue;
-    const next = text.split("\n").map((line) => (/\bspec\b/.test(line) && line.includes(`\`${before}\``) ? line.replaceAll(`\`${before}\``, `\`${tag}\``) : line)).join("\n");
+    const next = text.split("\n").map((line) => (/\bspec\b/.test(line) ? retagLine(line, before, tag) : line)).join("\n");
     if (next !== text) {
       fs.writeFileSync(full, next);
       changed.push(file);
@@ -208,9 +233,43 @@ function retag(clone, before, tag) {
   return changed;
 }
 
+// NOTICE's lines of the npm packages the pin moved, at their new versions: each package of the lock
+// file is a line «<name> <version> — …», and one that holds a NOTICE of its own «Notice of <name>
+// <version>:». A version the lock file still holds, nested under another package, keeps its line.
+function renotice(clone, moved) {
+  const file = path.join(clone, "NOTICE");
+  let text = readText(file);
+  if (text === null || !moved.length) return [];
+  const held = Object.entries(readJson(path.join(clone, "package-lock.json"))?.packages ?? {}).map(([where, p]) => `${where.split("node_modules/").at(-1)} ${p?.version}`);
+  const before = text;
+  for (const { name, from, to } of moved.filter((m) => !held.includes(`${m.name} ${m.from}`))) for (const end of [" ", ":"]) text = text.split(`${name} ${from}${end}`).join(`${name} ${to}${end}`);
+  if (text === before) return [];
+  fs.writeFileSync(file, text);
+  return ["NOTICE"];
+}
+
+// The files of parts/ that come from spec's release — the dependent's justfile verifies them at its
+// spec_tag (R77) —, each with its signature downloaded from the new release into the epic's .stand/
+// and verified there, before the pin writes anything in the clone. What to lay into parts/.
+function partsOf(deps, dir, clone, dependent, tag) {
+  const tracked = git(deps, clone, ["ls-files", "--", "parts"]).split("\n").filter(Boolean);
+  if (!tracked.length) return [];
+  const assets = json(deps, ["release", "view", tag, "-R", `${OWNER}/spec`, "--json", "assets"]).assets.map((a) => a.name);
+  const taken = assets.filter((name) => !name.endsWith(".sigstore.json") && tracked.includes(`parts/${name}`));
+  if (!taken.length) return [];
+  const files = taken.flatMap((name) => [name, `${name}.sigstore.json`]).filter((name) => assets.includes(name));
+  const staged = path.join(dir, STAND, `parts-${dependent}`);
+  fs.rmSync(staged, { recursive: true, force: true });
+  fs.mkdirSync(staged, { recursive: true });
+  gh(deps, ["release", "download", tag, "-R", `${OWNER}/spec`, "--dir", staged, ...files.flatMap((name) => ["--pattern", name])]);
+  for (const name of taken) inContainer(deps, dependent, clone, {}, 'just -f spec/justfile release-verify spec "$1" "$2"', [tag, path.join(staged, name)]);
+  return files.map((name) => ({ from: path.join(staged, name), to: `parts/${name}` }));
+}
+
 // One dependent pinned to a release of repo: the submodule spec, go.mod by go get without the
-// workspace, package.json and its lock file by npm and release-verify-npm (R77); the go.work
-// without the repository; a commit, signed off. Nothing when it pins nothing.
+// workspace, package.json and its lock file by npm and release-verify-npm (R77), NOTICE's lines of
+// those packages; for spec, the lines that name its tag and the files of parts/ from its release;
+// the go.work without the repository; a commit, signed off. Nothing when it pins nothing.
 function pinOne(dir, dependent, repo, tag, deps) {
   const clone = path.join(dir, dependent);
   if (git(deps, clone, ["status", "--porcelain", "--ignore-submodules=all"]).trim()) throw new Error(`${dependent} has changes not committed: commit them before the pin`);
@@ -226,6 +285,8 @@ function pinOne(dir, dependent, repo, tag, deps) {
     git(deps, sub, ["checkout", "--quiet", "--detach", tag]);
     done.push("submodule");
   }
+  // Verified by the submodule at the tag; laid only once the rest of the pin is written.
+  const parts = repo === "spec" && before !== tag ? partsOf(deps, dir, clone, dependent, tag) : [];
   const modules = mod ? [...mod.matchAll(REQUIRED)].map((m) => m[1]).filter((m) => m.slice(MODULE.length).split("/")[0] === repo) : [];
   if (modules.length) {
     inContainer(deps, dependent, clone, { GOWORK: "off", GOFLAGS: "-mod=mod" }, 'go get "$@" && go mod tidy', [...new Set(modules)].map((m) => `${m}@${tag}`));
@@ -237,7 +298,9 @@ function pinOne(dir, dependent, repo, tag, deps) {
     inContainer(deps, dependent, clone, {}, 'npm install --save-exact --ignore-scripts --no-audit --no-fund "$@" && just -f spec/justfile release-verify-npm package-lock.json', names.map((n) => `${n}@${tag.slice(1)}`));
     done.push("package.json");
   }
-  const retagged = before && before !== tag ? retag(clone, before, tag) : [];
+  const moved = names.filter((name) => named[name] !== tag.slice(1)).map((name) => ({ name, from: named[name], to: tag.slice(1) }));
+  for (const part of parts) fs.copyFileSync(part.from, path.join(clone, part.to));
+  const retagged = [...(before && before !== tag ? retag(clone, before, tag) : []), ...renotice(clone, moved), ...parts.map((p) => p.to)];
   done.push(...retagged);
   wireGo(dir, dependent);
   if (!done.length) return null;
@@ -252,11 +315,11 @@ function pinOne(dir, dependent, repo, tag, deps) {
 
 // The epic's clones that depend on repo, pinned to its release tag — by default its latest — and
 // the release written to .stand/pinned.json, which the wiring leaves out from then on.
-export function pin(named, repo, tag, deps, only = null) {
-  checkRepo(repo);
+export function pin(named, asked, tag, deps, only = null) {
+  checkRepo(asked);
   const { epic, dir } = epicOf(deps, named);
-  const release = tag ?? json(deps, ["api", "--", `repos/${OWNER}/${repo}/releases/latest`]).tag_name;
-  checkTag(release);
+  const repo = releasingOf(asked);
+  const release = checkTag(tag ?? json(deps, ["api", "--", `repos/${OWNER}/${repo}/releases/latest`]).tag_name);
   const pinned = { ...pinnedOf(dir), [repo]: release };
   fs.writeFileSync(path.join(dir, STAND, "pinned.json"), `${JSON.stringify(pinned, null, 1)}\n`);
   const dependents = (only ?? clonesOf(dir)).filter((r) => r !== repo && dependsOn(dir, r).has(repo));
@@ -319,11 +382,22 @@ async function awaitChecks(dir, repo, number, epic, deps) {
   const late = lateChecks(repo, deps);
   const deadline = deps.now().getTime() + (deps.checksMs ?? CHECKS_MS);
   let settled = null;
+  let lagging = null;
   for (;;) {
     const view = json(deps, ["pr", "view", String(number), "-R", `${OWNER}/${repo}`, "--json", "state,mergeStateStatus,headRefOid,statusCheckRollup"]);
     if (view.state === "MERGED") return "merged";
-    const head = git(deps, path.join(dir, repo), ["rev-parse", "HEAD"]).trim();
-    if (view.headRefOid !== head) throw new Stop(`${repo} #${number}: its head ${view.headRefOid} is not the clone's ${head}: pull it, gate it, then ship`);
+    const clone = path.join(dir, repo);
+    const head = git(deps, clone, ["rev-parse", "HEAD"]).trim();
+    if (view.headRefOid !== head) {
+      // The clone's head on origin is waited for until GitHub names it, up to HEAD_MS in all; any other
+      // is a stop.
+      git(deps, clone, ["fetch", "--quiet", "origin", epic]);
+      lagging ??= deps.now().getTime();
+      const pushed = git(deps, clone, ["rev-parse", `origin/${epic}`]).trim() === head;
+      if (!pushed || deps.now().getTime() - lagging > (deps.headMs ?? HEAD_MS) || deps.now().getTime() > deadline) throw new Stop(`${repo} #${number}: its head ${view.headRefOid} is not the clone's ${head}: pull it, gate it, then ship`);
+      await pause(deps);
+      continue;
+    }
     const checks = (view.statusCheckRollup ?? []).map(bucketOf);
     const failed = checks.filter((c) => c.bucket === "fail");
     if (failed.length) {
@@ -517,7 +591,8 @@ export async function ship(named, deps) {
     state = { epic, order, nodes: Object.fromEntries(order.map((r) => [r, { phase: "gated", pinned: [], pr: null, merge: null, tag: null }])) };
   }
   // infra deploys the releases of api and app: its pins are edited by the session, and infra ships
-  // only once its committed deploy/production.json names each release this ship made.
+  // only once its committed deploy/production.json names each release this ship made. A ship that
+  // released either is not done before infra has shipped.
   const released = Object.fromEntries(Object.entries(state.nodes).filter(([, n]) => n.tag).map(([r, n]) => [r, n.tag]));
   try {
     for (const repo of state.order) {
@@ -527,7 +602,8 @@ export async function ship(named, deps) {
       if (state.nodes[repo].tag) released[repo] = state.nodes[repo].tag;
     }
     const deployed = ["api", "app"].filter((r) => released[r]);
-    if (deployed.length && clonesOf(dir).includes("infra") && !state.order.includes("infra")) {
+    if (deployed.length && !clonesOf(dir).includes("infra")) throw new Stop(`infra: ${deployed.map((r) => `${r} ${released[r]}`).join(", ")} reach the deployment, and the epic has no clone of infra: xrepo up ${epic} infra, then ship again`);
+    if (deployed.length && !state.order.includes("infra")) {
       undeployed(dir, released, deps);
       state.order.push("infra");
       state.nodes.infra = { phase: "gated", pinned: [], pr: null, merge: null, tag: null };

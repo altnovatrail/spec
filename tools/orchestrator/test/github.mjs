@@ -12,7 +12,8 @@ const CHECKS = ["CI / test", "codecov/patch", "SonarCloud Code Analysis"];
 const ID = ["-c", "user.name=t", "-c", "user.email=t@example.com"];
 
 // The service: `releases` names the tag a merge into each repository releases, none for a
-// repository that releases nothing; `on` lets a test change a pull request as gh views it.
+// repository that releases nothing; `on` lets a test change a pull request as gh views it — its
+// `stale`, a head GitHub names in place of the branch's.
 export function github(w, { releases = {}, on = {} } = {}) {
   const prs = [];
   const runs = new Map();
@@ -71,7 +72,7 @@ export function github(w, { releases = {}, on = {} } = {}) {
       if (args.includes("mergeCommit")) return JSON.stringify({ mergeCommit: { oid: p.merge } });
       p.views += 1;
       on[p.repo]?.(p);
-      return JSON.stringify({ state: p.state, mergeStateStatus: p.mergeState, headRefOid: head(p), statusCheckRollup: rollup(p) });
+      return JSON.stringify({ state: p.state, mergeStateStatus: p.mergeState, headRefOid: p.stale ?? head(p), statusCheckRollup: rollup(p) });
     }
     if (what === "pr" && verb === "update-branch") {
       const p = pr(args);
@@ -95,6 +96,14 @@ export function github(w, { releases = {}, on = {} } = {}) {
         tags.set(p.repo, [...(tags.get(p.repo) ?? []), tag]);
       }
       runs.set(p.merge, [{ databaseId: 1, workflowName: "CI", status: "completed", conclusion: "success" }, ...(p.repo === "infra" ? [] : [{ databaseId: 2, workflowName: "Release", status: "completed", conclusion: "success" }])]);
+      return "";
+    }
+    // spec's release: its deployment's archive and signature, and another asset; a download writes
+    // what each named file of the tag holds.
+    if (what === "release" && verb === "view") return JSON.stringify({ assets: ["deployment-1.tar.gz", "deployment-1.tar.gz.sigstore.json", "SHA256SUMS"].map((name) => ({ name })) });
+    if (what === "release" && verb === "download") {
+      const into = args[args.indexOf("--dir") + 1];
+      args.forEach((a, i) => args[i - 1] === "--pattern" && fs.writeFileSync(path.join(into, a), `${repoOf(args)} ${args[2]}: ${a}\n`));
       return "";
     }
     if (what === "run" && verb === "list") return JSON.stringify(runs.get(args[args.indexOf("--commit") + 1]) ?? []);
