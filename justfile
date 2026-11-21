@@ -82,16 +82,38 @@ session-test:
 # at once; resume continues the same session with the author's answers; stop ends a run's attempt;
 # status and wait read the run's files on the volume novatrail-claude; next names a repository's
 # next free number of a task; rebuild and create build a repository's container by the Dev
-# Containers CLI (R158); sync keeps the orchestrator's own clone of spec's main. «Сделай
+# Containers CLI (R158); sync keeps the orchestrator's own clone of spec's main; xrepo runs a task
+# across repositories in the clones of .epics, its stand, its gate and its ship (R166). «Сделай
 # эпик E…» runs them from that clone, where this recipe is not needed: they take nothing from
 # node_modules (tools/orchestrator/README.md).
-# Run a command of the orchestrator: start, resume, stop, status, wait, next, rebuild, create or sync.
+# Run a command of the orchestrator: start, resume, stop, status, wait, next, rebuild, create, sync or xrepo.
 [positional-arguments]
 orchestrator *args:
     node tools/orchestrator/main.mjs "$@"
 
+# Run a command of xrepo, a task across repositories: up, status, test, serve, stop, sync, push,
+# gate, pin, wait-release, ship or down.
+[positional-arguments]
+xrepo *args:
+    node tools/orchestrator/main.mjs xrepo "$@"
+
+# The coverage of the lines a branch changes, as Codecov's codecov/patch counts it — a line partly
+# covered no hit —, against the target of the repository's .github/codecov.yml, before the pull
+# request (R166, R48): from the merge-base of origin/main, by coverage/go.out and coverage/lcov.info
+# as the repository's ci-test wrote them. Another NovaTrail repository runs it from its root as
+# `just -f spec/justfile patchcov`; xrepo's gate runs it from the epic's clone of spec. It takes
+# nothing from node_modules (sources 11.5).
+# Print the coverage of the patch from the merge-base, as Codecov would; exit 1 below the target.
+[positional-arguments]
+patchcov *args:
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/patchcov/main.mjs")}} "$@"
+
+# Run patchcov's own tests, on made-up repositories and reports.
+patchcov-test:
+    node --test 'tools/patchcov/test/*.test.mjs'
+
 # Its tests stand in for docker, claude and devcontainer, with repositories of their own for sync,
-# rebuild and create.
+# rebuild and create, and for just, go, npm and GitHub in xrepo's made-up world.
 # Run the orchestrator's own tests, on made-up containers and streams.
 orchestrator-test: _tools
     node --test 'tools/orchestrator/test/*.test.mjs'

@@ -22,9 +22,11 @@ export const CLAUDE_VOLUME = "novatrail-claude";
 // A repository's name, as GitHub has it: .github is one.
 export const REPOSITORY = /^\.?[a-z0-9][a-z0-9._-]*$/;
 
-// docker with its arguments: what it printed, or an error with what it said.
-export function runDocker(args, { program = DOCKER, env = process.env } = {}) {
-  const result = spawnSync(program, args, { encoding: "utf8", env, maxBuffer: 64 * 1024 * 1024, timeout: 120_000 });
+// docker with its arguments: what it printed, or an error with what it said. A build or an install
+// in a repository's container takes longer than the two minutes a look at docker may.
+export function runDocker(args, { program = DOCKER, env = process.env, timeout = 120_000 } = {}) {
+  const result = spawnSync(program, args, { encoding: "utf8", env, maxBuffer: 64 * 1024 * 1024, timeout });
+  if (result.error?.code === "ETIMEDOUT") throw new Error(`docker ${args[0]}: no end in ${timeout / 1000} s`);
   if (result.error) throw new Error(`docker ${args[0]}: ${result.error.message}`);
   if (result.status !== 0) throw new Error(`docker ${args.join(" ")}: ${String(result.stderr).trim()}`);
   return result.stdout;

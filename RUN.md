@@ -89,55 +89,13 @@ Last done epic — E11, [docs/plan/E11.md](docs/plan/E11.md).
 |---|---|---|---|---|---|
 | [x] | T241 | Решения: `R166`, R159, R156, R158; RULES.md, RUN.md, CLAUDE.md | Claude, проверяю я | — | — |
 | [x] | T242 | Монтирование `.epics` в devcontainer `spec` и оркестратора | Claude | — | T241 |
-| [ ] | T243 | Волна: все 12 репозиториев на тег `spec` с `.epics`, пересборка | я + Claude | — | T242 |
-| [ ] | T244 | `xrepo`: среда и стенд — up, status, test, serve, stop, down | Claude | да | T242 |
-| [ ] | T245 | `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк | Claude | да | T244 |
-| [ ] | T247 | Доработки интерфейса приложения — первая обкатка `xrepo` | я + Claude | да | T243, T245 |
+| [x] | T243 | Волна: все 12 репозиториев на тег `spec` с `.epics`, пересборка | я + Claude | — | T242 |
+| [x] | T244 | `xrepo`: среда и стенд — up, status, test, serve, stop, down | Claude | да | T242 |
+| [x] | T245 | `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк | Claude | да | T244 |
+| [x] | T247 | Доработки интерфейса приложения — первая обкатка `xrepo` | я + Claude | да | T243, T245 |
 | [ ] | T246 | Итог обкатки: замер против E11, поправки, архив | Claude | — | T247, обкатка |
 
 - Задачи обкатки встают в таблицу перед T246 по слову автора, «я + Claude», план «да»; первая — T247.
-
-#### T243. Волна: все 12 репозиториев на тег `spec` с `.epics`, пересборка
-
-- **Цель:** все 12 репозиториев — `.github`, `module-kit`, `learner-model`, `engine`, `tutor`, `canvas`, `app`, `api`, `skill-map`, `modules`, `sim`, `infra` — на теге `spec` T242, их контейнеры видят `/workspaces/.epics`.
-- **Сделать:** в контейнере оркестратора — узлы волны 0 по [tools/orchestrator/README.md](tools/orchestrator/README.md), раздел 3: задача перехода каждого репозитория или `tasks/spec-tag.md` с этим тегом; исполнители `claude -p`, мерж на зелёных, пересборка контейнеров (R158); затем `git pull` клонов хоста.
-- **Как проверить:** `docker inspect` двенадцати контейнеров — монтирование `/workspaces/.epics`; файл, созданный в одном, виден в другом и на хосте.
-- **Мой шаг:** запустить волну в окне оркестратора; окна этих репозиториев закрыты на время пересборки (R158).
-- **Разделы:** R156, R158, `R166`; `tools/orchestrator/tasks/spec-tag.md`.
-
-#### T244. `xrepo`: среда и стенд — up, status, test, serve, stop, down
-
-- **Цель:** среду задачи через несколько репозиториев поднимает и снимает одна команда, стенд api + app + canvas — тоже.
-- **Сделать:** `tools/orchestrator/xrepo.mjs` и команды в `main.mjs` (`COMMANDS`), только встроенные модули Node; `findContainer` и `runDocker` из `containers.mjs`, `GIT_ENV` из `runs.mjs`, подделки `test/fakes.mjs`.
-  - `up <эпик> <репозитории…>` — клоны в `.epics/<эпик>/`, всегда и `spec`; ветка `<эпик>` — с GitHub, если эпик её уже запушил, иначе новая от `main`; `go.work` с `replace` на `../spec`, `../spec/contracts` и соседние модули по `go.mod`, в `.git/info/exclude`; пакеты `spec` и `contracts` из клона `spec` (упаковка рабочего дерева — `tools/types/npm.mjs`, `tools/contracts/npm/`) без правки `package.json` и lock; `deployment.local.json` из клона хоста; `<эпик>.code-workspace`; `README.md` папки со стражами пинов — `tutor`: `TestSpecVersion`, `TestReadingLogOfTheStub`, `TestAdmitExamples`, `TestMeasuresOfSpecExamples`; `api`: `TestTheVersionOfModuleKitIsTheOneGoModPins`, `TestSpecAndItsContractsAreAtOneTag`.
-  - `status`; `test <репозиторий> [цели…]` — быстрые проверки в контейнере репозитория.
-  - `serve [--ai]` и `stop` — `api` `just dev-app` (`API_DEV_APP_AI=1` — модели под лимитом $2), `canvas` в watch, перезапуск `api` при правке Go, `app` `just dev-canvas ../canvas`, макет `spec` по желанию; relay портов по списку (5173, 8156) — как `relay.mjs` E11; pid-файлы, старые процессы гасятся; «готово» только после `/` 200, `/deployment.json` 200, RPC 401.
-  - `down` — README и заметки в `epics/<эпик>/` на томе, клон с незамерженной веткой не удаляется, `git pull` клонов хоста.
-  - README оркестратора — раздел о задаче через несколько репозиториев; `.claude/rules/tools.md` — список команд.
-- **Решить при планировании:** механизм пакетов npm — архивы `--no-save` или алиас Vite, как `dev-canvas`; наблюдатель Go; где живут pid и логи.
-- **Как проверить:** `just orchestrator-test`, `just coverage`; пробный `up` → `serve` → `down` на `module-kit`, `tutor`, `api`, `app` и `canvas` без push — автор входит на стенде.
-- **Разделы:** R156, `R166`; [tools/orchestrator/README.md](tools/orchestrator/README.md); [docs/plan/E11.md](docs/plan/E11.md), T226.
-
-#### T245. `xrepo`: ворота и выпуск — sync, gate, push, pin, ship; покрытие изменённых строк
-
-- **Цель:** до PR всё решение проверено локально так, как проверит CI; PR, мерж и выпуски идут по зависимостям одной командой после «да» автора.
-- **Сделать:**
-  - `tools/patchcov/` и рецепт `patchcov` — покрытие изменённых строк от merge-base по `coverage/go.out` и `coverage/lcov.info`, частично покрытая строка — промах (формула Codecov — `docs/sources.md`), порог — из `.github/codecov.yml` репозитория; свои тесты.
-  - `gate` — в контейнере каждого тронутого репозитория его рецепты `ci-*` (`app`, `canvas` — `just ci`; Go — `ci-lint ci-test ci-vuln ci-licenses` с `ALLOWED_LICENSES` из `just -f spec/justfile licenses-allowed`), браузеры — движки его CI, затем `patchcov`; разрешены только падения стражей из README; `spec` — `just docs-check` и проверки его частей.
-  - `sync` — `main` в ветку эпика merge-коммитом; `push` — из клона в `.epics` через `GIT_ENV`; `pin <репозиторий>` — подмодуль, `go get`, `package.json` на вышедший выпуск, снять `go.work` и связку npm; `wait-release <репозиторий> <тег>` — `gh release`, npm, прокси Go `.info` 200.
-  - `ship` — процедура README: после «да» — PR, проверки и SonarCloud по API ([tools/orchestrator/README.md](tools/orchestrator/README.md), раздел 5), мерж, `wait-release`, `pin` зависимых, их PR; узел `infra`, если изменение доходит до выкладки.
-- **Как проверить:** тесты `tools/patchcov` и `just orchestrator-test`; `patchcov` на профиле `app` PR #106 даёт 84.65%, как Codecov; пробный `gate` на `module-kit` и `tutor`.
-- **Разделы:** R48, R77, R156, R159, `R166`; [tools/orchestrator/README.md](tools/orchestrator/README.md), раздел 5.
-
-#### T247. Доработки интерфейса приложения — первая обкатка `xrepo`
-
-- **Цель:** правки интерфейса `app`, которые называет автор, — в `main` и в выпусках, сделанные по `R166` от `xrepo up` до `ship` и `down`; на них видно, как работает подход.
-- **Сделать:** список правок — от автора при планировании, по одной или группами; на каждую правку дизайна — сначала состояние макета `draft/mockup` в клоне `spec` и одобрение автора (R148), потом код в `app` и, где нужно, в `canvas`, `api` и `spec`. Ход: `xrepo up e18 …` с теми репозиториями, что задевают правки; малое — главная сессия, большой кусок — субагент; push после каждого законченного изменения; проверка автора на стенде `xrepo serve`; `xrepo gate`; «да» автора; `xrepo ship`; `xrepo down`. Что мешало в ходе — заметки для T246.
-- **Решить при планировании:** список правок и их репозитории; какие правки — через макет, а какие без изменения вида; одна задача или несколько.
-- **Как проверить:** автор на стенде — каждая правка против одобренного макета; `xrepo gate` зелёный; каждый PR — один раунд CI.
-- **Мой шаг:** назвать правки; одобрить макет; проверить на стенде; «да» перед `ship`.
-- **Стоимость:** вызовы моделей на стенде — под лимитом $2 сессии стенда.
-- **Разделы:** `R166`, R148, R159; [draft/mockup/README.md](draft/mockup/README.md); T244, T245.
 
 #### T246. Итог обкатки: замер против E11, поправки, архив
 
