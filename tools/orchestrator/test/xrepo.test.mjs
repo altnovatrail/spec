@@ -136,7 +136,11 @@ test("test runs a repository's quick checks in its container, with its targets a
   const dir = path.join(w.epics, "e1");
   let r = await run(w, ["xrepo", "test", "tutor", "./internal/report", "./x;touch y"]);
   assert.equal(r.status, 1, r.err);
-  assert.match(r.err, /not a package, folder or file: \.\/x;touch y/);
+  assert.match(r.err, /not a package, folder or file of the clone: \.\/x;touch y/);
+  r = await run(w, ["xrepo", "test", "tutor", "../api"]);
+  assert.match(r.err, /not a package, folder or file of the clone: \.\.\/api/);
+  r = await run(w, ["xrepo", "test", "tutor", "/etc"]);
+  assert.match(r.err, /not a package, folder or file of the clone: \/etc/);
   r = await run(w, ["xrepo", "test", "tutor", "./internal/report", "./internal/runner"]);
   assert.equal(r.status, 0, r.err);
   assert.deepEqual(w.calls("go").at(-1), { cwd: path.join(dir, "tutor"), args: ["test", "-count=1", "./internal/report", "./internal/runner"] });
@@ -155,7 +159,7 @@ test("test runs a repository's quick checks in its container, with its targets a
   // app: installed, its packages renewed, Vitest's project node without the browsers.
   r = await run(w, ["xrepo", "test", "app", "src/a.test.ts"]);
   assert.equal(r.status, 0, r.err);
-  assert.match(r.out[0].output, /vitest \["run","--project","node","--exclude","scripts\/site.test.ts","--exclude","scripts\/page.test.ts","src\/a.test.ts"\]/);
+  assert.match(r.out[0].output, /vitest \["run","--project","node","--exclude","scripts\/site.test.ts","--exclude","scripts\/page.test.ts",".\/src\/a.test.ts"\]/);
   r = await run(w, ["xrepo", "test", "spec"]);
   assert.match(r.out[0].output, /just docs-check/);
   assert.match((await run(w, ["xrepo", "test", "canvas"])).err, /canvas has no clone/);

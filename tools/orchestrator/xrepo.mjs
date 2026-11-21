@@ -437,14 +437,18 @@ export function quickCheckOf(dir, repo, targets) {
 
 // The quick checks of a repository in its container (R156), its output as it goes: Go's tests,
 // Vitest's project node without the browsers, spec's docs-check or tests. A target is a package,
-// a folder or a file, never an option: a session of Claude Code writes the command line, and go
-// test's -exec would run a program.
+// a folder or a file of the clone, passed on from its root as ./<target>, so that none is ever an
+// option: a session of Claude Code writes the command line, and go test's -exec would run a program.
 export function test(repo, targets, named, deps) {
   checkRepo(repo);
-  for (const t of targets) if (!/^(?!-)[\w./@:=+-]+$/.test(t)) throw new Error(`not a package, folder or file: ${t}`);
+  const local = targets.map((t) => {
+    const inside = /^[\w./@:=+-]+$/.test(t) ? path.posix.normalize(t) : "..";
+    if (inside === ".." || inside.startsWith("../") || path.posix.isAbsolute(inside)) throw new Error(`not a package, folder or file of the clone: ${t}`);
+    return `./${inside}`;
+  });
   const { dir } = epicOf(deps, named);
   if (!fs.existsSync(path.join(dir, repo, ".git"))) throw new Error(`${repo} has no clone in ${dir}`);
-  const check = quickCheckOf(dir, repo, targets);
+  const check = quickCheckOf(dir, repo, local);
   if (check.npm) wireNpm(dir, [repo], deps);
   const program = deps.dockerProgram ?? DOCKER;
   const args = ["exec", "--user", "vscode", "--workdir", path.join(dir, repo), containerId(repo, deps), "bash", "-lc", check.script, "bash", ...check.args];
