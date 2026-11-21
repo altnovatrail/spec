@@ -439,15 +439,17 @@ export function quickCheckOf(dir, repo, targets) {
 // Vitest's project node without the browsers, spec's docs-check or tests. A target is a package,
 // a folder or a file of the clone, passed on from its root as ./<target>, so that none is ever an
 // option: a session of Claude Code writes the command line, and go test's -exec would run a program.
-export function test(repo, targets, named, deps) {
-  checkRepo(repo);
+export function test(asked, targets, named, deps) {
+  checkRepo(asked);
   const local = targets.map((t) => {
     const inside = /^[\w./@:=+-]+$/.test(t) ? path.posix.normalize(t) : "..";
     if (inside === ".." || inside.startsWith("../") || path.posix.isAbsolute(inside)) throw new Error(`not a package, folder or file of the clone: ${t}`);
     return `./${inside}`;
   });
   const { dir } = epicOf(deps, named);
-  if (!fs.existsSync(path.join(dir, repo, ".git"))) throw new Error(`${repo} has no clone in ${dir}`);
+  // The name as the epic's clones have it, not as the command line has it.
+  const repo = clonesOf(dir).find((r) => r === asked);
+  if (repo === undefined) throw new Error(`${asked} has no clone in ${dir}`);
   const check = quickCheckOf(dir, repo, local);
   if (check.npm) wireNpm(dir, [repo], deps);
   const program = deps.dockerProgram ?? DOCKER;
