@@ -245,8 +245,8 @@ test("measure and main: the merge-base of origin/main, both reports, renames, th
   assert.equal(JSON.parse(out[0]).coverage, 50);
   assert.match(err[0], /50% of the patch hit, below the target of 90%/);
   out.length = 0;
-  assert.equal(main(["--base", "HEAD", "--report", "coverage/go.out"], io), 0);
-  assert.equal(JSON.parse(out[0]).coverage, null);
+  assert.equal(measure({ root, base: "HEAD", reports: ["coverage/go.out"] }).coverage, null);
+  assert.equal(main(["--base", "HEAD"], io), 2);
   assert.equal(main(["--wrong"], io), 2);
   assert.equal(main(["--config", "missing.yml"], io), 2);
   err.length = 0;
