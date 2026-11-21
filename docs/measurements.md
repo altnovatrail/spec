@@ -444,7 +444,7 @@ Together this is no more than ≈ 5.5% of what was "carried", and by the sample 
     - R64 raised `timeout-minutes` of the job of R37 to 85;
     - R36 keeps the marks `marks` temporary until the contract of epic E3, while R74 and R97 have already merged them with `Mark` of the contract `novatrail.api.v1`; R90 closed О-24 from R36;
     - R127 closed П-20 from R51;
-    - R31 caches the image of the `toolchain` stage which by R30 and by the 2026-10-22 amendment to R12 "is built on every run";
+    - R31 caches the image of the `toolchain` stage which R30 and R12 then held "is built on every run";
     - R135 added `spec.Export` to the embedding of R64.
 
     The fingerprint does not see this: the log's entry did not change. The consolidation names such decisions in a line "*Also:*"; the check accepts their links but prints them for review. Each such line is an amendment that the log lacks.

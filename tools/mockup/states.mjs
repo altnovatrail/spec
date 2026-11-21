@@ -44,17 +44,19 @@ const cont = (t) => t.les().cont();
 
 export const STATES = [
   // Sign-in, by invitation, of a grown-up alone.
-  { name: "signin", title: "Sign-in", shows: "Continue with Google", run: () => {} },
-  { name: "signin-signing", title: "Sign-in, Google's window open", from: "signin", shows: "Accounts are for grown-ups", run: (t) => t.c.setState({ auth: "signing" }) },
-  { name: "invite", title: "The invite code, empty", from: "signin", shows: "Tap the boxes to paste the code", run: (t) => t.v().signIn() },
-  { name: "invite-filled", title: "The invite code, accepted", from: "invite", shows: "Code accepted", run: (t) => t.v().fillCode() },
-  { name: "agree", title: "18 or older, and the texts", from: "invite-filled", shows: "I am 18 or older", run: (t) => t.v().codeNext() },
-  { name: "agree-ticked", title: "18 or older, and the texts, ticked", from: "agree", shows: "Create account", run: (t) => (t.v().toggle18(), t.v().toggleTerms()) },
+  { name: "signin", title: "Sign-in", shows: "Sign in with Google", desktop: true, run: () => {} },
+  { name: "signin-language", title: "Sign-in, the language", from: "signin", shows: "Русский", desktop: true, run: (t) => t.v().toggleLang() },
+  { name: "signin-signing", title: "Sign-in, Google's window open", from: "signin", shows: "Accounts are for grown-ups", desktop: true, run: (t) => t.c.setState({ auth: "signing" }) },
+  { name: "invite", title: "The invite code, empty", from: "signin", shows: "Tap the boxes to paste the code", desktop: true, run: (t) => t.v().signIn() },
+  { name: "invite-filled", title: "The invite code, accepted", from: "invite", shows: "Code accepted", desktop: true, run: (t) => t.v().fillCode() },
+  { name: "agree", title: "18 or older, and the texts", from: "invite-filled", shows: "I am 18 or older", desktop: true, run: (t) => t.v().codeNext() },
+  { name: "agree-ticked", title: "18 or older, and the texts, ticked", from: "agree", shows: "Create account", desktop: true, run: (t) => (t.v().toggle18(), t.v().toggleTerms()) },
+  { name: "wait", title: "Waiting on the sky", from: "signin", shows: "Loading", run: (t) => t.c.setState({ screen: "wait", waitOn: "sky" }) },
   { name: "legal-privacy", title: "The gist of the Privacy Policy", from: "agree", shows: "Privacy Policy", run: (t) => t.v().openPrivacy() },
   { name: "legal-terms", title: "The gist of the Terms of Use", from: "agree", shows: "Terms of Use", run: (t) => t.v().openTerms() },
 
   // The owner's profile, after "Create account" (CreateOwnerProfile).
-  { name: "owner", title: "The owner's profile, empty", from: "agree-ticked", shows: "Use a made-up name", run: (t) => t.v().createAccount() },
+  { name: "owner", title: "The owner's profile, empty", from: "agree-ticked", shows: "Choose an avatar", run: (t) => t.v().createAccount() },
   { name: "owner-avatars", title: "The owner's profile, the avatars", from: "owner", shows: "Comet", run: (t) => t.v().toggleAvatars() },
   { name: "owner-countries", title: "The owner's profile, the countries", from: "owner", shows: "New Zealand", run: (t) => t.v().toggleCountries() },
   {
@@ -70,6 +72,7 @@ export const STATES = [
   },
 
   // "Who's learning?" and home, in the first slice: the owner's profile alone.
+  { name: "wait-home", title: "Waiting on the page", from: "signin", shows: "Loading", run: (t) => t.c.setState({ screen: "wait", waitOn: "page" }) },
   { name: "who", title: "Who's learning?", from: "owner-filled", shows: "Add a learner", run: (t) => t.v().ownerDone() },
   { name: "home", title: "Home", from: "who", shows: "Skill map", run: (t) => t.v().profiles[0].pick() },
   { name: "home-help", title: "Home, the adult's Help", from: "home", shows: "Report a problem", run: (t) => t.v().toggleHelp() },

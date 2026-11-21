@@ -3,7 +3,8 @@
 //   /tools/mockup/?screen=home&device=phone
 //
 // screen is a state of states.mjs, and device is ipad — 1194 × 834 in landscape, the board
-// Main.dc.html — or phone — 390 × 844 in portrait, the board Phone.dc.html. The page draws
+// Main.dc.html —, phone — 390 × 844 in portrait, the board Phone.dc.html — or, for the sign-in's
+// steps alone, desktop — a computer of 1920 × 1080, the board Desktop.dc.html. The page draws
 // the board, brings it to the state, runs its pending timers, and then sets data-ready on <html>:
 // "true", or "error" with the reason in the page. From there it is the mockup in Play, with its
 // timers live — but for a state that shows what a timer would end, such as the work being read: its
@@ -13,7 +14,10 @@
 import { App } from "./runtime.mjs";
 import { STATES, reach } from "./states.mjs";
 
-export const BOARDS = { ipad: "Main", phone: "Phone" };
+export const BOARDS = { ipad: "Main", phone: "Phone", desktop: "Desktop" };
+
+// The devices a state is drawn on: a computer only where states.mjs says so.
+export const devicesOf = (state) => Object.keys(BOARDS).filter((d) => d !== "desktop" || state.desktop);
 
 // The text of a source of draft/mockup/, beside this file's folder: tools/mockup/ → draft/mockup/.
 export function sourceLoader(fetchFn, base) {
@@ -34,9 +38,10 @@ export async function start(win, { fetchFn = win.fetch.bind(win), base = import.
   try {
     if (!screen) return index(doc, frame);
     const device = q.get("device") || "ipad";
-    if (!Object.hasOwn(BOARDS, device)) throw new Error(`no device ${device}: ipad or phone`);
+    if (!Object.hasOwn(BOARDS, device)) throw new Error(`no device ${device}: ipad, phone or desktop`);
     const state = STATES.find((s) => s.name === screen);
     if (!state) throw new Error(`no state ${screen}: open the page without ?screen= for the list`);
+    if (!devicesOf(state).includes(device)) throw new Error(`no ${device} for ${screen}: a computer draws the sign-in's steps alone`);
     doc.title = `${state.title} · ${device}`;
     const app = new App(doc, sourceLoader(fetchFn, base), { live: true });
     await app.mount(BOARDS[device], frame);
@@ -81,7 +86,7 @@ function index(doc, frame) {
     const name = doc.createElement("code");
     name.textContent = s.name;
     li.append(name, ` — ${s.title}${s.slice === "later" ? " (Later)" : ""}: `);
-    for (const device of Object.keys(BOARDS)) {
+    for (const device of devicesOf(s)) {
       const a = doc.createElement("a");
       a.href = `?screen=${encodeURIComponent(s.name)}&device=${device}`;
       a.textContent = device;
