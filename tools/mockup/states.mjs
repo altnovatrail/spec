@@ -51,6 +51,7 @@ export const STATES = [
   { name: "invite-filled", title: "The invite code, accepted", from: "invite", shows: "Code accepted", desktop: true, run: (t) => t.v().fillCode() },
   { name: "agree", title: "18 or older, and the texts", from: "invite-filled", shows: "I am 18 or older", desktop: true, run: (t) => t.v().codeNext() },
   { name: "agree-ticked", title: "18 or older, and the texts, ticked", from: "agree", shows: "Create account", desktop: true, run: (t) => (t.v().toggle18(), t.v().toggleTerms()) },
+  { name: "wait", title: "Waiting on the sky", from: "signin", shows: "Loading", run: (t) => t.c.setState({ screen: "wait", waitOn: "sky" }) },
   { name: "legal-privacy", title: "The gist of the Privacy Policy", from: "agree", shows: "Privacy Policy", run: (t) => t.v().openPrivacy() },
   { name: "legal-terms", title: "The gist of the Terms of Use", from: "agree", shows: "Terms of Use", run: (t) => t.v().openTerms() },
 
@@ -71,6 +72,7 @@ export const STATES = [
   },
 
   // "Who's learning?" and home, in the first slice: the owner's profile alone.
+  { name: "wait-home", title: "Waiting on the page", from: "signin", shows: "Loading", run: (t) => t.c.setState({ screen: "wait", waitOn: "page" }) },
   { name: "who", title: "Who's learning?", from: "owner-filled", shows: "Add a learner", run: (t) => t.v().ownerDone() },
   { name: "home", title: "Home", from: "who", shows: "Skill map", run: (t) => t.v().profiles[0].pick() },
   { name: "home-help", title: "Home, the adult's Help", from: "home", shows: "Report a problem", run: (t) => t.v().toggleHelp() },

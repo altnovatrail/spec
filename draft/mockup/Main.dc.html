@@ -36,6 +36,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-spin{animation:ntSpin .8s linear infinite}
 @keyframes ntPulse{0%,100%{opacity:1}50%{opacity:.5}}
 .nt-pulse{animation:ntPulse 1.6s ease-in-out infinite}
+@keyframes ntSpark{0%,100%{transform:scale(.82);opacity:.55}50%{transform:scale(1);opacity:1}}
+.ph-waitspark svg{animation:ntSpark 1.4s ease-in-out infinite}
 @keyframes ntUp{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
 .nt-up{animation:ntUp .3s cubic-bezier(.2,.8,.2,1)}
 @keyframes ntPop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
@@ -1803,6 +1805,24 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 </div>
 </sc-if>
 
+<!-- ============ Waiting: while the next screen is read, its ground and the spark, never a white page ============ -->
+<sc-if value="{{isWait}}" hint-placeholder-val="{{ false }}">
+<div class="ph-wait" role="status" style="position: absolute; inset: 0; overflow: hidden; {{waitBg}}">
+  <sc-if value="{{waitSky}}" hint-placeholder-val="{{ true }}">
+    <div aria-hidden="true">
+      <sc-for list="{{whoStars}}" as="st" hint-placeholder-count="6">
+        <span style="position: absolute; left: {{st.x}}px; top: {{st.y}}px; width: {{st.r}}px; height: {{st.r}}px; border-radius: 50%; background: rgba(255,255,255,{{st.a}}); box-shadow: {{st.sh}}"></span>
+      </sc-for>
+    </div>
+  </sc-if>
+  <!-- The spark of the name, pulsing; still under "Reduce motion". The ground at once, the spark once the wait passes 0.3 s. -->
+  <div class="ph-waitspark" aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px 0 0 -36px; border-radius: 36px; display: flex; align-items: center; justify-content: center; background: {{waitHalo}}">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="{{waitFill}}" style="filter: {{waitGlow}}"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
+  </div>
+  <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap">Loading</span>
+</div>
+</sc-if>
+
 <!-- ============ A legal text: its gist here; the English text is the one in force ============ -->
 <sc-if value="{{legalShow}}" hint-placeholder-val="{{ false }}">
   <button aria-label="Close" onClick="{{closeLegal}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.28); cursor: default"></button>
@@ -2072,7 +2092,7 @@ class Component extends DCLogic {
   // hintMode is the profile's setting, 'questions' or 'where'; the demo's profile has "Show where" on.
   state = { surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
     chatOpen: false, chat: [], typing: false, listening: false, speaking: null, voiceOn: true, micOn: true, unread: false, draft: '', said: {}, hinted: {},
-    screen: 'signin', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
+    screen: 'signin', waitOn: 'sky', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
     // slice: the demo's switch — 'first', the first slice with adults, or 'later', with what epics E4 of app and E11 bring.
     slice: 'first', ownerName: '', ownerAvatar: null, ownerCountry: null, avatarOpen: false, countryOpen: false,
     view: { z: 1, x: 0, y: 0 }, finger: true, panning: false,
@@ -3359,7 +3379,7 @@ class Component extends DCLogic {
       send: this.send, micStart: this.micStart, micStop: this.micStop,
       openChat: this.openChat, closeChat: this.closeChat, askHint: this.askHint,
 
-      isSignin: s.screen === 'signin', isOwner: s.screen === 'owner', isWho: s.screen === 'who', isHome: s.screen === 'home', isMap: s.screen === 'map',
+      isSignin: s.screen === 'signin', isOwner: s.screen === 'owner', isWho: s.screen === 'who', isWait: s.screen === 'wait', isHome: s.screen === 'home', isMap: s.screen === 'map',
       aWelcome: s.auth === 'welcome' || s.auth === 'signing', aInvite: s.auth === 'invite', aAgree: s.auth === 'agree',
       signing: s.auth === 'signing', notSigning: s.auth !== 'signing', signIn: this.signIn, authBack: this.authBack, signOut: this.signOut,
       trail: TRAIL, stars: STARS.map((st) => ({ ...st, sh: st.glow ? '0 0 8px rgba(255,255,255,0.8)' : 'none' })),
@@ -3394,6 +3414,12 @@ class Component extends DCLogic {
       isFirst: !later, isLater: later,
       sl: { first: seg(!later), later: seg(later) },
       sliceFirst: () => this.setState({ slice: 'first', learner: 'owner', pinOpen: false, addOpen: false, chat: [] }), sliceLater: () => this.setState({ slice: 'later' }),
+      // Waiting: the sky of the way in and of "Who's learning?", or the page of the learner's screens.
+      waitSky: s.waitOn !== 'page',
+      waitBg: s.waitOn === 'page' ? 'background: #F2F2F7' : 'background-color: #0B0D2E; background-image: radial-gradient(circle at 18% 28%, #5B5FE0 0, rgba(91,95,224,0) 38%), radial-gradient(circle at 88% 42%, #0A6BD6 0, rgba(10,107,214,0) 34%), radial-gradient(circle at 8% 100%, #B8325A 0, rgba(184,50,90,0) 34%), radial-gradient(circle at 58% 108%, #E0901E 0, rgba(224,144,30,0) 44%)',
+      waitHalo: s.waitOn === 'page' ? 'rgba(91,95,224,0.1)' : 'rgba(255,255,255,0.08)',
+      waitFill: s.waitOn === 'page' ? '#5B5FE0' : '#FFFFFF',
+      waitGlow: s.waitOn === 'page' ? 'none' : 'drop-shadow(0 0 10px rgba(123,127,255,0.9))',
       whoStars: WHO_STARS.map((st) => ({ ...st, sh: st.glow ? '0 0 8px rgba(255,255,255,0.8)' : 'none' })), whoCardW: later ? 250 : 300,
       whoSub: later ? 'Choose a profile. Yours opens with the PIN while children learn on this ' + this.devName() + '.' : 'Choose a profile.',
       addOff: !later, addFg: later ? '#FFFFFF' : 'rgba(255,255,255,0.8)',
