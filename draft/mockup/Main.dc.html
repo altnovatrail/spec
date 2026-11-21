@@ -130,24 +130,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone .ph-addname{font-size:17px!important}
 .nt-phone .ph-addwhy{font-size:12.5px!important;line-height:1.35!important}
 .nt-phone .ph-demo{top:724px!important}
-/* Home: one column that scrolls; the legend behind a button. */
-.nt-phone .ph-scroll{top:68px!important;overflow-y:auto;pointer-events:auto!important;display:flex;flex-direction:column;gap:16px;padding:8px 16px 32px;box-sizing:border-box}
-.nt-phone .ph-scroll>*{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:auto!important;flex:none}
-.nt-phone .ph-next{height:264px!important}
-.nt-phone .ph-nexttext{width:196px!important}
-.nt-phone .ph-nextdeco{right:-24px!important;top:18px!important;transform:rotate(-4deg) scale(0.58)!important;transform-origin:100% 0}
-.nt-phone .ph-paper{height:auto!important}
-.nt-phone .ph-paper>div:first-child,.nt-phone .ph-paicon{display:none!important}
-.nt-phone .ph-paper>div:last-child{position:relative!important;left:auto!important;top:auto!important;width:auto!important;padding:20px 22px}
-.nt-phone .ph-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
-.nt-phone .ph-grid>div.mc{height:auto!important}
-.nt-phone .ph-grid>button.mc{height:112px!important}
-.nt-phone .ph-legend{display:none!important}
-.nt-phone .ph-legend.on{display:flex!important;flex-direction:column;align-items:flex-start!important;gap:14px!important;font-size:15px!important;white-space:normal!important}
-/* The skill map: tiers from top to bottom, in a frame that scrolls. */
-.nt-phone .ph-mapframe{overflow-y:auto!important}
-.nt-phone .ph-mapcap{right:20px!important;align-items:flex-start!important}
-.nt-phone .ph-nname{white-space:normal!important;overflow:visible!important}
 /* A legal text: the whole screen. */
 .nt-phone .ph-legal{left:0!important;right:0!important;top:0!important;bottom:0!important;width:auto!important;max-height:none!important;margin:0!important;border-radius:0!important;padding:52px 20px 20px!important;display:flex;flex-direction:column}
 .nt-phone .ph-chip{height:auto!important;min-height:24px;padding:3px 10px!important}
@@ -1547,190 +1529,314 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 </div>
 </sc-if>
 
-<!-- ============ Home: the learner's modules, and the way into Take from my paper ============ -->
-<sc-if value="{{isHome}}" hint-placeholder-val="{{ false }}">
-<div style="position: absolute; inset: 0; background: #F2F2F7; overflow: hidden">
-  <div style="position: absolute; left: 0; right: 0; top: 0; height: 320px; background: linear-gradient(180deg, #E6ECFF 0%, rgba(242,242,247,0) 100%)"></div>
-  <div style="position: absolute; left: 0; right: 0; top: 0; height: 320px; background: radial-gradient(40% 70% at 92% 0%, rgba(255,159,10,0.16) 0%, rgba(255,159,10,0) 70%)"></div>
+<!-- ============ Home, Subjects and the skill map: the side menu, the top right, and the screen between them ============ -->
+<sc-if value="{{hs.on}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: #F2F2F7">
 
-  <button class="glass" onClick="{{toggleSwitch}}" aria-expanded="{{switchOpen}}" aria-label="{{me.name}}, switch learner" style="position: absolute; left: 16px; top: 14px; height: 48px; border-radius: 24px; padding: 0 14px 0 6px; display: flex; align-items: center; gap: 10px">
-    <span style="width: 36px; height: 36px; border-radius: 18px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg>
+  <!-- The side menu, 600 px and wider: the mark, the places, and at the bottom Grown-ups and Help. The cognitive map waits, shut. -->
+  <sc-if value="{{hs.isPad}}" hint-placeholder-val="{{ true }}">
+  <nav class="ph-nav" aria-label="Main" style="position: absolute; left: 16px; top: 16px; bottom: 16px; width: 88px; border-radius: 28px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 0 12px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 2">
+    <span role="img" aria-label="NovaTrail" style="width: 52px; height: 52px; border-radius: 16px; background: #0071E3; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,113,227,0.32)">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M12 4l1.9 6.1 6.1 1.9-6.1 1.9L12 20l-1.9-6.1L4 12l6.1-1.9z"></path></svg>
     </span>
-    <span style="font-size: 15px; font-weight: 600">{{me.name}}</span>
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
-  </button>
-  <div class="glass" style="position: absolute; right: 16px; top: 14px; height: 48px; border-radius: 24px; padding: 2px; box-sizing: border-box; display: flex; align-items: center; gap: 2px">
-    <button class="ib tip tip-bl" aria-label="Help" data-tip="Help" aria-expanded="{{helpOpen}}" onClick="{{toggleHelp}}">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.8M12 17v.2"></path></svg>
+    <span style="height: 40px"></span>
+    <sc-for list="{{hs.nav}}" as="n" hint-placeholder-count="3">
+      <button onClick="{{n.go}}" aria-current="{{n.cur}}" disabled="{{n.off}}" title="{{n.tip}}" style="width: 76px; min-height: 64px; padding: 6px 0; box-sizing: border-box; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: {{n.bg}}; color: {{n.fg}}; transition: background .15s">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
+        <span style="font-size: 11.5px; font-weight: 600; letter-spacing: -0.1px; line-height: 1.15; text-align: center">{{n.label}}</span>
+        <sc-if value="{{n.off}}" hint-placeholder-val="{{ false }}"><span style="margin-top: 1px; height: 16px; padding: 0 6px; border-radius: 8px; background: rgba(118,118,128,0.12); font-size: 10px; font-weight: 600; line-height: 16px; color: #636366">Soon</span></sc-if>
+      </button>
+    </sc-for>
+    <span style="flex: 1"></span>
+    <sc-for list="{{hs.navEnd}}" as="n" hint-placeholder-count="2">
+      <button onClick="{{n.go}}" aria-expanded="{{n.open}}" style="width: 76px; height: 64px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: {{n.bg}}; color: {{n.fg}}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
+        <span style="font-size: 11.5px; font-weight: 600">{{n.label}}</span>
+      </button>
+    </sc-for>
+  </nav>
+  </sc-if>
+
+  <div role="region" aria-label="{{hs.screenName}}" tabindex="{{scrollTab}}" style="{{hs.L.content}}">
+
+    <!-- Home: the next lesson with the share of the tutor's time, Take from my paper, then the connected modules. -->
+    <sc-if value="{{hs.isHome}}" hint-placeholder-val="{{ true }}">
+      <div style="flex: none; display: flex; flex-direction: column; min-height: {{hs.L.headH}}px; justify-content: center">
+        <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; letter-spacing: -0.7px">Home</h1>
+      </div>
+
+      <div style="margin-top: {{hs.L.gap1}}px; display: flex; flex-direction: {{hs.L.rowDir}}; gap: 16px">
+        <div class="ph-next" style="position: relative; flex: {{hs.L.nextFlex}}; height: {{hs.L.nextH}}px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); overflow: hidden">
+          <div style="position: absolute; left: 26px; top: 24px; width: {{hs.L.nextTextW}}px; display: flex; flex-direction: column; z-index: 1">
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #A85A00"><span style="width: 8px; height: 8px; border-radius: 4px; background: #FF9F0A"></span>Next up · Olympiad maths 1–6</span>
+            <span style="margin-top: 8px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px">Number patterns</span>
+            <span style="margin-top: 4px; font-size: 14px; color: #6E6E73">Lesson 3 · two tasks</span>
+            <button onClick="{{continueNext}}" style="align-self: flex-start; margin-top: 22px; height: 44px; padding: 0 22px 0 24px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px">Continue<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+          <!-- The quota: the share of today's that this profile has spent, as GetQuota gives it — never a number of calls (R98; R148). -->
+          <div style="position: absolute; left: 26px; bottom: 18px; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #6E6E73; z-index: 1">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"></path></svg>
+            <span>Tutor help used today</span>
+            <span role="img" aria-label="20 percent" style="width: 64px; height: 6px; border-radius: 3px; background: rgba(118,118,128,0.18); overflow: hidden; display: flex"><span style="width: 20%; background: #0A84FF"></span></span>
+            <span style="font-variant-numeric: tabular-nums">20%</span>
+          </div>
+          <div aria-hidden="true" style="position: absolute; right: -20px; top: {{hs.L.decoTop}}px; width: 260px; height: 200px; border-radius: 10px; transform: {{hs.L.decoTf}}; transform-origin: 100% 0; background-color: #FCFCFD; background-image: linear-gradient(#ECECF1 1px, transparent 1px), linear-gradient(90deg, #ECECF1 1px, transparent 1px); background-size: 20px 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 10px 26px rgba(0,0,0,0.10)">
+            <div style="position: absolute; left: 22px; top: 34px; font-family: Caveat, 'Bradley Hand', cursive; font-size: 34px; font-weight: 600; color: #23308C">2, 5, 8, 11, …</div>
+            <div style="position: absolute; left: 28px; top: 92px; font-family: Caveat, 'Bradley Hand', cursive; font-size: 26px; font-weight: 600; color: #23308C">+3 each time</div>
+            <svg width="150" height="30" style="position: absolute; left: 22px; top: 80px"><path d="M6 6c6 14 20 14 26 0M40 6c6 14 20 14 26 0M74 6c6 14 20 14 26 0" fill="none" stroke="#E8590C" stroke-width="2" stroke-linecap="round"></path></svg>
+          </div>
+        </div>
+
+        <!-- The way into Take from my paper, open to every profile: the main feature of the app (product 4). -->
+        <div class="ph-paper" style="position: relative; flex: {{hs.L.paperFlex}}; min-height: {{hs.L.paperH}}px; border-radius: 26px; background: linear-gradient(135deg, #FF9F0A 0%, #FF5E3A 55%, #FF375F 100%); box-shadow: 0 12px 32px rgba(255,94,58,0.26); overflow: hidden; color: #FFFFFF">
+          <sc-if value="{{hs.isPad}}" hint-placeholder-val="{{ true }}">
+          <div aria-hidden="true" style="position: absolute; right: 18px; top: 34px; width: 118px; height: 160px; border-radius: 6px; background: #FDFDFB; transform: rotate(7deg); box-shadow: 0 16px 36px rgba(0,0,0,0.22)">
+            <div style="position: absolute; left: 12px; top: 14px; width: 56px; height: 6px; border-radius: 3px; background: #9AA7BA"></div>
+            <div style="position: absolute; left: 12px; top: 30px; width: 94px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
+            <div style="position: absolute; left: 12px; top: 40px; width: 80px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
+            <div style="position: absolute; left: 6px; top: 56px; width: 106px; height: 30px; border-radius: 6px; box-shadow: inset 0 0 0 2.5px #0071E3; background: rgba(0,113,227,0.08)"></div>
+            <div style="position: absolute; left: 12px; top: 63px; width: 94px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
+            <div style="position: absolute; left: 12px; top: 73px; width: 70px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
+            <div style="position: absolute; left: 12px; top: 100px; width: 94px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
+            <div style="position: absolute; left: 12px; top: 110px; width: 86px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
+          </div>
+          </sc-if>
+          <div style="position: relative; padding: 24px 26px 22px; width: {{hs.L.paperTextW}}; box-sizing: border-box; display: flex; flex-direction: column">
+            <span style="font-size: 24px; font-weight: 700; letter-spacing: -0.4px">Take from my paper</span>
+            <span style="margin-top: 4px; font-size: 14px; line-height: 1.4; color: rgba(255,255,255,0.92)">Snap a page from your book, pick the tasks, and solve each one here.</span>
+            <!-- The pages from paper this device keeps for the profile, its history: behind a small button, as a pop-over (R162). -->
+            <span style="margin-top: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+              <button onClick="{{openCamera}}" style="height: 44px; padding: 0 18px; border-radius: 22px; background: #FFFFFF; color: #1D1D1F; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
+                Open camera
+              </button>
+              <button onClick="{{hs.togglePages}}" aria-expanded="{{pagesOpen}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(255,255,255,0.22); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5); color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h8l4 4v12H7z"></path><path d="M4 7v14h11"></path></svg>
+                Your pages
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: {{hs.L.gap2}}px; display: flex; align-items: center; justify-content: space-between">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px">My subjects</h2>
+        <button onClick="{{hs.goSubjects}}" style="height: 44px; margin-right: -10px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; color: #0066CC">All subjects<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+      </div>
+
+      <!-- Each connected module leads to its lesson; its skill map is on Subjects. The states come from ./states of skill-map (architecture 3.3). -->
+      <div class="ph-grid" style="margin-top: 10px; display: grid; grid-template-columns: {{hs.L.cols}}; gap: {{hs.L.gridGap}}px">
+        <sc-for list="{{mods}}" as="m" hint-placeholder-count="3">
+          <div class="mc" style="min-height: {{hs.L.cardH}}px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 20px 6px; box-sizing: border-box; display: flex; flex-direction: column">
+            <span style="display: flex; align-items: center; gap: 12px">
+              <span style="flex: none; width: 44px; height: 44px; border-radius: 13px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700">{{m.glyph}}</span>
+              <span style="display: flex; flex-direction: column; min-width: 0">
+                <span style="font-size: 17px; font-weight: 600; letter-spacing: -0.2px">{{m.name}}</span>
+                <span style="margin-top: 2px; font-size: 12.5px; color: #6E6E73">{{m.meta}}</span>
+              </span>
+            </span>
+            <span style="flex: 1; min-height: 18px"></span>
+            <sc-if value="{{m.hasBar}}" hint-placeholder-val="{{ true }}">
+              <span role="img" aria-label="{{m.aria}}" style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px">
+                <sc-for list="{{m.segs}}" as="g" hint-placeholder-count="5"><span style="width: {{g.w}}%; background: {{g.c}}"></span></sc-for>
+              </span>
+            </sc-if>
+            <sc-if value="{{m.hasMark}}" hint-placeholder-val="{{ false }}">
+              <span style="display: flex; align-items: center; gap: 6px; height: 8px; font-size: 13px; color: #7A2EA8"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5h15v10.5h-9.5l-5.5 4z"></path><path d="M12 7.4l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"></path></svg>Feedback by criteria</span>
+            </sc-if>
+            <span style="margin-top: 10px; font-size: 13px; color: #3A3A3C">{{m.done}}</span>
+            <button onClick="{{m.open}}" aria-label="{{m.openAria}}" style="align-self: flex-start; height: 44px; margin: 2px 0 0 -10px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; color: #0066CC">Continue<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- The legend: the five states and the mark of a rubric, in the words of architecture 6, shared with the skill map. -->
+      <sc-if value="{{hs.isPad}}" hint-placeholder-val="{{ true }}">
+      <div class="ph-legend" role="list" aria-label="What the marks mean" style="margin-top: 18px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: #3A3A3C">
+        <sc-for list="{{hs.legend}}" as="k" hint-placeholder-count="6"><span role="listitem" style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: {{k.c}}"></span>{{k.name}}</span></sc-for>
+      </div>
+      </sc-if>
+      <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{hs.toggleLegend}}" aria-expanded="{{legendOpen}}" style="align-self: flex-start; margin: 6px 0 0 -10px; height: 44px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: #0066CC">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5M12 8v.2"></path></svg>
+        What the marks mean
+      </button>
+      </sc-if>
+    </sc-if>
+
+    <!-- Subjects: the catalog of this server — what is connected, and what else the profile may connect (concepts 15, module catalog). -->
+    <sc-if value="{{hs.isSubjects}}" hint-placeholder-val="{{ false }}">
+      <div style="flex: none; display: flex; flex-direction: column; min-height: {{hs.L.headH}}px; justify-content: center">
+        <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; letter-spacing: -0.7px">Subjects</h1>
+        <p style="margin: 4px 0 0; font-size: 15px; color: #6E6E73">The modules of this server. A connected one is on Home, with its skill map.</p>
+      </div>
+      <h2 style="margin: {{hs.L.gap1}}px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.2px; color: #6E6E73">CONNECTED · {{hs.connectedN}}</h2>
+      <div style="margin-top: 10px; display: grid; grid-template-columns: {{hs.L.catCols}}; gap: 16px">
+        <sc-for list="{{hs.catOn}}" as="m" hint-placeholder-count="3">
+          <div style="border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 20px 8px; box-sizing: border-box; display: flex; flex-direction: column">
+            <span style="display: flex; align-items: center; gap: 14px">
+              <span style="flex: none; width: 52px; height: 52px; border-radius: 15px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700">{{m.glyph}}</span>
+              <span style="display: flex; flex-direction: column; min-width: 0">
+                <span style="font-size: 17px; font-weight: 600; letter-spacing: -0.2px">{{m.name}}</span>
+                <span style="margin-top: 2px; font-size: 12.5px; color: #6E6E73">{{m.meta}}</span>
+              </span>
+            </span>
+            <span style="margin-top: 12px; font-size: 14px; line-height: 1.4; color: #3A3A3C">{{m.desc}}</span>
+            <span style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{m.tags}}" as="tg" hint-placeholder-count="3"><span style="height: 26px; padding: 0 10px; border-radius: 13px; background: rgba(118,118,128,0.10); display: flex; align-items: center; font-size: 12.5px; color: #3A3A3C">{{tg.t}}</span></sc-for>
+            </span>
+            <span style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between">
+              <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #1E7A35"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.2 12.4l2.6 2.6 5-5.4"></path></svg>Connected</span>
+              <button onClick="{{m.map}}" aria-label="{{m.mapAria}}" style="height: 44px; margin-right: -10px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: #0066CC"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{hs.icons.map}}"></path></svg>Skill map</button>
+            </span>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{hs.hasMore}}" hint-placeholder-val="{{ true }}">
+      <h2 style="margin: 26px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.2px; color: #6E6E73">MORE ON THIS SERVER</h2>
+      <div style="margin-top: 10px; display: grid; grid-template-columns: {{hs.L.catCols}}; gap: 16px">
+        <sc-for list="{{hs.catOff}}" as="m" hint-placeholder-count="1">
+          <div style="border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 20px 16px; box-sizing: border-box; display: flex; flex-direction: column">
+            <span style="display: flex; align-items: center; gap: 14px">
+              <span style="flex: none; width: 52px; height: 52px; border-radius: 15px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700">{{m.glyph}}</span>
+              <span style="display: flex; flex-direction: column; min-width: 0">
+                <span style="font-size: 17px; font-weight: 600; letter-spacing: -0.2px">{{m.name}}</span>
+                <span style="margin-top: 2px; font-size: 12.5px; color: #6E6E73">{{m.meta}}</span>
+              </span>
+            </span>
+            <span style="margin-top: 12px; font-size: 14px; line-height: 1.4; color: #3A3A3C">{{m.desc}}</span>
+            <span style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{m.tags}}" as="tg" hint-placeholder-count="3"><span style="height: 26px; padding: 0 10px; border-radius: 13px; background: rgba(118,118,128,0.10); display: flex; align-items: center; font-size: 12.5px; color: #3A3A3C">{{tg.t}}</span></sc-for>
+            </span>
+            <button onClick="{{m.connect}}" style="align-self: flex-start; margin-top: 14px; height: 44px; padding: 0 20px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Connect</button>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+    </sc-if>
+
+    <!-- The skill map of one module, from Subjects: the module chosen at the title; the map in the frame is skill-map's (architecture 3.3). -->
+    <sc-if value="{{isMap}}" hint-placeholder-val="{{ false }}">
+      <div style="flex: none; display: flex; flex-direction: column; min-height: {{hs.L.headH}}px; justify-content: center">
+        <button onClick="{{hs.goSubjects}}" style="align-self: flex-start; height: 44px; margin: -10px 0 -4px -8px; padding: 0 10px 0 4px; border-radius: 22px; display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 600; color: #0066CC"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Subjects</button>
+        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+          <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; letter-spacing: -0.7px">Skill map</h1>
+          <button onClick="{{hs.toggleMods}}" aria-expanded="{{hs.modsOpen}}" aria-label="Module: {{mapName}}" style="height: 44px; padding: 0 14px 0 6px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 14px rgba(17,24,39,0.06); display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600">
+            <span style="width: 32px; height: 32px; border-radius: 10px; background: {{hs.mapMod.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{hs.mapMod.glyph}}</span>
+            {{mapName}}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+          </button>
+        </div>
+      </div>
+      <div role="list" aria-label="What the marks mean" style="margin-top: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: #3A3A3C">
+        <sc-for list="{{hs.mapLegend}}" as="k" hint-placeholder-count="5"><span role="listitem" style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 4px; background: {{k.bg}}; box-shadow: inset 0 0 0 1px {{k.bd}}"></span>{{k.name}}</span></sc-for>
+      </div>
+      <div class="ph-mapframe" role="img" aria-label="Skill map of {{mapName}}" style="position: relative; margin-top: 14px; flex: {{hs.L.mapFlex}}; min-height: {{hs.map.h}}px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); overflow: hidden">
+        <svg width="{{hs.map.w}}" height="{{hs.map.h}}" style="position: absolute; left: 0; top: 0" aria-hidden="true">
+          <sc-for list="{{hs.map.edges}}" as="e" hint-placeholder-count="10"><path d="{{e.d}}" fill="none" stroke="#D1D1D6" stroke-width="1.6"></path></sc-for>
+        </svg>
+        <sc-for list="{{hs.map.tiers}}" as="t" hint-placeholder-count="4">
+          <div style="position: absolute; left: {{t.x}}px; top: {{t.y}}px; font-size: 12px; font-weight: 600; color: #6E6E73">{{t.name}}</div>
+        </sc-for>
+        <sc-for list="{{hs.map.nodes}}" as="n" hint-placeholder-count="10">
+          <div style="position: absolute; left: {{n.x}}px; top: {{n.y}}px; width: {{n.w}}px; height: {{n.h}}px; border-radius: 24px; padding: 0 14px 0 8px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; background: {{n.bg}}; box-shadow: inset 0 0 0 1px {{n.bd}}">
+            <span style="flex: none; width: 30px; height: 30px; border-radius: 15px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: {{n.fg}}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
+            </span>
+            <span style="display: flex; flex-direction: column; line-height: 1.2; min-width: 0"><span style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{n.name}}</span><span style="font-size: 11.5px; color: {{n.fg}}">{{n.word}}</span></span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- The top right: the tutor, notifications, and the profile's menu at the edge. On the phone the mark stands at the left. -->
+  <div class="ph-topend" style="{{hs.L.top}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}">
+      <span role="img" aria-label="NovaTrail" style="width: 40px; height: 40px; border-radius: 13px; background: #0071E3; display: flex; align-items: center; justify-content: center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M12 4l1.9 6.1 6.1 1.9-6.1 1.9L12 20l-1.9-6.1L4 12l6.1-1.9z"></path></svg>
+      </span>
+      <span style="flex: 1"></span>
+    </sc-if>
+    <!-- To an adult the tutor is neutral: no name, no fox (R148; О-13). Pip, the children's friend, comes with epic E4 of app. -->
+    <button class="tip tip-bl" onClick="{{hs.toggleTutor}}" aria-expanded="{{hs.tutorOpen}}" aria-label="{{tutorName}}" data-tip="{{tutorName}}" style="width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; box-shadow: {{hs.tutorRing}}">
+      <sc-if value="{{isNeutral}}" hint-placeholder-val="{{ true }}">
+        <span style="width: 42px; height: 42px; border-radius: 21px; background: linear-gradient(135deg, #5E5CE6 0%, #0A84FF 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(10,132,255,0.30)">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-7.5L7 20.5V17H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z"></path><path d="M12 7.4l.9 2.2 2.2.9-2.2.9-.9 2.2-.9-2.2-2.2-.9 2.2-.9z" fill="currentColor" stroke="none"></path></svg>
+        </span>
+      </sc-if>
+      <sc-if value="{{isPip}}" hint-placeholder-val="{{ false }}">
+        <svg width="42" height="42" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#FFE3C2"></circle><path d="M7.5 6.5L17 13l-7.5 6.5z" fill="#F76707"></path><path d="M32.5 6.5L23 13l7.5 6.5z" fill="#F76707"></path><path d="M9.4 9.7l5.1 3.6-4 3.5z" fill="#FFD8A8"></path><path d="M30.6 9.7l-5.1 3.6 4 3.5z" fill="#FFD8A8"></path><path d="M7 20.5C7 14.5 12.5 11.5 20 11.5s13 3 13 9c0 6.5-6 12-13 12s-13-5.5-13-12z" fill="#F76707"></path><path d="M7.6 22.5c3.9-.5 8.9 1.5 12.4 6 3.5-4.5 8.5-6.5 12.4-6-1.4 6-6.4 10-12.4 10s-11-4-12.4-10z" fill="#FFFFFF"></path><circle cx="15" cy="20.3" r="1.7" fill="#1D1D1F"></circle><circle cx="25" cy="20.3" r="1.7" fill="#1D1D1F"></circle><ellipse cx="20" cy="28.4" rx="1.9" ry="1.4" fill="#1D1D1F"></ellipse></svg>
+      </sc-if>
+    </button>
+    <!-- Notifications: the place for them; nothing sends one yet. -->
+    <button class="tip tip-bl" onClick="{{hs.toggleBell}}" aria-expanded="{{hs.bellOpen}}" aria-label="Notifications" data-tip="Notifications" style="width: 44px; height: 44px; border-radius: 22px; background: {{hs.bellBtn.bg}}; color: {{hs.bellBtn.fg}}; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 14px rgba(17,24,39,0.05); display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+    </button>
+    <button onClick="{{hs.toggleAccount}}" aria-expanded="{{switchOpen}}" aria-label="{{me.name}}, profile menu" style="height: 44px; padding: {{hs.L.accPad}}; border-radius: 22px; background: #FFFFFF; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 14px rgba(17,24,39,0.05); display: flex; align-items: center; gap: 8px">
+      <span style="width: 36px; height: 36px; border-radius: 18px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg>
+      </span>
+      <sc-if value="{{hs.isPad}}" hint-placeholder-val="{{ true }}">
+        <span style="font-size: 15px; font-weight: 600">{{me.name}}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+      </sc-if>
     </button>
   </div>
 
-  <!-- On the phone this is one column that scrolls; on the iPad its items keep their places. -->
-  <div class="ph-scroll" role="region" aria-label="Home" tabindex="{{scrollTab}}" style="position: absolute; inset: 0; pointer-events: none">
-  <div style="position: absolute; left: 40px; top: 92px">
-    <div style="font-size: 34px; font-weight: 700; letter-spacing: -0.7px">Hi, {{me.name}}</div>
-    <div style="margin-top: 4px; font-size: 15px; color: #6E6E73">{{homeSub}}</div>
-  </div>
+  <!-- The phone's tab bar: the same places, Grown-ups and Help. -->
+  <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}">
+  <nav class="ph-tabs" aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; padding: 6px 4px 22px; box-sizing: border-box; background: rgba(255,255,255,0.96); box-shadow: 0 -0.5px 0 rgba(0,0,0,0.14); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); z-index: 4">
+    <sc-for list="{{hs.tabs}}" as="n" hint-placeholder-count="5">
+      <button onClick="{{n.go}}" aria-current="{{n.cur}}" disabled="{{n.off}}" title="{{n.tip}}" style="height: 52px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{n.fg}}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
+        <span style="font-size: 11px; font-weight: 600; line-height: 1.1; text-align: center">{{n.label}}</span>
+      </button>
+    </sc-for>
+  </nav>
+  </sc-if>
 
-  <div class="ph-next" style="position: absolute; left: 40px; top: 176px; width: 600px; height: 228px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 12px 32px rgba(0,0,0,0.06); overflow: hidden">
-    <div class="ph-nexttext" style="position: absolute; left: 26px; top: 24px; width: 300px; display: flex; flex-direction: column">
-      <span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #A85A00"><span style="width: 8px; height: 8px; border-radius: 4px; background: #FF9F0A"></span>Next up · Olympiad maths 1–6</span>
-      <span style="margin-top: 8px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px">Number patterns</span>
-      <span style="margin-top: 4px; font-size: 14px; color: #6E6E73">Lesson 3 · two tasks</span>
-      <button onClick="{{continueNext}}" style="align-self: flex-start; margin-top: 22px; height: 44px; padding: 0 22px 0 24px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px">Continue<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
-    </div>
-    <!-- The quota: the share of today's that this profile has spent, as GetQuota gives it — never a number of calls (R98; R148). -->
-    <div style="position: absolute; left: 26px; bottom: 16px; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #6E6E73">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"></path></svg>
-      <span>Tutor help used today</span>
-      <span role="img" aria-label="20 percent" style="width: 64px; height: 6px; border-radius: 3px; background: rgba(118,118,128,0.18); overflow: hidden; display: flex"><span style="width: 20%; background: #0A84FF"></span></span>
-      <span style="font-variant-numeric: tabular-nums">20%</span>
-    </div>
-    <div class="ph-nextdeco" style="position: absolute; right: -20px; top: 26px; width: 260px; height: 200px; border-radius: 10px; transform: rotate(-4deg); background-color: #FCFCFD; background-image: linear-gradient(#ECECF1 1px, transparent 1px), linear-gradient(90deg, #ECECF1 1px, transparent 1px); background-size: 20px 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 10px 26px rgba(0,0,0,0.10)">
-      <div style="position: absolute; left: 22px; top: 34px; font-family: Caveat, 'Bradley Hand', cursive; font-size: 34px; font-weight: 600; color: #23308C">2, 5, 8, 11, …</div>
-      <div style="position: absolute; left: 28px; top: 92px; font-family: Caveat, 'Bradley Hand', cursive; font-size: 26px; font-weight: 600; color: #23308C">+3 each time</div>
-      <svg width="150" height="30" style="position: absolute; left: 22px; top: 80px" aria-hidden="true"><path d="M6 6c6 14 20 14 26 0M40 6c6 14 20 14 26 0M74 6c6 14 20 14 26 0" fill="none" stroke="#E8590C" stroke-width="2" stroke-linecap="round"></path></svg>
-    </div>
-  </div>
+  <!-- Pop-overs: hung from their button on the iPad, a sheet from the bottom on the phone. -->
+  <sc-if value="{{hs.anyPop}}" hint-placeholder-val="{{ false }}">
+    <button aria-label="Close" onClick="{{hs.closePop}}" style="position: absolute; inset: 0; z-index: 5; cursor: default; background: {{hs.scrim}}"></button>
+  </sc-if>
 
-  <!-- The way into Take from my paper, open to every profile: the main feature of the app (product 4). -->
-  <div class="ph-paper" style="position: absolute; left: 656px; top: 176px; width: 498px; height: 228px; border-radius: 26px; background: linear-gradient(135deg, #FF9F0A 0%, #FF5E3A 55%, #FF375F 100%); box-shadow: 0 12px 32px rgba(255,94,58,0.28); overflow: hidden; color: #FFFFFF">
-    <div style="position: absolute; right: 26px; top: 30px; width: 150px; height: 196px; border-radius: 6px; background: #FDFDFB; transform: rotate(7deg); box-shadow: 0 16px 36px rgba(0,0,0,0.22)">
-      <div style="position: absolute; left: 14px; top: 16px; width: 70px; height: 7px; border-radius: 4px; background: #9AA7BA"></div>
-      <div style="position: absolute; left: 14px; top: 34px; width: 122px; height: 5px; border-radius: 3px; background: #D9D4CA"></div>
-      <div style="position: absolute; left: 14px; top: 46px; width: 104px; height: 5px; border-radius: 3px; background: #D9D4CA"></div>
-      <div style="position: absolute; left: 14px; top: 74px; width: 122px; height: 5px; border-radius: 3px; background: #D9D4CA"></div>
-      <div style="position: absolute; left: 14px; top: 86px; width: 90px; height: 5px; border-radius: 3px; background: #D9D4CA"></div>
-      <div style="position: absolute; left: 8px; top: 66px; width: 134px; height: 34px; border-radius: 6px; box-shadow: inset 0 0 0 2.5px #0071E3; background: rgba(0,113,227,0.08)"></div>
-      <div style="position: absolute; left: 14px; top: 118px; width: 122px; height: 5px; border-radius: 3px; background: #D9D4CA"></div>
-      <div style="position: absolute; left: 14px; top: 130px; width: 112px; height: 5px; border-radius: 3px; background: #D9D4CA"></div>
-    </div>
-    <div style="position: absolute; left: 26px; top: 24px; width: 270px; display: flex; flex-direction: column">
-      <span class="ph-paicon" style="width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.22); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
-      </span>
-      <span style="margin-top: 14px; font-size: 24px; font-weight: 700; letter-spacing: -0.4px">Take from my paper</span>
-      <span style="margin-top: 4px; font-size: 14px; line-height: 1.4; color: rgba(255,255,255,0.88)">Snap a page from your book, pick the tasks, and solve each one here.</span>
-      <!-- The pages from paper this device keeps for the profile, its history: behind a small button, as a pop-over (R162). -->
-      <span style="margin-top: 16px; display: flex; align-items: center; gap: 8px">
-        <button onClick="{{openCamera}}" style="height: 44px; padding: 0 20px; border-radius: 22px; background: #FFFFFF; color: #1D1D1F; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
-          Open camera
-        </button>
-        <button onClick="{{togglePages}}" aria-expanded="{{pagesOpen}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(255,255,255,0.22); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.45); color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h8l4 4v12H7z"></path><path d="M4 7v14h11"></path></svg>
-          Your pages
-        </button>
-      </span>
-    </div>
-  </div>
-  <div style="position: absolute; left: 40px; right: 40px; top: 436px; display: flex; align-items: baseline">
-    <span style="font-size: 22px; font-weight: 700; letter-spacing: -0.3px">My subjects</span>
-  </div>
-  <!-- Each module card leads to its lesson (Continue) and to its own skill map: skill-map draws the graph of one module (architecture 3.3). -->
-  <div class="ph-grid" style="position: absolute; left: 40px; top: 478px; width: 1114px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
-    <sc-for list="{{mods}}" as="m" hint-placeholder-count="3">
-      <div class="mc" style="height: 236px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.05); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; text-align: left">
-        <span style="width: 46px; height: 46px; border-radius: 13px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; font-family: 'SF Pro Display', system-ui, sans-serif">{{m.glyph}}</span>
-        <span style="margin-top: 14px; font-size: 17px; font-weight: 600; letter-spacing: -0.2px">{{m.name}}</span>
-        <span style="margin-top: 2px; font-size: 12.5px; color: #6E6E73">{{m.meta}}</span>
-        <span style="flex: 1"></span>
-        <sc-if value="{{m.hasBar}}" hint-placeholder-val="{{ true }}">
-          <span style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px">
-            <sc-for list="{{m.segs}}" as="g" hint-placeholder-count="5"><span style="width: {{g.w}}%; background: {{g.c}}"></span></sc-for>
-          </span>
-        </sc-if>
-        <sc-if value="{{m.hasMark}}" hint-placeholder-val="{{ false }}">
-          <span style="display: flex; align-items: center; gap: 6px; height: 8px; font-size: 13px; color: #3A3A3C"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5h15v10.5h-9.5l-5.5 4z"></path><path d="M12 7.4l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"></path></svg>Feedback by criteria</span>
-        </sc-if>
-        <span style="margin-top: 8px; font-size: 13px; color: #3A3A3C">{{m.done}}</span>
-        <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">{{m.aria}}</span>
-        <span style="margin: 2px -10px -12px; display: flex; align-items: center; justify-content: space-between">
-          <button onClick="{{m.open}}" aria-label="{{m.openAria}}" style="height: 44px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; color: #0071E3">Continue<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
-          <button onClick="{{m.map}}" aria-label="{{m.mapAria}}" style="height: 44px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 500; color: #0071E3"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"></circle><circle cx="6" cy="18" r="2.5"></circle><circle cx="18" cy="12" r="2.5"></circle><path d="M8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8"></path></svg>Skill map</button>
+  <!-- For grown-ups: the profile's settings and this device's. A child's profile opens it behind the PIN (epic E4 of app). -->
+  <sc-if value="{{hs.grownOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop" role="dialog" aria-label="For grown-ups" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.grown}}">
+    <sc-if value="{{hs.pinNeeded}}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 10px 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 14px">
+        <span style="font-size: 17px; font-weight: 700">For grown-ups</span>
+        <span style="margin-top: -8px; font-size: 13px; color: #6E6E73">Enter the PIN</span>
+        <span role="img" aria-label="{{hs.pinLen}} of 4 digits" style="display: flex; gap: 14px">
+          <sc-for list="{{hs.pinDots}}" as="d" hint-placeholder-count="4"><span style="width: 14px; height: 14px; border-radius: 7px; box-shadow: inset 0 0 0 1.5px #1D1D1F; background: {{d.bg}}"></span></sc-for>
+        </span>
+        <span style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 228px">
+          <sc-for list="{{hs.pinKeys}}" as="k" hint-placeholder-count="12"><button onClick="{{k.go}}" aria-label="{{k.aria}}" style="height: 56px; border-radius: 28px; font-size: 22px; font-weight: 500; background: {{k.bg}}; visibility: {{k.vis}}">{{k.label}}</button></sc-for>
         </span>
       </div>
-    </sc-for>
-    <button class="mc" style="height: 236px; border-radius: 22px; box-sizing: border-box; border: 2px dashed #C7C7CC; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #6E6E73">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
-      <span style="font-size: 16px; font-weight: 600; color: #1D1D1F">Add a module</span>
-      <span style="font-size: 12.5px">From the NovaTrail catalog</span>
-    </button>
-  </div>
-  <button class="ph-only" onClick="{{toggleLegend}}" aria-expanded="{{legendOpen}}" style="align-self: flex-start; height: 44px; margin: -6px 0 -6px -10px; padding: 0 12px 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: #0071E3">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5M12 8v.2"></path></svg>
-    What the marks mean
-  </button>
-  <div style="position: absolute; left: 40px; top: 784px; display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #6E6E73">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5M12 8v.2"></path></svg>
-    The tutor is an AI. A program checks every answer.
-  </div>
-  </div>
-  <!-- The legend: the five states and the two marks, in the words and icons of architecture 6, shared with the skill map. -->
-  <sc-if value="{{legendOpen}}" hint-placeholder-val="{{ false }}">
-    <button class="ph-only ph-scrim" aria-label="Close" onClick="{{toggleLegend}}" style="position: absolute; inset: 0; cursor: default"></button>
-  </sc-if>
-  <div class="ph-legend {{legendCls}}" style="position: absolute; left: 40px; right: 40px; top: 746px; display: flex; align-items: center; gap: 16px; font-size: 12.5px; color: #3A3A3C; white-space: nowrap">
-    <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{toggleLegend}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-    <span class="ph-only" style="font-size: 17px; font-weight: 700; color: #1D1D1F; margin-top: -8px">What the marks mean</span>
-    <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #34C759"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.2 12.4l2.6 2.6 5-5.4"></path></svg>Mastered</span>
-    <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #FF9F0A"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"></path><path d="M19.5 4.5v3.5H16"></path><path d="M12 8.5V12l2.5 1.8"></path></svg>Time to review</span>
-    <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0A84FF"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 6.5a5.5 5.5 0 1 1-5.5 5.5H12z" fill="currentColor" stroke="none"></path></svg>In progress</span>
-    <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #B9D7FF"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="12" height="9" rx="2"></rect><path d="M13 11V8a3.5 3.5 0 0 1 7 0v1"></path></svg>Ready to start</span>
-    <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #E5E5EA"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Locked</span>
-    <span style="display: flex; align-items: center; gap: 5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5h15v10.5h-9.5l-5.5 4z"></path><path d="M12 7.4l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"></path></svg>Feedback by criteria</span>
-    <span style="display: flex; align-items: center; gap: 5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13l4 4 4.5-4.5M15 9.5l1.5-1.5"></path><path d="M4 4l16 16"></path></svg>Not assessed</span>
-  </div>
-  <!-- The profile's pages from paper on this device, newest first: a page opens on the screen of solving with its work kept; a task over there is read only (R162). -->
-  <sc-if value="{{pagesOpen}}" hint-placeholder-val="{{ false }}">
-    <button class="ph-scrim" aria-label="Close" onClick="{{togglePages}}" style="position: absolute; inset: 0; cursor: default"></button>
-    <div class="glass nt-pop ph-sheet ph-sheetx" role="dialog" aria-label="Your pages" style="position: absolute; left: 820px; top: 400px; width: 300px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: rgba(255,255,255,0.94); transform-origin: top left">
-      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{togglePages}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-      <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Your pages · on this device</div>
-      <sc-for list="{{pages}}" as="pg" hint-placeholder-count="2">
-        <button onClick="{{pg.open}}" style="width: 100%; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-radius: 12px; box-sizing: border-box; text-align: left">
-          <span aria-hidden="true" style="flex: none; width: 34px; height: 44px; border-radius: 4px; background: #FDFDFB; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.10); display: flex; flex-direction: column; gap: 4px; padding: 7px 5px; box-sizing: border-box"><span style="height: 3px; border-radius: 2px; background: #9AA7BA"></span><span style="height: 3px; border-radius: 2px; background: #D9D4CA"></span><span style="height: 3px; border-radius: 2px; background: #D9D4CA"></span></span>
-          <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
-            <span style="font-size: 15px; font-weight: 600">{{pg.when}}</span>
-            <span style="font-size: 12.5px; color: #6E6E73">{{pg.meta}}</span>
-          </span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
-        </button>
-      </sc-for>
-      <div style="padding: 6px 10px 6px; font-size: 12px; line-height: 1.35; color: #6E6E73">Kept on this device until the profile is deleted, and in its export.</div>
-    </div>
-  </sc-if>
-  <sc-if value="{{switchOpen}}" hint-placeholder-val="{{ false }}">
-    <button class="ph-scrim" aria-label="Close" onClick="{{toggleSwitch}}" style="position: absolute; inset: 0; cursor: default"></button>
-    <div class="glass nt-pop ph-sheet ph-sheetx" style="position: absolute; left: 16px; top: 68px; width: 270px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: rgba(255,255,255,0.94); transform-origin: top left">
-      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{toggleSwitch}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-      <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Learning now</div>
-      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px">
-        <span style="width: 30px; height: 30px; border-radius: 15px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg></span>
-        <span style="flex: 1; font-size: 15px; font-weight: 500">{{me.name}}</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-      </div>
-      <div style="height: 1px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
-      <!-- The hint mode is a setting of the profile: the adult sets their own, and a child's — behind the PIN, epic E4 of app (concepts 10). -->
-      <div role="radiogroup" aria-label="Hints" style="display: flex; flex-direction: column; gap: 4px; padding: 2px 4px 6px">
-        <div style="display: flex; align-items: center; gap: 6px; padding: 4px 6px 2px; font-size: 12px; font-weight: 600; color: #6E6E73">Hints<sc-if value="{{hm.byAdult}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span>set by a grown-up</span></sc-if></div>
-        <button role="radio" aria-checked="{{hm.q.on}}" aria-disabled="{{hm.byAdult}}" onClick="{{modeQ}}" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 12px; text-align: left; background: {{hm.q.bg}}; box-shadow: {{hm.q.sh}}">
+    </sc-if>
+    <sc-if value="{{hs.pinPassed}}" hint-placeholder-val="{{ true }}">
+      <div style="padding: 6px 10px 2px; font-size: 17px; font-weight: 700">For grown-ups</div>
+      <div style="padding: 0 10px 8px; font-size: 12.5px; color: #6E6E73">{{hs.grownWho}}</div>
+      <!-- The hint mode is a setting of the profile: the adult sets their own, and a child's here, behind the PIN (concepts 10). -->
+      <div role="radiogroup" aria-label="Hints" style="display: flex; flex-direction: column; gap: 4px; padding: 2px 0 6px">
+        <div style="padding: 4px 10px 2px; font-size: 12px; font-weight: 600; color: #6E6E73">Hints</div>
+        <button role="radio" aria-checked="{{hs.hm.q.on}}" onClick="{{hs.modeQ}}" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 12px; text-align: left; background: {{hs.hm.q.bg}}; box-shadow: {{hs.hm.q.sh}}">
           <span style="font-size: 14px; font-weight: 600">Questions only</span>
           <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">The tutor asks about a step of the work</span>
         </button>
-        <button role="radio" aria-checked="{{hm.w.on}}" aria-disabled="{{hm.byAdult}}" onClick="{{modeW}}" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 12px; text-align: left; background: {{hm.w.bg}}; box-shadow: {{hm.w.sh}}">
+        <button role="radio" aria-checked="{{hs.hm.w.on}}" onClick="{{hs.modeW}}" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 12px; text-align: left; background: {{hs.hm.w.bg}}; box-shadow: {{hs.hm.w.sh}}">
           <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600">Show where<span aria-hidden="true" style="font-family: Caveat, 'Bradley Hand', cursive; font-size: 17px; color: #23308C; text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: #E8590C; text-decoration-thickness: 1.6px; text-underline-offset: 3px; text-decoration-skip-ink: none">− 4</span></span>
           <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">After “Not yet” the tutor also underlines where the mistake is — and corrects nothing</span>
         </button>
       </div>
       <!-- Pip's microphone, under "Later": the adult turns it on in the child's profile (epic E4 of app; О-6, П-5). -->
       <sc-if value="{{micRow}}" hint-placeholder-val="{{ false }}">
-      <div style="height: 1px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
       <button role="switch" aria-checked="{{micOn}}" onClick="{{toggleMic}}" style="width: 100%; min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 4px 8px 4px 10px; box-sizing: border-box; text-align: left">
         <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
           <span style="font-size: 14px; font-weight: 600">{{micSwitch}}</span>
-          <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">Speech becomes text and isn’t kept · set by a grown-up</span>
+          <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">Speech becomes text and isn’t kept</span>
         </span>
         <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{sw.bg}}; transition: background 0.2s">
           <span style="position: absolute; top: 2px; left: {{sw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: left 0.2s"></span>
@@ -1738,70 +1844,128 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </button>
       </sc-if>
       <div style="height: 1px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
-      <button class="row" onClick="{{switchLearner}}" style="width: 100%; height: 44px; border-radius: 12px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; font-size: 15px; color: #0071E3; text-align: left">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>
-        Switch learner
+      <button class="row" onClick="{{hs.noop}}" style="width: 100%; height: 48px; border-radius: 12px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; font-size: 15px; text-align: left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"></rect><path d="M11 17.5h2"></path></svg>
+        <span style="flex: 1">This device</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
       </button>
-    </div>
+      <button class="row" onClick="{{signOut}}" style="width: 100%; height: 48px; border-radius: 12px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; font-size: 15px; text-align: left; color: #0066CC">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path><path d="M10 8l-4 4 4 4M6 12h10"></path></svg>
+        Sign out
+      </button>
+    </sc-if>
+  </div>
   </sc-if>
+
+  <sc-if value="{{switchOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop" role="dialog" aria-label="Profile" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.account}}">
+    <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Learning now</div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px">
+      <span style="width: 32px; height: 32px; border-radius: 16px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg></span>
+      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">{{me.name}}</span><span style="font-size: 12.5px; color: #6E6E73">{{hs.meCap}}</span></span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+    </div>
+    <div style="height: 1px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
+    <button class="row" onClick="{{switchLearner}}" style="width: 100%; height: 48px; border-radius: 12px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; font-size: 15px; color: #0066CC; text-align: left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>
+      Switch learner
+    </button>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{hs.bellOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop" role="dialog" aria-label="Notifications" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.bell}}">
+    <div style="padding: 6px 10px 0; font-size: 17px; font-weight: 700">Notifications</div>
+    <div style="padding: 22px 10px 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
+      <span style="width: 52px; height: 52px; border-radius: 26px; background: rgba(118,118,128,0.10); color: #6E6E73; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg></span>
+      <span style="font-size: 15px; font-weight: 600">Nothing new yet</span>
+      <span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Notifications will appear here.</span>
+    </div>
+  </div>
+  </sc-if>
+
   <sc-if value="{{helpOpen}}" hint-placeholder-val="{{ false }}">
-    <button class="ph-scrim" aria-label="Close" onClick="{{toggleHelp}}" style="position: absolute; inset: 0; cursor: default"></button>
-    <div class="glass nt-pop ph-sheet ph-sheetx" style="position: absolute; right: 16px; top: 68px; width: 320px; border-radius: 20px; padding: 16px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 12px">
-      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{toggleHelp}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-      <div style="font-size: 17px; font-weight: 700">Help</div>
-      <sc-if value="{{helpAdult}}" hint-placeholder-val="{{ true }}">
+  <div class="nt-pop" role="dialog" aria-label="Help" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; gap: 12px; {{hs.P.help}}">
+    <div style="font-size: 17px; font-weight: 700">Help</div>
+    <sc-if value="{{helpAdult}}" hint-placeholder-val="{{ true }}">
       <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">The tutor is an AI</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">A computer program, not a person — and a program checks every answer. If the AI read your work wrongly, write it again, or tell the operator with “Report a problem” at the task.</span></div>
       <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Your name is made up</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Write no real names in the work — in an essay either.</span></div>
       <div style="display: flex; flex-wrap: wrap; gap: 0 4px; margin: -4px -10px -8px">
-        <button onClick="{{openPrivacy}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0071E3">Privacy Policy</button>
-        <button onClick="{{openTerms}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0071E3">Terms of Use</button>
-        <button onClick="{{openAccess}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0071E3">Accessibility</button>
+        <button onClick="{{openPrivacy}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Privacy Policy</button>
+        <button onClick="{{openTerms}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Terms of Use</button>
+        <button onClick="{{openAccess}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Accessibility</button>
       </div>
-      </sc-if>
-      <sc-if value="{{helpChild}}" hint-placeholder-val="{{ false }}">
+    </sc-if>
+    <sc-if value="{{helpChild}}" hint-placeholder-val="{{ false }}">
       <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Who is the tutor?</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">An AI — a computer program, not a person. A program checks your answers.</span></div>
       <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">If something makes you sad or scared</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Tell a grown-up you trust, or call a helpline.</span></div>
       <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Your name stays yours</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Here you have a made-up name. Don’t write your real one on your work.</span></div>
-      </sc-if>
-    </div>
+    </sc-if>
+  </div>
   </sc-if>
-</div>
-</sc-if>
 
-<!-- ============ The skill map: a frame of the app, and in it the map that skill-map draws ============ -->
-<sc-if value="{{isMap}}" hint-placeholder-val="{{ false }}">
-<div style="position: absolute; inset: 0; background: #F2F2F7">
-  <div class="glass" style="position: absolute; left: 16px; top: 14px; height: 48px; border-radius: 24px; padding: 2px 16px 2px 2px; box-sizing: border-box; display: flex; align-items: center; gap: 6px; z-index: 2">
-    <button class="ib tip tip-b" aria-label="Back" data-tip="Back" onClick="{{mapBack}}">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
-    </button>
-    <div style="display: flex; flex-direction: column; line-height: 1.15">
-      <span style="font-size: 14px; font-weight: 600; letter-spacing: -0.1px">Skill map</span>
-      <span style="font-size: 11.5px; color: #6E6E73">{{mapName}}</span>
+  <!-- The profile's pages from paper on this device, newest first: a page opens on the screen of solving with its work kept (R162). -->
+  <sc-if value="{{pagesOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop" role="dialog" aria-label="Your pages" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.pages}}">
+    <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Your pages · on this device</div>
+    <sc-for list="{{pages}}" as="pg" hint-placeholder-count="2">
+      <button class="row" onClick="{{pg.open}}" style="width: 100%; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-radius: 12px; box-sizing: border-box; text-align: left">
+        <span aria-hidden="true" style="flex: none; width: 34px; height: 44px; border-radius: 4px; background: #FDFDFB; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.10); display: flex; flex-direction: column; gap: 4px; padding: 7px 5px; box-sizing: border-box"><span style="height: 3px; border-radius: 2px; background: #9AA7BA"></span><span style="height: 3px; border-radius: 2px; background: #D9D4CA"></span><span style="height: 3px; border-radius: 2px; background: #D9D4CA"></span></span>
+        <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">{{pg.when}}</span><span style="font-size: 12.5px; color: #6E6E73">{{pg.meta}}</span></span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      </button>
+    </sc-for>
+    <div style="padding: 6px 10px; font-size: 12px; line-height: 1.35; color: #6E6E73">Kept on this device until the profile is deleted, and in its export.</div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{legendOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop" role="dialog" aria-label="What the marks mean" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; gap: 14px; {{hs.P.legend}}">
+    <div style="font-size: 17px; font-weight: 700">What the marks mean</div>
+    <sc-for list="{{hs.legend}}" as="k" hint-placeholder-count="6"><span style="display: flex; align-items: center; gap: 10px; font-size: 15px"><span style="width: 14px; height: 14px; border-radius: 4px; background: {{k.c}}"></span>{{k.name}}</span></sc-for>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{hs.modsOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop" role="dialog" aria-label="Choose a module" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.mods}}">
+    <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Connected modules</div>
+    <sc-for list="{{hs.modPick}}" as="m" hint-placeholder-count="3">
+      <button class="row" onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-radius: 12px; box-sizing: border-box; text-align: left; background: {{m.bg}}">
+        <span style="flex: none; width: 34px; height: 34px; border-radius: 10px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{m.glyph}}</span>
+        <span style="flex: 1; font-size: 15px; font-weight: 600">{{m.name}}</span>
+        <sc-if value="{{m.on}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+      </button>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <!-- The tutor's panel from the top right: Home holds no work, so it says only that it is an AI and where it helps. -->
+  <sc-if value="{{hs.tutorOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop" role="dialog" aria-label="{{tutorName}}" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.97); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16); display: flex; flex-direction: column; {{hs.P.tutor}}">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 12px 8px 10px 14px">
+      <sc-if value="{{isNeutral}}" hint-placeholder-val="{{ true }}">
+        <span style="flex: none; width: 38px; height: 38px; border-radius: 19px; background: linear-gradient(135deg, #5E5CE6 0%, #0A84FF 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-7.5L7 20.5V17H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z"></path><path d="M12 7.4l.9 2.2 2.2.9-2.2.9-.9 2.2-.9-2.2-2.2-.9 2.2-.9z" fill="currentColor" stroke="none"></path></svg></span>
+      </sc-if>
+      <sc-if value="{{isPip}}" hint-placeholder-val="{{ false }}">
+        <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#FFE3C2"></circle><path d="M7.5 6.5L17 13l-7.5 6.5z" fill="#F76707"></path><path d="M32.5 6.5L23 13l7.5 6.5z" fill="#F76707"></path><path d="M7 20.5C7 14.5 12.5 11.5 20 11.5s13 3 13 9c0 6.5-6 12-13 12s-13-5.5-13-12z" fill="#F76707"></path><path d="M7.6 22.5c3.9-.5 8.9 1.5 12.4 6 3.5-4.5 8.5-6.5 12.4-6-1.4 6-6.4 10-12.4 10s-11-4-12.4-10z" fill="#FFFFFF"></path><circle cx="15" cy="20.3" r="1.7" fill="#1D1D1F"></circle><circle cx="25" cy="20.3" r="1.7" fill="#1D1D1F"></circle><ellipse cx="20" cy="28.4" rx="1.9" ry="1.4" fill="#1D1D1F"></ellipse></svg>
+      </sc-if>
+      <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.2">
+        <span style="font-size: 16px; font-weight: 700">{{tutorTitle}}</span>
+        <span style="font-size: 12px; color: #6E6E73">Tutor help used today · 20%</span>
+      </span>
+      <button class="ib tip tip-bl" onClick="{{hs.closePop}}" aria-label="Close" data-tip="Close" style="color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+    <div style="height: 1px; background: rgba(0,0,0,0.07)"></div>
+    <div style="flex: 1; padding: 16px 14px; display: flex; flex-direction: column; gap: 10px; overflow: auto">
+      <div style="align-self: flex-start; max-width: 290px; padding: 10px 14px; border-radius: 18px 18px 18px 6px; background: rgba(118,118,128,0.10); font-size: 14px; line-height: 1.42">{{hs.tutorLine1}}</div>
+      <div style="align-self: flex-start; max-width: 290px; padding: 10px 14px; border-radius: 18px 18px 18px 6px; background: rgba(118,118,128,0.10); font-size: 14px; line-height: 1.42">{{hs.tutorLine2}}</div>
+    </div>
+    <div style="padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 8px">
+      <button onClick="{{continueNext}}" style="height: 48px; border-radius: 14px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px">Continue · Number patterns</button>
+      <button onClick="{{openCamera}}" style="height: 48px; border-radius: 14px; background: rgba(118,118,128,0.12); color: #1D1D1F; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>Take from my paper</button>
     </div>
   </div>
-  <div class="ph-mapframe" role="region" aria-label="Skill map of {{mapName}}" tabindex="{{scrollTab}}" style="position: absolute; left: 16px; right: 16px; top: 76px; bottom: 16px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 12px 32px rgba(0,0,0,0.06); overflow: hidden">
-    <div style="position: relative; width: 100%; height: {{mapH}}px">
-    <div class="ph-mapcap" style="position: absolute; left: 20px; top: 14px; display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6E6E73">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"></rect><path d="M3.5 9h17"></path></svg>
-      The map is drawn by skill-map, &lt;novatrail-skill-map&gt;; the app gives it this frame
-    </div>
-    <svg width="{{mapW}}" height="{{mapH}}" style="position: absolute; left: 0; top: 0" aria-hidden="true">
-      <sc-for list="{{mapEdges}}" as="e" hint-placeholder-count="10"><path d="{{e.d}}" fill="none" stroke="#D1D1D6" stroke-width="1.6"></path></sc-for>
-    </svg>
-    <sc-for list="{{mapTiers}}" as="t" hint-placeholder-count="4">
-      <div style="position: absolute; left: {{t.x}}px; top: {{t.y}}px; width: {{t.w}}px; font-size: 12px; font-weight: 600; color: #6E6E73">{{t.name}}</div>
-    </sc-for>
-    <sc-for list="{{mapNodes}}" as="n" hint-placeholder-count="10">
-      <div style="position: absolute; left: {{n.x}}px; top: {{n.y}}px; width: {{n.w}}px; height: {{n.h}}px; border-radius: 24px; padding: 0 14px 0 8px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; background: {{n.bg}}; box-shadow: inset 0 0 0 1px {{n.bd}}; color: {{n.fg}}; text-align: left">
-        <span style="flex: none; width: 30px; height: 30px; border-radius: 15px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: {{n.ic}}">
-          <sc-if value="{{n.rubric}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5h15v10.5h-9.5l-5.5 4z"></path><path d="M12 7.4l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"></path></svg></sc-if><sc-if value="{{n.review}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"></path><path d="M19.5 4.5v3.5H16"></path><path d="M12 8.5V12l2.5 1.8"></path></svg></sc-if><sc-if value="{{n.mastered}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.2 12.4l2.6 2.6 5-5.4"></path></svg></sc-if><sc-if value="{{n.progress}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 6.5a5.5 5.5 0 1 1-5.5 5.5H12z" fill="currentColor" stroke="none"></path></svg></sc-if><sc-if value="{{n.ready}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="12" height="9" rx="2"></rect><path d="M13 11V8a3.5 3.5 0 0 1 7 0v1"></path></svg></sc-if><sc-if value="{{n.locked}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></sc-if>
-        </span>
-        <span style="display: flex; flex-direction: column; line-height: 1.2; min-width: 0"><span class="ph-nname" style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{n.name}}</span><span style="font-size: 11.5px; color: #3A3A3C">{{n.word}}</span></span>
-      </div>
-    </sc-for>
-    </div>
-  </div>
+  </sc-if>
 </div>
 </sc-if>
 
@@ -1915,6 +2079,8 @@ const MODS = [
   { name: 'School maths · grade 3', meta: 'NovaTrail · adaptive', glyph: '÷', color: 'linear-gradient(135deg, #64D2FF 0%, #0A84FF 100%)', sk: [20, 2, 4, 6, 4] },
   { name: 'Short essays', meta: 'NovaTrail · feedback by a rubric', glyph: 'Aa', color: 'linear-gradient(135deg, #DA8FFF 0%, #AF52DE 100%)', mark: 18 }
 ];
+// The bar's colours: the replacements of the README's contrast table, a white gap of 2 px between segments.
+const BAR = ['#30A14E', '#C77700', '#0A84FF', '#3D8BE0', '#8E8E93'];
 const STATES = [['mastered', 'Mastered', '#34C759'], ['review', 'Time to review', '#FF9F0A'], ['progress', 'In progress', '#0A84FF'], ['ready', 'Ready to start', '#B9D7FF'], ['locked', 'Locked', '#E5E5EA']];
 // The map in the frame: a sketch of what skill-map draws, the skills of one module in tiers. Each module has its own map;
 // a skill with a rubric has the mark "Feedback by criteria" instead of a state (architecture 3.3).
@@ -2511,7 +2677,7 @@ class Component extends DCLogic {
   profilesNow() { return this.state.slice === 'later' ? CHILDREN.concat([this.owner()]) : [this.owner()]; }
   signIn = () => { this.setState({ auth: 'signing' }); this.later(() => this.setState({ auth: 'invite' }), 1100); };
   authBack = () => this.setState({ auth: this.state.auth === 'agree' ? 'invite' : 'welcome' });
-  signOut = () => this.setState({ screen: 'signin', auth: 'welcome', langOpen: false, code: false, ok18: false, okTerms: false, pinOpen: false, pin: '', addOpen: false, switchOpen: false, helpOpen: false });
+  signOut = () => this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, gOk: false, screen: 'signin', auth: 'welcome', langOpen: false, code: false, ok18: false, okTerms: false, pinOpen: false, pin: '', addOpen: false, switchOpen: false, helpOpen: false });
 
   pinKey(d) {
     const pin = this.state.pin + d;
@@ -2520,15 +2686,15 @@ class Component extends DCLogic {
   }
 
   // From home into a canvas: the camera of Take from my paper, or a module's lesson.
-  openCamera = () => this.setState({ screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
+  openCamera = () => this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
   // A page of "Your pages": the worksheet as it was left, its picked tasks with the work kept and no verdict, which the device does not keep.
   openPage = () => {
     const k = 'worksheet-1', st = { d: 'M330 430 C350 400 380 450 410 420 M440 430 l40 -10', tool: 'pen', x: 330, y: 420, ts: 1, bb: [330, 400, 480, 450], closed: false };
     this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured: 'worksheet', frames: { worksheet: [] }, selected: [1, 2, 4], current: 1,
-      strokes: { [k]: [st] }, ptries: {}, status: {}, verdict: null, cardOpen: true, tasksOpen: false, more: false, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
+      grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, strokes: { [k]: [st] }, ptries: {}, status: {}, verdict: null, cardOpen: true, tasksOpen: false, more: false, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
   };
   openLesson(name) {
-    this.setState({ screen: 'canvas', surface: 'sheet', lesson: name, more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, view: { z: 1, x: 0, y: 0 },
+    this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, screen: 'canvas', surface: 'sheet', lesson: name, more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, view: { z: 1, x: 0, y: 0 },
       seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {}, picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, inkN: {}, strokes: without(this.state.strokes, 'lesson:' + name + ':'),
       choiceOpen: false, solAsk: false, segsOpen: false, fold: false, report: null, reportKind: null, chat: [], typing: false });
   }
@@ -3145,6 +3311,142 @@ class Component extends DCLogic {
     };
   }
 
+  // Home, Subjects and a module's skill map: the side menu (the bottom tab bar on the phone), the top right and their pop-overs.
+  homeVals(s, PH, pip, later) {
+    const SHUT = { helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false };
+    const tog = (k) => () => this.setState({ ...SHUT, [k]: !this.state[k] });
+    const go = (screen) => () => this.setState({ ...SHUT, screen });
+    const L = PH ? {
+      content: 'position: absolute; left: 0; right: 0; top: 68px; bottom: 84px; overflow-y: auto; padding: 8px 16px 28px; box-sizing: border-box; display: flex; flex-direction: column',
+      top: 'position: absolute; left: 16px; right: 16px; top: 12px; display: flex; align-items: center; gap: 8px; z-index: 3',
+      headH: 34, h1: 28, gap1: 16, gap2: 22, rowDir: 'column', nextFlex: 'none', nextH: 264, nextTextW: 196, decoTop: 18, decoTf: 'rotate(-4deg) scale(0.58)',
+      paperH: 0, paperFlex: 'none', paperTextW: '100%', cols: 'minmax(0, 1fr)', gridGap: 12, cardH: 0, catCols: 'minmax(0, 1fr)', accPad: '0 4px', mapFlex: 'none'
+    } : {
+      content: 'position: absolute; left: 128px; right: 24px; top: 22px; bottom: 16px; display: flex; flex-direction: column',
+      top: 'position: absolute; right: 24px; top: 28px; display: flex; align-items: center; gap: 10px; z-index: 3',
+      headH: 56, h1: 32, gap1: 26, gap2: 30, rowDir: 'row', nextFlex: '0 0 580px', nextH: 236, nextTextW: 300, decoTop: 26, decoTf: 'rotate(-4deg)',
+      paperH: 236, paperFlex: '1 1 0', paperTextW: '316px', cols: 'repeat(3, minmax(0, 1fr))', gridGap: 16, cardH: 206, catCols: 'repeat(2, minmax(0, 1fr))', accPad: '0 14px 0 4px', mapFlex: '1 1 auto'
+    };
+    const POP = 'border-radius: 20px; padding: 10px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
+    const SHEET = 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 20px 16px 32px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)';
+    const P = PH ? { grown: SHEET, account: SHEET, bell: SHEET, help: SHEET, pages: SHEET, legend: SHEET, mods: SHEET,
+      tutor: 'left: 0; right: 0; bottom: 0; top: 250px; border-radius: 28px 28px 0 0' } : {
+      grown: 'left: 116px; bottom: 16px; width: 340px; transform-origin: bottom left; ' + POP,
+      account: 'right: 24px; top: 80px; width: 280px; transform-origin: top right; ' + POP,
+      bell: 'right: 96px; top: 80px; width: 300px; transform-origin: top right; ' + POP,
+      help: 'left: 116px; bottom: 16px; width: 340px; transform-origin: bottom left; border-radius: 20px; padding: 16px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)',
+      pages: 'left: 744px; top: 300px; width: 300px; transform-origin: top left; ' + POP,
+      legend: 'left: 128px; top: 300px; width: 300px; ' + POP,
+      mods: 'left: 292px; top: 92px; width: 300px; transform-origin: top left; ' + POP,
+      tutor: 'right: 16px; top: 84px; bottom: 16px; width: 344px; border-radius: 28px; transform-origin: top right' };
+
+    // The cognitive map is not built yet: its place is shown, shut. A module's skill map opens from Subjects.
+    const ICONS = {
+      home: 'M4 4h6.5v6.5H4zM13.5 4H20v6.5h-6.5zM4 13.5h6.5V20H4zM13.5 13.5H20V20h-6.5z',
+      subjects: 'M4 5.5A1.5 1.5 0 0 1 5.5 4H9v16H5.5A1.5 1.5 0 0 1 4 18.5zM9 4h4v16H9zM14.6 5.3l3.4-.9 3.2 14.5-3.4.9z',
+      cog: 'M12 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM5 3.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM19 3.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM5 16.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM19 16.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM6.6 7l3.6 3.4M17.4 7l-3.6 3.4M6.6 17l3.6-3.4M17.4 17l-3.6-3.4',
+      map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8',
+      grown: 'M7.5 11h9a2.5 2.5 0 0 1 2.5 2.5v4.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18v-4.5A2.5 2.5 0 0 1 7.5 11zM8.5 11V8a3.5 3.5 0 0 1 7 0v3M12 14.8v2',
+      help: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.8M12 17v.2'
+    };
+    const here = s.screen === 'map' ? 'subjects' : s.screen, OFF = '#AEAEB2', SOON = 'Cognitive map — comes later';
+    const places = [['home', 'Home'], ['subjects', 'Subjects'], ['cog', 'Cognitive map']];
+    const sel = { bg: 'rgba(0,113,227,0.10)', fg: '#0066CC' }, idle = { bg: 'transparent', fg: '#6E6E73' };
+
+    // The catalog: the three modules of the first slice, connected, and the check board beside them (architecture 3.10).
+    const ABOUT = {
+      'Olympiad maths 1–6': ['Olympiad problems for grades 1–6: patterns, logic, shapes and reasoning.', ['45 skills', 'English', 'Adaptive']],
+      'School maths · grade 3': ['Numbers to 1000, the four operations, measures and first fractions.', ['36 skills', 'English', 'Adaptive']],
+      'Short essays': ['Short essays in English, each with feedback by the criteria of a rubric.', ['18 skills', 'English', 'Feedback by criteria']]
+    };
+    const BOARD = { name: 'Tasks on a sheet', meta: 'NovaTrail · for grown-ups', glyph: '✓', color: 'linear-gradient(135deg, #8E8E93 0%, #48484A 100%)',
+      desc: 'The eleven tasks of the tutor’s check board, solved on the path a learner takes.', tags: [{ t: '11 tasks' }, { t: 'Russian' }, { t: 'Grown-ups only' }] };
+    const toMap = (name) => () => this.setState({ ...SHUT, screen: 'map', mapMod: name });
+    const catOn = MODS.map((m) => ({ ...m, desc: ABOUT[m.name][0], tags: ABOUT[m.name][1].map((t) => ({ t })), map: toMap(m.name), mapAria: 'Skill map of ' + m.name }));
+    if (s.boardOn) catOn.push({ ...BOARD, map: toMap(MODS[0].name), mapAria: 'Skill map of ' + BOARD.name });
+    const catOff = s.boardOn ? [] : [{ ...BOARD, connect: () => this.setState({ boardOn: true }) }];
+
+    // The map: tiers left to right on the iPad, top to bottom on the phone, as skill-map lays them out.
+    const NODE_ICON = {
+      mastered: 'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17zM8.2 12.4l2.6 2.6 5-5.4',
+      review: 'M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v3.5H16M12 8.5V12l2.5 1.8',
+      progress: 'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17zM12 6.5V12H6.5',
+      ready: 'M4 11h12v9H4zM13 11V8a3.5 3.5 0 0 1 7 0v1',
+      locked: 'M5 11h14v9H5zM8 11V8a4 4 0 0 1 8 0v3',
+      rubric: 'M4.5 5h15v10.5h-9.5l-5.5 4zM12 7.8l.9 1.8 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z'
+    };
+    const word = (st) => (st === 'rubric' ? 'Feedback by criteria' : STATES.find((x) => x[0] === st)[1]);
+    const M = MAPS[s.mapMod], rows = M.tiers.map((_, t) => M.skills.filter((k) => k.t === t).length);
+    const tierY = []; let y = 18;
+    rows.forEach((r) => { tierY.push(y); y += 26 + Math.ceil(r / 2) * 76 + 10; });
+    const at = (k) => (PH ? { x: 16 + (k.r % 2) * 167, y: tierY[k.t] + 26 + Math.floor(k.r / 2) * 76 } : { x: 36 + k.t * 250, y: 70 + k.r * 180 + (k.t % 2) * 90 });
+    const nw = PH ? 159 : 200, nh = PH ? 64 : 48;
+    const map = {
+      w: PH ? 358 : 1042, h: PH ? y + 8 : 560,
+      tiers: M.tiers.map((name, i) => ({ name, x: PH ? 16 : 36 + i * 250, y: PH ? tierY[i] : 28 })),
+      nodes: M.skills.map((k) => { const p = at(k), c = MAP_LOOK[k.st]; return { name: k.name, word: word(k.st), x: p.x, y: p.y, w: nw, h: nh, bg: c[0], bd: c[1], fg: c[2], icon: NODE_ICON[k.st] }; }),
+      edges: M.skills.flatMap((k) => (k.from || []).map((id) => {
+        const a = at(M.skills.find((x) => x.id === id)), b = at(k);
+        if (PH) { const ax = a.x + nw / 2, ay = a.y + nh, bx = b.x + nw / 2, by = b.y; return { d: 'M' + ax + ' ' + ay + ' C' + ax + ' ' + (ay + 28) + ' ' + bx + ' ' + (by - 28) + ' ' + bx + ' ' + by }; }
+        const ax = a.x + nw, ay = a.y + nh / 2, bx = b.x, by = b.y + nh / 2;
+        return { d: 'M' + ax + ' ' + ay + ' C' + (ax + 30) + ' ' + ay + ' ' + (bx - 30) + ' ' + by + ' ' + bx + ' ' + by };
+      }))
+    };
+
+    // A child's profile opens For grown-ups behind the PIN, under "Later" (epic E4 of app).
+    const pin = s.gPin || '', pinNeeded = pip && !s.gOk;
+    const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.06)' : '#FFFFFF', sh: on ? 'inset 0 0 0 2px #0071E3' : 'inset 0 0 0 1px rgba(0,0,0,0.10)' });
+
+    return {
+      on: s.screen === 'home' || s.screen === 'subjects' || s.screen === 'map', isPad: !PH, isPhone: PH, L, P, icons: ICONS, noop: () => {},
+      isHome: s.screen === 'home', isSubjects: s.screen === 'subjects',
+      screenName: s.screen === 'home' ? 'Home' : s.screen === 'subjects' ? 'Subjects' : 'Skill map',
+      nav: places.map(([id, label]) => ({ label, icon: ICONS[id], off: id === 'cog', tip: id === 'cog' ? SOON : label,
+        go: id === 'cog' ? () => {} : go(id), cur: here === id ? 'page' : 'false',
+        bg: here === id ? '#0071E3' : 'transparent', fg: here === id ? '#FFFFFF' : id === 'cog' ? OFF : '#6E6E73' })),
+      navEnd: [['grown', 'Grown-ups', 'grownOpen'], ['help', 'Help', 'helpOpen']].map(([id, label, k]) => ({ label, icon: ICONS[id], go: tog(k), open: !!s[k], ...(s[k] ? sel : idle) })),
+      // Grown-ups and Help open pop-overs; the places are screens, the cognitive map shut.
+      tabs: places.concat([['grown', 'Grown-ups'], ['help', 'Help']]).map(([id, label]) => {
+        const k = id === 'grown' ? 'grownOpen' : id === 'help' ? 'helpOpen' : null, off = id === 'cog';
+        return { label, icon: ICONS[id], off, tip: off ? SOON : label, cur: here === id ? 'page' : 'false',
+          go: off ? () => {} : k ? tog(k) : go(id), fg: off ? OFF : (k ? s[k] : here === id) ? '#0066CC' : '#6E6E73' };
+      }),
+      goSubjects: go('subjects'),
+      legend: STATES.map((x, i) => ({ name: x[1], c: BAR[i] })).concat([{ name: 'Feedback by criteria', c: '#7A2EA8' }]),
+      catOn, catOff, hasMore: catOff.length > 0, connectedN: catOn.length,
+      map, mapMod: MODS.find((m) => m.name === s.mapMod) || BOARD,
+      mapLegend: ['mastered', 'review', 'progress', 'ready', 'locked'].map((k) => ({ name: word(k), bg: MAP_LOOK[k][0], bd: MAP_LOOK[k][2] })),
+      modPick: MODS.map((m) => ({ ...m, on: m.name === s.mapMod, bg: m.name === s.mapMod ? 'rgba(0,113,227,0.08)' : 'transparent', pick: () => this.setState({ ...SHUT, mapMod: m.name }) })),
+
+      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.modsOpen || (s.homeTutor && PH),
+      scrim: PH ? 'rgba(0,0,0,0.22)' : 'transparent', closePop: () => this.setState({ ...SHUT }),
+      grownOpen: !!s.grownOpen, bellOpen: !!s.bellOpen, tutorOpen: !!s.homeTutor, modsOpen: !!s.modsOpen,
+      toggleGrown: tog('grownOpen'), toggleAccount: tog('switchOpen'), toggleBell: tog('bellOpen'), toggleHelp: tog('helpOpen'), togglePages: tog('pagesOpen'),
+      toggleLegend: tog('legendOpen'), toggleMods: tog('modsOpen'), toggleTutor: tog('homeTutor'),
+      bellBtn: s.bellOpen ? { bg: '#0071E3', fg: '#FFFFFF' } : { bg: '#FFFFFF', fg: '#1D1D1F' },
+      tutorRing: s.homeTutor ? '0 0 0 3px #FFFFFF, 0 0 0 5px #0071E3' : 'none',
+      meCap: pip ? 'Learner' : 'Your profile',
+      tutorLine1: pip ? 'Pip is an AI — a computer program, not a person. A program checks your answers.' : 'The tutor is an AI — a computer program, not a person. A program checks every answer.',
+      tutorLine2: pip ? 'Open a lesson or a page from your book, and Pip helps with the work there.' : 'Open a lesson or a page from your book, and the tutor helps with the work there.',
+
+      pinNeeded, pinPassed: !pinNeeded, pinLen: pin.length,
+      grownWho: pip ? 'Settings of this profile and of this ' + this.devName() : 'Your profile and this ' + this.devName(),
+      pinDots: [0, 1, 2, 3].map((i) => ({ bg: i < pin.length ? '#1D1D1F' : 'transparent' })),
+      pinKeys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((k) => ({
+        label: k === 'del' ? '⌫' : k, aria: k === 'del' ? 'Delete' : k || 'none', vis: k === '' ? 'hidden' : 'visible',
+        bg: k === 'del' || k === '' ? 'transparent' : 'rgba(118,118,128,0.12)',
+        go: () => {
+          if (k === 'del') return this.setState({ gPin: pin.slice(0, -1) });
+          if (!k) return;
+          const next = pin + k;
+          this.setState(next.length >= 4 ? { gPin: '', gOk: true } : { gPin: next });
+        } })),
+      // Behind the PIN the grown-up sets a child's hint mode too.
+      hm: { q: lay(s.hintMode === 'questions'), w: lay(s.hintMode === 'where') },
+      modeQ: () => this.setState({ hintMode: 'questions' }), modeW: () => this.setState({ hintMode: 'where' })
+    };
+  }
+
   renderVals() {
     const s = this.state;
     const isPaper = s.surface === 'paper';
@@ -3424,7 +3726,6 @@ class Component extends DCLogic {
       whoSub: later ? 'Choose a profile. Yours opens with the PIN while children learn on this ' + this.devName() + '.' : 'Choose a profile.',
       addOff: !later, addFg: later ? '#FFFFFF' : 'rgba(255,255,255,0.8)',
       addCap: later ? 'A child or a teen' : 'Comes later: a child’s profile waits for a parent’s consent',
-      homeSub: 'Pick up where you left off — or bring a page from your book.',
       helpAdult: !pip, helpChild: pip,
       isMap: s.screen === 'map', mapBack: () => this.setState({ screen: 'home' }),
       mapName: s.mapMod,
@@ -3458,12 +3759,14 @@ class Component extends DCLogic {
         go: () => (k === 'del' ? this.setState({ pin: this.state.pin.slice(0, -1) }) : k && this.state.pin.length < 4 ? this.pinKey(k) : null) })),
       me: { name: me.name, grad: AV(me.avatar).grad, glyph: AV(me.avatar).glyph },
       switchOpen: s.switchOpen, toggleSwitch: () => this.setState({ switchOpen: !this.state.switchOpen, helpOpen: false }),
-      switchLearner: () => this.setState({ screen: 'who', switchOpen: false, pinOpen: false, chat: [] }),
+      switchLearner: () => this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, gOk: false, screen: 'who', switchOpen: false, pinOpen: false, chat: [] }),
       legendOpen: s.legendOpen, legendCls: s.legendOpen ? 'on' : '', toggleLegend: () => this.setState({ legendOpen: !this.state.legendOpen }),
       pagesOpen: s.pagesOpen, togglePages: () => this.setState({ pagesOpen: !this.state.pagesOpen, helpOpen: false, switchOpen: false }),
       pages: [{ when: 'Today, 16:05', meta: '3 tasks', open: this.openPage }, { when: '18 November', meta: '1 task', open: this.openPage }],
       helpOpen: s.helpOpen, toggleHelp: () => this.setState({ helpOpen: !this.state.helpOpen, switchOpen: false }),
-      openCamera: this.openCamera, continueNext: () => this.openLesson('Olympiad maths 1–6'),       mods: MODS.map((m) => {
+      openCamera: this.openCamera, continueNext: () => this.openLesson('Olympiad maths 1–6'),
+      hs: this.homeVals(s, PH, pip, later), isSubjects: s.screen === 'subjects',
+      mods: MODS.map((m) => {
         const go = { open: () => this.openLesson(m.name), openAria: 'Continue ' + m.name, mapAria: 'Skill map of ' + m.name,
           map: () => this.setState({ screen: 'map', mapMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false }) };
         if (m.mark) return { ...go, name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, hasBar: false, hasMark: true, segs: [],
@@ -3472,7 +3775,7 @@ class Component extends DCLogic {
         const words = STATES.map((x, i) => m.sk[i] + ' ' + x[1].toLowerCase()).join(', ');
         return { ...go, name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, hasBar: true, hasMark: false,
           done: m.sk[0] + ' of ' + all + ' mastered · ' + m.sk[1] + ' time to review', aria: '. All the skills: ' + words + '.',
-          segs: m.sk.map((n, i) => ({ w: (n / all * 100).toFixed(1), c: STATES[i][2] })) };
+          segs: m.sk.map((n, i) => ({ w: (n / all * 100).toFixed(1), c: BAR[i] })) };
       })
     };
   }
