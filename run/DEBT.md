@@ -8,7 +8,7 @@ Table 4 of [RUN.md](../RUN.md): what was put off on purpose, its risk, when to r
 
 ## Table 4. Technical debt
 
-Numbers are not reused: next — Д283.
+Numbers are not reused: next — Д284.
 
 | ID | Debt | From | Risk while open | When to return |
 |---|---|---|---|---|
@@ -75,3 +75,4 @@ Numbers are not reused: next — Д283.
 | Д280 | R162 (T229): the AI's key of a task from paper is one solution of `task_solving`, of the first of Haiku 5.5 · `high`, Sonnet 5.5 · `medium` and Opus 5.5 · `medium` whose answer a key may hold (R164), by the author's word in `tutor`'s list (R137 tutor), with no run: how often it errs is not measured, and a second, independent solution, whose answer the first must agree with, is put off | T229, T234 | A wrong key gives a false "Correct" or "Not yet", risk 21 (dpia 6): its likelihood rose to probable, and nothing yet says by how much | A run of `tutor`'s eval set of `task_solving` with the paid runs of Д17 tutor (Д22 tutor): the author reads how often the solution errs and decides on the second solution, R162 and risk 21 with it |
 | Д281 | `BeginPaperAttempts` (contracts 15): a Start again on the same page begins more attempts and closes none of that page, and nothing bounds how many stay open — the 20 tasks of a page bound one call, not the page; `app` begins a task again when its frame changed, and the old attempt stays open until the sweep of 7 days. The review of T232 found it in `api`; a cap there alone would be a refusal the contract does not name | T232 | A client that repeats Start fills `attempts` with open rows of one page until the sweep | The contract says what a page may hold open and what a Start past it answers, and `api` and `app` follow it, in the next epic that touches the paper flow |
 | Д282 | `xrepo ship` (R166) moves no pin of `infra`: when `api` or `app` was released it stops, and the session raises `deploy/production.json` — the tags and the sha256 of their files by each release's `SHA256SUMS` — by hand, commits, then ships again; nothing checks the edit before `infra`'s CI | T245 | A wrong digest or tag reaches `infra`'s pull request, and only its CI or the deployment finds it | A recipe of `infra` that raises the pins of `deploy/production.json` from a release, which `ship` then runs |
+| Д283 | `export/`: the device's file of version 4 requires `essays`, which an export writes empty since R167 — the device keeps no essay after its attempt | T249 | A required field that never holds anything, and a reader that expects essays in it | The export's next version, for whatever reason it comes: `essays` leaves `device.schema.json`, its examples and vectors |

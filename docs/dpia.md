@@ -14,7 +14,7 @@
 | DPO | not appointed — why, section 7 |
 | What it covers | the NovaTrail operator's deployment of the platform: `app`, `api`, `tutor`, the sign-in service, hosting and the AI providers, and also the samples from the samples page (privacy 4). It does not cover a self-hosted copy: the controller of that copy is its operator (the 2026-11-09 amendment to R115) |
 | Version | the last row of the review log below |
-| Rests on | privacy 1–7; R07, R68, R112–R128, R130–R134, R136–R141, R147, R149, R152, R157, R162 |
+| Rests on | privacy 1–7; R07, R68, R112–R128, R130–R134, R136–R141, R147, R149, R152, R157, R162, R167 |
 
 **Review (R129).** The DPIA is reviewed by a task that changes what it rests on:
 - a new kind of data or a new retention period;
@@ -63,6 +63,7 @@ Besides, the DPIA is reviewed before the beta, before the public launch and at l
 | 30 | 2026-11-18 | the review log in one sentence a version, with its pull request, and who takes part and the signatures made in section 7 (R160) | #197 |
 | 31 | 2026-11-18 | a task from paper for every profile: the photo of a page to the AI in one request, each call of AI to up to three models of one provider in turn (R164), its history on the device, three new AI capabilities and the AI's key for children, risk 21; a frame of several tasks checked task by task, with the printed statements kept with the key while the attempt is open (R162); the learner's request about the page, as data to the finding, risk 22 (R165); the tutor's words of a task from paper, by AI from its crop, risk 23 (R82) | #206 |
 | 32 | 2026-11-21 | the sign-out of `app` erases nothing on the device: the account's data wait for its next sign-in, until "Erase everything on this device", another account's sign-in or their own terms (R04 app; privacy 4.1), risk 8 as it was; the policy's next version names it | #211 |
+| 33 | 2026-11-21 | the device keeps an essay only until the end of its attempt, with no screen to read it again: less data on the device, risks 3 and 13 as they were (R167) | — |
 
 ## 2. The need for a DPIA
 
@@ -148,7 +149,7 @@ The operator's mail is consumer Gmail, for families too: Google keeps the letter
   - a pseudonym, not a name;
   - a category, not a date of birth (privacy 3.3);
   - a crop of the work on the device, not the whole sheet (architecture 4.1); on a task from paper the whole page goes in one request, to up to three models of one provider in turn, the next only when the one before did not do (R164), and only its task frames come back, and the photo, the crops and the work stay on the device (privacy 6; R162);
-  - the server does not store the text of an essay (R87);
+  - the server does not store the text of an essay (R87), and the device keeps an essay only until the end of its attempt (R167);
   - stored works on the server — only by choice, and storage is off by default (R113).
 - **Accuracy and bias:**
   - the verdict is given by a program, not by AI (R03);

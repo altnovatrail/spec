@@ -9,7 +9,7 @@
 > - MathTrail's decisions that carry over here;
 > - the plan of these documents, which the author approved 2026-10-18.
 >
-> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R167.
+> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R168.
 >
 > MathTrail's decisions are cited as "R37 canvas-api" and "R213 standalone", and in a list as "canvas-api: R37, R38". Each repository has its own log and its own numbering.
 >
@@ -7150,3 +7150,16 @@ What a session stops knowing — why and when a decision changed — is in git (
 - for spec's packages, `npm install --no-save` of the archives — it resolves the whole tree again, from the network, and may write the lock file —, and a Vite alias, as `dev-canvas` has — only the development server takes it, while Vitest and tsc go past; for api's restart, a watcher in api's container — a script that container must see and one more process to look after —, and a watcher of another program — a dependency and its license for one loop; pid files and logs on the volume `novatrail-claude` — the host does not see it, while `.epics` is the same path everywhere.
 
 — *Consequence:* R156, R158, R159; RULES.md, How we work and Across repositories; RUN.md, Rules and Epics; CLAUDE.md, Environment; sources 9.7, 11.4, 11.5. — RUN.md, T241–T246.
+
+## The essay on the device
+
+**R167. The device keeps an essay only until the end of its attempt, as the work of any task: `app` has no screen "My essays" to read the essays again, no store of essays, and no list of essays on "This device" or at the sign-out. While the storage of the profile's works is on, the server keeps the essay as a stored work, as before (R113).** The author's word of 2026-11-21 (RUN.md, T249): the screen "My essays" and its button in "My subjects" were not ordered and are not needed, and the store goes with them.
+- **The attempt.** The essay's screen stays: "Check", the feedback of the last submission, "Done" and the reminder to write no names (R127). What the screen needs while the attempt is open, `app` holds as it holds the work of a task with a key; the feedback is not restored after the page is reloaded, since the server keeps no text of it (R87).
+- **The essays already on a device** are erased with the store; those the server holds as stored works stay there.
+- **The export.** The device's file of version 4 of the export requires `essays`: an export writes it empty, and the field leaves with the export's next version (Д283).
+
+— *Why:* the author did not order the screen, and a learner's essay kept on the device with no screen for it would be data with no use (privacy 4.1).
+
+— *Rejected:* the screen and the button alone, with the store kept for the server, the export and "This device" — the author's choice of 2026-11-21 was the store too; a version of the export of its own for the field alone — a new line of releases for an empty field.
+
+— *Consequence:* concepts 8 and 15 — an essay is no artifact; privacy 4 and 4.1; dpia 5.1 and its version 33; R53 app, on the branch `e19` of epic E19. — RUN.md, T249.
