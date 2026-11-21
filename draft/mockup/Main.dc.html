@@ -1079,7 +1079,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   <div class="nt-flash" style="position: absolute; inset: 0; background: #FFFFFF; pointer-events: none"></div>
 </sc-if>
 
-<!-- ============ Debug: the models, what each returned and its cost — only with api's debug flag, on a local run (RUN.md, T233) ============ -->
+<!-- ============ Debug: the models, what each returned and its cost — only for an account with the right of the debug mode (R163) ============ -->
 <sc-if value="{{dbg.show}}" hint-placeholder-val="{{ false }}">
   <button class="glass tip tip-l ph-dbgbtn {{dbg.btnCls}}" aria-label="Debug: the models and their answers" data-tip="{{dbg.tip}}" aria-expanded="{{dbg.open}}" onClick="{{dbg.toggle}}" style="position: absolute; right: 16px; top: 50%; margin-top: {{dbg.mt}}px; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; opacity: {{dbg.btn.op}}; transform: scale({{dbg.btn.sc}}); visibility: {{dbg.btn.vis}}; transition: opacity 0.2s, transform 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.3s">
     <span class="{{dbg.ring}}" style="width: 44px; height: 44px; border-radius: 22px; background: linear-gradient(135deg, #48484A 0%, #1C1C1E 100%); color: #FF9F0A; display: flex; align-items: center; justify-content: center">
@@ -1168,7 +1168,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </sc-for>
       <div style="margin-top: 6px; padding: 10px 12px; border-radius: 14px; background: rgba(255,159,10,0.12); display: flex; gap: 8px; font-size: 12px; line-height: 1.35; color: #3A3A3C">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C93400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><path d="M12 3.5l9.5 16.5h-19z"></path><path d="M12 10v4.5M12 17.2h.01"></path></svg>
-        <span>The choice bypasses the admission list. Only a local run with api’s debug flag has this window; a build for people has none of it.</span>
+        <span>The choice bypasses the admission list, in every profile. Only an account with the debug right has this window.</span>
       </div>
     </div>
     </sc-if>
@@ -2064,7 +2064,7 @@ function without(obj, prefix) {
   return r;
 }
 
-// Debug (RUN.md, T233): only with api's debug flag, on a local run. The models of tutor's Claude adapter, with its prices
+// Debug (RUN.md, T233): only for an account with the right of the debug mode (R163). The models of tutor's Claude adapter, with its prices
 // per million tokens, input and output (tutor/provider/claude/catalog); off: whether its thinking can be turned off.
 const DBG_MODELS = [
   { id: 'haiku', name: 'Haiku 5.5', api: 'claude-haiku-5-5', pin: 0.10, pout: 0.50, off: true, speed: 1 },
@@ -2129,8 +2129,8 @@ class Component extends DCLogic {
   componentWillUnmount() { this.timers.forEach((t) => clearTimeout(t)); clearTimeout(this.micT); try { window.speechSynthesis.cancel(); } catch (e) { /* none */ } }
   later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
 
-  // ---- Debug (RUN.md, T233): the models of the paper flow, what each returned and its cost. Only with api's debug flag on a
-  // local run, so the demo shows it by the prop debug or the state dbgFlag. The first model serves all four calls, the second only reads the work.
+  // ---- Debug (RUN.md, T233): the models of the paper flow, what each returned and its cost. Only for an account with the right of
+  // the debug mode (R163), so the demo shows it by the prop debug or the state dbgFlag. The first model serves all four calls, the second only reads the work.
   dbgOn() { return !!this.state.dbgFlag || this.props.debug === true || this.props.debug === 'true'; }
   dbgPick(s, call, reader, attempt) {
     if (reader === 2) return { m: dbgModel(s.dbgSecond.model), effort: s.dbgSecond.effort, think: this.dbgThink(s.dbgSecond) };

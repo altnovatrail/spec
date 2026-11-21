@@ -2,11 +2,11 @@
 //
 // Source: novatrail/api/v1/debug.proto
 
-// The debug mode of a local run in the contract between `app` and `api` (R163): which models serve
-// the calls of AI of a task from paper, past the admission list, and what each call returned and
-// cost. `api` serves it only with its debug flag, which a deployment refuses; anywhere else each
-// method answers `unimplemented`, and `app` shows no debug button. Its rules are
-// contracts/README.md, section 15.
+// The debug mode in the contract between `app` and `api` (R163): which models serve the calls of
+// AI of a task from paper, past the admission list, and what each call returned and cost, for an
+// account with the right of the mode. A method from an account without the right answers
+// `permission_denied` with no `Refusal`, and on a run with the stub of `tutor` `unimplemented`;
+// `app` then shows no debug button. Its rules are contracts/README.md, section 15.
 package apiv1connect
 
 import (

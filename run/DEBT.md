@@ -8,7 +8,7 @@ Table 4 of [RUN.md](../RUN.md): what was put off on purpose, its risk, when to r
 
 ## Table 4. Technical debt
 
-Numbers are not reused: next — Д284.
+Numbers are not reused: next — Д286.
 
 | ID | Debt | From | Risk while open | When to return |
 |---|---|---|---|---|
@@ -76,3 +76,5 @@ Numbers are not reused: next — Д284.
 | Д281 | `BeginPaperAttempts` (contracts 15): a Start again on the same page begins more attempts and closes none of that page, and nothing bounds how many stay open — the 20 tasks of a page bound one call, not the page; `app` begins a task again when its frame changed, and the old attempt stays open until the sweep of 7 days. The review of T232 found it in `api`; a cap there alone would be a refusal the contract does not name | T232 | A client that repeats Start fills `attempts` with open rows of one page until the sweep | The contract says what a page may hold open and what a Start past it answers, and `api` and `app` follow it, in the next epic that touches the paper flow |
 | Д282 | `xrepo ship` (R166) moves no pin of `infra`: when `api` or `app` was released it stops, and the session raises `deploy/production.json` — the tags and the sha256 of their files by each release's `SHA256SUMS` — by hand, commits, then ships again; nothing checks the edit before `infra`'s CI | T245 | A wrong digest or tag reaches `infra`'s pull request, and only its CI or the deployment finds it | A recipe of `infra` that raises the pins of `deploy/production.json` from a release, which `ship` then runs |
 | Д283 | `export/`: the device's file of version 4 requires `essays`, which an export writes empty since R167 — the device keeps no essay after its attempt | T249 | A required field that never holds anything, and a reader that expects essays in it | The export's next version, for whatever reason it comes: `essays` leaves `device.schema.json`, its examples and vectors |
+| Д284 | R163: the choice of the debug mode lives in the memory of `api`'s process — Cloud Run's instance stops after its idle time, and the next calls go as admitted until the account sets the choice again; a second instance has a choice of its own | T249 | The developer reads a log of models other than the chosen ones, though the log names each call's model | The debug mode is used on the deployment more than now, or `api` runs more than one instance: the choice in `api`'s database, by an amendment to R163 |
+| Д285 | R163: the command of `api` that gives an account the right of the debug mode and takes it has no recipe of `infra` to run it on the deployment — today's accounts got the right by the migration | T249 | The author gives the right to a new user on the deployment by hand, against the database | When the author first names a new user: a recipe of `infra` that runs the command as an execution of `api`'s job |

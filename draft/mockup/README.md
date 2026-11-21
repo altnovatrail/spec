@@ -14,7 +14,7 @@ The files of the claude.ai Design canvas [Take from my paper](https://claude.ai/
 - `Paper.dc.html` — the photographed page of the paper flow, synthetic.
 - `canvas.json` — the boards and the canvas's notes, in Russian: `howto` is the path through Play, and `t155` names what of the task screen of `app` the mockup does not draw, by the key of its string, and why.
 
-The canvas is behind these files: the account of the session that ran T220 could not read it, so T220's publish did not go through (Д278). The debug button and window of a local run, RUN.md, T233, are on a canvas of their own, [NovaTrail · Debug panel](https://claude.ai/artifact/2rt34xc3FMdz5a3i1CJLKS#play-DebugPlay), approved by the author on 2026-11-19: `Main.dc.html` of here with its prop `debug` on, and boards that open it at a state by its prop `at`. Until a publish goes through, the newest sources are here, and a change of the look is made in these files, with `states.mjs` below.
+The canvas is behind these files: the account of the session that ran T220 could not read it, so T220's publish did not go through (Д278). The debug button and window, RUN.md, T233, are on a canvas of their own, [NovaTrail · Debug panel](https://claude.ai/artifact/2rt34xc3FMdz5a3i1CJLKS#play-DebugPlay), approved by the author on 2026-11-19: `Main.dc.html` of here with its prop `debug` on, and boards that open it at a state by its prop `at`. Until a publish goes through, the newest sources are here, and a change of the look is made in these files, with `states.mjs` below.
 
 The files of the canvas's own runtime, `support.js` and `artifact-type/`, are not here: they are not NovaTrail's, and their license is unknown. NovaTrail's own runtime, Apache-2.0 (R12), opens these files instead: [tools/mockup/](../../tools/mockup/runtime.mjs).
 
@@ -127,9 +127,9 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `olympiad` | A problem of an olympiad book on its sheet: the answer is an option circled on the crop | First slice |
 | `solve-circle` | Check with no option circled: "Circle an answer first" | First slice |
 | `solve-nokey` | A task that could not be checked: the AI's solution gave no answer a program can compare, so it has no key; hints still work | First slice |
-| `pick-debug` | The page photographed on a local run with `api`'s debug flag: the debug button above the tutor's, and its window's Models — the first model for every call, a second to read the work | Local run alone (RUN.md, T233) |
-| `solve-debug-log` | A Check on a local run with the debug flag: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check; as admitted, the work read in two attempts, Haiku's unreadable and then Sonnet's (R164) | Local run alone (RUN.md, T233, T234) |
-| `solve-debug-export` | A Check of the Log exported: its truth — for each task of the frame its statement, formula, key, value read and verdict, and a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | Local run alone (RUN.md, T233) |
+| `pick-debug` | The page photographed by an account with the right of the debug mode (R163): the debug button above the tutor's, and its window's Models — the first model for every call, a second to read the work | An account with the right alone (RUN.md, T233, T249) |
+| `solve-debug-log` | A Check by an account with the right of the debug mode: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check; as admitted, the work read in two attempts, Haiku's unreadable and then Sonnet's (R164) | An account with the right alone (RUN.md, T233, T234, T249) |
+| `solve-debug-export` | A Check of the Log exported: its truth — for each task of the frame its statement, formula, key, value read and verdict, and a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | An account with the right alone (RUN.md, T233, T249) |
 | `later-who` | "Who's learning?" with the children Comet and Juniper, four narrower cards | Later · E4 app |
 | `later-add` | "Add a learner": the steps of a parent's consent | Later · E4 app |
 | `later-pin` | The owner's profile behind the PIN | Later · E4 app |
@@ -160,7 +160,7 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:824` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
 | `Main.dc.html:988` — Pick | What left the device, Select all, Start |
 | `Main.dc.html:1005` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1082` — Debug | Only on a local run with `api`'s debug flag: the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
+| `Main.dc.html:1082` — Debug | Only for an account with the right of the debug mode (R163): the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
 | `Main.dc.html:1263` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
 | `Main.dc.html:1389` — The owner's profile | The name, the country, the avatar |
 | `Main.dc.html:1453` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
@@ -219,7 +219,7 @@ The mockup is drawn in absolute CSS px for its two sizes, and the sign-in for a 
 
 **Sizes.**
 - An icon is 20 px in its target of 44, back 18; its lines 1.9 px, and 2.2 for arrows.
-- The top bar: 48 high, 14 from the top, 16 from the left. The tool bar: 52 wide, 16 from the left, centred in height. The tutor's button: 56 round, 16 from the right, centred; on the phone, above the row. The debug button of a local run (RUN.md, T233): the same, graphite with an orange glyph, 16 above the tutor's — on the page to pick from too, where the tutor is since RUN.md, T236, and hidden while the tutor's panel is open; its window is the tutor's panel, 400 wide.
+- The top bar: 48 high, 14 from the top, 16 from the left. The tool bar: 52 wide, 16 from the left, centred in height. The tutor's button: 56 round, 16 from the right, centred; on the phone, above the row. The debug button (RUN.md, T233): the same, graphite with an orange glyph, 16 above the tutor's — on the page to pick from too, where the tutor is since RUN.md, T236, and hidden while the tutor's panel is open; its window is the tutor's panel, 400 wide.
 - A primary button: 52 high, radius 14, 16 px semibold.
 - Type: 14 px for the body; 11.5–13 for captions; 15–17 for emphasis; 22–38 for headings. Weight 700 for headings of every size, from 17 px — those of 22–38 px with a negative `letter-spacing` of −0.2 to −0.8 px —, for the headings of cards and for the digits of badges and steps, from 11 px; 400, 500 and 600 for the rest (`app` В71).
 
@@ -316,4 +316,4 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | The field of a request about the page: Send and the microphone are icons alone | Neither is on the closed list of icons alone (R90): `app` shows each with its caption, "Send" and "Voice comes later" (R74 app) | Nobody: `app` follows R90 |
 | The tutor's panel on the screen of solving: "AI tutor · " with the task's name under its title, an opening line without the word "AI", "Explain differently" drawn and off, and a red dot on the tutor's button after a Check with the panel closed | The share of the quota under the title, as on a task of a module; first the line that the tutor is an AI; "Explain differently" only while the rung has the right to it, as on a task of a module (R82); no dot, as on a task of a module (R148) | `app` (R75, R76 app) |
 | The demo's switch "First slice" / "Later", and the DEMO "Tutor time used up" | Not part of the app | Nobody: the mockup's own |
-| The debug button and its window: the models chosen past the admission list, what each returned, the cost in dollars, and a Check exported as a case of `tutor-eval`; the button has no caption, outside R90's list | Only with `api`'s debug flag on a local run; no build or deployment for people has them (RUN.md, T233) | `spec`, `tutor`, `api`, `app` in RUN.md, T233 |
+| The debug button and its window: the models chosen past the admission list, what each returned, the cost in dollars, and a Check exported as a case of `tutor-eval`; the button has no caption, outside R90's list | Only for an account with the right of the debug mode, on a local run and on the deployment (R163; RUN.md, T233, T249) | `spec`, `tutor`, `api`, `app` in RUN.md, T233 |
