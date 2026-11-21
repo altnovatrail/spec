@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { git } from "../../shared.mjs";
 import { main } from "../main.mjs";
-import { bucketOf, orderOf } from "../ship.mjs";
+import { bucketOf, orderOf, shipStateOf } from "../ship.mjs";
 import { github } from "./github.mjs";
 import { commit, world, write } from "./world.mjs";
 
@@ -279,4 +279,20 @@ test("infra the epic changed itself waits for the deployment of the releases too
   ship = await run(w, ["xrepo", "ship"]);
   assert.equal(ship.out.at(-1).shipped, true, JSON.stringify(ship.out.at(-1)));
   assert.deepEqual(g.prs.map((p) => p.repo), ["app", "infra"]);
+});
+
+test("ship.json is read back held to its form: names of clones, phases, numbers, a commit and tags", () => {
+  const clones = ["app", "spec"];
+  const node = { phase: "checks", pinned: ["spec", "../x"], pr: 211, merge: "a".repeat(40), tag: "v0.19.4" };
+  assert.deepEqual(shipStateOf({ epic: "other", order: ["spec", "app"], nodes: { spec: node, app: { phase: "rm -rf", pr: "12; x", merge: "HEAD", tag: "v1.2" } }, file: "/elsewhere" }, "e18", clones), {
+    epic: "e18",
+    order: ["spec", "app"],
+    nodes: {
+      spec: { phase: "checks", pinned: ["spec"], pr: 211, merge: "a".repeat(40), tag: "v0.19.4" },
+      app: { phase: "gated", pinned: [], pr: null, merge: null, tag: null },
+    },
+  });
+  assert.equal(shipStateOf(null, "e18", clones), null);
+  assert.equal(shipStateOf({ order: [] }, "e18", clones), null);
+  assert.equal(shipStateOf({ order: ["spec", "../api"] }, "e18", clones), null);
 });

@@ -238,15 +238,16 @@ export function readConfig(text) {
   const ignore = [];
   let inIgnore = false;
   for (const raw of text.split("\n")) {
-    const line = raw.replace(/\s+#.*$/, "");
+    const hash = raw.search(/\s#/);
+    const line = hash === -1 ? raw : raw.slice(0, hash).trimEnd();
     if (!line.trim() || line.trim().startsWith("#")) continue;
     const indent = line.length - line.trimStart().length;
-    const item = /^\s*-\s+(.*)$/.exec(line);
-    if (item) {
-      if (inIgnore) ignore.push(unquote(item[1]));
+    const bare = line.trimStart();
+    if (/^-\s/.test(bare)) {
+      if (inIgnore) ignore.push(unquote(bare.slice(1).trimStart()));
       continue;
     }
-    const key = /^\s*([\w-]+):\s*(.*)$/.exec(line);
+    const key = /^([\w-]+):(.*)$/.exec(bare);
     if (!key) continue;
     while (stack.length && stack.at(-1).indent >= indent) stack.pop();
     const keys = [...stack.map((s) => s.key), key[1]].join(".");
@@ -357,7 +358,12 @@ export function measure({ root, base = null, reports = null, config = ".github/c
   const run = (args) => git(root, [...SAFE, ...args]);
   const from = base ?? run(["merge-base", "origin/main", "HEAD"]).trim();
   const changed = changedLines(run(["diff", "-U0", "-M", "--no-color", "--no-ext-diff", "--no-textconv", from, "HEAD"]));
-  const { target, ignore } = readConfig(fs.readFileSync(path.join(root, config), "utf8"));
+  // The command line that names the configuration may be a session's: it names a file of the
+  // repository, never one beyond it.
+  const inside = path.resolve(root) + path.sep;
+  const configFile = path.resolve(root, config);
+  if (!configFile.startsWith(inside)) throw new Error(`--config: ${config} is not a file of the repository`);
+  const { target, ignore } = readConfig(fs.readFileSync(configFile, "utf8"));
   const named = reports ?? ["coverage/go.out", "coverage/lcov.info"].filter((f) => fs.existsSync(path.join(root, f)));
   if (!named.length) throw new Error("no report: neither coverage/go.out nor coverage/lcov.info, and none named");
   const modules = goModulesOf(root, run(["ls-files", "--", "go.mod", "*/go.mod"]).split("\n").filter(Boolean));

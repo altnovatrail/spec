@@ -249,6 +249,9 @@ test("measure and main: the merge-base of origin/main, both reports, renames, th
   assert.equal(JSON.parse(out[0]).coverage, null);
   assert.equal(main(["--wrong"], io), 2);
   assert.equal(main(["--config", "missing.yml"], io), 2);
+  err.length = 0;
+  assert.equal(main(["--config", "../codecov.yml"], io), 2);
+  assert.match(err[0], /--config: \.\.\/codecov\.yml is not a file of the repository/);
   fs.rmSync(path.join(root, "coverage"), { recursive: true });
   err.length = 0;
   assert.equal(main([], io), 2);

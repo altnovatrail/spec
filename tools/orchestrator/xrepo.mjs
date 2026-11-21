@@ -20,13 +20,13 @@ import { DOCKER, git as runGit } from "../shared.mjs";
 import { ensureRunning, findContainer, placeOf, REPOSITORY, runDocker } from "./containers.mjs";
 import { ORGANIZATION } from "./devcontainers.mjs";
 import { GIT_ENV } from "./runs.mjs";
-import { PORTS, readConfig, readPid, readState, SERVERS, STAND, stamp, stopServer } from "./stand.mjs";
+import { EPIC, EPICS, PORTS, readConfig, readPid, readState, SERVERS, STAND, stamp, stopServer } from "./stand.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
-// The host's folder .epics, as every container mounts it (R166).
-export const EPICS = "/workspaces/.epics";
-export const EPIC = /^[a-z0-9][a-z0-9-]*$/;
+// A module of NovaTrail that a go.mod requires, alone or in a block: spaces and tabs, never a
+// newline, between its words, so that the pattern never backtracks across lines.
+export const REQUIRED = /^[ \t]*(?:require[ \t]+)?(github\.com\/altnovatrail\/\S+)[ \t]+v\S+/gm;
 const SAFE = ["-c", "core.hooksPath=/dev/null", "-c", "core.fsmonitor=false"];
 const MODULE = "github.com/altnovatrail/";
 // spec's npm packages, by the folder of node_modules/@altnovatrail/ they take.
@@ -121,13 +121,14 @@ export function checkRepo(repo) {
 // The epic's folder: the one named, or the only one in .epics.
 export function epicOf(deps, named = null) {
   const root = rootOf(deps);
+  const found = fs.existsSync(root) ? fs.readdirSync(root).filter((d) => EPIC.test(d) && fs.statSync(path.join(root, d)).isDirectory()) : [];
   if (named !== null) {
     checkEpic(named);
-    const dir = path.join(root, named);
-    if (!fs.existsSync(dir)) throw new Error(`no epic ${named} in ${root}: xrepo up first`);
-    return { epic: named, dir };
+    // The name as .epics lists it, not as the command line, which a session writes, has it.
+    const epic = found.find((d) => d === named);
+    if (epic === undefined) throw new Error(`no epic ${named} in ${root}: xrepo up first`);
+    return { epic, dir: path.join(root, epic) };
   }
-  const found = fs.existsSync(root) ? fs.readdirSync(root).filter((d) => EPIC.test(d) && fs.statSync(path.join(root, d)).isDirectory()) : [];
   if (found.length !== 1) throw new Error(`${found.length} epics in ${root}${found.length ? `: ${found.join(", ")}` : ""}; name one with --epic`);
   return { epic: found[0], dir: path.join(root, found[0]) };
 }
@@ -181,7 +182,7 @@ export function goWorkOf(dir, repo, skip = new Set()) {
   }
   const replaces = [];
   let version = goVersion(mod);
-  for (const [, module] of mod.matchAll(/^\s*(?:require\s+)?(github\.com\/altnovatrail\/\S+)\s+v\S+/gm)) {
+  for (const [, module] of mod.matchAll(REQUIRED)) {
     const [target, ...sub] = module.slice(MODULE.length).split("/");
     if (target === repo || skip.has(target) || !REPOSITORY.test(target) || !fs.existsSync(path.join(dir, target, ".git"))) continue;
     const folder = ["..", target, ...sub].join("/");
@@ -202,7 +203,12 @@ export function goWorkOf(dir, repo, skip = new Set()) {
 export function exclude(clone, names) {
   const file = path.join(clone, ".git", "info", "exclude");
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  const text = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
+  let text = "";
+  try {
+    text = fs.readFileSync(file, "utf8");
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
   const have = new Set(text.split("\n").map((l) => l.trim()));
   const add = names.filter((n) => !have.has(`/${n}`));
   if (add.length) fs.writeFileSync(file, `${text}${text && !text.endsWith("\n") ? "\n" : ""}${add.map((n) => `/${n}`).join("\n")}\n`);
@@ -447,6 +453,28 @@ export function test(repo, targets, named, deps) {
   return { repo, status: result.status, output: deps.inherit === false ? `${result.stdout}${result.stderr}` : null };
 }
 
+// What serve prints of the stand's state.json, which another process writes: its numbers, and its
+// servers by the names the stand runs.
+export function shownOf(state) {
+  const number = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v) : null);
+  const servers = Object.fromEntries(
+    Object.keys(SERVERS)
+      .filter((name) => state.servers?.[name])
+      .map((name) => [name, { repo: SERVERS[name], pid: number(state.servers[name].pid), start: number(state.servers[name].start) }]),
+  );
+  const probe = state.probe ?? {};
+  return {
+    phase: "ready",
+    pid: number(state.pid),
+    ai: state.ai === true,
+    spent_usd: number(state.spent_usd),
+    restarts: number(state.restarts),
+    servers,
+    mockup: state.mockup ? { port: number(state.mockup.port) } : null,
+    probe: { root: number(probe.root), deployment: number(probe.deployment), rpc: number(probe.rpc) },
+  };
+}
+
 // Starts the stand as a process of its own and returns once its probe has passed or it failed. A
 // stand that runs is stopped first, and so is what its servers left.
 export async function serve({ named = null, ai = false, limit = null, mockup = false }, deps) {
@@ -461,8 +489,9 @@ export async function serve({ named = null, ai = false, limit = null, mockup = f
   const log = path.join(stand, `stand-${stamp(deps.now())}.log`);
   const fd = fs.openSync(log, "a");
   const program = deps.dockerProgram ?? DOCKER;
-  const own = [...(program === DOCKER ? [] : ["--docker", program]), ...(deps.hostname && deps.hostname !== os.hostname() ? ["--hostname", deps.hostname] : [])];
-  const child = spawn(process.execPath, [path.join(HERE, "stand.mjs"), dir, ...own], { env: deps.env ?? process.env, detached: true, stdio: ["ignore", fd, fd] });
+  const root = rootOf(deps);
+  const own = { ...(root === EPICS ? {} : { XREPO_EPICS: root }), ...(program === DOCKER ? {} : { XREPO_DOCKER: program }), ...(deps.hostname && deps.hostname !== os.hostname() ? { XREPO_HOSTNAME: deps.hostname } : {}) };
+  const child = spawn(process.execPath, [path.join(HERE, "stand.mjs"), epic], { env: { ...(deps.env ?? process.env), ...own }, detached: true, stdio: ["ignore", fd, fd] });
   fs.closeSync(fd);
   child.unref();
   const start = startHere(child.pid);
@@ -472,7 +501,7 @@ export async function serve({ named = null, ai = false, limit = null, mockup = f
   for (;;) {
     const state = readState(stand);
     if (state?.pid === child.pid && ["ready", "failed", "over-limit"].includes(state.phase)) {
-      if (state.phase === "ready") return { epic, ...state, url: `http://127.0.0.1:${readConfig(stand).ports.relay}`, log };
+      if (state.phase === "ready") return { epic, ...shownOf(state), url: `http://127.0.0.1:${readConfig(stand).ports.relay}`, log };
       // A stand that failed stops what it started, then ends: the error comes once it has.
       for (let i = 0; startHere(child.pid) === start && i < (deps.standWait ?? STAND_WAIT_S) * 2; i += 1) await new Promise((resolve) => setTimeout(resolve, 500));
       throw new Error(`the stand ${state.phase}: ${state.error}; its log is ${log}`);

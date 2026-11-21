@@ -27,6 +27,9 @@ import { DOCKER, isMain } from "../shared.mjs";
 import { ensureRunning, findContainer, runDocker } from "./containers.mjs";
 
 export const STAND = ".stand";
+// The host's folder .epics, as every container mounts it, and an epic's name in it (R166).
+export const EPICS = "/workspaces/.epics";
+export const EPIC = /^[a-z0-9][a-z0-9-]*$/;
 // The ports: Vite's of app, which strictPort keeps; api's of dev-app, which app's Vite proxies to;
 // spec's mockup. The relays listen on app's and the mockup's in the orchestrator's container.
 export const PORTS = { app: 5173, api: 8080, mockup: 8156 };
@@ -459,13 +462,18 @@ export function runStand(epicDir, { program = DOCKER, env = process.env, hostnam
 }
 
 if (isMain(import.meta.url)) {
-  // The tests' docker and host; the orchestrator's own by default.
-  const { values, positionals } = parseArgs({ options: { docker: { type: "string" }, hostname: { type: "string" } }, allowPositionals: true });
-  if (positionals.length !== 1) {
-    console.error("usage: node tools/orchestrator/stand.mjs <epic's folder> [--docker <program>] [--hostname <name>]");
+  // The epic by its name as .epics lists it. The tests' .epics, docker and host come by the
+  // environment serve gives, the orchestrator's own by default: no command line names a program or
+  // a folder.
+  const { positionals } = parseArgs({ options: {}, allowPositionals: true });
+  const env = process.env;
+  const root = env.XREPO_EPICS ?? EPICS;
+  const epic = positionals.length === 1 && EPIC.test(positionals[0]) && fs.existsSync(root) ? fs.readdirSync(root).find((d) => d === positionals[0]) : undefined;
+  if (epic === undefined) {
+    console.error("usage: node tools/orchestrator/stand.mjs <epic in .epics>");
     process.exit(2);
   }
-  const stand = runStand(path.resolve(positionals[0]), { program: values.docker ?? DOCKER, hostname: values.hostname ?? os.hostname() });
+  const stand = runStand(path.join(root, epic), { program: env.XREPO_DOCKER ?? DOCKER, hostname: env.XREPO_HOSTNAME ?? os.hostname() });
   let ending = null;
   const end = () => {
     ending ??= stand.stop().then(() => process.exit(0));

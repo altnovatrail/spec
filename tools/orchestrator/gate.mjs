@@ -159,7 +159,7 @@ function onlyReplaced(lines, replaced) {
 // The modules a clone's go.work replaces with a clone of the epic.
 function replacedOf(dir, repo) {
   try {
-    return [...fs.readFileSync(path.join(dir, repo, "go.work"), "utf8").matchAll(/^\s*(?:replace\s+)?(\S+)\s+=>\s+\.\.\//gm)].map((m) => m[1]);
+    return [...fs.readFileSync(path.join(dir, repo, "go.work"), "utf8").matchAll(/^[ \t]*(?:replace[ \t]+)?(\S+)[ \t]+=>[ \t]+\.\.\//gm)].map((m) => m[1]);
   } catch {
     return [];
   }

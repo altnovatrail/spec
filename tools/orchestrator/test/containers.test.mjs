@@ -2,6 +2,8 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { ensureRunning, findContainer, inspect, ownFolder, placeOf, runDocker } from "../containers.mjs";
 import { host, HOST } from "./fakes.mjs";
@@ -75,7 +77,14 @@ test("a stopped container is started and waited for; one that never runs is an e
   assert.equal(slept, 3);
 });
 
-test("docker that cannot start, or that fails, is an error with what it said", () => {
+test("docker that cannot start, that fails, or that runs past its time is an error with what it said", (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "docker-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  // A program of its own, not a shell with -c: CodeQL would read every docker command line as a
+  // shell's command then.
+  const fake = path.join(dir, "docker");
+  fs.writeFileSync(fake, '#!/bin/sh\n[ "$1" = slow ] && exec sleep 5\necho said >&2\nexit 3\n', { mode: 0o755 });
   assert.throws(() => runDocker(["ps"], { program: "/nonexistent/docker" }), /docker ps: spawnSync \/nonexistent\/docker ENOENT/);
-  assert.throws(() => runDocker(["-c", "echo said >&2; exit 3"], { program: "/bin/sh" }), /docker -c echo said >&2; exit 3: said/);
+  assert.throws(() => runDocker(["ps", "-a"], { program: fake }), /docker ps -a: said/);
+  assert.throws(() => runDocker(["slow"], { program: fake, timeout: 100 }), /docker slow: no end in 0.1 s/);
 });

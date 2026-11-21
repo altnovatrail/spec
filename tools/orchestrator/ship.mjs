@@ -7,10 +7,11 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { byCodeUnits } from "../shared.mjs";
 import { STAND } from "./stand.mjs";
 import { sync as syncOwn } from "./runs.mjs";
 import { gate, gatedAt, GATES, push, touchedOf } from "./gate.mjs";
-import { checkRepo, clonesOf, containerId, docker, epicOf, git, PACKAGES, pinnedOf, wireGo } from "./xrepo.mjs";
+import { checkRepo, clonesOf, containerId, docker, epicOf, git, PACKAGES, pinnedOf, REQUIRED, wireGo } from "./xrepo.mjs";
 
 const OWNER = "altnovatrail";
 const MODULE = "github.com/altnovatrail/";
@@ -35,6 +36,14 @@ function checkTag(tag) {
   if (!TAG.test(tag)) throw new Error(`not a release's tag: ${tag}`);
 }
 
+const readText = (file) => {
+  try {
+    return fs.readFileSync(file, "utf8");
+  } catch {
+    return null;
+  }
+};
+
 const readJson = (file) => {
   try {
     return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -56,7 +65,7 @@ const goMod = (clone) => {
 export function dependsOn(dir, repo) {
   const clone = path.join(dir, repo);
   const on = new Set();
-  for (const [, module] of (goMod(clone) ?? "").matchAll(/^\s*(?:require\s+)?(github\.com\/altnovatrail\/\S+)\s+v\S+/gm)) on.add(module.slice(MODULE.length).split("/")[0]);
+  for (const [, module] of (goMod(clone) ?? "").matchAll(REQUIRED)) on.add(module.slice(MODULE.length).split("/")[0]);
   const manifest = readJson(path.join(clone, "package.json")) ?? {};
   for (const name of Object.keys({ ...manifest.dependencies, ...manifest.devDependencies })) if (REPO_OF[name]) on.add(REPO_OF[name]);
   if (fs.existsSync(path.join(clone, ".gitmodules")) && /path\s*=\s*spec\s*$/m.test(fs.readFileSync(path.join(clone, ".gitmodules"), "utf8"))) on.add("spec");
@@ -72,7 +81,7 @@ export function orderOf(dir, repos) {
   while (left.size) {
     const ready = [...left].filter((r) => r !== "infra" || left.size === 1).filter((r) => ![...dependsOn(dir, r)].some((d) => left.has(d) && d !== r));
     if (!ready.length) throw new Error(`the repositories depend on each other in a circle: ${[...left].join(", ")}`);
-    const next = ready.includes("spec") ? "spec" : ready.sort()[0];
+    const next = ready.includes("spec") ? "spec" : ready.sort(byCodeUnits)[0];
     order.push(next);
     left.delete(next);
   }
@@ -163,7 +172,7 @@ export function unwireNpm(dir, repo) {
 // The tag of spec a clone is on before the pin: its go.mod's, its package.json's, or its justfile's
 // spec_tag.
 function specTagOf(clone, mod, named) {
-  const go = mod ? /^\s*(?:require\s+)?github\.com\/altnovatrail\/spec\s+(v\S+)/m.exec(mod)?.[1] : null;
+  const go = mod ? /^[ \t]*(?:require[ \t]+)?github\.com\/altnovatrail\/spec[ \t]+(v\S+)/m.exec(mod)?.[1] : null;
   if (go) return go;
   if (named["@altnovatrail/spec"]) return `v${named["@altnovatrail/spec"]}`;
   try {
@@ -179,8 +188,8 @@ function retag(clone, before, tag) {
   const changed = [];
   for (const file of ["CLAUDE.md", "RUN.md"]) {
     const full = path.join(clone, file);
-    if (!fs.existsSync(full)) continue;
-    const text = fs.readFileSync(full, "utf8");
+    const text = readText(full);
+    if (text === null) continue;
     const next = text.split("\n").map((line) => (/\bspec\b/.test(line) && line.includes(`\`${before}\``) ? line.replaceAll(`\`${before}\``, `\`${tag}\``) : line)).join("\n");
     if (next !== text) {
       fs.writeFileSync(full, next);
@@ -188,8 +197,8 @@ function retag(clone, before, tag) {
     }
   }
   const justfile = path.join(clone, "justfile");
-  if (fs.existsSync(justfile)) {
-    const text = fs.readFileSync(justfile, "utf8");
+  const text = readText(justfile);
+  if (text !== null) {
     const next = text.replace(/^(spec_tag\s*:=\s*")v[^"]+(")/m, `$1${tag}$2`);
     if (next !== text) {
       fs.writeFileSync(justfile, next);
@@ -217,7 +226,7 @@ function pinOne(dir, dependent, repo, tag, deps) {
     git(deps, sub, ["checkout", "--quiet", "--detach", tag]);
     done.push("submodule");
   }
-  const modules = mod ? [...mod.matchAll(/^\s*(?:require\s+)?(github\.com\/altnovatrail\/\S+)\s+v\S+/gm)].map((m) => m[1]).filter((m) => m.slice(MODULE.length).split("/")[0] === repo) : [];
+  const modules = mod ? [...mod.matchAll(REQUIRED)].map((m) => m[1]).filter((m) => m.slice(MODULE.length).split("/")[0] === repo) : [];
   if (modules.length) {
     inContainer(deps, dependent, clone, { GOWORK: "off", GOFLAGS: "-mod=mod" }, 'go get "$@" && go mod tidy', [...new Set(modules)].map((m) => `${m}@${tag}`));
     done.push("go.mod");
@@ -398,6 +407,31 @@ function pullRequestOf(dir, repo, epic, deps) {
   return number;
 }
 
+const shipFile = (dir) => path.join(dir, STAND, "ship.json");
+
+const PHASES = ["gated", "pushed", "checks", "merged", "done"];
+
+// .stand/ship.json as ship wrote it, each value held to its form, or null: its numbers, tags and
+// names go into the addresses of GitHub, npm and the Go proxy, and the file may have been edited.
+export function shipStateOf(raw, epic, clones) {
+  const order = Array.isArray(raw?.order) ? raw.order.map((r) => clones.find((c) => c === r)) : [];
+  if (!order.length || order.includes(undefined)) return null;
+  const nodes = {};
+  for (const repo of order) {
+    const node = raw.nodes?.[repo] ?? {};
+    const pr = Number(node.pr);
+    const tag = /^v(\d+)\.(\d+)\.(\d+)$/.exec(node.tag ?? "");
+    nodes[repo] = {
+      phase: PHASES.find((p) => p === node.phase) ?? "gated",
+      pinned: Array.isArray(node.pinned) ? order.filter((r) => node.pinned.includes(r)) : [],
+      pr: Number.isInteger(pr) && pr > 0 ? pr : null,
+      merge: /^[0-9a-f]{40}$/.test(node.merge ?? "") ? node.merge : null,
+      tag: tag ? `v${Number(tag[1])}.${Number(tag[2])}.${Number(tag[3])}` : null,
+    };
+  }
+  return { epic, order, nodes };
+}
+
 const save = (file, state) => fs.writeFileSync(file, `${JSON.stringify(state, null, 1)}\n`);
 
 // One node to its release: the pins of what it depends on and its gate again without the wiring,
@@ -425,12 +459,12 @@ async function shipOne(dir, epic, repo, state, deps) {
     }
     say({ push: push(epic, deps, [repo]) });
     node.phase = "pushed";
-    save(state.file, state);
+    save(shipFile(dir), state);
   }
   if (node.phase === "pushed") {
     node.pr = pullRequestOf(dir, repo, epic, deps);
     node.phase = "checks";
-    save(state.file, state);
+    save(shipFile(dir), state);
     say({ pr: node.pr });
   }
   if (node.phase === "checks") {
@@ -441,14 +475,14 @@ async function shipOne(dir, epic, repo, state, deps) {
     }
     node.merge = json(deps, ["pr", "view", String(node.pr), "-R", `${OWNER}/${repo}`, "--json", "mergeCommit"]).mergeCommit.oid;
     node.phase = "merged";
-    save(state.file, state);
+    save(shipFile(dir), state);
   }
   if (node.phase === "merged") {
     node.tag = await awaitMain(repo, node.merge, deps);
     if (node.tag) say({ release: await waitRelease(repo, node.tag, deps) });
     if (repo === "spec" && deps.home && deps.specUrl) say({ orchestrator: syncOwn({ home: deps.home, url: deps.specUrl }) });
     node.phase = "done";
-    save(state.file, state);
+    save(shipFile(dir), state);
   }
 }
 
@@ -470,8 +504,8 @@ function undeployed(dir, released, deps) {
 // Before the first pull request, each must have passed the gate at its head and have its text.
 export async function ship(named, deps) {
   const { epic, dir } = epicOf(deps, named);
-  const file = path.join(dir, STAND, "ship.json");
-  let state = readJson(file);
+  const file = shipFile(dir);
+  let state = shipStateOf(readJson(file), epic, clonesOf(dir));
   if (!state) {
     const touched = touchedOf(dir, deps);
     if (!touched.length) throw new Error("no clone has commits beyond main: nothing to ship");
@@ -482,7 +516,6 @@ export async function ship(named, deps) {
     }
     state = { epic, order, nodes: Object.fromEntries(order.map((r) => [r, { phase: "gated", pinned: [], pr: null, merge: null, tag: null }])) };
   }
-  state.file = file;
   // infra deploys the releases of api and app: its pins are edited by the session, and infra ships
   // only once its committed deploy/production.json names each release this ship made.
   const released = Object.fromEntries(Object.entries(state.nodes).filter(([, n]) => n.tag).map(([r, n]) => [r, n.tag]));
