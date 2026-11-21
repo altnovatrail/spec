@@ -62,7 +62,7 @@ Besides, the DPIA is reviewed before the beta, before the public launch and at l
 | 29 | 2026-11-17 | the author signs only the version in force before the first child (R147) | #180 |
 | 30 | 2026-11-18 | the review log in one sentence a version, with its pull request, and who takes part and the signatures made in section 7 (R160) | #197 |
 | 31 | 2026-11-18 | a task from paper for every profile: the photo of a page to the AI in one request, each call of AI to up to three models of one provider in turn (R164), its history on the device, three new AI capabilities and the AI's key for children, risk 21; a frame of several tasks checked task by task, with the printed statements kept with the key while the attempt is open (R162); the learner's request about the page, as data to the finding, risk 22 (R165); the tutor's words of a task from paper, by AI from its crop, risk 23 (R82) | #206 |
-| 32 | 2026-11-21 | the sign-out of `app` erases nothing on the device: the account's data wait for its next sign-in, until "Erase everything on this device", another account's sign-in or their own terms (R04 app; privacy 4.1), risk 8 as it was; the policy's next version names it | #PR |
+| 32 | 2026-11-21 | the sign-out of `app` erases nothing on the device: the account's data wait for its next sign-in, until "Erase everything on this device", another account's sign-in or their own terms (R04 app; privacy 4.1), risk 8 as it was; the policy's next version names it | #211 |
 
 ## 2. The need for a DPIA
 
