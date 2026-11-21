@@ -47,7 +47,7 @@ import { pin, ship, waitRelease } from "./ship.mjs";
 import { allRuns, DEFAULT_CEILING, homeOf, loadRun, openRuns, resume, SPEC_URL, start, stateOf, stop, sync, waitFor } from "./runs.mjs";
 
 const USAGE =
-  "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], stop <run>, status [<run>…], wait <run>… [--timeout <seconds>], next <repo>, rebuild <repo> [--container <name>] [--folder <folder>], create <repo> [--folder <folder>], sync, or xrepo up <epic> [<repo>…], xrepo status|stop|down [--epic <epic>], xrepo test <repo> [<target>…] [--epic <epic>], xrepo serve [--ai] [--limit <usd>] [--mockup] [--epic <epic>], xrepo sync|push|ship [--epic <epic>], xrepo gate [<repo>…] [--epic <epic>], xrepo pin <repo> [<tag>] [--epic <epic>], xrepo wait-release <repo> <tag>";
+  "orchestrator: start <repo> <task> [--ceiling <usd>] [--prompt <file>] [--container <name>] [--folder <folder>], resume <run> [--answers <file>] [--ceiling <usd>], stop <run>, status [<run>…], wait <run>… [--timeout <seconds>], next <repo>, rebuild <repo> [--container <name>] [--folder <folder>], create <repo> [--folder <folder>], sync, or xrepo up <epic> [<repo>…], xrepo status|stop|down [<epic>], xrepo test <repo> [<target>…] [--browser] [--epic <epic>], xrepo serve [<epic>] [--ai] [--limit <usd>] [--mockup], xrepo sync|push|ship [<epic>], xrepo gate [<repo>…] [--epic <epic>], xrepo pin <repo> [<tag>] [--epic <epic>], xrepo wait-release <repo> <tag>";
 
 const COMMANDS = {
   start: { options: { ceiling: { type: "string" }, prompt: { type: "string" }, container: { type: "string" }, folder: { type: "string" } }, min: 2, max: 2 },
@@ -60,17 +60,17 @@ const COMMANDS = {
   create: { options: { folder: { type: "string" } }, min: 1, max: 1 },
   sync: { options: {}, min: 0, max: 0 },
   "xrepo up": { options: {}, min: 1, max: Infinity },
-  "xrepo status": { options: { epic: { type: "string" } }, min: 0, max: 0 },
-  "xrepo test": { options: { epic: { type: "string" } }, min: 1, max: Infinity },
-  "xrepo serve": { options: { epic: { type: "string" }, ai: { type: "boolean" }, limit: { type: "string" }, mockup: { type: "boolean" } }, min: 0, max: 0 },
-  "xrepo stop": { options: { epic: { type: "string" } }, min: 0, max: 0 },
-  "xrepo down": { options: { epic: { type: "string" } }, min: 0, max: 0 },
-  "xrepo sync": { options: { epic: { type: "string" } }, min: 0, max: 0 },
-  "xrepo push": { options: { epic: { type: "string" } }, min: 0, max: 0 },
+  "xrepo status": { options: { epic: { type: "string" } }, min: 0, max: 1, epic: true },
+  "xrepo test": { options: { epic: { type: "string" }, browser: { type: "boolean" } }, min: 1, max: Infinity },
+  "xrepo serve": { options: { epic: { type: "string" }, ai: { type: "boolean" }, limit: { type: "string" }, mockup: { type: "boolean" } }, min: 0, max: 1, epic: true },
+  "xrepo stop": { options: { epic: { type: "string" } }, min: 0, max: 1, epic: true },
+  "xrepo down": { options: { epic: { type: "string" } }, min: 0, max: 1, epic: true },
+  "xrepo sync": { options: { epic: { type: "string" } }, min: 0, max: 1, epic: true },
+  "xrepo push": { options: { epic: { type: "string" } }, min: 0, max: 1, epic: true },
   "xrepo gate": { options: { epic: { type: "string" } }, min: 0, max: Infinity },
   "xrepo pin": { options: { epic: { type: "string" } }, min: 1, max: 2 },
   "xrepo wait-release": { options: {}, min: 2, max: 2 },
-  "xrepo ship": { options: { epic: { type: "string" } }, min: 0, max: 0 },
+  "xrepo ship": { options: { epic: { type: "string" } }, min: 0, max: 1, epic: true },
 };
 
 class UsageError extends Error {}
@@ -94,9 +94,15 @@ export function argumentsOf(argv) {
     // Node's message repeats the word of the command line; its code does not.
     throw new UsageError(`${command}: ${PARSE_ERRORS[error.code] ?? "a wrong option"}`);
   }
-  const words = parsed.positionals;
+  let words = parsed.positionals;
   if (words.length < spec.min || words.length > spec.max) throw new UsageError(USAGE);
   const values = { ...parsed.values };
+  // A command with no other word takes the epic as its word too, as up does.
+  if (spec.epic && words.length) {
+    if (values.epic !== undefined && values.epic !== words[0]) throw new UsageError(`${command}: the epic named twice`);
+    values.epic = words[0];
+    words = [];
+  }
   for (const key of ["ceiling", "timeout", "limit"]) {
     if (values[key] === undefined) continue;
     if (!/^\d+(\.\d+)?$/.test(values[key]) || Number(values[key]) <= 0) throw new UsageError(`--${key}: not a positive number`);
@@ -177,7 +183,7 @@ export async function main(argv, overrides = {}) {
     } else if (command === "xrepo status") {
       deps.out(JSON.stringify(xrepoStatus(values.epic ?? null, deps)));
     } else if (command === "xrepo test") {
-      const result = xrepoTest(words[0], words.slice(1), values.epic ?? null, deps);
+      const result = xrepoTest(words[0], words.slice(1), values.epic ?? null, deps, { browser: values.browser ?? false });
       deps.out(JSON.stringify(result));
       if (result.status !== 0) return 1;
     } else if (command === "xrepo serve") {

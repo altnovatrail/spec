@@ -25,7 +25,11 @@ test("xrepo's command lines: its command is the second word, and each holds its 
   assert.deepEqual(argumentsOf(["xrepo", "up", "e18", "api", "app"]), { command: "xrepo up", words: ["e18", "api", "app"], values: {} });
   assert.deepEqual(argumentsOf(["xrepo", "serve", "--ai", "--limit", "3.5", "--epic", "e18"]), { command: "xrepo serve", words: [], values: { ai: true, limit: 3.5, epic: "e18" } });
   assert.deepEqual(argumentsOf(["xrepo", "test", "tutor", "./internal/report"]).words, ["tutor", "./internal/report"]);
-  for (const argv of [["xrepo", "up"], ["xrepo"], ["xrepo", "ship", "e1"], ["xrepo", "pin"], ["xrepo", "wait-release", "spec"], ["xrepo", "serve", "--limit", "0"], ["xrepo", "status", "--ai"], ["xrepo", "toString"]]) {
+  // A command with no other word takes the epic as its word too.
+  assert.deepEqual(argumentsOf(["xrepo", "push", "e18"]), { command: "xrepo push", words: [], values: { epic: "e18" } });
+  assert.deepEqual(argumentsOf(["xrepo", "ship", "e18", "--epic", "e18"]).values, { epic: "e18" });
+  assert.deepEqual(argumentsOf(["xrepo", "test", "app", "src/a.test.ts", "--browser"]).values, { browser: true });
+  for (const argv of [["xrepo", "up"], ["xrepo"], ["xrepo", "ship", "e1", "e2"], ["xrepo", "ship", "e1", "--epic", "e2"], ["xrepo", "gate", "--browser"], ["xrepo", "pin"], ["xrepo", "wait-release", "spec"], ["xrepo", "serve", "--limit", "0"], ["xrepo", "status", "--ai"], ["xrepo", "toString"]]) {
     assert.throws(() => argumentsOf(argv), argv.join(" "));
   }
 });
@@ -160,6 +164,11 @@ test("test runs a repository's quick checks in its container, with its targets a
   r = await run(w, ["xrepo", "test", "app", "src/a.test.ts"]);
   assert.equal(r.status, 0, r.err);
   assert.match(r.out[0].output, /vitest \["run","--project","node","--exclude","scripts\/site.test.ts","--exclude","scripts\/page.test.ts",".\/src\/a.test.ts"\]/);
+  // With --browser, every project of Vitest on the targets, the tests that open browsers among them.
+  r = await run(w, ["xrepo", "test", "app", "scripts/page.test.ts", "--browser"]);
+  assert.equal(r.status, 0, r.err);
+  assert.match(r.out[0].output, /vitest \["run",".\/scripts\/page.test.ts"\]/);
+  assert.match((await run(w, ["xrepo", "test", "tutor", "--browser"])).err, /--browser: tutor has no Vitest of its own/);
   r = await run(w, ["xrepo", "test", "spec"]);
   assert.match(r.out[0].output, /just docs-check/);
   assert.match((await run(w, ["xrepo", "test", "canvas"])).err, /canvas has no clone/);

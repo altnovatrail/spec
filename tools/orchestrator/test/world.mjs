@@ -64,7 +64,7 @@ if (recipe === "_install") {
     res.statusCode = req.url === "/" ? 200 : req.url === "/deployment.json" && fs.existsSync("deployment.local.json") ? 200 : 404;
     res.end();
   });
-} else if (recipe === "_tools" || recipe === "release-verify-npm") {
+} else if (recipe === "_tools" || recipe === "release-verify-npm" || recipe === "release-verify") {
   console.log("just " + recipe);
 } else if (recipe === "licenses-allowed") {
   console.log("MIT\\nApache-2.0");
@@ -115,13 +115,13 @@ console.log(file);
 `;
 
 // The stand-in of npm: npm install raises package.json's packages to the versions named, exactly,
-// and writes them to the lock file.
+// and writes them to the lock file, which keeps what else it held.
 const NPM = `#!/usr/bin/env node
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_DOCKER + "/npm.jsonl", JSON.stringify({ cwd: process.cwd(), args }) + "\\n");
 const manifest = JSON.parse(fs.readFileSync("package.json", "utf8"));
-const lock = { lockfileVersion: 3, packages: {} };
+const lock = fs.existsSync("package-lock.json") ? JSON.parse(fs.readFileSync("package-lock.json", "utf8")) : { lockfileVersion: 3, packages: {} };
 for (const a of args.filter((x) => !x.startsWith("-") && x !== "install")) {
   const at = a.lastIndexOf("@");
   const [name, version] = [a.slice(0, at), a.slice(at + 1)];
@@ -162,7 +162,17 @@ const ORIGINS = {
     "main.go": "package main\n",
     "docs/README.md": "# api\n",
   },
-  app: { ".gitignore": "/node_modules/\n/deployment.local.json\n/coverage/\n", justfile: 'spec_tag := "v0.19.4"\n', "package.json": JSON.stringify({ dependencies: { "@altnovatrail/canvas": "0.3.36", "@altnovatrail/contracts": "0.19.4" }, devDependencies: { "@altnovatrail/spec": "0.19.4" } }) },
+  app: {
+    ".gitignore": "/node_modules/\n/deployment.local.json\n/coverage/\n",
+    justfile: 'spec_tag := "v0.19.4"\n',
+    NOTICE: "@altnovatrail/canvas 0.3.36 — Apache-2.0\n@altnovatrail/contracts 0.19.4 — Apache-2.0\n@altnovatrail/spec 0.19.0 — Apache-2.0\n@altnovatrail/spec 0.19.4 — Apache-2.0\n",
+    "RUN.md": "# app\n\nspec at tag v0.19.4, `v0.19.4`; tag v0.19.40 is another; moved to spec v0.19.4 by T1, [notes](https://github.com/altnovatrail/spec/releases/tag/v0.19.4).\n",
+    // canvas holds contracts 0.19.4 of its own, which keeps its line of NOTICE.
+    "package-lock.json": JSON.stringify({ lockfileVersion: 3, packages: { "node_modules/@altnovatrail/canvas/node_modules/@altnovatrail/contracts": { version: "0.19.4" } } }),
+    "parts/deployment-1.tar.gz": "spec v0.19.4\n",
+    "parts/deployment-1.tar.gz.sigstore.json": "{}\n",
+    "package.json": JSON.stringify({ dependencies: { "@altnovatrail/canvas": "0.3.36", "@altnovatrail/contracts": "0.19.4" }, devDependencies: { "@altnovatrail/spec": "0.19.4" } }),
+  },
   canvas: { ".gitignore": "/node_modules/\n/lib/\n/coverage/\n", "package.json": JSON.stringify({ dependencies: { "@altnovatrail/spec": "0.19.4" } }) },
 };
 
