@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { JSDOM } from "jsdom";
 import { App, Clock, compileTemplate, parseSource } from "../runtime.mjs";
 import { STATES, chain, reach } from "../states.mjs";
-import { start, sourceLoader } from "../page.mjs";
+import { BOARDS, devicesOf, start, sourceLoader } from "../page.mjs";
 import { FOLDERS, ROOT, createServer, fileOf, main, portOf, servedFiles } from "../serve.mjs";
 
 const SOURCES = path.join(ROOT, "draft", "mockup");
@@ -38,7 +38,7 @@ async function drawState(name, device) {
   const dom = page();
   const doc = dom.window.document;
   const app = new App(doc, readSource);
-  await app.mount(device === "phone" ? "Phone" : "Main", doc.getElementById("frame"));
+  await app.mount(BOARDS[device], doc.getElementById("frame"));
   app.settle();
   reach(app, app.find("Main")[0].comp, name);
   return { doc, app, frame: doc.getElementById("frame") };
@@ -70,9 +70,9 @@ test("the lines of Main.dc.html the README cites open the parts it names", () =>
   }
 });
 
-for (const device of ["ipad", "phone"]) {
+for (const device of Object.keys(BOARDS)) {
   test(`every state draws on the ${device}: what it shows, and nothing left of the template`, async (t) => {
-    for (const state of STATES) {
+    for (const state of STATES.filter((s) => devicesOf(s).includes(device))) {
       await t.test(state.name, async () => {
         const { app, frame } = await drawState(state.name, device);
         assert.deepEqual([...app.missing], [], "every {{…}} has its value");
@@ -94,9 +94,9 @@ test("the phone is Main.dc.html in Phone.dc.html, with its prop device", async (
   assert.equal(ipad.app.find("Main")[0].comp.props.device, "ipad", "the default of data-props");
 });
 
-test("a tap is the button's handler: Continue with Google, then the invite code after its timer", async () => {
+test("a tap is the button's handler: Sign in with Google, then the invite code after its timer", async () => {
   const { app, frame, doc } = await drawState("signin", "ipad");
-  const button = [...frame.querySelectorAll("button")].find((b) => b.textContent.includes("Continue with Google"));
+  const button = [...frame.querySelectorAll("button")].find((b) => b.textContent.includes("Sign in with Google"));
   button.dispatchEvent(new doc.defaultView.MouseEvent("click", { bubbles: true }));
   await Promise.resolve();
   assert.equal(app.find("Main")[0].comp.state.auth, "signing");
@@ -325,6 +325,7 @@ test("the page opens a state by its address and says it is ready", async () => {
   for (const [query, reason] of [
     ["?screen=nowhere", /no state nowhere/],
     ["?screen=home&device=watch", /no device watch/],
+    ["?screen=home&device=desktop", /no desktop for home/],
   ]) {
     const bad = await open(query);
     assert.equal(bad.doc.documentElement.dataset.ready, "error");

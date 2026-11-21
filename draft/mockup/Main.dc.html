@@ -94,19 +94,18 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone .ph-camfound{top:132px!important}
 .nt-phone .ph-gallery{left:40px!important}
 .nt-phone .ph-auto{left:auto!important;right:28px!important}
-/* Sign-in: the art is a band over the first step only. */
-.nt-phone .ph-signin{flex-direction:column}
-.nt-phone .ph-art{width:auto!important;height:200px!important}
-.nt-phone .ph-art.ph-noart{display:none!important}
-.nt-phone .ph-logo{left:16px!important;top:20px!important}
-.nt-phone .ph-tag{left:16px!important;right:16px!important;bottom:18px!important}
-.nt-phone .ph-tag>div:first-child{font-size:24px!important}
-.nt-phone .ph-tag>div:last-child{font-size:14px!important}
-.nt-phone .ph-signr{align-items:flex-start!important;justify-content:flex-start!important;padding:28px 16px 64px}
-.nt-phone .ph-noart+.ph-signr{padding-top:56px}
-.nt-phone .ph-signcol{width:100%!important}
-.nt-phone .ph-code{width:36px!important}
-.nt-phone .ph-signfoot{flex-wrap:wrap;padding:0 16px}
+/* Sign-in: the sky drawn small above the card of the first step, and none above the later steps, whose card stands under the name. */
+.nt-phone .ph-sky{transform:translate(89px,26px) scale(0.36)}
+.nt-phone .ph-sky.ph-noart{display:none!important}
+.nt-phone .ph-logo{left:16px!important;top:16px!important}
+.nt-phone .ph-logo>span{font-size:20px!important}
+.nt-phone .ph-lang{right:16px!important;top:16px!important}
+.nt-phone .ph-card{left:16px!important;right:16px!important;width:auto!important;top:auto!important;bottom:16px!important;padding:24px 20px!important;border-radius:28px!important}
+.nt-phone .ph-card.ph-later{top:76px!important;bottom:auto!important}
+.nt-phone .ph-card>div:nth-of-type(1){font-size:32px!important}
+.nt-phone .ph-codes{gap:5px!important}
+.nt-phone .ph-code{width:33px!important}
+.nt-phone .ph-codesep{width:8px!important;margin:0 1px!important}
 /* The owner's profile and "Who's learning?": one column, the profiles two by two. */
 .nt-phone .ph-owncol{left:16px!important;right:16px!important;width:auto!important;margin-left:0!important;top:84px!important}
 .nt-phone .ph-demo{left:12px!important;top:16px!important}
@@ -1249,107 +1248,127 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
 <!-- ============ Sign-in: only a grown-up signs in, with Google; by invitation ============ -->
 <sc-if value="{{isSignin}}" hint-placeholder-val="{{ true }}">
-<div class="ph-signin" style="position: absolute; inset: 0; display: flex; background: #FFFFFF">
-  <div class="ph-art {{artCls}}" style="position: relative; flex: none; width: 600px; height: 834px; overflow: hidden; background-color: #0B1030; background-image: radial-gradient(60% 45% at 18% 22%, rgba(94,92,230,0.95) 0%, rgba(94,92,230,0) 70%), radial-gradient(55% 45% at 88% 32%, rgba(10,132,255,0.75) 0%, rgba(10,132,255,0) 70%), radial-gradient(65% 50% at 58% 98%, rgba(255,159,10,0.85) 0%, rgba(255,159,10,0) 70%), radial-gradient(40% 35% at 6% 88%, rgba(255,55,95,0.6) 0%, rgba(255,55,95,0) 70%)">
-    <div class="ph-logo" style="position: absolute; left: 40px; top: 36px; display: flex; align-items: center; gap: 10px; color: #FFFFFF">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path><circle cx="19" cy="19" r="1.6"></circle></svg>
-      <span style="font-size: 20px; font-weight: 700; letter-spacing: -0.3px">NovaTrail</span>
-    </div>
-    <svg class="ph-hide" width="600" height="834" style="position: absolute; left: 0; top: 0" aria-hidden="true"><path d="M40 790 C70 760 80 735 96 700 C130 640 170 580 236 540 C290 505 370 500 392 452 C410 410 300 360 316 306 C330 250 400 190 470 150 C500 132 540 118 600 108" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="3" stroke-linecap="round" stroke-dasharray="0 11"></path></svg>
-    <sc-for list="{{trail}}" as="g" hint-placeholder-count="4">
-      <div class="ph-hide" style="position: absolute; left: {{g.x}}px; top: {{g.y}}px; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 32px; background: rgba(255,255,255,0.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 10px 30px rgba(0,0,0,0.25); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 22px; font-weight: 600; font-family: 'SF Pro Display', system-ui, sans-serif">{{g.t}}</div>
+<div class="ph-signin" style="position: absolute; inset: 0; overflow: hidden; color: #FFFFFF; background-color: #0B0D2E; background-image: radial-gradient(circle at 18% 28%, #5B5FE0 0, rgba(91,95,224,0) 38%), radial-gradient(circle at 88% 42%, #0A6BD6 0, rgba(10,107,214,0) 34%), radial-gradient(circle at 8% 100%, #B8325A 0, rgba(184,50,90,0) 34%), radial-gradient(circle at 58% 108%, #E0901E 0, rgba(224,144,30,0) 44%)">
+  <div class="ph-stage" style="position: absolute; left: {{stage.x}}px; top: {{stage.y}}px; width: {{stage.w}}px; height: {{stage.h}}px">
+  <div class="ph-sky {{artCls}}" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 600px; height: 834px; transform-origin: 0 0">
+    <sc-for list="{{stars}}" as="st" hint-placeholder-count="6">
+      <span style="position: absolute; left: {{st.x}}px; top: {{st.y}}px; width: {{st.r}}px; height: {{st.r}}px; border-radius: 50%; background: rgba(255,255,255,{{st.a}}); box-shadow: {{st.sh}}"></span>
     </sc-for>
-    <div class="ph-hide" style="position: absolute; left: 470px; top: 150px; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 42px; background: #FFFFFF; box-shadow: 0 0 0 10px rgba(255,255,255,0.18), 0 0 60px rgba(255,214,10,0.8); display: flex; align-items: center; justify-content: center; color: #FF9F0A">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
-    </div>
-    <div class="ph-tag" style="position: absolute; left: 40px; right: 40px; bottom: 44px; color: #FFFFFF">
-      <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.6px">Any subject, one trail.</div>
-      <div style="margin-top: 6px; font-size: 15px; line-height: 1.4; color: rgba(255,255,255,0.78)">Maths, writing and more — on a canvas to think on, with a tutor that helps you find the answer yourself.</div>
-    </div>
+    <svg width="600" height="834" style="position: absolute; left: 0; top: 0"><path d="M100 750 Q560 735 470 200" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="0.1 10"></path></svg>
+    <sc-for list="{{trail}}" as="g" hint-placeholder-count="7">
+      <span style="position: absolute; left: {{g.x}}px; top: {{g.y}}px; width: 58px; height: 58px; box-sizing: border-box; border-radius: 29px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.35); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; font-size: {{g.fs}}px; font-weight: 500">{{g.t}}</span>
+    </sc-for>
+    <span style="position: absolute; left: 422px; top: 152px; width: 96px; height: 96px; border-radius: 48px; background: #FFFFFF; box-shadow: 0 0 0 12px rgba(255,255,255,0.22), 0 0 60px rgba(255,255,255,0.45); display: flex; align-items: center; justify-content: center; color: #F5A300">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
+    </span>
   </div>
 
-  <div class="ph-signr" style="position: relative; flex: 1; display: flex; align-items: center; justify-content: center">
-    <div class="ph-signcol" style="width: 380px; display: flex; flex-direction: column">
-      <sc-if value="{{aWelcome}}" hint-placeholder-val="{{ true }}">
-        <span style="width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, #5E5CE6 0%, #0A84FF 55%, #FF9F0A 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(94,92,230,0.35)">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
-        </span>
-        <div style="margin: 24px 0 10px; font-size: 32px; font-weight: 700; letter-spacing: -0.7px; line-height: 1.12">Learn anything,<br>one step at a time</div>
-        <div style="font-size: 15px; line-height: 1.45; color: #6E6E73">Lessons from teachers and authors, a canvas to think on, and an AI tutor that helps you find the answer yourself.</div>
-        <button onClick="{{signIn}}" disabled="{{signing}}" style="margin-top: 32px; height: 52px; border-radius: 14px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #D2D2D7, 0 1px 2px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px; font-weight: 600; color: #1D1D1F">
-          <sc-if value="{{notSigning}}" hint-placeholder-val="{{ true }}">
-            <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"></path><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"></path><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"></path><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"></path></svg>
-            Continue with Google
-          </sc-if>
-          <sc-if value="{{signing}}" hint-placeholder-val="{{ false }}">
-            <span class="nt-spin" style="width: 18px; height: 18px; border-radius: 9px; border: 2.5px solid rgba(0,113,227,0.18); border-top-color: #0071E3; box-sizing: border-box"></span>
-            Signing in with Google…
-          </sc-if>
-        </button>
-        <div style="margin-top: 18px; display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: #F5F5F7; font-size: 13px; line-height: 1.4; color: #3A3A3C">
-          <svg style="flex: none; margin-top: 1px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19c.8-3.2 3-5 5.5-5s4.7 1.8 5.5 5"></path><circle cx="17" cy="10" r="2.4"></circle><path d="M15.5 14.6c2.2.2 3.9 1.8 4.6 4.4"></path></svg>
-          <span>Accounts are for grown-ups, 18 and over. A child learns in a profile their grown-up adds, and never signs in.</span>
-        </div>
-      </sc-if>
+  <div class="ph-logo" style="position: absolute; left: 56px; top: 56px; height: 44px; display: flex; align-items: center; gap: 10px">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path><circle cx="19" cy="19" r="1.6"></circle></svg>
+    <span style="font-size: 24px; font-weight: 700; letter-spacing: -0.3px">NovaTrail</span>
+  </div>
 
-      <sc-if value="{{aInvite}}" hint-placeholder-val="{{ false }}">
-        <button onClick="{{authBack}}" style="align-self: flex-start; height: 44px; margin: -6px 0 -6px -10px; padding: 0 12px 0 6px; border-radius: 22px; display: flex; align-items: center; gap: 2px; font-size: 15px; color: #0071E3">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
-          Back
-        </button>
-        <div style="margin: 18px 0 10px; font-size: 32px; font-weight: 700; letter-spacing: -0.7px">You’re invited</div>
-        <div style="font-size: 15px; line-height: 1.45; color: #6E6E73">NovaTrail is in a closed preview. Enter the code from your invitation.</div>
-        <button aria-label="Invite code" onClick="{{fillCode}}" style="margin-top: 28px; display: flex; align-items: center; gap: 6px">
-          <sc-for list="{{codeBoxes}}" as="b" hint-placeholder-count="8">
-            <sc-if value="{{b.sep}}" hint-placeholder-val="{{ false }}"><span style="width: 10px; height: 2px; border-radius: 1px; background: #C7C7CC; margin: 0 2px"></span></sc-if>
-            <span class="ph-code" style="width: 38px; height: 52px; border-radius: 11px; background: #F5F5F7; box-shadow: {{b.bd}}; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; font-family: ui-monospace, 'SF Mono', Menlo, monospace; color: #1D1D1F; transition: box-shadow 0.15s">{{b.ch}}</span>
-          </sc-for>
-        </button>
-        <div style="margin-top: 10px; font-size: 12.5px; color: #6E6E73">{{codeHint}}</div>
-        <button onClick="{{codeNext}}" disabled="{{codeOff}}" style="margin-top: 28px; height: 52px; border-radius: 14px; background: {{codeBtn.bg}}; color: {{codeBtn.fg}}; font-size: 16px; font-weight: 600; transition: background 0.2s">Continue</button>
-        <div style="margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: #6E6E73">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#248A3D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-          Signed in with Google
-        </div>
-      </sc-if>
+  <!-- The device's language, on the first step alone: a pill that opens its two buttons, each language by its own name (R17 app). -->
+  <sc-if value="{{aWelcome}}" hint-placeholder-val="{{ true }}">
+    <button class="ph-lang" onClick="{{toggleLang}}" aria-expanded="{{langOpen}}" aria-label="Language: English" style="position: absolute; right: 72px; top: 56px; height: 44px; padding: 0 16px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 8px; background: rgba(22,26,61,0.4); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); color: #FFFFFF; font-size: 16px; font-weight: 600">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"></path></svg>
+      English
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+    </button>
+  </sc-if>
 
-      <sc-if value="{{aAgree}}" hint-placeholder-val="{{ false }}">
-        <button onClick="{{authBack}}" style="align-self: flex-start; height: 44px; margin: -6px 0 -6px -10px; padding: 0 12px 0 6px; border-radius: 22px; display: flex; align-items: center; gap: 2px; font-size: 15px; color: #0071E3">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
-          Back
+  <div class="ph-card {{cardCls}}" style="position: absolute; right: 72px; top: 150px; width: 440px; padding: 40px; box-sizing: border-box; border-radius: 32px; background: #161A3D; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 30px 80px rgba(0,0,0,0.35); display: flex; flex-direction: column">
+    <sc-if value="{{aWelcome}}" hint-placeholder-val="{{ true }}">
+      <span style="width: 64px; height: 64px; border-radius: 15px; background: linear-gradient(140deg, #4F5BFF 0%, #1A8CFF 55%, #E3A23A 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(40,70,200,0.28)">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
+      </span>
+      <div style="margin: 20px 0 12px; font-size: 40px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.1">Sign in</div>
+      <div style="font-size: 16px; line-height: 1.45; color: rgba(255,255,255,0.8)">Learn from the best teachers, think on a canvas, find the answers yourself — and the AI tutor will guide you.</div>
+      <!-- Google's own button, the light theme of its rules: the standard "G", a white fill and a stroke of #747775 (sources 4.8). -->
+      <button onClick="{{signIn}}" disabled="{{signing}}" style="margin-top: 28px; height: 54px; border-radius: 27px; background: #FFFFFF; box-shadow: inset 0 0 0 1px #747775; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 17px; font-weight: 600; color: #1F1F1F">
+        <sc-if value="{{notSigning}}" hint-placeholder-val="{{ true }}">
+          <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"></path><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"></path><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"></path><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"></path></svg>
+          Sign in with Google
+        </sc-if>
+        <sc-if value="{{signing}}" hint-placeholder-val="{{ false }}">
+          <span class="nt-spin" style="width: 18px; height: 18px; border-radius: 9px; border: 2.5px solid rgba(0,113,227,0.18); border-top-color: #0071E3; box-sizing: border-box"></span>
+          Signing in with Google…
+        </sc-if>
+      </button>
+      <div style="margin-top: 20px; display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; border-radius: 16px; background: rgba(255,255,255,0.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); font-size: 14px; line-height: 1.45; color: rgba(255,255,255,0.88)">
+        <span aria-hidden="true" style="flex: none; width: 24px; height: 24px; box-sizing: border-box; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700">18</span>
+        <span>Accounts are for grown-ups, 18 and over. A child learns in a profile their grown-up adds, and never signs in.</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{aInvite}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{authBack}}" style="align-self: flex-start; height: 44px; margin: -10px 0 -6px -10px; padding: 0 12px 0 6px; border-radius: 22px; display: flex; align-items: center; gap: 2px; font-size: 15px; color: #64A8FF">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+        Back
+      </button>
+      <div style="margin: 18px 0 12px; font-size: 40px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.1">You’re invited</div>
+      <div style="font-size: 16px; line-height: 1.45; color: rgba(255,255,255,0.8)">NovaTrail is in a closed preview. Enter the code from your invitation.</div>
+      <button class="ph-codes" aria-label="Invite code" onClick="{{fillCode}}" style="margin-top: 28px; display: flex; align-items: center; gap: 6px">
+        <sc-for list="{{codeBoxes}}" as="b" hint-placeholder-count="8">
+          <sc-if value="{{b.sep}}" hint-placeholder-val="{{ false }}"><span class="ph-codesep" style="width: 10px; height: 2px; border-radius: 1px; background: rgba(255,255,255,0.5); margin: 0 2px"></span></sc-if>
+          <span class="ph-code" style="width: 38px; height: 52px; box-sizing: border-box; border-radius: 11px; background: rgba(255,255,255,0.08); box-shadow: {{b.bd}}; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 600; font-family: ui-monospace, 'SF Mono', Menlo, monospace; color: #FFFFFF; transition: box-shadow 0.15s">{{b.ch}}</span>
+        </sc-for>
+      </button>
+      <div style="margin-top: 10px; font-size: 13px; color: rgba(255,255,255,0.72)">{{codeHint}}</div>
+      <button onClick="{{codeNext}}" disabled="{{codeOff}}" style="margin-top: 28px; height: 54px; border-radius: 27px; background: {{codeBtn.bg}}; color: {{codeBtn.fg}}; font-size: 17px; font-weight: 600; transition: background 0.2s">Continue</button>
+      <div style="margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.72)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#30D158" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+        Signed in with Google
+      </div>
+    </sc-if>
+
+    <sc-if value="{{aAgree}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{authBack}}" style="align-self: flex-start; height: 44px; margin: -10px 0 -6px -10px; padding: 0 12px 0 6px; border-radius: 22px; display: flex; align-items: center; gap: 2px; font-size: 15px; color: #64A8FF">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+        Back
+      </button>
+      <div style="margin: 18px 0 12px; font-size: 40px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.1">Create your account</div>
+      <div style="font-size: 16px; line-height: 1.45; color: rgba(255,255,255,0.8)">One account holds your own profile and your children’s. Only you sign in.</div>
+      <div style="margin-top: 24px; border-radius: 16px; background: rgba(255,255,255,0.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); padding: 4px 0">
+        <button role="checkbox" aria-checked="{{ok18}}" onClick="{{toggle18}}" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-align: left; color: #FFFFFF">
+          <span style="flex: none; width: 24px; height: 24px; border-radius: 12px; background: {{ck18.bg}}; box-shadow: {{ck18.bd}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; transition: background 0.15s">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          </span>
+          <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">I am 18 or older</span><span style="font-size: 13px; color: rgba(255,255,255,0.72)">Only grown-ups hold an account.</span></span>
         </button>
-        <div style="margin: 18px 0 10px; font-size: 32px; font-weight: 700; letter-spacing: -0.7px">Create your account</div>
-        <div style="font-size: 15px; line-height: 1.45; color: #6E6E73">One account holds your own profile and your children’s. Only you sign in.</div>
-        <div style="margin-top: 26px; border-radius: 16px; background: #F5F5F7; padding: 4px 0">
-          <button role="checkbox" aria-checked="{{ok18}}" onClick="{{toggle18}}" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-align: left">
-            <span style="flex: none; width: 24px; height: 24px; border-radius: 12px; background: {{ck18.bg}}; box-shadow: {{ck18.bd}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; transition: background 0.15s">
+        <div style="height: 1px; background: rgba(255,255,255,0.14); margin-left: 50px"></div>
+        <div style="display: flex; align-items: center; gap: 2px; padding: 2px 14px 2px 4px">
+          <button role="checkbox" aria-checked="{{okTerms}}" aria-labelledby="nt-terms" onClick="{{toggleTerms}}" style="flex: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center">
+            <span style="width: 24px; height: 24px; border-radius: 12px; background: {{ckTerms.bg}}; box-shadow: {{ckTerms.bd}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; transition: background 0.15s">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
             </span>
-            <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">I am 18 or older</span><span style="font-size: 12.5px; color: #6E6E73">Only grown-ups hold an account.</span></span>
           </button>
-          <div style="height: 0.5px; background: rgba(0,0,0,0.1); margin-left: 50px"></div>
-          <div style="display: flex; align-items: center; gap: 2px; padding: 2px 14px 2px 4px">
-            <button role="checkbox" aria-checked="{{okTerms}}" aria-labelledby="nt-terms" onClick="{{toggleTerms}}" style="flex: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center">
-              <span style="width: 24px; height: 24px; border-radius: 12px; background: {{ckTerms.bg}}; box-shadow: {{ckTerms.bd}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; transition: background 0.15s">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-              </span>
-            </button>
-            <span id="nt-terms" style="font-size: 15px; line-height: 1.4">I agree to the <button onClick="{{openTerms}}" style="font-weight: 600; color: #0071E3">Terms of Use</button> and the <button onClick="{{openPrivacy}}" style="font-weight: 600; color: #0071E3">Privacy Policy</button></span>
-          </div>
+          <span id="nt-terms" style="font-size: 15px; line-height: 1.4">I agree to the <button onClick="{{openTerms}}" style="font-weight: 600; color: #64A8FF">Terms of Use</button> and the <button onClick="{{openPrivacy}}" style="font-weight: 600; color: #64A8FF">Privacy Policy</button></span>
         </div>
-        <div style="margin-top: 10px; font-size: 12.5px; line-height: 1.4; color: #6E6E73">Each text is in English, the one in force, with its gist in your language.</div>
-        <button onClick="{{createAccount}}" disabled="{{createOff}}" style="margin-top: 24px; height: 52px; border-radius: 14px; background: {{createBtn.bg}}; color: {{createBtn.fg}}; font-size: 16px; font-weight: 600; transition: background 0.2s">Create account</button>
-      </sc-if>
-    </div>
+      </div>
+      <div style="margin-top: 10px; font-size: 13px; line-height: 1.4; color: rgba(255,255,255,0.72)">Each text is in English, the one in force, with its gist in your language.</div>
+      <button onClick="{{createAccount}}" disabled="{{createOff}}" style="margin-top: 24px; height: 54px; border-radius: 27px; background: {{createBtn.bg}}; color: {{createBtn.fg}}; font-size: 17px; font-weight: 600; transition: background 0.2s">Create account</button>
+    </sc-if>
 
-    <div class="ph-signfoot" style="position: absolute; left: 0; right: 0; bottom: 16px; display: flex; justify-content: center; align-items: center; gap: 2px; font-size: 13px; color: #6E6E73">
-      <button onClick="{{openPrivacy}}" style="height: 44px; padding: 0 8px; color: #6E6E73">Privacy Policy</button>
-      <span aria-hidden="true">·</span>
-      <button onClick="{{openTerms}}" style="height: 44px; padding: 0 8px; color: #6E6E73">Terms of Use</button>
-      <span aria-hidden="true">·</span>
-      <span style="padding: 0 8px">Free, by invitation</span>
-    </div>
+    <button onClick="{{openPrivacy}}" style="align-self: center; height: 44px; margin: 8px 0 -14px; padding: 0 10px; font-size: 14px; color: rgba(255,255,255,0.6)">Privacy and legal information</button>
   </div>
+  </div>
+
+  <sc-if value="{{langOpen}}" hint-placeholder-val="{{ false }}">
+    <button class="ph-scrim" aria-label="Close" onClick="{{toggleLang}}" style="position: absolute; inset: 0; cursor: default"></button>
+    <div style="position: absolute; left: {{stage.x}}px; top: {{stage.y}}px; width: {{stage.w}}px; height: {{stage.h}}px; pointer-events: none">
+    <div role="group" aria-label="Language" class="glass nt-pop ph-sheet ph-sheetx" style="position: absolute; right: 72px; top: 108px; width: 220px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: rgba(255,255,255,0.94); color: #1D1D1F; pointer-events: auto">
+      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{toggleLang}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Language</div>
+      <sc-for list="{{langs}}" as="l" hint-placeholder-count="2">
+        <button lang="{{l.tag}}" aria-pressed="{{l.on}}" onClick="{{toggleLang}}" style="width: 100%; height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 12px; text-align: left; font-size: 15px; font-weight: 500; background: {{l.bg}}">
+          <span style="flex: 1">{{l.name}}</span>
+          <sc-if value="{{l.on}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+        </button>
+      </sc-for>
+    </div>
+    </div>
+  </sc-if>
 </div>
 </sc-if>
 
@@ -1786,7 +1805,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["ipad","phone"],"default":"ipad"},"debug":{"editor":"boolean","default":false},"at":{"editor":"enum","options":["","pick","pick-models","solve","solve-log","solve-pair","solve-export"],"default":""},"$preview":{"width":1194,"height":834}}'>
+<script type="text/x-dc" data-dc-script data-props='{"device":{"editor":"enum","options":["ipad","phone","desktop"],"default":"ipad"},"debug":{"editor":"boolean","default":false},"at":{"editor":"enum","options":["","pick","pick-models","solve","solve-log","solve-pair","solve-export"],"default":""},"$preview":{"width":1194,"height":834}}'>
 // The tasks the AI finds on each demo page. The key is only ever compared with, never shown: for an equation the solver
 // computes it from the statement the AI read; for any other task the AI derives it, from its solution of the task,
 // and the verdict is the same "Correct" or "Not yet", with no mark between them. The demo's first Check is "Not yet" and the second
@@ -1819,7 +1838,9 @@ const SAID = [
   { text: 'Is my answer right?', intent: 'check' }
 ];
 // The app before the canvas: sign-in, the profiles of the account and home. Synthetic: no learner is real.
-const TRAIL = [{ t: 'x²', x: 96, y: 700 }, { t: 'Aa', x: 236, y: 540 }, { t: '{ }', x: 392, y: 452 }, { t: 'π', x: 316, y: 306 }];
+// The sign-in's sky: the trail of maths to the spark, and its stars.
+const TRAIL = [{ t: '+', x: 71, y: 716, fs: 24 }, { t: '×', x: 183, y: 703, fs: 24 }, { t: '½', x: 287, y: 666, fs: 24 }, { t: 'x²', x: 375, y: 597, fs: 20 }, { t: '√x', x: 429, y: 501, fs: 20 }, { t: 'π', x: 453, y: 392, fs: 24 }, { t: '∫', x: 454, y: 281, fs: 24 }];
+const STARS = [{ x: 256, y: 410, r: 1.3, a: 0.45 }, { x: 236, y: 383, r: 1.2, a: 0.83 }, { x: 298, y: 335, r: 1.9, a: 0.77 }, { x: 326, y: 168, r: 2.5, a: 0.44 }, { x: 332, y: 209, r: 2.7, a: 0.59 }, { x: 124, y: 155, r: 3.8, a: 0.88, glow: 1 }, { x: 101, y: 352, r: 3.9, a: 0.41, glow: 1 }, { x: 226, y: 405, r: 3.0, a: 0.47, glow: 1 }, { x: 122, y: 623, r: 2.3, a: 0.44 }, { x: 280, y: 295, r: 1.5, a: 0.76 }, { x: 198, y: 305, r: 1.2, a: 0.86 }, { x: 150, y: 572, r: 2.4, a: 0.44 }, { x: 303, y: 331, r: 3.3, a: 0.69, glow: 1 }, { x: 107, y: 242, r: 2.4, a: 0.35 }, { x: 70, y: 336, r: 3.0, a: 0.69, glow: 1 }, { x: 451, y: 292, r: 2.3, a: 0.60 }, { x: 234, y: 549, r: 2.4, a: 0.56 }, { x: 161, y: 248, r: 3.2, a: 0.38, glow: 1 }, { x: 164, y: 513, r: 3.6, a: 0.88, glow: 1 }, { x: 439, y: 560, r: 3.2, a: 0.68, glow: 1 }, { x: 283, y: 142, r: 2.0, a: 0.51 }, { x: 140, y: 327, r: 3.1, a: 0.74, glow: 1 }, { x: 162, y: 608, r: 1.0, a: 0.52 }, { x: 296, y: 351, r: 1.3, a: 0.89 }, { x: 242, y: 566, r: 2.8, a: 0.58 }, { x: 103, y: 527, r: 3.7, a: 0.46, glow: 1 }, { x: 60, y: 207, r: 3.1, a: 0.72, glow: 1 }, { x: 327, y: 565, r: 1.7, a: 0.80 }, { x: 121, y: 149, r: 1.2, a: 0.31 }, { x: 276, y: 545, r: 3.5, a: 0.39, glow: 1 }, { x: 257, y: 156, r: 1.8, a: 0.59 }, { x: 77, y: 308, r: 1.7, a: 0.48 }, { x: 382, y: 198, r: 1.5, a: 0.30 }, { x: 312, y: 173, r: 2.2, a: 0.37 }, { x: 251, y: 337, r: 1.0, a: 0.75 }, { x: 240, y: 499, r: 2.0, a: 0.86 }, { x: 351, y: 450, r: 1.8, a: 0.52 }, { x: 82, y: 571, r: 1.2, a: 0.34 }, { x: 128, y: 282, r: 1.1, a: 0.66 }, { x: 235, y: 319, r: 2.6, a: 0.84 }, { x: 272, y: 341, r: 1.4, a: 0.84 }, { x: 328, y: 379, r: 3.7, a: 0.71, glow: 1 }, { x: 243, y: 614, r: 3.7, a: 0.55, glow: 1 }, { x: 259, y: 481, r: 3.4, a: 0.85, glow: 1 }, { x: 279, y: 625, r: 2.9, a: 0.80 }, { x: 235, y: 168, r: 3.9, a: 0.63, glow: 1 }, { x: 324, y: 326, r: 3.3, a: 0.77, glow: 1 }, { x: 261, y: 352, r: 3.6, a: 0.73, glow: 1 }, { x: 72, y: 315, r: 2.4, a: 0.89 }, { x: 327, y: 207, r: 3.0, a: 0.40, glow: 1 }, { x: 134, y: 394, r: 1.9, a: 0.31 }, { x: 453, y: 387, r: 1.1, a: 0.53 }, { x: 127, y: 459, r: 1.7, a: 0.74 }, { x: 178, y: 584, r: 2.8, a: 0.54 }, { x: 399, y: 219, r: 2.0, a: 0.55 }, { x: 426, y: 414, r: 1.3, a: 0.40 }, { x: 254, y: 255, r: 2.2, a: 0.61 }, { x: 189, y: 144, r: 1.2, a: 0.74 }, { x: 242, y: 407, r: 3.7, a: 0.36, glow: 1 }, { x: 220, y: 242, r: 2.2, a: 0.32 }];
 // The avatars are a set of the app: a profile keeps the code of one, and no picture is uploaded (R98).
 const AVATARS = [
   { id: 'peak', name: 'Peak', grad: 'linear-gradient(135deg, #8E8E93 0%, #3A3A3C 100%)', glyph: 'M3 19l6.5-10 4 6 2.5-3.5L21 19z' },
@@ -2046,8 +2067,10 @@ class Component extends DCLogic {
 
   // The device the mockup is drawn for: an iPad in landscape, 1194 × 834, or a phone in portrait, 390 × 844 (R148).
   phone() { return this.props.device === 'phone'; }
-  dims() { return this.phone() ? { W: 390, H: 1688, VH: 844 } : { W: 1194, H: 1668, VH: 834 }; }
-  devName() { return this.phone() ? 'phone' : 'iPad'; }
+  // A computer draws the sign-in's steps alone (R148): its sky fills the window, its composition the iPad's in the middle.
+  desk() { return this.props.device === 'desktop'; }
+  dims() { return this.phone() ? { W: 390, H: 1688, VH: 844 } : this.desk() ? { W: 1920, H: 1668, VH: 1080 } : { W: 1194, H: 1668, VH: 834 }; }
+  devName() { return this.phone() ? 'phone' : this.desk() ? 'computer' : 'iPad'; }
   // The scale of a task's clipping over the sheet: on the phone it fits between the tool bar and the edge.
   cf() { return this.phone() ? 1.12 : 1.6; }
 
@@ -2440,7 +2463,7 @@ class Component extends DCLogic {
   profilesNow() { return this.state.slice === 'later' ? CHILDREN.concat([this.owner()]) : [this.owner()]; }
   signIn = () => { this.setState({ auth: 'signing' }); this.later(() => this.setState({ auth: 'invite' }), 1100); };
   authBack = () => this.setState({ auth: this.state.auth === 'agree' ? 'invite' : 'welcome' });
-  signOut = () => this.setState({ screen: 'signin', auth: 'welcome', code: false, ok18: false, okTerms: false, pinOpen: false, pin: '', addOpen: false, switchOpen: false, helpOpen: false });
+  signOut = () => this.setState({ screen: 'signin', auth: 'welcome', langOpen: false, code: false, ok18: false, okTerms: false, pinOpen: false, pin: '', addOpen: false, switchOpen: false, helpOpen: false });
 
   pinKey(d) {
     const pin = this.state.pin + d;
@@ -3184,7 +3207,9 @@ class Component extends DCLogic {
     const hasDraft = !!s.draft.trim();
 
     const profs = this.profilesNow(), me = profs.find((p) => p.id === s.learner) || profs[profs.length - 1];
-    const on = (x) => ({ bg: x ? '#0071E3' : '#FFFFFF', bd: x ? 'none' : 'inset 0 0 0 1.5px #C7C7CC' });
+    // The sign-in's checkboxes and buttons stand on its dark card.
+    const on = (x) => ({ bg: x ? '#0071E3' : 'transparent', bd: x ? 'none' : 'inset 0 0 0 1.5px rgba(255,255,255,0.55)' });
+    const btnD = (x) => ({ bg: x ? '#0071E3' : 'rgba(255,255,255,0.12)', fg: x ? '#FFFFFF' : 'rgba(255,255,255,0.5)' });
     const btn = (x) => ({ bg: x ? '#0071E3' : 'rgba(118,118,128,0.16)', fg: x ? '#FFFFFF' : '#8E8E93' });
     const CODE = 'NOVA7K2Q';
     const legal = s.legal ? LEGAL[s.legal] : LEGAL.terms;
@@ -3209,7 +3234,7 @@ class Component extends DCLogic {
 
       showChrome: !isCamera, showTools: L ? isTask : !isPaper || isSolve,
       showKinds: isSolve && later, showRightBar: (isSolve || isPick || isExt) && !L,
-      devCls: PH ? 'nt-phone' : 'nt-pad', dim, nl, devName: this.devName(), scrollTab: PH ? '0' : '-1',
+      devCls: PH ? 'nt-phone' : 'nt-pad', stage: this.desk() ? { x: (dim.W - 1194) / 2, y: (dim.VH - 834) / 2, w: 1194, h: 834 } : { x: 0, y: 0, w: dim.W, h: dim.VH }, dim, nl, devName: this.devName(), scrollTab: PH ? '0' : '-1',
       pillCls: PH && isSolve ? 'ph-backonly' : '', barCls: PH && s.chatOpen ? 'nt-hide' : '', railCls: PH && s.chatOpen ? 'nt-hide' : '',
       // With the tutor's panel open on the iPad the line keeps to the width of the page, clear of the panel.
       noteWrap: !PH && s.chatOpen ? { ws: 'normal', w: '456px' } : { ws: 'nowrap', w: 'auto' },
@@ -3308,14 +3333,18 @@ class Component extends DCLogic {
       isSignin: s.screen === 'signin', isOwner: s.screen === 'owner', isWho: s.screen === 'who', isHome: s.screen === 'home', isMap: s.screen === 'map',
       aWelcome: s.auth === 'welcome' || s.auth === 'signing', aInvite: s.auth === 'invite', aAgree: s.auth === 'agree',
       signing: s.auth === 'signing', notSigning: s.auth !== 'signing', signIn: this.signIn, authBack: this.authBack, signOut: this.signOut,
-      trail: TRAIL, artCls: s.auth === 'welcome' || s.auth === 'signing' ? '' : 'ph-noart',
-      codeBoxes: CODE.split('').map((ch, i) => ({ ch: s.code ? ch : '', sep: i === 4, bd: !s.code && i === 0 ? 'inset 0 0 0 2px #0071E3' : 'inset 0 0 0 1px rgba(0,0,0,0.06)' })),
+      trail: TRAIL, stars: STARS.map((st) => ({ ...st, sh: st.glow ? '0 0 8px rgba(255,255,255,0.8)' : 'none' })),
+      artCls: s.auth === 'welcome' || s.auth === 'signing' ? '' : 'ph-noart', cardCls: s.auth === 'welcome' || s.auth === 'signing' ? '' : 'ph-later',
+      // The mockup is in English: a tap on either language only closes the pop-over.
+      langOpen: !!s.langOpen, toggleLang: () => this.setState({ langOpen: !this.state.langOpen }),
+      langs: [{ tag: 'en', name: 'English', on: true, bg: 'rgba(0,113,227,0.08)' }, { tag: 'ru', name: 'Русский', on: false, bg: 'transparent' }],
+      codeBoxes: CODE.split('').map((ch, i) => ({ ch: s.code ? ch : '', sep: i === 4, bd: !s.code && i === 0 ? 'inset 0 0 0 2px #64A8FF' : 'inset 0 0 0 1px rgba(255,255,255,0.5)' })),
       codeHint: s.code ? 'Code accepted' : 'Tap the boxes to paste the code from your invitation',
-      fillCode: () => this.setState({ code: true }), codeOff: !s.code, codeBtn: btn(s.code),
+      fillCode: () => this.setState({ code: true }), codeOff: !s.code, codeBtn: btnD(s.code),
       codeNext: () => { if (this.state.code) this.setState({ auth: 'agree' }); },
       ok18: s.ok18, okTerms: s.okTerms, ck18: on(s.ok18), ckTerms: on(s.okTerms),
       toggle18: () => this.setState({ ok18: !this.state.ok18 }), toggleTerms: () => this.setState({ okTerms: !this.state.okTerms }),
-      createOff: !(s.ok18 && s.okTerms), createBtn: btn(s.ok18 && s.okTerms),
+      createOff: !(s.ok18 && s.okTerms), createBtn: btnD(s.ok18 && s.okTerms),
       createAccount: () => { if (this.state.ok18 && this.state.okTerms) this.setState({ screen: 'owner' }); },
       legalShow: !!s.legal, legal: { region: legal.head === 'THE GIST' ? 'The gist of the ' + legal.title : 'The standard', title: legal.title, ver: legal.ver, gist: legal.gist, next: legal.next, hasNext: !!legal.next, head: legal.head, foot: legal.foot },
       openAccess: () => this.setState({ legal: 'access', helpOpen: false }),
