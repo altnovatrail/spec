@@ -109,9 +109,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 /* The owner's profile and "Who's learning?": one column; the profiles' cards two by two. */
 .nt-phone .ph-owncol{left:16px!important;right:16px!important;width:auto!important;margin-left:0!important;top:84px!important}
 .ph-who button:focus-visible{outline-color:#FFFFFF}
-.nt-phone .ph-whotop{top:12px!important;padding:0 4px!important}
-.nt-phone .ph-wholink{font-size:15px!important}
-.nt-phone .ph-whobrand{font-size:18px!important;gap:6px!important}
+.nt-phone .ph-whobrand{top:12px!important;font-size:18px!important;gap:6px!important}
+.nt-phone .ph-signout{right:16px!important;top:12px!important;padding:0 14px 0 12px!important;font-size:15px!important}
 .nt-phone .ph-whotitle{top:84px!important;left:16px!important;right:16px!important}
 .nt-phone .ph-whotitle>div:first-child{font-size:32px!important;letter-spacing:-0.6px!important}
 .nt-phone .ph-whotitle>div:last-child{font-size:15px!important}
@@ -126,7 +125,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone .ph-addname{font-size:17px!important}
 .nt-phone .ph-addwhy{font-size:12.5px!important;line-height:1.35!important}
 .nt-phone .ph-demo{top:724px!important}
-.nt-phone .ph-whofoot{bottom:14px!important;padding:0 16px}
 /* Home: one column that scrolls; the legend behind a button. */
 .nt-phone .ph-scroll{top:68px!important;overflow-y:auto;pointer-events:auto!important;display:flex;flex-direction:column;gap:16px;padding:8px 16px 32px;box-sizing:border-box}
 .nt-phone .ph-scroll>*{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:auto!important;flex:none}
@@ -1451,15 +1449,15 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <span style="position: absolute; left: {{st.x}}px; top: {{st.y}}px; width: {{st.r}}px; height: {{st.r}}px; border-radius: 50%; background: rgba(255,255,255,{{st.a}}); box-shadow: {{st.sh}}"></span>
     </sc-for>
   </div>
-  <!-- The bar: the section for adults, which app draws (R29 app), the name, and the sign-out. -->
-  <div class="ph-whotop" style="position: absolute; left: 0; right: 0; top: 50px; height: 44px; padding: 0 36px; display: flex; align-items: center; justify-content: space-between">
-    <button class="ph-wholink" style="height: 44px; padding: 0 12px; border-radius: 22px; font-size: 17px; color: #A8C9FF">For grown-ups</button>
-    <div class="ph-whobrand" style="display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: -0.3px">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="#7B7FFF" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
-      <span>NovaTrail</span>
-    </div>
-    <button class="ph-wholink" onClick="{{signOut}}" style="height: 44px; padding: 0 12px; border-radius: 22px; font-size: 17px; color: #A8C9FF">Sign out</button>
+  <!-- The bar: the name in the middle, and the sign-out a pill of glass at the right. -->
+  <div class="ph-whobrand" style="position: absolute; left: 0; right: 0; top: 50px; height: 44px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; pointer-events: none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="#7B7FFF" aria-hidden="true"><path d="M12 2.5l1.9 6.1 6.1 1.9-6.1 1.9L12 18.5l-1.9-6.1L4 10.5l6.1-1.9z"></path></svg>
+    <span>NovaTrail</span>
   </div>
+  <button class="ph-signout" onClick="{{signOut}}" style="position: absolute; right: 40px; top: 50px; height: 44px; padding: 0 18px 0 14px; border-radius: 22px; box-sizing: border-box; background: rgba(255,255,255,0.12); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; gap: 8px; color: #FFFFFF; font-size: 16px; font-weight: 600">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 16l4-4-4-4M20 12H9"></path></svg>
+    <span>Sign out</span>
+  </button>
   <div class="ph-whotitle" style="position: absolute; left: 0; right: 0; top: 160px; text-align: center">
     <div style="font-size: 48px; font-weight: 700; letter-spacing: -1px">Who’s learning?</div>
     <div style="margin-top: 10px; font-size: 18px; color: rgba(255,255,255,0.7)">{{whoSub}}</div>
@@ -1494,7 +1492,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <button onClick="{{sliceFirst}}" aria-pressed="{{isFirst}}" style="height: 44px; padding: 0 14px; border-radius: 22px; font-size: 13px; font-weight: 600; white-space: nowrap; background: {{sl.first.bg}}; box-shadow: {{sl.first.sh}}">First slice</button>
     <button onClick="{{sliceLater}}" aria-pressed="{{isLater}}" style="height: 44px; padding: 0 14px; border-radius: 22px; font-size: 13px; font-weight: 600; white-space: nowrap; background: {{sl.later.bg}}; box-shadow: {{sl.later.sh}}"><span class="pad-only">Later · E4 app, E5</span><span class="ph-only">Later · E4, E5</span></button>
   </div>
-  <div class="ph-whofoot" style="position: absolute; left: 0; right: 0; bottom: 28px; display: flex; justify-content: center"><span style="padding: 8px 16px; border-radius: 18px; background: rgba(22,26,61,0.4); font-size: 14px; line-height: 1.35; color: rgba(255,255,255,0.88); text-align: center">Each learner has a made-up name and an avatar — never a real name or a photo.</span></div>
 
   <sc-if value="{{addOpen}}" hint-placeholder-val="{{ false }}">
     <button aria-label="Close" onClick="{{closeAdd}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.22); cursor: default"></button>
