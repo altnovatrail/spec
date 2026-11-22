@@ -83,6 +83,7 @@ test("up clones each repository and spec on the epic's branch, wires Go and npm 
   const readme = read(path.join(dir, "README.md"));
   for (const guard of ["TestSpecVersion", "TestReadingLogOfTheStub", "TestAdmitExamples", "TestMeasuresOfSpecExamples", "TestTheVersionOfModuleKitIsTheOneGoModPins", "TestSpecAndItsContractsAreAtOneTag"]) assert.match(readme, new RegExp(`\\| \`${guard}\` \\|`));
   assert.match(readme, /\| module-kit \| `just ci-lint: the pin of spec` \|/);
+  assert.match(readme, /\| tutor \| `just ci-lint: release-licenses` \|/);
 
   // Again: the clones are kept, and the packages are not laid again while spec's tree is the same.
   const before = unpacks(w).length;

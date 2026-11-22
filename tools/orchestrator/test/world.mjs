@@ -16,7 +16,9 @@ import { container, host, HOST } from "./fakes.mjs";
 // passes, or does what XREPO_TEST_GATE says of "<repo>:<recipe>": "fail"; "pin", ci-lint's check of
 // the pin of spec, which fails with or without a go.work; "guard", a guard of ci-test, unless
 // GOFLAGS skips it; "licenses", go-licenses with no LICENSE in spec/contracts, and
-// "licenses-other", with a license not allowed too. ci-test, coverage and ci write a report of every file git tracks, each line
+// "licenses-other", with a license not allowed too; "release-licenses", ci-lint's step of that
+// name on spec/contracts with no LICENSE, and "release-licenses-other", on a module go.work does
+// not replace. ci-test, coverage and ci write a report of every file git tracks, each line
 // hit, or missed where "<repo>:cover" is "miss".
 const JUST = `#!/usr/bin/env node
 const fs = require("node:fs");
@@ -77,6 +79,9 @@ if (recipe === "_install") {
   if (how === "guard" && fs.existsSync("go.work") && !(process.env.GOFLAGS || "").includes("TestSpecVersion")) fail("--- FAIL: TestSpecVersion");
   if (how === "licenses") fail("W1121 library.go:141] contains non-Go code", "Did not find license for library 'github.com/altnovatrail/spec/contracts/novatrail/api/v1'.", "exit status 1");
   if (how === "licenses-other") fail("Did not find license for library 'github.com/altnovatrail/spec/contracts/novatrail/api/v1'.", "Not allowed license GPL-3.0 found for library github.com/x/y", "exit status 1");
+  const noLicense = (m) => fail("release-licenses: " + m + " has no LICENSE, LICENSE.txt, LICENSE.md or COPYING", "error: recipe \x60release-licenses\x60 failed with exit code 1");
+  if (how === "release-licenses") noLicense("github.com/altnovatrail/spec/contracts");
+  if (how === "release-licenses-other") noLicense("github.com/x/y");
   if (how === "fail") fail(recipe + " failed");
   console.log("just " + recipe);
 } else process.exit(1);

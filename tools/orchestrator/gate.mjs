@@ -156,6 +156,13 @@ function onlyReplaced(lines, replaced) {
   });
 }
 
+// A failure of ci-lint under the wiring in its step release-licenses, which names the first module
+// whose folder holds no LICENSE and stops: one go.work replaces with a clone, as spec/contracts.
+// The licenses after it and the pin of spec, the steps after release-licenses, go unchecked at
+// the gate; ship, with no go.work, runs them all.
+const NO_LICENSE = /^release-licenses: (\S+) has no LICENSE, LICENSE\.txt, LICENSE\.md or COPYING$/;
+const replacedWithoutLicense = (lines, replaced) => replaced.includes(NO_LICENSE.exec(lines.at(-1) ?? "")?.[1]);
+
 // The modules a clone's go.work replaces with a clone of the epic.
 function replacedOf(dir, repo) {
   try {
@@ -226,6 +233,7 @@ async function gateOne(dir, repo, deps, { licenses }) {
       const guard = guards.find((g) => g.kind === recipe && g.pattern.test(lines.at(-1) ?? ""));
       if (guard) row.status = `allowed: ${guard.name}`;
       else if (recipe === "ci-licenses" && wired && onlyReplaced(lines, replacedOf(dir, repo))) row.status = "allowed: just ci-licenses: the modules go.work replaces";
+      else if (recipe === "ci-lint" && wired && replacedWithoutLicense(lines, replacedOf(dir, repo))) row.status = "allowed: just ci-lint: release-licenses of the modules go.work replaces";
     }
     results.push(row);
   }
