@@ -175,7 +175,7 @@ export const STATES = [
     name: "pick-ask",
     title: "The tutor on the page: a request about the frames",
     from: "pick",
-    shows: "Write no names",
+    shows: "I only change the frames",
     run: (t) => (t.v().openChat(), t.c.setState({ draft: "Take only the left column, each example as its own task" })),
   },
   { name: "pick-asked", title: "The frames found anew by the request, and Undo", from: "pick-ask", shows: "Found 3 tasks", run: (t) => t.v().send() },

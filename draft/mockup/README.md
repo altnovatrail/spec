@@ -109,7 +109,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `choice-wrong` | A task with a choice, "Not yet" | First slice |
 | `solution-ask` | "Show the solution", asked first | First slice |
 | `quota` | The tutor's time used up: the quota's line, the task's own hints | First slice |
-| `lesson-end` | "Lesson complete", "Next lesson", "Back to My subjects" | First slice |
+| `lesson-end` | "Lesson complete", "Next lesson", "Back to Home" | First slice |
 | `workbook` | A task on a workbook page of six lines | First slice |
 | `workbook-not-yet` | A workbook page, two lines "Not yet" | First slice |
 | `workbook-shown` | A workbook page, the solution shown: the task is over | First slice |
@@ -119,7 +119,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `camera` | The camera of the paper flow, from "Take from my paper" | First slice |
 | `pick` | The tasks the AI found on the photographed page, every one picked | First slice |
 | `pick-frame` | A task the AI missed, framed by hand: a loop drawn round it became a frame, with its cross and its corner | First slice |
-| `pick-ask` | The tutor's panel on the page to pick from: its line on what it takes, the field with a request about the frames typed, the reminder to write no names, the microphone there and off | First slice (RUN.md, T236) |
+| `pick-ask` | The tutor's panel on the page to pick from: its line on what it takes, the field with a request about the frames typed, the microphone there and off | First slice (RUN.md, T236) |
 | `pick-asked` | The request sent: the left column's three equations found anew and picked, the learner's request and the program's line "Found 3 tasks" in the conversation, and Undo | First slice (RUN.md, T236) |
 | `solve` | A picked task on a clean sheet that runs under the top bar, its crop as tracing paper, and above the crop its sign, "Photo of the task" | First slice (RUN.md, T251, T253) |
 | `solve-hand` | Hand chosen in the tool bar, and the sheet moved by it right of the page: the dots go on past the screen | First slice |
@@ -169,16 +169,16 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:739` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
 | `Main.dc.html:769` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
 | `Main.dc.html:805` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
-| `Main.dc.html:1056` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:1220` — Pick | What left the device, Select all, Start |
-| `Main.dc.html:1237` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1314` — Debug | Only for an account with the right of the debug mode (R163): the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
-| `Main.dc.html:1495` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1621` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1685` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:1782` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
-| `Main.dc.html:2201` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2219` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:1052` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:1216` — Pick | What left the device, Select all, Start |
+| `Main.dc.html:1233` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1310` — Debug | Only for an account with the right of the debug mode (R163): the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
+| `Main.dc.html:1491` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1617` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1681` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:1778` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
+| `Main.dc.html:2197` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2215` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -314,7 +314,6 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | A tap on "Русский" in the sign-in's language only closes the pop-over | `app` shows its screens in the language chosen (R10 and R17 app) | Nobody: the mockup is in English |
 | "Privacy and legal information" on the sign-in's card opens the gist of the Privacy Policy | It opens the list of the legal pages (R31 app) | Nobody: the mockup has no list of them |
 | The skill map in the frame is a sketch | `skill-map` draws a module's map (architecture 3.3) | `skill-map` |
-| The tutor's button at the top right of Home, Subjects and the skill map, and its panel there: that the tutor is an AI and where it helps, with "Continue" and "Take from my paper" | The tutor's panel stands on a task of a module and on the paper flow (R148; R67, R75 app) | `app`, by the author's word of 2026-11-21 (RUN.md, T250) |
 | The notifications: a bell without a caption, and "Nothing new yet" | Nothing sends a notification, and the bell is outside the closed list of R90 | Open: R90's list takes it, or `app` captions it — the author's word (RUN.md, T250) |
 | On the phone the profile's menu is its avatar alone | Outside the closed list of R90: elsewhere the name stands beside it | Open, with the bell (RUN.md, T250) |
 | The cognitive map in the row of places, shut, with "Soon" | The documents have no cognitive map | Nobody until it comes: `app` shows the place shut (RUN.md, T250) |
