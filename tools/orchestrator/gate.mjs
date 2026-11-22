@@ -254,7 +254,8 @@ async function gateOne(dir, repo, deps, { licenses }) {
 }
 
 // The gate: the repositories named, or those the epic changed, each clean, their submodules spec at
-// the clone of spec; each repository's recipes in its own container, all repositories at once.
+// the clone of spec; each repository's recipes in its own container, one repository after another:
+// beside another's suite, the browsers' tests of app and canvas pass their time limits.
 // Its record is .stand/gate.json, each repository's result by the head it checked.
 export async function gate(named, repos, deps) {
   for (const repo of repos) checkRepo(repo);
@@ -270,7 +271,8 @@ export async function gate(named, repos, deps) {
   }
   const submodules = alignSubmodules(dir, clonesOf(dir), deps);
   const licenses = touched.some((r) => r !== "spec" && GATES[r]?.includes("ci-licenses")) ? allowedLicenses(dir, deps) : "";
-  const results = await Promise.all(touched.map((repo) => gateOne(dir, repo, deps, { licenses })));
+  const results = [];
+  for (const repo of touched) results.push(await gateOne(dir, repo, deps, { licenses }));
   const file = path.join(dir, STAND, "gate.json");
   let record = {};
   try {

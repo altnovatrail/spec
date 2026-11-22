@@ -8,7 +8,7 @@ Table 4 of [RUN.md](../RUN.md): what was put off on purpose, its risk, when to r
 
 ## Table 4. Technical debt
 
-Numbers are not reused: next — Д293.
+Numbers are not reused: next — Д294.
 
 | ID | Debt | From | Risk while open | When to return |
 |---|---|---|---|---|
@@ -80,3 +80,4 @@ Numbers are not reused: next — Д293.
 | Д285 | R163: the command of `api` that gives an account the right of the debug mode and takes it has no recipe of `infra` to run it on the deployment — today's accounts got the right by the migration | T249 | The author gives the right to a new user on the deployment by hand, against the database | When the author first names a new user: a recipe of `infra` that runs the command as an execution of `api`'s job |
 | Д287 | The tutor's panel on a task opens with no line that the tutor is an AI (the author's word, 2026-11-22: obvious to anyone); the disclosure is in an adult's Help, on Home's tutor panel and on the page on the tutor. Anthropic's term for minors asks for it: "Organizations must disclose to their users that they are interacting with an AI system rather than a human" (privacy 5.3); how a child is told, where a child meets the tutor, is undecided | T250 | `minor_safeguards` (R112) may not hold for children; a provider's audit | Before the first child (dpia 8) |
 | Д288 | No reminder to write no names stands before Check, on a sheet, an essay or a task from paper (the author's word, 2026-11-22, T251): the camera's, before the photo, and Help's line for an adult stay. `parent-consent` version 1, in force, still says "the app reminds your child"; `privacy-policy` version 5, in force, still promises a reminder over the field of a request and before an essay is sent, which the draft version 6 no longer does | T251 | A parent's consent and the policy in force promise reminders that are not shown | `privacy-policy` version 6 in force; a new version of `parent-consent`, or the reminder back, before the first child (dpia 8) |
+| Д293 | `tutor`: R136 tutor and the comment of `Config.Debug` still call the debug mode "a local run's", while R163 opens it on the deployment too, to an account with its right | T249, T252 | A session of `tutor` takes them for the contract and keeps the mode off the deployment, or writes the old words again | The next task of `tutor` that touches the debug mode, or its next move to a tag of `spec`: R136 tutor and the comment say what R163 says |

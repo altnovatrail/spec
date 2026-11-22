@@ -128,6 +128,9 @@ test("gate: each changed repository's CI in its container, the guards under the 
   // spec's change is a file no report holds.
   assert.equal(repos.spec.patchcov.coverage, null);
   const just = w.calls("just");
+  // One repository after another: no repository's recipes between another's.
+  const order = just.filter((c) => c.recipe !== "_install").map((c) => path.basename(c.cwd)).filter((r, i, all) => r !== all[i - 1]);
+  assert.deepEqual(order, ["spec", "app", "module-kit", "tutor"]);
   const tutorTest = just.find((c) => c.recipe === "ci-test" && c.cwd.endsWith("/tutor"));
   assert.equal(tutorTest.goflags, "-skip=^(TestSpecVersion|TestReadingLogOfTheStub|TestAdmitExamples|TestMeasuresOfSpecExamples|TestExamplesFollowTheRules|TestExamplesReadBack|TestExamples)$");
   assert.equal(tutorTest.allowed, "MIT,Apache-2.0");
