@@ -65,6 +65,8 @@ Its design is outdated. The newest design is in the mockups below: for sign-in, 
 Mockups made after the prototype, of one flow each:
 
 - `Glavnaya-zagruzka.html`, 2026-11-22: Home while its subjects are read, the look of every loading state (R168): the bars, "Next up" and the paper card stand as they will, and the next lesson, the quota and two subjects' cards are grey shapes with a light band sweeping across them. A single file, a bundle: open it in a browser.
+- `Zadacha-masshtab.html`, 2026-11-22: the tracing paper of a task from paper chosen, with its frame, corners and bar — Smaller, the percent, Larger, Fit and Recognise —, the wait of «Распознаём…» and the statement as text, «Распознано ИИ», with Original back to the photo (R169; R89 canvas). A single file, a bundle: open it in a browser.
+- `Vashi-stranicy-1a.html`, 2026-11-22: «Ваши страницы», the pages of the history on this device, each row with a thumbnail of its photo beside its date and its count of tasks. A single file, a bundle: open it in a browser.
 
 - **The interface mockup** of R148 is the sources of the canvas below, in [mockup/](mockup/README.md), since RUN.md, T156. Its README is what a session of `app` or `canvas` reads: every screen and state by name, the two sizes and the rules between them, the style, the contrast of its colours and where it differs from the documents. `just mockup` — in another repository `node spec/tools/mockup/serve.mjs` — opens any state in a browser, `?screen=home&device=phone`, through NovaTrail's own runtime, so the private canvas is not needed.
 

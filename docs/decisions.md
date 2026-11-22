@@ -9,7 +9,7 @@
 > - MathTrail's decisions that carry over here;
 > - the plan of these documents, which the author approved 2026-10-18.
 >
-> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R169.
+> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R170.
 >
 > MathTrail's decisions are cited as "R37 canvas-api" and "R213 standalone", and in a list as "canvas-api: R37, R38". Each repository has its own log and its own numbering.
 >
@@ -7062,3 +7062,23 @@ What a session stops knowing — why and when a decision changed — is in git (
 — *Rejected:* the pulsing spark of the full-window wait on every load — it hides the screen's frame, which is already known; a spinner in each part — the layout still jumps; a delay before the shapes, as the spark's 0.3 s — the author's mockup shows them at once.
 
 — *Consequence:* RULES.md, the hard rule "Loading"; [draft/README.md](../draft/README.md), the mockup; R148, the mockup first: a new screen's mockup draws its loading state. — RUN.md, T251.
+
+## Recognising a task from paper, and the scale of its tracing paper
+
+**R169. On a task from paper the learner may press Recognise on the tracing paper: `app` calls `ReadStatement`, which reads the task's crop as printed by `statement_reading`, as the first check would, and `api` keeps the reading on the open attempt; the paper shows the statements' text in place of the photo, and Original takes the photo back. The first check derives its key from the kept reading, with no second reading. The tracing paper's scale, which the learner sets by its corners, its bar and the wheel, is `TracingState.scale`, kept with the paper's place; which of the photo and the text the paper shows is not kept.** The author's mockup [draft/Zadacha-masshtab.html](../draft/Zadacha-masshtab.html) and answers of 2026-11-22 (RUN.md, T251).
+- **The contract** ([the contracts text](../contracts/README.md), section 15): `ReadStatement` gives the statement of each task of the crop as printed, "□" for each box an answer goes in, never a formula nor a key (R05), with the outcome, and `repeated` when it answers from a reading or key kept, with no call. A task of a module is `invalid_argument`. Its refusals are those of `GetOpeningWords`, and the quota's: no verdict waits on it.
+- **AI and the quota:** the same capability, `statement_reading`, by the route of the attempt (R96), on the same crop the first check sends anyway — only earlier, on the learner's press; it reserves the statement's part of the first check's charge, which that check then does not reserve again.
+- **Data:** the reading is `Reading` of `novatrail.paper.v1`, kept by `api` on the open attempt alone and erased with the key as it closes (R162; privacy 4.1); the device keeps no text of it, and no export holds it.
+- **The scale** is from 0.4 to 4, absent meaning 1, the strokes on the paper in its own units (R89 canvas); the context of a submission names it, so a check's marks lie where the work was.
+- **The mode** — the photo or the text — is a setting of the view, as the sheet's grid: the paper shows the photo again each time it opens.
+
+— *Why:* a small or faint print is hard to read on a tablet, and the clean text helps the learner read the task; the reading is the one the first check needs anyway, so Recognise spends nothing the check would not, and the check waits less. The scale is kept because the strokes on the paper lie by it.
+
+— *Rejected:*
+- **a capability of its own for recognising** — a new row of the admission table and an eval set, for the same reading of the same crop;
+- **the text in the interface alone, with no AI** — nothing reads the photo on the device;
+- **the reading made again at the first check** — twice the price for the same answer;
+- **the mode kept by the device** — it changes nothing of the work or its check (R162), as the grid (R88 canvas);
+- **the reading kept past the attempt, or on the device** — the print as the AI read it is the learner's page, kept no longer than the key (R162).
+
+— *Consequence:* [the contracts text](../contracts/README.md), section 15; `contracts/novatrail/api/v1/attempt.proto`, `contracts/novatrail/paper/v1/key.proto`; `types/canvas/index.d.ts`; privacy 4.1; [architecture.md](architecture.md), section 6; R89 canvas; R96 api. — RUN.md, T251.

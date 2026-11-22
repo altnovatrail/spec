@@ -72,3 +72,20 @@ message TaskKey {
   // unchecked, and with no answer in any task every submission gets the outcome `CAUSE_NO_KEY`.
   Answer answer = 3;
 }
+
+// The reading of the statement of a task from paper's crop, which `api` keeps on the attempt while
+// it is open, from the learner's "Recognise", for the first Check to derive the key by (R169): the
+// statements alone reach the device, never the formulas (R05).
+message Reading {
+  // The tasks on the crop, from 1 to 20, in the order of the page, as the key lists them.
+  repeated ReadTask tasks = 1;
+}
+
+// One task of a reading.
+message ReadTask {
+  // The task as the page prints it, as `TaskKey.statement`.
+  string statement = 1;
+  // The formula the statement holds, one line of ASCII of at most 200 bytes, as the solver of
+  // `module-kit` takes it; empty when the statement holds none.
+  string formula = 2;
+}

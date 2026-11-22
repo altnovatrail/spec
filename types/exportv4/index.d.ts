@@ -554,8 +554,8 @@ export interface Task {
    */
   readonly history: unknown;
   /**
-   * Where the tracing paper lay at the end and whether it was hidden, as the canvas gave it: at [x,
-   * y] and hidden.
+   * Where the tracing paper lay at the end, whether it was hidden and its scale, as the canvas gave
+   * it: at [x, y], hidden and scale, absent meaning 1.
    */
   readonly tracing: unknown;
   /**

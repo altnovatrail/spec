@@ -97,12 +97,18 @@ export interface GridChange {
 export type GridChangeEvent = CustomEvent<GridChange>;
 
 /**
- * Where the tracing paper of a task from paper lies on the sheet, and whether it is hidden. A new
- * task from paper starts at the element's own place for it, shown.
+ * Where the tracing paper of a task from paper lies on the sheet, how large, and whether it is
+ * hidden. A new task from paper starts at the element's own place for it, shown, at its own size.
  */
 export interface TracingState {
   /** Its top left corner on the sheet, in the sheet's units: [x, y]. */
   readonly at: readonly [x: number, y: number];
+  /**
+   * How many times its own size it is drawn, from 0.4 to 4, the crop and the strokes on it alike,
+   * from its top left corner: the strokes keep their points on it, so the work for checking is the
+   * same at any scale. Absent is 1; the element gives it always (R169).
+   */
+  readonly scale?: number;
   /**
    * Whether the tracing paper is hidden, with the strokes on it: they stay in the history and in
    * the work for checking, out of sight.
@@ -112,10 +118,30 @@ export interface TracingState {
 
 /**
  * The event the element sends from its host, bubbling and composed, when the learner moves the
- * tracing paper by its grip "Move the task", or hides or shows it by its button atop the tools —
- * not when the consumer sets `tracing`. Its detail is the new state, frozen.
+ * tracing paper by its grip "Move the task", scales it by its corners, its buttons or Ctrl/⌘ with
+ * the wheel, fits it to the window, or hides or shows it by its button atop the tools — not when
+ * the consumer sets `tracing`. Its detail is the new state, frozen.
  */
 export type TracingChangeEvent = CustomEvent<TracingState>;
+
+/**
+ * The statement of a task from paper read in clean print, which the consumer gets on the learner's
+ * "Recognise" (R169): `"ready"`, the button offered; `"busy"`, while the reading comes; and
+ * `"done"`, the statement of each task the crop holds, as the page prints it, "□" for each box an
+ * answer goes in, which the element draws in place of the crop until the learner goes back to the
+ * photo by "Original".
+ */
+export type TracingReading =
+  | { readonly state: "ready" }
+  | { readonly state: "busy" }
+  | { readonly state: "done"; readonly statements: readonly string[] };
+
+/**
+ * The event the element sends from its host, bubbling and composed, when the learner presses
+ * "Recognise" while `reading` is `"ready"`: the consumer reads the statement and gives
+ * `reading` `"busy"`, then `"done"`, or `"ready"` again when no reading came. Its detail is null.
+ */
+export type TracingReadEvent = CustomEvent<null>;
 
 /**
  * A point of a stroke: where it lies on the sheet, in its logical units, when it was written and
@@ -453,6 +479,7 @@ export interface CanvasEventMap {
   toolchange: ToolChangeEvent;
   demochange: DemoChangeEvent;
   tracingchange: TracingChangeEvent;
+  tracingread: TracingReadEvent;
   gridchange: GridChangeEvent;
 }
 
@@ -507,6 +534,14 @@ export interface CanvasElement extends HTMLElement {
    */
   get tracing(): TracingState | undefined;
   set tracing(state: TracingState | undefined);
+  /**
+   * The reading of the task from paper's statement: `undefined`, as a task from paper comes, offers
+   * no "Recognise"; the consumer gives it while it can read the statement, and the element shows
+   * the button, its wait and the statements by it, frozen. Given without a task from paper, or not
+   * of `TracingReading`, it is a TypeError.
+   */
+  get reading(): TracingReading | undefined;
+  set reading(reading: TracingReading | undefined);
   /**
    * The grid of the task from paper's sheet: `undefined` without a task from paper, and "dots" as
    * one comes. The learner turns it by the element's button, which a `gridchange` tells; the

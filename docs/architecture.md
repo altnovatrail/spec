@@ -640,6 +640,11 @@ The fields, periods and places of storage are privacy 4 and R128.
   | grid: lines | `canvas`: "Grid: lines" | `view-headline` | — | as is |
   | grid: blank | `canvas`: "Grid: blank" | `crop-square` | — | as is |
   | grid: squares | `canvas`: "Grid: squares" | `grid-on` | — | as is |
+  | smaller | `canvas`: "Smaller", the bar of the tracing paper (R169) | `remove` | — | as is |
+  | larger | `canvas`: "Larger" | `add` | — | as is |
+  | fit | `canvas`: "Fit" | `fit-screen` | — | as is |
+  | recognise | `canvas`: "Recognise"; the sign "Recognised by AI" | `auto-awesome` | — | as is |
+  | original | `canvas`: "Original"; the sign "Photo of the task" | `image` | — | as is |
   | time to review | `skill-map`, `app`: the state of a skill | `update` | — | as is |
   | mastered | `skill-map`, `app`: the state of a skill | `check-circle` | — | as is |
   | in progress | `skill-map`, `app`: the state of a skill | `timelapse` | — | as is |
@@ -675,6 +680,16 @@ The fields, periods and places of storage are privacy 4 and R128.
   | grid: lines | Grid: lines | «Сетка: строчки» | `canvas` |
   | grid: blank | Grid: blank | «Сетка: пусто» | `canvas` |
   | grid: squares | Grid: squares | «Сетка: клетки» | `canvas` |
+  | task scale | Task scale | «Масштаб задачи» | `canvas` |
+  | smaller | Smaller | «Уменьшить» | `canvas` |
+  | larger | Larger | «Увеличить» | `canvas` |
+  | back to 100% | {percent}: back to 100% | «{percent}: вернуть 100 %» | `canvas` |
+  | fit | Fit | «Вписать» | `canvas` |
+  | recognise | Recognise | «Распознать» | `canvas` |
+  | recognising | Recognising… | «Распознаём…» | `canvas` |
+  | original | Original | «Оригинал» | `canvas` |
+  | photo of the task | Photo of the task | «Фото задачи» | `canvas` |
+  | recognised by AI | Recognised by AI | «Распознано ИИ» | `canvas` |
   | time to review | Time to review | «Пора повторить» | `skill-map`, `app` |
   | mastered | Mastered | «Освоено» | `skill-map`, `app` |
   | in progress | In progress | «В работе» | `skill-map`, `app` |

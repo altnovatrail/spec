@@ -16,6 +16,8 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   paper: canvas.PaperTask | undefined;
   get tracing(): canvas.TracingState | undefined;
   set tracing(state: canvas.TracingState | undefined);
+  get reading(): canvas.TracingReading | undefined;
+  set reading(reading: canvas.TracingReading | undefined);
   get grid(): canvas.PaperGrid | undefined;
   set grid(grid: canvas.PaperGrid | undefined);
   workedExample: open.WorkedExample | undefined;
@@ -166,7 +168,20 @@ sheet.paper = { statement };
 sheet.history = traced;
 export const tracing: canvas.TracingState | undefined = sheet.tracing;
 sheet.tracing = { at: [0, 120], hidden: true };
+sheet.tracing = { at: [0, 120], hidden: false, scale: 1.5 };
 sheet.tracing = undefined;
+// The reading of the statement by Recognise, which app gives back (R169).
+export const reading: canvas.TracingReading | undefined = sheet.reading;
+sheet.reading = { state: "busy" };
+sheet.reading = { state: "done", statements: ["□ + 1 = 3"] };
+sheet.reading = undefined;
+// @ts-expect-error: a reading done holds its statements
+sheet.reading = { state: "done" };
+sheet.addEventListener("tracingread", (event) => {
+  const none: null = event.detail;
+  sheet.reading = { state: "busy" };
+  return none;
+});
 export const grid: canvas.PaperGrid | undefined = sheet.grid;
 sheet.grid = "blank";
 sheet.grid = undefined;

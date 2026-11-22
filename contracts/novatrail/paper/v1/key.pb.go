@@ -407,6 +407,110 @@ func (x *TaskKey) GetAnswer() *Answer {
 	return nil
 }
 
+// The reading of the statement of a task from paper's crop, which `api` keeps on the attempt while
+// it is open, from the learner's "Recognise", for the first Check to derive the key by (R169): the
+// statements alone reach the device, never the formulas (R05).
+type Reading struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The tasks on the crop, from 1 to 20, in the order of the page, as the key lists them.
+	Tasks         []*ReadTask `protobuf:"bytes,1,rep,name=tasks,proto3" json:"tasks,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Reading) Reset() {
+	*x = Reading{}
+	mi := &file_novatrail_paper_v1_key_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Reading) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Reading) ProtoMessage() {}
+
+func (x *Reading) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_paper_v1_key_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Reading.ProtoReflect.Descriptor instead.
+func (*Reading) Descriptor() ([]byte, []int) {
+	return file_novatrail_paper_v1_key_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Reading) GetTasks() []*ReadTask {
+	if x != nil {
+		return x.Tasks
+	}
+	return nil
+}
+
+// One task of a reading.
+type ReadTask struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The task as the page prints it, as `TaskKey.statement`.
+	Statement string `protobuf:"bytes,1,opt,name=statement,proto3" json:"statement,omitempty"`
+	// The formula the statement holds, one line of ASCII of at most 200 bytes, as the solver of
+	// `module-kit` takes it; empty when the statement holds none.
+	Formula       string `protobuf:"bytes,2,opt,name=formula,proto3" json:"formula,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadTask) Reset() {
+	*x = ReadTask{}
+	mi := &file_novatrail_paper_v1_key_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadTask) ProtoMessage() {}
+
+func (x *ReadTask) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_paper_v1_key_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadTask.ProtoReflect.Descriptor instead.
+func (*ReadTask) Descriptor() ([]byte, []int) {
+	return file_novatrail_paper_v1_key_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ReadTask) GetStatement() string {
+	if x != nil {
+		return x.Statement
+	}
+	return ""
+}
+
+func (x *ReadTask) GetFormula() string {
+	if x != nil {
+		return x.Formula
+	}
+	return ""
+}
+
 var File_novatrail_paper_v1_key_proto protoreflect.FileDescriptor
 
 const file_novatrail_paper_v1_key_proto_rawDesc = "" +
@@ -430,7 +534,12 @@ const file_novatrail_paper_v1_key_proto_rawDesc = "" +
 	"\n" +
 	"provenance\x18\x02 \x01(\x0e2\x1e.novatrail.paper.v1.ProvenanceR\n" +
 	"provenance\x122\n" +
-	"\x06answer\x18\x03 \x01(\v2\x1a.novatrail.paper.v1.AnswerR\x06answer*R\n" +
+	"\x06answer\x18\x03 \x01(\v2\x1a.novatrail.paper.v1.AnswerR\x06answer\"=\n" +
+	"\aReading\x122\n" +
+	"\x05tasks\x18\x01 \x03(\v2\x1c.novatrail.paper.v1.ReadTaskR\x05tasks\"B\n" +
+	"\bReadTask\x12\x1c\n" +
+	"\tstatement\x18\x01 \x01(\tR\tstatement\x12\x18\n" +
+	"\aformula\x18\x02 \x01(\tR\aformula*R\n" +
 	"\n" +
 	"Provenance\x12\x1a\n" +
 	"\x16PROVENANCE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -451,14 +560,16 @@ func file_novatrail_paper_v1_key_proto_rawDescGZIP() []byte {
 }
 
 var file_novatrail_paper_v1_key_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_novatrail_paper_v1_key_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_novatrail_paper_v1_key_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_novatrail_paper_v1_key_proto_goTypes = []any{
-	(Provenance)(0), // 0: novatrail.paper.v1.Provenance
-	(*Answer)(nil),  // 1: novatrail.paper.v1.Answer
-	(*Number)(nil),  // 2: novatrail.paper.v1.Number
-	(*Choice)(nil),  // 3: novatrail.paper.v1.Choice
-	(*Key)(nil),     // 4: novatrail.paper.v1.Key
-	(*TaskKey)(nil), // 5: novatrail.paper.v1.TaskKey
+	(Provenance)(0),  // 0: novatrail.paper.v1.Provenance
+	(*Answer)(nil),   // 1: novatrail.paper.v1.Answer
+	(*Number)(nil),   // 2: novatrail.paper.v1.Number
+	(*Choice)(nil),   // 3: novatrail.paper.v1.Choice
+	(*Key)(nil),      // 4: novatrail.paper.v1.Key
+	(*TaskKey)(nil),  // 5: novatrail.paper.v1.TaskKey
+	(*Reading)(nil),  // 6: novatrail.paper.v1.Reading
+	(*ReadTask)(nil), // 7: novatrail.paper.v1.ReadTask
 }
 var file_novatrail_paper_v1_key_proto_depIdxs = []int32{
 	2, // 0: novatrail.paper.v1.Answer.number:type_name -> novatrail.paper.v1.Number
@@ -466,11 +577,12 @@ var file_novatrail_paper_v1_key_proto_depIdxs = []int32{
 	5, // 2: novatrail.paper.v1.Key.tasks:type_name -> novatrail.paper.v1.TaskKey
 	0, // 3: novatrail.paper.v1.TaskKey.provenance:type_name -> novatrail.paper.v1.Provenance
 	1, // 4: novatrail.paper.v1.TaskKey.answer:type_name -> novatrail.paper.v1.Answer
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	7, // 5: novatrail.paper.v1.Reading.tasks:type_name -> novatrail.paper.v1.ReadTask
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_paper_v1_key_proto_init() }
@@ -488,7 +600,7 @@ func file_novatrail_paper_v1_key_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_paper_v1_key_proto_rawDesc), len(file_novatrail_paper_v1_key_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

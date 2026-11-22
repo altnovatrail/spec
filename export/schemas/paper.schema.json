@@ -98,7 +98,7 @@
           "description": "The history of writing as the canvas gave it, the strokes of the sheet and of the tracing paper: write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p; on a stroke of the tracing paper, on \"tracing\"."
         },
         "tracing": {
-          "description": "Where the tracing paper lay at the end and whether it was hidden, as the canvas gave it: at [x, y] and hidden."
+          "description": "Where the tracing paper lay at the end, whether it was hidden and its scale, as the canvas gave it: at [x, y], hidden and scale, absent meaning 1."
         },
         "submissions": {
           "type": "array",
