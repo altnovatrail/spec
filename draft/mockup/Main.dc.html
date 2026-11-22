@@ -382,8 +382,16 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .ph-tbar .ph-tmode.back{background:#F2F2F7;color:#1D1D1F}
 .ph-tstate{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:500;line-height:1.2;letter-spacing:-.02em;white-space:nowrap;color:#1D1D1F;pointer-events:none}
 .ph-tscan{position:absolute;inset:0;overflow:hidden;background:rgba(0,113,227,.04);pointer-events:none}
-.ph-tscan>i{position:absolute;top:0;bottom:0;left:35%;width:30%;background:linear-gradient(90deg,transparent,rgba(0,113,227,.18),transparent);border-right:2px solid rgba(0,113,227,.6);animation:ntScan 1s ease-in-out infinite}
+.ph-tscan>i{position:absolute;top:0;bottom:0;left:35%;width:30%;background:linear-gradient(90deg,transparent,rgba(0,113,227,.18),transparent);animation:ntScan 1s ease-in-out infinite}
+/* Its line in the middle of its glow, so the glow is the same on both sides of it. */
+.ph-tscan>i::after{content:"";position:absolute;top:0;bottom:0;left:calc(50% - 1px);width:2px;background:rgba(0,113,227,.6)}
 @keyframes ntScan{from{left:-30%}to{left:100%}}
+/* The page being searched for tasks: as the tracing paper read, its line in the middle of its glow. */
+.ph-pscan{position:absolute;inset:0;overflow:hidden;border-radius:inherit;background:rgba(0,113,227,.03);pointer-events:none}
+.ph-pscan>i{position:absolute;left:0;right:0;top:-12%;height:24%;background:linear-gradient(180deg,rgba(0,113,227,0),rgba(0,113,227,.12) 50%,rgba(0,113,227,0));animation:ntPScan 2.4s cubic-bezier(.45,0,.55,1) infinite alternate}
+.ph-pscan>i::after{content:"";position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;background:rgba(0,113,227,.7);box-shadow:0 0 12px rgba(0,113,227,.35)}
+@keyframes ntPScan{from{top:-12%}to{top:88%}}
+@media (prefers-reduced-motion: reduce){.ph-pscan>i{display:none}}
 </style>
 </helmet>
 <div class="{{devCls}}" style="position: relative; width: {{dim.W}}px; height: {{dim.VH}}px; overflow: hidden; background: #F2F2F7; color: #1D1D1F; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none">
@@ -526,6 +534,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
           <span style="width: 50%; height: 50%; border-radius: 50%; background: #0071E3; box-shadow: 0 0 0 3px #FFFFFF, 0 2px 6px rgba(0,0,0,0.18)"></span>
         </button>
       </sc-for>
+      <sc-if value="{{findingPage}}" hint-placeholder-val="{{ false }}"><div class="ph-pscan" aria-hidden="true"><i></i></div></sc-if>
       <!-- The frame being dragged looks as it will once the finger is up: what the learner sees is the frame. -->
       <sc-if value="{{liveFrame}}" hint-placeholder-val="{{ false }}">
         <span aria-hidden="true" style="position: absolute; left: {{liveBox.x}}px; top: {{liveBox.y}}px; width: {{liveBox.w}}px; height: {{liveBox.h}}px; border-radius: 10px; background: rgba(0,113,227,0.12); box-shadow: inset 0 0 0 3px #0071E3; pointer-events: none">
@@ -2534,7 +2543,7 @@ const dbgNum = (n) => n.toLocaleString('en-US');
 class Component extends DCLogic {
   // The paper flow: the page photographed, the tasks picked, the learner's own frames on each page, the sheet chosen, each task's tries and status.
   // hintMode is the profile's setting, 'questions' or 'where'; the demo's profile has "Show where" on.
-  state = { pageSays: null, surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, liveBox: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
+  state = { finding: false, pageSays: null, surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, liveBox: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
     chatOpen: false, chat: [], typing: false, listening: false, speaking: null, voiceOn: true, micOn: true, unread: false, draft: '', said: {}, hinted: {},
     screen: 'signin', waitOn: 'sky', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
     // slice: the demo's switch — 'first', the first slice with adults, or 'later', with what epics E4 of app and E11 bring.
@@ -3179,7 +3188,7 @@ class Component extends DCLogic {
     this.later(() => {
       const s = this.state, p = d + '-';
       // Every task found starts picked: the learner leaves out what they will not solve, and frames what the AI missed.
-      this.setState({ flash: false, stage: 'pick', pageSays: null, captured: d, asked: { ...s.asked, [d]: null }, askUndo: null, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
+      this.setState({ flash: false, stage: 'pick', finding: false, pageSays: null, captured: d, asked: { ...s.asked, [d]: null }, askUndo: null, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
         strokes: without(s.strokes, p), answers: without(s.answers, p), status: without(s.status, p), ptries: without(s.ptries, p), pmark: null, vmarks: null, verdict: null });
       if (this.dbgOn()) this.dbgAdd(this.dbgFind(this.state, d));
     }, 380);
@@ -3796,13 +3805,14 @@ class Component extends DCLogic {
     let title = L ? L.title : 'Scratch sheet', subtitle = L ? KINDS[g.k] + ' · ' + (s.seg + 1) + ' of ' + L.segs.length : 'Blank canvas';
     if (s.surface === 'numberline') { title = 'Number line'; subtitle = 'by Kite Math'; }
     if (s.surface === 'geo') { title = 'Geometry board'; subtitle = 'by Tangent Lab'; }
-    if (isPick) { title = 'Your page'; subtitle = this.found().length || frs.length ? this.found().length + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') + ' · tap one to leave it out' : ''; }
+    const findingPage = isPick && !!s.finding;
+    if (isPick) { title = 'Your page'; subtitle = findingPage ? 'Finding the tasks on the page…' : this.found().length || frs.length ? this.found().length + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') + ' · tap one to leave it out' : ''; }
     // The counter at the right says which task of the page it is: no line of it under the name.
     if (isSolve) { title = this.tname(t); subtitle = ''; }
 
     const doneN = sel.filter((id) => this.over(id)).length;
     const bands = isPick ? this.pickBands(s) : [];
-    const canGo = sel.length > 0 && s.pageSays !== 'closed';
+    const canGo = sel.length > 0 && s.pageSays !== 'closed' && !findingPage;
     const PH = this.phone(), dim = this.dims(), cf = this.cf();
     const pageK = PH ? 0.5967 : 0.76;
     const pageTf = PH ? 'translate(16px, 76px) scale(' + pageK + ')' : 'translate(369px, 66px) scale(' + pageK + ')';
@@ -3819,7 +3829,7 @@ class Component extends DCLogic {
 
     const tb = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.12)' : 'transparent', fg: on ? '#0071E3' : '#1D1D1F' });
 
-    const regions = tasks.map((r) => {
+    const regions = findingPage ? [] : tasks.map((r) => {
       const on = s.selected.includes(r.id), what = r.manual ? this.tname(r).toLowerCase() : 'task ' + r.id;
       return { left: r.x, top: r.y, w: r.w, h: r.h, num: r.manual ? 'F' : r.id, on, off: !on, manual: !!r.manual, bg: on ? 'rgba(0,113,227,0.12)' : 'rgba(0,113,227,0.035)', bd: on ? 'inset 0 0 0 3px #0071E3' : 'inset 0 0 0 1.5px rgba(0,113,227,0.4)', label: (on ? 'Deselect ' : 'Select ') + what, toggle: () => this.toggle(r.id) };
     });
@@ -3934,7 +3944,7 @@ class Component extends DCLogic {
       moreW, popLeft: isExt ? dim.W - 316 : Math.round(dim.W / 2 - 150),
       extName: s.surface === 'geo' ? 'Geometry' : 'Number line', extAuthor: s.surface === 'geo' ? 'Tangent Lab' : 'Kite Math',
       title, subtitle, pageTf,
-      regions,
+      regions, findingPage,
       screenPaths: showScreenInk ? paths : [],
       live: s.live || '', liveSty: sty(s.tool), liveScreen: !!s.live && showScreenInk && s.liveLayer === 'main', liveClip: !!s.live && s.liveLayer === 'clip',
       clipPaths, eraseClip: isEraser && isSolve,
