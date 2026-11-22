@@ -168,8 +168,9 @@ export const STATES = [
   // found on the page and one framed by hand, each picked task on a clean sheet under its crop, Check by the key.
   { name: "camera", title: "The camera of the paper flow", from: "home", shows: "Worksheet", run: (t) => t.v().openCamera() },
   { name: "pick", title: "The tasks the AI found on the page, every one picked", from: "camera", shows: "tap one to leave it out", run: (t) => t.v().capture() },
-  // A loop drawn round equation (6), which the AI missed: its box becomes the learner's frame.
-  { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([[310, 598], [576, 598], [576, 644], [310, 644]]) },
+  // A rectangle dragged round equation (6), which the AI missed: while the finger is down, and once it is up, the learner's frame.
+  { name: "pick-drag", title: "A frame being dragged round a task", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setState({ liveBox: { x: 304, y: 592, w: 210, h: 58 }, liveLayer: "frame" }) },
+  { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([304, 592], [582, 650]) },
   // The learner's request about the page, to the tutor (R165): the finding gives the frames anew, the program words the line.
   {
     name: "pick-ask",
@@ -226,8 +227,8 @@ export const STATES = [
       t.v().next();
     },
   },
-  // A loop drawn round equations (1) and (3) at once: the reading of its statement lists both, and Check checks each.
-  { name: "pick-several", title: "A frame drawn round two tasks", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([[22, 148], [298, 148], [298, 590], [22, 590]]) },
+  // A frame dragged round equations (1) and (3) at once: the reading of its statement lists both, and Check checks each.
+  { name: "pick-several", title: "A frame dragged round two tasks", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([16, 142], [304, 596]) },
   {
     name: "solve-several",
     title: "A frame of several tasks, each checked: the count, and a tick or a cross by each answer",

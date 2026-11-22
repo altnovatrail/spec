@@ -496,7 +496,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
 <!-- ============ The photographed page: pick the tasks ============ -->
 <!-- The whole page went to the AI, which found the tasks; every one starts picked. A task it missed the learner frames
-     by hand: a loop drawn round it with a finger or a pen becomes a frame, which its corner resizes and its cross removes. -->
+     by hand: a rectangle dragged from one corner of it to the opposite with a finger or a pen becomes a frame, which its corner
+     resizes and its cross removes. -->
 <sc-if value="{{showPagePane}}" hint-placeholder-val="{{ false }}">
   <div style="position: absolute; left: 0; top: 0; width: 600px; height: 848px; transform-origin: 0 0; transform: {{pageTf}}; box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.10); border-radius: 3px">
     <dc-import name="Paper" page="{{captured}}" hint-size="600px,848px"></dc-import>
@@ -525,8 +526,11 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
           <span style="width: 50%; height: 50%; border-radius: 50%; background: #0071E3; box-shadow: 0 0 0 3px #FFFFFF, 0 2px 6px rgba(0,0,0,0.18)"></span>
         </button>
       </sc-for>
+      <!-- The frame being dragged looks as it will once the finger is up: what the learner sees is the frame. -->
       <sc-if value="{{liveFrame}}" hint-placeholder-val="{{ false }}">
-        <svg width="600" height="848" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{live}}" style="fill: none; stroke: #0071E3; stroke-width: 4px; opacity: 0.85; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+        <span aria-hidden="true" style="position: absolute; left: {{liveBox.x}}px; top: {{liveBox.y}}px; width: {{liveBox.w}}px; height: {{liveBox.h}}px; border-radius: 10px; background: rgba(0,113,227,0.12); box-shadow: inset 0 0 0 3px #0071E3; pointer-events: none">
+          <span style="position: absolute; inset: 3px; border-radius: 8px; border: 2px dashed rgba(255,255,255,0.9)"></span>
+        </span>
       </sc-if>
     </sc-if>
   </div>
@@ -2530,7 +2534,7 @@ const dbgNum = (n) => n.toLocaleString('en-US');
 class Component extends DCLogic {
   // The paper flow: the page photographed, the tasks picked, the learner's own frames on each page, the sheet chosen, each task's tries and status.
   // hintMode is the profile's setting, 'questions' or 'where'; the demo's profile has "Show where" on.
-  state = { pageSays: null, surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
+  state = { pageSays: null, surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, liveBox: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
     chatOpen: false, chat: [], typing: false, listening: false, speaking: null, voiceOn: true, micOn: true, unread: false, draft: '', said: {}, hinted: {},
     screen: 'signin', waitOn: 'sky', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
     // slice: the demo's switch — 'first', the first slice with adults, or 'later', with what epics E4 of app and E11 bring.
@@ -3189,47 +3193,50 @@ class Component extends DCLogic {
       warn: { edge: 'rgba(255,149,0,0.15)', bg: 'linear-gradient(180deg, #FFF8EC, #FFF4E2)', ring: 'solid #FF9500', disc: 'transparent', sign: '#B25E00', ink: '#4A3412', sw: 2.8, role: 'status' },
       fail: { edge: 'rgba(255,59,48,0.16)', bg: 'linear-gradient(180deg, #FFF5F4, #FFECEA)', ring: 'solid #FF3B30', disc: '#FF3B30', sign: '#FFFFFF', ink: '#4D1A16', sw: 2.8, role: 'alert' },
     };
-    const LOOP = 'M4 12c0-4 3.6-7 8-7s8 3 8 6.5-3.4 6-7.5 6c-2 0-3.3-.4-4.3-1.1M8.2 16.4 5.5 19.5', CORNERS = 'M4 10V4h6M20 14v6h-6', BANG = 'M12 7v6M12 17h.01';
+    const FRAME = 'M4 5h12v10H4zM16 15l4.5 4.5', CORNERS = 'M4 10V4h6M20 14v6h-6', BANG = 'M12 7v6M12 17h.01';
     const band = (kind, path, title, line, act) => ({ ...KIND[kind], path, title, line: line || '', act: act || '', onAct: () => this.setState({ pageSays: null }) });
     const none = this.tasks(s).length === 0, note = s.pageSays, out = [];
     if (note === 'failed') out.push(band('fail', BANG, 'No connection.', '', 'Find the tasks again'));
-    if (note === 'outcome') out.push(band('fail', BANG, 'The tutor can’t answer right now.', none ? 'Draw round each task you want to solve.' : ''));
+    if (note === 'outcome') out.push(band('fail', BANG, 'The tutor can’t answer right now.', none ? 'Drag a frame round each task you want to solve.' : ''));
     if (note === 'closed') out.push(band('warn', BANG, 'Without the AI a task from paper can’t be checked.'));
     if (note === 'corner') out.push(band('hint', CORNERS, 'Now tap the opposite corner of the task.'));
-    else if (none && !note) out.push(band('hint', LOOP, 'No tasks found.', 'Draw round each task you want to solve.'));
+    else if (none && !note) out.push(band('hint', FRAME, 'No tasks found.', 'Drag a frame round each task you want to solve.'));
     return out;
   }
 
-  // ---- The learner's own frame: a loop drawn round a task with a finger or a pen; its box becomes the frame.
+  // ---- The learner's own frame: a rectangle dragged from one corner of a task to the opposite with a finger or a pen,
+  // which follows the finger, back too, and is the frame once the finger is up.
   pagePt(e, el) { const r = el.getBoundingClientRect(), k = 600 / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k]; }
+  // The rectangle of two opposite corners, in any direction, kept inside the page.
+  boxOf(a, b) {
+    const x0 = Math.max(0, Math.min(a[0], b[0])), y0 = Math.max(0, Math.min(a[1], b[1])), x1 = Math.min(600, Math.max(a[0], b[0])), y1 = Math.min(848, Math.max(a[1], b[1]));
+    return { x: Math.round(x0), y: Math.round(y0), w: Math.round(x1 - x0), h: Math.round(y1 - y0) };
+  }
   frameDown = (e) => {
-    const el = e.currentTarget;
-    this.fr = { el, pts: [this.pagePt(e, el)] };
+    const el = e.currentTarget, p = this.pagePt(e, el);
+    this.fr = { el, from: p, to: p };
     try { el.setPointerCapture(e.pointerId); } catch (err) { /* no capture */ }
-    this.setState({ live: toD(this.fr.pts), liveLayer: 'frame' });
+    this.setState({ liveBox: this.boxOf(p, p), liveLayer: 'frame' });
   };
   frameMove = (e) => {
     const f = this.fr;
     if (!f) return;
-    const p = this.pagePt(e, f.el), l = f.pts[f.pts.length - 1];
-    if (Math.hypot(p[0] - l[0], p[1] - l[1]) < 2) return;
-    f.pts.push(p);
-    this.setState({ live: toD(f.pts) });
+    f.to = this.pagePt(e, f.el);
+    this.setState({ liveBox: this.boxOf(f.from, f.to) });
   };
   frameUp = () => {
     const f = this.fr;
     if (!f) return;
     this.fr = null;
-    this.setState({ live: null, liveLayer: null });
-    this.frameFrom(f.pts);
+    this.setState({ liveBox: null, liveLayer: null });
+    this.frameFrom(f.from, f.to);
   };
-  // The box of the loop, kept inside the page; a stroke too small to be a loop is a tap.
-  frameFrom(pts) {
-    const s = this.state, xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
-    let x0 = Math.max(0, Math.min(...xs) - 6), y0 = Math.max(0, Math.min(...ys) - 6), x1 = Math.min(600, Math.max(...xs) + 6), y1 = Math.min(848, Math.max(...ys) + 6);
-    if (x1 - x0 < 40 || y1 - y0 < 30) return;
+  // The rectangle dragged is the frame; one smaller than 40 × 30 is none.
+  frameFrom(a, b) {
+    const s = this.state, box = this.boxOf(a, b);
+    if (box.w < 40 || box.h < 30) return;
     const list = this.framesOf(), id = 101 + list.reduce((m, f) => Math.max(m, f.id - 100), 0);
-    const f = { id, x: Math.round(x0), y: Math.round(y0), w: Math.round(x1 - x0), h: Math.round(y1 - y0) };
+    const f = { id, ...box };
     this.setState({ frames: { ...s.frames, [s.captured]: list.concat([f]) }, selected: s.selected.concat([id]), askUndo: null });
   }
   setFrame(id, up) {
@@ -3911,8 +3918,8 @@ class Component extends DCLogic {
       pillCls: PH && isSolve ? 'ph-backonly' : '', barCls: PH && s.chatOpen ? 'nt-hide' : '', railCls: PH && s.chatOpen ? 'nt-hide' : '',
       // With the tutor's panel open on the iPad the line keeps to the width of the page, clear of the panel.
       noteWrap: !PH && s.chatOpen ? { ws: 'normal', w: '456px' } : { ws: 'nowrap', w: 'auto' },
-      pickNote: 'The AI looked at the whole page to find the tasks. The photo stays on this ' + this.devName() + '. Draw round a task it missed.',
-      frames, frameDown: this.frameDown, frameMove: this.frameMove, frameUp: this.frameUp, liveFrame: !!s.live && s.liveLayer === 'frame',
+      pickNote: 'The AI looked at the whole page to find the tasks. The photo stays on this ' + this.devName() + '. Drag a frame round a task it missed.',
+      frames, frameDown: this.frameDown, frameMove: this.frameMove, frameUp: this.frameUp, liveFrame: !!s.liveBox && s.liveLayer === 'frame', liveBox: s.liveBox || { x: 0, y: 0, w: 0, h: 0 },
       wavy: markOn && pm.layer === 'main' ? mark : [], clipWavy: markOn && pm.layer === 'clip' ? mark : [],
       clipVerdicts: vmOn ? vm.marks.map(({ r, ok }, i) => ({ x: Math.round((r.x + r.w - 44 - t.x) * cf), y: Math.round((r.y + 22 - t.y) * cf),
         d: ok ? 'M7 12.5l3.5 3.5L17 8.5' : 'M8 8l8 8M16 8l-8 8', color: ok ? '#15803D' : '#B45309', label: 'Task ' + (i + 1) + ': ' + (ok ? 'correct' : 'not yet') })) : [],
