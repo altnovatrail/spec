@@ -9,7 +9,7 @@
 > - MathTrail's decisions that carry over here;
 > - the plan of these documents, which the author approved 2026-10-18.
 >
-> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R168.
+> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R169.
 >
 > MathTrail's decisions are cited as "R37 canvas-api" and "R213 standalone", and in a list as "canvas-api: R37, R38". Each repository has its own log and its own numbering.
 >
@@ -7047,3 +7047,18 @@ What a session stops knowing — why and when a decision changed — is in git (
 — *Rejected:* the screen and the button alone, with the store kept for the server, the export and "This device" — the author's choice of 2026-11-21 was the store too; a version of the export of its own for the field alone — a new line of releases for an empty field.
 
 — *Consequence:* concepts 8 and 15 — an essay is no artifact; privacy 4 and 4.1; dpia 5.1 and its version 33; R53 app, on the branch `e19` of epic E19. — RUN.md, T249.
+
+**R168. Every place of the interface that waits for an asynchronous load shows a skeleton: grey shapes of what the load brings, where and as large as it will stand, a lighter band sweeping across them. No place waits blank, with a spinner, or with a bare word "Loading".** The author's word of 2026-11-22 (RUN.md, T251), with Home loading as its mockup, [draft/Glavnaya-zagruzka.html](../draft/Glavnaya-zagruzka.html); a hard rule of [RULES.md](../RULES.md).
+- **What is a shape.** Only what the load brings: a name, a line, a button whose words or target come with the data, a card of a list, a picture read from the server. The screen's own chrome — its bars, headings, static words, pictures and the cards' frames — stands as it will, so that nothing moves when the content comes but the shapes turning into it. A shape has the size and corners of its content: a line of text its line's height and a share of its width, a button a pill of its height, an avatar or a tile its circle or rounded square; a list two items.
+- **The look.** A shape is #ececef, and a band #f7f7f9 sweeps across it from right to left in 1.5 s, ease-in-out, endlessly: `linear-gradient(90deg, #ececef 0%, #f7f7f9 45%, #ececef 90%)` at `background-size: 220% 100%`, its position from 120 % to −120 %. Under "Reduce motion" the band stands still (2.3.3, R90); with forced colours a shape is an outline in `GrayText`.
+- **For a screen reader** the part is `aria-busy="true"` and a status says "Loading" once; the shapes are hidden from it.
+- **At once:** the shapes stand from the load's first frame, with no delay; a load that fails shows its failure and its retry in their place (R18 app).
+- **A wait for an action is no load:** the check reading the work, the tutor's words on their way, the finding of a page's tasks keep their own signs, which say what is being done (R82, R165); a skeleton there would draw content that is not being read.
+- **Where no layout is known yet** — the start of `app`, before the account says which screen comes — the ground of the screen to come stands with the name's spark, as before: a skeleton there would draw a screen that may not come.
+- **Each package** keeps its skeletons with its components: in `app`, `Sk` and `Loading` of `src/app/Skeleton.tsx`; a part of another package that loads asynchronously takes the same look by the same rule.
+
+— *Why:* a blank part or a lone spinner says nothing of what comes and makes the screen jump when it comes; the shapes keep the layout still and show where each thing will stand. The author chose the look by the mockup.
+
+— *Rejected:* the pulsing spark of the full-window wait on every load — it hides the screen's frame, which is already known; a spinner in each part — the layout still jumps; a delay before the shapes, as the spark's 0.3 s — the author's mockup shows them at once.
+
+— *Consequence:* RULES.md, the hard rule "Loading"; [draft/README.md](../draft/README.md), the mockup; R148, the mockup first: a new screen's mockup draws its loading state. — RUN.md, T251.

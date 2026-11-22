@@ -75,7 +75,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `who` | "Who's learning?" on the sky: the name alone at the top and "Sign out" a pill of glass at the right; the owner's profile alone, a dark card with "Start", and "Add a learner" a glass card, disabled | First slice |
 | `home` | Home: at the left the side menu — Home, Subjects, the cognitive map shut with "Soon", and at the bottom Grown-ups and Help —, at the top right the tutor, the notifications and the profile's menu; the next lesson with the share of the tutor's time, "Take from my paper", and the connected modules with the states of their skills | First slice (RUN.md, T250) |
 | `home-help` | Home, the adult's Help, from the bottom of the side menu | First slice |
-| `home-switch` | Home, the profile's menu at the top right: whose profile, and "Switch learner" | First slice |
+| `home-switch` | Home, the profile's menu at the top right: whose profile, "Switch learner" and "Sign out" | First slice |
 | `home-grownups` | Home, For grown-ups from the side menu: the hint mode — "Questions only" or "Show where" —, "This device" and "Sign out" | First slice (RUN.md, T250) |
 | `home-bell` | Home, the notifications: "Nothing new yet" — nothing sends one | First slice (RUN.md, T250) |
 | `home-tutor` | Home, the tutor's panel from the top right: that the tutor is an AI and where it helps, "Continue" and "Take from my paper" — Home holds no work, so it speaks of none | First slice (RUN.md, T250) |
@@ -173,8 +173,8 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:1371` — The owner's profile | The name, the country, the avatar |
 | `Main.dc.html:1435` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
 | `Main.dc.html:1532` — Home, Subjects and the skill map | The side menu, or the phone's tab bar; the top right — the tutor, the notifications, the profile's menu; Home's next lesson, quota, "Take from my paper", modules and legend; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
-| `Main.dc.html:1972` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:1990` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:1976` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:1994` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 

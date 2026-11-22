@@ -64,6 +64,8 @@ Its design is outdated. The newest design is in the mockups below: for sign-in, 
 
 Mockups made after the prototype, of one flow each:
 
+- `Glavnaya-zagruzka.html`, 2026-11-22: Home while its subjects are read, the look of every loading state (R168): the bars, "Next up" and the paper card stand as they will, and the next lesson, the quota and two subjects' cards are grey shapes with a light band sweeping across them. A single file, a bundle: open it in a browser.
+
 - **The interface mockup** of R148 is the sources of the canvas below, in [mockup/](mockup/README.md), since RUN.md, T156. Its README is what a session of `app` or `canvas` reads: every screen and state by name, the two sizes and the rules between them, the style, the contrast of its colours and where it differs from the documents. `just mockup` — in another repository `node spec/tools/mockup/serve.mjs` — opens any state in a browser, `?screen=home&device=phone`, through NovaTrail's own runtime, so the private canvas is not needed.
 
 - [Take from my paper](https://claude.ai/artifact/Vt9G8W392cMTTMykiByrcb#play-15dd8cd198dd), 2026-11-13, the link opens it in Play: an interactive iPad mockup of the paper flow, and since 2026-11-14 of sign-in and the home screen before it. Since RUN.md, T153, it follows R148: it walks an adult's path of the first slice from sign-in to a lesson and, since RUN.md, T220, through the paper flow as epic E11 builds it, and a switch on "Who's learning?" shows what comes later — "First slice", or "Later · E4 app, E5", with the children's screens and the canvases of other authors.
