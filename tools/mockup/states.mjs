@@ -270,7 +270,7 @@ export const STATES = [
   { name: "later-who", title: "Later: Who's learning?, with the children", slice: "later", from: "who", shows: "Juniper", run: (t) => t.v().sliceLater() },
   { name: "later-add", title: "Later: Add a learner, a parent's consent", slice: "later", from: "later-who", shows: "A parent’s consent", run: (t) => t.v().openAdd() },
   { name: "later-pin", title: "Later: the owner's PIN", slice: "later", from: "later-who", shows: "Enter your PIN", run: (t) => t.v().profiles.find((p) => p.owner).pick() },
-  { name: "later-home", title: "Later: a child's home", slice: "later", from: "later-who", shows: "Take from my paper", run: (t) => t.v().profiles[0].pick() },
+  { name: "later-home", title: "Later: a child's home", slice: "later", from: "later-who", shows: "Tasks from my paper", run: (t) => t.v().profiles[0].pick() },
   { name: "later-help", title: "Later: a child's Help", slice: "later", from: "later-home", shows: "call a helpline", run: (t) => t.v().hs.toggleHelp() },
   { name: "later-grownups", title: "Later: For grown-ups behind the PIN", slice: "later", from: "later-home", shows: "Enter the PIN", run: (t) => t.v().hs.toggleGrown() },
   { name: "later-pip", title: "Later: Pip, a child's tutor", slice: "later", from: "later-home", shows: "Hi, I’m Pip", run: (t) => (lesson(OLYMPIAD)(t), cont(t), cont(t)) },
