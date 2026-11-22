@@ -16,6 +16,8 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   paper: canvas.PaperTask | undefined;
   get tracing(): canvas.TracingState | undefined;
   set tracing(state: canvas.TracingState | undefined);
+  get grid(): canvas.PaperGrid | undefined;
+  set grid(grid: canvas.PaperGrid | undefined);
   workedExample: open.WorkedExample | undefined;
   get demoState(): canvas.DemoState | undefined;
   set demoState(state: canvas.DemoState | undefined);
@@ -165,6 +167,16 @@ sheet.history = traced;
 export const tracing: canvas.TracingState | undefined = sheet.tracing;
 sheet.tracing = { at: [0, 120], hidden: true };
 sheet.tracing = undefined;
+export const grid: canvas.PaperGrid | undefined = sheet.grid;
+sheet.grid = "blank";
+sheet.grid = undefined;
+// @ts-expect-error: a grid not of PaperGrid
+sheet.grid = "hex";
+sheet.addEventListener("gridchange", (event) => {
+  const chosen: canvas.PaperGrid = event.detail.grid;
+  return chosen;
+});
+sheet.tool = "hand";
 sheet.paper = undefined;
 
 /**

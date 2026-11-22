@@ -112,7 +112,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `workbook` | A task on a workbook page of six lines | First slice |
 | `workbook-not-yet` | A workbook page, two lines "Not yet" | First slice |
 | `workbook-shown` | A workbook page, the solution shown: the task is over | First slice |
-| `essay` | An essay on a lined sheet, to a rubric, with the reminder to write no names | First slice |
+| `essay` | An essay on a lined sheet, to a rubric | First slice |
 | `essay-feedback` | An essay, its feedback | First slice |
 | `essay-done` | An essay after "Done": the marks by the criteria, to an adult | First slice |
 | `camera` | The camera of the paper flow, from "Take from my paper" | First slice |
@@ -121,6 +121,8 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `pick-ask` | The tutor's panel on the page to pick from: its line on what it takes, the field with a request about the frames typed, the reminder to write no names, the microphone there and off | First slice (RUN.md, T236) |
 | `pick-asked` | The request sent: the left column's three equations found anew and picked, the learner's request and the program's line "Found 3 tasks" in the conversation, and Undo | First slice (RUN.md, T236) |
 | `solve` | A picked task on a clean sheet, its crop as tracing paper | First slice |
+| `solve-hand` | Hand chosen in the tool bar, and the sheet moved by it right of the page: the dots go on past the screen | First slice |
+| `solve-lines` | The grid's button, last in the tool bar, tapped once: the dots give way to lines, and its icon to lines; next blank, then squares, then dots again | First slice |
 | `solve-tasks` | The list of the picked tasks, the framed one among them | First slice |
 | `solve-empty` | Check without work: "Write your solution first" | First slice |
 | `solve-reading` | The work being read: the crop with the strokes on it | First slice |
@@ -152,7 +154,7 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 
 | Line and part | What it draws |
 |---|---|
-| `Main.dc.html:157` — Surfaces | The sheet, two screens tall and as wide as the screen: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
+| `Main.dc.html:157` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
 | `Main.dc.html:221` — Camera | The camera's viewfinder |
 | `Main.dc.html:263` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the loop being drawn |
 | `Main.dc.html:301` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
@@ -161,7 +163,7 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:369` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
 | `Main.dc.html:412` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
 | `Main.dc.html:489` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
-| `Main.dc.html:519` — Tool rail | The tools of `canvas` as a vertical glass bar, and above them the crop's show and hide |
+| `Main.dc.html:519` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
 | `Main.dc.html:555` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
 | `Main.dc.html:806` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
 | `Main.dc.html:970` — Pick | What left the device, Select all, Start |
@@ -181,7 +183,7 @@ The mockup is drawn in absolute CSS px for its two sizes, and the sign-in for a 
 - **The phone's layout — a width below 600 CSS px.** It is the reference of 390 × 844: one column that scrolls; the side menu a tab bar at the bottom — Home, Subjects, Cognitive map, Grown-ups, Help —, and the mark at the top left; the tool bar of `canvas` the same vertical glass bar at the left edge; the tutor a sheet from the bottom, at half the height with the task in view above it, its grabber taking it to the whole screen; a pop-over a sheet from the bottom with a close button, which a tap outside closes; «…» of other authors' kinds, under "Later", a button of the right bar; a legal text over the whole screen; the skill map's tiers from top to bottom; the statement of a task folded to one line.
 - **The tablet's layout — 600 CSS px and wider.** It is the reference of 1194 × 834: on Home, Subjects and the skill map the side menu at the left, 88 px wide, and the tutor, the notifications and the profile's menu at the top right; on a canvas the top bar a glass pill at the top left, the tool bar at the left edge, the tutor's panel 344 px wide at the right, from under the top bar to 16 px from the bottom, and the sheet slides left while it is open, so that the task stays in view; pop-overs hang from the button that opens them.
 - **An iPad in portrait, 834 × 1194,** is the tablet's layout. Home keeps its places in a column 834 wide: the cards of the modules two in a row instead of three, and "Take from my paper" under the next lesson. Below 900 wide the sign-in leaves its trail out and its card stands in the middle: the trail and the card of 440 do not fit side by side. On a canvas the tutor's panel keeps its 344 px and the sheet slides under it.
-- **A computer** is the tablet's layout. Home keeps the width of the reference, 1194 px at most, centred on the page's colour; the sign-in's sky fills the window, and its logo, language, trail and card keep the iPad's places in a middle of 1194 × 834, centred both ways — the board `Desktop.dc.html`, 1920 × 1080; a canvas fills the window — the sheet is wider than any screen, and moves under the hand or the wheel —, with the bars at the same edges.
+- **A computer** is the tablet's layout. Home keeps the width of the reference, 1194 px at most, centred on the page's colour; the sign-in's sky fills the window, its trail and card keep the iPad's places in a middle of 1194 × 834, centred both ways, and its logo and language stand 24 below the window's top, at that middle's edges — the board `Desktop.dc.html`, 1920 × 1080; a canvas fills the window — the sheet is wider than any screen, and moves under the hand or the wheel —, with the bars at the same edges.
 - **A phone in landscape** is the tablet's layout by its width; its height of 390 holds the tool bar, which scrolls inside its glass when it does not fit.
 - **320 CSS px,** and a zoom of 400 % of 1280: the phone's layout reflows with no horizontal scroll of the page; only the sheet scrolls both ways, as WCAG 1.4.10 allows a two-dimensional layout. The vertical bar of seven tools fits it (R90).
 - Every target is at least 44 × 44 CSS px, the grabber 88 × 44 (R90).
@@ -291,6 +293,8 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 
 | The mockup | The documents | Who changes it |
 |---|---|---|
+| The sheet is three screens wide, whatever is written | The sheet goes past the task's page as far as the ink and the tracing paper and one view more, within 10000 × 14000 units (R73 canvas) | — : the mockup's width is a convenience of the drawing |
+| The grid of a task from paper stays as turned while the mockup runs | `app` keeps it in its solving screen's state across the tasks of one visit, and a reload or a new visit brings back dots (R162) | — |
 | Caveat and Inter | The system font of `app` (R17 app; R148) | `app`, `canvas`: they keep the system font |
 | Icons as inline SVG | Material Symbols, Rounded (R78) | `app`, `canvas` |
 | Colours that fail the contrast above | WCAG 2.2 AA (R90) | `app` by the amendment to R17 app, `canvas` by its style properties; the table above |

@@ -83,7 +83,7 @@ export const STATES = [
   { name: "home-legend", title: "Home, what the marks mean", from: "home", shows: "Time to review", run: (t) => t.v().hs.toggleLegend() },
   { name: "home-pages", title: "Home, the pages from paper on this device", from: "home", shows: "Your pages · on this device", run: (t) => t.v().hs.togglePages() },
   { name: "subjects", title: "Subjects, the catalog of this server", from: "home", shows: "Tasks on a sheet", run: (t) => t.v().hs.goSubjects() },
-  { name: "solve-kept", title: "A page from Your pages, its work kept", from: "home-pages", shows: "from your page", run: (t) => t.v().pages[0].open() },
+  { name: "solve-kept", title: "A page from Your pages, its work kept", from: "home-pages", shows: "1 / ", run: (t) => t.v().pages[0].open() },
   { name: "legal-access", title: "The page Accessibility", from: "home-help", shows: "WCAG 2.2", run: (t) => t.v().openAccess() },
   { name: "map", title: "The skill map of a module", from: "subjects", shows: "Number patterns", run: (t) => t.v().hs.catOn[0].map() },
   { name: "map-modules", title: "The skill map, the module chosen", from: "map", shows: "Connected modules", run: (t) => t.v().hs.toggleMods() },
@@ -159,7 +159,7 @@ export const STATES = [
   { name: "workbook-shown", title: "A workbook page, the solution shown", from: "workbook-not-yet", shows: "Continue", run: (t) => (t.les().askSol(), t.les().showSol()) },
 
   // A lesson of short essays: the best first sentence, and an essay with feedback by a rubric.
-  { name: "essay", title: "An essay, written to a rubric", from: "home", shows: "Write no names", run: (t) => (lesson(ESSAYS)(t), cont(t), t.les().toggleChoice(), t.les().options[1].pick(), t.les().check(), cont(t)) },
+  { name: "essay", title: "An essay, written to a rubric", from: "home", shows: "an umbrella that can talk", run: (t) => (lesson(ESSAYS)(t), cont(t), t.les().toggleChoice(), t.les().options[1].pick(), t.les().check(), cont(t)) },
   { name: "essay-feedback", title: "An essay, its feedback", from: "essay", shows: "Feedback", run: (t) => (t.c.closeChat(), t.ink(), t.les().check()) },
   { name: "essay-done", title: "An essay, Done: the marks by the criteria", from: "essay-feedback", shows: "Not assessed", run: (t) => t.les().essayDone() },
 
@@ -182,13 +182,15 @@ export const STATES = [
     name: "solve",
     title: "A task from the page, on a clean sheet",
     from: "pick-frame",
-    shows: "from your page",
+    shows: "Equation (1) 1 / 4",
     run: (t) => {
       t.v().regions[1].toggle();
       t.v().regions[3].toggle();
       t.v().start();
     },
   },
+  { name: "solve-hand", title: "Hand: the sheet moved right of the page", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink("M420 420 C500 380 580 460 660 420 M690 430 l60 -20"), t.c.setState({ tool: "hand" }), t.c.setView(1, 240, 0)) },
+  { name: "solve-lines", title: "The grid's button tapped once: the sheet in lines", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => t.v().grid.next() },
   { name: "solve-tasks", title: "The list of the picked tasks", from: "solve", shows: "Framed by you", run: (t) => t.v().toggleTasks() },
   { name: "solve-empty", title: "Check without work", from: "solve", shows: "Write your solution first", run: (t) => t.v().check() },
   { name: "solve-reading", title: "The work being read", from: "solve", shows: "Reading your work", settle: false, run: (t) => (t.ink(), t.v().check()) },

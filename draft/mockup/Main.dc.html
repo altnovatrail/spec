@@ -148,15 +148,15 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-dring{animation:ntDRing 1.3s ease-out infinite}
 .nt-phone .ph-dbgbtn{top:auto!important;bottom:172px!important;margin-top:0!important}
 .nt-phone .ph-dbgbtn.ph-dbg-up{bottom:240px!important}
-.nt-phone .ph-dbg{left:0!important;right:0!important;bottom:0!important;top:300px!important;width:auto!important;border-radius:28px 28px 0 0!important;transform-origin:50% 100%!important;background:rgba(255,255,255,0.97)!important;box-shadow:0 -10px 40px rgba(0,0,0,0.14)!important}
+.nt-phone .ph-dbg{left:0!important;right:0!important;bottom:0!important;top:414px!important;width:auto!important;border-radius:28px 28px 0 0!important;transform-origin:50% 100%!important;background:rgba(255,255,255,0.97)!important;box-shadow:0 -10px 40px rgba(0,0,0,0.14)!important}
 .nt-phone .ph-dbg.ph-full{top:70px!important}
 </style>
 </helmet>
 <div class="{{devCls}}" style="position: relative; width: {{dim.W}}px; height: {{dim.VH}}px; overflow: hidden; background: #F2F2F7; color: #1D1D1F; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none">
 
 <!-- ============ Surfaces ============ -->
-<!-- The sheet is two screens tall, and as wide as the screen: on the phone 390 × 1688. It moves under the hand — two fingers, or one while "Draw with finger" is off, or the wheel — and Zoom in and Zoom out enlarge it up to 200 % (R90). -->
-<div style="position: absolute; left: 0; top: 0; width: {{dim.W}}px; height: {{dim.H}}px; transform-origin: 0 0; transform: {{viewTf}}; transition: {{viewTr}}">
+<!-- The sheet is two screens tall and three wide, the task's page at its left, right of the tool bar: on the phone 1170 × 1688. It moves under the hand — the tool Hand, two fingers, or the wheel —, and one finger writes, or in canvas moves it once a pen has touched the page (pen mode); it is not zoomed (canvas). -->
+<div style="position: absolute; left: 0; top: 0; width: {{dim.SW}}px; height: {{dim.H}}px; transform-origin: 0 0; transform: {{viewTf}}; transition: {{viewTr}}">
 <sc-if value="{{isNumberline}}" hint-placeholder-val="{{ false }}">
   <div style="position: absolute; inset: 0; background: #FFFFFF">
     <div style="position: absolute; left: {{nl.x}}px; top: {{nl.y}}px; width: {{nl.w}}px; height: 2px; background: #1D1D1F"></div>
@@ -171,9 +171,9 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   <div style="position: absolute; inset: 0; background-color: #FBFBFD; background-image: radial-gradient(circle, #AEAEB2 1.2px, transparent 1.6px); background-size: 32px 32px"></div>
 </sc-if>
 
-<!-- The sheet of a task from paper is dotted (GridKind of canvas); a choice of it waits for the app's settings. -->
+<!-- The sheet of a task from paper is dotted at first; the grid's button in the tool bar turns it to lines, blank and squares, round (canvas). -->
 <sc-if value="{{isSolve}}" hint-placeholder-val="{{ false }}">
-  <div style="position: absolute; inset: 0; background-color: #FFFFFF; background-image: radial-gradient(circle, #D1D1D6 1px, transparent 1.3px); background-size: 24px 24px"></div>
+  <div style="position: absolute; inset: 0; background-color: #FFFFFF; background-image: {{grid.bg}}; background-size: {{grid.size}}"></div>
 </sc-if>
 
 <!-- A lesson's canvas is the module's choice (concepts 8; R148): a handwriting sheet in squares or in lines, or a workbook page.
@@ -300,24 +300,24 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
 <!-- ============ Ink on the screen (sheets) ============ -->
 <sc-if value="{{showScreenInk}}" hint-placeholder-val="{{ true }}">
-<div style="position: absolute; left: 0; top: 0; width: {{dim.W}}px; height: {{dim.H}}px; transform-origin: 0 0; transform: {{viewTf}}; transition: {{viewTr}}">
-  <div data-w="{{dim.W}}" onPointerDown="{{inkDown}}" onPointerMove="{{inkMove}}" onPointerUp="{{inkUp}}" onPointerCancel="{{inkUp}}" onWheel="{{wheel}}" style="position: absolute; inset: 0; touch-action: none; cursor: {{inkCursor}}"></div>
+<div style="position: absolute; left: 0; top: 0; width: {{dim.SW}}px; height: {{dim.H}}px; transform-origin: 0 0; transform: {{viewTf}}; transition: {{viewTr}}">
+  <div data-w="{{dim.SW}}" onPointerDown="{{inkDown}}" onPointerMove="{{inkMove}}" onPointerUp="{{inkUp}}" onPointerCancel="{{inkUp}}" onWheel="{{wheel}}" style="position: absolute; inset: 0; touch-action: none; cursor: {{inkCursor}}"></div>
   <sc-for list="{{screenPaths}}" as="p" hint-placeholder-count="0">
-    <svg width="{{dim.W}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+    <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
   </sc-for>
   <sc-if value="{{liveScreen}}" hint-placeholder-val="{{ false }}">
-    <svg width="{{dim.W}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{live}}" style="fill: none; stroke: {{liveSty.color}}; stroke-width: {{liveSty.w}}px; opacity: {{liveSty.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+    <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{live}}" style="fill: none; stroke: {{liveSty.color}}; stroke-width: {{liveSty.w}}px; opacity: {{liveSty.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
   </sc-if>
   <sc-for list="{{les.marks}}" as="k" hint-placeholder-count="0">
     <div role="img" aria-label="{{k.label}}" style="position: absolute; left: {{k.x}}px; top: {{k.y}}px; width: {{k.w}}px; height: {{k.h}}px; border-radius: 12px; box-shadow: 0 0 0 2.5px #FF9F0A; pointer-events: none"></div>
   </sc-for>
   <!-- "Show where": after "Not yet", a wavy line under the place of the mistake in the learner's own strokes; nothing is corrected (concepts 8, 10). -->
   <sc-for list="{{wavy}}" as="k" hint-placeholder-count="0">
-    <svg role="img" aria-label="{{k.label}}" width="{{dim.W}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible"><path d="{{k.d}}" style="fill: none; stroke: #E8590C; stroke-width: 2.4px; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+    <svg role="img" aria-label="{{k.label}}" width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible"><path d="{{k.d}}" style="fill: none; stroke: #E8590C; stroke-width: 2.4px; stroke-linecap: round; stroke-linejoin: round"></path></svg>
   </sc-for>
   <sc-if value="{{eraseScreen}}" hint-placeholder-val="{{ false }}">
     <sc-for list="{{screenPaths}}" as="p" hint-placeholder-count="0">
-      <svg width="{{dim.W}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" onPointerDown="{{p.erase}}" onPointerEnter="{{p.eraseEnter}}" style="fill: none; stroke: rgba(0,0,0,0.001); stroke-width: 22px; stroke-linecap: round; pointer-events: stroke; cursor: pointer"></path></svg>
+      <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" onPointerDown="{{p.erase}}" onPointerEnter="{{p.eraseEnter}}" style="fill: none; stroke: rgba(0,0,0,0.001); stroke-width: 22px; stroke-linecap: round; pointer-events: stroke; cursor: pointer"></path></svg>
     </sc-for>
   </sc-if>
 </div>
@@ -532,23 +532,23 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <button class="ib tip tip-r" aria-label="Eraser" data-tip="Eraser" aria-pressed="{{tools.er.on}}" onClick="{{toolEraser}}" style="background: {{tools.er.bg}}; color: {{tools.er.fg}}">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 20h11"></path><path d="M4.6 15.4l9.2-9.2a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L10 20H8.8z"></path><path d="M9 11l5 5"></path></svg>
     </button>
+    <!-- Hand moves the sheet with one pointer, a pen's or a mouse's too, and writes nothing (canvas). -->
+    <button class="ib tip tip-r" aria-label="Hand" data-tip="Hand" aria-pressed="{{tools.hand.on}}" onClick="{{toolHand}}" style="background: {{tools.hand.bg}}; color: {{tools.hand.fg}}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 12.5V7a1.5 1.5 0 0 1 3 0v4.5"></path><path d="M10.5 11V5a1.5 1.5 0 0 1 3 0v6"></path><path d="M13.5 11V6.5a1.5 1.5 0 0 1 3 0V11"></path><path d="M16.5 10a1.5 1.5 0 0 1 3 0v4.5a6.5 6.5 0 0 1-6.5 6.5h-1a6 6 0 0 1-4.7-2.3l-2.9-3.6a1.5 1.5 0 0 1 2.3-1.9l1.8 1.8"></path></svg>
+    </button>
     <button class="ib tip tip-r" aria-label="Undo" data-tip="Undo" onClick="{{undo}}">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7L5 11l4 4"></path><path d="M5 11h9a5 5 0 0 1 0 10h-2"></path></svg>
     </button>
     <button class="ib tip tip-r" aria-label="Clear" data-tip="Clear" onClick="{{clear}}">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"></path></svg>
     </button>
-    <div style="width: 24px; height: 1px; background: rgba(0,0,0,0.1); margin: 4px 0"></div>
-    <button class="ib tip tip-r" aria-label="Zoom in" data-tip="Zoom in" disabled="{{vw.inOff}}" onClick="{{zoomIn}}" style="opacity: {{vw.inOp}}">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L20 20M10.5 7.5v6M7.5 10.5h6"></path></svg>
-    </button>
-    <button class="ib tip tip-r" aria-label="Zoom out" data-tip="Zoom out" disabled="{{vw.outOff}}" onClick="{{zoomOut}}" style="opacity: {{vw.outOp}}">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L20 20M7.5 10.5h6"></path></svg>
-    </button>
-    <div style="width: 24px; height: 1px; background: rgba(0,0,0,0.1); margin: 4px 0"></div>
-    <button class="ib tip tip-r" aria-label="Draw with finger" data-tip="Draw with finger" aria-pressed="{{finger.on}}" onClick="{{toggleFinger}}" style="background: {{finger.bg}}; color: {{finger.fg}}">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11.5V5.5a1.5 1.5 0 0 1 3 0v5"></path><path d="M12 10V8.5a1.5 1.5 0 0 1 3 0V11"></path><path d="M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-.6a6 6 0 0 1-4.6-2.2L4.2 15.4a1.5 1.5 0 0 1 2.3-1.9L9 16"></path></svg>
-    </button>
+    <!-- The grid of a task from paper's sheet, in place of the zoom: each tap the next of dots, lines, blank and squares, its icon the grid it shows (canvas). -->
+    <sc-if value="{{isSolve}}" hint-placeholder-val="{{ false }}">
+      <div style="width: 24px; height: 1px; background: rgba(0,0,0,0.1); margin: 4px 0"></div>
+      <button class="ib tip tip-r" aria-label="{{grid.label}}" data-tip="{{grid.label}}" onClick="{{grid.next}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"></rect><path d="{{grid.icon}}" stroke-width="{{grid.iconW}}"></path></svg>
+      </button>
+    </sc-if>
   </div>
 </sc-if>
 
@@ -1259,14 +1259,14 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     </span>
   </div>
 
-  <div class="ph-logo" style="position: absolute; left: 56px; top: 56px; height: 44px; display: flex; align-items: center; gap: 10px">
+  <div class="ph-logo" style="position: absolute; left: 56px; top: {{stage.head}}px; height: 44px; display: flex; align-items: center; gap: 10px">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4l1.9 6.1 6.1 1.9-6.1 1.9L12 20l-1.9-6.1L4 12l6.1-1.9z"></path><circle cx="19" cy="20.5" r="1.6"></circle></svg>
     <span style="font-size: 24px; font-weight: 700; letter-spacing: -0.3px">NovaTrail</span>
   </div>
 
-  <!-- The device's language, on the first step alone: a pill that opens its two buttons, each language by its own name (R17 app). -->
+  <!-- The device's language, on the first step alone: a pill that opens its two buttons, each language by its own name (R17 app). It and the name stand at the window's top, 24 pixels down, wherever the stage stands. -->
   <sc-if value="{{aWelcome}}" hint-placeholder-val="{{ true }}">
-    <button class="ph-lang" onClick="{{toggleLang}}" aria-expanded="{{langOpen}}" aria-label="Language: English" style="position: absolute; right: 72px; top: 56px; height: 44px; padding: 0 16px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 8px; background: rgba(22,26,61,0.4); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); color: #FFFFFF; font-size: 16px; font-weight: 600">
+    <button class="ph-lang" onClick="{{toggleLang}}" aria-expanded="{{langOpen}}" aria-label="Language: English" style="position: absolute; right: 72px; top: {{stage.head}}px; height: 44px; padding: 0 16px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 8px; background: rgba(22,26,61,0.4); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); -webkit-backdrop-filter: blur(30px); backdrop-filter: blur(30px); color: #FFFFFF; font-size: 16px; font-weight: 600">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"></path></svg>
       English
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
@@ -1353,7 +1353,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   <sc-if value="{{langOpen}}" hint-placeholder-val="{{ false }}">
     <button class="ph-scrim" aria-label="Close" onClick="{{toggleLang}}" style="position: absolute; inset: 0; cursor: default"></button>
     <div style="position: absolute; left: {{stage.x}}px; top: {{stage.y}}px; width: {{stage.w}}px; height: {{stage.h}}px; pointer-events: none">
-    <div role="group" aria-label="Language" class="glass nt-pop ph-sheet ph-sheetx" style="position: absolute; right: 72px; top: 108px; width: 220px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: rgba(255,255,255,0.94); color: #1D1D1F; pointer-events: auto">
+    <div role="group" aria-label="Language" class="glass nt-pop ph-sheet ph-sheetx" style="position: absolute; right: 72px; top: {{stage.langTop}}px; width: 220px; border-radius: 20px; padding: 8px; box-sizing: border-box; background: rgba(255,255,255,0.94); color: #1D1D1F; pointer-events: auto">
       <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{toggleLang}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
       <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Language</div>
       <sc-for list="{{langs}}" as="l" hint-placeholder-count="2">
@@ -2197,7 +2197,7 @@ const LESSONS = {
       alts: ['Which sentence tells you something you want to know more about?', 'Which one could not be the start of any day at all?', 'Cover the other two. Which one alone pulls you in?'],
       praise: 'Right: it starts in the middle of the story. What question does it leave?',
       solution: ['“The lift stopped between two floors, and the lights went out.” starts where something is already happening.', 'The other two tell the reader nothing they want to know more about.'] },
-    { k: 'task', title: 'The talking umbrella', canvas: 'lined', rubric: true, note: 'Write no names — yours or anyone else’s.',
+    { k: 'task', title: 'The talking umbrella', canvas: 'lined', rubric: true,
       statement: 'A shop sells an umbrella that can talk, but only when it rains. Write three different first sentences for an essay about it. Then put a ring round the one you would keep.',
       techs: [['Start in the middle', 'Begin where something is already happening, and let the reader catch up.'], ['Read it aloud', 'Hear where a sentence trips, and mend it.']],
       lead: 'Which of your three sentences would make you read on?',
@@ -2261,7 +2261,7 @@ class Component extends DCLogic {
     screen: 'signin', waitOn: 'sky', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
     // slice: the demo's switch — 'first', the first slice with adults, or 'later', with what epics E4 of app and E11 bring.
     slice: 'first', ownerName: '', ownerAvatar: null, ownerCountry: null, avatarOpen: false, countryOpen: false,
-    view: { z: 1, x: 0, y: 0 }, finger: true, panning: false,
+    view: { z: 1, x: 0, y: 0 }, panning: false, grid: 'dots',
     // The phone's own: the legend of home as a sheet, and the tutor's sheet over the whole screen.
     legendOpen: false, pagesOpen: false, tutorFull: false,
     // A lesson (RUN.md, T155): the segment shown and the place reached, the demo, the solving mode and step, and each task's attempt.
@@ -2283,7 +2283,7 @@ class Component extends DCLogic {
   phone() { return this.props.device === 'phone'; }
   // A computer draws the sign-in's steps alone (R148): its sky fills the window, its composition the iPad's in the middle.
   desk() { return this.props.device === 'desktop'; }
-  dims() { return this.phone() ? { W: 390, H: 1688, VH: 844 } : this.desk() ? { W: 1920, H: 1668, VH: 1080 } : { W: 1194, H: 1668, VH: 834 }; }
+  dims() { const d = this.phone() ? { W: 390, H: 1688, VH: 844 } : this.desk() ? { W: 1920, H: 1668, VH: 1080 } : { W: 1194, H: 1668, VH: 834 }; return { ...d, SW: 3 * d.W }; }
   devName() { return this.phone() ? 'phone' : this.desk() ? 'computer' : 'iPad'; }
   // The scale of a task's clipping over the sheet: on the phone it fits between the tool bar and the edge.
   cf() { return this.phone() ? 1.12 : 1.6; }
@@ -2654,18 +2654,25 @@ class Component extends DCLogic {
       chat: this.withCtx(s.chat).concat([{ id: this.mid++, who: 'res', res: 'info', title: 'The frames are back as they were' }]) });
   };
 
-  // ---- The view of the sheet: moved by hand or by the wheel, and zoomed up to 200 %.
+  // ---- The grid of a task from paper's sheet, round by its button: its look, its icon, and the next.
+  gridVals(s) {
+    const G = {
+      dots: { bg: 'radial-gradient(circle, #D1D1D6 1px, transparent 1.3px)', size: '24px 24px', icon: 'M8.5 8.5h.01M12 8.5h.01M15.5 8.5h.01M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01', w: 2.4, name: 'Dots' },
+      lines: { bg: 'repeating-linear-gradient(to bottom, transparent 0, transparent 39px, #DCE6F2 39px, #DCE6F2 40px)', size: 'auto', icon: 'M7 9.5h10M7 13h10M7 16.5h10', w: 1.7, name: 'Lines' },
+      none: { bg: 'none', size: 'auto', icon: '', w: 1.7, name: 'Blank' },
+      squares: { bg: 'linear-gradient(#ECECF1 1px, transparent 1px), linear-gradient(90deg, #ECECF1 1px, transparent 1px)', size: '24px 24px', icon: 'M4 9.33h16M4 14.67h16M9.33 4v16M14.67 4v16', w: 1.2, name: 'Squares' },
+    };
+    const order = ['dots', 'lines', 'none', 'squares'], g = G[s.grid] || G.dots, nx = order[(order.indexOf(s.grid) + 1) % order.length];
+    return { bg: g.bg, size: g.size, icon: g.icon, iconW: g.w, label: 'Grid: ' + g.name + ' · next ' + G[nx].name.toLowerCase(), next: () => this.setState({ grid: nx }) };
+  }
+
+  // ---- The view of the sheet: moved by hand or by the wheel, never zoomed.
   setView(z, x, y) {
-    const { W, H, VH } = this.dims();
+    const { W, SW, H, VH } = this.dims();
     z = Math.max(1, Math.min(2, Math.round(z * 4) / 4));
-    x = Math.max(0, Math.min(W - W / z, x));
+    x = Math.max(0, Math.min(SW - W / z, x));
     y = Math.max(0, Math.min(H - VH / z, y));
     this.setState({ view: { z, x, y } });
-  }
-  zoomBy(dz) {
-    const { W, VH } = this.dims(), hw = W / 2, hh = VH / 2;
-    const v = this.state.view, cx = v.x + hw / v.z, cy = v.y + hh / v.z, z = Math.max(1, Math.min(2, v.z + dz));
-    this.setView(z, cx - hw / z, cy - hh / z);
   }
   wheel = (e) => { const v = this.state.view; this.setView(v.z, v.x + e.deltaX / v.z, v.y + e.deltaY / v.z); };
 
@@ -2968,7 +2975,7 @@ class Component extends DCLogic {
   // The task's clipping stays where the learner moved it, for every task; until then it sits centred at the top.
   clipXY() {
     const t = this.task(), k = this.cf(), w = t.w * k, h = t.ch * k, p = this.state.clipPos, { W, VH } = this.dims();
-    const x = p ? p.x : this.phone() ? W - w - 8 : (W - w) / 2, y = p ? p.y : 72;
+    const x = p ? p.x : this.phone() ? W - w - 8 : 84 + (Math.min(W - 84, 1000) - w) / 2, y = p ? p.y : 72;
     return { x: Math.max(this.phone() ? 76 : 8, Math.min(W - w - 8, x)), y: Math.max(66, Math.min(VH - h - 40, y)) };
   }
 
@@ -2999,7 +3006,7 @@ class Component extends DCLogic {
     this.pickTask(sel[(i + d + sel.length) % sel.length]);
   }
 
-  // Moving the sheet by hand: two fingers always, one while "Draw with finger" is off; a pen always writes.
+  // Moving the sheet by hand: two fingers, or any pointer with the tool Hand; one finger and a pen write (canvas: one finger moves it in pen mode).
   mid2() { let x = 0, y = 0; this.tp.forEach((p) => { x += p[0]; y += p[1]; }); return [x / this.tp.size, y / this.tp.size]; }
 
   inkDown = (e) => {
@@ -3007,7 +3014,7 @@ class Component extends DCLogic {
     if (e.pointerType === 'touch' && el0.getAttribute('data-layer') !== 'clip') {
       this.tp = this.tp || new Map();
       this.tp.set(e.pointerId, [e.clientX, e.clientY]);
-      if (this.tp.size >= 2 || !this.state.finger) {
+      if (this.tp.size >= 2) {
         const r0 = el0.getBoundingClientRect();
         this.ink = null;
         this.pan = { k: Number(el0.getAttribute('data-w')) / r0.width, last: this.mid2() };
@@ -3015,8 +3022,14 @@ class Component extends DCLogic {
         return this.setState({ live: null, liveLayer: null, panning: true });
       }
     }
+    if (this.state.tool === 'hand') {
+      const r0 = el0.getBoundingClientRect();
+      this.ink = null;
+      this.pan = { k: Number(el0.getAttribute('data-w')) / r0.width, last: [e.clientX, e.clientY], one: e.pointerId };
+      try { el0.setPointerCapture(e.pointerId); } catch (err) { /* no capture */ }
+      return this.setState({ live: null, liveLayer: null, panning: true });
+    }
     if (this.state.tool === 'eraser') return;
-    if (!this.state.finger && e.pointerType === 'touch') return;
     const el = e.currentTarget;
     const r = el.getBoundingClientRect();
     const k = Number(el.getAttribute('data-w')) / r.width;
@@ -3030,7 +3043,8 @@ class Component extends DCLogic {
   inkMove = (e) => {
     if (this.tp && this.tp.has(e.pointerId)) this.tp.set(e.pointerId, [e.clientX, e.clientY]);
     if (this.pan) {
-      const m = this.mid2(), v = this.state.view, p = this.pan;
+      if (this.pan.one !== undefined && this.pan.one !== e.pointerId) return;
+      const m = this.pan.one !== undefined ? [e.clientX, e.clientY] : this.mid2(), v = this.state.view, p = this.pan;
       this.setView(v.z, v.x - (m[0] - p.last[0]) * p.k, v.y - (m[1] - p.last[1]) * p.k);
       p.last = m;
       return;
@@ -3047,6 +3061,7 @@ class Component extends DCLogic {
   inkUp = (e) => {
     if (this.tp && e) this.tp.delete(e.pointerId);
     if (this.pan) {
+      if (this.pan.one !== undefined) { if (!e || e.pointerId === this.pan.one) { this.pan = null; this.setState({ panning: false }); } return; }
       if (this.tp && this.tp.size) this.pan.last = this.mid2();
       else { this.pan = null; this.setState({ panning: false }); }
       return;
@@ -3468,10 +3483,8 @@ class Component extends DCLogic {
     if (s.surface === 'numberline') { title = 'Number line'; subtitle = 'by Kite Math'; }
     if (s.surface === 'geo') { title = 'Geometry board'; subtitle = 'by Tangent Lab'; }
     if (isPick) { title = 'Your page'; subtitle = this.found().length + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') + ' · tap one to leave it out'; }
-    if (isSolve) {
-      title = this.tname(t);
-      subtitle = (sel.indexOf(t.id) + 1) + ' of ' + sel.length + ' · from your page';
-    }
+    // The counter at the right says which task of the page it is: no line of it under the name.
+    if (isSolve) { title = this.tname(t); subtitle = ''; }
 
     const doneN = sel.filter((id) => this.over(id)).length;
     const PH = this.phone(), dim = this.dims(), cf = this.cf();
@@ -3585,7 +3598,7 @@ class Component extends DCLogic {
 
       showChrome: !isCamera, showTools: L ? isTask : !isPaper || isSolve,
       showKinds: isSolve && later, showRightBar: (isSolve || isPick || isExt) && !L,
-      devCls: PH ? 'nt-phone' : 'nt-pad', stage: this.desk() ? { x: (dim.W - 1194) / 2, y: (dim.VH - 834) / 2, w: 1194, h: 834 } : { x: 0, y: 0, w: dim.W, h: dim.VH }, dim, nl, devName: this.devName(), scrollTab: PH ? '0' : '-1',
+      devCls: PH ? 'nt-phone' : 'nt-pad', stage: this.desk() ? { x: (dim.W - 1194) / 2, y: (dim.VH - 834) / 2, w: 1194, h: 834, head: 24 - (dim.VH - 834) / 2, langTop: 76 - (dim.VH - 834) / 2 } : { x: 0, y: 0, w: dim.W, h: dim.VH, head: 24, langTop: 76 }, dim, nl, devName: this.devName(), scrollTab: PH ? '0' : '-1',
       pillCls: PH && isSolve ? 'ph-backonly' : '', barCls: PH && s.chatOpen ? 'nt-hide' : '', railCls: PH && s.chatOpen ? 'nt-hide' : '',
       // With the tutor's panel open on the iPad the line keeps to the width of the page, clear of the panel.
       noteWrap: !PH && s.chatOpen ? { ws: 'normal', w: '456px' } : { ws: 'nowrap', w: 'auto' },
@@ -3596,10 +3609,8 @@ class Component extends DCLogic {
         d: ok ? 'M7 12.5l3.5 3.5L17 8.5' : 'M8 8l8 8M16 8l-8 8', color: ok ? '#15803D' : '#B45309', label: 'Task ' + (i + 1) + ': ' + (ok ? 'correct' : 'not yet') })) : [],
       pbar: isSolve && !pOver, pover: pOver,
       viewTf: 'translate(' + (-s.view.x * s.view.z) + 'px, ' + (-s.view.y * s.view.z) + 'px) scale(' + s.view.z + ')',
-      vw: { inOff: s.view.z >= 2, inOp: s.view.z >= 2 ? 0.35 : 1, outOff: s.view.z <= 1, outOp: s.view.z <= 1 ? 0.35 : 1 },
       viewTr: s.panning ? 'none' : 'transform 0.25s cubic-bezier(.2,.8,.2,1)', wheel: this.wheel,
-      zoomIn: () => this.zoomBy(0.25), zoomOut: () => this.zoomBy(-0.25),
-      finger: tb(s.finger), toggleFinger: () => this.setState({ finger: !this.state.finger }),
+      
       demo: s.demo, captured: s.captured || 'worksheet', t, ticks, flash: s.flash, more: s.more,
       dws: s.demo === 'worksheet' ? { bg: 'rgba(255,255,255,0.92)', fg: '#1D1D1F' } : { bg: 'transparent', fg: '#FFFFFF' },
       dol: s.demo === 'olympiad' ? { bg: 'rgba(255,255,255,0.92)', fg: '#1D1D1F' } : { bg: 'transparent', fg: '#FFFFFF' },
@@ -3612,8 +3623,8 @@ class Component extends DCLogic {
       live: s.live || '', liveSty: sty(s.tool), liveScreen: !!s.live && showScreenInk && s.liveLayer === 'main', liveClip: !!s.live && s.liveLayer === 'clip',
       clipPaths, eraseClip: isEraser && isSolve,
       eraseScreen: isEraser && showScreenInk,
-      inkCursor: isEraser ? 'cell' : 'crosshair',
-      tools: { pen: tb(s.tool === 'pen'), er: tb(isEraser) },
+      inkCursor: isEraser ? 'cell' : s.tool === 'hand' ? (s.panning ? 'grabbing' : 'grab') : 'crosshair',
+      tools: { pen: tb(s.tool === 'pen'), er: tb(isEraser), hand: tb(s.tool === 'hand') },
       taskRows,
       vShow: !!v && !s.chatOpen && (isSolve || isTask), vOk: !!v && v.kind === 'ok', vNo: !!v && v.kind === 'no', vInfo: !!v && v.kind === 'info', vReading: !!v && v.kind === 'reading', vDone: !!v && v.kind === 'done',
       vTitle: v ? v.title : '', vLine: v ? v.line : '',
@@ -3647,7 +3658,8 @@ class Component extends DCLogic {
       toggleTasks: () => this.setState({ tasksOpen: !this.state.tasksOpen, more: false }),
       prevTask: () => this.step(-1), nextTask: () => this.step(1),
       inkDown: this.inkDown, inkMove: this.inkMove, inkUp: this.inkUp,
-      toolPen: () => this.setState({ tool: 'pen' }), toolEraser: () => this.setState({ tool: 'eraser' }),
+      grid: this.gridVals(s),
+      toolPen: () => this.setState({ tool: 'pen' }), toolEraser: () => this.setState({ tool: 'eraser' }), toolHand: () => this.setState({ tool: 'hand' }),
       undo: this.undo, clear: this.clear,
       toggleCard: () => this.setState({ cardOpen: !this.state.cardOpen }),
       check: this.check, next: this.next, dismiss: () => this.setState({ verdict: null }),

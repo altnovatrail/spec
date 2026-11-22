@@ -203,7 +203,7 @@ In detail — in [privacy.md](privacy.md).
 - a signed module index and the author's CLI, which checks modules (`module-kit`, R17);
 - the learner model, the engine and the learner simulator;
 - a measurement of AI reading — on samples that adult volunteers make for eval, among them imitating children's handwriting. Child samples — only with a separate consent (П-10) and before the beta: a goal for children's handwriting has to be checked on that handwriting itself. First comes the review board of `tutor`: the author solves tasks themselves and marks whether the model is right (R43); the course of writing on Claude models is measured on the author's sheet and 39 sheets that code drew (R52), and the other measurements of reading are epic E4 of `tutor` (R43);
-- two canvas kinds — the handwriting sheet and the workbook; a task from paper is solved on a sheet in dots, with no choice of it (R162);
+- two canvas kinds — the handwriting sheet and the workbook; a task from paper is solved on a sheet whose grid the learner turns, dots as it comes (R162);
 - tasks from the learner's paper, for every profile (R162);
 - a check with a verdict and a tutor with a question; feedback by a rubric (R04);
 - voicing of the tutor's words and of the module's open texts by the device's speech synthesis — only with voices by the rule of privacy 6, without a server and without new data other than a setting in the presentation style (О-23). Its code — before the first child (R07 app);

@@ -220,7 +220,7 @@ The **canvas** is the workplace of a task: what the learner sees and where they 
 **A task from paper** is a task from the learner's own page, by the app's entry "Take from my paper", open to every profile (product 4; R162). The learner photographs the page, or picks a photo from the device; the AI finds the tasks on it, each by its **task frame** — each sum or equation that says by itself what to do, as each of a column under one instruction, a task of its own; a frame drawn round several holds each of them, up to 20, each checked by its own key —, each found one picked, and the learner unpicks one, removes one by its cross or frames by hand one the AI missed. The **learner's request** about the page — which tasks to take and how to split them, in the learner's words to the tutor — finds them anew: its answer is frames, which replace those the AI found before (R165). `app` cuts each picked task's crop on the device, and the task is solved on a sheet of its own (R162):
 - the crop lies over the sheet as **tracing paper**, in place of the author's template: the learner moves it, hides it and writes on it as on the sheet, and does not erase it;
 - the work is the crop with the strokes on it and the sheet's strokes;
-- the sheet is in dots; a choice of the sheet comes later, among the app's settings, and the canvases of other authors with epic E5.
+- the sheet is in dots as the task comes, and the learner turns its grid on the task's screen — dots, lines, blank, squares; the canvases of other authors come with epic E5.
 
 **Canvas kinds.** Each is code of the platform, shared by all modules:
 
@@ -651,7 +651,7 @@ The **engine** chooses what comes next: a lesson or a task — for a new skill, 
 | canvas («канва») | canvas | the workplace of a task (section 8) |
 | canvas layer («слой канвы») | canvas layer | the template, a widget, the demo, the learner's work, the tutor's layer (section 8) |
 | canvas kind («вид канвы») | canvas kind | handwriting sheet, workbook, text, sandbox, creative (section 8). In format v0, `handwriting_sheet` and `workbook` (R51) |
-| handwriting sheet («лист для рукописи») | handwriting sheet | a canvas kind: a free sheet of 1000 × 1400 units, in squares, lines or dots (section 8; R06 canvas) |
+| handwriting sheet («лист для рукописи») | handwriting sheet | a canvas kind: a free sheet in squares, lines or dots, whose page of 1000 × 1400 units stands at its left and which goes on past it, right and down (section 8; R06 and R73 canvas) |
 | workbook («рабочая тетрадь») | workbook | a canvas kind: item lines with boxes on one page, which the learner does not erase (section 8; R51). The page is 1000 × 1400 units, like the sheet, without a grid, and the canvas lays out the lines on it (R34 and R35 canvas). Writing outside the boxes is a draft: it is on the page and in the writing history, but it does not go to checking (R53) |
 | grid («сетка») | grid | the squares, lines or dots of a handwriting sheet — `squares`, `lines`, `dots` (section 8) |
 | grid step («шаг сетки») | grid step | the distance between the lines of the grid in the sheet's units, from 20 to 500, and 50 without the field (section 8; R51) |
