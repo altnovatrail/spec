@@ -65,6 +65,7 @@ Besides, the DPIA is reviewed before the beta, before the public launch and at l
 | 32 | 2026-11-21 | the sign-out of `app` erases nothing on the device: the account's data wait for its next sign-in, until "Erase everything on this device", another account's sign-in or their own terms (R04 app; privacy 4.1), risk 8 as it was; the policy's next version names it | #211 |
 | 33 | 2026-11-21 | the device keeps an essay only until the end of its attempt, with no screen to read it again: less data on the device, risks 3 and 13 as they were (R167) | — |
 | 34 | 2026-11-21 | the debug mode of a task from paper for an account the operator gives its right, on the deployment too, past admission in every profile, risk 24 and a condition before the first child (R163) | — |
+| 35 | 2026-11-22 | the reminder of names stands no more over the field of a request about the page, nor on Home's card of paper: the camera's, before the photo, stays; risk 2 as it was (R165) | — |
 
 ## 2. The need for a DPIA
 
