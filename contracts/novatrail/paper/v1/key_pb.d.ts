@@ -179,6 +179,56 @@ export declare type TaskKey = Message<"novatrail.paper.v1.TaskKey"> & {
 export declare const TaskKeySchema: GenMessage<TaskKey>;
 
 /**
+ * The reading of the statement of a task from paper's crop, which `api` keeps on the attempt while
+ * it is open, from the learner's "Recognise", for the first Check to derive the key by (R169): the
+ * statements alone reach the device, never the formulas (R05).
+ *
+ * @generated from message novatrail.paper.v1.Reading
+ */
+export declare type Reading = Message<"novatrail.paper.v1.Reading"> & {
+  /**
+   * The tasks on the crop, from 1 to 20, in the order of the page, as the key lists them.
+   *
+   * @generated from field: repeated novatrail.paper.v1.ReadTask tasks = 1;
+   */
+  tasks: ReadTask[];
+};
+
+/**
+ * Describes the message novatrail.paper.v1.Reading.
+ * Use `create(ReadingSchema)` to create a new message.
+ */
+export declare const ReadingSchema: GenMessage<Reading>;
+
+/**
+ * One task of a reading.
+ *
+ * @generated from message novatrail.paper.v1.ReadTask
+ */
+export declare type ReadTask = Message<"novatrail.paper.v1.ReadTask"> & {
+  /**
+   * The task as the page prints it, as `TaskKey.statement`.
+   *
+   * @generated from field: string statement = 1;
+   */
+  statement: string;
+
+  /**
+   * The formula the statement holds, one line of ASCII of at most 200 bytes, as the solver of
+   * `module-kit` takes it; empty when the statement holds none.
+   *
+   * @generated from field: string formula = 2;
+   */
+  formula: string;
+};
+
+/**
+ * Describes the message novatrail.paper.v1.ReadTask.
+ * Use `create(ReadTaskSchema)` to create a new message.
+ */
+export declare const ReadTaskSchema: GenMessage<ReadTask>;
+
+/**
  * Where a key of a task from paper came from (concepts 9.4).
  *
  * @generated from enum novatrail.paper.v1.Provenance

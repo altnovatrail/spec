@@ -338,7 +338,10 @@ export function readmeOf(epic, rows) {
     "| Repository | Guard | At the gate | Why |",
     "|---|---|---|---|",
     ...rows.filter((r) => r.go && GUARDS[r.repo]).flatMap((r) => GUARDS[r.repo].map((g) => `| ${r.repo} | \`${g.name}\` | ${g.kind === "test" ? "skipped" : "allowed to fail"} | ${g.why} |`)),
-    ...rows.filter((r) => r.go && r.repo !== "spec").map((r) => `| ${r.repo} | \`just ci-licenses\` | allowed to fail, only on libraries of the modules go.work replaces | go-licenses finds no LICENSE in a replaced module, as spec/contracts, whose LICENSE is at spec's root |`),
+    ...rows.filter((r) => r.go && r.repo !== "spec").flatMap((r) => [
+      `| ${r.repo} | \`just ci-licenses\` | allowed to fail, only on libraries of the modules go.work replaces | go-licenses finds no LICENSE in a replaced module, as spec/contracts, whose LICENSE is at spec's root |`,
+      `| ${r.repo} | \`just ci-lint: release-licenses\` | allowed to fail, only as its last line naming a module go.work replaces | its step release-licenses stops at the first module with no LICENSE in its folder, as spec/contracts; the licenses after it and the pin of spec go unchecked until ship |`,
+    ]),
     "",
     "## Commands",
     "",

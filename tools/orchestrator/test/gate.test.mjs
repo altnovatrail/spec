@@ -111,7 +111,7 @@ test("gate: each changed repository's CI in its container, the guards under the 
     write(path.join(dir, repo), files);
     commit(path.join(dir, repo), `${repo}: a change`);
   }
-  w.deps.env = { ...w.deps.env, XREPO_TEST_GATE: JSON.stringify({ "module-kit:ci-lint": "pin", "tutor:ci-test": "guard", "tutor:ci-licenses": "licenses" }) };
+  w.deps.env = { ...w.deps.env, XREPO_TEST_GATE: JSON.stringify({ "module-kit:ci-lint": "pin", "tutor:ci-lint": "release-licenses", "tutor:ci-test": "guard", "tutor:ci-licenses": "licenses" }) };
   const gate = await run(w, ["xrepo", "gate"]);
   assert.equal(gate.status, 0, JSON.stringify(gate.out));
   const result = gate.out[0];
@@ -122,12 +122,15 @@ test("gate: each changed repository's CI in its container, the guards under the 
   assert.deepEqual(repos.spec.recipes.map((r) => r.recipe), SPEC_GATE);
   assert.deepEqual(repos.app.recipes.map((r) => [r.recipe, r.status]), [["ci", "passed"]]);
   assert.deepEqual(repos["module-kit"].recipes.map((r) => [r.recipe, r.status]), [["ci-lint", "allowed: just ci-lint: the pin of spec"], ["ci-test", "passed"], ["ci-vuln", "passed"], ["ci-licenses", "passed"]]);
-  assert.deepEqual(repos.tutor.recipes.map((r) => [r.recipe, r.status]), [["ci-lint", "passed"], ["ci-test", "passed"], ["ci-vuln", "passed"], ["ci-licenses", "allowed: just ci-licenses: the modules go.work replaces"], ["ci-sample-check", "passed"], ["ci-canvas-check", "passed"]]);
+  assert.deepEqual(repos.tutor.recipes.map((r) => [r.recipe, r.status]), [["ci-lint", "allowed: just ci-lint: release-licenses of the modules go.work replaces"], ["ci-test", "passed"], ["ci-vuln", "passed"], ["ci-licenses", "allowed: just ci-licenses: the modules go.work replaces"], ["ci-sample-check", "passed"], ["ci-canvas-check", "passed"]]);
   assert.deepEqual(repos.tutor.skipped, ["TestSpecVersion", "TestReadingLogOfTheStub", "TestAdmitExamples", "TestMeasuresOfSpecExamples", "TestExamplesFollowTheRules", "TestExamplesReadBack", "TestExamples"]);
   for (const repo of ["app", "module-kit", "tutor"]) assert.deepEqual([repos[repo].patchcov.status, repos[repo].patchcov.coverage], ["passed", 100], repo);
   // spec's change is a file no report holds.
   assert.equal(repos.spec.patchcov.coverage, null);
   const just = w.calls("just");
+  // One repository after another: no repository's recipes between another's.
+  const order = just.filter((c) => c.recipe !== "_install").map((c) => path.basename(c.cwd)).filter((r, i, all) => r !== all[i - 1]);
+  assert.deepEqual(order, ["spec", "app", "module-kit", "tutor"]);
   const tutorTest = just.find((c) => c.recipe === "ci-test" && c.cwd.endsWith("/tutor"));
   assert.equal(tutorTest.goflags, "-skip=^(TestSpecVersion|TestReadingLogOfTheStub|TestAdmitExamples|TestMeasuresOfSpecExamples|TestExamplesFollowTheRules|TestExamplesReadBack|TestExamples)$");
   assert.equal(tutorTest.allowed, "MIT,Apache-2.0");
@@ -149,7 +152,7 @@ test("gate: each changed repository's CI in its container, the guards under the 
   // Without its go.work, ci-lint's check of the pin is no longer allowed; a missed line fails
   // patchcov; a failed recipe fails the gate.
   fs.rmSync(path.join(dir, "module-kit", "go.work"));
-  w.deps.env = { ...w.deps.env, XREPO_TEST_GATE: JSON.stringify({ "module-kit:ci-lint": "pin", "app:cover": "miss", "tutor:ci-vuln": "fail", "tutor:ci-licenses": "licenses-other" }) };
+  w.deps.env = { ...w.deps.env, XREPO_TEST_GATE: JSON.stringify({ "module-kit:ci-lint": "pin", "app:cover": "miss", "tutor:ci-lint": "release-licenses-other", "tutor:ci-vuln": "fail", "tutor:ci-licenses": "licenses-other" }) };
   const failed = await run(w, ["xrepo", "gate", "module-kit", "app", "tutor"]);
   assert.equal(failed.status, 1);
   const again = Object.fromEntries(failed.out[0].repos.map((r) => [r.repo, r]));
@@ -158,7 +161,9 @@ test("gate: each changed repository's CI in its container, the guards under the 
   assert.deepEqual(again["module-kit"].skipped, []);
   assert.deepEqual([again.app.patchcov.status, again.app.patchcov.coverage, again.app.patchcov.files.map((f) => f.file)], ["failed", 0, ["src/a.ts"]]);
   assert.equal(again.tutor.recipes.find((r) => r.recipe === "ci-vuln").status, "failed");
-  // A license not allowed is no failure of the wiring.
+  // A license not allowed, or a module with no LICENSE that go.work does not replace, is no failure
+  // of the wiring.
+  assert.equal(again.tutor.recipes.find((r) => r.recipe === "ci-lint").status, "failed");
   assert.equal(again.tutor.recipes.find((r) => r.recipe === "ci-licenses").status, "failed");
   assert.match(read(again.tutor.recipes.find((r) => r.recipe === "ci-vuln").log), /ci-vuln failed/);
   // The record keeps spec's result, which this gate did not run.

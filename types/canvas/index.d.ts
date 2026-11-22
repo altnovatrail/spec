@@ -8,8 +8,9 @@
  * tells what the learner did by events. In place of a task it may show a lesson's worked example,
  * whose demo the learner opens part by part with its buttons, and how far they have gone is a
  * property and an event too. In place of either it may show a task from the learner's paper: the
- * task's crop over a dotted sheet as tracing paper, which the learner moves, hides and writes on,
- * and where the tracing paper lies is a property and an event as well (R162). The types of the
+ * task's crop over a sheet as tracing paper, which the learner moves, hides and writes on, and where
+ * the tracing paper lies and the grid the learner chose for the sheet are properties and events as
+ * well (R162). The types of the
  * task, of the worked example and of the manifest are the module format's open views,
  * formatv0/open.
  *
@@ -27,10 +28,10 @@
 import type * as open from "../formatv0/open/index.js";
 
 /**
- * What a press of the primary button does on the sheet: the pen writes, the eraser erases. A task
- * without the eraser has the pen alone.
+ * What a press of the primary button does on the sheet: the pen writes, the eraser erases, the hand
+ * moves the sheet and writes nothing. A task without the eraser has the pen and the hand.
  */
-export type Tool = "pen" | "eraser";
+export type Tool = "pen" | "eraser" | "hand";
 
 /** What a `toolchange` tells: the tool the learner chose with the element's own buttons. */
 export interface ToolChange {
@@ -66,10 +67,10 @@ export type DemoChangeEvent = CustomEvent<DemoState>;
 
 /**
  * A task from the learner's paper (concepts 8; R162): the task's crop, which app cut on the device
- * from the photo of the page by its task frame. The element lays it over a sheet in dots — the
- * sheet of a task from paper has no other grid and no choice of one — as tracing paper, in place of
- * a task's statement and template. It has no answer slot of the format: its one slot is the whole
- * work, at the place 1, 1. The tools are the pen and the eraser.
+ * from the photo of the page by its task frame. The element lays it over a sheet as tracing paper,
+ * in place of a task's statement and template; the sheet's grid is the learner's, `PaperGrid`. It
+ * has no answer slot of the format: its one slot is the whole work, at the place 1, 1. The tools
+ * are the pen, the eraser and the hand.
  */
 export interface PaperTask {
   /** The task's crop, a JPEG or a PNG, as app cut it, without the learner's strokes. */
@@ -77,12 +78,37 @@ export interface PaperTask {
 }
 
 /**
- * Where the tracing paper of a task from paper lies on the sheet, and whether it is hidden. A new
- * task from paper starts at the element's own place for it, shown.
+ * The grid of a task from paper's sheet, the learner's choice: dots, lines, none or squares, of the
+ * step of the module format's default. A new task from paper starts in dots; the element's button
+ * of the grid turns it to the next of them, round, in this order.
+ */
+export type PaperGrid = "dots" | "lines" | "blank" | "squares";
+
+/** What a `gridchange` tells: the grid the learner chose with the element's button. */
+export interface GridChange {
+  readonly grid: PaperGrid;
+}
+
+/**
+ * The event the element sends from its host, bubbling and composed, when the learner turns the
+ * grid of a task from paper's sheet by its button — not when the consumer sets `grid`. Its detail is
+ * frozen.
+ */
+export type GridChangeEvent = CustomEvent<GridChange>;
+
+/**
+ * Where the tracing paper of a task from paper lies on the sheet, how large, and whether it is
+ * hidden. A new task from paper starts at the element's own place for it, shown, at its own size.
  */
 export interface TracingState {
   /** Its top left corner on the sheet, in the sheet's units: [x, y]. */
   readonly at: readonly [x: number, y: number];
+  /**
+   * How many times its own size it is drawn, from 0.4 to 4, the crop and the strokes on it alike,
+   * from its top left corner: the strokes keep their points on it, so the work for checking is the
+   * same at any scale. Absent is 1; the element gives it always (R169).
+   */
+  readonly scale?: number;
   /**
    * Whether the tracing paper is hidden, with the strokes on it: they stay in the history and in
    * the work for checking, out of sight.
@@ -92,19 +118,42 @@ export interface TracingState {
 
 /**
  * The event the element sends from its host, bubbling and composed, when the learner moves the
- * tracing paper by its grip "Move the task", or hides or shows it by its button atop the tools —
- * not when the consumer sets `tracing`. Its detail is the new state, frozen.
+ * tracing paper by its grip "Move the task", scales it by its corners, its buttons or Ctrl/⌘ with
+ * the wheel, fits it to the window, or hides or shows it by its button atop the tools — not when
+ * the consumer sets `tracing`. Its detail is the new state, frozen.
  */
 export type TracingChangeEvent = CustomEvent<TracingState>;
+
+/**
+ * The statement of a task from paper read in clean print, which the consumer gets on the learner's
+ * "Recognise" (R169): `"ready"`, the button offered; `"busy"`, while the reading comes; and
+ * `"done"`, the statement of each task the crop holds, as the page prints it, "□" for each box an
+ * answer goes in, which the element draws in place of the crop until the learner goes back to the
+ * photo by "Original".
+ */
+export type TracingReading =
+  | { readonly state: "ready" }
+  | { readonly state: "busy" }
+  | { readonly state: "done"; readonly statements: readonly string[] };
+
+/**
+ * The event the element sends from its host, bubbling and composed, when the learner presses
+ * "Recognise" while `reading` is `"ready"`: the consumer reads the statement and gives
+ * `reading` `"busy"`, then `"done"`, or `"ready"` again when no reading came. Its detail is null.
+ */
+export type TracingReadEvent = CustomEvent<null>;
 
 /**
  * A point of a stroke: where it lies on the sheet, in its logical units, when it was written and
  * how hard the pointer pressed.
  */
 export interface InkPoint {
-  /** Across the sheet: 0 at its left edge, its width, 1000, at its right. */
+  /**
+   * Across the sheet: 0 at its left edge, at most 10000. The task's page is its first 1000, and the
+   * sheet goes on to the right of it as far as the learner writes and moves it (R06 canvas).
+   */
   readonly x: number;
-  /** Down the sheet: 0 at its top edge, its height, 1400, at its bottom. */
+  /** Down the sheet: 0 at its top edge, at most 14000; the task's page is its first 1400. */
   readonly y: number;
   /** Milliseconds since the sheet's first event: the time of a sample has no date. */
   readonly t: number;
@@ -430,6 +479,8 @@ export interface CanvasEventMap {
   toolchange: ToolChangeEvent;
   demochange: DemoChangeEvent;
   tracingchange: TracingChangeEvent;
+  tracingread: TracingReadEvent;
+  gridchange: GridChangeEvent;
 }
 
 /**
@@ -445,10 +496,13 @@ export type Media = (ref: string) => Promise<Blob>;
  * on a worked example its row, with the slot `actions` — is out of sight and out of the
  * accessibility tree: app sets it on a phone while its tutor's sheet is open. While it has the boolean
  * attribute `statement-hidden`, it draws no task statement, and app draws the statement as its card
- * above the element (R161). Among the style properties `--novatrail-canvas-*` that app sets, `--novatrail-canvas-accent`
- * is the accent of the tool in use and of the focus ring, `--novatrail-canvas-glass` the fill of the
- * bar's glass, and `--novatrail-canvas-top` the offset of the band in whose middle the bar stands. On
- * a worked example, app puts its own "Continue" into the element's named slot `actions`, a child
+ * above the element (R161). Among the style properties `--novatrail-canvas-*` that app sets,
+ * `--novatrail-canvas-accent` is the accent of the tool in use and of the focus ring,
+ * `--novatrail-canvas-glass` the fill of the bar's glass, `--novatrail-canvas-top` the offset of the
+ * band in whose middle the bar stands, and `--novatrail-canvas-pad-top` and
+ * `--novatrail-canvas-pad-bottom` how far app's own bars float over the element's top and bottom:
+ * the statement starts below the first, the sheet scrolls up past the second, and the bar's band
+ * ends above the second. On a worked example, app puts its own "Continue" into the element's named slot `actions`, a child
  * `<button slot="actions">`, in one row after the element's Next and Demo (R36).
  */
 export interface CanvasElement extends HTMLElement {
@@ -480,6 +534,22 @@ export interface CanvasElement extends HTMLElement {
    */
   get tracing(): TracingState | undefined;
   set tracing(state: TracingState | undefined);
+  /**
+   * The reading of the task from paper's statement: `undefined`, as a task from paper comes, offers
+   * no "Recognise"; the consumer gives it while it can read the statement, and the element shows
+   * the button, its wait and the statements by it, frozen. Given without a task from paper, or not
+   * of `TracingReading`, it is a TypeError.
+   */
+  get reading(): TracingReading | undefined;
+  set reading(reading: TracingReading | undefined);
+  /**
+   * The grid of the task from paper's sheet: `undefined` without a task from paper, and "dots" as
+   * one comes. The learner turns it by the element's button, which a `gridchange` tells; the
+   * consumer keeps it and gives it back, which tells nothing. A grid given before the task from
+   * paper is a TypeError, and so is one not of `PaperGrid`; `undefined` changes nothing.
+   */
+  get grid(): PaperGrid | undefined;
+  set grid(grid: PaperGrid | undefined);
   /**
    * The open view of a lesson's worked example, its segment `worked_example`, in place of a task;
    * its module's manifest is `manifest`, as a task's is. The element shows the example's statement
@@ -557,10 +627,10 @@ export interface CanvasElement extends HTMLElement {
   exportWork(): Promise<ExportedWork | null>;
   /**
    * The picture of the work, which app puts as the stored work's `picture` (contracts/README.md,
-   * section 15): always a Blob of a PNG, with no condition, of the strokes of the whole surface — the
-   * sheet, with the tracing paper of a task from paper, or the workbook's page — as it is when it is
-   * called, within the limit of a stored work
-   * there. Its size and its colours are canvas's (R83 canvas).
+   * section 15): always a Blob of a PNG, with no condition, of the strokes the surface shows as it is
+   * when it is called — the page, a sheet's or a workbook's, and the ink past it, right and down, with
+   * the tracing paper of a task from paper where it lies —, within the limit of a stored work there.
+   * Its size, in its PNG's header, and its colours are canvas's (R83 canvas).
    */
   exportPicture(): Promise<Blob>;
 }

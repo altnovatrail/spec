@@ -747,6 +747,99 @@ export declare type GetOpeningWordsResponse = Message<"novatrail.api.v1.GetOpeni
 export declare const GetOpeningWordsResponseSchema: GenMessage<GetOpeningWordsResponse>;
 
 /**
+ * "Recognise" on a task from paper.
+ *
+ * @generated from message novatrail.api.v1.ReadStatementRequest
+ */
+export declare type ReadStatementRequest = Message<"novatrail.api.v1.ReadStatementRequest"> & {
+  /**
+   * The profile whose attempt it is.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The attempt, of a task from paper.
+   *
+   * @generated from field: string attempt_id = 2;
+   */
+  attemptId: string;
+
+  /**
+   * The idempotency key of this action of the learner.
+   *
+   * @generated from field: string idempotency_key = 3;
+   */
+  idempotencyKey: string;
+
+  /**
+   * The task's crop without the learner's strokes, as `PaperWork.statement`: a JPEG or a PNG of at
+   * most 4 MiB. The Check reads the work against the reading of this crop.
+   *
+   * @generated from field: bytes statement = 4;
+   */
+  statement: Uint8Array;
+
+  /**
+   * The learner's own key and its provider: with a profile of its owner.
+   *
+   * @generated from field: novatrail.api.v1.OwnKey own_key = 5;
+   */
+  ownKey?: OwnKey | undefined;
+
+  /**
+   * The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+   *
+   * @generated from field: optional int32 clock_offset_minutes = 6;
+   */
+  clockOffsetMinutes?: number | undefined;
+};
+
+/**
+ * Describes the message novatrail.api.v1.ReadStatementRequest.
+ * Use `create(ReadStatementRequestSchema)` to create a new message.
+ */
+export declare const ReadStatementRequestSchema: GenMessage<ReadStatementRequest>;
+
+/**
+ * The statements of a task from paper's crop.
+ *
+ * @generated from message novatrail.api.v1.ReadStatementResponse
+ */
+export declare type ReadStatementResponse = Message<"novatrail.api.v1.ReadStatementResponse"> & {
+  /**
+   * Each task on the crop, from 1 to 20 in the order of the page, as the page prints it, at most
+   * 200 bytes of UTF-8, as "□ − 3 = 7": "□" stands for each box the learner writes an answer in.
+   * Empty when the reading found no task, or gave no answer.
+   *
+   * @generated from field: repeated string statements = 1;
+   */
+  statements: string[];
+
+  /**
+   * What the call of AI came to, when it gave no reading: a failure of AI, or of the own key its
+   * limit reached or the key refused.
+   *
+   * @generated from field: novatrail.api.v1.Outcome outcome = 2;
+   */
+  outcome?: Outcome | undefined;
+
+  /**
+   * The answer of a request the attempt's reading or key answered: no AI was called.
+   *
+   * @generated from field: bool repeated = 3;
+   */
+  repeated: boolean;
+};
+
+/**
+ * Describes the message novatrail.api.v1.ReadStatementResponse.
+ * Use `create(ReadStatementResponseSchema)` to create a new message.
+ */
+export declare const ReadStatementResponseSchema: GenMessage<ReadStatementResponse>;
+
+/**
  * What a hint asked for gives. "What is known and what to find" `app` shows from the open view of
  * the task: they are open, and the server records nothing of them.
  *
@@ -1889,6 +1982,26 @@ export declare const AttemptService: GenService<{
     methodKind: "unary";
     input: typeof GetOpeningWordsRequestSchema;
     output: typeof GetOpeningWordsResponseSchema;
+  },
+  /**
+   * "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
+   * it, for the learner to see it in clean print instead of the photo. It is the reading of the
+   * statement, `statement_reading`, that the attempt's first Check would make, made now on the
+   * learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
+   * and the Check that derives the key takes it with no call of its own. An attempt that keeps a
+   * reading or a key gives its statements with no AI. The answer holds the statements alone, never
+   * a formula nor a key (R05). Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
+   * `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
+   * the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
+   * refusal: the answer names the outcome, holds no statement, and the next press asks again.
+   *
+   * @generated from rpc novatrail.api.v1.AttemptService.ReadStatement
+   */
+  readStatement: {
+    methodKind: "unary";
+    input: typeof ReadStatementRequestSchema;
+    output: typeof ReadStatementResponseSchema;
   },
   /**
    * Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by

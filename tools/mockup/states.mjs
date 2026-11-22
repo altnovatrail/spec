@@ -74,15 +74,21 @@ export const STATES = [
   // "Who's learning?" and home, in the first slice: the owner's profile alone.
   { name: "wait-home", title: "Waiting on the page", from: "signin", shows: "Loading", run: (t) => t.c.setState({ screen: "wait", waitOn: "page" }) },
   { name: "who", title: "Who's learning?", from: "owner-filled", shows: "Add a learner", run: (t) => t.v().ownerDone() },
-  { name: "home", title: "Home", from: "who", shows: "Skill map", run: (t) => t.v().profiles[0].pick() },
-  { name: "home-help", title: "Home, the adult's Help", from: "home", shows: "Report a problem", run: (t) => t.v().toggleHelp() },
-  { name: "home-switch", title: "Home, the profile's menu", from: "home", shows: "Switch learner", run: (t) => t.v().toggleSwitch() },
-  { name: "home-legend", title: "Home, what the marks mean", from: "home", shows: "Time to review", run: (t) => t.v().toggleLegend() },
-  { name: "home-pages", title: "Home, the pages from paper on this device", from: "home", shows: "Your pages · on this device", run: (t) => t.v().togglePages() },
-  { name: "solve-kept", title: "A page from Your pages, its work kept", from: "home-pages", shows: "from your page", run: (t) => t.v().pages[0].open() },
+  { name: "home", title: "Home", from: "who", shows: "The tutor chooses", run: (t) => t.v().profiles[0].pick() },
+  { name: "home-loading", title: "Home, while it is read", from: "home", shows: "Tasks from my paper", run: (t) => t.c.setState({ homeLoading: true }) },
+  { name: "home-help", title: "Home, the adult's Help", from: "home", shows: "Report a problem", run: (t) => t.v().hs.toggleHelp() },
+  { name: "home-switch", title: "Home, the profile's menu", from: "home", shows: "Switch learner", run: (t) => t.v().hs.toggleAccount() },
+  { name: "home-grownups", title: "Home, For grown-ups", from: "home", shows: "This device", run: (t) => t.v().hs.toggleGrown() },
+  { name: "home-bell", title: "Home, the notifications", from: "home", shows: "Nothing new yet", run: (t) => t.v().hs.toggleBell() },
+  { name: "home-tutor", title: "Home, the tutor's panel", from: "home", shows: "helps with the work there", run: (t) => t.v().hs.toggleTutor() },
+  { name: "home-legend", title: "Home, what the marks mean", from: "home", shows: "Time to review", run: (t) => t.v().hs.toggleLegend() },
+  { name: "home-pages", title: "Home, the pages from paper on this device", from: "home", shows: "on this device", run: (t) => t.v().hs.togglePages() },
+  { name: "subjects", title: "Subjects, the catalog of this server", from: "home", shows: "Tasks on a sheet", run: (t) => t.v().hs.goSubjects() },
+  { name: "solve-kept", title: "A page from Your pages, its work kept", from: "home-pages", shows: "1 / ", run: (t) => t.v().pages[0].open() },
   { name: "legal-access", title: "The page Accessibility", from: "home-help", shows: "WCAG 2.2", run: (t) => t.v().openAccess() },
-  { name: "map", title: "The skill map of a module", from: "home", shows: "Number patterns", run: (t) => t.v().mods[0].map() },
-  { name: "map-essays", title: "The skill map of a module with a rubric", from: "home", shows: "Feedback by criteria", run: (t) => t.v().mods[2].map() },
+  { name: "map", title: "The skill map of a module", from: "subjects", shows: "Number patterns", run: (t) => t.v().hs.catOn[0].map() },
+  { name: "map-modules", title: "The skill map, the module chosen", from: "map", shows: "Connected modules", run: (t) => t.v().hs.toggleMods() },
+  { name: "map-essays", title: "The skill map of a module with a rubric", from: "subjects", shows: "Feedback by criteria", run: (t) => t.v().hs.catOn[2].map() },
 
   // A lesson of olympiad maths: the explanation, the worked example, a task on the sheet and a choice.
   { name: "lesson", title: "A lesson, the explanation", from: "home", shows: "Patterns that grow", run: lesson(OLYMPIAD) },
@@ -154,7 +160,7 @@ export const STATES = [
   { name: "workbook-shown", title: "A workbook page, the solution shown", from: "workbook-not-yet", shows: "Continue", run: (t) => (t.les().askSol(), t.les().showSol()) },
 
   // A lesson of short essays: the best first sentence, and an essay with feedback by a rubric.
-  { name: "essay", title: "An essay, written to a rubric", from: "home", shows: "Write no names", run: (t) => (lesson(ESSAYS)(t), cont(t), t.les().toggleChoice(), t.les().options[1].pick(), t.les().check(), cont(t)) },
+  { name: "essay", title: "An essay, written to a rubric", from: "home", shows: "an umbrella that can talk", run: (t) => (lesson(ESSAYS)(t), cont(t), t.les().toggleChoice(), t.les().options[1].pick(), t.les().check(), cont(t)) },
   { name: "essay-feedback", title: "An essay, its feedback", from: "essay", shows: "Feedback", run: (t) => (t.c.closeChat(), t.ink(), t.les().check()) },
   { name: "essay-done", title: "An essay, Done: the marks by the criteria", from: "essay-feedback", shows: "Not assessed", run: (t) => t.les().essayDone() },
 
@@ -169,7 +175,7 @@ export const STATES = [
     name: "pick-ask",
     title: "The tutor on the page: a request about the frames",
     from: "pick",
-    shows: "Write no names",
+    shows: "I only change the frames",
     run: (t) => (t.v().openChat(), t.c.setState({ draft: "Take only the left column, each example as its own task" })),
   },
   { name: "pick-asked", title: "The frames found anew by the request, and Undo", from: "pick-ask", shows: "Found 3 tasks", run: (t) => t.v().send() },
@@ -177,13 +183,19 @@ export const STATES = [
     name: "solve",
     title: "A task from the page, on a clean sheet",
     from: "pick-frame",
-    shows: "from your page",
+    shows: "Equation (1) 1 / 4",
     run: (t) => {
       t.v().regions[1].toggle();
       t.v().regions[3].toggle();
       t.v().start();
     },
   },
+  { name: "solve-hand", title: "Hand: the sheet moved right of the page", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink("M420 420 C500 380 580 460 660 420 M690 430 l60 -20"), t.c.setState({ tool: "hand" }), t.c.setView(1, 240, 0)) },
+  // The tracing paper chosen by its grip, at 90%: its frame, corners and bar of scale; Recognise waits, then the statement as text (R169; R89 canvas).
+  { name: "solve-scale", title: "The tracing paper chosen: its frame, corners and bar of scale", from: "solve", shows: "90%", run: (t) => t.c.setState({ tSel: true, tScale: 0.9 }) },
+  { name: "solve-recognising", title: "Recognise pressed: the statement being read", from: "solve-scale", shows: "Recognising…", run: (t) => t.c.setState({ tMode: "busy" }) },
+  { name: "solve-text", title: "The statement read, as text in place of the photo, and Original", from: "solve-scale", shows: "Recognised by AI", run: (t) => t.c.setState({ tMode: "text" }) },
+  { name: "solve-lines", title: "The grid's button tapped once: the sheet in lines", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => t.v().grid.next() },
   { name: "solve-tasks", title: "The list of the picked tasks", from: "solve", shows: "Framed by you", run: (t) => t.v().toggleTasks() },
   { name: "solve-empty", title: "Check without work", from: "solve", shows: "Write your solution first", run: (t) => t.v().check() },
   { name: "solve-reading", title: "The work being read", from: "solve", shows: "Reading your work", settle: false, run: (t) => (t.ink(), t.v().check()) },
@@ -265,8 +277,9 @@ export const STATES = [
   { name: "later-who", title: "Later: Who's learning?, with the children", slice: "later", from: "who", shows: "Juniper", run: (t) => t.v().sliceLater() },
   { name: "later-add", title: "Later: Add a learner, a parent's consent", slice: "later", from: "later-who", shows: "A parent’s consent", run: (t) => t.v().openAdd() },
   { name: "later-pin", title: "Later: the owner's PIN", slice: "later", from: "later-who", shows: "Enter your PIN", run: (t) => t.v().profiles.find((p) => p.owner).pick() },
-  { name: "later-home", title: "Later: a child's home", slice: "later", from: "later-who", shows: "Take from my paper", run: (t) => t.v().profiles[0].pick() },
-  { name: "later-help", title: "Later: a child's Help", slice: "later", from: "later-home", shows: "call a helpline", run: (t) => t.v().toggleHelp() },
+  { name: "later-home", title: "Later: a child's home", slice: "later", from: "later-who", shows: "Tasks from my paper", run: (t) => t.v().profiles[0].pick() },
+  { name: "later-help", title: "Later: a child's Help", slice: "later", from: "later-home", shows: "call a helpline", run: (t) => t.v().hs.toggleHelp() },
+  { name: "later-grownups", title: "Later: For grown-ups behind the PIN", slice: "later", from: "later-home", shows: "Enter the PIN", run: (t) => t.v().hs.toggleGrown() },
   { name: "later-pip", title: "Later: Pip, a child's tutor", slice: "later", from: "later-home", shows: "Hi, I’m Pip", run: (t) => (lesson(OLYMPIAD)(t), cont(t), cont(t)) },
   { name: "later-kinds", title: "Later: the canvas kinds of other authors", slice: "later", from: "later-home", shows: "Number line", run: (t) => (t.v().openCamera(), t.v().capture(), t.settle(), t.v().start(), t.v().toggleMore()) },
 ];

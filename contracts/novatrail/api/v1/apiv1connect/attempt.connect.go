@@ -49,6 +49,9 @@ const (
 	// AttemptServiceGetOpeningWordsProcedure is the procedure name of the AttemptService's
 	// GetOpeningWords RPC.
 	AttemptServiceGetOpeningWordsProcedure = "/novatrail.api.v1.AttemptService/GetOpeningWords"
+	// AttemptServiceReadStatementProcedure is the procedure name of the AttemptService's ReadStatement
+	// RPC.
+	AttemptServiceReadStatementProcedure = "/novatrail.api.v1.AttemptService/ReadStatement"
 	// AttemptServiceBeginStepProcedure is the procedure name of the AttemptService's BeginStep RPC.
 	AttemptServiceBeginStepProcedure = "/novatrail.api.v1.AttemptService/BeginStep"
 	// AttemptServiceShowSolutionProcedure is the procedure name of the AttemptService's ShowSolution
@@ -114,6 +117,13 @@ var (
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("GetOpeningWords"),
 			Procedure:  AttemptServiceGetOpeningWordsProcedure,
+		}
+	})
+	attemptServiceReadStatementSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("ReadStatement"),
+			Procedure:  AttemptServiceReadStatementProcedure,
 		}
 	})
 	attemptServiceBeginStepSpec = sync.OnceValue(func() connect.Spec {
@@ -205,6 +215,18 @@ type AttemptServiceClient interface {
 	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
 	// request once it keeps them, gets them with no AI; a fallback text is not kept.
 	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
+	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
+	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
+	// statement, `statement_reading`, that the attempt's first Check would make, made now on the
+	// learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
+	// and the Check that derives the key takes it with no call of its own. An attempt that keeps a
+	// reading or a key gives its statements with no AI. The answer holds the statements alone, never
+	// a formula nor a key (R05). Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
+	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
+	// the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
+	// refusal: the answer names the outcome, holds no statement, and the next press asks again.
+	ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
@@ -302,6 +324,18 @@ type AttemptServiceHandler interface {
 	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
 	// request once it keeps them, gets them with no AI; a fallback text is not kept.
 	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
+	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
+	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
+	// statement, `statement_reading`, that the attempt's first Check would make, made now on the
+	// learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
+	// and the Check that derives the key takes it with no call of its own. An attempt that keeps a
+	// reading or a key gives its statements with no AI. The answer holds the statements alone, never
+	// a formula nor a key (R05). Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
+	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
+	// the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
+	// refusal: the answer names the outcome, holds no statement, and the next press asks again.
+	ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
@@ -340,6 +374,7 @@ func RegisterAttemptServiceHandler(server *connect.Server, svc AttemptServiceHan
 		connect.Method{Spec: attemptServiceExplainDifferentlySpec(), Handler: adapter.explainDifferently},
 		connect.Method{Spec: attemptServiceGetHintSpec(), Handler: adapter.getHint},
 		connect.Method{Spec: attemptServiceGetOpeningWordsSpec(), Handler: adapter.getOpeningWords},
+		connect.Method{Spec: attemptServiceReadStatementSpec(), Handler: adapter.readStatement},
 		connect.Method{Spec: attemptServiceBeginStepSpec(), Handler: adapter.beginStep},
 		connect.Method{Spec: attemptServiceShowSolutionSpec(), Handler: adapter.showSolution},
 		connect.Method{Spec: attemptServiceReportProblemSpec(), Handler: adapter.reportProblem},
@@ -379,6 +414,10 @@ func (UnimplementedAttemptServiceHandler) GetHint(context.Context, *v1.GetHintRe
 
 func (UnimplementedAttemptServiceHandler) GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.GetOpeningWords is not implemented")
+}
+
+func (UnimplementedAttemptServiceHandler) ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.ReadStatement is not implemented")
 }
 
 func (UnimplementedAttemptServiceHandler) BeginStep(context.Context, *v1.BeginStepRequest) (*v1.BeginStepResponse, error) {
@@ -456,6 +495,14 @@ func (c *attemptServiceClient) GetHint(ctx context.Context, req *v1.GetHintReque
 func (c *attemptServiceClient) GetOpeningWords(ctx context.Context, req *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error) {
 	var res v1.GetOpeningWordsResponse
 	if err := c.client.CallUnary(ctx, attemptServiceGetOpeningWordsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *attemptServiceClient) ReadStatement(ctx context.Context, req *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error) {
+	var res v1.ReadStatementResponse
+	if err := c.client.CallUnary(ctx, attemptServiceReadStatementSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -577,6 +624,18 @@ func (h attemptServiceHandler) getOpeningWords(ctx context.Context, _ connect.Sp
 		return err
 	}
 	res, err := h.svc.GetOpeningWords(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h attemptServiceHandler) readStatement(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ReadStatementRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ReadStatement(ctx, &req)
 	if err != nil {
 		return err
 	}

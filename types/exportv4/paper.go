@@ -62,8 +62,8 @@ type Task struct {
 	// paper: write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p; on
 	// a stroke of the tracing paper, on "tracing".
 	History json.RawMessage `json:"history"`
-	// Where the tracing paper lay at the end and whether it was hidden, as the canvas gave it: at
-	// [x, y] and hidden.
+	// Where the tracing paper lay at the end, whether it was hidden and its scale, as the canvas
+	// gave it: at [x, y], hidden and scale, absent meaning 1.
 	Tracing json.RawMessage `json:"tracing"`
 	// Each submission of the task, in order: its context, as the canvas gave it, and the history
 	// length when it was sent.

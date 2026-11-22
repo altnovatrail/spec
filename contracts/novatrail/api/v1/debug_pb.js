@@ -2,11 +2,11 @@
 // @generated from file novatrail/api/v1/debug.proto (package novatrail.api.v1, syntax proto3)
 /* eslint-disable */
 
-// The debug mode of a local run in the contract between `app` and `api` (R163): which models serve
-// the calls of AI of a task from paper, past the admission list, and what each call returned and
-// cost. `api` serves it only with its debug flag, which a deployment refuses; anywhere else each
-// method answers `unimplemented`, and `app` shows no debug button. Its rules are
-// contracts/README.md, section 15.
+// The debug mode in the contract between `app` and `api` (R163): which models serve the calls of
+// AI of a task from paper, past the admission list, and what each call returned and cost, for an
+// account with the right of the mode. A method from an account without the right answers
+// `permission_denied` with no `Refusal`, and on a run with the stub of `tutor` `unimplemented`;
+// `app` then shows no debug button. Its rules are contracts/README.md, section 15.
 
 import { enumDesc, fileDesc, messageDesc, serviceDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
@@ -175,9 +175,9 @@ export const DebugOutcome = /*@__PURE__*/
   tsEnum(DebugOutcomeSchema);
 
 /**
- * The debug mode, from a session of the account on a local run. Every method carries the token of
+ * The debug mode, from a session of an account with its right. Every method carries the token of
  * the sign-in service and may get the refusals of every request with a token, which the comment of
- * `AccountService` names; it needs the account of the token alone. The choice and the calls are the
+ * `AccountService` names; it needs the account of the token alone, with the right. The choice and the calls are the
  * account's, in the memory of the process of `api`, and go with it: `api` writes neither to its
  * log nor to its database.
  *

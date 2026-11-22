@@ -92,6 +92,18 @@ service AttemptService {
   // outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
   // request once it keeps them, gets them with no AI; a fallback text is not kept.
   rpc GetOpeningWords(GetOpeningWordsRequest) returns (GetOpeningWordsResponse);
+  // "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
+  // it, for the learner to see it in clean print instead of the photo. It is the reading of the
+  // statement, `statement_reading`, that the attempt's first Check would make, made now on the
+  // learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
+  // and the Check that derives the key takes it with no call of its own. An attempt that keeps a
+  // reading or a key gives its statements with no AI. The answer holds the statements alone, never
+  // a formula nor a key (R05). Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
+  // `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
+  // the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
+  // refusal: the answer names the outcome, holds no statement, and the next press asks again.
+  rpc ReadStatement(ReadStatementRequest) returns (ReadStatementResponse);
   // Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
   // steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
   // `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
@@ -363,6 +375,36 @@ message GetOpeningWordsResponse {
   // model's words came, or when they failed a check.
   Outcome outcome = 2;
   // The answer of a repeat, or of a request once the attempt keeps the words: no AI was called.
+  bool repeated = 3;
+}
+
+// "Recognise" on a task from paper.
+message ReadStatementRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt, of a task from paper.
+  string attempt_id = 2;
+  // The idempotency key of this action of the learner.
+  string idempotency_key = 3;
+  // The task's crop without the learner's strokes, as `PaperWork.statement`: a JPEG or a PNG of at
+  // most 4 MiB. The Check reads the work against the reading of this crop.
+  bytes statement = 4;
+  // The learner's own key and its provider: with a profile of its owner.
+  OwnKey own_key = 5;
+  // The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+  optional int32 clock_offset_minutes = 6;
+}
+
+// The statements of a task from paper's crop.
+message ReadStatementResponse {
+  // Each task on the crop, from 1 to 20 in the order of the page, as the page prints it, at most
+  // 200 bytes of UTF-8, as "□ − 3 = 7": "□" stands for each box the learner writes an answer in.
+  // Empty when the reading found no task, or gave no answer.
+  repeated string statements = 1;
+  // What the call of AI came to, when it gave no reading: a failure of AI, or of the own key its
+  // limit reached or the key refused.
+  Outcome outcome = 2;
+  // The answer of a request the attempt's reading or key answered: no AI was called.
   bool repeated = 3;
 }
 

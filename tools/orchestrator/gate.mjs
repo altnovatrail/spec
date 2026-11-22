@@ -156,6 +156,13 @@ function onlyReplaced(lines, replaced) {
   });
 }
 
+// A failure of ci-lint under the wiring in its step release-licenses, which names the first module
+// whose folder holds no LICENSE and stops: one go.work replaces with a clone, as spec/contracts.
+// The licenses after it and the pin of spec, the steps after release-licenses, go unchecked at
+// the gate; ship, with no go.work, runs them all.
+const NO_LICENSE = /^release-licenses: (\S+) has no LICENSE, LICENSE\.txt, LICENSE\.md or COPYING$/;
+const replacedWithoutLicense = (lines, replaced) => replaced.includes(NO_LICENSE.exec(lines.at(-1) ?? "")?.[1]);
+
 // The modules a clone's go.work replaces with a clone of the epic.
 function replacedOf(dir, repo) {
   try {
@@ -226,6 +233,7 @@ async function gateOne(dir, repo, deps, { licenses }) {
       const guard = guards.find((g) => g.kind === recipe && g.pattern.test(lines.at(-1) ?? ""));
       if (guard) row.status = `allowed: ${guard.name}`;
       else if (recipe === "ci-licenses" && wired && onlyReplaced(lines, replacedOf(dir, repo))) row.status = "allowed: just ci-licenses: the modules go.work replaces";
+      else if (recipe === "ci-lint" && wired && replacedWithoutLicense(lines, replacedOf(dir, repo))) row.status = "allowed: just ci-lint: release-licenses of the modules go.work replaces";
     }
     results.push(row);
   }
@@ -246,7 +254,8 @@ async function gateOne(dir, repo, deps, { licenses }) {
 }
 
 // The gate: the repositories named, or those the epic changed, each clean, their submodules spec at
-// the clone of spec; each repository's recipes in its own container, all repositories at once.
+// the clone of spec; each repository's recipes in its own container, one repository after another:
+// beside another's suite, the browsers' tests of app and canvas pass their time limits.
 // Its record is .stand/gate.json, each repository's result by the head it checked.
 export async function gate(named, repos, deps) {
   for (const repo of repos) checkRepo(repo);
@@ -262,7 +271,8 @@ export async function gate(named, repos, deps) {
   }
   const submodules = alignSubmodules(dir, clonesOf(dir), deps);
   const licenses = touched.some((r) => r !== "spec" && GATES[r]?.includes("ci-licenses")) ? allowedLicenses(dir, deps) : "";
-  const results = await Promise.all(touched.map((repo) => gateOne(dir, repo, deps, { licenses })));
+  const results = [];
+  for (const repo of touched) results.push(await gateOne(dir, repo, deps, { licenses }));
   const file = path.join(dir, STAND, "gate.json");
   let record = {};
   try {
