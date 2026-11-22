@@ -397,7 +397,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 <div class="{{devCls}}" style="position: relative; width: {{dim.W}}px; height: {{dim.VH}}px; overflow: hidden; background: #F2F2F7; color: #1D1D1F; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none">
 
 <!-- ============ Surfaces ============ -->
-<!-- The sheet is two screens tall and three wide, the task's page at its left, right of the tool bar: on the phone 1170 × 1688. It moves under the hand — the tool Hand, two fingers, or the wheel —, and one finger writes, or in canvas moves it once a pen has touched the page (pen mode); it is not zoomed (canvas). -->
+<!-- The sheet is two screens tall and three wide, the task's page at its left, right of the tool bar: on the phone 1170 × 1688. It moves under the hand — the tool Hand, two fingers, or the wheel —, and one finger writes, or in canvas moves it once a pen has touched the page (pen mode); Zoom in, Zoom out and a pinch of two fingers scale it from 50 % to 200 % (canvas). -->
 <div style="position: absolute; left: 0; top: 0; width: {{dim.SW}}px; height: {{dim.H}}px; transform-origin: 0 0; transform: {{viewTf}}; transition: {{viewTr}}">
 <sc-if value="{{isNumberline}}" hint-placeholder-val="{{ false }}">
   <div style="position: absolute; inset: 0; background: #FFFFFF">
@@ -810,7 +810,15 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <button class="ib tip tip-r" aria-label="Clear" data-tip="Clear" onClick="{{clear}}">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"></path></svg>
     </button>
-    <!-- The grid of a task from paper's sheet, in place of the zoom: each tap the next of dots, lines, blank and squares, its icon the grid it shows (canvas). -->
+    <!-- The sheet's zoom, 50 % to 200 % by quarters about the middle of what is in sight; a pinch of two fingers sets it between them (canvas). -->
+    <div style="width: 24px; height: 1px; background: rgba(0,0,0,0.1); margin: 4px 0"></div>
+    <button class="ib tip tip-r" aria-label="Zoom in" data-tip="Zoom in" disabled="{{vw.inOff}}" onClick="{{zoomIn}}" style="opacity: {{vw.inOp}}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L20 20M10.5 7.5v6M7.5 10.5h6"></path></svg>
+    </button>
+    <button class="ib tip tip-r" aria-label="Zoom out" data-tip="Zoom out" disabled="{{vw.outOff}}" onClick="{{zoomOut}}" style="opacity: {{vw.outOp}}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L20 20M7.5 10.5h6"></path></svg>
+    </button>
+    <!-- The grid of a task from paper's sheet: each tap the next of dots, lines, blank and squares, its icon the grid it shows (canvas). -->
     <sc-if value="{{isSolve}}" hint-placeholder-val="{{ false }}">
       <div style="width: 24px; height: 1px; background: rgba(0,0,0,0.1); margin: 4px 0"></div>
       <button class="ib tip tip-r" aria-label="{{grid.label}}" data-tip="{{grid.label}}" onClick="{{grid.next}}">
@@ -2954,13 +2962,23 @@ class Component extends DCLogic {
     return { bg: g.bg, size: g.size, icon: g.icon, iconW: g.w, label: 'Grid: ' + g.name + ' · next ' + G[nx].name.toLowerCase(), next: () => this.setState({ grid: nx }) };
   }
 
-  // ---- The view of the sheet: moved by hand or by the wheel, never zoomed.
+  // ---- The view of the sheet: moved by hand or by the wheel, zoomed from 50 % to 200 % by the bar or a pinch.
   setView(z, x, y) {
     const { W, SW, H, VH } = this.dims();
-    z = Math.max(1, Math.min(2, Math.round(z * 4) / 4));
+    z = Math.max(0.5, Math.min(2, z));
     x = Math.max(0, Math.min(SW - W / z, x));
     y = Math.max(0, Math.min(H - VH / z, y));
     this.setState({ view: { z, x, y } });
+  }
+  // A step to the next quarter, about the middle of what is in sight.
+  zoomBy(dir) {
+    const { W, VH } = this.dims(), v = this.state.view, q = dir > 0 ? Math.floor(v.z * 4 + 1e-6) + 1 : Math.ceil(v.z * 4 - 1e-6) - 1;
+    this.zoomAt(q / 4, W / 2, VH / 2);
+  }
+  // The zoom z with the point (sx, sy) of the screen standing still.
+  zoomAt(z, sx, sy) {
+    const v = this.state.view, to = Math.max(0.5, Math.min(2, z));
+    this.setView(to, v.x + sx / v.z - sx / to, v.y + sy / v.z - sy / to);
   }
   wheel = (e) => { const v = this.state.view; this.setView(v.z, v.x + e.deltaX / v.z, v.y + e.deltaY / v.z); };
 
@@ -3352,6 +3370,7 @@ class Component extends DCLogic {
   }
 
   // Moving the sheet by hand: two fingers, or any pointer with the tool Hand; one finger and a pen write (canvas: one finger moves it in pen mode).
+  dist2() { const [a, b] = [...this.tp.values()]; return b ? Math.hypot(a[0] - b[0], a[1] - b[1]) : 0; }
   mid2() { let x = 0, y = 0; this.tp.forEach((p) => { x += p[0]; y += p[1]; }); return [x / this.tp.size, y / this.tp.size]; }
 
   inkDown = (e) => {
@@ -3363,7 +3382,7 @@ class Component extends DCLogic {
       if (this.tp.size >= 2) {
         const r0 = el0.getBoundingClientRect();
         this.ink = null;
-        this.pan = { k: Number(el0.getAttribute('data-w')) / r0.width, last: this.mid2() };
+        this.pan = { k: Number(el0.getAttribute('data-w')) / r0.width, last: this.mid2(), d: this.dist2() };
         try { el0.setPointerCapture(e.pointerId); } catch (err) { /* no capture */ }
         return this.setState({ live: null, liveLayer: null, panning: true });
       }
@@ -3391,7 +3410,14 @@ class Component extends DCLogic {
     if (this.pan) {
       if (this.pan.one !== undefined && this.pan.one !== e.pointerId) return;
       const m = this.pan.one !== undefined ? [e.clientX, e.clientY] : this.mid2(), v = this.state.view, p = this.pan;
-      this.setView(v.z, v.x - (m[0] - p.last[0]) * p.k, v.y - (m[1] - p.last[1]) * p.k);
+      if (p.one === undefined && p.d && this.tp.size >= 2) {
+        // A pinch: the point of the sheet under the fingers' middle follows it, and the zoom their distance.
+        const r = e.currentTarget.getBoundingClientRect(), k = Number(e.currentTarget.getAttribute('data-w')) / r.width;
+        const ux = (p.last[0] - r.left) * k, uy = (p.last[1] - r.top) * k, d = this.dist2();
+        const to = Math.max(0.5, Math.min(2, v.z * (d > 0 ? d / p.d : 1))), f = v.z / to;
+        this.setView(to, ux - (ux - v.x) * f - (m[0] - p.last[0]) * k * f, uy - (uy - v.y) * f - (m[1] - p.last[1]) * k * f);
+        p.d = d;
+      } else this.setView(v.z, v.x - (m[0] - p.last[0]) * p.k, v.y - (m[1] - p.last[1]) * p.k);
       p.last = m;
       return;
     }
@@ -3408,7 +3434,7 @@ class Component extends DCLogic {
     if (this.tp && e) this.tp.delete(e.pointerId);
     if (this.pan) {
       if (this.pan.one !== undefined) { if (!e || e.pointerId === this.pan.one) { this.pan = null; this.setState({ panning: false }); } return; }
-      if (this.tp && this.tp.size) this.pan.last = this.mid2();
+      if (this.tp && this.tp.size) { this.pan.last = this.mid2(); this.pan.d = this.dist2(); }
       else { this.pan = null; this.setState({ panning: false }); }
       return;
     }
@@ -3936,6 +3962,8 @@ class Component extends DCLogic {
       pbar: isSolve && !pOver, pover: pOver,
       viewTf: 'translate(' + (-s.view.x * s.view.z) + 'px, ' + (-s.view.y * s.view.z) + 'px) scale(' + s.view.z + ')',
       viewTr: s.panning ? 'none' : 'transform 0.25s cubic-bezier(.2,.8,.2,1)', wheel: this.wheel,
+      vw: { inOff: s.view.z >= 2, inOp: s.view.z >= 2 ? 0.35 : 1, outOff: s.view.z <= 0.5, outOp: s.view.z <= 0.5 ? 0.35 : 1 },
+      zoomIn: () => this.zoomBy(1), zoomOut: () => this.zoomBy(-1),
       
       demo: s.demo, captured: s.captured || 'worksheet', t, ticks, flash: s.flash, more: s.more,
       dws: s.demo === 'worksheet' ? { bg: 'rgba(255,255,255,0.92)', fg: '#1D1D1F' } : { bg: 'transparent', fg: '#FFFFFF' },

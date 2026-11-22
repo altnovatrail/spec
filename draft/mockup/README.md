@@ -133,6 +133,8 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `solve-scale` | The tracing paper chosen by its grip: a frame and four corners, which scale it from the corner across, and under it the bar of scale — Smaller, the percentage, here 90%, which sets it back to 100%, Larger, Fit, and Recognise; a press on the sheet lets it go | First slice (RUN.md, T251, T253) |
 | `solve-recognising` | Recognise pressed: a light runs over the crop, the sign and the button say "Recognising…", and the button takes no press | First slice (RUN.md, T251, T253) |
 | `solve-text` | The statement read: its text in place of the photo, the sign "Recognised by AI", and the button Original, which gives the photo back | First slice (RUN.md, T251, T253) |
+| `solve-zoom` | Zoom in, in the tool bar after Clear, pressed twice: the sheet at 150 % about the middle of what is in sight, the ink and the tracing paper with it; at 200 % Zoom in is off | First slice (RUN.md, T254) |
+| `solve-zoom-out` | Zoom out pressed twice: the sheet at 50 %, more of it in sight, and Zoom out off; a pinch of two fingers sets any zoom between 50 % and 200 % | First slice (RUN.md, T254) |
 | `solve-lines` | The grid's button, last in the tool bar, tapped once: the dots give way to lines, and its icon to lines; next blank, then squares, then dots again | First slice |
 | `solve-tasks` | The list of the picked tasks, the framed one among them | First slice |
 | `solve-empty` | Check without work: "Write your solution first" | First slice |
@@ -174,18 +176,18 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:637` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
 | `Main.dc.html:680` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
 | `Main.dc.html:757` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
-| `Main.dc.html:787` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
-| `Main.dc.html:823` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
-| `Main.dc.html:1070` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:1234` — Pick | What left the device, the cards of what the page says, Select all, Start |
-| `Main.dc.html:1270` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1347` — Debug | Only for an account with the right of the debug mode (R163): the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
-| `Main.dc.html:1528` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1654` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1718` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:1815` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
-| `Main.dc.html:2234` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2252` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:787` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, Zoom in and Zoom out, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
+| `Main.dc.html:831` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
+| `Main.dc.html:1078` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:1242` — Pick | What left the device, the cards of what the page says, Select all, Start |
+| `Main.dc.html:1278` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1355` — Debug | Only for an account with the right of the debug mode (R163): the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
+| `Main.dc.html:1536` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1662` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1726` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:1823` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
+| `Main.dc.html:2242` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2260` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -196,7 +198,7 @@ The mockup is drawn in absolute CSS px for its two sizes, and the sign-in for a 
 - **An iPad in portrait, 834 × 1194,** is the tablet's layout. Home keeps its places in a column 834 wide: the cards of the modules two in a row instead of three, and "Take from my paper" under the next lesson; the tutor’s time keeps its width, 20em at most, as in landscape, and does not stretch across the card. Below 900 wide the sign-in leaves its trail out and its card stands in the middle: the trail and the card of 440 do not fit side by side. On a canvas the tutor's panel keeps its 400 px and the sheet slides under it.
 - **A computer** is the tablet's layout. Home keeps the width of the reference, 1194 px at most, centred on the page's colour; the sign-in's sky fills the window, its trail and card keep the iPad's places in a middle of 1194 × 834, centred both ways, and its logo and language stand 24 below the window's top, at that middle's edges — the board `Desktop.dc.html`, 1920 × 1080; a canvas fills the window — the sheet is wider than any screen, and moves under the hand or the wheel —, with the bars at the same edges.
 - **A phone in landscape** is the tablet's layout by its width; its height of 390 holds the tool bar, which scrolls inside its glass when it does not fit.
-- **320 CSS px,** and a zoom of 400 % of 1280: the phone's layout reflows with no horizontal scroll of the page; only the sheet scrolls both ways, as WCAG 1.4.10 allows a two-dimensional layout. The vertical bar of seven tools fits it (R90).
+- **320 CSS px,** and a zoom of 400 % of 1280: the phone's layout reflows with no horizontal scroll of the page; only the sheet scrolls both ways, as WCAG 1.4.10 allows a two-dimensional layout. The vertical bar fits its width, and where its nine buttons of a task from paper are taller than the window, it scrolls inside its glass (R90).
 - Every target is at least 44 × 44 CSS px, the grabber 88 × 44 (R90).
 
 ## The style
