@@ -82,8 +82,13 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .ph-grab{position:absolute;left:50%;top:0;margin-left:-44px;width:88px;height:44px;padding-top:7px;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:center;z-index:1}
 .ph-grab>span{width:40px;height:5px;border-radius:3px;background:rgba(60,60,67,0.3)}
 .nt-phone .ph-wb{left:76px!important;top:76px!important;width:298px!important;height:620px!important;padding:24px 18px!important}
-.nt-phone .ph-picknote{left:16px!important;right:16px!important;transform:none!important;white-space:normal!important;justify-content:center;text-align:center}
-.nt-phone .ph-pickbar{padding:6px!important;gap:4px!important}
+.nt-phone .ph-picknote{white-space:normal!important;justify-content:center;text-align:center}
+.nt-phone .ph-pickrow{padding:6px!important;gap:4px!important}
+.nt-phone .ph-pickband{padding:12px 14px 12px 12px!important;gap:12px!important}
+/* A card of what the page says lifts the note on the phone: the tutor's and the debug buttons go up by as much. */
+.nt-phone:has(.ph-pickband) .ph-tutbtn{bottom:256px!important}
+.nt-phone:has(.ph-pickband) .ph-dbgbtn{bottom:256px!important}
+.nt-phone:has(.ph-pickband) .ph-dbgbtn.ph-dbg-up{bottom:324px!important}
 .nt-phone .ph-pickcount{min-width:0!important}
 .nt-phone .ph-verdict{left:16px!important;right:84px!important;width:auto!important;transform:none!important;flex-wrap:wrap;justify-content:flex-end}
 .nt-phone .ph-vtext{flex:1 1 200px!important}
@@ -1216,17 +1221,36 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 <!-- ============ Pick: the tasks to solve ============ -->
 <sc-if value="{{isPick}}" hint-placeholder-val="{{ false }}">
   <!-- The photo went to the AI once, to find the tasks, and stays on the device alone; a picked task's crop goes to be read at Check (privacy 6). -->
-  <div class="ph-picknote" style="position: absolute; left: 50%; bottom: 82px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6E6E73; white-space: {{noteWrap.ws}}; width: {{noteWrap.w}}; justify-content: center; text-align: center">
+  <!-- The note, the cards of what the page says and the bar stand in one column at the bottom, so a card lifts the note. -->
+  <div style="position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none">
+  <div class="ph-picknote" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6E6E73; white-space: {{noteWrap.ws}}; width: {{noteWrap.w}}; max-width: 100%; justify-content: center; text-align: center">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
     {{pickNote}}
   </div>
-  <div class="glass ph-pickbar" style="position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); height: 56px; border-radius: 28px; padding: 6px 6px 6px 8px; box-sizing: border-box; display: flex; align-items: center; gap: 10px">
-    <button onClick="{{selectAll}}" style="height: 44px; padding: 0 12px; border-radius: 22px; font-size: 14px; font-weight: 500; color: #0071E3">{{allLabel}}</button>
+  <!-- What the page says, each a card of its own just above the bar, which keeps its size, never a bare line under the top bar:
+       a hint in cool white with a dashed blue ring — no task found, the opposite corner to tap —, a warning in warm white with
+       an orange ring — Start shut —, and a failure in a red tint with a red disc, its way on a button at the card's end. -->
+  <sc-for list="{{pickBands}}" as="b" hint-placeholder-count="0">
+    <div class="ph-pickband" role="{{b.role}}" style="pointer-events: auto; box-sizing: border-box; max-width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 20px 14px 14px; border-radius: 22px; border: 1px solid {{b.edge}}; background: {{b.bg}}; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 10px 28px rgba(17,24,39,0.10)">
+      <span aria-hidden="true" style="flex: none; width: 44px; height: 44px; box-sizing: border-box; border-radius: 50%; border: 2.5px {{b.ring}}; background: {{b.disc}}; color: {{b.sign}}; display: flex; align-items: center; justify-content: center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{b.sw}}" stroke-linecap="round" stroke-linejoin="round"><path d="{{b.path}}"></path></svg>
+      </span>
+      <p style="flex: 1; margin: 0; font-size: 14px; line-height: 1.45; color: {{b.ink}}; text-align: left"><strong style="font-size: 15px; font-weight: 700; color: #1D1D1F">{{b.title}}</strong> {{b.line}}</p>
+      <sc-if value="{{b.act}}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{b.onAct}}" style="flex: none; height: 36px; padding: 0 14px; border-radius: 18px; background: #FFFFFF; box-shadow: 0 0 0 1px rgba(60,60,67,0.14); font-size: 13px; font-weight: 600; color: #0071E3; white-space: nowrap">{{b.act}}</button>
+      </sc-if>
+    </div>
+  </sc-for>
+  <div class="glass ph-pickbar" style="pointer-events: auto; max-width: 100%; border-radius: 28px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column">
+    <div class="ph-pickrow" style="height: 56px; padding: 6px 6px 6px 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 10px">
+    <button onClick="{{selectAll}}" disabled="{{allDisabled}}" style="height: 44px; padding: 0 12px; border-radius: 22px; font-size: 14px; font-weight: 500; color: {{allFg}}">{{allLabel}}</button>
     <span class="ph-pickcount" style="font-size: 14px; color: #3A3A3C; min-width: 110px; text-align: center; font-variant-numeric: tabular-nums">{{selCount}}</span>
     <button onClick="{{start}}" disabled="{{startDisabled}}" style="height: 44px; padding: 0 18px 0 22px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; background: {{startBg}}; color: {{startFg}}; transition: background 0.2s">
       Start
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
     </button>
+    </div>
+  </div>
   </div>
 </sc-if>
 
@@ -2506,7 +2530,7 @@ const dbgNum = (n) => n.toLocaleString('en-US');
 class Component extends DCLogic {
   // The paper flow: the page photographed, the tasks picked, the learner's own frames on each page, the sheet chosen, each task's tries and status.
   // hintMode is the profile's setting, 'questions' or 'where'; the demo's profile has "Show where" on.
-  state = { surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
+  state = { pageSays: null, surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
     chatOpen: false, chat: [], typing: false, listening: false, speaking: null, voiceOn: true, micOn: true, unread: false, draft: '', said: {}, hinted: {},
     screen: 'signin', waitOn: 'sky', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
     // slice: the demo's switch — 'first', the first slice with adults, or 'later', with what epics E4 of app and E11 bring.
@@ -3114,7 +3138,8 @@ class Component extends DCLogic {
     return (st.captured === 'olympiad' ? OL : WS).filter(inside);
   }
   tasks(st) { st = st || this.state; return this.found(st).concat(this.framesOf(st).map((f) => ({ ...f, ch: f.h, manual: true, label: 'Framed by you' }))); }
-  task(st) { st = st || this.state; const ts = this.tasks(st); return ts.find((t) => t.id === st.current) || ts[0]; }
+  // A page with no task still draws the values of the solving screen it hides: they take the page's first task.
+  task(st) { st = st || this.state; const ts = this.tasks(st); return ts.find((t) => t.id === st.current) || ts[0] || (st.captured === 'olympiad' ? OL : WS)[0]; }
   tname(t, st) { st = st || this.state; return t.manual ? 'Your frame ' + (this.framesOf(st).findIndex((f) => f.id === t.id) + 1) : st.captured === 'olympiad' ? 'Problem ' + t.id : 'Equation (' + t.id + ')'; }
   tkey(id) { return this.state.captured + '-' + id; }
   // A task from paper is over once it is correct or has no key: its solution is never shown.
@@ -3150,11 +3175,30 @@ class Component extends DCLogic {
     this.later(() => {
       const s = this.state, p = d + '-';
       // Every task found starts picked: the learner leaves out what they will not solve, and frames what the AI missed.
-      this.setState({ flash: false, stage: 'pick', captured: d, asked: { ...s.asked, [d]: null }, askUndo: null, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
+      this.setState({ flash: false, stage: 'pick', pageSays: null, captured: d, asked: { ...s.asked, [d]: null }, askUndo: null, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
         strokes: without(s.strokes, p), answers: without(s.answers, p), status: without(s.status, p), ptries: without(s.ptries, p), pmark: null, vmarks: null, verdict: null });
       if (this.dbgOn()) this.dbgAdd(this.dbgFind(this.state, d));
     }, 380);
   };
+
+  // The cards of what the page to pick from says (RUN.md, T254). Play reaches only "No tasks found"; the other notes are set by
+  // the states of tools/mockup/states.mjs alone, as the mockup has no tap of corners, no failure of the finding and no closed AI.
+  pickBands(s) {
+    const KIND = {
+      hint: { edge: 'rgba(0,113,227,0.14)', bg: 'linear-gradient(180deg, #F3F8FF, #EAF2FE)', ring: 'dashed #0071E3', disc: 'transparent', sign: '#0071E3', ink: '#1F3350', sw: 2.2, role: 'status' },
+      warn: { edge: 'rgba(255,149,0,0.15)', bg: 'linear-gradient(180deg, #FFF8EC, #FFF4E2)', ring: 'solid #FF9500', disc: 'transparent', sign: '#B25E00', ink: '#4A3412', sw: 2.8, role: 'status' },
+      fail: { edge: 'rgba(255,59,48,0.16)', bg: 'linear-gradient(180deg, #FFF5F4, #FFECEA)', ring: 'solid #FF3B30', disc: '#FF3B30', sign: '#FFFFFF', ink: '#4D1A16', sw: 2.8, role: 'alert' },
+    };
+    const LOOP = 'M4 12c0-4 3.6-7 8-7s8 3 8 6.5-3.4 6-7.5 6c-2 0-3.3-.4-4.3-1.1M8.2 16.4 5.5 19.5', CORNERS = 'M4 10V4h6M20 14v6h-6', BANG = 'M12 7v6M12 17h.01';
+    const band = (kind, path, title, line, act) => ({ ...KIND[kind], path, title, line: line || '', act: act || '', onAct: () => this.setState({ pageSays: null }) });
+    const none = this.tasks(s).length === 0, note = s.pageSays, out = [];
+    if (note === 'failed') out.push(band('fail', BANG, 'No connection.', '', 'Find the tasks again'));
+    if (note === 'outcome') out.push(band('fail', BANG, 'The tutor can’t answer right now.', none ? 'Draw round each task you want to solve.' : ''));
+    if (note === 'closed') out.push(band('warn', BANG, 'Without the AI a task from paper can’t be checked.'));
+    if (note === 'corner') out.push(band('hint', CORNERS, 'Now tap the opposite corner of the task.'));
+    else if (none && !note) out.push(band('hint', LOOP, 'No tasks found.', 'Draw round each task you want to solve.'));
+    return out;
+  }
 
   // ---- The learner's own frame: a loop drawn round a task with a finger or a pen; its box becomes the frame.
   pagePt(e, el) { const r = el.getBoundingClientRect(), k = 600 / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k]; }
@@ -3745,11 +3789,13 @@ class Component extends DCLogic {
     let title = L ? L.title : 'Scratch sheet', subtitle = L ? KINDS[g.k] + ' · ' + (s.seg + 1) + ' of ' + L.segs.length : 'Blank canvas';
     if (s.surface === 'numberline') { title = 'Number line'; subtitle = 'by Kite Math'; }
     if (s.surface === 'geo') { title = 'Geometry board'; subtitle = 'by Tangent Lab'; }
-    if (isPick) { title = 'Your page'; subtitle = this.found().length + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') + ' · tap one to leave it out'; }
+    if (isPick) { title = 'Your page'; subtitle = this.found().length || frs.length ? this.found().length + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') + ' · tap one to leave it out' : ''; }
     // The counter at the right says which task of the page it is: no line of it under the name.
     if (isSolve) { title = this.tname(t); subtitle = ''; }
 
     const doneN = sel.filter((id) => this.over(id)).length;
+    const bands = isPick ? this.pickBands(s) : [];
+    const canGo = sel.length > 0 && s.pageSays !== 'closed';
     const PH = this.phone(), dim = this.dims(), cf = this.cf();
     const pageK = PH ? 0.5967 : 0.76;
     const pageTf = PH ? 'translate(16px, 76px) scale(' + pageK + ')' : 'translate(369px, 66px) scale(' + pageK + ')';
@@ -3907,7 +3953,8 @@ class Component extends DCLogic {
       modeQ: () => { if (!pip) this.setState({ hintMode: 'questions' }); }, modeW: () => { if (!pip) this.setState({ hintMode: 'where' }); },
       hm: { q: lay(s.hintMode === 'questions'), w: lay(s.hintMode === 'where'), byAdult: pip }, micRow: pip,
       selCount: sel.length + ' of ' + tasks.length + ' selected',
-      startDisabled: sel.length === 0, startBg: sel.length ? '#0071E3' : 'rgba(118,118,128,0.16)', startFg: sel.length ? '#FFFFFF' : '#6E6E73',
+      // Start is shut with no task picked, and while AI is closed to the learner (the state `pick-closed`).
+      startDisabled: !canGo, startBg: canGo ? '#0071E3' : 'rgba(118,118,128,0.16)', startFg: canGo ? '#FFFFFF' : '#6E6E73',
 
       goNumberline: () => this.go('numberline'), goGeo: () => this.go('geo'),
       toggleMore: () => this.setState({ more: !this.state.more, tasksOpen: false }),
@@ -3916,7 +3963,10 @@ class Component extends DCLogic {
       demoWs: () => this.setState({ demo: 'worksheet' }), demoOl: () => this.setState({ demo: 'olympiad' }),
       capture: this.capture, start: this.start,
       selectAll: () => this.setState({ selected: this.state.selected.length === tasks.length ? [] : tasks.map((r) => r.id), askUndo: null }),
-      allLabel: sel.length === tasks.length ? 'Select none' : 'Select all',
+      allLabel: tasks.length && sel.length === tasks.length ? 'Select none' : 'Select all',
+      allDisabled: tasks.length === 0, allFg: tasks.length ? '#0071E3' : '#AEAEB2',
+      // What the page says, as cards above the bar.
+      pickBands: bands,
       tasksOpen: s.tasksOpen, tasksBtnBg: s.tasksOpen ? 'rgba(0,113,227,0.12)' : 'rgba(118,118,128,0.10)',
       navLabel: (sel.indexOf(t.id) + 1) + ' / ' + sel.length, doneLabel: doneN + ' of ' + sel.length + ' done',
       toggleTasks: () => this.setState({ tasksOpen: !this.state.tasksOpen, more: false }),

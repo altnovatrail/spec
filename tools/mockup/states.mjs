@@ -179,6 +179,14 @@ export const STATES = [
     run: (t) => (t.v().openChat(), t.c.setState({ draft: "Take only the left column, each example as its own task" })),
   },
   { name: "pick-asked", title: "The frames found anew by the request, and Undo", from: "pick-ask", shows: "Found 3 tasks", run: (t) => t.v().send() },
+  // The AI found no task on the page: the answer of the finding set empty, as Play has no page without tasks.
+  { name: "pick-none", title: "No task found on the page: a card above the bar", from: "pick", shows: "No tasks found.", run: (t) => t.c.setState({ asked: { ...t.c.state.asked, [t.c.state.captured]: [] }, selected: [] }) },
+  // What else the page says, each a card above the bar (RUN.md, T254): Play has no tap of corners, no failure of the
+  // finding and no closed AI, so each state sets what the page says itself.
+  { name: "pick-corner", title: "A corner tapped: the card asks for the opposite one", from: "pick-none", shows: "Now tap the opposite corner of the task.", run: (t) => t.c.setState({ pageSays: "corner" }) },
+  { name: "pick-failed", title: "The finding failed: the card in red, and Find the tasks again", from: "pick-none", shows: "Find the tasks again", run: (t) => t.c.setState({ pageSays: "failed" }) },
+  { name: "pick-outcome", title: "The AI could not find the tasks: the card in red, and the way on", from: "pick-none", shows: "The tutor can’t answer right now.", run: (t) => t.c.setState({ pageSays: "outcome" }) },
+  { name: "pick-closed", title: "AI closed to the learner: Start shut, the card in orange", from: "pick", shows: "Without the AI a task from paper can’t be checked.", run: (t) => t.c.setState({ pageSays: "closed" }) },
   {
     name: "solve",
     title: "A task from the page, on a clean sheet",
