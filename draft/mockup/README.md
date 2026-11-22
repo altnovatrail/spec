@@ -73,15 +73,16 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `owner-filled` | The owner's profile, filled in | First slice |
 | `wait-home` | Waiting on the page, while a learner's screen is read — home, a lesson, a task —: the page's grey, and the spark pulsing in the middle | First slice |
 | `who` | "Who's learning?" on the sky: the name alone at the top and "Sign out" a pill of glass at the right; the owner's profile alone, a dark card with "Start", and "Add a learner" a glass card, disabled | First slice |
-| `home` | Home: at the left the side menu — Home, Subjects, the cognitive map shut with "Soon", and at the bottom Grown-ups and Help —, at the top right the tutor, the notifications and the profile's menu; the next lesson with the share of the tutor's time, "Take from my paper", and the connected modules with the states of their skills | First slice (RUN.md, T250) |
-| `home-help` | Home, the adult's Help, from the bottom of the side menu | First slice |
+| `home` | Home, as app draws it: the places in a row at the top — Home, Subjects, the cognitive map shut with "Soon", and after a rule Grown-ups and Help —, and at the right the pills of the tutor, the notifications and the profile's menu; one card of "Next up", the lesson with the share of the tutor's time, beside "Tasks from my paper"; then a card for each connected module — its kind, how much is mastered, the skill map and Continue, a square for each skill, and under an adaptive one "The tutor chooses" —, and the legend | First slice (RUN.md, T250, T253) |
+| `home-loading` | Home while the subjects are read: the frame, "Next up" and "Tasks from my paper" stand, and the lesson, the quota and two modules' cards are grey shapes with a light sweeping across them (R168) | First slice (RUN.md, T253) |
+| `home-help` | Home, the adult's Help, the last of the row of places | First slice |
 | `home-switch` | Home, the profile's menu at the top right: whose profile, "Switch learner" and "Sign out" | First slice |
-| `home-grownups` | Home, For grown-ups from the side menu: the hint mode — "Questions only" or "Show where" — and "This device"; "Sign out" is the profile's menu's alone | First slice (RUN.md, T250) |
+| `home-grownups` | Home, For grown-ups from the row of places: the hint mode — "Questions only" or "Show where" —, "This device" and "All settings"; "Sign out" is the profile's menu's alone | First slice (RUN.md, T250) |
 | `home-bell` | Home, the notifications: "Nothing new yet" — nothing sends one | First slice (RUN.md, T250) |
 | `home-tutor` | Home, the tutor's panel from the top right: that the tutor is an AI and where it helps, "Continue" and "Take from my paper" — Home holds no work, so it speaks of none | First slice (RUN.md, T250) |
 | `home-legend` | Home, what the marks mean: on the phone a sheet, on the iPad the legend that stands under the modules | First slice |
-| `home-pages` | Home, "Your pages" by "Open camera": the profile's pages from paper on this device, newest first, each with its date and its number of tasks | First slice (RUN.md, T231) |
-| `subjects` | Subjects, from the side menu: the connected modules, each with its skill map, and the check board "Tasks on a sheet" to connect | First slice (RUN.md, T250) |
+| `home-pages` | Home, "Your pages" by "Open camera": the profile's pages from paper on this device, newest first, each with its photo's thumbnail, its date and time and its number of tasks, and under them where they are kept | First slice (RUN.md, T231) |
+| `subjects` | Subjects, from the row of places: the connected modules, each with its skill map, and the check board "Tasks on a sheet" to connect | First slice (RUN.md, T250) |
 | `solve-kept` | A page opened from "Your pages": its picked tasks with the work kept, and no verdict, which the device does not keep | First slice (RUN.md, T231) |
 | `legal-access` | The page Accessibility, from Help | First slice |
 | `map` | The skill map of olympiad maths, from Subjects: "Subjects" back, the module at the title, the legend, and the map in its frame | First slice |
@@ -120,8 +121,11 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `pick-frame` | A task the AI missed, framed by hand: a loop drawn round it became a frame, with its cross and its corner | First slice |
 | `pick-ask` | The tutor's panel on the page to pick from: its line on what it takes, the field with a request about the frames typed, the reminder to write no names, the microphone there and off | First slice (RUN.md, T236) |
 | `pick-asked` | The request sent: the left column's three equations found anew and picked, the learner's request and the program's line "Found 3 tasks" in the conversation, and Undo | First slice (RUN.md, T236) |
-| `solve` | A picked task on a clean sheet, its crop as tracing paper | First slice |
+| `solve` | A picked task on a clean sheet that runs under the top bar, its crop as tracing paper, and above the crop its sign, "Photo of the task" | First slice (RUN.md, T251, T253) |
 | `solve-hand` | Hand chosen in the tool bar, and the sheet moved by it right of the page: the dots go on past the screen | First slice |
+| `solve-scale` | The tracing paper chosen by its grip: a frame and four corners, which scale it from the corner across, and under it the bar of scale — Smaller, the percentage, here 90%, which sets it back to 100%, Larger, Fit, and Recognise; a press on the sheet lets it go | First slice (RUN.md, T251, T253) |
+| `solve-recognising` | Recognise pressed: a light runs over the crop, the sign and the button say "Recognising…", and the button takes no press | First slice (RUN.md, T251, T253) |
+| `solve-text` | The statement read: its text in place of the photo, the sign "Recognised by AI", and the button Original, which gives the photo back | First slice (RUN.md, T251, T253) |
 | `solve-lines` | The grid's button, last in the tool bar, tapped once: the dots give way to lines, and its icon to lines; next blank, then squares, then dots again | First slice |
 | `solve-tasks` | The list of the picked tasks, the framed one among them | First slice |
 | `solve-empty` | Check without work: "Write your solution first" | First slice |
@@ -154,35 +158,35 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 
 | Line and part | What it draws |
 |---|---|
-| `Main.dc.html:157` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
-| `Main.dc.html:221` — Camera | The camera's viewfinder |
-| `Main.dc.html:263` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the loop being drawn |
-| `Main.dc.html:301` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
-| `Main.dc.html:326` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
-| `Main.dc.html:361` — Author canvases | The sandbox's chip |
-| `Main.dc.html:369` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
-| `Main.dc.html:412` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
-| `Main.dc.html:489` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
-| `Main.dc.html:519` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
-| `Main.dc.html:555` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
-| `Main.dc.html:806` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:970` — Pick | What left the device, Select all, Start |
-| `Main.dc.html:987` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1064` — Debug | Only for an account with the right of the debug mode (R163): the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
-| `Main.dc.html:1245` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1371` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1435` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:1532` — Home, Subjects and the skill map | The side menu, or the phone's tab bar; the top right — the tutor, the notifications, the profile's menu; Home's next lesson, quota, "Take from my paper", modules and legend; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
-| `Main.dc.html:1972` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:1990` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:386` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
+| `Main.dc.html:450` — Camera | The camera's viewfinder |
+| `Main.dc.html:492` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the loop being drawn |
+| `Main.dc.html:530` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
+| `Main.dc.html:555` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
+| `Main.dc.html:611` — Author canvases | The sandbox's chip |
+| `Main.dc.html:619` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
+| `Main.dc.html:662` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›, Retake, the solving mode |
+| `Main.dc.html:739` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
+| `Main.dc.html:769` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
+| `Main.dc.html:805` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
+| `Main.dc.html:1056` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:1220` — Pick | What left the device, Select all, Start |
+| `Main.dc.html:1237` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1314` — Debug | Only for an account with the right of the debug mode (R163): the debug button beside the tutor's and its window, Models and Log (RUN.md, T233) |
+| `Main.dc.html:1495` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1621` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1685` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:1782` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
+| `Main.dc.html:2201` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2219` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
 The mockup is drawn in absolute CSS px for its two sizes, and the sign-in for a computer too; `app` and `canvas` lay their screens out by the rules below, from the width of the viewport, not from the kind of device (R148; R90, WCAG 1.4.10).
 
-- **The phone's layout — a width below 600 CSS px.** It is the reference of 390 × 844: one column that scrolls; the side menu a tab bar at the bottom — Home, Subjects, Cognitive map, Grown-ups, Help —, and the mark at the top left; the tool bar of `canvas` the same vertical glass bar at the left edge; the tutor a sheet from the bottom, at half the height with the task in view above it, its grabber taking it to the whole screen; a pop-over a sheet from the bottom with a close button, which a tap outside closes; «…» of other authors' kinds, under "Later", a button of the right bar; a legal text over the whole screen; the skill map's tiers from top to bottom; the statement of a task folded to one line.
-- **The tablet's layout — 600 CSS px and wider.** It is the reference of 1194 × 834: on Home, Subjects and the skill map the side menu at the left, 88 px wide, and the tutor, the notifications and the profile's menu at the top right; on a canvas the top bar a glass pill at the top left, the tool bar at the left edge, the tutor's panel 344 px wide at the right, from under the top bar to 16 px from the bottom, and the sheet slides left while it is open, so that the task stays in view; pop-overs hang from the button that opens them.
-- **An iPad in portrait, 834 × 1194,** is the tablet's layout. Home keeps its places in a column 834 wide: the cards of the modules two in a row instead of three, and "Take from my paper" under the next lesson. Below 900 wide the sign-in leaves its trail out and its card stands in the middle: the trail and the card of 440 do not fit side by side. On a canvas the tutor's panel keeps its 344 px and the sheet slides under it.
+- **The phone's layout — a width below 600 CSS px.** It is the reference of 390 × 844: one column that scrolls; the row of places a tab bar at the bottom — Home, Subjects, Cognitive map, Grown-ups, Help —, each its icon over its caption, and the mark at the top left; the tool bar of `canvas` the same vertical glass bar at the left edge; the tutor a sheet from the bottom, at half the height with the task in view above it, its grabber taking it to the whole screen; a pop-over a sheet from the bottom with a close button, which a tap outside closes; «…» of other authors' kinds, under "Later", a button of the right bar; a legal text over the whole screen; the skill map's tiers from top to bottom; the statement of a task folded to one line.
+- **The tablet's layout — 600 CSS px and wider.** It is the reference of 1194 × 834: on Home, Subjects and the skill map the row of places at the top left, beside the mark — from 72em each place its icon and caption, below 72em its icon alone but the current one, the same words as its tooltip (R90) —, and the tutor, the notifications and the profile's menu at the top right; on a canvas the top bar a glass pill at the top left, the tool bar at the left edge, the tutor's panel 400 px wide at the right, from under the top bar to 16 px from the bottom, and the sheet slides left while it is open, so that the task stays in view; pop-overs hang from the button that opens them.
+- **An iPad in portrait, 834 × 1194,** is the tablet's layout. Home keeps its places in a column 834 wide: the cards of the modules two in a row instead of three, and "Take from my paper" under the next lesson. Below 900 wide the sign-in leaves its trail out and its card stands in the middle: the trail and the card of 440 do not fit side by side. On a canvas the tutor's panel keeps its 400 px and the sheet slides under it.
 - **A computer** is the tablet's layout. Home keeps the width of the reference, 1194 px at most, centred on the page's colour; the sign-in's sky fills the window, its trail and card keep the iPad's places in a middle of 1194 × 834, centred both ways, and its logo and language stand 24 below the window's top, at that middle's edges — the board `Desktop.dc.html`, 1920 × 1080; a canvas fills the window — the sheet is wider than any screen, and moves under the hand or the wheel —, with the bars at the same edges.
 - **A phone in landscape** is the tablet's layout by its width; its height of 390 holds the tool bar, which scrolls inside its glass when it does not fit.
 - **320 CSS px,** and a zoom of 400 % of 1280: the phone's layout reflows with no horizontal scroll of the page; only the sheet scrolls both ways, as WCAG 1.4.10 allows a two-dimensional layout. The vertical bar of seven tools fits it (R90).
@@ -265,8 +269,8 @@ The pairs of the mockup's colours by WCAG 2.2: 1.4.3 for text, 4.5:1, or 3:1 for
 | `#E8590C` on `#FFFFFF`, on `#FCFCFD` | the wavy mark | 3.58, 3.50 | 1.4.11 | — |
 | `#0071E3` on `#FFFFFF`, on `#F2F2F7` | the focus ring, 2 px | 4.70, 4.21 | 1.4.11 | — |
 | `#34C759`, `#FF9F0A`, `#B9D7FF`, `#E5E5EA` on `#FFFFFF` | the segments of a module's bar and the legend's swatches | 2.22, 2.06, 1.48, 1.26 | no | `#30A14E`, `#C77700`, `#3D8BE0` for ready, `#8E8E93` for locked — 3.32, 3.46, 3.52, 3.26 — with a white gap of 2 px between segments; in progress `#0A84FF`, 3.65, stays — the mockup's bar and legend draw them. The words of the states stand beside the bar and in its accessible name |
-| `#AEAEB2` on `#FFFFFF`; `#636366` on a grey fill of 0.12 | the cognitive map in the side menu, shut; its "Soon" | 2.21; 5.21 | exempt: an inactive control; 1.4.3 | — |
-| `#FFFFFF` on `#0071E3`; `#0066CC` on the tab bar, white at 0.96 over `#F2F2F7` | the side menu's place now; the tab bar's | 4.70; 5.52 | 1.4.3 | — |
+| `#AEAEB2` on `#EAF1FB`; `#636366` on a grey fill of 0.12 over it | the cognitive map in the row of places, shut; its "Soon" | 1.95; 4.60 | exempt: an inactive control; 1.4.3 | — |
+| `#FFFFFF` on `#1D1D1F`; `#0066CC` on the tab bar, white at 0.96 over `#F2F2F7` | the place now in the row of places; the tab bar's | 16.83; 5.52 | 1.4.3 | — |
 | `#C7C7CC` on `#FFFFFF` | the ring of an unticked checkbox | 1.68 | no | `#8E8E93`, 3.26 |
 | A grey fill of 0.10–0.12 on `#FFFFFF` | the edge of a text field | 1.13–1.15 | no | a border of 1 px `#8E8E93` |
 | The borders of the skill map's nodes on their fills | `#FFD8A8` on `#FFF4E5` and the like | 1.24–1.29 | the node is told by its word and icon | `skill-map`'s own, by its rule |
@@ -313,7 +317,7 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | The tutor's button at the top right of Home, Subjects and the skill map, and its panel there: that the tutor is an AI and where it helps, with "Continue" and "Take from my paper" | The tutor's panel stands on a task of a module and on the paper flow (R148; R67, R75 app) | `app`, by the author's word of 2026-11-21 (RUN.md, T250) |
 | The notifications: a bell without a caption, and "Nothing new yet" | Nothing sends a notification, and the bell is outside the closed list of R90 | Open: R90's list takes it, or `app` captions it — the author's word (RUN.md, T250) |
 | On the phone the profile's menu is its avatar alone | Outside the closed list of R90: elsewhere the name stands beside it | Open, with the bell (RUN.md, T250) |
-| The cognitive map in the side menu, shut, with "Soon" | The documents have no cognitive map | Nobody until it comes: `app` shows the place shut (RUN.md, T250) |
+| The cognitive map in the row of places, shut, with "Soon" | The documents have no cognitive map | Nobody until it comes: `app` shows the place shut (RUN.md, T250) |
 | Subjects: the catalog's descriptions and tags, and "Connect" on the check board | The catalog and what connects are `ModuleService`'s (R99); a module's words come from its manifest | `app` draws them from the contract; the mockup's are a sample |
 | Under "Later": Pip with a text field and a microphone, simulated | The conversation line of the first slice is buttons, but for the field of a request about the frames on the page to pick from (R165); voice input for children waits for П-5 (product 10; R82; О-6) | Epic E4 of `app` |
 | Pip's greeting "Hi, I'm Pip…", in the first person | Strings do not speak in the first person of AI (R91) | Epic E4 of `app` rewords it |
@@ -330,6 +334,6 @@ The mockup is the look; the documents keep the behaviour (R148). What the mockup
 | Under "Later": the canvas kinds of other authors, under «…» in the top bar of a task from paper | Other authors' widgets come at stage 4, in a sandbox (R16; product 10) | Epic E5 |
 | The demo's request is understood by its words — "left", "right", "each" —, and gives the tasks of the demo page | The finding gets the request as data, with the photo and the frames, and its answer is frames alone (R165) | Nobody: a convention of the demo |
 | The field of a request about the page: Send and the microphone are icons alone | Neither is on the closed list of icons alone (R90): `app` shows each with its caption, "Send" and "Voice comes later" (R74 app) | Nobody: `app` follows R90 |
-| The tutor's panel on the screen of solving: "AI tutor · " with the task's name under its title, an opening line without the word "AI", "Explain differently" drawn and off, and a red dot on the tutor's button after a Check with the panel closed | The share of the quota under the title, as on a task of a module; first the line that the tutor is an AI; "Explain differently" only while the rung has the right to it, as on a task of a module (R82); no dot, as on a task of a module (R148) | `app` (R75, R76 app) |
+| The tutor's panel on the screen of solving: "AI tutor · " with the task's name under its title, an opening line without the word "AI", "Explain differently" drawn and off, and a red dot on the tutor's button after a Check with the panel closed | The share of the quota under the title, as on a task of a module; "Explain differently" only while the rung has the right to it, as on a task of a module (R82); no dot, as on a task of a module (R148) | `app` (R75, R76 app) |
 | The demo's switch "First slice" / "Later", and the DEMO "Tutor time used up" | Not part of the app | Nobody: the mockup's own |
 | The debug button and its window: the models chosen past the admission list, what each returned, the cost in dollars, and a Check exported as a case of `tutor-eval`; the button has no caption, outside R90's list | Only for an account with the right of the debug mode, on a local run and on the deployment (R163; RUN.md, T233, T249) | `spec`, `tutor`, `api`, `app` in RUN.md, T233 |

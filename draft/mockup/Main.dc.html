@@ -150,6 +150,235 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone .ph-dbgbtn.ph-dbg-up{bottom:240px!important}
 .nt-phone .ph-dbg{left:0!important;right:0!important;bottom:0!important;top:414px!important;width:auto!important;border-radius:28px 28px 0 0!important;transform-origin:50% 100%!important;background:rgba(255,255,255,0.97)!important;box-shadow:0 -10px 40px rgba(0,0,0,0.14)!important}
 .nt-phone .ph-dbg.ph-full{top:70px!important}
+/* Home, Subjects and the skill map are app's own shell and Home, taken from its code (RUN.md, T253): each rule below is a rule of app's theme under .ph-home,
+   by :where() as specific as in app, its variables as values; .nt-pad is app's 600 px and wider, .nt-phone below 600. A change of the look changes them, then app's theme. */
+:where(.ph-home) .nt-shell{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+:where(.ph-home .nt-shell-bar, .ph-home .ph-homemain) button{box-sizing:border-box;min-block-size:2.75rem;min-inline-size:2.75rem;padding:.5rem 1rem;border:.0625rem solid transparent;border-radius:1.375rem;background:#0071e3;color:#fff;font-weight:600}
+:where(.ph-home .nt-shell-bar, .ph-home .ph-homemain) button[aria-disabled="true"]{border-color:transparent;background:rgba(118,118,128,.16);color:#8e8e93;cursor:default}
+:where(.ph-home .ph-homemain) button.nt-link{min-inline-size:0;padding:0 .5rem;border-color:transparent;background:transparent;color:#0066cc}
+:where(.ph-home) main{box-sizing:border-box;margin-inline:auto;padding:1rem}
+:where(.nt-pad .ph-home) main{max-inline-size:40rem}
+:where(.ph-home .ph-homemain) :is(h1,h2,h3){font-weight:700}
+:where(.ph-home .ph-homemain) h1{margin-block:0 1rem;font-size:1.75rem;line-height:1.25}
+:where(.nt-pad .ph-home .ph-homemain) h1{font-size:2rem}
+:where(.ph-home .ph-homemain) h2{margin-block:1.5rem 1rem;font-size:1.375rem;line-height:1.25}
+:where(.ph-home .ph-homemain) p{margin-block:0 1rem}
+:where(.nt-pad .ph-home) main.nt-reference { max-inline-size: 74.625rem; padding-inline: 2.5rem; }
+:where(.ph-home) .nt-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; min-inline-size: 0px; margin: 0px 0px 1rem; padding: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; }
+:where(.ph-home) .nt-buttons > legend { margin-block-end: 0.5rem; padding: 0px; }
+:where(.ph-home) main.nt-reference { container-type: inline-size; }
+:where(.ph-home) button.nt-icon-only { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; inline-size: 2.75rem; block-size: 2.75rem; padding: 0px; border-color: transparent; background: transparent; color: #6e6e73; font-size: 1.25rem; }
+:where(.ph-home) .nt-hidden-label { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:where(.ph-home) .nt-avatar { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; box-sizing: border-box; border-radius: 50%; background: linear-gradient(135deg, var(--nt-avatar-from) 0%, var(--nt-avatar-to) 100%); box-shadow: rgba(0, 0, 0, 0.14) 0px 10px 28px; color: #ffffff; }
+:where(.ph-home) .nt-learner-name { font-size: 1.125rem; font-weight: 600; line-height: 1.2; }
+:where(.ph-home) .nt-home-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 31.25rem), 1fr)); margin-block-end: 2rem; border: 0.0625rem solid transparent; border-radius: 1.75rem; background: rgba(255, 255, 255, 0.85); box-shadow: rgba(20, 40, 80, 0.06) 0px 10px 40px; overflow: hidden; }
+:where(.ph-home) .nt-next-up, :where(.ph-home) .nt-paper { position: relative; box-sizing: border-box; display: flex; flex-direction: column; gap: 0.875rem; padding: 2rem; overflow: hidden; }
+:where(.ph-home) .nt-next-up { border-inline-end: 0.0625rem solid rgb(237, 237, 240); }
+:where(.ph-home) .nt-next-up > :not(.nt-deco), :where(.ph-home) .nt-paper > :not(.nt-deco) { position: relative; }
+:where(.ph-home) .nt-next-up > h2, :where(.ph-home) .nt-paper-eyebrow { display: flex; align-items: center; gap: 0.5rem; margin: 0px; font-size: 0.875rem; font-weight: 600; }
+:where(.ph-home) .nt-next-up > h2 { color: #a85a00; }
+:where(.ph-home) .nt-next-up > h2::before { content: ""; flex: 0 0 auto; inline-size: 0.5rem; block-size: 0.5rem; border-radius: 0.25rem; background: rgb(255, 149, 0); }
+:where(.ph-home) .nt-next-up h3 { max-inline-size: 60%; margin: 0px; font-size: 1.875rem; letter-spacing: -0.025em; line-height: 1.1; }
+:where(.ph-home) .nt-next-up .nt-buttons { margin: 0.375rem 0px 0px; }
+:where(.ph-home) .nt-next-line { max-inline-size: 60%; margin: 0px; color: #6e6e73; font-size: 0.9375rem; line-height: 1.45; }
+:where(.ph-home) .nt-next-statement { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+:where(.ph-home) .nt-next-foot { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-block-start: auto; padding-block-start: 1.5rem; }
+:where(.ph-home) .nt-next-step { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 0.5rem; margin-inline-start: auto; text-align: end; }
+:where(.ph-home) .nt-next-step .nt-buttons { margin: 0px; }
+:where(.ph-home) .nt-quota { display: flex; flex: 1 1 auto; min-inline-size: 0px; flex-direction: column; gap: 0.75rem; margin: 0px; color: #6e6e73; font-size: 0.8125rem; }
+:where(.ph-home) .nt-quota-bar { display: flex; block-size: 0.375rem; border-radius: 0.1875rem; background: rgb(232, 232, 237); overflow: hidden; }
+:where(.ph-home) .nt-quota-bar > span { border-radius: 0.1875rem; background: #0071e3; }
+:where(.ph-home) .nt-paper-eyebrow { color: #0066cc; }
+:where(.ph-home) .nt-paper > h2 { max-inline-size: 62%; margin: 0px; font-size: 1.875rem; letter-spacing: -0.025em; line-height: 1.1; }
+:where(.ph-home) main .nt-paper > p.nt-paper-sub { max-inline-size: 62%; margin: 0px; color: #6e6e73; font-size: 0.9375rem; line-height: 1.45; }
+:where(.ph-home) .nt-paper-acts { display: flex; flex-wrap: wrap; gap: 0.625rem; max-inline-size: 62%; margin-block-start: auto; padding-block-start: 1.5rem; }
+:where(.ph-home) .nt-paper-acts > button { display: inline-flex; align-items: center; gap: 0.5rem; padding-inline: 1rem 1.25rem; font-size: 0.9375rem; }
+:where(.ph-home) .nt-paper-acts > button.nt-paper-pages { border-color: transparent; background: rgb(229, 240, 255); color: #0066cc; }
+:where(.ph-home) .nt-deco { position: absolute; inset: 0px; overflow: hidden; pointer-events: none; }
+:where(.ph-home) .nt-grid-sheet, :where(.ph-home) .nt-paper-sheet { position: absolute; box-sizing: border-box; border-radius: 0.25rem; box-shadow: rgba(20, 40, 80, 0.1) 0px 8px 30px; }
+:where(.ph-home) .nt-grid-sheet { inset-block-start: 1.75rem; inset-inline-end: -1.5rem; inline-size: 15.625rem; block-size: 12.5rem; padding: 2.25rem 1.25rem 0px; background-color: rgb(255, 255, 255); background-image: linear-gradient(rgb(230, 234, 240) 1px, transparent 1px), linear-gradient(90deg, rgb(230, 234, 240) 1px, transparent 1px); background-size: 18px 18px; transform: rotate(-5deg); }
+:where(.ph-home) .nt-next-up .nt-grid-sheet > svg { inline-size: 12.5rem; block-size: auto; }
+:where(.ph-home) .nt-paper-sheet { inset-block-start: 1.875rem; inset-inline-end: -1.875rem; display: flex; flex-direction: column; gap: 0.625rem; inline-size: 13.75rem; block-size: 16.25rem; padding: 1.625rem 1.375rem; background: rgb(251, 250, 247); transform: rotate(6deg); }
+:where(.ph-home) .nt-paper-sheet i { display: block; block-size: 0.25rem; border-radius: 0.125rem; background: rgb(229, 229, 234); }
+:where(.ph-home) .nt-paper-sheet > i:first-child { inline-size: 45%; block-size: 0.4375rem; background: rgb(199, 204, 214); }
+:where(.ph-home) .nt-paper-sheet > i:nth-child(3) { inline-size: 80%; }
+:where(.ph-home) .nt-paper-sheet > i:nth-last-child(2) { inline-size: 60%; }
+:where(.ph-home) .nt-paper-sheet > i:last-child { inline-size: 85%; }
+:where(.ph-home) .nt-sheet-task { display: flex; flex-direction: column; gap: 0.375rem; margin: 0.125rem -0.375rem; padding: 0.5rem; border: 2px solid #0071e3; border-radius: 0.375rem; background: rgba(0, 113, 227, 0.07); }
+:where(.ph-home) .nt-paper-sheet .nt-sheet-task > i { background: rgb(179, 212, 247); }
+:where(.ph-home) .nt-paper-sheet .nt-sheet-task > i:last-child { inline-size: 70%; }
+:where(.ph-home) .nt-module-tile { display: flex; align-items: center; justify-content: center; inline-size: 2.875rem; block-size: 2.875rem; margin-block-end: 0.875rem; border-radius: 0.8125rem; background: linear-gradient(135deg, rgb(255, 179, 64) 0%, rgb(255, 159, 10) 100%); }
+:where(.ph-home) .nt-module-tile[data-tone="1"] { background: linear-gradient(135deg, rgb(100, 210, 255) 0%, rgb(10, 132, 255) 100%); }
+:where(.ph-home) .nt-module-tile[data-tone="2"] { background: linear-gradient(135deg, rgb(218, 143, 255) 0%, rgb(175, 82, 222) 100%); }
+:where(.ph-home) .nt-module-tile::before { content: attr(data-glyph); color: rgb(255, 255, 255); font-size: 1.25rem; font-weight: 700; }
+:where(.ph-home) .nt-legend-swatch { flex: 0 0 auto; inline-size: 0.625rem; block-size: 0.625rem; border-radius: 0.1875rem; }
+:where(.ph-home) .nt-legend-swatch { background: #8e8e93; }
+:where(.ph-home) [data-state="mastered"] > .nt-legend-swatch { background: #30a14e; }
+:where(.ph-home) [data-state="time-to-review"] > .nt-legend-swatch { background: #c77700; }
+:where(.ph-home) [data-state="in-progress"] > .nt-legend-swatch { background: #0a84ff; }
+:where(.ph-home) [data-state="ready-to-start"] > .nt-legend-swatch { background: #3d8be0; }
+:where(.ph-home) .nt-legend-items { display: flex; flex-direction: column; gap: 0.875rem; margin: 0px; padding: 0px; font-size: 0.9375rem; list-style: none; }
+:where(.ph-home) .nt-legend-items > li { display: flex; align-items: center; gap: 0.3125rem; }
+:where(.ph-home) .nt-legend .nt-legend-items > li > svg { flex: 0 0 auto; }
+:where(.ph-home) .nt-legend-open { margin: -0.5rem 0px 0.5rem -0.625rem; }
+:where(.ph-home) .nt-legend-open > button { display: inline-flex; align-items: center; gap: 0.375rem; }
+:where(.nt-pad .ph-home) .nt-legend-open { display: none; }
+:where(.nt-pad .ph-home) .nt-legend { margin: 2rem 0px 1.5rem; color: #3a3a3c; font-size: 0.78125rem; }
+:where(.nt-pad .ph-home) .nt-legend .nt-legend-items { flex-flow: wrap; gap: 0.5rem 1rem; font-size: inherit; line-height: 1.12; }
+:where(.ph-home) .nt-shell { position: relative; min-block-size: 100%; background: linear-gradient(180deg, #eaf1fb 0%, #f5f5f7 32.5rem); }
+:where(.ph-home) .nt-shell-bar { box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; max-inline-size: 74rem; margin-inline: auto; padding: 2rem 2rem 0px; }
+:where(.ph-home) .nt-nav { box-sizing: border-box; z-index: 2; display: flex; }
+:where(.ph-home) .nt-nav-item { box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-inline-size: 0px; border: 0.0625rem solid transparent; background: transparent; color: #1d1d1f; font-weight: normal; text-decoration: none; }
+:where(.ph-home) .nt-nav-icon { display: inline-flex; }
+:where(.ph-home) .nt-soon { padding: 0.125rem 0.4375rem; border-radius: 1.375rem; background: rgba(118, 118, 128, 0.12); color: #636366; font-size: 0.6875rem; font-weight: 600; }
+:where(.ph-home) .nt-mark { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; background: #0071e3; color: #ffffff; }
+:where(.ph-home) .nt-shell-top { z-index: 1; display: flex; align-items: center; margin-inline-start: auto; }
+:where(.ph-home) .nt-nav, :where(.ph-home) .nt-top-pills { border-radius: 1.375rem; background: rgba(255, 255, 255, 0.75); box-shadow: rgba(0, 0, 0, 0.06) 0px 1px 3px; }
+:where(.ph-home) .nt-top-pills { display: flex; align-items: center; gap: 0.125rem; padding: 0.25rem; }
+:where(.ph-home) .nt-top-pills button.nt-icon-only.nt-top-round { border-color: transparent; border-radius: 1.375rem; background: transparent; box-shadow: none; color: #1d1d1f; font-size: 1.125rem; }
+:where(.ph-home) .nt-top-pills button.nt-icon-only.nt-top-round[aria-expanded="true"] { background: rgba(0, 113, 227, 0.1); color: #0066cc; }
+:where(.nt-pad .ph-home) .nt-nav { flex-wrap: wrap; align-items: center; gap: 0.125rem; padding: 0.25rem; }
+:where(.nt-pad .ph-home) .nt-nav-item { min-block-size: 2.75rem; padding: 0px 0.875rem 0px 0.75rem; border-radius: 1.375rem; font-size: 0.875rem; }
+:where(.nt-pad .ph-home) .nt-nav-item[aria-current="page"] { background: #1d1d1f; color: #ffffff; font-weight: 600; }
+:where(.nt-pad .ph-home) .nt-nav-item[aria-expanded="true"] { background: rgba(0, 113, 227, 0.1); color: #0066cc; }
+:where(.nt-pad .ph-home) .nt-nav-icon { font-size: 1rem; }
+:where(.nt-pad .ph-home) .nt-nav-rule { inline-size: 1px; block-size: 1.125rem; margin-inline: 0.25rem; background: rgba(0, 0, 0, 0.1); }
+:where(.nt-pad .ph-home) .nt-top-mark { display: none; }
+:where(.nt-pad .ph-home) .nt-shell > main { --nt-size-heading: 2rem; }
+:where(.ph-home) .nt-icon-text { display: inline-flex; align-items: center; gap: 0.375rem; }
+:where(.ph-home) .nt-subjects { display: flex; flex-direction: column; gap: 0.75rem; margin: 0px; padding: 0px; list-style: none; }
+:where(.ph-home) .nt-subject > article { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; border: 0.0625rem solid transparent; border-radius: 1.5rem; background: #ffffff; }
+:where(.ph-home) .nt-subject-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 0.875rem; }
+:where(.ph-home) .nt-subject-head > .nt-module-tile { inline-size: 3rem; block-size: 3rem; margin: 0px; border-radius: 0.8125rem; }
+:where(.ph-home) .nt-subject-words { display: flex; flex: 1 1 12rem; flex-direction: column; gap: 0.25rem; min-inline-size: 0px; }
+:where(.ph-home) .nt-subject-name { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.625rem; }
+:where(.ph-home) .nt-subject .nt-subject-name > h3 { margin: 0px; font-size: 1.1875rem; font-weight: 600; letter-spacing: -0.01em; }
+:where(.ph-home) .nt-subject-kind, :where(.ph-home) .nt-subject-review { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.1875rem 0.5625rem; border-radius: 1.375rem; font-size: 0.75rem; font-weight: 600; }
+:where(.ph-home) .nt-subject-kind[data-kind="adaptive"] { background: rgb(232, 243, 255); color: rgb(0, 88, 184); }
+:where(.ph-home) .nt-subject-kind[data-kind="sequential"] { background: #1d1d1f; color: #ffffff; }
+:where(.ph-home) .nt-subject-kind[data-kind="rubric"] { background: rgb(246, 236, 252); color: #7a2ea8; }
+:where(.ph-home) .nt-subject-review { padding: 0.3125rem 0.6875rem; background: rgb(255, 244, 229); color: #a85a00; }
+:where(.ph-home) .nt-subject-review::before { content: ""; inline-size: 0.5rem; block-size: 0.5rem; border-radius: 0.125rem; background: rgb(255, 149, 0); }
+:where(.ph-home) p.nt-subject-stat { margin: 0px; color: #6e6e73; font-size: 0.8125rem; }
+:where(.ph-home) .nt-subject-acts { display: flex; flex: 0 0 auto; align-items: center; gap: 0.625rem; }
+:where(.ph-home) .nt-subject-acts button.nt-icon-only.nt-subject-map { inline-size: 2.75rem; padding: 0px; border-color: transparent; border-radius: 50%; background: rgb(242, 242, 247); color: #1d1d1f; }
+:where(.ph-home) .nt-subject-acts > button.nt-subject-go { gap: 0.5rem; padding-inline: 0.75rem 1.125rem; border-color: transparent; border-radius: 1.375rem; background: #0071e3; color: #ffffff; font-size: 0.9375rem; font-weight: 500; }
+:where(.ph-home) .nt-go-sign { display: inline-flex; align-items: center; justify-content: center; inline-size: 1.375rem; block-size: 1.375rem; border-radius: 50%; background: rgba(255, 255, 255, 0.22); font-size: 0.875rem; }
+:where(.ph-home) .nt-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 0.625rem 0.875rem; padding: 0.75rem 0.875rem; border-radius: 1rem; background: rgb(245, 245, 247); }
+:where(.ph-home) .nt-engine-foot { background: rgb(245, 249, 255); }
+:where(.ph-home) .nt-engine-sign { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%; background: #ffffff; box-shadow: rgba(0, 0, 0, 0.06) 0px 1px 3px; color: #0071e3; }
+:where(.ph-home) .nt-foot-words { display: flex; flex: 1 1 10rem; flex-direction: column; gap: 0.125rem; min-inline-size: 0px; }
+:where(.ph-home) .nt-foot-eyebrow { color: #6e6e73; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+:where(.ph-home) .nt-engine-foot .nt-foot-eyebrow { color: rgb(0, 88, 184); }
+:where(.ph-home) .nt-foot-main { font-size: 0.9375rem; font-weight: 600; overflow-wrap: anywhere; }
+:where(.ph-home) .nt-engine-any { display: inline-flex; align-items: center; gap: 0.375rem; color: #6e6e73; font-size: 0.75rem; }
+:where(.ph-home) .nt-dots { display: flex; flex-wrap: wrap; gap: 2px; }
+:where(.ph-home) .nt-subject .nt-dots i { box-sizing: border-box; inline-size: 8px; block-size: 8px; border-radius: 2px; background: rgb(229, 229, 234); }
+:where(.ph-home) .nt-dots i[data-state="mastered"] { background: #30a14e; }
+:where(.ph-home) .nt-dots i[data-state="time-to-review"] { background: rgb(255, 149, 0); }
+:where(.ph-home) .nt-dots i[data-state="in-progress"] { background: #0071e3; }
+:where(.ph-home) .nt-dots i[data-state="ready-to-start"] { border: 1.5px dashed #0071e3; background: transparent; }
+:where(.ph-home) .nt-dots i[data-state="feedback-by-criteria"] { background: rgb(217, 179, 240); }
+:where(.ph-home) .nt-dots i[data-state="not-assessed"] { border: 1px solid rgb(199, 199, 204); background: transparent; }
+:where(.ph-home) .nt-learner-name { min-inline-size: 0px; overflow-wrap: anywhere; }
+:where(.ph-home) button.nt-learner-pill { display: inline-flex; align-items: center; gap: 0.625rem; min-inline-size: 0px; max-inline-size: 100%; block-size: 3rem; padding: 0px 0.875rem 0px 0.375rem; border-radius: 1.5rem; color: #1d1d1f; font-size: 1rem; font-weight: 400; text-align: start; }
+:where(.ph-home) .nt-learner-pill > .nt-learner-name { font-size: 0.9375rem; font-weight: 600; }
+:where(.ph-home) .nt-learner-chevron { display: inline-flex; flex: 0 0 auto; color: #6e6e73; font-size: 0.75rem; }
+:where(.ph-home) .nt-avatar-pill { inline-size: 2.25rem; block-size: 2.25rem; box-shadow: none; font-size: 1.125rem; }
+:where(.ph-home) .nt-sk { display: block; flex: 0 0 auto; max-inline-size: 100%; border-radius: 6px; background: linear-gradient(90deg, rgb(236, 236, 239) 0%, rgb(247, 247, 249) 45%, rgb(236, 236, 239) 90%) 0% 0% / 220% 100%; }
+:where(.ph-home) .nt-loading { display: flex; flex-direction: column; gap: 0.625rem; }
+:where(.ph-home) .nt-counting { gap: 1rem; }
+:where(.ph-home) .nt-next-loading { flex: 1 1 auto; max-inline-size: 55%; }
+:where(.ph-home) .nt-next-loading > .nt-next-foot > .nt-loading { flex: 1 1 auto; }
+:where(.ph-home) .nt-shell-top button.nt-learner-pill { block-size: 2.75rem; padding: 0px 0.625rem 0px 0.25rem; border-color: transparent; border-radius: 1.375rem; background: transparent; box-shadow: none; }
+:where(.ph-home) nav.nt-nav button.nt-nav-item[aria-disabled="true"] { background: transparent; color: rgb(174, 174, 178); }
+:where(.nt-pad .ph-home) .nt-shell section.nt-legend { margin: 0.375rem 0px 0px; padding-inline: 0.25rem; color: #6e6e73; font-size: 0.75rem; }
+:where(.nt-pad .ph-home) .nt-shell .nt-legend .nt-legend-items { gap: 1rem; }
+:where(.nt-pad .ph-home) .nt-shell .nt-legend .nt-legend-items > li:has(> .nt-legend-swatch) > svg { display: none; }
+:where(.nt-pad .ph-home) .nt-shell .nt-legend .nt-legend-swatch { inline-size: 0.5625rem; block-size: 0.5625rem; border-radius: 0.125rem; }
+:where(.nt-pad .ph-home) .nt-shell .nt-legend [data-state="time-to-review"] > .nt-legend-swatch { background: rgb(255, 149, 0); }
+:where(.nt-pad .ph-home) .nt-shell .nt-legend [data-state="in-progress"] > .nt-legend-swatch { background: #0071e3; }
+:where(.nt-pad .ph-home) .nt-shell .nt-legend [data-state="ready-to-start"] > .nt-legend-swatch { border: 1.5px dashed #0071e3; background: transparent; }
+:where(.nt-pad .ph-home) .nt-shell .nt-legend [data-state="locked"] > .nt-legend-swatch { background: rgb(229, 229, 234); }
+:where(.ph-home) .nt-shell > main { box-sizing: border-box; max-inline-size: 74rem; margin-inline: auto; padding: 2rem 2rem 4rem; }
+:where(.ph-home) .nt-shell > main > h1 { margin-block: 0px 1.25rem; line-height: 1.1; }
+:where(.nt-phone .ph-home) .nt-next-up, :where(.nt-phone .ph-home) .nt-paper { padding: 1.5rem; }
+:where(.nt-phone .ph-home) .nt-next-foot { flex-wrap: wrap; }
+:where(.nt-phone .ph-home) .nt-next-up { border-inline-end: 0px; border-block-end: 0.0625rem solid rgb(237, 237, 240); }
+:where(.nt-phone .ph-home) .nt-next-up h3, :where(.nt-phone .ph-home) .nt-paper > h2, :where(.nt-phone .ph-home) main .nt-paper > p.nt-paper-sub, :where(.nt-phone .ph-home) .nt-paper-acts { max-inline-size: none; }
+:where(.nt-phone .ph-home) .nt-deco { display: none; }
+:where(.nt-phone .ph-home) .nt-legend { display: none; }
+:where(.nt-phone .ph-home) .nt-nav { position: fixed; z-index: 4; inset-inline: 0px; inset-block-end: 0px; display: grid; grid-template-columns: repeat(5, minmax(0px, 1fr)); padding: 0.375rem 0.25rem max(1.375rem, env(safe-area-inset-bottom)); background: rgba(255, 255, 255, 0.96); box-shadow: rgba(0, 0, 0, 0.14) 0px -0.5px 0px; }
+:where(.nt-phone .ph-home) .nt-nav-rule { display: none; }
+:where(.nt-phone .ph-home) .nt-nav-item > .nt-soon { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:where(.nt-phone .ph-home) .nt-nav-item { flex-direction: column; gap: 0.25rem; min-block-size: 3.25rem; padding: 0.25rem 0px; border-radius: 0.875rem; color: #6e6e73; font-size: 0.6875rem; font-weight: 600; line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
+:where(.nt-phone .ph-home) .nt-nav-item[aria-current="page"], :where(.nt-phone .ph-home) .nt-nav-item[aria-expanded="true"] { color: #0066cc; }
+:where(.nt-phone .ph-home) .nt-nav-icon { font-size: 1.5rem; }
+:where(.nt-phone .ph-home) .nt-shell-bar { padding: 0.75rem 1rem 0px; }
+:where(.nt-phone .ph-home) .nt-shell-top { flex: 1 1 auto; gap: 0.5rem; }
+:where(.nt-phone .ph-home) .nt-top-mark { inline-size: 2.5rem; block-size: 2.5rem; margin-inline-end: auto; border-radius: 0.8125rem; font-size: 1.5rem; }
+:where(.nt-phone .ph-home) .nt-shell-top button.nt-learner-pill > .nt-learner-name, :where(.nt-phone .ph-home) .nt-shell-top button.nt-learner-pill > .nt-learner-chevron { display: none; }
+:where(.nt-phone .ph-home) .nt-shell-top button.nt-learner-pill { padding: 0px 0.25rem; }
+:where(.nt-phone .ph-home) .nt-shell > main { padding: 1.25rem 1rem 7.5rem; }
+/* The pop-overs of Home that app draws as its own (.ph-hpop): its dialog's 1 px border and type, its heading, menus, hint modes, the bell's "nothing new" and the legend's sheet. */
+:where(.ph-home) .ph-hpop{border:1px solid transparent;color:#1d1d1f;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+:where(.ph-home .ph-hpop) :is(h2,p){margin:0;font-weight:700}
+:where(.ph-home .ph-hpop) p{font-weight:inherit}
+:where(.ph-home) .nt-pop-heading{padding:.375rem .625rem 0;font-size:1.0625rem;line-height:normal}
+:where(.ph-home) .nt-pop-line{padding:0 .625rem .5rem;color:#6e6e73;font-size:.78125rem}
+:where(.ph-home) .nt-pop-title{margin:-.5rem 0 .875rem;font-size:1.0625rem;line-height:normal}
+:where(.ph-home) .nt-bell-none{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1.375rem .625rem 1.125rem;text-align:center}
+:where(.ph-home) .nt-bell-none>b{font-size:.9375rem}
+:where(.ph-home) .nt-bell-none>span:last-child{color:#6e6e73;font-size:.8125rem;line-height:1.4}
+:where(.ph-home) .nt-bell-sign{display:flex;align-items:center;justify-content:center;inline-size:3.25rem;block-size:3.25rem;border-radius:50%;background:rgba(118,118,128,.1);color:#6e6e73;font-size:1.5rem}
+:where(.ph-home) .nt-menu-caption{margin:0;line-height:normal;padding:.375rem .625rem .25rem;color:#6e6e73;font-size:.75rem;font-weight:600}
+:where(.ph-home) .nt-menu-current{display:flex;align-items:center;gap:.625rem;padding:.5rem .625rem;font-size:.9375rem;font-weight:500}
+:where(.ph-home) .nt-menu-who{display:flex;flex:1 1 auto;flex-direction:column;min-inline-size:0}
+:where(.ph-home) .nt-menu-who>.nt-learner-name{font-weight:600}
+:where(.ph-home) .nt-menu-whose{color:#6e6e73;font-size:.78125rem;font-weight:400}
+:where(.ph-home) .nt-menu-tick{display:inline-flex;flex:0 0 auto;color:#0071e3;font-size:1rem}
+:where(.ph-home) .nt-menu-icon{display:inline-flex;flex:0 0 auto;font-size:1.125rem}
+:where(.ph-home .ph-hpop) hr{margin:.25rem .625rem;border:0;border-block-start:.0625rem solid rgba(0,0,0,.08)}
+:where(.ph-home) button.nt-menu-row{box-sizing:border-box;display:flex;align-items:center;gap:.625rem;inline-size:100%;block-size:2.75rem;padding:0 .625rem;border:.0625rem solid transparent;border-radius:.75rem;background:transparent;color:#0066cc;font:inherit;font-size:.9375rem;font-weight:400;text-align:start}
+:where(.ph-home) .nt-hint-modes{display:flex;flex-direction:column;gap:.25rem;padding:.125rem .25rem .375rem}
+:where(.ph-home) .nt-hint-modes .nt-menu-caption{display:flex;align-items:center;gap:.375rem;margin-block-end:-.25rem;padding-inline:.375rem}
+:where(.ph-home) .nt-hint-mode{box-sizing:content-box;position:relative;display:flex;flex-direction:column;gap:.125rem;min-block-size:2.75rem;padding:.5rem .625rem;border:0;border-radius:.75rem;color:#1d1d1f;font:inherit;text-align:start;cursor:pointer}
+:where(.ph-home) .nt-hint-mode-title{font-size:.875rem;font-weight:600}
+:where(.ph-home) .nt-hint-mode-line{color:#6e6e73;font-size:.75rem;line-height:1.3}
+:where(.ph-home) .ph-hpop-legend{color:#3a3a3c;font-size:.9375rem}
+:where(.ph-home) .ph-hpop-legend .nt-legend-items{line-height:normal}
+:where(.ph-home) .ph-hpop-legend .nt-legend-items>li>svg{flex:none}
+:where(.ph-home) .nt-pages-head{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;padding:0 .75rem .375rem}
+:where(.ph-home) .nt-pages-head>h2{font-size:1.0625rem;letter-spacing:-.01em;line-height:normal}
+:where(.ph-home) .nt-pages-head>span{color:#6e6e73;font-size:.8125rem}
+:where(.ph-home) ol.nt-pages{display:flex;flex-direction:column;gap:.375rem;margin:0;padding:0;list-style:none}
+:where(.ph-home) button.nt-pages-row{box-sizing:border-box;display:flex;align-items:center;gap:.875rem;inline-size:100%;min-block-size:2.75rem;padding:.4375rem .6875rem;border:.0625rem solid transparent;border-radius:.875rem;background:transparent;color:#1d1d1f;font:inherit;font-weight:400;text-align:start}
+:where(.ph-home) .nt-pages-thumb{position:relative;display:flex;flex:none;inline-size:2.75rem;block-size:3.5rem;overflow:hidden;border-radius:.375rem;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.08)}
+:where(.ph-home) .nt-pages-words{display:flex;flex:1 1 auto;flex-direction:column;align-items:flex-start;gap:.1875rem;min-inline-size:0}
+:where(.ph-home) .nt-pages-when{font-size:.9375rem;font-weight:600}
+:where(.ph-home) .nt-pages-count{color:#6e6e73;font-size:.8125rem}
+:where(.ph-home) .nt-pages-more{display:inline-flex;flex:none;color:#8e8e93;font-size:.875rem}
+:where(.ph-home) p.nt-pages-kept{display:flex;align-items:flex-start;gap:.625rem;margin:.625rem 0 0;padding:.75rem .875rem;border-radius:.875rem;background:rgba(118,118,128,.08);color:#636366;font-size:.75rem;line-height:1.45}
+:where(.ph-home) .nt-pages-lock{display:inline-flex;flex:none;margin-block-start:.0625rem;font-size:.875rem}
+/* The tracing paper's sign, frame, corners and bar of scale, and its statement read, as canvas draws them (R169; R89 canvas). */
+.ph-tsign{position:absolute;z-index:2;display:flex;align-items:center;gap:6px;height:24px;box-sizing:border-box;padding:0 10px;border-radius:999px;white-space:nowrap;font-size:12px;font-weight:600;background:#F2F2F2;color:#6E6E73;pointer-events:none;transition:opacity .25s}
+.ph-tsign[data-shows="busy"],.ph-tsign[data-shows="text"]{background:#E5F0FF;color:#0058B8}
+.ph-tspin{display:block;flex:none;box-sizing:border-box;width:12px;height:12px;border-radius:50%;border:2px solid rgba(0,88,184,.25);border-top-color:currentColor;animation:ntSpin .8s linear infinite}
+.ph-tframe{position:absolute;z-index:2;box-sizing:border-box;border:1.5px solid #0071E3;pointer-events:none}
+.ph-tframe>i{position:absolute;width:18px;height:18px;margin:-9px;box-sizing:border-box;border-radius:50%;background:#FFFFFF;border:2px solid #0071E3;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.ph-tframe>.tl{left:0;top:0}.ph-tframe>.tr{left:100%;top:0}.ph-tframe>.bl{left:0;top:100%}.ph-tframe>.br{left:100%;top:100%}
+.ph-tbar{position:absolute;z-index:3;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:4px;border-radius:26px;font-size:14px;line-height:1.2;white-space:nowrap}
+.ph-tbar button{box-sizing:border-box;flex:none;min-width:44px;min-height:44px;padding:0 14px 0 10px;display:flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-weight:500;color:#1D1D1F;background:transparent;border-radius:22px}
+.ph-tbar button.ib{width:44px;height:44px;padding:0}
+.ph-tbar .ph-tpct{min-width:64px;padding:0 8px;font-variant-numeric:tabular-nums}
+.ph-tline{flex:none;width:1px;height:24px;margin:0 4px;background:rgba(0,0,0,.1)}
+.ph-tbar .ph-tmode{margin-inline-start:2px;background:#0071E3;color:#FFFFFF}
+.ph-tbar .ph-tmode.busy{background:#E5F0FF;color:#0058B8;cursor:default}
+.ph-tbar .ph-tmode.back{background:#F2F2F7;color:#1D1D1F}
+.ph-tstate{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:500;line-height:1.2;letter-spacing:-.02em;white-space:nowrap;color:#1D1D1F;pointer-events:none}
+.ph-tscan{position:absolute;inset:0;overflow:hidden;background:rgba(0,113,227,.04);pointer-events:none}
+.ph-tscan>i{position:absolute;top:0;bottom:0;left:35%;width:30%;background:linear-gradient(90deg,transparent,rgba(0,113,227,.18),transparent);border-right:2px solid rgba(0,113,227,.6);animation:ntScan 1s ease-in-out infinite}
+@keyframes ntScan{from{left:-30%}to{left:100%}}
 </style>
 </helmet>
 <div class="{{devCls}}" style="position: relative; width: {{dim.W}}px; height: {{dim.VH}}px; overflow: hidden; background: #F2F2F7; color: #1D1D1F; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none">
@@ -332,9 +561,11 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <span style="width: 40px; height: 5px; border-radius: 3px; background: {{clip.grip}}; transition: background 0.15s"></span>
     </button>
     <div style="position: relative; pointer-events: auto; cursor: {{inkCursor}}; width: {{clip.w}}px; height: {{clip.h}}px; overflow: hidden; border-radius: 6px; background: {{clip.bg}}; transform: rotate({{clip.rot}}deg) scale({{clip.lift}}); box-shadow: {{clip.shadow}}; transition: height 0.4s, box-shadow 0.2s, transform 0.2s, background 0.2s">
-      <div style="position: absolute; left: 0; top: 0; width: 600px; height: 848px; transform-origin: 0 0; transform: {{clip.tf}}">
+      <div style="position: absolute; left: 0; top: 0; width: 600px; height: 848px; transform-origin: 0 0; transform: {{clip.tf}}; visibility: {{tr.photoVis}}">
         <dc-import name="Paper" page="{{captured}}" bare="{{ true }}" hint-size="600px,848px"></dc-import>
       </div>
+      <sc-if value="{{tr.text}}" hint-placeholder-val="{{ false }}"><div class="ph-tstate" style="font-size: {{tr.fs}}px">{{tr.statement}}</div></sc-if>
+      <sc-if value="{{tr.busy}}" hint-placeholder-val="{{ false }}"><div class="ph-tscan"><i></i></div></sc-if>
       <div data-w="{{clip.w}}" data-layer="clip" onPointerDown="{{inkDown}}" onPointerMove="{{inkMove}}" onPointerUp="{{inkUp}}" onPointerCancel="{{inkUp}}" style="position: absolute; inset: 0; touch-action: none"></div>
       <sc-for list="{{clipPaths}}" as="p" hint-placeholder-count="0">
         <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
@@ -356,6 +587,25 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </sc-if>
     </div>
   </div>
+  <!-- The tracing paper's sign above it: the photo, the reading on its way, or the statement read. Its grip chooses it: a frame, four corners
+       that scale it from the corner across, and under it the bar of scale — smaller, the percentage, which sets it back to 100%, larger, Fit,
+       and Recognise, which reads the statement into text and offers the photo back as Original (R169; R89 canvas). A press on the sheet lets it go. -->
+  <div class="ph-tsign" data-shows="{{tr.shows}}" style="left: {{tr.x}}px; top: {{tr.signY}}px; opacity: {{clip.op}}; visibility: {{clip.vis}}">
+    <sc-if value="{{tr.busy}}" hint-placeholder-val="{{ false }}"><span class="ph-tspin"></span></sc-if>
+    <sc-if value="{{tr.still}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tr.signIcon}}"></path></svg></sc-if>
+    {{tr.signWords}}
+  </div>
+  <sc-if value="{{tr.on}}" hint-placeholder-val="{{ false }}">
+    <div class="ph-tframe" style="left: {{tr.x}}px; top: {{tr.y}}px; width: {{tr.w}}px; height: {{tr.h}}px; border-radius: {{tr.round}}px"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>
+    <div class="glass ph-tbar" role="toolbar" aria-label="Task scale" style="left: {{tr.barX}}px; top: {{tr.barY}}px">
+      <button class="ib" onClick="{{tr.smaller}}" aria-label="Smaller"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12"></path></svg></button>
+      <button class="ph-tpct" onClick="{{tr.reset}}" aria-label="{{tr.pct}}: back to 100%">{{tr.pct}}</button>
+      <button class="ib" onClick="{{tr.larger}}" aria-label="Larger"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6v12M6 12h12"></path></svg></button>
+      <span class="ph-tline"></span>
+      <button onClick="{{tr.fit}}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"></path></svg>Fit</button>
+      <button class="ph-tmode {{tr.modeCls}}" onClick="{{tr.mode}}" aria-disabled="{{tr.busy}}"><sc-if value="{{tr.busy}}" hint-placeholder-val="{{ false }}"><span class="ph-tspin" style="width: 15px; height: 15px"></span></sc-if><sc-if value="{{tr.still}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tr.modeIcon}}"></path></svg></sc-if>{{tr.modeWords}}</button>
+    </div>
+  </sc-if>
 </sc-if>
 
 <!-- ============ Author canvases: the sandbox chip ============ -->
@@ -571,7 +821,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     </sc-if>
   </button>
 
-  <div class="glass ph-tutor {{panel.cls}}" role="dialog" aria-label="{{tutorName}}" style="position: absolute; right: 16px; top: 74px; bottom: 16px; width: 344px; border-radius: 28px; background: rgba(255,255,255,0.86); display: flex; flex-direction: column; overflow: hidden; transform-origin: 100% 50%; opacity: {{panel.op}}; transform: {{panel.tf}}; visibility: {{panel.vis}}; transition: opacity 0.22s, transform 0.35s cubic-bezier(.2,.8,.2,1), visibility 0.35s">
+  <div class="glass ph-tutor {{panel.cls}}" role="dialog" aria-label="{{tutorName}}" style="position: absolute; right: 16px; top: 74px; bottom: 16px; width: 400px; border-radius: 28px; background: rgba(255,255,255,0.86); display: flex; flex-direction: column; overflow: hidden; transform-origin: 100% 50%; opacity: {{panel.op}}; transform: {{panel.tf}}; visibility: {{panel.vis}}; transition: opacity 0.22s, transform 0.35s cubic-bezier(.2,.8,.2,1), visibility 0.35s">
     <!-- On the phone the grabber takes the sheet to the whole screen and back (RUN.md, T154). -->
     <button class="ph-only ph-grab tip tip-b" aria-label="{{panel.grab}}" data-tip="{{panel.grab}}" aria-expanded="{{tutorFull}}" onClick="{{toggleTutorFull}}"><span></span></button>
     <div class="ph-tuthead" style="display: flex; align-items: center; gap: 8px; padding: 10px 6px 8px 14px">
@@ -1529,145 +1779,165 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 </div>
 </sc-if>
 
-<!-- ============ Home, Subjects and the skill map: the side menu, the top right, and the screen between them ============ -->
+<!-- ============ Home, Subjects and the skill map: the row of places, the pills at the right, and the screen under them ============ -->
+<!-- The look of app's own shell and Home, taken from its code: the elements and classes of its components, and the styles .ph-home of the helmet, its theme's rules (RUN.md, T253). -->
 <sc-if value="{{hs.on}}" hint-placeholder-val="{{ false }}">
-<div style="position: absolute; inset: 0; background: #F2F2F7">
-
-  <!-- The side menu, 600 px and wider: the mark, the places, and at the bottom Grown-ups and Help. The cognitive map waits, shut. -->
-  <sc-if value="{{hs.isPad}}" hint-placeholder-val="{{ true }}">
-  <nav class="ph-nav" aria-label="Main" style="position: absolute; left: 16px; top: 16px; bottom: 16px; width: 88px; border-radius: 28px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 0 12px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 2">
-    <span role="img" aria-label="NovaTrail" style="width: 52px; height: 52px; border-radius: 16px; background: #0071E3; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,113,227,0.32)">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M12 4l1.9 6.1 6.1 1.9-6.1 1.9L12 20l-1.9-6.1L4 12l6.1-1.9z"></path></svg>
-    </span>
-    <span style="height: 40px"></span>
-    <sc-for list="{{hs.nav}}" as="n" hint-placeholder-count="3">
-      <button onClick="{{n.go}}" aria-current="{{n.cur}}" disabled="{{n.off}}" title="{{n.tip}}" style="width: 76px; min-height: 64px; padding: 6px 0; box-sizing: border-box; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: {{n.bg}}; color: {{n.fg}}; transition: background .15s">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
-        <span style="font-size: 11.5px; font-weight: 600; letter-spacing: -0.1px; line-height: 1.15; text-align: center">{{n.label}}</span>
-        <sc-if value="{{n.off}}" hint-placeholder-val="{{ false }}"><span style="margin-top: 1px; height: 16px; padding: 0 6px; border-radius: 8px; background: rgba(118,118,128,0.12); font-size: 10px; font-weight: 600; line-height: 16px; color: #636366">Soon</span></sc-if>
-      </button>
-    </sc-for>
-    <span style="flex: 1"></span>
-    <sc-for list="{{hs.navEnd}}" as="n" hint-placeholder-count="2">
-      <button onClick="{{n.go}}" aria-expanded="{{n.open}}" style="width: 76px; height: 64px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: {{n.bg}}; color: {{n.fg}}">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
-        <span style="font-size: 11.5px; font-weight: 600">{{n.label}}</span>
-      </button>
-    </sc-for>
-  </nav>
-  </sc-if>
-
-  <div role="region" aria-label="{{hs.screenName}}" tabindex="{{scrollTab}}" style="{{hs.L.content}}">
-
-    <!-- Home: the next lesson with the share of the tutor's time, Take from my paper, then the connected modules. -->
-    <sc-if value="{{hs.isHome}}" hint-placeholder-val="{{ true }}">
-      <div style="flex: none; display: flex; flex-direction: column; min-height: {{hs.L.headH}}px; justify-content: center">
-        <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; letter-spacing: -0.7px">Home</h1>
-      </div>
-
-      <div style="margin-top: {{hs.L.gap1}}px; display: flex; flex-direction: {{hs.L.rowDir}}; gap: 16px">
-        <div class="ph-next" style="position: relative; flex: {{hs.L.nextFlex}}; height: {{hs.L.nextH}}px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); overflow: hidden">
-          <div style="position: absolute; left: 26px; top: 24px; width: {{hs.L.nextTextW}}px; display: flex; flex-direction: column; z-index: 1">
-            <span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #A85A00"><span style="width: 8px; height: 8px; border-radius: 4px; background: #FF9F0A"></span>Next up · Olympiad maths 1–6</span>
-            <span style="margin-top: 8px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px">Number patterns</span>
-            <span style="margin-top: 4px; font-size: 14px; color: #6E6E73">Lesson 3 · two tasks</span>
-            <button onClick="{{continueNext}}" style="align-self: flex-start; margin-top: 22px; height: 44px; padding: 0 22px 0 24px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px">Continue<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
-          </div>
-          <!-- The quota: the share of today's that this profile has spent, as GetQuota gives it — never a number of calls (R98; R148). -->
-          <div style="position: absolute; left: 26px; bottom: 18px; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #6E6E73; z-index: 1">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"></path></svg>
-            <span>Tutor help used today</span>
-            <span role="img" aria-label="20 percent" style="width: 64px; height: 6px; border-radius: 3px; background: rgba(118,118,128,0.18); overflow: hidden; display: flex"><span style="width: 20%; background: #0A84FF"></span></span>
-            <span style="font-variant-numeric: tabular-nums">20%</span>
-          </div>
-          <div aria-hidden="true" style="position: absolute; right: -20px; top: {{hs.L.decoTop}}px; width: 260px; height: 200px; border-radius: 10px; transform: {{hs.L.decoTf}}; transform-origin: 100% 0; background-color: #FCFCFD; background-image: linear-gradient(#ECECF1 1px, transparent 1px), linear-gradient(90deg, #ECECF1 1px, transparent 1px); background-size: 20px 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 10px 26px rgba(0,0,0,0.10)">
-            <div style="position: absolute; left: 22px; top: 34px; font-family: Caveat, 'Bradley Hand', cursive; font-size: 34px; font-weight: 600; color: #23308C">2, 5, 8, 11, …</div>
-            <div style="position: absolute; left: 28px; top: 92px; font-family: Caveat, 'Bradley Hand', cursive; font-size: 26px; font-weight: 600; color: #23308C">+3 each time</div>
-            <svg width="150" height="30" style="position: absolute; left: 22px; top: 80px"><path d="M6 6c6 14 20 14 26 0M40 6c6 14 20 14 26 0M74 6c6 14 20 14 26 0" fill="none" stroke="#E8590C" stroke-width="2" stroke-linecap="round"></path></svg>
-          </div>
-        </div>
-
-        <!-- The way into Take from my paper, open to every profile: the main feature of the app (product 4). -->
-        <div class="ph-paper" style="position: relative; flex: {{hs.L.paperFlex}}; min-height: {{hs.L.paperH}}px; border-radius: 26px; background: linear-gradient(135deg, #FF9F0A 0%, #FF5E3A 55%, #FF375F 100%); box-shadow: 0 12px 32px rgba(255,94,58,0.26); overflow: hidden; color: #FFFFFF">
-          <sc-if value="{{hs.isPad}}" hint-placeholder-val="{{ true }}">
-          <div aria-hidden="true" style="position: absolute; right: 18px; top: 34px; width: 118px; height: 160px; border-radius: 6px; background: #FDFDFB; transform: rotate(7deg); box-shadow: 0 16px 36px rgba(0,0,0,0.22)">
-            <div style="position: absolute; left: 12px; top: 14px; width: 56px; height: 6px; border-radius: 3px; background: #9AA7BA"></div>
-            <div style="position: absolute; left: 12px; top: 30px; width: 94px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
-            <div style="position: absolute; left: 12px; top: 40px; width: 80px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
-            <div style="position: absolute; left: 6px; top: 56px; width: 106px; height: 30px; border-radius: 6px; box-shadow: inset 0 0 0 2.5px #0071E3; background: rgba(0,113,227,0.08)"></div>
-            <div style="position: absolute; left: 12px; top: 63px; width: 94px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
-            <div style="position: absolute; left: 12px; top: 73px; width: 70px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
-            <div style="position: absolute; left: 12px; top: 100px; width: 94px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
-            <div style="position: absolute; left: 12px; top: 110px; width: 86px; height: 4px; border-radius: 2px; background: #D9D4CA"></div>
-          </div>
-          </sc-if>
-          <div style="position: relative; padding: 24px 26px 22px; width: {{hs.L.paperTextW}}; box-sizing: border-box; display: flex; flex-direction: column">
-            <span style="font-size: 24px; font-weight: 700; letter-spacing: -0.4px">Tasks from my paper</span>
-            <span style="margin-top: 4px; font-size: 14px; line-height: 1.4; color: rgba(255,255,255,0.92)">Snap a page from your book, pick the tasks, and solve each one here.</span>
-            <!-- The pages from paper this device keeps for the profile, its history: behind a small button, as a pop-over (R162). -->
-            <span style="margin-top: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
-              <button onClick="{{openCamera}}" style="height: 44px; padding: 0 18px; border-radius: 22px; background: #FFFFFF; color: #1D1D1F; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
-                Open camera
-              </button>
-              <button onClick="{{hs.togglePages}}" aria-expanded="{{pagesOpen}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(255,255,255,0.22); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5); color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h8l4 4v12H7z"></path><path d="M4 7v14h11"></path></svg>
-                Your pages
-              </button>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top: {{hs.L.gap2}}px; display: flex; align-items: center; justify-content: space-between">
-        <h2 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px">My subjects</h2>
-        <button onClick="{{hs.goSubjects}}" style="height: 44px; margin-right: -10px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; color: #0066CC">All subjects<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
-      </div>
-
-      <!-- Each connected module leads to its lesson; its skill map is on Subjects. The states come from ./states of skill-map (architecture 3.3). -->
-      <div class="ph-grid" style="margin-top: 10px; display: grid; grid-template-columns: {{hs.L.cols}}; gap: {{hs.L.gridGap}}px">
-        <sc-for list="{{mods}}" as="m" hint-placeholder-count="3">
-          <div class="mc" style="min-height: {{hs.L.cardH}}px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 20px 6px; box-sizing: border-box; display: flex; flex-direction: column">
-            <span style="display: flex; align-items: center; gap: 12px">
-              <span style="flex: none; width: 44px; height: 44px; border-radius: 13px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700">{{m.glyph}}</span>
-              <span style="display: flex; flex-direction: column; min-width: 0">
-                <span style="font-size: 17px; font-weight: 600; letter-spacing: -0.2px">{{m.name}}</span>
-                <span style="margin-top: 2px; font-size: 12.5px; color: #6E6E73">{{m.meta}}</span>
-              </span>
-            </span>
-            <span style="flex: 1; min-height: 18px"></span>
-            <sc-if value="{{m.hasBar}}" hint-placeholder-val="{{ true }}">
-              <span role="img" aria-label="{{m.aria}}" style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px">
-                <sc-for list="{{m.segs}}" as="g" hint-placeholder-count="5"><span style="width: {{g.w}}%; background: {{g.c}}"></span></sc-for>
-              </span>
-            </sc-if>
-            <sc-if value="{{m.hasMark}}" hint-placeholder-val="{{ false }}">
-              <span style="display: flex; align-items: center; gap: 6px; height: 8px; font-size: 13px; color: #7A2EA8"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5h15v10.5h-9.5l-5.5 4z"></path><path d="M12 7.4l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"></path></svg>Feedback by criteria</span>
-            </sc-if>
-            <span style="margin-top: 10px; font-size: 13px; color: #3A3A3C">{{m.done}}</span>
-            <button onClick="{{m.open}}" aria-label="{{m.openAria}}" style="align-self: flex-start; height: 44px; margin: 2px 0 0 -10px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 600; color: #0066CC">Continue<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
-          </div>
+<div class="ph-home" style="position: absolute; inset: 0; contain: layout">
+  <div role="region" aria-label="{{hs.screenName}}" tabindex="{{scrollTab}}" style="position: absolute; inset: 0; overflow-y: auto">
+  <div class="nt-shell">
+    <div class="nt-shell-bar">
+      <!-- The places in a row from 600 px, each icon and caption; on the phone the tab bar at the bottom. The cognitive map waits, shut. -->
+      <nav class="nt-nav" aria-label="Main">
+        <sc-for list="{{hs.nav}}" as="n" hint-placeholder-count="5">
+          <sc-if value="{{n.rule}}" hint-placeholder-val="{{ false }}"><span class="nt-nav-rule"></span></sc-if>
+          <button class="nt-nav-item" onClick="{{n.go}}" aria-current="{{n.cur}}" aria-disabled="{{n.off}}" aria-expanded="{{n.open}}" title="{{n.tip}}">
+            <span class="nt-nav-icon"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{n.icon}}"></path></svg></span>
+            <span class="nt-nav-label">{{n.label}}</span>
+            <sc-if value="{{n.off}}" hint-placeholder-val="{{ false }}"><span class="nt-soon">Soon</span></sc-if>
+          </button>
         </sc-for>
+      </nav>
+      <!-- The pills at the right: the tutor, the notifications and the profile's menu; on the phone the mark at the left. -->
+      <header class="nt-shell-top">
+        <span role="img" aria-label="NovaTrail" class="nt-mark nt-top-mark"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path d="{{hs.ai.mark}}" fill="currentColor"></path></svg></span>
+        <div class="nt-top-pills ph-topend">
+          <!-- To an adult the tutor is neutral: no name, no fox (R148; О-13). Pip, the children's friend, comes with epic E4 of app. -->
+          <button class="nt-icon-only nt-top-round tip tip-bl" onClick="{{hs.toggleTutor}}" aria-expanded="{{hs.tutorOpen}}" aria-label="{{tutorName}}" data-tip="{{tutorName}}">
+            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.tutor}}"></path></svg>
+          </button>
+          <!-- Notifications: the place for them; nothing sends one yet. -->
+          <button class="nt-icon-only nt-top-round tip tip-bl" onClick="{{hs.toggleBell}}" aria-expanded="{{hs.bellOpen}}" aria-label="Notifications" data-tip="Notifications">
+            <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.bell}}"></path></svg>
+          </button>
+          <button class="nt-learner-pill" onClick="{{hs.toggleAccount}}" aria-expanded="{{switchOpen}}" aria-label="{{me.name}}, profile menu">
+            <span class="nt-avatar nt-avatar-pill" style="background: {{me.grad}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg></span>
+            <span class="nt-learner-name">{{me.name}}</span>
+            <span class="nt-learner-chevron"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.chevron}}"></path></svg></span>
+          </button>
+        </div>
+      </header>
+    </div>
+
+    <!-- Home: the card of what comes next with the share of the tutor's time, and Tasks from my paper, side by side from 1000 px; then a card for each connected module, and the legend. -->
+    <sc-if value="{{hs.isHome}}" hint-placeholder-val="{{ true }}">
+    <main class="nt-reference ph-homemain">
+      <h1 class="nt-hidden-label">Home</h1>
+      <div class="nt-home-top">
+        <section class="nt-next-up">
+          <span class="nt-deco" aria-hidden="true"><span class="nt-grid-sheet"><svg aria-hidden="true" viewBox="0 0 216 104" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><g stroke="#1f3a93"><ellipse cx="17" cy="24" rx="11" ry="10.5" transform="rotate(-8 17 24)"></ellipse><path d="M40 35.5 52.5 12.5 64.5 35"></path><path d="M40 35.5 64.5 35"></path><path d="M77 13.5 99.5 12.8 100.2 35.6 77.6 36.2Z"></path><ellipse cx="124" cy="24.5" rx="11" ry="10.5" transform="rotate(6 124 24.5)"></ellipse><path d="M147 35.5 159.5 12.5 171.5 35.2"></path><path d="M147 35.5 171.5 35.2"></path><path d="M183 12h26v25h-26z" stroke-dasharray="4 3.5"></path><path d="M190.5 19.5q5.5-6.5 11 0q2 5-5 7.5v3.5"></path><path d="M196.5 33.6v.2" stroke-width="3"></path><path d="M185.8 73.5 207.8 72.8 208.5 94.5 186.4 95.2Z"></path></g><g stroke="#e8590c"><path d="M196 42q-6 7 0 15"></path><path d="M191.5 52.5 196 57.5 199.5 51.8"></path><ellipse cx="197" cy="84" rx="18" ry="16.5" transform="rotate(-10 197 84)"></ellipse></g></svg></span></span>
+          <h2>Next up</h2>
+          <!-- While the subjects are read, the shapes of what will stand here (R168). -->
+          <sc-if value="{{hs.loading}}" hint-placeholder-val="{{ false }}">
+            <div class="nt-loading nt-next-loading" aria-busy="true">
+              <span role="status" class="nt-hidden-label">Loading</span>
+              <i class="nt-sk" style="inline-size: 92%; block-size: 1.75rem; border-radius: 0.5rem"></i>
+              <i class="nt-sk" style="inline-size: 58%; block-size: 1.75rem; border-radius: 0.5rem"></i>
+              <i class="nt-sk" style="inline-size: 42%; block-size: 0.875rem; border-radius: 0.3125rem; margin-block-start: 0.375rem"></i>
+              <i class="nt-sk" style="inline-size: 9.25rem; block-size: 2.625rem; border-radius: 999px; margin-block-start: 0.375rem"></i>
+              <div class="nt-next-foot"><div class="nt-loading"><i class="nt-sk" style="inline-size: 100%; block-size: 0.375rem; border-radius: 0.1875rem"></i><i class="nt-sk" style="inline-size: 68%; block-size: 0.75rem; border-radius: 0.25rem"></i></div></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{hs.loaded}}" hint-placeholder-val="{{ true }}">
+            <h3>Number patterns</h3>
+            <p class="nt-next-line">Olympiad maths 1–6 · Lesson 3 · two tasks</p>
+            <div class="nt-buttons"><button onClick="{{continueNext}}">Continue the lesson</button></div>
+            <!-- The quota: the share of today's that this profile has spent, as GetQuota gives it — never a number of calls (R98; R148). -->
+            <div class="nt-next-foot">
+              <p class="nt-quota"><span class="nt-quota-bar" aria-hidden="true"><span style="inline-size: 20%"></span></span>Tutor time today: 20% used</p>
+            </div>
+          </sc-if>
+        </section>
+        <!-- The way into Take from my paper, open to every profile: the main feature of the app (product 4). -->
+        <section class="nt-paper">
+          <span class="nt-deco" aria-hidden="true"><span class="nt-paper-sheet"><i></i><i></i><i></i><span class="nt-sheet-task"><i></i><i></i></span><i></i><i></i><i></i></span></span>
+          <p class="nt-paper-eyebrow"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.camera}}"></path></svg>Camera</p>
+          <h2>Tasks from my paper</h2>
+          <p class="nt-paper-sub">Snap a page from your book, pick the tasks, and solve each one here</p>
+          <!-- The pages from paper this device keeps for the profile, its history: behind a small button, as a pop-over (R162). -->
+          <div class="nt-paper-acts">
+            <button class="nt-icon-text" onClick="{{openCamera}}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.camera}}"></path></svg>Open camera</button>
+            <button class="nt-paper-pages" onClick="{{hs.togglePages}}" aria-expanded="{{pagesOpen}}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.pages}}"></path></svg>Your pages</button>
+          </div>
+        </section>
       </div>
 
-      <!-- The legend: the five states and the mark of a rubric, in the words of architecture 6, shared with the skill map. -->
-      <sc-if value="{{hs.isPad}}" hint-placeholder-val="{{ true }}">
-      <div class="ph-legend" role="list" aria-label="What the marks mean" style="margin-top: 18px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: #3A3A3C">
-        <sc-for list="{{hs.legend}}" as="k" hint-placeholder-count="6"><span role="listitem" style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: {{k.c}}"></span>{{k.name}}</span></sc-for>
+      <!-- Each connected module's card: its kind, how much is mastered, its skill map and Continue, a square for each skill, and under an adaptive one that the tutor chooses (R79 app). The states come from ./states of skill-map (architecture 3.3). -->
+      <section>
+        <h2 class="nt-hidden-label">My subjects</h2>
+        <sc-if value="{{hs.loading}}" hint-placeholder-val="{{ false }}">
+          <div class="nt-loading" aria-busy="true">
+            <ul class="nt-subjects" aria-hidden="true">
+              <sc-for list="{{hs.twoCards}}" as="c" hint-placeholder-count="2">
+                <li class="nt-subject"><article>
+                  <div class="nt-subject-head">
+                    <i class="nt-sk" style="inline-size: 3rem; block-size: 3rem; border-radius: 0.8125rem"></i>
+                    <div class="nt-subject-words nt-loading">
+                      <div class="nt-subject-name"><i class="nt-sk" style="inline-size: 13.75rem; block-size: 1.125rem"></i><i class="nt-sk" style="inline-size: 6.875rem; block-size: 1.375rem; border-radius: 999px"></i></div>
+                      <i class="nt-sk" style="inline-size: 10.625rem; block-size: 0.75rem; border-radius: 0.25rem"></i>
+                    </div>
+                    <div class="nt-subject-acts"><i class="nt-sk" style="inline-size: 2.5rem; block-size: 2.5rem; border-radius: 50%"></i><i class="nt-sk" style="inline-size: 9.375rem; block-size: 2.5rem; border-radius: 999px"></i></div>
+                  </div>
+                  <i class="nt-sk" style="inline-size: 38%; block-size: 0.5rem; border-radius: 0.1875rem"></i>
+                  <div class="nt-card-foot"><i class="nt-sk" style="inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%"></i><div class="nt-foot-words nt-loading"><i class="nt-sk" style="inline-size: 8.125rem; block-size: 0.625rem; border-radius: 0.25rem"></i><i class="nt-sk" style="inline-size: 17.5rem; block-size: 0.875rem; border-radius: 0.3125rem"></i></div></div>
+                </article></li>
+              </sc-for>
+            </ul>
+          </div>
+        </sc-if>
+        <sc-if value="{{hs.loaded}}" hint-placeholder-val="{{ true }}">
+        <ul class="nt-subjects">
+          <sc-for list="{{mods}}" as="m" hint-placeholder-count="3">
+            <li class="nt-subject"><article>
+              <div class="nt-subject-head">
+                <span class="nt-module-tile" aria-hidden="true" data-tone="{{m.tone}}" data-glyph="{{m.letter}}"></span>
+                <div class="nt-subject-words">
+                  <div class="nt-subject-name">
+                    <h3>{{m.name}}</h3>
+                    <span class="nt-subject-kind" data-kind="{{m.kind}}"><sc-if value="{{m.adaptive}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.engine}}"></path></svg></sc-if>{{m.kindName}}</span>
+                  </div>
+                  <p class="nt-subject-stat">{{m.done}}</p>
+                </div>
+                <div class="nt-subject-acts">
+                  <button class="nt-icon-only nt-subject-map tip tip-b" onClick="{{m.map}}" aria-label="Skill map" data-tip="Skill map"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.skillMap}}"></path></svg></button>
+                  <button class="nt-subject-go nt-icon-text" onClick="{{m.open}}" aria-label="{{m.openAria}}"><span class="nt-go-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.play}}"></path></svg></span>Continue</button>
+                </div>
+              </div>
+              <div class="nt-dots" role="img" aria-label="{{m.aria}}"><sc-for list="{{m.dots}}" as="d" hint-placeholder-count="20"><i data-state="{{d.st}}"></i></sc-for></div>
+              <sc-if value="{{m.adaptive}}" hint-placeholder-val="{{ true }}">
+              <div class="nt-card-foot nt-engine-foot">
+                <span class="nt-engine-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="{{hs.ai.engine}}"></path></svg></span>
+                <div class="nt-foot-words"><span class="nt-foot-eyebrow">The tutor chooses</span><span class="nt-foot-main">The next skill, as the work goes</span></div>
+                <span class="nt-subject-review">{{m.review}}</span>
+                <span class="nt-engine-any">Any module<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.engine}}"></path></svg></span>
+              </div>
+              </sc-if>
+            </article></li>
+          </sc-for>
+        </ul>
+        </sc-if>
+      </section>
+
+      <!-- The legend: the five states and the two marks, in the words of architecture 6, shared with the skill map; on the phone behind its button, as a sheet. -->
+      <sc-if value="{{hs.loaded}}" hint-placeholder-val="{{ true }}">
+      <section class="nt-legend ph-legend" aria-label="What the marks mean">
+        <ul class="nt-legend-items">
+          <sc-for list="{{hs.legend}}" as="k" hint-placeholder-count="7"><li data-state="{{k.st}}"><sc-if value="{{k.swatch}}" hint-placeholder-val="{{ true }}"><span class="nt-legend-swatch" aria-hidden="true"></span></sc-if><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{k.icon}}"></path></svg>{{k.name}}</li></sc-for>
+        </ul>
+      </section>
+      <div class="nt-legend-open">
+        <button class="nt-link" onClick="{{hs.toggleLegend}}" aria-expanded="{{legendOpen}}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.info}}"></path></svg>What the marks mean</button>
       </div>
       </sc-if>
-      <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}">
-      <button onClick="{{hs.toggleLegend}}" aria-expanded="{{legendOpen}}" style="align-self: flex-start; margin: 6px 0 0 -10px; height: 44px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: #0066CC">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5M12 8v.2"></path></svg>
-        What the marks mean
-      </button>
-      </sc-if>
+    </main>
     </sc-if>
 
+    <!-- Subjects and the skill map stand in app's frame of a screen, under the same row. -->
+    <sc-if value="{{hs.isOther}}" hint-placeholder-val="{{ false }}">
+    <main class="nt-reference" style="display: flex; flex-direction: column; min-block-size: {{hs.otherH}}">
     <!-- Subjects: the catalog of this server — what is connected, and what else the profile may connect (concepts 15, module catalog). -->
     <sc-if value="{{hs.isSubjects}}" hint-placeholder-val="{{ false }}">
-      <div style="flex: none; display: flex; flex-direction: column; min-height: {{hs.L.headH}}px; justify-content: center">
-        <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; letter-spacing: -0.7px">Subjects</h1>
+      <div style="flex: none; display: flex; flex-direction: column; justify-content: center">
+        <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; line-height: 1.1">Subjects</h1>
         <p style="margin: 4px 0 0; font-size: 15px; color: #6E6E73">The modules of this server. A connected one is on Home, with its skill map.</p>
       </div>
       <h2 style="margin: {{hs.L.gap1}}px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.2px; color: #6E6E73">CONNECTED · {{hs.connectedN}}</h2>
@@ -1717,10 +1987,10 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
     <!-- The skill map of one module, from Subjects: the module chosen at the title; the map in the frame is skill-map's (architecture 3.3). -->
     <sc-if value="{{isMap}}" hint-placeholder-val="{{ false }}">
-      <div style="flex: none; display: flex; flex-direction: column; min-height: {{hs.L.headH}}px; justify-content: center">
+      <div style="flex: none; display: flex; flex-direction: column; justify-content: center">
         <button onClick="{{hs.goSubjects}}" style="align-self: flex-start; height: 44px; margin: -10px 0 -4px -8px; padding: 0 10px 0 4px; border-radius: 22px; display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 600; color: #0066CC"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Subjects</button>
         <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
-          <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; letter-spacing: -0.7px">Skill map</h1>
+          <h1 style="margin: 0 0 16px; font-size: {{hs.L.h1}}px; font-weight: 700; line-height: 1.25">Skill map</h1>
           <button onClick="{{hs.toggleMods}}" aria-expanded="{{hs.modsOpen}}" aria-label="Module: {{mapName}}" style="height: 44px; padding: 0 14px 0 6px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 14px rgba(17,24,39,0.06); display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600">
             <span style="width: 32px; height: 32px; border-radius: 10px; background: {{hs.mapMod.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{hs.mapMod.glyph}}</span>
             {{mapName}}
@@ -1748,53 +2018,10 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         </sc-for>
       </div>
     </sc-if>
-  </div>
-
-  <!-- The top right: the tutor, notifications, and the profile's menu at the edge. On the phone the mark stands at the left. -->
-  <div class="ph-topend" style="{{hs.L.top}}">
-    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}">
-      <span role="img" aria-label="NovaTrail" style="width: 40px; height: 40px; border-radius: 13px; background: #0071E3; display: flex; align-items: center; justify-content: center">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M12 4l1.9 6.1 6.1 1.9-6.1 1.9L12 20l-1.9-6.1L4 12l6.1-1.9z"></path></svg>
-      </span>
-      <span style="flex: 1"></span>
+    </main>
     </sc-if>
-    <!-- To an adult the tutor is neutral: no name, no fox (R148; О-13). Pip, the children's friend, comes with epic E4 of app. -->
-    <button class="tip tip-bl" onClick="{{hs.toggleTutor}}" aria-expanded="{{hs.tutorOpen}}" aria-label="{{tutorName}}" data-tip="{{tutorName}}" style="width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; box-shadow: {{hs.tutorRing}}">
-      <sc-if value="{{isNeutral}}" hint-placeholder-val="{{ true }}">
-        <span style="width: 42px; height: 42px; border-radius: 21px; background: linear-gradient(135deg, #5E5CE6 0%, #0A84FF 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(10,132,255,0.30)">
-          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-7.5L7 20.5V17H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z"></path><path d="M12 7.4l.9 2.2 2.2.9-2.2.9-.9 2.2-.9-2.2-2.2-.9 2.2-.9z" fill="currentColor" stroke="none"></path></svg>
-        </span>
-      </sc-if>
-      <sc-if value="{{isPip}}" hint-placeholder-val="{{ false }}">
-        <svg width="42" height="42" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#FFE3C2"></circle><path d="M7.5 6.5L17 13l-7.5 6.5z" fill="#F76707"></path><path d="M32.5 6.5L23 13l7.5 6.5z" fill="#F76707"></path><path d="M9.4 9.7l5.1 3.6-4 3.5z" fill="#FFD8A8"></path><path d="M30.6 9.7l-5.1 3.6 4 3.5z" fill="#FFD8A8"></path><path d="M7 20.5C7 14.5 12.5 11.5 20 11.5s13 3 13 9c0 6.5-6 12-13 12s-13-5.5-13-12z" fill="#F76707"></path><path d="M7.6 22.5c3.9-.5 8.9 1.5 12.4 6 3.5-4.5 8.5-6.5 12.4-6-1.4 6-6.4 10-12.4 10s-11-4-12.4-10z" fill="#FFFFFF"></path><circle cx="15" cy="20.3" r="1.7" fill="#1D1D1F"></circle><circle cx="25" cy="20.3" r="1.7" fill="#1D1D1F"></circle><ellipse cx="20" cy="28.4" rx="1.9" ry="1.4" fill="#1D1D1F"></ellipse></svg>
-      </sc-if>
-    </button>
-    <!-- Notifications: the place for them; nothing sends one yet. -->
-    <button class="tip tip-bl" onClick="{{hs.toggleBell}}" aria-expanded="{{hs.bellOpen}}" aria-label="Notifications" data-tip="Notifications" style="width: 44px; height: 44px; border-radius: 22px; background: {{hs.bellBtn.bg}}; color: {{hs.bellBtn.fg}}; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 14px rgba(17,24,39,0.05); display: flex; align-items: center; justify-content: center">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
-    </button>
-    <button onClick="{{hs.toggleAccount}}" aria-expanded="{{switchOpen}}" aria-label="{{me.name}}, profile menu" style="height: 44px; padding: {{hs.L.accPad}}; border-radius: 22px; background: #FFFFFF; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 14px rgba(17,24,39,0.05); display: flex; align-items: center; gap: 8px">
-      <span style="width: 36px; height: 36px; border-radius: 18px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg>
-      </span>
-      <sc-if value="{{hs.isPad}}" hint-placeholder-val="{{ true }}">
-        <span style="font-size: 15px; font-weight: 600">{{me.name}}</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
-      </sc-if>
-    </button>
   </div>
-
-  <!-- The phone's tab bar: the same places, Grown-ups and Help. -->
-  <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}">
-  <nav class="ph-tabs" aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; padding: 6px 4px 22px; box-sizing: border-box; background: rgba(255,255,255,0.96); box-shadow: 0 -0.5px 0 rgba(0,0,0,0.14); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); z-index: 4">
-    <sc-for list="{{hs.tabs}}" as="n" hint-placeholder-count="5">
-      <button onClick="{{n.go}}" aria-current="{{n.cur}}" disabled="{{n.off}}" title="{{n.tip}}" style="height: 52px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{n.fg}}">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
-        <span style="font-size: 11px; font-weight: 600; line-height: 1.1; text-align: center">{{n.label}}</span>
-      </button>
-    </sc-for>
-  </nav>
-  </sc-if>
+  </div>
 
   <!-- Pop-overs: hung from their button on the iPad, a sheet from the bottom on the phone. -->
   <sc-if value="{{hs.anyPop}}" hint-placeholder-val="{{ false }}">
@@ -1803,7 +2030,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
   <!-- For grown-ups: the profile's settings and this device's. A child's profile opens it behind the PIN (epic E4 of app). -->
   <sc-if value="{{hs.grownOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop" role="dialog" aria-label="For grown-ups" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.grown}}">
+  <div class="nt-pop ph-hpop" role="dialog" aria-label="For grown-ups" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.grown}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
     <sc-if value="{{hs.pinNeeded}}" hint-placeholder-val="{{ false }}">
       <div style="padding: 10px 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 14px">
         <span style="font-size: 17px; font-weight: 700">For grown-ups</span>
@@ -1817,18 +2045,18 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </div>
     </sc-if>
     <sc-if value="{{hs.pinPassed}}" hint-placeholder-val="{{ true }}">
-      <div style="padding: 6px 10px 2px; font-size: 17px; font-weight: 700">For grown-ups</div>
-      <div style="padding: 0 10px 8px; font-size: 12.5px; color: #6E6E73">{{hs.grownWho}}</div>
+      <h2 class="nt-pop-heading">For grown-ups</h2>
+      <p class="nt-pop-line">{{hs.grownWho}}</p>
       <!-- The hint mode is a setting of the profile: the adult sets their own, and a child's here, behind the PIN (concepts 10). -->
-      <div role="radiogroup" aria-label="Hints" style="display: flex; flex-direction: column; gap: 4px; padding: 2px 0 6px">
-        <div style="padding: 4px 10px 2px; font-size: 12px; font-weight: 600; color: #6E6E73">Hints</div>
-        <button role="radio" aria-checked="{{hs.hm.q.on}}" onClick="{{hs.modeQ}}" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 12px; text-align: left; background: {{hs.hm.q.bg}}; box-shadow: {{hs.hm.q.sh}}">
-          <span style="font-size: 14px; font-weight: 600">Questions only</span>
-          <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">The tutor asks about a step of the work</span>
+      <div class="nt-hint-modes" role="radiogroup" aria-label="Hints">
+        <div class="nt-menu-caption">Hints</div>
+        <button class="nt-hint-mode" role="radio" aria-checked="{{hs.hm.q.on}}" onClick="{{hs.modeQ}}" style="background: {{hs.hm.q.bg}}; box-shadow: {{hs.hm.q.sh}}">
+          <span class="nt-hint-mode-title">Questions only</span>
+          <span class="nt-hint-mode-line">The tutor asks about a step of the work</span>
         </button>
-        <button role="radio" aria-checked="{{hs.hm.w.on}}" onClick="{{hs.modeW}}" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 12px; text-align: left; background: {{hs.hm.w.bg}}; box-shadow: {{hs.hm.w.sh}}">
-          <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600">Show where<span aria-hidden="true" style="font-family: Caveat, 'Bradley Hand', cursive; font-size: 17px; color: #23308C; text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: #E8590C; text-decoration-thickness: 1.6px; text-underline-offset: 3px; text-decoration-skip-ink: none">− 4</span></span>
-          <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">After “Not yet” the tutor also underlines where the mistake is — and corrects nothing</span>
+        <button class="nt-hint-mode" role="radio" aria-checked="{{hs.hm.w.on}}" onClick="{{hs.modeW}}" style="background: {{hs.hm.w.bg}}; box-shadow: {{hs.hm.w.sh}}">
+          <span class="nt-hint-mode-title" style="display: flex; align-items: center; gap: 8px">Show where<span aria-hidden="true" style="font-family: Caveat, 'Bradley Hand', cursive; font-size: 17px; line-height: 1; color: #23308C; text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: #E8590C; text-decoration-thickness: 1.6px; text-underline-offset: 3px; text-decoration-skip-ink: none">− 4</span></span>
+          <span class="nt-hint-mode-line">After “Not yet” the tutor also underlines where the mistake is — and corrects nothing</span>
         </button>
       </div>
       <!-- Pip's microphone, under "Later": the adult turns it on in the child's profile (epic E4 of app; О-6, П-5). -->
@@ -1843,49 +2071,43 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         </span>
       </button>
       </sc-if>
-      <div style="height: 1px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
-      <button class="row" onClick="{{hs.noop}}" style="width: 100%; height: 48px; border-radius: 12px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; font-size: 15px; text-align: left">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"></rect><path d="M11 17.5h2"></path></svg>
-        <span style="flex: 1">This device</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
-      </button>
+      <hr>
+      <button class="nt-menu-row" onClick="{{hs.noop}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"></rect><path d="M11 17.5h2"></path></svg></span>This device</button>
+      <button class="nt-menu-row" onClick="{{hs.noop}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.cog}}"></path></svg></span>All settings</button>
     </sc-if>
   </div>
   </sc-if>
 
   <sc-if value="{{switchOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop" role="dialog" aria-label="Profile" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.account}}">
-    <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Learning now</div>
-    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px">
-      <span style="width: 32px; height: 32px; border-radius: 16px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg></span>
-      <span style="flex: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">{{me.name}}</span><span style="font-size: 12.5px; color: #6E6E73">{{hs.meCap}}</span></span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0071E3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-    </div>
-    <div style="height: 1px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
-    <button class="row" onClick="{{switchLearner}}" style="width: 100%; height: 48px; border-radius: 12px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; font-size: 15px; color: #0066CC; text-align: left">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>
-      Switch learner
-    </button>
-    <button class="row" onClick="{{signOut}}" style="width: 100%; height: 48px; border-radius: 12px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; font-size: 15px; color: #0066CC; text-align: left">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path><path d="M10 8l-4 4 4 4M6 12h10"></path></svg>
-      Sign out
-    </button>
+  <div class="nt-pop ph-hpop" role="dialog" aria-label="Profile" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.account}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
+    <p class="nt-menu-caption">Learning now</p>
+    <p class="nt-menu-current">
+      <span style="flex: none; width: 32px; height: 32px; border-radius: 16px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg></span>
+      <span class="nt-menu-who"><span class="nt-learner-name">{{me.name}}</span><span class="nt-menu-whose">{{hs.meCap}}</span></span>
+      <span class="nt-menu-tick"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+    </p>
+    <hr>
+    <button class="nt-menu-row" onClick="{{switchLearner}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg></span>Switch learner</button>
+    <button class="nt-menu-row" onClick="{{signOut}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path><path d="M10 8l-4 4 4 4M6 12h10"></path></svg></span>Sign out</button>
   </div>
   </sc-if>
 
   <sc-if value="{{hs.bellOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop" role="dialog" aria-label="Notifications" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.bell}}">
-    <div style="padding: 6px 10px 0; font-size: 17px; font-weight: 700">Notifications</div>
-    <div style="padding: 22px 10px 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
-      <span style="width: 52px; height: 52px; border-radius: 26px; background: rgba(118,118,128,0.10); color: #6E6E73; display: flex; align-items: center; justify-content: center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg></span>
-      <span style="font-size: 15px; font-weight: 600">Nothing new yet</span>
-      <span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Notifications will appear here.</span>
+  <div class="nt-pop ph-hpop" role="dialog" aria-label="Notifications" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.bell}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
+    <h2 class="nt-pop-heading">Notifications</h2>
+    <div class="nt-bell-none">
+      <span class="nt-bell-sign"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.bell}}"></path></svg></span>
+      <b>Nothing new yet</b>
+      <span>Notifications will appear here</span>
     </div>
   </div>
   </sc-if>
 
   <sc-if value="{{helpOpen}}" hint-placeholder-val="{{ false }}">
   <div class="nt-pop" role="dialog" aria-label="Help" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; gap: 12px; {{hs.P.help}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
     <div style="font-size: 17px; font-weight: 700">Help</div>
     <sc-if value="{{helpAdult}}" hint-placeholder-val="{{ true }}">
       <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">The tutor is an AI</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">A computer program, not a person — and a program checks every answer. If the AI read your work wrongly, write it again, or tell the operator with “Report a problem” at the task.</span></div>
@@ -1906,28 +2128,35 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
   <!-- The profile's pages from paper on this device, newest first: a page opens on the screen of solving with its work kept (R162). -->
   <sc-if value="{{pagesOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop" role="dialog" aria-label="Your pages" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.pages}}">
-    <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Your pages · on this device</div>
-    <sc-for list="{{pages}}" as="pg" hint-placeholder-count="2">
-      <button class="row" onClick="{{pg.open}}" style="width: 100%; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-radius: 12px; box-sizing: border-box; text-align: left">
-        <span aria-hidden="true" style="flex: none; width: 34px; height: 44px; border-radius: 4px; background: #FDFDFB; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.10); display: flex; flex-direction: column; gap: 4px; padding: 7px 5px; box-sizing: border-box"><span style="height: 3px; border-radius: 2px; background: #9AA7BA"></span><span style="height: 3px; border-radius: 2px; background: #D9D4CA"></span><span style="height: 3px; border-radius: 2px; background: #D9D4CA"></span></span>
-        <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">{{pg.when}}</span><span style="font-size: 12.5px; color: #6E6E73">{{pg.meta}}</span></span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
-      </button>
-    </sc-for>
-    <div style="padding: 6px 10px; font-size: 12px; line-height: 1.35; color: #6E6E73">Kept on this device until the profile is deleted, and in its export.</div>
+  <div class="nt-pop ph-hpop" role="dialog" aria-label="Your pages" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.pages}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
+    <div class="nt-pages-head"><h2>Your pages</h2><span>on this device</span></div>
+    <ol class="nt-pages">
+      <sc-for list="{{pages}}" as="pg" hint-placeholder-count="2">
+        <li><button class="nt-pages-row" onClick="{{pg.open}}" aria-label="{{pg.when}} · {{pg.meta}}">
+          <span class="nt-pages-thumb" aria-hidden="true"><span style="position: absolute; left: 0; top: 0; width: 600px; height: 848px; transform-origin: 0 0; transform: scale(0.0734)"><dc-import name="Paper" page="{{pg.page}}" hint-size="600px,848px"></dc-import></span></span>
+          <span class="nt-pages-words"><span class="nt-pages-when">{{pg.when}}</span><span class="nt-pages-count">{{pg.meta}}</span></span>
+          <span class="nt-pages-more"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>
+        </button></li>
+      </sc-for>
+    </ol>
+    <p class="nt-pages-kept"><span class="nt-pages-lock"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.locked}}"></path></svg></span>Kept on this device until the profile is deleted, and in its export.</p>
   </div>
   </sc-if>
 
   <sc-if value="{{legendOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop" role="dialog" aria-label="What the marks mean" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; gap: 14px; {{hs.P.legend}}">
-    <div style="font-size: 17px; font-weight: 700">What the marks mean</div>
-    <sc-for list="{{hs.legend}}" as="k" hint-placeholder-count="6"><span style="display: flex; align-items: center; gap: 10px; font-size: 15px"><span style="width: 14px; height: 14px; border-radius: 4px; background: {{k.c}}"></span>{{k.name}}</span></sc-for>
+  <div class="nt-pop ph-hpop ph-hpop-legend" role="dialog" aria-label="What the marks mean" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.legend}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
+    <h2 class="nt-pop-title">What the marks mean</h2>
+    <ul class="nt-legend-items">
+      <sc-for list="{{hs.legend}}" as="k" hint-placeholder-count="7"><li data-state="{{k.st}}"><sc-if value="{{k.swatch}}" hint-placeholder-val="{{ true }}"><span class="nt-legend-swatch" aria-hidden="true"></span></sc-if><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{k.icon}}"></path></svg>{{k.name}}</li></sc-for>
+    </ul>
   </div>
   </sc-if>
 
   <sc-if value="{{hs.modsOpen}}" hint-placeholder-val="{{ false }}">
   <div class="nt-pop" role="dialog" aria-label="Choose a module" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.mods}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
     <div style="padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: #6E6E73">Connected modules</div>
     <sc-for list="{{hs.modPick}}" as="m" hint-placeholder-count="3">
       <button class="row" onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="width: 100%; min-height: 52px; display: flex; align-items: center; gap: 12px; padding: 6px 10px; border-radius: 12px; box-sizing: border-box; text-align: left; background: {{m.bg}}">
@@ -2075,10 +2304,35 @@ const COUNTRIES = [['US', 'United States'], ['CA', 'Canada'], ['AU', 'Australia'
 // The first slice's three modules (product 10). The skills' states — mastered, time to review, in progress,
 // ready to start, locked — or a mark instead of one, come from the function ./states of skill-map (R148; architecture 3.3).
 const MODS = [
-  { name: 'Olympiad maths 1–6', meta: 'NovaTrail · adaptive', glyph: '∑', color: 'linear-gradient(135deg, #FFB340 0%, #FF9F0A 100%)', sk: [14, 3, 6, 9, 13] },
-  { name: 'School maths · grade 3', meta: 'NovaTrail · adaptive', glyph: '÷', color: 'linear-gradient(135deg, #64D2FF 0%, #0A84FF 100%)', sk: [20, 2, 4, 6, 4] },
-  { name: 'Short essays', meta: 'NovaTrail · feedback by a rubric', glyph: 'Aa', color: 'linear-gradient(135deg, #DA8FFF 0%, #AF52DE 100%)', mark: 18 }
+  { name: 'Olympiad maths 1–6', meta: 'NovaTrail · adaptive', glyph: '∑', color: 'linear-gradient(135deg, #FFB340 0%, #FF9F0A 100%)', tone: 0, sk: [14, 3, 6, 9, 13] },
+  { name: 'School maths · grade 3', meta: 'NovaTrail · adaptive', glyph: '÷', color: 'linear-gradient(135deg, #64D2FF 0%, #0A84FF 100%)', tone: 1, sk: [20, 2, 4, 6, 4] },
+  { name: 'Short essays', meta: 'NovaTrail · feedback by a rubric', glyph: 'Aa', color: 'linear-gradient(135deg, #DA8FFF 0%, #AF52DE 100%)', tone: 2, mark: 18 }
 ];
+// The icons of app's shell and Home: app's own set, Material Symbols Rounded (Apache-2.0), as src/app/icons.ts of app has them.
+const AI = {
+  home: 'M5 11q-.825 0-1.412-.587T3 9V5q0-.825.588-1.412T5 3h4q.825 0 1.413.588T11 5v4q0 .825-.587 1.413T9 11zm0 10q-.825 0-1.412-.587T3 19v-4q0-.825.588-1.412T5 13h4q.825 0 1.413.588T11 15v4q0 .825-.587 1.413T9 21zm10-10q-.825 0-1.412-.587T13 9V5q0-.825.588-1.412T15 3h4q.825 0 1.413.588T21 5v4q0 .825-.587 1.413T19 11zm0 10q-.825 0-1.412-.587T13 19v-4q0-.825.588-1.412T15 13h4q.825 0 1.413.588T21 15v4q0 .825-.587 1.413T19 21z',
+  subjects: 'M6.5 16q1.175 0 2.288.263T11 17.05V7.2q-1.025-.6-2.175-.9T6.5 6q-.9 0-1.788.175T3 6.7v9.9q.875-.3 1.738-.45T6.5 16m6.5 1.05q1.1-.525 2.213-.787T17.5 16q.9 0 1.763.15T21 16.6V6.7q-.825-.35-1.713-.525T17.5 6q-1.175 0-2.325.3T13 7.2zm-1.662 2.338q-.313-.088-.588-.238q-.975-.575-2.05-.862T6.5 18q-1.05 0-2.062.275T2.5 19.05q-.525.275-1.012-.025T1 18.15V6.1q0-.275.138-.525T1.55 5.2q1.15-.6 2.4-.9T6.5 4q1.45 0 2.838.375T12 5.5q1.275-.75 2.663-1.125T17.5 4q1.3 0 2.55.3t2.4.9q.275.125.413.375T23 6.1v12.05q0 .575-.487.875t-1.013.025q-.925-.5-1.937-.775T17.5 18q-1.125 0-2.2.288t-2.05.862q-.275.15-.587.238t-.663.087t-.663-.088M14 8.776q0-.225.163-.462T14.525 8q.725-.25 1.45-.375T17.5 7.5q.5 0 .988.063t.962.162q.225.05.388.25t.162.45q0 .425-.275.625t-.7.1q-.35-.075-.737-.112T17.5 9q-.65 0-1.275.125t-1.2.325q-.45.175-.737-.025T14 8.775m0 5.5q0-.225.163-.462t.362-.313q.725-.25 1.45-.375T17.5 13q.5 0 .988.063t.962.162q.225.05.388.25t.162.45q0 .425-.275.625t-.7.1q-.35-.075-.737-.112T17.5 14.5q-.65 0-1.275.113t-1.2.312q-.45.175-.737-.012T14 14.275m0-2.75q0-.225.163-.462t.362-.313q.725-.25 1.45-.375t1.525-.125q.5 0 .988.063t.962.162q.225.05.388.25t.162.45q0 .425-.275.625t-.7.1q-.35-.075-.737-.112t-.788-.038q-.65 0-1.275.125t-1.2.325q-.45.175-.737-.025t-.288-.65',
+  cog: 'M3.875 22.125Q3 21.25 3 20t.875-2.125T6 17q.35 0 .65.075t.575.2L8.65 15.5q-.7-.775-.975-1.75T7.55 11.8l-2.025-.675q-.425.625-1.075 1T3 12.5q-1.25 0-2.125-.875T0 9.5t.875-2.125T3 6.5t2.125.875T6 9.5v.2l2.025.7q.5-.9 1.338-1.525t1.887-.8V5.9q-.975-.275-1.612-1.063T9 3q0-1.25.875-2.125T12 0t2.125.875T15 3q0 1.05-.65 1.838T12.75 5.9v2.175q1.05.175 1.888.8t1.337 1.525L18 9.7v-.2q0-1.25.875-2.125T21 6.5t2.125.875T24 9.5t-.875 2.125T21 12.5q-.8 0-1.463-.375t-1.062-1l-2.025.675q.15.975-.125 1.938T15.35 15.5l1.425 1.75q.275-.125.575-.187T18 17q1.25 0 2.125.875T21 20t-.875 2.125T18 23t-2.125-.875T15 20q0-.5.163-.962t.437-.838l-1.425-1.775Q13.15 17 11.988 17T9.8 16.425L8.4 18.2q.275.375.438.838T9 20q0 1.25-.875 2.125T6 23t-2.125-.875M3 10.5q.425 0 .713-.288T4 9.5t-.288-.712T3 8.5t-.712.288T2 9.5t.288.713T3 10.5m3.713 10.213Q7 20.425 7 20t-.288-.712T6 19t-.712.288T5 20t.288.713T6 21t.713-.288m6-17Q13 3.425 13 3t-.288-.712T12 2t-.712.288T11 3t.288.713T12 4t.713-.288M12 15q1.05 0 1.775-.725T14.5 12.5t-.725-1.775T12 10t-1.775.725T9.5 12.5t.725 1.775T12 15m6.713 5.713Q19 20.425 19 20t-.288-.712T18 19t-.712.288T17 20t.288.713T18 21t.713-.288m3-10.5Q22 9.925 22 9.5t-.288-.712T21 8.5t-.712.288T20 9.5t.288.713t.712.287t.713-.288M18 20',
+  grown: 'M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm0-2h12V10H6zm7.413-3.588Q14 15.826 14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17t1.413-.587M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6zM6 20V10z',
+  help: 'M12.838 17.638q.362-.363.362-.888t-.362-.888t-.888-.362t-.887.363t-.363.887t.363.888t.887.362t.888-.363M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m.1-12.3q.625 0 1.088.4t.462 1q0 .55-.337.975t-.763.8q-.575.5-1.012 1.1t-.438 1.35q0 .35.263.588t.612.237q.375 0 .638-.25t.337-.625q.1-.525.45-.937t.75-.788q.575-.55.988-1.2t.412-1.45q0-1.275-1.037-2.087T12.1 6q-.95 0-1.812.4T8.975 7.625q-.175.3-.112.638t.337.512q.35.2.725.125t.625-.425q.275-.375.688-.575t.862-.2',
+  mark: 'M12 4l1.9 6.1 6.1 1.9-6.1 1.9L12 20l-1.9-6.1L4 12l6.1-1.9z',
+  tutor: 'm6 18l-2.3 2.3q-.475.475-1.088.213T2 19.575V4q0-.825.588-1.412T4 2h16q.825 0 1.413.588T22 4v12q0 .825-.587 1.413T20 18zm-.85-2H20V4H4v13.125zM4 16V4zm4.713-5.288Q9 10.425 9 10t-.288-.712T8 9t-.712.288T7 10t.288.713T8 11t.713-.288m4 0Q13 10.426 13 10t-.288-.712T12 9t-.712.288T11 10t.288.713T12 11t.713-.288m4 0Q17 10.426 17 10t-.288-.712T16 9t-.712.288T15 10t.288.713T16 11t.713-.288',
+  bell: 'M5 19q-.425 0-.712-.288T4 18t.288-.712T5 17h1v-7q0-2.075 1.25-3.687T10.5 4.2v-.7q0-.625.438-1.062T12 2t1.063.438T13.5 3.5v.7q2 .5 3.25 2.113T18 10v7h1q.425 0 .713.288T20 18t-.288.713T19 19zm7 3q-.825 0-1.412-.587T10 20h4q0 .825-.587 1.413T12 22m-4-5h8v-7q0-1.65-1.175-2.825T12 6T9.175 7.175T8 10z',
+  chevron: 'M11.625 14.913q-.175-.063-.325-.213l-4.6-4.6q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l3.9 3.9l3.9-3.9q.275-.275.7-.275t.7.275t.275.7t-.275.7l-4.6 4.6q-.15.15-.325.213t-.375.062t-.375-.062',
+  camera: 'M12 17.5q1.875 0 3.188-1.312T16.5 13t-1.312-3.187T12 8.5T8.813 9.813T7.5 13t1.313 3.188T12 17.5m0-2q-1.05 0-1.775-.725T9.5 13t.725-1.775T12 10.5t1.775.725T14.5 13t-.725 1.775T12 15.5M4 21q-.825 0-1.412-.587T2 19V7q0-.825.588-1.412T4 5h3.15L8.4 3.65q.275-.3.663-.475T9.875 3h4.25q.425 0 .813.175t.662.475L16.85 5H20q.825 0 1.413.588T22 7v12q0 .825-.587 1.413T20 21zm0-2h16V7h-4.05l-1.825-2h-4.25L8.05 7H4zm8-6',
+  pages: 'M13.25 12.5L12.1 11q-.15-.2-.4-.2t-.4.2l-1.675 2.2q-.2.25-.063.525t.463.275h7.95q.325 0 .462-.275t-.062-.525l-2.425-3.175q-.15-.2-.4-.2t-.4.2zM8 18q-.825 0-1.412-.587T6 16V4q0-.825.588-1.412T8 2h12q.825 0 1.413.588T22 4v12q0 .825-.587 1.413T20 18zm0-2h12V4H8zm-4 6q-.825 0-1.412-.587T2 20V7q0-.425.288-.712T3 6t.713.288T4 7v13h13q.425 0 .713.288T18 21t-.288.713T17 22zM8 4v12z',
+  engine: 'M6 12.05q0 .4.05.788t.175.762q.125.425-.025.813t-.525.562q-.4.2-.787.038t-.513-.588q-.2-.575-.288-1.175T4 12.05q0-3.35 2.325-5.7T12 4h.175l-.9-.9Q11 2.825 11 2.4t.275-.7t.7-.275t.7.275l2.6 2.6q.3.3.3.7t-.3.7l-2.6 2.6q-.275.275-.7.275t-.7-.275T11 7.6t.275-.7l.9-.9H12Q9.5 6 7.75 7.763T6 12.05m12-.1q0-.4-.05-.787t-.175-.763q-.125-.425.025-.812t.525-.563q.4-.2.787-.037t.513.587q.2.575.288 1.175t.087 1.2q0 3.35-2.325 5.7T12 20h-.175l.9.9q.275.275.275.7t-.275.7t-.7.275t-.7-.275l-2.6-2.6q-.3-.3-.3-.7t.3-.7l2.6-2.6q.275-.275.7-.275t.7.275t.275.7t-.275.7l-.9.9H12q2.5 0 4.25-1.762T18 11.95',
+  skillMap: 'M15 19v-1h-2q-.825 0-1.412-.587T11 16V8H9v1q0 .825-.587 1.413T7 11H4q-.825 0-1.412-.587T2 9V5q0-.825.588-1.412T4 3h3q.825 0 1.413.588T9 5v1h6V5q0-.825.588-1.412T17 3h3q.825 0 1.413.588T22 5v4q0 .825-.587 1.413T20 11h-3q-.825 0-1.412-.587T15 9V8h-2v8h2v-1q0-.825.588-1.412T17 13h3q.825 0 1.413.588T22 15v4q0 .825-.587 1.413T20 21h-3q-.825 0-1.412-.587T15 19M4 5v4zm13 10v4zm0-10v4zm0 4h3V5h-3zm0 10h3v-4h-3zM4 9h3V5H4z',
+  play: 'M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712m2-1.825L15.25 12L10 8.65z',
+  mastered: 'm10.6 13.8l-2.15-2.15q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7L9.9 15.9q.3.3.7.3t.7-.3l5.65-5.65q.275-.275.275-.7t-.275-.7t-.7-.275t-.7.275zM12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8',
+  review: 'M12 21q-1.875 0-3.512-.712t-2.85-1.925t-1.925-2.85T3 12t.713-3.512t1.924-2.85t2.85-1.925T12 3q2.05 0 3.888.875T19 6.35V5q0-.425.288-.712T20 4t.713.288T21 5v4q0 .425-.288.713T20 10h-4q-.425 0-.712-.288T15 9t.288-.712T16 8h1.75q-1.025-1.4-2.525-2.2T12 5Q9.075 5 7.038 7.038T5 12t2.038 4.963T12 19q2.375 0 4.25-1.425t2.475-3.675q.125-.4.45-.6t.725-.15q.425.05.675.362t.15.688q-.725 2.975-3.15 4.888T12 21m1-9.4l2.5 2.5q.275.275.275.7t-.275.7t-.7.275t-.7-.275l-2.8-2.8q-.15-.15-.225-.337T11 11.975V8q0-.425.288-.712T12 7t.713.288T13 8z',
+  progress: 'M12 18q2.5 0 4.25-1.75T18 12q0-2.175-1.388-3.825T13.1 6.1q-.45-.05-.775.25T12 7.1V12l-3.45 3.45q-.325.325-.3.775t.375.725q.725.575 1.6.813T12 18m0 4q-2.075 0-3.9-.787t-3.175-2.138T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8',
+  ready: 'M6 20h12V10H6zm7.413-3.588Q14 15.826 14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17t1.413-.587M6 20V10zm0 2q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h7V6q0-2.075 1.463-3.537T18 1q1.775 0 3.1 1.075t1.75 2.7q.125.425-.162.825T22 6q-.425 0-.7-.175t-.4-.575q-.275-.95-1.062-1.6T18 3q-1.25 0-2.125.875T15 6v2h3q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22z',
+  locked: 'M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm0-2h12V10H6zm7.413-3.588Q14 15.826 14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17t1.413-.587M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6zM6 20V10z',
+  rubric: 'M7 14h1.625q.2 0 .388-.075t.337-.225l4.7-4.7q.225-.225.338-.513t.112-.562t-.125-.537t-.325-.488l-.9-.95q-.225-.225-.5-.337t-.575-.113q-.275 0-.562.113T11 5.95l-4.7 4.7q-.15.15-.225.338T6 11.375V13q0 .425.288.713T7 14m6-6.075L12.075 7zM7.5 12.5v-.95l2.525-2.525l.5.45l.45.5L8.45 12.5zm3.025-3.025l.45.5l-.95-.95zm.65 4.525H17q.425 0 .713-.288T18 13t-.288-.712T17 12h-3.825zM6 18l-2.3 2.3q-.475.475-1.088.213T2 19.575V4q0-.825.588-1.412T4 2h16q.825 0 1.413.588T22 4v12q0 .825-.587 1.413T20 18zm-.85-2H20V4H4v13.125zM4 16V4z',
+  notAssessed: 'm21.125 21.1l-5.9-5.9l-2.15 2.15q-.3.3-.7.3t-.7-.3l-4.25-4.25q-.3-.3-.287-.7t.287-.7q.3-.3.713-.312t.712.287l3.525 3.525l1.4-1.4l-9.65-9.65q-.3-.3-.288-.7t.288-.7q.3-.3.713-.312t.712.287L22.525 19.7q.275.275.275.7t-.275.7t-.7.275t-.7-.275m-15.1-3.75l-4.25-4.25q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l3.55 3.55l1.4 1.4l-.7.7q-.3.3-.7.3t-.7-.3m12-4.95l-1.4-1.4l4.225-4.225q.275-.275.675-.287t.7.262t.313.7t-.288.725zm-2.85-2.85l-1.4-1.4l1.45-1.45q.275-.275.7-.275t.7.275t.275.7t-.275.7z',
+  info: 'M12.713 16.713Q13 16.425 13 16v-4q0-.425-.288-.712T12 11t-.712.288T11 12v4q0 .425.288.713T12 17t.713-.288m0-8Q13 8.425 13 8t-.288-.712T12 7t-.712.288T11 8t.288.713T12 9t.713-.288M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8'
+};
 // The bar's colours: the replacements of the README's contrast table, a white gap of 2 px between segments.
 const BAR = ['#30A14E', '#C77700', '#0A84FF', '#3D8BE0', '#8E8E93'];
 const STATES = [['mastered', 'Mastered', '#34C759'], ['review', 'Time to review', '#FF9F0A'], ['progress', 'In progress', '#0A84FF'], ['ready', 'Ready to start', '#B9D7FF'], ['locked', 'Locked', '#E5E5EA']];
@@ -2286,7 +2540,8 @@ class Component extends DCLogic {
   dims() { const d = this.phone() ? { W: 390, H: 1688, VH: 844 } : this.desk() ? { W: 1920, H: 1668, VH: 1080 } : { W: 1194, H: 1668, VH: 834 }; return { ...d, SW: 3 * d.W }; }
   devName() { return this.phone() ? 'phone' : this.desk() ? 'computer' : 'iPad'; }
   // The scale of a task's clipping over the sheet: on the phone it fits between the tool bar and the edge.
-  cf() { return this.phone() ? 1.12 : 1.6; }
+  // The crop's size on the screen: the device's, times the tracing paper's scale (R89 canvas).
+  cf() { return (this.phone() ? 1.12 : 1.6) * (this.state.tScale || 1); }
 
   componentDidMount() {
     try { window.speechSynthesis.getVoices(); } catch (e) { /* no speech synthesis */ }
@@ -2509,9 +2764,9 @@ class Component extends DCLogic {
     if (list.length && list[list.length - 1].who === 'div') return list.slice(0, -1).concat(add);
     // On the page to pick from, the tutor takes a request about the frames alone, and says so (R165).
     if (c.page) add.push({ id: this.mid++, who: 'pip', text: 'Tell me which tasks to take from this page and how to split them: a column, a row, each example on its own. I only change the frames.' });
-    else if (!list.length) add.push({ id: this.mid++, who: 'pip', text: this.isPip(st)
+    // A task of a module opens on no line: that the tutor is an AI, Help says (R123); a task from paper says where hints come.
+    else if (!list.length && (this.isPip(st) || !this.lesNow(st))) add.push({ id: this.mid++, who: 'pip', text: this.isPip(st)
       ? 'Hi, I’m Pip. Ask me ' + (st.micOn ? 'by voice or text' : 'anything') + ' — I’ll help you find the answer, not give it.'
-      : this.lesNow(st) ? 'The tutor is an AI, not a person. Hints come here, a question at a time, and a program checks every answer.'
       : 'Hints for this task come here, a question at a time. A program checks every answer.' });
     return list.concat(add);
   }
@@ -2967,10 +3222,44 @@ class Component extends DCLogic {
   start = () => {
     const sel = this.state.selected.slice().sort((a, b) => a - b);
     if (!sel.length) return;
-    this.setState({ stage: 'solve', current: sel[0], verdict: null, cardOpen: true, tasksOpen: false, more: false });
+    this.setState({ stage: 'solve', current: sel[0], verdict: null, cardOpen: true, tasksOpen: false, more: false, tSel: false, tMode: 'orig' });
   };
 
-  pickTask(id) { this.setState({ current: id, verdict: null, cardOpen: true, tasksOpen: false }); }
+  pickTask(id) { clearTimeout(this.tRead); this.setState({ current: id, verdict: null, cardOpen: true, tasksOpen: false, tSel: false, tMode: 'orig' }); }
+
+  // The tracing paper's sign, frame and bar, on the crop as clipXY() places it: the paper 26 below the clipping's top, under its grip (R89 canvas).
+  tracingVals(t, PH, dim) {
+    const s = this.state, mode = s.tMode || 'orig', busy = mode === 'busy', text = mode === 'text', sc = s.tScale || 1;
+    const k = this.cf(), w = Math.round(t.w * k), h = Math.round(t.ch * k), c = this.clipXY(), y = Math.round(c.y + 26), BW = 372;
+    const SPARK = 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z', PHOTO = 'M4 8.5A2.5 2.5 0 0 1 6.5 6h1.8l1.4-2h4.6l1.4 2h1.8A2.5 2.5 0 0 1 20 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z';
+    // A scale about the paper's centre, within 40% and 400%.
+    const zoom = (to) => {
+      to = Math.round(Math.min(4, Math.max(0.4, to)) * 100) / 100;
+      const base = k / sc, w1 = t.w * base * to, h1 = t.ch * base * to;
+      this.setState({ tScale: to, clipPos: { x: c.x + (t.w * k - w1) / 2, y: c.y + (t.ch * k - h1) / 2 } });
+    };
+    const left = PH ? 76 : 84;
+    return {
+      on: !!s.tSel && s.cardOpen, x: Math.round(c.x), y, w, h, signY: y - 34, round: Math.round(6 * Math.min(sc, 2)),
+      barX: Math.round(Math.min(dim.W - BW / 2 - 8, Math.max(BW / 2 + 8, c.x + w / 2))), barY: Math.round(Math.max(8, Math.min(y + h + 18, dim.VH - 60))),
+      pct: Math.round(sc * 100) + '%', shows: busy ? 'busy' : text ? 'text' : 'photo', busy, still: !busy, text, photoVis: text ? 'hidden' : 'visible',
+      signWords: busy ? 'Recognising…' : text ? 'Recognised by AI' : 'Photo of the task', signIcon: text ? SPARK : PHOTO,
+      modeCls: busy ? 'busy' : text ? 'back' : '', modeWords: busy ? 'Recognising…' : text ? 'Original' : 'Recognise', modeIcon: text ? PHOTO : SPARK,
+      statement: t.label, fs: Math.round(Math.min(h * 0.5, w / (t.label.length * 0.6))),
+      smaller: () => zoom(sc / 1.2), larger: () => zoom(sc * 1.2), reset: () => zoom(1),
+      // Fit: the paper as wide as the window beside the tool bar, in the middle of its height.
+      fit: () => {
+        const to = Math.round(Math.min(4, Math.max(0.4, (dim.W - left - 24) / (t.w * k / sc))) * 100) / 100, h1 = t.ch * (k / sc) * to;
+        this.setState({ tScale: to, clipPos: { x: left, y: Math.max(72, (dim.VH - h1) / 2 - 26) } });
+      },
+      mode: () => {
+        if (busy) return;
+        if (text) return this.setState({ tMode: 'orig' });
+        this.setState({ tMode: 'busy' });
+        clearTimeout(this.tRead); this.tRead = setTimeout(() => this.setState({ tMode: 'text' }), 1400);
+      },
+    };
+  }
 
   // The task's clipping stays where the learner moved it, for every task; until then it sits centred at the top.
   clipXY() {
@@ -2984,7 +3273,7 @@ class Component extends DCLogic {
     const p = this.clipXY();
     this.drag = { k: Number(el.getAttribute('data-w')) / r.width, sx: e.clientX, sy: e.clientY, x0: p.x, y0: p.y };
     try { el.setPointerCapture(e.pointerId); } catch (err) { /* no capture */ }
-    this.setState({ clipDrag: true });
+    this.setState({ clipDrag: true, tSel: true });
   };
 
   clipMove = (e) => {
@@ -3011,6 +3300,7 @@ class Component extends DCLogic {
 
   inkDown = (e) => {
     const el0 = e.currentTarget;
+    if (this.state.tSel && el0.getAttribute('data-layer') !== 'clip') this.setState({ tSel: false });
     if (e.pointerType === 'touch' && el0.getAttribute('data-layer') !== 'clip') {
       this.tp = this.tp || new Map();
       this.tp.set(e.pointerId, [e.clientX, e.clientY]);
@@ -3217,7 +3507,7 @@ class Component extends DCLogic {
     if (!L) return off;
     const k = this.lesKey(s), tstat = s.tstat[k], over = isTask && this.ended(), choice = isTask && !!g.options;
     const steps = this.stepsOf(s), st = steps[s.stepI] || steps[0], last = s.stepI >= steps.length - 1, pip = this.isPip(s);
-    const rowX = !PH && s.chatOpen && isTask ? 451 : 597;
+    const rowX = !PH && s.chatOpen && isTask ? 423 : 597;
     const rowH = PH && choice && !over ? 108 : 56;
     const above = 16 + rowH + 14;
     const work = isTask && this.lesWork(), stepOk = isTask && this.stepOk();
@@ -3230,7 +3520,7 @@ class Component extends DCLogic {
     const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.06)' : '#FFFFFF', sh: on ? 'inset 0 0 0 2px #0071E3' : 'inset 0 0 0 1px rgba(0,0,0,0.10)' });
     // The demo: the parts opened so far, on the sheet under the statement, or under the workbook page.
     const isEx = inLes && g.k === 'example', wb = (isEx || isTask) && g.canvas === 'workbook';
-    // The page stands under the statement, at its left edge and as wide; on the iPad it stays clear of the tutor's panel (344 at the right).
+    // The page stands under the statement, at its left edge and as wide; on the iPad it stays clear of the tutor's panel (400 at the right).
     const wbBox = PH ? { x: 76, y: 236, w: 302, pad: '16px 14px', aw: 92 } : { x: 84, y: 168, w: 620, pad: '20px 28px', aw: 130 };
     const shown = isEx && !s.demoHide ? s.demoN : 0;
     const parts = isEx ? g.parts.slice(0, shown).map((p, i) => {
@@ -3326,47 +3616,30 @@ class Component extends DCLogic {
     };
   }
 
-  // Home, Subjects and a module's skill map: the side menu (the bottom tab bar on the phone), the top right and their pop-overs.
+  // Home, Subjects and a module's skill map: the row of places (the tab bar on the phone), the pills at the right and their pop-overs, as app lays them.
   homeVals(s, PH, pip, later) {
-    const SHUT = { helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false };
+    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false };
     const tog = (k) => () => this.setState({ ...SHUT, [k]: !this.state[k] });
     const go = (screen) => () => this.setState({ ...SHUT, screen });
-    const L = PH ? {
-      content: 'position: absolute; left: 0; right: 0; top: 68px; bottom: 84px; overflow-y: auto; padding: 8px 16px 28px; box-sizing: border-box; display: flex; flex-direction: column',
-      top: 'position: absolute; left: 16px; right: 16px; top: 12px; display: flex; align-items: center; gap: 8px; z-index: 3',
-      headH: 34, h1: 28, gap1: 16, gap2: 22, rowDir: 'column', nextFlex: 'none', nextH: 264, nextTextW: 196, decoTop: 18, decoTf: 'rotate(-4deg) scale(0.58)',
-      paperH: 0, paperFlex: 'none', paperTextW: '100%', cols: 'minmax(0, 1fr)', gridGap: 12, cardH: 0, catCols: 'minmax(0, 1fr)', accPad: '0 4px', mapFlex: 'none'
-    } : {
-      content: 'position: absolute; left: 128px; right: 24px; top: 22px; bottom: 16px; display: flex; flex-direction: column',
-      top: 'position: absolute; right: 24px; top: 28px; display: flex; align-items: center; gap: 10px; z-index: 3',
-      headH: 56, h1: 32, gap1: 26, gap2: 30, rowDir: 'row', nextFlex: '0 0 580px', nextH: 236, nextTextW: 300, decoTop: 26, decoTf: 'rotate(-4deg)',
-      paperH: 236, paperFlex: '1 1 0', paperTextW: '316px', cols: 'repeat(3, minmax(0, 1fr))', gridGap: 16, cardH: 206, catCols: 'repeat(2, minmax(0, 1fr))', accPad: '0 14px 0 4px', mapFlex: '1 1 auto'
-    };
+    // Subjects and the map in app's frame of a screen: under the row, 116 from the top on the iPad and 84 on the phone.
+    const L = PH ? { h1: 28, gap1: 26, catCols: 'minmax(0, 1fr)', mapFlex: 'none' } : { h1: 32, gap1: 26, catCols: 'repeat(2, minmax(0, 1fr))', mapFlex: '1 1 auto' };
     const POP = 'border-radius: 20px; padding: 10px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
-    const SHEET = 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 20px 16px 32px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)';
+    const SHEET = 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 56px 16px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)';
     const P = PH ? { grown: SHEET, account: SHEET, bell: SHEET, help: SHEET, pages: SHEET, legend: SHEET, mods: SHEET,
       tutor: 'left: 0; right: 0; bottom: 0; top: 250px; border-radius: 28px 28px 0 0' } : {
-      grown: 'left: 116px; bottom: 16px; width: 340px; transform-origin: bottom left; ' + POP,
-      account: 'right: 24px; top: 80px; width: 280px; transform-origin: top right; ' + POP,
-      bell: 'right: 96px; top: 80px; width: 300px; transform-origin: top right; ' + POP,
-      help: 'left: 116px; bottom: 16px; width: 340px; transform-origin: bottom left; border-radius: 20px; padding: 16px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)',
-      pages: 'left: 744px; top: 300px; width: 300px; transform-origin: top left; ' + POP,
-      legend: 'left: 128px; top: 300px; width: 300px; ' + POP,
-      mods: 'left: 292px; top: 92px; width: 300px; transform-origin: top left; ' + POP,
-      tutor: 'right: 16px; top: 84px; bottom: 16px; width: 344px; border-radius: 28px; transform-origin: top right' };
+      // Each hangs from its button in the row or the pills: under it, at its start or its end, as app's pop-overs.
+      grown: 'left: 442px; top: 92px; width: 340px; transform-origin: top left; ' + POP + '; padding: 8px',
+      account: 'right: 41px; top: 86px; width: 270px; transform-origin: top right; ' + POP + '; padding: 8px',
+      bell: 'right: 159px; top: 86px; width: 300px; transform-origin: top right; ' + POP + '; padding: 12px',
+      help: 'left: 562px; top: 92px; width: 320px; transform-origin: top left; border-radius: 20px; padding: 16px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)',
+      pages: 'left: 522px; top: 434px; width: 400px; transform-origin: top right; ' + POP + '; padding: 18px 8px 8px',
+      legend: 'left: 37px; top: 300px; width: 300px; ' + POP,
+      mods: 'left: 190px; top: 208px; width: 300px; transform-origin: top left; ' + POP,
+      tutor: 'right: 16px; top: 92px; bottom: 16px; width: 400px; border-radius: 28px; transform-origin: top right' };
 
     // The cognitive map is not built yet: its place is shown, shut. A module's skill map opens from Subjects.
-    const ICONS = {
-      home: 'M4 4h6.5v6.5H4zM13.5 4H20v6.5h-6.5zM4 13.5h6.5V20H4zM13.5 13.5H20V20h-6.5z',
-      subjects: 'M4 5.5A1.5 1.5 0 0 1 5.5 4H9v16H5.5A1.5 1.5 0 0 1 4 18.5zM9 4h4v16H9zM14.6 5.3l3.4-.9 3.2 14.5-3.4.9z',
-      cog: 'M12 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM5 3.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM19 3.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM5 16.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM19 16.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM6.6 7l3.6 3.4M17.4 7l-3.6 3.4M6.6 17l3.6-3.4M17.4 17l-3.6-3.4',
-      map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8',
-      grown: 'M7.5 11h9a2.5 2.5 0 0 1 2.5 2.5v4.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18v-4.5A2.5 2.5 0 0 1 7.5 11zM8.5 11V8a3.5 3.5 0 0 1 7 0v3M12 14.8v2',
-      help: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.8M12 17v.2'
-    };
-    const here = s.screen === 'map' ? 'subjects' : s.screen, OFF = '#AEAEB2', SOON = 'Cognitive map — comes later';
-    const places = [['home', 'Home'], ['subjects', 'Subjects'], ['cog', 'Cognitive map']];
-    const sel = { bg: 'rgba(0,113,227,0.10)', fg: '#0066CC' }, idle = { bg: 'transparent', fg: '#6E6E73' };
+    const ICONS = { map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8' };
+    const here = s.screen === 'map' ? 'subjects' : s.screen, SOON = 'Cognitive map — comes later';
 
     // The catalog: the three modules of the first slice, connected, and the check board beside them (architecture 3.10).
     const ABOUT = {
@@ -3410,24 +3683,20 @@ class Component extends DCLogic {
 
     // A child's profile opens For grown-ups behind the PIN, under "Later" (epic E4 of app).
     const pin = s.gPin || '', pinNeeded = pip && !s.gOk;
-    const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.06)' : '#FFFFFF', sh: on ? 'inset 0 0 0 2px #0071E3' : 'inset 0 0 0 1px rgba(0,0,0,0.10)' });
+    const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.1)' : PH ? '#FFFFFF' : 'transparent', sh: on ? 'inset 0 0 0 1.5px #0071E3' : 'none' });
 
     return {
-      on: s.screen === 'home' || s.screen === 'subjects' || s.screen === 'map', isPad: !PH, isPhone: PH, L, P, icons: ICONS, noop: () => {},
-      isHome: s.screen === 'home', isSubjects: s.screen === 'subjects',
+      on: s.screen === 'home' || s.screen === 'subjects' || s.screen === 'map', isPad: !PH, isPhone: PH, L, P, icons: ICONS, ai: AI, noop: () => {},
+      isHome: s.screen === 'home', isSubjects: s.screen === 'subjects', isOther: s.screen !== 'home',
+      otherH: PH ? '780px' : '750px', loading: !!s.homeLoading, loaded: !s.homeLoading, twoCards: [{}, {}],
       screenName: s.screen === 'home' ? 'Home' : s.screen === 'subjects' ? 'Subjects' : 'Skill map',
-      nav: places.map(([id, label]) => ({ label, icon: ICONS[id], off: id === 'cog', tip: id === 'cog' ? SOON : label,
-        go: id === 'cog' ? () => {} : go(id), cur: here === id ? 'page' : 'false',
-        bg: here === id ? '#0071E3' : 'transparent', fg: here === id ? '#FFFFFF' : id === 'cog' ? OFF : '#6E6E73' })),
-      navEnd: [['grown', 'Grown-ups', 'grownOpen'], ['help', 'Help', 'helpOpen']].map(([id, label, k]) => ({ label, icon: ICONS[id], go: tog(k), open: !!s[k], ...(s[k] ? sel : idle) })),
-      // Grown-ups and Help open pop-overs; the places are screens, the cognitive map shut.
-      tabs: places.concat([['grown', 'Grown-ups'], ['help', 'Help']]).map(([id, label]) => {
-        const k = id === 'grown' ? 'grownOpen' : id === 'help' ? 'helpOpen' : null, off = id === 'cog';
-        return { label, icon: ICONS[id], off, tip: off ? SOON : label, cur: here === id ? 'page' : 'false',
-          go: off ? () => {} : k ? tog(k) : go(id), fg: off ? OFF : (k ? s[k] : here === id) ? '#0066CC' : '#6E6E73' };
-      }),
+      // The places are screens, the cognitive map shut; Grown-ups and Help, after a rule, open pop-overs.
+      nav: [['home', 'Home'], ['subjects', 'Subjects'], ['cog', 'Cognitive map'], ['grown', 'Grown-ups', 'grownOpen'], ['help', 'Help', 'helpOpen']].map(([id, label, k]) => ({
+        label, icon: AI[id], off: id === 'cog' || undefined, rule: id === 'grown', tip: id === 'cog' ? SOON : undefined,
+        go: id === 'cog' ? () => {} : k ? tog(k) : go(id), cur: here === id ? 'page' : undefined, open: k ? !!s[k] : undefined })),
       goSubjects: go('subjects'),
-      legend: STATES.map((x, i) => ({ name: x[1], c: BAR[i] })).concat([{ name: 'Feedback by criteria', c: '#7A2EA8' }]),
+      legend: [['mastered', 'Mastered'], ['time-to-review', 'Time to review'], ['in-progress', 'In progress'], ['ready-to-start', 'Ready to start'], ['locked', 'Locked'], ['feedback-by-criteria', 'Feedback by criteria'], ['not-assessed', 'Not assessed']]
+        .map(([st, name], i) => ({ st, name, swatch: i < 5, icon: AI[['mastered', 'review', 'progress', 'ready', 'locked', 'rubric', 'notAssessed'][i]] })),
       catOn, catOff, hasMore: catOff.length > 0, connectedN: catOn.length,
       map, mapMod: MODS.find((m) => m.name === s.mapMod) || BOARD,
       mapLegend: ['mastered', 'review', 'progress', 'ready', 'locked'].map((k) => ({ name: word(k), bg: MAP_LOOK[k][0], bd: MAP_LOOK[k][2] })),
@@ -3438,8 +3707,6 @@ class Component extends DCLogic {
       grownOpen: !!s.grownOpen, bellOpen: !!s.bellOpen, tutorOpen: !!s.homeTutor, modsOpen: !!s.modsOpen,
       toggleGrown: tog('grownOpen'), toggleAccount: tog('switchOpen'), toggleBell: tog('bellOpen'), toggleHelp: tog('helpOpen'), togglePages: tog('pagesOpen'),
       toggleLegend: tog('legendOpen'), toggleMods: tog('modsOpen'), toggleTutor: tog('homeTutor'),
-      bellBtn: s.bellOpen ? { bg: '#0071E3', fg: '#FFFFFF' } : { bg: '#FFFFFF', fg: '#1D1D1F' },
-      tutorRing: s.homeTutor ? '0 0 0 3px #FFFFFF, 0 0 0 5px #0071E3' : 'none',
       meCap: pip ? 'Learner' : 'Your profile',
       tutorLine1: pip ? 'Pip is an AI — a computer program, not a person. A program checks your answers.' : 'The tutor is an AI — a computer program, not a person. A program checks every answer.',
       tutorLine2: pip ? 'Open a lesson or a page from your book, and Pip helps with the work there.' : 'Open a lesson or a page from your book, and the tutor helps with the work there.',
@@ -3630,6 +3897,7 @@ class Component extends DCLogic {
       vTitle: v ? v.title : '', vLine: v ? v.line : '',
       cardOpen: s.cardOpen, cardChevron: s.cardOpen ? 0 : -90, cardToggleLabel: s.cardOpen ? 'Hide the task' : 'Show the task',
       clipDown: this.clipDown, clipMove: this.clipMove, clipUp: this.clipUp,
+      tr: this.tracingVals(t, PH, dim),
       clip: { w: Math.round(t.w * cf), h: Math.round(t.ch * cf), left: Math.round(this.clipXY().x), top: Math.round(this.clipXY().y),
         cursor: s.clipDrag ? 'grabbing' : 'grab', grip: s.clipDrag ? 'rgba(0,113,227,0.6)' : 'rgba(60,60,67,0.22)',
         rot: 0, lift: s.clipDrag ? 1.015 : 1,
@@ -3774,20 +4042,19 @@ class Component extends DCLogic {
       switchLearner: () => this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, gOk: false, screen: 'who', switchOpen: false, pinOpen: false, chat: [] }),
       legendOpen: s.legendOpen, legendCls: s.legendOpen ? 'on' : '', toggleLegend: () => this.setState({ legendOpen: !this.state.legendOpen }),
       pagesOpen: s.pagesOpen, togglePages: () => this.setState({ pagesOpen: !this.state.pagesOpen, helpOpen: false, switchOpen: false }),
-      pages: [{ when: 'Today, 16:05', meta: '3 tasks', open: this.openPage }, { when: '18 November', meta: '1 task', open: this.openPage }],
+      pages: [{ when: 'Nov 22, 2026, 4:05 PM', meta: '3 tasks', page: 'worksheet', open: this.openPage }, { when: 'Nov 18, 2026, 9:12 AM', meta: '1 task', page: 'olympiad', open: this.openPage }],
       helpOpen: s.helpOpen, toggleHelp: () => this.setState({ helpOpen: !this.state.helpOpen, switchOpen: false }),
       openCamera: this.openCamera, continueNext: () => this.openLesson('Olympiad maths 1–6'),
       hs: this.homeVals(s, PH, pip, later), isSubjects: s.screen === 'subjects',
       mods: MODS.map((m) => {
         const go = { open: () => this.openLesson(m.name), openAria: 'Continue ' + m.name, mapAria: 'Skill map of ' + m.name,
           map: () => this.setState({ screen: 'map', mapMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false }) };
-        if (m.mark) return { ...go, name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, hasBar: false, hasMark: true, segs: [],
-          done: m.mark + ' skills, each with a rubric', aria: '. Feedback by criteria on every skill.' };
-        const all = m.sk.reduce((a, b) => a + b, 0);
-        const words = STATES.map((x, i) => m.sk[i] + ' ' + x[1].toLowerCase()).join(', ');
-        return { ...go, name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, hasBar: true, hasMark: false,
-          done: m.sk[0] + ' of ' + all + ' mastered · ' + m.sk[1] + ' time to review', aria: '. All the skills: ' + words + '.',
-          segs: m.sk.map((n, i) => ({ w: (n / all * 100).toFixed(1), c: BAR[i] })) };
+        const look = { name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, letter: m.name[0], tone: m.tone };
+        if (m.mark) return { ...go, ...look, kind: 'rubric', kindName: 'Feedback by criteria', adaptive: false, done: m.mark + ' skills, each with a rubric',
+          aria: 'All the skills: Feedback by criteria: ' + m.mark, dots: Array.from({ length: m.mark }, () => ({ st: 'feedback-by-criteria' })) };
+        const all = m.sk.reduce((a, b) => a + b, 0), st = ['mastered', 'time-to-review', 'in-progress', 'ready-to-start', 'locked'];
+        return { ...go, ...look, kind: 'adaptive', kindName: 'Adaptive', adaptive: true, done: m.sk[0] + ' of ' + all + ' mastered', review: m.sk[1] + ' skills to review',
+          aria: 'All the skills: ' + STATES.map((x, i) => x[1] + ': ' + m.sk[i]).join(', '), dots: m.sk.flatMap((n, i) => Array.from({ length: n }, () => ({ st: st[i] }))) };
       })
     };
   }
