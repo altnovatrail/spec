@@ -81,7 +81,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `home-bell` | Home, the notifications: "Nothing new yet" — nothing sends one | First slice (RUN.md, T250) |
 | `home-tutor` | Home, the tutor's panel from the top right: that the tutor is an AI and where it helps, "Continue" and "Tasks from my paper" — Home holds no work, so it speaks of none | First slice (RUN.md, T250) |
 | `home-legend` | Home, what the marks mean: on the phone a sheet, on the iPad the legend that stands under the modules | First slice |
-| `home-pages` | Home, "Your pages" by "Open camera": the profile's pages from paper on this device, newest first, each with its photo's thumbnail, its date and time and its number of tasks, and under them where they are kept | First slice (RUN.md, T231) |
+| `home-pages` | Home, "Your pages" by "Open camera": the profile's pages from paper on this device, newest first, each with its photo's thumbnail, its date and time and its number of tasks, and under them how many of the newest are kept, where and until when | First slice (RUN.md, T231) |
 | `subjects` | Subjects, from the row of places: the connected modules, each with its skill map, and the check board "Tasks on a sheet" to connect | First slice (RUN.md, T250) |
 | `solve-kept` | A page opened from "Your pages": its picked tasks with the work kept, and no verdict, which the device does not keep | First slice (RUN.md, T231) |
 | `legal-access` | The page Accessibility, from Help | First slice |
