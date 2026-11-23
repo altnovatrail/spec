@@ -97,6 +97,58 @@ export interface GridChange {
 export type GridChangeEvent = CustomEvent<GridChange>;
 
 /**
+ * The kind of pen a stroke is written with, which the learner picks in the pen's popover: "pen",
+ * whose line is drawn wider and finer by a pen's pressure, or without one by the speed of the
+ * pointer, and a little finer at its ends; "liner", one width all along; and "marker", one width,
+ * multiplied with what lies under it.
+ */
+export type PenKind = "pen" | "liner" | "marker";
+
+/**
+ * How a stroke looks: its kind of pen, its colour, its width and its opacity, as the learner chose
+ * them before it was written. A stroke keeps its style: a new choice changes the strokes after it.
+ */
+export interface StrokeStyle {
+  readonly pen: PenKind;
+  /** Any colour of sRGB, `#rrggbb` in lowercase hexadecimal digits, the palette's or another. */
+  readonly color: string;
+  /**
+   * The width of its line, in the sheet's units, from 0.1 to 50 — on the tracing paper in its
+   * units, so that it scales with it. A pen of the kind "pen" draws it as the middle of what its
+   * pressure or its speed makes of it; a crop for checking draws every stroke at its width.
+   */
+  readonly width: number;
+  /** Its opacity, in whole percent from 10 to 100: the stroke is laid as one layer, at it. */
+  readonly opacity: number;
+}
+
+/**
+ * What the eraser takes off: "stroke", every stroke it touches, whole; "part", only what it passes
+ * over, cutting the strokes it crosses into pieces.
+ */
+export type EraserMode = "stroke" | "part";
+
+/**
+ * The learner's settings of the pen and the eraser: the kind of pen in use, each kind's own style,
+ * which its next stroke takes, and the eraser's mode and size. An element starts with canvas's.
+ */
+export interface PenSettings {
+  readonly pen: PenKind;
+  /** Each kind's style, its `pen` that kind. */
+  readonly styles: { readonly pen: StrokeStyle; readonly liner: StrokeStyle; readonly marker: StrokeStyle };
+  readonly eraser: EraserMode;
+  /** The eraser's diameter, in the sheet's units, from 1 to 200. */
+  readonly eraserSize: number;
+}
+
+/**
+ * The event the element sends from its host, bubbling and composed, when the learner changes a
+ * setting in the popover of the pen or of the eraser, opened by a second press of the chosen tool —
+ * not when the consumer sets `pens`. Its detail is the new settings, frozen.
+ */
+export type PenChangeEvent = CustomEvent<PenSettings>;
+
+/**
  * Where the tracing paper of a task from paper lies on the sheet, how large, and whether it is
  * hidden. A new task from paper starts at the element's own place for it, shown, at its own size.
  */
@@ -158,24 +210,49 @@ export interface InkPoint {
   readonly y: number;
   /** Milliseconds since the sheet's first event: the time of a sample has no date. */
   readonly t: number;
-  /** The pressure, 0 to 1, as the pointer reported it. */
+  /**
+   * The pressure, 0 to 1, as the pointer reported it, and never one the element made up: the width
+   * of a pen's line without a pen's pressure comes from its speed, by the times of its points.
+   */
   readonly p: number;
 }
 
-/** A stroke: one press of a pointer, from going down to coming up. */
+/**
+ * A stroke: one press of a pointer, from going down to coming up, or a piece of one that the
+ * eraser cut.
+ */
 export interface Stroke {
   /**
-   * The stroke's ID on its sheet: 1, 2, … in the order the strokes began, never reused within one
-   * history. A sheet given another history numbers on from that history's highest ID.
+   * The stroke's ID on its sheet: 1, 2, … in the order the strokes began, a piece when the eraser
+   * that cut it lifted, never reused within one history. A sheet given another history numbers on
+   * from that history's highest ID.
    */
   readonly id: number;
   /**
    * The pointer's type as the browser reported it — "pen", "touch", "mouse" or whatever else it
-   * says. Only a pen's pressure changes the width of the line.
+   * says. Only a pen's pressure changes the width of the line, and only of a pen of the kind "pen".
    */
   readonly kind: string;
+  /**
+   * How it looks. The element gives every stroke it writes one; a stroke of a history written
+   * before strokes had a style has none, and is drawn as the pen then drew: of the kind "pen",
+   * black and opaque.
+   */
+  readonly style?: StrokeStyle;
   /** The points in the order they were written, the first where the pointer went down. */
   readonly points: readonly InkPoint[];
+}
+
+/**
+ * A piece of a stroke that the eraser cut, a stroke of its own: the ID of the stroke it was cut of,
+ * and the piece, with that stroke's pointer and style. Its points are a run of that stroke's, with
+ * one point of its own at most at each end, where the eraser's edge crossed the stroke, its place
+ * and its time and pressure between those of its neighbours. A piece of a stroke on the tracing
+ * paper is on the tracing paper too.
+ */
+export interface Piece {
+  readonly of: number;
+  readonly stroke: Stroke;
 }
 
 /**
@@ -196,13 +273,28 @@ export type HistoryEvent =
    * no `on`.
    */
   | { readonly kind: "write"; readonly t: number; readonly stroke: Stroke; readonly on?: "tracing" }
-  /** One press of the eraser: the strokes it took off, in the sheet's order, when it lifted. */
+  /**
+   * One press of the eraser that takes strokes whole: the strokes it took off, in the sheet's
+   * order, when it lifted.
+   */
   | { readonly kind: "erase"; readonly t: number; readonly ids: readonly number[] }
+  /**
+   * One press of the eraser that takes a part: the strokes it crossed, in the sheet's order, which
+   * it took off, and the pieces of them it left, in the order of `ids` and along each stroke, new
+   * strokes on the sheet, when it lifted. A stroke it covered whole leaves no piece.
+   */
+  | {
+      readonly kind: "cut";
+      readonly t: number;
+      readonly ids: readonly number[];
+      readonly pieces: readonly Piece[];
+    }
   /** The sheet cleared: every stroke that was on it, in the sheet's order. */
   | { readonly kind: "clear"; readonly t: number; readonly ids: readonly number[] }
   /**
    * The last action still in force taken back: the stroke it took off, if it was a writing, or the
-   * strokes it brought back, if it was an erasing or a clearing.
+   * strokes it brought back, if it was an erasing or a clearing — and of a cut, the pieces it took
+   * off too.
    */
   | {
       readonly kind: "undo";
@@ -223,7 +315,7 @@ export interface HistoryChange {
 
 /**
  * The event the element sends from its host, bubbling and composed, at once after every action on
- * the sheet: a stroke, an erasing, a clearing and an undo. Its detail is frozen. Setting `history`
+ * the sheet: a stroke, an erasing, a cut, a clearing and an undo. Its detail is frozen. Setting `history`
  * sends none.
  */
 export type HistoryChangeEvent = CustomEvent<HistoryChange>;
@@ -483,6 +575,7 @@ export interface CanvasEventMap {
   tracingchange: TracingChangeEvent;
   tracingread: TracingReadEvent;
   gridchange: GridChangeEvent;
+  penchange: PenChangeEvent;
 }
 
 /**
@@ -553,6 +646,15 @@ export interface CanvasElement extends HTMLElement {
   get grid(): PaperGrid | undefined;
   set grid(grid: PaperGrid | undefined);
   /**
+   * The settings of the pen and the eraser, frozen: canvas's as an element comes. The learner
+   * changes them in the popovers of the pen and the eraser, which a `penchange` tells; the consumer
+   * keeps them and gives them back to the next element, which tells nothing. Settings not of
+   * `PenSettings` — a style whose `pen` is not its kind's, a colour, a width, an opacity or a size
+   * out of its bounds — are a TypeError; `undefined` changes nothing.
+   */
+  get pens(): PenSettings;
+  set pens(settings: PenSettings | undefined);
+  /**
    * The open view of a lesson's worked example, its segment `worked_example`, in place of a task;
    * its module's manifest is `manifest`, as a task's is. The element shows the example's statement
    * and its sheet, which the learner does not write on: the sheet takes no input, and the tool is the
@@ -588,7 +690,7 @@ export interface CanvasElement extends HTMLElement {
    */
   media: Media | undefined;
   /**
-   * The history of writing: every stroke, erasing, clearing and undo on the sheet, frozen. The
+   * The history of writing: every stroke, erasing, cut, clearing and undo on the sheet, frozen. The
    * consumer keeps it, adding what `historychange` tells, and gives it back to open the sheet as it
    * was. A history the sheet could not have written is a TypeError, and the sheet stays as it was;
    * `undefined` is the empty one.
@@ -598,7 +700,7 @@ export interface CanvasElement extends HTMLElement {
   /**
    * The tutor's marks of one submission, on the tutor's layer, given after the task and the
    * history they hold on to. A mark holds on to the strokes the model saw at its place and is drawn
-   * around those of them the sheet shows, as they are now: a box on the crop takes the strokes by
+   * around those of them the sheet shows, and the pieces the eraser has cut of them, as they are now: a box on the crop takes the strokes by
    * the rule of snapping of `contracts/README.md`, and a cell of a workbook is framed with
    * its box — round the box alone when the box was empty. A cell on a sheet, and a box that comes
    * near no stroke, have no frame: the question is asked without one. A submission goes back to the
@@ -631,8 +733,8 @@ export interface CanvasElement extends HTMLElement {
    * The picture of the work, which app puts as the stored work's `picture` in the contract between
    * app and api: always a Blob of a PNG, with no condition, of the strokes the surface shows as it is
    * when it is called — the page, a sheet's or a workbook's, and the ink past it, right and down, with
-   * the tracing paper of a task from paper where it lies —, within the limit of a stored work there.
-   * Its size, in its PNG's header, and its colours are canvas's.
+   * the tracing paper of a task from paper where it lies —, each stroke in its style, within the limit
+   * of a stored work there. Its size, in its PNG's header, is canvas's.
    */
   exportPicture(): Promise<Blob>;
 }

@@ -1,8 +1,8 @@
 // The rules that the device and the runner share: how a history of writing folds into the strokes a
-// sheet shows, the groups of strokes and the groups of a stroke taken off, the crop and its numbers,
-// how a box of a model snaps to the strokes, and which box of a workbook a stroke fills. A second
-// implementation, written from the text, beside canvas's, whose CI passes the same vectors, and
-// tutor's runner's.
+// sheet shows, the groups of strokes and the groups of a stroke taken off, the crop and its numbers
+// by the strokes' styles, how a box of a model snaps to the strokes, and which box of a workbook a
+// stroke fills. A second implementation, written from the text, beside canvas's, whose CI passes the
+// same vectors, and tutor's runner's.
 //
 // Every rule counts in whole numbers: a place in whole tenths of a unit, round(10 × v) with a half
 // rounded up, a time in whole milliseconds, and after that only adds, subtracts, multiplies and
@@ -45,6 +45,11 @@ export const GROUP_RULE = { pause: 2000, across: 50, down: 50 };
 export const CROP_RULE = { margin: 12, flat: 15, ceiling: 100, side: 200, edge: 1568, tokens: 1568, patch: 28, heights: [16, 24, 32, 48] };
 export const SNAP_RULE = { margin: 250, share: [2, 3] };
 export const BOX_RULE = { margin: 120, limit: 1600 };
+// A stroke's style: its kinds of pen, its width in tenths of a unit and its opacity in percent, each
+// from and to, bounds in.
+export const PEN_KINDS = ["PEN_KIND_PEN", "PEN_KIND_LINER", "PEN_KIND_MARKER"];
+export const STYLE_RULE = { width: [1, 500], opacity: [10, 100] };
+const COLOR = /^#[0-9a-f]{6}$/;
 
 const byNumber = (a, b) => a - b;
 
@@ -74,47 +79,89 @@ export function extentOf(points) {
 // How far apart two boxes are across and down, 0 where they touch or overlap.
 const gapsOf = (a, b) => [Math.max(0, b.xmin - a.xmax, a.xmin - b.xmax), Math.max(0, b.ymin - a.ymax, a.ymin - b.ymax)];
 
+// What a stroke's style, novatrail.eval.v1.StrokeStyle as JSON, breaks: a kind of pen; a colour of
+// sRGB, # and six lowercase hexadecimal digits; a width to a tenth of a unit, from 0.1 to 50; and an
+// opacity in whole percent, from 10 to 100. breach(at, message) gets each, at its path from at.
+export function styleBreaches(style, at, breach, rule = STYLE_RULE) {
+  if (!PEN_KINDS.includes(style.pen)) breach([...at, "pen"], `the style's pen is ${JSON.stringify(style.pen)}, and a kind of pen is ${PEN_KINDS.join(", ")}`);
+  if (!COLOR.test(style.color)) breach([...at, "color"], `the colour ${JSON.stringify(style.color)} is not # and six lowercase hexadecimal digits`);
+  const [thinnest, widest] = rule.width;
+  if (!Number.isFinite(style.width) || tenths(style.width) / 10 !== style.width || tenths(style.width) < thinnest || tenths(style.width) > widest) breach([...at, "width"], `the width is ${JSON.stringify(style.width)}, and a stroke's width is to a tenth of a unit, from ${thinnest / 10} to ${widest / 10}`);
+  const [faintest, fullest] = rule.opacity;
+  if (!Number.isInteger(style.opacity) || style.opacity < faintest || style.opacity > fullest) breach([...at, "opacity"], `the opacity is ${JSON.stringify(style.opacity)}, and a stroke's is whole percent from ${faintest} to ${fullest}`);
+}
+
+const samePoint = (a, b) => a.x === b.x && a.y === b.y && a.t_ms === b.t_ms;
+
 // What a history of writing, events of novatrail.eval.v1.HistoryEvent as JSON, breaks of the rules
 // of the sample file: each event no sooner than the one before it; a stroke written with an ID from
-// 1 that no other has, the type of its pointer and its points, which never go back in time, the
-// last no later than the event — a stroke is written when its last point is, or later, when another
-// action landed while it was written; erase, clear and undo taking off strokes the sheet shows, a
-// clear all of them, and an undo putting back strokes written and not shown. breach(at, message)
-// gets each, with at its path from the events, and point(point, at) each point to check its place.
-// The IDs the sheet shows at the end.
+// 1 that no other has, the type of its pointer, its style if it has one, and its points, which never
+// go back in time, the last no later than the event — a stroke is written when its last point is, or
+// later, when another action landed while it was written; erase, clear, cut and undo taking off
+// strokes the sheet shows, a clear all of them, and an undo putting back strokes written and not
+// shown; and each piece a cut leaves a new stroke, of a stroke the cut takes off, with its pointer
+// and style and a run of its points, with one point of its own at most at each end, at a time
+// within the stroke's. breach(at, message) gets each, with at its path from the events, and
+// point(point, at) each point to check its place. The IDs the sheet shows at the end.
 export function historyBreaches(events, breach, point) {
   const visible = new Set();
-  const known = new Set();
+  const known = new Map();
   let time = 0;
+  // A stroke written, or a piece a cut left, at its path: what it breaks of a stroke's form.
+  const stroke = (one, at, event) => {
+    if (one.id < 1) breach([...at, "id"], `the stroke's ID is ${one.id}, and IDs count from 1`);
+    else if (known.has(one.id)) breach([...at, "id"], `the stroke ${one.id} is written twice`);
+    known.set(one.id, one);
+    if (one.pointer === "") breach([...at, "pointer"], "the stroke names no type of pointer");
+    if (one.style) styleBreaches(one.style, [...at, "style"], breach);
+    if (one.points.length === 0) breach([...at, "points"], `the stroke ${one.id} has no point`);
+    let last = 0;
+    one.points.forEach((each, j) => {
+      const where = [...at, "points", j];
+      point(each, where);
+      if (each.t_ms < last) breach([...where, "t_ms"], `the point is at ${each.t_ms} ms, before the one before it, at ${last} ms: a stroke's points never go back in time`);
+      last = Math.max(last, each.t_ms);
+    });
+    const end = one.points.at(-1)?.t_ms;
+    if (end !== undefined && end > event.t_ms) breach([...at.slice(0, 1), "t_ms"], `the stroke ${one.id} is written at ${event.t_ms} ms, and its last point is at ${end} ms: a stroke is written no sooner than its last point`);
+  };
+  // A piece, at its path, against the stroke it was cut of: its pointer and style, and its points.
+  const piece = (one, of, at) => {
+    if (one.pointer !== of.pointer) breach([...at, "pointer"], `the piece ${one.id} names the pointer ${JSON.stringify(one.pointer)}, and the stroke ${of.id} it was cut of ${JSON.stringify(of.pointer)}`);
+    if (!isDeepStrictEqual(one.style, of.style)) breach([...at, "style"], `the piece ${one.id} has the style ${JSON.stringify(one.style ?? null)}, and the stroke ${of.id} it was cut of ${JSON.stringify(of.style ?? null)}`);
+    const inner = one.points.slice(1, -1);
+    const start = inner.length ? of.points.findIndex((each) => samePoint(each, inner[0])) : 0;
+    if (start < 0 || inner.some((each, j) => !of.points[start + j] || !samePoint(each, of.points[start + j]))) breach([...at, "points"], `the piece ${one.id} is no run of the points of the stroke ${of.id}, with one point of its own at most at each end`);
+    const [first, last] = [of.points[0]?.t_ms, of.points.at(-1)?.t_ms];
+    for (const end of [one.points[0], one.points.at(-1)]) if (end && (end.t_ms < first || end.t_ms > last)) breach([...at, "points"], `the piece ${one.id} ends at ${end.t_ms} ms, outside the times of the stroke ${of.id}, ${first} to ${last} ms`);
+  };
   events.forEach((event, i) => {
     const at = [i];
     if (event.t_ms < time) breach([...at, "t_ms"], `the event is at ${event.t_ms} ms, before the one before it, at ${time} ms`);
     time = Math.max(time, event.t_ms);
-    const kind = ["write", "erase", "clear", "undo"].find((name) => name in event);
+    const kind = ["write", "erase", "clear", "cut", "undo"].find((name) => name in event);
     if (kind === "write") {
-      const stroke = event.write;
-      if (stroke.id < 1) breach([...at, "write", "id"], `the stroke's ID is ${stroke.id}, and IDs count from 1`);
-      else if (known.has(stroke.id)) breach([...at, "write", "id"], `the stroke ${stroke.id} is written twice`);
-      known.add(stroke.id);
-      visible.add(stroke.id);
-      if (stroke.pointer === "") breach([...at, "write", "pointer"], "the stroke names no type of pointer");
-      if (stroke.points.length === 0) breach([...at, "write", "points"], `the stroke ${stroke.id} has no point`);
-      let last = 0;
-      stroke.points.forEach((one, j) => {
-        const where = [...at, "write", "points", j];
-        point(one, where);
-        if (one.t_ms < last) breach([...where, "t_ms"], `the point is at ${one.t_ms} ms, before the one before it, at ${last} ms: a stroke's points never go back in time`);
-        last = Math.max(last, one.t_ms);
-      });
-      const end = stroke.points.at(-1)?.t_ms;
-      if (end !== undefined && end > event.t_ms) breach([...at, "t_ms"], `the stroke ${stroke.id} is written at ${event.t_ms} ms, and its last point is at ${end} ms: a stroke is written no sooner than its last point`);
-    } else if (kind === "erase" || kind === "clear") {
+      stroke(event.write, [...at, "write"], event);
+      visible.add(event.write.id);
+    } else if (kind === "erase" || kind === "clear" || kind === "cut") {
       const { ids } = event[kind];
-      if (kind === "erase" && ids.length === 0) breach([...at, kind], "the eraser takes no stroke off");
+      if (kind !== "clear" && ids.length === 0) breach([...at, kind], `the ${kind === "cut" ? "cut" : "eraser"} takes no stroke off`);
       if (new Set(ids).size !== ids.length) breach([...at, kind], `${kind} names a stroke twice`);
       for (const id of ids) if (!visible.has(id)) breach([...at, kind], `${kind} takes off the stroke ${id}, which the sheet does not show then`);
       if (kind === "clear" && !isDeepStrictEqual(new Set(ids), visible)) breach([...at, kind], `clear names ${JSON.stringify(ids)}, and the sheet shows ${JSON.stringify([...visible].sort(byNumber))}: a clear takes every stroke off`);
       for (const id of ids) visible.delete(id);
+      let order = 0;
+      (event.cut?.pieces ?? []).forEach((one, j) => {
+        const where = [...at, "cut", "pieces", j];
+        const place = ids.indexOf(one.of);
+        if (place < 0) breach([...where, "of"], `the piece is of the stroke ${one.of}, which the cut does not take off`);
+        else if (place < order) breach([...where, "of"], `the piece of the stroke ${one.of} comes after a piece of a stroke later in ids: the pieces go in the order of ids`);
+        order = Math.max(order, place);
+        if (!one.stroke) return breach(where, "the piece holds no stroke");
+        stroke(one.stroke, [...where, "stroke"], event);
+        visible.add(one.stroke.id);
+        if (place >= 0 && known.get(one.of) !== one.stroke) piece(one.stroke, known.get(one.of), [...where, "stroke"]);
+      });
     } else if (kind === "undo") {
       const { removed, restored } = event.undo;
       if (removed.length + restored.length === 0) breach([...at, "undo"], "the undo changes nothing");
@@ -122,24 +169,26 @@ export function historyBreaches(events, breach, point) {
       for (const id of restored) if (!known.has(id) || visible.has(id)) breach([...at, "undo"], `the undo puts back the stroke ${id}, which is ${known.has(id) ? "on the sheet already" : "never written"}`);
       for (const id of removed) visible.delete(id);
       for (const id of restored) if (known.has(id)) visible.add(id);
-    } else breach(at, "the event is none of write, erase, clear and undo");
+    } else breach(at, "the event is none of write, erase, clear, cut and undo");
   });
   return visible;
 }
 
 // A history of writing folded, events of novatrail.eval.v1.HistoryEvent as JSON: the strokes it
-// wrote, by ID, and the IDs of those the sheet shows at the end, ascending. Only adding and taking
-// off IDs: a clear reads as an erase, and an undo takes off what it removed and puts back what it
-// restored, with no rule of the stack of undo.
+// wrote, by ID, the pieces a cut left among them, and the IDs of those the sheet shows at the end,
+// ascending. Only adding and taking off IDs: a clear reads as an erase, a cut takes off what it names
+// and adds its pieces, and an undo takes off what it removed and puts back what it restored, with no
+// rule of the stack of undo.
 export function fold(events) {
   const written = new Map();
   const shown = new Set();
   for (const event of events) {
-    if (event.write) {
-      written.set(event.write.id, event.write);
-      shown.add(event.write.id);
+    const added = event.write ? [event.write] : (event.cut?.pieces ?? []).map((piece) => piece.stroke);
+    for (const id of event.erase?.ids ?? event.clear?.ids ?? event.cut?.ids ?? event.undo?.removed ?? []) shown.delete(id);
+    for (const stroke of added) {
+      written.set(stroke.id, stroke);
+      shown.add(stroke.id);
     }
-    for (const id of event.erase?.ids ?? event.clear?.ids ?? event.undo?.removed ?? []) shown.delete(id);
     for (const id of event.undo?.restored ?? []) shown.add(id);
   }
   return { written, visible: [...shown].sort(byNumber) };
@@ -209,8 +258,8 @@ export function groupsOf(strokes, rule = GROUP_RULE) {
   };
 }
 
-// The groups of each stroke written and not shown at the end — erased, cleared or taken off by an
-// undo —, ascending by ID: { stroke_id, labels }, the labels of the groups of the shown strokes
+// The groups of each stroke written and not shown at the end — erased, cleared, cut or taken off by
+// an undo —, ascending by ID: { stroke_id, labels }, the labels of the groups of the shown strokes
 // that would be its neighbours by the same rule, in the order of the groups. With none, it is in
 // no group; with neighbours in two groups, in both.
 export function erasedOf(history, rule = GROUP_RULE) {
@@ -262,24 +311,37 @@ export function medianOf(bundles, rule = CROP_RULE) {
   return heights[Math.floor((heights.length - 1) / 2)];
 }
 
-// The numbers of one crop at the height of a digit asked for, D, of strokes whose points' box is B
-// and whose scale takes H, both in tenths, and the frames of the groups given — each { label,
-// points }, none on a workbook —, as the message Crop writes them, its PNG aside.
-export function cropOf(digit, B, H, groups, rule = CROP_RULE) {
+// The ink of a stroke's line on a crop drawn at D′, of a set whose scale takes H: N, with the line
+// N / (12 × H) px wide — without a style H × max(D′, 12), the line max(D′, 12) / 12 px; with one of
+// width W tenths 12 × max(W × D′, H), its width at the crop's scale and 1 px at least. width is W, or
+// null without a style.
+export const inkOf = (width, drawn, H) => (width === null ? H * Math.max(drawn, 12) : 12 * Math.max(width * drawn, H));
+
+// The width of a stroke for the rule of the crop: its style's in whole tenths, or null without one.
+export const widthOf = (stroke) => (stroke.style ? tenths(stroke.style.width) : null);
+
+// The numbers of one crop at the height of a digit asked for, D, of strokes whose points' box is B,
+// whose scale takes H, both in tenths, and whose widths are given, each W or null, and the frames of
+// the groups given — each { label, points, widths }, none on a workbook —, as the message Crop
+// writes them, its PNG aside. The margin holds half the widest line and a pixel, 12 px at least,
+// and a frame half its group's widest line and a pixel.
+export function cropOf(digit, B, H, groups, rule = CROP_RULE, widths = [null]) {
+  const widest = (drawn, of) => Math.max(...of.map((width) => inkOf(width, drawn, H)));
   const sizeAt = (drawn) => {
-    const [w0, h0] = [ceilDiv((B.xmax - B.xmin) * drawn, H) + 2 * rule.margin, ceilDiv((B.ymax - B.ymin) * drawn, H) + 2 * rule.margin];
+    const margin = Math.max(rule.margin, ceilDiv(widest(drawn, widths), 24 * H) + 1);
+    const [w0, h0] = [ceilDiv((B.xmax - B.xmin) * drawn, H) + 2 * margin, ceilDiv((B.ymax - B.ymin) * drawn, H) + 2 * margin];
     const [width, height] = [Math.max(w0, rule.side), Math.max(h0, rule.side)];
-    return { width, height, left: rule.margin + Math.floor((width - w0) / 2), top: rule.margin + Math.floor((height - h0) / 2) };
+    return { width, height, left: margin + Math.floor((width - w0) / 2), top: margin + Math.floor((height - h0) / 2) };
   };
   const fits = ({ width, height }) => Math.max(width, height) <= rule.edge && ceilDiv(width, rule.patch) * ceilDiv(height, rule.patch) <= rule.tokens;
   let drawn = digit;
   while (drawn > 1 && !fits(sizeAt(drawn))) drawn -= 1;
   const { width, height, left, top } = sizeAt(drawn);
-  const r = (Math.max(drawn, 12) + 24) * H;
   const X = (x) => 24 * ((x - B.xmin) * drawn + left * H);
   const Y = (y) => 24 * ((y - B.ymin) * drawn + top * H);
   const frames = groups.map((group) => {
     const g = extentOf(group.points);
+    const r = widest(drawn, group.widths ?? [null]) + 24 * H;
     return {
       label: group.label,
       box: {
@@ -298,7 +360,7 @@ export function cropOf(digit, B, H, groups, rule = CROP_RULE) {
     margin_top: top,
     margin_left: left,
     scale: (10 * drawn) / H,
-    line_width: Math.max(drawn, 12) / 12,
+    line_width: widest(drawn, widths) / (12 * H),
     sheet_box: {
       ymin: (B.ymin * drawn - top * H) / (10 * drawn),
       xmin: (B.xmin * drawn - left * H) / (10 * drawn),
@@ -312,17 +374,21 @@ export function cropOf(digit, B, H, groups, rule = CROP_RULE) {
 // The heights of a digit a set of crops is drawn at: those of eval and the module's, ascending.
 export const heightsOf = (digit, rule = CROP_RULE) => [...new Set([...rule.heights, digit])].sort(byNumber);
 
-// The crops of one set of strokes, each { id, points: [{ x, y }] }, with their groups, each { label,
-// stroke_ids } — on a workbook, none —, at the module's height of a digit: as the message CropSet
-// writes them, each PNG aside, or null when there is no stroke.
+// The crops of one set of strokes, each { id, points: [{ x, y }], style? }, with their groups, each
+// { label, stroke_ids } — on a workbook, none —, at the module's height of a digit: as the message
+// CropSet writes them, each PNG aside, or null when there is no stroke.
 export function cropSetOf(strokes, groups, digit, rule = CROP_RULE) {
   if (strokes.length === 0) return null;
   const B = extentOf(strokes.flatMap((stroke) => stroke.points));
   const median = medianOf(bundlesOf(strokes, rule), rule);
   const H = Math.min(median, 10 * rule.ceiling);
   const byId = new Map(strokes.map((stroke) => [stroke.id, stroke]));
-  const inked = groups.map((group) => ({ label: group.label, points: group.stroke_ids.flatMap((id) => byId.get(id)?.points ?? []) }));
-  return { ink_box: B, bundle_median: median, crops: heightsOf(digit, rule).map((height) => cropOf(height, B, H, inked, rule)) };
+  const inked = groups.map((group) => {
+    const members = group.stroke_ids.flatMap((id) => (byId.has(id) ? [byId.get(id)] : []));
+    return { label: group.label, points: members.flatMap((stroke) => stroke.points), widths: [...new Set(members.map(widthOf))] };
+  });
+  const widths = [...new Set(strokes.map(widthOf))];
+  return { ink_box: B, bundle_median: median, crops: heightsOf(digit, rule).map((height) => cropOf(height, B, H, inked, rule, widths)) };
 }
 
 // Which strokes a box of a model snaps to on one crop of a set: the box in whole thousandths of the
@@ -529,7 +595,7 @@ function checkGroups(value, here, read, rule, seen) {
   const before = seen.problems;
   historyBreaches(history.events, (at, text) => here(text, ["history", "events", ...at]), onSheet(here, ["history", "events"]));
   if (seen.problems > before) return;
-  for (const event of history.events) for (const kind of ["erase", "clear", "undo"]) if (kind in event) seen.events.add(kind);
+  for (const event of history.events) for (const kind of ["erase", "clear", "cut", "undo"]) if (kind in event) seen.events.add(kind);
   const { written, visible } = fold(history.events);
   compare(value.visible, visible, "visible", here, "the fold of the history");
   const computed = groupsOf(visible.map((id) => written.get(id)), rule);
@@ -552,6 +618,8 @@ function checkCrops(value, here, read, rule, seen) {
   if (bundles.length === 0) seen.crops.add("no bundle");
   if (drawn && drawn.bundle_median > 10 * rule.ceiling) seen.crops.add("above the ceiling");
   if (drawn?.crops.some((crop) => crop.drawn_height < crop.digit_height)) seen.crops.add("drawn smaller");
+  if (found.strokes.some((stroke) => stroke.style)) seen.crops.add("styled");
+  if (drawn?.crops.some((crop) => Math.min(crop.margin_top, crop.margin_left) > rule.margin)) seen.crops.add("wider margin");
 }
 
 function checkSnaps(value, here, read, rule, seen) {
@@ -656,9 +724,9 @@ export function checkVector(bytes, name, messages) {
 // The vectors of the rules at root, files of contracts/, by the image buf builds: the errors, { file,
 // line, message } — each vector's, and, when every one holds, what they lack together: each of the
 // four files, the events of a history that take strokes off, a stroke taken off in no group and in
-// two, a crop with no bundle, with h_med above the ceiling and drawn smaller than asked, a box of a
-// model that takes strokes and one that takes none, and a stroke of the draft and a filled box —,
-// and how many cases they hold.
+// two, a crop with no bundle, with h_med above the ceiling, drawn smaller than asked, of strokes with
+// a style and with a margin wider than the rule's, a box of a model that takes strokes and one
+// that takes none, and a stroke of the draft and a filled box —, and how many cases they hold.
 export function checkVectors(root, image, files) {
   const known = messagesOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }], cases: 0 };
@@ -674,10 +742,11 @@ export function checkVectors(root, image, files) {
     const lack = (text) => errors.push({ file: FOLDER, line: 0, message: `no vector ${text}: the vectors hold every one of ${TEXT}` });
     const names = new Set(files.map((file) => path.posix.basename(file)));
     for (const name of VECTOR_FILES) if (!names.has(name)) errors.push({ file: `${FOLDER}/${name}`, line: 0, message: `the file is missing: the vectors of ${TEXT} are ${VECTOR_FILES.join(", ")}` });
-    for (const kind of ["erase", "clear", "undo"]) if (!seen.events.has(kind)) lack(`has a history with ${kind}`);
+    for (const kind of ["erase", "clear", "cut", "undo"]) if (!seen.events.has(kind)) lack(`has a history with ${kind}`);
     if (!seen.erased.has("none")) lack("has a stroke taken off that is in no group");
     if (!seen.erased.has("several")) lack("has a stroke taken off that is in two groups");
-    for (const what of ["no bundle", "above the ceiling", "drawn smaller"]) if (!seen.crops.has(what)) lack(`has a crop with ${what === "drawn smaller" ? "a height drawn below the height asked for" : what === "no bundle" ? "no bundle" : "h_med above the ceiling"}`);
+    const crops = { "no bundle": "no bundle", "above the ceiling": "h_med above the ceiling", "drawn smaller": "a height drawn below the height asked for", styled: "strokes with a style", "wider margin": "a margin wider than the rule's, for a wide line" };
+    for (const [what, words] of Object.entries(crops)) if (!seen.crops.has(what)) lack(`has a crop with ${words}`);
     if (!seen.snaps.has("taken")) lack("has a box of a model that takes strokes");
     if (!seen.snaps.has("none")) lack("has a box of a model that takes none");
     if (!seen.boxes.has("draft")) lack("has a stroke of the draft");

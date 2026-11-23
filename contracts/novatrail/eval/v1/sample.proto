@@ -249,12 +249,15 @@ message HistoryEvent {
   oneof event {
     // A stroke was written.
     Stroke write = 2;
-    // The eraser took strokes off, in one stroke of the eraser.
+    // The eraser took strokes off whole, in one stroke of the eraser.
     StrokeIds erase = 3;
     // The sheet was cleared: every stroke on it.
     StrokeIds clear = 4;
     // An undo took strokes off and put others back.
     Undo undo = 5;
+    // The eraser took off the strokes it crossed and left the pieces of them it did not pass over,
+    // in one stroke of an eraser that takes a part.
+    Cut cut = 6;
   }
 }
 
@@ -267,6 +270,52 @@ message Stroke {
   string pointer = 2;
   // The points, in the order they were written: one at least.
   repeated InkPoint points = 3;
+  // How it looks, as the learner chose it; none in a stroke written before strokes had a style,
+  // which is drawn black and opaque.
+  StrokeStyle style = 4;
+}
+
+// How a stroke looks: its kind of pen, its colour, its width and its opacity.
+message StrokeStyle {
+  // The kind of pen.
+  PenKind pen = 1;
+  // Its colour, any of sRGB: `#` and six lowercase hexadecimal digits.
+  string color = 2;
+  // The width of its line, in units of the sheet, to a tenth, from 0.1 to 50.
+  double width = 3;
+  // Its opacity, in whole percent from 10 to 100.
+  int32 opacity = 4;
+}
+
+// The kind of pen a stroke is written with.
+enum PenKind {
+  // No kind: never written. A style that holds it is not valid.
+  PEN_KIND_UNSPECIFIED = 0;
+  // A pen, whose line the device draws wider and finer by its pressure or its speed: a crop
+  // draws it at its width.
+  PEN_KIND_PEN = 1;
+  // A liner: one width all along.
+  PEN_KIND_LINER = 2;
+  // A marker: one width, multiplied with what lies under it.
+  PEN_KIND_MARKER = 3;
+}
+
+// What a cut changed: the strokes it took off, and the pieces of them it left.
+message Cut {
+  // The IDs of the strokes it took off, in the order of the sheet: one at least.
+  repeated int32 ids = 1;
+  // The pieces it left, in the order of `ids` and along each stroke: none of a stroke it covered
+  // whole.
+  repeated Piece pieces = 2;
+}
+
+// A piece of a stroke that a cut left: a new stroke on the sheet.
+message Piece {
+  // The ID of the stroke it was cut of, one of the cut's `ids`.
+  int32 of = 1;
+  // The piece: an ID no stroke had before, that stroke's pointer and style, and a run of its
+  // points, with one point of its own at most at each end, where the eraser's edge crossed it.
+  Stroke stroke = 2;
 }
 
 // A point of a stroke as it was written.
@@ -306,6 +355,8 @@ message FinalStroke {
   int32 id = 1;
   // The points along the stroke, in its canonical direction: one at least.
   repeated FinalPoint points = 2;
+  // How it looks, as the stroke it stands for was written; none for one without a style.
+  StrokeStyle style = 3;
 }
 
 // A point of the final geometry.
@@ -416,20 +467,21 @@ message Crop {
   int32 width = 3;
   // The crop's height, px.
   int32 height = 4;
-  // The margin above the strokes, px.
+  // The margin above the strokes' points, px.
   int32 margin_top = 5;
-  // The margin left of the strokes, px.
+  // The margin left of the strokes' points, px.
   int32 margin_left = 6;
   // s: px of the crop to a unit of the sheet.
   double scale = 7;
-  // The width of the line, px.
+  // The width of the widest line of its strokes, px.
   double line_width = 8;
   // Where the crop with its margins lies on the sheet, `sheet_box`.
   SheetBox sheet_box = 9;
   // The frames of the groups, in the order of their labels: on a sheet one for each group, and
   // none on a workbook.
   repeated Frame frames = 10;
-  // The crop, a PNG: grey, 8 bits, with no ancillary chunk.
+  // The crop, a PNG of 8 bits with no ancillary chunk: grey when none of its strokes has a style,
+  // and RGB when one has.
   bytes png = 11;
 }
 

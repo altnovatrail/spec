@@ -30,6 +30,7 @@ const example = (name) => changed(marked(name), (s) => delete s.markup);
 const measurement = () => example("sheet-measurement");
 const evalSet = () => example("sheet-eval-set");
 const workbook = () => example("workbook-child");
+const styled = () => example("sheet-style");
 
 const bytesOf = (value) => Buffer.from(typeof value === "string" ? value : JSON.stringify(value, null, 2));
 const problemsOf = (value) => checkSample(bytesOf(value), message).problems.map((problem) => problem.message);
@@ -45,7 +46,8 @@ const changed = (made, edit) => {
   return made;
 };
 
-// A PNG of a grey image of 8 bits, w × h px, white; edit changes its chunks before they are written.
+// A PNG of 8 bits, w × h px, white, grey or RGB by its colour type; edit changes its chunks before
+// they are written.
 function chunk(type, data) {
   const body = Buffer.concat([Buffer.from(type, "latin1"), data]);
   const out = Buffer.alloc(12 + data.length);
@@ -61,8 +63,9 @@ function png(width, height, edit = (chunks) => chunks, { depth = 8, colour = 0, 
   header[8] = depth;
   header[9] = colour;
   header[12] = interlace;
-  const rows = Buffer.alloc(height * (1 + width), 255);
-  for (let y = 0; y < height; y++) rows[y * (1 + width)] = 0;
+  const row = 1 + (colour === 2 ? 3 : 1) * width;
+  const rows = Buffer.alloc(height * row, 255);
+  for (let y = 0; y < height; y++) rows[y * row] = 0;
   const chunks = [["IHDR", header], ["IDAT", zlib.deflateSync(rows)], ["IEND", Buffer.alloc(0)]];
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), ...edit(chunks).map(([type, data]) => chunk(type, data))]);
 }
@@ -78,7 +81,7 @@ test("spec's own examples pass, and together show every purpose, writer, ink, su
 test("the examples together show every purpose, writer, ink, surface and event, and what a markup holds", () => {
   const { errors } = checkExamples(root, image, [`${FOLDER}/sheet-measurement.json`]);
   const lacking = errors.map((error) => error.message.match(/^no example shows (.+?): together/)?.[1]);
-  assert.deepEqual(lacking.sort(), ["PART_KIND_DRAWING", "PURPOSE_EVAL_SET", "WRITER_ADULT_AS_CHILD", "WRITER_CHILD", "a workbook's truth", "geometry", "marks", "workbook"]);
+  assert.deepEqual(lacking.sort(), ["PART_KIND_DRAWING", "PURPOSE_EVAL_SET", "WRITER_ADULT_AS_CHILD", "WRITER_CHILD", "a stroke with a style", "a workbook's truth", "cut", "geometry", "marks", "workbook"]);
   assert.ok(errors.every((error) => error.file === FOLDER && error.line === 0));
 });
 
@@ -246,7 +249,7 @@ test("the history of writing", () => {
   expectOnly(at((list) => (list[5].clear.ids = [1, 2])), /^clear names \[1,2\], and the sheet shows \[1,2,3\]: a clear takes every stroke off$/, /the undo puts back the stroke 3, which is on the sheet already/);
   expectOnly(at((list) => (list[3].undo = { removed: [], restored: [] })), /^the undo changes nothing$/, /takes off the stroke 1, which the sheet does not show then/, /takes off the stroke 2, which the sheet does not show then/, /clear names \[1,2,3\], and the sheet shows \[3\]/);
   expectOnly(at((list) => (list[3].undo.removed = [1])), /^the undo takes off the stroke 1, which the sheet does not show then$/);
-  expectOnly(at((list) => list.splice(3, 1, { t_ms: 4286 })), /^the event is none of write, erase, clear and undo$/, /takes off the stroke 1/, /takes off the stroke 2/, /clear names \[1,2,3\], and the sheet shows \[3\]/);
+  expectOnly(at((list) => list.splice(3, 1, { t_ms: 4286 })), /^the event is none of write, erase, clear, cut and undo$/, /takes off the stroke 1/, /takes off the stroke 2/, /clear names \[1,2,3\], and the sheet shows \[3\]/);
   assert.equal(events().length, 7);
   const empty = changed(measurement(), (s) => {
     s.history.events = [];
@@ -260,6 +263,24 @@ test("the history of writing", () => {
   }), /^the sheet shows no stroke, so it has no crop$/, /^the frames are of \["A","B"\], and the groups are \[\]$/);
   expectOnly(changed(measurement(), (s) => delete s.sheet.crops), /^the sheet shows strokes and holds no crops$/);
   expectOnly(changed(measurement(), (s) => delete s.history), /^the sample holds neither history nor geometry$/);
+});
+
+test("strokes with a style, and a cut: their crops are RGB, and the rules hold them", () => {
+  expectOnly(styled());
+  const crop = (edit) => changed(styled(), (s) => edit(s.sheet.crops.crops[1], s));
+  expectOnly(crop((c) => (c.png = png(c.width, c.height).toString("base64"))), /^the PNG at 24 px: its bit depth is 8 and its colour type 0: a crop of a stroke with a style is RGB/);
+  expectOnly(crop((c) => (c.png = png(c.width, c.height, (x) => x, { colour: 2 }).toString("base64"))));
+  expectOnly(crop((c) => (c.line_width = 1)), /^crops\.1\.line_width of the crops is 1, and the rule of the crop gives /);
+  const at = (edit) => changed(styled(), (s) => edit(s.history.events));
+  expectOnly(at((list) => (list[0].write.style.width = 60)), /^the width is 60, and a stroke's width is to a tenth of a unit, from 0\.1 to 50$/);
+  expectOnly(at((list) => (list[4].cut.pieces[0].stroke.style.color = "#ff0000")), /^the piece 5 has the style .*, and the stroke 4 it was cut of /);
+  // Without the cut, the underline is shown whole, and the markup and the crops no longer hold.
+  const uncut = problemsOf(at((list) => list.pop()));
+  assert.ok(uncut.some((problem) => /names the stroke 5, which the sheet does not show/.test(problem)), uncut.join("\n"));
+  // A sheet of the final geometry with a style: the style is held, and the crop of it is RGB. The
+  // rules the device and the runner share are held once the form holds.
+  const geometry = changed(evalSet(), (s) => (s.geometry.strokes[0].style = { pen: "PEN_KIND_MARKER", color: "#ffcc00", width: 0.05, opacity: 40 }));
+  expectOnly(geometry, /^the width is 0\.05, and a stroke's width is to a tenth of a unit/, /colour type 0: a crop of a stroke with a style is RGB/);
 });
 
 test("the final geometry", () => {
@@ -295,6 +316,9 @@ test("a sheet: its size, its groups and its crops", () => {
 
 test("a PNG holds IHDR, IDAT and IEND alone, of the crop's size, grey, 8 bits", () => {
   assert.deepEqual(pngBreaches(png(3, 2), 3, 2), []);
+  assert.deepEqual(pngBreaches(png(3, 2, (c) => c, { colour: 2 }), 3, 2, true), []);
+  assert.deepEqual(pngBreaches(png(3, 2), 3, 2, true), ["its bit depth is 8 and its colour type 0: a crop of a stroke with a style is RGB, 8 bits, colour type 2"]);
+  assert.deepEqual(pngBreaches(png(3, 2, (c) => [c[0], ["IDAT", zlib.deflateSync(Buffer.alloc(8))], c[2]], { colour: 2 }), 3, 2, true), ["its IDAT inflates to 8 bytes, and 2 rows of 3 px are 20"]);
   assert.deepEqual(pngBreaches(png(3, 2, (c) => [c[0], ["IDAT", c[1][1].subarray(0, 4)], ["IDAT", c[1][1].subarray(4)], c[2]]), 3, 2), []);
   assert.deepEqual(pngBreaches(Buffer.from("GIF89a"), 3, 2), ["it does not begin with the signature of a PNG"]);
   const good = png(3, 2);
@@ -311,8 +335,8 @@ test("a PNG holds IHDR, IDAT and IEND alone, of the crop's size, grey, 8 bits", 
   assert.deepEqual(pngBreaches(png(3, 2, (c) => [c[1], c[0], c[2]]), 3, 2), ["its chunks are IDAT, IHDR, IEND: IHDR, then IDAT, one or more in a row, then IEND"]);
   assert.deepEqual(pngBreaches(png(3, 2, (c) => [c[0], c[2]]), 3, 2), ["its chunks are IHDR, IEND: IHDR, then IDAT, one or more in a row, then IEND"]);
   assert.deepEqual(pngBreaches(png(3, 2, (c) => [["IHDR", c[0][1].subarray(0, 12)], c[1], c[2]]), 3, 2), ["its IHDR is not 13 bytes"]);
-  assert.deepEqual(pngBreaches(png(3, 2, (c) => c, { colour: 2 }), 3, 2), ["its bit depth is 8 and its colour type 2: a crop is grey, 8 bits, colour type 0"]);
-  assert.deepEqual(pngBreaches(png(3, 2, (c) => c, { depth: 16 }), 3, 2), ["its bit depth is 16 and its colour type 0: a crop is grey, 8 bits, colour type 0"]);
+  assert.deepEqual(pngBreaches(png(3, 2, (c) => c, { colour: 2 }), 3, 2), ["its bit depth is 8 and its colour type 2: a crop of strokes without a style is grey, 8 bits, colour type 0"]);
+  assert.deepEqual(pngBreaches(png(3, 2, (c) => c, { depth: 16 }), 3, 2), ["its bit depth is 16 and its colour type 0: a crop of strokes without a style is grey, 8 bits, colour type 0"]);
   assert.deepEqual(pngBreaches(png(3, 2, (c) => c, { interlace: 1 }), 3, 2), ["its compression, filter method or interlace is not 0"]);
   assert.match(pngBreaches(png(3, 2, (c) => [c[0], ["IDAT", Buffer.from("not zlib")], c[2]]), 3, 2)[0], /^its IDAT does not inflate: /);
   assert.deepEqual(pngBreaches(png(3, 2, (c) => [c[0], ["IDAT", zlib.deflateSync(Buffer.alloc(5))], c[2]]), 3, 2), ["its IDAT inflates to 5 bytes, and 2 rows of 3 px are 8"]);

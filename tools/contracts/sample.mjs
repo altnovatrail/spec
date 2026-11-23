@@ -2,8 +2,8 @@
 // writer writes it and as its rules let it be — the fields its purpose and its writer give it, its
 // strokes, its sheet or page, its crops and their PNG, and its markup, as far as the file alone
 // holds it. The samples among the examples of contracts/examples/eval/v1/ pass it, and
-// together show every purpose, writer, ink, surface and event of the history of writing, and every
-// kind of part of a markup.
+// together show every purpose, writer, ink, surface and event of the history of writing, a stroke
+// with a style and one without, and every kind of part of a markup.
 //
 // A sample is UTF-8 JSON with no key twice, which @bufbuild/protobuf reads strictly by the
 // descriptors of the image buf builds of contracts/ — a field it does not know is refused — and whose
@@ -21,7 +21,7 @@ import { createFileRegistry, fromJson, toJson } from "@bufbuild/protobuf";
 import * as wkt from "@bufbuild/protobuf/wkt";
 import { ESSAY_REASONS, REASONS, WHITE_SPACE, differenceOf, readVector } from "./observation.mjs";
 import { isObject } from "./rules.mjs";
-import { CROP_RULE, cropSetOf, fold, groupsOf, heightsOf, historyBreaches, labelOf, numbersOf, ruleDifference, tableOf } from "./strokes.mjs";
+import { CROP_RULE, PEN_KINDS, cropSetOf, fold, groupsOf, heightsOf, historyBreaches, labelOf, numbersOf, ruleDifference, styleBreaches, tableOf } from "./strokes.mjs";
 
 export { labelOf };
 
@@ -40,11 +40,13 @@ const LICENSE = "Apache-2.0";
 export const PURPOSES = ["PURPOSE_MEASUREMENT", "PURPOSE_EVAL_SET"];
 export const WRITERS = ["WRITER_ADULT", "WRITER_ADULT_AS_CHILD", "WRITER_CHILD"];
 const ADULTS = new Set(["WRITER_ADULT", "WRITER_ADULT_AS_CHILD"]);
-const EVENTS = ["write", "erase", "clear", "undo"];
+const EVENTS = ["write", "erase", "clear", "cut", "undo"];
 // Each kind of a part of the writing the rules name; MARKUP, what a markup shows of the examples'
 // coverage beside them.
 export const PART_KINDS = ["PART_KIND_TEXT", "PART_KIND_DRAWING"];
 const MARKUP = ["parts", "marks", "first_error", "final_answer", "a workbook's truth"];
+// What the examples show of the strokes' styles: a stroke with one, and one without.
+const STYLES = ["a stroke with a style", "a stroke without a style"];
 const BLANK = "UNREADABLE_BLANK";
 const ONE_ANSWER = new Set(["UNREADABLE_ILLEGIBLE", "UNREADABLE_AMBIGUOUS"]);
 const SEVERAL = "UNREADABLE_SEVERAL_FINAL_ANSWERS";
@@ -93,7 +95,7 @@ export function messageOf(image, { name, what, text, enums }) {
 
 // The message Sample: { message }, or { error }, also when an enum of the sample has a value that the
 // rules do not name.
-export const sampleOf = (image) => messageOf(image, { name: "Sample", what: "the message of the sample file", text: TEXT, enums: [["Purpose", PURPOSES], ["Writer", WRITERS], ["PartKind", PART_KINDS]] });
+export const sampleOf = (image) => messageOf(image, { name: "Sample", what: "the message of the sample file", text: TEXT, enums: [["Purpose", PURPOSES], ["Writer", WRITERS], ["PartKind", PART_KINDS], ["PenKind", PEN_KINDS]] });
 
 // A file of the package, its bytes, read as a sample is — UTF-8 JSON with no key twice, read
 // strictly by the message and as a writer writes it, with the text of the rules named —:
@@ -117,10 +119,10 @@ export function readMessage(bytes, message, { what, text }) {
 }
 
 // What a PNG breaks of a crop's: its signature, every chunk whole with its CRC, the
-// chunks IHDR, IDAT and IEND alone, in that order, a grey image of 8 bits of the crop's width and
-// height, not interlaced, whose data is one zlib stream, nothing after it, that inflates to its
-// rows, each with a filter of PNG.
-export function pngBreaches(bytes, width, height) {
+// chunks IHDR, IDAT and IEND alone, in that order, an image of 8 bits of the crop's width and
+// height — grey, or RGB when colour is true —, not interlaced, whose data is one zlib stream,
+// nothing after it, that inflates to its rows, each with a filter of PNG.
+export function pngBreaches(bytes, width, height, colour = false) {
   if (bytes.length < 8 || !bytes.subarray(0, 8).equals(SIGNATURE)) return ["it does not begin with the signature of a PNG"];
   const chunks = [];
   let at = 8;
@@ -144,7 +146,9 @@ export function pngBreaches(bytes, width, height) {
   const found = [];
   const [shownWidth, shownHeight] = [header.readUInt32BE(0), header.readUInt32BE(4)];
   if (shownWidth !== width || shownHeight !== height) found.push(`it is ${shownWidth} × ${shownHeight} px, and the crop ${width} × ${height}`);
-  if (header[8] !== 8 || header[9] !== 0) found.push(`its bit depth is ${header[8]} and its colour type ${header[9]}: a crop is grey, 8 bits, colour type 0`);
+  const [type, words] = colour ? [2, "a crop of a stroke with a style is RGB, 8 bits, colour type 2"] : [0, "a crop of strokes without a style is grey, 8 bits, colour type 0"];
+  if (header[8] !== 8 || header[9] !== type) found.push(`its bit depth is ${header[8]} and its colour type ${header[9]}: ${words}`);
+  const row = 1 + (colour ? 3 : 1) * width;
   if (header[10] !== 0 || header[11] !== 0 || header[12] !== 0) found.push("its compression, filter method or interlace is not 0");
   if (found.length === 0) {
     const data = Buffer.concat(chunks.filter((chunk) => chunk.type === "IDAT").map((chunk) => chunk.data));
@@ -157,13 +161,20 @@ export function pngBreaches(bytes, width, height) {
     const rows = inflated.buffer;
     // zlib stops at the end of its stream, and what follows it would hold anything.
     if (inflated.engine.bytesWritten !== data.length) found.push(`its IDAT holds ${data.length - inflated.engine.bytesWritten} bytes after the end of its zlib stream`);
-    if (rows.length !== height * (1 + width)) found.push(`its IDAT inflates to ${rows.length} bytes, and ${height} rows of ${width} px are ${height * (1 + width)}`);
+    if (rows.length !== height * row) found.push(`its IDAT inflates to ${rows.length} bytes, and ${height} rows of ${width} px are ${height * row}`);
     else {
-      const row = Array.from({ length: height }, (_, y) => rows[y * (1 + width)]).findIndex((filter) => filter > 4);
-      if (row >= 0) found.push(`its row ${row + 1} has the filter ${rows[row * (1 + width)]}, and a PNG's filters are 0 to 4`);
+      const bad = Array.from({ length: height }, (_, y) => rows[y * row]).findIndex((filter) => filter > 4);
+      if (bad >= 0) found.push(`its row ${bad + 1} has the filter ${rows[bad * row]}, and a PNG's filters are 0 to 4`);
     }
   }
   return found;
+}
+
+// The IDs of the strokes of a sample that have a style: of a history, those it wrote and the pieces
+// a cut left; of the final geometry, its strokes.
+function styledOf(sample) {
+  const strokes = sample.history ? [...fold(sample.history.events).written.values()] : (sample.geometry?.strokes ?? []);
+  return new Set(strokes.filter((stroke) => stroke.style).map((stroke) => stroke.id));
 }
 
 // What the strokes of a sample break, on a sheet or page of the size given, and the IDs of the
@@ -186,6 +197,7 @@ function strokesOf(sample, size, breach) {
       if (stroke.id !== i + 1) breach([...at, "id"], `stroke ${i + 1} has the ID ${stroke.id}: the final geometry numbers its strokes by place, from 1`);
       visible.add(stroke.id);
       if (stroke.points.length === 0) breach([...at, "points"], `the stroke ${stroke.id} has no point`);
+      if (stroke.style) styleBreaches(stroke.style, [...at, "style"], breach);
       stroke.points.forEach((point, j) => onSurface(point, [...at, "points", j]));
     });
   } else {
@@ -205,8 +217,8 @@ function idsBreaches(ids, visible, at, what, breach, surface = at[0]) {
 
 // What the crops of one set of strokes break: one at each height of eval and at the module's, in
 // order, each of whole and positive sizes, with the frames of the groups' labels given — on a
-// workbook, null, and none — and its PNG.
-function cropsBreaches(set, at, digit, labels, breach) {
+// workbook, null, and none — and its PNG, in colour when one of the strokes has a style.
+function cropsBreaches(set, at, digit, labels, colour, breach) {
   const box = set.ink_box;
   if (!box || box.ymin > box.ymax || box.xmin > box.xmax) breach([...at, "ink_box"], `ink_box is ${show(box)}: the box of the points, ymin no more than ymax and xmin no more than xmax`);
   if (set.bundle_median < 1) breach([...at, "bundle_median"], `bundle_median is ${set.bundle_median}, and h_med is a height of 1 tenth at least`);
@@ -226,7 +238,7 @@ function cropsBreaches(set, at, digit, labels, breach) {
       const b = frame.box;
       if (!b || ![b.ymin, b.xmin, b.ymax, b.xmax].every((n) => n >= 0 && n <= 1000) || b.ymin >= b.ymax || b.xmin >= b.xmax) breach([...where, "frames", j], `the frame of ${frame.label} is ${show(b)}: whole thousandths from 0 to 1000, ymin less than ymax and xmin less than xmax`);
     });
-    for (const text of pngBreaches(Buffer.from(crop.png, "base64"), crop.width, crop.height)) breach([...where, "png"], `the PNG at ${crop.digit_height} px: ${text}`);
+    for (const text of pngBreaches(Buffer.from(crop.png, "base64"), crop.width, crop.height, colour)) breach([...where, "png"], `the PNG at ${crop.digit_height} px: ${text}`);
   });
 }
 
@@ -445,6 +457,8 @@ export function breaches(sample) {
   if (surface.width < 1 || surface.height < 1) breach([kind], `the ${size.kind} is ${surface.width} × ${surface.height} units: 1 unit each way at least`);
   if (surface.digit_height < 1 || surface.digit_height > TALLEST) breach([kind, "digit_height"], `digit_height is ${surface.digit_height}, from 1 to ${TALLEST} px`);
   const visible = strokesOf(sample, size, breach);
+  const styled = styledOf(sample);
+  const coloured = (ids) => ids.some((id) => styled.has(id));
   if (kind === "sheet") {
     const counted = new Map();
     surface.groups.forEach((group, i) => {
@@ -454,7 +468,7 @@ export function breaches(sample) {
       for (const id of group.stroke_ids) counted.set(id, (counted.get(id) ?? 0) + 1);
     });
     if (visible) for (const id of visible) if (counted.get(id) !== 1) breach(["sheet", "groups"], `the stroke ${id} is in ${counted.get(id) ?? 0} groups, and every stroke the sheet shows is in one`);
-    if (surface.crops) cropsBreaches(surface.crops, ["sheet", "crops"], surface.digit_height, surface.groups.map((group) => group.label), breach);
+    if (surface.crops) cropsBreaches(surface.crops, ["sheet", "crops"], surface.digit_height, surface.groups.map((group) => group.label), coloured([...(visible ?? [])]), breach);
     else if (visible?.size) breach(["sheet"], "the sheet shows strokes and holds no crops");
     if (surface.crops && visible?.size === 0) breach(["sheet", "crops"], "the sheet shows no stroke, so it has no crop");
   } else {
@@ -480,7 +494,7 @@ export function breaches(sample) {
         if (filled.has(id)) breach([...at, "stroke_ids"], `the stroke ${id} is in two boxes`);
         filled.add(id);
       }
-      if (box.crops) cropsBreaches(box.crops, [...at, "crops"], surface.digit_height, null, breach);
+      if (box.crops) cropsBreaches(box.crops, [...at, "crops"], surface.digit_height, null, coloured(box.stroke_ids), breach);
       else breach(at, `the filled box ${placeOf(place ?? {})} holds no crops`);
     });
     if (visible && "geometry" in sample) for (const id of visible) if (!filled.has(id)) breach(["geometry"], `the stroke ${id} is in no box: the final geometry of a workbook holds the strokes of its boxes alone, and the draft goes nowhere`);
@@ -493,7 +507,7 @@ export function breaches(sample) {
 }
 
 // A sample, its bytes, against the message: { problems, seen, value }, with seen what it shows of the
-// package for the examples' coverage — its purpose, writer, ink, surface and events, and what its
+// package for the examples' coverage — its purpose, writer, ink, surface, events and styles, and what its
 // markup shows: its kinds of part, parts or marks, a first error, a final answer, a workbook's truth;
 // and value the sample read.
 export function checkSample(bytes, message) {
@@ -505,6 +519,8 @@ export function checkSample(bytes, message) {
   seen.add(value.purpose).add(value.writer);
   for (const key of ["history", "geometry", "sheet", "workbook"]) if (key in value) seen.add(key);
   for (const event of value.history?.events ?? []) for (const name of EVENTS) if (name in event) seen.add(name);
+  const strokes = value.history ? [...fold(value.history.events).written.values()] : (value.geometry?.strokes ?? []);
+  for (const stroke of strokes) seen.add(STYLES[stroke.style ? 0 : 1]);
   const { markup } = value;
   if (markup?.parts) {
     seen.add("parts");
@@ -585,9 +601,9 @@ export function evalSetBreaches(held) {
 
 // The examples of the sample file at root, files of contracts/, by the image buf builds: the errors,
 // { file, line, message } — each example's, and, when every one holds, what they lack together:
-// every purpose, writer, ink, surface and event of the history of writing, and of a markup every
-// kind of part, parts and marks, a first error, a final answer and a workbook's truth, and two of
-// one ID; and samples, what keep gives of those that hold — the sample itself by default —, by
+// every purpose, writer, ink, surface and event of the history of writing, a stroke with a style and
+// one without, and of a markup every kind of part, parts and marks, a first error, a final answer
+// and a workbook's truth, and two of one ID; and samples, what keep gives of those that hold — the sample itself by default —, by
 // their IDs, which the examples of the runner's report are of.
 export function checkExamples(root, image, files, keep = (sample) => sample) {
   const known = sampleOf(image);
@@ -595,8 +611,8 @@ export function checkExamples(root, image, files, keep = (sample) => sample) {
   const { errors, seen, samples, held } = checkSamples(known.message, files.map((file) => [file, path.join(root, file)]), { keep });
   errors.push(...sameIds(held));
   if (errors.length === 0) {
-    for (const each of [...PURPOSES, ...WRITERS, "history", "geometry", "sheet", "workbook", ...EVENTS, ...PART_KINDS, ...MARKUP]) {
-      if (!seen.has(each)) errors.push({ file: FOLDER, line: 0, message: `no example shows ${each}: together the examples show every purpose, writer, ink, surface and event of ${TEXT}, and of a markup every kind of part, parts and marks, a first error, a final answer and a workbook's truth` });
+    for (const each of [...PURPOSES, ...WRITERS, "history", "geometry", "sheet", "workbook", ...EVENTS, ...STYLES, ...PART_KINDS, ...MARKUP]) {
+      if (!seen.has(each)) errors.push({ file: FOLDER, line: 0, message: `no example shows ${each}: together the examples show every purpose, writer, ink, surface and event of ${TEXT}, a stroke with a style and one without, and of a markup every kind of part, parts and marks, a first error, a final answer and a workbook's truth` });
     }
   }
   return { errors, samples };

@@ -317,8 +317,8 @@ export interface DeviceAttempt {
    */
   readonly attempt_id: ID;
   /**
-   * The history of writing as the canvas gave it: write/erase/clear/undo events with t; strokes
-   * with id, kind and points x, y, t, p.
+   * The history of writing as the canvas gave it: write/erase/cut/clear/undo events with t, a cut
+   * with the pieces it left; strokes with id, kind, style and points x, y, t, p.
    */
   readonly history: unknown;
   /**
@@ -550,8 +550,8 @@ export interface Task {
   readonly statement: Image;
   /**
    * The history of writing as the canvas gave it, the strokes of the sheet and of the tracing
-   * paper: write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p; on a
-   * stroke of the tracing paper, on "tracing".
+   * paper: write/erase/cut/clear/undo events with t, a cut with the pieces it left; strokes with
+   * id, kind, style and points x, y, t, p; on a stroke of the tracing paper, on "tracing".
    */
   readonly history: unknown;
   /**
@@ -1645,7 +1645,8 @@ export interface Work {
   readonly stored_at: Time;
   /**
    * The history of writing as the canvas gave it, the JSON array its bytes hold, not their base64:
-   * write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p.
+   * write/erase/cut/clear/undo events with t, a cut with the pieces it left; strokes with id, kind,
+   * style and points x, y, t, p.
    */
   readonly history: unknown;
   /**

@@ -20,6 +20,8 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   set reading(reading: canvas.TracingReading | undefined);
   get grid(): canvas.PaperGrid | undefined;
   set grid(grid: canvas.PaperGrid | undefined);
+  get pens(): canvas.PenSettings;
+  set pens(settings: canvas.PenSettings | undefined);
   workedExample: open.WorkedExample | undefined;
   get demoState(): canvas.DemoState | undefined;
   set demoState(state: canvas.DemoState | undefined);
@@ -58,6 +60,43 @@ export const history: readonly canvas.HistoryEvent[] = [
   { kind: "undo", t: 1500, removed: [], restored: [2] },
   { kind: "clear", t: 2000, ids: [1, 2] },
 ];
+
+/** A style of each kind of pen, a stroke with one, and a cut that leaves two pieces of it. */
+export const ink: canvas.StrokeStyle = { pen: "pen", color: "#1c1c1e", width: 2, opacity: 100 };
+export const liner: canvas.StrokeStyle = { pen: "liner", color: "#0a63d6", width: 1.2, opacity: 100 };
+export const marker: canvas.StrokeStyle = { pen: "marker", color: "#ffcc00", width: 12, opacity: 40 };
+export const styled: readonly canvas.HistoryEvent[] = [
+  {
+    kind: "write",
+    t: 300,
+    stroke: { id: 1, kind: "mouse", style: liner, points: [{ x: 100, y: 300, t: 0, p: 0.5 }, { x: 200, y: 300, t: 150, p: 0.5 }, { x: 300, y: 300, t: 300, p: 0.5 }] },
+  },
+  {
+    kind: "cut",
+    t: 900,
+    ids: [1],
+    pieces: [
+      { of: 1, stroke: { id: 2, kind: "mouse", style: liner, points: [{ x: 100, y: 300, t: 0, p: 0.5 }, { x: 180, y: 300, t: 120, p: 0.5 }] } },
+      { of: 1, stroke: { id: 3, kind: "mouse", style: liner, points: [{ x: 220, y: 300, t: 180, p: 0.5 }, { x: 300, y: 300, t: 300, p: 0.5 }] } },
+    ],
+  },
+  { kind: "undo", t: 1200, removed: [2, 3], restored: [1] },
+];
+export const pens: canvas.PenSettings = { pen: "marker", styles: { pen: ink, liner, marker }, eraser: "part", eraserSize: 16 };
+sheet.pens = pens;
+sheet.pens = undefined;
+export const kind: canvas.PenKind = sheet.pens.pen;
+// @ts-expect-error A kind of pen is one of three.
+export const pencil: canvas.StrokeStyle = { pen: "pencil", color: "#000000", width: 1, opacity: 100 };
+// @ts-expect-error A cut names the pieces it left, each of the stroke it was cut of.
+export const unpieced: canvas.HistoryEvent = { kind: "cut", t: 0, ids: [1], pieces: [{ id: 2, kind: "pen", points: [] }] };
+// @ts-expect-error The eraser takes strokes whole or in part: no third way.
+export const brushed: canvas.PenSettings = { ...pens, eraser: "pixel" };
+document.addEventListener("penchange", (change) => {
+  const chosen: canvas.PenKind = change.detail.pen;
+  // @ts-expect-error The settings told are the learner's choice, to read.
+  change.detail.eraserSize = chosen === "pen" ? 1 : 2;
+});
 
 /** A history of a task from paper: a stroke on the tracing paper, and one on the sheet. */
 export const traced: readonly canvas.HistoryEvent[] = [

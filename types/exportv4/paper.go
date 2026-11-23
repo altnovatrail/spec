@@ -59,8 +59,8 @@ type Task struct {
 	// The task's crop as app cut it by its frame, without the learner's strokes.
 	Statement Image `json:"statement"`
 	// The history of writing as the canvas gave it, the strokes of the sheet and of the tracing
-	// paper: write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p; on
-	// a stroke of the tracing paper, on "tracing".
+	// paper: write/erase/cut/clear/undo events with t, a cut with the pieces it left; strokes with
+	// id, kind, style and points x, y, t, p; on a stroke of the tracing paper, on "tracing".
 	History json.RawMessage `json:"history"`
 	// Where the tracing paper lay at the end, whether it was hidden and its scale, as the canvas
 	// gave it: at [x, y], hidden and scale, absent meaning 1.

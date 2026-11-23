@@ -27,10 +27,13 @@ import {
   fold,
   groupsOf,
   heightsOf,
+  historyBreaches,
+  inkOf,
   labelOf,
   medianOf,
   messagesOf,
   snapOf,
+  styleBreaches,
   tableOf,
   tenths,
 } from "../strokes.mjs";
@@ -72,21 +75,21 @@ test("spec's own vectors pass, and together hold every rule", () => {
   assert.deepEqual(files.map((file) => path.posix.basename(file)).sort(), [...VECTOR_FILES].sort());
   const { errors, cases } = checkVectors(root, image, files);
   assert.deepEqual(errors, []);
-  assert.equal(cases, 84);
+  assert.equal(cases, 88);
 });
 
 test("what the vectors lack together is found, once each holds", () => {
   const { errors } = checkVectors(root, image, [`${FOLDER}/groups.json`]);
   const messages = errors.map((error) => error.message);
   for (const name of ["crops.json", "snaps.json", "boxes.json"]) assert.ok(errors.some((error) => error.file === `${FOLDER}/${name}` && /^the file is missing/.test(error.message)), name);
-  for (const text of ["no bundle", "h_med above the ceiling", "a height drawn below the height asked for", "a box of a model that takes strokes", "a box of a model that takes none", "a stroke of the draft", "a filled box"]) assert.ok(messages.some((message) => message.includes(text)), text);
+  for (const text of ["no bundle", "h_med above the ceiling", "a height drawn below the height asked for", "strokes with a style", "a margin wider than the rule's", "a box of a model that takes strokes", "a box of a model that takes none", "a stroke of the draft", "a filled box"]) assert.ok(messages.some((message) => message.includes(text)), text);
   assert.ok(!messages.some((message) => /history with|taken off/.test(message)), "groups.json holds the history's rules");
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), "strokes-"));
   try {
     fs.mkdirSync(path.join(folder, FOLDER), { recursive: true });
     fs.writeFileSync(path.join(folder, FOLDER, "groups.json"), JSON.stringify(vector("groups.json", "later")));
     const lacking = checkVectors(folder, image, [`${FOLDER}/groups.json`]).errors.map((error) => error.message);
-    for (const text of ["a history with erase", "a history with clear", "a history with undo", "that is in no group", "that is in two groups"]) assert.ok(lacking.some((message) => message.includes(text)), text);
+    for (const text of ["a history with erase", "a history with clear", "a history with cut", "a history with undo", "that is in no group", "that is in two groups"]) assert.ok(lacking.some((message) => message.includes(text)), text);
   } finally {
     fs.rmSync(folder, { recursive: true, force: true });
   }
@@ -199,6 +202,72 @@ test("the fold of a history only adds and takes off IDs", () => {
   assert.deepEqual(visible, [1]);
 });
 
+test("a cut takes off the strokes it names and adds its pieces, and an undo of it takes them back", () => {
+  const line = { id: 1, pointer: "pen", points: [{ x: 100, y: 100, t_ms: 0 }, { x: 150, y: 100, t_ms: 50 }, { x: 200, y: 100, t_ms: 100 }] };
+  const piece = { id: 2, pointer: "pen", points: [{ x: 100, y: 100, t_ms: 0 }, { x: 140, y: 100, t_ms: 40 }] };
+  const cut = { t_ms: 300, cut: { ids: [1], pieces: [{ of: 1, stroke: piece }] } };
+  const { written, visible } = fold([write(line), cut]);
+  assert.deepEqual([...written.keys()], [1, 2]);
+  assert.deepEqual(visible, [2]);
+  assert.deepEqual(fold([write(line), cut, { t_ms: 400, undo: { removed: [2], restored: [1] } }]).visible, [1]);
+  assert.deepEqual(erasedOf({ events: [write(line), cut] }), [{ stroke_id: 1, labels: ["A"] }]);
+});
+
+test("a history's cuts and styles: each piece a new stroke of one cut off, with its pointer, its style and a run of its points", () => {
+  const style = { pen: "PEN_KIND_LINER", color: "#0a63d6", width: 1.2, opacity: 100 };
+  const line = { id: 1, pointer: "pen", style, points: [{ x: 100, y: 100, t_ms: 0 }, { x: 150, y: 100, t_ms: 50 }, { x: 200, y: 100, t_ms: 100 }, { x: 250, y: 100, t_ms: 150 }] };
+  const other = { ...stroke(2, 300, 100, 300, 200, 200, 300), style: { ...style } };
+  const left = { id: 3, pointer: "pen", style, points: [{ x: 100, y: 100, t_ms: 0 }, { x: 150, y: 100, t_ms: 50 }, { x: 170, y: 100, t_ms: 70 }] };
+  const right = { id: 4, pointer: "pen", style, points: [{ x: 230, y: 100, t_ms: 130 }, { x: 250, y: 100, t_ms: 150 }] };
+  const history = (edit = () => {}) => {
+    const events = structuredClone([write(line), write(other), { t_ms: 500, cut: { ids: [1], pieces: [{ of: 1, stroke: left }, { of: 1, stroke: right }] } }]);
+    edit(events, events[2].cut);
+    return events;
+  };
+  const problems = (events) => {
+    const found = [];
+    const visible = historyBreaches(events, (at, message) => found.push(message), () => {});
+    return { found, visible: [...visible].sort((a, b) => a - b) };
+  };
+  assert.deepEqual(problems(history()), { found: [], visible: [2, 3, 4] });
+  // A piece of one point, its own, inside the stroke's times; a cut of a stroke it covers whole, with no piece.
+  assert.deepEqual(problems(history((e, cut) => (cut.pieces = [{ of: 1, stroke: { ...left, points: [{ x: 120, y: 100, t_ms: 20 }] } }]))).found, []);
+  assert.deepEqual(problems(history((e, cut) => (cut.pieces = []))), { found: [], visible: [2] });
+  const only = (edit, pattern) => {
+    const { found } = problems(history(edit));
+    assert.equal(found.length, 1, found.join("\n"));
+    assert.match(found[0], pattern);
+  };
+  only((e, cut) => (cut.ids = []) && (cut.pieces = []), /^the cut takes no stroke off$/);
+  only((e, cut) => (cut.ids = [1, 1]), /^cut names a stroke twice$/);
+  only((e, cut) => (cut.ids = [1, 9]), /^cut takes off the stroke 9, which the sheet does not show then$/);
+  only((e, cut) => (cut.pieces[1].of = 2), /^the piece is of the stroke 2, which the cut does not take off$/);
+  only((e, cut) => (cut.ids = [1, 2]) && (cut.pieces = [{ of: 2, stroke: { ...other, id: 5 } }, cut.pieces[0]]), /^the piece of the stroke 1 comes after a piece of a stroke later in ids/);
+  only((e, cut) => (cut.pieces[1].stroke.id = 2), /^the stroke 2 is written twice$/);
+  only((e, cut) => (cut.pieces[1].stroke.pointer = "touch"), /^the piece 4 names the pointer "touch", and the stroke 1 it was cut of "pen"$/);
+  only((e, cut) => delete cut.pieces[1].stroke.style, /^the piece 4 has the style null, and the stroke 1 it was cut of \{/);
+  only((e, cut) => (cut.pieces[0].stroke.points = [left.points[0], { x: 150, y: 101, t_ms: 50 }, left.points[2]]), /^the piece 3 is no run of the points of the stroke 1/);
+  only((e, cut) => (cut.pieces[0].stroke.points = [left.points[0], line.points[1], line.points[3], { x: 250, y: 100, t_ms: 150 }]), /^the piece 3 is no run of the points of the stroke 1/);
+  only((e, cut) => (cut.pieces[1].stroke.points[1] = { x: 260, y: 100, t_ms: 160 }), /^the piece 4 ends at 160 ms, outside the times of the stroke 1, 0 to 150 ms$/);
+  only((e, cut) => (cut.pieces[1] = { of: 1 }), /^the piece holds no stroke$/);
+  only((e) => (e[1].write.style.color = "#0A63D6"), /^the colour "#0A63D6" is not # and six lowercase hexadecimal digits$/);
+  only((e) => (e[1] = { t_ms: 500, write: { ...other, style: { ...style, opacity: 5 } } }), /^the opacity is 5, and a stroke's is whole percent from 10 to 100$/);
+  assert.match(problems(history((e) => (e[2] = { t_ms: 500 }))).found[0], /^the event is none of write, erase, clear, cut and undo$/);
+});
+
+test("a stroke's style: a kind of pen, a colour of sRGB, a width to a tenth from 0.1 to 50 and an opacity from 10 to 100", () => {
+  const found = (style) => {
+    const all = [];
+    styleBreaches({ pen: "PEN_KIND_PEN", color: "#000000", width: 2, opacity: 100, ...style }, ["style"], (at, message) => all.push([at.join("."), message]));
+    return all.map(([at]) => at);
+  };
+  for (const ok of [{ width: 0.1 }, { width: 50 }, { opacity: 10 }, { pen: "PEN_KIND_MARKER" }, { color: "#ffcc00" }]) assert.deepEqual(found(ok), [], JSON.stringify(ok));
+  assert.deepEqual(found({ pen: "PEN_KIND_UNSPECIFIED" }), ["style.pen"]);
+  assert.deepEqual(found({ color: "red" }), ["style.color"]);
+  for (const width of [0, 0.05, 50.1, 1.25, Infinity]) assert.deepEqual(found({ width }), ["style.width"], String(width));
+  for (const opacity of [9, 101, 50.5]) assert.deepEqual(found({ opacity }), ["style.opacity"], String(opacity));
+});
+
 test("the groups at their bounds: the pause, the gap, and the order of the labels", () => {
   // 2000 ms apart and 50 units apart are neighbours; a millisecond or a tenth more is not.
   const pair = (gap, pause) => groupsOf([stroke(1, 100, 100, 100, 200, 0, 100), stroke(2, 100 + gap, 100, 100 + gap, 200, 100 + pause, 200 + pause)]).groups.length;
@@ -243,6 +312,32 @@ test("the crop at its bounds: lines, the lower median, the ceiling, the least si
   for (const crop of wide.crops) assert.ok(Math.max(crop.width, crop.height) <= 1568 && ceilDiv(crop.width, 28) * ceilDiv(crop.height, 28) <= 1568, `${crop.digit_height}`);
   assert.ok(wide.crops.every((crop) => crop.drawn_height < crop.digit_height));
   assert.deepEqual([floorDiv(7, 2), ceilDiv(7, 2), floorDiv(-7, 2), ceilDiv(-7, 2), floorDiv(8, 2)], [3, 4, -4, -3, 4]);
+});
+
+test("the crop of strokes with a style: each line its width at the crop's scale and 1 px at least, the margin and the frames as wide as they need", () => {
+  const styled = (id, x, width) => ({ id, points: [{ x, y: 100 }, { x, y: 136 }], style: { pen: "PEN_KIND_LINER", color: "#000000", width, opacity: 100 } });
+  const bare = (id, x) => ({ id, points: [{ x, y: 100 }, { x, y: 136 }] });
+  // Without a style the line is max(D′, 12) / 12 px, as before styles.
+  assert.equal(inkOf(null, 24, 360) / (12 * 360), 2);
+  assert.equal(inkOf(null, 6, 360) / (12 * 360), 1);
+  // With one, its width at the crop's scale — 3.6 units at 10 × 24 / 360 px a unit is 2.4 px —, and 1 px at least.
+  assert.equal(inkOf(36, 24, 360) / (12 * 360), 2.4);
+  assert.equal(inkOf(1, 24, 360) / (12 * 360), 1);
+  const groups = [{ label: "A", stroke_ids: [1] }, { label: "B", stroke_ids: [2] }];
+  const plain = cropSetOf([bare(1, 100), bare(2, 300)], groups, 24);
+  const thin = cropSetOf([styled(1, 100, 0.1), styled(2, 300, 0.1)], groups, 24);
+  // A thin line's frame and margins are those of a line of 1 px, and the bare strokes' those of before.
+  assert.deepEqual(plain.crops.map((crop) => crop.margin_left), thin.crops.map((crop) => crop.margin_left));
+  assert.deepEqual(thin.crops.map((crop) => crop.line_width), [1, 1, 1, 1]);
+  // One wide line widens its own frame and every margin, and the crop's line is the widest.
+  const mixed = cropSetOf([bare(1, 100), styled(2, 300, 50)], groups, 24);
+  const at48 = mixed.crops.at(-1);
+  assert.equal(at48.line_width, inkOf(500, 48, 360) / (12 * 360));
+  assert.equal(at48.margin_top, ceilDiv(inkOf(500, 48, 360), 24 * 360) + 1 + Math.floor((at48.height - (ceilDiv(360 * 48, 360) + 2 * (ceilDiv(inkOf(500, 48, 360), 24 * 360) + 1))) / 2));
+  const [a, b] = at48.frames.map((frame) => frame.box);
+  const alone = cropSetOf([bare(1, 100), bare(2, 300)], groups, 24).crops.at(-1).frames.map((frame) => frame.box);
+  assert.ok(b.ymax - b.ymin > alone[1].ymax - alone[1].ymin, "the wide line's frame is wider");
+  assert.ok(a.ymax - a.ymin < b.ymax - b.ymin, "the bare stroke's frame holds its own line alone");
 });
 
 test("snapping takes a stroke with two thirds of its points in the box widened, and no fewer", () => {
