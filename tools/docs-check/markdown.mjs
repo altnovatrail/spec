@@ -7,17 +7,17 @@ import { gfm } from "micromark-extension-gfm";
 import GithubSlugger from "github-slugger";
 import { cachedBy } from "../shared.mjs";
 
-// Stands in for inline code in a block's text: what is in code is never a citation, but a list
-// such as "standalone: `tools/learners`, R163" has to keep its shape.
+// Stands in for inline code in a block's text: what is in code is never a citation, but a list of
+// MathTrail's citations with a path in code among them has to keep its shape.
 export const CODE = "\uE000";
 
 // What inline code stands as in a text that is read for citations: a name in code, such as a
-// repository's `api`, still reads as a word, "R3 `api`"; anything else is CODE.
+// repository's `api`, still reads as a word after a number; anything else is CODE.
 export const inlineCode = (value) => (/^[\p{L}.][\p{L}-]*$/u.test(value) ? value : CODE);
 
 // Whether a heading opens a table of the work plan: `heading` is its prefix, "Table 3.". Every plan
 // is in English, so «Таблица 3. …» opens none that is read; with `old`, it does, for a copy left
-// where the table lived before (R154).
+// where the table lived before.
 export function isTableHeading(text, heading, old = false) {
   return text.startsWith(heading) || (old && text.startsWith(heading.replace(/^Table /u, "Таблица ")));
 }
@@ -62,7 +62,7 @@ function parse(source) {
   let heading = -1; // the index in doc.headings of the nearest heading above, or -1
   // The list items around the current position, each with the links of its first block. A block
   // knows the links of the item it elaborates: the item above its own, or for a later block of
-  // an item, that item. "- source, [SPEC.md](https://…)" over "  - раздел 2.8 — …".
+  // an item, that item. `- source, [SPEC.md](https://…)` over `  - раздел 2.8 — …`.
   const items = []; // { lead: links | null }
 
   const add = (node) => {

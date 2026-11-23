@@ -1,6 +1,6 @@
-// The orchestrator's devcontainer, spec's second configuration, with the host's Docker (R156).
+// The orchestrator's devcontainer, spec's second configuration, with the host's Docker.
 // «Сделай эпик E…» runs here, and so do the tasks that build or check the orchestrator itself
-// and a task across repositories, which edits and checks each one in its container (R166);
+// and a task across repositories, which edits and checks each one in its container;
 // nothing else does. The socket below is root on the host, so no code but NovaTrail's own is
 // opened in this container. Tasks on spec's documents run in spec's ordinary container,
 // ../devcontainer.json, which has no Docker. What is not said below is the same as there, and a
@@ -36,7 +36,7 @@
         "source=novatrail-vscode-extensions-${devcontainerId},target=/home/vscode/.vscode-server/extensions,type=volume",
         "source=${localWorkspaceFolder}/../.epics,target=/workspaces/.epics,type=bind",
         // The host's Docker: docker ps here lists the host's containers, and docker exec runs a task
-        // in a repository's container (R156).
+        // in a repository's container.
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
     "containerEnv": {

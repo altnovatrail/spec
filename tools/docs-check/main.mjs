@@ -5,7 +5,7 @@
 //   node tools/docs-check/main.mjs --component the repository this spec is the submodule of
 //
 // The root is never a path from the command line: given to git as its working directory, such a
-// path would let whoever writes the command run git in any folder (R32).
+// path would let whoever writes the command run git in any folder.
 //
 // In a repository of its own, citations of spec — `architecture 3.8 spec`, `R18 spec`, `Т-15` —
 // are checked against its spec/ submodule, at the tag it is pinned to, and spec/ itself is not
@@ -81,8 +81,10 @@ export async function check(root, profile = specProfile) {
   stats.rules = checkRules(files, matchable, report);
   const budgets = readBudgets(root, profile.budgets, report);
   stats.budgets = budgets ? checkBudgets(root, files, budgets, profile, report) : 0;
-  stats.comments = budgets?.comments ? checkComments(root, listed, (scope) => registerOf("R", scope), report) : 0;
-  stats.citations = budgets?.citations ? checkCitations(root, files, listed, profile, report) : 0;
+  // Under the rule of citations a comment cites no decision at all, so whether its numbers name
+  // entries is no longer asked.
+  stats.comments = budgets?.comments && !budgets.citations ? checkComments(root, listed, (scope) => registerOf("R", scope), report) : 0;
+  stats.citations = budgets?.citations ? checkCitations(root, files, context, listed, profile, report) : 0;
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line);
   return { errors, stats };
@@ -95,7 +97,7 @@ export async function check(root, profile = specProfile) {
 // Only the repository's own rules count, not the user's global ones or .git/info/exclude, so the
 // list is the same on every machine. If git cannot list the files, `fail` hears why, and the
 // result is null. A root without a .git — a draft new-repo built, the copies of the tests — is
-// walked whole. What `excluded` names is left out either way (R32).
+// walked whole. What `excluded` names is left out either way.
 function listFiles(root, excluded, fail) {
   const skip = (relative) =>
     relative.split("/").some((name) => excluded.names.includes(name)) ||
