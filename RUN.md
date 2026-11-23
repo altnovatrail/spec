@@ -92,7 +92,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
 | [x] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258 |
 | [x] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258 |
-| [ ] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258 |
+| [x] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258 |
 | [ ] | T263 | Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution | Claude | — | T258 |
 | [ ] | T264 | Журнал `spec`, часть 5: Contracts — The AI admission table | Claude | — | T258 |
 | [ ] | T265 | Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers | Claude | — | T258 |
@@ -107,12 +107,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258 |
 | [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275; строки 7.38–7.49 |
-
-#### T262. Журнал `spec`, часть 3: Skill graph — Module index
-
-- **Цель и Сделать:** как T260, для разделов от «Skill graph» до «Module index» (≈ 200 КБ).
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
 
 #### T263. Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution
 
