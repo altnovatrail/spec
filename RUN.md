@@ -24,7 +24,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 8. End with a short report in Russian: what was done, files and repositories, how to check (commands), what the review found or why there was none, what is open.
 9. When done: table 1 `[ ]` → `[x]`; append to the body «Сделано (дата)» — one line, what was done and its pull request, which says how it was checked; where the author commits after review, the report says it. What stays open is rows, not text: a question for the author, of `run/QUESTIONS.md`; what is put off, of `run/DEBT.md` (R160).
    - Then move the body verbatim, relative links fixed, to the epic archive `docs/plan/<epic>.md`, with a gist sentence — an unheaded list item at the start of the receiving section: «T129 — сделана 2026-11-11: <итог одной фразой>». Neither stays here (R153).
-   - A task outside an epic leaves `run/TASKS.md` for the current epic's archive, section «Задачи вне эпика, сделанные за его время»; with no current epic, to the last done epic's archive, section «Задачи вне эпика, сделанные после него» (R19, amendments 2026-11-12 and 2026-11-13).
+   - A task outside an epic leaves `run/TASKS.md` for the current epic's archive, section «Задачи вне эпика, сделанные за его время»; with no current epic, to the last done epic's archive, section «Задачи вне эпика, сделанные после него» (R19).
 10. Language — RULES.md, Hard rules (R154); translating a document — [tools/translation/README.md](tools/translation/README.md).
 11. A task larger than one review (≈ 30–60 minutes of reading): propose a split before starting.
 12. Before a new task, close the findings on the previous one (allowed departure from rule 1): SonarCloud — [New Code](https://sonarcloud.io/summary/new_code?id=altnovatrail_spec), after the merge; CodeQL and Scorecard — `gh api 'repos/altnovatrail/spec/code-scanning/alerts?state=open'`. Fix in code first; "false positive" is the last resort, with the reason in words; what stays open gets its reason in the log (shared ones — R33). Never skip silently. Report these fixes in a separate paragraph: the author commits them separately.
@@ -90,7 +90,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
 | [x] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
 | [x] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
-| [ ] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258 |
+| [x] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258 |
 | [ ] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258 |
 | [ ] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258 |
 | [ ] | T263 | Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution | Claude | — | T258 |
@@ -107,19 +107,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258 |
 | [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275; строки 7.38–7.49 |
-
-#### T260. Журнал `spec`, часть 1: Scope and product — Releases
-
-- **Цель:** разделы `docs/decisions.md` от «Scope and product» до «Releases» включительно (≈ 196 КБ) — по правилу T257: каждая запись — один действующий текст, ссылки — по правилу, хвост — список файлов.
-- **Сделать (то же в T261–T267, каждая — своим диапазоном разделов `##`):**
-  - Датированные поправки — свернуть в текст записи на месте; «Почему», отвергнутое и цитаты источников, которые запись даёт сама, — сохранить; таблица «поправка → место» — в описании PR пачки, по задаче.
-  - Номера задач — убрать; провенанс («решения автора … в планировании T…») — дата и чьё решение, без номера; цепочки и описательные ссылки — по правилу.
-  - «— *Consequence:*» — список файлов и разделов, которые правит изменение решения.
-  - Запись, ставшая короче, — её предел в `entries` `tools/docs-check/budgets.json` снизить или снять (R145).
-  - Противоречие, найденное при свёртке, — строка `run/QUESTIONS.md`, не правка по догадке. Смысл решений не менять.
-  - Ссылки других документов `spec` на свёрнутые поправки («the 2026-11-12 amendment to R19») — на запись.
-- **Как проверить:** `just docs-check`; временно с `"citations": true` — ошибок в этом диапазоне нет; `/code-review high` — по пачке, в T275.
-- **Разделы:** T257; R160; `docs/decisions.md`.
 
 #### T261. Журнал `spec`, часть 2: The documents check — Status badges
 

@@ -1,6 +1,6 @@
 # Translating `docs/` into English
 
-The documents under `docs/` move from Russian to English (R143; the 2026-11-11 amendment to R14), one task at a time: in spec T136–T139, in another NovaTrail repository its task of T123. A translation is not a rewrite: every claim, condition, number, citation and link stays, in the same place. This file is the brief a session gives each subagent that translates a piece, and the order the task follows.
+The documents under `docs/` move from Russian to English (R14), one task at a time: in spec T136–T139, in another NovaTrail repository its task of T123. A translation is not a rewrite: every claim, condition, number, citation and link stays, in the same place. This file is the brief a session gives each subagent that translates a piece, and the order the task follows.
 
 ## The order of a task
 
