@@ -8,7 +8,7 @@ Table 4 of [RUN.md](../RUN.md): what was put off on purpose, its risk, when to r
 
 ## Table 4. Technical debt
 
-Numbers are not reused: next — Д300.
+Numbers are not reused: next — Д301.
 
 | ID | Debt | From | Risk while open | When to return |
 |---|---|---|---|---|
@@ -87,3 +87,4 @@ Numbers are not reused: next — Д300.
 | Д297 | R72, R73 name `exportv3` as current; `types/` holds `exportv4` from line 0.19 | T263 | A session writes `exportv3` | A task on a part's types: R72, R73 name `exportv4` |
 | Д298 | Key `citations` misses «section 15 of the module format» | T275 | Such citations return unseen | `findSections` reads «section N of …»; a test |
 | Д299 | `measure-notice`, `measure-form`, their gists in `legal/legal.yaml` and the drafts of `child-sample` do not name a stroke's style, which R172 adds | T283 | An adult consents to a sample holding the pens and colours they chose, which the texts do not name | Before the samples page of `canvas` writes a style (row 5.22 of COORDINATION.md): new versions by the rules of `legal/`, which the author reads |
+| Д300 | The paper «Check» of E23 gets the final picture of the work and no writing history: neither the order of the stroke groups nor the strokes themselves. To measure, on the eval set of verdicts: the picture alone; plus the groups in the order they were written, as boxes, with no time and no points; plus the whole history. Before any trial, read privacy 2 and 3.4 and R124: the history is biometric data in several states; decide whether the order of groups is part of it | T284, T285 | The model finds the first mistake of a long solution worse than it could | An eval set of verdicts exists (T285) and a run of it is paid for |
