@@ -108,7 +108,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T265 | Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers | Claude | — | T258, T278 |
 | [x] | T266 | Журнал `spec`, часть 7: Samples, eval sets and essays — The look of the app | Claude | — | T258, T278 |
 | [x] | T267 | Журнал `spec`, часть 8: AI on the deployment — конец | Claude | — | T258, T278 |
-| [ ] | T268 | Документы `spec`: architecture | Claude | — | T258, T278 |
+| [x] | T268 | Документы `spec`: architecture | Claude | — | T258, T278 |
 | [ ] | T269 | Документы `spec`: concepts | Claude | — | T258, T278 |
 | [ ] | T270 | Документы `spec`: privacy и dpia | Claude | — | T258, T278 |
 | [ ] | T271 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план | Claude | — | T258, T278 |
@@ -121,13 +121,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T278 | `docs-check`: строгое правило по ключу `citations`; тег | Claude | — | T277 |
 | [x] | T280 | Журнал `spec`, R01–R31: ссылки по строгому правилу | Claude | — | T260, T278 |
 | [x] | T281 | Журнал `spec`, R32–R63: ссылки по строгому правилу | Claude | — | T261, T262, T278 |
-
-#### T268. Документы `spec`: architecture
-
-- **Цель:** `docs/architecture.md` (183 КБ, 1 115 ссылок) — по правилу T257.
-- **Сделать:** номера задач — убрать; цепочки — к одному месту; описательная фраза — без ссылки; решение — номером там, где выбор выглядит изменяемым; внешний факт — одна запись `sources`. Карточки architecture 3 смысла не меняют.
-- **Как проверить:** `just docs-check`; временно с ключом — ошибок в файле нет.
-- **Разделы:** T257; architecture.
 
 #### T269. Документы `spec`: concepts
 
