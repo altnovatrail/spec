@@ -2,7 +2,7 @@
 // its `paths` match, and CLAUDE.md names each, so that a session that has not opened a part's
 // files yet still finds the part's checks. A rule whose front matter does not parse, or that has
 // no `paths`, Claude Code loads in every session, and a pattern that matches no file never loads
-// it: either way the rule says nothing of where it is meant to apply (R143).
+// it: either way the rule says nothing of where it is meant to apply.
 
 import path from "node:path";
 import { parse as parseYaml } from "yaml";

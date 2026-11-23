@@ -1,7 +1,7 @@
 // The copy's .claude/settings.json is the template's, with the keys its kind adds under "claude"
 // in repo-template/kinds.json. A kind's plugins are loaded by its devcontainer (claudePlugins,
 // devcontainer.mjs), not by a marketplace in these settings, and new-repo-check finds the folders
-// it names (R143).
+// it names.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -39,7 +39,7 @@ export function addClaudeSettings(dest, settings) {
 // would say why. Its .claude/settings.json names no marketplace in a local folder and turns on no
 // plugin of the marketplace novatrail, or of the plugins the variable loads: Claude Code records a
 // marketplace in the ~/.claude that the containers share, by the path of one of them, and a key left
-// would take novatrail from there (R143). A spec that still has the marketplace has a template that
+// would take novatrail from there. A spec that still has the marketplace has a template that
 // writes those keys, and the message says so. A path into spec/ is read from
 // `reference`: the submodule, or for a draft, which has none, spec's working tree. `container` is
 // the text of the copy's devcontainer.json, undefined when it has none. Returns the commands of the
@@ -76,8 +76,8 @@ export function checkClaudePlugins(dir, reference, report, container) {
   const settings = readJson(path.join(dir, CLAUDE_SETTINGS));
   if (settings === null) report(CLAUDE_SETTINGS, 0, "is not JSON");
   // A spec that still has the marketplace writes these keys itself.
-  const old = fs.existsSync(path.join(reference, OLD_MARKETPLACE)) ? `; the spec it pins, a tag before T162, still writes it: take a tag of spec with T162 and build the copy again` : "";
-  const why = `Claude Code records a marketplace in the ~/.claude that the containers share, by the path of one of them, and the sessions of the others lose its plugins: load them by ${PLUGIN_DIRS} of ${DEVCONTAINER} (R143 spec)${old}`;
+  const old = fs.existsSync(path.join(reference, OLD_MARKETPLACE)) ? `; the spec it pins is a tag whose template still writes it: take a newer tag of spec, whose devcontainer loads the plugins, and build the copy again` : "";
+  const why = `Claude Code records a marketplace in the ~/.claude that the containers share, by the path of one of them, and the sessions of the others lose its plugins: load them by ${PLUGIN_DIRS} of ${DEVCONTAINER}${old}`;
   for (const [name, entry] of Object.entries(settings?.extraKnownMarketplaces ?? {})) {
     const source = entry?.source?.source;
     if (source === "directory" || source === "file") report(CLAUDE_SETTINGS, 0, `the marketplace ${name} is a local ${source}: ${why}`);

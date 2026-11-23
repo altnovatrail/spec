@@ -65,9 +65,11 @@ export function checkSections(files, context, profile, report) {
 }
 
 // A section of a text outside the repository: `[SPEC.md](https://…), раздел 6`.
-const ELSEWHERE = Symbol("elsewhere");
+export const ELSEWHERE = Symbol("elsewhere");
 
-function targetOf(files, file, block, start, fallback) {
+// The document that a `раздел N` at offset start of a block cites, by the rules above: its path,
+// ELSEWHERE, or null when there is none to tell.
+export function targetOf(files, file, block, start, fallback) {
   const before = block.links.filter((l) => l.end <= start).map((l) => ({ ...l, target: markdownTarget(file, l.url) }));
   const nearest = before.at(-1);
   if (nearest && /^[\s,:;(—–-]*$/u.test(block.text.slice(nearest.end, start))) {
