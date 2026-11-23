@@ -86,7 +86,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 
 | Status | ID | Task | Who | Plan | Depends on |
 |---|---|---|---|---|---|
-| [ ] | T256 | Основа: источники и замер ссылок «до» в 13 репозиториях | Claude | — | — |
+| [x] | T256 | Основа: источники и замер ссылок «до» в 13 репозиториях | Claude | — | — |
 | [ ] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
 | [ ] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
 | [ ] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
@@ -107,15 +107,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258 |
 | [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275; строки 7.38–7.49 |
-
-#### T256. Основа: источники и замер ссылок «до» в 13 репозиториях
-
-- **Цель:** то, на чём стоит правило, — записи `docs/sources.md` и замер `docs/measurements.md`, прочитанные и измеренные этой задачей, не скопированные из запроса.
-- **Сделать:**
-  1. `docs/sources.md`, новая тема в конце — `sources 12` «How large projects cite», по sources 1, каждая страница прочитана самой задачей, с датой чтения и цитатой: ядро Linux, «Submitting patches» (docs.kernel.org и raw на GitHub); Google eng-practices, «How to handle reviewer comments»; Chromium — стиль iOS и Java (одна запись); Wikipedia, «Citation overkill» — эссе, не политика; ADR — AWS Architecture Blog и repowise, прочитать и процитировать (сессия `.github` видела только сниппеты поиска); ETH Zurich, arXiv 2602.11988 — как довод «каждая строка стоит внимания», не как замер ссылок. Claude Code best practices, «Keep CLAUDE.md short», — запись в конце темы 2, `sources 2.16`. Что не открылось или не совпало с цитатой запроса — так и записать; утверждение без источника — открытый вопрос, не факт.
-  2. `docs/measurements.md`, новый раздел `measurements 1.18` «Citations in documents and comments, 2026-11-23» (без номера задачи в заголовке, по правилу эпика): клоны 13 репозиториев repositories 2.1 на `main` во временной папке, только чтение; по каждому — плотность ссылок в CLAUDE.md, `docs/architecture.md`, `docs/decisions.md`, `docs/sources.md`, `docs/measurements.md` (ссылок, слов), строки с четырьмя ссылками и больше; виды по всему `docs/`, CLAUDE.md, RUN.md и `run/` — номера задач, свои решения, решения `spec`, свои разделы architecture, `sources`, `measurements`, решения других репозиториев; датированные поправки и хвосты журнала; доля символов в скобках со ссылками; номера решений в комментариях кода на 1 000 строк. Go 1.27.4 из контейнера: команда запроса (`find $(go env GOROOT)/src -name '*.go' -not -path '*/testdata/*'`, `grep -oE '(golang\.org/issue/|go\.dev/issue/|[Ii]ssue #?)[0-9]+'`). Команды — подразделом, чтобы T276 и задачи строк повторили их дословно.
-- **Как проверить:** `just docs-check`; цифры `.github` из запроса сверить с замером, расхождение — назвать.
-- **Разделы:** sources 1; measurements 1.14, 1.14.6; repositories 2.1; R143.
 
 #### T257. Правило ссылок: решение, RULES.md, R160, R32, шаблон
 
