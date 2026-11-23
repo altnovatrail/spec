@@ -104,7 +104,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258, T278 |
 | [x] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258, T278 |
 | [x] | T263 | Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution | Claude | — | T258, T278 |
-| [ ] | T264 | Журнал `spec`, часть 5: Contracts — The AI admission table | Claude | — | T258, T278 |
+| [x] | T264 | Журнал `spec`, часть 5: Contracts — The AI admission table | Claude | — | T258, T278 |
 | [ ] | T265 | Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers | Claude | — | T258, T278 |
 | [ ] | T266 | Журнал `spec`, часть 7: Samples, eval sets and essays — The look of the app | Claude | — | T258, T278 |
 | [ ] | T267 | Журнал `spec`, часть 8: AI on the deployment — конец | Claude | — | T258, T278 |
@@ -121,12 +121,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T278 | `docs-check`: строгое правило по ключу `citations`; тег | Claude | — | T277 |
 | [x] | T280 | Журнал `spec`, R01–R31: ссылки по строгому правилу | Claude | — | T260, T278 |
 | [x] | T281 | Журнал `spec`, R32–R63: ссылки по строгому правилу | Claude | — | T261, T262, T278 |
-
-#### T264. Журнал `spec`, часть 5: Contracts — The AI admission table
-
-- **Цель и Сделать:** как T260, для разделов от «Contracts: protobuf, buf and Connect» до «The AI admission table» (≈ 189 КБ).
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
 
 #### T265. Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers
 
