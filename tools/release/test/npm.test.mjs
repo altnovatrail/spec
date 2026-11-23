@@ -12,7 +12,7 @@ import { fixture, gitHub, trustedRoot } from "./signed.mjs";
 const ARCHIVE = "https://registry.npmjs.org/@altnovatrail/spec/-/spec-0.5.6.tgz";
 const BUNDLE = "https://github.com/altnovatrail/spec/releases/download/v0.5.6/altnovatrail-spec-0.5.6.tgz.sigstore.json";
 // The integrity of @altnovatrail/spec@0.5.6 in the registry, as `npm view` read it on 2026-11-01:
-// the archive in npm is the file of spec's release v0.5.6, byte for byte (R37, R73).
+// the archive in npm is the file of spec's release v0.5.6, byte for byte.
 const INTEGRITY = "sha512-w0qfxwtUp1Qf5jDe1D6cD6V2nrAfPrvlCBRHU1Mnuiyu2mxS4aNWzpLzbG0XMbwdww6I/ZgcDTioXb9G4HdKqA==";
 const RELEASED = fixture("spec-v0.5.6/altnovatrail-spec-0.5.6.tgz");
 
@@ -116,7 +116,7 @@ test("@altnovatrail/contracts 0.7.0, the file of spec's release v0.7.0 in npm, i
   const resolved = "https://registry.npmjs.org/@altnovatrail/contracts/-/contracts-0.7.0.tgz";
   const bundle = "https://github.com/altnovatrail/spec/releases/download/v0.7.0/altnovatrail-contracts-0.7.0.tgz.sigstore.json";
   // The integrity of @altnovatrail/contracts@0.7.0 in the registry, as `npm view` read it on
-  // 2026-11-03: the archive in npm is the file of spec's release v0.7.0, byte for byte (R83).
+  // 2026-11-03: the archive in npm is the file of spec's release v0.7.0, byte for byte.
   const integrity = "sha512-6P71MYXtDxji1Jo7eELAhD9+zHkgsH2ob57IYGy80pZwA+ujtN6A0YWyM6+hjVPSSHG4lOD+lRIdlz1gQrYrdQ==";
   const released = fixture("spec-v0.7.0/altnovatrail-contracts-0.7.0.tgz");
   const { fetch, asked } = web({ [resolved]: released.bytes, [bundle]: Buffer.from(JSON.stringify(released.bundle)) });

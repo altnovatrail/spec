@@ -1,6 +1,6 @@
 // spec's second devcontainer, the orchestrator's: its configuration is spec's own but for what
 // the host's Docker asks, its stage ends the Dockerfile, and docker-group.sh, which runs on the
-// host, leaves the number of the socket's group where the stage copies it from (R156).
+// host, leaves the number of the socket's group where the stage copies it from.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -28,7 +28,7 @@ test("the orchestrator's configuration is spec's, with the host's Docker and no 
   assert.deepEqual(orchestrator.runArgs, spec.runArgs.filter((arg) => !arg.startsWith("--network-alias=")));
   assert.deepEqual(orchestrator.mounts, [...spec.mounts, SOCKET]);
   // The folder of the epics beside the clones, which every copy of spec's configuration mounts and
-  // makes on the host before Docker binds it (R166).
+  // makes on the host before Docker binds it.
   assert.equal(spec.mounts.at(-1), "source=${localWorkspaceFolder}/../.epics,target=/workspaces/.epics,type=bind");
   assert.match(spec.initializeCommand, /(?:^|&& )mkdir -p \.\.\/\.epics(?: &&|$)/);
   // Everything else — the user, the environment, the extensions at their versions, the settings
@@ -49,10 +49,10 @@ test("the orchestrator's stage ends the Dockerfile: the devcontainer with the cl
   assert.match(stage, /^ARG DOCKER_VERSION=\d+\.\d+\.\d+$/m);
   for (const arch of ["AMD64", "ARM64"]) assert.match(stage, new RegExp(`^ARG DOCKER_SHA256_${arch}=[0-9a-f]{64}$`, "m"));
   assert.match(stage, /sha256sum --check --strict -/);
-  // The client alone, of the archive's binaries (R12).
+  // The client alone, of the archive's binaries.
   assert.match(stage, /-xzf "\$workdir\/docker-\$\{DOCKER_VERSION\}-\$\{gnu_arch\}\.tgz" docker\/docker;/);
   // The Dev Containers CLI: the npm registry's archive at its exact version, a sum for each
-  // architecture, unpacked rather than installed by npm, so that no script of it runs (R34, R158).
+  // architecture, unpacked rather than installed by npm, so that no script of it runs.
   assert.match(stage, /^ARG DEVCONTAINERS_CLI_VERSION=\d+\.\d+\.\d+$/m);
   for (const arch of ["AMD64", "ARM64"]) assert.match(stage, new RegExp(`^ARG DEVCONTAINERS_CLI_SHA256_${arch}=[0-9a-f]{64}$`, "m"));
   const code = stage.split("\n").filter((line) => !line.startsWith("#")).join("\n");

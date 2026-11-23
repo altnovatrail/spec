@@ -2,7 +2,7 @@
 // `patternProperties` — in the subset that the format allows: the tokens JSON Schema 2020-12
 // recommends ("individual Unicode characters", classes, the quantifiers and their lazy forms, ^ and
 // $, grouping and alternation; json-schema-core 2020-12, 6.4), written so that Go and JavaScript read
-// them alike (R45). ajv compiles a pattern as a JavaScript RegExp in Unicode mode; module-kit's
+// them alike. ajv compiles a pattern as a JavaScript RegExp in Unicode mode; module-kit's
 // validator, by Go's regexp.
 //
 // Where the two differ even within those tokens, the subset takes the form both read the same way:

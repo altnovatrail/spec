@@ -122,11 +122,11 @@ test("a file with no table 3, or a row with no number, holds nothing for spec", 
   assert.deepEqual(rowsOf(questions("| — | «В реестр spec» без номера | T01 | — | — |")), []);
 });
 
-test("table 3 and table 5 are read under their English headings alone (R154; T177)", () => {
+test("table 3 and table 5 are read under their English headings alone", () => {
   const source = questions(row(2, "a row of a plan in English"));
   assert.deepEqual(rowsOf(source).map((r) => r.number), [2]);
   assert.deepEqual([...ledgerOf(spec("| `api` | В1 | — | R80 |")).ledger.get("api")], [1]);
-  // A heading in Russian, or another table's, holds nothing for spec (R154).
+  // A heading in Russian, or another table's, holds nothing for spec.
   assert.deepEqual(rowsOf(source.replace("## Table 3. Questions to the author", "## Таблица 3. Вопросы автору без ответа")), []);
   assert.deepEqual(rowsOf(source.replace("## Table 3.", "## Table 2.")), []);
   const russian = spec("| `api` | В1 | — | R80 |").replace("## Table 5. Rows of other repositories recorded in spec", "## Таблица 5. Строки других репозиториев, записанные в `spec`");
@@ -281,7 +281,7 @@ test("table 3 is read from run/QUESTIONS.md alone, once a commit: a pull request
         { number: 9, title: "Bump devcontainers/base", sha: D, files: [".devcontainer/Dockerfile"], questions: questions(row(2, "давно записана")) },
         { number: 7, title: "T02, ветка давняя", sha: B, base: old, files: [QUESTIONS], questions: questions(row(3, "закрыта на main с тех пор"), row(10, "своя")) },
         // A branch cut before run/: its merge base has no run/QUESTIONS.md, so what it adds cannot
-        // be told — a row main closed since would look new —, and it is to be rebased (R153).
+        // be told — a row main closed since would look new —, and it is to be rebased.
         { number: 11, title: "T01, ветка до run/", sha: "1".repeat(40), base: older, files: ["RUN.md", QUESTIONS], questions: questions(row(6, "раскладка релиза"), row(12, "с давней ветки")) },
         // One that changes RUN.md alone adds nothing, whatever its RUN.md holds.
         { number: 6, title: "T03", sha: "2".repeat(40), files: ["RUN.md"] },
@@ -376,13 +376,13 @@ test("inbox prints the monthly measurement and the check of the changelog once t
   assert.equal(quiet.lines.some((l) => l.startsWith("due:")), false);
   const later = inbox({ ...dated, today: new Date("2026-12-12T00:00:00Z"), names: ["app"], ledgerSource: spec(""), gh: fakeGh(repositories) });
   assert.equal(later.status, 0);
-  assert.deepEqual(later.lines.filter((l) => l.startsWith("due:")), ["due: the monthly measurement of the sessions' tokens, by 2026-12-12 (measurements 1.9; RUN.md, rule 13)"]);
+  assert.deepEqual(later.lines.filter((l) => l.startsWith("due:")), ["due: the monthly measurement of the sessions' tokens, by 2026-12-12"]);
   assert.equal(dueOf(DATED, new Date("2027-03-01T00:00:00Z")).due.length, 2);
-  assert.deepEqual(dueOf(DATED.replace("2026-12-12", "2026-13-12"), new Date("2027-03-01T00:00:00Z")).problems, ['inbox: measurements 1.9 names "Next measurement: by 2026-13-12.", and 2026-13-12 is no date']);
+  assert.deepEqual(dueOf(DATED.replace("2026-12-12", "2026-13-12"), new Date("2027-03-01T00:00:00Z")).problems, ['inbox: the section Keeping the savings of docs/measurements.md names "Next measurement: by 2026-13-12.", and 2026-13-12 is no date']);
   const undated = inbox({ ...dated, measurementsSource: "Next measurement: by 2026-12-12.\nNext measurement: by 2026-12-13.\n", names: ["app"], ledgerSource: spec(""), gh: fakeGh(repositories) });
   assert.equal(undated.status, 1);
-  assert.deepEqual(undated.lines.filter((l) => l.includes("measurements 1.9 should")), [
-    'inbox: measurements 1.9 should name "Next measurement: by YYYY-MM-DD." once, and names it 2 times',
-    'inbox: measurements 1.9 should name "Next check of Claude Code\'s changelog: by YYYY-MM-DD." once, and names it 0 times',
+  assert.deepEqual(undated.lines.filter((l) => l.includes("docs/measurements.md should")), [
+    'inbox: the section Keeping the savings of docs/measurements.md should name "Next measurement: by YYYY-MM-DD." once, and names it 2 times',
+    'inbox: the section Keeping the savings of docs/measurements.md should name "Next check of Claude Code\'s changelog: by YYYY-MM-DD." once, and names it 0 times',
   ]);
 });

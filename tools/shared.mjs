@@ -18,10 +18,10 @@ export const TAR = first(["/usr/bin/tar", "/bin/tar"]);
 // inbox runs it, in a session: the toolchain image and CI have none.
 export const GH = first(["/usr/local/bin/gh", "/usr/bin/gh"]);
 // buf is the toolchain stage's, which its Dockerfile puts in /usr/local/bin at an exact version.
-// Only the check of the contracts and their generation run it (R83).
+// Only the check of the contracts and their generation run it.
 export const BUF = first(["/usr/local/bin/buf"]);
 // docker is the client the stage orchestrator of the Dockerfile puts in /usr/local/bin, or
-// the system's. Only the orchestrator runs it, in its own container (R156).
+// the system's. Only the orchestrator runs it, in its own container.
 export const DOCKER = first(["/usr/local/bin/docker", "/usr/bin/docker"]);
 
 // How long git may take in a check: an archive of a release reads every file of its tag.

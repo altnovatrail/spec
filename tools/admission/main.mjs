@@ -1,11 +1,11 @@
 // admission-check: spec's own admission/, the admission table, by the layout of its text,
-// admission/README.md (R96):
+// admission/README.md:
 //
 //   node tools/admission/main.mjs
 //
 // It checks VERSION; each schema against the conventions of the module format's schemas
 // (format/README.md) under the prefix of the admission table, with no x-open, and against the
-// 2020-12 meta-schema; that the codes of the age categories are the format's (R46);
+// 2020-12 meta-schema; that the codes of the age categories are the format's;
 // the table, admission-table.json, against its schema and the rules of the text, and each of its
 // terms and citations against spec's documents: the row of the providers' terms on age, in
 // privacy.md, that a cell reads, and the decision, the open question or the section that a rule
@@ -125,7 +125,7 @@ export function checkAdmission(root) {
 // it does not know.
 function readLayout(root, report) {
   const layout = { schemas: [], examples: [], ruleVectors: [], answerVectors: [], ruleFolders: [] };
-  const unknown = (file) => report(file, 0, `no file of the layout of ${FOLDER}/ (${FOLDER}/README.md, section 3)`);
+  const unknown = (file) => report(file, 0, `no file of the layout of ${FOLDER}/ that ${FOLDER}/README.md gives`);
   const isCase = (name) => name.endsWith(".yaml") && isKebabCase(name.slice(0, -".yaml".length));
   for (const file of filesUnder(root, FOLDER)) {
     const parts = file.split("/").slice(1);
@@ -150,7 +150,7 @@ function readVersion(root, report) {
 
 // The codes of the age categories are the format's: the table's schema and the format's common
 // schema list the same ones, in the same order. What is wrong with the common schema itself is
-// format-check's to say (R46).
+// format-check's to say.
 function checkAgeCategories(root, schemas, report) {
   const table = schemas.find((schema) => schema.name === `${TABLE_TERM}.schema.json`);
   const ours = table?.json?.$defs?.age_category?.enum;
@@ -163,7 +163,7 @@ function checkAgeCategories(root, schemas, report) {
     return;
   }
   if (!isDeepStrictEqual(ours, common.$defs?.age_category?.enum)) {
-    report(table.file, table.lineOf(["$defs", "age_category", "enum"]), "the age categories are the format's, as format/schemas/common.schema.json lists them (R46)");
+    report(table.file, table.lineOf(["$defs", "age_category", "enum"]), "the age categories are the format's, as format/schemas/common.schema.json lists them");
   }
 }
 
@@ -235,7 +235,7 @@ export function documentProblems(table, docs) {
   const rows = new Set((privacy?.tables ?? []).filter((t) => t.section === "5.3").flatMap((t) => t.rows.map((row) => row.cells[0])));
   table.cells.forEach((cell, index) => {
     cell.terms.forEach((terms, at) => {
-      if (!rows.has(terms.row)) problems.push({ at: ["cells", index, "terms", at, "row"], message: `${terms.row}: no row of the table of privacy 5.3` });
+      if (!rows.has(terms.row)) problems.push({ at: ["cells", index, "terms", at, "row"], message: `${terms.row}: no row of the providers' terms on age in docs/privacy.md` });
     });
   });
   const cite = (list, at) =>

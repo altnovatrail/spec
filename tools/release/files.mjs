@@ -1,4 +1,4 @@
-// release-files: the files spec's release of a commit carries, by the line it is numbered in (R64).
+// release-files: the files spec's release of a commit carries, by the line it is numbered in.
 //
 //   { git show <commit>:format/VERSION; echo --; git show <commit>:admission/VERSION; echo --;
 //     git show <commit>:deployment/VERSION; echo --; git show <commit>:legal/VERSION; echo --;
@@ -9,13 +9,13 @@
 // <part>-<version>.tar.gz, for each version of it the platform reads, at the version its VERSION
 // names at the commit: the format from FIRST_FILES_LINE on, and the admission table, the
 // deployment configuration, the legal texts, the table of the age of digital consent and the
-// format of the export each from its own FIRST_<PART>_LINE on (R44, R96, R85, R130, R134, R135).
+// format of the export each from its own FIRST_<PART>_LINE on.
 // Their VERSION files come on stdin in that order, apart by lines --. Any of them may be missing
 // from the commit, and then its side of the line is empty; a release of a line before a part's
 // first reads no VERSION of that part. From FIRST_NPM_LINE on, it carries the npm package
-// @altnovatrail/spec as well, the archive npm pack names for the release's version (R73), and from
+// @altnovatrail/spec as well, the archive npm pack names for the release's version, and from
 // FIRST_CONTRACTS_LINE on the npm package of the contracts' code, @altnovatrail/contracts, whose Go
-// module release.yml tags with the release (R83): tag is the release's, in the line. A release of
+// module release.yml tags with the release: tag is the release's, in the line. A release of
 // an earlier line carries no files, and its stdin, which may be empty, is not read for a version.
 // Prints a line for each file: its name, and the path in the repository that the file holds beside
 // LICENSE. `just release-files` builds them, and release.yml checks the files of a release it runs
@@ -29,13 +29,13 @@ import { archiveOf as contractsArchiveOf } from "../contracts/npm.mjs";
 import { FIRST_FILES_LINE, LINE, RELEASE_TAG, compareLines } from "./version.mjs";
 import { isMain } from "../shared.mjs";
 
-// spec's first line whose releases carry the npm package of the types (R73).
+// spec's first line whose releases carry the npm package of the types.
 export const FIRST_NPM_LINE = "0.4";
 // spec's first line whose releases carry the npm package of the contracts' code: a release of an
-// earlier line, run again, builds the files it got, though its commit may hold contracts (R83).
+// earlier line, run again, builds the files it got, though its commit may hold contracts.
 export const FIRST_CONTRACTS_LINE = "0.7";
 // spec's first line whose releases carry each part: the line whose npm package of the types holds
-// the part's types, one constant for both (R96, R85, R130, R134, R135).
+// the part's types, one constant for both.
 export { FIRST_ADMISSION_LINE };
 export { FIRST_DEPLOYMENT_LINE };
 export { FIRST_LEGAL_LINE };

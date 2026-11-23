@@ -169,7 +169,7 @@ test("an entry of packages that is not an object is named, not a crash", () => {
 });
 
 test("a repository's exceptions file: each package's license, or null, and why; nothing else", () => {
-  const good = { lightningcss: { license: "MPL-2.0", reason: "a build tool, never shipped: R07 canvas" }, khroma: { license: null, reason: "MIT file" } };
+  const good = { lightningcss: { license: "MPL-2.0", reason: "a build tool, never shipped" }, khroma: { license: null, reason: "MIT file" } };
   assert.deepEqual(readExceptions(JSON.stringify(good), "licenses.json"), good);
   for (const bad of ["[]", "null", "{", '{"a": {"license": "MIT"}}', '{"a": {"license": "MIT", "reason": " "}}', '{"a": {"license": "", "reason": "x"}}', '{"a": {"license": "MIT", "reason": "x", "until": "2027"}}', '{"": {"license": "MIT", "reason": "x"}}']) {
     assert.throws(() => readExceptions(bad, "licenses.json"), /^Error: licenses\.json: /, bad);

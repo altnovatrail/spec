@@ -1,9 +1,9 @@
 // part-line: a new version of a normative part with a version of its own starts a new line of
 // spec's releases, as a new version of the module format does: the admission table, the deployment
 // configuration, the legal texts, the table of the age of digital consent and the format of the
-// export hold their releases to it by this one rule, each by its script <part>-line.mjs (R44, R96,
-// R85, R130, R134, R135). release-version passes its lines through each part's script, with the
-// commit, and the script prints the same lines, or refuses.
+// export hold their releases to it by this one rule, each by its script <part>-line.mjs.
+// release-version passes its lines through each part's script, with the commit, and the script
+// prints the same lines, or refuses.
 //
 // Only a commit that gets a release is checked, and only against a release that carried the part,
 // of the part's first line or a later one: the releases before it had none. Then the part's VERSION
@@ -12,10 +12,10 @@
 // holds one version of the part. What the part's text makes a new version, changed under the same
 // version, is refused too. git runs in the repository the recipe runs it from.
 //
-// A part is { file, name, decision, firstLine, parse, below, rule }: the path of its VERSION; its
-// name in a sentence, "the admission table"; the decision that sets the rule; the first line whose
-// releases carry it; parse, the version of the text of its VERSION, or an error; below(now, then),
-// whether a version is below another; and rule, what its text makes a new version, in a sentence.
+// A part is { file, name, firstLine, parse, below, rule }: the path of its VERSION; its name in a
+// sentence, "the admission table"; the first line whose releases carry it; parse, the version of
+// the text of its VERSION, or an error; below(now, then), whether a version is below another; and
+// rule, what its text makes a new version, in a sentence.
 //
 // A part whose every change of shape is a new version — the deployment configuration, the legal
 // texts, the table of the age of digital consent and the format of the export — holds its releases
@@ -39,17 +39,17 @@ export function checked(part, { version, previous }) {
 // changed" — or null.
 export function checkPartLine(part, { version, previous, now, before, changed = null }) {
   if (now === before) {
-    if (changed) throw new Error(`${changed} after ${previous}, and ${part.file} is still ${now}: ${part.rule}, in a new line (${part.decision})`);
+    if (changed) throw new Error(`${changed} after ${previous}, and ${part.file} is still ${now}: ${part.rule}, in a new line`);
     return;
   }
   // A version that went back is refused first, whatever the line: a raised line would not let it
   // pass.
   if (part.below(now, before)) {
-    throw new Error(`${part.file} is ${now}, below ${before} at ${previous}: a version of ${part.name} never goes back, and undoing a change is a new version too (${part.decision})`);
+    throw new Error(`${part.file} is ${now}, below ${before} at ${previous}: a version of ${part.name} never goes back, and undoing a change is a new version too`);
   }
   const previousLine = lineOf(previous);
   if (compareLines(lineOf(version), previousLine) <= 0) {
-    throw new Error(`${part.file} is ${now}, and at ${previous} it was ${before}: a new version of ${part.name} starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change (${part.decision})`);
+    throw new Error(`${part.file} is ${now}, and at ${previous} it was ${before}: a new version of ${part.name} starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change`);
   }
 }
 
@@ -145,7 +145,7 @@ export function shapeChange(shaped, { schemaNow, schemaThen, readmeNow, readmeTh
   const ids = (text) => JSON.stringify(text === null ? [] : ruleIdsOf(text));
   const changes = [];
   if (shape(schemaNow, "the commit") !== shape(schemaThen, "the release before")) changes.push(`the shape of ${shaped.schema} changed`);
-  if (ids(readmeNow) !== ids(readmeThen)) changes.push(`the IDs of the rules of ${shaped.readme}, section 5, changed`);
+  if (ids(readmeNow) !== ids(readmeThen)) changes.push(`the IDs of the rules of ${shaped.readme} changed`);
   return changes.length ? changes.join(", and ") : null;
 }
 

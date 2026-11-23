@@ -201,7 +201,7 @@ test("in spec, a commit is numbered in the line its own release.yml sets, whatev
     // the format's version, which the line of a v1 spec holds to, and the admission table's, which
     // every commit of spec has from the line 0.8 on, the deployment configuration's, from the line
     // 0.11 on, the legal texts', from the line 0.13 on, and the table of the age of digital
-    // consent's, from the line 0.14 on (R44, R96, R85, R130, R134).
+    // consent's, from the line 0.14 on.
     copySpecTools(dir, git);
     writeFile(dir, git, "format/VERSION", "1.0\n");
     writeFile(dir, git, "admission/VERSION", "0.4\n");

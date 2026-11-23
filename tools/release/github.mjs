@@ -1,4 +1,4 @@
-// What release-verify reads from GitHub, through git and with no token (R77): the commit a tag of
+// What release-verify reads from GitHub, through git and with no token: the commit a tag of
 // a repository names, the release tags of a repository, and the history of its main.
 //
 // git runs as a fresh machine has it, and nowhere near the caller's repository: no GIT_ variable

@@ -1,6 +1,6 @@
 // The module index: every published version of every module, each by the digest of its package,
 // with the tag of the release of modules whose files hold it, the anchor skills it teaches and its
-// withdrawal from publication (R63). A release builds it from the index of the release before it,
+// withdrawal from publication. A release builds it from the index of the release before it,
 // its own packages, its tag and its withdrawals. A second implementation beside module-kit's, by
 // which spec's CI computes the test vectors of the module index.
 
@@ -42,7 +42,7 @@ export function entryOf(built, release) {
 // a format version later than version, or validate, the schema of the module index of version,
 // refuses it — such as one with a member or a reason that a later version adds. The format version
 // is read first, at the place every version keeps, so that an index of a later version is named so
-// rather than by what that version added (R102).
+// rather than by what that version added.
 export function unreadablePrevious(previous, version, validate) {
   const named = laterVersionOf(previous, version);
   if (named) return `the previous index was built by the format version ${named}, later than ${version}, by which the release builds`;

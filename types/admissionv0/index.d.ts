@@ -2,11 +2,10 @@
 
 /**
  * The types of the admission table, major version 0, generated from the schemas of version 0.5 in
- * admission/schemas by tools/types (R72, R73 and R96 in spec's docs/decisions.md): the same types
- * as the Go package admissionv0, by the same names — the table, and the vectors of answers of the
- * admission function. The schemas decide what is valid: a type gives the shape of a value alone,
- * and code that reads a value from elsewhere checks it against its schema first. A field the object
- * always holds is required; any other is optional.
+ * admission/schemas by tools/types: the same types as the Go package admissionv0, by the same names
+ * — the table, and the vectors of answers of the admission function. The schemas decide what is
+ * valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks
+ * it against its schema first. A field the object always holds is required; any other is optional.
  *
  * @packageDocumentation
  */

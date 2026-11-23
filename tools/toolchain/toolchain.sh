@@ -5,7 +5,7 @@
 # tools/toolchain/toolchain.sh, and another repository's workflows run the one in its spec
 # submodule, at the tag it pins. How the stage is built, how a command runs in it and where
 # spec's recipes are written here once, and a change to them reaches every caller with the
-# tag (R30, R31).
+# tag.
 #
 #   toolchain.sh build                                   build the stage as the image novatrail-toolchain,
 #                                                        or load it from TOOLCHAIN_IMAGE_FILE (below);
@@ -22,7 +22,7 @@
 # colon is the one character they may not hold: docker's --volume splits on it.
 #
 # The stage is toolchain, the one the checks run in, unless TOOLCHAIN_STAGE names toolchain-core:
-# Node, just, Go and buf alone, which a release builds, and a check that runs no browser may (R31).
+# Node, just, Go and buf alone, which a release builds, and a check that runs no browser may.
 # A variable rather than an argument, as TOOLCHAIN_IMAGE_FILE is: a script of an older tag of spec
 # takes no argument to build and builds toolchain whatever the variable says, and toolchain holds
 # all the core does. For the same reason a Dockerfile older than the core stage, in a repository
@@ -34,7 +34,7 @@
 # file holds no name of its stage, and a file of either stage loads as novatrail-toolchain: a caller
 # that builds both keeps them under keys that name the stage.
 # Unset or empty, build builds the stage; a release sets it never, so the image of the job that
-# signs is built from the Dockerfile (R31). Set, build
+# signs is built from the Dockerfile. Set, build
 #   - loads the file, if it is there, and holds that it gave the image novatrail-toolchain, then
 #     removes the file and builds nothing. A file that does not load, or loads another image, is
 #     removed and the stage is built, with a warning, and no file is written: the cache was hit,

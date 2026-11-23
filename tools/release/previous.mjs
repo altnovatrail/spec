@@ -4,7 +4,7 @@
 // release tag in the history of HEAD, other than a tag of HEAD itself — unless the working tree
 // changes what the check compares: what it would commit comes after HEAD, so a release of HEAD is
 // the previous one then. spec's own history holds every release, so no file of a release is
-// needed (R83, R130, R134).
+// needed.
 
 import { newestRelease } from "./version.mjs";
 import { git } from "../shared.mjs";

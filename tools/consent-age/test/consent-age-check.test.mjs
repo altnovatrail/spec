@@ -93,7 +93,7 @@ test("a root with no consent-age/ has that one error", () => {
 });
 
 test("a file the layout does not know is an error", () => {
-  expectOnly([["consent-age/notes.txt", null, "notes\n"]], /^consent-age\/notes\.txt:0: no file of the layout of consent-age\/ \(consent-age\/README\.md, section 3\)$/);
+  expectOnly([["consent-age/notes.txt", null, "notes\n"]], /^consent-age\/notes\.txt:0: no file of the layout of consent-age\/ that consent-age\/README\.md gives$/);
   expectOnly([["consent-age/vectors/other/case.yaml", null, "cases: []\n"]], /^consent-age\/vectors\/other\/case\.yaml:0: no file of the layout/);
 });
 
@@ -122,42 +122,42 @@ test("an example passes its schema or names the error it gives, and needs its sc
   expectOnly([["consent-age/examples/other/valid/case.yaml", null, "a: 1\n"]], /^consent-age\/examples\/other\/valid\/case\.yaml:0: an example of other, which has no schema in consent-age\/schemas$/);
 });
 
-test("a vector of reading passes its schema, its table of the release before is a table, and each case gives what section 5 computes", () => {
+test("a vector of reading passes its schema, its table of the release before is a table, and each case gives what the reading of the text computes", () => {
   expectOnly([[ACCEPTED, "    accepted: true\n  # A new entry", "    refused_by: schema\n    names: [x]\n  # A new entry"]], /^consent-age\/vectors\/reading\/accepted\.yaml:0: cases\/0: the reading gives \{"accepted":true\}, and the vector \{"refused_by":"schema","names":\["x"\]\}$/);
   expectSome([[ACCEPTED, "cases:", "cases: 1\nother:"]], /accepted\.yaml:0: does not pass the schema of a vector of reading/);
   expectSome([[ACCEPTED, "cases:", "cases:\ncases:"]], /accepted\.yaml:\d+: yaml\.unique-keys/);
   expectOnly([[ACCEPTED, "    previous:\n      format: 1", "    previous:\n      format: 2"]], /^consent-age\/vectors\/reading\/accepted\.yaml:0: cases\/1\/previous: a table of a release is one the schema accepts: const at #\/format/);
 });
 
-test("a vector of the category passes its schema, its table is one section 5 accepts, and each case gives what section 6 computes", () => {
-  expectOnly([[CATEGORY, 'age_years: 12, day: "2026-11-10", category: under_13', 'age_years: 12, day: "2026-11-10", category: adult']], /^consent-age\/vectors\/category\/ages\.yaml:0: cases\/1: section 6 gives category "under_13", and the vector "adult"$/);
-  expectOnly([[CATEGORY, 'age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 14', 'age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 15']], /cases\/5: section 6 gives applied 14, and the vector 15$/);
-  expectOnly([[CATEGORY, 'applied: 14, today: "2030-01-01", ask_again: true', 'applied: 14, today: "2030-01-01", ask_again: false']], /cases\/21: section 6 gives ask_again true, and the vector false$/);
-  expectSome([[CATEGORY, '        from: "2018-06-21"', '        from: "2018-06-31"']], /^consent-age\/vectors\/category\/ages\.yaml:0: table: section 5 refuses the table of a vector of the category, by consent-age\.days: countries\.FR\.0$/);
+test("a vector of the category passes its schema, its table is one the reading of the text accepts, and each case gives what the text computes", () => {
+  expectOnly([[CATEGORY, 'age_years: 12, day: "2026-11-10", category: under_13', 'age_years: 12, day: "2026-11-10", category: adult']], /^consent-age\/vectors\/category\/ages\.yaml:0: cases\/1: the text gives category "under_13", and the vector "adult"$/);
+  expectOnly([[CATEGORY, 'age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 14', 'age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 15']], /cases\/5: the text gives applied 14, and the vector 15$/);
+  expectOnly([[CATEGORY, 'applied: 14, today: "2030-01-01", ask_again: true', 'applied: 14, today: "2030-01-01", ask_again: false']], /cases\/21: the text gives ask_again true, and the vector false$/);
+  expectSome([[CATEGORY, '        from: "2018-06-21"', '        from: "2018-06-31"']], /^consent-age\/vectors\/category\/ages\.yaml:0: table: the reading of the text refuses the table of a vector of the category, by consent-age\.days: countries\.FR\.0$/);
   expectSome([[CATEGORY, "cases:", "cases: []\nother:"]], /ages\.yaml:0: does not pass the schema of a vector of the category/);
 });
 
 test("the vectors accept a table, refuse one by the schema and by each rule, and give every category and both answers", () => {
-  expectOnly([["consent-age/vectors/reading/days.yaml", null, null]], /^consent-age\/vectors\/reading:0: no vector of reading refuses a table by consent-age\.days \(consent-age\/README\.md, section 8\)$/);
+  expectOnly([["consent-age/vectors/reading/days.yaml", null, null]], /^consent-age\/vectors\/reading:0: no vector of reading refuses a table by consent-age\.days, which consent-age\/README\.md asks for$/);
   expectOnly([["consent-age/vectors/reading/schema.yaml", null, null]], /^consent-age\/vectors\/reading:0: no vector of reading refuses a table by the schema/);
   expectOnly([[ACCEPTED, null, null]], /^consent-age\/vectors\/reading:0: no vector of reading accepts a table/);
   const errors = errorsOf([[CATEGORY, null, null]]);
   assert.deepEqual(errors, [
-    "consent-age/vectors/category:0: no vector of the category answers false to asking the age again (consent-age/README.md, section 8)",
-    "consent-age/vectors/category:0: no vector of the category answers true to asking the age again (consent-age/README.md, section 8)",
-    "consent-age/vectors/category:0: no vector of the category gives the category adult (consent-age/README.md, section 8)",
-    "consent-age/vectors/category:0: no vector of the category gives the category from_13_to_consent (consent-age/README.md, section 8)",
-    "consent-age/vectors/category:0: no vector of the category gives the category from_consent_to_18 (consent-age/README.md, section 8)",
-    "consent-age/vectors/category:0: no vector of the category gives the category under_13 (consent-age/README.md, section 8)",
+    "consent-age/vectors/category:0: no vector of the category answers false to asking the age again, which consent-age/README.md asks for",
+    "consent-age/vectors/category:0: no vector of the category answers true to asking the age again, which consent-age/README.md asks for",
+    "consent-age/vectors/category:0: no vector of the category gives the category adult, which consent-age/README.md asks for",
+    "consent-age/vectors/category:0: no vector of the category gives the category from_13_to_consent, which consent-age/README.md asks for",
+    "consent-age/vectors/category:0: no vector of the category gives the category from_consent_to_18, which consent-age/README.md asks for",
+    "consent-age/vectors/category:0: no vector of the category gives the category under_13, which consent-age/README.md asks for",
   ]);
 });
 
-test("the table itself is read as section 5 reads it: the YAML rules, the schema, then the rules", () => {
+test("the table itself is read as the text reads it: the YAML rules, the schema, then the rules", () => {
   expectOnly([[TABLE, null, null]], /^consent-age\/consent-age\.yaml:0: no table$/);
   expectOnly([[TABLE, "format: 1", "format: 1\nformat: 1"]], /^consent-age\/consent-age\.yaml:\d+: yaml\.unique-keys/);
   expectOnly([[TABLE, "outside_table: 18", "outside_table: 16"]], /^consent-age\/consent-age\.yaml:0: does not pass consent-age\/schemas\/consent-age\.schema\.json: outside_table$/);
   expectOnly([[TABLE, "format: 1\noutside_table: 18\ncountries:", "format: 1\noutside_table: 18\nother: 1\ncountries:"]], /does not pass consent-age\/schemas\/consent-age\.schema\.json: other$/);
-  expectOnly([[TABLE, firstFrom(), 'from: "2018-02-30"']], /^consent-age\/consent-age\.yaml:0: consent-age\.days: countries\.[A-Z]{2}\.0, consent-age\/README\.md, section 5$/);
+  expectOnly([[TABLE, firstFrom(), 'from: "2018-02-30"']], /^consent-age\/consent-age\.yaml:0: consent-age\.days: countries\.[A-Z]{2}\.0, by the reading of consent-age\/README\.md$/);
   // A table that is a folder is named, not thrown.
   expectSome([[TABLE, null, null], [`${TABLE}/inside.txt`, null, "x\n"]], /^consent-age\/consent-age\.yaml:0: no table$/);
 });
@@ -178,14 +178,14 @@ test("consent-age.ages-kept reads the table of the release before, which previou
     const other = structuredClone(own);
     other.countries[country][0].age = other.countries[country][0].age === 13 ? 14 : 13;
     assert.deepEqual(checkConsentAge(root, { previousOf: () => ({ tag: "v0.14.0", table: other }) }).errors, [
-      { file: TABLE, line: 0, message: `consent-age.ages-kept: countries.${country}, consent-age/README.md, section 5, against v0.14.0` },
+      { file: TABLE, line: 0, message: `consent-age.ages-kept: countries.${country}, by the reading of consent-age/README.md, against v0.14.0` },
     ]);
     // A release before whose table its schema refuses is named, and the table is not read against it.
     const shapeless = { format: 1, outside_table: 18, others: {} };
     assert.deepEqual(checkConsentAge(root, { previousOf: () => ({ tag: "v0.14.0", table: shapeless }) }).errors.map(({ file, message }) => `${file}: ${message.replace(/: .*$/, "")}`), ["consent-age: the table of v0.14.0 does not pass consent-age/schemas/consent-age.schema.json, for consent-age.ages-kept"]);
     // A rule other than consent-age.ages-kept reads no release before, and names none.
     fs.writeFileSync(path.join(root, TABLE), fs.readFileSync(path.join(root, TABLE), "utf8").replace(firstFrom(), 'from: "2018-02-30"'));
-    assert.match(checkConsentAge(root, { previousOf: () => ({ tag: "v0.14.0", table: own }) }).errors[0].message, /^consent-age\.days: countries\.[A-Z]{2}\.0, consent-age\/README\.md, section 5$/);
+    assert.match(checkConsentAge(root, { previousOf: () => ({ tag: "v0.14.0", table: own }) }).errors[0].message, /^consent-age\.days: countries\.[A-Z]{2}\.0, by the reading of consent-age\/README\.md$/);
     // A release before that cannot be read is an error, and the table is not read without it.
     assert.deepEqual(
       checkConsentAge(root, {
@@ -237,7 +237,7 @@ test("the release before is the newest release tag in the history of HEAD, not H
     // ... and consent-age-check refuses the change against it, from git.
     const errors = checkConsentAge(dir).errors;
     assert.equal(errors.length, 1, JSON.stringify(errors));
-    assert.match(errors[0].message, /^consent-age\.ages-kept: countries\.[A-Z]{2}, consent-age\/README\.md, section 5, against v0\.14\.0$/);
+    assert.match(errors[0].message, /^consent-age\.ages-kept: countries\.[A-Z]{2}, by the reading of consent-age\/README\.md, against v0\.14\.0$/);
     git("checkout", "--quiet", "--", "consent-age");
     assert.deepEqual(checkConsentAge(dir).errors, []);
     // A release whose table breaks the YAML rules, or that has none, has no table to compare with.
@@ -279,7 +279,7 @@ test("the command prints ok, and the errors of a broken copy", () => {
     assert.equal(process.exitCode, 1);
     assert.deepEqual(
       printed.mock.calls.map((call) => call.arguments[0]),
-      ["consent-age/notes.txt:0: no file of the layout of consent-age/ (consent-age/README.md, section 3)", "consent-age-check: 1 error"],
+      ["consent-age/notes.txt:0: no file of the layout of consent-age/ that consent-age/README.md gives", "consent-age-check: 1 error"],
     );
     process.exitCode = 0;
     fs.rmSync(path.join(root, "consent-age/notes.txt"));

@@ -1,11 +1,11 @@
 // Command gomod checks the zip of a Go module spec ships as the Go module proxy will build it from
-// a tag (R64, R83), before the tag exists:
+// a tag, before the tag exists:
 //
 //	go -C tools/gomod run . <repository root> <revision> <line> [<module folder>]
 //
 // The module is spec's own at the root, or the one whose folder is named: contracts, the code buf
 // generates from the API contracts, which comes out at the tag contracts/vX.Y.Z with the number of
-// spec's (R83). golang.org/x/mod/zip builds the zip from git at the revision, as the go command and
+// spec's. golang.org/x/mod/zip builds the zip from git at the revision, as the go command and
 // the proxy build a module's zip, under the version the line's first release takes, vMAJOR.MINOR.0.
 // It refuses what a module's zip may not hold: a file name Go does not take, two names that differ
 // by case alone, a module too large, a module path whose major version suffix the version does not
@@ -49,14 +49,13 @@ type shipped struct {
 	requires []string
 }
 
-// The modules spec ships, by their folders. At the root: the format, the admission table (R96),
-// the deployment configuration (R85), the legal texts (R130), the table of the age of digital
-// consent (R134), the format of the export (R135), the types of each (R72), and the license that
-// goes with them, with no requirement (R64). In contracts: the contracts, the code buf generates
-// from them, which requires the runtime of protobuf and of Connect, their test vectors with the
-// package that embeds them, which requires nothing more, and their examples (R83, R86, R93). The
-// license of the root goes into it too: Go puts the root's LICENSE into the zip of a module in a
-// folder that has none.
+// The modules spec ships, by their folders. At the root: the format, the admission table, the
+// deployment configuration, the legal texts, the table of the age of digital consent, the format
+// of the export, the types of each, and the license that goes with them, with no requirement. In
+// contracts: the contracts, the code buf generates from them, which requires the runtime of
+// protobuf and of Connect, their test vectors with the package that embeds them, which requires
+// nothing more, and their examples. The license of the root goes into it too: Go puts the root's
+// LICENSE into the zip of a module in a folder that has none.
 var modules = map[string]shipped{
 	".":         {"github.com/altnovatrail/spec", []string{"LICENSE", "format", "admission", "deployment", "legal", "consent-age", "export", "types"}, nil},
 	"contracts": {"github.com/altnovatrail/spec/contracts", []string{"LICENSE", "contracts"}, []string{"connectrpc.com/connect/v2", "google.golang.org/protobuf"}},

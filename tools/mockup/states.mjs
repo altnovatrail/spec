@@ -174,7 +174,7 @@ export const STATES = [
   { name: "pick-drag", title: "A frame being dragged round a task", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setState({ liveBox: { x: 304, y: 592, w: 210, h: 58 }, liveLayer: "frame" }) },
   { name: "pick-adjust", title: "A frame the AI found, moved and resized by its corner", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setFrame(2, { x: 300, y: 142, w: 292, h: 224 }) },
   { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([304, 592], [582, 650]) },
-  // The learner's request about the page, to the tutor (R165): the finding gives the frames anew, the program words the line.
+  // The learner's request about the page, to the tutor: the finding gives the frames anew, the program words the line.
   {
     name: "pick-ask",
     title: "The tutor on the page: a request about the frames",
@@ -185,7 +185,7 @@ export const STATES = [
   { name: "pick-asked", title: "The frames found anew by the request, and Undo", from: "pick-ask", shows: "Found 3 tasks", run: (t) => t.v().send() },
   // The AI found no task on the page: the answer of the finding set empty, as Play has no page without tasks.
   { name: "pick-none", title: "No task found on the page: a card above the bar", from: "pick", shows: "No tasks found.", run: (t) => t.c.setState({ asked: { ...t.c.state.asked, [t.c.state.captured]: [] }, selected: [] }) },
-  // What else the page says, each a card above the bar (RUN.md, T254): Play has no tap of corners, no failure of the
+  // What else the page says, each a card above the bar: Play has no tap of corners, no failure of the
   // finding and no closed AI, so each state sets what the page says itself.
   { name: "pick-corner", title: "A corner tapped: the card asks for the opposite one", from: "pick-none", shows: "Now tap the opposite corner of the task.", run: (t) => t.c.setState({ pageSays: "corner" }) },
   { name: "pick-failed", title: "The finding failed: the card in red, and Find the tasks again", from: "pick-none", shows: "Find the tasks again", run: (t) => t.c.setState({ pageSays: "failed" }) },
@@ -203,12 +203,12 @@ export const STATES = [
     },
   },
   { name: "solve-hand", title: "Hand: the sheet moved right of the page", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink("M420 420 C500 380 580 460 660 420 M690 430 l60 -20"), t.c.setState({ tool: "hand" }), t.c.setView(1, 240, 0)) },
-  // The tracing paper chosen by its grip, at 90%: its frame, corners and bar of scale; Recognise waits, then the statement as text (R169; R89 canvas).
+  // The tracing paper chosen by its grip, at 90%: its frame, corners and bar of scale; Recognise waits, then the statement as text.
   { name: "solve-scale", title: "The tracing paper chosen: its frame, corners and bar of scale", from: "solve", shows: "90%", run: (t) => t.c.setState({ tSel: true, tScale: 0.9 }) },
   { name: "solve-recognising", title: "Recognise pressed: the statement being read", from: "solve-scale", shows: "Recognising…", run: (t) => t.c.setState({ tMode: "busy" }) },
   { name: "solve-text", title: "The statement read, as text in place of the photo, and Original", from: "solve-scale", shows: "Recognised by AI", run: (t) => t.c.setState({ tMode: "text" }) },
   { name: "solve-text-fraction", title: "The statement read with a fraction: built up, as the page prints it", from: "solve-text", shows: "Recognised by AI", run: (t) => (t.c.pickTask(3), t.c.setState({ tSel: true, tScale: 0.9, tMode: "text" })) },
-  // The sheet's zoom by the tool bar, about the middle of what is in sight: twice Zoom in, and twice Zoom out (R73 canvas).
+  // The sheet's zoom by the tool bar, about the middle of what is in sight: twice Zoom in, and twice Zoom out.
   { name: "solve-zoom", title: "Zoom in pressed twice: the sheet at 150 %", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink(), t.v().zoomIn(), t.v().zoomIn()) },
   { name: "solve-zoom-out", title: "Zoom out pressed twice: the sheet at 50 %, Zoom out off", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink(), t.v().zoomOut(), t.v().zoomOut()) },
   { name: "solve-lines", title: "The grid's button tapped once: the sheet in lines", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => t.v().grid.next() },
@@ -253,7 +253,7 @@ export const STATES = [
   { name: "solve-circle", title: "Check with no option circled", from: "olympiad", shows: "Circle an answer first", run: (t) => t.v().check() },
   { name: "solve-nokey", title: "A task that could not be checked: no answer to compare", from: "olympiad", shows: "Couldn’t check this one", run: (t) => (t.v().taskRows[4].pick(), t.ink(), t.v().check()) },
   // Debug, only on a local run with api's debug flag: the models of the paper flow, their answers
-  // and their cost (R163).
+  // and their cost.
   {
     name: "pick-debug",
     title: "Debug on a local run: the page photographed, the window's Models",

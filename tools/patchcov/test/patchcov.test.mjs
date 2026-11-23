@@ -14,7 +14,7 @@ const CONFIG = `coverage:
   status:
     patch:
       default:
-        target: 90%   # R48
+        target: 90%   # the merge waits for it
     project:
       default:
         informational: true

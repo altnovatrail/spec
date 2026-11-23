@@ -1,7 +1,7 @@
 // The templates of tasks: their names, expressions and placeholders, their instances in the order of
-// an odometer, the instance that the seed of an attempt picks, and the task that an instance is
-// (R60). A second implementation beside module-kit's, by which spec's CI computes the test vectors of
-// templates. spec runs no Starlark, so a solver's results come only from the vectors (R61).
+// an odometer, the instance that the seed of an attempt picks, and the task that an instance is.
+// A second implementation beside module-kit's, by which spec's CI computes the test vectors of
+// templates. spec runs no Starlark, so a solver's results come only from the vectors.
 
 import { byCodeUnits } from "../shared.mjs";
 import { EvaluationError, evaluate, isName, parseExpression, typeOf } from "./expressions.mjs";
@@ -21,9 +21,8 @@ export const holdsPlaceholder = (text) => typeof text === "string" && text.inclu
 export const resultsOf = (task) => task.template?.solver?.results ?? [];
 
 // Where a result of the solver may stand: in the key or a trap value of a check of a number or a
-// fraction, in the text of the solution and in a leak phrase, but in no picture path, which is open
-// (R108). at is the path of keys to a string of the task, as stringsOf
-// gives it.
+// fraction, in the text of the solution and in a leak phrase, but in no picture path, which is open.
+// at is the path of keys to a string of the task, as stringsOf gives it.
 function takesResults(task, at) {
   const [field, , list, , part, which, , inner] = at;
   if (field === "solution") return at[2] !== "picture";

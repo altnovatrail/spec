@@ -88,7 +88,7 @@ test("a root with no deployment/ has that one error", () => {
 });
 
 test("a file the layout does not know is an error, and so is a case not in kebab-case", () => {
-  expectOnly([["deployment/notes.txt", null, "notes\n"]], /^deployment\/notes\.txt:0: no file of the layout of deployment\/ \(deployment\/README\.md, section 3\)$/);
+  expectOnly([["deployment/notes.txt", null, "notes\n"]], /^deployment\/notes\.txt:0: no file of the layout of deployment\/ that deployment\/README\.md gives$/);
   expectOnly([["deployment/vectors/reading/Accepted.yaml", null, "cases: []\n"]], /^deployment\/vectors\/reading\/Accepted\.yaml:0: no file of the layout/);
   expectOnly([["deployment/vectors/rules/case.yaml", null, "cases: []\n"]], /^deployment\/vectors\/rules\/case\.yaml:0: no file of the layout/);
   expectOnly([["deployment/examples/deployment/broken/case.yaml", null, "a: b\n"]], /no file of the layout/);
@@ -147,7 +147,7 @@ test("an example passes its schema or names the error it gives", () => {
   expectOnly([["deployment/examples/deployment/valid/platform.yaml", "signIn:", "signIn: &s"]], /platform\.yaml:\d+: yaml\.no-anchors/);
 });
 
-test("a vector of reading passes its schema, and each case gives what section 5 computes", () => {
+test("a vector of reading passes its schema, and each case gives what the reading of the text computes", () => {
   expectOnly([[LOOPBACK, "    refused_by: deployment.loopback\n    fields: [api]\n  - origin: http://app.example.org", "    refused_by: deployment.api-origin\n    fields: [api]\n  - origin: http://app.example.org"]], /^deployment\/vectors\/reading\/loopback\.yaml:0: cases\/0: the reading gives \{"refused_by":"deployment\.loopback","fields":\["api"\]\}, and the vector \{"refused_by":"deployment\.api-origin","fields":\["api"\]\}$/);
   expectOnly([["deployment/vectors/reading/schema.yaml", "fields: [api, format]", "fields: [format, api]"]], /schema\.yaml:0: cases\/2: the reading gives .*"fields":\["api","format"\].*, and the vector .*"fields":\["format","api"\]/);
   const unpaired = errorsOf([["deployment/vectors/reading/schema.yaml", "    refused_by: schema\n    fields: [signIn]", "    refused_by: schema"]]);
@@ -161,7 +161,7 @@ test("a vector of reading passes its schema, and each case gives what section 5 
 });
 
 test("the vectors accept a file and refuse one by the schema and by each rule", () => {
-  assert.deepEqual(errorsOf([[LOOPBACK, "", null]]), ["deployment/vectors/reading:0: no vector of reading refuses a file by deployment.loopback (deployment/README.md, section 7)"]);
+  assert.deepEqual(errorsOf([[LOOPBACK, "", null]]), ["deployment/vectors/reading:0: no vector of reading refuses a file by deployment.loopback, which deployment/README.md asks for"]);
   assert.deepEqual(
     errorsOf([
       [ACCEPTED, "", null],
@@ -169,9 +169,9 @@ test("the vectors accept a file and refuse one by the schema and by each rule", 
       ["deployment/vectors/reading/schema.yaml", "", null],
     ]),
     [
-      "deployment/vectors/reading:0: no vector of reading accepts a file (deployment/README.md, section 7)",
-      "deployment/vectors/reading:0: no vector of reading refuses a file by deployment.api-origin (deployment/README.md, section 7)",
-      "deployment/vectors/reading:0: no vector of reading refuses a file by the schema (deployment/README.md, section 7)",
+      "deployment/vectors/reading:0: no vector of reading accepts a file, which deployment/README.md asks for",
+      "deployment/vectors/reading:0: no vector of reading refuses a file by deployment.api-origin, which deployment/README.md asks for",
+      "deployment/vectors/reading:0: no vector of reading refuses a file by the schema, which deployment/README.md asks for",
     ],
   );
   // With no schema of a vector, the vectors are read by the YAML rules alone, and nothing is counted.
@@ -194,7 +194,7 @@ test("the command prints ok on spec's own deployment/, and the errors of a broke
     assert.equal(process.exitCode, 1);
     assert.deepEqual(
       printed.mock.calls.map((call) => call.arguments[0]),
-      ["deployment/notes.txt:0: no file of the layout of deployment/ (deployment/README.md, section 3)", "deployment-check: 1 error"],
+      ["deployment/notes.txt:0: no file of the layout of deployment/ that deployment/README.md gives", "deployment-check: 1 error"],
     );
   } finally {
     printed.mock.restore();

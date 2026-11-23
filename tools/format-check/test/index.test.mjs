@@ -81,7 +81,7 @@ test("an index names the format version in VERSION, its previous one no later, a
   assert.deepEqual(indexFormProblems({ module_format_version: "2.0", modules: {} }, "1.3", true), ["the index names the format version 2.0, newer than 1.3, which format/VERSION has"]);
 });
 
-// A release whose previous index the build cannot read fails, by no rule (R102; В31 module-kit).
+// A release whose previous index the build cannot read fails, by no rule (В31 module-kit).
 test("the build reads no previous index of a later format version, nor one that the schema of its own refuses", () => {
   const packages = [built("example/a", "0.2.0", B)];
   const previous = (version, extra = {}) => ({ module_format_version: version, modules: { "example/a": { "0.1.0": { module_format_version: "0.1", package_digest: A, release: "v0.1.0" } } }, ...extra });

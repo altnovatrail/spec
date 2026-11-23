@@ -1,5 +1,5 @@
 // The canonical view's serialization and a package's digests: a JSON value written as RFC 8785
-// (JCS) in UTF-8, and a digest written sha256:<64 lowercase hex digits> (R62).
+// (JCS) in UTF-8, and a digest written sha256:<64 lowercase hex digits>.
 
 import { createHash } from "node:crypto";
 import { byCodeUnits } from "../shared.mjs";
@@ -7,9 +7,9 @@ import { byCodeUnits } from "../shared.mjs";
 export const DIGEST_PREFIX = "sha256:";
 
 // An object is written key by key: JSON.stringify on sorted keys would still put an integer key such
-// as "1" first, against RFC 8785, section 3.2.3. JSON.stringify escapes a string as RFC 8785, section
-// 3.2.2.2, asks. The format's data holds only integers within ±(2^53 − 1), so a number is written in
-// decimal digits.
+// as "1" first, where RFC 8785 sorts every key by its UTF-16 code units. JSON.stringify escapes a
+// string as RFC 8785 asks. The format's data holds only integers within ±(2^53 − 1), so a number
+// is written in decimal digits.
 export function canonicalText(value) {
   if (value === null || value === true || value === false) return String(value);
   if (typeof value === "number") {

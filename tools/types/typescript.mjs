@@ -1,6 +1,6 @@
 // The check of the generated TypeScript by its compiler: each case of the corpus
 // (tools/types/corpus.mjs) is the value of a declaration of its type, as a consumer of the npm
-// package @altnovatrail/spec would declare it (R73, R96, R85, R130, R134, R135).
+// package @altnovatrail/spec would declare it.
 //
 //   node tools/types/typescript.mjs <corpus.json> <folder>     writes the project tsc checks into
 //                                                              the folder, a new one
@@ -12,13 +12,13 @@
 // its open view, stands under @ts-expect-error. The directive takes any error of its line, but the
 // open view of the same vector is a case of its own, which tsc takes, so what is left to refuse in
 // the part is its closed fields.
-// canvas.ts, a copy of canvas.check.ts, checks the hand-written types of <novatrail-canvas> (R74) by
+// canvas.ts, a copy of canvas.check.ts, checks the hand-written types of <novatrail-canvas> by
 // tsconfigs of their own with the DOM, whose types the element's take; the corpus's tsconfigs have
 // no DOM, which the module format's types must not need.
 // The caller, `just types-check`, unpacks the package built of the working tree into the
 // project's node_modules, so its exports are checked as well, and beside it the npm package of the
 // contracts' code and the runtime of protobuf-es: the check of <novatrail-canvas> holds the
-// element's marks to the contract's message (R83).
+// element's marks to the contract's message.
 
 import fs from "node:fs";
 import path from "node:path";

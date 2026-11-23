@@ -39,7 +39,7 @@ const SET_PLACES = [
 // autolink of GFM and an autolink in <…> among them, which mdast gives as links.
 const FORBIDDEN = new Set(["html", "image", "imageReference", "link", "linkReference", "definition"]);
 // The privacy policy, whose section "Who we are" names the operator, and that section's heading,
-// of the second level (R115).
+// of the second level.
 export const POLICY = "privacy-policy";
 const WHO_WE_ARE = "Who we are";
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -148,7 +148,7 @@ function markdownBreaches({ passport, files }) {
 
 // legal.operator: the part has the privacy policy, at the place app, with a version whose day has
 // come, and every version of it, a draft too, has the section "Who we are", a heading of the second
-// level, which the pages that name the operator open (R115). The policy is named by its ID when it
+// level, which the pages that name the operator open. The policy is named by its ID when it
 // is missing, elsewhere or not yet in force, and a version without the section by its file.
 function operatorBreaches({ passport, files }, today) {
   const policy = Object.hasOwn(passport.texts, POLICY) ? passport.texts[POLICY] : { place: null, versions: [] };

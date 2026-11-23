@@ -1,5 +1,5 @@
 // release-verify on files of real releases, with no network: what it lets in, and each way a file
-// is refused — by its signature, its certificate's fields, GitHub, or what it holds (R77).
+// is refused — by its signature, its certificate's fields, GitHub, or what it holds.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -32,7 +32,7 @@ test("the npm package of the contracts' code of spec v0.7.0 is let in, and held 
   assert.throws(() => checked({ ...contracts, tag: "v0.5.6" }), /altnovatrail-contracts-0\.7\.0\.tgz is no file of spec v0\.5\.6, whose npm package is altnovatrail-contracts-0\.5\.6\.tgz/);
 });
 
-test("tutor v0.1.0, signed by .github v0.1.11, is let in at the minimum R77 sets, refused by one above its signer, and held to its repository and tag", () => {
+test("tutor v0.1.0, signed by .github v0.1.11, is let in at the minimum, refused by one above its signer, and held to its repository and tag", () => {
   const sums = { repository: "tutor", tag: "v0.1.0", ...fixture("tutor-v0.1.0/SHA256SUMS") };
   assert.equal(checked(sums), "SHA256SUMS: tutor v0.1.0, signed by the shared release.yml of .github v0.1.11");
   const V0111 = COMMITS[".github"]["v0.1.11"];
@@ -102,7 +102,7 @@ test("spec's files are bound to their tag by what they hold, and no other file o
   assert.throws(() => checked(specFile("format-0.1.tar.gz", "v0.5.5")), /format-0\.1\.tar\.gz is git archive's of e6069ae\w+, and spec v0\.5\.5 is c143fa0/);
   // Renamed to the other tag's name, the archive still holds its own version.
   assert.throws(() => checked({ ...specFile("altnovatrail-spec-0.5.6.tgz", "v0.5.5"), name: "altnovatrail-spec-0.5.5.tgz" }), /the package\.json of altnovatrail-spec-0\.5\.5\.tgz has the version "0\.5\.6", not 0\.5\.5/);
-  assert.throws(() => checked({ ...specFile("format-0.1.tar.gz"), name: "format.tar.gz" }), /format\.tar\.gz is no file of spec's release that R77 binds to its tag/);
+  assert.throws(() => checked({ ...specFile("format-0.1.tar.gz"), name: "format.tar.gz" }), /format\.tar\.gz is no file of spec's release that release-verify binds to its tag/);
   // The npm package's name and its tag agree, and the tag is spec's.
   assert.throws(() => checked({ ...specFile("altnovatrail-spec-0.5.6.tgz"), name: "altnovatrail-spec-0.4.0.tgz" }), /altnovatrail-spec-0\.4\.0\.tgz is no file of spec v0\.5\.6, whose npm package is altnovatrail-spec-0\.5\.6\.tgz/);
   const untagged = gitHub({ tags: { ...COMMITS, spec: {} } });
@@ -142,7 +142,7 @@ test("the archive of the contracts' code is bound to its tag as spec's other pac
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive([]), "v0.5.6", source), /names the package undefined/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", npmArchive(null), "v0.5.6", source), /cannot be read: it holds no object/);
   assert.throws(() => checkSpecContent("altnovatrail-contracts-0.5.6.tgz", contracts, "v0.5.6", gitHub({ tags: { ...COMMITS, spec: {} } })), /spec has no tag v0\.5\.6/);
-  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, legal-<version>\.tar\.gz, consent-age-<version>\.tar\.gz, export-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
+  assert.throws(() => checkSpecContent("altnovatrail-other-0.5.6.tgz", contracts, "v0.5.6", source), /is no file of spec's release that release-verify binds to its tag: format-<version>\.tar\.gz, admission-<version>\.tar\.gz, deployment-<version>\.tar\.gz, legal-<version>\.tar\.gz, consent-age-<version>\.tar\.gz, export-<version>\.tar\.gz, altnovatrail-spec-<version>\.tgz or altnovatrail-contracts-<version>\.tgz/);
 });
 
 // A part's archive as release-files writes it, of a made-up spec whose commit v0.13.0 names:
@@ -209,7 +209,7 @@ test("the archive of each part is bound to its tag as the format's is, by the co
   // A version is an integer from 1 for the deployment configuration, the legal texts and the table
   // of the age of digital consent, and MAJOR.MINOR for the others.
   for (const name of ["admission-01.tar.gz", "deployment-0.tar.gz", "deployment-01.tar.gz", "deployment-1.0.tar.gz", "admission-1.tar.gz", "format-1.tar.gz", "legal-0.tar.gz", "legal-01.tar.gz", "legal-1.0.tar.gz", "legals-1.tar.gz", "consent-age-0.tar.gz", "consent-age-1.0.tar.gz", "consent-1.tar.gz", "age-1.tar.gz"]) {
-    assert.throws(() => checkSpecContent(name, format, "v0.5.6", source), /is no file of spec's release that R77 binds to its tag/, name);
+    assert.throws(() => checkSpecContent(name, format, "v0.5.6", source), /is no file of spec's release that release-verify binds to its tag/, name);
   }
 });
 
@@ -217,7 +217,7 @@ test("the archive of each part is bound to its tag as the format's is, by the co
 const licenseFields = () => readIdentity(verifySignature(license().bytes, license().bundle, trustedRoot));
 const specFields = () => readIdentity(verifySignature(specFile("format-0.1.tar.gz").bytes, specFile("format-0.1.tar.gz").bundle, trustedRoot));
 
-test("the certificate's fields are held to R77: who signed, at whose call, on which branch", () => {
+test("the certificate's fields are held to what they must be: who signed, at whose call, on which branch", () => {
   assert.equal(checkFields(licenseFields(), "module-kit"), V014);
   assert.equal(checkFields(specFields(), "spec"), undefined);
   const refused = (fields, repository, change, reason) => assert.throws(() => checkFields({ ...fields, ...change }, repository), reason, JSON.stringify(change));

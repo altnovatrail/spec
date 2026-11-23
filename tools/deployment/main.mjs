@@ -1,5 +1,5 @@
 // deployment-check: spec's own deployment/, the format of the deployment configuration, by the
-// layout of its text, deployment/README.md (R85):
+// layout of its text, deployment/README.md:
 //
 //   node tools/deployment/main.mjs
 //
@@ -24,7 +24,7 @@ import { checkFormatField, describe, filesUnder, printCheck, readRules, readVers
 import { RULES, originOf, readingOf } from "./reading.mjs";
 
 export const FOLDER = "deployment";
-// The fields of the file keep app's names, in camelCase; a vector's are in snake_case (R09 app).
+// The fields of the file keep app's names, in camelCase; a vector's are in snake_case.
 export const DEPLOYMENT_PART = { folder: FOLDER, prefix: "https://altnovatrail.github.io/spec/deployment/", open: false, camelCase: ["deployment.schema.json"] };
 const FILE_TERM = "deployment";
 const VECTOR_TERM = "reading-vector";
@@ -78,7 +78,7 @@ export function checkDeployment(root) {
     for (const outcome of ["accepted", SCHEMA, ...RULES]) {
       if (outcomes.has(outcome)) continue;
       const what = outcome === "accepted" ? "accepts a file" : outcome === SCHEMA ? "refuses a file by the schema" : `refuses a file by ${outcome}`;
-      report(`${FOLDER}/vectors/reading`, 0, `no vector of reading ${what} (${FOLDER}/README.md, section 7)`);
+      report(`${FOLDER}/vectors/reading`, 0, `no vector of reading ${what}, which ${FOLDER}/README.md asks for`);
     }
   }
 
@@ -98,7 +98,7 @@ function readLayout(root, report) {
     else if (parts.length === 4 && parts[0] === "examples" && isKebabCase(parts[1]) && ["valid", "invalid"].includes(parts[2]) && isCase(parts[3])) {
       layout.examples.push({ file, term: parts[1], kind: parts[2] });
     } else if (parts.length === 3 && parts[0] === "vectors" && parts[1] === "reading" && isCase(parts[2])) layout.vectors.push(file);
-    else report(file, 0, `no file of the layout of ${FOLDER}/ (${FOLDER}/README.md, section 3)`);
+    else report(file, 0, `no file of the layout of ${FOLDER}/ that ${FOLDER}/README.md gives`);
   }
   layout.schemas.sort(byCodeUnits);
   return layout;

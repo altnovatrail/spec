@@ -48,7 +48,7 @@ test("fraction is Go's Float64, and permutation Go's Perm", () => {
   ]);
 });
 
-test("each function draws as many integers as section 22 says", () => {
+test("each function draws as many integers as the format's generator says", () => {
   const drawn = (call, start = fresh()) => {
     let count = 0;
     const stream = start;

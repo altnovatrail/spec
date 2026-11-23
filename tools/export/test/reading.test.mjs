@@ -145,7 +145,7 @@ test("export.proto wants learner-model's .proto with a profile, and the observat
   const plain = { ...profile, attempts: [] };
   assert.deepEqual(readingOf(validators, { ...noObservation, [`api/profiles/${profile.profile_id}.json`]: plain }), { accepted: true });
   // A profile always has its state, as the row of the cache comes with the profile, so it always
-  // comes with learner-model's .proto (R43 api).
+  // comes with learner-model's .proto.
   const stateless = { ...plain };
   delete stateless.state;
   assert.equal(validators.get("profile")(stateless), false);

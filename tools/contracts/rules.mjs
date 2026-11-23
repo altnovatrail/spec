@@ -1,5 +1,5 @@
-// The rules of the API contracts that contracts-check holds beside buf's own (R83;
-// contracts/README.md): buf.yaml and buf.gen.yaml as R83 has them, the files of contracts/ by
+// The rules of the API contracts that contracts-check holds beside buf's own
+// (contracts/README.md): buf.yaml and buf.gen.yaml as that text has them, the files of contracts/ by
 // their layout, and what buf lets pass in a file — a syntax other than proto3, a json_name, an
 // unsigned type, a package without the prefix novatrail. Each rule takes text or the image buf
 // builds and returns errors, { file, line, message }; nothing here runs buf.
@@ -9,7 +9,7 @@ import { LineCounter, isMap, isSeq, parseDocument } from "yaml";
 // Where the rules come from, named in each message.
 const TEXT = "contracts/README.md";
 
-// buf.yaml, every part of it fixed (R83).
+// buf.yaml, every part of it fixed.
 export const BUF_YAML = {
   version: "v2",
   modules: [{ path: "contracts" }],
@@ -17,8 +17,8 @@ export const BUF_YAML = {
   breaking: { use: ["FILE"] },
 };
 
-// Why a part of buf.yaml that R83 does not have is refused, where a reason says more than "R83
-// does not have it".
+// Why a part of buf.yaml that the text does not have is refused, where a reason says more than
+// "no such setting".
 const REFUSED = {
   deps: "a dependency comes from the Buf Schema Registry, and the build depends on no service outside the repository",
   "lint.except": "every rule of the categories holds, with no exception",
@@ -72,18 +72,18 @@ export function checkBufYaml(text) {
     const at = path.join(".");
     if (isObject(expected)) {
       if (!isObject(actual)) {
-        errors.push({ file, line: lineAt(path), message: `${at || "the file"} is ${show(actual)}, and R83 has ${show(expected)} (${TEXT}, sections 3 and 7)` });
+        errors.push({ file, line: lineAt(path), message: `${at || "the file"} is ${show(actual)}, and ${TEXT} has ${show(expected)}` });
         return;
       }
       for (const name of Object.keys(actual)) {
         const named = [...path, name].join(".");
         if (!(name in expected)) {
-          const why = REFUSED[named] ?? "R83 has no such setting";
-          errors.push({ file, line: lineAt([...path, name]), message: `${named}: ${why} (${TEXT}, sections 3 and 7)` });
+          const why = REFUSED[named] ?? "no such setting";
+          errors.push({ file, line: lineAt([...path, name]), message: `${named}: ${why} (${TEXT})` });
         }
       }
       for (const [name, wanted] of Object.entries(expected)) {
-        if (!(name in actual)) errors.push({ file, line: lineAt(path), message: `${[...path, name].join(".")} is missing: R83 has ${show(wanted)} (${TEXT}, sections 3 and 7)` });
+        if (!(name in actual)) errors.push({ file, line: lineAt(path), message: `${[...path, name].join(".")} is missing: ${TEXT} has ${show(wanted)}` });
         else walk(actual[name], wanted, [...path, name]);
       }
       return;
@@ -91,22 +91,22 @@ export function checkBufYaml(text) {
     const same = Array.isArray(expected)
       ? Array.isArray(actual) && actual.length === expected.length && expected.every((item) => actual.some((other) => show(other) === show(item)))
       : actual === expected;
-    if (!same) errors.push({ file, line: lineAt(path), message: `${at} is ${show(actual)}, and R83 has ${show(expected)} (${TEXT}, sections 3 and 7)` });
+    if (!same) errors.push({ file, line: lineAt(path), message: `${at} is ${show(actual)}, and ${TEXT} has ${show(expected)}` });
   };
   walk(value, BUF_YAML, []);
   return errors;
 }
 
 // buf.gen.yaml: buf generates from the workspace of buf.yaml alone, with local plugins only, into
-// contracts/, and never cleans a folder (R83). Which plugins and which of their options is the
+// contracts/, and never cleans a folder. Which plugins and which of their options is the
 // file's: the generated code is held to what it gives.
 export function checkBufGenYaml(text) {
   const file = "buf.gen.yaml";
   const { value, lineAt, error } = read(file, text);
   if (error) return [error];
   const errors = [];
-  const refuse = (path, message) => errors.push({ file, line: lineAt(path), message: `${message} (${TEXT}, section 8)` });
-  if (!isObject(value)) return [{ file, line: 1, message: `the file is ${show(value)}, not a template of buf generate (${TEXT}, section 8)` }];
+  const refuse = (path, message) => errors.push({ file, line: lineAt(path), message: `${message} (${TEXT})` });
+  if (!isObject(value)) return [{ file, line: 1, message: `the file is ${show(value)}, not a template of buf generate (${TEXT})` }];
   if (value.version !== "v2") refuse(["version"], `version is ${show(value.version)}, and the template is of version v2`);
   for (const key of Object.keys(value)) {
     if (key === "inputs") refuse([key], "inputs: buf generates from the workspace of buf.yaml alone, and no input comes from outside the repository");
@@ -180,11 +180,11 @@ export function classify(file) {
 // The error of a file of contracts/ the layout does not have.
 export function unknownFile(file) {
   const message = file.endsWith(".proto")
-    ? `a contract is contracts/novatrail/<part>/vN/<name>.proto, its part and name in lower snake case and N from 1 (${TEXT}, sections 2 and 3)`
+    ? `a contract is contracts/novatrail/<part>/vN/<name>.proto, its part and name in lower snake case and N from 1 (${TEXT})`
     : file.startsWith("contracts/vectors/")
-      ? `a test vector is contracts/vectors/<part>/vN/<case>.json, its part in lower snake case, N from 1 and its case in kebab case (${TEXT}, sections 3 and 10)`
+      ? `a test vector is contracts/vectors/<part>/vN/<case>.json, its part in lower snake case, N from 1 and its case in kebab case (${TEXT})`
       : file.startsWith("contracts/examples/")
-        ? `an example is contracts/examples/<part>/vN/<case>.json, its part in lower snake case, N from 1 and its case in kebab case (${TEXT}, sections 3 and 11)`
+        ? `an example is contracts/examples/<part>/vN/<case>.json, its part in lower snake case, N from 1 and its case in kebab case (${TEXT})`
         : UNKNOWN;
   return { file, line: 0, message };
 }
@@ -215,10 +215,10 @@ export function checkImage(image) {
     const lineAt = (path, otherwise = 1) => lines.get(path.join(",")) ?? otherwise;
     if (file.syntax !== "proto3") {
       const syntax = file.syntax === "editions" ? `edition ${file.edition}` : `syntax ${file.syntax ?? "proto2"}`;
-      errors.push({ file: name, line: lineAt([SYNTAX]), message: `the file is of ${syntax}, and a contract is proto3 (${TEXT}, section 4)` });
+      errors.push({ file: name, line: lineAt([SYNTAX]), message: `the file is of ${syntax}, and a contract is proto3 (${TEXT})` });
     }
     if (!(file.package ?? "").startsWith("novatrail.")) {
-      errors.push({ file: name, line: lineAt([PACKAGE]), message: `the package ${show(file.package ?? "")} lacks the prefix novatrail. (${TEXT}, section 3)` });
+      errors.push({ file: name, line: lineAt([PACKAGE]), message: `the package ${show(file.package ?? "")} lacks the prefix novatrail. (${TEXT})` });
     }
     // A map's entry has no place in the file: its fields are found at the line of the map field,
     // and named by it.
@@ -228,10 +228,10 @@ export function checkImage(image) {
         const called = entry ? `${field.name} of the map ${entry.name}` : field.name;
         const unsigned = UNSIGNED.has(field.type) ? field.type.slice(5).toLowerCase() : UNSIGNED_WRAPPERS.has(field.typeName) ? field.typeName.slice(1) : null;
         if (unsigned) {
-          errors.push({ file: name, line: lineAt([...path, FIELD_TYPE], entry?.line ?? lineAt(path)), message: `the field ${called} is of the unsigned ${unsigned}, and no contract uses an unsigned type (${TEXT}, section 5)` });
+          errors.push({ file: name, line: lineAt([...path, FIELD_TYPE], entry?.line ?? lineAt(path)), message: `the field ${called} is of the unsigned ${unsigned}, and no contract uses an unsigned type (${TEXT})` });
         }
         if (lines.has([...path, JSON_NAME].join(","))) {
-          errors.push({ file: name, line: lineAt([...path, JSON_NAME]), message: `the field ${field.name} sets json_name, and a field's name in JSON is its protobuf name (${TEXT}, section 6)` });
+          errors.push({ file: name, line: lineAt([...path, JSON_NAME]), message: `the field ${field.name} sets json_name, and a field's name in JSON is its protobuf name (${TEXT})` });
         }
       });
     };

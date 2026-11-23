@@ -2,12 +2,11 @@
 
 /**
  * The types of the module format, major version 0, generated from the schemas of version 0.4 in
- * format/schemas by tools/types (R72 and R73 in spec's docs/decisions.md): the same types as the Go
- * package formatv0, by the same names. The schemas decide what is valid: a type gives the shape of
- * a value alone, and code that reads a value from elsewhere checks it against its schema first. A
- * field the object always holds is required; any other is optional, among them each field that only
- * some branches of a schema give. The open view of each part is in open,
- * `@altnovatrail/spec/formatv0/open`.
+ * format/schemas by tools/types: the same types as the Go package formatv0, by the same names. The
+ * schemas decide what is valid: a type gives the shape of a value alone, and code that reads a
+ * value from elsewhere checks it against its schema first. A field the object always holds is
+ * required; any other is optional, among them each field that only some branches of a schema give.
+ * The open view of each part is in open, `@altnovatrail/spec/formatv0/open`.
  *
  * @packageDocumentation
  */

@@ -80,7 +80,7 @@ test("comparisons do not chain, and the subset takes only its own tokens", () =>
   assert.deepEqual(tokensOf("a<=b//2").tokens.map((token) => token.text), ["a", "<=", "b", "//", "2"], "tokens need no spaces between them");
 });
 
-// What the dialect of the format does not parse is none of the subset (R102; В28 module-kit).
+// What the dialect of the format does not parse is none of the subset (В28 module-kit).
 test("an expression begins with a token and nests at most 64 levels of parentheses, unary - and not", () => {
   assert.match(problemOf(" a + 1"), /begins with a space/);
   assert.equal(problemOf("a + 1 "), undefined, "a space after it is no indent");

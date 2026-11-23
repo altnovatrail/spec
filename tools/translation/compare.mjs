@@ -3,7 +3,7 @@
 // every link, every number, the code, the quotes of a source in its own language, the fixed words
 // of the decision log, and the shape — a paragraph for a paragraph, an item for an item, a cell for
 // a cell. Its meaning is not compared: that is the blind reading of a sample, by a session that
-// did not translate it (R143).
+// did not translate it.
 
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";

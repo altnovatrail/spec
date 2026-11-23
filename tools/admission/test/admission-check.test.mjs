@@ -140,7 +140,7 @@ test("the table breaks no rule of a table", () => {
 });
 
 test("the table cites what spec's documents hold", () => {
-  expectOnly([tableEdit((t) => (t.cells[cellOf(t, "openai", "own_key", "adult")].terms[0].row = "Open AI"))], /Open AI: no row of the table of privacy 5\.3/);
+  expectOnly([tableEdit((t) => (t.cells[cellOf(t, "openai", "own_key", "adult")].terms[0].row = "Open AI"))], /Open AI: no row of the providers' terms on age in docs\/privacy\.md/);
   expectOnly([tableEdit((t) => (t.cells[0].basis = ["R999"]))], /R999: no such number in its register/);
   expectOnly([tableEdit((t) => (t.cells[0].basis = ["П-999"]))], /П-999: no such number in its register/);
   expectOnly([tableEdit((t) => (t.capabilities[0].basis = ["privacy 5.9"]))], /privacy 5\.9: docs\/privacy\.md has no section 5\.9/);
@@ -182,7 +182,7 @@ test("the rules of the text are the rules admission-check knows", () => {
   expectOnly([["admission/README.md", "", null]], /^admission\/README\.md:0: no text/);
 });
 
-test("a vector of answers gives the answer section 6 computes", () => {
+test("a vector of answers gives the answer the admission function computes", () => {
   expectOnly([[FACTS, "      fact: zero_data_retention\n  # The safeguards", "      fact: minor_safeguards\n  # The safeguards"]], /^admission\/vectors\/answers\/facts\.yaml:0: cases\/2: the answer is .*"fact":"zero_data_retention".*, and the vector gives .*"fact":"minor_safeguards"/);
   // With the other vectors of fact_missing gone, the one left breaks a rule, so it gives no answers,
   // and that reason has none.
@@ -192,7 +192,7 @@ test("a vector of answers gives the answer section 6 computes", () => {
   ]);
   const schema = errorsOf([[FACTS, "    answer:\n      admitted: false\n      reason: fact_missing\n      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}\n      fact: data_processing_agreement", "    answer:\n      admitted: true\n      reason: fact_missing\n      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}\n      fact: data_processing_agreement"]]);
   assert.ok(schema.includes("admission/vectors/answers/facts.yaml:0: does not pass the schema of a vector of answers: not at #/cases/0/answer: must NOT be valid"), schema.join("\n"));
-  expectOnly([[FACTS, '      terms: [{row: OpenAI, read: "2026-11-03"}]', '      terms: [{row: Mistral, read: "2026-11-03"}]']], /table\/cells\/0\/terms\/0\/row: Mistral: no row of the table of privacy 5\.3/);
+  expectOnly([[FACTS, '      terms: [{row: OpenAI, read: "2026-11-03"}]', '      terms: [{row: Mistral, read: "2026-11-03"}]']], /table\/cells\/0\/terms\/0\/row: Mistral: no row of the providers' terms on age in docs\/privacy\.md/);
   expectOnly([["admission/vectors/answers/open-cells.yaml", "table:", "table: &t"]], /open-cells\.yaml:\d+: yaml\.no-anchors/);
 });
 
@@ -243,7 +243,7 @@ test("the command prints ok on spec's own admission/, and the errors of a broken
     assert.equal(process.exitCode, 1);
     assert.deepEqual(
       printed.mock.calls.map((call) => call.arguments[0]),
-      ["admission/notes.txt:0: no file of the layout of admission/ (admission/README.md, section 3)", "admission-check: 1 error"],
+      ["admission/notes.txt:0: no file of the layout of admission/ that admission/README.md gives", "admission-check: 1 error"],
     );
   } finally {
     printed.mock.restore();

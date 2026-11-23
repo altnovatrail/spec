@@ -1,6 +1,5 @@
 // format-check: the schemas, examples and test vectors of the module format in spec's format/,
-// against the format text and against what its rules compute (R45, R46, R51, R56, R57, R58, R59,
-// R60, R62, R63).
+// against the format text and against what its rules compute.
 //
 //   node tools/format-check/main.mjs      spec's own format/, two levels above this file
 //
@@ -106,7 +105,7 @@ function readPage(root, schemas, report) {
   if (value) usePage(value);
 }
 
-// format/VERSION, MAJOR.MINOR and a newline, or null (R44).
+// format/VERSION, MAJOR.MINOR and a newline, or null.
 function readVersion(root, report) {
   const file = "format/VERSION";
   if (!fs.existsSync(path.join(root, file))) {

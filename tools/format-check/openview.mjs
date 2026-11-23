@@ -6,7 +6,7 @@
 // is open when a subschema that applies to it — under properties, a matching patternProperties, or
 // else additionalProperties — carries the mark; an element of an open array is open; and the root of
 // a part is open. format-check builds the open view of each vector in vectors/open-view/ and compares
-// it with the one the vector gives, as module-kit does (R45, R51).
+// it with the one the vector gives, as module-kit does.
 
 import { fragmentOf } from "./schemas.mjs";
 import { byCodeUnits } from "../shared.mjs";

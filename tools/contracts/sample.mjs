@@ -1,7 +1,7 @@
 // The sample file of the eval protocol, novatrail.eval.v1.Sample: whether a file is a sample as a
 // writer writes it and as its rules let it be — the fields its purpose and its writer give it, its
 // strokes, its sheet or page, its crops and their PNG, and its markup, as far as the file alone
-// holds it (R93, R95). The samples among the examples of contracts/examples/eval/v1/ pass it, and
+// holds it. The samples among the examples of contracts/examples/eval/v1/ pass it, and
 // together show every purpose, writer, ink, surface and event of the history of writing, and every
 // kind of part of a markup.
 //
@@ -27,7 +27,7 @@ export { labelOf };
 
 export const PACKAGE = "novatrail.eval.v1";
 export const FOLDER = "contracts/examples/eval/v1";
-const TEXT = "contracts/README.md, section 11";
+const TEXT = "the sample file in contracts/README.md";
 const WRITTEN = { useProtoFieldName: true, alwaysEmitImplicit: true };
 
 // The heights of a digit a sample's crops are drawn at, px, beside the module's own; the tallest a
@@ -62,7 +62,7 @@ const CODE = /^[0-9A-Z]{6,16}$/;
 const TEXT_SET = /^[A-Za-z0-9.-]{1,32}$/;
 const VERSION = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
 // The versions of a file that the samples page did not write: no release of canvas is 0.0.0, and
-// its page names no set of texts "none" (R93).
+// its page names no set of texts "none".
 const NOT_THE_PAGE = { canvas_version: "0.0.0", text_set_version: "none" };
 export const TAG = /^v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
@@ -234,7 +234,7 @@ function cropsBreaches(set, at, digit, labels, breach) {
 // number that differs, if any. Its PNG aside: the rule gives no pixels.
 function cropRuleBreaches(given, strokes, groups, digit, at) {
   const parted = ruleDifference(numbersOf(given), cropSetOf(strokes, groups, digit));
-  return parted ? [{ at: [...at, ...parted.at], message: `${parted.at.join(".")} of the crops is ${show(parted.given)}, and the rule of the crop gives ${show(parted.computed)} (contracts/README.md, section 12)` }] : [];
+  return parted ? [{ at: [...at, ...parted.at], message: `${parted.at.join(".")} of the crops is ${show(parted.given)}, and the rule of the crop gives ${show(parted.computed)} (contracts/README.md)` }] : [];
 }
 
 // What a sample, whose form holds, breaks of the rules the device and the runner share. The crops
@@ -254,12 +254,12 @@ function rulesBreaches(sample, kind) {
   const byId = new Map(strokes.map((stroke) => [stroke.id, stroke]));
   if (kind === "sheet") {
     const groups = sample.history && groupsOf(strokes).groups;
-    if (groups && !isDeepStrictEqual(surface.groups, groups)) found.push({ at: ["sheet", "groups"], message: `the groups are ${show(surface.groups)}, and the rule of groups gives the strokes the sheet shows ${show(groups)} (contracts/README.md, section 12)` });
+    if (groups && !isDeepStrictEqual(surface.groups, groups)) found.push({ at: ["sheet", "groups"], message: `the groups are ${show(surface.groups)}, and the rule of groups gives the strokes the sheet shows ${show(groups)} (contracts/README.md)` });
     if (surface.crops) found.push(...cropRuleBreaches(surface.crops, strokes, surface.groups, surface.digit_height, ["sheet", "crops"]));
   } else {
     const table = sample.history && tableOf(strokes, surface.boxes).filled_boxes;
     const given = surface.filled_boxes.map((box) => ({ answer_slot: box.answer_slot, stroke_ids: box.stroke_ids }));
-    if (table && !isDeepStrictEqual(given, table)) found.push({ at: ["workbook", "filled_boxes"], message: `the filled boxes are ${show(given)}, and the rule of boxes gives the strokes the page shows ${show(table)} (contracts/README.md, section 12)` });
+    if (table && !isDeepStrictEqual(given, table)) found.push({ at: ["workbook", "filled_boxes"], message: `the filled boxes are ${show(given)}, and the rule of boxes gives the strokes the page shows ${show(table)} (contracts/README.md)` });
     surface.filled_boxes.forEach((box, i) => found.push(...cropRuleBreaches(box.crops, box.stroke_ids.map((id) => byId.get(id)), [], surface.digit_height, ["workbook", "filled_boxes", i, "crops"])));
   }
   return found;
@@ -289,7 +289,7 @@ function markupBreaches(sample, kind, visible, breach) {
     if ("value" in slot) {
       if (WHITE_SPACE.test(slot.value)) breach([...where, "value"], `the value ${show(slot.value)} is empty or only white space: where nothing is written, the slot is blank`);
     } else if ("unreadable" in slot) {
-      if (!REASONS.has(slot.unreadable)) breach([...where, "unreadable"], `the reason ${show(slot.unreadable)} is none of the observation's (contracts/README.md, section 10)`);
+      if (!REASONS.has(slot.unreadable)) breach([...where, "unreadable"], `the reason ${show(slot.unreadable)} is none of the observation's (contracts/README.md)`);
     } else breach(where, `the answer slot ${placeOf(place ?? {})} gives neither a value nor a reason`);
     if ("crop_box" in slot) breach([...where, "crop_box"], "the truth gives no box on a crop: the parts and their strokes say where the answer is");
   });
@@ -527,8 +527,7 @@ export function checkSample(bytes, message) {
 // report.mjs —, empty when keep is null. Of each sample that holds, also, unless null, what breaches
 // gives of it, each { at, message }: the rules of a set that need the sample alone. Two of them may
 // share an ID, which samples then holds by the last: sameIds finds them where the files are held
-// together. spec's examples and the files another repository names are read by this same code
-// (R93).
+// together. spec's examples and the files another repository names are read by this same code.
 export function checkSamples(message, files, { breaches = null, keep = null } = {}) {
   const errors = [];
   const seen = new Set();
@@ -566,7 +565,7 @@ export function sameIds(held, why = HELD) {
 // module by its ID: it is of the purpose PURPOSE_EVAL_SET, with its markup, of a task of its own
 // module. The task itself, and the digest of its open view, are the runner's to check, by the
 // package.
-const SET = "contracts/README.md, section 13";
+const SET = "the rules of eval sets in contracts/README.md";
 export function evalSampleBreaches(module, value) {
   const found = [];
   const breach = (at, message) => found.push({ at, message });

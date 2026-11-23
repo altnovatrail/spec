@@ -152,7 +152,7 @@ test("not YAML: a syntax error", () => {
   }
 });
 
-// YAML 1.2.2 takes in quotes any character but C0, and the format does not (R102; В20 module-kit).
+// YAML 1.2.2 takes in quotes any character but C0, and the format does not (В20 module-kit).
 test("yaml.printable: a character outside YAML's printable set, in quotes and in a comment too", () => {
   for (const source of ['a: "x\u0001y"\n', "a: 'x\u0080y'\n", "a: 1 # \u0002\n", "a: 1 # \u007f\n", "a: x\u009fy\n"]) {
     assert.deepEqual(rulesOf(source), ["yaml.printable"], JSON.stringify(source));
@@ -182,7 +182,7 @@ test("review: a byte that is not UTF-8 is named at the start of its sequence", (
   assert.match(read([...Buffer.from("a: x"), 0xf0, 0x9f]).violations[0].message, /^byte 5 /);
 });
 
-// Three places where yaml reads otherwise than YAML 1.2.2 (R102; В21 module-kit).
+// Three places where yaml reads otherwise than YAML 1.2.2 (В21 module-kit).
 
 test("a line break is CR LF, CR or LF, and each reads as LF (YAML 1.2.2, 5.4)", () => {
   for (const source of ["a: 1\rb: 2\r", "a: 1\r\nb: 2\r\n", "a: 1\nb: 2\r"]) assert.deepEqual(read(source).value, { a: 1, b: 2 }, JSON.stringify(source));

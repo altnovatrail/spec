@@ -2,7 +2,7 @@
 // sheet shows, the groups of strokes and the groups of a stroke taken off, the crop and its numbers,
 // how a box of a model snaps to the strokes, and which box of a workbook a stroke fills. A second
 // implementation, written from the text, beside canvas's, whose CI passes the same vectors, and
-// tutor's runner's (R94).
+// tutor's runner's.
 //
 // Every rule counts in whole numbers: a place in whole tenths of a unit, round(10 × v) with a half
 // rounded up, a time in whole milliseconds, and after that only adds, subtracts, multiplies and
@@ -38,7 +38,7 @@ import { isObject } from "./rules.mjs";
 
 export const PACKAGE = "novatrail.eval.v1";
 export const FOLDER = "contracts/vectors/eval/v1";
-const TEXT = "contracts/README.md, section 12";
+const TEXT = "the rules the device and the runner share in contracts/README.md";
 
 // The rules' numbers, as the text gives them and the vectors repeat them.
 export const GROUP_RULE = { pause: 2000, across: 50, down: 50 };
@@ -435,7 +435,7 @@ function messageAt(json, schema) {
   } catch (error) {
     return { problem: `it does not read as ${schema.typeName}: ${error.message}` };
   }
-  if (!isDeepStrictEqual(read, json)) return { problem: `it is not as a writer writes ${schema.typeName}, with the protobuf names and every field: ${show(read)} (contracts/README.md, section 6)` };
+  if (!isDeepStrictEqual(read, json)) return { problem: `it is not as a writer writes ${schema.typeName}, with the protobuf names and every field: ${show(read)} (contracts/README.md)` };
   return { value: read };
 }
 
@@ -610,7 +610,7 @@ function checkBoxes(value, here, read, rule, seen) {
 export function checkVector(bytes, name, messages) {
   const seen = { events: new Set(), erased: new Set(), crops: new Set(), snaps: new Set(), boxes: new Set(), cases: 0, problems: 0 };
   const kind = VECTORS[name];
-  if (!kind) return { problems: [{ line: 0, message: `section 12 has no vector ${name}: its vectors are ${VECTOR_FILES.join(", ")}` }], seen };
+  if (!kind) return { problems: [{ line: 0, message: `${TEXT} have no vector ${name}: their vectors are ${VECTOR_FILES.join(", ")}` }], seen };
   const read = readVector(bytes);
   if (read.problems) return { problems: read.problems, seen };
   const { value, lineOf } = read;
@@ -623,7 +623,7 @@ export function checkVector(bytes, name, messages) {
   for (const text of keysOf(value, ["description", "rule", "cases"])) problem([], text);
   if (problems.length) return { problems, seen };
   if (typeof value.description !== "string" || value.description.trim() === "") problem(["description"], "description is a text that says what the vector holds");
-  if (!isDeepStrictEqual(value.rule, kind.rule)) problem(["rule"], `the rule is ${show(value.rule)}, and section 12 gives ${show(kind.rule)}`);
+  if (!isDeepStrictEqual(value.rule, kind.rule)) problem(["rule"], `the rule is ${show(value.rule)}, and ${TEXT} give ${show(kind.rule)}`);
   if (!Array.isArray(value.cases) || value.cases.length === 0) problem(["cases"], "cases lists the cases, one at least");
   if (problems.length) return { problems, seen };
   seen.cases = value.cases.length;
@@ -671,7 +671,7 @@ export function checkVectors(root, image, files) {
     seen.cases += found.cases;
   }
   if (errors.length === 0) {
-    const lack = (text) => errors.push({ file: FOLDER, line: 0, message: `no vector ${text}: the vectors hold every rule of ${TEXT}` });
+    const lack = (text) => errors.push({ file: FOLDER, line: 0, message: `no vector ${text}: the vectors hold every one of ${TEXT}` });
     const names = new Set(files.map((file) => path.posix.basename(file)));
     for (const name of VECTOR_FILES) if (!names.has(name)) errors.push({ file: `${FOLDER}/${name}`, line: 0, message: `the file is missing: the vectors of ${TEXT} are ${VECTOR_FILES.join(", ")}` });
     for (const kind of ["erase", "clear", "undo"]) if (!seen.events.has(kind)) lack(`has a history with ${kind}`);

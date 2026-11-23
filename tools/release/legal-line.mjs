@@ -1,5 +1,5 @@
 // legal-line: a new version of the legal texts starts a new line of spec's releases, by the rule
-// of part-line.mjs (R130). In spec, `just release-version` passes what deployment-line.mjs prints
+// of part-line.mjs. In spec, `just release-version` passes what deployment-line.mjs prints
 // through it, with the commit, and it prints the same lines, or refuses:
 //
 //   ... | node tools/release/deployment-line.mjs <commit> | node tools/release/legal-line.mjs <commit>
@@ -21,7 +21,6 @@ const SHAPED = { schema: "legal/schemas/legal.schema.json", readme: "legal/READM
 export const LEGAL = {
   file: "legal/VERSION",
   name: "the legal texts",
-  decision: "R130",
   firstLine: FIRST_LEGAL_LINE,
   parse: legalVersion,
   below: (now, then) => Number(now) < Number(then),
@@ -32,7 +31,7 @@ export const LEGAL = {
 export const checked = (outputs) => partChecked(LEGAL, outputs);
 
 // The rule for the release of version after previous, with the part's versions at each and what
-// changed of its shape between them, as a phrase, or null (R130).
+// changed of its shape between them, as a phrase, or null.
 export function checkLegalLine({ version, previous, legalNow, legalThen, changed = null }) {
   checkPartLine(LEGAL, { version, previous, now: legalNow, before: legalThen, changed });
 }

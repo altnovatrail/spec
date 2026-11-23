@@ -146,7 +146,7 @@ test("a vector written otherwise than its message, or of another form, is an err
   assert.ok(empty.some((message) => message.includes("a case or more")));
 });
 
-test("the vectors hold every rule of section 16", () => {
+test("the vectors hold every rule of the key of a task from paper", () => {
   const reasons = checked("solver.json", (value) => {
     value.cases = value.cases.filter((one) => one.refused !== "every_root");
   });

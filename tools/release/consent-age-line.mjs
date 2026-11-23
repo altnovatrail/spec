@@ -1,5 +1,5 @@
 // consent-age-line: a new version of the table of the age of digital consent starts a new line of
-// spec's releases, by the rule of part-line.mjs (R134). In spec, `just release-version` passes what
+// spec's releases, by the rule of part-line.mjs. In spec, `just release-version` passes what
 // legal-line.mjs prints through it, with the commit, and it prints the same lines, or refuses:
 //
 //   ... | node tools/release/legal-line.mjs <commit> | node tools/release/consent-age-line.mjs <commit>
@@ -22,7 +22,6 @@ const SHAPED = { schema: "consent-age/schemas/consent-age.schema.json", readme: 
 export const CONSENT_AGE = {
   file: "consent-age/VERSION",
   name: "the table of the age of digital consent",
-  decision: "R134",
   firstLine: FIRST_CONSENT_AGE_LINE,
   parse: consentAgeVersion,
   below: (now, then) => Number(now) < Number(then),
@@ -33,7 +32,7 @@ export const CONSENT_AGE = {
 export const checked = (outputs) => partChecked(CONSENT_AGE, outputs);
 
 // The rule for the release of version after previous, with the part's versions at each and what
-// changed of its shape between them, as a phrase, or null (R134).
+// changed of its shape between them, as a phrase, or null.
 export function checkConsentAgeLine({ version, previous, consentAgeNow, consentAgeThen, changed = null }) {
   checkPartLine(CONSENT_AGE, { version, previous, now: consentAgeNow, before: consentAgeThen, changed });
 }

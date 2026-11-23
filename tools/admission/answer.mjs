@@ -1,6 +1,6 @@
 // The answer of the admission function by the table, by the rules of admission/README.md: what
 // spec's check computes for each vector of answers, as tutor's admission function computes it in
-// Go (R57 tutor). The steps, in order, to the first refusal:
+// Go. The steps, in order, to the first refusal:
 //
 //   1. the rule of the capability for the age category: closed or missing, capability_closed;
 //   2. the cell of the provider, the AI route and the age category: closed or missing,
@@ -9,7 +9,7 @@
 //      provider and the age category, fact_missing; none missing, admitted.
 //
 // The check of the model comes after these, and is tutor's: its list of admitted models is no
-// part of the table (R07). The table is one that breaks no rule, and the request and the facts
+// part of the table. The table is one that breaks no rule, and the request and the facts
 // are valid against the schema of the vectors.
 
 // The answer to request, { capability, ai_route, provider, age_category }, by table, with facts,

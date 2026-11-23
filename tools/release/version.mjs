@@ -1,4 +1,4 @@
-// release-version: the version the next release takes (R31) — spec's, or that of a repository
+// release-version: the version the next release takes — spec's, or that of a repository
 // that has spec as its submodule.
 //
 //   { git tag --list 'v*'; echo --; git tag --merged <commit> --list 'v*'; echo --;
@@ -31,7 +31,7 @@ export const RELEASE_TAG = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 export const LINE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
 // spec's first line whose releases carry files, the module format among them: its first release
-// is where version 0.1 of the format came out (R44, R64). The releases of the lines before it
+// is where version 0.1 of the format came out. The releases of the lines before it
 // carried no files, and 0.1 there was a draft.
 export const FIRST_FILES_LINE = "0.3";
 

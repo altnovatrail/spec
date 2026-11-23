@@ -1,5 +1,5 @@
 // A module laid out as a folder: the layout of its files, the rules of a whole module, and the
-// format version its manifest names (R46, R51).
+// format version its manifest names.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -12,7 +12,7 @@ export const MODULE_RULES = ["module.manifest", "module.layout", "module.file-id
 
 // The field that names the format version stands at the same place in every version of the format.
 // The rule that refuses a version the reader does not read is a rule of the part manifest, and its
-// cases are told apart by the version they name (R44).
+// cases are told apart by the version they name.
 export const MANIFEST = "manifest.yaml";
 export const MANIFEST_PART = "manifest";
 export const VERSION_FIELD = "module_format_version";

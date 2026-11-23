@@ -81,7 +81,7 @@ test("a root with no export/ has that one error", () => {
 });
 
 test("a file the layout does not know is an error", () => {
-  expectOnly([["export/notes.txt", null, "notes\n"]], /^export\/notes\.txt:0: no file of the layout of export\/ \(export\/README\.md, section 3\)$/);
+  expectOnly([["export/notes.txt", null, "notes\n"]], /^export\/notes\.txt:0: no file of the layout of export\/ that export\/README\.md gives$/);
 });
 
 test("VERSION is an integer, and the field format of each file's schema names it", () => {
@@ -102,7 +102,7 @@ test("an example passes its schema or names the error it gives, and needs its sc
   expectOnly([["export/examples/other/valid/case.yaml", null, "a: 1\n"]], /^export\/examples\/other\/valid\/case\.yaml:0: an example of other, which has no schema in export\/schemas$/);
 });
 
-test("a vector of reading passes its schema, its files are a map, and each case gives what section 5 computes", () => {
+test("a vector of reading passes its schema, its files are a map, and each case gives what the reading of the text computes", () => {
   expectSome([[ACCEPTED, "cases:", "cases: 1\nother:"]], /accepted\.yaml:0: does not pass the schema of a vector of reading/);
   expectSome([[ACCEPTED, "cases:", "cases:\ncases:"]], /accepted\.yaml:\d+: yaml\.unique-keys/);
   expectOnly([["export/vectors/reading/listed.yaml", null, "cases:\n  - files: [1]\n    accepted: true\n"]], /^export\/vectors\/reading\/listed\.yaml:0: cases\/0\/files: the files of an export are a map from each file's path to the file$/);
@@ -110,9 +110,9 @@ test("a vector of reading passes its schema, its files are a map, and each case 
 });
 
 test("the vectors accept an export and refuse one by the schema and by each rule", () => {
-  expectOnly([["export/vectors/reading/proto.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.proto \(export\/README\.md, section 7\)$/);
-  expectOnly([["export/vectors/reading/works.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.works \(export\/README\.md, section 7\)$/);
-  expectOnly([["export/vectors/reading/paper.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.paper \(export\/README\.md, section 7\)$/);
+  expectOnly([["export/vectors/reading/proto.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.proto, which export\/README\.md asks for$/);
+  expectOnly([["export/vectors/reading/works.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.works, which export\/README\.md asks for$/);
+  expectOnly([["export/vectors/reading/paper.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by export\.paper, which export\/README\.md asks for$/);
   expectOnly([["export/vectors/reading/schema.yaml", null, null]], /^export\/vectors\/reading:0: no vector of reading refuses an export by the schema/);
   expectOnly([[ACCEPTED, null, null]], /^export\/vectors\/reading:0: no vector of reading accepts an export/);
 });
@@ -131,7 +131,7 @@ test("the command prints ok, and the errors of a broken copy", () => {
   try {
     exportCheck(root);
     assert.equal(process.exitCode, 1);
-    assert.deepEqual(printed.mock.calls.map((call) => call.arguments[0]), ["export/notes.txt:0: no file of the layout of export/ (export/README.md, section 3)", "export-check: 1 error"]);
+    assert.deepEqual(printed.mock.calls.map((call) => call.arguments[0]), ["export/notes.txt:0: no file of the layout of export/ that export/README.md gives", "export-check: 1 error"]);
     process.exitCode = 0;
     fs.rmSync(path.join(root, "export/notes.txt"));
     exportCheck(root);

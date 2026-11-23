@@ -1,7 +1,7 @@
 // The fixed words of the documents, with the English that stands for each in a translation: the
 // marks of the decision log and of a component's card in the architecture. A translation keeps as
 // many of each as its original has, unit by unit. A word added here is added in both languages,
-// with the italics or the bold it is written in (R143).
+// with the italics or the bold it is written in.
 
 const DATE = String.raw`\d{4}-\d{2}-\d{2}`;
 const ORDINALS = [

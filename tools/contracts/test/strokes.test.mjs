@@ -101,7 +101,7 @@ test("a vector with a problem leaves the coverage unsaid, and names its file and
     const { errors } = checkVectors(folder, image, [`${FOLDER}/boxes.json`, `${FOLDER}/lines.json`]);
     assert.deepEqual(errors, [
       { file: `${FOLDER}/boxes.json`, line: 1, message: "a vector is an object: description, rule and cases" },
-      { file: `${FOLDER}/lines.json`, line: 0, message: "section 12 has no vector lines.json: its vectors are groups.json, crops.json, snaps.json, boxes.json" },
+      { file: `${FOLDER}/lines.json`, line: 0, message: "the rules the device and the runner share in contracts/README.md have no vector lines.json: their vectors are groups.json, crops.json, snaps.json, boxes.json" },
     ]);
   } finally {
     fs.rmSync(folder, { recursive: true, force: true });
@@ -119,7 +119,7 @@ test("the messages are read from the image", () => {
 test("a vector's file, keys, rule and cases", () => {
   assert.match(problemsOf("groups.json", "{")[0], /^not JSON/);
   expectOnly("groups.json", vector("groups.json", null, (v) => { v.notes = ""; delete v.rule; }), /^notes: no such key$/, /^rule is missing$/);
-  expectOnly("groups.json", vector("groups.json", null, (v) => { v.description = " "; v.rule = { ...v.rule, pause: 2500 }; v.cases = []; }), /^description is a text/, /^the rule is \{"pause":2500,"across":50,"down":50\}, and section 12 gives \{"pause":2000,"across":50,"down":50\}$/, /^cases lists the cases, one at least$/);
+  expectOnly("groups.json", vector("groups.json", null, (v) => { v.description = " "; v.rule = { ...v.rule, pause: 2500 }; v.cases = []; }), /^description is a text/, /^the rule is \{"pause":2500,"across":50,"down":50\}, and the rules the device and the runner share in contracts\/README\.md give \{"pause":2000,"across":50,"down":50\}$/, /^cases lists the cases, one at least$/);
   expectOnly("groups.json", vector("groups.json", "later", (v) => v.cases.push("case")), /^case 2: a case is an object$/);
   expectOnly("groups.json", vector("groups.json", "later", (v, c) => { delete c.erased; c.notes = ""; }), /^later: notes: no such key$/, /^later: erased is missing$/);
   expectOnly("groups.json", vector("groups.json", "later", (v, c) => { c.name = "Later"; c.description = ""; }), /^Later: name is lowercase Latin letters and digits/, /^Later: description is a text/);

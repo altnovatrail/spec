@@ -1,6 +1,6 @@
 // The page of a workbook: where the template puts each item's number, the pieces of its line and its
 // boxes, in whole units of the page, from the task's items alone, by the numbers and the table of
-// widths of format/page.yaml (R51). A second implementation beside module-kit's, by which spec's CI
+// widths of format/page.yaml. A second implementation beside module-kit's, by which spec's CI
 // computes the vectors of the page and checks task.workbook-page. It ports canvas's
 // src/core/page.ts and src/core/widths.ts at commit 73807f2, with its numbers read from page.yaml
 // rather than held in the code. Which character is which comes from explicit ranges of code points

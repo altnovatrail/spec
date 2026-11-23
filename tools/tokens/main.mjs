@@ -7,7 +7,7 @@
 // projects --project names, by the names of their folders of transcripts under <config>/projects.
 // --since and --until bound the calls by their time, in UTC unless it names a zone, --until not
 // included; a date is its first moment. --json prints what it counted as JSON instead; --row one
-// row of the table that the monthly measurement and the archive of an epic add (R145); and
+// row of the table that the monthly measurement and the archive of an epic add; and
 // --classes the main calls of the orchestrator's executors by the class of the paths they named
 // (classes.mjs). Prints numbers, paths and names alone, never what a transcript says. Exits 0
 // when it read the folder; 2 when there is none, or an argument is wrong.

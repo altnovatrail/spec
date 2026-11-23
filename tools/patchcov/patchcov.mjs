@@ -1,4 +1,4 @@
-// The coverage of a patch as Codecov counts it, before a pull request (R166, R48): the lines the
+// The coverage of a patch as Codecov counts it, before a pull request: the lines the
 // diff from the base adds or changes, each a hit, a miss or a partial by the reports, and their
 // share of hits, cut down to two decimals. A line partly covered is no hit.
 

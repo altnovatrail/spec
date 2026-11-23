@@ -1,6 +1,6 @@
 // What a main call of an executor of the orchestrator did, by the class of the paths its tools
 // named, and what each class of calls carried, wrote and took of the model's time. An executor's
-// session is one whose first prompt came by `claude -p`, entrypoint sdk-cli (R156).
+// session is one whose first prompt came by `claude -p`, entrypoint sdk-cli.
 //
 // A Bash command's class comes from the paths it names, by their words alone: the files of the
 // other repositories are not on this machine, so filesOf of report.mjs, which asks the disk, would

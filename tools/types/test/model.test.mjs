@@ -269,7 +269,7 @@ test("names are PascalCase, with ID for id", () => {
   assert.equal(pascalOf("module-index.entries-kept"), "ModuleIndexEntriesKept");
   assert.equal(pascalOf("under_13"), "Under13");
   assert.equal(pascalOf("answer_slots"), "AnswerSlots");
-  // The fields of the deployment configuration keep their names in camelCase (R85).
+  // The fields of the deployment configuration keep their names in camelCase.
   assert.equal(pascalOf("appId"), "AppID");
   assert.equal(pascalOf("authDomain"), "AuthDomain");
   assert.equal(pascalOf("signIn"), "SignIn");

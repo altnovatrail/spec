@@ -1,4 +1,4 @@
-// translation-check: a translation of documents against their original at a commit (R143). Runs
+// translation-check: a translation of documents against their original at a commit. Runs
 // in the repository it is run from — spec, or another NovaTrail repository as
 // `just -f spec/justfile translation-check`.
 //

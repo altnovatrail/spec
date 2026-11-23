@@ -1,5 +1,5 @@
 // export-check: spec's own export/, the format of the export, by the layout of its text,
-// export/README.md (R135):
+// export/README.md:
 //
 //   node tools/export/main.mjs
 //
@@ -79,7 +79,7 @@ export function checkExport(root) {
     for (const outcome of ["accepted", SCHEMA, ...RULES]) {
       if (outcomes.has(outcome)) continue;
       const what = outcome === "accepted" ? "accepts an export" : outcome === SCHEMA ? "refuses an export by the schema" : `refuses an export by ${outcome}`;
-      report(`${FOLDER}/vectors/reading`, 0, `no vector of reading ${what} (${FOLDER}/README.md, section 7)`);
+      report(`${FOLDER}/vectors/reading`, 0, `no vector of reading ${what}, which ${FOLDER}/README.md asks for`);
     }
   }
 
@@ -99,7 +99,7 @@ function readLayout(root, report) {
     else if (parts.length === 4 && parts[0] === "examples" && isKebabCase(parts[1]) && ["valid", "invalid"].includes(parts[2]) && isCase(parts[3])) {
       layout.examples.push({ file, term: parts[1], kind: parts[2] });
     } else if (parts.length === 3 && parts[0] === "vectors" && parts[1] === "reading" && isCase(parts[2])) layout.vectors.push(file);
-    else report(file, 0, `no file of the layout of ${FOLDER}/ (${FOLDER}/README.md, section 3)`);
+    else report(file, 0, `no file of the layout of ${FOLDER}/ that ${FOLDER}/README.md gives`);
   }
   layout.schemas.sort(byCodeUnits);
   return layout;

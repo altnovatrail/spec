@@ -119,7 +119,7 @@ test("the image must hold the sample, and name only the purposes and writers the
   const more = structuredClone(image);
   const file = more.file.find((one) => one.package === "novatrail.eval.v1");
   file.enumType.find((one) => one.name === "Writer").value.push({ name: "WRITER_ROBOT", number: 4 });
-  assert.match(sampleOf(more).error, /^novatrail\.eval\.v1\.Writer has WRITER_ROBOT, which the rules of contracts\/README\.md, section 11 do not name/);
+  assert.match(sampleOf(more).error, /^novatrail\.eval\.v1\.Writer has WRITER_ROBOT, which the rules of the sample file in contracts\/README\.md do not name/);
 });
 
 test("a sample is read as JSON, strictly, as a writer writes it", () => {
@@ -131,7 +131,7 @@ test("a sample is read as JSON, strictly, as a writer writes it", () => {
     s.textSetVersion = s.text_set_version;
     delete s.text_set_version;
   });
-  assert.match(problemsOf(camel)[0], /^it is not as a writer writes it, with the protobuf names and every field, its zero too \(contracts\/README\.md, section 11\): at textSetVersion$/);
+  assert.match(problemsOf(camel)[0], /^it is not as a writer writes it, with the protobuf names and every field, its zero too \(the sample file in contracts\/README\.md\): at textSetVersion$/);
   const zero = changed(workbook(), (s) => delete s.workbook.filled_boxes[0].crops.crops[0].frames);
   assert.match(problemsOf(zero)[0], /^it is not as a writer writes it.*: at workbook\.filled_boxes\.0\.crops\.crops\.0$/);
   const string = changed(evalSet(), (s) => (s.sheet.crops.bundle_median = String(s.sheet.crops.bundle_median)));
@@ -231,7 +231,7 @@ test("the history of writing", () => {
   const at = (edit) => changed(measurement(), (s) => edit(s.history.events));
   expectOnly(at((list) => (list[1].t_ms = 10)), /^the event is at 10 ms, before the one before it, at 128 ms$/, /^the stroke 2 is written at 10 ms, and its last point is at 586 ms: a stroke is written no sooner than its last point$/);
   // A stroke that ended without its pointerup, while another action landed, lands after its last
-  // point (R22 canvas).
+  // point.
   expectOnly(at((list) => (list[0].t_ms = 200)));
   const unwritten = [/^(?:erase|clear) takes off the stroke 2, which the sheet does not show then$/, /^the undo puts back the stroke 2, which is never written$/, /^the group A names the stroke 2, which the sheet does not show$/];
   expectOnly(at((list) => (list[1].write.id = 0)), /^the stroke's ID is 0, and IDs count from 1$/, ...unwritten, /^clear names \[1,2,3\], and the sheet shows \[0,1,3\]/, /^the stroke 0 is in 0 groups/);
@@ -343,10 +343,10 @@ test("a workbook: its boxes, its filled boxes and its crops", () => {
   expectOnly(changed(workbook(), (s) => delete s.workbook), /^the sample holds neither sheet nor workbook$/);
 });
 
-test("the rules of section 12: a history's groups, and every crop's numbers by the strokes the file holds", () => {
+test("the rules the device and the runner share: a history's groups, and every crop's numbers by the strokes the file holds", () => {
   // A history's groups are what the rule gives its strokes, and the frames are drawn by the groups given.
   expectOnly(changed(measurement(), (s) => (s.sheet.groups = [{ label: "A", stroke_ids: [1] }, { label: "B", stroke_ids: [2, 3] }])),
-    /^the groups are \[\{"label":"A","stroke_ids":\[1\]\},\{"label":"B","stroke_ids":\[2,3\]\}\], and the rule of groups gives the strokes the sheet shows \[\{"label":"A","stroke_ids":\[1,2\]\},\{"label":"B","stroke_ids":\[3\]\}\] \(contracts\/README\.md, section 12\)$/,
+    /^the groups are \[\{"label":"A","stroke_ids":\[1\]\},\{"label":"B","stroke_ids":\[2,3\]\}\], and the rule of groups gives the strokes the sheet shows \[\{"label":"A","stroke_ids":\[1,2\]\},\{"label":"B","stroke_ids":\[3\]\}\] \(contracts\/README\.md\)$/,
     /^crops\.0\.frames\.0\.box\.\w+ of the crops is \d+, and the rule of the crop gives \d+/);
   // The final geometry's groups are the device's: the rule does not redraw them, and the frames follow them.
   expectOnly(changed(evalSet(), (s) => {
@@ -354,7 +354,7 @@ test("the rules of section 12: a history's groups, and every crop's numbers by t
     s.sheet.groups[1].stroke_ids.unshift(11);
   }), /^crops\.0\.frames\.\d\.box\.\w+ of the crops is \d+, and the rule of the crop gives \d+/);
   const crop = (edit) => changed(evalSet(), (s) => edit(s.sheet.crops.crops[1], s.sheet.crops));
-  expectOnly(crop((c) => (c.scale += 1e-9)), /^crops\.1\.scale of the crops is [\d.]+, and the rule of the crop gives [\d.]+ \(contracts\/README\.md, section 12\)$/);
+  expectOnly(crop((c) => (c.scale += 1e-9)), /^crops\.1\.scale of the crops is [\d.]+, and the rule of the crop gives [\d.]+ \(contracts\/README\.md\)$/);
   expectOnly(crop((c, set) => (set.ink_box.xmin -= 1)), /^ink_box\.xmin of the crops is \d+, and the rule of the crop gives \d+/);
   expectOnly(crop((c, set) => (set.bundle_median += 1)), /^bundle_median of the crops is \d+, and the rule of the crop gives \d+/);
   expectOnly(crop((c) => (c.sheet_box.xmax += 0.5)), /^crops\.1\.sheet_box\.xmax of the crops is/);
@@ -368,7 +368,7 @@ test("the rules of section 12: a history's groups, and every crop's numbers by t
   }), /^the sheet is 0 × 1400 units/, /off the sheet, from 0 to 0/);
 });
 
-test("the rules of section 12: a history's boxes on a workbook are what the rule of boxes gives its strokes", () => {
+test("the rules the device and the runner share: a history's boxes on a workbook are what the rule of boxes gives its strokes", () => {
   // The child's page written as an adult's measurement: the history of the same strokes, a stroke
   // each 400 ms, a point each 10 ms.
   const adult = () => changed(workbook(), (s) => {
@@ -502,7 +502,7 @@ test("the image names only the kinds of part the rules know", () => {
   const more = structuredClone(image);
   const file = more.file.find((one) => one.package === "novatrail.eval.v1" && one.enumType?.some((each) => each.name === "PartKind"));
   file.enumType.find((one) => one.name === "PartKind").value.push({ name: "PART_KIND_TABLE", number: 3 });
-  assert.match(sampleOf(more).error, /^novatrail\.eval\.v1\.PartKind has PART_KIND_TABLE, which the rules of contracts\/README\.md, section 11 do not name/);
+  assert.match(sampleOf(more).error, /^novatrail\.eval\.v1\.PartKind has PART_KIND_TABLE, which the rules of the sample file in contracts\/README\.md do not name/);
 });
 
 test("the breaches of a sample name where they are", () => {

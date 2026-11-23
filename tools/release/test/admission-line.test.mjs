@@ -1,6 +1,5 @@
 // A new version of the admission table starts a new line: the rule, the script that
-// release-version passes its lines through in spec, and the recipe, in a made-up copy of spec
-// (R96).
+// release-version passes its lines through in spec, and the recipe, in a made-up copy of spec.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -27,7 +26,7 @@ test("another version of the table needs a raised line, and never goes back", ()
   assert.doesNotThrow(check("v0.9.0", "v0.8.2", "0.1", "0.1"));
   assert.throws(
     check("v0.8.3", "v0.8.2", "0.2", "0.1"),
-    /^Error: admission\/VERSION is 0\.2, and at v0\.8\.2 it was 0\.1: a new version of the admission table starts a new line, so raise RELEASE_LINE above 0\.8 in the same change \(R96\)$/,
+    /^Error: admission\/VERSION is 0\.2, and at v0\.8\.2 it was 0\.1: a new version of the admission table starts a new line, so raise RELEASE_LINE above 0\.8 in the same change$/,
   );
   assert.doesNotThrow(check("v0.9.0", "v0.8.2", "0.2", "0.1"));
   // The table's major version is no part of spec's.
@@ -36,7 +35,7 @@ test("another version of the table needs a raised line, and never goes back", ()
   assert.throws(check("v0.9.0", "v0.8.2", "0.9", "1.0"), /below 1\.0 at v0\.8\.2/);
   // Any change of the table is a new version: the same version with another table is refused,
   // in a raised line too, and a new version may come with it.
-  assert.throws(check("v0.8.3", "v0.8.2", "0.1", "0.1", true), /^Error: admission\/admission-table\.json changed after v0\.8\.2, and admission\/VERSION is still 0\.1: any change of the admission table is a new version, in a new line \(R96\)$/);
+  assert.throws(check("v0.8.3", "v0.8.2", "0.1", "0.1", true), /^Error: admission\/admission-table\.json changed after v0\.8\.2, and admission\/VERSION is still 0\.1: any change of the admission table is a new version, in a new line$/);
   assert.throws(check("v0.9.0", "v0.8.2", "0.1", "0.1", true), /changed after v0\.8\.2/);
   assert.doesNotThrow(check("v0.9.0", "v0.8.2", "0.2", "0.1", true));
 });

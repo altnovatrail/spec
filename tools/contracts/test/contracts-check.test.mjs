@@ -148,11 +148,11 @@ test("a file buf cannot build stops the check at buf build", () => {
   assert.ok(errors.length > 0 && errors.every((error) => /\(buf build, COMPILE\)$/.test(error)), errors.join("\n"));
 });
 
-test("buf does not run while buf.yaml or buf.gen.yaml breaks R83", () => {
+test("buf does not run while buf.yaml or buf.gen.yaml breaks their rules", () => {
   const { dir } = repository();
   edit(dir, "buf.yaml", "version: v2\n", "version: v2\ndeps:\n  - buf.build/bufbuild/protovalidate\n");
   edit(dir, "buf.gen.yaml", "  - local: tools/node_modules/.bin/protoc-gen-es\n", "  - remote: buf.build/bufbuild/es:v2.16.0\n");
-  expectEach(dir, /^buf\.yaml:\d+: deps:/, /^buf\.gen\.yaml:\d+: remote:/, /^buf\.yaml:0: buf does not run while buf\.yaml or buf\.gen\.yaml breaks R83/);
+  expectEach(dir, /^buf\.yaml:\d+: deps:/, /^buf\.gen\.yaml:\d+: remote:/, /^buf\.yaml:0: buf does not run while buf\.yaml or buf\.gen\.yaml breaks their rules/);
   assert.throws(() => writeGenerated(dir), /buf generate does not run while contracts-check finds these:\nbuf\.yaml:\d+: deps:/);
   fs.rmSync(path.join(dir, "buf.gen.yaml"));
   expectEach(dir, /^buf\.yaml:\d+: deps:/, /^buf\.gen\.yaml:0: the file is missing/, /buf does not run/);
@@ -332,7 +332,7 @@ test("the observation is checked by its vectors, and has some", () => {
   fs.copyFileSync(path.join(root, observation), path.join(dir, observation));
   fs.cpSync(path.join(root, "format"), path.join(dir, "format"), { recursive: true });
   writeGenerated(dir);
-  expectEach(dir, /^contracts\/vectors\/observation\/v1:0: novatrail\.observation\.v1 has no test vectors, and they hold the rules of contracts\/README\.md, section 10$/);
+  expectEach(dir, /^contracts\/vectors\/observation\/v1:0: novatrail\.observation\.v1 has no test vectors, and they hold the rules of the observation in contracts\/README\.md$/);
   fs.cpSync(path.join(root, "contracts/vectors/observation"), path.join(dir, "contracts/vectors/observation"), { recursive: true });
   const { errors, stats } = checkContracts(dir);
   assert.deepEqual(errors, []);
@@ -366,9 +366,9 @@ test("the sample file and the runner's report are checked by their examples, and
   writeGenerated(dir);
   expectEach(
     dir,
-    /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no examples of the sample file, and they show it as contracts\/README\.md, section 11, has it$/,
-    /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no example of the runner's report, report-<case>\.json, and they show it as contracts\/README\.md, section 14, has it$/,
-    /^contracts\/vectors\/eval\/v1:0: novatrail\.eval\.v1 has no test vectors, and they hold the rules of contracts\/README\.md, section 12$/,
+    /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no examples of the sample file, and they show it as contracts\/README\.md has it$/,
+    /^contracts\/examples\/eval\/v1:0: novatrail\.eval\.v1 has no example of the runner's report, report-<case>\.json, and they show it as contracts\/README\.md has it$/,
+    /^contracts\/vectors\/eval\/v1:0: novatrail\.eval\.v1 has no test vectors, and they hold the rules the device and the runner share in contracts\/README\.md$/,
   );
   fs.cpSync(path.join(root, "contracts/vectors/eval"), path.join(dir, "contracts/vectors/eval"), { recursive: true });
   fs.cpSync(path.join(root, "contracts/examples"), path.join(dir, "contracts/examples"), { recursive: true });

@@ -13,7 +13,7 @@
 // 0 when it read and compared everything; 1 when table 5 has a row it cannot read or names a
 // repository it does not read, or docs/measurements.md does not name its dates; 2 when a
 // repository or a pull request could not be read — gh has to be logged in —, and then it still
-// prints what it read of the others (R81, R145, R153).
+// prints what it read of the others.
 
 import fs from "node:fs";
 import path from "node:path";

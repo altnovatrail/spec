@@ -1,9 +1,8 @@
 // The package of a module: its canonical view, which is its server part, with the tier of each skill
 // and the numbers of every instance of each template; its device part, named by a listing of its
 // files; and its inventory, which names both parts by their digests, and whose digest is the
-// package's (R62). A second implementation beside module-kit's, by which spec's CI computes the test
-// vectors of packages and of tiers. spec runs no Starlark, so a solver's results come from a vector
-// (R61).
+// package's. A second implementation beside module-kit's, by which spec's CI computes the test
+// vectors of packages and of tiers. spec runs no Starlark, so a solver's results come from a vector.
 
 import fs from "node:fs";
 import path from "node:path";

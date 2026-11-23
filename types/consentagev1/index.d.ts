@@ -2,15 +2,14 @@
 
 /**
  * The types of the table of the age of digital consent, version 1 of the part, generated from the
- * schemas in consent-age/schemas by tools/types (R72, R73 and R134 in spec's docs/decisions.md):
- * the same types as the Go package consentagev1, by the same names — the table
- * consent-age/consent-age.yaml, with the age of each country from a day on and the law that sets
- * it, the vectors of reading and the vectors of the category. The countries a learner's may be are
- * Country. A vector of reading's table is any JSON value, unknown, as a reader gets it. The schemas
- * decide what is valid: a type gives the shape of a value alone, and code that reads a value from
- * elsewhere checks it against its schema first, and then against the rules of reading
- * (consent-age/README.md, section 5); the category of a learner is section 6. A field the object
- * always holds is required; any other is optional.
+ * schemas in consent-age/schemas by tools/types: the same types as the Go package consentagev1, by
+ * the same names — the table consent-age/consent-age.yaml, with the age of each country from a day
+ * on and the law that sets it, the vectors of reading and the vectors of the category. The
+ * countries a learner's may be are Country. A vector of reading's table is any JSON value, unknown,
+ * as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone,
+ * and code that reads a value from elsewhere checks it against its schema first, and then against
+ * the rules of reading of consent-age/README.md, which gives the category of a learner too. A field
+ * the object always holds is required; any other is optional.
  *
  * @packageDocumentation
  */

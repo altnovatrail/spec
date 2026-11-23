@@ -2,13 +2,12 @@
 
 /**
  * The types of the deployment configuration, version 1, generated from the schemas in
- * deployment/schemas by tools/types (R72, R73 and R85 in spec's docs/decisions.md): the same types
- * as the Go package deploymentv1, by the same names — the file /deployment.json, whose fields keep
- * the names of R09 app, in camelCase, and the vectors of reading. A vector's file is any JSON
- * value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of
- * a value alone, and code that reads a value from elsewhere checks it against its schema first, and
- * then against the rules of reading (deployment/README.md, section 5). A field the object always
- * holds is required; any other is optional.
+ * deployment/schemas by tools/types: the same types as the Go package deploymentv1, by the same
+ * names — the file /deployment.json, whose fields keep the names app reads, in camelCase, and the
+ * vectors of reading. A vector's file is any JSON value, unknown, as a reader gets it. The schemas
+ * decide what is valid: a type gives the shape of a value alone, and code that reads a value from
+ * elsewhere checks it against its schema first, and then against the rules of reading of
+ * deployment/README.md. A field the object always holds is required; any other is optional.
  *
  * @packageDocumentation
  */

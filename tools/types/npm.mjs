@@ -2,7 +2,7 @@
 // tools/types writes under types/, with spec's LICENSE and the package's README, tools/types/npm/.
 // It holds declarations and the page's JSON, no code, and exports each package of the types by its
 // Go path. What a package holds is what the line of its version held, by the constants *_LINE
-// below, so that a release of an earlier line, run again, gets the package it got (R73).
+// below, so that a release of an earlier line, run again, gets the package it got.
 //
 //   node tools/types/npm.mjs <root> <version> <folder> [<commit>]
 //
@@ -23,46 +23,46 @@ export const NAME = "@altnovatrail/spec";
 const DECLARATIONS = "index.d.ts";
 // The package's folder of the types: formatv0, as in Go.
 const TYPES = path.posix.basename(TYPES_DIR);
-// The package's folder of the types of <novatrail-canvas>, and the repository's (R74).
+// The package's folder of the types of <novatrail-canvas>, and the repository's.
 const CANVAS = "canvas";
 const CANVAS_DIR = "types/canvas";
 // spec's first line whose package holds them.
 export const FIRST_CANVAS_LINE = "0.5";
 // spec's first line whose package holds the types of the admission table, as the release holds the
-// table, in tools/release/files.mjs (R96).
+// table, in tools/release/files.mjs.
 export const FIRST_ADMISSION_LINE = "0.8";
 // spec's first line whose package holds the page of the workbook, by which canvas lays its page out.
 export const FIRST_PAGE_LINE = "0.10";
 // spec's first line whose package holds the types of the deployment configuration, as the release
-// holds the configuration's format, in tools/release/files.mjs (R85).
+// holds the configuration's format, in tools/release/files.mjs.
 export const FIRST_DEPLOYMENT_LINE = "0.11";
 // spec's first line whose package holds the types of the legal texts, as the release holds the
-// part, in tools/release/files.mjs (R130).
+// part, in tools/release/files.mjs.
 export const FIRST_LEGAL_LINE = "0.13";
 // spec's first line whose package holds the types of the legal texts' version 2, legalv2, in place
-// of legalv1, the types of version 1, which the lines 0.13 and 0.14 hold (R141).
+// of legalv1, the types of version 1, which the lines 0.13 and 0.14 hold.
 export const LEGAL_V2_LINE = "0.15";
 const LEGAL_V1 = "legalv1";
 // spec's first line whose package holds the types of the legal texts' version 3, legalv3, in place
-// of legalv2, which the lines 0.15 and 0.16 hold (R130).
+// of legalv2, which the lines 0.15 and 0.16 hold.
 export const LEGAL_V3_LINE = "0.17";
 const LEGAL_V2 = "legalv2";
 // spec's first line whose package holds the types of the table of the age of digital consent, as
-// the release holds the table, in tools/release/files.mjs (R134).
+// the release holds the table, in tools/release/files.mjs.
 export const FIRST_CONSENT_AGE_LINE = "0.14";
 // spec's first line whose package holds the types of the format of the export, as the release
-// holds the format, in tools/release/files.mjs (R135).
+// holds the format, in tools/release/files.mjs.
 export const FIRST_EXPORT_LINE = "0.14";
 // spec's first line whose package holds the types of the format of the export's version 2,
-// exportv2, in place of exportv1, which the lines 0.14 to 0.16 hold (R135).
+// exportv2, in place of exportv1, which the lines 0.14 to 0.16 hold.
 export const EXPORT_V2_LINE = "0.17";
 const EXPORT_V1 = "exportv1";
 // spec's first line whose package holds the types of the format of the export's version 3,
-// exportv3, in place of exportv2, which the line 0.17 holds (R151).
+// exportv3, in place of exportv2, which the line 0.17 holds.
 export const EXPORT_V3_LINE = "0.18";
 const EXPORT_V2 = "exportv2";
 // spec's first line whose package holds the types of the format of the export's version 4,
-// exportv4, in place of exportv3, which the line 0.18 holds: the works of tasks from paper (R162).
+// exportv4, in place of exportv3, which the line 0.18 holds: the works of tasks from paper.
 export const EXPORT_V4_LINE = "0.19";
 const EXPORT_V3 = "exportv3";
 // The package's folder of the page, as format/ holds it, and the repository's, which tools/types
