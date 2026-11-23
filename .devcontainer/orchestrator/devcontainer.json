@@ -54,12 +54,12 @@
                 "git.detectSubmodules": false
             },
             "extensions": [
-                "anthropic.claude-code@2.1.280",
-                "openai.chatgpt@26.1007.21434",
-                "redhat.vscode-yaml@1.24.0",
+                "anthropic.claude-code@2.1.331",
+                "openai.chatgpt@26.1117.41037",
+                "redhat.vscode-yaml@2.0.0",
                 "nefrob.vscode-just-syntax@0.10.2",
                 "bierner.markdown-mermaid@1.32.1",
-                "eamodio.gitlens@19.2.0"
+                "eamodio.gitlens@19.6.1"
             ]
         }
     }
