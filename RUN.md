@@ -111,7 +111,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T268 | Документы `spec`: architecture | Claude | — | T258, T278 |
 | [x] | T269 | Документы `spec`: concepts | Claude | — | T258, T278 |
 | [x] | T270 | Документы `spec`: privacy и dpia | Claude | — | T258, T278 |
-| [ ] | T271 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план | Claude | — | T258, T278 |
+| [x] | T271 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план | Claude | — | T258, T278 |
 | [ ] | T272 | Документы `spec`: sources и measurements | Claude | — | T258, T278 |
 | [ ] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258, T278 |
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258, T278 |
@@ -121,12 +121,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T278 | `docs-check`: строгое правило по ключу `citations`; тег | Claude | — | T277 |
 | [x] | T280 | Журнал `spec`, R01–R31: ссылки по строгому правилу | Claude | — | T260, T278 |
 | [x] | T281 | Журнал `spec`, R32–R63: ссылки по строгому правилу | Claude | — | T261, T262, T278 |
-
-#### T271. Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план
-
-- **Цель и Сделать:** как T268, для `docs/product.md`, `docs/repositories.md`, `docs/README.md`, CLAUDE.md, `.claude/rules/`, а в RUN.md, `run/` и COORDINATION.md — цепочки и описательные ссылки правил и вводных (номера задач там разрешены). Пределы `tools/docs-check/budgets.json` не поднимать.
-- **Как проверить:** как T268.
-- **Разделы:** T257, T268.
 
 #### T272. Документы `spec`: sources и measurements
 
