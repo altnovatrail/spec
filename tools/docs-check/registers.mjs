@@ -69,7 +69,7 @@ export function readRegisters(files, registers, report) {
 
 // The register as it is read: always from its own file, which the caller reports when it does not
 // exist. Beside it, a table left under a heading of a place in `elsewhere` is a second copy, under
-// the English heading or the Russian one, and its own file is named (R153, R154).
+// the English heading or the Russian one, and its own file is named.
 function placeOf(register, files, report) {
   const { elsewhere, ...own } = register;
   if (!elsewhere || !files.has(own.file)) return own;
@@ -129,10 +129,12 @@ function registerLine(register, doc) {
 }
 
 // `Следующий номер — R32`, or in a RUN.md's table `следующий — В25`; in a document in English,
-// `Next number — R32`, `the next free number — R32` or `next — В25` (R143).
+// `Next number — R32`, `the next free number — R32` or `next — В25`.
+export const nextPhrase = (prefix) =>
+  new RegExp(String.raw`(?:следующ\p{L}*(?:\s+номер\p{L}*)?|\bnext(?:\s+free)?(?:\s+number)?)\s*[—–-]\s*${prefix}(\d+)`, "giu");
+
 function nextFree(register, doc) {
-  const words = String.raw`(?:следующ\p{L}*(?:\s+номер\p{L}*)?|\bnext(?:\s+free)?(?:\s+number)?)`;
-  const phrase = new RegExp(`${words}\\s*[—–-]\\s*${register.prefix}(\\d+)`, "giu");
+  const phrase = nextPhrase(register.prefix);
   const found = [];
   for (const block of opening(register, doc).blocks) {
     for (const m of block.text.matchAll(phrase)) {

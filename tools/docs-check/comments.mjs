@@ -1,7 +1,8 @@
 // The numbers of decisions in the comments of code: each `R…` a comment gives names an entry of
-// its log — `R25` the repository's own, `R25 spec` spec's —, so that the anchor a comment ends with
-// leads to its reason (R160). `R37 canvas-api` and `R03 api` are another repository's and are not
-// checked, and an example in inline code, `R03`, is no citation (R32).
+// its log — `R25` the repository's own, `R25 spec` spec's —, so that a comment that still cites one
+// does not lead to an entry that is not there. `R37 canvas-api` and `R03 api` are another
+// repository's and are not checked, and an example in inline code, `R03`, is no citation. Where the
+// rule of citations is on, a comment cites no decision at all, and this check does not run.
 //
 // What is read is the comments alone, not strings: `//` and `/* */` in Go, TypeScript, JavaScript,
 // .proto files and JSON with comments, `#` in shell, YAML, justfiles and Dockerfiles. Code that a
@@ -228,9 +229,9 @@ function slashComments(source, js) {
   return pieces;
 }
 
-// An example in inline code is no citation. It stands as in a document (markdown.mjs), so that "R3
-// `api`" and a list such as "standalone: `tools/learners`, R163" keep their shape, padded to its
-// length in front, so that offsets keep their lines.
+// An example in inline code is no citation. It stands as in a document (markdown.mjs), so that a
+// number before a repository's name in code, and a list of MathTrail's citations with a path in code
+// among them, keep their shape, padded to its length in front, so that offsets keep their lines.
 export const blankCode = (text) => text.replace(/`([^`\n]*)`/g, (code, value) => inlineCode(value).padStart(code.length));
 
 // Reports each number of a decision in a comment that names no entry of its log; returns how many

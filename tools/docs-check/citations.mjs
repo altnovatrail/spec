@@ -13,9 +13,9 @@ const novatrail = novatrailRepositories.map(escape).join("|");
 
 // `… canvas-api` right after a citation. A repository's name counts wherever a word ends with it,
 // MathTrail's and NovaTrail's alike, though most of NovaTrail's are also English words:
-// `R03 modules сравнивает граф` is R03 of modules, and `R10 engine решил` R10 of engine. So the
+// `R03 modules сравнивает граф` cites the log of modules, and `R10 engine решил` engine's. So the
 // name of a repository never comes right after an own citation as a word of prose:
-// `modules берут его по R07`, not `по R07 modules берут` (R32).
+// `modules берут его по R07`, not `по R07 modules берут`.
 const FOREIGN = `(?:${mathtrail}|${novatrail})(?![\\p{L}\\p{N}-])`;
 const FOREIGN_SUFFIX = new RegExp(`^\\s+(?:${FOREIGN})`, "u");
 // `… engine` after О-, П- or Т-: spec's registers wherever they are cited, which no other
@@ -97,6 +97,12 @@ function foreignSpans(text) {
 }
 
 const inSpans = (spans, offset) => spans.some(([s, e]) => offset >= s && offset < e);
+
+// The suffix right after a citation, with the space before it — " spec", " canvas-api" — or "".
+export function suffixAfter(text, end) {
+  const after = text.slice(end);
+  return (FOREIGN_SUFFIX.exec(after) ?? SPEC_SUFFIX.exec(after))?.[0] ?? "";
+}
 
 // The scope a suffix right after a citation gives it.
 export function scopeAfter(text, end) {
@@ -190,8 +196,8 @@ function sectionList(text, first, at) {
 }
 
 // Citations of a document's sections in a block, other repositories' left out:
-// { kind: "document", name, sections, count, start, scope } for `product 7` and `concepts 9 spec`;
-// { kind: "word", sections, count, start, scope } for `раздел 9.4` — the document is resolved by
+// { kind: "document", name, sections, count, start, end, scope } for `product 7` and `concepts 9 spec`;
+// { kind: "word", sections, count, start, end, scope } for `раздел 9.4` — the document is resolved by
 // the caller. count is how many citations the list of sections is, a range one. With
 // { foreign: true }, other repositories' are kept too, their scope "foreign".
 export function findSections(block, { foreign: keepForeign = false } = {}) {
@@ -202,7 +208,7 @@ export function findSections(block, { foreign: keepForeign = false } = {}) {
     const { list, count, end } = sectionList(text, m[2], m.index + m[0].length);
     const scope = inSpans(spans, m.index) ? "foreign" : scopeAfter(text, end);
     if (scope === "foreign" && !keepForeign) continue;
-    result.push({ kind: "document", name: m[1], sections: list, count, start: m.index, scope });
+    result.push({ kind: "document", name: m[1], sections: list, count, start: m.index, end, scope });
   }
   for (const m of text.matchAll(WORD_SECTION)) {
     const after = m.index + m[0].length;
@@ -210,7 +216,7 @@ export function findSections(block, { foreign: keepForeign = false } = {}) {
     const foreign = inSpans(spans, m.index) || FOREIGN_BEFORE.test(text.slice(0, m.index));
     const scope = foreign ? "foreign" : scopeAfter(text, end);
     if ((scope === "foreign" && !keepForeign) || SECTION_OF_SOMETHING.test(text.slice(after))) continue;
-    result.push({ kind: "word", sections: list, count, start: m.index, scope });
+    result.push({ kind: "word", sections: list, count, start: m.index, end, scope });
   }
   return result;
 }

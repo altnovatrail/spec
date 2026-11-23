@@ -11,10 +11,10 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=altnovatrail_{{name}}&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=altnovatrail_{{name}})
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=altnovatrail_{{name}}&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=altnovatrail_{{name}})
 
-<!-- FILL: what the component is and does, and why, in one to three short paragraphs, from its card, architecture {{card}} spec; in English. A description alone: no command, code block or instruction, and no status, version, date, number or language. -->
+<!-- FILL: what the component is and does, and why, in one to three short paragraphs, from its card in `spec/docs/architecture.md`; in English. A description alone: no command, code block or instruction, and no status, version, date, number or language. -->
 
 A component of [NovaTrail](https://github.com/altnovatrail/spec), a universal open platform for adaptive learning, interactive lessons and AI tutoring.
 
-<!-- FILL: its place in NovaTrail's architecture, from architecture 2 spec and its card: the components it is linked with and how, in one sentence or a short list. -->
+<!-- FILL: its place in NovaTrail's architecture, from spec's `docs/architecture.md` and its card there: the components it is linked with and how, in one sentence or a short list. -->
 
-Its card is architecture {{card}} spec, among the documents of [spec](https://github.com/altnovatrail/spec); its own documents, its decisions and its plan are in [docs/](docs/README.md).
+Its card is in the architecture of [spec](https://github.com/altnovatrail/spec); its own documents, its decisions and its plan are in [docs/](docs/README.md).

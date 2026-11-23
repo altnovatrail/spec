@@ -1,5 +1,5 @@
 // Budgets: how large a file, a rule of .claude/rules/, an entry of the decision log, a section of a
-// document or a row of a table may grow, in KB of 1,024 bytes (R145). A session pays for what it
+// document or a row of a table may grow, in KB of 1,024 bytes. A session pays for what it
 // reads by tokens, but a limit in bytes holds without a key or a network, and does not move when a
 // tokenizer does: English text is at least 2.5 bytes a token and Russian tables 2.7, as
 // docs/measurements.md has it, so 24 KB of English is at most ≈ 9.8 thousand tokens.
@@ -8,21 +8,21 @@
 // "repository" those of a NovaTrail repository, read from its spec/ submodule. A repository is
 // checked only once its root holds docs-budgets.json, which names what differs from the block
 // "repository" — `{}` when nothing does. Raising a limit is an edit of one of the two files, seen
-// in review (R145).
+// in review.
 //
 // What a limit measures:
 // - files — the whole file, by its path from the root;
 // - rule — each rule of .claude/rules/, front matter and all;
 // - entry — each entry of the decision log, from its `**R01. …**` to the next entry or heading;
 //   entries names a limit of its own for one entry by its number: `R18` — a long entry keeps its
-//   size until a task rewrites it, and the others keep theirs (R160);
+//   size until a task rewrites it, and the others keep theirs;
 // - section — the own text under each heading of a document cited by name, numbered or not, to the
 //   next heading of any depth, and the text above its first heading; sections names a limit of its
 //   own for a numbered one: `concepts 15`;
 // - rows — each row of every table of the file named.
 // The block, or a repository's file, may also hold switches, which are no limits: "comments": true
 // turns on the check of the numbers of decisions in comments of code, comments.mjs, and
-// "citations": true that of the rule of citations, citation-rule.mjs (R32). The block "repository"
+// "citations": true that of the rule of citations, citation-rule.mjs. The block "repository"
 // turns on no citations: a repository's own task does, so that a move to the tag stays green.
 
 import fs from "node:fs";
@@ -32,7 +32,7 @@ import { isRule } from "./rules.mjs";
 
 const KB = 1024;
 // The file of the work plan in run/ that a repository may lack: one with no open task outside an
-// epic has no run/TASKS.md (R155). Every repository has the other files of run/ (R153), and a limit
+// epic has no run/TASKS.md. Every repository has the other files of run/, and a limit
 // for one it lacks is an error.
 const OPTIONAL = ["run/TASKS.md"];
 const LIMITS = ["rule", "entry", "section"];

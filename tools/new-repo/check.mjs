@@ -6,9 +6,9 @@
 // Nothing of the template may be left in it — no {{…}} and no FILL marker. LICENSE and AGENTS.md
 // must be spec's own; its documents must pass docs-check as a repository of its own, its citations
 // of spec against the spec it pins; its devcontainer must keep no name of spec's, and the version
-// of gopls its lock file names, when it has one, must be the one its Dockerfile asks for (R102);
+// of gopls its lock file names, when it has one, must be the one its Dockerfile asks for;
 // the plugins its devcontainer loads must be there, and its .claude/settings.json may name no
-// marketplace in a local folder (R143); and every link to spec on GitHub that names a version, and
+// marketplace in a local folder; and every link to spec on GitHub that names a version, and
 // the tag CLAUDE.md and the opening of RUN.md give spec/, must be the tag the spec submodule is
 // checked out at. A draft — a copy without .git — has no submodule: its links to spec need only
 // agree with one another, and spec's working tree stands in for spec/.
@@ -33,7 +33,7 @@ const SPEC_NAMES = [
 
 const SPEC_LINK = /https:\/\/github\.com\/altnovatrail\/spec\/(?:tree|blob)\/([^/\s)#>]+)/g;
 // The tag the template's CLAUDE.md and RUN.md give spec/, as a move to a tag keeps it: no README
-// names one (R21).
+// names one.
 const SPEC_TAG = /`spec\/`(?: — spec at `|, a submodule at tag )(v[^`\s:;,)]+)/g;
 
 export async function checkRepo({ dir, specRoot }) {
@@ -86,14 +86,14 @@ export async function checkRepo({ dir, specRoot }) {
   const { lock, arg } = goplsVersions(path.join(dir, ".devcontainer"));
   if (lock !== null || arg !== null) {
     for (const file of [".devcontainer/gopls/go.mod", ".devcontainer/gopls/go.sum"]) {
-      if (!files.includes(file)) report(file, 0, `the file is missing, and .devcontainer/Dockerfile builds gopls from it (R102 spec)`);
+      if (!files.includes(file)) report(file, 0, `the file is missing, and .devcontainer/Dockerfile builds gopls from it`);
     }
-    if (lock !== arg) report(".devcontainer/gopls/go.mod", 0, `it names gopls ${lock ?? "at no version"}, and .devcontainer/Dockerfile has GOPLS_VERSION ${arg ?? "unset"}: raise them together (R102 spec)`);
+    if (lock !== arg) report(".devcontainer/gopls/go.mod", 0, `it names gopls ${lock ?? "at no version"}, and .devcontainer/Dockerfile has GOPLS_VERSION ${arg ?? "unset"}: raise them together`);
   }
 
   // The plugin of the go kind runs gopls from PATH, and only the lock file puts it there.
   if (checkClaudePlugins(dir, reference, report, container).includes("gopls") && lock === null) {
-    report(".devcontainer/gopls/go.mod", 0, "the file is missing, and .devcontainer/devcontainer.json loads a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)");
+    report(".devcontainer/gopls/go.mod", 0, "the file is missing, and .devcontainer/devcontainer.json loads a plugin that runs gopls, which the devcontainer builds from it");
   }
 
   if (text.has("README.md")) for (const { line, message } of readmeProblems(text.get("README.md"))) report("README.md", line, message);
@@ -123,8 +123,8 @@ export async function checkRepo({ dir, specRoot }) {
 
 // The README is the title, the badges and a description of the component and its place in
 // NovaTrail, which leads to docs/README.md for the rest; the FILL markers are left out, as they
-// say what not to write (R21).
-const README_RULE = "the README is the title, the badges and a description alone (R21 spec)";
+// say what not to write.
+const README_RULE = "the README is the title, the badges and a description alone";
 const COMMAND = /`(just|git|gh|npm|npx|go|node|buf|docker|devcontainer|claude) /;
 
 export function readmeProblems(readme) {
@@ -141,7 +141,7 @@ export function readmeProblems(readme) {
     else if (/^#/.test(line)) problems.push({ line: at, message: `a heading below the title: ${README_RULE}` });
     else if (COMMAND.test(line)) problems.push({ line: at, message: `a command: ${README_RULE}` });
   });
-  if (!readme.includes("](docs/README.md)")) problems.push({ line: 0, message: "no link to docs/README.md, which holds what the README does not (R21 spec)" });
+  if (!readme.includes("](docs/README.md)")) problems.push({ line: 0, message: "no link to docs/README.md, which holds what the README does not" });
   return problems;
 }
 

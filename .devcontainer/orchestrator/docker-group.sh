@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs on the host — the machine VS Code itself runs on — before the orchestrator's container is
-# built, and on a CI runner before the stage is (R156).
+# built, and on a CI runner before the stage is.
 #
 # The orchestrator's container mounts the host's Docker socket, and the user vscode reaches it by
 # the socket's group, whose number is the host's own: Docker's group has no fixed number. A
