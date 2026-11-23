@@ -1,8 +1,8 @@
 # Decision log of {{name}}
 
-> Why {{name}} is built the way it is. Each entry: what was decided, why, what was rejected, and where it is described.
+> Why {{name}} is built the way it is. Each entry: what was decided, why, what was rejected, and in its tail "— *Consequence:*" the files and sections that a change of it edits (R171 spec).
 >
-> **Rule:** do not propose again what was rejected without new facts. If a decision has to change, ask the author and rewrite its entry in its place, and every entry the change touches: an entry is its text in force — what was decided, why, what was rejected and where it is described —, git keeps the old text, and the commit says why (R160 spec).
+> **Rule:** do not propose again what was rejected without new facts. If a decision has to change, ask the author and rewrite its entry in its place, and every entry the change touches: an entry is its text in force — what was decided, why, what was rejected and what a change of it edits —, git keeps the old text, and the commit says why (R160 spec); it has no dated amendment.
 >
 > The repository was set up {{date}} from the template of `spec` {{spec_tag}} (R21 spec). How it comes to differ from the template — tools in the devcontainer, rules in RUN.md — is recorded here as a decision, as R46 canvas-api recorded how it differed from its model. Next number — R01.
 >

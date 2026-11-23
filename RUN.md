@@ -38,7 +38,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 
 **Task body** (Russian): «Цель», «Сделать», «Как проверить», «Разделы»; as needed «Не делать», «Решить при планировании», «Мой шаг», «Стоимость», «Риски»; from planning «Почему», «Решено автором (дата)», «Выяснилось при планировании»; when done «Сделано (дата)» (rule 9).
 
-**Citations** — RULES.md, Citations. A task is cited by number: «T03», «RUN.md, T03»; one not here is in `run/TASKS.md` or an archive: `grep -n '^#### T03\.' RUN.md run/TASKS.md docs/plan/*.md`. Task numbers are global and never reused: take the one free when writing it down.
+**Citations** — RULES.md, Citations. A task's number stands only here, in `run/` and in `docs/plan/` (R171). A task is cited by number: «T03», «RUN.md, T03»; one not here is in `run/TASKS.md` or an archive: `grep -n '^#### T03\.' RUN.md run/TASKS.md docs/plan/*.md`. Task numbers are global and never reused: take the one free when writing it down.
 
 ## Epics
 
@@ -87,7 +87,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | Status | ID | Task | Who | Plan | Depends on |
 |---|---|---|---|---|---|
 | [x] | T256 | Основа: источники и замер ссылок «до» в 13 репозиториях | Claude | — | — |
-| [ ] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
+| [x] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
 | [ ] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
 | [ ] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
 | [ ] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258 |
@@ -107,18 +107,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258 |
 | [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275; строки 7.38–7.49 |
-
-#### T257. Правило ссылок: решение, RULES.md, R160, R32, шаблон
-
-- **Цель:** правило «Решено автором (2026-11-23)» — решение журнала, следующий свободный номер (сейчас `R171`), и его текст в RULES.md; записи, которые несут правило ссылок, переписаны на месте.
-- **Сделать:**
-  - Новое решение: пункты правила, хвост «— *Consequence:*» — список файлов, «Вне правила», строки «Д…» и «В…»; «Почему» — записи T256 (`sources 12`, `sources 2.16`, `measurements 1.18`) и measurements 1.14.4; отвергнутое — варианты B и C, проверка без ключа, поправки оставить или свернуть только в `spec`, хвост убрать. Решение пишется по самому правилу.
-  - RULES.md — The bar (строка о комментарии кода) и Citations: правило коротко, свои ссылки в RULES.md — по нему же; файл не выше предела 15 КБ (сейчас 15 359 Б).
-  - R160 на месте: Comments (В62) — номер решения только где важны отвергнутые варианты; Decisions (В61) — поправки свёртываются в E22, отвергнутое «переписать все журналы» снято с основанием; R32 — проверка ссылок по ключу (что именно — T258); пункт «Sources and measurements» R143 — одна запись, не цепочка.
-  - Вводная `docs/decisions.md` — «where it is described» = список файлов хвоста; sources 1, «A reference».
-  - RUN.md, «Citations»; `repo-template/files/` — `docs/decisions.md`, RUN.md, CLAUDE.md, `docs/sources.md`.
-- **Как проверить:** `just docs-check`; `just new-repo-test`; `/code-review high`.
-- **Разделы:** R160, R32, R143; RULES.md — The bar, Citations; measurements 1.14.4; T256.
 
 #### T258. `docs-check`: четыре проверки по ключу `citations`; тег
 
