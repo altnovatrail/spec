@@ -192,6 +192,64 @@ func (Writer) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{2}
 }
 
+// The kind of pen a stroke is written with.
+type PenKind int32
+
+const (
+	// No kind: never written. A style that holds it is not valid.
+	PenKind_PEN_KIND_UNSPECIFIED PenKind = 0
+	// A pen, whose line the device draws wider and finer by its pressure or its speed: a crop
+	// draws it at its width.
+	PenKind_PEN_KIND_PEN PenKind = 1
+	// A liner: one width all along.
+	PenKind_PEN_KIND_LINER PenKind = 2
+	// A marker: one width, multiplied with what lies under it.
+	PenKind_PEN_KIND_MARKER PenKind = 3
+)
+
+// Enum value maps for PenKind.
+var (
+	PenKind_name = map[int32]string{
+		0: "PEN_KIND_UNSPECIFIED",
+		1: "PEN_KIND_PEN",
+		2: "PEN_KIND_LINER",
+		3: "PEN_KIND_MARKER",
+	}
+	PenKind_value = map[string]int32{
+		"PEN_KIND_UNSPECIFIED": 0,
+		"PEN_KIND_PEN":         1,
+		"PEN_KIND_LINER":       2,
+		"PEN_KIND_MARKER":      3,
+	}
+)
+
+func (x PenKind) Enum() *PenKind {
+	p := new(PenKind)
+	*p = x
+	return p
+}
+
+func (x PenKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PenKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_eval_v1_sample_proto_enumTypes[3].Descriptor()
+}
+
+func (PenKind) Type() protoreflect.EnumType {
+	return &file_novatrail_eval_v1_sample_proto_enumTypes[3]
+}
+
+func (x PenKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PenKind.Descriptor instead.
+func (PenKind) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{3}
+}
+
 // One sample: what it is for and who wrote it, the task it answers, its strokes, and the crops
 // drawn of them.
 type Sample struct {
@@ -1391,6 +1449,7 @@ type HistoryEvent struct {
 	//	*HistoryEvent_Erase
 	//	*HistoryEvent_Clear
 	//	*HistoryEvent_Undo
+	//	*HistoryEvent_Cut
 	Event         isHistoryEvent_Event `protobuf_oneof:"event"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1476,6 +1535,15 @@ func (x *HistoryEvent) GetUndo() *Undo {
 	return nil
 }
 
+func (x *HistoryEvent) GetCut() *Cut {
+	if x != nil {
+		if x, ok := x.Event.(*HistoryEvent_Cut); ok {
+			return x.Cut
+		}
+	}
+	return nil
+}
+
 type isHistoryEvent_Event interface {
 	isHistoryEvent_Event()
 }
@@ -1486,7 +1554,7 @@ type HistoryEvent_Write struct {
 }
 
 type HistoryEvent_Erase struct {
-	// The eraser took strokes off, in one stroke of the eraser.
+	// The eraser took strokes off whole, in one stroke of the eraser.
 	Erase *StrokeIds `protobuf:"bytes,3,opt,name=erase,proto3,oneof"`
 }
 
@@ -1500,6 +1568,12 @@ type HistoryEvent_Undo struct {
 	Undo *Undo `protobuf:"bytes,5,opt,name=undo,proto3,oneof"`
 }
 
+type HistoryEvent_Cut struct {
+	// The eraser took off the strokes it crossed and left the pieces of them it did not pass over,
+	// in one stroke of an eraser that takes a part.
+	Cut *Cut `protobuf:"bytes,6,opt,name=cut,proto3,oneof"`
+}
+
 func (*HistoryEvent_Write) isHistoryEvent_Event() {}
 
 func (*HistoryEvent_Erase) isHistoryEvent_Event() {}
@@ -1507,6 +1581,8 @@ func (*HistoryEvent_Erase) isHistoryEvent_Event() {}
 func (*HistoryEvent_Clear) isHistoryEvent_Event() {}
 
 func (*HistoryEvent_Undo) isHistoryEvent_Event() {}
+
+func (*HistoryEvent_Cut) isHistoryEvent_Event() {}
 
 // A stroke as it was written.
 type Stroke struct {
@@ -1517,7 +1593,10 @@ type Stroke struct {
 	// another.
 	Pointer string `protobuf:"bytes,2,opt,name=pointer,proto3" json:"pointer,omitempty"`
 	// The points, in the order they were written: one at least.
-	Points        []*InkPoint `protobuf:"bytes,3,rep,name=points,proto3" json:"points,omitempty"`
+	Points []*InkPoint `protobuf:"bytes,3,rep,name=points,proto3" json:"points,omitempty"`
+	// How it looks, as the learner chose it; none in a stroke written before strokes had a style,
+	// which is drawn black and opaque.
+	Style         *StrokeStyle `protobuf:"bytes,4,opt,name=style,proto3" json:"style,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1573,6 +1652,198 @@ func (x *Stroke) GetPoints() []*InkPoint {
 	return nil
 }
 
+func (x *Stroke) GetStyle() *StrokeStyle {
+	if x != nil {
+		return x.Style
+	}
+	return nil
+}
+
+// How a stroke looks: its kind of pen, its colour, its width and its opacity.
+type StrokeStyle struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The kind of pen.
+	Pen PenKind `protobuf:"varint,1,opt,name=pen,proto3,enum=novatrail.eval.v1.PenKind" json:"pen,omitempty"`
+	// Its colour, any of sRGB: `#` and six lowercase hexadecimal digits.
+	Color string `protobuf:"bytes,2,opt,name=color,proto3" json:"color,omitempty"`
+	// The width of its line, in units of the sheet, to a tenth, from 0.1 to 50.
+	Width float64 `protobuf:"fixed64,3,opt,name=width,proto3" json:"width,omitempty"`
+	// Its opacity, in whole percent from 10 to 100.
+	Opacity       int32 `protobuf:"varint,4,opt,name=opacity,proto3" json:"opacity,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StrokeStyle) Reset() {
+	*x = StrokeStyle{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StrokeStyle) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StrokeStyle) ProtoMessage() {}
+
+func (x *StrokeStyle) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StrokeStyle.ProtoReflect.Descriptor instead.
+func (*StrokeStyle) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *StrokeStyle) GetPen() PenKind {
+	if x != nil {
+		return x.Pen
+	}
+	return PenKind_PEN_KIND_UNSPECIFIED
+}
+
+func (x *StrokeStyle) GetColor() string {
+	if x != nil {
+		return x.Color
+	}
+	return ""
+}
+
+func (x *StrokeStyle) GetWidth() float64 {
+	if x != nil {
+		return x.Width
+	}
+	return 0
+}
+
+func (x *StrokeStyle) GetOpacity() int32 {
+	if x != nil {
+		return x.Opacity
+	}
+	return 0
+}
+
+// What a cut changed: the strokes it took off, and the pieces of them it left.
+type Cut struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The IDs of the strokes it took off, in the order of the sheet: one at least.
+	Ids []int32 `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
+	// The pieces it left, in the order of `ids` and along each stroke: none of a stroke it covered
+	// whole.
+	Pieces        []*Piece `protobuf:"bytes,2,rep,name=pieces,proto3" json:"pieces,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Cut) Reset() {
+	*x = Cut{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Cut) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Cut) ProtoMessage() {}
+
+func (x *Cut) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Cut.ProtoReflect.Descriptor instead.
+func (*Cut) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *Cut) GetIds() []int32 {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
+func (x *Cut) GetPieces() []*Piece {
+	if x != nil {
+		return x.Pieces
+	}
+	return nil
+}
+
+// A piece of a stroke that a cut left: a new stroke on the sheet.
+type Piece struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The ID of the stroke it was cut of, one of the cut's `ids`.
+	Of int32 `protobuf:"varint,1,opt,name=of,proto3" json:"of,omitempty"`
+	// The piece: an ID no stroke had before, that stroke's pointer and style, and a run of its
+	// points, with one point of its own at most at each end, where the eraser's edge crossed it.
+	Stroke        *Stroke `protobuf:"bytes,2,opt,name=stroke,proto3" json:"stroke,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Piece) Reset() {
+	*x = Piece{}
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Piece) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Piece) ProtoMessage() {}
+
+func (x *Piece) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Piece.ProtoReflect.Descriptor instead.
+func (*Piece) Descriptor() ([]byte, []int) {
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *Piece) GetOf() int32 {
+	if x != nil {
+		return x.Of
+	}
+	return 0
+}
+
+func (x *Piece) GetStroke() *Stroke {
+	if x != nil {
+		return x.Stroke
+	}
+	return nil
+}
+
 // A point of a stroke as it was written.
 type InkPoint struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1588,7 +1859,7 @@ type InkPoint struct {
 
 func (x *InkPoint) Reset() {
 	*x = InkPoint{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[16]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1600,7 +1871,7 @@ func (x *InkPoint) String() string {
 func (*InkPoint) ProtoMessage() {}
 
 func (x *InkPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[16]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1613,7 +1884,7 @@ func (x *InkPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InkPoint.ProtoReflect.Descriptor instead.
 func (*InkPoint) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{16}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *InkPoint) GetX() float64 {
@@ -1648,7 +1919,7 @@ type StrokeIds struct {
 
 func (x *StrokeIds) Reset() {
 	*x = StrokeIds{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[17]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1660,7 +1931,7 @@ func (x *StrokeIds) String() string {
 func (*StrokeIds) ProtoMessage() {}
 
 func (x *StrokeIds) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[17]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1673,7 +1944,7 @@ func (x *StrokeIds) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StrokeIds.ProtoReflect.Descriptor instead.
 func (*StrokeIds) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{17}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *StrokeIds) GetIds() []int32 {
@@ -1696,7 +1967,7 @@ type Undo struct {
 
 func (x *Undo) Reset() {
 	*x = Undo{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[18]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1708,7 +1979,7 @@ func (x *Undo) String() string {
 func (*Undo) ProtoMessage() {}
 
 func (x *Undo) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[18]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1721,7 +1992,7 @@ func (x *Undo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Undo.ProtoReflect.Descriptor instead.
 func (*Undo) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{18}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *Undo) GetRemoved() []int32 {
@@ -1750,7 +2021,7 @@ type Geometry struct {
 
 func (x *Geometry) Reset() {
 	*x = Geometry{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[19]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1762,7 +2033,7 @@ func (x *Geometry) String() string {
 func (*Geometry) ProtoMessage() {}
 
 func (x *Geometry) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[19]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1775,7 +2046,7 @@ func (x *Geometry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Geometry.ProtoReflect.Descriptor instead.
 func (*Geometry) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{19}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *Geometry) GetStrokes() []*FinalStroke {
@@ -1791,14 +2062,16 @@ type FinalStroke struct {
 	// The stroke's ID: its number by place, from 1.
 	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The points along the stroke, in its canonical direction: one at least.
-	Points        []*FinalPoint `protobuf:"bytes,2,rep,name=points,proto3" json:"points,omitempty"`
+	Points []*FinalPoint `protobuf:"bytes,2,rep,name=points,proto3" json:"points,omitempty"`
+	// How it looks, as the stroke it stands for was written; none for one without a style.
+	Style         *StrokeStyle `protobuf:"bytes,3,opt,name=style,proto3" json:"style,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FinalStroke) Reset() {
 	*x = FinalStroke{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[20]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1810,7 +2083,7 @@ func (x *FinalStroke) String() string {
 func (*FinalStroke) ProtoMessage() {}
 
 func (x *FinalStroke) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[20]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1823,7 +2096,7 @@ func (x *FinalStroke) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FinalStroke.ProtoReflect.Descriptor instead.
 func (*FinalStroke) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{20}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *FinalStroke) GetId() int32 {
@@ -1836,6 +2109,13 @@ func (x *FinalStroke) GetId() int32 {
 func (x *FinalStroke) GetPoints() []*FinalPoint {
 	if x != nil {
 		return x.Points
+	}
+	return nil
+}
+
+func (x *FinalStroke) GetStyle() *StrokeStyle {
+	if x != nil {
+		return x.Style
 	}
 	return nil
 }
@@ -1853,7 +2133,7 @@ type FinalPoint struct {
 
 func (x *FinalPoint) Reset() {
 	*x = FinalPoint{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[21]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1865,7 +2145,7 @@ func (x *FinalPoint) String() string {
 func (*FinalPoint) ProtoMessage() {}
 
 func (x *FinalPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[21]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1878,7 +2158,7 @@ func (x *FinalPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FinalPoint.ProtoReflect.Descriptor instead.
 func (*FinalPoint) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{21}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *FinalPoint) GetX() float64 {
@@ -1917,7 +2197,7 @@ type Sheet struct {
 
 func (x *Sheet) Reset() {
 	*x = Sheet{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[22]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1929,7 +2209,7 @@ func (x *Sheet) String() string {
 func (*Sheet) ProtoMessage() {}
 
 func (x *Sheet) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[22]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1942,7 +2222,7 @@ func (x *Sheet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Sheet.ProtoReflect.Descriptor instead.
 func (*Sheet) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{22}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *Sheet) GetWidth() int32 {
@@ -1993,7 +2273,7 @@ type Group struct {
 
 func (x *Group) Reset() {
 	*x = Group{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[23]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2005,7 +2285,7 @@ func (x *Group) String() string {
 func (*Group) ProtoMessage() {}
 
 func (x *Group) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[23]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2018,7 +2298,7 @@ func (x *Group) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Group.ProtoReflect.Descriptor instead.
 func (*Group) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{23}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *Group) GetLabel() string {
@@ -2057,7 +2337,7 @@ type Workbook struct {
 
 func (x *Workbook) Reset() {
 	*x = Workbook{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[24]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2069,7 +2349,7 @@ func (x *Workbook) String() string {
 func (*Workbook) ProtoMessage() {}
 
 func (x *Workbook) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[24]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2082,7 +2362,7 @@ func (x *Workbook) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Workbook.ProtoReflect.Descriptor instead.
 func (*Workbook) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{24}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *Workbook) GetWidth() int32 {
@@ -2139,7 +2419,7 @@ type PageBox struct {
 
 func (x *PageBox) Reset() {
 	*x = PageBox{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[25]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2151,7 +2431,7 @@ func (x *PageBox) String() string {
 func (*PageBox) ProtoMessage() {}
 
 func (x *PageBox) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[25]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2164,7 +2444,7 @@ func (x *PageBox) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBox.ProtoReflect.Descriptor instead.
 func (*PageBox) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{25}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *PageBox) GetAnswerSlot() *v1.AnswerSlotPlace {
@@ -2217,7 +2497,7 @@ type FilledBox struct {
 
 func (x *FilledBox) Reset() {
 	*x = FilledBox{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[26]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2229,7 +2509,7 @@ func (x *FilledBox) String() string {
 func (*FilledBox) ProtoMessage() {}
 
 func (x *FilledBox) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[26]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2242,7 +2522,7 @@ func (x *FilledBox) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilledBox.ProtoReflect.Descriptor instead.
 func (*FilledBox) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{26}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *FilledBox) GetAnswerSlot() *v1.AnswerSlotPlace {
@@ -2283,7 +2563,7 @@ type CropSet struct {
 
 func (x *CropSet) Reset() {
 	*x = CropSet{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[27]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2295,7 +2575,7 @@ func (x *CropSet) String() string {
 func (*CropSet) ProtoMessage() {}
 
 func (x *CropSet) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[27]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2308,7 +2588,7 @@ func (x *CropSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CropSet.ProtoReflect.Descriptor instead.
 func (*CropSet) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{27}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *CropSet) GetInkBox() *TenthsBox {
@@ -2349,7 +2629,7 @@ type TenthsBox struct {
 
 func (x *TenthsBox) Reset() {
 	*x = TenthsBox{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[28]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2361,7 +2641,7 @@ func (x *TenthsBox) String() string {
 func (*TenthsBox) ProtoMessage() {}
 
 func (x *TenthsBox) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[28]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2374,7 +2654,7 @@ func (x *TenthsBox) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TenthsBox.ProtoReflect.Descriptor instead.
 func (*TenthsBox) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{28}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *TenthsBox) GetYmin() int32 {
@@ -2416,20 +2696,21 @@ type Crop struct {
 	Width int32 `protobuf:"varint,3,opt,name=width,proto3" json:"width,omitempty"`
 	// The crop's height, px.
 	Height int32 `protobuf:"varint,4,opt,name=height,proto3" json:"height,omitempty"`
-	// The margin above the strokes, px.
+	// The margin above the strokes' points, px.
 	MarginTop int32 `protobuf:"varint,5,opt,name=margin_top,json=marginTop,proto3" json:"margin_top,omitempty"`
-	// The margin left of the strokes, px.
+	// The margin left of the strokes' points, px.
 	MarginLeft int32 `protobuf:"varint,6,opt,name=margin_left,json=marginLeft,proto3" json:"margin_left,omitempty"`
 	// s: px of the crop to a unit of the sheet.
 	Scale float64 `protobuf:"fixed64,7,opt,name=scale,proto3" json:"scale,omitempty"`
-	// The width of the line, px.
+	// The width of the widest line of its strokes, px.
 	LineWidth float64 `protobuf:"fixed64,8,opt,name=line_width,json=lineWidth,proto3" json:"line_width,omitempty"`
 	// Where the crop with its margins lies on the sheet, `sheet_box`.
 	SheetBox *SheetBox `protobuf:"bytes,9,opt,name=sheet_box,json=sheetBox,proto3" json:"sheet_box,omitempty"`
 	// The frames of the groups, in the order of their labels: on a sheet one for each group, and
 	// none on a workbook.
 	Frames []*Frame `protobuf:"bytes,10,rep,name=frames,proto3" json:"frames,omitempty"`
-	// The crop, a PNG: grey, 8 bits, with no ancillary chunk.
+	// The crop, a PNG of 8 bits with no ancillary chunk: grey when none of its strokes has a style,
+	// and RGB when one has.
 	Png           []byte `protobuf:"bytes,11,opt,name=png,proto3" json:"png,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2437,7 +2718,7 @@ type Crop struct {
 
 func (x *Crop) Reset() {
 	*x = Crop{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[29]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2449,7 +2730,7 @@ func (x *Crop) String() string {
 func (*Crop) ProtoMessage() {}
 
 func (x *Crop) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[29]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2462,7 +2743,7 @@ func (x *Crop) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Crop.ProtoReflect.Descriptor instead.
 func (*Crop) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{29}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *Crop) GetDigitHeight() int32 {
@@ -2559,7 +2840,7 @@ type SheetBox struct {
 
 func (x *SheetBox) Reset() {
 	*x = SheetBox{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[30]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2571,7 +2852,7 @@ func (x *SheetBox) String() string {
 func (*SheetBox) ProtoMessage() {}
 
 func (x *SheetBox) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[30]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2584,7 +2865,7 @@ func (x *SheetBox) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SheetBox.ProtoReflect.Descriptor instead.
 func (*SheetBox) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{30}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *SheetBox) GetYmin() float64 {
@@ -2628,7 +2909,7 @@ type Frame struct {
 
 func (x *Frame) Reset() {
 	*x = Frame{}
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[31]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2640,7 +2921,7 @@ func (x *Frame) String() string {
 func (*Frame) ProtoMessage() {}
 
 func (x *Frame) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[31]
+	mi := &file_novatrail_eval_v1_sample_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2653,7 +2934,7 @@ func (x *Frame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Frame.ProtoReflect.Descriptor instead.
 func (*Frame) Descriptor() ([]byte, []int) {
-	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{31}
+	return file_novatrail_eval_v1_sample_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *Frame) GetLabel() string {
@@ -2762,18 +3043,31 @@ const file_novatrail_eval_v1_sample_proto_rawDesc = "" +
 	"\vbank_digest\x18\x03 \x01(\tR\n" +
 	"bankDigest\"B\n" +
 	"\aHistory\x127\n" +
-	"\x06events\x18\x01 \x03(\v2\x1f.novatrail.eval.v1.HistoryEventR\x06events\"\xf8\x01\n" +
+	"\x06events\x18\x01 \x03(\v2\x1f.novatrail.eval.v1.HistoryEventR\x06events\"\xa4\x02\n" +
 	"\fHistoryEvent\x12\x11\n" +
 	"\x04t_ms\x18\x01 \x01(\x05R\x03tMs\x121\n" +
 	"\x05write\x18\x02 \x01(\v2\x19.novatrail.eval.v1.StrokeH\x00R\x05write\x124\n" +
 	"\x05erase\x18\x03 \x01(\v2\x1c.novatrail.eval.v1.StrokeIdsH\x00R\x05erase\x124\n" +
 	"\x05clear\x18\x04 \x01(\v2\x1c.novatrail.eval.v1.StrokeIdsH\x00R\x05clear\x12-\n" +
-	"\x04undo\x18\x05 \x01(\v2\x17.novatrail.eval.v1.UndoH\x00R\x04undoB\a\n" +
-	"\x05event\"g\n" +
+	"\x04undo\x18\x05 \x01(\v2\x17.novatrail.eval.v1.UndoH\x00R\x04undo\x12*\n" +
+	"\x03cut\x18\x06 \x01(\v2\x16.novatrail.eval.v1.CutH\x00R\x03cutB\a\n" +
+	"\x05event\"\x9d\x01\n" +
 	"\x06Stroke\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x18\n" +
 	"\apointer\x18\x02 \x01(\tR\apointer\x123\n" +
-	"\x06points\x18\x03 \x03(\v2\x1b.novatrail.eval.v1.InkPointR\x06points\"9\n" +
+	"\x06points\x18\x03 \x03(\v2\x1b.novatrail.eval.v1.InkPointR\x06points\x124\n" +
+	"\x05style\x18\x04 \x01(\v2\x1e.novatrail.eval.v1.StrokeStyleR\x05style\"\x81\x01\n" +
+	"\vStrokeStyle\x12,\n" +
+	"\x03pen\x18\x01 \x01(\x0e2\x1a.novatrail.eval.v1.PenKindR\x03pen\x12\x14\n" +
+	"\x05color\x18\x02 \x01(\tR\x05color\x12\x14\n" +
+	"\x05width\x18\x03 \x01(\x01R\x05width\x12\x18\n" +
+	"\aopacity\x18\x04 \x01(\x05R\aopacity\"I\n" +
+	"\x03Cut\x12\x10\n" +
+	"\x03ids\x18\x01 \x03(\x05R\x03ids\x120\n" +
+	"\x06pieces\x18\x02 \x03(\v2\x18.novatrail.eval.v1.PieceR\x06pieces\"J\n" +
+	"\x05Piece\x12\x0e\n" +
+	"\x02of\x18\x01 \x01(\x05R\x02of\x121\n" +
+	"\x06stroke\x18\x02 \x01(\v2\x19.novatrail.eval.v1.StrokeR\x06stroke\"9\n" +
 	"\bInkPoint\x12\f\n" +
 	"\x01x\x18\x01 \x01(\x01R\x01x\x12\f\n" +
 	"\x01y\x18\x02 \x01(\x01R\x01y\x12\x11\n" +
@@ -2784,10 +3078,11 @@ const file_novatrail_eval_v1_sample_proto_rawDesc = "" +
 	"\aremoved\x18\x01 \x03(\x05R\aremoved\x12\x1a\n" +
 	"\brestored\x18\x02 \x03(\x05R\brestored\"D\n" +
 	"\bGeometry\x128\n" +
-	"\astrokes\x18\x01 \x03(\v2\x1e.novatrail.eval.v1.FinalStrokeR\astrokes\"T\n" +
+	"\astrokes\x18\x01 \x03(\v2\x1e.novatrail.eval.v1.FinalStrokeR\astrokes\"\x8a\x01\n" +
 	"\vFinalStroke\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x125\n" +
-	"\x06points\x18\x02 \x03(\v2\x1d.novatrail.eval.v1.FinalPointR\x06points\"(\n" +
+	"\x06points\x18\x02 \x03(\v2\x1d.novatrail.eval.v1.FinalPointR\x06points\x124\n" +
+	"\x05style\x18\x03 \x01(\v2\x1e.novatrail.eval.v1.StrokeStyleR\x05style\"(\n" +
 	"\n" +
 	"FinalPoint\x12\f\n" +
 	"\x01x\x18\x01 \x01(\x01R\x01x\x12\f\n" +
@@ -2866,7 +3161,12 @@ const file_novatrail_eval_v1_sample_proto_rawDesc = "" +
 	"\x12WRITER_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fWRITER_ADULT\x10\x01\x12\x19\n" +
 	"\x15WRITER_ADULT_AS_CHILD\x10\x02\x12\x10\n" +
-	"\fWRITER_CHILD\x10\x03B\xcd\x01\n" +
+	"\fWRITER_CHILD\x10\x03*^\n" +
+	"\aPenKind\x12\x18\n" +
+	"\x14PEN_KIND_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fPEN_KIND_PEN\x10\x01\x12\x12\n" +
+	"\x0ePEN_KIND_LINER\x10\x02\x12\x13\n" +
+	"\x0fPEN_KIND_MARKER\x10\x03B\xcd\x01\n" +
 	"\x15com.novatrail.eval.v1B\vSampleProtoP\x01Z?github.com/altnovatrail/spec/contracts/novatrail/eval/v1;evalv1\xa2\x02\x03NEX\xaa\x02\x11Novatrail.Eval.V1\xca\x02\x12Novatrail\\Eval_\\V1\xe2\x02\x1eNovatrail\\Eval_\\V1\\GPBMetadata\xea\x02\x13Novatrail::Eval::V1b\x06proto3"
 
 var (
@@ -2881,95 +3181,105 @@ func file_novatrail_eval_v1_sample_proto_rawDescGZIP() []byte {
 	return file_novatrail_eval_v1_sample_proto_rawDescData
 }
 
-var file_novatrail_eval_v1_sample_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_novatrail_eval_v1_sample_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
+var file_novatrail_eval_v1_sample_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_novatrail_eval_v1_sample_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
 var file_novatrail_eval_v1_sample_proto_goTypes = []any{
 	(PartKind)(0),              // 0: novatrail.eval.v1.PartKind
 	(Purpose)(0),               // 1: novatrail.eval.v1.Purpose
 	(Writer)(0),                // 2: novatrail.eval.v1.Writer
-	(*Sample)(nil),             // 3: novatrail.eval.v1.Sample
-	(*Markup)(nil),             // 4: novatrail.eval.v1.Markup
-	(*AnswerSlotNote)(nil),     // 5: novatrail.eval.v1.AnswerSlotNote
-	(*WritingParts)(nil),       // 6: novatrail.eval.v1.WritingParts
-	(*WritingPart)(nil),        // 7: novatrail.eval.v1.WritingPart
-	(*CriterionMarks)(nil),     // 8: novatrail.eval.v1.CriterionMarks
-	(*CriterionMark)(nil),      // 9: novatrail.eval.v1.CriterionMark
-	(*Person)(nil),             // 10: novatrail.eval.v1.Person
-	(*Synthetic)(nil),          // 11: novatrail.eval.v1.Synthetic
-	(*TaskReference)(nil),      // 12: novatrail.eval.v1.TaskReference
-	(*ModuleSource)(nil),       // 13: novatrail.eval.v1.ModuleSource
-	(*TutorSource)(nil),        // 14: novatrail.eval.v1.TutorSource
-	(*TaskFileSource)(nil),     // 15: novatrail.eval.v1.TaskFileSource
-	(*History)(nil),            // 16: novatrail.eval.v1.History
-	(*HistoryEvent)(nil),       // 17: novatrail.eval.v1.HistoryEvent
-	(*Stroke)(nil),             // 18: novatrail.eval.v1.Stroke
-	(*InkPoint)(nil),           // 19: novatrail.eval.v1.InkPoint
-	(*StrokeIds)(nil),          // 20: novatrail.eval.v1.StrokeIds
-	(*Undo)(nil),               // 21: novatrail.eval.v1.Undo
-	(*Geometry)(nil),           // 22: novatrail.eval.v1.Geometry
-	(*FinalStroke)(nil),        // 23: novatrail.eval.v1.FinalStroke
-	(*FinalPoint)(nil),         // 24: novatrail.eval.v1.FinalPoint
-	(*Sheet)(nil),              // 25: novatrail.eval.v1.Sheet
-	(*Group)(nil),              // 26: novatrail.eval.v1.Group
-	(*Workbook)(nil),           // 27: novatrail.eval.v1.Workbook
-	(*PageBox)(nil),            // 28: novatrail.eval.v1.PageBox
-	(*FilledBox)(nil),          // 29: novatrail.eval.v1.FilledBox
-	(*CropSet)(nil),            // 30: novatrail.eval.v1.CropSet
-	(*TenthsBox)(nil),          // 31: novatrail.eval.v1.TenthsBox
-	(*Crop)(nil),               // 32: novatrail.eval.v1.Crop
-	(*SheetBox)(nil),           // 33: novatrail.eval.v1.SheetBox
-	(*Frame)(nil),              // 34: novatrail.eval.v1.Frame
-	(*v1.Observation)(nil),     // 35: novatrail.observation.v1.Observation
-	(*v1.AnswerSlotPlace)(nil), // 36: novatrail.observation.v1.AnswerSlotPlace
-	(*v1.CropBox)(nil),         // 37: novatrail.observation.v1.CropBox
+	(PenKind)(0),               // 3: novatrail.eval.v1.PenKind
+	(*Sample)(nil),             // 4: novatrail.eval.v1.Sample
+	(*Markup)(nil),             // 5: novatrail.eval.v1.Markup
+	(*AnswerSlotNote)(nil),     // 6: novatrail.eval.v1.AnswerSlotNote
+	(*WritingParts)(nil),       // 7: novatrail.eval.v1.WritingParts
+	(*WritingPart)(nil),        // 8: novatrail.eval.v1.WritingPart
+	(*CriterionMarks)(nil),     // 9: novatrail.eval.v1.CriterionMarks
+	(*CriterionMark)(nil),      // 10: novatrail.eval.v1.CriterionMark
+	(*Person)(nil),             // 11: novatrail.eval.v1.Person
+	(*Synthetic)(nil),          // 12: novatrail.eval.v1.Synthetic
+	(*TaskReference)(nil),      // 13: novatrail.eval.v1.TaskReference
+	(*ModuleSource)(nil),       // 14: novatrail.eval.v1.ModuleSource
+	(*TutorSource)(nil),        // 15: novatrail.eval.v1.TutorSource
+	(*TaskFileSource)(nil),     // 16: novatrail.eval.v1.TaskFileSource
+	(*History)(nil),            // 17: novatrail.eval.v1.History
+	(*HistoryEvent)(nil),       // 18: novatrail.eval.v1.HistoryEvent
+	(*Stroke)(nil),             // 19: novatrail.eval.v1.Stroke
+	(*StrokeStyle)(nil),        // 20: novatrail.eval.v1.StrokeStyle
+	(*Cut)(nil),                // 21: novatrail.eval.v1.Cut
+	(*Piece)(nil),              // 22: novatrail.eval.v1.Piece
+	(*InkPoint)(nil),           // 23: novatrail.eval.v1.InkPoint
+	(*StrokeIds)(nil),          // 24: novatrail.eval.v1.StrokeIds
+	(*Undo)(nil),               // 25: novatrail.eval.v1.Undo
+	(*Geometry)(nil),           // 26: novatrail.eval.v1.Geometry
+	(*FinalStroke)(nil),        // 27: novatrail.eval.v1.FinalStroke
+	(*FinalPoint)(nil),         // 28: novatrail.eval.v1.FinalPoint
+	(*Sheet)(nil),              // 29: novatrail.eval.v1.Sheet
+	(*Group)(nil),              // 30: novatrail.eval.v1.Group
+	(*Workbook)(nil),           // 31: novatrail.eval.v1.Workbook
+	(*PageBox)(nil),            // 32: novatrail.eval.v1.PageBox
+	(*FilledBox)(nil),          // 33: novatrail.eval.v1.FilledBox
+	(*CropSet)(nil),            // 34: novatrail.eval.v1.CropSet
+	(*TenthsBox)(nil),          // 35: novatrail.eval.v1.TenthsBox
+	(*Crop)(nil),               // 36: novatrail.eval.v1.Crop
+	(*SheetBox)(nil),           // 37: novatrail.eval.v1.SheetBox
+	(*Frame)(nil),              // 38: novatrail.eval.v1.Frame
+	(*v1.Observation)(nil),     // 39: novatrail.observation.v1.Observation
+	(*v1.AnswerSlotPlace)(nil), // 40: novatrail.observation.v1.AnswerSlotPlace
+	(*v1.CropBox)(nil),         // 41: novatrail.observation.v1.CropBox
 }
 var file_novatrail_eval_v1_sample_proto_depIdxs = []int32{
 	1,  // 0: novatrail.eval.v1.Sample.purpose:type_name -> novatrail.eval.v1.Purpose
 	2,  // 1: novatrail.eval.v1.Sample.writer:type_name -> novatrail.eval.v1.Writer
-	10, // 2: novatrail.eval.v1.Sample.person:type_name -> novatrail.eval.v1.Person
-	11, // 3: novatrail.eval.v1.Sample.synthetic:type_name -> novatrail.eval.v1.Synthetic
-	12, // 4: novatrail.eval.v1.Sample.task:type_name -> novatrail.eval.v1.TaskReference
-	16, // 5: novatrail.eval.v1.Sample.history:type_name -> novatrail.eval.v1.History
-	22, // 6: novatrail.eval.v1.Sample.geometry:type_name -> novatrail.eval.v1.Geometry
-	25, // 7: novatrail.eval.v1.Sample.sheet:type_name -> novatrail.eval.v1.Sheet
-	27, // 8: novatrail.eval.v1.Sample.workbook:type_name -> novatrail.eval.v1.Workbook
-	4,  // 9: novatrail.eval.v1.Sample.markup:type_name -> novatrail.eval.v1.Markup
-	35, // 10: novatrail.eval.v1.Markup.truth:type_name -> novatrail.observation.v1.Observation
-	5,  // 11: novatrail.eval.v1.Markup.notes:type_name -> novatrail.eval.v1.AnswerSlotNote
-	6,  // 12: novatrail.eval.v1.Markup.parts:type_name -> novatrail.eval.v1.WritingParts
-	8,  // 13: novatrail.eval.v1.Markup.marks:type_name -> novatrail.eval.v1.CriterionMarks
-	36, // 14: novatrail.eval.v1.AnswerSlotNote.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	7,  // 15: novatrail.eval.v1.WritingParts.parts:type_name -> novatrail.eval.v1.WritingPart
+	11, // 2: novatrail.eval.v1.Sample.person:type_name -> novatrail.eval.v1.Person
+	12, // 3: novatrail.eval.v1.Sample.synthetic:type_name -> novatrail.eval.v1.Synthetic
+	13, // 4: novatrail.eval.v1.Sample.task:type_name -> novatrail.eval.v1.TaskReference
+	17, // 5: novatrail.eval.v1.Sample.history:type_name -> novatrail.eval.v1.History
+	26, // 6: novatrail.eval.v1.Sample.geometry:type_name -> novatrail.eval.v1.Geometry
+	29, // 7: novatrail.eval.v1.Sample.sheet:type_name -> novatrail.eval.v1.Sheet
+	31, // 8: novatrail.eval.v1.Sample.workbook:type_name -> novatrail.eval.v1.Workbook
+	5,  // 9: novatrail.eval.v1.Sample.markup:type_name -> novatrail.eval.v1.Markup
+	39, // 10: novatrail.eval.v1.Markup.truth:type_name -> novatrail.observation.v1.Observation
+	6,  // 11: novatrail.eval.v1.Markup.notes:type_name -> novatrail.eval.v1.AnswerSlotNote
+	7,  // 12: novatrail.eval.v1.Markup.parts:type_name -> novatrail.eval.v1.WritingParts
+	9,  // 13: novatrail.eval.v1.Markup.marks:type_name -> novatrail.eval.v1.CriterionMarks
+	40, // 14: novatrail.eval.v1.AnswerSlotNote.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	8,  // 15: novatrail.eval.v1.WritingParts.parts:type_name -> novatrail.eval.v1.WritingPart
 	0,  // 16: novatrail.eval.v1.WritingPart.kind:type_name -> novatrail.eval.v1.PartKind
-	9,  // 17: novatrail.eval.v1.CriterionMarks.marks:type_name -> novatrail.eval.v1.CriterionMark
-	13, // 18: novatrail.eval.v1.TaskReference.modules:type_name -> novatrail.eval.v1.ModuleSource
-	14, // 19: novatrail.eval.v1.TaskReference.tutor:type_name -> novatrail.eval.v1.TutorSource
-	15, // 20: novatrail.eval.v1.TaskReference.file:type_name -> novatrail.eval.v1.TaskFileSource
-	17, // 21: novatrail.eval.v1.History.events:type_name -> novatrail.eval.v1.HistoryEvent
-	18, // 22: novatrail.eval.v1.HistoryEvent.write:type_name -> novatrail.eval.v1.Stroke
-	20, // 23: novatrail.eval.v1.HistoryEvent.erase:type_name -> novatrail.eval.v1.StrokeIds
-	20, // 24: novatrail.eval.v1.HistoryEvent.clear:type_name -> novatrail.eval.v1.StrokeIds
-	21, // 25: novatrail.eval.v1.HistoryEvent.undo:type_name -> novatrail.eval.v1.Undo
-	19, // 26: novatrail.eval.v1.Stroke.points:type_name -> novatrail.eval.v1.InkPoint
-	23, // 27: novatrail.eval.v1.Geometry.strokes:type_name -> novatrail.eval.v1.FinalStroke
-	24, // 28: novatrail.eval.v1.FinalStroke.points:type_name -> novatrail.eval.v1.FinalPoint
-	26, // 29: novatrail.eval.v1.Sheet.groups:type_name -> novatrail.eval.v1.Group
-	30, // 30: novatrail.eval.v1.Sheet.crops:type_name -> novatrail.eval.v1.CropSet
-	28, // 31: novatrail.eval.v1.Workbook.boxes:type_name -> novatrail.eval.v1.PageBox
-	29, // 32: novatrail.eval.v1.Workbook.filled_boxes:type_name -> novatrail.eval.v1.FilledBox
-	36, // 33: novatrail.eval.v1.PageBox.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	36, // 34: novatrail.eval.v1.FilledBox.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	30, // 35: novatrail.eval.v1.FilledBox.crops:type_name -> novatrail.eval.v1.CropSet
-	31, // 36: novatrail.eval.v1.CropSet.ink_box:type_name -> novatrail.eval.v1.TenthsBox
-	32, // 37: novatrail.eval.v1.CropSet.crops:type_name -> novatrail.eval.v1.Crop
-	33, // 38: novatrail.eval.v1.Crop.sheet_box:type_name -> novatrail.eval.v1.SheetBox
-	34, // 39: novatrail.eval.v1.Crop.frames:type_name -> novatrail.eval.v1.Frame
-	37, // 40: novatrail.eval.v1.Frame.box:type_name -> novatrail.observation.v1.CropBox
-	41, // [41:41] is the sub-list for method output_type
-	41, // [41:41] is the sub-list for method input_type
-	41, // [41:41] is the sub-list for extension type_name
-	41, // [41:41] is the sub-list for extension extendee
-	0,  // [0:41] is the sub-list for field type_name
+	10, // 17: novatrail.eval.v1.CriterionMarks.marks:type_name -> novatrail.eval.v1.CriterionMark
+	14, // 18: novatrail.eval.v1.TaskReference.modules:type_name -> novatrail.eval.v1.ModuleSource
+	15, // 19: novatrail.eval.v1.TaskReference.tutor:type_name -> novatrail.eval.v1.TutorSource
+	16, // 20: novatrail.eval.v1.TaskReference.file:type_name -> novatrail.eval.v1.TaskFileSource
+	18, // 21: novatrail.eval.v1.History.events:type_name -> novatrail.eval.v1.HistoryEvent
+	19, // 22: novatrail.eval.v1.HistoryEvent.write:type_name -> novatrail.eval.v1.Stroke
+	24, // 23: novatrail.eval.v1.HistoryEvent.erase:type_name -> novatrail.eval.v1.StrokeIds
+	24, // 24: novatrail.eval.v1.HistoryEvent.clear:type_name -> novatrail.eval.v1.StrokeIds
+	25, // 25: novatrail.eval.v1.HistoryEvent.undo:type_name -> novatrail.eval.v1.Undo
+	21, // 26: novatrail.eval.v1.HistoryEvent.cut:type_name -> novatrail.eval.v1.Cut
+	23, // 27: novatrail.eval.v1.Stroke.points:type_name -> novatrail.eval.v1.InkPoint
+	20, // 28: novatrail.eval.v1.Stroke.style:type_name -> novatrail.eval.v1.StrokeStyle
+	3,  // 29: novatrail.eval.v1.StrokeStyle.pen:type_name -> novatrail.eval.v1.PenKind
+	22, // 30: novatrail.eval.v1.Cut.pieces:type_name -> novatrail.eval.v1.Piece
+	19, // 31: novatrail.eval.v1.Piece.stroke:type_name -> novatrail.eval.v1.Stroke
+	27, // 32: novatrail.eval.v1.Geometry.strokes:type_name -> novatrail.eval.v1.FinalStroke
+	28, // 33: novatrail.eval.v1.FinalStroke.points:type_name -> novatrail.eval.v1.FinalPoint
+	20, // 34: novatrail.eval.v1.FinalStroke.style:type_name -> novatrail.eval.v1.StrokeStyle
+	30, // 35: novatrail.eval.v1.Sheet.groups:type_name -> novatrail.eval.v1.Group
+	34, // 36: novatrail.eval.v1.Sheet.crops:type_name -> novatrail.eval.v1.CropSet
+	32, // 37: novatrail.eval.v1.Workbook.boxes:type_name -> novatrail.eval.v1.PageBox
+	33, // 38: novatrail.eval.v1.Workbook.filled_boxes:type_name -> novatrail.eval.v1.FilledBox
+	40, // 39: novatrail.eval.v1.PageBox.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	40, // 40: novatrail.eval.v1.FilledBox.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	34, // 41: novatrail.eval.v1.FilledBox.crops:type_name -> novatrail.eval.v1.CropSet
+	35, // 42: novatrail.eval.v1.CropSet.ink_box:type_name -> novatrail.eval.v1.TenthsBox
+	36, // 43: novatrail.eval.v1.CropSet.crops:type_name -> novatrail.eval.v1.Crop
+	37, // 44: novatrail.eval.v1.Crop.sheet_box:type_name -> novatrail.eval.v1.SheetBox
+	38, // 45: novatrail.eval.v1.Crop.frames:type_name -> novatrail.eval.v1.Frame
+	41, // 46: novatrail.eval.v1.Frame.box:type_name -> novatrail.observation.v1.CropBox
+	47, // [47:47] is the sub-list for method output_type
+	47, // [47:47] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_eval_v1_sample_proto_init() }
@@ -3000,14 +3310,15 @@ func file_novatrail_eval_v1_sample_proto_init() {
 		(*HistoryEvent_Erase)(nil),
 		(*HistoryEvent_Clear)(nil),
 		(*HistoryEvent_Undo)(nil),
+		(*HistoryEvent_Cut)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_eval_v1_sample_proto_rawDesc), len(file_novatrail_eval_v1_sample_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   32,
+			NumEnums:      4,
+			NumMessages:   35,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

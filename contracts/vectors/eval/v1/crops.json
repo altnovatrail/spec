@@ -1,5 +1,5 @@
 {
-  "description": "The rule of the crop (contracts/README.md, section 12): from the strokes a sheet shows and their groups to the bundles of the strokes and the crops' numbers at each height of a digit of eval and at the module's, 24 px — the box of the points and h_med in tenths, and of each crop the height drawn, its size, margins, scale, line, where it lies on the sheet and the frames of the groups —, without their PNG. canvas's vectors/crops.json at its tag v0.1.2.",
+  "description": "The rule of the crop (contracts/README.md, section 12): from the strokes a sheet shows and their groups to the bundles of the strokes and the crops' numbers at each height of a digit of eval and at the module's, 24 px — the box of the points and h_med in tenths, and of each crop the height drawn, its size, margins, scale, line, where it lies on the sheet and the frames of the groups —, without their PNG. canvas's vectors/crops.json at its tag v0.1.2, but the last two, spec's own, of strokes with a style.",
   "rule": {"margin": 12, "flat": 15, "ceiling": 100, "side": 200, "edge": 1568, "tokens": 1568, "patch": 28, "heights": [16, 24, 32, 48]},
   "cases": [
     {
@@ -1059,6 +1059,47 @@
         {"digit_height": 24, "drawn_height": 17, "width": 772, "height": 1568, "margin_top": 12, "margin_left": 12, "scale": 1.1333333333333333, "line_width": 1.4166666666666667, "sheet_box": {"ymin": -0.5882352941176471, "xmin": 89.41176470588235, "ymax": 1382.9411764705883, "xmax": 770.5882352941177}, "frames": [{"label": "A", "box": {"ymin": 6, "xmin": 13, "ymax": 9, "xmax": 18}}, {"label": "B", "box": {"ymin": 6, "xmin": 982, "ymax": 9, "xmax": 987}}, {"label": "C", "box": {"ymin": 991, "xmin": 13, "ymax": 994, "xmax": 18}}], "png": ""},
         {"digit_height": 32, "drawn_height": 17, "width": 772, "height": 1568, "margin_top": 12, "margin_left": 12, "scale": 1.1333333333333333, "line_width": 1.4166666666666667, "sheet_box": {"ymin": -0.5882352941176471, "xmin": 89.41176470588235, "ymax": 1382.9411764705883, "xmax": 770.5882352941177}, "frames": [{"label": "A", "box": {"ymin": 6, "xmin": 13, "ymax": 9, "xmax": 18}}, {"label": "B", "box": {"ymin": 6, "xmin": 982, "ymax": 9, "xmax": 987}}, {"label": "C", "box": {"ymin": 991, "xmin": 13, "ymax": 994, "xmax": 18}}], "png": ""},
         {"digit_height": 48, "drawn_height": 17, "width": 772, "height": 1568, "margin_top": 12, "margin_left": 12, "scale": 1.1333333333333333, "line_width": 1.4166666666666667, "sheet_box": {"ymin": -0.5882352941176471, "xmin": 89.41176470588235, "ymax": 1382.9411764705883, "xmax": 770.5882352941177}, "frames": [{"label": "A", "box": {"ymin": 6, "xmin": 13, "ymax": 9, "xmax": 18}}, {"label": "B", "box": {"ymin": 6, "xmin": 982, "ymax": 9, "xmax": 987}}, {"label": "C", "box": {"ymin": 991, "xmin": 13, "ymax": 994, "xmax": 18}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "styles",
+      "description": "«12» in liner, a stroke of the kind pen, and an underline in marker under them: each line is its width at the crop's scale, 1 px at least, the margin 12 px, and the frame of the group as wide as its widest line.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 104, "y": 210.8}, {"x": 112, "y": 200}, {"x": 112, "y": 236}], "style": {"pen": "PEN_KIND_LINER", "color": "#0a63d6", "width": 1.2, "opacity": 100}},
+        {"id": 2, "points": [{"x": 126, "y": 207.2}, {"x": 132, "y": 200}, {"x": 140, "y": 200}, {"x": 146, "y": 210.8}, {"x": 144, "y": 218}, {"x": 126, "y": 236}, {"x": 146, "y": 236}], "style": {"pen": "PEN_KIND_PEN", "color": "#1c1c1e", "width": 2, "opacity": 100}},
+        {"id": 3, "points": [{"x": 100, "y": 246}, {"x": 150, "y": 246}], "style": {"pen": "PEN_KIND_MARKER", "color": "#ffcc00", "width": 12, "opacity": 40}}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1, 2, 3]}
+      ],
+      "bundles": [
+        [1],
+        [2]
+      ],
+      "crops": {"ink_box": {"ymin": 2000, "xmin": 1000, "ymax": 2460, "xmax": 1500}, "bundle_median": 360, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 89, "margin_left": 88, "scale": 0.4444444444444444, "line_width": 5.333333333333333, "sheet_box": {"ymin": -0.25, "xmin": -98, "ymax": 449.75, "xmax": 352}, "frames": [{"label": "A", "box": {"ymin": 426, "xmin": 421, "ymax": 566, "xmax": 570}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 200, "height": 200, "margin_top": 84, "margin_left": 83, "scale": 0.6666666666666666, "line_width": 8, "sheet_box": {"ymin": 74, "xmin": -24.5, "ymax": 374, "xmax": 275.5}, "frames": [{"label": "A", "box": {"ymin": 395, "xmin": 390, "ymax": 599, "xmax": 607}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 200, "height": 200, "margin_top": 79, "margin_left": 77, "scale": 0.8888888888888888, "line_width": 10.666666666666666, "sheet_box": {"ymin": 111.125, "xmin": 13.375, "ymax": 336.125, "xmax": 238.375}, "frames": [{"label": "A", "box": {"ymin": 363, "xmin": 353, "ymax": 632, "xmax": 639}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 200, "height": 200, "margin_top": 69, "margin_left": 66, "scale": 1.3333333333333333, "line_width": 16, "sheet_box": {"ymin": 148.25, "xmin": 50.5, "ymax": 298.25, "xmax": 200.5}, "frames": [{"label": "A", "box": {"ymin": 300, "xmin": 285, "ymax": 697, "xmax": 709}}], "png": ""}
+      ]}
+    },
+    {
+      "name": "wide-marker",
+      "description": "One wide stroke of a marker, 40 units, and no bundle, so the median is 15: half its line and a pixel are more than 12 px at every height, and the margins widen to hold them, the frame too.",
+      "digit_height": 24,
+      "strokes": [
+        {"id": 1, "points": [{"x": 300, "y": 500}, {"x": 400, "y": 500}], "style": {"pen": "PEN_KIND_MARKER", "color": "#1e9e4a", "width": 40, "opacity": 60}}
+      ],
+      "groups": [
+        {"label": "A", "stroke_ids": [1]}
+      ],
+      "bundles": [],
+      "crops": {"ink_box": {"ymin": 5000, "xmin": 3000, "ymax": 5000, "xmax": 4000}, "bundle_median": 150, "crops": [
+        {"digit_height": 16, "drawn_height": 16, "width": 200, "height": 200, "margin_top": 100, "margin_left": 46, "scale": 1.0666666666666667, "line_width": 42.666666666666664, "sheet_box": {"ymin": 406.25, "xmin": 256.875, "ymax": 593.75, "xmax": 444.375}, "frames": [{"label": "A", "box": {"ymin": 388, "xmin": 118, "ymax": 612, "xmax": 875}}], "png": ""},
+        {"digit_height": 24, "drawn_height": 24, "width": 226, "height": 200, "margin_top": 100, "margin_left": 33, "scale": 1.6, "line_width": 64, "sheet_box": {"ymin": 437.5, "xmin": 279.375, "ymax": 562.5, "xmax": 420.625}, "frames": [{"label": "A", "box": {"ymin": 335, "xmin": 0, "ymax": 665, "xmax": 1000}}], "png": ""},
+        {"digit_height": 32, "drawn_height": 32, "width": 302, "height": 200, "margin_top": 100, "margin_left": 44, "scale": 2.1333333333333333, "line_width": 85.33333333333333, "sheet_box": {"ymin": 453.125, "xmin": 279.375, "ymax": 546.875, "xmax": 420.9375}, "frames": [{"label": "A", "box": {"ymin": 281, "xmin": 1, "ymax": 719, "xmax": 997}}], "png": ""},
+        {"digit_height": 48, "drawn_height": 48, "width": 450, "height": 200, "margin_top": 100, "margin_left": 65, "scale": 3.2, "line_width": 128, "sheet_box": {"ymin": 468.75, "xmin": 279.6875, "ymax": 531.25, "xmax": 420.3125}, "frames": [{"label": "A", "box": {"ymin": 175, "xmin": 0, "ymax": 825, "xmax": 1000}}], "png": ""}
       ]}
     }
   ]

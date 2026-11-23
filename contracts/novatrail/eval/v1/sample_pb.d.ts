@@ -668,7 +668,7 @@ export declare type HistoryEvent = Message<"novatrail.eval.v1.HistoryEvent"> & {
     case: "write";
   } | {
     /**
-     * The eraser took strokes off, in one stroke of the eraser.
+     * The eraser took strokes off whole, in one stroke of the eraser.
      *
      * @generated from field: novatrail.eval.v1.StrokeIds erase = 3;
      */
@@ -690,6 +690,15 @@ export declare type HistoryEvent = Message<"novatrail.eval.v1.HistoryEvent"> & {
      */
     value: Undo;
     case: "undo";
+  } | {
+    /**
+     * The eraser took off the strokes it crossed and left the pieces of them it did not pass over,
+     * in one stroke of an eraser that takes a part.
+     *
+     * @generated from field: novatrail.eval.v1.Cut cut = 6;
+     */
+    value: Cut;
+    case: "cut";
   } | { case: undefined; value?: undefined };
 };
 
@@ -726,6 +735,14 @@ export declare type Stroke = Message<"novatrail.eval.v1.Stroke"> & {
    * @generated from field: repeated novatrail.eval.v1.InkPoint points = 3;
    */
   points: InkPoint[];
+
+  /**
+   * How it looks, as the learner chose it; none in a stroke written before strokes had a style,
+   * which is drawn black and opaque.
+   *
+   * @generated from field: novatrail.eval.v1.StrokeStyle style = 4;
+   */
+  style?: StrokeStyle | undefined;
 };
 
 /**
@@ -733,6 +750,103 @@ export declare type Stroke = Message<"novatrail.eval.v1.Stroke"> & {
  * Use `create(StrokeSchema)` to create a new message.
  */
 export declare const StrokeSchema: GenMessage<Stroke>;
+
+/**
+ * How a stroke looks: its kind of pen, its colour, its width and its opacity.
+ *
+ * @generated from message novatrail.eval.v1.StrokeStyle
+ */
+export declare type StrokeStyle = Message<"novatrail.eval.v1.StrokeStyle"> & {
+  /**
+   * The kind of pen.
+   *
+   * @generated from field: novatrail.eval.v1.PenKind pen = 1;
+   */
+  pen: PenKind;
+
+  /**
+   * Its colour, any of sRGB: `#` and six lowercase hexadecimal digits.
+   *
+   * @generated from field: string color = 2;
+   */
+  color: string;
+
+  /**
+   * The width of its line, in units of the sheet, to a tenth, from 0.1 to 50.
+   *
+   * @generated from field: double width = 3;
+   */
+  width: number;
+
+  /**
+   * Its opacity, in whole percent from 10 to 100.
+   *
+   * @generated from field: int32 opacity = 4;
+   */
+  opacity: number;
+};
+
+/**
+ * Describes the message novatrail.eval.v1.StrokeStyle.
+ * Use `create(StrokeStyleSchema)` to create a new message.
+ */
+export declare const StrokeStyleSchema: GenMessage<StrokeStyle>;
+
+/**
+ * What a cut changed: the strokes it took off, and the pieces of them it left.
+ *
+ * @generated from message novatrail.eval.v1.Cut
+ */
+export declare type Cut = Message<"novatrail.eval.v1.Cut"> & {
+  /**
+   * The IDs of the strokes it took off, in the order of the sheet: one at least.
+   *
+   * @generated from field: repeated int32 ids = 1;
+   */
+  ids: number[];
+
+  /**
+   * The pieces it left, in the order of `ids` and along each stroke: none of a stroke it covered
+   * whole.
+   *
+   * @generated from field: repeated novatrail.eval.v1.Piece pieces = 2;
+   */
+  pieces: Piece[];
+};
+
+/**
+ * Describes the message novatrail.eval.v1.Cut.
+ * Use `create(CutSchema)` to create a new message.
+ */
+export declare const CutSchema: GenMessage<Cut>;
+
+/**
+ * A piece of a stroke that a cut left: a new stroke on the sheet.
+ *
+ * @generated from message novatrail.eval.v1.Piece
+ */
+export declare type Piece = Message<"novatrail.eval.v1.Piece"> & {
+  /**
+   * The ID of the stroke it was cut of, one of the cut's `ids`.
+   *
+   * @generated from field: int32 of = 1;
+   */
+  of: number;
+
+  /**
+   * The piece: an ID no stroke had before, that stroke's pointer and style, and a run of its
+   * points, with one point of its own at most at each end, where the eraser's edge crossed it.
+   *
+   * @generated from field: novatrail.eval.v1.Stroke stroke = 2;
+   */
+  stroke?: Stroke | undefined;
+};
+
+/**
+ * Describes the message novatrail.eval.v1.Piece.
+ * Use `create(PieceSchema)` to create a new message.
+ */
+export declare const PieceSchema: GenMessage<Piece>;
 
 /**
  * A point of a stroke as it was written.
@@ -855,6 +969,13 @@ export declare type FinalStroke = Message<"novatrail.eval.v1.FinalStroke"> & {
    * @generated from field: repeated novatrail.eval.v1.FinalPoint points = 2;
    */
   points: FinalPoint[];
+
+  /**
+   * How it looks, as the stroke it stands for was written; none for one without a style.
+   *
+   * @generated from field: novatrail.eval.v1.StrokeStyle style = 3;
+   */
+  style?: StrokeStyle | undefined;
 };
 
 /**
@@ -1213,14 +1334,14 @@ export declare type Crop = Message<"novatrail.eval.v1.Crop"> & {
   height: number;
 
   /**
-   * The margin above the strokes, px.
+   * The margin above the strokes' points, px.
    *
    * @generated from field: int32 margin_top = 5;
    */
   marginTop: number;
 
   /**
-   * The margin left of the strokes, px.
+   * The margin left of the strokes' points, px.
    *
    * @generated from field: int32 margin_left = 6;
    */
@@ -1234,7 +1355,7 @@ export declare type Crop = Message<"novatrail.eval.v1.Crop"> & {
   scale: number;
 
   /**
-   * The width of the line, px.
+   * The width of the widest line of its strokes, px.
    *
    * @generated from field: double line_width = 8;
    */
@@ -1256,7 +1377,8 @@ export declare type Crop = Message<"novatrail.eval.v1.Crop"> & {
   frames: Frame[];
 
   /**
-   * The crop, a PNG: grey, 8 bits, with no ancillary chunk.
+   * The crop, a PNG of 8 bits with no ancillary chunk: grey when none of its strokes has a style,
+   * and RGB when one has.
    *
    * @generated from field: bytes png = 11;
    */
@@ -1443,4 +1565,45 @@ export enum Writer {
  * Describes the enum novatrail.eval.v1.Writer.
  */
 export declare const WriterSchema: GenEnum<Writer>;
+
+/**
+ * The kind of pen a stroke is written with.
+ *
+ * @generated from enum novatrail.eval.v1.PenKind
+ */
+export enum PenKind {
+  /**
+   * No kind: never written. A style that holds it is not valid.
+   *
+   * @generated from enum value: PEN_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * A pen, whose line the device draws wider and finer by its pressure or its speed: a crop
+   * draws it at its width.
+   *
+   * @generated from enum value: PEN_KIND_PEN = 1;
+   */
+  PEN = 1,
+
+  /**
+   * A liner: one width all along.
+   *
+   * @generated from enum value: PEN_KIND_LINER = 2;
+   */
+  LINER = 2,
+
+  /**
+   * A marker: one width, multiplied with what lies under it.
+   *
+   * @generated from enum value: PEN_KIND_MARKER = 3;
+   */
+  MARKER = 3,
+}
+
+/**
+ * Describes the enum novatrail.eval.v1.PenKind.
+ */
+export declare const PenKindSchema: GenEnum<PenKind>;
 

@@ -25,8 +25,8 @@ type Device struct {
 type DeviceAttempt struct {
 	// The unfinished attempt, by its ID in api.
 	AttemptID ID `json:"attempt_id"`
-	// The history of writing as the canvas gave it: write/erase/clear/undo events with t; strokes
-	// with id, kind and points x, y, t, p.
+	// The history of writing as the canvas gave it: write/erase/cut/clear/undo events with t, a cut
+	// with the pieces it left; strokes with id, kind, style and points x, y, t, p.
 	History json.RawMessage `json:"history"`
 	// Each submission's context (SheetSubmission or WorkbookSubmission, as the canvas gave it) and
 	// the history length when it was sent; the PNG work is not exported.

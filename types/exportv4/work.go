@@ -20,7 +20,8 @@ type Work struct {
 	// When api kept the work, the last time it was put.
 	StoredAt Time `json:"stored_at"`
 	// The history of writing as the canvas gave it, the JSON array its bytes hold, not their
-	// base64: write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p.
+	// base64: write/erase/cut/clear/undo events with t, a cut with the pieces it left; strokes with
+	// id, kind, style and points x, y, t, p.
 	History json.RawMessage `json:"history"`
 	// Each submission of the attempt, in order: its context, as the canvas gave it, and the history
 	// length when it was sent.

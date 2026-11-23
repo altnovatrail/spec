@@ -73,7 +73,7 @@ test("a report that breaks a rule fails, and the coverage is not looked at", () 
     fs.mkdirSync(folder, { recursive: true });
     fs.writeFileSync(path.join(folder, "report-one.json"), bytesOf(changed(reading(), (r) => (r.repeats = 3))));
     const { errors } = checkReportExamples(dir, image, [`${FOLDER}/report-one.json`], sampleMap());
-    assert.deepEqual(errors.map((error) => error.file), [`${FOLDER}/report-one.json`, `${FOLDER}/report-one.json`, `${FOLDER}/report-one.json`]);
+    assert.deepEqual(errors.map((error) => error.file), Array(4).fill(`${FOLDER}/report-one.json`));
     assert.ok(errors.every((error) => /readings, and the run 3 repeats$/.test(error.message)));
     // A report that holds its rules is held to the samples beside it that hold: here, none.
     fs.writeFileSync(path.join(folder, "report-two.json"), bytesOf(assessment()));
@@ -144,7 +144,7 @@ test("who ran the report, what it measured, its models, its verdicts and its eva
 test("the samples, ascending by ID, each refused with its reason or measured", () => {
   expectOnly(changed(reading(), (r) => (r.samples[0].sample = "Sample 1")), /^the ID "Sample 1" is not 1 to 64/);
   expectOnly(changed(reading(), (r) => r.samples.reverse()), /comes after .*: the samples go ascending by ID, each once$/);
-  expectOnly(changed(reading(), (r) => r.samples.push(r.samples.at(-1))), /^the sample synthetic-1106 comes after synthetic-1106/);
+  expectOnly(changed(reading(), (r) => r.samples.push(r.samples.at(-1))), /^the sample synthetic-1108 comes after synthetic-1108/);
   expectOnly(changed(reading(), (r) => (r.samples[2].refused = "REFUSAL_UNSPECIFIED")), /^the refusal "REFUSAL_UNSPECIFIED" is none of /);
   expectOnly(changed(reading(), (r) => delete r.samples[2].refused), /^the sample synthetic-1105 was neither refused nor measured$/);
 });
@@ -196,9 +196,9 @@ test("a run of assessment: the essay, the people's marks, and an outcome for eac
 test("a report of the examples is of the samples beside it", () => {
   assert.deepEqual(ofSamples(reading()), []);
   assert.deepEqual(ofSamples(assessment()), []);
-  assert.deepEqual(ofSamples(changed(reading(), (r) => (r.samples[0].sample = "synthetic-1"))), ['the report names the samples ["synthetic-1","synthetic-1104","synthetic-1105","synthetic-1106"], and the examples its capability measures are ["synthetic-1103","synthetic-1104","synthetic-1105","synthetic-1106"]', "no example that holds its rules is the sample synthetic-1"]);
+  assert.deepEqual(ofSamples(changed(reading(), (r) => (r.samples[0].sample = "synthetic-1"))), ['the report names the samples ["synthetic-1","synthetic-1104","synthetic-1105","synthetic-1106","synthetic-1108"], and the examples its capability measures are ["synthetic-1103","synthetic-1104","synthetic-1105","synthetic-1106","synthetic-1108"]', "no example that holds its rules is the sample synthetic-1"]);
   // A report on the capability set of the examples names each that its capability measures.
-  assert.deepEqual(ofSamples(changed(reading(), (r) => r.samples.splice(1, 1))), ['the report names the samples ["synthetic-1103","synthetic-1105","synthetic-1106"], and the examples its capability measures are ["synthetic-1103","synthetic-1104","synthetic-1105","synthetic-1106"]']);
+  assert.deepEqual(ofSamples(changed(reading(), (r) => r.samples.splice(1, 1))), ['the report names the samples ["synthetic-1103","synthetic-1105","synthetic-1106","synthetic-1108"], and the examples its capability measures are ["synthetic-1103","synthetic-1104","synthetic-1105","synthetic-1106","synthetic-1108"]']);
   const moduleSet = () => changed(reading(), (r) => {
     delete r.capability_set;
     r.module = { module: "novatrail/olympiad-math", commit: "0".repeat(40) };

@@ -1,5 +1,5 @@
 {
-  "description": "The rule of the groups of strokes (contracts/README.md, section 12): from a history of writing to the strokes the sheet shows at the end, the pairs of them that are neighbours, their groups by place, the box of each group's points in tenths, and the groups of each stroke written and taken off. The cases but the last five are canvas's vectors/groups.json at its tag v0.1.2, each history as a sample writes it: times in whole milliseconds and no pressure.",
+  "description": "The rule of the groups of strokes (contracts/README.md, section 12): from a history of writing to the strokes the sheet shows at the end, the pairs of them that are neighbours, their groups by place, the box of each group's points in tenths, and the groups of each stroke written and taken off. The cases but the last seven are canvas's vectors/groups.json at its tag v0.1.2, each history as a sample writes it: times in whole milliseconds and no pressure; the last two, spec's own, have strokes with a style and a cut.",
   "rule": {"pause": 2000, "across": 50, "down": 50},
   "cases": [
     {
@@ -732,6 +732,34 @@
         {"stroke_id": 1, "labels": []},
         {"stroke_id": 2, "labels": []}
       ]
+    },
+    {
+      "name": "cut-in-two",
+      "description": "A line in liner, «1» after it, and the eraser that takes a part passing over the line's middle: the cut takes the line off and leaves two pieces, each a run of its points with a point of its own where the eraser's edge crossed it. The pieces are new strokes, 3 and 4, with the line's pointer and style, and with «1» one group; the line cut is taken off, in that group.",
+      "history": {"events": [
+        {"t_ms": 1000, "write": {"id": 1, "pointer": "mouse", "points": [{"x": 100, "y": 300, "t_ms": 0}, {"x": 120, "y": 300, "t_ms": 100}, {"x": 140, "y": 300, "t_ms": 200}, {"x": 160, "y": 300, "t_ms": 300}, {"x": 180, "y": 300, "t_ms": 400}, {"x": 200, "y": 300, "t_ms": 500}, {"x": 220, "y": 300, "t_ms": 600}, {"x": 240, "y": 300, "t_ms": 700}, {"x": 260, "y": 300, "t_ms": 800}, {"x": 280, "y": 300, "t_ms": 900}, {"x": 300, "y": 300, "t_ms": 1000}], "style": {"pen": "PEN_KIND_LINER", "color": "#0a63d6", "width": 1.2, "opacity": 100}}},
+        {"t_ms": 1400, "write": {"id": 2, "pointer": "mouse", "points": [{"x": 320, "y": 280, "t_ms": 1200}, {"x": 320, "y": 320, "t_ms": 1400}], "style": {"pen": "PEN_KIND_LINER", "color": "#0a63d6", "width": 1.2, "opacity": 100}}},
+        {"t_ms": 3000, "cut": {"ids": [1], "pieces": [{"of": 1, "stroke": {"id": 3, "pointer": "mouse", "points": [{"x": 100, "y": 300, "t_ms": 0}, {"x": 120, "y": 300, "t_ms": 100}, {"x": 140, "y": 300, "t_ms": 200}, {"x": 160, "y": 300, "t_ms": 300}, {"x": 180, "y": 300, "t_ms": 400}, {"x": 188, "y": 300, "t_ms": 440}], "style": {"pen": "PEN_KIND_LINER", "color": "#0a63d6", "width": 1.2, "opacity": 100}}}, {"of": 1, "stroke": {"id": 4, "pointer": "mouse", "points": [{"x": 212, "y": 300, "t_ms": 560}, {"x": 220, "y": 300, "t_ms": 600}, {"x": 240, "y": 300, "t_ms": 700}, {"x": 260, "y": 300, "t_ms": 800}, {"x": 280, "y": 300, "t_ms": 900}, {"x": 300, "y": 300, "t_ms": 1000}], "style": {"pen": "PEN_KIND_LINER", "color": "#0a63d6", "width": 1.2, "opacity": 100}}}]}}
+      ]},
+      "visible": [2, 3, 4],
+      "neighbours": [[2, 4], [3, 4]],
+      "groups": [{"label": "A", "stroke_ids": [2, 3, 4]}],
+      "group_boxes": [{"ymin": 2800, "xmin": 1000, "ymax": 3200, "xmax": 3200}],
+      "erased": [{"stroke_id": 1, "labels": ["A"]}]
+    },
+    {
+      "name": "cut-undone",
+      "description": "An underline in marker, the eraser that takes a part passing over its right end, and an undo: the cut leaves one piece, 2, and no piece of the end it covered; the undo takes the piece off and puts the underline back. The piece, written and not shown, is in the underline's group.",
+      "history": {"events": [
+        {"t_ms": 400, "write": {"id": 1, "pointer": "pen", "points": [{"x": 100, "y": 250, "t_ms": 0}, {"x": 110, "y": 250, "t_ms": 50}, {"x": 120, "y": 250, "t_ms": 100}, {"x": 130, "y": 250, "t_ms": 150}, {"x": 140, "y": 250, "t_ms": 200}, {"x": 150, "y": 250, "t_ms": 250}, {"x": 160, "y": 250, "t_ms": 300}, {"x": 170, "y": 250, "t_ms": 350}, {"x": 180, "y": 250, "t_ms": 400}], "style": {"pen": "PEN_KIND_MARKER", "color": "#ffcc00", "width": 12, "opacity": 40}}},
+        {"t_ms": 2000, "cut": {"ids": [1], "pieces": [{"of": 1, "stroke": {"id": 2, "pointer": "pen", "points": [{"x": 100, "y": 250, "t_ms": 0}, {"x": 110, "y": 250, "t_ms": 50}, {"x": 120, "y": 250, "t_ms": 100}, {"x": 130, "y": 250, "t_ms": 150}, {"x": 140, "y": 250, "t_ms": 200}, {"x": 150, "y": 250, "t_ms": 250}, {"x": 154, "y": 250, "t_ms": 270}], "style": {"pen": "PEN_KIND_MARKER", "color": "#ffcc00", "width": 12, "opacity": 40}}}]}},
+        {"t_ms": 2600, "undo": {"removed": [2], "restored": [1]}}
+      ]},
+      "visible": [1],
+      "neighbours": [],
+      "groups": [{"label": "A", "stroke_ids": [1]}],
+      "group_boxes": [{"ymin": 2500, "xmin": 1000, "ymax": 2500, "xmax": 1800}],
+      "erased": [{"stroke_id": 2, "labels": ["A"]}]
     }
   ]
 }

@@ -26,7 +26,7 @@
       "description": "When api kept the work, the last time it was put."
     },
     "history": {
-      "description": "The history of writing as the canvas gave it, the JSON array its bytes hold, not their base64: write/erase/clear/undo events with t; strokes with id, kind and points x, y, t, p."
+      "description": "The history of writing as the canvas gave it, the JSON array its bytes hold, not their base64: write/erase/cut/clear/undo events with t, a cut with the pieces it left; strokes with id, kind, style and points x, y, t, p."
     },
     "submissions": {
       "type": "array",
