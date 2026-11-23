@@ -115,11 +115,12 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [ ] | T272 | Документы `spec`: sources и measurements | Claude | — | T258, T278 |
 | [ ] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258, T278 |
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258, T278 |
-| [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274, T278, T280 |
+| [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274, T278, T280, T281 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275, T278; строки 7.38–7.49 |
 | [x] | T277 | Строгое правило ссылок: R171, RULES.md, CLAUDE.md, шаблон, `.devcontainer/` | Claude | — | — |
 | [x] | T278 | `docs-check`: строгое правило по ключу `citations`; тег | Claude | — | T277 |
 | [x] | T280 | Журнал `spec`, R01–R31: ссылки по строгому правилу | Claude | — | T260, T278 |
+| [x] | T281 | Журнал `spec`, R32–R63: ссылки по строгому правилу | Claude | — | T261, T262, T278 |
 
 #### T263. Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution
 
