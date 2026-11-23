@@ -14,7 +14,7 @@ Its card in spec is the one in `spec/docs/architecture.md` whose heading names `
 
 ## Documents
 
-The documents under `docs/` are in English, but for the epic archives `docs/plan/`, which stay in Russian; RUN.md and `run/` are in English, but for the bodies of tasks. Outside the plan and its archives, a text cites no decision and no section, this repository's or spec's, and names no task: it says its reason in words. Only a claim about the outside world cites its one record, `sources 1.1`, or spec's, `sources 2.3 spec`.
+The documents under `docs/` are in English, but for the epic archives `docs/plan/`, which stay in Russian; RUN.md and `run/` are in English, but for the bodies of tasks. Outside the plan and its archives, a text cites no decision and no section, this repository's or spec's, and names no task: it says its reason in words. Only a claim about the outside world cites its one record, `sources 1.1` or `measurements 1.1`, or spec's, `sources 2.3 spec`.
 
 - [docs/README.md](docs/README.md) — for people: the index of the documents, with how to build, run, release and contribute as they come; the README only says what the component is and where it stands.
 - [docs/architecture.md](docs/architecture.md) — the component: what it does and does not do, its data and links, what is still to decide, and how it is built once that is decided.

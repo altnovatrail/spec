@@ -12,7 +12,8 @@ test("which files have comments it reads", () => {
   for (const file of ["a.sh", "a.yml", ".github/a.yaml", "justfile", "x/.justfile", "Dockerfile", ".devcontainer/Dockerfile", "Dockerfile.dev", "kinds/typescript.Dockerfile"]) {
     assert.equal(commentKind(file), "hash", file);
   }
-  for (const file of ["a.md", "a.json", "a.html", "Dockerfiles/a.txt"]) assert.equal(commentKind(file), null, file);
+  for (const file of ["tofu/a.tf", "a.tofu", "a.tfvars", "tofu/backend.hcl", "tofu/tests/a.tftest.hcl"]) assert.equal(commentKind(file), "hcl", file);
+  for (const file of ["a.md", "a.json", "a.html", "Dockerfiles/a.txt", "tofu/.terraform.lock.hcl"]) assert.equal(commentKind(file), null, file);
 });
 
 test("generated code is known by its mark, a line of its own in the first lines", () => {
@@ -79,6 +80,30 @@ test("# comments: at a line's start or after a space, outside its quotes", () =>
   assert.deepEqual(texts(yaml, "hash"), [" one\n two\n three", " four", " five\n six"]);
   const more = ["key: 'it''s # no' # one", 'run: echo ${x:-"a # no"} # two'].join("\n");
   assert.deepEqual(texts(more, "hash"), [" one\n two"]);
+});
+
+test("HCL: `#`, `//` and `/* */`, outside strings and heredocs", () => {
+  const hcl = [
+    "# one",
+    'resource "a" "b" { # two',
+    '  name = "x # no // no /* no */" // three',
+    "  url  = \"https://x.org/#no\"",
+    '  msg  = "don\'t \\" # no" /* four */ # five',
+    "  /* six",
+    "   * seven */ x = 1 # eight",
+    "  policy = <<-EOT",
+    "    # no",
+    "    EOT",
+    "}",
+    "/* nine */",
+  ].join("\n");
+  assert.deepEqual(texts(hcl, "hcl"), [" one\n two\n three", " four ", " five", " six\n  seven ", " eight", " nine "]);
+  // A comment left open runs to the end of the file.
+  assert.deepEqual(texts("x = 1\n/* one\ntwo", "hcl"), [" one\ntwo"]);
+  // No space is needed before a comment, and the code of a template in a string may span lines.
+  assert.deepEqual(texts('x = 1# one\ny = "a"// two\nz = {/* three */}', "hcl"), [" one\n two", " three "]);
+  const template = ['a = "${', '  b ? "# no" : "c"', '}" # one', 'd = "%{ if e }# no%{ endif }" # two', 'f = "g # no'].join("\n");
+  assert.deepEqual(texts(template, "hcl"), [" one\n two"]);
 });
 
 test("the body of a heredoc is text, not comments", () => {

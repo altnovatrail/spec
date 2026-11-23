@@ -568,6 +568,7 @@ How what epic E10 saved is kept from growing back: budgets of size in `docs-chec
 | `-workspaces-spec` — epic E18, at its archive | 2026-11-20T16:34 … 2026-11-21T20:27 | 10 | 1,882 / 773 | 194.8 / 86.4 | 6 | $171.67 | 162.4 |
 | `-workspaces-spec` — epic E19, at its archive | 2026-11-21T21:02 … 2026-11-22T16:20 | 8 | 2,391 / 1,903 | 195.6 / 145.0 | 9 | $254.31 | 133.5 |
 | `-workspaces-spec` — epic E20, at its archive | 2026-11-22T16:45 … 2026-11-23T00:41 | 13 | 1,006 / 216 | 151.2 / 132.6 | 2 | $67.56 | 109.7 |
+| `-workspaces-spec` — epic E22, at its archive | 2026-11-23T01:26 … 2026-11-23T21:52 | 29 | 2,122 / 3,166 | 138.8 / 58.0 | 1 | $273.46 | 108.6 |
 
 - In `spec`, part 2 of E10 lowered the context of a main call from 448.5 to 183.2 thousand, −59%, and of a subagent's from 109.2 to 90.4. The windows differ in work: E4 and E9 against the edits of E10.
 - The other 12 took E10's savings by the tasks of row 7 of [COORDINATION.md](../COORDINATION.md), all but `learner-model` by 2026-11-13. Their first rows are their "before", from 292.4 to 398.5 thousand for a main call.
@@ -584,6 +585,7 @@ How what epic E10 saved is kept from growing back: budgets of size in `docs-chec
 - The row of epic E18 is its window from the merge of `spec` #209, 2026-11-20T16:34:48Z — the epic's base —, to the start of the session that archived it, 2026-11-21T20:27. Its first 12 calls end E11's session of its review and release, $0.64. Its task across repositories ran in the orchestrator's container, whose folder of transcripts is `spec`'s; the executors of the wave that moved the 12 repositories to a tag of `spec` and of a task of `infra` are in their repositories' folders. Its 194.8 thousand for a main call are 3% above `spec`'s reference, 189.7, and its 162.4 among the first 80 are 15% above 141.8: under the 25% of the first condition. The budgets file took one more raise, the first limit of 14 KB of the entry on the task across repositories, and dropped that of the entry on licenses; the second condition was met at E11 already, and its analysis is already a task in `run/TASKS.md`, so no new one is set. The last check of the changelog is not a quarter old. What the task across repositories gave against E11 is section 1.17.
 - The row of epic E19 is its window from the merge of `spec` #213, 2026-11-21T21:02:46Z — the epic's base —, to the start of the session that archived it, 2026-11-22T16:20. The whole epic was one task across repositories in the orchestrator's container, whose folder of transcripts is `spec`'s: from the clone of spec in `.epics` the recipe is run with `--project=-workspaces-spec`, since the clone's own folder holds none; an executor stopped in `app`'s folder, $4.20, is not in it. Its 195.6 thousand for a main call are 3% above `spec`'s reference, 189.7, and its 133.5 among the first 80 are 6% below 141.8: under the 25% of the first condition. The budgets file took no raise; the second condition was met at E11 already, and its analysis is already a task in `run/TASKS.md`, so no new one is set. The last check of the changelog is not a quarter old.
 - The row of epic E20 is its window from the merge of `spec` #214, 2026-11-22T16:45:16Z — the epic's base —, to the start of the session that archived it, 2026-11-23T00:40. As E19, it was one task across repositories in the orchestrator's container, measured with `--project=-workspaces-spec`. Its 151.2 thousand for a main call are 20% below `spec`'s reference, 189.7, and its 109.7 among the first 80 are 23% below 141.8. The budgets file took no raise; the second condition was met at E11 already, and its analysis is already a task in `run/TASKS.md`, so no new one is set. The last check of the changelog is not a quarter old.
+- The row of epic E22 is its window from the merge of `spec` #215, 2026-11-23T01:26:31Z — the epic's base —, to the start of the session that archived it, 2026-11-23T21:52. Its first session, 71 main calls for $4.64, ends the archive of E20, and one, 183 main calls for $13.07, is a task outside the epic on the bar of tools of the mockup; the executors of the other 12 repositories' tasks are in their repositories' folders. Its 138.8 thousand for a main call are 27% below `spec`'s reference, 189.7, and its 108.6 among the first 80 are 23% below 141.8. The budgets file took no raise, only lowerings of the limits of the log's entries, which folding their amendments shortened; the second condition was met at E11 already, and its analysis is already a task in `run/TASKS.md`, so no new one is set. The last check of the changelog is not a quarter old. What the rule of citations gave is section 1.18.5.
 - The monthly row of `module-kit` needs the fix of 2026-11-12: a path the user may not look at is not a file for the recipe, and the report is printed (`tools/tokens/report.mjs`, `fileCheck`).
 
 **The threshold** of a new analysis: the context of a main call more than 25% above the repository's reference, over at least 300 main calls; or three raises of a budget since the last analysis, by `git log` of the budgets file; or a quarter since the last check of Claude Code's changelog. The analysis then becomes a task outside an epic in `run/TASKS.md`. A raise is a commit of a file of budgets that raises one limit or more; a repository's first `docs-budgets.json`, a limit held only until a translation and a lowering are not raises. The threshold counts every main call; an analysis by its first condition begins with the context of a session's first 80: at the reference or below it, the excess is the length of tasks, which the rules of RUN.md split, not what the sessions read. In `spec`, the window of the reference holds 141.8 thousand for a call among the first 80, read 2026-11-18.
@@ -1781,7 +1783,7 @@ What a task across repositories with `xrepo` gave the first time: ten changes of
 
 ### 1.18. Citations in documents and comments, 2026-11-23
 
-How often the documents and the code comments of the 13 repositories of `docs/repositories.md` cite, and what: the measurement "before" of the rule of citations, which its "after" and each repository's own task repeat by section 1.18.4. Measured 2026-11-23 on clones at `main`, read-only, in a temporary folder: `.github` faaa9bc, `api` 09df081, `app` c152d95, `canvas` bfe631e, `engine` 1c777a3, `infra` d50a538, `learner-model` 1cc6e53, `module-kit` b75a9d4, `modules` 998b660, `sim` b8ad7d4, `skill-map` 351262c, `spec` 876fc14, `tutor` 71e7336. What large projects do instead is sources 12.
+How often the documents and the code comments of the 13 repositories of `docs/repositories.md` cite, and what: the measurement "before" of the rule of citations, which its "after", section 1.18.5, and each repository's own task repeat by section 1.18.4. Measured 2026-11-23 on clones at `main`, read-only, in a temporary folder: `.github` faaa9bc, `api` 09df081, `app` c152d95, `canvas` bfe631e, `engine` 1c777a3, `infra` d50a538, `learner-model` 1cc6e53, `module-kit` b75a9d4, `modules` 998b660, `sim` b8ad7d4, `skill-map` 351262c, `spec` 876fc14, `tutor` 71e7336. What large projects do instead is sources 12.
 
 A citation is a match of the pattern of the request that the rule answers, `\b(R[0-9]+( spec| [a-z-]+)?|(architecture|sources|measurements|repositories|privacy|product|concepts) [0-9]+(\.[0-9]+)*( spec)?|T[0-9]+)\b`. It counts what `docs-check` reads as a citation and task numbers, not Markdown links or `TODO`s; any `T` and digits count, an example in code too. Its `R[0-9]+( [a-z-]+)?` takes the next lowercase word, `R12 and` as much as `R12 api`: the kinds below read the suffix of a repository's name alone.
 
@@ -1963,6 +1965,76 @@ for (const f of code) {
 }
 console.log(JSON.stringify(out));
 ```
+
+#### 1.18.5. After the rule, 2026-11-23
+
+The same commands of section 1.18.4, on clones at `main` after the epic's tasks in every repository, each with `"citations": true` in its `docs-budgets.json` and its CI on `main` green: `.github` 715094a, `api` 8127c98, `app` 35c8680, `canvas` 71bceee, `engine` f984efe, `infra` 2b803be, `learner-model` 68dd38f, `module-kit` 305141c, `modules` 0dcf9e1, `sim` c8fa852, `skill-map` a7f58a3, `spec` 95c30b8, `tutor` 2cb2623; Go and its counts are those of section 1.18.3.
+
+**The answer in short.**
+- The citations of the documents and the plan fell from 59,297 to 7,421, by 87%: CLAUDE.md, the architecture and the log cite once in 287, 433 and 365 words over all 13, against 31, 39 and 38.
+- Task numbers fell from 15,764 to 1,228, nearly all of them in RUN.md and `run/`; 21 stand outside the plan, all in `spec` and all examples in code or paths, which `docs-check` passes.
+- No log holds a dated amendment, against 2,179, and no parenthesis outside the plan three citations or more, against 679; the lines of four and more fell from 4,462 to 291.
+- The records of the outside world are cited more, not less: `sources` from 1,497 to 2,567, `measurements` from 681 to 796, where a claim once stood on a decision.
+- A comment of hand-written code cites a decision 0.2 times a 1,000 lines, against 19.1, and a workflow none: the 63 `R…` and 17 `T…` left are all in `tools/docs-check/` of `spec`, the examples of what it finds, in inline code, and its tests. Outside `spec` no comment cites a decision or a task; Go cites an issue 1.3 times a 1,000 non-empty lines.
+
+How dense, by document, as in section 1.18.1:
+
+| Repository | CLAUDE.md | Architecture | Decisions | Sources | Measurements | Lines of 4+ |
+|---|---|---|---|---|---|---|
+| `.github` | 7 · 248 | 136 · 104 | 366 · 148 | 37 · 569 | 51 · 356 | 10 |
+| `api` | 5 · 275 | 114 · 500 | 263 · 390 | 9 · 1267 | 26 · 267 | 18 |
+| `app` | 5 · 250 | 104 · 636 | 224 · 419 | 10 · 1713 | 14 · 319 | 30 |
+| `canvas` | 5 · 349 | 81 · 478 | 230 · 567 | 8 · 3539 | 7 · 576 | 16 |
+| `engine` | 5 · 273 | 61 · 404 | 97 · 320 | 3 · 3729 | 28 · 384 | 9 |
+| `infra` | 7 · 237 | 43 · 371 | 243 · 160 | 8 · 2370 | 5 · 291 | 27 |
+| `learner-model` | 5 · 273 | 64 · 451 | 182 · 376 | 2 · 4211 | 17 · 438 | 14 |
+| `module-kit` | 6 · 219 | 23 · 918 | 172 · 310 | 2 · 4011 | 6 · 550 | 5 |
+| `modules` | 5 · 286 | 55 · 352 | 141 · 407 | 4 · 1368 | 16 · 192 | 12 |
+| `sim` | 5 · 255 | 81 · 265 | 166 · 423 | 12 · 1161 | 9 · 739 | 40 |
+| `skill-map` | 5 · 259 | 25 · 339 | 57 · 303 | 1 · 3629 | 10 · 248 | 7 |
+| `spec` | 3 · 629 | 19 · 1597 | 474 · 474 | 32 · 1339 | 41 · 963 | 85 |
+| `tutor` | 5 · 363 | 107 · 457 | 269 · 413 | 17 · 942 | 114 · 322 | 18 |
+| All | 68 · 287 | 913 · 433 | 2,884 · 365 | 145 · 1423 | 344 · 421 | 291 |
+
+What is cited, as in section 1.18.2:
+
+| Repository | Tasks | outside the plan | Own R… | R… spec | Other R… | Own architecture | Sources | Measurements | Other sections | Amendments | Consequences | In parentheses | Parentheses of 3+ |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `.github` | 16 | 0 | 67 | 23 | 2 | 7 | 334 | 162 | 42 | 0 | 51 | 1.1% | 0 |
+| `api` | 131 | 0 | 147 | 62 | 4 | 2 | 244 | 57 | 24 | 0 | 101 | 0.4% | 0 |
+| `app` | 160 | 0 | 158 | 42 | 2 | 3 | 210 | 38 | 38 | 0 | 79 | 0.4% | 0 |
+| `canvas` | 52 | 0 | 247 | 35 | 5 | 2 | 194 | 33 | 21 | 0 | 71 | 0.4% | 0 |
+| `engine` | 63 | 0 | 51 | 40 | 6 | 1 | 123 | 32 | 13 | 0 | 31 | 0.5% | 0 |
+| `infra` | 119 | 0 | 117 | 50 | 6 | 1 | 254 | 9 | 15 | 0 | 37 | 0.8% | 0 |
+| `learner-model` | 57 | 0 | 120 | 13 | 7 | 0 | 170 | 49 | 14 | 0 | 48 | 0.5% | 0 |
+| `module-kit` | 11 | 0 | 79 | 17 | 2 | 1 | 108 | 24 | 11 | 0 | 69 | 0.4% | 0 |
+| `modules` | 23 | 0 | 88 | 12 | 0 | 2 | 138 | 31 | 14 | 0 | 41 | 0.4% | 0 |
+| `sim` | 156 | 0 | 208 | 53 | 4 | 1 | 151 | 35 | 18 | 0 | 77 | 0.5% | 0 |
+| `skill-map` | 20 | 0 | 39 | 3 | 0 | 0 | 54 | 6 | 16 | 0 | 21 | 0.4% | 0 |
+| `spec` | 340 | 21 | 498 | 4 | 31 | 14 | 416 | 125 | 48 | 0 | 160 | 0.4% | 0 |
+| `tutor` | 80 | 0 | 195 | 53 | 3 | 5 | 171 | 195 | 24 | 0 | 139 | 0.3% | 0 |
+| All | 1,228 | 21 | 2,014 | 407 | 72 | 39 | 2,567 | 796 | 298 | 0 | 925 | 0.5% | 0 |
+- The decisions' numbers left are the headings of the logs' entries, their openings' next free number, and the plan: RUN.md and `run/` cite decisions and tasks by the rule, which leaves the plan out.
+- The tails "— *Consequence*" are 925, against 859: folding an amendment into its entry kept the list of the files the decision's change edits, the one the rule keeps.
+
+Code comments, as in section 1.18.3:
+
+| Repository | Lines | Comment lines | R… in comments | a 1,000 lines | T… in comments | Workflow lines | R… a 1,000 |
+|---|---|---|---|---|---|---|---|
+| `.github` | 9,252 | 1,506 | 0 | 0.0 | 0 | 3,523 | 0 |
+| `api` | 60,418 | 8,871 | 0 | 0.0 | 0 | 213 | 0 |
+| `app` | 71,599 | 7,625 | 0 | 0.0 | 0 | 192 | 0 |
+| `canvas` | 50,569 | 7,697 | 0 | 0.0 | 0 | 769 | 0 |
+| `engine` | 6,833 | 1,098 | 0 | 0.0 | 0 | 383 | 0 |
+| `infra` | 7,453 | 1,050 | 0 | 0.0 | 0 | 457 | 0 |
+| `learner-model` | 9,485 | 1,571 | 0 | 0.0 | 0 | 437 | 0 |
+| `module-kit` | 26,900 | 3,527 | 0 | 0.0 | 0 | 340 | 0 |
+| `modules` | 10,776 | 1,019 | 0 | 0.0 | 0 | 508 | 0 |
+| `sim` | 19,858 | 2,450 | 0 | 0.0 | 0 | 465 | 0 |
+| `skill-map` | 6,037 | 849 | 0 | 0.0 | 0 | 142 | 0 |
+| `spec` | 45,882 | 7,083 | 63 | 1.4 | 17 | 1,321 | 0 |
+| `tutor` | 70,847 | 9,671 | 0 | 0.0 | 0 | 294 | 0 |
+| All | 395,909 | 54,017 | 63 | 0.2 | 17 | 9,044 | 0 |
 
 ## 2. The browsers of the kind `typescript`
 

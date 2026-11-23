@@ -16,10 +16,9 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 
 | Repository | Rows | Fingerprint | Where the answer is |
 |---|---|---|---|
-| `.github` | В45 | `f702c4ba3e85` | T246, option (1): Д217's «When to return» names `skill-map` alone |
-| `api` | В84 | `77f59e82e91d` | T218 (В74), option (1): nothing to record — T123 `api` took `learner-model` v0.1.16 with `"comments": true`; a copy is fixed at its source |
-| `api` | В85 | `7651836e1f67` | T218 (В75), option (1): `learner-model` cites its own decisions in its `.proto` files as `R10 learner-model` — COORDINATION rows 4.22 and 6.42 |
+| `api` | В86 | `1496da27b25d` | T276, option 1: paragraph (9) of §312.2 on geolocation, from the eCFR, in sources 3.1; `api` cites `sources 3.1 spec` by a later move to a tag |
 | `app` | В71 | `634d45c040c5` | T194 (В48), option (a): the README of `draft/mockup/`, «Sizes», names 700 and 22–38 px as the template draws — T198 |
 | `app` | В72 | `9da92a92a0ed` | T194 (В49), option (a): every country, `api`'s refusal the answer — architecture 3.1 and Д271, back to a method of `api` — T198 |
 | `app` | В74 | `970eae2501b5` | T218 (В76), option (a): R161 — `canvas` leaves the statement out by `statement-hidden`, and `app` draws the card; architecture 3.1 and 3.2, COORDINATION rows 5.21 and 6.43 |
-| `modules` | В41 | `5a1cbe7d4a2a` | T246, the author's option (a) of 2026-11-21: the deny of `modules/*/eval/` but `synthetic-*.json` for the clones of `.epics`, in spec's and the template's `.claude/settings.json` — T248 in run/TASKS.md |
+| `infra` | В61 | `fa29925a7803` | T276 (В89), option (b): `docs-check` reads the comments `#`, `//` and `/* */` of `.tf`, `.tofu`, `.tfvars` and `.hcl`, R32; string literals stay unread, as В84 has it; `infra` turns red at none, by a trial on its `main` |
+| `tutor` | В98 | `7c3af9d6a1eb` | T276, option (a): in `spec` since v0.19.14 — the three comments of `format/vectors/leaks/` give their reason in words; `tutor` copies them by its next move to a tag |

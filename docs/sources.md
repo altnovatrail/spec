@@ -156,6 +156,8 @@ Read 2026-10-18:
 - [16 CFR 312.5](https://www.law.cornell.edu/cfr/text/16/312.5) — the exception (c)(9);
 - the dates of the amendments — as MathTrail's `canvas-api` gives them: they entered into force on 23.06.2025, compliance — from 22.04.2026.
 
+Read 2026-11-23: [eCFR, 16 CFR 312.2](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-C/part-312/section-312.2), by its API, the version of 2025-06-23, title 16 up to date as of 2026-11-19 — "Personal information", paragraph (9): "Geolocation information sufficient to identify street name and name of a city or town"; the paragraph on biometric identifiers is (10).
+
 ### 3.2. The GDPR and the ICO's code
 
 Read 2026-10-18: GDPR: Art. 8 — the age of digital consent; Art. 35 — the DPIA; recital 26 — pseudonymization. UK Age Appropriate Design Code.

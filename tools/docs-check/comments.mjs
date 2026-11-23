@@ -5,9 +5,11 @@
 // rule of citations is on, a comment cites no decision at all, and this check does not run.
 //
 // What is read is the comments alone, not strings: `//` and `/* */` in Go, TypeScript, JavaScript,
-// .proto files and JSON with comments, `#` in shell, YAML, justfiles and Dockerfiles. Code that a
+// .proto files and JSON with comments, `#` in shell, YAML, justfiles and Dockerfiles, and `#`, `//`
+// and `/* */` in OpenTofu's .tf, .tofu and .tfvars and other HCL, .hcl. Code that a
 // generator writes, by a line of its own near the top in Go's form or protoc-gen-es's, is not read:
-// its comments come from the .proto files and schemas it is generated from.
+// its comments come from the .proto files and schemas it is generated from, and nor is the lock file
+// that `tofu init` writes, .terraform.lock.hcl.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -20,18 +22,20 @@ import { canonical } from "./registers.mjs";
 const JS = new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"]);
 const C = new Set([".go", ".proto", ".jsonc"]);
 const HASH = new Set([".sh", ".yml", ".yaml"]);
+const HCL = new Set([".tf", ".tofu", ".tfvars", ".hcl"]);
 const GENERATED = /^\/\/ (?:Code generated .* DO NOT EDIT\.$|@generated\b)/m;
 // How many lines from the top a generator's mark may be: Go's convention puts it before the package
 // clause, after a license header at most.
 const GENERATED_LINES = 20;
 
-// The kind of comments a file has, by its name: "js", "c", "hash", or null when it is not read.
+// The kind of comments a file has, by its name: "js", "c", "hash", "hcl", or null when it is not read.
 export function commentKind(file) {
   const name = path.posix.basename(file);
   const ext = path.posix.extname(name);
   if (JS.has(ext)) return "js";
   if (C.has(ext) || name === "devcontainer.json") return "c";
   if (HASH.has(ext)) return "hash";
+  if (HCL.has(ext)) return name === ".terraform.lock.hcl" ? null : "hcl";
   if (/^(?:\.?justfile|Dockerfile(?:\..+)?|.+\.Dockerfile)$/i.test(name)) return "hash";
   return null;
 }
@@ -42,7 +46,7 @@ export const isGenerated = (source) => GENERATED.test(source.split("\n", GENERAT
 // one block for a run of line comments on consecutive lines, so that `R32\n spec` is one citation;
 // lineAt(offset) is the line of the source an offset of the text is on.
 export function commentsOf(source, kind) {
-  const pieces = kind === "hash" ? hashComments(source) : slashComments(source, kind === "js");
+  const pieces = kind === "hash" ? hashComments(source) : kind === "hcl" ? hclComments(source) : slashComments(source, kind === "js");
   const blocks = [];
   for (const piece of pieces) {
     const last = blocks.at(-1);
@@ -108,6 +112,72 @@ function hashComments(source) {
       }
     }
   });
+  return pieces;
+}
+
+// HCL: `#` and `//` to the end of their line and `/* … */`, anywhere outside a string and a heredoc. A
+// string is quoted by `"` and ends at its line, but for the `${ … }` and `%{ … }` in it, whose code
+// may span lines and quote strings of its own. A heredoc, `<<EOT` or `<<-EOT`, is text to the line that
+// holds its marker alone.
+function hclComments(source) {
+  const pieces = [];
+  // Each frame is a string or the braces of a template in one, as in slashComments.
+  const stack = [];
+  let heredoc = null;
+  let block = null;
+  source.split("\n").forEach((line, index) => {
+    if (heredoc) {
+      if (line.trim() === heredoc) heredoc = null;
+      return;
+    }
+    // A string the line left open was never closed: HCL ends it there.
+    while (stack.at(-1)?.string) stack.pop();
+    let i = 0;
+    if (block) {
+      const end = line.indexOf("*/");
+      block.text += "\n" + (end < 0 ? line : line.slice(0, end)).replace(/^\s*\*(?!\/)/, " ");
+      block.endLine = index + 1;
+      if (end < 0) return;
+      pieces.push(block);
+      block = null;
+      i = end + 2;
+    }
+    for (; i < line.length; i++) {
+      const c = line[i];
+      const top = stack.at(-1);
+      if (top?.string) {
+        if (c === "\\") i++;
+        else if (c === '"') stack.pop();
+        else if ((c === "$" || c === "%") && line[i + 1] === "{") {
+          stack.push({ depth: 0 });
+          i++;
+        }
+        continue;
+      }
+      if (c === '"') stack.push({ string: true });
+      else if (top && c === "{") top.depth++;
+      else if (top && c === "}") {
+        if (top.depth === 0) stack.pop();
+        else top.depth--;
+      } else if (c === "<" && HEREDOC.test(line.slice(i))) {
+        heredoc = HEREDOC.exec(line.slice(i))[2];
+        break;
+      } else if (c === "#" || (c === "/" && line[i + 1] === "/")) {
+        pieces.push({ text: line.slice(i + (c === "#" ? 1 : 2)), startLine: index + 1, endLine: index + 1, line: true });
+        break;
+      } else if (c === "/" && line[i + 1] === "*") {
+        const end = line.indexOf("*/", i + 2);
+        const piece = { text: line.slice(i + 2, end < 0 ? line.length : end), startLine: index + 1, endLine: index + 1, line: false };
+        if (end < 0) {
+          block = piece;
+          break;
+        }
+        pieces.push(piece);
+        i = end + 1;
+      }
+    }
+  });
+  if (block) pieces.push(block);
   return pieces;
 }
 
