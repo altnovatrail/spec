@@ -225,11 +225,11 @@ test("no next free number", async () => {
   await expectOnly([["docs/decisions.md", " Следующий номер — R04.", ""]], /does not name the next free number/);
 });
 
-// The registers' openings and the citations read in English too (R143).
+// The registers' openings and the citations read in English too.
 test("the next free number in English", async () => {
   assert.deepEqual(await errorsOf([["docs/decisions.md", " Следующий номер — R04.", " Next number — R04."]]), []);
   assert.deepEqual(await errorsOf([["docs/repositories.md", "следующий номер — Т-3", "the next free number — Т-3"]]), []);
-  // spec's tables are in English, and a Russian opening still reads (R154).
+  // spec's tables are in English, and a Russian opening still reads.
   assert.deepEqual(await errorsOf([["run/QUESTIONS.md", "next — В4.", "следующий — В4."]]), []);
   await expectOnly([["run/QUESTIONS.md", "next — В4.", "next — В2."]], /^run\/QUESTIONS\.md:\d+: the next free number is В2, but В3 is in the table/);
   await expectOnly([["docs/decisions.md", " Следующий номер — R04.", " Next number — R05."]], /the next free number is R05, but the last is R03: it should be R04$/);
@@ -307,8 +307,8 @@ test("dates and counts after a section are not sections", async () => {
 });
 
 test("a NovaTrail repository's name after a citation is its suffix, even where the phrase goes on", async () => {
-  // `R03 modules сравнивает граф` is R03 of modules, and `R10 engine решил` R10 of engine: neither
-  // is looked up in the own register (R32).
+  // `R03 modules сравнивает граф` cites the log of modules, and `R10 engine решил` engine's: neither
+  // is looked up in the own register.
   assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02; R99 modules сравнивает граф, R98 engine решил, R97 app и R96 api, and"]]), []);
   assert.deepEqual(await errorsOf([["README.md", "Decision R02 and", "Decision R02, architecture 9.9 canvas говорит, and"]]), []);
   // With the name in code, and in a list, too.
@@ -367,7 +367,7 @@ test("the script runs through a symlink", () => {
   }
 });
 
-// The tables of questions and debt: В in run/QUESTIONS.md and Д in run/DEBT.md (R153).
+// The tables of questions and debt: В in run/QUESTIONS.md and Д in run/DEBT.md.
 
 test("a В defined twice", async () => {
   await expectOnly([["run/QUESTIONS.md", "| В3 | The third question |", "| В3 | The third question |\n| В3 | A repeat |"]], /^run\/QUESTIONS\.md:\d+: В3 is defined twice$/);
@@ -394,7 +394,7 @@ test("spec's tables are in run/ alone: without run/DEBT.md, a table in DEBT.md o
     'tools/docs-check/budgets.json:0: budgets: files "run/DEBT.md" names no file of the repository',
     'tools/docs-check/budgets.json:0: budgets: rows "run/DEBT.md" names no Markdown file of the repository',
   ];
-  // The budgets of run/DEBT.md hold nothing without it, and say so (R145).
+  // The budgets of run/DEBT.md hold nothing without it, and say so.
   assert.deepEqual(await errorsOf([["run/DEBT.md", null, null], ["DEBT.md", null, debtTable]]), errors);
   assert.deepEqual(await errorsOf([["run/DEBT.md", null, null], ["RUN.md", "(run/DEBT.md).\n", `(run/DEBT.md).\n\n${debtTable.slice("# Debt\n\n".length)}`]]), errors);
   assert.deepEqual(await errorsOf([["run/QUESTIONS.md", null, null]]), ["RUN.md:3: link run/QUESTIONS.md: run/QUESTIONS.md does not exist", "run/QUESTIONS.md:0: register В: the file does not exist"]);
@@ -481,7 +481,7 @@ test("the repository's table of debt: a Д defined twice in run/DEBT.md", async 
 });
 
 // A table of a repository's plan in its RUN.md or DEBT.md is a second copy, and none is read in
-// place of its file of run/ (R153).
+// place of its file of run/.
 const table3 = (rows = "") => `## Table 3. Questions to the author\n\nNumbers are not reused: next — В3.\n\n| ID | Question |\n|---|---|\n${rows}`;
 const table4 = (rows = "") => `## Table 4. Technical debt\n\nNumbers are not reused: next — Д3.\n\n| ID | Debt |\n|---|---|\n${rows}`;
 const inRun = (tables) => ["RUN.md", "долг — в [run/DEBT.md](run/DEBT.md).\n", `долг — в [run/DEBT.md](run/DEBT.md).\n\n${tables}`];
@@ -554,7 +554,7 @@ test("«раздел N spec» with no document of spec's to tell", async () => {
   await componentOnly([["RUN.md", "раздел 2.1", "раздел 2.1 spec"]], /a section of spec's document; cite it by name/);
 });
 
-test("a table is read under its English heading alone (R154; T177)", async () => {
+test("a table is read under its English heading alone", async () => {
   await expectOnly([["run/DEBT.md", "## Table 4. Technical debt", "## Таблица 4. Технический долг"]], /^run\/DEBT\.md:0: register Д: no heading «Table 4\. …» to hold it$/);
   await componentOnly([["run/QUESTIONS.md", "## Table 3. Questions to the author", "## Таблица 3. Вопросы автору без ответа"]], /^run\/QUESTIONS\.md:0: register В: no heading «Table 3\. …» to hold it$/);
   await expectOnly([["run/DEBT.md", "## Table 4. Technical debt", "## Table 5. Technical debt"]], /^run\/DEBT\.md:0: register Д: no heading «Table 4\. …» to hold it$/);
@@ -604,7 +604,7 @@ test("--component runs from a repository's spec/ submodule and checks the reposi
 });
 
 // A repository's name is a suffix wherever a word ends with it, a name no prose has and one that
-// is also a word alike (R32).
+// is also a word alike.
 
 test(".github and a hyphenated name are another repository's even when the phrase goes on", async () => {
   const edits = [["README.md", "Its own log starts at `R01`.", "Its own log starts at `R01`. R19 .github и его цитаты, R03 module-kit и его рецепты, R06 и R07 skill-map, architecture 9.9 .github и её тексты."]];
@@ -622,8 +622,7 @@ test("a hyphen that goes on is part of another word, not the name", async () => 
   await expectOnly([["README.md", "Decision R02 and", "Per R99 module-kit-like tools and"]], /^README\.md:8: R99 does not exist/);
 });
 
-// Which files are read: in a repository, those git tracks or does not ignore; elsewhere, all
-// (R32).
+// Which files are read: in a repository, those git tracks or does not ignore; elsewhere, all.
 
 const brokenReport = "# Run\n\n[the sheets](nope.md)\n";
 
@@ -735,8 +734,7 @@ test("in a repository, git runs without the fsmonitor hook that its config names
   }
 });
 
-// The rules of .claude/rules/: front matter with paths that match files, and a link in CLAUDE.md
-// (R143).
+// The rules of .claude/rules/: front matter with paths that match files, and a link in CLAUDE.md.
 
 const rule = (paths = '  - "docs/**"\n', body = "# Docs\n\nSee [the product](../../docs/product.md).\n") => `---\npaths:\n${paths}---\n\n${body}`;
 const claude = "# CLAUDE.md\n\nThe rule of the documents: [docs](.claude/rules/docs.md).\n";
@@ -837,7 +835,7 @@ test("a repository's rules are checked as spec's are", async () => {
 // run/DEBT.md, 2 KB for a rule, 1 KB for an entry and a section, 2 KB for `product 13`, 1 KB for a
 // row of run/DEBT.md; and for a repository, 4 KB for RUN.md and run/TASKS.md, 1 KB for an entry, a
 // section and a row of run/DEBT.md and of run/TASKS.md — a limit for rows of run/TASKS.md the real
-// block does not set, here to hold the file's absence for rows as for files (R145).
+// block does not set, here to hold the file's absence for rows as for files.
 
 const filler = (n) => `\n\n${"z".repeat(n)}\n`;
 
@@ -913,7 +911,7 @@ test("a repository is checked only once it has docs-budgets.json, by spec's bloc
   assert.deepEqual(await componentErrors([big, ["docs-budgets.json", null, '{ "files": { "RUN.md": 8 } }\n']]), []);
   await componentOnly([big, ["docs-budgets.json", null, '{ "files": { "RUN.md": 3 } }\n']], /over its budget of 3 KB \(3,072 bytes\) — docs-budgets\.json$/);
   await componentOnly([["docs-budgets.json", null, "[]\n"]], /^docs-budgets\.json:0: budgets: not a JSON object$/);
-  // spec's block names the tables of run/ (R153, R155): run/TASKS.md, which a repository with no
+  // spec's block names the tables of run/: run/TASKS.md, which a repository with no
   // task outside an epic does not have, holds nothing there and is no error, and its own file naming
   // it is one; any other table of run/ it lacks is an error.
   assert.deepEqual(await componentErrors([["docs-budgets.json", null, "{}\n"]]), []);
@@ -930,7 +928,7 @@ test("a repository is checked only once it has docs-budgets.json, by spec's bloc
   await componentOnly([["docs-budgets.json", null, "{}\n"], ["docs/architecture.md", "Пока пусто.", `Пока пусто.${filler(1100)}`]], /^docs\/architecture\.md:\d+: section 3: 1,\d{3} bytes/);
 });
 
-// The numbers of decisions in comments of code (R32): the fixture's log holds R01–R03, and its
+// The numbers of decisions in comments of code: the fixture's log holds `R01` to `R03`, and its
 // block "spec" turns the check on.
 test("a number of a decision in a comment names an entry of the log", async () => {
   const code = (file, text) => [file, null, text];
@@ -977,90 +975,187 @@ test("spec's own budgets.json is well formed, and names files that are there", (
   assert.ok(own.entry && own.section && own.files["RUN.md"]);
 });
 
-// The rule of citations (R171): the fixture's block "spec" has no key "citations" until a test
-// turns it on.
+// The rule of citations: the fixture's block "spec" has no key "citations" until a test turns it
+// on. The fixture's own documents cite as the rule forbids, so each test reads the errors of the
+// files it names.
 const citationsOn = ["tools/docs-check/budgets.json", '"comments": true', '"comments": true,\n    "citations": true'];
+const sourcesFile = ["docs/sources.md", null, "# Sources\n\n## 1. A record\n\n### 1.1. A law\n"];
+const measurementsFile = ["docs/measurements.md", null, "# Measurements\n\n## 1. A measurement\n"];
+
+async function citationErrors(edits, files, errorsFor = errorsOf, on = citationsOn) {
+  const errors = await errorsFor([on, ...edits]);
+  return errors.filter((e) => files.some((f) => e.startsWith(f.endsWith("/") ? f : `${f}:`)));
+}
+
+const TASK_HINT = "a task's number, which stands only in RUN.md, run/ and docs/plan/; give the reason in words";
+const CROWDED = "keep the one where the claim is recorded";
 
 test("by the key citations, a task's number stands only in the plan and the archives", async () => {
-  assert.deepEqual(await errorsOf([citationsOn]), []);
   const notes = ["docs/notes.md", null, "# Notes\n\nDone in T12; MathTrail's T105.10 standalone.\n\n## T7. A heading\n"];
-  assert.deepEqual(await errorsOf([citationsOn, notes]), [
-    "docs/notes.md:3: T12: a task's number outside RUN.md, run/ and docs/plan/; name the file or the decision instead",
-    "docs/notes.md:3: T105.10: a task's number outside RUN.md, run/ and docs/plan/; name the file or the decision instead",
-    "docs/notes.md:5: T7: a task's number outside RUN.md, run/ and docs/plan/; name the file or the decision instead",
+  assert.deepEqual(await citationErrors([notes], ["docs/notes.md"]), [
+    `docs/notes.md:3: T12: ${TASK_HINT}`,
+    `docs/notes.md:3: T105.10: ${TASK_HINT}`,
+    `docs/notes.md:5: T7: ${TASK_HINT}`,
   ]);
   const fine = [
-    citationsOn,
-    ["RUN.md", "Синтетический план работ", "T12 и T13: синтетический план работ"],
-    ["run/EPICS.md", null, "# Эпики\n\nT12.\n"],
+    ["RUN.md", "Синтетический план работ", "T12 и T13 (R01): синтетический план работ, product 13"],
+    ["run/EPICS.md", null, "# Эпики\n\nT12, R01, the amendment 2026-11-12 to R01.\n"],
     ["docs/plan/E1.md", null, "# E1\n\nT12 — сделана 2026-11-11 (R01, R02, R03).\n"],
     ["format/README.md", null, "# Format\n\nT12 (R01, R02, R03).\n"],
-    ["docs/other.md", null, "# Other\n\nAn example, `T12`; at 2026-11-23T10:00; a T-34; Т-1.\n"],
+    ["docs/other.md", null, "# Other\n\nAn example, `T12`, `R01`, `product 13`; at 2026-11-23T10:00; a T-34; Т-1, О-1, В1, Д2.\n"],
   ];
-  assert.deepEqual(await errorsOf(fine), []);
+  assert.deepEqual(await citationErrors(fine, ["RUN.md", "run/", "docs/plan/", "format/", "docs/other.md"]), []);
   // Without the key nothing is read; a key that is not true or false is an error.
   assert.deepEqual(await errorsOf([notes]), []);
   await expectOnly([["tools/docs-check/budgets.json", '"comments": true', '"comments": true,\n    "citations": 1']], /^tools\/docs-check\/budgets\.json:0: budgets: citations is 1, not true or false$/);
 });
 
-test("by the key citations, an amendment stands in no document outside the plan, dated or not", async () => {
-  const amendments = [
-    citationsOn,
-    ["docs/decisions.md", "**R02. Второе решение.** Как R38 canvas-api.", "**R02. Второе решение.** Как R38 canvas-api.\n\n— *Second amendment 2026-11-15:* и ещё."],
-    ["docs/notes.md", null, "# Notes\n\nAs the 2026-11-12 and 2026-11-13 amendments to R01 say, and amendment 2026-11-09 to R02; по поправке 2026-10-20 к R03.\n\nThe amendment of the same day to R01, and поправка к R02 spec.\n"],
-  ];
-  assert.deepEqual(await errorsOf(amendments), [
-    'docs/decisions.md:13: "amendment 2026-11-15": an amendment; fold it into its entry, whose text is in force',
-    'docs/notes.md:3: "2026-11-12 and 2026-11-13 amendments": an amendment; cite the entry, whose text is in force',
-    'docs/notes.md:3: "amendment 2026-11-09": an amendment; cite the entry, whose text is in force',
-    'docs/notes.md:3: "поправке 2026-10-20": an amendment; cite the entry, whose text is in force',
-    'docs/notes.md:5: "amendment of the same day to R01": an amendment; cite the entry, whose text is in force',
-    'docs/notes.md:5: "поправка к R02": an amendment; cite the entry, whose text is in force',
+test("by the key citations, a document cites no decision, an entry of the log none but its own heading", async () => {
+  const notes = ["docs/notes.md", null, "# Notes\n\nAs R01 and R02 spec say, R01–R03, R37 canvas-api, R03 api; canvas-api: R37, R38. An example, `R04`.\n"];
+  assert.deepEqual(await citationErrors([notes], ["docs/notes.md"]), [
+    "docs/notes.md:3: R01: a decision's number; give the reason in words",
+    "docs/notes.md:3: R02 spec: a decision's number; give the reason in words",
+    "docs/notes.md:3: R01–R03: a decision's number; give the reason in words",
+    "docs/notes.md:3: R37 canvas-api: a decision's number; give the reason in words",
+    "docs/notes.md:3: R03 api: a decision's number; give the reason in words",
+    "docs/notes.md:3: R37: a decision's number; give the reason in words",
+    "docs/notes.md:3: R38: a decision's number; give the reason in words",
   ]);
-  const fine = [citationsOn, ["RUN.md", "Синтетический план работ", "По поправке 2026-10-20 к R01 — синтетический план работ"], ["docs/notes.md", null, "# Notes\n\nNo dated amendment is written; read 2026-11-23. An amendment to the law of many words before it went to R01.\n"]];
-  assert.deepEqual(await errorsOf(fine), []);
+  // The log: the heading of each entry and the next free number stand; the rest goes.
+  const shares = "an entry cites no other entry; say in words what it shares with it";
+  assert.deepEqual(await citationErrors([], ["docs/decisions.md"]), [
+    `docs/decisions.md:3: R01–R03: a decision's number; ${shares}`,
+    "docs/decisions.md:5: раздел 13: a citation of a section; say in words what is needed from it",
+    `docs/decisions.md:11: R38 canvas-api: a decision's number; ${shares}`,
+    "docs/decisions.md:13: product 1, 13: a citation of a section; say in words what is needed from it",
+    `docs/decisions.md:13: R02 spec: a decision's number; ${shares}`,
+  ]);
+});
+
+test("by the key citations, a document cites no section and no document, but a record of the outside world", async () => {
+  const notes = [
+    "docs/notes.md",
+    null,
+    "# Notes\n\nBy product 13 and architecture 3.6 spec; [the privacy](privacy.md), раздел 9; as RULES.md spec, Citations, says (CLAUDE.md, Environment).\n\n" +
+      "Fine: sources 1.1, measurements 1, [the law](sources.md), раздел 1; [a text](https://example.org), раздел 6; раздел 3 лицензии; (README.md, CLAUDE.md); (RUN.md, Д1); `RULES.md` names the file.\n",
+  ];
+  assert.deepEqual(await citationErrors([sourcesFile, measurementsFile, notes], ["docs/notes.md"]), [
+    "docs/notes.md:3: product 13: a citation of a section; say in words what is needed from it",
+    "docs/notes.md:3: architecture 3.6 spec: a citation of a section; say in words what is needed from it",
+    "docs/notes.md:3: раздел 9: a citation of a section; say in words what is needed from it",
+    "docs/notes.md:3: RULES.md spec: a citation of a document; say in words what is needed from it, or name the file to open",
+    "docs/notes.md:3: CLAUDE.md, Environment: a citation of a document; say in words what is needed from it, or name the file to open",
+  ]);
+});
+
+test("by the key citations, no dated attribution and no amendment stands outside the plan", async () => {
+  const amendments = [
+    ["docs/decisions.md", "**R02. Второе решение.** Как R38 canvas-api.", "**R02. Второе решение.**\n\n— *Second amendment 2026-11-15:* и ещё."],
+    [
+      "docs/notes.md",
+      null,
+      "# Notes\n\nAs the 2026-11-12 and 2026-11-13 amendments say, and amendment 2026-11-09; по поправке 2026-10-20.\n\nThe amendment of the same day to R01, and поправка к R02 spec.\n\n" +
+        "The author's decisions of 2026-10-19 in planning; решено автором 2026-11-18; by the author's word of 2026-11-23; the answer given on 2026-11-12.\n",
+    ],
+  ];
+  const amendment = (quoted, hint = "say what the text in force holds") => `"${quoted}": a dated amendment; ${hint}`;
+  const attribution = (quoted) => `"${quoted}": a dated attribution; who decided what and when is git's history; give the reason in words`;
+  assert.deepEqual(await citationErrors(amendments, ["docs/decisions.md:13", "docs/notes.md"]), [
+    `docs/decisions.md:13: ${amendment("amendment 2026-11-15", "fold it into its entry, whose text is in force")}`,
+    `docs/notes.md:3: ${amendment("2026-11-12 and 2026-11-13 amendments")}`,
+    `docs/notes.md:3: ${amendment("amendment 2026-11-09")}`,
+    `docs/notes.md:3: ${amendment("поправке 2026-10-20")}`,
+    `docs/notes.md:5: ${amendment("amendment of the same day to R01")}`,
+    "docs/notes.md:5: R01: a decision's number; give the reason in words",
+    `docs/notes.md:5: ${amendment("поправка к R02")}`,
+    "docs/notes.md:5: R02 spec: a decision's number; give the reason in words",
+    `docs/notes.md:7: ${attribution("decisions of 2026-10-19")}`,
+    `docs/notes.md:7: ${attribution("решено автором 2026-11-18")}`,
+    `docs/notes.md:7: ${attribution("word of 2026-11-23")}`,
+    `docs/notes.md:7: ${attribution("answer given on 2026-11-12")}`,
+  ]);
+  const fine = [
+    ["RUN.md", "Синтетический план работ", "По поправке 2026-10-20, решено автором 2026-11-18 — синтетический план работ"],
+    ["docs/notes.md", null, "# Notes\n\nNo dated amendment is written; read 2026-10-26. A trial of 2026-10-26 on git 2.56.0. An amendment to the law of many words before it went on. The author. 2026-11-01 was a day.\n"],
+  ];
+  assert.deepEqual(await citationErrors(fine, ["RUN.md", "docs/notes.md"]), []);
 });
 
 test("by the key citations, a parenthesis holds at most two citations, in the plan too", async () => {
   const crowded = [
-    citationsOn,
-    ["docs/notes.md", null, "# Notes\n\nOne (R01, R02; product 13), two (R01–R03; product 1, 13–13.2), three (R01 (R02, R03 spec)), four (architecture 4 api, privacy 1 canvas-api, product 2 api).\n"],
+    ["docs/notes.md", null, "# Notes\n\nOne (В1, В2; О-1), two (Т-1–Т-2; В1, Д1, Д2), three (В1 (В2, В3)).\n"],
     ["RUN.md", "Синтетический план работ", "Синтетический (T1–T5; В1, Д2) план работ (`a/b` R01, `b/c` R02, R03 canvas-api)"],
   ];
-  assert.deepEqual(await errorsOf(crowded), [
-    'RUN.md:3: "(T1–T5; В1, Д2)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
-    'RUN.md:3: "(`…` R01, `…` R02, R03 canvas-api)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
-    'docs/notes.md:3: "(R01, R02; product 13)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
-    'docs/notes.md:3: "(R01–R03; product 1, 13–13.2)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
-    'docs/notes.md:3: "(architecture 4 api, privacy 1 canvas-api, product 2 api)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
+  assert.deepEqual(await citationErrors(crowded, ["RUN.md", "docs/notes.md"]), [
+    `RUN.md:3: "(T1–T5; В1, Д2)": 3 citations in one parenthesis, more than 2; ${CROWDED}`,
+    `RUN.md:3: "(\`…\` R01, \`…\` R02, R03 canvas-api)": 3 citations in one parenthesis, more than 2; ${CROWDED}`,
+    `docs/notes.md:3: "(В1, В2; О-1)": 3 citations in one parenthesis, more than 2; ${CROWDED}`,
+    `docs/notes.md:3: "(Т-1–Т-2; В1, Д1, Д2)": 4 citations in one parenthesis, more than 2; ${CROWDED}`,
   ]);
-  const long = `(R01, R02, R03${" and more words".repeat(6)})`;
-  await expectOnly([citationsOn, ["docs/notes.md", null, `# Notes\n\nA ${long}.\n`]], new RegExp(`^docs/notes\\.md:3: "${escape(long.slice(0, 79))}…": 3 citations`));
+  const long = `(В1, В2, В3${" and more words".repeat(6)})`;
+  const errors = await citationErrors([["docs/notes.md", null, `# Notes\n\nA ${long}.\n`]], ["docs/notes.md"]);
+  assert.equal(errors.length, 1, errors.join("\n"));
+  assert.match(errors[0], new RegExp(`^docs/notes\\.md:3: "${escape(long.slice(0, 79))}…": 3 citations`));
 });
 
-test("by the key citations, a task's number stands in no comment of code", async () => {
-  const code = (file, text) => [file, null, text];
-  await expectOnly([citationsOn, code("tools/a.mjs", "const a = 1;\n// Done in T12.\n")], /^tools\/a\.mjs:2: T12 in a comment: a task's number; give the reason in words$/);
-  await expectOnly([citationsOn, code(".github/workflows/a.yml", "on: push\n# T7\n")], /^\.github\/workflows\/a\.yml:2: T7 in a comment/);
-  const fine = [
-    citationsOn,
-    code("tools/a.mjs", '// An example, `T12`.\nconst a = "T12";\n'),
-    code("a.proto", "// T12\nsyntax = \"proto3\";\n"),
-    code("format/a.mjs", "// T12\n"),
-    code("tools/b.ts", "// Code generated by a tool. DO NOT EDIT.\n// T12\n"),
+test("by the key citations, a comment of code, a .proto file and a schema's description cite nothing but a record", async () => {
+  const file = (name, text) => [name, null, text];
+  const edits = [
+    file("tools/a.mjs", 'const a = 1;\n// Done in T12, by R01 and R25 spec, R03 api;\n// see architecture 3.8 spec, decided by the author 2026-11-18.\nconst b = "R01 T12";\n'),
+    file(".github/workflows/a.yml", "on: push\n# T7, R99\n"),
+    file("a.proto", '// As R01 says.\nsyntax = "proto3";\n'),
+    file("format/schemas/a.schema.json", '{\n  "title": "A",\n  "properties": {\n    "x": { "description": "By R01; an example, `R02`." }\n  }\n}\n'),
   ];
-  assert.deepEqual(await errorsOf(fine), []);
+  assert.deepEqual(await citationErrors(edits, ["tools/", ".github/", "a.proto", "format/"]), [
+    `.github/workflows/a.yml:2: T7 in a comment: ${TASK_HINT}`,
+    // A number no entry holds is no longer looked up: no comment cites one.
+    ".github/workflows/a.yml:2: R99 in a comment: a decision's number; give the reason in words",
+    "a.proto:1: R01 in a comment: a decision's number; give the reason in words",
+    "format/schemas/a.schema.json:4: R01 in a schema's description: a decision's number; give the reason in words",
+    `tools/a.mjs:2: T12 in a comment: ${TASK_HINT}`,
+    "tools/a.mjs:2: R01 in a comment: a decision's number; give the reason in words",
+    "tools/a.mjs:2: R25 spec in a comment: a decision's number; give the reason in words",
+    "tools/a.mjs:2: R03 api in a comment: a decision's number; give the reason in words",
+    "tools/a.mjs:3: architecture 3.8 spec in a comment: a citation of a section; say in words what is needed from it",
+    `tools/a.mjs:3: "decided by the author 2026-11-18" in a comment: a dated attribution; who decided what and when is git's history; give the reason in words`,
+  ]);
+  const fine = [
+    file("tools/a.mjs", '// An example, `T12`, `R01`; the law, sources 1.1 and sources 2.3 spec; read 2026-10-26.\nconst a = "T12";\n'),
+    file("tools/b.ts", "// Code generated by a tool. DO NOT EDIT.\n// T12, R01\n"),
+    file("docs/plan/a.mjs", "// T12\n"),
+    // The data and the vectors of a normative part are its text for authors; its schemas are not.
+    file("format/vectors/a.yaml", "# T12, R01, section 4\na: 1\n"),
+    file("a.schema.json", "{ not JSON"),
+  ];
+  assert.deepEqual(await citationErrors([sourcesFile, ...fine], ["tools/", "docs/plan/", "format/", "a.schema.json"]), []);
 });
 
 test("in a repository, the rule of citations holds once its docs-budgets.json turns it on", async () => {
   const notes = ["docs/architecture.md", "Пока пусто.", "Пока пусто (T01)."];
-  const code = ["tools/a.mjs", null, "// T01\n"];
+  const code = ["tools/a.mjs", null, "// T01, R02 spec\n"];
   const archive = ["docs/plan/E1.md", null, "# E1\n\nT01 (R01 spec, R02 spec, R03 spec).\n"];
   assert.deepEqual(await componentErrors([notes, code, archive, ["docs-budgets.json", null, "{}\n"]]), []);
-  const errors = await componentErrors([notes, code, archive, ["docs-budgets.json", null, '{ "citations": true }\n']]);
-  assert.equal(errors.length, 2, errors.join("\n"));
-  assert.match(errors[0], /^docs\/architecture\.md:\d+: T01: a task's number outside RUN\.md/);
-  assert.equal(errors[1], "tools/a.mjs:1: T01 in a comment: a task's number; give the reason in words");
+  const on = ["docs-budgets.json", null, '{ "citations": true }\n'];
+  const files = ["README.md", "docs/", "tools/"];
+  assert.deepEqual(await citationErrors([notes, code, archive], files, componentErrors, on), [
+    "README.md:7: R02 spec: a decision's number; give the reason in words",
+    "README.md:7: R01–R03 spec: a decision's number; give the reason in words",
+    "README.md:8: R37 canvas-api: a decision's number; give the reason in words",
+    "README.md:8: R03 api: a decision's number; give the reason in words",
+    "README.md:8: R37: a decision's number; give the reason in words",
+    "README.md:8: R38: a decision's number; give the reason in words",
+    "docs/architecture.md:5: architecture 3.6 spec: a citation of a section; say in words what is needed from it",
+    "docs/architecture.md:5: concepts 2, 2.1 spec: a citation of a section; say in words what is needed from it",
+    "docs/architecture.md:5: product 13 spec: a citation of a section; say in words what is needed from it",
+    "docs/architecture.md:5: architecture 2.1: a citation of a section; say in words what is needed from it",
+    // A section of MathTrail's document is a citation too; one right after a link to a text outside
+    // the repository names that text.
+    "docs/architecture.md:11: раздел 4.2: a citation of a section; say in words what is needed from it",
+    `docs/architecture.md:15: T01: ${TASK_HINT}`,
+    "docs/decisions.md:5: R02 spec: a decision's number; an entry cites no other entry; say in words what it shares with it",
+    `tools/a.mjs:1: T01 in a comment: ${TASK_HINT}`,
+    "tools/a.mjs:1: R02 spec in a comment: a decision's number; give the reason in words",
+  ]);
   // spec's block "repository" turns no citations on, and RUN.md, with its task, is the plan.
   assert.deepEqual(await componentErrors([notes, ["docs-budgets.json", null, '{ "comments": true }\n']]), []);
 });

@@ -5,7 +5,7 @@
 // its Dockerfile cites. Every edit expects to find its place a known number of times, so that a
 // change to spec's devcontainer stops the recipe rather than producing a copy that is quietly
 // wrong. spec's orchestrator, its second configuration and the last stage of its Dockerfile, is
-// spec's alone (R156), and stays out of the copy.
+// spec's alone, and stays out of the copy.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -20,16 +20,16 @@ const KIND_KEYS = ["extensions", "settings", "toolchain", "devcontainer", "claud
 // container: CLAUDE_CODE_PLUGIN_DIRS in containerEnv names their folders through the spec submodule,
 // by a path of the container's own. A marketplace would be recorded in ~/.claude, the volume every
 // NovaTrail container shares, by the absolute path of the container that recorded it last, and the
-// sessions of the others would lose its plugins (R143).
+// sessions of the others would lose its plugins.
 export const PLUGIN_DIRS = "CLAUDE_CODE_PLUGIN_DIRS";
 export const WORKSPACE = "${containerWorkspaceFolder}";
 const PLUGIN_NAME = /^[a-z0-9][a-z0-9-]*$/;
 
 // A kind, read from kinds.json in the template `template`: VS Code extensions, VS Code settings,
 // lines for the end of the Dockerfile's toolchain stage, from the file in kinds/ that "toolchain"
-// names (R79), and from the folder in kinds/ that "devcontainer" names, lines for the devcontainer
-// stage, its Dockerfile, and the files the image copies, the rest of it (R102); the keys "claude"
-// adds to the copy's .claude/settings.json, and the plugins "claudePlugins" loads (R143). A kind
+// names, and from the folder in kinds/ that "devcontainer" names, lines for the devcontainer
+// stage, its Dockerfile, and the files the image copies, the rest of it; the keys "claude"
+// adds to the copy's .claude/settings.json, and the plugins "claudePlugins" loads. A kind
 // written as its list of extensions alone, as an older tag of spec may hold it, is read too.
 export function readKind(template, name, kind) {
   const where = `kinds.json: ${name}`;
@@ -107,7 +107,7 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
   const id = `novatrail-${alias}`;
   const owner = `NovaTrail's ${name}`;
 
-  // The orchestrator is spec's alone (R156); a tag of spec may have none.
+  // The orchestrator is spec's alone; a tag of spec may have none.
   fs.rmSync(path.join(dir, "orchestrator"), { recursive: true, force: true });
   edit(path.join(dir, "devcontainer.json"), (text) => {
     text = replace(text, "novatrail-spec", id, 2, "the container's name and network");
@@ -182,7 +182,7 @@ function dropOrchestrator(text) {
 }
 
 // A citation in the comments of spec's devcontainer — a record, "sources 9.4", or a decision
-// that an older tag of spec cites, "(R34)" — is spec's: in the copy it reads "sources 9.4 spec",
+// that an older tag of spec cites, `(R34)` — is spec's: in the copy it reads "sources 9.4 spec",
 // or it would name a record of the repository's own, which has no such one, or another. Every
 // citation gets the suffix, however it is written, so that a new one in spec's devcontainer or a
 // kind's lines is not left behind. A section ends where its number does, not before a further ".2".
@@ -262,7 +262,7 @@ function addPluginDirs(text, plugins) {
     "// Claude Code loads the plugins of spec's claude-plugins/ that this repository's kind names in",
     "// every session here, from this container's own path: a marketplace would be recorded in the",
     "// ~/.claude that the containers share, by the path of one of them, and the sessions of the",
-    "// others would lose it (R143 spec).",
+    "// others would lose it.",
   ];
   return append(text, CONTAINER_ENV, "environment", [`${JSON.stringify(PLUGIN_DIRS)}: ${JSON.stringify(folders)}`], comment);
 }

@@ -2,7 +2,7 @@
 // is added or renamed, this is the file to change.
 //
 // Two profiles read them: spec's own, and a NovaTrail repository's, which has documents and
-// registers of its own and cites spec's from its spec/ submodule (R32).
+// registers of its own and cites spec's from its spec/ submodule.
 
 import path from "node:path";
 
@@ -15,7 +15,7 @@ export const documents = {
   repositories: "docs/repositories.md",
   dpia: "docs/dpia.md",
   // The records of external facts, and the results of measurements: out of the documents that
-  // describe how things are built (R143).
+  // describe how things are built.
   sources: "docs/sources.md",
   measurements: "docs/measurements.md",
 };
@@ -71,7 +71,7 @@ export const registers = [
 // debt. Rows leave when they are answered or closed, and their numbers are not reused. A table
 // back in a place of `elsewhere` is a second copy, in spec and in a repository alike. Headings are
 // English, `Table 3.`; a copy under the Russian heading, «Таблица 3.», is a copy all the same
-// (R153, R154).
+//
 function workRegisters() {
   const table = (prefix, file, heading, elsewhere) => ({ prefix, file, heading, definedBy: "table", width: 1, ordered: false, gaps: true, empty: true, elsewhere });
   return [
@@ -83,16 +83,16 @@ function workRegisters() {
   ];
 }
 
-// Where the rule of citations lets a task's number and an amendment stand — the work plan —,
-// and what it does not read: the archives of epics, and in spec the normative texts for authors
-// (R171). Paths from the root.
+// Where the rule of citations lets a decision, a section, a task and an amendment be cited — the
+// work plan —; paths from the root. What it does not read at all is the archives of epics, and in
+// spec the Markdown of the normative texts for authors, whose versions in force never change.
 const PLAN = ["RUN.md", "run"];
 
 // Whether a path from the root is one of paths, or under one of them.
 export const under = (file, paths) => paths.some((p) => file === p || file.startsWith(`${p}/`));
 const ARCHIVES = "docs/plan";
 
-// Where the limits of size are, from spec's root (R145).
+// Where the limits of size are, from spec's root.
 const BUDGETS = "tools/docs-check/budgets.json";
 
 // spec's own profile: its documents and registers, and spec's citations of itself (`R18 spec`)
@@ -105,12 +105,13 @@ export const specProfile = {
   documents,
   registers,
   spec: null,
-  // The limits of size of budgets.mjs, from the working tree checked (R145).
+  // The limits of size of budgets.mjs, from the working tree checked.
   budgets: { file: BUDGETS, block: "spec" },
   // COORDINATION.md is the plan across repositories, and the template carries a plan of its own.
   citations: {
     plan: [...PLAN, "COORDINATION.md", ...PLAN.map((p) => `repo-template/files/${p}`)],
-    outside: [ARCHIVES, "format", "contracts", "admission", "deployment", "legal", "consent-age", "export"],
+    archives: [ARCHIVES],
+    prose: ["format", "admission", "deployment", "legal", "consent-age", "export"],
   },
   excluded: { names: [".git", "node_modules"], paths: ["tools/docs-check/test/fixtures", "tools/format-check/test/fixtures", ".repos"] },
 };
@@ -132,9 +133,9 @@ export function componentProfile(specDir) {
       ...workRegisters(),
     ],
     // spec's block "repository" of its limits, from the submodule, with what the repository's
-    // docs-budgets.json names in its place; without that file, there is no check yet (R145).
+    // docs-budgets.json names in its place; without that file, there is no check yet.
     budgets: { file: inSpec(BUDGETS), path: path.join(specDir, BUDGETS), block: "repository", own: "docs-budgets.json" },
-    citations: { plan: PLAN, outside: [ARCHIVES] },
+    citations: { plan: PLAN, archives: [ARCHIVES], prose: [] },
     spec: {
       dir: specDir,
       documents: Object.fromEntries(Object.entries(documents).map(([name, file]) => [name, inSpec(file)])),
@@ -171,5 +172,5 @@ export const novatrailRepositories = [
 ];
 
 // Words after `раздел N` that make it a section of some other text, not of our documents:
-// `раздел 3 лицензии` in R12 is section 3 of the Apache License.
+// `раздел 3 лицензии` is section 3 of the Apache License.
 export const otherTexts = ["лицензии"];

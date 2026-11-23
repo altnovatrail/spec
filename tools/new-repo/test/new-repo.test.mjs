@@ -36,8 +36,8 @@ function temporary() {
 }
 
 const read = (dir, file) => fs.readFileSync(path.join(dir, file), "utf8");
-// A decision or a section of spec's, as a copy cites it: "R34" becomes "R34 spec", and
-// "measurements 3.2" "measurements 3.2 spec".
+// A decision or a section of spec's, as a copy cites it: `R34` becomes `R34 spec`, and
+// `measurements 3.2` `measurements 3.2 spec`.
 const suffixed = (text) => text.replace(SPEC_CITATION, "$& spec");
 const devcontainer = (dir) => parseJsonc(read(dir, ".devcontainer/devcontainer.json"));
 const git = (dir, ...args) => execFileSync(GIT, ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
@@ -59,7 +59,7 @@ function standIn({ change = () => {}, commit = false, tag = null } = {}) {
   const root = temporary();
   // What new-repo reads, what a copy's documents cite of spec — its documents and its rules —, the
   // plugins a copy's devcontainer loads from spec/, and the budgets its docs-budgets.json
-  // asks the check of its documents to read from spec/ (R145).
+  // asks the check of its documents to read from spec/.
   for (const source of ["repo-template", "LICENSE", "AGENTS.md", ".devcontainer", "docs", "RULES.md", "claude-plugins", "tools/docs-check/budgets.json"]) {
     fs.mkdirSync(path.dirname(path.join(root, source)), { recursive: true });
     fs.cpSync(path.join(specRoot, source), path.join(root, source), { recursive: true, verbatimSymlinks: true });
@@ -109,7 +109,7 @@ const EXPECTED_FILES = [
   "run/QUESTIONS.md",
   "run/TASKS.md",
 ];
-// The go kind's folder puts the lock file of gopls beside the Dockerfile (R102).
+// The go kind's folder puts the lock file of gopls beside the Dockerfile.
 const GOPLS_FILES = [".devcontainer/gopls/go.mod", ".devcontainer/gopls/go.sum"];
 // The version of gopls the go kind pins, in its lock file and its Dockerfile alike.
 const GOPLS = goplsVersions(path.join(specRoot, "repo-template/kinds/go")).lock;
@@ -151,7 +151,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
 });
 
 // The badges are written once, in the block of docs/repositories.md, with <name> for the repository
-// and <ID> for the number of its Best Practices project (R48). The template's are the first day's
+// and <ID> for the number of its Best Practices project. The template's are the first day's
 // of them, and spec's README takes its own from there.
 const FIRST_DAY = ["CI", "CodeQL", "OpenSSF Scorecard", "License", "Code Smells", "Reliability Rating", "Security Rating", "Maintainability Rating", "Vulnerabilities"];
 const badgeLines = (text) => text.split("\n").filter((line) => line.startsWith("[!["));
@@ -186,7 +186,7 @@ test("the README starts with the first day's badges of repositories 2.3, in two 
 
 // A README holds no status, no section of the license, which LICENSE and the badge give, no
 // sentence of the languages, and no version of spec, which the submodule pins; spec's own README
-// neither (R21).
+// neither.
 test("a README has no Status or License section, no sentence of the languages and no version of spec", () => {
   const readmes = [
     ["the template's README.md", read(draft("learner-model", "go", "3.8"), "README.md")],
@@ -203,7 +203,7 @@ test("a README has no Status or License section, no sentence of the languages an
 });
 
 // A README is the title, the badges and a description of the component and its place in
-// NovaTrail — no section, no command or code block, no language; the rest is docs/README.md (R21).
+// NovaTrail — no section, no command or code block, no language; the rest is docs/README.md.
 test("a README is the title, the badges and a description alone", () => {
   const readmes = [
     ["the template's README.md", read(draft("learner-model", "go", "3.8"), "README.md")],
@@ -254,7 +254,7 @@ test("the Best Practices badge holds its project's number for <ID>, the same in 
 test("the devcontainer is spec's, with the repository's name, network and kind", () => {
   const spec = parseJsonc(read(specRoot, ".devcontainer/devcontainer.json"));
   const specDockerfile = read(specRoot, ".devcontainer/Dockerfile");
-  // spec's orchestrator is its alone, the last stage of its Dockerfile (R156).
+  // spec's orchestrator is its alone, the last stage of its Dockerfile.
   const orchestrator = specDockerfile.indexOf(ORCHESTRATOR_STAGE);
   assert.ok(orchestrator > 0 && specDockerfile.indexOf(ORCHESTRATOR_STAGE, orchestrator + 1) === -1, "spec's Dockerfile has the orchestrator's stage once");
   const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
@@ -310,14 +310,14 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     assert.doesNotMatch(dockerfile, /\bAS orchestrator\b/, "the copy has no orchestrator's stage");
     assert.ok(!fs.existsSync(path.join(dir, ".devcontainer", "orchestrator")), "the copy has no orchestrator's configuration");
     assert.equal(/PLAYWRIGHT_BROWSERS_PATH/.test(dockerfile), kind === "typescript", "the browser comes with the typescript kind alone");
-    // The kind's plugins come last in containerEnv, after spec's own (R143).
+    // The kind's plugins come last in containerEnv, after spec's own.
     const plugins = (kinds[kind].claudePlugins ?? []).map((p) => `\${containerWorkspaceFolder}/spec/claude-plugins/${p}`).join(":");
     const rest = ({ name: _n, runArgs: _r, postStartCommand: _p, customizations: _c, ...others }) => others;
     assert.deepEqual(rest(dc), { ...rest(spec), containerEnv: { ...spec.containerEnv, ...(plugins ? { CLAUDE_CODE_PLUGIN_DIRS: plugins } : {}) } });
   }
 });
 
-test("the typescript kind brings the browsers into the toolchain stage, and Biome into VS Code (R79)", () => {
+test("the typescript kind brings the browsers into the toolchain stage, and Biome into VS Code", () => {
   const dir = draft("app", "typescript", "3.1");
   const dockerfile = read(dir, ".devcontainer/Dockerfile");
   const toolchain = dockerfile.slice(0, dockerfile.indexOf("\nFROM toolchain AS devcontainer"));
@@ -336,8 +336,8 @@ test("the typescript kind brings the browsers into the toolchain stage, and Biom
   assert.match(copies[0][1], /^mcr\.microsoft\.com\/playwright:v[\d.]+-noble@sha256:[0-9a-f]{64}$/, "the image is pinned by tag and digest");
   for (const name of ["HEADLESS_SHELL", "WEBKIT", "FIREFOX"]) assert.match(toolchain, new RegExp(`^ARG PLAYWRIGHT_${name}_REVISION=\\d+$`, "m"));
   assert.match(toolchain, /^ENV PLAYWRIGHT_BROWSERS_PATH=\/ms-playwright$/m);
-  assert.match(toolchain, /^ARG UBUNTU_SNAPSHOT=\d{8}T\d{6}Z$/m, "the system libraries come from a snapshot (R40)");
-  // apt reads the snapshot alone, from a source of its own, and none of the base image's (R40).
+  assert.match(toolchain, /^ARG UBUNTU_SNAPSHOT=\d{8}T\d{6}Z$/m, "the system libraries come from a snapshot");
+  // apt reads the snapshot alone, from a source of its own, and none of the base image's.
   assert.ok(toolchain.includes('"URIs: https://snapshot.ubuntu.com/ubuntu/${UBUNTU_SNAPSHOT}/"'), "the source names the snapshot in its URI");
   assert.match(toolchain, /apt_sources=\(-o "Dir::Etc::SourceList=\/dev\/null" -o "Dir::Etc::SourceParts=\$sources"\)/, "apt reads that source alone");
   const code = toolchain.split("\n").filter((line) => !line.startsWith("#")).join("\n");
@@ -353,7 +353,7 @@ test("the typescript kind brings the browsers into the toolchain stage, and Biom
   assert.equal(dc.customizations.vscode.settings["[typescript]"]["editor.defaultFormatter"], "biomejs.biome");
 });
 
-test("a kind the recipe cannot read stops it, and one written as a list is read as before R79", () => {
+test("a kind the recipe cannot read stops it, and one written as a list is still read", () => {
   const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
   for (const [kind, message] of [
     [{ extension: ["golang.go@0.56.1"] }, /kinds\.json: go: extension is not one of extensions, settings, toolchain/],
@@ -399,7 +399,7 @@ test("a kind the recipe cannot read stops it, and one written as a list is read 
   }
 });
 
-test("the go kind's lock file and its Dockerfile name one version of gopls, and new-repo-check holds a copy to it (R102)", () => {
+test("the go kind's lock file and its Dockerfile name one version of gopls, and new-repo-check holds a copy to it", () => {
   const folder = path.join(specRoot, "repo-template/kinds/go");
   const { lock, arg } = goplsVersions(folder);
   assert.match(lock, /^\d+\.\d+\.\d+$/);
@@ -417,7 +417,7 @@ test("the go kind's lock file and its Dockerfile name one version of gopls, and 
   assert.equal(read(folder, "gopls/go.mod").match(/^go (\S+)$/m)[1], read(specRoot, ".devcontainer/Dockerfile").match(/^ARG GO_VERSION=(\S+)$/m)[1], "the lock file's Go is the toolchain stage's");
 });
 
-test("a copy's .claude/settings.json is the template's, with what its kind adds under claude (R143)", () => {
+test("a copy's .claude/settings.json is the template's, with what its kind adds under claude", () => {
   const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
   const template = (name) => fillPlaceholders(read(specRoot, "repo-template/files/.claude/settings.json"), (_, key) => ({ name })[key]);
   for (const [name, kind, card] of [
@@ -431,7 +431,7 @@ test("a copy's .claude/settings.json is the template's, with what its kind adds 
     if (Object.keys(added).length === 0) assert.equal(text, template(name), `${kind}: the template's file, byte for byte`);
     else assert.ok(text.startsWith(template(name).slice(0, template(name).lastIndexOf("}")).trimEnd()), `${kind}: the template's lines stay as they are`);
   }
-  // A marketplace in .claude/settings.json is recorded in the ~/.claude the containers share (R143).
+  // A marketplace in .claude/settings.json is recorded in the ~/.claude the containers share.
   for (const kind of Object.values(kinds)) assert.equal(kind.claude?.extraKnownMarketplaces, undefined, "no kind names a marketplace");
   // A template with no key of its own takes the kind's without a comma before them.
   const dir = temporary();
@@ -441,7 +441,7 @@ test("a copy's .claude/settings.json is the template's, with what its kind adds 
   assert.deepEqual(JSON.parse(read(dir, CLAUDE_SETTINGS)), { enabledPlugins: { "a@b": true } });
 });
 
-test("every plugin a kind loads lies in spec's claude-plugins/, its devcontainer names it by CLAUDE_CODE_PLUGIN_DIRS, and gopls-lsp runs gopls for Go (R143)", () => {
+test("every plugin a kind loads lies in spec's claude-plugins/, its devcontainer names it by CLAUDE_CODE_PLUGIN_DIRS, and gopls-lsp runs gopls for Go", () => {
   const kinds = JSON.parse(read(specRoot, "repo-template/kinds.json"));
   const root = path.join(specRoot, "claude-plugins");
   assert.ok(!fs.existsSync(path.join(root, ".claude-plugin")), "no marketplace: Claude Code would record it in the ~/.claude the containers share");
@@ -461,7 +461,7 @@ test("every plugin a kind loads lies in spec's claude-plugins/, its devcontainer
   }
   const gopls = JSON.parse(read(root, "gopls-lsp/.claude-plugin/plugin.json"));
   assert.deepEqual(gopls.lspServers, { gopls: { command: "gopls", extensionToLanguage: { ".go": "go" } } }, "the gopls the go kind builds, from PATH");
-  assert.match(read(root, "gopls-lsp/LICENSE"), /^\s*Apache License\n\s*Version 2\.0, January 2004\n/, "Apache-2.0 (R12)");
+  assert.match(read(root, "gopls-lsp/LICENSE"), /^\s*Apache License\n\s*Version 2\.0, January 2004\n/, "Apache-2.0");
   assert.match(read(root, "README.md"), /at commit `[0-9a-f]{40}`/, "the README names the commit it was copied at");
   // A kind's plugins do not override a variable spec's devcontainer sets itself.
   const root2 = standIn({ change: (r) => change(r, ".devcontainer/devcontainer.json", '"DISABLE_AUTOUPDATER": "1"', '"DISABLE_AUTOUPDATER": "1",\n        "CLAUDE_CODE_PLUGIN_DIRS": "/elsewhere"') });
@@ -487,7 +487,7 @@ test("check: the plugins a copy's devcontainer loads, and no marketplace in a lo
     return errors;
   };
   const gopls = "${containerWorkspaceFolder}/spec/claude-plugins/gopls-lsp";
-  const why = "Claude Code records a marketplace in the ~/.claude that the containers share, by the path of one of them, and the sessions of the others lose its plugins: load them by CLAUDE_CODE_PLUGIN_DIRS of .devcontainer/devcontainer.json (R143 spec)";
+  const why = "Claude Code records a marketplace in the ~/.claude that the containers share, by the path of one of them, and the sessions of the others lose its plugins: load them by CLAUDE_CODE_PLUGIN_DIRS of .devcontainer/devcontainer.json";
   assert.deepEqual(found({}), [], "no file, nothing to check: the file list says it is missing");
   assert.deepEqual(found({ settings: "{" }), [".claude/settings.json:0: is not JSON"]);
   assert.deepEqual(found({ settings: {}, container: "{}" }), []);
@@ -510,7 +510,7 @@ test("check: the plugins a copy's devcontainer loads, and no marketplace in a lo
   fs.mkdirSync(path.join(before, "claude-plugins/.claude-plugin"), { recursive: true });
   fs.writeFileSync(path.join(before, "claude-plugins/.claude-plugin/marketplace.json"), "{}");
   assert.deepEqual(found({ settings: { enabledPlugins: { "gopls-lsp@novatrail": true } } }, before), [
-    `.claude/settings.json:0: gopls-lsp@novatrail is turned on from the marketplace novatrail, which spec no longer has: ${why}; the spec it pins, a tag before T162, still writes it: take a tag of spec with T162 and build the copy again`,
+    `.claude/settings.json:0: gopls-lsp@novatrail is turned on from the marketplace novatrail, which spec no longer has: ${why}; the spec it pins is a tag whose template still writes it: take a newer tag of spec, whose devcontainer loads the plugins, and build the copy again`,
   ]);
   assert.deepEqual(found({ folders: "/workspaces/api/spec/claude-plugins/gopls-lsp" }), [
     ".devcontainer/devcontainer.json:0: CLAUDE_CODE_PLUGIN_DIRS names /workspaces/api/spec/claude-plugins/gopls-lsp, which does not start with ${containerWorkspaceFolder}/, the one path that is the container's own wherever it opens the repository",
@@ -564,7 +564,7 @@ test("a change to spec's devcontainer stops the recipe instead of a quietly wron
   assert.equal(fs.existsSync(dest), false, "half a copy was left behind");
 });
 
-test("a tag before T115, with no name in the network, gives the copy its name all the same", () => {
+test("an older tag, with no name in the network, gives the copy its name all the same", () => {
   const older = standIn({ change: (r) => fs.writeFileSync(path.join(r, ".devcontainer/devcontainer.json"), read(r, ".devcontainer/devcontainer.json").replace(/,\n(?:[ \t]*\/\/.*\n)*[ \t]*"--network-alias=spec"/, "")) });
   assert.doesNotMatch(read(older, ".devcontainer/devcontainer.json"), /network-alias/);
   const dest = path.join(temporary(), "engine");
@@ -624,7 +624,7 @@ test("check: red while a FILL marker is left, green once all are written", async
 test("check: what a careless fill can leave", async () => {
   const cases = [
     ["docs/README.md", "(architecture.md)", "(architectur.md)", /^docs\/README\.md:\d+: link [^:]*architectur\.md: docs\/architectur\.md does not exist$/],
-    // The README is a description alone, and docs/README.md the rest (R21).
+    // The README is a description alone, and docs/README.md the rest.
     ["README.md", "A component of", "## Build\n\nA component of", /^README\.md:\d+: a heading below the title: /],
     ["README.md", "A component of", "\x60\x60\x60sh\n# a comment, not a heading\nmake\n\x60\x60\x60\n\nA component of", /^README\.md:\d+: a block of code: /],
     ["README.md", "A component of", "Run \x60just ci-test\x60.\n\nA component of", /^README\.md:\d+: a command: /],
@@ -635,11 +635,11 @@ test("check: what a careless fill can leave", async () => {
     [".devcontainer/devcontainer.json", '"--network-alias=learner-model"', '"--network-alias=spec"', /^\.devcontainer\/devcontainer\.json:\d+: spec's name in the network is left/],
     [".devcontainer/devcontainer.json", '"--network-alias=learner-model"', '"--network-alias=api"', /^\.devcontainer\/devcontainer\.json:0: the container has no name in its network, "--network-alias=learner-model"/],
     [".devcontainer/devcontainer.json", '"--network=novatrail-learner-model",', '"--network=novatrail-api",\n        "--network=novatrail-learner-model",', /^\.devcontainer\/devcontainer\.json:0: its own network, novatrail-learner-model, is the first of runArgs/],
-    // The lock file of gopls and its ARG, raised apart: CI never builds that stage (R102).
-    [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}`, "ARG GOPLS_VERSION=0.0.1", new RegExp(`^\\.devcontainer/gopls/go\\.mod:0: it names gopls ${GOPLS.replaceAll(".", "\\.")}, and \\.devcontainer/Dockerfile has GOPLS_VERSION 0\\.0\\.1: raise them together \\(R102 spec\\)$`)],
+    // The lock file of gopls and its ARG, raised apart: CI never builds that stage.
+    [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}`, "ARG GOPLS_VERSION=0.0.1", new RegExp(`^\\.devcontainer/gopls/go\\.mod:0: it names gopls ${GOPLS.replaceAll(".", "\\.")}, and \\.devcontainer/Dockerfile has GOPLS_VERSION 0\\.0\\.1: raise them together$`)],
     [".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}\n`, "", /^\.devcontainer\/gopls\/go\.mod:0: it names gopls [\d.]+, and \.devcontainer\/Dockerfile has GOPLS_VERSION unset/],
-    [".devcontainer/gopls/go.sum", "golang.org/x/", "", /^\.devcontainer\/gopls\/go\.sum:0: the file is missing, and \.devcontainer\/Dockerfile builds gopls from it \(R102 spec\)$/, true],
-    // The plugin the go kind turns on, misspelt: the session would start without it (R143).
+    [".devcontainer/gopls/go.sum", "golang.org/x/", "", /^\.devcontainer\/gopls\/go\.sum:0: the file is missing, and \.devcontainer\/Dockerfile builds gopls from it$/, true],
+    // The plugin the go kind turns on, misspelt: the session would start without it.
     [".devcontainer/devcontainer.json", "/spec/claude-plugins/gopls-lsp\"", "/spec/claude-plugins/gopls\"", /^\.devcontainer\/devcontainer\.json:0: CLAUDE_CODE_PLUGIN_DIRS names \$\{containerWorkspaceFolder\}\/spec\/claude-plugins\/gopls, which holds no \.claude-plugin\/plugin\.json that reads as JSON$/],
     ["CLAUDE.md", "## Documents", "## Documents\n\nSee [spec](https://github.com/altnovatrail/spec/tree/main).", /spec is named at different versions: main, v0\.0\.0-test$/],
     // The tag CLAUDE.md gives spec/, apart from RUN.md's: no README holds one to check it by.
@@ -656,12 +656,12 @@ test("check: what a careless fill can leave", async () => {
   }
 });
 
-test("check: a go copy without the lock file of gopls, whose plugin runs it, is refused (R102, R143)", async () => {
+test("check: a go copy without the lock file of gopls, whose plugin runs it, is refused", async () => {
   const dir = draft("learner-model", "go", "3.8");
   fill(dir);
   fs.rmSync(path.join(dir, ".devcontainer/gopls"), { recursive: true });
   change(dir, ".devcontainer/Dockerfile", `ARG GOPLS_VERSION=${GOPLS}\n`, "");
-  assert.deepEqual(await messages(dir), [".devcontainer/gopls/go.mod:0: the file is missing, and .devcontainer/devcontainer.json loads a plugin that runs gopls, which the devcontainer builds from it (R102 spec, R143 spec)"]);
+  assert.deepEqual(await messages(dir), [".devcontainer/gopls/go.mod:0: the file is missing, and .devcontainer/devcontainer.json loads a plugin that runs gopls, which the devcontainer builds from it"]);
 });
 
 test("from a tag: the files are the tag's, spec is a submodule at it, all staged, nothing committed", async () => {
