@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { git } from "../../shared.mjs";
 import { argumentsOf, main } from "../main.mjs";
-import { goWorkOf, PACK, quickCheckOf, readmeOf, UNPACK } from "../xrepo.mjs";
+import { goWorkOf, PACK, PACK_LIBRARY, quickCheckOf, readmeOf, UNPACK } from "../xrepo.mjs";
 import { commit, world, write } from "./world.mjs";
 
 async function run(w, argv) {
@@ -65,15 +65,26 @@ test("up clones each repository and spec on the epic's branch, wires Go and npm 
   const app = path.join(dir, "app", "node_modules", "@altnovatrail");
   assert.deepEqual(JSON.parse(read(path.join(app, "spec", "package.json"))), { name: "@altnovatrail/spec", version: "0.20.1" });
   assert.equal(read(path.join(app, "contracts", "tree.txt")), "first\n");
-  assert.deepEqual(up.out[2].npm.packages, ["@altnovatrail/spec", "@altnovatrail/contracts"]);
+  assert.deepEqual(up.out[2].npm.packages, ["@altnovatrail/spec", "@altnovatrail/contracts", "@altnovatrail/canvas"]);
   assert.deepEqual(up.out[3].npm.packages, ["@altnovatrail/spec"]);
   assert.ok(!fs.existsSync(path.join(dir, "canvas", "node_modules", "@altnovatrail", "contracts", ".xrepo")));
   assert.equal(read(path.join(app, "spec", ".xrepo")).trim(), up.out[2].npm.spec);
-  // Packed in spec's container, installed and unpacked in each consumer's.
+  // canvas's package in app: its build of its clone, by npm pack, at its own version, and its mark
+  // the fingerprint of canvas's tree.
+  assert.deepEqual(JSON.parse(read(path.join(app, "canvas", "package.json"))).version, "0.0.0");
+  assert.equal(read(path.join(app, "canvas", "lib", "tree.txt")), "canvas first\n");
+  assert.equal(read(path.join(app, "canvas", ".xrepo")).trim(), up.out[2].npm.canvas);
+  assert.notEqual(up.out[2].npm.canvas, up.out[2].npm.spec);
+  assert.ok(!fs.existsSync(path.join(dir, "canvas", "node_modules", "@altnovatrail", "canvas")));
+  // Packed in spec's container and canvas's, installed and unpacked in each consumer's.
   const execs = w.h.dockerCalls().filter((c) => c[0] === "exec");
   assert.ok(execs.some((c) => c.includes(PACK) && c.includes("bbbb2222spec")));
+  assert.ok(execs.some((c) => c.includes(PACK_LIBRARY) && c.includes("20xcanvas")));
+  // canvas is wired with spec's packages before its clone is packed for app.
+  const canvasInstall = execs.findIndex((c) => c.includes("20xcanvas") && c.some((a) => a.includes("just _install")));
+  assert.ok(canvasInstall >= 0 && canvasInstall < execs.findIndex((c) => c.includes(PACK_LIBRARY)));
   assert.ok(unpacks(w).every((c) => c.includes("10xapp") || c.includes("20xcanvas")));
-  assert.deepEqual(w.calls("just").filter((c) => c.recipe === "_install").map((c) => path.basename(c.cwd)), ["app", "canvas"]);
+  assert.deepEqual(w.calls("just").filter((c) => c.recipe === "_install").map((c) => path.basename(c.cwd)), ["canvas", "app"]);
   // app's deployment configuration, from the host's clone.
   assert.equal(up.out[2].deployment, "copied");
   assert.equal(read(path.join(dir, "app", "deployment.local.json")), "{}\n");
@@ -96,6 +107,13 @@ test("up clones each repository and spec on the epic's branch, wires Go and npm 
   await run(w, ["xrepo", "up", "e1"]);
   assert.equal(read(path.join(app, "contracts", "tree.txt")), "second\n");
   assert.equal(unpacks(w).length, before + 3);
+  // A change of canvas's tree lays its package in app again, and spec's stay.
+  write(path.join(dir, "canvas"), { "tree.txt": "canvas second\n" });
+  const status = await run(w, ["xrepo", "status"]);
+  assert.deepEqual(status.out[0].clones.find((c) => c.repo === "app").npm, { "@altnovatrail/spec": "fresh", "@altnovatrail/contracts": "fresh", "@altnovatrail/canvas": "stale" });
+  await run(w, ["xrepo", "up", "e1"]);
+  assert.equal(read(path.join(app, "canvas", "lib", "tree.txt")), "canvas second\n");
+  assert.equal(unpacks(w).length, before + 4);
 });
 
 test("up refuses names that are not an epic's or a repository's, and the other commands need the epic named once there are two", async (t) => {

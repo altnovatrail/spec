@@ -11,7 +11,7 @@ import { byCodeUnits } from "../shared.mjs";
 import { STAND } from "./stand.mjs";
 import { sync as syncOwn } from "./runs.mjs";
 import { gate, gatedAt, GATES, push, touchedOf } from "./gate.mjs";
-import { checkRepo, clonesOf, containerId, docker, epicOf, git, PACKAGES, pinnedOf, REQUIRED, wireGo } from "./xrepo.mjs";
+import { checkRepo, clonesOf, containerId, docker, epicOf, git, laidOf, pinnedOf, REQUIRED, wireGo } from "./xrepo.mjs";
 
 const OWNER = "altnovatrail";
 const MODULE = "github.com/altnovatrail/";
@@ -169,20 +169,14 @@ export async function waitRelease(asked, named, deps) {
 const inContainer = (deps, repo, clone, env, script, args = []) =>
   docker(deps, ["exec", "--user", "vscode", "--workdir", clone, ...Object.entries(env).flatMap(([k, v]) => ["--env", `${k}=${v}`]), containerId(repo, deps), "bash", "-lc", script, "bash", ...args], { timeout: 30 * MINUTE });
 
-// spec's packages laid over node_modules by up, and the stamp that keeps _install from npm ci, gone:
-// the next install takes the packages of the lock file.
-export function unwireNpm(dir, repo) {
+// The packages of names, every one by default, laid over node_modules by up, and the stamp that
+// keeps _install from npm ci, gone: the next install takes the packages of the lock file.
+export function unwireNpm(dir, repo, names) {
   const clone = path.join(dir, repo);
-  let removed = false;
-  for (const name of Object.keys(PACKAGES)) {
-    const folder = path.join(clone, "node_modules", name);
-    if (fs.existsSync(path.join(folder, ".xrepo"))) {
-      fs.rmSync(folder, { recursive: true, force: true });
-      removed = true;
-    }
-  }
-  if (removed) fs.rmSync(path.join(clone, "node_modules", ".installed-from"), { force: true });
-  return removed;
+  const laid = laidOf(clone, names);
+  for (const name of laid) fs.rmSync(path.join(clone, "node_modules", name), { recursive: true, force: true });
+  if (laid.length) fs.rmSync(path.join(clone, "node_modules", ".installed-from"), { force: true });
+  return laid.length > 0;
 }
 
 // The tag of spec a clone is on before the pin: its go.mod's, its package.json's, or its justfile's
@@ -294,7 +288,7 @@ function pinOne(dir, dependent, repo, tag, deps) {
   }
   const names = (NPM_OF[repo] ?? []).filter((name) => Object.hasOwn(named, name));
   if (names.length) {
-    if (repo === "spec") unwireNpm(dir, dependent);
+    unwireNpm(dir, dependent, names);
     inContainer(deps, dependent, clone, {}, 'npm install --save-exact --ignore-scripts --no-audit --no-fund "$@" && just -f spec/justfile release-verify-npm package-lock.json', names.map((n) => `${n}@${tag.slice(1)}`));
     done.push("package.json");
   }
@@ -521,7 +515,7 @@ async function shipOne(dir, epic, repo, state, deps) {
         node.pinned.push(r);
       }
     }
-    const wired = fs.existsSync(path.join(dir, repo, "go.work")) || fs.existsSync(path.join(dir, repo, "node_modules", "@altnovatrail", "spec", ".xrepo")) || fs.existsSync(path.join(dir, repo, "node_modules", "@altnovatrail", "contracts", ".xrepo"));
+    const wired = fs.existsSync(path.join(dir, repo, "go.work")) || laidOf(path.join(dir, repo)).length > 0;
     // At ship, a node builds against releases alone: what its go.work still replaces is a clone
     // the epic did not change, which CI takes from go.mod too.
     for (const f of ["go.work", "go.work.sum"]) fs.rmSync(path.join(dir, repo, f), { force: true });

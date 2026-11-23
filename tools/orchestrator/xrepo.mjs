@@ -2,8 +2,8 @@
 // same path in every NovaTrail container, on the branch named for the epic, built against one
 // spec — its clone there — with the wiring kept out of git: a go.work that replaces spec, its
 // contracts and the neighbouring clones by their go.mod, and spec's npm packages packed from that
-// clone's working tree over node_modules, package.json and the lock file unchanged. The stand is
-// stand.mjs.
+// clone's working tree over node_modules — canvas's too, from its clone, in app —, package.json and
+// the lock file unchanged. The stand is stand.mjs.
 //
 // git runs here, in the orchestrator's container, where gh pushes, and every container can write
 // a clone's .git/config: xrepo's own git runs with no hooks and no fsmonitor, which run on every
@@ -31,6 +31,13 @@ const SAFE = ["-c", "core.hooksPath=/dev/null", "-c", "core.fsmonitor=false"];
 const MODULE = "github.com/altnovatrail/";
 // spec's npm packages, by the folder of node_modules/@altnovatrail/ they take.
 export const PACKAGES = { "@altnovatrail/spec": "spec", "@altnovatrail/contracts": "contracts" };
+// The npm packages of NovaTrail's other libraries, by the repository whose clone packs them, laid
+// as spec's are, so that a consumer's tests meet the library's change before its release. Only
+// canvas: the packing is its build and npm pack, which another library's has not been checked to be.
+export const LIBRARIES = { canvas: ["@altnovatrail/canvas"] };
+// Every package the wiring lays, by the repository that packs it.
+const SOURCES = { spec: Object.keys(PACKAGES), ...LIBRARIES };
+const SOURCE_OF = Object.fromEntries(Object.entries(SOURCES).flatMap(([repo, names]) => names.map((n) => [n, repo])));
 // The tests that open browsers, which wait for the gate: the quick checks leave them out, but with --browser.
 export const BROWSER_TESTS = { app: ["scripts/site.test.ts", "scripts/page.test.ts"] };
 const INSTALL_MS = 30 * 60_000;
@@ -70,6 +77,9 @@ export const GUARDS = {
   "module-kit": [SPEC_PIN_GUARD],
 };
 
+// The fingerprint of a clone's tree: its commit, its diff and its files not tracked.
+const PRINT = "print=$( { git -c core.fsmonitor=false rev-parse HEAD; git -c core.fsmonitor=false diff HEAD --binary --no-ext-diff --no-textconv; git -c core.fsmonitor=false ls-files --others --exclude-standard -z | xargs -0r sha256sum; } | sha256sum | cut -c1-16)";
+
 // Packs spec's npm packages from the clone $1's working tree into a folder of $2 named by the
 // tree's fingerprint, once for each fingerprint, in spec's container; prints the fingerprint. With
 // $3 "print", only the fingerprint. The version is the one the clone's next release would take,
@@ -79,7 +89,7 @@ export const PACK = [
   "set -euo pipefail",
   'spec=$1; out=$2; mode=${3:-pack}',
   'cd "$spec"',
-  "print=$( { git -c core.fsmonitor=false rev-parse HEAD; git -c core.fsmonitor=false diff HEAD --binary --no-ext-diff --no-textconv; git -c core.fsmonitor=false ls-files --others --exclude-standard -z | xargs -0r sha256sum; } | sha256sum | cut -c1-16)",
+  PRINT,
   'dir=$out/$print',
   'if [ "$mode" != print ] && [ ! -f "$dir/done" ]; then',
   '  rm -rf "$dir"; mkdir -p "$dir"',
@@ -87,6 +97,23 @@ export const PACK = [
   '  [ -n "$version" ] || { echo "spec: no version for the clone\'s packages: its HEAD is behind the newest release" >&2; false; }',
   '  node tools/types/npm.mjs . "${version#v}" "$dir" > /dev/null',
   '  node tools/contracts/npm.mjs . "${version#v}" "$dir" > /dev/null',
+  '  touch "$dir/done"',
+  "fi",
+  'echo "$print"',
+].join("\n");
+
+// Packs a library's npm package from the clone $1's working tree, as PACK packs spec's: its build,
+// then npm pack, at the version of its package.json, 0.0.0, which its release alone sets.
+export const PACK_LIBRARY = [
+  "set -euo pipefail",
+  'clone=$1; out=$2; mode=${3:-pack}',
+  'cd "$clone"',
+  PRINT,
+  'dir=$out/$print',
+  'if [ "$mode" != print ] && [ ! -f "$dir/done" ]; then',
+  '  rm -rf "$dir"; mkdir -p "$dir"',
+  "  just build > /dev/null",
+  '  npm pack --ignore-scripts --pack-destination "$dir" > /dev/null',
   '  touch "$dir/done"',
   "fi",
   'echo "$print"',
@@ -237,8 +264,8 @@ export function pinnedOf(dir) {
   }
 }
 
-// spec's packages a clone's package.json names, by the folder each takes.
-export function packagesOf(clone) {
+// The packages of names, spec's by default, that a clone's package.json names.
+export function packagesOf(clone, names = Object.keys(PACKAGES)) {
   let manifest;
   try {
     manifest = JSON.parse(fs.readFileSync(path.join(clone, "package.json"), "utf8"));
@@ -246,8 +273,11 @@ export function packagesOf(clone) {
     return [];
   }
   const named = { ...manifest.dependencies, ...manifest.devDependencies };
-  return Object.keys(PACKAGES).filter((name) => Object.hasOwn(named, name));
+  return names.filter((name) => Object.hasOwn(named, name));
 }
+
+// The packages the wiring laid in a clone, by their mark.
+export const laidOf = (clone, names = Object.keys(SOURCE_OF)) => names.filter((name) => fs.existsSync(path.join(clone, "node_modules", name, ".xrepo")));
 
 export const markOf = (clone, name) => {
   try {
@@ -257,27 +287,42 @@ export const markOf = (clone, name) => {
   }
 };
 
-// The fingerprint of spec's clone, and its packages packed by it, in spec's container.
-export function packSpec(dir, deps, mode = "pack") {
-  const out = path.join(dir, STAND, "packages");
+// The fingerprint of the clone of spec or of a library, and its packages packed by it, in its
+// container: spec's in .stand/packages/, a library's in a folder of its own there.
+export function packOf(dir, repo, deps, mode = "pack") {
+  const out = path.join(dir, STAND, "packages", ...(repo === "spec" ? [] : [repo]));
   fs.mkdirSync(out, { recursive: true });
-  const print = docker(deps, ["exec", "--user", "vscode", "--workdir", path.join(dir, "spec"), containerId("spec", deps), "bash", "-lc", PACK, "bash", path.join(dir, "spec"), out, mode], { timeout: INSTALL_MS }).trim().split("\n").at(-1);
-  if (!/^[0-9a-f]{16}$/.test(print ?? "")) throw new Error(`spec's packing printed no fingerprint`);
+  const print = docker(deps, ["exec", "--user", "vscode", "--workdir", path.join(dir, repo), containerId(repo, deps), "bash", "-lc", repo === "spec" ? PACK : PACK_LIBRARY, "bash", path.join(dir, repo), out, mode], { timeout: INSTALL_MS }).trim().split("\n").at(-1);
+  if (!/^[0-9a-f]{16}$/.test(print ?? "")) throw new Error(`${repo}'s packing printed no fingerprint`);
   return { print, folder: path.join(out, print) };
 }
 
+// The packages the wiring lays in the epic now, by the repository that packs them: of each source
+// with a clone, until ship has pinned its dependents to its release, after which they are the
+// registry's.
+function sourcesOf(dir) {
+  const clones = clonesOf(dir);
+  const pinned = pinnedOf(dir);
+  return Object.fromEntries(Object.entries(SOURCES).filter(([repo]) => clones.includes(repo) && !pinned[repo]));
+}
+
+// The packages a clone takes from the sources, but its own.
+const takenOf = (dir, repo, sources) => packagesOf(path.join(dir, repo), Object.entries(sources).filter(([r]) => r !== repo).flatMap(([, names]) => names));
+
 // Installs a consumer by its own recipe, which runs npm ci only when package.json or the lock
-// file changed, then lays spec's packages over node_modules where their mark is not the clone's
-// fingerprint now. The consumers' wiring, by repository.
+// file changed, then lays the packages it takes over node_modules where their mark is not their
+// clone's fingerprint now. A library a consumer takes is wired first, since its build takes spec's
+// packages. The consumers' wiring, by repository.
 export function wireNpm(dir, repos, deps, { install = true } = {}) {
-  // Once ship has pinned the dependents to spec's release, their packages are the registry's.
-  if (pinnedOf(dir).spec) return {};
-  const consumers = repos.filter((r) => r !== "spec").map((repo) => ({ repo, names: packagesOf(path.join(dir, repo)) })).filter((c) => c.names.length);
-  if (!consumers.length) return {};
-  const { print, folder } = packSpec(dir, deps);
-  const archives = fs.readdirSync(folder);
+  const sources = sourcesOf(dir);
+  const asked = repos.filter((r) => r !== "spec");
+  const needed = new Set([...asked.flatMap((r) => takenOf(dir, r, sources).map((n) => SOURCE_OF[n]).filter((s) => s !== "spec")), ...asked]);
+  const order = [...needed].sort((a, b) => Number(Object.hasOwn(sources, b)) - Number(Object.hasOwn(sources, a)));
+  const packs = {};
   const wired = {};
-  for (const { repo, names } of consumers) {
+  for (const repo of order) {
+    const names = takenOf(dir, repo, sources);
+    if (!names.length) continue;
     const clone = path.join(dir, repo);
     const id = containerId(repo, deps);
     if (install) {
@@ -289,13 +334,18 @@ export function wireNpm(dir, repos, deps, { install = true } = {}) {
         throw new Error(`${repo}: just _install ${/no end in/.test(error.message) ? `ran past ${INSTALL_MS / 60_000} minutes and may still run in its container: wait for it before another up` : "failed"}; its log is ${log}`);
       }
     }
+    const prints = {};
     for (const name of names) {
+      const source = SOURCE_OF[name];
+      packs[source] ??= packOf(dir, source, deps);
+      const { print, folder } = packs[source];
+      prints[source] = print;
       if (markOf(clone, name) === print) continue;
-      const archive = archives.find((f) => f.startsWith(`altnovatrail-${PACKAGES[name]}-`) && f.endsWith(".tgz"));
-      if (!archive) throw new Error(`spec's packing made no archive of ${name}`);
+      const archive = fs.readdirSync(folder).find((f) => f.startsWith(`altnovatrail-${name.split("/")[1]}-`) && f.endsWith(".tgz"));
+      if (!archive) throw new Error(`${source}'s packing made no archive of ${name}`);
       docker(deps, ["exec", "--user", "vscode", "--workdir", clone, id, "bash", "-c", UNPACK, "bash", path.join(clone, "node_modules", name), path.join(folder, archive), print]);
     }
-    wired[repo] = { packages: names, spec: print };
+    wired[repo] = { packages: names, ...prints };
   }
   return wired;
 }
@@ -325,11 +375,11 @@ export function readmeOf(epic, rows) {
     "",
     `The clones of the task, on the branch \`${epic}\` (R166 spec). \`xrepo up\` writes this file anew each time; notes of the task go to \`notes.md\` beside it, and \`xrepo down\` keeps both in \`~/.claude/novatrail-orchestrator/epics/${epic}/\`.`,
     "",
-    "| Clone | Branch from | Go: replaced | npm: spec's packages |",
+    "| Clone | Branch from | Go: replaced | npm: packages of the clones |",
     "|---|---|---|---|",
     ...rows.map((r) => `| ${r.repo} | ${r.from} | ${r.go ? r.go.map((g) => `\`${g}\``).join("<br>") : "—"} | ${r.npm ? r.npm.packages.map((p) => `\`${p}\``).join(", ") : "—"} |`),
     "",
-    "The wiring is out of git: `go.work` and `go.work.sum` by `.git/info/exclude`, the packages inside `node_modules`. `package.json`, the lock files and the `spec` submodules are unchanged, and the gate aligns the submodules.",
+    "The wiring is out of git: `go.work` and `go.work.sum` by `.git/info/exclude`, the packages — spec's, and canvas's in app — inside `node_modules`. `package.json`, the lock files and the `spec` submodules are unchanged, and the gate aligns the submodules.",
     "",
     "## Guards of pins that fail under the wiring",
     "",
@@ -384,8 +434,10 @@ const lines = (text) => text.split("\n").filter(Boolean);
 export function status(named, deps) {
   const { epic, dir } = epicOf(deps, named);
   const all = clonesOf(dir);
-  const consumers = all.filter((r) => r !== "spec" && packagesOf(path.join(dir, r)).length);
-  const print = consumers.length ? packSpec(dir, deps, "print").print : null;
+  const sources = sourcesOf(dir);
+  const taken = Object.fromEntries(all.map((r) => [r, takenOf(dir, r, sources)]));
+  const used = new Set(Object.values(taken).flat().map((n) => SOURCE_OF[n]));
+  const prints = Object.fromEntries([...used].map((s) => [s, packOf(dir, s, deps, "print").print]));
   const rows = all.map((repo) => {
     const clone = path.join(dir, repo);
     let ahead = null;
@@ -401,7 +453,7 @@ export function status(named, deps) {
     } catch {
       // No submodule spec.
     }
-    const npm = Object.fromEntries(packagesOf(clone).map((name) => [name, markOf(clone, name) === print ? "fresh" : markOf(clone, name) ? "stale" : "none"]));
+    const npm = Object.fromEntries(taken[repo].map((name) => [name, markOf(clone, name) === prints[SOURCE_OF[name]] ? "fresh" : markOf(clone, name) ? "stale" : "none"]));
     return { repo, branch: git(deps, clone, ["branch", "--show-current"]).trim(), ahead, behind, changed: lines(git(deps, clone, ["status", "--porcelain"])).length, spec_submodule: submodule, go_work: fs.existsSync(path.join(clone, "go.work")), npm: Object.keys(npm).length ? npm : null };
   });
   return { epic, clones: rows, stand: standOf(dir) };

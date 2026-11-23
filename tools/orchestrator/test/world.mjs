@@ -50,6 +50,7 @@ if (recipe === "_install") {
   for (const name of ["spec", "contracts"]) fs.mkdirSync("node_modules/@altnovatrail/" + name, { recursive: true });
 } else if (recipe === "build") {
   fs.mkdirSync("lib", { recursive: true });
+  if (fs.existsSync("tree.txt")) fs.copyFileSync("tree.txt", "lib/tree.txt");
 } else if (recipe === "dev-app") {
   // A run on the models logs the cost of each call, as api does.
   if (process.env.API_DEV_APP_AI === "1") for (let i = 0; i < 2; i += 1) console.log(JSON.stringify({ msg: "ai call", cost_micro_usd: 1500, billed: true }));
@@ -120,12 +121,24 @@ console.log(file);
 `;
 
 // The stand-in of npm: npm install raises package.json's packages to the versions named, exactly,
-// and writes them to the lock file, which keeps what else it held.
+// and writes them to the lock file, which keeps what else it held; npm pack archives package.json
+// and lib/ as altnovatrail-<name>-<version>.tgz in --pack-destination.
 const NPM = `#!/usr/bin/env node
 const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { execFileSync } = require("node:child_process");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_DOCKER + "/npm.jsonl", JSON.stringify({ cwd: process.cwd(), args }) + "\\n");
 const manifest = JSON.parse(fs.readFileSync("package.json", "utf8"));
+if (args[0] === "pack") {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "pack-"));
+  fs.cpSync(".", path.join(tmp, "package"), { recursive: true, filter: (f) => f === "." || f === "package.json" || f === "lib" || f.startsWith("lib/") });
+  const file = path.join(args[args.indexOf("--pack-destination") + 1], manifest.name.slice(1).replace("/", "-") + "-" + manifest.version + ".tgz");
+  execFileSync("tar", ["-czf", file, "-C", tmp, "package"]);
+  console.log(path.basename(file));
+  process.exit(0);
+}
 const lock = fs.existsSync("package-lock.json") ? JSON.parse(fs.readFileSync("package-lock.json", "utf8")) : { lockfileVersion: 3, packages: {} };
 for (const a of args.filter((x) => !x.startsWith("-") && x !== "install")) {
   const at = a.lastIndexOf("@");
@@ -178,7 +191,7 @@ const ORIGINS = {
     "parts/deployment-1.tar.gz.sigstore.json": "{}\n",
     "package.json": JSON.stringify({ dependencies: { "@altnovatrail/canvas": "0.3.36", "@altnovatrail/contracts": "0.19.4" }, devDependencies: { "@altnovatrail/spec": "0.19.4" } }),
   },
-  canvas: { ".gitignore": "/node_modules/\n/lib/\n/coverage/\n", "package.json": JSON.stringify({ dependencies: { "@altnovatrail/spec": "0.19.4" } }) },
+  canvas: { ".gitignore": "/node_modules/\n/lib/\n/coverage/\n", "tree.txt": "canvas first\n", "package.json": JSON.stringify({ name: "@altnovatrail/canvas", version: "0.0.0", dependencies: { "@altnovatrail/spec": "0.19.4" } }) },
 };
 
 export function commit(dir, message) {
