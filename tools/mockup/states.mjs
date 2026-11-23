@@ -167,12 +167,12 @@ export const STATES = [
   // Take from my paper, the main feature of the app, open to every profile: the camera, the tasks the AI
   // found on the page and one framed by hand, each picked task on a clean sheet under its crop, Check by the key.
   { name: "camera", title: "The camera of the paper flow", from: "home", shows: "Worksheet", run: (t) => t.v().openCamera() },
-  { name: "pick", title: "The tasks the AI found on the page, every one picked", from: "camera", shows: "tap one to leave it out", run: (t) => t.v().capture() },
+  { name: "pick", title: "The tasks the AI found on the page, every one picked", from: "camera", shows: "5 tasks found", run: (t) => t.v().capture() },
   // The page while the finding runs: no frame yet, a line sweeping it with its glow the same above and below.
   { name: "pick-finding", title: "The page while the AI finds its tasks", from: "pick", shows: "Finding the tasks on the page", run: (t) => t.c.setState({ finding: true, selected: [] }) },
   // A rectangle dragged round equation (6), which the AI missed: while the finger is down, and once it is up, the learner's frame.
-  { name: "pick-drag", title: "A frame being dragged round a task", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setState({ liveBox: { x: 304, y: 592, w: 210, h: 58 }, liveLayer: "frame" }) },
-  { name: "pick-adjust", title: "A frame the AI found, moved and resized by its corner", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setFrame(2, { x: 300, y: 142, w: 292, h: 224 }) },
+  { name: "pick-drag", title: "A frame being dragged round a task", from: "pick", shows: "5 tasks found", run: (t) => t.c.setState({ liveBox: { x: 304, y: 592, w: 210, h: 58 }, liveLayer: "frame" }) },
+  { name: "pick-adjust", title: "A frame the AI found, moved and resized by its corner", from: "pick", shows: "5 tasks found", run: (t) => t.c.setFrame(2, { x: 300, y: 142, w: 292, h: 224 }) },
   { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([304, 592], [582, 650]) },
   // The learner's request about the page, to the tutor: the finding gives the frames anew, the program words the line.
   {

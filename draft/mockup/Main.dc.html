@@ -90,6 +90,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone:has(.ph-pickband) .ph-dbgbtn{bottom:256px!important}
 .nt-phone:has(.ph-pickband) .ph-dbgbtn.ph-dbg-up{bottom:324px!important}
 .nt-phone .ph-pickcount{min-width:0!important}
+/* The pick screen's top bar keeps one row: where its words do not fit, as on a phone, the name and the buttons' captions go,
+   each button its icon alone with its caption as its name and tooltip; on the iPad in landscape they fit. */
+.nt-pad .ph-fit.tip::after{display:none}
+.nt-phone .ph-fit{width:44px;padding:0!important;justify-content:center}
+.nt-phone .ph-fit>.ph-cap{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.nt-phone .ph-pmid{top:70px!important;height:44px!important;font-size:14px!important}
 .nt-phone .ph-verdict{left:16px!important;right:84px!important;width:auto!important;transform:none!important;flex-wrap:wrap;justify-content:flex-end}
 .nt-phone .ph-vtext{flex:1 1 200px!important}
 .nt-phone .ph-campaper{transform:translate(39px,190px) rotate(-3deg) scale(0.52)!important}
@@ -710,6 +716,15 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   </div>
   </sc-if>
 
+  <!-- The page to pick from: what the AI found, or that it is finding, in the middle of the bar; on a phone, a row below it. -->
+  <sc-if value="{{pickMid.on}}" hint-placeholder-val="{{ false }}">
+  <div class="glass ph-pmid" role="status" style="position: absolute; left: 50%; top: 14px; transform: translateX(-50%); height: 48px; border-radius: 24px; padding: 0 20px 0 12px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; white-space: nowrap">
+    <sc-if value="{{pickMid.finding}}" hint-placeholder-val="{{ false }}"><span class="nt-spin" aria-hidden="true" style="width: 22px; height: 22px; border-radius: 11px; border: 2.5px solid #E5F0FF; border-top-color: #0071E3; border-right-color: #0071E3; box-sizing: border-box"></span></sc-if>
+    <sc-if value="{{pickMid.found}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 26px; height: 26px; border-radius: 13px; background: #34C759; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></sc-if>
+    {{pickMid.text}}
+  </div>
+  </sc-if>
+
   <sc-if value="{{showRightBar}}" hint-placeholder-val="{{ false }}">
   <div class="glass" style="position: absolute; right: 16px; top: 14px; height: 48px; border-radius: 24px; padding: 2px; box-sizing: border-box; display: flex; align-items: center; gap: 2px">
     <sc-if value="{{isSolve}}" hint-placeholder-val="{{ false }}">
@@ -732,9 +747,15 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </sc-if>
     </sc-if>
     <sc-if value="{{isPick}}" hint-placeholder-val="{{ false }}">
-      <button onClick="{{retake}}" style="height: 44px; padding: 0 12px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0071E3">
+      <sc-if value="{{pickClear}}" hint-placeholder-val="{{ false }}">
+      <button class="ph-fit tip tip-bl" aria-label="Remove all frames" data-tip="Remove all frames" onClick="{{removeAll}}" style="height: 44px; padding: 0 12px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0071E3">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        <span class="ph-cap">Remove all frames</span>
+      </button>
+      </sc-if>
+      <button class="ph-fit tip tip-bl" aria-label="Retake" data-tip="Retake" onClick="{{retake}}" style="height: 44px; padding: 0 12px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0071E3">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
-        Retake
+        <span class="ph-cap">Retake</span>
       </button>
     </sc-if>
     <!-- A canvas of another author, under "Later": back to the task, and the kinds behind «…» (epic E5). -->
@@ -3296,6 +3317,11 @@ class Component extends DCLogic {
     if (this.wasMoved) { this.wasMoved = false; return; }
     this.toggle(id);
   }
+  // Every frame of the page, found or drawn, goes: the photo is left clear for the learner's own frames.
+  removeAll() {
+    const s = this.state;
+    this.setState({ asked: { ...s.asked, [s.captured]: [] }, frames: { ...s.frames, [s.captured]: [] }, selected: [], askUndo: null });
+  }
   removeFrame(id) {
     const s = this.state;
     this.setState({ frames: { ...s.frames, [s.captured]: this.framesOf().filter((f) => f.id !== id) }, selected: s.selected.filter((x) => x !== id), askUndo: null });
@@ -3872,7 +3898,11 @@ class Component extends DCLogic {
     if (s.surface === 'numberline') { title = 'Number line'; subtitle = 'by Kite Math'; }
     if (s.surface === 'geo') { title = 'Geometry board'; subtitle = 'by Tangent Lab'; }
     const findingPage = isPick && !!s.finding;
-    if (isPick) { title = 'Your page'; subtitle = findingPage ? 'Finding the tasks on the page…' : this.found().length || frs.length ? this.found().length + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') + ' · tap one to leave it out' : ''; }
+    // What was found stands in the middle of the bar, as app draws it, not under the name.
+    const nFound = isPick ? this.found().length : 0;
+    const pickMid = { on: isPick && (findingPage || nFound + frs.length > 0), finding: findingPage, found: !findingPage,
+      text: findingPage ? 'Finding the tasks on the page…' : nFound + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') };
+    if (isPick) { title = 'Your page'; subtitle = ''; }
     // The counter at the right says which task of the page it is: no line of it under the name.
     if (isSolve) { title = this.tname(t); subtitle = ''; }
 
@@ -3881,7 +3911,7 @@ class Component extends DCLogic {
     const canGo = sel.length > 0 && s.pageSays !== 'closed' && !findingPage;
     const PH = this.phone(), dim = this.dims(), cf = this.cf();
     const pageK = PH ? 0.5967 : 0.76;
-    const pageTf = PH ? 'translate(16px, 76px) scale(' + pageK + ')' : 'translate(369px, 66px) scale(' + pageK + ')';
+    const pageTf = PH ? 'translate(16px, 124px) scale(' + pageK + ')' : 'translate(369px, 66px) scale(' + pageK + ')';
     const pOver = isSolve && this.over(t.id);
 
     const key = this.inkKey();
@@ -3992,7 +4022,7 @@ class Component extends DCLogic {
       showChrome: !isCamera, showTools: L ? isTask : !isPaper || isSolve,
       showKinds: isSolve && later, showRightBar: (isSolve || isPick || isExt) && !L,
       devCls: PH ? 'nt-phone' : 'nt-pad', stage: this.desk() ? { x: (dim.W - 1194) / 2, y: (dim.VH - 834) / 2, w: 1194, h: 834, head: 24 - (dim.VH - 834) / 2, langTop: 76 - (dim.VH - 834) / 2 } : { x: 0, y: 0, w: dim.W, h: dim.VH, head: 24, langTop: 76 }, dim, nl, devName: this.devName(), scrollTab: PH ? '0' : '-1',
-      pillCls: PH && isSolve ? 'ph-backonly' : '', barCls: PH && s.chatOpen ? 'nt-hide' : '', railCls: PH && s.chatOpen ? 'nt-hide' : '',
+      pillCls: PH && (isSolve || isPick) ? 'ph-backonly' : '', pickMid, pickClear: isPick && !findingPage && nFound + frs.length > 0, barCls: PH && s.chatOpen ? 'nt-hide' : '', railCls: PH && s.chatOpen ? 'nt-hide' : '',
       // With the tutor's panel open on the iPad the line keeps to the width of the page, clear of the panel.
       noteWrap: !PH && s.chatOpen ? { ws: 'normal', w: '456px' } : { ws: 'nowrap', w: 'auto' },
       pickNote: 'The AI looked at the whole page to find the tasks. The photo stays on this ' + this.devName() + '. Drag a frame round a task it missed.',
@@ -4044,7 +4074,7 @@ class Component extends DCLogic {
 
       goNumberline: () => this.go('numberline'), goGeo: () => this.go('geo'),
       toggleMore: () => this.setState({ more: !this.state.more, tasksOpen: false }),
-      back: this.back, retake: () => this.setState({ stage: 'camera', verdict: null }),
+      back: this.back, retake: () => this.setState({ stage: 'camera', verdict: null }), removeAll: () => this.removeAll(),
       backToPick: () => this.setState({ stage: 'pick', verdict: null }),
       demoWs: () => this.setState({ demo: 'worksheet' }), demoOl: () => this.setState({ demo: 'olympiad' }),
       capture: this.capture, start: this.start,
