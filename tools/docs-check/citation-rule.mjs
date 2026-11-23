@@ -63,9 +63,12 @@ const ATTRIBUTION = new RegExp(
 // A document cited by its file and spec's suffix, `RULES.md spec`, or by its file and a heading in
 // a parenthesis, `(RULES.md, How we work)`; a list of files, `(README.md, CLAUDE.md)`, is none, and
 // neither is a row, a task or a decision there, `(RUN.md, Д15)`, which the rules of the numbers judge.
+// A heading holds no dot, which a file's name has. A path is folders each ending in its slash, so
+// that no two ways to read it make the match backtrack.
+const FILE = String.raw`(?:[\p{L}\p{N}_-]+\/)*[\p{L}\p{N}_-]+\.md`;
 const DOCUMENT_BY_NAME = new RegExp(
-  String.raw`(?<![\p{L}\p{N}_./-])[\p{L}\p{N}_./-]+\.md\s+spec(?![\p{L}\p{N}_-])` +
-    String.raw`|(?<=\(\s*)[\p{L}\p{N}_./-]+\.md(?:\s+spec)?,\s+(?![^,;()]*\.\p{L}+\s*[;)]|[ВДTR]\d|[ОПТ]-\d)\p{Lu}[^,;()]*(?=[;)])`,
+  String.raw`(?<![\p{L}\p{N}_./-])${FILE}\s+spec(?![\p{L}\p{N}_-])` +
+    String.raw`|(?<=\(\s*)${FILE}(?:\s+spec)?,\s+(?![ВДTR]\d|[ОПТ]-\d)\p{Lu}[^,;().]*(?=[;)])`,
   "gu",
 );
 // What a record of the outside world is cited by: its records are numbered sections.

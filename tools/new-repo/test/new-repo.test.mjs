@@ -131,7 +131,7 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     assert.deepEqual(walk(dir), filesOf(kind));
     for (const file of filesOf(kind)) assert.deepEqual(placeholders(read(dir, file)), [], `${name}: ${file} keeps a placeholder`);
     assert.match(read(dir, "README.md"), new RegExp(`^# ${name}\n`));
-    assert.match(read(dir, "CLAUDE.md"), new RegExp(`the one in \`spec/docs/architecture\.md\` whose heading names \`${name}\``));
+    assert.match(read(dir, "CLAUDE.md"), new RegExp(`the one in \`spec/docs/architecture\\.md\` whose heading names \`${name}\``));
     assert.match(read(dir, "docs/decisions.md"), /set up 2026-01-02 from the template of `spec` v0\.0\.0-test/);
     for (const file of ["README.md", "CLAUDE.md", "RUN.md", "docs/architecture.md"]) assert.ok(read(dir, file).match(FILL), `${name}: ${file} has no FILL`);
     // The window's closing leaves the container to the orchestrator's executor.
