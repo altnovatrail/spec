@@ -113,7 +113,7 @@ export interface StrokeStyle {
   /** Any colour of sRGB, `#rrggbb` in lowercase hexadecimal digits, the palette's or another. */
   readonly color: string;
   /**
-   * The width of its line, in the sheet's units, from 0.1 to 50 — on the tracing paper in its
+   * The width of its line, in the sheet's units to a tenth, from 0.1 to 50 — on the tracing paper in its
    * units, so that it scales with it. A pen of the kind "pen" draws it as the middle of what its
    * pressure or its speed makes of it; a crop for checking draws every stroke at its width.
    */

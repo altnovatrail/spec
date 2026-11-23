@@ -50,6 +50,9 @@ export const BOX_RULE = { margin: 120, limit: 1600 };
 export const PEN_KINDS = ["PEN_KIND_PEN", "PEN_KIND_LINER", "PEN_KIND_MARKER"];
 export const STYLE_RULE = { width: [1, 500], opacity: [10, 100] };
 const COLOR = /^#[0-9a-f]{6}$/;
+// The events of a history of writing, by the fields that set them, and those that take strokes off.
+export const EVENT_KINDS = ["write", "erase", "clear", "cut", "undo"];
+export const TAKING_OFF = EVENT_KINDS.filter((kind) => kind !== "write");
 
 const byNumber = (a, b) => a - b;
 
@@ -101,7 +104,8 @@ const samePoint = (a, b) => a.x === b.x && a.y === b.y && a.t_ms === b.t_ms;
 // strokes the sheet shows, a clear all of them, and an undo putting back strokes written and not
 // shown; and each piece a cut leaves a new stroke, of a stroke the cut takes off, with its pointer
 // and style and a run of its points, with one point of its own at most at each end, at a time
-// within the stroke's. breach(at, message) gets each, with at its path from the events, and
+// within the stroke's, the pieces of one stroke along it and none the whole stroke. breach(at,
+// message) gets each, with at its path from the events, and
 // point(point, at) each point to check its place. The IDs the sheet shows at the end.
 export function historyBreaches(events, breach, point) {
   const visible = new Set();
@@ -111,7 +115,7 @@ export function historyBreaches(events, breach, point) {
   const stroke = (one, at, event) => {
     if (one.id < 1) breach([...at, "id"], `the stroke's ID is ${one.id}, and IDs count from 1`);
     else if (known.has(one.id)) breach([...at, "id"], `the stroke ${one.id} is written twice`);
-    known.set(one.id, one);
+    else known.set(one.id, one);
     if (one.pointer === "") breach([...at, "pointer"], "the stroke names no type of pointer");
     if (one.style) styleBreaches(one.style, [...at, "style"], breach);
     if (one.points.length === 0) breach([...at, "points"], `the stroke ${one.id} has no point`);
@@ -125,21 +129,27 @@ export function historyBreaches(events, breach, point) {
     const end = one.points.at(-1)?.t_ms;
     if (end !== undefined && end > event.t_ms) breach([...at.slice(0, 1), "t_ms"], `the stroke ${one.id} is written at ${event.t_ms} ms, and its last point is at ${end} ms: a stroke is written no sooner than its last point`);
   };
-  // A piece, at its path, against the stroke it was cut of: its pointer and style, and its points.
-  const piece = (one, of, at) => {
+  // A piece, at its path, against the stroke it was cut of and where the piece of it before ended
+  // along it, { index, time }: its pointer and style, and its points. Where this one ends.
+  const piece = (one, of, at, after) => {
     if (one.pointer !== of.pointer) breach([...at, "pointer"], `the piece ${one.id} names the pointer ${JSON.stringify(one.pointer)}, and the stroke ${of.id} it was cut of ${JSON.stringify(of.pointer)}`);
     if (!isDeepStrictEqual(one.style, of.style)) breach([...at, "style"], `the piece ${one.id} has the style ${JSON.stringify(one.style ?? null)}, and the stroke ${of.id} it was cut of ${JSON.stringify(of.style ?? null)}`);
+    if (isDeepStrictEqual(one.points, of.points)) breach([...at, "points"], `the piece ${one.id} is the whole stroke ${of.id}: a cut leaves pieces only of what it cut`);
     const inner = one.points.slice(1, -1);
-    const start = inner.length ? of.points.findIndex((each) => samePoint(each, inner[0])) : 0;
-    if (start < 0 || inner.some((each, j) => !of.points[start + j] || !samePoint(each, of.points[start + j]))) breach([...at, "points"], `the piece ${one.id} is no run of the points of the stroke ${of.id}, with one point of its own at most at each end`);
+    // Where the inner points lie in the stroke's, as a run: the first such place past the piece before.
+    const runs = of.points.flatMap((_, k) => (inner.length && inner.every((each, j) => of.points[k + j] && samePoint(each, of.points[k + j])) ? [k] : []));
+    const start = runs.find((k) => k > after.index);
+    if (inner.length && runs.length === 0) breach([...at, "points"], `the piece ${one.id} is no run of the points of the stroke ${of.id}, with one point of its own at most at each end`);
+    else if ((inner.length && start === undefined) || (one.points[0] && one.points[0].t_ms < after.time)) breach([...at, "points"], `the piece ${one.id} begins before the piece of the stroke ${of.id} before it ends: the pieces of a stroke go along it`);
     const [first, last] = [of.points[0]?.t_ms, of.points.at(-1)?.t_ms];
     for (const end of [one.points[0], one.points.at(-1)]) if (end && (end.t_ms < first || end.t_ms > last)) breach([...at, "points"], `the piece ${one.id} ends at ${end.t_ms} ms, outside the times of the stroke ${of.id}, ${first} to ${last} ms`);
+    return { index: inner.length && start !== undefined ? start + inner.length - 1 : after.index, time: one.points.at(-1)?.t_ms ?? after.time };
   };
   events.forEach((event, i) => {
     const at = [i];
     if (event.t_ms < time) breach([...at, "t_ms"], `the event is at ${event.t_ms} ms, before the one before it, at ${time} ms`);
     time = Math.max(time, event.t_ms);
-    const kind = ["write", "erase", "clear", "cut", "undo"].find((name) => name in event);
+    const kind = EVENT_KINDS.find((name) => name in event);
     if (kind === "write") {
       stroke(event.write, [...at, "write"], event);
       visible.add(event.write.id);
@@ -149,6 +159,9 @@ export function historyBreaches(events, breach, point) {
       if (new Set(ids).size !== ids.length) breach([...at, kind], `${kind} names a stroke twice`);
       for (const id of ids) if (!visible.has(id)) breach([...at, kind], `${kind} takes off the stroke ${id}, which the sheet does not show then`);
       if (kind === "clear" && !isDeepStrictEqual(new Set(ids), visible)) breach([...at, kind], `clear names ${JSON.stringify(ids)}, and the sheet shows ${JSON.stringify([...visible].sort(byNumber))}: a clear takes every stroke off`);
+      // The strokes taken off, as they were written, and where the last piece of each ended.
+      const taken = new Map(ids.filter((id) => visible.has(id)).map((id) => [id, known.get(id)]));
+      const ends = new Map();
       for (const id of ids) visible.delete(id);
       let order = 0;
       (event.cut?.pieces ?? []).forEach((one, j) => {
@@ -160,7 +173,8 @@ export function historyBreaches(events, breach, point) {
         if (!one.stroke) return breach(where, "the piece holds no stroke");
         stroke(one.stroke, [...where, "stroke"], event);
         visible.add(one.stroke.id);
-        if (place >= 0 && known.get(one.of) !== one.stroke) piece(one.stroke, known.get(one.of), [...where, "stroke"]);
+        const of = place >= 0 ? taken.get(one.of) : undefined;
+        if (of) ends.set(one.of, piece(one.stroke, of, [...where, "stroke"], ends.get(one.of) ?? { index: -1, time: -Infinity }));
       });
     } else if (kind === "undo") {
       const { removed, restored } = event.undo;
@@ -183,7 +197,7 @@ export function fold(events) {
   const written = new Map();
   const shown = new Set();
   for (const event of events) {
-    const added = event.write ? [event.write] : (event.cut?.pieces ?? []).map((piece) => piece.stroke);
+    const added = event.write ? [event.write] : (event.cut?.pieces ?? []).flatMap((piece) => (piece.stroke ? [piece.stroke] : []));
     for (const id of event.erase?.ids ?? event.clear?.ids ?? event.cut?.ids ?? event.undo?.removed ?? []) shown.delete(id);
     for (const stroke of added) {
       written.set(stroke.id, stroke);
@@ -540,13 +554,14 @@ function listOf(value, key, name, here, read) {
 }
 
 // What the strokes and the groups of a case break: strokes with IDs from 1, each once, with their
-// points on the sheet; and groups labelled A, B and on, each stroke in one, its IDs ascending.
+// style, if they have one, and their points on the sheet; and groups labelled A, B and on, each stroke in one, its IDs ascending.
 function strokesAndGroups(strokes, groups, here) {
   const ids = new Set();
   strokes.forEach((stroke, i) => {
     if (stroke.id < 1 || ids.has(stroke.id)) here(`the stroke's ID is ${stroke.id}: IDs count from 1, each once`, ["strokes", i, "id"]);
     ids.add(stroke.id);
     if (stroke.points.length === 0) here(`the stroke ${stroke.id} has no point`, ["strokes", i, "points"]);
+    if (stroke.style) styleBreaches(stroke.style, ["strokes", i, "style"], (at, text) => here(text, at));
     stroke.points.forEach((point, j) => onSheet(here, ["strokes", i])(point, ["points", j]));
   });
   if (!groups) return;
@@ -595,7 +610,7 @@ function checkGroups(value, here, read, rule, seen) {
   const before = seen.problems;
   historyBreaches(history.events, (at, text) => here(text, ["history", "events", ...at]), onSheet(here, ["history", "events"]));
   if (seen.problems > before) return;
-  for (const event of history.events) for (const kind of ["erase", "clear", "cut", "undo"]) if (kind in event) seen.events.add(kind);
+  for (const event of history.events) for (const kind of TAKING_OFF) if (kind in event) seen.events.add(kind);
   const { written, visible } = fold(history.events);
   compare(value.visible, visible, "visible", here, "the fold of the history");
   const computed = groupsOf(visible.map((id) => written.get(id)), rule);
@@ -742,7 +757,7 @@ export function checkVectors(root, image, files) {
     const lack = (text) => errors.push({ file: FOLDER, line: 0, message: `no vector ${text}: the vectors hold every one of ${TEXT}` });
     const names = new Set(files.map((file) => path.posix.basename(file)));
     for (const name of VECTOR_FILES) if (!names.has(name)) errors.push({ file: `${FOLDER}/${name}`, line: 0, message: `the file is missing: the vectors of ${TEXT} are ${VECTOR_FILES.join(", ")}` });
-    for (const kind of ["erase", "clear", "cut", "undo"]) if (!seen.events.has(kind)) lack(`has a history with ${kind}`);
+    for (const kind of TAKING_OFF) if (!seen.events.has(kind)) lack(`has a history with ${kind}`);
     if (!seen.erased.has("none")) lack("has a stroke taken off that is in no group");
     if (!seen.erased.has("several")) lack("has a stroke taken off that is in two groups");
     const crops = { "no bundle": "no bundle", "above the ceiling": "h_med above the ceiling", "drawn smaller": "a height drawn below the height asked for", styled: "strokes with a style", "wider margin": "a margin wider than the rule's, for a wide line" };

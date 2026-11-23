@@ -21,7 +21,7 @@ import { createFileRegistry, fromJson, toJson } from "@bufbuild/protobuf";
 import * as wkt from "@bufbuild/protobuf/wkt";
 import { ESSAY_REASONS, REASONS, WHITE_SPACE, differenceOf, readVector } from "./observation.mjs";
 import { isObject } from "./rules.mjs";
-import { CROP_RULE, PEN_KINDS, cropSetOf, fold, groupsOf, heightsOf, historyBreaches, labelOf, numbersOf, ruleDifference, styleBreaches, tableOf } from "./strokes.mjs";
+import { CROP_RULE, EVENT_KINDS, PEN_KINDS, cropSetOf, fold, groupsOf, heightsOf, historyBreaches, labelOf, numbersOf, ruleDifference, styleBreaches, tableOf } from "./strokes.mjs";
 
 export { labelOf };
 
@@ -40,7 +40,7 @@ const LICENSE = "Apache-2.0";
 export const PURPOSES = ["PURPOSE_MEASUREMENT", "PURPOSE_EVAL_SET"];
 export const WRITERS = ["WRITER_ADULT", "WRITER_ADULT_AS_CHILD", "WRITER_CHILD"];
 const ADULTS = new Set(["WRITER_ADULT", "WRITER_ADULT_AS_CHILD"]);
-const EVENTS = ["write", "erase", "clear", "cut", "undo"];
+const EVENTS = EVENT_KINDS;
 // Each kind of a part of the writing the rules name; MARKUP, what a markup shows of the examples'
 // coverage beside them.
 export const PART_KINDS = ["PART_KIND_TEXT", "PART_KIND_DRAWING"];
@@ -170,12 +170,12 @@ export function pngBreaches(bytes, width, height, colour = false) {
   return found;
 }
 
-// The IDs of the strokes of a sample that have a style: of a history, those it wrote and the pieces
-// a cut left; of the final geometry, its strokes.
-function styledOf(sample) {
-  const strokes = sample.history ? [...fold(sample.history.events).written.values()] : (sample.geometry?.strokes ?? []);
-  return new Set(strokes.filter((stroke) => stroke.style).map((stroke) => stroke.id));
-}
+// The strokes of a sample: of a history, those it wrote and the pieces a cut left; of the final
+// geometry, its strokes.
+const writtenOf = (sample) => (sample.history ? [...fold(sample.history.events).written.values()] : (sample.geometry?.strokes ?? []));
+
+// The IDs of the strokes of a sample that have a style.
+const styledOf = (sample) => new Set(writtenOf(sample).filter((stroke) => stroke.style).map((stroke) => stroke.id));
 
 // What the strokes of a sample break, on a sheet or page of the size given, and the IDs of the
 // strokes it shows at the end.
@@ -519,8 +519,7 @@ export function checkSample(bytes, message) {
   seen.add(value.purpose).add(value.writer);
   for (const key of ["history", "geometry", "sheet", "workbook"]) if (key in value) seen.add(key);
   for (const event of value.history?.events ?? []) for (const name of EVENTS) if (name in event) seen.add(name);
-  const strokes = value.history ? [...fold(value.history.events).written.values()] : (value.geometry?.strokes ?? []);
-  for (const stroke of strokes) seen.add(STYLES[stroke.style ? 0 : 1]);
+  for (const stroke of writtenOf(value)) seen.add(STYLES[stroke.style ? 0 : 1]);
   const { markup } = value;
   if (markup?.parts) {
     seen.add("parts");

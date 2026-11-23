@@ -157,6 +157,7 @@ test("crops.json: the strokes and groups, the bundles and the numbers of the cro
   expectOnly("crops.json", dot((c) => (c.digit_height = 0)), /^dot: digit_height is 0, a whole number of px from 1 to 256$/);
   expectOnly("crops.json", dot((c) => c.strokes.push(structuredClone(c.strokes[0]))), /^dot: the stroke's ID is 1: IDs count from 1, each once$/);
   expectOnly("crops.json", dot((c) => (c.strokes[0].points = [])), /^dot: the stroke 1 has no point$/);
+  expectOnly("crops.json", vector("crops.json", "styles", (v, c) => (c.strokes[0].style.opacity = 5)), /^styles: the opacity is 5, and a stroke's is whole percent from 10 to 100$/);
   expectOnly("crops.json", dot((c) => (c.groups[0].label = "B")), /^dot: group 1 is labelled "B", and the labels go A, B and on: "A"$/);
   expectOnly("crops.json", dot((c) => (c.groups[0].stroke_ids = [1, 2])), /^dot: a group names the stroke 2, which the case does not have$/);
   expectOnly("crops.json", dot((c) => (c.groups[0].stroke_ids = [])), /^dot: the group A names \[\]: one stroke at least, ascending, each once$/, /^dot: the stroke 1 is in 0 groups, and each stroke is in one$/);
@@ -242,14 +243,36 @@ test("a history's cuts and styles: each piece a new stroke of one cut off, with 
   only((e, cut) => (cut.ids = [1, 1]), /^cut names a stroke twice$/);
   only((e, cut) => (cut.ids = [1, 9]), /^cut takes off the stroke 9, which the sheet does not show then$/);
   only((e, cut) => (cut.pieces[1].of = 2), /^the piece is of the stroke 2, which the cut does not take off$/);
-  only((e, cut) => (cut.ids = [1, 2]) && (cut.pieces = [{ of: 2, stroke: { ...other, id: 5 } }, cut.pieces[0]]), /^the piece of the stroke 1 comes after a piece of a stroke later in ids/);
+  only((e, cut) => (cut.ids = [1, 2]) && (cut.pieces = [{ of: 2, stroke: { ...other, id: 5, points: other.points.slice(0, 1) } }, cut.pieces[0]]), /^the piece of the stroke 1 comes after a piece of a stroke later in ids/);
   only((e, cut) => (cut.pieces[1].stroke.id = 2), /^the stroke 2 is written twice$/);
   only((e, cut) => (cut.pieces[1].stroke.pointer = "touch"), /^the piece 4 names the pointer "touch", and the stroke 1 it was cut of "pen"$/);
   only((e, cut) => delete cut.pieces[1].stroke.style, /^the piece 4 has the style null, and the stroke 1 it was cut of \{/);
   only((e, cut) => (cut.pieces[0].stroke.points = [left.points[0], { x: 150, y: 101, t_ms: 50 }, left.points[2]]), /^the piece 3 is no run of the points of the stroke 1/);
-  only((e, cut) => (cut.pieces[0].stroke.points = [left.points[0], line.points[1], line.points[3], { x: 250, y: 100, t_ms: 150 }]), /^the piece 3 is no run of the points of the stroke 1/);
+  only((e, cut) => (cut.pieces[0].stroke.points = [left.points[0], line.points[1], line.points[3], { x: 250, y: 100, t_ms: 150 }]) && cut.pieces.pop(), /^the piece 3 is no run of the points of the stroke 1/);
   only((e, cut) => (cut.pieces[1].stroke.points[1] = { x: 260, y: 100, t_ms: 160 }), /^the piece 4 ends at 160 ms, outside the times of the stroke 1, 0 to 150 ms$/);
   only((e, cut) => (cut.pieces[1] = { of: 1 }), /^the piece holds no stroke$/);
+  only((e, cut) => (cut.pieces[1].stroke.points = []), /^the stroke 4 has no point$/);
+  // A piece of a stroke the sheet never showed is that breach alone.
+  only((e, cut) => (cut.ids = [1, 9]) && cut.pieces.push({ of: 9, stroke: { ...other, id: 5 } }), /^cut takes off the stroke 9, which the sheet does not show then$/);
+  only((e, cut) => (cut.pieces = [{ of: 1, stroke: { ...line, id: 3 } }]), /^the piece 3 is the whole stroke 1: a cut leaves pieces only of what it cut$/);
+  // The pieces of a stroke go along it: in reverse, or the one over the other, they break the order.
+  only((e, cut) => cut.pieces.reverse(), /^the piece 3 begins before the piece of the stroke 1 before it ends/);
+  only((e, cut) => (cut.pieces[1].stroke.points = [{ x: 140, y: 100, t_ms: 60 }, line.points[2], line.points[3]]), /^the piece 4 begins before the piece of the stroke 1 before it ends/);
+  // Two points at one time: a piece that takes up a point the one before took is out of order too.
+  const twice = (e, cut) => {
+    const [p0, p1, p2] = e[0].write.points;
+    p2.t_ms = p1.t_ms;
+    cut.pieces[0].stroke.points = [p0, p1, { x: 160, y: 100, t_ms: 50 }];
+    cut.pieces[1].stroke.points = [{ x: 145, y: 100, t_ms: 50 }, p1, { x: 155, y: 100, t_ms: 50 }];
+  };
+  only(twice, /^the piece 4 begins before the piece of the stroke 1 before it ends/);
+  // A stroke that stood still repeats a point: a piece's run may begin at any of them.
+  const still = (e, cut) => {
+    e[0].write.points.splice(2, 0, { ...line.points[1] });
+    cut.pieces = [{ of: 1, stroke: { ...left, points: [{ x: 140, y: 100, t_ms: 40 }, line.points[1], line.points[1], { x: 160, y: 100, t_ms: 60 }] } }];
+  };
+  assert.deepEqual(problems(history(still)).found, []);
+  assert.deepEqual(fold([write(line), { t_ms: 500, cut: { ids: [1], pieces: [{ of: 1 }] } }]).visible, []);
   only((e) => (e[1].write.style.color = "#0A63D6"), /^the colour "#0A63D6" is not # and six lowercase hexadecimal digits$/);
   only((e) => (e[1] = { t_ms: 500, write: { ...other, style: { ...style, opacity: 5 } } }), /^the opacity is 5, and a stroke's is whole percent from 10 to 100$/);
   assert.match(problems(history((e) => (e[2] = { t_ms: 500 }))).found[0], /^the event is none of write, erase, clear, cut and undo$/);

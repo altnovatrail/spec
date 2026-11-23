@@ -274,6 +274,7 @@ test("strokes with a style, and a cut: their crops are RGB, and the rules hold t
   const at = (edit) => changed(styled(), (s) => edit(s.history.events));
   expectOnly(at((list) => (list[0].write.style.width = 60)), /^the width is 60, and a stroke's width is to a tenth of a unit, from 0\.1 to 50$/);
   expectOnly(at((list) => (list[4].cut.pieces[0].stroke.style.color = "#ff0000")), /^the piece 5 has the style .*, and the stroke 4 it was cut of /);
+  expectOnly(at((list) => (list[4].cut.pieces[0] = { of: 4 })), /^the piece holds no stroke$/, /names the stroke 5, which the sheet does not show/);
   // Without the cut, the underline is shown whole, and the markup and the crops no longer hold.
   const uncut = problemsOf(at((list) => list.pop()));
   assert.ok(uncut.some((problem) => /names the stroke 5, which the sheet does not show/.test(problem)), uncut.join("\n"));
