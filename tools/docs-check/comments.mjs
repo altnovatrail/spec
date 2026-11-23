@@ -142,16 +142,19 @@ function hclComments(source) {
       block = null;
       i = end + 2;
     }
-    for (; i < line.length; i++) {
+    while (i < line.length) {
       const c = line[i];
       const top = stack.at(-1);
+      // How far the scan moves past c: an escape and the opening of a template take two characters.
+      let step = 1;
       if (top?.string) {
-        if (c === "\\") i++;
+        if (c === "\\") step = 2;
         else if (c === '"') stack.pop();
         else if ((c === "$" || c === "%") && line[i + 1] === "{") {
           stack.push({ depth: 0 });
-          i++;
+          step = 2;
         }
+        i += step;
         continue;
       }
       if (c === '"') stack.push({ string: true });
@@ -173,8 +176,9 @@ function hclComments(source) {
           break;
         }
         pieces.push(piece);
-        i = end + 1;
+        step = end + 2 - i;
       }
+      i += step;
     }
   });
   if (block) pieces.push(block);
