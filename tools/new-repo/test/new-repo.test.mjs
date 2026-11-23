@@ -131,13 +131,13 @@ test("a draft of each kind holds the whole template, its values filled in", () =
     assert.deepEqual(walk(dir), filesOf(kind));
     for (const file of filesOf(kind)) assert.deepEqual(placeholders(read(dir, file)), [], `${name}: ${file} keeps a placeholder`);
     assert.match(read(dir, "README.md"), new RegExp(`^# ${name}\n`));
-    assert.match(read(dir, "CLAUDE.md"), new RegExp(`architecture ${card.replace(".", "\\.")} spec`));
+    assert.match(read(dir, "CLAUDE.md"), new RegExp(`the one in \`spec/docs/architecture\.md\` whose heading names \`${name}\``));
     assert.match(read(dir, "docs/decisions.md"), /set up 2026-01-02 from the template of `spec` v0\.0\.0-test/);
     for (const file of ["README.md", "CLAUDE.md", "RUN.md", "docs/architecture.md"]) assert.ok(read(dir, file).match(FILL), `${name}: ${file} has no FILL`);
-    // The window's closing leaves the container to the orchestrator's executor (R156).
-    assert.match(read(dir, ".devcontainer/devcontainer.json"), /\(R156 spec\)[^\n]*\n\s*"shutdownAction": "none",/, `${name}: devcontainer.json does not keep its container running`);
-    // An orchestrator's run of a task goes by the executor's contract in spec (R156).
-    assert.match(read(dir, "RUN.md"), /^7\. Do not commit: .*`spec\/tools\/orchestrator\/executor\.md`.*\(R156 spec\)\.$/m, `${name}: RUN.md rule 7 does not name the executor's contract`);
+    // The window's closing leaves the container to the orchestrator's executor.
+    assert.match(read(dir, ".devcontainer/devcontainer.json"), /with no window\.\n\s*"shutdownAction": "none",/, `${name}: devcontainer.json does not keep its container running`);
+    // An orchestrator's run of a task goes by the executor's contract in spec.
+    assert.match(read(dir, "RUN.md"), /^7\. Do not commit: .*`spec\/tools\/orchestrator\/executor\.md`.*never merges\.$/m, `${name}: RUN.md rule 7 does not name the executor's contract`);
     for (const file of ["LICENSE", "AGENTS.md"]) assert.equal(read(dir, file), read(specRoot, file), `${name}: ${file} is not spec's`);
     // A file docs-check-repo does not read cites no number without a suffix, read as docs-check
     // reads a citation: in the copy it would be one of the repository's own.
@@ -220,7 +220,7 @@ test("a README is the title, the badges and a description alone", () => {
     assert.match(text, /\]\(docs\/README\.md\)/, `${file} does not lead to docs/`);
     assert.deepEqual(readmeProblems(readme), [], `${file} breaks what new-repo-check holds a copy to`);
   }
-  assert.match(read(draft("learner-model", "go", "3.8"), "README.md"), /architecture 3\.8 spec/, "the template's README does not cite the card");
+  assert.match(read(draft("learner-model", "go", "3.8"), "README.md"), /Its card is in the architecture of \[spec\]/, "the template's README does not name the card");
 });
 
 test("spec's own README takes its badges from repositories 2.3, in their order", () => {
@@ -270,13 +270,12 @@ test("the devcontainer is spec's, with the repository's name, network and kind",
     assert.match(read(dir, ".devcontainer/host-network.sh"), new RegExp(`^network="novatrail-${name}"$`, "m"));
     const dockerfile = read(dir, ".devcontainer/Dockerfile");
     assert.match(dockerfile, new RegExp(`^# Development container for NovaTrail's ${name}\\.`));
-    assert.match(dockerfile, /\(R34 spec\)/, "a decision the Dockerfile cites is spec's");
     assert.doesNotMatch(dockerfile, /\bR\d+\b(?! spec\b)/, "no decision of spec's is cited without its suffix");
     assert.doesNotMatch(dockerfile, /\bmeasurements \d+(?:\.\d+)*(?!\.?\d)\b(?! spec\b)/, "no section of spec's measurements is cited without its suffix");
     // The heading of the toolchain stage holds for spec and every copy alike.
     assert.match(dockerfile, /^# What the repository's tests need beyond the core: in spec, nothing; in a copy, the lines its kind$/m);
     assert.doesNotMatch(dockerfile, /spec's tests need nothing|repo-template\/kinds\.json/, "the copy's Dockerfile does not speak of spec's tests or its template");
-    if (kind === "typescript") assert.match(dockerfile, /resolves the same\s+(?:# )?packages at the same versions \(R40 spec\)/);
+    if (kind === "typescript") assert.match(dockerfile, /resolves the same\s+(?:# )?packages at the same versions\. /);
     if (kind === "go") assert.match(dockerfile, /built\n# with the Go that toolchain-core installs/);
     assert.deepEqual(dc.mounts, spec.mounts, "the sign-in volumes are shared, the extensions' named by ${devcontainerId}");
     assert.deepEqual(dc.customizations.vscode.extensions, [...spec.customizations.vscode.extensions, ...(kinds[kind].extensions ?? [])]);
@@ -349,7 +348,6 @@ test("the typescript kind brings the browsers into the toolchain stage, and Biom
   assert.ok(list, "apt-get install takes its packages after its options, up to the semicolon");
   const packages = list[1].split(/[\s\\]+/).filter(Boolean);
   assert.deepEqual(packages.filter((p, i) => packages.indexOf(p) !== i), [], "each package once");
-  assert.match(toolchain, /\(R79 spec\)/);
   const dc = devcontainer(dir);
   assert.ok(dc.customizations.vscode.extensions.some((e) => /^biomejs\.biome@\d+\.\d+\.\d+$/.test(e)), "Biome's extension at an exact version");
   assert.equal(dc.customizations.vscode.settings["[typescript]"]["editor.defaultFormatter"], "biomejs.biome");

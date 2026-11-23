@@ -4,12 +4,12 @@
 # detected at RUN time via dpkg instead, so any host that has Docker can build this.
 #
 # `toolchain-core` holds Node, just, Go and buf: what a release needs — its version and its files —
-# and every check that runs no browser, and a release builds it alone (R31). `toolchain` adds what
+# and every check that runs no browser, and a release builds it alone. `toolchain` adds what
 # the repository's tests need — in a copy, its kind's lines at the end of the stage — and is the
 # stage the automated checks run inside. `devcontainer` adds what a person needs, and
 # devcontainer.json names it as its target. spec's own file ends with `orchestrator`, the
 # devcontainer with the Docker CLI and the Dev Containers CLI, which `just new-repo` leaves out of
-# a copy (R156, R158): in a copy `devcontainer` is the last stage, the one a build with no target
+# a copy: in a copy `devcontainer` is the last stage, the one a build with no target
 # gives, and in spec every build names its stage.
 
 # -- toolchain-core: releases the repository, checks it without a browser -----
@@ -25,15 +25,15 @@ ARG JUST_VERSION=1.58.0
 # Go, in /usr/local/go, where the shared CodeQL workflow of .github looks for it: a repository's
 # Go code is built, vetted, tested and read by CodeQL with it. In spec that code is its Go module
 # and the Go tools in tools/, and the checks build the module's zip as the Go module proxy will.
-# Every copy gets Go whatever its kind, unused where there is no Go code (R64).
+# Every copy gets Go whatever its kind, unused where there is no Go code.
 ARG GO_VERSION=1.27.4
 # buf formats, lints, compares with the previous release and generates code from the protobuf
-# API contracts, spec's contracts/ (R83). Every copy gets it as it gets Go, unused where there are
+# API contracts, spec's contracts/. Every copy gets it as it gets Go, unused where there are
 # no contracts: the other repositories take the generated code from a release of spec.
 ARG BUF_VERSION=1.75.0
 # Each archive's sha256 per architecture, as its publisher lists it: SHASUMS256.txt of the Node
 # release, SHA256SUMS of just's, go.dev/dl for Go, sha256.txt of buf's, whose binary comes bare. A
-# sum written here keeps a download from being swapped, and is raised with its version (R34).
+# sum written here keeps a download from being swapped, and is raised with its version.
 ARG NODE_SHA256_AMD64=6e1db87ef58b8819e5d5402eff1536491b18edd8eb7bee5ef7897876e88dc5ff
 ARG NODE_SHA256_ARM64=724282c3b43aec998aa9527380465b45d229e021b58035f5f4f63095eabfe5d5
 ARG JUST_SHA256_AMD64=4a5cc2f53e6f0f8c59092a6cc38291eb729d46a7dd95d3ae582008881b84931d
@@ -182,7 +182,7 @@ RUN mkdir -p /home/vscode/.claude /home/vscode/.codex /home/vscode/.config/gh \
 # -- orchestrator: the devcontainer, plus the Docker and Dev Containers CLIs --
 #
 # spec's alone, for orchestrator/devcontainer.json, which mounts the host's Docker socket so that
-# «Сделай эпик E…» runs each task in its repository's container (R156). The fetch helper repeats
+# «Сделай эпик E…» runs each task in its repository's container. The fetch helper repeats
 # toolchain-core's, as the devcontainer stage's does: a change to one is a change to all three.
 
 FROM devcontainer AS orchestrator
@@ -192,10 +192,10 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 USER root
 
 # The Docker CLI, from Docker's static archive: of its binaries the client, docker, alone — built
-# from docker/cli under Apache-2.0 —, and none of the daemon's, which is the host's (R12).
+# from docker/cli under Apache-2.0 —, and none of the daemon's, which is the host's.
 ARG DOCKER_VERSION=29.9.3
 # Docker publishes no sums beside its static archives, so each is the sha256 of the archive as
-# downloaded over HTTPS, taken again with every raise of the version (R34).
+# downloaded over HTTPS, taken again with every raise of the version.
 ARG DOCKER_SHA256_AMD64=3fb5d1f13014c18cc54945bc177c58a9056a482dada031e17d12cf2e6922c973
 ARG DOCKER_SHA256_ARM64=1b27fd739378ef938401e81ce5afb73b7ad7432d4f598814a9ff5f826bb464d2
 
@@ -223,15 +223,15 @@ RUN arch="$(dpkg --print-architecture)"; \
     rm -rf "$workdir"
 
 # The Dev Containers CLI, `devcontainer`, by which the orchestrator rebuilds a repository's
-# container or creates its first (R158). It is MIT with no dependencies, and what it bundles is
+# container or creates its first. It is MIT with no dependencies, and what it bundles is
 # under MIT, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD and Python-2.0, all on the allowed list, so it
-# needs no exception (R12). Its archive comes from the npm registry at its exact version and is
+# needs no exception. Its archive comes from the npm registry at its exact version and is
 # unpacked by hand, as npm lays out a package with no dependencies: npm would check it against the
 # registry's integrity, not a sum in this file, and the package has no script of its own to run.
 ARG DEVCONTAINERS_CLI_VERSION=0.90.0
 # The registry lists the archive's sha512, its integrity, and a SHA-1, but no sha256, so each sum
 # is the sha256 of the archive as downloaded over HTTPS and checked against that integrity, taken
-# again with every raise of the version (R34). The package is JavaScript alone: both sums are one
+# again with every raise of the version. The package is JavaScript alone: both sums are one
 # archive's.
 ARG DEVCONTAINERS_CLI_SHA256_AMD64=b3d40fec9d274a303a29ea91a24852887cf287701bc8d340bfc1cf970542495a
 ARG DEVCONTAINERS_CLI_SHA256_ARM64=b3d40fec9d274a303a29ea91a24852887cf287701bc8d340bfc1cf970542495a

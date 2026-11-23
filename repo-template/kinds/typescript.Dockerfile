@@ -1,4 +1,4 @@
-# The browsers the tests run in, one for each engine CI checks: Chromium, WebKit and Firefox (R79).
+# The browsers the tests run in, one for each engine CI checks: Chromium, WebKit and Firefox.
 # Playwright publishes no sums for its browser downloads, so they come from Playwright's own image,
 # pinned by tag and digest, and only the builds a headless test starts: Chrome Headless Shell,
 # WebKit and Firefox. The image's tag is the version of the playwright package in
@@ -6,7 +6,7 @@
 # Playwright finds no browser, and ci-test fails on it. Dependabot reads FROM lines only, and this
 # image is in none, so the tag, the digest and the three revisions are raised by hand, together:
 # in spec's repo-template, which a move to its new tag brings here, or here first, in the pull
-# request that raises the package (R79). COPY takes a folder's contents, not the folder, so each
+# request that raises the package. COPY takes a folder's contents, not the folder, so each
 # browser has a COPY of its own, all three from the one image.
 ARG PLAYWRIGHT_HEADLESS_SHELL_REVISION=1254
 ARG PLAYWRIGHT_WEBKIT_REVISION=2388
@@ -28,13 +28,13 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 # what WebKit and Firefox add —, and the fonts of its list tools, all but xvfb: a headless browser
 # needs no X server, and without these fonts WebKit lays inline elements out zero high. apt pins no
 # versions by itself, so they come from the Ubuntu archive as it was at one moment: a snapshot,
-# whose ID is raised by hand like a version (R40) — with the image above, or when a newer base
+# whose ID is raised by hand like a version — with the image above, or when a newer base
 # image needs a newer archive. apt checks the archive's signatures as it does on any update.
 #
 # apt reads the snapshot alone, from a source of its own that names the snapshot in its URI, with
 # the suites and components of the base image's ubuntu.sources: apt-get update --snapshot reads
 # the live archive's indexes as well as the snapshot's, twice the download, and resolves the same
-# packages at the same versions (R40). The base image's own sources stay as they are, for whoever
+# packages at the same versions. The base image's own sources stay as they are, for whoever
 # runs apt in the devcontainer, and this RUN reads none of them. snapshot.ubuntu.com/ubuntu serves
 # arm64 as well as amd64. The suites are those of noble, the base image's Ubuntu: a base image of a
 # newer one changes them with the ID.

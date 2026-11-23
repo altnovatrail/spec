@@ -82,7 +82,17 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - **Вне правила** — то же, что вне R160: нормативные тексты для авторов (R42) — `format/`, `contracts/`, `admission/`, `deployment/`, `legal/`, `consent-age/`, `export/`; `.proto` и описания схем, из которых генерируется код; архивы `docs/plan/`. Задача, которая их меняет, пишет по правилу; проверка их не читает. `docs/sources.md` и `docs/measurements.md` — внутри: дата записи остаётся, номер задачи уходит, из заголовков тоже.
 - **Строки «Д…» и «В…»** — ссылка на открытую работу, как `TODO(crbug.com/…)` у Chromium: разрешены.
 - **Строки 7.38–7.49** пишет T259, после проверок T258, как T206 в E16; «задачи нет», «по тексту T259», «Зависит от» — «—»: узел строки ждёт тега `spec` с T258 ([tools/orchestrator/README.md](tools/orchestrator/README.md), раздел 2).
-- **Пачки** (R159): T256–T259 — ветка `e22-spec`, один PR, на мерже выходит тег (R31); T260–T275 — ветка `e22-spec-2`, один PR; T276 — отдельно, после строк.
+- **Пачки** (R159): T256–T259 — ветка `e22-spec`, один PR, на мерже выходит тег (R31); T260–T275 — ветка `e22-spec-2`, один PR; T276 — отдельно, после строк; T277–T278 — ветка `e22-spec-3` от `main`, один PR, на мерже выходит тег.
+
+**Слово автора (2026-11-23)** после выборочной проверки правок E22, дословно: «Я категорически не удовлетворён работой. Удаляй отовсюду в коде строчки вида XYZ spec. Чтобы я больше такого не видел. Никаких ссылок на какие-то там решения. Мне всё равно на аргументы, что теряется связь и пр. Истории git достаточно. Далее чтобы я не видел бредовых строчек вида пользователь сказал такого-то числа: (the 2026-11-16 amendment to R24) — нещадно вычищай. Переделывай в каждом репозитории.» Ответы автора на уточнения: убрать всё «… spec» — номера решений и ссылки на разделы и документы `spec`; остаётся одна ссылка на запись `sources`/`measurements` там, где стоит внешний факт (закон, условия провайдера, цена), и в другом репозитории тоже (`sources 2.3 spec`); план — RUN.md, `run/`, COORDINATION.md — и архивы `docs/plan/` не трогать; новый тег, дальше по частям.
+
+**Строгое правило ссылок** (оно заменяет узкое правило R171 в его прежнем тексте):
+- Ни одного номера решения — ни своего `R25`, ни `R25 spec`, ни `R03 api`, ни MathTrail — в коде и его комментариях, в `.proto` и описаниях схем, в `docs/`, README, CLAUDE.md, RULES.md, `.claude/rules/`, `.devcontainer/`, шаблоне. В журнале решений номер стоит только в заголовке своей записи; запись не ссылается на другие записи.
+- Ни одной ссылки на раздел или документ: ни `architecture 3.8 spec`, ни `RULES.md spec, Citations`, ни своих `architecture 2`, `concepts 9`. Исключение одно: утверждение о внешнем мире (закон, условия провайдера, цена, документация чужой программы) ссылается на одну запись — `sources N`/`measurements N`, из другого репозитория `sources N spec`. Открытые вопросы `О-`, `П-`, `Т-` и строки `Д…`/`В…` — ссылка на открытую работу — остаются.
+- Ни одной датированной атрибуции и поправки: «the author's decisions of 2026-11-18 in planning T121», «the amendment of 2026-11-16 to R24», «по ответу автора на В60», «решено автором 2026-…» — вычистить; номеров задач вне плана нет. Причина решения — словами; кто и когда решил — история git.
+- Комментарий кода — причина словами, без ссылок.
+- Вне правила только план — RUN.md, `run/`, COORDINATION.md — и архивы `docs/plan/` (слово автора), и нормативные тексты для авторов, чьи версии в силе не меняются: `legal/` (тексты в силе), проза `format/`, `admission/`, `deployment/`, `consent-age/`, `export/`. Комментарии `.proto` правило касается: правка комментария — не правка контракта.
+- Смысл не менять: правка только ссылок и того, что их окружает. Где фраза держалась на ссылке, — сказать причину словами одной фразой или убрать фразу, если она только отсылала.
 
 | Status | ID | Task | Who | Plan | Depends on |
 |---|---|---|---|---|---|
@@ -90,23 +100,25 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
 | [x] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
 | [x] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
-| [ ] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258 |
-| [ ] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258 |
-| [ ] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258 |
-| [ ] | T263 | Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution | Claude | — | T258 |
-| [ ] | T264 | Журнал `spec`, часть 5: Contracts — The AI admission table | Claude | — | T258 |
-| [ ] | T265 | Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers | Claude | — | T258 |
-| [ ] | T266 | Журнал `spec`, часть 7: Samples, eval sets and essays — The look of the app | Claude | — | T258 |
-| [ ] | T267 | Журнал `spec`, часть 8: AI on the deployment — конец | Claude | — | T258 |
-| [ ] | T268 | Документы `spec`: architecture | Claude | — | T258 |
-| [ ] | T269 | Документы `spec`: concepts | Claude | — | T258 |
-| [ ] | T270 | Документы `spec`: privacy и dpia | Claude | — | T258 |
-| [ ] | T271 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план | Claude | — | T258 |
-| [ ] | T272 | Документы `spec`: sources и measurements | Claude | — | T258 |
-| [ ] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258 |
-| [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258 |
-| [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274 |
-| [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275; строки 7.38–7.49 |
+| [ ] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258, T278 |
+| [ ] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258, T278 |
+| [ ] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258, T278 |
+| [ ] | T263 | Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution | Claude | — | T258, T278 |
+| [ ] | T264 | Журнал `spec`, часть 5: Contracts — The AI admission table | Claude | — | T258, T278 |
+| [ ] | T265 | Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers | Claude | — | T258, T278 |
+| [ ] | T266 | Журнал `spec`, часть 7: Samples, eval sets and essays — The look of the app | Claude | — | T258, T278 |
+| [ ] | T267 | Журнал `spec`, часть 8: AI on the deployment — конец | Claude | — | T258, T278 |
+| [ ] | T268 | Документы `spec`: architecture | Claude | — | T258, T278 |
+| [ ] | T269 | Документы `spec`: concepts | Claude | — | T258, T278 |
+| [ ] | T270 | Документы `spec`: privacy и dpia | Claude | — | T258, T278 |
+| [ ] | T271 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план | Claude | — | T258, T278 |
+| [ ] | T272 | Документы `spec`: sources и measurements | Claude | — | T258, T278 |
+| [ ] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258, T278 |
+| [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258, T278 |
+| [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274, T278 |
+| [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275, T278; строки 7.38–7.49 |
+| [x] | T277 | Строгое правило ссылок: R171, RULES.md, CLAUDE.md, шаблон, `.devcontainer/` | Claude | — | — |
+| [ ] | T278 | `docs-check`: строгое правило по ключу `citations`; тег | Claude | — | T277 |
 
 #### T260. Журнал `spec`, часть 1: Scope and product — Releases
 
@@ -221,3 +233,10 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - **Сделать:** замер «после» — командами `measurements 1.18` на `main` 13 репозиториев, в тот же раздел; строка measurements 1.9 — `just tokens-report --since 2026-11-23 --row` (R145); строки 7.38–7.49, задачи которых сделаны, — удалить (правило 4 COORDINATION.md); архив `docs/plan/E22.md` (Epics); входящие (правило 13).
 - **Как проверить:** `just docs-check`.
 - **Разделы:** measurements 1.9; T256; R145; COORDINATION.md, правило 4.
+
+#### T278. `docs-check`: строгое правило по ключу `citations`; тег
+
+- **Цель:** с ключом `"citations": true` `docs-check` и `docs-check-repo` падают на каждом нарушении строгого правила T277 вне плана и архивов; тег `spec` с T277 и T278 выходит на мерже пачки.
+- **Сделать:** с ключом ошибка — номер решения в любом виде (свой, `spec`, другого репозитория, MathTrail) в документе, коде, комментарии, `.proto`, описании схемы; в журнале — кроме заголовка своей записи; ссылка на раздел или документ, кроме записи `sources N`/`measurements N` (и `… spec`); датированная атрибуция и поправка (дата рядом со словами «author», «автор», «amendment», «поправка», «decision», «решение», «answer», «ответ», «word», «слово»); номер задачи вне плана; больше двух ссылок в скобке. Пример в inline-коде — не ссылка. План (RUN.md, `run/`, COORDINATION.md) и `docs/plan/` не читаются; `legal/` и проза нормативных частей — тоже. Шаблон `repo-template/files/docs-budgets.json` — с ключом; блок `spec` `budgets.json` — без ключа до T275. Тесты в `tools/docs-check/test/`; R32 — на месте, без ссылок.
+- **Как проверить:** `just coverage`; `just new-repo-test`; `just docs-check`; прогон с ключом на `spec` и на клоне `canvas` во временной папке — сколько ошибок, по видам, в «Сделано»; `/code-review high` по пачке T277–T278.
+- **Разделы:** R171, R32; T277.

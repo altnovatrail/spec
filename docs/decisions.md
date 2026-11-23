@@ -1,19 +1,14 @@
 # NovaTrail decision log
 
-> Why the platform is built the way it is. Each entry says what was decided, why and what was rejected, and its tail "— *Consequence:*" lists the files and sections that a change of it edits (R171).
+> Why the platform is built the way it is. Each entry says what was decided, why and what was rejected, and its tail "— *Consequence:*" names, by their paths, the files that a change of it edits.
 >
-> **Rule:** do not re-propose what was rejected without new facts. If a decision has to change, ask the author and rewrite its entry in its place, and every entry the change touches: an entry is its text in force — what was decided, why, what was rejected and what a change of it edits —, git keeps the old text, and the commit says why (R160). No dated amendment is written, and those still here are folded into their entries in epic E22 (R171).
+> **Rule:** do not re-propose what was rejected without new facts. If a decision has to change, ask the author and rewrite its entry in its place, and every entry the change touches: an entry is its text in force — what was decided, why, what was rejected and what a change of it edits —, git keeps the old text, and the commit says why. An entry's number stands in its heading alone: an entry cites no other entry and no section, says in words what it rests on, and carries no date of who decided it and no amendment; a claim about the outside world cites its one record of [sources.md](sources.md) or [measurements.md](measurements.md).
 >
-> Entries R01–R14 were made 2026-10-18, when the platform was founded. They rest on three grounds:
-> - the author's answers of that day and their dialogue with Gemini about the platform (not in the repository; the arguments we rely on are retold here);
-> - MathTrail's decisions that carry over here;
-> - the plan of these documents, which the author approved 2026-10-18.
+> The first entries rest on the dialogue about the platform with Gemini, which is not in the repository and whose arguments are retold here, on MathTrail's decisions that carry over, and on the plan of these documents; where an entry goes beyond what was settled, it calls itself a proposal of the plan. Next number — R172.
 >
-> Where an entry goes beyond the author's answers, it calls that a proposal of the plan. Next number — R172.
+> Each repository has its own log and its own numbering.
 >
-> MathTrail's decisions are cited as "R37 canvas-api" and "R213 standalone", and in a list as "canvas-api: R37, R38". Each repository has its own log and its own numbering.
->
-> Open questions: product (О-…) — in [product.md](product.md), section 13; privacy (П-…) — in [privacy.md](privacy.md), section 9; technical (Т-…) — in [repositories.md](repositories.md), section 8.
+> Open questions — О-, П- and Т- — are the registers of [product.md](product.md), [privacy.md](privacy.md) and [repositories.md](repositories.md).
 
 ## Scope and product
 
@@ -7104,30 +7099,30 @@ What a session stops knowing — why and when a decision changed — is in git (
 
 — *Consequence:* `MAX_PAGES` in app's `src/storage/profile.ts`; privacy 4.1 and 6; dpia, measure 15 and its version 37; the privacy policy's version 6, in draft; architecture 3. — RUN.md, T254.
 
-## Citations followed to act
+## Citations
 
-**R171. A citation stands only where its reader will follow it to act, one to a claim, to the place where the claim is decided or recorded: a fact of the outside world that can be disputed cites one record of `docs/sources.md` or `docs/measurements.md`, and a settled choice that looks open to change — a constraint, a workaround, a choice whose rejected options matter — cites its decision's number, once. A phrase that only describes cites nothing, and no citation is a chain: the place cited cites further itself. A comment of code gives its reason in words and stands without the log. Task numbers and dated amendments stand only in RUN.md, `run/` and `docs/plan/`. Every NovaTrail repository takes the rule by a task of its own, its row of `COORDINATION.md`.** The author's decisions of 2026-11-23 in planning epic E22, each by its recommendation; what stands outside the rule and the rows «Д» and «В» are the planner's choice of that day, which the author may change.
-- **Where the reader goes.** A citation leads to what the reader needs to act on: a decision's text in force, a source's quote, a measurement's numbers, an open row. A sentence that only names or retells something cites nothing: the thing's own home cites what it rests on.
-- **One, not a chain.** A claim cites the nearest place that holds it, and that place cites further itself. A parenthesis holds at most two citations; a disputable external fact cites its one record, not the record with the decisions and sections that also use it.
-- **A decision's number** stands where a reader might otherwise undo what was settled: a constraint that the text or the code cannot show, a workaround, a choice whose rejected options matter. It stands once in a text, not at each mention.
-- **Comments of code.** A comment gives its reason in words and is understood without the log. A decision's number ends it only where the rejected options matter, `(R25)`, an anchor for `grep`: about one in a thousand lines, the density of large code bases. It cites no task and no section of a document (R160).
-- **Tasks and amendments.** A task's number stands in RUN.md, `run/` and `docs/plan/` alone: not in the rest of `docs/`, not in a comment, not in a heading. What a task did is its pull request; a document names the file or the decision instead. A log holds no dated amendment: epic E22 folds the amendments of every log into their entries, which keep what they rejected and their quotes, and a contradiction found in folding is a row of table 3, not an edit by guess.
-- **The tail "— *Consequence:*"** of an entry lists the files and sections that a change of the decision edits, a citation followed to act. It names no task and no place that only describes the decision.
-- **Rows «Д» and «В»** cite open work, as Chromium's `TODO(crbug.com/…)` does (sources 12.3): they are allowed.
-- **Outside the rule**, as outside R160: the normative texts for authors (R42) — `format/`, `contracts/`, `admission/`, `deployment/`, `legal/`, `consent-age/` and `export/` —, the `.proto` files and the descriptions of schemas that code is generated from, and the archives `docs/plan/`. A task that changes one of them writes its text by the rule, and the check does not read them. `docs/sources.md` and `docs/measurements.md` are inside: a record keeps its date and drops its task's number, from its heading too.
-- **The check.** `docs-check` holds the mechanical part, by the key `"citations": true` of a repository's `docs-budgets.json` (R32): a task's number in a document outside the plan or in a comment, an amendment — dated, or to a decision — in a document outside the plan, more than two citations in one parenthesis. Whether a citation that remains is needed is the session's judgement and the review's.
+**R171. Outside the work plan — RUN.md, `run/` and COORDINATION.md — and the epic archives `docs/plan/`, a text cites no decision, no section and no document, and names no task and no dated attribution or amendment: it gives its reason in words, and who decided what, and when, is git's history. The one citation left is a claim about the outside world — a law, a provider's terms, a price, another program's documentation, a measurement —, which cites its one record of `docs/sources.md` or `docs/measurements.md`, from another repository as `sources 2.3 spec`. Every NovaTrail repository takes the rule by a task of its own.**
+- **No decision's number** — the repository's own, spec's, another NovaTrail repository's or MathTrail's — in `docs/`, a README, CLAUDE.md, RULES.md, `.claude/rules/`, the devcontainer, the template, code and its comments, a `.proto` file or a schema's description. A decision log gives an entry's number in its heading alone; an entry cites no other entry, and says in words what it shares with another.
+- **No section and no document cited** — neither spec's, as `architecture 3.8 spec` or `RULES.md spec, Citations`, nor the repository's own, as `architecture 2`. What a text needs from another, it says in words. Naming the file where a thing lives or is set, for the reader to open or edit it, is no citation.
+- **A record of the outside world** is cited by its number, `sources 2.3` or `measurements 1.4`, one to a claim and never a chain; a record keeps the date it was read and names no task.
+- **No dated attribution or amendment** — "the author's decisions of <date> in planning …", "the amendment of <date> to …" — and no task's number. A log holds no dated amendment: an entry is one text in force, which keeps what it rejected and its quotes.
+- **A comment of code** gives its reason in words and cites nothing but a record of the outside world.
+- **The tail "— *Consequence:*"** of an entry names, by their paths, the files that a change of the decision edits: no section, no decision, no task.
+- **Open work stands**: the open questions О-, П-, Т- and the rows «Д» and «В», as Chromium's `TODO(crbug.com/…)` does (sources 12.3).
+- **Outside the rule**, besides the plan and the archives: the normative texts for authors whose versions in force never change — the texts of `legal/` in force and the prose of `format/`, `admission/`, `deployment/`, `consent-age/` and `export/`. The comments of a `.proto` file and the descriptions of schemas are inside it: editing a comment changes no contract.
+- **An example** of a citation is written in inline code, `R03`, and is no citation.
+- **The meaning stays.** Applying the rule edits the citations and what surrounds them alone: where a sentence rested on a citation, it gives the reason in one sentence, or goes if it only pointed.
+- **The check.** Where a repository's `docs-budgets.json` sets `"citations": true`, `docs-check` fails on each breach outside the plan, the archives and the normative texts: a decision's number in any form, but an entry's own heading in its log; a citation of a section or a document, but a record of `sources` or `measurements`; a dated attribution or amendment; a task's number; more than two citations in one parenthesis. The template's `docs-budgets.json` sets the key from the start.
 
 — *Why:*
-- The CLAUDE.md, the architecture and the log of every repository cite once in 26–55 words, task numbers are 27% of their citations, the logs hold 2,179 dated amendments, and a comment cites a decision 19 times a thousand lines, against the Go standard library's 1.3 citations of an issue (measurements 1.18). The sessions traced did not follow the numbers in comments, and 2 of 8 checked were wrong (measurements 1.14.4).
-- Large projects keep the reason in a text that stands by itself, the history in the commits, and a reference only where its target holds what the reader needs, open work or a disputable fact (sources 12); each line a session loads costs its attention (sources 2.16).
-- A key of each repository, not the tag: a move to the tag by another row of «Порядок» stays green until the repository's own task.
-- All the amendments folded at once: the logs become readable, which doing it entry by entry, as R160 had it, would leave for years.
+- The citations a narrower rule keeps — a decision's number where a choice looks open to change, a section where the reader would go — still read as noise, and each asks for a judgement that differs from session to session; git's history holds who decided what and why, and a text that gives its reason in words stands without them.
+- Every repository's CLAUDE.md, architecture and log cite once in 26–55 words, and a comment cites a decision 19 times a thousand lines, against the Go standard library's 1.3 citations of an issue (measurements 1.18); the sessions traced did not follow the numbers in comments, and 2 of 8 checked were wrong (measurements 1.14.4). Large projects keep the reason in a text that stands by itself and the history in the commits (sources 12).
+- A key of each repository, not the tag: a move to a newer tag of spec stays green until the repository's own task applies the rule.
 
 — *Rejected:*
-- citations of `sources` and `measurements` alone — a workaround loses its anchor, and `grep R33` no longer finds what rests on a decision;
-- the former rule, with only task numbers forbidden — the chains and the citations that only describe stay, and they are most of the noise;
-- the check for every repository from the tag on — a move by any row of «Порядок» would turn red; no check — the rule would not hold after the epic;
-- keeping the amendments and forbidding only new ones — hundreds stay in the logs; folding them in `spec` alone;
-- dropping the tail "— *Consequence:*" — under the narrow rule `grep` by a number does not find all that rests on a decision; keeping the tail as it is.
+- the narrower rule — a citation where its reader follows it to act, a decision's number where a choice looks open to change, a section where the claim is decided: the numbers and sections stay by hundreds, and `grep` by a number, the anchor they gave, is not worth them while git keeps the history;
+- keeping a repository's citations of its own sections — they break when a section is renumbered, and the reason in words serves the reader without them;
+- the check for every repository from the tag on — a move to the tag would turn red; no check — the rule would not hold;
+- keeping the amendments and forbidding only new ones — hundreds stay in the logs.
 
-— *Consequence:* RULES.md, The bar and Citations; R32, R143, R160; the opening of [docs/decisions.md](decisions.md); [docs/sources.md](sources.md), section 1; RUN.md, «Citations»; `repo-template/files/` — `docs/decisions.md`, `docs/sources.md`, RUN.md, CLAUDE.md, `docs-budgets.json`; `tools/docs-check/`.
+— *Consequence:* `RULES.md`; the opening of `docs/decisions.md`; `docs/sources.md`; `RUN.md`; `CLAUDE.md`; `.claude/rules/`; `repo-template/files/` — `CLAUDE.md`, `RUN.md`, `docs/decisions.md`, `docs/sources.md`, `docs-budgets.json`; `tools/docs-check/`.

@@ -122,8 +122,7 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
     text = addExtensions(text, extensions);
     text = addPluginDirs(text, claudePlugins);
     text = addContext(text, devcontainer);
-    // Its comments cite spec's decisions too, as shutdownAction's does, but a tag of spec may
-    // have none there (R156).
+    // Its comments may cite spec as the Dockerfile's may.
     return suffixCitations(replace(
       text,
       '    "customizations": {',
@@ -134,7 +133,7 @@ export function editDevcontainer(root, name, { extensions, settings, toolchain, 
       ].join("\n"),
       1,
       "the place for the start command",
-    ), false);
+    ));
   });
   edit(path.join(dir, "host-network.sh"), (text) => replace(text, '"novatrail-spec"', `"${id}"`, 1, "the network's name"));
   edit(path.join(dir, "Dockerfile"), (text) =>
@@ -182,17 +181,14 @@ function dropOrchestrator(text) {
   return found === 0 ? text : text.slice(0, text.indexOf(ORCHESTRATOR_STAGE));
 }
 
-// A decision the Dockerfile cites — "(R34)", "(R12, R34)" or "R34" in a sentence — is one of
-// spec's: in the copy it reads "R34 spec", or it would name a decision of the repository's own
-// log. So is a section of spec's documents, "measurements 3.2": a copy's
-// own measurements has no such section, or another one. Every citation gets the suffix, however
-// it is written, so that a new one in spec's Dockerfile or a kind's lines is not left behind.
-// A section ends where its number does, not before a further ".2".
+// A citation in the comments of spec's devcontainer — a record, "sources 9.4", or a decision
+// that an older tag of spec cites, "(R34)" — is spec's: in the copy it reads "sources 9.4 spec",
+// or it would name a record of the repository's own, which has no such one, or another. Every
+// citation gets the suffix, however it is written, so that a new one in spec's devcontainer or a
+// kind's lines is not left behind. A section ends where its number does, not before a further ".2".
 export const SPEC_CITATION = /\b(?:R\d+|(?:product|concepts|privacy|dpia|architecture|repositories|sources|measurements) \d+(?:\.\d+)*)(?!\.?\d)\b(?! spec\b)/g;
 
-function suffixCitations(text, required = true) {
-  const found = text.match(/\bR\d+\b/g)?.length ?? 0;
-  if (found === 0 && required) throw new Error("the decisions the comments cite: none found in spec's Dockerfile");
+function suffixCitations(text) {
   return text.replace(SPEC_CITATION, "$& spec");
 }
 
