@@ -32,3 +32,13 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Сделать:** по документации Claude Code — запись `docs/sources.md`: абсолютный путь (`//`) в `permissions.deny`, есть ли исключение из запрета и что берёт верх; правило в `.claude/settings.json` `spec` и шаблона `repo-template/files/.claude/settings.json` — `Read(//workspaces/.epics/*/modules/modules/*/eval/*)` с исключением `synthetic-*.json`, если синтаксис его допускает, иначе — вопрос автору с вариантами; решение, которое держит настройки сессий, переписать на месте (R160); проба `claude -p` в контейнере оркестратора на выдуманном клоне — файл набора не читается, `synthetic-*.json` читается. Другие репозитории берут правило со своим следующим переходом на тег.
 - **Как проверить:** `just new-repo-test`, `just session-test`, `just docs-check`.
 - **Разделы:** R04 `modules`, R143, R166; `.claude/rules/new-repo.md`; В41 `modules`.
+
+#### T282. Записи `sources` для внешних фактов privacy и dpia
+
+- **Цель:** каждое утверждение о внешнем мире в `docs/privacy.md` и `docs/dpia.md` ссылается на свою одну запись `sources` или `measurements`.
+- **Почему:** T270 сняла номера решений по строгому правилу ссылок; эти утверждения стояли только на номере решения, где лежала цитата, и теперь без записи — сессия не проверит факт по первоисточнику и не увидит, что он устарел.
+- **Сделать:** для каждого — запись, которая факт держит, — многие, вероятно, уже есть в `docs/sources.md`: COPPA, законы штатов, WP260, Google Cloud, Firebase, — или новая из первоисточника с датой чтения и цитатой; число — запись `measurements`; смысл текстов не менять.
+  - privacy: заголовок `X-Firebase-Client` и загрузка `apis.google.com` SDK Firebase; сроки IP у Firebase Hosting и Auth; исключения и аудит Cloud Logging, Trace API и Cloud Scheduler; Gmail без договора обработчика; WP260 п. 13; COPPA §312.4(d), §312.5(b)(2)(ii), §312.5(c)(9), §312.6, §312.7; CGS §42-518 и §42-520; GBL §899-ff–ii; Arkansas Act 952; Texas §541.002(a)(3); Usage Policies OpenAI в редакции 2026-11-20 (sources 2.5 читал 2026-11-09); Child Safety Guidance for Developers Anthropic.
+  - dpia: Кодекс ICO для сервиса из США, открытого детям Великобритании; цитата ICO о проверке возраста; механизмы передачи — DPF и UK Extension, SCC модуль 2 с UK Addendum, Databricks в списке DPF; страница Samaritans; страницы стандартов ICO 5, 9 и 12; числа справедливости `sim` и «1 of 560 boxes» риска 20.
+- **Как проверить:** `just docs-check`, временно с ключом `citations` — ошибок в двух файлах нет.
+- **Разделы:** privacy; dpia; sources 1; measurements 1; T270.
