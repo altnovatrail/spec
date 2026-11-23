@@ -4,7 +4,7 @@
 
 ## 1. Суть
 
-Платформа учит (R01; concepts 2, 2.1). Как в MathTrail — product 5.4 и 8 canvas-api, privacy 1 canvas-api.
+Платформа учит (R01) по concepts 2, 2.1. Как в MathTrail — product 5.4 и 8 canvas-api, privacy 1 canvas-api.
 
 ```mermaid
 flowchart LR

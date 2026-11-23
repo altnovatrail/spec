@@ -38,7 +38,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 
 **Task body** (Russian): «Цель», «Сделать», «Как проверить», «Разделы»; as needed «Не делать», «Решить при планировании», «Мой шаг», «Стоимость», «Риски»; from planning «Почему», «Решено автором (дата)», «Выяснилось при планировании»; when done «Сделано (дата)» (rule 9).
 
-**Citations** — RULES.md, Citations. A task is cited by number: «T03», «RUN.md, T03»; one not here is in `run/TASKS.md` or an archive: `grep -n '^#### T03\.' RUN.md run/TASKS.md docs/plan/*.md`. Task numbers are global and never reused: take the one free when writing it down.
+**Citations** — RULES.md, Citations. A task's number stands only here, in `run/` and in `docs/plan/` (R171). A task is cited by number: «T03», «RUN.md, T03»; one not here is in `run/TASKS.md` or an archive: `grep -n '^#### T03\.' RUN.md run/TASKS.md docs/plan/*.md`. Task numbers are global and never reused: take the one free when writing it down.
 
 ## Epics
 
@@ -86,10 +86,10 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 
 | Status | ID | Task | Who | Plan | Depends on |
 |---|---|---|---|---|---|
-| [ ] | T256 | Основа: источники и замер ссылок «до» в 13 репозиториях | Claude | — | — |
-| [ ] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
-| [ ] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
-| [ ] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
+| [x] | T256 | Основа: источники и замер ссылок «до» в 13 репозиториях | Claude | — | — |
+| [x] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
+| [x] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
+| [x] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
 | [ ] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258 |
 | [ ] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258 |
 | [ ] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258 |
@@ -107,62 +107,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258 |
 | [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275; строки 7.38–7.49 |
-
-#### T256. Основа: источники и замер ссылок «до» в 13 репозиториях
-
-- **Цель:** то, на чём стоит правило, — записи `docs/sources.md` и замер `docs/measurements.md`, прочитанные и измеренные этой задачей, не скопированные из запроса.
-- **Сделать:**
-  1. `docs/sources.md`, новая тема в конце — `sources 12` «How large projects cite», по sources 1, каждая страница прочитана самой задачей, с датой чтения и цитатой: ядро Linux, «Submitting patches» (docs.kernel.org и raw на GitHub); Google eng-practices, «How to handle reviewer comments»; Chromium — стиль iOS и Java (одна запись); Wikipedia, «Citation overkill» — эссе, не политика; ADR — AWS Architecture Blog и repowise, прочитать и процитировать (сессия `.github` видела только сниппеты поиска); ETH Zurich, arXiv 2602.11988 — как довод «каждая строка стоит внимания», не как замер ссылок. Claude Code best practices, «Keep CLAUDE.md short», — запись в конце темы 2, `sources 2.16`. Что не открылось или не совпало с цитатой запроса — так и записать; утверждение без источника — открытый вопрос, не факт.
-  2. `docs/measurements.md`, новый раздел `measurements 1.18` «Citations in documents and comments, 2026-11-23» (без номера задачи в заголовке, по правилу эпика): клоны 13 репозиториев repositories 2.1 на `main` во временной папке, только чтение; по каждому — плотность ссылок в CLAUDE.md, `docs/architecture.md`, `docs/decisions.md`, `docs/sources.md`, `docs/measurements.md` (ссылок, слов), строки с четырьмя ссылками и больше; виды по всему `docs/`, CLAUDE.md, RUN.md и `run/` — номера задач, свои решения, решения `spec`, свои разделы architecture, `sources`, `measurements`, решения других репозиториев; датированные поправки и хвосты журнала; доля символов в скобках со ссылками; номера решений в комментариях кода на 1 000 строк. Go 1.27.4 из контейнера: команда запроса (`find $(go env GOROOT)/src -name '*.go' -not -path '*/testdata/*'`, `grep -oE '(golang\.org/issue/|go\.dev/issue/|[Ii]ssue #?)[0-9]+'`). Команды — подразделом, чтобы T276 и задачи строк повторили их дословно.
-- **Как проверить:** `just docs-check`; цифры `.github` из запроса сверить с замером, расхождение — назвать.
-- **Разделы:** sources 1; measurements 1.14, 1.14.6; repositories 2.1; R143.
-
-#### T257. Правило ссылок: решение, RULES.md, R160, R32, шаблон
-
-- **Цель:** правило «Решено автором (2026-11-23)» — решение журнала, следующий свободный номер (сейчас `R171`), и его текст в RULES.md; записи, которые несут правило ссылок, переписаны на месте.
-- **Сделать:**
-  - Новое решение: пункты правила, хвост «— *Consequence:*» — список файлов, «Вне правила», строки «Д…» и «В…»; «Почему» — записи T256 (`sources 12`, `sources 2.16`, `measurements 1.18`) и measurements 1.14.4; отвергнутое — варианты B и C, проверка без ключа, поправки оставить или свернуть только в `spec`, хвост убрать. Решение пишется по самому правилу.
-  - RULES.md — The bar (строка о комментарии кода) и Citations: правило коротко, свои ссылки в RULES.md — по нему же; файл не выше предела 15 КБ (сейчас 15 359 Б).
-  - R160 на месте: Comments (В62) — номер решения только где важны отвергнутые варианты; Decisions (В61) — поправки свёртываются в E22, отвергнутое «переписать все журналы» снято с основанием; R32 — проверка ссылок по ключу (что именно — T258); пункт «Sources and measurements» R143 — одна запись, не цепочка.
-  - Вводная `docs/decisions.md` — «where it is described» = список файлов хвоста; sources 1, «A reference».
-  - RUN.md, «Citations»; `repo-template/files/` — `docs/decisions.md`, RUN.md, CLAUDE.md, `docs/sources.md`.
-- **Как проверить:** `just docs-check`; `just new-repo-test`; `/code-review high`.
-- **Разделы:** R160, R32, R143; RULES.md — The bar, Citations; measurements 1.14.4; T256.
-
-#### T258. `docs-check`: четыре проверки по ключу `citations`; тег
-
-- **Цель:** `docs-check` и `docs-check-repo` падают на механической части правила T257, где ключ включён; тег `spec` с правилом и проверками выходит на мерже пачки T256–T258 (R31).
-- **Сделать:**
-  - Проверки: номер задачи `T…` в документе вне RUN.md, `run/` и `docs/plan/` (MathTrail тоже — `T105.10 standalone`); датированная поправка в журнале — абзац «*Amendment <дата>*» и отсылка «amendment <дата> to R…»; больше двух ссылок в одной скобке; номер задачи в комментарии кода — сканером `tools/docs-check/comments.mjs`. Ссылки — разбором `tools/docs-check/citations.mjs`; пример в коде — не ссылка (R32); «Вне правила» T257 не читается.
-  - Ключ `"citations": true`: `tools/docs-check/budgets.json`, блок `spec` — выключен до T275; `repo-template/files/docs-budgets.json` — включён.
-  - Тесты в `tools/docs-check/test/`; R32 — что проверяется; CLAUDE.md, Environment, и `.claude/rules/tools.md`, если меняется их текст.
-- **Как проверить:** правило tools — `just coverage`; `just new-repo-test`; `just docs-check`; прогон с ключом на `spec` и на клоне `.github` во временной папке — сколько ошибок, по видам, в «Сделано»; `/code-review high` — по пачке T256–T258.
-- **Разделы:** R32, R145; T257; `.claude/rules/tools.md`.
-
-#### T259. Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях
-
-- **Цель:** в пункте 7 «Порядка» — по строке на каждый из 12 других репозиториев: «задачи нет», «по тексту T259», «Зависит от» — «—»; оркестратор запускает каждую после тега `spec` с T258 (R156).
-- **Сделать:** строки 7.38 `.github`, 7.39 `module-kit`, 7.40 `modules`, 7.41 `learner-model`, 7.42 `engine`, 7.43 `sim`, 7.44 `tutor`, 7.45 `canvas`, 7.46 `api`, 7.47 `app`, 7.48 `skill-map`, 7.49 `infra`; «Следующая — 7.50»; «Что нужно» — ссылки по правилу T257, тег `spec` с T258 или новее. Текст задачи — ниже, в этом теле. Пачка T256–T259 — один PR; номер решения в тексте — тот, что дала T257.
-- **Как проверить:** `just docs-check`.
-- **Разделы:** COORDINATION.md, правила 4–6, пункт 7; R76, R156, R159; T257, T258; [tools/orchestrator/README.md](tools/orchestrator/README.md), разделы 2–3.
-- **Текст задачи строк 7.38–7.49** (правило 6 COORDINATION.md): сессия репозитория записывает его своей задачей.
-
-  > #### Ссылки по правилу R<n> spec
-  >
-  > - **Цель:** в документах и комментариях кода `<репозиторий>` ссылка стоит, только если читатель пойдёт по ней, чтобы действовать (R<n> spec); журнал решений — без датированных поправок; `just -f spec/justfile docs-check-repo` с ключом `"citations": true` — зелёный.
-  > - **Почему:** R<n> spec — правило ссылок, его источники и замер: `sources 12 spec`, `measurements 1.18 spec`; R156 spec, R76 spec; строка <№> COORDINATION.md spec.
-  > - **Сделать:**
-  >   1. Репозиторий — на теге `spec` с T258 или новее: волна 0 оркестратора (`spec/tools/orchestrator/tasks/spec-tag.md`) это делает до задачи; если нет — переход первым шагом.
-  >   2. Замер «до» — командами `measurements 1.18 spec`, по видам.
-  >   3. `docs-budgets.json` — `"citations": true`, как в `spec/repo-template/files/docs-budgets.json`. `docs-check-repo` называет механические места: номера задач вне плана и архивов, датированные поправки, больше двух ссылок в одной скобке, номера задач в комментариях кода. Остальное — `grep -nE` по шаблону `measurements 1.18 spec` в `docs/`, CLAUDE.md, `.claude/rules/`, RUN.md, `run/` и в комментариях кода.
-  >   4. Каждая ссылка — по правилу: внешний факт, который можно оспорить, — одна запись `sources`/`measurements`; решённый выбор, который выглядит изменяемым, — один номер решения; ссылка на открытую работу — строка «Д…» или «В…»; остальное — убрать. Цепочку — свести к одному месту, где утверждение решено.
-  >   5. Комментарий кода стоит сам: причина словами; номер решения — только где важны отвергнутые варианты (обход, необратимое решение, неочевидное ограничение), около одного на 1 000 строк.
-  >   6. Журнал решений: каждую датированную поправку — свернуть в действующий текст записи, на месте; «Почему», отвергнутое и цитаты источников — сохранить (R160 spec). Хвост «— *Consequence:*» — список файлов и разделов, которые правит изменение решения, без номеров задач. Ссылку на поправку записи `spec` — на запись. В описании PR — таблица «поправка → место в новом тексте», для ревью.
-  >   7. Смысл не менять: правка — только ссылок и того, что их окружает, и свёртка поправок. Решение, которое при свёртке оказалось противоречивым, или ссылка, о которой есть настоящее сомнение, — строка таблицы 3 (`run/QUESTIONS.md`) и статус `waiting`: автор ответит через очередь оркестратора; правило не решается здесь.
-  >   8. Вне правила — нормативные тексты для авторов, `.proto` и описания схем, из которых генерируется код, архивы `docs/plan/` (R<n> spec).
-  >   9. Больше одного ревью — разбить по правилу 11 RUN.md: первая задача — ключ, план, CLAUDE.md, `.claude/rules/` и комментарии кода; журнал решений — отдельными частями по своим разделам `##`; первая записывает остальные в `run/TASKS.md` с «Зависит от» и называет их номера в отчёте; ключ включает последняя.
-  > - **Как проверить:** `docs-check-repo` — зелёный; проверки частей, чей код задача трогает (правило 6 RUN.md), — зелёные; `/code-review high`, один круг; в отчёте — ссылок было и стало, по видам, той же командой `measurements 1.18 spec`.
-  > - **Разделы:** R<n> spec, R160 spec, R32 spec; RULES.md spec — The bar и Citations; `spec/repo-template/files/` — `docs/decisions.md`, `docs-budgets.json`; свои `docs/decisions.md`, `docs/architecture.md`, CLAUDE.md, `.claude/rules/`.
 
 #### T260. Журнал `spec`, часть 1: Scope and product — Releases
 

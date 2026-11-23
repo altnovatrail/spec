@@ -7,7 +7,7 @@
 ## 1. How to keep it
 
 - **A record** is a subsection "N.M" of a topic: one source, or one reading of several sources for the sake of one decision. It holds the address, the version or the date of the page, the date read, and the quote, in the language of the source. What was not read from the primary source — a copy, a pointer, a page that did not open — the record names as such.
-- **A reference.** A claim of a document refers to a record by its number, as to a section of any document: `(sources 5.4)`. The number of a record does not change: a new record goes at the end of its topic, a new topic at the end of the file.
+- **A reference.** A claim of a document that can be disputed refers to its one record by its number, as to a section of any document: `(sources 5.4)`; not to a chain of records and the texts that also cite them (R171). A record's heading names its topic and date, not a task. The number of a record does not change: a new record goes at the end of its topic, a new topic at the end of the file.
 - **The source was read again** — an item with its own date is added to the record, and the earlier text is not edited: the decisions of its day rest on it. If the source changed and the claim diverged from it, that is a rewrite of the decision in its place (R160) or an open question, not an edit of the record.
 - **What is not here:** the quotes that an entry of the decision log gives itself — they stay in the entry, and its rewrite keeps them (R160); the sources of the DPIA — they are in dpia 9, so that the assessment stays whole (R129); the source data of a part — the table of the age of digital consent has its own references and quotes, by country ([the table of the part `consent-age/`](../consent-age/consent-age.yaml)); the quotes on which the method of the measurements of E10 stands — the API prices in measurements 1.2 and the documentation of Claude Code in measurements 1.5–1.8: they were moved from repositories 9 together with the measurements, and `tools/tokens/prices.mjs` is checked against the prices of 1.2. A new quote for a measurement goes here.
 
@@ -142,6 +142,10 @@ Read 2026-11-18, for T201 (run/TASKS.md; measurements 1.15). The documentation o
   - **`ScheduleWakeup`** answers "Next wakeup scheduled for 18:48:00 (in 1501s). Nothing more to do this turn — the harness re-invokes you when the wakeup fires or a task-notification arrives." (`app` T78, 2026-11-17); the enforcement followed four seconds later.
   - **After the status** the stream of an attempt may hold `{"type":"system","subtype":"task_updated",…,"patch":{"status":"killed",…}}` and then `"subtype":"task_notification",…,"status":"stopped"` for the background command, with no later turn: 59 of 301 attempts. In 52 a notification of the background work started another turn, and the stream holds more than one `result`; 13 attempts did both.
   - **A foreground command at its timeout.** In this session of T201, a command under Bash's `timeout` of 600000 ms answered "Command did not complete within its 600s timeout and was moved to the background (ID: bcf06lxk2)".
+
+### 2.16. Claude Code: a short CLAUDE.md, 2026-11-23
+
+Read 2026-11-23: [Best practices for Claude Code](https://code.claude.com/docs/en/best-practices.md), the page in Markdown without a date, `Last-Modified: Mon, 23 Nov 2026 04:27:59 GMT`, section "Keep CLAUDE.md short": "Claude Code loads [`CLAUDE.md`](https://code.claude.com/docs/en/memory) into every session, which means every line in it takes a little of Claude's attention on *every* task, whether it's relevant or not. That's why the file works best when it only holds what Claude couldn't work out from the code itself"; among what it holds, "Decisions that aren't in the repo: which error helper the team settled on, how deploys work, what needs a migration review"; and "`/init` generates a starting version from your codebase. From there the work is mostly removing lines. The [memory guide](https://code.claude.com/docs/en/memory.md#write-effective-instructions) recommends staying under 200." The table of habits that no longer pay, the row on emphasis: "If the line is getting lost in a long file, the file needs to be shorter."
 
 ## 3. Laws, regulators and standards
 
@@ -1254,3 +1258,44 @@ Read 2026-11-20 and 2026-11-21, for T245, the rule `tools/patchcov/` repeats:
   - `libs/shared/shared/utils/merge.py`, commit `29a7ceec`, 2025-05-15: `branch_type` — "0 = hit", "1 = miss", "2 = partial"; `LineType.hit if b1 == b2 else LineType.miss if b1 == "0" else LineType.partial`.
 - [codecov/codecov-cli](https://github.com/codecov/codecov-cli) at `v11.3.2`, commit `2f5121284e3c7c3c2b691a09cb0ea135d226f112` (sources 11.1), `codecov_cli/services/upload/upload_collector.py`, `_produce_file_fixes`: for `"*.go"`, the lines that match `^\s*$`, `^\s*\/\/.*$`, `^\s*[\{\}]\s*(\/\/.*)?$` and `^\s*func\s*[\{]\s*(\/\/.*)?$`, and with a reason `^\s*(\/\*|\*\/)\s*$`, are sent as fixes, which the service leaves out — umbrella's `fixes.py`, commit `7d10dc30`, 2024-09-11, with the lines between a block's start and its stop —; TypeScript has none.
 - Checked by `tools/patchcov/` against `codecov/patch` of five pull requests, by the reports of their artifacts: `app` #106 at `48183751`, 84.65%, and at `4698f4a3`, 94.58% — 1381 hits, 1 miss, 78 partials —; `api` #135, 97.03%; `tutor` #209, 94.26%, which takes the fixes of Go; `module-kit` #95, 98.76%.
+
+## 12. How large projects cite
+
+What large projects and the research say about where a reference stands in a text and in code, read 2026-11-23 for the rule of citations; the counts of NovaTrail's own are measurements 1.18. Each page was fetched by `curl` and read in its text; what a record could not read is named in it.
+
+### 12.1. The Linux kernel: a patch's description stands by itself
+
+[Submitting patches: the essential guide to getting your code into the kernel](https://docs.kernel.org/process/submitting-patches.html), the documentation of 7.4.0-rc4, `Last-Modified: Sun, 22 Nov 2026 23:15:36 GMT`, and its source, [Documentation/process/submitting-patches.rst](https://raw.githubusercontent.com/torvalds/linux/master/Documentation/process/submitting-patches.rst) at `master` `b6a9fa34ce41`, the same text:
+- "Don't expect the subsystem maintainer to refer back to earlier patch versions or referenced URLs to find the patch description and put that into the patch. I.e., the patch (series) and its description should be self-contained."
+- "If related discussions or any other background information behind the change can be found on the web, add 'Link:' tags pointing to it."
+- "However, try to make your explanation understandable without external resources. In addition to giving a URL to a mailing list archive or bug, summarize the relevant points of the discussion that led to the patch as submitted."
+- "If you want to refer to a specific commit, don't just refer to the SHA-1 ID of the commit. Please also include the oneline summary of the commit, to make it easier for reviewers to know what it is about."
+
+### 12.2. Google: clarify the code, not the review
+
+Google's engineering practices, [How to handle reviewer comments](https://github.com/google/eng-practices/blob/master/review/developer/handling-comments.md), the file at commit `900d9b0221c6` of 2024-05-10, its last change, section "Fix the Code": "If a reviewer says that they don't understand something in your code, your first response should be to clarify the code itself. If the code can't be clarified, add a code comment that explains why the code is there. If a comment seems pointless, only then should your response be an explanation in the code review tool." and "Writing a response in the code review tool doesn't help future code readers, but clarifying your code or adding code comments does help them."
+
+### 12.3. Chromium: a reference in code is to open work
+
+Chromium's style guides at `main` `1e61e2cd62e3`, read through gitiles, `?format=TEXT`:
+- iOS, [docs/ios/style.md](https://chromium.googlesource.com/chromium/src/+/main/docs/ios/style.md), "TODO comments": "**Every TODO must have a bug**", "Always list bug in parentheses following \"TODO\"", "`// TODO(crbug.com/######): Something that needs doing.`".
+- Java, [styleguide/java/java.md](https://chromium.googlesource.com/chromium/src/+/main/styleguide/java/java.md), "TODOs": "TODO should follow chromium convention. Examples: `TODO(username): Some sentence here.` `TODO(crbug.com/40192027): Even better to use a bug for context.`"
+- Neither guide asks a comment to cite a design document or a decision; the bug a TODO names is open work.
+
+### 12.4. Wikipedia: citation overkill, an essay
+
+[Wikipedia:Citation overkill](https://en.wikipedia.org/wiki/Wikipedia:Citation_overkill), revision 1384961586 of 2026-11-11T01:49:40Z, read in its wikitext and quoted as the page reads, its links unwrapped. It is an essay, not a policy: its template is `{{essay|…|interprets=the [[Wikipedia:Verifiability|verifiability policy]] and the [[Wikipedia:Citing sources|citing sources guideline]]}}`.
+- "When citing material in an article, it is better to cite a couple of great sources than a stack of decent or sub-par ones."
+- "While adding inline citations is helpful, adding too many can cause citation clutter, making articles look untidy in read mode and difficult to navigate in markup edit mode."
+- "The purpose of any article is first and foremost to be read". "A good rule of thumb is to cite at least one inline citation for each section of text that may be challenged or is likely to be challenged, or for direct quotations. Two or three may be preferred for more controversial material or as a way of preventing linkrot for online sources, but more than three should generally be avoided; if four or more are needed, consider bundling (merging) the citations."
+
+### 12.5. Architecture decision records
+
+- AWS Architecture Blog, [Master architecture decision records (ADRs): Best practices for effective decision-making](https://aws.amazon.com/blogs/architecture/master-architecture-decision-records-adrs-best-practices-for-effective-decision-making/), by Christoph Kappey, Dominik Goby and Darius Kunce, 2025-03-20, `Last-Modified: Thu, 19 Nov 2026 03:52:28 GMT`: "By capturing the context, alternatives considered, and the rationale behind each decision, ADRs foster transparency, knowledge-sharing, and accountability within teams."; "Focus on a single decision – Keep ADRs concise by focusing on a single decision."; "If an ADR supersedes a previous one, document the change and link the new ADR in the superseded document."; "Most of the decisions are two-way door decisions, meaning that they can be changed with little impact in the future."
+- repowise: which page the request read is not known. Its [Decisions](https://repowise.dev/features/decisions) page is a product's, "Architectural decisions mined from your code": "Decisions mined from ADRs, pull requests, commits and comments, linked to the files they govern, and aged when those files change."; "The ADR folder has nine files and nobody opens it."; "A decision goes stale when its files change." Its blog's guides and sitemap, read the same day, hold no page on ADRs. No claim rests on repowise but that a decision is worth linking to the files it governs.
+
+### 12.6. ETH Zurich: context files for coding agents
+
+Gloaguen, Mündler-Sasahara, Müller, Raychev, Vechev, [Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?](https://arxiv.org/abs/2602.11988), arXiv 2602.11988, v3 of 2026-09-29, its [HTML](https://arxiv.org/html/2602.11988v3). It measures whole context files on the success of tasks, not references in a text, and stands only for "each line costs the reader":
+- the abstract: "Surprisingly, we find that providing context files does not generally improve task success rates, while increasing inference cost by over 20% on average."; "repository overviews, although popular and recommended by model providers, are not helpful";
+- section 6, "Conclusion": "We find that all context files consistently increase the cost and number of steps required to complete tasks."; "Overall, our results suggest that context files don't improve coding agent performance, and should only contain specific additional instructions beyond what is already available in the codebase."

@@ -14,7 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { componentProfile, specProfile } from "./config.mjs";
+import { componentProfile, specProfile, under } from "./config.mjs";
 import { parseMarkdown } from "./markdown.mjs";
 import { checkLinks } from "./links.mjs";
 import { checkSections } from "./sections.mjs";
@@ -24,6 +24,7 @@ import { checkDiagrams } from "./mermaid.mjs";
 import { checkRules, isRule, splitFrontMatter } from "./rules.mjs";
 import { checkBudgets, readBudgets } from "./budgets.mjs";
 import { checkComments } from "./comments.mjs";
+import { checkCitations } from "./citation-rule.mjs";
 import { execFileSync } from "node:child_process";
 import { GIT, byCodeUnits, isMain } from "../shared.mjs";
 
@@ -81,6 +82,7 @@ export async function check(root, profile = specProfile) {
   const budgets = readBudgets(root, profile.budgets, report);
   stats.budgets = budgets ? checkBudgets(root, files, budgets, profile, report) : 0;
   stats.comments = budgets?.comments ? checkComments(root, listed, (scope) => registerOf("R", scope), report) : 0;
+  stats.citations = budgets?.citations ? checkCitations(root, files, listed, profile, report) : 0;
 
   errors.sort((a, b) => byCodeUnits(a.file, b.file) || a.line - b.line);
   return { errors, stats };
@@ -97,7 +99,7 @@ export async function check(root, profile = specProfile) {
 function listFiles(root, excluded, fail) {
   const skip = (relative) =>
     relative.split("/").some((name) => excluded.names.includes(name)) ||
-    excluded.paths.some((excludedPath) => relative === excludedPath || relative.startsWith(`${excludedPath}/`));
+    under(relative, excluded.paths);
   let files;
   if (fs.existsSync(path.join(root, ".git"))) {
     try {
@@ -196,7 +198,8 @@ if (isMain(import.meta.url)) {
   } else {
     console.log(
       `docs-check: ok — ${stats.files} files, ${stats.links} links, ${stats.sections} sections, ` +
-        `${stats.numbers} numbers, ${stats.diagrams} diagrams, ${stats.rules} rules, ${stats.budgets} budgets, ${stats.comments} numbers in comments`,
+        `${stats.numbers} numbers, ${stats.diagrams} diagrams, ${stats.rules} rules, ${stats.budgets} budgets, ${stats.comments} numbers in comments, ` +
+        `${stats.citations} files by the rule of citations`,
     );
   }
 }

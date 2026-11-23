@@ -1779,6 +1779,191 @@ What R166 gave in its first task, T247 (RUN.md, T246): ten changes of `app`'s in
 - The rounds: `gh run list -R altnovatrail/<repo> --branch e18 --json workflowName,event,createdAt,conclusion,headSha`, the runs of CI by `pull_request`, one a pushed head; `infra` by its branches, a run cancelled by a push ten seconds later not counted.
 - The times: `gh pr view <n> --json createdAt,mergedAt` and `gh release list`; the author's wait, from the session's question to its answer in T247's transcript.
 
+### 1.18. Citations in documents and comments, 2026-11-23
+
+How often the documents and the code comments of the 13 repositories of repositories 2.1 cite, and what: the measurement "before" of the rule of citations, which its "after" and each repository's own task repeat by section 1.18.4. Measured 2026-11-23 on clones at `main`, read-only, in a temporary folder: `.github` faaa9bc, `api` 09df081, `app` c152d95, `canvas` bfe631e, `engine` 1c777a3, `infra` d50a538, `learner-model` 1cc6e53, `module-kit` b75a9d4, `modules` 998b660, `sim` b8ad7d4, `skill-map` 351262c, `spec` 876fc14, `tutor` 71e7336. What large projects do instead is sources 12.
+
+A citation is a match of the pattern of the request that the rule answers, `\b(R[0-9]+( spec| [a-z-]+)?|(architecture|sources|measurements|repositories|privacy|product|concepts) [0-9]+(\.[0-9]+)*( spec)?|T[0-9]+)\b`. It counts what `docs-check` reads as a citation and task numbers, not Markdown links or `TODO`s; any `T` and digits count, an example in code too. Its `R[0-9]+( [a-z-]+)?` takes the next lowercase word, "R12 and" as much as "R12 api": the kinds below read the suffix of a repository's name alone.
+
+**The answer in short.**
+- CLAUDE.md, the architecture and the decision log cite once in 26–55 words in every repository: 31, 39 and 38 over all 13. The sources and the measurements vary more, once in 28–234 words.
+- 4,462 lines carry four citations or more; 679 parentheses outside the plan carry three or more.
+- Task numbers are 27% of the citations, 15,764 of 59,297, and 14,731 of them stand outside RUN.md and `run/`.
+- The logs hold 2,179 dated amendments and 859 tails "— *Consequence*".
+- A comment of hand-written code cites a decision 19.1 times a 1,000 lines, a workflow 65 times; the standard library of Go 1.27.4 cites an issue 1.3 times a 1,000 lines.
+
+#### 1.18.1. How dense, by document
+
+Each cell is the citations of the file and the words a citation, the words split by white space. "Lines of 4+" counts the lines with four citations or more in `docs/` without the archives, CLAUDE.md, RUN.md and `run/`.
+
+| Repository | CLAUDE.md | Architecture | Decisions | Sources | Measurements | Lines of 4+ |
+|---|---|---|---|---|---|---|
+| `.github` | 72 · 26 | 548 · 27 | 2,200 · 33 | 502 · 43 | 303 · 60 | 251 |
+| `api` | 51 · 29 | 2,041 · 30 | 3,856 · 40 | 238 · 47 | 248 · 28 | 496 |
+| `app` | 46 · 29 | 1,458 · 48 | 2,740 · 39 | 244 · 67 | 105 · 43 | 376 |
+| `canvas` | 44 · 41 | 1,099 · 36 | 4,063 · 35 | 503 · 56 | 65 · 62 | 426 |
+| `engine` | 51 · 29 | 578 · 45 | 1,481 · 39 | 229 · 50 | 84 · 130 | 214 |
+| `infra` | 56 · 31 | 465 · 36 | 1,656 · 41 | 234 · 83 | 26 · 56 | 217 |
+| `learner-model` | 48 · 30 | 547 · 55 | 2,355 · 36 | 164 · 53 | 120 · 61 | 272 |
+| `module-kit` | 46 · 30 | 527 · 42 | 1,851 · 50 | 110 · 71 | 64 · 45 | 162 |
+| `modules` | 53 · 28 | 447 · 45 | 1,644 · 43 | 128 · 43 | 68 · 45 | 178 |
+| `sim` | 49 · 28 | 593 · 38 | 2,340 · 40 | 423 · 33 | 184 · 36 | 340 |
+| `skill-map` | 40 · 34 | 255 · 35 | 458 · 41 | 50 · 73 | 36 · 69 | 64 |
+| `spec` | 57 · 33 | 1,115 · 29 | 7,644 · 35 | 178 · 234 | 603 · 61 | 970 |
+| `tutor` | 57 · 33 | 948 · 54 | 4,151 · 35 | 136 · 118 | 937 · 40 | 496 |
+| All | 670 · 31 | 10,621 · 39 | 36,439 · 38 | 3,139 · 66 | 2,843 · 50 | 4,462 |
+- In every repository the logs cite once in 33–50 words. The architecture of `.github`, `api` and `spec` is the densest, once in 27–30.
+- `spec`'s `docs/decisions.md` alone holds 7,644 citations in 268,769 words, and its architecture 1,115 in 31,873: the numbers of the plan of the epic.
+- `spec` has 970 of the 4,462 lines of four and more.
+
+#### 1.18.2. What is cited
+
+Over `docs/` without the archives `docs/plan/`, CLAUDE.md, RUN.md and `run/`:
+- *tasks* are `T…`, and *outside the plan* those not in RUN.md and `run/`;
+- *own R…* are the repository's decisions, *R… spec* spec's, and *other R…* another repository's, MathTrail's `canvas-api` and `standalone` among them;
+- *own architecture*, *sources* and *measurements* are sections of the repository's own documents; *other sections* are its other documents', and every section of spec's with the suffix;
+- *amendments* are the paragraphs of the log that open "— *…Amendment <date>", the second to the fifth too; *consequences*, those that open "— *Consequence";
+- *in parentheses* is the share of the characters inside a parenthesis on one line that holds a citation; *parentheses of 3+*, outside the plan, the parentheses that hold three citations or more.
+
+| Repository | Tasks | outside the plan | Own R… | R… spec | Other R… | Own architecture | Sources | Measurements | Other sections | Amendments | Consequences | In parentheses | Parentheses of 3+ |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `.github` | 1,091 | 1,076 | 1,116 | 573 | 63 | 369 | 220 | 133 | 124 | 164 | 55 | 2.9% | 40 |
+| `api` | 1,494 | 1,405 | 2,934 | 1,107 | 208 | 181 | 112 | 55 | 609 | 273 | 102 | 3.1% | 80 |
+| `app` | 1,016 | 878 | 1,871 | 1,147 | 215 | 103 | 125 | 41 | 396 | 75 | 78 | 2.9% | 60 |
+| `canvas` | 1,701 | 1,673 | 2,577 | 922 | 129 | 178 | 113 | 29 | 251 | 251 | 51 | 2.4% | 75 |
+| `engine` | 825 | 783 | 611 | 475 | 206 | 69 | 80 | 23 | 249 | 91 | 30 | 3.3% | 33 |
+| `infra` | 834 | 725 | 857 | 515 | 134 | 85 | 140 | 12 | 121 | 136 | 37 | 2.6% | 38 |
+| `learner-model` | 1,057 | 1,003 | 1,177 | 622 | 194 | 75 | 40 | 32 | 248 | 107 | 48 | 2.7% | 42 |
+| `module-kit` | 789 | 779 | 1,000 | 600 | 32 | 51 | 43 | 31 | 145 | 114 | 67 | 2.2% | 35 |
+| `modules` | 655 | 630 | 875 | 573 | 42 | 99 | 73 | 22 | 164 | 94 | 41 | 2.5% | 31 |
+| `sim` | 1,414 | 1,311 | 1,580 | 395 | 134 | 52 | 132 | 35 | 141 | 187 | 81 | 2.5% | 40 |
+| `skill-map` | 108 | 91 | 351 | 273 | 18 | 8 | 29 | 6 | 115 | 4 | 12 | 3.2% | 13 |
+| `spec` | 2,588 | 2,211 | 7,049 | 15 | 1,278 | 558 | 252 | 118 | 1,163 | 487 | 115 | 2.4% | 115 |
+| `tutor` | 2,192 | 2,166 | 2,041 | 1,070 | 91 | 371 | 138 | 144 | 360 | 196 | 142 | 2.5% | 77 |
+| All | 15,764 | 14,731 | 24,039 | 8,287 | 2,744 | 2,199 | 1,497 | 681 | 4,086 | 2,179 | 859 | 2.6% | 679 |
+- In `spec` the paragraphs that open "— *Amendment" are 409, the count of the plan of the epic; with the second to the fifth and "Amendment … (T…)" they are 487.
+- A parenthesis with a citation is 2.2–3.3% of a repository's characters.
+
+#### 1.18.3. Code comments
+
+Hand-written code — `.go`, `.ts`, `.tsx`, `.js`, `.mjs`, `.cjs` and `.sh`, tests included — and the workflows of `.github/workflows/`, without generated files, `node_modules` and `testdata`. Lines are non-empty lines, comments included. A comment is a line of `//`, a block `/* … */`, a `#` of a shell script or a workflow, or the rest of a line after ` //` or ` #`. *R…* and *T…* count `R` and `T` with two or three digits in the comments.
+
+| Repository | Lines | Comment lines | R… in comments | a 1,000 lines | T… in comments | Workflow lines | R… a 1,000 |
+|---|---|---|---|---|---|---|---|
+| `.github` | 9,254 | 1,508 | 263 | 28.4 | 0 | 3,524 | 57 |
+| `api` | 60,541 | 8,994 | 1,493 | 24.7 | 0 | 213 | 113 |
+| `app` | 71,349 | 7,606 | 1,362 | 19.1 | 0 | 192 | 78 |
+| `canvas` | 50,563 | 7,691 | 1,536 | 30.4 | 0 | 770 | 53 |
+| `engine` | 6,835 | 1,100 | 95 | 13.9 | 0 | 383 | 63 |
+| `infra` | 7,458 | 1,055 | 164 | 22.0 | 0 | 457 | 42 |
+| `learner-model` | 9,484 | 1,570 | 167 | 17.6 | 0 | 439 | 80 |
+| `module-kit` | 26,920 | 3,548 | 347 | 12.9 | 0 | 340 | 53 |
+| `modules` | 10,779 | 1,022 | 138 | 12.8 | 0 | 511 | 72 |
+| `sim` | 19,879 | 2,471 | 380 | 19.1 | 0 | 467 | 73 |
+| `skill-map` | 6,040 | 852 | 145 | 24.0 | 0 | 142 | 92 |
+| `spec` | 45,445 | 7,014 | 636 | 14.0 | 13 | 1,327 | 72 |
+| `tutor` | 70,861 | 9,692 | 814 | 11.5 | 2 | 296 | 108 |
+| All | 395,408 | 54,123 | 7,540 | 19.1 | 15 | 9,061 | 65 |
+- Go 1.27.4 of the devcontainer: 3,413 matches of `(golang\.org/issue/|go\.dev/issue/|[Ii]ssue #?)[0-9]+` in 6,828 files of `$(go env GOROOT)/src` outside `testdata`, 2,893,348 lines, 2,664,874 of them non-empty — 1.2 a 1,000 lines, 1.3 a 1,000 non-empty ones. The comments of NovaTrail cite a decision 15 times as often.
+- Task numbers in comments are rare: 13 in `spec` and 2 in `tutor`.
+
+**Against the request.**
+- `.github`, "a citation every 25–35 words": its CLAUDE.md, 26, its architecture, 27, and its log, 33, agree; its sources, 43, and measurements, 60, are sparser.
+- `.github`, "59 decision numbers a 1,000 lines of the workflows": 219 matches of `\bR[0-9]{2,3}\b` in 3,706 lines of `.github/workflows/*.yml`, code and empty lines included, is 59; in its comments and non-empty lines, 57.
+- Go, "about 1.2 references to an issue a 1,000 lines": 1.2, by the same command.
+- `spec`, "about 1,360 decision numbers in 156 thousand lines of comments": the files of code of `spec` hold 1,440 matches of `\bR[0-9]{2,3}\b` in 149,952 lines, generated code and its comments from `.proto` and the schemas included; its hand-written comments hold 636 in 45,445 non-empty lines. The request counted the generated files, which the rule leaves out, and every line, not the comments.
+
+#### 1.18.4. The commands
+
+In an empty folder, the 13 clones at `main` and `cite.mjs` beside them; the second command prints one line of JSON a repository, the third the two counts of Go:
+```sh
+for r in .github api app canvas engine infra learner-model module-kit modules sim skill-map spec tutor; do git clone -q https://github.com/altnovatrail/$r.git; done
+for r in .github api app canvas engine infra learner-model module-kit modules sim skill-map spec tutor; do node cite.mjs $r; done > cite.jsonl
+find $(go env GOROOT)/src -name '*.go' -not -path '*/testdata/*' | xargs cat | tee >(wc -l >&2) | grep -oE '(golang\.org/issue/|go\.dev/issue/|[Ii]ssue #?)[0-9]+' | wc -l
+cat .github/.github/workflows/*.yml | wc -l; cat .github/.github/workflows/*.yml | grep -oE '\bR[0-9]{2,3}\b' | wc -l
+```
+The tables sum the lines of `cite.jsonl`: `files` gives section 1.18.1, citations and words; `kinds`, `tasksOutside`, `amendments`, `consequences`, `paren` — characters in parentheses with a citation and all characters — and `parens3` give 1.18.2; `code` and `workflows` give 1.18.3.
+
+`cite.mjs`:
+```js
+// cite.mjs <repo> — the citations of one clone at main, as one JSON line.
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+
+const repo = process.argv[2];
+const REPOS = ".github|api|app|canvas|engine|infra|learner-model|module-kit|modules|sim|skill-map|spec|tutor|canvas-api|standalone";
+const CITE = /\b(R[0-9]+( spec| [a-z-]+)?|(architecture|sources|measurements|repositories|privacy|product|concepts) [0-9]+(\.[0-9]+)*( spec)?|T[0-9]+)\b/g;
+const KIND = [
+  ["task", /^T/],
+  ["R spec", /^R[0-9]+ spec$/],
+  ["R other", new RegExp(`^R[0-9]+ (${REPOS})$`)],
+  ["R own", /^R/],
+  ["architecture", /^architecture [0-9.]+$/],
+  ["sources", /^sources [0-9.]+$/],
+  ["measurements", /^measurements [0-9.]+$/],
+  ["section spec", / spec$/],
+  ["section own", /./],
+];
+// The request's pattern takes the next lowercase word after R…, "R12 and" too: the kind reads the decision's suffix alone.
+const OWN = new RegExp(`^(R[0-9]+) (?!spec$|(?:${REPOS})$).*$`);
+const kind = (c) => KIND.find(([, re]) => re.test(c.replace(OWN, "$1")))[0];
+const read = (f) => (existsSync(`${repo}/${f}`) ? readFileSync(`${repo}/${f}`, "utf8") : "");
+const words = (t) => t.split(/\s+/).filter(Boolean).length;
+const files = (...spec) => execFileSync("git", ["-C", repo, "ls-files", ...spec], { encoding: "utf8" }).split("\n").filter(Boolean);
+
+const out = { repo, files: {}, kinds: {}, four: 0, paren: [0, 0], tasksOutside: 0, parens3: 0 };
+for (const f of ["CLAUDE.md", "docs/architecture.md", "docs/decisions.md", "docs/sources.md", "docs/measurements.md"]) {
+  const t = read(f);
+  out.files[f] = [(t.match(CITE) || []).length, words(t)];
+}
+// Kinds, lines of four and more, and parentheses: docs/ without the archives, CLAUDE.md, RUN.md and run/.
+const all = files("docs/*.md", "CLAUDE.md", "RUN.md", "run/*.md").filter((f) => !f.startsWith("docs/plan/"));
+for (const f of all) {
+  const t = read(f);
+  for (const c of t.match(CITE) || []) out.kinds[kind(c)] = (out.kinds[kind(c)] || 0) + 1;
+  for (const l of t.split("\n")) if ((l.match(CITE) || []).length >= 4) out.four++;
+  out.paren[1] += t.length;
+  const plan = f === "RUN.md" || f.startsWith("run/");
+  if (!plan) out.tasksOutside += (t.match(CITE) || []).filter((c) => c.startsWith("T")).length;
+  for (const p of t.match(/\([^()\n]*\)/g) || []) {
+    const n = (p.match(CITE) || []).length;
+    if (n) out.paren[0] += p.length;
+    if (n > 2 && !plan) out.parens3++;
+  }
+}
+const log = read("docs/decisions.md");
+out.amendments = (log.match(/^— \*[^*]*[Aa]mendment [0-9]{4}-[0-9]{2}-[0-9]{2}/gm) || []).length;
+out.consequences = (log.match(/^— \*Consequence/gm) || []).length;
+// Comments of hand-written code and of the workflows: lines, comment lines, R… and T… in them.
+const code = files("*.go", "*.ts", "*.tsx", "*.js", "*.mjs", "*.cjs", "*.sh", "*.yml", "*.yaml", ":!:*.pb.go", ":!:*_pb.ts", ":!:*_pb.js", ":!:*connect.go", ":!:*connect.ts", ":!:**/node_modules/**", ":!:**/testdata/**");
+out.code = { lines: 0, comments: 0, R: 0, T: 0 };
+out.workflows = { lines: 0, R: 0 };
+for (const f of code) {
+  const t = read(f);
+  if (/Code generated|@generated/.test(t.split("\n").slice(0, 5).join("\n"))) continue;
+  const hash = /\.(sh|ya?ml)$/.test(f);
+  if (/\.ya?ml$/.test(f) && !f.startsWith(".github/workflows/") && !f.startsWith("workflows/")) continue;
+  let inc = false;
+  for (const raw of t.split("\n")) {
+    const l = raw.trim();
+    if (!l) continue;
+    out.code.lines++;
+    if (/^\.github\/workflows\//.test(f)) out.workflows.lines++;
+    let c = "";
+    if (inc || /^(\/\/|\/\*)/.test(l)) { if (l.startsWith("/*")) inc = true; if (inc && l.includes("*/")) inc = false; c = l; }
+    else if (hash) c = l.match(/(^|\s)#(?!!)(.*)$/)?.[2] ?? "";
+    else c = l.match(/\s\/\/(.*)$/)?.[1] ?? "";
+    if (!c) continue;
+    out.code.comments++;
+    const r = (c.match(/(?<![A-Za-z0-9])R[0-9]{2,3}(?![0-9])/g) || []).length;
+    out.code.R += r;
+    out.code.T += (c.match(/(?<![A-Za-z0-9])T[0-9]{2,3}(?![0-9])/g) || []).length;
+    if (/^\.github\/workflows\//.test(f)) out.workflows.R += r;
+  }
+}
+console.log(JSON.stringify(out));
+```
+
 ## 2. The browsers of the kind `typescript`
 
 ### 2.1. WebKit and Firefox in the stage, T141, 2026-11-13
