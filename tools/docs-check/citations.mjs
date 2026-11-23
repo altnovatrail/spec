@@ -108,8 +108,8 @@ export function scopeAfter(text, end) {
 // A list of numbers takes the suffix after its last: `R02, R03 spec`, `R37 и R38 canvas-api`.
 const NUMBER_LIST_SEPARATOR = /^(?:\s*,\s*|\s+и\s+|\s+and\s+)$/u;
 
-// Register numbers in a block: [{ prefix, digits, number, start, end, scope }].
-// A range `R15–R18` yields every number from 15 to 18.
+// Register numbers in a block: [{ prefix, digits, number, start, end, scope, item }].
+// A range `R15–R18` yields every number from 15 to 18, all of one item: the citation they are.
 export function findNumbers(block) {
   const { text } = block;
   const spans = foreignSpans(text);
@@ -143,7 +143,7 @@ export function findNumbers(block) {
   }
 
   const result = [];
-  for (const { first, last, scope } of items) {
+  for (const [item, { first, last, scope }] of items.entries()) {
     const from = Number(first.digits);
     const to = Number(last.digits);
     const width = first.digits.length;
@@ -158,19 +158,22 @@ export function findNumbers(block) {
           end: n === to ? last.end : first.end,
           scope,
           inRange: !isEnd,
+          item,
         });
       }
     } else {
-      result.push({ ...first, number: from, scope });
-      if (last !== first) result.push({ ...last, number: to, scope });
+      result.push({ ...first, number: from, scope, item });
+      if (last !== first) result.push({ ...last, number: to, scope, item });
     }
   }
   return result;
 }
 
-// The section numbers after a citation's first one: `, 4`, ` и 8`, `–7`.
+// The section numbers after a citation's first one: `, 4`, ` и 8`, `–7`; count is how many
+// citations they are, a range one.
 function sectionList(text, first, at) {
   const list = [first];
+  let count = 1;
   for (;;) {
     SECTION_MORE.lastIndex = at;
     const m = SECTION_MORE.exec(text);
@@ -180,31 +183,33 @@ function sectionList(text, first, at) {
       for (let n = Number(list.at(-1)) + 1; n < Number(number); n++) list.push(String(n));
     }
     list.push(number);
+    if (!m[3]) count++;
     at = m.index + m[0].length;
   }
-  return { list, end: at };
+  return { list, count, end: at };
 }
 
 // Citations of a document's sections in a block, other repositories' left out:
-// { kind: "document", name, sections, start, scope } for `product 7` and `concepts 9 spec`;
-// { kind: "word", sections, start, scope } for `раздел 9.4` — the document is resolved by the caller.
+// { kind: "document", name, sections, count, start, scope } for `product 7` and `concepts 9 spec`;
+// { kind: "word", sections, count, start, scope } for `раздел 9.4` — the document is resolved by
+// the caller. count is how many citations the list of sections is, a range one.
 export function findSections(block) {
   const { text } = block;
   const spans = foreignSpans(text);
   const result = [];
   for (const m of text.matchAll(DOCUMENT_SECTION)) {
-    const { list, end } = sectionList(text, m[2], m.index + m[0].length);
+    const { list, count, end } = sectionList(text, m[2], m.index + m[0].length);
     const scope = inSpans(spans, m.index) ? "foreign" : scopeAfter(text, end);
     if (scope === "foreign") continue;
-    result.push({ kind: "document", name: m[1], sections: list, start: m.index, scope });
+    result.push({ kind: "document", name: m[1], sections: list, count, start: m.index, scope });
   }
   for (const m of text.matchAll(WORD_SECTION)) {
     const after = m.index + m[0].length;
-    const { list, end } = sectionList(text, m[1], after);
+    const { list, count, end } = sectionList(text, m[1], after);
     const foreign = inSpans(spans, m.index) || FOREIGN_BEFORE.test(text.slice(0, m.index));
     const scope = foreign ? "foreign" : scopeAfter(text, end);
     if (scope === "foreign" || SECTION_OF_SOMETHING.test(text.slice(after))) continue;
-    result.push({ kind: "word", sections: list, start: m.index, scope });
+    result.push({ kind: "word", sections: list, count, start: m.index, scope });
   }
   return result;
 }

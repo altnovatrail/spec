@@ -20,8 +20,10 @@
 //   next heading of any depth, and the text above its first heading; sections names a limit of its
 //   own for a numbered one: `concepts 15`;
 // - rows — each row of every table of the file named.
-// The block, or a repository's file, may also hold "comments": true, which is no limit: it turns on
-// the check of the numbers of decisions in comments of code, comments.mjs (R32).
+// The block, or a repository's file, may also hold switches, which are no limits: "comments": true
+// turns on the check of the numbers of decisions in comments of code, comments.mjs, and
+// "citations": true that of the rule of citations, citation-rule.mjs (R32). The block "repository"
+// turns on no citations: a repository's own task does, so that a move to the tag stays green.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -34,7 +36,7 @@ const KB = 1024;
 // for one it lacks is an error.
 const OPTIONAL = ["run/TASKS.md"];
 const LIMITS = ["rule", "entry", "section"];
-const SWITCHES = ["comments"];
+const SWITCHES = ["comments", "citations"];
 const MAPS = ["files", "entries", "sections", "rows"];
 const bytes = (n) => n.toLocaleString("en-US");
 
@@ -59,7 +61,7 @@ export function readBudgets(root, settings, report) {
     report(settings.file, 0, `budgets: no block "${settings.block}"`);
     return null;
   }
-  const limits = { files: {}, entries: {}, sections: {}, rows: {}, comments: false };
+  const limits = { files: {}, entries: {}, sections: {}, rows: {}, comments: false, citations: false };
   const take = (block, from) => {
     for (const [key, value] of Object.entries(block)) {
       if (LIMITS.includes(key)) {

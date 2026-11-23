@@ -83,6 +83,12 @@ function workRegisters() {
   ];
 }
 
+// Where the rule of citations lets a task's number and a dated amendment stand — the work plan —,
+// and what it does not read: the archives of epics, and in spec the normative texts for authors
+// (R171). Paths from the root.
+const PLAN = ["RUN.md", "run"];
+const ARCHIVES = "docs/plan";
+
 // Where the limits of size are, from spec's root (R145).
 const BUDGETS = "tools/docs-check/budgets.json";
 
@@ -98,6 +104,11 @@ export const specProfile = {
   spec: null,
   // The limits of size of budgets.mjs, from the working tree checked (R145).
   budgets: { file: BUDGETS, block: "spec" },
+  // COORDINATION.md is the plan across repositories, and the template carries a plan of its own.
+  citations: {
+    plan: [...PLAN, "COORDINATION.md", ...PLAN.map((p) => `repo-template/files/${p}`)],
+    outside: [ARCHIVES, "format", "contracts", "admission", "deployment", "legal", "consent-age", "export"],
+  },
   excluded: { names: [".git", "node_modules"], paths: ["tools/docs-check/test/fixtures", "tools/format-check/test/fixtures", ".repos"] },
 };
 
@@ -120,6 +131,7 @@ export function componentProfile(specDir) {
     // spec's block "repository" of its limits, from the submodule, with what the repository's
     // docs-budgets.json names in its place; without that file, there is no check yet (R145).
     budgets: { file: inSpec(BUDGETS), path: path.join(specDir, BUDGETS), block: "repository", own: "docs-budgets.json" },
+    citations: { plan: PLAN, outside: [ARCHIVES] },
     spec: {
       dir: specDir,
       documents: Object.fromEntries(Object.entries(documents).map(([name, file]) => [name, inSpec(file)])),

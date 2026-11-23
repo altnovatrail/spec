@@ -88,7 +88,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 |---|---|---|---|---|---|
 | [x] | T256 | Основа: источники и замер ссылок «до» в 13 репозиториях | Claude | — | — |
 | [x] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
-| [ ] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
+| [x] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
 | [ ] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
 | [ ] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258 |
 | [ ] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258 |
@@ -107,16 +107,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258 |
 | [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275; строки 7.38–7.49 |
-
-#### T258. `docs-check`: четыре проверки по ключу `citations`; тег
-
-- **Цель:** `docs-check` и `docs-check-repo` падают на механической части правила T257, где ключ включён; тег `spec` с правилом и проверками выходит на мерже пачки T256–T258 (R31).
-- **Сделать:**
-  - Проверки: номер задачи `T…` в документе вне RUN.md, `run/` и `docs/plan/` (MathTrail тоже — `T105.10 standalone`); датированная поправка в журнале — абзац «*Amendment <дата>*» и отсылка «amendment <дата> to R…»; больше двух ссылок в одной скобке; номер задачи в комментарии кода — сканером `tools/docs-check/comments.mjs`. Ссылки — разбором `tools/docs-check/citations.mjs`; пример в коде — не ссылка (R32); «Вне правила» T257 не читается.
-  - Ключ `"citations": true`: `tools/docs-check/budgets.json`, блок `spec` — выключен до T275; `repo-template/files/docs-budgets.json` — включён.
-  - Тесты в `tools/docs-check/test/`; R32 — что проверяется; CLAUDE.md, Environment, и `.claude/rules/tools.md`, если меняется их текст.
-- **Как проверить:** правило tools — `just coverage`; `just new-repo-test`; `just docs-check`; прогон с ключом на `spec` и на клоне `.github` во временной папке — сколько ошибок, по видам, в «Сделано»; `/code-review high` — по пачке T256–T258.
-- **Разделы:** R32, R145; T257; `.claude/rules/tools.md`.
 
 #### T259. Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях
 

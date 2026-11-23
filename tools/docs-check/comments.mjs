@@ -231,7 +231,7 @@ function slashComments(source, js) {
 // An example in inline code is no citation. It stands as in a document (markdown.mjs), so that "R3
 // `api`" and a list such as "standalone: `tools/learners`, R163" keep their shape, padded to its
 // length in front, so that offsets keep their lines.
-const blankCode = (text) => text.replace(/`([^`\n]*)`/g, (code, value) => inlineCode(value).padStart(code.length));
+export const blankCode = (text) => text.replace(/`([^`\n]*)`/g, (code, value) => inlineCode(value).padStart(code.length));
 
 // Reports each number of a decision in a comment that names no entry of its log; returns how many
 // were checked. `registerOf(scope)` is the register R that a citation of that scope is read in.
