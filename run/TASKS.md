@@ -33,14 +33,16 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Как проверить:** `just new-repo-test`, `just session-test`, `just docs-check`.
 - **Разделы:** R04 `modules`, R143, R166; `.claude/rules/new-repo.md`; В41 `modules`.
 
-#### T282. Записи `sources` для внешних фактов privacy, dpia, product и repositories
+#### T282. Записи `sources` для внешних фактов privacy, dpia, product, repositories, contracts и draft
 
-- **Цель:** каждое утверждение о внешнем мире в `docs/privacy.md`, `docs/dpia.md`, `docs/product.md` и `docs/repositories.md` ссылается на свою одну запись `sources` или `measurements`.
-- **Почему:** T270 и T271 сняли номера решений по строгому правилу ссылок; эти утверждения стояли только на номере решения, где лежала цитата, и теперь без записи — сессия не проверит факт по первоисточнику и не увидит, что он устарел.
+- **Цель:** каждое утверждение о внешнем мире в `docs/privacy.md`, `docs/dpia.md`, `docs/product.md`, `docs/repositories.md`, `contracts/README.md` и `draft/` ссылается на свою одну запись `sources` или `measurements`.
+- **Почему:** T270, T271 и T275 сняли номера решений по строгому правилу ссылок; эти утверждения стояли только на номере решения, где лежала цитата, и теперь без записи — сессия не проверит факт по первоисточнику и не увидит, что он устарел.
 - **Сделать:** для каждого — запись, которая факт держит, — многие, вероятно, уже есть в `docs/sources.md`: COPPA, законы штатов, WP260, Google Cloud, Firebase, — или новая из первоисточника с датой чтения и цитатой; число — запись `measurements`; смысл текстов не менять.
   - privacy: заголовок `X-Firebase-Client` и загрузка `apis.google.com` SDK Firebase; сроки IP у Firebase Hosting и Auth; исключения и аудит Cloud Logging, Trace API и Cloud Scheduler; Gmail без договора обработчика; WP260 п. 13; COPPA §312.4(d), §312.5(b)(2)(ii), §312.5(c)(9), §312.6, §312.7; CGS §42-518 и §42-520; GBL §899-ff–ii; Arkansas Act 952; Texas §541.002(a)(3); Usage Policies OpenAI в редакции 2026-11-20 (sources 2.5 читал 2026-11-09); Child Safety Guidance for Developers Anthropic.
   - dpia: Кодекс ICO для сервиса из США, открытого детям Великобритании; цитата ICO о проверке возраста; механизмы передачи — DPF и UK Extension, SCC модуль 2 с UK Addendum, Databricks в списке DPF; страница Samaritans; страницы стандартов ICO 5, 9 и 12; числа справедливости `sim` и «1 of 560 boxes» риска 20.
   - product: ранги standalone по номерам — родители сочли имена бессмысленными (О-13, было R213 standalone): в sources 8.2 решений standalone нет; замер `tutor`, на котором стоит мера ложных тревог рубрики.
   - repositories: прокси Camo для значков README (цитата GitHub Docs — в журнале, не в `sources`); значки README MathTrail; критерий `sim` пишется до первого прогона кандидата (было R163 standalone); чтение прежде сборки у canvas-api.
+  - contracts: стандартный размер изображения у Claude, от которого взяты пределы вырезок; провайдеры, чьи условия запрещают бенчмарки; GDPR ст. 7(3) и WCAG 2.2 3.3.1 и 3.3.3 — без записи.
+  - draft: ранги MathTrail — те же, что в product; критерии WCAG 2.5.5, 1.4.10 и 2.3.3 в `draft/mockup/README.md` — к записи WCAG, если она их держит.
 - **Как проверить:** `just docs-check`, временно с ключом `citations` — ошибок в двух файлах нет.
-- **Разделы:** privacy; dpia; product; repositories; sources 1; measurements 1; T270, T271.
+- **Разделы:** privacy; dpia; product; repositories; sources 1; measurements 1; T270, T271, T275.

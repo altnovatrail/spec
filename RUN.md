@@ -115,19 +115,12 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T272 | Документы `spec`: sources и measurements | Claude | — | T258, T278 |
 | [x] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258, T278 |
 | [x] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258, T278 |
-| [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274, T278, T280, T281 |
+| [x] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274, T278, T280, T281 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275, T278; строки 7.38–7.49 |
 | [x] | T277 | Строгое правило ссылок: R171, RULES.md, CLAUDE.md, шаблон, `.devcontainer/` | Claude | — | — |
 | [x] | T278 | `docs-check`: строгое правило по ключу `citations`; тег | Claude | — | T277 |
 | [x] | T280 | Журнал `spec`, R01–R31: ссылки по строгому правилу | Claude | — | T260, T278 |
 | [x] | T281 | Журнал `spec`, R32–R63: ссылки по строгому правилу | Claude | — | T261, T262, T278 |
-
-#### T275. Комментарии CI и окружения; ключ `citations` в `spec`
-
-- **Цель:** комментарии `.github/`, justfile, `.devcontainer/`, `spec.go` и кода `repo-template/` — по правилу T257; `"citations": true` в блоке `spec` `tools/docs-check/budgets.json`, `just docs-check` зелёный — последняя задача пачки T260–T275.
-- **Сделать:** как T273; затем ключ; то, что ключ ещё находит в T260–T274, — исправить.
-- **Как проверить:** проверки правила ci для тронутых файлов; `just new-repo-test`; `just docs-check`; `/code-review high` — по пачке T260–T275, с таблицами «поправка → место».
-- **Разделы:** T257, T258, T273; `.claude/rules/ci.md`.
 
 #### T276. Итог эпика E22: замер «после», архив
 
