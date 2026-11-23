@@ -1,6 +1,6 @@
 # error: maximum at #/template/parameters/b/to
-# A domain lies within the integers of YAML (section 4): written with an exponent, 1e20 passes as an
-# integer, and its numbers would be past what a canonical view writes (section 25).
+# A domain lies within the integers of YAML: written with an exponent, 1e20 passes as an
+# integer, and its numbers would be past what a canonical view writes.
 id: domain-past-the-integers
 template:
   parameters:

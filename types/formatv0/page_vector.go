@@ -4,10 +4,9 @@ package formatv0
 
 // PageVector is the type of page-vector.schema.json.
 //
-// A test vector of the workbook's page (sections 9 and 14 of the format text): the lines of a
-// task's items, as the open view holds them, and either the page that the layout makes of them or
-// the item at whose row it has no room. An implementation lays the page out by format/page.yaml and
-// gets exactly these.
+// A test vector of the workbook's page: the lines of a task's items, as the open view holds them,
+// and either the page that the layout makes of them or the item at whose row it has no room. An
+// implementation lays the page out by format/page.yaml and gets exactly these.
 type PageVector struct {
 	// The items of the task, in order.
 	Items []PageLine `json:"items"`

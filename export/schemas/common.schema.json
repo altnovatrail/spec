@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/export/4/common.schema.json",
   "title": "Common definitions",
-  "description": "What the files of an export share: IDs, times, days, the age categories, consents, counters of quota, what a stored work is, and an image and a frame of a page from paper (section 4 of the text of the part).",
+  "description": "What the files of an export share: IDs, times, days, the age categories, consents, counters of quota, what a stored work is, and an image and a frame of a page from paper.",
   "$defs": {
     "work_submission": {
       "type": "object",
@@ -40,7 +40,7 @@
       "pattern": "^[A-Za-z0-9_-][A-Za-z0-9._-]*$",
       "minLength": 1,
       "maxLength": 200,
-      "description": "An ID that names a file of the export — a profile's or an attempt's, as api gives it, or a page's from paper, as app gives it —: 1 to 200 letters, digits, -, _ and ., the first not a ., so that it is one part of a path, never . or .. (section 3)."
+      "description": "An ID that names a file of the export — a profile's or an attempt's, as api gives it, or a page's from paper, as app gives it —: 1 to 200 letters, digits, -, _ and ., the first not a ., so that it is one part of a path, never `.` or `..`."
     },
     "image": {
       "type": "object",
@@ -57,7 +57,7 @@
           "minLength": 4,
           "maxLength": 5592408,
           "pattern": "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
-          "description": "The image's bytes, at most 4 MiB, in base64 (RFC 4648, section 4)."
+          "description": "The image's bytes, at most 4 MiB, in base64 by the standard alphabet of RFC 4648, not base64url."
         }
       },
       "required": [
@@ -94,7 +94,7 @@
         "from_consent_to_18",
         "adult"
       ],
-      "description": "An age category, by its code (R46)."
+      "description": "An age category, by its code, the module format's."
     },
     "consent": {
       "type": "object",
@@ -109,7 +109,7 @@
             "parent",
             "learner"
           ],
-          "description": "Who gave the consent: the owner of the account of their own profile, by the statement that they are 18 or older; a parent, by the signed form; or the learner themselves, from the age of digital consent of their country (R116)."
+          "description": "Who gave the consent: the owner of the account of their own profile, by the statement that they are 18 or older; a parent, by the signed form; or the learner themselves, from the age of digital consent of their country."
         },
         "state": {
           "enum": [
@@ -160,7 +160,7 @@
             "unevaluatedProperties": false,
             "description": "A legal text the person saw: one of them."
           },
-          "description": "The versions of the legal texts the person saw when they gave the consent — privacy-policy and terms-of-use of the owner's, parent-consent of a parent's, teen-consent of the learner's own —, each that had a version in force (R130); empty when none had."
+          "description": "The versions of the legal texts the person saw when they gave the consent — privacy-policy and terms-of-use of the owner's, parent-consent of a parent's, teen-consent of the learner's own —, each that had a version in force; empty when none had."
         }
       },
       "required": [

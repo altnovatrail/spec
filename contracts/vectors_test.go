@@ -33,8 +33,8 @@ func TestVectorsHoldEveryFile(t *testing.T) {
 
 // Go reads every observation of the vectors as protobuf-es does in contracts-check: protojson takes
 // each, refusing a field it does not know, and writes it back, with the protobuf names and every
-// field, as the vector has it (contracts/README.md, section 6). A reader in Go then passes them as
-// they are written.
+// field, as the vector has it (the rules of JSON of contracts/README.md). A reader in Go then
+// passes them as they are written.
 func TestObservationsReadInGo(t *testing.T) {
 	names, err := fs.Glob(Vectors, "observation/v1/*.json")
 	if err != nil {
@@ -95,8 +95,9 @@ var (
 
 // Go reads every message of the vectors of the rules as protobuf-es does in contracts-check:
 // protojson takes each strictly and writes it back, with the protobuf names and every field, as the
-// vector has it (contracts/README.md, sections 6 and 12). A null where a message may be absent —
-// a box that takes no stroke, a stroke of the draft — holds none.
+// vector has it (contracts/README.md, on JSON and on the rules the device and the runner share). A
+// null where a message may be absent — a box that takes no stroke, a stroke of the draft — holds
+// none.
 func TestRuleVectorsReadInGo(t *testing.T) {
 	names, err := fs.Glob(Vectors, "eval/v1/*.json")
 	if err != nil {
@@ -136,7 +137,8 @@ func TestRuleVectorsReadInGo(t *testing.T) {
 
 // Go reads every message of the vectors of the key of a task from paper as protobuf-es does in
 // contracts-check: the solver's Number, and an answer of AI and a key, each an Answer, strictly and
-// back as the vector writes them (contracts/README.md, sections 6 and 16).
+// back as the vector writes them (contracts/README.md, on JSON and on the key of a task from
+// paper).
 func TestPaperVectorsReadInGo(t *testing.T) {
 	files := map[string]struct {
 		key     string
@@ -198,14 +200,15 @@ func readEach(t *testing.T, what string, raw json.RawMessage, field string, mess
 
 // Go reads every example of the sample file as contracts-check does: protojson takes each strictly,
 // refusing a field it does not know, and writes it back, with the protobuf names and every field,
-// as the example has it, its markup too (contracts/README.md, section 11). A field added to a sample
-// is refused.
+// as the example has it, its markup too (contracts/README.md, on the sample file). A field added to
+// a sample is refused.
 func TestSamplesReadInGo(t *testing.T) {
 	readExamples(t, false, func() proto.Message { return &evalv1.Sample{} }, "writer_name")
 }
 
 // Go reads every example of the runner's report, report-<case>.json, as it reads the samples
-// (contracts/README.md, sections 3 and 14). A field added to a report is refused.
+// (contracts/README.md, on files and names and on the runner's report). A field added to a report
+// is refused.
 func TestReportsReadInGo(t *testing.T) {
 	readExamples(t, true, func() proto.Message { return &evalv1.Report{} }, "sample_text")
 }
@@ -248,9 +251,9 @@ func readExamples(t *testing.T, reports bool, message func() proto.Message, extr
 	}
 }
 
-// readBack reads raw into message as protojson reads by default, refusing a field it does not
-// know, and writes it back as a writer of a contract does, with the protobuf names and every field
-// (contracts/README.md, section 6): the JSON it writes is the one it read.
+// readBack reads raw into message as protojson reads by default, refusing a field it does not know,
+// and writes it back as a writer of a contract does, with the protobuf names and every field (the
+// rules of JSON of contracts/README.md): the JSON it writes is the one it read.
 func readBack(t *testing.T, what string, raw []byte, message proto.Message) {
 	t.Helper()
 	if err := protojson.Unmarshal(raw, message); err != nil {

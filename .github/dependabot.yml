@@ -1,26 +1,26 @@
-# Dependabot proposes new versions of what it can see (R30): the actions of the workflows and
-# the references to .github's shared workflows, each with the version comment beside its SHA
-# (R04 .github); the base image of the devcontainer, tag and digest; the packages of tools/; the
+# Dependabot proposes new versions of what it can see: the actions of the workflows and the
+# references to .github's shared workflows, each with the version comment beside its SHA; the base
+# image of the devcontainer, tag and digest; the packages of tools/; the
 # Go module of tools/gomod, the check of the zip of spec's own Go module; and the module of the
-# contracts, contracts/go.mod (R83). spec's own module, go.mod at the root, requires nothing, and
-# `just go-check` keeps it so (R64): there is nothing there to raise. Nor in tools/types/roundtrip,
-# the check of the types, which requires spec's own module alone, from the working tree (R72).
+# contracts, contracts/go.mod. spec's own module, go.mod at the root, requires nothing, and
+# `just go-check` keeps it so: there is nothing there to raise. Nor in tools/types/roundtrip,
+# the check of the types, which requires spec's own module alone, from the working tree.
 # For npm a pull request rewrites the lock file too, with whatever packages the new version
 # brings along: licenses-check reads every one of them in CI.
 #
 # Raised by hand, before each new tag of spec, because no ecosystem here reads them: the ARGs of
-# .devcontainer/Dockerfile, each version with the sha256 of its archives (R34), the VS Code
+# .devcontainer/Dockerfile, each version with the sha256 of its archives, the VS Code
 # extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json, and the browsers
 # of the typescript kind in repo-template/kinds/typescript.Dockerfile — Playwright's image by tag
 # and digest, the revisions of its three browsers in it and the snapshot of the Ubuntu archive
-# (R79) — and gopls of the go kind, its lock file repo-template/kinds/go/gopls/ with GOPLS_VERSION
-# beside it (R102): no gomod entry below reads it, as the repositories that copy it leave theirs
+# — and gopls of the go kind, its lock file repo-template/kinds/go/gopls/ with GOPLS_VERSION
+# beside it: no gomod entry below reads it, as the repositories that copy it leave theirs
 # out too, but GitHub's dependency graph does, so an advisory on a module of it still opens an
 # alert, and the fix raises gopls with GOPLS_VERSION rather than the module alone. Every new
 # repository copies this devcontainer at a tag of spec. So is the Codecov CLI of ci.yml, its
-# version with its sha256 (R48): Dependabot moves the SHA of the action that runs it, not the CLI.
+# version with its sha256: Dependabot moves the SHA of the action that runs it, not the CLI.
 # And so are govulncheck and go-licenses, which the ci- recipes of the justfile run by go run at
-# exact versions (R30).
+# exact versions.
 #
 # Every ecosystem waits three days after a release before proposing it. That is Dependabot's own
 # default, written down so that it stays: a bad release gets time to be noticed. The weekly
@@ -41,7 +41,7 @@ updates:
       # of CI here, with a sixth reference waiting for the five open ones to be merged. Dependabot
       # names each altnovatrail/.github/.github/workflows/<file>.yml, and `*` matches `/` too; the
       # three-day pause holds the group as it holds each reference. Actions of other owners stay a
-      # pull request each: they break in their own ways (R04 .github).
+      # pull request each: they break in their own ways.
       shared-workflows:
         patterns: ["altnovatrail/.github/*"]
 
@@ -57,9 +57,9 @@ updates:
   # one of them accepts passes docs-check and does not open in the preview, or the other way round.
   # A new ajv or yaml is read against the tests of format-check, which pin how ajv names an error
   # and how yaml reads a file. A new typescript is read against types-check, whose tsc takes every
-  # value of format/ as a value of its type, and against the version canvas builds with (R73). A
+  # value of format/ as a value of its type, and against the version canvas builds with. A
   # new @bufbuild/protoc-gen-es writes other code of the contracts: its pull request runs
-  # `just contracts`, or contracts-check fails it (R83). @bufbuild/protobuf, the runtime the npm
+  # `just contracts`, or contracts-check fails it. @bufbuild/protobuf, the runtime the npm
   # package of that code depends on, moves with it in the group bufbuild, at the same version;
   # contracts-check then runs the code under tsc and Node.
   - package-ecosystem: npm
@@ -94,7 +94,7 @@ updates:
 
   # The runtime of protobuf and Connect that the code of the contracts requires, and in the same
   # go.mod the generators of that code, protoc-gen-go and protoc-gen-connect-go, as its tools: one
-  # version of each serves both (R83). A new version writes other code, so its pull request runs
+  # version of each serves both. A new version writes other code, so its pull request runs
   # `just contracts`, or contracts-check fails it. The two travel together.
   - package-ecosystem: gomod
     directory: /contracts

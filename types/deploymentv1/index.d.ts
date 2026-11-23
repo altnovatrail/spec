@@ -18,8 +18,7 @@
  * Deployment is the type of deployment.schema.json.
  *
  * The file /deployment.json, which app reads at every start from the root of its origin, beside its
- * signed build (section 4 of the deployment text). It holds no secret: every browser that opens app
- * gets it.
+ * signed build. It holds no secret: every browser that opens app gets it.
  */
 export interface Deployment {
   /**
@@ -29,7 +28,7 @@ export interface Deployment {
   /**
    * The origin of api: a scheme, a host in lower case and perhaps a port, with no path, query,
    * fragment or credentials; https, or http on a loopback host. That it is equal to its own origin,
-   * and that http needs app itself on a loopback host, are rules of reading (section 5).
+   * and that http needs app itself on a loopback host, are rules of reading the file.
    */
   readonly api: string;
   /**
@@ -75,9 +74,9 @@ export type Parameter = string;
 /**
  * ReadingVector is the type of reading-vector.schema.json.
  *
- * A test vector of reading (section 7 of the deployment text): files of a deployment configuration,
- * each with the origin where app is open and what section 5 gives. A reader implements section 5
- * and gets exactly this.
+ * A test vector of reading: files of a deployment configuration, each with the origin where app is
+ * open and what the rules of reading the file give. A reader implements those rules and gets
+ * exactly this.
  */
 export interface ReadingVector {
   /**

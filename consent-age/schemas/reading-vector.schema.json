@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/consent-age/1/reading-vector.schema.json",
   "title": "Reading vector",
-  "description": "A test vector of reading (section 8 of the text of the part): tables, each perhaps with the table of the release before, and what section 5 gives. A reader implements section 5 and gets exactly this.",
+  "description": "A test vector of reading: tables, each perhaps with the table of the release before, and what the rules of reading the table give. A reader implements those rules and gets exactly this.",
   "type": "object",
   "properties": {
     "cases": {

@@ -1,4 +1,4 @@
-# A template of the module of olympiad mathematics whose key its solver finds (section 24): the
+# A template of the module of olympiad mathematics whose key its solver finds: the
 # solver of mathtrail-standalone content/solvers/arithmetic.tricks/number-thought-of.star, at commit
 # 4dece74, made a solver of the template. Its capitals TO_BEN and LEFT are the numbers that the
 # statement shows, which solve gets as left and to_ben, and it tries every whole number from 0 to 1000

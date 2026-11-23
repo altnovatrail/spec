@@ -5,7 +5,8 @@
 // The stored works in the contract between `app` and `api`: the works of a profile that the server
 // keeps while the storage of its works is on, each as the device holds it — the history of
 // writing, the contexts of its submissions and its picture —, put, listed, read back and erased one
-// at a time (R113). What each message means is the rule of contracts/README.md, section 15.
+// at a time. What each message means is the rule of contracts/README.md for the
+// contract between `app` and `api`.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -391,7 +392,7 @@ export declare const WorkKindSchema: GenEnum<WorkKind>;
  * that is not the profile's `CAUSE_NOT_FOUND`, a learning request of a profile whose consent is not
  * confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
  * `CAUSE_AGE_NEEDED` — but for `DeleteWork` and the learner's `ListWorks` and `GetWork`, which
- * neither refuses (R113) —, a request without the right it needs the code `permission_denied`
+ * neither refuses —, a request without the right it needs the code `permission_denied`
  * with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
  * with no `Refusal`. Each repeats by the state of the profile's works, with no idempotency key.
  * The server reads no work and gives none to an AI provider.
@@ -414,7 +415,7 @@ export declare const WorkService: GenService<{
    * `api` reads and no work of the attempt was kept before, so that its kind cannot be known; a
    * withdrawn version, which the image still holds, gives the kind by its task. An attempt of a
    * task from paper gets `invalid_argument`: its work is never a stored work, and stays in the
-   * profile's history on the device (R162). On each refusal `api` keeps nothing of the work, and
+   * profile's history on the device. On each refusal `api` keeps nothing of the work, and
    * `app` keeps it on the device alone.
    *
    * @generated from rpc novatrail.api.v1.WorkService.PutWork
@@ -430,7 +431,7 @@ export declare const WorkService: GenService<{
    * storage is off the list is empty: switching it off erased them. While the profile waits for a
    * consent or for its age, neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses the
    * learner's request, by which `app` builds the export, as neither refuses the learner's
-   * `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile (R113).
+   * `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile.
    *
    * @generated from rpc novatrail.api.v1.WorkService.ListWorks
    */
@@ -441,7 +442,7 @@ export declare const WorkService: GenService<{
   },
   /**
    * One work kept on the server, whole, as it was put, to restore it on a device or to export it,
-   * beside the part of the export `ExportProfile` and `ExportAccount` give (R151): as `ListWorks`,
+   * beside the part of the export `ExportProfile` and `ExportAccount` give: as `ListWorks`,
    * while the profile waits too. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work
    * kept.
    *
@@ -458,7 +459,7 @@ export declare const WorkService: GenService<{
    * their own consent, the learner's learning request with `can_learn`. The answer is "erased",
    * and so is a repeat's, of an attempt with no work kept. The work on the device stays. While the
    * profile waits for a consent or for its age, it goes as switching the storage off goes: neither
-   * `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it (R113). Refusals: `CAUSE_LEARNER_DECIDES`
+   * `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. Refusals: `CAUSE_LEARNER_DECIDES`
    * and `CAUSE_ADULT_NEEDED`.
    *
    * @generated from rpc novatrail.api.v1.WorkService.DeleteWork

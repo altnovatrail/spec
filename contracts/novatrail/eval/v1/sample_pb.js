@@ -6,7 +6,7 @@
 // workbook, as the samples page of `canvas` saves it and the eval runner of `tutor` reads it, one
 // JSON file to a sample, with its markup. Which fields a sample holds, by its purpose and by who
 // wrote it, how the file is written and read, its markup, and where a sample may go are the rules
-// of contracts/README.md, section 11.
+// of contracts/README.md for the sample file.
 
 import { enumDesc, fileDesc, messageDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_novatrail_observation_v1_observation } from "../../observation/v1/observation_pb.js";

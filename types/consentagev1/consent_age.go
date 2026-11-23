@@ -4,14 +4,13 @@ package consentagev1
 
 // ConsentAge is the type of consent-age.schema.json.
 //
-// The table of the age of digital consent by country, consent-age/consent-age.yaml (section 4 of
-// the text of the part): the age of each country with the law that sets it, and the age of a
-// country the table does not hold.
+// The table of the age of digital consent by country, consent-age/consent-age.yaml: the age of each
+// country with the law that sets it, and the age of a country the table does not hold.
 type ConsentAge struct {
 	// The version of the part, the integer in consent-age/VERSION.
 	Format int64 `json:"format"`
 	// The age of digital consent of a country the table does not hold: a parent gives consent for
-	// every learner under 18 there (R134).
+	// every learner under 18 there.
 	OutsideTable int64 `json:"outside_table"`
 	// The countries, by their codes of ISO 3166-1 alpha-2.
 	Countries map[Country][]Entry `json:"countries"`

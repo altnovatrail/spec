@@ -6,7 +6,7 @@ The Claude Code plugins that NovaTrail's repositories load, each a folder of its
 "CLAUDE_CODE_PLUGIN_DIRS": "${containerWorkspaceFolder}/spec/claude-plugins/gopls-lsp"
 ```
 
-The path goes through the repository's `spec` submodule, so the plugin is the one of the tag of spec the repository pins, and it comes with a move to a newer tag, as the lock file of gopls does (R102, R143). Nothing is fetched, nobody runs `claude plugin install`, and no path of it is recorded in `~/.claude`, which every NovaTrail container shares. A marketplace is not used: Claude Code records a local one there by an absolute path, the path of the container that recorded it last, and the sessions of the other containers lose its plugins (R143). The variable is not in `.claude/settings.json`, because Claude Code ignores it there (sources 2.10). Several plugins are separated by `:` (sources 2.10).
+The path goes through the repository's `spec` submodule, so the plugin is the one of the tag of spec the repository pins, and it comes with a move to a newer tag, as the lock file of gopls does. Nothing is fetched, nobody runs `claude plugin install`, and no path of it is recorded in `~/.claude`, which every NovaTrail container shares. A marketplace is not used: Claude Code records a local one there by an absolute path, the path of the container that recorded it last, and the sessions of the other containers lose its plugins. The variable is not in `.claude/settings.json`, because Claude Code ignores it there (sources 2.10). Several plugins are separated by `:` (sources 2.10).
 
 ## gopls-lsp
 

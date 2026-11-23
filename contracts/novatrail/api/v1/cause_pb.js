@@ -7,7 +7,8 @@
 // answer carries; and the values that come both in answers and in the data of a refusal: why an
 // attempt was closed, how a lesson run ended, and the engine's choice, with the list of its reason
 // codes, which the adult's progress alone carries. What they mean, and how `app` reads a cause it
-// does not know, are the rules of contracts/README.md, section 15.
+// does not know, are the rules of contracts/README.md for the
+// contract between `app` and `api`.
 
 import { enumDesc, fileDesc, messageDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
@@ -67,8 +68,8 @@ export const CauseSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_cause, 0);
 
 /**
- * Why a request was refused, or what a call of AI in it came to: one list for the whole contract
- * (R17 api). A refusal comes as the detail `Refusal` of an error of Connect, with the code that the
+ * Why a request was refused, or what a call of AI in it came to: one list for the whole contract.
+ * A refusal comes as the detail `Refusal` of an error of Connect, with the code that the
  * comment of each method gives it; an outcome comes in the answer, as `Outcome`. A cause that the
  * build of `app` does not know it reads by the code of the error, or as a call of AI that gave
  * nothing. A verdict's reason is no cause: it is the module format's and the observation's.
@@ -99,7 +100,7 @@ export const CloseReasonSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_cause, 2);
 
 /**
- * Why an attempt was closed (architecture 3.5 api). An attempt that is not closed waits, whatever
+ * Why an attempt was closed. An attempt that is not closed waits, whatever
  * its submissions came to.
  *
  * @generated from enum novatrail.api.v1.CloseReason
@@ -129,7 +130,7 @@ export const ReasonCodeSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_cause, 4);
 
 /**
- * Why the engine gave what it chose: its reason code (concepts 12; R29; R100). The adult sees it
+ * Why the engine gave what it chose: its reason code. The adult sees it
  * in the progress of a profile, and a child is not told it: no answer to a learning request
  * carries it. A choice has one code, that of the branch of the engine's rule that made it, a
  * lesson's as a task's, and `ChoiceKind` says what it gave. A value never changes its meaning: a
@@ -149,7 +150,7 @@ export const RunEndReasonSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_cause, 5);
 
 /**
- * Why a lesson run ended (concepts 5). A reason its build does not know `app` reads as an end other
+ * Why a lesson run ended. A reason its build does not know `app` reads as an end other
  * than `RUN_END_REASON_PASSED`, and erases the state of the lesson as at every end.
  *
  * @generated from enum novatrail.api.v1.RunEndReason

@@ -6,8 +6,8 @@ import "encoding/json"
 
 // Device is the type of device.schema.json.
 //
-// What this device holds of a profile, device/<id>.json (section 4 of the text of the part): its
-// unfinished attempts with their history, its essays and its places in lessons.
+// What this device holds of a profile, device/<id>.json: its unfinished attempts with their
+// history, its essays and its places in lessons.
 type Device struct {
 	// The version of the part, the integer in export/VERSION.
 	Format int64 `json:"format"`

@@ -1,41 +1,40 @@
-# spec's release (R31): what a green main produces. Nobody tags by hand: the version is the next
-# patch of RELEASE_LINE, and the tag is created with the release. A change that deserves a line of
-# its own raises RELEASE_LINE, so that a line never spans two versions of a part: release-version
+# spec's release: what a green main produces. Nobody tags by hand: the version is the next patch
+# of RELEASE_LINE, and the tag is created with the release. A change that deserves a line of its
+# own raises RELEASE_LINE, so that a line never spans two versions of a part: release-version
 # refuses a change that gives, in the line of the release before it, a new version to the module
-# format (R44), the admission table (R96), the deployment configuration (R85), the legal texts
-# (R130), the table of the age of digital consent (R134) or the format of the export (R135), or a
-# new major package to a contract (R83). A change that brings a new kind of file into the release
-# raises it too, so that a release of an earlier line, run again, builds the files it got.
+# format, the admission table, the deployment configuration, the legal texts, the table of the age
+# of digital consent or the format of the export, or a new major package to a contract. A change
+# that brings a new kind of file into the release raises it too, so that a release of an earlier
+# line, run again, builds the files it got.
 #
-# Other repositories take the tag as a submodule for spec's documents and rules (R21), and their
-# code takes the release's files (R64), which release-files picks by the commit's line, none
-# before 0.3: each normative part with a version of its own as <part>-<version>.tar.gz — the
-# module format and the admission table (R96) by MAJOR.MINOR, the deployment configuration (R85),
-# the legal texts (R130), the table of the age of digital consent (R134) and the format of the
-# export (R135) by an integer —; the npm package of the types for TypeScript,
-# altnovatrail-spec-<X.Y.Z>.tgz (R73), with those of <novatrail-canvas> (R74) and of each part's
-# current version, in place of its earlier ones (R141); and the npm package of the API contracts'
-# code, altnovatrail-contracts-<X.Y.Z>.tgz (R83). Each file is signed without a key, its bundle
-# <file>.sigstore.json beside it, as the shared release of .github signs its callers' files. Go
-# code takes the same tag as the version of spec's Go module, which the Go module proxy and its
-# checksum database then hold to its bytes, and the tag contracts/<tag>, set once the release is
-# out, as the version of the Go module of the contracts (R83). Releases are immutable: the tag
-# stays on its commit and no file is added or swapped once a release is out, and GitHub attests
-# each release's tag, commit and files, which `gh release verify` and `gh release verify-asset`
-# check.
+# Other repositories take the tag as a submodule for spec's documents and rules, and their code
+# takes the release's files, which release-files picks by the commit's line, none before 0.3:
+# each normative part with a version of its own as <part>-<version>.tar.gz — the module format
+# and the admission table by MAJOR.MINOR, the deployment configuration, the legal texts, the
+# table of the age of digital consent and the format of the export by an integer —; the npm
+# package of the types for TypeScript, altnovatrail-spec-<X.Y.Z>.tgz, with those of
+# <novatrail-canvas> and of each part's current version, in place of its earlier ones; and the
+# npm package of the API contracts' code, altnovatrail-contracts-<X.Y.Z>.tgz. Each file is signed
+# without a key, its bundle <file>.sigstore.json beside it, as the shared release of .github
+# signs its callers' files. Go code takes the same tag as the version of spec's Go module, which
+# the Go module proxy and its checksum database then hold to its bytes, and the tag
+# contracts/<tag>, set once the release is out, as the version of the Go module of the contracts.
+# Releases are immutable: the tag stays on its commit and no file is added or swapped once a
+# release is out, and GitHub attests each release's tag, commit and files, which `gh release
+# verify` and `gh release verify-asset` check.
 #
-# The release then publishes its npm packages, @altnovatrail/spec (R37, R73) and
-# @altnovatrail/contracts (R83), each the same file, once the release is out and verified. npm
-# takes them by trusted publishing, with no token kept anywhere: each package's trusted publisher
-# names the repository altnovatrail/spec, release.yml, no environment, npm publish allowed, and
-# npm trades the job's OIDC token for a short-lived one and makes the version's provenance itself.
-# The steps follow the shared release of .github at v0.1.10, which spec cannot call, since it runs
-# spec's recipes from a spec submodule, and which takes one package where spec takes each of the
-# release. A version npm holds already is not published again, and one below the highest goes out
-# with the tag previous. A commit that is no longer the tip is published too: its provenance, like
-# the certificate of its files, names the commit of the run, main's tip, and its release's
-# attestation names its own. A trusted publisher is set only on a package the registry has, so a
-# package's first version is published by hand.
+# The release then publishes its npm packages, @altnovatrail/spec and @altnovatrail/contracts,
+# each the same file, once the release is out and verified. npm takes them by trusted publishing,
+# with no token kept anywhere: each package's trusted publisher names the repository
+# altnovatrail/spec, release.yml, no environment, npm publish allowed, and npm trades the job's
+# OIDC token for a short-lived one and makes the version's provenance itself. The steps follow the
+# shared release of .github at v0.1.10, which spec cannot call, since it runs spec's recipes from
+# a spec submodule, and which takes one package where spec takes each of the release. A version
+# npm holds already is not published again, and one below the highest goes out with the tag
+# previous. A commit that is no longer the tip is published too: its provenance, like the
+# certificate of its files, names the commit of the run, main's tip, and its release's attestation
+# names its own. A trusted publisher is set only on a package the registry has, so a package's
+# first version is published by hand.
 #
 # The button releases the tip of main when it has no release yet, after a failed release run, say.
 # It works on main alone, and only once CI has passed on that commit.
@@ -94,8 +93,7 @@ jobs:
       # Reading whether CI passed on the commit the button would release.
       actions: read
       # Signing the release's files: cosign trades the job's OIDC token for a certificate that
-      # names this workflow (R64). npm trades it for a token that may publish an npm package
-      # (R37).
+      # names this workflow. npm trades it for a token that may publish an npm package.
       id-token: write
     steps:
       # Asked before anything of the repository is fetched: a run on another branch publishes
@@ -139,22 +137,22 @@ jobs:
       # outputs: version, empty when there is nothing to release; previous, where the notes start;
       # released, the release this commit has already; and behind, the newest release when this
       # commit is older than it. It refuses a commit that gives the module format another version
-      # than the release before it in the same line (R44). A tag with no release behind it was
-      # pushed by hand: on this commit, or as the newest "release" off main's history, it would stop
-      # every release quietly, so the run stops on it instead (R31).
+      # than the release before it in the same line. A tag with no release behind it was pushed by
+      # hand: on this commit, or as the newest "release" off main's history, it would stop every
+      # release quietly, so the run stops on it instead.
       #
       # Every container the script starts mounts the folder it runs from read-write, .git and all,
       # so the script runs from a copy of the checkout in RUNNER_TEMP, taken before the first
       # container. The runner's own git reads the checkout alone, which no container mounts: the
       # fetch of the publish step and the post step of actions/checkout, which runs git config and
       # git submodule foreach there. No script runs from a copy after its container, so the copy
-      # needs no check of the script's sum (R31; В25 .github).
+      # needs no check of the script's sum (В25 .github).
       #
       # The stage is built from the Dockerfile, never from the cache CI fills: the step sets no
       # TOOLCHAIN_IMAGE_FILE, so the image of the job that signs is what the Dockerfile builds. It
       # is toolchain-core, Node, just, Go and buf, all that the release's recipes take; the
       # toolchain stage above it adds only what tests need, such as the browsers and the system
-      # packages of the kind typescript (R31).
+      # packages of the kind typescript.
       - id: version
         name: Work out the version
         env:
@@ -173,7 +171,7 @@ jobs:
           behind=$(sed -n 's/^behind=//p' "$RUNNER_TEMP/release-version")
           for tag in $released $behind; do
               if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null; then
-                  echo "::error::${tag} has no release behind it: a tag pushed by hand. Tags come from this workflow alone (R31)."
+                  echo "::error::${tag} has no release behind it: a tag pushed by hand. Tags come from this workflow alone."
                   exit 1
               fi
           done
@@ -186,15 +184,14 @@ jobs:
       # The files of TARGET, built by the tip's recipe from TARGET's objects alone — git archive of
       # the commit, never the checkout's working tree — and checked against git ls-tree. They are
       # built in a copy of the checkout of their own, since no script runs from a copy after its
-      # container (R31). The recipe reads TARGET's line, so a commit of a line before 0.3, whose
-      # checks finished after a later one was merged, gets no files. What the container wrote is
-      # checked here on the runner, as the shared release of .github checks its callers' files:
-      # plain files, named as release-files names them, none a bundle. A run again of a released
-      # commit builds them too, to know which files its release has to hold. The npm packages take
-      # the release's version with the commit. Output npm names their archives, space-separated,
-      # empty when there are none, and the npm steps below run on it alone; output contracts names
-      # the contracts' archive alone: the Go module of the contracts is tagged when the files hold
-      # it.
+      # container. The recipe reads TARGET's line, so a commit of a line before 0.3, whose checks
+      # finished after a later one was merged, gets no files. What the container wrote is checked
+      # here on the runner, as the shared release of .github checks its callers' files: plain
+      # files, named as release-files names them, none a bundle. A run again of a released commit
+      # builds them too, to know which files its release has to hold. The npm packages take the
+      # release's version with the commit. Output npm names their archives, space-separated, empty
+      # when there are none, and the npm steps below run on it alone; output contracts names the
+      # contracts' archive alone: the Go module of the contracts is tagged when the files hold it.
       - id: files
         name: Build the files
         if: steps.version.outputs.version != '' || steps.version.outputs.released != ''
@@ -245,8 +242,8 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       # cosign at the version and sum, from cosign_checksums.txt of its release, that the shared
-      # release of .github pins (R08 .github). Signing alone needs it: a run again checks the npm
-      # packages it takes from its release by release-verify.
+      # release of .github pins. Signing alone needs it: a run again checks the npm packages it
+      # takes from its release by release-verify.
       - name: cosign
         if: steps.version.outputs.version != '' && steps.files.outputs.count != '0'
         env:
@@ -261,10 +258,10 @@ jobs:
           chmod +x "$cosign"
 
       # Node, with the npm it ships, at the version and sum, from SHASUMS256.txt of its release,
-      # that the shared release of .github pins (R08 .github), rather than the toolchain stage's
-      # Node, which predates Node's security release of 2026-10-20. Trusted publishing takes npm
-      # 11.5.1 and Node 22.14.0 or newer (R37). npm runs on the runner, not in the toolchain
-      # stage: the job's OIDC token never goes into a container.
+      # that the shared release of .github pins, rather than the toolchain stage's Node, which
+      # predates Node's security release of 2026-10-20. Trusted publishing takes npm 11.5.1 and
+      # Node 22.14.0 or newer. npm runs on the runner, not in the toolchain stage: the job's
+      # OIDC token never goes into a container.
       #
       # npm-isolated, which the check and the publish below run, is npm kept from every setting
       # this workflow did not choose: from an empty folder, so no project's package.json or .npmrc
@@ -311,12 +308,12 @@ jobs:
       # both before npm sees them. The release's attestation is checked here on the runner, the
       # signature by release-verify, the one way a file of a NovaTrail release enters CI: this
       # workflow at main, in this repository, and the version in the archive's package.json, which
-      # ties it to its tag, since the certificate names main's tip as the signing run began (R77).
-      # The recipe runs in the toolchain-core stage the version step built, as the shared
-      # release.yml of .github runs it in its stage (R18 .github), once per archive, each time from
-      # a new copy of the checkout, since no script runs from a copy after its container (R31). It
-      # refuses when Sigstore, GitHub or the npm registry cannot be read; then run the job again.
-      # Only this step has the token, which neither the recipe's container nor npm ever sees.
+      # ties it to its tag, since the certificate names main's tip as the signing run began. The
+      # recipe runs in the toolchain-core stage the version step built, as the shared release.yml
+      # of .github runs it in its stage, once per archive, each time from a new copy of the
+      # checkout, since no script runs from a copy after its container. It refuses when Sigstore,
+      # GitHub or the npm registry cannot be read; then run the job again. Only this step has the
+      # token, which neither the recipe's container nor npm ever sees.
       - name: The npm package of the release
         if: steps.version.outputs.released != '' && steps.files.outputs.npm != ''
         env:
@@ -343,7 +340,7 @@ jobs:
               copy="$RUNNER_TEMP/checkout-verify-${file%.tgz}"
               cp -a "$GITHUB_WORKSPACE" "$copy"
               if ! (cd "$copy" && env -u GH_TOKEN tools/toolchain/toolchain.sh spec release-verify spec "$RELEASED" "$folder/$file"); then
-                  echo "::error::release-verify refused ${file} of ${RELEASED}; the lines above say why, and nothing goes to npm. If Sigstore, GitHub or the npm registry could not be read, run the job again (R77)."
+                  echo "::error::release-verify refused ${file} of ${RELEASED}; the lines above say why, and nothing goes to npm. If Sigstore, GitHub or the npm registry could not be read, run the job again."
                   exit 1
               fi
           done
@@ -446,7 +443,7 @@ jobs:
               action=""
               case "$code" in
                   404)
-                      echo "::error::${package} is not in the npm registry. Its first version is published by hand and a trusted publisher set on it; only then does a release publish (R37)."
+                      echo "::error::${package} is not in the npm registry. Its first version is published by hand and a trusted publisher set on it; only then does a release publish."
                       exit 1
                       ;;
                   200)
@@ -468,7 +465,7 @@ jobs:
                           echo "::notice::${package}@${version} is in the npm registry already, with this archive's integrity."
                           action=skip
                       elif [ -n "$whole" ]; then
-                          echo "::error::${whole} Only then does a release publish (R37)."
+                          echo "::error::${whole} Only then does a release publish."
                           exit 1
                       else
                           highest=$(jq -r '(.versions // {}) | to_entries[] | select(.value.deprecated == null) | .key | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))' "$packument" | sort -V | tail -n 1)
@@ -580,11 +577,11 @@ jobs:
               # Only the documented refusal passes, of a commit that is no longer the tip and "adds
               # or modifies any file under .github/workflows/ relative to the repository's default
               # branch" (the same page). Its one copy is the recipe release-refusal, which another
-              # repository's release workflow runs too (R31). main is fetched again: a commit
-              # merged meanwhile is what makes this one older. The recipe runs in a new copy of the
+              # repository's release workflow runs too. main is fetched again: a commit merged
+              # meanwhile is what makes this one older. The recipe runs in a new copy of the
               # checkout, taken after the fetch: the version step's copy has no new tip, and its
-              # container may have changed it. No container has had the checkout, so the new
-              # copy's script is the one checked out.
+              # container may have changed it. No container has had the checkout, so the new copy's
+              # script is the one checked out.
               git fetch --quiet --no-tags origin refs/heads/main
               tip=$(git rev-parse FETCH_HEAD)
               cp -a . "$RUNNER_TEMP/checkout-tip"
@@ -643,19 +640,19 @@ jobs:
 
       # Go code takes the contracts' code from the Go module of contracts/, and a module in a folder
       # of the repository has tags of its own: "each tag name must be prefixed with the module
-      # subdirectory, followed by a slash" (Go Modules Reference, go.dev/ref/mod, read
-      # 2026-11-02). Its tag is the release's behind the folder, contracts/<tag>, on the same commit
-      # (R83). It is set once the release is out and verified, so that no such tag stands without a
-      # release: the ruleset v-tags forbids moving or deleting it, as it does a release's own tag
-      # (R31, R77). It is a plain tag of TARGET, as the release's is, set through the API with the
-      # job's token. A run again of a released commit sets it if a run before stopped short of it;
-      # one of that name on another commit was set by hand, against R31, and stops the run. The API
-      # may refuse GITHUB_TOKEN a ref to a commit that is no longer the tip and whose workflow files
-      # differ from main's, as the Releases API does: then release-refusal, run as the publish step
-      # runs it, lets it pass, the tag stays unset — the release of the tip, and its tag, cover it —
-      # and the check of the Go module leaves the module of the contracts out. gh api words a 403 as
-      # "Resource not accessible by integration (HTTP 403)", so its line is rewritten as the recipe
-      # reads it. Output tagged says whether the tag names the commit.
+      # subdirectory, followed by a slash" (Go Modules Reference, go.dev/ref/mod, read 2026-11-02).
+      # Its tag is the release's behind the folder, contracts/<tag>, on the same commit. It is set
+      # once the release is out and verified, so that no such tag stands without a release: the
+      # ruleset v-tags forbids moving or deleting it, as it does a release's own tag. It is a plain
+      # tag of TARGET, as the release's is, set through the API with the job's token. A run again of
+      # a released commit sets it if a run before stopped short of it; one of that name on another
+      # commit was set by hand and stops the run. The API may refuse GITHUB_TOKEN a ref to a commit
+      # that is no longer the tip and whose workflow files differ from main's, as the Releases API
+      # does: then release-refusal, run as the publish step runs it, lets it pass, the tag stays
+      # unset — the release of the tip, and its tag, cover it — and the check of the Go module
+      # leaves the module of the contracts out. gh api words a 403 as "Resource not accessible by
+      # integration (HTTP 403)", so its line is rewritten as the recipe reads it. Output tagged says
+      # whether the tag names the commit.
       - id: contracts-tag
         name: Tag the Go module of the contracts
         if: >-
@@ -699,7 +696,7 @@ jobs:
               exit 1
           fi
           if [ "$found" != "commit ${TARGET}" ]; then
-              echo "::error::The tag ${tag} names ${found}, not the commit ${TARGET} of ${VERSION}: a tag set by hand, against R31. Tags come from this workflow alone."
+              echo "::error::The tag ${tag} names ${found}, not the commit ${TARGET} of ${VERSION}: a tag set by hand. Tags come from this workflow alone."
               exit 1
           fi
           echo "${tag} names ${TARGET}"
@@ -870,22 +867,21 @@ jobs:
           done
           if [ "$failed" = true ]; then exit 1; fi
 
-      # Go code takes the release's tag as the version of spec's Go module (R64): the Go module
-      # proxy builds its zip from the tag when it is first asked, and the checksum database records
-      # its hash for good. The step asks for it, through the proxy alone — with GOPROXY's default, a
-      # go command that the proxy answers 404 fetches from GitHub instead, and would hide it — so
-      # that the release's run says whether the module came out: a zip Go refuses fails the run
-      # here, after the release, which is out already. A version is served "within one minute" of
-      # being asked for, unless it was asked for before its tag existed, which the proxy remembers
-      # for up to 30 minutes (proxy.golang.org, FAQ, read 2026-10-28 and 2026-11-03). A failed fetch
-      # of its own it remembers as long: unable to reach GitHub, "Could not resolve host:
-      # github.com", it has answered that 404 again, with "cache-control: public", until 30 minutes
-      # after it was first asked. So the step asks for each module it has not got yet, in rounds a
-      # minute apart, 36 of them for all the modules together, which outlast that memory, and a run
-      # again asks again. It asks for the Go module of the contracts too, at contracts/<tag>, as Go
-      # asks for it, when the step above set it. It runs in the toolchain-core stage, from an empty
-      # folder, which is all the container mounts, by the checkout's script, which no container
-      # has had.
+      # Go code takes the release's tag as the version of spec's Go module: the Go module proxy
+      # builds its zip from the tag when it is first asked, and the checksum database records its
+      # hash for good. The step asks for it, through the proxy alone — with GOPROXY's default, a go
+      # command that the proxy answers 404 fetches from GitHub instead, and would hide it — so that
+      # the release's run says whether the module came out: a zip Go refuses fails the run here,
+      # after the release, which is out already. A version is served "within one minute" of being
+      # asked for, unless it was asked for before its tag existed, which the proxy remembers for up
+      # to 30 minutes (proxy.golang.org, FAQ, read 2026-10-28 and 2026-11-03). A failed fetch of its
+      # own it remembers as long: unable to reach GitHub, "Could not resolve host: github.com", it
+      # has answered that 404 again, with "cache-control: public", until 30 minutes after it was
+      # first asked. So the step asks for each module it has not got yet, in rounds a minute apart,
+      # 36 of them for all the modules together, which outlast that memory, and a run again asks
+      # again. It asks for the Go module of the contracts too, at contracts/<tag>, as Go asks for
+      # it, when the step above set it. It runs in the toolchain-core stage, from an empty folder,
+      # which is all the container mounts, by the checkout's script, which no container has had.
       - name: Verify the Go module
         if: >-
           (steps.publish.outputs.published == 'true' || steps.version.outputs.released != '') &&

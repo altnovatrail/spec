@@ -2,11 +2,12 @@
 // @generated from file novatrail/api/v1/debug.proto (package novatrail.api.v1, syntax proto3)
 /* eslint-disable */
 
-// The debug mode in the contract between `app` and `api` (R163): which models serve the calls of
+// The debug mode in the contract between `app` and `api`: which models serve the calls of
 // AI of a task from paper, past the admission list, and what each call returned and cost, for an
 // account with the right of the mode. A method from an account without the right answers
 // `permission_denied` with no `Refusal`, and on a run with the stub of `tutor` `unimplemented`;
-// `app` then shows no debug button. Its rules are contracts/README.md, section 15.
+// `app` then shows no debug button. Its rules are those of contracts/README.md for
+// the contract between `app` and `api`.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -57,7 +58,7 @@ export declare type GetDebugResponse = Message<"novatrail.api.v1.GetDebugRespons
 
   /**
    * The models of each call of a task from paper by the admission list of `tutor`, for an adult on
-   * platform AI, one for each model in the order of their attempts (R164): what serves the call
+   * platform AI, one for each model in the order of their attempts: what serves the call
    * with no first model. A call the list admits no model for is absent.
    *
    * @generated from field: repeated novatrail.api.v1.DebugAdmitted admitted = 3;
@@ -169,15 +170,15 @@ export declare type DebugChoice = Message<"novatrail.api.v1.DebugChoice"> & {
   /**
    * The model of every call of a task from paper — the tasks found, the statement read, the
    * solution, the work read and the tutor's words —, one attempt each: absent, each call has its
-   * models of the admission list of `tutor`, in turn (R164).
+   * models of the admission list of `tutor`, in turn.
    *
    * @generated from field: novatrail.api.v1.DebugModelChoice first = 1;
    */
   first?: DebugModelChoice | undefined;
 
   /**
-   * A second reader of the work, beside the first model's reading, the two joined as a pair is
-   * (R68): absent, one reader.
+   * A second reader of the work, beside the first model's reading, the two joined as a pair, where
+   * a place they read differently is unreadable: absent, one reader.
    *
    * @generated from field: novatrail.api.v1.DebugModelChoice second = 2;
    */
@@ -334,7 +335,7 @@ export declare type DebugAction = Message<"novatrail.api.v1.DebugAction"> & {
 
   /**
    * Beside two readers: whether a place of the work was read differently by them, and so is
-   * unreadable (R68).
+   * unreadable.
    *
    * @generated from field: bool readers_differ = 5;
    */
@@ -476,7 +477,7 @@ export declare type DebugCall = Message<"novatrail.api.v1.DebugCall"> & {
 
   /**
    * The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
-   * the one before did not do (R164). 1 for the solver and for a model the debug mode chose.
+   * the one before did not do. 1 for the solver and for a model the debug mode chose.
    *
    * @generated from field: int32 attempt = 18;
    */
@@ -493,7 +494,7 @@ export declare const DebugCallSchema: GenMessage<DebugCall>;
  * A Check of a task from paper as the debug mode exports it, a case of the set of a task from
  * paper of the eval runner of `tutor`: the pictures its calls saw, what they gave, and the truth as
  * the developer says it. `app` writes it as the JSON of this message, a file a case; `tutor-eval`
- * reads a folder of such files as a set, whose truth is the developer's (R163).
+ * reads a folder of such files as a set, whose truth is the developer's.
  *
  * @generated from message novatrail.api.v1.DebugCase
  */

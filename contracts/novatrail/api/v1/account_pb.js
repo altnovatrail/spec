@@ -9,7 +9,7 @@
 // of the section for adults; the voicing and the hint mode a learner sets; the storage of works;
 // the own key checked when it is connected; the share of the quota of platform AI; deletion and
 // export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// contracts/README.md for the contract between `app` and `api`.
 
 import { enumDesc, fileDesc, messageDesc, serviceDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
@@ -494,7 +494,7 @@ export const ModeSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_account, 3);
 
 /**
- * A mode of the screen of a task (concepts 10). A mode its build does not know `app` reads as "by
+ * A mode of the screen of a task. A mode its build does not know `app` reads as "by
  * steps".
  *
  * @generated from enum novatrail.api.v1.Mode
@@ -509,7 +509,7 @@ export const HintModeSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_account, 4);
 
 /**
- * The hint mode of a profile (concepts 10; R162).
+ * The hint mode of a profile.
  *
  * @generated from enum novatrail.api.v1.HintMode
  */
@@ -552,7 +552,7 @@ export const OwnKeyCheckSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_account, 7);
 
 /**
- * What the check of an own key gave (R84). A value its build does not know `app` words as a check
+ * What the check of an own key gave. A value its build does not know `app` words as a check
  * that did not go through.
  *
  * @generated from enum novatrail.api.v1.OwnKeyCheck
@@ -569,7 +569,7 @@ export const OwnKeyCheck = /*@__PURE__*/
  * with no `Refusal`, when the token could not be checked. A method on a profile names the right it
  * needs, `can_manage`, `can_learn` or `can_view`; a method on the account itself needs the account
  * of the token alone: it is an action of an adult, and the PIN in front of it is a barrier of the
- * interface (R04 api). A request without the right it needs
+ * interface. A request without the right it needs
  * gets the code `permission_denied` with no `Refusal`, and a request whose form the contract
  * refuses the code `invalid_argument` with no `Refusal`. `app` reads the cause of a refusal before
  * it refreshes any token:

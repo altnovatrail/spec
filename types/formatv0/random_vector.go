@@ -4,9 +4,9 @@ package formatv0
 
 // RandomVector is the type of random-vector.schema.json.
 //
-// A test vector of the generator (section 22 of the format text): the start of a stream — two
-// words, and the seed and names of the place of randomness whose stream it is — and the functions
-// called on the stream, in order, each with its arguments and the value it gives.
+// A test vector of the generator: the start of a stream — two words, and the seed and names of the
+// place of randomness whose stream it is — and the functions called on the stream, in order, each
+// with its arguments and the value it gives.
 type RandomVector struct {
 	// The seed of the place of randomness whose stream this is. With it come its names, and the
 	// state is the one they derive.

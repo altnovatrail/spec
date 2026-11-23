@@ -7,7 +7,8 @@
 // The stored works in the contract between `app` and `api`: the works of a profile that the server
 // keeps while the storage of its works is on, each as the device holds it — the history of
 // writing, the contexts of its submissions and its picture —, put, listed, read back and erased one
-// at a time (R113). What each message means is the rule of contracts/README.md, section 15.
+// at a time. What each message means is the rule of contracts/README.md for the
+// contract between `app` and `api`.
 
 package apiv1
 

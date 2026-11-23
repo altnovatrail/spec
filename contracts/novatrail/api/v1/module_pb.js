@@ -4,7 +4,8 @@
 
 // The modules of a learner in the contract between `app` and `api`: the catalog of the modules a
 // profile may connect, and the modules connected to it, each by the digest of its current version.
-// What each message means is the rule of contracts/README.md, section 15.
+// What each message means is the rule of contracts/README.md for the contract between
+// `app` and `api`.
 
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";

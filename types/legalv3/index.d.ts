@@ -19,8 +19,8 @@
 /**
  * Legal is the type of legal.schema.json.
  *
- * The passport of the legal texts, legal/legal.yaml (section 4 of the legal text): the texts, their
- * versions with their status, date and summary, and the sets of texts of the samples page.
+ * The passport of the legal texts, legal/legal.yaml: the texts, their versions with their status,
+ * date and summary, and the sets of texts of the samples page.
  */
 export interface Legal {
   /**
@@ -228,9 +228,9 @@ export interface TextRef {
 /**
  * ReadingVector is the type of reading-vector.schema.json.
  *
- * A test vector of reading (section 7 of the legal text): parts, each read on a day and perhaps
- * with the part of the release before, and what section 5 gives. A reader implements section 5 and
- * gets exactly this.
+ * A test vector of reading: parts, each read on a day and perhaps with the part of the release
+ * before, and what the rules of reading the part give. A reader implements those rules and gets
+ * exactly this.
  */
 export interface ReadingVector {
   /**

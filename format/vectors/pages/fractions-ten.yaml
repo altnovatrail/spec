@@ -1,6 +1,6 @@
-# «Ten examples on fractions», the workbook's example in concepts 8 spec, two of them comparisons:
-# five rows of two, and half the page left for the draft. From canvas's vectors/pages.json at its
-# commit 73807f2.
+# «Ten examples on fractions», the example of a workbook in the canvas kinds of spec's glossary, two
+# of them comparisons: five rows of two, and half the page left for the draft. From canvas's
+# vectors/pages.json at its commit 73807f2.
 items:
   - line:
       - text: "1/2 + 1/4 ="

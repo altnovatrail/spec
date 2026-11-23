@@ -4,9 +4,8 @@ package formatv0
 
 // TierVector is the type of tier-vector.schema.json.
 //
-// A test vector of tiers (sections 12 and 25 of the format text): a skill graph and the tier of
-// each of its skills. An implementation computes the tiers from the prerequisites and gets exactly
-// these.
+// A test vector of tiers: a skill graph and the tier of each of its skills. An implementation
+// computes the tiers from the prerequisites and gets exactly these.
 type TierVector struct {
 	// The skill graph, whose prerequisites among the module's skills run in no cycle.
 	SkillGraph SkillGraph `json:"skill_graph"`

@@ -6,7 +6,7 @@
 // an eval set, sample by sample — the verdict on each answer slot's truth and on what the models
 // read, an essay's marks by people and by AI, or why a sample was refused —, with no value, text,
 // stroke or crop of any work. What it holds, and how the measures are counted from it, are the
-// rules of contracts/README.md, section 14.
+// rules of contracts/README.md for the runner's report.
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -120,7 +120,7 @@ export declare const ReportSchema: GenMessage<Report>;
 export declare type Model = Message<"novatrail.eval.v1.Model"> & {
   /**
    * The provider, as the adapters of `tutor` name it: by its code in the admission table, when the
-   * table names it (admission/README.md, section 4).
+   * table names it (admission/README.md).
    *
    * @generated from field: string provider = 1;
    */
@@ -601,7 +601,8 @@ export enum Refusal {
   UNSPECIFIED = 0,
 
   /**
-   * The sample breaks a rule of sections 11 and 12, or its markup does not fit its task.
+   * The sample breaks a rule of the sample file or one the device and the runner share, or its
+   * markup does not fit its task.
    *
    * @generated from enum value: REFUSAL_INVALID = 1;
    */
@@ -664,7 +665,7 @@ export enum UncheckedCause {
   LIMIT = 2,
 
   /**
-   * An observation is not valid (contracts/README.md, section 10).
+   * An observation is not valid by the rules of the observation in contracts/README.md.
    *
    * @generated from enum value: UNCHECKED_CAUSE_INVALID = 3;
    */
@@ -680,8 +681,8 @@ export enum UncheckedCause {
   /**
    * The check of the answer slot gave no verdict on a valid observation: its predicate gave an
    * error or a result that is not a bool, or ran to its bound of steps or to the clock of the code
-   * that gives the verdicts (section 15 of the module format). The task's, not the model's; never
-   * an essay's, whose rubric has no predicate.
+   * that gives the verdicts, as the module format's checks set them. The task's, not the model's;
+   * never an essay's, whose rubric has no predicate.
    *
    * @generated from enum value: UNCHECKED_CAUSE_CHECK = 5;
    */

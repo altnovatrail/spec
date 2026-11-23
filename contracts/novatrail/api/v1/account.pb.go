@@ -11,7 +11,7 @@
 // of the section for adults; the voicing and the hint mode a learner sets; the storage of works;
 // the own key checked when it is connected; the share of the quota of platform AI; deletion and
 // export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// contracts/README.md for the contract between `app` and `api`.
 
 package apiv1
 
@@ -39,9 +39,9 @@ const (
 	ConsentGiver_CONSENT_GIVER_UNSPECIFIED ConsentGiver = 0
 	// The owner of the account, of their own profile, by the statement that they are 18 or older.
 	ConsentGiver_CONSENT_GIVER_OWNER ConsentGiver = 1
-	// A parent, by the signed form (R116).
+	// A parent, by the signed form.
 	ConsentGiver_CONSENT_GIVER_PARENT ConsentGiver = 2
-	// The learner themselves, from the age of digital consent of their country (R116; R134).
+	// The learner themselves, from the age of digital consent of their country.
 	ConsentGiver_CONSENT_GIVER_LEARNER ConsentGiver = 3
 )
 
@@ -203,7 +203,7 @@ func (VoicingSpeed) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{2}
 }
 
-// A mode of the screen of a task (concepts 10). A mode its build does not know `app` reads as "by
+// A mode of the screen of a task. A mode its build does not know `app` reads as "by
 // steps".
 type Mode int32
 
@@ -257,7 +257,7 @@ func (Mode) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{3}
 }
 
-// The hint mode of a profile (concepts 10; R162).
+// The hint mode of a profile.
 type HintMode int32
 
 const (
@@ -423,7 +423,7 @@ func (ConsentState) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{6}
 }
 
-// What the check of an own key gave (R84). A value its build does not know `app` words as a check
+// What the check of an own key gave. A value its build does not know `app` words as a check
 // that did not go through.
 type OwnKeyCheck int32
 
@@ -576,7 +576,7 @@ type CreateAccountRequest struct {
 	// The invite code, as it was given.
 	InviteCode string `protobuf:"bytes,1,opt,name=invite_code,json=inviteCode,proto3" json:"invite_code,omitempty"`
 	// The owner's statement that they are 18 or older: true, or the request is refused
-	// `invalid_argument`. `api` keeps it with its date (privacy 9, П-6).
+	// `invalid_argument`. `api` keeps it with its date (П-6).
 	AdultStated bool `protobuf:"varint,2,opt,name=adult_stated,json=adultStated,proto3" json:"adult_stated,omitempty"`
 	// The versions of `privacy-policy` and `terms-of-use` that the owner accepted, as
 	// `GetLegalTexts` gave them: each of the two that has a current version, and no other text.
@@ -695,7 +695,7 @@ type Account struct {
 	Profiles []*Profile `protobuf:"bytes,3,rep,name=profiles,proto3" json:"profiles,omitempty"`
 	// The consents for a child that have no profile yet: waiting, or confirmed and waiting for the
 	// profile. A consent taken back or withdrawn is not here: nothing of it is left but the minimal
-	// record, which names no account (R117).
+	// record, which names no account.
 	ChildConsents []*ChildConsent `protobuf:"bytes,4,rep,name=child_consents,json=childConsents,proto3" json:"child_consents,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -759,9 +759,9 @@ func (x *Account) GetChildConsents() []*ChildConsent {
 	return nil
 }
 
-// A profile, a learner in the account (concepts 13), as `api` keeps it, with its open attempt and
+// A profile, a learner in the account, as `api` keeps it, with its open attempt and
 // its open lesson runs. Its date of the age given and its last activity stay in `api`; its
-// interests come only once the module format gives a task a look by interests (concepts 13; R51).
+// interests come only once the module format gives a task a look by interests.
 type Profile struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the profile.
@@ -774,7 +774,7 @@ type Profile struct {
 	// a code its build does not know `app` shows as its own picture.
 	Avatar string `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	// The age category, by its code: "under_13", "from_13_to_consent", "from_consent_to_18" or
-	// "adult" (R46).
+	// "adult".
 	AgeCategory string `protobuf:"bytes,5,opt,name=age_category,json=ageCategory,proto3" json:"age_category,omitempty"`
 	// The learner's country, ISO 3166-1 alpha-2.
 	Country string `protobuf:"bytes,6,opt,name=country,proto3" json:"country,omitempty"`
@@ -784,28 +784,28 @@ type Profile struct {
 	// attempt. It goes to no AI.
 	DefaultMode Mode `protobuf:"varint,8,opt,name=default_mode,json=defaultMode,proto3,enum=novatrail.api.v1.Mode" json:"default_mode,omitempty"`
 	// The language of the interface, a tag of BCP 47: absent when none is set, and then `app` speaks
-	// the language of the device. It goes to no AI (R92).
+	// the language of the device. It goes to no AI.
 	InterfaceLanguage *string `protobuf:"bytes,9,opt,name=interface_language,json=interfaceLanguage,proto3,oneof" json:"interface_language,omitempty"`
-	// The grade, from 1 to 12, as a module with grades asks for it (R49): absent when none is given.
+	// The grade, from 1 to 12, as a module with grades asks for it: absent when none is given.
 	Grade *int32 `protobuf:"varint,10,opt,name=grade,proto3,oneof" json:"grade,omitempty"`
 	// A child's setting, which an adult sets: the solution is shown by an action of an adult.
 	// Always false on a profile of the category `adult`.
 	AskBeforeShowing bool `protobuf:"varint,11,opt,name=ask_before_showing,json=askBeforeShowing,proto3" json:"ask_before_showing,omitempty"`
 	// The profile's open attempt of a task of a module: absent when it has none. A profile has one
 	// at most; the open attempts of tasks from paper are not named here, since only the device that
-	// holds their page goes on with them (R162).
+	// holds their page goes on with them.
 	OpenAttempt *OpenAttemptRef `protobuf:"bytes,12,opt,name=open_attempt,json=openAttempt,proto3" json:"open_attempt,omitempty"`
 	// The profile's open lesson runs, one at most for each lesson.
 	OpenLessonRuns []*LessonRunRef `protobuf:"bytes,13,rep,name=open_lesson_runs,json=openLessonRuns,proto3" json:"open_lesson_runs,omitempty"`
 	// Whose consent the profile learns by, and what it waits for before its next work.
 	Consent *ProfileConsent `protobuf:"bytes,14,opt,name=consent,proto3" json:"consent,omitempty"`
 	// Whether a year has passed since the age was given: `app` asks the adult for the age again,
-	// `RestateAge`, and until then the category stays as it is (privacy 3.3).
+	// `RestateAge`, and until then the category stays as it is.
 	AgeCheckDue bool `protobuf:"varint,15,opt,name=age_check_due,json=ageCheckDue,proto3" json:"age_check_due,omitempty"`
-	// Whether the storage of the profile's works on the server is on (R113).
+	// Whether the storage of the profile's works on the server is on.
 	WorkStorage bool `protobuf:"varint,16,opt,name=work_storage,json=workStorage,proto3" json:"work_storage,omitempty"`
 	// The hint mode: whether a task from paper gets the wavy line with the words of a rung. It goes
-	// to no AI (R162).
+	// to no AI.
 	HintMode      HintMode `protobuf:"varint,17,opt,name=hint_mode,json=hintMode,proto3,enum=novatrail.api.v1.HintMode" json:"hint_mode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1026,7 +1026,7 @@ func (x *ProfileConsent) GetWaiting() *ChildConsent {
 }
 
 // The presentation style of a profile. What else it holds comes with what a module may say of it
-// (product 13, О-23).
+// (О-23).
 type PresentationStyle struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The voicing: the tutor's words and the open texts of a module read aloud by the device. It
@@ -1148,7 +1148,7 @@ type ProfileSettings struct {
 	// The default mode: `MODE_UNSPECIFIED` leaves it as it is.
 	DefaultMode Mode `protobuf:"varint,4,opt,name=default_mode,json=defaultMode,proto3,enum=novatrail.api.v1.Mode" json:"default_mode,omitempty"`
 	// The language of the interface, a well-formed tag of BCP 47, which `api` keeps with no list of
-	// its own (R92); empty clears it. On a new profile `app` sends the language of the section for
+	// its own; empty clears it. On a new profile `app` sends the language of the section for
 	// adults.
 	InterfaceLanguage *string `protobuf:"bytes,5,opt,name=interface_language,json=interfaceLanguage,proto3,oneof" json:"interface_language,omitempty"`
 	// The grade, from 1 to 12; 0 clears it.
@@ -1263,7 +1263,7 @@ type ChildConsent struct {
 	Giver ConsentGiver `protobuf:"varint,5,opt,name=giver,proto3,enum=novatrail.api.v1.ConsentGiver" json:"giver,omitempty"`
 	// The code of the request, which the parent writes on the signed form and the operator checks the
 	// scan by: ten characters of Crockford's base32 in two groups of five, as "ABCDE-FGHJK", unique
-	// among the consents that wait. Empty at a consent that the learner gives (R116).
+	// among the consents that wait. Empty at a consent that the learner gives.
 	RequestCode string `protobuf:"bytes,6,opt,name=request_code,json=requestCode,proto3" json:"request_code,omitempty"`
 	// Where the parent's form stands; `FORM_STATE_UNSPECIFIED` at a consent that the learner gives.
 	Form          FormState `protobuf:"varint,7,opt,name=form,proto3,enum=novatrail.api.v1.FormState" json:"form,omitempty"`
@@ -3295,7 +3295,7 @@ func (x *ExportProfileRequest) GetAction() Action {
 // The part of a profile's export that `api` holds.
 type ExportProfileResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+	// The part, `api.zip` of the export format — `export/` of `spec` —, which `app` puts into
 	// the file of the export as it is, without reading it.
 	Part []byte `protobuf:"bytes,1,opt,name=part,proto3" json:"part,omitempty"`
 	// The version of the export format the part is written in: the integer of `export/VERSION`, in
@@ -3389,7 +3389,7 @@ func (*ExportAccountRequest) Descriptor() ([]byte, []int) {
 // The part of the account's export that `api` holds.
 type ExportAccountResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+	// The part, `api.zip` of the export format — `export/` of `spec` —, which `app` puts into
 	// the file of the export as it is, without reading it.
 	Part []byte `protobuf:"bytes,1,opt,name=part,proto3" json:"part,omitempty"`
 	// The version of the export format the part is written in: the integer of `export/VERSION`, in
@@ -3805,15 +3805,15 @@ func (x *GetQuotaResponse) GetShare() *QuotaShare {
 }
 
 // The share of the family day's quota of platform AI that a profile and its account have spent: a
-// share of a cap, never a sum in dollars and no cap (concepts 14; R11 api). The caps are the
-// account's tariff's; the tariff itself comes with what is decided of tariffs (product 13, О-14).
+// share of a cap, never a sum in dollars and no cap. The caps are the
+// account's tariff's; the tariff itself comes with what is decided of tariffs (О-14).
 type QuotaShare struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The share of the profile's cap that the profile's spending of the family day takes, as its
 	// calls were settled, without the reserves of calls still going, so that within a day it only
 	// grows: in whole percent from 0 to 100, rounded down, so that 100 is the cap reached; spending
 	// past the cap is 100 too. Absent when the account's tariff has no caps: platform AI is closed to
-	// it (R11 api).
+	// it.
 	ProfilePercent *int32 `protobuf:"varint,1,opt,name=profile_percent,json=profilePercent,proto3,oneof" json:"profile_percent,omitempty"`
 	// Beside an action of an adult: the same share of the account's cap, which every profile of the
 	// account spends. Absent beside a learning action, so that a child never sees what the family

@@ -23,7 +23,7 @@ type Day string
 //
 // An ID that names a file of the export — a profile's or an attempt's, as api gives it, or a page's
 // from paper, as app gives it —: 1 to 200 letters, digits, -, _ and ., the first not a ., so that
-// it is one part of a path, never . or .. (section 3).
+// it is one part of a path, never `.` or `..`.
 type FileID string
 
 // Consent is the type of common.schema.json#/$defs/consent.
@@ -32,7 +32,7 @@ type Consent struct {
 	ConsentID ID `json:"consent_id"`
 	// Who gave the consent: the owner of the account of their own profile, by the statement that
 	// they are 18 or older; a parent, by the signed form; or the learner themselves, from the age
-	// of digital consent of their country (R116).
+	// of digital consent of their country.
 	Giver ConsentGiver `json:"giver"`
 	// Where the consent stands.
 	State ConsentState `json:"state"`
@@ -56,7 +56,7 @@ type Consent struct {
 	ConfirmedAt *Time `json:"confirmed_at,omitzero"`
 	// The versions of the legal texts the person saw when they gave the consent — privacy-policy
 	// and terms-of-use of the owner's, parent-consent of a parent's, teen-consent of the learner's
-	// own —, each that had a version in force (R130); empty when none had.
+	// own —, each that had a version in force; empty when none had.
 	Texts []TextRef `json:"texts"`
 }
 
@@ -64,7 +64,7 @@ type Consent struct {
 //
 // Who gave the consent: the owner of the account of their own profile, by the statement that they
 // are 18 or older; a parent, by the signed form; or the learner themselves, from the age of digital
-// consent of their country (R116).
+// consent of their country.
 type ConsentGiver string
 
 // The values of ConsentGiver.
@@ -101,7 +101,7 @@ const (
 
 // AgeCategory is the type of common.schema.json#/$defs/age_category.
 //
-// An age category, by its code (R46).
+// An age category, by its code, the module format's.
 type AgeCategory string
 
 // The values of AgeCategory.
@@ -159,7 +159,8 @@ const (
 type Image struct {
 	// What the image is: a JPEG or a PNG.
 	MediaType ImageMediaType `json:"media_type"`
-	// The image's bytes, at most 4 MiB, in base64 (RFC 4648, section 4).
+	// The image's bytes, at most 4 MiB, in base64 by the standard alphabet of RFC 4648, not
+	// base64url.
 	Data string `json:"data"`
 }
 

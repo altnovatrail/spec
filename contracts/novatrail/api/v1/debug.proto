@@ -1,10 +1,11 @@
 syntax = "proto3";
 
-// The debug mode in the contract between `app` and `api` (R163): which models serve the calls of
+// The debug mode in the contract between `app` and `api`: which models serve the calls of
 // AI of a task from paper, past the admission list, and what each call returned and cost, for an
 // account with the right of the mode. A method from an account without the right answers
 // `permission_denied` with no `Refusal`, and on a run with the stub of `tutor` `unimplemented`;
-// `app` then shows no debug button. Its rules are contracts/README.md, section 15.
+// `app` then shows no debug button. Its rules are those of contracts/README.md for
+// the contract between `app` and `api`.
 package novatrail.api.v1;
 
 import "google/protobuf/timestamp.proto";
@@ -40,7 +41,7 @@ message GetDebugResponse {
   // The choice now.
   DebugChoice choice = 2;
   // The models of each call of a task from paper by the admission list of `tutor`, for an adult on
-  // platform AI, one for each model in the order of their attempts (R164): what serves the call
+  // platform AI, one for each model in the order of their attempts: what serves the call
   // with no first model. A call the list admits no model for is absent.
   repeated DebugAdmitted admitted = 3;
 }
@@ -91,10 +92,10 @@ enum DebugEffort {
 message DebugChoice {
   // The model of every call of a task from paper — the tasks found, the statement read, the
   // solution, the work read and the tutor's words —, one attempt each: absent, each call has its
-  // models of the admission list of `tutor`, in turn (R164).
+  // models of the admission list of `tutor`, in turn.
   DebugModelChoice first = 1;
-  // A second reader of the work, beside the first model's reading, the two joined as a pair is
-  // (R68): absent, one reader.
+  // A second reader of the work, beside the first model's reading, the two joined as a pair, where
+  // a place they read differently is unreadable: absent, one reader.
   DebugModelChoice second = 2;
 }
 
@@ -140,7 +141,7 @@ message DebugAction {
   // Its calls, in the order they ended; the solver's among them.
   repeated DebugCall calls = 4;
   // Beside two readers: whether a place of the work was read differently by them, and so is
-  // unreadable (R68).
+  // unreadable.
   bool readers_differ = 5;
 }
 
@@ -196,7 +197,7 @@ message DebugCall {
   // What the call came to when it gave no answer that was read: as `Outcome` names it.
   Cause failure = 17;
   // The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
-  // the one before did not do (R164). 1 for the solver and for a model the debug mode chose.
+  // the one before did not do. 1 for the solver and for a model the debug mode chose.
   int32 attempt = 18;
 }
 
@@ -222,7 +223,7 @@ enum DebugCallKind {
 // A Check of a task from paper as the debug mode exports it, a case of the set of a task from
 // paper of the eval runner of `tutor`: the pictures its calls saw, what they gave, and the truth as
 // the developer says it. `app` writes it as the JSON of this message, a file a case; `tutor-eval`
-// reads a folder of such files as a set, whose truth is the developer's (R163).
+// reads a folder of such files as a set, whose truth is the developer's.
 message DebugCase {
   // The work as the Check sent it: the task's crop, which the statement's reading and the
   // solution see, and the crop of the work, which the readers see.

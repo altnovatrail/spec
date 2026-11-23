@@ -4,7 +4,8 @@
 
 // The modules of a learner in the contract between `app` and `api`: the catalog of the modules a
 // profile may connect, and the modules connected to it, each by the digest of its current version.
-// What each message means is the rule of contracts/README.md, section 15.
+// What each message means is the rule of contracts/README.md for the contract between
+// `app` and `api`.
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -268,9 +269,9 @@ export declare const ConnectedModuleSchema: GenMessage<ConnectedModule>;
 export declare const ModuleService: GenService<{
   /**
    * The catalog: the modules of the pinned index of `api` whose current version suits the profile
-   * by its audience, the age category of the profile (R63), connected ones too. The explanation
+   * by its audience, the age category of the profile, connected ones too. The explanation
    * language goes into no choice: the card of a module names it when it is not the language of the
-   * screen (R92), and the adult chooses.
+   * screen, and the adult chooses.
    *
    * @generated from rpc novatrail.api.v1.ModuleService.ListCatalog
    */

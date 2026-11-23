@@ -4,10 +4,9 @@ package formatv0
 
 // Page is the type of page.schema.json.
 //
-// The numbers and the table of widths of a workbook's page, format/page.yaml (section 14 of the
-// format text): canvas lays every page out by them, and task.workbook-page holds every task on a
-// workbook to them. Units are those of the page, and a width of a character is in whole hundredths
-// of the type size.
+// The numbers and the table of widths of a workbook's page, format/page.yaml: canvas lays every
+// page out by them, and task.workbook-page holds every task on a workbook to them. Units are those
+// of the page, and a width of a character is in whole hundredths of the type size.
 type Page struct {
 	// The page, as large as the handwriting sheet.
 	Sheet PageSheet `json:"sheet"`

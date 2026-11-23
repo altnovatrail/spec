@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/deployment/1/reading-vector.schema.json",
   "title": "Reading vector",
-  "description": "A test vector of reading (section 7 of the deployment text): files of a deployment configuration, each with the origin where app is open and what section 5 gives. A reader implements section 5 and gets exactly this.",
+  "description": "A test vector of reading: files of a deployment configuration, each with the origin where app is open and what the rules of reading the file give. A reader implements those rules and gets exactly this.",
   "type": "object",
   "properties": {
     "cases": {

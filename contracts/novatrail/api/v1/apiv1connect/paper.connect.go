@@ -2,10 +2,11 @@
 //
 // Source: novatrail/api/v1/paper.proto
 
-// A task from the learner's paper in the contract between `app` and `api` (R162): the tasks found
+// A task from the learner's paper in the contract between `app` and `api`: the tasks found
 // on the photo of a page, and the attempts of the tasks picked. Each attempt is then checked and
 // hinted by `AttemptService`, its work a `PaperWork`. What each message means, and what `api` keeps
-// of the page and of the attempts, are the rules of contracts/README.md, section 15.
+// of the page and of the attempts, are the rules of contracts/README.md for the
+// contract between `app` and `api`.
 package apiv1connect
 
 import (

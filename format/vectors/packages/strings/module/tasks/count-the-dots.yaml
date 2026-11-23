@@ -2,7 +2,7 @@
 # backslash, a tab, a line feed and the bell, U+0007 — and what it writes as it is: <, > and &, which
 # encoding/json of Go would escape, U+2028, which it escapes too, a letter outside the Basic
 # Multilingual Plane, and an e followed by a combining acute accent, which no reader normalizes into
-# é (section 4). Its picture's size is written 5e1, an integer of YAML, which the canonical view
+# é. Its picture's size is written 5e1, an integer of YAML, which the canonical view
 # holds as 50.
 id: count-the-dots
 statement:

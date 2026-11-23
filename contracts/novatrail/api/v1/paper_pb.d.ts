@@ -2,10 +2,11 @@
 // @generated from file novatrail/api/v1/paper.proto (package novatrail.api.v1, syntax proto3)
 /* eslint-disable */
 
-// A task from the learner's paper in the contract between `app` and `api` (R162): the tasks found
+// A task from the learner's paper in the contract between `app` and `api`: the tasks found
 // on the photo of a page, and the attempts of the tasks picked. Each attempt is then checked and
 // hinted by `AttemptService`, its work a `PaperWork`. What each message means, and what `api` keeps
-// of the page and of the attempts, are the rules of contracts/README.md, section 15.
+// of the page and of the attempts, are the rules of contracts/README.md for the
+// contract between `app` and `api`.
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -40,7 +41,7 @@ export declare type FindTasksRequest = Message<"novatrail.api.v1.FindTasksReques
 
   /**
    * The photo of the page, as the camera of `app` took it or as the learner picked it, a JPEG or a
-   * PNG of at most 4 MiB, without the metadata of its file (privacy 6): `app` scales it down to
+   * PNG of at most 4 MiB, without the metadata of its file: `app` scales it down to
    * fit.
    *
    * @generated from field: bytes photo = 3;
@@ -63,10 +64,9 @@ export declare type FindTasksRequest = Message<"novatrail.api.v1.FindTasksReques
 
   /**
    * The learner's request about the page, in their own words: which tasks to take and how to split
-   * them, as "only the first column, each example a task of its own". At most 200 code points,
-   * with no control character, not spaces alone; empty finds the tasks as the finding's rule alone
-   * gives them. It goes to the AI as data, never as an instruction, and the server keeps none of it
-   * (R165).
+   * them, as "only the first column, each example a task of its own". At most 200 code points, with
+   * no control character, not spaces alone; empty finds the tasks as the finding's rule alone gives
+   * them. It goes to the AI as data, never as an instruction, and the server keeps none of it.
    *
    * @generated from field: string request = 6;
    */
@@ -127,7 +127,7 @@ export declare type FindTasksResponse = Message<"novatrail.api.v1.FindTasksRespo
 
   /**
    * The turn, in whole degrees clockwise from -179 to 180, by which the photo was turned for its
-   * page to read upright before the tasks were found on it (R162): turned about its centre onto the
+   * page to read upright before the tasks were found on it: turned about its centre onto the
    * smallest upright rectangle that holds it, rounded to whole pixels, its corners white. The frames
    * are on the photo so turned, and `app` turns its photo by it the same way, at any scale, and goes
    * on with the photo turned. 0 when the page was upright, with a request, and with no frames.
@@ -145,7 +145,7 @@ export declare const FindTasksResponseSchema: GenMessage<FindTasksResponse>;
 
 /**
  * A rectangle round one task on the photo of a page, by which `app` cuts the task's crop on the
- * device (concepts 8).
+ * device.
  *
  * @generated from message novatrail.api.v1.TaskFrame
  */
@@ -195,7 +195,7 @@ export declare type BeginPaperAttemptsRequest = Message<"novatrail.api.v1.BeginP
    * The provider of the learner's own key, by its code in the admission table, without the key:
    * with a profile of its owner that checks the tasks by its own key, so that `api` checks no
    * quota. Empty on platform AI. Each later request on an attempt that calls AI goes by the
-   * `own_key` it carries, or on platform AI without one (R84).
+   * `own_key` it carries, or on platform AI without one.
    *
    * @generated from field: string own_key_provider = 4;
    */
@@ -204,7 +204,7 @@ export declare type BeginPaperAttemptsRequest = Message<"novatrail.api.v1.BeginP
   /**
    * The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to
    * 200 letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after
-   * "Add", names it again and closes none of its attempts; another page closes them (R162).
+   * "Add", names it again and closes none of its attempts; another page closes them.
    *
    * @generated from field: string page_id = 5;
    */
@@ -245,7 +245,7 @@ export declare const BeginPaperAttemptsResponseSchema: GenMessage<BeginPaperAtte
  * `CAUSE_NO_PROFILE`, a request of a profile whose consent is not confirmed `CAUSE_NO_CONSENT`, one
  * of a profile whose age is to be given again `CAUSE_AGE_NEEDED`, and a request whose form the
  * contract refuses the code `invalid_argument` with no `Refusal`. The server keeps no photo and no
- * crop, not even as a stored work (R09; R113).
+ * crop, not even as a stored work.
  *
  * @generated from service novatrail.api.v1.PaperService
  */

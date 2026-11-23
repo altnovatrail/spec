@@ -7,7 +7,7 @@ package formatv0
 // A test vector of a check kind's verdicts, vectors/verdicts/<kind>/<case>.yaml: an item of a task
 // whose answer slots are checked by that kind, and readings of it, each the value read in every
 // answer slot, with the verdict and the trap that each answer slot gets and the verdict that the
-// item gets (section 15 of the format text). It describes no part of a module.
+// item gets. It describes no part of a module.
 type VerdictVector struct {
 	// The item: on a handwriting sheet its answer slots, on a workbook its line, and every answer
 	// slot with its check.

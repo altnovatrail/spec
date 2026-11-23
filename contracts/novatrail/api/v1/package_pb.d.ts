@@ -5,7 +5,7 @@
 // What a package of a module gives by its digest, in the contract between `app` and `api`: the
 // open views of its manifest, skill graph, technique catalog and solving steps, which go without a
 // token, and whether the image of `api` still gives a package. The files of a package's device
-// part are no method of the contract: they go by HTTP GET, as contracts/README.md, section 15, has
+// part are no method of the contract: they go by HTTP GET, as contracts/README.md has
 // it, with the rules of the whole contract.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
@@ -18,8 +18,8 @@ export declare const file_novatrail_api_v1_package: GenFile;
 
 /**
  * An open view of a part of a module: what the learner's app receives of the part, without its
- * closed fields (section 6 of the module format). `app` and `api` read it by the types of the
- * module format, `open` of `@altnovatrail/spec` and of the Go module `spec`.
+ * closed fields, as the module format sets its open fields apart. `app` and `api` read it by the
+ * types of the module format, `open` of `@altnovatrail/spec` and of the Go module `spec`.
  *
  * @generated from message novatrail.api.v1.OpenView
  */
@@ -33,7 +33,7 @@ export declare type OpenView = Message<"novatrail.api.v1.OpenView"> & {
 
   /**
    * The version of the module format the view is written in, MAJOR.MINOR: `app` reads a view of a
-   * version its build reads, and offers to reload for another (R44).
+   * version its build reads, and offers to reload for another.
    *
    * @generated from field: string module_format_version = 2;
    */
@@ -120,8 +120,8 @@ export declare type GetSkillGraphResponse = Message<"novatrail.api.v1.GetSkillGr
   skillGraph?: OpenView | undefined;
 
   /**
-   * The tier of each skill of the graph, by its local ID, as section 12 of the module format
-   * computes it and the canonical view of the package holds it, `skill_tiers`: no field of the
+   * The tier of each skill of the graph, by its local ID, as the module format computes it for the
+   * skill graph and the canonical view of the package holds it, `skill_tiers`: no field of the
    * graph, nor of its open view.
    *
    * @generated from field: map<string, int32> skill_tiers = 2;
@@ -326,7 +326,7 @@ export enum PackageStatus {
 export declare const PackageStatusSchema: GenEnum<PackageStatus>;
 
 /**
- * What a package of a module gives by its digest (R62). The four open views go without a token and
+ * What a package of a module gives by its digest. The four open views go without a token and
  * without the ID of a profile, by Connect GET: each method has the idempotency level
  * `NO_SIDE_EFFECTS`, and `app` calls it with no header — no `Connect-Timeout-Ms` either, which would
  * make the request not simple and send a preflight before it. They go for any package that the
@@ -342,7 +342,7 @@ export declare const PackageService: GenService<{
   /**
    * The open view of the manifest of a package: `app` caches it by the digest, gives it to the
    * canvas with each task of the package, and reads in it the title and the explanation language of
-   * a module before its first attempt (R92).
+   * a module before its first attempt.
    *
    * @generated from rpc novatrail.api.v1.PackageService.GetManifest
    */
@@ -353,7 +353,7 @@ export declare const PackageService: GenService<{
   },
   /**
    * The open view of the skill graph of a package, with the tier of each skill: what the skill map
-   * draws, and what `app` reads a sequential module by (R58).
+   * draws, and what `app` reads a sequential module by.
    *
    * @generated from rpc novatrail.api.v1.PackageService.GetSkillGraph
    */

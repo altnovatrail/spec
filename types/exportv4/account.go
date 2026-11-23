@@ -4,8 +4,8 @@ package exportv4
 
 // Account is the type of account.schema.json.
 //
-// The account in an export of the account, api/account.json (section 4 of the text of the part):
-// its fields that are no secret, its consents and its counters of quota.
+// The account in an export of the account, api/account.json: its fields that are no secret, its
+// consents and its counters of quota.
 type Account struct {
 	// The version of the part, the integer in export/VERSION.
 	Format int64 `json:"format"`
@@ -26,8 +26,8 @@ type Account struct {
 	LastRequestOn Day `json:"last_request_on"`
 	// The IDs of the account's profiles, each with its file in profiles/.
 	ProfileIds []FileID `json:"profile_ids"`
-	// Every consent of the account, in full: the minimal record left after a deletion is none
-	// (R117).
+	// Every consent of the account, in full: the minimal record left after a deletion is none,
+	// since it holds no ID of the account or a profile.
 	Consents []Consent `json:"consents"`
 	// The account's own quota counters; a profile's go in its profile part.
 	QuotaCounters []QuotaCounter `json:"quota_counters"`

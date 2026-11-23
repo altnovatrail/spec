@@ -5,7 +5,8 @@
 // The stored works in the contract between `app` and `api`: the works of a profile that the server
 // keeps while the storage of its works is on, each as the device holds it — the history of
 // writing, the contexts of its submissions and its picture —, put, listed, read back and erased one
-// at a time (R113). What each message means is the rule of contracts/README.md, section 15.
+// at a time. What each message means is the rule of contracts/README.md for the
+// contract between `app` and `api`.
 package apiv1connect
 
 import (
@@ -85,7 +86,7 @@ type WorkServiceClient interface {
 	// `api` reads and no work of the attempt was kept before, so that its kind cannot be known; a
 	// withdrawn version, which the image still holds, gives the kind by its task. An attempt of a
 	// task from paper gets `invalid_argument`: its work is never a stored work, and stays in the
-	// profile's history on the device (R162). On each refusal `api` keeps nothing of the work, and
+	// profile's history on the device. On each refusal `api` keeps nothing of the work, and
 	// `app` keeps it on the device alone.
 	PutWork(context.Context, *v1.PutWorkRequest) (*v1.PutWorkResponse, error)
 	// The works of the profile kept on the server, newest first, without their bytes: a learning
@@ -93,10 +94,10 @@ type WorkServiceClient interface {
 	// storage is off the list is empty: switching it off erased them. While the profile waits for a
 	// consent or for its age, neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses the
 	// learner's request, by which `app` builds the export, as neither refuses the learner's
-	// `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile (R113).
+	// `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile.
 	ListWorks(context.Context, *v1.ListWorksRequest) (*v1.ListWorksResponse, error)
 	// One work kept on the server, whole, as it was put, to restore it on a device or to export it,
-	// beside the part of the export `ExportProfile` and `ExportAccount` give (R151): as `ListWorks`,
+	// beside the part of the export `ExportProfile` and `ExportAccount` give: as `ListWorks`,
 	// while the profile waits too. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work
 	// kept.
 	GetWork(context.Context, *v1.GetWorkRequest) (*v1.GetWorkResponse, error)
@@ -105,7 +106,7 @@ type WorkServiceClient interface {
 	// their own consent, the learner's learning request with `can_learn`. The answer is "erased",
 	// and so is a repeat's, of an attempt with no work kept. The work on the device stays. While the
 	// profile waits for a consent or for its age, it goes as switching the storage off goes: neither
-	// `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it (R113). Refusals: `CAUSE_LEARNER_DECIDES`
+	// `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. Refusals: `CAUSE_LEARNER_DECIDES`
 	// and `CAUSE_ADULT_NEEDED`.
 	DeleteWork(context.Context, *v1.DeleteWorkRequest) (*v1.DeleteWorkResponse, error)
 }
@@ -132,7 +133,7 @@ type WorkServiceHandler interface {
 	// `api` reads and no work of the attempt was kept before, so that its kind cannot be known; a
 	// withdrawn version, which the image still holds, gives the kind by its task. An attempt of a
 	// task from paper gets `invalid_argument`: its work is never a stored work, and stays in the
-	// profile's history on the device (R162). On each refusal `api` keeps nothing of the work, and
+	// profile's history on the device. On each refusal `api` keeps nothing of the work, and
 	// `app` keeps it on the device alone.
 	PutWork(context.Context, *v1.PutWorkRequest) (*v1.PutWorkResponse, error)
 	// The works of the profile kept on the server, newest first, without their bytes: a learning
@@ -140,10 +141,10 @@ type WorkServiceHandler interface {
 	// storage is off the list is empty: switching it off erased them. While the profile waits for a
 	// consent or for its age, neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses the
 	// learner's request, by which `app` builds the export, as neither refuses the learner's
-	// `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile (R113).
+	// `ExportProfile`; nor does `CAUSE_ADULT_NEEDED`, at any profile.
 	ListWorks(context.Context, *v1.ListWorksRequest) (*v1.ListWorksResponse, error)
 	// One work kept on the server, whole, as it was put, to restore it on a device or to export it,
-	// beside the part of the export `ExportProfile` and `ExportAccount` give (R151): as `ListWorks`,
+	// beside the part of the export `ExportProfile` and `ExportAccount` give: as `ListWorks`,
 	// while the profile waits too. Refusals: `CAUSE_NOT_FOUND`, also for an attempt with no work
 	// kept.
 	GetWork(context.Context, *v1.GetWorkRequest) (*v1.GetWorkResponse, error)
@@ -152,7 +153,7 @@ type WorkServiceHandler interface {
 	// their own consent, the learner's learning request with `can_learn`. The answer is "erased",
 	// and so is a repeat's, of an attempt with no work kept. The work on the device stays. While the
 	// profile waits for a consent or for its age, it goes as switching the storage off goes: neither
-	// `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it (R113). Refusals: `CAUSE_LEARNER_DECIDES`
+	// `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. Refusals: `CAUSE_LEARNER_DECIDES`
 	// and `CAUSE_ADULT_NEEDED`.
 	DeleteWork(context.Context, *v1.DeleteWorkRequest) (*v1.DeleteWorkResponse, error)
 }

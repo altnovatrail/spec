@@ -6,7 +6,7 @@ import "encoding/json"
 
 // Profile is the type of profile.schema.json.
 //
-// A profile and every record of it, api/profiles/<id>.json (section 4 of the text of the part).
+// A profile and every record of it, api/profiles/<id>.json.
 type Profile struct {
 	// The version of the part, the integer in export/VERSION.
 	Format int64 `json:"format"`
@@ -32,7 +32,7 @@ type Profile struct {
 	// The default mode of the screen of a task.
 	DefaultMode ProfileDefaultMode `json:"default_mode"`
 	// The hint mode: whether a task from paper gets the wavy line with the words of a rung,
-	// "show_where", or the words alone, "questions_only" (R162).
+	// "show_where", or the words alone, "questions_only".
 	HintMode ProfileHintMode `json:"hint_mode"`
 	// The interface language, a BCP 47 tag; absent when none is set.
 	InterfaceLanguage *string `json:"interface_language,omitzero"`
@@ -52,8 +52,8 @@ type Profile struct {
 	// The profile's attempts, open and closed.
 	Attempts []Attempt `json:"attempts"`
 	// The profile's open attempts of tasks from paper, those of one page: api keeps one only while
-	// it is open, and nothing of it once it ends (R162; privacy 4.1). Their page, crops and work
-	// are the device's, under paper/.
+	// it is open, and nothing of it once it ends, by the retention periods of `docs/privacy.md`.
+	// Their page, crops and work are the device's, under paper/.
 	PaperAttempts []PaperAttempt `json:"paper_attempts"`
 	// The engine's choices for the profile.
 	Choices []Choice `json:"choices"`
@@ -63,15 +63,15 @@ type Profile struct {
 	State StateEntry `json:"state"`
 	// The stored works, the works of the profile kept on the server, newest first, each named
 	// without its bytes, as ListWorks names it; each is a file of its own beside api.zip, which app
-	// writes (R151). Empty while storage is off (R113).
+	// writes. Empty while storage is off.
 	Works []WorkInfo `json:"works"`
-	// Whether the storage of the profile's works on the server is on (R113).
+	// Whether the storage of the profile's works on the server is on.
 	WorkStorage bool `json:"work_storage"`
 	// Each time the storage of works was switched on, by whom, by which version of storage-consent,
-	// and when it was switched off: the records live as long as the profile (R131; R136).
+	// and when it was switched off: the records live as long as the profile.
 	StorageConsents []StorageConsent `json:"storage_consents"`
 	// The reports of a problem with the tutor's words of the profile's attempts that api keeps:
-	// until the operator reviewed them, and for a year after (R123; R136).
+	// until the operator reviewed them, and for a year after.
 	ProblemReports []ProblemReport `json:"problem_reports"`
 	// The profile's quota counters.
 	QuotaCounters []QuotaCounter `json:"quota_counters"`
@@ -118,7 +118,7 @@ const (
 // ProfileHintMode is the type of profile.schema.json#/properties/hint_mode.
 //
 // The hint mode: whether a task from paper gets the wavy line with the words of a rung,
-// "show_where", or the words alone, "questions_only" (R162).
+// "show_where", or the words alone, "questions_only".
 type ProfileHintMode string
 
 // The values of ProfileHintMode.
@@ -259,7 +259,7 @@ const (
 // Rung is the type of profile.schema.json#/$defs/rung.
 type Rung struct {
 	// The rung, 1 to 3; on an attempt of a task from paper, 0 is its opening question, the model's
-	// words alone (R82).
+	// words alone.
 	Rung int64 `json:"rung"`
 	// Whether its words came from the model or are the fallback text.
 	Source RungSource `json:"source"`
@@ -513,7 +513,7 @@ type PaperAttempt struct {
 	LastActionAt Time `json:"last_action_at"`
 	// Where the key of each task of the attempt's crop came from, in the order of the page, as its
 	// items; absent before a submission derived them. The keys themselves are the program's and
-	// never reach the device (R05).
+	// never reach the device.
 	KeySources []PaperAttemptKeySources `json:"key_sources,omitzero"`
 	// The attempt's wrong answers.
 	WrongAnswers int64 `json:"wrong_answers"`
@@ -620,8 +620,8 @@ type EvidenceEntry struct {
 	// The attempt the evidence is of; one per attempt. Absent from an adult's correction of the
 	// module's level, whose evidence has level_set_by_adult and which is of no attempt.
 	AttemptID *ID `json:"attempt_id,omitzero"`
-	// The ID of an adult's correction of the module's level, whose evidence has level_set_by_adult
-	// (R157): absent from the evidence of an attempt.
+	// The ID of an adult's correction of the module's level, whose evidence has level_set_by_adult:
+	// absent from the evidence of an attempt.
 	CorrectionID *ID `json:"correction_id,omitzero"`
 	// The digest of the package the evidence is of: of the attempt, by which wrong_key versions
 	// filter the evidence of attempts; of an adult's correction, the package of the module's

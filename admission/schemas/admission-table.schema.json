@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/admission/0.5/admission-table.schema.json",
   "title": "Admission table",
-  "description": "The rules of admission to AI by age category (section 4 of the admission text): the AI providers, the dictionary of deployment facts, the rule of each capability of AI for each age category, and the cell of each provider, AI route and age category. What the table does not name is closed.",
+  "description": "The rules of admission to AI by age category: the AI providers, the dictionary of deployment facts, the rule of each capability of AI for each age category, and the cell of each provider, AI route and age category. What the table does not name is closed.",
   "type": "object",
   "properties": {
     "providers": {
@@ -16,7 +16,7 @@
         "description": "An AI provider that the cells name."
       },
       "minProperties": 1,
-      "description": "The AI providers the table knows, by code: the code that tutor's adapters and the admission function name a provider by. A provider that is not here is closed (R65)."
+      "description": "The AI providers the table knows, by code: the code that tutor's adapters and the admission function name a provider by. A provider that is not here is closed until its terms are checked in full."
     },
     "facts": {
       "type": "object",
@@ -29,7 +29,7 @@
         "description": "A deployment fact of the dictionary."
       },
       "minProperties": 1,
-      "description": "The dictionary of deployment facts, by code: what an operator declares about its agreements with each provider, for some age categories (section 5 of the admission text)."
+      "description": "The dictionary of deployment facts, by code: what an operator declares about its agreements with each provider, for some age categories."
     },
     "capabilities": {
       "type": "array",
@@ -64,13 +64,13 @@
         "name": {
           "type": "string",
           "minLength": 1,
-          "description": "The provider's name, as privacy 5.3 names it."
+          "description": "The provider's name, as the table of the providers' terms on age in `docs/privacy.md` names it."
         }
       },
       "required": [
         "name"
       ],
-      "description": "An AI provider of the table: what privacy 5.3 names it."
+      "description": "An AI provider of the table: what the table of the providers' terms on age in `docs/privacy.md` names it."
     },
     "deployment_fact": {
       "type": "object",
@@ -103,14 +103,14 @@
         "from_consent_to_18",
         "adult"
       ],
-      "description": "An age category, by its code (R46): under 13; from 13 to the age of digital consent in the learner's country; from that age to 18; 18 and over."
+      "description": "An age category, by its code, the module format's: under 13; from 13 to the age of digital consent in the learner's country; from that age to 18; 18 and over."
     },
     "ai_route": {
       "enum": [
         "platform_ai",
         "own_key"
       ],
-      "description": "An AI route: platform AI, under the platform's agreements with the providers, or the own key of an account owner who learns, at the profile of the category adult (concepts 14)."
+      "description": "An AI route: platform AI, under the platform's agreements with the providers, or the own key of an account owner who learns, at the profile of the category adult."
     },
     "capability": {
       "enum": [
@@ -125,12 +125,12 @@
         "statement_reading",
         "task_solving"
       ],
-      "description": "A capability of AI (concepts 10): reading handwriting, reading text, the analysis of a solution's steps, the assessment by a rubric, the hint, the words after a correct answer — the praise of a step and the question of which technique helped —, voice — the voicing of the tutor by a provider and the learner's voice input, which are one capability for now —, and for a task from paper the finding of the tasks on the photo of a page, the reading of a task's statement into a formula for the solver, and the solving of a task for its key."
+      "description": "A capability of AI: reading handwriting, reading text, the analysis of a solution's steps, the assessment by a rubric, the hint, the words after a correct answer — the praise of a step and the question of which technique helped —, voice — the voicing of the tutor by a provider and the learner's voice input, which are one capability for now —, and for a task from paper the finding of the tasks on the photo of a page, the reading of a task's statement into a formula for the solver, and the solving of a task for its key."
     },
     "citation": {
       "type": "string",
       "pattern": "^(R[1-9][0-9]*|[ОПТ]-[1-9][0-9]*|(product|concepts|privacy|architecture|repositories) [1-9][0-9]*(\\.[1-9][0-9]*)*)$",
-      "description": "What a rule or a cell rests on, in spec's documents: a decision, R47; an open question of a register, П-4; or a section of a document, privacy 5.3."
+      "description": "What a rule or a cell rests on, in spec's documents: a decision, as `R47`; an open question of a register, as `П-4`; or a section of a document, as `privacy 5.3`."
     },
     "basis": {
       "type": "array",
@@ -178,7 +178,7 @@
         "row": {
           "type": "string",
           "minLength": 1,
-          "description": "The provider's row in the table of privacy 5.3, as its first column names it: OpenAI, Google Cloud, Vertex AI."
+          "description": "The provider's row in the table of the providers' terms on age in `docs/privacy.md`, as its first column names it: OpenAI, Google Cloud, Vertex AI."
         },
         "read": {
           "type": "string",
@@ -190,7 +190,7 @@
         "row",
         "read"
       ],
-      "description": "The provider's terms that a cell reads, by its row of privacy 5.3 and the date they were read."
+      "description": "The provider's terms that a cell reads, by its row of the table of the providers' terms on age in `docs/privacy.md` and the date they were read."
     },
     "cell": {
       "type": "object",
@@ -213,7 +213,7 @@
             "open",
             "open_with_facts"
           ],
-          "description": "Whether the provider, on the route, may receive the work of a learner of the category: closed; open; or open with facts — only when every deployment fact in facts holds for the provider and the category. On the own key a cell is closed or open, never open with facts: the agreement with the provider is the key owner's, and a deployment declares nothing of it (privacy 5.2)."
+          "description": "Whether the provider, on the route, may receive the work of a learner of the category: closed; open; or open with facts — only when every deployment fact in facts holds for the provider and the category. On the own key a cell is closed or open, never open with facts: the agreement with the provider is the key owner's, and a deployment declares nothing of it."
         },
         "facts": {
           "type": "array",
@@ -231,7 +231,7 @@
             "unevaluatedProperties": false
           },
           "minItems": 1,
-          "description": "The provider's terms that the cell reads: each its row of privacy 5.3 and the date it was read."
+          "description": "The provider's terms that the cell reads: each its row of the table of the providers' terms on age in `docs/privacy.md` and the date it was read."
         },
         "basis": {
           "$ref": "#/$defs/basis",

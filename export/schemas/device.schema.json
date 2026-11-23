@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/export/4/device.schema.json",
   "title": "Device",
-  "description": "What this device holds of a profile, device/<id>.json (section 4 of the text of the part): its unfinished attempts with their history, its essays and its places in lessons.",
+  "description": "What this device holds of a profile, device/<id>.json: its unfinished attempts with their history, its essays and its places in lessons.",
   "type": "object",
   "properties": {
     "format": {

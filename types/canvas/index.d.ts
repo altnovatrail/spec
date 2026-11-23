@@ -1,8 +1,8 @@
 // Written by hand, not generated: tools/types writes the folders of the module format's types
-// beside this one, and leaves it as it is (R74).
+// beside this one, and leaves it as it is.
 
 /**
- * The types of the element `<novatrail-canvas>`: the contract of canvas and app (R36). The element
+ * The types of the element `<novatrail-canvas>`: the contract of canvas and app. The element
  * takes a task and its module's manifest, the files of its pictures and the learner's history of
  * writing, by properties; it gives the work for checking and the work's picture by its methods, and
  * tells what the learner did by events. In place of a task it may show a lesson's worked example,
@@ -10,14 +10,14 @@
  * property and an event too. In place of either it may show a task from the learner's paper: the
  * task's crop over a sheet as tracing paper, which the learner moves, hides and writes on, and where
  * the tracing paper lies and the grid the learner chose for the sheet are properties and events as
- * well (R162). The types of the
+ * well. The types of the
  * task, of the worked example and of the manifest are the module format's open views,
  * formatv0/open.
  *
  * It takes the tutor's marks of a submission too, by a property, with the submission's context:
  * their kind and their place come from the contract between app and api, novatrail.api.v1, whose
- * message `Mark` these types are checked against, and their names from app (contracts/README.md,
- * section 15; R83). The element's members beyond this contract — its commands undo() and clear(),
+ * message `Mark` these types are checked against, and their names from app (`contracts/README.md`).
+ * The element's members beyond this contract — its commands undo() and clear(),
  * which its own buttons call — and its place in the DOM's maps of tags and events are canvas's:
  * its package registers the element. The declarations take the DOM's
  * types: Blob, CustomEvent and HTMLElement.
@@ -66,7 +66,7 @@ export interface DemoState {
 export type DemoChangeEvent = CustomEvent<DemoState>;
 
 /**
- * A task from the learner's paper (concepts 8; R162): the task's crop, which app cut on the device
+ * A task from the learner's paper: the task's crop, which app cut on the device
  * from the photo of the page by its task frame. The element lays it over a sheet as tracing paper,
  * in place of a task's statement and template; the sheet's grid is the learner's, `PaperGrid`. It
  * has no answer slot of the format: its one slot is the whole work, at the place 1, 1. The tools
@@ -106,7 +106,7 @@ export interface TracingState {
   /**
    * How many times its own size it is drawn, from 0.4 to 4, the crop and the strokes on it alike,
    * from its top left corner: the strokes keep their points on it, so the work for checking is the
-   * same at any scale. Absent is 1; the element gives it always (R169).
+   * same at any scale. Absent is 1; the element gives it always.
    */
   readonly scale?: number;
   /**
@@ -126,7 +126,7 @@ export type TracingChangeEvent = CustomEvent<TracingState>;
 
 /**
  * The statement of a task from paper read in clean print, which the consumer gets on the learner's
- * "Recognise" (R169): `"ready"`, the button offered; `"busy"`, while the reading comes; and
+ * "Recognise": `"ready"`, the button offered; `"busy"`, while the reading comes; and
  * `"done"`, the statement of each task the crop holds, as the page prints it, "□" for each box an
  * answer goes in, a fraction with a bar LaTeX's `\frac{3}{17}`, nested as printed, and a raised
  * power `^{2}`, which the element draws built up in place of the crop until the learner goes back
@@ -151,7 +151,7 @@ export type TracingReadEvent = CustomEvent<null>;
 export interface InkPoint {
   /**
    * Across the sheet: 0 at its left edge, at most 10000. The task's page is its first 1000, and the
-   * sheet goes on to the right of it as far as the learner writes and moves it (R06 canvas).
+   * sheet goes on to the right of it as far as the learner writes and moves it.
    */
   readonly x: number;
   /** Down the sheet: 0 at its top edge, at most 14000; the task's page is its first 1400. */
@@ -184,8 +184,8 @@ export interface Stroke {
  * event says which strokes it put on the sheet or took off, so whoever reads the history replays it
  * without the rules of the stack of undo. The events are plain data, for JSON as they are; those
  * the sheet hands out are frozen through. A sample file of the eval protocol holds the same
- * history, spelt as its contract has it and without the pressure of a point (contracts/README.md,
- * section 12; R94).
+ * history, spelt as its contract has it and without the pressure of a point, by the rules
+ * the device and the runner share in `contracts/README.md`.
  */
 export type HistoryEvent =
   /**
@@ -307,7 +307,7 @@ export interface CropNumbers {
  * The context of one submission of a sheet, which the element gives with its crop and takes back
  * with the tutor's marks: the crop's numbers, the groups of the strokes, and the digest of it all.
  * app keeps it on the device as it is, through JSON, unrounded, and sends it only within a stored
- * work, while the storage of the profile's works is on (R113).
+ * work, while the storage of the profile's works is on.
  */
 export interface SheetSubmission {
   readonly crop: CropNumbers;
@@ -326,7 +326,7 @@ export interface SheetSubmission {
  * place, in the task's order, and the digest of its strokes, of every box of the page and of the
  * table's rows. A context of another layout of the page the element does not take back. app keeps
  * it on the device as it is, and sends it only within a stored work, while the storage of the
- * profile's works is on (R113).
+ * profile's works is on.
  */
 export interface WorkbookSubmission {
   readonly boxes: readonly Filling[];
@@ -339,7 +339,7 @@ export interface WorkbookSubmission {
  * tracing paper at its place with the strokes on it, and the sheet's strokes —, the groups of the
  * strokes of both, where the tracing paper lay, and the digest of it all. A context of the tracing
  * paper at another place the element does not take back. app keeps it on the device, in the
- * profile's history of tasks from paper, and never sends it (R162).
+ * profile's history of tasks from paper, and never sends it.
  */
 export interface PaperSubmission {
   readonly crop: CropNumbers;
@@ -384,7 +384,8 @@ export interface ExportedWorkbook {
  * The work of a task from paper for checking, the two images of `PaperWork` of the contract: the
  * task's crop as it was given, and the PNG of the crop of the work — the tracing paper at its place
  * with the strokes on it, and the sheet's visible strokes, whether the tracing paper is shown or
- * hidden —, with the context of the submission (contracts/README.md, section 15).
+ * hidden —, with the context of the submission, as the contract between app and api in
+ * `contracts/README.md` has it.
  */
 export interface ExportedPaper {
   readonly statement: Blob;
@@ -400,9 +401,9 @@ export type ExportedWork = ExportedSheet | ExportedWorkbook | ExportedPaper;
 
 /**
  * Where a tutor's mark is: a group of strokes by its label, an answer cell by its place, or a box on
- * the crop the model saw, as the contract's mark has its place (contracts/README.md, section 15). On
+ * the crop the model saw, as the contract's mark has its place in `contracts/README.md`. On
  * a workbook a mark stands on a cell alone. A group's label comes from api only if the frames of the
- * groups go with the work (repositories 8, Т-31).
+ * groups go with the work (Т-31).
  */
 export type Anchor =
   | { readonly group: string }
@@ -426,10 +427,10 @@ export interface FrameMark {
 
 /**
  * A wavy line under the place of the first mistake, on a task from paper alone, at a box on the
- * crop of its work, which the profile's hint mode "Show where" brings with the words of a rung
- * (concepts 10; R162). The element draws it under the strokes the box takes, on the sheet or on the
+ * crop of its work, which the profile's hint mode "Show where" brings with the words of a rung.
+ * The element draws it under the strokes the box takes, on the sheet or on the
  * tracing paper, over a light halo, so that it holds the contrast of 3:1 over the sheet and over the
- * photo of any page, and puts it in the accessibility tree as it puts a frame, by its name (R90).
+ * photo of any page, and puts it in the accessibility tree as it puts a frame, by its name.
  */
 export interface WavyLineMark {
   readonly kind: "wavy_line";
@@ -445,11 +446,11 @@ export interface WavyLineMark {
 /**
  * The verdict of one answer of a task from paper, by the answer on the crop of its work: a tick
  * when it is right, a cross when it is not, which app gives for each task of a frame of several
- * by the box its reading gave (R162). It is app's, not a mark of api's: the verdict of the answer
+ * by the box its reading gave. It is app's, not a mark of api's: the verdict of the answer
  * says it. The element draws it at the right of the group of the learner's strokes nearest the box,
  * one group a verdict, or of the box when none is near, over a light halo, so that it holds the
  * contrast of 3:1 over the sheet and over the photo of any page, and puts it in the accessibility
- * tree as it puts a frame, by its name (R90).
+ * tree as it puts a frame, by its name.
  */
 export interface VerdictMark {
   readonly kind: "verdict";
@@ -497,14 +498,14 @@ export type Media = (ref: string) => Promise<Blob>;
  * on a worked example its row, with the slot `actions` — is out of sight and out of the
  * accessibility tree: app sets it on a phone while its tutor's sheet is open. While it has the boolean
  * attribute `statement-hidden`, it draws no task statement, and app draws the statement as its card
- * above the element (R161). Among the style properties `--novatrail-canvas-*` that app sets,
+ * above the element. Among the style properties `--novatrail-canvas-*` that app sets,
  * `--novatrail-canvas-accent` is the accent of the tool in use and of the focus ring,
  * `--novatrail-canvas-glass` the fill of the bar's glass, `--novatrail-canvas-top` the offset of the
  * band in whose middle the bar stands, and `--novatrail-canvas-pad-top` and
  * `--novatrail-canvas-pad-bottom` how far app's own bars float over the element's top and bottom:
  * the statement starts below the first, the sheet scrolls up past the second, and the bar's band
  * ends above the second. On a worked example, app puts its own "Continue" into the element's named slot `actions`, a child
- * `<button slot="actions">`, in one row after the element's Next and Demo (R36).
+ * `<button slot="actions">`, in one row after the element's Next and Demo.
  */
 export interface CanvasElement extends HTMLElement {
   /**
@@ -598,7 +599,7 @@ export interface CanvasElement extends HTMLElement {
    * The tutor's marks of one submission, on the tutor's layer, given after the task and the
    * history they hold on to. A mark holds on to the strokes the model saw at its place and is drawn
    * around those of them the sheet shows, as they are now: a box on the crop takes the strokes by
-   * the rule of snapping (contracts/README.md, section 12), and a cell of a workbook is framed with
+   * the rule of snapping of `contracts/README.md`, and a cell of a workbook is framed with
    * its box — round the box alone when the box was empty. A cell on a sheet, and a box that comes
    * near no stroke, have no frame: the question is asked without one. A submission goes back to the
    * sheet or the page it was made on, as its digest tells: one of other strokes or other boxes is a
@@ -627,11 +628,11 @@ export interface CanvasElement extends HTMLElement {
    */
   exportWork(): Promise<ExportedWork | null>;
   /**
-   * The picture of the work, which app puts as the stored work's `picture` (contracts/README.md,
-   * section 15): always a Blob of a PNG, with no condition, of the strokes the surface shows as it is
+   * The picture of the work, which app puts as the stored work's `picture` in the contract between
+   * app and api: always a Blob of a PNG, with no condition, of the strokes the surface shows as it is
    * when it is called — the page, a sheet's or a workbook's, and the ink past it, right and down, with
    * the tracing paper of a task from paper where it lies —, within the limit of a stored work there.
-   * Its size, in its PNG's header, and its colours are canvas's (R83 canvas).
+   * Its size, in its PNG's header, and its colours are canvas's.
    */
   exportPicture(): Promise<Blob>;
 }

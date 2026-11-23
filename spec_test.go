@@ -337,7 +337,7 @@ func TestPartRefusesAFolderNoPathNames(t *testing.T) {
 	(&part{&formatFiles, "../format"}).Open("VERSION")
 }
 
-// A binary keeps only the parts it reads (R64): a program that reads one part holds a file of that
+// A binary keeps only the parts it reads: a program that reads one part holds a file of that
 // part and no file of another, and one that reads two holds both.
 // The compiler's static initialization is what makes it so, not a rule of the language, so the
 // test builds the programs, with the go of the toolchain that runs it, and reads the binaries.

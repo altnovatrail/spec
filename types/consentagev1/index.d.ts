@@ -19,9 +19,9 @@
 /**
  * CategoryVector is the type of category-vector.schema.json.
  *
- * A test vector of the category (section 8 of the text of the part): a table that section 5
- * accepts, and what section 6 gives on it — the category of a learner, and whether a profile's age
- * is asked again.
+ * A test vector of the category: a table that the rules of reading the table accept, and what the
+ * rule of the category gives on it — the category of a learner, and whether a profile's age is
+ * asked again.
  */
 export interface CategoryVector {
   /**
@@ -82,9 +82,8 @@ export type CategoryCaseCategory = "under_13" | "from_13_to_consent" | "from_con
 /**
  * ConsentAge is the type of consent-age.schema.json.
  *
- * The table of the age of digital consent by country, consent-age/consent-age.yaml (section 4 of
- * the text of the part): the age of each country with the law that sets it, and the age of a
- * country the table does not hold.
+ * The table of the age of digital consent by country, consent-age/consent-age.yaml: the age of each
+ * country with the law that sets it, and the age of a country the table does not hold.
  */
 export interface ConsentAge {
   /**
@@ -93,7 +92,7 @@ export interface ConsentAge {
   readonly format: number;
   /**
    * The age of digital consent of a country the table does not hold: a parent gives consent for
-   * every learner under 18 there (R134).
+   * every learner under 18 there.
    */
   readonly outside_table: number;
   /**
@@ -169,9 +168,8 @@ export type Words = string;
 /**
  * ReadingVector is the type of reading-vector.schema.json.
  *
- * A test vector of reading (section 8 of the text of the part): tables, each perhaps with the table
- * of the release before, and what section 5 gives. A reader implements section 5 and gets exactly
- * this.
+ * A test vector of reading: tables, each perhaps with the table of the release before, and what the
+ * rules of reading the table give. A reader implements those rules and gets exactly this.
  */
 export interface ReadingVector {
   /**

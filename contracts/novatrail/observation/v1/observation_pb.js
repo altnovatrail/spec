@@ -5,7 +5,7 @@
 // The observation: what AI read in a learner's work, answer slot by answer slot, before any check
 // runs. A reader of `tutor` gives one; `module-kit` joins the observations of two readers into one
 // and gives the verdict on it. What the messages mean, how two observations are joined and which
-// verdict an observation gives are the rules of contracts/README.md, section 10.
+// verdict an observation gives are the rules of contracts/README.md for the observation.
 
 import { enumDesc, fileDesc, messageDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 
@@ -53,7 +53,7 @@ export const UnreadableSchema = /*@__PURE__*/
  * Why a reading gives an answer slot no value. In a slot whose check gives a verdict, each makes
  * the verdict `unreadable`, with the reason named as the value is, in lower case and without its
  * prefix; an essay that is blank or illegible does not reach the assessment by its rubric
- * (contracts/README.md, section 10).
+ * (contracts/README.md).
  *
  * @generated from enum novatrail.observation.v1.Unreadable
  */

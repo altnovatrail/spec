@@ -5,8 +5,8 @@ package formatv0
 // LeakVector is the type of leak-vector.schema.json.
 //
 // A test vector of the leak check, vectors/leaks/<case>.yaml: a task, and texts that the learner
-// might see, each with every key and leak phrase of the task that the leak check finds in it
-// (section 20 of the format text). It describes no part of a module.
+// might see, each with every key and leak phrase of the task that the leak check finds in it. It
+// describes no part of a module.
 type LeakVector struct {
 	// The task whose keys and leak phrases the leak check searches for. It is no template: a
 	// template is searched through its instances, which the vectors of templates pin.

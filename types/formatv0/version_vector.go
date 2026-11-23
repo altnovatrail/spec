@@ -5,10 +5,10 @@ package formatv0
 // VersionVector is the type of version-vector.schema.json.
 //
 // What a test vector of versions of a module gives, version.yaml beside the new version in module/
-// and the published versions in published/ (sections 9 and 27 of the format text): either the part
-// of the version that the comparison of the new version with the newest published version finds, or
-// the rule of versions by which the new version is refused. An implementation compares the new
-// version with every published version and gets exactly this.
+// and the published versions in published/: either the part of the version that the comparison of
+// the new version with the newest published version finds, or the rule of versions by which the new
+// version is refused. An implementation compares the new version with every published version and
+// gets exactly this.
 type VersionVector struct {
 	// The lowest part of its version that the new version raises, which the comparison finds, when
 	// the new version is not refused: none when nothing but the version changed, or when the new

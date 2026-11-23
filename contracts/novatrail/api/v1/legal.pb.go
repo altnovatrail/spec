@@ -7,8 +7,8 @@
 // The legal texts in the contract between `app` and `api`: the privacy policy, the terms of use
 // and the consents that `app` shows as its own pages, each in its current version and its next
 // one, with its gist in the language of the screen. The texts are those of the legal part,
-// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of contracts/README.md,
-// section 15.
+// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of
+// contracts/README.md for the contract between `app` and `api`.
 
 package apiv1
 
@@ -31,7 +31,7 @@ const (
 type GetLegalTextsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The language of the screen that shows the texts, a well-formed tag of BCP 47, a field of the
-	// message and not the header `Accept-Language` (R92): the language the gists and the
+	// message and not the header `Accept-Language`: the language the gists and the
 	// translations come in. Empty asks for English.
 	InterfaceLanguage string `protobuf:"bytes,1,opt,name=interface_language,json=interfaceLanguage,proto3" json:"interface_language,omitempty"`
 	unknownFields     protoimpl.UnknownFields
@@ -86,7 +86,7 @@ type GetLegalTextsResponse struct {
 	// The next version of every text whose place is `app` that has one, in the same order: the
 	// version that becomes current on the nearest day still to come, its version in force with the
 	// highest number among those of that day. `app` shows it before it
-	// applies, as the version that will apply from its day (R130). No request names it in a
+	// applies, as the version that will apply from its day. No request names it in a
 	// consent: a consent names the current version.
 	NextTexts     []*LegalText `protobuf:"bytes,2,rep,name=next_texts,json=nextTexts,proto3" json:"next_texts,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -159,7 +159,7 @@ type LegalText struct {
 	// The language the gist is in, its tag as the passport writes it, such as "en" or "ru".
 	SummaryLanguage string `protobuf:"bytes,6,opt,name=summary_language,json=summaryLanguage,proto3" json:"summary_language,omitempty"`
 	// The translation of the version into the language asked, found as the gist is, when the version
-	// has one (R141): Markdown as the body is, with no force of its own — the body in English is the
+	// has one: Markdown as the body is, with no force of its own — the body in English is the
 	// one in force, and a consent names the version, never its translation. Empty when the version
 	// has no translation into that language, and when English is asked.
 	Translation string `protobuf:"bytes,7,opt,name=translation,proto3" json:"translation,omitempty"`
@@ -257,7 +257,7 @@ func (x *LegalText) GetTranslationLanguage() string {
 }
 
 // A version of a legal text that a person saw, which a request that gives a consent names and the
-// record of the consent keeps (R130; R136): the current version that `GetLegalTexts` gave. A text
+// record of the consent keeps: the current version that `GetLegalTexts` gave. A text
 // with no version in force is named by no request, and a version that is not the current one gets
 // `CAUSE_TEXT_NOT_CURRENT`.
 type LegalTextRef struct {

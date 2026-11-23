@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/export/4/profile.schema.json",
   "title": "Profile",
-  "description": "A profile and every record of it, api/profiles/<id>.json (section 4 of the text of the part).",
+  "description": "A profile and every record of it, api/profiles/<id>.json.",
   "type": "object",
   "properties": {
     "format": {
@@ -63,7 +63,7 @@
         "questions_only",
         "show_where"
       ],
-      "description": "The hint mode: whether a task from paper gets the wavy line with the words of a rung, \"show_where\", or the words alone, \"questions_only\" (R162)."
+      "description": "The hint mode: whether a task from paper gets the wavy line with the words of a rung, \"show_where\", or the words alone, \"questions_only\"."
     },
     "interface_language": {
       "type": "string",
@@ -121,7 +121,7 @@
         "unevaluatedProperties": false,
         "description": "An open attempt of a task from paper: one of them."
       },
-      "description": "The profile's open attempts of tasks from paper, those of one page: api keeps one only while it is open, and nothing of it once it ends (R162; privacy 4.1). Their page, crops and work are the device's, under paper/."
+      "description": "The profile's open attempts of tasks from paper, those of one page: api keeps one only while it is open, and nothing of it once it ends, by the retention periods of `docs/privacy.md`. Their page, crops and work are the device's, under paper/."
     },
     "choices": {
       "type": "array",
@@ -153,11 +153,11 @@
         "unevaluatedProperties": false,
         "description": "A stored work named: one of them."
       },
-      "description": "The stored works, the works of the profile kept on the server, newest first, each named without its bytes, as ListWorks names it; each is a file of its own beside api.zip, which app writes (R151). Empty while storage is off (R113)."
+      "description": "The stored works, the works of the profile kept on the server, newest first, each named without its bytes, as ListWorks names it; each is a file of its own beside api.zip, which app writes. Empty while storage is off."
     },
     "work_storage": {
       "type": "boolean",
-      "description": "Whether the storage of the profile's works on the server is on (R113)."
+      "description": "Whether the storage of the profile's works on the server is on."
     },
     "storage_consents": {
       "type": "array",
@@ -166,7 +166,7 @@
         "unevaluatedProperties": false,
         "description": "A consent to the storage of works: one of them."
       },
-      "description": "Each time the storage of works was switched on, by whom, by which version of storage-consent, and when it was switched off: the records live as long as the profile (R131; R136)."
+      "description": "Each time the storage of works was switched on, by whom, by which version of storage-consent, and when it was switched off: the records live as long as the profile."
     },
     "problem_reports": {
       "type": "array",
@@ -175,7 +175,7 @@
         "unevaluatedProperties": false,
         "description": "A report of a problem: one of them."
       },
-      "description": "The reports of a problem with the tutor's words of the profile's attempts that api keeps: until the operator reviewed them, and for a year after (R123; R136)."
+      "description": "The reports of a problem with the tutor's words of the profile's attempts that api keeps: until the operator reviewed them, and for a year after."
     },
     "quota_counters": {
       "type": "array",
@@ -584,7 +584,7 @@
             ],
             "description": "Where one task's key came from: the solver, one solution of AI, or none, when the solution gave no one answer a program can compare."
           },
-          "description": "Where the key of each task of the attempt's crop came from, in the order of the page, as its items; absent before a submission derived them. The keys themselves are the program's and never reach the device (R05)."
+          "description": "Where the key of each task of the attempt's crop came from, in the order of the page, as its items; absent before a submission derived them. The keys themselves are the program's and never reach the device."
         },
         "wrong_answers": {
           "type": "integer",
@@ -772,7 +772,7 @@
       "properties": {
         "rung": {
           "type": "integer",
-          "description": "The rung, 1 to 3; on an attempt of a task from paper, 0 is its opening question, the model's words alone (R82)."
+          "description": "The rung, 1 to 3; on an attempt of a task from paper, 0 is its opening question, the model's words alone."
         },
         "source": {
           "enum": [
@@ -982,7 +982,7 @@
         },
         "correction_id": {
           "$ref": "common.schema.json#/$defs/id",
-          "description": "The ID of an adult's correction of the module's level, whose evidence has level_set_by_adult (R157): absent from the evidence of an attempt."
+          "description": "The ID of an adult's correction of the module's level, whose evidence has level_set_by_adult: absent from the evidence of an attempt."
         },
         "package_digest": {
           "type": "string",

@@ -6,7 +6,7 @@ docs-check: _tools
 
 # Runs from a NovaTrail repository's root, as `just -f spec/justfile docs-check-repo`: the spec it
 # pins as its submodule checks that repository's documents, and their citations of spec against
-# itself (R32). In spec itself it refuses: there is no repository around it.
+# itself. In spec itself it refuses: there is no repository around it.
 # Check the documents of the repository this spec is the submodule of.
 docs-check-repo: _tools
     node tools/docs-check/main.mjs --component
@@ -16,9 +16,9 @@ docs-check-test: _tools
     node --test 'tools/docs-check/test/*.test.mjs'
 
 # Reads run/QUESTIONS.md of every other NovaTrail repository on GitHub through gh, on main and in
-# each open pull request (R153), and prints the rows «в реестр spec» that run/INBOX.md does not
-# hold yet, and those of run/INBOX.md the source no longer marks (R81). It runs on the author's
-# word or at the end of an epic, not before each task; gh has to be logged in.
+# each open pull request, and prints the rows «в реестр spec» that run/INBOX.md does not hold
+# yet, and those of run/INBOX.md the source no longer marks. It runs on the author's word or at
+# the end of an epic, not before each task; gh has to be logged in.
 # List what the other repositories hold for spec.
 inbox: _tools
     node tools/inbox/main.mjs
@@ -48,9 +48,9 @@ tokens-test: _tools
 # file at <ref>, unit by unit: the headings and their numbers, the register numbers and the sections
 # cited, the links, the numbers, the code, the quotes of a source in its own language, the fixed
 # words of the decision log, and the shape, a paragraph for a paragraph and an item for an item; a
-# link into a heading the translation renamed is expected with its new anchor (R143). It runs in
-# the repository it is run from — spec, or another NovaTrail repository as
-# `just -f spec/justfile translation-check` —; tools/translation/README.md is how a translation runs.
+# link into a heading the translation renamed is expected with its new anchor. It runs in the
+# repository it is run from — spec, or another NovaTrail repository as `just -f spec/justfile
+# translation-check` —; tools/translation/README.md is how a translation runs.
 # Check a translation of documents against their original at a commit.
 [positional-arguments]
 translation-check ref +files: _tools
@@ -71,21 +71,21 @@ translation-test: _tools
 # tools/session/ is no recipe: it is the hook UserPromptSubmit that .claude/settings.json runs
 # before each prompt, in spec and, from the spec/ submodule, in every other NovaTrail repository.
 # It stops a prompt that starts a task other than the one the session has led — «Выполни задачу
-# T…», «планируй T…», «Сделай эпик E…» — and names /clear: one task is one session (R143). It
-# takes nothing from node_modules, since another repository has none in spec/tools/.
+# T…», «планируй T…», «Сделай эпик E…» — and names /clear: one task is one session. It takes
+# nothing from node_modules, since another repository has none in spec/tools/.
 # Run the session hook's own tests, on made-up transcripts.
 session-test:
     node --test 'tools/session/test/*.test.mjs'
 
-# The orchestrator's commands (R156), in spec's orchestrator container, which sees the host's
-# Docker: start runs a task of a repository as claude -p in that repository's container and returns
-# at once; resume continues the same session with the author's answers; stop ends a run's attempt;
+# The orchestrator's commands, in spec's orchestrator container, which sees the host's Docker:
+# start runs a task of a repository as claude -p in that repository's container and returns at
+# once; resume continues the same session with the author's answers; stop ends a run's attempt;
 # status and wait read the run's files on the volume novatrail-claude; next names a repository's
 # next free number of a task; rebuild and create build a repository's container by the Dev
-# Containers CLI (R158); sync keeps the orchestrator's own clone of spec's main; xrepo runs a task
-# across repositories in the clones of .epics, its stand, its gate and its ship (R166). «Сделай
-# эпик E…» runs them from that clone, where this recipe is not needed: they take nothing from
-# node_modules (tools/orchestrator/README.md).
+# Containers CLI; sync keeps the orchestrator's own clone of spec's main; xrepo runs a task across
+# repositories in the clones of .epics, its stand, its gate and its ship. «Сделай эпик E…» runs
+# them from that clone, where this recipe is not needed: they take nothing from node_modules
+# (tools/orchestrator/README.md).
 # Run a command of the orchestrator: start, resume, stop, status, wait, next, rebuild, create, sync or xrepo.
 [positional-arguments]
 orchestrator *args:
@@ -99,10 +99,10 @@ xrepo *args:
 
 # The coverage of the lines a branch changes, as Codecov's codecov/patch counts it — a line partly
 # covered no hit —, against the target of the repository's .github/codecov.yml, before the pull
-# request (R166, R48): from the merge-base of origin/main, by coverage/go.out and coverage/lcov.info
-# as the repository's ci-test wrote them. Another NovaTrail repository runs it from its root as
-# `just -f spec/justfile patchcov`; xrepo's gate runs it from the epic's clone of spec. It takes
-# nothing from node_modules (sources 11.5).
+# request: from the merge-base of origin/main, by coverage/go.out and coverage/lcov.info as the
+# repository's ci-test wrote them. Another NovaTrail repository runs it from its root as `just -f
+# spec/justfile patchcov`; xrepo's gate runs it from the epic's clone of spec. It takes nothing from
+# node_modules (sources 11.5).
 # Print the coverage of the patch from the merge-base, as Codecov would; exit 1 below the target.
 [positional-arguments]
 patchcov *args:
@@ -120,10 +120,10 @@ orchestrator-test: _tools
 
 # Serves the interface mockup of draft/mockup/ on 127.0.0.1, port 8156 or --port N, through the
 # runtime of NovaTrail's own in tools/mockup/: its page opens a state by its address,
-# /tools/mockup/?screen=home&device=phone, for a browser and for Playwright (R148).
-# Another NovaTrail repository runs it as `just -f spec/justfile mockup`, or node
-# spec/tools/mockup/serve.mjs. It takes nothing from node_modules, since another repository has
-# none in spec/tools/. draft/mockup/README.md is what the mockup holds and how to compare with it.
+# /tools/mockup/?screen=home&device=phone, for a browser and for Playwright. Another NovaTrail
+# repository runs it as `just -f spec/justfile mockup`, or node spec/tools/mockup/serve.mjs. It
+# takes nothing from node_modules, since another repository has none in spec/tools/.
+# draft/mockup/README.md is what the mockup holds and how to compare with it.
 # Serve the interface mockup in a browser.
 [positional-arguments]
 mockup *args:
@@ -133,21 +133,20 @@ mockup *args:
 mockup-test: _tools
     node --test 'tools/mockup/test/*.test.mjs'
 
-# Reads spec's own format/ by the layout of its text: each schema against the conventions of R45 and
-# the 2020-12 meta-schema, each example against its schema, the YAML rules on every example and test
-# vector, the layout of a module and its rules on the cases laid out as one — the ids of the files at
-# <id> and the signatures of the media files among them (R46, R51) —, the rules the text lists against
-# their vectors, and each kind of vector as the text computes it: the open view, built from the
-# marks x-open; the verdicts, of a predicate only blank and notation (R56), with the trap of each
-# wrong value; what the leak check finds in each text of its vectors (R57) and in the texts of a
-# lesson, for the keys of its tasks (R58); the numbers of the generator (R59); the instances of each
-# template, counted, picked and filled, with the rules of a task on every instance (R60), and the
-# results of their solvers as the vectors give them, since spec runs no Starlark (R61); the tiers;
-# the package — its canonical view, the listing of its device part, its inventory and their
-# digests —, and the canonical view of each example of a whole module against its schema (R62);
-# and the module index each vector builds of its release from the index of the release before, or
-# the rule of the index that refuses it (R63). A file it does not know is an error: whatever brings
-# a new kind of file extends the check.
+# Reads spec's own format/ by the layout of its text: each schema against the conventions of its
+# text and the 2020-12 meta-schema, each example against its schema, the YAML rules on every example
+# and test vector, the layout of a module and its rules on the cases laid out as one — the ids of
+# the files at <id> and the signatures of the media files among them —, the rules the text lists
+# against their vectors, and each kind of vector as the text computes it: the open view, built from
+# the marks x-open; the verdicts, of a predicate only blank and notation, with the trap of each
+# wrong value; what the leak check finds in each text of its vectors and in the texts of a lesson,
+# for the keys of its tasks; the numbers of the generator; the instances of each template, counted,
+# picked and filled, with the rules of a task on every instance, and the results of their solvers as
+# the vectors give them, since spec runs no Starlark; the tiers; the package — its canonical view,
+# the listing of its device part, its inventory and their digests —, and the canonical view of each
+# example of a whole module against its schema; and the module index each vector builds of its
+# release from the index of the release before, or the rule of the index that refuses it. A file it
+# does not know is an error: whatever brings a new kind of file extends the check.
 # Check the module format in format/: schemas, examples and test vectors.
 format-check: _tools
     node tools/format-check/main.mjs
@@ -156,13 +155,13 @@ format-check: _tools
 format-check-test: _tools
     node --test 'tools/format-check/test/*.test.mjs'
 
-# Reads spec's own admission/, the admission table (R96), by the layout of its text: VERSION, each
-# schema against the conventions of the format's schemas under the prefix of the table and with no
-# x-open, the codes of the age categories against the format's, the table against its schema and
-# its rules, and its terms and citations against spec's documents — the row of privacy.md's table of
-# the providers' terms on age that a cell reads among them; each example against its schema, each
-# vector of a rule — that it breaks that rule and no other —, and each vector of answers, whose
-# answers it computes as the text gives them, with every reason of a refusal among them.
+# Reads spec's own admission/, the admission table, by the layout of its text: VERSION, each schema
+# against the conventions of the format's schemas under the prefix of the table and with no x-open,
+# the codes of the age categories against the format's, the table against its schema and its rules,
+# and its terms and citations against spec's documents — the row of privacy.md's table of the
+# providers' terms on age that a cell reads among them; each example against its schema, each vector
+# of a rule — that it breaks that rule and no other —, and each vector of answers, whose answers it
+# computes as the text gives them, with every reason of a refusal among them.
 # Check the admission table in admission/: its schemas, the table, examples and test vectors.
 admission-check: _tools
     node tools/admission/main.mjs
@@ -171,10 +170,10 @@ admission-check: _tools
 admission-check-test: _tools
     node --test 'tools/admission/test/*.test.mjs'
 
-# Reads spec's own deployment/, the format of the deployment configuration (R85), by the layout of
-# its text: VERSION, an integer, and the field format of the file that holds it; each schema against
-# the conventions of the format's schemas under the prefix of the configuration, with no x-open and
-# the fields of the file in camelCase; the rules the text lists, in their order; each example against
+# Reads spec's own deployment/, the format of the deployment configuration, by the layout of its
+# text: VERSION, an integer, and the field format of the file that holds it; each schema against the
+# conventions of the format's schemas under the prefix of the configuration, with no x-open and the
+# fields of the file in camelCase; the rules the text lists, in their order; each example against
 # its schema; and each vector of reading, whose cases it reads as the text does, with a file
 # accepted and one refused by the schema and by each rule among them.
 # Check the format of the deployment configuration in deployment/: schemas, examples and vectors.
@@ -185,17 +184,17 @@ deployment-check: _tools
 deployment-check-test: _tools
     node --test 'tools/deployment/test/*.test.mjs'
 
-# Reads spec's own legal/, the legal texts (R130), by the layout of its text: VERSION, an integer,
-# and the field format of the passport that holds it; each schema against the conventions of the
-# format's schemas under the prefix of the legal texts, with no x-open; the rules the text lists, in
-# their order; each example against its schema; each vector of reading, whose cases it reads as
-# the text does, with a part accepted and one refused by the schema and by each rule among them;
-# and the part itself, legal.yaml and the files under texts/, read the same way. For
-# legal.in-force-unchanged it reads the part of the release before, as git archive's files of its
-# tag: the newest release tag in the history of HEAD, other than a tag of HEAD itself unless the
-# working tree changes legal/ (tools/release/previous.mjs), as contracts-check finds the release
-# buf breaking compares with. A release with no legal/ holds the rule; a shallow clone, which has no
-# tags to find it by, is refused.
+# Reads spec's own legal/, the legal texts, by the layout of its text: VERSION, an integer, and the
+# field format of the passport that holds it; each schema against the conventions of the format's
+# schemas under the prefix of the legal texts, with no x-open; the rules the text lists, in their
+# order; each example against its schema; each vector of reading, whose cases it reads as the text
+# does, with a part accepted and one refused by the schema and by each rule among them; and the part
+# itself, legal.yaml and the files under texts/, read the same way. For legal.in-force-unchanged it
+# reads the part of the release before, as git archive's files of its tag: the newest release tag in
+# the history of HEAD, other than a tag of HEAD itself unless the working tree changes legal/
+# (tools/release/previous.mjs), as contracts-check finds the release buf breaking compares with. A
+# release with no legal/ holds the rule; a shallow clone, which has no tags to find it by, is
+# refused.
 # Check the legal texts in legal/: schemas, examples, test vectors and the part itself.
 legal-check: _tools
     node tools/legal/main.mjs
@@ -216,15 +215,15 @@ legal-check-test: _tools
 legal-check-dir folder: _tools
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/legal/main.mjs")}} --dir {{quote(folder)}}
 
-# Reads spec's own consent-age/, the table of the age of digital consent (R134), by the layout of
-# its text: VERSION, an integer, and the field format of the table that holds it; each schema
-# against the conventions of the format's schemas under the prefix of the part, with no x-open; the
-# rules the text lists, in their order; each example against its schema; each vector of reading,
-# whose cases it reads as the text does, with a table accepted and one refused by the schema and by
-# each rule among them; each vector of the category, whose cases it computes as the text does, with
-# every category and both answers to asking the age again among them; and the
-# table itself, consent-age.yaml, read the same way. For consent-age.ages-kept it reads the table of
-# the release before, as legal-check reads its part (tools/release/previous.mjs).
+# Reads spec's own consent-age/, the table of the age of digital consent, by the layout of its text:
+# VERSION, an integer, and the field format of the table that holds it; each schema against the
+# conventions of the format's schemas under the prefix of the part, with no x-open; the rules the
+# text lists, in their order; each example against its schema; each vector of reading, whose cases
+# it reads as the text does, with a table accepted and one refused by the schema and by each rule
+# among them; each vector of the category, whose cases it computes as the text does, with every
+# category and both answers to asking the age again among them; and the table itself,
+# consent-age.yaml, read the same way. For consent-age.ages-kept it reads the table of the release
+# before, as legal-check reads its part (tools/release/previous.mjs).
 # Check the table of the age of digital consent in consent-age/: schemas, examples, vectors and the table.
 consent-age-check: _tools
     node tools/consent-age/main.mjs
@@ -233,12 +232,12 @@ consent-age-check: _tools
 consent-age-check-test: _tools
     node --test 'tools/consent-age/test/*.test.mjs'
 
-# Reads spec's own export/, the format of the export (R135), by the layout of its text: VERSION, an
+# Reads spec's own export/, the format of the export, by the layout of its text: VERSION, an
 # integer, and the field format of each file's schema that holds it; each schema against the
 # conventions of the format's schemas under the prefix of the part, with no x-open; the rules the
 # text lists, in their order; each example against its schema; and each vector of reading, whose
-# cases — exports, unpacked — it reads as the text does, with an export accepted and one refused
-# by the schema and by each rule among them.
+# cases — exports, unpacked — it reads as the text does, with an export accepted and one refused by
+# the schema and by each rule among them.
 # Check the format of the export in export/: schemas, examples and vectors.
 export-check: _tools
     node tools/export/main.mjs
@@ -247,14 +246,14 @@ export-check: _tools
 export-check-test: _tools
     node --test 'tools/export/test/*.test.mjs'
 
-# The types of the module format, generated from its schemas by tools/types (R72): the packages
-# formatv0 and formatv0/open under types/, and admissionv0 of the admission table, generated from
-# admission/schemas (R96), which spec's Go module ships at the tag of every release, each with its
-# TypeScript beside it, index.d.ts, which the npm package @altnovatrail/spec carries (R73), and the
-# registry of tools/types/roundtrip. The generator writes them into a new folder,
-# gofmt aligns the Go, and they take the place of the files in the repository, so that a type no
-# schema gives any more goes too. types/canvas, the types of <novatrail-canvas>, is written by hand
-# (R74): it stays as it is.
+# The types of the module format, generated from its schemas by tools/types: the packages formatv0
+# and formatv0/open under types/, and admissionv0 of the admission table, generated from
+# admission/schemas, which spec's Go module ships at the tag of every release, each with its
+# TypeScript beside it, index.d.ts, which the npm package @altnovatrail/spec carries, and the
+# registry of tools/types/roundtrip. The generator writes them into a new folder, gofmt aligns the
+# Go, and they take the place of the files in the repository, so that a type no schema gives any
+# more goes too. types/canvas, the types of <novatrail-canvas>, is written by hand: it stays as it
+# is.
 # Generate the types of the module format and of the admission table from their schemas again.
 types: _tools
     #!/usr/bin/env bash
@@ -268,23 +267,22 @@ types: _tools
     mv "$out"/types/* types/
     mv "$out/tools/types/roundtrip/registry.go" tools/types/roundtrip/registry.go
 
-# What `just types` would write is what types/ and the registry hold, file for file, and types/ holds
-# nothing else but types/canvas/index.d.ts, the types of <novatrail-canvas>, written by hand (R74).
+# What `just types` would write is what types/ and the registry hold, file for file, and types/
+# holds nothing else but types/canvas/index.d.ts, the types of <novatrail-canvas>, written by hand.
 # Then each value of format/ and admission/ that passes a schema — the examples, the files of every
 # module of the examples and the vectors, the vectors themselves, the canonical view of each example
 # of a whole module and the admission table — is read by its type of formatv0 or admissionv0
-# strictly and written back as it was, and so is the open view of each
-# vector of the open view by its type of open; the part of such a vector that holds a closed field
-# fails to be read by that type (tools/types/corpus.mjs, tools/types/roundtrip). And each value is
-# the value of a declaration of its type in TypeScript, imported from the npm package, which is
-# packed of the working tree and unpacked into the project tsc checks: under the resolution of
-# modules nodenext and under bundler, with a value that holds a closed field refused
-# (tools/types/typescript.mjs, tools/types/npm.mjs). The package is of the line the working tree is
-# numbered in, as its next release's will be, and tsc takes the check of the types of
-# <novatrail-canvas> from it too, tools/types/canvas.check.ts, with the DOM, beside the npm package
-# of the contracts' code, @altnovatrail/contracts of the working tree, and the runtime of
-# protobuf-es it depends on, from tools/node_modules: the check holds the element's marks to the
-# contract's (R83). The corpus is of the working tree, as format-check's files are.
+# strictly and written back as it was, and so is the open view of each vector of the open view by
+# its type of open; the part of such a vector that holds a closed field fails to be read by that
+# type (tools/types/corpus.mjs, tools/types/roundtrip). And each value is the value of a declaration
+# of its type in TypeScript, imported from the npm package, which is packed of the working tree and
+# unpacked into the project tsc checks: under the resolution of modules nodenext and under bundler,
+# with a value that holds a closed field refused (tools/types/typescript.mjs, tools/types/npm.mjs).
+# The package is of the line the working tree is numbered in, as its next release's will be, and tsc
+# takes the check of the types of <novatrail-canvas> from it too, tools/types/canvas.check.ts, with
+# the DOM, beside the npm package of the contracts' code, @altnovatrail/contracts of the working
+# tree, and the runtime of protobuf-es it depends on, from tools/node_modules: the check holds the
+# element's marks to the contract's. The corpus is of the working tree, as format-check's files are.
 # Check the types of the format and the admission table against their schemas and values.
 types-check: _tools
     #!/usr/bin/env bash
@@ -325,68 +323,68 @@ types-check: _tools
 types-test: _tools
     node --test 'tools/types/test/*.test.mjs'
 
-# Reads spec's API contracts in contracts/ by the rules of R83 and contracts/README.md: buf.yaml as
-# R83 fixes it and buf.gen.yaml with local plugins alone, before buf runs; the layout of contracts/;
-# what buf lets pass in a file — a syntax other than proto3, a json_name, an unsigned type, a
-# package without the prefix novatrail. —, by the image buf builds; buf format and buf lint; and,
-# read by the same image, the vectors of the observation, whose joins and verdicts it computes as
-# contracts/README.md gives them, but for what Starlark gives a predicate (R86), the vectors of the
-# rules the device and the runner share, computed the same way (R94), the vectors of the key of a
-# task from paper, whose solver, answers and verdicts it computes as contracts/README.md gives them
-# (R162), the examples of the sample file, strictly, held to its rules, their markup too (R93, R94,
-# R95), and the examples of the runner's report, report-<case>.json, held to its form and to the
-# samples beside them (R95); buf breaking against the previous release, the newest release tag in
-# the history of HEAD other than HEAD's own, whose buf.yaml and contracts/ git archive unpacks,
-# since spec's own history holds every release and no file of a release is needed; and the code buf
-# generates, which contracts/ holds file for file. buf is the toolchain stage's; its Go plugins are
-# the tools of contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file the
-# check stops after the layout, since buf refuses a module without one. A file it does not know is
-# an error: whatever brings a new kind of file extends the check.
-# Check the API contracts in contracts/: buf's rules, R83's own, the generated code, vectors, examples.
+# Reads spec's API contracts in contracts/ by the rules of contracts/README.md: buf.yaml as that
+# text fixes it and buf.gen.yaml with local plugins alone, before buf runs; the layout of
+# contracts/; what buf lets pass in a file — a syntax other than proto3, a json_name, an unsigned
+# type, a package without the prefix novatrail. —, by the image buf builds; buf format and buf lint;
+# and, read by the same image, the vectors of the observation, whose joins and verdicts it computes
+# as contracts/README.md gives them, but for what Starlark gives a predicate, the vectors of the
+# rules the device and the runner share, computed the same way, the vectors of the key of a task
+# from paper, whose solver, answers and verdicts it computes as contracts/README.md gives them, the
+# examples of the sample file, strictly, held to its rules, their markup too, and the examples of
+# the runner's report, report-<case>.json, held to its form and to the samples beside them; buf
+# breaking against the previous release, the newest release tag in the history of HEAD other than
+# HEAD's own, whose buf.yaml and contracts/ git archive unpacks, since spec's own history holds
+# every release and no file of a release is needed; and the code buf generates, which contracts/
+# holds file for file. buf is the toolchain stage's; its Go plugins are the tools of
+# contracts/go.mod, and protoc-gen-es the package of tools/. With no .proto file the check stops
+# after the layout, since buf refuses a module without one. A file it does not know is an error:
+# whatever brings a new kind of file extends the check.
+# Check the API contracts in contracts/: buf's rules and its own, the generated code, vectors, examples.
 contracts-check: _tools
     node tools/contracts/main.mjs
 
 # Runs from a NovaTrail repository's root, as `just -f spec/justfile sample-check eval/a.json …`:
 # each sample file of the eval protocol it names is read strictly and held to the rules of the
-# sample file in contracts/README.md, by the code that holds spec's examples to them (R93, R94),
-# against the image buf builds of this spec's contracts/ — the submodule's, at the tag the
-# repository pins. The folder it is run from is the root: the paths are from it, a path that
-# leaves it — a link that leads out too — or names no file stops the check before buf runs, and a
-# file named twice is checked once. buf is the toolchain stage's and reaches no service, since
-# buf.yaml has no deps (R83), and no key is needed, so a pull request from a fork runs it too;
-# only _tools reaches the npm registry, to install tools/ from its lock file, as docs-check-repo's
-# does, and fails with npm's status. A file that breaks a rule gives file:line: message and the
-# exit status 1; a path, buf, or a call that names no file, since a check of nothing passes
-# nothing, stops it with 2. In spec itself it reads spec's files the same way. With --eval-set and
-# a module's ID first, as `… sample-check --eval-set novatrail/olympiad-math eval/a.json …`, the
-# files are the module's eval set and are held together to the rules of an eval set that need
-# neither its package nor a key — each of the purpose PURPOSE_EVAL_SET, with its markup, of a task
-# of that module, and no two of one ID (R93); an ID that is no module's stops it with 2.
+# sample file in contracts/README.md, by the code that holds spec's examples to them, against the
+# image buf builds of this spec's contracts/ — the submodule's, at the tag the repository pins.
+# The folder it is run from is the root: the paths are from it, a path that leaves it — a link
+# that leads out too — or names no file stops the check before buf runs, and a file named twice is
+# checked once. buf is the toolchain stage's and reaches no service, since buf.yaml has no deps,
+# and no key is needed, so a pull request from a fork runs it too; only _tools reaches the npm
+# registry, to install tools/ from its lock file, as docs-check-repo's does, and fails with npm's
+# status. A file that breaks a rule gives file:line: message and the exit status 1; a path, buf,
+# or a call that names no file, since a check of nothing passes nothing, stops it with 2. In spec
+# itself it reads spec's files the same way. With --eval-set and a module's ID first, as `…
+# sample-check --eval-set novatrail/olympiad-math eval/a.json …`, the files are the module's eval
+# set and are held together to the rules of an eval set that need neither its package nor a key —
+# each of the purpose PURPOSE_EVAL_SET, with its markup, of a task of that module, and no two of
+# one ID; an ID that is no module's stops it with 2.
 # Check sample files of the eval protocol, or a module's eval set with --eval-set, from a repository's root.
 [positional-arguments]
 sample-check *files: _tools
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/contracts/main.mjs")}} --samples "$@"
 
-# Runs from a NovaTrail repository's root, as `just -f spec/justfile report-check eval/report.json …`
-# or `… report-check eval/report.json --samples eval/a.json …`: each file of the runner's report it
-# names before --samples is read strictly and held to the rules of the report in
-# contracts/README.md, by the code that holds spec's examples of the report to them (R95), against
-# the image buf builds of this spec's contracts/, as sample-check reads its files.
+# Runs from a NovaTrail repository's root, as `just -f spec/justfile report-check eval/report.json
+# …` or `… report-check eval/report.json --samples eval/a.json …`: each file of the runner's report
+# it names before --samples is read strictly and held to the rules of the report in
+# contracts/README.md, by the code that holds spec's examples of the report to them, against the
+# image buf builds of this spec's contracts/, as sample-check reads its files.
 # After --samples come the sample files of the reports: each is checked as sample-check checks it,
-# no two may share an ID, and once they all hold, each report is held to them as the examples of
-# the report are to the samples beside them. Its paths, its tools, its lines file:line: message and
-# its statuses are sample-check's, and its last line is report-check's own verdict; --samples with
-# no file after it, or a second time, stops it with 2, as a call that names no report does.
+# no two may share an ID, and once they all hold, each report is held to them as the examples of the
+# report are to the samples beside them. Its paths, its tools, its lines file:line: message and its
+# statuses are sample-check's, and its last line is report-check's own verdict; --samples with no
+# file after it, or a second time, stops it with 2, as a call that names no report does.
 # Check report files of the eval runner, and their samples, from a repository's root.
 [positional-arguments]
 report-check *files: _tools
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/contracts/main.mjs")}} --reports "$@"
 
-# The code buf generates from the contracts, beside the .proto files it comes from (R83): Go of
+# The code buf generates from the contracts, beside the .proto files it comes from: Go of
 # protoc-gen-go and protoc-gen-connect-go, JavaScript with its declarations of protoc-gen-es.
-# buf writes it into a new folder, and it takes the place of the generated files of
-# contracts/, so that a file no .proto gives any more goes too. Then go mod tidy brings
-# contracts/go.mod and go.sum in line with what the code imports, as go-check wants them.
+# buf writes it into a new folder, and it takes the place of the generated files of contracts/,
+# so that a file no .proto gives any more goes too. Then go mod tidy brings contracts/go.mod
+# and go.sum in line with what the code imports, as go-check wants them.
 # Generate the code of the contracts again.
 contracts: _tools
     node tools/contracts/generate.mjs
@@ -399,17 +397,17 @@ contracts: _tools
 contracts-check-test: _tools
     JUST={{quote(just_executable())}} node --test 'tools/contracts/test/*.test.mjs'
 
-# The Go module spec ships at the tag of every release (R64): go.mod and spec.go at the root, which
-# embeds format/, and the types of the module format under types/ (R72). It requires nothing: go
-# list names it alone. Its zip, as the Go module proxy will build it from a tag, is built of HEAD — a
-# commit, not the working tree — by tools/gomod, a module of its own, under the version the line of
-# release.yml at HEAD takes, and read back for LICENSE and every file of format/ and of types/. go
-# fetches golang.org/x/mod for it at the version tools/gomod/go.sum pins. The vet and the tests of
-# this module and of the modules of tools/ are ci-lint's and ci-test's, below.
+# The Go module spec ships at the tag of every release: go.mod and spec.go at the root, which embeds
+# format/, and the types of the module format under types/. It requires nothing: go list names it
+# alone. Its zip, as the Go module proxy will build it from a tag, is built of HEAD — a commit, not
+# the working tree — by tools/gomod, a module of its own, under the version the line of release.yml
+# at HEAD takes, and read back for LICENSE and every file of format/ and of types/. go fetches
+# golang.org/x/mod for it at the version tools/gomod/go.sum pins. The vet and the tests of this
+# module and of the modules of tools/ are ci-lint's and ci-test's, below.
 # The same holds for the module of the contracts, github.com/altnovatrail/spec/contracts in
-# contracts/, which ships at the tag contracts/vX.Y.Z with the number of spec's (R83): its go.mod
-# and go.sum are as go mod tidy leaves them, its go.mod at HEAD requires the runtime of protobuf and
-# of Connect and nothing else, and its zip of HEAD holds LICENSE and every file of contracts/. Its
+# contracts/, which ships at the tag contracts/vX.Y.Z with the number of spec's: its go.mod and
+# go.sum are as go mod tidy leaves them, its go.mod at HEAD requires the runtime of protobuf and of
+# Connect and nothing else, and its zip of HEAD holds LICENSE and every file of contracts/. Its
 # go.mod names buf's Go generators as tools, so its requirements stand before the first .proto too.
 # go list reads the working tree and tools/gomod the commit, so that a requirement of spec's own
 # module is found before it is committed, and what a tag would ship is held as well.
@@ -418,7 +416,7 @@ go-check:
     #!/usr/bin/env bash
     set -euo pipefail
     if [ "$(go list -m all)" != "$(go list -m)" ]; then
-        echo "go-check: spec's Go module requires other modules, and it ships with none (R64):" >&2
+        echo "go-check: spec's Go module requires other modules, and it ships with none:" >&2
         go list -m all >&2
         exit 1
     fi
@@ -432,8 +430,8 @@ go-check:
 
 # The ci- recipes are what .github's shared go.yml runs, one job each, in the toolchain stage of
 # .devcontainer/Dockerfile, as it runs them in every Go repository of NovaTrail: "Go / lint", "Go /
-# test", "Go / vuln" and "Go / licenses" (R16 .github; R30). Each checks every Go module of spec:
-# the root and the modules of tools/, which `./...` at the root does not reach.
+# test", "Go / vuln" and "Go / licenses". Each checks every Go module of spec: the root and the
+# modules of tools/, which `./...` at the root does not reach.
 #
 # The tools only the checks need, at exact versions. Each is a Go program run straight from its
 # module, as module-kit's justfile runs them, so nothing is installed for it: the Go module proxy
@@ -446,9 +444,9 @@ GO_LICENSES := "github.com/google/go-licenses/v2@v2.0.1"
 # testdata/. The tests of tools/gomod build their repositories in temporary folders, and the copies
 # new-repo builds in .repos/ git ignores. The lock file of gopls that the go kind of repo-template
 # gives a copy, repo-template/kinds/go/gopls/, is no module of spec but a file of the template: it
-# is left out (R102). A new module is checked without a change here. A module that holds no Go
-# package yet, as one whose go.mod names only buf's generators as tools (R83), is named and left
-# out, since go vet, go test and govulncheck refuse a pattern that matches nothing.
+# is left out. A new module is checked without a change here. A module that holds no Go package
+# yet, as one whose go.mod names only buf's generators as tools, is named and left out, since go
+# vet, go test and govulncheck refuse a pattern that matches nothing.
 [private]
 _go-modules:
     #!/usr/bin/env bash
@@ -490,11 +488,11 @@ ci-lint:
     done <<< "$modules"
 
 # The profiles of the modules go into coverage/go.out, one profile with one mode line, which the job
-# coverage of .github's shared go.yml sends to Codecov, as "Go / coverage" (R48). Go counts
-# statements, and leaves the tests themselves out; a package that no test runs is in it too, its
-# statements at zero. The code buf generates from the contracts, *.pb.go and *.connect.go under
-# contracts/, is left out of it: contracts-check holds it to what buf generates, and codecov/patch
-# would count every generated line of a new message as a line no test covers (R83).
+# coverage of .github's shared go.yml sends to Codecov, as "Go / coverage". Go counts statements,
+# and leaves the tests themselves out; a package that no test runs is in it too, its statements at
+# zero. The code buf generates from the contracts, *.pb.go and *.connect.go under contracts/, is
+# left out of it: contracts-check holds it to what buf generates, and codecov/patch would count
+# every generated line of a new message as a line no test covers.
 # Run the tests, with the race detector, and write their coverage.
 ci-test:
     #!/usr/bin/env bash
@@ -529,9 +527,9 @@ ci-vuln:
 
 # The list is ALLOWED_LICENSES, SPDX identifiers separated by commas, which .github's go.yml sets
 # from spec's own list; without it, the recipe takes that list itself, as licenses-allowed prints
-# it (R12, R39). A module of tools/ is spec's own code under the LICENSE at the root, which
-# go-licenses looks for no higher than the module's root: its own packages are left out, and every
-# package it is built from is checked.
+# it. A module of tools/ is spec's own code under the LICENSE at the root, which go-licenses looks
+# for no higher than the module's root: its own packages are left out, and every package it is
+# built from is checked.
 # Fail if a package a module is built from carries a license outside that list.
 ci-licenses:
     #!/usr/bin/env bash
@@ -552,26 +550,26 @@ ci-licenses:
     done <<< "$modules"
 
 # Reads the lock file alone, so nothing is installed first. The allowed list and the named
-# exceptions are in tools/licenses/config.mjs (R12).
+# exceptions are in tools/licenses/config.mjs.
 # Check the licenses of the packages in tools/package-lock.json.
 licenses-check:
     node tools/licenses/main.mjs
 
 # Runs from a NovaTrail repository's root, as `just -f spec/justfile licenses-check-repo
 # package-lock.json licenses.json`: every package of that npm lock file against the list in
-# tools/licenses/config.mjs, with the exceptions the repository names in the file given second,
-# if any — a JSON object of packages, each with the license its lock file says, or null, and why
-# it is accepted. An exception for a license off the list holds only for a package the lock file
-# marks dev, a tool that never ships, and for the packages that tool names in optionalDependencies,
-# its builds, while they are dev too and under the same license. Both paths are the repository's,
-# from where the recipe is run, and a path that leaves it is refused. A lock file of npm 5 or 6,
-# with no packages in it, is refused (R39).
+# tools/licenses/config.mjs, with the exceptions the repository names in the file given second, if
+# any — a JSON object of packages, each with the license its lock file says, or null, and why it is
+# accepted. An exception for a license off the list holds only for a package the lock file marks
+# dev, a tool that never ships, and for the packages that tool names in optionalDependencies, its
+# builds, while they are dev too and under the same license. Both paths are the repository's, from
+# where the recipe is run, and a path that leaves it is refused. A lock file of npm 5 or 6, with no
+# packages in it, is refused.
 # Check the licenses of the packages in a repository's npm lock file.
 licenses-check-repo lock exceptions="":
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/licenses/main.mjs")}} --lock={{quote(lock)}} {{ if exceptions == "" { "" } else { "--exceptions=" + quote(exceptions) } }}
 
 # What another repository's license check allows, taken from here rather than copied: one SPDX
-# identifier a line, as tools/licenses/config.mjs lists them (R12, R39).
+# identifier a line, as tools/licenses/config.mjs lists them.
 # Print the licenses a NovaTrail repository may build from.
 licenses-allowed:
     node tools/licenses/main.mjs --allowed
@@ -584,25 +582,24 @@ licenses-check-test:
 # Prints version=, previous=, released= and behind= lines, which a release workflow takes as its
 # step outputs; version= is empty when the commit has a release already or is older than the
 # newest one. The tags are those of the repository the recipe is run from: spec's, or a
-# repository's that runs `just -f spec/justfile release-version`. The commit is HEAD unless
-# given: release.yml gives the commit its checks passed on, by SHA. Refuses a shallow clone,
-# which has no tags to count from. In spec the line is RELEASE_LINE as release.yml sets it at
-# that commit, whatever is checked out or set in the shell, and naming a workflow is refused
-# (R31). A commit that gets a release is refused when, against the release before it and once
-# releases carry the part as files, it needs a raised line and has none: another version of the
-# module format (R44; tools/release/format-line.mjs); a new major package of an API contract,
-# novatrail.<part>.vN with N of 2 or more (R83; contracts-line.mjs); another version of the
-# admission table (R96; admission-line.mjs); and another version, another shape of the schema of
-# its file or other IDs of its rules under the same version of the deployment configuration (R85;
-# deployment-line.mjs), the legal texts (R130; legal-line.mjs), the table of the age of digital
-# consent (R134; consent-age-line.mjs) and the format of the export (R135; export-line.mjs).
-# These four read their part's text by the packages of tools/, so in spec the recipe installs
-# them first.
+# repository's that runs `just -f spec/justfile release-version`. The commit is HEAD unless given:
+# release.yml gives the commit its checks passed on, by SHA. Refuses a shallow clone, which has no
+# tags to count from. In spec the line is RELEASE_LINE as release.yml sets it at that commit,
+# whatever is checked out or set in the shell, and naming a workflow is refused. A commit that
+# gets a release is refused when, against the release before it and once releases carry the part
+# as files, it needs a raised line and has none: another version of the module format
+# (tools/release/format-line.mjs); a new major package of an API contract, novatrail.<part>.vN
+# with N of 2 or more (contracts-line.mjs); another version of the admission table
+# (admission-line.mjs); and another version, another shape of the schema of its file or other IDs
+# of its rules under the same version of the deployment configuration (deployment-line.mjs), the
+# legal texts (legal-line.mjs), the table of the age of digital consent (consent-age-line.mjs) and
+# the format of the export (export-line.mjs). These four read their part's text by the packages of
+# tools/, so in spec the recipe installs them first.
 # Anywhere else — another repository, a working copy in .repos/ among them — the line is
 # RELEASE_LINE as the workflow named second sets it at that commit, a path from the repository's
-# root, whatever the shell sets: a release workflow's own env, the tip's, must not number an
-# older commit. A commit from before that workflow existed takes the checked-out file's line. With
-# no workflow named it is RELEASE_LINE from the environment, and with neither the recipe refuses,
+# root, whatever the shell sets: a release workflow's own env, the tip's, must not number an older
+# commit. A commit from before that workflow existed takes the checked-out file's line. With no
+# workflow named it is RELEASE_LINE from the environment, and with neither the recipe refuses,
 # since that repository's releases take its own line.
 # Print the version the next release takes.
 release-version commit="HEAD" workflow="":
@@ -661,23 +658,22 @@ release-version commit="HEAD" workflow="":
         tags | node {{quote(justfile_directory() / "tools/release/version.mjs")}}
     fi
 
-# spec's own (R64): another repository's release builds its own files, by its own recipe. The
-# folder is a new one, and a relative path is from spec's root. Each normative part with a
-# version of its own goes in as <part>-<version>.tar.gz once the line release.yml sets at the
-# commit reaches the part's FIRST_…_LINE (tools/release/files.mjs; FIRST_FILES_LINE for format/):
-# format/, admission/ (R96), and deployment/ (R85), legal/ (R130), consent-age/ (R134) and
-# export/ (R135), whose versions are integers. Each is git archive of the commit, a folder of that
-# name holding LICENSE and the part as the commit has them, every file and nothing else, which the
-# recipe checks against git ls-tree. From FIRST_NPM_LINE on, the npm package @altnovatrail/spec
-# goes in too, altnovatrail-spec-<X.Y.Z>.tgz, of the release's tag, the recipe's third argument
-# (R73): npm pack of the package that
-# tools/types/npm.mjs writes of the commit's types/, LICENSE and the package's README, read back by
-# tar. From FIRST_CONTRACTS_LINE on, the npm package of the contracts' code, @altnovatrail/contracts,
-# goes in as well, altnovatrail-contracts-<X.Y.Z>.tgz: npm pack of the package tools/contracts/npm.mjs
-# writes of the commit's code of protoc-gen-es under contracts/, LICENSE, the package's README and
-# the runtime tools/package.json pins (R83). A commit of an earlier line gets an empty folder. The
-# recipe reads the commit alone, never the working tree: release.yml builds the files of the commit
-# its checks passed on from the tip's checkout (R31).
+# spec's own: another repository's release builds its own files, by its own recipe. The folder is a
+# new one, and a relative path is from spec's root. Each normative part with a version of its own
+# goes in as <part>-<version>.tar.gz once the line release.yml sets at the commit reaches the part's
+# FIRST_…_LINE (tools/release/files.mjs; FIRST_FILES_LINE for format/): format/, admission/, and
+# deployment/, legal/, consent-age/ and export/, whose versions are integers. Each is git archive of
+# the commit, a folder of that name holding LICENSE and the part as the commit has them, every file
+# and nothing else, which the recipe checks against git ls-tree. From FIRST_NPM_LINE on, the npm
+# package @altnovatrail/spec goes in too, altnovatrail-spec-<X.Y.Z>.tgz, of the release's tag, the
+# recipe's third argument: npm pack of the package that tools/types/npm.mjs writes of the commit's
+# types/, LICENSE and the package's README, read back by tar. From FIRST_CONTRACTS_LINE on, the npm
+# package of the contracts' code, @altnovatrail/contracts, goes in as well,
+# altnovatrail-contracts-<X.Y.Z>.tgz: npm pack of the package tools/contracts/npm.mjs writes of the
+# commit's code of protoc-gen-es under contracts/, LICENSE, the package's README and the runtime
+# tools/package.json pins. A commit of an earlier line gets an empty folder. The recipe reads the
+# commit alone, never the working tree: release.yml builds the files of the commit its checks passed
+# on from the tip's checkout.
 # Build the files of spec's release of a commit into a new folder.
 release-files commit dir tag="":
     #!/usr/bin/env bash
@@ -740,8 +736,8 @@ release-files commit dir tag="":
 # tip is the one the caller fetched after the refusal; the commit must be in its history, since
 # only then does the tip's release cover it. The error is the file gh wrote its stderr to. Exits
 # 0 when the refusal is that one, and 1 with the reason when it is not or when anything cannot be
-# read: a release refused for any other reason fails its run (R31). spec's release.yml runs it,
-# and so may another repository's, by `just -f spec/justfile`.
+# read: a release refused for any other reason fails its run. spec's release.yml runs it, and so
+# may another repository's, by `just -f spec/justfile`.
 # Tell whether a refusal of the Releases API is the one a newer tip covers.
 release-refusal commit tip error:
     #!/usr/bin/env bash
@@ -778,29 +774,30 @@ release-refusal commit tip error:
     fi
     echo "release-refusal: ${commit} is no longer the tip of main (${tip}) and adds or modifies its workflow files; the release of the tip covers it"
 
-# A file of a NovaTrail release enters NovaTrail only through this check (R77): the release <tag>
-# of <repository>, its file, and the file's cosign bundle, <file>.sigstore.json beside it unless
+# A file of a NovaTrail release enters NovaTrail only through this check: the release <tag> of
+# <repository>, its file, and the file's cosign bundle, <file>.sigstore.json beside it unless
 # named; paths are from the caller's directory. tools/release/verify.mjs verifies the bundle for
 # the file's bytes by sigstore-js against Sigstore's trust root, which TUF reads afresh from
-# Sigstore on every run, and holds the certificate's fields to R77: a file of spec is signed by
-# spec's release.yml on main and bound to its tag by what it holds; a file of any other
-# repository is signed by the shared release.yml of .github, at the commit of a release of
-# .github, v0.1.7 or newer, on its main, at the call of the repository's release.yml on main, of
-# the commit of the tag. What GitHub holds it reads through git, with no token and none of the
-# caller's git settings; the repositories' numeric IDs are tools/release/repositories.mjs. When
-# Sigstore or GitHub cannot be read, the file is refused. Another repository runs it by
-# `just -f spec/justfile release-verify`, in its toolchain stage, which reaches the network.
-# Verify the signature of a release's file against R77.
+# Sigstore on every run, and holds the certificate's fields to what a NovaTrail release is signed
+# with: a file of spec is signed by spec's release.yml on main and bound to its tag by what it
+# holds; a file of any other repository is signed by the shared release.yml of .github, at the
+# commit of a release of .github, v0.1.7 or newer, on its main, at the call of the repository's
+# release.yml on main, of the commit of the tag. What GitHub holds it reads through git, with no
+# token and none of the caller's git settings; the repositories' numeric IDs are
+# tools/release/repositories.mjs. When Sigstore or GitHub cannot be read, the file is refused.
+# Another repository runs it by `just -f spec/justfile release-verify`, in its toolchain stage,
+# which reaches the network.
+# Verify the signature of a release's file and every field of its certificate.
 release-verify repository tag file bundle="": _tools
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/release/verify.mjs")}} {{quote(repository)}} {{quote(tag)}} {{quote(file)}} {{ if bundle == "" { "" } else { quote(bundle) } }}
 
-# The same check, for each package of @altnovatrail in an npm lock file of lockfileVersion 2 or 3
-# (R37, R77): the archive from the registry, at the lock file's resolved address, verified as the
-# release file of the same name, against the bundle that release holds, and the lock file's
-# integrity held to the verified bytes. From then on the integrity holds the version. A link to a
-# folder is named and skipped; a lock file with no such package has nothing to verify. RULES.md
-# has a repository run it in CI of each pull request that changes the lock file.
-# Verify each package of @altnovatrail in an npm lock file against R77.
+# The same check, for each package of @altnovatrail in an npm lock file of lockfileVersion 2 or
+# 3: the archive from the registry, at the lock file's resolved address, verified as the release
+# file of the same name, against the bundle that release holds, and the lock file's integrity
+# held to the verified bytes. From then on the integrity holds the version. A link to a folder is
+# named and skipped; a lock file with no such package has nothing to verify. RULES.md has a
+# repository run it in CI of each pull request that changes the lock file.
+# Verify each package of @altnovatrail in an npm lock file against its release's signature.
 release-verify-npm lock: _tools
     cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/release/verify.mjs")}} --npm {{quote(lock)}}
 
@@ -838,14 +835,14 @@ new-repo-test: _tools
     node --test 'tools/new-repo/test/*.test.mjs'
 
 # The tests of every tool above in one run, with the coverage of the code they test: a summary
-# after the tests, and coverage/lcov.info, its paths from the repository's root (R48). Node leaves
-# the tests themselves and node_modules/ out of the report. A module that no test loads is not in
-# it at all, and codecov/patch would never count its lines, so the recipe fails on any module of
-# tools/ the report does not name, by tools/coverage/untested.sh. Node measures JavaScript alone:
+# after the tests, and coverage/lcov.info, its paths from the repository's root. Node leaves the
+# tests themselves and node_modules/ out of the report. A module that no test loads is not in it at
+# all, and codecov/patch would never count its lines, so the recipe fails on any module of tools/
+# the report does not name, by tools/coverage/untested.sh. Node measures JavaScript alone:
 # toolchain.sh and the bash recipes here have their tests, but no coverage. Then the tests of every
 # Go module, as ci-test runs them, with their profile in coverage/go.out, which "Go / coverage"
-# sends from its own run of ci-test (R48). CI runs the same tests of tools/ in parts, by
-# coverage-part, and the Go tests in "Go / test" alone.
+# sends from its own run of ci-test. CI runs the same tests of tools/ in parts, by coverage-part,
+# and the Go tests in "Go / test" alone.
 # Run every test of tools/ and of the Go modules once, and write their coverage.
 coverage: _tools
     #!/usr/bin/env bash
@@ -857,8 +854,8 @@ coverage: _tools
 # Part <k> of <n> of the tests of tools/, as a job of CI runs it: the test files that node --test
 # --test-shard gives that part — every n-th of them, from the k-th, in the order of their paths —,
 # with their coverage in coverage/lcov.info, which CI sends to Codecov with the reports of the
-# other parts (R48). Whether every module of tools/ is in a report, CI asks of the reports of all
-# the parts together, by tools/coverage/untested.sh.
+# other parts. Whether every module of tools/ is in a report, CI asks of the reports of all the
+# parts together, by tools/coverage/untested.sh.
 # Run one part of the tests of tools/, and write its coverage.
 coverage-part k n: _tools
     #!/usr/bin/env bash

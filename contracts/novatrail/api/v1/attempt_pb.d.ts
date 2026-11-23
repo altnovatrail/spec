@@ -6,7 +6,8 @@
 // and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
 // with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
-// with the same idempotency key answers are the rules of contracts/README.md, section 15.
+// with the same idempotency key answers are the rules of contracts/README.md for
+// the contract between `app` and `api`.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -81,7 +82,7 @@ export declare type SubmitWorkRequest = Message<"novatrail.api.v1.SubmitWorkRequ
    * The provider of the learner's own key, by its code in the admission table, without the key:
    * with a profile of its owner that checks the tasks by its own key, on a submission with no
    * `work`, which AI would read, and so with no `own_key`, so that the engine's choice in `next`
-   * goes by that route (R84; R99). Empty on platform AI. A submission with it beside `work` or
+   * goes by that route. Empty on platform AI. A submission with it beside `work` or
    * `own_key` gets the code `invalid_argument`: there the route is that of `own_key`, or platform
    * AI's without one.
    *
@@ -128,7 +129,7 @@ export declare type SubmitWorkResponse = Message<"novatrail.api.v1.SubmitWorkRes
 
   /**
    * The solved task, when every item is correct and the attempt is closed `CLOSE_REASON_CORRECT`:
-   * empty on a task from paper, which shows neither its key nor a solution (R05).
+   * empty on a task from paper, which shows neither its key nor a solution.
    *
    * @generated from field: novatrail.api.v1.SolvedTask solved = 4;
    */
@@ -204,7 +205,7 @@ export declare type SubmitEssayRequest = Message<"novatrail.api.v1.SubmitEssayRe
 export declare const SubmitEssayRequestSchema: GenMessage<SubmitEssayRequest>;
 
 /**
- * How a submission of an essay ended (R87). No verdict: an item with a rubric has none.
+ * How a submission of an essay ended. No verdict: an item with a rubric has none.
  *
  * @generated from message novatrail.api.v1.SubmitEssayResponse
  */
@@ -295,7 +296,7 @@ export declare type DoneRequest = Message<"novatrail.api.v1.DoneRequest"> & {
   /**
    * The provider of the learner's own key, by its code in the admission table, without the key:
    * with a profile of its owner that checks the tasks by its own key, so that the engine's choice
-   * in `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+   * in `next` goes by that route, though the request calls no AI. Empty on platform AI.
    *
    * @generated from field: string own_key_provider = 3;
    */
@@ -877,7 +878,7 @@ export declare type GetHintResponse = Message<"novatrail.api.v1.GetHintResponse"
    * the instance that the attempt got: the author's question that breaks the task down, in the
    * module's explanation language. Empty when the task has none, and always empty with the rung's
    * words: after the first wrong answer it is no more given. The server records it as given only
-   * when it is not empty, as it records a technique given on request (R108).
+   * when it is not empty, as it records a technique given on request.
    *
    * @generated from field: string leading_question = 3;
    */
@@ -1029,7 +1030,7 @@ export declare type ShowSolutionRequest = Message<"novatrail.api.v1.ShowSolution
   /**
    * The provider of the learner's own key, by its code in the admission table, without the key:
    * with a profile of its owner that checks the tasks by its own key, so that the engine's choice
-   * in `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+   * in `next` goes by that route, though the request calls no AI. Empty on platform AI.
    *
    * @generated from field: string own_key_provider = 5;
    */
@@ -1154,7 +1155,7 @@ export declare type ReportProblemResponse = Message<"novatrail.api.v1.ReportProb
   reportId: string;
 
   /**
-   * When the operator reviews it by: 3 days after it came (R123).
+   * When the operator reviews it by: 3 days after it came.
    *
    * @generated from field: google.protobuf.Timestamp review_by = 2;
    */
@@ -1199,7 +1200,7 @@ export declare type Work = Message<"novatrail.api.v1.Work"> & {
     case: "workbook";
   } | {
     /**
-     * A dotted sheet under the crop of a task from paper, as tracing paper (R162).
+     * A dotted sheet under the crop of a task from paper, as tracing paper.
      *
      * @generated from field: novatrail.api.v1.PaperWork paper = 3;
      */
@@ -1584,7 +1585,7 @@ export declare type Mark = Message<"novatrail.api.v1.Mark"> & {
 
   /**
    * Where the mark stands. A group's label comes only if the frames of the groups go with the work
-   * (repositories 8, Т-31).
+   * (Т-31).
    *
    * @generated from oneof novatrail.api.v1.Mark.place
    */
@@ -1709,7 +1710,7 @@ export enum TutorReply {
 export declare const TutorReplySchema: GenEnum<TutorReply>;
 
 /**
- * What is wrong with the tutor's words: the closed set the person picks one word of (R123).
+ * What is wrong with the tutor's words: the closed set the person picks one word of.
  *
  * @generated from enum novatrail.api.v1.ProblemKind
  */
@@ -1770,7 +1771,7 @@ export enum ProblemKind {
 export declare const ProblemKindSchema: GenEnum<ProblemKind>;
 
 /**
- * Whose action a request is: the server tells kinds of action apart, not people (R04 api).
+ * Whose action a request is: the server tells kinds of action apart, not people.
  *
  * @generated from enum novatrail.api.v1.Action
  */
@@ -1824,7 +1825,7 @@ export enum MarkKind {
 
   /**
    * A wavy line under the place of the first mistake: on a task from paper alone, at a box on the
-   * crop, and only while the profile's hint mode is `HINT_MODE_SHOW_WHERE` (R162).
+   * crop, and only while the profile's hint mode is `HINT_MODE_SHOW_WHERE`.
    *
    * @generated from enum value: MARK_KIND_WAVY_LINE = 2;
    */
@@ -1849,10 +1850,10 @@ export declare const MarkKindSchema: GenEnum<MarkKind>;
  * solution shown or by "Done" says what comes next, `next`: an attempt begins by
  * `LearningService`. The engine's choice in `next` goes by the route to AI that the request
  * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
- * AI's without either, as `ChooseNext` judges it (R84; R99). An attempt of a task from paper
- * (R162) has an item with one answer slot for each task its crop holds, from 1 to 20, no `next`,
+ * AI's without either, as `ChooseNext` judges it. An attempt of a task from paper
+ * has an item with one answer slot for each task its crop holds, from 1 to 20, no `next`,
  * and nothing to show: its key, the solver's or the AI's, the first submission derives, `api`
- * keeps it while the attempt is open, and it never reaches the device (R05).
+ * keeps it while the attempt is open, and it never reaches the device.
  *
  * @generated from service novatrail.api.v1.AttemptService
  */
@@ -1970,7 +1971,7 @@ export declare const AttemptService: GenService<{
   /**
    * "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
    * call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
-   * how to begin the task it holds, or the first of a frame of several (R82; R162). Refusals:
+   * how to begin the task it holds, or the first of a frame of several. Refusals:
    * `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
    * `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
    * `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
@@ -1992,7 +1993,7 @@ export declare const AttemptService: GenService<{
    * learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
    * and the Check that derives the key takes it with no call of its own. An attempt that keeps a
    * reading or a key gives its statements with no AI. The answer holds the statements alone, never
-   * a formula nor a key (R05). Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+   * a formula nor a key. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
    * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
    * `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
    * the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
@@ -2022,7 +2023,7 @@ export declare const AttemptService: GenService<{
    * `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
    * `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
    * an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
-   * section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
+   * section for adults is a barrier of the interface, not of the server. Refusals:
    * `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
    * `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
    * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
@@ -2038,9 +2039,9 @@ export declare const AttemptService: GenService<{
   /**
    * Reports a problem with the tutor's words of the attempt, from the screen of the task: a
    * learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
-   * `app` decides (privacy 9, П-26). `api` keeps the report until the operator reviews it, within 3
-   * days, and for a year after, by its own clock, and the operator follows the path of escalation
-   * (R123; R136). Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
+   * `app` decides (П-26). `api` keeps the report until the operator reviews it, within 3
+   * days, and for a year after, by its own clock, and the operator follows the path of escalation.
+   * Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
    * the words and the text as they were written, so `app` asks the person to write no name in it.
    * Refusals: `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency
    * key gets the same report.

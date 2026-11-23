@@ -4,8 +4,8 @@ package legalv3
 
 // Legal is the type of legal.schema.json.
 //
-// The passport of the legal texts, legal/legal.yaml (section 4 of the legal text): the texts, their
-// versions with their status, date and summary, and the sets of texts of the samples page.
+// The passport of the legal texts, legal/legal.yaml: the texts, their versions with their status,
+// date and summary, and the sets of texts of the samples page.
 type Legal struct {
 	// The version of the part, the integer in legal/VERSION.
 	Format int64 `json:"format"`

@@ -5,14 +5,13 @@ package deploymentv1
 // Deployment is the type of deployment.schema.json.
 //
 // The file /deployment.json, which app reads at every start from the root of its origin, beside its
-// signed build (section 4 of the deployment text). It holds no secret: every browser that opens app
-// gets it.
+// signed build. It holds no secret: every browser that opens app gets it.
 type Deployment struct {
 	// The version of the format, the integer in deployment/VERSION.
 	Format int64 `json:"format"`
 	// The origin of api: a scheme, a host in lower case and perhaps a port, with no path, query,
 	// fragment or credentials; https, or http on a loopback host. That it is equal to its own
-	// origin, and that http needs app itself on a loopback host, are rules of reading (section 5).
+	// origin, and that http needs app itself on a loopback host, are rules of reading the file.
 	API string `json:"api"`
 	// The sign-in service and the parameters of its project.
 	SignIn SignIn `json:"signIn"`

@@ -6,7 +6,7 @@
 // an eval set, sample by sample — the verdict on each answer slot's truth and on what the models
 // read, an essay's marks by people and by AI, or why a sample was refused —, with no value, text,
 // stroke or crop of any work. What it holds, and how the measures are counted from it, are the
-// rules of contracts/README.md, section 14.
+// rules of contracts/README.md for the runner's report.
 
 import { enumDesc, fileDesc, messageDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_novatrail_eval_v1_sample } from "./sample_pb.js";

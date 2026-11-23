@@ -4,15 +4,16 @@ package admissionv0
 
 // AdmissionTable is the type of admission-table.schema.json.
 //
-// The rules of admission to AI by age category (section 4 of the admission text): the AI providers,
-// the dictionary of deployment facts, the rule of each capability of AI for each age category, and
-// the cell of each provider, AI route and age category. What the table does not name is closed.
+// The rules of admission to AI by age category: the AI providers, the dictionary of deployment
+// facts, the rule of each capability of AI for each age category, and the cell of each provider, AI
+// route and age category. What the table does not name is closed.
 type AdmissionTable struct {
 	// The AI providers the table knows, by code: the code that tutor's adapters and the admission
-	// function name a provider by. A provider that is not here is closed (R65).
+	// function name a provider by. A provider that is not here is closed until its terms are
+	// checked in full.
 	Providers map[Provider]AiProvider `json:"providers"`
 	// The dictionary of deployment facts, by code: what an operator declares about its agreements
-	// with each provider, for some age categories (section 5 of the admission text).
+	// with each provider, for some age categories.
 	Facts map[Fact]DeploymentFact `json:"facts"`
 	// The rule of each capability of AI for each age category: the first part of the table, which
 	// the admission function checks first. A capability and age category with no rule are closed.
@@ -29,9 +30,11 @@ type Provider string
 
 // AiProvider is the type of admission-table.schema.json#/$defs/ai_provider.
 //
-// An AI provider of the table: what privacy 5.3 names it.
+// An AI provider of the table: what the table of the providers' terms on age in `docs/privacy.md`
+// names it.
 type AiProvider struct {
-	// The provider's name, as privacy 5.3 names it.
+	// The provider's name, as the table of the providers' terms on age in `docs/privacy.md` names
+	// it.
 	Name string `json:"name"`
 }
 
@@ -64,12 +67,12 @@ type CapabilityRule struct {
 
 // Capability is the type of admission-table.schema.json#/$defs/capability.
 //
-// A capability of AI (concepts 10): reading handwriting, reading text, the analysis of a solution's
-// steps, the assessment by a rubric, the hint, the words after a correct answer — the praise of a
-// step and the question of which technique helped —, voice — the voicing of the tutor by a provider
-// and the learner's voice input, which are one capability for now —, and for a task from paper the
-// finding of the tasks on the photo of a page, the reading of a task's statement into a formula for
-// the solver, and the solving of a task for its key.
+// A capability of AI: reading handwriting, reading text, the analysis of a solution's steps, the
+// assessment by a rubric, the hint, the words after a correct answer — the praise of a step and the
+// question of which technique helped —, voice — the voicing of the tutor by a provider and the
+// learner's voice input, which are one capability for now —, and for a task from paper the finding
+// of the tasks on the photo of a page, the reading of a task's statement into a formula for the
+// solver, and the solving of a task for its key.
 type Capability string
 
 // The values of Capability.
@@ -88,8 +91,8 @@ const (
 
 // AgeCategory is the type of admission-table.schema.json#/$defs/age_category.
 //
-// An age category, by its code (R46): under 13; from 13 to the age of digital consent in the
-// learner's country; from that age to 18; 18 and over.
+// An age category, by its code, the module format's: under 13; from 13 to the age of digital
+// consent in the learner's country; from that age to 18; 18 and over.
 type AgeCategory string
 
 // The values of AgeCategory.
@@ -119,8 +122,8 @@ type Basis []Citation
 
 // Citation is the type of admission-table.schema.json#/$defs/citation.
 //
-// What a rule or a cell rests on, in spec's documents: a decision, R47; an open question of a
-// register, П-4; or a section of a document, privacy 5.3.
+// What a rule or a cell rests on, in spec's documents: a decision, as `R47`; an open question of a
+// register, as `П-4`; or a section of a document, as `privacy 5.3`.
 type Citation string
 
 // Cell is the type of admission-table.schema.json#/$defs/cell.
@@ -137,14 +140,13 @@ type Cell struct {
 	// Whether the provider, on the route, may receive the work of a learner of the category:
 	// closed; open; or open with facts — only when every deployment fact in facts holds for the
 	// provider and the category. On the own key a cell is closed or open, never open with facts:
-	// the agreement with the provider is the key owner's, and a deployment declares nothing of it
-	// (privacy 5.2).
+	// the agreement with the provider is the key owner's, and a deployment declares nothing of it.
 	Admission CellAdmission `json:"admission"`
 	// The deployment facts that open the cell, by code in facts, in the order the admission
 	// function checks them. Only a cell open with facts has them.
 	Facts []Fact `json:"facts,omitzero"`
-	// The provider's terms that the cell reads: each its row of privacy 5.3 and the date it was
-	// read.
+	// The provider's terms that the cell reads: each its row of the table of the providers' terms
+	// on age in `docs/privacy.md` and the date it was read.
 	Terms []Terms `json:"terms"`
 	// What the cell rests on besides the provider's terms.
 	Basis Basis `json:"basis"`
@@ -153,7 +155,7 @@ type Cell struct {
 // AiRoute is the type of admission-table.schema.json#/$defs/ai_route.
 //
 // An AI route: platform AI, under the platform's agreements with the providers, or the own key of
-// an account owner who learns, at the profile of the category adult (concepts 14).
+// an account owner who learns, at the profile of the category adult.
 type AiRoute string
 
 // The values of AiRoute.
@@ -167,7 +169,7 @@ const (
 // Whether the provider, on the route, may receive the work of a learner of the category: closed;
 // open; or open with facts — only when every deployment fact in facts holds for the provider and
 // the category. On the own key a cell is closed or open, never open with facts: the agreement with
-// the provider is the key owner's, and a deployment declares nothing of it (privacy 5.2).
+// the provider is the key owner's, and a deployment declares nothing of it.
 type CellAdmission string
 
 // The values of CellAdmission.
@@ -179,10 +181,11 @@ const (
 
 // Terms is the type of admission-table.schema.json#/$defs/terms.
 //
-// The provider's terms that a cell reads, by its row of privacy 5.3 and the date they were read.
+// The provider's terms that a cell reads, by its row of the table of the providers' terms on age in
+// `docs/privacy.md` and the date they were read.
 type Terms struct {
-	// The provider's row in the table of privacy 5.3, as its first column names it: OpenAI, Google
-	// Cloud, Vertex AI.
+	// The provider's row in the table of the providers' terms on age in `docs/privacy.md`, as its
+	// first column names it: OpenAI, Google Cloud, Vertex AI.
 	Row string `json:"row"`
 	// The date the provider's terms that the row quotes were last read, YYYY-MM-DD.
 	Read string `json:"read"`

@@ -4,7 +4,8 @@
 
 // The way from a module to a task in the contract between `app` and `api`: the engine's choice, the
 // beginning of an attempt and the open attempt, and lessons, which `api` leads by lesson runs. What
-// each message means is the rule of contracts/README.md, section 15.
+// each message means is the rule of contracts/README.md for the contract
+// between `app` and `api`.
 package apiv1connect
 
 import (
@@ -120,7 +121,7 @@ type LearningServiceClient interface {
 	// `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
 	// `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. An attempt of a task
 	// from paper gets `invalid_argument`: it has no open view, and only the device that holds its
-	// page goes on with it (R162). It repeats by the state of the attempt.
+	// page goes on with it. It repeats by the state of the attempt.
 	GetOpenAttempt(context.Context, *v1.GetOpenAttemptRequest) (*v1.GetOpenAttemptResponse, error)
 	// Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
 	// or else a new run on the package of the module's current version. A choice opens one run: once
@@ -184,7 +185,7 @@ type LearningServiceHandler interface {
 	// `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
 	// `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. An attempt of a task
 	// from paper gets `invalid_argument`: it has no open view, and only the device that holds its
-	// page goes on with it (R162). It repeats by the state of the attempt.
+	// page goes on with it. It repeats by the state of the attempt.
 	GetOpenAttempt(context.Context, *v1.GetOpenAttemptRequest) (*v1.GetOpenAttemptResponse, error)
 	// Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
 	// or else a new run on the package of the module's current version. A choice opens one run: once

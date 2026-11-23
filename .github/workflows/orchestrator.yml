@@ -1,14 +1,14 @@
 # The stage orchestrator of .devcontainer/Dockerfile, spec's second devcontainer, in which no check
-# runs (R156): built as its configuration builds it on the host, through the devcontainer stage,
+# runs: built as its configuration builds it on the host, through the devcontainer stage,
 # which no other workflow builds, and then asked, as the user vscode, for the containers of the
 # runner's Docker and for the version of the Dev Containers CLI. The runner is a host with Docker on
 # Linux, so docker-group.sh reads its socket as it reads the author's. Both architectures, so that
-# each sum of the Dockerfile is checked by a build (R34). The image comes from no cache and goes
+# each sum of the Dockerfile is checked by a build. The image comes from no cache and goes
 # nowhere.
 #
 # It runs when what it builds changes, and its job is no required check of the ruleset of main: a
 # required check whose workflow a filter of paths skips stays "Pending" and blocks the merge
-# (GitHub Docs, Workflow syntax, read 2026-11-15; R30).
+# (GitHub Docs, Workflow syntax, read 2026-11-15).
 name: Orchestrator
 
 on:

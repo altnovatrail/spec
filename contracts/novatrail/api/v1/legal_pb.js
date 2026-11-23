@@ -5,8 +5,8 @@
 // The legal texts in the contract between `app` and `api`: the privacy policy, the terms of use
 // and the consents that `app` shows as its own pages, each in its current version and its next
 // one, with its gist in the language of the screen. The texts are those of the legal part,
-// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of contracts/README.md,
-// section 15.
+// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of
+// contracts/README.md for the contract between `app` and `api`.
 
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 
@@ -45,7 +45,7 @@ export const LegalTextRefSchema = /*@__PURE__*/
   messageDesc(file_novatrail_api_v1_legal, 3);
 
 /**
- * The legal texts that `app` shows (R130). The method goes without a token and without the ID of a
+ * The legal texts that `app` shows. The method goes without a token and without the ID of a
  * profile, by Connect GET: the policy is read before signing in. It has the idempotency level
  * `NO_SIDE_EFFECTS`, and `app` calls it with no header — no `Connect-Timeout-Ms` either, which
  * would make the request not simple and send a preflight before it. It has no refusal of its own:

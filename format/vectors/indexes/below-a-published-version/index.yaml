@@ -1,7 +1,7 @@
 # The release builds the times tables 0.1.1, a fix of 0.1.0, after 0.2.0 is published: a version that
 # the previous index does not name, and below one of its module that it does. The index refuses it,
 # as diff would have refused the new version: a release whose CI did not compare the versions is
-# caught here (section 27). Another version of the line of 0.2.0, above it, fixes 0.1.0 instead.
+# caught here. Another version of the line of 0.2.0, above it, fixes 0.1.0 instead.
 previous:
   module_format_version: "0.4"
   modules:

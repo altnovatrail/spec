@@ -5,7 +5,8 @@
 // The stored works in the contract between `app` and `api`: the works of a profile that the server
 // keeps while the storage of its works is on, each as the device holds it — the history of
 // writing, the contexts of its submissions and its picture —, put, listed, read back and erased one
-// at a time (R113). What each message means is the rule of contracts/README.md, section 15.
+// at a time. What each message means is the rule of contracts/README.md for the
+// contract between `app` and `api`.
 
 import { enumDesc, fileDesc, messageDesc, serviceDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
@@ -115,7 +116,7 @@ export const WorkKind = /*@__PURE__*/
  * that is not the profile's `CAUSE_NOT_FOUND`, a learning request of a profile whose consent is not
  * confirmed `CAUSE_NO_CONSENT` and one of a profile whose age is to be given again
  * `CAUSE_AGE_NEEDED` — but for `DeleteWork` and the learner's `ListWorks` and `GetWork`, which
- * neither refuses (R113) —, a request without the right it needs the code `permission_denied`
+ * neither refuses —, a request without the right it needs the code `permission_denied`
  * with no `Refusal`, and a request whose form the contract refuses the code `invalid_argument`
  * with no `Refusal`. Each repeats by the state of the profile's works, with no idempotency key.
  * The server reads no work and gives none to an AI provider.

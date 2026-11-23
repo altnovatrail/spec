@@ -15,19 +15,20 @@
 /**
  * AdmissionTable is the type of admission-table.schema.json.
  *
- * The rules of admission to AI by age category (section 4 of the admission text): the AI providers,
- * the dictionary of deployment facts, the rule of each capability of AI for each age category, and
- * the cell of each provider, AI route and age category. What the table does not name is closed.
+ * The rules of admission to AI by age category: the AI providers, the dictionary of deployment
+ * facts, the rule of each capability of AI for each age category, and the cell of each provider, AI
+ * route and age category. What the table does not name is closed.
  */
 export interface AdmissionTable {
   /**
    * The AI providers the table knows, by code: the code that tutor's adapters and the admission
-   * function name a provider by. A provider that is not here is closed (R65).
+   * function name a provider by. A provider that is not here is closed until its terms are checked
+   * in full.
    */
   readonly providers: Readonly<Record<Provider, AiProvider>>;
   /**
    * The dictionary of deployment facts, by code: what an operator declares about its agreements
-   * with each provider, for some age categories (section 5 of the admission text).
+   * with each provider, for some age categories.
    */
   readonly facts: Readonly<Record<Fact, DeploymentFact>>;
   /**
@@ -52,11 +53,12 @@ export type Provider = string;
 /**
  * AiProvider is the type of admission-table.schema.json#/$defs/ai_provider.
  *
- * An AI provider of the table: what privacy 5.3 names it.
+ * An AI provider of the table: what the table of the providers' terms on age in `docs/privacy.md`
+ * names it.
  */
 export interface AiProvider {
   /**
-   * The provider's name, as privacy 5.3 names it.
+   * The provider's name, as the table of the providers' terms on age in `docs/privacy.md` names it.
    */
   readonly name: string;
 }
@@ -107,20 +109,20 @@ export interface CapabilityRule {
 /**
  * Capability is the type of admission-table.schema.json#/$defs/capability.
  *
- * A capability of AI (concepts 10): reading handwriting, reading text, the analysis of a solution's
- * steps, the assessment by a rubric, the hint, the words after a correct answer — the praise of a
- * step and the question of which technique helped —, voice — the voicing of the tutor by a provider
- * and the learner's voice input, which are one capability for now —, and for a task from paper the
- * finding of the tasks on the photo of a page, the reading of a task's statement into a formula for
- * the solver, and the solving of a task for its key.
+ * A capability of AI: reading handwriting, reading text, the analysis of a solution's steps, the
+ * assessment by a rubric, the hint, the words after a correct answer — the praise of a step and the
+ * question of which technique helped —, voice — the voicing of the tutor by a provider and the
+ * learner's voice input, which are one capability for now —, and for a task from paper the finding
+ * of the tasks on the photo of a page, the reading of a task's statement into a formula for the
+ * solver, and the solving of a task for its key.
  */
 export type Capability = "handwriting_reading" | "text_reading" | "solution_analysis" | "rubric_assessment" | "hint" | "correct_answer_words" | "voice" | "task_finding" | "statement_reading" | "task_solving";
 
 /**
  * AgeCategory is the type of admission-table.schema.json#/$defs/age_category.
  *
- * An age category, by its code (R46): under 13; from 13 to the age of digital consent in the
- * learner's country; from that age to 18; 18 and over.
+ * An age category, by its code, the module format's: under 13; from 13 to the age of digital
+ * consent in the learner's country; from that age to 18; 18 and over.
  */
 export type AgeCategory = "under_13" | "from_13_to_consent" | "from_consent_to_18" | "adult";
 
@@ -142,8 +144,8 @@ export type Basis = readonly Citation[];
 /**
  * Citation is the type of admission-table.schema.json#/$defs/citation.
  *
- * What a rule or a cell rests on, in spec's documents: a decision, R47; an open question of a
- * register, П-4; or a section of a document, privacy 5.3.
+ * What a rule or a cell rests on, in spec's documents: a decision, as `R47`; an open question of a
+ * register, as `П-4`; or a section of a document, as `privacy 5.3`.
  */
 export type Citation = string;
 
@@ -170,7 +172,7 @@ export interface Cell {
    * Whether the provider, on the route, may receive the work of a learner of the category: closed;
    * open; or open with facts — only when every deployment fact in facts holds for the provider and
    * the category. On the own key a cell is closed or open, never open with facts: the agreement
-   * with the provider is the key owner's, and a deployment declares nothing of it (privacy 5.2).
+   * with the provider is the key owner's, and a deployment declares nothing of it.
    */
   readonly admission: CellAdmission;
   /**
@@ -179,7 +181,8 @@ export interface Cell {
    */
   readonly facts?: readonly Fact[];
   /**
-   * The provider's terms that the cell reads: each its row of privacy 5.3 and the date it was read.
+   * The provider's terms that the cell reads: each its row of the table of the providers' terms on
+   * age in `docs/privacy.md` and the date it was read.
    */
   readonly terms: readonly Terms[];
   /**
@@ -192,7 +195,7 @@ export interface Cell {
  * AiRoute is the type of admission-table.schema.json#/$defs/ai_route.
  *
  * An AI route: platform AI, under the platform's agreements with the providers, or the own key of
- * an account owner who learns, at the profile of the category adult (concepts 14).
+ * an account owner who learns, at the profile of the category adult.
  */
 export type AiRoute = "platform_ai" | "own_key";
 
@@ -202,19 +205,20 @@ export type AiRoute = "platform_ai" | "own_key";
  * Whether the provider, on the route, may receive the work of a learner of the category: closed;
  * open; or open with facts — only when every deployment fact in facts holds for the provider and
  * the category. On the own key a cell is closed or open, never open with facts: the agreement with
- * the provider is the key owner's, and a deployment declares nothing of it (privacy 5.2).
+ * the provider is the key owner's, and a deployment declares nothing of it.
  */
 export type CellAdmission = "closed" | "open" | "open_with_facts";
 
 /**
  * Terms is the type of admission-table.schema.json#/$defs/terms.
  *
- * The provider's terms that a cell reads, by its row of privacy 5.3 and the date they were read.
+ * The provider's terms that a cell reads, by its row of the table of the providers' terms on age in
+ * `docs/privacy.md` and the date they were read.
  */
 export interface Terms {
   /**
-   * The provider's row in the table of privacy 5.3, as its first column names it: OpenAI, Google
-   * Cloud, Vertex AI.
+   * The provider's row in the table of the providers' terms on age in `docs/privacy.md`, as its
+   * first column names it: OpenAI, Google Cloud, Vertex AI.
    */
   readonly row: string;
   /**
@@ -228,9 +232,10 @@ export interface Terms {
 /**
  * AnswerVector is the type of answer-vector.schema.json.
  *
- * A test vector of answers (section 9 of the admission text): a table of its own and requests to
- * the admission function, each with the deployment facts declared and the answer that sections 5
- * and 6 give. An implementation computes each answer and gets exactly this one.
+ * A test vector of answers of the admission table: a table of its own and requests to the admission
+ * function, each with the deployment facts declared and the answer that the admission text's
+ * deployment facts and admission function give. An implementation computes each answer and gets
+ * exactly this one.
  */
 export interface AnswerVector {
   /**
@@ -292,7 +297,7 @@ export interface Request {
  * DeclaredFacts is the type of answer-vector.schema.json#/$defs/declared_facts.
  *
  * The deployment facts declared, by provider: what the function gets by value from the file of a
- * deployment's configuration (section 5 of the admission text).
+ * deployment's configuration.
  */
 export type DeclaredFacts = Readonly<Record<Provider, ProviderFacts>>;
 

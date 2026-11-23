@@ -7,7 +7,8 @@
 // answer carries; and the values that come both in answers and in the data of a refusal: why an
 // attempt was closed, how a lesson run ended, and the engine's choice, with the list of its reason
 // codes, which the adult's progress alone carries. What they mean, and how `app` reads a cause it
-// does not know, are the rules of contracts/README.md, section 15.
+// does not know, are the rules of contracts/README.md for the
+// contract between `app` and `api`.
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -153,7 +154,7 @@ export declare type Outcome = Message<"novatrail.api.v1.Outcome"> & {
 export declare const OutcomeSchema: GenMessage<Outcome>;
 
 /**
- * The limit of the learner's own key that ran out at its provider (R55 tutor).
+ * The limit of the learner's own key that ran out at its provider.
  *
  * @generated from message novatrail.api.v1.OwnKeyLimit
  */
@@ -181,7 +182,7 @@ export declare const OwnKeyLimitSchema: GenMessage<OwnKeyLimit>;
 
 /**
  * The engine's choice: what the learner is given next — a lesson, or a task outside a lesson — or
- * that there is nothing to give (concepts 12). A choice begins nothing: `app` opens a lesson by
+ * that there is nothing to give. A choice begins nothing: `app` opens a lesson by
  * `OpenLesson` and begins a task by `BeginAttempt`, each naming the choice. Its reason code is not
  * here: a child is not told it, and it goes to the adult's progress alone, `AttemptRecord`.
  *
@@ -206,8 +207,8 @@ export declare type EngineChoice = Message<"novatrail.api.v1.EngineChoice"> & {
    * Beside `CHOICE_KIND_NOTHING`, when the AI that checks the tasks is closed to the learner on the
    * route to AI that the request names and no task that a tap checks is left: `CAUSE_QUOTA`, with
    * when the next family day begins, `CAUSE_PLATFORM_LIMIT` or `CAUSE_NOT_ADMITTED`; on the own
-   * key `CAUSE_NOT_ADMITTED` alone, since neither the quota nor the limit of platform AI closes it
-   * (R84; R99). Absent when there is nothing to give for another reason, such as no module connected
+   * key `CAUSE_NOT_ADMITTED` alone, since neither the quota nor the limit of platform AI closes it.
+   * Absent when there is nothing to give for another reason, such as no module connected
    * with a current version.
    *
    * @generated from field: novatrail.api.v1.Outcome outcome = 3;
@@ -272,8 +273,8 @@ export declare type EndedSegments = Message<"novatrail.api.v1.EndedSegments"> & 
 export declare const EndedSegmentsSchema: GenMessage<EndedSegments>;
 
 /**
- * Why a request was refused, or what a call of AI in it came to: one list for the whole contract
- * (R17 api). A refusal comes as the detail `Refusal` of an error of Connect, with the code that the
+ * Why a request was refused, or what a call of AI in it came to: one list for the whole contract.
+ * A refusal comes as the detail `Refusal` of an error of Connect, with the code that the
  * comment of each method gives it; an outcome comes in the answer, as `Outcome`. A cause that the
  * build of `app` does not know it reads by the code of the error, or as a call of AI that gave
  * nothing. A verdict's reason is no cause: it is the module format's and the observation's.
@@ -392,7 +393,7 @@ export enum Cause {
    * A learning request to show the solution, while the child's setting "ask before showing" is on:
    * the solution is shown by an action of an adult. Or a learning request on what an adult decides
    * at a profile whose consent an adult gave: the learner's own consent, its withdrawal, the
-   * storage of works and the export (R136). Code `permission_denied`.
+   * storage of works and the export. Code `permission_denied`.
    *
    * @generated from enum value: CAUSE_ADULT_NEEDED = 13;
    */
@@ -407,7 +408,7 @@ export enum Cause {
 
   /**
    * The task has nothing to show by this request: a task with a rubric, which "Done" ends, and a
-   * task from paper, whose solution is never shown (R162). Code `failed_precondition`.
+   * task from paper, whose solution is never shown. Code `failed_precondition`.
    *
    * @generated from enum value: CAUSE_NO_SHOWING = 15;
    */
@@ -504,7 +505,7 @@ export enum Cause {
   ALREADY_EXISTS = 26,
 
   /**
-   * The deployment does not take learners from the country named (privacy 9, П-2). Code
+   * The deployment does not take learners from the country named (П-2). Code
    * `failed_precondition`.
    *
    * @generated from enum value: CAUSE_COUNTRY_NOT_ACCEPTED = 27;
@@ -514,8 +515,8 @@ export enum Cause {
   /**
    * The consent is not confirmed: a child's profile asked for by a consent of a parent that still
    * waits, or a learning request of a profile without consent — one that waits for the learner's
-   * own consent or for a parent's form —, but for the requests on the consent itself, which section
-   * 15 of contracts/README.md names; or the adult's correction of a module's level at such a
+   * own consent or for a parent's form —, but for the requests on the consent itself, which
+   * contracts/README.md names; or the adult's correction of a module's level at such a
    * profile. Code `failed_precondition`.
    *
    * @generated from enum value: CAUSE_NO_CONSENT = 28;
@@ -611,7 +612,7 @@ export enum Cause {
   /**
    * The account has as many consents that wait, without a profile, as `api` lets it have: one is
    * taken back by `CancelChildConsent`, or confirmed, before another is asked for. `api` holds the
-   * number (R11 api). Code `resource_exhausted`, with no data.
+   * number. Code `resource_exhausted`, with no data.
    *
    * @generated from enum value: CAUSE_TOO_MANY_CONSENTS = 39;
    */
@@ -620,7 +621,7 @@ export enum Cause {
   /**
    * The age of the profile is to be given again before its next work: the country of a learner who
    * gave their own consent now asks for an older age of digital consent than the one the category
-   * was given by (R134), but for the requests on the consent itself, which section 15 of
+   * was given by, but for the requests on the consent itself, which
    * contracts/README.md names; the adult's correction of a module's level at such a profile gets it
    * too. An adult gives it by `RestateAge`. Code `failed_precondition`.
    *
@@ -640,25 +641,25 @@ export enum Cause {
 
   /**
    * An action of an adult on the storage of works at a profile whose learner gave their own
-   * consent: the learner decides it alone (R113; R116). Code `permission_denied`.
+   * consent: the learner decides it alone. Code `permission_denied`.
    *
    * @generated from enum value: CAUSE_LEARNER_DECIDES = 42;
    */
   LEARNER_DECIDES = 42,
 
   /**
-   * A work put while the storage of the profile's works is off: `app` keeps it on the device alone
-   * (R113). Code `failed_precondition`, with no data.
+   * A work put while the storage of the profile's works is off: `app` keeps it on the device alone.
+   * Code `failed_precondition`, with no data.
    *
    * @generated from enum value: CAUSE_STORAGE_OFF = 43;
    */
   STORAGE_OFF = 43,
 
   /**
-   * A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps
-   * it on the device alone (R113). Code `invalid_argument`, with no data. A `PutWork` message
-   * larger than `api` reads gets `resource_exhausted` with no `Refusal` instead (contracts/README.md,
-   * section 15): `app` reads it as this cause.
+   * A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps it
+   * on the device alone. Code `invalid_argument`, with no data. A `PutWork` message larger than
+   * `api` reads gets `resource_exhausted` with no `Refusal` instead (contracts/README.md): `app`
+   * reads it as this cause.
    *
    * @generated from enum value: CAUSE_WORK_TOO_LARGE = 44;
    */
@@ -667,7 +668,7 @@ export enum Cause {
   /**
    * A check of an own key beyond the checks that `api` lets an account make in a sliding window:
    * every check that is not refused before it counts, a provider closed with no call too. `api`
-   * holds the number and the window (R78 api). The refusal holds when the next check opens. Code
+   * holds the number and the window. The refusal holds when the next check opens. Code
    * `resource_exhausted`.
    *
    * @generated from enum value: CAUSE_KEY_CHECKS_EXHAUSTED = 45;
@@ -678,7 +679,7 @@ export enum Cause {
    * The adult's correction of a module's level names a band that is neither the band of the level
    * nor one next to it, by the bands of the manifest of the module's current version: the level
    * has moved since `app` read it, or the module has no such band. `app` reads `GetSkillMap`
-   * again and offers the bands next to the level it gives (R157). Code `failed_precondition`,
+   * again and offers the bands next to the level it gives. Code `failed_precondition`,
    * with no data.
    *
    * @generated from enum value: CAUSE_BAND_NOT_NEXT = 46;
@@ -688,7 +689,7 @@ export enum Cause {
   /**
    * A task from paper has no key: the solution of AI gave no one answer that a program can compare,
    * such as a proof, a drawing or several answers, so no verdict is given, "Couldn't check this
-   * one", and the hints still are (R162). An outcome alone, of every submission of the attempt,
+   * one", and the hints still are. An outcome alone, of every submission of the attempt,
    * with no AI once the first gave it.
    *
    * @generated from enum value: CAUSE_NO_KEY = 47;
@@ -749,7 +750,7 @@ export enum LimitCause {
 export declare const LimitCauseSchema: GenEnum<LimitCause>;
 
 /**
- * Why an attempt was closed (architecture 3.5 api). An attempt that is not closed waits, whatever
+ * Why an attempt was closed. An attempt that is not closed waits, whatever
  * its submissions came to.
  *
  * @generated from enum novatrail.api.v1.CloseReason
@@ -860,7 +861,7 @@ export enum ChoiceKind {
 export declare const ChoiceKindSchema: GenEnum<ChoiceKind>;
 
 /**
- * Why the engine gave what it chose: its reason code (concepts 12; R29; R100). The adult sees it
+ * Why the engine gave what it chose: its reason code. The adult sees it
  * in the progress of a profile, and a child is not told it: no answer to a learning request
  * carries it. A choice has one code, that of the branch of the engine's rule that made it, a
  * lesson's as a task's, and `ChoiceKind` says what it gave. A value never changes its meaning: a
@@ -926,7 +927,7 @@ export enum ReasonCode {
 
   /**
    * The author's order: a skill with a rubric or without assessment comes next by the skill graph,
-   * without the learner model (concepts 4).
+   * without the learner model.
    *
    * @generated from enum value: REASON_CODE_AUTHOR_ORDER = 7;
    */
@@ -956,7 +957,7 @@ export enum ReasonCode {
 export declare const ReasonCodeSchema: GenEnum<ReasonCode>;
 
 /**
- * Why a lesson run ended (concepts 5). A reason its build does not know `app` reads as an end other
+ * Why a lesson run ended. A reason its build does not know `app` reads as an end other
  * than `RUN_END_REASON_PASSED`, and erases the state of the lesson as at every end.
  *
  * @generated from enum novatrail.api.v1.RunEndReason

@@ -1,7 +1,7 @@
 # A predicate whose evaluation takes 999 990 steps, as go.starlark.net v0.0.0-20261021141710-4f4267fb140d
 # counts them, whatever the value: its list of 99 997 squares is built whole before in looks for the
 # value. The count stops below the limit, 1 000 000, so Starlark decides. spec's CI checks only blank
-# and notation, and module-kit's CI every verdict (section 15).
+# and notation, and module-kit's CI every verdict.
 item:
   answer_slots:
     - binding: anywhere

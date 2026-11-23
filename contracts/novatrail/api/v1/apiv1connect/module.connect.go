@@ -4,7 +4,8 @@
 
 // The modules of a learner in the contract between `app` and `api`: the catalog of the modules a
 // profile may connect, and the modules connected to it, each by the digest of its current version.
-// What each message means is the rule of contracts/README.md, section 15.
+// What each message means is the rule of contracts/README.md for the contract between
+// `app` and `api`.
 package apiv1connect
 
 import (
@@ -74,9 +75,9 @@ var (
 // ModuleServiceClient is a client for the novatrail.api.v1.ModuleService service.
 type ModuleServiceClient interface {
 	// The catalog: the modules of the pinned index of `api` whose current version suits the profile
-	// by its audience, the age category of the profile (R63), connected ones too. The explanation
+	// by its audience, the age category of the profile, connected ones too. The explanation
 	// language goes into no choice: the card of a module names it when it is not the language of the
-	// screen (R92), and the adult chooses.
+	// screen, and the adult chooses.
 	ListCatalog(context.Context, *v1.ListCatalogRequest) (*v1.ListCatalogResponse, error)
 	// Connects a module to the profile, with no version: the attempts outside a lesson and new lesson
 	// runs go on its current version. The answer is the modules connected; a module connected
@@ -102,9 +103,9 @@ func NewModuleServiceClient(client *connect.Client) ModuleServiceClient {
 // ModuleServiceHandler is an implementation of the novatrail.api.v1.ModuleService service.
 type ModuleServiceHandler interface {
 	// The catalog: the modules of the pinned index of `api` whose current version suits the profile
-	// by its audience, the age category of the profile (R63), connected ones too. The explanation
+	// by its audience, the age category of the profile, connected ones too. The explanation
 	// language goes into no choice: the card of a module names it when it is not the language of the
-	// screen (R92), and the adult chooses.
+	// screen, and the adult chooses.
 	ListCatalog(context.Context, *v1.ListCatalogRequest) (*v1.ListCatalogResponse, error)
 	// Connects a module to the profile, with no version: the attempts outside a lesson and new lesson
 	// runs go on its current version. The answer is the modules connected; a module connected
