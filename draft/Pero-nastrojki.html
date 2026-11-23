@@ -1,0 +1,783 @@
+<title>NovaTrail Pen Options</title>
+<style>
+  :root {
+    --paper: #fbfbfd;
+    --dot: #c9d1dc;
+    --ink: #1c1c1e;
+    --label: #1d1d1f;
+    --secondary: #6e6e73;
+    --accent: #0071e3;
+    --accent-text: #0066cc;
+    --accent-soft: rgba(0, 113, 227, 0.12);
+    --hair: rgba(60, 60, 67, 0.14);
+    --glass: rgba(255, 255, 255, 0.76);
+    --glass-strong: rgba(255, 255, 255, 0.92);
+    --glass-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 8px 28px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --pop-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 18px 50px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.06);
+    color-scheme: light;
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0; overflow: hidden; background: var(--paper); color: var(--label);
+    font: 15px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Nothing on this page is text to select: a pen's double tap or long press opens no menu. */
+  * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  button { font: inherit; color: inherit; touch-action: manipulation; }
+
+  .layer { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #live { touch-action: none; }
+  #live.hand { cursor: grab; }
+
+  .glass {
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* The tool rail */
+  .rail {
+    position: fixed; left: max(12px, env(safe-area-inset-left, 0px)); top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 6px; border-radius: 28px; z-index: 5;
+  }
+  .rail .sep { width: 24px; height: 1px; background: var(--hair); margin: 6px 0; }
+  .tool {
+    position: relative; width: 44px; height: 44px; border: 0; border-radius: 22px; background: transparent;
+    display: grid; place-items: center; cursor: pointer; color: var(--label);
+  }
+  .tool svg { width: 24px; height: 24px; }
+  .tool[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+  .tool:disabled { color: #c7c7cc; cursor: default; }
+  .tool:focus-visible, .chip:focus-visible, .seg button:focus-visible, .swatch:focus-visible, .kind:focus-visible, .width:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  /* A selected pen or eraser shows the small mark that a second tap opens its options. */
+  .tool[aria-pressed="true"][aria-haspopup]::after {
+    content: ""; position: absolute; right: 5px; bottom: 5px; width: 0; height: 0;
+    border-left: 4px solid transparent; border-top: 4px solid transparent;
+    border-right: 4px solid currentColor; border-bottom: 4px solid currentColor; border-radius: 0 0 2px 0; opacity: 0.55;
+  }
+  .tool .tip { transition: fill 120ms; }
+
+  /* Top bar and help */
+  .top {
+    position: fixed; top: max(12px, env(safe-area-inset-top, 0px)); left: max(12px, env(safe-area-inset-left, 0px));
+    display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 12px; border-radius: 20px; z-index: 5;
+    font-weight: 600; font-size: 14px;
+  }
+  .top .badge { font-weight: 500; font-size: 12px; color: var(--secondary); }
+  .help {
+    position: fixed; top: max(12px, env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+    width: 40px; height: 40px; border: 0; border-radius: 20px; z-index: 5; font-weight: 600; font-size: 17px; cursor: pointer;
+  }
+  .meter {
+    position: fixed; top: max(60px, calc(env(safe-area-inset-top, 0px) + 48px)); right: max(12px, env(safe-area-inset-right, 0px));
+    padding: 6px 12px; border-radius: 14px; z-index: 5; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--secondary);
+  }
+  .meter b { color: var(--label); font-weight: 600; }
+
+  /* Pop-overs */
+  .pop {
+    position: fixed; z-index: 10; width: 300px; max-width: calc(100vw - 32px);
+    border-radius: 22px; padding: 14px; box-shadow: var(--pop-shadow);
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
+    transform-origin: left center; animation: pop-in 160ms cubic-bezier(.2,.9,.3,1.2);
+  }
+  .pop::before {
+    content: ""; position: absolute; left: -7px; top: var(--arrow, 50%); width: 14px; height: 14px; margin-top: -7px;
+    background: var(--glass-strong); transform: rotate(45deg); border-radius: 2px;
+    box-shadow: -0.5px 0.5px 0 rgba(0, 0, 0, 0.08);
+  }
+  @keyframes pop-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .pop { animation: none; } }
+  .pop h2 { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--secondary); letter-spacing: 0.02em; }
+  .pop section + section { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--hair); }
+
+  .kinds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .kind {
+    border: 0; background: transparent; border-radius: 14px; padding: 6px 4px 8px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--secondary);
+  }
+  .kind svg { width: 30px; height: 64px; }
+  .kind[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+
+  .widths { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .width {
+    height: 48px; border: 0; border-radius: 12px; background: transparent; cursor: pointer; display: grid; place-items: center;
+  }
+  .width svg { width: 38px; height: 30px; overflow: visible; }
+  .width[aria-pressed="true"] { background: var(--label); }
+  .width[aria-pressed="true"] path { stroke: #fff !important; }
+
+  .opacity { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .opacity output { width: 40px; text-align: right; font-size: 13px; color: var(--secondary); font-variant-numeric: tabular-nums; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; flex: 1; height: 28px; border-radius: 14px; margin: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.04), var(--swatch, #1c1c1e)); box-shadow: inset 0 0 0 1px var(--hair);
+    touch-action: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 0 0.5px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.2); border: 3px solid #fff;
+  }
+  input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+  input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; justify-items: center; }
+  .swatch {
+    width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer; background: var(--c);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12);
+  }
+  .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--c); }
+  .swatch.wheel { background: conic-gradient(#ff3b30, #ff9500, #ffcc00, #34c759, #00c7be, #0a84ff, #5e5ce6, #bf5af2, #ff2d55, #ff3b30); }
+  .more { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; justify-items: center; margin-top: 10px; }
+
+  .seg { display: flex; background: rgba(118, 118, 128, 0.12); border-radius: 10px; padding: 2px; }
+  .seg button { flex: 1; border: 0; background: transparent; border-radius: 8px; padding: 7px 6px; font-size: 13px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.12); font-weight: 600; }
+
+  .help-pop { width: 360px; transform-origin: top right; }
+  .help-pop::before { display: none; }
+  .help-pop p, .help-pop li { margin: 0; font-size: 14px; color: var(--label); }
+  .help-pop ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+  .help-pop .note { color: var(--secondary); font-size: 13px; margin-top: 8px; }
+  .switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; }
+  .switch input { width: 44px; height: 26px; accent-color: var(--accent); }
+  .stat { font-variant-numeric: tabular-nums; font-size: 14px; }
+  .stat b { font-weight: 600; }
+
+  .hover-ring {
+    position: fixed; z-index: 4; pointer-events: none; border-radius: 50%; transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.9), 0 0 0 2px rgba(0,0,0,0.25);
+  }
+
+  /* A phone: a pop-over is a sheet from the bottom. */
+  @media (max-width: 599px) {
+    .pop, .help-pop {
+      left: 8px !important; right: 8px; top: auto !important; bottom: max(8px, env(safe-area-inset-bottom, 0px));
+      width: auto; max-width: none; transform-origin: bottom center;
+    }
+    .pop::before { display: none; }
+    .top .badge { display: none; }
+  }
+</style>
+
+<canvas id="dots" class="layer" aria-hidden="true"></canvas>
+<canvas id="ink" class="layer" aria-hidden="true"></canvas>
+<canvas id="live" class="layer" aria-label="Лист: пишите пером, пальцем или мышью"></canvas>
+<div id="hover" class="hover-ring" hidden></div>
+
+<div class="top glass">Перо как в Заметках <span class="badge">макет</span></div>
+<button id="helpBtn" class="help glass" aria-label="Как пробовать и нажим" aria-haspopup="dialog" aria-expanded="false">?</button>
+<div id="meter" class="meter glass" hidden>Нажим <b id="meterNow">0,00</b> · пик <b id="meterMax">0,00</b></div>
+
+<nav class="rail glass" aria-label="Инструменты">
+  <button class="tool" id="tPen" aria-label="Перо: второй тап — настройки" aria-pressed="true" aria-haspopup="dialog" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M15.6 3.9l4.5 4.5L9 19.5l-5.3 0.8 0.8-5.3z"/>
+      <path class="tip" d="M4.5 15l4.5 4.5-5.3 0.8z" fill="currentColor" stroke="none"/>
+      <path d="M13.4 6.1l4.5 4.5"/>
+    </svg>
+  </button>
+  <button class="tool" id="tEraser" aria-label="Ластик: второй тап — настройки" aria-pressed="false" aria-haspopup="dialog" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M8.5 19.5l-4-4a1.6 1.6 0 010-2.3l8.7-8.7a1.6 1.6 0 012.3 0l4 4a1.6 1.6 0 010 2.3l-7.5 7.5z"/>
+      <path d="M8.5 19.5h11"/><path d="M9.6 8l6.4 6.4"/>
+    </svg>
+  </button>
+  <button class="tool" id="tHand" aria-label="Рука: двигать лист" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M8 12.5V6a1.4 1.4 0 012.8 0v5.5"/><path d="M10.8 11V4.6a1.4 1.4 0 012.8 0V11"/>
+      <path d="M13.6 11V5.6a1.4 1.4 0 012.8 0V12"/><path d="M16.4 9.5a1.4 1.4 0 012.8 0v5c0 3.6-2.6 6-6.2 6h-1.2c-2.2 0-3.6-0.9-4.9-2.6l-2.8-3.8a1.4 1.4 0 012.1-1.8L8 14"/>
+    </svg>
+  </button>
+  <button class="tool" id="tUndo" aria-label="Отменить" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M8 8.5H4.5V5"/><path d="M4.8 8.5A7.5 7.5 0 1112 19.5"/>
+    </svg>
+  </button>
+  <button class="tool" id="tClear" aria-label="Стереть всё" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M4.5 6.5h11"/><path d="M8 6.5V4.8h4v1.7"/><path d="M6 6.5l0.8 13h6.4l0.8-13"/><path d="M17.5 11h3M17.5 14.5h3M17.5 18h3"/>
+    </svg>
+  </button>
+  <div class="sep" role="separator"></div>
+  <button class="tool" id="tZoomIn" aria-label="Крупнее">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5M10.5 7.8v5.4M7.8 10.5h5.4"/></svg>
+  </button>
+  <button class="tool" id="tZoomOut" aria-label="Мельче">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5M7.8 10.5h5.4"/></svg>
+  </button>
+</nav>
+
+<div id="penPop" class="pop" role="dialog" aria-label="Настройки пера" hidden>
+  <section>
+    <div class="kinds" id="kinds"></div>
+  </section>
+  <section>
+    <div class="widths" id="widths" role="group" aria-label="Толщина"></div>
+    <div class="opacity">
+      <input type="range" id="opacity" min="10" max="100" step="5" value="100" aria-label="Непрозрачность">
+      <output id="opacityOut" for="opacity">100 %</output>
+    </div>
+  </section>
+  <section>
+    <div class="swatches" id="swatches" role="group" aria-label="Цвет"></div>
+    <div class="more" id="moreColors" hidden></div>
+  </section>
+</div>
+
+<div id="eraserPop" class="pop" role="dialog" aria-label="Настройки ластика" hidden>
+  <section>
+    <h2>Что стирать</h2>
+    <div class="seg" id="eraseMode">
+      <button type="button" data-mode="stroke" aria-pressed="true">Штрих целиком</button>
+      <button type="button" data-mode="pixel" aria-pressed="false">Частично</button>
+    </div>
+  </section>
+  <section>
+    <h2>Размер</h2>
+    <div class="widths" id="eraserSizes" role="group" aria-label="Размер ластика"></div>
+  </section>
+</div>
+
+<div id="helpPop" class="pop help-pop" role="dialog" aria-label="Как пробовать" hidden>
+  <section>
+    <ul>
+      <li>Тап по выбранной ручке открывает её настройки, как в Заметках. Тап по листу закрывает их, и штрих сразу пишется.</li>
+      <li>«Ручка» меняет толщину и чуть сужает концы штриха; «Линер» — одна толщина. У каждого вида пера свои толщина, непрозрачность и цвет.</li>
+      <li>Тап по выбранному ластику: стирать штрих целиком или частично.</li>
+      <li>После первого касания Pencil палец не пишет, а двигает лист.</li>
+      <li>Pencil Pro над листом, не касаясь, показывает кружок размера пера.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Кривая нажима у «Ручки»</h2>
+    <div class="seg" id="curve">
+      <button type="button" data-curve="old" aria-pressed="false">Как сейчас</button>
+      <button type="button" data-curve="new" aria-pressed="true">Предлагаемая</button>
+    </div>
+    <p class="note">У Pencil толщину задаёт нажим, у пальца и мыши — скорость: медленно толще, быстро тоньше. «Линер» всегда одной толщины. «Как сейчас»: от 0,5 до 1,5 толщины, линейно по нажиму. «Предлагаемая»: обычное письмо примерно как пальцем, сильный нажим до 2×, лёгкий тоньше.</p>
+  </section>
+  <section>
+    <p class="stat" id="stat">Напишите что-нибудь Pencil: здесь появится его нажим.</p>
+    <label class="switch" for="showMeter" style="margin-top:10px">Показывать нажим на экране <input type="checkbox" id="showMeter"></label>
+  </section>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const dotsC = $("dots"), inkC = $("ink"), liveC = $("live");
+  const dctx = dotsC.getContext("2d"), ictx = inkC.getContext("2d"), lctx = liveC.getContext("2d");
+
+  const PALETTE = ["#1c1c1e", "#0a63d6", "#1e9e4a", "#ffcc00", "#e5322d"];
+  const MORE = ["#8e8e93", "#7a4fd0", "#f08a00", "#00a6a6", "#ff5fa2", "#8b5a2b", "#5ac8fa", "#34c759", "#ff9f0a", "#bf5af2", "#ff3b30", "#ffffff"];
+  const WIDTHS = [1.2, 2, 3, 4.5, 7];
+  const ERASERS = [8, 16, 28, 44, 64];
+  const KINDS = [
+    { id: "pen", name: "Ручка" },
+    { id: "liner", name: "Линер" },
+    { id: "marker", name: "Маркер" },
+  ];
+
+  const state = {
+    tool: "pen", kind: "pen", curve: "new", eraseMode: "stroke", eraser: 1, showMeter: false,
+    kinds: {
+      pen: { width: 2, alpha: 100, color: PALETTE[0] },
+      liner: { width: 1, alpha: 100, color: PALETTE[1] },
+      marker: { width: 3, alpha: 40, color: PALETTE[3] },
+    },
+  };
+  try {
+    const saved = JSON.parse(localStorage.getItem("nt-pen-mockup") || "null");
+    if (saved && saved.kinds) Object.assign(state, saved, { tool: "pen" });
+  } catch { /* storage may be blocked: defaults stand */ }
+  const save = () => { try { localStorage.setItem("nt-pen-mockup", JSON.stringify(state)); } catch {} };
+
+  // The sheet: strokes in sheet units; the view moves and scales it.
+  const view = { x: 0, y: 0, k: 1 };
+  let items = [];          // committed: strokes and partial erasures, in order
+  const history = [];      // actions to undo
+  let penSeen = false;
+  let lastStats = null;
+
+  // Pressure → width factor. "old" is canvas's current curve; "new" the proposal.
+  // Without a pen's pressure, "Ручка" takes one from the speed: slow is thicker, fast thinner.
+  const proposed = (p) => 0.5 + 1.5 * Math.pow(Math.max(0, Math.min(1, p)), 0.8);
+  const factor = (s, p) => {
+    if (s.kind !== "pen") return 1;
+    if (s.pen && s.curve === "old") return 0.5 + p;
+    return proposed(p);
+  };
+
+  // Catmull-Rom through the samples, resampled finely: no steps from coarse samples.
+  function smooth(pts, step) {
+    if (pts.length < 3) return pts.slice();
+    const out = [pts[0]];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+      const n = Math.min(16, Math.max(1, Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / step)));
+      for (let j = 1; j <= n; j++) {
+        const t = j / n, t2 = t * t, t3 = t2 * t;
+        const f = (a, b, c, d) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+        out.push({ x: f(p0.x, p1.x, p2.x, p3.x), y: f(p0.y, p1.y, p2.y, p3.y), p: p1.p + (p2.p - p1.p) * t });
+      }
+    }
+    return out;
+  }
+  const baseWidth = (s) => s.kind === "marker" ? s.w * 4 : s.w;
+
+  // The union of a circle at each point and a quad between neighbours, all wound one way,
+  // fills with one alpha: a translucent stroke has no darker joints.
+  function outline(s) {
+    const path = new Path2D();
+    const bw = baseWidth(s);
+    const pts = smooth(s.points, Math.max(0.4, bw * 0.3));
+    const r = pts.map((q) => (bw * factor(s, q.p)) / 2);
+    if (s.kind === "pen" && pts.length > 2) {
+      // A pen's line starts and, once lifted, ends a little finer, as ink does.
+      const len = [0];
+      for (let i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+      const total = len[len.length - 1], reach = bw * 4;
+      for (let i = 0; i < pts.length; i++) {
+        let t = Math.min(1, 0.45 + 0.55 * (len[i] / reach));
+        if (s.done) t = Math.min(t, 0.45 + 0.55 * ((total - len[i]) / reach));
+        r[i] *= Math.max(0.45, t);
+      }
+    }
+    for (let i = 0; i < pts.length; i++) {
+      const { x, y } = pts[i];
+      path.moveTo(x + r[i], y);
+      path.arc(x, y, r[i], 0, Math.PI * 2, false);
+      path.closePath();
+      if (i === 0) continue;
+      const a = pts[i - 1], b = pts[i];
+      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+      if (len < 1e-6) continue;
+      const nx = -dy / len, ny = dx / len, ra = r[i - 1], rb = r[i];
+      let quad = [[a.x + nx * ra, a.y + ny * ra], [b.x + nx * rb, b.y + ny * rb], [b.x - nx * rb, b.y - ny * rb], [a.x - nx * ra, a.y - ny * ra]];
+      let area = 0;
+      for (let j = 0; j < 4; j++) { const [x1, y1] = quad[j], [x2, y2] = quad[(j + 1) % 4]; area += x1 * y2 - x2 * y1; }
+      if (area < 0) quad = quad.reverse();
+      path.moveTo(quad[0][0], quad[0][1]);
+      for (let j = 1; j < 4; j++) path.lineTo(quad[j][0], quad[j][1]);
+      path.closePath();
+    }
+    return path;
+  }
+
+  let dpr = 1, W = 0, H = 0;
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 3);
+    W = window.innerWidth; H = window.innerHeight;
+    for (const c of [dotsC, inkC, liveC]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+    redrawAll();
+  }
+  const toView = (ctx) => ctx.setTransform(dpr * view.k, 0, 0, dpr * view.k, dpr * view.x, dpr * view.y);
+
+  function drawDots() {
+    dctx.setTransform(1, 0, 0, 1, 0, 0);
+    dctx.fillStyle = "#fbfbfd"; dctx.fillRect(0, 0, dotsC.width, dotsC.height);
+    const step = 24 * view.k;
+    const ox = ((view.x % step) + step) % step, oy = ((view.y % step) + step) % step;
+    const rad = Math.max(0.8, 1.3 * Math.min(1, view.k)) * dpr;
+    dctx.fillStyle = "#c9d1dc";
+    for (let y = oy; y < H; y += step) for (let x = ox; x < W; x += step) {
+      dctx.beginPath(); dctx.arc(x * dpr, y * dpr, rad, 0, Math.PI * 2); dctx.fill();
+    }
+  }
+
+  function paint(ctx, s) {
+    ctx.save();
+    if (s.erase) {
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "#000";
+      ctx.fill(outline({ kind: "liner", w: s.w, points: s.points }));
+    } else {
+      ctx.globalAlpha = s.alpha / 100;
+      if (s.kind === "marker") ctx.globalCompositeOperation = "multiply";
+      ctx.fillStyle = s.color;
+      ctx.fill(outline(s));
+    }
+    ctx.restore();
+  }
+
+  function redrawInk() {
+    ictx.setTransform(1, 0, 0, 1, 0, 0);
+    ictx.clearRect(0, 0, inkC.width, inkC.height);
+    toView(ictx);
+    for (const s of items) paint(ictx, s);
+  }
+  function redrawLive() {
+    lctx.setTransform(1, 0, 0, 1, 0, 0);
+    lctx.clearRect(0, 0, liveC.width, liveC.height);
+    if (!active || active.stroke.erase) return;
+    toView(lctx);
+    paint(lctx, active.stroke);
+  }
+  function redrawAll() { drawDots(); redrawInk(); redrawLive(); }
+
+  let frame = 0;
+  const request = (fn) => { if (frame) return; frame = requestAnimationFrame(() => { frame = 0; fn(); }); };
+
+  // ---------- Input ----------
+  let active = null;   // { id, stroke }
+  let pan = null;      // { id, x, y }
+  const sheetPoint = (e) => ({ x: (e.clientX - view.x) / view.k, y: (e.clientY - view.y) / view.k });
+
+  function startStroke(e) {
+    const isPen = e.pointerType === "pen";
+    if (state.tool === "eraser") {
+      const w = ERASERS[state.eraser] / view.k;
+      const stroke = { erase: state.eraseMode === "pixel", w, points: [] };
+      active = { id: e.pointerId, stroke, removed: [], pen: isPen };
+      eraseAt(sheetPoint(e));
+      return;
+    }
+    const k = state.kinds[state.kind];
+    const p = isPen ? e.pressure : 0.45;
+    const stroke = {
+      kind: state.kind, color: k.color, alpha: k.alpha, w: WIDTHS[k.width], pen: isPen, curve: state.curve,
+      points: [{ ...sheetPoint(e), p }],
+    };
+    active = { id: e.pointerId, stroke, pressures: isPen ? [e.pressure] : null, lx: e.clientX, ly: e.clientY };
+    liveC.style.mixBlendMode = state.kind === "marker" ? "multiply" : "normal";
+    request(redrawLive);
+  }
+
+  function extend(e) {
+    const events = typeof e.getCoalescedEvents === "function" ? e.getCoalescedEvents() : [];
+    const list = events.length ? events : [e];
+    const s = active.stroke;
+    for (const ev of list) {
+      const pt = sheetPoint(ev);
+      if (state.tool === "eraser") { eraseAt(pt); continue; }
+      const prev = s.points[s.points.length - 1];
+      // A light streamline: the line follows the hand without the tremble of each sample.
+      const x = prev.x + (pt.x - prev.x) * 0.5, y = prev.y + (pt.y - prev.y) * 0.5;
+      if (Math.hypot(x - prev.x, y - prev.y) < 0.5 / view.k) continue;
+      let p;
+      if (s.pen) p = prev.p * 0.35 + ev.pressure * 0.65;
+      else {
+        const speed = Math.hypot(ev.clientX - active.lx, ev.clientY - active.ly);
+        p = prev.p * 0.75 + (0.75 - (Math.min(speed, 28) / 28) * 0.6) * 0.25;
+      }
+      active.lx = ev.clientX; active.ly = ev.clientY;
+      s.points.push({ x, y, p });
+      if (active.pressures && ev.pressure > 0) active.pressures.push(ev.pressure);
+    }
+    if (active.pressures) showMeter(active.pressures);
+    request(redrawLive);
+  }
+
+  function eraseAt(pt) {
+    const a = active, r = ERASERS[state.eraser] / 2 / view.k;
+    if (a.stroke.erase) {
+      a.stroke.points.push({ ...pt, p: 0.5 });
+      // Partial erasing lands on the ink at once; the whole is drawn again on undo.
+      ictx.save(); toView(ictx);
+      paint(ictx, { erase: true, w: a.stroke.w, points: a.stroke.points.slice(-2) });
+      ictx.restore();
+      return;
+    }
+    let hit = false;
+    for (let i = items.length - 1; i >= 0; i--) {
+      const s = items[i];
+      if (s.erase) continue;
+      const reach = r + (baseWidth(s) * 1.0);
+      if (s.points.some((q) => Math.hypot(q.x - pt.x, q.y - pt.y) <= reach)) {
+        a.removed.push({ index: i, stroke: s });
+        items.splice(i, 1);
+        hit = true;
+      }
+    }
+    if (hit) { request(redrawInk); }
+  }
+
+  function finish() {
+    if (!active) return;
+    const a = active; active = null;
+    if (state.tool === "eraser" || a.stroke.erase !== undefined && a.removed) {
+      if (a.stroke.erase && a.stroke.points.length) { items.push(a.stroke); history.push({ type: "add", stroke: a.stroke }); }
+      else if (a.removed && a.removed.length) history.push({ type: "remove", removed: a.removed });
+    } else if (a.stroke.points.length) {
+      a.stroke.done = true;
+      items.push(a.stroke); history.push({ type: "add", stroke: a.stroke });
+      paint((toView(ictx), ictx), a.stroke);
+      if (a.pressures && a.pressures.length > 2) {
+        const sorted = [...a.pressures].sort((x, y) => x - y);
+        lastStats = { median: sorted[Math.floor(sorted.length / 2)], max: sorted[sorted.length - 1] };
+        renderStats();
+      }
+    }
+    redrawLive();
+    if (a.removed || (a.stroke && a.stroke.erase)) redrawInk();
+    syncButtons();
+  }
+
+  const fmt = (n) => n.toFixed(2).replace(".", ",");
+  function showMeter(ps) {
+    if (!state.showMeter) return;
+    $("meterNow").textContent = fmt(ps[ps.length - 1] || 0);
+    $("meterMax").textContent = fmt(Math.max(...ps));
+  }
+  function renderStats() {
+    if (!lastStats) return;
+    $("stat").innerHTML = `Последний штрих Pencil: обычный нажим <b>${fmt(lastStats.median)}</b>, пик <b>${fmt(lastStats.max)}</b>.`;
+  }
+
+  liveC.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    closePops();
+    if (e.pointerType === "pen") penSeen = true;
+    // A new pen down while an old one never lifted: the old stroke ends where it was.
+    if (active && active.id !== e.pointerId) finish();
+    const handPan = state.tool === "hand" || (e.pointerType === "touch" && penSeen);
+    try { liveC.setPointerCapture(e.pointerId); } catch {}
+    if (handPan) { pan = { id: e.pointerId, x: e.clientX, y: e.clientY }; liveC.style.cursor = "grabbing"; return; }
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    startStroke(e);
+  });
+  liveC.addEventListener("pointermove", (e) => {
+    if (pan && pan.id === e.pointerId) {
+      view.x += e.clientX - pan.x; view.y += e.clientY - pan.y;
+      pan.x = e.clientX; pan.y = e.clientY;
+      request(redrawAll);
+      return;
+    }
+    if (active && active.id === e.pointerId) { extend(e); hideHover(); return; }
+    if (e.pointerType === "pen" && e.buttons === 0) showHover(e);
+  });
+  const end = (e) => {
+    if (pan && pan.id === e.pointerId) { pan = null; liveC.style.cursor = ""; return; }
+    if (active && active.id === e.pointerId) finish();
+  };
+  liveC.addEventListener("pointerup", end);
+  // A cancelled stroke is kept as far as it went: the learner wrote it.
+  liveC.addEventListener("pointercancel", end);
+  liveC.addEventListener("lostpointercapture", end);
+  for (const t of ["pointerleave", "pointerout"]) liveC.addEventListener(t, (e) => { if (e.pointerType === "pen") hideHover(); });
+  liveC.addEventListener("contextmenu", (e) => e.preventDefault());
+  liveC.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
+  liveC.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+  document.addEventListener("selectstart", (e) => e.preventDefault());
+  document.addEventListener("dblclick", (e) => e.preventDefault());
+
+  const hover = $("hover");
+  function showHover(e) {
+    let d, c;
+    if (state.tool === "eraser") { d = ERASERS[state.eraser]; c = "rgba(255,255,255,0.4)"; }
+    else if (state.tool === "pen") {
+      const k = state.kinds[state.kind];
+      d = Math.max(4, (state.kind === "marker" ? 4 : 1) * WIDTHS[k.width] * view.k); c = k.color;
+    } else { hideHover(); return; }
+    hover.hidden = false;
+    hover.style.width = hover.style.height = d + "px";
+    hover.style.left = e.clientX + "px"; hover.style.top = e.clientY + "px";
+    hover.style.background = c;
+    hover.style.opacity = state.tool === "pen" ? String(Math.max(0.35, state.kinds[state.kind].alpha / 100)) : "1";
+  }
+  function hideHover() { hover.hidden = true; }
+
+  // ---------- Tools and pop-overs ----------
+  const pens = { pen: $("tPen"), eraser: $("tEraser"), hand: $("tHand") };
+  const pops = { pen: $("penPop"), eraser: $("eraserPop"), help: $("helpPop") };
+  const openers = { pen: $("tPen"), eraser: $("tEraser"), help: $("helpBtn") };
+
+  function closePops() {
+    let any = false;
+    for (const [name, pop] of Object.entries(pops)) {
+      if (!pop.hidden) { pop.hidden = true; any = true; openers[name].setAttribute("aria-expanded", "false"); }
+    }
+    return any;
+  }
+  function openPop(name) {
+    closePops();
+    const pop = pops[name], btn = openers[name];
+    pop.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    if (name === "help") {
+      pop.style.top = (btn.getBoundingClientRect().bottom + 10) + "px";
+      pop.style.right = Math.max(12, window.innerWidth - btn.getBoundingClientRect().right) + "px";
+      pop.style.left = "auto";
+      return;
+    }
+    const b = btn.getBoundingClientRect(), rail = btn.closest(".rail").getBoundingClientRect();
+    const h = pop.offsetHeight;
+    const top = Math.min(Math.max(12, b.top + b.height / 2 - h / 2), window.innerHeight - h - 12);
+    pop.style.left = (rail.right + 14) + "px";
+    pop.style.top = top + "px";
+    pop.style.setProperty("--arrow", (b.top + b.height / 2 - top) + "px");
+  }
+
+  function selectTool(tool) {
+    if (state.tool === tool && (tool === "pen" || tool === "eraser")) {
+      if (pops[tool].hidden) openPop(tool); else closePops();
+      return;
+    }
+    closePops();
+    state.tool = tool;
+    liveC.classList.toggle("hand", tool === "hand");
+    syncButtons(); save();
+  }
+  pens.pen.addEventListener("click", () => selectTool("pen"));
+  pens.eraser.addEventListener("click", () => selectTool("eraser"));
+  pens.hand.addEventListener("click", () => selectTool("hand"));
+  $("helpBtn").addEventListener("click", () => { if (pops.help.hidden) openPop("help"); else closePops(); });
+
+  $("tUndo").addEventListener("click", () => {
+    const act = history.pop();
+    if (!act) return;
+    if (act.type === "add") { const i = items.lastIndexOf(act.stroke); if (i >= 0) items.splice(i, 1); }
+    else if (act.type === "remove") { for (const r of [...act.removed].reverse()) items.splice(r.index, 0, r.stroke); }
+    else if (act.type === "clear") { items = act.items; }
+    redrawInk(); syncButtons();
+  });
+  $("tClear").addEventListener("click", () => {
+    if (!items.length) return;
+    history.push({ type: "clear", items }); items = [];
+    redrawInk(); syncButtons();
+  });
+  function zoom(f) {
+    const cx = W / 2, cy = H / 2, k = Math.min(4, Math.max(0.4, view.k * f));
+    view.x = cx - ((cx - view.x) * k) / view.k; view.y = cy - ((cy - view.y) * k) / view.k; view.k = k;
+    redrawAll();
+  }
+  $("tZoomIn").addEventListener("click", () => zoom(1.25));
+  $("tZoomOut").addEventListener("click", () => zoom(0.8));
+
+  document.addEventListener("pointerdown", (e) => {
+    if (e.target === liveC) return;
+    if (e.target.closest(".pop, .rail, .help")) return;
+    closePops();
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && closePops()) { (openers.pen).focus(); } });
+
+  // ---------- The pen's options ----------
+  const SAMPLE = "M4 20c3-8 8-12 11-12 4 0 4 6 1 9-2.6 2.6-5.2 2-4.8-0.5 0.6-3.6 6.4-6.8 9.8-5.5 2 0.8 2.5 3.8 3 9";
+  function kindIcon(id, color) {
+    const body = id === "marker"
+      ? `<rect x="8" y="22" width="14" height="40" rx="3" fill="#f2f2f4" stroke="#d1d1d6"/><path d="M10 22l2-12h6l2 12z" fill="#e5e5ea" stroke="#d1d1d6"/><path d="M12 10l1-6h4l1 6z" fill="${color}"/>`
+      : id === "liner"
+      ? `<rect x="9" y="22" width="12" height="40" rx="5" fill="#f2f2f4" stroke="#d1d1d6"/><path d="M9 26l6-22 6 22z" fill="#f2f2f4" stroke="#d1d1d6"/><rect x="13.6" y="4" width="2.8" height="7" rx="1" fill="${color}"/>`
+      : `<rect x="9" y="22" width="12" height="40" rx="5" fill="#f2f2f4" stroke="#d1d1d6"/><path d="M9 26l6-22 6 22z" fill="#f2f2f4" stroke="#d1d1d6"/><path d="M12.6 12.8L15 4l2.4 8.8z" fill="${color}"/><rect x="9" y="30" width="12" height="4" fill="${color}"/>`;
+    return `<svg viewBox="0 0 30 64" aria-hidden="true">${body}</svg>`;
+  }
+  function renderKinds() {
+    $("kinds").innerHTML = KINDS.map((k) =>
+      `<button type="button" class="kind" data-kind="${k.id}" aria-pressed="${state.kind === k.id}">${kindIcon(k.id, state.kinds[k.id].color)}${k.name}</button>`).join("");
+  }
+  function renderWidths() {
+    const k = state.kinds[state.kind];
+    const mult = state.kind === "marker" ? 4 : 1;
+    $("widths").innerHTML = WIDTHS.map((w, i) => {
+      const sw = Math.min(9, Math.max(1, w * mult * 0.55));
+      return `<button type="button" class="width" data-width="${i}" aria-label="Толщина ${i + 1} из 5" aria-pressed="${k.width === i}"><svg viewBox="0 0 30 26"><path d="${SAMPLE}" fill="none" stroke="${state.kind === "marker" ? k.color : "#1d1d1f"}" stroke-opacity="${state.kind === "marker" ? 0.7 : 1}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
+    }).join("");
+  }
+  function renderOpacity() {
+    const k = state.kinds[state.kind];
+    $("opacity").value = k.alpha;
+    $("opacityOut").textContent = k.alpha + " %";
+    $("opacity").style.setProperty("--swatch", k.color);
+  }
+  function renderSwatches() {
+    const k = state.kinds[state.kind];
+    const inPalette = PALETTE.includes(k.color);
+    $("swatches").innerHTML = PALETTE.map((c) =>
+      `<button type="button" class="swatch" style="--c:${c}" data-color="${c}" aria-label="Цвет ${c}" aria-pressed="${k.color === c}"></button>`).join("") +
+      `<button type="button" class="swatch wheel" id="wheel" aria-label="Другие цвета" aria-expanded="${!$("moreColors").hidden}" aria-pressed="${!inPalette}" style="--c:${inPalette ? "#8e8e93" : k.color}"></button>`;
+    $("moreColors").innerHTML = MORE.map((c) =>
+      `<button type="button" class="swatch" style="--c:${c}" data-color="${c}" aria-label="Цвет ${c}" aria-pressed="${k.color === c}"></button>`).join("");
+  }
+  function renderPen() { renderKinds(); renderWidths(); renderOpacity(); renderSwatches(); }
+
+  $("kinds").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-kind]"); if (!b) return;
+    state.kind = b.dataset.kind; renderPen(); syncButtons(); save();
+  });
+  $("widths").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-width]"); if (!b) return;
+    state.kinds[state.kind].width = Number(b.dataset.width); renderWidths(); save();
+  });
+  $("opacity").addEventListener("input", (e) => {
+    state.kinds[state.kind].alpha = Number(e.target.value);
+    $("opacityOut").textContent = e.target.value + " %"; save();
+  });
+  const pickColor = (e) => {
+    if (e.target.id === "wheel") { $("moreColors").hidden = !$("moreColors").hidden; renderSwatches(); return; }
+    const b = e.target.closest("[data-color]"); if (!b) return;
+    state.kinds[state.kind].color = b.dataset.color; renderPen(); syncButtons(); save();
+  };
+  $("swatches").addEventListener("click", pickColor);
+  $("moreColors").addEventListener("click", pickColor);
+
+  // ---------- The eraser's options ----------
+  function renderEraser() {
+    for (const b of $("eraseMode").children) b.setAttribute("aria-pressed", String(b.dataset.mode === state.eraseMode));
+    $("eraserSizes").innerHTML = ERASERS.map((d, i) =>
+      `<button type="button" class="width" data-size="${i}" aria-label="Размер ${i + 1} из 5" aria-pressed="${state.eraser === i}"><svg viewBox="0 0 30 26"><circle cx="15" cy="13" r="${Math.max(2, d / 5.5)}" fill="none" stroke="#1d1d1f" stroke-width="1.6"/></svg></button>`).join("");
+  }
+  $("eraseMode").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-mode]"); if (!b) return;
+    state.eraseMode = b.dataset.mode; renderEraser(); save();
+  });
+  $("eraserSizes").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-size]"); if (!b) return;
+    state.eraser = Number(b.dataset.size); renderEraser(); save();
+  });
+
+  // ---------- Help ----------
+  function renderCurve() { for (const b of $("curve").children) b.setAttribute("aria-pressed", String(b.dataset.curve === state.curve)); }
+  $("curve").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-curve]"); if (!b) return;
+    state.curve = b.dataset.curve; renderCurve(); save();
+  });
+  $("showMeter").addEventListener("change", (e) => {
+    state.showMeter = e.target.checked; $("meter").hidden = !state.showMeter; save();
+  });
+
+  function syncButtons() {
+    for (const [name, b] of Object.entries(pens)) b.setAttribute("aria-pressed", String(state.tool === name));
+    $("tUndo").disabled = history.length === 0;
+    $("tClear").disabled = items.length === 0;
+    const tip = $("tPen").querySelector(".tip");
+    tip.style.fill = state.kinds[state.kind].color === "#ffffff" ? "#c7c7cc" : state.kinds[state.kind].color;
+    liveC.classList.toggle("hand", state.tool === "hand");
+  }
+
+  // A realistic first look: a line of working on the sheet.
+  function seed() {
+    const mk = (kind, color, w, alpha, pts) => ({ kind, color, alpha, w, pen: kind === "pen", curve: "new", done: true, points: pts });
+    const line = (x0, y0, x1, y1, p0, p1, n = 18) => Array.from({ length: n }, (_, i) => {
+      const t = i / (n - 1); return { x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, p: p0 + (p1 - p0) * t };
+    });
+    const curve = (cx, cy, rx, ry, a0, a1, p, n = 28) => Array.from({ length: n }, (_, i) => {
+      const a = a0 + (a1 - a0) * (i / (n - 1)); return { x: cx + rx * Math.cos(a), y: cy + ry * Math.sin(a), p: p + 0.25 * Math.sin(i / 4) };
+    });
+    const ox = 150, oy = 200;
+    items.push(mk("marker", "#ffcc00", 3, 40, line(ox - 10, oy + 6, ox + 330, oy + 2, 0.5, 0.5, 30)));
+    items.push(mk("pen", "#1c1c1e", 2, 100, line(ox, oy, ox + 22, oy, 0.2, 0.35)));
+    items.push(mk("pen", "#1c1c1e", 2, 100, curve(ox + 50, oy - 6, 10, 10, Math.PI * 1.1, Math.PI * 2.7, 0.25)));
+    items.push(mk("pen", "#1c1c1e", 2, 100, line(ox + 50, oy + 4, ox + 50, oy + 26, 0.3, 0.6)));
+    items.push(mk("pen", "#1c1c1e", 2, 100, line(ox + 40, oy + 26, ox + 60, oy + 26, 0.3, 0.2)));
+    items.push(mk("pen", "#1c1c1e", 2, 100, line(ox + 80, oy - 4, ox + 96, oy + 12, 0.15, 0.5)));
+    items.push(mk("pen", "#1c1c1e", 2, 100, line(ox + 96, oy - 4, ox + 80, oy + 12, 0.15, 0.5)));
+    items.push(mk("pen", "#1c1c1e", 2, 100, line(ox + 120, oy - 2, ox + 142, oy - 2, 0.25, 0.3)));
+    items.push(mk("pen", "#1c1c1e", 2, 100, line(ox + 120, oy + 6, ox + 142, oy + 6, 0.25, 0.3)));
+    items.push(mk("pen", "#e5322d", 2, 100, curve(ox + 190, oy + 2, 26, 18, -Math.PI * 0.6, Math.PI * 1.4, 0.5, 40)));
+    items.push(mk("liner", "#0a63d6", 1, 100, line(ox, oy + 60, ox + 300, oy + 60, 0.5, 0.5)));
+  }
+
+  renderPen(); renderEraser(); renderCurve();
+  $("showMeter").checked = state.showMeter; $("meter").hidden = !state.showMeter;
+  seed(); syncButtons();
+  window.addEventListener("resize", resize);
+  resize();
+})();
+</script>

@@ -138,6 +138,44 @@
           }
         ]
       }
+    },
+    {
+      "sample": "synthetic-1108",
+      "measured": {
+        "answer_slots": [
+          {
+            "answer_slot": {
+              "item": 1,
+              "slot": 1
+            },
+            "truth": {
+              "verdict": "not_yet",
+              "reason": "",
+              "trap": ""
+            },
+            "mirrored": false,
+            "crossed_out": false,
+            "readings": [
+              {
+                "verdict": {
+                  "verdict": "not_yet",
+                  "reason": "",
+                  "trap": ""
+                },
+                "unchecked": "UNCHECKED_CAUSE_UNSPECIFIED"
+              },
+              {
+                "verdict": {
+                  "verdict": "not_yet",
+                  "reason": "",
+                  "trap": ""
+                },
+                "unchecked": "UNCHECKED_CAUSE_UNSPECIFIED"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
