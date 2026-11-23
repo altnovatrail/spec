@@ -13,7 +13,7 @@
 // that takes a license off the list holds only for a tool of development, a package the lock file
 // marks dev, and for the packages that tool names in optionalDependencies while they are dev too
 // and under its license. --allowed prints the list, one SPDX identifier a line, for another
-// repository's check to take rather than copy (R39).
+// repository's check to take rather than copy.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -43,7 +43,7 @@ export function checkLicenses(lock, { allowed = ALLOWED, exceptions = EXCEPTIONS
   // exception for a lock file that names no license, or names the package's own file for it,
   // corrects what the lock file says rather than taking a license off the list, and holds for any
   // package. spec's own tools/ never ships at all, and its lock file marks none of its packages
-  // dev (R12, R39, R14 canvas).
+  // dev.
   const tools = new Set(devOnly ? Object.keys(exceptions).filter((name) => offTheList(exceptions[name].license, allowed)) : []);
   const builds = new Map();
   for (const [where, entry] of Object.entries(lock.packages)) {
@@ -126,7 +126,7 @@ function offTheList(license, allowed) {
 // The exceptions another repository names in its file: a JSON object of packages, each with the
 // license its lock file says — null when it says none — and why it is accepted, the decision that
 // brings it in among it, as config.mjs gives spec's own. Anything else in the file stops the check
-// rather than being skipped (R12).
+// rather than being skipped.
 export function readExceptions(text, file) {
   const read = parseJson(text, file);
   if (!isObject(read)) throw new Error(`${file}: not an object of packages`);

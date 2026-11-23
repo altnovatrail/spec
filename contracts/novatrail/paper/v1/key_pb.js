@@ -2,11 +2,11 @@
 // @generated from file novatrail/paper/v1/key.proto (package novatrail.paper.v1, syntax proto3)
 /* eslint-disable */
 
-// The key of a task from the learner's paper (R162): the answer a program compares the reading of
+// The key of a task from the learner's paper: the answer a program compares the reading of
 // the work with, and where it came from. `tutor` gives an answer of AI, the solver of `module-kit`
 // gives one from the formula AI read of the statement, and `api` keeps the key on the attempt while
-// it is open; it never reaches the device (R05). The formula, the solver, the key and the verdict
-// by it are the rules of contracts/README.md, section 16.
+// it is open; it never reaches the device. The formula, the solver, the key and the verdict
+// by it are the rules of contracts/README.md for the key of a task from paper.
 
 import { enumDesc, fileDesc, messageDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 
@@ -72,7 +72,7 @@ export const ProvenanceSchema = /*@__PURE__*/
   enumDesc(file_novatrail_paper_v1_key, 0);
 
 /**
- * Where a key of a task from paper came from (concepts 9.4).
+ * Where a key of a task from paper came from.
  *
  * @generated from enum novatrail.paper.v1.Provenance
  */

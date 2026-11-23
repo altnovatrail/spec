@@ -30,7 +30,7 @@ test("a number begins at a digit that no letter, mark or digit stands before, an
   assert.deepEqual(numbers("a5-3"), ["3/1"], "a sign ends a run");
 });
 
-// A key of a time is found by its hours and minutes (R111; В29 modules).
+// A key of a time is found by its hours and minutes (В29 modules).
 test("a time is a run of digits, : and digits that no letter, mark or digit stands right outside", () => {
   assert.deepEqual(timesIn(leakForm("At 07:30, or 19:05; not 7:305x or x7:30 or 7:")), ["7:30", "19:5"]);
   assert.deepEqual(timesIn(leakForm("12:00:30")), ["12:0"], "the search goes on after the run, and :30 begins at no digit");
@@ -119,7 +119,7 @@ test("task.no-leaks searches the texts that the learner sees before the task is 
   assert.equal(leaksBefore(fixed, parts), true, "a rung template holds the leak phrase");
   const essay = { items: [{ answer_slots: [{ binding: "sheet", check: { kind: "rubric", criteria: [{ text: "A criterion." }] } }] }] };
   assert.deepEqual(textsShownBefore(essay, parts), [], "a task with no verdict shows no rung template");
-  // The leading question of the task, and the description of every solving step (R108; app В13).
+  // The leading question of the task, and the description of every solving step (app В13).
   const asked = { ...fixed, leading_question: "Is it 7?" };
   assert.ok(textsShownBefore(asked).includes("Is it 7?"));
   assert.equal(leaksBefore(asked), true, "a hint asked for gives the leading question before the first wrong answer");
@@ -128,7 +128,7 @@ test("task.no-leaks searches the texts that the learner sees before the task is 
   assert.equal(leaksBefore(fixed, steps), true, "a step's description is searched for the keys of every task");
   // The title of a step is as open, and shown with every task, as its description is.
   assert.equal(leaksBefore(fixed, { solvingSteps: { steps: [{ title: "Count up to 7", exit_condition: "none" }] } }), true);
-  // Of an instance of a template, the paths of the pictures of its statement and solution too (R108).
+  // Of an instance of a template, the paths of the pictures of its statement and solution too.
   const pictured = { ...fixed, statement: [{ text: "How many rungs?" }, { picture: "pictures/ladder-of-7.png", alt: "A ladder.", width: 1, height: 1 }], solution: [{ picture: "pictures/ladder-of-8.png", alt: "", width: 1, height: 1 }] };
   assert.ok(!textsShownBefore(pictured).includes("pictures/ladder-of-7.png"), "a task that is no template");
   assert.ok(textsShownBefore(pictured, {}, true).includes("pictures/ladder-of-7.png"));
@@ -149,7 +149,7 @@ test("lesson.no-leaks searches every text of a lesson for the keys of each task 
     ],
   };
   assert.deepEqual(lessonTexts(lesson), ["Gaps and posts", "A fence has posts.", "A fence.", "A path of 20 m.", "4 gaps.", "5 lamps.", "Count the gaps first."]);
-  // The texts of a numbered list, in order, and none of the numbers that the app draws (R111).
+  // The texts of a numbered list, in order, and none of the numbers that the app draws.
   const listed = { title: "Gaps", segments: [{ explanation: [{ text: "How to solve:" }, { numbered_list: ["Count the gaps.", "Add one post."] }] }] };
   assert.deepEqual(lessonTexts(listed), ["Gaps", "How to solve:", "Count the gaps.", "Add one post."]);
   const keyed = (key, extra) => task([anywhere({ kind: "number", key })], extra);
@@ -163,7 +163,7 @@ test("lesson.no-leaks searches every text of a lesson for the keys of each task 
   assert.deepEqual(lessonTexts({ segments: [{ task: "ladder" }] }), [], "a lesson with no title and no texts");
 });
 
-// A worked example on a workbook leaks where one of its lines solves a task's (R111; В19 modules).
+// A worked example on a workbook leaks where one of its lines solves a task's (В19 modules).
 test("lesson.no-leaks searches no number in the lines of a worked example on a workbook, and finds a line that solves a task's", () => {
   const box = (key) => ({ binding: "box", check: { kind: "number", key } });
   const workbookTask = (line) => ({ canvas: { kind: "workbook" }, statement: [{ text: "Write the quotient and the remainder." }], items: [{ line }] });

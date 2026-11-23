@@ -5,8 +5,8 @@
 // The legal texts in the contract between `app` and `api`: the privacy policy, the terms of use
 // and the consents that `app` shows as its own pages, each in its current version and its next
 // one, with its gist in the language of the screen. The texts are those of the legal part,
-// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of contracts/README.md,
-// section 15.
+// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of
+// contracts/README.md for the contract between `app` and `api`.
 package apiv1connect
 
 import (

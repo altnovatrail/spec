@@ -4,7 +4,7 @@
 //
 // `just release-version` feeds it a release workflow as it stands at the commit to be released —
 // spec's release.yml, or the workflow another repository names to the recipe — so that a commit
-// is numbered in the line it was made in, whichever commit is checked out (R31). Prints the line,
+// is numbered in the line it was made in, whichever commit is checked out. Prints the line,
 // MAJOR.MINOR as the workflow writes it; nextVersion checks its form.
 //
 // Takes nothing from its command line: neither a path nor a command comes from its caller.

@@ -6,7 +6,7 @@
 // type that reads it. A value is read strictly — a field its type has not fails it, as does
 // anything after it — and the JSON written must be the value read, whatever the order of its keys.
 // A case marked closed, the part of a vector of the open view that holds a closed field, must fail
-// on that field when read by its open view's type. Exits 1 on any failure (R72).
+// on that field when read by its open view's type. Exits 1 on any failure.
 package main
 
 import (

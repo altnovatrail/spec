@@ -6,7 +6,8 @@
 // and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
 // with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
-// with the same idempotency key answers are the rules of contracts/README.md, section 15.
+// with the same idempotency key answers are the rules of contracts/README.md for
+// the contract between `app` and `api`.
 
 import { enumDesc, fileDesc, messageDesc, serviceDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
@@ -327,7 +328,7 @@ export const ProblemKindSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_attempt, 2);
 
 /**
- * What is wrong with the tutor's words: the closed set the person picks one word of (R123).
+ * What is wrong with the tutor's words: the closed set the person picks one word of.
  *
  * @generated from enum novatrail.api.v1.ProblemKind
  */
@@ -341,7 +342,7 @@ export const ActionSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_attempt, 3);
 
 /**
- * Whose action a request is: the server tells kinds of action apart, not people (R04 api).
+ * Whose action a request is: the server tells kinds of action apart, not people.
  *
  * @generated from enum novatrail.api.v1.Action
  */
@@ -375,10 +376,10 @@ export const MarkKind = /*@__PURE__*/
  * solution shown or by "Done" says what comes next, `next`: an attempt begins by
  * `LearningService`. The engine's choice in `next` goes by the route to AI that the request
  * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
- * AI's without either, as `ChooseNext` judges it (R84; R99). An attempt of a task from paper
- * (R162) has an item with one answer slot for each task its crop holds, from 1 to 20, no `next`,
+ * AI's without either, as `ChooseNext` judges it. An attempt of a task from paper
+ * has an item with one answer slot for each task its crop holds, from 1 to 20, no `next`,
  * and nothing to show: its key, the solver's or the AI's, the first submission derives, `api`
- * keeps it while the attempt is open, and it never reaches the device (R05).
+ * keeps it while the attempt is open, and it never reaches the device.
  *
  * @generated from service novatrail.api.v1.AttemptService
  */

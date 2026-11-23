@@ -4,8 +4,9 @@
 
 // The skill map and the adult's progress in the contract between `app` and `api`: the state of a
 // learner's skills in a module, as the learner model reads it, the attempts of a profile with the
-// traps that repeat in them, and the adult's correction of a module's level (R157). What each
-// message means is the rule of contracts/README.md, section 15.
+// traps that repeat in them, and the adult's correction of a module's level. What each
+// message means is the rule of contracts/README.md for the contract between
+// `app` and `api`.
 
 import { enumDesc, fileDesc, messageDesc, serviceDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
@@ -139,7 +140,7 @@ export const CriterionMarkSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_progress, 2);
 
 /**
- * The mark of a criterion in a feedback (R87). A mark its build does not know `app` reads as
+ * The mark of a criterion in a feedback. A mark its build does not know `app` reads as
  * `CRITERION_MARK_NOT_ASSESSED`.
  *
  * @generated from enum novatrail.api.v1.CriterionMark

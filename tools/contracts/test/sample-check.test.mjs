@@ -114,7 +114,7 @@ const ofModule = (sample, module = MODULE) => {
 const setSample = ofModule(example("sheet-eval-set"));
 const essay = ofModule(example("sheet-essay"));
 
-test("with --eval-set, sample-check holds the files of a module's eval set together to the rules of section 13", () => {
+test("with --eval-set, sample-check holds the files of a module's eval set together to the rules of eval sets", () => {
   const set = { "eval/a.json": textOf(setSample), "eval/essay.json": textOf(essay) };
   const run = recipe(set, ["--eval-set", MODULE, ...Object.keys(set)]);
   assert.equal(run.status, 0, run.stdout + run.stderr);
@@ -131,11 +131,11 @@ test("with --eval-set, sample-check holds the files of a module's eval set toget
   assert.equal(bad.status, 1, bad.stdout + bad.stderr);
   const lines = bad.stdout.trimEnd().split("\n");
   assert.deepEqual(lines, [
-    `eval/m.json:${lineOf(measurement, "purpose")}: a sample of the eval set of ${MODULE} is of the purpose PURPOSE_EVAL_SET, not "PURPOSE_MEASUREMENT" (contracts/README.md, section 13)`,
-    `eval/o.json:${lineOf(other, "module")}: a sample of the eval set of ${MODULE} is of a task of that module, not of "novatrail/school-math" (contracts/README.md, section 13)`,
-    `eval/t.json:${lineOf(tutors, "task")}: a sample of the eval set of ${MODULE} is of a task of that module: its source is modules (contracts/README.md, section 13)`,
-    `eval/twice.json:${lineOf(twice, "id")}: the ID ${setSample.id} is eval/a.json's too: no two samples of an eval set share an ID (contracts/README.md, section 13)`,
-    `eval/u.json:1: a sample of an eval set has its markup, which the runner measures AI by (contracts/README.md, section 13)`,
+    `eval/m.json:${lineOf(measurement, "purpose")}: a sample of the eval set of ${MODULE} is of the purpose PURPOSE_EVAL_SET, not "PURPOSE_MEASUREMENT" (the rules of eval sets in contracts/README.md)`,
+    `eval/o.json:${lineOf(other, "module")}: a sample of the eval set of ${MODULE} is of a task of that module, not of "novatrail/school-math" (the rules of eval sets in contracts/README.md)`,
+    `eval/t.json:${lineOf(tutors, "task")}: a sample of the eval set of ${MODULE} is of a task of that module: its source is modules (the rules of eval sets in contracts/README.md)`,
+    `eval/twice.json:${lineOf(twice, "id")}: the ID ${setSample.id} is eval/a.json's too: no two samples of an eval set share an ID (the rules of eval sets in contracts/README.md)`,
+    `eval/u.json:1: a sample of an eval set has its markup, which the runner measures AI by (the rules of eval sets in contracts/README.md)`,
     "sample-check: 5 errors",
   ]);
   // A file named twice, and through a link, is one sample, and a sample that breaks its own rules
@@ -146,7 +146,7 @@ test("with --eval-set, sample-check holds the files of a module's eval set toget
   const licensed = textOf({ ...setSample, license: "MIT", purpose: "PURPOSE_MEASUREMENT" });
   const one = recipe({ "eval/l.json": licensed }, ["--eval-set", MODULE, "eval/l.json"]);
   assert.equal(one.status, 1, one.stdout + one.stderr);
-  assert.doesNotMatch(one.stdout, /section 13/);
+  assert.doesNotMatch(one.stdout, /the rules of eval sets/);
   // Without --eval-set the same files are checked each alone, and two with one ID pass.
   const alone = recipe({ "eval/a.json": textOf(setSample), "eval/twice.json": twice }, ["eval/a.json", "eval/twice.json"]);
   assert.equal(alone.status, 0, alone.stdout + alone.stderr);
@@ -170,7 +170,7 @@ test("--eval-set comes first, with the ID of a module, and then the files of its
   const unnamed = recipe({ "eval/a.json": textOf(ofModule(example("sheet-eval-set"), "Novatrail/Olympiad Math")) }, ["eval/a.json"]);
   assert.equal(unnamed.status, 1, unnamed.stdout + unnamed.stderr);
   assert.match(unnamed.stdout, /: the module's ID "Novatrail\/Olympiad Math" is not the ID of a module, <publisher>\/<name>, as the module format has it$/m);
-  assert.deepEqual(checkSampleFiles(root, [`${FOLDER}/sheet-eval-set.json`], MODULE).errors.map((error) => error.message), [`a sample of the eval set of ${MODULE} is of a task of that module: its source is modules (contracts/README.md, section 13)`]);
+  assert.deepEqual(checkSampleFiles(root, [`${FOLDER}/sheet-eval-set.json`], MODULE).errors.map((error) => error.message), [`a sample of the eval set of ${MODULE} is of a task of that module: its source is modules (the rules of eval sets in contracts/README.md)`]);
 });
 
 // A large set, as modules has, of 631 files of some 600 KB each, in a model: 60 essays of some

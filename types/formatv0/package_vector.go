@@ -4,11 +4,10 @@ package formatv0
 
 // PackageVector is the type of package-vector.schema.json.
 //
-// The package that a test vector of packages gives, package.yaml beside the module/ it is of
-// (sections 9 and 25 of the format text): the module's server part, the listing of its device part,
-// its inventory and its digest. An implementation builds the package of module/ and gets exactly
-// these, whatever the order of keys. The results of a solver are the vector's, in the instances of
-// the server part.
+// The package that a test vector of packages gives, package.yaml beside the module/ it is of: the
+// module's server part, the listing of its device part, its inventory and its digest. An
+// implementation builds the package of module/ and gets exactly these, whatever the order of keys.
+// The results of a solver are the vector's, in the instances of the server part.
 type PackageVector struct {
 	// The server part: the canonical view of the module.
 	ServerPart CanonicalView `json:"server_part"`

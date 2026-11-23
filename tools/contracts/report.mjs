@@ -1,7 +1,7 @@
 // The runner's report of the eval protocol, novatrail.eval.v1.Report: whether a file is a report as
 // a writer writes it and as its rules let it be — who ran it, the capability it measured, its
 // models, the code of its verdicts, its eval set, and each sample's result: refused with its reason,
-// or its answer slots or its essay, with what each repeat gave (R95). The reports among the examples
+// or its answer slots or its essay, with what each repeat gave. The reports among the examples
 // of contracts/examples/eval/v1/, report-<case>.json, pass it, are of the samples beside them, and
 // together show every capability, a refused and a measured sample, every verdict a reading gives
 // and every mark AI gives a criterion.
@@ -19,7 +19,7 @@ import { byCodeUnits } from "../shared.mjs";
 import { ESSAY_REASONS, REASONS, VERDICTS, WHITE_SPACE } from "./observation.mjs";
 import { FOLDER, ID, PACKAGE, TAG, byPlace, isLocalId, isModuleId, messageOf, placeOf, readMessage, show } from "./sample.mjs";
 
-const TEXT = "contracts/README.md, section 14";
+const TEXT = "the runner's report in contracts/README.md";
 
 // The values of each enum of the report the rules name: a value the package adds is named here too,
 // or reportOf refuses the image.
@@ -36,7 +36,7 @@ const ENUMS = [["Capability", CAPABILITIES], ["VerdictCode", CODES], ["Refusal",
 const VERDICT_REASONS = new Set(["blank", "notation", ...REASONS.values()]);
 const ESSAY_READ = [...ESSAY_REASONS].join(" or ");
 const NO_MARK = "UNCHECKED_CAUSE_NO_MARK";
-// The check's own cause: a predicate that gave no verdict on a valid observation (R102). An essay's
+// The check's own cause: a predicate that gave no verdict on a valid observation. An essay's
 // rubric has no predicate, so its readings never name it.
 const CHECK = "UNCHECKED_CAUSE_CHECK";
 const SLOT_CAUSES = CAUSES.filter((cause) => cause !== NO_MARK);

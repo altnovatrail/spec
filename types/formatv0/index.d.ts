@@ -2,12 +2,11 @@
 
 /**
  * The types of the module format, major version 0, generated from the schemas of version 0.4 in
- * format/schemas by tools/types (R72 and R73 in spec's docs/decisions.md): the same types as the Go
- * package formatv0, by the same names. The schemas decide what is valid: a type gives the shape of
- * a value alone, and code that reads a value from elsewhere checks it against its schema first. A
- * field the object always holds is required; any other is optional, among them each field that only
- * some branches of a schema give. The open view of each part is in open,
- * `@altnovatrail/spec/formatv0/open`.
+ * format/schemas by tools/types: the same types as the Go package formatv0, by the same names. The
+ * schemas decide what is valid: a type gives the shape of a value alone, and code that reads a
+ * value from elsewhere checks it against its schema first. A field the object always holds is
+ * required; any other is optional, among them each field that only some branches of a schema give.
+ * The open view of each part is in open, `@altnovatrail/spec/formatv0/open`.
  *
  * @packageDocumentation
  */
@@ -17,12 +16,12 @@
 /**
  * CanonicalView is the type of canonical-view.schema.json.
  *
- * The canonical view of a module, the server part of its package (section 25 of the format text):
- * each part of the module as its file gives it, a part that a module has many of as an object by
- * local ID, the tier of each skill, and the numbers of every instance of each template. module-kit
- * builds it from the module's folder by the format version that the manifest names, and so does
- * spec's CI for the vectors of packages; sim reads it by these types. No field of it is open: the
- * learner's app gets the open view of a part from the server, never the canonical view.
+ * The canonical view of a module, the server part of its package: each part of the module as its
+ * file gives it, a part that a module has many of as an object by local ID, the tier of each skill,
+ * and the numbers of every instance of each template. module-kit builds it from the module's folder
+ * by the format version that the manifest names, and so does spec's CI for the vectors of packages;
+ * sim reads it by these types. No field of it is open: the learner's app gets the open view of a
+ * part from the server, never the canonical view.
  */
 export interface CanonicalView {
   /**
@@ -35,8 +34,8 @@ export interface CanonicalView {
    */
   readonly skill_graph?: SkillGraph;
   /**
-   * The tier of each skill of the skill graph, which section 12 computes from its prerequisites:
-   * there when the module has a skill graph, and only then.
+   * The tier of each skill of the skill graph, which the rules of the skill graph compute from its
+   * prerequisites: there when the module has a skill graph, and only then.
    */
   readonly skill_tiers?: SkillTiers;
   /**
@@ -70,7 +69,8 @@ export interface CanonicalView {
 /**
  * SkillTiers is the type of canonical-view.schema.json#/$defs/skill_tiers.
  *
- * The tier of every skill of a skill graph, by the skill's local ID (section 12).
+ * The tier of every skill of a skill graph, by the skill's local ID, as the rules of the skill
+ * graph compute it.
  */
 export type SkillTiers = Readonly<Record<SkillID, number>>;
 
@@ -78,7 +78,7 @@ export type SkillTiers = Readonly<Record<SkillID, number>>;
  * Numbers is the type of canonical-view.schema.json#/$defs/numbers.
  *
  * The numbers of an instance of a template: every parameter, every derived number and every result
- * of the solver of the template, by its name (sections 23 and 24).
+ * of the solver of the template, by its name.
  */
 export type Numbers = Readonly<Record<TemplateName, number>>;
 
@@ -902,8 +902,8 @@ export type AnswerSlotBinding = "anywhere" | "sheet" | "zone" | "choice";
 /**
  * Check is the type of task.schema.json#/$defs/check.
  *
- * The check of an answer slot: its kind and the kind's parameters. Section 15 of the format text
- * says how each kind reads the value and gives its verdict.
+ * The check of an answer slot: its kind and the kind's parameters. The format's rules of checks say
+ * how each kind reads the value and gives its verdict.
  */
 export interface Check {
   /**
@@ -1144,8 +1144,8 @@ export interface Domain {
 /**
  * TemplateExpression is the type of task.schema.json#/$defs/template_expression.
  *
- * An expression of the narrow subset of Starlark of section 23 of the format text: integers and
- * names, + - * // %, comparisons, and, or and not.
+ * An expression of the narrow subset of Starlark of the format's templates: integers and names, + -
+ * * // %, comparisons, and, or and not.
  */
 export type TemplateExpression = string;
 
@@ -1382,10 +1382,10 @@ export interface DemoFill {
  * IndexVector is the type of index-vector.schema.json.
  *
  * A release of modules that a test vector of the module index gives, index.yaml beside the modules/
- * it releases (sections 9 and 26 of the format text): the index of the release before it, the
- * release's tag and its withdrawals, and either the index that the release builds or the rule of
- * the index by which the build is refused. An implementation builds the package of each module and
- * the index, and gets exactly these, whatever the order of keys.
+ * it releases: the index of the release before it, the release's tag and its withdrawals, and
+ * either the index that the release builds or the rule of the index by which the build is refused.
+ * An implementation builds the package of each module and the index, and gets exactly these,
+ * whatever the order of keys.
  */
 export interface IndexVector {
   /**
@@ -1426,13 +1426,13 @@ export type IndexVectorRefusal = "module-index.entries-kept" | "module-index.one
 /**
  * ModuleIndex is the type of module-index.schema.json.
  *
- * The module index, module-index.json, a file of each release of modules (section 26 of the format
- * text): every published version of every module, each by the digest of its package, with the
- * release whose files hold it, the anchor skills it teaches and, when it has been withdrawn from
- * publication, why. A release builds it from the index of the release before it, and the release
- * workflow of .github signs it. Its members and those of an entry keep their places and meanings in
- * every version of the format, so that the index carries the entries of every version; a reader of
- * another version reads them by their places, not by this schema.
+ * The module index, module-index.json, a file of each release of modules: every published version
+ * of every module, each by the digest of its package, with the release whose files hold it, the
+ * anchor skills it teaches and, when it has been withdrawn from publication, why. A release builds
+ * it from the index of the release before it, and the release workflow of .github signs it. Its
+ * members and those of an entry keep their places and meanings in every version of the format, so
+ * that the index carries the entries of every version; a reader of another version reads them by
+ * their places, not by this schema.
  */
 export interface ModuleIndex {
   /**
@@ -1459,8 +1459,8 @@ export interface Entry {
    */
   readonly module_format_version: ModuleFormatVersion;
   /**
-   * The digest of the version's package: the digest of the canonical text of its inventory (section
-   * 25).
+   * The digest of the version's package: the digest of the canonical text of its inventory, as the
+   * rules of packages take it.
    */
   readonly package_digest: Digest;
   /**
@@ -1509,10 +1509,10 @@ export type WithdrawalReason = "wrong_key" | "answer_leak" | "unsuitable_content
 /**
  * Withdrawals is the type of module-index.schema.json#/$defs/withdrawals.
  *
- * The withdrawals of a release of modules, which the build of its index marks (section 26 of the
- * format text): under each module's ID, under each version it withdraws, the reason of the
- * withdrawal. modules keeps them in a file of its own, and a test vector of the index in its member
- * withdrawals. A release that withdraws none has no withdrawals, rather than an empty object.
+ * The withdrawals of a release of modules, which the build of its index marks: under each module's
+ * ID, under each version it withdraws, the reason of the withdrawal. modules keeps them in a file
+ * of its own, and a test vector of the index in its member withdrawals. A release that withdraws
+ * none has no withdrawals, rather than an empty object.
  */
 export type Withdrawals = Readonly<Record<ModuleID, Readonly<Record<ModuleVersion, WithdrawalReason>>>>;
 
@@ -1528,10 +1528,10 @@ export type Digest = string;
 /**
  * Inventory is the type of inventory.schema.json.
  *
- * The inventory of a module's package, inventory.json (section 25 of the format text): the module's
- * format version, ID and version, and the digest and size of each of the package's two parts — the
- * server part, which is the canonical view, and the device part, which a listing of its files
- * names. The digest of the package is the digest of its inventory.
+ * The inventory of a module's package, inventory.json: the module's format version, ID and version,
+ * and the digest and size of each of the package's two parts — the server part, which is the
+ * canonical view, and the device part, which a listing of its files names. The digest of the
+ * package is the digest of its inventory.
  */
 export interface Inventory {
   /**
@@ -1601,8 +1601,8 @@ export interface DeviceListing {
  * LeakVector is the type of leak-vector.schema.json.
  *
  * A test vector of the leak check, vectors/leaks/<case>.yaml: a task, and texts that the learner
- * might see, each with every key and leak phrase of the task that the leak check finds in it
- * (section 20 of the format text). It describes no part of a module.
+ * might see, each with every key and leak phrase of the task that the leak check finds in it. It
+ * describes no part of a module.
  */
 export interface LeakVector {
   /**
@@ -1638,11 +1638,10 @@ export interface SearchedText {
 /**
  * PackageVector is the type of package-vector.schema.json.
  *
- * The package that a test vector of packages gives, package.yaml beside the module/ it is of
- * (sections 9 and 25 of the format text): the module's server part, the listing of its device part,
- * its inventory and its digest. An implementation builds the package of module/ and gets exactly
- * these, whatever the order of keys. The results of a solver are the vector's, in the instances of
- * the server part.
+ * The package that a test vector of packages gives, package.yaml beside the module/ it is of: the
+ * module's server part, the listing of its device part, its inventory and its digest. An
+ * implementation builds the package of module/ and gets exactly these, whatever the order of keys.
+ * The results of a solver are the vector's, in the instances of the server part.
  */
 export interface PackageVector {
   /**
@@ -1668,10 +1667,9 @@ export interface PackageVector {
 /**
  * PageVector is the type of page-vector.schema.json.
  *
- * A test vector of the workbook's page (sections 9 and 14 of the format text): the lines of a
- * task's items, as the open view holds them, and either the page that the layout makes of them or
- * the item at whose row it has no room. An implementation lays the page out by format/page.yaml and
- * gets exactly these.
+ * A test vector of the workbook's page: the lines of a task's items, as the open view holds them,
+ * and either the page that the layout makes of them or the item at whose row it has no room. An
+ * implementation lays the page out by format/page.yaml and gets exactly these.
  */
 export interface PageVector {
   /**
@@ -1798,10 +1796,9 @@ export interface PagePart {
 /**
  * Page is the type of page.schema.json.
  *
- * The numbers and the table of widths of a workbook's page, format/page.yaml (section 14 of the
- * format text): canvas lays every page out by them, and task.workbook-page holds every task on a
- * workbook to them. Units are those of the page, and a width of a character is in whole hundredths
- * of the type size.
+ * The numbers and the table of widths of a workbook's page, format/page.yaml: canvas lays every
+ * page out by them, and task.workbook-page holds every task on a workbook to them. Units are those
+ * of the page, and a width of a character is in whole hundredths of the type size.
  */
 export interface Page {
   /**
@@ -2013,9 +2010,9 @@ export interface PageJoints {
 /**
  * RandomVector is the type of random-vector.schema.json.
  *
- * A test vector of the generator (section 22 of the format text): the start of a stream — two
- * words, and the seed and names of the place of randomness whose stream it is — and the functions
- * called on the stream, in order, each with its arguments and the value it gives.
+ * A test vector of the generator: the start of a stream — two words, and the seed and names of the
+ * place of randomness whose stream it is — and the functions called on the stream, in order, each
+ * with its arguments and the value it gives.
  */
 export interface RandomVector {
   /**
@@ -2181,11 +2178,11 @@ export interface PermutationDraw {
 /**
  * TemplateVector is the type of template-vector.schema.json.
  *
- * A test vector of templates (sections 23 and 24 of the format text): a template, the number of its
- * instances, the names that its solver gets, when it has one, and attempts, each with its seed, the
- * numbers of the instance that the seed picks, that instance, and the digest of its open view. An
- * implementation counts the instances, picks the instance of each seed, runs the solver on it,
- * replaces the placeholders, and gets exactly these.
+ * A test vector of templates: a template, the number of its instances, the names that its solver
+ * gets, when it has one, and attempts, each with its seed, the numbers of the instance that the
+ * seed picks, that instance, and the digest of its open view. An implementation counts the
+ * instances, picks the instance of each seed, runs the solver on it, replaces the placeholders, and
+ * gets exactly these.
  */
 export interface TemplateVector {
   /**
@@ -2234,7 +2231,8 @@ export interface Attempt {
   /**
    * The digest of the open view of the instance, as a sample of the eval protocol names the task it
    * answers: sha256: and the SHA-256 of the open view's canonical text, the instance's numbers in
-   * place (section 25 of the format text; contracts/README.md, section 11).
+   * place, as the format's rules of packages take a digest and the sample file of
+   * `contracts/README.md` names a task.
    */
   readonly open_view_digest: Digest;
 }
@@ -2244,9 +2242,8 @@ export interface Attempt {
 /**
  * TierVector is the type of tier-vector.schema.json.
  *
- * A test vector of tiers (sections 12 and 25 of the format text): a skill graph and the tier of
- * each of its skills. An implementation computes the tiers from the prerequisites and gets exactly
- * these.
+ * A test vector of tiers: a skill graph and the tier of each of its skills. An implementation
+ * computes the tiers from the prerequisites and gets exactly these.
  */
 export interface TierVector {
   /**
@@ -2267,7 +2264,7 @@ export interface TierVector {
  * A test vector of a check kind's verdicts, vectors/verdicts/<kind>/<case>.yaml: an item of a task
  * whose answer slots are checked by that kind, and readings of it, each the value read in every
  * answer slot, with the verdict and the trap that each answer slot gets and the verdict that the
- * item gets (section 15 of the format text). It describes no part of a module.
+ * item gets. It describes no part of a module.
  */
 export interface VerdictVector {
   /**
@@ -2348,10 +2345,10 @@ export type SlotReadingReason = "blank" | "notation";
  * VersionVector is the type of version-vector.schema.json.
  *
  * What a test vector of versions of a module gives, version.yaml beside the new version in module/
- * and the published versions in published/ (sections 9 and 27 of the format text): either the part
- * of the version that the comparison of the new version with the newest published version finds, or
- * the rule of versions by which the new version is refused. An implementation compares the new
- * version with every published version and gets exactly this.
+ * and the published versions in published/: either the part of the version that the comparison of
+ * the new version with the newest published version finds, or the rule of versions by which the new
+ * version is refused. An implementation compares the new version with every published version and
+ * gets exactly this.
  */
 export interface VersionVector {
   /**

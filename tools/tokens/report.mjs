@@ -205,7 +205,7 @@ export function timeOf(text) {
 }
 
 // How many of a session's first main calls the report measures apart: a session's context grows
-// with its length, and these calls show what it starts and works with before it has grown (R145).
+// with its length, and these calls show what it starts and works with before it has grown.
 export const FIRST_CALLS = 80;
 
 // What a group counts for an entry that carries nothing of its own.
@@ -270,7 +270,7 @@ export function measure(transcripts, { read, root, since = null, until = null, p
           const text = promptOf(r);
           if (text != null) session.task = /\bT(\d{1,4})\b/.exec(text)?.[0] ?? "";
         }
-        // An executor of the orchestrator is a session whose first prompt came by `claude -p` (R156).
+        // An executor of the orchestrator is a session whose first prompt came by `claude -p`.
         if (!transcript.subagent && session.executor === null && !r.isSidechain) session.executor = r.entrypoint === "sdk-cli";
         if (Array.isArray(content)) {
           for (const b of content) {

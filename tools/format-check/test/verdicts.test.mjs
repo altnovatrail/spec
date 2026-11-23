@@ -101,7 +101,7 @@ test("a choice compares the value with its options in lowercase, dropping nothin
   assert.deepEqual(verdictOf(tapped, "B", ["A", "B"]), CORRECT);
 });
 
-// The key and the value are one word, and an option may be a phrase (R111; В28 modules).
+// The key and the value are one word, and an option may be a phrase (В28 modules).
 test("a choice of notation word takes one word that is none of the options as not yet right", () => {
   const names = { kind: "choice", notation: "word", options: ["Kim", "Lea", "It is impossible to tell"], key: "Kim" };
   for (const value of ["Kim", "kim.", "KIM!", "Kim ?", "Kim...", " kim "]) assert.deepEqual(verdictOf(names, value), CORRECT, value);
@@ -137,7 +137,7 @@ test("a choice of notation word takes one word that is none of the options as no
   assert.deepEqual(readingOf(slot(names), "Kim and Lea"), { notation: "kim and lea" });
 });
 
-// Hours and minutes as numbers, never the sum of minutes, and 24 hours (R111; В29 modules).
+// Hours and minutes as numbers, never the sum of minutes, and 24 hours (В29 modules).
 test("a time is right by its hours and minutes as numbers, and a time of 60 minutes or more is a wrong one", () => {
   const time = { kind: "time", key: "6:00" };
   for (const value of ["6:00", "06:00", "= 6:00.", " 6:00 "]) assert.deepEqual(verdictOf(time, value), CORRECT, value);

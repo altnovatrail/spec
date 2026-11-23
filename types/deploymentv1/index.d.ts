@@ -2,13 +2,12 @@
 
 /**
  * The types of the deployment configuration, version 1, generated from the schemas in
- * deployment/schemas by tools/types (R72, R73 and R85 in spec's docs/decisions.md): the same types
- * as the Go package deploymentv1, by the same names — the file /deployment.json, whose fields keep
- * the names of R09 app, in camelCase, and the vectors of reading. A vector's file is any JSON
- * value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of
- * a value alone, and code that reads a value from elsewhere checks it against its schema first, and
- * then against the rules of reading (deployment/README.md, section 5). A field the object always
- * holds is required; any other is optional.
+ * deployment/schemas by tools/types: the same types as the Go package deploymentv1, by the same
+ * names — the file /deployment.json, whose fields keep the names app reads, in camelCase, and the
+ * vectors of reading. A vector's file is any JSON value, unknown, as a reader gets it. The schemas
+ * decide what is valid: a type gives the shape of a value alone, and code that reads a value from
+ * elsewhere checks it against its schema first, and then against the rules of reading of
+ * deployment/README.md. A field the object always holds is required; any other is optional.
  *
  * @packageDocumentation
  */
@@ -19,8 +18,7 @@
  * Deployment is the type of deployment.schema.json.
  *
  * The file /deployment.json, which app reads at every start from the root of its origin, beside its
- * signed build (section 4 of the deployment text). It holds no secret: every browser that opens app
- * gets it.
+ * signed build. It holds no secret: every browser that opens app gets it.
  */
 export interface Deployment {
   /**
@@ -30,7 +28,7 @@ export interface Deployment {
   /**
    * The origin of api: a scheme, a host in lower case and perhaps a port, with no path, query,
    * fragment or credentials; https, or http on a loopback host. That it is equal to its own origin,
-   * and that http needs app itself on a loopback host, are rules of reading (section 5).
+   * and that http needs app itself on a loopback host, are rules of reading the file.
    */
   readonly api: string;
   /**
@@ -76,9 +74,9 @@ export type Parameter = string;
 /**
  * ReadingVector is the type of reading-vector.schema.json.
  *
- * A test vector of reading (section 7 of the deployment text): files of a deployment configuration,
- * each with the origin where app is open and what section 5 gives. A reader implements section 5
- * and gets exactly this.
+ * A test vector of reading: files of a deployment configuration, each with the origin where app is
+ * open and what the rules of reading the file give. A reader implements those rules and gets
+ * exactly this.
  */
 export interface ReadingVector {
   /**

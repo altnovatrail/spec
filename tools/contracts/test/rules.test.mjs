@@ -21,7 +21,7 @@ function expectOnly(errors, pattern) {
   assert.match(messages(errors)[0], pattern);
 }
 
-test("spec's own buf.yaml and buf.gen.yaml are as R83 has them", () => {
+test("spec's own buf.yaml and buf.gen.yaml are as contracts/README.md has them", () => {
   assert.deepEqual(checkBufYaml(bufYaml), []);
   assert.deepEqual(checkBufGenYaml(bufGenYaml), []);
 });
@@ -30,14 +30,14 @@ test("buf.yaml holds no deps, no exception and no other category", () => {
   expectOnly(checkBufYaml(`${bufYaml}deps:\n  - buf.build/bufbuild/protovalidate\n`), /^buf\.yaml:\d+: deps: a dependency comes from the Buf Schema Registry/);
   expectOnly(checkBufYaml(bufYaml.replace("  disallow_comment_ignores: true\n", "  disallow_comment_ignores: true\n  except:\n    - COMMENT_FIELD\n")), /^buf\.yaml:\d+: lint\.except: every rule of the categories holds/);
   expectOnly(checkBufYaml(bufYaml.replace("breaking:\n  use:\n", "breaking:\n  ignore:\n    - contracts\n  use:\n")), /^buf\.yaml:\d+: breaking\.ignore: every rule holds for every file/);
-  expectOnly(checkBufYaml(bufYaml.replace("    - COMMENTS\n", "")), /lint\.use is \["STANDARD","UNARY_RPC"\], and R83 has \["STANDARD","COMMENTS","UNARY_RPC"\]/);
+  expectOnly(checkBufYaml(bufYaml.replace("    - COMMENTS\n", "")), /lint\.use is \["STANDARD","UNARY_RPC"\], and contracts\/README\.md has \["STANDARD","COMMENTS","UNARY_RPC"\]/);
   expectOnly(checkBufYaml(bufYaml.replace("    - FILE\n", "    - WIRE_JSON\n")), /breaking\.use is \["WIRE_JSON"\]/);
-  expectOnly(checkBufYaml(bufYaml.replace("disallow_comment_ignores: true", "disallow_comment_ignores: false")), /lint\.disallow_comment_ignores is false, and R83 has true/);
-  expectOnly(checkBufYaml(bufYaml.replace("version: v2", "version: v1")), /^buf\.yaml:\d+: version is "v1", and R83 has "v2"/);
+  expectOnly(checkBufYaml(bufYaml.replace("disallow_comment_ignores: true", "disallow_comment_ignores: false")), /lint\.disallow_comment_ignores is false, and contracts\/README\.md has true/);
+  expectOnly(checkBufYaml(bufYaml.replace("version: v2", "version: v1")), /^buf\.yaml:\d+: version is "v1", and contracts\/README\.md has "v2"/);
   expectOnly(checkBufYaml(bufYaml.replace("  - path: contracts\n", "  - path: contracts\n  - path: proto\n")), /modules is \[\{"path":"contracts"\},\{"path":"proto"\}\]/);
   expectOnly(checkBufYaml(bufYaml.replace("  - path: contracts\n", "  - path: contracts\n    excludes:\n      - contracts/old\n")), /modules is \[\{"path":"contracts","excludes":\["contracts\/old"\]\}\]/);
-  expectOnly(checkBufYaml(bufYaml.replace(/breaking:\n[^]*$/, "")), /^buf\.yaml:1: breaking is missing: R83 has \{"use":\["FILE"\]\}/);
-  expectOnly(checkBufYaml(bufYaml.replace(/lint:\n[^]*breaking/, "lint: STANDARD\nbreaking")), /^buf\.yaml:\d+: lint is "STANDARD", and R83 has/);
+  expectOnly(checkBufYaml(bufYaml.replace(/breaking:\n[^]*$/, "")), /^buf\.yaml:1: breaking is missing: contracts\/README\.md has \{"use":\["FILE"\]\}/);
+  expectOnly(checkBufYaml(bufYaml.replace(/lint:\n[^]*breaking/, "lint: STANDARD\nbreaking")), /^buf\.yaml:\d+: lint is "STANDARD", and contracts\/README\.md has/);
 });
 
 test("the order of the categories is no part of the rule", () => {
@@ -158,11 +158,11 @@ test("a json_name and an unsigned type are found at any depth, at their lines", 
     { path: [4, 0, 3, 0, 3, 0, 2, 0, 10], span: [14, 20, 30] },
   ];
   assert.deepEqual(messages(checkImage(image({ fields, nested, extensions, locations }))), [
-    "contracts/novatrail/trial/v1/trial.proto:9: the field ymin is of the unsigned uint32, and no contract uses an unsigned type (contracts/README.md, section 5)",
-    "contracts/novatrail/trial/v1/trial.proto:10: the field task_id sets json_name, and a field's name in JSON is its protobuf name (contracts/README.md, section 6)",
-    "contracts/novatrail/trial/v1/trial.proto:13: the field xmin is of the unsigned fixed64, and no contract uses an unsigned type (contracts/README.md, section 5)",
-    "contracts/novatrail/trial/v1/trial.proto:15: the field n sets json_name, and a field's name in JSON is its protobuf name (contracts/README.md, section 6)",
-    "contracts/novatrail/trial/v1/trial.proto:1: the field count is of the unsigned uint64, and no contract uses an unsigned type (contracts/README.md, section 5)",
+    "contracts/novatrail/trial/v1/trial.proto:9: the field ymin is of the unsigned uint32, and no contract uses an unsigned type (contracts/README.md)",
+    "contracts/novatrail/trial/v1/trial.proto:10: the field task_id sets json_name, and a field's name in JSON is its protobuf name (contracts/README.md)",
+    "contracts/novatrail/trial/v1/trial.proto:13: the field xmin is of the unsigned fixed64, and no contract uses an unsigned type (contracts/README.md)",
+    "contracts/novatrail/trial/v1/trial.proto:15: the field n sets json_name, and a field's name in JSON is its protobuf name (contracts/README.md)",
+    "contracts/novatrail/trial/v1/trial.proto:1: the field count is of the unsigned uint64, and no contract uses an unsigned type (contracts/README.md)",
   ]);
 });
 
@@ -170,7 +170,7 @@ test("an error names the line of its own key, not of the first key of the same n
   const lines = bufYaml.split("\n");
   const breakingUse = lines.indexOf("breaking:") + 2;
   const errors = checkBufYaml(bufYaml.replace("    - FILE\n", "    - WIRE\n"));
-  assert.deepEqual(messages(errors), [`buf.yaml:${breakingUse}: breaking.use is ["WIRE"], and R83 has ["FILE"] (contracts/README.md, sections 3 and 7)`]);
+  assert.deepEqual(messages(errors), [`buf.yaml:${breakingUse}: breaking.use is ["WIRE"], and contracts/README.md has ["FILE"]`]);
   const genLines = bufGenYaml.split("\n");
   const third = genLines.findIndex((line) => line.startsWith("  - local: tools/node_modules/.bin/protoc-gen-es"));
   const out = genLines.findIndex((line, i) => i > third && line === "    out: contracts") + 1;
@@ -211,7 +211,7 @@ test("a wrapper of an unsigned type and the unsigned key of a map are found, the
     ],
   });
   assert.deepEqual(messages(found), [
-    "contracts/novatrail/trial/v1/trial.proto:9: the field count is of the unsigned google.protobuf.UInt64Value, and no contract uses an unsigned type (contracts/README.md, section 5)",
-    "contracts/novatrail/trial/v1/trial.proto:8: the field key of the map names is of the unsigned uint32, and no contract uses an unsigned type (contracts/README.md, section 5)",
+    "contracts/novatrail/trial/v1/trial.proto:9: the field count is of the unsigned google.protobuf.UInt64Value, and no contract uses an unsigned type (contracts/README.md)",
+    "contracts/novatrail/trial/v1/trial.proto:8: the field key of the map names is of the unsigned uint32, and no contract uses an unsigned type (contracts/README.md)",
   ]);
 });

@@ -96,7 +96,7 @@ test("the image must hold the report, and name only the values the rules know", 
     const more = structuredClone(image);
     const file = more.file.find((one) => one.package === "novatrail.eval.v1" && one.enumType?.some((each) => each.name === name));
     file.enumType.find((one) => one.name === name).value.push({ name: value, number: 9 });
-    assert.match(reportOf(more).error, new RegExp(`^novatrail\\.eval\\.v1\\.${name} has ${value}, which the rules of contracts/README\\.md, section 14 do not name`));
+    assert.match(reportOf(more).error, new RegExp(`^novatrail\\.eval\\.v1\\.${name} has ${value}, which the rules of the runner's report in contracts/README\\.md do not name`));
   }
 });
 

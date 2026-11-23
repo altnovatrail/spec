@@ -217,7 +217,7 @@ test("a session goes on with its own task and stops another", () => {
 });
 
 test("a run of the orchestrator goes on under each number it goes by, and stops any other task", () => {
-  // The prompt named T27, and the executor wrote the task into its plan as T28, the next number free.
+  // The prompt named `T27`, and the executor wrote the task into its plan as `T28`, the next number free.
   const led = [typed("Выполни задачу T27 из RUN.md. Её ещё нет в этом репозитории"), answer("T28")];
   assert.match(verdict("Сделай T28 сейчас, на ветке t28-ci-speed", led), /starts T28, and this session has led T27/);
   assert.equal(verdict("Сделай T28 сейчас, на ветке t28-ci-speed", led, ["T27", "T28"]), null);

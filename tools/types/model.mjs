@@ -2,7 +2,7 @@
 // its root and each of its $defs —, the objects without a name of their own, named by
 // INLINE_NAMES, and the enumerations of a field, named after the field. A type is a struct, a
 // string, an integer or another type under a name of its own; a struct has fields, each with its
-// type, whether the object always holds it, and whether the open view keeps it (R72).
+// type, whether the object always holds it, and whether the open view keeps it.
 //
 // The model takes the shape of a value and leaves the rest to the schema: pattern, bounds, not,
 // contains, and what one field says of another. A field that a branch of if/then/else declares is
@@ -66,7 +66,7 @@ const PRIMITIVES = new Set(["string", "integer", "number", "boolean"]);
 // name. Throws a ModelError at the first form it does not know. anyValue lets a field whose every
 // subschema holds a description alone hold any JSON value, as a vector's file or passport does;
 // anywhere else such a field has no shape. Only the deployment configuration and the legal texts
-// set it (R85, R130).
+// set it.
 export function buildModel(schemas, parts, { anyValue = false } = {}) {
   const byName = new Map(schemas.map((schema) => [schema.name, schema.json]));
   const types = new Map();
@@ -223,7 +223,7 @@ export function buildModel(schemas, parts, { anyValue = false } = {}) {
   // always: required at the object or in an allOf of it, not in a branch. A member of allOf may be
   // a $ref to another struct, whose fields the object takes as they are, with the types they have
   // there: an enumeration of a field of that struct is one type, named after it, whichever object
-  // takes its fields, as legal/schemas needs (R130).
+  // takes its fields, as legal/schemas needs.
   const fieldsOf = (node, schema, pointer) => {
     const declarations = new Map();
     const required = new Set();

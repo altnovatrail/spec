@@ -1,7 +1,7 @@
 // The test vectors of the observation, novatrail.observation.v1: a second implementation of what
 // module-kit does with observations — which one is valid, how two readers' observations join into
 // one, and which verdict the joined one gives — beside module-kit's own, whose CI passes the same
-// vectors (R86). The verdicts of the check kinds are format-check's: spec has no Starlark, so the
+// vectors. The verdicts of the check kinds are format-check's: spec has no Starlark, so the
 // verdict of a predicate on a value in its notation is the vector's, while the join of two such
 // values, which compares the integers read, is computed here too.
 //
@@ -34,7 +34,7 @@ import { isObject } from "./rules.mjs";
 
 export const PACKAGE = "novatrail.observation.v1";
 export const FOLDER = "contracts/vectors/observation/v1";
-const TEXT = "contracts/README.md, section 10";
+const TEXT = "the observation in contracts/README.md";
 const OBSERVATION = `${PACKAGE}.Observation`;
 const UNREADABLE = `${PACKAGE}.Unreadable`;
 const UNSPECIFIED = "UNREADABLE_UNSPECIFIED";
@@ -232,7 +232,7 @@ function observationAt(json, message, which) {
   } catch (error) {
     return { problem: `${which} does not read as ${OBSERVATION}: ${error.message}` };
   }
-  if (!isDeepStrictEqual(read, json)) return { problem: `${which} is not as a writer writes it, with the protobuf names and every field: ${show(read)} (contracts/README.md, section 6)` };
+  if (!isDeepStrictEqual(read, json)) return { problem: `${which} is not as a writer writes it, with the protobuf names and every field: ${show(read)} (contracts/README.md)` };
   return { observation: read };
 }
 
@@ -267,7 +267,7 @@ export function checkVector(bytes, { message, reasons, canvas, item }) {
   if (problems.length) return { problems, seen };
   const all = value.items.flatMap((one, i) => answerSlotsOf(one).map((slot, j) => ({ item: i + 1, slot: j + 1, at: slot })));
   const alone = all.find((place) => place.at.binding === "anywhere" || place.at.binding === "sheet");
-  if (alone && all.length > 1) return { problems: [{ line: lineOf(["items"]), message: `answer slot ${placeOf(alone)} is bound ${alone.at.binding}, so it is the only answer slot of its task (format/README.md, section 14)` }], seen };
+  if (alone && all.length > 1) return { problems: [{ line: lineOf(["items"]), message: `answer slot ${placeOf(alone)} is bound ${alone.at.binding}, so it is the only answer slot of its task (format/README.md)` }], seen };
   const places = all.filter((place) => place.at.binding !== "choice");
   const choices = all.filter((place) => place.at.binding === "choice");
   if (places.length === 0) return { problems: [{ line: lineOf(["items"]), message: "no answer slot of the task is read by AI: every one is bound choice, so there is no observation" }], seen };

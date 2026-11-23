@@ -9,7 +9,7 @@
 // "true", or "error" with the reason in the page. From there it is the mockup in Play, with its
 // timers live — but for a state that shows what a timer would end, such as the work being read: its
 // timers wait for the first tap or key, so that a snapshot cannot race them. Without screen it
-// lists every state, with a link for each device (R148).
+// lists every state, with a link for each device.
 
 import { App } from "./runtime.mjs";
 import { STATES, reach } from "./states.mjs";

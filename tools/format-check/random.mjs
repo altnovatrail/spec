@@ -1,7 +1,7 @@
 // The module format's generator, a second implementation beside module-kit's by which CI computes
 // its test vectors. Every number is a BigInt, so that 64 and 128 bits are exact. It is PCG as Go's
 // math/rand/v2 has it, a place of randomness's stream derived as mathtrail-standalone's simulator
-// derives it, and each function on a stream draws as many integers as Go's method does (R59).
+// derives it, and each function on a stream draws as many integers as Go's method does.
 
 const WORD = (1n << 64n) - 1n;
 const STATE = (1n << 128n) - 1n;

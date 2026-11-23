@@ -6,7 +6,7 @@
 # CI, whose jobs run the tests in parts, on the reports of every part together: a module that one
 # part alone loads is in that part's report alone. It runs from the repository's
 # root, in the toolchain stage or on the runner itself: git, sed, sort and comm are all it takes.
-# Exit 1 names the untested modules; exit 2, no report named or one that is not there (R48).
+# Exit 1 names the untested modules; exit 2, no report named or one that is not there.
 set -euo pipefail
 export LC_ALL=C
 

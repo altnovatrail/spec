@@ -1,5 +1,5 @@
 // export-line: a new version of the format of the export starts a new line of spec's releases, by
-// the rule of part-line.mjs (R135). In spec, `just release-version` passes what
+// the rule of part-line.mjs. In spec, `just release-version` passes what
 // consent-age-line.mjs prints through it, with the commit, and it prints the same lines, or refuses:
 //
 //   ... | node tools/release/consent-age-line.mjs <commit> | node tools/release/export-line.mjs <commit>
@@ -23,7 +23,6 @@ const README = "export/README.md";
 export const EXPORT = {
   file: "export/VERSION",
   name: "the format of the export",
-  decision: "R135",
   firstLine: FIRST_EXPORT_LINE,
   parse: exportVersion,
   below: (now, then) => Number(now) < Number(then),
@@ -34,7 +33,7 @@ export const EXPORT = {
 export const checked = (outputs) => partChecked(EXPORT, outputs);
 
 // The rule for the release of version after previous, with the part's versions at each and what
-// changed of its shape between them, as a phrase, or null (R135).
+// changed of its shape between them, as a phrase, or null.
 export function checkExportLine({ version, previous, exportNow, exportThen, changed = null }) {
   checkPartLine(EXPORT, { version, previous, now: exportNow, before: exportThen, changed });
 }

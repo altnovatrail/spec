@@ -1,4 +1,4 @@
-// What licenses-check accepts in tools/package-lock.json (R12).
+// What licenses-check accepts in tools/package-lock.json.
 
 // Compatible with Apache-2.0: the ASF's Category A, "we consider the following licenses to be
 // similar in terms to the Apache License 2.0", as SPDX identifiers. CC0 is on the ASF's list of
@@ -21,7 +21,7 @@ export const allowed = [
 export const exceptions = {
   elkjs: {
     license: "EPL-2.0 OR GPL-3.0-or-later",
-    reason: "mermaid's layout engine, run by docs-check and never shipped: a tool's exception, under EPL-2.0 (R12; sources 7.6)",
+    reason: "mermaid's layout engine, run by docs-check and never shipped: a tool's exception, under EPL-2.0 (sources 7.6)",
   },
   khroma: {
     license: null,

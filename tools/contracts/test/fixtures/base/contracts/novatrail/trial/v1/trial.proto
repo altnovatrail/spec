@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 // A trial contract of contracts-check's tests: a message, an enum, a nested message and a
-// service, each with its comment, as R83 has a contract written.
+// service, each with its comment, as contracts/README.md has a contract written.
 package novatrail.trial.v1;
 
 // A place on the canvas, in thousandths of the crop.

@@ -1,5 +1,5 @@
 // consent-age-check: spec's own consent-age/, the table of the age of digital consent, by the
-// layout of its text, consent-age/README.md (R134):
+// layout of its text, consent-age/README.md:
 //
 //   node tools/consent-age/main.mjs
 //
@@ -89,14 +89,14 @@ export function checkConsentAge(root, { previousOf = previousConsentAge } = {}) 
     for (const outcome of ["accepted", SCHEMA, ...RULES]) {
       if (outcomes.has(`reading:${outcome}`)) continue;
       const what = outcome === "accepted" ? "accepts a table" : outcome === SCHEMA ? "refuses a table by the schema" : `refuses a table by ${outcome}`;
-      report(`${FOLDER}/vectors/reading`, 0, `no vector of reading ${what} (${FOLDER}/README.md, section 8)`);
+      report(`${FOLDER}/vectors/reading`, 0, `no vector of reading ${what}, which ${FOLDER}/README.md asks for`);
     }
   }
   if (validators.has(CATEGORY_TERM) && validateTable) {
     for (const outcome of [UNDER_13, FROM_13_TO_CONSENT, FROM_CONSENT_TO_18, ADULT, "ask_again:true", "ask_again:false"]) {
       if (outcomes.has(`category:${outcome}`)) continue;
       const what = outcome.startsWith("ask_again:") ? `answers ${outcome.slice("ask_again:".length)} to asking the age again` : `gives the category ${outcome}`;
-      report(`${FOLDER}/vectors/category`, 0, `no vector of the category ${what} (${FOLDER}/README.md, section 8)`);
+      report(`${FOLDER}/vectors/category`, 0, `no vector of the category ${what}, which ${FOLDER}/README.md asks for`);
     }
   }
 
@@ -155,7 +155,7 @@ function readTheTable(validate, table, previous, report, stats) {
   }
   for (const name of reading.names) {
     if (reading.refused_by === SCHEMA) report(file, 0, `does not pass ${FOLDER}/schemas/${TABLE_TERM}.schema.json: ${name || "the root"}`);
-    else report(file, 0, `${reading.refused_by}: ${name}, ${FOLDER}/README.md, section 5${reading.refused_by === AGES_KEPT ? `, against ${previous.tag}` : ""}`);
+    else report(file, 0, `${reading.refused_by}: ${name}, by the reading of ${FOLDER}/README.md${reading.refused_by === AGES_KEPT ? `, against ${previous.tag}` : ""}`);
   }
 }
 
@@ -194,7 +194,7 @@ function readLayout(root, report) {
     else if (parts.length === 4 && parts[0] === "examples" && isKebabCase(parts[1]) && ["valid", "invalid"].includes(parts[2]) && isCase(parts[3])) {
       layout.examples.push({ file, term: parts[1], kind: parts[2] });
     } else if (parts.length === 3 && parts[0] === "vectors" && Object.hasOwn(VECTOR_KINDS, parts[1]) && isCase(parts[2])) layout.vectors.push({ file, kind: parts[1] });
-    else report(file, 0, `no file of the layout of ${FOLDER}/ (${FOLDER}/README.md, section 3)`);
+    else report(file, 0, `no file of the layout of ${FOLDER}/ that ${FOLDER}/README.md gives`);
   }
   layout.schemas.sort(byCodeUnits);
   return layout;
@@ -233,10 +233,10 @@ function categoryVectorProblems(bytes, validate, validateTable) {
   const { problems, value } = readVector(bytes, validate, "the category");
   if (value === undefined || !validateTable) return { problems, cases: [] };
   const reading = readingOf(validateTable, value.table);
-  if (!reading.accepted) return { problems: [...problems, { line: 0, message: `table: section 5 refuses the table of a vector of the category, by ${reading.refused_by}: ${reading.names.join(", ")}` }], cases: [] };
+  if (!reading.accepted) return { problems: [...problems, { line: 0, message: `table: the reading of consent-age/README.md refuses the table of a vector of the category, by ${reading.refused_by}: ${reading.names.join(", ")}` }], cases: [] };
   value.cases.forEach((each, index) => {
     for (const [field, computed] of Object.entries(caseOf(value.table, each))) {
-      if (computed !== each[field]) problems.push({ line: 0, message: `cases/${index}: section 6 gives ${field} ${JSON.stringify(computed)}, and the vector ${JSON.stringify(each[field])}` });
+      if (computed !== each[field]) problems.push({ line: 0, message: `cases/${index}: consent-age/README.md gives ${field} ${JSON.stringify(computed)}, and the vector ${JSON.stringify(each[field])}` });
     }
   });
   return { problems, cases: value.cases };

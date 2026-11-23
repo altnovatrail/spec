@@ -6,7 +6,7 @@
 // those read already.
 //
 // A number is the repository's own where its plan defines it: the first or second cell of a row of a
-// table — «| [x] | T27 | …» — and a heading «#### T27.», in RUN.md, run/TASKS.md and the archives
+// table — `| [x] | T27 | …` — and a heading `#### T27.`, in RUN.md, run/TASKS.md and the archives
 // docs/plan/*.md. A number it only cites, of its own or another repository, is not counted.
 
 import { spawnSync } from "node:child_process";

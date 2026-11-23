@@ -4,11 +4,11 @@ package formatv0
 
 // TemplateVector is the type of template-vector.schema.json.
 //
-// A test vector of templates (sections 23 and 24 of the format text): a template, the number of its
-// instances, the names that its solver gets, when it has one, and attempts, each with its seed, the
-// numbers of the instance that the seed picks, that instance, and the digest of its open view. An
-// implementation counts the instances, picks the instance of each seed, runs the solver on it,
-// replaces the placeholders, and gets exactly these.
+// A test vector of templates: a template, the number of its instances, the names that its solver
+// gets, when it has one, and attempts, each with its seed, the numbers of the instance that the
+// seed picks, that instance, and the digest of its open view. An implementation counts the
+// instances, picks the instance of each seed, runs the solver on it, replaces the placeholders, and
+// gets exactly these.
 type TemplateVector struct {
 	// The template: a task with a template, which breaks no rule of a task.
 	Task Task `json:"task"`
@@ -39,6 +39,7 @@ type Attempt struct {
 	Instance Task `json:"instance"`
 	// The digest of the open view of the instance, as a sample of the eval protocol names the task
 	// it answers: sha256: and the SHA-256 of the open view's canonical text, the instance's numbers
-	// in place (section 25 of the format text; contracts/README.md, section 11).
+	// in place, as the format's rules of packages take a digest and the sample file of
+	// `contracts/README.md` names a task.
 	OpenViewDigest Digest `json:"open_view_digest"`
 }

@@ -3,7 +3,7 @@
 # solve gets the numbers that the statement and the givens show, left and to_ben, and not the derived
 # numbers, which stand only in the trap values and the solution. The result sweets is the vector's
 # own, as standalone's solver finds it: spec runs no Starlark, and module-kit's CI runs the solver on
-# every instance and compares (section 24). The solver carries this notice:
+# every instance and compares. The solver carries this notice:
 #
 # MIT License
 #

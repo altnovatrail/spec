@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/legal/3/reading-vector.schema.json",
   "title": "Reading vector",
-  "description": "A test vector of reading (section 7 of the legal text): parts, each read on a day and perhaps with the part of the release before, and what section 5 gives. A reader implements section 5 and gets exactly this.",
+  "description": "A test vector of reading: parts, each read on a day and perhaps with the part of the release before, and what the rules of reading the part give. A reader implements those rules and gets exactly this.",
   "type": "object",
   "properties": {
     "cases": {

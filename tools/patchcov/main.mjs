@@ -1,5 +1,5 @@
 // patchcov: the coverage of the lines a branch changes, as Codecov's check codecov/patch counts it,
-// before the pull request (R166, R48).
+// before the pull request.
 //
 //   node tools/patchcov/main.mjs [--report <file>]… [--config <file>]
 //

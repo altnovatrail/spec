@@ -1,5 +1,5 @@
 # The package of a module whose task holds the characters that the canonical text escapes and some
-# that it writes as they are (section 25). The server part holds them as the YAML gives them, the size
+# that it writes as they are. The server part holds them as the YAML gives them, the size
 # of the picture as 50, and its digest is that of the canonical text that writes them: the quotation
 # mark, the backslash, the tab and the line feed by their short escapes, the bell as \u0007, and <, >,
 # &, U+2028, the letter outside the Basic Multilingual Plane and the combining accent as they are.

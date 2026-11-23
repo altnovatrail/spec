@@ -1,12 +1,12 @@
-# CodeQL over the repository's workflows, its JavaScript and its Go, pinned to a release of .github
-# (R03 .github, R09 .github): the code of tools/, the Go module spec ships with the check of its zip
-# (R64), and the code buf generates from the contracts, in Go and in JavaScript (R83). Go is read
-# from a build, with the Go of the toolchain stage of .devcontainer/Dockerfile, in /usr/local/go.
+# CodeQL over the repository's workflows, its JavaScript and its Go, pinned to a release of .github:
+# the code of tools/, the Go module spec ships with the check of its zip, and the code buf generates
+# from the contracts, in Go and in JavaScript. Go is read from a build, with the Go of the
+# toolchain stage of .devcontainer/Dockerfile, in /usr/local/go.
 # The prototype in draft/ is left out, as SonarCloud leaves it out: its scripts are the loader a
 # design tool built, not the platform's code, and every new prototype would bring the same findings
-# back (R33). The analysis of actions reads every workflow all the same. The job gives the shared
+# back. The analysis of actions reads every workflow all the same. The job gives the shared
 # workflow what it needs to upload its results. Its checks, one per language, are required checks
-# in the ruleset of main, and the ruleset holds a merge on what they find (R30).
+# in the ruleset of main, and the ruleset holds a merge on what they find.
 name: CodeQL
 
 on:

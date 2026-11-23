@@ -8,7 +8,8 @@
 // and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
 // with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
-// with the same idempotency key answers are the rules of contracts/README.md, section 15.
+// with the same idempotency key answers are the rules of contracts/README.md for
+// the contract between `app` and `api`.
 
 package apiv1
 
@@ -151,7 +152,7 @@ func (TutorReply) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{1}
 }
 
-// What is wrong with the tutor's words: the closed set the person picks one word of (R123).
+// What is wrong with the tutor's words: the closed set the person picks one word of.
 type ProblemKind int32
 
 const (
@@ -220,7 +221,7 @@ func (ProblemKind) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{2}
 }
 
-// Whose action a request is: the server tells kinds of action apart, not people (R04 api).
+// Whose action a request is: the server tells kinds of action apart, not people.
 type Action int32
 
 const (
@@ -282,7 +283,7 @@ const (
 	// A frame round the place.
 	MarkKind_MARK_KIND_FRAME MarkKind = 1
 	// A wavy line under the place of the first mistake: on a task from paper alone, at a box on the
-	// crop, and only while the profile's hint mode is `HINT_MODE_SHOW_WHERE` (R162).
+	// crop, and only while the profile's hint mode is `HINT_MODE_SHOW_WHERE`.
 	MarkKind_MARK_KIND_WAVY_LINE MarkKind = 2
 )
 
@@ -350,7 +351,7 @@ type SubmitWorkRequest struct {
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, on a submission with no
 	// `work`, which AI would read, and so with no `own_key`, so that the engine's choice in `next`
-	// goes by that route (R84; R99). Empty on platform AI. A submission with it beside `work` or
+	// goes by that route. Empty on platform AI. A submission with it beside `work` or
 	// `own_key` gets the code `invalid_argument`: there the route is that of `own_key`, or platform
 	// AI's without one.
 	OwnKeyProvider string `protobuf:"bytes,8,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
@@ -457,7 +458,7 @@ type SubmitWorkResponse struct {
 	// with an answer slot "not_yet".
 	WrongAnswers int32 `protobuf:"varint,3,opt,name=wrong_answers,json=wrongAnswers,proto3" json:"wrong_answers,omitempty"`
 	// The solved task, when every item is correct and the attempt is closed `CLOSE_REASON_CORRECT`:
-	// empty on a task from paper, which shows neither its key nor a solution (R05).
+	// empty on a task from paper, which shows neither its key nor a solution.
 	Solved *SolvedTask `protobuf:"bytes,4,opt,name=solved,proto3" json:"solved,omitempty"`
 	// What comes next, beside `solved`: absent on a task from paper.
 	Next          *Next `protobuf:"bytes,5,opt,name=next,proto3" json:"next,omitempty"`
@@ -621,7 +622,7 @@ func (x *SubmitEssayRequest) GetClockOffsetMinutes() int32 {
 	return 0
 }
 
-// How a submission of an essay ended (R87). No verdict: an item with a rubric has none.
+// How a submission of an essay ended. No verdict: an item with a rubric has none.
 type SubmitEssayResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// How the submission ended.
@@ -737,7 +738,7 @@ type DoneRequest struct {
 	AttemptId string `protobuf:"bytes,2,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that the engine's choice
-	// in `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+	// in `next` goes by that route, though the request calls no AI. Empty on platform AI.
 	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -1733,7 +1734,7 @@ type GetHintResponse struct {
 	// the instance that the attempt got: the author's question that breaks the task down, in the
 	// module's explanation language. Empty when the task has none, and always empty with the rung's
 	// words: after the first wrong answer it is no more given. The server records it as given only
-	// when it is not empty, as it records a technique given on request (R108).
+	// when it is not empty, as it records a technique given on request.
 	LeadingQuestion string `protobuf:"bytes,3,opt,name=leading_question,json=leadingQuestion,proto3" json:"leading_question,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -2044,7 +2045,7 @@ type ShowSolutionRequest struct {
 	Action Action `protobuf:"varint,4,opt,name=action,proto3,enum=novatrail.api.v1.Action" json:"action,omitempty"`
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that the engine's choice
-	// in `next` goes by that route, though the request calls no AI. Empty on platform AI (R84; R99).
+	// in `next` goes by that route, though the request calls no AI. Empty on platform AI.
 	OwnKeyProvider string `protobuf:"bytes,5,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -2286,7 +2287,7 @@ type ReportProblemResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the report.
 	ReportId string `protobuf:"bytes,1,opt,name=report_id,json=reportId,proto3" json:"report_id,omitempty"`
-	// When the operator reviews it by: 3 days after it came (R123).
+	// When the operator reviews it by: 3 days after it came.
 	ReviewBy      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=review_by,json=reviewBy,proto3" json:"review_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2433,7 +2434,7 @@ type Work_Workbook struct {
 }
 
 type Work_Paper struct {
-	// A dotted sheet under the crop of a task from paper, as tracing paper (R162).
+	// A dotted sheet under the crop of a task from paper, as tracing paper.
 	Paper *PaperWork `protobuf:"bytes,3,opt,name=paper,proto3,oneof"`
 }
 
@@ -3150,7 +3151,7 @@ type Mark struct {
 	// What the mark is.
 	Kind MarkKind `protobuf:"varint,1,opt,name=kind,proto3,enum=novatrail.api.v1.MarkKind" json:"kind,omitempty"`
 	// Where the mark stands. A group's label comes only if the frames of the groups go with the work
-	// (repositories 8, Т-31).
+	// (Т-31).
 	//
 	// Types that are valid to be assigned to Place:
 	//

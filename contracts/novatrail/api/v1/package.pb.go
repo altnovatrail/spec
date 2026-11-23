@@ -7,7 +7,7 @@
 // What a package of a module gives by its digest, in the contract between `app` and `api`: the
 // open views of its manifest, skill graph, technique catalog and solving steps, which go without a
 // token, and whether the image of `api` still gives a package. The files of a package's device
-// part are no method of the contract: they go by HTTP GET, as contracts/README.md, section 15, has
+// part are no method of the contract: they go by HTTP GET, as contracts/README.md has
 // it, with the rules of the whole contract.
 
 package apiv1
@@ -88,14 +88,14 @@ func (PackageStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 // An open view of a part of a module: what the learner's app receives of the part, without its
-// closed fields (section 6 of the module format). `app` and `api` read it by the types of the
-// module format, `open` of `@altnovatrail/spec` and of the Go module `spec`.
+// closed fields, as the module format sets its open fields apart. `app` and `api` read it by the
+// types of the module format, `open` of `@altnovatrail/spec` and of the Go module `spec`.
 type OpenView struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The open view, as JSON of the module format.
 	Json []byte `protobuf:"bytes,1,opt,name=json,proto3" json:"json,omitempty"`
 	// The version of the module format the view is written in, MAJOR.MINOR: `app` reads a view of a
-	// version its build reads, and offers to reload for another (R44).
+	// version its build reads, and offers to reload for another.
 	ModuleFormatVersion string `protobuf:"bytes,2,opt,name=module_format_version,json=moduleFormatVersion,proto3" json:"module_format_version,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -288,8 +288,8 @@ type GetSkillGraphResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The open view of the package's skill graph: absent when the module has none.
 	SkillGraph *OpenView `protobuf:"bytes,1,opt,name=skill_graph,json=skillGraph,proto3" json:"skill_graph,omitempty"`
-	// The tier of each skill of the graph, by its local ID, as section 12 of the module format
-	// computes it and the canonical view of the package holds it, `skill_tiers`: no field of the
+	// The tier of each skill of the graph, by its local ID, as the module format computes it for the
+	// skill graph and the canonical view of the package holds it, `skill_tiers`: no field of the
 	// graph, nor of its open view.
 	SkillTiers    map[string]int32 `protobuf:"bytes,2,rep,name=skill_tiers,json=skillTiers,proto3" json:"skill_tiers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields

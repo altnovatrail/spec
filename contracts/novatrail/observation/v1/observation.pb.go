@@ -7,7 +7,7 @@
 // The observation: what AI read in a learner's work, answer slot by answer slot, before any check
 // runs. A reader of `tutor` gives one; `module-kit` joins the observations of two readers into one
 // and gives the verdict on it. What the messages mean, how two observations are joined and which
-// verdict an observation gives are the rules of contracts/README.md, section 10.
+// verdict an observation gives are the rules of contracts/README.md for the observation.
 
 package observationv1
 
@@ -29,7 +29,7 @@ const (
 // Why a reading gives an answer slot no value. In a slot whose check gives a verdict, each makes
 // the verdict `unreadable`, with the reason named as the value is, in lower case and without its
 // prefix; an essay that is blank or illegible does not reach the assessment by its rubric
-// (contracts/README.md, section 10).
+// (contracts/README.md).
 type Unreadable int32
 
 const (
@@ -240,7 +240,7 @@ type isAnswerSlotObservation_Read interface {
 
 type AnswerSlotObservation_Value struct {
 	// The value as it is written, never empty: the reader does not normalize it
-	// (contracts/README.md, section 10). In a slot bound `sheet`, the text of the essay.
+	// (contracts/README.md). In a slot bound `sheet`, the text of the essay.
 	Value string `protobuf:"bytes,2,opt,name=value,proto3,oneof"`
 }
 
@@ -310,7 +310,7 @@ func (x *AnswerSlotPlace) GetSlot() int32 {
 }
 
 // A box on the crop the device sent, in whole thousandths of the crop's height and width, from 0
-// to 1000, as [ymin, xmin, ymax, xmax]: ymin < ymax and xmin < xmax (R53).
+// to 1000, as [ymin, xmin, ymax, xmax]: ymin < ymax and xmin < xmax.
 type CropBox struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The top edge, in thousandths of the crop's height.

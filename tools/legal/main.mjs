@@ -1,4 +1,4 @@
-// legal-check: spec's own legal/, the legal texts (R130), by the layout and the rules of
+// legal-check: spec's own legal/, the legal texts, by the layout and the rules of
 // legal/README.md:
 //
 //   node tools/legal/main.mjs                  checks spec's own legal/
@@ -87,7 +87,7 @@ export function checkLegal(root, { previousOf = previousLegal, today = todayInUt
     for (const outcome of ["accepted", SCHEMA, ...RULES]) {
       if (outcomes.has(outcome)) continue;
       const what = outcome === "accepted" ? "accepts a part" : outcome === SCHEMA ? "refuses a part by the schema" : `refuses a part by ${outcome}`;
-      report(`${FOLDER}/vectors/reading`, 0, `no vector of reading ${what} (${FOLDER}/README.md, section 7)`);
+      report(`${FOLDER}/vectors/reading`, 0, `no vector of reading ${what}, which ${FOLDER}/README.md asks for`);
     }
   }
 
@@ -125,7 +125,7 @@ export function checkLegalDir(dir, specRoot, shown = dir, { today = todayInUtc()
   for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => byCodeUnits(a.name, b.name))) {
     if (["VERSION", PASSPORT, TEXTS].includes(entry.name)) continue;
     for (const file of entry.isDirectory() ? filesUnder(dir, entry.name) : [entry.name]) {
-      report(`${shown}/${file}`, 0, `no file of a copy's folder, which holds VERSION, ${PASSPORT} and ${TEXTS}/ alone (${FOLDER}/README.md, sections 3 and 8)`);
+      report(`${shown}/${file}`, 0, `no file of a copy's folder, which holds VERSION, ${PASSPORT} and ${TEXTS}/ alone, as ${FOLDER}/README.md says`);
     }
   }
   const version = readVersionFile(dir, "VERSION", VERSION, VERSION_WORDS, (file, line, message) => report(`${shown}/${file}`, line, message));
@@ -199,11 +199,11 @@ function readThePart(validate, part, previous, today, shown, report, stats) {
     else if (reading.refused_by === MARKDOWN) report(file, 0, `${MARKDOWN}: ${markdownProblem(part.files[name])}`);
     else if (reading.refused_by === OPERATOR) {
       const why = isFile ? 'it has no section "Who we are", a heading of the second level' : `the part has no ${POLICY} at the place app with a version in force by ${today}`;
-      report(file, 0, `${OPERATOR}: ${name}: ${why}, ${FOLDER}/README.md, section 5`);
+      report(file, 0, `${OPERATOR}: ${name}: ${why}, by the reading of ${FOLDER}/README.md`);
     }
     else {
       const against = previous ? `, against ${previous.tag}` : "";
-      report(file, 0, `${reading.refused_by}: ${name}${isFile ? "" : `, ${FOLDER}/README.md, section 5`}${against}`);
+      report(file, 0, `${reading.refused_by}: ${name}${isFile ? "" : `, by the reading of ${FOLDER}/README.md`}${against}`);
     }
   }
 }
@@ -272,7 +272,7 @@ function readLayout(root, report) {
     else if (parts.length === 4 && parts[0] === "examples" && isKebabCase(parts[1]) && ["valid", "invalid"].includes(parts[2]) && isCase(parts[3])) {
       layout.examples.push({ file, term: parts[1], kind: parts[2] });
     } else if (parts.length === 3 && parts[0] === "vectors" && parts[1] === "reading" && isCase(parts[2])) layout.vectors.push(file);
-    else report(file, 0, `no file of the layout of ${FOLDER}/ (${FOLDER}/README.md, section 3)`);
+    else report(file, 0, `no file of the layout of ${FOLDER}/ that ${FOLDER}/README.md gives`);
   }
   layout.schemas.sort(byCodeUnits);
   return layout;

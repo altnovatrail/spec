@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/consent-age/1/category-vector.schema.json",
   "title": "Category vector",
-  "description": "A test vector of the category (section 8 of the text of the part): a table that section 5 accepts, and what section 6 gives on it — the category of a learner, and whether a profile's age is asked again.",
+  "description": "A test vector of the category: a table that the rules of reading the table accept, and what the rule of the category gives on it — the category of a learner, and whether a profile's age is asked again.",
   "type": "object",
   "properties": {
     "table": {
@@ -15,7 +15,7 @@
       "items": {
         "$ref": "#/$defs/category_case",
         "unevaluatedProperties": false,
-        "description": "A case of section 6."
+        "description": "A case of the rule of the category."
       },
       "minItems": 1,
       "description": "The cases."

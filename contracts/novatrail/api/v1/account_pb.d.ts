@@ -9,7 +9,7 @@
 // of the section for adults; the voicing and the hint mode a learner sets; the storage of works;
 // the own key checked when it is connected; the share of the quota of platform AI; deletion and
 // export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// contracts/README.md for the contract between `app` and `api`.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -73,7 +73,7 @@ export declare type CreateAccountRequest = Message<"novatrail.api.v1.CreateAccou
 
   /**
    * The owner's statement that they are 18 or older: true, or the request is refused
-   * `invalid_argument`. `api` keeps it with its date (privacy 9, П-6).
+   * `invalid_argument`. `api` keeps it with its date (П-6).
    *
    * @generated from field: bool adult_stated = 2;
    */
@@ -146,7 +146,7 @@ export declare type Account = Message<"novatrail.api.v1.Account"> & {
   /**
    * The consents for a child that have no profile yet: waiting, or confirmed and waiting for the
    * profile. A consent taken back or withdrawn is not here: nothing of it is left but the minimal
-   * record, which names no account (R117).
+   * record, which names no account.
    *
    * @generated from field: repeated novatrail.api.v1.ChildConsent child_consents = 4;
    */
@@ -160,9 +160,9 @@ export declare type Account = Message<"novatrail.api.v1.Account"> & {
 export declare const AccountSchema: GenMessage<Account>;
 
 /**
- * A profile, a learner in the account (concepts 13), as `api` keeps it, with its open attempt and
+ * A profile, a learner in the account, as `api` keeps it, with its open attempt and
  * its open lesson runs. Its date of the age given and its last activity stay in `api`; its
- * interests come only once the module format gives a task a look by interests (concepts 13; R51).
+ * interests come only once the module format gives a task a look by interests.
  *
  * @generated from message novatrail.api.v1.Profile
  */
@@ -198,7 +198,7 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
 
   /**
    * The age category, by its code: "under_13", "from_13_to_consent", "from_consent_to_18" or
-   * "adult" (R46).
+   * "adult".
    *
    * @generated from field: string age_category = 5;
    */
@@ -228,14 +228,14 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
 
   /**
    * The language of the interface, a tag of BCP 47: absent when none is set, and then `app` speaks
-   * the language of the device. It goes to no AI (R92).
+   * the language of the device. It goes to no AI.
    *
    * @generated from field: optional string interface_language = 9;
    */
   interfaceLanguage?: string | undefined;
 
   /**
-   * The grade, from 1 to 12, as a module with grades asks for it (R49): absent when none is given.
+   * The grade, from 1 to 12, as a module with grades asks for it: absent when none is given.
    *
    * @generated from field: optional int32 grade = 10;
    */
@@ -252,7 +252,7 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
   /**
    * The profile's open attempt of a task of a module: absent when it has none. A profile has one
    * at most; the open attempts of tasks from paper are not named here, since only the device that
-   * holds their page goes on with them (R162).
+   * holds their page goes on with them.
    *
    * @generated from field: novatrail.api.v1.OpenAttemptRef open_attempt = 12;
    */
@@ -274,14 +274,14 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
 
   /**
    * Whether a year has passed since the age was given: `app` asks the adult for the age again,
-   * `RestateAge`, and until then the category stays as it is (privacy 3.3).
+   * `RestateAge`, and until then the category stays as it is.
    *
    * @generated from field: bool age_check_due = 15;
    */
   ageCheckDue: boolean;
 
   /**
-   * Whether the storage of the profile's works on the server is on (R113).
+   * Whether the storage of the profile's works on the server is on.
    *
    * @generated from field: bool work_storage = 16;
    */
@@ -289,7 +289,7 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
 
   /**
    * The hint mode: whether a task from paper gets the wavy line with the words of a rung. It goes
-   * to no AI (R162).
+   * to no AI.
    *
    * @generated from field: novatrail.api.v1.HintMode hint_mode = 17;
    */
@@ -339,7 +339,7 @@ export declare const ProfileConsentSchema: GenMessage<ProfileConsent>;
 
 /**
  * The presentation style of a profile. What else it holds comes with what a module may say of it
- * (product 13, О-23).
+ * (О-23).
  *
  * @generated from message novatrail.api.v1.PresentationStyle
  */
@@ -430,7 +430,7 @@ export declare type ProfileSettings = Message<"novatrail.api.v1.ProfileSettings"
 
   /**
    * The language of the interface, a well-formed tag of BCP 47, which `api` keeps with no list of
-   * its own (R92); empty clears it. On a new profile `app` sends the language of the section for
+   * its own; empty clears it. On a new profile `app` sends the language of the section for
    * adults.
    *
    * @generated from field: optional string interface_language = 5;
@@ -510,7 +510,7 @@ export declare type ChildConsent = Message<"novatrail.api.v1.ChildConsent"> & {
   /**
    * The code of the request, which the parent writes on the signed form and the operator checks the
    * scan by: ten characters of Crockford's base32 in two groups of five, as "ABCDE-FGHJK", unique
-   * among the consents that wait. Empty at a consent that the learner gives (R116).
+   * among the consents that wait. Empty at a consent that the learner gives.
    *
    * @generated from field: string request_code = 6;
    */
@@ -1458,7 +1458,7 @@ export declare const ExportProfileRequestSchema: GenMessage<ExportProfileRequest
  */
 export declare type ExportProfileResponse = Message<"novatrail.api.v1.ExportProfileResponse"> & {
   /**
-   * The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+   * The part, `api.zip` of the export format — `export/` of `spec` —, which `app` puts into
    * the file of the export as it is, without reading it.
    *
    * @generated from field: bytes part = 1;
@@ -1501,7 +1501,7 @@ export declare const ExportAccountRequestSchema: GenMessage<ExportAccountRequest
  */
 export declare type ExportAccountResponse = Message<"novatrail.api.v1.ExportAccountResponse"> & {
   /**
-   * The part, `api.zip` of the export format — `export/` of `spec` (R135) —, which `app` puts into
+   * The part, `api.zip` of the export format — `export/` of `spec` —, which `app` puts into
    * the file of the export as it is, without reading it.
    *
    * @generated from field: bytes part = 1;
@@ -1696,8 +1696,8 @@ export declare const GetQuotaResponseSchema: GenMessage<GetQuotaResponse>;
 
 /**
  * The share of the family day's quota of platform AI that a profile and its account have spent: a
- * share of a cap, never a sum in dollars and no cap (concepts 14; R11 api). The caps are the
- * account's tariff's; the tariff itself comes with what is decided of tariffs (product 13, О-14).
+ * share of a cap, never a sum in dollars and no cap. The caps are the
+ * account's tariff's; the tariff itself comes with what is decided of tariffs (О-14).
  *
  * @generated from message novatrail.api.v1.QuotaShare
  */
@@ -1707,7 +1707,7 @@ export declare type QuotaShare = Message<"novatrail.api.v1.QuotaShare"> & {
    * calls were settled, without the reserves of calls still going, so that within a day it only
    * grows: in whole percent from 0 to 100, rounded down, so that 100 is the cap reached; spending
    * past the cap is 100 too. Absent when the account's tariff has no caps: platform AI is closed to
-   * it (R11 api).
+   * it.
    *
    * @generated from field: optional int32 profile_percent = 1;
    */
@@ -1768,14 +1768,14 @@ export enum ConsentGiver {
   OWNER = 1,
 
   /**
-   * A parent, by the signed form (R116).
+   * A parent, by the signed form.
    *
    * @generated from enum value: CONSENT_GIVER_PARENT = 2;
    */
   PARENT = 2,
 
   /**
-   * The learner themselves, from the age of digital consent of their country (R116; R134).
+   * The learner themselves, from the age of digital consent of their country.
    *
    * @generated from enum value: CONSENT_GIVER_LEARNER = 3;
    */
@@ -1869,7 +1869,7 @@ export enum VoicingSpeed {
 export declare const VoicingSpeedSchema: GenEnum<VoicingSpeed>;
 
 /**
- * A mode of the screen of a task (concepts 10). A mode its build does not know `app` reads as "by
+ * A mode of the screen of a task. A mode its build does not know `app` reads as "by
  * steps".
  *
  * @generated from enum novatrail.api.v1.Mode
@@ -1903,7 +1903,7 @@ export enum Mode {
 export declare const ModeSchema: GenEnum<Mode>;
 
 /**
- * The hint mode of a profile (concepts 10; R162).
+ * The hint mode of a profile.
  *
  * @generated from enum novatrail.api.v1.HintMode
  */
@@ -2012,7 +2012,7 @@ export enum ConsentState {
 export declare const ConsentStateSchema: GenEnum<ConsentState>;
 
 /**
- * What the check of an own key gave (R84). A value its build does not know `app` words as a check
+ * What the check of an own key gave. A value its build does not know `app` words as a check
  * that did not go through.
  *
  * @generated from enum novatrail.api.v1.OwnKeyCheck
@@ -2070,7 +2070,7 @@ export declare const OwnKeyCheckSchema: GenEnum<OwnKeyCheck>;
  * with no `Refusal`, when the token could not be checked. A method on a profile names the right it
  * needs, `can_manage`, `can_learn` or `can_view`; a method on the account itself needs the account
  * of the token alone: it is an action of an adult, and the PIN in front of it is a barrier of the
- * interface (R04 api). A request without the right it needs
+ * interface. A request without the right it needs
  * gets the code `permission_denied` with no `Refusal`, and a request whose form the contract
  * refuses the code `invalid_argument` with no `Refusal`. `app` reads the cause of a refusal before
  * it refreshes any token:
@@ -2138,7 +2138,7 @@ export declare const AccountService: GenService<{
    * `CAUSE_PIN_LOCKED`, `CAUSE_NO_PIN`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
    * with the same idempotency key gets the same check, and counts nothing again. The PIN is a
    * barrier of the interface, not of the server: when to ask for it `app` decides, and no request
-   * carries proof that it was asked (R04 api).
+   * carries proof that it was asked.
    *
    * @generated from rpc novatrail.api.v1.AccountService.VerifyPin
    */
@@ -2192,7 +2192,7 @@ export declare const AccountService: GenService<{
    * the category and the country alone: no pseudonym and no other field of the profile. The age in
    * years `api` keeps nowhere. Below the age of digital consent of the country the consent is a
    * parent's, with the code of the request that the signed form names; from it on, the learner's
-   * own, which they give in their profile (R116; R136). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
+   * own, which they give in their profile. Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
    * `CAUSE_TOO_MANY_CONSENTS`, checked after the key, `CAUSE_TEXT_NOT_CURRENT`,
    * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
    * the same consent, at the limit too.
@@ -2207,7 +2207,7 @@ export declare const AccountService: GenService<{
   /**
    * Sends the scan of a parent's signed form, a photo or a PDF, for a consent of a parent that
    * waits: `api` keeps it apart from its database, where the operator checks it against the code of
-   * the request and confirms the consent or does not accept the form (R116). A form sent again
+   * the request and confirms the consent or does not accept the form. A form sent again
    * takes the place of the one before. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_ALREADY_EXISTS` when
    * the consent is confirmed, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
    * same idempotency key gets the same consent.
@@ -2222,7 +2222,7 @@ export declare const AccountService: GenService<{
   /**
    * Takes back a consent with no profile, waiting or confirmed: one that waits `api` erases with
    * its form, and keeps nothing of it; one confirmed leaves its minimal record and its form for
-   * their term, as a withdrawal does (R117). Either no longer counts toward the limit. Refusals:
+   * their term, as a withdrawal does. Either no longer counts toward the limit. Refusals:
    * `CAUSE_NOT_FOUND`, which is the answer of a repeat too: `app` reads it as taken back already.
    * It carries no idempotency key: it repeats by the consent's state.
    *
@@ -2250,7 +2250,7 @@ export declare const AccountService: GenService<{
   /**
    * The learner's own consent, in their profile, before their first work: a learner from the age
    * of digital consent of their country gives it, and one who reached that age confirms by it the
-   * consent a parent gave (R116). A learning request with the right `can_learn`, by the text
+   * consent a parent gave. A learning request with the right `can_learn`, by the text
    * `teen-consent`. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_ADULT_NEEDED` at a profile below that age,
    * and `CAUSE_TEXT_NOT_CURRENT`. It carries no idempotency key: it repeats by the profile's state,
    * and a consent given already is the answer.
@@ -2265,13 +2265,13 @@ export declare const AccountService: GenService<{
   /**
    * Withdraws the learner's own consent, as easily as it was given: a learning request with the
    * right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
-   * leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
-   * (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
+   * leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does.
+   * `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
    * refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`, `ListWorks` and `GetWork`,
-   * by which `app` builds the export, nor the other requests on the consent that section 15 of
+   * by which `app` builds the export, nor the other requests on the consent that
    * contracts/README.md names. A learner who reached the age of digital consent of their country
    * while a parent's consent stands, whose profile waits for their own consent, withdraws that
-   * consent by it too, instead of confirming it (R116; R141).
+   * consent by it too, instead of confirming it.
    * Refusals: `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave and that waits for no
    * consent of the learner — the adult withdraws it by `DeleteProfile` —, and `CAUSE_NO_PROFILE`,
    * which is the answer of a repeat too. It carries no
@@ -2287,7 +2287,7 @@ export declare const AccountService: GenService<{
   /**
    * The age and the country of a profile given again, by an action of an adult with the right
    * `can_manage`: once the country raised its age of digital consent (`CAUSE_AGE_NEEDED`), at the
-   * yearly refinement of the category, and with a new country (privacy 3.3; R134). The owner's
+   * yearly refinement of the category, and with a new country. The owner's
    * profile gives its country alone. `api` works out the category again, as `RequestChildConsent`
    * does, and keeps the age nowhere. A category that needs another consent leaves the profile
    * waiting for it: the learner's own, or a parent's, asked for with a new code of the request.
@@ -2327,7 +2327,7 @@ export declare const AccountService: GenService<{
   },
   /**
    * Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
-   * with the right `can_learn`, of a profile of the category `adult` (R162). Refusals:
+   * with the right `can_learn`, of a profile of the category `adult`. Refusals:
    * `CAUSE_NO_PROFILE`, and `CAUSE_ADULT_NEEDED` for a child's profile, whose mode an adult sets
    * with `UpdateProfile`.
    *
@@ -2339,7 +2339,7 @@ export declare const AccountService: GenService<{
     output: typeof SetHintModeResponseSchema;
   },
   /**
-   * Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
+   * Switches the storage of a profile's works on the server on or off. Switching it on is a
    * consent by the text `storage-consent`, which the one who consents for the learner gives: an
    * action of an adult with the right `can_manage`, and at a profile whose learner gave their own
    * consent, the learner's learning request with the right `can_learn`. Switching it off records
@@ -2347,7 +2347,7 @@ export declare const AccountService: GenService<{
    * too; switching it on then gets `CAUSE_NO_CONSENT`. At a profile whose learner gave their own
    * consent, the learner switching on a storage that an adult switched on is no repeat: it records
    * the learner's own consent by `storage-consent`, the learner its giver, in place of the
-   * adult's (R141). Refusals: `CAUSE_NO_PROFILE`, `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED`
+   * adult's. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED`
    * and `CAUSE_LEARNER_DECIDES`. It carries no idempotency key: it repeats by the profile's state.
    *
    * @generated from rpc novatrail.api.v1.AccountService.SetWorkStorage
@@ -2360,9 +2360,9 @@ export declare const AccountService: GenService<{
   /**
    * Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
    * and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,
-   * and leaves its minimal record (R117; R132). The reports of a problem stay to their term without
-   * the IDs of the account, the profile and the attempt (R123). It deletes a profile whose learner
-   * gave their own consent too: the owner holds the account (R21 api). The profile of the owner is
+   * and leaves its minimal record. The reports of a problem stay to their term without
+   * the IDs of the account, the profile and the attempt. It deletes a profile whose learner
+   * gave their own consent too: the owner holds the account. The profile of the owner is
    * deleted the same way, and the last profile leaves the account without profiles. The answer is
    * "deleted", and `app` erases the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and
    * `CAUSE_NO_PROFILE`, which is the answer of a repeat too: `app` reads it as deleted already. It
@@ -2378,7 +2378,7 @@ export declare const AccountService: GenService<{
   /**
    * Deletes the account and everything of it, with the user of the sign-in service, by a fresh
    * sign-in, checked last; the reports of a problem stay to their term without the IDs of the
-   * account, the profile and the attempt (R123). The answer is "deleted", and `app` erases
+   * account, the profile and the attempt. The answer is "deleted", and `app` erases
    * everything of the account on the device and signs out, without refreshing the token. Other
    * devices learn of it by `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat
    * gets `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
@@ -2393,9 +2393,9 @@ export declare const AccountService: GenService<{
   /**
    * The part of a profile's export that `api` holds, by an action of an adult with the right
    * `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
-   * the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
+   * the learner's learning request with the right `can_learn` too. `app` makes the file of
    * the export of it, of what the device holds and of the stored works its profile's file names,
-   * each by `WorkService.GetWork` (R151). Refusals: `CAUSE_NO_PROFILE` and
+   * each by `WorkService.GetWork`. Refusals: `CAUSE_NO_PROFILE` and
    * `CAUSE_ADULT_NEEDED`.
    *
    * @generated from rpc novatrail.api.v1.AccountService.ExportProfile
@@ -2419,7 +2419,7 @@ export declare const AccountService: GenService<{
   /**
    * Checks a key of the owner's at its provider, when it is connected, by a request with nothing of
    * a learner's: on the page where the key is entered, an action of an adult with the right
-   * `can_manage` on the owner's profile of the age category `adult` (R84). A provider that gave no
+   * `can_manage` on the owner's profile of the age category `adult`. A provider that gave no
    * answer is an outcome. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_KEY_NOT_FOR_PROFILE`, and
    * `CAUSE_KEY_CHECKS_EXHAUSTED` beyond the checks `api` lets the account make, with no call and
    * with when the next check opens, which `app` tells the owner. The limit is checked after the
@@ -2437,7 +2437,7 @@ export declare const AccountService: GenService<{
    * of AI that `api` makes at least — the reading of a work, the words sent with the work, and
    * "explain differently", sent without it —, by the admission table and the models admitted at the
    * deployment's rung, so that `app` builds no list in and offers no provider that `CheckOwnKey`
-   * finds closed: empty at a profile whose age category is not `adult` (R96). An action of an
+   * finds closed: empty at a profile whose age category is not `adult`. An action of an
    * adult with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
    *
    * @generated from rpc novatrail.api.v1.AccountService.ListOwnKeyProviders
@@ -2452,7 +2452,7 @@ export declare const AccountService: GenService<{
    * dollars: a learning action with the right `can_learn` gets the share of its own profile alone,
    * where the learner begins their work, and an action of an adult with the right `can_view` the
    * account's share too, in the section for adults, so that a child never sees what the family
-   * spends (concepts 14; R11 api). Beside either, whether a cap is reached and when the next family
+   * spends. Beside either, whether a cap is reached and when the next family
    * day begins. The own key spends none of it. A learning request of a profile whose consent is not
    * confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
    * `CAUSE_AGE_NEEDED`. Refusals: `CAUSE_NO_PROFILE`. It carries no idempotency key: it repeats

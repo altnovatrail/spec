@@ -4,9 +4,9 @@ package consentagev1
 
 // CategoryVector is the type of category-vector.schema.json.
 //
-// A test vector of the category (section 8 of the text of the part): a table that section 5
-// accepts, and what section 6 gives on it — the category of a learner, and whether a profile's age
-// is asked again.
+// A test vector of the category: a table that the rules of reading the table accept, and what the
+// rule of the category gives on it — the category of a learner, and whether a profile's age is
+// asked again.
 type CategoryVector struct {
 	// The table the cases are computed on.
 	Table ConsentAge `json:"table"`

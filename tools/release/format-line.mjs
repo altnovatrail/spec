@@ -1,4 +1,4 @@
-// format-line: a new version of the module format starts a new line of spec's releases (R44),
+// format-line: a new version of the module format starts a new line of spec's releases,
 // checked where the next version is worked out. In spec, `just release-version` passes what
 // version.mjs prints through it, with the commit, and it prints the same lines, or refuses:
 //
@@ -7,7 +7,7 @@
 // Only a commit that gets a release is checked, and only against a release that carried the
 // format as files, of FIRST_FILES_LINE or a later line: a commit released already, or behind the
 // newest release, gets none, and the releases of the lines before carried 0.1 as a draft. Then
-// format/VERSION at the commit and at the release before it, previous=, hold to these rules (R44):
+// format/VERSION at the commit and at the release before it, previous=, hold to these rules:
 //
 //   - the same version, in the same line or a raised one;
 //   - another version, only a higher one and only in a raised line, so that a line holds one
@@ -46,26 +46,26 @@ export function checked({ version, previous }) {
   return Boolean(version) && Boolean(previous) && compareLines(lineOf(previous), FIRST_FILES_LINE) >= 0;
 }
 
-// The rules for the release of version after previous, with the format versions at each (R44).
+// The rules for the release of version after previous, with the format versions at each.
 export function checkFormatLine({ version, previous, formatNow, formatThen }) {
   const line = lineOf(version);
   const previousLine = lineOf(previous);
   const now = formatNow.split(".").map(Number);
   const then = formatThen.split(".").map(Number);
   if (now[0] === 0 && Number(line.split(".")[0]) !== 0) {
-    throw new Error(`the format is ${formatNow}, and spec stays 0.x while the format is v0: ${version} is no release of it (R44)`);
+    throw new Error(`the format is ${formatNow}, and spec stays 0.x while the format is v0: ${version} is no release of it`);
   }
   if (formatNow === formatThen) return;
   // A version that went back is refused first, whatever the line: a raised line would not let
   // it pass.
   if (now[0] < then[0] || (now[0] === then[0] && now[1] < then[1])) {
-    throw new Error(`format/VERSION is ${formatNow}, below ${formatThen} at ${previous}: a version of the format never goes back, and undoing a change is a new version too (R44)`);
+    throw new Error(`format/VERSION is ${formatNow}, below ${formatThen} at ${previous}: a version of the format never goes back, and undoing a change is a new version too`);
   }
   if (compareLines(line, previousLine) <= 0) {
-    throw new Error(`format/VERSION is ${formatNow}, and at ${previous} it was ${formatThen}: a new version of the format starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change (R44)`);
+    throw new Error(`format/VERSION is ${formatNow}, and at ${previous} it was ${formatThen}: a new version of the format starts a new line, so raise RELEASE_LINE above ${previousLine} in the same change`);
   }
   if (now[0] !== then[0] && Number(line.split(".")[0]) <= Number(previousLine.split(".")[0])) {
-    throw new Error(`the format goes from ${formatThen} to ${formatNow}, a new major version, and ${version} keeps spec's major version: a major version of the format raises spec's (R44)`);
+    throw new Error(`the format goes from ${formatThen} to ${formatNow}, a new major version, and ${version} keeps spec's major version: a major version of the format raises spec's`);
   }
 }
 

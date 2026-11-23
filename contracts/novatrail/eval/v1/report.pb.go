@@ -8,7 +8,7 @@
 // an eval set, sample by sample — the verdict on each answer slot's truth and on what the models
 // read, an essay's marks by people and by AI, or why a sample was refused —, with no value, text,
 // stroke or crop of any work. What it holds, and how the measures are counted from it, are the
-// rules of contracts/README.md, section 14.
+// rules of contracts/README.md for the runner's report.
 
 package evalv1
 
@@ -141,7 +141,8 @@ type Refusal int32
 const (
 	// No reason: never written. A report that holds it is not valid.
 	Refusal_REFUSAL_UNSPECIFIED Refusal = 0
-	// The sample breaks a rule of sections 11 and 12, or its markup does not fit its task.
+	// The sample breaks a rule of the sample file or one the device and the runner share, or its
+	// markup does not fit its task.
 	Refusal_REFUSAL_INVALID Refusal = 1
 	// The sample has no markup.
 	Refusal_REFUSAL_NO_MARKUP Refusal = 2
@@ -208,14 +209,14 @@ const (
 	UncheckedCause_UNCHECKED_CAUSE_FAILURE UncheckedCause = 1
 	// A limit or a quota ran out.
 	UncheckedCause_UNCHECKED_CAUSE_LIMIT UncheckedCause = 2
-	// An observation is not valid (contracts/README.md, section 10).
+	// An observation is not valid by the rules of the observation in contracts/README.md.
 	UncheckedCause_UNCHECKED_CAUSE_INVALID UncheckedCause = 3
 	// The assessment of an essay marked no criterion.
 	UncheckedCause_UNCHECKED_CAUSE_NO_MARK UncheckedCause = 4
 	// The check of the answer slot gave no verdict on a valid observation: its predicate gave an
 	// error or a result that is not a bool, or ran to its bound of steps or to the clock of the code
-	// that gives the verdicts (section 15 of the module format). The task's, not the model's; never
-	// an essay's, whose rubric has no predicate.
+	// that gives the verdicts, as the module format's checks set them. The task's, not the model's;
+	// never an essay's, whose rubric has no predicate.
 	UncheckedCause_UNCHECKED_CAUSE_CHECK UncheckedCause = 5
 )
 
@@ -488,7 +489,7 @@ func (*Report_CapabilitySet) isReport_EvalSet() {}
 type Model struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The provider, as the adapters of `tutor` name it: by its code in the admission table, when the
-	// table names it (admission/README.md, section 4).
+	// table names it (admission/README.md).
 	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
 	// The model, as the list of admitted models names it, with its setting.
 	Model         string `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`

@@ -4,8 +4,7 @@
 //
 // Every generated file of contracts/ is replaced, so that a file no .proto gives any more goes too,
 // as just types puts the types of the format in place. buf does not run while buf.yaml or
-// buf.gen.yaml breaks its rules, nor while a file of contracts/ is not where the layout has it
-// (R83).
+// buf.gen.yaml breaks its rules, nor while a file of contracts/ is not where the layout has it.
 
 import fs from "node:fs";
 import os from "node:os";

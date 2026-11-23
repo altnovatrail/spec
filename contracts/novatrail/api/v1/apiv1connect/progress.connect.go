@@ -4,8 +4,9 @@
 
 // The skill map and the adult's progress in the contract between `app` and `api`: the state of a
 // learner's skills in a module, as the learner model reads it, the attempts of a profile with the
-// traps that repeat in them, and the adult's correction of a module's level (R157). What each
-// message means is the rule of contracts/README.md, section 15.
+// traps that repeat in them, and the adult's correction of a module's level. What each
+// message means is the rule of contracts/README.md for the contract between
+// `app` and `api`.
 package apiv1connect
 
 import (
@@ -65,8 +66,8 @@ var (
 
 // ProgressServiceClient is a client for the novatrail.api.v1.ProgressService service.
 type ProgressServiceClient interface {
-	// The state of the skills of a connected module's current version, for the skill map (concepts
-	// 11), as `learner-model` reads it at the time of the request. The graph and its tiers `app`
+	// The state of the skills of a connected module's current version, for the skill map,
+	// as `learner-model` reads it at the time of the request. The graph and its tiers `app`
 	// takes by the digest of the answer, `GetSkillGraph`, so a skill that the current version no
 	// longer names is not on the map. A learning action needs the right `can_learn`, and an action of
 	// an adult `can_view`. Refusals: `CAUSE_NOT_FOUND`, a module not connected, and
@@ -74,10 +75,10 @@ type ProgressServiceClient interface {
 	GetSkillMap(context.Context, *v1.GetSkillMapRequest) (*v1.GetSkillMapResponse, error)
 	// The progress of a profile, which an adult views with the right `can_view`: its attempts, newest
 	// first, a page at a time, and the traps that repeat in its closed attempts, with their
-	// descriptions and advice (section 16 of the module format), and the adult's last correction of
+	// descriptions and advice from the module's trap catalog, and the adult's last correction of
 	// the level of each module that has one.
 	GetProgress(context.Context, *v1.GetProgressRequest) (*v1.GetProgressResponse, error)
-	// The adult's correction of the level of a connected module (R157): "Easier" or "Harder" in the
+	// The adult's correction of the level of a connected module: "Easier" or "Harder" in the
 	// section for adults, which sets the module's level in the band named, next to the band of the
 	// level, by an action of an adult with the right `can_manage`, at every profile of the account:
 	// the owner's, a child's and that of a learner who gave their own consent. `api` appends it to
@@ -98,8 +99,8 @@ func NewProgressServiceClient(client *connect.Client) ProgressServiceClient {
 
 // ProgressServiceHandler is an implementation of the novatrail.api.v1.ProgressService service.
 type ProgressServiceHandler interface {
-	// The state of the skills of a connected module's current version, for the skill map (concepts
-	// 11), as `learner-model` reads it at the time of the request. The graph and its tiers `app`
+	// The state of the skills of a connected module's current version, for the skill map,
+	// as `learner-model` reads it at the time of the request. The graph and its tiers `app`
 	// takes by the digest of the answer, `GetSkillGraph`, so a skill that the current version no
 	// longer names is not on the map. A learning action needs the right `can_learn`, and an action of
 	// an adult `can_view`. Refusals: `CAUSE_NOT_FOUND`, a module not connected, and
@@ -107,10 +108,10 @@ type ProgressServiceHandler interface {
 	GetSkillMap(context.Context, *v1.GetSkillMapRequest) (*v1.GetSkillMapResponse, error)
 	// The progress of a profile, which an adult views with the right `can_view`: its attempts, newest
 	// first, a page at a time, and the traps that repeat in its closed attempts, with their
-	// descriptions and advice (section 16 of the module format), and the adult's last correction of
+	// descriptions and advice from the module's trap catalog, and the adult's last correction of
 	// the level of each module that has one.
 	GetProgress(context.Context, *v1.GetProgressRequest) (*v1.GetProgressResponse, error)
-	// The adult's correction of the level of a connected module (R157): "Easier" or "Harder" in the
+	// The adult's correction of the level of a connected module: "Easier" or "Harder" in the
 	// section for adults, which sets the module's level in the band named, next to the band of the
 	// level, by an action of an adult with the right `can_manage`, at every profile of the account:
 	// the owner's, a child's and that of a learner who gave their own consent. `api` appends it to

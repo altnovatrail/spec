@@ -1,6 +1,6 @@
 // One task, one session: which task a prompt of the author starts, which tasks a session's
 // transcript has led, and whether a new prompt may go on in that session. An epic the orchestrator
-// runs counts as one task (R143, R156).
+// runs counts as one task.
 //
 // A task starts by a phrase that names it: RUN.md's «Выполни задачу T…» or «планируй T…», in the
 // forms the author writes them — «Планируем задачу T…», «планируй реализацию T…», «делай T…»,
@@ -10,11 +10,11 @@
 // task; a prompt that starts another is stopped, and the author runs /clear.
 // «Сделай эпик E…» starts a run of the orchestrator, in the forms «делай эпик E…», «выполни эпик
 // E…», «продолжай эпик E…» and the other verbs of a task but planning: the orchestrator's session is
-// one epic, so it goes on with the same epic and stops another epic or a task (R143).
+// one epic, so it goes on with the same epic and stops another epic or a task.
 // «планируй эпик E…» splits an epic into tasks and starts nothing.
 // «Разбери входящие» names no task, and the triage counts into the session of the task it
 // serves, before or after its planning, so it always goes on: the next task's own phrase is what
-// the hook stops (R143).
+// the hook stops.
 // A run of the orchestrator may take its task under another number than its prompt named — the
 // executor wrote the task into its plan under the next one free —, and resumes the same
 // session under the new one. The orchestrator gives the run's numbers in NOVATRAIL_RUN_TASKS, and
@@ -23,9 +23,9 @@
 // The phrases, found anywhere in a prompt — the author writes «хорошо. далее планируем T…» too —
 // unless the word «не» comes right before one. The verb is a whole word, so «доделай T…» and
 // «переделай T…» start nothing, and the task's number comes right after it or after «задачу»,
-// «задачи» or «реализацию»: «делай как в T24» only names a task. A number that goes on with «.» or
-// «-» and a digit, «T6.1», is not a task's, and a question mark right after the number makes the
-// phrase a question, «делаем T42?», which starts nothing. An epic's number comes right after «эпик»,
+// «задачи» or «реализацию»: `делай как в T24` only names a task. A number that goes on with «.» or
+// «-» and a digit, `T6.1`, is not a task's, and a question mark right after the number makes the
+// phrase a question, `делаем T42?`, which starts nothing. An epic's number comes right after «эпик»,
 // under the same rules. Spaces are [ \t\r\n], and «не» is checked on the text before a phrase
 // rather than by a lookbehind of many letters, so that no pattern backtracks.
 // The verbs that start a task or an epic, and those of a task alone: planning, and «приступай к
@@ -47,7 +47,7 @@ function denied(before) {
 // pasted text, reminders, the output of local commands and the report of a background task, each
 // between its tags — Claude Code runs the hook on a task's report too —, and code, a block or a
 // span, and guillemets, where a phrase is quoted rather than said: RUN.md and COORDINATION.md quote
-// «Выполни задачу T01 из RUN.md» so.
+// `Выполни задачу T01 из RUN.md` so.
 const QUOTED = [
   /<(ide_selection|ide_opened_file|pasted_content|system-reminder|command-[a-z-]+|local-command-[a-z-]+|bash-[a-z-]+|task-notification)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/g,
   /```[\s\S]*?(?:```|$)/g,
@@ -59,8 +59,8 @@ function said(text) {
   return QUOTED.reduce((rest, pattern) => rest.replace(pattern, " "), text);
 }
 
-// The task a prompt starts, such as "T129", or the epic, such as "E14", or null: the first phrase
-// the prompt says. T07 and T7 are one task.
+// The task a prompt starts, such as `T129`, or the epic, such as `E14`, or null: the first phrase
+// the prompt says. `T07` and `T7` are one task.
 export function taskOf(prompt) {
   const text = said(String(prompt ?? ""));
   const found = (pattern, letter) => [...text.matchAll(pattern)].map((phrase) => ({ at: phrase.index, id: `${letter}${Number(phrase[1])}` }));

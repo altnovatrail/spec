@@ -24,11 +24,11 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 8. End with a short report in Russian: what was done, files and repositories, how to check (commands), what the review found or why there was none, what is open.
 9. When done: table 1 `[ ]` → `[x]`; append to the body «Сделано (дата)» — one line, what was done and its pull request, which says how it was checked; where the author commits after review, the report says it. What stays open is rows, not text: a question for the author, of `run/QUESTIONS.md`; what is put off, of `run/DEBT.md` (R160).
    - Then move the body verbatim, relative links fixed, to the epic archive `docs/plan/<epic>.md`, with a gist sentence — an unheaded list item at the start of the receiving section: «T129 — сделана 2026-11-11: <итог одной фразой>». Neither stays here (R153).
-   - A task outside an epic leaves `run/TASKS.md` for the current epic's archive, section «Задачи вне эпика, сделанные за его время»; with no current epic, to the last done epic's archive, section «Задачи вне эпика, сделанные после него» (R19, amendments 2026-11-12 and 2026-11-13).
+   - A task outside an epic leaves `run/TASKS.md` for the current epic's archive, section «Задачи вне эпика, сделанные за его время»; with no current epic, to the last done epic's archive, section «Задачи вне эпика, сделанные после него» (R19).
 10. Language — RULES.md, Hard rules (R154); translating a document — [tools/translation/README.md](tools/translation/README.md).
 11. A task larger than one review (≈ 30–60 minutes of reading): propose a split before starting.
 12. Before a new task, close the findings on the previous one (allowed departure from rule 1): SonarCloud — [New Code](https://sonarcloud.io/summary/new_code?id=altnovatrail_spec), after the merge; CodeQL and Scorecard — `gh api 'repos/altnovatrail/spec/code-scanning/alerts?state=open'`. Fix in code first; "false positive" is the last resort, with the reason in words; what stays open gets its reason in the log (shared ones — R33). Never skip silently. Report these fixes in a separate paragraph: the author commits them separately.
-13. Inbox — on the author's word («Разбери входящие») or once the last task of the current epic is checked, not before each task (R81, second amendment 2026-11-12); an allowed departure from rule 1. Procedure — [run/INBOX.md](run/INBOX.md).
+13. Inbox — on the author's word («Разбери входящие») or once the last task of the current epic is checked, not before each task (R81); an allowed departure from rule 1. Procedure — [run/INBOX.md](run/INBOX.md).
 
 **Statuses:** `[ ]` not started; `[x]` done, the executor marks it; `[-]` not done — the author's decision, reason in the task; `[?]` deferred — the author's decision, reason and when to return in the task. A task that fails the author's review returns to `[ ]` with what to fix.
 
@@ -100,132 +100,27 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T257 | Правило ссылок: решение, RULES.md, R160, R32, шаблон | Claude | — | T256 |
 | [x] | T258 | `docs-check`: четыре проверки по ключу `citations`; тег | Claude | — | T257 |
 | [x] | T259 | Строки COORDINATION.md 7.38–7.49: ссылки в 12 репозиториях | Claude | — | T258 |
-| [ ] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258, T278 |
-| [ ] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258, T278 |
-| [ ] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258, T278 |
-| [ ] | T263 | Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution | Claude | — | T258, T278 |
-| [ ] | T264 | Журнал `spec`, часть 5: Contracts — The AI admission table | Claude | — | T258, T278 |
-| [ ] | T265 | Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers | Claude | — | T258, T278 |
-| [ ] | T266 | Журнал `spec`, часть 7: Samples, eval sets and essays — The look of the app | Claude | — | T258, T278 |
-| [ ] | T267 | Журнал `spec`, часть 8: AI on the deployment — конец | Claude | — | T258, T278 |
-| [ ] | T268 | Документы `spec`: architecture | Claude | — | T258, T278 |
-| [ ] | T269 | Документы `spec`: concepts | Claude | — | T258, T278 |
-| [ ] | T270 | Документы `spec`: privacy и dpia | Claude | — | T258, T278 |
-| [ ] | T271 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план | Claude | — | T258, T278 |
-| [ ] | T272 | Документы `spec`: sources и measurements | Claude | — | T258, T278 |
-| [ ] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258, T278 |
-| [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258, T278 |
-| [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274, T278 |
+| [x] | T260 | Журнал `spec`, часть 1: Scope and product — Releases | Claude | — | T258, T278 |
+| [x] | T261 | Журнал `spec`, часть 2: The documents check — Status badges | Claude | — | T258, T278 |
+| [x] | T262 | Журнал `spec`, часть 3: Skill graph — Module index | Claude | — | T258, T278 |
+| [x] | T263 | Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution | Claude | — | T258, T278 |
+| [x] | T264 | Журнал `spec`, часть 5: Contracts — The AI admission table | Claude | — | T258, T278 |
+| [x] | T265 | Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers | Claude | — | T258, T278 |
+| [x] | T266 | Журнал `spec`, часть 7: Samples, eval sets and essays — The look of the app | Claude | — | T258, T278 |
+| [x] | T267 | Журнал `spec`, часть 8: AI on the deployment — конец | Claude | — | T258, T278 |
+| [x] | T268 | Документы `spec`: architecture | Claude | — | T258, T278 |
+| [x] | T269 | Документы `spec`: concepts | Claude | — | T258, T278 |
+| [x] | T270 | Документы `spec`: privacy и dpia | Claude | — | T258, T278 |
+| [x] | T271 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план | Claude | — | T258, T278 |
+| [x] | T272 | Документы `spec`: sources и measurements | Claude | — | T258, T278 |
+| [x] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258, T278 |
+| [x] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258, T278 |
+| [x] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274, T278, T280, T281 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275, T278; строки 7.38–7.49 |
 | [x] | T277 | Строгое правило ссылок: R171, RULES.md, CLAUDE.md, шаблон, `.devcontainer/` | Claude | — | — |
 | [x] | T278 | `docs-check`: строгое правило по ключу `citations`; тег | Claude | — | T277 |
-
-#### T260. Журнал `spec`, часть 1: Scope and product — Releases
-
-- **Цель:** разделы `docs/decisions.md` от «Scope and product» до «Releases» включительно (≈ 196 КБ) — по правилу T257: каждая запись — один действующий текст, ссылки — по правилу, хвост — список файлов.
-- **Сделать (то же в T261–T267, каждая — своим диапазоном разделов `##`):**
-  - Датированные поправки — свернуть в текст записи на месте; «Почему», отвергнутое и цитаты источников, которые запись даёт сама, — сохранить; таблица «поправка → место» — в описании PR пачки, по задаче.
-  - Номера задач — убрать; провенанс («решения автора … в планировании T…») — дата и чьё решение, без номера; цепочки и описательные ссылки — по правилу.
-  - «— *Consequence:*» — список файлов и разделов, которые правит изменение решения.
-  - Запись, ставшая короче, — её предел в `entries` `tools/docs-check/budgets.json` снизить или снять (R145).
-  - Противоречие, найденное при свёртке, — строка `run/QUESTIONS.md`, не правка по догадке. Смысл решений не менять.
-  - Ссылки других документов `spec` на свёрнутые поправки («the 2026-11-12 amendment to R19») — на запись.
-- **Как проверить:** `just docs-check`; временно с `"citations": true` — ошибок в этом диапазоне нет; `/code-review high` — по пачке, в T275.
-- **Разделы:** T257; R160; `docs/decisions.md`.
-
-#### T261. Журнал `spec`, часть 2: The documents check — Status badges
-
-- **Цель и Сделать:** как T260, для разделов от «The documents check» до «Status badges» (≈ 200 КБ).
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
-
-#### T262. Журнал `spec`, часть 3: Skill graph — Module index
-
-- **Цель и Сделать:** как T260, для разделов от «Skill graph» до «Module index» (≈ 200 КБ).
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
-
-#### T263. Журнал `spec`, часть 4: Files of the `spec` release — Showing the solution
-
-- **Цель и Сделать:** как T260, для разделов от «Files of the `spec` release» до «Showing the solution and a hint on request» (≈ 205 КБ).
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
-
-#### T264. Журнал `spec`, часть 5: Contracts — The AI admission table
-
-- **Цель и Сделать:** как T260, для разделов от «Contracts: protobuf, buf and Connect» до «The AI admission table» (≈ 189 КБ).
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
-
-#### T265. Журнал `spec`, часть 6: The contract `app` ↔ `api` — AI providers
-
-- **Цель и Сделать:** как T260, для разделов от «The contract `app` ↔ `api`» до «AI providers» (≈ 218 КБ).
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
-
-#### T266. Журнал `spec`, часть 7: Samples, eval sets and essays — The look of the app
-
-- **Цель и Сделать:** как T260, для разделов от «Samples, eval sets and essays» до «The look of the app by the interface mockup» (≈ 176 КБ).
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
-
-#### T267. Журнал `spec`, часть 8: AI on the deployment — конец
-
-- **Цель и Сделать:** как T260, для разделов от «AI on the deployment» до конца журнала (≈ 137 КБ), с новым решением T257.
-- **Как проверить:** как T260.
-- **Разделы:** T257, T260; R160.
-
-#### T268. Документы `spec`: architecture
-
-- **Цель:** `docs/architecture.md` (183 КБ, 1 115 ссылок) — по правилу T257.
-- **Сделать:** номера задач — убрать; цепочки — к одному месту; описательная фраза — без ссылки; решение — номером там, где выбор выглядит изменяемым; внешний факт — одна запись `sources`. Карточки architecture 3 смысла не меняют.
-- **Как проверить:** `just docs-check`; временно с ключом — ошибок в файле нет.
-- **Разделы:** T257; architecture.
-
-#### T269. Документы `spec`: concepts
-
-- **Цель и Сделать:** как T268, для `docs/concepts.md` (169 КБ, 751 ссылка); словарь concepts 15 — термины не меняются.
-- **Как проверить:** как T268.
-- **Разделы:** T257, T268; concepts.
-
-#### T270. Документы `spec`: privacy и dpia
-
-- **Цель и Сделать:** как T268, для `docs/privacy.md` (121 КБ) и `docs/dpia.md` (86 КБ). Правка только ссылок: то, на чём стоит DPIA, не меняется, и ревизии DPIA не нужно (R129); ссылки dpia 9 — источники DPIA — остаются.
-- **Как проверить:** как T268.
-- **Разделы:** T257, T268; privacy; dpia.
-
-#### T271. Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план
-
-- **Цель и Сделать:** как T268, для `docs/product.md`, `docs/repositories.md`, `docs/README.md`, CLAUDE.md, `.claude/rules/`, а в RUN.md, `run/` и COORDINATION.md — цепочки и описательные ссылки правил и вводных (номера задач там разрешены). Пределы `tools/docs-check/budgets.json` не поднимать.
-- **Как проверить:** как T268.
-- **Разделы:** T257, T268.
-
-#### T272. Документы `spec`: sources и measurements
-
-- **Цель:** `docs/sources.md` и `docs/measurements.md` — без номеров задач, в заголовках тоже, и без цепочек; дата записи и замера остаётся.
-- **Сделать:** номер задачи — убрать или заменить тем, что читателю нужно: решением, которое на записи стоит, или ничем; цитаты источников не трогать; номера записей и разделов не меняются (sources 1).
-- **Как проверить:** как T268.
-- **Разделы:** T257; sources 1; measurements 1.
-
-#### T273. Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/`
-
-- **Цель:** комментарии этих папок — по правилу T257: причина словами, номер решения — только где важны отвергнутые варианты; номеров задач нет.
-- **Сделать:** каждый `(R…)` — по правилу: оставить, где он держит отвергнутое; иначе — причина словами в одну фразу или ничего, если комментарий пересказывает код (R160). Замер «до» и «после» на 1 000 строк — в «Сделано». Код не менять; README и `executor.md` оркестратора — как документы, по правилу. `tools/docs-check/` и `tools/new-repo/` уже по строгому правилу — T278.
-- **Как проверить:** правило tools — тесты тронутых папок; `just docs-check`.
-- **Разделы:** T257; R160; `.claude/rules/tools.md`.
-
-#### T274. Комментарии кода: остальное `tools/`
-
-- **Цель и Сделать:** как T273, для остальных папок `tools/`.
-- **Как проверить:** как T273.
-- **Разделы:** T257, T273.
-
-#### T275. Комментарии CI и окружения; ключ `citations` в `spec`
-
-- **Цель:** комментарии `.github/`, justfile, `.devcontainer/`, `spec.go` и кода `repo-template/` — по правилу T257; `"citations": true` в блоке `spec` `tools/docs-check/budgets.json`, `just docs-check` зелёный — последняя задача пачки T260–T275.
-- **Сделать:** как T273; затем ключ; то, что ключ ещё находит в T260–T274, — исправить.
-- **Как проверить:** проверки правила ci для тронутых файлов; `just new-repo-test`; `just docs-check`; `/code-review high` — по пачке T260–T275, с таблицами «поправка → место».
-- **Разделы:** T257, T258, T273; `.claude/rules/ci.md`.
+| [x] | T280 | Журнал `spec`, R01–R31: ссылки по строгому правилу | Claude | — | T260, T278 |
+| [x] | T281 | Журнал `spec`, R32–R63: ссылки по строгому правилу | Claude | — | T261, T262, T278 |
 
 #### T276. Итог эпика E22: замер «после», архив
 

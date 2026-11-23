@@ -1,6 +1,6 @@
 // A new version of the table of the age of digital consent starts a new line: the rule, the shape
 // it compares, the script that release-version passes its lines through in spec, and the recipe,
-// in a made-up copy of spec (R134).
+// in a made-up copy of spec.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -13,7 +13,7 @@ import { copySpecTools, env, recipe, releaseLine, root, scratchRepository, write
 
 const script = path.join(root, "tools", "release", "consent-age-line.mjs");
 const SHAPE = "the shape of consent-age/schemas/consent-age.schema.json changed";
-const RULES = "the IDs of the rules of consent-age/README.md, section 5, changed";
+const RULES = "the IDs of the rules of consent-age/README.md changed";
 
 const check = (version, previous, now, then, changed = null) => () => checkConsentAgeLine({ version, previous, consentAgeNow: now, consentAgeThen: then, changed });
 
@@ -28,15 +28,15 @@ test("a release is held to the table only after a release that carried it", () =
 test("another version of the table needs a raised line, and never goes back", () => {
   assert.doesNotThrow(check("v0.14.3", "v0.14.2", "1", "1"));
   assert.doesNotThrow(check("v0.15.0", "v0.14.2", "1", "1"));
-  assert.throws(check("v0.14.3", "v0.14.2", "2", "1"), /^Error: consent-age\/VERSION is 2, and at v0\.14\.2 it was 1: a new version of the table of the age of digital consent starts a new line, so raise RELEASE_LINE above 0\.14 in the same change \(R134\)$/);
+  assert.throws(check("v0.14.3", "v0.14.2", "2", "1"), /^Error: consent-age\/VERSION is 2, and at v0\.14\.2 it was 1: a new version of the table of the age of digital consent starts a new line, so raise RELEASE_LINE above 0\.14 in the same change$/);
   assert.doesNotThrow(check("v0.15.0", "v0.14.2", "2", "1"));
   assert.doesNotThrow(check("v0.15.0", "v0.14.2", "10", "9"));
   assert.throws(check("v0.15.0", "v0.14.2", "1", "2"), /^Error: consent-age\/VERSION is 1, below 2 at v0\.14\.2: a version of the table of the age of digital consent never goes back/);
   assert.throws(
     check("v0.14.3", "v0.14.2", "1", "1", SHAPE),
-    /^Error: the shape of consent-age\/schemas\/consent-age\.schema\.json changed after v0\.14\.2, and consent-age\/VERSION is still 1: a change of the schema of the table of the age of digital consent or of the IDs of its rules is a new version, in a new line \(R134\)$/,
+    /^Error: the shape of consent-age\/schemas\/consent-age\.schema\.json changed after v0\.14\.2, and consent-age\/VERSION is still 1: a change of the schema of the table of the age of digital consent or of the IDs of its rules is a new version, in a new line$/,
   );
-  assert.throws(check("v0.15.0", "v0.14.2", "1", "1", RULES), /^Error: the IDs of the rules of consent-age\/README\.md, section 5, changed after v0\.14\.2/);
+  assert.throws(check("v0.15.0", "v0.14.2", "1", "1", RULES), /^Error: the IDs of the rules of consent-age\/README\.md changed after v0\.14\.2/);
   assert.doesNotThrow(check("v0.15.0", "v0.14.2", "2", "1", SHAPE));
 });
 
@@ -125,7 +125,7 @@ test("in spec, release-version refuses another shape or a new version of the tab
     git("commit", "--quiet", "-m", "a rule of another ID, and no new version");
     const renamed = recipe(dir);
     assert.notEqual(renamed.status, 0);
-    assert.match(renamed.stderr, /the IDs of the rules of consent-age\/README\.md, section 5, changed after v0\.14\.1, and consent-age\/VERSION is still 1/);
+    assert.match(renamed.stderr, /the IDs of the rules of consent-age\/README\.md changed after v0\.14\.1, and consent-age\/VERSION is still 1/);
 
     writeFile(dir, git, "consent-age/VERSION", "2\n");
     git("commit", "--quiet", "-m", "a new version, and no new line");

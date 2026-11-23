@@ -1,6 +1,6 @@
 // A run: one task of one repository, carried by one session of Claude Code across its attempts —
 // the first, `claude -p` with a new session's id, and each `--resume` of it with the author's
-// answers or the orchestrator's word (R156). Its folder is on the volume novatrail-claude, which the
+// answers or the orchestrator's word. Its folder is on the volume novatrail-claude, which the
 // orchestrator's container and every repository's container mount, so the executor writes its
 // stream there itself and the run outlives the orchestrator's session.
 
@@ -19,7 +19,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 // A task's ceiling of cost by default, in dollars at the API's prices, as total_cost_usd counts
 // them: about the 95th percentile of a session's cost.
 export const DEFAULT_CEILING = 75;
-// Every run is Opus at effort high, unless the author's word or a measurement says otherwise (R156).
+// Every run is Opus at effort high, unless the author's word or a measurement says otherwise.
 export const MODEL = "opus";
 export const EFFORT = "high";
 // What a resumed run is told when the orchestrator has nothing else to say: after a limit's reset,
@@ -494,7 +494,7 @@ export async function waitFor(ids, { interval = 10_000, timeout = 0, ended }, de
 // The orchestrator's own copy of spec — its code and its plan at one commit of main —, cloned from
 // GitHub into its folder or moved forward to main's head. Both configurations of spec open the same
 // folder, and a task of spec run in the other switches its branches; the clone is never edited, so
-// a change in it is an error rather than something to lose (R156).
+// a change in it is an error rather than something to lose.
 export function sync({ home, url = SPEC_URL, git = runGit }) {
   const dir = path.join(home, "spec");
   if (fs.existsSync(dir)) {

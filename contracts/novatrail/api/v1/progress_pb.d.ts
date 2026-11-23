@@ -4,8 +4,9 @@
 
 // The skill map and the adult's progress in the contract between `app` and `api`: the state of a
 // learner's skills in a module, as the learner model reads it, the attempts of a profile with the
-// traps that repeat in them, and the adult's correction of a module's level (R157). What each
-// message means is the rule of contracts/README.md, section 15.
+// traps that repeat in them, and the adult's correction of a module's level. What each
+// message means is the rule of contracts/README.md for the contract between
+// `app` and `api`.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -84,11 +85,11 @@ export declare type GetSkillMapResponse = Message<"novatrail.api.v1.GetSkillMapR
 
   /**
    * The ID of the band of the module's level, as `learner-model` reads it on the scale of the
-   * module's bands (concepts 11): the highest band while the level stands above it, and empty
-   * while it stands below the lowest band, where a learner whose grade is in the lowest band starts
-   * (R157). A band keeps its place and its ID in every version of the module (section 27 of the
-   * module format), so the manifest of the current version names it: by it and the order of the
-   * bands of that manifest `app` names the bands next to it, which `SetModuleLevel` takes.
+   * module's bands: the highest band while the level stands above it, and empty while it stands
+   * below the lowest band, where a learner whose grade is in the lowest band starts. A band keeps
+   * its place and its ID in every version of the module (by the module format's rules for versions
+   * of a module), so the manifest of the current version names it: by it and the order of the bands
+   * of that manifest `app` names the bands next to it, which `SetModuleLevel` takes.
    *
    * @generated from field: string level_band = 4;
    */
@@ -96,7 +97,7 @@ export declare type GetSkillMapResponse = Message<"novatrail.api.v1.GetSkillMapR
 
   /**
    * When an adult last set the module's level by `SetModuleLevel`: absent when no adult has. The
-   * learner sees it, whoever gave the consent (R157).
+   * learner sees it, whoever gave the consent.
    *
    * @generated from field: google.protobuf.Timestamp level_set_at = 5;
    */
@@ -110,7 +111,7 @@ export declare type GetSkillMapResponse = Message<"novatrail.api.v1.GetSkillMapR
 export declare const GetSkillMapResponseSchema: GenMessage<GetSkillMapResponse>;
 
 /**
- * The state of a skill of a module, as `learner-model` reads it (concepts 11). No trap is in it:
+ * The state of a skill of a module, as `learner-model` reads it. No trap is in it:
  * the trap catalog is closed, and the traps that repeat go to the adult's progress alone.
  *
  * @generated from message novatrail.api.v1.SkillState
@@ -200,7 +201,7 @@ export declare const SkillStateSchema: GenMessage<SkillState>;
 
 /**
  * The state of an anchor skill of the shared taxonomy, as `learner-model` reads it from the skills
- * that teach it in the learner's modules (concepts 4).
+ * that teach it in the learner's modules.
  *
  * @generated from message novatrail.api.v1.AnchorSkillState
  */
@@ -236,7 +237,7 @@ export declare type AnchorSkillState = Message<"novatrail.api.v1.AnchorSkillStat
   /**
    * The IDs of the modules of the catalog that teach it and are not connected to the profile:
    * those of the pinned index of `api` whose current version suits the profile by its audience and
-   * names it in `teaches` (R63), in the order of their IDs' UTF-16 code units. It is given whatever
+   * names it in `teaches`, in the order of their IDs' UTF-16 code units. It is given whatever
    * the holding, and `app` offers them beside `ANCHOR_SKILL_HOLDING_UNKNOWN`: such a module the
    * learner may connect by `ConnectModule`.
    *
@@ -323,7 +324,7 @@ export declare type GetProgressResponse = Message<"novatrail.api.v1.GetProgressR
 export declare const GetProgressResponseSchema: GenMessage<GetProgressResponse>;
 
 /**
- * The adult's last correction of a module's level (R157).
+ * The adult's last correction of a module's level.
  *
  * @generated from message novatrail.api.v1.LevelSetting
  */
@@ -498,7 +499,7 @@ export declare type AttemptRecord = Message<"novatrail.api.v1.AttemptRecord"> & 
 
   /**
    * The reason code of the choice that `chosen_at` names, which the adult sees and a child is not
-   * told (R100): `REASON_CODE_UNSPECIFIED` where `chosen_at` is absent.
+   * told: `REASON_CODE_UNSPECIFIED` where `chosen_at` is absent.
    *
    * @generated from field: novatrail.api.v1.ReasonCode reason_code = 10;
    */
@@ -506,7 +507,7 @@ export declare type AttemptRecord = Message<"novatrail.api.v1.AttemptRecord"> & 
 
   /**
    * The lesson's `title` whenever `lesson` is set, of an open attempt and a closed one, in the
-   * module's explanation language, from the package of the version the attempt went on (R99).
+   * module's explanation language, from the package of the version the attempt went on.
    * Empty outside a lesson, and when `api` no longer reads that package: `app` then names the
    * lesson by its ID.
    *
@@ -519,10 +520,10 @@ export declare type AttemptRecord = Message<"novatrail.api.v1.AttemptRecord"> & 
    * `CLOSE_REASON_CORRECT`, `CLOSE_REASON_SOLUTION_SHOWN` or `CLOSE_REASON_DONE`: the primary
    * skills of its items, each item's own or else the task's, each once, in the order of the items
    * and of their lists, in the module's explanation language, from the skill graph of the package
-   * of the version the attempt went on (R99). Empty at any other attempt: the skills of a task are
+   * of the version the attempt went on. Empty at any other attempt: the skills of a task are
    * closed, since their titles could tell how to solve it, an attempt open or not solved may be
-   * begun again, and on the owner's profile the adult and the learner are one person (section 14
-   * of the module format). Empty too when `api` no longer reads that package.
+   * begun again, and on the owner's profile the adult and the learner are one person.
+   * Empty too when `api` no longer reads that package.
    *
    * @generated from field: repeated string skill_titles = 12;
    */
@@ -557,7 +558,7 @@ export declare type EssayRecord = Message<"novatrail.api.v1.EssayRecord"> & {
 
   /**
    * Beside `SUBMISSION_END_FEEDBACK`: the mark of each criterion of the rubric, in the order of
-   * the criteria (R87).
+   * the criteria.
    *
    * @generated from field: repeated novatrail.api.v1.CriterionMark criterion_marks = 3;
    */
@@ -573,7 +574,7 @@ export declare const EssayRecordSchema: GenMessage<EssayRecord>;
 /**
  * A trap that repeats: one that the program found in two closed attempts of the profile or more,
  * counted by its full ID. An attempt on a version withdrawn `wrong_key` counts no trap: its
- * verdicts are wrong (R63).
+ * verdicts are wrong.
  *
  * @generated from message novatrail.api.v1.RepeatingTrap
  */
@@ -713,7 +714,7 @@ export enum AnchorSkillReason {
 export declare const AnchorSkillReasonSchema: GenEnum<AnchorSkillReason>;
 
 /**
- * The mark of a criterion in a feedback (R87). A mark its build does not know `app` reads as
+ * The mark of a criterion in a feedback. A mark its build does not know `app` reads as
  * `CRITERION_MARK_NOT_ASSESSED`.
  *
  * @generated from enum novatrail.api.v1.CriterionMark
@@ -769,8 +770,8 @@ export declare const CriterionMarkSchema: GenEnum<CriterionMark>;
  */
 export declare const ProgressService: GenService<{
   /**
-   * The state of the skills of a connected module's current version, for the skill map (concepts
-   * 11), as `learner-model` reads it at the time of the request. The graph and its tiers `app`
+   * The state of the skills of a connected module's current version, for the skill map,
+   * as `learner-model` reads it at the time of the request. The graph and its tiers `app`
    * takes by the digest of the answer, `GetSkillGraph`, so a skill that the current version no
    * longer names is not on the map. A learning action needs the right `can_learn`, and an action of
    * an adult `can_view`. Refusals: `CAUSE_NOT_FOUND`, a module not connected, and
@@ -786,7 +787,7 @@ export declare const ProgressService: GenService<{
   /**
    * The progress of a profile, which an adult views with the right `can_view`: its attempts, newest
    * first, a page at a time, and the traps that repeat in its closed attempts, with their
-   * descriptions and advice (section 16 of the module format), and the adult's last correction of
+   * descriptions and advice from the module's trap catalog, and the adult's last correction of
    * the level of each module that has one.
    *
    * @generated from rpc novatrail.api.v1.ProgressService.GetProgress
@@ -797,7 +798,7 @@ export declare const ProgressService: GenService<{
     output: typeof GetProgressResponseSchema;
   },
   /**
-   * The adult's correction of the level of a connected module (R157): "Easier" or "Harder" in the
+   * The adult's correction of the level of a connected module: "Easier" or "Harder" in the
    * section for adults, which sets the module's level in the band named, next to the band of the
    * level, by an action of an adult with the right `can_manage`, at every profile of the account:
    * the owner's, a child's and that of a learner who gave their own consent. `api` appends it to

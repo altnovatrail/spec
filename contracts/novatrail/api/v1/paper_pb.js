@@ -2,10 +2,11 @@
 // @generated from file novatrail/api/v1/paper.proto (package novatrail.api.v1, syntax proto3)
 /* eslint-disable */
 
-// A task from the learner's paper in the contract between `app` and `api` (R162): the tasks found
+// A task from the learner's paper in the contract between `app` and `api`: the tasks found
 // on the photo of a page, and the attempts of the tasks picked. Each attempt is then checked and
 // hinted by `AttemptService`, its work a `PaperWork`. What each message means, and what `api` keeps
-// of the page and of the attempts, are the rules of contracts/README.md, section 15.
+// of the page and of the attempts, are the rules of contracts/README.md for the
+// contract between `app` and `api`.
 
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_novatrail_api_v1_attempt } from "./attempt_pb.js";
@@ -61,7 +62,7 @@ export const BeginPaperAttemptsResponseSchema = /*@__PURE__*/
  * `CAUSE_NO_PROFILE`, a request of a profile whose consent is not confirmed `CAUSE_NO_CONSENT`, one
  * of a profile whose age is to be given again `CAUSE_AGE_NEEDED`, and a request whose form the
  * contract refuses the code `invalid_argument` with no `Refusal`. The server keeps no photo and no
- * crop, not even as a stored work (R09; R113).
+ * crop, not even as a stored work.
  *
  * @generated from service novatrail.api.v1.PaperService
  */

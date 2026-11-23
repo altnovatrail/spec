@@ -1,7 +1,7 @@
-// What a run of `claude -p --output-format stream-json --verbose` printed, and what it came to
-// (R156). The stream is JSON Lines: an event `system` of subtype `init` with the session's id and
-// model, an event `rate_limit_event` with the state of the subscription's limit, the messages of
-// the model and the tools, and last an event `result` with the run's cost and, under --json-schema,
+// What a run of `claude -p --output-format stream-json --verbose` printed, and what it came to.
+// The stream is JSON Lines: an event `system` of subtype `init` with the session's id and model,
+// an event `rate_limit_event` with the state of the subscription's limit, the messages of the
+// model and the tools, and last an event `result` with the run's cost and, under --json-schema,
 // its `structured_output`. A run cut short leaves half a line at the end, or no `result` at all. A
 // stream may hold several `result` events: an executor that waits on CI in the background ends its
 // turn, and is woken again when the task it waits on ends.

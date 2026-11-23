@@ -1,5 +1,5 @@
 // The format's leak check: a second implementation beside module-kit's, by which spec's CI computes
-// the test vectors of the leak check and checks task.no-leaks and lesson.no-leaks (R57, R58). The
+// the test vectors of the leak check and checks task.no-leaks and lesson.no-leaks. The
 // scans are loops over the characters: a regular expression over a text of any length could backtrack.
 
 import { VERDICT_KINDS as KINDS_WITH_VERDICTS, absolute, answerSlotsOf, comparableOf, equal, lowercase, normalized, rationalOf, scriptsReplaced, timeOf } from "./verdicts.mjs";
@@ -198,7 +198,7 @@ export const trapsNamed = (task) => [...(task.traps ?? []), ...trapValuesOf(task
 // searches: the task's givens, unknown and leading question, the text of each trap value and the
 // simpler case of each item; of an instance of a template, the path of each picture of its
 // statement and its solution, whose names its numbers fill — not a task's that is no template,
-// whose names the author wrote, often with the numbers of its ID (R108); and, of the module's other
+// whose names the author wrote, often with the numbers of its ID; and, of the module's other
 // parts when they are given, the title and description of each technique the task names, the advice
 // of each trap it names, the description and title of each solving step and, for a task with an
 // item with a verdict, the manifest's rung templates.
@@ -221,7 +221,7 @@ export function leaksBefore(task, parts, instance = false) {
 
 // The texts of a lesson, which lesson.no-leaks searches: its title; the paragraphs, the
 // alt of the pictures and the texts of the numbered lists of each explanation, whose numbers the app
-// draws (R111); and the paragraphs and the alt of the pictures of each worked example's statement and
+// draws; and the paragraphs and the alt of the pictures of each worked example's statement and
 // demo. The open view of a lesson reaches the learner's app whole, so a text after a task is seen
 // before the task is solved too.
 export function lessonTexts(lesson) {
@@ -239,14 +239,14 @@ export function lessonLeaks(lesson, tasks) {
   const texts = lessonTexts(lesson).map(searched);
   const named = new Set((lesson.segments ?? []).map((segment) => segment.task).filter((id) => tasks.has(id)));
   const lines = exampleLines(lesson);
-  // The text pieces of an example's lines are searched for leak phrases, not for numbers (R111).
+  // The text pieces of an example's lines are searched for leak phrases, not for numbers.
   const pieces = lines.flatMap((line) => line.filter((part) => part.binding === undefined).map((part) => searched(part.text)));
   const phrase = (needle) => needle.form !== undefined && pieces.some((text) => holds(text, needle));
   return [...named].some((id) => tasks.get(id).some((task) => needlesOf(task).some((needle) => texts.some((text) => holds(text, needle)) || phrase(needle)) || lines.some((line) => solvesLine(line, task))));
 }
 
 // The lines of the worked examples of a lesson on a workbook, each with the values of its boxes: the
-// leak check searches no number in them, and finds a leak where one solves a line of a task (R111).
+// leak check searches no number in them, and finds a leak where one solves a line of a task.
 const exampleLines = (lesson) => (lesson.segments ?? []).flatMap((segment) => (segment.worked_example?.canvas?.kind === "workbook" ? (segment.worked_example.lines ?? []).map(({ line }) => line) : []));
 
 // Whether a line of a worked example solves a line of a task: the same pieces, the texts alike in

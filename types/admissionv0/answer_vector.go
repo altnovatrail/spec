@@ -4,9 +4,10 @@ package admissionv0
 
 // AnswerVector is the type of answer-vector.schema.json.
 //
-// A test vector of answers (section 9 of the admission text): a table of its own and requests to
-// the admission function, each with the deployment facts declared and the answer that sections 5
-// and 6 give. An implementation computes each answer and gets exactly this one.
+// A test vector of answers of the admission table: a table of its own and requests to the admission
+// function, each with the deployment facts declared and the answer that the admission text's
+// deployment facts and admission function give. An implementation computes each answer and gets
+// exactly this one.
 type AnswerVector struct {
 	// The table the function reads, which breaks no rule of a table.
 	Table AdmissionTable `json:"table"`
@@ -44,7 +45,7 @@ type Request struct {
 // DeclaredFacts is the type of answer-vector.schema.json#/$defs/declared_facts.
 //
 // The deployment facts declared, by provider: what the function gets by value from the file of a
-// deployment's configuration (section 5 of the admission text).
+// deployment's configuration.
 type DeclaredFacts map[Provider]ProviderFacts
 
 // ProviderFacts is the type of answer-vector.schema.json#/$defs/provider_facts.

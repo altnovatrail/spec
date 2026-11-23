@@ -86,12 +86,12 @@ test("a vector with a problem leaves the coverage unsaid, and names its file", (
   }
 });
 
-test("the package is read from the image, and a reason section 10 does not name is refused", () => {
+test("the package is read from the image, and a reason the observation's table does not name is refused", () => {
   assert.ok(known.message);
   const copy = structuredClone(image);
   const file = copy.file.find((one) => one.package === "novatrail.observation.v1");
   file.enumType.find((one) => one.name === "Unreadable").value.push({ name: "UNREADABLE_SMUDGED", number: 6 });
-  assert.match(packageOf(copy).error, /Unreadable has UNREADABLE_SMUDGED, which the table of contracts\/README\.md, section 10 does not name/);
+  assert.match(packageOf(copy).error, /Unreadable has UNREADABLE_SMUDGED, which the table of the observation in contracts\/README\.md does not name/);
   assert.match(checkVectors(root, copy, vectors).errors[0].message, /UNREADABLE_SMUDGED/);
   file.enumType = file.enumType.filter((one) => one.name !== "Unreadable");
   // The field of the enum, made a message, so that the file still resolves without it.
@@ -208,7 +208,7 @@ test("two observations join answer slot by answer slot", () => {
   assert.deepEqual(joined(value(1, 1, "7"), reason(1, 1, "BLANK")), reason(1, 1, "AMBIGUOUS"));
 });
 
-test("a case joins as section 10 joins, or has no joined observation when one is not valid", () => {
+test("a case joins as the text joins, or has no joined observation when one is not valid", () => {
   const notValid = (v) => { v.cases[0].observations[1] = observation(value(1, 1, "")); v.cases[0].valid = [true, false]; };
   expectOnly(vector((v) => { v.cases[0].joined = null; }), /^case 1: the observations join into \{"answer_slots":\[\{"answer_slot":\{"item":1,"slot":1\},"value":"8"\}\]\}, not null/);
   expectOnly(vector((v) => { v.cases[0].joined = observation(value(1, 1, "8.")); }), /^case 1: the observations join into \{"answer_slots"/);

@@ -1,5 +1,5 @@
 // deployment-line: a new version of the deployment configuration starts a new line of spec's
-// releases, by the rule of part-line.mjs (R85). In spec, `just release-version` passes what
+// releases, by the rule of part-line.mjs. In spec, `just release-version` passes what
 // admission-line.mjs prints through it, with the commit, and it prints the same lines, or refuses:
 //
 //   ... | node tools/release/admission-line.mjs <commit> | node tools/release/deployment-line.mjs <commit>
@@ -25,7 +25,6 @@ const SHAPED = { schema: "deployment/schemas/deployment.schema.json", readme: "d
 export const DEPLOYMENT = {
   file: "deployment/VERSION",
   name: "the deployment configuration",
-  decision: "R85",
   firstLine: FIRST_DEPLOYMENT_LINE,
   parse: deploymentVersion,
   below: (now, then) => Number(now) < Number(then),
@@ -36,7 +35,7 @@ export const DEPLOYMENT = {
 export const checked = (outputs) => partChecked(DEPLOYMENT, outputs);
 
 // The rule for the release of version after previous, with the configuration's versions at each
-// and what changed of its shape between them, as a phrase, or null (R85).
+// and what changed of its shape between them, as a phrase, or null.
 export function checkDeploymentLine({ version, previous, deploymentNow, deploymentThen, changed = null }) {
   checkPartLine(DEPLOYMENT, { version, previous, now: deploymentNow, before: deploymentThen, changed });
 }

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/consent-age/1/consent-age.schema.json",
   "title": "Table of the age of digital consent",
-  "description": "The table of the age of digital consent by country, consent-age/consent-age.yaml (section 4 of the text of the part): the age of each country with the law that sets it, and the age of a country the table does not hold.",
+  "description": "The table of the age of digital consent by country, consent-age/consent-age.yaml: the age of each country with the law that sets it, and the age of a country the table does not hold.",
   "type": "object",
   "properties": {
     "format": {
@@ -11,7 +11,7 @@
     },
     "outside_table": {
       "const": 18,
-      "description": "The age of digital consent of a country the table does not hold: a parent gives consent for every learner under 18 there (R134)."
+      "description": "The age of digital consent of a country the table does not hold: a parent gives consent for every learner under 18 there."
     },
     "countries": {
       "type": "object",

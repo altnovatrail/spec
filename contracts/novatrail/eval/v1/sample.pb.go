@@ -8,7 +8,7 @@
 // workbook, as the samples page of `canvas` saves it and the eval runner of `tutor` reads it, one
 // JSON file to a sample, with its markup. Which fields a sample holds, by its purpose and by who
 // wrote it, how the file is written and read, its markup, and where a sample may go are the rules
-// of contracts/README.md, section 11.
+// of contracts/README.md for the sample file.
 
 package evalv1
 
@@ -219,8 +219,8 @@ type Sample struct {
 	WriterCode *string `protobuf:"bytes,7,opt,name=writer_code,json=writerCode,proto3,oneof" json:"writer_code,omitempty"`
 	// The version of the set of texts that the samples page showed: the notice of the purpose and
 	// the form of consent. 1 to 32 Latin letters, digits, dots and hyphens: from the legal part on,
-	// the set's ID and version joined by a hyphen, such as "child-sample-1" (legal/README.md,
-	// section 4); "none" in a file that the samples page did not write, a synthetic sample among
+	// the set's ID and version joined by a hyphen, such as "child-sample-1" (legal/README.md);
+	// "none" in a file that the samples page did not write, a synthetic sample among
 	// them.
 	TextSetVersion string `protobuf:"bytes,8,opt,name=text_set_version,json=textSetVersion,proto3" json:"text_set_version,omitempty"`
 	// The version of `canvas` whose samples page wrote the file, MAJOR.MINOR.PATCH; "0.0.0" in a file
@@ -1004,7 +1004,7 @@ type TaskReference struct {
 	// task is a template.
 	Seed *string `protobuf:"bytes,5,opt,name=seed,proto3,oneof" json:"seed,omitempty"`
 	// The digest of the task's open view: `sha256:` and the SHA-256 of its canonical text, 64
-	// lowercase hexadecimal digits, as the module format takes a digest (section 25 of its text).
+	// lowercase hexadecimal digits, as the module format takes a digest.
 	// Of an instance of a template, the open view with its numbers in place.
 	OpenViewDigest string `protobuf:"bytes,6,opt,name=open_view_digest,json=openViewDigest,proto3" json:"open_view_digest,omitempty"`
 	unknownFields  protoimpl.UnknownFields

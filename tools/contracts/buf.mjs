@@ -1,5 +1,5 @@
 // What contracts-check and the generation of the contracts' code run: buf, at the version the
-// toolchain stage installs (R83), and git, in the repository at root. buf reads the workspace of
+// toolchain stage installs, and git, in the repository at root. buf reads the workspace of
 // root's buf.yaml and nothing outside the repository: buf.yaml has no deps and buf.gen.yaml only
 // local plugins, which rules.mjs holds before buf runs.
 
@@ -89,7 +89,7 @@ export function format(root, protos, buf = BUF) {
 // would commit comes after HEAD, so a release of HEAD is the previous one then. Its buf.yaml and
 // contracts/ are unpacked into folder, when one is named and the release has a .proto file.
 // Returns the tag and how many .proto files it has, or null when HEAD descends from no release. A
-// shallow clone has no tags to count from and is refused, as release-version refuses it (R83).
+// shallow clone has no tags to count from and is refused, as release-version refuses it.
 export function previousRelease(root, folder = null) {
   const tag = previousReleaseTag(root, ["buf.yaml", "contracts"]);
   if (!tag) return null;

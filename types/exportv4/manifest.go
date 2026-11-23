@@ -4,7 +4,7 @@ package exportv4
 
 // Manifest is the type of manifest.schema.json.
 //
-// The manifest of an export, manifest.json, which app writes (section 4 of the text of the part).
+// The manifest of an export, manifest.json, which app writes.
 type Manifest struct {
 	// The version of the part, the integer in export/VERSION.
 	Format int64 `json:"format"`

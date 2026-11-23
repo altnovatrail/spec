@@ -9,7 +9,7 @@
 // of the section for adults; the voicing and the hint mode a learner sets; the storage of works;
 // the own key checked when it is connected; the share of the quota of platform AI; deletion and
 // export. What each message means, and what `app` does on each refusal, are the rules of
-// contracts/README.md, section 15.
+// contracts/README.md for the contract between `app` and `api`.
 package apiv1connect
 
 import (
@@ -302,7 +302,7 @@ type AccountServiceClient interface {
 	// `CAUSE_PIN_LOCKED`, `CAUSE_NO_PIN`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
 	// with the same idempotency key gets the same check, and counts nothing again. The PIN is a
 	// barrier of the interface, not of the server: when to ask for it `app` decides, and no request
-	// carries proof that it was asked (R04 api).
+	// carries proof that it was asked.
 	VerifyPin(context.Context, *v1.VerifyPinRequest) (*v1.VerifyPinResponse, error)
 	// Changes the PIN by the PIN before it. A wrong PIN before counts toward closing the input as
 	// `VerifyPin` counts it, and changes nothing. Refusals: `CAUSE_PIN_LOCKED`, `CAUSE_NO_PIN`,
@@ -324,21 +324,21 @@ type AccountServiceClient interface {
 	// the category and the country alone: no pseudonym and no other field of the profile. The age in
 	// years `api` keeps nowhere. Below the age of digital consent of the country the consent is a
 	// parent's, with the code of the request that the signed form names; from it on, the learner's
-	// own, which they give in their profile (R116; R136). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
+	// own, which they give in their profile. Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
 	// `CAUSE_TOO_MANY_CONSENTS`, checked after the key, `CAUSE_TEXT_NOT_CURRENT`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
 	// the same consent, at the limit too.
 	RequestChildConsent(context.Context, *v1.RequestChildConsentRequest) (*v1.RequestChildConsentResponse, error)
 	// Sends the scan of a parent's signed form, a photo or a PDF, for a consent of a parent that
 	// waits: `api` keeps it apart from its database, where the operator checks it against the code of
-	// the request and confirms the consent or does not accept the form (R116). A form sent again
+	// the request and confirms the consent or does not accept the form. A form sent again
 	// takes the place of the one before. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_ALREADY_EXISTS` when
 	// the consent is confirmed, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
 	// same idempotency key gets the same consent.
 	SendConsentForm(context.Context, *v1.SendConsentFormRequest) (*v1.SendConsentFormResponse, error)
 	// Takes back a consent with no profile, waiting or confirmed: one that waits `api` erases with
 	// its form, and keeps nothing of it; one confirmed leaves its minimal record and its form for
-	// their term, as a withdrawal does (R117). Either no longer counts toward the limit. Refusals:
+	// their term, as a withdrawal does. Either no longer counts toward the limit. Refusals:
 	// `CAUSE_NOT_FOUND`, which is the answer of a repeat too: `app` reads it as taken back already.
 	// It carries no idempotency key: it repeats by the consent's state.
 	CancelChildConsent(context.Context, *v1.CancelChildConsentRequest) (*v1.CancelChildConsentResponse, error)
@@ -350,20 +350,20 @@ type AccountServiceClient interface {
 	CreateChildProfile(context.Context, *v1.CreateChildProfileRequest) (*v1.CreateChildProfileResponse, error)
 	// The learner's own consent, in their profile, before their first work: a learner from the age
 	// of digital consent of their country gives it, and one who reached that age confirms by it the
-	// consent a parent gave (R116). A learning request with the right `can_learn`, by the text
+	// consent a parent gave. A learning request with the right `can_learn`, by the text
 	// `teen-consent`. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_ADULT_NEEDED` at a profile below that age,
 	// and `CAUSE_TEXT_NOT_CURRENT`. It carries no idempotency key: it repeats by the profile's state,
 	// and a consent given already is the answer.
 	GiveOwnConsent(context.Context, *v1.GiveOwnConsentRequest) (*v1.GiveOwnConsentResponse, error)
 	// Withdraws the learner's own consent, as easily as it was given: a learning request with the
 	// right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
-	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
-	// (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
+	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does.
+	// `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
 	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`, `ListWorks` and `GetWork`,
-	// by which `app` builds the export, nor the other requests on the consent that section 15 of
+	// by which `app` builds the export, nor the other requests on the consent that
 	// contracts/README.md names. A learner who reached the age of digital consent of their country
 	// while a parent's consent stands, whose profile waits for their own consent, withdraws that
-	// consent by it too, instead of confirming it (R116; R141).
+	// consent by it too, instead of confirming it.
 	// Refusals: `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave and that waits for no
 	// consent of the learner — the adult withdraws it by `DeleteProfile` —, and `CAUSE_NO_PROFILE`,
 	// which is the answer of a repeat too. It carries no
@@ -371,7 +371,7 @@ type AccountServiceClient interface {
 	WithdrawOwnConsent(context.Context, *v1.WithdrawOwnConsentRequest) (*v1.WithdrawOwnConsentResponse, error)
 	// The age and the country of a profile given again, by an action of an adult with the right
 	// `can_manage`: once the country raised its age of digital consent (`CAUSE_AGE_NEEDED`), at the
-	// yearly refinement of the category, and with a new country (privacy 3.3; R134). The owner's
+	// yearly refinement of the category, and with a new country. The owner's
 	// profile gives its country alone. `api` works out the category again, as `RequestChildConsent`
 	// does, and keeps the age nowhere. A category that needs another consent leaves the profile
 	// waiting for it: the learner's own, or a parent's, asked for with a new code of the request.
@@ -387,11 +387,11 @@ type AccountServiceClient interface {
 	// `CAUSE_NO_PROFILE`.
 	SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error)
 	// Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
-	// with the right `can_learn`, of a profile of the category `adult` (R162). Refusals:
+	// with the right `can_learn`, of a profile of the category `adult`. Refusals:
 	// `CAUSE_NO_PROFILE`, and `CAUSE_ADULT_NEEDED` for a child's profile, whose mode an adult sets
 	// with `UpdateProfile`.
 	SetHintMode(context.Context, *v1.SetHintModeRequest) (*v1.SetHintModeResponse, error)
-	// Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
+	// Switches the storage of a profile's works on the server on or off. Switching it on is a
 	// consent by the text `storage-consent`, which the one who consents for the learner gives: an
 	// action of an adult with the right `can_manage`, and at a profile whose learner gave their own
 	// consent, the learner's learning request with the right `can_learn`. Switching it off records
@@ -399,14 +399,14 @@ type AccountServiceClient interface {
 	// too; switching it on then gets `CAUSE_NO_CONSENT`. At a profile whose learner gave their own
 	// consent, the learner switching on a storage that an adult switched on is no repeat: it records
 	// the learner's own consent by `storage-consent`, the learner its giver, in place of the
-	// adult's (R141). Refusals: `CAUSE_NO_PROFILE`, `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED`
+	// adult's. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED`
 	// and `CAUSE_LEARNER_DECIDES`. It carries no idempotency key: it repeats by the profile's state.
 	SetWorkStorage(context.Context, *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error)
 	// Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
 	// and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,
-	// and leaves its minimal record (R117; R132). The reports of a problem stay to their term without
-	// the IDs of the account, the profile and the attempt (R123). It deletes a profile whose learner
-	// gave their own consent too: the owner holds the account (R21 api). The profile of the owner is
+	// and leaves its minimal record. The reports of a problem stay to their term without
+	// the IDs of the account, the profile and the attempt. It deletes a profile whose learner
+	// gave their own consent too: the owner holds the account. The profile of the owner is
 	// deleted the same way, and the last profile leaves the account without profiles. The answer is
 	// "deleted", and `app` erases the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and
 	// `CAUSE_NO_PROFILE`, which is the answer of a repeat too: `app` reads it as deleted already. It
@@ -414,16 +414,16 @@ type AccountServiceClient interface {
 	DeleteProfile(context.Context, *v1.DeleteProfileRequest) (*v1.DeleteProfileResponse, error)
 	// Deletes the account and everything of it, with the user of the sign-in service, by a fresh
 	// sign-in, checked last; the reports of a problem stay to their term without the IDs of the
-	// account, the profile and the attempt (R123). The answer is "deleted", and `app` erases
+	// account, the profile and the attempt. The answer is "deleted", and `app` erases
 	// everything of the account on the device and signs out, without refreshing the token. Other
 	// devices learn of it by `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat
 	// gets `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
 	DeleteAccount(context.Context, *v1.DeleteAccountRequest) (*v1.DeleteAccountResponse, error)
 	// The part of a profile's export that `api` holds, by an action of an adult with the right
 	// `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
-	// the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
+	// the learner's learning request with the right `can_learn` too. `app` makes the file of
 	// the export of it, of what the device holds and of the stored works its profile's file names,
-	// each by `WorkService.GetWork` (R151). Refusals: `CAUSE_NO_PROFILE` and
+	// each by `WorkService.GetWork`. Refusals: `CAUSE_NO_PROFILE` and
 	// `CAUSE_ADULT_NEEDED`.
 	ExportProfile(context.Context, *v1.ExportProfileRequest) (*v1.ExportProfileResponse, error)
 	// The part of the account's export that `api` holds: the fields of the account and the parts of
@@ -431,7 +431,7 @@ type AccountServiceClient interface {
 	ExportAccount(context.Context, *v1.ExportAccountRequest) (*v1.ExportAccountResponse, error)
 	// Checks a key of the owner's at its provider, when it is connected, by a request with nothing of
 	// a learner's: on the page where the key is entered, an action of an adult with the right
-	// `can_manage` on the owner's profile of the age category `adult` (R84). A provider that gave no
+	// `can_manage` on the owner's profile of the age category `adult`. A provider that gave no
 	// answer is an outcome. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_KEY_NOT_FOR_PROFILE`, and
 	// `CAUSE_KEY_CHECKS_EXHAUSTED` beyond the checks `api` lets the account make, with no call and
 	// with when the next check opens, which `app` tells the owner. The limit is checked after the
@@ -441,14 +441,14 @@ type AccountServiceClient interface {
 	// of AI that `api` makes at least — the reading of a work, the words sent with the work, and
 	// "explain differently", sent without it —, by the admission table and the models admitted at the
 	// deployment's rung, so that `app` builds no list in and offers no provider that `CheckOwnKey`
-	// finds closed: empty at a profile whose age category is not `adult` (R96). An action of an
+	// finds closed: empty at a profile whose age category is not `adult`. An action of an
 	// adult with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
 	ListOwnKeyProviders(context.Context, *v1.ListOwnKeyProvidersRequest) (*v1.ListOwnKeyProvidersResponse, error)
 	// The share of the family day's quota of platform AI that a profile has spent, never a sum in
 	// dollars: a learning action with the right `can_learn` gets the share of its own profile alone,
 	// where the learner begins their work, and an action of an adult with the right `can_view` the
 	// account's share too, in the section for adults, so that a child never sees what the family
-	// spends (concepts 14; R11 api). Beside either, whether a cap is reached and when the next family
+	// spends. Beside either, whether a cap is reached and when the next family
 	// day begins. The own key spends none of it. A learning request of a profile whose consent is not
 	// confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
 	// `CAUSE_AGE_NEEDED`. Refusals: `CAUSE_NO_PROFILE`. It carries no idempotency key: it repeats
@@ -487,7 +487,7 @@ type AccountServiceHandler interface {
 	// `CAUSE_PIN_LOCKED`, `CAUSE_NO_PIN`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
 	// with the same idempotency key gets the same check, and counts nothing again. The PIN is a
 	// barrier of the interface, not of the server: when to ask for it `app` decides, and no request
-	// carries proof that it was asked (R04 api).
+	// carries proof that it was asked.
 	VerifyPin(context.Context, *v1.VerifyPinRequest) (*v1.VerifyPinResponse, error)
 	// Changes the PIN by the PIN before it. A wrong PIN before counts toward closing the input as
 	// `VerifyPin` counts it, and changes nothing. Refusals: `CAUSE_PIN_LOCKED`, `CAUSE_NO_PIN`,
@@ -509,21 +509,21 @@ type AccountServiceHandler interface {
 	// the category and the country alone: no pseudonym and no other field of the profile. The age in
 	// years `api` keeps nowhere. Below the age of digital consent of the country the consent is a
 	// parent's, with the code of the request that the signed form names; from it on, the learner's
-	// own, which they give in their profile (R116; R136). Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
+	// own, which they give in their profile. Refusals: `CAUSE_COUNTRY_NOT_ACCEPTED`,
 	// `CAUSE_TOO_MANY_CONSENTS`, checked after the key, `CAUSE_TEXT_NOT_CURRENT`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
 	// the same consent, at the limit too.
 	RequestChildConsent(context.Context, *v1.RequestChildConsentRequest) (*v1.RequestChildConsentResponse, error)
 	// Sends the scan of a parent's signed form, a photo or a PDF, for a consent of a parent that
 	// waits: `api` keeps it apart from its database, where the operator checks it against the code of
-	// the request and confirms the consent or does not accept the form (R116). A form sent again
+	// the request and confirms the consent or does not accept the form. A form sent again
 	// takes the place of the one before. Refusals: `CAUSE_NOT_FOUND`, `CAUSE_ALREADY_EXISTS` when
 	// the consent is confirmed, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the
 	// same idempotency key gets the same consent.
 	SendConsentForm(context.Context, *v1.SendConsentFormRequest) (*v1.SendConsentFormResponse, error)
 	// Takes back a consent with no profile, waiting or confirmed: one that waits `api` erases with
 	// its form, and keeps nothing of it; one confirmed leaves its minimal record and its form for
-	// their term, as a withdrawal does (R117). Either no longer counts toward the limit. Refusals:
+	// their term, as a withdrawal does. Either no longer counts toward the limit. Refusals:
 	// `CAUSE_NOT_FOUND`, which is the answer of a repeat too: `app` reads it as taken back already.
 	// It carries no idempotency key: it repeats by the consent's state.
 	CancelChildConsent(context.Context, *v1.CancelChildConsentRequest) (*v1.CancelChildConsentResponse, error)
@@ -535,20 +535,20 @@ type AccountServiceHandler interface {
 	CreateChildProfile(context.Context, *v1.CreateChildProfileRequest) (*v1.CreateChildProfileResponse, error)
 	// The learner's own consent, in their profile, before their first work: a learner from the age
 	// of digital consent of their country gives it, and one who reached that age confirms by it the
-	// consent a parent gave (R116). A learning request with the right `can_learn`, by the text
+	// consent a parent gave. A learning request with the right `can_learn`, by the text
 	// `teen-consent`. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_ADULT_NEEDED` at a profile below that age,
 	// and `CAUSE_TEXT_NOT_CURRENT`. It carries no idempotency key: it repeats by the profile's state,
 	// and a consent given already is the answer.
 	GiveOwnConsent(context.Context, *v1.GiveOwnConsentRequest) (*v1.GiveOwnConsentResponse, error)
 	// Withdraws the learner's own consent, as easily as it was given: a learning request with the
 	// right `can_learn`, which deletes the profile and everything of it, as `DeleteProfile` does, and
-	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does
-	// (R117; R132). `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
+	// leaves the minimal record of the consent and the reports of a problem, as `DeleteProfile` does.
+	// `app` offers the export first. Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED`
 	// refuses it, nor `GiveOwnConsent`, nor the learner's `ExportProfile`, `ListWorks` and `GetWork`,
-	// by which `app` builds the export, nor the other requests on the consent that section 15 of
+	// by which `app` builds the export, nor the other requests on the consent that
 	// contracts/README.md names. A learner who reached the age of digital consent of their country
 	// while a parent's consent stands, whose profile waits for their own consent, withdraws that
-	// consent by it too, instead of confirming it (R116; R141).
+	// consent by it too, instead of confirming it.
 	// Refusals: `CAUSE_ADULT_NEEDED` at a profile whose consent an adult gave and that waits for no
 	// consent of the learner — the adult withdraws it by `DeleteProfile` —, and `CAUSE_NO_PROFILE`,
 	// which is the answer of a repeat too. It carries no
@@ -556,7 +556,7 @@ type AccountServiceHandler interface {
 	WithdrawOwnConsent(context.Context, *v1.WithdrawOwnConsentRequest) (*v1.WithdrawOwnConsentResponse, error)
 	// The age and the country of a profile given again, by an action of an adult with the right
 	// `can_manage`: once the country raised its age of digital consent (`CAUSE_AGE_NEEDED`), at the
-	// yearly refinement of the category, and with a new country (privacy 3.3; R134). The owner's
+	// yearly refinement of the category, and with a new country. The owner's
 	// profile gives its country alone. `api` works out the category again, as `RequestChildConsent`
 	// does, and keeps the age nowhere. A category that needs another consent leaves the profile
 	// waiting for it: the learner's own, or a parent's, asked for with a new code of the request.
@@ -572,11 +572,11 @@ type AccountServiceHandler interface {
 	// `CAUSE_NO_PROFILE`.
 	SetVoicing(context.Context, *v1.SetVoicingRequest) (*v1.SetVoicingResponse, error)
 	// Sets the hint mode of a profile, and nothing else, from the profile's menu: a learning request
-	// with the right `can_learn`, of a profile of the category `adult` (R162). Refusals:
+	// with the right `can_learn`, of a profile of the category `adult`. Refusals:
 	// `CAUSE_NO_PROFILE`, and `CAUSE_ADULT_NEEDED` for a child's profile, whose mode an adult sets
 	// with `UpdateProfile`.
 	SetHintMode(context.Context, *v1.SetHintModeRequest) (*v1.SetHintModeResponse, error)
-	// Switches the storage of a profile's works on the server on or off (R113). Switching it on is a
+	// Switches the storage of a profile's works on the server on or off. Switching it on is a
 	// consent by the text `storage-consent`, which the one who consents for the learner gives: an
 	// action of an adult with the right `can_manage`, and at a profile whose learner gave their own
 	// consent, the learner's learning request with the right `can_learn`. Switching it off records
@@ -584,14 +584,14 @@ type AccountServiceHandler interface {
 	// too; switching it on then gets `CAUSE_NO_CONSENT`. At a profile whose learner gave their own
 	// consent, the learner switching on a storage that an adult switched on is no repeat: it records
 	// the learner's own consent by `storage-consent`, the learner its giver, in place of the
-	// adult's (R141). Refusals: `CAUSE_NO_PROFILE`, `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED`
+	// adult's. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_TEXT_NOT_CURRENT`, `CAUSE_ADULT_NEEDED`
 	// and `CAUSE_LEARNER_DECIDES`. It carries no idempotency key: it repeats by the profile's state.
 	SetWorkStorage(context.Context, *v1.SetWorkStorageRequest) (*v1.SetWorkStorageResponse, error)
 	// Deletes a profile and everything of it, by an action of an adult with the right `can_manage`
 	// and a fresh sign-in, checked last. For a child it is the withdrawal of the parent's consent,
-	// and leaves its minimal record (R117; R132). The reports of a problem stay to their term without
-	// the IDs of the account, the profile and the attempt (R123). It deletes a profile whose learner
-	// gave their own consent too: the owner holds the account (R21 api). The profile of the owner is
+	// and leaves its minimal record. The reports of a problem stay to their term without
+	// the IDs of the account, the profile and the attempt. It deletes a profile whose learner
+	// gave their own consent too: the owner holds the account. The profile of the owner is
 	// deleted the same way, and the last profile leaves the account without profiles. The answer is
 	// "deleted", and `app` erases the profile's database. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`, and
 	// `CAUSE_NO_PROFILE`, which is the answer of a repeat too: `app` reads it as deleted already. It
@@ -599,16 +599,16 @@ type AccountServiceHandler interface {
 	DeleteProfile(context.Context, *v1.DeleteProfileRequest) (*v1.DeleteProfileResponse, error)
 	// Deletes the account and everything of it, with the user of the sign-in service, by a fresh
 	// sign-in, checked last; the reports of a problem stay to their term without the IDs of the
-	// account, the profile and the attempt (R123). The answer is "deleted", and `app` erases
+	// account, the profile and the attempt. The answer is "deleted", and `app` erases
 	// everything of the account on the device and signs out, without refreshing the token. Other
 	// devices learn of it by `CAUSE_ACCOUNT_GONE`. Refusals: `CAUSE_FRESH_SIGN_IN_NEEDED`; a repeat
 	// gets `CAUSE_ACCOUNT_GONE`. It carries no idempotency key: it repeats by the account's state.
 	DeleteAccount(context.Context, *v1.DeleteAccountRequest) (*v1.DeleteAccountResponse, error)
 	// The part of a profile's export that `api` holds, by an action of an adult with the right
 	// `can_manage`, with no fresh sign-in, and at a profile whose learner gave their own consent, by
-	// the learner's learning request with the right `can_learn` too (R136). `app` makes the file of
+	// the learner's learning request with the right `can_learn` too. `app` makes the file of
 	// the export of it, of what the device holds and of the stored works its profile's file names,
-	// each by `WorkService.GetWork` (R151). Refusals: `CAUSE_NO_PROFILE` and
+	// each by `WorkService.GetWork`. Refusals: `CAUSE_NO_PROFILE` and
 	// `CAUSE_ADULT_NEEDED`.
 	ExportProfile(context.Context, *v1.ExportProfileRequest) (*v1.ExportProfileResponse, error)
 	// The part of the account's export that `api` holds: the fields of the account and the parts of
@@ -616,7 +616,7 @@ type AccountServiceHandler interface {
 	ExportAccount(context.Context, *v1.ExportAccountRequest) (*v1.ExportAccountResponse, error)
 	// Checks a key of the owner's at its provider, when it is connected, by a request with nothing of
 	// a learner's: on the page where the key is entered, an action of an adult with the right
-	// `can_manage` on the owner's profile of the age category `adult` (R84). A provider that gave no
+	// `can_manage` on the owner's profile of the age category `adult`. A provider that gave no
 	// answer is an outcome. Refusals: `CAUSE_NO_PROFILE`, `CAUSE_KEY_NOT_FOR_PROFILE`, and
 	// `CAUSE_KEY_CHECKS_EXHAUSTED` beyond the checks `api` lets the account make, with no call and
 	// with when the next check opens, which `app` tells the owner. The limit is checked after the
@@ -626,14 +626,14 @@ type AccountServiceHandler interface {
 	// of AI that `api` makes at least — the reading of a work, the words sent with the work, and
 	// "explain differently", sent without it —, by the admission table and the models admitted at the
 	// deployment's rung, so that `app` builds no list in and offers no provider that `CheckOwnKey`
-	// finds closed: empty at a profile whose age category is not `adult` (R96). An action of an
+	// finds closed: empty at a profile whose age category is not `adult`. An action of an
 	// adult with the right `can_manage`. Refusals: `CAUSE_NO_PROFILE`.
 	ListOwnKeyProviders(context.Context, *v1.ListOwnKeyProvidersRequest) (*v1.ListOwnKeyProvidersResponse, error)
 	// The share of the family day's quota of platform AI that a profile has spent, never a sum in
 	// dollars: a learning action with the right `can_learn` gets the share of its own profile alone,
 	// where the learner begins their work, and an action of an adult with the right `can_view` the
 	// account's share too, in the section for adults, so that a child never sees what the family
-	// spends (concepts 14; R11 api). Beside either, whether a cap is reached and when the next family
+	// spends. Beside either, whether a cap is reached and when the next family
 	// day begins. The own key spends none of it. A learning request of a profile whose consent is not
 	// confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
 	// `CAUSE_AGE_NEEDED`. Refusals: `CAUSE_NO_PROFILE`. It carries no idempotency key: it repeats

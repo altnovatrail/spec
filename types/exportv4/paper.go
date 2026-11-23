@@ -8,7 +8,7 @@ import "encoding/json"
 //
 // A page from the learner's paper that the device holds, paper/<profile id>/<page id>.json, which
 // app writes beside api.zip: the photo of the page, its task frames, and each picked task's crop
-// and work (section 4 of the text of the part; R162). The server keeps none of it.
+// and work. The server keeps none of it.
 type Paper struct {
 	// The version of the part, the integer in export/VERSION.
 	Format int64 `json:"format"`

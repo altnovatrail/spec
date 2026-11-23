@@ -6,9 +6,9 @@ import "encoding/json"
 
 // ReadingVector is the type of reading-vector.schema.json.
 //
-// A test vector of reading (section 7 of the legal text): parts, each read on a day and perhaps
-// with the part of the release before, and what section 5 gives. A reader implements section 5 and
-// gets exactly this.
+// A test vector of reading: parts, each read on a day and perhaps with the part of the release
+// before, and what the rules of reading the part give. A reader implements those rules and gets
+// exactly this.
 type ReadingVector struct {
 	// The parts.
 	Cases []Case `json:"cases"`

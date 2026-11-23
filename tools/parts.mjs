@@ -1,8 +1,8 @@
 // What the checks of spec's normative parts with a version of their own share — the admission table
-// (tools/admission/main.mjs, R96), the deployment configuration (tools/deployment/main.mjs, R85),
-// the legal texts (tools/legal/main.mjs, R130) and the age of digital consent
-// (tools/consent-age/main.mjs, R134): the files of a part's folder, its VERSION, the problems of a
-// YAML file, ajv's errors and the paths they name, and how a check prints what it finds.
+// (tools/admission/main.mjs), the deployment configuration (tools/deployment/main.mjs), the
+// legal texts (tools/legal/main.mjs) and the age of digital consent (tools/consent-age/main.mjs):
+// the files of a part's folder, its VERSION, the problems of a YAML file, ajv's errors and the
+// paths they name, and how a check prints what it finds.
 
 import fs from "node:fs";
 import path from "node:path";

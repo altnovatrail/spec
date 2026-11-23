@@ -2,11 +2,12 @@
 // @generated from file novatrail/api/v1/debug.proto (package novatrail.api.v1, syntax proto3)
 /* eslint-disable */
 
-// The debug mode in the contract between `app` and `api` (R163): which models serve the calls of
+// The debug mode in the contract between `app` and `api`: which models serve the calls of
 // AI of a task from paper, past the admission list, and what each call returned and cost, for an
 // account with the right of the mode. A method from an account without the right answers
 // `permission_denied` with no `Refusal`, and on a run with the stub of `tutor` `unimplemented`;
-// `app` then shows no debug button. Its rules are contracts/README.md, section 15.
+// `app` then shows no debug button. Its rules are those of contracts/README.md for
+// the contract between `app` and `api`.
 
 import { enumDesc, fileDesc, messageDesc, serviceDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";

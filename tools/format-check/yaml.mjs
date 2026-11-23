@@ -1,4 +1,4 @@
-// A file of a module: YAML 1.2.2 under its Core schema, with the rules yaml.* over it (R45).
+// A file of a module: YAML 1.2.2 under its Core schema, with the rules yaml.* over it.
 //
 // YAML parsers differ, and the rules keep a file to what every parser reads alike. yaml (eemeli/yaml)
 // keeps the source of each node beside its value: a rule about how a value is written — an escape,
@@ -60,7 +60,7 @@ function readBytes(bytes) {
   // YAML streams use only the printable set (YAML 1.2.2, 5.1); yaml.printable holds it in quotes too,
   // where YAML takes DEL, C1, U+FFFE and U+FFFF. yaml reads control characters and U+FFFE all the
   // same; go-yaml does not. A file with one is read no further, as module-kit reads it, so a written
-  // U+FFFE breaks yaml.printable alone, not yaml.characters too (R102).
+  // U+FFFE breaks yaml.printable alone, not yaml.characters too.
   let line = 1;
   for (const char of text) {
     if (char === "\n") line++;

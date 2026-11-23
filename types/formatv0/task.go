@@ -126,8 +126,8 @@ const (
 
 // Check is the type of task.schema.json#/$defs/check.
 //
-// The check of an answer slot: its kind and the kind's parameters. Section 15 of the format text
-// says how each kind reads the value and gives its verdict.
+// The check of an answer slot: its kind and the kind's parameters. The format's rules of checks say
+// how each kind reads the value and gives its verdict.
 type Check struct {
 	// The check kind: a number, a fraction, a choice, a time of day in hours and minutes, a
 	// predicate on a whole number, or a rubric, which gives feedback and no verdict.
@@ -317,8 +317,8 @@ type Domain struct {
 
 // TemplateExpression is the type of task.schema.json#/$defs/template_expression.
 //
-// An expression of the narrow subset of Starlark of section 23 of the format text: integers and
-// names, + - * // %, comparisons, and, or and not.
+// An expression of the narrow subset of Starlark of the format's templates: integers and names, + -
+// * // %, comparisons, and, or and not.
 type TemplateExpression string
 
 // Solver is the type of task.schema.json#/$defs/solver.

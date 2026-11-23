@@ -1,6 +1,6 @@
 // A new version of the deployment configuration starts a new line: the rule, the shape it
 // compares, the script that release-version passes its lines through in spec, and the recipe, in a
-// made-up copy of spec (R85).
+// made-up copy of spec.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -13,7 +13,7 @@ import { copySpecTools, env, recipe, releaseLine, root, scratchRepository, write
 
 const script = path.join(root, "tools", "release", "deployment-line.mjs");
 const SHAPE = "the shape of deployment/schemas/deployment.schema.json changed";
-const RULES = "the IDs of the rules of deployment/README.md, section 5, changed";
+const RULES = "the IDs of the rules of deployment/README.md changed";
 
 const check = (version, previous, now, then, changed = null) => () => checkDeploymentLine({ version, previous, deploymentNow: now, deploymentThen: then, changed });
 
@@ -30,7 +30,7 @@ test("another version of the configuration needs a raised line, and never goes b
   assert.doesNotThrow(check("v0.12.0", "v0.11.2", "1", "1"));
   assert.throws(
     check("v0.11.3", "v0.11.2", "2", "1"),
-    /^Error: deployment\/VERSION is 2, and at v0\.11\.2 it was 1: a new version of the deployment configuration starts a new line, so raise RELEASE_LINE above 0\.11 in the same change \(R85\)$/,
+    /^Error: deployment\/VERSION is 2, and at v0\.11\.2 it was 1: a new version of the deployment configuration starts a new line, so raise RELEASE_LINE above 0\.11 in the same change$/,
   );
   assert.doesNotThrow(check("v0.12.0", "v0.11.2", "2", "1"));
   // By number, not by text: 10 is above 9.
@@ -40,9 +40,9 @@ test("another version of the configuration needs a raised line, and never goes b
   // refused, in a raised line too, and a new version may come with it.
   assert.throws(
     check("v0.11.3", "v0.11.2", "1", "1", SHAPE),
-    /^Error: the shape of deployment\/schemas\/deployment\.schema\.json changed after v0\.11\.2, and deployment\/VERSION is still 1: every change of the deployment configuration's shape is a new version, in a new line \(R85\)$/,
+    /^Error: the shape of deployment\/schemas\/deployment\.schema\.json changed after v0\.11\.2, and deployment\/VERSION is still 1: every change of the deployment configuration's shape is a new version, in a new line$/,
   );
-  assert.throws(check("v0.12.0", "v0.11.2", "1", "1", RULES), /^Error: the IDs of the rules of deployment\/README\.md, section 5, changed after v0\.11\.2/);
+  assert.throws(check("v0.12.0", "v0.11.2", "1", "1", RULES), /^Error: the IDs of the rules of deployment\/README\.md changed after v0\.11\.2/);
   assert.doesNotThrow(check("v0.12.0", "v0.11.2", "2", "1", SHAPE));
 });
 
@@ -188,7 +188,7 @@ test("in spec, release-version refuses another shape or a new version of the con
     git("commit", "--quiet", "-m", "a rule of another ID, and no new version");
     const renamed = recipe(dir);
     assert.notEqual(renamed.status, 0);
-    assert.match(renamed.stderr, /the IDs of the rules of deployment\/README\.md, section 5, changed after v0\.11\.1, and deployment\/VERSION is still 1/);
+    assert.match(renamed.stderr, /the IDs of the rules of deployment\/README\.md changed after v0\.11\.1, and deployment\/VERSION is still 1/);
 
     writeFile(dir, git, "deployment/VERSION", "2\n");
     git("commit", "--quiet", "-m", "a new version, and no new line");

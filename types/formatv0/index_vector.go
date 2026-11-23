@@ -5,10 +5,10 @@ package formatv0
 // IndexVector is the type of index-vector.schema.json.
 //
 // A release of modules that a test vector of the module index gives, index.yaml beside the modules/
-// it releases (sections 9 and 26 of the format text): the index of the release before it, the
-// release's tag and its withdrawals, and either the index that the release builds or the rule of
-// the index by which the build is refused. An implementation builds the package of each module and
-// the index, and gets exactly these, whatever the order of keys.
+// it releases: the index of the release before it, the release's tag and its withdrawals, and
+// either the index that the release builds or the rule of the index by which the build is refused.
+// An implementation builds the package of each module and the index, and gets exactly these,
+// whatever the order of keys.
 type IndexVector struct {
 	// The index of the release before this one. The first release of modules has none, and leaves
 	// this field out.

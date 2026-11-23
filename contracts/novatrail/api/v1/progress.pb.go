@@ -6,8 +6,9 @@
 
 // The skill map and the adult's progress in the contract between `app` and `api`: the state of a
 // learner's skills in a module, as the learner model reads it, the attempts of a profile with the
-// traps that repeat in them, and the adult's correction of a module's level (R157). What each
-// message means is the rule of contracts/README.md, section 15.
+// traps that repeat in them, and the adult's correction of a module's level. What each
+// message means is the rule of contracts/README.md for the contract between
+// `app` and `api`.
 
 package apiv1
 
@@ -149,7 +150,7 @@ func (AnchorSkillReason) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_progress_proto_rawDescGZIP(), []int{1}
 }
 
-// The mark of a criterion in a feedback (R87). A mark its build does not know `app` reads as
+// The mark of a criterion in a feedback. A mark its build does not know `app` reads as
 // `CRITERION_MARK_NOT_ASSESSED`.
 type CriterionMark int32
 
@@ -284,14 +285,14 @@ type GetSkillMapResponse struct {
 	// The state of each anchor skill that the graph names as a prerequisite or in `teaches`.
 	AnchorSkills []*AnchorSkillState `protobuf:"bytes,3,rep,name=anchor_skills,json=anchorSkills,proto3" json:"anchor_skills,omitempty"`
 	// The ID of the band of the module's level, as `learner-model` reads it on the scale of the
-	// module's bands (concepts 11): the highest band while the level stands above it, and empty
-	// while it stands below the lowest band, where a learner whose grade is in the lowest band starts
-	// (R157). A band keeps its place and its ID in every version of the module (section 27 of the
-	// module format), so the manifest of the current version names it: by it and the order of the
-	// bands of that manifest `app` names the bands next to it, which `SetModuleLevel` takes.
+	// module's bands: the highest band while the level stands above it, and empty while it stands
+	// below the lowest band, where a learner whose grade is in the lowest band starts. A band keeps
+	// its place and its ID in every version of the module (by the module format's rules for versions
+	// of a module), so the manifest of the current version names it: by it and the order of the bands
+	// of that manifest `app` names the bands next to it, which `SetModuleLevel` takes.
 	LevelBand string `protobuf:"bytes,4,opt,name=level_band,json=levelBand,proto3" json:"level_band,omitempty"`
 	// When an adult last set the module's level by `SetModuleLevel`: absent when no adult has. The
-	// learner sees it, whoever gave the consent (R157).
+	// learner sees it, whoever gave the consent.
 	LevelSetAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=level_set_at,json=levelSetAt,proto3" json:"level_set_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -362,7 +363,7 @@ func (x *GetSkillMapResponse) GetLevelSetAt() *timestamppb.Timestamp {
 	return nil
 }
 
-// The state of a skill of a module, as `learner-model` reads it (concepts 11). No trap is in it:
+// The state of a skill of a module, as `learner-model` reads it. No trap is in it:
 // the trap catalog is closed, and the traps that repeat go to the adult's progress alone.
 type SkillState struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -496,7 +497,7 @@ func (x *SkillState) GetReviewDue() bool {
 }
 
 // The state of an anchor skill of the shared taxonomy, as `learner-model` reads it from the skills
-// that teach it in the learner's modules (concepts 4).
+// that teach it in the learner's modules.
 type AnchorSkillState struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The anchor skill's ID, "core.multiplication-table".
@@ -509,7 +510,7 @@ type AnchorSkillState struct {
 	TeachingSkills []string `protobuf:"bytes,4,rep,name=teaching_skills,json=teachingSkills,proto3" json:"teaching_skills,omitempty"`
 	// The IDs of the modules of the catalog that teach it and are not connected to the profile:
 	// those of the pinned index of `api` whose current version suits the profile by its audience and
-	// names it in `teaches` (R63), in the order of their IDs' UTF-16 code units. It is given whatever
+	// names it in `teaches`, in the order of their IDs' UTF-16 code units. It is given whatever
 	// the holding, and `app` offers them beside `ANCHOR_SKILL_HOLDING_UNKNOWN`: such a module the
 	// learner may connect by `ConnectModule`.
 	TeachingModules []string `protobuf:"bytes,5,rep,name=teaching_modules,json=teachingModules,proto3" json:"teaching_modules,omitempty"`
@@ -713,7 +714,7 @@ func (x *GetProgressResponse) GetLevelSettings() []*LevelSetting {
 	return nil
 }
 
-// The adult's last correction of a module's level (R157).
+// The adult's last correction of a module's level.
 type LevelSetting struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The module's ID.
@@ -928,10 +929,10 @@ type AttemptRecord struct {
 	// On a task with a rubric: each submission, in order, with how it ended and its feedback's marks.
 	EssaySubmissions []*EssayRecord `protobuf:"bytes,9,rep,name=essay_submissions,json=essaySubmissions,proto3" json:"essay_submissions,omitempty"`
 	// The reason code of the choice that `chosen_at` names, which the adult sees and a child is not
-	// told (R100): `REASON_CODE_UNSPECIFIED` where `chosen_at` is absent.
+	// told: `REASON_CODE_UNSPECIFIED` where `chosen_at` is absent.
 	ReasonCode ReasonCode `protobuf:"varint,10,opt,name=reason_code,json=reasonCode,proto3,enum=novatrail.api.v1.ReasonCode" json:"reason_code,omitempty"`
 	// The lesson's `title` whenever `lesson` is set, of an open attempt and a closed one, in the
-	// module's explanation language, from the package of the version the attempt went on (R99).
+	// module's explanation language, from the package of the version the attempt went on.
 	// Empty outside a lesson, and when `api` no longer reads that package: `app` then names the
 	// lesson by its ID.
 	LessonTitle string `protobuf:"bytes,11,opt,name=lesson_title,json=lessonTitle,proto3" json:"lesson_title,omitempty"`
@@ -939,10 +940,10 @@ type AttemptRecord struct {
 	// `CLOSE_REASON_CORRECT`, `CLOSE_REASON_SOLUTION_SHOWN` or `CLOSE_REASON_DONE`: the primary
 	// skills of its items, each item's own or else the task's, each once, in the order of the items
 	// and of their lists, in the module's explanation language, from the skill graph of the package
-	// of the version the attempt went on (R99). Empty at any other attempt: the skills of a task are
+	// of the version the attempt went on. Empty at any other attempt: the skills of a task are
 	// closed, since their titles could tell how to solve it, an attempt open or not solved may be
-	// begun again, and on the owner's profile the adult and the learner are one person (section 14
-	// of the module format). Empty too when `api` no longer reads that package.
+	// begun again, and on the owner's profile the adult and the learner are one person.
+	// Empty too when `api` no longer reads that package.
 	SkillTitles   []string `protobuf:"bytes,12,rep,name=skill_titles,json=skillTitles,proto3" json:"skill_titles,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1070,7 +1071,7 @@ type EssayRecord struct {
 	// How it ended.
 	End SubmissionEnd `protobuf:"varint,2,opt,name=end,proto3,enum=novatrail.api.v1.SubmissionEnd" json:"end,omitempty"`
 	// Beside `SUBMISSION_END_FEEDBACK`: the mark of each criterion of the rubric, in the order of
-	// the criteria (R87).
+	// the criteria.
 	CriterionMarks []CriterionMark `protobuf:"varint,3,rep,packed,name=criterion_marks,json=criterionMarks,proto3,enum=novatrail.api.v1.CriterionMark" json:"criterion_marks,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -1129,7 +1130,7 @@ func (x *EssayRecord) GetCriterionMarks() []CriterionMark {
 
 // A trap that repeats: one that the program found in two closed attempts of the profile or more,
 // counted by its full ID. An attempt on a version withdrawn `wrong_key` counts no trap: its
-// verdicts are wrong (R63).
+// verdicts are wrong.
 type RepeatingTrap struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The full ID of the trap, "novatrail/olympiad-math/trap/off-by-one".

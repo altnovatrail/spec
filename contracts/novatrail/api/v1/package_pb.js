@@ -5,7 +5,7 @@
 // What a package of a module gives by its digest, in the contract between `app` and `api`: the
 // open views of its manifest, skill graph, technique catalog and solving steps, which go without a
 // token, and whether the image of `api` still gives a package. The files of a package's device
-// part are no method of the contract: they go by HTTP GET, as contracts/README.md, section 15, has
+// part are no method of the contract: they go by HTTP GET, as contracts/README.md has
 // it, with the rules of the whole contract.
 
 import { enumDesc, fileDesc, messageDesc, serviceDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
@@ -116,7 +116,7 @@ export const PackageStatus = /*@__PURE__*/
   tsEnum(PackageStatusSchema);
 
 /**
- * What a package of a module gives by its digest (R62). The four open views go without a token and
+ * What a package of a module gives by its digest. The four open views go without a token and
  * without the ID of a profile, by Connect GET: each method has the idempotency level
  * `NO_SIDE_EFFECTS`, and `app` calls it with no header — no `Connect-Timeout-Ms` either, which would
  * make the request not simple and send a preflight before it. They go for any package that the

@@ -3,7 +3,7 @@
 // with every published version of its module, withdrawn ones too. A second implementation beside
 // module-kit's diff, by which spec's CI computes the test vectors of versions. A package of an
 // earlier version of the format is read only by the places that every version keeps. It runs no
-// Starlark: the results of a solver stand among the numbers of the instances (R89, R101).
+// Starlark: the results of a solver stand among the numbers of the instances.
 
 import { byCodeUnits } from "../shared.mjs";
 import { DIGEST_PREFIX, canonicalText, descriptorOf, digestOf } from "./canonical.mjs";
@@ -91,7 +91,7 @@ const keysOf = (value) => (isObject(value) ? Object.keys(value) : []);
 // and the keys of its tasks, its lessons, its traps and its techniques. { places }, or { problem }
 // when a package does not hold them where the format keeps them.
 export function placesOf(inventory, view) {
-  const at = (what) => ({ problem: `holds no ${what} where the format keeps it in every version (section 2)` });
+  const at = (what) => ({ problem: `holds no ${what} where the format keeps it in every version` });
   if (!isObject(inventory)) return at("inventory");
   if (typeof inventory[VERSION_FIELD] !== "string" || !FORMAT_VERSION.test(inventory[VERSION_FIELD])) return at(`${VERSION_FIELD} of its inventory`);
   if (typeof inventory.id !== "string") return at("id of its inventory");
@@ -402,7 +402,7 @@ export function compareVersions({ published, next }) {
 // The part of a move of a module from one version of the format to another: major while the format is
 // v0. The format gives no part of a move from v1 on, and format-check computes none.
 function movePart(from, to) {
-  if (![from, to].every((version) => version.startsWith("0."))) throw new Error(`section 27 gives no part of a move from version ${from} of the format to ${to}: only while the format is v0`);
+  if (![from, to].every((version) => version.startsWith("0."))) throw new Error(`the format gives no part of a move from version ${from} of the format to ${to}: only while the format is v0`);
   return { part: "major", changes: [{ at: "#", part: "major", what: `the module moves from version ${from} of the format to ${to}` }] };
 }
 

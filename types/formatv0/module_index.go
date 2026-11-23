@@ -4,13 +4,13 @@ package formatv0
 
 // ModuleIndex is the type of module-index.schema.json.
 //
-// The module index, module-index.json, a file of each release of modules (section 26 of the format
-// text): every published version of every module, each by the digest of its package, with the
-// release whose files hold it, the anchor skills it teaches and, when it has been withdrawn from
-// publication, why. A release builds it from the index of the release before it, and the release
-// workflow of .github signs it. Its members and those of an entry keep their places and meanings in
-// every version of the format, so that the index carries the entries of every version; a reader of
-// another version reads them by their places, not by this schema.
+// The module index, module-index.json, a file of each release of modules: every published version
+// of every module, each by the digest of its package, with the release whose files hold it, the
+// anchor skills it teaches and, when it has been withdrawn from publication, why. A release builds
+// it from the index of the release before it, and the release workflow of .github signs it. Its
+// members and those of an entry keep their places and meanings in every version of the format, so
+// that the index carries the entries of every version; a reader of another version reads them by
+// their places, not by this schema.
 type ModuleIndex struct {
 	// The format version by which the index was built. It stands at the root of the index in every
 	// version of the format, as it does in a manifest and an inventory.
@@ -27,8 +27,8 @@ type Entry struct {
 	// stands in every entry in every version of the format, so that a reader finds it before it
 	// reads the package.
 	ModuleFormatVersion ModuleFormatVersion `json:"module_format_version"`
-	// The digest of the version's package: the digest of the canonical text of its inventory
-	// (section 25).
+	// The digest of the version's package: the digest of the canonical text of its inventory, as
+	// the rules of packages take it.
 	PackageDigest Digest `json:"package_digest"`
 	// The tag of the release of modules whose files hold the package: the release that first
 	// published it.
@@ -70,8 +70,8 @@ const (
 
 // Withdrawals is the type of module-index.schema.json#/$defs/withdrawals.
 //
-// The withdrawals of a release of modules, which the build of its index marks (section 26 of the
-// format text): under each module's ID, under each version it withdraws, the reason of the
-// withdrawal. modules keeps them in a file of its own, and a test vector of the index in its member
-// withdrawals. A release that withdraws none has no withdrawals, rather than an empty object.
+// The withdrawals of a release of modules, which the build of its index marks: under each module's
+// ID, under each version it withdraws, the reason of the withdrawal. modules keeps them in a file
+// of its own, and a test vector of the index in its member withdrawals. A release that withdraws
+// none has no withdrawals, rather than an empty object.
 type Withdrawals map[ModuleID]map[ModuleVersion]WithdrawalReason

@@ -1,4 +1,4 @@
-// xrepo's ship, after the author's «да» (R166): the pull requests of the repositories the epic
+// xrepo's ship, after the author's «да»: the pull requests of the repositories the epic
 // changed, one at a time in the order of their dependencies, spec first; each merged on green
 // checks and SonarCloud's word, as the orchestrator merges an executor's pull request; its release
 // awaited — GitHub's, npm's and the Go proxy's —, and the dependents pinned to it before their own
@@ -137,7 +137,7 @@ async function fetchOk(deps, url, { asJson = false } = {}) {
 // a draft; each npm package's version and its archive, which comes later than the version's entry
 // (the step of spec's release.yml that publishes to npm waits for the same);
 // each Go module on the proxy — asked only once the tag is on GitHub, since the proxy remembers a
-// module it did not find for half an hour (R64).
+// module it did not find for half an hour.
 export async function waitRelease(asked, named, deps) {
   checkRepo(asked);
   const tag = checkTag(named);
@@ -243,7 +243,7 @@ function renotice(clone, moved) {
 }
 
 // The files of parts/ that come from spec's release — the dependent's justfile verifies them at its
-// spec_tag (R77) —, each with its signature downloaded from the new release into the epic's .stand/
+// spec_tag —, each with its signature downloaded from the new release into the epic's .stand/
 // and verified there, before the pin writes anything in the clone. What to lay into parts/.
 function partsOf(deps, dir, clone, dependent, tag) {
   const tracked = git(deps, clone, ["ls-files", "--", "parts"]).split("\n").filter(Boolean);
@@ -261,7 +261,7 @@ function partsOf(deps, dir, clone, dependent, tag) {
 }
 
 // One dependent pinned to a release of repo: the submodule spec, go.mod by go get without the
-// workspace, package.json and its lock file by npm and release-verify-npm (R77), NOTICE's lines of
+// workspace, package.json and its lock file by npm and release-verify-npm, NOTICE's lines of
 // those packages; for spec, the lines that name its tag and the files of parts/ from its release;
 // the go.work without the repository; a commit, signed off. Nothing when it pins nothing.
 function pinOne(dir, dependent, repo, tag, deps) {
@@ -303,7 +303,7 @@ function pinOne(dir, dependent, repo, tag, deps) {
   const files = [...(done.includes("submodule") ? ["spec"] : []), ...(done.includes("go.mod") ? ["go.mod", "go.sum"] : []), ...(done.includes("package.json") ? ["package.json", "package-lock.json"] : []), ...retagged];
   git(deps, clone, ["add", "--", ...files.filter((f) => fs.existsSync(path.join(clone, f)))]);
   if (!git(deps, clone, ["diff", "--cached", "--name-only"]).trim()) return { repo: dependent, pinned: done, commit: null };
-  git(deps, clone, [...(deps.identity ?? []), "commit", "--quiet", "--signoff", "-m", `Pin ${repo} ${tag}\n\nxrepo ship: ${repo}'s release ${tag}, which this branch builds against (R166 spec).`]);
+  git(deps, clone, [...(deps.identity ?? []), "commit", "--quiet", "--signoff", "-m", `Pin ${repo} ${tag}\n\nxrepo ship: ${repo}'s release ${tag}, which this branch builds against.`]);
   return { repo: dependent, pinned: done, commit: git(deps, clone, ["rev-parse", "HEAD"]).trim() };
 }
 
@@ -456,7 +456,7 @@ async function awaitMain(repo, sha, deps) {
 // line of <epic folder>/pr-<repo>.md, and the rest.
 function textOf(dir, repo) {
   const file = path.join(dir, `pr-${repo}.md`);
-  if (!fs.existsSync(file)) throw new Stop(`no ${file}: the title on its first line, the description after it, in English (R14 spec)`);
+  if (!fs.existsSync(file)) throw new Stop(`no ${file}: the title on its first line, the description after it, in English`);
   const [title, ...body] = fs.readFileSync(file, "utf8").split("\n");
   if (!title.trim()) throw new Stop(`${file} has no title on its first line`);
   return { title: title.replace(/^#\s*/, "").trim(), file, body: body.join("\n").trim() };

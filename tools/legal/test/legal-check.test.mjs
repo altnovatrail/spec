@@ -97,7 +97,7 @@ test("a root with no legal/ has that one error", () => {
 });
 
 test("a file the layout does not know is an error, and a file under texts/ that is no version is legal.files'", () => {
-  expectOnly([["legal/notes.txt", null, "notes\n"]], /^legal\/notes\.txt:0: no file of the layout of legal\/ \(legal\/README\.md, section 3\)$/);
+  expectOnly([["legal/notes.txt", null, "notes\n"]], /^legal\/notes\.txt:0: no file of the layout of legal\/ that legal\/README\.md gives$/);
   expectOnly([["legal/vectors/reading/Accepted.yaml", null, "cases: []\n"]], /^legal\/vectors\/reading\/Accepted\.yaml:0: no file of the layout/);
   expectOnly([["legal/vectors/rules/case.yaml", null, "cases: []\n"]], /^legal\/vectors\/rules\/case\.yaml:0: no file of the layout/);
   expectOnly([["legal/examples/legal/broken/case.yaml", null, "a: b\n"]], /no file of the layout/);
@@ -147,7 +147,7 @@ test("an example passes its schema or names the error it gives", () => {
   expectOnly([["legal/examples/legal/valid/drafts.yaml", "texts:", "texts: &t"]], /drafts\.yaml:\d+: yaml\.no-anchors/);
 });
 
-test("a vector of reading passes its schema, and each case gives what section 5 computes", () => {
+test("a vector of reading passes its schema, and each case gives what the reading of the text computes", () => {
   expectOnly([[MARKDOWN, "    refused_by: legal.markdown", "    refused_by: legal.files"]], /^legal\/vectors\/reading\/markdown\.yaml:0: cases\/0: the reading gives \{"refused_by":"legal\.markdown","names":\["texts\/privacy-policy\/1\.md"\]\}, and the vector \{"refused_by":"legal\.files","names":\["texts\/privacy-policy\/1\.md"\]\}$/);
   const unpaired = errorsOf([[MARKDOWN, "    refused_by: legal.markdown\n    names:\n      - texts/privacy-policy/1.md\n", "    refused_by: legal.markdown\n"]]);
   assert.ok(unpaired.some((error) => /^legal\/vectors\/reading\/markdown\.yaml:0: does not pass the schema of a vector of reading: dependentRequired at #\/cases\/0: must have property names/.test(error)), unpaired.join("\n"));
@@ -156,19 +156,19 @@ test("a vector of reading passes its schema, and each case gives what section 5 
 });
 
 test("the vectors accept a part and refuse one by the schema and by each rule", () => {
-  assert.deepEqual(errorsOf([[MARKDOWN, "", null]]), ["legal/vectors/reading:0: no vector of reading refuses a part by legal.markdown (legal/README.md, section 7)"]);
+  assert.deepEqual(errorsOf([[MARKDOWN, "", null]]), ["legal/vectors/reading:0: no vector of reading refuses a part by legal.markdown, which legal/README.md asks for"]);
   assert.deepEqual(
     errorsOf([
       [ACCEPTED, "", null],
       ["legal/vectors/reading/schema.yaml", "", null],
     ]),
-    ["legal/vectors/reading:0: no vector of reading accepts a part (legal/README.md, section 7)", "legal/vectors/reading:0: no vector of reading refuses a part by the schema (legal/README.md, section 7)"],
+    ["legal/vectors/reading:0: no vector of reading accepts a part, which legal/README.md asks for", "legal/vectors/reading:0: no vector of reading refuses a part by the schema, which legal/README.md asks for"],
   );
   // With no schema of a vector, the vectors are read by the YAML rules alone, and nothing is counted.
   assert.deepEqual(errorsOf([[VECTOR_SCHEMA, "", null]]), ["legal/schemas:0: no reading-vector.schema.json, which the text names"]);
 });
 
-test("the part itself is read as section 5 reads it: the schema, then the rules", () => {
+test("the part itself is read as the text reads it: the schema, then the rules", () => {
   expectOnly([[PASSPORT, "format: 3", "format: 4"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: format$/);
   expectOnly([[PASSPORT, "format: 3", "format: 3\nextra: true"]], /^legal\/legal\.yaml:0: does not pass legal\/schemas\/legal\.schema\.json: extra$/);
   const policy = fs.readFileSync(path.join(spec, POLICY), "utf8");
@@ -180,15 +180,15 @@ test("the part itself is read as section 5 reads it: the schema, then the rules"
     [POLICY, "", null],
     ["legal/texts/privacy-policy/2.md", null, policy],
   ]);
-  assert.deepEqual(versions, ["legal/legal.yaml:0: legal.versions: texts.privacy-policy, legal/README.md, section 5"]);
+  assert.deepEqual(versions, ["legal/legal.yaml:0: legal.versions: texts.privacy-policy, by the reading of legal/README.md"]);
   // legal.operator names the policy's version with no section "Who we are" by its file, and the
   // passport when no version of the policy applies on the day of the check.
-  expectOnly([[POLICY, "## Who we are", "## About us"]], /^legal\/texts\/privacy-policy\/1\.md:0: legal\.operator: texts\/privacy-policy\/1\.md: it has no section "Who we are", a heading of the second level, legal\/README\.md, section 5$/);
+  expectOnly([[POLICY, "## Who we are", "## About us"]], /^legal\/texts\/privacy-policy\/1\.md:0: legal\.operator: texts\/privacy-policy\/1\.md: it has no section "Who we are", a heading of the second level, by the reading of legal\/README\.md$/);
   const early = trialCopy([]);
   try {
     assert.deepEqual(
       checkLegal(early, { previousOf: none, today: "2026-11-09" }).errors.map(({ file, message }) => `${file}: ${message}`),
-      ["legal/legal.yaml: legal.operator: texts.privacy-policy: the part has no privacy-policy at the place app with a version in force by 2026-11-09, legal/README.md, section 5"],
+      ["legal/legal.yaml: legal.operator: texts.privacy-policy: the part has no privacy-policy at the place app with a version in force by 2026-11-09, by the reading of legal/README.md"],
     );
     assert.deepEqual(checkLegal(early, { previousOf: none, today: "2026-11-10" }).errors, []);
   } finally {
@@ -245,7 +245,7 @@ test("legal.in-force-unchanged reads the part of the release before, which previ
     edit(root, PASSPORT, 'in_force_since: "2026-11-01"', 'in_force_since: "2026-11-02"');
     assert.deepEqual(
       checkLegal(root, { previousOf: () => previous }).errors.map(({ file, message }) => `${file}: ${message}`),
-      ["legal/legal.yaml: legal.in-force-unchanged: texts.privacy-policy, legal/README.md, section 5, against v0.13.0", `${POLICY}: legal.in-force-unchanged: texts/privacy-policy/1.md, against v0.13.0`],
+      ["legal/legal.yaml: legal.in-force-unchanged: texts.privacy-policy, by the reading of legal/README.md, against v0.13.0", `${POLICY}: legal.in-force-unchanged: texts/privacy-policy/1.md, against v0.13.0`],
     );
     // A release before that cannot be read is an error, and the part is not read without it.
     assert.deepEqual(checkLegal(root, { previousOf: () => { throw new Error("a shallow clone"); } }).errors, [{ file: "legal", line: 0, message: "the release before cannot be read, for legal.in-force-unchanged: a shallow clone" }]);
@@ -346,7 +346,7 @@ function copyFolder() {
 
 const dirErrors = (dir, shown = "own") => checkLegalDir(path.join(dir, "own"), spec, shown).errors.map((e) => `${e.file}:${e.line}: ${e.message}`);
 
-test("a copy's folder is checked against this spec's schema and the rules of section 5 but legal.in-force-unchanged", () => {
+test("a copy's folder is checked against this spec's schema and the rules of the reading but legal.in-force-unchanged", () => {
   const dir = copyFolder();
   try {
     const own = path.join(dir, "own");
@@ -359,8 +359,8 @@ test("a copy's folder is checked against this spec's schema and the rules of sec
     fs.mkdirSync(path.join(own, "schemas"));
     fs.writeFileSync(path.join(own, "schemas/legal.schema.json"), "{}\n");
     assert.deepEqual(dirErrors(dir), [
-      "own/README.md:0: no file of a copy's folder, which holds VERSION, legal.yaml and texts/ alone (legal/README.md, sections 3 and 8)",
-      "own/schemas/legal.schema.json:0: no file of a copy's folder, which holds VERSION, legal.yaml and texts/ alone (legal/README.md, sections 3 and 8)",
+      "own/README.md:0: no file of a copy's folder, which holds VERSION, legal.yaml and texts/ alone, as legal/README.md says",
+      "own/schemas/legal.schema.json:0: no file of a copy's folder, which holds VERSION, legal.yaml and texts/ alone, as legal/README.md says",
     ]);
     fs.rmSync(path.join(own, "README.md"));
     fs.rmSync(path.join(own, "schemas"), { recursive: true });
@@ -370,11 +370,11 @@ test("a copy's folder is checked against this spec's schema and the rules of sec
     fs.copyFileSync(path.join(spec, "legal/texts/terms-of-use/1.md"), path.join(own, "texts/terms-of-use/1.md"));
     // Its policy names its operator in "Who we are", and a folder whose policy does not apply yet is refused.
     edit(dir, "own/texts/privacy-policy/2.md", "## Who we are", "## About us");
-    assert.deepEqual(dirErrors(dir), ['own/texts/privacy-policy/2.md:0: legal.operator: texts/privacy-policy/2.md: it has no section "Who we are", a heading of the second level, legal/README.md, section 5']);
+    assert.deepEqual(dirErrors(dir), ['own/texts/privacy-policy/2.md:0: legal.operator: texts/privacy-policy/2.md: it has no section "Who we are", a heading of the second level, by the reading of legal/README.md']);
     fs.copyFileSync(path.join(spec, "legal/texts/privacy-policy/2.md"), path.join(own, "texts/privacy-policy/2.md"));
     assert.deepEqual(
       checkLegalDir(own, spec, "own", { today: "2026-11-09" }).errors.map(({ file, message }) => `${file}: ${message}`),
-      ["own/legal.yaml: legal.operator: texts.privacy-policy: the part has no privacy-policy at the place app with a version in force by 2026-11-09, legal/README.md, section 5"],
+      ["own/legal.yaml: legal.operator: texts.privacy-policy: the part has no privacy-policy at the place app with a version in force by 2026-11-09, by the reading of legal/README.md"],
     );
     // Its version is this spec's.
     fs.writeFileSync(path.join(own, "VERSION"), "1\n");
@@ -410,7 +410,7 @@ test("a copy's folder is checked against this spec's schema and the rules of sec
     // What stands beside them is named file by file, in a folder too.
     fs.mkdirSync(path.join(own, "notes"));
     fs.writeFileSync(path.join(own, "notes/a.txt"), "a\n");
-    assert.deepEqual(dirErrors(dir), ["own/notes/a.txt:0: no file of a copy's folder, which holds VERSION, legal.yaml and texts/ alone (legal/README.md, sections 3 and 8)"]);
+    assert.deepEqual(dirErrors(dir), ["own/notes/a.txt:0: no file of a copy's folder, which holds VERSION, legal.yaml and texts/ alone, as legal/README.md says"]);
     assert.deepEqual(checkLegalDir(path.join(dir, "nothing"), spec, "nothing").errors, [{ file: "nothing", line: 0, message: "no folder there" }]);
     fs.writeFileSync(path.join(dir, "a-file"), "");
     assert.deepEqual(checkLegalDir(path.join(dir, "a-file"), spec, "a-file").errors, [{ file: "a-file", line: 0, message: "no folder there" }]);
@@ -458,7 +458,7 @@ test("the commands print ok, and the errors of a broken copy", () => {
     assert.equal(process.exitCode, 1);
     assert.deepEqual(
       printed.mock.calls.map((call) => call.arguments[0]),
-      ["legal/notes.txt:0: no file of the layout of legal/ (legal/README.md, section 3)", "legal-check: 1 error"],
+      ["legal/notes.txt:0: no file of the layout of legal/ that legal/README.md gives", "legal-check: 1 error"],
     );
     process.exitCode = 0;
     fs.rmSync(path.join(root, "legal/notes.txt"));

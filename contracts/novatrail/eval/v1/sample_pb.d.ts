@@ -6,7 +6,7 @@
 // workbook, as the samples page of `canvas` saves it and the eval runner of `tutor` reads it, one
 // JSON file to a sample, with its markup. Which fields a sample holds, by its purpose and by who
 // wrote it, how the file is written and read, its markup, and where a sample may go are the rules
-// of contracts/README.md, section 11.
+// of contracts/README.md for the sample file.
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -89,8 +89,8 @@ export declare type Sample = Message<"novatrail.eval.v1.Sample"> & {
   /**
    * The version of the set of texts that the samples page showed: the notice of the purpose and
    * the form of consent. 1 to 32 Latin letters, digits, dots and hyphens: from the legal part on,
-   * the set's ID and version joined by a hyphen, such as "child-sample-1" (legal/README.md,
-   * section 4); "none" in a file that the samples page did not write, a synthetic sample among
+   * the set's ID and version joined by a hyphen, such as "child-sample-1" (legal/README.md);
+   * "none" in a file that the samples page did not write, a synthetic sample among
    * them.
    *
    * @generated from field: string text_set_version = 8;
@@ -489,7 +489,7 @@ export declare type TaskReference = Message<"novatrail.eval.v1.TaskReference"> &
 
   /**
    * The digest of the task's open view: `sha256:` and the SHA-256 of its canonical text, 64
-   * lowercase hexadecimal digits, as the module format takes a digest (section 25 of its text).
+   * lowercase hexadecimal digits, as the module format takes a digest.
    * Of an instance of a template, the open view with its numbers in place.
    *
    * @generated from field: string open_view_digest = 6;

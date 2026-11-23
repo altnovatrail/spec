@@ -1,6 +1,6 @@
 // A document cut into pieces for its translation, and the translated pieces joined back. A piece
 // ends right before a heading or, in a decision log, before the opening paragraph of an entry,
-// "**R01. …**", once it holds `size` bytes. One that has grown to half as much again ends before
+// "**R<number>. …**", once it holds `size` bytes. One that has grown to half as much again ends before
 // any paragraph of its own, such as an amendment; to twice as much, before an item of a list or a
 // row of a table, which then goes on in the next piece. Never inside a block of code or a quote.
 

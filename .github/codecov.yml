@@ -1,4 +1,4 @@
-# What Codecov does with the coverage of the tests of tools/ and of the Go modules (R48). There are
+# What Codecov does with the coverage of the tests of tools/ and of the Go modules. There are
 # two kinds of report, each with an upload of its own, and both leave the tests out by themselves.
 # Node's, coverage/lcov.info of each of the three parts of the tests (coverage-part), which the job
 # "Coverage" of ci.yml uploads together, in one upload, leaves node_modules/ out too, and the job
@@ -22,13 +22,13 @@ codecov:
 
 coverage:
   status:
-    # New and changed lines are covered at 90 % at least, as R38 standalone. The ruleset of main
-    # requires this check (R30). A pull request that changes no line of the report, the documents
+    # New and changed lines are covered at 90 % at least, as in MathTrail's standalone. The ruleset
+    # of main requires this check. A pull request that changes no line of the report, the documents
     # alone, passes as "Coverage not affected".
     patch:
       default:
         target: 90%
-    # On the plan Codecov gives a public repository, it sets no project status (R48). Should it
+    # On the plan Codecov gives a public repository, it sets no project status. Should it
     # ever set one, it only informs: the badge shows the coverage of the whole.
     project:
       default:

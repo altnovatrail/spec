@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/export/4/manifest.schema.json",
   "title": "Manifest",
-  "description": "The manifest of an export, manifest.json, which app writes (section 4 of the text of the part).",
+  "description": "The manifest of an export, manifest.json, which app writes.",
   "type": "object",
   "properties": {
     "format": {

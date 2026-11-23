@@ -1,5 +1,5 @@
 // release-verify: whether a file of a NovaTrail release may enter NovaTrail — signed by whom, at
-// whose call, on which branch and of which commit —, checked where the file enters it (R77).
+// whose call, on which branch and of which commit —, checked where the file enters it.
 //
 //   node tools/release/verify.mjs <repository> <tag> <file> [<bundle>]
 //   node tools/release/verify.mjs --npm <lock file>
@@ -7,7 +7,7 @@
 // The first checks a file of the release <tag> of <repository>, against its bundle, by default
 // <file>.sigstore.json beside it. The second checks each package of @altnovatrail in an npm lock
 // file: the archive from the registry, against the bundle of the release file of the same name,
-// and the lock file's integrity against the bytes so checked (R37). `just release-verify` and
+// and the lock file's integrity against the bytes so checked. `just release-verify` and
 // `just release-verify-npm` run them, from the caller's directory.
 //
 // The bundle must hold for the file's bytes against Sigstore's trust root, which TUF reads afresh
@@ -25,7 +25,7 @@
 //   what its name says, as release-files writes it — a folder <part>-<version>/ with LICENSE and
 //   <part>/, whose VERSION is that version —; for altnovatrail-spec-<version>.tgz and
 //   altnovatrail-contracts-<version>.tgz, the package of the contracts' code, the version in its
-//   package.json (R96, R85, R130, R134, R135, R83).
+//   package.json.
 //
 // Prints a line for each file verified; a refusal is an error, with what was wanted and found.
 
@@ -47,7 +47,7 @@ export const ISSUER = "https://token.actions.githubusercontent.com";
 // The lowest release of .github whose shared release.yml signs a file that may enter: from v0.1.6
 // it checks the caller's spec submodule and the sum of spec's script, and from v0.1.7 spec's
 // recipes run in a copy of the checkout. The minimum is its commit, not its name, and it must lie
-// in the history of the commit that signed. Only a change of the decision raises it (R77).
+// in the history of the commit that signed. Only a deliberate change here raises it.
 export const MINIMUM = Object.freeze({ tag: "v0.1.7", commit: "0acbf75e5c8362b649924bf1abdae973ce71085e" });
 
 const SHARED = ".github";
@@ -57,19 +57,18 @@ const SHA = /^[0-9a-f]{40}$/;
 const ORGANIZATION_URI = `https://github.com/${ORGANIZATION.name}`;
 // The normative parts with a version of their own, each one archive of git archive: the module
 // format and the admission table by MAJOR.MINOR, and the deployment configuration, the legal
-// texts, the table of the age of digital consent and the format of the export by an integer (R96,
-// R85, R130, R134, R135).
+// texts, the table of the age of digital consent and the format of the export by an integer.
 const PART_FILE = /^(?:(?:format|admission)-(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)|(?:deployment|legal|consent-age|export)-[1-9]\d*)\.tar\.gz$/;
 // The npm packages of spec's release, by the name of their archive: the types of the format, and
 // the code of the contracts.
 const NPM_FILE = /^altnovatrail-(spec|contracts)-((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))\.tgz$/;
 const SCOPE = "@altnovatrail/";
 // A package of @altnovatrail that is not named for the repository whose release carries it: the
-// code of the contracts comes out in spec's. Every other package is its repository's (R83).
+// code of the contracts comes out in spec's. Every other package is its repository's.
 export const RELEASED_BY = Object.freeze({ "@altnovatrail/contracts": "spec" });
 const REGISTRY = "https://registry.npmjs.org/";
 
-// The fields of a Fulcio certificate that a signature is held to, by Fulcio's names and OIDs (R77).
+// The fields of a Fulcio certificate that a signature is held to, by Fulcio's names and OIDs.
 // Not held: Build Trigger (…1.20), since a release runs by workflow_run and by workflow_dispatch
 // alike, Run Invocation URI (…1.21) and Source Repository Visibility At Signing (…1.22), which
 // say nothing about trust, and the deprecated …1.1 to …1.6.
@@ -106,7 +105,7 @@ export async function sigstoreRoot(options = {}) {
 // The identity of the bundle's signature, once the bundle holds for the bytes against the trust
 // root. A bundle v0.3 with one Fulcio certificate, as cosign writes it, and at least one RFC 3161
 // timestamp: the verifier would count the time of the transparency log's entry as a timestamp
-// too, and the timestamp is wanted apart (R77). The verifier checks the certificate's chain to
+// too, and the timestamp is wanted apart. The verifier checks the certificate's chain to
 // Fulcio and its SCT, the entry in the transparency log with its proof, each timestamp, and the
 // signature of the bytes, by Sigstore's defaults: at least one of each.
 export function verifySignature(bytes, bundleJSON, trustedRoot) {
@@ -222,7 +221,7 @@ export function checkGitHub(fields, { repository, tag, signer }, { source, minim
 }
 
 // A file of spec, bound to its tag by what it holds. A new kind of file is refused until its
-// binding is written here (R77).
+// binding is written here.
 export function checkSpecContent(name, bytes, tag, source) {
   if (PART_FILE.test(name)) {
     const archived = tarCommit(name, bytes);
@@ -244,7 +243,7 @@ export function checkSpecContent(name, bytes, tag, source) {
     if (!source.tagCommit("spec", tag)) throw new Error(`spec has no tag ${tag}`);
     return;
   }
-  throw new Error(`${name} is no file of spec's release that R77 binds to its tag: format-<version>.tar.gz, admission-<version>.tar.gz, deployment-<version>.tar.gz, legal-<version>.tar.gz, consent-age-<version>.tar.gz, export-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
+  throw new Error(`${name} is no file of spec's release that release-verify binds to its tag: format-<version>.tar.gz, admission-<version>.tar.gz, deployment-<version>.tar.gz, legal-<version>.tar.gz, consent-age-<version>.tar.gz, export-<version>.tar.gz, altnovatrail-spec-<version>.tgz or altnovatrail-contracts-<version>.tgz`);
 }
 
 // A part's archive holds what its name says, as release-files writes it (tools/release/files.mjs

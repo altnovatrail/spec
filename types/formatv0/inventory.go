@@ -9,10 +9,10 @@ type Digest string
 
 // Inventory is the type of inventory.schema.json.
 //
-// The inventory of a module's package, inventory.json (section 25 of the format text): the module's
-// format version, ID and version, and the digest and size of each of the package's two parts — the
-// server part, which is the canonical view, and the device part, which a listing of its files
-// names. The digest of the package is the digest of its inventory.
+// The inventory of a module's package, inventory.json: the module's format version, ID and version,
+// and the digest and size of each of the package's two parts — the server part, which is the
+// canonical view, and the device part, which a listing of its files names. The digest of the
+// package is the digest of its inventory.
 type Inventory struct {
 	// The format version that the module's manifest names, by which the package is read. It stands
 	// at the root of the inventory in every version of the format, so that a reader finds it before

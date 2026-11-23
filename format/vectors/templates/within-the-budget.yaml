@@ -2,8 +2,7 @@
 # v0.0.0-20261021141710-4f4267fb140d counts them: 10 for the top level of the program and 99 999 980
 # for the one call of solve, a loop of 9 999 996 turns. The count stops below the budget, 100 000 000,
 # so the solver gives its result. solve gets a and product, which the line shows, and not b. The result
-# factor is the vector's own: spec runs no Starlark, and module-kit's CI runs the solver and compares
-# (section 24).
+# factor is the vector's own: spec runs no Starlark, and module-kit's CI runs the solver and compares.
 task:
   id: within-the-budget
   template:

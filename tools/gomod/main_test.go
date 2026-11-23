@@ -162,7 +162,7 @@ func TestNoLicenseIsFound(t *testing.T) {
 	}
 }
 
-// The module of the contracts, in a folder of its own, with what its go.mod requires (R83).
+// The module of the contracts, in a folder of its own, with what its go.mod requires.
 const contractsMod = "module github.com/altnovatrail/spec/contracts\n\ngo 1.27.0\n\nrequire (\n\tconnectrpc.com/connect/v2 v2.0.2\n\tgoogle.golang.org/protobuf v1.36.12\n)\n"
 
 // A made-up spec with the module of the contracts beside its own.

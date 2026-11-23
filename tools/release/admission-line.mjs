@@ -1,13 +1,12 @@
 // admission-line: a new version of the admission table starts a new line of spec's releases, by
-// the rule of part-line.mjs (R96). In spec, `just release-version` passes what contracts-line.mjs
+// the rule of part-line.mjs. In spec, `just release-version` passes what contracts-line.mjs
 // prints through it, with the commit, and it prints the same lines, or refuses:
 //
 //   ... | node tools/release/contracts-line.mjs <commit> | node tools/release/admission-line.mjs <commit>
 //
 // The table is held from a release of FIRST_ADMISSION_LINE on. Any change of
 // admission/admission-table.json is a new version, so the same version with another table is
-// refused too. The table's major version is no part of spec's, which the format's alone raises
-// (R44).
+// refused too. The table's major version is no part of spec's, which the format's alone raises.
 
 import { spawnSync } from "node:child_process";
 import { FIRST_ADMISSION_LINE, formatVersion } from "./files.mjs";
@@ -20,7 +19,6 @@ const TABLE = "admission/admission-table.json";
 export const ADMISSION = {
   file: FILE,
   name: "the admission table",
-  decision: "R96",
   firstLine: FIRST_ADMISSION_LINE,
   parse: (text) => formatVersion(text, FILE),
   below: (now, then) => {
@@ -34,7 +32,7 @@ export const ADMISSION = {
 export const checked = (outputs) => partChecked(ADMISSION, outputs);
 
 // The rule for the release of version after previous, with the table's versions at each and
-// whether admission-table.json changed between them (R96).
+// whether admission-table.json changed between them.
 export function checkAdmissionLine({ version, previous, admissionNow, admissionThen, tableChanged = false }) {
   checkPartLine(ADMISSION, { version, previous, now: admissionNow, before: admissionThen, changed: tableChanged ? `${TABLE} changed` : null });
 }

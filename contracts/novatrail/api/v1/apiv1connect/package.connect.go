@@ -5,7 +5,7 @@
 // What a package of a module gives by its digest, in the contract between `app` and `api`: the
 // open views of its manifest, skill graph, technique catalog and solving steps, which go without a
 // token, and whether the image of `api` still gives a package. The files of a package's device
-// part are no method of the contract: they go by HTTP GET, as contracts/README.md, section 15, has
+// part are no method of the contract: they go by HTTP GET, as contracts/README.md has
 // it, with the rules of the whole contract.
 package apiv1connect
 
@@ -91,10 +91,10 @@ var (
 type PackageServiceClient interface {
 	// The open view of the manifest of a package: `app` caches it by the digest, gives it to the
 	// canvas with each task of the package, and reads in it the title and the explanation language of
-	// a module before its first attempt (R92).
+	// a module before its first attempt.
 	GetManifest(context.Context, *v1.GetManifestRequest) (*v1.GetManifestResponse, error)
 	// The open view of the skill graph of a package, with the tier of each skill: what the skill map
-	// draws, and what `app` reads a sequential module by (R58).
+	// draws, and what `app` reads a sequential module by.
 	GetSkillGraph(context.Context, *v1.GetSkillGraphRequest) (*v1.GetSkillGraphResponse, error)
 	// The open view of the technique catalog of a package: the techniques whose IDs a step or a hint
 	// gives.
@@ -119,10 +119,10 @@ func NewPackageServiceClient(client *connect.Client) PackageServiceClient {
 type PackageServiceHandler interface {
 	// The open view of the manifest of a package: `app` caches it by the digest, gives it to the
 	// canvas with each task of the package, and reads in it the title and the explanation language of
-	// a module before its first attempt (R92).
+	// a module before its first attempt.
 	GetManifest(context.Context, *v1.GetManifestRequest) (*v1.GetManifestResponse, error)
 	// The open view of the skill graph of a package, with the tier of each skill: what the skill map
-	// draws, and what `app` reads a sequential module by (R58).
+	// draws, and what `app` reads a sequential module by.
 	GetSkillGraph(context.Context, *v1.GetSkillGraphRequest) (*v1.GetSkillGraphResponse, error)
 	// The open view of the technique catalog of a package: the techniques whose IDs a step or a hint
 	// gives.

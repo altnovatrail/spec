@@ -1,4 +1,4 @@
-// xrepo's way to a pull request (R166): sync merges main into the epic's branch of each clone,
+// xrepo's way to a pull request: sync merges main into the epic's branch of each clone,
 // push sends the branch to GitHub, and gate runs, before any pull request, the CI of each
 // repository the epic changed in that repository's own container — its recipes ci-*, the browsers
 // its CI runs, then patchcov against its codecov.yml — with spec's submodules at the clone of spec.

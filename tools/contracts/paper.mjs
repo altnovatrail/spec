@@ -1,6 +1,6 @@
 // The test vectors of the key of a task from paper, novatrail.paper.v1: a second implementation of
 // what module-kit does with it — the solver of a formula, the rules of an answer of AI, and the
-// verdict by the key — beside module-kit's own, whose CI passes the same vectors (R162). The
+// verdict by the key — beside module-kit's own, whose CI passes the same vectors. The
 // verdicts are format-check's, on the value brought to the key as contracts/README.md brings it.
 //
 // The vectors are JSON files of contracts/vectors/paper/v1/, each { description, cases }:
@@ -25,7 +25,7 @@ import { byCodeUnits } from "../shared.mjs";
 
 export const PACKAGE = "novatrail.paper.v1";
 export const FOLDER = "contracts/vectors/paper/v1";
-const TEXT = "contracts/README.md, section 16";
+const TEXT = "the key of a task from paper in contracts/README.md";
 const WRITTEN = { useProtoFieldName: true, alwaysEmitImplicit: true };
 const FILES = ["answers.json", "solver.json", "verdicts.json"];
 

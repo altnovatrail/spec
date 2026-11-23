@@ -539,7 +539,7 @@ test("a manifest names the version in VERSION, but in a case of manifest.format-
   expectOnly([["format/vectors/rules/manifest.format-version/in-a-module/manifest.yaml", null, MANIFEST], ["format/vectors/rules/manifest.format-version/in-a-module/LICENSE", null, LICENSE]], /format-version\/in-a-module\/manifest\.yaml:0: names the format version 0\.1, which a reader of 0\.1 reads/);
 });
 
-test("a case of manifest.format-version names a version outside the window of section 2", () => {
+test("a case of manifest.format-version names a version outside the window of versions a reader reads", () => {
   const caseOf = (version, named) => versionProblem({ module_format_version: named }, version, "manifest.format-version");
   // While the format is v0, a reader reads its current version only.
   assert.match(caseOf("0.3", "0.3"), /which a reader of 0\.3 reads/);
@@ -665,7 +665,7 @@ test("the open view follows dependentSchemas when its key is present, and a refe
 test("why: ajv drops the properties of a place beside dependentSchemas whose key is absent, and beside $ref with oneOf", () => {
   // 2020-12 counts the properties of the place as evaluated in both, and the value is valid; ajv
   // 8.20.0 refuses it. So the conventions refuse both forms, and the forms the refusal points to
-  // pass. When ajv changes, this test says so, and the refusal can be lifted (R45).
+  // pass. When ajv changes, this test says so, and the refusal can be lifted.
   const ajv = new Ajv2020({ allErrors: true });
   ajv.addSchema({ $id: "https://x.test/c.json", $defs: { base: { type: "object", properties: { id: { type: "string" }, kind: { type: "string" } } } } });
   const dependent = ajv.compile({ type: "object", properties: { title: { type: "string" }, count: { type: "integer" } }, dependentSchemas: { count: { properties: { title: { minLength: 1 } } } }, unevaluatedProperties: false });
@@ -690,7 +690,7 @@ const VERDICT = "format/vectors/verdicts/number/whole-number.yaml";
 const SLOT_READING = '{value: "7", verdict: correct}';
 const ITEM_VERDICT = "    verdict: correct";
 
-test("a vector of verdicts gives the verdicts of section 15, an answer slot's and the item's", () => {
+test("a vector of verdicts gives the verdicts of its check kind, an answer slot's and the item's", () => {
   expectOnly([[VERDICT, SLOT_READING, '{value: "6", verdict: correct}']], /whole-number\.yaml:0: reading 1, answer slot 1: "6" gets not_yet, not correct$/);
   expectOnly([[VERDICT, SLOT_READING, '{value: "07", verdict: unreadable, reason: blank}'], [VERDICT, ITEM_VERDICT, "    verdict: unreadable"]], /"07" gets unreadable \(notation\), not unreadable \(blank\)$/);
   expectOnly([[VERDICT, ITEM_VERDICT, "    verdict: not_yet"]], /whole-number\.yaml:0: reading 1: its answer slots make the item correct, not not_yet$/);
@@ -808,7 +808,7 @@ test("the lessons of a case laid out as a module are checked against lesson.no-l
 
 const LEAK = "format/vectors/leaks/whole-number.yaml";
 
-test("a vector of the leak check finds in each text what section 20 finds, as a set", () => {
+test("a vector of the leak check finds in each text what the format's leak check finds, as a set", () => {
   expectOnly([[LEAK, '    leaks: ["7"]', "    leaks: []"]], /whole-number\.yaml:0: text 1: the leak check finds "7" in "It is 7\.", not nothing$/);
   expectOnly([[LEAK, "    leaks: []", '    leaks: ["7"]']], /whole-number\.yaml:0: text 2: the leak check finds nothing in "It is 17\.", not "7"$/);
   expectOnly([[LEAK, '    leaks: ["7"]', '    leaks: ["7", "seven"]']], /text 1: the leak check finds "7" in "It is 7\.", not "7", "seven"$/);
@@ -831,7 +831,7 @@ test("the vectors of the leak check are files, and need the schema of leak vecto
 const RANDOM = "format/vectors/random/go-pcg-1-2.yaml";
 const vectorOfRandom = (text) => [RANDOM, null, text];
 
-test("a vector of the generator gives, draw by draw, what section 22 computes on its stream", () => {
+test("a vector of the generator gives, draw by draw, what the format's generator computes on its stream", () => {
   expectOnly([[RANDOM, 'value: "14192431797130687760"', 'value: "14192431797130687761"']], /go-pcg-1-2\.yaml:0: draw 1: integer gives 14192431797130687760, not 14192431797130687761$/);
   const start = 'state: {high: "1", low: "2"}\ndraws:\n';
   assert.deepEqual(errorsOf([vectorOfRandom(`${start}  - below: {bound: "10", value: "1"}\n  - between: {from: "-5", to: "5", value: "-5"}\n  - fraction: {value: 0.5}\n  - permutation: {count: 3, value: [0, 1, 2]}\n`)]), [
@@ -875,7 +875,7 @@ const TEMPLATE = "format/vectors/templates/three.yaml";
 const templateTask = (parameters, key, extra = "") => `template:\n  parameters:\n${parameters}\nitems:\n  - answer_slots:\n      - binding: anywhere\n        check: {kind: number, key: "${key}"${extra}}\n`;
 const constrained = (constraint, task) => task.replace("  parameters:", `  constraint: "${constraint}"\n  parameters:`);
 
-test("a vector of templates lists the instance that each seed picks, as section 23 counts and replaces them", () => {
+test("a vector of templates lists the instance that each seed picks, as the format counts and replaces them", () => {
   expectOnly([[TEMPLATE, 'key: "2"', 'key: "20"']], /three\.yaml:0: attempt 1: the instance is not the template with these numbers: they differ at #\/items\/0\/answer_slots\/0\/check\/key$/);
   expectOnly([[TEMPLATE, "numbers: {a: 2}", "numbers: {a: 1}"]], /three\.yaml:0: attempt 1: the seed picks the instance a = 2, not a = 1$/);
   // An attempt names the digest of its instance's open view, as a sample of the eval protocol does.
@@ -1102,15 +1102,15 @@ test("the fixture of packages is green: its examples build canonical views, and 
   }
 });
 
-test("a vector of tiers gives the tier that section 12 computes for each skill", () => {
-  expectOnly([...packageFixture(), [TIERS, "second: 2", "second: 3"]], /chain\.yaml:0: the tiers are not those of section 12: they differ at #\/skill_tiers\/second/);
+test("a vector of tiers gives the tier that the format computes for each skill", () => {
+  expectOnly([...packageFixture(), [TIERS, "second: 2", "second: 3"]], /chain\.yaml:0: the tiers are not those that the format computes: they differ at #\/skill_tiers\/second/);
   expectOnly([...packageFixture(), [TIERS, "first: {}", "first: {prerequisites: [second]}"]], /chain\.yaml:0: the prerequisites of \w+ run in a cycle/);
   expectOnly([...packageFixture(), [TIERS, "first: 1", "first: one"]], /chain\.yaml:0: does not pass the schema of tier vectors: type at #\/skill_tiers\/first/);
   expectOnly([...packageFixture(), ["format/schemas/tier-vector.schema.json", "", null]], /^format\/vectors\/tiers:0: no schema tier-vector\.schema\.json for the vectors of tiers/);
   expectOnly([...packageFixture(), ["format/vectors/tiers/chain/case.yaml", null, "a: 1\n"]], /tiers\/chain:0: a vector of tiers is a file, <case>\.yaml/);
 });
 
-test("a vector of packages gives the package that section 25 builds of its module", () => {
+test("a vector of packages gives the package that the format builds of its module", () => {
   const digest = /digest: "sha256:([0-9a-f]{64})"\n$/;
   const edit = (from, to) => [`${PACKAGE}/package.yaml`, from, to];
   expectOnly([...packageFixture(), edit('title: "A trial module"\ndevice_part', 'title: "Another"\ndevice_part')], /smallest\/package\.yaml:0: server_part is not the canonical view of the module: they differ at #\/server_part\/manifest\/title/);
@@ -1253,7 +1253,7 @@ test("the fixture of the module index is green: its example holds, and its vecto
   }
 });
 
-test("a vector of the module index gives the index that section 26 builds of its release", () => {
+test("a vector of the module index gives the index that the format builds of its release", () => {
   expectOnly([...indexFixture(), firstEdit("        release: v0.1.0", "        release: v0.2.0")], /first-release\/index\.yaml:0: index is not the index that the release builds: they differ at #\/index\/modules\/trial~1smallest\/0\.1\.0\/release/);
   expectOnly([...indexFixture(), firstEdit("release: v0.1.0\nindex", "release: 1\nindex")], /first-release\/index\.yaml:0: does not pass the schema of index vectors: type at #\/release/);
   expectOnly([...indexFixture(), firstEdit('  module_format_version: "0.1"\n  modules', '  module_format_version: "0.2"\n  modules')], /first-release\/index\.yaml:0: index: the index names the format version 0\.2: it names 0\.1/);
@@ -1311,7 +1311,7 @@ test("an entry of the index lists the anchor skills that its version teaches, an
 // the trial fixtures have no schema of a manifest with languages and bands, which the rules read.
 const VERSIONS = "format/vectors/versions";
 
-test("a vector of versions gives the part that section 27 finds, or the rule that refuses the new version", () => {
+test("a vector of versions gives the part that the format's rules of versions find, or the rule that refuses the new version", () => {
   const title = `${VERSIONS}/title-changed/version.yaml`;
   assert.deepEqual(realErrorsOf([[title, "version_part: patch", "version_part: minor"]]), [`${title}:0: the comparison finds the part patch, not minor: #: the canonical view differs beyond the version`]);
   assert.deepEqual(realErrorsOf([[title, "version_part: patch", "refusal: module-version.step"]]), [`${title}:0: the new version breaks no module-version.step`]);
@@ -1392,11 +1392,11 @@ test("a published version of an earlier version of the format is a package as fi
     inventory.server_part = { digest: `sha256:${crypto.createHash("sha256").update(bytes).digest("hex")}`, size: bytes.length };
     fs.writeFileSync(inventoryFile, canonicalText(inventory));
   });
-  assert.deepEqual(placeless, [`${files}:0: holds no manifest.languages where the format keeps it in every version (section 2)`]);
+  assert.deepEqual(placeless, [`${files}:0: holds no manifest.languages where the format keeps it in every version`]);
 });
 
 // The path of a task's picture is a media path whose names may hold placeholders, and nothing
-// else, so that what its instances name is a file that media/ can hold (R108).
+// else, so that what its instances name is a file that media/ can hold.
 test("task_picture_path is media_path for pictures, with placeholders after a -", () => {
   const { $defs } = JSON.parse(fs.readFileSync(path.join(spec, "format", "schemas", "common.schema.json"), "utf8"));
   const task = $defs.task_picture_path;
@@ -1430,8 +1430,8 @@ test("the page: page.yaml, its schema, and the vectors of the page laid out by i
     fs.rmSync(root, { recursive: true, force: true });
   }
   const times = "format/vectors/pages/times-ten.yaml";
-  expectOnly([...pageFixture(), [times, "bottom: 668", "bottom: 669"]], /times-ten\.yaml:0: the page is not the one that section 14 lays out: they differ at #\/bottom/);
-  expectOnly([...pageFixture(), [times, "left: 201", "left: 202"]], /times-ten\.yaml:0: the page is not the one that section 14 lays out: they differ at #\/page\/0\/line\/1\/left/);
+  expectOnly([...pageFixture(), [times, "bottom: 668", "bottom: 669"]], /times-ten\.yaml:0: the page is not the one that the format lays out: they differ at #\/bottom/);
+  expectOnly([...pageFixture(), [times, "left: 201", "left: 202"]], /times-ten\.yaml:0: the page is not the one that the format lays out: they differ at #\/page\/0\/line\/1\/left/);
   expectOnly([...pageFixture(), ["format/vectors/pages/huge-piece.yaml", "no_room_at: 0", "no_room_at: 1"]], /huge-piece\.yaml:0: the page has no room at item 0, from 0, and the vector says 1/);
   expectOnly([...pageFixture(), ["format/vectors/pages/empty.yaml", null, "items: []\nbottom: 40\npage: []\n"]], /empty\.yaml:0: does not pass the schema of page vectors: minItems at #\/items/);
   expectOnly([...pageFixture(), ["format/vectors/pages/folder/case.yaml", null, "a: 1\n"]], /pages\/folder:0: a vector of the page is a file, <case>\.yaml/);

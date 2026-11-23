@@ -14,13 +14,13 @@ const written = toJson(ObservationSchema, observation, { useProtoFieldName: true
 
 The code imports the runtime of protobuf-es, `@bufbuild/protobuf`, under Apache-2.0 and BSD-3-Clause, which the package depends on at the exact version of `protoc-gen-es` that wrote it. Take the runtime at that version too, or let npm install it with the package.
 
-JSON of a contract names each field by its protobuf name, in snake case, as the files of `spec` do: whatever writes it passes `useProtoFieldName: true` to `toJson`. A reader takes both the protobuf name and the lowerCamelCase one, as `fromJson` does ([the contracts' text](https://github.com/altnovatrail/spec/blob/main/contracts/README.md), section 6). The package has no types of JSON: `protoc-gen-es` would spell them in lowerCamelCase.
+JSON of a contract names each field by its protobuf name, in snake case, as the files of `spec` do: whatever writes it passes `useProtoFieldName: true` to `toJson`. A reader takes both the protobuf name and the lowerCamelCase one, as `fromJson` does ([the contracts' text](https://github.com/altnovatrail/spec/blob/main/contracts/README.md)). The package has no types of JSON: `protoc-gen-es` would spell them in lowerCamelCase.
 
 The package is read through its `exports`, under `"moduleResolution": "nodenext"`, `"node16"` or `"bundler"`. `spec` checks its declarations with TypeScript 7 under both, strictly, and runs its code under Node.
 
 ## Test vectors
 
-The package carries the test vectors of the rules that the device and the eval runner share — how a history of writing folds, the groups of strokes, the crop, which strokes a box of a model snaps to and which box of a workbook a stroke fills ([the contracts' text](https://github.com/altnovatrail/spec/blob/main/contracts/README.md), section 12) — each exported by its path, as JSON:
+The package carries the test vectors of the rules that the device and the eval runner share — how a history of writing folds, the groups of strokes, the crop, which strokes a box of a model snaps to and which box of a workbook a stroke fills ([the contracts' text](https://github.com/altnovatrail/spec/blob/main/contracts/README.md)) — each exported by its path, as JSON:
 
 ```ts
 import { fromJson } from "@bufbuild/protobuf";
@@ -39,11 +39,11 @@ Their messages are written with the protobuf names and every field, and a reader
 
 The package's version is the tag of the release of `altnovatrail/spec` it comes from, without its `v`: 0.7.0 is `v0.7.0`. Every release from the line 0.7 on carries one, even when the contracts have not changed. Take it at an exact version, the same tag as the `spec` submodule and the Go modules of `spec` you hold, and move all of them together. Leave it out of Dependabot, as the Go modules: a release of `spec` comes out with each change of its documents. Dependabot's `ignore` matches a dependency by the name the manifest gives it, `@altnovatrail/contracts` here, and `github.com/altnovatrail/spec/contracts` for the Go module.
 
-Within a contract's package — its last part, `v1` — a release only adds. A change that breaks it comes as a new package, `v2`, beside the old one, in a new line of `spec` ([the contracts' text](https://github.com/altnovatrail/spec/blob/main/contracts/README.md), section 2).
+Within a contract's package — its last part, `v1` — a release only adds. A change that breaks it comes as a new package, `v2`, beside the old one, in a new line of `spec` ([the contracts' text](https://github.com/altnovatrail/spec/blob/main/contracts/README.md)).
 
 ## Checking the archive
 
-The archive in npm is the file `altnovatrail-contracts-<version>.tgz` of that release, which the release signs with cosign and whose attestation names it. A NovaTrail repository lets the package into its code only once spec's `release-verify-npm` has accepted its lock file, in CI of the pull request that changes it (decision R77 of spec; [RULES.md](https://github.com/altnovatrail/spec/blob/main/RULES.md), Hard rules). It runs from the repository's `spec` submodule:
+The archive in npm is the file `altnovatrail-contracts-<version>.tgz` of that release, which the release signs with cosign and whose attestation names it. A NovaTrail repository lets the package into its code only once spec's `release-verify-npm` has accepted its lock file, in CI of the pull request that changes it ([RULES.md](https://github.com/altnovatrail/spec/blob/main/RULES.md)). It runs from the repository's `spec` submodule:
 
 ```sh
 just -f spec/justfile release-verify-npm package-lock.json

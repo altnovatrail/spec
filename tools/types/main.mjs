@@ -1,6 +1,6 @@
 // types: the types of the module format, of the admission table, of the deployment configuration,
 // of the legal texts, of the table of the age of digital consent and of the format of the export,
-// generated from their schemas (R72, R85, R96, R130, R134, R135).
+// generated from their schemas.
 //
 //   node tools/types/main.mjs <folder>      writes the files under <folder>, by their paths from
 //                                           the root of the repository
@@ -12,7 +12,7 @@
 // consentagev1 and exportv4 beside them, and the registry of tools/types/roundtrip — as gofmt
 // leaves it but for the alignment of a struct's fields, and the TypeScript of the same packages
 // beside it, index.d.ts in each: `just types` runs gofmt on them, and `just types-check` compares
-// them, so run, with the files in the repository (R73). A form of a schema the model does not know
+// them, so run, with the files in the repository. A form of a schema the model does not know
 // stops it with the place of that form.
 
 import fs from "node:fs";
@@ -51,7 +51,7 @@ export function readFormat(root) {
 // What the admission table's model is built of: { schemas, version }, as readFormat gives them, of
 // admission/schemas and admission/VERSION. The table has no open view. Its types are the package
 // admissionv0, which holds the major version 0 alone: a major version of the table would need a
-// package of its own, so another one stops the generator (R72, R96).
+// package of its own, so another one stops the generator.
 export function readAdmission(root) {
   const version = fs.readFileSync(path.join(root, ADMISSION, "VERSION"), "utf8").trim();
   if (!version.startsWith("0.")) throw new Error(`admission/VERSION is ${version}: the types of the admission table are the package admissionv0, of its major version 0, and another major version needs a package of its own`);
@@ -62,7 +62,7 @@ export function readAdmission(root) {
 // deployment/schemas and deployment/VERSION, and the options of buildModel: a vector's file holds
 // any JSON value. It has no open view. Its types are the package deploymentv1, which holds the
 // version 1 alone: every change of the configuration is a new version, which would need a package
-// of its own, so another one stops the generator (R72, R85).
+// of its own, so another one stops the generator.
 export function readDeployment(root) {
   const version = fs.readFileSync(path.join(root, DEPLOYMENT, "VERSION"), "utf8").trim();
   if (version !== "1") throw new Error(`deployment/VERSION is ${version}: the types of the deployment configuration are the package deploymentv1, of its version 1, and another version needs a package of its own`);
@@ -73,7 +73,7 @@ export function readDeployment(root) {
 // legal/VERSION, and the options of buildModel: a vector's passport holds any JSON value. It has
 // no open view. Its types are the package legalv3, which holds the part's version 3 alone: another
 // version is a change of the part's layout, schema or rules, which would need a package of its
-// own, so another one stops the generator (R72, R130).
+// own, so another one stops the generator.
 export function readLegal(root) {
   const version = fs.readFileSync(path.join(root, LEGAL, "VERSION"), "utf8").trim();
   if (version !== "3") throw new Error(`legal/VERSION is ${version}: the types of the legal texts are the package legalv3, of the part's version 3, and another version needs a package of its own`);
@@ -85,7 +85,7 @@ export function readLegal(root) {
 // vector of reading's table holds any JSON value. It has no open view. Its types are the package
 // consentagev1, which holds the part's version 1 alone: another version is a change of the part's
 // layout, schema or rules, which would need a package of its own, so another one stops the
-// generator (R72, R134).
+// generator.
 export function readConsentAge(root) {
   const version = fs.readFileSync(path.join(root, CONSENT_AGE, "VERSION"), "utf8").trim();
   if (version !== "1") throw new Error(`consent-age/VERSION is ${version}: the types of the table of the age of digital consent are the package consentagev1, of the part's version 1, and another version needs a package of its own`);
@@ -96,7 +96,7 @@ export function readConsentAge(root) {
 // export/schemas and export/VERSION, and the options of buildModel: a field of the JSON of a
 // message of protobuf, or of a value of <novatrail-canvas>, and a vector's file, hold any JSON value.
 // It has no open view. Its types are the package exportv4, which holds the part's version 4 alone:
-// another version would need a package of its own, so another one stops the generator (R72, R135).
+// another version would need a package of its own, so another one stops the generator.
 export function readExport(root) {
   const version = fs.readFileSync(path.join(root, EXPORT, "VERSION"), "utf8").trim();
   if (version !== "4") throw new Error(`export/VERSION is ${version}: the types of the format of the export are the package exportv4, of the part's version 4, and another version needs a package of its own`);

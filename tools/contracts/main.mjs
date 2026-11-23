@@ -1,5 +1,5 @@
 // contracts-check: the checks of the API contracts in spec's contracts/, and sample-check and
-// report-check, which another NovaTrail repository runs on its own files (R83, R93, R95).
+// report-check, which another NovaTrail repository runs on its own files.
 //
 //   node tools/contracts/main.mjs                       spec's own contracts/, two levels above this file
 //   node tools/contracts/main.mjs --samples <file>...   sample files of the repository it runs from
@@ -8,7 +8,7 @@
 //   node tools/contracts/main.mjs --reports <file>... [--samples <file>...]
 //                                                       report files of it, and their samples
 //
-// buf does not run while buf.yaml or buf.gen.yaml breaks R83, since it could then reach a service
+// buf does not run while buf.yaml or buf.gen.yaml breaks their rules, since it could then reach a service
 // outside the repository, nor while a .proto file is out of place. Anything in contracts/ that the
 // layout does not have is an error: what this check does not know would go unchecked, so whatever
 // brings it extends the check. Prints one line per error, file:line: message, and exits 1 if there
@@ -17,9 +17,9 @@
 // sample-check reads each file as spec's examples are read and holds it to the same rules, by the
 // image buf builds of this spec's contracts/ — the spec/ submodule's, at the tag the repository
 // pins. With --eval-set the files are the folder eval/ of that module, held together to the rules
-// of an eval set that need neither the module's package nor a key (R93). report-check holds each
+// of an eval set that need neither the module's package nor a key. report-check holds each
 // report to the rules spec's examples of the report are held to and, with --samples, to those
-// samples (R95). Both print one line per error and exit 1 when a file breaks a rule, and 2 when they
+// samples. Both print one line per error and exit 1 when a file breaks a rule, and 2 when they
 // cannot check at all.
 
 import fs from "node:fs";
@@ -39,13 +39,13 @@ import { checkTypeScript } from "./typescript.mjs";
 // The spec this file is part of: spec itself, or the spec/ submodule of another repository.
 const SPEC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-// buf.yaml and buf.gen.yaml at root against R83: the errors, a missing file one of them.
+// buf.yaml and buf.gen.yaml at root against their rules: the errors, a missing file one of them.
 export function checkConfig(root) {
   const errors = [];
   for (const [file, check] of [["buf.yaml", checkBufYaml], ["buf.gen.yaml", checkBufGenYaml]]) {
     const full = path.join(root, file);
     if (fs.existsSync(full)) errors.push(...check(fs.readFileSync(full, "utf8")));
-    else errors.push({ file, line: 0, message: "the file is missing: buf reads it at the root of spec (contracts/README.md, sections 3 and 8)" });
+    else errors.push({ file, line: 0, message: "the file is missing: buf reads it at the root of spec (contracts/README.md)" });
   }
   return errors;
 }
@@ -70,9 +70,9 @@ export function layout(root) {
 
 // The packages whose vectors the check runs.
 const VECTORS = new Map([
-  [PACKAGE, { folder: FOLDER, section: 10 }],
-  [EVAL, { folder: RULES, section: 12 }],
-  [PAPER, { folder: PAPER_FOLDER, section: 16 }],
+  [PACKAGE, { folder: FOLDER, rules: "the rules of the observation" }],
+  [EVAL, { folder: RULES, rules: "the rules the device and the runner share" }],
+  [PAPER, { folder: PAPER_FOLDER, rules: "the rules of the key of a task from paper" }],
 ]);
 
 // Each vector is of a package that contracts/ has and whose vectors the check runs, and each such
@@ -83,9 +83,9 @@ export function vectorErrors(vectors, packages) {
     if (!packages.has(vector.package)) errors.push({ file: vector.file, line: 0, message: `a vector of ${vector.package}, and contracts/ has no .proto file of that package` });
     else if (!VECTORS.has(vector.package)) errors.push({ file: vector.file, line: 0, message: `contracts-check runs no vectors of ${vector.package}: the task that brings them extends the check` });
   }
-  for (const [name, { folder, section }] of VECTORS) {
+  for (const [name, { folder, rules }] of VECTORS) {
     if (packages.has(name) && !vectors.some((vector) => vector.package === name)) {
-      errors.push({ file: folder, line: 0, message: `${name} has no test vectors, and they hold the rules of contracts/README.md, section ${section}` });
+      errors.push({ file: folder, line: 0, message: `${name} has no test vectors, and they hold ${rules} in contracts/README.md` });
     }
   }
   return errors;
@@ -100,10 +100,10 @@ export function exampleErrors(examples, packages) {
     else if (example.package !== EVAL) errors.push({ file: example.file, line: 0, message: `contracts-check reads no examples of ${example.package}: the task that brings them extends the check` });
   }
   if (packages.has(EVAL) && !examples.some((example) => example.package === EVAL && !isReport(example.file))) {
-    errors.push({ file: SAMPLES, line: 0, message: `${EVAL} has no examples of the sample file, and they show it as contracts/README.md, section 11, has it` });
+    errors.push({ file: SAMPLES, line: 0, message: `${EVAL} has no examples of the sample file, and they show it as contracts/README.md has it` });
   }
   if (packages.has(EVAL) && !examples.some((example) => example.package === EVAL && isReport(example.file))) {
-    errors.push({ file: SAMPLES, line: 0, message: `${EVAL} has no example of the runner's report, report-<case>.json, and they show it as contracts/README.md, section 14, has it` });
+    errors.push({ file: SAMPLES, line: 0, message: `${EVAL} has no example of the runner's report, report-<case>.json, and they show it as contracts/README.md has it` });
   }
   return errors;
 }
@@ -148,12 +148,12 @@ export function checkContracts(root) {
     const previous = previousRelease(root);
     stats.previous = previous;
     if (previous?.protos) {
-      errors.push({ file: "contracts", line: 0, message: `${previous.tag} has ${previous.protos} .proto file${previous.protos === 1 ? "" : "s"} and contracts/ has none: a package is never removed, and what a package no longer needs stays (contracts/README.md, sections 2 and 5)` });
+      errors.push({ file: "contracts", line: 0, message: `${previous.tag} has ${previous.protos} .proto file${previous.protos === 1 ? "" : "s"} and contracts/ has none: a package is never removed, and what a package no longer needs stays (contracts/README.md)` });
     }
     return done();
   }
   if (errors.some((error) => error.file === "buf.yaml" || error.file === "buf.gen.yaml")) {
-    errors.push({ file: "buf.yaml", line: 0, message: "buf does not run while buf.yaml or buf.gen.yaml breaks R83: it could reach a service outside the repository" });
+    errors.push({ file: "buf.yaml", line: 0, message: "buf does not run while buf.yaml or buf.gen.yaml breaks their rules: it could reach a service outside the repository" });
     return done();
   }
   if (misplaced.some((error) => error.file.endsWith(".proto"))) {
@@ -322,7 +322,7 @@ function reportCheck(args) {
 
 // What a run found, in a line.
 export function summary({ protos, packages, generated, vectors, cases, examples, previous, messages, packaged = 0 }) {
-  if (protos === 0) return "contracts/ holds no .proto file yet, so buf has nothing to check; buf.yaml and buf.gen.yaml are as R83 has them";
+  if (protos === 0) return "contracts/ holds no .proto file yet, so buf has nothing to check; buf.yaml and buf.gen.yaml are as contracts/README.md has them";
   const against = !previous
     ? "and no release of spec before HEAD to compare with"
     : previous.protos

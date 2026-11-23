@@ -315,7 +315,7 @@ test("start takes a prompt, a container by name and a folder, and refuses what i
   const byFolder = await run(h, ["start", "infra", "T3", "--folder", "/home/someone/projects/mathtrail/infra"]);
   assert.equal(byFolder.out[0].container, "elastic_liskov");
   assert.match((await run(h, ["start", "sim", "7"])).err, /not a task: 7/);
-  // T09 and T9 are one task, and the run is named by the number.
+  // `T09` and `T9` are one task, and the run is named by the number.
   h.plan(3, { lines: [init(), result(1)] });
   h.tick(1000);
   assert.equal((await run(h, ["start", "sim", "T09"])).out[0].run, "sim-T9-20261115T220002Z");
@@ -639,7 +639,7 @@ test("next is one above main's, the open pull requests' and the runs not done of
   };
   const next = await run(h, ["next", "sim"]);
   assert.equal(next.status, 0, next.err);
-  // sim T7, relabelled T41, waits; sim T9, done as T50, is main's or a pull request's to hold.
+  // sim `T7`, relabelled `T41`, waits; sim `T9`, done as `T50`, is main's or a pull request's to hold.
   assert.deepEqual(next.out[0], { repo: "sim", next: "T42", main: "T40", pull_requests: [{ number: 4, task: "T40" }], branches: [], runs: [{ run: run1, task: "T41" }] });
   assert.match((await run(h, ["next", "../sim"])).err, /not a repository's name: \.\.\/sim/);
   // A run still running is counted, by its files alone: next asks docker nothing.

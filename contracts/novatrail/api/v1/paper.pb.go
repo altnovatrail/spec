@@ -4,10 +4,11 @@
 // 	protoc        (unknown)
 // source: novatrail/api/v1/paper.proto
 
-// A task from the learner's paper in the contract between `app` and `api` (R162): the tasks found
+// A task from the learner's paper in the contract between `app` and `api`: the tasks found
 // on the photo of a page, and the attempts of the tasks picked. Each attempt is then checked and
 // hinted by `AttemptService`, its work a `PaperWork`. What each message means, and what `api` keeps
-// of the page and of the attempts, are the rules of contracts/README.md, section 15.
+// of the page and of the attempts, are the rules of contracts/README.md for the
+// contract between `app` and `api`.
 
 package apiv1
 
@@ -35,7 +36,7 @@ type FindTasksRequest struct {
 	// The idempotency key of this action of the learner.
 	IdempotencyKey string `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	// The photo of the page, as the camera of `app` took it or as the learner picked it, a JPEG or a
-	// PNG of at most 4 MiB, without the metadata of its file (privacy 6): `app` scales it down to
+	// PNG of at most 4 MiB, without the metadata of its file: `app` scales it down to
 	// fit.
 	Photo []byte `protobuf:"bytes,3,opt,name=photo,proto3" json:"photo,omitempty"`
 	// The learner's own key and its provider: with a profile of its owner.
@@ -43,10 +44,9 @@ type FindTasksRequest struct {
 	// The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
 	ClockOffsetMinutes *int32 `protobuf:"varint,5,opt,name=clock_offset_minutes,json=clockOffsetMinutes,proto3,oneof" json:"clock_offset_minutes,omitempty"`
 	// The learner's request about the page, in their own words: which tasks to take and how to split
-	// them, as "only the first column, each example a task of its own". At most 200 code points,
-	// with no control character, not spaces alone; empty finds the tasks as the finding's rule alone
-	// gives them. It goes to the AI as data, never as an instruction, and the server keeps none of it
-	// (R165).
+	// them, as "only the first column, each example a task of its own". At most 200 code points, with
+	// no control character, not spaces alone; empty finds the tasks as the finding's rule alone gives
+	// them. It goes to the AI as data, never as an instruction, and the server keeps none of it.
 	Request string `protobuf:"bytes,6,opt,name=request,proto3" json:"request,omitempty"`
 	// The frames the AI found on the page and that are on it now, at most 20, in the order of the
 	// page: with a request alone.
@@ -157,7 +157,7 @@ type FindTasksResponse struct {
 	// none.
 	Repeated bool `protobuf:"varint,3,opt,name=repeated,proto3" json:"repeated,omitempty"`
 	// The turn, in whole degrees clockwise from -179 to 180, by which the photo was turned for its
-	// page to read upright before the tasks were found on it (R162): turned about its centre onto the
+	// page to read upright before the tasks were found on it: turned about its centre onto the
 	// smallest upright rectangle that holds it, rounded to whole pixels, its corners white. The frames
 	// are on the photo so turned, and `app` turns its photo by it the same way, at any scale, and goes
 	// on with the photo turned. 0 when the page was upright, with a request, and with no frames.
@@ -225,7 +225,7 @@ func (x *FindTasksResponse) GetTurnDegrees() int32 {
 }
 
 // A rectangle round one task on the photo of a page, by which `app` cuts the task's crop on the
-// device (concepts 8).
+// device.
 type TaskFrame struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The frame, in whole thousandths of the photo's height and width, as a box on a crop is written.
@@ -283,11 +283,11 @@ type BeginPaperAttemptsRequest struct {
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that `api` checks no
 	// quota. Empty on platform AI. Each later request on an attempt that calls AI goes by the
-	// `own_key` it carries, or on platform AI without one (R84).
+	// `own_key` it carries, or on platform AI without one.
 	OwnKeyProvider string `protobuf:"bytes,4,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	// The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to
 	// 200 letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after
-	// "Add", names it again and closes none of its attempts; another page closes them (R162).
+	// "Add", names it again and closes none of its attempts; another page closes them.
 	PageId        string `protobuf:"bytes,5,opt,name=page_id,json=pageId,proto3" json:"page_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

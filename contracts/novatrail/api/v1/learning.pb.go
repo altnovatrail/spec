@@ -6,7 +6,8 @@
 
 // The way from a module to a task in the contract between `app` and `api`: the engine's choice, the
 // beginning of an attempt and the open attempt, and lessons, which `api` leads by lesson runs. What
-// each message means is the rule of contracts/README.md, section 15.
+// each message means is the rule of contracts/README.md for the contract
+// between `app` and `api`.
 
 package apiv1
 
@@ -39,7 +40,7 @@ type ChooseNextRequest struct {
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that `api` judges the
 	// engine's pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route
-	// would begin a task, though the request calls no AI. Empty on platform AI (R84; R99).
+	// would begin a task, though the request calls no AI. Empty on platform AI.
 	OwnKeyProvider string `protobuf:"bytes,4,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -169,7 +170,7 @@ type BeginAttemptRequest struct {
 	// route to AI for the checks of the beginning, and checks no quota; an engine's choice that a
 	// refusal `CAUSE_RUN_ENDED` gives goes by the same route. Empty when platform AI checks it. Each
 	// later request on the attempt that calls AI goes by the `own_key` it carries, or on platform AI
-	// without one, and meets the quota there as an outcome (R84; R99).
+	// without one, and meets the quota there as an outcome.
 	OwnKeyProvider string `protobuf:"bytes,6,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -585,12 +586,12 @@ type OpenAttempt struct {
 	// The IDs of the techniques given on request.
 	RequestedTechniqueIds []string `protobuf:"bytes,7,rep,name=requested_technique_ids,json=requestedTechniqueIds,proto3" json:"requested_technique_ids,omitempty"`
 	// On a task with a rubric: each submission, in order, with how it ended and when, without the
-	// text read and the words of the feedback, which are nowhere on the server (R87).
+	// text read and the words of the feedback, which are nowhere on the server.
 	EssaySubmissions []*EssaySubmission `protobuf:"bytes,8,rep,name=essay_submissions,json=essaySubmissions,proto3" json:"essay_submissions,omitempty"`
 	// The task's leading question as a hint asked for gave it, with the techniques, before the first
 	// wrong answer or on a task with a rubric: empty when none was given, and when the task has none.
 	// It is a closed field of the module format, so the open view of the task does not hold it, and
-	// a device that goes on with the attempt shows it from here (R108).
+	// a device that goes on with the attempt shows it from here.
 	RequestedLeadingQuestion string `protobuf:"bytes,9,opt,name=requested_leading_question,json=requestedLeadingQuestion,proto3" json:"requested_leading_question,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -754,7 +755,7 @@ type OpenLessonRequest struct {
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that an engine's choice
 	// that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
-	// Empty on platform AI (R84; R99).
+	// Empty on platform AI.
 	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -867,7 +868,7 @@ type GetLessonRunRequest struct {
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that an engine's choice
 	// that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
-	// Empty on platform AI (R84; R99).
+	// Empty on platform AI.
 	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -1065,7 +1066,7 @@ type CompleteLessonRequest struct {
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that the engine's choice
 	// that the end of the run gives goes by that route, though the request calls no AI. Empty on
-	// platform AI (R84; R99).
+	// platform AI.
 	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache

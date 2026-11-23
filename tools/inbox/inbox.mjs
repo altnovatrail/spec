@@ -1,7 +1,6 @@
 // What inbox reads and compares: the rows «в реестр spec» of table 3 of the other repositories, in
-// their run/QUESTIONS.md, and table 5 of spec, run/INBOX.md, the rows spec has recorded (R81,
-// R153). Reading GitHub goes through a gh function the caller gives, so that the tests run with no
-// network.
+// their run/QUESTIONS.md, and table 5 of spec, run/INBOX.md, the rows spec has recorded.
+// Reading GitHub goes through a gh function the caller gives, so that the tests run with no network.
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -19,7 +18,7 @@ const ROW = /^В(\d+)$/u;
 // "В7", "В7–В10", "В7–10", with an en dash or a hyphen.
 const NUMBERS = /^В(\d+)(?:\s*[–-]\s*В?(\d+))?$/u;
 
-// The table under the heading "Table N.", as parseMarkdown gives it, or none (R154).
+// The table under the heading "Table N.", as parseMarkdown gives it, or none.
 function tablesUnder(doc, prefix) {
   const index = doc.headings.findIndex((h) => isTableHeading(h.text, prefix));
   return index < 0 ? [] : doc.tables.filter((table) => table.heading === index);
@@ -27,7 +26,7 @@ function tablesUnder(doc, prefix) {
 
 const fold = (text) => text.replace(/\s+/gu, " ").trim();
 
-// Where table 3 of a repository is: its own file of run/ (R153).
+// Where table 3 of a repository is: its own file of run/.
 export const QUESTIONS = "run/QUESTIONS.md";
 
 // The rows of table 3 marked for spec: { number, text, cells, file, line }, text being the
@@ -49,7 +48,7 @@ export function rowsForSpec(source, file) {
 // The fingerprint of rows of table 3, as table 5 keeps it: the first 12 hexadecimal digits of the
 // SHA-256 of their cells, in the order of their numbers — a row's cells joined by " | ", the rows
 // by a line break. A change of any word of a row changes it; the row's place in the file and its
-// Markdown marks do not (R81).
+// Markdown marks do not.
 export function fingerprintOf(rows) {
   const text = [...rows]
     .sort((a, b) => a.number - b.number)
@@ -124,7 +123,7 @@ export function runGh(args, program = GH, timeout = TIMEOUT) {
 // bring back the rows main has closed since. A merge base older than run/ has no such file, so what
 // the pull request adds cannot be told, and the pull request is a problem: it is to be rebased.
 // Lists come page by page. A pull request that cannot be read is a problem of its own, and the
-// rest is read (R153).
+// rest is read.
 export function readRepository(name, gh = runGh) {
   const repo = `repos/${ORGANIZATION.name}/${name}`;
   const pages = (endpoint) => JSON.parse(gh(["api", "--paginate", "--slurp", endpoint])).flat();

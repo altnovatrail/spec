@@ -5,9 +5,8 @@
 // the object. Every field and list is readonly: a value is data read from a module. A string, an
 // integer or an ID under a name of its own is an alias, since a brand would take a cast on every
 // value read from JSON. The declarations hold no code, no constants, so a consumer imports them
-// with import type (R73). The other parts follow the same rules: admissionv0 (R96), deploymentv1,
-// whose fields keep the file's camelCase (R85), legalv3 (R130, R141), consentagev1 (R134) and
-// exportv4 (R135).
+// with import type. The other parts follow the same rules: admissionv0, deploymentv1, whose fields
+// keep the file's camelCase, legalv3, consentagev1 and exportv4.
 
 import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN, OPEN_DIR, PACKAGE, TYPES_DIR, groupBy, linesOf } from "./go.mjs";
 import { openRefOf, placeOf } from "./model.mjs";
@@ -56,31 +55,31 @@ function baseOf(model) {
 }
 
 function admissionDoc(version) {
-  return `The types of the admission table, major version 0, generated from the schemas of version ${version} in admission/schemas by tools/types (R72, R73 and R96 in spec's docs/decisions.md): the same types as the Go package ${ADMISSION_PACKAGE}, by the same names — the table, and the vectors of answers of the admission function. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first. A field the object always holds is required; any other is optional.`;
+  return `The types of the admission table, major version 0, generated from the schemas of version ${version} in admission/schemas by tools/types: the same types as the Go package ${ADMISSION_PACKAGE}, by the same names — the table, and the vectors of answers of the admission function. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first. A field the object always holds is required; any other is optional.`;
 }
 
 function deploymentDoc(version) {
-  return `The types of the deployment configuration, version ${version}, generated from the schemas in deployment/schemas by tools/types (R72, R73 and R85 in spec's docs/decisions.md): the same types as the Go package ${DEPLOYMENT_PACKAGE}, by the same names — the file /deployment.json, whose fields keep the names of R09 app, in camelCase, and the vectors of reading. A vector's file is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (deployment/README.md, section 5). A field the object always holds is required; any other is optional.`;
+  return `The types of the deployment configuration, version ${version}, generated from the schemas in deployment/schemas by tools/types: the same types as the Go package ${DEPLOYMENT_PACKAGE}, by the same names — the file /deployment.json, whose fields keep the names app reads, in camelCase, and the vectors of reading. A vector's file is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading of deployment/README.md. A field the object always holds is required; any other is optional.`;
 }
 
 function exportDoc(version) {
-  return `The types of the format of the export, version ${version} of the part, generated from the schemas in export/schemas by tools/types (R72, R73 and R135 in spec's docs/decisions.md): the same types as the Go package ${EXPORT_PACKAGE}, by the same names — the files of an export, the manifest, the account, a profile with every record of it, what a device holds of it and a stored work, and the vectors of reading. A field that holds the JSON of a message of protobuf, or a value as the element <novatrail-canvas> gives it, is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (export/README.md, section 5). A field the object always holds is required; any other is optional.`;
+  return `The types of the format of the export, version ${version} of the part, generated from the schemas in export/schemas by tools/types: the same types as the Go package ${EXPORT_PACKAGE}, by the same names — the files of an export, the manifest, the account, a profile with every record of it, what a device holds of it and a stored work, and the vectors of reading. A field that holds the JSON of a message of protobuf, or a value as the element <novatrail-canvas> gives it, is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading of export/README.md. A field the object always holds is required; any other is optional.`;
 }
 
 function consentAgeDoc(version) {
-  return `The types of the table of the age of digital consent, version ${version} of the part, generated from the schemas in consent-age/schemas by tools/types (R72, R73 and R134 in spec's docs/decisions.md): the same types as the Go package ${CONSENT_AGE_PACKAGE}, by the same names — the table consent-age/consent-age.yaml, with the age of each country from a day on and the law that sets it, the vectors of reading and the vectors of the category. The countries a learner's may be are Country. A vector of reading's table is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (consent-age/README.md, section 5); the category of a learner is section 6. A field the object always holds is required; any other is optional.`;
+  return `The types of the table of the age of digital consent, version ${version} of the part, generated from the schemas in consent-age/schemas by tools/types: the same types as the Go package ${CONSENT_AGE_PACKAGE}, by the same names — the table consent-age/consent-age.yaml, with the age of each country from a day on and the law that sets it, the vectors of reading and the vectors of the category. The countries a learner's may be are Country. A vector of reading's table is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading of consent-age/README.md, which gives the category of a learner too. A field the object always holds is required; any other is optional.`;
 }
 
 function legalDoc(version) {
-  return `The types of the legal texts, version ${version} of the part, generated from the schemas in legal/schemas by tools/types (R72, R73 and R130 in spec's docs/decisions.md): the same types as the Go package ${LEGAL_PACKAGE}, by the same names — the passport legal/legal.yaml, with the texts, their versions and the sets of texts of the samples page, and the vectors of reading. The words of a version are a file of their own, texts/<id>/<n>.md, and those of its translations too, texts/<id>/<n>.<tag>.md, which no type holds. A vector's passport is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading (legal/README.md, section 5). A field the object always holds is required; any other is optional.`;
+  return `The types of the legal texts, version ${version} of the part, generated from the schemas in legal/schemas by tools/types: the same types as the Go package ${LEGAL_PACKAGE}, by the same names — the passport legal/legal.yaml, with the texts, their versions and the sets of texts of the samples page, and the vectors of reading. The words of a version are a file of their own, texts/<id>/<n>.md, and those of its translations too, texts/<id>/<n>.<tag>.md, which no type holds. A vector's passport is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first, and then against the rules of reading of legal/README.md. A field the object always holds is required; any other is optional.`;
 }
 
 function formatDoc(version) {
-  return `The types of the module format, major version 0, generated from the schemas of version ${version} in format/schemas by tools/types (R72 and R73 in spec's docs/decisions.md): the same types as the Go package ${PACKAGE}, by the same names. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first. A field the object always holds is required; any other is optional, among them each field that only some branches of a schema give. The open view of each part is in ${OPEN}, \`@altnovatrail/spec/${PACKAGE}/${OPEN}\`.`;
+  return `The types of the module format, major version 0, generated from the schemas of version ${version} in format/schemas by tools/types: the same types as the Go package ${PACKAGE}, by the same names. The schemas decide what is valid: a type gives the shape of a value alone, and code that reads a value from elsewhere checks it against its schema first. A field the object always holds is required; any other is optional, among them each field that only some branches of a schema give. The open view of each part is in ${OPEN}, \`@altnovatrail/spec/${PACKAGE}/${OPEN}\`.`;
 }
 
 function openDoc(version) {
-  return `The open view of each part of a module (format/README.md, section 6): the type of each struct the open view of a part reaches, by the name it has in ${PACKAGE}, with the fields marked x-open alone, of version ${version}. An open view has no check, no template and no solver; a task's has its givens and its unknown. Strings, integers and enumerations are ${PACKAGE}'s.`;
+  return `The open view of each part of a module, as format/README.md defines it: the type of each struct the open view of a part reaches, by the name it has in ${PACKAGE}, with the fields marked x-open alone, of version ${version}. An open view has no check, no template and no solver; a task's has its givens and its unknown. Strings, integers and enumerations are ${PACKAGE}'s.`;
 }
 
 function declarationOf(type, model) {
@@ -139,7 +138,7 @@ function listOf(element) {
 }
 
 // A key of an enumeration would make Record want every value as a key, which no map of a schema
-// holds: such a map is Partial, as the countries of the table of the age of digital consent are (R134).
+// holds: such a map is Partial, as the countries of the table of the age of digital consent are.
 function mapOf(map, model, render) {
   const record = `Record<${render(map.key)}, ${render(map.value)}>`;
   return enumBehind(map.key, model) ? `Readonly<Partial<${record}>>` : `Readonly<${record}>`;

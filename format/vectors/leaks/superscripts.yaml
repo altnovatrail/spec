@@ -1,5 +1,5 @@
-# A superscript or a subscript digit is no digit: it becomes U+FFFD before NFKC, as in section 15,
-# so that 7² is the number 7 and not 72.
+# A superscript or a subscript digit is no digit: it becomes U+FFFD before NFKC, as the checks'
+# reading of numbers has it, so that 7² is the number 7 and not 72.
 task:
   id: days-and-hours
   statement:

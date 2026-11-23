@@ -6,7 +6,8 @@
 // and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
 // with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
-// with the same idempotency key answers are the rules of contracts/README.md, section 15.
+// with the same idempotency key answers are the rules of contracts/README.md for
+// the contract between `app` and `api`.
 package apiv1connect
 
 import (
@@ -207,7 +208,7 @@ type AttemptServiceClient interface {
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
 	// "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
 	// call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
-	// how to begin the task it holds, or the first of a frame of several (R82; R162). Refusals:
+	// how to begin the task it holds, or the first of a frame of several. Refusals:
 	// `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
 	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
@@ -221,7 +222,7 @@ type AttemptServiceClient interface {
 	// learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
 	// and the Check that derives the key takes it with no call of its own. An attempt that keeps a
 	// reading or a key gives its statements with no AI. The answer holds the statements alone, never
-	// a formula nor a key (R05). Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// a formula nor a key. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
 	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
 	// the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
@@ -235,7 +236,7 @@ type AttemptServiceClient interface {
 	// `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
 	// `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
 	// an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
-	// section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
+	// section for adults is a barrier of the interface, not of the server. Refusals:
 	// `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
 	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
@@ -243,9 +244,9 @@ type AttemptServiceClient interface {
 	ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error)
 	// Reports a problem with the tutor's words of the attempt, from the screen of the task: a
 	// learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
-	// `app` decides (privacy 9, П-26). `api` keeps the report until the operator reviews it, within 3
-	// days, and for a year after, by its own clock, and the operator follows the path of escalation
-	// (R123; R136). Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
+	// `app` decides (П-26). `api` keeps the report until the operator reviews it, within 3
+	// days, and for a year after, by its own clock, and the operator follows the path of escalation.
+	// Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
 	// the words and the text as they were written, so `app` asks the person to write no name in it.
 	// Refusals: `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency
 	// key gets the same report.
@@ -316,7 +317,7 @@ type AttemptServiceHandler interface {
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
 	// "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
 	// call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
-	// how to begin the task it holds, or the first of a frame of several (R82; R162). Refusals:
+	// how to begin the task it holds, or the first of a frame of several. Refusals:
 	// `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
 	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
@@ -330,7 +331,7 @@ type AttemptServiceHandler interface {
 	// learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
 	// and the Check that derives the key takes it with no call of its own. An attempt that keeps a
 	// reading or a key gives its statements with no AI. The answer holds the statements alone, never
-	// a formula nor a key (R05). Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// a formula nor a key. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
 	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
 	// the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
@@ -344,7 +345,7 @@ type AttemptServiceHandler interface {
 	// `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
 	// `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
 	// an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
-	// section for adults is a barrier of the interface, not of the server (R04 api). Refusals:
+	// section for adults is a barrier of the interface, not of the server. Refusals:
 	// `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
 	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
 	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
@@ -352,9 +353,9 @@ type AttemptServiceHandler interface {
 	ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error)
 	// Reports a problem with the tutor's words of the attempt, from the screen of the task: a
 	// learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
-	// `app` decides (privacy 9, П-26). `api` keeps the report until the operator reviews it, within 3
-	// days, and for a year after, by its own clock, and the operator follows the path of escalation
-	// (R123; R136). Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
+	// `app` decides (П-26). `api` keeps the report until the operator reviews it, within 3
+	// days, and for a year after, by its own clock, and the operator follows the path of escalation.
+	// Neither `CAUSE_NO_CONSENT` nor `CAUSE_AGE_NEEDED` refuses it. The report keeps
 	// the words and the text as they were written, so `app` asks the person to write no name in it.
 	// Refusals: `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency
 	// key gets the same report.

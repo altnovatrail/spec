@@ -2,14 +2,14 @@
 
 /**
  * The types of the legal texts, version 3 of the part, generated from the schemas in legal/schemas
- * by tools/types (R72, R73 and R130 in spec's docs/decisions.md): the same types as the Go package
- * legalv3, by the same names — the passport legal/legal.yaml, with the texts, their versions and
- * the sets of texts of the samples page, and the vectors of reading. The words of a version are a
- * file of their own, texts/<id>/<n>.md, and those of its translations too, texts/<id>/<n>.<tag>.md,
- * which no type holds. A vector's passport is any JSON value, unknown, as a reader gets it. The
- * schemas decide what is valid: a type gives the shape of a value alone, and code that reads a
- * value from elsewhere checks it against its schema first, and then against the rules of reading
- * (legal/README.md, section 5). A field the object always holds is required; any other is optional.
+ * by tools/types: the same types as the Go package legalv3, by the same names — the passport
+ * legal/legal.yaml, with the texts, their versions and the sets of texts of the samples page, and
+ * the vectors of reading. The words of a version are a file of their own, texts/<id>/<n>.md, and
+ * those of its translations too, texts/<id>/<n>.<tag>.md, which no type holds. A vector's passport
+ * is any JSON value, unknown, as a reader gets it. The schemas decide what is valid: a type gives
+ * the shape of a value alone, and code that reads a value from elsewhere checks it against its
+ * schema first, and then against the rules of reading of legal/README.md. A field the object always
+ * holds is required; any other is optional.
  *
  * @packageDocumentation
  */
@@ -19,8 +19,8 @@
 /**
  * Legal is the type of legal.schema.json.
  *
- * The passport of the legal texts, legal/legal.yaml (section 4 of the legal text): the texts, their
- * versions with their status, date and summary, and the sets of texts of the samples page.
+ * The passport of the legal texts, legal/legal.yaml: the texts, their versions with their status,
+ * date and summary, and the sets of texts of the samples page.
  */
 export interface Legal {
   /**
@@ -228,9 +228,9 @@ export interface TextRef {
 /**
  * ReadingVector is the type of reading-vector.schema.json.
  *
- * A test vector of reading (section 7 of the legal text): parts, each read on a day and perhaps
- * with the part of the release before, and what section 5 gives. A reader implements section 5 and
- * gets exactly this.
+ * A test vector of reading: parts, each read on a day and perhaps with the part of the release
+ * before, and what the rules of reading the part give. A reader implements those rules and gets
+ * exactly this.
  */
 export interface ReadingVector {
   /**

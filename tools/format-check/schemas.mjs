@@ -1,5 +1,5 @@
 // The schemas of the format and of the other versioned normative parts: read, checked against the
-// format's schema conventions, and compiled by ajv (R45, R96, R85, R130, R134, R135).
+// format's schema conventions, and compiled by ajv.
 //
 // ajv's strict mode is no check of the conventions: it accepts nullable, definitions, dependencies
 // and $dynamicRef, and none of those is the format's. So the conventions are checked on the
@@ -18,15 +18,15 @@ export const ID_PREFIX = "https://altnovatrail.github.io/spec/format/";
 
 // A part: its folder, the prefix of each $id, whether its schemas may mark fields x-open (only the
 // format has an open view), and in camelCase the schemas whose fields are named in camelCase rather
-// than snake_case — deployment.schema.json alone, whose names are those of R09 app and of a Firebase
-// project (R85). The names of $defs stay in snake_case everywhere.
+// than snake_case — deployment.schema.json alone, whose names are those that app reads, the keys of
+// a Firebase project's configuration. The names of $defs stay in snake_case everywhere.
 export const FORMAT_PART = { folder: "format", prefix: ID_PREFIX, open: true };
 
 // The keywords a schema may use, by what their values hold. Left out of 2020-12: $anchor, $dynamicRef, $dynamicAnchor and $vocabulary, since a reference names only
 // $defs; minContains and maxContains, whose failure ajv names "contains"; unevaluatedItems, whose
 // meeting with contains ajv's own test runner skips in the JSON Schema Test Suite; and the content
 // keywords, which the format has no use for. dependentSchemas is walked, so that what it holds is
-// checked too, and refused with its reason (R45).
+// checked too, and refused with its reason.
 const ONE_SUBSCHEMA = new Set(["not", "if", "then", "else", "items", "contains", "additionalProperties", "propertyNames", "unevaluatedProperties"]);
 const SUBSCHEMA_LIST = new Set(["allOf", "anyOf", "oneOf", "prefixItems"]);
 const SUBSCHEMA_MAP = new Set(["$defs", "properties", "patternProperties", "dependentSchemas"]);
@@ -197,7 +197,7 @@ function checkSubschema({ schema, at, under, inCondition, unmarked }, file, byNa
   }
   // Two forms that ajv 8.20.0 validates wrongly beside unevaluatedProperties: false, which closes
   // every object at its place: it counts the fields of the place as unevaluated, and refuses a
-  // valid value; a test pins the bug, and the rule is lifted only once ajv mends it (R45).
+  // valid value; a test pins the bug, and the rule is lifted only once ajv mends it.
   if ("dependentSchemas" in schema) {
     report([...at, "dependentSchemas"], "dependentSchemas: ajv 8.20.0 counts the fields of the place as unevaluated when its key is absent; write allOf with if: {required: [<key>]} and then");
   }

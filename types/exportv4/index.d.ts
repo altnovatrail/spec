@@ -2,15 +2,14 @@
 
 /**
  * The types of the format of the export, version 4 of the part, generated from the schemas in
- * export/schemas by tools/types (R72, R73 and R135 in spec's docs/decisions.md): the same types as
- * the Go package exportv4, by the same names — the files of an export, the manifest, the account, a
- * profile with every record of it, what a device holds of it and a stored work, and the vectors of
- * reading. A field that holds the JSON of a message of protobuf, or a value as the element
- * <novatrail-canvas> gives it, is any JSON value, unknown, as a reader gets it. The schemas decide
- * what is valid: a type gives the shape of a value alone, and code that reads a value from
- * elsewhere checks it against its schema first, and then against the rules of reading
- * (export/README.md, section 5). A field the object always holds is required; any other is
- * optional.
+ * export/schemas by tools/types: the same types as the Go package exportv4, by the same names — the
+ * files of an export, the manifest, the account, a profile with every record of it, what a device
+ * holds of it and a stored work, and the vectors of reading. A field that holds the JSON of a
+ * message of protobuf, or a value as the element <novatrail-canvas> gives it, is any JSON value,
+ * unknown, as a reader gets it. The schemas decide what is valid: a type gives the shape of a value
+ * alone, and code that reads a value from elsewhere checks it against its schema first, and then
+ * against the rules of reading of export/README.md. A field the object always holds is required;
+ * any other is optional.
  *
  * @packageDocumentation
  */
@@ -20,8 +19,8 @@
 /**
  * Account is the type of account.schema.json.
  *
- * The account in an export of the account, api/account.json (section 4 of the text of the part):
- * its fields that are no secret, its consents and its counters of quota.
+ * The account in an export of the account, api/account.json: its fields that are no secret, its
+ * consents and its counters of quota.
  */
 export interface Account {
   /**
@@ -60,7 +59,8 @@ export interface Account {
    */
   readonly profile_ids: readonly FileID[];
   /**
-   * Every consent of the account, in full: the minimal record left after a deletion is none (R117).
+   * Every consent of the account, in full: the minimal record left after a deletion is none, since
+   * it holds no ID of the account or a profile.
    */
   readonly consents: readonly Consent[];
   /**
@@ -97,7 +97,7 @@ export type Day = string;
  *
  * An ID that names a file of the export — a profile's or an attempt's, as api gives it, or a page's
  * from paper, as app gives it —: 1 to 200 letters, digits, -, _ and ., the first not a ., so that
- * it is one part of a path, never . or .. (section 3).
+ * it is one part of a path, never `.` or `..`.
  */
 export type FileID = string;
 
@@ -112,7 +112,7 @@ export interface Consent {
   /**
    * Who gave the consent: the owner of the account of their own profile, by the statement that they
    * are 18 or older; a parent, by the signed form; or the learner themselves, from the age of
-   * digital consent of their country (R116).
+   * digital consent of their country.
    */
   readonly giver: ConsentGiver;
   /**
@@ -154,7 +154,7 @@ export interface Consent {
   /**
    * The versions of the legal texts the person saw when they gave the consent — privacy-policy and
    * terms-of-use of the owner's, parent-consent of a parent's, teen-consent of the learner's own —,
-   * each that had a version in force (R130); empty when none had.
+   * each that had a version in force; empty when none had.
    */
   readonly texts: readonly TextRef[];
 }
@@ -164,7 +164,7 @@ export interface Consent {
  *
  * Who gave the consent: the owner of the account of their own profile, by the statement that they
  * are 18 or older; a parent, by the signed form; or the learner themselves, from the age of digital
- * consent of their country (R116).
+ * consent of their country.
  */
 export type ConsentGiver = "owner" | "parent" | "learner";
 
@@ -187,7 +187,7 @@ export type ConsentForm = "not_sent" | "sent" | "not_accepted";
 /**
  * AgeCategory is the type of common.schema.json#/$defs/age_category.
  *
- * An age category, by its code (R46).
+ * An age category, by its code, the module format's.
  */
 export type AgeCategory = "under_13" | "from_13_to_consent" | "from_consent_to_18" | "adult";
 
@@ -257,7 +257,8 @@ export interface Image {
    */
   readonly media_type: ImageMediaType;
   /**
-   * The image's bytes, at most 4 MiB, in base64 (RFC 4648, section 4).
+   * The image's bytes, at most 4 MiB, in base64 by the standard alphabet of RFC 4648, not
+   * base64url.
    */
   readonly data: string;
 }
@@ -281,8 +282,8 @@ export type ThousandthsBox = readonly number[];
 /**
  * Device is the type of device.schema.json.
  *
- * What this device holds of a profile, device/<id>.json (section 4 of the text of the part): its
- * unfinished attempts with their history, its essays and its places in lessons.
+ * What this device holds of a profile, device/<id>.json: its unfinished attempts with their
+ * history, its essays and its places in lessons.
  */
 export interface Device {
   /**
@@ -432,7 +433,7 @@ export interface DeviceLessonDemoState {
 /**
  * Manifest is the type of manifest.schema.json.
  *
- * The manifest of an export, manifest.json, which app writes (section 4 of the text of the part).
+ * The manifest of an export, manifest.json, which app writes.
  */
 export interface Manifest {
   /**
@@ -472,7 +473,7 @@ export type ManifestScope = "profile" | "account";
  *
  * A page from the learner's paper that the device holds, paper/<profile id>/<page id>.json, which
  * app writes beside api.zip: the photo of the page, its task frames, and each picked task's crop
- * and work (section 4 of the text of the part; R162). The server keeps none of it.
+ * and work. The server keeps none of it.
  */
 export interface Paper {
   /**
@@ -570,7 +571,7 @@ export interface Task {
 /**
  * Profile is the type of profile.schema.json.
  *
- * A profile and every record of it, api/profiles/<id>.json (section 4 of the text of the part).
+ * A profile and every record of it, api/profiles/<id>.json.
  */
 export interface Profile {
   /**
@@ -620,7 +621,7 @@ export interface Profile {
   readonly default_mode: ProfileDefaultMode;
   /**
    * The hint mode: whether a task from paper gets the wavy line with the words of a rung,
-   * "show_where", or the words alone, "questions_only" (R162).
+   * "show_where", or the words alone, "questions_only".
    */
   readonly hint_mode: ProfileHintMode;
   /**
@@ -658,8 +659,8 @@ export interface Profile {
   readonly attempts: readonly Attempt[];
   /**
    * The profile's open attempts of tasks from paper, those of one page: api keeps one only while it
-   * is open, and nothing of it once it ends (R162; privacy 4.1). Their page, crops and work are the
-   * device's, under paper/.
+   * is open, and nothing of it once it ends, by the retention periods of `docs/privacy.md`. Their
+   * page, crops and work are the device's, under paper/.
    */
   readonly paper_attempts: readonly PaperAttempt[];
   /**
@@ -676,22 +677,22 @@ export interface Profile {
   readonly state: StateEntry;
   /**
    * The stored works, the works of the profile kept on the server, newest first, each named without
-   * its bytes, as ListWorks names it; each is a file of its own beside api.zip, which app writes
-   * (R151). Empty while storage is off (R113).
+   * its bytes, as ListWorks names it; each is a file of its own beside api.zip, which app writes.
+   * Empty while storage is off.
    */
   readonly works: readonly WorkInfo[];
   /**
-   * Whether the storage of the profile's works on the server is on (R113).
+   * Whether the storage of the profile's works on the server is on.
    */
   readonly work_storage: boolean;
   /**
    * Each time the storage of works was switched on, by whom, by which version of storage-consent,
-   * and when it was switched off: the records live as long as the profile (R131; R136).
+   * and when it was switched off: the records live as long as the profile.
    */
   readonly storage_consents: readonly StorageConsent[];
   /**
    * The reports of a problem with the tutor's words of the profile's attempts that api keeps: until
-   * the operator reviewed them, and for a year after (R123; R136).
+   * the operator reviewed them, and for a year after.
    */
   readonly problem_reports: readonly ProblemReport[];
   /**
@@ -744,7 +745,7 @@ export type ProfileDefaultMode = "by_steps" | "self";
  * ProfileHintMode is the type of profile.schema.json#/properties/hint_mode.
  *
  * The hint mode: whether a task from paper gets the wavy line with the words of a rung,
- * "show_where", or the words alone, "questions_only" (R162).
+ * "show_where", or the words alone, "questions_only".
  */
 export type ProfileHintMode = "questions_only" | "show_where";
 
@@ -957,7 +958,7 @@ export type AttemptCloseReason = "correct" | "solution_shown" | "left" | "abando
 export interface Rung {
   /**
    * The rung, 1 to 3; on an attempt of a task from paper, 0 is its opening question, the model's
-   * words alone (R82).
+   * words alone.
    */
   readonly rung: number;
   /**
@@ -1238,7 +1239,7 @@ export interface PaperAttempt {
   /**
    * Where the key of each task of the attempt's crop came from, in the order of the page, as its
    * items; absent before a submission derived them. The keys themselves are the program's and never
-   * reach the device (R05).
+   * reach the device.
    */
   readonly key_sources?: readonly PaperAttemptKeySources[];
   /**
@@ -1381,8 +1382,8 @@ export interface EvidenceEntry {
    */
   readonly attempt_id?: ID;
   /**
-   * The ID of an adult's correction of the module's level, whose evidence has level_set_by_adult
-   * (R157): absent from the evidence of an attempt.
+   * The ID of an adult's correction of the module's level, whose evidence has level_set_by_adult:
+   * absent from the evidence of an attempt.
    */
   readonly correction_id?: ID;
   /**
@@ -1570,8 +1571,8 @@ export type ProblemReportKind = "wrong" | "unclear" | "not_for_age" | "harmful" 
 /**
  * ReadingVector is the type of reading-vector.schema.json.
  *
- * A test vector of reading (section 7 of the text of the part): exports, unpacked, and what section
- * 5 gives. A reader implements section 5 and gets exactly this.
+ * A test vector of reading: exports, unpacked, and what the rules of reading an export give. A
+ * reader implements those rules and gets exactly this.
  */
 export interface ReadingVector {
   /**
@@ -1619,7 +1620,7 @@ export type CaseRefusedBy = "schema" | "export.files" | "export.scope" | "export
  * Work is the type of work.schema.json.
  *
  * A stored work of a profile, works/<profile id>/<attempt id>.json, which app writes beside api.zip
- * as GetWork gave it (section 4 of the text of the part; R151).
+ * as GetWork gave it.
  */
 export interface Work {
   /**
@@ -1653,8 +1654,8 @@ export interface Work {
    */
   readonly submissions: readonly WorkSubmission[];
   /**
-   * The picture of the work: the PNG of the strokes the surface shows at the end, in base64 (RFC
-   * 4648, section 4).
+   * The picture of the work: the PNG of the strokes the surface shows at the end, in base64 by the
+   * standard alphabet of RFC 4648, not base64url.
    */
   readonly picture: string;
 }

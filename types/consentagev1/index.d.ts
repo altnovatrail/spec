@@ -2,15 +2,14 @@
 
 /**
  * The types of the table of the age of digital consent, version 1 of the part, generated from the
- * schemas in consent-age/schemas by tools/types (R72, R73 and R134 in spec's docs/decisions.md):
- * the same types as the Go package consentagev1, by the same names — the table
- * consent-age/consent-age.yaml, with the age of each country from a day on and the law that sets
- * it, the vectors of reading and the vectors of the category. The countries a learner's may be are
- * Country. A vector of reading's table is any JSON value, unknown, as a reader gets it. The schemas
- * decide what is valid: a type gives the shape of a value alone, and code that reads a value from
- * elsewhere checks it against its schema first, and then against the rules of reading
- * (consent-age/README.md, section 5); the category of a learner is section 6. A field the object
- * always holds is required; any other is optional.
+ * schemas in consent-age/schemas by tools/types: the same types as the Go package consentagev1, by
+ * the same names — the table consent-age/consent-age.yaml, with the age of each country from a day
+ * on and the law that sets it, the vectors of reading and the vectors of the category. The
+ * countries a learner's may be are Country. A vector of reading's table is any JSON value, unknown,
+ * as a reader gets it. The schemas decide what is valid: a type gives the shape of a value alone,
+ * and code that reads a value from elsewhere checks it against its schema first, and then against
+ * the rules of reading of consent-age/README.md, which gives the category of a learner too. A field
+ * the object always holds is required; any other is optional.
  *
  * @packageDocumentation
  */
@@ -20,9 +19,9 @@
 /**
  * CategoryVector is the type of category-vector.schema.json.
  *
- * A test vector of the category (section 8 of the text of the part): a table that section 5
- * accepts, and what section 6 gives on it — the category of a learner, and whether a profile's age
- * is asked again.
+ * A test vector of the category: a table that the rules of reading the table accept, and what the
+ * rule of the category gives on it — the category of a learner, and whether a profile's age is
+ * asked again.
  */
 export interface CategoryVector {
   /**
@@ -83,9 +82,8 @@ export type CategoryCaseCategory = "under_13" | "from_13_to_consent" | "from_con
 /**
  * ConsentAge is the type of consent-age.schema.json.
  *
- * The table of the age of digital consent by country, consent-age/consent-age.yaml (section 4 of
- * the text of the part): the age of each country with the law that sets it, and the age of a
- * country the table does not hold.
+ * The table of the age of digital consent by country, consent-age/consent-age.yaml: the age of each
+ * country with the law that sets it, and the age of a country the table does not hold.
  */
 export interface ConsentAge {
   /**
@@ -94,7 +92,7 @@ export interface ConsentAge {
   readonly format: number;
   /**
    * The age of digital consent of a country the table does not hold: a parent gives consent for
-   * every learner under 18 there (R134).
+   * every learner under 18 there.
    */
   readonly outside_table: number;
   /**
@@ -170,9 +168,8 @@ export type Words = string;
 /**
  * ReadingVector is the type of reading-vector.schema.json.
  *
- * A test vector of reading (section 8 of the text of the part): tables, each perhaps with the table
- * of the release before, and what section 5 gives. A reader implements section 5 and gets exactly
- * this.
+ * A test vector of reading: tables, each perhaps with the table of the release before, and what the
+ * rules of reading the table give. A reader implements those rules and gets exactly this.
  */
 export interface ReadingVector {
   /**

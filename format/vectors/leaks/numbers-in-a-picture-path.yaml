@@ -1,6 +1,6 @@
-# The path of a picture of an instance is searched as any text is (section 20): its numbers stand
-# between - and - or ., so pictures/split-12-3.png holds the numbers 12 and 3, and a name that runs
-# into a number, as rows12, holds none.
+# The path of a picture of an instance is searched as any text is by the leak check: its numbers
+# stand between - and - or ., so pictures/split-12-3.png holds the numbers 12 and 3, and a name that
+# runs into a number, as rows12, holds none.
 task:
   id: twelve-in-three-rows
   statement:

@@ -1,5 +1,5 @@
 // A new version of the format of the export starts a new line: the rule, the shape of each schema
-// it compares, and the script that release-version passes its lines through in spec (R135).
+// it compares, and the script that release-version passes its lines through in spec.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -21,10 +21,10 @@ test("a release is held to the format of the export only after a release that ca
 
 test("another version of the format of the export needs a raised line, and never goes back", () => {
   assert.doesNotThrow(check("v0.14.3", "v0.14.2", "1", "1"));
-  assert.throws(check("v0.14.3", "v0.14.2", "2", "1"), /^Error: export\/VERSION is 2, and at v0\.14\.2 it was 1: a new version of the format of the export starts a new line, so raise RELEASE_LINE above 0\.14 in the same change \(R135\)$/);
+  assert.throws(check("v0.14.3", "v0.14.2", "2", "1"), /^Error: export\/VERSION is 2, and at v0\.14\.2 it was 1: a new version of the format of the export starts a new line, so raise RELEASE_LINE above 0\.14 in the same change$/);
   assert.doesNotThrow(check("v0.15.0", "v0.14.2", "2", "1"));
   assert.throws(check("v0.15.0", "v0.14.2", "1", "2"), /never goes back/);
-  assert.throws(check("v0.14.3", "v0.14.2", "1", "1", "the shape of export/schemas/profile.schema.json changed"), /a change of the schemas of the files of an export or of the IDs of its rules is a new version, in a new line \(R135\)$/);
+  assert.throws(check("v0.14.3", "v0.14.2", "1", "1", "the shape of export/schemas/profile.schema.json changed"), /a change of the schemas of the files of an export or of the IDs of its rules is a new version, in a new line$/);
 });
 
 const text = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -40,7 +40,7 @@ test("what changed of the shape: each schema of a file, and the IDs of the rules
   assert.equal(shapeChange({ schemas, readmeNow: readme, readmeThen: readme }), null);
   schemas["export/schemas/profile.schema.json"].now = JSON.stringify({ ...profile, required: ["format"] });
   const renamed = readme.replace("| `export.proto` |", "| `export.schemas` |");
-  assert.equal(shapeChange({ schemas, readmeNow: renamed, readmeThen: readme }), "the IDs of the rules of export/README.md, section 5, changed, and the shape of export/schemas/profile.schema.json changed");
+  assert.equal(shapeChange({ schemas, readmeNow: renamed, readmeThen: readme }), "the IDs of the rules of export/README.md changed, and the shape of export/schemas/profile.schema.json changed");
 });
 
 test("the script passes the lines through, and reads each schema by git", () => {

@@ -9,7 +9,8 @@
 // answer carries; and the values that come both in answers and in the data of a refusal: why an
 // attempt was closed, how a lesson run ended, and the engine's choice, with the list of its reason
 // codes, which the adult's progress alone carries. What they mean, and how `app` reads a cause it
-// does not know, are the rules of contracts/README.md, section 15.
+// does not know, are the rules of contracts/README.md for the
+// contract between `app` and `api`.
 
 package apiv1
 
@@ -29,8 +30,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Why a request was refused, or what a call of AI in it came to: one list for the whole contract
-// (R17 api). A refusal comes as the detail `Refusal` of an error of Connect, with the code that the
+// Why a request was refused, or what a call of AI in it came to: one list for the whole contract.
+// A refusal comes as the detail `Refusal` of an error of Connect, with the code that the
 // comment of each method gives it; an outcome comes in the answer, as `Outcome`. A cause that the
 // build of `app` does not know it reads by the code of the error, or as a call of AI that gave
 // nothing. A verdict's reason is no cause: it is the module format's and the observation's.
@@ -82,12 +83,12 @@ const (
 	// A learning request to show the solution, while the child's setting "ask before showing" is on:
 	// the solution is shown by an action of an adult. Or a learning request on what an adult decides
 	// at a profile whose consent an adult gave: the learner's own consent, its withdrawal, the
-	// storage of works and the export (R136). Code `permission_denied`.
+	// storage of works and the export. Code `permission_denied`.
 	Cause_CAUSE_ADULT_NEEDED Cause = 13
 	// A child asks for the solution before the fourth wrong answer. Code `failed_precondition`.
 	Cause_CAUSE_LADDER_NOT_PASSED Cause = 14
 	// The task has nothing to show by this request: a task with a rubric, which "Done" ends, and a
-	// task from paper, whose solution is never shown (R162). Code `failed_precondition`.
+	// task from paper, whose solution is never shown. Code `failed_precondition`.
 	Cause_CAUSE_NO_SHOWING Cause = 15
 	// The attempt has no rung: no wrong answer yet, or a task with a rubric. Code
 	// `failed_precondition`.
@@ -124,13 +125,13 @@ const (
 	// profile of a consent, the attempt of an engine's choice of a task, or the confirmation of a
 	// consent that a form is sent for. Code `already_exists`.
 	Cause_CAUSE_ALREADY_EXISTS Cause = 26
-	// The deployment does not take learners from the country named (privacy 9, П-2). Code
+	// The deployment does not take learners from the country named (П-2). Code
 	// `failed_precondition`.
 	Cause_CAUSE_COUNTRY_NOT_ACCEPTED Cause = 27
 	// The consent is not confirmed: a child's profile asked for by a consent of a parent that still
 	// waits, or a learning request of a profile without consent — one that waits for the learner's
-	// own consent or for a parent's form —, but for the requests on the consent itself, which section
-	// 15 of contracts/README.md names; or the adult's correction of a module's level at such a
+	// own consent or for a parent's form —, but for the requests on the consent itself, which
+	// contracts/README.md names; or the adult's correction of a module's level at such a
 	// profile. Code `failed_precondition`.
 	Cause_CAUSE_NO_CONSENT Cause = 28
 	// The input of the PIN is closed after too many wrong PINs. The refusal holds when it opens. Code
@@ -171,11 +172,11 @@ const (
 	Cause_CAUSE_SEGMENT_UNAVAILABLE Cause = 38
 	// The account has as many consents that wait, without a profile, as `api` lets it have: one is
 	// taken back by `CancelChildConsent`, or confirmed, before another is asked for. `api` holds the
-	// number (R11 api). Code `resource_exhausted`, with no data.
+	// number. Code `resource_exhausted`, with no data.
 	Cause_CAUSE_TOO_MANY_CONSENTS Cause = 39
 	// The age of the profile is to be given again before its next work: the country of a learner who
 	// gave their own consent now asks for an older age of digital consent than the one the category
-	// was given by (R134), but for the requests on the consent itself, which section 15 of
+	// was given by, but for the requests on the consent itself, which
 	// contracts/README.md names; the adult's correction of a module's level at such a profile gets it
 	// too. An adult gives it by `RestateAge`. Code `failed_precondition`.
 	Cause_CAUSE_AGE_NEEDED Cause = 40
@@ -185,30 +186,30 @@ const (
 	// `failed_precondition`.
 	Cause_CAUSE_TEXT_NOT_CURRENT Cause = 41
 	// An action of an adult on the storage of works at a profile whose learner gave their own
-	// consent: the learner decides it alone (R113; R116). Code `permission_denied`.
+	// consent: the learner decides it alone. Code `permission_denied`.
 	Cause_CAUSE_LEARNER_DECIDES Cause = 42
-	// A work put while the storage of the profile's works is off: `app` keeps it on the device alone
-	// (R113). Code `failed_precondition`, with no data.
+	// A work put while the storage of the profile's works is off: `app` keeps it on the device alone.
+	// Code `failed_precondition`, with no data.
 	Cause_CAUSE_STORAGE_OFF Cause = 43
-	// A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps
-	// it on the device alone (R113). Code `invalid_argument`, with no data. A `PutWork` message
-	// larger than `api` reads gets `resource_exhausted` with no `Refusal` instead (contracts/README.md,
-	// section 15): `app` reads it as this cause.
+	// A work larger than 4 MiB, as `StoredWork` counts it: `api` keeps none of it, and `app` keeps it
+	// on the device alone. Code `invalid_argument`, with no data. A `PutWork` message larger than
+	// `api` reads gets `resource_exhausted` with no `Refusal` instead (contracts/README.md): `app`
+	// reads it as this cause.
 	Cause_CAUSE_WORK_TOO_LARGE Cause = 44
 	// A check of an own key beyond the checks that `api` lets an account make in a sliding window:
 	// every check that is not refused before it counts, a provider closed with no call too. `api`
-	// holds the number and the window (R78 api). The refusal holds when the next check opens. Code
+	// holds the number and the window. The refusal holds when the next check opens. Code
 	// `resource_exhausted`.
 	Cause_CAUSE_KEY_CHECKS_EXHAUSTED Cause = 45
 	// The adult's correction of a module's level names a band that is neither the band of the level
 	// nor one next to it, by the bands of the manifest of the module's current version: the level
 	// has moved since `app` read it, or the module has no such band. `app` reads `GetSkillMap`
-	// again and offers the bands next to the level it gives (R157). Code `failed_precondition`,
+	// again and offers the bands next to the level it gives. Code `failed_precondition`,
 	// with no data.
 	Cause_CAUSE_BAND_NOT_NEXT Cause = 46
 	// A task from paper has no key: the solution of AI gave no one answer that a program can compare,
 	// such as a proof, a drawing or several answers, so no verdict is given, "Couldn't check this
-	// one", and the hints still are (R162). An outcome alone, of every submission of the attempt,
+	// one", and the hints still are. An outcome alone, of every submission of the attempt,
 	// with no AI once the first gave it.
 	Cause_CAUSE_NO_KEY Cause = 47
 )
@@ -405,7 +406,7 @@ func (LimitCause) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{1}
 }
 
-// Why an attempt was closed (architecture 3.5 api). An attempt that is not closed waits, whatever
+// Why an attempt was closed. An attempt that is not closed waits, whatever
 // its submissions came to.
 type CloseReason int32
 
@@ -538,7 +539,7 @@ func (ChoiceKind) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{3}
 }
 
-// Why the engine gave what it chose: its reason code (concepts 12; R29; R100). The adult sees it
+// Why the engine gave what it chose: its reason code. The adult sees it
 // in the progress of a profile, and a child is not told it: no answer to a learning request
 // carries it. A choice has one code, that of the branch of the engine's rule that made it, a
 // lesson's as a task's, and `ChoiceKind` says what it gave. A value never changes its meaning: a
@@ -567,7 +568,7 @@ const (
 	// whatever else the skill would fit.
 	ReasonCode_REASON_CODE_SKILL_CHOSEN ReasonCode = 6
 	// The author's order: a skill with a rubric or without assessment comes next by the skill graph,
-	// without the learner model (concepts 4).
+	// without the learner model.
 	ReasonCode_REASON_CODE_AUTHOR_ORDER ReasonCode = 7
 	// The lesson of a run that is open, which the learner goes on with, whatever else its skills
 	// would fit.
@@ -633,7 +634,7 @@ func (ReasonCode) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_cause_proto_rawDescGZIP(), []int{4}
 }
 
-// Why a lesson run ended (concepts 5). A reason its build does not know `app` reads as an end other
+// Why a lesson run ended. A reason its build does not know `app` reads as an end other
 // than `RUN_END_REASON_PASSED`, and erases the state of the lesson as at every end.
 type RunEndReason int32
 
@@ -968,7 +969,7 @@ func (x *Outcome) GetOwnKeyLimit() *OwnKeyLimit {
 	return nil
 }
 
-// The limit of the learner's own key that ran out at its provider (R55 tutor).
+// The limit of the learner's own key that ran out at its provider.
 type OwnKeyLimit struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Which limit ran out.
@@ -1024,7 +1025,7 @@ func (x *OwnKeyLimit) GetAccessReturns() *timestamppb.Timestamp {
 }
 
 // The engine's choice: what the learner is given next — a lesson, or a task outside a lesson — or
-// that there is nothing to give (concepts 12). A choice begins nothing: `app` opens a lesson by
+// that there is nothing to give. A choice begins nothing: `app` opens a lesson by
 // `OpenLesson` and begins a task by `BeginAttempt`, each naming the choice. Its reason code is not
 // here: a child is not told it, and it goes to the adult's progress alone, `AttemptRecord`.
 type EngineChoice struct {
@@ -1036,8 +1037,8 @@ type EngineChoice struct {
 	// Beside `CHOICE_KIND_NOTHING`, when the AI that checks the tasks is closed to the learner on the
 	// route to AI that the request names and no task that a tap checks is left: `CAUSE_QUOTA`, with
 	// when the next family day begins, `CAUSE_PLATFORM_LIMIT` or `CAUSE_NOT_ADMITTED`; on the own
-	// key `CAUSE_NOT_ADMITTED` alone, since neither the quota nor the limit of platform AI closes it
-	// (R84; R99). Absent when there is nothing to give for another reason, such as no module connected
+	// key `CAUSE_NOT_ADMITTED` alone, since neither the quota nor the limit of platform AI closes it.
+	// Absent when there is nothing to give for another reason, such as no module connected
 	// with a current version.
 	Outcome       *Outcome `protobuf:"bytes,3,opt,name=outcome,proto3" json:"outcome,omitempty"`
 	unknownFields protoimpl.UnknownFields

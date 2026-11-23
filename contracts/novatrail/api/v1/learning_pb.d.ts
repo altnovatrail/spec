@@ -4,7 +4,8 @@
 
 // The way from a module to a task in the contract between `app` and `api`: the engine's choice, the
 // beginning of an attempt and the open attempt, and lessons, which `api` leads by lesson runs. What
-// each message means is the rule of contracts/README.md, section 15.
+// each message means is the rule of contracts/README.md for the contract
+// between `app` and `api`.
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -50,7 +51,7 @@ export declare type ChooseNextRequest = Message<"novatrail.api.v1.ChooseNextRequ
    * The provider of the learner's own key, by its code in the admission table, without the key:
    * with a profile of its owner that checks the tasks by its own key, so that `api` judges the
    * engine's pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route
-   * would begin a task, though the request calls no AI. Empty on platform AI (R84; R99).
+   * would begin a task, though the request calls no AI. Empty on platform AI.
    *
    * @generated from field: string own_key_provider = 4;
    */
@@ -144,7 +145,7 @@ export declare type BeginAttemptRequest = Message<"novatrail.api.v1.BeginAttempt
    * route to AI for the checks of the beginning, and checks no quota; an engine's choice that a
    * refusal `CAUSE_RUN_ENDED` gives goes by the same route. Empty when platform AI checks it. Each
    * later request on the attempt that calls AI goes by the `own_key` it carries, or on platform AI
-   * without one, and meets the quota there as an outcome (R84; R99).
+   * without one, and meets the quota there as an outcome.
    *
    * @generated from field: string own_key_provider = 6;
    */
@@ -352,7 +353,7 @@ export declare type OpenAttempt = Message<"novatrail.api.v1.OpenAttempt"> & {
 
   /**
    * On a task with a rubric: each submission, in order, with how it ended and when, without the
-   * text read and the words of the feedback, which are nowhere on the server (R87).
+   * text read and the words of the feedback, which are nowhere on the server.
    *
    * @generated from field: repeated novatrail.api.v1.EssaySubmission essay_submissions = 8;
    */
@@ -362,7 +363,7 @@ export declare type OpenAttempt = Message<"novatrail.api.v1.OpenAttempt"> & {
    * The task's leading question as a hint asked for gave it, with the techniques, before the first
    * wrong answer or on a task with a rubric: empty when none was given, and when the task has none.
    * It is a closed field of the module format, so the open view of the task does not hold it, and
-   * a device that goes on with the attempt shows it from here (R108).
+   * a device that goes on with the attempt shows it from here.
    *
    * @generated from field: string requested_leading_question = 9;
    */
@@ -426,7 +427,7 @@ export declare type OpenLessonRequest = Message<"novatrail.api.v1.OpenLessonRequ
    * The provider of the learner's own key, by its code in the admission table, without the key:
    * with a profile of its owner that checks the tasks by its own key, so that an engine's choice
    * that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
-   * Empty on platform AI (R84; R99).
+   * Empty on platform AI.
    *
    * @generated from field: string own_key_provider = 3;
    */
@@ -483,7 +484,7 @@ export declare type GetLessonRunRequest = Message<"novatrail.api.v1.GetLessonRun
    * The provider of the learner's own key, by its code in the admission table, without the key:
    * with a profile of its owner that checks the tasks by its own key, so that an engine's choice
    * that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
-   * Empty on platform AI (R84; R99).
+   * Empty on platform AI.
    *
    * @generated from field: string own_key_provider = 3;
    */
@@ -591,7 +592,7 @@ export declare type CompleteLessonRequest = Message<"novatrail.api.v1.CompleteLe
    * The provider of the learner's own key, by its code in the admission table, without the key:
    * with a profile of its owner that checks the tasks by its own key, so that the engine's choice
    * that the end of the run gives goes by that route, though the request calls no AI. Empty on
-   * platform AI (R84; R99).
+   * platform AI.
    *
    * @generated from field: string own_key_provider = 3;
    */
@@ -695,15 +696,14 @@ export declare const LessonRunRefSchema: GenMessage<LessonRunRef>;
  * given again `CAUSE_AGE_NEEDED`, and a request whose form the contract refuses the code
  * `invalid_argument` with no `Refusal`. A profile has one open attempt of a task of a module: a new
  * one closes the one before `CLOSE_REASON_LEFT`, and leaves as they are the open attempts of tasks
- * from paper, which `PaperService` begins (R162). A lesson run goes on the package it began on, and
+ * from paper, which `PaperService` begins. A lesson run goes on the package it began on, and
  * every attempt of its task segments too. `app` keeps the place in a lesson and the state of its
  * demos by the key "lesson's full ID, package digest", beside the ID of the run: the state of
  * another run under the same key it drops, and it erases the state of the lesson at every end of
  * the run, in an answer or in a refusal. An engine's choice that an answer or a refusal gives goes
  * by the route to AI that the request names, the own key's by `own_key_provider` or platform AI's
  * without it, so that it gives nothing that `BeginAttempt` by the same route would refuse; a
- * profile not of the category `adult` that names a provider gets `CAUSE_KEY_NOT_FOR_PROFILE` (R84;
- * R99).
+ * profile not of the category `adult` that names a provider gets `CAUSE_KEY_NOT_FOR_PROFILE`.
  *
  * @generated from service novatrail.api.v1.LearningService
  */
@@ -753,7 +753,7 @@ export declare const LearningService: GenService<{
    * `WorkService.PutWork`, which `GetWork` gives back. Refusals: `CAUSE_NOT_FOUND`,
    * `CAUSE_ATTEMPT_CLOSED` with its close reason, and `CAUSE_PACKAGE_UNKNOWN`. An attempt of a task
    * from paper gets `invalid_argument`: it has no open view, and only the device that holds its
-   * page goes on with it (R162). It repeats by the state of the attempt.
+   * page goes on with it. It repeats by the state of the attempt.
    *
    * @generated from rpc novatrail.api.v1.LearningService.GetOpenAttempt
    */

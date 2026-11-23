@@ -5,8 +5,8 @@
 // The legal texts in the contract between `app` and `api`: the privacy policy, the terms of use
 // and the consents that `app` shows as its own pages, each in its current version and its next
 // one, with its gist in the language of the screen. The texts are those of the legal part,
-// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of contracts/README.md,
-// section 15.
+// `legal/` of `spec`, or of a self-hosted copy's operator. What each message means is the rule of
+// contracts/README.md for the contract between `app` and `api`.
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -24,7 +24,7 @@ export declare const file_novatrail_api_v1_legal: GenFile;
 export declare type GetLegalTextsRequest = Message<"novatrail.api.v1.GetLegalTextsRequest"> & {
   /**
    * The language of the screen that shows the texts, a well-formed tag of BCP 47, a field of the
-   * message and not the header `Accept-Language` (R92): the language the gists and the
+   * message and not the header `Accept-Language`: the language the gists and the
    * translations come in. Empty asks for English.
    *
    * @generated from field: string interface_language = 1;
@@ -58,7 +58,7 @@ export declare type GetLegalTextsResponse = Message<"novatrail.api.v1.GetLegalTe
    * The next version of every text whose place is `app` that has one, in the same order: the
    * version that becomes current on the nearest day still to come, its version in force with the
    * highest number among those of that day. `app` shows it before it
-   * applies, as the version that will apply from its day (R130). No request names it in a
+   * applies, as the version that will apply from its day. No request names it in a
    * consent: a consent names the current version.
    *
    * @generated from field: repeated novatrail.api.v1.LegalText next_texts = 2;
@@ -128,7 +128,7 @@ export declare type LegalText = Message<"novatrail.api.v1.LegalText"> & {
 
   /**
    * The translation of the version into the language asked, found as the gist is, when the version
-   * has one (R141): Markdown as the body is, with no force of its own — the body in English is the
+   * has one: Markdown as the body is, with no force of its own — the body in English is the
    * one in force, and a consent names the version, never its translation. Empty when the version
    * has no translation into that language, and when English is asked.
    *
@@ -153,7 +153,7 @@ export declare const LegalTextSchema: GenMessage<LegalText>;
 
 /**
  * A version of a legal text that a person saw, which a request that gives a consent names and the
- * record of the consent keeps (R130; R136): the current version that `GetLegalTexts` gave. A text
+ * record of the consent keeps: the current version that `GetLegalTexts` gave. A text
  * with no version in force is named by no request, and a version that is not the current one gets
  * `CAUSE_TEXT_NOT_CURRENT`.
  *
@@ -182,7 +182,7 @@ export declare type LegalTextRef = Message<"novatrail.api.v1.LegalTextRef"> & {
 export declare const LegalTextRefSchema: GenMessage<LegalTextRef>;
 
 /**
- * The legal texts that `app` shows (R130). The method goes without a token and without the ID of a
+ * The legal texts that `app` shows. The method goes without a token and without the ID of a
  * profile, by Connect GET: the policy is read before signing in. It has the idempotency level
  * `NO_SIDE_EFFECTS`, and `app` calls it with no header — no `Connect-Timeout-Ms` either, which
  * would make the request not simple and send a preflight before it. It has no refusal of its own:

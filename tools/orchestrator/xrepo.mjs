@@ -1,4 +1,4 @@
-// xrepo: a task across repositories (R166). Its clones are /workspaces/.epics/<epic>/<repo>, the
+// xrepo: a task across repositories. Its clones are /workspaces/.epics/<epic>/<repo>, the
 // same path in every NovaTrail container, on the branch named for the epic, built against one
 // spec — its clone there — with the wiring kept out of git: a go.work that replaces spec, its
 // contracts and the neighbouring clones by their go.mod, and spec's npm packages packed from that
@@ -7,7 +7,7 @@
 //
 // git runs here, in the orchestrator's container, where gh pushes, and every container can write
 // a clone's .git/config: xrepo's own git runs with no hooks and no fsmonitor, which run on every
-// status. What else a clone's configuration may name is the risk R166 accepts: every container
+// status. What else a clone's configuration may name is a risk accepted: every container
 // writes ~/.claude, which holds the orchestrator's own clone of spec. spec's packages are packed in
 // spec's documents container and unpacked in each consumer's, neither of which holds the socket.
 
@@ -55,7 +55,7 @@ const SPEC_PIN = /^ci-lint: the submodule spec\/ is at .*; move them to one tag 
 
 // The guards of pins that fail under the wiring, by repository: each reads the version of a module
 // that the go.work replaces. Only these may fail at the gate, and only while the clone has a
-// go.work (R166): a test is skipped, by -skip in GOFLAGS of ci-test, so that ci-test still writes
+// go.work: a test is skipped, by -skip in GOFLAGS of ci-test, so that ci-test still writes
 // its profile; the check of ci-lint is a failure allowed by its message.
 const SPEC_PIN_GUARD = { kind: "ci-lint", name: "just ci-lint: the pin of spec", why: "go list -m names the replaced modules, not the submodule's tag", pattern: SPEC_PIN };
 const testGuard = (name, why) => ({ kind: "test", name, why });
@@ -373,7 +373,7 @@ export function readmeOf(epic, rows) {
   const lines = [
     `# ${epic}: a task across repositories`,
     "",
-    `The clones of the task, on the branch \`${epic}\` (R166 spec). \`xrepo up\` writes this file anew each time; notes of the task go to \`notes.md\` beside it, and \`xrepo down\` keeps both in \`~/.claude/novatrail-orchestrator/epics/${epic}/\`.`,
+    `The clones of the task, on the branch \`${epic}\`. \`xrepo up\` writes this file anew each time; notes of the task go to \`notes.md\` beside it, and \`xrepo down\` keeps both in \`~/.claude/novatrail-orchestrator/epics/${epic}/\`.`,
     "",
     "| Clone | Branch from | Go: replaced | npm: packages of the clones |",
     "|---|---|---|---|",
@@ -383,7 +383,7 @@ export function readmeOf(epic, rows) {
     "",
     "## Guards of pins that fail under the wiring",
     "",
-    "Only these may fail at the gate, and only while the clone has its `go.work` (R166 spec): a test is skipped by `-skip` in `GOFLAGS` of `ci-test`, which then still writes its profile; a check of `ci-lint` fails, its message the one allowed.",
+    "Only these may fail at the gate, and only while the clone has its `go.work`: a test is skipped by `-skip` in `GOFLAGS` of `ci-test`, which then still writes its profile; a check of `ci-lint` fails, its message the one allowed.",
     "",
     "| Repository | Guard | At the gate | Why |",
     "|---|---|---|---|",
@@ -492,7 +492,7 @@ export function quickCheckOf(dir, repo, targets, { browser = false } = {}) {
   throw new Error(`${repo}: neither go.mod nor package.json, and no quick check is known`);
 }
 
-// The quick checks of a repository in its container (R156), its output as it goes: Go's tests,
+// The quick checks of a repository in its container, its output as it goes: Go's tests,
 // Vitest's project node without the browsers — with browser, its every project —, spec's
 // docs-check or tests. A target is a package,
 // a folder or a file of the clone, passed on from its root as ./<target>, so that none is ever an

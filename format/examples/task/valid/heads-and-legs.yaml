@@ -1,10 +1,10 @@
 # A task of the module of olympiad mathematics whose key stands in its statement: a chicken has 2
 # legs, and there are 2 rabbits. The leak check does not search for the key 2, which any word on the
-# legs would hold, and the task's leak phrases give the answer away instead (format text, section
-# 20). The way in is to suppose that the animals are all the same; 4 is the chickens, the answer to
-# another question, and 8 is the legs halved, after which the learner reads the trap's advice. AI may
-# suggest from the work that the learner copied a number from the question: a trap that a trap value
-# shows is not named again among the traps that AI may suggest.
+# legs would hold, and the task's leak phrases give the answer away instead, as the leak check of
+# the format's text says. The way in is to suppose that the animals are all the same; 4 is the
+# chickens, the answer to another question, and 8 is the legs halved, after which the learner reads
+# the trap's advice. AI may suggest from the work that the learner copied a number from the
+# question: a trap that a trap value shows is not named again among the traps that AI may suggest.
 id: heads-and-legs-1
 statement:
   - text: A farmyard has chickens and rabbits, 6 heads and 16 legs in all. A chicken has 2 legs, and a rabbit has 4. How many rabbits are there?

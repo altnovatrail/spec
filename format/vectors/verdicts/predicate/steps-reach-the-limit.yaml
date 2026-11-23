@@ -2,7 +2,7 @@
 # 1 000 000 steps, as go.starlark.net v0.0.0-20261021141710-4f4267fb140d counts them, and it stops
 # when the count reaches the limit, so every value in notation gets unchecked, the right one too.
 # A blank value is unreadable before the predicate runs. spec's CI checks only blank and notation,
-# and module-kit's CI every verdict (section 15).
+# and module-kit's CI every verdict.
 item:
   answer_slots:
     - binding: anywhere

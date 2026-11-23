@@ -1,5 +1,5 @@
 // The examples and test vectors of the module format, and the rules and the module layout its text
-// lists (R45, R46, R56, R57, R58, R59, R60, R62, R63).
+// lists.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -474,7 +474,7 @@ export function checkTierVector(bytes, { validate }) {
   const { tiers, problem } = tiersOf(value.skill_graph);
   if (problem) return [{ line: 0, message: problem }];
   const at = differenceOf(tiers, value.skill_tiers);
-  if (at) problems.push({ line: 0, message: `the tiers are not those of section 12: they differ at ${fragmentOf(["skill_tiers", ...at])}` });
+  if (at) problems.push({ line: 0, message: `the tiers are not those that the format computes: they differ at ${fragmentOf(["skill_tiers", ...at])}` });
   return problems;
 }
 
@@ -494,7 +494,7 @@ export function checkPageVector(bytes, { validate }) {
     return problems;
   }
   const at = differenceOf({ page: page.items, bottom: page.bottom }, { page: value.page, bottom: value.bottom });
-  if (at) problems.push({ line: 0, message: `the page is not the one that section 14 lays out: they differ at ${fragmentOf(at)}` });
+  if (at) problems.push({ line: 0, message: `the page is not the one that the format lays out: they differ at ${fragmentOf(at)}` });
   return problems;
 }
 
@@ -800,7 +800,7 @@ const taskRuleBreaches = (task, parts = {}, validateTask = undefined) => expande
 function expandedOf(task, parts, validateTask, counted = undefined) {
   if (task.template === undefined) {
     const breaches = plainBreaches(task, parts);
-    // A picture path holds a placeholder only in a template (R108).
+    // A picture path holds a placeholder only in a template.
     const pictures = [...(task.statement ?? []), ...(task.solution ?? [])].map((part) => part.picture);
     if (pictures.some(holdsPlaceholder)) breaches.set("task.placeholders", "a picture path holds a brace, and only a template's holds placeholders");
     return { breaches, tasks: [task] };
@@ -831,7 +831,7 @@ function expandedOf(task, parts, validateTask, counted = undefined) {
 }
 
 // The same for a task that is no template, or for an instance, which is unsolved when the results of
-// its solver are not known; task.no-leaks searches an instance's picture paths too (R108).
+// its solver are not known; task.no-leaks searches an instance's picture paths too.
 function plainBreaches(task, parts, unsolved = false, instance = false) {
   const breaches = new Map((task.items ?? []).flatMap((item) => answerSlotsOf(item).flatMap((slot) => slotBreaches(slot, unsolved))).map((rule) => [rule, null]));
   if (leaksBefore(task, parts, instance)) breaches.set("task.no-leaks", null);

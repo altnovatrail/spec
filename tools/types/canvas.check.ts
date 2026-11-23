@@ -1,8 +1,8 @@
 // The check of the types of <novatrail-canvas> by tsc, never run: the element as canvas declares it
-// and app uses it, imported from the npm package (R74). What canvas and app may do type-checks;
+// and app uses it, imported from the npm package. What canvas and app may do type-checks;
 // each line under a directive must be an error, or the unused directive is. app makes the element's
 // mark of the contract's `Mark`, so a kind or a place the contract adds that the element has no
-// type for fails tsc (R83).
+// type for fails tsc.
 
 import { MarkKind } from "@altnovatrail/contracts/novatrail/api/v1/attempt_pb.js";
 import type * as api from "@altnovatrail/contracts/novatrail/api/v1/attempt_pb.js";
@@ -170,7 +170,7 @@ export const tracing: canvas.TracingState | undefined = sheet.tracing;
 sheet.tracing = { at: [0, 120], hidden: true };
 sheet.tracing = { at: [0, 120], hidden: false, scale: 1.5 };
 sheet.tracing = undefined;
-// The reading of the statement by Recognise, which app gives back (R169).
+// The reading of the statement by Recognise, which app gives back.
 export const reading: canvas.TracingReading | undefined = sheet.reading;
 sheet.reading = { state: "busy" };
 sheet.reading = { state: "done", statements: ["□ + 1 = 3"] };

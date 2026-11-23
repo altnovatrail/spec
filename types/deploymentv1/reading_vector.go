@@ -6,9 +6,9 @@ import "encoding/json"
 
 // ReadingVector is the type of reading-vector.schema.json.
 //
-// A test vector of reading (section 7 of the deployment text): files of a deployment configuration,
-// each with the origin where app is open and what section 5 gives. A reader implements section 5
-// and gets exactly this.
+// A test vector of reading: files of a deployment configuration, each with the origin where app is
+// open and what the rules of reading the file give. A reader implements those rules and gets
+// exactly this.
 type ReadingVector struct {
 	// The files, each read once.
 	Cases []Case `json:"cases"`

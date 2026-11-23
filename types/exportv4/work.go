@@ -7,7 +7,7 @@ import "encoding/json"
 // Work is the type of work.schema.json.
 //
 // A stored work of a profile, works/<profile id>/<attempt id>.json, which app writes beside api.zip
-// as GetWork gave it (section 4 of the text of the part; R151).
+// as GetWork gave it.
 type Work struct {
 	// The version of the part, the integer in export/VERSION.
 	Format int64 `json:"format"`
@@ -25,7 +25,7 @@ type Work struct {
 	// Each submission of the attempt, in order: its context, as the canvas gave it, and the history
 	// length when it was sent.
 	Submissions []WorkSubmission `json:"submissions"`
-	// The picture of the work: the PNG of the strokes the surface shows at the end, in base64 (RFC
-	// 4648, section 4).
+	// The picture of the work: the PNG of the strokes the surface shows at the end, in base64 by
+	// the standard alphabet of RFC 4648, not base64url.
 	Picture string `json:"picture"`
 }

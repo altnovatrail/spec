@@ -1,6 +1,7 @@
-# A template, whose field template is closed: the learner's app never gets it, and gets the open view
-# of an instance instead (format text, section 23). In the open fields the placeholders stand as
-# written, and the key, the trap value and the solution are closed, as in any task.
+# A template, whose field template is closed: the learner's app never gets it, and gets the open
+# view of an instance instead, as the format's rules of templates say. In the open fields the
+# placeholders stand as written, and the key, the trap value and the solution are closed, as in any
+# task.
 id: missing-factor
 template:
   parameters:

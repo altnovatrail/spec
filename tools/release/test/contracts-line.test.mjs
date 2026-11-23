@@ -1,6 +1,5 @@
 // A new major package of an API contract starts a new line: the rule, the script that
-// release-version passes its lines through in spec, and the recipe, in a made-up copy of spec
-// (R83).
+// release-version passes its lines through in spec, and the recipe, in a made-up copy of spec.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -35,7 +34,7 @@ test("a new major package needs a raised line, and a first v1 does not", () => {
   assert.doesNotThrow(check("v0.7.3", "v0.7.2", [...v1, "novatrail.app.v1"], v1));
   assert.throws(
     check("v0.7.3", "v0.7.2", [...v1, "novatrail.observation.v2"], v1),
-    /^Error: novatrail\.observation\.v2 came after v0\.7\.2: a new major package of a contract starts a new line, so raise RELEASE_LINE above 0\.7 in the same change \(R83, R44\)$/,
+    /^Error: novatrail\.observation\.v2 came after v0\.7\.2: a new major package of a contract starts a new line, so raise RELEASE_LINE above 0\.7 in the same change$/,
   );
   assert.doesNotThrow(check("v0.8.0", "v0.7.2", [...v1, "novatrail.observation.v2"], v1));
   // A package that was there before opens nothing, and one that goes opens nothing either.

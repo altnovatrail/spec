@@ -1,6 +1,6 @@
 # error: maximum at #/statement/1/width
-# A size is an integer of YAML (section 4): written with an exponent, 1e16 passes as an integer, and
-# a canonical view writes no number past 2^53 − 1 (section 25).
+# A size is an integer of YAML: written with an exponent, 1e16 passes as an integer, and
+# a canonical view writes no number past 2^53 − 1.
 id: picture-wider-than-the-integers
 statement:
   - text: The clock shows when Anna leaves home.

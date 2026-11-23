@@ -1,11 +1,11 @@
-// The npm package @altnovatrail/contracts (R83): the code of the API contracts for TypeScript, which
+// The npm package @altnovatrail/contracts: the code of the API contracts for TypeScript, which
 // protoc-gen-es writes beside each .proto file of contracts/ — JavaScript and its declarations, no
 // JSON types (buf.gen.yaml) —, with spec's LICENSE and the package's README, tools/contracts/npm/.
 // It exports each file of code by its path, as the Go package's path names it, without the module's
 // prefix: ./novatrail/observation/v1/observation_pb.js, its types from the declarations beside it.
 // It carries the test vectors of the packages whose rules code on TypeScript runs, too, each by its
 // path from contracts/: ./vectors/eval/v1/groups.json, the rules the device and the runner share,
-// which canvas runs (R94). The observation's are Go's alone: TypeScript gives no verdict. What the
+// which canvas runs. The observation's are Go's alone: TypeScript gives no verdict. What the
 // package holds is what the tree holds, so the package of a commit with no such vectors is the one
 // it was.
 // The code imports the runtime of protobuf-es, @bufbuild/protobuf, which the package depends on at

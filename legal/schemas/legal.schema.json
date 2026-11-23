@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://altnovatrail.github.io/spec/legal/3/legal.schema.json",
   "title": "Legal passport",
-  "description": "The passport of the legal texts, legal/legal.yaml (section 4 of the legal text): the texts, their versions with their status, date and summary, and the sets of texts of the samples page.",
+  "description": "The passport of the legal texts, legal/legal.yaml: the texts, their versions with their status, date and summary, and the sets of texts of the samples page.",
   "type": "object",
   "properties": {
     "format": {

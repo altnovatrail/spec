@@ -1,10 +1,10 @@
 // Package contracts holds the test vectors of the API contracts, which Go code takes at the tag of
-// a release of the module, contracts/vX.Y.Z, as it takes the code of the contracts (R83, R86):
+// a release of the module, contracts/vX.Y.Z, as it takes the code of the contracts:
 //
 //	go get github.com/altnovatrail/spec/contracts@vX.Y.Z
 //
 // The package is there from the first release after v0.7.0. What the vectors hold and how a reader
-// passes them is the text of the contracts, contracts/README.md, section 10.
+// passes them is the text of the contracts, contracts/README.md.
 package contracts
 
 import (

@@ -1,5 +1,5 @@
 // Rebuilding a repository's container, and creating the container a repository never had, by the
-// Dev Containers CLI of the orchestrator's image (R158). `devcontainer up` reads the configuration
+// Dev Containers CLI of the orchestrator's image. `devcontainer up` reads the configuration
 // at the folder it is given and gives Docker the same path to mount, and the orchestrator's
 // container sees only spec's folder and .epics. So the CLI runs in a helper: a container of the
 // orchestrator's own image, with the host's Docker and the folder of the host that holds the clone at
@@ -14,7 +14,7 @@ import { spawnSync } from "node:child_process";
 import { DOCKER } from "../shared.mjs";
 import { CONFIG_LABEL, FOLDER_LABEL, findContainer, inspect, nameOf, ownFolder, REPOSITORY } from "./containers.mjs";
 
-// A repository the CLI may build: NovaTrail's own, on GitHub (R158). The socket is root on the host.
+// A repository the CLI may build: NovaTrail's own, on GitHub, since the socket is root on the host.
 export const ORGANIZATION = "https://github.com/altnovatrail";
 export const UP_TIMEOUT_MS = 60 * 60 * 1000;
 
@@ -176,7 +176,7 @@ export function rebuild(repo, { container = null, folder = null }, deps) {
   }
   // The folder that holds the clone, not the clone alone: with the clone alone, the mkdir of .epics in
   // its initializeCommand would make it, if at all, in the helper rather than on the host, and the
-  // container's bind of .epics needs it there (R166).
+  // container's bind of .epics needs it there.
   const made = up({ repo: path.posix.basename(local), mode: "rebuild", folder: local, config, mount: path.posix.dirname(local) }, deps);
   return { repo: path.posix.basename(local), folder: local, config, from: { id: found.Id, name: nameOf(found) }, to: made };
 }

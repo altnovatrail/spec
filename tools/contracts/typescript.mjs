@@ -1,5 +1,5 @@
 // The check of the contracts' code for TypeScript: the npm package @altnovatrail/contracts of the
-// working tree, as a consumer installs it, under TypeScript and Node (R83).
+// working tree, as a consumer installs it, under TypeScript and Node.
 //
 // The package goes into the node_modules of a project in a temporary folder, beside the runtime of
 // protobuf-es at the version the package depends on, from tools/node_modules. The project imports

@@ -1,6 +1,6 @@
 // The verdicts of the format's check kinds and the traps that wrong values match: a second
 // implementation beside module-kit's, by which spec's CI computes the test vectors of verdicts. spec
-// has no Starlark, so a predicate whose value is in notation gets null (R56, R57).
+// has no Starlark, so a predicate whose value is in notation gets null.
 
 import { holdsPlaceholder } from "./templates.mjs";
 
@@ -75,7 +75,7 @@ export function readNumber(value, units = []) {
 }
 
 // A time as a value read is in notation: H:MM or HH:MM, the minutes two digits,
-// or three that begin with no zero, so that 5:60 and 10:100 are times a trap can show (R111).
+// or three that begin with no zero, so that 5:60 and 10:100 are times a trap can show.
 // Anchored and with no nested repeat, so it cannot backtrack.
 const TIME = /^([0-9]{1,2}):([0-9]{2}|[1-9][0-9]{2})$/;
 
@@ -173,7 +173,7 @@ export function slotVerdict(slot, value) {
 }
 
 // What a choice compares: the text normalized and in lowercase, and with notation word, without
-// the ., !, ? and spaces at its end (R111).
+// the ., !, ? and spaces at its end.
 export const choiceForm = (text, notation = "options") => {
   const form = lowercase(normalized(text));
   return notation === "word" ? withoutEnd(form, ".!? ") : form;
