@@ -1104,14 +1104,17 @@ test("by the key citations, a comment of code, a .proto file and a schema's desc
     file("tools/a.mjs", 'const a = 1;\n// Done in T12, by R01 and R25 spec, R03 api;\n// see architecture 3.8 spec, decided by the author 2026-11-18.\nconst b = "R01 T12";\n'),
     file(".github/workflows/a.yml", "on: push\n# T7, R99\n"),
     file("a.proto", '// As R01 says.\nsyntax = "proto3";\n'),
-    file("format/schemas/a.schema.json", '{\n  "title": "A",\n  "properties": {\n    "x": { "description": "By R01; an example, `R02`." }\n  }\n}\n'),
+    file("format/schemas/a.schema.json", '{\n  "title": "A",\n  "type": "object",\n  "properties": {\n    "x": { "description": "By R01; an example, `R02`." },\n    "y": { "oneOf": [{ "description": "T5" }, { "$comment": "\\u0052\\u0030\\u0033" }] }\n  }\n}\n'),
   ];
   assert.deepEqual(await citationErrors(edits, ["tools/", ".github/", "a.proto", "format/"]), [
     `.github/workflows/a.yml:2: T7 in a comment: ${TASK_HINT}`,
     // A number no entry holds is no longer looked up: no comment cites one.
     ".github/workflows/a.yml:2: R99 in a comment: a decision's number; give the reason in words",
     "a.proto:1: R01 in a comment: a decision's number; give the reason in words",
-    "format/schemas/a.schema.json:4: R01 in a schema's description: a decision's number; give the reason in words",
+    // A text the source writes with escapes is not found in it, and has no line.
+    "format/schemas/a.schema.json:0: R03 in a schema's description: a decision's number; give the reason in words",
+    "format/schemas/a.schema.json:5: R01 in a schema's description: a decision's number; give the reason in words",
+    `format/schemas/a.schema.json:6: T5 in a schema's description: ${TASK_HINT}`,
     `tools/a.mjs:2: T12 in a comment: ${TASK_HINT}`,
     "tools/a.mjs:2: R01 in a comment: a decision's number; give the reason in words",
     "tools/a.mjs:2: R25 spec in a comment: a decision's number; give the reason in words",
