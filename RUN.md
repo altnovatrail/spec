@@ -51,30 +51,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - **DPIA** ([docs/dpia.md](docs/dpia.md), R129): a task that changes what it rests on — a kind of data or retention, a provider or processor, an AI capability or route, opening an age, a country or a feature to children — reviews it; its «Сделано» names the review, the DPIA's log the version. Also before the beta, before the public launch and at least yearly.
 - **Token savings** (R145): the limits of `docs-check` — [tools/docs-check/budgets.json](tools/docs-check/budgets.json), a raise shows in review; measure at an epic's archive and monthly (`just inbox` reminds, rule 13); a task of analysis goes to `run/TASKS.md` by the threshold of R145, and its planning decides whether it needs an epic; baselines, dates, last analysis — measurements 1.9.
 
-## Table 1. Current epic — E20. Мелкие ошибки интерфейса и логики
+## Table 1. Current epic — none
 
-**Результат** — мелкие ошибки интерфейса и логики, которые автор называет по ходу, исправлены в тех репозиториях, где они живут, и проверены локально; в `main` и в выпусках — одним PR на репозиторий в конце эпика.
-- Ошибки интерфейса — T254; другие правки — задачи по слову автора, номер — свободный, когда автор называет ошибку; итог — T255.
-
-**Основа** — на 2026-11-22: `spec` `main` 25fb839, `v0.19.8`; `app` `v0.1.45`, `canvas` `v0.3.38`, `api` `v0.1.74`, `tutor` `v0.1.60`, `module-kit` `v0.3.17`. Эпик не из `run/EPICS.md` — слово автора 2026-11-22: «будем править несколько репозиториев и тестировать всё локально… каждая задача — коммит в ветку эпика».
-
-**Порядок работы** (`R166`, R159):
-- Задачи эпика — через несколько репозиториев, в контейнере оркестратора, в клонах `.epics/e20/<repo>`: `xrepo up e20 <repos…>` в первой задаче, репозиторий, которого ещё нет, — тем же `up` в задаче, что его задевает. Ветка `e20` — в каждом затронутом репозитории, от `main` при его `up`; в `spec` этот план — её первый коммит.
-- Каждая задача — один коммит в `e20` каждого репозитория, который она меняет, учёт в клоне `spec` в том же коммите; push после коммита, PR нет. Проверки задачи — `xrepo test` тронутого и проверка автора на стенде `xrepo serve`; полный CI — только `xrepo gate` в T255.
-- Правка вида — сначала состояние макета `draft/mockup` в клоне `spec` и одобрение автора, потом код (R148). Ошибка, которая требует решения, — вопрос автору до кода.
-- Пока идёт эпик, задачи `spec` вне него ждут его `ship`: окно оркестратора открывает папку `spec` (`R166`). Задачи других репозиториев идут рядом на клонах хоста; `xrepo sync` вливает их `main` в `e20`.
-
-**Нужно от автора:** называть ошибки — что видно, где, как повторить; одобрять макет правок вида; проверять на стенде; «да» перед `ship` в T255.
-
-| Status | ID | Task | Who | Plan | Depends on |
-|---|---|---|---|---|---|
-| [x] | T254 | Исправление ошибок в интерфейсе | я + Claude | — | — |
-| [ ] | T255 | Итог: ворота, выпуск, замер, архив | я + Claude | — | T254 |
-
-#### T255. Итог: ворота, выпуск, замер, архив
-
-- **Цель:** все правки E20 — в `main` и в выпусках, по одному PR на репозиторий, один раунд CI каждый; эпик в архиве.
-- **Сделать:** после последней правки — `xrepo sync`, `xrepo gate`; тексты `pr-<repo>.md`; «да» автора; `xrepo ship`; `xrepo down`. Замер — `just tokens-report --since 2026-11-22 --row`, строка measurements 1.9 (R145); архив эпика `docs/plan/E20.md` (Epics); входящие (правило 13).
-- **Как проверить:** `xrepo gate` зелёный; каждый PR — один раунд CI; `just docs-check`.
-- **Мой шаг:** «да» перед `ship`.
-- **Разделы:** `R166`, R159, R145; measurements 1.9; [tools/orchestrator/README.md](tools/orchestrator/README.md), «A task across repositories».
+Last done epic — E20, [docs/plan/E20.md](docs/plan/E20.md).
