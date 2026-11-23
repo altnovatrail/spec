@@ -376,13 +376,13 @@ test("inbox prints the monthly measurement and the check of the changelog once t
   assert.equal(quiet.lines.some((l) => l.startsWith("due:")), false);
   const later = inbox({ ...dated, today: new Date("2026-12-12T00:00:00Z"), names: ["app"], ledgerSource: spec(""), gh: fakeGh(repositories) });
   assert.equal(later.status, 0);
-  assert.deepEqual(later.lines.filter((l) => l.startsWith("due:")), ["due: the monthly measurement of the sessions' tokens, by 2026-12-12"]);
+  assert.deepEqual(later.lines.filter((l) => l.startsWith("due:")), ["due: the monthly measurement of the sessions' tokens, by 2026-12-12 (measurements 1.9)"]);
   assert.equal(dueOf(DATED, new Date("2027-03-01T00:00:00Z")).due.length, 2);
-  assert.deepEqual(dueOf(DATED.replace("2026-12-12", "2026-13-12"), new Date("2027-03-01T00:00:00Z")).problems, ['inbox: the section Keeping the savings of docs/measurements.md names "Next measurement: by 2026-13-12.", and 2026-13-12 is no date']);
+  assert.deepEqual(dueOf(DATED.replace("2026-12-12", "2026-13-12"), new Date("2027-03-01T00:00:00Z")).problems, ['inbox: docs/measurements.md names "Next measurement: by 2026-13-12.", and 2026-13-12 is no date']);
   const undated = inbox({ ...dated, measurementsSource: "Next measurement: by 2026-12-12.\nNext measurement: by 2026-12-13.\n", names: ["app"], ledgerSource: spec(""), gh: fakeGh(repositories) });
   assert.equal(undated.status, 1);
   assert.deepEqual(undated.lines.filter((l) => l.includes("docs/measurements.md should")), [
-    'inbox: the section Keeping the savings of docs/measurements.md should name "Next measurement: by YYYY-MM-DD." once, and names it 2 times',
-    'inbox: the section Keeping the savings of docs/measurements.md should name "Next check of Claude Code\'s changelog: by YYYY-MM-DD." once, and names it 0 times',
+    'inbox: docs/measurements.md should name "Next measurement: by YYYY-MM-DD." once, and names it 2 times',
+    'inbox: docs/measurements.md should name "Next check of Claude Code\'s changelog: by YYYY-MM-DD." once, and names it 0 times',
   ]);
 });

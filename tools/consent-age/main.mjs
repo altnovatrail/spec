@@ -233,10 +233,10 @@ function categoryVectorProblems(bytes, validate, validateTable) {
   const { problems, value } = readVector(bytes, validate, "the category");
   if (value === undefined || !validateTable) return { problems, cases: [] };
   const reading = readingOf(validateTable, value.table);
-  if (!reading.accepted) return { problems: [...problems, { line: 0, message: `table: the reading of the text refuses the table of a vector of the category, by ${reading.refused_by}: ${reading.names.join(", ")}` }], cases: [] };
+  if (!reading.accepted) return { problems: [...problems, { line: 0, message: `table: the reading of consent-age/README.md refuses the table of a vector of the category, by ${reading.refused_by}: ${reading.names.join(", ")}` }], cases: [] };
   value.cases.forEach((each, index) => {
     for (const [field, computed] of Object.entries(caseOf(value.table, each))) {
-      if (computed !== each[field]) problems.push({ line: 0, message: `cases/${index}: the text gives ${field} ${JSON.stringify(computed)}, and the vector ${JSON.stringify(each[field])}` });
+      if (computed !== each[field]) problems.push({ line: 0, message: `cases/${index}: consent-age/README.md gives ${field} ${JSON.stringify(computed)}, and the vector ${JSON.stringify(each[field])}` });
     }
   });
   return { problems, cases: value.cases };

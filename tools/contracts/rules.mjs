@@ -18,7 +18,7 @@ export const BUF_YAML = {
 };
 
 // Why a part of buf.yaml that the text does not have is refused, where a reason says more than
-// "no such setting".
+// "the text allows no such setting".
 const REFUSED = {
   deps: "a dependency comes from the Buf Schema Registry, and the build depends on no service outside the repository",
   "lint.except": "every rule of the categories holds, with no exception",
@@ -78,7 +78,7 @@ export function checkBufYaml(text) {
       for (const name of Object.keys(actual)) {
         const named = [...path, name].join(".");
         if (!(name in expected)) {
-          const why = REFUSED[named] ?? "no such setting";
+          const why = REFUSED[named] ?? "the text allows no such setting";
           errors.push({ file, line: lineAt([...path, name]), message: `${named}: ${why} (${TEXT})` });
         }
       }

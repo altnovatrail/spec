@@ -1,8 +1,7 @@
 # A task of the third-party module of physics of the glossary's illustration, whose texts are in
-# Russian: it needs
-# linear equations, an anchor skill of the shared taxonomy that another module teaches, and a wrong
-# answer does not count against them. The answer is a whole number, since this version of the format
-# has no check of a quantity with its units: in thousands of km/s, 300 / 1.5 = 200.
+# Russian: it needs linear equations, an anchor skill of the shared taxonomy that another module
+# teaches, and a wrong answer does not count against them. The answer is a whole number, since this
+# version of the format has no check of a quantity with its units: in thousands of km/s, 300 / 1.5 = 200.
 id: refraction-1
 statement:
   - text: Луч света переходит из воздуха в стекло с показателем преломления 1,5. В воздухе свет проходит 300 тысяч км/с. Сколько тысяч км/с он проходит в стекле?

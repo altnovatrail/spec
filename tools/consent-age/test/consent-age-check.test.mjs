@@ -130,10 +130,10 @@ test("a vector of reading passes its schema, its table of the release before is 
 });
 
 test("a vector of the category passes its schema, its table is one the reading of the text accepts, and each case gives what the text computes", () => {
-  expectOnly([[CATEGORY, 'age_years: 12, day: "2026-11-10", category: under_13', 'age_years: 12, day: "2026-11-10", category: adult']], /^consent-age\/vectors\/category\/ages\.yaml:0: cases\/1: the text gives category "under_13", and the vector "adult"$/);
-  expectOnly([[CATEGORY, 'age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 14', 'age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 15']], /cases\/5: the text gives applied 14, and the vector 15$/);
-  expectOnly([[CATEGORY, 'applied: 14, today: "2030-01-01", ask_again: true', 'applied: 14, today: "2030-01-01", ask_again: false']], /cases\/21: the text gives ask_again true, and the vector false$/);
-  expectSome([[CATEGORY, '        from: "2018-06-21"', '        from: "2018-06-31"']], /^consent-age\/vectors\/category\/ages\.yaml:0: table: the reading of the text refuses the table of a vector of the category, by consent-age\.days: countries\.FR\.0$/);
+  expectOnly([[CATEGORY, 'age_years: 12, day: "2026-11-10", category: under_13', 'age_years: 12, day: "2026-11-10", category: adult']], /^consent-age\/vectors\/category\/ages\.yaml:0: cases\/1: consent-age\/README\.md gives category "under_13", and the vector "adult"$/);
+  expectOnly([[CATEGORY, 'age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 14', 'age_years: 13, day: "2026-11-10", category: from_13_to_consent, applied: 15']], /cases\/5: consent-age\/README\.md gives applied 14, and the vector 15$/);
+  expectOnly([[CATEGORY, 'applied: 14, today: "2030-01-01", ask_again: true', 'applied: 14, today: "2030-01-01", ask_again: false']], /cases\/21: consent-age\/README\.md gives ask_again true, and the vector false$/);
+  expectSome([[CATEGORY, '        from: "2018-06-21"', '        from: "2018-06-31"']], /^consent-age\/vectors\/category\/ages\.yaml:0: table: the reading of consent-age\/README\.md refuses the table of a vector of the category, by consent-age\.days: countries\.FR\.0$/);
   expectSome([[CATEGORY, "cases:", "cases: []\nother:"]], /ages\.yaml:0: does not pass the schema of a vector of the category/);
 });
 
