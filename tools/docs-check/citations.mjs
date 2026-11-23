@@ -192,15 +192,16 @@ function sectionList(text, first, at) {
 // Citations of a document's sections in a block, other repositories' left out:
 // { kind: "document", name, sections, count, start, scope } for `product 7` and `concepts 9 spec`;
 // { kind: "word", sections, count, start, scope } for `раздел 9.4` — the document is resolved by
-// the caller. count is how many citations the list of sections is, a range one.
-export function findSections(block) {
+// the caller. count is how many citations the list of sections is, a range one. With
+// { foreign: true }, other repositories' are kept too, their scope "foreign".
+export function findSections(block, { foreign: keepForeign = false } = {}) {
   const { text } = block;
   const spans = foreignSpans(text);
   const result = [];
   for (const m of text.matchAll(DOCUMENT_SECTION)) {
     const { list, count, end } = sectionList(text, m[2], m.index + m[0].length);
     const scope = inSpans(spans, m.index) ? "foreign" : scopeAfter(text, end);
-    if (scope === "foreign") continue;
+    if (scope === "foreign" && !keepForeign) continue;
     result.push({ kind: "document", name: m[1], sections: list, count, start: m.index, scope });
   }
   for (const m of text.matchAll(WORD_SECTION)) {
@@ -208,7 +209,7 @@ export function findSections(block) {
     const { list, count, end } = sectionList(text, m[1], after);
     const foreign = inSpans(spans, m.index) || FOREIGN_BEFORE.test(text.slice(0, m.index));
     const scope = foreign ? "foreign" : scopeAfter(text, end);
-    if (scope === "foreign" || SECTION_OF_SOMETHING.test(text.slice(after))) continue;
+    if ((scope === "foreign" && !keepForeign) || SECTION_OF_SOMETHING.test(text.slice(after))) continue;
     result.push({ kind: "word", sections: list, count, start: m.index, scope });
   }
   return result;

@@ -1003,26 +1003,28 @@ test("by the key citations, a task's number stands only in the plan and the arch
   await expectOnly([["tools/docs-check/budgets.json", '"comments": true', '"comments": true,\n    "citations": 1']], /^tools\/docs-check\/budgets\.json:0: budgets: citations is 1, not true or false$/);
 });
 
-test("by the key citations, a dated amendment stands in no document outside the plan", async () => {
+test("by the key citations, an amendment stands in no document outside the plan, dated or not", async () => {
   const amendments = [
     citationsOn,
     ["docs/decisions.md", "**R02. Второе решение.** Как R38 canvas-api.", "**R02. Второе решение.** Как R38 canvas-api.\n\n— *Second amendment 2026-11-15:* и ещё."],
-    ["docs/notes.md", null, "# Notes\n\nAs the 2026-11-12 and 2026-11-13 amendments to R01 say, and amendment 2026-11-09 to R02; по поправке 2026-10-20 к R03.\n"],
+    ["docs/notes.md", null, "# Notes\n\nAs the 2026-11-12 and 2026-11-13 amendments to R01 say, and amendment 2026-11-09 to R02; по поправке 2026-10-20 к R03.\n\nThe amendment of the same day to R01, and поправка к R02 spec.\n"],
   ];
   assert.deepEqual(await errorsOf(amendments), [
-    'docs/decisions.md:13: "amendment 2026-11-15": a dated amendment; fold it into its entry, whose text is in force',
-    'docs/notes.md:3: "2026-11-12 and 2026-11-13 amendments": a dated amendment; cite the entry, whose text is in force',
-    'docs/notes.md:3: "amendment 2026-11-09": a dated amendment; cite the entry, whose text is in force',
-    'docs/notes.md:3: "поправке 2026-10-20": a dated amendment; cite the entry, whose text is in force',
+    'docs/decisions.md:13: "amendment 2026-11-15": an amendment; fold it into its entry, whose text is in force',
+    'docs/notes.md:3: "2026-11-12 and 2026-11-13 amendments": an amendment; cite the entry, whose text is in force',
+    'docs/notes.md:3: "amendment 2026-11-09": an amendment; cite the entry, whose text is in force',
+    'docs/notes.md:3: "поправке 2026-10-20": an amendment; cite the entry, whose text is in force',
+    'docs/notes.md:5: "amendment of the same day to R01": an amendment; cite the entry, whose text is in force',
+    'docs/notes.md:5: "поправка к R02": an amendment; cite the entry, whose text is in force',
   ]);
-  const fine = [citationsOn, ["RUN.md", "Синтетический план работ", "По поправке 2026-10-20 к R01 — синтетический план работ"], ["docs/notes.md", null, "# Notes\n\nNo dated amendment is written; read 2026-11-23.\n"]];
+  const fine = [citationsOn, ["RUN.md", "Синтетический план работ", "По поправке 2026-10-20 к R01 — синтетический план работ"], ["docs/notes.md", null, "# Notes\n\nNo dated amendment is written; read 2026-11-23. An amendment to the law of many words before it went to R01.\n"]];
   assert.deepEqual(await errorsOf(fine), []);
 });
 
 test("by the key citations, a parenthesis holds at most two citations, in the plan too", async () => {
   const crowded = [
     citationsOn,
-    ["docs/notes.md", null, "# Notes\n\nOne (R01, R02; product 13), two (R01–R03; product 1, 13–13.2), three (R01 (R02, R03 spec)).\n"],
+    ["docs/notes.md", null, "# Notes\n\nOne (R01, R02; product 13), two (R01–R03; product 1, 13–13.2), three (R01 (R02, R03 spec)), four (architecture 4 api, privacy 1 canvas-api, product 2 api).\n"],
     ["RUN.md", "Синтетический план работ", "Синтетический (T1–T5; В1, Д2) план работ (`a/b` R01, `b/c` R02, R03 canvas-api)"],
   ];
   assert.deepEqual(await errorsOf(crowded), [
@@ -1030,6 +1032,7 @@ test("by the key citations, a parenthesis holds at most two citations, in the pl
     'RUN.md:3: "(`…` R01, `…` R02, R03 canvas-api)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
     'docs/notes.md:3: "(R01, R02; product 13)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
     'docs/notes.md:3: "(R01–R03; product 1, 13–13.2)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
+    'docs/notes.md:3: "(architecture 4 api, privacy 1 canvas-api, product 2 api)": 3 citations in one parenthesis, more than 2; keep the one where the claim is decided or recorded',
   ]);
   const long = `(R01, R02, R03${" and more words".repeat(6)})`;
   await expectOnly([citationsOn, ["docs/notes.md", null, `# Notes\n\nA ${long}.\n`]], new RegExp(`^docs/notes\\.md:3: "${escape(long.slice(0, 79))}…": 3 citations`));

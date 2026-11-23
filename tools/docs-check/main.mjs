@@ -14,7 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { componentProfile, specProfile } from "./config.mjs";
+import { componentProfile, specProfile, under } from "./config.mjs";
 import { parseMarkdown } from "./markdown.mjs";
 import { checkLinks } from "./links.mjs";
 import { checkSections } from "./sections.mjs";
@@ -99,7 +99,7 @@ export async function check(root, profile = specProfile) {
 function listFiles(root, excluded, fail) {
   const skip = (relative) =>
     relative.split("/").some((name) => excluded.names.includes(name)) ||
-    excluded.paths.some((excludedPath) => relative === excludedPath || relative.startsWith(`${excludedPath}/`));
+    under(relative, excluded.paths);
   let files;
   if (fs.existsSync(path.join(root, ".git"))) {
     try {

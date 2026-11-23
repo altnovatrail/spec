@@ -83,10 +83,13 @@ function workRegisters() {
   ];
 }
 
-// Where the rule of citations lets a task's number and a dated amendment stand — the work plan —,
+// Where the rule of citations lets a task's number and an amendment stand — the work plan —,
 // and what it does not read: the archives of epics, and in spec the normative texts for authors
 // (R171). Paths from the root.
 const PLAN = ["RUN.md", "run"];
+
+// Whether a path from the root is one of paths, or under one of them.
+export const under = (file, paths) => paths.some((p) => file === p || file.startsWith(`${p}/`));
 const ARCHIVES = "docs/plan";
 
 // Where the limits of size are, from spec's root (R145).
