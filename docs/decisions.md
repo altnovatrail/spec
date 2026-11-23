@@ -7076,6 +7076,7 @@ What a session stops knowing — why and when a decision changed — is in git (
 - **Data:** the reading is `Reading` of `novatrail.paper.v1`, kept by `api` on the open attempt alone and erased with the key as it closes (R162; privacy 4.1); the device keeps no text of it, and no export holds it.
 - **The scale** is from 0.4 to 4, absent meaning 1, the strokes on the paper in its own units (R89 canvas); the context of a submission names it, so a check's marks lie where the work was.
 - **The mode** — the photo or the text — is a setting of the view, as the sheet's grid: the paper shows the photo again each time it opens.
+- **The notation** of a statement read is its print's signs as text — "−", "×", "□" — but for what a line of text cannot hold, written LaTeX's way: a fraction with a bar `\frac{…}{…}`, nested as printed, and a raised power `^{…}`, no more of LaTeX; the element draws them built up (R89 canvas). A task's label, as `1)` or `a)`, and the sign that parts it from the next, as `;`, are not its statement. The author's mockup state `solve-text-fraction` and answers of 2026-11-22 (T254).
 
 — *Why:* a small or faint print is hard to read on a tablet, and the clean text helps the learner read the task; the reading is the one the first check needs anyway, so Recognise spends nothing the check would not, and the check waits less. The scale is kept because the strokes on the paper lie by it.
 
@@ -7085,8 +7086,10 @@ What a session stops knowing — why and when a decision changed — is in git (
 - **the reading made again at the first check** — twice the price for the same answer;
 - **the mode kept by the device** — it changes nothing of the work or its check (R162), as the grid (R88 canvas);
 - **the reading kept past the attempt, or on the device** — the print as the AI read it is the learner's page, kept no longer than the key (R162).
+- **a fraction guessed by the element from "a/b"**, with no notation — a fraction within a fraction is lost, and a word problem's "3/4 of a cake" would stand built up; **the layout from the formula** — it has `x` for the box, a mixed number as a sum, and none for a word problem; **MathML or the whole of LaTeX from the model** — longer, past the 200 bytes of a statement, for the same two constructs;
+- **the label and the separator cut by a program** — the author's word: the prompt alone.
 
-— *Consequence:* [the contracts text](../contracts/README.md), section 15; `contracts/novatrail/api/v1/attempt.proto`, `contracts/novatrail/paper/v1/key.proto`; `types/canvas/index.d.ts`; privacy 4.1; [architecture.md](architecture.md), section 6; R89 canvas; R96 api. — RUN.md, T251.
+— *Consequence:* [the contracts text](../contracts/README.md), sections 15 and 16; `contracts/novatrail/api/v1/attempt.proto`, `contracts/novatrail/paper/v1/key.proto`; `types/canvas/index.d.ts`; privacy 4.1; [architecture.md](architecture.md), section 6; [draft/mockup/README.md](../draft/mockup/README.md), `solve-text-fraction`; R89 canvas; R96 api; R135 tutor. — RUN.md, T251, T254.
 
 **R170. The device keeps the five newest pages from paper of a profile, by when each was taken: a new page past them takes the oldest with its photo, its crops and its work, with no question and no warning, and the list "Your pages" says how many it keeps.** The author's word at the check of RUN.md, T254, 2026-11-22, with its text under the list: "The latest 5 pages are kept on this device…" ([draft/mockup/README.md](../draft/mockup/README.md), `home-pages`).
 - **The page kept now** is never the one that goes, though its time of taking is older than the others': a page opened again from the list and begun anew is no new page, and takes none.

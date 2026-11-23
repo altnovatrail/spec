@@ -381,6 +381,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .ph-tbar .ph-tmode.busy{background:#E5F0FF;color:#0058B8;cursor:default}
 .ph-tbar .ph-tmode.back{background:#F2F2F7;color:#1D1D1F}
 .ph-tstate{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:500;line-height:1.2;letter-spacing:-.02em;white-space:nowrap;color:#1D1D1F;pointer-events:none}
+.ph-tread{display:inline-flex;align-items:center;white-space:pre}.ph-frac{display:inline-flex;flex-direction:column;align-items:center;margin:0 .1em;line-height:1.1}.ph-num{padding:0 .12em .04em;border-bottom:.06em solid currentColor}.ph-it{font-style:italic}
 .ph-tscan{position:absolute;inset:0;overflow:hidden;background:rgba(0,113,227,.04);pointer-events:none}
 .ph-tscan>i{position:absolute;top:0;bottom:0;left:35%;width:30%;background:linear-gradient(90deg,transparent,rgba(0,113,227,.18),transparent);animation:ntScan 1s ease-in-out infinite}
 /* Its line in the middle of its glow, so the glow is the same on both sides of it. */
@@ -504,8 +505,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
 <!-- ============ The photographed page: pick the tasks ============ -->
 <!-- The whole page went to the AI, which found the tasks; every one starts picked. A task it missed the learner frames
-     by hand: a rectangle dragged from one corner of it to the opposite with a finger or a pen becomes a frame, which its corner
-     resizes and its cross removes. -->
+     by hand: a rectangle dragged from one corner of it to the opposite with a finger or a pen becomes a frame, which its cross
+     removes. Every frame, found or drawn, moves when dragged by its middle and resizes by its corner; a tap picks it or leaves it out. -->
 <sc-if value="{{showPagePane}}" hint-placeholder-val="{{ false }}">
   <div style="position: absolute; left: 0; top: 0; width: 600px; height: 848px; transform-origin: 0 0; transform: {{pageTf}}; box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.10); border-radius: 3px">
     <dc-import name="Paper" page="{{captured}}" hint-size="600px,848px"></dc-import>
@@ -513,7 +514,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <sc-if value="{{isPick}}" hint-placeholder-val="{{ false }}">
       <div data-w="600" onPointerDown="{{frameDown}}" onPointerMove="{{frameMove}}" onPointerUp="{{frameUp}}" onPointerCancel="{{frameUp}}" style="position: absolute; inset: 0; touch-action: none; cursor: crosshair"></div>
       <sc-for list="{{regions}}" as="r" hint-placeholder-count="6">
-        <button aria-label="{{r.label}}" aria-pressed="{{r.on}}" onClick="{{r.toggle}}" style="position: absolute; left: {{r.left}}px; top: {{r.top}}px; width: {{r.w}}px; height: {{r.h}}px; border-radius: 10px; background: {{r.bg}}; box-shadow: {{r.bd}}; transition: background 0.15s, box-shadow 0.15s">
+        <button aria-label="{{r.label}}" aria-pressed="{{r.on}}" onClick="{{r.toggle}}" onPointerDown="{{r.down}}" onPointerMove="{{r.move}}" onPointerUp="{{r.up}}" onPointerCancel="{{r.up}}" style="position: absolute; left: {{r.left}}px; top: {{r.top}}px; width: {{r.w}}px; height: {{r.h}}px; border-radius: 10px; background: {{r.bg}}; box-shadow: {{r.bd}}; touch-action: none; cursor: {{r.cursor}}; transition: background 0.15s, box-shadow 0.15s">
           <sc-if value="{{r.manual}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 3px; border-radius: 8px; border: 2px dashed rgba(255,255,255,0.9); pointer-events: none"></span></sc-if>
           <sc-if value="{{r.on}}" hint-placeholder-val="{{ false }}">
             <span style="position: absolute; left: -12px; top: -12px; width: 30px; height: 30px; border-radius: 15px; background: #0071E3; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,113,227,0.4)">
@@ -527,11 +528,11 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </sc-for>
       <!-- A frame's own controls stand outside its button, at the size of a target on the screen: the page is drawn scaled. -->
       <sc-for list="{{frames}}" as="f" hint-placeholder-count="0">
-        <button class="tip tip-bl" aria-label="Remove the frame" data-tip="Remove the frame" onClick="{{f.remove}}" style="position: absolute; left: {{f.xx}}px; top: {{f.xy}}px; width: {{f.ui}}px; height: {{f.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center">
+        <sc-if value="{{f.manual}}" hint-placeholder-val="{{ false }}"><button class="tip tip-bl" aria-label="Remove the frame" data-tip="Remove the frame" onClick="{{f.remove}}" style="position: absolute; left: {{f.xx}}px; top: {{f.xy}}px; width: {{f.ui}}px; height: {{f.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center">
           <span style="width: 60%; height: 60%; border-radius: 50%; background: #FFFFFF; color: #1D1D1F; box-shadow: 0 0 0 1.5px rgba(0,113,227,0.55), 0 2px 6px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center"><svg width="55%" height="55%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></span>
-        </button>
-        <button aria-label="Resize your frame" data-w="600" onPointerDown="{{f.down}}" onPointerMove="{{f.move}}" onPointerUp="{{f.up}}" onPointerCancel="{{f.up}}" style="position: absolute; left: {{f.hx}}px; top: {{f.hy}}px; width: {{f.ui}}px; height: {{f.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: nwse-resize">
-          <span style="width: 50%; height: 50%; border-radius: 50%; background: #0071E3; box-shadow: 0 0 0 3px #FFFFFF, 0 2px 6px rgba(0,0,0,0.18)"></span>
+        </button></sc-if>
+        <button aria-label="Resize the frame" data-w="600" onPointerDown="{{f.down}}" onPointerMove="{{f.move}}" onPointerUp="{{f.up}}" onPointerCancel="{{f.up}}" style="position: absolute; left: {{f.hx}}px; top: {{f.hy}}px; width: {{f.ui}}px; height: {{f.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: nwse-resize">
+          <span style="width: 34%; height: 34%; border-radius: 50%; background: #0071E3; box-shadow: 0 0 0 2.5px #FFFFFF, 0 1px 4px rgba(0,0,0,0.18)"></span>
         </button>
       </sc-for>
       <sc-if value="{{findingPage}}" hint-placeholder-val="{{ false }}"><div class="ph-pscan" aria-hidden="true"><i></i></div></sc-if>
@@ -582,7 +583,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <div style="position: absolute; left: 0; top: 0; width: 600px; height: 848px; transform-origin: 0 0; transform: {{clip.tf}}; visibility: {{tr.photoVis}}">
         <dc-import name="Paper" page="{{captured}}" bare="{{ true }}" hint-size="600px,848px"></dc-import>
       </div>
-      <sc-if value="{{tr.text}}" hint-placeholder-val="{{ false }}"><div class="ph-tstate" style="font-size: {{tr.fs}}px">{{tr.statement}}</div></sc-if>
+      <sc-if value="{{tr.text}}" hint-placeholder-val="{{ false }}"><div class="ph-tstate" style="font-size: {{tr.fs}}px"><span class="ph-tread"><sc-for list="{{tr.pieces}}" as="q" hint-placeholder-count="1"><sc-if value="{{q.flat}}" hint-placeholder-val="{{ true }}"><sc-for list="{{q.runs}}" as="r" hint-placeholder-count="1"><span class="{{r.cls}}">{{r.s}}</span></sc-for></sc-if><sc-if value="{{q.frac}}" hint-placeholder-val="{{ false }}"><span class="ph-frac"><span class="ph-num"><sc-for list="{{q.num}}" as="n" hint-placeholder-count="1"><span class="{{n.cls}}">{{n.s}}</span></sc-for></span><span><sc-for list="{{q.den}}" as="d" hint-placeholder-count="1"><span class="{{d.cls}}">{{d.s}}</span></sc-for></span></span></sc-if></sc-for></span></div></sc-if>
       <sc-if value="{{tr.busy}}" hint-placeholder-val="{{ false }}"><div class="ph-tscan"><i></i></div></sc-if>
       <div data-w="{{clip.w}}" data-layer="clip" onPointerDown="{{inkDown}}" onPointerMove="{{inkMove}}" onPointerUp="{{inkUp}}" onPointerCancel="{{inkUp}}" style="position: absolute; inset: 0; touch-action: none"></div>
       <sc-for list="{{clipPaths}}" as="p" hint-placeholder-count="0">
@@ -2294,10 +2295,10 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 const WS = [
   { id: 1, x: 24, y: 150, w: 272, h: 216, ch: 54, label: '3x + 5 = 20', ans: 'x = 5', wrong: 'x = 4', hint: 'What can you do to both sides so that only 3x is left on the left?', alt: 'Picture a balance with 3x and 5 on one pan and 20 on the other. What can you take off both pans?' },
   { id: 2, x: 304, y: 150, w: 272, h: 216, ch: 54, label: '2(x − 4) = 10', ans: 'x = 9', wrong: 'x = 7', hint: 'Open the brackets carefully: what is 2 times −4?', alt: 'The 2 multiplies everything inside the brackets. What do you get when it multiplies the −4?' },
-  { id: 3, x: 24, y: 372, w: 272, h: 216, ch: 54, label: 'x/3 + 2 = 6', ans: 'x = 12', wrong: 'x = 24', hint: 'What do you get if you take 2 from both sides?', alt: 'Work backwards: a number was divided by 3, then 2 was added, and you got 6. What was there before the 2?' },
+  { id: 3, x: 24, y: 372, w: 272, h: 216, ch: 54, label: 'x/3 + 2 = 6', tex: '\\frac{x}{3} + 2 = 6', ans: 'x = 12', wrong: 'x = 24', hint: 'What do you get if you take 2 from both sides?', alt: 'Work backwards: a number was divided by 3, then 2 was added, and you got 6. What was there before the 2?' },
   { id: 4, x: 304, y: 372, w: 272, h: 216, ch: 54, label: '5x − 7 = 3x + 9', ans: 'x = 8', wrong: 'x = 1', hint: 'When −7 moves to the other side, what happens to its sign?', alt: 'Instead of moving −7, add 7 to both sides. What do you get on the right?' },
   { id: 5, x: 24, y: 594, w: 272, h: 216, ch: 54, label: '4 − x = 2x − 11', ans: 'x = 5', wrong: 'x = −5', hint: 'How can you get all the x’s on one side of the equation?', alt: 'What happens to both sides if you add x to each of them?' },
-  { id: 6, x: 304, y: 594, w: 272, h: 216, ch: 54, found: false, label: '(x + 1)/2 = (x − 2)/5', ans: 'x = −3', wrong: 'x = 3', hint: 'Which number can you multiply both sides by to clear both fractions?', alt: 'What number can both 2 and 5 divide into without a remainder?' }
+  { id: 6, x: 304, y: 594, w: 272, h: 216, ch: 54, found: false, label: '(x + 1)/2 = (x − 2)/5', tex: '\\frac{x + 1}{2} = \\frac{x − 2}{5}', ans: 'x = −3', wrong: 'x = 3', hint: 'Which number can you multiply both sides by to clear both fractions?', alt: 'What number can both 2 and 5 divide into without a remainder?' }
 ];
 // nokey: the AI's solution gave no one answer that a program can compare, so the task has no key and no verdict (R162).
 const OL = [
@@ -2551,7 +2552,7 @@ const dbgNum = (n) => n.toLocaleString('en-US');
 class Component extends DCLogic {
   // The paper flow: the page photographed, the tasks picked, the learner's own frames on each page, the sheet chosen, each task's tries and status.
   // hintMode is the profile's setting, 'questions' or 'where'; the demo's profile has "Show where" on.
-  state = { finding: false, pageSays: null, surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, current: 1, tool: 'pen', strokes: {}, live: null, liveBox: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
+  state = { finding: false, pageSays: null, surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, boxes: {}, current: 1, tool: 'pen', strokes: {}, live: null, liveBox: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
     chatOpen: false, chat: [], typing: false, listening: false, speaking: null, voiceOn: true, micOn: true, unread: false, draft: '', said: {}, hinted: {},
     screen: 'signin', waitOn: 'sky', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
     // slice: the demo's switch — 'first', the first slice with adults, or 'later', with what epics E4 of app and E11 bring.
@@ -3158,7 +3159,8 @@ class Component extends DCLogic {
   found(st) {
     st = st || this.state;
     const all = st.captured === 'olympiad' ? OL : WS, ids = st.asked[st.captured];
-    return ids ? all.filter((t) => ids.includes(t.id)) : all.filter((t) => t.found !== false);
+    const moved = (t) => ({ ...t, ...(st.boxes || {})[st.captured + '-' + t.id] });
+    return (ids ? all.filter((t) => ids.includes(t.id)) : all.filter((t) => t.found !== false)).map(moved);
   }
   framesOf(st) { st = st || this.state; return st.frames[st.captured] || []; }
   // The tasks of the page a frame by hand holds: round two or more, the reading of its statement lists each, and each is checked (R162).
@@ -3268,13 +3270,37 @@ class Component extends DCLogic {
   }
   setFrame(id, up) {
     const s = this.state;
+    if (id < 101) {
+      const key = s.captured + '-' + id, was = this.found().find((t) => t.id === id);
+      return this.setState({ boxes: { ...s.boxes, [key]: { x: was.x, y: was.y, w: was.w, h: was.h, ...up } }, askUndo: null });
+    }
     this.setState({ frames: { ...s.frames, [s.captured]: this.framesOf().map((f) => (f.id === id ? { ...f, ...up } : f)) }, askUndo: null });
+  }
+  // A frame dragged by its middle moves, kept on the page; a press that does not move past 6 px on the screen is a tap, which picks it or leaves it out.
+  moveDown(r, e) {
+    const el = e.currentTarget, t = this.tasks().find((x) => x.id === r.id);
+    this.mv = { id: r.id, k: 600 / el.parentElement.getBoundingClientRect().width, sx: e.clientX, sy: e.clientY, x: t.x, y: t.y, w: t.w, h: t.h, moved: false };
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* no capture */ }
+  }
+  moveMove = (e) => {
+    const d = this.mv;
+    if (!d) return;
+    const dx = e.clientX - d.sx, dy = e.clientY - d.sy;
+    if (!d.moved && Math.hypot(dx, dy) < 6) return;
+    d.moved = true;
+    const x = Math.max(0, Math.min(600 - d.w, d.x + dx * d.k)), y = Math.max(0, Math.min(848 - d.h, d.y + dy * d.k));
+    this.setFrame(d.id, { x: Math.round(x), y: Math.round(y) });
+  };
+  moveUp = () => { const d = this.mv; this.mv = null; this.wasMoved = !!(d && d.moved); };
+  tapFrame(id) {
+    if (this.wasMoved) { this.wasMoved = false; return; }
+    this.toggle(id);
   }
   removeFrame(id) {
     const s = this.state;
     this.setState({ frames: { ...s.frames, [s.captured]: this.framesOf().filter((f) => f.id !== id) }, selected: s.selected.filter((x) => x !== id), askUndo: null });
   }
-  // The corner of a frame resizes it: at least 40 × 30 on the page, and never past its edge.
+  // The corner of a frame, found or drawn, resizes it: at least 40 × 30 on the page, and never past its edge.
   resizeDown(f, e) {
     const el = e.currentTarget;
     this.rs = { id: f.id, k: 600 / el.parentElement.getBoundingClientRect().width, sx: e.clientX, sy: e.clientY, w0: f.w, h0: f.h, x: f.x, y: f.y };
@@ -3319,7 +3345,7 @@ class Component extends DCLogic {
       pct: Math.round(sc * 100) + '%', shows: busy ? 'busy' : text ? 'text' : 'photo', busy, still: !busy, text, photoVis: text ? 'hidden' : 'visible',
       signWords: busy ? 'Recognising…' : text ? 'Recognised by AI' : 'Photo of the task', signIcon: text ? SPARK : PHOTO,
       modeCls: busy ? 'busy' : text ? 'back' : '', modeWords: busy ? 'Recognising…' : text ? 'Original' : 'Recognise', modeIcon: text ? PHOTO : SPARK,
-      statement: t.label, fs: Math.round(Math.min(h * 0.5, w / (t.label.length * 0.6))),
+      ...this.readPieces(t.tex || t.label, w, h),
       smaller: () => zoom(sc / 1.2), larger: () => zoom(sc * 1.2), reset: () => zoom(1),
       // Fit: the paper as wide as the window beside the tool bar, in the middle of its height.
       fit: () => {
@@ -3333,6 +3359,20 @@ class Component extends DCLogic {
         clearTimeout(this.tRead); this.tRead = setTimeout(() => this.setState({ tMode: 'text' }), 1400);
       },
     };
+  }
+
+  // The statement read as canvas draws it (R89 canvas): a \frac of LaTeX built up, its bar between its two lines, a letter in italics, as MathML has them.
+  readPieces(tex, w, h) {
+    const runs = (x) => x.split(/([a-z])/).filter((r) => r !== '').map((r) => ({ s: r, cls: /^[a-z]$/.test(r) ? 'ph-it' : '' }));
+    const pieces = [], re = /\\frac\{([^{}]*)\}\{([^{}]*)\}/g;
+    let at = 0, m, chars = 0, built = false;
+    while ((m = re.exec(tex))) {
+      if (m.index > at) { pieces.push({ flat: true, frac: false, runs: runs(tex.slice(at, m.index)) }); chars += m.index - at; }
+      pieces.push({ flat: false, frac: true, num: runs(m[1]), den: runs(m[2]) }); chars += Math.max(m[1].length, m[2].length) + 1; built = true;
+      at = re.lastIndex;
+    }
+    if (at < tex.length) { pieces.push({ flat: true, frac: false, runs: runs(tex.slice(at)) }); chars += tex.length - at; }
+    return { pieces, fs: Math.round(Math.min(h * (built ? 0.34 : 0.5), w / (chars * 0.6))) };
   }
 
   // The task's clipping stays where the learner moved it, for every task; until then it sits centred at the top.
@@ -3857,11 +3897,12 @@ class Component extends DCLogic {
 
     const regions = findingPage ? [] : tasks.map((r) => {
       const on = s.selected.includes(r.id), what = r.manual ? this.tname(r).toLowerCase() : 'task ' + r.id;
-      return { left: r.x, top: r.y, w: r.w, h: r.h, num: r.manual ? 'F' : r.id, on, off: !on, manual: !!r.manual, bg: on ? 'rgba(0,113,227,0.12)' : 'rgba(0,113,227,0.035)', bd: on ? 'inset 0 0 0 3px #0071E3' : 'inset 0 0 0 1.5px rgba(0,113,227,0.4)', label: (on ? 'Deselect ' : 'Select ') + what, toggle: () => this.toggle(r.id) };
+      return { left: r.x, top: r.y, w: r.w, h: r.h, num: r.manual ? 'F' : r.id, on, off: !on, manual: !!r.manual, bg: on ? 'rgba(0,113,227,0.12)' : 'rgba(0,113,227,0.035)', bd: on ? 'inset 0 0 0 3px #0071E3' : 'inset 0 0 0 1.5px rgba(0,113,227,0.4)', label: (on ? 'Deselect ' : 'Select ') + what, toggle: () => this.tapFrame(r.id), down: (e) => this.moveDown(r, e), move: this.moveMove, up: this.moveUp, cursor: this.mv && this.mv.id === r.id && this.mv.moved ? 'grabbing' : 'grab' };
     });
     // A frame's cross and corner, each a target of 44 on the screen, so sized against the page's scale.
     const ui = Math.round(44 / pageK);
-    const frames = isPick ? frs.map((f) => ({ ui, xx: f.x + f.w - ui / 2, xy: f.y - ui / 2, hx: f.x + f.w - ui / 2, hy: f.y + f.h - ui / 2,
+    const frames = isPick && !findingPage ? tasks.map((f) => ({ ui, xx: f.x + f.w - ui / 2, xy: f.y - ui / 2, hx: f.x + f.w - ui / 2, hy: f.y + f.h - ui / 2,
+      manual: !!f.manual,
       remove: () => this.removeFrame(f.id), down: (e) => this.resizeDown(f, e), move: this.resizeMove, up: this.resizeUp })) : [];
 
     const taskRows = sel.map((id) => {

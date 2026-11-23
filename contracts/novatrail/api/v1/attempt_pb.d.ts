@@ -810,8 +810,10 @@ export declare const ReadStatementRequestSchema: GenMessage<ReadStatementRequest
 export declare type ReadStatementResponse = Message<"novatrail.api.v1.ReadStatementResponse"> & {
   /**
    * Each task on the crop, from 1 to 20 in the order of the page, as the page prints it, at most
-   * 200 bytes of UTF-8, as "□ − 3 = 7": "□" stands for each box the learner writes an answer in.
-   * Empty when the reading found no task, or gave no answer.
+   * 200 bytes of UTF-8, as "□ − 3 = 7": "□" stands for each box the learner writes an answer in,
+   * a fraction with a bar is LaTeX's "\frac{3}{17}", nested as printed, and a raised power "^{2}";
+   * without the task's label, as "1)", or the sign that parts it from the next, as ";". Empty when
+   * the reading found no task, or gave no answer.
    *
    * @generated from field: repeated string statements = 1;
    */

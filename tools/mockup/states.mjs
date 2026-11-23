@@ -172,6 +172,7 @@ export const STATES = [
   { name: "pick-finding", title: "The page while the AI finds its tasks", from: "pick", shows: "Finding the tasks on the page", run: (t) => t.c.setState({ finding: true, selected: [] }) },
   // A rectangle dragged round equation (6), which the AI missed: while the finger is down, and once it is up, the learner's frame.
   { name: "pick-drag", title: "A frame being dragged round a task", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setState({ liveBox: { x: 304, y: 592, w: 210, h: 58 }, liveLayer: "frame" }) },
+  { name: "pick-adjust", title: "A frame the AI found, moved and resized by its corner", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setFrame(2, { x: 300, y: 142, w: 292, h: 224 }) },
   { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([304, 592], [582, 650]) },
   // The learner's request about the page, to the tutor (R165): the finding gives the frames anew, the program words the line.
   {
@@ -206,6 +207,7 @@ export const STATES = [
   { name: "solve-scale", title: "The tracing paper chosen: its frame, corners and bar of scale", from: "solve", shows: "90%", run: (t) => t.c.setState({ tSel: true, tScale: 0.9 }) },
   { name: "solve-recognising", title: "Recognise pressed: the statement being read", from: "solve-scale", shows: "Recognising…", run: (t) => t.c.setState({ tMode: "busy" }) },
   { name: "solve-text", title: "The statement read, as text in place of the photo, and Original", from: "solve-scale", shows: "Recognised by AI", run: (t) => t.c.setState({ tMode: "text" }) },
+  { name: "solve-text-fraction", title: "The statement read with a fraction: built up, as the page prints it", from: "solve-text", shows: "Recognised by AI", run: (t) => (t.c.pickTask(3), t.c.setState({ tSel: true, tScale: 0.9, tMode: "text" })) },
   // The sheet's zoom by the tool bar, about the middle of what is in sight: twice Zoom in, and twice Zoom out (R73 canvas).
   { name: "solve-zoom", title: "Zoom in pressed twice: the sheet at 150 %", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink(), t.v().zoomIn(), t.v().zoomIn()) },
   { name: "solve-zoom-out", title: "Zoom out pressed twice: the sheet at 50 %, Zoom out off", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink(), t.v().zoomOut(), t.v().zoomOut()) },
