@@ -24,11 +24,12 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { findNumbers, findSections, suffixAfter } from "./citations.mjs";
+import { escape, findNumbers, findSections, suffixAfter } from "./citations.mjs";
 import { blankCode, commentKind, commentsOf, isGenerated } from "./comments.mjs";
 import { CODE } from "./markdown.mjs";
 import { ELSEWHERE, targetOf } from "./sections.mjs";
-import { under } from "./config.mjs";
+import { nextPhrase } from "./registers.mjs";
+import { documents, under } from "./config.mjs";
 
 // Preceded by no letter, digit, dot or hyphen, so that a time `2026-11-23T10:00` and a name such
 // as `E-T12` are not tasks; a dot and digits go on as MathTrail's subtasks do.
@@ -50,26 +51,26 @@ const AMENDMENT = new RegExp(
   "giu",
 );
 // Who decided, answered or said what, and when: a date and such a word with at most four words
-// between them, in one clause. The date a record was read, `read 2026-10-26`, names nobody.
-const WHO = String.raw`(?:author\p{L}*|автор\p{L}*|amend\p{L}*|поправк\p{L}*|decision\p{L}*|decided|decides?|решени\p{L}*|решен\p{L}*|решил\p{L}*|answer\p{L}*|ответ\p{L}*|words?|слов(?:о|а|у|ом|е)?)`;
-const BETWEEN = String.raw`(?:\s+[^\s.;:!?()]+){0,4}?\s+`;
+// between them, in one clause. The date a record was read, `read 2026-10-26`, names nobody, nor
+// does a law's `as amended on 2025-06-23` or a page that `answered 403 on 2026-10-18`: the word is
+// a noun of the author's, not a verb of the world's.
+const WHO = String.raw`(?:author\p{L}*|автор\p{L}*|decisions?|decided|решени\p{L}*|решен[оа]?|решил\p{L}*|answers?|ответ(?:а|у|ом|е|ы|ов|ам|ами|ах)?|words?|слов(?:о|а|у|ом|е)?)`;
+const BETWEEN = String.raw`(?:\s+[^\s.,;:!?()]+){0,4}?\s+`;
 const ATTRIBUTION = new RegExp(
   String.raw`(?<![\p{L}\p{N}])${WHO}${BETWEEN}${DATES}(?![\p{N}])|(?<![\p{L}\p{N}-])${DATES}${BETWEEN}${WHO}(?![\p{L}])`,
   "giu",
 );
 // A document cited by its file and spec's suffix, `RULES.md spec`, or by its file and a heading in
 // a parenthesis, `(RULES.md, How we work)`; a list of files, `(README.md, CLAUDE.md)`, is none, and
-// neither is a row or a task there, `(RUN.md, Д15)`, which the rules of the rows and tasks judge.
+// neither is a row, a task or a decision there, `(RUN.md, Д15)`, which the rules of the numbers judge.
 const DOCUMENT_BY_NAME = new RegExp(
   String.raw`(?<![\p{L}\p{N}_./-])[\p{L}\p{N}_./-]+\.md\s+spec(?![\p{L}\p{N}_-])` +
-    String.raw`|(?<=\(\s*)[\p{L}\p{N}_./-]+\.md(?:\s+spec)?,\s+(?![^,;()]*\.\p{L}+\s*[;)]|[ВДT]\d|[ОПТ]-\d)\p{Lu}[^,;()]*(?=[;)])`,
+    String.raw`|(?<=\(\s*)[\p{L}\p{N}_./-]+\.md(?:\s+spec)?,\s+(?![^,;()]*\.\p{L}+\s*[;)]|[ВДTR]\d|[ОПТ]-\d)\p{Lu}[^,;()]*(?=[;)])`,
   "gu",
 );
-// The opening of a log names its next free number: `Next number — R172`, `Следующий номер — R04`.
-const NEXT = /следующ|\bnext\b/iu;
 // What a record of the outside world is cited by: its records are numbered sections.
 const RECORDS = ["sources", "measurements"];
-const RECORD_FILES = RECORDS.map((name) => `docs/${name}.md`);
+const RECORD_FILES = RECORDS.map((name) => documents[name]);
 const MOST = 2;
 const QUOTED = 80;
 
@@ -78,8 +79,7 @@ const QUOTED = 80;
 // repository, and the profile's `citations` is { plan, archives, prose }, each a list of paths from
 // the root.
 export function checkCitations(root, files, context, listed, profile, report) {
-  const { plan, archives, prose } = profile.citations;
-  const log = profile.registers.find((r) => r.prefix === "R")?.file;
+  const { plan, archives, logs, prose } = profile.citations;
   const quote = (text) => {
     const shown = text.replaceAll(CODE, "`…`").replace(/\s+/gu, " ");
     return shown.length > QUOTED ? `${shown.slice(0, QUOTED - 1)}…` : shown;
@@ -92,11 +92,13 @@ export function checkCitations(root, files, context, listed, profile, report) {
     for (const block of doc.blocks) {
       const where = (offset) => block.lineAt(offset);
       if (!inPlan) {
+        const log = logs.includes(file);
         const document = {
-          log: file === log,
-          heading: file === log && block.type === "paragraph" && block.strongStart && /^R\d+\.\s/u.test(block.text),
+          log,
+          heading: log && block.type === "paragraph" && block.strongStart && /^R\d+\.\s/u.test(block.text),
           section: (start) => targetOf(context, file, block, start, profile.sectionsDocument),
-          next: (start) => NEXT.test(block.sentenceAt(start)),
+          // The number a log's opening names as the next free one: `Next number — R172`.
+          next: new Set(log ? [...block.text.matchAll(nextPhrase("R"))].map((m) => m.index + m[0].length - m[1].length - 1) : []),
         };
         for (const { offset, message } of breaches(block.text, document)) report(file, where(offset), message);
       }
@@ -123,9 +125,9 @@ export function checkCitations(root, files, context, listed, profile, report) {
 
 // What the rule forbids in one text, a block of a document or a comment, as [{ offset, message }]
 // in the order they stand. `where` is { file, what } for code and schemas, and for a document
-// { log, heading, section(start), next(start) }: whether it is the decision log, whether the block
-// is an entry's heading, which document a `раздел N` at an offset cites, and whether the sentence
-// there names the next free number.
+// { log, heading, section(start), next }: whether it is a decision log, whether the block is an
+// entry's heading, which document a `раздел N` at an offset cites, and the offsets of the numbers
+// that name the next free one.
 function breaches(text, where) {
   const found = [];
   const add = (offset, message) => found.push({ offset, message: message.replace(/\s+/gu, " ") });
@@ -143,7 +145,7 @@ function breaches(text, where) {
   }
   for (const { start, end } of decisions.values()) {
     if (!inCode && where.heading && start === 0) continue;
-    if (!inCode && where.log && where.next(start)) continue;
+    if (!inCode && where.next.has(start)) continue;
     const hint = !inCode && where.log ? "an entry cites no other entry; say in words what it shares with it" : "give the reason in words";
     add(start, `${text.slice(start, end)}${suffixAfter(text, end)}${what}: a decision's number; ${hint}`);
   }
@@ -175,7 +177,8 @@ function breaches(text, where) {
 }
 
 // The descriptions of a schema — each string under "description", "title" or "$comment" — as
-// texts with the line of the source each stands on, the first that holds it. A schema that does not
+// texts with the line of the source each stands on, found after the one before it as its key and
+// its value; one the source writes with escapes is not found, and has line 0. A schema that does not
 // parse is format-check's to report.
 function descriptionsOf(source) {
   let schema;
@@ -191,8 +194,11 @@ function descriptionsOf(source) {
     if (!value || typeof value !== "object") return;
     for (const [key, inner] of Object.entries(value)) {
       if (typeof inner === "string" && ["description", "title", "$comment"].includes(key)) {
-        const at = source.indexOf(JSON.stringify(inner), from);
-        if (at >= 0) from = at;
+        const written = new RegExp(String.raw`${escape(JSON.stringify(key))}\s*:\s*${escape(JSON.stringify(inner))}`, "gu");
+        written.lastIndex = from;
+        const found = written.exec(source);
+        const at = found ? found.index : -1;
+        if (found) from = at + found[0].length;
         const line = at < 0 ? 0 : source.slice(0, at).split("\n").length;
         texts.push({ text: inner, lineAt: () => line, what: "a schema's description" });
       } else walk(inner);

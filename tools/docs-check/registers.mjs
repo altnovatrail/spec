@@ -130,9 +130,11 @@ function registerLine(register, doc) {
 
 // `Следующий номер — R32`, or in a RUN.md's table `следующий — В25`; in a document in English,
 // `Next number — R32`, `the next free number — R32` or `next — В25`.
+export const nextPhrase = (prefix) =>
+  new RegExp(String.raw`(?:следующ\p{L}*(?:\s+номер\p{L}*)?|\bnext(?:\s+free)?(?:\s+number)?)\s*[—–-]\s*${prefix}(\d+)`, "giu");
+
 function nextFree(register, doc) {
-  const words = String.raw`(?:следующ\p{L}*(?:\s+номер\p{L}*)?|\bnext(?:\s+free)?(?:\s+number)?)`;
-  const phrase = new RegExp(`${words}\\s*[—–-]\\s*${register.prefix}(\\d+)`, "giu");
+  const phrase = nextPhrase(register.prefix);
   const found = [];
   for (const block of opening(register, doc).blocks) {
     for (const m of block.text.matchAll(phrase)) {

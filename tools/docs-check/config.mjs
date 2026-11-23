@@ -70,8 +70,7 @@ export const registers = [
 // The tables of the work plan in run/: table 3, the questions to the author, and table 4, the
 // debt. Rows leave when they are answered or closed, and their numbers are not reused. A table
 // back in a place of `elsewhere` is a second copy, in spec and in a repository alike. Headings are
-// English, `Table 3.`; a copy under the Russian heading, «Таблица 3.», is a copy all the same
-//
+// English, `Table 3.`; a copy under the Russian heading, «Таблица 3.», is a copy all the same.
 function workRegisters() {
   const table = (prefix, file, heading, elsewhere) => ({ prefix, file, heading, definedBy: "table", width: 1, ordered: false, gaps: true, empty: true, elsewhere });
   return [
@@ -111,6 +110,8 @@ export const specProfile = {
   citations: {
     plan: [...PLAN, "COORDINATION.md", ...PLAN.map((p) => `repo-template/files/${p}`)],
     archives: [ARCHIVES],
+    // The template's log names its next free number as a repository's does.
+    logs: ["docs/decisions.md", "repo-template/files/docs/decisions.md"],
     prose: ["format", "admission", "deployment", "legal", "consent-age", "export"],
   },
   excluded: { names: [".git", "node_modules"], paths: ["tools/docs-check/test/fixtures", "tools/format-check/test/fixtures", ".repos"] },
@@ -135,7 +136,7 @@ export function componentProfile(specDir) {
     // spec's block "repository" of its limits, from the submodule, with what the repository's
     // docs-budgets.json names in its place; without that file, there is no check yet.
     budgets: { file: inSpec(BUDGETS), path: path.join(specDir, BUDGETS), block: "repository", own: "docs-budgets.json" },
-    citations: { plan: PLAN, archives: [ARCHIVES], prose: [] },
+    citations: { plan: PLAN, archives: [ARCHIVES], logs: ["docs/decisions.md"], prose: [] },
     spec: {
       dir: specDir,
       documents: Object.fromEntries(Object.entries(documents).map(([name, file]) => [name, inSpec(file)])),

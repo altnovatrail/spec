@@ -1021,8 +1021,15 @@ test("by the key citations, a document cites no decision, an entry of the log no
     "docs/notes.md:3: R37: a decision's number; give the reason in words",
     "docs/notes.md:3: R38: a decision's number; give the reason in words",
   ]);
-  // The log: the heading of each entry and the next free number stand; the rest goes.
+  // The log: the heading of each entry and the next free number stand; the rest goes, a number in a
+  // sentence that speaks of what comes next too. The template's log names its next number as well.
   const shares = "an entry cites no other entry; say in words what it shares with it";
+  const next = ["docs/decisions.md", "**R02. Второе решение.** Как R38 canvas-api.", "**R02. Второе решение.** Как R38 canvas-api; the next step follows R01."];
+  const template = ["repo-template/files/docs/decisions.md", null, "# Decisions\n\n> No entries yet. Next number — R01.\n"];
+  assert.deepEqual(await citationErrors([next, template], ["docs/decisions.md:11", "repo-template/"]), [
+    `docs/decisions.md:11: R38 canvas-api: a decision's number; ${shares}`,
+    `docs/decisions.md:11: R01: a decision's number; ${shares}`,
+  ]);
   assert.deepEqual(await citationErrors([], ["docs/decisions.md"]), [
     `docs/decisions.md:3: R01–R03: a decision's number; ${shares}`,
     "docs/decisions.md:5: раздел 13: a citation of a section; say in words what is needed from it",
@@ -1074,9 +1081,15 @@ test("by the key citations, no dated attribution and no amendment stands outside
     `docs/notes.md:7: ${attribution("word of 2026-11-23")}`,
     `docs/notes.md:7: ${attribution("answer given on 2026-11-12")}`,
   ]);
+  // A date a record was read, a law's amendment, a page's answer and a clause after a comma name nobody.
   const fine = [
     ["RUN.md", "Синтетический план работ", "По поправке 2026-10-20, решено автором 2026-11-18 — синтетический план работ"],
-    ["docs/notes.md", null, "# Notes\n\nNo dated amendment is written; read 2026-10-26. A trial of 2026-10-26 on git 2.56.0. An amendment to the law of many words before it went on. The author. 2026-11-01 was a day.\n"],
+    [
+      "docs/notes.md",
+      null,
+      "# Notes\n\nNo dated amendment is written; read 2026-10-26. A trial of 2026-10-26 on git 2.56.0. An amendment to the law of many words before it went on. The author. 2026-11-01 was a day.\n\n" +
+        "The rule, as amended on 2025-06-23; the page answered 403 on 2026-10-18; copies of 2026-04-28, the author's site answers 403.\n",
+    ],
   ];
   assert.deepEqual(await citationErrors(fine, ["RUN.md", "docs/notes.md"]), []);
 });
@@ -1084,11 +1097,13 @@ test("by the key citations, no dated attribution and no amendment stands outside
 test("by the key citations, a parenthesis holds at most two citations, in the plan too", async () => {
   const crowded = [
     ["docs/notes.md", null, "# Notes\n\nOne (В1, В2; О-1), two (Т-1–Т-2; В1, Д1, Д2), three (В1 (В2, В3)).\n"],
-    ["RUN.md", "Синтетический план работ", "Синтетический (T1–T5; В1, Д2) план работ (`a/b` R01, `b/c` R02, R03 canvas-api)"],
+    ["RUN.md", "Синтетический план работ", "Синтетический (T1–T5; В1, Д2) план работ (`a/b` R01, `b/c` R02, R03 canvas-api) (product 1, 13–13.2; В1) (architecture 4 api, privacy 1 canvas-api, product 2 api) (product 13–13.2; В1)"],
   ];
   assert.deepEqual(await citationErrors(crowded, ["RUN.md", "docs/notes.md"]), [
     `RUN.md:3: "(T1–T5; В1, Д2)": 3 citations in one parenthesis, more than 2; ${CROWDED}`,
     `RUN.md:3: "(\`…\` R01, \`…\` R02, R03 canvas-api)": 3 citations in one parenthesis, more than 2; ${CROWDED}`,
+    `RUN.md:3: "(product 1, 13–13.2; В1)": 3 citations in one parenthesis, more than 2; ${CROWDED}`,
+    `RUN.md:3: "(architecture 4 api, privacy 1 canvas-api, product 2 api)": 3 citations in one parenthesis, more than 2; ${CROWDED}`,
     `docs/notes.md:3: "(В1, В2; О-1)": 3 citations in one parenthesis, more than 2; ${CROWDED}`,
     `docs/notes.md:3: "(Т-1–Т-2; В1, Д1, Д2)": 4 citations in one parenthesis, more than 2; ${CROWDED}`,
   ]);
@@ -1104,7 +1119,7 @@ test("by the key citations, a comment of code, a .proto file and a schema's desc
     file("tools/a.mjs", 'const a = 1;\n// Done in T12, by R01 and R25 spec, R03 api;\n// see architecture 3.8 spec, decided by the author 2026-11-18.\nconst b = "R01 T12";\n'),
     file(".github/workflows/a.yml", "on: push\n# T7, R99\n"),
     file("a.proto", '// As R01 says.\nsyntax = "proto3";\n'),
-    file("format/schemas/a.schema.json", '{\n  "title": "A",\n  "type": "object",\n  "properties": {\n    "x": { "description": "By R01; an example, `R02`." },\n    "y": { "oneOf": [{ "description": "T5" }, { "$comment": "\\u0052\\u0030\\u0033" }] }\n  }\n}\n'),
+    file("format/schemas/a.schema.json", '{\n  "title": "A",\n  "type": "object",\n  "properties": {\n    "x": { "description": "By R01; an example, `R02`." },\n    "y": { "oneOf": [{ "description": "T5" }, { "$comment": "\\u0052\\u0030\\u0033" }] },\n    "z": { "description": "T5" }\n  }\n}\n'),
   ];
   assert.deepEqual(await citationErrors(edits, ["tools/", ".github/", "a.proto", "format/"]), [
     `.github/workflows/a.yml:2: T7 in a comment: ${TASK_HINT}`,
@@ -1115,6 +1130,8 @@ test("by the key citations, a comment of code, a .proto file and a schema's desc
     "format/schemas/a.schema.json:0: R03 in a schema's description: a decision's number; give the reason in words",
     "format/schemas/a.schema.json:5: R01 in a schema's description: a decision's number; give the reason in words",
     `format/schemas/a.schema.json:6: T5 in a schema's description: ${TASK_HINT}`,
+    // The same text twice is found where each stands.
+    `format/schemas/a.schema.json:7: T5 in a schema's description: ${TASK_HINT}`,
     `tools/a.mjs:2: T12 in a comment: ${TASK_HINT}`,
     "tools/a.mjs:2: R01 in a comment: a decision's number; give the reason in words",
     "tools/a.mjs:2: R25 spec in a comment: a decision's number; give the reason in words",
