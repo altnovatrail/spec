@@ -343,9 +343,10 @@ func (x *Key) GetTasks() []*TaskKey {
 // One task on the crop of a task from paper, and its key.
 type TaskKey struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The task as the page prints it, at most 200 bytes of UTF-8, as "□ − 3 = 7": the reading of the
-	// work is given it, to tell which task each answer is of. It is the printed statement alone,
-	// never the learner's writing.
+	// The task as the page prints it, at most 200 bytes of UTF-8, as "□ − 3 = 7", a fraction and a
+	// power written as in `ReadStatementResponse.statements`: the reading of the work is given it, to
+	// tell which task each answer is of. It is the printed statement alone, never the learner's
+	// writing.
 	Statement string `protobuf:"bytes,1,opt,name=statement,proto3" json:"statement,omitempty"`
 	// Where the key came from; not given when the task has none.
 	Provenance Provenance `protobuf:"varint,2,opt,name=provenance,proto3,enum=novatrail.paper.v1.Provenance" json:"provenance,omitempty"`

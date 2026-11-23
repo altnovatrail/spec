@@ -14,7 +14,7 @@
 | DPO | not appointed — why, section 7 |
 | What it covers | the NovaTrail operator's deployment of the platform: `app`, `api`, `tutor`, the sign-in service, hosting and the AI providers, and also the samples from the samples page (privacy 4). It does not cover a self-hosted copy: the controller of that copy is its operator (the 2026-11-09 amendment to R115) |
 | Version | the last row of the review log below |
-| Rests on | privacy 1–7; R07, R68, R112–R128, R130–R134, R136–R141, R147, R149, R152, R157, R162, R163, R167 |
+| Rests on | privacy 1–7; R07, R68, R112–R128, R130–R134, R136–R141, R147, R149, R152, R157, R162, R163, R167, R170 |
 
 **Review (R129).** The DPIA is reviewed by a task that changes what it rests on:
 - a new kind of data or a new retention period;
@@ -67,6 +67,7 @@ Besides, the DPIA is reviewed before the beta, before the public launch and at l
 | 34 | 2026-11-21 | the debug mode of a task from paper for an account the operator gives its right, on the deployment too, past admission in every profile, risk 24 and a condition before the first child (R163) | — |
 | 35 | 2026-11-22 | the reminder of names stands no more over the field of a request about the page, nor on Home's card of paper: the camera's, before the photo, stays; risk 2 as it was (R165) | — |
 | 36 | 2026-11-22 | the tutor's panel on a task opens no more with the line that the tutor is an AI: the disclosure stays in the adult's Help, on Home's panel and on the tutor's page, risk 4 as it was, its disclosure to a child a condition before the first child (R123); no reminder of names stands before Check, on a sheet, an essay or a task from paper: the camera's, before the photo, and Help's line stay, risk 2 medium as it was, a new `parent-consent` a condition before the first child (R127) | — |
+| 37 | 2026-11-22 | the device keeps the five newest pages from paper of a profile, a new one taking the oldest with its photo, crops and work: less data on the device, measure 15 with it, risks as they were (R170) | — |
 
 ## 2. The need for a DPIA
 
@@ -267,7 +268,7 @@ The other risks of std 2 — "access to harmful or inappropriate content", "misi
 | 12 | the gist of consent in the language of the screen (R116); texts in plain words — T97 and T98; the translation of the policy into Russian — R141 | reduced | medium until T98, then low | section 7 |
 | 13 | storage is off by default; the switch speaks of the personal in an essay, and turning it on is explicit consent (R113, R127); turning it off erases the copies | reduced | low | section 7 |
 | 14 | own key — only for a profile of category `adult`, and it is closed to a learner under 18 at all providers (R122) | eliminated | low | section 7 |
-| 15 | voice input is closed to children until a decision on П-5 (О-6); the photo of a page goes in one request, for its task frames alone, re-encoded without the metadata of its file, and stays on the device, with its crops, in no stored work (privacy 6; R162) | reduced | low | section 7 |
+| 15 | voice input is closed to children until a decision on П-5 (О-6); the photo of a page goes in one request, for its task frames alone, re-encoded without the metadata of its file, and stays on the device, with its crops, in no stored work, of the newest pages alone (privacy 4.1 and 6; R162; R170) | reduced | low | section 7 |
 | 16 | the texts for the child (T98) and a screen of `app` say that the adult sees their progress (Д157) | reduced | low | section 7 |
 | 17 | the "Help" section («Помощь») and helplines (R127); whether to give "report a problem" to the learner themselves is П-26, before the beta: the method is a learning request, so the answer is a button in `app` (R136) | reduced | medium until П-26 | section 7 |
 | 18 | the policy and the texts for the family ask people not to write a child's data in letters; export, deletion, withdrawal, settings and age are in the app; a request comes from the sign-in address, naming nothing about the child, and by it the operator finds the account; letters live a year (R138, R141); a request in the app — П-32, by the public launch | reduced | medium until П-32 | the author, 2026-11-11 |

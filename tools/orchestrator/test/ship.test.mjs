@@ -4,10 +4,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { git } from "../../shared.mjs";
 import { main } from "../main.mjs";
-import { bucketOf, orderOf, shipStateOf } from "../ship.mjs";
+import { bucketOf, orderOf, shipStateOf, unwireNpm } from "../ship.mjs";
 import { github } from "./github.mjs";
 import { commit, world, write } from "./world.mjs";
 
@@ -329,4 +330,20 @@ test("ship.json is read back held to its form: names of clones, phases, numbers,
   assert.equal(shipStateOf(null, "e18", clones), null);
   assert.equal(shipStateOf({ order: [] }, "e18", clones), null);
   assert.equal(shipStateOf({ order: ["spec", "../api"] }, "e18", clones), null);
+});
+
+test("unwireNpm takes out the packages named that the wiring laid, and the stamp of the install with them", (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "unwire-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const modules = path.join(dir, "app", "node_modules");
+  for (const name of ["@altnovatrail/spec", "@altnovatrail/canvas", "@altnovatrail/skill-map"]) fs.mkdirSync(path.join(modules, name), { recursive: true });
+  for (const name of ["@altnovatrail/spec", "@altnovatrail/canvas"]) fs.writeFileSync(path.join(modules, name, ".xrepo"), "abc\n");
+  fs.writeFileSync(path.join(modules, ".installed-from"), "x\n");
+  assert.equal(unwireNpm(dir, "app", ["@altnovatrail/canvas"]), true);
+  assert.deepEqual(fs.readdirSync(path.join(modules, "@altnovatrail")).sort(), ["skill-map", "spec"]);
+  assert.ok(!fs.existsSync(path.join(modules, ".installed-from")));
+  // A package npm installed, with no mark, stays.
+  assert.equal(unwireNpm(dir, "app"), true);
+  assert.deepEqual(fs.readdirSync(path.join(modules, "@altnovatrail")), ["skill-map"]);
+  assert.equal(unwireNpm(dir, "app"), false);
 });

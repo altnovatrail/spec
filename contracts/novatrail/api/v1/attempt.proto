@@ -398,8 +398,10 @@ message ReadStatementRequest {
 // The statements of a task from paper's crop.
 message ReadStatementResponse {
   // Each task on the crop, from 1 to 20 in the order of the page, as the page prints it, at most
-  // 200 bytes of UTF-8, as "□ − 3 = 7": "□" stands for each box the learner writes an answer in.
-  // Empty when the reading found no task, or gave no answer.
+  // 200 bytes of UTF-8, as "□ − 3 = 7": "□" stands for each box the learner writes an answer in,
+  // a fraction with a bar is LaTeX's "\frac{3}{17}", nested as printed, and a raised power "^{2}";
+  // without the task's label, as "1)", or the sign that parts it from the next, as ";". Empty when
+  // the reading found no task, or gave no answer.
   repeated string statements = 1;
   // What the call of AI came to, when it gave no reading: a failure of AI, or of the own key its
   // limit reached or the key refused.

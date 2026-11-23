@@ -148,9 +148,10 @@ export declare const KeySchema: GenMessage<Key>;
  */
 export declare type TaskKey = Message<"novatrail.paper.v1.TaskKey"> & {
   /**
-   * The task as the page prints it, at most 200 bytes of UTF-8, as "□ − 3 = 7": the reading of the
-   * work is given it, to tell which task each answer is of. It is the printed statement alone,
-   * never the learner's writing.
+   * The task as the page prints it, at most 200 bytes of UTF-8, as "□ − 3 = 7", a fraction and a
+   * power written as in `ReadStatementResponse.statements`: the reading of the work is given it, to
+   * tell which task each answer is of. It is the printed statement alone, never the learner's
+   * writing.
    *
    * @generated from field: string statement = 1;
    */

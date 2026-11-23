@@ -80,6 +80,12 @@ message FindTasksResponse {
   // The answer of a repeat with the same idempotency key, which holds no frames: the server keeps
   // none.
   bool repeated = 3;
+  // The turn, in whole degrees clockwise from -179 to 180, by which the photo was turned for its
+  // page to read upright before the tasks were found on it (R162): turned about its centre onto the
+  // smallest upright rectangle that holds it, rounded to whole pixels, its corners white. The frames
+  // are on the photo so turned, and `app` turns its photo by it the same way, at any scale, and goes
+  // on with the photo turned. 0 when the page was upright, with a request, and with no frames.
+  int32 turn_degrees = 4;
 }
 
 // A rectangle round one task on the photo of a page, by which `app` cuts the task's crop on the

@@ -71,8 +71,8 @@ test("serve starts the stand, ready once its probe passes through the relay; a c
   assert.deepEqual(ready.probe, { root: 200, deployment: 200, rpc: 401 });
   assert.equal(ready.url, `http://127.0.0.1:${w.ports.relay}`);
   assert.deepEqual(Object.keys(ready.servers).sort(), ["api", "app", "canvas"]);
-  // canvas built first, and app on that canvas.
-  assert.deepEqual(w.calls("just").map((c) => [path.basename(c.cwd), c.recipe]).filter(([, r]) => r !== "_install"), [["canvas", "build"], ["api", "dev-app"], ["app", "dev-canvas"]]);
+  // canvas built for its package in app by the wiring, then by the stand, and app on that canvas.
+  assert.deepEqual(w.calls("just").map((c) => [path.basename(c.cwd), c.recipe]).filter(([, r]) => r !== "_install"), [["canvas", "build"], ["canvas", "build"], ["api", "dev-app"], ["app", "dev-canvas"]]);
   assert.equal(w.calls("just").find((c) => c.recipe === "dev-app").ai, null);
 
   // The servers run in sessions of their own: one group each.

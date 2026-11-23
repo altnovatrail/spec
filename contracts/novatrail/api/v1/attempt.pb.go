@@ -1652,8 +1652,10 @@ func (x *ReadStatementRequest) GetClockOffsetMinutes() int32 {
 type ReadStatementResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Each task on the crop, from 1 to 20 in the order of the page, as the page prints it, at most
-	// 200 bytes of UTF-8, as "□ − 3 = 7": "□" stands for each box the learner writes an answer in.
-	// Empty when the reading found no task, or gave no answer.
+	// 200 bytes of UTF-8, as "□ − 3 = 7": "□" stands for each box the learner writes an answer in,
+	// a fraction with a bar is LaTeX's "\frac{3}{17}", nested as printed, and a raised power "^{2}";
+	// without the task's label, as "1)", or the sign that parts it from the next, as ";". Empty when
+	// the reading found no task, or gave no answer.
 	Statements []string `protobuf:"bytes,1,rep,name=statements,proto3" json:"statements,omitempty"`
 	// What the call of AI came to, when it gave no reading: a failure of AI, or of the own key its
 	// limit reached or the key refused.

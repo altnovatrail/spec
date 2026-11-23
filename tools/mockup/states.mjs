@@ -168,8 +168,12 @@ export const STATES = [
   // found on the page and one framed by hand, each picked task on a clean sheet under its crop, Check by the key.
   { name: "camera", title: "The camera of the paper flow", from: "home", shows: "Worksheet", run: (t) => t.v().openCamera() },
   { name: "pick", title: "The tasks the AI found on the page, every one picked", from: "camera", shows: "tap one to leave it out", run: (t) => t.v().capture() },
-  // A loop drawn round equation (6), which the AI missed: its box becomes the learner's frame.
-  { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([[310, 598], [576, 598], [576, 644], [310, 644]]) },
+  // The page while the finding runs: no frame yet, a line sweeping it with its glow the same above and below.
+  { name: "pick-finding", title: "The page while the AI finds its tasks", from: "pick", shows: "Finding the tasks on the page", run: (t) => t.c.setState({ finding: true, selected: [] }) },
+  // A rectangle dragged round equation (6), which the AI missed: while the finger is down, and once it is up, the learner's frame.
+  { name: "pick-drag", title: "A frame being dragged round a task", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setState({ liveBox: { x: 304, y: 592, w: 210, h: 58 }, liveLayer: "frame" }) },
+  { name: "pick-adjust", title: "A frame the AI found, moved and resized by its corner", from: "pick", shows: "tap one to leave it out", run: (t) => t.c.setFrame(2, { x: 300, y: 142, w: 292, h: 224 }) },
+  { name: "pick-frame", title: "A task framed by hand", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([304, 592], [582, 650]) },
   // The learner's request about the page, to the tutor (R165): the finding gives the frames anew, the program words the line.
   {
     name: "pick-ask",
@@ -179,6 +183,14 @@ export const STATES = [
     run: (t) => (t.v().openChat(), t.c.setState({ draft: "Take only the left column, each example as its own task" })),
   },
   { name: "pick-asked", title: "The frames found anew by the request, and Undo", from: "pick-ask", shows: "Found 3 tasks", run: (t) => t.v().send() },
+  // The AI found no task on the page: the answer of the finding set empty, as Play has no page without tasks.
+  { name: "pick-none", title: "No task found on the page: a card above the bar", from: "pick", shows: "No tasks found.", run: (t) => t.c.setState({ asked: { ...t.c.state.asked, [t.c.state.captured]: [] }, selected: [] }) },
+  // What else the page says, each a card above the bar (RUN.md, T254): Play has no tap of corners, no failure of the
+  // finding and no closed AI, so each state sets what the page says itself.
+  { name: "pick-corner", title: "A corner tapped: the card asks for the opposite one", from: "pick-none", shows: "Now tap the opposite corner of the task.", run: (t) => t.c.setState({ pageSays: "corner" }) },
+  { name: "pick-failed", title: "The finding failed: the card in red, and Find the tasks again", from: "pick-none", shows: "Find the tasks again", run: (t) => t.c.setState({ pageSays: "failed" }) },
+  { name: "pick-outcome", title: "The AI could not find the tasks: the card in red, and the way on", from: "pick-none", shows: "The tutor can’t answer right now.", run: (t) => t.c.setState({ pageSays: "outcome" }) },
+  { name: "pick-closed", title: "AI closed to the learner: Start shut, the card in orange", from: "pick", shows: "Without the AI a task from paper can’t be checked.", run: (t) => t.c.setState({ pageSays: "closed" }) },
   {
     name: "solve",
     title: "A task from the page, on a clean sheet",
@@ -195,6 +207,10 @@ export const STATES = [
   { name: "solve-scale", title: "The tracing paper chosen: its frame, corners and bar of scale", from: "solve", shows: "90%", run: (t) => t.c.setState({ tSel: true, tScale: 0.9 }) },
   { name: "solve-recognising", title: "Recognise pressed: the statement being read", from: "solve-scale", shows: "Recognising…", run: (t) => t.c.setState({ tMode: "busy" }) },
   { name: "solve-text", title: "The statement read, as text in place of the photo, and Original", from: "solve-scale", shows: "Recognised by AI", run: (t) => t.c.setState({ tMode: "text" }) },
+  { name: "solve-text-fraction", title: "The statement read with a fraction: built up, as the page prints it", from: "solve-text", shows: "Recognised by AI", run: (t) => (t.c.pickTask(3), t.c.setState({ tSel: true, tScale: 0.9, tMode: "text" })) },
+  // The sheet's zoom by the tool bar, about the middle of what is in sight: twice Zoom in, and twice Zoom out (R73 canvas).
+  { name: "solve-zoom", title: "Zoom in pressed twice: the sheet at 150 %", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink(), t.v().zoomIn(), t.v().zoomIn()) },
+  { name: "solve-zoom-out", title: "Zoom out pressed twice: the sheet at 50 %, Zoom out off", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink(), t.v().zoomOut(), t.v().zoomOut()) },
   { name: "solve-lines", title: "The grid's button tapped once: the sheet in lines", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => t.v().grid.next() },
   { name: "solve-tasks", title: "The list of the picked tasks", from: "solve", shows: "Framed by you", run: (t) => t.v().toggleTasks() },
   { name: "solve-empty", title: "Check without work", from: "solve", shows: "Write your solution first", run: (t) => t.v().check() },
@@ -218,8 +234,8 @@ export const STATES = [
       t.v().next();
     },
   },
-  // A loop drawn round equations (1) and (3) at once: the reading of its statement lists both, and Check checks each.
-  { name: "pick-several", title: "A frame drawn round two tasks", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([[22, 148], [298, 148], [298, 590], [22, 590]]) },
+  // A frame dragged round equations (1) and (3) at once: the reading of its statement lists both, and Check checks each.
+  { name: "pick-several", title: "A frame dragged round two tasks", from: "pick", shows: "framed by you", run: (t) => t.c.frameFrom([16, 142], [304, 596]) },
   {
     name: "solve-several",
     title: "A frame of several tasks, each checked: the count, and a tick or a cross by each answer",

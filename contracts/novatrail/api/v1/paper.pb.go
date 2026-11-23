@@ -155,7 +155,13 @@ type FindTasksResponse struct {
 	Outcome *Outcome `protobuf:"bytes,2,opt,name=outcome,proto3" json:"outcome,omitempty"`
 	// The answer of a repeat with the same idempotency key, which holds no frames: the server keeps
 	// none.
-	Repeated      bool `protobuf:"varint,3,opt,name=repeated,proto3" json:"repeated,omitempty"`
+	Repeated bool `protobuf:"varint,3,opt,name=repeated,proto3" json:"repeated,omitempty"`
+	// The turn, in whole degrees clockwise from -179 to 180, by which the photo was turned for its
+	// page to read upright before the tasks were found on it (R162): turned about its centre onto the
+	// smallest upright rectangle that holds it, rounded to whole pixels, its corners white. The frames
+	// are on the photo so turned, and `app` turns its photo by it the same way, at any scale, and goes
+	// on with the photo turned. 0 when the page was upright, with a request, and with no frames.
+	TurnDegrees   int32 `protobuf:"varint,4,opt,name=turn_degrees,json=turnDegrees,proto3" json:"turn_degrees,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -209,6 +215,13 @@ func (x *FindTasksResponse) GetRepeated() bool {
 		return x.Repeated
 	}
 	return false
+}
+
+func (x *FindTasksResponse) GetTurnDegrees() int32 {
+	if x != nil {
+		return x.TurnDegrees
+	}
+	return 0
 }
 
 // A rectangle round one task on the photo of a page, by which `app` cuts the task's crop on the
@@ -406,11 +419,12 @@ const file_novatrail_api_v1_paper_proto_rawDesc = "" +
 	"\arequest\x18\x06 \x01(\tR\arequest\x121\n" +
 	"\x05found\x18\a \x03(\v2\x1b.novatrail.api.v1.TaskFrameR\x05found\x121\n" +
 	"\x05drawn\x18\b \x03(\v2\x1b.novatrail.api.v1.TaskFrameR\x05drawnB\x17\n" +
-	"\x15_clock_offset_minutes\"\x99\x01\n" +
+	"\x15_clock_offset_minutes\"\xbc\x01\n" +
 	"\x11FindTasksResponse\x123\n" +
 	"\x06frames\x18\x01 \x03(\v2\x1b.novatrail.api.v1.TaskFrameR\x06frames\x123\n" +
 	"\aoutcome\x18\x02 \x01(\v2\x19.novatrail.api.v1.OutcomeR\aoutcome\x12\x1a\n" +
-	"\brepeated\x18\x03 \x01(\bR\brepeated\"@\n" +
+	"\brepeated\x18\x03 \x01(\bR\brepeated\x12!\n" +
+	"\fturn_degrees\x18\x04 \x01(\x05R\vturnDegrees\"@\n" +
 	"\tTaskFrame\x123\n" +
 	"\x03box\x18\x01 \x01(\v2!.novatrail.observation.v1.CropBoxR\x03box\"\xbc\x01\n" +
 	"\x19BeginPaperAttemptsRequest\x12\x1d\n" +

@@ -128,8 +128,9 @@ export type TracingChangeEvent = CustomEvent<TracingState>;
  * The statement of a task from paper read in clean print, which the consumer gets on the learner's
  * "Recognise" (R169): `"ready"`, the button offered; `"busy"`, while the reading comes; and
  * `"done"`, the statement of each task the crop holds, as the page prints it, "□" for each box an
- * answer goes in, which the element draws in place of the crop until the learner goes back to the
- * photo by "Original".
+ * answer goes in, a fraction with a bar LaTeX's `\frac{3}{17}`, nested as printed, and a raised
+ * power `^{2}`, which the element draws built up in place of the crop until the learner goes back
+ * to the photo by "Original".
  */
 export type TracingReading =
   | { readonly state: "ready" }

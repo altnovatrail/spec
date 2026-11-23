@@ -124,6 +124,17 @@ export declare type FindTasksResponse = Message<"novatrail.api.v1.FindTasksRespo
    * @generated from field: bool repeated = 3;
    */
   repeated: boolean;
+
+  /**
+   * The turn, in whole degrees clockwise from -179 to 180, by which the photo was turned for its
+   * page to read upright before the tasks were found on it (R162): turned about its centre onto the
+   * smallest upright rectangle that holds it, rounded to whole pixels, its corners white. The frames
+   * are on the photo so turned, and `app` turns its photo by it the same way, at any scale, and goes
+   * on with the photo turned. 0 when the page was upright, with a request, and with no frames.
+   *
+   * @generated from field: int32 turn_degrees = 4;
+   */
+  turnDegrees: number;
 };
 
 /**
