@@ -62,7 +62,7 @@ For `access_returns` of `OwnKeyLimit` (R84; R55 tutor) and COORDINATION.md, row 
 
 ### 2.9. Anthropic and OpenAI: retention and the agreement, 2026-11-15
 
-Read 2026-11-15, for the admission table 0.4 and version 4 of the privacy policy (R96; the second 2026-11-15 amendment to R121; R149; RUN.md, T159). The row of Anthropic of privacy 5.3 was read again whole; the row of OpenAI — its pages below — but for its Usage Policies, so the admission table keeps 2026-11-09 for the cells of OpenAI, the day the row was last read whole ([the text of the admission table](../admission/README.md), section 10).
+Read 2026-11-15, for the admission table 0.4 and version 4 of the privacy policy (R96; R121; R149; RUN.md, T159). The row of Anthropic of privacy 5.3 was read again whole; the row of OpenAI — its pages below — but for its Usage Policies, so the admission table keeps 2026-11-09 for the cells of OpenAI, the day the row was last read whole ([the text of the admission table](../admission/README.md), section 10).
 
 - **Anthropic**, [Commercial Terms](https://www.anthropic.com/legal/commercial-terms), "Effective Jun 17, 2025", as on 2026-11-09: "Anthropic may not train models on Customer Content from Services"; "Data submitted through the Services will be processed in accordance with the Anthropic Data Processing Addendum (“DPA”), which is incorporated into these Terms by reference".
 - Anthropic, [DPA](https://www.anthropic.com/legal/data-processing-addendum), "Effective Feb 24, 2025": B.1 — "Customer is the controller and Anthropic is Customer's processor"; H.1 — "Within thirty (30) days of the date of termination or expiration of the Agreement, Anthropic will: … delete all copies of Customer Data … except to the extent (i) Applicable Data Protection Laws or other applicable legal or regulatory requirements requires storage of the Customer Data, (ii) … to resolve a dispute between the parties, or (iii) retention of the Customer Data is necessary to combat harmful use of the Services"; Schedule 1, B.7 — "Storage Limitation: The duration is the term of the Agreement". It does not speak of children.
@@ -162,7 +162,7 @@ Read 2026-10-18: GDPR: Art. 8 — the age of digital consent; Art. 35 — the DP
 
 ### 3.3. Consent and the account, 2026-11-09
 
-Read 2026-11-09 (R116–R118; the 2026-11-09 amendment to R115):
+Read 2026-11-09 (R115–R118):
 - COPPA — 16 CFR 312 as amended by the FTC rule of 2025, [90 FR 16918](https://www.govinfo.gov/content/pkg/FR-2025-04-22/html/2025-05904.htm), published 2025-04-22, in effect since 2025-06-23, compliance — from 2026-04-22; the text of the part — by the eCFR API as of 2026-11-05; FTC, "Complying with COPPA: Frequently Asked Questions" — from a Wayback Machine copy of 2026-10-13, the page answers 403; 28 U.S.C. § 2462 — [Cornell LII](https://www.law.cornell.edu/uscode/text/28/2462);
 - GDPR — [EUR-Lex](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679); EDPB 05/2020 on consent, v1.1, 07/2020 on controller and processor, v2.1, 2/2019 on Art. 6(1)(b), v2.0; WP260 rev.01 on transparency; UK GDPR, [Art. 8](https://www.legislation.gov.uk/eur/2016/679/article/8);
 - ICO, Age Appropriate Design Code — standards 1–4, 7, 10 and 11 and "Services covered by this code", — and the pages on children and the UK GDPR — from Wayback Machine copies of 2026-04-28 to 2026-10-30, the site answers 403, and the pages on children are marked "this guidance is under review" after the Data (Use and Access) Act 2025;

@@ -12,7 +12,7 @@
 |---|---|
 | Controller | the NovaTrail operator (privacy 2) |
 | DPO | not appointed — why, section 7 |
-| What it covers | the NovaTrail operator's deployment of the platform: `app`, `api`, `tutor`, the sign-in service, hosting and the AI providers, and also the samples from the samples page (privacy 4). It does not cover a self-hosted copy: the controller of that copy is its operator (the 2026-11-09 amendment to R115) |
+| What it covers | the NovaTrail operator's deployment of the platform: `app`, `api`, `tutor`, the sign-in service, hosting and the AI providers, and also the samples from the samples page (privacy 4). It does not cover a self-hosted copy: the controller of that copy is its operator (R115) |
 | Version | the last row of the review log below |
 | Rests on | privacy 1–7; R07, R68, R112–R128, R130–R134, R136–R141, R147, R149, R152, R157, R162, R163, R167, R170 |
 
