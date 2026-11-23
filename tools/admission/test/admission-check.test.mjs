@@ -114,7 +114,7 @@ test("VERSION is MAJOR.MINOR and a newline, and the $id of each schema names it"
 });
 
 test("a schema follows the conventions of the format's, and marks nothing x-open", () => {
-  expectOnly([[TABLE_SCHEMA, '"description": "The provider\'s name, as privacy 5.3 names it."', '"description": "The provider\'s name, as privacy 5.3 names it.", "x-open": true']], /x-open: admission\/ has no open view/);
+  expectOnly([[TABLE_SCHEMA, '"description": "The provider\'s name, as the table of the providers\' terms on age in `docs/privacy.md` names it."', '"description": "The provider\'s name, as the table of the providers\' terms on age in `docs/privacy.md` names it.", "x-open": true']], /x-open: admission\/ has no open view/);
   expectOnly([[TABLE_SCHEMA, '"$ref": "#/$defs/capability_rule"', '"$ref": "rule.schema.json"']], /no schema rule\.schema\.json in admission\/schemas\//);
   expectOnly([["admission/schemas/answer-vector.schema.json", "", null]], /^admission\/schemas:0: no answer-vector\.schema\.json, which the text names/);
 });
@@ -140,7 +140,7 @@ test("the table breaks no rule of a table", () => {
 });
 
 test("the table cites what spec's documents hold", () => {
-  expectOnly([tableEdit((t) => (t.cells[cellOf(t, "openai", "own_key", "adult")].terms[0].row = "Open AI"))], /Open AI: no row of the providers' terms on age in docs\/privacy\.md/);
+  expectOnly([tableEdit((t) => (t.cells[cellOf(t, "openai", "own_key", "adult")].terms[0].row = "Open AI"))], /Open AI: no row of the providers\' terms on age in docs\/privacy\.md/);
   expectOnly([tableEdit((t) => (t.cells[0].basis = ["R999"]))], /R999: no such number in its register/);
   expectOnly([tableEdit((t) => (t.cells[0].basis = ["П-999"]))], /П-999: no such number in its register/);
   expectOnly([tableEdit((t) => (t.capabilities[0].basis = ["privacy 5.9"]))], /privacy 5\.9: docs\/privacy\.md has no section 5\.9/);
@@ -192,7 +192,7 @@ test("a vector of answers gives the answer the admission function computes", () 
   ]);
   const schema = errorsOf([[FACTS, "    answer:\n      admitted: false\n      reason: fact_missing\n      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}\n      fact: data_processing_agreement", "    answer:\n      admitted: true\n      reason: fact_missing\n      cell: {provider: alpha, ai_route: platform_ai, age_category: under_13}\n      fact: data_processing_agreement"]]);
   assert.ok(schema.includes("admission/vectors/answers/facts.yaml:0: does not pass the schema of a vector of answers: not at #/cases/0/answer: must NOT be valid"), schema.join("\n"));
-  expectOnly([[FACTS, '      terms: [{row: OpenAI, read: "2026-11-03"}]', '      terms: [{row: Mistral, read: "2026-11-03"}]']], /table\/cells\/0\/terms\/0\/row: Mistral: no row of the providers' terms on age in docs\/privacy\.md/);
+  expectOnly([[FACTS, '      terms: [{row: OpenAI, read: "2026-11-03"}]', '      terms: [{row: Mistral, read: "2026-11-03"}]']], /table\/cells\/0\/terms\/0\/row: Mistral: no row of the providers\' terms on age in docs\/privacy\.md/);
   expectOnly([["admission/vectors/answers/open-cells.yaml", "table:", "table: &t"]], /open-cells\.yaml:\d+: yaml\.no-anchors/);
 });
 
