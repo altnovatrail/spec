@@ -1,4 +1,4 @@
-// session: the hook UserPromptSubmit of Claude Code that keeps one task to one session (R143).
+// session: the hook UserPromptSubmit of Claude Code that keeps one task to one session.
 //
 //   node tools/session/main.mjs < <the hook's input>
 //

@@ -1,4 +1,4 @@
-// The stand of a task across repositories (R166): api by `just dev-app`, on the stub of tutor or
+// The stand of a task across repositories: api by `just dev-app`, on the stub of tutor or
 // on the models; canvas built, then rebuilt by tsc on each change; app by `just dev-canvas
 // ../canvas`; spec's mockup when asked; each in its own repository's container, on the epic's
 // clones, so that no code of a clone runs in the orchestrator's container, which holds the socket.
@@ -27,14 +27,14 @@ import { DOCKER, isMain } from "../shared.mjs";
 import { ensureRunning, findContainer, runDocker } from "./containers.mjs";
 
 export const STAND = ".stand";
-// The host's folder .epics, as every container mounts it, and an epic's name in it (R166).
+// The host's folder .epics, as every container mounts it, and an epic's name in it.
 export const EPICS = "/workspaces/.epics";
 export const EPIC = /^[a-z0-9][a-z0-9-]*$/;
 // The ports: Vite's of app, which strictPort keeps; api's of dev-app, which app's Vite proxies to;
 // spec's mockup. The relays listen on app's and the mockup's in the orchestrator's container.
 export const PORTS = { app: 5173, api: 8080, mockup: 8156 };
 // The models on the stand run on the developer key, up to $2 a session of the stand; above it, a
-// question to the author (R166).
+// question to the author.
 export const LIMIT_USD = 2;
 // A first dev-app in a fresh clone builds api and downloads its modules.
 const READY_MS = 15 * 60_000;

@@ -1,5 +1,5 @@
 // orchestrator: runs a task of a NovaTrail repository in that repository's container, and continues
-// the same session with the author's answers (R156).
+// the same session with the author's answers.
 //
 //   node tools/orchestrator/main.mjs start <repo> <task> [--ceiling <usd>] [--prompt <file>]
 //                                          [--container <name or id>] [--folder <host's folder>]
@@ -26,9 +26,9 @@
 // it has ended. Each command prints JSON, a line for each run; next, the next free number of a
 // repository's task, by GitHub and the runs; sync, the path and the commit of the orchestrator's
 // clone of spec; rebuild and create, the container before and after, once the Dev Containers CLI
-// has built it (R158); xrepo, a task across repositories in the clones of .epics and its stand
-// (R166), xrepo.mjs, its gate, gate.mjs, and its ship after the author's «да», ship.mjs. Exits 0 when done, 1 when what it was asked cannot be done or wait's time ran
-// out, 2 on a wrong command line.
+// has built it; xrepo, a task across repositories in the clones of .epics and its stand,
+// xrepo.mjs, its gate, gate.mjs, and its ship after the author's «да», ship.mjs. Exits 0 when done,
+// 1 when what it was asked cannot be done or wait's time ran out, 2 on a wrong command line.
 // README.md says what each file of a run holds. It takes only Node's own modules, so that it runs
 // from the clone that sync keeps, which has no node_modules.
 

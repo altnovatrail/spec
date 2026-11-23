@@ -1,6 +1,6 @@
 // Where a task of a repository runs: the container of that repository's clone on the host, which
 // Dev Containers created when the author opened the clone in VS Code, or the orchestrator's own
-// rebuild or create by the Dev Containers CLI (R156, R158).
+// rebuild or create by the Dev Containers CLI.
 //
 // Dev Containers labels each container with the host's folder it was opened from and the
 // configuration it was built by; spec's folder has two configurations, so only both labels together

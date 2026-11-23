@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "The status of an executor's run",
-  "description": "What a run of claude -p returns to spec's orchestrator as its structured output, by the contract tools/orchestrator/executor.md (R156): whether the task is done, waits on the author or failed, its number, the questions it waits on, the pull request and the report.",
+  "description": "What a run of claude -p returns to spec's orchestrator as its structured output, by the contract tools/orchestrator/executor.md: whether the task is done, waits on the author or failed, its number, the questions it waits on, the pull request and the report.",
   "type": "object",
   "properties": {
     "status": {
@@ -9,7 +9,7 @@
       "enum": ["done", "waiting", "failed"]
     },
     "task": {
-      "description": "The number of the task the run did, as this repository's RUN.md numbers it, such as T28: the one the prompt named, or the one the run wrote the task under when that was taken.",
+      "description": "The number of the task the run did, as this repository's RUN.md numbers it, such as `T28`: the one the prompt named, or the one the run wrote the task under when that was taken.",
       "type": "string",
       "pattern": "^T\\d+$"
     },

@@ -113,7 +113,7 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T270 | Документы `spec`: privacy и dpia | Claude | — | T258, T278 |
 | [x] | T271 | Документы `spec`: product, repositories, README, CLAUDE.md, правила частей, план | Claude | — | T258, T278 |
 | [x] | T272 | Документы `spec`: sources и measurements | Claude | — | T258, T278 |
-| [ ] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258, T278 |
+| [x] | T273 | Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/` | Claude | — | T258, T278 |
 | [ ] | T274 | Комментарии кода: остальное `tools/` | Claude | — | T258, T278 |
 | [ ] | T275 | Комментарии CI и окружения; ключ `citations` в `spec` | Claude | — | T260–T274, T278, T280, T281 |
 | [ ] | T276 | Итог эпика E22: замер «после», архив | Claude | — | T275, T278; строки 7.38–7.49 |
@@ -121,13 +121,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T278 | `docs-check`: строгое правило по ключу `citations`; тег | Claude | — | T277 |
 | [x] | T280 | Журнал `spec`, R01–R31: ссылки по строгому правилу | Claude | — | T260, T278 |
 | [x] | T281 | Журнал `spec`, R32–R63: ссылки по строгому правилу | Claude | — | T261, T262, T278 |
-
-#### T273. Комментарии кода: `tools/orchestrator/`, `tools/docs-check/`, `tools/new-repo/`, `tools/session/`
-
-- **Цель:** комментарии этих папок — по правилу T257: причина словами, номер решения — только где важны отвергнутые варианты; номеров задач нет.
-- **Сделать:** каждый `(R…)` — по правилу: оставить, где он держит отвергнутое; иначе — причина словами в одну фразу или ничего, если комментарий пересказывает код (R160). Замер «до» и «после» на 1 000 строк — в «Сделано». Код не менять; README и `executor.md` оркестратора — как документы, по правилу. `tools/docs-check/` и `tools/new-repo/` уже по строгому правилу — T278.
-- **Как проверить:** правило tools — тесты тронутых папок; `just docs-check`.
-- **Разделы:** T257; R160; `.claude/rules/tools.md`.
 
 #### T274. Комментарии кода: остальное `tools/`
 
