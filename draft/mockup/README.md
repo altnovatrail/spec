@@ -145,10 +145,10 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `solve-correct` | "Correct", and "Next task" | First slice |
 | `solve-all` | Every task of the page over: "New photo" | First slice |
 | `pick-several` | A frame dragged by hand round two equations of the page at once | First slice |
-| `solve-several` | Check of a frame of two tasks, each by its own key: "Not yet · 1 of 2 correct", and a tick or a cross on a white halo by each answer on the crop; a second Check, "Correct · 2 of 2" | First slice |
+| `solve-several` | Check of a frame of two tasks, each with a verdict of its own: "Not yet · 1 of 2 correct", and a tick or a cross on a white halo by each answer on the crop; a second Check, "Correct · 2 of 2" | First slice |
 | `olympiad` | A problem of an olympiad book on its sheet: the answer is an option circled on the crop | First slice |
 | `solve-circle` | Check with no option circled: "Circle an answer first" | First slice |
-| `solve-nokey` | A task that could not be checked: the AI's solution gave no answer a program can compare, so it has no key; hints still work | First slice |
+| `solve-nokey` | A task that could not be checked, "Couldn't check this one"; hints still work | First slice |
 | `pick-debug` | The page photographed by an account with the right of the debug mode: the debug button above the tutor's, and its window's Models — the first model for every call, a second to read the work | An account with the right alone |
 | `solve-debug-log` | A Check by an account with the right of the debug mode: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check; as admitted, the work read in two attempts, Haiku's unreadable and then Sonnet's, as each call asks the next model only when the one before did not do | An account with the right alone |
 | `solve-debug-export` | A Check of the Log exported: its truth — for each task of the frame its statement, formula, key, value read and verdict, and a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | An account with the right alone |
@@ -161,7 +161,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `later-pip` | Pip, a child's tutor, with its text field and microphone | Later · E4 app |
 | `later-kinds` | The canvas kinds of other authors, under «…» in the top bar of a task from paper | Later · E5 |
 
-A state shows its demo: the first Check of a task is "Not yet" and the second "Correct", so that a lesson and a page show every part. That is the mockup's convention, not behaviour: the program decides each verdict by the key. On the demo's pages the AI finds five of the six equations and all six problems; one problem, the staircase, has no key — its solution gives no one answer.
+A state shows its demo: the first Check of a task is "Not yet" and the second "Correct", so that a lesson and a page show every part. That is the mockup's convention, not behaviour: the program decides each verdict of a task of a module by the key, and the model's Check each verdict of a task from paper. On the demo's pages the AI finds five of the six equations and all six problems; one problem, the staircase, the mockup draws as unchecked.
 
 ### The template, part by part
 
@@ -316,7 +316,10 @@ The mockup is the look; the documents keep the behaviour. What the mockup shows 
 | A tooltip of CSS alone, which Escape does not dismiss | A tooltip that can be dismissed (WCAG 1.4.13) | `app`, `canvas` |
 | Two fixed sizes in absolute px | A layout from the width, down to 320 CSS px | `app`, `canvas`, by the rules of "Two sizes" above |
 | The sheet moves by dragging, with no buttons "Up", "Down", "Left" and "Right" | The same, and 2.5.7 a declared nonconformance | `canvas` drops the buttons and declares it, `app` names it on its page Accessibility (Д242) |
-| The demo's first Check "Not yet", the second "Correct" | The program decides each verdict by the key | Nobody: a convention of the demo |
+| The demo's first Check "Not yet", the second "Correct" | The program decides each verdict of a task of a module by the key, and the model's Check each verdict of a task from paper | Nobody: a convention of the demo |
+| The staircase of the demo, and `solve-nokey`: a word problem unchecked, its solution having no one answer | The Check judges a task of any form; "Couldn't check this one" is left for a Check that read nothing of a solution in any slot | `app` shows the state only then |
+| `pick-debug`: a second model to read the work | One model chosen for every call of a task from paper: the Check is one call, of one model at a time | `app` |
+| `solve-debug-export`: the truth holds each task's statement, formula and key | The truth is each answer's value read and its verdict | `app` |
 | On a task with options, "Circle an answer first" on an empty sheet, and "No circled answer found" or "Two answers are circled" after the reading | `app` does not know whether a task from paper has options: an empty sheet is "Write your solution first", and the reasons `no_final_answer` and `several_final_answers` are "No answer found" and "More than one answer" | `app` |
 | The task screen's states that the mockup does not draw — a task already over, the failures, the reasons of an unreadable answer, the lines of a hidden button | `app` draws them by the rules of style here | `app`; the canvas note `t155` names each by the key of its string |
 | The texts' gists and versions written into the mockup, and five countries | The texts come from `api` (`LegalService`), and the countries are those the deployment accepts | `app` reads them; the mockup's are a sample |

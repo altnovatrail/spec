@@ -12,7 +12,7 @@
 
 - A subject comes as a **module**: a skill graph, lessons, tasks, typical mistakes, techniques and a canvas kind. Any author can write a module.
 - The learner works on a **canvas**: writes by hand, draws, types text, moves objects, speaks.
-- The **AI tutor** reads the learner's work and talks with them in text and voice. Whether an answer is correct is decided by a program by the task's key, not by the model.
+- The **AI tutor** reads the learner's work and talks with them in text and voice. Whether an answer is correct is decided by a program by the task's key, not by the model; only on a task from the learner's own paper, which no module holds, a model judges the work, and that verdict moves no rating.
 - The **learner model** brings the skills of all modules together, and the **engine** chooses the next lesson or task.
 
 **The main idea: a module is data for the engine, not an instruction to a model.**
@@ -80,20 +80,24 @@ flowchart TD
     P -->|"not yet"| NY["What was read; with the tutor's panel open, the place of the mistake and the tutor's question"]
     P -->|"unreadable"| RW["A request to rewrite or to circle"]
     P -->|"no key"| FB["Feedback by the author's criteria"]
+    C -->|"task from paper"| K{"The Check: a model judges the work"}
+    K -->|"correct"| OK
+    K -->|"not yet"| NY
+    K -->|"unreadable"| RW
     NY --> W
     RW --> W
-    OK --> M["The learner model is updated"]
-    NY --> M
+    OK -->|"a task of a module"| M["The learner model is updated"]
+    NY -->|"a task of a module"| M
     FB -.-> M
     M --> E
 ```
 
-A typed answer or a choice is not read by AI: a program checks it at once. An option circled on a task from paper is handwriting, and AI reads it.
+A typed answer or a choice is not read by AI: a program checks it at once. A task from paper has no key: one call of AI, the Check, judges its work, an option circled there as its label, and its verdict moves no learner model.
 
 - **Three entries** — from the prototype:
   - **«Мои предметы»** ("My subjects") — the engine leads through the connected modules;
   - **«Карта навыков»** ("Skill map") — the learner chooses a skill on the map and sees what is mastered, what opens up and what it rests on;
-  - **«Задача с моей бумаги»** ("A task from my paper"), the app's main feature, for every profile — the learner photographs a page of their own book or worksheet; AI finds the tasks on it, each found one picked, and the learner frames by hand one it missed. Each picked task is solved on a dotted sheet of its own under the task's crop as tracing paper. Check gives "Correct" or "Not yet" by a solver's key, for arithmetic and an equation in one unknown, or by the key of AI's solution, and "Couldn't check this one" when the solution gives no answer a program can compare. The solution is never shown, and the attempts are the profile's history on the device, not evidence.
+  - **«Задача с моей бумаги»** ("A task from my paper"), the app's main feature, for every profile — the learner photographs a page of their own book or worksheet; AI finds the tasks on it, each found one picked, and the learner frames by hand one it missed. Each picked task is solved on a dotted sheet of its own under the task's crop as tracing paper. Check is one call of AI, in which a model judges the work by the task's crop as printed, the work and the instruction above the frame: "Correct" or "Not yet" for each task of the frame, with no mark that a model gave it, and with it the place of the first mistake and a ladder of hints; Hint before the first Check gives the ladder's first rung by the same call. A page may hold a task of any form, which no program knows all, so the verdict is the model's: a mistake of the model now and then is better than "Couldn't check this one" on many tasks, which is left for a Check that read nothing of a solution. The solution is never shown, and the attempts are the profile's history on the device, not evidence.
 - **Two solving modes — "by steps" and "self".**
   - Step by step — the app leads through the module's solving steps, and the tutor speaks at each: in olympiad maths these are Pólya's steps.
   - On my own — the learner solves alone, and the tutor answers only when called.
@@ -127,7 +131,7 @@ flowchart LR
 - chooses the words — a hint, an explanation, praise — by rules and with checks;
 - helps the author prepare a module — before publishing, under the author's check.
 
-**What AI never does:** it does not decide whether an answer is correct, and it does not choose the next task. The platform does not pass it a name, identifiers or an adult's data.
+**What AI never does:** it does not decide whether an answer to a task of a module is correct, and it does not choose the next task. On a task from the learner's paper it finds the tasks on the page and judges the work in one call, the Check, and that verdict moves no rating. The platform does not pass it a name, identifiers or an adult's data.
 
 **Two AI routes**:
 - **platform AI** — by subscription, through the platform's agreements with providers;
@@ -145,11 +149,11 @@ Hence the recommendation: an own key is for adults, children learn through platf
 ## 7. Principles
 
 1. **A module is data.** The core knows no subject; a module gives a model no instructions.
-2. **A program gives the verdict.** AI reads the work and chooses the words; correctness is decided by a key or a predicate.
+2. **A program gives the verdict.** AI reads the work and chooses the words; correctness is decided by a key or a predicate. A task from the learner's paper, which no module holds, is the one exception: a model judges it.
 3. **A false alarm is worse than no check.** Doubt is a request to rewrite, a failure is a neutral phrase, but never a "mistake".
-4. **No deterministic check — no verdict.** An assessment by a rubric is feedback. A task from paper gets a verdict by the solver's key or by the key of AI's solution, none when the solution gives no answer a program can compare, and it never moves the rating.
+4. **No deterministic check — no verdict.** An assessment by a rubric is feedback. A task from paper gets the model's verdict, plain "Correct" or "Not yet", a doubt still a request to rewrite and an unsure "Not yet" said more softly, and it never moves the rating.
 5. **The tutor does not name the answer itself, and the app does nothing for the learner.** The tutor asks one short question and points to the place in the learner's work; a task from the learner's paper never shows its solution.
-6. **The key does not go to the learner's device** until the task is solved, and a key of a task from paper never.
+6. **The key does not go to the learner's device** until the task is solved, and the model's hidden solution and answer of a task from paper never.
 7. **The learner's work is untouchable.** The tutor writes only on its own layer.
 8. **We show what we read.** "Read: 6" — and the learner sees at once if AI read the wrong thing.
 9. **Without the "red pen" and pressure.** "Not yet" instead of "incorrect"; for children — without timers and competitions; without advertising and dark patterns.
@@ -251,7 +255,7 @@ In what order the repositories appear is set in [repositories.md](repositories.m
 | Risk or hypothesis | Why it matters | What we do |
 |---|---|---|
 | AI reads the work badly in some subject | false alarms, the learner stops trusting the tutor | a measurement before the beta for each canvas kind and answer kind; in doubt — a request to rewrite |
-| AI derives a wrong key for a task from paper | a false "Not yet" or "Correct" on the learner's own homework | a solver's key where a program can compute it; otherwise AI's solution, one for now, while the author measures how often it errs before a second, independent one (Д280); the attempts move no rating |
+| The model gives a wrong verdict on a task from paper | a false "Not yet" or "Correct" on the learner's own homework; the answer leaks in a hint or the tutor's words | the eval set of verdicts measures the Check, the share of false "Not yet" apart; an unsure "Not yet" is said more softly; the leak check of the tutor's words and every rung against the model's hidden answer; the attempts move no rating |
 | Universality turns out to be an illusion | the module format bends to maths | modules of two subjects in the first slice, and essays have no key; format v1 — after all three modules. The first slice does not test the text canvas and a language module |
 | Others' widget code in an app where children learn | access to the page, the tokens and the network | the first slice has no others' widgets; later — an iframe sandbox |
 | Own key | a weak model breaks the check; the key leaks; the provider's terms are broken | only models after eval; the key is not kept on the server, and on the device only by the key owner's choice; own key — by age category (О-4) |
@@ -276,7 +280,7 @@ A solved row keeps its number, its question in a clause, the mark "solved" and a
 | О-3 | The language of the normative texts for authors — **solved**: English, and the module format in `format/` | — | — | — |
 | О-7 | Showing the solution at the learner's request — **solved**: by a button, with the outcome "solution shown" | — | — | — |
 | О-8 | What the tutor does when the learner has gone quiet — **solved**: the work is read only on the learner's action. Sources: in the measurement E4 of `tutor` a reading after a line gave "correct" or "not yet" before the answer was written in 94 calls out of 196, and a pause policy from 0.4 s gave 15.6 readings per sheet of synthetic data and 54 on live writing. Pauses in children's writing are short and frequent, and the threshold of 2 s is weakly grounded: "The average duration of handwriting pauses was around 400ms", in grade 3 about 1.8 pauses per letter, in grade 5 1.42, and "A two-second threshold has been typically used when analyzing the writing processes. However, there is only a weak empirical basis to claim that specific average numbers and durations of pauses may be associated with specific writing processes" ([Pascual, Soler & Salas 2023](https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2022.1052264/full), read 2026-10-22). A check on a pause gives a false mistake: canvas-api took a line as finished after 6 s without a touch (sources 8.1), and its first version «показывала ложную ошибку на недописанной строке» ("showed a false mistake on an unfinished line") | — | — | — |
-| О-11 | Tasks from my paper — **solved**: a verdict by the solver's key or by the key of AI's solution, the solution never shown, the attempts history only | — | — | — |
+| О-11 | Tasks from my paper — **solved**: the model's verdict by one call, the Check, with the place of the mistake and the hints, the solution never shown, the attempts history only | — | — | — |
 | О-12 | Generating tasks on the fly — **solved**: a published pool and templates with parameters | — | — | — |
 | О-18 | A skill's tier: set by the author or computed — **solved**: computed by the longest chain of prerequisites, and the author names the tiers | — | — | — |
 | О-19 | Can the author set the order of the lessons of the whole module — **solved**: through the skill graph, without a new field | — | — | — |
