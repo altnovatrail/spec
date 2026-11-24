@@ -1919,6 +1919,10 @@ type AskGrownUpRequest struct {
 	ClockOffsetMinutes *int32 `protobuf:"varint,9,opt,name=clock_offset_minutes,json=clockOffsetMinutes,proto3,oneof" json:"clock_offset_minutes,omitempty"`
 	// The language of the screens `app` shows, a tag of BCP 47, as in `AskTutorRequest`.
 	WordsLanguage string `protobuf:"bytes,10,opt,name=words_language,json=wordsLanguage,proto3" json:"words_language,omitempty"`
+	// How many pixels of the crop of the work make a millimetre of the task's page, the page's width
+	// of 1000 units of the sheet taken as the 210 mm of A4: what a request in millimetres, as a grid
+	// every 2 mm, is drawn by. 0 when unknown; else finite, above 0 and at most 100.
+	PixelsPerMm   float32 `protobuf:"fixed32,11,opt,name=pixels_per_mm,json=pixelsPerMm,proto3" json:"pixels_per_mm,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2021,6 +2025,13 @@ func (x *AskGrownUpRequest) GetWordsLanguage() string {
 		return x.WordsLanguage
 	}
 	return ""
+}
+
+func (x *AskGrownUpRequest) GetPixelsPerMm() float32 {
+	if x != nil {
+		return x.PixelsPerMm
+	}
+	return 0
 }
 
 // A stroke the crop of the work shows, as data for the drawing: no time and no pressure.
@@ -4073,7 +4084,7 @@ const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\x10AskTutorResponse\x12\x14\n" +
 	"\x05words\x18\x01 \x01(\tR\x05words\x123\n" +
 	"\aoutcome\x18\x02 \x01(\v2\x19.novatrail.api.v1.OutcomeR\aoutcome\x12\x1a\n" +
-	"\brepeated\x18\x03 \x01(\bR\brepeated\"\xd8\x03\n" +
+	"\brepeated\x18\x03 \x01(\bR\brepeated\"\xfc\x03\n" +
 	"\x11AskGrownUpRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
@@ -4087,7 +4098,8 @@ const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\aown_key\x18\b \x01(\v2\x18.novatrail.api.v1.OwnKeyR\x06ownKey\x125\n" +
 	"\x14clock_offset_minutes\x18\t \x01(\x05H\x00R\x12clockOffsetMinutes\x88\x01\x01\x12%\n" +
 	"\x0ewords_language\x18\n" +
-	" \x01(\tR\rwordsLanguageB\x17\n" +
+	" \x01(\tR\rwordsLanguage\x12\"\n" +
+	"\rpixels_per_mm\x18\v \x01(\x02R\vpixelsPerMmB\x17\n" +
 	"\x15_clock_offset_minutes\"5\n" +
 	"\vSheetStroke\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x16\n" +

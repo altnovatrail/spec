@@ -1042,6 +1042,15 @@ export declare type AskGrownUpRequest = Message<"novatrail.api.v1.AskGrownUpRequ
    * @generated from field: string words_language = 10;
    */
   wordsLanguage: string;
+
+  /**
+   * How many pixels of the crop of the work make a millimetre of the task's page, the page's width
+   * of 1000 units of the sheet taken as the 210 mm of A4: what a request in millimetres, as a grid
+   * every 2 mm, is drawn by. 0 when unknown; else finite, above 0 and at most 100.
+   *
+   * @generated from field: float pixels_per_mm = 11;
+   */
+  pixelsPerMm: number;
 };
 
 /**
