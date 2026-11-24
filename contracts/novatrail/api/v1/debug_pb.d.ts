@@ -684,7 +684,8 @@ export enum DebugActionKind {
 
   /**
    * A request for the tutor's words on an attempt of a task from paper that calls AI:
-   * `GetOpeningWords`, whose call is a Check, or `ExplainDifferently`. `GetRungWords` calls none.
+   * `GetOpeningWords`, whose call is a Check, `ExplainDifferently`, or `AskTutor`, a Check first
+   * while the attempt keeps none and then the words. `GetRungWords` calls none.
    *
    * @generated from enum value: DEBUG_ACTION_KIND_WORDS = 3;
    */
@@ -747,7 +748,8 @@ export enum DebugCallKind {
   WORK_READING = 5,
 
   /**
-   * The tutor's words of "explain differently", a rung in other words, `hint` without the work.
+   * The tutor's words of "explain differently", a rung in other words, or of an answer to the
+   * learner's question, `AskTutor`: `hint` without the work.
    * The opening question and a rung's words are no longer calls of their own: they come from the
    * Check's ladder.
    *

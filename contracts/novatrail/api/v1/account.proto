@@ -285,7 +285,8 @@ message Profile {
   // attempt. It goes to no AI.
   Mode default_mode = 8;
   // The language of the interface, a tag of BCP 47: absent when none is set, and then `app` speaks
-  // the language of the device. It goes to no AI.
+  // the language of the device. On a task from paper the tutor's words are in it when a request
+  // names no `words_language`, and in English when it is absent too.
   optional string interface_language = 9;
   // The grade, from 1 to 12, as a module with grades asks for it: absent when none is given.
   optional int32 grade = 10;

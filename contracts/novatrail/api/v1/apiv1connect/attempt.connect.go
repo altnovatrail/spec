@@ -50,6 +50,8 @@ const (
 	// AttemptServiceGetOpeningWordsProcedure is the procedure name of the AttemptService's
 	// GetOpeningWords RPC.
 	AttemptServiceGetOpeningWordsProcedure = "/novatrail.api.v1.AttemptService/GetOpeningWords"
+	// AttemptServiceAskTutorProcedure is the procedure name of the AttemptService's AskTutor RPC.
+	AttemptServiceAskTutorProcedure = "/novatrail.api.v1.AttemptService/AskTutor"
 	// AttemptServiceReadStatementProcedure is the procedure name of the AttemptService's ReadStatement
 	// RPC.
 	AttemptServiceReadStatementProcedure = "/novatrail.api.v1.AttemptService/ReadStatement"
@@ -118,6 +120,13 @@ var (
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("GetOpeningWords"),
 			Procedure:  AttemptServiceGetOpeningWordsProcedure,
+		}
+	})
+	attemptServiceAskTutorSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("AskTutor"),
+			Procedure:  AttemptServiceAskTutorProcedure,
 		}
 	})
 	attemptServiceReadStatementSpec = sync.OnceValue(func() connect.Spec {
@@ -228,6 +237,22 @@ type AttemptServiceClient interface {
 	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
 	// request once it keeps them, gets them with no AI; a fallback text is not kept.
 	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
+	// A question of the learner's own about a task from paper, typed in the tutor's field or said
+	// into it and read before Send: one call of AI, the words of a task from paper, which answers as
+	// the tutor does — never with the answer or a step the learner has not written —, with the
+	// tasks of the frame as the Check the attempt keeps gave them, the hints given, and the
+	// conversation on the task so far as `app` holds it. The question and the conversation go to
+	// the AI as data, never as instructions, and the server keeps neither, in no log and no record of
+	// the key. While the attempt keeps no Check, the Check reads the work as it stands first, as
+	// `GetOpeningWords` does, and the attempt keeps it with no verdict shown and no wrong answer
+	// counted. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a module, a question empty or
+	// too long, gets `invalid_argument`. A call of AI that gives no words, the quota, the limit of
+	// platform AI and no admission are no refusal: the answer holds the opening question's fallback
+	// text and names the outcome, as do words that fail the leak check or the form check, with no
+	// outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
+	// none.
+	AskTutor(context.Context, *v1.AskTutorRequest) (*v1.AskTutorResponse, error)
 	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
 	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
 	// statement, `statement_reading`, made on the learner's press, by the route of the attempt: the
@@ -349,6 +374,22 @@ type AttemptServiceHandler interface {
 	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
 	// request once it keeps them, gets them with no AI; a fallback text is not kept.
 	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
+	// A question of the learner's own about a task from paper, typed in the tutor's field or said
+	// into it and read before Send: one call of AI, the words of a task from paper, which answers as
+	// the tutor does — never with the answer or a step the learner has not written —, with the
+	// tasks of the frame as the Check the attempt keeps gave them, the hints given, and the
+	// conversation on the task so far as `app` holds it. The question and the conversation go to
+	// the AI as data, never as instructions, and the server keeps neither, in no log and no record of
+	// the key. While the attempt keeps no Check, the Check reads the work as it stands first, as
+	// `GetOpeningWords` does, and the attempt keeps it with no verdict shown and no wrong answer
+	// counted. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a module, a question empty or
+	// too long, gets `invalid_argument`. A call of AI that gives no words, the quota, the limit of
+	// platform AI and no admission are no refusal: the answer holds the opening question's fallback
+	// text and names the outcome, as do words that fail the leak check or the form check, with no
+	// outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
+	// none.
+	AskTutor(context.Context, *v1.AskTutorRequest) (*v1.AskTutorResponse, error)
 	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
 	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
 	// statement, `statement_reading`, made on the learner's press, by the route of the attempt: the
@@ -399,6 +440,7 @@ func RegisterAttemptServiceHandler(server *connect.Server, svc AttemptServiceHan
 		connect.Method{Spec: attemptServiceExplainDifferentlySpec(), Handler: adapter.explainDifferently},
 		connect.Method{Spec: attemptServiceGetHintSpec(), Handler: adapter.getHint},
 		connect.Method{Spec: attemptServiceGetOpeningWordsSpec(), Handler: adapter.getOpeningWords},
+		connect.Method{Spec: attemptServiceAskTutorSpec(), Handler: adapter.askTutor},
 		connect.Method{Spec: attemptServiceReadStatementSpec(), Handler: adapter.readStatement},
 		connect.Method{Spec: attemptServiceBeginStepSpec(), Handler: adapter.beginStep},
 		connect.Method{Spec: attemptServiceShowSolutionSpec(), Handler: adapter.showSolution},
@@ -439,6 +481,10 @@ func (UnimplementedAttemptServiceHandler) GetHint(context.Context, *v1.GetHintRe
 
 func (UnimplementedAttemptServiceHandler) GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.GetOpeningWords is not implemented")
+}
+
+func (UnimplementedAttemptServiceHandler) AskTutor(context.Context, *v1.AskTutorRequest) (*v1.AskTutorResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.AskTutor is not implemented")
 }
 
 func (UnimplementedAttemptServiceHandler) ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error) {
@@ -520,6 +566,14 @@ func (c *attemptServiceClient) GetHint(ctx context.Context, req *v1.GetHintReque
 func (c *attemptServiceClient) GetOpeningWords(ctx context.Context, req *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error) {
 	var res v1.GetOpeningWordsResponse
 	if err := c.client.CallUnary(ctx, attemptServiceGetOpeningWordsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *attemptServiceClient) AskTutor(ctx context.Context, req *v1.AskTutorRequest) (*v1.AskTutorResponse, error) {
+	var res v1.AskTutorResponse
+	if err := c.client.CallUnary(ctx, attemptServiceAskTutorSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -649,6 +703,18 @@ func (h attemptServiceHandler) getOpeningWords(ctx context.Context, _ connect.Sp
 		return err
 	}
 	res, err := h.svc.GetOpeningWords(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h attemptServiceHandler) askTutor(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.AskTutorRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.AskTutor(ctx, &req)
 	if err != nil {
 		return err
 	}

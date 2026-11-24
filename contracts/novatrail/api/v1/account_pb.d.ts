@@ -228,7 +228,8 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
 
   /**
    * The language of the interface, a tag of BCP 47: absent when none is set, and then `app` speaks
-   * the language of the device. It goes to no AI.
+   * the language of the device. On a task from paper the tutor's words are in it when a request
+   * names no `words_language`, and in English when it is absent too.
    *
    * @generated from field: optional string interface_language = 9;
    */

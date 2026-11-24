@@ -106,7 +106,8 @@ const (
 	// `SubmitWork` of an attempt of a task from paper: its one call of the Check.
 	DebugActionKind_DEBUG_ACTION_KIND_CHECK DebugActionKind = 2
 	// A request for the tutor's words on an attempt of a task from paper that calls AI:
-	// `GetOpeningWords`, whose call is a Check, or `ExplainDifferently`. `GetRungWords` calls none.
+	// `GetOpeningWords`, whose call is a Check, `ExplainDifferently`, or `AskTutor`, a Check first
+	// while the attempt keeps none and then the words. `GetRungWords` calls none.
 	DebugActionKind_DEBUG_ACTION_KIND_WORDS DebugActionKind = 3
 )
 
@@ -171,7 +172,8 @@ const (
 	// The work read, `handwriting_reading`: no longer recorded for a task from paper, since the
 	// Check reads the work itself.
 	DebugCallKind_DEBUG_CALL_KIND_WORK_READING DebugCallKind = 5
-	// The tutor's words of "explain differently", a rung in other words, `hint` without the work.
+	// The tutor's words of "explain differently", a rung in other words, or of an answer to the
+	// learner's question, `AskTutor`: `hint` without the work.
 	// The opening question and a rung's words are no longer calls of their own: they come from the
 	// Check's ladder.
 	DebugCallKind_DEBUG_CALL_KIND_TUTOR_WORDS DebugCallKind = 6

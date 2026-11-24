@@ -89,6 +89,16 @@ export declare type SubmitWorkRequest = Message<"novatrail.api.v1.SubmitWorkRequ
    * @generated from field: string own_key_provider = 8;
    */
   ownKeyProvider: string;
+
+  /**
+   * On a task from paper, the language of the screens `app` shows the learner, a tag of BCP 47: the
+   * tutor's words of the Check and its ladder of hints are written in it, and `app` voices them by
+   * it. Empty: the profile's `interface_language`, else English. A tag that is not well-formed gets
+   * the code `invalid_argument`. Not read on a task of a module.
+   *
+   * @generated from field: string words_language = 9;
+   */
+  wordsLanguage: string;
 };
 
 /**
@@ -401,6 +411,16 @@ export declare type GetRungWordsRequest = Message<"novatrail.api.v1.GetRungWords
    * @generated from field: optional int32 clock_offset_minutes = 7;
    */
   clockOffsetMinutes?: number | undefined;
+
+  /**
+   * On a task from paper, the language of the screens `app` shows the learner, a tag of BCP 47: the
+   * fallback text of a rung the Check gave no words for is in it, and `app` voices it by it. Empty:
+   * the profile's `interface_language`, else English. A tag that is not well-formed gets the code
+   * `invalid_argument`. Not read on a task of a module.
+   *
+   * @generated from field: string words_language = 8;
+   */
+  wordsLanguage: string;
 };
 
 /**
@@ -600,6 +620,16 @@ export declare type ExplainDifferentlyRequest = Message<"novatrail.api.v1.Explai
    * @generated from field: optional int32 wrong_answers = 6;
    */
   wrongAnswers?: number | undefined;
+
+  /**
+   * On a task from paper, the language of the screens `app` shows the learner, a tag of BCP 47: the
+   * words of the rung in other words are written in it, and `app` voices them by it. Empty: the
+   * profile's `interface_language`, else English. A tag that is not well-formed gets the code
+   * `invalid_argument`. Not read on a task of a module.
+   *
+   * @generated from field: string words_language = 7;
+   */
+  wordsLanguage: string;
 };
 
 /**
@@ -656,6 +686,16 @@ export declare type GetHintRequest = Message<"novatrail.api.v1.GetHintRequest"> 
    * @generated from field: string attempt_id = 2;
    */
   attemptId: string;
+
+  /**
+   * On a task from paper, the language of the screens `app` shows the learner, a tag of BCP 47: the
+   * fallback text of a rung the Check gave no words for is in it, and `app` voices it by it.
+   * Empty: the profile's `interface_language`, else English. A tag that is not well-formed gets the
+   * code `invalid_argument`. Not read on a task of a module.
+   *
+   * @generated from field: string words_language = 3;
+   */
+  wordsLanguage: string;
 };
 
 /**
@@ -720,6 +760,16 @@ export declare type GetOpeningWordsRequest = Message<"novatrail.api.v1.GetOpenin
    * @generated from field: novatrail.api.v1.Work work = 7;
    */
   work?: Work | undefined;
+
+  /**
+   * On a task from paper, the language of the screens `app` shows the learner, a tag of BCP 47: the
+   * opening question is written in it, and `app` voices it by it. Empty: the profile's
+   * `interface_language`, else English. A tag that is not well-formed gets the code
+   * `invalid_argument`. Not read on a task of a module.
+   *
+   * @generated from field: string words_language = 8;
+   */
+  wordsLanguage: string;
 };
 
 /**
@@ -763,6 +813,153 @@ export declare type GetOpeningWordsResponse = Message<"novatrail.api.v1.GetOpeni
  * Use `create(GetOpeningWordsResponseSchema)` to create a new message.
  */
 export declare const GetOpeningWordsResponseSchema: GenMessage<GetOpeningWordsResponse>;
+
+/**
+ * A question of the learner's own about a task from paper.
+ *
+ * @generated from message novatrail.api.v1.AskTutorRequest
+ */
+export declare type AskTutorRequest = Message<"novatrail.api.v1.AskTutorRequest"> & {
+  /**
+   * The profile whose attempt it is.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The attempt, of a task from paper.
+   *
+   * @generated from field: string attempt_id = 2;
+   */
+  attemptId: string;
+
+  /**
+   * The idempotency key of this question: `app` makes one for it, and sends it again with every
+   * repeat of it.
+   *
+   * @generated from field: string idempotency_key = 3;
+   */
+  idempotencyKey: string;
+
+  /**
+   * The question as the learner sent it: at most 500 code points, not empty, no control character
+   * but a line break.
+   *
+   * @generated from field: string question = 4;
+   */
+  question: string;
+
+  /**
+   * The conversation on the task before the question, oldest first, as `app` holds it in the
+   * tab's memory: the learner's questions and the tutor's words — hints and answers —, at most 8
+   * turns, each at most 1000 code points.
+   *
+   * @generated from field: repeated novatrail.api.v1.TutorTurn turns = 5;
+   */
+  turns: TutorTurn[];
+
+  /**
+   * The work as it stands, `paper` alone, as `GetOpeningWords` sends it: the Check reads it
+   * while the attempt keeps no Check, and else it is not read.
+   *
+   * @generated from field: novatrail.api.v1.Work work = 6;
+   */
+  work?: Work | undefined;
+
+  /**
+   * The learner's own key and its provider: with a profile of its owner.
+   *
+   * @generated from field: novatrail.api.v1.OwnKey own_key = 7;
+   */
+  ownKey?: OwnKey | undefined;
+
+  /**
+   * The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+   *
+   * @generated from field: optional int32 clock_offset_minutes = 8;
+   */
+  clockOffsetMinutes?: number | undefined;
+
+  /**
+   * The language of the screens `app` shows the learner, a tag of BCP 47: the answer is written
+   * in it, and `app` voices it by it. Empty: the profile's `interface_language`, else English. A
+   * tag that is not well-formed gets the code `invalid_argument`.
+   *
+   * @generated from field: string words_language = 9;
+   */
+  wordsLanguage: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.AskTutorRequest.
+ * Use `create(AskTutorRequestSchema)` to create a new message.
+ */
+export declare const AskTutorRequestSchema: GenMessage<AskTutorRequest>;
+
+/**
+ * A turn of the conversation with the tutor on a task.
+ *
+ * @generated from message novatrail.api.v1.TutorTurn
+ */
+export declare type TutorTurn = Message<"novatrail.api.v1.TutorTurn"> & {
+  /**
+   * Whether the learner said it; else the tutor did.
+   *
+   * @generated from field: bool learner = 1;
+   */
+  learner: boolean;
+
+  /**
+   * What was said.
+   *
+   * @generated from field: string text = 2;
+   */
+  text: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.TutorTurn.
+ * Use `create(TutorTurnSchema)` to create a new message.
+ */
+export declare const TutorTurnSchema: GenMessage<TutorTurn>;
+
+/**
+ * The tutor's answer to a question.
+ *
+ * @generated from message novatrail.api.v1.AskTutorResponse
+ */
+export declare type AskTutorResponse = Message<"novatrail.api.v1.AskTutorResponse"> & {
+  /**
+   * The tutor's words, whole, once they passed the leak check and the form check, or the opening
+   * question's fallback text. Empty on a repeat.
+   *
+   * @generated from field: string words = 1;
+   */
+  words: string;
+
+  /**
+   * Why the words are the fallback text, when a call of AI came to an outcome or none was made.
+   * Absent when the model's words came, or when they failed a check.
+   *
+   * @generated from field: novatrail.api.v1.Outcome outcome = 2;
+   */
+  outcome?: Outcome | undefined;
+
+  /**
+   * The answer of a repeat with the same idempotency key, which holds no words: the server keeps
+   * none.
+   *
+   * @generated from field: bool repeated = 3;
+   */
+  repeated: boolean;
+};
+
+/**
+ * Describes the message novatrail.api.v1.AskTutorResponse.
+ * Use `create(AskTutorResponseSchema)` to create a new message.
+ */
+export declare const AskTutorResponseSchema: GenMessage<AskTutorResponse>;
 
 /**
  * "Recognise" on a task from paper.
@@ -1731,6 +1928,13 @@ export enum TutorReply {
    * @generated from enum value: TUTOR_REPLY_OPENING = 5;
    */
   OPENING = 5,
+
+  /**
+   * The tutor's answer to the learner's question on a task from paper, `AskTutor`.
+   *
+   * @generated from enum value: TUTOR_REPLY_ANSWER = 6;
+   */
+  ANSWER = 6,
 }
 
 /**
@@ -2028,6 +2232,30 @@ export declare const AttemptService: GenService<{
     methodKind: "unary";
     input: typeof GetOpeningWordsRequestSchema;
     output: typeof GetOpeningWordsResponseSchema;
+  },
+  /**
+   * A question of the learner's own about a task from paper, typed in the tutor's field or said
+   * into it and read before Send: one call of AI, the words of a task from paper, which answers as
+   * the tutor does — never with the answer or a step the learner has not written —, with the
+   * tasks of the frame as the Check the attempt keeps gave them, the hints given, and the
+   * conversation on the task so far as `app` holds it. The question and the conversation go to
+   * the AI as data, never as instructions, and the server keeps neither, in no log and no record of
+   * the key. While the attempt keeps no Check, the Check reads the work as it stands first, as
+   * `GetOpeningWords` does, and the attempt keeps it with no verdict shown and no wrong answer
+   * counted. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a module, a question empty or
+   * too long, gets `invalid_argument`. A call of AI that gives no words, the quota, the limit of
+   * platform AI and no admission are no refusal: the answer holds the opening question's fallback
+   * text and names the outcome, as do words that fail the leak check or the form check, with no
+   * outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
+   * none.
+   *
+   * @generated from rpc novatrail.api.v1.AttemptService.AskTutor
+   */
+  askTutor: {
+    methodKind: "unary";
+    input: typeof AskTutorRequestSchema;
+    output: typeof AskTutorResponseSchema;
   },
   /**
    * "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints

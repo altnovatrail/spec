@@ -8,7 +8,7 @@ Table 4 of [RUN.md](../RUN.md): what was put off on purpose, its risk, when to r
 
 ## Table 4. Technical debt
 
-Numbers are not reused: next — Д304.
+Numbers are not reused: next — Д305.
 
 | ID | Debt | From | Risk while open | When to return |
 |---|---|---|---|---|
@@ -91,3 +91,4 @@ Numbers are not reused: next — Д304.
 | Д301 | R162: the Check judges a task from paper and sends the instruction's crop, the age category and the attempt's history; the texts in force that privacy 7.1 lists say a program judges by a key, naming none | T284 | A policy misstates the Check | Before the first child or the next `privacy-policy` in force: new versions |
 | Д302 | Check gaps: no `TutorReply` for its words; export 5 drops the instruction frame; `unreadable` has no reason; a printed answer counts as a leak | T285 | Mislabelled reports; a reloaded grid loses its rule | Next `export/` |
 | Д303 | `module-kit` solver, paper vectors: unused | T285 | Dead code | Decide |
+| Д304 | R173: the question to the tutor and an adult's speech by the browser's recognition (П-35); the privacy policy in force names neither. No new `legal/` version now | R173 | A policy misstates what goes to AI and to the browser's maker | Before the first learner other than the author: the next `privacy-policy` |
