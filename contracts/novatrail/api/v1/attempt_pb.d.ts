@@ -1006,7 +1006,9 @@ export declare type AskGrownUpRequest = Message<"novatrail.api.v1.AskGrownUpRequ
   turns: TutorTurn[];
 
   /**
-   * The work as it stands, `paper` alone: the drawing reads its `crop` and its `statement`.
+   * The work as it stands, `paper` alone: the drawing reads its `statement`, and its `crop`, which
+   * is the part of the sheet in sight, as the grown-up sees it, with room to write in — not the crop
+   * of the Check, which ends at the strokes —, and may hold no stroke.
    *
    * @generated from field: novatrail.api.v1.Work work = 6;
    */

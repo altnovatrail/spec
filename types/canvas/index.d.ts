@@ -797,8 +797,17 @@ export interface CanvasElement extends HTMLElement {
    */
   exportWork(): Promise<ExportedWork | null>;
   /**
+   * The work of a task from paper for the drawing of grown-up mode: the crop of the part of the sheet
+   * in sight, as the grown-up sees it — the tracing paper where it lies, when shown, and every stroke
+   * in sight, in its style —, with room to write in, at most 1568 px on its longer edge, the task's
+   * crop as `exportWork()` gives it, and the context of the submission for
+   * `cropStrokes` and `drawTutor`. A sheet with no stroke gives it too. Without a task from paper it
+   * is a TypeError.
+   */
+  exportForDrawing(): Promise<ExportedPaper>;
+  /**
    * The strokes the crop of a task from paper shows, by the context of the submission
-   * `exportWork()` gave with that crop, for the tutor in grown-up mode: in the sheet's order, each
+   * `exportWork()` or `exportForDrawing()` gave with that crop, for the tutor in grown-up mode: in the sheet's order, each
    * in the crop's pixels. Another context than a task from paper's is a TypeError.
    */
   cropStrokes(submission: PaperSubmission): readonly CropStroke[];

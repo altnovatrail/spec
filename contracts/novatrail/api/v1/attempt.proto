@@ -520,7 +520,9 @@ message AskGrownUpRequest {
   // The conversation on the task before the request, oldest first, as in `AskTutorRequest`: at
   // most 8 turns, each at most 1000 code points.
   repeated TutorTurn turns = 5;
-  // The work as it stands, `paper` alone: the drawing reads its `crop` and its `statement`.
+  // The work as it stands, `paper` alone: the drawing reads its `statement`, and its `crop`, which
+  // is the part of the sheet in sight, as the grown-up sees it, with room to write in — not the crop
+  // of the Check, which ends at the strokes —, and may hold no stroke.
   Work work = 6;
   // The strokes the crop of the work shows, in the order of the sheet: at most 3000, each with at
   // most 512 points.

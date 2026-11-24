@@ -1906,7 +1906,9 @@ type AskGrownUpRequest struct {
 	// The conversation on the task before the request, oldest first, as in `AskTutorRequest`: at
 	// most 8 turns, each at most 1000 code points.
 	Turns []*TutorTurn `protobuf:"bytes,5,rep,name=turns,proto3" json:"turns,omitempty"`
-	// The work as it stands, `paper` alone: the drawing reads its `crop` and its `statement`.
+	// The work as it stands, `paper` alone: the drawing reads its `statement`, and its `crop`, which
+	// is the part of the sheet in sight, as the grown-up sees it, with room to write in — not the crop
+	// of the Check, which ends at the strokes —, and may hold no stroke.
 	Work *Work `protobuf:"bytes,6,opt,name=work,proto3" json:"work,omitempty"`
 	// The strokes the crop of the work shows, in the order of the sheet: at most 3000, each with at
 	// most 512 points.
