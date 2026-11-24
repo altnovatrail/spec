@@ -27,7 +27,7 @@ CI runs every check in the `toolchain` stage of `.devcontainer/Dockerfile`, by `
 
 ## The orchestrator's stage
 
-`orchestrator`, the last stage of spec's Dockerfile, is `devcontainer` with the Docker client and the Dev Containers CLI; `.devcontainer/orchestrator/devcontainer.json` builds it with the host's socket, the ordinary configuration otherwise. It builds without `docker-gid` too, for the ordinary configuration on a host without buildx (sources 9.4). `just toolchain-test` holds all this; `orchestrator.yml`, on a change of `.devcontainer/`, builds it on amd64 and arm64, not required. `just new-repo` leaves it out of a copy.
+`orchestrator`, the last stage of spec's Dockerfile, is `devcontainer` with the Docker client and the Dev Containers CLI; `.devcontainer/orchestrator/devcontainer.json` builds it with the host's socket, the ordinary configuration otherwise. It builds without `docker-gid` too, for the ordinary configuration on a host without buildx (measurements 4.5). `just toolchain-test` holds all this; `orchestrator.yml`, on a change of `.devcontainer/`, builds it on amd64 and arm64, not required. `just new-repo` leaves it out of a copy.
 
 ## Verifying release files
 
