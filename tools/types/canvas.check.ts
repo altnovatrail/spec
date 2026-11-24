@@ -34,7 +34,7 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   get filled(): canvas.Filled | null;
   exportWork(): Promise<canvas.ExportedWork | null>;
   cropStrokes(submission: canvas.PaperSubmission): readonly canvas.CropStroke[];
-  drawTutor(submission: canvas.PaperSubmission, act: canvas.TutorAct): void;
+  drawTutor(submission: canvas.PaperSubmission, act: canvas.TutorAct): Promise<void>;
   exportPicture(): Promise<Blob>;
   readonly paintStats: canvas.PaintStats;
   paintFlash: boolean;

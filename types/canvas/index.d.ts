@@ -808,10 +808,11 @@ export interface CanvasElement extends HTMLElement {
    * tracing paper is shown, else on the sheet, of the pen kind "liner", and the strokes it takes off
    * among those the sheet shows. Its strokes are drawn one after another, at the speed of a hand but
    * all within 3 s, and at once with reduced motion; an undo takes the act back whole. It sends
-   * `historychange`. An act with an ID the sheet does not show, a point off the sheet or a colour
-   * that is not `#rrggbb` is a TypeError, and the sheet stays as it was.
+   * `historychange` at once, and resolves once the last stroke is drawn, or at once when the drawing
+   * is cut short. An act with an ID the sheet does not show, a point off the sheet or a colour that
+   * is not `#rrggbb` is a TypeError, thrown before anything changes.
    */
-  drawTutor(submission: PaperSubmission, act: TutorAct): void;
+  drawTutor(submission: PaperSubmission, act: TutorAct): Promise<void>;
   /**
    * The picture of the work, which app puts as the stored work's `picture` in the contract between
    * app and api: always a Blob of a PNG, with no condition, of the strokes the surface shows as it is
