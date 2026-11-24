@@ -34,6 +34,8 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   get filled(): canvas.Filled | null;
   exportWork(): Promise<canvas.ExportedWork | null>;
   exportPicture(): Promise<Blob>;
+  readonly paintStats: canvas.PaintStats;
+  paintFlash: boolean;
   undo(): boolean;
   clear(): boolean;
 }
@@ -192,6 +194,15 @@ export const filled: canvas.Filled | null = sheet.filled;
 export const first: boolean | undefined = sheet.filled?.[0]?.[0];
 export const work: Promise<canvas.ExportedWork | null> = sheet.exportWork();
 export const picture: Promise<Blob> = sheet.exportPicture();
+
+/** The debug view reads what the drawing costs, and turns the flash of what a frame paints. */
+const stats: canvas.PaintStats = sheet.paintStats;
+export const paintP95: number = [...stats.paintMs].sort((a, b) => a - b)[Math.floor(stats.paintMs.length * 0.95)] ?? 0;
+export const lastArea: number | undefined = stats.last?.area;
+export const bytes: number = stats.buffers.reduce((n, b) => n + b.width * b.height * 4, 0);
+sheet.paintFlash = true;
+// @ts-expect-error: the reading is the element's, never the consumer's
+sheet.paintStats = stats;
 
 /** A worked example in place of the task, and how far its demo has gone, which app keeps. */
 sheet.task = undefined;

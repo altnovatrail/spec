@@ -567,6 +567,32 @@ export interface Marks {
   readonly marks: readonly Mark[];
 }
 
+/**
+ * What the element's drawing holds and has cost, for a developer's debug view of the device's load:
+ * a reading of counters the element keeps anyway, which no learner's data is in.
+ */
+export interface PaintStats {
+  /** The finished strokes the element holds, on the sheet and on the tracing paper. */
+  readonly strokes: number;
+  /** Their points, in all. */
+  readonly points: number;
+  /** The frames the element has painted since it was built. */
+  readonly frames: number;
+  /** Of them, those that repainted all in sight: a scroll, a resize, a scale, an undo, the eraser, a theme. */
+  readonly fullRepaints: number;
+  /** The strokes filled since the element was built, on its canvas and its buffers. */
+  readonly fills: number;
+  /**
+   * The last frame painted: the strokes it filled, the share of the view it repainted, 0 to 1, and
+   * how long its painting took, in ms of `performance.now()`; `undefined` before the first.
+   */
+  readonly last: { readonly fills: number; readonly area: number; readonly ms: number } | undefined;
+  /** How long each of the last frames painted took, ms, oldest first: up to 120 of them. */
+  readonly paintMs: readonly number[];
+  /** Each canvas the element holds now, the screen's and its buffers', in device pixels. */
+  readonly buffers: readonly { readonly width: number; readonly height: number }[];
+}
+
 /** The events of the element, by their names, for a consumer's map of events. */
 export interface CanvasEventMap {
   historychange: HistoryChangeEvent;
@@ -737,4 +763,11 @@ export interface CanvasElement extends HTMLElement {
    * of a stored work there. Its size, in its PNG's header, is canvas's.
    */
   exportPicture(): Promise<Blob>;
+  /** What the drawing holds and has cost, a new frozen reading each time: for app's debug view. */
+  readonly paintStats: PaintStats;
+  /**
+   * While true, each rectangle a frame paints blinks red over the sheet for a moment, which no
+   * export holds: for app's debug view. False as an element comes.
+   */
+  paintFlash: boolean;
 }
