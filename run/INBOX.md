@@ -20,5 +20,6 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 | `app` | В71 | `634d45c040c5` | T194 (В48), option (a): the README of `draft/mockup/`, «Sizes», names 700 and 22–38 px as the template draws — T198 |
 | `app` | В72 | `9da92a92a0ed` | T194 (В49), option (a): every country, `api`'s refusal the answer — architecture 3.1 and Д271, back to a method of `api` — T198 |
 | `app` | В74 | `970eae2501b5` | T218 (В76), option (a): R161 — `canvas` leaves the statement out by `statement-hidden`, and `app` draws the card; architecture 3.1 and 3.2, COORDINATION rows 5.21 and 6.43 |
+| `app` | В75 | `89918d00c9d9` | T293, option (a): R90 — the closed list names the tutor's button in the bottom bar of the page to pick from, and "Ask" of the solving row of a task from paper where the row does not fit with its words; R148, R163; the README of `draft/mockup/` and its difference |
 | `infra` | В61 | `fa29925a7803` | T276 (В89), option (b): `docs-check` reads the comments `#`, `//` and `/* */` of `.tf`, `.tofu`, `.tfvars` and `.hcl`, R32; string literals stay unread, as В84 has it; `infra` turns red at none, by a trial on its `main` |
 | `tutor` | В98 | `7c3af9d6a1eb` | T276, option (a): in `spec` since v0.19.14 — the three comments of `format/vectors/leaks/` give their reason in words; `tutor` copies them by its next move to a tag |
