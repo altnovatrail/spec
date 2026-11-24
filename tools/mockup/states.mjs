@@ -217,6 +217,19 @@ export const STATES = [
   { name: "solve-asked", title: "The question sent, and the tutor's answer", from: "solve-ask", shows: "Which line of your work is it about?", run: (t) => t.v().send() },
   { name: "solve-listening", title: "The microphone listening", from: "solve", shows: "Listening", settle: false, run: (t) => (t.v().openChat(), t.v().micStart()) },
   { name: "solve-dictated", title: "The speech as text in the field, to correct before Send", from: "solve-listening", shows: "From your voice", run: (t) => t.v().micStop() },
+  // Grown-up mode: behind the grown-ups' PIN, which the account sets in its settings (the mockup's is 5555), the tutor's limits lifted on this task until it is turned off.
+  { name: "solve-grown-pin", title: "Grown-up mode behind the grown-ups' PIN", from: "solve", shows: "Enter your PIN", run: (t) => (t.v().openChat(), t.v().grown.tap()) },
+  { name: "solve-grown-wrong", title: "A wrong PIN: the dots cleared, and why", from: "solve-grown-pin", shows: "Wrong PIN", run: (t) => { for (const d of "1234") t.v().grown.keys.find((k) => k.label === d).go(); } },
+  { name: "solve-grown-on", title: "Grown-up mode on: the band, and the field for anything", from: "solve-grown-pin", shows: "Grown-up mode on", run: (t) => { for (const d of "5555") t.v().grown.keys.find((k) => k.label === d).go(); } },
+  { name: "solve-grown-written", title: "Asked in grown-up mode: the tutor goes on with the solution on the sheet", from: "solve-grown-on", shows: "the solution goes on", run: (t) => {
+    const ph = t.c.phone();
+    t.c.setState({ strokes: { ...t.c.state.strokes, [t.c.inkKey()]: t.c.hand("3x = 20 − 5 = 15", ph ? 24 : 370, ph ? 190 : 230, ph ? 30 : 44) }, draft: "Finish the solution on the sheet" });
+    t.v().send();
+  } },
+  { name: "solve-grown-struck", title: "The second line struck out in red, as asked", from: "solve-grown-written", shows: "struck out in red", run: (t) => (t.c.setState({ draft: "Cross out the second line in red" }), t.v().send()) },
+  { name: "solve-grown-erased", title: "The second line erased, as asked", from: "solve-grown-struck", shows: "line 2 erased", run: (t) => (t.c.setState({ draft: "Erase the second line" }), t.v().send()) },
+  { name: "solve-grown-hatched", title: "The second line hatched with a 2 mm grid: many strokes within 3 s", from: "solve-grown-written", shows: "hatched with a 2 mm grid", run: (t) => (t.c.setState({ draft: "Hatch the second line with a 2 mm grid" }), t.v().send()) },
+  { name: "solve-grown-off", title: "Grown-up mode turned off: the limits back, the tutor's strokes stay", from: "solve-grown-struck", shows: "Grown-up mode off", run: (t) => t.v().grown.off() },
   { name: "solve-tasks", title: "The list of the picked tasks", from: "solve", shows: "Framed by you", run: (t) => t.v().toggleTasks() },
   { name: "solve-empty", title: "Check without work", from: "solve", shows: "Write your solution first", run: (t) => t.v().check() },
   { name: "solve-reading", title: "The work being read", from: "solve", shows: "Reading your work", settle: false, run: (t) => (t.ink(), t.v().check()) },
