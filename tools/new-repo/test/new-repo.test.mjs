@@ -593,16 +593,18 @@ test("a change to spec's devcontainer where a kind adds its own stops the recipe
 });
 
 test("the comma after spec's last entry goes before a comment on its line, not into it", () => {
+  // spec's last extension at whatever version it is raised to.
+  const last = parseJsonc(read(specRoot, ".devcontainer/devcontainer.json")).customizations.vscode.extensions.at(-1);
   const root = standIn({
     change: (r) => {
       change(r, ".devcontainer/devcontainer.json", '"git.detectSubmodules": false', '"git.detectSubmodules": false // "a // in a string"');
-      change(r, ".devcontainer/devcontainer.json", '"eamodio.gitlens@19.2.0"', '"eamodio.gitlens@19.2.0" // https://example.invalid/x');
+      change(r, ".devcontainer/devcontainer.json", `"${last}"`, `"${last}" // https://example.invalid/x`);
     },
   });
   const dir = draft("app", "typescript", "3.1", root);
   const text = read(dir, ".devcontainer/devcontainer.json");
   assert.match(text, /"git\.detectSubmodules": false, \/\/ "a \/\/ in a string"$/m);
-  assert.match(text, /"eamodio\.gitlens@19\.2\.0", \/\/ https:\/\/example\.invalid\/x$/m);
+  assert.match(text, new RegExp(`^ *"${escape(last)}", // https://example\\.invalid/x$`, "m"));
   assert.equal(devcontainer(dir).customizations.vscode.settings["git.detectSubmodules"], false);
 });
 

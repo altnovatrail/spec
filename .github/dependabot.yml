@@ -8,7 +8,8 @@
 # For npm a pull request rewrites the lock file too, with whatever packages the new version
 # brings along: licenses-check reads every one of them in CI.
 #
-# Raised by hand, before each new tag of spec, because no ecosystem here reads them: the ARGs of
+# Raised by hand, before each new tag of spec, because no ecosystem here reads them, the
+# extensions and CLAUDE_CODE_VERSION as `just devcontainer-outdated` names them: the ARGs of
 # .devcontainer/Dockerfile, each version with the sha256 of its archives, the VS Code
 # extensions in .devcontainer/devcontainer.json and in repo-template/kinds.json, and the browsers
 # of the typescript kind in repo-template/kinds/typescript.Dockerfile — Playwright's image by tag
