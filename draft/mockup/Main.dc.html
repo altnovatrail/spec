@@ -3109,7 +3109,7 @@ class Component extends DCLogic {
     const n = s.tries[k] || 0, up = { tries: { ...s.tries, [k]: n + 1 }, inkN: { ...s.inkN, [k]: (s.strokes[this.inkKey()] || []).length }, choiceOpen: false };
     if (g.options) { const p = s.picks[k]; return this.lesVerdict(p === g.key, 'You chose: ' + g.options[p], up); }
     if (s.quotaOut) return this.setState({ verdict: { kind: 'info', title: 'Not checked', line: QUOTA_READ } });
-    this.setState({ ...up, verdict: { kind: 'reading', title: 'Reading your work…', line: 'A picture of the work goes to be read, with no name.' } });
+    this.setState({ ...up, verdict: { kind: 'reading', title: 'Reading your work…', line: 'A picture of the work goes to be read.' } });
     this.later(() => {
       if (this.ctx().key !== k) return;
       if (g.rubric) {
@@ -3583,7 +3583,7 @@ class Component extends DCLogic {
     }
     const got = ol ? this.circled(t) : [];
     const inner = this.within(t), n = s.ptries[k] || 0, tried = !t.nokey && (!ol || got.length === 1);
-    this.setState({ dbgBusy: this.dbgOn(), verdict: { kind: 'reading', title: 'Reading your work…', line: 'The crop of this task with your strokes goes to be read, with no name.' }, ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null, vmarks: null });
+    this.setState({ dbgBusy: this.dbgOn(), verdict: { kind: 'reading', title: 'Reading your work…', line: 'A picture of the work goes to be read.' }, ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null, vmarks: null });
     this.later(() => {
       if (this.ctx().key !== k) return;
       if (this.dbgOn()) this.dbgAdd(this.dbgCheck(this.state, t, n, ol, got));
