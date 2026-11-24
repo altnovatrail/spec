@@ -464,7 +464,7 @@ export type Submission = SheetSubmission | WorkbookSubmission | PaperSubmission;
 
 /**
  * A stroke a crop of a task from paper shows, for the tutor in grown-up mode: its ID, and its points
- * across and down in the crop's pixels, in pairs, thinned to at most 512 points, with no time and
+ * across and down in the crop's pixels, in pairs, thinned to at most 128 points, with no time and
  * no pressure.
  */
 export interface CropStroke {

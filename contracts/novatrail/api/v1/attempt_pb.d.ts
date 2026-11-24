@@ -1016,7 +1016,7 @@ export declare type AskGrownUpRequest = Message<"novatrail.api.v1.AskGrownUpRequ
 
   /**
    * The strokes the crop of the work shows, in the order of the sheet: at most 3000, each with at
-   * most 512 points.
+   * most 128 points.
    *
    * @generated from field: repeated novatrail.api.v1.SheetStroke strokes = 7;
    */
@@ -1065,7 +1065,7 @@ export declare type SheetStroke = Message<"novatrail.api.v1.SheetStroke"> & {
 
   /**
    * Its points across and down in pixels of the crop of the work, `PaperWork.crop`, in pairs:
-   * x1, y1, x2, y2, …, as `app` thinned them to at most 512 points.
+   * x1, y1, x2, y2, …, as `app` thinned them to at most 128 points.
    *
    * @generated from field: repeated float points = 2;
    */

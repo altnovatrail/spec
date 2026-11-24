@@ -525,7 +525,7 @@ message AskGrownUpRequest {
   // of the Check, which ends at the strokes —, and may hold no stroke.
   Work work = 6;
   // The strokes the crop of the work shows, in the order of the sheet: at most 3000, each with at
-  // most 512 points.
+  // most 128 points.
   repeated SheetStroke strokes = 7;
   // The learner's own key and its provider: with a profile of its owner.
   OwnKey own_key = 8;
@@ -540,7 +540,7 @@ message SheetStroke {
   // The stroke's ID on its sheet.
   int32 id = 1;
   // Its points across and down in pixels of the crop of the work, `PaperWork.crop`, in pairs:
-  // x1, y1, x2, y2, …, as `app` thinned them to at most 512 points.
+  // x1, y1, x2, y2, …, as `app` thinned them to at most 128 points.
   repeated float points = 2;
 }
 

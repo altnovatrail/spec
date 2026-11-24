@@ -1911,7 +1911,7 @@ type AskGrownUpRequest struct {
 	// of the Check, which ends at the strokes —, and may hold no stroke.
 	Work *Work `protobuf:"bytes,6,opt,name=work,proto3" json:"work,omitempty"`
 	// The strokes the crop of the work shows, in the order of the sheet: at most 3000, each with at
-	// most 512 points.
+	// most 128 points.
 	Strokes []*SheetStroke `protobuf:"bytes,7,rep,name=strokes,proto3" json:"strokes,omitempty"`
 	// The learner's own key and its provider: with a profile of its owner.
 	OwnKey *OwnKey `protobuf:"bytes,8,opt,name=own_key,json=ownKey,proto3" json:"own_key,omitempty"`
@@ -2029,7 +2029,7 @@ type SheetStroke struct {
 	// The stroke's ID on its sheet.
 	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Its points across and down in pixels of the crop of the work, `PaperWork.crop`, in pairs:
-	// x1, y1, x2, y2, …, as `app` thinned them to at most 512 points.
+	// x1, y1, x2, y2, …, as `app` thinned them to at most 128 points.
 	Points        []float32 `protobuf:"fixed32,2,rep,packed,name=points,proto3" json:"points,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
