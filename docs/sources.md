@@ -23,7 +23,7 @@
 
 Read 2026-11-03:
 - Google, [Gemini API Additional Terms of Service](https://ai.google.dev/gemini-api/terms) — the part Age Requirements; the address redirects to [aistudio.google.com/docs/terms](https://aistudio.google.com/docs/terms): "Effective March 23, 2026", without an update date.
-- Google Cloud, [Service Specific Terms](https://cloud.google.com/terms/service-terms) — the part "20. Generative AI Services", and [Google Cloud Platform Services Summary](https://cloud.google.com/terms/services) — "Last modified October 30, 2026" at both.
+- Google Cloud, [Service Specific Terms](https://cloud.google.com/terms/service-terms) — the part "20. Generative AI Services", "Last modified November 18, 2026" —, and [Google Cloud Platform Services Summary](https://cloud.google.com/terms/services) — "Last modified October 30, 2026": read again 2026-11-24, the quoted items the same.
 
 ### 2.2. OpenAI: minors, data and the agreement
 
@@ -124,7 +124,7 @@ Read 2026-11-09:
 
 ### 3.5. Texts for adults, 2026-11-09
 
-Read 2026-11-09: COPPA — 16 CFR 312 from the [eCFR API](https://www.ecfr.gov/api/versioner/v1/full/2026-11-05/title-16.xml?part=312) as of 2026-11-05, §312.2 ("Support for the internal operations"), 312.4(b)–(d), 312.5(a), 312.6, 312.7 and 312.10, as amended on 2025-06-23; GDPR — [EUR-Lex](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679), Arts. 3(2), 12(3), 13, 14(1)(d) and 14(2)(f), 27 and 77(1); UK GDPR — [Art. 3](https://www.legislation.gov.uk/eur/2016/679/article/3) and [Art. 27](https://www.legislation.gov.uk/eur/2016/679/article/27), the version of 2026-09-30; the ICO's code, std 4, — a Wayback Machine copy of 2026-09-26, the site answers 403; transfer to the US — [Cloud Data Processing Addendum](https://cloud.google.com/terms/data-processing-addendum), "Last modified October 30, 2026", [Alternative Transfer Solution](https://cloud.google.com/terms/alternative-transfer-solution), "Last modified September 29, 2026", and [the SCCs of module 2](https://cloud.google.com/terms/sccs/eu-c2p), "Last modified August 17, 2023"; [Firebase Data Processing and Security Terms](https://firebase.google.com/terms/data-processing-terms), §10.2 and 10.6, and [Firebase's SCCs](https://firebase.google.com/terms/firebase-sccs-eu-c2p), "Last modified: September 21, 2022"; [Product Specific Schedule (Neon)](https://neon.com/platform-terms), "Last Updated: October 14, 2026", [Master Cloud Services Agreement](https://www.databricks.com/legal/mcsa), "Last Updated February 20, 2026", [Databricks DPA v3](https://www.databricks.com/legal/dpa), 2023-07-21, and [International Data Transfers FAQ](https://www.databricks.com/legal/tia-faq), "Last updated: April 23, 2026"; [OpenAI DPA](https://openai.com/policies/data-processing-addendum), "Updated: December 1, 2025", — a Wayback Machine copy of 2026-10-28, openai.com answers 403; [Anthropic DPA](https://www.anthropic.com/legal/data-processing-addendum), "Effective Feb 24, 2025"; the [Data Privacy Framework](https://www.dataprivacyframework.gov/list) list — through the API the page calls: Google LLC and Databricks, Inc. with Neon, LLC — "Active", the EU and the UK Extension, while OpenAI and Anthropic are not in it; Firebase's retention periods were checked against [Privacy and Security in Firebase](https://firebase.google.com/support/privacy), "Last modified: September 24, 2026".
+Read 2026-11-09: COPPA — 16 CFR 312 from the [eCFR API](https://www.ecfr.gov/api/versioner/v1/full/2026-11-05/title-16.xml?part=312) as of 2026-11-05, §312.2 ("Support for the internal operations"), 312.4(b)–(d), 312.5(a), 312.6, 312.7 and 312.10, as amended on 2025-06-23; GDPR — [EUR-Lex](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679), Arts. 3(2), 12(3), 13, 14(1)(d) and 14(2)(f), 27 and 77(1); UK GDPR — [Art. 3](https://www.legislation.gov.uk/eur/2016/679/article/3) and [Art. 27](https://www.legislation.gov.uk/eur/2016/679/article/27), the version of 2026-09-30; the ICO's code, std 4, — a Wayback Machine copy of 2026-09-26, the site answers 403; transfer to the US — [Cloud Data Processing Addendum](https://cloud.google.com/terms/data-processing-addendum), "Last modified October 30, 2026", [Alternative Transfer Solution](https://cloud.google.com/terms/alternative-transfer-solution), "Last modified September 29, 2026", and [the SCCs of module 2](https://cloud.google.com/terms/sccs/eu-c2p), "Last modified August 17, 2023"; [Firebase Data Processing and Security Terms](https://firebase.google.com/terms/data-processing-terms), §10.2 and 10.6, and [Firebase's SCCs](https://firebase.google.com/terms/firebase-sccs-eu-c2p), "Last modified: September 21, 2022"; [Product Specific Schedule (Neon)](https://neon.com/platform-terms), "Last Updated: October 14, 2026", [Master Cloud Services Agreement](https://www.databricks.com/legal/mcsa), "Last Updated February 20, 2026", [Databricks DPA v3](https://www.databricks.com/legal/dpa), 2023-07-21, and [International Data Transfers FAQ](https://www.databricks.com/legal/tia-faq), "Last updated: April 23, 2026"; [OpenAI DPA](https://openai.com/policies/data-processing-addendum), "Updated: December 1, 2025", — a Wayback Machine copy of 2026-10-28, openai.com answers 403; [Anthropic DPA](https://www.anthropic.com/legal/data-processing-addendum), "Effective Feb 24, 2025"; the [Data Privacy Framework](https://www.dataprivacyframework.gov/list) list — through the API the page calls: Google LLC and Databricks, Inc. with Neon, LLC — "Active", the EU and the UK Extension, while OpenAI and Anthropic are not in it; what the sign-in service takes from Google — [Users in Firebase Projects](https://firebase.google.com/docs/auth/users), "Last updated 2026-11-05 UTC": "a unique ID, a primary email address, a name and a photo URL", and [UserRecord](https://firebase.google.com/docs/reference/admin/node/firebase-admin.auth.userrecord), "Last updated 2026-11-06 UTC"; Firebase's retention periods were checked against [Privacy and Security in Firebase](https://firebase.google.com/support/privacy), "Last modified: September 24, 2026".
 
 ### 3.6. The age of digital consent, 2026-11-10
 
@@ -170,13 +170,37 @@ Read 2026-11-14. [WCAG 2.2](https://www.w3.org/TR/WCAG22/), W3C Recommendation 1
 
 ## 4. Cloud services
 
+### 4.1. Google Cloud: Cloud Run request logs
+
+Read 2026-10-18 — Google Cloud, [Cloud Run: logging](https://docs.cloud.google.com/run/docs/logging) — updated 2026-10-13:
+- "Request logs (services only): logs of requests sent to Cloud Run services. These logs are created automatically";
+- "Although you cannot control the amount of request logs directly from Cloud Run, you can make use of the logs exclusion feature from Cloud Logging".
+
+### 4.2. Google Cloud: LogEntry, HttpRequest
+
+Read 2026-10-18 — Google Cloud, [LogEntry, HttpRequest](https://docs.cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry) — updated 2026-09-04. The field `remoteIp`: "The IP address (IPv4 or IPv6) of the client that issued the HTTP request".
+
+### 4.3. Google Cloud on logs, 2026-11-08
+
+Read by `infra` 2026-11-08 and checked by the triage the same day (now sources 2.1–2.3 infra; П-9):
+- [Route log entries](https://docs.cloud.google.com/logging/docs/routing/overview): "Exclusion filters are applied after log entries are received by the Logging API or Telemetry API".
+- [Cloud Audit Logs overview](https://docs.cloud.google.com/logging/docs/audit), on Admin Activity audit logs: "you can't configure, exclude, or disable them"; [Quotas and limits](https://docs.cloud.google.com/logging/quotas) — updated 2026-11-06: "_Required … 400 days Not configurable".
+- [Identity Platform audit logging](https://docs.cloud.google.com/identity-platform/docs/audit-logging) — updated 2026-11-03: `SignUp` writes Admin Activity audit logs; `SignInWithIdp` gives none.
+
 ### 4.4. Firebase: Privacy and Security in Firebase
 
 Firebase, [Privacy and Security in Firebase](https://firebase.google.com/support/privacy) — "Last modified: November 16, 2026", read 2026-11-24 (П-9, П-11). "Firebase Authentication is run only from US data centers. As a result, Firebase Authentication processes data exclusively in the United States"; "Firebase Authentication keeps logged IP addresses for a few weeks. It retains other authentication information until the Firebase customer initiates deletion of the associated user, after which data is removed from live and backup systems within 180 days"; Firebase Hosting is among the "Global services", and "Hosting retains IP data for a few months".
 
 ### 4.5. Neon and Databricks
 
-Read by `api` 2026-11-02, for П-9 and П-11 (now sources 3.1 api): [Neon Platform Terms](https://neon.com/platform-terms), "Last Updated: October 14, 2026" — Neon's schedule to the Databricks DPA, which says nothing about children or minors; [Databricks Subprocessors](https://www.databricks.com/legal/databricks-subprocessors), "Last Updated: June 9, 2026": "Amazon Web Services, Inc. Cloud Service Provider United States Customer Selected".
+Read by `api` 2026-11-02, for П-9 and П-11 (now sources 3.1 api): [History window](https://neon.com/docs/postgres/backup-restore/history-window), the page has no date — "Free 6 hours 6 hours (capped at 1 GB of history) Launch 1 day 7 days Scale 1 day 30 days"; [Neon Platform Terms](https://neon.com/platform-terms), "Last Updated: October 14, 2026" — Neon's schedule to the Databricks DPA, which says nothing about children or minors; [Databricks Subprocessors](https://www.databricks.com/legal/databricks-subprocessors), "Last Updated: June 9, 2026": "Amazon Web Services, Inc. Cloud Service Provider United States Customer Selected".
+
+### 4.6. Google: token revocation and the "Sign in with Google" link, 2026-11-12
+
+Read 2026-11-12, in the triage of the `api` row В52:
+- Google, [OAuth 2.0 for Client-side Web Applications](https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow) — "Last updated 2026-10-29 UTC", the section "Token revocation": "Revocation removes all OAuth 2.0 scopes previously granted to a project, invalidating any issued access or refresh tokens for all clients registered under that project". The revocation address is `https://oauth2.googleapis.com/revoke`, a POST request. On the browser: "Since the Google's OAuth 2.0 endpoint for revoking tokens does not support Cross-origin Resource Sharing (CORS), the code creates a form and submits the form to the endpoint". What the address answers to a browser's request, the page does not promise: measurements 4.1.
+- Firebase, [Authenticate Using Google with JavaScript](https://firebase.google.com/docs/auth/web/google-signin) — "Last updated 2026-11-10 UTC": sign-in with a popup gives a Google access token — "This gives you a Google Access Token. You can use it to access the Google API." (`GoogleAuthProvider.credentialFromResult(result).accessToken`).
+- Google, [the help page on links with apps](https://support.google.com/accounts/answer/13533235), the page has no date: "If you delete a link, Google stops automatic sign-in to the app. This doesn’t delete your data on the app". That the link stays after the user is deleted at the sign-in service, the page does not say: measurements 4.1.
 
 ### 4.7. Google Cloud: the size of a response of Cloud Run, 2026-11-15
 
@@ -202,7 +226,11 @@ Read 2026-11-14, for the mockup: Apple, Human Interface Guidelines, [Layout](htt
 
 ## 6. GitHub
 
-GitHub's documentation and the code of GitHub CLI are links where the claims stand, as the first section says of a program's documentation.
+GitHub's documentation at a commit of [github/docs](https://github.com/github/docs) and the code of GitHub CLI are links where the claims stand, as the first section says of a program's documentation; a limit of the service, read from docs.github.com with no version, is a record.
+
+### 6.4. GitHub Actions: the cache's limit and eviction, 2026-11-13
+
+Read 2026-11-13, for the cache of the image of the stage `toolchain`: [GitHub Docs, Dependency caching reference](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching), "Usage limits and eviction policy": "By default, the limit is 10 GB per repository"; "Once a repository has reached its maximum cache storage, the cache eviction policy will create space by deleting the caches in order of last access date, from oldest to most recent"; "GitHub will remove any cache entries that have not been accessed in over 7 days".
 
 ## 7. Go, licenses and rights to texts
 
