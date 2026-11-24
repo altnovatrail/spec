@@ -807,6 +807,15 @@ release-verify-npm lock: _tools
 release-version-test: _tools
     JUST={{quote(just_executable())}} node --test 'tools/release/test/*.test.mjs'
 
+# Dependabot does not see the VS Code extensions of devcontainer.json and repo-template/kinds.json, or
+# the Claude Code of the Dockerfile: this asks the VS Code Marketplace and npm, and so runs on
+# demand, before a new tag of spec and in each move to one, never in CI, whose result would then
+# change with another project's release. Another repository runs it on its own devcontainer as
+# `just -f spec/justfile devcontainer-outdated`; it needs no node_modules.
+# Print which pinned VS Code extensions and which Claude Code have a newer stable release.
+devcontainer-outdated:
+    cd {{quote(invocation_directory())}} && node {{quote(justfile_directory() / "tools/toolchain/outdated.mjs")}}
+
 # tools/toolchain/toolchain.sh is no recipe: a runner runs it with its own shell, to start the
 # toolchain stage that just itself is in. Its tests stand a docker in that writes down what it is
 # asked, and the dry run they try is this same just's.

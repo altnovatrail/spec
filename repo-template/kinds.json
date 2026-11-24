@@ -1,7 +1,7 @@
 {
   "docs": {},
   "go": {
-    "extensions": ["golang.go@0.56.1"],
+    "extensions": ["golang.go@0.58.0"],
     "settings": {
       "go.toolsManagement.autoUpdate": false,
       "go.toolsManagement.checkForUpdates": "off",
