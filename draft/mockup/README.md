@@ -141,11 +141,14 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `solve-ask` | The one tutor's panel on a task from paper, as on every screen: its line that a question goes by text or voice, a question of two lines typed in the field, which grows with its lines up to five — Enter sends, Shift+Enter breaks the line —, the speaker in the head, Hint |
 | `solve-asked` | The question sent: the learner's line, and the tutor's answer — a question that leads on, never the answer — with "Report a problem" |
 | `solve-listening` | The microphone pressed: "Listening…" in the head and the wave in place of the field, and Stop |
+| `solve-asking` | A question sent and its answer awaited: "Tutor is writing…", and in the field Stop, a white square on black, in place of Send |
+| `solve-stopped` | Stop pressed: the request called off, the question gone from the conversation and back in the field, and under it "Stopped: your question is back in the field — change it and send it again." |
 | `solve-dictated` | The speech as text in the field, "From your voice: read it, correct it, then send." under it, and Send; sent, it bears "Said" and its length |
 | `solve-grown-pin` | The key of grown-up mode in the panel's head tapped: a dialog over the dimmed screen — the lock, "Grown-up mode", "Enter your PIN…", four dots, the keypad with Cancel and ⌫, and "The PIN is 5555 for now." |
 | `solve-grown-wrong` | Four wrong digits: the dots cleared, and "Wrong PIN. Try again." in red |
 | `solve-grown-on` | The PIN entered: the key filled in the head, the orange band "Grown-up mode · No limits, up to the full solution" with Turn off, the line "Grown-up mode on", and the field "Ask for anything…" |
 | `solve-grown-written` | A line written by the learner, and "Finish the solution on the sheet" sent: the tutor writes the next lines under it on the sheet, stroke by stroke at the speed of a hand but all within 3 s, at once with reduced motion, while the head says "Writing on the sheet…", and says "Done" in a bubble marked "Grown-up mode" |
+| `solve-grown-asking` | A request in grown-up mode awaited: "Writing on the sheet…" and Stop; an act already being drawn has no Stop: it takes 3 s at most |
 | `solve-grown-struck` | "Cross out the second line in red" sent: a red stroke through the second line |
 | `solve-grown-erased` | "Erase the second line" sent: the second line gone, its red stroke with it |
 | `solve-grown-hatched` | "Hatch the second line with a 2 mm grid" sent: a blue grid over the second line, dozens of strokes drawn within the same 3 s, and Undo takes the grid back whole |
@@ -196,16 +199,16 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:782` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
 | `Main.dc.html:812` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, Zoom in and Zoom out, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
 | `Main.dc.html:856` — The tutor | One component on every screen where the tutor stands — Home, the page to pick from, a task from paper, a task of a module, Pip under "Later" —, set by `tutorKit` of the script: its context and which of its parts are on. The button at the right edge, and on Home the pill instead; the panel: the head with the quota and the speaker, the steps, the conversation, the context's buttons, the field with the microphone and Send |
-| `Main.dc.html:1149` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:1313` — Pick | What left the device, the cards of what the page says, Select all, Start |
-| `Main.dc.html:1349` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1426` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
-| `Main.dc.html:1742` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1868` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1932` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:2029` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map |
-| `Main.dc.html:2421` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2439` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:1157` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:1321` — Pick | What left the device, the cards of what the page says, Select all, Start |
+| `Main.dc.html:1357` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1434` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
+| `Main.dc.html:1750` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1876` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1940` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:2037` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map |
+| `Main.dc.html:2429` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2447` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 

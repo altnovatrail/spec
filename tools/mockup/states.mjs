@@ -216,6 +216,8 @@ export const STATES = [
   { name: "solve-ask", title: "The tutor on a task from paper: a question typed", from: "solve", shows: "by text or voice", run: (t) => (t.v().openChat(), t.c.setState({ draft: "Why do we take 3 from both sides?\nAnd not 5 first?" })) },
   { name: "solve-asked", title: "The question sent, and the tutor's answer", from: "solve-ask", shows: "Which line of your work is it about?", run: (t) => t.v().send() },
   { name: "solve-listening", title: "The microphone listening", from: "solve", shows: "Listening", settle: false, run: (t) => (t.v().openChat(), t.v().micStart()) },
+  { name: "solve-asking", title: "A question sent, its answer awaited: Stop in place of Send", from: "solve", shows: "three unknowns", settle: false, run: (t) => (t.v().openChat(), t.c.setState({ draft: "Write it as a system of three unknowns" }), t.v().send()) },
+  { name: "solve-stopped", title: "Stopped: the question back in the field", from: "solve", shows: "Stopped: your question is back in the field", settle: false, run: (t) => (t.v().openChat(), t.c.setState({ draft: "Write it as a system of three unknowns" }), t.v().send(), t.v().stop()) },
   { name: "solve-dictated", title: "The speech as text in the field, to correct before Send", from: "solve-listening", shows: "From your voice", run: (t) => t.v().micStop() },
   // Grown-up mode: behind the grown-ups' PIN, which the account sets in its settings (the mockup's is 5555), the tutor's limits lifted on this task until it is turned off.
   { name: "solve-grown-pin", title: "Grown-up mode behind the grown-ups' PIN", from: "solve", shows: "Enter your PIN", run: (t) => (t.v().openChat(), t.v().grown.tap()) },
@@ -226,6 +228,7 @@ export const STATES = [
     t.c.setState({ strokes: { ...t.c.state.strokes, [t.c.inkKey()]: t.c.hand("3x = 20 − 5 = 15", ph ? 24 : 370, ph ? 190 : 230, ph ? 30 : 44) }, draft: "Finish the solution on the sheet" });
     t.v().send();
   } },
+  { name: "solve-grown-asking", title: "A request in grown-up mode awaited: Stop in place of Send", from: "solve-grown-on", shows: "Writing on the sheet", settle: false, run: (t) => (t.c.setState({ draft: "Write the whole solution" }), t.v().send()) },
   { name: "solve-grown-struck", title: "The second line struck out in red, as asked", from: "solve-grown-written", shows: "struck out in red", run: (t) => (t.c.setState({ draft: "Cross out the second line in red" }), t.v().send()) },
   { name: "solve-grown-erased", title: "The second line erased, as asked", from: "solve-grown-struck", shows: "line 2 erased", run: (t) => (t.c.setState({ draft: "Erase the second line" }), t.v().send()) },
   { name: "solve-grown-hatched", title: "The second line hatched with a 2 mm grid: many strokes within 3 s", from: "solve-grown-written", shows: "hatched with a 2 mm grid", run: (t) => (t.c.setState({ draft: "Hatch the second line with a 2 mm grid" }), t.v().send()) },
