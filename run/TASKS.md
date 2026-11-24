@@ -35,14 +35,27 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 
 #### T282. Записи `sources` для внешних фактов privacy, dpia, product, repositories, contracts и draft
 
-- **Цель:** каждое утверждение о внешнем мире в `docs/privacy.md`, `docs/dpia.md`, `docs/product.md`, `docs/repositories.md`, `contracts/README.md` и `draft/` ссылается на свою одну запись `sources` или `measurements`.
+- **Цель:** каждое утверждение о внешнем мире в `docs/privacy.md`, `docs/dpia.md`, `docs/product.md`, `docs/repositories.md`, `contracts/README.md` и `draft/` стоит на своём доказательстве по правилу T287: факт, который прогон не проверит, — на одной записи `sources`; поведение под тестом или замером — на них; документация или код на версии — на ссылке на месте; файлы NovaTrail и MathTrail — на git.
 - **Почему:** T270, T271 и T275 сняли номера решений по строгому правилу ссылок; эти утверждения стояли только на номере решения, где лежала цитата, и теперь без записи — сессия не проверит факт по первоисточнику и не увидит, что он устарел.
-- **Сделать:** для каждого — запись, которая факт держит, — многие, вероятно, уже есть в `docs/sources.md`: COPPA, законы штатов, WP260, Google Cloud, Firebase, — или новая из первоисточника с датой чтения и цитатой; число — запись `measurements`; смысл текстов не менять.
+- **Сделать:** для каждого — доказательство по правилу T287, смысл текстов не менять:
+  - *записи* — законы, ICO, DPF, Usage Policies, Child Safety Guidance и прочие условия, политики и страницы без версии: многие, вероятно, уже есть в `docs/sources.md` — COPPA, законы штатов, WP260, Google Cloud, Firebase, — иначе новая из первоисточника с датой чтения и цитатой;
+  - *ссылка на месте* с версией или коммитом — заголовок `X-Firebase-Client` и загрузка `apis.google.com` (код SDK Firebase на версии), Camo (документация GitHub, если у неё есть версия), размер изображения у Claude; *git* — значки и ранги standalone и MathTrail, критерий `sim` и чтение прежде сборки у canvas-api — ссылкой на репозиторий на коммите; где прогон не проверит и версии нет — запись;
+  - число — запись `measurements`.
+  Перечень:
   - privacy: заголовок `X-Firebase-Client` и загрузка `apis.google.com` SDK Firebase; сроки IP у Firebase Hosting и Auth; исключения и аудит Cloud Logging, Trace API и Cloud Scheduler; Gmail без договора обработчика; WP260 п. 13; COPPA §312.4(d), §312.5(b)(2)(ii), §312.5(c)(9), §312.6, §312.7; CGS §42-518 и §42-520; GBL §899-ff–ii; Arkansas Act 952; Texas §541.002(a)(3); Usage Policies OpenAI в редакции 2026-11-20 (sources 2.5 читал 2026-11-09); Child Safety Guidance for Developers Anthropic.
   - dpia: Кодекс ICO для сервиса из США, открытого детям Великобритании; цитата ICO о проверке возраста; механизмы передачи — DPF и UK Extension, SCC модуль 2 с UK Addendum, Databricks в списке DPF; страница Samaritans; страницы стандартов ICO 5, 9 и 12; числа справедливости `sim` и «1 of 560 boxes» риска 20.
-  - product: ранги standalone по номерам — родители сочли имена бессмысленными (О-13, было R213 standalone): в sources 8.2 решений standalone нет; замер `tutor`, на котором стоит мера ложных тревог рубрики.
+  - product: ранги standalone по номерам — родители сочли имена бессмысленными (О-13, было R213 standalone): в `spec` ссылок на решения standalone нет; замер `tutor`, на котором стоит мера ложных тревог рубрики.
   - repositories: прокси Camo для значков README (цитата GitHub Docs — в журнале, не в `sources`); значки README MathTrail; критерий `sim` пишется до первого прогона кандидата (было R163 standalone); чтение прежде сборки у canvas-api.
   - contracts: стандартный размер изображения у Claude, от которого взяты пределы вырезок; провайдеры, чьи условия запрещают бенчмарки; GDPR ст. 7(3) и WCAG 2.2 3.3.1 и 3.3.3 — без записи.
   - draft: ранги MathTrail — те же, что в product; критерии WCAG 2.5.5, 1.4.10 и 2.3.3 в `draft/mockup/README.md` — к записи WCAG, если она их держит.
 - **Как проверить:** `just docs-check`, временно с ключом `citations` — ошибок в двух файлах нет.
-- **Разделы:** privacy; dpia; product; repositories; sources 1; measurements 1; T270, T271, T275.
+- **Когда:** после T287.
+- **Разделы:** правило T287; privacy; dpia; product; repositories; sources 1; measurements 1; T270, T271, T275.
+
+#### T292. Прогон строк 7.62–7.73 оркестратором
+
+- **Цель:** 12 репозиториев пересмотрели `sources.md`, их PR смёржены, строки закрыты.
+- **Когда:** после мержа пачки T287–T291 и тега; в контейнере оркестратора, `.devcontainer/orchestrator/`, не одновременно с задачей через репозитории E23 (T285) — у них общая папка `spec`.
+- **Сделать:** процедура «Сделай эпик» на строках 7.62–7.73 вместо эпика (README оркестратора, пункт 4). Строки 7.50–7.61 закрыты (T291): узлы ничего не ждут, кроме пересборки контейнеров. Вопросы исполнителей — автору. Закрыть строки по правилу 4 COORDINATION.md; в отчёт — размеры `sources.md` до и после по репозиториям.
+- **Как проверить:** строки закрыты; `[x]` задач на `main` каждого репозитория; `just docs-check`.
+- **Разделы:** R156; [tools/orchestrator/README.md](../tools/orchestrator/README.md); T291.

@@ -6,7 +6,7 @@ You are the product and standards architect of NovaTrail. In this repository the
 
 ## Documents
 
-The documents under `docs/` are in English, but for the epic archives `docs/plan/`, which stay in Russian; RUN.md, `run/` and COORDINATION.md are in English, but for the bodies of tasks and COORDINATION.md's «Порядок». They cite one another by no section and no number: what a text needs from another, it says in words, and only a claim about the outside world cites its record of `docs/sources.md` or `docs/measurements.md`.
+The documents under `docs/` are in English, but for the epic archives `docs/plan/`, which stay in Russian; RUN.md, `run/` and COORDINATION.md are in English, but for the bodies of tasks and COORDINATION.md's «Порядок». They cite one another by no section and no number: what a text needs from another, it says in words, and only a fact no run checks cites its record of `docs/sources.md`, a measurement its record of `docs/measurements.md`.
 
 - [docs/README.md](docs/README.md) — for people: the index of the documents, the releases and how to contribute; the README only says what spec is.
 - [docs/product.md](docs/product.md) — what we build and why. Open product questions О-… are in its section Open questions.
@@ -16,7 +16,7 @@ The documents under `docs/` are in English, but for the epic archives `docs/plan
 - [docs/architecture.md](docs/architecture.md) — the components and how they connect. Each component's card, ending with what to decide when it is detailed, is in its section Components.
 - [docs/repositories.md](docs/repositories.md) — the repositories, their dependencies, the order they appear in, and how to set one up. Open technical questions Т-… are in its section Open questions.
 - [docs/decisions.md](docs/decisions.md) — the decision log: read it before proposing a change.
-- [docs/sources.md](docs/sources.md) — the records of external facts: a provider's terms, a law, a standard, another program's documentation, MathTrail's texts, each with its source, its date and its quote. A claim in another document cites its record, as `sources 5.4`. Its first section says how to keep it.
+- [docs/sources.md](docs/sources.md) — the records of the facts no run checks: a law, a regulator, a standard, terms, a price, a license, a page with no version, a text outside the repositories, each with its address, the date read and a quote. A claim in another document cites its record, as `sources 5.4`. Its first section says how to keep it.
 - [docs/measurements.md](docs/measurements.md) — the results of measurements, cited as `measurements 1.4`: its first section is the Claude Code sessions — the recipe `tokens-report`, the weights, spec's baseline and what each change gave.
 - [format/](format/README.md) — the module format: its text, and part by part its schemas, examples and test vectors. It is normative and in English; its conventions and its versions are in its text.
 - [contracts/](contracts/README.md) — the API contracts: protobuf files by buf's rules, and the code buf generates from them. It is normative and in English; its rules are in its README.

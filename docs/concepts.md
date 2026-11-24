@@ -79,7 +79,7 @@ A **module** is a versioned set of content by one author: everything the platfor
 - **A module gives data, not instructions to a model:**
   - a module's fields are typed and checked by a schema;
   - the prompts belong to the platform: one per AI capability, each with its own eval set, and the analysis of the course of solution and the hint have one prompt for both;
-  - a module's free text — a task statement, a trap advice, a solution — reaches the model only as a separate marked block of data, which cannot change its task. That is how notes about the child were passed in standalone (sources 8.2).
+  - a module's free text — a task statement, a trap advice, a solution — reaches the model only as a separate marked block of data, which cannot change its task. That is how notes about the child were passed in standalone ([standalone@42b4408](https://github.com/mathtrail/mathtrail-standalone/tree/42b4408)).
 
   Hence the difference from Claude's skills. A Claude skill is instructions that the model carries out as it understood them. The platform runs a NovaTrail module the same way on the same input.
 - **Official and third-party modules.** Who publishes third-party modules and how is О-9.
@@ -92,7 +92,7 @@ A **skill** is what a module teaches and what can be assessed in a learner. Exam
 - **The skill graph** is a directed graph without cycles: "to take on B, you need A". The platform checks it for cycles at publication, as standalone checked the links `builds_on` at start, — this is the format rule `skill-graph.acyclic`.
 - **A tier** is a group of skills of one difficulty in a module.
   - In MathTrail there are three tiers: «основы», «правила» and «сложные задачи»; in the prototype they are called Basics, Rules and Hard tasks.
-  - A topic's tier there was not set by the author: it was computed by the longest chain of base topics under it (sources 8.2).
+  - A topic's tier there was not set by the author: it was computed by the longest chain of base topics under it ([standalone@42b4408](https://github.com/mathtrail/mathtrail-standalone/tree/42b4408)).
   - In NovaTrail a tier is computed too: a skill's tier is 1 plus the longest chain of the module's prerequisites under it, and there is no limit to the number of tiers. The author gives the tiers their names, and a tier without a name is shown by its number. `module-kit` computes the tiers when it builds the package and puts them into its canonical view, and `api` carries them to the skill map.
 - **References between modules.**
   - A physics module may need linear equations, but it does not refer to the internal IDs of another's module.
@@ -114,7 +114,7 @@ A **skill** is what a module teaches and what can be assessed in a learner. Exam
 
   In the format these are the values `verdict`, `rubric` and `none`. For skills with a rubric and without assessment the engine does not adapt to the learner: the order is set by the author — by the skill graph and the order of a lesson's segments, and where the graph gives no order, a rule of the engine chooses without the learner model. Assessability matches how the skill's items are checked: the primary skill of an item with a key or a predicate is `verdict`, of an item with a rubric `rubric`, and a skill `none` is only ever supporting (the format rule `task.assessability`).
 - **Opening a skill and access to content.**
-  - A skill opens by its prerequisites, not by grade or age. Grade or age sets only the starting point, as in standalone: «The grade decides one thing: where the child starts» (sources 8.2).
+  - A skill opens by its prerequisites, not by grade or age. Grade or age sets only the starting point, as in standalone: «The grade decides one thing: where the child starts» ([standalone@42b4408](https://github.com/mathtrail/mathtrail-standalone/tree/42b4408)).
   - Separately from this, a module may mark content as unsuitable for an age category. This is access to content, not the order of learning. In the format, the task's age categories, `age_categories`: there are fewer of them than the module's, and only learners of those categories get the task.
 
 ## 5. Lesson
@@ -275,7 +275,7 @@ flowchart LR
 
   The writing parts, other readings and mirroring are the reader's affair: by them it decides what to give, and they are not in the observation. The observations of the two readers are joined into one by `module-kit`, by the slot check: an answer slot that they read differently is ambiguous; in the mode `single` the one reader's is the observation. A tapped choice is not read by the AI, and it is not in the observation: `api` gives the check the option the learner chose alongside. The learner sees what was read: "Read: 6".
 - **The check** — a program compares the read value of each answer slot with its slot check: a key or a predicate. The model does not decide whether it is correct. The reader gives the value as it is written, and `module-kit` brings it to the notation of the kind — normalizes it. A value that got "not yet" the program compares in the same way with the trap values of the answer slot, and the one that matched names the trap.
-- **Verdicts** — as in MathTrail Canvas (sources 8.1):
+- **Verdicts** — as in MathTrail Canvas ([canvas-api@0901af0](https://github.com/mathtrail/canvas-api/tree/0901af0)):
 
   | Verdict | When | What the learner sees |
   |---|---|---|
@@ -320,7 +320,7 @@ flowchart LR
   - `rubric`, rubric — the criteria `criteria`, only on the whole sheet.
 
   Text, edit, quantity, order and set, widget state and "steps" — a check of each line of the course of solution — are not in v0. "Text" and "edit" are not checked by the first slice, the modules of the slice take none of the others, and there are no widgets in it.
-- **Normalization** is a part of a check kind: the read value is brought to the notation of the kind — NFKC, minuses and dashes, spaces, and for a choice also case, — and only then compared. What of it the module sets are the parameters of the kind: the units of a number, the form rule of a fraction. In MathTrail Canvas normalization knew only numbers and choice: NFKC, the sign "−" turned into "-", a word of a unit of measurement was dropped (sources 8.1).
+- **Normalization** is a part of a check kind: the read value is brought to the notation of the kind — NFKC, minuses and dashes, spaces, and for a choice also case, — and only then compared. What of it the module sets are the parameters of the kind: the units of a number, the form rule of a fraction. In MathTrail Canvas normalization knew only numbers and choice: NFKC, the sign "−" turned into "-", a word of a unit of measurement was dropped ([canvas-api@0901af0](https://github.com/mathtrail/canvas-api/tree/0901af0)).
 
 ### 9.3. Templates and generation
 
@@ -358,7 +358,7 @@ In a module everything is from the author, and a task has no field of provenance
   - words — hints, explanations, praise, a question.
 
   The tutor makes no decisions in a module: a program gives the verdict, the engine chooses the next task. On a task from paper, in no module, the AI also finds the tasks on the page and judges the work in its Check, which gives the tutor's words and the hints with the verdict.
-- **The rules of a hint** — from MathTrail Canvas (sources 8.1):
+- **The rules of a hint** — from MathTrail Canvas ([canvas-api@0901af0](https://github.com/mathtrail/canvas-api/tree/0901af0)):
   - do not name the answer;
   - one question, no more than two short sentences, words by age;
   - point to a place in the learner's work;
@@ -389,7 +389,7 @@ In a module everything is from the author, and a task has no field of provenance
   The rung templates are the module's, in its module manifest and in its explanation language: the platform need not translate them into the language of each module.
 - **The leak check.** A program looks in the model's text for the keys and the leak phrases that the author named. This is a safeguard, not a proof. The author's texts that the learner sees before the solution pass the same check when the module is checked. How it searches is said normatively by the [format text](../format/README.md):
   - a key is searched for as a separate token, and a number by its value: `7` will not be found in `17`, and `0.5` will be found in `1/2`;
-  - a key that already stands in the statement or in the text, the line and the options of its item — "2 legs" in a task about rabbits — is not searched for: there the author's leak phrases hold the answer. In this the format departs from MathTrail Canvas (sources 8.1), where the key is always forbidden;
+  - a key that already stands in the statement or in the text, the line and the options of its item — "2 legs" in a task about rabbits — is not searched for: there the author's leak phrases hold the answer. In this the format departs from MathTrail Canvas ([canvas-api@0901af0](https://github.com/mathtrail/canvas-api/tree/0901af0)), where the key is always forbidden;
   - numbers in words and notations that the check does not read as a number are caught only by leak phrases.
 
   On a task from paper the program searches the tutor's words and each rung of the Check's ladder for the model's hidden answer of a task not yet answered correctly, as for a key, a number the statement prints or the learner wrote being no leak: words that name it are left out, a rung gives way to its rung's fallback text, and the others stay.
@@ -471,7 +471,7 @@ The **engine** chooses what comes next: a lesson or a task — for a new skill, 
 
   A choice has one code — of the branch of the rule that made it, for a lesson as for a task. A skill chosen by the learner on the map is always "the learner chose the skill", and the lesson of an open run is always "the lesson of an open run", whatever else fits them. An adult sees the cause — in progress, at the attempt, — and a child is not told it (as in standalone): the code does not go in the answer to the learner. The words for the adult are `app`'s. A branch of the rule that is not in the list comes as a new code, and the meaning of the earlier ones does not change ([contracts text](../contracts/README.md)). The choice comes to the app with its own ID, by which it opens the lesson or begins an attempt, — the choice itself begins nothing, — and when there is nothing to give, "nothing to give" comes, without a code.
 - **The top-level rules.**
-  - From the rule of standalone (sources 8.2):
+  - From the rule of standalone ([standalone@42b4408](https://github.com/mathtrail/mathtrail-standalone/tree/42b4408)):
     - the success corridor: the learner solves the task with a probability from 0.70 to 0.85, aiming at 0.775;
     - consolidation: after an error, another task on the same skill, if it is within reach;
     - probes: a deferred skill now and then comes back as a check;
@@ -480,7 +480,7 @@ The **engine** chooses what comes next: a lesson or a task — for a new skill, 
     - interests: the setting of a task to the learner's interests, if the module gives such variants. They are not in format v0: they will come with a minor version.
   - New in NovaTrail:
     - prerequisites: a skill is offered when its prerequisites are mastered. The rule of standalone did not read the links between topics;
-    - repetition of the mastered: a skill comes back when its review date comes: without practice the skill's retention fades, and the cautious probability of solving a task of its mastery band falls below the threshold "mastered". The model gives the date, and when to give a skill whose review date has come, how many repetitions a day and how they share the queue the engine decides. Repetition is a task on a mastered skill whose review date has come, on the module's turn of repetition, once in three of its choices, and when the other branches have nothing to give, also outside the turn. In standalone there was no forgetting: looking for something new, the rule skipped a mastered topic until all the reachable ones were mastered. It came back into the rotation earlier too — when its recommended point rose above the level at which the topic was mastered, or when two errors in a row took "mastered" off it (sources 8.2). Whether to bring back a mastered skill when its recommended point has gone above the mastery band is also a rule of the engine, and the model's "mastered" stays meanwhile. The engine brings it back, with the code "in rotation".
+    - repetition of the mastered: a skill comes back when its review date comes: without practice the skill's retention fades, and the cautious probability of solving a task of its mastery band falls below the threshold "mastered". The model gives the date, and when to give a skill whose review date has come, how many repetitions a day and how they share the queue the engine decides. Repetition is a task on a mastered skill whose review date has come, on the module's turn of repetition, once in three of its choices, and when the other branches have nothing to give, also outside the turn. In standalone there was no forgetting: looking for something new, the rule skipped a mastered topic until all the reachable ones were mastered. It came back into the rotation earlier too — when its recommended point rose above the level at which the topic was mastered, or when two errors in a row took "mastered" off it ([standalone@42b4408](https://github.com/mathtrail/mathtrail-standalone/tree/42b4408)). Whether to bring back a mastered skill when its recommended point has gone above the mastery band is also a rule of the engine, and the model's "mastered" stays meanwhile. The engine brings it back, with the code "in rotation".
 - **Explainability and reproducibility.** The same input gives the same output, and each choice has a cause. The learner simulator checks this.
 
 ## 13. Learner, adults, age, languages

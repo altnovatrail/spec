@@ -6,7 +6,7 @@
 >
 > Why it was decided so and not otherwise is in [decisions.md](decisions.md); the work plan is in [RUN.md](../RUN.md). The concepts are the glossary of `spec/docs/concepts.md`. The documents and decisions of `spec` are under `spec/docs/`; a text here says in words what it takes from them, and cites none.
 >
-> An external fact — a provider's terms, a price, a law, a library's documentation — becomes a record of [sources.md](sources.md), with its source and the date it was read, and a claim here cites the record. The results of measurements — what was measured, how, and the numbers — go to `docs/measurements.md`, which the first measurement starts, and here goes only what was decided from them.
+> A fact no run of ours checks — a provider's terms, a price, a law, a page with no version — becomes a record of [sources.md](sources.md), with its address, the date read and a quote, and a claim here cites the record; a library's documentation or code at a version or commit is a link beside the claim, a test or a measurement its evidence. The results of measurements — what was measured, how, and the numbers — go to `docs/measurements.md`, which the first measurement starts, and here goes only what was decided from them.
 
 ## 1. Purpose and bounds
 
