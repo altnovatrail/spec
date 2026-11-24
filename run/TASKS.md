@@ -44,23 +44,13 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
   Перечень:
   - privacy: заголовок `X-Firebase-Client` и загрузка `apis.google.com` SDK Firebase; сроки IP у Firebase Hosting и Auth; исключения и аудит Cloud Logging, Trace API и Cloud Scheduler; Gmail без договора обработчика; WP260 п. 13; COPPA §312.4(d), §312.5(b)(2)(ii), §312.5(c)(9), §312.6, §312.7; CGS §42-518 и §42-520; GBL §899-ff–ii; Arkansas Act 952; Texas §541.002(a)(3); Usage Policies OpenAI в редакции 2026-11-20 (sources 2.5 читал 2026-11-09); Child Safety Guidance for Developers Anthropic.
   - dpia: Кодекс ICO для сервиса из США, открытого детям Великобритании; цитата ICO о проверке возраста; механизмы передачи — DPF и UK Extension, SCC модуль 2 с UK Addendum, Databricks в списке DPF; страница Samaritans; страницы стандартов ICO 5, 9 и 12; числа справедливости `sim` и «1 of 560 boxes» риска 20.
-  - product: ранги standalone по номерам — родители сочли имена бессмысленными (О-13, было R213 standalone): в sources 8.2 решений standalone нет; замер `tutor`, на котором стоит мера ложных тревог рубрики.
+  - product: ранги standalone по номерам — родители сочли имена бессмысленными (О-13, было R213 standalone): в `spec` ссылок на решения standalone нет; замер `tutor`, на котором стоит мера ложных тревог рубрики.
   - repositories: прокси Camo для значков README (цитата GitHub Docs — в журнале, не в `sources`); значки README MathTrail; критерий `sim` пишется до первого прогона кандидата (было R163 standalone); чтение прежде сборки у canvas-api.
   - contracts: стандартный размер изображения у Claude, от которого взяты пределы вырезок; провайдеры, чьи условия запрещают бенчмарки; GDPR ст. 7(3) и WCAG 2.2 3.3.1 и 3.3.3 — без записи.
   - draft: ранги MathTrail — те же, что в product; критерии WCAG 2.5.5, 1.4.10 и 2.3.3 в `draft/mockup/README.md` — к записи WCAG, если она их держит.
 - **Как проверить:** `just docs-check`, временно с ключом `citations` — ошибок в двух файлах нет.
 - **Когда:** после T287.
 - **Разделы:** правило T287; privacy; dpia; product; repositories; sources 1; measurements 1; T270, T271, T275.
-
-#### T288. `sources` spec по правилу T287, часть 1: повторные чтения и файлы репозиториев
-
-- **Цель:** записи с несколькими чтениями держат одно текущее; записи о файлах репозиториев NovaTrail и MathTrail ушли — их утверждения ссылаются на репозиторий@коммит.
-- **Сделать:**
-  - Свернуть чтения 2.1, 2.2, 2.4, 3.1, 4.4, 5.4, 6.1, 9.2, 9.4, 9.5, 9.6, 8.2 по правилу T287: текст тот же — одна дата; другой — проверить, что решения стоят на последнем, иначе строка `run/QUESTIONS.md`.
-  - 8.1 canvas-api @0901af0, 8.2 standalone (c6cbeb2, 89986bc, 42b4408), 8.3 llm-taskgen-prototype, 8.5 и строка `tutor` в 2.9 — удалить; около 77 мест вне `docs/plan/` — журнал (около 54), `product`, `concepts`, `repositories`, `architecture`, `run/TASKS.md` — получают ссылку на репозиторий и коммит, смысл не меняется. 8.4 (диалог Gemini) — запись.
-  - Перед удалением записи: `git grep -nE "sources 8\.1\b" -- . ':!docs/plan'` пусто.
-- **Как проверить:** `just docs-check`.
-- **Разделы:** правило T287; [docs/sources.md](../docs/sources.md), разделы 2–9.
 
 #### T289. `sources` spec по правилу T287, часть 2: Claude Code
 

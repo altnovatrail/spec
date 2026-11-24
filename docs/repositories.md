@@ -23,7 +23,7 @@
 
   So the simulator `sim` can check `learner-model` and `engine`, though it imports them itself: the CI of a library takes `sim` at a tag and substitutes the pull request's code through `go.work`, and the other library by a commit from the gate file of `sim`. There is no cycle here.
 - **One pattern of a repository.** A new repository starts from the template of `spec` — the devcontainer, CLAUDE.md, AGENTS.md, RUN.md and the documents. It has the shared CI checks from `.github` from day one, even before code; the justfile, the language checks and the signed releases come with code, after the pattern of canvas-api. Differences from the pattern are recorded in the repository's decision log, each with its why.
-- **The argument of canvas-api for one repository.** There the client and the API lived in one repository, because «API и клиент меняются вместе, одним pull request» (sources 8.1). Here the versioned contracts in `spec` remove this argument: first the new contract, then the service, then the client. The price is several pull requests instead of one; we accept it for the narrow context of AI agents and independent releases.
+- **The argument of canvas-api for one repository.** There the client and the API lived in one repository, because «API и клиент меняются вместе, одним pull request» ([canvas-api@0901af0](https://github.com/mathtrail/canvas-api/tree/0901af0)). Here the versioned contracts in `spec` remove this argument: first the new contract, then the service, then the client. The price is several pull requests instead of one; we accept it for the narrow context of AI agents and independent releases.
 
 ## 2. The list of repositories
 
@@ -258,8 +258,8 @@ By this order, the cross-repository plan [COORDINATION.md](../COORDINATION.md) l
 
 | What | From where | To where |
 |---|---|---|
-| The principles of checking and hints: a program gives the verdict, four verdicts, the hint ladder, the leak check, fallback texts | canvas-api: its decisions and spec 5–7 (sources 8.1) | concepts; api, tutor, module-kit; format v0 — a trap by value, the module's rung templates, the leak check in the format text |
-| The learner model: the Rasch model with a guessing floor, the Elo update, the trial series, a cautious "mastered" | standalone: SPEC 2 (sources 8.2) | learner-model |
+| The principles of checking and hints: a program gives the verdict, four verdicts, the hint ladder, the leak check, fallback texts | canvas-api: its decisions and spec 5–7 ([canvas-api@0901af0](https://github.com/mathtrail/canvas-api/tree/0901af0)) | concepts; api, tutor, module-kit; format v0 — a trap by value, the module's rung templates, the leak check in the format text |
+| The learner model: the Rasch model with a guessing floor, the Elo update, the trial series, a cautious "mastered" | standalone: SPEC 2 ([standalone@42b4408](https://github.com/mathtrail/mathtrail-standalone/tree/42b4408)) | learner-model |
 | The learner simulator and the criterion written in advance | standalone: `tools/learners`, `docs/learners.md` | sim |
 | The derivation of the simulator's seeds: FNV-1a 64 of "main seed, experiment, unit, assignment" and PCG from Go's `math/rand/v2`, the function `seeded` | standalone: `tools/learners/child.go`, `docs/learners.md` | spec — the generator and the places of randomness of the whole platform, where `seeded` is a special case, as [the format text](../format/README.md) says in its rule on randomness; sim |
 | The task choice rule and the success corridor | standalone: SPEC 3 | engine |
@@ -268,8 +268,8 @@ By this order, the cross-repository plan [COORDINATION.md](../COORDINATION.md) l
 | The check of a task by a solver in Starlark | standalone: SPEC 6 | module-kit — the template's solver, which computes the key by search: the dialect and the step budget of the solvers of standalone are in the format, and the format example `number-thought-of-template` is the solver `content/solvers/arithmetic.tricks/number-thought-of.star`. And the check kind "predicate": a Starlark expression of the integer `value` in the slot check itself, with a step limit in the format |
 | The service skeleton: configuration, logs, errors, version | canvas-api: `internal/`, in its turn from standalone | api, the pattern of a repository |
 | The devcontainer, justfile, CI, signed releases, infrastructure code in HCL with the tool OpenTofu, self-hosting | canvas-api | all repositories; the shared part in .github and infra |
-| The measurement of AI reading on samples, the author's log, eval | canvas-api: its decisions on the measurement (sources 8.1) | tutor — the eval runner; canvas — the samples page |
-| The handwriting sheet: coordinates, strokes, the error box on the learner's strokes | canvas-api: spec 4 and its decisions on the handwriting sheet (sources 8.1) | canvas — the canvas kind "handwriting sheet" |
+| The measurement of AI reading on samples, the author's log, eval | canvas-api: its decisions on the measurement ([canvas-api@0901af0](https://github.com/mathtrail/canvas-api/tree/0901af0)) | tutor — the eval runner; canvas — the samples page |
+| The handwriting sheet: coordinates, strokes, the error box on the learner's strokes | canvas-api: spec 4 and its decisions on the handwriting sheet ([canvas-api@0901af0](https://github.com/mathtrail/canvas-api/tree/0901af0)) | canvas — the canvas kind "handwriting sheet" |
 | Children's privacy: minimum data, consent, deletion | canvas-api: `docs/privacy.md` | privacy |
 | The site: prerendering, languages, pages without scripts | standalone: `site/`, `web/` | site — later |
 | The MCP channel: the server, sign-in, the widget in the chat | standalone: `plugin/`, `internal/transport/mcp`, `web/src/widget` | the MCP channel — later (О-15) |
