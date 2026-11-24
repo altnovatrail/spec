@@ -2,7 +2,7 @@
 
 > The results of the platform's measurements: what was measured, how, on what, and what numbers came out. The documents that describe how things are built — [architecture.md](architecture.md) and [repositories.md](repositories.md) — refer here and hold no numbers of measurements themselves. A measurement is cited by section, like any document: `measurements 1.3`, and from another repository `measurements 1.3 spec`.
 >
-> An external fact a measurement rests on is a record of [sources.md](sources.md). The quotes of Claude Code's documentation in section 1 stay with their measurements; new ones go into sources.md.
+> An external fact a measurement rests on is a record of [sources.md](sources.md). Claude Code's documentation is a link beside the claim, as sources.md says of a program's documentation.
 
 ## 1. Claude Code sessions
 
@@ -1368,11 +1368,11 @@ The container of `app`, `festive_shannon`, by the log `cpu-festive_shannon.log` 
 #### 1.15.4. Waiting under `claude -p`
 
 An executor runs as `claude -p --output-format stream-json --json-schema`, with Claude Code 2.1.280.
-- A turn that ends without the tool `StructuredOutput` gets the message "[structured-output-enforce] You MUST call the StructuredOutput tool to complete this request. Call this tool now." (sources 2.15).
+- A turn that ends without the tool `StructuredOutput` gets the message "[structured-output-enforce] You MUST call the StructuredOutput tool to complete this request. Call this tool now.", as the transcripts below show. `ScheduleWakeup` answers "Next wakeup scheduled for 18:48:00 (in 1501s). Nothing more to do this turn — the harness re-invokes you when the wakeup fires or a task-notification arrives." (a task of `app`, 2026-11-17), and the message followed four seconds later.
 - So a turn that ends to wait for a background command, a Monitor or a `ScheduleWakeup`, as RULES.md asks, is made to give its status at once. The status then says the checks are not finished.
   - In the transcripts: 121 forced statuses after such a wait, in 72 sessions.
-  - Of 117 waits, 79 went on: 78 by the notification of the background work, the run kept open for it (sources 2.15), and one by the orchestrator's prompt. 38 ended there.
-- In the streams of the runs, by the attempts that had ended by 06:30 UTC:
+  - Of 117 waits, 79 went on: 78 by the notification of the background work, the run kept open for it ([Run Claude Code programmatically](https://code.claude.com/docs/en/headless.md), "Background tasks at exit"), and one by the orchestrator's prompt. 38 ended there.
+- In the streams of the runs, by the attempts that had ended by 06:30 UTC. A background command stopped shows as `{"type":"system","subtype":"task_updated",…,"patch":{"status":"killed",…}}` and then `"subtype":"task_notification",…,"status":"stopped"`, with no later turn; a notification that starts another turn leaves more than one `result`:
 
 | Prompts | Attempts with a result | A background command stopped after the last result | Of them, a wait on CI | More than one result | Both |
 |---|---|---|---|---|---|
@@ -1380,13 +1380,13 @@ An executor runs as `claude -p --output-format stream-json --json-schema`, with 
 | with it, from 2026-11-18T02:23 | 17 | 0 | 0 | 0 | 0 |
 
 - The word is a paragraph of the orchestrator's prompt: long work runs in the foreground, under Bash's `timeout` of 600000 ms, the call repeated until it is done.
-  - The ceiling of a foreground command is ten minutes by default, `BASH_MAX_TIMEOUT_MS` (sources 2.15). A command that reaches its timeout moves to the background, so a wait runs under `timeout 590` in its own command.
+  - The ceiling of a foreground command is ten minutes by default, `BASH_MAX_TIMEOUT_MS` ([Tools reference](https://code.claude.com/docs/en/tools-reference.md)). A command that reaches its timeout moves to the background — "Command did not complete within its 600s timeout and was moved to the background", seen 2026-11-18 —, so a wait runs under `timeout 590` in its own command.
   - Each call of the wait is one main call, which reads the context from the cache. At the 146 thousand tokens of an average call (section 1.14.2) that is $0.03, so a task's 7.7 minutes of CI cost one or two such calls.
   - Against the task of `learner-model` left out of the sample, which waited by short loops in 76 calls, that is one call each ten minutes.
 - What it changes:
   - The rule of long runs of `spec`'s log and of RULES.md holds for a session a person leads. A session of `claude -p` with a schema gives its status whenever a turn ends, and whether the run then waits for the background work is not up to it: 38 of 117 waits ended there.
   - `tools/orchestrator/executor.md` says none of it; the orchestrator's prompt does. In the contract, which the orchestrator gives every run, it would hold over RULES.md for the executor.
-  - The orchestrator could also keep the tools away: `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` takes `run_in_background` off Bash and the subagents, but Monitor still runs in the background (sources 2.15). Whether 2.1.280 honours it was not tried.
+  - The orchestrator could also keep the tools away: `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` takes `run_in_background` off Bash and the subagents, but Monitor still runs in the background ([Environment variables](https://code.claude.com/docs/en/env-vars.md)). Whether 2.1.280 honours it was not tried.
 
 #### 1.15.5. The proposals and what they give
 
@@ -2035,6 +2035,20 @@ Code comments, as in section 1.18.3:
 | `spec` | 45,882 | 7,083 | 63 | 1.4 | 17 | 1,321 | 0 |
 | `tutor` | 70,847 | 9,671 | 0 | 0.0 | 0 | 294 | 0 |
 | All | 395,909 | 54,017 | 63 | 0.2 | 17 | 9,044 | 0 |
+
+### 1.19. What `claude -p` prints in the orchestrator's runs, 2026-11-15
+
+Seen in Claude Code 2.1.280, in a scratch folder and by `docker exec` in `sim`'s container, for the orchestrator's launch of an executor, and again in 2.1.331 on 2026-11-23. What Claude Code's documentation says of the same is a link where a claim stands; these are what the runs showed.
+- **Flags.** `claude --help` names `-p`, `--output-format`, `--verbose`, `--resume`, `--permission-mode` with `bypassPermissions`, `--model`, `--effort` "(low, medium, high, xhigh, max)", `--json-schema`, `--max-budget-usd`, `--append-system-prompt`, `--permission-prompts`, `--session-id <uuid>` — "Use a specific session ID for the conversation (must be a valid UUID)" — and `--system-prompt-snapshot <on|off>`: "Record the system prompt once per conversation and reuse it verbatim on every request and resume. on (the default)… every later request and resume sends the record as-is, even when a later launch passes different text, until the conversation is compacted". It names `--append-system-prompt-file` only in its text for `--bare`, not as an option of its own. `claude -p --output-format stream-json "hi"` answers "Error: When using --print, --output-format=stream-json requires --verbose", which no page of the documentation says.
+- **The schema.** `--json-schema` with `"$schema": "https://json-schema.org/draft/2020-12/schema"` stops the run before any request: "Error: --json-schema is not a valid JSON Schema: no schema with key or ref "https://json-schema.org/draft/2020-12/schema"". With `"http://json-schema.org/draft-07/schema#"` it runs, and the model gives its output by a tool `StructuredOutput`.
+- **The stream.** `-p --output-format stream-json --verbose` printed:
+  - first `system` of subtype `init`, with `session_id` equal to the one `--session-id` gave, `model: "claude-opus-5-5"`, `permissionMode` and `claude_code_version`;
+  - then a `rate_limit_event`: `"rate_limit_info":{"status":"allowed","resetsAt":1795352400,"rateLimitType":"seven_day","overageStatus":"rejected","overageDisabledReason":"org_level_disabled","isUsingOverage":false,…}`;
+  - last a `result` of subtype `success` with `structured_output`, `total_cost_usd` and `modelUsage`.
+- **The resume.** The `--resume` of that session printed `total_cost_usd` 0.2206944 against the first run's 0.209924, and in `modelUsage` 4 tokens of input and 326 of output against 2 and 163: the totals of the whole session.
+- **The limit in transcripts.** The transcripts of interactive sessions of `modules` on this machine record a limit as a message of the model with `"error":"rate_limit"`, `"apiErrorStatus":429`, the text "You've hit your session limit · resets 9:20am (UTC)" or "You've hit your weekly limit · resets 7am (UTC)", and `"quotaLimits":{"status":"rejected","resetsAt":1794129600,…}`. 1794129600 is 2026-11-08T09:20:00Z, the time the text names. A limit reached in a run of `-p` was not seen.
+- **The sign-in, 2026-11-23.** Claude Code 2.1.331 from npm, in a scratch folder of the orchestrator's container: `claude -p --model haiku --output-format stream-json --verbose --json-schema <status.schema.json> --session-id <uuid>` printed an `init` with `"apiKeySource":"none"` and `"claude_code_version":"2.1.331"` — the subscription's sign-in — and a `result` of subtype `success` with `structured_output` by the executor's schema.
+- **An artifact, 2026-11-17.** On the volume `novatrail-claude`, the graph of the orchestrator's run `coord-2026-11-16` is the artifact `AF15E1EPoM6sGqNviNTtx3`, made from `tools/graph.html` of the epic's folder, its nodes written into the page itself: the session publishes it again to change it, and nothing comes back from it.
 
 ## 2. The browsers of the kind `typescript`
 

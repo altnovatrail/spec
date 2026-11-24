@@ -52,15 +52,6 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Когда:** после T287.
 - **Разделы:** правило T287; privacy; dpia; product; repositories; sources 1; measurements 1; T270, T271, T275.
 
-#### T289. `sources` spec по правилу T287, часть 2: Claude Code
-
-- **Цель:** утверждения о поведении Claude Code держат ссылка на страницу документации или код с версией Claude Code из `.devcontainer/Dockerfile` и записи `measurements`; записи остаются только у условий, тарифов и лицензии.
-- **Сделать:**
-  - 2.7, 2.10, 2.11, 2.13, 2.14, 2.15, 2.16 и техническая часть 2.12 (`claude setup-token`) — удалить; около 35 мест — журнал, `tools/orchestrator/README.md`, `claude-plugins/README.md`, `repositories`, `run/DEBT.md`, `measurements` — ссылка на месте; наблюдения прогонов (2.14, 2.15) — в `measurements`, если их там нет.
-  - Остаются записями: лицензия npm-пакета «All rights reserved» (2.11), тарифы и лимиты подписки (2.12), доступность по плану и отправка звука (2.13) — по правилу T287.
-- **Как проверить:** `just docs-check`; `just orchestrator-test`, если правился его README с примерами.
-- **Разделы:** правило T287; [docs/sources.md](../docs/sources.md), раздел 2; measurements 1.
-
 #### T290. `sources` spec по правилу T287, часть 3: облако, веб, GitHub, Go, Docker, CI
 
 - **Цель:** техническое поведение облака, браузеров, GitHub, Go, Docker и инструментов CI держат ссылка на версию или коммит, тест или `measurements`; записи — у условий, лицензий, правил бренда и у неверсионных фактов, которых прогон не проверит.
