@@ -1,4 +1,4 @@
-// The test vectors of the key of a task from paper, novatrail.paper.v1: a second implementation of
+// The test vectors of the solver of module-kit, novatrail.paper.v1: a second implementation of
 // what module-kit does with it — the solver of a formula, the rules of an answer of AI, and the
 // verdict by the key — beside module-kit's own, whose CI passes the same vectors. The
 // verdicts are format-check's, on the value brought to the key as contracts/README.md brings it.
@@ -25,7 +25,7 @@ import { byCodeUnits } from "../shared.mjs";
 
 export const PACKAGE = "novatrail.paper.v1";
 export const FOLDER = "contracts/vectors/paper/v1";
-const TEXT = "the key of a task from paper in contracts/README.md";
+const TEXT = "the solver of module-kit in contracts/README.md";
 const WRITTEN = { useProtoFieldName: true, alwaysEmitImplicit: true };
 const FILES = ["answers.json", "solver.json", "verdicts.json"];
 
@@ -355,7 +355,7 @@ function checkFile(file, bytes, known, seen) {
   return found;
 }
 
-// The vectors of the package against the rules of the key of a task from paper: { errors, cases }.
+// The vectors of the package against the rules of the solver of module-kit: { errors, cases }.
 export function checkVectors(root, image, files) {
   const known = packageOf(image);
   if (known.error) return { errors: [{ file: FOLDER, line: 0, message: known.error }], cases: 0 };

@@ -72,7 +72,7 @@ export function layout(root) {
 const VECTORS = new Map([
   [PACKAGE, { folder: FOLDER, rules: "the rules of the observation" }],
   [EVAL, { folder: RULES, rules: "the rules the device and the runner share" }],
-  [PAPER, { folder: PAPER_FOLDER, rules: "the rules of the key of a task from paper" }],
+  [PAPER, { folder: PAPER_FOLDER, rules: "the rules of the solver of module-kit" }],
 ]);
 
 // Each vector is of a package that contracts/ has and whose vectors the check runs, and each such

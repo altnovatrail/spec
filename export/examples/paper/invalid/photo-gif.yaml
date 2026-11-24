@@ -1,6 +1,6 @@
 # error: enum at #/photo/media_type
 # The photo of a page is a JPEG or a PNG.
-format: 4
+format: 5
 profile_id: "p-1"
 page_id: "page-1"
 taken_at: "2026-11-18T16:05:00Z"

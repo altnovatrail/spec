@@ -1,6 +1,6 @@
 # error: unevaluatedProperties at #/works/0
 # A profile names its stored works without their bytes: each is a file of its own (R151).
-format: 4
+format: 5
 profile_id: "p-1"
 owner: false
 pseudonym: "Comet"

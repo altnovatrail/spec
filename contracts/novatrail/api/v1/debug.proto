@@ -90,12 +90,12 @@ enum DebugEffort {
 
 // Which models serve the calls of a task from paper.
 message DebugChoice {
-  // The model of every call of a task from paper — the tasks found, the statement read, the
-  // solution, the work read and the tutor's words —, one attempt each: absent, each call has its
-  // models of the admission list of `tutor`, in turn.
+  // The model of every call of a task from paper — the tasks found, the statement read, the Check
+  // and the words of "explain differently" —, one attempt each: absent, each call has its models
+  // of the admission list of `tutor`, in turn.
   DebugModelChoice first = 1;
-  // A second reader of the work, beside the first model's reading, the two joined as a pair, where
-  // a place they read differently is unreadable: absent, one reader.
+  // Not used: the Check is one call of one model, and reads the work with no second reader. `api`
+  // ignores it, and gives it absent.
   DebugModelChoice second = 2;
 }
 
@@ -138,10 +138,9 @@ message DebugAction {
   string attempt_id = 2;
   // When `api` took the request.
   google.protobuf.Timestamp at = 3;
-  // Its calls, in the order they ended; the solver's among them.
+  // Its calls, in the order they ended.
   repeated DebugCall calls = 4;
-  // Beside two readers: whether a place of the work was read differently by them, and so is
-  // unreadable.
+  // Not used: the Check has no second reader of the work, so it is always false.
   bool readers_differ = 5;
 }
 
@@ -151,27 +150,27 @@ enum DebugActionKind {
   DEBUG_ACTION_KIND_UNSPECIFIED = 0;
   // `FindTasks`.
   DEBUG_ACTION_KIND_FIND_TASKS = 1;
-  // `SubmitWork` of an attempt of a task from paper.
+  // `SubmitWork` of an attempt of a task from paper: its one call of the Check.
   DEBUG_ACTION_KIND_CHECK = 2;
-  // A request for the tutor's words on an attempt of a task from paper: `GetOpeningWords`,
-  // `GetRungWords` or `ExplainDifferently`.
+  // A request for the tutor's words on an attempt of a task from paper that calls AI:
+  // `GetOpeningWords`, whose call is a Check, or `ExplainDifferently`. `GetRungWords` calls none.
   DEBUG_ACTION_KIND_WORDS = 3;
 }
 
-// One call of a request: of a model, or of the solver of `module-kit`.
+// One call of a request, of a model.
 message DebugCall {
   // What the call does.
   DebugCallKind kind = 1;
-  // Beside the work read: the reader, 1 or 2.
+  // Not used: the Check has no reader of the work apart, so it is always 0.
   int32 reader = 2;
-  // The model's ID as the provider gave it back; empty for the solver.
+  // The model's ID as the provider gave it back.
   string model = 3;
   // The effort it was called with.
   DebugEffort effort = 4;
   // Whether it was called with thinking on.
   bool thinking = 5;
-  // What it returned, as it returned it: the model's JSON, or the solver's key as the JSON of
-  // `novatrail.paper.v1.Answer`. Empty when it returned nothing.
+  // What it returned, as it returned it: the model's JSON, the Check's hidden solution and answer
+  // among it, which the debug mode alone shows. Empty when it returned nothing.
   string answer = 6;
   // The input tokens, without those of the cache.
   int64 input_tokens = 7;
@@ -197,7 +196,7 @@ message DebugCall {
   // What the call came to when it gave no answer that was read: as `Outcome` names it.
   Cause failure = 17;
   // The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
-  // the one before did not do. 1 for the solver and for a model the debug mode chose.
+  // the one before did not do. 1 for a model the debug mode chose.
   int32 attempt = 18;
 }
 
@@ -207,17 +206,23 @@ enum DebugCallKind {
   DEBUG_CALL_KIND_UNSPECIFIED = 0;
   // The tasks found on the photo, `task_finding`.
   DEBUG_CALL_KIND_TASK_FINDING = 1;
-  // The statement read into a formula, `statement_reading`.
+  // The statement read, `statement_reading`, by "Recognise".
   DEBUG_CALL_KIND_STATEMENT_READING = 2;
-  // The solver of `module-kit`, with no AI.
+  // The solver of `module-kit`, with no AI: no longer recorded, since a task from paper has no
+  // key.
   DEBUG_CALL_KIND_SOLVER = 3;
-  // The AI's solution, `task_solving`.
+  // The AI's solution for a key: no longer recorded, since the Check judges the work in one call.
   DEBUG_CALL_KIND_TASK_SOLVING = 4;
-  // The work read, `handwriting_reading`.
+  // The work read, `handwriting_reading`: no longer recorded for a task from paper, since the
+  // Check reads the work itself.
   DEBUG_CALL_KIND_WORK_READING = 5;
-  // The tutor's words — the opening question, a rung's words with the place of the first mistake,
-  // or a rung in other words —, `solution_analysis` with the work and `hint` without it.
+  // The tutor's words of "explain differently", a rung in other words, `hint` without the work.
+  // The opening question and a rung's words are no longer calls of their own: they come from the
+  // Check's ladder.
   DEBUG_CALL_KIND_TUTOR_WORDS = 6;
+  // The Check, `task_checking`: the work judged in one call — each task's verdict, what was read,
+  // the place of each mistake, the tutor's words and the ladder of hints.
+  DEBUG_CALL_KIND_TASK_CHECKING = 7;
 }
 
 // A Check of a task from paper as the debug mode exports it, a case of the set of a task from
@@ -225,11 +230,11 @@ enum DebugCallKind {
 // the developer says it. `app` writes it as the JSON of this message, a file a case; `tutor-eval`
 // reads a folder of such files as a set, whose truth is the developer's.
 message DebugCase {
-  // The work as the Check sent it: the task's crop, which the statement's reading and the
-  // solution see, and the crop of the work, which the readers see.
+  // The work as the Check sent it: the task's crop, the crop of the work and the crop of the
+  // instruction, the three images the model saw.
   PaperWork work = 1;
   // Each task the crop holds, from 1 to 20, in the order of the page, as the attempt's items: the
-  // work is `correct` when every task with a key is.
+  // work is `correct` when every task is.
   repeated DebugTask tasks = 2;
   // What the developer saw, in their words; may be empty.
   string note = 3;
@@ -237,21 +242,26 @@ message DebugCase {
   DebugAction action = 4;
 }
 
-// One task of a case of the debug mode, as the developer says its truth.
+// One task of a case of the debug mode: the truth as the developer says it, and what the Check
+// answered for the task's slot.
 message DebugTask {
-  // The task's statement as printed, at most 200 bytes, as the reading of the statement gave it:
-  // the reading of the work is given it.
+  // The task's statement as printed, at most 200 bytes, as "Recognise" read it; empty when the
+  // attempt has no reading.
   string statement = 5;
-  // The formula the task's statement holds, as the solver of `module-kit` takes it; empty for a
-  // statement that holds none, a word problem, a choice or an open task.
+  // Not used by a case of the Check, which has no key: empty.
   string formula = 1;
-  // The task's key; none for an open task, which has no one answer.
+  // Not used by a case of the Check, which has no key: absent.
   novatrail.paper.v1.Answer key = 2;
-  // The value of the answer the work holds for the task, brought to the key, as `x = 4` is `4`;
-  // empty where the work holds none.
+  // The truth: the value of the answer the work holds for the task, as written; empty where the
+  // work holds none.
   string read = 3;
-  // The verdict the task's item should get by its key.
+  // The truth: the verdict the task's item should get.
   DebugOutcome outcome = 4;
+  // The verdict the Check gave the task's slot, as the model wrote it: "correct", "incorrect",
+  // "unreadable" or "no_answer"; empty when no Check answered.
+  string check_verdict = 6;
+  // What the Check read as the task's answer, as written; empty when it read none.
+  string check_read = 7;
 }
 
 // The verdict a case of the debug mode should get, as the set of a task from paper names it.
@@ -264,6 +274,8 @@ enum DebugOutcome {
   DEBUG_OUTCOME_NOT_YET = 2;
   // `unreadable`.
   DEBUG_OUTCOME_UNREADABLE = 3;
-  // `unchecked`: an open task, with no key.
+  // `unchecked`: no verdict, as a Check that read nothing of a solution gives.
   DEBUG_OUTCOME_UNCHECKED = 4;
+  // `so_far_correct`: no answer yet, and a solution with no error.
+  DEBUG_OUTCOME_SO_FAR_CORRECT = 5;
 }

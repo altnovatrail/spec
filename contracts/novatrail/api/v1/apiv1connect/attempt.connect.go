@@ -154,10 +154,13 @@ var (
 type AttemptServiceClient interface {
 	// Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
 	// both. The answer is the verdict of every item and answer slot, on the whole observation, and
-	// what was read. On a task from paper the first submission derives the key too, from the task's
-	// crop, a key for each task on it: a task whose solution of AI gives no one answer a program
-	// can compare has none, and its item is unchecked; with none in any task the outcome is
-	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
+	// what was read. On a task from paper each submission is one Check, which sends the work to the
+	// model and gives each task's verdict as the model judged it, at the box of what it read, and the
+	// tutor's words, `tutor_words`; it also gives the attempt its ladder of hints, which the attempt
+	// keeps in place of the one before. A slot with no answer yet, a solution read and no error is
+	// "so_far_correct", and counts no wrong answer. A Check in which the model read nothing of a
+	// solution in any slot gets the outcome `CAUSE_NO_KEY`, and the next submission checks again.
+	// Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`. A call of AI that gives no reading is no refusal: its slots get
 	// "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
@@ -176,11 +179,14 @@ type AttemptServiceClient interface {
 	// the attempt's state.
 	Done(context.Context, *v1.DoneRequest) (*v1.DoneResponse, error)
 	// Asks for the words of the rung that a wrong answer gave, sending the work again: the server
-	// keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
-	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A call of AI that gives no words is no refusal: the answer holds the
-	// rung's fallback text and names the outcome. A repeat with the same idempotency key, or a
-	// request for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
+	// keeps no crop. On a task from paper it gives the rung of the ladder the attempt keeps, with no
+	// call of AI and no work, and its marks: with "Show where", the wavy line under the box of the
+	// first mistake the Check gave. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`,
+	// `CAUSE_NO_MORE_WORDS`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no words is no
+	// refusal: the answer holds the rung's fallback text and names the outcome. A repeat with the
+	// same idempotency key, or a request for the same wrong answer, gets the words the attempt
+	// keeps, with no AI and no marks.
 	GetRungWords(context.Context, *v1.GetRungWordsRequest) (*v1.GetRungWordsResponse, error)
 	// Asks for the tutor's words after a correct answer, sending the work again, on the attempt that
 	// the answer has just closed. The right is one answer with words: `api` spends it when it gives
@@ -190,7 +196,9 @@ type AttemptServiceClient interface {
 	// provider. An answer with words that was lost has spent it: its repeat with the same
 	// idempotency key gets an answer `repeated` without words, since the server keeps none.
 	// Refusals: `CAUSE_NO_MORE_WORDS` once the words were given, also on an attempt that no correct
-	// answer closed, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`.
+	// answer closed, and always on a task from paper, whose words after a correct answer are the
+	// Check's `tutor_words`; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`.
 	GetCorrectAnswerWords(context.Context, *v1.GetCorrectAnswerWordsRequest) (*v1.GetCorrectAnswerWordsResponse, error)
 	// "Explain differently": the words of the same rung in other words, one call of AI on a rung,
 	// without the work, for the wrong answer it names. Refusals: `CAUSE_NOT_CURRENT`,
@@ -203,13 +211,17 @@ type AttemptServiceClient interface {
 	// "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
 	// answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
 	// when it has one, both empty on a task from paper, which has neither and asks
-	// `GetOpeningWords` instead; after it, the words of the current rung. Refusals:
+	// `GetOpeningWords` instead; after it, the words of the current rung. On a task from paper,
+	// once a Check gave the attempt its ladder, it gives the current rung's words from that ladder,
+	// the first rung while the attempt has no wrong answer. Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
-	// "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
-	// call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
-	// how to begin the task it holds, or the first of a frame of several. Refusals:
-	// `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
+	// "Hint" on a task from paper while the attempt keeps no ladder, before its first Check: it sends
+	// the work as it stands to the Check, one call of AI, and gives the first rung of the ladder the
+	// Check gives, a question on how to begin the task, or the first of a frame of several. The
+	// attempt keeps the Check's answer and its ladder, as after a submission, but its verdicts are
+	// not shown and count no wrong answer. Refusals: `CAUSE_NOT_CURRENT` once the attempt keeps a
+	// ladder, whose rung `GetHint` gives,
 	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
 	// words is no refusal: the answer holds the opening question's fallback text and names the
@@ -218,15 +230,15 @@ type AttemptServiceClient interface {
 	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
 	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
 	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
-	// statement, `statement_reading`, that the attempt's first Check would make, made now on the
-	// learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
-	// and the Check that derives the key takes it with no call of its own. An attempt that keeps a
-	// reading or a key gives its statements with no AI. The answer holds the statements alone, never
-	// a formula nor a key. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
-	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
-	// the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
-	// refusal: the answer names the outcome, holds no statement, and the next press asks again.
+	// statement, `statement_reading`, made on the learner's press, by the route of the attempt: the
+	// attempt keeps the reading while it is open, and an attempt that keeps one gives its statements
+	// with no AI. The Check takes none of it: the model reads the crop itself. The answer holds the
+	// statements alone, never a formula. Refusals: `CAUSE_ATTEMPT_CLOSED`,
+	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform
+	// AI, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call
+	// without the reserve of the quota. A task of a module gets `invalid_argument`. A call of AI that
+	// gives no reading is no refusal: the answer names the outcome, holds no statement, and the next
+	// press asks again.
 	ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
@@ -263,10 +275,13 @@ func NewAttemptServiceClient(client *connect.Client) AttemptServiceClient {
 type AttemptServiceHandler interface {
 	// Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
 	// both. The answer is the verdict of every item and answer slot, on the whole observation, and
-	// what was read. On a task from paper the first submission derives the key too, from the task's
-	// crop, a key for each task on it: a task whose solution of AI gives no one answer a program
-	// can compare has none, and its item is unchecked; with none in any task the outcome is
-	// `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
+	// what was read. On a task from paper each submission is one Check, which sends the work to the
+	// model and gives each task's verdict as the model judged it, at the box of what it read, and the
+	// tutor's words, `tutor_words`; it also gives the attempt its ladder of hints, which the attempt
+	// keeps in place of the one before. A slot with no answer yet, a solution read and no error is
+	// "so_far_correct", and counts no wrong answer. A Check in which the model read nothing of a
+	// solution in any slot gets the outcome `CAUSE_NO_KEY`, and the next submission checks again.
+	// Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`. A call of AI that gives no reading is no refusal: its slots get
 	// "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
@@ -285,11 +300,14 @@ type AttemptServiceHandler interface {
 	// the attempt's state.
 	Done(context.Context, *v1.DoneRequest) (*v1.DoneResponse, error)
 	// Asks for the words of the rung that a wrong answer gave, sending the work again: the server
-	// keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
-	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
-	// `CAUSE_STILL_GOING`. A call of AI that gives no words is no refusal: the answer holds the
-	// rung's fallback text and names the outcome. A repeat with the same idempotency key, or a
-	// request for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
+	// keeps no crop. On a task from paper it gives the rung of the ladder the attempt keeps, with no
+	// call of AI and no work, and its marks: with "Show where", the wavy line under the box of the
+	// first mistake the Check gave. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`,
+	// `CAUSE_NO_MORE_WORDS`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no words is no
+	// refusal: the answer holds the rung's fallback text and names the outcome. A repeat with the
+	// same idempotency key, or a request for the same wrong answer, gets the words the attempt
+	// keeps, with no AI and no marks.
 	GetRungWords(context.Context, *v1.GetRungWordsRequest) (*v1.GetRungWordsResponse, error)
 	// Asks for the tutor's words after a correct answer, sending the work again, on the attempt that
 	// the answer has just closed. The right is one answer with words: `api` spends it when it gives
@@ -299,7 +317,9 @@ type AttemptServiceHandler interface {
 	// provider. An answer with words that was lost has spent it: its repeat with the same
 	// idempotency key gets an answer `repeated` without words, since the server keeps none.
 	// Refusals: `CAUSE_NO_MORE_WORDS` once the words were given, also on an attempt that no correct
-	// answer closed, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`.
+	// answer closed, and always on a task from paper, whose words after a correct answer are the
+	// Check's `tutor_words`; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`.
 	GetCorrectAnswerWords(context.Context, *v1.GetCorrectAnswerWordsRequest) (*v1.GetCorrectAnswerWordsResponse, error)
 	// "Explain differently": the words of the same rung in other words, one call of AI on a rung,
 	// without the work, for the wrong answer it names. Refusals: `CAUSE_NOT_CURRENT`,
@@ -312,13 +332,17 @@ type AttemptServiceHandler interface {
 	// "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
 	// answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
 	// when it has one, both empty on a task from paper, which has neither and asks
-	// `GetOpeningWords` instead; after it, the words of the current rung. Refusals:
+	// `GetOpeningWords` instead; after it, the words of the current rung. On a task from paper,
+	// once a Check gave the attempt its ladder, it gives the current rung's words from that ladder,
+	// the first rung while the attempt has no wrong answer. Refusals:
 	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
 	GetHint(context.Context, *v1.GetHintRequest) (*v1.GetHintResponse, error)
-	// "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
-	// call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
-	// how to begin the task it holds, or the first of a frame of several. Refusals:
-	// `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
+	// "Hint" on a task from paper while the attempt keeps no ladder, before its first Check: it sends
+	// the work as it stands to the Check, one call of AI, and gives the first rung of the ladder the
+	// Check gives, a question on how to begin the task, or the first of a frame of several. The
+	// attempt keeps the Check's answer and its ladder, as after a submission, but its verdicts are
+	// not shown and count no wrong answer. Refusals: `CAUSE_NOT_CURRENT` once the attempt keeps a
+	// ladder, whose rung `GetHint` gives,
 	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
 	// `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
 	// words is no refusal: the answer holds the opening question's fallback text and names the
@@ -327,15 +351,15 @@ type AttemptServiceHandler interface {
 	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
 	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
 	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
-	// statement, `statement_reading`, that the attempt's first Check would make, made now on the
-	// learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
-	// and the Check that derives the key takes it with no call of its own. An attempt that keeps a
-	// reading or a key gives its statements with no AI. The answer holds the statements alone, never
-	// a formula nor a key. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
-	// `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
-	// the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
-	// refusal: the answer names the outcome, holds no statement, and the next press asks again.
+	// statement, `statement_reading`, made on the learner's press, by the route of the attempt: the
+	// attempt keeps the reading while it is open, and an attempt that keeps one gives its statements
+	// with no AI. The Check takes none of it: the model reads the crop itself. The answer holds the
+	// statements alone, never a formula. Refusals: `CAUSE_ATTEMPT_CLOSED`,
+	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform
+	// AI, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call
+	// without the reserve of the quota. A task of a module gets `invalid_argument`. A call of AI that
+	// gives no reading is no refusal: the answer names the outcome, holds no statement, and the next
+	// press asks again.
 	ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error)
 	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
 	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:

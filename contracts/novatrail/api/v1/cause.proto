@@ -186,10 +186,9 @@ enum Cause {
   // again and offers the bands next to the level it gives. Code `failed_precondition`,
   // with no data.
   CAUSE_BAND_NOT_NEXT = 46;
-  // A task from paper has no key: the solution of AI gave no one answer that a program can compare,
-  // such as a proof, a drawing or several answers, so no verdict is given, "Couldn't check this
-  // one", and the hints still are. An outcome alone, of every submission of the attempt,
-  // with no AI once the first gave it.
+  // A Check of a task from paper read nothing of a solution in any slot of the frame, so no
+  // verdict is given, "Couldn't check this one", and the hints still are. An outcome alone, of
+  // that submission: the next one checks again.
   CAUSE_NO_KEY = 47;
 }
 

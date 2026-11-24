@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/4/work.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/5/work.schema.json",
   "title": "Stored work",
   "description": "A stored work of a profile, works/<profile id>/<attempt id>.json, which app writes beside api.zip as GetWork gave it.",
   "type": "object",
   "properties": {
     "format": {
-      "const": 4,
+      "const": 5,
       "description": "The version of the part, the integer in export/VERSION."
     },
     "profile_id": {

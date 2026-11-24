@@ -2,11 +2,13 @@
 // @generated from file novatrail/paper/v1/key.proto (package novatrail.paper.v1, syntax proto3)
 /* eslint-disable */
 
-// The key of a task from the learner's paper: the answer a program compares the reading of
-// the work with, and where it came from. `tutor` gives an answer of AI, the solver of `module-kit`
-// gives one from the formula AI read of the statement, and `api` keeps the key on the attempt while
-// it is open; it never reaches the device. The formula, the solver, the key and the verdict
-// by it are the rules of contracts/README.md for the key of a task from paper.
+// The key of a task from paper as the solver of `module-kit` computes it, the answer a program
+// compares a reading with, and where it came from; and the reading of a task's statement that
+// "Recognise" gives, which `api` keeps on the attempt while it is open. A task from paper is not
+// checked by a key: its verdict is the model's, by the Check of check.proto, and `api` keeps no
+// key on its attempts. The messages of the key stay for the solver of `module-kit` and its test
+// vectors. The formula, the solver and the verdict by a key are the rules of contracts/README.md
+// for the solver of `module-kit`.
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -119,16 +121,16 @@ export declare type Choice = Message<"novatrail.paper.v1.Choice"> & {
 export declare const ChoiceSchema: GenMessage<Choice>;
 
 /**
- * The key of an attempt of a task from paper, which `api` keeps on the attempt while it is open:
- * the tasks the reading of the statement found on the crop, as each of a column of sums framed
- * together, each with its own key.
+ * The key of the tasks on a crop, as each of a column of sums framed together, each with its own
+ * key, as the solver of `module-kit` gives it. `api` keeps none on an attempt of a task from paper,
+ * which the Check judges.
  *
  * @generated from message novatrail.paper.v1.Key
  */
 export declare type Key = Message<"novatrail.paper.v1.Key"> & {
   /**
    * The tasks on the crop, from 1 to 20, in the order of the page: top to bottom, and left to
-   * right in a row. The task at the place n is the item n of the attempt's submissions.
+   * right in a row. The task at the place n is the item n.
    *
    * @generated from field: repeated novatrail.paper.v1.TaskKey tasks = 1;
    */
@@ -166,7 +168,7 @@ export declare type TaskKey = Message<"novatrail.paper.v1.TaskKey"> & {
 
   /**
    * The answer, or none when the task has no one answer a program can compare: its item is
-   * unchecked, and with no answer in any task every submission gets the outcome `CAUSE_NO_KEY`.
+   * unchecked.
    *
    * @generated from field: novatrail.paper.v1.Answer answer = 3;
    */
@@ -181,8 +183,9 @@ export declare const TaskKeySchema: GenMessage<TaskKey>;
 
 /**
  * The reading of the statement of a task from paper's crop, which `api` keeps on the attempt while
- * it is open, from the learner's "Recognise", for the first Check to derive the key by: the
- * statements alone reach the device, never the formulas.
+ * it is open, from the learner's "Recognise", so that a later press gives it with no call of AI:
+ * the statements alone reach the device, never the formulas. The Check does not take it: the model
+ * reads the crop itself.
  *
  * @generated from message novatrail.paper.v1.Reading
  */

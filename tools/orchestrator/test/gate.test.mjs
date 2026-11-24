@@ -123,7 +123,7 @@ test("gate: each changed repository's CI in its container, the guards under the 
   assert.deepEqual(repos.app.recipes.map((r) => [r.recipe, r.status]), [["ci", "passed"]]);
   assert.deepEqual(repos["module-kit"].recipes.map((r) => [r.recipe, r.status]), [["ci-lint", "allowed: just ci-lint: the pin of spec"], ["ci-test", "passed"], ["ci-vuln", "passed"], ["ci-licenses", "passed"]]);
   assert.deepEqual(repos.tutor.recipes.map((r) => [r.recipe, r.status]), [["ci-lint", "allowed: just ci-lint: release-licenses of the modules go.work replaces"], ["ci-test", "passed"], ["ci-vuln", "passed"], ["ci-licenses", "allowed: just ci-licenses: the modules go.work replaces"], ["ci-sample-check", "passed"], ["ci-canvas-check", "passed"]]);
-  assert.deepEqual(repos.tutor.skipped, ["TestSpecVersion", "TestReadingLogOfTheStub", "TestAdmitExamples", "TestMeasuresOfSpecExamples", "TestExamplesFollowTheRules", "TestExamplesReadBack", "TestExamples"]);
+  assert.deepEqual(repos.tutor.skipped, ["TestSpecVersion", "TestReadingLogOfTheStub", "TestAdmitExamples", "TestMeasuresOfSpecExamples", "TestExamplesFollowTheRules", "TestExamplesReadBack", "TestReadStyledSheet", "TestStyledSheetCourse", "TestExamples"]);
   for (const repo of ["app", "module-kit", "tutor"]) assert.deepEqual([repos[repo].patchcov.status, repos[repo].patchcov.coverage], ["passed", 100], repo);
   // spec's change is a file no report holds.
   assert.equal(repos.spec.patchcov.coverage, null);
@@ -132,7 +132,7 @@ test("gate: each changed repository's CI in its container, the guards under the 
   const order = just.filter((c) => c.recipe !== "_install").map((c) => path.basename(c.cwd)).filter((r, i, all) => r !== all[i - 1]);
   assert.deepEqual(order, ["spec", "app", "module-kit", "tutor"]);
   const tutorTest = just.find((c) => c.recipe === "ci-test" && c.cwd.endsWith("/tutor"));
-  assert.equal(tutorTest.goflags, "-skip=^(TestSpecVersion|TestReadingLogOfTheStub|TestAdmitExamples|TestMeasuresOfSpecExamples|TestExamplesFollowTheRules|TestExamplesReadBack|TestExamples)$");
+  assert.equal(tutorTest.goflags, "-skip=^(TestSpecVersion|TestReadingLogOfTheStub|TestAdmitExamples|TestMeasuresOfSpecExamples|TestExamplesFollowTheRules|TestExamplesReadBack|TestReadStyledSheet|TestStyledSheetCourse|TestExamples)$");
   assert.equal(tutorTest.allowed, "MIT,Apache-2.0");
   assert.equal(just.find((c) => c.recipe === "docs-check" && c.cwd.endsWith("/spec")).allowed, null);
   // spec's recipes run in spec's container, the others in their own.

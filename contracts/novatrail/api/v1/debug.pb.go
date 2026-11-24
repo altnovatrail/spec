@@ -103,10 +103,10 @@ const (
 	DebugActionKind_DEBUG_ACTION_KIND_UNSPECIFIED DebugActionKind = 0
 	// `FindTasks`.
 	DebugActionKind_DEBUG_ACTION_KIND_FIND_TASKS DebugActionKind = 1
-	// `SubmitWork` of an attempt of a task from paper.
+	// `SubmitWork` of an attempt of a task from paper: its one call of the Check.
 	DebugActionKind_DEBUG_ACTION_KIND_CHECK DebugActionKind = 2
-	// A request for the tutor's words on an attempt of a task from paper: `GetOpeningWords`,
-	// `GetRungWords` or `ExplainDifferently`.
+	// A request for the tutor's words on an attempt of a task from paper that calls AI:
+	// `GetOpeningWords`, whose call is a Check, or `ExplainDifferently`. `GetRungWords` calls none.
 	DebugActionKind_DEBUG_ACTION_KIND_WORDS DebugActionKind = 3
 )
 
@@ -161,17 +161,23 @@ const (
 	DebugCallKind_DEBUG_CALL_KIND_UNSPECIFIED DebugCallKind = 0
 	// The tasks found on the photo, `task_finding`.
 	DebugCallKind_DEBUG_CALL_KIND_TASK_FINDING DebugCallKind = 1
-	// The statement read into a formula, `statement_reading`.
+	// The statement read, `statement_reading`, by "Recognise".
 	DebugCallKind_DEBUG_CALL_KIND_STATEMENT_READING DebugCallKind = 2
-	// The solver of `module-kit`, with no AI.
+	// The solver of `module-kit`, with no AI: no longer recorded, since a task from paper has no
+	// key.
 	DebugCallKind_DEBUG_CALL_KIND_SOLVER DebugCallKind = 3
-	// The AI's solution, `task_solving`.
+	// The AI's solution for a key: no longer recorded, since the Check judges the work in one call.
 	DebugCallKind_DEBUG_CALL_KIND_TASK_SOLVING DebugCallKind = 4
-	// The work read, `handwriting_reading`.
+	// The work read, `handwriting_reading`: no longer recorded for a task from paper, since the
+	// Check reads the work itself.
 	DebugCallKind_DEBUG_CALL_KIND_WORK_READING DebugCallKind = 5
-	// The tutor's words — the opening question, a rung's words with the place of the first mistake,
-	// or a rung in other words —, `solution_analysis` with the work and `hint` without it.
+	// The tutor's words of "explain differently", a rung in other words, `hint` without the work.
+	// The opening question and a rung's words are no longer calls of their own: they come from the
+	// Check's ladder.
 	DebugCallKind_DEBUG_CALL_KIND_TUTOR_WORDS DebugCallKind = 6
+	// The Check, `task_checking`: the work judged in one call — each task's verdict, what was read,
+	// the place of each mistake, the tutor's words and the ladder of hints.
+	DebugCallKind_DEBUG_CALL_KIND_TASK_CHECKING DebugCallKind = 7
 )
 
 // Enum value maps for DebugCallKind.
@@ -184,6 +190,7 @@ var (
 		4: "DEBUG_CALL_KIND_TASK_SOLVING",
 		5: "DEBUG_CALL_KIND_WORK_READING",
 		6: "DEBUG_CALL_KIND_TUTOR_WORDS",
+		7: "DEBUG_CALL_KIND_TASK_CHECKING",
 	}
 	DebugCallKind_value = map[string]int32{
 		"DEBUG_CALL_KIND_UNSPECIFIED":       0,
@@ -193,6 +200,7 @@ var (
 		"DEBUG_CALL_KIND_TASK_SOLVING":      4,
 		"DEBUG_CALL_KIND_WORK_READING":      5,
 		"DEBUG_CALL_KIND_TUTOR_WORDS":       6,
+		"DEBUG_CALL_KIND_TASK_CHECKING":     7,
 	}
 )
 
@@ -235,8 +243,10 @@ const (
 	DebugOutcome_DEBUG_OUTCOME_NOT_YET DebugOutcome = 2
 	// `unreadable`.
 	DebugOutcome_DEBUG_OUTCOME_UNREADABLE DebugOutcome = 3
-	// `unchecked`: an open task, with no key.
+	// `unchecked`: no verdict, as a Check that read nothing of a solution gives.
 	DebugOutcome_DEBUG_OUTCOME_UNCHECKED DebugOutcome = 4
+	// `so_far_correct`: no answer yet, and a solution with no error.
+	DebugOutcome_DEBUG_OUTCOME_SO_FAR_CORRECT DebugOutcome = 5
 )
 
 // Enum value maps for DebugOutcome.
@@ -247,13 +257,15 @@ var (
 		2: "DEBUG_OUTCOME_NOT_YET",
 		3: "DEBUG_OUTCOME_UNREADABLE",
 		4: "DEBUG_OUTCOME_UNCHECKED",
+		5: "DEBUG_OUTCOME_SO_FAR_CORRECT",
 	}
 	DebugOutcome_value = map[string]int32{
-		"DEBUG_OUTCOME_UNSPECIFIED": 0,
-		"DEBUG_OUTCOME_CORRECT":     1,
-		"DEBUG_OUTCOME_NOT_YET":     2,
-		"DEBUG_OUTCOME_UNREADABLE":  3,
-		"DEBUG_OUTCOME_UNCHECKED":   4,
+		"DEBUG_OUTCOME_UNSPECIFIED":    0,
+		"DEBUG_OUTCOME_CORRECT":        1,
+		"DEBUG_OUTCOME_NOT_YET":        2,
+		"DEBUG_OUTCOME_UNREADABLE":     3,
+		"DEBUG_OUTCOME_UNCHECKED":      4,
+		"DEBUG_OUTCOME_SO_FAR_CORRECT": 5,
 	}
 )
 
@@ -546,12 +558,12 @@ func (x *DebugModel) GetThinkingOffEfforts() []DebugEffort {
 // Which models serve the calls of a task from paper.
 type DebugChoice struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The model of every call of a task from paper — the tasks found, the statement read, the
-	// solution, the work read and the tutor's words —, one attempt each: absent, each call has its
-	// models of the admission list of `tutor`, in turn.
+	// The model of every call of a task from paper — the tasks found, the statement read, the Check
+	// and the words of "explain differently" —, one attempt each: absent, each call has its models
+	// of the admission list of `tutor`, in turn.
 	First *DebugModelChoice `protobuf:"bytes,1,opt,name=first,proto3" json:"first,omitempty"`
-	// A second reader of the work, beside the first model's reading, the two joined as a pair, where
-	// a place they read differently is unreadable: absent, one reader.
+	// Not used: the Check is one call of one model, and reads the work with no second reader. `api`
+	// ignores it, and gives it absent.
 	Second        *DebugModelChoice `protobuf:"bytes,2,opt,name=second,proto3" json:"second,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -849,10 +861,9 @@ type DebugAction struct {
 	AttemptId string `protobuf:"bytes,2,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
 	// When `api` took the request.
 	At *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=at,proto3" json:"at,omitempty"`
-	// Its calls, in the order they ended; the solver's among them.
+	// Its calls, in the order they ended.
 	Calls []*DebugCall `protobuf:"bytes,4,rep,name=calls,proto3" json:"calls,omitempty"`
-	// Beside two readers: whether a place of the work was read differently by them, and so is
-	// unreadable.
+	// Not used: the Check has no second reader of the work, so it is always false.
 	ReadersDiffer bool `protobuf:"varint,5,opt,name=readers_differ,json=readersDiffer,proto3" json:"readers_differ,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -923,21 +934,21 @@ func (x *DebugAction) GetReadersDiffer() bool {
 	return false
 }
 
-// One call of a request: of a model, or of the solver of `module-kit`.
+// One call of a request, of a model.
 type DebugCall struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// What the call does.
 	Kind DebugCallKind `protobuf:"varint,1,opt,name=kind,proto3,enum=novatrail.api.v1.DebugCallKind" json:"kind,omitempty"`
-	// Beside the work read: the reader, 1 or 2.
+	// Not used: the Check has no reader of the work apart, so it is always 0.
 	Reader int32 `protobuf:"varint,2,opt,name=reader,proto3" json:"reader,omitempty"`
-	// The model's ID as the provider gave it back; empty for the solver.
+	// The model's ID as the provider gave it back.
 	Model string `protobuf:"bytes,3,opt,name=model,proto3" json:"model,omitempty"`
 	// The effort it was called with.
 	Effort DebugEffort `protobuf:"varint,4,opt,name=effort,proto3,enum=novatrail.api.v1.DebugEffort" json:"effort,omitempty"`
 	// Whether it was called with thinking on.
 	Thinking bool `protobuf:"varint,5,opt,name=thinking,proto3" json:"thinking,omitempty"`
-	// What it returned, as it returned it: the model's JSON, or the solver's key as the JSON of
-	// `novatrail.paper.v1.Answer`. Empty when it returned nothing.
+	// What it returned, as it returned it: the model's JSON, the Check's hidden solution and answer
+	// among it, which the debug mode alone shows. Empty when it returned nothing.
 	Answer string `protobuf:"bytes,6,opt,name=answer,proto3" json:"answer,omitempty"`
 	// The input tokens, without those of the cache.
 	InputTokens int64 `protobuf:"varint,7,opt,name=input_tokens,json=inputTokens,proto3" json:"input_tokens,omitempty"`
@@ -963,7 +974,7 @@ type DebugCall struct {
 	// What the call came to when it gave no answer that was read: as `Outcome` names it.
 	Failure Cause `protobuf:"varint,17,opt,name=failure,proto3,enum=novatrail.api.v1.Cause" json:"failure,omitempty"`
 	// The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
-	// the one before did not do. 1 for the solver and for a model the debug mode chose.
+	// the one before did not do. 1 for a model the debug mode chose.
 	Attempt       int32 `protobuf:"varint,18,opt,name=attempt,proto3" json:"attempt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1131,11 +1142,11 @@ func (x *DebugCall) GetAttempt() int32 {
 // reads a folder of such files as a set, whose truth is the developer's.
 type DebugCase struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The work as the Check sent it: the task's crop, which the statement's reading and the
-	// solution see, and the crop of the work, which the readers see.
+	// The work as the Check sent it: the task's crop, the crop of the work and the crop of the
+	// instruction, the three images the model saw.
 	Work *PaperWork `protobuf:"bytes,1,opt,name=work,proto3" json:"work,omitempty"`
 	// Each task the crop holds, from 1 to 20, in the order of the page, as the attempt's items: the
-	// work is `correct` when every task with a key is.
+	// work is `correct` when every task is.
 	Tasks []*DebugTask `protobuf:"bytes,2,rep,name=tasks,proto3" json:"tasks,omitempty"`
 	// What the developer saw, in their words; may be empty.
 	Note string `protobuf:"bytes,3,opt,name=note,proto3" json:"note,omitempty"`
@@ -1203,22 +1214,27 @@ func (x *DebugCase) GetAction() *DebugAction {
 	return nil
 }
 
-// One task of a case of the debug mode, as the developer says its truth.
+// One task of a case of the debug mode: the truth as the developer says it, and what the Check
+// answered for the task's slot.
 type DebugTask struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The task's statement as printed, at most 200 bytes, as the reading of the statement gave it:
-	// the reading of the work is given it.
+	// The task's statement as printed, at most 200 bytes, as "Recognise" read it; empty when the
+	// attempt has no reading.
 	Statement string `protobuf:"bytes,5,opt,name=statement,proto3" json:"statement,omitempty"`
-	// The formula the task's statement holds, as the solver of `module-kit` takes it; empty for a
-	// statement that holds none, a word problem, a choice or an open task.
+	// Not used by a case of the Check, which has no key: empty.
 	Formula string `protobuf:"bytes,1,opt,name=formula,proto3" json:"formula,omitempty"`
-	// The task's key; none for an open task, which has no one answer.
+	// Not used by a case of the Check, which has no key: absent.
 	Key *v1.Answer `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	// The value of the answer the work holds for the task, brought to the key, as `x = 4` is `4`;
-	// empty where the work holds none.
+	// The truth: the value of the answer the work holds for the task, as written; empty where the
+	// work holds none.
 	Read string `protobuf:"bytes,3,opt,name=read,proto3" json:"read,omitempty"`
-	// The verdict the task's item should get by its key.
-	Outcome       DebugOutcome `protobuf:"varint,4,opt,name=outcome,proto3,enum=novatrail.api.v1.DebugOutcome" json:"outcome,omitempty"`
+	// The truth: the verdict the task's item should get.
+	Outcome DebugOutcome `protobuf:"varint,4,opt,name=outcome,proto3,enum=novatrail.api.v1.DebugOutcome" json:"outcome,omitempty"`
+	// The verdict the Check gave the task's slot, as the model wrote it: "correct", "incorrect",
+	// "unreadable" or "no_answer"; empty when no Check answered.
+	CheckVerdict string `protobuf:"bytes,6,opt,name=check_verdict,json=checkVerdict,proto3" json:"check_verdict,omitempty"`
+	// What the Check read as the task's answer, as written; empty when it read none.
+	CheckRead     string `protobuf:"bytes,7,opt,name=check_read,json=checkRead,proto3" json:"check_read,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1286,6 +1302,20 @@ func (x *DebugTask) GetOutcome() DebugOutcome {
 		return x.Outcome
 	}
 	return DebugOutcome_DEBUG_OUTCOME_UNSPECIFIED
+}
+
+func (x *DebugTask) GetCheckVerdict() string {
+	if x != nil {
+		return x.CheckVerdict
+	}
+	return ""
+}
+
+func (x *DebugTask) GetCheckRead() string {
+	if x != nil {
+		return x.CheckRead
+	}
+	return ""
 }
 
 var File_novatrail_api_v1_debug_proto protoreflect.FileDescriptor
@@ -1356,13 +1386,16 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x04work\x18\x01 \x01(\v2\x1b.novatrail.api.v1.PaperWorkR\x04work\x121\n" +
 	"\x05tasks\x18\x02 \x03(\v2\x1b.novatrail.api.v1.DebugTaskR\x05tasks\x12\x12\n" +
 	"\x04note\x18\x03 \x01(\tR\x04note\x125\n" +
-	"\x06action\x18\x04 \x01(\v2\x1d.novatrail.api.v1.DebugActionR\x06action\"\xbf\x01\n" +
+	"\x06action\x18\x04 \x01(\v2\x1d.novatrail.api.v1.DebugActionR\x06action\"\x83\x02\n" +
 	"\tDebugTask\x12\x1c\n" +
 	"\tstatement\x18\x05 \x01(\tR\tstatement\x12\x18\n" +
 	"\aformula\x18\x01 \x01(\tR\aformula\x12,\n" +
 	"\x03key\x18\x02 \x01(\v2\x1a.novatrail.paper.v1.AnswerR\x03key\x12\x12\n" +
 	"\x04read\x18\x03 \x01(\tR\x04read\x128\n" +
-	"\aoutcome\x18\x04 \x01(\x0e2\x1e.novatrail.api.v1.DebugOutcomeR\aoutcome*\x9f\x01\n" +
+	"\aoutcome\x18\x04 \x01(\x0e2\x1e.novatrail.api.v1.DebugOutcomeR\aoutcome\x12#\n" +
+	"\rcheck_verdict\x18\x06 \x01(\tR\fcheckVerdict\x12\x1d\n" +
+	"\n" +
+	"check_read\x18\a \x01(\tR\tcheckRead*\x9f\x01\n" +
 	"\vDebugEffort\x12\x1c\n" +
 	"\x18DEBUG_EFFORT_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10DEBUG_EFFORT_LOW\x10\x01\x12\x17\n" +
@@ -1374,7 +1407,7 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x1dDEBUG_ACTION_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cDEBUG_ACTION_KIND_FIND_TASKS\x10\x01\x12\x1b\n" +
 	"\x17DEBUG_ACTION_KIND_CHECK\x10\x02\x12\x1b\n" +
-	"\x17DEBUG_ACTION_KIND_WORDS\x10\x03*\xfa\x01\n" +
+	"\x17DEBUG_ACTION_KIND_WORDS\x10\x03*\x9d\x02\n" +
 	"\rDebugCallKind\x12\x1f\n" +
 	"\x1bDEBUG_CALL_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cDEBUG_CALL_KIND_TASK_FINDING\x10\x01\x12%\n" +
@@ -1382,13 +1415,15 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x16DEBUG_CALL_KIND_SOLVER\x10\x03\x12 \n" +
 	"\x1cDEBUG_CALL_KIND_TASK_SOLVING\x10\x04\x12 \n" +
 	"\x1cDEBUG_CALL_KIND_WORK_READING\x10\x05\x12\x1f\n" +
-	"\x1bDEBUG_CALL_KIND_TUTOR_WORDS\x10\x06*\x9e\x01\n" +
+	"\x1bDEBUG_CALL_KIND_TUTOR_WORDS\x10\x06\x12!\n" +
+	"\x1dDEBUG_CALL_KIND_TASK_CHECKING\x10\a*\xc0\x01\n" +
 	"\fDebugOutcome\x12\x1d\n" +
 	"\x19DEBUG_OUTCOME_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15DEBUG_OUTCOME_CORRECT\x10\x01\x12\x19\n" +
 	"\x15DEBUG_OUTCOME_NOT_YET\x10\x02\x12\x1c\n" +
 	"\x18DEBUG_OUTCOME_UNREADABLE\x10\x03\x12\x1b\n" +
-	"\x17DEBUG_OUTCOME_UNCHECKED\x10\x042\xab\x02\n" +
+	"\x17DEBUG_OUTCOME_UNCHECKED\x10\x04\x12 \n" +
+	"\x1cDEBUG_OUTCOME_SO_FAR_CORRECT\x10\x052\xab\x02\n" +
 	"\fDebugService\x12Q\n" +
 	"\bGetDebug\x12!.novatrail.api.v1.GetDebugRequest\x1a\".novatrail.api.v1.GetDebugResponse\x12c\n" +
 	"\x0eSetDebugModels\x12'.novatrail.api.v1.SetDebugModelsRequest\x1a(.novatrail.api.v1.SetDebugModelsResponse\x12c\n" +

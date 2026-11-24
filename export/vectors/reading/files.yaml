@@ -3,7 +3,7 @@
 cases:
   - files:
       api/profiles/p-2.json:
-        format: 4
+        format: 5
         profile_id: "p-2"
         owner: false
         pseudonym: "Orbit"
@@ -53,13 +53,13 @@ cases:
       - "manifest.json"
   - files:
       manifest.json:
-        format: 4
+        format: 5
         scope: "account"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "4"
+        api_format: "5"
       api/account.json:
-        format: 4
+        format: 5
         account_id: "account-1"
         adult_stated_at: "2026-11-10T09:30:00Z"
         tariff: "invite"
@@ -85,7 +85,7 @@ cases:
             spent_micro_usd: 12000
             reserved_micro_usd: 0
       api/profiles/p-1.json:
-        format: 4
+        format: 5
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -205,7 +205,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 4
+        format: 5
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
