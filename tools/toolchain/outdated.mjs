@@ -21,9 +21,9 @@ import { parseJsonc, readKind } from "../new-repo/devcontainer.mjs";
 export const MARKETPLACE = "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
 export const NPM_DIST_TAGS = "https://registry.npmjs.org/-/package/@anthropic-ai/claude-code/dist-tags";
 export const CLAUDE_EXTENSION = "anthropic.claude-code";
-// The query VS Code's own gallery service makes (sources 9.8): filter 7, an extension's
-// publisher.name; flags 19, its versions, their files and their properties, where the property
-// below marks a pre-release.
+// The query VS Code's own gallery service makes, by extensionGalleryManifestService.ts of
+// microsoft/vscode at af98790: filter 7, an extension's publisher.name; flags 19, its versions,
+// their files and their properties, where the property below marks a pre-release.
 const FILTER_EXTENSION_NAME = 7;
 const FLAGS = 0x1 | 0x2 | 0x10;
 const PRE_RELEASE = "Microsoft.VisualStudio.Code.PreRelease";

@@ -102,7 +102,7 @@ xrepo *args:
 # request: from the merge-base of origin/main, by coverage/go.out and coverage/lcov.info as the
 # repository's ci-test wrote them. Another NovaTrail repository runs it from its root as `just -f
 # spec/justfile patchcov`; xrepo's gate runs it from the epic's clone of spec. It takes nothing from
-# node_modules (sources 11.5).
+# node_modules (measurements 4.7).
 # Print the coverage of the patch from the merge-base, as Codecov would; exit 1 below the target.
 [positional-arguments]
 patchcov *args:

@@ -182,6 +182,21 @@ test("sources N and measurements N are sections of docs/sources.md and docs/meas
   await expectOnly([...files, cite("замер — measurements 2")], /^docs\/privacy\.md:\d+: docs\/measurements\.md has no section 2$/);
 });
 
+test("an archive's records of sources and measurements are not looked up, its other sections are", async () => {
+  const records = "sources 9.9, sources 9.9 spec, measurements 9.9";
+  const archive = (text) => ["docs/plan/E1.md", null, `# E1\n\n- T01 — сделана 2026-11-11: ${text}.\n`];
+  assert.deepEqual(await errorsOf([archive(records)]), []);
+  assert.deepEqual(await componentErrors([archive(records)]), []);
+  await expectOnly([archive("product 99")], /^docs\/plan\/E1\.md:\d+: docs\/product\.md has no section 99$/);
+  const sources = ["docs/sources.md", null, "# Sources\n\n## 1. How to keep it\n"];
+  assert.deepEqual(await errorsOf([sources, archive(records)]), []);
+  await expectOnly(
+    [sources, ["docs/privacy.md", "как П-5 canvas-api (раздел 9) |", "как П-5 canvas-api (раздел 9); sources 9.9 |"]],
+    /^docs\/privacy\.md:\d+: docs\/sources\.md has no section 9\.9$/,
+  );
+  await componentOnly([["docs/notes.md", null, "# Notes\n\nsources 9.9 spec\n"]], /^docs\/notes\.md:\d+: "sources 9\.9 spec": spec\/docs\/sources\.md does not exist$/);
+});
+
 test("«раздел N» after a link means that document's section", async () => {
   await expectOnly([["docs/repositories.md", "раздел 9 |", "раздел 8 |"]], /docs\/privacy\.md has no section 8$/);
 });
