@@ -67,6 +67,8 @@ export const GUARDS = {
     testGuard("TestMeasuresOfSpecExamples", "spec's examples are read from the module cache, which the replace bypasses"),
     testGuard("TestExamplesFollowTheRules", "spec's examples of the eval protocol are read from the module cache, which the replace bypasses"),
     testGuard("TestExamplesReadBack", "spec's examples of the eval protocol are read from the module cache, which the replace bypasses"),
+    testGuard("TestReadStyledSheet", "spec's sheet in styles is read from the module cache, which the replace bypasses"),
+    testGuard("TestStyledSheetCourse", "spec's sheet in styles is read from the module cache, which the replace bypasses"),
     testGuard("TestExamples", "spec's examples are read from the module cache, which the replace bypasses; -skip names no package, so admission's and protocoltest's TestExamples are skipped too"),
   ],
   api: [
