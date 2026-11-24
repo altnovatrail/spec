@@ -13,18 +13,28 @@
 // - else, in a repository of its own, its docs/architecture.md: the document its RUN.md speaks of
 //   as `раздел 3`. Its docs/sources.md and docs/measurements.md have numbered sections too, once
 //   they have records, but they are cited by name: `sources 1.1`, `measurements 1`.
+//
+// A record of sources or measurements cited in an archive of epics is not looked up, ours or
+// spec's: a record goes once nothing rests on it, and its number is never given again, so an
+// archive keeps citing a record that is gone.
 
 import { findSections } from "./citations.mjs";
+import { under } from "./config.mjs";
 import { decode, isExternal, resolveLink } from "./links.mjs";
+
+const RECORDS = new Set(["sources", "measurements"]);
 
 // `files` are the documents checked; `context` holds them and whatever they may cite, spec's
 // documents among them in a repository of its own.
 export function checkSections(files, context, profile, report) {
   const specDocuments = profile.spec?.documents ?? profile.documents;
+  const archives = profile.citations?.archives ?? [];
   let count = 0;
   for (const [file, doc] of files) {
+    const archive = under(file, archives);
     for (const block of doc.blocks) {
       for (const citation of findSections(block)) {
+        if (archive && citation.kind === "document" && RECORDS.has(citation.name)) continue;
         const line = block.lineAt(citation.start);
         const quoted = block.text.slice(citation.start).split(/[;)]/)[0].trim();
         let target;
