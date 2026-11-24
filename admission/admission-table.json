@@ -369,7 +369,8 @@
       "age_category": "under_13",
       "admission": "open",
       "basis": [
-        "privacy 6"
+        "privacy 6",
+        "R174"
       ]
     },
     {
@@ -377,7 +378,8 @@
       "age_category": "from_13_to_consent",
       "admission": "open",
       "basis": [
-        "privacy 6"
+        "privacy 6",
+        "R174"
       ]
     },
     {
@@ -385,7 +387,8 @@
       "age_category": "from_consent_to_18",
       "admission": "open",
       "basis": [
-        "privacy 6"
+        "privacy 6",
+        "R174"
       ]
     },
     {
@@ -393,7 +396,8 @@
       "age_category": "adult",
       "admission": "open",
       "basis": [
-        "privacy 6"
+        "privacy 6",
+        "R174"
       ]
     }
   ],

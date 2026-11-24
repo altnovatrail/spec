@@ -152,11 +152,11 @@ Hence the recommendation: an own key is for adults, children learn through platf
 2. **A program gives the verdict.** AI reads the work and chooses the words; correctness is decided by a key or a predicate. A task from the learner's paper, which no module holds, is the one exception: a model judges it.
 3. **A false alarm is worse than no check.** Doubt is a request to rewrite, a failure is a neutral phrase, but never a "mistake".
 4. **No deterministic check — no verdict.** An assessment by a rubric is feedback. A task from paper gets the model's verdict, plain "Correct" or "Not yet", a doubt still a request to rewrite and an unsure "Not yet" said more softly, and it never moves the rating.
-5. **The tutor does not name the answer itself, and the app does nothing for the learner.** The tutor asks one short question and points to the place in the learner's work; a task from the learner's paper never shows its solution.
+5. **The tutor does not name the answer itself, and the app does nothing for the learner.** The tutor asks one short question and points to the place in the learner's work; a task from the learner's paper shows no solution. The one exception is grown-up mode on a task from paper: behind the grown-ups' PIN, a grown-up asks the tutor, which has none of its limits then, up to the whole solution.
 6. **The key does not go to the learner's device** until the task is solved, and the model's hidden solution and answer of a task from paper never.
-7. **The learner's work is untouchable.** The tutor writes only on its own layer.
+7. **The learner's work is untouchable.** The tutor writes only on its own layer — but in grown-up mode, where it acts on the sheet as the grown-up asks, writing, striking out, hatching or erasing, each act one that one undo takes back.
 8. **We show what we read.** "Read: 6" — and the learner sees at once if AI read the wrong thing.
-9. **Without the "red pen" and pressure.** "Not yet" instead of "incorrect"; for children — without timers and competitions; without advertising and dark patterns.
+9. **Without the "red pen" and pressure.** "Not yet" instead of "incorrect"; for children — without timers and competitions; without advertising and dark patterns. A line struck out in red in grown-up mode is the grown-up's request, not the platform's mark.
 10. **Progress survives a module update.**
 11. **Any AI model — only after eval.**
 12. **Data — a minimum, and it is with the learner or the family.** Export and delete — in one step.
@@ -210,7 +210,7 @@ In detail — in [privacy.md](privacy.md).
 - two canvas kinds — the handwriting sheet and the workbook; a task from paper is solved on a sheet whose grid the learner turns, dots as it comes;
 - tasks from the learner's paper, for every profile;
 - a check with a verdict and a tutor with a question; feedback by a rubric;
-- the tutor's panel, one on every screen: on a task from paper the learner asks the tutor in their own words, by text and, an adult, by voice, which the browser recognises into the field, to read before Send; the tutor answers with a question that leads on, never with the answer, and the server keeps no question;
+- the tutor's panel, one on every screen: on a task from paper the learner asks the tutor in their own words, by text and, an adult, by voice, which the browser recognises into the field, to read before Send; the tutor answers with a question that leads on, never with the answer, and the server keeps no question; in grown-up mode, behind the grown-ups' PIN, it has none of its limits and acts on the sheet as the grown-up asks, the server keeping nothing of it;
 - voicing of the tutor's words and of the module's open texts by the device's speech synthesis — only with voices by the rule of voicing of [privacy.md](privacy.md), so that the text does not leave the device, without a server and without new data other than a setting in the presentation style (О-23). Its code — before the first child;
 - a skill map for the three modules;
 - an adult learner's account and the account of an adult with a child — this may be one account;
