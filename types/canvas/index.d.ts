@@ -473,6 +473,18 @@ export interface CropStroke {
 }
 
 /**
+ * How far in from each side of the element the host's own controls cover the sheet — a panel over
+ * its right side, a bar of buttons along its foot —, in CSS pixels; a side not named is free. The
+ * drawing's crop of grown-up mode leaves it out, as it leaves out the element's own bar of buttons.
+ */
+export interface DrawingCover {
+  readonly top?: number;
+  readonly right?: number;
+  readonly bottom?: number;
+  readonly left?: number;
+}
+
+/**
  * The tutor's act in grown-up mode, as the drawing gave it on a crop of a task from paper: the
  * strokes to write, each with its points across and down in the crop's pixels, in pairs, at least
  * two points, its colour and the width of its line in the crop's pixels, and the IDs of the strokes
@@ -798,13 +810,14 @@ export interface CanvasElement extends HTMLElement {
   exportWork(): Promise<ExportedWork | null>;
   /**
    * The work of a task from paper for the drawing of grown-up mode: the crop of the part of the sheet
-   * in sight, as the grown-up sees it — the tracing paper where it lies, when shown, and every stroke
-   * in sight, in its style —, with room to write in, at most 1568 px on its longer edge, the task's
+   * in sight that the grown-up sees free — the element's own bar of buttons and what `cover` names
+   * left out, so that the tutor writes nowhere they hide; the tracing paper where it lies, when
+   * shown, and every stroke there, in its style —, with room to write in, at most 1568 px on its longer edge, the task's
    * crop as `exportWork()` gives it, and the context of the submission for
    * `cropStrokes` and `drawTutor`. A sheet with no stroke gives it too. Without a task from paper it
    * is a TypeError.
    */
-  exportForDrawing(): Promise<ExportedPaper>;
+  exportForDrawing(cover?: DrawingCover): Promise<ExportedPaper>;
   /**
    * The strokes the crop of a task from paper shows, by the context of the submission
    * `exportWork()` or `exportForDrawing()` gave with that crop, for the tutor in grown-up mode: in the sheet's order, each
