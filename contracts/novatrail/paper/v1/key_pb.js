@@ -2,11 +2,13 @@
 // @generated from file novatrail/paper/v1/key.proto (package novatrail.paper.v1, syntax proto3)
 /* eslint-disable */
 
-// The key of a task from the learner's paper: the answer a program compares the reading of
-// the work with, and where it came from. `tutor` gives an answer of AI, the solver of `module-kit`
-// gives one from the formula AI read of the statement, and `api` keeps the key on the attempt while
-// it is open; it never reaches the device. The formula, the solver, the key and the verdict
-// by it are the rules of contracts/README.md for the key of a task from paper.
+// The key of a task from paper as the solver of `module-kit` computes it, the answer a program
+// compares a reading with, and where it came from; and the reading of a task's statement that
+// "Recognise" gives, which `api` keeps on the attempt while it is open. A task from paper is not
+// checked by a key: its verdict is the model's, by the Check of check.proto, and `api` keeps no
+// key on its attempts. The messages of the key stay for the solver of `module-kit` and its test
+// vectors. The formula, the solver and the verdict by a key are the rules of contracts/README.md
+// for the solver of `module-kit`.
 
 import { enumDesc, fileDesc, messageDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
 

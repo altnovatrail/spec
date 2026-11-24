@@ -168,17 +168,17 @@ export declare const DebugModelSchema: GenMessage<DebugModel>;
  */
 export declare type DebugChoice = Message<"novatrail.api.v1.DebugChoice"> & {
   /**
-   * The model of every call of a task from paper — the tasks found, the statement read, the
-   * solution, the work read and the tutor's words —, one attempt each: absent, each call has its
-   * models of the admission list of `tutor`, in turn.
+   * The model of every call of a task from paper — the tasks found, the statement read, the Check
+   * and the words of "explain differently" —, one attempt each: absent, each call has its models
+   * of the admission list of `tutor`, in turn.
    *
    * @generated from field: novatrail.api.v1.DebugModelChoice first = 1;
    */
   first?: DebugModelChoice | undefined;
 
   /**
-   * A second reader of the work, beside the first model's reading, the two joined as a pair, where
-   * a place they read differently is unreadable: absent, one reader.
+   * Not used: the Check is one call of one model, and reads the work with no second reader. `api`
+   * ignores it, and gives it absent.
    *
    * @generated from field: novatrail.api.v1.DebugModelChoice second = 2;
    */
@@ -327,15 +327,14 @@ export declare type DebugAction = Message<"novatrail.api.v1.DebugAction"> & {
   at?: Timestamp | undefined;
 
   /**
-   * Its calls, in the order they ended; the solver's among them.
+   * Its calls, in the order they ended.
    *
    * @generated from field: repeated novatrail.api.v1.DebugCall calls = 4;
    */
   calls: DebugCall[];
 
   /**
-   * Beside two readers: whether a place of the work was read differently by them, and so is
-   * unreadable.
+   * Not used: the Check has no second reader of the work, so it is always false.
    *
    * @generated from field: bool readers_differ = 5;
    */
@@ -349,7 +348,7 @@ export declare type DebugAction = Message<"novatrail.api.v1.DebugAction"> & {
 export declare const DebugActionSchema: GenMessage<DebugAction>;
 
 /**
- * One call of a request: of a model, or of the solver of `module-kit`.
+ * One call of a request, of a model.
  *
  * @generated from message novatrail.api.v1.DebugCall
  */
@@ -362,14 +361,14 @@ export declare type DebugCall = Message<"novatrail.api.v1.DebugCall"> & {
   kind: DebugCallKind;
 
   /**
-   * Beside the work read: the reader, 1 or 2.
+   * Not used: the Check has no reader of the work apart, so it is always 0.
    *
    * @generated from field: int32 reader = 2;
    */
   reader: number;
 
   /**
-   * The model's ID as the provider gave it back; empty for the solver.
+   * The model's ID as the provider gave it back.
    *
    * @generated from field: string model = 3;
    */
@@ -390,8 +389,8 @@ export declare type DebugCall = Message<"novatrail.api.v1.DebugCall"> & {
   thinking: boolean;
 
   /**
-   * What it returned, as it returned it: the model's JSON, or the solver's key as the JSON of
-   * `novatrail.paper.v1.Answer`. Empty when it returned nothing.
+   * What it returned, as it returned it: the model's JSON, the Check's hidden solution and answer
+   * among it, which the debug mode alone shows. Empty when it returned nothing.
    *
    * @generated from field: string answer = 6;
    */
@@ -477,7 +476,7 @@ export declare type DebugCall = Message<"novatrail.api.v1.DebugCall"> & {
 
   /**
    * The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
-   * the one before did not do. 1 for the solver and for a model the debug mode chose.
+   * the one before did not do. 1 for a model the debug mode chose.
    *
    * @generated from field: int32 attempt = 18;
    */
@@ -500,8 +499,8 @@ export declare const DebugCallSchema: GenMessage<DebugCall>;
  */
 export declare type DebugCase = Message<"novatrail.api.v1.DebugCase"> & {
   /**
-   * The work as the Check sent it: the task's crop, which the statement's reading and the
-   * solution see, and the crop of the work, which the readers see.
+   * The work as the Check sent it: the task's crop, the crop of the work and the crop of the
+   * instruction, the three images the model saw.
    *
    * @generated from field: novatrail.api.v1.PaperWork work = 1;
    */
@@ -509,7 +508,7 @@ export declare type DebugCase = Message<"novatrail.api.v1.DebugCase"> & {
 
   /**
    * Each task the crop holds, from 1 to 20, in the order of the page, as the attempt's items: the
-   * work is `correct` when every task with a key is.
+   * work is `correct` when every task is.
    *
    * @generated from field: repeated novatrail.api.v1.DebugTask tasks = 2;
    */
@@ -537,48 +536,63 @@ export declare type DebugCase = Message<"novatrail.api.v1.DebugCase"> & {
 export declare const DebugCaseSchema: GenMessage<DebugCase>;
 
 /**
- * One task of a case of the debug mode, as the developer says its truth.
+ * One task of a case of the debug mode: the truth as the developer says it, and what the Check
+ * answered for the task's slot.
  *
  * @generated from message novatrail.api.v1.DebugTask
  */
 export declare type DebugTask = Message<"novatrail.api.v1.DebugTask"> & {
   /**
-   * The task's statement as printed, at most 200 bytes, as the reading of the statement gave it:
-   * the reading of the work is given it.
+   * The task's statement as printed, at most 200 bytes, as "Recognise" read it; empty when the
+   * attempt has no reading.
    *
    * @generated from field: string statement = 5;
    */
   statement: string;
 
   /**
-   * The formula the task's statement holds, as the solver of `module-kit` takes it; empty for a
-   * statement that holds none, a word problem, a choice or an open task.
+   * Not used by a case of the Check, which has no key: empty.
    *
    * @generated from field: string formula = 1;
    */
   formula: string;
 
   /**
-   * The task's key; none for an open task, which has no one answer.
+   * Not used by a case of the Check, which has no key: absent.
    *
    * @generated from field: novatrail.paper.v1.Answer key = 2;
    */
   key?: Answer | undefined;
 
   /**
-   * The value of the answer the work holds for the task, brought to the key, as `x = 4` is `4`;
-   * empty where the work holds none.
+   * The truth: the value of the answer the work holds for the task, as written; empty where the
+   * work holds none.
    *
    * @generated from field: string read = 3;
    */
   read: string;
 
   /**
-   * The verdict the task's item should get by its key.
+   * The truth: the verdict the task's item should get.
    *
    * @generated from field: novatrail.api.v1.DebugOutcome outcome = 4;
    */
   outcome: DebugOutcome;
+
+  /**
+   * The verdict the Check gave the task's slot, as the model wrote it: "correct", "incorrect",
+   * "unreadable" or "no_answer"; empty when no Check answered.
+   *
+   * @generated from field: string check_verdict = 6;
+   */
+  checkVerdict: string;
+
+  /**
+   * What the Check read as the task's answer, as written; empty when it read none.
+   *
+   * @generated from field: string check_read = 7;
+   */
+  checkRead: string;
 };
 
 /**
@@ -662,15 +676,15 @@ export enum DebugActionKind {
   FIND_TASKS = 1,
 
   /**
-   * `SubmitWork` of an attempt of a task from paper.
+   * `SubmitWork` of an attempt of a task from paper: its one call of the Check.
    *
    * @generated from enum value: DEBUG_ACTION_KIND_CHECK = 2;
    */
   CHECK = 2,
 
   /**
-   * A request for the tutor's words on an attempt of a task from paper: `GetOpeningWords`,
-   * `GetRungWords` or `ExplainDifferently`.
+   * A request for the tutor's words on an attempt of a task from paper that calls AI:
+   * `GetOpeningWords`, whose call is a Check, or `ExplainDifferently`. `GetRungWords` calls none.
    *
    * @generated from enum value: DEBUG_ACTION_KIND_WORDS = 3;
    */
@@ -703,40 +717,51 @@ export enum DebugCallKind {
   TASK_FINDING = 1,
 
   /**
-   * The statement read into a formula, `statement_reading`.
+   * The statement read, `statement_reading`, by "Recognise".
    *
    * @generated from enum value: DEBUG_CALL_KIND_STATEMENT_READING = 2;
    */
   STATEMENT_READING = 2,
 
   /**
-   * The solver of `module-kit`, with no AI.
+   * The solver of `module-kit`, with no AI: no longer recorded, since a task from paper has no
+   * key.
    *
    * @generated from enum value: DEBUG_CALL_KIND_SOLVER = 3;
    */
   SOLVER = 3,
 
   /**
-   * The AI's solution, `task_solving`.
+   * The AI's solution for a key: no longer recorded, since the Check judges the work in one call.
    *
    * @generated from enum value: DEBUG_CALL_KIND_TASK_SOLVING = 4;
    */
   TASK_SOLVING = 4,
 
   /**
-   * The work read, `handwriting_reading`.
+   * The work read, `handwriting_reading`: no longer recorded for a task from paper, since the
+   * Check reads the work itself.
    *
    * @generated from enum value: DEBUG_CALL_KIND_WORK_READING = 5;
    */
   WORK_READING = 5,
 
   /**
-   * The tutor's words — the opening question, a rung's words with the place of the first mistake,
-   * or a rung in other words —, `solution_analysis` with the work and `hint` without it.
+   * The tutor's words of "explain differently", a rung in other words, `hint` without the work.
+   * The opening question and a rung's words are no longer calls of their own: they come from the
+   * Check's ladder.
    *
    * @generated from enum value: DEBUG_CALL_KIND_TUTOR_WORDS = 6;
    */
   TUTOR_WORDS = 6,
+
+  /**
+   * The Check, `task_checking`: the work judged in one call — each task's verdict, what was read,
+   * the place of each mistake, the tutor's words and the ladder of hints.
+   *
+   * @generated from enum value: DEBUG_CALL_KIND_TASK_CHECKING = 7;
+   */
+  TASK_CHECKING = 7,
 }
 
 /**
@@ -779,11 +804,18 @@ export enum DebugOutcome {
   UNREADABLE = 3,
 
   /**
-   * `unchecked`: an open task, with no key.
+   * `unchecked`: no verdict, as a Check that read nothing of a solution gives.
    *
    * @generated from enum value: DEBUG_OUTCOME_UNCHECKED = 4;
    */
   UNCHECKED = 4,
+
+  /**
+   * `so_far_correct`: no answer yet, and a solution with no error.
+   *
+   * @generated from enum value: DEBUG_OUTCOME_SO_FAR_CORRECT = 5;
+   */
+  SO_FAR_CORRECT = 5,
 }
 
 /**

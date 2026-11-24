@@ -129,7 +129,7 @@ export declare type SubmitWorkResponse = Message<"novatrail.api.v1.SubmitWorkRes
 
   /**
    * The solved task, when every item is correct and the attempt is closed `CLOSE_REASON_CORRECT`:
-   * empty on a task from paper, which shows neither its key nor a solution.
+   * empty on a task from paper, which has no key and shows no solution.
    *
    * @generated from field: novatrail.api.v1.SolvedTask solved = 4;
    */
@@ -141,6 +141,15 @@ export declare type SubmitWorkResponse = Message<"novatrail.api.v1.SubmitWorkRes
    * @generated from field: novatrail.api.v1.Next next = 5;
    */
   next?: Next | undefined;
+
+  /**
+   * On a task from paper, the tutor's words of the Check, once they passed the leak check, in the
+   * language of the interface: after every verdict, a correct one too. Empty on a task of a
+   * module, and when the Check gave none or came to an outcome.
+   *
+   * @generated from field: string tutor_words = 6;
+   */
+  tutorWords: string;
 };
 
 /**
@@ -373,7 +382,7 @@ export declare type GetRungWordsRequest = Message<"novatrail.api.v1.GetRungWords
 
   /**
    * The work of that submission again: absent when the task's answer slots are bound `choice`
-   * alone.
+   * alone, and on a task from paper, whose rung comes from the ladder the attempt keeps.
    *
    * @generated from field: novatrail.api.v1.Work work = 5;
    */
@@ -683,8 +692,8 @@ export declare type GetOpeningWordsRequest = Message<"novatrail.api.v1.GetOpenin
   idempotencyKey: string;
 
   /**
-   * The task's crop without the learner's strokes, as `PaperWork.statement`: a JPEG or a PNG of at
-   * most 4 MiB.
+   * Not read: the task's crop goes in `work`, as `PaperWork.statement`, and this field is left
+   * empty.
    *
    * @generated from field: bytes statement = 4;
    */
@@ -703,6 +712,14 @@ export declare type GetOpeningWordsRequest = Message<"novatrail.api.v1.GetOpenin
    * @generated from field: optional int32 clock_offset_minutes = 6;
    */
   clockOffsetMinutes?: number | undefined;
+
+  /**
+   * The work as it stands, `paper` alone, which the Check reads as a submission's: its crop of the
+   * work holds no stroke when the learner wrote none.
+   *
+   * @generated from field: novatrail.api.v1.Work work = 7;
+   */
+  work?: Work | undefined;
 };
 
 /**
@@ -776,7 +793,7 @@ export declare type ReadStatementRequest = Message<"novatrail.api.v1.ReadStateme
 
   /**
    * The task's crop without the learner's strokes, as `PaperWork.statement`: a JPEG or a PNG of at
-   * most 4 MiB. The Check reads the work against the reading of this crop.
+   * most 4 MiB.
    *
    * @generated from field: bytes statement = 4;
    */
@@ -829,7 +846,7 @@ export declare type ReadStatementResponse = Message<"novatrail.api.v1.ReadStatem
   outcome?: Outcome | undefined;
 
   /**
-   * The answer of a request the attempt's reading or key answered: no AI was called.
+   * The answer of a request the attempt's reading answered: no AI was called.
    *
    * @generated from field: bool repeated = 3;
    */
@@ -1257,9 +1274,9 @@ export declare type WorkbookWork = Message<"novatrail.api.v1.WorkbookWork"> & {
 export declare const WorkbookWorkSchema: GenMessage<WorkbookWork>;
 
 /**
- * The work of a task from paper: the task's crop, by which `api` derives the key and the analysis
- * reads the statement, and the crop of what the learner wrote, which the readers read. Every
- * request that carries the work of a task from paper carries both: the server keeps no crop.
+ * The work of a task from paper: the three images of the Check — the task's crop as printed, the
+ * crop of what the learner wrote, and the crop of the instruction above the task. Every request
+ * that carries the work of a task from paper carries them all: the server keeps no crop.
  *
  * @generated from message novatrail.api.v1.PaperWork
  */
@@ -1280,6 +1297,15 @@ export declare type PaperWork = Message<"novatrail.api.v1.PaperWork"> & {
    * @generated from field: bytes crop = 2;
    */
   crop: Uint8Array;
+
+  /**
+   * The crop of the instruction printed above the task, as `app` cut it from the photo of the page
+   * by `TaskFrame.instruction`, without the learner's strokes: a JPEG or a PNG of at most 4 MiB.
+   * Empty when the finding gave the task no instruction.
+   *
+   * @generated from field: bytes instruction = 3;
+   */
+  instruction: Uint8Array;
 };
 
 /**
@@ -1376,8 +1402,8 @@ export declare const OwnKeySchema: GenMessage<OwnKey>;
  */
 export declare type ItemVerdict = Message<"novatrail.api.v1.ItemVerdict"> & {
   /**
-   * The item's verdict, made of its answer slots': "correct", "not_yet", "unreadable" or
-   * "unchecked".
+   * The item's verdict, made of its answer slots': "correct", "not_yet", "unreadable",
+   * "unchecked" or, on a task from paper, "so_far_correct".
    *
    * @generated from field: string verdict = 1;
    */
@@ -1412,7 +1438,10 @@ export declare type AnswerSlotVerdict = Message<"novatrail.api.v1.AnswerSlotVerd
   answerSlot?: AnswerSlotPlace | undefined;
 
   /**
-   * "correct", "not_yet", "unreadable" or "unchecked".
+   * "correct", "not_yet", "unreadable" or "unchecked"; or, on a task from paper alone,
+   * "so_far_correct": the slot has no answer yet, and the Check read a solution with no error in
+   * it. It is no verdict: it counts no wrong answer, closes nothing, and `app` draws no mark for
+   * it.
    *
    * @generated from field: string verdict = 2;
    */
@@ -1436,8 +1465,8 @@ export declare type AnswerSlotVerdict = Message<"novatrail.api.v1.AnswerSlotVerd
 
   /**
    * Where on the crop the answer was read, in whole thousandths of the crop's height and width:
-   * on a task from paper alone, and only when the reading gave a value, so that `app` puts the
-   * slot's verdict by the answer.
+   * on a task from paper alone, the box of what the Check read, and only when it read something,
+   * so that `app` puts the slot's verdict by the answer.
    *
    * @generated from field: novatrail.observation.v1.CropBox crop_box = 5;
    */
@@ -1824,8 +1853,9 @@ export enum MarkKind {
   FRAME = 1,
 
   /**
-   * A wavy line under the place of the first mistake: on a task from paper alone, at a box on the
-   * crop, and only while the profile's hint mode is `HINT_MODE_SHOW_WHERE`.
+   * A wavy line under the place of the first mistake: on a task from paper alone, at the box of the
+   * first mistake the Check gave, on the crop, and only while the profile's hint mode is
+   * `HINT_MODE_SHOW_WHERE`.
    *
    * @generated from enum value: MARK_KIND_WAVY_LINE = 2;
    */
@@ -1852,8 +1882,9 @@ export declare const MarkKindSchema: GenEnum<MarkKind>;
  * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
  * AI's without either, as `ChooseNext` judges it. An attempt of a task from paper
  * has an item with one answer slot for each task its crop holds, from 1 to 20, no `next`,
- * and nothing to show: its key, the solver's or the AI's, the first submission derives, `api`
- * keeps it while the attempt is open, and it never reaches the device.
+ * no key and nothing to show: a model judges its work, one call of AI, the Check, the capability
+ * `task_checking`, and `api` keeps the Check's answer while the attempt is open, the model's own
+ * solution and answer among it, which never reach the device.
  *
  * @generated from service novatrail.api.v1.AttemptService
  */
@@ -1861,10 +1892,13 @@ export declare const AttemptService: GenService<{
   /**
    * Sends the work of a task with a verdict for checking: the handwriting, the options tapped, or
    * both. The answer is the verdict of every item and answer slot, on the whole observation, and
-   * what was read. On a task from paper the first submission derives the key too, from the task's
-   * crop, a key for each task on it: a task whose solution of AI gives no one answer a program
-   * can compare has none, and its item is unchecked; with none in any task the outcome is
-   * `CAUSE_NO_KEY`, which every later submission of the attempt gets with no AI. Refusals:
+   * what was read. On a task from paper each submission is one Check, which sends the work to the
+   * model and gives each task's verdict as the model judged it, at the box of what it read, and the
+   * tutor's words, `tutor_words`; it also gives the attempt its ladder of hints, which the attempt
+   * keeps in place of the one before. A slot with no answer yet, a solution read and no error is
+   * "so_far_correct", and counts no wrong answer. A Check in which the model read nothing of a
+   * solution in any slot gets the outcome `CAUSE_NO_KEY`, and the next submission checks again.
+   * Refusals:
    * `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
    * `CAUSE_STILL_GOING`. A call of AI that gives no reading is no refusal: its slots get
    * "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
@@ -1907,11 +1941,14 @@ export declare const AttemptService: GenService<{
   },
   /**
    * Asks for the words of the rung that a wrong answer gave, sending the work again: the server
-   * keeps no crop. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`, `CAUSE_NO_MORE_WORDS`,
-   * `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
-   * `CAUSE_STILL_GOING`. A call of AI that gives no words is no refusal: the answer holds the
-   * rung's fallback text and names the outcome. A repeat with the same idempotency key, or a
-   * request for the same wrong answer, gets the words the attempt keeps, with no AI and no marks.
+   * keeps no crop. On a task from paper it gives the rung of the ladder the attempt keeps, with no
+   * call of AI and no work, and its marks: with "Show where", the wavy line under the box of the
+   * first mistake the Check gave. Refusals: `CAUSE_NOT_CURRENT`, `CAUSE_NO_RUNG`,
+   * `CAUSE_NO_MORE_WORDS`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
+   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A call of AI that gives no words is no
+   * refusal: the answer holds the rung's fallback text and names the outcome. A repeat with the
+   * same idempotency key, or a request for the same wrong answer, gets the words the attempt
+   * keeps, with no AI and no marks.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.GetRungWords
    */
@@ -1929,7 +1966,9 @@ export declare const AttemptService: GenService<{
    * provider. An answer with words that was lost has spent it: its repeat with the same
    * idempotency key gets an answer `repeated` without words, since the server keeps none.
    * Refusals: `CAUSE_NO_MORE_WORDS` once the words were given, also on an attempt that no correct
-   * answer closed, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`.
+   * answer closed, and always on a task from paper, whose words after a correct answer are the
+   * Check's `tutor_words`; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+   * `CAUSE_STILL_GOING`.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.GetCorrectAnswerWords
    */
@@ -1958,7 +1997,9 @@ export declare const AttemptService: GenService<{
    * "Hint", a hint the learner asks for, without the work and with no AI: before the first wrong
    * answer, and on a task with a rubric, the IDs of the task's techniques and its leading question,
    * when it has one, both empty on a task from paper, which has neither and asks
-   * `GetOpeningWords` instead; after it, the words of the current rung. Refusals:
+   * `GetOpeningWords` instead; after it, the words of the current rung. On a task from paper,
+   * once a Check gave the attempt its ladder, it gives the current rung's words from that ladder,
+   * the first rung while the attempt has no wrong answer. Refusals:
    * `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.GetHint
@@ -1969,10 +2010,12 @@ export declare const AttemptService: GenService<{
     output: typeof GetHintResponseSchema;
   },
   /**
-   * "Hint" on a task from paper before its first wrong answer: the tutor's opening question, one
-   * call of AI on the attempt, sending the task's crop without the learner's strokes, a question on
-   * how to begin the task it holds, or the first of a frame of several. Refusals:
-   * `CAUSE_NOT_CURRENT` once the attempt has a wrong answer, whose rung `GetHint` gives,
+   * "Hint" on a task from paper while the attempt keeps no ladder, before its first Check: it sends
+   * the work as it stands to the Check, one call of AI, and gives the first rung of the ladder the
+   * Check gives, a question on how to begin the task, or the first of a frame of several. The
+   * attempt keeps the Check's answer and its ladder, as after a submission, but its verdicts are
+   * not shown and count no wrong answer. Refusals: `CAUSE_NOT_CURRENT` once the attempt keeps a
+   * ladder, whose rung `GetHint` gives,
    * `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
    * `CAUSE_STILL_GOING`; a task of a module gets `invalid_argument`. A call of AI that gives no
    * words is no refusal: the answer holds the opening question's fallback text and names the
@@ -1989,15 +2032,15 @@ export declare const AttemptService: GenService<{
   /**
    * "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
    * it, for the learner to see it in clean print instead of the photo. It is the reading of the
-   * statement, `statement_reading`, that the attempt's first Check would make, made now on the
-   * learner's press, by the route of the attempt: the attempt keeps the reading while it is open,
-   * and the Check that derives the key takes it with no call of its own. An attempt that keeps a
-   * reading or a key gives its statements with no AI. The answer holds the statements alone, never
-   * a formula nor a key. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform AI, `CAUSE_QUOTA`,
-   * `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call without the reserve of
-   * the quota. A task of a module gets `invalid_argument`. A call of AI that gives no reading is no
-   * refusal: the answer names the outcome, holds no statement, and the next press asks again.
+   * statement, `statement_reading`, made on the learner's press, by the route of the attempt: the
+   * attempt keeps the reading while it is open, and an attempt that keeps one gives its statements
+   * with no AI. The Check takes none of it: the model reads the crop itself. The answer holds the
+   * statements alone, never a formula. Refusals: `CAUSE_ATTEMPT_CLOSED`,
+   * `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; on platform
+   * AI, `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED` too: it makes no call
+   * without the reserve of the quota. A task of a module gets `invalid_argument`. A call of AI that
+   * gives no reading is no refusal: the answer names the outcome, holds no statement, and the next
+   * press asks again.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.ReadStatement
    */

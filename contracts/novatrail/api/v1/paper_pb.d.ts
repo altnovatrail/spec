@@ -145,7 +145,7 @@ export declare const FindTasksResponseSchema: GenMessage<FindTasksResponse>;
 
 /**
  * A rectangle round one task on the photo of a page, by which `app` cuts the task's crop on the
- * device.
+ * device, and the frame of its instruction, by which `app` cuts the instruction's crop.
  *
  * @generated from message novatrail.api.v1.TaskFrame
  */
@@ -156,6 +156,16 @@ export declare type TaskFrame = Message<"novatrail.api.v1.TaskFrame"> & {
    * @generated from field: novatrail.observation.v1.CropBox box = 1;
    */
   box?: CropBox | undefined;
+
+  /**
+   * The frame of the instruction printed above the task, as "Use each number from 1 to 9 once", in
+   * whole thousandths of the photo's height and width: absent when the page prints none above it,
+   * and on a frame the learner drew. The finding gives the box alone, never its text; the Check
+   * gets its crop as `PaperWork.instruction`.
+   *
+   * @generated from field: novatrail.observation.v1.CropBox instruction = 2;
+   */
+  instruction?: CropBox | undefined;
 };
 
 /**
@@ -252,7 +262,8 @@ export declare const BeginPaperAttemptsResponseSchema: GenMessage<BeginPaperAtte
 export declare const PaperService: GenService<{
   /**
    * Finds the tasks on the photo of a page: one call of AI, the capability `task_finding`, whose
-   * answer is the task frames alone, and no text of the page; each sum or equation that says by
+   * answer is the task frames alone, each with the frame of the instruction printed above it when
+   * the page prints one, and no text of the page; each sum or equation that says by
    * itself what to do, as each of a column under one instruction, is a task of its own. With the
    * learner's request about the page, the call gets it as data, with the frames on the page now,
    * and its frames replace those found before; it gives none that repeats a frame the learner

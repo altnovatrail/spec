@@ -1,4 +1,4 @@
-// The vectors of the key of a task from paper, as tools/contracts/paper.mjs checks them: the solver,
+// The vectors of the solver of module-kit, as tools/contracts/paper.mjs checks them: the solver,
 // the rules of an answer of AI and the verdict by a key, on their own; spec's own vectors, which
 // pass; and copies of them with one thing broken, by the image buf builds of spec's own contracts/.
 
@@ -146,7 +146,7 @@ test("a vector written otherwise than its message, or of another form, is an err
   assert.ok(empty.some((message) => message.includes("a case or more")));
 });
 
-test("the vectors hold every rule of the key of a task from paper", () => {
+test("the vectors hold every rule of the solver of module-kit", () => {
   const reasons = checked("solver.json", (value) => {
     value.cases = value.cases.filter((one) => one.refused !== "every_root");
   });

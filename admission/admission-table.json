@@ -329,7 +329,7 @@
       ]
     },
     {
-      "capability": "task_solving",
+      "capability": "task_checking",
       "age_category": "under_13",
       "admission": "open",
       "basis": [
@@ -338,7 +338,7 @@
       ]
     },
     {
-      "capability": "task_solving",
+      "capability": "task_checking",
       "age_category": "from_13_to_consent",
       "admission": "open",
       "basis": [
@@ -347,7 +347,7 @@
       ]
     },
     {
-      "capability": "task_solving",
+      "capability": "task_checking",
       "age_category": "from_consent_to_18",
       "admission": "open",
       "basis": [
@@ -356,7 +356,7 @@
       ]
     },
     {
-      "capability": "task_solving",
+      "capability": "task_checking",
       "age_category": "adult",
       "admission": "open",
       "basis": [

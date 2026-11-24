@@ -1,6 +1,6 @@
 # A task from the learner's paper has three capabilities of its own (R162): task_finding, the tasks
-# found on the photo of a page; statement_reading, a task's statement read into a formula for the
-# solver; and task_solving, a task solved for its key. Each is open to every age category, and the
+# found on the photo of a page; statement_reading, a task's statement read for "Recognise"; and
+# task_checking, the Check, in which a model judges the work. Each is open to every age category, and the
 # function reads its own rule, not that of the reading of handwriting. Past its rule a request goes
 # to the cell as any other: a minor's page goes only where the cell's facts hold, minor_safeguards
 # among them, as a minor's work does. That the reading of handwriting open does not open them,
@@ -17,8 +17,8 @@ table:
     - {capability: task_finding, age_category: adult, admission: open, basis: [privacy 6, R162]}
     - {capability: statement_reading, age_category: from_13_to_consent, admission: open, basis: [privacy 6, R162]}
     - {capability: statement_reading, age_category: adult, admission: open, basis: [privacy 6, R162]}
-    - {capability: task_solving, age_category: from_consent_to_18, admission: open, basis: [privacy 6, R162]}
-    - {capability: task_solving, age_category: adult, admission: open, basis: [privacy 6, R162]}
+    - {capability: task_checking, age_category: from_consent_to_18, admission: open, basis: [privacy 6, R162]}
+    - {capability: task_checking, age_category: adult, admission: open, basis: [privacy 6, R162]}
   cells:
     - provider: alpha
       ai_route: platform_ai
@@ -93,13 +93,13 @@ cases:
     answer:
       admitted: true
       cell: {provider: alpha, ai_route: platform_ai, age_category: from_13_to_consent}
-  # Solving a task, on the own key of an adult: no fact.
-  - request: {capability: task_solving, ai_route: own_key, provider: alpha, age_category: adult}
+  # The Check, on the own key of an adult: no fact.
+  - request: {capability: task_checking, ai_route: own_key, provider: alpha, age_category: adult}
     answer:
       admitted: true
       cell: {provider: alpha, ai_route: own_key, age_category: adult}
-  # Solving a task, its rule open and the cell waiting for the minor's last fact.
-  - request: {capability: task_solving, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
+  # The Check, its rule open and the cell waiting for the minor's last fact.
+  - request: {capability: task_checking, ai_route: platform_ai, provider: alpha, age_category: from_consent_to_18}
     facts:
       alpha:
         data_processing_agreement: [from_consent_to_18]

@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TAR } from "../../shared.mjs";
-import { EXPORT_V2_LINE, EXPORT_V3_LINE, EXPORT_V4_LINE, FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, FIRST_CONSENT_AGE_LINE, FIRST_DEPLOYMENT_LINE, FIRST_EXPORT_LINE, FIRST_LEGAL_LINE, LEGAL_V2_LINE, LEGAL_V3_LINE, FIRST_PAGE_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
+import { EXPORT_V2_LINE, EXPORT_V3_LINE, EXPORT_V4_LINE, EXPORT_V5_LINE, FIRST_ADMISSION_LINE, FIRST_CANVAS_LINE, FIRST_CONSENT_AGE_LINE, FIRST_DEPLOYMENT_LINE, FIRST_EXPORT_LINE, FIRST_LEGAL_LINE, LEGAL_V2_LINE, LEGAL_V3_LINE, FIRST_PAGE_LINE, NAME, archiveOf, checkArchive, filesOf, manifestOf, packOf, writePackage } from "../npm.mjs";
 import { treeOf } from "../../npm-package.mjs";
 import { compareLines } from "../../release/version.mjs";
 import { scratchRepository, writeFile } from "../../release/test/repository.mjs";
@@ -37,6 +37,7 @@ const listing = (archive) => spawnSync(TAR, ["-tzf", archive], { encoding: "utf8
 
 const exportOfLine = (version) => {
   const line = version.split(".").slice(0, 2).join(".");
+  if (compareLines(line, EXPORT_V5_LINE) >= 0) return "exportv5";
   if (compareLines(line, EXPORT_V4_LINE) >= 0) return "exportv4";
   if (compareLines(line, EXPORT_V3_LINE) >= 0) return "exportv3";
   return compareLines(line, EXPORT_V2_LINE) >= 0 ? "exportv2" : "exportv1";
@@ -194,19 +195,20 @@ test("from the line 0.17 on, the package holds and exports the types of the lega
   }
 });
 
-test("from the line 0.17 on, the package holds and exports the types of the export's version 2, exportv2, in place of exportv1, from the line 0.18 on exportv3 in place of both, and from the line 0.19 on exportv4 in place of all three", () => {
+test("from the line 0.17 on, the package holds and exports the types of the export's version 2, exportv2, in place of exportv1, from the line 0.18 on exportv3 in place of both, from the line 0.19 on exportv4 in place of all three, and from the line 0.20 on exportv5 in place of all four", () => {
   assert.equal(EXPORT_V2_LINE, "0.17");
   assert.equal(EXPORT_V3_LINE, "0.18");
   assert.equal(EXPORT_V4_LINE, "0.19");
+  assert.equal(EXPORT_V5_LINE, "0.20");
   const tree = treeOf(spec);
-  for (const version of ["0.17.0", "0.18.0", "0.19.0", "1.0.0"]) {
+  for (const version of ["0.17.0", "0.18.0", "0.19.0", "0.20.0", "1.0.0"]) {
     const name = exportOfLine(version);
     const files = filesOf(version, tree);
     assert.deepEqual(files.at(-1), { file: `${name}/index.d.ts`, from: `types/${name}/index.d.ts` }, version);
     assert.equal(files.filter(({ file }) => file.startsWith("export")).length, 1, version);
     const manifest = manifestOf(version);
     assert.deepEqual(manifest.exports[`./${name}`], { types: `./${name}/index.d.ts` });
-    for (const other of ["exportv1", "exportv2", "exportv3", "exportv4"].filter((each) => each !== name)) assert.equal(manifest.exports[`./${other}`], undefined, version);
+    for (const other of ["exportv1", "exportv2", "exportv3", "exportv4", "exportv5"].filter((each) => each !== name)) assert.equal(manifest.exports[`./${other}`], undefined, version);
   }
   // A release of the line 0.16 built again must get the same package: exportv1.
   assert.equal(exportOfLine("0.16.9"), "exportv1");

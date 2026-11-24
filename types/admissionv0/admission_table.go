@@ -71,8 +71,8 @@ type CapabilityRule struct {
 // assessment by a rubric, the hint, the words after a correct answer — the praise of a step and the
 // question of which technique helped —, voice — the voicing of the tutor by a provider and the
 // learner's voice input, which are one capability for now —, and for a task from paper the finding
-// of the tasks on the photo of a page, the reading of a task's statement into a formula for the
-// solver, and the solving of a task for its key.
+// of the tasks on the photo of a page, the reading of a task's statement for "Recognise", and the
+// Check, in which a model judges the learner's work.
 type Capability string
 
 // The values of Capability.
@@ -86,7 +86,7 @@ const (
 	CapabilityVoice              Capability = "voice"
 	CapabilityTaskFinding        Capability = "task_finding"
 	CapabilityStatementReading   Capability = "statement_reading"
-	CapabilityTaskSolving        Capability = "task_solving"
+	CapabilityTaskChecking       Capability = "task_checking"
 )
 
 // AgeCategory is the type of admission-table.schema.json#/$defs/age_category.

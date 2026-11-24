@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/admission/0.5/answer-vector.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/admission/0.6/answer-vector.schema.json",
   "title": "Answer vector",
   "description": "A test vector of answers of the admission table: a table of its own and requests to the admission function, each with the deployment facts declared and the answer that the admission text's deployment facts and admission function give. An implementation computes each answer and gets exactly this one.",
   "type": "object",

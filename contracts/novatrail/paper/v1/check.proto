@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+// The Check of a task from the learner's paper: one call of AI, the capability `task_checking`, in
+// which a model judges the work and gives, for each task of the frame, its verdict, what it read
+// and the place of each mistake, and for the frame the tutor's words and a ladder of hints. A task
+// from paper has no key: the verdict is the model's. `tutor` gives the answer, `api` keeps it on
+// the attempt while it is open and turns it into the verdicts of the attempt's answer slots, and
+// the model's own solution and answer never leave the server. The rules are those of
+// contracts/README.md for the Check of a task from paper.
+package novatrail.paper.v1;
+
+import "novatrail/observation/v1/observation.proto";
+
+// The answer of one Check, as `api` keeps it on the attempt while it is open.
+message Check {
+  // Each task of the frame, from 1 to 20, in the order of the page: top to bottom, and left to
+  // right in a row. The task at the place n is the item n of the attempt.
+  repeated SlotCheck slots = 1;
+  // The tutor's words on the work, in the language of the interface, once they passed the leak
+  // check: words that name the hidden answer of a task not yet answered correctly are left out.
+  string tutor_words = 2;
+  // The ladder of hints, 2 or 3 rungs, from a question to a pointer at the place of the mistake,
+  // each once it passed the leak check or its rung's fallback text. `GetHint` and `GetRungWords`
+  // give its rungs with no call of AI.
+  repeated string hints = 3;
+}
+
+// What the Check gives for one task of the frame, its answer slot.
+message SlotCheck {
+  // The task, from 1 to 20, in the order of the page.
+  int32 task = 1;
+  // The model's verdict: "correct", "incorrect", "unreadable" or "no_answer", the last when the
+  // work holds no answer of the task yet.
+  string verdict = 2;
+  // How sure the model is of the verdict: "low", "medium" or "high".
+  string confidence = 3;
+  // What the model read of the task's work, as written: its answer, or, with no answer yet, the
+  // solution so far; empty when it read nothing.
+  string read = 4;
+  // Where on the work it read it, in whole thousandths of the crop of the work, the second image
+  // of the call, as `PaperWork.crop` holds it: absent when nothing was read.
+  novatrail.observation.v1.CropBox read_box = 5;
+  // What the model took for given that the statement does not say, each in words, as "each number
+  // from 1 to 9 once"; none when it took nothing.
+  repeated string assumptions = 6;
+  // The mistakes in the work, in the order of the solution, the first one first: none when the
+  // work holds none.
+  repeated CheckError errors = 7;
+  // The model's own solution of the task. Hidden: `api` keeps it on the server alone, and never
+  // sends it to the device.
+  string solution = 8;
+  // The model's own answer of the task, by which the leak check reads the tutor's words and the
+  // hints. Hidden: `api` keeps it on the server alone, and never sends it to the device.
+  string answer = 9;
+}
+
+// One mistake in the work of a task.
+message CheckError {
+  // Where the mistake is, in whole thousandths of the crop of the work: the wavy line of the first
+  // mistake goes under this box.
+  novatrail.observation.v1.CropBox box = 1;
+  // The place in words, as "the second row, the middle cell".
+  string where = 2;
+  // The kind of the mistake, in the model's word, as "arithmetic" or "rule".
+  string kind = 3;
+  // What is wrong there, in words. `api` keeps it on the server with the attempt, and never sends
+  // it to the device.
+  string note = 4;
+}

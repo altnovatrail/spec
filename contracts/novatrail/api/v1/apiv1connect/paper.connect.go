@@ -56,7 +56,8 @@ var (
 // PaperServiceClient is a client for the novatrail.api.v1.PaperService service.
 type PaperServiceClient interface {
 	// Finds the tasks on the photo of a page: one call of AI, the capability `task_finding`, whose
-	// answer is the task frames alone, and no text of the page; each sum or equation that says by
+	// answer is the task frames alone, each with the frame of the instruction printed above it when
+	// the page prints one, and no text of the page; each sum or equation that says by
 	// itself what to do, as each of a column under one instruction, is a task of its own. With the
 	// learner's request about the page, the call gets it as data, with the frames on the page now,
 	// and its frames replace those found before; it gives none that repeats a frame the learner
@@ -86,7 +87,8 @@ func NewPaperServiceClient(client *connect.Client) PaperServiceClient {
 // PaperServiceHandler is an implementation of the novatrail.api.v1.PaperService service.
 type PaperServiceHandler interface {
 	// Finds the tasks on the photo of a page: one call of AI, the capability `task_finding`, whose
-	// answer is the task frames alone, and no text of the page; each sum or equation that says by
+	// answer is the task frames alone, each with the frame of the instruction printed above it when
+	// the page prints one, and no text of the page; each sum or equation that says by
 	// itself what to do, as each of a column under one instruction, is a task of its own. With the
 	// learner's request about the page, the call gets it as data, with the frames on the page now,
 	// and its frames replace those found before; it gives none that repeats a frame the learner

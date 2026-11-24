@@ -1,5 +1,5 @@
 # Synthetic: no learner's data. IDs, times and values are made up.
-format: 4
+format: 5
 profile_id: "p-1"
 attempts:
   - attempt_id: "attempt-2"

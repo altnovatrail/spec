@@ -1,6 +1,7 @@
 # Synthetic: no learner's data. IDs, times and values are made up. An adult's correction of a module's
-# level in the evidence log, and an open attempt of a task from paper, without its key.
-format: 4
+# level in the evidence log, and an open attempt of a task from paper, without the model's hidden
+# solution and answer.
+format: 5
 profile_id: "p-2"
 owner: false
 pseudonym: "Orbit"
@@ -34,7 +35,6 @@ paper_attempts:
   - attempt_id: "attempt-7"
     begun_at: "2026-11-18T16:06:00Z"
     last_action_at: "2026-11-18T16:12:00Z"
-    key_sources: ["solver"]
     wrong_answers: 1
     rungs:
       - rung: 1

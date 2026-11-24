@@ -225,11 +225,16 @@ func (x *FindTasksResponse) GetTurnDegrees() int32 {
 }
 
 // A rectangle round one task on the photo of a page, by which `app` cuts the task's crop on the
-// device.
+// device, and the frame of its instruction, by which `app` cuts the instruction's crop.
 type TaskFrame struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The frame, in whole thousandths of the photo's height and width, as a box on a crop is written.
-	Box           *v1.CropBox `protobuf:"bytes,1,opt,name=box,proto3" json:"box,omitempty"`
+	Box *v1.CropBox `protobuf:"bytes,1,opt,name=box,proto3" json:"box,omitempty"`
+	// The frame of the instruction printed above the task, as "Use each number from 1 to 9 once", in
+	// whole thousandths of the photo's height and width: absent when the page prints none above it,
+	// and on a frame the learner drew. The finding gives the box alone, never its text; the Check
+	// gets its crop as `PaperWork.instruction`.
+	Instruction   *v1.CropBox `protobuf:"bytes,2,opt,name=instruction,proto3" json:"instruction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -267,6 +272,13 @@ func (*TaskFrame) Descriptor() ([]byte, []int) {
 func (x *TaskFrame) GetBox() *v1.CropBox {
 	if x != nil {
 		return x.Box
+	}
+	return nil
+}
+
+func (x *TaskFrame) GetInstruction() *v1.CropBox {
+	if x != nil {
+		return x.Instruction
 	}
 	return nil
 }
@@ -424,9 +436,10 @@ const file_novatrail_api_v1_paper_proto_rawDesc = "" +
 	"\x06frames\x18\x01 \x03(\v2\x1b.novatrail.api.v1.TaskFrameR\x06frames\x123\n" +
 	"\aoutcome\x18\x02 \x01(\v2\x19.novatrail.api.v1.OutcomeR\aoutcome\x12\x1a\n" +
 	"\brepeated\x18\x03 \x01(\bR\brepeated\x12!\n" +
-	"\fturn_degrees\x18\x04 \x01(\x05R\vturnDegrees\"@\n" +
+	"\fturn_degrees\x18\x04 \x01(\x05R\vturnDegrees\"\x85\x01\n" +
 	"\tTaskFrame\x123\n" +
-	"\x03box\x18\x01 \x01(\v2!.novatrail.observation.v1.CropBoxR\x03box\"\xbc\x01\n" +
+	"\x03box\x18\x01 \x01(\v2!.novatrail.observation.v1.CropBoxR\x03box\x12C\n" +
+	"\vinstruction\x18\x02 \x01(\v2!.novatrail.observation.v1.CropBoxR\vinstruction\"\xbc\x01\n" +
 	"\x19BeginPaperAttemptsRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12'\n" +
@@ -473,15 +486,16 @@ var file_novatrail_api_v1_paper_proto_depIdxs = []int32{
 	2, // 3: novatrail.api.v1.FindTasksResponse.frames:type_name -> novatrail.api.v1.TaskFrame
 	6, // 4: novatrail.api.v1.FindTasksResponse.outcome:type_name -> novatrail.api.v1.Outcome
 	7, // 5: novatrail.api.v1.TaskFrame.box:type_name -> novatrail.observation.v1.CropBox
-	0, // 6: novatrail.api.v1.PaperService.FindTasks:input_type -> novatrail.api.v1.FindTasksRequest
-	3, // 7: novatrail.api.v1.PaperService.BeginPaperAttempts:input_type -> novatrail.api.v1.BeginPaperAttemptsRequest
-	1, // 8: novatrail.api.v1.PaperService.FindTasks:output_type -> novatrail.api.v1.FindTasksResponse
-	4, // 9: novatrail.api.v1.PaperService.BeginPaperAttempts:output_type -> novatrail.api.v1.BeginPaperAttemptsResponse
-	8, // [8:10] is the sub-list for method output_type
-	6, // [6:8] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	7, // 6: novatrail.api.v1.TaskFrame.instruction:type_name -> novatrail.observation.v1.CropBox
+	0, // 7: novatrail.api.v1.PaperService.FindTasks:input_type -> novatrail.api.v1.FindTasksRequest
+	3, // 8: novatrail.api.v1.PaperService.BeginPaperAttempts:input_type -> novatrail.api.v1.BeginPaperAttemptsRequest
+	1, // 9: novatrail.api.v1.PaperService.FindTasks:output_type -> novatrail.api.v1.FindTasksResponse
+	4, // 10: novatrail.api.v1.PaperService.BeginPaperAttempts:output_type -> novatrail.api.v1.BeginPaperAttemptsResponse
+	9, // [9:11] is the sub-list for method output_type
+	7, // [7:9] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_paper_proto_init() }

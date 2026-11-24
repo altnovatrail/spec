@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/4/common.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/5/common.schema.json",
   "title": "Common definitions",
   "description": "What the files of an export share: IDs, times, days, the age categories, consents, counters of quota, what a stored work is, and an image and a frame of a page from paper.",
   "$defs": {
