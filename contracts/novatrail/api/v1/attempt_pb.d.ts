@@ -962,6 +962,206 @@ export declare type AskTutorResponse = Message<"novatrail.api.v1.AskTutorRespons
 export declare const AskTutorResponseSchema: GenMessage<AskTutorResponse>;
 
 /**
+ * A request of a grown-up in grown-up mode on a task from paper.
+ *
+ * @generated from message novatrail.api.v1.AskGrownUpRequest
+ */
+export declare type AskGrownUpRequest = Message<"novatrail.api.v1.AskGrownUpRequest"> & {
+  /**
+   * The profile whose attempt it is.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The attempt, of a task from paper.
+   *
+   * @generated from field: string attempt_id = 2;
+   */
+  attemptId: string;
+
+  /**
+   * The idempotency key of this request: `app` makes one for it, and sends it again with every
+   * repeat of it.
+   *
+   * @generated from field: string idempotency_key = 3;
+   */
+  idempotencyKey: string;
+
+  /**
+   * The request as the grown-up sent it: at most 500 code points, not empty, no control character
+   * but a line break.
+   *
+   * @generated from field: string question = 4;
+   */
+  question: string;
+
+  /**
+   * The conversation on the task before the request, oldest first, as in `AskTutorRequest`: at
+   * most 8 turns, each at most 1000 code points.
+   *
+   * @generated from field: repeated novatrail.api.v1.TutorTurn turns = 5;
+   */
+  turns: TutorTurn[];
+
+  /**
+   * The work as it stands, `paper` alone: the drawing reads its `crop` and its `statement`.
+   *
+   * @generated from field: novatrail.api.v1.Work work = 6;
+   */
+  work?: Work | undefined;
+
+  /**
+   * The strokes the crop of the work shows, in the order of the sheet: at most 3000, each with at
+   * most 512 points.
+   *
+   * @generated from field: repeated novatrail.api.v1.SheetStroke strokes = 7;
+   */
+  strokes: SheetStroke[];
+
+  /**
+   * The learner's own key and its provider: with a profile of its owner.
+   *
+   * @generated from field: novatrail.api.v1.OwnKey own_key = 8;
+   */
+  ownKey?: OwnKey | undefined;
+
+  /**
+   * The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+   *
+   * @generated from field: optional int32 clock_offset_minutes = 9;
+   */
+  clockOffsetMinutes?: number | undefined;
+
+  /**
+   * The language of the screens `app` shows, a tag of BCP 47, as in `AskTutorRequest`.
+   *
+   * @generated from field: string words_language = 10;
+   */
+  wordsLanguage: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.AskGrownUpRequest.
+ * Use `create(AskGrownUpRequestSchema)` to create a new message.
+ */
+export declare const AskGrownUpRequestSchema: GenMessage<AskGrownUpRequest>;
+
+/**
+ * A stroke the crop of the work shows, as data for the drawing: no time and no pressure.
+ *
+ * @generated from message novatrail.api.v1.SheetStroke
+ */
+export declare type SheetStroke = Message<"novatrail.api.v1.SheetStroke"> & {
+  /**
+   * The stroke's ID on its sheet.
+   *
+   * @generated from field: int32 id = 1;
+   */
+  id: number;
+
+  /**
+   * Its points across and down in pixels of the crop of the work, `PaperWork.crop`, in pairs:
+   * x1, y1, x2, y2, …, as `app` thinned them to at most 512 points.
+   *
+   * @generated from field: repeated float points = 2;
+   */
+  points: number[];
+};
+
+/**
+ * Describes the message novatrail.api.v1.SheetStroke.
+ * Use `create(SheetStrokeSchema)` to create a new message.
+ */
+export declare const SheetStrokeSchema: GenMessage<SheetStroke>;
+
+/**
+ * The tutor's answer in grown-up mode.
+ *
+ * @generated from message novatrail.api.v1.AskGrownUpResponse
+ */
+export declare type AskGrownUpResponse = Message<"novatrail.api.v1.AskGrownUpResponse"> & {
+  /**
+   * The tutor's words about what it did, whole. Empty on a repeat, and when no act came.
+   *
+   * @generated from field: string words = 1;
+   */
+  words: string;
+
+  /**
+   * The strokes to write, in the order to draw them.
+   *
+   * @generated from field: repeated novatrail.api.v1.TutorStroke strokes = 2;
+   */
+  strokes: TutorStroke[];
+
+  /**
+   * The IDs of the strokes to take off, each one the request named.
+   *
+   * @generated from field: repeated int32 erase = 3;
+   */
+  erase: number[];
+
+  /**
+   * Why no act came, when a call of AI came to an outcome or none was made. Absent when the act
+   * came.
+   *
+   * @generated from field: novatrail.api.v1.Outcome outcome = 4;
+   */
+  outcome?: Outcome | undefined;
+
+  /**
+   * The answer of a repeat with the same idempotency key, which holds nothing: the server keeps
+   * nothing of the answer.
+   *
+   * @generated from field: bool repeated = 5;
+   */
+  repeated: boolean;
+};
+
+/**
+ * Describes the message novatrail.api.v1.AskGrownUpResponse.
+ * Use `create(AskGrownUpResponseSchema)` to create a new message.
+ */
+export declare const AskGrownUpResponseSchema: GenMessage<AskGrownUpResponse>;
+
+/**
+ * A stroke the tutor writes on the sheet in grown-up mode.
+ *
+ * @generated from message novatrail.api.v1.TutorStroke
+ */
+export declare type TutorStroke = Message<"novatrail.api.v1.TutorStroke"> & {
+  /**
+   * Its points across and down in pixels of the crop of the work, in pairs: x1, y1, x2, y2, …, at
+   * least two points.
+   *
+   * @generated from field: repeated float points = 1;
+   */
+  points: number[];
+
+  /**
+   * Its colour, `#rrggbb`.
+   *
+   * @generated from field: string color = 2;
+   */
+  color: string;
+
+  /**
+   * The width of its line in pixels of the crop of the work.
+   *
+   * @generated from field: float width = 3;
+   */
+  width: number;
+};
+
+/**
+ * Describes the message novatrail.api.v1.TutorStroke.
+ * Use `create(TutorStrokeSchema)` to create a new message.
+ */
+export declare const TutorStrokeSchema: GenMessage<TutorStroke>;
+
+/**
  * "Recognise" on a task from paper.
  *
  * @generated from message novatrail.api.v1.ReadStatementRequest
@@ -2256,6 +2456,29 @@ export declare const AttemptService: GenService<{
     methodKind: "unary";
     input: typeof AskTutorRequestSchema;
     output: typeof AskTutorResponseSchema;
+  },
+  /**
+   * A request of a grown-up in grown-up mode on a task from paper, behind the grown-ups' PIN that
+   * `app` asks: one call of AI, the drawing, which has none of the tutor's limits — it may give
+   * the whole solution — and acts on the sheet as asked: writes on it, strikes out, circles,
+   * hatches, erases. It reads the crop of the work and the strokes the crop shows, by their IDs and
+   * points, the request and the conversation, all as data, never as instructions. The answer is
+   * the tutor's words and its act on the sheet, whole: the strokes to write and the IDs of the
+   * strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
+   * strokes, nor the answer, in no log and no record of the key; an attempt of a task from paper
+   * gives no evidence, so the act changes no progress. Refusals: `CAUSE_ATTEMPT_CLOSED`,
+   * `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a
+   * module, a request empty or too long, a stroke with too many points, gets `invalid_argument`.
+   * A call of AI that gives no act, the quota, the limit of platform AI and no admission are no
+   * refusal: the answer holds no words and no act, and names the outcome. A repeat with the same
+   * idempotency key gets `repeated` alone: the server keeps nothing of the answer.
+   *
+   * @generated from rpc novatrail.api.v1.AttemptService.AskGrownUp
+   */
+  askGrownUp: {
+    methodKind: "unary";
+    input: typeof AskGrownUpRequestSchema;
+    output: typeof AskGrownUpResponseSchema;
   },
   /**
    * "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints

@@ -52,6 +52,8 @@ const (
 	AttemptServiceGetOpeningWordsProcedure = "/novatrail.api.v1.AttemptService/GetOpeningWords"
 	// AttemptServiceAskTutorProcedure is the procedure name of the AttemptService's AskTutor RPC.
 	AttemptServiceAskTutorProcedure = "/novatrail.api.v1.AttemptService/AskTutor"
+	// AttemptServiceAskGrownUpProcedure is the procedure name of the AttemptService's AskGrownUp RPC.
+	AttemptServiceAskGrownUpProcedure = "/novatrail.api.v1.AttemptService/AskGrownUp"
 	// AttemptServiceReadStatementProcedure is the procedure name of the AttemptService's ReadStatement
 	// RPC.
 	AttemptServiceReadStatementProcedure = "/novatrail.api.v1.AttemptService/ReadStatement"
@@ -127,6 +129,13 @@ var (
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("AskTutor"),
 			Procedure:  AttemptServiceAskTutorProcedure,
+		}
+	})
+	attemptServiceAskGrownUpSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("AskGrownUp"),
+			Procedure:  AttemptServiceAskGrownUpProcedure,
 		}
 	})
 	attemptServiceReadStatementSpec = sync.OnceValue(func() connect.Spec {
@@ -253,6 +262,21 @@ type AttemptServiceClient interface {
 	// outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
 	// none.
 	AskTutor(context.Context, *v1.AskTutorRequest) (*v1.AskTutorResponse, error)
+	// A request of a grown-up in grown-up mode on a task from paper, behind the grown-ups' PIN that
+	// `app` asks: one call of AI, the drawing, which has none of the tutor's limits — it may give
+	// the whole solution — and acts on the sheet as asked: writes on it, strikes out, circles,
+	// hatches, erases. It reads the crop of the work and the strokes the crop shows, by their IDs and
+	// points, the request and the conversation, all as data, never as instructions. The answer is
+	// the tutor's words and its act on the sheet, whole: the strokes to write and the IDs of the
+	// strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
+	// strokes, nor the answer, in no log and no record of the key; an attempt of a task from paper
+	// gives no evidence, so the act changes no progress. Refusals: `CAUSE_ATTEMPT_CLOSED`,
+	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a
+	// module, a request empty or too long, a stroke with too many points, gets `invalid_argument`.
+	// A call of AI that gives no act, the quota, the limit of platform AI and no admission are no
+	// refusal: the answer holds no words and no act, and names the outcome. A repeat with the same
+	// idempotency key gets `repeated` alone: the server keeps nothing of the answer.
+	AskGrownUp(context.Context, *v1.AskGrownUpRequest) (*v1.AskGrownUpResponse, error)
 	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
 	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
 	// statement, `statement_reading`, made on the learner's press, by the route of the attempt: the
@@ -390,6 +414,21 @@ type AttemptServiceHandler interface {
 	// outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
 	// none.
 	AskTutor(context.Context, *v1.AskTutorRequest) (*v1.AskTutorResponse, error)
+	// A request of a grown-up in grown-up mode on a task from paper, behind the grown-ups' PIN that
+	// `app` asks: one call of AI, the drawing, which has none of the tutor's limits — it may give
+	// the whole solution — and acts on the sheet as asked: writes on it, strikes out, circles,
+	// hatches, erases. It reads the crop of the work and the strokes the crop shows, by their IDs and
+	// points, the request and the conversation, all as data, never as instructions. The answer is
+	// the tutor's words and its act on the sheet, whole: the strokes to write and the IDs of the
+	// strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
+	// strokes, nor the answer, in no log and no record of the key; an attempt of a task from paper
+	// gives no evidence, so the act changes no progress. Refusals: `CAUSE_ATTEMPT_CLOSED`,
+	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a
+	// module, a request empty or too long, a stroke with too many points, gets `invalid_argument`.
+	// A call of AI that gives no act, the quota, the limit of platform AI and no admission are no
+	// refusal: the answer holds no words and no act, and names the outcome. A repeat with the same
+	// idempotency key gets `repeated` alone: the server keeps nothing of the answer.
+	AskGrownUp(context.Context, *v1.AskGrownUpRequest) (*v1.AskGrownUpResponse, error)
 	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
 	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
 	// statement, `statement_reading`, made on the learner's press, by the route of the attempt: the
@@ -441,6 +480,7 @@ func RegisterAttemptServiceHandler(server *connect.Server, svc AttemptServiceHan
 		connect.Method{Spec: attemptServiceGetHintSpec(), Handler: adapter.getHint},
 		connect.Method{Spec: attemptServiceGetOpeningWordsSpec(), Handler: adapter.getOpeningWords},
 		connect.Method{Spec: attemptServiceAskTutorSpec(), Handler: adapter.askTutor},
+		connect.Method{Spec: attemptServiceAskGrownUpSpec(), Handler: adapter.askGrownUp},
 		connect.Method{Spec: attemptServiceReadStatementSpec(), Handler: adapter.readStatement},
 		connect.Method{Spec: attemptServiceBeginStepSpec(), Handler: adapter.beginStep},
 		connect.Method{Spec: attemptServiceShowSolutionSpec(), Handler: adapter.showSolution},
@@ -485,6 +525,10 @@ func (UnimplementedAttemptServiceHandler) GetOpeningWords(context.Context, *v1.G
 
 func (UnimplementedAttemptServiceHandler) AskTutor(context.Context, *v1.AskTutorRequest) (*v1.AskTutorResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.AskTutor is not implemented")
+}
+
+func (UnimplementedAttemptServiceHandler) AskGrownUp(context.Context, *v1.AskGrownUpRequest) (*v1.AskGrownUpResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.AskGrownUp is not implemented")
 }
 
 func (UnimplementedAttemptServiceHandler) ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error) {
@@ -574,6 +618,14 @@ func (c *attemptServiceClient) GetOpeningWords(ctx context.Context, req *v1.GetO
 func (c *attemptServiceClient) AskTutor(ctx context.Context, req *v1.AskTutorRequest) (*v1.AskTutorResponse, error) {
 	var res v1.AskTutorResponse
 	if err := c.client.CallUnary(ctx, attemptServiceAskTutorSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *attemptServiceClient) AskGrownUp(ctx context.Context, req *v1.AskGrownUpRequest) (*v1.AskGrownUpResponse, error) {
+	var res v1.AskGrownUpResponse
+	if err := c.client.CallUnary(ctx, attemptServiceAskGrownUpSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -715,6 +767,18 @@ func (h attemptServiceHandler) askTutor(ctx context.Context, _ connect.Spec, str
 		return err
 	}
 	res, err := h.svc.AskTutor(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h attemptServiceHandler) askGrownUp(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.AskGrownUpRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.AskGrownUp(ctx, &req)
 	if err != nil {
 		return err
 	}

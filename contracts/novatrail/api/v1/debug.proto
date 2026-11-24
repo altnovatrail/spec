@@ -225,6 +225,8 @@ enum DebugCallKind {
   // The Check, `task_checking`: the work judged in one call — each task's verdict, what was read,
   // the place of each mistake, the tutor's words and the ladder of hints.
   DEBUG_CALL_KIND_TASK_CHECKING = 7;
+  // The drawing of grown-up mode, `drawing`: the tutor's act on the sheet as a grown-up asks.
+  DEBUG_CALL_KIND_DRAWING = 8;
 }
 
 // A Check of a task from paper as the debug mode exports it, a case of the set of a task from

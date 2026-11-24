@@ -180,6 +180,8 @@ const (
 	// The Check, `task_checking`: the work judged in one call — each task's verdict, what was read,
 	// the place of each mistake, the tutor's words and the ladder of hints.
 	DebugCallKind_DEBUG_CALL_KIND_TASK_CHECKING DebugCallKind = 7
+	// The drawing of grown-up mode, `drawing`: the tutor's act on the sheet as a grown-up asks.
+	DebugCallKind_DEBUG_CALL_KIND_DRAWING DebugCallKind = 8
 )
 
 // Enum value maps for DebugCallKind.
@@ -193,6 +195,7 @@ var (
 		5: "DEBUG_CALL_KIND_WORK_READING",
 		6: "DEBUG_CALL_KIND_TUTOR_WORDS",
 		7: "DEBUG_CALL_KIND_TASK_CHECKING",
+		8: "DEBUG_CALL_KIND_DRAWING",
 	}
 	DebugCallKind_value = map[string]int32{
 		"DEBUG_CALL_KIND_UNSPECIFIED":       0,
@@ -203,6 +206,7 @@ var (
 		"DEBUG_CALL_KIND_WORK_READING":      5,
 		"DEBUG_CALL_KIND_TUTOR_WORDS":       6,
 		"DEBUG_CALL_KIND_TASK_CHECKING":     7,
+		"DEBUG_CALL_KIND_DRAWING":           8,
 	}
 )
 
@@ -1409,7 +1413,7 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x1dDEBUG_ACTION_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cDEBUG_ACTION_KIND_FIND_TASKS\x10\x01\x12\x1b\n" +
 	"\x17DEBUG_ACTION_KIND_CHECK\x10\x02\x12\x1b\n" +
-	"\x17DEBUG_ACTION_KIND_WORDS\x10\x03*\x9d\x02\n" +
+	"\x17DEBUG_ACTION_KIND_WORDS\x10\x03*\xba\x02\n" +
 	"\rDebugCallKind\x12\x1f\n" +
 	"\x1bDEBUG_CALL_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cDEBUG_CALL_KIND_TASK_FINDING\x10\x01\x12%\n" +
@@ -1418,7 +1422,8 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x1cDEBUG_CALL_KIND_TASK_SOLVING\x10\x04\x12 \n" +
 	"\x1cDEBUG_CALL_KIND_WORK_READING\x10\x05\x12\x1f\n" +
 	"\x1bDEBUG_CALL_KIND_TUTOR_WORDS\x10\x06\x12!\n" +
-	"\x1dDEBUG_CALL_KIND_TASK_CHECKING\x10\a*\xc0\x01\n" +
+	"\x1dDEBUG_CALL_KIND_TASK_CHECKING\x10\a\x12\x1b\n" +
+	"\x17DEBUG_CALL_KIND_DRAWING\x10\b*\xc0\x01\n" +
 	"\fDebugOutcome\x12\x1d\n" +
 	"\x19DEBUG_OUTCOME_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15DEBUG_OUTCOME_CORRECT\x10\x01\x12\x19\n" +

@@ -33,6 +33,8 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   set marks(marks: canvas.Marks | undefined);
   get filled(): canvas.Filled | null;
   exportWork(): Promise<canvas.ExportedWork | null>;
+  cropStrokes(submission: canvas.PaperSubmission): readonly canvas.CropStroke[];
+  drawTutor(submission: canvas.PaperSubmission, act: canvas.TutorAct): void;
   exportPicture(): Promise<Blob>;
   readonly paintStats: canvas.PaintStats;
   paintFlash: boolean;
@@ -61,6 +63,7 @@ export const history: readonly canvas.HistoryEvent[] = [
   { kind: "erase", t: 1200, ids: [2] },
   { kind: "undo", t: 1500, removed: [], restored: [2] },
   { kind: "clear", t: 2000, ids: [1, 2] },
+  { kind: "tutor", t: 2100, strokes: [{ id: 3, kind: "tutor", style: { pen: "liner", color: "#e5322d", width: 3, opacity: 100 }, points: [{ x: 10, y: 10, t: 2100, p: 0 }, { x: 40, y: 12, t: 2100, p: 0 }] }], ids: [] },
 ];
 
 /** A style of each kind of pen, a stroke with one, and a cut that leaves two pieces of it. */

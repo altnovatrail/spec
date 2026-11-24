@@ -292,6 +292,21 @@ export type HistoryEvent =
   /** The sheet cleared: every stroke that was on it, in the sheet's order. */
   | { readonly kind: "clear"; readonly t: number; readonly ids: readonly number[] }
   /**
+   * The tutor's act on the sheet in grown-up mode, one action: the strokes it wrote, new IDs in
+   * the order to draw them, each of the pointer's kind "tutor" with its points at the event's time
+   * and of no pressure, 0, and the strokes it took off, in the sheet's order. `on` is
+   * `"tracing"` when its strokes are on the tracing paper, as for a stroke written. The host puts
+   * it on the sheet by setting `history`, and an undo takes it back whole. A sample file of the
+   * eval protocol never holds one: the tutor's strokes are no learner's writing.
+   */
+  | {
+      readonly kind: "tutor";
+      readonly t: number;
+      readonly strokes: readonly Stroke[];
+      readonly ids: readonly number[];
+      readonly on?: "tracing";
+    }
+  /**
    * The last action still in force taken back: the stroke it took off, if it was a writing, or the
    * strokes it brought back, if it was an erasing or a clearing — and of a cut, the pieces it took
    * off too.
@@ -446,6 +461,31 @@ export interface PaperSubmission {
  * which.
  */
 export type Submission = SheetSubmission | WorkbookSubmission | PaperSubmission;
+
+/**
+ * A stroke a crop of a task from paper shows, for the tutor in grown-up mode: its ID, and its points
+ * across and down in the crop's pixels, in pairs, thinned to at most 512 points, with no time and
+ * no pressure.
+ */
+export interface CropStroke {
+  readonly id: number;
+  readonly points: readonly number[];
+}
+
+/**
+ * The tutor's act in grown-up mode, as the drawing gave it on a crop of a task from paper: the
+ * strokes to write, each with its points across and down in the crop's pixels, in pairs, at least
+ * two points, its colour and the width of its line in the crop's pixels, and the IDs of the strokes
+ * to take off.
+ */
+export interface TutorAct {
+  readonly strokes: readonly {
+    readonly points: readonly number[];
+    readonly color: string;
+    readonly width: number;
+  }[];
+  readonly erase: readonly number[];
+}
 
 /** The work of a sheet for checking: the PNG of the crop, and the context of the submission. */
 export interface ExportedSheet {
@@ -716,7 +756,8 @@ export interface CanvasElement extends HTMLElement {
    */
   media: Media | undefined;
   /**
-   * The history of writing: every stroke, erasing, cut, clearing and undo on the sheet, frozen. The
+   * The history of writing: every stroke, erasing, cut, clearing, undo and act of the tutor on the
+   * sheet, frozen. The
    * consumer keeps it, adding what `historychange` tells, and gives it back to open the sheet as it
    * was. A history the sheet could not have written is a TypeError, and the sheet stays as it was;
    * `undefined` is the empty one.
@@ -755,6 +796,22 @@ export interface CanvasElement extends HTMLElement {
    * workbook with no box filled and a worked example give `null`.
    */
   exportWork(): Promise<ExportedWork | null>;
+  /**
+   * The strokes the crop of a task from paper shows, by the context of the submission
+   * `exportWork()` gave with that crop, for the tutor in grown-up mode: in the sheet's order, each
+   * in the crop's pixels. Another context than a task from paper's is a TypeError.
+   */
+  cropStrokes(submission: PaperSubmission): readonly CropStroke[];
+  /**
+   * The tutor's act in grown-up mode put on the sheet, by the context of the submission whose crop
+   * the drawing read: one `tutor` event, its strokes on the tracing paper when the context's
+   * tracing paper is shown, else on the sheet, of the pen kind "liner", and the strokes it takes off
+   * among those the sheet shows. Its strokes are drawn one after another, at the speed of a hand but
+   * all within 3 s, and at once with reduced motion; an undo takes the act back whole. It sends
+   * `historychange`. An act with an ID the sheet does not show, a point off the sheet or a colour
+   * that is not `#rrggbb` is a TypeError, and the sheet stays as it was.
+   */
+  drawTutor(submission: PaperSubmission, act: TutorAct): void;
   /**
    * The picture of the work, which app puts as the stored work's `picture` in the contract between
    * app and api: always a Blob of a PNG, with no condition, of the strokes the surface shows as it is

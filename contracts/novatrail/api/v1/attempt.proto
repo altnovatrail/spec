@@ -122,6 +122,21 @@ service AttemptService {
   // outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
   // none.
   rpc AskTutor(AskTutorRequest) returns (AskTutorResponse);
+  // A request of a grown-up in grown-up mode on a task from paper, behind the grown-ups' PIN that
+  // `app` asks: one call of AI, the drawing, which has none of the tutor's limits — it may give
+  // the whole solution — and acts on the sheet as asked: writes on it, strikes out, circles,
+  // hatches, erases. It reads the crop of the work and the strokes the crop shows, by their IDs and
+  // points, the request and the conversation, all as data, never as instructions. The answer is
+  // the tutor's words and its act on the sheet, whole: the strokes to write and the IDs of the
+  // strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
+  // strokes, nor the answer, in no log and no record of the key; an attempt of a task from paper
+  // gives no evidence, so the act changes no progress. Refusals: `CAUSE_ATTEMPT_CLOSED`,
+  // `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a
+  // module, a request empty or too long, a stroke with too many points, gets `invalid_argument`.
+  // A call of AI that gives no act, the quota, the limit of platform AI and no admission are no
+  // refusal: the answer holds no words and no act, and names the outcome. A repeat with the same
+  // idempotency key gets `repeated` alone: the server keeps nothing of the answer.
+  rpc AskGrownUp(AskGrownUpRequest) returns (AskGrownUpResponse);
   // "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
   // it, for the learner to see it in clean print instead of the photo. It is the reading of the
   // statement, `statement_reading`, made on the learner's press, by the route of the attempt: the
@@ -488,6 +503,70 @@ message AskTutorResponse {
   // The answer of a repeat with the same idempotency key, which holds no words: the server keeps
   // none.
   bool repeated = 3;
+}
+
+// A request of a grown-up in grown-up mode on a task from paper.
+message AskGrownUpRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt, of a task from paper.
+  string attempt_id = 2;
+  // The idempotency key of this request: `app` makes one for it, and sends it again with every
+  // repeat of it.
+  string idempotency_key = 3;
+  // The request as the grown-up sent it: at most 500 code points, not empty, no control character
+  // but a line break.
+  string question = 4;
+  // The conversation on the task before the request, oldest first, as in `AskTutorRequest`: at
+  // most 8 turns, each at most 1000 code points.
+  repeated TutorTurn turns = 5;
+  // The work as it stands, `paper` alone: the drawing reads its `crop` and its `statement`.
+  Work work = 6;
+  // The strokes the crop of the work shows, in the order of the sheet: at most 3000, each with at
+  // most 512 points.
+  repeated SheetStroke strokes = 7;
+  // The learner's own key and its provider: with a profile of its owner.
+  OwnKey own_key = 8;
+  // The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
+  optional int32 clock_offset_minutes = 9;
+  // The language of the screens `app` shows, a tag of BCP 47, as in `AskTutorRequest`.
+  string words_language = 10;
+}
+
+// A stroke the crop of the work shows, as data for the drawing: no time and no pressure.
+message SheetStroke {
+  // The stroke's ID on its sheet.
+  int32 id = 1;
+  // Its points across and down in pixels of the crop of the work, `PaperWork.crop`, in pairs:
+  // x1, y1, x2, y2, …, as `app` thinned them to at most 512 points.
+  repeated float points = 2;
+}
+
+// The tutor's answer in grown-up mode.
+message AskGrownUpResponse {
+  // The tutor's words about what it did, whole. Empty on a repeat, and when no act came.
+  string words = 1;
+  // The strokes to write, in the order to draw them.
+  repeated TutorStroke strokes = 2;
+  // The IDs of the strokes to take off, each one the request named.
+  repeated int32 erase = 3;
+  // Why no act came, when a call of AI came to an outcome or none was made. Absent when the act
+  // came.
+  Outcome outcome = 4;
+  // The answer of a repeat with the same idempotency key, which holds nothing: the server keeps
+  // nothing of the answer.
+  bool repeated = 5;
+}
+
+// A stroke the tutor writes on the sheet in grown-up mode.
+message TutorStroke {
+  // Its points across and down in pixels of the crop of the work, in pairs: x1, y1, x2, y2, …, at
+  // least two points.
+  repeated float points = 1;
+  // Its colour, `#rrggbb`.
+  string color = 2;
+  // The width of its line in pixels of the crop of the work.
+  float width = 3;
 }
 
 // "Recognise" on a task from paper.

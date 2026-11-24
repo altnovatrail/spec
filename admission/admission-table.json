@@ -363,6 +363,38 @@
         "privacy 6",
         "R162"
       ]
+    },
+    {
+      "capability": "drawing",
+      "age_category": "under_13",
+      "admission": "open",
+      "basis": [
+        "privacy 6"
+      ]
+    },
+    {
+      "capability": "drawing",
+      "age_category": "from_13_to_consent",
+      "admission": "open",
+      "basis": [
+        "privacy 6"
+      ]
+    },
+    {
+      "capability": "drawing",
+      "age_category": "from_consent_to_18",
+      "admission": "open",
+      "basis": [
+        "privacy 6"
+      ]
+    },
+    {
+      "capability": "drawing",
+      "age_category": "adult",
+      "admission": "open",
+      "basis": [
+        "privacy 6"
+      ]
     }
   ],
   "cells": [

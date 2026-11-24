@@ -764,6 +764,13 @@ export enum DebugCallKind {
    * @generated from enum value: DEBUG_CALL_KIND_TASK_CHECKING = 7;
    */
   TASK_CHECKING = 7,
+
+  /**
+   * The drawing of grown-up mode, `drawing`: the tutor's act on the sheet as a grown-up asks.
+   *
+   * @generated from enum value: DEBUG_CALL_KIND_DRAWING = 8;
+   */
+  DRAWING = 8,
 }
 
 /**
