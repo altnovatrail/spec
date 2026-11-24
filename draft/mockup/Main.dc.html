@@ -35,6 +35,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 @keyframes ntSpin{to{transform:rotate(360deg)}}
 .nt-spin{animation:ntSpin .8s linear infinite}
 @keyframes ntPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.nt-livedot{animation:ntPulse 1.4s ease-in-out infinite}
+.nt-dbglist>*{flex-shrink:0}
 .nt-pulse{animation:ntPulse 1.6s ease-in-out infinite}
 @keyframes ntSpark{0%,100%{transform:scale(.82);opacity:.55}50%{transform:scale(1);opacity:1}}
 .ph-waitspark svg{animation:ntSpark 1.4s ease-in-out infinite}
@@ -1376,6 +1378,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
 <!-- ============ Debug: the models, what each returned and its cost — only for an account with the right of the debug mode (R163) ============ -->
 <sc-if value="{{dbg.show}}" hint-placeholder-val="{{ false }}">
+  <!-- The strip of Performance on the canvas, while its switch is on: it takes no touch. -->
+  <sc-if value="{{dbg.pf.hudOn}}" hint-placeholder-val="{{ false }}">
+    <div role="status" aria-label="Performance" style="position: absolute; left: {{dbg.pf.hud.x}}px; top: 74px; height: 28px; padding: 0 12px; border-radius: 14px; background: rgba(28,28,30,0.82); color: #FFFFFF; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 8px; z-index: 7; pointer-events: none; white-space: nowrap">
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: {{dbg.pf.hud.dot}}"></span>{{dbg.pf.hud.text}}
+    </div>
+  </sc-if>
   <button class="glass tip tip-l ph-dbgbtn {{dbg.btnCls}}" aria-label="Debug: the models and their answers" data-tip="{{dbg.tip}}" aria-expanded="{{dbg.open}}" onClick="{{dbg.toggle}}" style="position: absolute; right: 16px; top: 50%; margin-top: {{dbg.mt}}px; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; opacity: {{dbg.btn.op}}; transform: scale({{dbg.btn.sc}}); visibility: {{dbg.btn.vis}}; transition: opacity 0.2s, transform 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.3s">
     <span class="{{dbg.ring}}" style="width: 44px; height: 44px; border-radius: 22px; background: linear-gradient(135deg, #48484A 0%, #1C1C1E 100%); color: #FF9F0A; display: flex; align-items: center; justify-content: center">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 8.5V7a3.5 3.5 0 0 1 7 0v1.5"></path><path d="M7 10.5a5 5 0 0 1 10 0V15a5 5 0 0 1-10 0z"></path><path d="M12 11v8.5M7 13H3.5M20.5 13H17M7.5 17.5l-3 2M16.5 17.5l3 2M7.5 9.5l-3-2M16.5 9.5l3-2"></path></svg>
@@ -1397,8 +1405,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </button>
     </div>
     <div role="tablist" aria-label="Debug" style="flex: none; margin: 2px 14px 10px; height: 36px; padding: 2px; box-sizing: border-box; border-radius: 10px; background: rgba(118,118,128,0.12); display: flex">
-      <sc-for list="{{dbg.tabs}}" as="tb" hint-placeholder-count="2">
-        <button role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="flex: 1; height: 32px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1D1D1F; background: {{tb.bg}}; box-shadow: {{tb.sh}}; display: flex; align-items: center; justify-content: center; gap: 6px">{{tb.label}}<sc-if value="{{tb.hasN}}" hint-placeholder-val="{{ false }}"><span style="min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #1D1D1F; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">{{tb.n}}</span></sc-if></button>
+      <sc-for list="{{dbg.tabs}}" as="tb" hint-placeholder-count="3">
+        <button role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="flex: 1; height: 32px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1D1D1F; background: {{tb.bg}}; box-shadow: {{tb.sh}}; display: flex; align-items: center; justify-content: center; gap: 6px">{{tb.label}}<sc-if value="{{tb.hasN}}" hint-placeholder-val="{{ false }}"><span style="min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: {{tb.nbg}}; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">{{tb.n}}</span></sc-if></button>
       </sc-for>
     </div>
 
@@ -1468,16 +1476,77 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     </div>
     </sc-if>
 
-    <!-- Log: every call of the session, by what the learner did; a call opens to what the model returned, as it returned it. -->
+    <!-- Log: what the app, api and the canvas said — errors, warnings, info and debug — with the AI's calls among them, newest first; a filter by level and source. -->
     <sc-if value="{{dbg.isLog}}" hint-placeholder-val="{{ false }}">
-    <div tabindex="0" role="region" aria-label="Log of the models" style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 12px; display: flex; flex-direction: column; gap: 6px">
-      <sc-if value="{{dbg.empty}}" hint-placeholder-val="{{ false }}">
-        <div style="margin: 40px 20px; text-align: center; font-size: 13px; line-height: 1.4; color: #6E6E73">No calls yet. Take a photo of a page, or Check a task.</div>
+    <div class="nt-dbglist" tabindex="0" role="region" aria-label="Log" style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 12px; display: flex; flex-direction: column; gap: 6px">
+      <div style="position: relative; flex: none; padding: 0 2px 2px; display: flex; align-items: center; gap: 8px">
+        <button aria-haspopup="menu" aria-expanded="{{dbg.filterOpen}}" onClick="{{dbg.toggleFilter}}" style="flex: none; height: 32px; padding: 0 10px 0 12px; border-radius: 16px; background: rgba(118,118,128,0.12); font-size: 13px; font-weight: 600; color: #1D1D1F; display: flex; align-items: center; gap: 6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>{{dbg.filterLabel}}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"></path></svg>
+        </button>
+        <span style="flex: 1; min-width: 0; font-size: 12px; color: #6E6E73; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{dbg.shown}}</span>
+        <sc-if value="{{dbg.errN}}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{dbg.onlyErrors}}" style="flex: none; height: 32px; padding: 0 12px; border-radius: 16px; background: rgba(255,59,48,0.12); color: #D70015; font-size: 12.5px; font-weight: 600">{{dbg.errLabel}}</button>
+        </sc-if>
+        <sc-if value="{{dbg.filterOpen}}" hint-placeholder-val="{{ false }}">
+          <div class="glass nt-pop" role="menu" aria-label="Show in the log" style="position: absolute; left: 0; top: 38px; width: 264px; border-radius: 18px; padding: 6px; box-sizing: border-box; background: rgba(255,255,255,0.97); z-index: 3; display: flex; flex-direction: column">
+            <span style="padding: 6px 10px 2px; font-size: 11px; font-weight: 600; color: #6E6E73">Level</span>
+            <sc-for list="{{dbg.levels}}" as="lv" hint-placeholder-count="4">
+              <button class="row" role="menuitemcheckbox" aria-checked="{{lv.on}}" onClick="{{lv.pick}}" style="width: 100%; min-height: 40px; border-radius: 10px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; text-align: left">
+                <span style="flex: none; width: 16px; color: #0071E3"><sc-if value="{{lv.on}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if></span>
+                <span style="flex: none; width: 8px; height: 8px; border-radius: 4px; background: {{lv.dot}}"></span>
+                <span style="flex: 1; font-size: 14px">{{lv.name}}</span>
+                <span style="font-size: 12px; color: #6E6E73; font-variant-numeric: tabular-nums">{{lv.n}}</span>
+              </button>
+            </sc-for>
+            <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
+            <span style="padding: 6px 10px 2px; font-size: 11px; font-weight: 600; color: #6E6E73">Source</span>
+            <sc-for list="{{dbg.sources}}" as="so" hint-placeholder-count="4">
+              <button class="row" role="menuitemcheckbox" aria-checked="{{so.on}}" onClick="{{so.pick}}" style="width: 100%; min-height: 40px; border-radius: 10px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; text-align: left">
+                <span style="flex: none; width: 16px; color: #0071E3"><sc-if value="{{so.on}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if></span>
+                <span style="flex: 1; font-size: 14px">{{so.name}}</span>
+                <span style="font-size: 12px; color: #6E6E73; font-variant-numeric: tabular-nums">{{so.n}}</span>
+              </button>
+            </sc-for>
+            <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
+            <button class="row" role="menuitem" onClick="{{dbg.showAll}}" style="width: 100%; min-height: 40px; border-radius: 10px; padding: 0 10px 0 36px; box-sizing: border-box; text-align: left; font-size: 14px; color: #0071E3">Show everything</button>
+          </div>
+        </sc-if>
+      </div>
+      <sc-if value="{{dbg.logEmpty}}" hint-placeholder-val="{{ false }}">
+        <div style="margin: 40px 20px; text-align: center; font-size: 13px; line-height: 1.4; color: #6E6E73">Nothing yet. What the app does, and the AI’s calls, come here.</div>
       </sc-if>
-      <sc-for list="{{dbg.groups}}" as="g" hint-placeholder-count="2">
+      <sc-if value="{{dbg.nothingShown}}" hint-placeholder-val="{{ false }}">
+        <div style="margin: 40px 20px; text-align: center; font-size: 13px; line-height: 1.4; color: #6E6E73">Nothing of what the filter shows.</div>
+      </sc-if>
+      <sc-for list="{{dbg.blocks}}" as="g" hint-placeholder-count="2">
+        <sc-if value="{{g.isLines}}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top: 6px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden">
+          <sc-for list="{{g.lines}}" as="ln" hint-placeholder-count="3">
+            <sc-if value="{{ln.sep}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div></sc-if>
+            <button class="row" aria-expanded="{{ln.open}}" onClick="{{ln.toggle}}" style="min-height: 48px; padding: 8px 12px; display: flex; align-items: flex-start; gap: 10px; text-align: left">
+              <span style="flex: none; margin-top: 1px; width: 18px; height: 18px; border-radius: 9px; background: {{ln.bg}}; color: {{ln.fg}}; font-size: 12px; font-weight: 800; line-height: 18px; text-align: center">{{ln.mark}}</span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.3">
+                <span style="font-size: 13px; color: {{ln.textFg}}; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word">{{ln.text}}</span>
+                <span style="font-size: 12px; color: #6E6E73">{{ln.srcName}} · {{ln.at}}</span>
+              </span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px; transform: rotate({{ln.rot}}deg); transition: transform 0.2s"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+            <sc-if value="{{ln.open}}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 0 12px 12px 40px; display: flex; flex-direction: column; gap: 8px">
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span style="flex: 1; font-size: 11px; font-weight: 600; color: #6E6E73">Details</span>
+                  <button class="tip tip-bl" aria-label="Copy the entry" data-tip="Copy the entry" onClick="{{ln.copy}}" style="flex: none; height: 32px; padding: 0 10px; border-radius: 16px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"></rect><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"></path></svg>{{ln.copyLabel}}</button>
+                </div>
+                <pre style="margin: 0; max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: #F2F2F7; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 11.5px; line-height: 1.45; color: #1D1D1F; white-space: pre-wrap; word-break: break-word; user-select: text">{{ln.detail}}</pre>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+        </sc-if>
+        <sc-if value="{{g.isAi}}" hint-placeholder-val="{{ true }}">
         <div style="padding: 10px 4px 2px; display: flex; align-items: baseline; gap: 8px">
           <span style="font-size: 13px; font-weight: 600">{{g.title}}</span>
-          <span style="flex: 1; font-size: 12px; color: #6E6E73">{{g.at}}</span>
+          <span style="flex: 1; font-size: 12px; color: #6E6E73">AI · {{g.at}}</span>
           <span style="font-size: 12px; font-weight: 600; color: #3A3A3C; font-variant-numeric: tabular-nums">{{g.sum}}</span>
           <sc-if value="{{g.check}}" hint-placeholder-val="{{ false }}"><button aria-expanded="{{g.exp}}" onClick="{{g.toggleExport}}" style="flex: none; padding: 2px 4px; font-size: 12px; font-weight: 600; color: #0071E3">Export</button></sc-if>
         </div>
@@ -1542,16 +1611,84 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
             </div>
           </div>
         </sc-if>
+        </sc-if>
       </sc-for>
     </div>
     <div style="flex: none; padding: 10px 14px 14px; border-top: 0.5px solid rgba(0,0,0,0.08); display: flex; align-items: center; gap: 10px">
       <span style="flex: 1; display: flex; flex-direction: column; gap: 1px; line-height: 1.25">
         <span style="font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums">Session total {{dbg.sum}}</span>
-        <span style="font-size: 12px; color: #6E6E73">Counted in the tutor time, like any call</span>
+        <span style="font-size: 12px; color: #6E6E73">The AI’s calls, counted in the tutor time</span>
       </span>
-      <button onClick="{{dbg.clear}}" aria-disabled="{{dbg.empty}}" style="flex: none; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(118,118,128,0.12); font-size: 13px; font-weight: 600; color: #1D1D1F">Clear log</button>
+      <button onClick="{{dbg.copyAll}}" aria-disabled="{{dbg.logEmpty}}" style="flex: none; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(0,113,227,0.10); font-size: 13px; font-weight: 600; color: #0071E3">{{dbg.allCopyLabel}}</button>
+      <button onClick="{{dbg.clear}}" aria-disabled="{{dbg.logEmpty}}" style="flex: none; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(118,118,128,0.12); font-size: 13px; font-weight: 600; color: #1D1D1F">Clear</button>
     </div>
     </sc-if>
+
+    <!-- Performance: frames and the main thread stand in for the CPU, which no browser gives a page; memory is estimated from what the app holds. -->
+    <sc-if value="{{dbg.isPerf}}" hint-placeholder-val="{{ false }}">
+    <div class="nt-dbglist" tabindex="0" role="region" aria-label="Performance" style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="flex: none; padding: 0 2px; display: flex; align-items: center; gap: 8px">
+        <span class="{{dbg.pf.pulse}}" style="flex: none; width: 8px; height: 8px; border-radius: 4px; background: {{dbg.pf.dot}}"></span>
+        <span style="font-size: 13px; font-weight: 600">{{dbg.pf.state}}</span>
+        <span style="flex: 1; min-width: 0; font-size: 12px; color: #6E6E73; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{dbg.pf.window}}</span>
+        <button onClick="{{dbg.pf.toggleLive}}" style="flex: none; height: 32px; padding: 0 12px; border-radius: 16px; background: rgba(118,118,128,0.12); font-size: 12.5px; font-weight: 600; color: #1D1D1F">{{dbg.pf.liveLabel}}</button>
+        <button class="tip tip-bl" aria-label="Copy the numbers" data-tip="Copy the numbers as JSON" onClick="{{dbg.pf.copy}}" style="flex: none; height: 32px; padding: 0 10px; border-radius: 16px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"></rect><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"></path></svg>{{dbg.pf.copyLabel}}</button>
+      </div>
+      <div style="padding: 8px 4px 0; display: flex; flex-direction: column; gap: 1px">
+        <span style="font-size: 13px; font-weight: 600">Frames</span>
+        <span style="font-size: 12px; color: #6E6E73">The worst frame of each half-second. Over 16.7 ms a frame is late; over 50 ms the pen lags.</span>
+      </div>
+      <div style="border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+          <sc-for list="{{dbg.pf.tiles}}" as="ti" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.2"><span style="font-size: 11px; font-weight: 600; color: #6E6E73">{{ti.k}}</span><span style="font-size: 22px; font-weight: 700; color: {{ti.fg}}; font-variant-numeric: tabular-nums">{{ti.v}}</span></div>
+          </sc-for>
+        </div>
+        <svg viewBox="0 0 360 72" preserveAspectRatio="none" role="img" aria-label="The worst frame of each half-second, the last 30 seconds" style="width: 100%; height: 72px; display: block; border-radius: 6px; background: #F7F7FA">
+          <path d="M0 53.8 H360" stroke="#34C759" stroke-width="1" stroke-dasharray="3 3" fill="none" vector-effect="non-scaling-stroke"></path>
+          <path d="M0 17.5 H360" stroke="#FF3B30" stroke-width="1" stroke-dasharray="3 3" fill="none" vector-effect="non-scaling-stroke"></path>
+          <path d="{{dbg.pf.barsG}}" fill="#34C759"></path>
+          <path d="{{dbg.pf.barsO}}" fill="#FF9F0A"></path>
+          <path d="{{dbg.pf.barsR}}" fill="#FF3B30"></path>
+        </svg>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6E6E73; font-variant-numeric: tabular-nums"><span>30 s ago</span><span>16.7 ms · 50 ms</span><span>now</span></div>
+      </div>
+      <sc-for list="{{dbg.pf.cards}}" as="cd" hint-placeholder-count="4">
+        <div style="padding: 8px 4px 0; display: flex; flex-direction: column; gap: 1px">
+          <span style="font-size: 13px; font-weight: 600">{{cd.title}}</span>
+          <sc-if value="{{cd.sub}}" hint-placeholder-val="{{ true }}"><span style="font-size: 12px; color: #6E6E73">{{cd.sub}}</span></sc-if>
+        </div>
+        <div style="border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column">
+          <sc-if value="{{cd.bar}}" hint-placeholder-val="{{ false }}">
+            <div style="margin: 12px 14px 4px; height: 8px; border-radius: 4px; background: rgba(118,118,128,0.16); overflow: hidden"><div style="width: {{cd.barW}}%; height: 100%; border-radius: 4px; background: {{cd.barC}}; transition: width 0.4s"></div></div>
+          </sc-if>
+          <sc-for list="{{cd.rows}}" as="rw" hint-placeholder-count="4">
+            <sc-if value="{{rw.sep}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div></sc-if>
+            <div style="min-height: 40px; padding: 6px 14px; box-sizing: border-box; display: flex; align-items: center; gap: 10px">
+              <span style="flex: 1; font-size: 13px; color: #3A3A3C">{{rw.k}}</span>
+              <span style="font-size: 13px; font-weight: {{rw.fw}}; color: {{rw.fg}}; font-variant-numeric: tabular-nums; text-align: right">{{rw.v}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+      <div style="margin-top: 8px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column">
+        <button role="switch" aria-checked="{{dbg.pf.hudOn}}" onClick="{{dbg.pf.toggleHud}}" style="min-height: 52px; padding: 6px 12px 6px 14px; display: flex; align-items: center; gap: 10px; text-align: left">
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 1px; line-height: 1.25"><span style="font-size: 14px">Show on the canvas</span><span style="font-size: 12px; color: #6E6E73">The frames, busy time and memory in a strip, with this window closed</span></span>
+          <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{dbg.pf.hudSw.bg}}; transition: background 0.2s"><span style="position: absolute; top: 2px; left: {{dbg.pf.hudSw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 0.2s"></span></span>
+        </button>
+        <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div>
+        <button role="switch" aria-checked="{{dbg.pf.flashOn}}" onClick="{{dbg.pf.toggleFlash}}" style="min-height: 52px; padding: 6px 12px 6px 14px; display: flex; align-items: center; gap: 10px; text-align: left">
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 1px; line-height: 1.25"><span style="font-size: 14px">Flash what is repainted</span><span style="font-size: 12px; color: #6E6E73">Each rectangle a frame paints blinks red on the canvas</span></span>
+          <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{dbg.pf.flashSw.bg}}; transition: background 0.2s"><span style="position: absolute; top: 2px; left: {{dbg.pf.flashSw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 0.2s"></span></span>
+        </button>
+      </div>
+      <div style="margin-top: 6px; padding: 10px 12px; border-radius: 14px; background: rgba(118,118,128,0.10); display: flex; gap: 8px; font-size: 12px; line-height: 1.35; color: #3A3A3C">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5M12 7.8h.01"></path></svg>
+        <span>Safari gives a page no CPU load, temperature or battery: the frames and the busy time stand in for them. The numbers stay on this device.</span>
+      </div>
+    </div>
+    </sc-if>
+
   </div>
 </sc-if>
 
@@ -2589,7 +2726,10 @@ class Component extends DCLogic {
     asked: {}, askUndo: null,
     // Debug (RUN.md, T233): the window, the models chosen, the log of the session's calls.
     dbgFlag: false, dbgOpen: false, dbgTab: 'models', dbgFirst: { model: 'admitted', effort: 'medium', think: true }, dbgSecond: { on: false, model: 'sonnet', effort: 'low', think: true },
-    dbgLog: [], dbgRow: null, dbgMenu: null, dbgBusy: false, dbgFull: false, dbgCopied: null, dbgExport: null, dbgOutcome: {}, dbgSaved: {} };
+    dbgLog: [], dbgRow: null, dbgMenu: null, dbgBusy: false, dbgFull: false, dbgCopied: null, dbgExport: null, dbgOutcome: {}, dbgSaved: {},
+    // The app's log and Performance: the filter, the line open, the log cleared; the frames measured, the strip on the canvas.
+    dbgFilter: false, dbgLv: { error: true, warn: true, info: true, debug: true }, dbgSrc: { ai: true, api: true, canvas: true, app: true }, dbgLine: null, dbgCut: false,
+    dbgPerf: { live: false, left: 0, samples: [] }, dbgHud: false, dbgFlash: false };
   ink = null;
   timers = [];
   mid = 1;
@@ -2724,6 +2864,147 @@ class Component extends DCLogic {
     this.setState({ ...up, dbgLog: log });
   }
 
+  // Performance, on the device: frames and the main thread stand in for the CPU, which no browser gives a page; memory is
+  // estimated from what the app holds. The demo draws its numbers from the strokes on the sheet and a pan under way.
+  dbgStrokes(s) { let n = 0, pts = 0; Object.keys(s.strokes).forEach((k) => (s.strokes[k] || []).forEach((st) => { n++; pts += Math.round((st.d || '').length / 7); })); return { n, pts }; }
+  dbgSample(s) {
+    this.dbgSeed = ((this.dbgSeed || 7) * 1103515245 + 12345) % 2147483648;
+    const r = this.dbgSeed / 2147483648, load = this.dbgStrokes(s).n;
+    const ms = 8.5 + load * 0.9 + (s.panning ? 14 : 0) + r * 5 + (r > 0.97 ? 30 + load : 0);
+    return Math.round(ms * 10) / 10;
+  }
+  dbgPerfStart() {
+    const p = this.state.dbgPerf;
+    if (p.live && p.left > 0) return;
+    const seed = p.samples.length ? p.samples : Array.from({ length: 60 }, () => this.dbgSample(this.state));
+    this.setState({ dbgPerf: { live: true, left: 240, samples: seed } });
+    this.later(() => this.dbgPerfTick(), 500);
+  }
+  // The demo measures for two minutes after a tap and then pauses, so that a snapshot of the mockup settles.
+  dbgPerfTick() {
+    const p = this.state.dbgPerf;
+    if (!p.live) return;
+    if (p.left <= 1) return this.setState({ dbgPerf: { ...p, live: false, left: 0 } });
+    this.setState({ dbgPerf: { live: true, left: p.left - 1, samples: p.samples.slice(1).concat([this.dbgSample(this.state)]) } });
+    this.later(() => this.dbgPerfTick(), 500);
+  }
+  dbgPerfVals(s, PH) {
+    const p = s.dbgPerf, xs = p.samples.length ? p.samples : [9];
+    const sorted = xs.slice().sort((a, b) => a - b), q = (f) => sorted[Math.min(sorted.length - 1, Math.floor(f * sorted.length))];
+    const med = q(0.5), p95 = q(0.95), long = xs.filter((x) => x > 50).length, fps = Math.min(60, Math.round(1000 / Math.max(16.7, med)));
+    const ink = this.dbgStrokes(s), busy = Math.min(96, Math.round(9 + ink.n * 2.2 + (s.panning ? 25 : 0) + (med - 8.5) * 0.8));
+    const lag = Math.round((p95 - 16.7 > 0 ? p95 - 16.7 : 0.4) * 10) / 10;
+    const col = (ms) => ms <= 16.7 ? '#34C759' : ms <= 50 ? '#FF9F0A' : '#FF3B30';
+    const fg = (ms) => ms <= 16.7 ? '#248A3D' : ms <= 50 ? '#C93400' : '#D70015';
+    // The bars: the worst frame of each half-second, 66 ms at the top.
+    const bars = { g: '', o: '', r: '' };
+    xs.forEach((ms, i) => { const h = Math.max(2, Math.min(72, ms / 66 * 72)), k = ms <= 16.7 ? 'g' : ms <= 50 ? 'o' : 'r';
+      bars[k] += 'M' + (i * 6) + ' 72 v' + (-h).toFixed(1) + ' h5 v' + h.toFixed(1) + ' z '; });
+    const [vw, vh, dpr] = PH ? [390, 844, 3] : [1194, 834, 2], buf = vw * dpr * vh * dpr * 4 / 1048576;
+    const photo = s.captured ? 4032 * 3024 * 4 / 1048576 + 1568 * 1176 * 4 / 1048576 : 0, strokesMb = ink.pts * 24 / 1048576 + ink.n * 0.0008;
+    const mb = (x) => x < 0.1 ? '< 0.1 MB' : x.toFixed(1) + ' MB', total = buf * 3 + photo + strokesMb;
+    const shown = p.live ? 'Live' : 'Paused';
+    const snap = { at: '14:03:12', device: PH ? 'iPhone · Safari 19' : 'iPad · Safari 19', view: vw + '×' + vh + '@' + dpr,
+      frames: { fps, medianMs: med, p95Ms: p95, longFrames: long }, mainThread: { busyPct: busy, eventLoopDelayP95Ms: lag },
+      canvas: { strokes: ink.n, points: ink.pts, buffers: 3 }, memoryMb: { canvasBuffers: +(buf * 3).toFixed(1), photos: +photo.toFixed(1), strokes: +strokesMb.toFixed(2), estimated: +total.toFixed(1) } };
+    const card = (title, sub, rows, extra) => ({ title, sub, rows: rows.map((r, i) => ({ fg: '#1D1D1F', fw: 500, ...r, sep: i > 0 })), bar: false, barW: 0, barC: "", ...(extra || {}) });
+    return {
+      live: p.live, state: shown, dot: p.live ? '#34C759' : '#8E8E93', pulse: p.live ? 'nt-livedot' : '',
+      window: 'last 30 s · every 0.5 s', liveLabel: p.live ? 'Pause' : 'Resume',
+      toggleLive: () => p.live ? this.setState({ dbgPerf: { ...this.state.dbgPerf, live: false } }) : this.dbgPerfStart(),
+      copyLabel: s.dbgCopied === 'perf' ? 'Copied' : 'Copy',
+      copy: () => { try { navigator.clipboard.writeText(JSON.stringify(snap, null, 2)); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: 'perf' }); },
+      tiles: [{ k: 'Frames a second', v: String(fps), fg: fg(1000 / fps) }, { k: 'Frame · p95', v: p95.toFixed(0) + ' ms', fg: fg(p95) }, { k: 'Over 50 ms', v: String(long), fg: long ? '#D70015' : '#248A3D' }],
+      barsG: bars.g, barsO: bars.o, barsR: bars.r,
+      cards: [
+        card('Main thread', 'The share of time the page’s own code ran: the nearest a page gets to the CPU', [
+          { k: 'Busy', v: busy + '%', fg: busy > 70 ? '#D70015' : busy > 40 ? '#C93400' : '#1D1D1F', fw: 600 },
+          { k: 'Input waits · p95', v: lag + ' ms' },
+          { k: 'Longest task', v: Math.round(sorted[sorted.length - 1]) + ' ms' }], { bar: true, barW: busy, barC: col(busy > 70 ? 99 : busy > 40 ? 30 : 9) }),
+        card('Canvas', 'What the sheet holds and what a frame paints', [
+          { k: 'Strokes · points', v: dbgNum(ink.n) + ' · ' + dbgNum(ink.pts) },
+          { k: 'Painted by the last frame', v: s.live ? '1 stroke · 3% of the view' : 'nothing changed' },
+          { k: 'Paint · p95', v: (1.2 + ink.n * 0.35).toFixed(1) + ' ms' },
+          { k: 'Repaints of the whole view', v: String(4 + ink.n % 7) + ' · scroll, scale, undo' },
+          { k: 'Grid', v: s.grid === 'dots' ? 'dots · one tile' : s.grid } ]),
+        card('Memory · estimated', 'From what the app holds; the browser gives no total', [
+          { k: 'Canvas buffers', v: '3 × ' + vw * dpr + '×' + vh * dpr + ' · ' + mb(buf * 3) },
+          { k: 'Photos, decoded', v: s.captured ? '1 page · ' + mb(photo) : 'none' },
+          { k: 'Strokes', v: mb(strokesMb) },
+          { k: 'JavaScript heap', v: 'not given by Safari', fg: '#6E6E73' },
+          { k: 'In all, about', v: mb(total), fw: 600 } ]),
+        card('Device', '', [
+          { k: 'Browser', v: PH ? 'Safari 19 · iOS' : 'Safari 19 · iPadOS' },
+          { k: 'View', v: vw + ' × ' + vh + ' @' + dpr + 'x' },
+          { k: 'Cores, as reported', v: '8' },
+          { k: 'CPU load, heat, battery', v: 'not given to a page', fg: '#6E6E73' } ])],
+      hudOn: s.dbgHud, hudSw: { bg: s.dbgHud ? '#34C759' : 'rgba(120,120,128,0.24)', x: s.dbgHud ? 20 : 2 },
+      toggleHud: () => { this.setState({ dbgHud: !this.state.dbgHud }); if (!this.state.dbgHud) this.dbgPerfStart(); },
+      flashOn: s.dbgFlash, flashSw: { bg: s.dbgFlash ? '#34C759' : 'rgba(120,120,128,0.24)', x: s.dbgFlash ? 20 : 2 },
+      toggleFlash: () => this.setState({ dbgFlash: !this.state.dbgFlash }),
+      hud: { text: fps + ' fps · ' + p95.toFixed(0) + ' ms · busy ' + busy + '% · ≈ ' + Math.round(total) + ' MB', dot: col(p95), x: PH ? 16 : 84 }
+    };
+  }
+
+  // The app's log: what the app, api and the canvas said, the errors and the warnings, and the AI's calls among them, newest
+  // first. The lines are synthetic; a line of api carries the trace that finds it in the server's logs.
+  dbgLines(s) {
+    const seed = s.dbgCut ? [] : [
+      { id: 'l1', at: '14:01:58', lv: 'info', src: 'app', text: 'Started · app 0.1.54 · api 0.1.81', detail: 'build: e23fix · 6685ba5\napi: http://127.0.0.1:8080\nuser agent: Safari 19 · iPadOS 19\nview: 1194 × 834 @2x' },
+      { id: 'l2', at: '14:01:59', lv: 'debug', src: 'app', text: 'Profile opened · owner · paper flow', detail: 'profile: owner\nhint mode: where\ndebug right: yes' },
+      { id: 'l3', at: '14:02:04', lv: 'info', src: 'camera', text: 'Photo 4032 × 3024 · fitted to 1568 × 1176 · 1.9 MB', detail: 'source: camera\nfitted: 1568 × 1176, 28 px patches\nJPEG: 1.9 MB' },
+      { id: 'l4', at: '14:02:31', lv: 'warn', src: 'canvas', text: 'Long frame · 61 ms while panning', detail: 'frame: 61 ms\nstrokes in view: 214\nrepaint: the whole view\nreason: scroll' },
+      { id: 'l5', at: '14:02:33', lv: 'error', src: 'api', text: 'PaperService/SubmitWork · invalid_argument · the crop is 4.6 MiB, over 4 MiB', detail: 'code: invalid_argument\nrequest: 4.6 MiB\ntook: 0.2 s\ntrace: 7f3a91c0e2b84d55\nshown: “This version of the app doesn’t know this yet”' },
+      { id: 'l6', at: '14:02:40', lv: 'error', src: 'app', text: 'TypeError: undefined is not an object (evaluating \'box.x\')', detail: 'uncaught, in a promise\nat cropFitted (src/paper/photo.ts:88:14)\nat croppedPng (src/paper/capture.ts:41:9)\nat check (src/paper/Solve.tsx:612:22)' },
+      { id: 'l7', at: '14:02:41', lv: 'debug', src: 'canvas', text: 'Probe · 3 strokes filled in the frame · 2% of the view', detail: 'fills: 3\nrect: 312 × 96 px\nbuffer: #under taken at the stroke’s first frame' }];
+    const rpc = s.dbgLog.map((g, i) => {
+      const took = g.calls.reduce((a, c) => a + c.took, 0), name = g.check ? 'PaperService/SubmitWork' : 'PaperService/FindTasks';
+      return { id: 'r' + g.id, at: g.at, lv: 'info', src: 'api', text: name + ' · ok · ' + took.toFixed(1) + ' s', detail: 'code: ok\ntook: ' + took.toFixed(1) + ' s\ncalls of the AI: ' + g.calls.filter((c) => c.ai !== false).length + '\ntrace: ' + (0x5a17c3e9 + i * 7919).toString(16) + 'b02d6e41' };
+    });
+    return seed.concat(rpc);
+  }
+  dbgLogVals(s, groups) {
+    const LV = { error: { name: 'Errors', bg: 'rgba(255,59,48,0.14)', fg: '#D70015', mark: '!' }, warn: { name: 'Warnings', bg: 'rgba(255,159,10,0.16)', fg: '#C93400', mark: '!' },
+      info: { name: 'Info', bg: 'rgba(0,113,227,0.10)', fg: '#0071E3', mark: 'i' }, debug: { name: 'Debug', bg: 'rgba(118,118,128,0.14)', fg: '#6E6E73', mark: '·' } };
+    const SRC = { ai: 'AI calls', api: 'Server · api', canvas: 'Canvas', camera: 'Camera', app: 'App' };
+    const srcOf = (x) => x === 'camera' ? 'app' : x;
+    const lines = this.dbgLines(s), lvOn = s.dbgLv, srcOn = s.dbgSrc;
+    const items = lines.map((l, i) => ({ t: l.at, o: 1, l, i })).concat(groups.map((g, i) => ({ t: g.at, o: 0, g, i })))
+      .sort((a, b) => a.t < b.t ? 1 : a.t > b.t ? -1 : a.o - b.o);
+    const keep = items.filter((x) => x.g ? srcOn.ai && lvOn.info : srcOn[srcOf(x.l.src)] && lvOn[x.l.lv]);
+    const blocks = [];
+    keep.forEach((x) => {
+      if (x.g) return blocks.push({ ...x.g, isAi: true, isLines: false });
+      const l = x.l, on = s.dbgLine === l.id, v = LV[l.lv];
+      const row = { ...l, open: on, rot: on ? 90 : 0, mark: v.mark, bg: v.bg, fg: v.fg, textFg: l.lv === 'error' ? '#D70015' : '#1D1D1F', srcName: SRC[l.src],
+        copyLabel: s.dbgCopied === l.id ? 'Copied' : 'Copy',
+        toggle: () => this.setState({ dbgLine: this.state.dbgLine === l.id ? null : l.id }),
+        copy: () => { try { navigator.clipboard.writeText(l.at + ' ' + l.lv + ' ' + l.src + ' ' + l.text + '\n' + l.detail); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: l.id }); } };
+      const last = blocks[blocks.length - 1];
+      if (last && last.isLines) last.lines.push({ ...row, sep: true });
+      else blocks.push({ id: 'b' + l.id, isAi: false, isLines: true, lines: [{ ...row, sep: false }] });
+    });
+    const count = (f) => lines.filter(f).length + (f({ lv: 'info', src: 'ai' }) ? groups.length : 0);
+    const nLv = Object.keys(LV).filter((k) => lvOn[k]).length, nSrc = Object.keys(srcOn).filter((k) => srcOn[k]).length;
+    const errN = lines.filter((l) => l.lv === 'error').length, onlyErr = nLv === 1 && lvOn.error && nSrc === 4;
+    const all = lines.length + groups.length;
+    const flip = (key, k) => this.setState({ [key]: { ...this.state[key], [k]: !this.state[key][k] } });
+    return {
+      blocks, logEmpty: !all, nothingShown: !!all && !blocks.length,
+      shown: keep.length === all ? all + ' entries' : keep.length + ' of ' + all + ' entries',
+      filterLabel: nLv === 4 && nSrc === 4 ? 'All' : onlyErr ? 'Errors' : 'Filtered', filterOpen: s.dbgFilter,
+      toggleFilter: () => this.setState({ dbgFilter: !this.state.dbgFilter, dbgMenu: null }),
+      errN: errN > 0 && !onlyErr, errLabel: errN + (errN === 1 ? ' error' : ' errors'),
+      onlyErrors: () => this.setState({ dbgLv: { error: true, warn: false, info: false, debug: false }, dbgSrc: { ai: true, api: true, canvas: true, app: true }, dbgFilter: false }),
+      showAll: () => this.setState({ dbgLv: { error: true, warn: true, info: true, debug: true }, dbgSrc: { ai: true, api: true, canvas: true, app: true }, dbgFilter: false }),
+      levels: Object.keys(LV).map((k) => ({ name: LV[k].name, on: !!lvOn[k], n: String(count((l) => l.lv === k)), dot: LV[k].fg, pick: () => flip('dbgLv', k) })),
+      sources: Object.keys(srcOn).map((k) => ({ name: SRC[k], on: !!srcOn[k], n: String(k === 'ai' ? groups.length : lines.filter((l) => srcOf(l.src) === k).length), dot: '#8E8E93', pick: () => flip('dbgSrc', k) })),
+      errTab: errN,
+      allCopyLabel: s.dbgCopied === 'all' ? 'Copied' : 'Copy',
+      copyAll: () => { try { navigator.clipboard.writeText(keep.map((x) => x.g ? x.t + ' info ai ' + x.g.title + ' · ' + x.g.sum : x.t + ' ' + x.l.lv + ' ' + x.l.src + ' ' + x.l.text).join('\n')); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: 'all' }); }
+    };
+  }
+
   dbgVals(s, PH, isPick, isSolve) {
     const show = this.dbgOn() && s.screen === 'canvas' && (isPick || isSolve);
     const calls = [].concat(...s.dbgLog.map((g) => g.calls)), ai = calls.filter((c) => c.ai !== false);
@@ -2768,7 +3049,7 @@ class Component extends DCLogic {
           toggle: () => this.setState({ dbgRow: this.state.dbgRow === c.id ? null : c.id }),
           copy: () => { try { navigator.clipboard.writeText(c.json); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: c.id }); } };
       }) }));
-    const tab = s.dbgTab;
+    const tab = s.dbgTab, lg = this.dbgLogVals(s, groups);
     return { show, open, tip: 'Debug · ' + dbgUsd(total), mt: !PH ? -100 : -28, btnCls: 'ph-dbg-up', ring: s.dbgBusy ? 'nt-dring' : '',
       // While the tutor's panel is open the button is not there: the panel stands in its place.
       btn: { op: open || talk ? 0 : 1, sc: open || talk ? 0.6 : 1, vis: open || talk ? 'hidden' : 'visible' },
@@ -2778,11 +3059,12 @@ class Component extends DCLogic {
       head: dbgUsd(total) + ' · ' + ai.length + (ai.length === 1 ? ' call' : ' calls') + ' this session',
       toggle: () => this.setState({ dbgOpen: !this.state.dbgOpen, dbgMenu: null, chatOpen: false, tasksOpen: false, more: false }),
       close: () => this.setState({ dbgOpen: false, dbgMenu: null }),
-      tabs: [{ label: 'Models', id: 'models', hasN: false, n: '' }, { label: 'Log', id: 'log', hasN: ai.length > 0, n: String(ai.length) }].map((x) => ({ ...x, on: tab === x.id, ...seg(tab === x.id), pick: () => this.setState({ dbgTab: x.id, dbgMenu: null }) })),
-      isModels: tab === 'models', isLog: tab === 'log',
+      tabs: [{ label: 'Models', id: 'models', hasN: false, n: '', nbg: '' }, { label: 'Log', id: 'log', hasN: lg.errTab > 0, n: String(lg.errTab), nbg: '#FF3B30' }, { label: 'Performance', id: 'perf', hasN: false, n: '', nbg: '' }]
+        .map((x) => ({ ...x, on: tab === x.id, ...seg(tab === x.id), pick: () => { this.setState({ dbgTab: x.id, dbgMenu: null, dbgFilter: false }); if (x.id === 'perf') this.dbgPerfStart(); } })),
+      isModels: tab === 'models', isLog: tab === 'log', isPerf: tab === 'perf', pf: this.dbgPerfVals(s, PH), ...lg,
       slots: [slot('dbgFirst', 'First model — every call', 'Find tasks, the statement, the solution and reading the work'), slot('dbgSecond', 'Second model — reading the work', 'A second reader of the crop with the strokes')],
       admittedRows: Object.keys(DBG_CALLS).map((k) => ({ call: DBG_CALLS[k].name, model: DBG_CASCADE.map((a) => dbgModel(a.model).name.replace(' 5.5', '') + ' · ' + a.effort).join(' → ') })),
-      groups, empty: !groups.length, sum: dbgUsd(total), clear: () => this.setState({ dbgLog: [], dbgRow: null, dbgExport: null, dbgSaved: {} }) };
+      groups, empty: !groups.length, sum: dbgUsd(total), clear: () => this.setState({ dbgLog: [], dbgRow: null, dbgExport: null, dbgSaved: {}, dbgCut: true, dbgLine: null }) };
   }
 
   // ---- The tutor, Pip. It lives in the app, not in a canvas: the same button and panel on every canvas.

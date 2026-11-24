@@ -152,6 +152,10 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `pick-debug` | The page photographed by an account with the right of the debug mode: the debug button above the tutor's, and its window's Models — the first model for every call, a second to read the work | An account with the right alone |
 | `solve-debug-log` | A Check by an account with the right of the debug mode: the debug button above the tutor's, and its window's Log — each call, what the model returned, its cost, the session's total, and Export beside a Check; as admitted, the work read in two attempts, Haiku's unreadable and then Sonnet's, as each call asks the next model only when the one before did not do | An account with the right alone |
 | `solve-debug-export` | A Check of the Log exported: its truth — for each task of the frame its statement, formula, key, value read and verdict, and a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | An account with the right alone |
+| `solve-debug-errors` | The window's Log as the app's log: what the app, `api`, the canvas and the camera said, newest first, with the AI's calls among them; "2 errors" tapped, the errors alone — a refusal of `api` with its trace, an uncaught error of the app with its stack —, and the red count on the tab | An account with the right alone |
+| `solve-debug-filter` | The Log's filter: the levels — errors, warnings, info, debug — and the sources — the AI's calls, `api`, the canvas, the app —, each with its count, and "Show everything" | An account with the right alone |
+| `solve-debug-perf` | The window's Performance: the frames a second, the worst frame of each half-second over the last 30 s, the main thread's busy time, what the canvas holds and paints, memory estimated from what the app holds, the device, Pause and Copy, and the switches "Show on the canvas" and "Flash what is repainted" | An account with the right alone |
+| `solve-debug-hud` | "Show on the canvas" on and the window closed: a dark strip at the top left of the canvas with the frames, the busy time and the memory, which takes no touch | An account with the right alone |
 | `later-who` | "Who's learning?" with the children Comet and Juniper, four narrower cards | Later · E4 app |
 | `later-add` | "Add a learner": the steps of a parent's consent | Later · E4 app |
 | `later-pin` | The owner's profile behind the PIN | Later · E4 app |
@@ -169,27 +173,27 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 
 | Line and part | What it draws |
 |---|---|
-| `Main.dc.html:406` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
-| `Main.dc.html:470` — Camera | The camera's viewfinder |
-| `Main.dc.html:512` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the frame being dragged |
-| `Main.dc.html:555` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
-| `Main.dc.html:580` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
-| `Main.dc.html:636` — Author canvases | The sandbox's chip |
-| `Main.dc.html:644` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
-| `Main.dc.html:687` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›; on the page to pick from what was found in the middle, "Remove all frames" and Retake; the solving mode |
-| `Main.dc.html:779` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
-| `Main.dc.html:809` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, Zoom in and Zoom out, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
-| `Main.dc.html:853` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
-| `Main.dc.html:1100` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:1264` — Pick | What left the device, the cards of what the page says, Select all, Start |
-| `Main.dc.html:1300` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1377` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models and Log |
-| `Main.dc.html:1558` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1684` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:1748` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:1845` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
-| `Main.dc.html:2264` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2282` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:408` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
+| `Main.dc.html:472` — Camera | The camera's viewfinder |
+| `Main.dc.html:514` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the frame being dragged |
+| `Main.dc.html:557` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
+| `Main.dc.html:582` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
+| `Main.dc.html:638` — Author canvases | The sandbox's chip |
+| `Main.dc.html:646` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
+| `Main.dc.html:689` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›; on the page to pick from what was found in the middle, "Remove all frames" and Retake; the solving mode |
+| `Main.dc.html:781` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
+| `Main.dc.html:811` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, Eraser, Hand, Undo, Clear, Zoom in and Zoom out, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
+| `Main.dc.html:855` — The tutor | The tutor's button at the right edge and its panel: the head with the quota and the speaker, the steps, the conversation, Hint and "Explain differently", Pip's field and microphone |
+| `Main.dc.html:1102` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:1266` — Pick | What left the device, the cards of what the page says, Select all, Start |
+| `Main.dc.html:1302` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1379` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
+| `Main.dc.html:1695` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1821` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:1885` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:1982` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map, the tutor's panel |
+| `Main.dc.html:2401` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2419` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -350,3 +354,4 @@ The mockup is the look; the documents keep the behaviour. What the mockup shows 
 | The demo's switch "First slice" / "Later", and the DEMO "Tutor time used up" | Not part of the app | Nobody: the mockup's own |
 | On the page to pick from and the solving screen of a task from paper, the tutor's button at the right edge and the debug button above it | Both stand in the bottom bar, by the author's variant 1b, `draft/Knopki-v-nizhnej-paneli-1b.html`: on the page to pick from, the tutor's icon and the debug button before the selection and Start; on the solving screen, the debug button and the tutor's "Ask" before Hint and Check, "Ask" its icon alone where the row does not fit with its words; the right edge free | `spec`: the mockup; `app` draws it already |
 | The debug button and its window: the models chosen past the admission list, what each returned, the cost in dollars, and a Check exported as a case of `tutor-eval`; the button has no caption, outside the closed list | Only for an account with the right of the debug mode, on a local run and on the deployment | `spec`, `tutor`, `api`, `app` |
+| The debug window's Log of the app — its lines, levels and sources, the filter, Copy —, and its Performance — frames, the main thread, the canvas, memory estimated, the strip on the canvas, the flash of what is repainted | The documents name neither: the debug window has the models and the AI's calls alone | `app` and `canvas`, once the author has taken the look |

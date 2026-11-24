@@ -288,6 +288,34 @@ export const STATES = [
     shows: "Save case",
     run: (t) => t.v().dbg.groups[0].toggleExport(),
   },
+  {
+    name: "solve-debug-errors",
+    title: "Debug on a local run: the Log of the app, its errors alone",
+    from: "solve-debug-log",
+    shows: "invalid_argument",
+    run: (t) => t.v().dbg.onlyErrors(),
+  },
+  {
+    name: "solve-debug-filter",
+    title: "Debug on a local run: the filter of the Log, by level and source",
+    from: "solve-debug-log",
+    shows: "Show everything",
+    run: (t) => t.v().dbg.toggleFilter(),
+  },
+  {
+    name: "solve-debug-perf",
+    title: "Debug on a local run: Performance — the frames, the main thread, the canvas, memory",
+    from: "solve-debug-log",
+    shows: "Frames a second",
+    run: (t) => t.v().dbg.tabs[2].pick(),
+  },
+  {
+    name: "solve-debug-hud",
+    title: "Debug on a local run: Performance as a strip on the canvas, the window closed",
+    from: "solve-debug-perf",
+    shows: "fps",
+    run: (t) => (t.v().dbg.pf.toggleHud(), t.v().dbg.close()),
+  },
 
   // What comes later — the children and the canvases of other authors — under "Later".
   { name: "later-who", title: "Later: Who's learning?, with the children", slice: "later", from: "who", shows: "Juniper", run: (t) => t.v().sliceLater() },
