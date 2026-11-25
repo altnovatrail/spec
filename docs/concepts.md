@@ -222,6 +222,7 @@ The **canvas** is the workplace of a task: what the learner sees and where they 
 - the crop lies over the sheet as **tracing paper**, in place of the author's template: the learner moves it, hides it and writes on it as on the sheet, and does not erase it. Recognise on it has the AI read the statement as printed, `statement_reading`, and the paper shows the text in place of the photo until Original; the Check does not take that reading, it sees the crop itself;
 - the work is the crop with the strokes on it and the sheet's strokes;
 - the sheet is in dots as the task comes, and the learner turns its grid on the task's screen — dots, lines, blank, squares; the canvases of other authors come with epic E5.
+- the task stays open on its sheet, solved or not, and when its page is opened again: the first action on a task whose attempt has closed begins a new attempt of it.
 
 **Canvas kinds.** Each is code of the platform, shared by all modules:
 
