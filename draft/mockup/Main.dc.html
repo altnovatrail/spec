@@ -4535,15 +4535,17 @@ class Component extends DCLogic {
     }));
     const c = this.ctx();
     const st = isSolve ? s.status[c.key] : isTask ? s.tstat[c.key] : null;
-    // The tutor's buttons: Hint, and "Explain differently" once there is a rung to word anew (R82).
+    // The tutor's buttons: Hint, and "Explain differently" once there is a rung to word anew (R82). Hint stands in the panel on a
+    // phone alone: on a wider screen the row's Hint beside Check stays in sight beside the panel, and a second would only repeat it.
+    const rowHint = !this.phone();
     const hinted = isTask ? !!s.wrongs[c.key] && s.altAt[c.key] !== Math.min(s.wrongs[c.key], 3) && !g.rubric : !!s.hinted[c.key] || st === 'wrong';
     const act = (label, go, off, bulb) => ({ label, go, off, bulb, bg: off ? 'rgba(118,118,128,0.08)' : 'rgba(255,255,255,0.9)', fg: off ? '#6E6E73' : '#0071E3' });
     const kit = this.tutorKit(s);
     const acts = kit.ctx.home ? [act('Continue · Number patterns', () => this.openLesson('Olympiad maths 1–6'), false, false), act('Take from my paper', this.openCamera, false, false)]
       : isPick ? (s.askUndo && s.askUndo.d === s.captured ? [act('Undo', this.undoAsk, false, false)] : [])
-      : isTask ? (this.ended() ? [] : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.lesAlt(), !hinted, false)])
+      : isTask ? (this.ended() ? [] : [...(rowHint ? [] : [act('Hint', this.askHint, false, true)]), act('Explain differently', () => this.lesAlt(), !hinted, false)])
       : pOver ? [act('Next task', () => this.next(), false, false)]
-      : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.reply('alt'), !hinted, false)];
+      : [...(rowHint ? [] : [act('Hint', this.askHint, false, true)]), act('Explain differently', () => this.reply('alt'), !hinted, false)];
     const pip = this.isPip(s), later = s.slice === 'later';
     const status = s.listening ? { text: 'Listening…', fg: '#0071E3', bars: true }
       : s.drawing || (s.typing && s.grown != null && s.grown === kit.ctx.key) ? { text: 'Writing on the sheet…', fg: '#0071E3', bars: true }
