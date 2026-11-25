@@ -246,6 +246,16 @@ export declare type ConnectedModule = Message<"novatrail.api.v1.ConnectedModule"
    * @generated from field: string package_digest = 3;
    */
   packageDigest: string;
+
+  /**
+   * The module is solved on the sheet of a task from paper: `app` opens its tasks there, by
+   * `PaperService.BeginPaperAttempts` with its ID, each checked by a model as a task from paper is
+   * and none evidence of the learner model; the engine chooses none of them. `api` names such
+   * modules; none is a field of the module format.
+   *
+   * @generated from field: bool on_sheet = 4;
+   */
+  onSheet: boolean;
 };
 
 /**

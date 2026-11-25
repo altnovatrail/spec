@@ -480,6 +480,11 @@ type ConnectedModule struct {
 	// digest there is no manifest to name the module by: `app` names it by the title of a manifest
 	// it keeps of an earlier version, or else by its ID.
 	PackageDigest string `protobuf:"bytes,3,opt,name=package_digest,json=packageDigest,proto3" json:"package_digest,omitempty"`
+	// The module is solved on the sheet of a task from paper: `app` opens its tasks there, by
+	// `PaperService.BeginPaperAttempts` with its ID, each checked by a model as a task from paper is
+	// and none evidence of the learner model; the engine chooses none of them. `api` names such
+	// modules; none is a field of the module format.
+	OnSheet       bool `protobuf:"varint,4,opt,name=on_sheet,json=onSheet,proto3" json:"on_sheet,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -535,6 +540,13 @@ func (x *ConnectedModule) GetPackageDigest() string {
 	return ""
 }
 
+func (x *ConnectedModule) GetOnSheet() bool {
+	if x != nil {
+		return x.OnSheet
+	}
+	return false
+}
+
 var File_novatrail_api_v1_module_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_module_proto_rawDesc = "" +
@@ -564,11 +576,12 @@ const file_novatrail_api_v1_module_proto_rawDesc = "" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\"[\n" +
 	"\x1cListConnectedModulesResponse\x12;\n" +
-	"\amodules\x18\x01 \x03(\v2!.novatrail.api.v1.ConnectedModuleR\amodules\"\x94\x01\n" +
+	"\amodules\x18\x01 \x03(\v2!.novatrail.api.v1.ConnectedModuleR\amodules\"\xaf\x01\n" +
 	"\x0fConnectedModule\x12\x1b\n" +
 	"\tmodule_id\x18\x01 \x01(\tR\bmoduleId\x12=\n" +
 	"\fconnected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vconnectedAt\x12%\n" +
-	"\x0epackage_digest\x18\x03 \x01(\tR\rpackageDigest2\xaf\x03\n" +
+	"\x0epackage_digest\x18\x03 \x01(\tR\rpackageDigest\x12\x19\n" +
+	"\bon_sheet\x18\x04 \x01(\bR\aonSheet2\xaf\x03\n" +
 	"\rModuleService\x12Z\n" +
 	"\vListCatalog\x12$.novatrail.api.v1.ListCatalogRequest\x1a%.novatrail.api.v1.ListCatalogResponse\x12`\n" +
 	"\rConnectModule\x12&.novatrail.api.v1.ConnectModuleRequest\x1a'.novatrail.api.v1.ConnectModuleResponse\x12i\n" +

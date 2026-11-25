@@ -71,10 +71,15 @@ type PaperServiceClient interface {
 	// Begins the attempts of the tasks picked on a page, one for each, in the order of the tasks. It
 	// closes the open attempts of tasks from paper that the profile has on another page,
 	// `CLOSE_REASON_LEFT`, and none of the same page, and leaves the open attempt of a task of a
-	// module as it is. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
-	// platform AI, as `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-	// the same attempts.
+	// module as it is. With `module_id`, the page is a module solved on the sheet
+	// (`ConnectedModule.on_sheet`): its tasks are those of the package of the module's current
+	// version, in its order, at most 20, and the answer gives the open view of each, which `app`
+	// draws as the statement in place of a crop. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and
+	// `CAUSE_NOT_ADMITTED`, on platform AI, as `LearningService.BeginAttempt` meets them;
+	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; with
+	// `module_id`, `CAUSE_NOT_FOUND`, a module not connected to the profile, and
+	// `CAUSE_NO_CURRENT_VERSION`, one with no current version for the learner. A repeat with the same
+	// idempotency key gets the same attempts.
 	BeginPaperAttempts(context.Context, *v1.BeginPaperAttemptsRequest) (*v1.BeginPaperAttemptsResponse, error)
 }
 
@@ -102,10 +107,15 @@ type PaperServiceHandler interface {
 	// Begins the attempts of the tasks picked on a page, one for each, in the order of the tasks. It
 	// closes the open attempts of tasks from paper that the profile has on another page,
 	// `CLOSE_REASON_LEFT`, and none of the same page, and leaves the open attempt of a task of a
-	// module as it is. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
-	// platform AI, as `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-	// the same attempts.
+	// module as it is. With `module_id`, the page is a module solved on the sheet
+	// (`ConnectedModule.on_sheet`): its tasks are those of the package of the module's current
+	// version, in its order, at most 20, and the answer gives the open view of each, which `app`
+	// draws as the statement in place of a crop. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and
+	// `CAUSE_NOT_ADMITTED`, on platform AI, as `LearningService.BeginAttempt` meets them;
+	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; with
+	// `module_id`, `CAUSE_NOT_FOUND`, a module not connected to the profile, and
+	// `CAUSE_NO_CURRENT_VERSION`, one with no current version for the learner. A repeat with the same
+	// idempotency key gets the same attempts.
 	BeginPaperAttempts(context.Context, *v1.BeginPaperAttemptsRequest) (*v1.BeginPaperAttemptsResponse, error)
 }
 

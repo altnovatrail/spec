@@ -3316,8 +3316,8 @@ class Component extends DCLogic {
       mic: !pip || st.micOn,
       // Both wait while today's tutor time is used up.
       off: out,
-      // Grown-up mode, behind the grown-ups' PIN: on a task from paper, where the field takes a question.
-      grown: !c.home && !c.page && st.surface === 'paper' && st.captured !== 'sheet',
+      // Grown-up mode, behind the grown-ups' PIN: on a task from paper and of the check board, where the field takes a question.
+      grown: !c.home && !c.page && st.surface === 'paper',
       label: c.page ? 'Which tasks to take, and how to split them' : c.home ? 'Message to the tutor' : pip ? 'Message to Pip' : 'Question about this task',
       placeholder: out ? 'Today’s tutor time is used up' : st.grown === c.key ? 'Ask for anything, up to the full solution…' : c.page ? 'Say which tasks to take…' : c.home ? 'Ask the tutor…' : pip ? 'Ask Pip…' : 'Ask about this task…',
     };

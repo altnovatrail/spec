@@ -343,7 +343,6 @@ The mockup is the look; the documents keep the behaviour. What the mockup shows 
 
 | The mockup | The documents | Who changes it |
 |---|---|---|
-| A task of the check board "Tasks on a sheet", the states `board`: on the sheet of a task from paper, its statement the module’s text as tracing paper, the counter of the module’s tasks, the row Hint · Check, and no grown-up mode | A module’s task has the lesson’s screen: the statement is `app`’s card above the module’s canvas, whose kind the module sets, and the row has "Show the solution" | `spec`, epic E24, once the author approves the look |
 | The sheet is three screens wide, whatever is written | The sheet goes past the task's page as far as the ink and the tracing paper and one view more, within 10000 × 14000 units | — : the mockup's width is a convenience of the drawing |
 | The grid of a task from paper stays as turned while the mockup runs | `app` keeps it in its solving screen's state across the tasks of one visit, and a reload or a new visit brings back dots | — |
 | Caveat and Inter | The system font of `app` | `app`, `canvas`: they keep the system font |
