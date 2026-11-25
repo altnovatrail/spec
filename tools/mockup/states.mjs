@@ -204,6 +204,8 @@ export const STATES = [
     run: (t) => (t.v().openChat(), t.c.setState({ draft: "Take only the left column, each example as its own task" })),
   },
   { name: "pick-asked", title: "The frames found anew by the request, and Undo", from: "pick-ask", shows: "Found 3 tasks", run: (t) => t.v().send() },
+  { name: "pick-asking", title: "A request about the page sent, its frames awaited: Stop in place of Send", from: "pick-ask", shows: "Finding the tasks", settle: false, run: (t) => t.v().send() },
+  { name: "pick-stopped", title: "Stopped: the request back in the field, the frames as they were", from: "pick-ask", shows: "Stopped: your question is back in the field", settle: false, run: (t) => (t.v().send(), t.v().stop()) },
   // The AI found no task on the page: the answer of the finding set empty, as Play has no page without tasks.
   { name: "pick-none", title: "No task found on the page: a card above the bar", from: "pick", shows: "No tasks found.", run: (t) => t.c.setState({ asked: { ...t.c.state.asked, [t.c.state.captured]: [] }, selected: [] }) },
   // What else the page says, each a card above the bar: Play has no tap of corners, no failure of the

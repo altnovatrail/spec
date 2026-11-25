@@ -124,6 +124,8 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `pick-frame` | A task the AI missed, framed by hand: the rectangle dragged round it became a frame, with its cross and its corner | First slice |
 | `pick-ask` | The tutor's panel on the page to pick from: its line on what it takes, the field with a request about the frames typed, and the microphone | First slice |
 | `pick-asked` | The request sent: the left column's three equations found anew and picked, the learner's request and the program's line "Found 3 tasks" in the conversation, and Undo | First slice |
+| `pick-asking` | The request sent and its frames awaited: "Finding the tasks…" in the conversation, and in the field Stop, a white square on black, in place of Send | First slice |
+| `pick-stopped` | Stop pressed: the finding called off, the frames as they were, the request gone from the conversation and back in the field, and under it "Stopped: your question is back in the field — change it and send it again." | First slice |
 | `pick-none` | The AI found no task on the page: a card of cool white of its own just above the bar, which keeps its size — a dashed blue ring round a frame dragged from its corner, "No tasks found." and that a frame can be dragged round each task to solve —, the note lifted above it, Select all and Start shut | First slice |
 | `pick-corner` | A corner of a frame tapped: the card above the bar in cool white, its dashed ring round two opposite corners, "Now tap the opposite corner of the task." | First slice |
 | `pick-failed` | The finding failed: the card in a red tint, a red disc with "!", "No connection." and "Find the tasks again" at its end | First slice |
