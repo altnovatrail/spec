@@ -2150,3 +2150,25 @@ How Codecov counts the coverage of a patch, which `tools/patchcov/` repeats, rea
   - [`libs/shared/shared/utils/merge.py`](https://github.com/codecov/umbrella/blob/29a7ceec/libs/shared/shared/utils/merge.py), 2025-05-15: `branch_type` — "0 = hit", "1 = miss", "2 = partial"; `LineType.hit if b1 == b2 else LineType.miss if b1 == "0" else LineType.partial`.
 - **The fixes of Go.** [codecov/codecov-cli](https://github.com/codecov/codecov-cli/blob/2f5121284e3c7c3c2b691a09cb0ea135d226f112/codecov_cli/services/upload/upload_collector.py) at `v11.3.2`, `_produce_file_fixes`: for `"*.go"`, the lines that match `^\s*$`, `^\s*\/\/.*$`, `^\s*[\{\}]\s*(\/\/.*)?$` and `^\s*func\s*[\{]\s*(\/\/.*)?$`, and with a reason `^\s*(\/\*|\*\/)\s*$`, are sent as fixes, which the service leaves out — umbrella's `fixes.py`, commit `7d10dc30`, 2024-09-11, with the lines between a block's start and its stop —; TypeScript has none.
 - **The check.** Checked by `tools/patchcov/` against `codecov/patch` of five pull requests, by the reports of their artifacts: `app` #106 at `48183751`, 84.65%, and at `4698f4a3`, 94.58% — 1381 hits, 1 miss, 78 partials —; `api` #135, 97.03%; `tutor` #209, 94.26%, which takes the fixes of Go; `module-kit` #95, 98.76%.
+
+## 5. The models of a task from paper
+
+What a run of the models on a call of a task from paper showed, before the call's eval set measures it: the sheet, the request, each model and its effort, the time, the tokens and the cost.
+
+### 5.1. The drawing of grown-up mode, 2026-11-24
+
+A probe of the drawing before its prompt, outside the repositories: one system prompt, one tool `draw` with `tool_choice` `auto`, called by `curl` on the Messages API of Anthropic with the developer key. The tool took marks — an SVG path, a polyline, an ellipse, or a line of text that the probe's program drew in a hand — in the sheet's units, the ids to erase, and `say`, the words to the grown-up; the contract's act is ready strokes instead. The model got the picture of the sheet, 1200 × 900 units at 1 pixel to a unit, 4 units to a millimetre, and its strokes as JSON, each its id, who drew it and its points, thinned to at most 30 and rounded to whole units, with no time and no pressure. The sheet is synthetic, drawn by the probe's code as a learner's hand would: the axes with their ticks and labels and the graph of x·sin x + 1 from 0 to 3.5, 26 strokes.
+- **Step 1**, the integral of the function from 0 to π, its solution written on the sheet: 4156 input tokens. Opus 5.5 at `high`, the probe's default, wrote the solution by parts and the answer 2π ≈ 6.28, correct, for $0.05; Haiku 5.5 at `high`, the same answer, correct, in 12 s for $0.002.
+- **Step 2**, the area of that integral hatched on a 2 mm grid, the sheet holding Opus's solution of step 1 as 7 marks of the tutor beside the 26 strokes: 4733 input tokens.
+
+  | Model · effort | `max_tokens` | Time | Output tokens | Cost | The drawing |
+  |---|---|---|---|---|---|
+  | Opus 5.5 · `high` | 32000 | 56 s | 6824 | $0.15 | precise: the grid ends on the curve and at x = π |
+  | Sonnet 5.5 · `high` | 32000 | 35 s | 5369 | $0.06 | precise |
+  | Haiku 5.5 · `high` | 32000 | — | 32000, all thinking | — | none: the answer stopped at `max_tokens` with no call of the tool |
+  | Haiku 5.5 · `high` | 64000 | 177 s | 44142 | $0.023 | precise |
+  | Haiku 5.5 · `medium` | 64000 | 102 s | 25218 | $0.013 | precise |
+  | Haiku 5.5 · `low` | 64000 | 24 s | 5900 | $0.003 | vertical lines alone, no grid |
+
+- **The words.** Every model called the tool once and said what it did in the language of the request, Russian, in the first person: Haiku at `high` in the feminine, the others in the masculine.
+- **Not measured.** One sheet and one request of each step, one run of each, with no eval set: no share of acts gone wrong, and no other kind of act — writing over a line, striking out, erasing — beyond the solution of step 1.

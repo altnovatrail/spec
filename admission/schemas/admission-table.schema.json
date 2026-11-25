@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/admission/0.6/admission-table.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/admission/0.7/admission-table.schema.json",
   "title": "Admission table",
   "description": "The rules of admission to AI by age category: the AI providers, the dictionary of deployment facts, the rule of each capability of AI for each age category, and the cell of each provider, AI route and age category. What the table does not name is closed.",
   "type": "object",
@@ -123,9 +123,10 @@
         "voice",
         "task_finding",
         "statement_reading",
-        "task_checking"
+        "task_checking",
+        "drawing"
       ],
-      "description": "A capability of AI: reading handwriting, reading text, the analysis of a solution's steps, the assessment by a rubric, the hint, the words after a correct answer — the praise of a step and the question of which technique helped —, voice — the voicing of the tutor by a provider and the learner's voice input, which are one capability for now —, and for a task from paper the finding of the tasks on the photo of a page, the reading of a task's statement for \"Recognise\", and the Check, in which a model judges the learner's work."
+      "description": "A capability of AI: reading handwriting, reading text, the analysis of a solution's steps, the assessment by a rubric, the hint, the words after a correct answer — the praise of a step and the question of which technique helped —, voice — the voicing of the tutor by a provider and the learner's voice input, which are one capability for now —, and for a task from paper the finding of the tasks on the photo of a page, the reading of a task's statement for \"Recognise\", the Check, in which a model judges the learner's work, and the drawing of grown-up mode, in which a model with none of the tutor's limits acts on the sheet as a grown-up asks."
     },
     "citation": {
       "type": "string",

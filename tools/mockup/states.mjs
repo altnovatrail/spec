@@ -39,6 +39,27 @@ function toWork(t) {
   t.les().stepDone();
 }
 
+// Two lines of a solution on the sheet, written by the demo's hand: synthetic, no learner's work.
+function written(t) {
+  const ph = t.c.phone(), x = ph ? 96 : 370, y = ph ? 230 : 250, H = ph ? 30 : 44;
+  const lines = t.c.hand("2x + 5 = 20", x, y, H).concat(t.c.hand("2x = 15", x, y + H * 1.6, H));
+  t.c.setState({ strokes: { ...t.c.state.strokes, [t.c.inkKey()]: lines } });
+}
+function boxOf(list) {
+  const bs = list.map((st) => st.bb);
+  return [Math.min(...bs.map((b) => b[0])), Math.min(...bs.map((b) => b[1])), Math.max(...bs.map((b) => b[2])), Math.max(...bs.map((b) => b[3]))];
+}
+// A lasso round the second line, a little uneven, as a hand draws it.
+function ring(t) {
+  const ph = t.c.phone(), H = ph ? 30 : 44, list = t.c.state.strokes[t.c.inkKey()] || [];
+  const b = boxOf(list.filter((st) => st.bb[1] > (ph ? 230 : 250) + H * 1.3));
+  const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2, rx = (b[2] - b[0]) / 2 + 26, ry = (b[3] - b[1]) / 2 + 22;
+  return Array.from({ length: 32 }, (_, i) => {
+    const a = (i / 32) * 2 * Math.PI, w = 1 + 0.05 * Math.sin(3 * i);
+    return [cx + rx * w * Math.cos(a), cy + ry * w * Math.sin(a)];
+  });
+}
+
 const lesson = (name) => (t) => t.c.openLesson(name);
 const cont = (t) => t.les().cont();
 
@@ -183,6 +204,8 @@ export const STATES = [
     run: (t) => (t.v().openChat(), t.c.setState({ draft: "Take only the left column, each example as its own task" })),
   },
   { name: "pick-asked", title: "The frames found anew by the request, and Undo", from: "pick-ask", shows: "Found 3 tasks", run: (t) => t.v().send() },
+  { name: "pick-asking", title: "A request about the page sent, its frames awaited: Stop in place of Send", from: "pick-ask", shows: "Finding the tasks", settle: false, run: (t) => t.v().send() },
+  { name: "pick-stopped", title: "Stopped: the request back in the field, the frames as they were", from: "pick-ask", shows: "Stopped: your question is back in the field", settle: false, run: (t) => (t.v().send(), t.v().stop()) },
   // The AI found no task on the page: the answer of the finding set empty, as Play has no page without tasks.
   { name: "pick-none", title: "No task found on the page: a card above the bar", from: "pick", shows: "No tasks found.", run: (t) => t.c.setState({ asked: { ...t.c.state.asked, [t.c.state.captured]: [] }, selected: [] }) },
   // What else the page says, each a card above the bar: Play has no tap of corners, no failure of the
@@ -203,6 +226,18 @@ export const STATES = [
     },
   },
   { name: "solve-hand", title: "Hand: the sheet moved right of the page", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink("M420 420 C500 380 580 460 660 420 M690 430 l60 -20"), t.c.setState({ tool: "hand" }), t.c.setView(1, 240, 0)) },
+  // Select: a lasso or a rectangle takes the strokes of the layer it began on that it holds almost wholly, to move, copy or delete.
+  { name: "solve-select-modes", title: "Select tapped again: its shapes, Lasso and Rectangle", from: "solve", shows: "Rectangle", run: (t) => (t.v().toolSelect(), t.v().toolSelect()) },
+  { name: "solve-select-lasso", title: "Select: a lasso drawn around the second line", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (written(t), t.v().toolSelect(), t.c.setState({ areaLive: { layer: "main", d: t.c.areaPath(ring(t)) } })) },
+  { name: "solve-selected", title: "Selected: the box around the line, and Copy and Delete above it", from: "solve-select-lasso", shows: "Copy Delete", run: (t) => t.c.areaPick(t.c.inkKey(), "main", ring(t)) },
+  { name: "solve-select-moved", title: "Selected and moved by a drag inside its box", from: "solve-selected", shows: "Copy Delete", run: (t) => t.c.areaShift(t.c.phone() ? 40 : 120, t.c.phone() ? 70 : 90) },
+  { name: "solve-select-copied", title: "Copied: the copy beside it, and selected", from: "solve-selected", shows: "Copy Delete", run: (t) => t.v().area.copy() },
+  { name: "solve-select-rect", title: "Rectangle on the task: it takes the strokes on the tracing paper alone", from: "solve", shows: "Copy Delete", run: (t) => {
+    const key = t.c.clipKey(), on = t.c.hand("x = 5", t.c.phone() ? 196 : 270, t.c.phone() ? 20 : 26, t.c.phone() ? 26 : 34), b = boxOf(on);
+    t.c.setState({ strokes: { ...t.c.state.strokes, [key]: on }, areaMode: "rect" });
+    t.v().toolSelect();
+    t.c.areaPick(key, "clip", t.c.areaPoly([[b[0] - 12, b[1] - 12], [b[2] + 12, b[3] + 12]]));
+  } },
   // The tracing paper chosen by its grip, at 90%: its frame, corners and bar of scale; Recognise waits, then the statement as text.
   { name: "solve-scale", title: "The tracing paper chosen: its frame, corners and bar of scale", from: "solve", shows: "90%", run: (t) => t.c.setState({ tSel: true, tScale: 0.9 }) },
   { name: "solve-recognising", title: "Recognise pressed: the statement being read", from: "solve-scale", shows: "Recognising…", run: (t) => t.c.setState({ tMode: "busy" }) },
@@ -212,6 +247,27 @@ export const STATES = [
   { name: "solve-zoom", title: "Zoom in pressed twice: the sheet at 150 %", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink(), t.v().zoomIn(), t.v().zoomIn()) },
   { name: "solve-zoom-out", title: "Zoom out pressed twice: the sheet at 50 %, Zoom out off", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink(), t.v().zoomOut(), t.v().zoomOut()) },
   { name: "solve-lines", title: "The grid's button tapped once: the sheet in lines", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => t.v().grid.next() },
+  // The one tutor's panel on a task from paper: a question by text, its answer, and the microphone, whose speech becomes text in the field.
+  { name: "solve-ask", title: "The tutor on a task from paper: a question typed", from: "solve", shows: "by text or voice", run: (t) => (t.v().openChat(), t.c.setState({ draft: "Why do we take 3 from both sides?\nAnd not 5 first?" })) },
+  { name: "solve-asked", title: "The question sent, and the tutor's answer", from: "solve-ask", shows: "Which line of your work is it about?", run: (t) => t.v().send() },
+  { name: "solve-listening", title: "The microphone listening", from: "solve", shows: "Listening", settle: false, run: (t) => (t.v().openChat(), t.v().micStart()) },
+  { name: "solve-asking", title: "A question sent, its answer awaited: Stop in place of Send", from: "solve", shows: "three unknowns", settle: false, run: (t) => (t.v().openChat(), t.c.setState({ draft: "Write it as a system of three unknowns" }), t.v().send()) },
+  { name: "solve-stopped", title: "Stopped: the question back in the field", from: "solve", shows: "Stopped: your question is back in the field", settle: false, run: (t) => (t.v().openChat(), t.c.setState({ draft: "Write it as a system of three unknowns" }), t.v().send(), t.v().stop()) },
+  { name: "solve-dictated", title: "The speech as text in the field, to correct before Send", from: "solve-listening", shows: "From your voice", run: (t) => t.v().micStop() },
+  // Grown-up mode: behind the grown-ups' PIN, which the account sets in its settings (the mockup's is 5555), the tutor's limits lifted on this task until it is turned off.
+  { name: "solve-grown-pin", title: "Grown-up mode behind the grown-ups' PIN", from: "solve", shows: "Enter your PIN", run: (t) => (t.v().openChat(), t.v().grown.tap()) },
+  { name: "solve-grown-wrong", title: "A wrong PIN: the dots cleared, and why", from: "solve-grown-pin", shows: "Wrong PIN", run: (t) => { for (const d of "1234") t.v().grown.keys.find((k) => k.label === d).go(); } },
+  { name: "solve-grown-on", title: "Grown-up mode on: the band, and the field for anything", from: "solve-grown-pin", shows: "Grown-up mode on", run: (t) => { for (const d of "5555") t.v().grown.keys.find((k) => k.label === d).go(); } },
+  { name: "solve-grown-written", title: "Asked in grown-up mode: the tutor goes on with the solution on the sheet", from: "solve-grown-on", shows: "the solution goes on", run: (t) => {
+    const ph = t.c.phone();
+    t.c.setState({ strokes: { ...t.c.state.strokes, [t.c.inkKey()]: t.c.hand("3x = 20 − 5 = 15", ph ? 24 : 370, ph ? 190 : 230, ph ? 30 : 44) }, draft: "Finish the solution on the sheet" });
+    t.v().send();
+  } },
+  { name: "solve-grown-asking", title: "A request in grown-up mode awaited: Stop in place of Send", from: "solve-grown-on", shows: "Writing on the sheet", settle: false, run: (t) => (t.c.setState({ draft: "Write the whole solution" }), t.v().send()) },
+  { name: "solve-grown-struck", title: "The second line struck out in red, as asked", from: "solve-grown-written", shows: "struck out in red", run: (t) => (t.c.setState({ draft: "Cross out the second line in red" }), t.v().send()) },
+  { name: "solve-grown-erased", title: "The second line erased, as asked", from: "solve-grown-struck", shows: "line 2 erased", run: (t) => (t.c.setState({ draft: "Erase the second line" }), t.v().send()) },
+  { name: "solve-grown-hatched", title: "The second line hatched with a 2 mm grid: many strokes within 3 s", from: "solve-grown-written", shows: "hatched with a 2 mm grid", run: (t) => (t.c.setState({ draft: "Hatch the second line with a 2 mm grid" }), t.v().send()) },
+  { name: "solve-grown-off", title: "Grown-up mode turned off: the limits back, the tutor's strokes stay", from: "solve-grown-struck", shows: "Grown-up mode off", run: (t) => t.v().grown.off() },
   { name: "solve-tasks", title: "The list of the picked tasks", from: "solve", shows: "Framed by you", run: (t) => t.v().toggleTasks() },
   { name: "solve-empty", title: "Check without work", from: "solve", shows: "Write your solution first", run: (t) => t.v().check() },
   { name: "solve-reading", title: "The work being read", from: "solve", shows: "Reading your work", settle: false, run: (t) => (t.ink(), t.v().check()) },
@@ -287,6 +343,34 @@ export const STATES = [
     from: "solve-debug-log",
     shows: "Save case",
     run: (t) => t.v().dbg.groups[0].toggleExport(),
+  },
+  {
+    name: "solve-debug-errors",
+    title: "Debug on a local run: the Log of the app, its errors alone",
+    from: "solve-debug-log",
+    shows: "invalid_argument",
+    run: (t) => t.v().dbg.onlyErrors(),
+  },
+  {
+    name: "solve-debug-filter",
+    title: "Debug on a local run: the filter of the Log, by level and source",
+    from: "solve-debug-log",
+    shows: "Show everything",
+    run: (t) => t.v().dbg.toggleFilter(),
+  },
+  {
+    name: "solve-debug-perf",
+    title: "Debug on a local run: Performance — the frames, the main thread, the canvas, memory",
+    from: "solve-debug-log",
+    shows: "Frames a second",
+    run: (t) => t.v().dbg.tabs[2].pick(),
+  },
+  {
+    name: "solve-debug-hud",
+    title: "Debug on a local run: Performance as a strip on the canvas, the window closed",
+    from: "solve-debug-perf",
+    shows: "fps",
+    run: (t) => (t.v().dbg.pf.toggleHud(), t.v().dbg.close()),
   },
 
   // What comes later — the children and the canvases of other authors — under "Later".

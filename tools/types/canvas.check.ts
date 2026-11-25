@@ -33,7 +33,12 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   set marks(marks: canvas.Marks | undefined);
   get filled(): canvas.Filled | null;
   exportWork(): Promise<canvas.ExportedWork | null>;
+  exportForDrawing(cover?: canvas.DrawingCover): Promise<canvas.ExportedPaper>;
+  cropStrokes(submission: canvas.PaperSubmission): readonly canvas.CropStroke[];
+  drawTutor(submission: canvas.PaperSubmission, act: canvas.TutorAct): Promise<void>;
   exportPicture(): Promise<Blob>;
+  readonly paintStats: canvas.PaintStats;
+  paintFlash: boolean;
   undo(): boolean;
   clear(): boolean;
 }
@@ -59,6 +64,10 @@ export const history: readonly canvas.HistoryEvent[] = [
   { kind: "erase", t: 1200, ids: [2] },
   { kind: "undo", t: 1500, removed: [], restored: [2] },
   { kind: "clear", t: 2000, ids: [1, 2] },
+  { kind: "tutor", t: 2100, strokes: [{ id: 3, kind: "tutor", style: { pen: "liner", color: "#e5322d", width: 3, opacity: 100 }, points: [{ x: 10, y: 10, t: 2100, p: 0 }, { x: 40, y: 12, t: 2100, p: 0 }] }], ids: [] },
+  { kind: "undo", t: 2200, removed: [3], restored: [1, 2] },
+  { kind: "move", t: 2600, ids: [1], strokes: [{ id: 4, kind: "pen", points: [{ x: 160, y: 340, t: 0, p: 0.5 }, { x: 160, y: 640, t: 400, p: 0.5 }] }] },
+  { kind: "copy", t: 3000, ids: [4], strokes: [{ id: 5, kind: "pen", points: [{ x: 160, y: 680, t: 0, p: 0.5 }, { x: 160, y: 980, t: 400, p: 0.5 }] }] },
 ];
 
 /** A style of each kind of pen, a stroke with one, and a cut that leaves two pieces of it. */
@@ -82,7 +91,7 @@ export const styled: readonly canvas.HistoryEvent[] = [
   },
   { kind: "undo", t: 1200, removed: [2, 3], restored: [1] },
 ];
-export const pens: canvas.PenSettings = { pen: "marker", styles: { pen: ink, liner, marker }, eraser: "part", eraserSize: 16 };
+export const pens: canvas.PenSettings = { pen: "marker", styles: { pen: ink, liner, marker }, eraser: "part", eraserSize: 16, select: "rectangle" };
 sheet.pens = pens;
 sheet.pens = undefined;
 export const kind: canvas.PenKind = sheet.pens.pen;
@@ -92,6 +101,10 @@ export const pencil: canvas.StrokeStyle = { pen: "pencil", color: "#000000", wid
 export const unpieced: canvas.HistoryEvent = { kind: "cut", t: 0, ids: [1], pieces: [{ id: 2, kind: "pen", points: [] }] };
 // @ts-expect-error The eraser takes strokes whole or in part: no third way.
 export const brushed: canvas.PenSettings = { ...pens, eraser: "pixel" };
+// @ts-expect-error Select draws a lasso or a rectangle: no other shape.
+export const circled: canvas.PenSettings = { ...pens, select: "ellipse" };
+// @ts-expect-error A move names the strokes it took off.
+export const unnamed: canvas.HistoryEvent = { kind: "move", t: 0, strokes: [] };
 document.addEventListener("penchange", (change) => {
   const chosen: canvas.PenKind = change.detail.pen;
   // @ts-expect-error The settings told are the learner's choice, to read.
@@ -127,6 +140,7 @@ export const paperSubmission: canvas.PaperSubmission = {
 export const submissions: readonly canvas.Submission[] = [sheetSubmission, workbookSubmission, paperSubmission];
 
 sheet.tool = "eraser";
+sheet.tool = "select";
 sheet.task = task;
 sheet.task = undefined;
 sheet.manifest = manifest;
@@ -192,6 +206,15 @@ export const filled: canvas.Filled | null = sheet.filled;
 export const first: boolean | undefined = sheet.filled?.[0]?.[0];
 export const work: Promise<canvas.ExportedWork | null> = sheet.exportWork();
 export const picture: Promise<Blob> = sheet.exportPicture();
+
+/** The debug view reads what the drawing costs, and turns the flash of what a frame paints. */
+const stats: canvas.PaintStats = sheet.paintStats;
+export const paintP95: number = [...stats.paintMs].sort((a, b) => a - b)[Math.floor(stats.paintMs.length * 0.95)] ?? 0;
+export const lastArea: number | undefined = stats.last?.area;
+export const bytes: number = stats.buffers.reduce((n, b) => n + b.width * b.height * 4, 0);
+sheet.paintFlash = true;
+// @ts-expect-error: the reading is the element's, never the consumer's
+sheet.paintStats = stats;
 
 /** A worked example in place of the task, and how far its demo has gone, which app keeps. */
 sheet.task = undefined;

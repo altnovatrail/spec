@@ -550,8 +550,10 @@ export interface Task {
   readonly statement: Image;
   /**
    * The history of writing as the canvas gave it, the strokes of the sheet and of the tracing
-   * paper: write/erase/cut/clear/undo events with t, a cut with the pieces it left; strokes with
-   * id, kind, style and points x, y, t, p; on a stroke of the tracing paper, on "tracing".
+   * paper: write/erase/cut/clear/tutor/undo events with t, a cut with the pieces it left, a tutor
+   * event — the tutor's act in grown-up mode — with the strokes it wrote and the IDs it took off;
+   * strokes with id, kind, style and points x, y, t, p; on a stroke or a tutor event of the tracing
+   * paper, on "tracing".
    */
   readonly history: unknown;
   /**

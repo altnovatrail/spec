@@ -784,7 +784,8 @@ type Profile struct {
 	// attempt. It goes to no AI.
 	DefaultMode Mode `protobuf:"varint,8,opt,name=default_mode,json=defaultMode,proto3,enum=novatrail.api.v1.Mode" json:"default_mode,omitempty"`
 	// The language of the interface, a tag of BCP 47: absent when none is set, and then `app` speaks
-	// the language of the device. It goes to no AI.
+	// the language of the device. On a task from paper the tutor's words are in it when a request
+	// names no `words_language`, and in English when it is absent too.
 	InterfaceLanguage *string `protobuf:"bytes,9,opt,name=interface_language,json=interfaceLanguage,proto3,oneof" json:"interface_language,omitempty"`
 	// The grade, from 1 to 12, as a module with grades asks for it: absent when none is given.
 	Grade *int32 `protobuf:"varint,10,opt,name=grade,proto3,oneof" json:"grade,omitempty"`

@@ -32,9 +32,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .row:hover{background:rgba(0,0,0,0.04)}
 @keyframes ntFlash{from{opacity:.95}to{opacity:0}}
 .nt-flash{animation:ntFlash .45s ease-out forwards}
+@keyframes ntDraw{0%{stroke-dashoffset:1;opacity:0}1%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
 @keyframes ntSpin{to{transform:rotate(360deg)}}
 .nt-spin{animation:ntSpin .8s linear infinite}
 @keyframes ntPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.nt-livedot{animation:ntPulse 1.4s ease-in-out infinite}
+.nt-dbglist>*{flex-shrink:0}
 .nt-pulse{animation:ntPulse 1.6s ease-in-out infinite}
 @keyframes ntSpark{0%,100%{transform:scale(.82);opacity:.55}50%{transform:scale(1);opacity:1}}
 .ph-waitspark svg{animation:ntSpark 1.4s ease-in-out infinite}
@@ -557,10 +560,22 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 <div style="position: absolute; left: 0; top: 0; width: {{dim.SW}}px; height: {{dim.H}}px; transform-origin: 0 0; transform: {{viewTf}}; transition: {{viewTr}}">
   <div data-w="{{dim.SW}}" onPointerDown="{{inkDown}}" onPointerMove="{{inkMove}}" onPointerUp="{{inkUp}}" onPointerCancel="{{inkUp}}" onWheel="{{wheel}}" style="position: absolute; inset: 0; touch-action: none; cursor: {{inkCursor}}"></div>
   <sc-for list="{{screenPaths}}" as="p" hint-placeholder-count="0">
-    <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+    <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" transform="{{p.tf}}" pathLength="1" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-dasharray: {{p.da}}; animation: {{p.an}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
   </sc-for>
   <sc-if value="{{liveScreen}}" hint-placeholder-val="{{ false }}">
     <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{live}}" style="fill: none; stroke: {{liveSty.color}}; stroke-width: {{liveSty.w}}px; opacity: {{liveSty.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+  </sc-if>
+  <!-- Select: the lasso or the rectangle as it is drawn, then a dashed box around what it took, which a drag inside moves, and Copy and Delete above it (canvas). -->
+  <sc-if value="{{area.liveMain}}" hint-placeholder-val="{{ false }}">
+    <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{area.live}}" style="fill: rgba(0,113,227,0.06); stroke: #0071E3; stroke-width: {{area.lw}}px; stroke-dasharray: {{area.da}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+  </sc-if>
+  <sc-if value="{{area.boxMain}}" hint-placeholder-val="{{ false }}">
+    <div role="img" aria-label="{{area.label}}" style="position: absolute; left: {{area.x}}px; top: {{area.y}}px; width: {{area.w}}px; height: {{area.h}}px; box-sizing: border-box; border-radius: 10px; border: {{area.lw}}px dashed #0071E3; background: rgba(0,113,227,0.05); pointer-events: none"></div>
+    <div class="glass" style="position: absolute; left: {{area.mx}}px; top: {{area.my}}px; transform: scale({{area.inv}}) translateX(-50%); transform-origin: 0 0; display: flex; align-items: center; padding: 0 4px; border-radius: 22px; background: rgba(255,255,255,0.96); white-space: nowrap; pointer-events: auto; opacity: {{area.menuOp}}; transition: opacity 0.15s">
+      <button onClick="{{area.copy}}" style="height: 44px; padding: 0 14px; font-size: 14px; font-weight: 600; color: #1D1D1F">Copy</button>
+      <span style="width: 1px; height: 20px; background: rgba(0,0,0,0.12)"></span>
+      <button onClick="{{area.del}}" style="height: 44px; padding: 0 14px; font-size: 14px; font-weight: 600; color: #D70015">Delete</button>
+    </div>
   </sc-if>
   <sc-for list="{{les.marks}}" as="k" hint-placeholder-count="0">
     <div role="img" aria-label="{{k.label}}" style="position: absolute; left: {{k.x}}px; top: {{k.y}}px; width: {{k.w}}px; height: {{k.h}}px; border-radius: 12px; box-shadow: 0 0 0 2.5px #FF9F0A; pointer-events: none"></div>
@@ -593,10 +608,17 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <sc-if value="{{tr.busy}}" hint-placeholder-val="{{ false }}"><div class="ph-tscan"><i></i></div></sc-if>
       <div data-w="{{clip.w}}" data-layer="clip" onPointerDown="{{inkDown}}" onPointerMove="{{inkMove}}" onPointerUp="{{inkUp}}" onPointerCancel="{{inkUp}}" style="position: absolute; inset: 0; touch-action: none"></div>
       <sc-for list="{{clipPaths}}" as="p" hint-placeholder-count="0">
-        <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+        <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" transform="{{p.tf}}" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
       </sc-for>
       <sc-if value="{{liveClip}}" hint-placeholder-val="{{ false }}">
         <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{live}}" style="fill: none; stroke: {{liveSty.color}}; stroke-width: {{liveSty.w}}px; opacity: {{liveSty.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+      </sc-if>
+      <!-- Select: the lasso or the rectangle as it is drawn, then a dashed box around what it took, which a drag inside moves, and Copy and Delete above it (canvas). -->
+      <sc-if value="{{area.liveClip}}" hint-placeholder-val="{{ false }}">
+        <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{area.live}}" style="fill: rgba(0,113,227,0.06); stroke: #0071E3; stroke-width: {{area.lw}}px; stroke-dasharray: {{area.da}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+      </sc-if>
+      <sc-if value="{{area.boxClip}}" hint-placeholder-val="{{ false }}">
+        <div role="img" aria-label="{{area.label}}" style="position: absolute; left: {{area.x}}px; top: {{area.y}}px; width: {{area.w}}px; height: {{area.h}}px; box-sizing: border-box; border-radius: 10px; border: {{area.lw}}px dashed #0071E3; background: rgba(0,113,227,0.05); pointer-events: none"></div>
       </sc-if>
       <sc-for list="{{clipWavy}}" as="k" hint-placeholder-count="0">
         <svg role="img" aria-label="{{k.label}}" width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none"><path d="{{k.d}}" style="fill: none; stroke: #E8590C; stroke-width: 2.4px; stroke-linecap: round; stroke-linejoin: round"></path></svg>
@@ -611,6 +633,16 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         </sc-for>
       </sc-if>
     </div>
+    <!-- Select's menu for strokes on the tracing paper, outside the card, which clips what overflows it: the card stands 26 below the grip's top. -->
+    <sc-if value="{{area.boxClip}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 0; top: 26px; width: 0; height: 0">
+        <div class="glass" style="position: absolute; left: {{area.mx}}px; top: {{area.my}}px; transform: scale({{area.inv}}) translateX(-50%); transform-origin: 0 0; display: flex; align-items: center; padding: 0 4px; border-radius: 22px; background: rgba(255,255,255,0.96); white-space: nowrap; pointer-events: auto; opacity: {{area.menuOp}}; transition: opacity 0.15s">
+          <button onClick="{{area.copy}}" style="height: 44px; padding: 0 14px; font-size: 14px; font-weight: 600; color: #1D1D1F">Copy</button>
+          <span style="width: 1px; height: 20px; background: rgba(0,0,0,0.12)"></span>
+          <button onClick="{{area.del}}" style="height: 44px; padding: 0 14px; font-size: 14px; font-weight: 600; color: #D70015">Delete</button>
+        </div>
+      </div>
+    </sc-if>
   </div>
   <!-- The tracing paper's sign above it: the photo, the reading on its way, or the statement read. Its grip chooses it: a frame, four corners
        that scale it from the corner across, and under it the bar of scale — smaller, the percentage, which sets it back to 100%, larger, Fit,
@@ -822,6 +854,24 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <button class="ib tip tip-r" aria-label="Eraser" data-tip="Eraser" aria-pressed="{{tools.er.on}}" onClick="{{toolEraser}}" style="background: {{tools.er.bg}}; color: {{tools.er.fg}}">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 20h11"></path><path d="M4.6 15.4l9.2-9.2a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L10 20H8.8z"></path><path d="M9 11l5 5"></path></svg>
     </button>
+    <!-- Select takes the strokes of one layer that a lasso or a rectangle holds almost wholly, to move, copy or delete; tapped again, it chooses which of the two. -->
+    <div style="position: relative">
+      <button class="ib tip tip-r" aria-label="{{sel.label}}" data-tip="{{sel.label}}" aria-pressed="{{tools.sel.on}}" aria-expanded="{{sel.menu}}" onClick="{{toolSelect}}" style="background: {{tools.sel.bg}}; color: {{tools.sel.fg}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{sel.icon}}" stroke-dasharray="3 2.6"></path><path d="{{sel.tail}}"></path></svg>
+      </button>
+      <sc-if value="{{sel.menu}}" hint-placeholder-val="{{ false }}">
+        <div class="glass nt-pop" style="position: absolute; left: 54px; top: -6px; width: 176px; border-radius: 18px; padding: 6px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 2px; z-index: 5">
+          <button onClick="{{sel.lasso}}" aria-pressed="{{sel.isLasso}}" style="height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 12px; background: {{sel.lassoBg}}; color: #1D1D1F; font-size: 14px; font-weight: 600; text-align: left">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{sel.lassoFg}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5c-4.4 0-8 2.2-8 5s3.6 5 8 5 8-2.2 8-5-3.6-5-8-5z" stroke-dasharray="3 2.6"></path><path d="M7.5 13.6c-1.2 1.4-.8 3.4 1.2 4 1.4.4 1.8 1.4 1.3 2.4"></path></svg>
+            Lasso
+          </button>
+          <button onClick="{{sel.rect}}" aria-pressed="{{sel.isRect}}" style="height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 12px; background: {{sel.rectBg}}; color: #1D1D1F; font-size: 14px; font-weight: 600; text-align: left">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{sel.rectFg}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5h15v13h-15z" stroke-dasharray="3 2.6"></path></svg>
+            Rectangle
+          </button>
+        </div>
+      </sc-if>
+    </div>
     <!-- Hand moves the sheet with one pointer, a pen's or a mouse's too, and writes nothing (canvas). -->
     <button class="ib tip tip-r" aria-label="Hand" data-tip="Hand" aria-pressed="{{tools.hand.on}}" onClick="{{toolHand}}" style="background: {{tools.hand.bg}}; color: {{tools.hand.fg}}">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 12.5V7a1.5 1.5 0 0 1 3 0v4.5"></path><path d="M10.5 11V5a1.5 1.5 0 0 1 3 0v6"></path><path d="M13.5 11V6.5a1.5 1.5 0 0 1 3 0V11"></path><path d="M16.5 10a1.5 1.5 0 0 1 3 0v4.5a6.5 6.5 0 0 1-6.5 6.5h-1a6 6 0 0 1-4.7-2.3l-2.9-3.6a1.5 1.5 0 0 1 2.3-1.9l1.8 1.8"></path></svg>
@@ -850,8 +900,10 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   </div>
 </sc-if>
 
-<!-- ============ The tutor: Pip, by text and voice, behind a button at the side ============ -->
+<!-- ============ The tutor: one panel on every screen, by text and voice; its context and its parts are tutorKit's ============ -->
 <sc-if value="{{showTutor}}" hint-placeholder-val="{{ true }}">
+  <!-- Home opens the panel from its pill at the top right; every other screen from this button at the right edge. -->
+  <sc-if value="{{tutorSide}}" hint-placeholder-val="{{ true }}">
   <button class="glass tip tip-l ph-tutbtn" aria-label="{{tutorName}}" data-tip="{{tutorName}}" aria-expanded="{{chatOpen}}" onClick="{{openChat}}" style="position: absolute; right: 16px; top: 50%; margin-top: -28px; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; opacity: {{pipBtn.op}}; transform: scale({{pipBtn.sc}}); visibility: {{pipBtn.vis}}; transition: opacity 0.2s, transform 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.3s">
     <!-- To an adult the tutor is neutral: no name, no fox (R148; О-13). Pip, the children's friend, comes with epic E4 of app. -->
     <sc-if value="{{isNeutral}}" hint-placeholder-val="{{ true }}">
@@ -868,8 +920,26 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <span style="position: absolute; right: 4px; top: 4px; width: 12px; height: 12px; border-radius: 6px; background: #FF3B30; box-shadow: 0 0 0 2px #FFFFFF"></span>
     </sc-if>
   </button>
+  </sc-if>
 
-  <div class="glass ph-tutor {{panel.cls}}" role="dialog" aria-label="{{tutorName}}" style="position: absolute; right: 16px; top: 74px; bottom: 16px; width: 400px; border-radius: 28px; background: rgba(255,255,255,0.86); display: flex; flex-direction: column; overflow: hidden; transform-origin: 100% 50%; opacity: {{panel.op}}; transform: {{panel.tf}}; visibility: {{panel.vis}}; transition: opacity 0.22s, transform 0.35s cubic-bezier(.2,.8,.2,1), visibility 0.35s">
+  <!-- The grown-ups' PIN of grown-up mode, 5555 for now: a dialog over the dimmed screen. -->
+  <sc-if value="{{grown.pad}}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; inset: 0; z-index: 30; background: rgba(0,0,0,0.28); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px">
+    <div role="dialog" aria-modal="true" aria-label="{{grown.title}}" style="box-sizing: border-box; width: 340px; max-width: 100%; padding: 22px 24px 18px; border-radius: 28px; background: #FAF9F6; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 20px 60px rgba(0,0,0,0.22); display: flex; flex-direction: column; align-items: center">
+      <span style="flex: none; width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); color: #1D1D1F; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"></rect><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"></path></svg></span>
+      <span style="margin-top: 14px; font-size: 18px; font-weight: 700; text-align: center">{{grown.title}}</span>
+      <span role="{{grown.lineRole}}" style="margin-top: 4px; font-size: 13px; line-height: 1.35; color: {{grown.lineFg}}; text-align: center">{{grown.line}}</span>
+      <span role="img" aria-label="{{grown.len}} of 4 digits" style="display: flex; gap: 14px; margin: 16px 0 18px">
+        <sc-for list="{{grown.dots}}" as="d" hint-placeholder-count="4"><span style="width: 14px; height: 14px; border-radius: 7px; box-shadow: inset 0 0 0 1.3px #8E8E93; background: {{d.bg}}"></span></sc-for>
+      </span>
+      <span style="display: grid; grid-template-columns: repeat(3, 72px); column-gap: 14px; row-gap: 12px">
+        <sc-for list="{{grown.keys}}" as="k" hint-placeholder-count="12"><button onClick="{{k.go}}" aria-label="{{k.aria}}" style="height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: {{k.fs}}; font-weight: {{k.fw}}; color: #1D1D1F; background: {{k.bg}}; box-shadow: {{k.bd}}"><sc-if value="{{k.back}}" hint-placeholder-val="{{ false }}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 6H9l-6 6 6 6h12z"></path><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"></path></svg></sc-if>{{k.label}}</button></sc-for>
+      </span>
+      <span style="margin-top: 10px; font-size: 12px; color: #8E8E93">The PIN is 5555 for now.</span>
+    </div>
+  </div>
+  </sc-if>
+  <div class="glass ph-tutor {{panel.cls}}" role="dialog" aria-label="{{tutorName}}" style="position: absolute; z-index: {{panel.z}}; right: 16px; top: {{panel.top}}px; bottom: 16px; width: 400px; border-radius: 28px; background: rgba(255,255,255,0.86); display: flex; flex-direction: column; overflow: hidden; transform-origin: 100% 50%; opacity: {{panel.op}}; transform: {{panel.tf}}; visibility: {{panel.vis}}; transition: opacity 0.22s, transform 0.35s cubic-bezier(.2,.8,.2,1), visibility 0.35s">
     <!-- On the phone the grabber takes the sheet to the whole screen and back (RUN.md, T154). -->
     <button class="ph-only ph-grab tip tip-b" aria-label="{{panel.grab}}" data-tip="{{panel.grab}}" aria-expanded="{{tutorFull}}" onClick="{{toggleTutorFull}}"><span></span></button>
     <div class="ph-tuthead" style="display: flex; align-items: center; gap: 8px; padding: 10px 6px 8px 14px">
@@ -897,15 +967,30 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
           <span style="overflow: hidden; text-overflow: ellipsis">{{status.text}}</span>
         </span>
       </div>
+      <!-- Grown-up mode: behind the grown-ups' PIN, the tutor's limits lifted on this task until it is turned off. -->
+      <sc-if value="{{grown.show}}" hint-placeholder-val="{{ false }}">
+      <button class="ib tip tip-b" aria-label="Grown-up mode" data-tip="Grown-up mode" aria-pressed="{{grown.on}}" onClick="{{grown.tap}}" style="flex: none; color: {{grown.fg}}; background: {{grown.bg}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15.5" r="4"></circle><path d="M10.9 12.6L20 3.5M16.5 7l3 3M14 9.5l2 2"></path></svg>
+      </button>
+      </sc-if>
+      <sc-if value="{{voicingShow}}" hint-placeholder-val="{{ true }}">
       <button class="ib tip tip-b" aria-label="Voicing" data-tip="Voicing" aria-pressed="{{voiceOn}}" onClick="{{toggleVoice}}" style="flex: none; color: {{voiceFg}}; background: {{voiceBg}}">
         <sc-if value="{{voiceOn}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"></path><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg></sc-if>
         <sc-if value="{{voiceOff}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"></path><path d="M16 9.5l5 5M21 9.5l-5 5"></path></svg></sc-if>
       </button>
+      </sc-if>
       <button class="ib tip tip-bl" aria-label="Close" data-tip="Close" onClick="{{closeChat}}" style="flex: none; color: #6E6E73">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
       </button>
     </div>
     <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div>
+    <sc-if value="{{grown.on}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="flex: none; margin: 10px 12px 0; padding: 6px 6px 6px 12px; border-radius: 16px; background: rgba(255,149,0,0.16); display: flex; align-items: center; gap: 10px; color: #8A3B00">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="8" cy="15.5" r="4"></circle><path d="M10.9 12.6L20 3.5M16.5 7l3 3M14 9.5l2 2"></path></svg>
+      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 13.5px; font-weight: 700">Grown-up mode</span><span style="font-size: 12px">No limits, up to the full solution. Turn it off before the child goes on.</span></span>
+      <button onClick="{{grown.off}}" style="flex: none; height: 44px; padding: 0 14px; border-radius: 22px; background: #FFFFFF; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.16); font-size: 13.5px; font-weight: 600; color: #8A3B00">Turn off</button>
+    </div>
+    </sc-if>
     <!-- "Step by step": the module's solving steps, the program's, without AI; "Step done" never reads the work (concepts 7; R05 app). -->
     <sc-if value="{{les.stepShow}}" hint-placeholder-val="{{ false }}">
     <div class="ph-stepcard" tabindex="0" role="region" aria-label="The step" style="flex: none; max-height: 330px; overflow-y: auto; margin: 10px 12px 0; padding: 4px 4px 12px 14px; border-radius: 18px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px">
@@ -973,6 +1058,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
                     Feedback
                   </div>
                 </sc-if>
+                <sc-if value="{{m.isGrown}}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 3px; font-size: 11.5px; font-weight: 600; color: #8A3B00">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15.5" r="4"></circle><path d="M10.9 12.6L20 3.5M16.5 7l3 3M14 9.5l2 2"></path></svg>
+                    Grown-up mode
+                  </div>
+                </sc-if>
                 <sc-if value="{{m.isHint}}" hint-placeholder-val="{{ false }}">
                   <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 3px; font-size: 11.5px; font-weight: 600; color: #9A5B00">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"></path><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"></path></svg>
@@ -992,7 +1083,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
           </sc-if>
           <sc-if value="{{m.isMe}}" hint-placeholder-val="{{ false }}">
             <div class="nt-in" style="align-self: flex-end; max-width: 82%; display: flex; flex-direction: column; align-items: flex-end; gap: 3px">
-              <div style="padding: 9px 13px; border-radius: 18px 18px 6px 18px; background: #0071E3; color: #FFFFFF; font-size: 14.5px; line-height: 1.38">{{m.text}}</div>
+              <div style="padding: 9px 13px; border-radius: 18px 18px 6px 18px; background: #0071E3; color: #FFFFFF; font-size: 14.5px; line-height: 1.38; white-space: pre-wrap; overflow-wrap: anywhere">{{m.text}}</div>
               <sc-if value="{{m.voice}}" hint-placeholder-val="{{ false }}">
                 <span style="display: flex; align-items: center; gap: 4px; padding-right: 4px; font-size: 11px; color: #6E6E73; font-variant-numeric: tabular-nums">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"></path></svg>
@@ -1026,6 +1117,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
                 <sc-if value="{{m.rNo}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M12 6v8M12 18v.5"></path></svg></sc-if>
                 <sc-if value="{{m.rShown}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M7 8h10M7 12h10M7 16h6"></path></svg></sc-if>
                 <sc-if value="{{m.rInfo}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"></path></svg></sc-if>
+                <sc-if value="{{m.rKey}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15.5" r="4"></circle><path d="M10.9 12.6L20 3.5M16.5 7l3 3"></path></svg></sc-if>
                 <sc-if value="{{m.rDone}}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"></path></svg></sc-if>
               </span>
               <span style="display: flex; flex-direction: column; line-height: 1.25">
@@ -1060,7 +1152,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </sc-for>
     </div>
 
-    <!-- The text field and the microphone are Pip's, a child's tutor of epic E4 of app; the adult's field is only on the page to pick from, for a request about the frames, and its microphone waits for voice (R165; R82; О-6). -->
+    <!-- The field and the microphone stand wherever the panel does. The microphone turns speech into text in the field, which the learner reads and corrects before Send; the field and the microphone wait while today's tutor time is used up. -->
     <sc-if value="{{chatInput}}" hint-placeholder-val="{{ false }}">
     <div style="padding: 0 10px 10px">
       <sc-if value="{{listening}}" hint-placeholder-val="{{ false }}">
@@ -1078,11 +1170,17 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         </div>
       </sc-if>
       <sc-if value="{{notListening}}" hint-placeholder-val="{{ true }}">
-        <div style="height: 52px; border-radius: 26px; background: rgba(118,118,128,0.10); display: flex; align-items: center; gap: 4px; padding: 0 4px 0 16px">
-          <input class="chat-in" aria-label="{{inputLabel}}" placeholder="{{inputPlaceholder}}" value="{{draft}}" onChange="{{onDraft}}" onKeyDown="{{onKey}}" style="flex: 1; min-width: 0; height: 32px; border: 0; outline: 0; padding: 0; background: transparent; font: inherit; font-size: 14.5px; color: #1D1D1F; user-select: text; -webkit-user-select: text">
+        <!-- The field grows with its lines, up to five, and then scrolls; Enter sends, Shift+Enter breaks the line. -->
+        <div style="box-sizing: border-box; min-height: 52px; border-radius: 26px; background: rgba(118,118,128,0.10); display: flex; align-items: flex-end; gap: 4px; padding: 4px 4px 4px 16px">
+          <textarea class="chat-in chat-grow" rows="1" aria-label="{{inputLabel}}" placeholder="{{inputPlaceholder}}" disabled="{{fieldOff}}" enterkeyhint="send" value="{{draft}}" onChange="{{onDraft}}" onKeyDown="{{onKey}}" style="flex: 1; min-width: 0; align-self: center; box-sizing: content-box; height: 22px; max-height: 110px; margin: 10px 0; border: 0; outline: 0; padding: 0; resize: none; overflow-y: auto; background: transparent; font: inherit; font-size: 14.5px; line-height: 22px; color: #1D1D1F; user-select: text; -webkit-user-select: text"></textarea>
           <sc-if value="{{micShow}}" hint-placeholder-val="{{ true }}">
             <button class="tip tip-l" aria-label="{{micLabel}}" data-tip="{{micLabel}}" aria-disabled="{{micOff}}" onClick="{{micStart}}" style="flex: none; width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: {{micFg}}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"></path></svg>
+            </button>
+          </sc-if>
+          <sc-if value="{{stopShow}}" hint-placeholder-val="{{ false }}">
+            <button class="tip tip-l" aria-label="Stop" data-tip="Stop" onClick="{{stop}}" style="flex: none; width: 44px; height: 44px; border-radius: 22px; background: #1D1D1F; display: flex; align-items: center; justify-content: center; color: #FFFFFF">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3"></rect></svg>
             </button>
           </sc-if>
           <sc-if value="{{sendShow}}" hint-placeholder-val="{{ false }}">
@@ -1091,6 +1189,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
             </button>
           </sc-if>
         </div>
+      </sc-if>
+      <sc-if value="{{stoppedShow}}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="padding: 6px 16px 0; font-size: 12px; color: #6E6E73">Stopped: your question is back in the field — change it and send it again.</div>
+      </sc-if>
+      <sc-if value="{{dictatedShow}}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 6px 16px 0; font-size: 12px; color: #6E6E73">From your voice: read it, correct it, then send.</div>
       </sc-if>
     </div>
     </sc-if>
@@ -1376,6 +1480,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
 <!-- ============ Debug: the models, what each returned and its cost — only for an account with the right of the debug mode (R163) ============ -->
 <sc-if value="{{dbg.show}}" hint-placeholder-val="{{ false }}">
+  <!-- The strip of Performance on the canvas, while its switch is on: it takes no touch. -->
+  <sc-if value="{{dbg.pf.hudOn}}" hint-placeholder-val="{{ false }}">
+    <div role="status" aria-label="Performance" style="position: absolute; left: {{dbg.pf.hud.x}}px; top: 74px; height: 28px; padding: 0 12px; border-radius: 14px; background: rgba(28,28,30,0.82); color: #FFFFFF; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 8px; z-index: 7; pointer-events: none; white-space: nowrap">
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: {{dbg.pf.hud.dot}}"></span>{{dbg.pf.hud.text}}
+    </div>
+  </sc-if>
   <button class="glass tip tip-l ph-dbgbtn {{dbg.btnCls}}" aria-label="Debug: the models and their answers" data-tip="{{dbg.tip}}" aria-expanded="{{dbg.open}}" onClick="{{dbg.toggle}}" style="position: absolute; right: 16px; top: 50%; margin-top: {{dbg.mt}}px; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; opacity: {{dbg.btn.op}}; transform: scale({{dbg.btn.sc}}); visibility: {{dbg.btn.vis}}; transition: opacity 0.2s, transform 0.3s cubic-bezier(.2,.8,.2,1), visibility 0.3s">
     <span class="{{dbg.ring}}" style="width: 44px; height: 44px; border-radius: 22px; background: linear-gradient(135deg, #48484A 0%, #1C1C1E 100%); color: #FF9F0A; display: flex; align-items: center; justify-content: center">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 8.5V7a3.5 3.5 0 0 1 7 0v1.5"></path><path d="M7 10.5a5 5 0 0 1 10 0V15a5 5 0 0 1-10 0z"></path><path d="M12 11v8.5M7 13H3.5M20.5 13H17M7.5 17.5l-3 2M16.5 17.5l3 2M7.5 9.5l-3-2M16.5 9.5l3-2"></path></svg>
@@ -1397,8 +1507,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </button>
     </div>
     <div role="tablist" aria-label="Debug" style="flex: none; margin: 2px 14px 10px; height: 36px; padding: 2px; box-sizing: border-box; border-radius: 10px; background: rgba(118,118,128,0.12); display: flex">
-      <sc-for list="{{dbg.tabs}}" as="tb" hint-placeholder-count="2">
-        <button role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="flex: 1; height: 32px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1D1D1F; background: {{tb.bg}}; box-shadow: {{tb.sh}}; display: flex; align-items: center; justify-content: center; gap: 6px">{{tb.label}}<sc-if value="{{tb.hasN}}" hint-placeholder-val="{{ false }}"><span style="min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #1D1D1F; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">{{tb.n}}</span></sc-if></button>
+      <sc-for list="{{dbg.tabs}}" as="tb" hint-placeholder-count="3">
+        <button role="tab" aria-selected="{{tb.on}}" onClick="{{tb.pick}}" style="flex: 1; height: 32px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #1D1D1F; background: {{tb.bg}}; box-shadow: {{tb.sh}}; display: flex; align-items: center; justify-content: center; gap: 6px">{{tb.label}}<sc-if value="{{tb.hasN}}" hint-placeholder-val="{{ false }}"><span style="min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: {{tb.nbg}}; color: #FFFFFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">{{tb.n}}</span></sc-if></button>
       </sc-for>
     </div>
 
@@ -1468,16 +1578,77 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     </div>
     </sc-if>
 
-    <!-- Log: every call of the session, by what the learner did; a call opens to what the model returned, as it returned it. -->
+    <!-- Log: what the app, api and the canvas said — errors, warnings, info and debug — with the AI's calls among them, newest first; a filter by level and source. -->
     <sc-if value="{{dbg.isLog}}" hint-placeholder-val="{{ false }}">
-    <div tabindex="0" role="region" aria-label="Log of the models" style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 12px; display: flex; flex-direction: column; gap: 6px">
-      <sc-if value="{{dbg.empty}}" hint-placeholder-val="{{ false }}">
-        <div style="margin: 40px 20px; text-align: center; font-size: 13px; line-height: 1.4; color: #6E6E73">No calls yet. Take a photo of a page, or Check a task.</div>
+    <div class="nt-dbglist" tabindex="0" role="region" aria-label="Log" style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 12px; display: flex; flex-direction: column; gap: 6px">
+      <div style="position: relative; flex: none; padding: 0 2px 2px; display: flex; align-items: center; gap: 8px">
+        <button aria-haspopup="menu" aria-expanded="{{dbg.filterOpen}}" onClick="{{dbg.toggleFilter}}" style="flex: none; height: 32px; padding: 0 10px 0 12px; border-radius: 16px; background: rgba(118,118,128,0.12); font-size: 13px; font-weight: 600; color: #1D1D1F; display: flex; align-items: center; gap: 6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>{{dbg.filterLabel}}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"></path></svg>
+        </button>
+        <span style="flex: 1; min-width: 0; font-size: 12px; color: #6E6E73; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{dbg.shown}}</span>
+        <sc-if value="{{dbg.errN}}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{dbg.onlyErrors}}" style="flex: none; height: 32px; padding: 0 12px; border-radius: 16px; background: rgba(255,59,48,0.12); color: #D70015; font-size: 12.5px; font-weight: 600">{{dbg.errLabel}}</button>
+        </sc-if>
+        <sc-if value="{{dbg.filterOpen}}" hint-placeholder-val="{{ false }}">
+          <div class="glass nt-pop" role="menu" aria-label="Show in the log" style="position: absolute; left: 0; top: 38px; width: 264px; border-radius: 18px; padding: 6px; box-sizing: border-box; background: rgba(255,255,255,0.97); z-index: 3; display: flex; flex-direction: column">
+            <span style="padding: 6px 10px 2px; font-size: 11px; font-weight: 600; color: #6E6E73">Level</span>
+            <sc-for list="{{dbg.levels}}" as="lv" hint-placeholder-count="4">
+              <button class="row" role="menuitemcheckbox" aria-checked="{{lv.on}}" onClick="{{lv.pick}}" style="width: 100%; min-height: 40px; border-radius: 10px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; text-align: left">
+                <span style="flex: none; width: 16px; color: #0071E3"><sc-if value="{{lv.on}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if></span>
+                <span style="flex: none; width: 8px; height: 8px; border-radius: 4px; background: {{lv.dot}}"></span>
+                <span style="flex: 1; font-size: 14px">{{lv.name}}</span>
+                <span style="font-size: 12px; color: #6E6E73; font-variant-numeric: tabular-nums">{{lv.n}}</span>
+              </button>
+            </sc-for>
+            <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
+            <span style="padding: 6px 10px 2px; font-size: 11px; font-weight: 600; color: #6E6E73">Source</span>
+            <sc-for list="{{dbg.sources}}" as="so" hint-placeholder-count="4">
+              <button class="row" role="menuitemcheckbox" aria-checked="{{so.on}}" onClick="{{so.pick}}" style="width: 100%; min-height: 40px; border-radius: 10px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; text-align: left">
+                <span style="flex: none; width: 16px; color: #0071E3"><sc-if value="{{so.on}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if></span>
+                <span style="flex: 1; font-size: 14px">{{so.name}}</span>
+                <span style="font-size: 12px; color: #6E6E73; font-variant-numeric: tabular-nums">{{so.n}}</span>
+              </button>
+            </sc-for>
+            <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 4px 10px"></div>
+            <button class="row" role="menuitem" onClick="{{dbg.showAll}}" style="width: 100%; min-height: 40px; border-radius: 10px; padding: 0 10px 0 36px; box-sizing: border-box; text-align: left; font-size: 14px; color: #0071E3">Show everything</button>
+          </div>
+        </sc-if>
+      </div>
+      <sc-if value="{{dbg.logEmpty}}" hint-placeholder-val="{{ false }}">
+        <div style="margin: 40px 20px; text-align: center; font-size: 13px; line-height: 1.4; color: #6E6E73">Nothing yet. What the app does, and the AI’s calls, come here.</div>
       </sc-if>
-      <sc-for list="{{dbg.groups}}" as="g" hint-placeholder-count="2">
+      <sc-if value="{{dbg.nothingShown}}" hint-placeholder-val="{{ false }}">
+        <div style="margin: 40px 20px; text-align: center; font-size: 13px; line-height: 1.4; color: #6E6E73">Nothing of what the filter shows.</div>
+      </sc-if>
+      <sc-for list="{{dbg.blocks}}" as="g" hint-placeholder-count="2">
+        <sc-if value="{{g.isLines}}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top: 6px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden">
+          <sc-for list="{{g.lines}}" as="ln" hint-placeholder-count="3">
+            <sc-if value="{{ln.sep}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div></sc-if>
+            <button class="row" aria-expanded="{{ln.open}}" onClick="{{ln.toggle}}" style="min-height: 48px; padding: 8px 12px; display: flex; align-items: flex-start; gap: 10px; text-align: left">
+              <span style="flex: none; margin-top: 1px; width: 18px; height: 18px; border-radius: 9px; background: {{ln.bg}}; color: {{ln.fg}}; font-size: 12px; font-weight: 800; line-height: 18px; text-align: center">{{ln.mark}}</span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.3">
+                <span style="font-size: 13px; color: {{ln.textFg}}; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word">{{ln.text}}</span>
+                <span style="font-size: 12px; color: #6E6E73">{{ln.srcName}} · {{ln.at}}</span>
+              </span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px; transform: rotate({{ln.rot}}deg); transition: transform 0.2s"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+            <sc-if value="{{ln.open}}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 0 12px 12px 40px; display: flex; flex-direction: column; gap: 8px">
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span style="flex: 1; font-size: 11px; font-weight: 600; color: #6E6E73">Details</span>
+                  <button class="tip tip-bl" aria-label="Copy the entry" data-tip="Copy the entry" onClick="{{ln.copy}}" style="flex: none; height: 32px; padding: 0 10px; border-radius: 16px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"></rect><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"></path></svg>{{ln.copyLabel}}</button>
+                </div>
+                <pre style="margin: 0; max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: #F2F2F7; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 11.5px; line-height: 1.45; color: #1D1D1F; white-space: pre-wrap; word-break: break-word; user-select: text">{{ln.detail}}</pre>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+        </sc-if>
+        <sc-if value="{{g.isAi}}" hint-placeholder-val="{{ true }}">
         <div style="padding: 10px 4px 2px; display: flex; align-items: baseline; gap: 8px">
           <span style="font-size: 13px; font-weight: 600">{{g.title}}</span>
-          <span style="flex: 1; font-size: 12px; color: #6E6E73">{{g.at}}</span>
+          <span style="flex: 1; font-size: 12px; color: #6E6E73">AI · {{g.at}}</span>
           <span style="font-size: 12px; font-weight: 600; color: #3A3A3C; font-variant-numeric: tabular-nums">{{g.sum}}</span>
           <sc-if value="{{g.check}}" hint-placeholder-val="{{ false }}"><button aria-expanded="{{g.exp}}" onClick="{{g.toggleExport}}" style="flex: none; padding: 2px 4px; font-size: 12px; font-weight: 600; color: #0071E3">Export</button></sc-if>
         </div>
@@ -1542,16 +1713,84 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
             </div>
           </div>
         </sc-if>
+        </sc-if>
       </sc-for>
     </div>
     <div style="flex: none; padding: 10px 14px 14px; border-top: 0.5px solid rgba(0,0,0,0.08); display: flex; align-items: center; gap: 10px">
       <span style="flex: 1; display: flex; flex-direction: column; gap: 1px; line-height: 1.25">
         <span style="font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums">Session total {{dbg.sum}}</span>
-        <span style="font-size: 12px; color: #6E6E73">Counted in the tutor time, like any call</span>
+        <span style="font-size: 12px; color: #6E6E73">The AI’s calls, counted in the tutor time</span>
       </span>
-      <button onClick="{{dbg.clear}}" aria-disabled="{{dbg.empty}}" style="flex: none; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(118,118,128,0.12); font-size: 13px; font-weight: 600; color: #1D1D1F">Clear log</button>
+      <button onClick="{{dbg.copyAll}}" aria-disabled="{{dbg.logEmpty}}" style="flex: none; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(0,113,227,0.10); font-size: 13px; font-weight: 600; color: #0071E3">{{dbg.allCopyLabel}}</button>
+      <button onClick="{{dbg.clear}}" aria-disabled="{{dbg.logEmpty}}" style="flex: none; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(118,118,128,0.12); font-size: 13px; font-weight: 600; color: #1D1D1F">Clear</button>
     </div>
     </sc-if>
+
+    <!-- Performance: frames and the main thread stand in for the CPU, which no browser gives a page; memory is estimated from what the app holds. -->
+    <sc-if value="{{dbg.isPerf}}" hint-placeholder-val="{{ false }}">
+    <div class="nt-dbglist" tabindex="0" role="region" aria-label="Performance" style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="flex: none; padding: 0 2px; display: flex; align-items: center; gap: 8px">
+        <span class="{{dbg.pf.pulse}}" style="flex: none; width: 8px; height: 8px; border-radius: 4px; background: {{dbg.pf.dot}}"></span>
+        <span style="font-size: 13px; font-weight: 600">{{dbg.pf.state}}</span>
+        <span style="flex: 1; min-width: 0; font-size: 12px; color: #6E6E73; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{dbg.pf.window}}</span>
+        <button onClick="{{dbg.pf.toggleLive}}" style="flex: none; height: 32px; padding: 0 12px; border-radius: 16px; background: rgba(118,118,128,0.12); font-size: 12.5px; font-weight: 600; color: #1D1D1F">{{dbg.pf.liveLabel}}</button>
+        <button class="tip tip-bl" aria-label="Copy the numbers" data-tip="Copy the numbers as JSON" onClick="{{dbg.pf.copy}}" style="flex: none; height: 32px; padding: 0 10px; border-radius: 16px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"></rect><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"></path></svg>{{dbg.pf.copyLabel}}</button>
+      </div>
+      <div style="padding: 8px 4px 0; display: flex; flex-direction: column; gap: 1px">
+        <span style="font-size: 13px; font-weight: 600">Frames</span>
+        <span style="font-size: 12px; color: #6E6E73">The worst frame of each half-second. Over 16.7 ms a frame is late; over 50 ms the pen lags.</span>
+      </div>
+      <div style="border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+          <sc-for list="{{dbg.pf.tiles}}" as="ti" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; gap: 2px; line-height: 1.2"><span style="font-size: 11px; font-weight: 600; color: #6E6E73">{{ti.k}}</span><span style="font-size: 22px; font-weight: 700; color: {{ti.fg}}; font-variant-numeric: tabular-nums">{{ti.v}}</span></div>
+          </sc-for>
+        </div>
+        <svg viewBox="0 0 360 72" preserveAspectRatio="none" role="img" aria-label="The worst frame of each half-second, the last 30 seconds" style="width: 100%; height: 72px; display: block; border-radius: 6px; background: #F7F7FA">
+          <path d="M0 53.8 H360" stroke="#34C759" stroke-width="1" stroke-dasharray="3 3" fill="none" vector-effect="non-scaling-stroke"></path>
+          <path d="M0 17.5 H360" stroke="#FF3B30" stroke-width="1" stroke-dasharray="3 3" fill="none" vector-effect="non-scaling-stroke"></path>
+          <path d="{{dbg.pf.barsG}}" fill="#34C759"></path>
+          <path d="{{dbg.pf.barsO}}" fill="#FF9F0A"></path>
+          <path d="{{dbg.pf.barsR}}" fill="#FF3B30"></path>
+        </svg>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6E6E73; font-variant-numeric: tabular-nums"><span>30 s ago</span><span>16.7 ms · 50 ms</span><span>now</span></div>
+      </div>
+      <sc-for list="{{dbg.pf.cards}}" as="cd" hint-placeholder-count="4">
+        <div style="padding: 8px 4px 0; display: flex; flex-direction: column; gap: 1px">
+          <span style="font-size: 13px; font-weight: 600">{{cd.title}}</span>
+          <sc-if value="{{cd.sub}}" hint-placeholder-val="{{ true }}"><span style="font-size: 12px; color: #6E6E73">{{cd.sub}}</span></sc-if>
+        </div>
+        <div style="border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column">
+          <sc-if value="{{cd.bar}}" hint-placeholder-val="{{ false }}">
+            <div style="margin: 12px 14px 4px; height: 8px; border-radius: 4px; background: rgba(118,118,128,0.16); overflow: hidden"><div style="width: {{cd.barW}}%; height: 100%; border-radius: 4px; background: {{cd.barC}}; transition: width 0.4s"></div></div>
+          </sc-if>
+          <sc-for list="{{cd.rows}}" as="rw" hint-placeholder-count="4">
+            <sc-if value="{{rw.sep}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div></sc-if>
+            <div style="min-height: 40px; padding: 6px 14px; box-sizing: border-box; display: flex; align-items: center; gap: 10px">
+              <span style="flex: 1; font-size: 13px; color: #3A3A3C">{{rw.k}}</span>
+              <span style="font-size: 13px; font-weight: {{rw.fw}}; color: {{rw.fg}}; font-variant-numeric: tabular-nums; text-align: right">{{rw.v}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+      <div style="margin-top: 8px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column">
+        <button role="switch" aria-checked="{{dbg.pf.hudOn}}" onClick="{{dbg.pf.toggleHud}}" style="min-height: 52px; padding: 6px 12px 6px 14px; display: flex; align-items: center; gap: 10px; text-align: left">
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 1px; line-height: 1.25"><span style="font-size: 14px">Show on the canvas</span><span style="font-size: 12px; color: #6E6E73">The frames, busy time and memory in a strip, with this window closed</span></span>
+          <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{dbg.pf.hudSw.bg}}; transition: background 0.2s"><span style="position: absolute; top: 2px; left: {{dbg.pf.hudSw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 0.2s"></span></span>
+        </button>
+        <div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div>
+        <button role="switch" aria-checked="{{dbg.pf.flashOn}}" onClick="{{dbg.pf.toggleFlash}}" style="min-height: 52px; padding: 6px 12px 6px 14px; display: flex; align-items: center; gap: 10px; text-align: left">
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 1px; line-height: 1.25"><span style="font-size: 14px">Flash what is repainted</span><span style="font-size: 12px; color: #6E6E73">Each rectangle a frame paints blinks red on the canvas</span></span>
+          <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{dbg.pf.flashSw.bg}}; transition: background 0.2s"><span style="position: absolute; top: 2px; left: {{dbg.pf.flashSw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: left 0.2s"></span></span>
+        </button>
+      </div>
+      <div style="margin-top: 6px; padding: 10px 12px; border-radius: 14px; background: rgba(118,118,128,0.10); display: flex; gap: 8px; font-size: 12px; line-height: 1.35; color: #3A3A3C">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5M12 7.8h.01"></path></svg>
+        <span>Safari gives a page no CPU load, temperature or battery: the frames and the busy time stand in for them. The numbers stay on this device.</span>
+      </div>
+    </div>
+    </sc-if>
+
   </div>
 </sc-if>
 
@@ -2231,33 +2470,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   </div>
   </sc-if>
 
-  <!-- The tutor's panel from the top right: Home holds no work, so it says only that it is an AI and where it helps. -->
-  <sc-if value="{{hs.tutorOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop" role="dialog" aria-label="{{tutorName}}" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.97); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16); display: flex; flex-direction: column; {{hs.P.tutor}}">
-    <div style="display: flex; align-items: center; gap: 10px; padding: 12px 8px 10px 14px">
-      <sc-if value="{{isNeutral}}" hint-placeholder-val="{{ true }}">
-        <span style="flex: none; width: 38px; height: 38px; border-radius: 19px; background: linear-gradient(135deg, #5E5CE6 0%, #0A84FF 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-7.5L7 20.5V17H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z"></path><path d="M12 7.4l.9 2.2 2.2.9-2.2.9-.9 2.2-.9-2.2-2.2-.9 2.2-.9z" fill="currentColor" stroke="none"></path></svg></span>
-      </sc-if>
-      <sc-if value="{{isPip}}" hint-placeholder-val="{{ false }}">
-        <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#FFE3C2"></circle><path d="M7.5 6.5L17 13l-7.5 6.5z" fill="#F76707"></path><path d="M32.5 6.5L23 13l7.5 6.5z" fill="#F76707"></path><path d="M7 20.5C7 14.5 12.5 11.5 20 11.5s13 3 13 9c0 6.5-6 12-13 12s-13-5.5-13-12z" fill="#F76707"></path><path d="M7.6 22.5c3.9-.5 8.9 1.5 12.4 6 3.5-4.5 8.5-6.5 12.4-6-1.4 6-6.4 10-12.4 10s-11-4-12.4-10z" fill="#FFFFFF"></path><circle cx="15" cy="20.3" r="1.7" fill="#1D1D1F"></circle><circle cx="25" cy="20.3" r="1.7" fill="#1D1D1F"></circle><ellipse cx="20" cy="28.4" rx="1.9" ry="1.4" fill="#1D1D1F"></ellipse></svg>
-      </sc-if>
-      <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.2">
-        <span style="font-size: 16px; font-weight: 700">{{tutorTitle}}</span>
-        <span style="font-size: 12px; color: #6E6E73">Tutor help used today · 20%</span>
-      </span>
-      <button class="ib tip tip-bl" onClick="{{hs.closePop}}" aria-label="Close" data-tip="Close" style="color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-    </div>
-    <div style="height: 1px; background: rgba(0,0,0,0.07)"></div>
-    <div style="flex: 1; padding: 16px 14px; display: flex; flex-direction: column; gap: 10px; overflow: auto">
-      <div style="align-self: flex-start; max-width: 290px; padding: 10px 14px; border-radius: 18px 18px 18px 6px; background: rgba(118,118,128,0.10); font-size: 14px; line-height: 1.42">{{hs.tutorLine1}}</div>
-      <div style="align-self: flex-start; max-width: 290px; padding: 10px 14px; border-radius: 18px 18px 18px 6px; background: rgba(118,118,128,0.10); font-size: 14px; line-height: 1.42">{{hs.tutorLine2}}</div>
-    </div>
-    <div style="padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 8px">
-      <button onClick="{{continueNext}}" style="height: 48px; border-radius: 14px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px">Continue · Number patterns</button>
-      <button onClick="{{openCamera}}" style="height: 48px; border-radius: 14px; background: rgba(118,118,128,0.12); color: #1D1D1F; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>Take from my paper</button>
-    </div>
-  </div>
-  </sc-if>
 </div>
 </sc-if>
 
@@ -2331,6 +2543,38 @@ const OL = [
   { id: 6, x: 308, y: 508, w: 272, h: 186, ch: 132, label: '100 days after Wednesday', key: 'E', hint: 'The week repeats every 7 days. What is left of 100 after the whole weeks?', alt: 'Every 7 days it is Wednesday again. How close to 100 can you get in whole weeks?' }
 ];
 // The tutor on a task the learner framed by hand, and on the canvases of other authors.
+// The single-stroke glyphs the tutor writes with in the demo: each its strokes of points in a box 1 high, and its advance.
+const ring = (cx, cy, rx, ry, a0, n) => Array.from({ length: n + 1 }, (_, i) => { const a = a0 + (i / n) * Math.PI * 2; return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)]; });
+const HAND = {
+  '0': { w: 0.66, s: [ring(0.28, 0.5, 0.22, 0.48, -1.6, 16)] },
+  '1': { w: 0.5, s: [[[0.08, 0.22], [0.26, 0.02], [0.26, 1]]] },
+  '2': { w: 0.66, s: [[[0.04, 0.24], [0.14, 0.07], [0.3, 0.01], [0.47, 0.09], [0.52, 0.27], [0.42, 0.5], [0.04, 1], [0.56, 0.99]]] },
+  '3': { w: 0.66, s: [[[0.05, 0.1], [0.24, 0.01], [0.44, 0.07], [0.5, 0.24], [0.4, 0.42], [0.2, 0.48], [0.42, 0.55], [0.53, 0.75], [0.45, 0.93], [0.25, 1], [0.04, 0.92]]] },
+  '4': { w: 0.66, s: [[[0.42, 1], [0.42, 0.02], [0.03, 0.68], [0.58, 0.68]]] },
+  '5': { w: 0.66, s: [[[0.5, 0.02], [0.13, 0.02], [0.09, 0.44], [0.3, 0.39], [0.48, 0.49], [0.54, 0.72], [0.45, 0.93], [0.25, 1], [0.04, 0.92]]] },
+  '6': { w: 0.66, s: [[[0.47, 0.05], [0.3, 0.01], [0.12, 0.2], [0.06, 0.6], [0.12, 0.9], [0.3, 1], [0.48, 0.9], [0.52, 0.7], [0.42, 0.55], [0.25, 0.52], [0.08, 0.66]]] },
+  '7': { w: 0.66, s: [[[0.04, 0.02], [0.56, 0.02], [0.22, 1]]] },
+  '8': { w: 0.66, s: [[[0.3, 0.48], [0.12, 0.35], [0.13, 0.12], [0.3, 0.02], [0.47, 0.12], [0.48, 0.35], [0.3, 0.48], [0.09, 0.65], [0.09, 0.88], [0.3, 1], [0.51, 0.88], [0.51, 0.65], [0.3, 0.48]]] },
+  '9': { w: 0.66, s: [[[0.5, 0.34], [0.35, 0.47], [0.15, 0.45], [0.06, 0.25], [0.15, 0.05], [0.35, 0.02], [0.5, 0.15], [0.52, 0.45], [0.45, 1]]] },
+  'x': { w: 0.62, s: [[[0.04, 0.36], [0.27, 0.68], [0.5, 1]], [[0.5, 0.36], [0.27, 0.68], [0.04, 1]]] },
+  '=': { w: 0.66, s: [[[0.06, 0.52], [0.52, 0.5]], [[0.06, 0.76], [0.52, 0.74]]] },
+  '−': { w: 0.62, s: [[[0.06, 0.63], [0.48, 0.62]]] },
+  '+': { w: 0.66, s: [[[0.06, 0.63], [0.52, 0.62]], [[0.29, 0.4], [0.29, 0.86]]] },
+  ':': { w: 0.4, s: [[[0.14, 0.45], [0.16, 0.47]], [[0.14, 0.84], [0.16, 0.86]]] },
+  '/': { w: 0.5, s: [[[0.42, 0.04], [0.06, 1]]] },
+  '(': { w: 0.42, s: [[[0.32, 0], [0.13, 0.3], [0.1, 0.6], [0.16, 0.85], [0.32, 1.05]]] },
+  ')': { w: 0.42, s: [[[0.08, 0], [0.27, 0.3], [0.3, 0.6], [0.24, 0.85], [0.08, 1.05]]] }
+};
+
+// The full solutions the tutor gives in grown-up mode, by the task's statement.
+const SOL = {
+  '3x + 5 = 20': ['3x + 5 = 20', '3x = 20 − 5 = 15', 'x = 15 : 3 = 5'],
+  '2(x − 4) = 10': ['2(x − 4) = 10', '2x − 8 = 10', '2x = 18', 'x = 9'],
+  'x/3 + 2 = 6': ['x/3 + 2 = 6', 'x/3 = 4', 'x = 12'],
+  '5x − 7 = 3x + 9': ['5x − 7 = 3x + 9', '2x = 16', 'x = 8'],
+  '4 − x = 2x − 11': ['4 − x = 2x − 11', '15 = 3x', 'x = 5'],
+  '(x + 1)/2 = (x − 2)/5': ['5(x + 1) = 2(x − 2)', '5x + 5 = 2x − 4', '3x = −9', 'x = −3']
+};
 const GEN = { hint: 'What do you already know here, and what do you need to find?', alt: 'Can you try a smaller case of the same thing first?' };
 // What the learner says to Pip in the demo, in turn: the microphone is simulated.
 const SAID = [
@@ -2574,22 +2818,27 @@ class Component extends DCLogic {
   // The paper flow: the page photographed, the tasks picked, the learner's own frames on each page, the sheet chosen, each task's tries and status.
   // hintMode is the profile's setting, 'questions' or 'where'; the demo's profile has "Show where" on.
   state = { finding: false, pageSays: null, surface: 'sheet', back: 'sheet', paperBack: 'home', stage: 'camera', demo: 'worksheet', captured: null, selected: [], frames: {}, boxes: {}, current: 1, tool: 'pen', strokes: {}, live: null, liveBox: null, answers: {}, status: {}, ptries: {}, pmark: null, vmarks: null, verdict: null, more: false, cardOpen: true, flash: false, tasksOpen: false, hintMode: 'where', clipPos: null, clipDrag: false,
-    chatOpen: false, chat: [], typing: false, listening: false, speaking: null, voiceOn: true, micOn: true, unread: false, draft: '', said: {}, hinted: {},
+    chatOpen: false, chat: [], typing: false, listening: false, speaking: null, voiceOn: true, micOn: true, unread: false, draft: '', dictated: null, said: {}, hinted: {},
     screen: 'signin', waitOn: 'sky', auth: 'welcome', code: false, ok18: false, okTerms: false, legal: null, pinOpen: false, pin: '', learner: 'owner', addOpen: false, switchOpen: false, helpOpen: false, lesson: null, mapMod: 'Olympiad maths 1–6',
     // slice: the demo's switch — 'first', the first slice with adults, or 'later', with what epics E4 of app and E11 bring.
     slice: 'first', ownerName: '', ownerAvatar: null, ownerCountry: null, avatarOpen: false, countryOpen: false,
     view: { z: 1, x: 0, y: 0 }, panning: false, grid: 'dots',
+    // Select: its shape, its menu of shapes, the strokes taken, the shape as it is drawn, a drag of them, and the sheet before each action, for Undo.
+    areaMode: 'lasso', selMenu: false, area: null, areaLive: null, areaD: null, areaHist: [],
     // The phone's own: the legend of home as a sheet, and the tutor's sheet over the whole screen.
     legendOpen: false, pagesOpen: false, tutorFull: false,
     // A lesson (RUN.md, T155): the segment shown and the place reached, the demo, the solving mode and step, and each task's attempt.
     seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {},
     picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, choiceOpen: false, solAsk: false, segsOpen: false, fold: false,
-    report: null, reportKind: null, reportErr: false, reported: {}, quotaOut: false, inkN: {},
+    report: null, reportKind: null, reportErr: false, reported: {}, grown: null, grownPad: null, grownPin: '', grownMiss: false, awaited: null, stopped: false, quotaOut: false, inkN: {},
     // The learner's request about the page (R165): the tasks the finding gave on it, by page, and the frames before it, for Undo.
     asked: {}, askUndo: null,
     // Debug (RUN.md, T233): the window, the models chosen, the log of the session's calls.
     dbgFlag: false, dbgOpen: false, dbgTab: 'models', dbgFirst: { model: 'admitted', effort: 'medium', think: true }, dbgSecond: { on: false, model: 'sonnet', effort: 'low', think: true },
-    dbgLog: [], dbgRow: null, dbgMenu: null, dbgBusy: false, dbgFull: false, dbgCopied: null, dbgExport: null, dbgOutcome: {}, dbgSaved: {} };
+    dbgLog: [], dbgRow: null, dbgMenu: null, dbgBusy: false, dbgFull: false, dbgCopied: null, dbgExport: null, dbgOutcome: {}, dbgSaved: {},
+    // The app's log and Performance: the filter, the line open, the log cleared; the frames measured, the strip on the canvas.
+    dbgFilter: false, dbgLv: { error: true, warn: true, info: true, debug: true }, dbgSrc: { ai: true, api: true, canvas: true, app: true }, dbgLine: null, dbgCut: false,
+    dbgPerf: { live: false, left: 0, samples: [] }, dbgHud: false, dbgFlash: false };
   ink = null;
   timers = [];
   mid = 1;
@@ -2724,6 +2973,147 @@ class Component extends DCLogic {
     this.setState({ ...up, dbgLog: log });
   }
 
+  // Performance, on the device: frames and the main thread stand in for the CPU, which no browser gives a page; memory is
+  // estimated from what the app holds. The demo draws its numbers from the strokes on the sheet and a pan under way.
+  dbgStrokes(s) { let n = 0, pts = 0; Object.keys(s.strokes).forEach((k) => (s.strokes[k] || []).forEach((st) => { n++; pts += Math.round((st.d || '').length / 7); })); return { n, pts }; }
+  dbgSample(s) {
+    this.dbgSeed = ((this.dbgSeed || 7) * 1103515245 + 12345) % 2147483648;
+    const r = this.dbgSeed / 2147483648, load = this.dbgStrokes(s).n;
+    const ms = 8.5 + load * 0.9 + (s.panning ? 14 : 0) + r * 5 + (r > 0.97 ? 30 + load : 0);
+    return Math.round(ms * 10) / 10;
+  }
+  dbgPerfStart() {
+    const p = this.state.dbgPerf;
+    if (p.live && p.left > 0) return;
+    const seed = p.samples.length ? p.samples : Array.from({ length: 60 }, () => this.dbgSample(this.state));
+    this.setState({ dbgPerf: { live: true, left: 240, samples: seed } });
+    this.later(() => this.dbgPerfTick(), 500);
+  }
+  // The demo measures for two minutes after a tap and then pauses, so that a snapshot of the mockup settles.
+  dbgPerfTick() {
+    const p = this.state.dbgPerf;
+    if (!p.live) return;
+    if (p.left <= 1) return this.setState({ dbgPerf: { ...p, live: false, left: 0 } });
+    this.setState({ dbgPerf: { live: true, left: p.left - 1, samples: p.samples.slice(1).concat([this.dbgSample(this.state)]) } });
+    this.later(() => this.dbgPerfTick(), 500);
+  }
+  dbgPerfVals(s, PH) {
+    const p = s.dbgPerf, xs = p.samples.length ? p.samples : [9];
+    const sorted = xs.slice().sort((a, b) => a - b), q = (f) => sorted[Math.min(sorted.length - 1, Math.floor(f * sorted.length))];
+    const med = q(0.5), p95 = q(0.95), long = xs.filter((x) => x > 50).length, fps = Math.min(60, Math.round(1000 / Math.max(16.7, med)));
+    const ink = this.dbgStrokes(s), busy = Math.min(96, Math.round(9 + ink.n * 2.2 + (s.panning ? 25 : 0) + (med - 8.5) * 0.8));
+    const lag = Math.round((p95 - 16.7 > 0 ? p95 - 16.7 : 0.4) * 10) / 10;
+    const col = (ms) => ms <= 16.7 ? '#34C759' : ms <= 50 ? '#FF9F0A' : '#FF3B30';
+    const fg = (ms) => ms <= 16.7 ? '#248A3D' : ms <= 50 ? '#C93400' : '#D70015';
+    // The bars: the worst frame of each half-second, 66 ms at the top.
+    const bars = { g: '', o: '', r: '' };
+    xs.forEach((ms, i) => { const h = Math.max(2, Math.min(72, ms / 66 * 72)), k = ms <= 16.7 ? 'g' : ms <= 50 ? 'o' : 'r';
+      bars[k] += 'M' + (i * 6) + ' 72 v' + (-h).toFixed(1) + ' h5 v' + h.toFixed(1) + ' z '; });
+    const [vw, vh, dpr] = PH ? [390, 844, 3] : [1194, 834, 2], buf = vw * dpr * vh * dpr * 4 / 1048576;
+    const photo = s.captured ? 4032 * 3024 * 4 / 1048576 + 1568 * 1176 * 4 / 1048576 : 0, strokesMb = ink.pts * 24 / 1048576 + ink.n * 0.0008;
+    const mb = (x) => x < 0.1 ? '< 0.1 MB' : x.toFixed(1) + ' MB', total = buf * 3 + photo + strokesMb;
+    const shown = p.live ? 'Live' : 'Paused';
+    const snap = { at: '14:03:12', device: PH ? 'iPhone · Safari 19' : 'iPad · Safari 19', view: vw + '×' + vh + '@' + dpr,
+      frames: { fps, medianMs: med, p95Ms: p95, longFrames: long }, mainThread: { busyPct: busy, eventLoopDelayP95Ms: lag },
+      canvas: { strokes: ink.n, points: ink.pts, buffers: 3 }, memoryMb: { canvasBuffers: +(buf * 3).toFixed(1), photos: +photo.toFixed(1), strokes: +strokesMb.toFixed(2), estimated: +total.toFixed(1) } };
+    const card = (title, sub, rows, extra) => ({ title, sub, rows: rows.map((r, i) => ({ fg: '#1D1D1F', fw: 500, ...r, sep: i > 0 })), bar: false, barW: 0, barC: "", ...(extra || {}) });
+    return {
+      live: p.live, state: shown, dot: p.live ? '#34C759' : '#8E8E93', pulse: p.live ? 'nt-livedot' : '',
+      window: 'last 30 s · every 0.5 s', liveLabel: p.live ? 'Pause' : 'Resume',
+      toggleLive: () => p.live ? this.setState({ dbgPerf: { ...this.state.dbgPerf, live: false } }) : this.dbgPerfStart(),
+      copyLabel: s.dbgCopied === 'perf' ? 'Copied' : 'Copy',
+      copy: () => { try { navigator.clipboard.writeText(JSON.stringify(snap, null, 2)); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: 'perf' }); },
+      tiles: [{ k: 'Frames a second', v: String(fps), fg: fg(1000 / fps) }, { k: 'Frame · p95', v: p95.toFixed(0) + ' ms', fg: fg(p95) }, { k: 'Over 50 ms', v: String(long), fg: long ? '#D70015' : '#248A3D' }],
+      barsG: bars.g, barsO: bars.o, barsR: bars.r,
+      cards: [
+        card('Main thread', 'The share of time the page’s own code ran: the nearest a page gets to the CPU', [
+          { k: 'Busy', v: busy + '%', fg: busy > 70 ? '#D70015' : busy > 40 ? '#C93400' : '#1D1D1F', fw: 600 },
+          { k: 'Input waits · p95', v: lag + ' ms' },
+          { k: 'Longest task', v: Math.round(sorted[sorted.length - 1]) + ' ms' }], { bar: true, barW: busy, barC: col(busy > 70 ? 99 : busy > 40 ? 30 : 9) }),
+        card('Canvas', 'What the sheet holds and what a frame paints', [
+          { k: 'Strokes · points', v: dbgNum(ink.n) + ' · ' + dbgNum(ink.pts) },
+          { k: 'Painted by the last frame', v: s.live ? '1 stroke · 3% of the view' : 'nothing changed' },
+          { k: 'Paint · p95', v: (1.2 + ink.n * 0.35).toFixed(1) + ' ms' },
+          { k: 'Repaints of the whole view', v: String(4 + ink.n % 7) + ' · scroll, scale, undo' },
+          { k: 'Grid', v: s.grid === 'dots' ? 'dots · one tile' : s.grid } ]),
+        card('Memory · estimated', 'From what the app holds; the browser gives no total', [
+          { k: 'Canvas buffers', v: '3 × ' + vw * dpr + '×' + vh * dpr + ' · ' + mb(buf * 3) },
+          { k: 'Photos, decoded', v: s.captured ? '1 page · ' + mb(photo) : 'none' },
+          { k: 'Strokes', v: mb(strokesMb) },
+          { k: 'JavaScript heap', v: 'not given by Safari', fg: '#6E6E73' },
+          { k: 'In all, about', v: mb(total), fw: 600 } ]),
+        card('Device', '', [
+          { k: 'Browser', v: PH ? 'Safari 19 · iOS' : 'Safari 19 · iPadOS' },
+          { k: 'View', v: vw + ' × ' + vh + ' @' + dpr + 'x' },
+          { k: 'Cores, as reported', v: '8' },
+          { k: 'CPU load, heat, battery', v: 'not given to a page', fg: '#6E6E73' } ])],
+      hudOn: s.dbgHud, hudSw: { bg: s.dbgHud ? '#34C759' : 'rgba(120,120,128,0.24)', x: s.dbgHud ? 20 : 2 },
+      toggleHud: () => { this.setState({ dbgHud: !this.state.dbgHud }); if (!this.state.dbgHud) this.dbgPerfStart(); },
+      flashOn: s.dbgFlash, flashSw: { bg: s.dbgFlash ? '#34C759' : 'rgba(120,120,128,0.24)', x: s.dbgFlash ? 20 : 2 },
+      toggleFlash: () => this.setState({ dbgFlash: !this.state.dbgFlash }),
+      hud: { text: fps + ' fps · ' + p95.toFixed(0) + ' ms · busy ' + busy + '% · ≈ ' + Math.round(total) + ' MB', dot: col(p95), x: PH ? 16 : 84 }
+    };
+  }
+
+  // The app's log: what the app, api and the canvas said, the errors and the warnings, and the AI's calls among them, newest
+  // first. The lines are synthetic; a line of api carries the trace that finds it in the server's logs.
+  dbgLines(s) {
+    const seed = s.dbgCut ? [] : [
+      { id: 'l1', at: '14:01:58', lv: 'info', src: 'app', text: 'Started · app 0.1.54 · api 0.1.81', detail: 'build: e23fix · 6685ba5\napi: http://127.0.0.1:8080\nuser agent: Safari 19 · iPadOS 19\nview: 1194 × 834 @2x' },
+      { id: 'l2', at: '14:01:59', lv: 'debug', src: 'app', text: 'Profile opened · owner · paper flow', detail: 'profile: owner\nhint mode: where\ndebug right: yes' },
+      { id: 'l3', at: '14:02:04', lv: 'info', src: 'camera', text: 'Photo 4032 × 3024 · fitted to 1568 × 1176 · 1.9 MB', detail: 'source: camera\nfitted: 1568 × 1176, 28 px patches\nJPEG: 1.9 MB' },
+      { id: 'l4', at: '14:02:31', lv: 'warn', src: 'canvas', text: 'Long frame · 61 ms while panning', detail: 'frame: 61 ms\nstrokes in view: 214\nrepaint: the whole view\nreason: scroll' },
+      { id: 'l5', at: '14:02:33', lv: 'error', src: 'api', text: 'PaperService/SubmitWork · invalid_argument · the crop is 4.6 MiB, over 4 MiB', detail: 'code: invalid_argument\nrequest: 4.6 MiB\ntook: 0.2 s\ntrace: 7f3a91c0e2b84d55\nshown: “This version of the app doesn’t know this yet”' },
+      { id: 'l6', at: '14:02:40', lv: 'error', src: 'app', text: 'TypeError: undefined is not an object (evaluating \'box.x\')', detail: 'uncaught, in a promise\nat cropFitted (src/paper/photo.ts:88:14)\nat croppedPng (src/paper/capture.ts:41:9)\nat check (src/paper/Solve.tsx:612:22)' },
+      { id: 'l7', at: '14:02:41', lv: 'debug', src: 'canvas', text: 'Probe · 3 strokes filled in the frame · 2% of the view', detail: 'fills: 3\nrect: 312 × 96 px\nbuffer: #under taken at the stroke’s first frame' }];
+    const rpc = s.dbgLog.map((g, i) => {
+      const took = g.calls.reduce((a, c) => a + c.took, 0), name = g.check ? 'PaperService/SubmitWork' : 'PaperService/FindTasks';
+      return { id: 'r' + g.id, at: g.at, lv: 'info', src: 'api', text: name + ' · ok · ' + took.toFixed(1) + ' s', detail: 'code: ok\ntook: ' + took.toFixed(1) + ' s\ncalls of the AI: ' + g.calls.filter((c) => c.ai !== false).length + '\ntrace: ' + (0x5a17c3e9 + i * 7919).toString(16) + 'b02d6e41' };
+    });
+    return seed.concat(rpc);
+  }
+  dbgLogVals(s, groups) {
+    const LV = { error: { name: 'Errors', bg: 'rgba(255,59,48,0.14)', fg: '#D70015', mark: '!' }, warn: { name: 'Warnings', bg: 'rgba(255,159,10,0.16)', fg: '#C93400', mark: '!' },
+      info: { name: 'Info', bg: 'rgba(0,113,227,0.10)', fg: '#0071E3', mark: 'i' }, debug: { name: 'Debug', bg: 'rgba(118,118,128,0.14)', fg: '#6E6E73', mark: '·' } };
+    const SRC = { ai: 'AI calls', api: 'Server · api', canvas: 'Canvas', camera: 'Camera', app: 'App' };
+    const srcOf = (x) => x === 'camera' ? 'app' : x;
+    const lines = this.dbgLines(s), lvOn = s.dbgLv, srcOn = s.dbgSrc;
+    const items = lines.map((l, i) => ({ t: l.at, o: 1, l, i })).concat(groups.map((g, i) => ({ t: g.at, o: 0, g, i })))
+      .sort((a, b) => a.t < b.t ? 1 : a.t > b.t ? -1 : a.o - b.o);
+    const keep = items.filter((x) => x.g ? srcOn.ai && lvOn.info : srcOn[srcOf(x.l.src)] && lvOn[x.l.lv]);
+    const blocks = [];
+    keep.forEach((x) => {
+      if (x.g) return blocks.push({ ...x.g, isAi: true, isLines: false });
+      const l = x.l, on = s.dbgLine === l.id, v = LV[l.lv];
+      const row = { ...l, open: on, rot: on ? 90 : 0, mark: v.mark, bg: v.bg, fg: v.fg, textFg: l.lv === 'error' ? '#D70015' : '#1D1D1F', srcName: SRC[l.src],
+        copyLabel: s.dbgCopied === l.id ? 'Copied' : 'Copy',
+        toggle: () => this.setState({ dbgLine: this.state.dbgLine === l.id ? null : l.id }),
+        copy: () => { try { navigator.clipboard.writeText(l.at + ' ' + l.lv + ' ' + l.src + ' ' + l.text + '\n' + l.detail); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: l.id }); } };
+      const last = blocks[blocks.length - 1];
+      if (last && last.isLines) last.lines.push({ ...row, sep: true });
+      else blocks.push({ id: 'b' + l.id, isAi: false, isLines: true, lines: [{ ...row, sep: false }] });
+    });
+    const count = (f) => lines.filter(f).length + (f({ lv: 'info', src: 'ai' }) ? groups.length : 0);
+    const nLv = Object.keys(LV).filter((k) => lvOn[k]).length, nSrc = Object.keys(srcOn).filter((k) => srcOn[k]).length;
+    const errN = lines.filter((l) => l.lv === 'error').length, onlyErr = nLv === 1 && lvOn.error && nSrc === 4;
+    const all = lines.length + groups.length;
+    const flip = (key, k) => this.setState({ [key]: { ...this.state[key], [k]: !this.state[key][k] } });
+    return {
+      blocks, logEmpty: !all, nothingShown: !!all && !blocks.length,
+      shown: keep.length === all ? all + ' entries' : keep.length + ' of ' + all + ' entries',
+      filterLabel: nLv === 4 && nSrc === 4 ? 'All' : onlyErr ? 'Errors' : 'Filtered', filterOpen: s.dbgFilter,
+      toggleFilter: () => this.setState({ dbgFilter: !this.state.dbgFilter, dbgMenu: null }),
+      errN: errN > 0 && !onlyErr, errLabel: errN + (errN === 1 ? ' error' : ' errors'),
+      onlyErrors: () => this.setState({ dbgLv: { error: true, warn: false, info: false, debug: false }, dbgSrc: { ai: true, api: true, canvas: true, app: true }, dbgFilter: false }),
+      showAll: () => this.setState({ dbgLv: { error: true, warn: true, info: true, debug: true }, dbgSrc: { ai: true, api: true, canvas: true, app: true }, dbgFilter: false }),
+      levels: Object.keys(LV).map((k) => ({ name: LV[k].name, on: !!lvOn[k], n: String(count((l) => l.lv === k)), dot: LV[k].fg, pick: () => flip('dbgLv', k) })),
+      sources: Object.keys(srcOn).map((k) => ({ name: SRC[k], on: !!srcOn[k], n: String(k === 'ai' ? groups.length : lines.filter((l) => srcOf(l.src) === k).length), dot: '#8E8E93', pick: () => flip('dbgSrc', k) })),
+      errTab: errN,
+      allCopyLabel: s.dbgCopied === 'all' ? 'Copied' : 'Copy',
+      copyAll: () => { try { navigator.clipboard.writeText(keep.map((x) => x.g ? x.t + ' info ai ' + x.g.title + ' · ' + x.g.sum : x.t + ' ' + x.l.lv + ' ' + x.l.src + ' ' + x.l.text).join('\n')); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: 'all' }); }
+    };
+  }
+
   dbgVals(s, PH, isPick, isSolve) {
     const show = this.dbgOn() && s.screen === 'canvas' && (isPick || isSolve);
     const calls = [].concat(...s.dbgLog.map((g) => g.calls)), ai = calls.filter((c) => c.ai !== false);
@@ -2768,7 +3158,7 @@ class Component extends DCLogic {
           toggle: () => this.setState({ dbgRow: this.state.dbgRow === c.id ? null : c.id }),
           copy: () => { try { navigator.clipboard.writeText(c.json); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: c.id }); } };
       }) }));
-    const tab = s.dbgTab;
+    const tab = s.dbgTab, lg = this.dbgLogVals(s, groups);
     return { show, open, tip: 'Debug · ' + dbgUsd(total), mt: !PH ? -100 : -28, btnCls: 'ph-dbg-up', ring: s.dbgBusy ? 'nt-dring' : '',
       // While the tutor's panel is open the button is not there: the panel stands in its place.
       btn: { op: open || talk ? 0 : 1, sc: open || talk ? 0.6 : 1, vis: open || talk ? 'hidden' : 'visible' },
@@ -2778,17 +3168,20 @@ class Component extends DCLogic {
       head: dbgUsd(total) + ' · ' + ai.length + (ai.length === 1 ? ' call' : ' calls') + ' this session',
       toggle: () => this.setState({ dbgOpen: !this.state.dbgOpen, dbgMenu: null, chatOpen: false, tasksOpen: false, more: false }),
       close: () => this.setState({ dbgOpen: false, dbgMenu: null }),
-      tabs: [{ label: 'Models', id: 'models', hasN: false, n: '' }, { label: 'Log', id: 'log', hasN: ai.length > 0, n: String(ai.length) }].map((x) => ({ ...x, on: tab === x.id, ...seg(tab === x.id), pick: () => this.setState({ dbgTab: x.id, dbgMenu: null }) })),
-      isModels: tab === 'models', isLog: tab === 'log',
+      tabs: [{ label: 'Models', id: 'models', hasN: false, n: '', nbg: '' }, { label: 'Log', id: 'log', hasN: lg.errTab > 0, n: String(lg.errTab), nbg: '#FF3B30' }, { label: 'Performance', id: 'perf', hasN: false, n: '', nbg: '' }]
+        .map((x) => ({ ...x, on: tab === x.id, ...seg(tab === x.id), pick: () => { this.setState({ dbgTab: x.id, dbgMenu: null, dbgFilter: false }); if (x.id === 'perf') this.dbgPerfStart(); } })),
+      isModels: tab === 'models', isLog: tab === 'log', isPerf: tab === 'perf', pf: this.dbgPerfVals(s, PH), ...lg,
       slots: [slot('dbgFirst', 'First model — every call', 'Find tasks, the statement, the solution and reading the work'), slot('dbgSecond', 'Second model — reading the work', 'A second reader of the crop with the strokes')],
       admittedRows: Object.keys(DBG_CALLS).map((k) => ({ call: DBG_CALLS[k].name, model: DBG_CASCADE.map((a) => dbgModel(a.model).name.replace(' 5.5', '') + ' · ' + a.effort).join(' → ') })),
-      groups, empty: !groups.length, sum: dbgUsd(total), clear: () => this.setState({ dbgLog: [], dbgRow: null, dbgExport: null, dbgSaved: {} }) };
+      groups, empty: !groups.length, sum: dbgUsd(total), clear: () => this.setState({ dbgLog: [], dbgRow: null, dbgExport: null, dbgSaved: {}, dbgCut: true, dbgLine: null }) };
   }
 
   // ---- The tutor, Pip. It lives in the app, not in a canvas: the same button and panel on every canvas.
   // Its replies are the hint ladder's rung (one question), the same rung in other words (R82), or fixed texts;
   // it never names the answer. Every verdict comes from the program and lands in the conversation too.
+  atHome(st) { st = st || this.state; return st.screen === 'home' || st.screen === 'subjects' || st.screen === 'map'; }
   tutorHere(st) {
+    if (this.atHome(st)) return true;
     if (this.lesNow(st)) return this.segNow(st).k === 'task' && !st.lesEnd;
     return st.screen === 'canvas' && (st.surface !== 'paper' || st.stage === 'solve' || st.stage === 'pick');
   }
@@ -2805,6 +3198,7 @@ class Component extends DCLogic {
 
   ctx(st) {
     st = st || this.state;
+    if (this.atHome(st)) return { key: 'home', label: 'Home', tut: GEN, home: true };
     if (st.surface === 'paper' && st.stage === 'pick') return { key: st.captured + '-page', label: 'Your page', tut: GEN, page: true };
     if (st.surface === 'paper' && st.stage === 'solve') {
       const t = this.task(st);
@@ -2827,14 +3221,26 @@ class Component extends DCLogic {
     if (list.length && list[list.length - 1].who === 'div') return list.slice(0, -1).concat(add);
     // On the page to pick from, the tutor takes a request about the frames alone, and says so (R165).
     if (c.page) add.push({ id: this.mid++, who: 'pip', text: 'Tell me which tasks to take from this page and how to split them: a column, a row, each example on its own. I only change the frames.' });
+    // Home holds no work: the tutor says that it is an AI and where it helps.
+    else if (c.home) this.homeLines(st).forEach((text) => add.push({ id: this.mid++, who: 'pip', text }));
     // A task of a module opens on no line: that the tutor is an AI, Help says (R123); a task from paper says where hints come.
     else if (!list.length && (this.isPip(st) || !this.lesNow(st))) add.push({ id: this.mid++, who: 'pip', text: this.isPip(st)
       ? 'Hi, I’m Pip. Ask me ' + (st.micOn ? 'by voice or text' : 'anything') + ' — I’ll help you find the answer, not give it.'
-      : 'Hints for this task come here, a question at a time. A program checks every answer.' });
+      : 'Ask about this task by text or voice, or take a hint: the tutor answers with a question, never with the answer. A program checks every answer.' });
     return list.concat(add);
   }
 
+  // The tutor's field takes the height of its lines, within its max-height: as typed, sent or put there by the microphone.
+  fitField() {
+    if (typeof document === 'undefined' || typeof requestAnimationFrame !== 'function') return;
+    requestAnimationFrame(() => document.querySelectorAll('textarea.chat-grow').forEach((a) => {
+      a.style.height = '22px';
+      if (a.scrollHeight > 22) a.style.height = a.scrollHeight + 'px';
+    }));
+  }
+
   componentDidUpdate() {
+    this.fitField();
     const s = this.state;
     if (!s.chatOpen || !this.tutorHere(s)) return;
     const list = this.withCtx(s.chat);
@@ -2842,6 +3248,43 @@ class Component extends DCLogic {
   }
 
   me(text, extra) { this.setState({ chat: this.withCtx(this.state.chat).concat([{ id: this.mid++, who: 'me', text, ...(extra || {}) }]) }); }
+
+  homeLines(st) {
+    return this.isPip(st)
+      ? ['Pip is an AI — a computer program, not a person. A program checks your answers.', 'Open a lesson or a page from your book, and Pip helps with the work there.']
+      : ['The tutor is an AI — a computer program, not a person. A program checks every answer.', 'Open a lesson or a page from your book, and the tutor helps with the work there.'];
+  }
+
+  // The tutor's panel is one component wherever it stands — Home, the page to pick from, a task from paper, a task of a
+  // module, and Pip under "Later". Its parameters are the context it talks about, which decides what goes with a message,
+  // what the tutor may answer, its greeting and its buttons, and which of its parts are on. Nothing else differs.
+  tutorKit(st) {
+    st = st || this.state;
+    const c = this.ctx(st), pip = this.isPip(st), out = !!st.quotaOut && !c.home;
+    return {
+      ctx: c,
+      // The round button at the right edge; Home opens the panel from its pill instead.
+      side: !c.home,
+      // The speaker in the head: the tutor's words aloud.
+      voicing: true,
+      // The field with Send, and the microphone: speech into the field. A child's microphone is the grown-up's switch.
+      field: true,
+      mic: !pip || st.micOn,
+      // Both wait while today's tutor time is used up.
+      off: out,
+      // Grown-up mode, behind the grown-ups' PIN: on a task from paper, where the field takes a question.
+      grown: !c.home && !c.page && st.surface === 'paper',
+      label: c.page ? 'Which tasks to take, and how to split them' : c.home ? 'Message to the tutor' : pip ? 'Message to Pip' : 'Question about this task',
+      placeholder: out ? 'Today’s tutor time is used up' : st.grown === c.key ? 'Ask for anything, up to the full solution…' : c.page ? 'Say which tasks to take…' : c.home ? 'Ask the tutor…' : pip ? 'Ask Pip…' : 'Ask about this task…',
+    };
+  }
+
+  // What the simulated microphone hears, by the context.
+  heard(c, i) {
+    if (c.page) return ['Take only the left column, each example as its own task', 'Every example of the page, each on its own'][i % 2];
+    if (c.home) return 'What should I do today?';
+    return SAID[i % SAID.length].text;
+  }
 
   // A reply that comes after the learner has moved to another task is dropped: it was about the last one.
   pipSay(text, extra) {
@@ -2861,19 +3304,25 @@ class Component extends DCLogic {
     if (/answer|solution|tell me|ответ|скажи/.test(x)) return 'answer';
     if (/another way|differently|other words|explain|по-другому|объясни/.test(x)) return 'alt';
     if (/hint|stuck|help|start|how|don.?t (know|get)|подсказ|помоги|не знаю|не понимаю/.test(x)) return 'hint';
+    if (/\bwhy\b|почему|зачем/.test(x)) return 'why';
     return 'other';
   }
 
   reply(intent) {
     const s = this.state, c = this.ctx();
     if (intent === 'next') return this.next();
+    if (c.home) return this.pipSay('Continue the lesson Number patterns, or take a task from your paper: the tutor helps with the work there.', { ai: true });
+    // In a lesson the hint and the rung in other words are the task's own ladder, as its buttons give them.
+    if (this.segNow() && intent === 'hint') return this.lesHint();
+    if (this.segNow() && intent === 'alt') return this.lesAlt();
     if (intent === 'hint' || intent === 'alt') {
       this.setState({ hinted: { ...s.hinted, [c.key]: true } });
       return this.pipSay(intent === 'hint' ? c.tut.hint : c.tut.alt, { kind: 'hint', label: intent === 'hint' ? 'Hint' : 'In other words' });
     }
     if (intent === 'answer') return this.pipSay('The answer stays yours to find. A hint?');
     if (intent === 'check') return this.pipSay(s.surface === 'paper' ? 'Tap Check when ready: the work is read and compared with the key.' : 'Finish it here: the work is read when you check it.');
-    this.pipSay('Which step is it? Or write it down and tap Check.');
+    if (intent === 'why') return this.pipSay('Good question. Which line of your work is it about? Say what you did there, and the tutor asks you a question that leads on.', { ai: true });
+    this.pipSay('Which step is it? Say what you tried, or write it down and tap Check.', { ai: true });
   }
 
   // Pip speaks with a voice of the device only — a local one, not an "Online" one (privacy 6).
@@ -2907,7 +3356,8 @@ class Component extends DCLogic {
   }
 
   micStart = () => {
-    if (!this.state.micOn || this.ctx().page) return;
+    const k = this.tutorKit();
+    if (!k.mic || k.off) return;
     this.stopSpeak();
     clearTimeout(this.micT);
     this.setState({ listening: true });
@@ -2918,9 +3368,9 @@ class Component extends DCLogic {
     clearTimeout(this.micT);
     const s = this.state;
     if (!s.listening) return;
-    const c = this.ctx(), i = s.said[c.key] || 0, said = SAID[i % SAID.length];
-    this.setState({ listening: false, said: { ...s.said, [c.key]: i + 1 }, chat: this.withCtx(s.chat).concat([{ id: this.mid++, who: 'me', text: said.text, voice: true, dur: '0:0' + (2 + (i % 3)) }]) });
-    this.reply(said.intent);
+    // The speech becomes text in the field: the learner reads it, corrects it and sends it, as typed words.
+    const c = this.ctx(), i = s.said[c.key] || 0, text = this.heard(c, i);
+    this.setState({ listening: false, said: { ...s.said, [c.key]: i + 1 }, draft: text, dictated: { text, dur: '0:0' + (2 + (i % 3)) } });
   };
 
   micCancel() { clearTimeout(this.micT); if (this.state.listening) this.setState({ listening: false }); }
@@ -2933,13 +3383,143 @@ class Component extends DCLogic {
   };
 
   send = () => {
-    const x = this.state.draft.trim();
-    if (!x) return;
-    this.setState({ draft: '' });
-    this.me(x);
+    const s = this.state, x = s.draft.trim();
+    if (!x || this.tutorKit().off) return;
+    const d = s.dictated;
+    this.setState({ draft: '', dictated: null, stopped: false });
+    this.me(x, d && d.text === s.draft ? { voice: true, dur: d.dur } : null);
+    this.setState({ awaited: { text: x, id: this.mid - 1, mark: this.timers.length } });
     if (this.ctx().page) return this.askPage(x);
+    if (this.state.grown === this.ctx().key) return this.grownReply(x);
     this.reply(this.intentOf(x));
   };
+
+  // Stop, while the answer to a question is awaited: the request is called off — the server's model stops —, the question
+  // leaves the conversation and is back in the field, to be changed and sent again. An act already being drawn is not stopped.
+  stop = () => {
+    const a = this.state.awaited;
+    if (!a) return;
+    this.timers.splice(a.mark).forEach((id) => clearTimeout(id));
+    this.setState({ typing: false, drawing: false, awaited: null, stopped: true, draft: a.text, chat: this.state.chat.filter((m) => m.id !== a.id) });
+  };
+
+  // Grown-up mode: the tutor does on the sheet what the grown-up asks — goes on with the solution under the lines there,
+  // strikes out, underlines or circles a line in red, or erases it —, each act strokes of its own, undone whole, and says it
+  // in a line. A line is the strokes that stand at one height; "the second line" counts from the top, and none named is the last.
+  grownReply(x) {
+    const c = this.ctx(), key = c.key, ik = this.inkKey(), q = x.toLowerCase(), PH = this.phone();
+    const n = /(^|\D)1(\D|$)|first|перв/.test(q) ? 0 : /(^|\D)2(\D|$)|second|втор/.test(q) ? 1 : /(^|\D)3(\D|$)|third|трет/.test(q) ? 2 : -1;
+    const act = /перечерк|зачерк|strike|cross/.test(q) ? 'strike' : /удали|сотри|стери|erase|delete|remove/.test(q) ? 'erase'
+      : /обвед|circle/.test(q) ? 'circle' : /подчерк|underline/.test(q) ? 'underline' : /штрих|hatch|shade|сетк|grid/.test(q) ? 'hatch' : 'write';
+    this.setState({ typing: true });
+    this.later(() => {
+      if (this.ctx().key !== key) return this.setState({ typing: false });
+      const list = this.state.strokes[ik] || [], lines = this.linesOf(list), grp = 'g' + this.mid++;
+      const L = lines.length ? lines[n < 0 ? lines.length - 1 : Math.min(n, lines.length - 1)] : null, no = L ? lines.indexOf(L) + 1 : 0;
+      const red = (pts) => ({ ...this.strokeOf(pts), color: '#E5322D', w: 3.4, by: 'tutor', grp });
+      let next = list, said;
+      if (act !== 'write' && !L) said = 'Nothing is written on the sheet yet.';
+      else if (act === 'strike') {
+        const y = (L.bb[1] + L.bb[3]) / 2;
+        next = list.concat([red([[L.bb[0] - 12, y + 5], [(L.bb[0] + L.bb[2]) / 2, y - 1], [L.bb[2] + 12, y - 7]])]);
+        said = 'Done: line ' + no + ' struck out in red.';
+      } else if (act === 'underline') {
+        const y = L.bb[3] + 10;
+        next = list.concat([red([[L.bb[0] - 6, y], [(L.bb[0] + L.bb[2]) / 2, y + 3], [L.bb[2] + 6, y - 1]])]);
+        said = 'Done: line ' + no + ' underlined in red.';
+      } else if (act === 'circle') {
+        const cx = (L.bb[0] + L.bb[2]) / 2, cy = (L.bb[1] + L.bb[3]) / 2, rx = (L.bb[2] - L.bb[0]) / 2 + 22, ry = (L.bb[3] - L.bb[1]) / 2 + 16;
+        next = list.concat([red(Array.from({ length: 27 }, (_, i) => { const a = -2.2 + (i / 24) * Math.PI * 2; return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)]; }))]);
+        said = 'Done: line ' + no + ' circled in red.';
+      } else if (act === 'hatch') {
+        // A grid every 2 mm, 8 units here, over the line's box: many strokes, drawn within the same ceiling.
+        const x1 = L.bb[0] - 10, y1 = L.bb[1] - 8, x2 = L.bb[2] + 10, y2 = L.bb[3] + 8;
+        const blue = (pts) => ({ ...this.strokeOf(pts), color: '#0A84FF', w: 1.2, by: 'tutor', grp });
+        for (let gx = x1; gx <= x2; gx += 8) next = next.concat([blue([[gx, y1], [gx, y2]])]);
+        for (let gy = y1; gy <= y2; gy += 8) next = next.concat([blue([[x1, gy], [x2, gy]])]);
+        said = 'Done: line ' + no + ' hatched with a 2 mm grid.';
+      } else if (act === 'erase') {
+        const gone = new Set(L.items.map((it) => it.i));
+        next = list.filter((_, i) => !gone.has(i));
+        said = 'Done: line ' + no + ' erased.';
+      } else {
+        const sol = SOL[c.tut.label], rest = sol ? sol.slice(1 + lines.length) : [];
+        if (!sol) said = 'The demo writes the solutions of the worksheet’s equations.';
+        else if (!rest.length) said = 'The lines on the sheet already hold the whole solution.';
+        else {
+          const H = PH ? 30 : 44, x0 = lines.length ? lines[0].bb[0] : PH ? 24 : 370;
+          let y = lines.length ? lines[lines.length - 1].bb[3] + H * 0.7 : PH ? 190 : 230;
+          rest.forEach((t) => { next = next.concat(this.hand(t, x0, y, H, { by: 'tutor', grp })); y += H * 1.7; });
+          said = 'Done: the solution goes on under ' + (lines.length ? 'the lines' : 'the task') + ' on the sheet.';
+        }
+      }
+      // The new strokes are drawn one after another at the speed of a hand, all of them within 3 s however many they are,
+      // and at once with reduced motion; the line comes once the last is drawn.
+      const at = Date.now(), still = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const hand = next.filter((st) => st.grp === grp && !st.at).map((st) => Math.max(90, Math.round((st.len || 60) / 0.45)));
+      const k = Math.min(1, 3000 / Math.max(1, hand.reduce((a, d) => a + d + 40, 0)));
+      let t = 0, i = 0;
+      if (!still) next = next.map((st) => {
+        if (st.grp !== grp || st.at) return st;
+        const dur = Math.max(1, Math.round(hand[i++] * k)), o = { ...st, at, delay: Math.round(t), dur };
+        t += dur + 40 * k;
+        return o;
+      });
+      t = Math.round(t);
+      this.setState({ strokes: { ...this.state.strokes, [ik]: next }, drawing: t > 0 });
+      this.later(() => {
+        const m = { id: this.mid++, who: 'pip', ai: true, kind: 'grown', text: said };
+        this.setState({ typing: false, drawing: false, chat: this.withCtx(this.state.chat).concat([m]) });
+        this.speak(m);
+      }, t);
+    }, 700);
+  }
+
+  // A stroke of points, as the pen leaves one.
+  strokeOf(pts) {
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const len = pts.reduce((n, p, i) => (i ? n + Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) : 0), 0);
+    return { d: toD(pts), tool: 'pen', x: pts[0][0], y: pts[0][1], ts: Date.now(), bb: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)], closed: false, len };
+  }
+
+  // The strokes of the sheet in lines, from the top: a stroke whose middle stands within a line's height is of that line.
+  linesOf(list) {
+    const items = list.map((st, i) => ({ st, i, bb: st.bb || [st.x, st.y, st.x, st.y] })).sort((a, b) => a.bb[1] - b.bb[1]);
+    const lines = [];
+    for (const it of items) {
+      const cy = (it.bb[1] + it.bb[3]) / 2, L = lines[lines.length - 1];
+      if (L && cy <= L.bb[3] + 4 && cy >= L.bb[1] - 4) {
+        L.items.push(it);
+        L.bb = [Math.min(L.bb[0], it.bb[0]), Math.min(L.bb[1], it.bb[1]), Math.max(L.bb[2], it.bb[2]), Math.max(L.bb[3], it.bb[3])];
+      } else lines.push({ items: [it], bb: it.bb.slice() });
+    }
+    return lines;
+  }
+
+  // Text as strokes of a hand, glyph by glyph, H high from its top at y: how the tutor writes on the sheet in the demo.
+  hand(text, x, y, H, extra) {
+    const out = [];
+    let at = x, k = 0;
+    for (const ch of text) {
+      const g = HAND[ch];
+      if (!g) { at += H * 0.32; continue; }
+      for (const line of g.s) {
+        k++;
+        const pts = line.map(([u, v], i) => [at + u * H + Math.sin(k * 1.7 + i) * H * 0.012, y + v * H + Math.cos(k * 2.3 + i) * H * 0.012]);
+        out.push({ ...this.strokeOf(pts), ...(extra || {}) });
+      }
+      at += g.w * H;
+    }
+    return out;
+  }
+
+  // Grown-up mode turned on or off  // Grown-up mode turned on or off, each a line of the conversation.
+  grownSet(on) {
+    const key = this.ctx().key;
+    const line = on ? { title: 'Grown-up mode on', text: 'The tutor does what the grown-up asks, up to the full solution.' }
+      : { title: 'Grown-up mode off', text: 'The tutor’s limits are back: hints and questions, never the answer.' };
+    this.setState({ grown: on ? key : null, grownPad: null, grownPin: '', grownMiss: false, chat: this.withCtx(this.state.chat).concat([{ id: this.mid++, who: 'res', res: 'key', ...line }]) });
+  }
 
   // A request about the page goes to the finding with the photo and the frames on it now; its answer is frames alone,
   // which replace the frames found before, while the learner's own stay. The line under it is the program's (R165).
@@ -3012,7 +3592,7 @@ class Component extends DCLogic {
   profilesNow() { return this.state.slice === 'later' ? CHILDREN.concat([this.owner()]) : [this.owner()]; }
   signIn = () => { this.setState({ auth: 'signing' }); this.later(() => this.setState({ auth: 'invite' }), 1100); };
   authBack = () => this.setState({ auth: this.state.auth === 'agree' ? 'invite' : 'welcome' });
-  signOut = () => this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, gOk: false, screen: 'signin', auth: 'welcome', langOpen: false, code: false, ok18: false, okTerms: false, pinOpen: false, pin: '', addOpen: false, switchOpen: false, helpOpen: false });
+  signOut = () => this.setState({ grownOpen: false, bellOpen: false, modsOpen: false, gOk: false, screen: 'signin', auth: 'welcome', langOpen: false, code: false, ok18: false, okTerms: false, pinOpen: false, pin: '', addOpen: false, switchOpen: false, helpOpen: false });
 
   pinKey(d) {
     const pin = this.state.pin + d;
@@ -3021,15 +3601,15 @@ class Component extends DCLogic {
   }
 
   // From home into a canvas: the camera of Take from my paper, or a module's lesson.
-  openCamera = () => this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
+  openCamera = () => this.setState({ grownOpen: false, bellOpen: false, modsOpen: false, screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
   // A page of "Your pages": the worksheet as it was left, its picked tasks with the work kept and no verdict, which the device does not keep.
   openPage = () => {
     const k = 'worksheet-1', st = { d: 'M330 430 C350 400 380 450 410 420 M440 430 l40 -10', tool: 'pen', x: 330, y: 420, ts: 1, bb: [330, 400, 480, 450], closed: false };
     this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured: 'worksheet', frames: { worksheet: [] }, selected: [1, 2, 4], current: 1,
-      grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, strokes: { [k]: [st] }, ptries: {}, status: {}, verdict: null, cardOpen: true, tasksOpen: false, more: false, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
+      grownOpen: false, bellOpen: false, modsOpen: false, strokes: { [k]: [st] }, ptries: {}, status: {}, verdict: null, cardOpen: true, tasksOpen: false, more: false, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
   };
   openLesson(name) {
-    this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, screen: 'canvas', surface: 'sheet', lesson: name, more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, view: { z: 1, x: 0, y: 0 },
+    this.setState({ grownOpen: false, bellOpen: false, modsOpen: false, screen: 'canvas', surface: 'sheet', lesson: name, more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, view: { z: 1, x: 0, y: 0 },
       seg: 0, at: 0, lesEnd: false, demoN: 0, demoHide: false, mode: 'steps', modeOpen: false, stepI: 0, stepsOpen: false, ticks: {}, picks: {}, tries: {}, wrongs: {}, tstat: {}, altAt: {}, inkN: {}, strokes: without(this.state.strokes, 'lesson:' + name + ':'),
       choiceOpen: false, solAsk: false, segsOpen: false, fold: false, report: null, reportKind: null, chat: [], typing: false });
   }
@@ -3109,7 +3689,7 @@ class Component extends DCLogic {
     const n = s.tries[k] || 0, up = { tries: { ...s.tries, [k]: n + 1 }, inkN: { ...s.inkN, [k]: (s.strokes[this.inkKey()] || []).length }, choiceOpen: false };
     if (g.options) { const p = s.picks[k]; return this.lesVerdict(p === g.key, 'You chose: ' + g.options[p], up); }
     if (s.quotaOut) return this.setState({ verdict: { kind: 'info', title: 'Not checked', line: QUOTA_READ } });
-    this.setState({ ...up, verdict: { kind: 'reading', title: 'Reading your work…', line: 'A picture of the work goes to be read, with no name.' } });
+    this.setState({ ...up, verdict: { kind: 'reading', title: 'Reading your work…', line: 'A picture of the work goes to be read.' } });
     this.later(() => {
       if (this.ctx().key !== k) return;
       if (g.rubric) {
@@ -3461,6 +4041,7 @@ class Component extends DCLogic {
       return this.setState({ live: null, liveLayer: null, panning: true });
     }
     if (this.state.tool === 'eraser') return;
+    if (this.state.tool === 'select') return this.areaDown(e);
     const el = e.currentTarget;
     const r = el.getBoundingClientRect();
     const k = Number(el.getAttribute('data-w')) / r.width;
@@ -3487,6 +4068,7 @@ class Component extends DCLogic {
       p.last = m;
       return;
     }
+    if (this.areaDrag || this.areaInk) return this.areaMoveTo(e);
     const ink = this.ink;
     if (!ink) return;
     const p = [(e.clientX - ink.r.left) * ink.k, (e.clientY - ink.r.top) * ink.k];
@@ -3504,6 +4086,7 @@ class Component extends DCLogic {
       else { this.pan = null; this.setState({ panning: false }); }
       return;
     }
+    if (this.areaDrag || this.areaInk) return this.areaUp();
     const ink = this.ink;
     if (!ink) return;
     this.ink = null;
@@ -3516,6 +4099,143 @@ class Component extends DCLogic {
     const list = (this.state.strokes[key] || []).concat([{ d: toD(ink.pts), tool: this.state.tool, x: a[0], y: a[1], ts: Date.now(), bb, closed }]);
     this.setState({ strokes: { ...this.state.strokes, [key]: list }, live: null, liveLayer: null });
   };
+
+  // Select (canvas): a lasso or a rectangle begun on a layer takes that layer's strokes it holds almost wholly — four in five of their points.
+  // A press inside the box of what it took drags them; a press outside begins another. Each action — a move, a copy, a delete — Undo takes back whole.
+  areaDown(e) {
+    const el = e.currentTarget, r = el.getBoundingClientRect(), k = Number(el.getAttribute('data-w')) / r.width;
+    const layer = el.getAttribute('data-layer') === 'clip' ? 'clip' : 'main';
+    const key = layer === 'clip' ? this.clipKey() : this.inkKey();
+    const p = [(e.clientX - r.left) * k, (e.clientY - r.top) * k];
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* no capture */ }
+    const a = this.state.area, b = a && a.key === key ? this.areaBox(a) : null;
+    if (b && p[0] >= b[0] && p[0] <= b[2] && p[1] >= b[1] && p[1] <= b[3]) {
+      this.areaDrag = { r, k, from: p };
+      return this.setState({ areaD: [0, 0], selMenu: false });
+    }
+    this.areaInk = { r, k, layer, key, pts: [p] };
+    this.setState({ area: null, areaD: null, selMenu: false, areaLive: { layer, d: this.areaPath([p]) } });
+  }
+
+  areaMoveTo(e) {
+    const g = this.areaDrag || this.areaInk, p = [(e.clientX - g.r.left) * g.k, (e.clientY - g.r.top) * g.k];
+    if (this.areaDrag) return this.setState({ areaD: [p[0] - g.from[0], p[1] - g.from[1]] });
+    const l = g.pts[g.pts.length - 1];
+    if (Math.hypot(p[0] - l[0], p[1] - l[1]) < 2 * g.k) return;
+    g.pts.push(p);
+    this.setState({ areaLive: { layer: g.layer, d: this.areaPath(g.pts) } });
+  }
+
+  areaUp() {
+    if (this.areaDrag) {
+      this.areaDrag = null;
+      const d = this.state.areaD || [0, 0];
+      return Math.hypot(d[0], d[1]) < 2 ? this.setState({ areaD: null }) : this.areaShift(d[0], d[1]);
+    }
+    const g = this.areaInk;
+    this.areaInk = null;
+    this.areaPick(g.key, g.layer, this.areaPoly(g.pts));
+  }
+
+  areaPoly(pts) {
+    if (this.state.areaMode === 'lasso') return pts;
+    const [a, z] = [pts[0], pts[pts.length - 1]];
+    return [[a[0], a[1]], [z[0], a[1]], [z[0], z[1]], [a[0], z[1]]];
+  }
+  areaPath(pts) {
+    const q = this.areaPoly(pts), f = (n) => Math.round(n * 10) / 10;
+    return 'M' + q.map((p) => f(p[0]) + ' ' + f(p[1])).join(' L') + (this.state.areaMode === 'rect' || q.length > 2 ? ' Z' : '');
+  }
+
+  // The points a stroke's path passes through: absolute, but for the relative l of a dot.
+  areaPts(d) {
+    const out = [];
+    let at = [0, 0];
+    for (const m of d.matchAll(/([MLQCl])([^MLQCl]*)/g)) {
+      const n = (m[2].match(/-?\d*\.?\d+/g) || []).map(Number);
+      for (let i = 0; i + 1 < n.length; i += 2) { at = m[1] === 'l' ? [at[0] + n[i], at[1] + n[i + 1]] : [n[i], n[i + 1]]; out.push(at); }
+    }
+    return out;
+  }
+  areaShifted(st, dx, dy, ts) {
+    const d = st.d.replace(/([MLQC])([^MLQCl]*)/g, (_, c, body) => { let i = 0; return c + body.replace(/-?\d*\.?\d+/g, (x) => String(Math.round((Number(x) + (i++ % 2 ? dy : dx)) * 10) / 10)); });
+    const b = st.bb || [st.x, st.y, st.x, st.y];
+    return { ...st, d, x: st.x + dx, y: st.y + dy, bb: [b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy], ...(ts === undefined ? {} : { ts, at: 0 }) };
+  }
+
+  areaPick(key, layer, poly) {
+    const inside = (p) => {
+      let on = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const [xi, yi] = poly[i], [xj, yj] = poly[j];
+        if ((yi > p[1]) !== (yj > p[1]) && p[0] < ((xj - xi) * (p[1] - yi)) / (yj - yi) + xi) on = !on;
+      }
+      return on;
+    };
+    const idx = [];
+    (this.state.strokes[key] || []).forEach((st, i) => {
+      const pts = this.areaPts(st.d);
+      if (pts.length && pts.filter(inside).length >= 0.8 * pts.length) idx.push(i);
+    });
+    this.setState({ area: idx.length ? { key, layer, idx } : null, areaLive: null, areaD: null });
+  }
+
+  // The box of what is taken, a little wider than its strokes.
+  areaBox(a) {
+    const list = this.state.strokes[a.key] || [];
+    let b = null;
+    for (const i of a.idx) {
+      const st = list[i];
+      if (!st) continue;
+      const q = st.bb || [st.x, st.y, st.x, st.y];
+      b = b ? [Math.min(b[0], q[0]), Math.min(b[1], q[1]), Math.max(b[2], q[2]), Math.max(b[3], q[3])] : q.slice();
+    }
+    return b && [b[0] - 10, b[1] - 10, b[2] + 10, b[3] + 10];
+  }
+
+  // The sheet before an action, which Undo puts back.
+  areaKeep(key, ts) {
+    return this.state.areaHist.concat([{ ts, key, list: this.state.strokes[key] || [] }]);
+  }
+  areaShift(dx, dy) {
+    const a = this.state.area, list = this.state.strokes[a.key] || [];
+    const moved = list.map((st, i) => (a.idx.includes(i) ? this.areaShifted(st, dx, dy) : st));
+    this.setState({ areaHist: this.areaKeep(a.key, Date.now()), strokes: { ...this.state.strokes, [a.key]: moved }, areaD: null });
+  }
+  areaCopy = () => {
+    const a = this.state.area;
+    if (!a) return;
+    const list = this.state.strokes[a.key] || [], ts = Date.now();
+    const b = this.areaBox(a), copies = a.idx.map((i) => this.areaShifted(list[i], 0, b[3] - b[1] - 8, ts));
+    this.setState({ areaHist: this.areaKeep(a.key, ts), strokes: { ...this.state.strokes, [a.key]: list.concat(copies) },
+      area: { ...a, idx: copies.map((_, j) => list.length + j) } });
+  };
+  areaDelete = () => {
+    const a = this.state.area;
+    if (!a) return;
+    const list = this.state.strokes[a.key] || [];
+    this.setState({ areaHist: this.areaKeep(a.key, Date.now()), strokes: { ...this.state.strokes, [a.key]: list.filter((_, i) => !a.idx.includes(i)) }, area: null });
+  };
+  // Which tool, and with Select tapped again, its menu of shapes; another tool lets the selection go.
+  pickTool(tool) {
+    if (tool === 'select' && this.state.tool === 'select') return this.setState({ selMenu: !this.state.selMenu });
+    this.setState({ tool, selMenu: false, area: null, areaLive: null, areaD: null });
+  }
+
+  areaVals(isSolve) {
+    const s = this.state, a = s.area, lv = s.tool === 'select' ? s.areaLive : null;
+    const lw = 1.6 / (lv && lv.layer === 'main' || a && a.layer === 'main' ? s.view.z : 1);
+    const out = { liveMain: !!lv && lv.layer === 'main', liveClip: !!lv && lv.layer === 'clip' && isSolve, live: lv ? lv.d : '', lw, da: 5 * lw + ' ' + 4 * lw,
+      boxMain: false, boxClip: false, x: 0, y: 0, w: 0, h: 0, mx: 0, my: 0, inv: 1, menuOp: 1, label: '', copy: this.areaCopy, del: this.areaDelete };
+    const key = a && (a.layer === 'clip' ? this.clipKey() : this.inkKey());
+    const b = a && a.key === key && s.tool === 'select' ? this.areaBox(a) : null;
+    if (!b) return out;
+    const d = s.areaD || [0, 0], inv = a.layer === 'main' ? 1 / s.view.z : 1, x = b[0] + d[0], y = b[1] + d[1];
+    // The menu above the box, or below it where the top has no room.
+    const my = y - 54 * inv >= (a.layer === 'main' ? s.view.y + 8 * inv : 0) ? y - 54 * inv : b[3] + d[1] + 10 * inv;
+    return { ...out, boxMain: a.layer === 'main', boxClip: a.layer === 'clip' && isSolve, x, y, w: b[2] - b[0], h: b[3] - b[1], mx: x + (b[2] - b[0]) / 2, my, inv,
+      menuOp: s.areaD ? 0 : 1, label: a.idx.length === 1 ? '1 stroke selected' : a.idx.length + ' strokes selected' };
+  }
 
   // The strokes on the task's clipping, kept per task in the clipping's own coordinates.
   clipKey(id = this.state.current) { return this.state.captured + '-clip-' + id; }
@@ -3530,11 +4250,15 @@ class Component extends DCLogic {
   undo = () => {
     const s = this.state;
     let key = this.inkKey();
-    if (this.onSheet()) {
-      const last = (k) => { const l = s.strokes[k] || []; return l.length ? (l[l.length - 1].ts || 0) : -1; };
-      if (last(this.clipKey()) > last(key)) key = this.clipKey();
-    }
-    const list = (s.strokes[key] || []).slice(0, -1);
+    const newest = (k) => { const l = s.strokes[k] || []; return l.length ? (l[l.length - 1].ts || 0) : -1; };
+    if (this.onSheet() && newest(this.clipKey()) > newest(key)) key = this.clipKey();
+    // An action of Select, newer than the latest stroke, is taken back whole: the sheet as it was before it.
+    const h = s.areaHist[s.areaHist.length - 1];
+    if (h && (h.key === this.inkKey() || this.onSheet() && h.key === this.clipKey()) && h.ts >= newest(key))
+      return this.setState({ strokes: { ...s.strokes, [h.key]: h.list }, areaHist: s.areaHist.slice(0, -1), area: null, areaD: null });
+    const all = s.strokes[key] || [], last = all[all.length - 1];
+    // An action of the tutor in grown-up mode is undone whole.
+    const list = last && last.grp ? all.filter((st) => st.grp !== last.grp) : all.slice(0, -1);
     this.setState({ strokes: { ...s.strokes, [key]: list } });
   };
 
@@ -3542,7 +4266,7 @@ class Component extends DCLogic {
     const s = this.state, key = this.inkKey();
     const cleared = { ...s.strokes, [key]: [] };
     if (this.onSheet()) cleared[this.clipKey()] = [];
-    this.setState({ strokes: cleared });
+    this.setState({ strokes: cleared, area: null, areaHist: s.areaHist.filter((h) => !(h.key in cleared)) });
   };
 
   hasInk(t) {
@@ -3583,7 +4307,7 @@ class Component extends DCLogic {
     }
     const got = ol ? this.circled(t) : [];
     const inner = this.within(t), n = s.ptries[k] || 0, tried = !t.nokey && (!ol || got.length === 1);
-    this.setState({ dbgBusy: this.dbgOn(), verdict: { kind: 'reading', title: 'Reading your work…', line: 'The crop of this task with your strokes goes to be read, with no name.' }, ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null, vmarks: null });
+    this.setState({ dbgBusy: this.dbgOn(), verdict: { kind: 'reading', title: 'Reading your work…', line: 'A picture of the work goes to be read.' }, ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null, vmarks: null });
     this.later(() => {
       if (this.ctx().key !== k) return;
       if (this.dbgOn()) this.dbgAdd(this.dbgCheck(this.state, t, n, ol, got));
@@ -3766,15 +4490,14 @@ class Component extends DCLogic {
 
   // Home, Subjects and a module's skill map: the row of places (the tab bar on the phone), the pills at the right and their pop-overs, as app lays them.
   homeVals(s, PH, pip, later) {
-    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false };
+    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, modsOpen: false, chatOpen: false };
     const tog = (k) => () => this.setState({ ...SHUT, [k]: !this.state[k] });
     const go = (screen) => () => this.setState({ ...SHUT, screen });
     // Subjects and the map in app's frame of a screen: under the row, 116 from the top on the iPad and 84 on the phone.
     const L = PH ? { h1: 28, gap1: 26, catCols: 'minmax(0, 1fr)', mapFlex: 'none' } : { h1: 32, gap1: 26, catCols: 'repeat(2, minmax(0, 1fr))', mapFlex: '1 1 auto' };
     const POP = 'border-radius: 20px; padding: 10px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
     const SHEET = 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 56px 16px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)';
-    const P = PH ? { grown: SHEET, account: SHEET, bell: SHEET, help: SHEET, pages: SHEET, legend: SHEET, mods: SHEET,
-      tutor: 'left: 0; right: 0; bottom: 0; top: 250px; border-radius: 28px 28px 0 0' } : {
+    const P = PH ? { grown: SHEET, account: SHEET, bell: SHEET, help: SHEET, pages: SHEET, legend: SHEET, mods: SHEET } : {
       // Each hangs from its button in the row or the pills: under it, at its start or its end, as app's pop-overs.
       grown: 'left: 442px; top: 92px; width: 340px; transform-origin: top left; ' + POP + '; padding: 8px',
       account: 'right: 41px; top: 86px; width: 270px; transform-origin: top right; ' + POP + '; padding: 8px',
@@ -3782,8 +4505,7 @@ class Component extends DCLogic {
       help: 'left: 562px; top: 92px; width: 320px; transform-origin: top left; border-radius: 20px; padding: 16px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)',
       pages: 'left: 522px; top: 434px; width: 400px; transform-origin: top right; ' + POP + '; padding: 18px 8px 8px',
       legend: 'left: 37px; top: 300px; width: 300px; ' + POP,
-      mods: 'left: 190px; top: 208px; width: 300px; transform-origin: top left; ' + POP,
-      tutor: 'right: 16px; top: 92px; bottom: 16px; width: 400px; border-radius: 28px; transform-origin: top right' };
+      mods: 'left: 190px; top: 208px; width: 300px; transform-origin: top left; ' + POP };
 
     // The cognitive map is not built yet: its place is shown, shut. A module's skill map opens from Subjects.
     const ICONS = { map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8' };
@@ -3850,14 +4572,12 @@ class Component extends DCLogic {
       mapLegend: ['mastered', 'review', 'progress', 'ready', 'locked'].map((k) => ({ name: word(k), bg: MAP_LOOK[k][0], bd: MAP_LOOK[k][2] })),
       modPick: MODS.map((m) => ({ ...m, on: m.name === s.mapMod, bg: m.name === s.mapMod ? 'rgba(0,113,227,0.08)' : 'transparent', pick: () => this.setState({ ...SHUT, mapMod: m.name }) })),
 
-      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.modsOpen || (s.homeTutor && PH),
+      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.modsOpen,
       scrim: PH ? 'rgba(0,0,0,0.22)' : 'transparent', closePop: () => this.setState({ ...SHUT }),
-      grownOpen: !!s.grownOpen, bellOpen: !!s.bellOpen, tutorOpen: !!s.homeTutor, modsOpen: !!s.modsOpen,
+      grownOpen: !!s.grownOpen, bellOpen: !!s.bellOpen, tutorOpen: !!s.chatOpen, modsOpen: !!s.modsOpen,
       toggleGrown: tog('grownOpen'), toggleAccount: tog('switchOpen'), toggleBell: tog('bellOpen'), toggleHelp: tog('helpOpen'), togglePages: tog('pagesOpen'),
-      toggleLegend: tog('legendOpen'), toggleMods: tog('modsOpen'), toggleTutor: tog('homeTutor'),
+      toggleLegend: tog('legendOpen'), toggleMods: tog('modsOpen'), toggleTutor: () => (this.state.chatOpen ? this.closeChat() : (this.setState({ ...SHUT }), this.openChat())),
       meCap: pip ? 'Learner' : 'Your profile',
-      tutorLine1: pip ? 'Pip is an AI — a computer program, not a person. A program checks your answers.' : 'The tutor is an AI — a computer program, not a person. A program checks every answer.',
-      tutorLine2: pip ? 'Open a lesson or a page from your book, and Pip helps with the work there.' : 'Open a lesson or a page from your book, and the tutor helps with the work there.',
 
       pinNeeded, pinPassed: !pinNeeded, pinLen: pin.length,
       grownWho: pip ? 'Settings of this profile and of this ' + this.devName() : 'Your profile and this ' + this.devName(),
@@ -3874,6 +4594,33 @@ class Component extends DCLogic {
       // Behind the PIN the grown-up sets a child's hint mode too.
       hm: { q: lay(s.hintMode === 'questions'), w: lay(s.hintMode === 'where') },
       modeQ: () => this.setState({ hintMode: 'questions' }), modeW: () => this.setState({ hintMode: 'where' })
+    };
+  }
+
+  // The button, the band and the PIN of grown-up mode. The PIN is 5555 for now; a page of all the settings will set it later.
+  grownVals(kit) {
+    const s = this.state, on = s.grown === kit.ctx.key, pad = s.grownPad, pin = s.grownPin;
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'cancel', '0', 'del'].map((k) => ({
+      label: k === 'cancel' ? 'Cancel' : k === 'del' ? '' : k, aria: k === 'cancel' ? 'Cancel' : k === 'del' ? 'Delete' : k, back: k === 'del',
+      fs: k === 'cancel' ? '15px' : '22px', fw: k === 'cancel' ? 500 : 400, bg: k === 'cancel' || k === 'del' ? 'transparent' : '#FFFFFF',
+      bd: k === 'cancel' || k === 'del' ? 'none' : 'inset 0 0 0 1px rgba(0,0,0,0.1)',
+      go: () => {
+        if (k === 'cancel') return this.setState({ grownPad: null, grownPin: '', grownMiss: false });
+        if (k === 'del') return this.setState({ grownPin: pin.slice(0, -1) });
+        const next = pin + k;
+        if (next.length < 4) return this.setState({ grownPin: next, grownMiss: false });
+        if (next !== '5555') return this.setState({ grownPin: '', grownMiss: true });
+        this.grownSet(true);
+      } }));
+    return {
+      show: !!kit.grown, on, pad: !!pad, keys, len: pin.length,
+      title: 'Grown-up mode',
+      line: s.grownMiss ? 'Wrong PIN. Try again.' : 'Enter your PIN to lift the tutor’s limits on this task.',
+      lineFg: s.grownMiss ? '#C93400' : '#6E6E73', lineRole: s.grownMiss ? 'alert' : undefined,
+      dots: [0, 1, 2, 3].map((i) => ({ bg: i < pin.length ? '#1D1D1F' : 'transparent' })),
+      fg: on ? '#FFFFFF' : '#6E6E73', bg: on ? '#C93400' : 'transparent',
+      tap: () => (on ? this.grownSet(false) : this.setState({ grownPad: 'enter', grownPin: '', grownMiss: false })),
+      off: () => this.grownSet(false)
     };
   }
 
@@ -3916,7 +4663,11 @@ class Component extends DCLogic {
 
     const key = this.inkKey();
     const sty = () => ({ color: '#1D1D1F', w: 2.6, op: 1 });
-    const toPaths = (k, st0) => (s.strokes[k] || []).map((st, i) => ({ d: st.d, ...st0(st.tool), erase: () => this.eraseAt(k, i), eraseEnter: (e) => { if (e.buttons & 1) this.eraseAt(k, i); } }));
+    // A stroke of the tutor is drawn as a hand draws it, from its start to its end, in its turn.
+    const now = Date.now();
+    const drawn = (st) => (st.at && now < st.at + st.delay + st.dur + 50 ? { da: '1', an: 'ntDraw ' + st.dur + 'ms linear ' + (st.at + st.delay - now) + 'ms both' } : { da: 'none', an: 'none' });
+    const dragged = (k, i) => (s.areaD && s.area && s.area.key === k && s.area.idx.includes(i) ? 'translate(' + s.areaD[0] + ' ' + s.areaD[1] + ')' : '');
+    const toPaths = (k, st0) => (s.strokes[k] || []).map((st, i) => ({ d: st.d, tf: dragged(k, i), ...st0(st.tool), ...(st.color ? { color: st.color, w: st.w } : {}), ...drawn(st), erase: () => this.eraseAt(k, i), eraseEnter: (e) => { if (e.buttons & 1) this.eraseAt(k, i); } }));
     const paths = toPaths(key, sty);
     const clipPaths = isSolve ? toPaths(this.clipKey(), sty) : [];
     const isEraser = s.tool === 'eraser';
@@ -3960,14 +4711,15 @@ class Component extends DCLogic {
     // Pip: the conversation, its state line and the quick replies.
     const tutorHere = this.tutorHere(s);
     const reading = !!v && v.kind === 'reading';
-    const resDot = { ok: ['#248A3D', '#FFFFFF'], no: ['#C93400', '#FFFFFF'], info: ['rgba(0,113,227,0.14)', '#0071E3'], done: ['#248A3D', '#FFFFFF'], shown: ['rgba(118,118,128,0.16)', '#3A3A3C'] };
+    const resDot = { ok: ['#248A3D', '#FFFFFF'], no: ['#C93400', '#FFFFFF'], info: ['rgba(0,113,227,0.14)', '#0071E3'], done: ['#248A3D', '#FFFFFF'], shown: ['rgba(118,118,128,0.16)', '#3A3A3C'], key: ['rgba(255,149,0,0.18)', '#8A3B00'] };
     const msgs = s.chat.map((m) => ({
       isDiv: m.who === 'div', isPip: m.who === 'pip', isMe: m.who === 'me', isRes: m.who === 'res',
       text: m.text || '', hasText: !!m.text, title: m.title || '', isHint: m.kind === 'hint', label: m.label || '',
-      bg: m.kind === 'hint' ? 'rgba(255,204,0,0.20)' : 'rgba(118,118,128,0.12)',
+      bg: m.kind === 'hint' ? 'rgba(255,204,0,0.20)' : m.kind === 'grown' ? 'rgba(255,149,0,0.16)' : 'rgba(118,118,128,0.12)',
       talking: s.speaking === m.id, voice: !!m.voice, dur: m.dur || '',
-      rOk: m.res === 'ok', rNo: m.res === 'no', rInfo: m.res === 'info', rDone: m.res === 'done', rShown: m.res === 'shown',
+      rOk: m.res === 'ok', rNo: m.res === 'no', rInfo: m.res === 'info', rDone: m.res === 'done', rKey: m.res === 'key', rShown: m.res === 'shown',
       dotBg: (resDot[m.res] || resDot.info)[0], dotFg: (resDot[m.res] || resDot.info)[1],
+      isGrown: m.kind === 'grown',
       isFb: m.kind === 'fb', isSol: m.who === 'sol', isCrit: m.who === 'crit', lines: (m.lines || []).map((t) => ({ t })),
       crit: (m.crit || []).map(([t, w]) => ({ t, w: MARK[w][0], fg: MARK[w][1] })),
       // "Report a problem" stands at each of the AI's answers, to an adult (R127).
@@ -3975,22 +4727,28 @@ class Component extends DCLogic {
     }));
     const c = this.ctx();
     const st = isSolve ? s.status[c.key] : isTask ? s.tstat[c.key] : null;
-    // The tutor's buttons: Hint, and "Explain differently" once there is a rung to word anew (R82).
+    // The tutor's buttons: Hint, and "Explain differently" once there is a rung to word anew (R82). Hint stands in the panel on a
+    // phone alone: on a wider screen the row's Hint beside Check stays in sight beside the panel, and a second would only repeat it.
+    const rowHint = !this.phone();
     const hinted = isTask ? !!s.wrongs[c.key] && s.altAt[c.key] !== Math.min(s.wrongs[c.key], 3) && !g.rubric : !!s.hinted[c.key] || st === 'wrong';
     const act = (label, go, off, bulb) => ({ label, go, off, bulb, bg: off ? 'rgba(118,118,128,0.08)' : 'rgba(255,255,255,0.9)', fg: off ? '#6E6E73' : '#0071E3' });
-    const acts = isPick ? (s.askUndo && s.askUndo.d === s.captured ? [act('Undo', this.undoAsk, false, false)] : [])
-      : isTask ? (this.ended() ? [] : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.lesAlt(), !hinted, false)])
+    const kit = this.tutorKit(s);
+    const acts = kit.ctx.home ? [act('Continue · Number patterns', () => this.openLesson('Olympiad maths 1–6'), false, false), act('Take from my paper', this.openCamera, false, false)]
+      : isPick ? (s.askUndo && s.askUndo.d === s.captured ? [act('Undo', this.undoAsk, false, false)] : [])
+      : isTask ? (this.ended() ? [] : [...(rowHint ? [] : [act('Hint', this.askHint, false, true)]), act('Explain differently', () => this.lesAlt(), !hinted, false)])
       : pOver ? [act('Next task', () => this.next(), false, false)]
-      : [act('Hint', this.askHint, false, true), act('Explain differently', () => this.reply('alt'), !hinted, false)];
+      : [...(rowHint ? [] : [act('Hint', this.askHint, false, true)]), act('Explain differently', () => this.reply('alt'), !hinted, false)];
     const pip = this.isPip(s), later = s.slice === 'later';
-    const short = isSolve ? this.tname(t) : title;
     const status = s.listening ? { text: 'Listening…', fg: '#0071E3', bars: true }
+      : s.drawing || (s.typing && s.grown != null && s.grown === kit.ctx.key) ? { text: 'Writing on the sheet…', fg: '#0071E3', bars: true }
       : s.speaking != null ? { text: 'Speaking…', fg: '#0071E3', bars: true }
       : reading ? { text: 'Reading your work…', fg: '#6E6E73', bars: false }
       : s.typing ? { text: isPick ? 'Finding the tasks…' : 'Typing…', fg: '#6E6E73', bars: false }
-      : isTask ? { text: 'Tutor time today: ' + (s.quotaOut ? 100 : 20) + '% used', fg: '#6E6E73', bars: false }
-      : { text: (pip ? 'Your tutor · ' : 'AI tutor · ') + short, fg: '#6E6E73', bars: false };
+      : { text: 'Tutor time today: ' + (kit.off ? 100 : 20) + '% used', fg: '#6E6E73', bars: false };
     const hasDraft = !!s.draft.trim();
+    // Stop stands while the question sent is the last line and its answer is awaited, not while an act is drawn.
+    const lastLine = (s.chat || [])[(s.chat || []).length - 1];
+    const stoppable = !!(s.awaited && s.typing && !s.drawing && lastLine && lastLine.id === s.awaited.id);
 
     const profs = this.profilesNow(), me = profs.find((p) => p.id === s.learner) || profs[profs.length - 1];
     // The sign-in's checkboxes and buttons stand on its dark card.
@@ -4013,7 +4771,7 @@ class Component extends DCLogic {
     const les = this.lesVals(s, L, g, inLes, isTask, PH);
     return {
       dbg: this.dbgVals(s, PH, isPick, isSolve),
-      les, ttlPlain: !inLes, backLabel: inLes ? 'Leave the lesson' : 'Back', writingShow: s.typing && inLes,
+      les, ttlPlain: !inLes, backLabel: inLes ? 'Leave the lesson' : 'Back', writingShow: s.typing && (inLes || !!s.drawing),
       vX: isSolve ? '50%' : les.rowX + 'px', vB: isSolve ? 86 : les.above, vNext: !!v && v.kind === 'ok' && isSolve,
       vCont: !!v && isTask && (v.kind === 'ok' || v.kind === 'shown'), vFb: !!v && v.kind === 'fb', vShown: !!v && v.kind === 'shown', vNoKey: !!v && v.kind === 'nokey',
       isNumberline: s.surface === 'numberline', isGeo: s.surface === 'geo', isExt,
@@ -4045,11 +4803,20 @@ class Component extends DCLogic {
       title, subtitle, pageTf,
       regions, findingPage,
       screenPaths: showScreenInk ? paths : [],
+      grown: this.grownVals(kit),
       live: s.live || '', liveSty: sty(s.tool), liveScreen: !!s.live && showScreenInk && s.liveLayer === 'main', liveClip: !!s.live && s.liveLayer === 'clip',
       clipPaths, eraseClip: isEraser && isSolve,
       eraseScreen: isEraser && showScreenInk,
       inkCursor: isEraser ? 'cell' : s.tool === 'hand' ? (s.panning ? 'grabbing' : 'grab') : 'crosshair',
-      tools: { pen: tb(s.tool === 'pen'), er: tb(isEraser), hand: tb(s.tool === 'hand') },
+      tools: { pen: tb(s.tool === 'pen'), er: tb(isEraser), hand: tb(s.tool === 'hand'), sel: tb(s.tool === 'select') },
+      area: this.areaVals(isSolve),
+      sel: { menu: s.selMenu, label: s.areaMode === 'lasso' ? 'Select: lasso' : 'Select: rectangle',
+        icon: s.areaMode === 'lasso' ? 'M12 4.5c-4.4 0-8 2.2-8 5s3.6 5 8 5 8-2.2 8-5-3.6-5-8-5z' : 'M4.5 5.5h15v13h-15z',
+        tail: s.areaMode === 'lasso' ? 'M7.5 13.6c-1.2 1.4-.8 3.4 1.2 4 1.4.4 1.8 1.4 1.3 2.4' : '',
+        isLasso: s.areaMode === 'lasso', isRect: s.areaMode === 'rect',
+        lassoBg: s.areaMode === 'lasso' ? 'rgba(0,113,227,0.12)' : 'transparent', lassoFg: s.areaMode === 'lasso' ? '#0071E3' : '#1D1D1F',
+        rectBg: s.areaMode === 'rect' ? 'rgba(0,113,227,0.12)' : 'transparent', rectFg: s.areaMode === 'rect' ? '#0071E3' : '#1D1D1F',
+        lasso: () => this.setState({ areaMode: 'lasso', selMenu: false }), rect: () => this.setState({ areaMode: 'rect', selMenu: false }) },
       taskRows,
       vShow: !!v && !s.chatOpen && (isSolve || isTask), vOk: !!v && v.kind === 'ok', vNo: !!v && v.kind === 'no', vInfo: !!v && v.kind === 'info', vReading: !!v && v.kind === 'reading', vDone: !!v && v.kind === 'done',
       vTitle: v ? v.title : '', vLine: v ? v.line : '',
@@ -4089,7 +4856,7 @@ class Component extends DCLogic {
       prevTask: () => this.step(-1), nextTask: () => this.step(1),
       inkDown: this.inkDown, inkMove: this.inkMove, inkUp: this.inkUp,
       grid: this.gridVals(s),
-      toolPen: () => this.setState({ tool: 'pen' }), toolEraser: () => this.setState({ tool: 'eraser' }), toolHand: () => this.setState({ tool: 'hand' }),
+      toolPen: () => this.pickTool('pen'), toolEraser: () => this.pickTool('eraser'), toolHand: () => this.pickTool('hand'), toolSelect: () => this.pickTool('select'),
       undo: this.undo, clear: this.clear,
       toggleCard: () => this.setState({ cardOpen: !this.state.cardOpen }),
       check: this.check, next: this.next, dismiss: () => this.setState({ verdict: null }),
@@ -4097,13 +4864,14 @@ class Component extends DCLogic {
       showTutor: tutorHere, chatOpen: s.chatOpen, unread: s.unread && !s.chatOpen,
       isPip: pip, isNeutral: !pip, tutorName: pip ? 'Pip, your tutor' : 'Tutor', tutorTitle: pip ? 'Pip' : 'Tutor',
       micSwitch: pip ? 'Talk to Pip by voice' : 'Talk to the tutor by voice',
-      // The adult's field is on the page to pick from alone, for a request about the frames (R165); Pip's is a child's of epic E4 of app.
-      chatInput: pip || isPick,
-      inputLabel: isPick ? 'Which tasks to take, and how to split them' : pip ? 'Message to Pip' : 'Message to the tutor',
-      inputPlaceholder: isPick ? 'Say which tasks to take…' : pip ? 'Ask Pip…' : 'Ask the tutor…',
+      tutorSide: kit.side, voicingShow: kit.voicing,
+      chatInput: kit.field, fieldOff: kit.off, inputLabel: kit.label, inputPlaceholder: kit.placeholder,
+      dictatedShow: !!s.dictated && s.draft === s.dictated.text && !s.listening,
       pipBtn: { op: s.chatOpen ? 0 : 1, sc: s.chatOpen ? 0.6 : 1, vis: s.chatOpen ? 'hidden' : 'visible' },
       // At the side on the iPad; a sheet from the bottom on the phone, half the height or the whole.
+      // Under the top bar of a canvas, and under Home's row of places; over Home, which comes later in the template.
       panel: { op: s.chatOpen ? 1 : 0, vis: s.chatOpen ? 'visible' : 'hidden', cls: PH ? (s.tutorFull ? 'ph-full' : 'ph-half') : '',
+        top: kit.ctx.home ? 92 : 74, z: PH || kit.ctx.home ? 5 : 'auto',
         tf: PH ? 'translateY(' + (s.chatOpen ? 0 : 40) + 'px)' : 'translateX(' + (s.chatOpen ? 0 : 24) + 'px) scale(' + (s.chatOpen ? 1 : 0.96) + ')',
         grab: s.tutorFull ? 'Half screen' : 'Full screen' },
       tutorFull: s.tutorFull, toggleTutorFull: () => this.setState({ tutorFull: !this.state.tutorFull }),
@@ -4115,11 +4883,11 @@ class Component extends DCLogic {
       micOn: s.micOn, sw: { bg: s.micOn ? '#34C759' : 'rgba(120,120,128,0.24)', x: s.micOn ? 20 : 2 },
       toggleMic: () => { if (this.state.micOn) this.micCancel(); this.setState({ micOn: !this.state.micOn }); },
       listening: s.listening, notListening: !s.listening,
-      // On the page the microphone is there and off: voice comes later (R165).
-      micShow: (s.micOn || isPick) && !hasDraft, sendShow: hasDraft || (!s.micOn && !isPick), sendBg: hasDraft ? '#0071E3' : 'rgba(118,118,128,0.28)',
-      micOff: isPick, micLabel: isPick ? 'Speak — voice comes later' : 'Speak', micFg: isPick ? '#AEAEB2' : '#1D1D1F',
-      draft: s.draft, onDraft: (e) => this.setState({ draft: e.target.value }),
-      onKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.send(); } },
+      micShow: kit.mic && !hasDraft && !stoppable, sendShow: (hasDraft || !kit.mic) && !stoppable, stopShow: stoppable, stop: this.stop,
+      stoppedShow: !!s.stopped && !stoppable, sendBg: hasDraft && !kit.off ? '#0071E3' : 'rgba(118,118,128,0.28)',
+      micOff: kit.off, micLabel: 'Speak', micFg: kit.off ? '#AEAEB2' : '#1D1D1F',
+      draft: s.draft, onDraft: (e) => this.setState({ draft: e.target.value, stopped: false }),
+      onKey: (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); this.send(); } },
       send: this.send, micStart: this.micStart, micStop: this.micStop,
       openChat: this.openChat, closeChat: this.closeChat, askHint: this.askHint,
 
@@ -4201,7 +4969,7 @@ class Component extends DCLogic {
         go: () => (k === 'del' ? this.setState({ pin: this.state.pin.slice(0, -1) }) : k && this.state.pin.length < 4 ? this.pinKey(k) : null) })),
       me: { name: me.name, grad: AV(me.avatar).grad, glyph: AV(me.avatar).glyph },
       switchOpen: s.switchOpen, toggleSwitch: () => this.setState({ switchOpen: !this.state.switchOpen, helpOpen: false }),
-      switchLearner: () => this.setState({ grownOpen: false, bellOpen: false, homeTutor: false, modsOpen: false, gOk: false, screen: 'who', switchOpen: false, pinOpen: false, chat: [] }),
+      switchLearner: () => this.setState({ grownOpen: false, bellOpen: false, modsOpen: false, gOk: false, screen: 'who', switchOpen: false, pinOpen: false, chat: [] }),
       legendOpen: s.legendOpen, legendCls: s.legendOpen ? 'on' : '', toggleLegend: () => this.setState({ legendOpen: !this.state.legendOpen }),
       pagesOpen: s.pagesOpen, togglePages: () => this.setState({ pagesOpen: !this.state.pagesOpen, helpOpen: false, switchOpen: false }),
       pages: [{ when: 'Nov 22, 2026, 4:05 PM', meta: '3 tasks', page: 'worksheet', open: this.openPage }, { when: 'Nov 18, 2026, 9:12 AM', meta: '1 task', page: 'olympiad', open: this.openPage }],

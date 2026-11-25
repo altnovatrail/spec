@@ -28,10 +28,12 @@
 import type * as open from "../formatv0/open/index.js";
 
 /**
- * What a press of the primary button does on the sheet: the pen writes, the eraser erases, the hand
- * moves the sheet and writes nothing. A task without the eraser has the pen and the hand.
+ * What a press of the primary button does on the sheet: the pen writes, the eraser erases, Select
+ * draws a lasso or a rectangle round strokes to move, copy or delete them, the hand moves the sheet
+ * and writes nothing. Select and the hand are the element's own on every sheet the learner writes
+ * on; a task without the eraser has the pen, Select and the hand.
  */
-export type Tool = "pen" | "eraser" | "hand";
+export type Tool = "pen" | "eraser" | "select" | "hand";
 
 /** What a `toolchange` tells: the tool the learner chose with the element's own buttons. */
 export interface ToolChange {
@@ -129,8 +131,15 @@ export interface StrokeStyle {
 export type EraserMode = "stroke" | "part";
 
 /**
- * The learner's settings of the pen and the eraser: the kind of pen in use, each kind's own style,
- * which its next stroke takes, and the eraser's mode and size. An element starts with canvas's.
+ * The shape Select draws round the strokes it takes: "lasso", a line the pointer draws, closed from
+ * its end to its start; "rectangle", from where the press began to where the pointer is.
+ */
+export type SelectShape = "lasso" | "rectangle";
+
+/**
+ * The learner's settings of the pen, the eraser and Select: the kind of pen in use, each kind's own
+ * style, which its next stroke takes, the eraser's mode and size, and Select's shape. An element
+ * starts with canvas's; settings given without `select` keep the lasso.
  */
 export interface PenSettings {
   readonly pen: PenKind;
@@ -139,6 +148,7 @@ export interface PenSettings {
   readonly eraser: EraserMode;
   /** The eraser's diameter, in the sheet's units, from 1 to 200. */
   readonly eraserSize: number;
+  readonly select: SelectShape;
 }
 
 /**
@@ -292,9 +302,54 @@ export type HistoryEvent =
   /** The sheet cleared: every stroke that was on it, in the sheet's order. */
   | { readonly kind: "clear"; readonly t: number; readonly ids: readonly number[] }
   /**
+   * The tutor's act on the sheet in grown-up mode, one action: the strokes it wrote, new IDs in
+   * the order to draw them, each of the pointer's kind "tutor" with its points at the event's time
+   * and of no pressure, 0, and the strokes it took off, in the sheet's order. `on` is
+   * `"tracing"` when its strokes are on the tracing paper, as for a stroke written. The host puts
+   * it on the sheet by setting `history`, and an undo takes it back whole. A sample file of the
+   * eval protocol never holds one: the tutor's strokes are no learner's writing. A move and a copy it
+   * holds as an erasing of the strokes moved, if a move, and a writing of each new stroke, at the
+   * event's time: they replay to the same sheet.
+   */
+  | {
+      readonly kind: "tutor";
+      readonly t: number;
+      readonly strokes: readonly Stroke[];
+      readonly ids: readonly number[];
+      readonly on?: "tracing";
+    }
+  /**
+   * Strokes Select moved, one action: the strokes it took off, in the sheet's order, and the same
+   * strokes where the learner put them, each a new stroke after every other — the one of the same
+   * place in `ids` with all its points moved by one offset, its pointer's kind, style, times and
+   * pressures as they were. Its IDs are new, above every ID before them, ascending. `on` is
+   * `"tracing"` when the strokes are the tracing paper's: Select takes those of one layer. An undo
+   * takes it back whole.
+   */
+  | {
+      readonly kind: "move";
+      readonly t: number;
+      readonly ids: readonly number[];
+      readonly strokes: readonly Stroke[];
+      readonly on?: "tracing";
+    }
+  /**
+   * Strokes Select copied, one action: the strokes it copies, in the sheet's order, and their copies,
+   * new strokes after every other, as a move's are; the strokes copied stay. Select deletes by an
+   * `erase`.
+   */
+  | {
+      readonly kind: "copy";
+      readonly t: number;
+      readonly ids: readonly number[];
+      readonly strokes: readonly Stroke[];
+      readonly on?: "tracing";
+    }
+  /**
    * The last action still in force taken back: the stroke it took off, if it was a writing, or the
    * strokes it brought back, if it was an erasing or a clearing — and of a cut, the pieces it took
-   * off too.
+   * off too; of a move, the moved strokes it took off and those it brought back, and of a copy, the
+   * copies.
    */
   | {
       readonly kind: "undo";
@@ -315,7 +370,7 @@ export interface HistoryChange {
 
 /**
  * The event the element sends from its host, bubbling and composed, at once after every action on
- * the sheet: a stroke, an erasing, a cut, a clearing and an undo. Its detail is frozen. Setting `history`
+ * the sheet: a stroke, an erasing, a cut, a clearing, a move, a copy and an undo. Its detail is frozen. Setting `history`
  * sends none.
  */
 export type HistoryChangeEvent = CustomEvent<HistoryChange>;
@@ -447,6 +502,43 @@ export interface PaperSubmission {
  */
 export type Submission = SheetSubmission | WorkbookSubmission | PaperSubmission;
 
+/**
+ * A stroke a crop of a task from paper shows, for the tutor in grown-up mode: its ID, and its points
+ * across and down in the crop's pixels, in pairs, thinned to at most 128 points, with no time and
+ * no pressure.
+ */
+export interface CropStroke {
+  readonly id: number;
+  readonly points: readonly number[];
+}
+
+/**
+ * How far in from each side of the element the host's own controls cover the sheet — a panel over
+ * its right side, a bar of buttons along its foot —, in CSS pixels; a side not named is free. The
+ * drawing's crop of grown-up mode leaves it out, as it leaves out the element's own bar of buttons.
+ */
+export interface DrawingCover {
+  readonly top?: number;
+  readonly right?: number;
+  readonly bottom?: number;
+  readonly left?: number;
+}
+
+/**
+ * The tutor's act in grown-up mode, as the drawing gave it on a crop of a task from paper: the
+ * strokes to write, each with its points across and down in the crop's pixels, in pairs, at least
+ * two points, its colour and the width of its line in the crop's pixels, and the IDs of the strokes
+ * to take off.
+ */
+export interface TutorAct {
+  readonly strokes: readonly {
+    readonly points: readonly number[];
+    readonly color: string;
+    readonly width: number;
+  }[];
+  readonly erase: readonly number[];
+}
+
 /** The work of a sheet for checking: the PNG of the crop, and the context of the submission. */
 export interface ExportedSheet {
   readonly png: Blob;
@@ -565,6 +657,32 @@ export interface VerdictMark {
 export interface Marks {
   readonly submission: Submission;
   readonly marks: readonly Mark[];
+}
+
+/**
+ * What the element's drawing holds and has cost, for a developer's debug view of the device's load:
+ * a reading of counters the element keeps anyway, which no learner's data is in.
+ */
+export interface PaintStats {
+  /** The finished strokes the element holds, on the sheet and on the tracing paper. */
+  readonly strokes: number;
+  /** Their points, in all. */
+  readonly points: number;
+  /** The frames the element has painted since it was built. */
+  readonly frames: number;
+  /** Of them, those that repainted all in sight: a scroll, a resize, a scale, an undo, the eraser, a theme. */
+  readonly fullRepaints: number;
+  /** The strokes filled since the element was built, on its canvas and its buffers. */
+  readonly fills: number;
+  /**
+   * The last frame painted: the strokes it filled, the share of the view it repainted, 0 to 1, and
+   * how long its painting took, in ms of `performance.now()`; `undefined` before the first.
+   */
+  readonly last: { readonly fills: number; readonly area: number; readonly ms: number } | undefined;
+  /** How long each of the last frames painted took, ms, oldest first: up to 120 of them. */
+  readonly paintMs: readonly number[];
+  /** Each canvas the element holds now, the screen's and its buffers', in device pixels. */
+  readonly buffers: readonly { readonly width: number; readonly height: number }[];
 }
 
 /** The events of the element, by their names, for a consumer's map of events. */
@@ -690,7 +808,8 @@ export interface CanvasElement extends HTMLElement {
    */
   media: Media | undefined;
   /**
-   * The history of writing: every stroke, erasing, cut, clearing and undo on the sheet, frozen. The
+   * The history of writing: every stroke, erasing, cut, clearing, undo and act of the tutor on the
+   * sheet, frozen. The
    * consumer keeps it, adding what `historychange` tells, and gives it back to open the sheet as it
    * was. A history the sheet could not have written is a TypeError, and the sheet stays as it was;
    * `undefined` is the empty one.
@@ -730,6 +849,33 @@ export interface CanvasElement extends HTMLElement {
    */
   exportWork(): Promise<ExportedWork | null>;
   /**
+   * The work of a task from paper for the drawing of grown-up mode: the crop of the part of the sheet
+   * in sight that the grown-up sees free — the element's own bar of buttons and what `cover` names
+   * left out, so that the tutor writes nowhere they hide; the tracing paper where it lies, when
+   * shown, and every stroke there, in its style —, with room to write in, at most 1568 px on its longer edge, the task's
+   * crop as `exportWork()` gives it, and the context of the submission for
+   * `cropStrokes` and `drawTutor`. A sheet with no stroke gives it too. Without a task from paper it
+   * is a TypeError.
+   */
+  exportForDrawing(cover?: DrawingCover): Promise<ExportedPaper>;
+  /**
+   * The strokes the crop of a task from paper shows, by the context of the submission
+   * `exportWork()` or `exportForDrawing()` gave with that crop, for the tutor in grown-up mode: in the sheet's order, each
+   * in the crop's pixels. Another context than a task from paper's is a TypeError.
+   */
+  cropStrokes(submission: PaperSubmission): readonly CropStroke[];
+  /**
+   * The tutor's act in grown-up mode put on the sheet, by the context of the submission whose crop
+   * the drawing read: one `tutor` event, its strokes on the tracing paper when the context's
+   * tracing paper is shown, else on the sheet, of the pen kind "liner", and the strokes it takes off
+   * among those the sheet shows. Its strokes are drawn one after another, at the speed of a hand but
+   * all within 3 s, and at once with reduced motion; an undo takes the act back whole. It sends
+   * `historychange` at once, and resolves once the last stroke is drawn, or at once when the drawing
+   * is cut short. An act with an ID the sheet does not show, a point off the sheet or a colour that
+   * is not `#rrggbb` is a TypeError, thrown before anything changes.
+   */
+  drawTutor(submission: PaperSubmission, act: TutorAct): Promise<void>;
+  /**
    * The picture of the work, which app puts as the stored work's `picture` in the contract between
    * app and api: always a Blob of a PNG, with no condition, of the strokes the surface shows as it is
    * when it is called — the page, a sheet's or a workbook's, and the ink past it, right and down, with
@@ -737,4 +883,11 @@ export interface CanvasElement extends HTMLElement {
    * of a stored work there. Its size, in its PNG's header, is canvas's.
    */
   exportPicture(): Promise<Blob>;
+  /** What the drawing holds and has cost, a new frozen reading each time: for app's debug view. */
+  readonly paintStats: PaintStats;
+  /**
+   * While true, each rectangle a frame paints blinks red over the sheet for a moment, which no
+   * export holds: for app's debug view. False as an element comes.
+   */
+  paintFlash: boolean;
 }

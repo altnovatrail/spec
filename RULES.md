@@ -19,7 +19,7 @@ The texts people read are written for them: spec's legal texts in `legal/`, the 
 
 ## The project
 
-NovaTrail is a universal open platform for adaptive learning, interactive lessons and AI tutoring, for any subject and any age. A subject comes as a module — data, not code and not instructions to a model. A program decides every verdict; the AI only reads the learner's work and words the tutor's replies. NovaTrail succeeds MathTrail, olympiad maths for grades 1–6, which is frozen; its ideas, code and content are carried over selectively. The platform is split into repositories from day one, and `spec` is their shared source of truth; which repositories there are and what they are called is spec's `docs/repositories.md`.
+NovaTrail is a universal open platform for adaptive learning, interactive lessons and AI tutoring, for any subject and age. A subject comes as a module — data, not code and not instructions to a model. A program decides every verdict; the AI only reads the learner's work and words the tutor's replies, but in grown-up mode, behind a PIN, may solve the task on the sheet. NovaTrail succeeds MathTrail, olympiad maths for grades 1–6, now frozen; its ideas, code and content carry over selectively. The platform is split into repositories from day one, `spec` their shared source of truth; which they are is spec's `docs/repositories.md`.
 
 The name is written **NovaTrail**, with a capital T. Identifiers stay lowercase: the organization `altnovatrail`, `novatrail-spec`, `NOVATRAIL_DEVCONTAINER`.
 
