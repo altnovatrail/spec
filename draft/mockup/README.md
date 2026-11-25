@@ -335,6 +335,7 @@ The mockup is the look; the documents keep the behaviour. What the mockup shows 
 
 | The mockup | The documents | Who changes it |
 |---|---|---|
+| The tool rail: Undo, then Clear | «Повторить», Redo, after Undo, by the icon `redo`: it does again what Undo took back, till another action | `canvas`; the mockup, when the author draws it |
 | The sheet is three screens wide, whatever is written | The sheet goes past the task's page as far as the ink and the tracing paper and one view more, within 10000 × 14000 units | — : the mockup's width is a convenience of the drawing |
 | The grid of a task from paper stays as turned while the mockup runs | `app` keeps it in its solving screen's state across the tasks of one visit, and a reload or a new visit brings back dots | — |
 | Caveat and Inter | The system font of `app` | `app`, `canvas`: they keep the system font |

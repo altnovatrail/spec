@@ -632,6 +632,7 @@ The fields, periods and places of storage are set in [privacy.md](privacy.md) an
   | pen | `canvas`: "Pen" | `ink-pen` | when selected | as is |
   | eraser | `canvas`: "Eraser" | `ink-eraser` | when selected | as is |
   | undo | `canvas`: "Undo" | `undo` | — | mirrored |
+  | redo | `canvas`: "Redo" | `redo` | — | mirrored |
   | clear | `canvas`: "Clear" | `delete-sweep` | — | as is |
   | select: lasso | `canvas`: "Select" while its shape is the lasso, and "Lasso" in its popover | `lasso-select` | when selected | as is |
   | select: rectangle | `canvas`: "Select" while its shape is the rectangle, and "Rectangle" | `select` | when selected | as is |
@@ -677,6 +678,7 @@ The fields, periods and places of storage are set in [privacy.md](privacy.md) an
   | pen | Pen | «Перо» | `canvas`, `app` |
   | eraser | Eraser | «Ластик» | `canvas`, `app` |
   | undo | Undo | «Отменить» | `canvas`, `app` |
+  | redo | Redo | «Повторить» | `canvas` |
   | clear | Clear | «Очистить» | `canvas`, `app` |
   | select | Select | «Выделение» | `canvas` |
   | hand | Hand | «Рука» | `canvas`, `app` |
