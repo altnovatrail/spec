@@ -39,6 +39,27 @@ function toWork(t) {
   t.les().stepDone();
 }
 
+// Two lines of a solution on the sheet, written by the demo's hand: synthetic, no learner's work.
+function written(t) {
+  const ph = t.c.phone(), x = ph ? 96 : 370, y = ph ? 230 : 250, H = ph ? 30 : 44;
+  const lines = t.c.hand("2x + 5 = 20", x, y, H).concat(t.c.hand("2x = 15", x, y + H * 1.6, H));
+  t.c.setState({ strokes: { ...t.c.state.strokes, [t.c.inkKey()]: lines } });
+}
+function boxOf(list) {
+  const bs = list.map((st) => st.bb);
+  return [Math.min(...bs.map((b) => b[0])), Math.min(...bs.map((b) => b[1])), Math.max(...bs.map((b) => b[2])), Math.max(...bs.map((b) => b[3]))];
+}
+// A lasso round the second line, a little uneven, as a hand draws it.
+function ring(t) {
+  const ph = t.c.phone(), H = ph ? 30 : 44, list = t.c.state.strokes[t.c.inkKey()] || [];
+  const b = boxOf(list.filter((st) => st.bb[1] > (ph ? 230 : 250) + H * 1.3));
+  const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2, rx = (b[2] - b[0]) / 2 + 26, ry = (b[3] - b[1]) / 2 + 22;
+  return Array.from({ length: 32 }, (_, i) => {
+    const a = (i / 32) * 2 * Math.PI, w = 1 + 0.05 * Math.sin(3 * i);
+    return [cx + rx * w * Math.cos(a), cy + ry * w * Math.sin(a)];
+  });
+}
+
 const lesson = (name) => (t) => t.c.openLesson(name);
 const cont = (t) => t.les().cont();
 
@@ -203,6 +224,18 @@ export const STATES = [
     },
   },
   { name: "solve-hand", title: "Hand: the sheet moved right of the page", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink("M420 420 C500 380 580 460 660 420 M690 430 l60 -20"), t.c.setState({ tool: "hand" }), t.c.setView(1, 240, 0)) },
+  // Select: a lasso or a rectangle takes the strokes of the layer it began on that it holds almost wholly, to move, copy or delete.
+  { name: "solve-select-modes", title: "Select tapped again: its shapes, Lasso and Rectangle", from: "solve", shows: "Rectangle", run: (t) => (t.v().toolSelect(), t.v().toolSelect()) },
+  { name: "solve-select-lasso", title: "Select: a lasso drawn around the second line", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (written(t), t.v().toolSelect(), t.c.setState({ areaLive: { layer: "main", d: t.c.areaPath(ring(t)) } })) },
+  { name: "solve-selected", title: "Selected: the box around the line, and Copy and Delete above it", from: "solve-select-lasso", shows: "Copy Delete", run: (t) => t.c.areaPick(t.c.inkKey(), "main", ring(t)) },
+  { name: "solve-select-moved", title: "Selected and moved by a drag inside its box", from: "solve-selected", shows: "Copy Delete", run: (t) => t.c.areaShift(t.c.phone() ? 40 : 120, t.c.phone() ? 70 : 90) },
+  { name: "solve-select-copied", title: "Copied: the copy beside it, and selected", from: "solve-selected", shows: "Copy Delete", run: (t) => t.v().area.copy() },
+  { name: "solve-select-rect", title: "Rectangle on the task: it takes the strokes on the tracing paper alone", from: "solve", shows: "Copy Delete", run: (t) => {
+    const key = t.c.clipKey(), on = t.c.hand("x = 5", t.c.phone() ? 196 : 270, t.c.phone() ? 20 : 26, t.c.phone() ? 26 : 34), b = boxOf(on);
+    t.c.setState({ strokes: { ...t.c.state.strokes, [key]: on }, areaMode: "rect" });
+    t.v().toolSelect();
+    t.c.areaPick(key, "clip", t.c.areaPoly([[b[0] - 12, b[1] - 12], [b[2] + 12, b[3] + 12]]));
+  } },
   // The tracing paper chosen by its grip, at 90%: its frame, corners and bar of scale; Recognise waits, then the statement as text.
   { name: "solve-scale", title: "The tracing paper chosen: its frame, corners and bar of scale", from: "solve", shows: "90%", run: (t) => t.c.setState({ tSel: true, tScale: 0.9 }) },
   { name: "solve-recognising", title: "Recognise pressed: the statement being read", from: "solve-scale", shows: "Recognising…", run: (t) => t.c.setState({ tMode: "busy" }) },
