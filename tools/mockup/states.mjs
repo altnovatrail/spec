@@ -368,6 +368,25 @@ export const STATES = [
     run: (t) => t.v().dbg.toggleFilter(),
   },
   {
+    name: "solve-debug-runs",
+    title: "Debug on a local run: the Log's info in a row, folded into one row each",
+    from: "solve-debug-log",
+    shows: "7 info · Server · api, Camera",
+    run: (t) => t.v().dbg.tabs[1].pick(),
+  },
+  {
+    name: "solve-debug-run-open",
+    title: "Debug on a local run: a run of info in the Log opened, its entries under it",
+    from: "solve-debug-runs",
+    shows: "AccountService/GetQuota · ok · 0.9 s",
+    run: (t) =>
+      t
+        .v()
+        .dbg.blocks.flatMap((b) => b.lines ?? [])
+        .find((ln) => ln.id === "run-a2")
+        .toggle(),
+  },
+  {
     name: "solve-debug-perf",
     title: "Debug on a local run: Performance — the frames, the main thread, the canvas, memory",
     from: "solve-debug-log",

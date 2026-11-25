@@ -1651,8 +1651,24 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         <sc-if value="{{g.isLines}}" hint-placeholder-val="{{ false }}">
         <div style="margin-top: 6px; border-radius: 16px; background: #FFFFFF; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden">
           <sc-for list="{{g.lines}}" as="ln" hint-placeholder-count="3">
-            <sc-if value="{{ln.sep}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px"></div></sc-if>
-            <button class="row" aria-expanded="{{ln.open}}" onClick="{{ln.toggle}}" style="min-height: 48px; padding: 8px 12px; display: flex; align-items: flex-start; gap: 10px; text-align: left">
+            <sc-if value="{{ln.sep}}" hint-placeholder-val="{{ false }}"><div style="height: 0.5px; background: rgba(0,0,0,0.08); margin: 0 14px 0 {{ln.sepLeft}}px"></div></sc-if>
+            <!-- Info entries in a row, two or more: one row, closed — the names with their counts, how many, from where and when; open, the entries under it. -->
+            <sc-if value="{{ln.isRun}}" hint-placeholder-val="{{ false }}">
+            <button class="row" aria-expanded="{{ln.open}}" aria-label="{{ln.label}}" onClick="{{ln.toggle}}" style="min-height: 48px; padding: 8px 12px; display: flex; align-items: flex-start; gap: 10px; text-align: left; background: {{ln.tint}}">
+              <span style="flex: none; position: relative; margin-top: 1px; width: 22px; height: 20px" aria-hidden="true">
+                <span style="position: absolute; left: 4px; top: 0; width: 18px; height: 18px; border-radius: 9px; background: rgba(0,113,227,0.07)"></span>
+                <span style="position: absolute; left: 0; top: 2px; width: 18px; height: 18px; border-radius: 9px; background: #E6F0FC; color: #0071E3; font-size: 12px; font-weight: 800; line-height: 18px; text-align: center; box-shadow: 0 0 0 1.5px #FFFFFF">i</span>
+              </span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.3">
+                <span style="font-size: 13px; color: #1D1D1F; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word">{{ln.text}}</span>
+                <span style="font-size: 12px; color: #6E6E73">{{ln.sub}}</span>
+              </span>
+              <span style="flex: none; margin-top: 1px; min-width: 22px; height: 20px; padding: 0 7px; box-sizing: border-box; border-radius: 10px; background: rgba(118,118,128,0.12); font-size: 12px; font-weight: 600; line-height: 20px; text-align: center; color: #3A3A3C; font-variant-numeric: tabular-nums">{{ln.n}}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px; transform: rotate({{ln.rot}}deg); transition: transform 0.2s"><path d="M9 6l6 6-6 6"></path></svg>
+            </button>
+            </sc-if>
+            <sc-if value="{{ln.isLine}}" hint-placeholder-val="{{ true }}">
+            <button class="row" aria-expanded="{{ln.open}}" onClick="{{ln.toggle}}" style="min-height: 48px; padding: 8px 12px 8px {{ln.left}}px; display: flex; align-items: flex-start; gap: 10px; text-align: left; background: {{ln.tint}}">
               <span style="flex: none; margin-top: 1px; width: 18px; height: 18px; border-radius: 9px; background: {{ln.bg}}; color: {{ln.fg}}; font-size: 12px; font-weight: 800; line-height: 18px; text-align: center">{{ln.mark}}</span>
               <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.3">
                 <span style="font-size: 13px; color: {{ln.textFg}}; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word">{{ln.text}}</span>
@@ -1661,13 +1677,14 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 4px; transform: rotate({{ln.rot}}deg); transition: transform 0.2s"><path d="M9 6l6 6-6 6"></path></svg>
             </button>
             <sc-if value="{{ln.open}}" hint-placeholder-val="{{ false }}">
-              <div style="padding: 0 12px 12px 40px; display: flex; flex-direction: column; gap: 8px">
+              <div style="padding: 0 12px 12px {{ln.detailLeft}}px; display: flex; flex-direction: column; gap: 8px; background: {{ln.tint}}">
                 <div style="display: flex; align-items: center; gap: 8px">
                   <span style="flex: 1; font-size: 11px; font-weight: 600; color: #6E6E73">Details</span>
                   <button class="tip tip-bl" aria-label="Copy the entry" data-tip="Copy the entry" onClick="{{ln.copy}}" style="flex: none; height: 32px; padding: 0 10px; border-radius: 16px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"></rect><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"></path></svg>{{ln.copyLabel}}</button>
                 </div>
                 <pre style="margin: 0; max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: #F2F2F7; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 11.5px; line-height: 1.45; color: #1D1D1F; white-space: pre-wrap; word-break: break-word; user-select: text">{{ln.detail}}</pre>
               </div>
+            </sc-if>
             </sc-if>
           </sc-for>
         </div>
@@ -2881,7 +2898,7 @@ class Component extends DCLogic {
     dbgFlag: true, dbgOpen: false, dbgTab: 'models', dbgFirst: { model: 'admitted', effort: 'medium', think: true }, dbgSecond: { on: false, model: 'sonnet', effort: 'low', think: true },
     dbgLog: [], dbgRow: null, dbgMenu: null, dbgBusy: false, dbgFull: false, dbgCopied: null, dbgExport: null, dbgOutcome: {}, dbgSaved: {},
     // The app's log and Performance: the filter, the line open, the log cleared; the frames measured, the strip on the canvas.
-    dbgFilter: false, dbgLv: { error: true, warn: true, info: true, debug: true }, dbgSrc: { ai: true, api: true, canvas: true, app: true }, dbgLine: null, dbgCut: false,
+    dbgFilter: false, dbgLv: { error: true, warn: true, info: true, debug: true }, dbgSrc: { ai: true, api: true, canvas: true, app: true }, dbgLine: null, dbgRunsOpen: {}, dbgCut: false,
     dbgPerf: { live: false, left: 0, samples: [] }, dbgHud: false, dbgFlash: false };
   ink = null;
   timers = [];
@@ -3104,8 +3121,16 @@ class Component extends DCLogic {
   dbgLines(s) {
     const seed = s.dbgCut ? [] : [
       { id: 'l1', at: '14:01:58', lv: 'info', src: 'app', text: 'Started · app 0.1.54 · api 0.1.81', detail: 'build: e23fix · 6685ba5\napi: http://127.0.0.1:8080\nuser agent: Safari 19 · iPadOS 19\nview: 1194 × 834 @2x' },
-      { id: 'l2', at: '14:01:59', lv: 'debug', src: 'app', text: 'Profile opened · owner · paper flow', detail: 'profile: owner\nhint mode: where\ndebug right: yes' },
-      { id: 'l3', at: '14:02:04', lv: 'info', src: 'camera', text: 'Photo 4032 × 3024 · fitted to 1568 × 1176 · 1.9 MB', detail: 'source: camera\nfitted: 1568 × 1176, 28 px patches\nJPEG: 1.9 MB' },
+      { id: 'a1', at: '14:01:59', lv: 'info', src: 'api', text: 'AccountService/GetAccount · ok · 0.5 s', detail: 'code: ok\ntook: 0.5 s\ntrace: 3c1e07a2b95d4f10' },
+      { id: 'l2', at: '14:02:00', lv: 'debug', src: 'app', text: 'Profile opened · owner · paper flow', detail: 'profile: owner\nhint mode: where\ndebug right: yes' },
+      { id: 'a2', at: '14:02:01', lv: 'info', src: 'api', text: 'PackageService/CheckPackages · ok · 0.1 s', detail: 'code: ok\ntook: 0.1 s\ntrace: 8d42e1f06a3b7c59' },
+      { id: 'a3', at: '14:02:02', lv: 'info', src: 'api', text: 'ModuleService/ListConnectedModules · ok · 0.5 s', detail: 'code: ok\ntook: 0.5 s\ntrace: 1f9b6c3d70e248a5' },
+      { id: 'a4', at: '14:02:03', lv: 'info', src: 'api', text: 'AccountService/GetQuota · ok · 0.9 s', detail: 'code: ok\ntook: 0.9 s\ntrace: 64ad0b2e9c51f3d7' },
+      { id: 'a5', at: '14:02:04', lv: 'info', src: 'api', text: 'ModuleService/ListConnectedModules · ok · 0.4 s', detail: 'code: ok\ntook: 0.4 s\ntrace: b2073e5d8a1c96f4' },
+      { id: 'a6', at: '14:02:05', lv: 'info', src: 'api', text: 'ProgressService/GetSkillMap · ok · 1.6 s', detail: 'code: ok\ntook: 1.6 s\ntrace: 0e5c9a47d3b2618f' },
+      { id: 'l3', at: '14:02:08', lv: 'info', src: 'camera', text: 'Photo 4032 × 3024 · fitted to 1568 × 1176 · 1.9 MB', detail: 'source: camera\nfitted: 1568 × 1176, 28 px patches\nJPEG: 1.9 MB' },
+      { id: 'a7', at: '14:02:12', lv: 'info', src: 'api', text: 'PaperService/BeginPaperAttempts · ok · 1.8 s', detail: 'code: ok\ntook: 1.8 s\ntrace: 7a3f1d6e0b4c92e8' },
+      { id: 'a8', at: '14:02:13', lv: 'info', src: 'api', text: 'DebugService/GetDebug · ok · 0.3 s', detail: 'code: ok\ntook: 0.3 s\ntrace: c58e2b9d4f07a163' },
       { id: 'l4', at: '14:02:31', lv: 'warn', src: 'canvas', text: 'Long frame · 61 ms while panning', detail: 'frame: 61 ms\nstrokes in view: 214\nrepaint: the whole view\nreason: scroll' },
       { id: 'l5', at: '14:02:33', lv: 'error', src: 'api', text: 'PaperService/SubmitWork · invalid_argument · the crop is 4.6 MiB, over 4 MiB', detail: 'code: invalid_argument\nrequest: 4.6 MiB\ntook: 0.2 s\ntrace: 7f3a91c0e2b84d55\nshown: “This version of the app doesn’t know this yet”' },
       { id: 'l6', at: '14:02:40', lv: 'error', src: 'app', text: 'TypeError: undefined is not an object (evaluating \'box.x\')', detail: 'uncaught, in a promise\nat cropFitted (src/paper/photo.ts:88:14)\nat croppedPng (src/paper/capture.ts:41:9)\nat check (src/paper/Solve.tsx:612:22)' },
@@ -3115,6 +3140,35 @@ class Component extends DCLogic {
       return { id: 'r' + g.id, at: g.at, lv: 'info', src: 'api', text: name + ' · ok · ' + took.toFixed(1) + ' s', detail: 'code: ok\ntook: ' + took.toFixed(1) + ' s\ncalls of the AI: ' + g.calls.filter((c) => c.ai !== false).length + '\ntrace: ' + (0x5a17c3e9 + i * 7919).toString(16) + 'b02d6e41' };
     });
     return seed.concat(rpc);
+  }
+  // A card's lines with each run of info, two entries or more in a row, folded into one row: closed, the names of
+  // its entries with their counts, newest first, how many, from where and when; open, its entries under it, indented on
+  // a tint. A run is known by its oldest entry, so that one more coming keeps it open. A line of another level ends it.
+  dbgRuns(s, lines, SRC) {
+    const out = [], TINT = 'rgba(0,113,227,0.04)';
+    const line = (l, nested) => ({ ...l, isLine: true, isRun: false, sep: out.length > 0, sepLeft: nested ? 50 : 14,
+      left: nested ? 36 : 12, detailLeft: nested ? 64 : 40, tint: nested ? TINT : 'transparent' });
+    for (let i = 0; i < lines.length;) {
+      let j = i;
+      while (j < lines.length && lines[j].lv === 'info') j++;
+      if (j - i < 2) { out.push(line(lines[i], false)); i = Math.max(j, i + 1); continue; }
+      const run = lines.slice(i, j), id = 'run-' + run[run.length - 1].id, open = !!s.dbgRunsOpen[id];
+      const names = [];
+      run.forEach((l) => {
+        const head = l.text.split(' · ')[0], name = l.src === 'api' ? head.split('/').pop() : head;
+        const seen = names.find((x) => x.name === name);
+        if (seen) seen.n++; else names.push({ name, n: 1 });
+      });
+      const from = [...new Set(run.map((l) => SRC[l.src]))].join(', ');
+      const when = run[run.length - 1].at === run[0].at ? run[0].at : run[run.length - 1].at + ' – ' + run[0].at;
+      out.push({ id, isRun: true, isLine: false, sep: out.length > 0, sepLeft: 14, open, rot: open ? 90 : 0, n: String(run.length),
+        tint: open ? TINT : 'transparent', text: names.map((x) => x.n > 1 ? x.name + ' ×' + x.n : x.name).join(' · '),
+        sub: run.length + ' info · ' + from + ' · ' + when, label: run.length + ' info entries, ' + (open ? 'open' : 'closed'),
+        toggle: () => this.setState({ dbgRunsOpen: { ...this.state.dbgRunsOpen, [id]: !this.state.dbgRunsOpen[id] } }) });
+      if (open) run.forEach((l) => out.push(line(l, true)));
+      i = j;
+    }
+    return out;
   }
   dbgLogVals(s, groups) {
     const LV = { error: { name: 'Errors', bg: 'rgba(255,59,48,0.14)', fg: '#D70015', mark: '!' }, warn: { name: 'Warnings', bg: 'rgba(255,159,10,0.16)', fg: '#C93400', mark: '!' },
@@ -3134,9 +3188,10 @@ class Component extends DCLogic {
         toggle: () => this.setState({ dbgLine: this.state.dbgLine === l.id ? null : l.id }),
         copy: () => { try { navigator.clipboard.writeText(l.at + ' ' + l.lv + ' ' + l.src + ' ' + l.text + '\n' + l.detail); } catch (e) { /* no clipboard */ } this.setState({ dbgCopied: l.id }); } };
       const last = blocks[blocks.length - 1];
-      if (last && last.isLines) last.lines.push({ ...row, sep: true });
-      else blocks.push({ id: 'b' + l.id, isAi: false, isLines: true, lines: [{ ...row, sep: false }] });
+      if (last && last.isLines) last.lines.push(row);
+      else blocks.push({ id: 'b' + l.id, isAi: false, isLines: true, lines: [row] });
     });
+    blocks.forEach((b) => { if (b.isLines) b.lines = this.dbgRuns(s, b.lines, SRC); });
     const count = (f) => lines.filter(f).length + (f({ lv: 'info', src: 'ai' }) ? groups.length : 0);
     const nLv = Object.keys(LV).filter((k) => lvOn[k]).length, nSrc = Object.keys(srcOn).filter((k) => srcOn[k]).length;
     const errN = lines.filter((l) => l.lv === 'error').length, onlyErr = nLv === 1 && lvOn.error && nSrc === 4;

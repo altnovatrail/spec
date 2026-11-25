@@ -185,6 +185,8 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `solve-debug-export` | A Check of the Log exported: its truth — for each task of the frame its statement, formula, key, value read and verdict, and a note — filled in from the calls for the developer to correct, and Save case, a file of `DebugCase` that `tutor-eval -paper` reads | An account with the right alone |
 | `solve-debug-errors` | The window's Log as the app's log: what the app, `api`, the canvas and the camera said, newest first, with the AI's calls among them; "2 errors" tapped, the errors alone — a refusal of `api` with its trace, an uncaught error of the app with its stack —, and the red count on the tab | An account with the right alone |
 | `solve-debug-filter` | The Log's filter: the levels — errors, warnings, info, debug — and the sources — the AI's calls, `api`, the canvas, the app —, each with its count, and "Show everything" | An account with the right alone |
+| `solve-debug-runs` | The Log with info in a row folded: two entries of info or more one after another in a card are one row — the names with their counts, newest first, how many, from where and when, and the count beside the chevron; an entry alone, and every other level, as before; a warning, an error or an AI call ends a run | An account with the right alone |
+| `solve-debug-run-open` | A run of info opened by a tap: its entries under its row, indented on a light tint, each opening its details as any entry does; a tap again folds it, and an entry coming keeps it open | An account with the right alone |
 | `solve-debug-perf` | The window's Performance: the frames a second, the worst frame of each half-second over the last 30 s, the main thread's busy time, what the canvas holds and paints, memory estimated from what the app holds, the device, Pause and Copy, and the switches "Show on the canvas" and "Flash what is repainted" | An account with the right alone |
 | `solve-debug-hud` | "Show on the canvas" on and the window closed: a dark strip at the top left of the canvas with the frames, the busy time and the memory, which takes no touch | An account with the right alone |
 | `later-who` | "Who's learning?" with the children Comet and Juniper, four narrower cards | Later · E4 app |
@@ -219,12 +221,12 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:1385` — Pick | What left the device, the cards of what the page says, Select all, Start |
 | `Main.dc.html:1428` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
 | `Main.dc.html:1513` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
-| `Main.dc.html:1824` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:1950` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:2014` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:2111` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map |
-| `Main.dc.html:2503` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2521` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:1841` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:1967` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:2031` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:2128` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map |
+| `Main.dc.html:2520` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2538` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
