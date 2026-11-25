@@ -290,7 +290,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-foot-main { font-size: 0.9375rem; font-weight: 600; overflow-wrap: anywhere; }
 :where(.ph-home) .nt-engine-any { display: inline-flex; align-items: center; gap: 0.375rem; color: #6e6e73; font-size: 0.75rem; }
 :where(.ph-home) .nt-dots { display: flex; flex-wrap: wrap; gap: 2px; }
-:where(.ph-home) .nt-subject .nt-dots i { box-sizing: border-box; inline-size: 8px; block-size: 8px; border-radius: 2px; background: rgb(229, 229, 234); }
+:where(.ph-home) .nt-subject .nt-dots i, :where(.ph-home) .nt-catalog-dots i { box-sizing: border-box; inline-size: 8px; block-size: 8px; border-radius: 2px; background: rgb(229, 229, 234); }
 :where(.ph-home) .nt-dots i[data-state="mastered"] { background: #30a14e; }
 :where(.ph-home) .nt-dots i[data-state="time-to-review"] { background: rgb(255, 149, 0); }
 :where(.ph-home) .nt-dots i[data-state="in-progress"] { background: #0071e3; }
@@ -2286,49 +2286,79 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; line-height: 1.1">Subjects</h1>
         <p style="margin: 4px 0 0; font-size: 15px; color: #6E6E73">The modules of this server. A connected one is on Home, with its skill map.</p>
       </div>
-      <h2 style="margin: {{hs.L.gap1}}px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.2px; color: #6E6E73">CONNECTED · {{hs.connectedN}}</h2>
+      <!-- The connected modules first, then the others; one card for both. Its pop-overs hang from its own buttons: About under ⋯ — the manifest's facts, the license among them, and Disconnect —, and every skill by its tier under the chip of the rest; on the phone each is a sheet from the bottom. -->
+      <sc-for list="{{hs.catSections}}" as="sec" hint-placeholder-count="2">
+      <h2 style="margin: {{sec.mt}}px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.2px; color: #6E6E73">{{sec.title}}</h2>
       <div style="margin-top: 10px; display: grid; grid-template-columns: {{hs.L.catCols}}; gap: 16px">
-        <sc-for list="{{hs.catOn}}" as="m" hint-placeholder-count="3">
-          <div style="border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 20px 8px; box-sizing: border-box; display: flex; flex-direction: column">
-            <span style="display: flex; align-items: center; gap: 14px">
-              <span style="flex: none; width: 52px; height: 52px; border-radius: 15px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700">{{m.glyph}}</span>
-              <span style="display: flex; flex-direction: column; min-width: 0">
+        <sc-for list="{{sec.cards}}" as="m" hint-placeholder-count="3">
+          <div data-card="{{m.name}}" style="position: relative; border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 20px 12px; box-sizing: border-box; display: flex; flex-direction: column">
+            <span style="display: flex; align-items: flex-start; gap: 14px">
+              <span style="flex: none; width: 52px; height: 52px; border-radius: 15px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700" aria-hidden="true">{{m.glyph}}</span>
+              <span style="flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; padding-top: 4px">
                 <span style="font-size: 17px; font-weight: 600; letter-spacing: -0.2px">{{m.name}}</span>
-                <span style="margin-top: 2px; font-size: 12.5px; color: #6E6E73">{{m.meta}}</span>
+                <span style="margin-top: 3px; font-size: 13px; color: #6E6E73">{{m.line}}</span>
               </span>
+              <button onClick="{{m.about}}" aria-expanded="{{m.aboutOpen}}" aria-label="About {{m.name}}" class="tip tip-bl" data-tip="About the module" style="flex: none; width: 44px; height: 44px; margin: -6px -12px 0 0; border-radius: 22px; background: {{m.aboutBg}}; display: flex; align-items: center; justify-content: center; color: #6E6E73"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="18.5" cy="12" r="1.7"></circle></svg></button>
             </span>
-            <span style="margin-top: 12px; font-size: 14px; line-height: 1.4; color: #3A3A3C">{{m.desc}}</span>
-            <span style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px">
-              <sc-for list="{{m.tags}}" as="tg" hint-placeholder-count="3"><span style="height: 26px; padding: 0 10px; border-radius: 13px; background: rgba(118,118,128,0.10); display: flex; align-items: center; font-size: 12.5px; color: #3A3A3C">{{tg.t}}</span></sc-for>
+            <span style="margin-top: 12px; font-size: 14px; line-height: 1.45; color: #3A3A3C">{{m.desc}}</span>
+            <span style="margin-top: 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: #6E6E73">{{m.skillsHead}}</span>
+            <span style="margin-top: 7px; display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{m.chips}}" as="c" hint-placeholder-count="3"><span style="height: 28px; padding: 0 11px; border-radius: 14px; background: rgba(118,118,128,0.10); display: flex; align-items: center; font-size: 13px; color: #3A3A3C">{{c.t}}</span></sc-for>
+              <button onClick="{{m.skills}}" aria-expanded="{{m.skillsOpen}}" aria-label="Every skill of {{m.name}}" style="height: 28px; padding: 0 11px; border-radius: 14px; background: rgba(0,113,227,0.08); display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: #0066CC">{{m.rest}}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"></path></svg></button>
             </span>
-            <span style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between">
+            <sc-if value="{{m.builds}}" hint-placeholder-val="{{ false }}">
+            <span style="margin-top: 10px; display: flex; align-items: center; gap: 6px; font-size: 13px; color: #6E6E73"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M6 16h12M8 12h8M10 8h4"></path></svg>{{m.builds}}</span>
+            </sc-if>
+            <!-- The profile's own progress: a square for each skill in its state's colour, as on Home's card, and a line of the counts. -->
+            <sc-if value="{{m.own}}" hint-placeholder-val="{{ false }}">
+            <div class="nt-dots nt-catalog-dots" role="img" aria-label="{{m.aria}}" style="margin-top: 14px"><sc-for list="{{m.dots}}" as="d" hint-placeholder-count="20"><i data-state="{{d.st}}"></i></sc-for></div>
+            </sc-if>
+            <sc-if value="{{m.progress}}" hint-placeholder-val="{{ false }}">
+            <span style="margin-top: 7px; font-size: 13px; color: #3A3A3C">{{m.progress}}</span>
+            </sc-if>
+            <span style="margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+              <sc-if value="{{m.own}}" hint-placeholder-val="{{ true }}">
               <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #1E7A35"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.2 12.4l2.6 2.6 5-5.4"></path></svg>Connected</span>
               <button onClick="{{m.map}}" aria-label="{{m.mapAria}}" style="height: 44px; margin-right: -10px; padding: 0 10px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; color: #0066CC"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{hs.icons.map}}"></path></svg>Skill map</button>
+              </sc-if>
+              <sc-if value="{{m.off}}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{m.connect}}" style="margin: 2px 0 4px; height: 44px; padding: 0 20px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Connect</button>
+              <span style="font-size: 13px; color: #6E6E73">{{m.counts}}</span>
+              </sc-if>
             </span>
+            <!-- About the module: what its manifest says of it. The license is a fact here, not a button on the card; its text is in the section for grown-ups, with the profile's modules. -->
+            <sc-if value="{{m.aboutOpen}}" hint-placeholder-val="{{ false }}">
+            <div class="nt-pop" role="dialog" aria-label="About {{m.name}}" style="z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.about}}">
+              <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
+              <span style="display: block; padding: 4px 10px 8px; font-size: 15px; font-weight: 600">About the module</span>
+              <sc-for list="{{m.facts}}" as="f" hint-placeholder-count="5">
+                <span style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 8px 10px; border-top: 0.5px solid rgba(60,60,67,0.18); font-size: 14px"><span style="color: #6E6E73">{{f.k}}</span><span style="text-align: right; color: #1D1D1F">{{f.v}}</span></span>
+              </sc-for>
+              <sc-if value="{{m.own}}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{m.disconnect}}" style="margin-top: 6px; width: 100%; height: 44px; padding: 0 10px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #D70015"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"></path><circle cx="12" cy="12" r="8.5"></circle></svg>Disconnect</button>
+              </sc-if>
+            </div>
+            </sc-if>
+            <!-- Every skill of the module by its tier, from its graph: what a module teaches before it is connected; a connected one goes on to its map. -->
+            <sc-if value="{{m.skillsOpen}}" hint-placeholder-val="{{ false }}">
+            <div class="nt-pop" role="dialog" aria-label="Skills of {{m.name}}" style="z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.skills}}">
+              <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
+              <span style="display: block; padding: 4px 10px 6px; font-size: 15px; font-weight: 600">{{m.skillsTitle}}</span>
+              <sc-for list="{{m.tiers}}" as="t" hint-placeholder-count="3">
+                <span style="display: block; padding: 8px 10px 0; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: #6E6E73">{{t.name}}</span>
+                <span style="display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 10px 4px">
+                  <sc-for list="{{t.skills}}" as="k" hint-placeholder-count="3"><span style="height: 28px; padding: 0 11px; border-radius: 14px; background: rgba(118,118,128,0.10); display: flex; align-items: center; font-size: 13px; color: #3A3A3C">{{k.t}}</span></sc-for>
+                </span>
+              </sc-for>
+              <sc-if value="{{m.own}}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{m.map}}" style="margin-top: 8px; width: 100%; height: 44px; padding: 0 10px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #0066CC"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{hs.icons.map}}"></path></svg>Open the skill map</button>
+              </sc-if>
+            </div>
+            </sc-if>
           </div>
         </sc-for>
       </div>
-      <sc-if value="{{hs.hasMore}}" hint-placeholder-val="{{ true }}">
-      <h2 style="margin: 26px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.2px; color: #6E6E73">MORE ON THIS SERVER</h2>
-      <div style="margin-top: 10px; display: grid; grid-template-columns: {{hs.L.catCols}}; gap: 16px">
-        <sc-for list="{{hs.catOff}}" as="m" hint-placeholder-count="1">
-          <div style="border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 18px 20px 16px; box-sizing: border-box; display: flex; flex-direction: column">
-            <span style="display: flex; align-items: center; gap: 14px">
-              <span style="flex: none; width: 52px; height: 52px; border-radius: 15px; background: {{m.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700">{{m.glyph}}</span>
-              <span style="display: flex; flex-direction: column; min-width: 0">
-                <span style="font-size: 17px; font-weight: 600; letter-spacing: -0.2px">{{m.name}}</span>
-                <span style="margin-top: 2px; font-size: 12.5px; color: #6E6E73">{{m.meta}}</span>
-              </span>
-            </span>
-            <span style="margin-top: 12px; font-size: 14px; line-height: 1.4; color: #3A3A3C">{{m.desc}}</span>
-            <span style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px">
-              <sc-for list="{{m.tags}}" as="tg" hint-placeholder-count="3"><span style="height: 26px; padding: 0 10px; border-radius: 13px; background: rgba(118,118,128,0.10); display: flex; align-items: center; font-size: 12.5px; color: #3A3A3C">{{tg.t}}</span></sc-for>
-            </span>
-            <button onClick="{{m.connect}}" style="align-self: flex-start; margin-top: 14px; height: 44px; padding: 0 20px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Connect</button>
-          </div>
-        </sc-for>
-      </div>
-      </sc-if>
+      </sc-for>
     </sc-if>
 
     <!-- The skill map of one module, from Subjects: the module chosen at the title; the map in the frame is skill-map's (architecture 3.3). -->
@@ -4608,14 +4638,14 @@ class Component extends DCLogic {
 
   // Home, Subjects and a module's skill map: the row of places (the tab bar on the phone), the pills at the right and their pop-overs, as app lays them.
   homeVals(s, PH, pip, later) {
-    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, modsOpen: false, chatOpen: false };
+    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null };
     const tog = (k) => () => this.setState({ ...SHUT, [k]: !this.state[k] });
     const go = (screen) => () => this.setState({ ...SHUT, screen });
     // Subjects and the map in app's frame of a screen: under the row, 116 from the top on the iPad and 84 on the phone.
     const L = PH ? { h1: 28, gap1: 26, catCols: 'minmax(0, 1fr)', mapFlex: 'none' } : { h1: 32, gap1: 26, catCols: 'repeat(2, minmax(0, 1fr))', mapFlex: '1 1 auto' };
     const POP = 'border-radius: 20px; padding: 10px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
     const SHEET = 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 56px 16px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)';
-    const P = PH ? { grown: SHEET, account: SHEET, bell: SHEET, help: SHEET, pages: SHEET, legend: SHEET, mods: SHEET } : {
+    const P = PH ? { grown: SHEET, account: SHEET, bell: SHEET, help: SHEET, pages: SHEET, legend: SHEET, mods: SHEET, about: 'position: fixed; ' + SHEET, skills: 'position: fixed; ' + SHEET } : {
       // Each hangs from its button in the row or the pills: under it, at its start or its end, as app's pop-overs.
       grown: 'left: 442px; top: 92px; width: 340px; transform-origin: top left; ' + POP + '; padding: 8px',
       account: 'right: 41px; top: 86px; width: 270px; transform-origin: top right; ' + POP + '; padding: 8px',
@@ -4623,24 +4653,56 @@ class Component extends DCLogic {
       help: 'left: 562px; top: 92px; width: 320px; transform-origin: top left; border-radius: 20px; padding: 16px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)',
       pages: 'left: 522px; top: 434px; width: 400px; transform-origin: top right; ' + POP + '; padding: 18px 8px 8px',
       legend: 'left: 37px; top: 300px; width: 300px; ' + POP,
-      mods: 'left: 190px; top: 208px; width: 300px; transform-origin: top left; ' + POP };
+      mods: 'left: 190px; top: 208px; width: 300px; transform-origin: top left; ' + POP,
+      // A card's own pop-overs hang inside it: About under ⋯ at its top right, the skills under their chip.
+      about: 'position: absolute; right: 10px; top: 60px; width: 320px; transform-origin: top right; ' + POP + '; padding: 10px 8px 8px',
+      skills: 'position: absolute; left: 12px; right: 12px; top: 196px; transform-origin: top left; ' + POP + '; padding: 10px 8px 10px' };
 
     // The cognitive map is not built yet: its place is shown, shut. A module's skill map opens from Subjects.
     const ICONS = { map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8' };
     const here = s.screen === 'map' ? 'subjects' : s.screen, SOON = 'Cognitive map — comes later';
 
     // The catalog: the three modules of the first slice, connected, and the check board beside them (architecture 3.10).
+    // What a card says is the module's own: its subject and audience, its kind, a line of what it teaches, its skills by
+    // the graph, the anchor skills it builds on, and the profile's progress; ⋯ opens the rest of its manifest.
     const ABOUT = {
-      'Olympiad maths 1–6': ['Olympiad problems for grades 1–6: patterns, logic, shapes and reasoning.', ['45 skills', 'English', 'Adaptive']],
-      'School maths · grade 3': ['Numbers to 1000, the four operations, measures and first fractions.', ['36 skills', 'English', 'Adaptive']],
-      'Short essays': ['Short essays in English, each with feedback by the criteria of a rubric.', ['18 skills', 'English', 'Feedback by criteria']]
+      'Olympiad maths 1–6': { line: 'Mathematics · Grades 1–6 · Adaptive', desc: 'Olympiad problems for grades 1–6: patterns, logic, shapes and reasoning, each task at a band of its own.',
+        skills: 45, chips: ['Number patterns', 'Logic puzzles', 'Perimeter'], builds: 'Builds on division with remainder and fractions of a whole',
+        facts: [['Version', '0.1.0'], ['Authors', 'The NovaTrail authors'], ['For', 'Under 13 · grades 1–6'], ['Explanation language', 'English'], ['License', 'Apache-2.0']] },
+      'School maths · grade 3': { line: 'Mathematics · Grade 3 · Adaptive', desc: 'Numbers to 1000, the four operations, measures and first fractions, with lessons and worked examples.',
+        skills: 36, chips: ['Numbers to 1000', 'Multiplying by 6–9', 'Hours and minutes'],
+        facts: [['Version', '0.2.1'], ['Authors', 'The NovaTrail authors'], ['For', 'Under 13 · grade 3'], ['Explanation language', 'English'], ['License', 'Apache-2.0']] },
+      'Short essays': { line: 'Writing · 13 and up · Feedback by criteria', desc: 'Short essays in English: a rubric gives feedback on each by its criteria — the structure, the ideas and the words.',
+        skills: 18, chips: ['Topic sentence', 'Order of ideas', 'Linking words'], rubric: 'Feedback by criteria on each of its 18 skills',
+        facts: [['Version', '0.1.0'], ['Authors', 'The NovaTrail authors'], ['For', '13–17 · grown-ups'], ['Explanation language', 'English'], ['License', 'Apache-2.0']] }
     };
     const BOARD = { name: 'Tasks on a sheet', meta: 'NovaTrail · for grown-ups', glyph: '✓', color: 'linear-gradient(135deg, #8E8E93 0%, #48484A 100%)',
-      desc: 'The eleven tasks of the tutor’s check board, solved on the path a learner takes.', tags: [{ t: '11 tasks' }, { t: 'Russian' }, { t: 'Grown-ups only' }] };
+      line: 'Mathematics · Grown-ups · On a sheet', desc: 'The eleven tasks of the tutor’s check board, solved on the sheet of a task from paper; the AI checks each one.',
+      skills: 3, chips: ['Arithmetic', 'Word problems'], counts: '11 tasks · in Russian', sk: [0, 0, 0, 3, 0],
+      tiers: [{ name: 'TIER 1', skills: ['Arithmetic', 'Word problems', 'Equations'] }],
+      facts: [['Version', '0.1.0'], ['Authors', 'The NovaTrail authors'], ['For', 'Grown-ups'], ['Explanation language', 'Russian'], ['Tasks', '11, each checked by AI'], ['License', 'Apache-2.0']] };
     const toMap = (name) => () => this.setState({ ...SHUT, screen: 'map', mapMod: name });
-    const catOn = MODS.map((m) => ({ ...m, desc: ABOUT[m.name][0], tags: ABOUT[m.name][1].map((t) => ({ t })), map: toMap(m.name), mapAria: 'Skill map of ' + m.name }));
-    if (s.boardOn) catOn.push({ ...BOARD, map: toMap(MODS[0].name), mapAria: 'Skill map of ' + BOARD.name });
-    const catOff = s.boardOn ? [] : [{ ...BOARD, connect: () => this.setState({ boardOn: true }) }];
+    // The squares' states, in the order of the counts sk, as Home's card has them.
+    const ST = ['mastered', 'time-to-review', 'in-progress', 'ready-to-start', 'locked'];
+    const card = (m, a, own) => {
+      const total = a.skills, shown = a.chips.length, sk = m.sk || a.sk || [0, 0, 0, 0, 0];
+      const tiers = a.tiers || (MAPS[m.name] ? MAPS[m.name].tiers.map((name, t) => ({ name: name.toUpperCase(), skills: MAPS[m.name].skills.filter((k) => k.t === t).map((k) => k.name) })) : []);
+      const progress = !own ? '' : a.rubric ? a.rubric : sk[0] + ' of ' + total + ' mastered' + (sk[1] ? ' · ' + sk[1] + ' to review' : '') + (sk[2] ? ' · ' + sk[2] + ' in progress' : '');
+      return { ...m, ...a, own, off: !own, map: toMap(m.name === BOARD.name ? MODS[0].name : m.name), mapAria: 'Skill map of ' + m.name,
+        skillsHead: 'SKILLS · ' + total, chips: a.chips.map((t) => ({ t })), rest: total > shown ? '+' + (total - shown) + ' more' : 'All', builds: a.builds || '',
+        dots: a.rubric ? Array.from({ length: total }, () => ({ st: 'feedback-by-criteria' })) : sk.flatMap((n, i) => Array.from({ length: n }, () => ({ st: ST[i] }))),
+        aria: a.rubric ? 'All the skills: Feedback by criteria: ' + total : 'All the skills: ' + STATES.map((x, i) => x[1] + ': ' + sk[i]).join(', '), progress,
+        counts: a.counts || total + ' skills', facts: a.facts.map(([k, v]) => ({ k, v })),
+        tiers: tiers.map((t) => ({ name: t.name, skills: t.skills.map((x) => ({ t: x })) })), skillsTitle: 'Skills · ' + total,
+        aboutOpen: s.aboutMod === m.name, aboutBg: s.aboutMod === m.name ? 'rgba(118,118,128,0.12)' : 'transparent', about: () => this.setState({ ...SHUT, aboutMod: s.aboutMod === m.name ? null : m.name }),
+        skillsOpen: s.skillsMod === m.name, skills: () => this.setState({ ...SHUT, skillsMod: s.skillsMod === m.name ? null : m.name }),
+        disconnect: () => this.setState({ ...SHUT, boardOn: m.name === BOARD.name ? false : s.boardOn }),
+        connect: () => this.setState({ ...SHUT, boardOn: true }) };
+    };
+    const catOn = MODS.map((m) => card(m, ABOUT[m.name], true));
+    if (s.boardOn) catOn.push(card(BOARD, BOARD, true));
+    const catOff = s.boardOn ? [] : [card(BOARD, BOARD, false)];
+    const catSections = [{ title: 'CONNECTED · ' + catOn.length, mt: L.gap1, cards: catOn }].concat(catOff.length ? [{ title: 'MORE ON THIS SERVER', mt: 26, cards: catOff }] : []);
 
     // The map: tiers left to right on the iPad, top to bottom on the phone, as skill-map lays them out.
     const NODE_ICON = {
@@ -4685,12 +4747,12 @@ class Component extends DCLogic {
       goSubjects: go('subjects'),
       legend: [['mastered', 'Mastered'], ['time-to-review', 'Time to review'], ['in-progress', 'In progress'], ['ready-to-start', 'Ready to start'], ['locked', 'Locked'], ['feedback-by-criteria', 'Feedback by criteria'], ['not-assessed', 'Not assessed']]
         .map(([st, name], i) => ({ st, name, swatch: i < 5, icon: AI[['mastered', 'review', 'progress', 'ready', 'locked', 'rubric', 'notAssessed'][i]] })),
-      catOn, catOff, hasMore: catOff.length > 0, connectedN: catOn.length,
+      catOn, catOff, catSections, hasMore: catOff.length > 0, connectedN: catOn.length,
       map, mapMod: MODS.find((m) => m.name === s.mapMod) || BOARD,
       mapLegend: ['mastered', 'review', 'progress', 'ready', 'locked'].map((k) => ({ name: word(k), bg: MAP_LOOK[k][0], bd: MAP_LOOK[k][2] })),
       modPick: MODS.map((m) => ({ ...m, on: m.name === s.mapMod, bg: m.name === s.mapMod ? 'rgba(0,113,227,0.08)' : 'transparent', pick: () => this.setState({ ...SHUT, mapMod: m.name }) })),
 
-      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.modsOpen,
+      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.modsOpen || !!s.aboutMod || !!s.skillsMod,
       scrim: PH ? 'rgba(0,0,0,0.22)' : 'transparent', closePop: () => this.setState({ ...SHUT }),
       grownOpen: !!s.grownOpen, bellOpen: !!s.bellOpen, tutorOpen: !!s.chatOpen, modsOpen: !!s.modsOpen,
       toggleGrown: tog('grownOpen'), toggleAccount: tog('switchOpen'), toggleBell: tog('bellOpen'), toggleHelp: tog('helpOpen'), togglePages: tog('pagesOpen'),

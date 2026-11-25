@@ -105,6 +105,8 @@ export const STATES = [
   { name: "home-legend", title: "Home, what the marks mean", from: "home", shows: "Time to review", run: (t) => t.v().hs.toggleLegend() },
   { name: "home-pages", title: "Home, the pages from paper on this device", from: "home", shows: "on this device", run: (t) => t.v().hs.togglePages() },
   { name: "subjects", title: "Subjects, the catalog of this server", from: "home", shows: "Tasks on a sheet", run: (t) => t.v().hs.goSubjects() },
+  { name: "subjects-about", title: "Subjects, About a module under its ⋯", from: "subjects", shows: "Apache-2.0", run: (t) => t.v().hs.catOn[0].about() },
+  { name: "subjects-skills", title: "Subjects, every skill of a module by its tier", from: "subjects", shows: "TIER 4 · OLYMPIAD", run: (t) => t.v().hs.catOn[0].skills() },
   // The check board connected, and its tasks on the sheet of a task from paper: a proposal to the author, the statement the module's text.
   { name: "board-home", title: "Home with the check board connected: its card", from: "subjects", shows: "0 of 3 mastered", run: (t) => (t.v().hs.catOff[0].connect(), t.v().hs.nav[0].go()) },
   { name: "board", title: "A task of the check board on the sheet of a task from paper", from: "board-home", shows: "Task of the module", run: (t) => t.v().mods[3].open() },

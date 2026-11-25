@@ -82,7 +82,9 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `home-tutor` | Home, the one tutor's panel opened from the pill at the top right, under the row of places: that the tutor is an AI and where it helps, "Continue · Number patterns" and "Take from my paper" as its buttons, and the field and the microphone — Home holds no work, so it speaks of none | First slice |
 | `home-legend` | Home, what the marks mean: on the phone a sheet, on the iPad the legend that stands under the modules | First slice |
 | `home-pages` | Home, "Your pages" by "Open camera": the profile's pages from paper on this device, newest first, each with its photo's thumbnail, its date and time and its number of tasks, and under them how many of the newest are kept, where and until when | First slice |
-| `subjects` | Subjects, from the row of places: the connected modules, each with its skill map, and the check board "Tasks on a sheet" to connect | First slice |
+| `subjects` | Subjects, from the row of places: the connected modules, then the check board "Tasks on a sheet" to connect — each card its subject, audience and kind, a line of what it teaches, its skills — three by name and a chip of the rest —, the anchor skills it builds on, and on a connected one the profile's progress, "Connected" and its skill map; ⋯ at its top right | Epic E24, for the author's approval |
+| `subjects-about` | Subjects, ⋯ of a card: About the module — its version, authors, audience, explanation language and license, as facts of its manifest —, and Disconnect on a connected one; the card has no button of its license | Epic E24, for the author's approval |
+| `subjects-skills` | Subjects, the chip of the rest of a card's skills: every skill by its tier, and "Open the skill map" on a connected one | Epic E24, for the author's approval |
 | `board-home` | Home with the check board "Tasks on a sheet" connected in Subjects: its card among the modules, with Continue | Epic E24, for the author's approval |
 | `board` | A task of the check board on the sheet of a task from paper — the same tool bar, dotted sheet, counter and row of debug, Ask, Hint and Check —, its statement the module's text on the tracing paper, under the sign "Task of the module", with no photo; the top bar is Back alone, as on a task from paper | Epic E24, for the author's approval |
 | `board-tasks` | The check board's tasks, from the counter at the right | Epic E24, for the author's approval |
@@ -217,7 +219,7 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:816` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
 | `Main.dc.html:846` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, its colour a dot and a corner for its options, Eraser, Select, which a second tap gives its shapes, Lasso and Rectangle, Hand, Undo, Redo, Clear, Zoom in and Zoom out, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
 | `Main.dc.html:914` — The tutor | One component on every screen where the tutor stands — Home, the page to pick from, a task from paper, a task of a module, Pip under "Later" —, set by `tutorKit` of the script: its context and which of its parts are on. "Ask" in the bottom row — of a task from paper, of the check board and of a lesson —, the round button at the start of the bar of the page to pick from, the pill on Home, and the button at the right edge only on a screen with no row; the panel: the head with the quota and the speaker, the steps, the conversation, the context's buttons, the field with the microphone and Send |
-| `Main.dc.html:1216` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:681` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
 | `Main.dc.html:1385` — Pick | What left the device, the cards of what the page says, Select all, Start |
 | `Main.dc.html:1428` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
 | `Main.dc.html:1513` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
@@ -225,8 +227,8 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:1967` — The owner's profile | The name, the country, the avatar |
 | `Main.dc.html:2031` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
 | `Main.dc.html:2128` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map |
-| `Main.dc.html:2520` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2538` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:2550` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2568` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
