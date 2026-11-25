@@ -28,10 +28,12 @@
 import type * as open from "../formatv0/open/index.js";
 
 /**
- * What a press of the primary button does on the sheet: the pen writes, the eraser erases, the hand
- * moves the sheet and writes nothing. A task without the eraser has the pen and the hand.
+ * What a press of the primary button does on the sheet: the pen writes, the eraser erases, Select
+ * draws a lasso or a rectangle round strokes to move, copy or delete them, the hand moves the sheet
+ * and writes nothing. Select and the hand are the element's own on every sheet the learner writes
+ * on; a task without the eraser has the pen, Select and the hand.
  */
-export type Tool = "pen" | "eraser" | "hand";
+export type Tool = "pen" | "eraser" | "select" | "hand";
 
 /** What a `toolchange` tells: the tool the learner chose with the element's own buttons. */
 export interface ToolChange {
@@ -129,8 +131,15 @@ export interface StrokeStyle {
 export type EraserMode = "stroke" | "part";
 
 /**
- * The learner's settings of the pen and the eraser: the kind of pen in use, each kind's own style,
- * which its next stroke takes, and the eraser's mode and size. An element starts with canvas's.
+ * The shape Select draws round the strokes it takes: "lasso", a line the pointer draws, closed from
+ * its end to its start; "rectangle", from where the press began to where the pointer is.
+ */
+export type SelectShape = "lasso" | "rectangle";
+
+/**
+ * The learner's settings of the pen, the eraser and Select: the kind of pen in use, each kind's own
+ * style, which its next stroke takes, the eraser's mode and size, and Select's shape. An element
+ * starts with canvas's; settings given without `select` keep the lasso.
  */
 export interface PenSettings {
   readonly pen: PenKind;
@@ -139,6 +148,7 @@ export interface PenSettings {
   readonly eraser: EraserMode;
   /** The eraser's diameter, in the sheet's units, from 1 to 200. */
   readonly eraserSize: number;
+  readonly select: SelectShape;
 }
 
 /**
@@ -297,7 +307,9 @@ export type HistoryEvent =
    * and of no pressure, 0, and the strokes it took off, in the sheet's order. `on` is
    * `"tracing"` when its strokes are on the tracing paper, as for a stroke written. The host puts
    * it on the sheet by setting `history`, and an undo takes it back whole. A sample file of the
-   * eval protocol never holds one: the tutor's strokes are no learner's writing.
+   * eval protocol never holds one: the tutor's strokes are no learner's writing. A move and a copy it
+   * holds as an erasing of the strokes moved, if a move, and a writing of each new stroke, at the
+   * event's time: they replay to the same sheet.
    */
   | {
       readonly kind: "tutor";
@@ -307,9 +319,37 @@ export type HistoryEvent =
       readonly on?: "tracing";
     }
   /**
+   * Strokes Select moved, one action: the strokes it took off, in the sheet's order, and the same
+   * strokes where the learner put them, each a new stroke after every other — the one of the same
+   * place in `ids` with all its points moved by one offset, its pointer's kind, style, times and
+   * pressures as they were. Its IDs are new, above every ID before them, ascending. `on` is
+   * `"tracing"` when the strokes are the tracing paper's: Select takes those of one layer. An undo
+   * takes it back whole.
+   */
+  | {
+      readonly kind: "move";
+      readonly t: number;
+      readonly ids: readonly number[];
+      readonly strokes: readonly Stroke[];
+      readonly on?: "tracing";
+    }
+  /**
+   * Strokes Select copied, one action: the strokes it copies, in the sheet's order, and their copies,
+   * new strokes after every other, as a move's are; the strokes copied stay. Select deletes by an
+   * `erase`.
+   */
+  | {
+      readonly kind: "copy";
+      readonly t: number;
+      readonly ids: readonly number[];
+      readonly strokes: readonly Stroke[];
+      readonly on?: "tracing";
+    }
+  /**
    * The last action still in force taken back: the stroke it took off, if it was a writing, or the
    * strokes it brought back, if it was an erasing or a clearing — and of a cut, the pieces it took
-   * off too.
+   * off too; of a move, the moved strokes it took off and those it brought back, and of a copy, the
+   * copies.
    */
   | {
       readonly kind: "undo";
@@ -330,7 +370,7 @@ export interface HistoryChange {
 
 /**
  * The event the element sends from its host, bubbling and composed, at once after every action on
- * the sheet: a stroke, an erasing, a cut, a clearing and an undo. Its detail is frozen. Setting `history`
+ * the sheet: a stroke, an erasing, a cut, a clearing, a move, a copy and an undo. Its detail is frozen. Setting `history`
  * sends none.
  */
 export type HistoryChangeEvent = CustomEvent<HistoryChange>;
