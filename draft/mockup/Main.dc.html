@@ -254,6 +254,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-top-pills { display: flex; align-items: center; gap: 0.125rem; padding: 0.25rem; }
 :where(.ph-home) .nt-top-pills button.nt-icon-only.nt-top-round { border-color: transparent; border-radius: 1.375rem; background: transparent; box-shadow: none; color: #1d1d1f; font-size: 1.125rem; }
 :where(.ph-home) .nt-top-pills button.nt-icon-only.nt-top-round[aria-expanded="true"] { background: rgba(0, 113, 227, 0.1); color: #0066cc; }
+:where(.ph-home) .nt-top-pills button.nt-icon-only.nt-top-round[aria-disabled="true"] { background: transparent; color: rgb(174, 174, 178); cursor: default; }
 :where(.nt-pad .ph-home) .nt-nav { flex-wrap: wrap; align-items: center; gap: 0.125rem; padding: 0.25rem; }
 :where(.nt-pad .ph-home) .nt-nav-item { min-block-size: 2.75rem; padding: 0px 0.875rem 0px 0.75rem; border-radius: 1.375rem; font-size: 0.875rem; }
 :where(.nt-pad .ph-home) .nt-nav-item[aria-current="page"] { background: #1d1d1f; color: #ffffff; font-weight: 600; }
@@ -309,7 +310,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-shell-top button.nt-learner-pill { block-size: 2.75rem; padding: 0px 0.625rem 0px 0.25rem; border-color: transparent; border-radius: 1.375rem; background: transparent; box-shadow: none; }
 :where(.ph-home) nav.nt-nav button.nt-nav-item[aria-disabled="true"] { background: transparent; color: rgb(174, 174, 178); }
 :where(.nt-pad .ph-home) .nt-shell section.nt-legend { margin: 0.375rem 0px 0px; padding-inline: 0.25rem; color: #6e6e73; font-size: 0.75rem; }
-:where(.nt-pad .ph-home) .nt-shell .nt-legend .nt-legend-items { gap: 1rem; }
+:where(.nt-pad .ph-home) .nt-shell .nt-legend .nt-legend-items { gap: 1rem; justify-content: center; }
 :where(.nt-pad .ph-home) .nt-shell .nt-legend .nt-legend-items > li:has(> .nt-legend-swatch) > svg { display: none; }
 :where(.nt-pad .ph-home) .nt-shell .nt-legend .nt-legend-swatch { inline-size: 0.5625rem; block-size: 0.5625rem; border-radius: 0.125rem; }
 :where(.nt-pad .ph-home) .nt-shell .nt-legend [data-state="time-to-review"] > .nt-legend-swatch { background: rgb(255, 149, 0); }
@@ -408,6 +409,63 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .ph-pscan>i::after{content:"";position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;background:rgba(0,113,227,.7);box-shadow:0 0 12px rgba(0,113,227,.35)}
 @keyframes ntPScan{from{top:-12%}to{top:88%}}
 @media (prefers-reduced-motion: reduce){.ph-pscan>i{display:none}}
+/* Settings: the section for adults, as a device's settings — grouped lists on the system's grey, a white group of rows with the hairlines between them inset to the text. */
+.st{font-size:17px;line-height:1.25;color:#1D1D1F}
+.st h1,.st h2,.st h3,.st p{margin:0}
+.st-side{box-sizing:border-box;flex:none;width:375px;height:100%;overflow-y:auto;padding:0 16px 24px;border-right:0.5px solid rgba(60,60,67,0.2)}
+.st-sidehead{display:flex;align-items:center;justify-content:space-between;padding:22px 4px 14px}
+.st-sidehead h1{font-size:34px;font-weight:700;letter-spacing:0.2px}
+.st-close{color:#1D1D1F}
+.st-group{background:#FFFFFF;border-radius:12px;overflow:hidden;margin-bottom:22px}
+.st-side .st-group{margin-bottom:20px}
+.st-row{box-sizing:border-box;position:relative;width:100%;min-height:44px;display:flex;align-items:center;gap:12px;padding:6px 16px;text-align:left;background:#FFFFFF;font-size:17px;line-height:1.3}
+.st-row::after{content:"";position:absolute;left:16px;right:0;bottom:0;height:1px;background:rgba(60,60,67,0.13)}
+.st-row:has(.st-tile)::after,.st-row:has(.st-av)::after{left:58px}
+.st-row:last-child::after{display:none}
+.st-side .st-row{border-radius:0}
+.st-side .st-row[aria-current="page"]{border-radius:10px}
+.st-side .st-row[aria-current="page"]::after,.st-side .st-row:has(+ .st-row[aria-current="page"])::after{display:none}
+.st-prof{min-height:76px;padding:10px 16px}
+.st-av{flex:none;width:56px;height:56px;border-radius:28px;color:#FFFFFF;display:flex;align-items:center;justify-content:center}
+.st-av-big{width:88px;height:88px;border-radius:44px}
+.st-prof .st-name{font-size:20px;font-weight:600}
+.st-tile{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.st-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.st-label{flex:1;min-width:0}
+.st-text .st-label{flex:none}
+.st-sub{font-size:13px;line-height:1.3;color:#6E6E73}
+.st-value{flex:none;color:#6E6E73}
+.st-chev{flex:none;font-size:14px;color:#C4C4C7;display:flex}
+.st-tick{flex:none;font-size:18px;color:#0071E3;display:flex}
+.st-switch{flex:none;position:relative;width:51px;height:31px;border-radius:16px;transition:background .2s}
+.st-switch>span{position:absolute;top:2px;width:27px;height:27px;border-radius:14px;background:#FFFFFF;box-shadow:0 2px 6px rgba(0,0,0,0.18);transition:left .2s}
+.st-seg{flex:none;display:flex;padding:2px;border-radius:9px;background:rgba(118,118,128,0.12)}
+.st-seg>button{min-width:76px;height:30px;padding:0 12px;border-radius:7px;font-size:14px}
+.st-row-bar{flex-direction:column;align-items:stretch;gap:8px;padding:12px 16px}
+.st-barline{display:flex;gap:12px}
+.st-meter{height:6px;border-radius:3px;background:rgba(118,118,128,0.16);overflow:hidden}
+.st-meter>span{display:block;height:100%;border-radius:3px;background:#0071E3}
+.st-action{justify-content:center}
+.st-field-label{flex:none}
+.st-in{flex:1;min-width:0;height:44px;border:0;outline:0;padding:0;background:transparent;font:inherit;font-size:17px;text-align:right;color:#1D1D1F}
+.st-in::placeholder{color:#AEAEB2}
+.st-page{flex:1;min-width:0;height:100%;overflow-y:auto}
+.st-bar{position:sticky;top:0;z-index:2;height:56px;display:flex;align-items:center;justify-content:center;background:rgba(242,242,247,0.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.st-bar h2{font-size:17px;font-weight:600}
+.st-back{position:absolute;left:8px;height:44px;display:flex;align-items:center;gap:2px;padding:0 8px;color:#0071E3;font-size:17px}
+.st-back svg{font-size:22px}
+.st-save{position:absolute;right:12px;height:44px;padding:0 10px;font-size:17px;font-weight:600}
+.st-col{box-sizing:border-box;max-width:640px;margin:0 auto;padding:12px 24px 40px}
+.st-hero{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 26px}
+.st-hero-name{margin-top:8px;font-size:24px;font-weight:700}
+.st-hero-sub{font-size:15px;color:#6E6E73}
+.st-link{margin-top:6px;min-height:44px;padding:0 8px;color:#0071E3;font-size:15px}
+.st-head{padding:0 16px 7px;font-size:13px;font-weight:400;letter-spacing:0.2px;text-transform:uppercase;color:#6E6E73;line-height:1.3}
+.st-sec .st-group{margin-bottom:0}
+.st-sec{margin-bottom:30px}
+.st-foot{padding:7px 16px 0;font-size:13px;line-height:1.35;color:#6E6E73}
+.nt-phone .st-side{width:100%;border-right:0}
+.nt-phone .st-col{padding:8px 16px 40px}
 </style>
 </helmet>
 <div class="{{devCls}}" style="position: relative; width: {{dim.W}}px; height: {{dim.VH}}px; overflow: hidden; background: #F2F2F7; color: #1D1D1F; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; -webkit-font-smoothing: antialiased; user-select: none">
@@ -2148,8 +2206,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <header class="nt-shell-top">
         <span role="img" aria-label="NovaTrail" class="nt-mark nt-top-mark"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path d="{{hs.ai.mark}}" fill="currentColor"></path></svg></span>
         <div class="nt-top-pills ph-topend">
-          <!-- To an adult the tutor is neutral: no name, no fox (R148; О-13). Pip, the children's friend, comes with epic E4 of app. -->
-          <button class="nt-icon-only nt-top-round tip tip-bl" onClick="{{hs.toggleTutor}}" aria-expanded="{{hs.tutorOpen}}" aria-label="{{tutorName}}" data-tip="{{tutorName}}">
+          <!-- The tutor waits, shut, as the cognitive map: in its place and in the keyboard's order, named, its tooltip saying it comes later; it opens nothing. -->
+          <button class="nt-icon-only nt-top-round tip tip-bl" aria-disabled="true" aria-label="{{tutorName}}" data-tip="{{tutorName}} — comes later">
             <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.tutor}}"></path></svg>
           </button>
           <!-- Notifications: the place for them; nothing sends one yet. -->
@@ -2547,6 +2605,128 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 </div>
 </sc-if>
 
+<!-- ============ Settings: the section for adults, as a device's settings ============ -->
+<!-- The section for adults, which Settings of the profile's menu opens: on the iPad a sidebar — the profiles, then what is the device's and the account's — and the page chosen beside it; on the phone the list, and each page over it with the way back. Grouped lists, as a device's settings: a row each setting, its value at its end, a chevron where it leads further, a tick on the one chosen of a choice, a switch where it is on or off; a group's caption above it and its note under it. -->
+<sc-if value="{{st.on}}" hint-placeholder-val="{{ false }}">
+<div class="st" style="position: absolute; inset: 0; display: flex; background: #F2F2F7">
+  <sc-if value="{{st.side}}" hint-placeholder-val="{{ true }}">
+  <nav class="st-side" aria-label="Settings" tabindex="{{scrollTab}}">
+    <div class="st-sidehead">
+      <h1>Settings</h1>
+      <button class="ib glass st-close tip tip-bl" onClick="{{st.close}}" aria-label="Close the settings" data-tip="Close the settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+    <div class="st-group">
+      <sc-for list="{{st.profiles}}" as="p" hint-placeholder-count="1">
+        <button class="st-row st-prof" onClick="{{p.open}}" aria-current="{{p.cur}}" aria-label="{{p.aria}}" style="background: {{p.bg}}; color: {{p.fg}}">
+          <span class="st-av" style="background: {{p.grad}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{p.glyph}}"></path></svg></span>
+          <span class="st-text"><span class="st-name">{{p.name}}</span><span class="st-sub" style="color: {{p.subFg}}">{{p.sub}}</span></span>
+          <span class="st-chev" style="color: {{p.chevFg}}"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></span>
+        </button>
+      </sc-for>
+    </div>
+    <sc-for list="{{st.sideGroups}}" as="g" hint-placeholder-count="2">
+      <div class="st-group">
+        <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="3">
+          <button class="st-row" onClick="{{r.open}}" aria-current="{{r.cur}}" style="background: {{r.bg}}; color: {{r.fg}}">
+            <span class="st-tile" style="background: {{r.tile}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{r.icon}}"></path></svg></span>
+            <span class="st-label">{{r.label}}</span>
+            <span class="st-value" style="color: {{r.valFg}}">{{r.value}}</span>
+            <span class="st-chev" style="color: {{r.chevFg}}"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-for>
+    <!-- Connecticut's law asks a link with the word "privacy" in the settings: a quiet one under the list; the legal texts are otherwise Help's. -->
+    <button onClick="{{st.privacy}}" style="height: 44px; margin: 0 0 0 8px; padding: 0 8px; border: 0; border-radius: 22px; background: none; font-size: 15px; color: #0066CC">Privacy</button>
+  </nav>
+  </sc-if>
+
+  <sc-if value="{{st.detail}}" hint-placeholder-val="{{ true }}">
+  <main class="st-page" role="region" aria-label="{{st.page.title}}" tabindex="{{scrollTab}}">
+    <!-- The page's bar: the way back on the phone, its title, and Save on a profile's page, which sends only what changed. -->
+    <header class="st-bar">
+      <sc-if value="{{st.back}}" hint-placeholder-val="{{ false }}">
+        <button class="st-back" onClick="{{st.toRoot}}"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Settings</button>
+      </sc-if>
+      <h2>{{st.page.title}}</h2>
+      <sc-if value="{{st.page.save}}" hint-placeholder-val="{{ false }}">
+        <button class="st-save" onClick="{{st.save}}" disabled="{{st.saveOff}}" style="color: {{st.saveFg}}">{{st.saveCap}}</button>
+      </sc-if>
+    </header>
+    <div class="st-col">
+      <sc-if value="{{st.page.isProfile}}" hint-placeholder-val="{{ true }}">
+        <div class="st-hero">
+          <span class="st-av st-av-big" style="background: {{st.page.grad}}"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{st.page.glyph}}"></path></svg></span>
+          <span class="st-hero-name">{{st.page.name}}</span>
+          <span class="st-hero-sub">{{st.page.sub}}</span>
+          <button class="st-link" onClick="{{hs.noop}}">Change the avatar</button>
+        </div>
+      </sc-if>
+      <sc-for list="{{st.page.groups}}" as="g" hint-placeholder-count="4">
+        <section class="st-sec">
+          <sc-if value="{{g.head}}" hint-placeholder-val="{{ true }}"><h3 class="st-head">{{g.head}}</h3></sc-if>
+          <div class="st-group">
+            <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="2">
+              <sc-if value="{{r.isNav}}" hint-placeholder-val="{{ true }}">
+                <button class="st-row" onClick="{{r.go}}">
+                  <sc-if value="{{r.icon}}" hint-placeholder-val="{{ false }}"><span class="st-tile" style="background: {{r.tile}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{r.icon}}"></path></svg></span></sc-if>
+                  <span class="st-label">{{r.label}}</span>
+                  <span class="st-value">{{r.value}}</span>
+                  <span class="st-chev"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></span>
+                </button>
+              </sc-if>
+              <sc-if value="{{r.isCheck}}" hint-placeholder-val="{{ false }}">
+                <button class="st-row" role="radio" aria-checked="{{r.on}}" onClick="{{r.go}}">
+                  <span class="st-text"><span class="st-label">{{r.label}}</span><sc-if value="{{r.sub}}" hint-placeholder-val="{{ false }}"><span class="st-sub">{{r.sub}}</span></sc-if></span>
+                  <span class="st-tick" style="visibility: {{r.tickVis}}"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+                </button>
+              </sc-if>
+              <sc-if value="{{r.isSwitch}}" hint-placeholder-val="{{ false }}">
+                <button class="st-row" role="switch" aria-checked="{{r.on}}" onClick="{{r.go}}">
+                  <span class="st-text"><span class="st-label">{{r.label}}</span></span>
+                  <span class="st-switch" style="background: {{r.swBg}}; box-shadow: {{r.swRing}}"><span style="left: {{r.swX}}px"></span></span>
+                </button>
+              </sc-if>
+              <sc-if value="{{r.isSeg}}" hint-placeholder-val="{{ false }}">
+                <div class="st-row" role="radiogroup" aria-label="{{r.label}}">
+                  <span class="st-label">{{r.label}}</span>
+                  <span class="st-seg">
+                    <sc-for list="{{r.opts}}" as="o" hint-placeholder-count="2"><button role="radio" aria-checked="{{o.on}}" onClick="{{o.go}}" style="background: {{o.bg}}; box-shadow: {{o.sh}}; font-weight: {{o.fw}}">{{o.label}}</button></sc-for>
+                  </span>
+                </div>
+              </sc-if>
+              <sc-if value="{{r.isBar}}" hint-placeholder-val="{{ false }}">
+                <div class="st-row st-row-bar">
+                  <span class="st-barline"><span class="st-label">{{r.label}}</span><span class="st-value">{{r.value}}</span></span>
+                  <span class="st-meter" aria-hidden="true"><span style="width: {{r.pct}}%; background: {{r.fill}}"></span></span>
+                </div>
+              </sc-if>
+              <sc-if value="{{r.isField}}" hint-placeholder-val="{{ false }}">
+                <label class="st-row">
+                  <span class="st-label st-field-label">{{r.label}}</span>
+                  <input class="st-in" type="password" placeholder="{{r.ph}}" value="{{r.value}}" onChange="{{r.change}}" spellcheck="false" autocomplete="off">
+                </label>
+              </sc-if>
+              <sc-if value="{{r.isInfo}}" hint-placeholder-val="{{ false }}">
+                <div class="st-row">
+                  <span class="st-tile" style="background: {{r.tile}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{r.icon}}"></path></svg></span>
+                  <span class="st-text"><span class="st-label">{{r.label}}</span><sc-if value="{{r.sub}}" hint-placeholder-val="{{ false }}"><span class="st-sub">{{r.sub}}</span></sc-if></span>
+                </div>
+              </sc-if>
+              <sc-if value="{{r.isAction}}" hint-placeholder-val="{{ false }}">
+                <button class="st-row st-action" onClick="{{r.go}}" style="color: {{r.fg}}">{{r.label}}</button>
+              </sc-if>
+            </sc-for>
+          </div>
+          <sc-if value="{{g.foot}}" hint-placeholder-val="{{ true }}"><p class="st-foot">{{g.foot}}</p></sc-if>
+        </section>
+      </sc-for>
+    </div>
+  </main>
+  </sc-if>
+</div>
+</sc-if>
+
 <!-- ============ Waiting: while the next screen is read, its ground and the spark, never a white page ============ -->
 <sc-if value="{{isWait}}" hint-placeholder-val="{{ false }}">
 <div class="ph-wait" role="status" style="position: absolute; inset: 0; overflow: hidden; {{waitBg}}">
@@ -2922,6 +3102,19 @@ const DBG_CALLS = {
 const dbgModel = (id) => DBG_MODELS.find((m) => m.id === id);
 const dbgUsd = (x) => '$' + (x < 0.01 ? x.toFixed(5) : x.toFixed(4));
 const dbgNum = (n) => n.toLocaleString('en-US');
+
+// Settings (RUN.md, T305): a profile's choices as a new profile has them, and the glyphs of the rows' tiles, drawn white on their colour.
+const ST_FORM = { mode: 'steps', hints: 'where', voice: true, speed: 'normal', keep: false, ask: true };
+const ST_ICON = {
+  device: 'M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM11 18h2',
+  globe: 'M12 3a9 9 0 1 0 .01 0zM3.5 12h17M12 3c2.4 2.6 3.5 5.6 3.5 9s-1.1 6.4-3.5 9M12 3c-2.4 2.6-3.5 5.6-3.5 9s1.1 6.4 3.5 9',
+  key: 'M7.5 11.5a3.5 3.5 0 1 1-.01 0zM10 13l9-9M15.5 7.5l2.5 2.5M13 10l2 2',
+  clock: 'M12 3a9 9 0 1 0 .01 0zM12 7v5l3 2',
+  server: 'M4 5h16v5H4zM4 14h16v5H4zM8 7.5h.01M8 16.5h.01',
+  card: 'M3 6h18v12H3zM3 10h18M7 15h4',
+  lock: 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z',
+  gauge: 'M4 16a8 8 0 1 1 16 0M12 16l4-5'
+};
 
 class Component extends DCLogic {
   // The paper flow: the page photographed, the tasks picked, the learner's own frames on each page, the sheet chosen, each task's tries and status.
@@ -4841,7 +5034,7 @@ class Component extends DCLogic {
       menuName: { help: 'Help', pin: 'For grown-ups' }[s.menuView] || 'Profile',
       menuMain: !s.menuView || s.menuView === 'main', menuSub: !!s.menuView && s.menuView !== 'main', menuBackTo: 'Profile',
       menuHelp: s.menuView === 'help', menuPin: s.menuView === 'pin',
-      menuBack: () => this.setState({ menuView: 'main', gPin: '' }), openSettings: () => (pinNeeded ? this.setState({ menuView: 'pin', gPin: '' }) : this.setState({ ...SHUT })),
+      menuBack: () => this.setState({ menuView: 'main', gPin: '' }), openSettings: () => (pinNeeded ? this.setState({ menuView: 'pin', gPin: '' }) : this.setState({ ...SHUT, screen: 'settings', stFrom: s.screen, stRoot: true, stPage: 'profile', stWho: s.learner, stDone: false })),
       settingsName: pinNeeded ? 'Settings, behind the PIN' : 'Settings',
       openHelp: () => this.setState({ menuView: 'help' }),
 
@@ -4855,11 +5048,100 @@ class Component extends DCLogic {
           if (k === 'del') return this.setState({ gPin: pin.slice(0, -1) });
           if (!k) return;
           const next = pin + k;
-          this.setState(next.length >= 4 ? { gPin: '', gOk: true, menuView: 'main' } : { gPin: next });
+          this.setState(next.length >= 4 ? { gPin: '', gOk: true, ...SHUT, screen: 'settings', stFrom: s.screen, stRoot: true, stPage: 'profile', stWho: s.learner, stDone: false } : { gPin: next });
         } })),
       // Behind the PIN the grown-up sets a child's hint mode too.
       hm: { q: lay(s.hintMode === 'questions'), w: lay(s.hintMode === 'where') },
       modeQ: () => this.setState({ hintMode: 'questions' }), modeW: () => this.setState({ hintMode: 'where' })
+    };
+  }
+
+  // Settings, the section for adults (RUN.md, T305): the page chosen — a profile's, This device, Language, the own key, Privacy and legal —,
+  // on the phone the list until a row is pressed, and a profile's choices as the form holds them until Save sends what changed.
+  settingsVals(s, PH, later) {
+    // The owner first, as the section lists the profiles.
+    const all = this.profilesNow().slice().sort((a, b) => (b.owner ? 1 : 0) - (a.owner ? 1 : 0)), mine = all[0];
+    const sp = s.stPage || 'profile', who = all.find((p) => p.id === s.stWho) || mine;
+    const saved = { ...ST_FORM, ...(s.stSaved || {})[who.id] }, form = { ...saved, ...(s.stForm || {})[who.id] };
+    const dirty = Object.keys(form).some((k) => form[k] !== saved[k]);
+    const set = (k, v) => () => this.setState({ stForm: { ...(this.state.stForm || {}), [who.id]: { ...(this.state.stForm || {})[who.id], [k]: v } }, stDone: false });
+    const open = (page, id) => () => this.setState({ stPage: page, stWho: id || this.state.stWho, stRoot: false, stDone: false });
+    const sel = (on) => (PH || !on ? { bg: '#FFFFFF', fg: '#1D1D1F', valFg: '#6E6E73', chevFg: '#C4C4C7', subFg: '#6E6E73', cur: undefined }
+      : { bg: '#0071E3', fg: '#FFFFFF', valFg: 'rgba(255,255,255,0.85)', chevFg: 'rgba(255,255,255,0.7)', subFg: 'rgba(255,255,255,0.85)', cur: 'page' });
+    const dev = this.devName();
+    // Each row says what it is, so that the template asks no value it lacks.
+    const R = { isNav: false, isCheck: false, isSwitch: false, isSeg: false, isBar: false, isInfo: false, isField: false, isAction: false, icon: '', tile: '', sub: '', value: '' };
+    const info = (label, sub, icon, tile) => ({ ...R, isInfo: true, label, sub, icon, tile });
+    const act = (label, fg, go) => ({ ...R, isAction: true, label, fg, go });
+    const nav = (label, value, go, icon, tile) => ({ ...R, isNav: true, label, value: value || '', go: go || (() => {}), icon: icon || '', tile: tile || '' });
+    const check = (label, sub, on, go) => ({ ...R, isCheck: true, label, sub, on, tickVis: on ? 'visible' : 'hidden', go });
+    const sw = (label, on, go) => ({ ...R, isSwitch: true, label, on, swBg: on ? '#248A3D' : '#D1D1D6', swRing: on ? 'none' : 'inset 0 0 0 1px #8E8E93', swX: on ? 22 : 2, go });
+    const seg = (label, opts) => ({ ...R, isSeg: true, label, opts: opts.map(([l, on, go]) => ({ label: l, on, go, bg: on ? '#FFFFFF' : 'transparent', sh: on ? '0 1px 3px rgba(0,0,0,0.14)' : 'none', fw: on ? '600' : '400' })) });
+    const g = (head, rows, foot) => ({ head, rows, foot });
+    const child = !who.owner;
+    const pages = {
+      profile: { title: who.name, isProfile: true, save: true, name: who.name, grad: AV(who.avatar).grad, glyph: AV(who.avatar).glyph,
+        sub: who.owner ? 'Your profile · grown-up' : 'Learner',
+        groups: [
+          g('', [nav('Name', form.name || who.name)]),
+          g('Learning', [nav('Each task begins', form.mode === 'steps' ? 'Step by step' : 'On my own', set('mode', form.mode === 'steps' ? 'own' : 'steps'))],
+            'The learner can switch the mode on the task screen.'),
+          g('Hints', [check('Questions only', 'The tutor asks about a step of the work', form.hints === 'questions', set('hints', 'questions')),
+            check('Show where', 'After “Not yet” the tutor also underlines where the mistake is — and corrects nothing', form.hints === 'where', set('hints', 'where'))]),
+        ].concat(child ? [g('Showing the solution', [sw('Ask a grown-up first', form.ask, set('ask', !form.ask))], 'On: “Show the solution” asks for the PIN.')] : [], [
+          g('Voice', [sw('Read the tutor’s words aloud', form.voice, set('voice', !form.voice))].concat(form.voice
+            ? [seg('Speed', [['Normal', form.speed === 'normal', set('speed', 'normal')], ['Slow', form.speed === 'slow', set('speed', 'slow')]])] : []),
+          'A voice of this ' + dev + ' reads the words: choose it in This device. With a screen reader, turn this off.'),
+          g('Works', [sw('Keep works on the server', form.keep, set('keep', !form.keep))],
+            form.keep ? 'This profile’s works are kept on the server as well, by the consent given.' : 'Off: this profile’s works are only on this ' + dev + '. Turning it on asks for your consent first.'),
+          // A share each, its bar the accent's, red at a cap; and the hour it renews, by this device's clock.
+          g('Tutor time', [{ ...R, isBar: true, label: 'This profile', value: '20% used', pct: 20, fill: '#0071E3' },
+            { ...R, isBar: true, label: 'The whole account', value: '35% used', pct: 35, fill: '#0071E3' },
+            { ...R, isInfo: true, label: 'Tutor time renews tomorrow at 0:00', icon: ST_ICON.clock, tile: '#FF9500' }],
+          'How much of today’s tutor time this profile and the whole account have used.')
+        ]) },
+      device: { title: 'This ' + dev, groups: [
+        g('Voice', [nav('Voice for English', 'Samantha')], 'The voice of this ' + dev + ' that reads the tutor’s words.'),
+        g('On this ' + dev, all.map((p) => nav(p.name, p.owner ? '12 works · 3 pages' : '4 works'))), 
+        g('', [{ ...R, isAction: true, label: 'Erase this ' + dev + '’s data', fg: '#D70015', go: () => {} }], 'Works whose profile does not keep them on the server are only here, and go with them.')] },
+      language: { title: 'Language', groups: [
+        g('', [check('English', '', true, () => {}), check('Русский', '', false, () => {})], 'Every screen of this ' + dev + ' is in it, a learner’s too.')] },
+      key: (() => {
+        const on = !!s.stKeyOn, keep = !!s.stKeyKeep, text = s.stKeyText || '';
+        const about = g('About the key', [
+          info('Goes to the server only with a request', 'Only while the request runs: never into the database or the logs', ST_ICON.server, '#0A84FF'),
+          info('The provider bills your account', 'Each request goes under your account and your terms with the provider', ST_ICON.card, '#34C759'),
+          info('Not encrypted on this ' + dev, 'A PIN doesn’t protect the key: whoever holds this ' + dev + ' can get at a key kept on it', ST_ICON.lock, '#8E8E93'),
+          info('Set a hard spending limit', 'A separate OpenAI project with a hard limit, or a separate Anthropic workspace with a monthly limit, not the default one. Give the key a lifetime, and revoke it at the provider if it may have leaked', ST_ICON.gauge, '#FF9500')]);
+        return on ? { title: 'Own AI key', groups: [
+          g('', [info('Anthropic', 'Key ending in 7f3a', ST_ICON.key, '#FF9500')], 'Your profile’s requests to the tutor go with this key.'),
+          g('', [sw('Keep on this ' + dev, keep, () => this.setState({ stKeyKeep: !keep }))],
+            keep ? 'The key is kept on this ' + dev + '.' : 'The key is in this tab’s memory alone.'),
+          g('', [act('Replace the key', '#0071E3', () => this.setState({ stKeyOn: false, stKeyText: '' }))], 'The key now connected stays until the new one passes the check.'),
+          g('', [act('Remove key', '#C93400', () => this.setState({ stKeyOn: false, stKeyText: '' }))], 'Your profile’s requests then go to the platform’s AI and spend its tutor time. The key keeps working at the provider: revoke it there if you no longer need it.'),
+          about] } : { title: 'Own AI key', groups: [
+          g('', [nav('Provider', 'Anthropic'), { ...R, isField: true, label: 'Key', ph: 'sk-ant-…', value: text, change: (e) => this.setState({ stKeyText: e.target.value }) }],
+            'Your own key at an AI provider, for the tutor’s requests of your profile.'),
+          g('', [sw('Keep on this ' + dev, keep, () => this.setState({ stKeyKeep: !keep }))],
+            keep ? 'Kept on this ' + dev + ' until you remove it.' : 'Off: the key stays in this tab only, until you switch the learner or reload.'),
+          g('', [act('Connect', text ? '#0071E3' : '#AEAEB2', () => { if (text) this.setState({ stKeyOn: true }); })]),
+          about] };
+      })()
+    };
+    const page = { save: false, isProfile: false, name: '', sub: '', grad: '', glyph: '', ...(pages[sp] || pages.profile) }, root = PH && s.stRoot !== false;
+    return {
+      on: s.screen === 'settings', side: !PH || root, detail: !root, back: PH,
+      close: () => this.setState({ screen: this.state.stFrom || 'home', stRoot: true }),
+      toRoot: () => this.setState({ stRoot: true }),
+      privacy: () => this.setState({ legal: 'privacy' }),
+      profiles: all.map((p) => ({ name: p.name, grad: AV(p.avatar).grad, glyph: AV(p.avatar).glyph, sub: p.owner ? 'Your profile' : 'Learner',
+        aria: p.name + (p.owner ? ', your profile' : ''), open: open('profile', p.id), ...sel(sp === 'profile' && p.id === who.id) })),
+      sideGroups: [
+        { rows: [['device', 'This ' + dev, '', ST_ICON.device, '#8E8E93'], ['language', 'Language', 'English', ST_ICON.globe, '#0A84FF'], ['key', 'Own AI key', s.stKeyOn ? 'On' : 'Off', ST_ICON.key, '#FF9500']]
+          .map(([id, label, value, icon, tile]) => ({ label, value, icon, tile, open: open(id), ...sel(sp === id) })) }
+      ],
+      page, saveOff: !dirty, saveFg: dirty ? '#0071E3' : '#AEAEB2', saveCap: s.stDone && !dirty ? 'Saved' : 'Save',
+      save: () => { if (dirty) this.setState({ stSaved: { ...(this.state.stSaved || {}), [who.id]: form }, stForm: { ...(this.state.stForm || {}), [who.id]: {} }, stDone: true, hintMode: who.id === mine.id ? form.hints : this.state.hintMode }); }
     };
   }
 
@@ -5221,7 +5503,7 @@ class Component extends DCLogic {
       pages: [{ when: 'Nov 22, 2026, 4:05 PM', meta: '3 tasks', page: 'worksheet', open: this.openPage }, { when: 'Nov 18, 2026, 9:12 AM', meta: '1 task', page: 'olympiad', open: this.openPage }],
       helpOpen: s.helpOpen, toggleHelp: () => this.setState({ helpOpen: !this.state.helpOpen, switchOpen: false }),
       openCamera: this.openCamera, continueNext: () => this.openLesson('Olympiad maths 1–6'),
-      hs: this.homeVals(s, PH, pip, later), isSubjects: s.screen === 'subjects',
+      hs: this.homeVals(s, PH, pip, later), st: this.settingsVals(s, PH, later), isSubjects: s.screen === 'subjects',
       mods: MODS.concat(s.boardOn ? [BOARD_MOD] : []).map((m) => {
         const go = { open: m.sheet ? this.openBoard : () => this.openLesson(m.name), openAria: 'Continue ' + m.name, mapAria: 'Skill map of ' + m.name,
           map: () => this.setState({ screen: 'map', mapMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false }) };
