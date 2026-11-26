@@ -116,6 +116,30 @@ test("up clones each repository and spec on the epic's branch, wires Go and npm 
   assert.equal(unpacks(w).length, before + 4);
 });
 
+test("skill-map's package is laid in app from its clone, by its build and npm pack, as canvas's is", async (t) => {
+  const w = await world(t);
+  const up = await run(w, ["xrepo", "up", "e1", "app", "skill-map"]);
+  assert.equal(up.status, 0, up.err);
+  const map = path.join(w.epics, "e1", "app", "node_modules", "@altnovatrail", "skill-map");
+  const app = up.out.find((r) => r.repo === "app");
+  assert.deepEqual(app.npm.packages, ["@altnovatrail/spec", "@altnovatrail/contracts", "@altnovatrail/skill-map"]);
+  assert.equal(read(path.join(map, "lib", "tree.txt")), "map first\n");
+  assert.equal(read(path.join(map, ".xrepo")).trim(), app.npm["skill-map"]);
+  // skill-map is wired with spec's packages, and its own clone takes no package of itself.
+  assert.ok(fs.existsSync(path.join(w.epics, "e1", "skill-map", "node_modules", "@altnovatrail", "spec", ".xrepo")));
+  assert.ok(!fs.existsSync(path.join(w.epics, "e1", "skill-map", "node_modules", "@altnovatrail", "skill-map")));
+  // A new build of skill-map drops app's prebundle of Vite, which would serve the old one; an up that
+  // lays nothing keeps it.
+  const deps = path.join(w.epics, "e1", "app", "node_modules", ".vite", "deps");
+  fs.mkdirSync(deps, { recursive: true });
+  fs.writeFileSync(path.join(deps, "old.js"), "");
+  assert.equal((await run(w, ["xrepo", "up", "e1", "app", "skill-map"])).status, 0);
+  assert.ok(fs.existsSync(path.join(deps, "old.js")));
+  fs.writeFileSync(path.join(w.epics, "e1", "skill-map", "changed.txt"), "a change\n");
+  assert.equal((await run(w, ["xrepo", "up", "e1", "app", "skill-map"])).status, 0);
+  assert.ok(!fs.existsSync(deps));
+});
+
 test("up refuses names that are not an epic's or a repository's, and the other commands need the epic named once there are two", async (t) => {
   const w = await world(t);
   for (const argv of [["xrepo", "up", "E1", "api"], ["xrepo", "up", "../e1", "api"], ["xrepo", "up", "e1", ".."], ["xrepo", "up", "e1", "../api"]]) {

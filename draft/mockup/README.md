@@ -95,7 +95,9 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `board-correct` | "Correct" on a task of the check board, its card's OK, and in the row Check beside "Next task", the row's own | Epic E24, for the author's approval |
 | `solve-kept` | A page opened from "Your pages": its picked tasks with the work kept, and no verdict, which the device does not keep | First slice |
 | `legal-access` | The page Accessibility, from Help | First slice |
-| `map` | The skill map of olympiad maths, from Subjects: "Subjects" back, the module at the title, the legend, and the map in its frame | First slice |
+| `map` | The skill map of olympiad maths, from Subjects: "Subjects" back, the module at the title, the legend with the count of each state, and the map in its frame — its 45 skills in four tiers and two anchor skills of other modules above them; on the iPad the tiers are columns left to right, each skill level with the mean of its prerequisites, each column its count of mastered and a square for each skill, and every link drawn, green from a skill mastered; on the phone the tiers are bands top to bottom, two skills to a row | Epic E24, for the author's approval |
+| `map-skill` | The skill map, a skill chosen: its whole chain — what it builds on and what it opens — lit, the rest dimmed, and its card at the bottom of the screen, a sheet on the phone: its state, what it is, Practise, and the skills it builds on and opens as chips that choose them | Epic E24, for the author's approval |
+| `map-skill-locked` | The skill map, a locked skill chosen: what it waits for in place of Practise | Epic E24, for the author's approval |
 | `map-modules` | The skill map, its module chosen in a pop-over at the title | First slice |
 | `map-essays` | The skill map of short essays: every skill "Feedback by criteria" | First slice |
 | `lesson` | A lesson, its explanation: a card to read, with "Read aloud" | First slice |
@@ -227,8 +229,8 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 | `Main.dc.html:1967` — The owner's profile | The name, the country, the avatar |
 | `Main.dc.html:2031` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
 | `Main.dc.html:2128` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the tutor, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" with the quota beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, "Your pages", the legend, the module of the map |
-| `Main.dc.html:2550` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2568` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:2580` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2598` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -366,7 +368,7 @@ The mockup is the look; the documents keep the behaviour. What the mockup shows 
 | Google's button in the system font | Google's rules give it Google Sans Medium (sources 4.8), and `app` has no fonts of its own | Nobody: the system font, with Google's colours and "G" |
 | A tap on "Русский" in the sign-in's language only closes the pop-over | `app` shows its screens in the language chosen | Nobody: the mockup is in English |
 | "Privacy and legal information" on the sign-in's card opens the gist of the Privacy Policy | It opens the list of the legal pages | Nobody: the mockup has no list of them |
-| The skill map in the frame is a sketch | `skill-map` draws a module's map | `skill-map` |
+| The skill map: the tiers as columns on the iPad, every link drawn, a chosen skill's whole chain lit and its card at the bottom of the screen | the release of `skill-map` that `app` takes draws the tiers as bands that wrap, the lines of the expanded skill alone, and its details under its tile; its next release draws them as the mockup does | `app`, once it takes a release of `skill-map` that draws the map so |
 | The notifications: a bell without a caption, and "Nothing new yet" | Nothing sends a notification, and the bell is outside the closed list of buttons without a caption | Open: the list takes it, or `app` captions it — the author's word |
 | On the phone the profile's menu is its avatar alone | Outside the closed list of buttons without a caption: elsewhere the name stands beside it | Open, with the bell |
 | The cognitive map in the row of places, shut, with "Soon" | The documents have no cognitive map | Nobody until it comes: `app` shows the place shut |

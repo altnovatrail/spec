@@ -2284,7 +2284,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <sc-if value="{{hs.isSubjects}}" hint-placeholder-val="{{ false }}">
       <div style="flex: none; display: flex; flex-direction: column; justify-content: center">
         <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; line-height: 1.1">Subjects</h1>
-        <p style="margin: 4px 0 0; font-size: 15px; color: #6E6E73">The modules of this server. A connected one is on Home, with its skill map.</p>
       </div>
       <!-- The connected modules first, then the others; one card for both. Its pop-overs hang from its own buttons: About under ⋯ — the manifest's facts, the license among them, and Disconnect —, and every skill by its tier under the chip of the rest; on the phone each is a sheet from the bottom. -->
       <sc-for list="{{hs.catSections}}" as="sec" hint-placeholder-count="2">
@@ -2365,8 +2364,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <sc-if value="{{isMap}}" hint-placeholder-val="{{ false }}">
       <div style="flex: none; display: flex; flex-direction: column; justify-content: center">
         <button onClick="{{hs.goSubjects}}" style="align-self: flex-start; height: 44px; margin: -10px 0 -4px -8px; padding: 0 10px 0 4px; border-radius: 22px; display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 600; color: #0066CC"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Subjects</button>
-        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
-          <h1 style="margin: 0 0 16px; font-size: {{hs.L.h1}}px; font-weight: 700; line-height: 1.25">Skill map</h1>
+        <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+          <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; line-height: 1.25">Skill map</h1>
           <button onClick="{{hs.toggleMods}}" aria-expanded="{{hs.modsOpen}}" aria-label="Module: {{mapName}}" style="height: 44px; padding: 0 14px 0 6px; border-radius: 22px; background: #FFFFFF; box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 14px rgba(17,24,39,0.06); display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600">
             <span style="width: 32px; height: 32px; border-radius: 10px; background: {{hs.mapMod.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{hs.mapMod.glyph}}</span>
             {{mapName}}
@@ -2374,24 +2373,55 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
           </button>
         </div>
       </div>
-      <div role="list" aria-label="What the marks mean" style="margin-top: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: #3A3A3C">
-        <sc-for list="{{hs.mapLegend}}" as="k" hint-placeholder-count="5"><span role="listitem" style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 4px; background: {{k.bg}}; box-shadow: inset 0 0 0 1px {{k.bd}}"></span>{{k.name}}</span></sc-for>
+      <div role="list" aria-label="What the marks mean" style="margin-top: 10px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px; color: #3A3A3C">
+        <sc-for list="{{hs.mapLegend}}" as="k" hint-placeholder-count="5"><span role="listitem" class="nt-dots" style="height: 30px; padding: 0 12px 0 10px; border-radius: 15px; background: rgba(255,255,255,0.9); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.06); align-items: center; gap: 7px; flex-wrap: nowrap"><i data-state="{{k.st}}" style="width: 10px; height: 10px"></i>{{k.name}}<b style="font-weight: 600; color: #1D1D1F">{{k.n}}</b></span></sc-for>
+        <span style="padding-left: 4px; color: #6E6E73">{{hs.map.hint}}</span>
       </div>
-      <div class="ph-mapframe" role="img" aria-label="Skill map of {{mapName}}" style="position: relative; margin-top: 14px; flex: {{hs.L.mapFlex}}; min-height: {{hs.map.h}}px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); overflow: hidden">
+      <div class="ph-mapframe" style="position: relative; margin-top: 14px; flex: none; width: {{hs.map.w}}px; height: {{hs.map.h}}px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06)">
         <svg width="{{hs.map.w}}" height="{{hs.map.h}}" style="position: absolute; left: 0; top: 0" aria-hidden="true">
-          <sc-for list="{{hs.map.edges}}" as="e" hint-placeholder-count="10"><path d="{{e.d}}" fill="none" stroke="#D1D1D6" stroke-width="1.6"></path></sc-for>
+          <sc-for list="{{hs.map.under}}" as="e" hint-placeholder-count="10"><path d="{{e.d}}" fill="none" stroke="{{e.c}}" stroke-width="{{e.w}}" stroke-dasharray="{{e.dash}}" stroke-linecap="round" opacity="{{e.o}}"></path></sc-for>
         </svg>
-        <sc-for list="{{hs.map.tiers}}" as="t" hint-placeholder-count="4">
-          <div style="position: absolute; left: {{t.x}}px; top: {{t.y}}px; font-size: 12px; font-weight: 600; color: #6E6E73">{{t.name}}</div>
+        <svg width="{{hs.map.w}}" height="{{hs.map.h}}" style="position: absolute; z-index: 2; left: 0; top: 0; pointer-events: none" aria-hidden="true">
+          <sc-for list="{{hs.map.lit}}" as="e" hint-placeholder-count="4"><path d="{{e.d}}" fill="none" stroke="{{e.c}}" stroke-width="{{e.w}}" stroke-dasharray="{{e.dash}}" stroke-linecap="round"></path></sc-for>
+        </svg>
+        <sc-for list="{{hs.map.cols}}" as="t" hint-placeholder-count="4">
+          <div style="position: absolute; left: {{t.x}}px; top: {{t.y}}px; width: {{t.w}}px; display: flex; flex-direction: column; gap: 7px">
+            <span style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; color: #6E6E73"><span style="font-weight: 600; letter-spacing: 0.3px">{{t.name}}</span>{{t.done}}</span>
+            <span class="nt-dots nt-catalog-dots"><sc-for list="{{t.dots}}" as="d" hint-placeholder-count="10"><i data-state="{{d.st}}"></i></sc-for></span>
+          </div>
         </sc-for>
-        <sc-for list="{{hs.map.nodes}}" as="n" hint-placeholder-count="10">
-          <div style="position: absolute; left: {{n.x}}px; top: {{n.y}}px; width: {{n.w}}px; height: {{n.h}}px; border-radius: 24px; padding: 0 14px 0 8px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; background: {{n.bg}}; box-shadow: inset 0 0 0 1px {{n.bd}}">
+        <sc-for list="{{hs.map.nodes}}" as="n" hint-placeholder-count="20">
+          <button onClick="{{n.pick}}" aria-expanded="{{n.on}}" aria-label="{{n.name}}, {{n.word}}" style="position: absolute; z-index: {{n.z}}; left: {{n.x}}px; top: {{n.y}}px; width: {{n.w}}px; height: {{n.h}}px; border-radius: 16px; padding: 0 10px 0 8px; box-sizing: border-box; display: flex; align-items: center; gap: 9px; text-align: left; background: {{n.bg}}; border: {{n.bd}}; box-shadow: {{n.sh}}; transition: background 0.2s, box-shadow 0.2s">
             <span style="flex: none; width: 30px; height: 30px; border-radius: 15px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: {{n.fg}}">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
             </span>
-            <span style="display: flex; flex-direction: column; line-height: 1.2; min-width: 0"><span style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{n.name}}</span><span style="font-size: 11.5px; color: {{n.fg}}">{{n.word}}</span></span>
-          </div>
+            <span style="display: flex; flex-direction: column; gap: 1px; line-height: 1.2; min-width: 0"><span style="font-size: 13.5px; font-weight: 600; color: {{n.ink}}; {{hs.map.nameWrap}}">{{n.name}}</span><span style="font-size: 11.5px; color: {{n.fg}}">{{n.word}}</span></span>
+          </button>
         </sc-for>
+        <!-- The chosen skill: what it builds on, what it opens, and Practise, or what it waits for. -->
+        <sc-if value="{{hs.map.hasCard}}" hint-placeholder-val="{{ false }}">
+        <div class="nt-pop" role="dialog" aria-label="{{hs.map.card.name}}" style="z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.map.card.pos}}">
+          <button class="ib" onClick="{{hs.map.card.close}}" aria-label="Close" style="position: absolute; top: 6px; right: 6px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+          <span style="display: flex; flex-direction: column; align-items: flex-start; min-width: 0">
+            <span style="padding-right: 44px; font-size: 19px; font-weight: 700; line-height: 1.25">{{hs.map.card.name}}</span>
+            <span style="margin-top: 8px; height: 26px; padding: 0 10px 0 6px; border-radius: 13px; background: {{hs.map.card.bg}}; color: {{hs.map.card.fg}}; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{hs.map.card.icon}}"></path></svg>{{hs.map.card.word}}</span>
+            <sc-if value="{{hs.map.card.sub}}" hint-placeholder-val="{{ false }}"><span style="margin-top: 8px; font-size: 13.5px; color: #6E6E73">{{hs.map.card.sub}}</span></sc-if>
+            <sc-if value="{{hs.map.card.hasDesc}}" hint-placeholder-val="{{ false }}"><span style="margin-top: 10px; font-size: 14px; line-height: 1.4; color: #3A3A3C">{{hs.map.card.desc}}</span></sc-if>
+            <sc-if value="{{hs.map.card.can}}" hint-placeholder-val="{{ false }}"><button onClick="{{hs.noop}}" style="margin-top: 14px; align-self: stretch; height: 44px; border-radius: 12px; background: #0071E3; color: #FFFFFF; font-size: 15px; font-weight: 600">Practise</button></sc-if>
+            <sc-if value="{{hs.map.card.waits}}" hint-placeholder-val="{{ false }}"><span style="margin-top: 14px; align-self: stretch; padding: 11px 12px; border-radius: 12px; background: #F5F5F7; display: flex; align-items: center; gap: 8px; font-size: 13.5px; line-height: 1.35; color: #3A3A3C"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="{{hs.icons.lock}}"></path></svg>{{hs.map.card.waits}}</span></sc-if>
+          </span>
+          <span style="display: flex; flex-direction: column; min-width: 0; padding-right: 36px">
+            <sc-if value="{{hs.map.card.hasFrom}}" hint-placeholder-val="{{ false }}">
+              <span style="padding: {{hs.map.card.headPad}}; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: #6E6E73">{{hs.map.card.fromHead}}</span>
+              <span style="display: flex; flex-wrap: wrap; gap: 0 6px"><sc-for list="{{hs.map.card.from}}" as="r" hint-placeholder-count="2"><button onClick="{{r.pick}}" aria-label="{{r.aria}}" style="height: 44px; display: flex; align-items: center"><span style="height: 34px; padding: 0 12px 0 9px; border-radius: 17px; background: {{r.bg}}; display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: #1D1D1F"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{r.fg}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="{{r.icon}}"></path></svg>{{r.name}}</span></button></sc-for></span>
+            </sc-if>
+            <sc-if value="{{hs.map.card.hasTo}}" hint-placeholder-val="{{ false }}">
+              <span style="padding: 10px 0 0; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: #6E6E73">{{hs.map.card.toHead}}</span>
+              <span style="display: flex; flex-wrap: wrap; gap: 0 6px"><sc-for list="{{hs.map.card.to}}" as="r" hint-placeholder-count="2"><button onClick="{{r.pick}}" aria-label="{{r.aria}}" style="height: 44px; display: flex; align-items: center"><span style="height: 34px; padding: 0 12px 0 9px; border-radius: 17px; background: {{r.bg}}; display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: #1D1D1F"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{r.fg}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="{{r.icon}}"></path></svg>{{r.name}}</span></button></sc-for></span>
+            </sc-if>
+          </span>
+        </div>
+        </sc-if>
       </div>
     </sc-if>
     </main>
@@ -2736,13 +2766,31 @@ const BAR = ['#30A14E', '#C77700', '#0A84FF', '#3D8BE0', '#8E8E93'];
 const STATES = [['mastered', 'Mastered', '#34C759'], ['review', 'Time to review', '#FF9F0A'], ['progress', 'In progress', '#0A84FF'], ['ready', 'Ready to start', '#B9D7FF'], ['locked', 'Locked', '#E5E5EA']];
 // The map in the frame: a sketch of what skill-map draws, the skills of one module in tiers. Each module has its own map;
 // a skill with a rubric has the mark "Feedback by criteria" instead of a state (architecture 3.3).
+// A module's skills from their tiers, each [id, name, state, prerequisites, description]; r is the place in the tier.
+const tiered = (tiers) => tiers.flatMap((list, t) => list.map(([id, name, st, from, desc], r) => ({ id, t, r, name, st, from, desc })));
 const MAPS = {
-  'Olympiad maths 1–6': { tiers: ['Tier 1 · Basics', 'Tier 2 · Patterns', 'Tier 3 · Reasoning', 'Tier 4 · Olympiad'], skills: [
-    { id: 'a', t: 0, r: 0, name: 'Counting on', st: 'mastered' }, { id: 'b', t: 0, r: 1, name: 'Even and odd', st: 'mastered' }, { id: 'c', t: 0, r: 2, name: 'Perimeter', st: 'review' },
-    { id: 'd', t: 1, r: 0, name: 'Number patterns', st: 'progress', from: ['a', 'b'] }, { id: 'e', t: 1, r: 1, name: 'Days and cycles', st: 'ready', from: ['b'] }, { id: 'f', t: 1, r: 2, name: 'Areas of shapes', st: 'ready', from: ['c'] },
-    { id: 'g', t: 2, r: 0, name: 'Sums of rows', st: 'locked', from: ['d'] }, { id: 'h', t: 2, r: 1, name: 'Unknowns by balance', st: 'locked', from: ['d', 'e'] },
-    { id: 'i', t: 3, r: 0, name: 'Staircases', st: 'locked', from: ['g'] }, { id: 'j', t: 3, r: 1, name: 'Logic puzzles', st: 'locked', from: ['h'] }
-  ] },
+  // 45 skills, as Home's card counts them: each tier by the longest chain of prerequisites, as the format computes it;
+  // a skill is ready to start when each of its prerequisites is mastered or to review, and locked otherwise.
+  'Olympiad maths 1–6': { tiers: ['Tier 1 · Basics', 'Tier 2 · Patterns', 'Tier 3 · Reasoning', 'Tier 4 · Olympiad'],
+    anchors: [{ id: 'x1', name: 'Division with a remainder', st: 'known', mod: 'School maths · grade 3' }, { id: 'x2', name: 'Fractions of a whole', st: 'unknown', mod: 'not connected' }],
+    skills: tiered([
+      [['a1', 'Counting on', 'mastered'], ['a2', 'Even and odd', 'mastered'], ['a3', 'Perimeter', 'mastered'], ['a4', 'Comparing numbers', 'mastered'],
+        ['a5', 'Shapes and sides', 'mastered'], ['a6', 'Measuring length', 'mastered'], ['a7', 'Clocks', 'mastered'], ['a8', 'Coins and change', 'review'],
+        ['a9', 'Left and right', 'mastered'], ['a10', 'Simple sequences', 'mastered'], ['a11', 'Counting figures', 'mastered'], ['a12', 'Adding in your head', 'mastered']],
+      [['b1', 'Number patterns', 'review', ['a10', 'a1']], ['b2', 'Days and cycles', 'progress', ['a7']], ['b3', 'Areas of shapes', 'review', ['a3', 'a5']],
+        ['b4', 'Arithmetic tricks', 'mastered', ['a12', 'a1']], ['b5', 'Parity', 'mastered', ['a2']], ['b6', 'Ordering', 'mastered', ['a4', 'a9']],
+        ['b7', 'Enumeration', 'progress', ['a11', 'a1'], 'Listing every case in an order, so that none is missed and none counted twice.'],
+        ['b8', 'Gaps and boundaries', 'ready', ['a6', 'a1']], ['b9', 'Cubes and paper', 'ready', ['a5']], ['b10', 'Symmetry', 'progress', ['a5', 'a9']],
+        ['b11', 'Matchstick puzzles', 'ready', ['a11']], ['b12', 'Calendar and age', 'progress', ['a7', 'a4']]],
+      [['c1', 'Sums of rows', 'progress', ['b1', 'b4']], ['c2', 'Unknowns by balance', 'ready', ['b4', 'x1']], ['c3', 'Pigeonhole principle', 'locked', ['b7']],
+        ['c4', 'Knights and liars', 'locked', ['b6', 'b7']], ['c5', 'Grid figures', 'locked', ['b3', 'b7']], ['c6', 'Parts and shares', 'ready', ['b4', 'x2']],
+        ['c7', 'Logic puzzles', 'progress', ['b6']], ['c8', 'Overlapping groups', 'ready', ['b6', 'a4']], ['c9', 'Working backwards', 'ready', ['b1', 'a8']],
+        ['c10', 'Motion problems', 'ready', ['b4', 'a6']], ['c11', 'Divisibility', 'ready', ['b5', 'x1']]],
+      [['d1', 'Staircases', 'locked', ['c1', 'b1']], ['d2', 'Weighing and pouring', 'locked', ['c3', 'b7'], 'Finding a fake coin on scales, or measuring a litre with two jugs, in the fewest steps.'],
+        ['d3', 'Winning strategies', 'locked', ['c7', 'b5']], ['d4', 'Percentages', 'locked', ['c6']], ['d5', 'Ratios and sharing', 'locked', ['c6', 'c2']],
+        ['d6', 'Remainders and cycles', 'locked', ['c11', 'b2']], ['d7', 'Invariants', 'locked', ['c4', 'b5']], ['d8', 'Colouring arguments', 'locked', ['c5', 'b5']],
+        ['d9', 'Handshakes', 'locked', ['c3', 'c8']], ['d10', 'Extreme principle', 'locked', ['c3', 'c9']]]
+    ]) },
   'School maths · grade 3': { tiers: ['Tier 1 · Numbers', 'Tier 2 · Operations', 'Tier 3 · Measures', 'Tier 4 · Fractions'], skills: [
     { id: 'a', t: 0, r: 0, name: 'Numbers to 1000', st: 'mastered' }, { id: 'b', t: 0, r: 1, name: 'Place value', st: 'mastered' }, { id: 'c', t: 0, r: 2, name: 'Number line', st: 'review' },
     { id: 'd', t: 1, r: 0, name: 'Adding in columns', st: 'mastered', from: ['a', 'b'] }, { id: 'e', t: 1, r: 1, name: 'Multiplying by 6–9', st: 'progress', from: ['b'] }, { id: 'f', t: 1, r: 2, name: 'Remainders', st: 'ready', from: ['c'] },
@@ -4638,7 +4686,7 @@ class Component extends DCLogic {
 
   // Home, Subjects and a module's skill map: the row of places (the tab bar on the phone), the pills at the right and their pop-overs, as app lays them.
   homeVals(s, PH, pip, later) {
-    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null };
+    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null, mapSel: null };
     const tog = (k) => () => this.setState({ ...SHUT, [k]: !this.state[k] });
     const go = (screen) => () => this.setState({ ...SHUT, screen });
     // Subjects and the map in app's frame of a screen: under the row, 116 from the top on the iPad and 84 on the phone.
@@ -4659,7 +4707,7 @@ class Component extends DCLogic {
       skills: 'position: absolute; left: 12px; right: 12px; top: 196px; transform-origin: top left; ' + POP + '; padding: 10px 8px 10px' };
 
     // The cognitive map is not built yet: its place is shown, shut. A module's skill map opens from Subjects.
-    const ICONS = { map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8' };
+    const ICONS = { lock: 'M5 11h14v9H5zM8 11V8a4 4 0 0 1 8 0v3', map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8' };
     const here = s.screen === 'map' ? 'subjects' : s.screen, SOON = 'Cognitive map — comes later';
 
     // The catalog: the three modules of the first slice, connected, and the check board beside them (architecture 3.10).
@@ -4704,32 +4752,95 @@ class Component extends DCLogic {
     const catOff = s.boardOn ? [] : [card(BOARD, BOARD, false)];
     const catSections = [{ title: 'CONNECTED · ' + catOn.length, mt: L.gap1, cards: catOn }].concat(catOff.length ? [{ title: 'MORE ON THIS SERVER', mt: 26, cards: catOff }] : []);
 
-    // The map: tiers left to right on the iPad, top to bottom on the phone, as skill-map lays them out.
+    // The map. On the iPad its tiers are columns left to right, each skill level with the mean of its prerequisites, and
+    // every link is drawn: to a skill whose prerequisite is mastered in green, the rest grey. On the phone the tiers are
+    // bands top to bottom, two skills a row, and only the chosen skill's links are drawn. A tap on a skill lights its
+    // whole chain — what it builds on and what it opens — and dims the rest; its pop-over says why it is open or not.
     const NODE_ICON = {
       mastered: 'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17zM8.2 12.4l2.6 2.6 5-5.4',
       review: 'M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v3.5H16M12 8.5V12l2.5 1.8',
       progress: 'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17zM12 6.5V12H6.5',
       ready: 'M4 11h12v9H4zM13 11V8a3.5 3.5 0 0 1 7 0v1',
       locked: 'M5 11h14v9H5zM8 11V8a4 4 0 0 1 8 0v3',
-      rubric: 'M4.5 5h15v10.5h-9.5l-5.5 4zM12 7.8l.9 1.8 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z'
+      rubric: 'M4.5 5h15v10.5h-9.5l-5.5 4zM12 7.8l.9 1.8 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z',
+      known: 'M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17zM8.2 12.4l2.6 2.6 5-5.4',
+      unknown: 'M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.5M12 17.2v.1'
     };
-    const word = (st) => (st === 'rubric' ? 'Feedback by criteria' : STATES.find((x) => x[0] === st)[1]);
-    const M = MAPS[s.mapMod], rows = M.tiers.map((_, t) => M.skills.filter((k) => k.t === t).length);
-    const tierY = []; let y = 18;
-    rows.forEach((r) => { tierY.push(y); y += 26 + Math.ceil(r / 2) * 76 + 10; });
-    const at = (k) => (PH ? { x: 16 + (k.r % 2) * 167, y: tierY[k.t] + 26 + Math.floor(k.r / 2) * 76 } : { x: 36 + k.t * 250, y: 70 + k.r * 180 + (k.t % 2) * 90 });
-    const nw = PH ? 159 : 200, nh = PH ? 64 : 48;
-    const map = {
-      w: PH ? 358 : 1042, h: PH ? y + 8 : 560,
-      tiers: M.tiers.map((name, i) => ({ name, x: PH ? 16 : 36 + i * 250, y: PH ? tierY[i] : 28 })),
-      nodes: M.skills.map((k) => { const p = at(k), c = MAP_LOOK[k.st]; return { name: k.name, word: word(k.st), x: p.x, y: p.y, w: nw, h: nh, bg: c[0], bd: c[1], fg: c[2], icon: NODE_ICON[k.st] }; }),
-      edges: M.skills.flatMap((k) => (k.from || []).map((id) => {
-        const a = at(M.skills.find((x) => x.id === id)), b = at(k);
-        if (PH) { const ax = a.x + nw / 2, ay = a.y + nh, bx = b.x + nw / 2, by = b.y; return { d: 'M' + ax + ' ' + ay + ' C' + ax + ' ' + (ay + 28) + ' ' + bx + ' ' + (by - 28) + ' ' + bx + ' ' + by }; }
-        const ax = a.x + nw, ay = a.y + nh / 2, bx = b.x, by = b.y + nh / 2;
-        return { d: 'M' + ax + ' ' + ay + ' C' + (ax + 30) + ' ' + ay + ' ' + (bx - 30) + ' ' + by + ' ' + bx + ' ' + by };
-      }))
+    const ANCHOR_LOOK = { known: ['#FFFFFF', '#B7E4C3', '#1E7A35'], unknown: ['#FFFFFF', '#D1D1D6', '#6E6E73'] };
+    const DOT = { mastered: 'mastered', review: 'time-to-review', progress: 'in-progress', ready: 'ready-to-start', locked: 'locked', rubric: 'feedback-by-criteria' };
+    const word = (st) => (st === 'rubric' ? 'Feedback by criteria' : st === 'known' ? 'Known' : st === 'unknown' ? 'Unknown' : STATES.find((x) => x[0] === st)[1]);
+    const M = MAPS[s.mapMod], anchors = M.anchors || [], nT = M.tiers.length;
+    const all = new Map([...M.skills, ...anchors.map((a) => ({ ...a, anchor: true }))].map((k) => [k.id, k]));
+    const opens = (id) => M.skills.filter((k) => (k.from || []).includes(id)).map((k) => k.id);
+    const walk = (id, next, seen = new Set()) => { for (const n of next(id)) if (!seen.has(n)) { seen.add(n); walk(n, next, seen); } return seen; };
+    const sel = all.get(s.mapSel) || null;
+    const chain = sel ? new Set([sel.id, ...walk(sel.id, (id) => (all.get(id).from || [])), ...walk(sel.id, opens)]) : null;
+    const done = (k) => k.st === 'mastered' || k.st === 'review' || k.st === 'known';
+    const pad = PH ? 16 : 28, W = PH ? 358 : 1120, nw = PH ? 159 : (W - 2 * pad - (nT - 1) * 56) / nT, nh = PH ? 60 : 54, step = PH ? 68 : 62;
+    const pos = {}, cols = [];
+    let top = 22;
+    if (anchors.length) {
+      // The anchor skills: a row of their own above the tiers, from other modules.
+      cols.push({ name: 'FROM OTHER MODULES', x: pad, y: top, w: W - 2 * pad, dots: [], done: '' });
+      anchors.forEach((a, i) => { pos[a.id] = PH ? { x: pad + (i % 2) * (nw + 8), y: top + 26 + Math.floor(i / 2) * step, w: nw, h: nh } : { x: pad + i * 250, y: top + 26, w: 238, h: 44 }; });
+      top += 26 + (PH ? Math.ceil(anchors.length / 2) * step : 44) + (PH ? 14 : 26);
+    }
+    let bottom = top;
+    M.tiers.forEach((name, ti) => {
+      const list = M.skills.filter((k) => k.t === ti);
+      const mid = (k) => { const ps = (k.from || []).filter((id) => pos[id] && !all.get(id).anchor); return ps.length ? ps.reduce((n, id) => n + pos[id].y + nh / 2, 0) / ps.length : Infinity; };
+      const want = ti === 0 ? list.map((k, i) => [k, i]) : list.map((k) => [k, mid(k)]).sort((a, b) => a[1] - b[1] || (a[0].id < b[0].id ? -1 : 1));
+      const head = { name: name.toUpperCase(), dots: list.map((k) => ({ st: DOT[k.st] })), done: M.skills[0].st === 'rubric' ? list.length + ' skills' : list.filter((k) => k.st === 'mastered').length + ' of ' + list.length + ' mastered' };
+      if (PH) {
+        const y0 = bottom;
+        want.forEach(([k], i) => { pos[k.id] = { x: pad + (i % 2) * (nw + 8), y: y0 + 46 + Math.floor(i / 2) * step, w: nw, h: nh }; });
+        cols.push({ ...head, x: pad, y: y0, w: W - 2 * pad });
+        bottom = y0 + 46 + Math.ceil(list.length / 2) * step + 10;
+      } else {
+        const x = pad + ti * (nw + 56), y0 = top + 52;
+        let prev = y0 - step;
+        want.forEach(([k, m]) => { const y = Math.max(prev + step, Number.isFinite(m) && ti > 0 ? m - nh / 2 : y0); pos[k.id] = { x, y, w: nw, h: nh }; prev = y; });
+        cols.push({ ...head, x, y: top, w: nw });
+        bottom = Math.max(bottom, prev + nh + 28);
+      }
+    });
+    const edgeOf = (a, b) => {
+      const p = pos[a.id], q = pos[b.id];
+      if (a.anchor && !PH) {
+        // From the row of anchor skills down the gutter before the skill's column, then into its side.
+        const gx = q.x - 28 + (a.id === 'x1' ? -5 : 5), sx = p.x + p.w / 2, sy = p.y + p.h, ty = q.y + q.h / 2;
+        return 'M' + sx + ' ' + sy + ' C' + sx + ' ' + (sy + 30) + ' ' + gx + ' ' + (sy + 10) + ' ' + gx + ' ' + (sy + 44) + ' L' + gx + ' ' + (ty - 12) + ' Q' + gx + ' ' + ty + ' ' + (gx + 12) + ' ' + ty + ' L' + q.x + ' ' + ty;
+      }
+      if (PH) { const ax = p.x + p.w / 2, ay = p.y + p.h, bx = q.x + q.w / 2, by = q.y, k = Math.max(18, (by - ay) / 2); return 'M' + ax + ' ' + ay + ' C' + ax + ' ' + (ay + k) + ' ' + bx + ' ' + (by - k) + ' ' + bx + ' ' + by; }
+      const ax = p.x + p.w, ay = p.y + p.h / 2, bx = q.x, by = q.y + q.h / 2, k = Math.min(48, (bx - ax) / 2);
+      return 'M' + ax + ' ' + ay + ' C' + (ax + k) + ' ' + ay + ' ' + (bx - k) + ' ' + by + ' ' + bx + ' ' + by;
     };
+    const edges = M.skills.flatMap((b) => (b.from || []).map((id) => {
+      const a = all.get(id), on = !!chain && chain.has(a.id) && chain.has(b.id), path = done(a);
+      if (PH && !on) return null;
+      return { d: edgeOf(a, b), on, c: on ? '#0071E3' : path ? '#BFE6C9' : '#DADADF', w: on ? 2.4 : 1.3, o: chain && !on ? 0.3 : 1, dash: a.anchor ? '5 4' : 'none' };
+    })).filter(Boolean);
+    const pick = (id) => () => this.setState({ ...SHUT, mapSel: s.mapSel === id ? null : id });
+    const nodes = [...all.values()].map((k) => {
+      const c = k.anchor ? ANCHOR_LOOK[k.st] : MAP_LOOK[k.st], p = pos[k.id], on = !!sel && sel.id === k.id, dim = !!chain && !chain.has(k.id);
+      // A dimmed skill stays opaque, so that a lit line runs under it and not through it.
+      return { id: k.id, name: k.name, word: word(k.st), x: p.x, y: p.y, w: p.w, h: p.h, bg: dim ? '#FAFAFB' : c[0], fg: dim ? '#B8B8BD' : c[2], ink: dim ? '#AEAEB2' : '#1D1D1F', icon: NODE_ICON[k.st], pick: pick(k.id), on,
+        bd: (k.anchor ? '1.5px dashed ' : '1px solid ') + (dim ? '#EDEDF0' : c[1]), sh: on ? '0 0 0 2.5px #0071E3, 0 8px 20px rgba(0,113,227,0.22)' : chain && !dim ? '0 4px 12px rgba(17,24,39,0.08)' : 'none', z: on ? 4 : dim ? 1 : 3 };
+    });
+    const row = (id) => { const k = all.get(id), c = k.anchor ? ANCHOR_LOOK[k.st] : MAP_LOOK[k.st]; return { name: k.name, aria: k.name + ', ' + word(k.st), fg: c[2], bg: k.anchor ? '#F5F5F7' : c[0], icon: NODE_ICON[k.st], pick: pick(id) }; };
+    let chosen = null;
+    if (sel) {
+      const p = pos[sel.id], from = (sel.from || []).map(row), to = opens(sel.id).map(row), wait = (sel.from || []).filter((id) => !all.get(id).anchor && !done(all.get(id))).map((id) => all.get(id).name);
+      chosen = { name: sel.name, word: word(sel.st), fg: (sel.anchor ? ANCHOR_LOOK[sel.st] : MAP_LOOK[sel.st])[2], bg: (sel.anchor ? ANCHOR_LOOK : MAP_LOOK)[sel.st][0], icon: NODE_ICON[sel.st], desc: sel.desc || '',
+        hasDesc: !!sel.desc, headPad: PH ? '16px 0 0' : '2px 0 0', from, to, hasFrom: from.length > 0, hasTo: to.length > 0, toHead: sel.anchor ? 'NEEDED BY' : 'OPENS', fromHead: 'BUILDS ON',
+        sub: sel.anchor ? 'A skill of ' + (sel.mod === 'not connected' ? 'a module not connected' : sel.mod) + (sel.st === 'unknown' ? ': not tried yet' : '') : '',
+        can: !sel.anchor && sel.st !== 'locked' && sel.st !== 'rubric', waits: wait.length ? 'Opens once ' + wait.join(' and ') + (wait.length > 1 ? ' are' : ' is') + ' mastered' : '',
+        close: () => this.setState({ mapSel: null }),
+        // On the iPad a card docked at the bottom of the screen, as a place in a maps app: the map stays in sight above it.
+        pos: PH ? 'position: fixed; max-height: 62%; overflow-y: auto; ' + SHEET : 'position: fixed; left: 37px; right: 37px; bottom: 20px; transform-origin: bottom center; ' + POP + '; padding: 18px 18px 16px; display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 0 28px' };
+    }
+    // The lit chain runs over the dimmed skills, so that it reads unbroken, and under the skills it links.
+    const map = { w: W, h: bottom + (sel ? (PH ? 380 : 230) : 0), cols, under: edges.filter((e) => !e.on), lit: edges.filter((e) => e.on), nameWrap: PH ? 'display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden' : 'overflow: hidden; text-overflow: ellipsis; white-space: nowrap', nodes, edges, card: chosen, hasCard: !!chosen, hint: PH ? 'Tap a skill to see what it builds on and what it opens' : 'Tap a skill: what it builds on and what it opens light up' };
 
     // A child's profile opens For grown-ups behind the PIN, under "Later" (epic E4 of app).
     const pin = s.gPin || '', pinNeeded = pip && !s.gOk;
@@ -4749,7 +4860,7 @@ class Component extends DCLogic {
         .map(([st, name], i) => ({ st, name, swatch: i < 5, icon: AI[['mastered', 'review', 'progress', 'ready', 'locked', 'rubric', 'notAssessed'][i]] })),
       catOn, catOff, catSections, hasMore: catOff.length > 0, connectedN: catOn.length,
       map, mapMod: MODS.find((m) => m.name === s.mapMod) || BOARD,
-      mapLegend: ['mastered', 'review', 'progress', 'ready', 'locked'].map((k) => ({ name: word(k), bg: MAP_LOOK[k][0], bd: MAP_LOOK[k][2] })),
+      mapLegend: (M.skills[0].st === 'rubric' ? ['rubric'] : ['mastered', 'review', 'progress', 'ready', 'locked']).map((k) => ({ name: word(k), st: DOT[k], n: M.skills.filter((x) => x.st === k).length })),
       modPick: MODS.map((m) => ({ ...m, on: m.name === s.mapMod, bg: m.name === s.mapMod ? 'rgba(0,113,227,0.08)' : 'transparent', pick: () => this.setState({ ...SHUT, mapMod: m.name }) })),
 
       anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.modsOpen || !!s.aboutMod || !!s.skillsMod,
@@ -4939,13 +5050,6 @@ class Component extends DCLogic {
     const CODE = 'N7VA-K2QM-9XB4-ZD3H';
     const legal = s.legal ? LEGAL[s.legal] : LEGAL.terms;
 
-    // The map's places: tiers from left to right on the iPad; on the phone from top to bottom, two skills to a row.
-    const M0 = MAPS[s.mapMod], tierY = [];
-    let my = 62;
-    M0.tiers.forEach((_, i) => { tierY[i] = my; my += 26 + Math.ceil(M0.skills.filter((k) => k.t === i).length / 2) * 76 + 14; });
-    const map = { tiers: M0.tiers, skills: M0.skills, tierY, nw: PH ? 159 : 200, nh: PH ? 64 : 48, h: PH ? my : 742,
-      at: (n) => (PH ? { x: 16 + (n.r % 2) * 167, y: tierY[n.t] + 26 + Math.floor(n.r / 2) * 76 } : { x: 60 + n.t * 280, y: 130 + n.r * 170 + (n.t % 2) * 85 }) };
-
     const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.06)' : '#FFFFFF', sh: on ? 'inset 0 0 0 2px #0071E3' : 'inset 0 0 0 1px rgba(0,0,0,0.10)' });
 
     const les = this.lesVals(s, L, g, inLes, isTask, PH);
@@ -5122,22 +5226,6 @@ class Component extends DCLogic {
       helpAdult: !pip, helpChild: pip,
       isMap: s.screen === 'map', mapBack: () => this.setState({ screen: 'home' }),
       mapName: s.mapMod,
-      mapTiers: map.tiers.map((name, i) => ({ name, x: PH ? 16 : 60 + i * 280, y: PH ? map.tierY[i] : 72, w: PH ? 326 : 200 })),
-      mapNodes: map.skills.map((n) => {
-        const L = MAP_LOOK[n.st], w = n.st === 'rubric' ? 'Feedback by criteria' : STATES.find((x) => x[0] === n.st)[1], p = map.at(n);
-        return { name: n.name, word: w, x: p.x, y: p.y, w: map.nw, h: map.nh, bg: L[0], bd: L[1], fg: '#1D1D1F', ic: L[2], rubric: n.st === 'rubric',
-          review: n.st === 'review', mastered: n.st === 'mastered', progress: n.st === 'progress', ready: n.st === 'ready', locked: n.st === 'locked' };
-      }),
-      mapEdges: map.skills.flatMap((n) => (n.from || []).map((id) => {
-        const a = map.skills.find((x) => x.id === id);
-        if (PH) {
-          const pa = map.at(a), pb = map.at(n), ax = pa.x + map.nw / 2, ay = pa.y + map.nh, bx = pb.x + map.nw / 2, by = pb.y;
-          return { d: 'M' + ax + ' ' + ay + ' C' + ax + ' ' + (ay + 28) + ' ' + bx + ' ' + (by - 28) + ' ' + bx + ' ' + by };
-        }
-        const ax = 260 + a.t * 280, ay = 154 + a.r * 170 + (a.t % 2) * 85, bx = 60 + n.t * 280, by = 154 + n.r * 170 + (n.t % 2) * 85;
-        return { d: 'M' + ax + ' ' + ay + ' C' + (ax + 40) + ' ' + ay + ' ' + (bx - 40) + ' ' + by + ' ' + bx + ' ' + by };
-      })),
-      mapW: PH ? 358 : 1162, mapH: map.h,
       openPrivacy: () => this.setState({ legal: 'privacy', helpOpen: false }), openTerms: () => this.setState({ legal: 'terms', helpOpen: false }), closeLegal: () => this.setState({ legal: null }),
       // The owner's profile opens without the PIN while the account holds no profile of another category (R84).
       profiles: this.profilesNow().map((p) => ({ ...p, grad: AV(p.avatar).grad, glyph: AV(p.avatar).glyph, locked: !!p.owner && later,

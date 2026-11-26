@@ -118,7 +118,9 @@ export const STATES = [
   { name: "board-correct", title: "Correct on a task of the check board, and Next task", from: "board-not-yet", shows: "Correct", run: (t) => t.v().check() },
   { name: "solve-kept", title: "A page from Your pages, its work kept", from: "home-pages", shows: "1 / ", run: (t) => t.v().pages[0].open() },
   { name: "legal-access", title: "The page Accessibility", from: "home-help", shows: "WCAG 2.2", run: (t) => t.v().openAccess() },
-  { name: "map", title: "The skill map of a module", from: "subjects", shows: "Number patterns", run: (t) => t.v().hs.catOn[0].map() },
+  { name: "map", title: "The skill map of a module", from: "subjects", shows: "Enumeration", run: (t) => t.v().hs.catOn[0].map() },
+  { name: "map-skill", title: "The skill map, a skill chosen: its chain lit", from: "map", shows: "BUILDS ON", run: (t) => t.v().hs.map.nodes.find((n) => n.name === "Enumeration").pick() },
+  { name: "map-skill-locked", title: "The skill map, a locked skill chosen: what it waits for", from: "map", shows: "Opens once", run: (t) => t.v().hs.map.nodes.find((n) => n.name === "Weighing and pouring").pick() },
   { name: "map-modules", title: "The skill map, the module chosen", from: "map", shows: "Connected modules", run: (t) => t.v().hs.toggleMods() },
   { name: "map-essays", title: "The skill map of a module with a rubric", from: "subjects", shows: "Feedback by criteria", run: (t) => t.v().hs.catOn[2].map() },
 
