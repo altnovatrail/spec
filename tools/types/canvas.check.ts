@@ -68,6 +68,7 @@ export const history: readonly canvas.HistoryEvent[] = [
   { kind: "undo", t: 2200, removed: [3], restored: [1, 2] },
   { kind: "move", t: 2600, ids: [1], strokes: [{ id: 4, kind: "pen", points: [{ x: 160, y: 340, t: 0, p: 0.5 }, { x: 160, y: 640, t: 400, p: 0.5 }] }] },
   { kind: "copy", t: 3000, ids: [4], strokes: [{ id: 5, kind: "pen", points: [{ x: 160, y: 680, t: 0, p: 0.5 }, { x: 160, y: 980, t: 400, p: 0.5 }] }] },
+  { kind: "scale", t: 3400, ids: [5], factor: 0.5, at: [160, 680], strokes: [{ id: 6, kind: "pen", points: [{ x: 160, y: 680, t: 0, p: 0.5 }, { x: 160, y: 830, t: 400, p: 0.5 }] }] },
 ];
 
 /** A style of each kind of pen, a stroke with one, and a cut that leaves two pieces of it. */
@@ -105,6 +106,8 @@ export const brushed: canvas.PenSettings = { ...pens, eraser: "pixel" };
 export const circled: canvas.PenSettings = { ...pens, select: "ellipse" };
 // @ts-expect-error A move names the strokes it took off.
 export const unnamed: canvas.HistoryEvent = { kind: "move", t: 0, strokes: [] };
+// @ts-expect-error A scale says by how much, and from which point.
+export const unscaled: canvas.HistoryEvent = { kind: "scale", t: 0, ids: [1], strokes: [] };
 document.addEventListener("penchange", (change) => {
   const chosen: canvas.PenKind = change.detail.pen;
   // @ts-expect-error The settings told are the learner's choice, to read.
