@@ -3886,6 +3886,7 @@ Normative — format 0.3, from line 0.9 of `spec`: the [format text](../format/R
 - **Showing the solution** — as a learning action with the right `can_learn` or as an adult action with the right `can_manage`, and a request without the right gets `permission_denied`: the PIN is a barrier of the interface. "Ladder not passed" — at either kind of action.
 - **The mark of an empty box** — in the element's types: a mark with an answer slot of a workbook outlines the box and its strokes, and an empty box — the box alone. This corrects what `canvas` had.
 - **The element's types** — `Marks`, `Mark` and `Anchor` in `@altnovatrail/spec/canvas`, in the form of the temporary types of `canvas`, and the property `marks`. `tools/types/canvas.check.ts` turns a mark of the contract into a mark of the element by a full `switch`, so a kind or a place that the contract adds without a type at the element breaks `tsc`.
+- **The refusal "still going"** — `CAUSE_STILL_GOING` has the code `aborted`, HTTP 409, and `app` knows it by its cause, whatever its code: a repeat that waits for a long first request is no failure of the service, and a count of 5xx at the platform sees the failures alone. A build of `app` that reads the cause alone takes the code of an `api` before and after; a build before it reads `aborted` as a refusal and ends the action, so `app` goes out before `api`, or with it.
 - **The services' code** — with `AttemptService` came the code of `protoc-gen-connect-go` into `contracts/`, and `connectrpc.com/connect/v2` is a direct dependency of `contracts/go.mod`.
 
 — *Why:*
@@ -3906,7 +3907,8 @@ Normative — format 0.3, from line 0.9 of `spec`: the [format text](../format/R
 - the offset with each request that calls AI, as `api` had it;
 - the rung's words by the attempt's ID alone, as `api`'s `docs/architecture.md` had it;
 - an empty box without a frame, as `canvas` had it;
-- the contract as only the messages and the causes, with the codes, the refusals and the repeat in the documents of `api`.
+- the contract as only the messages and the causes, with the codes, the refusals and the repeat in the documents of `api`;
+- `unavailable`, HTTP 503, for "still going": the repeats of one long Check counted as server errors and opened the alert of `api`'s errors with nothing broken; `resource_exhausted`, HTTP 429, would read as the quota or a limit, and `failed_precondition` as a request that will never go.
 
 — *Found:*
 - `api`'s `docs/architecture.md` (`main` 916b2d5) writes «Пока нет. Я прочитал 6», and `spec` — «Прочитано: 6». "Done" there has neither the criteria nor the solution, while `spec` gives them to the device. The contract follows `spec`;

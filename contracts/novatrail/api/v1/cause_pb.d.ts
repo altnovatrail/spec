@@ -327,7 +327,8 @@ export enum Cause {
 
   /**
    * The request with this idempotency key is still going; its repeat waits for it. Code
-   * `unavailable`.
+   * `aborted`: the service is up, and the repeat comes again later. `app` knows the refusal by
+   * its cause, whatever its code.
    *
    * @generated from enum value: CAUSE_STILL_GOING = 5;
    */

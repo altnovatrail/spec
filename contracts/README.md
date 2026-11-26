@@ -321,7 +321,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 **The idempotency key.** A request that must not be done twice carries `idempotency_key`, a field of its message, since CORS lets through `Authorization` and the headers of Connect alone: `SubmitWork`, `SubmitEssay`, `GetRungWords`, `GetCorrectAnswerWords`, `ExplainDifferently`, `GetOpeningWords`, `AskTutor`, `AskGrownUp`, `ShowSolution`, `ChooseNext`, `BeginAttempt`, `FindTasks`, `BeginPaperAttempts`, `ReportProblem`, `RequestChildConsent`, `SendConsentForm`, `RestateAge` and the requests of the PIN, `SetPin`, `VerifyPin`, `ChangePin` and `ResetPin`.
 - `app` makes a key for each action and sends it with every repeat of the action.
-- The same key with another method, another attempt, another profile or another request gets `CAUSE_KEY_ALREADY_USED`, and a repeat while the first request goes, `CAUSE_STILL_GOING`.
+- The same key with another method, another attempt, another profile or another request gets `CAUSE_KEY_ALREADY_USED`, and a repeat while the first request goes, `CAUSE_STILL_GOING`, the code `aborted`: no failure of the service, so that a repeat waiting for a long first one is no server error to a count of 5xx. `app` knows it by its cause, whatever its code, and repeats it until the limit of its method.
 - A repeat once it is done is answered by what is recorded, with no AI:
 
   | Method | A repeat gets |
