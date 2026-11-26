@@ -25,14 +25,6 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Как проверить:** `just docs-check`; `just tokens-report --since 2026-11-18T18:24:49Z --until 2026-11-20T04:58 --classes`.
 - **Разделы:** R145, R160, R162, R82; measurements 1.9, 1.14; `tools/docs-check/budgets.json`.
 
-#### T248. Запрет чтения наборов оценки `modules` в клонах `.epics`
-
-- **Цель:** сессия любого контейнера NovaTrail не читает `modules/*/eval/` клона `.epics/<эпик>/modules`, кроме `synthetic-*.json`, — как не читает их в клоне хоста по `.claude/settings.json` `modules` (поправка T61 к R04 `modules`).
-- **Почему:** В41 `modules`, входящие T246, ответ автора 2026-11-21 — вариант (a): запрет `modules` задан относительно проекта, а клон в `.epics` читают по абсолютному пути из контейнера оркестратора и из контейнера любого другого репозитория (R166).
-- **Сделать:** по документации Claude Code — запись `docs/sources.md`: абсолютный путь (`//`) в `permissions.deny`, есть ли исключение из запрета и что берёт верх; правило в `.claude/settings.json` `spec` и шаблона `repo-template/files/.claude/settings.json` — `Read(//workspaces/.epics/*/modules/modules/*/eval/*)` с исключением `synthetic-*.json`, если синтаксис его допускает, иначе — вопрос автору с вариантами; решение, которое держит настройки сессий, переписать на месте (R160); проба `claude -p` в контейнере оркестратора на выдуманном клоне — файл набора не читается, `synthetic-*.json` читается. Другие репозитории берут правило со своим следующим переходом на тег.
-- **Как проверить:** `just new-repo-test`, `just session-test`, `just docs-check`.
-- **Разделы:** R04 `modules`, R143, R166; `.claude/rules/new-repo.md`; В41 `modules`.
-
 #### T282. Записи `sources` для внешних фактов privacy, dpia, product, repositories, contracts и draft
 
 - **Цель:** каждое утверждение о внешнем мире в `docs/privacy.md`, `docs/dpia.md`, `docs/product.md`, `docs/repositories.md`, `contracts/README.md` и `draft/` стоит на своём доказательстве по правилу T287: факт, который прогон не проверит, — на одной записи `sources`; поведение под тестом или замером — на них; документация или код на версии — на ссылке на месте; файлы NovaTrail и MathTrail — на git.

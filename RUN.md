@@ -51,6 +51,59 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - **DPIA** ([docs/dpia.md](docs/dpia.md), R129): a task that changes what it rests on — a kind of data or retention, a provider or processor, an AI capability or route, opening an age, a country or a feature to children — reviews it; its «Сделано» names the review, the DPIA's log the version. Also before the beta, before the public launch and at least yearly.
 - **Token savings** (R145): the limits of `docs-check` — [tools/docs-check/budgets.json](tools/docs-check/budgets.json), a raise shows in review; measure at an epic's archive and monthly (`just inbox` reminds, rule 13); a task of analysis goes to `run/TASKS.md` by the threshold of R145, and its planning decides whether it needs an epic; baselines, dates, last analysis — measurements 1.9.
 
-## Table 1. Current epic — none
+## Table 1. Current epic — E26. Модуль олимпиадной математики: доработка
 
-The last done epic is E25, [docs/plan/E25.md](docs/plan/E25.md).
+**Результат** — модуль `novatrail/olympiad-math` («Olympiad mathematics, grades 1–6») доработан по тому, что назовёт автор; `modules` стоит на свежем теге `spec`, и сессия не читает образцы людей в клонах `.epics` (Д14 `modules`); диктофон в окне наставника на iPad распознаёт речь с первого нажатия; браузерные тесты `app` ждут условие, а не фиксированное время.
+
+**Основа** — на 2026-11-26, ветка `e26` в `spec`, `modules`, `api`, `app`, `canvas`, `tutor` (клоны `.epics/e26`, задача across repositories, R166); в проде spec v0.21.2, api v0.1.83, app v0.1.56, canvas v0.3.48, skill-map v0.1.27, modules v0.2.18, tutor v0.1.68 (развёртывание — PR `infra` #147); последний сделанный эпик — E25, [docs/plan/E25.md](docs/plan/E25.md).
+- Модуль — `modules/olympiad-math/` в `modules` (`main` 01ee3a6), версия 0.3.0, формат 0.4: 775 задач — 753 из standalone и 22 шаблона из 39 (остальные 17 не переносятся по R22 `modules`), — 41 урок, 41 синтетический образец; `modules` на `spec` v0.19.20; долг `modules` — Д12 и Д14.
+- Стенд берёт модули из выпуска `modules`, который закрепляет `modules.json` `api`, а не из клона `modules`: правка модуля видна на стенде только после выпуска `modules` и `modules.json` на него — или иного способа, который решает первая задача содержания модуля.
+
+**Решено автором (2026-11-26):** что дорабатывать в модуле, автор назовёт позже — задачи содержания заводятся по его слову, следующими номерами; T248 — из `run/TASKS.md` в эпик, переход `modules` на тег — после неё; каждая законченная правка — коммит и пуш в ветку `e26`; pull requests, мержи, выпуски и пины — только `xrepo ship` после «да» автора; стенд — `xrepo serve` без `--ai`, пока задача не требует моделей; разбор входящих (правило 13) — в начале эпика, по слову автора, решение по каждой строке — у автора; вопросы и отчёты — по-русски.
+
+| Status | ID | Task | Who | Plan | Depends on |
+|---|---|---|---|---|---|
+| [ ] | T329 | `app`: диктофон в окне наставника на iPad слушает, но не даёт текста | я + Claude | да | — |
+| [ ] | T327 | `app`: браузерные тесты ждут условие, а не фиксированное время | Claude | — | — |
+| [ ] | T248 | `spec`: запрет чтения наборов оценки `modules` в клонах `.epics` | Claude | — | — |
+| [ ] | T328 | `modules`: переход на тег `spec` с T248, Д14 | Claude | — | T248 |
+
+#### T329. `app`: диктофон в окне наставника на iPad слушает, но не даёт текста
+
+- **Цель:** микрофон поля наставника на iPad распознаёт речь с первого нажатия, всякий раз; если браузер отказал, ученик видит это, а журнал отладки пишет причину.
+- **Выяснилось (2026-11-26, прод, iPad, Safari, app v0.1.56):** время от времени после нажатия микрофона горит «Слушаю…» и iPad показывает своё окно о включённом диктофоне, но текст в поле не приходит. Помогает не всегда: несколько раз закрыть и открыть окно наставника и включить микрофон снова. На снимке автора диктовка уже работает, а под полем одновременно стоят «Слушаю…» и «Остановлено: вопрос снова в поле…»: нажатие микрофона не снимает `stopped`. Озвучка наставника при этом включена.
+- **Что в коде (`main` 972726b):** `src/voice/dictation.ts` — `recognition.start()` вызывается не в обработчике нажатия, а после промиса `onDevice` (`available` с `processLocally`); `continuous = true`; `onerror = () => {}` — причина отказа никуда не пишется; `put` обрывает распознавание через `abort()`. `src/task/TutorPanel.tsx` — микрофон не сбрасывает `stopped`.
+- **Решить при планировании:** причину по фактам, а не догадкой:
+  - журнал отладки пишет события распознавания — `start`, `audiostart`, `speechstart`, `result`, `error` с кодом, `end` — и что в это время озвучивается (`speechSynthesis.speaking`);
+  - кандидаты: `start()` вне жеста пользователя после асинхронного шага; занятая звуковая сессия iOS озвучкой наставника; `continuous` в WebKit; прежний экземпляр, не отпущенный после `abort()`;
+  - что видит ученик, когда браузер отказал или ничего не пришло за N секунд.
+- **Сделать:** по плану — `start()` синхронно в обработчике нажатия, если это причина; озвучка останавливается до начала распознавания; ошибка распознавания — запись журнала отладки и состояние поля; микрофон снимает «Остановлено…»; тесты `src/voice/` и `TutorPanel` на поддельном распознавании — порядок вызовов, ошибка, отсутствие результата.
+- **Как проверить:** `xrepo test app` по `src/voice/` и `src/task/`; браузерные тесты в Chromium и WebKit контейнера; на iPad — у автора после выпуска: десять включений микрофона подряд, с озвучкой и без, окно Debug — события распознавания. Устройство проверяет только автор (правило 4), остальное — долг `app`.
+- **Разделы:** R173; решения `app` о голосе и журнале отладки; `docs/architecture.md` `app` — голос.
+
+#### T327. `app`: браузерные тесты ждут условие, а не фиксированное время
+
+- **Цель:** браузерные тесты `app` не падают от того, что движок под нагрузкой не успел за фиксированную паузу: проверка того, что должно появиться, ждёт само условие.
+- **Выяснилось (2026-11-26, CI E25):** падали `src/app/Shell.browser.test.tsx` — тултип: `setTimeout` на `TIP_DELAY_MS + 100`, затем `expect`; контраст axe в `src/a11y/screens.browser.test.tsx` (WebKit); `src/app/Waiting.browser.test.tsx` — уже исправлен через `waitFor`, он образец. На `main` 972726b по `grep -rn -A4 setTimeout src` — около 25 мест «пауза, затем `expect`» в 19 файлах тестов: `Shell`, `IconButton`, `BarFit`, `Boot`, `Task`, `PaperScreen`, `InviteScreen`, `Workbook`, `voice`, `debug/*`, `parts`, `session.node` и другие.
+- **Сделать:**
+  - каждое место «пауза, затем проверка того, что должно стать» — на `expect.poll` или `waitFor`, без паузы;
+  - где проверяется, что чего-то нет или что-то не случилось (`toBeNull`, `not.toHaveBeenCalled`, `toEqual([])`), — пауза остаётся: ожидание условия прошло бы сразу и ничего не проверило бы; рядом — комментарий, почему пауза и от чего её длина;
+  - контраст axe в `screens.browser.test.tsx` на WebKit — найти, чего он не дождался (переход, шрифт, тема), и ждать этого условия;
+  - тесты с поддельными таймерами (`vi.useFakeTimers`) не трогать.
+- **Как проверить:** `xrepo test app` по изменённым файлам; в контейнере `app` — браузерные тесты в Chromium, Firefox и WebKit несколько прогонов подряд под нагрузкой (параллельно с другим набором), без падений; `xrepo gate app`.
+- **Разделы:** решения `app` о браузерных тестах; `.claude/rules/` `app` о тестах.
+
+#### T248. `spec`: запрет чтения наборов оценки `modules` в клонах `.epics`
+
+- **Цель:** сессия любого контейнера NovaTrail не читает `modules/*/eval/` клона `.epics/<эпик>/modules`, кроме `synthetic-*.json`, — как не читает их в клоне хоста по `.claude/settings.json` `modules` (поправка T61 к R04 `modules`).
+- **Почему:** В41 `modules`, входящие T246, ответ автора 2026-11-21 — вариант (a): запрет `modules` задан относительно проекта, а клон в `.epics` читают по абсолютному пути из контейнера оркестратора и из контейнера любого другого репозитория (R166).
+- **Сделать:** по документации Claude Code — запись `docs/sources.md`: абсолютный путь (`//`) в `permissions.deny`, есть ли исключение из запрета и что берёт верх; правило в `.claude/settings.json` `spec` и шаблона `repo-template/files/.claude/settings.json` — `Read(//workspaces/.epics/*/modules/modules/*/eval/*)` с исключением `synthetic-*.json`, если синтаксис его допускает, иначе — вопрос автору с вариантами; решение, которое держит настройки сессий, переписать на месте (R160); проба `claude -p` в контейнере оркестратора на выдуманном клоне — файл набора не читается, `synthetic-*.json` читается. Другие репозитории берут правило со своим следующим переходом на тег.
+- **Как проверить:** `just new-repo-test`, `just session-test`, `just docs-check`.
+- **Разделы:** R04 `modules`, R143, R166; `.claude/rules/new-repo.md`; В41 `modules`.
+
+#### T328. `modules`: переход на тег `spec` с T248, Д14
+
+- **Цель:** `modules` стоит на теге `spec`, выпущенном после T248, и сессия в клоне `.epics/<эпик>/modules` не читает образцы людей из `eval/`, как не читает их в клоне хоста.
+- **Сделать:** после выпуска `spec` с T248 (`xrepo ship`, пин `modules` на тег); что тег решил для `modules` — `git -C spec diff v0.19.20 <тег>`: формат, шаблон `repo-template/files`, RULES.md, правило ссылок, проверка документов; `.claude/settings.json` — запрет шаблона из T248 вместе с собственным запретом `modules` на образцы людей; строки CLAUDE.md, README.md и RUN.md с тегом и статус `docs/architecture.md`; Д14 — закрыт, его текст — в архив эпика `modules`.
+- **Как проверить:** `xrepo test modules`; `just -f spec/justfile docs-check-repo`; `just modules-check`; проба T248 в клоне `.epics/e26/modules` — файл набора, не `synthetic-*.json`, не читается, `synthetic-*.json` читается; `xrepo gate modules`.
+- **Разделы:** Д14 `modules`, R04 `modules`; T248; правила переходов на тег в RULES.md.
