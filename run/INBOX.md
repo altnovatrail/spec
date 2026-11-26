@@ -16,10 +16,14 @@ Table 5 of [RUN.md](../RUN.md): the rows «в реестр spec» of other repos
 
 | Repository | Rows | Fingerprint | Where the answer is |
 |---|---|---|---|
-| `api` | В86 | `1496da27b25d` | T276, option 1: paragraph (9) of §312.2 on geolocation, from the eCFR, in sources 3.1; `api` cites `sources 3.1 spec` by a later move to a tag |
+| `.github` | В46 | `00d23e55c9f4` | T330 (outside an epic), option (a) without exception: the mark of a row for spec in English, and every quote of a Russian text of spec in English |
 | `app` | В71 | `634d45c040c5` | T194 (В48), option (a): the README of `draft/mockup/`, «Sizes», names 700 and 22–38 px as the template draws — T198 |
 | `app` | В72 | `9da92a92a0ed` | T194 (В49), option (a): every country, `api`'s refusal the answer — architecture 3.1 and Д271, back to a method of `api` — T198 |
 | `app` | В74 | `970eae2501b5` | T218 (В76), option (a): R161 — `canvas` leaves the statement out by `statement-hidden`, and `app` draws the card; architecture 3.1 and 3.2, COORDINATION rows 5.21 and 6.43 |
-| `app` | В75 | `89918d00c9d9` | T293, option (a): R90 — the closed list names the tutor's button in the bottom bar of the page to pick from, and "Ask" of the solving row of a task from paper where the row does not fit with its words; R148, R163; the README of `draft/mockup/` and its difference |
+| `app` | В76 | `8ffcc7a26842` | option (a): R90 — on both screens of a task from paper back stands alone at every width, the screen's name its heading unseen |
+| `canvas` | В89 | `c1a14214560d` | T331 (outside an epic), option (a): the template of the kind `typescript` raised to Playwright 1.65.1 |
 | `infra` | В61 | `fa29925a7803` | T276 (В89), option (b): `docs-check` reads the comments `#`, `//` and `/* */` of `.tf`, `.tofu`, `.tfvars` and `.hcl`, R32; string literals stay unread, as В84 has it; `infra` turns red at none, by a trial on its `main` |
+| `learner-model` | В59 | `24026412f458` | T332 (outside an epic), option (a): the register R with gaps, a number never given again, archives may cite one that left |
+| `skill-map` | В16 | `e9461afac172` | option (a): Д88 and Д146 no longer name `skill-map`; Д217 and Д235, which named nothing else, deleted |
+| `skill-map` | В17 | `c566707013bf` | T332 (outside an epic), option (a): `docs-check` does not take a section of an archive that falls back to `sources` or `measurements` |
 | `tutor` | В98 | `7c3af9d6a1eb` | T276, option (a): in `spec` since v0.19.14 — the three comments of `format/vectors/leaks/` give their reason in words; `tutor` copies them by its next move to a tag |
