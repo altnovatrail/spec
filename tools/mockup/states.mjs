@@ -161,6 +161,19 @@ export const STATES = [
       t.les().check();
     },
   },
+  {
+    name: "task-reading-closer",
+    title: "A task, the work gone on to the next model: Looking more closely",
+    from: "task-pill",
+    shows: "Looking more closely",
+    settle: false,
+    run: (t) => {
+      toWork(t);
+      t.ink();
+      t.les().check();
+      t.c.setState({ verdict: t.c.reading(2) });
+    },
+  },
   { name: "task-not-yet", title: "A task, Not yet, the card", from: "task-reading", shows: "Not yet", run: (t) => t.c.closeChat() },
   { name: "task-rung", title: "A task, the rung in the panel", from: "task-not-yet", shows: "Report a problem", run: (t) => t.c.openChat() },
   { name: "task-alt", title: "A task, Explain differently", from: "task-rung", shows: "In other words", run: (t) => t.v().acts.find((a) => a.label === "Explain differently").go() },
@@ -290,6 +303,24 @@ export const STATES = [
   { name: "solve-tasks", title: "The list of the picked tasks", from: "solve", shows: "Framed by you", run: (t) => t.v().toggleTasks() },
   { name: "solve-empty", title: "Check without work", from: "solve", shows: "Write your solution first", run: (t) => t.v().check() },
   { name: "solve-reading", title: "The work being read", from: "solve", shows: "Reading your work", settle: false, run: (t) => (t.ink(), t.v().check()) },
+  // The first model was not sure: the card says the work went on to the next one. A profile without the right of the
+  // debug mode sees dots; one with it, the models' names.
+  {
+    name: "solve-reading-closer",
+    title: "The work gone on to the next model, for a learner: Looking more closely, the dots of the models",
+    from: "solve",
+    shows: "Looking more closely",
+    settle: false,
+    run: (t) => (t.c.setState({ dbgFlag: false }), t.ink(), t.v().check(), t.c.setState({ verdict: t.c.reading(2) })),
+  },
+  {
+    name: "solve-debug-reading-closer",
+    title: "The work gone on to the next model, for an account with the right of the debug mode: the models by name",
+    from: "solve",
+    shows: "Sonnet",
+    settle: false,
+    run: (t) => (t.ink(), t.v().check(), t.c.setState({ verdict: t.c.reading(2) })),
+  },
   { name: "solve-not-yet", title: "Not yet, and the tutor's wavy mark where the mistake is", from: "solve", shows: "Not yet", run: (t) => (t.ink(), t.v().check()) },
   { name: "solve-correct", title: "Correct", from: "solve-not-yet", shows: "Correct", run: (t) => t.v().check() },
   {
