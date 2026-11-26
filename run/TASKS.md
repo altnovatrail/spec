@@ -25,14 +25,6 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Как проверить:** `just docs-check`; `just tokens-report --since 2026-11-18T18:24:49Z --until 2026-11-20T04:58 --classes`.
 - **Разделы:** R145, R160, R162, R82; measurements 1.9, 1.14; `tools/docs-check/budgets.json`.
 
-#### T248. Запрет чтения наборов оценки `modules` в клонах `.epics`
-
-- **Цель:** сессия любого контейнера NovaTrail не читает `modules/*/eval/` клона `.epics/<эпик>/modules`, кроме `synthetic-*.json`, — как не читает их в клоне хоста по `.claude/settings.json` `modules` (поправка T61 к R04 `modules`).
-- **Почему:** В41 `modules`, входящие T246, ответ автора 2026-11-21 — вариант (a): запрет `modules` задан относительно проекта, а клон в `.epics` читают по абсолютному пути из контейнера оркестратора и из контейнера любого другого репозитория (R166).
-- **Сделать:** по документации Claude Code — запись `docs/sources.md`: абсолютный путь (`//`) в `permissions.deny`, есть ли исключение из запрета и что берёт верх; правило в `.claude/settings.json` `spec` и шаблона `repo-template/files/.claude/settings.json` — `Read(//workspaces/.epics/*/modules/modules/*/eval/*)` с исключением `synthetic-*.json`, если синтаксис его допускает, иначе — вопрос автору с вариантами; решение, которое держит настройки сессий, переписать на месте (R160); проба `claude -p` в контейнере оркестратора на выдуманном клоне — файл набора не читается, `synthetic-*.json` читается. Другие репозитории берут правило со своим следующим переходом на тег.
-- **Как проверить:** `just new-repo-test`, `just session-test`, `just docs-check`.
-- **Разделы:** R04 `modules`, R143, R166; `.claude/rules/new-repo.md`; В41 `modules`.
-
 #### T282. Записи `sources` для внешних фактов privacy, dpia, product, repositories, contracts и draft
 
 - **Цель:** каждое утверждение о внешнем мире в `docs/privacy.md`, `docs/dpia.md`, `docs/product.md`, `docs/repositories.md`, `contracts/README.md` и `draft/` стоит на своём доказательстве по правилу T287: факт, который прогон не проверит, — на одной записи `sources`; поведение под тестом или замером — на них; документация или код на версии — на ссылке на месте; файлы NovaTrail и MathTrail — на git.
@@ -51,3 +43,33 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Как проверить:** `just docs-check`, временно с ключом `citations` — ошибок в двух файлах нет.
 - **Когда:** после T287.
 - **Разделы:** правило T287; privacy; dpia; product; repositories; sources 1; measurements 1; T270, T271, T275.
+
+#### T330. Документы без русского текста: метка «для реестров spec» по-английски, цитаты spec — по-английски
+
+- **Цель:** в `docs/` любого репозитория NovaTrail нет русского текста, который требуют правила `spec`: метка строки таблицы 3 для `spec` — английская, а записи `docs/sources.md`, цитирующие русский текст `spec`, — по-английски.
+- **Почему:** В46 `.github`, разбор входящих 2026-11-26 — ответ автора: «русские цитаты не нужны, всё на английском» (вариант (a) с цитатами без исключения).
+- **Сделать:**
+  - английская метка, например «For spec's registers», вместо «В реестр spec» — RULES.md, шаблон (`repo-template/files/RUN.md`, `run/QUESTIONS.md`), RUN.md и `run/` `spec`, `tools/inbox/` (`MARK` и его тесты: на переходное время — обе метки, старая уходит, когда её не останется ни в одной таблице 3), решения, которые её называют;
+  - запись `docs/sources.md`, цитирующая русский текст `spec` (COORDINATION.md «Порядок», старые решения, тела задач), — на нынешний английский текст `spec`, а где его нет — на английский пересказ, помеченный как пересказ; правило RULES.md о цитатах на языке источника — исключение для текстов NovaTrail;
+  - другие репозитории берут правило своим следующим переходом на тег; `.github` — своей задачей по В46.
+- **Как проверить:** `just inbox-test`, `just new-repo-test`, `just docs-check`; `just inbox` видит строки с обеими метками.
+- **Разделы:** RULES.md — язык и метка; R81, R154; В46 `.github`.
+
+#### T331. Шаблон вида `typescript`: Playwright 1.65.1
+
+- **Цель:** `repo-template/kinds/typescript.Dockerfile` берёт браузеры из того же образа Playwright, что и пакет `playwright` репозиториев, и `new-repo-draft` на следующем теге не возвращает `canvas` к браузеру, которого его пакет не находит.
+- **Почему:** В89 `canvas`, разбор входящих 2026-11-26 — ответ автора, вариант (a): `spec` поднимает образ шаблона.
+- **Сделать:** образ `mcr.microsoft.com/playwright:v1.65.1-noble` с дайджестом из `.devcontainer/Dockerfile` `canvas` (`main` 988b8ca, сверить с реестром), `PLAYWRIGHT_HEADLESS_SHELL_REVISION` 1255 по `browsers.json` 1.65.1; WebKit 2388 и Firefox 1572 — проверить там же; README вида и решения, которые называют версию, — по правилу «назвать файл, а не значение».
+- **Как проверить:** `just new-repo-test`, `just docs-check`; сборка стадии вида `typescript` — по CI `canvas`, в этом контейнере нет docker.
+- **Разделы:** R12, R79; `.claude/rules/new-repo.md`; В89 `canvas`.
+
+#### T332. `docs-check`: «раздел N» в архивах и пропуски номеров R
+
+- **Цель:** удалённая запись `sources` или `measurements` и ушедшая запись журнала решений не ломают архивы `docs/plan/` других репозиториев, а журнал не держит заглушек.
+- **Почему:** разбор входящих 2026-11-26 — ответы автора: В17 `skill-map`, вариант (a) — проверка, а не правка архивов; В59 `learner-model`, вариант (a) — номера R с пропусками.
+- **Сделать:**
+  - В17: в архиве «раздел N» без ссылки прямо перед ним, чья цель откатилась к `sources` или `measurements`, не проверяется — или берётся ссылка сразу после него (выбрать при работе, с тестом на строку `docs/plan/E3.md` `skill-map`);
+  - В59: у регистра R `gaps: true`, номер ушедшей записи не выдаётся снова; архивы `docs/plan/` могут цитировать ушедший номер, как цитируют удалённую запись `sources`; `docs/`, RUN.md и `run/` — только существующие; правила RUN.md шаблона и решение о журнале — переписать на месте;
+  - другие репозитории берут это переходом на тег; заглушки R `learner-model` (Д24 `learner-model`) — его задачей.
+- **Как проверить:** `just docs-check-test`, `just docs-check`; `docs-check-repo` на клонах `skill-map` и `learner-model`.
+- **Разделы:** `tools/docs-check/config.mjs`, `sections.mjs`; В17 `skill-map`, В59 `learner-model`.
