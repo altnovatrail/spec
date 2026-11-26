@@ -258,12 +258,16 @@ export const STATES = [
     },
   },
   { name: "solve-hand", title: "Hand: the sheet moved right of the page", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink("M420 420 C500 380 580 460 660 420 M690 430 l60 -20"), t.c.setState({ tool: "hand" }), t.c.setView(1, 240, 0)) },
-  // Select: a lasso or a rectangle takes the strokes of the layer it began on that it holds almost wholly, to move, copy or delete.
+  // Select: a lasso or a rectangle takes the strokes of the layer it began on that it holds almost wholly, to move, scale, copy or delete.
   { name: "solve-select-modes", title: "Select tapped again: its shapes, Lasso and Rectangle", from: "solve", shows: "Rectangle", run: (t) => (t.v().toolSelect(), t.v().toolSelect()) },
   { name: "solve-select-lasso", title: "Select: a lasso drawn around the second line", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (written(t), t.v().toolSelect(), t.c.setState({ areaLive: { layer: "main", d: t.c.areaPath(ring(t)) } })) },
   { name: "solve-selected", title: "Selected: the box around the line, and Copy and Delete above it", from: "solve-select-lasso", shows: "Copy Delete", run: (t) => t.c.areaPick(t.c.inkKey(), "main", ring(t)) },
   { name: "solve-select-moved", title: "Selected and moved by a drag inside its box", from: "solve-selected", shows: "Copy Delete", run: (t) => t.c.areaShift(t.c.phone() ? 40 : 120, t.c.phone() ? 70 : 90) },
   { name: "solve-select-copied", title: "Copied: the copy beside it, and selected", from: "solve-selected", shows: "Copy Delete", run: (t) => t.v().area.copy() },
+  // A corner of the box scales what is taken from the corner across: the top left stays, the bottom right is dragged.
+  { name: "solve-select-scaling", title: "A corner of the box dragged: the line at 150%, the share in place of the menu", from: "solve-selected", shows: "150%", run: (t) => t.c.setState({ areaS: { f: 1.5, o: t.c.areaBB(t.c.state.area).slice(0, 2) } }) },
+  { name: "solve-select-scaled", title: "Scaled up to 150%: the line larger, still selected", from: "solve-selected", shows: "Copy Delete", run: (t) => t.c.areaScale(1.5, t.c.areaBB(t.c.state.area).slice(0, 2)) },
+  { name: "solve-select-shrunk", title: "Scaled down to 60%: the line smaller, still selected", from: "solve-selected", shows: "Copy Delete", run: (t) => t.c.areaScale(0.6, t.c.areaBB(t.c.state.area).slice(0, 2)) },
   { name: "solve-select-rect", title: "Rectangle on the task: it takes the strokes on the tracing paper alone", from: "solve", shows: "Copy Delete", run: (t) => {
     const key = t.c.clipKey(), on = t.c.hand("x = 5", t.c.phone() ? 196 : 270, t.c.phone() ? 20 : 26, t.c.phone() ? 26 : 34), b = boxOf(on);
     t.c.setState({ strokes: { ...t.c.state.strokes, [key]: on }, areaMode: "rect" });

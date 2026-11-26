@@ -641,12 +641,20 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   <sc-if value="{{liveScreen}}" hint-placeholder-val="{{ false }}">
     <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; pointer-events: none" aria-hidden="true"><path d="{{live}}" style="fill: none; stroke: {{liveSty.color}}; stroke-width: {{liveSty.w}}px; opacity: {{liveSty.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
   </sc-if>
-  <!-- Select: the lasso or the rectangle as it is drawn, then a dashed box around what it took, which a drag inside moves, and Copy and Delete above it (canvas). -->
+  <!-- Select: the lasso or the rectangle as it is drawn, then a dashed box around what it took, which a drag inside moves and a drag of a corner scales from the corner across, and Copy and Delete above it (canvas). -->
   <sc-if value="{{area.liveMain}}" hint-placeholder-val="{{ false }}">
     <svg width="{{dim.SW}}" height="{{dim.H}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{area.live}}" style="fill: rgba(0,113,227,0.06); stroke: #0071E3; stroke-width: {{area.lw}}px; stroke-dasharray: {{area.da}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
   </sc-if>
   <sc-if value="{{area.boxMain}}" hint-placeholder-val="{{ false }}">
     <div role="img" aria-label="{{area.label}}" style="position: absolute; left: {{area.x}}px; top: {{area.y}}px; width: {{area.w}}px; height: {{area.h}}px; box-sizing: border-box; border-radius: 10px; border: {{area.lw}}px dashed #0071E3; background: rgba(0,113,227,0.05); pointer-events: none"></div>
+    <sc-for list="{{area.grips}}" as="g" hint-placeholder-count="0">
+      <button aria-label="Scale the selection" data-u="{{area.ui}}" onPointerDown="{{g.down}}" onPointerMove="{{area.gripMove}}" onPointerUp="{{area.gripUp}}" onPointerCancel="{{area.gripUp}}" style="position: absolute; left: {{g.x}}px; top: {{g.y}}px; width: {{area.ui}}px; height: {{area.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; touch-action: none; pointer-events: auto; cursor: {{g.cursor}}">
+        <span style="width: 41%; height: 41%; box-sizing: border-box; border-radius: 50%; background: #FFFFFF; border: {{area.gb}}px solid #0071E3; box-shadow: 0 1px 4px rgba(0,0,0,0.15)"></span>
+      </button>
+    </sc-for>
+    <sc-if value="{{area.scaling}}" hint-placeholder-val="{{ false }}">
+      <div class="glass" style="position: absolute; left: {{area.mx}}px; top: {{area.my}}px; transform: scale({{area.inv}}) translateX(-50%); transform-origin: 0 0; height: 44px; display: flex; align-items: center; padding: 0 16px; border-radius: 22px; background: rgba(255,255,255,0.96); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: #1D1D1F; white-space: nowrap; pointer-events: none">{{area.pct}}</div>
+    </sc-if>
     <div class="glass" style="position: absolute; left: {{area.mx}}px; top: {{area.my}}px; transform: scale({{area.inv}}) translateX(-50%); transform-origin: 0 0; display: flex; align-items: center; padding: 0 4px; border-radius: 22px; background: rgba(255,255,255,0.96); white-space: nowrap; pointer-events: auto; opacity: {{area.menuOp}}; transition: opacity 0.15s">
       <button onClick="{{area.copy}}" style="height: 44px; padding: 0 14px; font-size: 14px; font-weight: 600; color: #1D1D1F">Copy</button>
       <span style="width: 1px; height: 20px; background: rgba(0,0,0,0.12)"></span>
@@ -690,12 +698,17 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <sc-if value="{{liveClip}}" hint-placeholder-val="{{ false }}">
         <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{live}}" style="fill: none; stroke: {{liveSty.color}}; stroke-width: {{liveSty.w}}px; opacity: {{liveSty.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
       </sc-if>
-      <!-- Select: the lasso or the rectangle as it is drawn, then a dashed box around what it took, which a drag inside moves, and Copy and Delete above it (canvas). -->
+      <!-- Select: the lasso or the rectangle as it is drawn, then a dashed box around what it took, which a drag inside moves and a drag of a corner scales from the corner across, and Copy and Delete above it (canvas). -->
       <sc-if value="{{area.liveClip}}" hint-placeholder-val="{{ false }}">
         <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{area.live}}" style="fill: rgba(0,113,227,0.06); stroke: #0071E3; stroke-width: {{area.lw}}px; stroke-dasharray: {{area.da}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
       </sc-if>
       <sc-if value="{{area.boxClip}}" hint-placeholder-val="{{ false }}">
         <div role="img" aria-label="{{area.label}}" style="position: absolute; left: {{area.x}}px; top: {{area.y}}px; width: {{area.w}}px; height: {{area.h}}px; box-sizing: border-box; border-radius: 10px; border: {{area.lw}}px dashed #0071E3; background: rgba(0,113,227,0.05); pointer-events: none"></div>
+        <sc-for list="{{area.grips}}" as="g" hint-placeholder-count="0">
+          <button aria-label="Scale the selection" data-u="{{area.ui}}" onPointerDown="{{g.down}}" onPointerMove="{{area.gripMove}}" onPointerUp="{{area.gripUp}}" onPointerCancel="{{area.gripUp}}" style="position: absolute; left: {{g.x}}px; top: {{g.y}}px; width: {{area.ui}}px; height: {{area.ui}}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; touch-action: none; pointer-events: auto; cursor: {{g.cursor}}">
+            <span style="width: 41%; height: 41%; box-sizing: border-box; border-radius: 50%; background: #FFFFFF; border: {{area.gb}}px solid #0071E3; box-shadow: 0 1px 4px rgba(0,0,0,0.15)"></span>
+          </button>
+        </sc-for>
       </sc-if>
       <sc-for list="{{clipWavy}}" as="k" hint-placeholder-count="0">
         <svg role="img" aria-label="{{k.label}}" width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none"><path d="{{k.d}}" style="fill: none; stroke: #E8590C; stroke-width: 2.4px; stroke-linecap: round; stroke-linejoin: round"></path></svg>
@@ -718,6 +731,9 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
           <span style="width: 1px; height: 20px; background: rgba(0,0,0,0.12)"></span>
           <button onClick="{{area.del}}" style="height: 44px; padding: 0 14px; font-size: 14px; font-weight: 600; color: #D70015">Delete</button>
         </div>
+        <sc-if value="{{area.scaling}}" hint-placeholder-val="{{ false }}">
+          <div class="glass" style="position: absolute; left: {{area.mx}}px; top: {{area.my}}px; transform: scale({{area.inv}}) translateX(-50%); transform-origin: 0 0; height: 44px; display: flex; align-items: center; padding: 0 16px; border-radius: 22px; background: rgba(255,255,255,0.96); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: #1D1D1F; white-space: nowrap; pointer-events: none">{{area.pct}}</div>
+        </sc-if>
       </div>
     </sc-if>
   </div>
@@ -3176,7 +3192,7 @@ class Component extends DCLogic {
     slice: 'first', ownerName: '', ownerAvatar: null, ownerCountry: null, avatarOpen: false, countryOpen: false,
     view: { z: 1, x: 0, y: 0 }, panning: false, grid: 'dots',
     // Select: its shape, its menu of shapes, the strokes taken, the shape as it is drawn, a drag of them, and the sheet before each action, for Undo.
-    areaMode: 'lasso', selMenu: false, area: null, areaLive: null, areaD: null, areaHist: [],
+    areaMode: 'lasso', selMenu: false, area: null, areaLive: null, areaD: null, areaS: null, areaHist: [],
     // The phone's own: the legend of home as a sheet, and the tutor's sheet over the whole screen.
     legendOpen: false, pagesOpen: false, tutorFull: false,
     // A lesson (RUN.md, T155): the segment shown and the place reached, the demo, the solving mode and step, and each task's attempt.
@@ -4610,8 +4626,8 @@ class Component extends DCLogic {
     this.setState({ area: idx.length ? { key, layer, idx } : null, areaLive: null, areaD: null });
   }
 
-  // The box of what is taken, a little wider than its strokes.
-  areaBox(a) {
+  // The bounds of what is taken, and its box, a little wider than its strokes.
+  areaBB(a) {
     const list = this.state.strokes[a.key] || [];
     let b = null;
     for (const i of a.idx) {
@@ -4620,6 +4636,10 @@ class Component extends DCLogic {
       const q = st.bb || [st.x, st.y, st.x, st.y];
       b = b ? [Math.min(b[0], q[0]), Math.min(b[1], q[1]), Math.max(b[2], q[2]), Math.max(b[3], q[3])] : q.slice();
     }
+    return b;
+  }
+  areaBox(a) {
+    const b = this.areaBB(a);
     return b && [b[0] - 10, b[1] - 10, b[2] + 10, b[3] + 10];
   }
 
@@ -4632,6 +4652,43 @@ class Component extends DCLogic {
     const moved = list.map((st, i) => (a.idx.includes(i) ? this.areaShifted(st, dx, dy) : st));
     this.setState({ areaHist: this.areaKeep(a.key, Date.now()), strokes: { ...this.state.strokes, [a.key]: moved }, areaD: null });
   }
+  // A corner of the box scales what is taken from the corner across, its shape kept: from a quarter to four times
+  // its size, and never below 24 on its longer side. The lines grow and shrink with it, as a photo of them would.
+  areaScaledSt(st, f, o) {
+    const m = (n, i) => Math.round((o[i] + (n - o[i]) * f) * 10) / 10;
+    const d = st.d.replace(/([MLQC])([^MLQCl]*)/g, (_, c, body) => { let i = 0; return c + body.replace(/-?\d*\.?\d+/g, (x) => String(m(Number(x), i++ % 2))); });
+    const b = st.bb || [st.x, st.y, st.x, st.y];
+    return { ...st, d, x: m(st.x, 0), y: m(st.y, 1), bb: [m(b[0], 0), m(b[1], 1), m(b[2], 0), m(b[3], 1)], ws: (st.ws || 1) * f };
+  }
+  areaScale(f, o) {
+    const a = this.state.area, list = this.state.strokes[a.key] || [];
+    const scaled = list.map((st, i) => (a.idx.includes(i) ? this.areaScaledSt(st, f, o) : st));
+    this.setState({ areaHist: this.areaKeep(a.key, Date.now()), strokes: { ...this.state.strokes, [a.key]: scaled }, areaS: null });
+  }
+  gripDown(corner, e) {
+    const a = this.state.area, b = a && this.areaBB(a);
+    if (!b) return;
+    e.stopPropagation();
+    const el = e.currentTarget, k = Number(el.getAttribute('data-u')) / el.getBoundingClientRect().width;
+    const at = [[b[0], b[1]], [b[2], b[1]], [b[0], b[3]], [b[2], b[3]]], c = at[corner], o = at[3 - corner];
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* no capture */ }
+    this.grip = { k, sx: e.clientX, sy: e.clientY, c, o, lo: Math.max(0.25, 24 / Math.max(b[2] - b[0], b[3] - b[1], 1)) };
+    this.setState({ areaS: { f: 1, o }, selMenu: false });
+  }
+  gripMove = (e) => {
+    const g = this.grip;
+    if (!g) return;
+    const p = [g.c[0] + (e.clientX - g.sx) * g.k, g.c[1] + (e.clientY - g.sy) * g.k], v = [g.c[0] - g.o[0], g.c[1] - g.o[1]];
+    const f = ((p[0] - g.o[0]) * v[0] + (p[1] - g.o[1]) * v[1]) / Math.max(v[0] * v[0] + v[1] * v[1], 1);
+    this.setState({ areaS: { f: Math.max(g.lo, Math.min(4, f)), o: g.o } });
+  };
+  gripUp = () => {
+    if (!this.grip) return;
+    this.grip = null;
+    const sc = this.state.areaS;
+    if (!sc || Math.abs(sc.f - 1) < 0.02) return this.setState({ areaS: null });
+    this.areaScale(sc.f, sc.o);
+  };
   areaCopy = () => {
     const a = this.state.area;
     if (!a) return;
@@ -4649,22 +4706,30 @@ class Component extends DCLogic {
   // Which tool, and with Select tapped again, its menu of shapes; another tool lets the selection go.
   pickTool(tool) {
     if (tool === 'select' && this.state.tool === 'select') return this.setState({ selMenu: !this.state.selMenu });
-    this.setState({ tool, selMenu: false, area: null, areaLive: null, areaD: null });
+    this.setState({ tool, selMenu: false, area: null, areaLive: null, areaD: null, areaS: null });
   }
 
   areaVals(isSolve) {
     const s = this.state, a = s.area, lv = s.tool === 'select' ? s.areaLive : null;
     const lw = 1.6 / (lv && lv.layer === 'main' || a && a.layer === 'main' ? s.view.z : 1);
     const out = { liveMain: !!lv && lv.layer === 'main', liveClip: !!lv && lv.layer === 'clip' && isSolve, live: lv ? lv.d : '', lw, da: 5 * lw + ' ' + 4 * lw,
-      boxMain: false, boxClip: false, x: 0, y: 0, w: 0, h: 0, mx: 0, my: 0, inv: 1, menuOp: 1, label: '', copy: this.areaCopy, del: this.areaDelete };
+      boxMain: false, boxClip: false, x: 0, y: 0, w: 0, h: 0, mx: 0, my: 0, inv: 1, menuOp: 1, label: '', copy: this.areaCopy, del: this.areaDelete,
+      grips: [], ui: 44, gb: 2, scaling: false, pct: '', gripMove: this.gripMove, gripUp: this.gripUp };
     const key = a && (a.layer === 'clip' ? this.clipKey() : this.inkKey());
-    const b = a && a.key === key && s.tool === 'select' ? this.areaBox(a) : null;
-    if (!b) return out;
+    const bb = a && a.key === key && s.tool === 'select' ? this.areaBB(a) : null;
+    if (!bb) return out;
+    // While a corner is dragged, the box as the scale will leave it.
+    const sc = s.areaS, m = (n, i) => (sc ? sc.o[i] + (n - sc.o[i]) * sc.f : n);
+    const b = [m(bb[0], 0) - 10, m(bb[1], 1) - 10, m(bb[2], 0) + 10, m(bb[3], 1) + 10];
     const d = s.areaD || [0, 0], inv = a.layer === 'main' ? 1 / s.view.z : 1, x = b[0] + d[0], y = b[1] + d[1];
     // The menu above the box, or below it where the top has no room.
     const my = y - 54 * inv >= (a.layer === 'main' ? s.view.y + 8 * inv : 0) ? y - 54 * inv : b[3] + d[1] + 10 * inv;
+    // Its corners, each a target of 44 on the screen, hidden while the box is dragged.
+    const ui = 44 * inv, cur = ['nwse-resize', 'nesw-resize', 'nesw-resize', 'nwse-resize'];
+    const grips = s.areaD ? [] : [[b[0], b[1]], [b[2], b[1]], [b[0], b[3]], [b[2], b[3]]].map((c, i) => ({ x: c[0] - ui / 2, y: c[1] - ui / 2, cursor: cur[i], down: (e) => this.gripDown(i, e) }));
     return { ...out, boxMain: a.layer === 'main', boxClip: a.layer === 'clip' && isSolve, x, y, w: b[2] - b[0], h: b[3] - b[1], mx: x + (b[2] - b[0]) / 2, my, inv,
-      menuOp: s.areaD ? 0 : 1, label: a.idx.length === 1 ? '1 stroke selected' : a.idx.length + ' strokes selected' };
+      menuOp: s.areaD || sc ? 0 : 1, label: a.idx.length === 1 ? '1 stroke selected' : a.idx.length + ' strokes selected',
+      grips, ui, gb: 2 * inv, scaling: !!sc, pct: sc ? Math.round(sc.f * 100) + '%' : '' };
   }
 
   // The strokes on the task's clipping, kept per task in the clipping's own coordinates.
@@ -5320,8 +5385,12 @@ class Component extends DCLogic {
     // A stroke of the tutor is drawn as a hand draws it, from its start to its end, in its turn.
     const now = Date.now();
     const drawn = (st) => (st.at && now < st.at + st.delay + st.dur + 50 ? { da: '1', an: 'ntDraw ' + st.dur + 'ms linear ' + (st.at + st.delay - now) + 'ms both' } : { da: 'none', an: 'none' });
-    const dragged = (k, i) => (s.areaD && s.area && s.area.key === k && s.area.idx.includes(i) ? 'translate(' + s.areaD[0] + ' ' + s.areaD[1] + ')' : '');
-    const toPaths = (k, st0) => (s.strokes[k] || []).map((st, i) => ({ d: st.d, tf: dragged(k, i), ...st0(st.tool), ...(st.color ? { color: st.color, w: st.w } : {}), ...drawn(st), erase: () => this.eraseAt(k, i), eraseEnter: (e) => { if (e.buttons & 1) this.eraseAt(k, i); } }));
+    const taken = (k, i) => s.area && s.area.key === k && s.area.idx.includes(i);
+    const dragged = (k, i) => (!taken(k, i) ? '' : s.areaD ? 'translate(' + s.areaD[0] + ' ' + s.areaD[1] + ')'
+      : s.areaS ? 'translate(' + s.areaS.o[0] + ' ' + s.areaS.o[1] + ') scale(' + s.areaS.f + ') translate(' + -s.areaS.o[0] + ' ' + -s.areaS.o[1] + ')' : '');
+    // A stroke scaled by Select draws its line as much wider or narrower.
+    const widthOf = (st, st0) => (st.ws ? { w: (st.color ? st.w : st0(st.tool).w) * st.ws } : {});
+    const toPaths = (k, st0) => (s.strokes[k] || []).map((st, i) => ({ d: st.d, tf: dragged(k, i), ...st0(st.tool), ...(st.color ? { color: st.color, w: st.w } : {}), ...widthOf(st, st0), ...drawn(st), erase: () => this.eraseAt(k, i), eraseEnter: (e) => { if (e.buttons & 1) this.eraseAt(k, i); } }));
     const paths = toPaths(key, sty);
     const clipPaths = isSolve ? toPaths(this.clipKey(), sty) : [];
     const isEraser = s.tool === 'eraser';
