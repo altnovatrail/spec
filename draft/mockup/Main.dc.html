@@ -259,7 +259,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.nt-pad .ph-home) .nt-nav-item[aria-current="page"] { background: #1d1d1f; color: #ffffff; font-weight: 600; }
 :where(.nt-pad .ph-home) .nt-nav-item[aria-expanded="true"] { background: rgba(0, 113, 227, 0.1); color: #0066cc; }
 :where(.nt-pad .ph-home) .nt-nav-icon { font-size: 1rem; }
-:where(.nt-pad .ph-home) .nt-nav-rule { inline-size: 1px; block-size: 1.125rem; margin-inline: 0.25rem; background: rgba(0, 0, 0, 0.1); }
 :where(.nt-pad .ph-home) .nt-top-mark { display: none; }
 :where(.nt-pad .ph-home) .nt-shell > main { --nt-size-heading: 2rem; }
 :where(.ph-home) .nt-icon-text { display: inline-flex; align-items: center; gap: 0.375rem; }
@@ -325,8 +324,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.nt-phone .ph-home) .nt-next-up h3, :where(.nt-phone .ph-home) .nt-paper > h2, :where(.nt-phone .ph-home) main .nt-paper > p.nt-paper-sub, :where(.nt-phone .ph-home) .nt-paper-acts { max-inline-size: none; }
 :where(.nt-phone .ph-home) .nt-deco { display: none; }
 :where(.nt-phone .ph-home) .nt-legend { display: none; }
-:where(.nt-phone .ph-home) .nt-nav { position: fixed; z-index: 4; inset-inline: 0px; inset-block-end: 0px; display: grid; grid-template-columns: repeat(5, minmax(0px, 1fr)); padding: 0.375rem 0.25rem max(1.375rem, env(safe-area-inset-bottom)); background: rgba(255, 255, 255, 0.96); box-shadow: rgba(0, 0, 0, 0.14) 0px -0.5px 0px; }
-:where(.nt-phone .ph-home) .nt-nav-rule { display: none; }
+:where(.nt-phone .ph-home) .nt-nav { position: fixed; z-index: 4; inset-inline: 0px; inset-block-end: 0px; display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); padding: 0.375rem 0.25rem max(1.375rem, env(safe-area-inset-bottom)); background: rgba(255, 255, 255, 0.96); box-shadow: rgba(0, 0, 0, 0.14) 0px -0.5px 0px; }
 :where(.nt-phone .ph-home) .nt-nav-item > .nt-soon { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 :where(.nt-phone .ph-home) .nt-nav-item { flex-direction: column; gap: 0.25rem; min-block-size: 3.25rem; padding: 0.25rem 0px; border-radius: 0.875rem; color: #6e6e73; font-size: 0.6875rem; font-weight: 600; line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
 :where(.nt-phone .ph-home) .nt-nav-item[aria-current="page"], :where(.nt-phone .ph-home) .nt-nav-item[aria-expanded="true"] { color: #0066cc; }
@@ -353,10 +351,14 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-menu-who{display:flex;flex:1 1 auto;flex-direction:column;min-inline-size:0}
 :where(.ph-home) .nt-menu-who>.nt-learner-name{font-weight:600}
 :where(.ph-home) .nt-menu-whose{color:#6e6e73;font-size:.78125rem;font-weight:400}
-:where(.ph-home) .nt-menu-tick{display:inline-flex;flex:0 0 auto;color:#0071e3;font-size:1rem}
 :where(.ph-home) .nt-menu-icon{display:inline-flex;flex:0 0 auto;font-size:1.125rem}
 :where(.ph-home .ph-hpop) hr{margin:.25rem .625rem;border:0;border-block-start:.0625rem solid rgba(0,0,0,.08)}
 :where(.ph-home) button.nt-menu-row{box-sizing:border-box;display:flex;align-items:center;gap:.625rem;inline-size:100%;block-size:2.75rem;padding:0 .625rem;border:.0625rem solid transparent;border-radius:.75rem;background:transparent;color:#0066cc;font:inherit;font-size:.9375rem;font-weight:400;text-align:start}
+:where(.ph-home) .nt-menu-label{flex:1 1 auto}
+:where(.ph-home) .nt-menu-more{display:inline-flex;flex:0 0 auto;color:#8e8e93;font-size:.875rem}
+:where(.ph-home) button.nt-menu-back{display:inline-flex;align-items:center;gap:.125rem;block-size:2.75rem;padding:0 .625rem 0 .25rem;border:0;border-radius:1.375rem;background:transparent;color:#0066cc;font:inherit;font-size:.9375rem;font-weight:600}
+:where(.ph-home) .nt-menu-help{display:flex;flex-direction:column;gap:.75rem;padding:0 .625rem .375rem;line-height:normal}
+:where(.ph-home) .nt-menu-help .nt-pop-heading{padding:0}
 :where(.ph-home) .nt-hint-modes{display:flex;flex-direction:column;gap:.25rem;padding:.125rem .25rem .375rem}
 :where(.ph-home) .nt-hint-modes .nt-menu-caption{display:flex;align-items:center;gap:.375rem;margin-block-end:-.25rem;padding-inline:.375rem}
 :where(.ph-home) .nt-hint-mode{box-sizing:content-box;position:relative;display:flex;flex-direction:column;gap:.125rem;min-block-size:2.75rem;padding:.5rem .625rem;border:0;border-radius:.75rem;color:#1d1d1f;font:inherit;text-align:start;cursor:pointer}
@@ -2135,8 +2137,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <!-- The places in a row from 600 px, each icon and caption; on the phone the tab bar at the bottom. The cognitive map waits, shut. -->
       <nav class="nt-nav" aria-label="Main">
         <sc-for list="{{hs.nav}}" as="n" hint-placeholder-count="5">
-          <sc-if value="{{n.rule}}" hint-placeholder-val="{{ false }}"><span class="nt-nav-rule"></span></sc-if>
-          <button class="nt-nav-item" onClick="{{n.go}}" aria-current="{{n.cur}}" aria-disabled="{{n.off}}" aria-expanded="{{n.open}}" title="{{n.tip}}">
+          <button class="nt-nav-item" onClick="{{n.go}}" aria-current="{{n.cur}}" aria-disabled="{{n.off}}" title="{{n.tip}}">
             <span class="nt-nav-icon"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{n.icon}}"></path></svg></span>
             <span class="nt-nav-label">{{n.label}}</span>
             <sc-if value="{{n.off}}" hint-placeholder-val="{{ false }}"><span class="nt-soon">Soon</span></sc-if>
@@ -2434,11 +2435,28 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <button aria-label="Close" onClick="{{hs.closePop}}" style="position: absolute; inset: 0; z-index: 5; cursor: default; background: {{hs.scrim}}"></button>
   </sc-if>
 
-  <!-- For grown-ups: the profile's settings and this device's. A child's profile opens it behind the PIN (epic E4 of app). -->
-  <sc-if value="{{hs.grownOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop ph-hpop" role="dialog" aria-label="For grown-ups" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.grown}}">
+  <!-- The profile's menu, everything that is not a place: who is learning and Switch learner; Settings, the way to the section for adults, behind the PIN on a child's profile (epic E4 of app); Help, open to every learner, outside the PIN (R127); Sign out last. Help and the PIN open inside the menu, with a way back. -->
+  <sc-if value="{{switchOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop ph-hpop" role="dialog" aria-label="{{hs.menuName}}" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.account}}">
     <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
-    <sc-if value="{{hs.pinNeeded}}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{hs.menuMain}}" hint-placeholder-val="{{ true }}">
+      <p class="nt-menu-caption">Learning now</p>
+      <p class="nt-menu-current">
+        <span style="flex: none; width: 32px; height: 32px; border-radius: 16px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg></span>
+        <span class="nt-menu-who"><span class="nt-learner-name">{{me.name}}</span><span class="nt-menu-whose">{{hs.meCap}}</span></span>
+      </p>
+      <button class="nt-menu-row" onClick="{{switchLearner}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg></span>Switch learner</button>
+      <hr>
+      <!-- One way to everything of the grown-ups: the section for adults — the profiles and each one's hints, this device, the rest —, behind the PIN on a child's profile (epic E4 of app). -->
+      <button class="nt-menu-row" onClick="{{hs.openSettings}}" aria-label="{{hs.settingsName}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.cog}}"></path></svg></span><span class="nt-menu-label">Settings</span><sc-if value="{{hs.pinNeeded}}" hint-placeholder-val="{{ false }}"><span class="nt-menu-more"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.grown}}"></path></svg></span></sc-if><span class="nt-menu-more"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></button>
+      <button class="nt-menu-row" onClick="{{hs.openHelp}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.help}}"></path></svg></span><span class="nt-menu-label">Help</span><span class="nt-menu-more"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></button>
+      <hr>
+      <button class="nt-menu-row" onClick="{{signOut}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path><path d="M10 8l-4 4 4 4M6 12h10"></path></svg></span>Sign out</button>
+    </sc-if>
+    <sc-if value="{{hs.menuSub}}" hint-placeholder-val="{{ false }}">
+      <button class="nt-menu-back" onClick="{{hs.menuBack}}"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>{{hs.menuBackTo}}</button>
+    </sc-if>
+    <sc-if value="{{hs.menuPin}}" hint-placeholder-val="{{ false }}">
       <div style="padding: 10px 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 14px">
         <span style="font-size: 17px; font-weight: 700">For grown-ups</span>
         <span style="margin-top: -8px; font-size: 13px; color: #6E6E73">Enter the PIN</span>
@@ -2450,52 +2468,25 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         </span>
       </div>
     </sc-if>
-    <sc-if value="{{hs.pinPassed}}" hint-placeholder-val="{{ true }}">
-      <h2 class="nt-pop-heading">For grown-ups</h2>
-      <p class="nt-pop-line">{{hs.grownWho}}</p>
-      <!-- The hint mode is a setting of the profile: the adult sets their own, and a child's here, behind the PIN (concepts 10). -->
-      <div class="nt-hint-modes" role="radiogroup" aria-label="Hints">
-        <div class="nt-menu-caption">Hints</div>
-        <button class="nt-hint-mode" role="radio" aria-checked="{{hs.hm.q.on}}" onClick="{{hs.modeQ}}" style="background: {{hs.hm.q.bg}}; box-shadow: {{hs.hm.q.sh}}">
-          <span class="nt-hint-mode-title">Questions only</span>
-          <span class="nt-hint-mode-line">The tutor asks about a step of the work</span>
-        </button>
-        <button class="nt-hint-mode" role="radio" aria-checked="{{hs.hm.w.on}}" onClick="{{hs.modeW}}" style="background: {{hs.hm.w.bg}}; box-shadow: {{hs.hm.w.sh}}">
-          <span class="nt-hint-mode-title" style="display: flex; align-items: center; gap: 8px">Show where<span aria-hidden="true" style="font-family: Caveat, 'Bradley Hand', cursive; font-size: 17px; line-height: 1; color: #23308C; text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: #E8590C; text-decoration-thickness: 1.6px; text-underline-offset: 3px; text-decoration-skip-ink: none">− 4</span></span>
-          <span class="nt-hint-mode-line">After “Not yet” the tutor also underlines where the mistake is — and corrects nothing</span>
-        </button>
+    <sc-if value="{{hs.menuHelp}}" hint-placeholder-val="{{ false }}">
+      <div class="nt-menu-help">
+        <h2 class="nt-pop-heading">Help</h2>
+        <sc-if value="{{helpAdult}}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">The tutor is an AI</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">A computer program, not a person — and a program checks every answer. If the AI read your work wrongly, write it again, or tell the operator with “Report a problem” at the task.</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Your name is made up</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Write no real names in the work — in an essay either.</span></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0 4px; margin: -4px -10px -8px">
+            <button onClick="{{openPrivacy}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Privacy Policy</button>
+            <button onClick="{{openTerms}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Terms of Use</button>
+            <button onClick="{{openAccess}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Accessibility</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{helpChild}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Who is the tutor?</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">An AI — a computer program, not a person. A program checks your answers.</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">If something makes you sad or scared</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Tell a grown-up you trust, or call a helpline.</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Your name stays yours</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Here you have a made-up name. Don’t write your real one on your work.</span></div>
+        </sc-if>
       </div>
-      <!-- Pip's microphone, under "Later": the adult turns it on in the child's profile (epic E4 of app; О-6, П-5). -->
-      <sc-if value="{{micRow}}" hint-placeholder-val="{{ false }}">
-      <button role="switch" aria-checked="{{micOn}}" onClick="{{toggleMic}}" style="width: 100%; min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 4px 8px 4px 10px; box-sizing: border-box; text-align: left">
-        <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
-          <span style="font-size: 14px; font-weight: 600">{{micSwitch}}</span>
-          <span style="font-size: 12px; line-height: 1.3; color: #6E6E73">Speech becomes text and isn’t kept</span>
-        </span>
-        <span style="flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: {{sw.bg}}; transition: background 0.2s">
-          <span style="position: absolute; top: 2px; left: {{sw.x}}px; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: left 0.2s"></span>
-        </span>
-      </button>
-      </sc-if>
-      <hr>
-      <button class="nt-menu-row" onClick="{{hs.noop}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"></rect><path d="M11 17.5h2"></path></svg></span>This device</button>
-      <button class="nt-menu-row" onClick="{{hs.noop}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.cog}}"></path></svg></span>All settings</button>
     </sc-if>
-  </div>
-  </sc-if>
-
-  <sc-if value="{{switchOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop ph-hpop" role="dialog" aria-label="Profile" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.account}}">
-    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
-    <p class="nt-menu-caption">Learning now</p>
-    <p class="nt-menu-current">
-      <span style="flex: none; width: 32px; height: 32px; border-radius: 16px; background: {{me.grad}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{me.glyph}}"></path></svg></span>
-      <span class="nt-menu-who"><span class="nt-learner-name">{{me.name}}</span><span class="nt-menu-whose">{{hs.meCap}}</span></span>
-      <span class="nt-menu-tick"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
-    </p>
-    <hr>
-    <button class="nt-menu-row" onClick="{{switchLearner}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg></span>Switch learner</button>
-    <button class="nt-menu-row" onClick="{{signOut}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path><path d="M10 8l-4 4 4 4M6 12h10"></path></svg></span>Sign out</button>
   </div>
   </sc-if>
 
@@ -2508,27 +2499,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <b>Nothing new yet</b>
       <span>Notifications will appear here</span>
     </div>
-  </div>
-  </sc-if>
-
-  <sc-if value="{{helpOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop" role="dialog" aria-label="Help" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); display: flex; flex-direction: column; gap: 12px; {{hs.P.help}}">
-    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
-    <div style="font-size: 17px; font-weight: 700">Help</div>
-    <sc-if value="{{helpAdult}}" hint-placeholder-val="{{ true }}">
-      <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">The tutor is an AI</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">A computer program, not a person — and a program checks every answer. If the AI read your work wrongly, write it again, or tell the operator with “Report a problem” at the task.</span></div>
-      <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Your name is made up</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Write no real names in the work — in an essay either.</span></div>
-      <div style="display: flex; flex-wrap: wrap; gap: 0 4px; margin: -4px -10px -8px">
-        <button onClick="{{openPrivacy}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Privacy Policy</button>
-        <button onClick="{{openTerms}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Terms of Use</button>
-        <button onClick="{{openAccess}}" style="height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0066CC">Accessibility</button>
-      </div>
-    </sc-if>
-    <sc-if value="{{helpChild}}" hint-placeholder-val="{{ false }}">
-      <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Who is the tutor?</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">An AI — a computer program, not a person. A program checks your answers.</span></div>
-      <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">If something makes you sad or scared</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Tell a grown-up you trust, or call a helpline.</span></div>
-      <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Your name stays yours</span><span style="font-size: 13px; line-height: 1.4; color: #6E6E73">Here you have a made-up name. Don’t write your real one on your work.</span></div>
-    </sc-if>
   </div>
   </sc-if>
 
@@ -4686,19 +4656,17 @@ class Component extends DCLogic {
 
   // Home, Subjects and a module's skill map: the row of places (the tab bar on the phone), the pills at the right and their pop-overs, as app lays them.
   homeVals(s, PH, pip, later) {
-    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null, mapSel: null };
+    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, menuView: 'main', legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null, mapSel: null };
     const tog = (k) => () => this.setState({ ...SHUT, [k]: !this.state[k] });
     const go = (screen) => () => this.setState({ ...SHUT, screen });
     // Subjects and the map in app's frame of a screen: under the row, 116 from the top on the iPad and 84 on the phone.
     const L = PH ? { h1: 28, gap1: 26, catCols: 'minmax(0, 1fr)', mapFlex: 'none' } : { h1: 32, gap1: 26, catCols: 'repeat(2, minmax(0, 1fr))', mapFlex: '1 1 auto' };
     const POP = 'border-radius: 20px; padding: 10px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
     const SHEET = 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 56px 16px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)';
-    const P = PH ? { grown: SHEET, account: SHEET, bell: SHEET, help: SHEET, pages: SHEET, legend: SHEET, mods: SHEET, about: 'position: fixed; ' + SHEET, skills: 'position: fixed; ' + SHEET } : {
+    const P = PH ? { account: SHEET, bell: SHEET, pages: SHEET, legend: SHEET, mods: SHEET, about: 'position: fixed; ' + SHEET, skills: 'position: fixed; ' + SHEET } : {
       // Each hangs from its button in the row or the pills: under it, at its start or its end, as app's pop-overs.
-      grown: 'left: 442px; top: 92px; width: 340px; transform-origin: top left; ' + POP + '; padding: 8px',
-      account: 'right: 41px; top: 86px; width: 270px; transform-origin: top right; ' + POP + '; padding: 8px',
+      account: 'right: 41px; top: 86px; width: 320px; transform-origin: top right; ' + POP + '; padding: 8px',
       bell: 'right: 159px; top: 86px; width: 300px; transform-origin: top right; ' + POP + '; padding: 12px',
-      help: 'left: 562px; top: 92px; width: 320px; transform-origin: top left; border-radius: 20px; padding: 16px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)',
       pages: 'left: 522px; top: 434px; width: 400px; transform-origin: top right; ' + POP + '; padding: 18px 8px 8px',
       legend: 'left: 37px; top: 300px; width: 300px; ' + POP,
       mods: 'left: 190px; top: 208px; width: 300px; transform-origin: top left; ' + POP,
@@ -4851,10 +4819,10 @@ class Component extends DCLogic {
       isHome: s.screen === 'home', isSubjects: s.screen === 'subjects', isOther: s.screen !== 'home',
       otherH: PH ? '780px' : '750px', loading: !!s.homeLoading, loaded: !s.homeLoading, twoCards: [{}, {}],
       screenName: s.screen === 'home' ? 'Home' : s.screen === 'subjects' ? 'Subjects' : 'Skill map',
-      // The places are screens, the cognitive map shut; Grown-ups and Help, after a rule, open pop-overs.
-      nav: [['home', 'Home'], ['subjects', 'Subjects'], ['cog', 'Cognitive map'], ['grown', 'Grown-ups', 'grownOpen'], ['help', 'Help', 'helpOpen']].map(([id, label, k]) => ({
-        label, icon: AI[id], off: id === 'cog' || undefined, rule: id === 'grown', tip: id === 'cog' ? SOON : undefined,
-        go: id === 'cog' ? () => {} : k ? tog(k) : go(id), cur: here === id ? 'page' : undefined, open: k ? !!s[k] : undefined })),
+      // The places alone, the cognitive map shut: For grown-ups and Help are in the profile's menu.
+      nav: [['home', 'Home'], ['subjects', 'Subjects'], ['cog', 'Cognitive map']].map(([id, label]) => ({
+        label, icon: AI[id], off: id === 'cog' || undefined, tip: id === 'cog' ? SOON : undefined,
+        go: id === 'cog' ? () => {} : go(id), cur: here === id ? 'page' : undefined })),
       goSubjects: go('subjects'),
       legend: [['mastered', 'Mastered'], ['time-to-review', 'Time to review'], ['in-progress', 'In progress'], ['ready-to-start', 'Ready to start'], ['locked', 'Locked'], ['feedback-by-criteria', 'Feedback by criteria'], ['not-assessed', 'Not assessed']]
         .map(([st, name], i) => ({ st, name, swatch: i < 5, icon: AI[['mastered', 'review', 'progress', 'ready', 'locked', 'rubric', 'notAssessed'][i]] })),
@@ -4869,6 +4837,13 @@ class Component extends DCLogic {
       toggleGrown: tog('grownOpen'), toggleAccount: tog('switchOpen'), toggleBell: tog('bellOpen'), toggleHelp: tog('helpOpen'), togglePages: tog('pagesOpen'),
       toggleLegend: tog('legendOpen'), toggleMods: tog('modsOpen'), toggleTutor: () => (this.state.chatOpen ? this.closeChat() : (this.setState({ ...SHUT }), this.openChat())),
       meCap: pip ? 'Learner' : 'Your profile',
+      // The menu's views: its first, and Hints, Help and the PIN inside it, each with a way back to it.
+      menuName: { help: 'Help', pin: 'For grown-ups' }[s.menuView] || 'Profile',
+      menuMain: !s.menuView || s.menuView === 'main', menuSub: !!s.menuView && s.menuView !== 'main', menuBackTo: 'Profile',
+      menuHelp: s.menuView === 'help', menuPin: s.menuView === 'pin',
+      menuBack: () => this.setState({ menuView: 'main', gPin: '' }), openSettings: () => (pinNeeded ? this.setState({ menuView: 'pin', gPin: '' }) : this.setState({ ...SHUT })),
+      settingsName: pinNeeded ? 'Settings, behind the PIN' : 'Settings',
+      openHelp: () => this.setState({ menuView: 'help' }),
 
       pinNeeded, pinPassed: !pinNeeded, pinLen: pin.length,
       grownWho: pip ? 'Settings of this profile and of this ' + this.devName() : 'Your profile and this ' + this.devName(),
@@ -4880,7 +4855,7 @@ class Component extends DCLogic {
           if (k === 'del') return this.setState({ gPin: pin.slice(0, -1) });
           if (!k) return;
           const next = pin + k;
-          this.setState(next.length >= 4 ? { gPin: '', gOk: true } : { gPin: next });
+          this.setState(next.length >= 4 ? { gPin: '', gOk: true, menuView: 'main' } : { gPin: next });
         } })),
       // Behind the PIN the grown-up sets a child's hint mode too.
       hm: { q: lay(s.hintMode === 'questions'), w: lay(s.hintMode === 'where') },
