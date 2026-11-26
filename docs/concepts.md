@@ -224,7 +224,7 @@ The **canvas** is the workplace of a task: what the learner sees and where they 
 - the sheet is in dots as the task comes, and the learner turns its grid on the task's screen — dots, lines, blank, squares; the canvases of other authors come with epic E5.
 - the task stays open on its sheet, solved or not, and when its page is opened again: the first action on a task whose attempt has closed begins a new attempt of it.
 
-A **module solved on the sheet** — the check board, «Задачи на листе», the one such module, which `api` names — is solved as a task from paper, on the same screen and sheet: its tasks begun at once from the module, each statement the module's text drawn as the task's picture on the tracing paper, so with no Recognise, no camera, no frames and no Add; a model judges its work, and its attempts are history, not evidence. The tasks of every other module are the engine's and the lesson's, a program giving each verdict.
+A **module solved on the sheet** — the check board, «Ознакомительный блок», the one such module, which `api` names — is solved as a task from paper, on the same screen and sheet: its tasks begun at once from the module, each statement the module's text drawn as the task's picture on the tracing paper, so with no Recognise, no camera, no frames and no Add; a model judges its work, and its attempts are history, not evidence. The tasks of every other module are the engine's and the lesson's, a program giving each verdict.
 
 **Canvas kinds.** Each is code of the platform, shared by all modules:
 
