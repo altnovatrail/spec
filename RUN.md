@@ -51,26 +51,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - **DPIA** ([docs/dpia.md](docs/dpia.md), R129): a task that changes what it rests on — a kind of data or retention, a provider or processor, an AI capability or route, opening an age, a country or a feature to children — reviews it; its «Сделано» names the review, the DPIA's log the version. Also before the beta, before the public launch and at least yearly.
 - **Token savings** (R145): the limits of `docs-check` — [tools/docs-check/budgets.json](tools/docs-check/budgets.json), a raise shows in review; measure at an epic's archive and monthly (`just inbox` reminds, rule 13); a task of analysis goes to `run/TASKS.md` by the threshold of R145, and its planning decides whether it needs an epic; baselines, dates, last analysis — measurements 1.9.
 
-## Table 1. Current epic — E25. Олимпиадная математика 1–6 и мелкие баги
+## Table 1. Current epic — none
 
-**Результат** — модуль `novatrail/olympiad-math` («Olympiad mathematics, grades 1–6») лучше по тому, что автор находит, решая его на стенде; мелкие баги приложения, найденные по ходу, исправлены. Каждая находка — задача этой таблицы; правка вида — сначала состояние макета, которое смотрит автор (R148).
-
-**Основа** — на 2026-11-26, ветка `e25` в `spec`, `api`, `app`, `canvas`, `tutor`, `modules` (клоны `.epics/e25`, задача across repositories, R166); в проде spec v0.21.1, api v0.1.82, app v0.1.55, canvas v0.3.47, skill-map v0.1.27, modules v0.2.18; последний сделанный эпик — E24, [docs/plan/E24.md](docs/plan/E24.md).
-- Модуль — `modules/olympiad-math/` в `modules` (`main` 01ee3a6), версия 0.3.0, формат 0.4, полосы 1–2, 3–4 и 5–6 классов; перенос из MathTrail standalone — по таблице переноса в `docs/architecture.md` `modules`.
-- Стенд берёт модули из выпуска `modules`, который закрепляет `modules.json` `api`, а не из клона `modules`: правка модуля видна на стенде только после выпуска `modules` и `modules.json` на него — или иного способа, который решает первая задача модуля.
-
-**Решено автором (2026-11-26):** коммит и пуш — только по слову автора, без stash и reset; ship и прод — только после его «да»; модели — в пределах $2 на стенд; перезапуск стенда — без вопросов, пересборка контейнеров — по слову; проверки — точечно `xrepo test`, полный прогон — `xrepo gate`; перед правкой части — её решения в `docs/decisions.md`.
-
-Задачи заводят по находкам на стенде и в проде и по выбору автора из открытого с E24. T318–T321 — из разбора алерта «api errors» 2026-11-26 и журнала отладки на iPad.
-
-| Status | ID | Task | Who | Plan | Depends on |
-|---|---|---|---|---|---|
-| [x] | T318 | `spec`, `api`, `app`: отказ «ещё идёт» не из класса 5xx, across repositories | я + Claude | да | — |
-| [x] | T319 | Макет: смена модели в карточке «Reading your work» во время проверки | Claude, проверяю я | — | — |
-| [x] | T320 | `app`: почему повтор `SubmitWork` начался на 48-й секунде долгой проверки | Claude | да | — |
-| [x] | T321 | `app`: ожидаемые отказы и уведомление ResizeObserver в журнале отладки — не ошибки | Claude | — | — |
-| [x] | T322 | `spec`, `api`, `app`, `tutor`: смена модели в карточке проверки по макету T319, across repositories | я + Claude | да | T319 |
-| [x] | T323 | Макет: карточка вердикта на телефоне на экранах решения задачи с бумаги — по центру | Claude, проверяю я | — | — |
-| [x] | T324 | `app`: карточка вердикта на телефоне на экранах бумаги по макету T323 | Claude | — | T323 |
-| [x] | T325 | Макет: инструмент выделения масштабирует выделенное — больше и меньше | Claude, проверяю я | — | — |
-| [x] | T326 | `spec`, `canvas`, `app`: масштаб выделения по макету T325, across repositories | я + Claude | да | T325 |
+The last done epic is E25, [docs/plan/E25.md](docs/plan/E25.md).
