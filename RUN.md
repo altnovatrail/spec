@@ -53,4 +53,4 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 
 ## Table 1. Current epic — none
 
-The last done epic is E24, [docs/plan/E24.md](docs/plan/E24.md).
+The last done epic is E25, [docs/plan/E25.md](docs/plan/E25.md).

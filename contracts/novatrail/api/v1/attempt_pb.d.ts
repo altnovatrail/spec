@@ -293,6 +293,68 @@ export declare type SubmitEssayResponse = Message<"novatrail.api.v1.SubmitEssayR
 export declare const SubmitEssayResponseSchema: GenMessage<SubmitEssayResponse>;
 
 /**
+ * A request for how far the Check of an attempt has got.
+ *
+ * @generated from message novatrail.api.v1.GetCheckProgressRequest
+ */
+export declare type GetCheckProgressRequest = Message<"novatrail.api.v1.GetCheckProgressRequest"> & {
+  /**
+   * The profile whose attempt it is.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The attempt of a task from paper.
+   *
+   * @generated from field: string attempt_id = 2;
+   */
+  attemptId: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.GetCheckProgressRequest.
+ * Use `create(GetCheckProgressRequestSchema)` to create a new message.
+ */
+export declare const GetCheckProgressRequestSchema: GenMessage<GetCheckProgressRequest>;
+
+/**
+ * How far the Check has got.
+ *
+ * @generated from message novatrail.api.v1.GetCheckProgressResponse
+ */
+export declare type GetCheckProgressResponse = Message<"novatrail.api.v1.GetCheckProgressResponse"> & {
+  /**
+   * Whether a `SubmitWork` of the attempt is going now.
+   *
+   * @generated from field: bool going = 1;
+   */
+  going: boolean;
+
+  /**
+   * Which model reads the work now, from 0: the first until the Check goes on to the next. 0
+   * when `going` is false.
+   *
+   * @generated from field: int32 model = 2;
+   */
+  model: number;
+
+  /**
+   * How many models the Check may ask in turn; 0 until it goes on to the second.
+   *
+   * @generated from field: int32 models = 3;
+   */
+  models: number;
+};
+
+/**
+ * Describes the message novatrail.api.v1.GetCheckProgressResponse.
+ * Use `create(GetCheckProgressResponseSchema)` to create a new message.
+ */
+export declare const GetCheckProgressResponseSchema: GenMessage<GetCheckProgressResponse>;
+
+/**
  * "Done" on a task with a rubric.
  *
  * @generated from message novatrail.api.v1.DoneRequest
@@ -2325,6 +2387,19 @@ export declare const AttemptService: GenService<{
     methodKind: "unary";
     input: typeof SubmitWorkRequestSchema;
     output: typeof SubmitWorkResponseSchema;
+  },
+  /**
+   * Says how far the Check of a task from paper still going has got: which of the models it may
+   * ask in turn reads the work now. `app` asks it while its `SubmitWork` waits, so that the card
+   * of the reading can say when the work went on to the next model. It names no model and calls
+   * no AI; a Check not going, or done, is `going` false.
+   *
+   * @generated from rpc novatrail.api.v1.AttemptService.GetCheckProgress
+   */
+  getCheckProgress: {
+    methodKind: "unary";
+    input: typeof GetCheckProgressRequestSchema;
+    output: typeof GetCheckProgressResponseSchema;
   },
   /**
    * Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and

@@ -161,6 +161,19 @@ export const STATES = [
       t.les().check();
     },
   },
+  {
+    name: "task-reading-closer",
+    title: "A task, the work gone on to the next model: Looking more closely",
+    from: "task-pill",
+    shows: "Looking more closely",
+    settle: false,
+    run: (t) => {
+      toWork(t);
+      t.ink();
+      t.les().check();
+      t.c.setState({ verdict: t.c.reading(2) });
+    },
+  },
   { name: "task-not-yet", title: "A task, Not yet, the card", from: "task-reading", shows: "Not yet", run: (t) => t.c.closeChat() },
   { name: "task-rung", title: "A task, the rung in the panel", from: "task-not-yet", shows: "Report a problem", run: (t) => t.c.openChat() },
   { name: "task-alt", title: "A task, Explain differently", from: "task-rung", shows: "In other words", run: (t) => t.v().acts.find((a) => a.label === "Explain differently").go() },
@@ -245,12 +258,16 @@ export const STATES = [
     },
   },
   { name: "solve-hand", title: "Hand: the sheet moved right of the page", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (t.ink("M420 420 C500 380 580 460 660 420 M690 430 l60 -20"), t.c.setState({ tool: "hand" }), t.c.setView(1, 240, 0)) },
-  // Select: a lasso or a rectangle takes the strokes of the layer it began on that it holds almost wholly, to move, copy or delete.
+  // Select: a lasso or a rectangle takes the strokes of the layer it began on that it holds almost wholly, to move, scale, copy or delete.
   { name: "solve-select-modes", title: "Select tapped again: its shapes, Lasso and Rectangle", from: "solve", shows: "Rectangle", run: (t) => (t.v().toolSelect(), t.v().toolSelect()) },
   { name: "solve-select-lasso", title: "Select: a lasso drawn around the second line", from: "solve", shows: "Equation (1) 1 / 4", run: (t) => (written(t), t.v().toolSelect(), t.c.setState({ areaLive: { layer: "main", d: t.c.areaPath(ring(t)) } })) },
   { name: "solve-selected", title: "Selected: the box around the line, and Copy and Delete above it", from: "solve-select-lasso", shows: "Copy Delete", run: (t) => t.c.areaPick(t.c.inkKey(), "main", ring(t)) },
   { name: "solve-select-moved", title: "Selected and moved by a drag inside its box", from: "solve-selected", shows: "Copy Delete", run: (t) => t.c.areaShift(t.c.phone() ? 40 : 120, t.c.phone() ? 70 : 90) },
   { name: "solve-select-copied", title: "Copied: the copy beside it, and selected", from: "solve-selected", shows: "Copy Delete", run: (t) => t.v().area.copy() },
+  // A corner of the box scales what is taken from the corner across: the top left stays, the bottom right is dragged.
+  { name: "solve-select-scaling", title: "A corner of the box dragged: the line at 150%, the share in place of the menu", from: "solve-selected", shows: "150%", run: (t) => t.c.setState({ areaS: { f: 1.5, o: t.c.areaBB(t.c.state.area).slice(0, 2) } }) },
+  { name: "solve-select-scaled", title: "Scaled up to 150%: the line larger, still selected", from: "solve-selected", shows: "Copy Delete", run: (t) => t.c.areaScale(1.5, t.c.areaBB(t.c.state.area).slice(0, 2)) },
+  { name: "solve-select-shrunk", title: "Scaled down to 60%: the line smaller, still selected", from: "solve-selected", shows: "Copy Delete", run: (t) => t.c.areaScale(0.6, t.c.areaBB(t.c.state.area).slice(0, 2)) },
   { name: "solve-select-rect", title: "Rectangle on the task: it takes the strokes on the tracing paper alone", from: "solve", shows: "Copy Delete", run: (t) => {
     const key = t.c.clipKey(), on = t.c.hand("x = 5", t.c.phone() ? 196 : 270, t.c.phone() ? 20 : 26, t.c.phone() ? 26 : 34), b = boxOf(on);
     t.c.setState({ strokes: { ...t.c.state.strokes, [key]: on }, areaMode: "rect" });
@@ -290,6 +307,24 @@ export const STATES = [
   { name: "solve-tasks", title: "The list of the picked tasks", from: "solve", shows: "Framed by you", run: (t) => t.v().toggleTasks() },
   { name: "solve-empty", title: "Check without work", from: "solve", shows: "Write your solution first", run: (t) => t.v().check() },
   { name: "solve-reading", title: "The work being read", from: "solve", shows: "Reading your work", settle: false, run: (t) => (t.ink(), t.v().check()) },
+  // The first model was not sure: the card says the work went on to the next one. A profile without the right of the
+  // debug mode sees dots; one with it, the models' names.
+  {
+    name: "solve-reading-closer",
+    title: "The work gone on to the next model, for a learner: Looking more closely, the dots of the models",
+    from: "solve",
+    shows: "Looking more closely",
+    settle: false,
+    run: (t) => (t.c.setState({ dbgFlag: false }), t.ink(), t.v().check(), t.c.setState({ verdict: t.c.reading(2) })),
+  },
+  {
+    name: "solve-debug-reading-closer",
+    title: "The work gone on to the next model, for an account with the right of the debug mode: the models by name",
+    from: "solve",
+    shows: "Sonnet",
+    settle: false,
+    run: (t) => (t.ink(), t.v().check(), t.c.setState({ verdict: t.c.reading(2) })),
+  },
   { name: "solve-not-yet", title: "Not yet, and the tutor's wavy mark where the mistake is", from: "solve", shows: "Not yet", run: (t) => (t.ink(), t.v().check()) },
   { name: "solve-correct", title: "Correct", from: "solve-not-yet", shows: "Correct", run: (t) => t.v().check() },
   {

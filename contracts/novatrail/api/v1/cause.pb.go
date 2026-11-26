@@ -57,7 +57,8 @@ const (
 	// `invalid_argument`.
 	Cause_CAUSE_KEY_ALREADY_USED Cause = 4
 	// The request with this idempotency key is still going; its repeat waits for it. Code
-	// `unavailable`.
+	// `aborted`: the service is up, and the repeat comes again later. `app` knows the refusal by
+	// its cause, whatever its code.
 	Cause_CAUSE_STILL_GOING Cause = 5
 	// The learner's own key, or the provider of one at the beginning of an attempt, came with a
 	// profile whose age category is not `adult`. Code `invalid_argument`.

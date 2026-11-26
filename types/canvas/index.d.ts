@@ -317,9 +317,9 @@ export type HistoryEvent =
    * and of no pressure, 0, and the strokes it took off, in the sheet's order. `on` is
    * `"tracing"` when its strokes are on the tracing paper, as for a stroke written. The host puts
    * it on the sheet by setting `history`, and an undo takes it back whole. A sample file of the
-   * eval protocol never holds one: the tutor's strokes are no learner's writing. A move and a copy it
-   * holds as an erasing of the strokes moved, if a move, and a writing of each new stroke, at the
-   * event's time: they replay to the same sheet.
+   * eval protocol never holds one: the tutor's strokes are no learner's writing. A move, a scale and
+   * a copy it holds as an erasing of the strokes moved or scaled, if a move or a scale, and a writing
+   * of each new stroke, at the event's time: they replay to the same sheet.
    */
   | {
       readonly kind: "tutor";
@@ -356,10 +356,28 @@ export type HistoryEvent =
       readonly on?: "tracing";
     }
   /**
+   * Strokes Select scaled by a corner of their box, one action, as a move is: the strokes it took
+   * off, in the sheet's order, and each anew, after every other — the one of the same place in `ids`
+   * with every point `at` + (point − `at`) × `factor`, `at` the corner across, which stays, in the
+   * units of their layer, and its style's width times `factor` to a tenth, kept within 0.1 to 50; its
+   * pointer's kind, the rest of its style, times and pressures as they were, and a stroke of no style
+   * keeps none. `factor` is from 0.25 to 4, and never 1. Its IDs are new, above every ID before them,
+   * ascending, and `on` is as a move's. An undo takes it back whole.
+   */
+  | {
+      readonly kind: "scale";
+      readonly t: number;
+      readonly ids: readonly number[];
+      readonly strokes: readonly Stroke[];
+      readonly factor: number;
+      readonly at: readonly [number, number];
+      readonly on?: "tracing";
+    }
+  /**
    * The last action still in force taken back: the stroke it took off, if it was a writing, or the
    * strokes it brought back, if it was an erasing or a clearing — and of a cut, the pieces it took
-   * off too; of a move, the moved strokes it took off and those it brought back, and of a copy, the
-   * copies.
+   * off too; of a move or a scale, the new strokes it took off and those it brought back, and of a
+   * copy, the copies.
    */
   | {
       readonly kind: "undo";
