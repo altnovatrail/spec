@@ -189,8 +189,9 @@ const ORIGINS = {
     "package-lock.json": JSON.stringify({ lockfileVersion: 3, packages: { "node_modules/@altnovatrail/canvas/node_modules/@altnovatrail/contracts": { version: "0.19.4" } } }),
     "parts/deployment-1.tar.gz": "spec v0.19.4\n",
     "parts/deployment-1.tar.gz.sigstore.json": "{}\n",
-    "package.json": JSON.stringify({ dependencies: { "@altnovatrail/canvas": "0.3.36", "@altnovatrail/contracts": "0.19.4" }, devDependencies: { "@altnovatrail/spec": "0.19.4" } }),
+    "package.json": JSON.stringify({ dependencies: { "@altnovatrail/canvas": "0.3.36", "@altnovatrail/contracts": "0.19.4", "@altnovatrail/skill-map": "0.1.20" }, devDependencies: { "@altnovatrail/spec": "0.19.4" } }),
   },
+  "skill-map": { ".gitignore": "/node_modules/\n/lib/\n/coverage/\n", "tree.txt": "map first\n", "package.json": JSON.stringify({ name: "@altnovatrail/skill-map", version: "0.0.0", dependencies: { "@altnovatrail/spec": "0.19.4" } }) },
   canvas: { ".gitignore": "/node_modules/\n/lib/\n/coverage/\n", "tree.txt": "canvas first\n", "package.json": JSON.stringify({ name: "@altnovatrail/canvas", version: "0.0.0", dependencies: { "@altnovatrail/spec": "0.19.4" } }) },
 };
 
@@ -236,7 +237,7 @@ export async function world(t) {
   fs.writeFileSync(path.join(h.bin, "npm"), NPM, { mode: 0o755 });
   const work = (repo) => path.join(h.root, "workspaces", repo);
   h.edit((cs) => {
-    for (const [i, repo] of ["api", "app", "canvas", "tutor", "module-kit"].entries()) {
+    for (const [i, repo] of ["api", "app", "canvas", "tutor", "module-kit", "skill-map"].entries()) {
       fs.mkdirSync(work(repo), { recursive: true });
       const mounts = [
         { Type: "bind", Source: `${HOST}/${repo}`, Destination: work(repo) },

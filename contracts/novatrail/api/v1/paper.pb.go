@@ -290,7 +290,8 @@ type BeginPaperAttemptsRequest struct {
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The idempotency key of this action of the learner.
 	IdempotencyKey string `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// How many tasks were picked, those the AI found and those framed by hand: from 1 to 20.
+	// How many tasks were picked, those the AI found and those framed by hand: from 1 to 20; 0 with
+	// `module_id`, whose package gives them.
 	Tasks int32 `protobuf:"varint,3,opt,name=tasks,proto3" json:"tasks,omitempty"`
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that `api` checks no
@@ -300,7 +301,11 @@ type BeginPaperAttemptsRequest struct {
 	// The page the tasks are on, by the ID `app` gives it, which names its file of the export: 1 to
 	// 200 letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after
 	// "Add", names it again and closes none of its attempts; another page closes them.
-	PageId        string `protobuf:"bytes,5,opt,name=page_id,json=pageId,proto3" json:"page_id,omitempty"`
+	PageId string `protobuf:"bytes,5,opt,name=page_id,json=pageId,proto3" json:"page_id,omitempty"`
+	// The module solved on the sheet whose tasks the attempts are of, connected to the profile:
+	// empty for a page from paper. A later attempt of one of its tasks, after the one before closed,
+	// names no module and `tasks` 1, as a task from paper does.
+	ModuleId      string `protobuf:"bytes,6,opt,name=module_id,json=moduleId,proto3" json:"module_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -370,11 +375,24 @@ func (x *BeginPaperAttemptsRequest) GetPageId() string {
 	return ""
 }
 
+func (x *BeginPaperAttemptsRequest) GetModuleId() string {
+	if x != nil {
+		return x.ModuleId
+	}
+	return ""
+}
+
 // The attempts begun.
 type BeginPaperAttemptsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of each attempt, in the order of the tasks.
-	AttemptIds    []string `protobuf:"bytes,1,rep,name=attempt_ids,json=attemptIds,proto3" json:"attempt_ids,omitempty"`
+	AttemptIds []string `protobuf:"bytes,1,rep,name=attempt_ids,json=attemptIds,proto3" json:"attempt_ids,omitempty"`
+	// With `module_id`: the open view of each task, in the order of the attempts, as
+	// `AttemptStart.task` gives a task's. `app` draws its statement's text as the task's picture,
+	// which the Check gets as `PaperWork.statement`.
+	Tasks []*OpenView `protobuf:"bytes,2,rep,name=tasks,proto3" json:"tasks,omitempty"`
+	// With `module_id`: the digest of the package the tasks are of, the module's current version.
+	PackageDigest string `protobuf:"bytes,3,opt,name=package_digest,json=packageDigest,proto3" json:"package_digest,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -416,11 +434,25 @@ func (x *BeginPaperAttemptsResponse) GetAttemptIds() []string {
 	return nil
 }
 
+func (x *BeginPaperAttemptsResponse) GetTasks() []*OpenView {
+	if x != nil {
+		return x.Tasks
+	}
+	return nil
+}
+
+func (x *BeginPaperAttemptsResponse) GetPackageDigest() string {
+	if x != nil {
+		return x.PackageDigest
+	}
+	return ""
+}
+
 var File_novatrail_api_v1_paper_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_paper_proto_rawDesc = "" +
 	"\n" +
-	"\x1cnovatrail/api/v1/paper.proto\x12\x10novatrail.api.v1\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a*novatrail/observation/v1/observation.proto\"\xf3\x02\n" +
+	"\x1cnovatrail/api/v1/paper.proto\x12\x10novatrail.api.v1\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a\x1enovatrail/api/v1/package.proto\x1a*novatrail/observation/v1/observation.proto\"\xf3\x02\n" +
 	"\x10FindTasksRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12'\n" +
@@ -439,17 +471,20 @@ const file_novatrail_api_v1_paper_proto_rawDesc = "" +
 	"\fturn_degrees\x18\x04 \x01(\x05R\vturnDegrees\"\x85\x01\n" +
 	"\tTaskFrame\x123\n" +
 	"\x03box\x18\x01 \x01(\v2!.novatrail.observation.v1.CropBoxR\x03box\x12C\n" +
-	"\vinstruction\x18\x02 \x01(\v2!.novatrail.observation.v1.CropBoxR\vinstruction\"\xbc\x01\n" +
+	"\vinstruction\x18\x02 \x01(\v2!.novatrail.observation.v1.CropBoxR\vinstruction\"\xd9\x01\n" +
 	"\x19BeginPaperAttemptsRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12'\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\x12\x14\n" +
 	"\x05tasks\x18\x03 \x01(\x05R\x05tasks\x12(\n" +
 	"\x10own_key_provider\x18\x04 \x01(\tR\x0eownKeyProvider\x12\x17\n" +
-	"\apage_id\x18\x05 \x01(\tR\x06pageId\"=\n" +
+	"\apage_id\x18\x05 \x01(\tR\x06pageId\x12\x1b\n" +
+	"\tmodule_id\x18\x06 \x01(\tR\bmoduleId\"\x96\x01\n" +
 	"\x1aBeginPaperAttemptsResponse\x12\x1f\n" +
 	"\vattempt_ids\x18\x01 \x03(\tR\n" +
-	"attemptIds2\xd5\x01\n" +
+	"attemptIds\x120\n" +
+	"\x05tasks\x18\x02 \x03(\v2\x1a.novatrail.api.v1.OpenViewR\x05tasks\x12%\n" +
+	"\x0epackage_digest\x18\x03 \x01(\tR\rpackageDigest2\xd5\x01\n" +
 	"\fPaperService\x12T\n" +
 	"\tFindTasks\x12\".novatrail.api.v1.FindTasksRequest\x1a#.novatrail.api.v1.FindTasksResponse\x12o\n" +
 	"\x12BeginPaperAttempts\x12+.novatrail.api.v1.BeginPaperAttemptsRequest\x1a,.novatrail.api.v1.BeginPaperAttemptsResponseB\xc3\x01\n" +
@@ -478,24 +513,26 @@ var file_novatrail_api_v1_paper_proto_goTypes = []any{
 	(*OwnKey)(nil),                     // 5: novatrail.api.v1.OwnKey
 	(*Outcome)(nil),                    // 6: novatrail.api.v1.Outcome
 	(*v1.CropBox)(nil),                 // 7: novatrail.observation.v1.CropBox
+	(*OpenView)(nil),                   // 8: novatrail.api.v1.OpenView
 }
 var file_novatrail_api_v1_paper_proto_depIdxs = []int32{
-	5, // 0: novatrail.api.v1.FindTasksRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	2, // 1: novatrail.api.v1.FindTasksRequest.found:type_name -> novatrail.api.v1.TaskFrame
-	2, // 2: novatrail.api.v1.FindTasksRequest.drawn:type_name -> novatrail.api.v1.TaskFrame
-	2, // 3: novatrail.api.v1.FindTasksResponse.frames:type_name -> novatrail.api.v1.TaskFrame
-	6, // 4: novatrail.api.v1.FindTasksResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	7, // 5: novatrail.api.v1.TaskFrame.box:type_name -> novatrail.observation.v1.CropBox
-	7, // 6: novatrail.api.v1.TaskFrame.instruction:type_name -> novatrail.observation.v1.CropBox
-	0, // 7: novatrail.api.v1.PaperService.FindTasks:input_type -> novatrail.api.v1.FindTasksRequest
-	3, // 8: novatrail.api.v1.PaperService.BeginPaperAttempts:input_type -> novatrail.api.v1.BeginPaperAttemptsRequest
-	1, // 9: novatrail.api.v1.PaperService.FindTasks:output_type -> novatrail.api.v1.FindTasksResponse
-	4, // 10: novatrail.api.v1.PaperService.BeginPaperAttempts:output_type -> novatrail.api.v1.BeginPaperAttemptsResponse
-	9, // [9:11] is the sub-list for method output_type
-	7, // [7:9] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	5,  // 0: novatrail.api.v1.FindTasksRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	2,  // 1: novatrail.api.v1.FindTasksRequest.found:type_name -> novatrail.api.v1.TaskFrame
+	2,  // 2: novatrail.api.v1.FindTasksRequest.drawn:type_name -> novatrail.api.v1.TaskFrame
+	2,  // 3: novatrail.api.v1.FindTasksResponse.frames:type_name -> novatrail.api.v1.TaskFrame
+	6,  // 4: novatrail.api.v1.FindTasksResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	7,  // 5: novatrail.api.v1.TaskFrame.box:type_name -> novatrail.observation.v1.CropBox
+	7,  // 6: novatrail.api.v1.TaskFrame.instruction:type_name -> novatrail.observation.v1.CropBox
+	8,  // 7: novatrail.api.v1.BeginPaperAttemptsResponse.tasks:type_name -> novatrail.api.v1.OpenView
+	0,  // 8: novatrail.api.v1.PaperService.FindTasks:input_type -> novatrail.api.v1.FindTasksRequest
+	3,  // 9: novatrail.api.v1.PaperService.BeginPaperAttempts:input_type -> novatrail.api.v1.BeginPaperAttemptsRequest
+	1,  // 10: novatrail.api.v1.PaperService.FindTasks:output_type -> novatrail.api.v1.FindTasksResponse
+	4,  // 11: novatrail.api.v1.PaperService.BeginPaperAttempts:output_type -> novatrail.api.v1.BeginPaperAttemptsResponse
+	10, // [10:12] is the sub-list for method output_type
+	8,  // [8:10] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_paper_proto_init() }
@@ -505,6 +542,7 @@ func file_novatrail_api_v1_paper_proto_init() {
 	}
 	file_novatrail_api_v1_attempt_proto_init()
 	file_novatrail_api_v1_cause_proto_init()
+	file_novatrail_api_v1_package_proto_init()
 	file_novatrail_api_v1_paper_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

@@ -9,6 +9,7 @@ package novatrail.api.v1;
 
 import "novatrail/api/v1/attempt.proto";
 import "novatrail/api/v1/cause.proto";
+import "novatrail/api/v1/package.proto";
 import "novatrail/observation/v1/observation.proto";
 
 // The requests of a task from paper, from a learner's session: each method is a learning request,
@@ -36,10 +37,15 @@ service PaperService {
   // Begins the attempts of the tasks picked on a page, one for each, in the order of the tasks. It
   // closes the open attempts of tasks from paper that the profile has on another page,
   // `CLOSE_REASON_LEFT`, and none of the same page, and leaves the open attempt of a task of a
-  // module as it is. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and `CAUSE_NOT_ADMITTED`, on
-  // platform AI, as `LearningService.BeginAttempt` meets them; `CAUSE_KEY_NOT_FOR_PROFILE`,
-  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-  // the same attempts.
+  // module as it is. With `module_id`, the page is a module solved on the sheet
+  // (`ConnectedModule.on_sheet`): its tasks are those of the package of the module's current
+  // version, in its order, at most 20, and the answer gives the open view of each, which `app`
+  // draws as the statement in place of a crop. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and
+  // `CAUSE_NOT_ADMITTED`, on platform AI, as `LearningService.BeginAttempt` meets them;
+  // `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; with
+  // `module_id`, `CAUSE_NOT_FOUND`, a module not connected to the profile, and
+  // `CAUSE_NO_CURRENT_VERSION`, one with no current version for the learner. A repeat with the same
+  // idempotency key gets the same attempts.
   rpc BeginPaperAttempts(BeginPaperAttemptsRequest) returns (BeginPaperAttemptsResponse);
 }
 
@@ -107,7 +113,8 @@ message BeginPaperAttemptsRequest {
   string profile_id = 1;
   // The idempotency key of this action of the learner.
   string idempotency_key = 2;
-  // How many tasks were picked, those the AI found and those framed by hand: from 1 to 20.
+  // How many tasks were picked, those the AI found and those framed by hand: from 1 to 20; 0 with
+  // `module_id`, whose package gives them.
   int32 tasks = 3;
   // The provider of the learner's own key, by its code in the admission table, without the key:
   // with a profile of its owner that checks the tasks by its own key, so that `api` checks no
@@ -118,10 +125,20 @@ message BeginPaperAttemptsRequest {
   // 200 letters, digits, -, _ and dots, the first not a dot. A Start again on the same page, after
   // "Add", names it again and closes none of its attempts; another page closes them.
   string page_id = 5;
+  // The module solved on the sheet whose tasks the attempts are of, connected to the profile:
+  // empty for a page from paper. A later attempt of one of its tasks, after the one before closed,
+  // names no module and `tasks` 1, as a task from paper does.
+  string module_id = 6;
 }
 
 // The attempts begun.
 message BeginPaperAttemptsResponse {
   // The ID of each attempt, in the order of the tasks.
   repeated string attempt_ids = 1;
+  // With `module_id`: the open view of each task, in the order of the attempts, as
+  // `AttemptStart.task` gives a task's. `app` draws its statement's text as the task's picture,
+  // which the Check gets as `PaperWork.statement`.
+  repeated OpenView tasks = 2;
+  // With `module_id`: the digest of the package the tasks are of, the module's current version.
+  string package_digest = 3;
 }

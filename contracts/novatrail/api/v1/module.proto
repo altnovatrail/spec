@@ -108,4 +108,9 @@ message ConnectedModule {
   // digest there is no manifest to name the module by: `app` names it by the title of a manifest
   // it keeps of an earlier version, or else by its ID.
   string package_digest = 3;
+  // The module is solved on the sheet of a task from paper: `app` opens its tasks there, by
+  // `PaperService.BeginPaperAttempts` with its ID, each checked by a model as a task from paper is
+  // and none evidence of the learner model; the engine chooses none of them. `api` names such
+  // modules; none is a field of the module format.
+  bool on_sheet = 4;
 }

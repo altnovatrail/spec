@@ -17,7 +17,7 @@
  * It takes the tutor's marks of a submission too, by a property, with the submission's context:
  * their kind and their place come from the contract between app and api, novatrail.api.v1, whose
  * message `Mark` these types are checked against, and their names from app (`contracts/README.md`).
- * The element's members beyond this contract — its commands undo() and clear(),
+ * The element's members beyond this contract — its commands undo(), redo() and clear(),
  * which its own buttons call — and its place in the DOM's maps of tags and events are canvas's:
  * its package registers the element. The declarations take the DOM's
  * types: Blob, CustomEvent and HTMLElement.
@@ -75,8 +75,18 @@ export type DemoChangeEvent = CustomEvent<DemoState>;
  * are the pen, the eraser and the hand.
  */
 export interface PaperTask {
-  /** The task's crop, a JPEG or a PNG, as app cut it, without the learner's strokes. */
+  /**
+   * The task's picture, a JPEG or a PNG, without the learner's strokes: the crop app cut of the
+   * photo, or, for a task of a module solved on the sheet, the module's statement that app drew as
+   * text on white.
+   */
   readonly statement: Blob;
+  /**
+   * Where the picture comes from: "photo", as it is when absent, or "module". A task of a module
+   * shows the sign "Task of the module" above the paper and offers no "Recognise", whatever
+   * `reading` holds: its statement is the module's text already. Any other value is a TypeError.
+   */
+  readonly source?: "photo" | "module";
 }
 
 /**

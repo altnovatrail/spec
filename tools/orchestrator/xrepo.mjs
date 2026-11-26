@@ -32,9 +32,9 @@ const MODULE = "github.com/altnovatrail/";
 // spec's npm packages, by the folder of node_modules/@altnovatrail/ they take.
 export const PACKAGES = { "@altnovatrail/spec": "spec", "@altnovatrail/contracts": "contracts" };
 // The npm packages of NovaTrail's other libraries, by the repository whose clone packs them, laid
-// as spec's are, so that a consumer's tests meet the library's change before its release. Only
-// canvas: the packing is its build and npm pack, which another library's has not been checked to be.
-export const LIBRARIES = { canvas: ["@altnovatrail/canvas"] };
+// as spec's are, so that a consumer's tests meet the library's change before its release: canvas
+// and skill-map, each packed by its build and npm pack.
+export const LIBRARIES = { canvas: ["@altnovatrail/canvas"], "skill-map": ["@altnovatrail/skill-map"] };
 // Every package the wiring lays, by the repository that packs it.
 const SOURCES = { spec: Object.keys(PACKAGES), ...LIBRARIES };
 const SOURCE_OF = Object.fromEntries(Object.entries(SOURCES).flatMap(([repo, names]) => names.map((n) => [n, repo])));
@@ -121,8 +121,10 @@ export const PACK_LIBRARY = [
   'echo "$print"',
 ].join("\n");
 
-// Unpacks the archive $2 as the package folder $1 and marks it with the fingerprint $3.
-export const UNPACK = 'rm -rf "$1" && mkdir -p "$1" && tar -xzf "$2" --strip-components=1 -C "$1" && printf "%s\\n" "$3" > "$1/.xrepo"';
+// Unpacks the archive $2 as the package folder $1 and marks it with the fingerprint $3. It drops
+// the consumer's prebundle of Vite, node_modules/.vite/deps, too: a stand's dev server takes it
+// again at its start while the lock file is the same, and would serve the package it replaced.
+export const UNPACK = 'rm -rf "$1" && mkdir -p "$1" && tar -xzf "$2" --strip-components=1 -C "$1" && printf "%s\\n" "$3" > "$1/.xrepo" && rm -rf "${1%/@altnovatrail/*}/.vite/deps"';
 
 // Pulls the host's clone in its own container, only on a clean main.
 export const PULL = [
@@ -381,7 +383,7 @@ export function readmeOf(epic, rows) {
     "|---|---|---|---|",
     ...rows.map((r) => `| ${r.repo} | ${r.from} | ${r.go ? r.go.map((g) => `\`${g}\``).join("<br>") : "—"} | ${r.npm ? r.npm.packages.map((p) => `\`${p}\``).join(", ") : "—"} |`),
     "",
-    "The wiring is out of git: `go.work` and `go.work.sum` by `.git/info/exclude`, the packages — spec's, and canvas's in app — inside `node_modules`. `package.json`, the lock files and the `spec` submodules are unchanged, and the gate aligns the submodules.",
+    "The wiring is out of git: `go.work` and `go.work.sum` by `.git/info/exclude`, the packages — spec's, and canvas's and skill-map's in app — inside `node_modules`. `package.json`, the lock files and the `spec` submodules are unchanged, and the gate aligns the submodules.",
     "",
     "## Guards of pins that fail under the wiring",
     "",
