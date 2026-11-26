@@ -32,6 +32,9 @@ const (
 const (
 	// AttemptServiceSubmitWorkProcedure is the procedure name of the AttemptService's SubmitWork RPC.
 	AttemptServiceSubmitWorkProcedure = "/novatrail.api.v1.AttemptService/SubmitWork"
+	// AttemptServiceGetCheckProgressProcedure is the procedure name of the AttemptService's
+	// GetCheckProgress RPC.
+	AttemptServiceGetCheckProgressProcedure = "/novatrail.api.v1.AttemptService/GetCheckProgress"
 	// AttemptServiceSubmitEssayProcedure is the procedure name of the AttemptService's SubmitEssay RPC.
 	AttemptServiceSubmitEssayProcedure = "/novatrail.api.v1.AttemptService/SubmitEssay"
 	// AttemptServiceDoneProcedure is the procedure name of the AttemptService's Done RPC.
@@ -73,6 +76,13 @@ var (
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("SubmitWork"),
 			Procedure:  AttemptServiceSubmitWorkProcedure,
+		}
+	})
+	attemptServiceGetCheckProgressSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_attempt_proto.Services().ByName("AttemptService").Methods().ByName("GetCheckProgress"),
+			Procedure:  AttemptServiceGetCheckProgressProcedure,
 		}
 	})
 	attemptServiceSubmitEssaySpec = sync.OnceValue(func() connect.Spec {
@@ -184,6 +194,11 @@ type AttemptServiceClient interface {
 	// "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
 	// verdicts and the reading recorded, with no AI.
 	SubmitWork(context.Context, *v1.SubmitWorkRequest) (*v1.SubmitWorkResponse, error)
+	// Says how far the Check of a task from paper still going has got: which of the models it may
+	// ask in turn reads the work now. `app` asks it while its `SubmitWork` waits, so that the card
+	// of the reading can say when the work went on to the next model. It names no model and calls
+	// no AI; a Check not going, or done, is `going` false.
+	GetCheckProgress(context.Context, *v1.GetCheckProgressRequest) (*v1.GetCheckProgressResponse, error)
 	// Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and
 	// assessment both. Refusals: `CAUSE_ATTEMPT_CLOSED`, before any call of AI,
 	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
@@ -336,6 +351,11 @@ type AttemptServiceHandler interface {
 	// "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
 	// verdicts and the reading recorded, with no AI.
 	SubmitWork(context.Context, *v1.SubmitWorkRequest) (*v1.SubmitWorkResponse, error)
+	// Says how far the Check of a task from paper still going has got: which of the models it may
+	// ask in turn reads the work now. `app` asks it while its `SubmitWork` waits, so that the card
+	// of the reading can say when the work went on to the next model. It names no model and calls
+	// no AI; a Check not going, or done, is `going` false.
+	GetCheckProgress(context.Context, *v1.GetCheckProgressRequest) (*v1.GetCheckProgressResponse, error)
 	// Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and
 	// assessment both. Refusals: `CAUSE_ATTEMPT_CLOSED`, before any call of AI,
 	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
@@ -472,6 +492,7 @@ func RegisterAttemptServiceHandler(server *connect.Server, svc AttemptServiceHan
 	adapter := attemptServiceHandler{svc: svc}
 	server.Register(
 		connect.Method{Spec: attemptServiceSubmitWorkSpec(), Handler: adapter.submitWork},
+		connect.Method{Spec: attemptServiceGetCheckProgressSpec(), Handler: adapter.getCheckProgress},
 		connect.Method{Spec: attemptServiceSubmitEssaySpec(), Handler: adapter.submitEssay},
 		connect.Method{Spec: attemptServiceDoneSpec(), Handler: adapter.done},
 		connect.Method{Spec: attemptServiceGetRungWordsSpec(), Handler: adapter.getRungWords},
@@ -493,6 +514,10 @@ type UnimplementedAttemptServiceHandler struct{}
 
 func (UnimplementedAttemptServiceHandler) SubmitWork(context.Context, *v1.SubmitWorkRequest) (*v1.SubmitWorkResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.SubmitWork is not implemented")
+}
+
+func (UnimplementedAttemptServiceHandler) GetCheckProgress(context.Context, *v1.GetCheckProgressRequest) (*v1.GetCheckProgressResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.AttemptService.GetCheckProgress is not implemented")
 }
 
 func (UnimplementedAttemptServiceHandler) SubmitEssay(context.Context, *v1.SubmitEssayRequest) (*v1.SubmitEssayResponse, error) {
@@ -554,6 +579,14 @@ type attemptServiceClient struct {
 func (c *attemptServiceClient) SubmitWork(ctx context.Context, req *v1.SubmitWorkRequest) (*v1.SubmitWorkResponse, error) {
 	var res v1.SubmitWorkResponse
 	if err := c.client.CallUnary(ctx, attemptServiceSubmitWorkSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *attemptServiceClient) GetCheckProgress(ctx context.Context, req *v1.GetCheckProgressRequest) (*v1.GetCheckProgressResponse, error) {
+	var res v1.GetCheckProgressResponse
+	if err := c.client.CallUnary(ctx, attemptServiceGetCheckProgressSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -671,6 +704,18 @@ func (h attemptServiceHandler) submitWork(ctx context.Context, _ connect.Spec, s
 		return err
 	}
 	res, err := h.svc.SubmitWork(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h attemptServiceHandler) getCheckProgress(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetCheckProgressRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetCheckProgress(ctx, &req)
 	if err != nil {
 		return err
 	}

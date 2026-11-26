@@ -44,6 +44,11 @@ service AttemptService {
   // "unchecked", and the answer names the outcome. A repeat with the same idempotency key gets the
   // verdicts and the reading recorded, with no AI.
   rpc SubmitWork(SubmitWorkRequest) returns (SubmitWorkResponse);
+  // Says how far the Check of a task from paper still going has got: which of the models it may
+  // ask in turn reads the work now. `app` asks it while its `SubmitWork` waits, so that the card
+  // of the reading can say when the work went on to the next model. It names no model and calls
+  // no AI; a Check not going, or done, is `going` false.
+  rpc GetCheckProgress(GetCheckProgressRequest) returns (GetCheckProgressResponse);
   // Sends the sheet of a task with a rubric, an essay, for its feedback: one request, reading and
   // assessment both. Refusals: `CAUSE_ATTEMPT_CLOSED`, before any call of AI,
   // `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with
@@ -280,6 +285,25 @@ enum SubmissionEnd {
   SUBMISSION_END_UNREADABLE = 2;
   // No check: a call of AI gave nothing, or the assessment assessed no criterion.
   SUBMISSION_END_UNCHECKED = 3;
+}
+
+// A request for how far the Check of an attempt has got.
+message GetCheckProgressRequest {
+  // The profile whose attempt it is.
+  string profile_id = 1;
+  // The attempt of a task from paper.
+  string attempt_id = 2;
+}
+
+// How far the Check has got.
+message GetCheckProgressResponse {
+  // Whether a `SubmitWork` of the attempt is going now.
+  bool going = 1;
+  // Which model reads the work now, from 0: the first until the Check goes on to the next. 0
+  // when `going` is false.
+  int32 model = 2;
+  // How many models the Check may ask in turn; 0 until it goes on to the second.
+  int32 models = 3;
 }
 
 // "Done" on a task with a rubric.

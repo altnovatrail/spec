@@ -757,6 +757,126 @@ func (x *SubmitEssayResponse) GetRepeated() bool {
 	return false
 }
 
+// A request for how far the Check of an attempt has got.
+type GetCheckProgressRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile whose attempt it is.
+	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	// The attempt of a task from paper.
+	AttemptId     string `protobuf:"bytes,2,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCheckProgressRequest) Reset() {
+	*x = GetCheckProgressRequest{}
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCheckProgressRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCheckProgressRequest) ProtoMessage() {}
+
+func (x *GetCheckProgressRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCheckProgressRequest.ProtoReflect.Descriptor instead.
+func (*GetCheckProgressRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetCheckProgressRequest) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *GetCheckProgressRequest) GetAttemptId() string {
+	if x != nil {
+		return x.AttemptId
+	}
+	return ""
+}
+
+// How far the Check has got.
+type GetCheckProgressResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Whether a `SubmitWork` of the attempt is going now.
+	Going bool `protobuf:"varint,1,opt,name=going,proto3" json:"going,omitempty"`
+	// Which model reads the work now, from 0: the first until the Check goes on to the next. 0
+	// when `going` is false.
+	Model int32 `protobuf:"varint,2,opt,name=model,proto3" json:"model,omitempty"`
+	// How many models the Check may ask in turn; 0 until it goes on to the second.
+	Models        int32 `protobuf:"varint,3,opt,name=models,proto3" json:"models,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCheckProgressResponse) Reset() {
+	*x = GetCheckProgressResponse{}
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCheckProgressResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCheckProgressResponse) ProtoMessage() {}
+
+func (x *GetCheckProgressResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCheckProgressResponse.ProtoReflect.Descriptor instead.
+func (*GetCheckProgressResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetCheckProgressResponse) GetGoing() bool {
+	if x != nil {
+		return x.Going
+	}
+	return false
+}
+
+func (x *GetCheckProgressResponse) GetModel() int32 {
+	if x != nil {
+		return x.Model
+	}
+	return 0
+}
+
+func (x *GetCheckProgressResponse) GetModels() int32 {
+	if x != nil {
+		return x.Models
+	}
+	return 0
+}
+
 // "Done" on a task with a rubric.
 type DoneRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -774,7 +894,7 @@ type DoneRequest struct {
 
 func (x *DoneRequest) Reset() {
 	*x = DoneRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[4]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -786,7 +906,7 @@ func (x *DoneRequest) String() string {
 func (*DoneRequest) ProtoMessage() {}
 
 func (x *DoneRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[4]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -799,7 +919,7 @@ func (x *DoneRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DoneRequest.ProtoReflect.Descriptor instead.
 func (*DoneRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{4}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DoneRequest) GetProfileId() string {
@@ -836,7 +956,7 @@ type DoneResponse struct {
 
 func (x *DoneResponse) Reset() {
 	*x = DoneResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[5]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -848,7 +968,7 @@ func (x *DoneResponse) String() string {
 func (*DoneResponse) ProtoMessage() {}
 
 func (x *DoneResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[5]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -861,7 +981,7 @@ func (x *DoneResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DoneResponse.ProtoReflect.Descriptor instead.
 func (*DoneResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{5}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DoneResponse) GetSolved() *SolvedTask {
@@ -908,7 +1028,7 @@ type GetRungWordsRequest struct {
 
 func (x *GetRungWordsRequest) Reset() {
 	*x = GetRungWordsRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[6]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -920,7 +1040,7 @@ func (x *GetRungWordsRequest) String() string {
 func (*GetRungWordsRequest) ProtoMessage() {}
 
 func (x *GetRungWordsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[6]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -933,7 +1053,7 @@ func (x *GetRungWordsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRungWordsRequest.ProtoReflect.Descriptor instead.
 func (*GetRungWordsRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{6}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetRungWordsRequest) GetProfileId() string {
@@ -1014,7 +1134,7 @@ type GetRungWordsResponse struct {
 
 func (x *GetRungWordsResponse) Reset() {
 	*x = GetRungWordsResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[7]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1026,7 +1146,7 @@ func (x *GetRungWordsResponse) String() string {
 func (*GetRungWordsResponse) ProtoMessage() {}
 
 func (x *GetRungWordsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[7]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1039,7 +1159,7 @@ func (x *GetRungWordsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRungWordsResponse.ProtoReflect.Descriptor instead.
 func (*GetRungWordsResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{7}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetRungWordsResponse) GetRung() int32 {
@@ -1099,7 +1219,7 @@ type GetCorrectAnswerWordsRequest struct {
 
 func (x *GetCorrectAnswerWordsRequest) Reset() {
 	*x = GetCorrectAnswerWordsRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[8]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1111,7 +1231,7 @@ func (x *GetCorrectAnswerWordsRequest) String() string {
 func (*GetCorrectAnswerWordsRequest) ProtoMessage() {}
 
 func (x *GetCorrectAnswerWordsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[8]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1124,7 +1244,7 @@ func (x *GetCorrectAnswerWordsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCorrectAnswerWordsRequest.ProtoReflect.Descriptor instead.
 func (*GetCorrectAnswerWordsRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{8}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetCorrectAnswerWordsRequest) GetProfileId() string {
@@ -1186,7 +1306,7 @@ type GetCorrectAnswerWordsResponse struct {
 
 func (x *GetCorrectAnswerWordsResponse) Reset() {
 	*x = GetCorrectAnswerWordsResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[9]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1198,7 +1318,7 @@ func (x *GetCorrectAnswerWordsResponse) String() string {
 func (*GetCorrectAnswerWordsResponse) ProtoMessage() {}
 
 func (x *GetCorrectAnswerWordsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[9]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1211,7 +1331,7 @@ func (x *GetCorrectAnswerWordsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCorrectAnswerWordsResponse.ProtoReflect.Descriptor instead.
 func (*GetCorrectAnswerWordsResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{9}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetCorrectAnswerWordsResponse) GetWords() string {
@@ -1262,7 +1382,7 @@ type ExplainDifferentlyRequest struct {
 
 func (x *ExplainDifferentlyRequest) Reset() {
 	*x = ExplainDifferentlyRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[10]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1274,7 +1394,7 @@ func (x *ExplainDifferentlyRequest) String() string {
 func (*ExplainDifferentlyRequest) ProtoMessage() {}
 
 func (x *ExplainDifferentlyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[10]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1287,7 +1407,7 @@ func (x *ExplainDifferentlyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExplainDifferentlyRequest.ProtoReflect.Descriptor instead.
 func (*ExplainDifferentlyRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{10}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ExplainDifferentlyRequest) GetProfileId() string {
@@ -1354,7 +1474,7 @@ type ExplainDifferentlyResponse struct {
 
 func (x *ExplainDifferentlyResponse) Reset() {
 	*x = ExplainDifferentlyResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[11]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1366,7 +1486,7 @@ func (x *ExplainDifferentlyResponse) String() string {
 func (*ExplainDifferentlyResponse) ProtoMessage() {}
 
 func (x *ExplainDifferentlyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[11]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1379,7 +1499,7 @@ func (x *ExplainDifferentlyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExplainDifferentlyResponse.ProtoReflect.Descriptor instead.
 func (*ExplainDifferentlyResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{11}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ExplainDifferentlyResponse) GetWords() string {
@@ -1414,7 +1534,7 @@ type GetHintRequest struct {
 
 func (x *GetHintRequest) Reset() {
 	*x = GetHintRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[12]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1426,7 +1546,7 @@ func (x *GetHintRequest) String() string {
 func (*GetHintRequest) ProtoMessage() {}
 
 func (x *GetHintRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[12]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1439,7 +1559,7 @@ func (x *GetHintRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHintRequest.ProtoReflect.Descriptor instead.
 func (*GetHintRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{12}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetHintRequest) GetProfileId() string {
@@ -1493,7 +1613,7 @@ type GetOpeningWordsRequest struct {
 
 func (x *GetOpeningWordsRequest) Reset() {
 	*x = GetOpeningWordsRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[13]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1505,7 +1625,7 @@ func (x *GetOpeningWordsRequest) String() string {
 func (*GetOpeningWordsRequest) ProtoMessage() {}
 
 func (x *GetOpeningWordsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[13]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1518,7 +1638,7 @@ func (x *GetOpeningWordsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOpeningWordsRequest.ProtoReflect.Descriptor instead.
 func (*GetOpeningWordsRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{13}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetOpeningWordsRequest) GetProfileId() string {
@@ -1594,7 +1714,7 @@ type GetOpeningWordsResponse struct {
 
 func (x *GetOpeningWordsResponse) Reset() {
 	*x = GetOpeningWordsResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[14]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1606,7 +1726,7 @@ func (x *GetOpeningWordsResponse) String() string {
 func (*GetOpeningWordsResponse) ProtoMessage() {}
 
 func (x *GetOpeningWordsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[14]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1619,7 +1739,7 @@ func (x *GetOpeningWordsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOpeningWordsResponse.ProtoReflect.Descriptor instead.
 func (*GetOpeningWordsResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{14}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetOpeningWordsResponse) GetWords() string {
@@ -1677,7 +1797,7 @@ type AskTutorRequest struct {
 
 func (x *AskTutorRequest) Reset() {
 	*x = AskTutorRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[15]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1689,7 +1809,7 @@ func (x *AskTutorRequest) String() string {
 func (*AskTutorRequest) ProtoMessage() {}
 
 func (x *AskTutorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[15]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1702,7 +1822,7 @@ func (x *AskTutorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskTutorRequest.ProtoReflect.Descriptor instead.
 func (*AskTutorRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{15}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AskTutorRequest) GetProfileId() string {
@@ -1781,7 +1901,7 @@ type TutorTurn struct {
 
 func (x *TutorTurn) Reset() {
 	*x = TutorTurn{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[16]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1793,7 +1913,7 @@ func (x *TutorTurn) String() string {
 func (*TutorTurn) ProtoMessage() {}
 
 func (x *TutorTurn) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[16]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1806,7 +1926,7 @@ func (x *TutorTurn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TutorTurn.ProtoReflect.Descriptor instead.
 func (*TutorTurn) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{16}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *TutorTurn) GetLearner() bool {
@@ -1841,7 +1961,7 @@ type AskTutorResponse struct {
 
 func (x *AskTutorResponse) Reset() {
 	*x = AskTutorResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[17]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1853,7 +1973,7 @@ func (x *AskTutorResponse) String() string {
 func (*AskTutorResponse) ProtoMessage() {}
 
 func (x *AskTutorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[17]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1866,7 +1986,7 @@ func (x *AskTutorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskTutorResponse.ProtoReflect.Descriptor instead.
 func (*AskTutorResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{17}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *AskTutorResponse) GetWords() string {
@@ -1929,7 +2049,7 @@ type AskGrownUpRequest struct {
 
 func (x *AskGrownUpRequest) Reset() {
 	*x = AskGrownUpRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[18]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1941,7 +2061,7 @@ func (x *AskGrownUpRequest) String() string {
 func (*AskGrownUpRequest) ProtoMessage() {}
 
 func (x *AskGrownUpRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[18]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1954,7 +2074,7 @@ func (x *AskGrownUpRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskGrownUpRequest.ProtoReflect.Descriptor instead.
 func (*AskGrownUpRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{18}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *AskGrownUpRequest) GetProfileId() string {
@@ -2048,7 +2168,7 @@ type SheetStroke struct {
 
 func (x *SheetStroke) Reset() {
 	*x = SheetStroke{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[19]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2060,7 +2180,7 @@ func (x *SheetStroke) String() string {
 func (*SheetStroke) ProtoMessage() {}
 
 func (x *SheetStroke) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[19]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2073,7 +2193,7 @@ func (x *SheetStroke) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SheetStroke.ProtoReflect.Descriptor instead.
 func (*SheetStroke) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{19}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SheetStroke) GetId() int32 {
@@ -2111,7 +2231,7 @@ type AskGrownUpResponse struct {
 
 func (x *AskGrownUpResponse) Reset() {
 	*x = AskGrownUpResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[20]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2123,7 +2243,7 @@ func (x *AskGrownUpResponse) String() string {
 func (*AskGrownUpResponse) ProtoMessage() {}
 
 func (x *AskGrownUpResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[20]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2136,7 +2256,7 @@ func (x *AskGrownUpResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskGrownUpResponse.ProtoReflect.Descriptor instead.
 func (*AskGrownUpResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{20}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *AskGrownUpResponse) GetWords() string {
@@ -2190,7 +2310,7 @@ type TutorStroke struct {
 
 func (x *TutorStroke) Reset() {
 	*x = TutorStroke{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[21]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2202,7 +2322,7 @@ func (x *TutorStroke) String() string {
 func (*TutorStroke) ProtoMessage() {}
 
 func (x *TutorStroke) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[21]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2215,7 +2335,7 @@ func (x *TutorStroke) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TutorStroke.ProtoReflect.Descriptor instead.
 func (*TutorStroke) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{21}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *TutorStroke) GetPoints() []float32 {
@@ -2261,7 +2381,7 @@ type ReadStatementRequest struct {
 
 func (x *ReadStatementRequest) Reset() {
 	*x = ReadStatementRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[22]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2273,7 +2393,7 @@ func (x *ReadStatementRequest) String() string {
 func (*ReadStatementRequest) ProtoMessage() {}
 
 func (x *ReadStatementRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[22]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2286,7 +2406,7 @@ func (x *ReadStatementRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadStatementRequest.ProtoReflect.Descriptor instead.
 func (*ReadStatementRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{22}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ReadStatementRequest) GetProfileId() string {
@@ -2351,7 +2471,7 @@ type ReadStatementResponse struct {
 
 func (x *ReadStatementResponse) Reset() {
 	*x = ReadStatementResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[23]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2363,7 +2483,7 @@ func (x *ReadStatementResponse) String() string {
 func (*ReadStatementResponse) ProtoMessage() {}
 
 func (x *ReadStatementResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[23]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2376,7 +2496,7 @@ func (x *ReadStatementResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadStatementResponse.ProtoReflect.Descriptor instead.
 func (*ReadStatementResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{23}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ReadStatementResponse) GetStatements() []string {
@@ -2424,7 +2544,7 @@ type GetHintResponse struct {
 
 func (x *GetHintResponse) Reset() {
 	*x = GetHintResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[24]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2436,7 +2556,7 @@ func (x *GetHintResponse) String() string {
 func (*GetHintResponse) ProtoMessage() {}
 
 func (x *GetHintResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[24]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2449,7 +2569,7 @@ func (x *GetHintResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHintResponse.ProtoReflect.Descriptor instead.
 func (*GetHintResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{24}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetHintResponse) GetHint() isGetHintResponse_Hint {
@@ -2514,7 +2634,7 @@ type Techniques struct {
 
 func (x *Techniques) Reset() {
 	*x = Techniques{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[25]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2526,7 +2646,7 @@ func (x *Techniques) String() string {
 func (*Techniques) ProtoMessage() {}
 
 func (x *Techniques) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[25]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2539,7 +2659,7 @@ func (x *Techniques) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Techniques.ProtoReflect.Descriptor instead.
 func (*Techniques) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{25}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *Techniques) GetTechniqueIds() []string {
@@ -2562,7 +2682,7 @@ type RungHint struct {
 
 func (x *RungHint) Reset() {
 	*x = RungHint{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[26]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2574,7 +2694,7 @@ func (x *RungHint) String() string {
 func (*RungHint) ProtoMessage() {}
 
 func (x *RungHint) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[26]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2587,7 +2707,7 @@ func (x *RungHint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RungHint.ProtoReflect.Descriptor instead.
 func (*RungHint) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{26}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *RungHint) GetRung() int32 {
@@ -2619,7 +2739,7 @@ type BeginStepRequest struct {
 
 func (x *BeginStepRequest) Reset() {
 	*x = BeginStepRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[27]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2631,7 +2751,7 @@ func (x *BeginStepRequest) String() string {
 func (*BeginStepRequest) ProtoMessage() {}
 
 func (x *BeginStepRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[27]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2644,7 +2764,7 @@ func (x *BeginStepRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BeginStepRequest.ProtoReflect.Descriptor instead.
 func (*BeginStepRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{27}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *BeginStepRequest) GetProfileId() string {
@@ -2679,7 +2799,7 @@ type BeginStepResponse struct {
 
 func (x *BeginStepResponse) Reset() {
 	*x = BeginStepResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[28]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2691,7 +2811,7 @@ func (x *BeginStepResponse) String() string {
 func (*BeginStepResponse) ProtoMessage() {}
 
 func (x *BeginStepResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[28]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2704,7 +2824,7 @@ func (x *BeginStepResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BeginStepResponse.ProtoReflect.Descriptor instead.
 func (*BeginStepResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{28}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *BeginStepResponse) GetTechniques() *Techniques {
@@ -2735,7 +2855,7 @@ type ShowSolutionRequest struct {
 
 func (x *ShowSolutionRequest) Reset() {
 	*x = ShowSolutionRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[29]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2747,7 +2867,7 @@ func (x *ShowSolutionRequest) String() string {
 func (*ShowSolutionRequest) ProtoMessage() {}
 
 func (x *ShowSolutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[29]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2760,7 +2880,7 @@ func (x *ShowSolutionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShowSolutionRequest.ProtoReflect.Descriptor instead.
 func (*ShowSolutionRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{29}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ShowSolutionRequest) GetProfileId() string {
@@ -2811,7 +2931,7 @@ type ShowSolutionResponse struct {
 
 func (x *ShowSolutionResponse) Reset() {
 	*x = ShowSolutionResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[30]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2823,7 +2943,7 @@ func (x *ShowSolutionResponse) String() string {
 func (*ShowSolutionResponse) ProtoMessage() {}
 
 func (x *ShowSolutionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[30]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2836,7 +2956,7 @@ func (x *ShowSolutionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ShowSolutionResponse.ProtoReflect.Descriptor instead.
 func (*ShowSolutionResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{30}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ShowSolutionResponse) GetSolved() *SolvedTask {
@@ -2880,7 +3000,7 @@ type ReportProblemRequest struct {
 
 func (x *ReportProblemRequest) Reset() {
 	*x = ReportProblemRequest{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[31]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2892,7 +3012,7 @@ func (x *ReportProblemRequest) String() string {
 func (*ReportProblemRequest) ProtoMessage() {}
 
 func (x *ReportProblemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[31]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2905,7 +3025,7 @@ func (x *ReportProblemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportProblemRequest.ProtoReflect.Descriptor instead.
 func (*ReportProblemRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{31}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ReportProblemRequest) GetProfileId() string {
@@ -2977,7 +3097,7 @@ type ReportProblemResponse struct {
 
 func (x *ReportProblemResponse) Reset() {
 	*x = ReportProblemResponse{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[32]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2989,7 +3109,7 @@ func (x *ReportProblemResponse) String() string {
 func (*ReportProblemResponse) ProtoMessage() {}
 
 func (x *ReportProblemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[32]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3002,7 +3122,7 @@ func (x *ReportProblemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportProblemResponse.ProtoReflect.Descriptor instead.
 func (*ReportProblemResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{32}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ReportProblemResponse) GetReportId() string {
@@ -3039,7 +3159,7 @@ type Work struct {
 
 func (x *Work) Reset() {
 	*x = Work{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[33]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3051,7 +3171,7 @@ func (x *Work) String() string {
 func (*Work) ProtoMessage() {}
 
 func (x *Work) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[33]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3064,7 +3184,7 @@ func (x *Work) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Work.ProtoReflect.Descriptor instead.
 func (*Work) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{33}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *Work) GetSurface() isWork_Surface {
@@ -3137,7 +3257,7 @@ type SheetWork struct {
 
 func (x *SheetWork) Reset() {
 	*x = SheetWork{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[34]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3149,7 +3269,7 @@ func (x *SheetWork) String() string {
 func (*SheetWork) ProtoMessage() {}
 
 func (x *SheetWork) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[34]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3162,7 +3282,7 @@ func (x *SheetWork) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SheetWork.ProtoReflect.Descriptor instead.
 func (*SheetWork) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{34}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *SheetWork) GetCrop() []byte {
@@ -3184,7 +3304,7 @@ type WorkbookWork struct {
 
 func (x *WorkbookWork) Reset() {
 	*x = WorkbookWork{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[35]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3196,7 +3316,7 @@ func (x *WorkbookWork) String() string {
 func (*WorkbookWork) ProtoMessage() {}
 
 func (x *WorkbookWork) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[35]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3209,7 +3329,7 @@ func (x *WorkbookWork) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WorkbookWork.ProtoReflect.Descriptor instead.
 func (*WorkbookWork) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{35}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *WorkbookWork) GetBoxes() []*BoxCrop {
@@ -3241,7 +3361,7 @@ type PaperWork struct {
 
 func (x *PaperWork) Reset() {
 	*x = PaperWork{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[36]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3253,7 +3373,7 @@ func (x *PaperWork) String() string {
 func (*PaperWork) ProtoMessage() {}
 
 func (x *PaperWork) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[36]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3266,7 +3386,7 @@ func (x *PaperWork) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PaperWork.ProtoReflect.Descriptor instead.
 func (*PaperWork) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{36}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *PaperWork) GetStatement() []byte {
@@ -3303,7 +3423,7 @@ type BoxCrop struct {
 
 func (x *BoxCrop) Reset() {
 	*x = BoxCrop{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[37]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3315,7 +3435,7 @@ func (x *BoxCrop) String() string {
 func (*BoxCrop) ProtoMessage() {}
 
 func (x *BoxCrop) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[37]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3328,7 +3448,7 @@ func (x *BoxCrop) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BoxCrop.ProtoReflect.Descriptor instead.
 func (*BoxCrop) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{37}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *BoxCrop) GetAnswerSlot() *v1.AnswerSlotPlace {
@@ -3358,7 +3478,7 @@ type TappedChoice struct {
 
 func (x *TappedChoice) Reset() {
 	*x = TappedChoice{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[38]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3370,7 +3490,7 @@ func (x *TappedChoice) String() string {
 func (*TappedChoice) ProtoMessage() {}
 
 func (x *TappedChoice) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[38]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3383,7 +3503,7 @@ func (x *TappedChoice) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TappedChoice.ProtoReflect.Descriptor instead.
 func (*TappedChoice) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{38}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *TappedChoice) GetAnswerSlot() *v1.AnswerSlotPlace {
@@ -3413,7 +3533,7 @@ type OwnKey struct {
 
 func (x *OwnKey) Reset() {
 	*x = OwnKey{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[39]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3425,7 +3545,7 @@ func (x *OwnKey) String() string {
 func (*OwnKey) ProtoMessage() {}
 
 func (x *OwnKey) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[39]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3438,7 +3558,7 @@ func (x *OwnKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OwnKey.ProtoReflect.Descriptor instead.
 func (*OwnKey) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{39}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *OwnKey) GetProvider() string {
@@ -3469,7 +3589,7 @@ type ItemVerdict struct {
 
 func (x *ItemVerdict) Reset() {
 	*x = ItemVerdict{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[40]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3481,7 +3601,7 @@ func (x *ItemVerdict) String() string {
 func (*ItemVerdict) ProtoMessage() {}
 
 func (x *ItemVerdict) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[40]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3494,7 +3614,7 @@ func (x *ItemVerdict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ItemVerdict.ProtoReflect.Descriptor instead.
 func (*ItemVerdict) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{40}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ItemVerdict) GetVerdict() string {
@@ -3538,7 +3658,7 @@ type AnswerSlotVerdict struct {
 
 func (x *AnswerSlotVerdict) Reset() {
 	*x = AnswerSlotVerdict{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[41]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3550,7 +3670,7 @@ func (x *AnswerSlotVerdict) String() string {
 func (*AnswerSlotVerdict) ProtoMessage() {}
 
 func (x *AnswerSlotVerdict) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[41]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3563,7 +3683,7 @@ func (x *AnswerSlotVerdict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnswerSlotVerdict.ProtoReflect.Descriptor instead.
 func (*AnswerSlotVerdict) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{41}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *AnswerSlotVerdict) GetAnswerSlot() *v1.AnswerSlotPlace {
@@ -3622,7 +3742,7 @@ type SolvedTask struct {
 
 func (x *SolvedTask) Reset() {
 	*x = SolvedTask{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[42]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3634,7 +3754,7 @@ func (x *SolvedTask) String() string {
 func (*SolvedTask) ProtoMessage() {}
 
 func (x *SolvedTask) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[42]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3647,7 +3767,7 @@ func (x *SolvedTask) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SolvedTask.ProtoReflect.Descriptor instead.
 func (*SolvedTask) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{42}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *SolvedTask) GetKeys() []*AnswerSlotKey {
@@ -3697,7 +3817,7 @@ type Next struct {
 
 func (x *Next) Reset() {
 	*x = Next{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[43]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3709,7 +3829,7 @@ func (x *Next) String() string {
 func (*Next) ProtoMessage() {}
 
 func (x *Next) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[43]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3722,7 +3842,7 @@ func (x *Next) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Next.ProtoReflect.Descriptor instead.
 func (*Next) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{43}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *Next) GetNext() isNext_Next {
@@ -3798,7 +3918,7 @@ type AnswerSlotKey struct {
 
 func (x *AnswerSlotKey) Reset() {
 	*x = AnswerSlotKey{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[44]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3810,7 +3930,7 @@ func (x *AnswerSlotKey) String() string {
 func (*AnswerSlotKey) ProtoMessage() {}
 
 func (x *AnswerSlotKey) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[44]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3823,7 +3943,7 @@ func (x *AnswerSlotKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnswerSlotKey.ProtoReflect.Descriptor instead.
 func (*AnswerSlotKey) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{44}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *AnswerSlotKey) GetAnswerSlot() *v1.AnswerSlotPlace {
@@ -3860,7 +3980,7 @@ type Mark struct {
 
 func (x *Mark) Reset() {
 	*x = Mark{}
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[45]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3872,7 +3992,7 @@ func (x *Mark) String() string {
 func (*Mark) ProtoMessage() {}
 
 func (x *Mark) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[45]
+	mi := &file_novatrail_api_v1_attempt_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3885,7 +4005,7 @@ func (x *Mark) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Mark.ProtoReflect.Descriptor instead.
 func (*Mark) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{45}
+	return file_novatrail_api_v1_attempt_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *Mark) GetKind() MarkKind {
@@ -3984,7 +4104,16 @@ const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\x06closed\x18\x06 \x01(\x0e2\x1d.novatrail.api.v1.CloseReasonR\x06closed\x12\x1a\n" +
 	"\brepeated\x18\a \x01(\bR\brepeatedB\a\n" +
 	"\x05_textB\v\n" +
-	"\t_feedback\"u\n" +
+	"\t_feedback\"W\n" +
+	"\x17GetCheckProgressRequest\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
+	"\n" +
+	"attempt_id\x18\x02 \x01(\tR\tattemptId\"^\n" +
+	"\x18GetCheckProgressResponse\x12\x14\n" +
+	"\x05going\x18\x01 \x01(\bR\x05going\x12\x14\n" +
+	"\x05model\x18\x02 \x01(\x05R\x05model\x12\x16\n" +
+	"\x06models\x18\x03 \x01(\x05R\x06models\"u\n" +
 	"\vDoneRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
@@ -4263,11 +4392,11 @@ const file_novatrail_api_v1_attempt_proto_rawDesc = "" +
 	"\bMarkKind\x12\x19\n" +
 	"\x15MARK_KIND_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fMARK_KIND_FRAME\x10\x01\x12\x17\n" +
-	"\x13MARK_KIND_WAVY_LINE\x10\x022\xb3\n" +
-	"\n" +
+	"\x13MARK_KIND_WAVY_LINE\x10\x022\x9e\v\n" +
 	"\x0eAttemptService\x12W\n" +
 	"\n" +
-	"SubmitWork\x12#.novatrail.api.v1.SubmitWorkRequest\x1a$.novatrail.api.v1.SubmitWorkResponse\x12Z\n" +
+	"SubmitWork\x12#.novatrail.api.v1.SubmitWorkRequest\x1a$.novatrail.api.v1.SubmitWorkResponse\x12i\n" +
+	"\x10GetCheckProgress\x12).novatrail.api.v1.GetCheckProgressRequest\x1a*.novatrail.api.v1.GetCheckProgressResponse\x12Z\n" +
 	"\vSubmitEssay\x12$.novatrail.api.v1.SubmitEssayRequest\x1a%.novatrail.api.v1.SubmitEssayResponse\x12E\n" +
 	"\x04Done\x12\x1d.novatrail.api.v1.DoneRequest\x1a\x1e.novatrail.api.v1.DoneResponse\x12]\n" +
 	"\fGetRungWords\x12%.novatrail.api.v1.GetRungWordsRequest\x1a&.novatrail.api.v1.GetRungWordsResponse\x12x\n" +
@@ -4297,7 +4426,7 @@ func file_novatrail_api_v1_attempt_proto_rawDescGZIP() []byte {
 }
 
 var file_novatrail_api_v1_attempt_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_novatrail_api_v1_attempt_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
+var file_novatrail_api_v1_attempt_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
 var file_novatrail_api_v1_attempt_proto_goTypes = []any{
 	(SubmissionEnd)(0),                    // 0: novatrail.api.v1.SubmissionEnd
 	(TutorReply)(0),                       // 1: novatrail.api.v1.TutorReply
@@ -4308,147 +4437,151 @@ var file_novatrail_api_v1_attempt_proto_goTypes = []any{
 	(*SubmitWorkResponse)(nil),            // 6: novatrail.api.v1.SubmitWorkResponse
 	(*SubmitEssayRequest)(nil),            // 7: novatrail.api.v1.SubmitEssayRequest
 	(*SubmitEssayResponse)(nil),           // 8: novatrail.api.v1.SubmitEssayResponse
-	(*DoneRequest)(nil),                   // 9: novatrail.api.v1.DoneRequest
-	(*DoneResponse)(nil),                  // 10: novatrail.api.v1.DoneResponse
-	(*GetRungWordsRequest)(nil),           // 11: novatrail.api.v1.GetRungWordsRequest
-	(*GetRungWordsResponse)(nil),          // 12: novatrail.api.v1.GetRungWordsResponse
-	(*GetCorrectAnswerWordsRequest)(nil),  // 13: novatrail.api.v1.GetCorrectAnswerWordsRequest
-	(*GetCorrectAnswerWordsResponse)(nil), // 14: novatrail.api.v1.GetCorrectAnswerWordsResponse
-	(*ExplainDifferentlyRequest)(nil),     // 15: novatrail.api.v1.ExplainDifferentlyRequest
-	(*ExplainDifferentlyResponse)(nil),    // 16: novatrail.api.v1.ExplainDifferentlyResponse
-	(*GetHintRequest)(nil),                // 17: novatrail.api.v1.GetHintRequest
-	(*GetOpeningWordsRequest)(nil),        // 18: novatrail.api.v1.GetOpeningWordsRequest
-	(*GetOpeningWordsResponse)(nil),       // 19: novatrail.api.v1.GetOpeningWordsResponse
-	(*AskTutorRequest)(nil),               // 20: novatrail.api.v1.AskTutorRequest
-	(*TutorTurn)(nil),                     // 21: novatrail.api.v1.TutorTurn
-	(*AskTutorResponse)(nil),              // 22: novatrail.api.v1.AskTutorResponse
-	(*AskGrownUpRequest)(nil),             // 23: novatrail.api.v1.AskGrownUpRequest
-	(*SheetStroke)(nil),                   // 24: novatrail.api.v1.SheetStroke
-	(*AskGrownUpResponse)(nil),            // 25: novatrail.api.v1.AskGrownUpResponse
-	(*TutorStroke)(nil),                   // 26: novatrail.api.v1.TutorStroke
-	(*ReadStatementRequest)(nil),          // 27: novatrail.api.v1.ReadStatementRequest
-	(*ReadStatementResponse)(nil),         // 28: novatrail.api.v1.ReadStatementResponse
-	(*GetHintResponse)(nil),               // 29: novatrail.api.v1.GetHintResponse
-	(*Techniques)(nil),                    // 30: novatrail.api.v1.Techniques
-	(*RungHint)(nil),                      // 31: novatrail.api.v1.RungHint
-	(*BeginStepRequest)(nil),              // 32: novatrail.api.v1.BeginStepRequest
-	(*BeginStepResponse)(nil),             // 33: novatrail.api.v1.BeginStepResponse
-	(*ShowSolutionRequest)(nil),           // 34: novatrail.api.v1.ShowSolutionRequest
-	(*ShowSolutionResponse)(nil),          // 35: novatrail.api.v1.ShowSolutionResponse
-	(*ReportProblemRequest)(nil),          // 36: novatrail.api.v1.ReportProblemRequest
-	(*ReportProblemResponse)(nil),         // 37: novatrail.api.v1.ReportProblemResponse
-	(*Work)(nil),                          // 38: novatrail.api.v1.Work
-	(*SheetWork)(nil),                     // 39: novatrail.api.v1.SheetWork
-	(*WorkbookWork)(nil),                  // 40: novatrail.api.v1.WorkbookWork
-	(*PaperWork)(nil),                     // 41: novatrail.api.v1.PaperWork
-	(*BoxCrop)(nil),                       // 42: novatrail.api.v1.BoxCrop
-	(*TappedChoice)(nil),                  // 43: novatrail.api.v1.TappedChoice
-	(*OwnKey)(nil),                        // 44: novatrail.api.v1.OwnKey
-	(*ItemVerdict)(nil),                   // 45: novatrail.api.v1.ItemVerdict
-	(*AnswerSlotVerdict)(nil),             // 46: novatrail.api.v1.AnswerSlotVerdict
-	(*SolvedTask)(nil),                    // 47: novatrail.api.v1.SolvedTask
-	(*Next)(nil),                          // 48: novatrail.api.v1.Next
-	(*AnswerSlotKey)(nil),                 // 49: novatrail.api.v1.AnswerSlotKey
-	(*Mark)(nil),                          // 50: novatrail.api.v1.Mark
-	(*Outcome)(nil),                       // 51: novatrail.api.v1.Outcome
-	(CloseReason)(0),                      // 52: novatrail.api.v1.CloseReason
-	(*timestamppb.Timestamp)(nil),         // 53: google.protobuf.Timestamp
-	(*v1.AnswerSlotPlace)(nil),            // 54: novatrail.observation.v1.AnswerSlotPlace
-	(*v1.CropBox)(nil),                    // 55: novatrail.observation.v1.CropBox
-	(*EngineChoice)(nil),                  // 56: novatrail.api.v1.EngineChoice
+	(*GetCheckProgressRequest)(nil),       // 9: novatrail.api.v1.GetCheckProgressRequest
+	(*GetCheckProgressResponse)(nil),      // 10: novatrail.api.v1.GetCheckProgressResponse
+	(*DoneRequest)(nil),                   // 11: novatrail.api.v1.DoneRequest
+	(*DoneResponse)(nil),                  // 12: novatrail.api.v1.DoneResponse
+	(*GetRungWordsRequest)(nil),           // 13: novatrail.api.v1.GetRungWordsRequest
+	(*GetRungWordsResponse)(nil),          // 14: novatrail.api.v1.GetRungWordsResponse
+	(*GetCorrectAnswerWordsRequest)(nil),  // 15: novatrail.api.v1.GetCorrectAnswerWordsRequest
+	(*GetCorrectAnswerWordsResponse)(nil), // 16: novatrail.api.v1.GetCorrectAnswerWordsResponse
+	(*ExplainDifferentlyRequest)(nil),     // 17: novatrail.api.v1.ExplainDifferentlyRequest
+	(*ExplainDifferentlyResponse)(nil),    // 18: novatrail.api.v1.ExplainDifferentlyResponse
+	(*GetHintRequest)(nil),                // 19: novatrail.api.v1.GetHintRequest
+	(*GetOpeningWordsRequest)(nil),        // 20: novatrail.api.v1.GetOpeningWordsRequest
+	(*GetOpeningWordsResponse)(nil),       // 21: novatrail.api.v1.GetOpeningWordsResponse
+	(*AskTutorRequest)(nil),               // 22: novatrail.api.v1.AskTutorRequest
+	(*TutorTurn)(nil),                     // 23: novatrail.api.v1.TutorTurn
+	(*AskTutorResponse)(nil),              // 24: novatrail.api.v1.AskTutorResponse
+	(*AskGrownUpRequest)(nil),             // 25: novatrail.api.v1.AskGrownUpRequest
+	(*SheetStroke)(nil),                   // 26: novatrail.api.v1.SheetStroke
+	(*AskGrownUpResponse)(nil),            // 27: novatrail.api.v1.AskGrownUpResponse
+	(*TutorStroke)(nil),                   // 28: novatrail.api.v1.TutorStroke
+	(*ReadStatementRequest)(nil),          // 29: novatrail.api.v1.ReadStatementRequest
+	(*ReadStatementResponse)(nil),         // 30: novatrail.api.v1.ReadStatementResponse
+	(*GetHintResponse)(nil),               // 31: novatrail.api.v1.GetHintResponse
+	(*Techniques)(nil),                    // 32: novatrail.api.v1.Techniques
+	(*RungHint)(nil),                      // 33: novatrail.api.v1.RungHint
+	(*BeginStepRequest)(nil),              // 34: novatrail.api.v1.BeginStepRequest
+	(*BeginStepResponse)(nil),             // 35: novatrail.api.v1.BeginStepResponse
+	(*ShowSolutionRequest)(nil),           // 36: novatrail.api.v1.ShowSolutionRequest
+	(*ShowSolutionResponse)(nil),          // 37: novatrail.api.v1.ShowSolutionResponse
+	(*ReportProblemRequest)(nil),          // 38: novatrail.api.v1.ReportProblemRequest
+	(*ReportProblemResponse)(nil),         // 39: novatrail.api.v1.ReportProblemResponse
+	(*Work)(nil),                          // 40: novatrail.api.v1.Work
+	(*SheetWork)(nil),                     // 41: novatrail.api.v1.SheetWork
+	(*WorkbookWork)(nil),                  // 42: novatrail.api.v1.WorkbookWork
+	(*PaperWork)(nil),                     // 43: novatrail.api.v1.PaperWork
+	(*BoxCrop)(nil),                       // 44: novatrail.api.v1.BoxCrop
+	(*TappedChoice)(nil),                  // 45: novatrail.api.v1.TappedChoice
+	(*OwnKey)(nil),                        // 46: novatrail.api.v1.OwnKey
+	(*ItemVerdict)(nil),                   // 47: novatrail.api.v1.ItemVerdict
+	(*AnswerSlotVerdict)(nil),             // 48: novatrail.api.v1.AnswerSlotVerdict
+	(*SolvedTask)(nil),                    // 49: novatrail.api.v1.SolvedTask
+	(*Next)(nil),                          // 50: novatrail.api.v1.Next
+	(*AnswerSlotKey)(nil),                 // 51: novatrail.api.v1.AnswerSlotKey
+	(*Mark)(nil),                          // 52: novatrail.api.v1.Mark
+	(*Outcome)(nil),                       // 53: novatrail.api.v1.Outcome
+	(CloseReason)(0),                      // 54: novatrail.api.v1.CloseReason
+	(*timestamppb.Timestamp)(nil),         // 55: google.protobuf.Timestamp
+	(*v1.AnswerSlotPlace)(nil),            // 56: novatrail.observation.v1.AnswerSlotPlace
+	(*v1.CropBox)(nil),                    // 57: novatrail.observation.v1.CropBox
+	(*EngineChoice)(nil),                  // 58: novatrail.api.v1.EngineChoice
 }
 var file_novatrail_api_v1_attempt_proto_depIdxs = []int32{
-	38, // 0: novatrail.api.v1.SubmitWorkRequest.work:type_name -> novatrail.api.v1.Work
-	43, // 1: novatrail.api.v1.SubmitWorkRequest.tapped_choices:type_name -> novatrail.api.v1.TappedChoice
-	44, // 2: novatrail.api.v1.SubmitWorkRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	45, // 3: novatrail.api.v1.SubmitWorkResponse.items:type_name -> novatrail.api.v1.ItemVerdict
-	51, // 4: novatrail.api.v1.SubmitWorkResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	47, // 5: novatrail.api.v1.SubmitWorkResponse.solved:type_name -> novatrail.api.v1.SolvedTask
-	48, // 6: novatrail.api.v1.SubmitWorkResponse.next:type_name -> novatrail.api.v1.Next
-	44, // 7: novatrail.api.v1.SubmitEssayRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	40, // 0: novatrail.api.v1.SubmitWorkRequest.work:type_name -> novatrail.api.v1.Work
+	45, // 1: novatrail.api.v1.SubmitWorkRequest.tapped_choices:type_name -> novatrail.api.v1.TappedChoice
+	46, // 2: novatrail.api.v1.SubmitWorkRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	47, // 3: novatrail.api.v1.SubmitWorkResponse.items:type_name -> novatrail.api.v1.ItemVerdict
+	53, // 4: novatrail.api.v1.SubmitWorkResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	49, // 5: novatrail.api.v1.SubmitWorkResponse.solved:type_name -> novatrail.api.v1.SolvedTask
+	50, // 6: novatrail.api.v1.SubmitWorkResponse.next:type_name -> novatrail.api.v1.Next
+	46, // 7: novatrail.api.v1.SubmitEssayRequest.own_key:type_name -> novatrail.api.v1.OwnKey
 	0,  // 8: novatrail.api.v1.SubmitEssayResponse.end:type_name -> novatrail.api.v1.SubmissionEnd
-	51, // 9: novatrail.api.v1.SubmitEssayResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	52, // 10: novatrail.api.v1.SubmitEssayResponse.closed:type_name -> novatrail.api.v1.CloseReason
-	47, // 11: novatrail.api.v1.DoneResponse.solved:type_name -> novatrail.api.v1.SolvedTask
-	48, // 12: novatrail.api.v1.DoneResponse.next:type_name -> novatrail.api.v1.Next
-	38, // 13: novatrail.api.v1.GetRungWordsRequest.work:type_name -> novatrail.api.v1.Work
-	44, // 14: novatrail.api.v1.GetRungWordsRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	50, // 15: novatrail.api.v1.GetRungWordsResponse.marks:type_name -> novatrail.api.v1.Mark
-	51, // 16: novatrail.api.v1.GetRungWordsResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	38, // 17: novatrail.api.v1.GetCorrectAnswerWordsRequest.work:type_name -> novatrail.api.v1.Work
-	44, // 18: novatrail.api.v1.GetCorrectAnswerWordsRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	51, // 19: novatrail.api.v1.GetCorrectAnswerWordsResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	44, // 20: novatrail.api.v1.ExplainDifferentlyRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	51, // 21: novatrail.api.v1.ExplainDifferentlyResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	44, // 22: novatrail.api.v1.GetOpeningWordsRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	38, // 23: novatrail.api.v1.GetOpeningWordsRequest.work:type_name -> novatrail.api.v1.Work
-	51, // 24: novatrail.api.v1.GetOpeningWordsResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	21, // 25: novatrail.api.v1.AskTutorRequest.turns:type_name -> novatrail.api.v1.TutorTurn
-	38, // 26: novatrail.api.v1.AskTutorRequest.work:type_name -> novatrail.api.v1.Work
-	44, // 27: novatrail.api.v1.AskTutorRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	51, // 28: novatrail.api.v1.AskTutorResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	21, // 29: novatrail.api.v1.AskGrownUpRequest.turns:type_name -> novatrail.api.v1.TutorTurn
-	38, // 30: novatrail.api.v1.AskGrownUpRequest.work:type_name -> novatrail.api.v1.Work
-	24, // 31: novatrail.api.v1.AskGrownUpRequest.strokes:type_name -> novatrail.api.v1.SheetStroke
-	44, // 32: novatrail.api.v1.AskGrownUpRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	26, // 33: novatrail.api.v1.AskGrownUpResponse.strokes:type_name -> novatrail.api.v1.TutorStroke
-	51, // 34: novatrail.api.v1.AskGrownUpResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	44, // 35: novatrail.api.v1.ReadStatementRequest.own_key:type_name -> novatrail.api.v1.OwnKey
-	51, // 36: novatrail.api.v1.ReadStatementResponse.outcome:type_name -> novatrail.api.v1.Outcome
-	30, // 37: novatrail.api.v1.GetHintResponse.techniques:type_name -> novatrail.api.v1.Techniques
-	31, // 38: novatrail.api.v1.GetHintResponse.rung:type_name -> novatrail.api.v1.RungHint
-	30, // 39: novatrail.api.v1.BeginStepResponse.techniques:type_name -> novatrail.api.v1.Techniques
+	53, // 9: novatrail.api.v1.SubmitEssayResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	54, // 10: novatrail.api.v1.SubmitEssayResponse.closed:type_name -> novatrail.api.v1.CloseReason
+	49, // 11: novatrail.api.v1.DoneResponse.solved:type_name -> novatrail.api.v1.SolvedTask
+	50, // 12: novatrail.api.v1.DoneResponse.next:type_name -> novatrail.api.v1.Next
+	40, // 13: novatrail.api.v1.GetRungWordsRequest.work:type_name -> novatrail.api.v1.Work
+	46, // 14: novatrail.api.v1.GetRungWordsRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	52, // 15: novatrail.api.v1.GetRungWordsResponse.marks:type_name -> novatrail.api.v1.Mark
+	53, // 16: novatrail.api.v1.GetRungWordsResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	40, // 17: novatrail.api.v1.GetCorrectAnswerWordsRequest.work:type_name -> novatrail.api.v1.Work
+	46, // 18: novatrail.api.v1.GetCorrectAnswerWordsRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	53, // 19: novatrail.api.v1.GetCorrectAnswerWordsResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	46, // 20: novatrail.api.v1.ExplainDifferentlyRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	53, // 21: novatrail.api.v1.ExplainDifferentlyResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	46, // 22: novatrail.api.v1.GetOpeningWordsRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	40, // 23: novatrail.api.v1.GetOpeningWordsRequest.work:type_name -> novatrail.api.v1.Work
+	53, // 24: novatrail.api.v1.GetOpeningWordsResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	23, // 25: novatrail.api.v1.AskTutorRequest.turns:type_name -> novatrail.api.v1.TutorTurn
+	40, // 26: novatrail.api.v1.AskTutorRequest.work:type_name -> novatrail.api.v1.Work
+	46, // 27: novatrail.api.v1.AskTutorRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	53, // 28: novatrail.api.v1.AskTutorResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	23, // 29: novatrail.api.v1.AskGrownUpRequest.turns:type_name -> novatrail.api.v1.TutorTurn
+	40, // 30: novatrail.api.v1.AskGrownUpRequest.work:type_name -> novatrail.api.v1.Work
+	26, // 31: novatrail.api.v1.AskGrownUpRequest.strokes:type_name -> novatrail.api.v1.SheetStroke
+	46, // 32: novatrail.api.v1.AskGrownUpRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	28, // 33: novatrail.api.v1.AskGrownUpResponse.strokes:type_name -> novatrail.api.v1.TutorStroke
+	53, // 34: novatrail.api.v1.AskGrownUpResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	46, // 35: novatrail.api.v1.ReadStatementRequest.own_key:type_name -> novatrail.api.v1.OwnKey
+	53, // 36: novatrail.api.v1.ReadStatementResponse.outcome:type_name -> novatrail.api.v1.Outcome
+	32, // 37: novatrail.api.v1.GetHintResponse.techniques:type_name -> novatrail.api.v1.Techniques
+	33, // 38: novatrail.api.v1.GetHintResponse.rung:type_name -> novatrail.api.v1.RungHint
+	32, // 39: novatrail.api.v1.BeginStepResponse.techniques:type_name -> novatrail.api.v1.Techniques
 	3,  // 40: novatrail.api.v1.ShowSolutionRequest.action:type_name -> novatrail.api.v1.Action
-	47, // 41: novatrail.api.v1.ShowSolutionResponse.solved:type_name -> novatrail.api.v1.SolvedTask
-	48, // 42: novatrail.api.v1.ShowSolutionResponse.next:type_name -> novatrail.api.v1.Next
+	49, // 41: novatrail.api.v1.ShowSolutionResponse.solved:type_name -> novatrail.api.v1.SolvedTask
+	50, // 42: novatrail.api.v1.ShowSolutionResponse.next:type_name -> novatrail.api.v1.Next
 	1,  // 43: novatrail.api.v1.ReportProblemRequest.reply:type_name -> novatrail.api.v1.TutorReply
 	2,  // 44: novatrail.api.v1.ReportProblemRequest.kind:type_name -> novatrail.api.v1.ProblemKind
-	53, // 45: novatrail.api.v1.ReportProblemResponse.review_by:type_name -> google.protobuf.Timestamp
-	39, // 46: novatrail.api.v1.Work.sheet:type_name -> novatrail.api.v1.SheetWork
-	40, // 47: novatrail.api.v1.Work.workbook:type_name -> novatrail.api.v1.WorkbookWork
-	41, // 48: novatrail.api.v1.Work.paper:type_name -> novatrail.api.v1.PaperWork
-	42, // 49: novatrail.api.v1.WorkbookWork.boxes:type_name -> novatrail.api.v1.BoxCrop
-	54, // 50: novatrail.api.v1.BoxCrop.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	54, // 51: novatrail.api.v1.TappedChoice.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	46, // 52: novatrail.api.v1.ItemVerdict.answer_slots:type_name -> novatrail.api.v1.AnswerSlotVerdict
-	54, // 53: novatrail.api.v1.AnswerSlotVerdict.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	55, // 54: novatrail.api.v1.AnswerSlotVerdict.crop_box:type_name -> novatrail.observation.v1.CropBox
-	49, // 55: novatrail.api.v1.SolvedTask.keys:type_name -> novatrail.api.v1.AnswerSlotKey
-	56, // 56: novatrail.api.v1.Next.choice:type_name -> novatrail.api.v1.EngineChoice
-	54, // 57: novatrail.api.v1.AnswerSlotKey.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	55, // 45: novatrail.api.v1.ReportProblemResponse.review_by:type_name -> google.protobuf.Timestamp
+	41, // 46: novatrail.api.v1.Work.sheet:type_name -> novatrail.api.v1.SheetWork
+	42, // 47: novatrail.api.v1.Work.workbook:type_name -> novatrail.api.v1.WorkbookWork
+	43, // 48: novatrail.api.v1.Work.paper:type_name -> novatrail.api.v1.PaperWork
+	44, // 49: novatrail.api.v1.WorkbookWork.boxes:type_name -> novatrail.api.v1.BoxCrop
+	56, // 50: novatrail.api.v1.BoxCrop.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	56, // 51: novatrail.api.v1.TappedChoice.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	48, // 52: novatrail.api.v1.ItemVerdict.answer_slots:type_name -> novatrail.api.v1.AnswerSlotVerdict
+	56, // 53: novatrail.api.v1.AnswerSlotVerdict.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	57, // 54: novatrail.api.v1.AnswerSlotVerdict.crop_box:type_name -> novatrail.observation.v1.CropBox
+	51, // 55: novatrail.api.v1.SolvedTask.keys:type_name -> novatrail.api.v1.AnswerSlotKey
+	58, // 56: novatrail.api.v1.Next.choice:type_name -> novatrail.api.v1.EngineChoice
+	56, // 57: novatrail.api.v1.AnswerSlotKey.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
 	4,  // 58: novatrail.api.v1.Mark.kind:type_name -> novatrail.api.v1.MarkKind
-	54, // 59: novatrail.api.v1.Mark.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
-	55, // 60: novatrail.api.v1.Mark.crop_box:type_name -> novatrail.observation.v1.CropBox
+	56, // 59: novatrail.api.v1.Mark.answer_slot:type_name -> novatrail.observation.v1.AnswerSlotPlace
+	57, // 60: novatrail.api.v1.Mark.crop_box:type_name -> novatrail.observation.v1.CropBox
 	5,  // 61: novatrail.api.v1.AttemptService.SubmitWork:input_type -> novatrail.api.v1.SubmitWorkRequest
-	7,  // 62: novatrail.api.v1.AttemptService.SubmitEssay:input_type -> novatrail.api.v1.SubmitEssayRequest
-	9,  // 63: novatrail.api.v1.AttemptService.Done:input_type -> novatrail.api.v1.DoneRequest
-	11, // 64: novatrail.api.v1.AttemptService.GetRungWords:input_type -> novatrail.api.v1.GetRungWordsRequest
-	13, // 65: novatrail.api.v1.AttemptService.GetCorrectAnswerWords:input_type -> novatrail.api.v1.GetCorrectAnswerWordsRequest
-	15, // 66: novatrail.api.v1.AttemptService.ExplainDifferently:input_type -> novatrail.api.v1.ExplainDifferentlyRequest
-	17, // 67: novatrail.api.v1.AttemptService.GetHint:input_type -> novatrail.api.v1.GetHintRequest
-	18, // 68: novatrail.api.v1.AttemptService.GetOpeningWords:input_type -> novatrail.api.v1.GetOpeningWordsRequest
-	20, // 69: novatrail.api.v1.AttemptService.AskTutor:input_type -> novatrail.api.v1.AskTutorRequest
-	23, // 70: novatrail.api.v1.AttemptService.AskGrownUp:input_type -> novatrail.api.v1.AskGrownUpRequest
-	27, // 71: novatrail.api.v1.AttemptService.ReadStatement:input_type -> novatrail.api.v1.ReadStatementRequest
-	32, // 72: novatrail.api.v1.AttemptService.BeginStep:input_type -> novatrail.api.v1.BeginStepRequest
-	34, // 73: novatrail.api.v1.AttemptService.ShowSolution:input_type -> novatrail.api.v1.ShowSolutionRequest
-	36, // 74: novatrail.api.v1.AttemptService.ReportProblem:input_type -> novatrail.api.v1.ReportProblemRequest
-	6,  // 75: novatrail.api.v1.AttemptService.SubmitWork:output_type -> novatrail.api.v1.SubmitWorkResponse
-	8,  // 76: novatrail.api.v1.AttemptService.SubmitEssay:output_type -> novatrail.api.v1.SubmitEssayResponse
-	10, // 77: novatrail.api.v1.AttemptService.Done:output_type -> novatrail.api.v1.DoneResponse
-	12, // 78: novatrail.api.v1.AttemptService.GetRungWords:output_type -> novatrail.api.v1.GetRungWordsResponse
-	14, // 79: novatrail.api.v1.AttemptService.GetCorrectAnswerWords:output_type -> novatrail.api.v1.GetCorrectAnswerWordsResponse
-	16, // 80: novatrail.api.v1.AttemptService.ExplainDifferently:output_type -> novatrail.api.v1.ExplainDifferentlyResponse
-	29, // 81: novatrail.api.v1.AttemptService.GetHint:output_type -> novatrail.api.v1.GetHintResponse
-	19, // 82: novatrail.api.v1.AttemptService.GetOpeningWords:output_type -> novatrail.api.v1.GetOpeningWordsResponse
-	22, // 83: novatrail.api.v1.AttemptService.AskTutor:output_type -> novatrail.api.v1.AskTutorResponse
-	25, // 84: novatrail.api.v1.AttemptService.AskGrownUp:output_type -> novatrail.api.v1.AskGrownUpResponse
-	28, // 85: novatrail.api.v1.AttemptService.ReadStatement:output_type -> novatrail.api.v1.ReadStatementResponse
-	33, // 86: novatrail.api.v1.AttemptService.BeginStep:output_type -> novatrail.api.v1.BeginStepResponse
-	35, // 87: novatrail.api.v1.AttemptService.ShowSolution:output_type -> novatrail.api.v1.ShowSolutionResponse
-	37, // 88: novatrail.api.v1.AttemptService.ReportProblem:output_type -> novatrail.api.v1.ReportProblemResponse
-	75, // [75:89] is the sub-list for method output_type
-	61, // [61:75] is the sub-list for method input_type
+	9,  // 62: novatrail.api.v1.AttemptService.GetCheckProgress:input_type -> novatrail.api.v1.GetCheckProgressRequest
+	7,  // 63: novatrail.api.v1.AttemptService.SubmitEssay:input_type -> novatrail.api.v1.SubmitEssayRequest
+	11, // 64: novatrail.api.v1.AttemptService.Done:input_type -> novatrail.api.v1.DoneRequest
+	13, // 65: novatrail.api.v1.AttemptService.GetRungWords:input_type -> novatrail.api.v1.GetRungWordsRequest
+	15, // 66: novatrail.api.v1.AttemptService.GetCorrectAnswerWords:input_type -> novatrail.api.v1.GetCorrectAnswerWordsRequest
+	17, // 67: novatrail.api.v1.AttemptService.ExplainDifferently:input_type -> novatrail.api.v1.ExplainDifferentlyRequest
+	19, // 68: novatrail.api.v1.AttemptService.GetHint:input_type -> novatrail.api.v1.GetHintRequest
+	20, // 69: novatrail.api.v1.AttemptService.GetOpeningWords:input_type -> novatrail.api.v1.GetOpeningWordsRequest
+	22, // 70: novatrail.api.v1.AttemptService.AskTutor:input_type -> novatrail.api.v1.AskTutorRequest
+	25, // 71: novatrail.api.v1.AttemptService.AskGrownUp:input_type -> novatrail.api.v1.AskGrownUpRequest
+	29, // 72: novatrail.api.v1.AttemptService.ReadStatement:input_type -> novatrail.api.v1.ReadStatementRequest
+	34, // 73: novatrail.api.v1.AttemptService.BeginStep:input_type -> novatrail.api.v1.BeginStepRequest
+	36, // 74: novatrail.api.v1.AttemptService.ShowSolution:input_type -> novatrail.api.v1.ShowSolutionRequest
+	38, // 75: novatrail.api.v1.AttemptService.ReportProblem:input_type -> novatrail.api.v1.ReportProblemRequest
+	6,  // 76: novatrail.api.v1.AttemptService.SubmitWork:output_type -> novatrail.api.v1.SubmitWorkResponse
+	10, // 77: novatrail.api.v1.AttemptService.GetCheckProgress:output_type -> novatrail.api.v1.GetCheckProgressResponse
+	8,  // 78: novatrail.api.v1.AttemptService.SubmitEssay:output_type -> novatrail.api.v1.SubmitEssayResponse
+	12, // 79: novatrail.api.v1.AttemptService.Done:output_type -> novatrail.api.v1.DoneResponse
+	14, // 80: novatrail.api.v1.AttemptService.GetRungWords:output_type -> novatrail.api.v1.GetRungWordsResponse
+	16, // 81: novatrail.api.v1.AttemptService.GetCorrectAnswerWords:output_type -> novatrail.api.v1.GetCorrectAnswerWordsResponse
+	18, // 82: novatrail.api.v1.AttemptService.ExplainDifferently:output_type -> novatrail.api.v1.ExplainDifferentlyResponse
+	31, // 83: novatrail.api.v1.AttemptService.GetHint:output_type -> novatrail.api.v1.GetHintResponse
+	21, // 84: novatrail.api.v1.AttemptService.GetOpeningWords:output_type -> novatrail.api.v1.GetOpeningWordsResponse
+	24, // 85: novatrail.api.v1.AttemptService.AskTutor:output_type -> novatrail.api.v1.AskTutorResponse
+	27, // 86: novatrail.api.v1.AttemptService.AskGrownUp:output_type -> novatrail.api.v1.AskGrownUpResponse
+	30, // 87: novatrail.api.v1.AttemptService.ReadStatement:output_type -> novatrail.api.v1.ReadStatementResponse
+	35, // 88: novatrail.api.v1.AttemptService.BeginStep:output_type -> novatrail.api.v1.BeginStepResponse
+	37, // 89: novatrail.api.v1.AttemptService.ShowSolution:output_type -> novatrail.api.v1.ShowSolutionResponse
+	39, // 90: novatrail.api.v1.AttemptService.ReportProblem:output_type -> novatrail.api.v1.ReportProblemResponse
+	76, // [76:91] is the sub-list for method output_type
+	61, // [61:76] is the sub-list for method input_type
 	61, // [61:61] is the sub-list for extension type_name
 	61, // [61:61] is the sub-list for extension extendee
 	0,  // [0:61] is the sub-list for field type_name
@@ -4463,30 +4596,30 @@ func file_novatrail_api_v1_attempt_proto_init() {
 	file_novatrail_api_v1_attempt_proto_msgTypes[0].OneofWrappers = []any{}
 	file_novatrail_api_v1_attempt_proto_msgTypes[2].OneofWrappers = []any{}
 	file_novatrail_api_v1_attempt_proto_msgTypes[3].OneofWrappers = []any{}
-	file_novatrail_api_v1_attempt_proto_msgTypes[6].OneofWrappers = []any{}
 	file_novatrail_api_v1_attempt_proto_msgTypes[8].OneofWrappers = []any{}
-	file_novatrail_api_v1_attempt_proto_msgTypes[9].OneofWrappers = []any{}
 	file_novatrail_api_v1_attempt_proto_msgTypes[10].OneofWrappers = []any{}
-	file_novatrail_api_v1_attempt_proto_msgTypes[13].OneofWrappers = []any{}
+	file_novatrail_api_v1_attempt_proto_msgTypes[11].OneofWrappers = []any{}
+	file_novatrail_api_v1_attempt_proto_msgTypes[12].OneofWrappers = []any{}
 	file_novatrail_api_v1_attempt_proto_msgTypes[15].OneofWrappers = []any{}
-	file_novatrail_api_v1_attempt_proto_msgTypes[18].OneofWrappers = []any{}
-	file_novatrail_api_v1_attempt_proto_msgTypes[22].OneofWrappers = []any{}
-	file_novatrail_api_v1_attempt_proto_msgTypes[24].OneofWrappers = []any{
+	file_novatrail_api_v1_attempt_proto_msgTypes[17].OneofWrappers = []any{}
+	file_novatrail_api_v1_attempt_proto_msgTypes[20].OneofWrappers = []any{}
+	file_novatrail_api_v1_attempt_proto_msgTypes[24].OneofWrappers = []any{}
+	file_novatrail_api_v1_attempt_proto_msgTypes[26].OneofWrappers = []any{
 		(*GetHintResponse_Techniques)(nil),
 		(*GetHintResponse_Rung)(nil),
 	}
-	file_novatrail_api_v1_attempt_proto_msgTypes[33].OneofWrappers = []any{
+	file_novatrail_api_v1_attempt_proto_msgTypes[35].OneofWrappers = []any{
 		(*Work_Sheet)(nil),
 		(*Work_Workbook)(nil),
 		(*Work_Paper)(nil),
 	}
-	file_novatrail_api_v1_attempt_proto_msgTypes[41].OneofWrappers = []any{}
-	file_novatrail_api_v1_attempt_proto_msgTypes[43].OneofWrappers = []any{
+	file_novatrail_api_v1_attempt_proto_msgTypes[43].OneofWrappers = []any{}
+	file_novatrail_api_v1_attempt_proto_msgTypes[45].OneofWrappers = []any{
 		(*Next_Segment)(nil),
 		(*Next_SegmentsEnded)(nil),
 		(*Next_Choice)(nil),
 	}
-	file_novatrail_api_v1_attempt_proto_msgTypes[45].OneofWrappers = []any{
+	file_novatrail_api_v1_attempt_proto_msgTypes[47].OneofWrappers = []any{
 		(*Mark_AnswerSlot)(nil),
 		(*Mark_CropBox)(nil),
 	}
@@ -4496,7 +4629,7 @@ func file_novatrail_api_v1_attempt_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_attempt_proto_rawDesc), len(file_novatrail_api_v1_attempt_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   46,
+			NumMessages:   48,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
