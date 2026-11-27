@@ -83,7 +83,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .ph-backonly>div{display:none!important}
 .nt-phone .ph-tutbtn{top:auto!important;bottom:172px!important;margin-top:0!important}
 .nt-phone .ph-tutor{left:0!important;right:0!important;bottom:0!important;top:414px!important;width:auto!important;border-radius:28px 28px 0 0!important;transform-origin:50% 100%!important;background:rgba(255,255,255,0.96)!important;box-shadow:0 -10px 40px rgba(0,0,0,0.14)!important;z-index:5}
-.nt-phone .ph-tutor.ph-full{top:70px!important}
+.nt-phone .ph-tutor.ph-full{top:0!important}
 .nt-phone .ph-tuthead{padding-top:20px!important}
 .ph-grab{position:absolute;left:50%;top:0;margin-left:-44px;width:88px;height:44px;padding-top:7px;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:center;z-index:1}
 .ph-grab>span{width:40px;height:5px;border-radius:3px;background:rgba(60,60,67,0.3)}
@@ -170,7 +170,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .nt-phone .ph-dbgbtn{top:auto!important;bottom:172px!important;margin-top:0!important}
 .nt-phone .ph-dbgbtn.ph-dbg-up{bottom:240px!important}
 .nt-phone .ph-dbg{left:0!important;right:0!important;bottom:0!important;top:414px!important;width:auto!important;border-radius:28px 28px 0 0!important;transform-origin:50% 100%!important;background:rgba(255,255,255,0.97)!important;box-shadow:0 -10px 40px rgba(0,0,0,0.14)!important}
-.nt-phone .ph-dbg.ph-full{top:70px!important}
+.nt-phone .ph-dbg.ph-full{top:0!important}
 /* Home, Subjects and the skill map are app's own shell and Home, taken from its code (RUN.md, T253): each rule below is a rule of app's theme under .ph-home,
    by :where() as specific as in app, its variables as values; .nt-pad is app's 600 px and wider, .nt-phone below 600. A change of the look changes them, then app's theme. */
 :where(.ph-home) .nt-shell{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
@@ -203,12 +203,26 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-next-up .nt-buttons { margin: 0.375rem 0px 0px; }
 :where(.ph-home) .nt-next-line { max-inline-size: 60%; margin: 0px; color: #6e6e73; font-size: 0.9375rem; line-height: 1.45; }
 :where(.ph-home) .nt-next-statement { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-:where(.ph-home) .nt-next-foot { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-block-start: auto; padding-block-start: 1.5rem; }
 :where(.ph-home) .nt-next-step { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 0.5rem; margin-inline-start: auto; text-align: end; }
 :where(.ph-home) .nt-next-step .nt-buttons { margin: 0px; }
-:where(.ph-home) .nt-quota { display: flex; flex: 1 1 auto; min-inline-size: 0px; max-inline-size: 20rem; flex-direction: column; gap: 0.75rem; margin: 0px; color: #6e6e73; font-size: 0.8125rem; }
-:where(.ph-home) .nt-quota-bar { display: flex; block-size: 0.375rem; border-radius: 0.1875rem; background: rgb(232, 232, 237); overflow: hidden; }
-:where(.ph-home) .nt-quota-bar > span { border-radius: 0.1875rem; background: #0071e3; }
+/* Tutor time: its ring among the pills at the top right, and its pop-over. The ring is 32 in a target of 44; the number inside is the share, a sign instead while none is used and once it is used up. */
+:where(.ph-home) .nt-quota-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;inline-size:2rem;block-size:2rem;flex:none}
+:where(.ph-home) .nt-quota-ring>svg:first-child{position:absolute;inset:0}
+:where(.ph-home) .nt-quota-ring>b{position:relative;font-size:.6875rem;font-weight:700;letter-spacing:-.02em;color:#1d1d1f;font-variant-numeric:tabular-nums}
+:where(.ph-home) .nt-quota-sign{position:relative;inline-size:.875rem;block-size:.875rem}
+:where(.ph-home) .nt-quota-big{inline-size:3.5rem;block-size:3.5rem}
+:where(.ph-home) .nt-quota-big>b{font-size:.875rem}
+:where(.ph-home) .nt-quota-big>.nt-quota-sign{inline-size:1.375rem;block-size:1.375rem}
+:where(.ph-home) .nt-q-head{display:flex;align-items:center;gap:.875rem;padding:.75rem .625rem .875rem}
+:where(.ph-home) .nt-q-say{display:flex;flex-direction:column;gap:.125rem;min-inline-size:0}
+:where(.ph-home) .nt-q-say>b{font-size:.9375rem;line-height:1.3}
+:where(.ph-home) .nt-q-say>span{color:#6e6e73;font-size:.8125rem;line-height:1.4}
+:where(.ph-home) .nt-q-renew{display:flex;align-items:center;gap:.375rem;margin:0 .375rem;padding:.75rem;border-radius:.75rem;background:rgba(118,118,128,.08);color:#6e6e73;font-size:.78125rem}
+:where(.ph-home) .nt-q-note{padding:.625rem .625rem .25rem;color:#6e6e73;font-size:.78125rem;line-height:1.4}
+:where(.ph-home) .nt-q-demo{display:flex;align-items:center;gap:.25rem;margin:.25rem .375rem 0;padding-top:.5rem;border-top:.5px solid rgba(0,0,0,.08)}
+:where(.ph-home) .nt-q-demo-chip{flex:none;margin-inline-end:.25rem;padding:2px 6px;border-radius:6px;background:rgba(118,118,128,.14);font-size:10.5px;font-weight:700;color:#3a3a3c}
+:where(.ph-home) .nt-q-demo>button{flex:1 1 0;min-inline-size:0;block-size:2.25rem;border:0;border-radius:.625rem;background:transparent;color:#0066cc;font-size:.8125rem;font-weight:600}
+:where(.ph-home) .nt-q-demo>button[aria-pressed="true"]{background:rgba(0,113,227,.1)}
 :where(.ph-home) .nt-paper-eyebrow { color: #0066cc; }
 :where(.ph-home) .nt-paper > h2 { max-inline-size: 62%; margin: 0px; font-size: 1.875rem; letter-spacing: -0.025em; line-height: 1.1; }
 :where(.ph-home) main .nt-paper > p.nt-paper-sub { max-inline-size: 62%; margin: 0px; color: #6e6e73; font-size: 0.9375rem; line-height: 1.45; }
@@ -241,7 +255,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-legend-items { display: flex; flex-direction: column; gap: 0.875rem; margin: 0px; padding: 0px; font-size: 0.9375rem; list-style: none; }
 :where(.ph-home) .nt-legend-items > li { display: flex; align-items: center; gap: 0.3125rem; }
 :where(.ph-home) .nt-legend .nt-legend-items > li > svg { flex: 0 0 auto; }
-:where(.ph-home) .nt-legend-open { margin: -0.5rem 0px 0.5rem -0.625rem; }
+:where(.ph-home) .nt-legend-open { display: flex; justify-content: center; margin: -0.5rem 0px 0.5rem; }
 :where(.ph-home) .nt-legend-open > button { display: inline-flex; align-items: center; gap: 0.375rem; }
 :where(.nt-pad .ph-home) .nt-legend-open { display: none; }
 :where(.nt-pad .ph-home) .nt-legend { margin: 2rem 0px 1.5rem; color: #3a3a3c; font-size: 0.78125rem; }
@@ -310,7 +324,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-loading { display: flex; flex-direction: column; gap: 0.625rem; }
 :where(.ph-home) .nt-counting { gap: 1rem; }
 :where(.ph-home) .nt-next-loading { flex: 1 1 auto; max-inline-size: 55%; }
-:where(.ph-home) .nt-next-loading > .nt-next-foot > .nt-loading { flex: 1 1 auto; max-inline-size: 20rem; }
 :where(.ph-home) .nt-shell-top button.nt-learner-pill { block-size: 2.75rem; padding: 0px 0.625rem 0px 0.25rem; border-color: transparent; border-radius: 1.375rem; background: transparent; box-shadow: none; }
 :where(.ph-home) nav.nt-nav button.nt-nav-item[aria-disabled="true"] { background: transparent; color: rgb(174, 174, 178); }
 :where(.nt-pad .ph-home) .nt-shell section.nt-legend { margin: 0.375rem 0px 0px; padding-inline: 0.25rem; color: #6e6e73; font-size: 0.75rem; }
@@ -324,7 +337,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-shell > main { box-sizing: border-box; max-inline-size: 74rem; margin-inline: auto; padding: 2rem 2rem 4rem; }
 :where(.ph-home) .nt-shell > main > h1 { margin-block: 0px 1.25rem; line-height: 1.1; }
 :where(.nt-phone .ph-home) .nt-next-up, :where(.nt-phone .ph-home) .nt-paper { padding: 1.5rem; }
-:where(.nt-phone .ph-home) .nt-next-foot { flex-wrap: wrap; }
 :where(.nt-phone .ph-home) .nt-next-up { border-inline-end: 0px; border-block-end: 0.0625rem solid rgb(237, 237, 240); }
 :where(.nt-phone .ph-home) .nt-next-up h3, :where(.nt-phone .ph-home) .nt-paper > h2, :where(.nt-phone .ph-home) main .nt-paper > p.nt-paper-sub, :where(.nt-phone .ph-home) .nt-paper-acts { max-inline-size: none; }
 :where(.nt-phone .ph-home) .nt-deco { display: none; }
@@ -2246,6 +2258,14 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <header class="nt-shell-top">
         <span role="img" aria-label="NovaTrail" class="nt-mark nt-top-mark"><svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path d="{{hs.ai.mark}}" fill="currentColor"></path></svg></span>
         <div class="nt-top-pills ph-topend">
+          <!-- Tutor time: the share of today's that this profile has spent, as GetQuota gives it — never a number of calls. A ring of its share, green below 50, yellow to 80, red from 80; a sign instead of the number while none is used and once it is used up. It opens its pop-over. -->
+          <button class="nt-icon-only nt-top-round nt-quota-btn tip tip-bl" onClick="{{hs.toggleQuota}}" aria-expanded="{{hs.quotaOpen}}" aria-label="{{hs.q.aria}}" data-tip="Tutor time">
+            <span class="nt-quota-ring" aria-hidden="true">
+              <svg viewBox="0 0 36 36" width="100%" height="100%"><circle cx="18" cy="18" r="15.5" fill="none" stroke="{{hs.q.track}}" stroke-width="3"></circle><circle cx="18" cy="18" r="15.5" fill="none" stroke="{{hs.q.color}}" stroke-width="3" stroke-linecap="round" stroke-dasharray="{{hs.q.dash}}" transform="rotate(-90 18 18)"></circle></svg>
+              <sc-if value="{{hs.q.num}}" hint-placeholder-val="{{ true }}"><b>{{hs.q.pct}}</b></sc-if>
+              <sc-if value="{{hs.q.sign}}" hint-placeholder-val="{{ false }}"><svg class="nt-quota-sign" viewBox="0 0 24 24" fill="none" stroke="{{hs.q.ink}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{hs.q.glyph}}"></path></svg></sc-if>
+            </span>
+          </button>
           <!-- The tutor waits, shut, as the cognitive map: in its place and in the keyboard's order, named, its tooltip saying it comes later; it opens nothing. -->
           <button class="nt-icon-only nt-top-round tip tip-bl" aria-disabled="true" aria-label="{{tutorName}}" data-tip="{{tutorName}} — comes later">
             <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.tutor}}"></path></svg>
@@ -2280,17 +2300,12 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
               <i class="nt-sk" style="inline-size: 58%; block-size: 1.75rem; border-radius: 0.5rem"></i>
               <i class="nt-sk" style="inline-size: 42%; block-size: 0.875rem; border-radius: 0.3125rem; margin-block-start: 0.375rem"></i>
               <i class="nt-sk" style="inline-size: 9.25rem; block-size: 2.625rem; border-radius: 999px; margin-block-start: 0.375rem"></i>
-              <div class="nt-next-foot"><div class="nt-loading"><i class="nt-sk" style="inline-size: 100%; block-size: 0.375rem; border-radius: 0.1875rem"></i><i class="nt-sk" style="inline-size: 68%; block-size: 0.75rem; border-radius: 0.25rem"></i></div></div>
             </div>
           </sc-if>
           <sc-if value="{{hs.loaded}}" hint-placeholder-val="{{ true }}">
             <h3>Number patterns</h3>
             <p class="nt-next-line">Olympiad maths 1–6 · Lesson 3 · two tasks</p>
             <div class="nt-buttons"><button onClick="{{continueNext}}">Continue the lesson</button></div>
-            <!-- The quota: the share of today's that this profile has spent, as GetQuota gives it — never a number of calls (R98; R148). -->
-            <div class="nt-next-foot">
-              <p class="nt-quota"><span class="nt-quota-bar" aria-hidden="true"><span style="inline-size: 20%"></span></span>Tutor time today: 20% used</p>
-            </div>
           </sc-if>
         </section>
         <!-- The way into Take from my paper, open to every profile: the main feature of the app (product 4). -->
@@ -2611,6 +2626,30 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <span>Notifications will appear here</span>
     </div>
     </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- Tutor time, by its ring at the top: how much of today's this profile has used — its number in the ring alone —, what that means, when it renews, and the way to Settings, where the whole account's share is. -->
+  <sc-if value="{{hs.quotaOpen}}" hint-placeholder-val="{{ false }}">
+  <div class="nt-pop ph-hpop" role="dialog" aria-label="Tutor time" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.quota}}">
+    <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
+    <h2 class="nt-pop-heading">Tutor time</h2>
+    <div class="nt-q-head">
+      <span class="nt-quota-ring nt-quota-big" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="100%" height="100%"><circle cx="18" cy="18" r="15.5" fill="none" stroke="{{hs.q.track}}" stroke-width="3"></circle><circle cx="18" cy="18" r="15.5" fill="none" stroke="{{hs.q.color}}" stroke-width="3" stroke-linecap="round" stroke-dasharray="{{hs.q.dash}}" transform="rotate(-90 18 18)"></circle></svg>
+        <sc-if value="{{hs.q.num}}" hint-placeholder-val="{{ true }}"><b>{{hs.q.pct}}%</b></sc-if>
+        <sc-if value="{{hs.q.sign}}" hint-placeholder-val="{{ false }}"><svg class="nt-quota-sign" viewBox="0 0 24 24" fill="none" stroke="{{hs.q.ink}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{hs.q.glyph}}"></path></svg></sc-if>
+      </span>
+      <span class="nt-q-say"><b>{{hs.q.title}}</b><span>{{hs.q.line}}</span></span>
+    </div>
+    <p class="nt-q-renew"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Renews tomorrow at 08:00</p>
+    <p class="nt-q-note">The tutor’s replies and the AI’s reading of works spend it. When it ends, the task’s own hints still help.</p>
+    <button class="nt-menu-row" onClick="{{hs.openSettings}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.cog}}"></path></svg></span><span class="nt-menu-label">The whole account in Settings</span><span class="nt-menu-more"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></button>
+    <!-- DEMO: the share, to see each look of the ring. In the app it is GetQuota's. -->
+    <div class="nt-q-demo" role="group" aria-label="Demo share">
+      <span class="nt-q-demo-chip">DEMO</span>
+      <sc-for list="{{hs.q.demo}}" as="d" hint-placeholder-count="5"><button onClick="{{d.go}}" aria-pressed="{{d.on}}">{{d.label}}</button></sc-for>
+    </div>
   </div>
   </sc-if>
 
@@ -5003,17 +5042,18 @@ class Component extends DCLogic {
 
   // Home, Subjects and a module's skill map: the row of places (the tab bar on the phone), the pills at the right and their pop-overs, as app lays them.
   homeVals(s, PH, pip, later) {
-    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, menuView: 'main', legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null, mapSel: null };
+    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, menuView: 'main', legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, quotaOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null, mapSel: null };
     const tog = (k) => () => this.setState({ ...SHUT, [k]: !this.state[k] });
     const go = (screen) => () => this.setState({ ...SHUT, screen });
     // Subjects and the map in app's frame of a screen: under the row, 116 from the top on the iPad and 84 on the phone.
     const L = PH ? { h1: 28, gap1: 26, catCols: 'minmax(0, 1fr)', mapFlex: 'none' } : { h1: 32, gap1: 26, catCols: 'repeat(2, minmax(0, 1fr))', mapFlex: '1 1 auto' };
     const POP = 'border-radius: 20px; padding: 10px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
     const SHEET = 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 56px 16px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)';
-    const P = PH ? { account: SHEET, bell: SHEET, pages: SHEET, legend: SHEET, mods: SHEET, about: 'position: fixed; ' + SHEET, skills: 'position: fixed; ' + SHEET } : {
+    const P = PH ? { account: SHEET, bell: SHEET, quota: SHEET, pages: SHEET, legend: SHEET, mods: SHEET, about: 'position: fixed; ' + SHEET, skills: 'position: fixed; ' + SHEET } : {
       // Each hangs from its button in the row or the pills: under it, at its start or its end, as app's pop-overs.
       account: 'right: 41px; top: 86px; width: 320px; transform-origin: top right; ' + POP + '; padding: 8px',
       bell: 'right: 159px; top: 86px; width: 300px; transform-origin: top right; ' + POP + '; padding: 12px',
+      quota: 'right: 249px; top: 86px; width: 320px; transform-origin: top right; ' + POP + '; padding: 12px 8px 8px',
       pages: 'left: 522px; top: 434px; width: 400px; transform-origin: top right; ' + POP + '; padding: 18px 8px 8px',
       legend: 'left: 37px; top: 300px; width: 300px; ' + POP,
       mods: 'left: 190px; top: 208px; width: 300px; transform-origin: top left; ' + POP,
@@ -5178,7 +5218,7 @@ class Component extends DCLogic {
       mapLegend: (M.skills[0].st === 'rubric' ? ['rubric'] : ['mastered', 'review', 'progress', 'ready', 'locked']).map((k) => ({ name: word(k), st: DOT[k], n: M.skills.filter((x) => x.st === k).length })),
       modPick: MODS.map((m) => ({ ...m, on: m.name === s.mapMod, bg: m.name === s.mapMod ? 'rgba(0,113,227,0.08)' : 'transparent', pick: () => this.setState({ ...SHUT, mapMod: m.name }) })),
 
-      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.modsOpen || !!s.aboutMod || !!s.skillsMod,
+      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.quotaOpen || s.modsOpen || !!s.aboutMod || !!s.skillsMod,
       scrim: PH ? 'rgba(0,0,0,0.22)' : 'transparent', closePop: () => this.setState({ ...SHUT }),
       // The bell's notices: the next version of the privacy policy, as its page names it, until a state says there is none.
       ...(() => {
@@ -5189,6 +5229,28 @@ class Component extends DCLogic {
         const fresh = news.length > 0 && !s.bellSeen;
         return { bellNews: news, bellNone: news.length === 0, bellNew: fresh, bellAria: fresh ? news.length + ' new' : '' };
       })(),
+      // Tutor time: today's share of this profile, its ring green below 50, yellow to 80, red from 80; a sign while none is used and once it is used up.
+      // The demo's switch in the lesson ends it; the pop-over's DEMO row sets the share.
+      q: (() => {
+        const pct = s.quotaOut ? 100 : (s.quotaPct ?? 20), C = 97.4;
+        const lv = pct >= 100 ? 'out' : pct === 0 ? 'fresh' : pct >= 80 ? 'red' : pct >= 50 ? 'yellow' : 'green';
+        const color = { fresh: '#34C759', green: '#34C759', yellow: '#F7B500', red: '#FF3B30', out: '#FF3B30' }[lv];
+        const SAY = {
+          fresh: ['None used yet today', 'The tutor has all of today’s time for you.'],
+          green: ['Plenty left today', 'Enough for many more questions and checks.'],
+          yellow: ['More than half used', 'Keep some for checking your work.'],
+          red: ['Almost used up', 'When it ends, the tutor and the AI’s check of works wait until it renews.'],
+          out: ['Used up for today', 'Until it renews, the tutor and the AI’s check of works wait.'] }[lv];
+        return { pct, color, ink: lv === 'fresh' ? '#248A3D' : color, track: lv === 'fresh' ? 'rgba(52,199,89,0.35)' : 'rgba(120,120,128,0.2)',
+          dash: lv === 'fresh' ? '0 100' : lv === 'out' ? C + ' 0' : (pct * C / 100).toFixed(1) + ' 100',
+          num: lv !== 'fresh' && lv !== 'out', sign: lv === 'fresh' || lv === 'out',
+          glyph: lv === 'out' ? 'M7 3h10M7 21h10M8 3v2.5c0 1.6 1 2.6 2.4 3.6L12 10.4l1.6-1.3C15 8.1 16 7.1 16 5.5V3M8 21v-2.5c0-1.6 1-2.6 2.4-3.6l1.6-1.3 1.6 1.3c1.4 1 2.4 2 2.4 3.6V21'
+            : 'M12 3.5l1.9 6.6 6.6 1.9-6.6 1.9-1.9 6.6-1.9-6.6-6.6-1.9 6.6-1.9z',
+          title: SAY[0], line: SAY[1],
+          aria: 'Tutor time: ' + (lv === 'fresh' ? 'none used today' : lv === 'out' ? 'used up today' : pct + '% used today'),
+          demo: [0, 20, 65, 85, 100].map((n) => ({ label: n + '%', on: String(n === pct), go: () => this.setState({ quotaPct: n, quotaOut: n === 100 }) })) };
+      })(),
+      quotaOpen: !!s.quotaOpen, toggleQuota: tog('quotaOpen'),
       grownOpen: !!s.grownOpen, bellOpen: !!s.bellOpen, tutorOpen: !!s.chatOpen, modsOpen: !!s.modsOpen,
       toggleGrown: tog('grownOpen'), toggleAccount: tog('switchOpen'), toggleBell: () => (this.setState({ bellSeen: true }), tog('bellOpen')()), toggleHelp: tog('helpOpen'), togglePages: tog('pagesOpen'),
       toggleLegend: tog('legendOpen'), toggleMods: tog('modsOpen'), toggleTutor: () => (this.state.chatOpen ? this.closeChat() : (this.setState({ ...SHUT }), this.openChat())),
