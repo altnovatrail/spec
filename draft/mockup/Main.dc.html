@@ -5169,8 +5169,8 @@ class Component extends DCLogic {
       // A card's own pop-overs hang inside it: About under ⋯ at its top right, the skills under their chip.
       about: 'position: absolute; right: 10px; top: 60px; width: 320px; transform-origin: top right; ' + POP + '; padding: 10px 8px 8px',
       skills: 'position: absolute; left: 12px; right: 12px; top: 196px; transform-origin: top left; ' + POP + '; padding: 10px 8px 10px',
-      // Which tasks to solve hangs under its tile, at its end, so that Solve stays in sight.
-      tasks: 'position: absolute; right: 0; top: calc(100% + 8px); width: 35rem; transform-origin: top right; ' + POP + '; padding: 18px' };
+      // Which tasks to solve hangs under its tile, as wide as the tile, so that Solve stays in sight.
+      tasks: 'position: absolute; left: 0; right: 0; top: calc(100% + 8px); transform-origin: top center; ' + POP + '; padding: 18px' };
 
     // The cognitive map is not built yet: its place is shown, shut. A module's skill map opens from Subjects.
     const ICONS = { lock: 'M5 11h14v9H5zM8 11V8a4 4 0 0 1 8 0v3', map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8' };
