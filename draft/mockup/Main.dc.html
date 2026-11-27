@@ -316,7 +316,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-mode-bar > i { display: block; block-size: 100%; border-radius: inherit; background: #0071e3; }
 :where(.ph-home .ph-homemain) .nt-mode-foot > button.nt-mode-go { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 0.5rem; padding-inline: 0.6875rem 1.125rem; border-color: transparent; background: #0071e3; color: #ffffff; font-size: 0.9375rem; font-weight: 500; }
 :where(.ph-home .ph-homemain) .nt-mode[data-mode="tasks"] .nt-mode-foot > button.nt-mode-go { background: #1e7e34; }
-:where(.ph-home .ph-homemain) button.nt-mode-reset { display: inline-flex; align-items: center; gap: 0.375rem; min-block-size: 2.75rem; padding: 0px 0.75rem; border: 0; border-radius: 1.375rem; background: #ffffff; box-shadow: inset 0 0 0 1px rgb(200, 227, 207); color: #1d6b30; font-size: 0.8125rem; font-weight: 500; }
 /* Which tasks to solve: under its tile on the iPad, so that Solve stays in sight; a sheet from the bottom on the phone. */
 :where(.ph-home) .nt-pick { display: flex; flex-direction: column; gap: 0.875rem; max-block-size: 36.25rem; overflow-y: auto; }
 :where(.nt-phone .ph-home) .nt-pick { max-block-size: 70%; }
@@ -2386,7 +2385,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
                     <span class="nt-mode-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></span>
                   </button>
                   <div class="nt-mode-foot">
-                    <div class="nt-mode-note">{{m.tasksSub}}<sc-if value="{{m.own}}" hint-placeholder-val="{{ false }}"><button class="nt-mode-reset" onClick="{{m.reset}}">Return the choice to the tutor</button></sc-if></div>
+                    <div class="nt-mode-note">{{m.tasksSub}}</div>
                     <button class="nt-mode-go" onClick="{{m.solve}}" aria-label="{{m.solveAria}}"><span class="nt-go-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.play}}"></path></svg></span>Solve</button>
                   </div>
                   <!-- Which tasks to solve: the tutor's choice first, then the skills the tutor suggests, then every skill by its tier, a locked one shut. A skill chosen closes it. -->
