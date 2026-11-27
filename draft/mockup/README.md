@@ -91,7 +91,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `home-quota-half` | The same, more than half used: the ring yellow from 50% to 80% | First slice |
 | `home-quota-low` | The same, almost used up: the ring red from 80% | First slice |
 | `home-quota-out` | The same, used up: the full red ring with an hourglass instead of a number, and when it comes back | First slice |
-| `home-legend` | Home, what the marks mean: on the phone a sheet, on the iPad the legend that stands under the modules | First slice |
+| `home-legend` | Home, what the marks mean: on the phone a sheet from the link in the middle below the modules, on the iPad the legend that stands under the modules | First slice |
 | `home-pages` | Home, "Your pages" by "Open camera": the profile's pages from paper on this device, newest first, each with its photo's thumbnail, its date and time and its number of tasks, and under them how many of the newest are kept, where and until when | First slice |
 | `subjects` | Subjects, from the row of places: the connected modules, then the check board "Introductory block" to connect — each card its subject, audience and kind, a line of what it teaches, its skills — three by name and a chip of the rest —, the anchor skills it builds on, and on a connected one the profile's progress, "Connected" and its skill map; ⋯ at its top right | Epic E24, for the author's approval |
 | `subjects-about` | Subjects, ⋯ of a card: About the module — its version, authors, audience, explanation language and license, as facts of its manifest —, and Disconnect on a connected one; the card has no button of its license | Epic E24, for the author's approval |
