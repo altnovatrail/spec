@@ -20,5 +20,8 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "deny": ["Read(//workspaces/.epics/*/modules/modules/*/eval/*)"]
   }
 }
