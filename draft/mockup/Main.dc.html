@@ -193,18 +193,9 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-avatar { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; box-sizing: border-box; border-radius: 50%; background: linear-gradient(135deg, var(--nt-avatar-from) 0%, var(--nt-avatar-to) 100%); box-shadow: rgba(0, 0, 0, 0.14) 0px 10px 28px; color: #ffffff; }
 :where(.ph-home) .nt-learner-name { font-size: 1.125rem; font-weight: 600; line-height: 1.2; }
 :where(.ph-home) .nt-home-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 31.25rem), 1fr)); margin-block-end: 2rem; border: 0.0625rem solid transparent; border-radius: 1.75rem; background: rgba(255, 255, 255, 0.85); box-shadow: rgba(20, 40, 80, 0.06) 0px 10px 40px; overflow: hidden; }
-:where(.ph-home) .nt-next-up, :where(.ph-home) .nt-paper { position: relative; box-sizing: border-box; display: flex; flex-direction: column; gap: 0.875rem; padding: 2rem; overflow: hidden; }
-:where(.ph-home) .nt-next-up { border-inline-end: 0.0625rem solid rgb(237, 237, 240); }
-:where(.ph-home) .nt-next-up > :not(.nt-deco), :where(.ph-home) .nt-paper > :not(.nt-deco) { position: relative; }
-:where(.ph-home) .nt-next-up > h2, :where(.ph-home) .nt-paper-eyebrow { display: flex; align-items: center; gap: 0.5rem; margin: 0px; font-size: 0.875rem; font-weight: 600; }
-:where(.ph-home) .nt-next-up > h2 { color: #a85a00; }
-:where(.ph-home) .nt-next-up > h2::before { content: ""; flex: 0 0 auto; inline-size: 0.5rem; block-size: 0.5rem; border-radius: 0.25rem; background: rgb(255, 149, 0); }
-:where(.ph-home) .nt-next-up h3 { max-inline-size: 60%; margin: 0px; font-size: 1.875rem; letter-spacing: -0.025em; line-height: 1.1; }
-:where(.ph-home) .nt-next-up .nt-buttons { margin: 0.375rem 0px 0px; }
-:where(.ph-home) .nt-next-line { max-inline-size: 60%; margin: 0px; color: #6e6e73; font-size: 0.9375rem; line-height: 1.45; }
-:where(.ph-home) .nt-next-statement { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-:where(.ph-home) .nt-next-step { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 0.5rem; margin-inline-start: auto; text-align: end; }
-:where(.ph-home) .nt-next-step .nt-buttons { margin: 0px; }
+:where(.ph-home) .nt-paper { position: relative; box-sizing: border-box; display: flex; flex-direction: column; gap: 0.875rem; padding: 2rem; overflow: hidden; }
+:where(.ph-home) .nt-paper > :not(.nt-deco) { position: relative; }
+:where(.ph-home) .nt-paper-eyebrow { display: flex; align-items: center; gap: 0.5rem; margin: 0px; font-size: 0.875rem; font-weight: 600; }
 /* Tutor time: its ring among the pills at the top right, and its pop-over. The ring is 32 in a target of 44; the number inside is the share, a sign instead while none is used and once it is used up. */
 :where(.ph-home) .nt-quota-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;inline-size:2rem;block-size:2rem;flex:none}
 :where(.ph-home) .nt-quota-ring>svg:first-child{position:absolute;inset:0}
@@ -228,11 +219,9 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) main .nt-paper > p.nt-paper-sub { max-inline-size: 62%; margin: 0px; color: #6e6e73; font-size: 0.9375rem; line-height: 1.45; }
 :where(.ph-home) .nt-paper-acts { display: flex; flex-wrap: wrap; gap: 0.625rem; max-inline-size: 62%; margin-block-start: auto; padding-block-start: 1.5rem; }
 :where(.ph-home) .nt-paper-acts > button { display: inline-flex; align-items: center; gap: 0.5rem; padding-inline: 1rem 1.25rem; font-size: 0.9375rem; }
-:where(.ph-home) .nt-paper-acts > button.nt-paper-pages { border-color: transparent; background: rgb(229, 240, 255); color: #0066cc; }
+:where(.ph-home) .nt-paper-acts > button.nt-paper-file, :where(.ph-home) .nt-paper-acts > button.nt-paper-pages { border-color: transparent; background: rgb(229, 240, 255); color: #0066cc; }
 :where(.ph-home) .nt-deco { position: absolute; inset: 0px; overflow: hidden; pointer-events: none; }
-:where(.ph-home) .nt-grid-sheet, :where(.ph-home) .nt-paper-sheet { position: absolute; box-sizing: border-box; border-radius: 0.25rem; box-shadow: rgba(20, 40, 80, 0.1) 0px 8px 30px; }
-:where(.ph-home) .nt-grid-sheet { inset-block-start: 1.75rem; inset-inline-end: -1.5rem; inline-size: 15.625rem; block-size: 12.5rem; padding: 2.25rem 1.25rem 0px; background-color: rgb(255, 255, 255); background-image: linear-gradient(rgb(230, 234, 240) 1px, transparent 1px), linear-gradient(90deg, rgb(230, 234, 240) 1px, transparent 1px); background-size: 18px 18px; transform: rotate(-5deg); }
-:where(.ph-home) .nt-next-up .nt-grid-sheet > svg { inline-size: 12.5rem; block-size: auto; }
+:where(.ph-home) .nt-paper-sheet { position: absolute; box-sizing: border-box; border-radius: 0.25rem; box-shadow: rgba(20, 40, 80, 0.1) 0px 8px 30px; }
 :where(.ph-home) .nt-paper-sheet { inset-block-start: 1.875rem; inset-inline-end: -1.875rem; display: flex; flex-direction: column; gap: 0.625rem; inline-size: 13.75rem; block-size: 16.25rem; padding: 1.625rem 1.375rem; background: rgb(251, 250, 247); transform: rotate(6deg); }
 :where(.ph-home) .nt-paper-sheet i { display: block; block-size: 0.25rem; border-radius: 0.125rem; background: rgb(229, 229, 234); }
 :where(.ph-home) .nt-paper-sheet > i:first-child { inline-size: 45%; block-size: 0.4375rem; background: rgb(199, 204, 214); }
@@ -288,25 +277,14 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-subject-words { display: flex; flex: 1 1 12rem; flex-direction: column; gap: 0.25rem; min-inline-size: 0px; }
 :where(.ph-home) .nt-subject-name { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.625rem; }
 :where(.ph-home) .nt-subject .nt-subject-name > h3 { margin: 0px; font-size: 1.1875rem; font-weight: 600; letter-spacing: -0.01em; }
-:where(.ph-home) .nt-subject-kind, :where(.ph-home) .nt-subject-review { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.1875rem 0.5625rem; border-radius: 1.375rem; font-size: 0.75rem; font-weight: 600; }
+:where(.ph-home) .nt-subject-kind { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.1875rem 0.5625rem; border-radius: 1.375rem; font-size: 0.75rem; font-weight: 600; }
 :where(.ph-home) .nt-subject-kind[data-kind="adaptive"] { background: rgb(232, 243, 255); color: rgb(0, 88, 184); }
 :where(.ph-home) .nt-subject-kind[data-kind="sequential"] { background: #1d1d1f; color: #ffffff; }
 :where(.ph-home) .nt-subject-kind[data-kind="rubric"] { background: rgb(246, 236, 252); color: #7a2ea8; }
-:where(.ph-home) .nt-subject-review { padding: 0.3125rem 0.6875rem; background: rgb(255, 244, 229); color: #a85a00; }
-:where(.ph-home) .nt-subject-review::before { content: ""; inline-size: 0.5rem; block-size: 0.5rem; border-radius: 0.125rem; background: rgb(255, 149, 0); }
 :where(.ph-home) p.nt-subject-stat { margin: 0px; color: #6e6e73; font-size: 0.8125rem; }
 :where(.ph-home) .nt-subject-acts { display: flex; flex: 0 0 auto; align-items: center; gap: 0.625rem; }
 :where(.ph-home) .nt-subject-acts button.nt-icon-only.nt-subject-map { inline-size: 2.75rem; padding: 0px; border-color: transparent; border-radius: 50%; background: rgb(242, 242, 247); color: #1d1d1f; }
-:where(.ph-home) .nt-subject-acts > button.nt-subject-go { gap: 0.5rem; padding-inline: 0.75rem 1.125rem; border-color: transparent; border-radius: 1.375rem; background: #0071e3; color: #ffffff; font-size: 0.9375rem; font-weight: 500; }
 :where(.ph-home) .nt-go-sign { display: inline-flex; align-items: center; justify-content: center; inline-size: 1.375rem; block-size: 1.375rem; border-radius: 50%; background: rgba(255, 255, 255, 0.22); font-size: 0.875rem; }
-:where(.ph-home) .nt-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 0.625rem 0.875rem; padding: 0.75rem 0.875rem; border-radius: 1rem; background: rgb(245, 245, 247); }
-:where(.ph-home) .nt-engine-foot { background: rgb(245, 249, 255); }
-:where(.ph-home) .nt-engine-sign { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%; background: #ffffff; box-shadow: rgba(0, 0, 0, 0.06) 0px 1px 3px; color: #0071e3; }
-:where(.ph-home) .nt-foot-words { display: flex; flex: 1 1 10rem; flex-direction: column; gap: 0.125rem; min-inline-size: 0px; }
-:where(.ph-home) .nt-foot-eyebrow { color: #6e6e73; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
-:where(.ph-home) .nt-engine-foot .nt-foot-eyebrow { color: rgb(0, 88, 184); }
-:where(.ph-home) .nt-foot-main { font-size: 0.9375rem; font-weight: 600; overflow-wrap: anywhere; }
-:where(.ph-home) .nt-engine-any { display: inline-flex; align-items: center; gap: 0.375rem; color: #6e6e73; font-size: 0.75rem; }
 :where(.ph-home) .nt-dots { display: flex; flex-wrap: wrap; gap: 2px; }
 :where(.ph-home) .nt-subject .nt-dots i, :where(.ph-home) .nt-catalog-dots i { box-sizing: border-box; inline-size: 8px; block-size: 8px; border-radius: 2px; background: rgb(229, 229, 234); }
 :where(.ph-home) .nt-dots i[data-state="mastered"] { background: #30a14e; }
@@ -315,6 +293,47 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-dots i[data-state="ready-to-start"] { border: 1.5px dashed #0071e3; background: transparent; }
 :where(.ph-home) .nt-dots i[data-state="feedback-by-criteria"] { background: rgb(217, 179, 240); }
 :where(.ph-home) .nt-dots i[data-state="not-assessed"] { border: 1px solid rgb(199, 199, 204); background: transparent; }
+/* A module's two ways in, side by side from 600 px: its lesson, whose row leads to the module's lessons, and its tasks, whose row opens which skill they train. */
+:where(.ph-home) .nt-modes { display: grid; grid-template-columns: repeat(2, minmax(0px, 1fr)); gap: 0.75rem; }
+:where(.nt-phone .ph-home) .nt-modes { grid-template-columns: minmax(0px, 1fr); }
+:where(.ph-home) .nt-mode { position: relative; display: flex; flex-direction: column; gap: 0.875rem; padding: 1rem; border-radius: 1.125rem; background: rgb(245, 249, 255); }
+:where(.ph-home) .nt-mode[data-mode="tasks"] { background: rgb(240, 248, 242); }
+:where(.ph-home .ph-homemain) button.nt-mode-row { box-sizing: border-box; display: flex; align-items: center; gap: 0.75rem; inline-size: calc(100% + 1rem); margin: -0.5rem; padding: 0.5rem; border: 0; border-radius: 0.875rem; background: transparent; color: #1d1d1f; font: inherit; font-weight: 400; text-align: start; }
+:where(.ph-home .ph-homemain) .nt-mode[data-mode="lesson"] button.nt-mode-row:hover { background: rgb(232, 243, 255); }
+:where(.ph-home .ph-homemain) .nt-mode[data-mode="tasks"] button.nt-mode-row:hover, :where(.ph-home .ph-homemain) .nt-mode[data-mode="tasks"] button.nt-mode-row[aria-expanded="true"] { background: rgb(220, 239, 225); }
+:where(.ph-home) .nt-mode-sign { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%; background: #ffffff; box-shadow: rgba(0, 0, 0, 0.06) 0px 1px 3px; color: #0071e3; font-size: 1.0625rem; }
+:where(.ph-home) .nt-mode[data-mode="tasks"] .nt-mode-sign { color: #1e7e34; }
+:where(.ph-home) .nt-mode[data-own="true"] .nt-mode-sign { background: #1e7e34; color: #ffffff; }
+:where(.ph-home) .nt-mode-words { display: flex; flex: 1 1 auto; flex-direction: column; gap: 0.125rem; min-inline-size: 0px; }
+:where(.ph-home) .nt-mode-eyebrow { color: rgb(0, 88, 184); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+:where(.ph-home) .nt-mode[data-mode="tasks"] .nt-mode-eyebrow { color: #1d6b30; }
+:where(.ph-home) .nt-mode-title { font-size: 0.9375rem; font-weight: 600; }
+:where(.ph-home) .nt-mode-chev { flex: 0 0 auto; color: #6e6e73; font-size: 1.25rem; }
+:where(.ph-home) .nt-modes > .nt-mode:only-child { grid-column: 1 / -1; }
+:where(.ph-home) .nt-mode-foot { display: flex; align-items: center; gap: 0.75rem; margin-block-start: auto; }
+:where(.ph-home) .nt-mode-note { display: flex; flex: 1 1 auto; flex-direction: column; align-items: flex-start; gap: 0.375rem; min-inline-size: 0px; color: #6e6e73; font-size: 0.75rem; }
+:where(.ph-home) .nt-mode-bar { align-self: stretch; block-size: 0.25rem; border-radius: 0.125rem; background: rgb(219, 232, 247); }
+:where(.ph-home) .nt-mode-bar > i { display: block; block-size: 100%; border-radius: inherit; background: #0071e3; }
+:where(.ph-home .ph-homemain) .nt-mode-foot > button.nt-mode-go { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 0.5rem; padding-inline: 0.6875rem 1.125rem; border-color: transparent; background: #0071e3; color: #ffffff; font-size: 0.9375rem; font-weight: 500; }
+:where(.ph-home .ph-homemain) .nt-mode[data-mode="tasks"] .nt-mode-foot > button.nt-mode-go { background: #1e7e34; }
+:where(.ph-home .ph-homemain) button.nt-mode-reset { display: inline-flex; align-items: center; gap: 0.375rem; min-block-size: 2.75rem; padding: 0px 0.75rem; border: 0; border-radius: 1.375rem; background: #ffffff; box-shadow: inset 0 0 0 1px rgb(200, 227, 207); color: #1d6b30; font-size: 0.8125rem; font-weight: 500; }
+/* Which tasks to solve: under its tile on the iPad, so that Solve stays in sight; a sheet from the bottom on the phone. */
+:where(.ph-home) .nt-pick { display: flex; flex-direction: column; gap: 0.875rem; max-block-size: 36.25rem; overflow-y: auto; }
+:where(.nt-phone .ph-home) .nt-pick { max-block-size: 70%; }
+:where(.ph-home) .nt-pick-title { margin: 0px; padding-inline-end: 2.5rem; font-size: 1.0625rem; font-weight: 700; }
+:where(.ph-home .nt-pick) button.nt-pick-close { position: absolute; inset-block-start: 0.75rem; inset-inline-end: 0.75rem; display: inline-flex; align-items: center; justify-content: center; inline-size: 2.75rem; block-size: 2.75rem; padding: 0px; border: 0; border-radius: 50%; background: radial-gradient(circle, rgb(242, 242, 247) 1rem, transparent 1.0625rem); color: #6e6e73; }
+:where(.ph-home .nt-pick) button.nt-pick-ai { box-sizing: border-box; display: flex; align-items: center; gap: 0.75rem; inline-size: 100%; min-block-size: 3.5rem; padding: 0.625rem 0.75rem; border: 1px solid rgb(217, 217, 222); border-radius: 0.875rem; background: #ffffff; color: #1d1d1f; font: inherit; font-weight: 400; text-align: start; }
+:where(.ph-home .nt-pick) button.nt-pick-ai[aria-pressed="true"] { border-color: #1e7e34; background: rgb(240, 248, 242); }
+:where(.ph-home) .nt-pick-ai .nt-mode-sign { background: rgb(227, 243, 231); box-shadow: none; color: #1e7e34; }
+:where(.ph-home) .nt-pick-or { color: #6e6e73; font-size: 0.75rem; }
+:where(.ph-home) .nt-pick-group { display: flex; flex-direction: column; gap: 0.5rem; }
+:where(.ph-home) .nt-pick-label { color: #1d6b30; font-size: 0.8125rem; font-weight: 600; }
+:where(.ph-home) .nt-pick-rule { block-size: 1px; background: rgb(236, 236, 240); }
+:where(.ph-home) .nt-pick-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+:where(.ph-home .nt-pick) button.nt-pick-chip { box-sizing: border-box; display: inline-flex; align-items: center; gap: 0.375rem; min-block-size: 2.75rem; padding: 0px 0.875rem; border: 1px solid rgb(217, 217, 222); border-radius: 0.75rem; background: #ffffff; color: #1d1d1f; font: inherit; font-size: 0.875rem; font-weight: 500; }
+:where(.ph-home .nt-pick) button.nt-pick-chip:hover { border-color: #1e7e34; background: rgb(240, 248, 242); }
+:where(.ph-home .nt-pick) button.nt-pick-chip[aria-pressed="true"] { border-color: #1e7e34; background: rgb(227, 243, 231); color: #145c26; font-weight: 600; }
+:where(.ph-home .nt-pick) button.nt-pick-chip:disabled, :where(.ph-home .nt-pick) button.nt-pick-chip:disabled:hover { border-color: rgb(236, 236, 240); background: rgb(245, 245, 247); color: #6e6e73; cursor: default; }
 :where(.ph-home) .nt-learner-name { min-inline-size: 0px; overflow-wrap: anywhere; }
 :where(.ph-home) button.nt-learner-pill { display: inline-flex; align-items: center; gap: 0.625rem; min-inline-size: 0px; max-inline-size: 100%; block-size: 3rem; padding: 0px 0.875rem 0px 0.375rem; border-radius: 1.5rem; color: #1d1d1f; font-size: 1rem; font-weight: 400; text-align: start; }
 :where(.ph-home) .nt-learner-pill > .nt-learner-name { font-size: 0.9375rem; font-weight: 600; }
@@ -323,7 +342,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-sk { display: block; flex: 0 0 auto; max-inline-size: 100%; border-radius: 6px; background: linear-gradient(90deg, rgb(236, 236, 239) 0%, rgb(247, 247, 249) 45%, rgb(236, 236, 239) 90%) 0% 0% / 220% 100%; }
 :where(.ph-home) .nt-loading { display: flex; flex-direction: column; gap: 0.625rem; }
 :where(.ph-home) .nt-counting { gap: 1rem; }
-:where(.ph-home) .nt-next-loading { flex: 1 1 auto; max-inline-size: 55%; }
 :where(.ph-home) .nt-shell-top button.nt-learner-pill { block-size: 2.75rem; padding: 0px 0.625rem 0px 0.25rem; border-color: transparent; border-radius: 1.375rem; background: transparent; box-shadow: none; }
 :where(.ph-home) nav.nt-nav button.nt-nav-item[aria-disabled="true"] { background: transparent; color: rgb(174, 174, 178); }
 :where(.nt-pad .ph-home) .nt-shell section.nt-legend { margin: 0.375rem 0px 0px; padding-inline: 0.25rem; color: #6e6e73; font-size: 0.75rem; }
@@ -336,9 +354,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.nt-pad .ph-home) .nt-shell .nt-legend [data-state="locked"] > .nt-legend-swatch { background: rgb(229, 229, 234); }
 :where(.ph-home) .nt-shell > main { box-sizing: border-box; max-inline-size: 74rem; margin-inline: auto; padding: 2rem 2rem 4rem; }
 :where(.ph-home) .nt-shell > main > h1 { margin-block: 0px 1.25rem; line-height: 1.1; }
-:where(.nt-phone .ph-home) .nt-next-up, :where(.nt-phone .ph-home) .nt-paper { padding: 1.5rem; }
-:where(.nt-phone .ph-home) .nt-next-up { border-inline-end: 0px; border-block-end: 0.0625rem solid rgb(237, 237, 240); }
-:where(.nt-phone .ph-home) .nt-next-up h3, :where(.nt-phone .ph-home) .nt-paper > h2, :where(.nt-phone .ph-home) main .nt-paper > p.nt-paper-sub, :where(.nt-phone .ph-home) .nt-paper-acts { max-inline-size: none; }
+:where(.nt-phone .ph-home) .nt-paper { padding: 1.5rem; }
+:where(.nt-phone .ph-home) .nt-paper > h2, :where(.nt-phone .ph-home) main .nt-paper > p.nt-paper-sub, :where(.nt-phone .ph-home) .nt-paper-acts { max-inline-size: none; }
 :where(.nt-phone .ph-home) .nt-deco { display: none; }
 :where(.nt-phone .ph-home) .nt-legend { display: none; }
 :where(.nt-phone .ph-home) .nt-nav { position: fixed; z-index: 4; inset-inline: 0px; inset-block-end: 0px; display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); padding: 0.375rem 0.25rem max(1.375rem, env(safe-area-inset-bottom)); background: rgba(255, 255, 255, 0.96); box-shadow: rgba(0, 0, 0, 0.14) 0px -0.5px 0px; }
@@ -890,9 +907,10 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         <span class="ph-cap">Remove all frames</span>
       </button>
       </sc-if>
-      <button class="ph-fit tip tip-bl" aria-label="Retake" data-tip="Retake" onClick="{{retake}}" style="height: 44px; padding: 0 12px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0071E3">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
-        <span class="ph-cap">Retake</span>
+      <button class="ph-fit tip tip-bl" aria-label="{{retakeWord}}" data-tip="{{retakeWord}}" onClick="{{retake}}" style="height: 44px; padding: 0 12px 0 14px; border-radius: 22px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #0071E3">
+        <sc-if value="{{fromCamera}}" hint-placeholder-val="{{ true }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></sc-if>
+        <sc-if value="{{fromFile}}" hint-placeholder-val="{{ false }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 17v-6M9.5 13.5 12 11l2.5 2.5"></path></svg></sc-if>
+        <span class="ph-cap">{{retakeWord}}</span>
       </button>
     </sc-if>
     <!-- A canvas of another author, under "Later": back to the task, and the kinds behind «…» (epic E5). -->
@@ -2284,40 +2302,22 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </header>
     </div>
 
-    <!-- Home: the card of what comes next with the share of the tutor's time, and Tasks from my paper, side by side from 1000 px; then a card for each connected module, and the legend. -->
+    <!-- Home: Tasks from my paper across the width; then a card for each connected module, from which its lessons and its tasks start, and the legend. There is no card of what comes next: each module starts on its own. -->
     <sc-if value="{{hs.isHome}}" hint-placeholder-val="{{ true }}">
     <main class="nt-reference ph-homemain">
       <h1 class="nt-hidden-label">Home</h1>
       <div class="nt-home-top">
-        <section class="nt-next-up">
-          <span class="nt-deco" aria-hidden="true"><span class="nt-grid-sheet"><svg aria-hidden="true" viewBox="0 0 216 104" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><g stroke="#1f3a93"><ellipse cx="17" cy="24" rx="11" ry="10.5" transform="rotate(-8 17 24)"></ellipse><path d="M40 35.5 52.5 12.5 64.5 35"></path><path d="M40 35.5 64.5 35"></path><path d="M77 13.5 99.5 12.8 100.2 35.6 77.6 36.2Z"></path><ellipse cx="124" cy="24.5" rx="11" ry="10.5" transform="rotate(6 124 24.5)"></ellipse><path d="M147 35.5 159.5 12.5 171.5 35.2"></path><path d="M147 35.5 171.5 35.2"></path><path d="M183 12h26v25h-26z" stroke-dasharray="4 3.5"></path><path d="M190.5 19.5q5.5-6.5 11 0q2 5-5 7.5v3.5"></path><path d="M196.5 33.6v.2" stroke-width="3"></path><path d="M185.8 73.5 207.8 72.8 208.5 94.5 186.4 95.2Z"></path></g><g stroke="#e8590c"><path d="M196 42q-6 7 0 15"></path><path d="M191.5 52.5 196 57.5 199.5 51.8"></path><ellipse cx="197" cy="84" rx="18" ry="16.5" transform="rotate(-10 197 84)"></ellipse></g></svg></span></span>
-          <h2>Next up</h2>
-          <!-- While the subjects are read, the shapes of what will stand here (R168). -->
-          <sc-if value="{{hs.loading}}" hint-placeholder-val="{{ false }}">
-            <div class="nt-loading nt-next-loading" aria-busy="true">
-              <span role="status" class="nt-hidden-label">Loading</span>
-              <i class="nt-sk" style="inline-size: 92%; block-size: 1.75rem; border-radius: 0.5rem"></i>
-              <i class="nt-sk" style="inline-size: 58%; block-size: 1.75rem; border-radius: 0.5rem"></i>
-              <i class="nt-sk" style="inline-size: 42%; block-size: 0.875rem; border-radius: 0.3125rem; margin-block-start: 0.375rem"></i>
-              <i class="nt-sk" style="inline-size: 9.25rem; block-size: 2.625rem; border-radius: 999px; margin-block-start: 0.375rem"></i>
-            </div>
-          </sc-if>
-          <sc-if value="{{hs.loaded}}" hint-placeholder-val="{{ true }}">
-            <h3>Number patterns</h3>
-            <p class="nt-next-line">Olympiad maths 1–6 · Lesson 3 · two tasks</p>
-            <div class="nt-buttons"><button onClick="{{continueNext}}">Continue the lesson</button></div>
-          </sc-if>
-        </section>
         <!-- The way into Take from my paper, open to every profile: the main feature of the app (product 4). -->
         <section class="nt-paper">
           <span class="nt-deco" aria-hidden="true"><span class="nt-paper-sheet"><i></i><i></i><i></i><span class="nt-sheet-task"><i></i><i></i></span><i></i><i></i><i></i></span></span>
           <p class="nt-paper-eyebrow"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.camera}}"></path></svg>Camera</p>
           <h2>Tasks from my paper</h2>
           <p class="nt-paper-sub">Snap a page from your book, pick the tasks, and solve each one here</p>
-          <!-- The pages from paper this device keeps for the profile, its history: behind a small button, as a pop-over (R162). -->
+          <!-- A page comes by the camera or from a file of the device — a photo or a scan —, both to the same page to pick the tasks on; the pages solved that this device keeps for the profile, the history of solving, are behind a small button, as a pop-over. -->
           <div class="nt-paper-acts">
             <button class="nt-icon-text" onClick="{{openCamera}}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.camera}}"></path></svg>Open camera</button>
-            <button class="nt-paper-pages" onClick="{{hs.togglePages}}" aria-expanded="{{pagesOpen}}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.pages}}"></path></svg>Your pages</button>
+            <button class="nt-paper-file" onClick="{{openFile}}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 17v-6M9.5 13.5 12 11l2.5 2.5"></path></svg>From a file</button>
+            <button class="nt-paper-pages" onClick="{{hs.togglePages}}" aria-expanded="{{pagesOpen}}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"></path><path d="M3.5 3.5v5h5"></path><path d="M12 7.5V12l3 2"></path></svg>History</button>
           </div>
         </section>
       </div>
@@ -2336,10 +2336,10 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
                       <div class="nt-subject-name"><i class="nt-sk" style="inline-size: 13.75rem; block-size: 1.125rem"></i><i class="nt-sk" style="inline-size: 6.875rem; block-size: 1.375rem; border-radius: 999px"></i></div>
                       <i class="nt-sk" style="inline-size: 10.625rem; block-size: 0.75rem; border-radius: 0.25rem"></i>
                     </div>
-                    <div class="nt-subject-acts"><i class="nt-sk" style="inline-size: 2.5rem; block-size: 2.5rem; border-radius: 50%"></i><i class="nt-sk" style="inline-size: 9.375rem; block-size: 2.5rem; border-radius: 999px"></i></div>
+                    <div class="nt-subject-acts"><i class="nt-sk" style="inline-size: 2.75rem; block-size: 2.75rem; border-radius: 50%"></i></div>
                   </div>
                   <i class="nt-sk" style="inline-size: 38%; block-size: 0.5rem; border-radius: 0.1875rem"></i>
-                  <div class="nt-card-foot"><i class="nt-sk" style="inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%"></i><div class="nt-foot-words nt-loading"><i class="nt-sk" style="inline-size: 8.125rem; block-size: 0.625rem; border-radius: 0.25rem"></i><i class="nt-sk" style="inline-size: 17.5rem; block-size: 0.875rem; border-radius: 0.3125rem"></i></div></div>
+                  <div class="nt-modes"><div class="nt-mode" style="background: rgb(245, 245, 247)"><span style="display: flex; align-items: center; gap: 0.75rem"><i class="nt-sk" style="inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%"></i><span class="nt-mode-words nt-loading"><i class="nt-sk" style="inline-size: 4rem; block-size: 0.625rem; border-radius: 0.25rem"></i><i class="nt-sk" style="inline-size: 11rem; block-size: 0.875rem; border-radius: 0.3125rem"></i></span></span><span class="nt-mode-foot"><span class="nt-mode-note nt-loading"><i class="nt-sk" style="inline-size: 70%; block-size: 0.625rem; border-radius: 0.25rem"></i></span><i class="nt-sk" style="inline-size: 7.5rem; block-size: 2.75rem; border-radius: 999px"></i></span></div><div class="nt-mode" style="background: rgb(245, 245, 247)"><span style="display: flex; align-items: center; gap: 0.75rem"><i class="nt-sk" style="inline-size: 2.25rem; block-size: 2.25rem; border-radius: 50%"></i><span class="nt-mode-words nt-loading"><i class="nt-sk" style="inline-size: 4rem; block-size: 0.625rem; border-radius: 0.25rem"></i><i class="nt-sk" style="inline-size: 11rem; block-size: 0.875rem; border-radius: 0.3125rem"></i></span></span><span class="nt-mode-foot"><span class="nt-mode-note nt-loading"><i class="nt-sk" style="inline-size: 70%; block-size: 0.625rem; border-radius: 0.25rem"></i></span><i class="nt-sk" style="inline-size: 7.5rem; block-size: 2.75rem; border-radius: 999px"></i></span></div></div>
                 </article></li>
               </sc-for>
             </ul>
@@ -2360,18 +2360,60 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
                 </div>
                 <div class="nt-subject-acts">
                   <button class="nt-icon-only nt-subject-map tip tip-b" onClick="{{m.map}}" aria-label="Skill map" data-tip="Skill map"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.skillMap}}"></path></svg></button>
-                  <button class="nt-subject-go nt-icon-text" onClick="{{m.open}}" aria-label="{{m.openAria}}"><span class="nt-go-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.play}}"></path></svg></span>Continue</button>
                 </div>
               </div>
               <div class="nt-dots" role="img" aria-label="{{m.aria}}"><sc-for list="{{m.dots}}" as="d" hint-placeholder-count="20"><i data-state="{{d.st}}"></i></sc-for></div>
-              <sc-if value="{{m.adaptive}}" hint-placeholder-val="{{ true }}">
-              <div class="nt-card-foot nt-engine-foot">
-                <span class="nt-engine-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="{{hs.ai.engine}}"></path></svg></span>
-                <div class="nt-foot-words"><span class="nt-foot-eyebrow">The tutor chooses</span><span class="nt-foot-main">The next skill, as the work goes</span></div>
-                <span class="nt-subject-review">{{m.review}}</span>
-                <span class="nt-engine-any">Any module<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.engine}}"></path></svg></span>
+              <!-- The module's two ways in. Its lesson: the row leads to the page of the module's lessons — lessons may run side by side, so no number of them —, and under it the steps of this one and Continue. Its tasks: the row opens which skill they train — the tutor's choice, or one skill of the learner's own, the tasks on it alone —, and Solve. A module of tasks alone has the second. -->
+              <div class="nt-modes">
+                <sc-if value="{{m.hasLesson}}" hint-placeholder-val="{{ true }}">
+                <section class="nt-mode" data-mode="lesson" aria-label="Lesson">
+                  <button class="nt-mode-row" onClick="{{m.lessons}}" aria-label="{{m.lessonsAria}}">
+                    <span class="nt-mode-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5c2.6-1 5.4-1 8 .6 2.6-1.6 5.4-1.6 8-.6V19c-2.6-1-5.4-1-8 .6-2.6-1.6-5.4-1.6-8-.6z"></path><path d="M12 6.1v13.5"></path></svg></span>
+                    <span class="nt-mode-words"><span class="nt-mode-eyebrow">Lesson</span><span class="nt-mode-title">{{m.lesson}}</span></span>
+                    <span class="nt-mode-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></span>
+                  </button>
+                  <div class="nt-mode-foot">
+                    <div class="nt-mode-note"><span class="nt-mode-bar" aria-hidden="true"><i style="inline-size: {{m.lessonPct}}"></i></span>{{m.lessonStep}}</div>
+                    <button class="nt-mode-go" onClick="{{m.open}}" aria-label="{{m.openAria}}"><span class="nt-go-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.play}}"></path></svg></span>Continue</button>
+                  </div>
+                </section>
+                </sc-if>
+                <section class="nt-mode" data-mode="tasks" data-own="{{m.ownStr}}" aria-label="Tasks">
+                  <button class="nt-mode-row" onClick="{{m.pickOpen}}" aria-haspopup="dialog" aria-expanded="{{m.pickStr}}" aria-label="{{m.pickAria}}">
+                    <span class="nt-mode-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M11 3l1.8 4.7 4.7 1.8-4.7 1.8L11 16l-1.8-4.7L4.5 9.5l4.7-1.8z"></path><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></svg></span>
+                    <span class="nt-mode-words"><span class="nt-mode-eyebrow">{{m.tasksEyebrow}}</span><span class="nt-mode-title">{{m.tasksTitle}}</span></span>
+                    <span class="nt-mode-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></span>
+                  </button>
+                  <div class="nt-mode-foot">
+                    <div class="nt-mode-note">{{m.tasksSub}}<sc-if value="{{m.own}}" hint-placeholder-val="{{ false }}"><button class="nt-mode-reset" onClick="{{m.reset}}">Return the choice to the tutor</button></sc-if></div>
+                    <button class="nt-mode-go" onClick="{{m.solve}}" aria-label="{{m.solveAria}}"><span class="nt-go-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.play}}"></path></svg></span>Solve</button>
+                  </div>
+                  <!-- Which tasks to solve: the tutor's choice first, then the skills the tutor suggests, then every skill by its tier, a locked one shut. A skill chosen closes it. -->
+                  <sc-if value="{{m.pickOn}}" hint-placeholder-val="{{ false }}">
+                  <div class="nt-pop nt-pick" role="dialog" aria-label="Which tasks to solve?" style="z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.tasks}}">
+                    <button class="nt-pick-close" onClick="{{hs.closePop}}" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+                    <h2 class="nt-pick-title">Which tasks to solve?</h2>
+                    <button class="nt-pick-ai" onClick="{{m.reset}}" aria-pressed="{{m.aiStr}}">
+                      <span class="nt-mode-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M11 3l1.8 4.7 4.7 1.8-4.7 1.8L11 16l-1.8-4.7L4.5 9.5l4.7-1.8z"></path><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></svg></span>
+                      <span class="nt-mode-words"><span class="nt-mode-title">The tutor chooses</span><span class="nt-pick-or">The skill, as the work goes, by your progress</span></span>
+                      <sc-if value="{{m.ai}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e7e34" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+                    </button>
+                    <span class="nt-pick-or">Or a skill of your own: the tasks will be on it alone</span>
+                    <div class="nt-pick-group">
+                      <span class="nt-pick-label">Suggested</span>
+                      <div class="nt-pick-chips"><sc-for list="{{m.rec}}" as="c" hint-placeholder-count="3"><button class="nt-pick-chip" onClick="{{c.pick}}" aria-pressed="{{c.on}}">{{c.name}}</button></sc-for></div>
+                    </div>
+                    <div class="nt-pick-rule" aria-hidden="true"></div>
+                    <sc-for list="{{m.groups}}" as="g" hint-placeholder-count="4">
+                    <div class="nt-pick-group">
+                      <span class="nt-pick-label">{{g.name}}</span>
+                      <div class="nt-pick-chips"><sc-for list="{{g.chips}}" as="c" hint-placeholder-count="6"><button class="nt-pick-chip" onClick="{{c.pick}}" disabled="{{c.locked}}" aria-pressed="{{c.on}}" aria-label="{{c.aria}}">{{c.name}}<sc-if value="{{c.locked}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.locked}}"></path></svg></sc-if></button></sc-for></div>
+                    </div>
+                    </sc-for>
+                  </div>
+                  </sc-if>
+                </section>
               </div>
-              </sc-if>
             </article></li>
           </sc-for>
         </ul>
@@ -2395,6 +2437,39 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     <!-- Subjects and the skill map stand in app's frame of a screen, under the same row. -->
     <sc-if value="{{hs.isOther}}" hint-placeholder-val="{{ false }}">
     <main class="nt-reference" style="display: flex; flex-direction: column; min-block-size: {{hs.otherH}}">
+    <!-- The module's lessons, from the row of its lesson on Home: a page of its own, "Home" back, the module at the title. Its lessons of the current version that suit the learner, in the author's order top to bottom; lessons the order puts side by side stand in one group, "In any order", and none bears a number. Each its state — passed, begun with its step, new —, the one Home's tile shows marked "Next"; a tap opens it. -->
+    <sc-if value="{{hs.isLessons}}" hint-placeholder-val="{{ false }}">
+      <div style="flex: none; display: flex; flex-direction: column; gap: 6px">
+        <button onClick="{{hs.goHome}}" style="align-self: flex-start; height: 44px; margin: -10px 0 -4px -8px; padding: 0 10px 0 4px; border-radius: 22px; display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 600; color: #0066CC"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Home</button>
+        <h1 style="margin: 0; font-size: {{hs.L.h1}}px; font-weight: 700; line-height: 1.25">Lessons of the module</h1>
+        <span style="display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600"><span aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 10px; background: {{hs.lessonsMod.color}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">{{hs.lessonsMod.glyph}}</span>{{hs.lessonsMod.name}}</span>
+        <span style="font-size: 13px; color: #6E6E73">{{hs.lessonsLine}}</span>
+      </div>
+      <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 14px">
+        <sc-for list="{{hs.lessonsGroups}}" as="g" hint-placeholder-count="4">
+          <section aria-label="{{g.aria}}" style="display: flex; flex-direction: column; gap: 6px">
+            <sc-if value="{{g.any}}" hint-placeholder-val="{{ false }}"><span style="padding: 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: #6E6E73">IN ANY ORDER</span></sc-if>
+            <div style="border-radius: 22px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(17,24,39,0.06); padding: 4px 16px; display: flex; flex-direction: column">
+              <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="2">
+                <button onClick="{{r.open}}" aria-label="{{r.aria}}" style="width: 100%; min-height: 64px; display: flex; align-items: center; gap: 14px; padding: 10px 0; border-top: {{r.line}}; text-align: left; color: #1D1D1F">
+                  <span aria-hidden="true" style="flex: none; width: 36px; height: 36px; border-radius: 50%; background: {{r.signBg}}; color: {{r.signFg}}; display: flex; align-items: center; justify-content: center">
+                    <sc-if value="{{r.passed}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+                    <sc-if value="{{r.begun}}" hint-placeholder-val="{{ false }}"><svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#DBE8F7" stroke-width="3"></circle><circle cx="18" cy="18" r="15" fill="none" stroke="#0071E3" stroke-width="3" stroke-linecap="round" stroke-dasharray="{{r.dash}}" transform="rotate(-90 18 18)"></circle></svg></sc-if>
+                    <sc-if value="{{r.fresh}}" hint-placeholder-val="{{ false }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5c2.6-1 5.4-1 8 .6 2.6-1.6 5.4-1.6 8-.6V19c-2.6-1-5.4-1-8 .6-2.6-1.6-5.4-1.6-8-.6z"></path><path d="M12 6.1v13.5"></path></svg></sc-if>
+                  </span>
+                  <span style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                    <span style="font-size: 15px; font-weight: 600">{{r.title}}</span>
+                    <span style="font-size: 13px; color: {{r.subFg}}">{{r.sub}}</span>
+                  </span>
+                  <sc-if value="{{r.next}}" hint-placeholder-val="{{ false }}"><span style="flex: none; height: 24px; padding: 0 10px; border-radius: 12px; background: #E8F3FF; color: #0058B8; display: flex; align-items: center; font-size: 12px; font-weight: 600">Next</span></sc-if>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M9 6l6 6-6 6"></path></svg>
+                </button>
+              </sc-for>
+            </div>
+          </section>
+        </sc-for>
+      </div>
+    </sc-if>
     <!-- Subjects: the catalog of this server — what is connected, and what else the profile may connect (concepts 15, module catalog). -->
     <sc-if value="{{hs.isSubjects}}" hint-placeholder-val="{{ false }}">
       <div style="flex: none; display: flex; flex-direction: column; justify-content: center">
@@ -2655,9 +2730,9 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 
   <!-- The profile's pages from paper on this device, newest first: a page opens on the screen of solving with its work kept (R162). -->
   <sc-if value="{{pagesOpen}}" hint-placeholder-val="{{ false }}">
-  <div class="nt-pop ph-hpop" role="dialog" aria-label="Your pages" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.pages}}">
+  <div class="nt-pop ph-hpop" role="dialog" aria-label="Solving history" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.pages}}">
     <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
-    <div class="nt-pages-head"><h2>Your pages</h2><span>on this device</span></div>
+    <div class="nt-pages-head"><h2>Solving history</h2><span>on this device</span></div>
     <ol class="nt-pages">
       <sc-for list="{{pages}}" as="pg" hint-placeholder-count="2">
         <li><button class="nt-pages-row" onClick="{{pg.open}}" aria-label="{{pg.when}} · {{pg.meta}}">
@@ -2976,7 +3051,7 @@ const MODS = [
 ];
 // The check board "Introductory block" once connected in Subjects: a card on home, whose tasks are solved on the sheet of a task
 // from paper, the statement as tracing paper — text from the module where a task from paper has its photo. A proposal to the author.
-const BOARD_MOD = { name: 'Introductory block', meta: 'NovaTrail · for grown-ups', glyph: '✓', tone: 0, sk: [0, 0, 0, 3, 0], sheet: true };
+const BOARD_MOD = { name: 'Introductory block', meta: 'NovaTrail · for grown-ups', glyph: '✓', tone: 0, sk: [0, 0, 0, 3, 0], sheet: true, skills: ['Arithmetic', 'Word problems', 'Equations'] };
 // A few of its eleven tasks, in English for the mockup. w and ch are in the page's units, as a crop's: the text wraps at
 // about 40 characters a line of 13 units, 1.4 apart, under a margin of 9.
 const SH = [
@@ -3160,6 +3235,16 @@ const LESSONS = {
       criteria: [['Three different first sentences', 'met'], ['Each makes a reader want to go on', 'not_met'], ['One sentence is ringed', 'not_assessed']] }
   ] }
 };
+// The step of each lesson the demo’s learner has reached, for its tile on Home.
+// Each module's lessons for the page of its lessons, synthetic: groups in the author's order, the lessons of a group side by side,
+// each [title, state, steps]; the one begun is the lesson of LESSONS, at the step of LESSON_AT.
+const LESSON_LIST = {
+  'Olympiad maths 1–6': [[['Counting on', 'passed', 3], ['Even and odd', 'passed', 3], ['Clocks', 'passed', 4]], [['Number patterns', 'begun', 4]],
+    [['Days and cycles', 'new', 4], ['Areas of shapes', 'new', 3]], [['Sums of rows', 'new', 5]], [['Pigeonhole principle', 'new', 4]]],
+  'School maths · grade 3': [[['Place value', 'passed', 3]], [['Division with a remainder', 'begun', 3]], [['Length and units', 'new', 4], ['Hours and minutes', 'new', 3]]],
+  'Short essays': [[['First sentences', 'begun', 3]], [['Topic sentence', 'new', 3], ['Supporting details', 'new', 3]], [['Order of ideas', 'new', 4]]]
+};
+const LESSON_AT = { 'Olympiad maths 1–6': 2, 'School maths · grade 3': 1, 'Short essays': 1 };
 const MARK = { met: ['Met', '#1E7A35'], not_met: ['Not met', '#C93400'], not_assessed: ['Not assessed', '#6E6E73'] };
 // The kinds of a report on the tutor's words (R136; AttemptService.ReportProblem).
 const REPORT_KINDS = ['Wrong', 'Unclear', 'Not right for the learner’s age', 'Harmful, dangerous or upsetting', 'Asks about something personal, or talks of it', 'Something else'];
@@ -3648,7 +3733,7 @@ class Component extends DCLogic {
   // ---- The tutor, Pip. It lives in the app, not in a canvas: the same button and panel on every canvas.
   // Its replies are the hint ladder's rung (one question), the same rung in other words (R82), or fixed texts;
   // it never names the answer. Every verdict comes from the program and lands in the conversation too.
-  atHome(st) { st = st || this.state; return st.screen === 'home' || st.screen === 'subjects' || st.screen === 'map'; }
+  atHome(st) { st = st || this.state; return st.screen === 'home' || st.screen === 'subjects' || st.screen === 'map' || st.screen === 'lessons'; }
   tutorHere(st) {
     if (this.atHome(st)) return true;
     if (this.lesNow(st)) return this.segNow(st).k === 'task' && !st.lesEnd;
@@ -4070,8 +4155,8 @@ class Component extends DCLogic {
   }
 
   // From home into a canvas: the camera of Take from my paper, or a module's lesson.
-  openCamera = () => this.setState({ grownOpen: false, bellOpen: false, modsOpen: false, screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
-  // A page of "Your pages": the worksheet as it was left, its picked tasks with the work kept and no verdict, which the device does not keep.
+  openCamera = () => this.setState({ fromFile: false, grownOpen: false, bellOpen: false, modsOpen: false, screen: 'canvas', surface: 'paper', stage: 'camera', back: 'home', more: false, verdict: null, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
+  // A page of the solving history: the worksheet as it was left, its picked tasks with the work kept and no verdict, which the device does not keep.
   openPage = () => {
     const k = 'worksheet-1', st = { d: 'M330 430 C350 400 380 450 410 420 M440 430 l40 -10', tool: 'pen', x: 330, y: 420, ts: 1, bb: [330, 400, 480, 450], closed: false };
     this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured: 'worksheet', frames: { worksheet: [] }, selected: [1, 2, 4], current: 1,
@@ -4281,22 +4366,26 @@ class Component extends DCLogic {
       return this.setState({ screen: 'home', chatOpen: false, lesson: null, segsOpen: false, verdict: null });
     }
     if (s.stage === 'solve') this.setState(this.isBoard(s) ? { screen: 'home', surface: 'sheet', chatOpen: false, verdict: null } : { stage: 'pick', verdict: null });
-    else if (s.stage === 'pick') this.setState({ stage: 'camera' });
+    else if (s.stage === 'pick') this.setState(s.fromFile ? { screen: 'home', surface: 'sheet' } : { stage: 'camera' });
     else if (s.back === 'home') this.setState({ screen: 'home', surface: 'sheet' });
     else this.setState({ surface: s.back || 'sheet' });
   };
 
   capture = () => {
-    const d = this.state.demo;
     this.setState({ flash: true, dbgBusy: this.dbgOn() });
-    this.later(() => {
-      const s = this.state, p = d + '-';
-      // Every task found starts picked: the learner leaves out what they will not solve, and frames what the AI missed.
-      this.setState({ flash: false, stage: 'pick', finding: false, pageSays: null, captured: d, asked: { ...s.asked, [d]: null }, askUndo: null, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
-        strokes: without(s.strokes, p), answers: without(s.answers, p), status: without(s.status, p), ptries: without(s.ptries, p), pmark: null, vmarks: null, verdict: null });
-      if (this.dbgOn()) this.dbgAdd(this.dbgFind(this.state, d));
-    }, 380);
+    this.later(() => this.pageFound(this.state.demo), 380);
   };
+
+  // A page from a file of the device, a photo or a scan: straight to the page to pick the tasks on, as after the camera's shot.
+  openFile = () => (this.openCamera(), this.setState({ fromFile: true }), this.pageFound(this.state.demo));
+
+  pageFound(d) {
+    const s = this.state, p = d + '-';
+    // Every task found starts picked: the learner leaves out what they will not solve, and frames what the AI missed.
+    this.setState({ flash: false, stage: 'pick', finding: false, pageSays: null, captured: d, asked: { ...s.asked, [d]: null }, askUndo: null, selected: (d === 'olympiad' ? OL : WS).filter((r) => r.found !== false).map((r) => r.id), frames: { ...s.frames, [d]: [] },
+      strokes: without(s.strokes, p), answers: without(s.answers, p), status: without(s.status, p), ptries: without(s.ptries, p), pmark: null, vmarks: null, verdict: null });
+    if (this.dbgOn()) this.dbgAdd(this.dbgFind(this.state, d));
+  }
 
   // The cards of what the page to pick from says (RUN.md, T254). Play reaches only "No tasks found"; the other notes are set by
   // the states of tools/mockup/states.mjs alone, as the mockup has no tap of corners, no failure of the finding and no closed AI.
@@ -5041,29 +5130,49 @@ class Component extends DCLogic {
   }
 
   // Home, Subjects and a module's skill map: the row of places (the tab bar on the phone), the pills at the right and their pop-overs, as app lays them.
+  // The page of a module's lessons: its groups in the author's order, each lesson's state, the one Home's tile shows marked.
+  lessonsVals(s) {
+    const mod = MODS.find((m) => m.name === s.lessonsMod) || MODS[0], groups = LESSON_LIST[mod.name] || [], at = LESSON_AT[mod.name] || 1;
+    const all = groups.flat(), passed = all.filter((x) => x[1] === 'passed').length;
+    const next = (all.find((x) => x[1] === 'begun') || all.find((x) => x[1] === 'new') || [])[0];
+    const LOOK = { passed: ['#EAF8EE', '#1E7A35'], begun: ['transparent', '#0071E3'], new: ['#F2F2F7', '#6E6E73'] };
+    return {
+      lessonsMod: mod, lessonsLine: 'In the author’s order, top to bottom · ' + passed + ' of ' + all.length + ' passed',
+      lessonsGroups: groups.map((g, gi) => ({ any: g.length > 1, aria: g.length > 1 ? 'Lessons in any order' : 'Lesson',
+        rows: g.map(([title, st, steps], i) => {
+          const sub = st === 'passed' ? 'Passed · ' + steps + ' steps' : st === 'begun' ? 'Step ' + at + ' of ' + steps : steps + ' steps';
+          return { title, sub, passed: st === 'passed', begun: st === 'begun', fresh: st === 'new', next: title === next,
+            signBg: LOOK[st][0], signFg: LOOK[st][1], subFg: st === 'begun' ? '#0058B8' : '#6E6E73', line: i ? '0.5px solid rgba(60,60,67,0.12)' : 'none',
+            dash: (at / steps * 94.2).toFixed(1) + ' 100', aria: title + ', ' + sub + (title === next ? ', next' : ''), open: () => this.openLesson(mod.name) };
+        }) }))
+    };
+  }
+
   homeVals(s, PH, pip, later) {
-    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, menuView: 'main', legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, quotaOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null, mapSel: null };
+    const SHUT = { homeLoading: false, helpOpen: false, switchOpen: false, menuView: 'main', legendOpen: false, pagesOpen: false, grownOpen: false, bellOpen: false, quotaOpen: false, modsOpen: false, chatOpen: false, aboutMod: null, skillsMod: null, mapSel: null, tasksPick: null };
     const tog = (k) => () => this.setState({ ...SHUT, [k]: !this.state[k] });
     const go = (screen) => () => this.setState({ ...SHUT, screen });
     // Subjects and the map in app's frame of a screen: under the row, 116 from the top on the iPad and 84 on the phone.
     const L = PH ? { h1: 28, gap1: 26, catCols: 'minmax(0, 1fr)', mapFlex: 'none' } : { h1: 32, gap1: 26, catCols: 'repeat(2, minmax(0, 1fr))', mapFlex: '1 1 auto' };
     const POP = 'border-radius: 20px; padding: 10px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
     const SHEET = 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 56px 16px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)';
-    const P = PH ? { account: SHEET, bell: SHEET, quota: SHEET, pages: SHEET, legend: SHEET, mods: SHEET, about: 'position: fixed; ' + SHEET, skills: 'position: fixed; ' + SHEET } : {
+    const P = PH ? { account: SHEET, bell: SHEET, quota: SHEET, pages: SHEET, legend: SHEET, mods: SHEET, about: 'position: fixed; ' + SHEET, skills: 'position: fixed; ' + SHEET, tasks: 'position: fixed; ' + SHEET } : {
       // Each hangs from its button in the row or the pills: under it, at its start or its end, as app's pop-overs.
       account: 'right: 41px; top: 86px; width: 320px; transform-origin: top right; ' + POP + '; padding: 8px',
       bell: 'right: 159px; top: 86px; width: 300px; transform-origin: top right; ' + POP + '; padding: 12px',
       quota: 'right: 249px; top: 86px; width: 320px; transform-origin: top right; ' + POP + '; padding: 12px 8px 8px',
-      pages: 'left: 522px; top: 434px; width: 400px; transform-origin: top right; ' + POP + '; padding: 18px 8px 8px',
+      pages: 'left: 228px; top: 345px; width: 400px; transform-origin: top left; ' + POP + '; padding: 18px 8px 8px',
       legend: 'left: 37px; top: 300px; width: 300px; ' + POP,
       mods: 'left: 190px; top: 208px; width: 300px; transform-origin: top left; ' + POP,
       // A card's own pop-overs hang inside it: About under ⋯ at its top right, the skills under their chip.
       about: 'position: absolute; right: 10px; top: 60px; width: 320px; transform-origin: top right; ' + POP + '; padding: 10px 8px 8px',
-      skills: 'position: absolute; left: 12px; right: 12px; top: 196px; transform-origin: top left; ' + POP + '; padding: 10px 8px 10px' };
+      skills: 'position: absolute; left: 12px; right: 12px; top: 196px; transform-origin: top left; ' + POP + '; padding: 10px 8px 10px',
+      // Which tasks to solve hangs under its tile, at its end, so that Solve stays in sight.
+      tasks: 'position: absolute; right: 0; top: calc(100% + 8px); width: 35rem; transform-origin: top right; ' + POP + '; padding: 18px' };
 
     // The cognitive map is not built yet: its place is shown, shut. A module's skill map opens from Subjects.
     const ICONS = { lock: 'M5 11h14v9H5zM8 11V8a4 4 0 0 1 8 0v3', map: 'M6 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM6 15.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8.3 7.1l7.4 3.8M8.3 16.9l7.4-3.8' };
-    const here = s.screen === 'map' ? 'subjects' : s.screen, SOON = 'Cognitive map — comes later';
+    const here = s.screen === 'map' ? 'subjects' : s.screen === 'lessons' ? 'home' : s.screen, SOON = 'Cognitive map — comes later';
 
     // The catalog: the three modules of the first slice, connected, and the check board beside them (architecture 3.10).
     // What a card says is the module's own: its subject and audience, its kind, a line of what it teaches, its skills by
@@ -5202,15 +5311,16 @@ class Component extends DCLogic {
     const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.1)' : PH ? '#FFFFFF' : 'transparent', sh: on ? 'inset 0 0 0 1.5px #0071E3' : 'none' });
 
     return {
-      on: s.screen === 'home' || s.screen === 'subjects' || s.screen === 'map', isPad: !PH, isPhone: PH, L, P, icons: ICONS, ai: AI, noop: () => {},
-      isHome: s.screen === 'home', isSubjects: s.screen === 'subjects', isOther: s.screen !== 'home',
+      on: this.atHome(s), isPad: !PH, isPhone: PH, L, P, icons: ICONS, ai: AI, noop: () => {},
+      isHome: s.screen === 'home', isSubjects: s.screen === 'subjects', isOther: s.screen !== 'home', isLessons: s.screen === 'lessons',
+      ...this.lessonsVals(s),
       otherH: PH ? '780px' : '750px', loading: !!s.homeLoading, loaded: !s.homeLoading, twoCards: [{}, {}],
-      screenName: s.screen === 'home' ? 'Home' : s.screen === 'subjects' ? 'Subjects' : 'Skill map',
+      screenName: s.screen === 'home' ? 'Home' : s.screen === 'subjects' ? 'Subjects' : s.screen === 'lessons' ? 'Lessons of the module' : 'Skill map',
       // The places alone, the cognitive map shut: For grown-ups and Help are in the profile's menu.
       nav: [['home', 'Home'], ['subjects', 'Subjects'], ['cog', 'Cognitive map']].map(([id, label]) => ({
         label, icon: AI[id], off: id === 'cog' || undefined, tip: id === 'cog' ? SOON : undefined,
         go: id === 'cog' ? () => {} : go(id), cur: here === id ? 'page' : undefined })),
-      goSubjects: go('subjects'),
+      goSubjects: go('subjects'), goHome: go('home'),
       legend: [['mastered', 'Mastered'], ['time-to-review', 'Time to review'], ['in-progress', 'In progress'], ['ready-to-start', 'Ready to start'], ['locked', 'Locked'], ['feedback-by-criteria', 'Feedback by criteria'], ['not-assessed', 'Not assessed']]
         .map(([st, name], i) => ({ st, name, swatch: i < 5, icon: AI[['mastered', 'review', 'progress', 'ready', 'locked', 'rubric', 'notAssessed'][i]] })),
       catOn, catOff, catSections, hasMore: catOff.length > 0, connectedN: catOn.length,
@@ -5218,7 +5328,7 @@ class Component extends DCLogic {
       mapLegend: (M.skills[0].st === 'rubric' ? ['rubric'] : ['mastered', 'review', 'progress', 'ready', 'locked']).map((k) => ({ name: word(k), st: DOT[k], n: M.skills.filter((x) => x.st === k).length })),
       modPick: MODS.map((m) => ({ ...m, on: m.name === s.mapMod, bg: m.name === s.mapMod ? 'rgba(0,113,227,0.08)' : 'transparent', pick: () => this.setState({ ...SHUT, mapMod: m.name }) })),
 
-      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.quotaOpen || s.modsOpen || !!s.aboutMod || !!s.skillsMod,
+      anyPop: s.helpOpen || s.switchOpen || s.legendOpen || s.pagesOpen || s.grownOpen || s.bellOpen || s.quotaOpen || s.modsOpen || !!s.aboutMod || !!s.skillsMod || !!s.tasksPick,
       scrim: PH ? 'rgba(0,0,0,0.22)' : 'transparent', closePop: () => this.setState({ ...SHUT }),
       // The bell's notices: the next version of the privacy policy, as its page names it, until a state says there is none.
       ...(() => {
@@ -5620,7 +5730,7 @@ class Component extends DCLogic {
 
       goNumberline: () => this.go('numberline'), goGeo: () => this.go('geo'),
       toggleMore: () => this.setState({ more: !this.state.more, tasksOpen: false }),
-      back: this.back, retake: () => this.setState({ stage: 'camera', verdict: null }), removeAll: () => this.removeAll(),
+      back: this.back, retake: () => (s.fromFile ? this.pageFound(s.demo) : this.setState({ stage: 'camera', verdict: null })), retakeWord: s.fromFile ? 'Another file' : 'Retake', fromFile: !!s.fromFile, fromCamera: !s.fromFile, removeAll: () => this.removeAll(),
       backToPick: () => this.setState({ stage: 'pick', verdict: null }),
       demoWs: () => this.setState({ demo: 'worksheet' }), demoOl: () => this.setState({ demo: 'olympiad' }),
       capture: this.capture, start: this.start,
@@ -5739,16 +5849,36 @@ class Component extends DCLogic {
       pagesOpen: s.pagesOpen, togglePages: () => this.setState({ pagesOpen: !this.state.pagesOpen, helpOpen: false, switchOpen: false }),
       pages: [{ when: 'Nov 22, 2026, 4:05 PM', meta: '3 tasks', page: 'worksheet', open: this.openPage }, { when: 'Nov 18, 2026, 9:12 AM', meta: '1 task', page: 'olympiad', open: this.openPage }],
       helpOpen: s.helpOpen, toggleHelp: () => this.setState({ helpOpen: !this.state.helpOpen, switchOpen: false }),
-      openCamera: this.openCamera, continueNext: () => this.openLesson('Olympiad maths 1–6'),
+      openCamera: this.openCamera, openFile: this.openFile,
       hs: this.homeVals(s, PH, pip, later), st: this.settingsVals(s, PH, later), isSubjects: s.screen === 'subjects',
+      // A card's two ways in: its lesson, and its tasks with the skill they train — the tutor's choice, or one the learner chose, kept for the module.
       mods: MODS.concat(s.boardOn ? [BOARD_MOD] : []).map((m) => {
-        const go = { open: m.sheet ? this.openBoard : () => this.openLesson(m.name), openAria: 'Continue ' + m.name, mapAria: 'Skill map of ' + m.name,
-          map: () => this.setState({ screen: 'map', mapMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false }) };
+        const L = LESSONS[m.name], at = LESSON_AT[m.name] || 1, own = (s.taskSkill || {})[m.name] || '', pickOn = s.tasksPick === m.name;
+        const firstTask = L ? L.segs.findIndex((g) => g.k === 'task') : -1;
+        const choose = (name) => this.setState({ tasksPick: null, taskSkill: { ...(this.state.taskSkill || {}), [m.name]: name } });
+        const skills = MAPS[m.name] ? MAPS[m.name].skills : BOARD_MOD.skills.map((name) => ({ t: 0, name, st: 'ready' }));
+        const tiers = MAPS[m.name] ? MAPS[m.name].tiers : ['Tier 1'];
+        const chip = (k) => ({ name: k.name, locked: k.st === 'locked', on: String(k.name === own), pick: () => choose(k.name),
+          aria: k.st === 'locked' ? k.name + ', locked until the skills it builds on' : k.name });
+        const rec = ['review', 'progress', 'ready', 'rubric'].flatMap((st) => skills.filter((k) => k.st === st)).slice(0, 3);
+        const go = { open: m.sheet ? this.openBoard : () => this.openLesson(m.name), openAria: 'Continue the lesson ' + (L ? L.title : ''), mapAria: 'Skill map of ' + m.name,
+          map: () => this.setState({ screen: 'map', mapMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false, tasksPick: null }),
+          hasLesson: !!L && !m.sheet, lesson: L ? L.title : '', lessonsAria: (L ? L.title : '') + ': every lesson of ' + m.name,
+          lessons: () => this.setState({ screen: 'lessons', lessonsMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false, tasksPick: null }),
+          lessonStep: L ? 'Step ' + at + ' of ' + L.segs.length + ' · in the author’s order' : '', lessonPct: L ? Math.round(at / L.segs.length * 100) + '%' : '0%',
+          own: !!own, ownStr: String(!!own), ai: !own, aiStr: String(!own), pickOn, pickStr: String(pickOn),
+          tasksEyebrow: own ? 'Tasks · your skill' : 'Tasks', tasksTitle: own || 'The tutor picks the skill',
+          tasksSub: own ? 'Tasks on this skill alone' : 'As the work goes, by your progress',
+          pickAria: own ? 'Tasks on ' + own + ': choose which tasks to solve' : 'Tasks, the tutor picks the skill: choose which tasks to solve',
+          pickOpen: () => this.setState({ tasksPick: pickOn ? null : m.name, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, bellOpen: false, quotaOpen: false }),
+          reset: () => this.setState({ tasksPick: null, taskSkill: { ...(this.state.taskSkill || {}), [m.name]: '' } }),
+          solve: m.sheet ? this.openBoard : () => (this.openLesson(m.name), firstTask >= 0 && this.goSeg(firstTask)), solveAria: 'Solve the tasks of ' + m.name,
+          rec: rec.map(chip), groups: tiers.map((name, t) => ({ name, chips: skills.filter((k) => k.t === t).map(chip) })).filter((g) => g.chips.length) };
         const look = { name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, letter: m.name[0], tone: m.tone };
         if (m.mark) return { ...go, ...look, kind: 'rubric', kindName: 'Feedback by criteria', adaptive: false, done: m.mark + ' skills, each with a rubric',
           aria: 'All the skills: Feedback by criteria: ' + m.mark, dots: Array.from({ length: m.mark }, () => ({ st: 'feedback-by-criteria' })) };
         const all = m.sk.reduce((a, b) => a + b, 0), st = ['mastered', 'time-to-review', 'in-progress', 'ready-to-start', 'locked'];
-        return { ...go, ...look, kind: 'adaptive', kindName: 'Adaptive', adaptive: true, done: m.sk[0] + ' of ' + all + ' mastered', review: m.sk[1] + ' skills to review',
+        return { ...go, ...look, kind: 'adaptive', kindName: 'Adaptive', adaptive: true, done: m.sk[0] + ' of ' + all + ' mastered',
           aria: 'All the skills: ' + STATES.map((x, i) => x[1] + ': ' + m.sk[i]).join(', '), dots: m.sk.flatMap((n, i) => Array.from({ length: n }, () => ({ st: st[i] }))) };
       })
     };

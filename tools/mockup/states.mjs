@@ -95,7 +95,7 @@ export const STATES = [
   // "Who's learning?" and home, in the first slice: the owner's profile alone.
   { name: "wait-home", title: "Waiting on the page", from: "signin", shows: "Loading", run: (t) => t.c.setState({ screen: "wait", waitOn: "page" }) },
   { name: "who", title: "Who's learning?", from: "owner-filled", shows: "Add a learner", run: (t) => t.v().ownerDone() },
-  { name: "home", title: "Home", from: "who", shows: "The tutor chooses", run: (t) => t.v().profiles[0].pick() },
+  { name: "home", title: "Home", from: "who", shows: "The tutor picks the skill", run: (t) => t.v().profiles[0].pick() },
   { name: "home-loading", title: "Home, while it is read", from: "home", shows: "Tasks from my paper", run: (t) => t.c.setState({ homeLoading: true }) },
   { name: "home-switch", title: "Home, the profile's menu: who is learning, Settings, Help, Sign out", from: "home", shows: "Switch learner", run: (t) => t.v().hs.toggleAccount() },
   { name: "home-help", title: "Home, the adult's Help in the profile's menu", from: "home-switch", shows: "Report a problem", run: (t) => t.v().hs.openHelp() },
@@ -115,6 +115,9 @@ export const STATES = [
   { name: "home-quota-out", title: "Home, tutor time used up: the full red ring's sign, and when it comes back", from: "home", shows: "Used up for today", run: (t) => (t.c.setState({ quotaPct: 100, quotaOut: true }), t.v().hs.toggleQuota()) },
   { name: "home-legend", title: "Home, what the marks mean", from: "home", shows: "Time to review", run: (t) => t.v().hs.toggleLegend() },
   { name: "home-pages", title: "Home, the pages from paper on this device", from: "home", shows: "on this device", run: (t) => t.v().hs.togglePages() },
+  { name: "home-tasks", title: "Home, which tasks to solve: the tutor's choice or a skill of the learner's own", from: "home", shows: "Which tasks to solve?", run: (t) => t.v().mods[0].pickOpen() },
+  { name: "home-tasks-own", title: "Home, a skill of the learner's own chosen for a module's tasks", from: "home-tasks", shows: "Return the choice to the tutor", run: (t) => t.v().mods[0].rec[1].pick() },
+  { name: "lessons", title: "The module's lessons, from the row of its lesson on Home", from: "home", shows: "IN ANY ORDER", run: (t) => t.v().mods[0].lessons() },
   { name: "subjects", title: "Subjects, the catalog of this server", from: "home", shows: "Introductory block", run: (t) => t.v().hs.goSubjects() },
   { name: "subjects-about", title: "Subjects, About a module under its ⋯", from: "subjects", shows: "Apache-2.0", run: (t) => t.v().hs.catOn[0].about() },
   { name: "subjects-skills", title: "Subjects, every skill of a module by its tier", from: "subjects", shows: "TIER 4 · OLYMPIAD", run: (t) => t.v().hs.catOn[0].skills() },
@@ -127,7 +130,7 @@ export const STATES = [
   { name: "board-ask", title: "The tutor's panel on a task of the check board", from: "board", shows: "by text or voice", run: (t) => t.v().openChat() },
   { name: "board-not-yet", title: "Not yet on a task of the check board, and the wavy mark", from: "board", shows: "Not yet", run: (t) => (t.ink(), t.v().check()) },
   { name: "board-correct", title: "Correct on a task of the check board, and Next task", from: "board-not-yet", shows: "Correct", run: (t) => t.v().check() },
-  { name: "solve-kept", title: "A page from Your pages, its work kept", from: "home-pages", shows: "1 / ", run: (t) => t.v().pages[0].open() },
+  { name: "solve-kept", title: "A page from the solving history, its work kept", from: "home-pages", shows: "1 / ", run: (t) => t.v().pages[0].open() },
   { name: "legal-access", title: "The page Accessibility", from: "home-help", shows: "WCAG 2.2", run: (t) => t.v().openAccess() },
   { name: "map", title: "The skill map of a module", from: "subjects", shows: "Enumeration", run: (t) => t.v().hs.catOn[0].map() },
   { name: "map-skill", title: "The skill map, a skill chosen: its chain lit", from: "map", shows: "BUILDS ON", run: (t) => t.v().hs.map.nodes.find((n) => n.name === "Enumeration").pick() },
@@ -227,6 +230,7 @@ export const STATES = [
   { name: "camera", title: "The camera of the paper flow", from: "home", shows: "Worksheet", run: (t) => t.v().openCamera() },
   { name: "pick", title: "The tasks the AI found on the page, every one picked", from: "camera", shows: "5 tasks found", run: (t) => t.v().capture() },
   // The page while the finding runs: no frame yet, a line sweeping it with its glow the same above and below.
+  { name: "pick-file", title: "A page from a file of the device, from Home: the same page to pick the tasks on", from: "home", shows: "5 tasks found", run: (t) => t.v().openFile() },
   { name: "pick-finding", title: "The page while the AI finds its tasks", from: "pick", shows: "Finding the tasks on the page", run: (t) => t.c.setState({ finding: true, selected: [] }) },
   // A rectangle dragged round equation (6), which the AI missed: while the finger is down, and once it is up, the learner's frame.
   { name: "pick-drag", title: "A frame being dragged round a task", from: "pick", shows: "5 tasks found", run: (t) => t.c.setState({ liveBox: { x: 304, y: 592, w: 210, h: 58 }, liveLayer: "frame" }) },
