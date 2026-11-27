@@ -66,11 +66,5 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 | [x] | T329 | `app`: диктофон в окне наставника на iPad слушает, но не даёт текста | я + Claude | да | — |
 | [x] | T327 | `app`: браузерные тесты ждут условие, а не фиксированное время | Claude | — | — |
 | [x] | T248 | `spec`: запрет чтения наборов оценки `modules` в клонах `.epics` | Claude | — | — |
-| [ ] | T328 | `modules`: переход на тег `spec` с T248, Д14 | Claude | — | T248 |
-
-#### T328. `modules`: переход на тег `spec` с T248, Д14
-
-- **Цель:** `modules` стоит на теге `spec`, выпущенном после T248, и сессия в клоне `.epics/<эпик>/modules` не читает образцы людей из `eval/`, как не читает их в клоне хоста.
-- **Сделать:** после выпуска `spec` с T248 (`xrepo ship`, пин `modules` на тег); что тег решил для `modules` — `git -C spec diff v0.19.20 <тег>`: формат, шаблон `repo-template/files`, RULES.md, правило ссылок, проверка документов; `.claude/settings.json` — запрет шаблона из T248 вместе с собственным запретом `modules` на образцы людей; строки CLAUDE.md, README.md и RUN.md с тегом и статус `docs/architecture.md`; Д14 — закрыт, его текст — в архив эпика `modules`.
-- **Как проверить:** `xrepo test modules`; `just -f spec/justfile docs-check-repo`; `just modules-check`; проба T248 в клоне `.epics/e26/modules` — файл набора, не `synthetic-*.json`, не читается, `synthetic-*.json` читается; `xrepo gate modules`.
-- **Разделы:** Д14 `modules`, R04 `modules`; T248; правила переходов на тег в RULES.md.
+| [x] | T328 | `modules`: переход на тег `spec` с T248, Д14 | Claude | — | T248 |
+| [x] | T333 | `app`: диктофон в окне наставника на iPad снова висит на «Слушаю…» | я + Claude | да | — |
