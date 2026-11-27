@@ -205,8 +205,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-next-statement { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 :where(.ph-home) .nt-next-step { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 0.5rem; margin-inline-start: auto; text-align: end; }
 :where(.ph-home) .nt-next-step .nt-buttons { margin: 0px; }
-:where(.ph-home) .nt-quota-bar { display: flex; block-size: 0.375rem; border-radius: 0.1875rem; background: rgb(232, 232, 237); overflow: hidden; }
-:where(.ph-home) .nt-quota-bar > span { border-radius: 0.1875rem; background: #0071e3; }
 /* Tutor time: its ring among the pills at the top right, and its pop-over. The ring is 32 in a target of 44; the number inside is the share, a sign instead while none is used and once it is used up. */
 :where(.ph-home) .nt-quota-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;inline-size:2rem;block-size:2rem;flex:none}
 :where(.ph-home) .nt-quota-ring>svg:first-child{position:absolute;inset:0}
@@ -219,10 +217,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-q-say{display:flex;flex-direction:column;gap:.125rem;min-inline-size:0}
 :where(.ph-home) .nt-q-say>b{font-size:.9375rem;line-height:1.3}
 :where(.ph-home) .nt-q-say>span{color:#6e6e73;font-size:.8125rem;line-height:1.4}
-:where(.ph-home) .nt-q-card{display:flex;flex-direction:column;gap:.5rem;margin:0 .375rem;padding:.75rem .75rem .625rem;border-radius:.75rem;background:rgba(118,118,128,.08)}
-:where(.ph-home) .nt-q-row{display:flex;justify-content:space-between;gap:.75rem;font-size:.875rem;font-weight:600}
-:where(.ph-home) .nt-q-row>span:last-child{color:#6e6e73;font-weight:500;font-variant-numeric:tabular-nums}
-:where(.ph-home) .nt-q-renew{display:flex;align-items:center;gap:.375rem;color:#6e6e73;font-size:.78125rem}
+:where(.ph-home) .nt-q-renew{display:flex;align-items:center;gap:.375rem;margin:0 .375rem;padding:.75rem;border-radius:.75rem;background:rgba(118,118,128,.08);color:#6e6e73;font-size:.78125rem}
 :where(.ph-home) .nt-q-note{padding:.625rem .625rem .25rem;color:#6e6e73;font-size:.78125rem;line-height:1.4}
 :where(.ph-home) .nt-q-demo{display:flex;align-items:center;gap:.25rem;margin:.25rem .375rem 0;padding-top:.5rem;border-top:.5px solid rgba(0,0,0,.08)}
 :where(.ph-home) .nt-q-demo-chip{flex:none;margin-inline-end:.25rem;padding:2px 6px;border-radius:6px;background:rgba(118,118,128,.14);font-size:10.5px;font-weight:700;color:#3a3a3c}
@@ -2634,7 +2629,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   </div>
   </sc-if>
 
-  <!-- Tutor time, by its ring at the top: how much of today's this profile has used, what that means, when it renews, and the way to Settings, where the whole account's share is. -->
+  <!-- Tutor time, by its ring at the top: how much of today's this profile has used — its number in the ring alone —, what that means, when it renews, and the way to Settings, where the whole account's share is. -->
   <sc-if value="{{hs.quotaOpen}}" hint-placeholder-val="{{ false }}">
   <div class="nt-pop ph-hpop" role="dialog" aria-label="Tutor time" style="position: absolute; z-index: 6; box-sizing: border-box; background: rgba(255,255,255,0.98); {{hs.P.quota}}">
     <sc-if value="{{hs.isPhone}}" hint-placeholder-val="{{ false }}"><button class="ib" onClick="{{hs.closePop}}" aria-label="Close" style="position: absolute; top: 8px; right: 8px; color: #6E6E73"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></sc-if>
@@ -2647,11 +2642,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </span>
       <span class="nt-q-say"><b>{{hs.q.title}}</b><span>{{hs.q.line}}</span></span>
     </div>
-    <div class="nt-q-card">
-      <p class="nt-q-row"><span>This profile, today</span><span>{{hs.q.used}}</span></p>
-      <span class="nt-quota-bar" aria-hidden="true"><span style="inline-size: {{hs.q.pct}}%; background: {{hs.q.color}}"></span></span>
-      <p class="nt-q-renew"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Renews tomorrow at 08:00</p>
-    </div>
+    <p class="nt-q-renew"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Renews tomorrow at 08:00</p>
     <p class="nt-q-note">The tutor’s replies and the AI’s reading of works spend it. When it ends, the task’s own hints still help.</p>
     <button class="nt-menu-row" onClick="{{hs.openSettings}}"><span class="nt-menu-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.cog}}"></path></svg></span><span class="nt-menu-label">The whole account in Settings</span><span class="nt-menu-more"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></button>
     <!-- DEMO: the share, to see each look of the ring. In the app it is GetQuota's. -->
@@ -5246,16 +5237,16 @@ class Component extends DCLogic {
         const color = { fresh: '#34C759', green: '#34C759', yellow: '#F7B500', red: '#FF3B30', out: '#FF3B30' }[lv];
         const SAY = {
           fresh: ['None used yet today', 'The tutor has all of today’s time for you.'],
-          green: ['Plenty left today', pct + '% of today’s tutor time is used.'],
-          yellow: ['More than half used', pct + '% of today’s tutor time is used. Keep some for checking your work.'],
-          red: ['Almost used up', pct + '% is used. When it ends, the tutor and the AI’s check of works wait until it renews.'],
-          out: ['Used up for today', 'It comes back tomorrow at 08:00. Until then the tutor and the AI’s check of works wait.'] }[lv];
+          green: ['Plenty left today', 'Enough for many more questions and checks.'],
+          yellow: ['More than half used', 'Keep some for checking your work.'],
+          red: ['Almost used up', 'When it ends, the tutor and the AI’s check of works wait until it renews.'],
+          out: ['Used up for today', 'Until it renews, the tutor and the AI’s check of works wait.'] }[lv];
         return { pct, color, ink: lv === 'fresh' ? '#248A3D' : color, track: lv === 'fresh' ? 'rgba(52,199,89,0.35)' : 'rgba(120,120,128,0.2)',
           dash: lv === 'fresh' ? '0 100' : lv === 'out' ? C + ' 0' : (pct * C / 100).toFixed(1) + ' 100',
           num: lv !== 'fresh' && lv !== 'out', sign: lv === 'fresh' || lv === 'out',
           glyph: lv === 'out' ? 'M7 3h10M7 21h10M8 3v2.5c0 1.6 1 2.6 2.4 3.6L12 10.4l1.6-1.3C15 8.1 16 7.1 16 5.5V3M8 21v-2.5c0-1.6 1-2.6 2.4-3.6l1.6-1.3 1.6 1.3c1.4 1 2.4 2 2.4 3.6V21'
             : 'M12 3.5l1.9 6.6 6.6 1.9-6.6 1.9-1.9 6.6-1.9-6.6-6.6-1.9 6.6-1.9z',
-          title: SAY[0], line: SAY[1], used: pct + '% used',
+          title: SAY[0], line: SAY[1],
           aria: 'Tutor time: ' + (lv === 'fresh' ? 'none used today' : lv === 'out' ? 'used up today' : pct + '% used today'),
           demo: [0, 20, 65, 85, 100].map((n) => ({ label: n + '%', on: String(n === pct), go: () => this.setState({ quotaPct: n, quotaOut: n === 100 }) })) };
       })(),

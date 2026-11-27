@@ -86,7 +86,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `home-bell` | Home, the notifications: the next version of the privacy policy — its day, the version in force till then and "Read version 3"; the bell's red dot, there until it is opened, gone | First slice |
 | `home-bell-keep` | The same while a profile keeps its works on the server: a line that it can be turned off in Settings before that day | First slice |
 | `home-bell-none` | Home, the notifications with nothing new: "Nothing new yet" | First slice |
-| `home-quota` | Home, the tutor's time by its ring at the top right, a fifth used: the ring green below 50%, its number the share; its pop-over — the big ring and what the share means, this profile's bar and when it renews, the way to Settings for the whole account's share —, and the mockup's DEMO row of shares | First slice |
+| `home-quota` | Home, the tutor's time by its ring at the top right, a fifth used: the ring green below 50%, its number the share; its pop-over — the big ring, the share's number there alone, and what it means, when it renews, the way to Settings for the whole account's share —, and the mockup's DEMO row of shares | First slice |
 | `home-quota-fresh` | The same with none used yet: a green sparkle in the ring instead of a number | First slice |
 | `home-quota-half` | The same, more than half used: the ring yellow from 50% to 80% | First slice |
 | `home-quota-low` | The same, almost used up: the ring red from 80% | First slice |
@@ -229,28 +229,28 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 
 | Line and part | What it draws |
 |---|---|
-| `Main.dc.html:502` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
-| `Main.dc.html:566` — Camera | The camera's viewfinder |
-| `Main.dc.html:608` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the frame being dragged |
-| `Main.dc.html:651` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
-| `Main.dc.html:696` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
-| `Main.dc.html:778` — Author canvases | The sandbox's chip |
-| `Main.dc.html:786` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
-| `Main.dc.html:829` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›; on the page to pick from what was found in the middle, "Remove all frames" and Retake; the solving mode |
-| `Main.dc.html:921` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
-| `Main.dc.html:951` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, its colour a dot and a corner for its options, Eraser, Select, which a second tap gives its shapes, Lasso and Rectangle, Hand, Undo, Redo, Clear, Zoom in and Zoom out, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
-| `Main.dc.html:1019` — The tutor | One component on every screen where the tutor stands — Home, the page to pick from, a task from paper, a task of a module, Pip under "Later" —, set by `tutorKit` of the script: its context and which of its parts are on. "Ask" in the bottom row — of a task from paper, of the check board and of a lesson —, the round button at the start of the bar of the page to pick from, the pill on Home, and the button at the right edge only on a screen with no row; the panel: the head with the quota and the speaker, the steps, the conversation, the context's buttons, the field with the microphone and Send |
-| `Main.dc.html:1322` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
-| `Main.dc.html:1491` — Pick | What left the device, the cards of what the page says, Select all, Start |
-| `Main.dc.html:1534` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1630` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
-| `Main.dc.html:1958` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:2084` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:2148` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:2245` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the ring of the tutor's time, the tutor, shut, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, the tutor's time, "Your pages", the legend, the module of the map |
-| `Main.dc.html:2710` — Settings | The section for adults as a device's settings: the sidebar on the iPad or the list on the phone, the page and its bar with Save, the grouped lists with their captions and notes, the ticks, the switches and the speed's segments |
-| `Main.dc.html:2844` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2862` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:497` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
+| `Main.dc.html:561` — Camera | The camera's viewfinder |
+| `Main.dc.html:603` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the frame being dragged |
+| `Main.dc.html:646` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
+| `Main.dc.html:691` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it |
+| `Main.dc.html:773` — Author canvases | The sandbox's chip |
+| `Main.dc.html:781` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
+| `Main.dc.html:824` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›; on the page to pick from what was found in the middle, "Remove all frames" and Retake; the solving mode |
+| `Main.dc.html:916` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
+| `Main.dc.html:946` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, its colour a dot and a corner for its options, Eraser, Select, which a second tap gives its shapes, Lasso and Rectangle, Hand, Undo, Redo, Clear, Zoom in and Zoom out, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
+| `Main.dc.html:1014` — The tutor | One component on every screen where the tutor stands — Home, the page to pick from, a task from paper, a task of a module, Pip under "Later" —, set by `tutorKit` of the script: its context and which of its parts are on. "Ask" in the bottom row — of a task from paper, of the check board and of a lesson —, the round button at the start of the bar of the page to pick from, the pill on Home, and the button at the right edge only on a screen with no row; the panel: the head with the quota and the speaker, the steps, the conversation, the context's buttons, the field with the microphone and Send |
+| `Main.dc.html:1317` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:1486` — Pick | What left the device, the cards of what the page says, Select all, Start |
+| `Main.dc.html:1529` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
+| `Main.dc.html:1625` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
+| `Main.dc.html:1953` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:2079` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:2143` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:2240` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the ring of the tutor's time, the tutor, shut, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Next up" beside "Tasks from my paper", the modules' cards and the legend, and their shapes while read; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, the tutor's time, "Your pages", the legend, the module of the map |
+| `Main.dc.html:2701` — Settings | The section for adults as a device's settings: the sidebar on the iPad or the list on the phone, the page and its bar with Save, the grouped lists with their captions and notes, the ticks, the switches and the speed's segments |
+| `Main.dc.html:2835` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2853` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -343,7 +343,7 @@ The pairs of the mockup's colours by WCAG 2.2: 1.4.3 for text, 4.5:1, or 3:1 for
 | `#34C759`, `#FF9F0A`, `#B9D7FF`, `#E5E5EA` on `#FFFFFF` | the segments of a module's bar and the legend's swatches | 2.22, 2.06, 1.48, 1.26 | no | `#30A14E`, `#C77700`, `#3D8BE0` for ready, `#8E8E93` for locked — 3.32, 3.46, 3.52, 3.26 — with a white gap of 2 px between segments; in progress `#0A84FF`, 3.65, stays — the mockup's bar and legend draw them. The words of the states stand beside the bar and in its accessible name |
 | `#AEAEB2` on `#EAF1FB`; `#636366` on a grey fill of 0.12 over it | the cognitive map in the row of places, shut; its "Soon" | 1.95; 4.60 | exempt: an inactive control; 1.4.3 | — |
 | `#FFFFFF` on `#1D1D1F`; `#0066CC` on the tab bar, white at 0.96 over `#F2F2F7` | the place now in the row of places; the tab bar's | 16.83; 5.52 | 1.4.3 | — |
-| `#34C759`, `#F7B500`, `#FF3B30` on `#FFFFFF` | the ring of the tutor's time and its bar: below 50%, to 80%, from 80% | 2.22, 1.82, 3.55 | the share is told by the number in the ring, the words of its pop-over and its accessible name; the colour adds to them | — ; the sign with none used `#248A3D`, 4.40, and used up `#FF3B30`, 3.55 — 1.4.11 |
+| `#34C759`, `#F7B500`, `#FF3B30` on `#FFFFFF` | the ring of the tutor's time: below 50%, to 80%, from 80% | 2.22, 1.82, 3.55 | the share is told by the number in the ring, the words of its pop-over and its accessible name; the colour adds to them | — ; the sign with none used `#248A3D`, 4.40, and used up `#FF3B30`, 3.55 — 1.4.11 |
 | `#C7C7CC` on `#FFFFFF` | the ring of an unticked checkbox | 1.68 | no | `#8E8E93`, 3.26 |
 | `#34C759`; `rgba(120,120,128,0.16)` on `#FFFFFF` | a switch on; off | 2.22; 1.21 | no | on `#248A3D`, 4.40; off `#D1D1D6` with a ring of `#8E8E93`, 3.26 — the mockup's switches draw them |
 | A grey fill of 0.10–0.12 on `#FFFFFF` | the edge of a text field | 1.13–1.15 | no | a border of 1 px `#8E8E93` |
