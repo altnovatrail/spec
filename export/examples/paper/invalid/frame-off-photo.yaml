@@ -1,6 +1,6 @@
 # error: maximum at #/frames/0/box/2
 # A task frame is in whole thousandths of the photo, 0 to 1000.
-format: 5
+format: 6
 profile_id: "p-1"
 page_id: "page-1"
 taken_at: "2026-11-18T16:05:00Z"

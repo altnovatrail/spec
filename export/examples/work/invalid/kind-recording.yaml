@@ -1,6 +1,6 @@
 # error: enum at #/kind
 # A stored work is handwriting, an essay or a drawing: the part has no recording.
-format: 5
+format: 6
 profile_id: "p-1"
 attempt_id: "attempt-1"
 kind: "recording"

@@ -28,13 +28,22 @@ service ModuleService {
   // `CAUSE_NO_CURRENT_VERSION`.
   rpc ConnectModule(ConnectModuleRequest) returns (ConnectModuleResponse);
   // Disconnects a module from the profile. The answer is the modules connected; a module not
-  // connected changes nothing. The evidence of the module stays in the profile's journal, and an
-  // open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next request.
+  // connected changes nothing. The evidence of the module stays in the profile's journal, its task
+  // skill goes, and an open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next
+  // request.
   rpc DisconnectModule(DisconnectModuleRequest) returns (DisconnectModuleResponse);
   // The modules connected to the profile, each with the digest of its current version, or with
   // none when it has none for the learner. `app` shows such a module unavailable: it may be
   // disconnected, and it has no attempts and no lessons.
   rpc ListConnectedModules(ListConnectedModulesRequest) returns (ListConnectedModulesResponse);
+  // Sets the task skill of a connected module: the skill the learner chose for its tasks, on the
+  // tile of its tasks or on the skill map, which `ChooseNext` with the module gives its tasks on
+  // until the learner gives the choice back to the tutor, an empty skill. The answer is the modules
+  // connected. The learner chooses among the skills the map opens, and `app` offers no other;
+  // `api` holds only that the skill is one of the graph of the module's current version.
+  // Refusals: `CAUSE_NOT_FOUND`, a module not connected or a skill its graph does not have, and
+  // `CAUSE_NO_CURRENT_VERSION`; a module solved on the sheet gets `invalid_argument`.
+  rpc SetTaskSkill(SetTaskSkillRequest) returns (SetTaskSkillResponse);
 }
 
 // A request for the catalog.
@@ -97,6 +106,23 @@ message ListConnectedModulesResponse {
   repeated ConnectedModule modules = 1;
 }
 
+// A request to set the task skill of a module.
+message SetTaskSkillRequest {
+  // The profile.
+  string profile_id = 1;
+  // The module's ID.
+  string module_id = 2;
+  // The full ID of the skill, "novatrail/olympiad-math/skill/counting-gaps": empty gives the
+  // choice back to the tutor.
+  string skill = 3;
+}
+
+// The task skill set.
+message SetTaskSkillResponse {
+  // The modules connected, in the order they were connected.
+  repeated ConnectedModule modules = 1;
+}
+
 // A module connected to a profile.
 message ConnectedModule {
   // The module's ID.
@@ -113,4 +139,8 @@ message ConnectedModule {
   // and none evidence of the learner model; the engine chooses none of them. `api` names such
   // modules; none is a field of the module format.
   bool on_sheet = 4;
+  // The task skill: the full ID of the skill the learner chose for the module's tasks, empty while
+  // the tutor chooses. A skill the graph of the current version no longer has is empty here, and
+  // the tutor chooses.
+  string task_skill = 5;
 }

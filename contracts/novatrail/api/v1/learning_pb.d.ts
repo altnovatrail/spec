@@ -7,7 +7,7 @@
 // each message means is the rule of contracts/README.md for the contract
 // between `app` and `api`.
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 import type { EngineChoice, RunEnd } from "./cause_pb.js";
 import type { OpenView } from "./package_pb.js";
@@ -20,7 +20,7 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 export declare const file_novatrail_api_v1_learning: GenFile;
 
 /**
- * "Something else".
+ * A request for the engine's choice.
  *
  * @generated from message novatrail.api.v1.ChooseNextRequest
  */
@@ -40,8 +40,10 @@ export declare type ChooseNextRequest = Message<"novatrail.api.v1.ChooseNextRequ
   idempotencyKey: string;
 
   /**
-   * The full ID of the skill that the learner chose on the skill map, "novatrail/olympiad-math/
-   * skill/counting-gaps": empty when the engine leads.
+   * The full ID of a skill, "novatrail/olympiad-math/skill/counting-gaps", for a choice among all
+   * the modules on it: empty when the engine leads. `app` sends none: the skill the learner chose
+   * is the task skill of its module, `ModuleService.SetTaskSkill`, which a choice with the module
+   * reads.
    *
    * @generated from field: string skill = 3;
    */
@@ -56,6 +58,14 @@ export declare type ChooseNextRequest = Message<"novatrail.api.v1.ChooseNextRequ
    * @generated from field: string own_key_provider = 4;
    */
   ownKeyProvider: string;
+
+  /**
+   * The module whose tasks alone the choice is among, by its ID: Solve on the tile of its tasks.
+   * Empty for a choice among all the modules connected.
+   *
+   * @generated from field: string module_id = 5;
+   */
+  moduleId: string;
 };
 
 /**
@@ -404,7 +414,7 @@ export declare type EssaySubmission = Message<"novatrail.api.v1.EssaySubmission"
 export declare const EssaySubmissionSchema: GenMessage<EssaySubmission>;
 
 /**
- * The opening of the lesson of an engine's choice.
+ * The opening of a lesson: of an engine's choice, or by its full ID.
  *
  * @generated from message novatrail.api.v1.OpenLessonRequest
  */
@@ -417,7 +427,7 @@ export declare type OpenLessonRequest = Message<"novatrail.api.v1.OpenLessonRequ
   profileId: string;
 
   /**
-   * The engine's choice of the lesson, `CHOICE_KIND_LESSON`.
+   * The engine's choice of the lesson, `CHOICE_KIND_LESSON`: empty beside `lesson`.
    *
    * @generated from field: string choice_id = 2;
    */
@@ -432,6 +442,14 @@ export declare type OpenLessonRequest = Message<"novatrail.api.v1.OpenLessonRequ
    * @generated from field: string own_key_provider = 3;
    */
   ownKeyProvider: string;
+
+  /**
+   * The full ID of the lesson the learner chose, "novatrail/olympiad-math/lesson/counting-gaps-1":
+   * empty beside `choice_id`.
+   *
+   * @generated from field: string lesson = 4;
+   */
+  lesson: string;
 };
 
 /**
@@ -459,6 +477,123 @@ export declare type OpenLessonResponse = Message<"novatrail.api.v1.OpenLessonRes
  * Use `create(OpenLessonResponseSchema)` to create a new message.
  */
 export declare const OpenLessonResponseSchema: GenMessage<OpenLessonResponse>;
+
+/**
+ * A request for the lessons of a module.
+ *
+ * @generated from message novatrail.api.v1.ListLessonsRequest
+ */
+export declare type ListLessonsRequest = Message<"novatrail.api.v1.ListLessonsRequest"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The module's ID.
+   *
+   * @generated from field: string module_id = 2;
+   */
+  moduleId: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.ListLessonsRequest.
+ * Use `create(ListLessonsRequestSchema)` to create a new message.
+ */
+export declare const ListLessonsRequestSchema: GenMessage<ListLessonsRequest>;
+
+/**
+ * The lessons of a module.
+ *
+ * @generated from message novatrail.api.v1.ListLessonsResponse
+ */
+export declare type ListLessonsResponse = Message<"novatrail.api.v1.ListLessonsResponse"> & {
+  /**
+   * The lessons, in the author's order: by the skill graph, a lesson after those whose skills its
+   * own need, then by tier and by ID. The lesson of an open run that the current version does not
+   * list, or that no longer suits the learner, comes after them, each in a group of its own, by
+   * the run's package: its run goes on, as every run does on the package it began on.
+   *
+   * @generated from field: repeated novatrail.api.v1.ModuleLesson lessons = 1;
+   */
+  lessons: ModuleLesson[];
+
+  /**
+   * The full ID of the lesson the tile shows, one of `lessons`: the lesson of an open run, the
+   * one begun last when there are several; else the first in the order that is not passed; else
+   * the first. Empty when `lessons` is.
+   *
+   * @generated from field: string tile_lesson = 2;
+   */
+  tileLesson: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.ListLessonsResponse.
+ * Use `create(ListLessonsResponseSchema)` to create a new message.
+ */
+export declare const ListLessonsResponseSchema: GenMessage<ListLessonsResponse>;
+
+/**
+ * A lesson of a module, as its page of lessons lists it.
+ *
+ * @generated from message novatrail.api.v1.ModuleLesson
+ */
+export declare type ModuleLesson = Message<"novatrail.api.v1.ModuleLesson"> & {
+  /**
+   * The full ID of the lesson.
+   *
+   * @generated from field: string lesson = 1;
+   */
+  lesson: string;
+
+  /**
+   * What the lesson is called, in the module's explanation language.
+   *
+   * @generated from field: string title = 2;
+   */
+  title: string;
+
+  /**
+   * How many segments the lesson has: on the package of its open run when it has one, else on the
+   * current version.
+   *
+   * @generated from field: int32 segments = 3;
+   */
+  segments: number;
+
+  /**
+   * The place of its group in the order, from 0: the lessons of one group have no order between
+   * them by the skill graph, and the page shows a group of more than one "in any order".
+   *
+   * @generated from field: int32 group = 4;
+   */
+  group: number;
+
+  /**
+   * Its state for the profile.
+   *
+   * @generated from field: novatrail.api.v1.LessonState state = 5;
+   */
+  state: LessonState;
+
+  /**
+   * The places of the task segments of its open run that have ended, in order: beside
+   * `LESSON_STATE_OPEN` alone.
+   *
+   * @generated from field: repeated int32 ended_segments = 6;
+   */
+  endedSegments: number[];
+};
+
+/**
+ * Describes the message novatrail.api.v1.ModuleLesson.
+ * Use `create(ModuleLessonSchema)` to create a new message.
+ */
+export declare const ModuleLessonSchema: GenMessage<ModuleLesson>;
 
 /**
  * A request for an open lesson run.
@@ -688,6 +823,47 @@ export declare type LessonRunRef = Message<"novatrail.api.v1.LessonRunRef"> & {
 export declare const LessonRunRefSchema: GenMessage<LessonRunRef>;
 
 /**
+ * The state of a lesson for a profile. A state its build does not know `app` reads as
+ * `LESSON_STATE_NEW`.
+ *
+ * @generated from enum novatrail.api.v1.LessonState
+ */
+export enum LessonState {
+  /**
+   * Not named: never sent.
+   *
+   * @generated from enum value: LESSON_STATE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * New: no run of it is open, and none ended passed.
+   *
+   * @generated from enum value: LESSON_STATE_NEW = 1;
+   */
+  NEW = 1,
+
+  /**
+   * Open: a run of it is open.
+   *
+   * @generated from enum value: LESSON_STATE_OPEN = 2;
+   */
+  OPEN = 2,
+
+  /**
+   * Passed: a run of it ended `RUN_END_REASON_PASSED`, on any version, and none is open.
+   *
+   * @generated from enum value: LESSON_STATE_PASSED = 3;
+   */
+  PASSED = 3,
+}
+
+/**
+ * Describes the enum novatrail.api.v1.LessonState.
+ */
+export declare const LessonStateSchema: GenEnum<LessonState>;
+
+/**
  * The way from a module to a task, from a learner's session: each method is a learning request,
  * with the right `can_learn`. Every method carries the token of the sign-in service and may get the
  * refusals of every request with a token, which the comment of `AccountService` names with what
@@ -709,13 +885,19 @@ export declare const LessonRunRefSchema: GenMessage<LessonRunRef>;
  */
 export declare const LearningService: GenService<{
   /**
-   * "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
-   * when the learner asks for it, or when nothing is open. It closes the open attempt of a task of
-   * a module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back
-   * to. The choice gives a lesson or a task, or nothing, with the outcome that says why, by the
-   * route the request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected
-   * has, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
-   * with the same idempotency key gets the same choice.
+   * The engine's choice of what comes next, when the learner asks for it. With a module, Solve on
+   * the tile of its tasks: a task of that module alone, on its task skill when it has one, and no
+   * lesson; a choice made so keeps the module, and every choice after it that an answer gives —
+   * the end of an attempt of the task — keeps it too. Without one, the choice is among all the
+   * modules connected and gives a lesson or a task. It closes the open attempt of a task of a
+   * module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to.
+   * The choice gives a lesson or a task, or nothing, with the outcome that says why, by the route
+   * the request names; with a module, a task skill on which its pool holds no task gives nothing,
+   * with no outcome. Refusals: `CAUSE_NOT_FOUND`, a module not connected or a skill named that no
+   * module connected has, `CAUSE_NO_CURRENT_VERSION`, a module with no current version for the
+   * learner, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a
+   * module solved on the sheet, or a module and a skill both named, get `invalid_argument`. A
+   * repeat with the same idempotency key gets the same choice.
    *
    * @generated from rpc novatrail.api.v1.LearningService.ChooseNext
    */
@@ -763,17 +945,22 @@ export declare const LearningService: GenService<{
     output: typeof GetOpenAttemptResponseSchema;
   },
   /**
-   * Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
-   * or else a new run on the package of the module's current version. A choice opens one run: once
-   * it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice. Before the
+   * Opens a lesson: of an engine's choice, or the one the learner chose on the lessons of its
+   * module, by its full ID. It gives the open run of the lesson, when the profile has one, or else a
+   * new run on the package of the module's current version; a lesson the learner chose opens with
+   * a choice of its own, `REASON_CODE_LESSON_CHOSEN`, which the run names. A choice opens one run:
+   * once it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice, or the
+   * lesson by its ID again; a lesson passed opens a new run. Before the
    * answer `api` checks that the module is connected and has a current version for the learner,
    * and that the lesson and each of its tasks suit the age category of the profile — on the
    * package of the run when it is open; a run that fails ends `RUN_END_REASON_NOT_SUITABLE`, and
    * a run whose package the image no longer gives `RUN_END_REASON_UNCHECKED`, after which `app`
-   * asks `CheckPackages`. A choice of a task gets `invalid_argument`. Refusals:
-   * `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-   * `CAUSE_RUN_ENDED`, `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`. It carries no
-   * idempotency key: it repeats by the state of the run.
+   * asks `CheckPackages`. A choice of a task, or a request that names both a choice and a lesson
+   * or neither, gets `invalid_argument`. Refusals: `CAUSE_NOT_SUITABLE`,
+   * `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`, `CAUSE_RUN_ENDED`,
+   * `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`; a lesson by its ID with no open run that
+   * the current version does not have gets `CAUSE_NO_CURRENT_VERSION`, as a new run of it would.
+   * It carries no idempotency key: it repeats by the state of the run.
    *
    * @generated from rpc novatrail.api.v1.LearningService.OpenLesson
    */
@@ -781,6 +968,21 @@ export declare const LearningService: GenService<{
     methodKind: "unary";
     input: typeof OpenLessonRequestSchema;
     output: typeof OpenLessonResponseSchema;
+  },
+  /**
+   * The lessons of a connected module, for its tile and its page of lessons: those of its current
+   * version that suit the learner whole, in the author's order, each with its state, and the
+   * lesson the tile shows. It reads and writes nothing else: no run changes, none ends, and no
+   * choice is made. Refusals: `CAUSE_NOT_FOUND`, a module not connected, and
+   * `CAUSE_NO_CURRENT_VERSION`; a module solved on the sheet gets `invalid_argument`. It repeats
+   * by the state of the profile.
+   *
+   * @generated from rpc novatrail.api.v1.LearningService.ListLessons
+   */
+  listLessons: {
+    methodKind: "unary";
+    input: typeof ListLessonsRequestSchema;
+    output: typeof ListLessonsResponseSchema;
   },
   /**
    * An open lesson run again, by its ID: after a restart, and on another device. `api` checks it as

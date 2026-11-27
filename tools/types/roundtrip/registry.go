@@ -6,14 +6,14 @@ import (
 	"github.com/altnovatrail/spec/types/admissionv0"
 	"github.com/altnovatrail/spec/types/consentagev1"
 	"github.com/altnovatrail/spec/types/deploymentv1"
-	"github.com/altnovatrail/spec/types/exportv5"
+	"github.com/altnovatrail/spec/types/exportv6"
 	"github.com/altnovatrail/spec/types/formatv0"
 	"github.com/altnovatrail/spec/types/formatv0/open"
 	"github.com/altnovatrail/spec/types/legalv3"
 )
 
 // typesByName gives a new value of each type of formatv0, of open, of admissionv0, of deploymentv1,
-// of legalv3, of consentagev1 and of exportv5, by its name in the corpus.
+// of legalv3, of consentagev1 and of exportv6, by its name in the corpus.
 var typesByName = map[string]func() any{
 	"admissionv0.AdmissionTable":  func() any { return new(admissionv0.AdmissionTable) },
 	"admissionv0.AnswerVector":    func() any { return new(admissionv0.AnswerVector) },
@@ -22,13 +22,13 @@ var typesByName = map[string]func() any{
 	"consentagev1.ReadingVector":  func() any { return new(consentagev1.ReadingVector) },
 	"deploymentv1.Deployment":     func() any { return new(deploymentv1.Deployment) },
 	"deploymentv1.ReadingVector":  func() any { return new(deploymentv1.ReadingVector) },
-	"exportv5.Account":            func() any { return new(exportv5.Account) },
-	"exportv5.Device":             func() any { return new(exportv5.Device) },
-	"exportv5.Manifest":           func() any { return new(exportv5.Manifest) },
-	"exportv5.Paper":              func() any { return new(exportv5.Paper) },
-	"exportv5.Profile":            func() any { return new(exportv5.Profile) },
-	"exportv5.ReadingVector":      func() any { return new(exportv5.ReadingVector) },
-	"exportv5.Work":               func() any { return new(exportv5.Work) },
+	"exportv6.Account":            func() any { return new(exportv6.Account) },
+	"exportv6.Device":             func() any { return new(exportv6.Device) },
+	"exportv6.Manifest":           func() any { return new(exportv6.Manifest) },
+	"exportv6.Paper":              func() any { return new(exportv6.Paper) },
+	"exportv6.Profile":            func() any { return new(exportv6.Profile) },
+	"exportv6.ReadingVector":      func() any { return new(exportv6.ReadingVector) },
+	"exportv6.Work":               func() any { return new(exportv6.Work) },
 	"formatv0.CanonicalView":      func() any { return new(formatv0.CanonicalView) },
 	"formatv0.IndexVector":        func() any { return new(formatv0.IndexVector) },
 	"formatv0.Inventory":          func() any { return new(formatv0.Inventory) },

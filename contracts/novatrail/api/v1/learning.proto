@@ -28,13 +28,19 @@ import "novatrail/api/v1/package.proto";
 // without it, so that it gives nothing that `BeginAttempt` by the same route would refuse; a
 // profile not of the category `adult` that names a provider gets `CAUSE_KEY_NOT_FOR_PROFILE`.
 service LearningService {
-  // "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
-  // when the learner asks for it, or when nothing is open. It closes the open attempt of a task of
-  // a module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back
-  // to. The choice gives a lesson or a task, or nothing, with the outcome that says why, by the
-  // route the request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected
-  // has, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
-  // with the same idempotency key gets the same choice.
+  // The engine's choice of what comes next, when the learner asks for it. With a module, Solve on
+  // the tile of its tasks: a task of that module alone, on its task skill when it has one, and no
+  // lesson; a choice made so keeps the module, and every choice after it that an answer gives —
+  // the end of an attempt of the task — keeps it too. Without one, the choice is among all the
+  // modules connected and gives a lesson or a task. It closes the open attempt of a task of a
+  // module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to.
+  // The choice gives a lesson or a task, or nothing, with the outcome that says why, by the route
+  // the request names; with a module, a task skill on which its pool holds no task gives nothing,
+  // with no outcome. Refusals: `CAUSE_NOT_FOUND`, a module not connected or a skill named that no
+  // module connected has, `CAUSE_NO_CURRENT_VERSION`, a module with no current version for the
+  // learner, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a
+  // module solved on the sheet, or a module and a skill both named, get `invalid_argument`. A
+  // repeat with the same idempotency key gets the same choice.
   rpc ChooseNext(ChooseNextRequest) returns (ChooseNextResponse);
   // Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
   // same task again. It closes the open attempt of a task of a module `CLOSE_REASON_LEFT`. A choice
@@ -58,18 +64,30 @@ service LearningService {
   // from paper gets `invalid_argument`: it has no open view, and only the device that holds its
   // page goes on with it. It repeats by the state of the attempt.
   rpc GetOpenAttempt(GetOpenAttemptRequest) returns (GetOpenAttemptResponse);
-  // Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
-  // or else a new run on the package of the module's current version. A choice opens one run: once
-  // it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice. Before the
+  // Opens a lesson: of an engine's choice, or the one the learner chose on the lessons of its
+  // module, by its full ID. It gives the open run of the lesson, when the profile has one, or else a
+  // new run on the package of the module's current version; a lesson the learner chose opens with
+  // a choice of its own, `REASON_CODE_LESSON_CHOSEN`, which the run names. A choice opens one run:
+  // once it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice, or the
+  // lesson by its ID again; a lesson passed opens a new run. Before the
   // answer `api` checks that the module is connected and has a current version for the learner,
   // and that the lesson and each of its tasks suit the age category of the profile — on the
   // package of the run when it is open; a run that fails ends `RUN_END_REASON_NOT_SUITABLE`, and
   // a run whose package the image no longer gives `RUN_END_REASON_UNCHECKED`, after which `app`
-  // asks `CheckPackages`. A choice of a task gets `invalid_argument`. Refusals:
-  // `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-  // `CAUSE_RUN_ENDED`, `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`. It carries no
-  // idempotency key: it repeats by the state of the run.
+  // asks `CheckPackages`. A choice of a task, or a request that names both a choice and a lesson
+  // or neither, gets `invalid_argument`. Refusals: `CAUSE_NOT_SUITABLE`,
+  // `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`, `CAUSE_RUN_ENDED`,
+  // `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`; a lesson by its ID with no open run that
+  // the current version does not have gets `CAUSE_NO_CURRENT_VERSION`, as a new run of it would.
+  // It carries no idempotency key: it repeats by the state of the run.
   rpc OpenLesson(OpenLessonRequest) returns (OpenLessonResponse);
+  // The lessons of a connected module, for its tile and its page of lessons: those of its current
+  // version that suit the learner whole, in the author's order, each with its state, and the
+  // lesson the tile shows. It reads and writes nothing else: no run changes, none ends, and no
+  // choice is made. Refusals: `CAUSE_NOT_FOUND`, a module not connected, and
+  // `CAUSE_NO_CURRENT_VERSION`; a module solved on the sheet gets `invalid_argument`. It repeats
+  // by the state of the profile.
+  rpc ListLessons(ListLessonsRequest) returns (ListLessonsResponse);
   // An open lesson run again, by its ID: after a restart, and on another device. `api` checks it as
   // `OpenLesson` does. Refusals: `CAUSE_RUN_ENDED`, with how the run ended, and the engine's choice
   // when this request ended it; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND` and
@@ -84,20 +102,25 @@ service LearningService {
   rpc CompleteLesson(CompleteLessonRequest) returns (CompleteLessonResponse);
 }
 
-// "Something else".
+// A request for the engine's choice.
 message ChooseNextRequest {
   // The profile.
   string profile_id = 1;
   // The idempotency key of this action of the learner.
   string idempotency_key = 2;
-  // The full ID of the skill that the learner chose on the skill map, "novatrail/olympiad-math/
-  // skill/counting-gaps": empty when the engine leads.
+  // The full ID of a skill, "novatrail/olympiad-math/skill/counting-gaps", for a choice among all
+  // the modules on it: empty when the engine leads. `app` sends none: the skill the learner chose
+  // is the task skill of its module, `ModuleService.SetTaskSkill`, which a choice with the module
+  // reads.
   string skill = 3;
   // The provider of the learner's own key, by its code in the admission table, without the key:
   // with a profile of its owner that checks the tasks by its own key, so that `api` judges the
   // engine's pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route
   // would begin a task, though the request calls no AI. Empty on platform AI.
   string own_key_provider = 4;
+  // The module whose tasks alone the choice is among, by its ID: Solve on the tile of its tasks.
+  // Empty for a choice among all the modules connected.
+  string module_id = 5;
 }
 
 // The engine's choice.
@@ -211,23 +234,79 @@ message EssaySubmission {
   SubmissionEnd end = 2;
 }
 
-// The opening of the lesson of an engine's choice.
+// The opening of a lesson: of an engine's choice, or by its full ID.
 message OpenLessonRequest {
   // The profile.
   string profile_id = 1;
-  // The engine's choice of the lesson, `CHOICE_KIND_LESSON`.
+  // The engine's choice of the lesson, `CHOICE_KIND_LESSON`: empty beside `lesson`.
   string choice_id = 2;
   // The provider of the learner's own key, by its code in the admission table, without the key:
   // with a profile of its owner that checks the tasks by its own key, so that an engine's choice
   // that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
   // Empty on platform AI.
   string own_key_provider = 3;
+  // The full ID of the lesson the learner chose, "novatrail/olympiad-math/lesson/counting-gaps-1":
+  // empty beside `choice_id`.
+  string lesson = 4;
 }
 
 // The lesson opened.
 message OpenLessonResponse {
   // The lesson run.
   LessonRun run = 1;
+}
+
+// A request for the lessons of a module.
+message ListLessonsRequest {
+  // The profile.
+  string profile_id = 1;
+  // The module's ID.
+  string module_id = 2;
+}
+
+// The lessons of a module.
+message ListLessonsResponse {
+  // The lessons, in the author's order: by the skill graph, a lesson after those whose skills its
+  // own need, then by tier and by ID. The lesson of an open run that the current version does not
+  // list, or that no longer suits the learner, comes after them, each in a group of its own, by
+  // the run's package: its run goes on, as every run does on the package it began on.
+  repeated ModuleLesson lessons = 1;
+  // The full ID of the lesson the tile shows, one of `lessons`: the lesson of an open run, the
+  // one begun last when there are several; else the first in the order that is not passed; else
+  // the first. Empty when `lessons` is.
+  string tile_lesson = 2;
+}
+
+// A lesson of a module, as its page of lessons lists it.
+message ModuleLesson {
+  // The full ID of the lesson.
+  string lesson = 1;
+  // What the lesson is called, in the module's explanation language.
+  string title = 2;
+  // How many segments the lesson has: on the package of its open run when it has one, else on the
+  // current version.
+  int32 segments = 3;
+  // The place of its group in the order, from 0: the lessons of one group have no order between
+  // them by the skill graph, and the page shows a group of more than one "in any order".
+  int32 group = 4;
+  // Its state for the profile.
+  LessonState state = 5;
+  // The places of the task segments of its open run that have ended, in order: beside
+  // `LESSON_STATE_OPEN` alone.
+  repeated int32 ended_segments = 6;
+}
+
+// The state of a lesson for a profile. A state its build does not know `app` reads as
+// `LESSON_STATE_NEW`.
+enum LessonState {
+  // Not named: never sent.
+  LESSON_STATE_UNSPECIFIED = 0;
+  // New: no run of it is open, and none ended passed.
+  LESSON_STATE_NEW = 1;
+  // Open: a run of it is open.
+  LESSON_STATE_OPEN = 2;
+  // Passed: a run of it ended `RUN_END_REASON_PASSED`, on any version, and none is open.
+  LESSON_STATE_PASSED = 3;
 }
 
 // A request for an open lesson run.

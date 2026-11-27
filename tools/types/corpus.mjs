@@ -2,7 +2,7 @@
 // of formatv0 that reads it, every value of admission/, with the type of admissionv0, every value
 // of deployment/, with the type of deploymentv1, every value of legal/, with the type of legalv3,
 // every value of consent-age/, with the type of consentagev1, and every value of export/, with the
-// type of exportv5.
+// type of exportv6.
 //
 //   node tools/types/corpus.mjs <file>      writes the corpus of spec's own format/, admission/,
 //                                           deployment/, legal/, consent-age/ and export/ to

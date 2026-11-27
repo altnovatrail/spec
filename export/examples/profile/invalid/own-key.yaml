@@ -1,6 +1,6 @@
 # error: unevaluatedProperties at #
 # The own key never goes into the export (R84).
-format: 5
+format: 6
 profile_id: "p-1"
 owner: false
 pseudonym: "Comet"

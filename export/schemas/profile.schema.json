@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/5/profile.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/6/profile.schema.json",
   "title": "Profile",
   "description": "A profile and every record of it, api/profiles/<id>.json.",
   "type": "object",
   "properties": {
     "format": {
-      "const": 5,
+      "const": 6,
       "description": "The version of the part, the integer in export/VERSION."
     },
     "profile_id": {
@@ -227,6 +227,11 @@
         "connected_at": {
           "$ref": "common.schema.json#/$defs/time",
           "description": "When the module was connected; no version is kept."
+        },
+        "task_skill": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The full ID of the skill the learner chose for the module's tasks; absent while the tutor chooses."
         }
       },
       "required": [
@@ -888,7 +893,8 @@
             "skill_chosen",
             "author_order",
             "open_run",
-            "rotation"
+            "rotation",
+            "lesson_chosen"
           ],
           "description": "The reason code, from the closed list ReasonCode."
         },
@@ -931,7 +937,12 @@
         "skill": {
           "type": "string",
           "maxLength": 10000,
-          "description": "The full ID of the skill chosen on the skill map; absent when the engine leads."
+          "description": "The full ID of the skill the learner chose, the task skill of the module the choice was among; absent when the engine leads."
+        },
+        "module_id": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "The module whose tasks alone the choice was among, Solve on its card, or the module of a lesson the learner chose; absent for a choice among all the modules connected."
         },
         "age_category": {
           "$ref": "common.schema.json#/$defs/age_category",

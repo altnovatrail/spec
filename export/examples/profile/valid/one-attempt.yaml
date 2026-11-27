@@ -1,5 +1,5 @@
 # Synthetic: no learner's data. IDs, times and values are made up.
-format: 5
+format: 6
 profile_id: "p-1"
 owner: false
 pseudonym: "Comet"
@@ -28,7 +28,10 @@ consent:
       version: 1
   method: "signed_form"
   confirmed_at: "2026-11-10T10:00:00Z"
-connected_modules: []
+connected_modules:
+  - module_id: "olympiad-math"
+    connected_at: "2026-11-10T09:00:00Z"
+    task_skill: "olympiad-math/skill/addition"
 lesson_runs: []
 attempts:
   - attempt_id: "attempt-1"
@@ -68,7 +71,38 @@ attempts:
     close_reason: "correct"
     closed_at: "2026-11-10T09:40:00Z"
 paper_attempts: []
-choices: []
+choices:
+  - choice_id: "choice-1"
+    kind: "task"
+    chosen_at: "2026-11-10T09:29:00Z"
+    task: "olympiad-math/sum-of-two"
+    reason_code: "skill_chosen"
+    engine_version: "0.1.8"
+    learner_model_version: "0.1.4"
+    package_digests:
+      - package_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        engine_module: true
+    modules_release: "0.2.0"
+    last_evidence_seq: 0
+    pool_without_ai: false
+    skill: "olympiad-math/skill/addition"
+    module_id: "olympiad-math"
+    age_category: "under_13"
+  - choice_id: "choice-2"
+    kind: "lesson"
+    chosen_at: "2026-11-10T09:40:00Z"
+    lesson: "olympiad-math/lesson/addition-1"
+    reason_code: "lesson_chosen"
+    engine_version: "0.1.8"
+    learner_model_version: "0.1.4"
+    package_digests:
+      - package_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        engine_module: true
+    modules_release: "0.2.0"
+    last_evidence_seq: 1
+    pool_without_ai: false
+    module_id: "olympiad-math"
+    age_category: "under_13"
 evidence:
   - seq: 1
     attempt_id: "attempt-1"

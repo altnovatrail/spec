@@ -564,8 +564,8 @@ const (
 	ReasonCode_REASON_CODE_REPETITION ReasonCode = 4
 	// A probe: a skill put aside comes back as a check.
 	ReasonCode_REASON_CODE_PROBE ReasonCode = 5
-	// The learner chose the skill on the skill map, and the engine the lesson or the task on it,
-	// whatever else the skill would fit.
+	// The learner chose the skill — the task skill of its module, on the tile of its tasks or on the
+	// skill map —, and the engine the lesson or the task on it, whatever else the skill would fit.
 	ReasonCode_REASON_CODE_SKILL_CHOSEN ReasonCode = 6
 	// The author's order: a skill with a rubric or without assessment comes next by the skill graph,
 	// without the learner model.
@@ -577,21 +577,25 @@ const (
 	// though it does not fit the queue of `REASON_CODE_QUEUE`: it is mastered, or no skill is within
 	// reach.
 	ReasonCode_REASON_CODE_ROTATION ReasonCode = 9
+	// The learner chose the lesson on the lessons of its module, and `OpenLesson` opened it: no
+	// branch of the engine's rule made it.
+	ReasonCode_REASON_CODE_LESSON_CHOSEN ReasonCode = 10
 )
 
 // Enum value maps for ReasonCode.
 var (
 	ReasonCode_name = map[int32]string{
-		0: "REASON_CODE_UNSPECIFIED",
-		1: "REASON_CODE_CONSOLIDATION",
-		2: "REASON_CODE_NEW_SKILL",
-		3: "REASON_CODE_QUEUE",
-		4: "REASON_CODE_REPETITION",
-		5: "REASON_CODE_PROBE",
-		6: "REASON_CODE_SKILL_CHOSEN",
-		7: "REASON_CODE_AUTHOR_ORDER",
-		8: "REASON_CODE_OPEN_RUN",
-		9: "REASON_CODE_ROTATION",
+		0:  "REASON_CODE_UNSPECIFIED",
+		1:  "REASON_CODE_CONSOLIDATION",
+		2:  "REASON_CODE_NEW_SKILL",
+		3:  "REASON_CODE_QUEUE",
+		4:  "REASON_CODE_REPETITION",
+		5:  "REASON_CODE_PROBE",
+		6:  "REASON_CODE_SKILL_CHOSEN",
+		7:  "REASON_CODE_AUTHOR_ORDER",
+		8:  "REASON_CODE_OPEN_RUN",
+		9:  "REASON_CODE_ROTATION",
+		10: "REASON_CODE_LESSON_CHOSEN",
 	}
 	ReasonCode_value = map[string]int32{
 		"REASON_CODE_UNSPECIFIED":   0,
@@ -604,6 +608,7 @@ var (
 		"REASON_CODE_AUTHOR_ORDER":  7,
 		"REASON_CODE_OPEN_RUN":      8,
 		"REASON_CODE_ROTATION":      9,
+		"REASON_CODE_LESSON_CHOSEN": 10,
 	}
 )
 
@@ -1103,8 +1108,11 @@ type RunEnd struct {
 	Reason RunEndReason `protobuf:"varint,1,opt,name=reason,proto3,enum=novatrail.api.v1.RunEndReason" json:"reason,omitempty"`
 	// The engine's choice that the end gave: when the request that carries it ended the run — "lesson
 	// done", or a request that found the run's package no longer given, the lesson unsuitable, or the
-	// run abandoned —, and on a repeat of the "lesson done" that ended it. Absent when the run had
-	// ended before by anything else, such as a job of the operator: `app` then asks `ChooseNext`.
+	// run abandoned —, and on a repeat of the "lesson done" that ended it. It is a choice of the
+	// lesson's module, of its tasks alone, as `ChooseNext` with the module gives: Solve beside the
+	// next lesson; nothing, with no outcome, when the module is no longer connected or has no
+	// current version for the learner. Absent when the run had ended before by anything else, such
+	// as a job of the operator: `app` then asks `ChooseNext` with the module, while it is connected.
 	Choice        *EngineChoice `protobuf:"bytes,2,opt,name=choice,proto3" json:"choice,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1303,7 +1311,7 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x17CHOICE_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12CHOICE_KIND_LESSON\x10\x01\x12\x14\n" +
 	"\x10CHOICE_KIND_TASK\x10\x02\x12\x17\n" +
-	"\x13CHOICE_KIND_NOTHING\x10\x03*\x9d\x02\n" +
+	"\x13CHOICE_KIND_NOTHING\x10\x03*\xbc\x02\n" +
 	"\n" +
 	"ReasonCode\x12\x1b\n" +
 	"\x17REASON_CODE_UNSPECIFIED\x10\x00\x12\x1d\n" +
@@ -1315,7 +1323,9 @@ const file_novatrail_api_v1_cause_proto_rawDesc = "" +
 	"\x18REASON_CODE_SKILL_CHOSEN\x10\x06\x12\x1c\n" +
 	"\x18REASON_CODE_AUTHOR_ORDER\x10\a\x12\x18\n" +
 	"\x14REASON_CODE_OPEN_RUN\x10\b\x12\x18\n" +
-	"\x14REASON_CODE_ROTATION\x10\t*\xa6\x01\n" +
+	"\x14REASON_CODE_ROTATION\x10\t\x12\x1d\n" +
+	"\x19REASON_CODE_LESSON_CHOSEN\x10\n" +
+	"*\xa6\x01\n" +
 	"\fRunEndReason\x12\x1e\n" +
 	"\x1aRUN_END_REASON_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15RUN_END_REASON_PASSED\x10\x01\x12\x1c\n" +
