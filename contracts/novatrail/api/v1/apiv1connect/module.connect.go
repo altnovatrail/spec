@@ -39,6 +39,8 @@ const (
 	// ModuleServiceListConnectedModulesProcedure is the procedure name of the ModuleService's
 	// ListConnectedModules RPC.
 	ModuleServiceListConnectedModulesProcedure = "/novatrail.api.v1.ModuleService/ListConnectedModules"
+	// ModuleServiceSetTaskSkillProcedure is the procedure name of the ModuleService's SetTaskSkill RPC.
+	ModuleServiceSetTaskSkillProcedure = "/novatrail.api.v1.ModuleService/SetTaskSkill"
 )
 
 var (
@@ -70,6 +72,13 @@ var (
 			Procedure:  ModuleServiceListConnectedModulesProcedure,
 		}
 	})
+	moduleServiceSetTaskSkillSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_module_proto.Services().ByName("ModuleService").Methods().ByName("SetTaskSkill"),
+			Procedure:  ModuleServiceSetTaskSkillProcedure,
+		}
+	})
 )
 
 // ModuleServiceClient is a client for the novatrail.api.v1.ModuleService service.
@@ -85,13 +94,22 @@ type ModuleServiceClient interface {
 	// `CAUSE_NO_CURRENT_VERSION`.
 	ConnectModule(context.Context, *v1.ConnectModuleRequest) (*v1.ConnectModuleResponse, error)
 	// Disconnects a module from the profile. The answer is the modules connected; a module not
-	// connected changes nothing. The evidence of the module stays in the profile's journal, and an
-	// open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next request.
+	// connected changes nothing. The evidence of the module stays in the profile's journal, its task
+	// skill goes, and an open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next
+	// request.
 	DisconnectModule(context.Context, *v1.DisconnectModuleRequest) (*v1.DisconnectModuleResponse, error)
 	// The modules connected to the profile, each with the digest of its current version, or with
 	// none when it has none for the learner. `app` shows such a module unavailable: it may be
 	// disconnected, and it has no attempts and no lessons.
 	ListConnectedModules(context.Context, *v1.ListConnectedModulesRequest) (*v1.ListConnectedModulesResponse, error)
+	// Sets the task skill of a connected module: the skill the learner chose for its tasks, on the
+	// tile of its tasks or on the skill map, which `ChooseNext` with the module gives its tasks on
+	// until the learner gives the choice back to the tutor, an empty skill. The answer is the modules
+	// connected. The learner chooses among the skills the map opens, and `app` offers no other;
+	// `api` holds only that the skill is one of the graph of the module's current version.
+	// Refusals: `CAUSE_NOT_FOUND`, a module not connected or a skill its graph does not have, and
+	// `CAUSE_NO_CURRENT_VERSION`; a module solved on the sheet gets `invalid_argument`.
+	SetTaskSkill(context.Context, *v1.SetTaskSkillRequest) (*v1.SetTaskSkillResponse, error)
 }
 
 // NewModuleServiceClient constructs a client for the novatrail.api.v1.ModuleService service.
@@ -113,13 +131,22 @@ type ModuleServiceHandler interface {
 	// `CAUSE_NO_CURRENT_VERSION`.
 	ConnectModule(context.Context, *v1.ConnectModuleRequest) (*v1.ConnectModuleResponse, error)
 	// Disconnects a module from the profile. The answer is the modules connected; a module not
-	// connected changes nothing. The evidence of the module stays in the profile's journal, and an
-	// open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next request.
+	// connected changes nothing. The evidence of the module stays in the profile's journal, its task
+	// skill goes, and an open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next
+	// request.
 	DisconnectModule(context.Context, *v1.DisconnectModuleRequest) (*v1.DisconnectModuleResponse, error)
 	// The modules connected to the profile, each with the digest of its current version, or with
 	// none when it has none for the learner. `app` shows such a module unavailable: it may be
 	// disconnected, and it has no attempts and no lessons.
 	ListConnectedModules(context.Context, *v1.ListConnectedModulesRequest) (*v1.ListConnectedModulesResponse, error)
+	// Sets the task skill of a connected module: the skill the learner chose for its tasks, on the
+	// tile of its tasks or on the skill map, which `ChooseNext` with the module gives its tasks on
+	// until the learner gives the choice back to the tutor, an empty skill. The answer is the modules
+	// connected. The learner chooses among the skills the map opens, and `app` offers no other;
+	// `api` holds only that the skill is one of the graph of the module's current version.
+	// Refusals: `CAUSE_NOT_FOUND`, a module not connected or a skill its graph does not have, and
+	// `CAUSE_NO_CURRENT_VERSION`; a module solved on the sheet gets `invalid_argument`.
+	SetTaskSkill(context.Context, *v1.SetTaskSkillRequest) (*v1.SetTaskSkillResponse, error)
 }
 
 // RegisterModuleServiceHandler registers svc as the novatrail.api.v1.ModuleService implementation
@@ -131,6 +158,7 @@ func RegisterModuleServiceHandler(server *connect.Server, svc ModuleServiceHandl
 		connect.Method{Spec: moduleServiceConnectModuleSpec(), Handler: adapter.connectModule},
 		connect.Method{Spec: moduleServiceDisconnectModuleSpec(), Handler: adapter.disconnectModule},
 		connect.Method{Spec: moduleServiceListConnectedModulesSpec(), Handler: adapter.listConnectedModules},
+		connect.Method{Spec: moduleServiceSetTaskSkillSpec(), Handler: adapter.setTaskSkill},
 	)
 }
 
@@ -151,6 +179,10 @@ func (UnimplementedModuleServiceHandler) DisconnectModule(context.Context, *v1.D
 
 func (UnimplementedModuleServiceHandler) ListConnectedModules(context.Context, *v1.ListConnectedModulesRequest) (*v1.ListConnectedModulesResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.ModuleService.ListConnectedModules is not implemented")
+}
+
+func (UnimplementedModuleServiceHandler) SetTaskSkill(context.Context, *v1.SetTaskSkillRequest) (*v1.SetTaskSkillResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.ModuleService.SetTaskSkill is not implemented")
 }
 
 type moduleServiceClient struct {
@@ -184,6 +216,14 @@ func (c *moduleServiceClient) DisconnectModule(ctx context.Context, req *v1.Disc
 func (c *moduleServiceClient) ListConnectedModules(ctx context.Context, req *v1.ListConnectedModulesRequest) (*v1.ListConnectedModulesResponse, error) {
 	var res v1.ListConnectedModulesResponse
 	if err := c.client.CallUnary(ctx, moduleServiceListConnectedModulesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *moduleServiceClient) SetTaskSkill(ctx context.Context, req *v1.SetTaskSkillRequest) (*v1.SetTaskSkillResponse, error) {
+	var res v1.SetTaskSkillResponse
+	if err := c.client.CallUnary(ctx, moduleServiceSetTaskSkillSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -233,6 +273,18 @@ func (h moduleServiceHandler) listConnectedModules(ctx context.Context, _ connec
 		return err
 	}
 	res, err := h.svc.ListConnectedModules(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h moduleServiceHandler) setTaskSkill(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetTaskSkillRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SetTaskSkill(ctx, &req)
 	if err != nil {
 		return err
 	}

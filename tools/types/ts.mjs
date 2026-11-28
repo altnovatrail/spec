@@ -6,7 +6,7 @@
 // integer or an ID under a name of its own is an alias, since a brand would take a cast on every
 // value read from JSON. The declarations hold no code, no constants, so a consumer imports them
 // with import type. The other parts follow the same rules: admissionv0, deploymentv1, whose fields
-// keep the file's camelCase, legalv3, consentagev1 and exportv5.
+// keep the file's camelCase, legalv3, consentagev1 and exportv6.
 
 import { ADMISSION_DIR, ADMISSION_PACKAGE, CONSENT_AGE_DIR, CONSENT_AGE_PACKAGE, DEPLOYMENT_DIR, EXPORT_DIR, EXPORT_PACKAGE, DEPLOYMENT_PACKAGE, LEGAL_DIR, LEGAL_PACKAGE, OPEN, OPEN_DIR, PACKAGE, TYPES_DIR, groupBy, linesOf } from "./go.mjs";
 import { openRefOf, placeOf } from "./model.mjs";

@@ -219,8 +219,8 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
   presentationStyle?: PresentationStyle | undefined;
 
   /**
-   * The default mode, which the learner switches on the screen of a task until the end of the
-   * attempt. It goes to no AI.
+   * No longer used: no screen of a task has a mode. `api` gives `MODE_UNSPECIFIED`, and `app`
+   * reads none.
    *
    * @generated from field: novatrail.api.v1.Mode default_mode = 8;
    */
@@ -243,8 +243,7 @@ export declare type Profile = Message<"novatrail.api.v1.Profile"> & {
   grade?: number | undefined;
 
   /**
-   * A child's setting, which an adult sets: the solution is shown by an action of an adult.
-   * Always false on a profile of the category `adult`.
+   * No longer used: no solution is shown on any task. `api` gives false, and `app` reads none.
    *
    * @generated from field: bool ask_before_showing = 11;
    */
@@ -391,11 +390,10 @@ export declare const VoicingSchema: GenMessage<Voicing>;
 
 /**
  * The settings of a profile that an adult sets, when a profile is created or changed. A field sent
- * is set; a field left out stays as it is, and on a new profile takes its default: the mode "by
- * steps", the hint mode "Show where", the voicing on at the category `under_13` and off at the
- * others, at normal speed, and on a child's profile "ask before showing" on. `app` sends only what
- * changed, so it never writes back a value its build does not know. A field whose form the contract
- * refuses gets the code `invalid_argument`.
+ * is set; a field left out stays as it is, and on a new profile takes its default: the hint mode
+ * "Show where", and the voicing on at the category `under_13` and off at the others, at normal
+ * speed. `app` sends only what changed, so it never writes back a value its build does not know.
+ * A field whose form the contract refuses gets the code `invalid_argument`.
  *
  * @generated from message novatrail.api.v1.ProfileSettings
  */
@@ -423,7 +421,8 @@ export declare type ProfileSettings = Message<"novatrail.api.v1.ProfileSettings"
   voicing?: Voicing | undefined;
 
   /**
-   * The default mode: `MODE_UNSPECIFIED` leaves it as it is.
+   * No longer used: `app` sends none, and `api` keeps none and reads a mode sent as
+   * `MODE_UNSPECIFIED`.
    *
    * @generated from field: novatrail.api.v1.Mode default_mode = 4;
    */
@@ -446,8 +445,8 @@ export declare type ProfileSettings = Message<"novatrail.api.v1.ProfileSettings"
   grade?: number | undefined;
 
   /**
-   * "Ask before showing" the solution: a child's alone, and on a profile of the category `adult`
-   * the request is refused `invalid_argument`.
+   * No longer used: no solution is shown on any task. `app` sends none, and `api` keeps none and
+   * ignores it.
    *
    * @generated from field: optional bool ask_before_showing = 7;
    */
@@ -1870,28 +1869,28 @@ export enum VoicingSpeed {
 export declare const VoicingSpeedSchema: GenEnum<VoicingSpeed>;
 
 /**
- * A mode of the screen of a task. A mode its build does not know `app` reads as "by
- * steps".
+ * No longer used: a mode of a screen of a task, which no screen has. `api` gives
+ * `MODE_UNSPECIFIED` alone, and `app` sends none and reads none.
  *
  * @generated from enum novatrail.api.v1.Mode
  */
 export enum Mode {
   /**
-   * Not named: in a request, the mode stays as it is, and a new profile's is "by steps".
+   * Not named: the one value `api` gives.
    *
    * @generated from enum value: MODE_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * "By steps": the app leads through the module's solving steps.
+   * Not given: "by steps", a mode that led through the module's solving steps.
    *
    * @generated from enum value: MODE_BY_STEPS = 1;
    */
   BY_STEPS = 1,
 
   /**
-   * "Self": the app waits until the learner calls.
+   * Not given: "self", a mode that waited until the learner called.
    *
    * @generated from enum value: MODE_SELF = 2;
    */

@@ -5,8 +5,9 @@
 // source: novatrail/api/v1/debug.proto
 
 // The debug mode in the contract between `app` and `api`: which models serve the calls of
-// AI of a task from paper, past the admission list, and what each call returned and cost, for an
-// account with the right of the mode. A method from an account without the right answers
+// AI of a task from paper, past the admission list, and what each call of a model made for the
+// account returned and cost, wherever it was made — a task from paper, a task of a module, an
+// essay, the tutor's words, grown-up mode —, for an account with the right of the mode. A method from an account without the right answers
 // `permission_denied` with no `Refusal`, and on a run with the stub of `tutor` `unimplemented`;
 // `app` then shows no debug button. Its rules are those of contracts/README.md for
 // the contract between `app` and `api`.
@@ -95,7 +96,7 @@ func (DebugEffort) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_debug_proto_rawDescGZIP(), []int{0}
 }
 
-// Which request of a task from paper.
+// Which request.
 type DebugActionKind int32
 
 const (
@@ -103,11 +104,16 @@ const (
 	DebugActionKind_DEBUG_ACTION_KIND_UNSPECIFIED DebugActionKind = 0
 	// `FindTasks`.
 	DebugActionKind_DEBUG_ACTION_KIND_FIND_TASKS DebugActionKind = 1
-	// `SubmitWork` of an attempt of a task from paper: its one call of the Check.
+	// A request that reads or judges the work: `SubmitWork` of an attempt of a task from paper,
+	// its one call of the Check, or of a task of a module, the reading of its sheet by each reader;
+	// `SubmitEssay`, the essay read and assessed by its rubric; `ReadStatement`, the statement
+	// read by "Recognise".
 	DebugActionKind_DEBUG_ACTION_KIND_CHECK DebugActionKind = 2
-	// A request for the tutor's words on an attempt of a task from paper that calls AI:
-	// `GetOpeningWords`, whose call is a Check, `ExplainDifferently`, or `AskTutor`, a Check first
-	// while the attempt keeps none and then the words. `GetRungWords` calls none.
+	// A request for the tutor's words that calls AI, or for grown-up mode: on an attempt of a task
+	// from paper `GetOpeningWords`, whose call is a Check, `ExplainDifferently`, or `AskTutor`, a
+	// Check first while the attempt keeps none and then the words, `GetRungWords` calling none; on
+	// an attempt of a task of a module `GetRungWords`, `ExplainDifferently` and
+	// `GetCorrectAnswerWords`; on either `AskGrownUp`, the drawing.
 	DebugActionKind_DEBUG_ACTION_KIND_WORDS DebugActionKind = 3
 )
 
@@ -169,19 +175,22 @@ const (
 	DebugCallKind_DEBUG_CALL_KIND_SOLVER DebugCallKind = 3
 	// The AI's solution for a key: no longer recorded, since the Check judges the work in one call.
 	DebugCallKind_DEBUG_CALL_KIND_TASK_SOLVING DebugCallKind = 4
-	// The work read, `handwriting_reading`: no longer recorded for a task from paper, since the
-	// Check reads the work itself.
+	// The work read, `handwriting_reading`: the sheet of a task of a module, by each reader, whose
+	// place `DebugCall.reader` gives, and the handwriting of an essay, by its one reader. A task from
+	// paper has none: its Check reads the work itself.
 	DebugCallKind_DEBUG_CALL_KIND_WORK_READING DebugCallKind = 5
-	// The tutor's words of "explain differently", a rung in other words, or of an answer to the
-	// learner's question, `AskTutor`: `hint` without the work.
-	// The opening question and a rung's words are no longer calls of their own: they come from the
-	// Check's ladder.
+	// The tutor's words: on a task from paper those of "explain differently", a rung in other words,
+	// or of an answer to the learner's question, `AskTutor`, `hint` without the work — its opening
+	// question and a rung's words come from the Check's ladder —; on a task of a module those of a
+	// rung, of "explain differently" and after a correct answer, with the work or without it.
 	DebugCallKind_DEBUG_CALL_KIND_TUTOR_WORDS DebugCallKind = 6
 	// The Check, `task_checking`: the work judged in one call — each task's verdict, what was read,
 	// the place of each mistake, the tutor's words and the ladder of hints.
 	DebugCallKind_DEBUG_CALL_KIND_TASK_CHECKING DebugCallKind = 7
 	// The drawing of grown-up mode, `drawing`: the tutor's act on the sheet as a grown-up asks.
 	DebugCallKind_DEBUG_CALL_KIND_DRAWING DebugCallKind = 8
+	// The text of an essay assessed by the criteria of its rubric, `rubric_assessment`.
+	DebugCallKind_DEBUG_CALL_KIND_ESSAY_ASSESSMENT DebugCallKind = 9
 )
 
 // Enum value maps for DebugCallKind.
@@ -196,6 +205,7 @@ var (
 		6: "DEBUG_CALL_KIND_TUTOR_WORDS",
 		7: "DEBUG_CALL_KIND_TASK_CHECKING",
 		8: "DEBUG_CALL_KIND_DRAWING",
+		9: "DEBUG_CALL_KIND_ESSAY_ASSESSMENT",
 	}
 	DebugCallKind_value = map[string]int32{
 		"DEBUG_CALL_KIND_UNSPECIFIED":       0,
@@ -207,6 +217,7 @@ var (
 		"DEBUG_CALL_KIND_TUTOR_WORDS":       6,
 		"DEBUG_CALL_KIND_TASK_CHECKING":     7,
 		"DEBUG_CALL_KIND_DRAWING":           8,
+		"DEBUG_CALL_KIND_ESSAY_ASSESSMENT":  9,
 	}
 )
 
@@ -858,7 +869,7 @@ func (x *TakeDebugCallsResponse) GetActions() []*DebugAction {
 	return nil
 }
 
-// One request of a task from paper and the calls it made.
+// One request that called a model, and the calls it made.
 type DebugAction struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Which request.
@@ -869,7 +880,7 @@ type DebugAction struct {
 	At *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=at,proto3" json:"at,omitempty"`
 	// Its calls, in the order they ended.
 	Calls []*DebugCall `protobuf:"bytes,4,rep,name=calls,proto3" json:"calls,omitempty"`
-	// Not used: the Check has no second reader of the work, so it is always false.
+	// Not used: always false. The two readers of a sheet are told apart by `DebugCall.reader`.
 	ReadersDiffer bool `protobuf:"varint,5,opt,name=readers_differ,json=readersDiffer,proto3" json:"readers_differ,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -945,7 +956,9 @@ type DebugCall struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// What the call does.
 	Kind DebugCallKind `protobuf:"varint,1,opt,name=kind,proto3,enum=novatrail.api.v1.DebugCallKind" json:"kind,omitempty"`
-	// Not used: the Check has no reader of the work apart, so it is always 0.
+	// Of the reading of a sheet of a task of a module, `DEBUG_CALL_KIND_WORK_READING`, the
+	// reader's place among the models that read it: 1 the first, 2 the second of a pair. 0 for any
+	// other call, the one reader of an essay among them.
 	Reader int32 `protobuf:"varint,2,opt,name=reader,proto3" json:"reader,omitempty"`
 	// The model's ID as the provider gave it back.
 	Model string `protobuf:"bytes,3,opt,name=model,proto3" json:"model,omitempty"`
@@ -953,8 +966,9 @@ type DebugCall struct {
 	Effort DebugEffort `protobuf:"varint,4,opt,name=effort,proto3,enum=novatrail.api.v1.DebugEffort" json:"effort,omitempty"`
 	// Whether it was called with thinking on.
 	Thinking bool `protobuf:"varint,5,opt,name=thinking,proto3" json:"thinking,omitempty"`
-	// What it returned, as it returned it: the model's JSON, the Check's hidden solution and answer
-	// among it, which the debug mode alone shows. Empty when it returned nothing.
+	// What it returned, as it returned it: the model's JSON — the Check's hidden solution and
+	// answer, or what a reader read of the learner's work —, which the debug mode alone shows. Empty
+	// when it returned nothing.
 	Answer string `protobuf:"bytes,6,opt,name=answer,proto3" json:"answer,omitempty"`
 	// The input tokens, without those of the cache.
 	InputTokens int64 `protobuf:"varint,7,opt,name=input_tokens,json=inputTokens,proto3" json:"input_tokens,omitempty"`
@@ -980,7 +994,7 @@ type DebugCall struct {
 	// What the call came to when it gave no answer that was read: as `Outcome` names it.
 	Failure Cause `protobuf:"varint,17,opt,name=failure,proto3,enum=novatrail.api.v1.Cause" json:"failure,omitempty"`
 	// The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
-	// the one before did not do. 1 for a model the debug mode chose.
+	// the one before did not do. 1 for a model the debug mode chose, and for a call with no cascade.
 	Attempt       int32 `protobuf:"varint,18,opt,name=attempt,proto3" json:"attempt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1413,7 +1427,7 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x1dDEBUG_ACTION_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cDEBUG_ACTION_KIND_FIND_TASKS\x10\x01\x12\x1b\n" +
 	"\x17DEBUG_ACTION_KIND_CHECK\x10\x02\x12\x1b\n" +
-	"\x17DEBUG_ACTION_KIND_WORDS\x10\x03*\xba\x02\n" +
+	"\x17DEBUG_ACTION_KIND_WORDS\x10\x03*\xe0\x02\n" +
 	"\rDebugCallKind\x12\x1f\n" +
 	"\x1bDEBUG_CALL_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cDEBUG_CALL_KIND_TASK_FINDING\x10\x01\x12%\n" +
@@ -1423,7 +1437,8 @@ const file_novatrail_api_v1_debug_proto_rawDesc = "" +
 	"\x1cDEBUG_CALL_KIND_WORK_READING\x10\x05\x12\x1f\n" +
 	"\x1bDEBUG_CALL_KIND_TUTOR_WORDS\x10\x06\x12!\n" +
 	"\x1dDEBUG_CALL_KIND_TASK_CHECKING\x10\a\x12\x1b\n" +
-	"\x17DEBUG_CALL_KIND_DRAWING\x10\b*\xc0\x01\n" +
+	"\x17DEBUG_CALL_KIND_DRAWING\x10\b\x12$\n" +
+	" DEBUG_CALL_KIND_ESSAY_ASSESSMENT\x10\t*\xc0\x01\n" +
 	"\fDebugOutcome\x12\x1d\n" +
 	"\x19DEBUG_OUTCOME_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15DEBUG_OUTCOME_CORRECT\x10\x01\x12\x19\n" +

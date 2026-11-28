@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://altnovatrail.github.io/spec/export/5/reading-vector.schema.json",
+  "$id": "https://altnovatrail.github.io/spec/export/6/reading-vector.schema.json",
   "title": "Reading vector",
   "description": "A test vector of reading: exports, unpacked, and what the rules of reading an export give. A reader implements those rules and gets exactly this.",
   "type": "object",

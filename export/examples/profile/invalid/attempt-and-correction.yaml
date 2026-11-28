@@ -1,6 +1,6 @@
 # error: oneOf at #/evidence/0
 # A record of the evidence log is of an attempt or of an adult's correction, never both.
-format: 5
+format: 6
 profile_id: "p-2"
 owner: false
 pseudonym: "Orbit"

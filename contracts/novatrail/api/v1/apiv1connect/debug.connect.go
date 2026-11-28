@@ -3,8 +3,9 @@
 // Source: novatrail/api/v1/debug.proto
 
 // The debug mode in the contract between `app` and `api`: which models serve the calls of
-// AI of a task from paper, past the admission list, and what each call returned and cost, for an
-// account with the right of the mode. A method from an account without the right answers
+// AI of a task from paper, past the admission list, and what each call of a model made for the
+// account returned and cost, wherever it was made — a task from paper, a task of a module, an
+// essay, the tutor's words, grown-up mode —, for an account with the right of the mode. A method from an account without the right answers
 // `permission_denied` with no `Refusal`, and on a run with the stub of `tutor` `unimplemented`;
 // `app` then shows no debug button. Its rules are those of contracts/README.md for
 // the contract between `app` and `api`.
@@ -73,7 +74,8 @@ type DebugServiceClient interface {
 	// effort keeps it on, get the code `invalid_argument` with no `Refusal`.
 	SetDebugModels(context.Context, *v1.SetDebugModelsRequest) (*v1.SetDebugModelsResponse, error)
 	// Gives the account's actions since the last take, each with its calls, oldest first, and
-	// forgets them.
+	// forgets them: every request of the account that called a model, each call with its cost and
+	// what it came to.
 	TakeDebugCalls(context.Context, *v1.TakeDebugCallsRequest) (*v1.TakeDebugCallsResponse, error)
 }
 
@@ -92,7 +94,8 @@ type DebugServiceHandler interface {
 	// effort keeps it on, get the code `invalid_argument` with no `Refusal`.
 	SetDebugModels(context.Context, *v1.SetDebugModelsRequest) (*v1.SetDebugModelsResponse, error)
 	// Gives the account's actions since the last take, each with its calls, oldest first, and
-	// forgets them.
+	// forgets them: every request of the account that called a model, each call with its cost and
+	// what it came to.
 	TakeDebugCalls(context.Context, *v1.TakeDebugCallsRequest) (*v1.TakeDebugCallsResponse, error)
 }
 

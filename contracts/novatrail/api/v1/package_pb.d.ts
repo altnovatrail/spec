@@ -3,10 +3,10 @@
 /* eslint-disable */
 
 // What a package of a module gives by its digest, in the contract between `app` and `api`: the
-// open views of its manifest, skill graph, technique catalog and solving steps, which go without a
-// token, and whether the image of `api` still gives a package. The files of a package's device
-// part are no method of the contract: they go by HTTP GET, as contracts/README.md has
-// it, with the rules of the whole contract.
+// open views of its manifest, skill graph and technique catalog, which go without a token, and
+// whether the image of `api` still gives a package. The files of a package's device part are no
+// method of the contract: they go by HTTP GET, as contracts/README.md has it, with the rules of
+// the whole contract.
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
@@ -176,7 +176,7 @@ export declare type GetTechniquesResponse = Message<"novatrail.api.v1.GetTechniq
 export declare const GetTechniquesResponseSchema: GenMessage<GetTechniquesResponse>;
 
 /**
- * A request for the open view of solving steps.
+ * A request for the open view of solving steps: no longer used, as `GetSolvingSteps`.
  *
  * @generated from message novatrail.api.v1.GetSolvingStepsRequest
  */
@@ -196,7 +196,7 @@ export declare type GetSolvingStepsRequest = Message<"novatrail.api.v1.GetSolvin
 export declare const GetSolvingStepsRequestSchema: GenMessage<GetSolvingStepsRequest>;
 
 /**
- * The open view of solving steps.
+ * The open view of solving steps: no longer used, as `GetSolvingSteps`.
  *
  * @generated from message novatrail.api.v1.GetSolvingStepsResponse
  */
@@ -326,7 +326,7 @@ export enum PackageStatus {
 export declare const PackageStatusSchema: GenEnum<PackageStatus>;
 
 /**
- * What a package of a module gives by its digest. The four open views go without a token and
+ * What a package of a module gives by its digest. The open views go without a token and
  * without the ID of a profile, by Connect GET: each method has the idempotency level
  * `NO_SIDE_EFFECTS`, and `app` calls it with no header — no `Connect-Timeout-Ms` either, which would
  * make the request not simple and send a preflight before it. They go for any package that the
@@ -363,8 +363,7 @@ export declare const PackageService: GenService<{
     output: typeof GetSkillGraphResponseSchema;
   },
   /**
-   * The open view of the technique catalog of a package: the techniques whose IDs a step or a hint
-   * gives.
+   * The open view of the technique catalog of a package: the techniques whose IDs a hint gives.
    *
    * @generated from rpc novatrail.api.v1.PackageService.GetTechniques
    */
@@ -374,7 +373,8 @@ export declare const PackageService: GenService<{
     output: typeof GetTechniquesResponseSchema;
   },
   /**
-   * The open view of the solving steps of a package, which `app` leads in the mode "by steps".
+   * No longer used: no screen leads the solving steps. `app` asks none, and `api` no longer holds
+   * it and answers `unimplemented`.
    *
    * @generated from rpc novatrail.api.v1.PackageService.GetSolvingSteps
    */

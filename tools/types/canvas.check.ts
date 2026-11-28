@@ -20,6 +20,8 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   set reading(reading: canvas.TracingReading | undefined);
   get grid(): canvas.PaperGrid | undefined;
   set grid(grid: canvas.PaperGrid | undefined);
+  get chosen(): number | undefined;
+  set chosen(option: number | undefined);
   get pens(): canvas.PenSettings;
   set pens(settings: canvas.PenSettings | undefined);
   workedExample: open.WorkedExample | undefined;
@@ -256,6 +258,17 @@ sheet.addEventListener("gridchange", (event) => {
   const chosen: canvas.PaperGrid = event.detail.grid;
   return chosen;
 });
+// A task of a module with options on its tracing paper, and the choice app holds.
+sheet.paper = { statement, source: "module", options: ["12", "15", "18"] };
+export const chosen: number | undefined = sheet.chosen;
+sheet.addEventListener("optiontap", (event) => {
+  const option: number = event.detail.option;
+  sheet.chosen = option;
+  return option;
+});
+sheet.chosen = undefined;
+// @ts-expect-error: options are their texts, not numbers
+sheet.paper = { statement, source: "module", options: [12, 15] };
 sheet.tool = "hand";
 sheet.paper = undefined;
 

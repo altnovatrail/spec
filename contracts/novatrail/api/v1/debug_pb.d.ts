@@ -3,8 +3,9 @@
 /* eslint-disable */
 
 // The debug mode in the contract between `app` and `api`: which models serve the calls of
-// AI of a task from paper, past the admission list, and what each call returned and cost, for an
-// account with the right of the mode. A method from an account without the right answers
+// AI of a task from paper, past the admission list, and what each call of a model made for the
+// account returned and cost, wherever it was made — a task from paper, a task of a module, an
+// essay, the tutor's words, grown-up mode —, for an account with the right of the mode. A method from an account without the right answers
 // `permission_denied` with no `Refusal`, and on a run with the stub of `tutor` `unimplemented`;
 // `app` then shows no debug button. Its rules are those of contracts/README.md for
 // the contract between `app` and `api`.
@@ -300,7 +301,7 @@ export declare type TakeDebugCallsResponse = Message<"novatrail.api.v1.TakeDebug
 export declare const TakeDebugCallsResponseSchema: GenMessage<TakeDebugCallsResponse>;
 
 /**
- * One request of a task from paper and the calls it made.
+ * One request that called a model, and the calls it made.
  *
  * @generated from message novatrail.api.v1.DebugAction
  */
@@ -334,7 +335,7 @@ export declare type DebugAction = Message<"novatrail.api.v1.DebugAction"> & {
   calls: DebugCall[];
 
   /**
-   * Not used: the Check has no second reader of the work, so it is always false.
+   * Not used: always false. The two readers of a sheet are told apart by `DebugCall.reader`.
    *
    * @generated from field: bool readers_differ = 5;
    */
@@ -361,7 +362,9 @@ export declare type DebugCall = Message<"novatrail.api.v1.DebugCall"> & {
   kind: DebugCallKind;
 
   /**
-   * Not used: the Check has no reader of the work apart, so it is always 0.
+   * Of the reading of a sheet of a task of a module, `DEBUG_CALL_KIND_WORK_READING`, the
+   * reader's place among the models that read it: 1 the first, 2 the second of a pair. 0 for any
+   * other call, the one reader of an essay among them.
    *
    * @generated from field: int32 reader = 2;
    */
@@ -389,8 +392,9 @@ export declare type DebugCall = Message<"novatrail.api.v1.DebugCall"> & {
   thinking: boolean;
 
   /**
-   * What it returned, as it returned it: the model's JSON, the Check's hidden solution and answer
-   * among it, which the debug mode alone shows. Empty when it returned nothing.
+   * What it returned, as it returned it: the model's JSON — the Check's hidden solution and
+   * answer, or what a reader read of the learner's work —, which the debug mode alone shows. Empty
+   * when it returned nothing.
    *
    * @generated from field: string answer = 6;
    */
@@ -476,7 +480,7 @@ export declare type DebugCall = Message<"novatrail.api.v1.DebugCall"> & {
 
   /**
    * The model's place among the attempts of its call, 1, 2 or 3: a later one is asked only when
-   * the one before did not do. 1 for a model the debug mode chose.
+   * the one before did not do. 1 for a model the debug mode chose, and for a call with no cascade.
    *
    * @generated from field: int32 attempt = 18;
    */
@@ -656,7 +660,7 @@ export enum DebugEffort {
 export declare const DebugEffortSchema: GenEnum<DebugEffort>;
 
 /**
- * Which request of a task from paper.
+ * Which request.
  *
  * @generated from enum novatrail.api.v1.DebugActionKind
  */
@@ -676,16 +680,21 @@ export enum DebugActionKind {
   FIND_TASKS = 1,
 
   /**
-   * `SubmitWork` of an attempt of a task from paper: its one call of the Check.
+   * A request that reads or judges the work: `SubmitWork` of an attempt of a task from paper,
+   * its one call of the Check, or of a task of a module, the reading of its sheet by each reader;
+   * `SubmitEssay`, the essay read and assessed by its rubric; `ReadStatement`, the statement
+   * read by "Recognise".
    *
    * @generated from enum value: DEBUG_ACTION_KIND_CHECK = 2;
    */
   CHECK = 2,
 
   /**
-   * A request for the tutor's words on an attempt of a task from paper that calls AI:
-   * `GetOpeningWords`, whose call is a Check, `ExplainDifferently`, or `AskTutor`, a Check first
-   * while the attempt keeps none and then the words. `GetRungWords` calls none.
+   * A request for the tutor's words that calls AI, or for grown-up mode: on an attempt of a task
+   * from paper `GetOpeningWords`, whose call is a Check, `ExplainDifferently`, or `AskTutor`, a
+   * Check first while the attempt keeps none and then the words, `GetRungWords` calling none; on
+   * an attempt of a task of a module `GetRungWords`, `ExplainDifferently` and
+   * `GetCorrectAnswerWords`; on either `AskGrownUp`, the drawing.
    *
    * @generated from enum value: DEBUG_ACTION_KIND_WORDS = 3;
    */
@@ -740,18 +749,19 @@ export enum DebugCallKind {
   TASK_SOLVING = 4,
 
   /**
-   * The work read, `handwriting_reading`: no longer recorded for a task from paper, since the
-   * Check reads the work itself.
+   * The work read, `handwriting_reading`: the sheet of a task of a module, by each reader, whose
+   * place `DebugCall.reader` gives, and the handwriting of an essay, by its one reader. A task from
+   * paper has none: its Check reads the work itself.
    *
    * @generated from enum value: DEBUG_CALL_KIND_WORK_READING = 5;
    */
   WORK_READING = 5,
 
   /**
-   * The tutor's words of "explain differently", a rung in other words, or of an answer to the
-   * learner's question, `AskTutor`: `hint` without the work.
-   * The opening question and a rung's words are no longer calls of their own: they come from the
-   * Check's ladder.
+   * The tutor's words: on a task from paper those of "explain differently", a rung in other words,
+   * or of an answer to the learner's question, `AskTutor`, `hint` without the work — its opening
+   * question and a rung's words come from the Check's ladder —; on a task of a module those of a
+   * rung, of "explain differently" and after a correct answer, with the work or without it.
    *
    * @generated from enum value: DEBUG_CALL_KIND_TUTOR_WORDS = 6;
    */
@@ -771,6 +781,13 @@ export enum DebugCallKind {
    * @generated from enum value: DEBUG_CALL_KIND_DRAWING = 8;
    */
   DRAWING = 8,
+
+  /**
+   * The text of an essay assessed by the criteria of its rubric, `rubric_assessment`.
+   *
+   * @generated from enum value: DEBUG_CALL_KIND_ESSAY_ASSESSMENT = 9;
+   */
+  ESSAY_ASSESSMENT = 9,
 }
 
 /**
@@ -866,7 +883,8 @@ export declare const DebugService: GenService<{
   },
   /**
    * Gives the account's actions since the last take, each with its calls, oldest first, and
-   * forgets them.
+   * forgets them: every request of the account that called a model, each call with its cost and
+   * what it came to.
    *
    * @generated from rpc novatrail.api.v1.DebugService.TakeDebugCalls
    */

@@ -218,6 +218,61 @@ export declare type ListConnectedModulesResponse = Message<"novatrail.api.v1.Lis
 export declare const ListConnectedModulesResponseSchema: GenMessage<ListConnectedModulesResponse>;
 
 /**
+ * A request to set the task skill of a module.
+ *
+ * @generated from message novatrail.api.v1.SetTaskSkillRequest
+ */
+export declare type SetTaskSkillRequest = Message<"novatrail.api.v1.SetTaskSkillRequest"> & {
+  /**
+   * The profile.
+   *
+   * @generated from field: string profile_id = 1;
+   */
+  profileId: string;
+
+  /**
+   * The module's ID.
+   *
+   * @generated from field: string module_id = 2;
+   */
+  moduleId: string;
+
+  /**
+   * The full ID of the skill, "novatrail/olympiad-math/skill/counting-gaps": empty gives the
+   * choice back to the tutor.
+   *
+   * @generated from field: string skill = 3;
+   */
+  skill: string;
+};
+
+/**
+ * Describes the message novatrail.api.v1.SetTaskSkillRequest.
+ * Use `create(SetTaskSkillRequestSchema)` to create a new message.
+ */
+export declare const SetTaskSkillRequestSchema: GenMessage<SetTaskSkillRequest>;
+
+/**
+ * The task skill set.
+ *
+ * @generated from message novatrail.api.v1.SetTaskSkillResponse
+ */
+export declare type SetTaskSkillResponse = Message<"novatrail.api.v1.SetTaskSkillResponse"> & {
+  /**
+   * The modules connected, in the order they were connected.
+   *
+   * @generated from field: repeated novatrail.api.v1.ConnectedModule modules = 1;
+   */
+  modules: ConnectedModule[];
+};
+
+/**
+ * Describes the message novatrail.api.v1.SetTaskSkillResponse.
+ * Use `create(SetTaskSkillResponseSchema)` to create a new message.
+ */
+export declare const SetTaskSkillResponseSchema: GenMessage<SetTaskSkillResponse>;
+
+/**
  * A module connected to a profile.
  *
  * @generated from message novatrail.api.v1.ConnectedModule
@@ -248,14 +303,25 @@ export declare type ConnectedModule = Message<"novatrail.api.v1.ConnectedModule"
   packageDigest: string;
 
   /**
-   * The module is solved on the sheet of a task from paper: `app` opens its tasks there, by
-   * `PaperService.BeginPaperAttempts` with its ID, each checked by a model as a task from paper is
-   * and none evidence of the learner model; the engine chooses none of them. `api` names such
-   * modules; none is a field of the module format.
+   * The module is a page of tasks from paper: `app` opens its tasks on the sheet of a task from
+   * paper all at once, by `PaperService.BeginPaperAttempts` with its ID, each judged by a model as
+   * a task from paper is and none evidence of the learner model; the engine chooses none of them.
+   * Every other module is solved on the same sheet one task at a time, which
+   * `LearningService.ChooseNext` chooses and `BeginAttempt` begins, its verdict the program's by
+   * its key. `api` names such modules; none is a field of the module format.
    *
    * @generated from field: bool on_sheet = 4;
    */
   onSheet: boolean;
+
+  /**
+   * The task skill: the full ID of the skill the learner chose for the module's tasks, empty while
+   * the tutor chooses. A skill the graph of the current version no longer has is empty here, and
+   * the tutor chooses.
+   *
+   * @generated from field: string task_skill = 5;
+   */
+  taskSkill: string;
 };
 
 /**
@@ -305,8 +371,9 @@ export declare const ModuleService: GenService<{
   },
   /**
    * Disconnects a module from the profile. The answer is the modules connected; a module not
-   * connected changes nothing. The evidence of the module stays in the profile's journal, and an
-   * open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next request.
+   * connected changes nothing. The evidence of the module stays in the profile's journal, its task
+   * skill goes, and an open lesson run of it ends `RUN_END_REASON_NOT_SUITABLE` at its next
+   * request.
    *
    * @generated from rpc novatrail.api.v1.ModuleService.DisconnectModule
    */
@@ -326,6 +393,22 @@ export declare const ModuleService: GenService<{
     methodKind: "unary";
     input: typeof ListConnectedModulesRequestSchema;
     output: typeof ListConnectedModulesResponseSchema;
+  },
+  /**
+   * Sets the task skill of a connected module: the skill the learner chose for its tasks, on the
+   * tile of its tasks or on the skill map, which `ChooseNext` with the module gives its tasks on
+   * until the learner gives the choice back to the tutor, an empty skill. The answer is the modules
+   * connected. The learner chooses among the skills the map opens, and `app` offers no other;
+   * `api` holds only that the skill is one of the graph of the module's current version.
+   * Refusals: `CAUSE_NOT_FOUND`, a module not connected or a skill its graph does not have, and
+   * `CAUSE_NO_CURRENT_VERSION`; a module solved on the sheet gets `invalid_argument`.
+   *
+   * @generated from rpc novatrail.api.v1.ModuleService.SetTaskSkill
+   */
+  setTaskSkill: {
+    methodKind: "unary";
+    input: typeof SetTaskSkillRequestSchema;
+    output: typeof SetTaskSkillResponseSchema;
   },
 }>;
 

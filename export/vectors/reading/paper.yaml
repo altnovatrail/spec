@@ -3,13 +3,13 @@
 cases:
   - files:
       manifest.json:
-        format: 5
+        format: 6
         scope: "profile"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "5"
+        api_format: "6"
       api/profiles/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -134,7 +134,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
@@ -153,7 +153,7 @@ cases:
         essays: []
         lessons: []
       paper/p-9/page-1.json:
-        format: 5
+        format: 6
         profile_id: "p-9"
         page_id: "page-1"
         taken_at: "2026-11-10T09:20:00Z"
@@ -190,13 +190,13 @@ cases:
       - "paper/p-9/page-1.json"
   - files:
       manifest.json:
-        format: 5
+        format: 6
         scope: "profile"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "5"
+        api_format: "6"
       api/profiles/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -321,7 +321,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
@@ -340,7 +340,7 @@ cases:
         essays: []
         lessons: []
       paper/p-1/page-1.json:
-        format: 5
+        format: 6
         profile_id: "p-2"
         page_id: "page-2"
         taken_at: "2026-11-10T09:20:00Z"
@@ -378,13 +378,13 @@ cases:
       - "paper/p-1/page-1.json#profile_id"
   - files:
       manifest.json:
-        format: 5
+        format: 6
         scope: "profile"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "5"
+        api_format: "6"
       api/profiles/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -509,7 +509,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
@@ -528,7 +528,7 @@ cases:
         essays: []
         lessons: []
       paper/p-1/page-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         page_id: "page-1"
         taken_at: "2026-11-10T09:20:00Z"
@@ -586,13 +586,13 @@ cases:
       - "paper/p-1/page-1.json#tasks.1.frame"
   - files:
       manifest.json:
-        format: 5
+        format: 6
         scope: "profile"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "5"
+        api_format: "6"
       api/profiles/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -717,7 +717,7 @@ cases:
 
         syntax = \"proto3\";\n"
       device/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"
@@ -736,7 +736,7 @@ cases:
         essays: []
         lessons: []
       paper/p-1/page-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         page_id: "page-1"
         taken_at: "2026-11-10T09:20:00Z"
@@ -769,7 +769,7 @@ cases:
               hidden: false
             submissions: []
       paper/p-1/page-2.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         page_id: "page-2"
         taken_at: "2026-11-10T09:20:00Z"

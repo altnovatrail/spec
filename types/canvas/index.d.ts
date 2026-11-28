@@ -77,8 +77,8 @@ export type DemoChangeEvent = CustomEvent<DemoState>;
 export interface PaperTask {
   /**
    * The task's picture, a JPEG or a PNG, without the learner's strokes: the crop app cut of the
-   * photo, or, for a task of a module solved on the sheet, the module's statement that app drew as
-   * text on white.
+   * photo, or, for a task of a module, the module's statement that app drew as text on white, with
+   * the task's picture under it.
    */
   readonly statement: Blob;
   /**
@@ -87,7 +87,29 @@ export interface PaperTask {
    * `reading` holds: its statement is the module's text already. Any other value is a TypeError.
    */
   readonly source?: "photo" | "module";
+  /**
+   * The options of a task of a module whose answer slot is bound `choice`, their texts in the order
+   * the open view of the task writes them; absent for any other task. The element draws them as
+   * buttons on the tracing paper under the statement, a part of it that moves, scales and hides with
+   * it, and the learner still writes on the tracing paper and the sheet beside them. A tap tells an
+   * `optiontap`; which option is chosen is the consumer's, `chosen`. Options on a task whose
+   * `source` is not "module", or an empty list, or a text empty or of white space alone, are a
+   * TypeError.
+   */
+  readonly options?: readonly string[];
 }
+
+/** What an `optiontap` tells: the option the learner tapped, by its index in `PaperTask.options`. */
+export interface OptionTap {
+  readonly option: number;
+}
+
+/**
+ * The event the element sends from its host, bubbling and composed, when the learner taps an
+ * option of a task from paper's `options`, the chosen one too — not when the consumer sets
+ * `chosen`. The element changes no choice by it: the consumer sets `chosen`. Its detail is frozen.
+ */
+export type OptionTapEvent = CustomEvent<OptionTap>;
 
 /**
  * The grid of a task from paper's sheet, the learner's choice: dots, lines, none or squares, of the
@@ -603,6 +625,12 @@ export interface ExportedPaper {
   readonly statement: Blob;
   readonly png: Blob;
   readonly submission: PaperSubmission;
+  /**
+   * On a task whose `source` is "module", the PNG of the crop of the visible strokes alone, without
+   * the tracing paper's picture or its options: the work of a module that a program checks by its key,
+   * `SheetWork.crop`, and the crop of an essay. Absent on a task from a photo.
+   */
+  readonly strokes?: Blob;
 }
 
 /**
@@ -721,6 +749,7 @@ export interface CanvasEventMap {
   tracingchange: TracingChangeEvent;
   tracingread: TracingReadEvent;
   gridchange: GridChangeEvent;
+  optiontap: OptionTapEvent;
   penchange: PenChangeEvent;
 }
 
@@ -735,9 +764,9 @@ export type Media = (ref: string) => Promise<Blob>;
  * The element `<novatrail-canvas>` as its contract with app has it. The language of its buttons is
  * its own attribute `lang`. While it has the boolean attribute `tools-hidden`, its bar of tools — and
  * on a worked example its row, with the slot `actions` — is out of sight and out of the
- * accessibility tree: app sets it on a phone while its tutor's sheet is open. While it has the boolean
- * attribute `statement-hidden`, it draws no task statement, and app draws the statement as its card
- * above the element. Among the style properties `--novatrail-canvas-*` that app sets,
+ * accessibility tree: app sets it on a phone while its tutor's sheet is open. The boolean attribute
+ * `statement-hidden`, by which it draws no task statement, app no longer sets: no screen of app
+ * draws the statement as a card above the element. Among the style properties `--novatrail-canvas-*` that app sets,
  * `--novatrail-canvas-accent` is the accent of the tool in use and of the focus ring,
  * `--novatrail-canvas-glass` the fill of the bar's glass, `--novatrail-canvas-top` the offset of the
  * band in whose middle the bar stands, and `--novatrail-canvas-pad-top` and
@@ -791,6 +820,14 @@ export interface CanvasElement extends HTMLElement {
    */
   get grid(): PaperGrid | undefined;
   set grid(grid: PaperGrid | undefined);
+  /**
+   * The option chosen of the task from paper's `options`, by its index, which the element draws as
+   * chosen: `undefined` as a task from paper comes, and none chosen. The consumer holds the choice,
+   * sets it on an `optiontap` and gives it back to open the task as it was; the element keeps none
+   * of its own. An index given without options, or not a whole number within them, is a TypeError.
+   */
+  get chosen(): number | undefined;
+  set chosen(option: number | undefined);
   /**
    * The settings of the pen and the eraser, frozen: canvas's as an element comes. The learner
    * changes them in the popovers of the pen and the eraser, which a `penchange` tells; the consumer

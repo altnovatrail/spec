@@ -468,6 +468,117 @@ func (x *ListConnectedModulesResponse) GetModules() []*ConnectedModule {
 	return nil
 }
 
+// A request to set the task skill of a module.
+type SetTaskSkillRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile.
+	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	// The module's ID.
+	ModuleId string `protobuf:"bytes,2,opt,name=module_id,json=moduleId,proto3" json:"module_id,omitempty"`
+	// The full ID of the skill, "novatrail/olympiad-math/skill/counting-gaps": empty gives the
+	// choice back to the tutor.
+	Skill         string `protobuf:"bytes,3,opt,name=skill,proto3" json:"skill,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetTaskSkillRequest) Reset() {
+	*x = SetTaskSkillRequest{}
+	mi := &file_novatrail_api_v1_module_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetTaskSkillRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetTaskSkillRequest) ProtoMessage() {}
+
+func (x *SetTaskSkillRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_module_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetTaskSkillRequest.ProtoReflect.Descriptor instead.
+func (*SetTaskSkillRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_module_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *SetTaskSkillRequest) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *SetTaskSkillRequest) GetModuleId() string {
+	if x != nil {
+		return x.ModuleId
+	}
+	return ""
+}
+
+func (x *SetTaskSkillRequest) GetSkill() string {
+	if x != nil {
+		return x.Skill
+	}
+	return ""
+}
+
+// The task skill set.
+type SetTaskSkillResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The modules connected, in the order they were connected.
+	Modules       []*ConnectedModule `protobuf:"bytes,1,rep,name=modules,proto3" json:"modules,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetTaskSkillResponse) Reset() {
+	*x = SetTaskSkillResponse{}
+	mi := &file_novatrail_api_v1_module_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetTaskSkillResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetTaskSkillResponse) ProtoMessage() {}
+
+func (x *SetTaskSkillResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_module_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetTaskSkillResponse.ProtoReflect.Descriptor instead.
+func (*SetTaskSkillResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_module_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *SetTaskSkillResponse) GetModules() []*ConnectedModule {
+	if x != nil {
+		return x.Modules
+	}
+	return nil
+}
+
 // A module connected to a profile.
 type ConnectedModule struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -480,18 +591,24 @@ type ConnectedModule struct {
 	// digest there is no manifest to name the module by: `app` names it by the title of a manifest
 	// it keeps of an earlier version, or else by its ID.
 	PackageDigest string `protobuf:"bytes,3,opt,name=package_digest,json=packageDigest,proto3" json:"package_digest,omitempty"`
-	// The module is solved on the sheet of a task from paper: `app` opens its tasks there, by
-	// `PaperService.BeginPaperAttempts` with its ID, each checked by a model as a task from paper is
-	// and none evidence of the learner model; the engine chooses none of them. `api` names such
-	// modules; none is a field of the module format.
-	OnSheet       bool `protobuf:"varint,4,opt,name=on_sheet,json=onSheet,proto3" json:"on_sheet,omitempty"`
+	// The module is a page of tasks from paper: `app` opens its tasks on the sheet of a task from
+	// paper all at once, by `PaperService.BeginPaperAttempts` with its ID, each judged by a model as
+	// a task from paper is and none evidence of the learner model; the engine chooses none of them.
+	// Every other module is solved on the same sheet one task at a time, which
+	// `LearningService.ChooseNext` chooses and `BeginAttempt` begins, its verdict the program's by
+	// its key. `api` names such modules; none is a field of the module format.
+	OnSheet bool `protobuf:"varint,4,opt,name=on_sheet,json=onSheet,proto3" json:"on_sheet,omitempty"`
+	// The task skill: the full ID of the skill the learner chose for the module's tasks, empty while
+	// the tutor chooses. A skill the graph of the current version no longer has is empty here, and
+	// the tutor chooses.
+	TaskSkill     string `protobuf:"bytes,5,opt,name=task_skill,json=taskSkill,proto3" json:"task_skill,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConnectedModule) Reset() {
 	*x = ConnectedModule{}
-	mi := &file_novatrail_api_v1_module_proto_msgTypes[9]
+	mi := &file_novatrail_api_v1_module_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -503,7 +620,7 @@ func (x *ConnectedModule) String() string {
 func (*ConnectedModule) ProtoMessage() {}
 
 func (x *ConnectedModule) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_module_proto_msgTypes[9]
+	mi := &file_novatrail_api_v1_module_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -516,7 +633,7 @@ func (x *ConnectedModule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectedModule.ProtoReflect.Descriptor instead.
 func (*ConnectedModule) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_module_proto_rawDescGZIP(), []int{9}
+	return file_novatrail_api_v1_module_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ConnectedModule) GetModuleId() string {
@@ -545,6 +662,13 @@ func (x *ConnectedModule) GetOnSheet() bool {
 		return x.OnSheet
 	}
 	return false
+}
+
+func (x *ConnectedModule) GetTaskSkill() string {
+	if x != nil {
+		return x.TaskSkill
+	}
+	return ""
 }
 
 var File_novatrail_api_v1_module_proto protoreflect.FileDescriptor
@@ -576,17 +700,27 @@ const file_novatrail_api_v1_module_proto_rawDesc = "" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\"[\n" +
 	"\x1cListConnectedModulesResponse\x12;\n" +
-	"\amodules\x18\x01 \x03(\v2!.novatrail.api.v1.ConnectedModuleR\amodules\"\xaf\x01\n" +
+	"\amodules\x18\x01 \x03(\v2!.novatrail.api.v1.ConnectedModuleR\amodules\"g\n" +
+	"\x13SetTaskSkillRequest\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1b\n" +
+	"\tmodule_id\x18\x02 \x01(\tR\bmoduleId\x12\x14\n" +
+	"\x05skill\x18\x03 \x01(\tR\x05skill\"S\n" +
+	"\x14SetTaskSkillResponse\x12;\n" +
+	"\amodules\x18\x01 \x03(\v2!.novatrail.api.v1.ConnectedModuleR\amodules\"\xce\x01\n" +
 	"\x0fConnectedModule\x12\x1b\n" +
 	"\tmodule_id\x18\x01 \x01(\tR\bmoduleId\x12=\n" +
 	"\fconnected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vconnectedAt\x12%\n" +
 	"\x0epackage_digest\x18\x03 \x01(\tR\rpackageDigest\x12\x19\n" +
-	"\bon_sheet\x18\x04 \x01(\bR\aonSheet2\xaf\x03\n" +
+	"\bon_sheet\x18\x04 \x01(\bR\aonSheet\x12\x1d\n" +
+	"\n" +
+	"task_skill\x18\x05 \x01(\tR\ttaskSkill2\x8e\x04\n" +
 	"\rModuleService\x12Z\n" +
 	"\vListCatalog\x12$.novatrail.api.v1.ListCatalogRequest\x1a%.novatrail.api.v1.ListCatalogResponse\x12`\n" +
 	"\rConnectModule\x12&.novatrail.api.v1.ConnectModuleRequest\x1a'.novatrail.api.v1.ConnectModuleResponse\x12i\n" +
 	"\x10DisconnectModule\x12).novatrail.api.v1.DisconnectModuleRequest\x1a*.novatrail.api.v1.DisconnectModuleResponse\x12u\n" +
-	"\x14ListConnectedModules\x12-.novatrail.api.v1.ListConnectedModulesRequest\x1a..novatrail.api.v1.ListConnectedModulesResponseB\xc4\x01\n" +
+	"\x14ListConnectedModules\x12-.novatrail.api.v1.ListConnectedModulesRequest\x1a..novatrail.api.v1.ListConnectedModulesResponse\x12]\n" +
+	"\fSetTaskSkill\x12%.novatrail.api.v1.SetTaskSkillRequest\x1a&.novatrail.api.v1.SetTaskSkillResponseB\xc4\x01\n" +
 	"\x14com.novatrail.api.v1B\vModuleProtoP\x01Z=github.com/altnovatrail/spec/contracts/novatrail/api/v1;apiv1\xa2\x02\x03NAX\xaa\x02\x10Novatrail.Api.V1\xca\x02\x10Novatrail\\Api\\V1\xe2\x02\x1cNovatrail\\Api\\V1\\GPBMetadata\xea\x02\x12Novatrail::Api::V1b\x06proto3"
 
 var (
@@ -601,7 +735,7 @@ func file_novatrail_api_v1_module_proto_rawDescGZIP() []byte {
 	return file_novatrail_api_v1_module_proto_rawDescData
 }
 
-var file_novatrail_api_v1_module_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_novatrail_api_v1_module_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_novatrail_api_v1_module_proto_goTypes = []any{
 	(*ListCatalogRequest)(nil),           // 0: novatrail.api.v1.ListCatalogRequest
 	(*ListCatalogResponse)(nil),          // 1: novatrail.api.v1.ListCatalogResponse
@@ -612,28 +746,33 @@ var file_novatrail_api_v1_module_proto_goTypes = []any{
 	(*DisconnectModuleResponse)(nil),     // 6: novatrail.api.v1.DisconnectModuleResponse
 	(*ListConnectedModulesRequest)(nil),  // 7: novatrail.api.v1.ListConnectedModulesRequest
 	(*ListConnectedModulesResponse)(nil), // 8: novatrail.api.v1.ListConnectedModulesResponse
-	(*ConnectedModule)(nil),              // 9: novatrail.api.v1.ConnectedModule
-	(*timestamppb.Timestamp)(nil),        // 10: google.protobuf.Timestamp
+	(*SetTaskSkillRequest)(nil),          // 9: novatrail.api.v1.SetTaskSkillRequest
+	(*SetTaskSkillResponse)(nil),         // 10: novatrail.api.v1.SetTaskSkillResponse
+	(*ConnectedModule)(nil),              // 11: novatrail.api.v1.ConnectedModule
+	(*timestamppb.Timestamp)(nil),        // 12: google.protobuf.Timestamp
 }
 var file_novatrail_api_v1_module_proto_depIdxs = []int32{
 	2,  // 0: novatrail.api.v1.ListCatalogResponse.modules:type_name -> novatrail.api.v1.CatalogModule
-	9,  // 1: novatrail.api.v1.ConnectModuleResponse.modules:type_name -> novatrail.api.v1.ConnectedModule
-	9,  // 2: novatrail.api.v1.DisconnectModuleResponse.modules:type_name -> novatrail.api.v1.ConnectedModule
-	9,  // 3: novatrail.api.v1.ListConnectedModulesResponse.modules:type_name -> novatrail.api.v1.ConnectedModule
-	10, // 4: novatrail.api.v1.ConnectedModule.connected_at:type_name -> google.protobuf.Timestamp
-	0,  // 5: novatrail.api.v1.ModuleService.ListCatalog:input_type -> novatrail.api.v1.ListCatalogRequest
-	3,  // 6: novatrail.api.v1.ModuleService.ConnectModule:input_type -> novatrail.api.v1.ConnectModuleRequest
-	5,  // 7: novatrail.api.v1.ModuleService.DisconnectModule:input_type -> novatrail.api.v1.DisconnectModuleRequest
-	7,  // 8: novatrail.api.v1.ModuleService.ListConnectedModules:input_type -> novatrail.api.v1.ListConnectedModulesRequest
-	1,  // 9: novatrail.api.v1.ModuleService.ListCatalog:output_type -> novatrail.api.v1.ListCatalogResponse
-	4,  // 10: novatrail.api.v1.ModuleService.ConnectModule:output_type -> novatrail.api.v1.ConnectModuleResponse
-	6,  // 11: novatrail.api.v1.ModuleService.DisconnectModule:output_type -> novatrail.api.v1.DisconnectModuleResponse
-	8,  // 12: novatrail.api.v1.ModuleService.ListConnectedModules:output_type -> novatrail.api.v1.ListConnectedModulesResponse
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	11, // 1: novatrail.api.v1.ConnectModuleResponse.modules:type_name -> novatrail.api.v1.ConnectedModule
+	11, // 2: novatrail.api.v1.DisconnectModuleResponse.modules:type_name -> novatrail.api.v1.ConnectedModule
+	11, // 3: novatrail.api.v1.ListConnectedModulesResponse.modules:type_name -> novatrail.api.v1.ConnectedModule
+	11, // 4: novatrail.api.v1.SetTaskSkillResponse.modules:type_name -> novatrail.api.v1.ConnectedModule
+	12, // 5: novatrail.api.v1.ConnectedModule.connected_at:type_name -> google.protobuf.Timestamp
+	0,  // 6: novatrail.api.v1.ModuleService.ListCatalog:input_type -> novatrail.api.v1.ListCatalogRequest
+	3,  // 7: novatrail.api.v1.ModuleService.ConnectModule:input_type -> novatrail.api.v1.ConnectModuleRequest
+	5,  // 8: novatrail.api.v1.ModuleService.DisconnectModule:input_type -> novatrail.api.v1.DisconnectModuleRequest
+	7,  // 9: novatrail.api.v1.ModuleService.ListConnectedModules:input_type -> novatrail.api.v1.ListConnectedModulesRequest
+	9,  // 10: novatrail.api.v1.ModuleService.SetTaskSkill:input_type -> novatrail.api.v1.SetTaskSkillRequest
+	1,  // 11: novatrail.api.v1.ModuleService.ListCatalog:output_type -> novatrail.api.v1.ListCatalogResponse
+	4,  // 12: novatrail.api.v1.ModuleService.ConnectModule:output_type -> novatrail.api.v1.ConnectModuleResponse
+	6,  // 13: novatrail.api.v1.ModuleService.DisconnectModule:output_type -> novatrail.api.v1.DisconnectModuleResponse
+	8,  // 14: novatrail.api.v1.ModuleService.ListConnectedModules:output_type -> novatrail.api.v1.ListConnectedModulesResponse
+	10, // 15: novatrail.api.v1.ModuleService.SetTaskSkill:output_type -> novatrail.api.v1.SetTaskSkillResponse
+	11, // [11:16] is the sub-list for method output_type
+	6,  // [6:11] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_module_proto_init() }
@@ -647,7 +786,7 @@ func file_novatrail_api_v1_module_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_module_proto_rawDesc), len(file_novatrail_api_v1_module_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

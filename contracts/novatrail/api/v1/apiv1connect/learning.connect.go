@@ -38,6 +38,9 @@ const (
 	LearningServiceGetOpenAttemptProcedure = "/novatrail.api.v1.LearningService/GetOpenAttempt"
 	// LearningServiceOpenLessonProcedure is the procedure name of the LearningService's OpenLesson RPC.
 	LearningServiceOpenLessonProcedure = "/novatrail.api.v1.LearningService/OpenLesson"
+	// LearningServiceListLessonsProcedure is the procedure name of the LearningService's ListLessons
+	// RPC.
+	LearningServiceListLessonsProcedure = "/novatrail.api.v1.LearningService/ListLessons"
 	// LearningServiceGetLessonRunProcedure is the procedure name of the LearningService's GetLessonRun
 	// RPC.
 	LearningServiceGetLessonRunProcedure = "/novatrail.api.v1.LearningService/GetLessonRun"
@@ -75,6 +78,13 @@ var (
 			Procedure:  LearningServiceOpenLessonProcedure,
 		}
 	})
+	learningServiceListLessonsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_novatrail_api_v1_learning_proto.Services().ByName("LearningService").Methods().ByName("ListLessons"),
+			Procedure:  LearningServiceListLessonsProcedure,
+		}
+	})
 	learningServiceGetLessonRunSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
@@ -93,13 +103,19 @@ var (
 
 // LearningServiceClient is a client for the novatrail.api.v1.LearningService service.
 type LearningServiceClient interface {
-	// "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
-	// when the learner asks for it, or when nothing is open. It closes the open attempt of a task of
-	// a module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back
-	// to. The choice gives a lesson or a task, or nothing, with the outcome that says why, by the
-	// route the request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected
-	// has, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
-	// with the same idempotency key gets the same choice.
+	// The engine's choice of what comes next, when the learner asks for it. With a module, Solve on
+	// the tile of its tasks: a task of that module alone, on its task skill when it has one, and no
+	// lesson; a choice made so keeps the module, and every choice after it that an answer gives —
+	// the end of an attempt of the task — keeps it too. Without one, the choice is among all the
+	// modules connected and gives a lesson or a task. It closes the open attempt of a task of a
+	// module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to.
+	// The choice gives a lesson or a task, or nothing, with the outcome that says why, by the route
+	// the request names; with a module, a task skill on which its pool holds no task gives nothing,
+	// with no outcome. Refusals: `CAUSE_NOT_FOUND`, a module not connected or a skill named that no
+	// module connected has, `CAUSE_NO_CURRENT_VERSION`, a module with no current version for the
+	// learner, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a
+	// module solved on the sheet, or a module and a skill both named, get `invalid_argument`. A
+	// repeat with the same idempotency key gets the same choice.
 	ChooseNext(context.Context, *v1.ChooseNextRequest) (*v1.ChooseNextResponse, error)
 	// Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
 	// same task again. It closes the open attempt of a task of a module `CLOSE_REASON_LEFT`. A choice
@@ -123,18 +139,30 @@ type LearningServiceClient interface {
 	// from paper gets `invalid_argument`: it has no open view, and only the device that holds its
 	// page goes on with it. It repeats by the state of the attempt.
 	GetOpenAttempt(context.Context, *v1.GetOpenAttemptRequest) (*v1.GetOpenAttemptResponse, error)
-	// Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
-	// or else a new run on the package of the module's current version. A choice opens one run: once
-	// it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice. Before the
+	// Opens a lesson: of an engine's choice, or the one the learner chose on the lessons of its
+	// module, by its full ID. It gives the open run of the lesson, when the profile has one, or else a
+	// new run on the package of the module's current version; a lesson the learner chose opens with
+	// a choice of its own, `REASON_CODE_LESSON_CHOSEN`, which the run names. A choice opens one run:
+	// once it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice, or the
+	// lesson by its ID again; a lesson passed opens a new run. Before the
 	// answer `api` checks that the module is connected and has a current version for the learner,
 	// and that the lesson and each of its tasks suit the age category of the profile — on the
 	// package of the run when it is open; a run that fails ends `RUN_END_REASON_NOT_SUITABLE`, and
 	// a run whose package the image no longer gives `RUN_END_REASON_UNCHECKED`, after which `app`
-	// asks `CheckPackages`. A choice of a task gets `invalid_argument`. Refusals:
-	// `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-	// `CAUSE_RUN_ENDED`, `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`. It carries no
-	// idempotency key: it repeats by the state of the run.
+	// asks `CheckPackages`. A choice of a task, or a request that names both a choice and a lesson
+	// or neither, gets `invalid_argument`. Refusals: `CAUSE_NOT_SUITABLE`,
+	// `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`, `CAUSE_RUN_ENDED`,
+	// `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`; a lesson by its ID with no open run that
+	// the current version does not have gets `CAUSE_NO_CURRENT_VERSION`, as a new run of it would.
+	// It carries no idempotency key: it repeats by the state of the run.
 	OpenLesson(context.Context, *v1.OpenLessonRequest) (*v1.OpenLessonResponse, error)
+	// The lessons of a connected module, for its tile and its page of lessons: those of its current
+	// version that suit the learner whole, in the author's order, each with its state, and the
+	// lesson the tile shows. It reads and writes nothing else: no run changes, none ends, and no
+	// choice is made. Refusals: `CAUSE_NOT_FOUND`, a module not connected, and
+	// `CAUSE_NO_CURRENT_VERSION`; a module solved on the sheet gets `invalid_argument`. It repeats
+	// by the state of the profile.
+	ListLessons(context.Context, *v1.ListLessonsRequest) (*v1.ListLessonsResponse, error)
 	// An open lesson run again, by its ID: after a restart, and on another device. `api` checks it as
 	// `OpenLesson` does. Refusals: `CAUSE_RUN_ENDED`, with how the run ended, and the engine's choice
 	// when this request ended it; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND` and
@@ -157,13 +185,19 @@ func NewLearningServiceClient(client *connect.Client) LearningServiceClient {
 
 // LearningServiceHandler is an implementation of the novatrail.api.v1.LearningService service.
 type LearningServiceHandler interface {
-	// "Something else": the engine's choice of what comes next, outside a lesson or in place of one,
-	// when the learner asks for it, or when nothing is open. It closes the open attempt of a task of
-	// a module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back
-	// to. The choice gives a lesson or a task, or nothing, with the outcome that says why, by the
-	// route the request names. Refusals: `CAUSE_NOT_FOUND`, a skill named that no module connected
-	// has, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat
-	// with the same idempotency key gets the same choice.
+	// The engine's choice of what comes next, when the learner asks for it. With a module, Solve on
+	// the tile of its tasks: a task of that module alone, on its task skill when it has one, and no
+	// lesson; a choice made so keeps the module, and every choice after it that an answer gives —
+	// the end of an attempt of the task — keeps it too. Without one, the choice is among all the
+	// modules connected and gives a lesson or a task. It closes the open attempt of a task of a
+	// module `CLOSE_REASON_LEFT`, and `app` warns beforehand that the attempt cannot be gone back to.
+	// The choice gives a lesson or a task, or nothing, with the outcome that says why, by the route
+	// the request names; with a module, a task skill on which its pool holds no task gives nothing,
+	// with no outcome. Refusals: `CAUSE_NOT_FOUND`, a module not connected or a skill named that no
+	// module connected has, `CAUSE_NO_CURRENT_VERSION`, a module with no current version for the
+	// learner, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a
+	// module solved on the sheet, or a module and a skill both named, get `invalid_argument`. A
+	// repeat with the same idempotency key gets the same choice.
 	ChooseNext(context.Context, *v1.ChooseNextRequest) (*v1.ChooseNextResponse, error)
 	// Begins an attempt: by an engine's choice of a task, on a task segment of a lesson run, or the
 	// same task again. It closes the open attempt of a task of a module `CLOSE_REASON_LEFT`. A choice
@@ -187,18 +221,30 @@ type LearningServiceHandler interface {
 	// from paper gets `invalid_argument`: it has no open view, and only the device that holds its
 	// page goes on with it. It repeats by the state of the attempt.
 	GetOpenAttempt(context.Context, *v1.GetOpenAttemptRequest) (*v1.GetOpenAttemptResponse, error)
-	// Opens the lesson of an engine's choice: the open run of the lesson, when the profile has one,
-	// or else a new run on the package of the module's current version. A choice opens one run: once
-	// it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice. Before the
+	// Opens a lesson: of an engine's choice, or the one the learner chose on the lessons of its
+	// module, by its full ID. It gives the open run of the lesson, when the profile has one, or else a
+	// new run on the package of the module's current version; a lesson the learner chose opens with
+	// a choice of its own, `REASON_CODE_LESSON_CHOSEN`, which the run names. A choice opens one run:
+	// once it has ended, the choice gets `CAUSE_RUN_ENDED`, and a new run takes a new choice, or the
+	// lesson by its ID again; a lesson passed opens a new run. Before the
 	// answer `api` checks that the module is connected and has a current version for the learner,
 	// and that the lesson and each of its tasks suit the age category of the profile — on the
 	// package of the run when it is open; a run that fails ends `RUN_END_REASON_NOT_SUITABLE`, and
 	// a run whose package the image no longer gives `RUN_END_REASON_UNCHECKED`, after which `app`
-	// asks `CheckPackages`. A choice of a task gets `invalid_argument`. Refusals:
-	// `CAUSE_NOT_SUITABLE`, `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`,
-	// `CAUSE_RUN_ENDED`, `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`. It carries no
-	// idempotency key: it repeats by the state of the run.
+	// asks `CheckPackages`. A choice of a task, or a request that names both a choice and a lesson
+	// or neither, gets `invalid_argument`. Refusals: `CAUSE_NOT_SUITABLE`,
+	// `CAUSE_NO_CURRENT_VERSION`, `CAUSE_PACKAGE_UNKNOWN`, `CAUSE_RUN_ENDED`,
+	// `CAUSE_KEY_NOT_FOR_PROFILE` and `CAUSE_NOT_FOUND`; a lesson by its ID with no open run that
+	// the current version does not have gets `CAUSE_NO_CURRENT_VERSION`, as a new run of it would.
+	// It carries no idempotency key: it repeats by the state of the run.
 	OpenLesson(context.Context, *v1.OpenLessonRequest) (*v1.OpenLessonResponse, error)
+	// The lessons of a connected module, for its tile and its page of lessons: those of its current
+	// version that suit the learner whole, in the author's order, each with its state, and the
+	// lesson the tile shows. It reads and writes nothing else: no run changes, none ends, and no
+	// choice is made. Refusals: `CAUSE_NOT_FOUND`, a module not connected, and
+	// `CAUSE_NO_CURRENT_VERSION`; a module solved on the sheet gets `invalid_argument`. It repeats
+	// by the state of the profile.
+	ListLessons(context.Context, *v1.ListLessonsRequest) (*v1.ListLessonsResponse, error)
 	// An open lesson run again, by its ID: after a restart, and on another device. `api` checks it as
 	// `OpenLesson` does. Refusals: `CAUSE_RUN_ENDED`, with how the run ended, and the engine's choice
 	// when this request ended it; `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_NOT_FOUND` and
@@ -222,6 +268,7 @@ func RegisterLearningServiceHandler(server *connect.Server, svc LearningServiceH
 		connect.Method{Spec: learningServiceBeginAttemptSpec(), Handler: adapter.beginAttempt},
 		connect.Method{Spec: learningServiceGetOpenAttemptSpec(), Handler: adapter.getOpenAttempt},
 		connect.Method{Spec: learningServiceOpenLessonSpec(), Handler: adapter.openLesson},
+		connect.Method{Spec: learningServiceListLessonsSpec(), Handler: adapter.listLessons},
 		connect.Method{Spec: learningServiceGetLessonRunSpec(), Handler: adapter.getLessonRun},
 		connect.Method{Spec: learningServiceCompleteLessonSpec(), Handler: adapter.completeLesson},
 	)
@@ -244,6 +291,10 @@ func (UnimplementedLearningServiceHandler) GetOpenAttempt(context.Context, *v1.G
 
 func (UnimplementedLearningServiceHandler) OpenLesson(context.Context, *v1.OpenLessonRequest) (*v1.OpenLessonResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.LearningService.OpenLesson is not implemented")
+}
+
+func (UnimplementedLearningServiceHandler) ListLessons(context.Context, *v1.ListLessonsRequest) (*v1.ListLessonsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "novatrail.api.v1.LearningService.ListLessons is not implemented")
 }
 
 func (UnimplementedLearningServiceHandler) GetLessonRun(context.Context, *v1.GetLessonRunRequest) (*v1.GetLessonRunResponse, error) {
@@ -285,6 +336,14 @@ func (c *learningServiceClient) GetOpenAttempt(ctx context.Context, req *v1.GetO
 func (c *learningServiceClient) OpenLesson(ctx context.Context, req *v1.OpenLessonRequest) (*v1.OpenLessonResponse, error) {
 	var res v1.OpenLessonResponse
 	if err := c.client.CallUnary(ctx, learningServiceOpenLessonSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *learningServiceClient) ListLessons(ctx context.Context, req *v1.ListLessonsRequest) (*v1.ListLessonsResponse, error) {
+	var res v1.ListLessonsResponse
+	if err := c.client.CallUnary(ctx, learningServiceListLessonsSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -350,6 +409,18 @@ func (h learningServiceHandler) openLesson(ctx context.Context, _ connect.Spec, 
 		return err
 	}
 	res, err := h.svc.OpenLesson(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h learningServiceHandler) listLessons(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListLessonsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListLessons(ctx, &req)
 	if err != nil {
 		return err
 	}

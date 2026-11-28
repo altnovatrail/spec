@@ -267,3 +267,32 @@ test("a go.work only where a module of NovaTrail with a clone in the epic is req
   assert.equal(goWorkOf(dir, "b"), null);
   assert.match(readmeOf("e1", [{ repo: "a", from: "main", go: null, npm: null }]), /\| a \| main \| — \| — \|/);
 });
+
+test("laying a package keeps what the consumer's npm nested under it, and drops its old files", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const os = await import("node:os");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "xrepo-unpack-"));
+  try {
+    const consumer = path.join(dir, "node_modules");
+    const pkg = path.join(consumer, "@altnovatrail", "canvas");
+    write(pkg, { "old.txt": "old\n", "node_modules/@altnovatrail/spec/package.json": '{"version":"0.21.2"}\n' });
+    write(consumer, { ".vite/deps/canvas.js": "stale\n" });
+    write(dir, { "src/package/package.json": '{"version":"0.0.0"}\n' });
+    const archive = path.join(dir, "canvas.tgz");
+    execFileSync("tar", ["-czf", archive, "-C", path.join(dir, "src"), "package"]);
+    execFileSync("bash", ["-c", UNPACK, "bash", pkg, archive, "print"]);
+    assert.equal(read(path.join(pkg, "package.json")), '{"version":"0.0.0"}\n');
+    assert.equal(read(path.join(pkg, ".xrepo")), "print\n");
+    assert.ok(!fs.existsSync(path.join(pkg, "old.txt")));
+    assert.equal(read(path.join(pkg, "node_modules", "@altnovatrail", "spec", "package.json")), '{"version":"0.21.2"}\n');
+    assert.ok(!fs.existsSync(`${pkg}.xrepo-keep`));
+    assert.ok(!fs.existsSync(path.join(consumer, ".vite", "deps")));
+    // A package with nothing nested under it is laid as before.
+    fs.rmSync(path.join(pkg, "node_modules"), { recursive: true });
+    execFileSync("bash", ["-c", UNPACK, "bash", pkg, archive, "again"]);
+    assert.ok(!fs.existsSync(path.join(pkg, "node_modules")));
+    assert.equal(read(path.join(pkg, ".xrepo")), "again\n");
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

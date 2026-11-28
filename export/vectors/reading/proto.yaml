@@ -3,13 +3,13 @@
 cases:
   - files:
       manifest.json:
-        format: 5
+        format: 6
         scope: "account"
         built_at: "2026-11-10T09:30:00Z"
         app_version: "0.1.0"
-        api_format: "5"
+        api_format: "6"
       api/account.json:
-        format: 5
+        format: 6
         account_id: "account-1"
         adult_stated_at: "2026-11-10T09:30:00Z"
         tariff: "invite"
@@ -35,7 +35,7 @@ cases:
             spent_micro_usd: 12000
             reserved_micro_usd: 0
       api/profiles/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         owner: false
         pseudonym: "Comet"
@@ -143,7 +143,7 @@ cases:
         age_stated_on: "2026-11-10"
         consent_age: 13
       device/p-1.json:
-        format: 5
+        format: 6
         profile_id: "p-1"
         attempts:
           - attempt_id: "attempt-2"

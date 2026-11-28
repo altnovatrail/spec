@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 // The checking of an attempt in the contract between `app` and `api`: the submission of the work
-// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
-// with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
+// and the verdict, the tutor's words and marks, hints, grown-up mode, and "Done" on a task with a
+// rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
 // with the same idempotency key answers are the rules of contracts/README.md for
 // the contract between `app` and `api`.
@@ -435,8 +435,8 @@ export const MarkKind = /*@__PURE__*/
  * sign-in service and may get the refusals of every request with a token, which the comment of
  * `AccountService` names with what `app` does on each; a request of a profile whose consent is not
  * confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
- * `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer, by the
- * solution shown or by "Done" says what comes next, `next`: an attempt begins by
+ * `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer or by "Done"
+ * says what comes next, `next`: an attempt begins by
  * `LearningService`. The engine's choice in `next` goes by the route to AI that the request
  * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
  * AI's without either, as `ChooseNext` judges it. An attempt of a task from paper

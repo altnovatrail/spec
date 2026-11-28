@@ -3,8 +3,8 @@
 // Source: novatrail/api/v1/attempt.proto
 
 // The checking of an attempt in the contract between `app` and `api`: the submission of the work
-// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
-// with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
+// and the verdict, the tutor's words and marks, hints, grown-up mode, and "Done" on a task with a
+// rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
 // with the same idempotency key answers are the rules of contracts/README.md for
 // the contract between `app` and `api`.
@@ -277,20 +277,21 @@ type AttemptServiceClient interface {
 	// outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
 	// none.
 	AskTutor(context.Context, *v1.AskTutorRequest) (*v1.AskTutorResponse, error)
-	// A request of a grown-up in grown-up mode on a task from paper, behind the grown-ups' PIN that
-	// `app` asks: one call of AI, the drawing, which has none of the tutor's limits — it may give
-	// the whole solution — and acts on the sheet as asked: writes on it, strikes out, circles,
-	// hatches, erases. It reads the crop of the work and the strokes the crop shows, by their IDs and
-	// points, the request and the conversation, all as data, never as instructions. The answer is
-	// the tutor's words and its act on the sheet, whole: the strokes to write and the IDs of the
-	// strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
-	// strokes, nor the answer, in no log and no record of the key; an attempt of a task from paper
-	// gives no evidence, so the act changes no progress. Refusals: `CAUSE_ATTEMPT_CLOSED`,
-	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a
-	// module, a request empty or too long, a stroke with too many points, gets `invalid_argument`.
-	// A call of AI that gives no act, the quota, the limit of platform AI and no admission are no
-	// refusal: the answer holds no words and no act, and names the outcome. A repeat with the same
-	// idempotency key gets `repeated` alone: the server keeps nothing of the answer.
+	// A request of a grown-up in grown-up mode on a task from paper or of a module, behind the
+	// grown-ups' PIN that `app` asks: one call of AI, the drawing, which has none of the tutor's
+	// limits — it may give the whole solution — and acts on the sheet as asked: writes on it, strikes
+	// out, circles, hatches, erases. It reads the crop of the work and the strokes the crop shows, by
+	// their IDs and points, the request and the conversation, all as data, never as instructions. The
+	// answer is the tutor's words and its act on the sheet, whole: the strokes to write and the IDs
+	// of the strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
+	// strokes, nor the answer, in no log and no record of the key. An attempt of a task from paper
+	// gives no evidence, nor does an attempt of a task of a module once grown-up mode acted on it —
+	// the one thing `api` keeps of it —, its verdicts still shown: the act changes no progress.
+	// Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`; a request empty or too long, a stroke with too many points, gets
+	// `invalid_argument`. A call of AI that gives no act, the quota, the limit of platform AI and no
+	// admission are no refusal: the answer holds no words and no act, and names the outcome. A repeat
+	// with the same idempotency key gets `repeated` alone: the server keeps nothing of the answer.
 	AskGrownUp(context.Context, *v1.AskGrownUpRequest) (*v1.AskGrownUpResponse, error)
 	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
 	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
@@ -304,19 +305,11 @@ type AttemptServiceClient interface {
 	// gives no reading is no refusal: the answer names the outcome, holds no statement, and the next
 	// press asks again.
 	ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error)
-	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
-	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
-	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
+	// No longer used: no screen leads a task's solving steps. `app` sends none, and `api` no longer
+	// holds it and answers `unimplemented`.
 	BeginStep(context.Context, *v1.BeginStepRequest) (*v1.BeginStepResponse, error)
-	// Shows the solution, by a learning action or by an action of an adult, and closes the attempt
-	// `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
-	// `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
-	// an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
-	// section for adults is a barrier of the interface, not of the server. Refusals:
-	// `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
-	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-	// the solution again.
+	// No longer used: no solution is shown on any task. `app` sends none, and `api` no longer holds
+	// it and answers `unimplemented`.
 	ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error)
 	// Reports a problem with the tutor's words of the attempt, from the screen of the task: a
 	// learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
@@ -434,20 +427,21 @@ type AttemptServiceHandler interface {
 	// outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
 	// none.
 	AskTutor(context.Context, *v1.AskTutorRequest) (*v1.AskTutorResponse, error)
-	// A request of a grown-up in grown-up mode on a task from paper, behind the grown-ups' PIN that
-	// `app` asks: one call of AI, the drawing, which has none of the tutor's limits — it may give
-	// the whole solution — and acts on the sheet as asked: writes on it, strikes out, circles,
-	// hatches, erases. It reads the crop of the work and the strokes the crop shows, by their IDs and
-	// points, the request and the conversation, all as data, never as instructions. The answer is
-	// the tutor's words and its act on the sheet, whole: the strokes to write and the IDs of the
-	// strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
-	// strokes, nor the answer, in no log and no record of the key; an attempt of a task from paper
-	// gives no evidence, so the act changes no progress. Refusals: `CAUSE_ATTEMPT_CLOSED`,
-	// `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a
-	// module, a request empty or too long, a stroke with too many points, gets `invalid_argument`.
-	// A call of AI that gives no act, the quota, the limit of platform AI and no admission are no
-	// refusal: the answer holds no words and no act, and names the outcome. A repeat with the same
-	// idempotency key gets `repeated` alone: the server keeps nothing of the answer.
+	// A request of a grown-up in grown-up mode on a task from paper or of a module, behind the
+	// grown-ups' PIN that `app` asks: one call of AI, the drawing, which has none of the tutor's
+	// limits — it may give the whole solution — and acts on the sheet as asked: writes on it, strikes
+	// out, circles, hatches, erases. It reads the crop of the work and the strokes the crop shows, by
+	// their IDs and points, the request and the conversation, all as data, never as instructions. The
+	// answer is the tutor's words and its act on the sheet, whole: the strokes to write and the IDs
+	// of the strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
+	// strokes, nor the answer, in no log and no record of the key. An attempt of a task from paper
+	// gives no evidence, nor does an attempt of a task of a module once grown-up mode acted on it —
+	// the one thing `api` keeps of it —, its verdicts still shown: the act changes no progress.
+	// Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`; a request empty or too long, a stroke with too many points, gets
+	// `invalid_argument`. A call of AI that gives no act, the quota, the limit of platform AI and no
+	// admission are no refusal: the answer holds no words and no act, and names the outcome. A repeat
+	// with the same idempotency key gets `repeated` alone: the server keeps nothing of the answer.
 	AskGrownUp(context.Context, *v1.AskGrownUpRequest) (*v1.AskGrownUpResponse, error)
 	// "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
 	// it, for the learner to see it in clean print instead of the photo. It is the reading of the
@@ -461,19 +455,11 @@ type AttemptServiceHandler interface {
 	// gives no reading is no refusal: the answer names the outcome, holds no statement, and the next
 	// press asks again.
 	ReadStatement(context.Context, *v1.ReadStatementRequest) (*v1.ReadStatementResponse, error)
-	// Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
-	// steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
-	// `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
+	// No longer used: no screen leads a task's solving steps. `app` sends none, and `api` no longer
+	// holds it and answers `unimplemented`.
 	BeginStep(context.Context, *v1.BeginStepRequest) (*v1.BeginStepResponse, error)
-	// Shows the solution, by a learning action or by an action of an adult, and closes the attempt
-	// `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
-	// `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
-	// an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
-	// section for adults is a barrier of the interface, not of the server. Refusals:
-	// `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
-	// `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-	// the solution again.
+	// No longer used: no solution is shown on any task. `app` sends none, and `api` no longer holds
+	// it and answers `unimplemented`.
 	ShowSolution(context.Context, *v1.ShowSolutionRequest) (*v1.ShowSolutionResponse, error)
 	// Reports a problem with the tutor's words of the attempt, from the screen of the task: a
 	// learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,

@@ -118,9 +118,17 @@ test("ship: spec's pull request, merged and released, then each dependent pinned
   assert.equal(git(path.join(w.deps.home, "spec"), ["rev-parse", "HEAD"]).trim(), g.prs[0].merge);
   // Each step said as it went.
   assert.ok(ship.out.some((e) => e.repo === "module-kit" && e.pin));
-  // A ship done is done.
+  // A ship done moves aside, its state and its texts, and the next begins anew: here, with
+  // nothing beyond main, it has nothing to ship.
+  assert.equal(result.record, ".stand/ship-1.json");
+  assert.equal(JSON.parse(read(path.join(dir, ".stand", "ship-1.json"))).nodes.app.phase, "done");
+  assert.ok(!fs.existsSync(path.join(dir, ".stand", "ship.json")));
+  for (const repo of ["spec", "module-kit", "app"]) {
+    assert.equal(read(path.join(dir, `pr-${repo}-ship-1.md`)), PR(repo));
+    assert.ok(!fs.existsSync(path.join(dir, `pr-${repo}.md`)));
+  }
   const again = await run(w, ["xrepo", "ship"]);
-  assert.equal(again.out.at(-1).shipped, true);
+  assert.match(again.err, /nothing to ship/);
   assert.equal(g.prs.length, 3);
 });
 

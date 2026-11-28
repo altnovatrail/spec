@@ -5,10 +5,10 @@
 // source: novatrail/api/v1/package.proto
 
 // What a package of a module gives by its digest, in the contract between `app` and `api`: the
-// open views of its manifest, skill graph, technique catalog and solving steps, which go without a
-// token, and whether the image of `api` still gives a package. The files of a package's device
-// part are no method of the contract: they go by HTTP GET, as contracts/README.md has
-// it, with the rules of the whole contract.
+// open views of its manifest, skill graph and technique catalog, which go without a token, and
+// whether the image of `api` still gives a package. The files of a package's device part are no
+// method of the contract: they go by HTTP GET, as contracts/README.md has it, with the rules of
+// the whole contract.
 
 package apiv1
 
@@ -432,7 +432,7 @@ func (x *GetTechniquesResponse) GetTechniques() *OpenView {
 	return nil
 }
 
-// A request for the open view of solving steps.
+// A request for the open view of solving steps: no longer used, as `GetSolvingSteps`.
 type GetSolvingStepsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The package digest.
@@ -478,7 +478,7 @@ func (x *GetSolvingStepsRequest) GetPackageDigest() string {
 	return ""
 }
 
-// The open view of solving steps.
+// The open view of solving steps: no longer used, as `GetSolvingSteps`.
 type GetSolvingStepsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The open view of the package's solving steps: absent when the module has none.

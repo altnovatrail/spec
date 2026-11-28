@@ -51,35 +51,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - **DPIA** ([docs/dpia.md](docs/dpia.md), R129): a task that changes what it rests on — a kind of data or retention, a provider or processor, an AI capability or route, opening an age, a country or a feature to children — reviews it; its «Сделано» names the review, the DPIA's log the version. Also before the beta, before the public launch and at least yearly.
 - **Token savings** (R145): the limits of `docs-check` — [tools/docs-check/budgets.json](tools/docs-check/budgets.json), a raise shows in review; measure at an epic's archive and monthly (`just inbox` reminds, rule 13); a task of analysis goes to `run/TASKS.md` by the threshold of R145, and its planning decides whether it needs an epic; baselines, dates, last analysis — measurements 1.9.
 
-## Table 1. Current epic — E26. Модуль олимпиадной математики: доработка
+## Table 1. Current epic — none
 
-**Результат** — модуль `novatrail/olympiad-math` («Olympiad mathematics, grades 1–6») доработан по тому, что назовёт автор; `modules` стоит на свежем теге `spec`, и сессия не читает образцы людей в клонах `.epics` (Д14 `modules`); диктофон в окне наставника на iPad распознаёт речь с первого нажатия; браузерные тесты `app` ждут условие, а не фиксированное время.
-
-**Основа** — на 2026-11-26, ветка `e26` в `spec`, `modules`, `api`, `app`, `canvas`, `tutor` (клоны `.epics/e26`, задача across repositories, R166); в проде spec v0.21.2, api v0.1.83, app v0.1.56, canvas v0.3.48, skill-map v0.1.27, modules v0.2.18, tutor v0.1.68 (развёртывание — PR `infra` #147); последний сделанный эпик — E25, [docs/plan/E25.md](docs/plan/E25.md).
-- Модуль — `modules/olympiad-math/` в `modules` (`main` 01ee3a6), версия 0.3.0, формат 0.4: 775 задач — 753 из standalone и 22 шаблона из 39 (остальные 17 не переносятся по R22 `modules`), — 41 урок, 41 синтетический образец; `modules` на `spec` v0.19.20; долг `modules` — Д12 и Д14.
-- Стенд берёт модули из выпуска `modules`, который закрепляет `modules.json` `api`, а не из клона `modules`: правка модуля видна на стенде только после выпуска `modules` и `modules.json` на него — или иного способа, который решает первая задача содержания модуля.
-
-**Решено автором (2026-11-26):** что дорабатывать в модуле, автор назовёт позже — задачи содержания заводятся по его слову, следующими номерами; T248 — из `run/TASKS.md` в эпик, переход `modules` на тег — после неё; каждая законченная правка — коммит и пуш в ветку `e26`; pull requests, мержи, выпуски и пины — только `xrepo ship` после «да» автора; стенд — всегда `xrepo serve --ai`: модели в пределах $2 на сессию стенда и окно Debug, заглушка — только по слову автора; разбор входящих (правило 13) — в начале эпика, по слову автора, решение по каждой строке — у автора; вопросы и отчёты — по-русски.
-
-| Status | ID | Task | Who | Plan | Depends on |
-|---|---|---|---|---|---|
-| [x] | T329 | `app`: диктофон в окне наставника на iPad слушает, но не даёт текста | я + Claude | да | — |
-| [x] | T327 | `app`: браузерные тесты ждут условие, а не фиксированное время | Claude | — | — |
-| [x] | T248 | `spec`: запрет чтения наборов оценки `modules` в клонах `.epics` | Claude | — | — |
-| [x] | T328 | `modules`: переход на тег `spec` с T248, Д14 | Claude | — | T248 |
-| [x] | T333 | `app`: диктофон в окне наставника на iPad снова висит на «Слушаю…» | я + Claude | да | — |
-| [x] | T334 | `app`: диктофон на iPad после включения озвучки слышит звук без слов и висит | я + Claude | да | — |
-| [x] | T335 | `app`: на iPad второе слушание после переоткрытия панели не получает звука и висит | я + Claude | — | — |
-| [x] | T336 | `app`: переключатель окна Debug — диктовка до «Стоп» или до паузы, чтобы найти на iPad рабочий режим | я + Claude | — | — |
-| [x] | T337 | `app`: третий способ диктовки — сначала голос говорит фразу, потом слушание до паузы, которое ничто не обрывает | я + Claude | — | — |
-| [x] | T338 | `app`: новое нажатие микрофона убирает прежний надиктованный текст; поле наставника — в одну строку | я + Claude | — | — |
-| [x] | T339 | `app`: «Ваши страницы» пусты после «Начать» на устройстве, где профиль ещё ничего не начинал | я + Claude | — | — |
-| [x] | T340 | Макет: время наставника — кружок в правом верхнем углу Home с панелью, вместо строки в «Что дальше» | я + Claude | — | — |
-| [x] | T341 | `app`: время наставника — кружок справа вверху и его панель по макету T340; строка из «Что дальше» убрана | я + Claude | — | T340 |
-| [x] | T342 | `app`: диктовка без обходов ошибки WebKit на iPad и без её диагностики в окне Debug; защита от зависания остаётся | я + Claude | — | — |
-| [x] | T343 | `app` и макет: на телефоне «Что значат отметки» — посередине под модулями | я + Claude | — | — |
-| [x] | T344 | `canvas`: сетка листа с бумаги на телефоне — точки и клетки реже, точки тоньше | я + Claude | — | — |
-| [x] | T345 | `app`: ряд решения задачи с бумаги на телефоне — в одну строку, «Следующая задача» при нехватке места — стрелкой | я + Claude | — | — |
-| [x] | T346 | `app` и макет: шторки наставника и Debug на телефоне — до самого верха, ручку можно тянуть | я + Claude | — | — |
-| [x] | T347 | `canvas`: меню инструментов (форма выделения, перо, ластик) не наезжают на нижний ряд с «Проверить» | я + Claude | — | — |
-| [x] | T348 | `app`: левое меню настроек на iPad не дробит слов — ширина не меньше самого длинного слова строки | я + Claude | — | — |
+The last done epic is E26, [docs/plan/E26.md](docs/plan/E26.md).

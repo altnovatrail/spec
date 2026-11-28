@@ -16,7 +16,6 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Как проверить:** `just legal-check`; `just docs-check`; `/code-review high`.
 - **Разделы:** privacy 4, 7; R124–R126, R133, R139, R141; Д156; T99, T111, T112.
 
-
 #### T240. Анализ по порогу R145: три повышения бюджетов за E11
 
 - **Цель:** понять, почему за E11 бюджеты `docs-check` повышали трижды, и вернуть их — или принять новые пределы с причиной.

@@ -301,13 +301,13 @@ test("the page opens a state by its address and says it is ready", async () => {
   assert.equal(phone.app.find("Main")[0].comp.state.legendOpen, true);
   assert.equal(phone.app.clock.live, true, "from the state on, the timers run live");
 
-  const ipad = await open("?screen=task");
+  const ipad = await open("?screen=module-task");
   assert.equal(ipad.app.find("Main")[0].comp.props.device, "ipad", "the iPad by default");
   assert.equal(ipad.doc.head.querySelector('link[href*="googleapis"]'), null, "the fonts of Google are not loaded");
   assert.ok(ipad.doc.head.querySelector("style"), "the helmet's styles are");
 
   // The work being read: the timer that would end it waits for the first tap, which runs it.
-  const reading = await open("?screen=task-reading&device=phone");
+  const reading = await open("?screen=module-task-reading&device=phone");
   const comp = reading.app.find("Main")[0].comp;
   assert.equal(comp.state.verdict.kind, "reading");
   assert.equal(reading.app.clock.hold, true);

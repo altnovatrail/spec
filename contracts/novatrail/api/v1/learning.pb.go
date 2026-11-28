@@ -27,23 +27,86 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// "Something else".
+// The state of a lesson for a profile. A state its build does not know `app` reads as
+// `LESSON_STATE_NEW`.
+type LessonState int32
+
+const (
+	// Not named: never sent.
+	LessonState_LESSON_STATE_UNSPECIFIED LessonState = 0
+	// New: no run of it is open, and none ended passed.
+	LessonState_LESSON_STATE_NEW LessonState = 1
+	// Open: a run of it is open.
+	LessonState_LESSON_STATE_OPEN LessonState = 2
+	// Passed: a run of it ended `RUN_END_REASON_PASSED`, on any version, and none is open.
+	LessonState_LESSON_STATE_PASSED LessonState = 3
+)
+
+// Enum value maps for LessonState.
+var (
+	LessonState_name = map[int32]string{
+		0: "LESSON_STATE_UNSPECIFIED",
+		1: "LESSON_STATE_NEW",
+		2: "LESSON_STATE_OPEN",
+		3: "LESSON_STATE_PASSED",
+	}
+	LessonState_value = map[string]int32{
+		"LESSON_STATE_UNSPECIFIED": 0,
+		"LESSON_STATE_NEW":         1,
+		"LESSON_STATE_OPEN":        2,
+		"LESSON_STATE_PASSED":      3,
+	}
+)
+
+func (x LessonState) Enum() *LessonState {
+	p := new(LessonState)
+	*p = x
+	return p
+}
+
+func (x LessonState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LessonState) Descriptor() protoreflect.EnumDescriptor {
+	return file_novatrail_api_v1_learning_proto_enumTypes[0].Descriptor()
+}
+
+func (LessonState) Type() protoreflect.EnumType {
+	return &file_novatrail_api_v1_learning_proto_enumTypes[0]
+}
+
+func (x LessonState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LessonState.Descriptor instead.
+func (LessonState) EnumDescriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{0}
+}
+
+// A request for the engine's choice.
 type ChooseNextRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The profile.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
 	// The idempotency key of this action of the learner.
 	IdempotencyKey string `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// The full ID of the skill that the learner chose on the skill map, "novatrail/olympiad-math/
-	// skill/counting-gaps": empty when the engine leads.
+	// The full ID of a skill, "novatrail/olympiad-math/skill/counting-gaps", for a choice among all
+	// the modules on it: empty when the engine leads. `app` sends none: the skill the learner chose
+	// is the task skill of its module, `ModuleService.SetTaskSkill`, which a choice with the module
+	// reads.
 	Skill string `protobuf:"bytes,3,opt,name=skill,proto3" json:"skill,omitempty"`
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that `api` judges the
 	// engine's pool, and a choice of nothing, by that route, as `BeginAttempt` by the same route
 	// would begin a task, though the request calls no AI. Empty on platform AI.
 	OwnKeyProvider string `protobuf:"bytes,4,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The module whose tasks alone the choice is among, by its ID: Solve on the tile of its tasks.
+	// Empty for a choice among all the modules connected.
+	ModuleId      string `protobuf:"bytes,5,opt,name=module_id,json=moduleId,proto3" json:"module_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChooseNextRequest) Reset() {
@@ -100,6 +163,13 @@ func (x *ChooseNextRequest) GetSkill() string {
 func (x *ChooseNextRequest) GetOwnKeyProvider() string {
 	if x != nil {
 		return x.OwnKeyProvider
+	}
+	return ""
+}
+
+func (x *ChooseNextRequest) GetModuleId() string {
+	if x != nil {
+		return x.ModuleId
 	}
 	return ""
 }
@@ -399,7 +469,7 @@ type AttemptStart struct {
 	// The open view of the task, of the instance when the task is a template.
 	Task *OpenView `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
 	// The digest of the package the attempt goes on, by which `app` takes the open views of its
-	// manifest, technique catalog and solving steps.
+	// manifest and technique catalog.
 	PackageDigest string `protobuf:"bytes,3,opt,name=package_digest,json=packageDigest,proto3" json:"package_digest,omitempty"`
 	// The task segment, when the attempt is one of a lesson run; absent outside a lesson.
 	Segment       *SegmentPlace `protobuf:"bytes,4,opt,name=segment,proto3" json:"segment,omitempty"`
@@ -581,7 +651,8 @@ type OpenAttempt struct {
 	Rung *RungHint `protobuf:"bytes,4,opt,name=rung,proto3" json:"rung,omitempty"`
 	// Whether "explain differently" was asked for on the current rung.
 	ExplainedDifferently bool `protobuf:"varint,5,opt,name=explained_differently,json=explainedDifferently,proto3" json:"explained_differently,omitempty"`
-	// The IDs of the techniques given at a step, local IDs of the technique catalog.
+	// No longer used: no screen leads a task's solving steps, so no step gives a technique. `api`
+	// gives it empty.
 	StepTechniqueIds []string `protobuf:"bytes,6,rep,name=step_technique_ids,json=stepTechniqueIds,proto3" json:"step_technique_ids,omitempty"`
 	// The IDs of the techniques given on request.
 	RequestedTechniqueIds []string `protobuf:"bytes,7,rep,name=requested_technique_ids,json=requestedTechniqueIds,proto3" json:"requested_technique_ids,omitempty"`
@@ -745,20 +816,23 @@ func (x *EssaySubmission) GetEnd() SubmissionEnd {
 	return SubmissionEnd_SUBMISSION_END_UNSPECIFIED
 }
 
-// The opening of the lesson of an engine's choice.
+// The opening of a lesson: of an engine's choice, or by its full ID.
 type OpenLessonRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The profile.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
-	// The engine's choice of the lesson, `CHOICE_KIND_LESSON`.
+	// The engine's choice of the lesson, `CHOICE_KIND_LESSON`: empty beside `lesson`.
 	ChoiceId string `protobuf:"bytes,2,opt,name=choice_id,json=choiceId,proto3" json:"choice_id,omitempty"`
 	// The provider of the learner's own key, by its code in the admission table, without the key:
 	// with a profile of its owner that checks the tasks by its own key, so that an engine's choice
 	// that a refusal `CAUSE_RUN_ENDED` gives goes by that route, though the request calls no AI.
 	// Empty on platform AI.
 	OwnKeyProvider string `protobuf:"bytes,3,opt,name=own_key_provider,json=ownKeyProvider,proto3" json:"own_key_provider,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The full ID of the lesson the learner chose, "novatrail/olympiad-math/lesson/counting-gaps-1":
+	// empty beside `choice_id`.
+	Lesson        string `protobuf:"bytes,4,opt,name=lesson,proto3" json:"lesson,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *OpenLessonRequest) Reset() {
@@ -812,6 +886,13 @@ func (x *OpenLessonRequest) GetOwnKeyProvider() string {
 	return ""
 }
 
+func (x *OpenLessonRequest) GetLesson() string {
+	if x != nil {
+		return x.Lesson
+	}
+	return ""
+}
+
 // The lesson opened.
 type OpenLessonResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -858,6 +939,215 @@ func (x *OpenLessonResponse) GetRun() *LessonRun {
 	return nil
 }
 
+// A request for the lessons of a module.
+type ListLessonsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The profile.
+	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	// The module's ID.
+	ModuleId      string `protobuf:"bytes,2,opt,name=module_id,json=moduleId,proto3" json:"module_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListLessonsRequest) Reset() {
+	*x = ListLessonsRequest{}
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListLessonsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListLessonsRequest) ProtoMessage() {}
+
+func (x *ListLessonsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListLessonsRequest.ProtoReflect.Descriptor instead.
+func (*ListLessonsRequest) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListLessonsRequest) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *ListLessonsRequest) GetModuleId() string {
+	if x != nil {
+		return x.ModuleId
+	}
+	return ""
+}
+
+// The lessons of a module.
+type ListLessonsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The lessons, in the author's order: by the skill graph, a lesson after those whose skills its
+	// own need, then by tier and by ID. The lesson of an open run that the current version does not
+	// list, or that no longer suits the learner, comes after them, each in a group of its own, by
+	// the run's package: its run goes on, as every run does on the package it began on.
+	Lessons []*ModuleLesson `protobuf:"bytes,1,rep,name=lessons,proto3" json:"lessons,omitempty"`
+	// The full ID of the lesson the tile shows, one of `lessons`: the lesson of an open run, the
+	// one begun last when there are several; else the first in the order that is not passed; else
+	// the first. Empty when `lessons` is.
+	TileLesson    string `protobuf:"bytes,2,opt,name=tile_lesson,json=tileLesson,proto3" json:"tile_lesson,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListLessonsResponse) Reset() {
+	*x = ListLessonsResponse{}
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListLessonsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListLessonsResponse) ProtoMessage() {}
+
+func (x *ListLessonsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListLessonsResponse.ProtoReflect.Descriptor instead.
+func (*ListLessonsResponse) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListLessonsResponse) GetLessons() []*ModuleLesson {
+	if x != nil {
+		return x.Lessons
+	}
+	return nil
+}
+
+func (x *ListLessonsResponse) GetTileLesson() string {
+	if x != nil {
+		return x.TileLesson
+	}
+	return ""
+}
+
+// A lesson of a module, as its page of lessons lists it.
+type ModuleLesson struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The full ID of the lesson.
+	Lesson string `protobuf:"bytes,1,opt,name=lesson,proto3" json:"lesson,omitempty"`
+	// What the lesson is called, in the module's explanation language.
+	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	// How many segments the lesson has: on the package of its open run when it has one, else on the
+	// current version.
+	Segments int32 `protobuf:"varint,3,opt,name=segments,proto3" json:"segments,omitempty"`
+	// The place of its group in the order, from 0: the lessons of one group have no order between
+	// them by the skill graph, and the page shows a group of more than one "in any order".
+	Group int32 `protobuf:"varint,4,opt,name=group,proto3" json:"group,omitempty"`
+	// Its state for the profile.
+	State LessonState `protobuf:"varint,5,opt,name=state,proto3,enum=novatrail.api.v1.LessonState" json:"state,omitempty"`
+	// The places of the task segments of its open run that have ended, in order: beside
+	// `LESSON_STATE_OPEN` alone.
+	EndedSegments []int32 `protobuf:"varint,6,rep,packed,name=ended_segments,json=endedSegments,proto3" json:"ended_segments,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModuleLesson) Reset() {
+	*x = ModuleLesson{}
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModuleLesson) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModuleLesson) ProtoMessage() {}
+
+func (x *ModuleLesson) ProtoReflect() protoreflect.Message {
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModuleLesson.ProtoReflect.Descriptor instead.
+func (*ModuleLesson) Descriptor() ([]byte, []int) {
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ModuleLesson) GetLesson() string {
+	if x != nil {
+		return x.Lesson
+	}
+	return ""
+}
+
+func (x *ModuleLesson) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *ModuleLesson) GetSegments() int32 {
+	if x != nil {
+		return x.Segments
+	}
+	return 0
+}
+
+func (x *ModuleLesson) GetGroup() int32 {
+	if x != nil {
+		return x.Group
+	}
+	return 0
+}
+
+func (x *ModuleLesson) GetState() LessonState {
+	if x != nil {
+		return x.State
+	}
+	return LessonState_LESSON_STATE_UNSPECIFIED
+}
+
+func (x *ModuleLesson) GetEndedSegments() []int32 {
+	if x != nil {
+		return x.EndedSegments
+	}
+	return nil
+}
+
 // A request for an open lesson run.
 type GetLessonRunRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -876,7 +1166,7 @@ type GetLessonRunRequest struct {
 
 func (x *GetLessonRunRequest) Reset() {
 	*x = GetLessonRunRequest{}
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[12]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -888,7 +1178,7 @@ func (x *GetLessonRunRequest) String() string {
 func (*GetLessonRunRequest) ProtoMessage() {}
 
 func (x *GetLessonRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[12]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -901,7 +1191,7 @@ func (x *GetLessonRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLessonRunRequest.ProtoReflect.Descriptor instead.
 func (*GetLessonRunRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{12}
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetLessonRunRequest) GetProfileId() string {
@@ -936,7 +1226,7 @@ type GetLessonRunResponse struct {
 
 func (x *GetLessonRunResponse) Reset() {
 	*x = GetLessonRunResponse{}
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[13]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -948,7 +1238,7 @@ func (x *GetLessonRunResponse) String() string {
 func (*GetLessonRunResponse) ProtoMessage() {}
 
 func (x *GetLessonRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[13]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -961,7 +1251,7 @@ func (x *GetLessonRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLessonRunResponse.ProtoReflect.Descriptor instead.
 func (*GetLessonRunResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{13}
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetLessonRunResponse) GetRun() *LessonRun {
@@ -993,7 +1283,7 @@ type LessonRun struct {
 
 func (x *LessonRun) Reset() {
 	*x = LessonRun{}
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[14]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1005,7 +1295,7 @@ func (x *LessonRun) String() string {
 func (*LessonRun) ProtoMessage() {}
 
 func (x *LessonRun) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[14]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1018,7 +1308,7 @@ func (x *LessonRun) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LessonRun.ProtoReflect.Descriptor instead.
 func (*LessonRun) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{14}
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *LessonRun) GetLessonRunId() string {
@@ -1074,7 +1364,7 @@ type CompleteLessonRequest struct {
 
 func (x *CompleteLessonRequest) Reset() {
 	*x = CompleteLessonRequest{}
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[15]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1086,7 +1376,7 @@ func (x *CompleteLessonRequest) String() string {
 func (*CompleteLessonRequest) ProtoMessage() {}
 
 func (x *CompleteLessonRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[15]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1099,7 +1389,7 @@ func (x *CompleteLessonRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompleteLessonRequest.ProtoReflect.Descriptor instead.
 func (*CompleteLessonRequest) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{15}
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CompleteLessonRequest) GetProfileId() string {
@@ -1134,7 +1424,7 @@ type CompleteLessonResponse struct {
 
 func (x *CompleteLessonResponse) Reset() {
 	*x = CompleteLessonResponse{}
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[16]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1146,7 +1436,7 @@ func (x *CompleteLessonResponse) String() string {
 func (*CompleteLessonResponse) ProtoMessage() {}
 
 func (x *CompleteLessonResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[16]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1159,7 +1449,7 @@ func (x *CompleteLessonResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompleteLessonResponse.ProtoReflect.Descriptor instead.
 func (*CompleteLessonResponse) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{16}
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CompleteLessonResponse) GetEnd() *RunEnd {
@@ -1182,7 +1472,7 @@ type OpenAttemptRef struct {
 
 func (x *OpenAttemptRef) Reset() {
 	*x = OpenAttemptRef{}
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[17]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1194,7 +1484,7 @@ func (x *OpenAttemptRef) String() string {
 func (*OpenAttemptRef) ProtoMessage() {}
 
 func (x *OpenAttemptRef) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[17]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1207,7 +1497,7 @@ func (x *OpenAttemptRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OpenAttemptRef.ProtoReflect.Descriptor instead.
 func (*OpenAttemptRef) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{17}
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *OpenAttemptRef) GetAttemptId() string {
@@ -1240,7 +1530,7 @@ type LessonRunRef struct {
 
 func (x *LessonRunRef) Reset() {
 	*x = LessonRunRef{}
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[18]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1252,7 +1542,7 @@ func (x *LessonRunRef) String() string {
 func (*LessonRunRef) ProtoMessage() {}
 
 func (x *LessonRunRef) ProtoReflect() protoreflect.Message {
-	mi := &file_novatrail_api_v1_learning_proto_msgTypes[18]
+	mi := &file_novatrail_api_v1_learning_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1265,7 +1555,7 @@ func (x *LessonRunRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LessonRunRef.ProtoReflect.Descriptor instead.
 func (*LessonRunRef) Descriptor() ([]byte, []int) {
-	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{18}
+	return file_novatrail_api_v1_learning_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *LessonRunRef) GetLessonRunId() string {
@@ -1293,13 +1583,14 @@ var File_novatrail_api_v1_learning_proto protoreflect.FileDescriptor
 
 const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\n" +
-	"\x1fnovatrail/api/v1/learning.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a\x1enovatrail/api/v1/package.proto\"\x9b\x01\n" +
+	"\x1fnovatrail/api/v1/learning.proto\x12\x10novatrail.api.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1enovatrail/api/v1/attempt.proto\x1a\x1cnovatrail/api/v1/cause.proto\x1a\x1enovatrail/api/v1/package.proto\"\xb8\x01\n" +
 	"\x11ChooseNextRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12'\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\x12\x14\n" +
 	"\x05skill\x18\x03 \x01(\tR\x05skill\x12(\n" +
-	"\x10own_key_provider\x18\x04 \x01(\tR\x0eownKeyProvider\"L\n" +
+	"\x10own_key_provider\x18\x04 \x01(\tR\x0eownKeyProvider\x12\x1b\n" +
+	"\tmodule_id\x18\x05 \x01(\tR\bmoduleId\"L\n" +
 	"\x12ChooseNextResponse\x126\n" +
 	"\x06choice\x18\x01 \x01(\v2\x1e.novatrail.api.v1.EngineChoiceR\x06choice\"\x9d\x02\n" +
 	"\x13BeginAttemptRequest\x12\x1d\n" +
@@ -1341,14 +1632,30 @@ const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\x1arequested_leading_question\x18\t \x01(\tR\x18requestedLeadingQuestion\"\x83\x01\n" +
 	"\x0fEssaySubmission\x12=\n" +
 	"\fsubmitted_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vsubmittedAt\x121\n" +
-	"\x03end\x18\x02 \x01(\x0e2\x1f.novatrail.api.v1.SubmissionEndR\x03end\"y\n" +
+	"\x03end\x18\x02 \x01(\x0e2\x1f.novatrail.api.v1.SubmissionEndR\x03end\"\x91\x01\n" +
 	"\x11OpenLessonRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1b\n" +
 	"\tchoice_id\x18\x02 \x01(\tR\bchoiceId\x12(\n" +
-	"\x10own_key_provider\x18\x03 \x01(\tR\x0eownKeyProvider\"C\n" +
+	"\x10own_key_provider\x18\x03 \x01(\tR\x0eownKeyProvider\x12\x16\n" +
+	"\x06lesson\x18\x04 \x01(\tR\x06lesson\"C\n" +
 	"\x12OpenLessonResponse\x12-\n" +
-	"\x03run\x18\x01 \x01(\v2\x1b.novatrail.api.v1.LessonRunR\x03run\"\x82\x01\n" +
+	"\x03run\x18\x01 \x01(\v2\x1b.novatrail.api.v1.LessonRunR\x03run\"P\n" +
+	"\x12ListLessonsRequest\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1b\n" +
+	"\tmodule_id\x18\x02 \x01(\tR\bmoduleId\"p\n" +
+	"\x13ListLessonsResponse\x128\n" +
+	"\alessons\x18\x01 \x03(\v2\x1e.novatrail.api.v1.ModuleLessonR\alessons\x12\x1f\n" +
+	"\vtile_lesson\x18\x02 \x01(\tR\n" +
+	"tileLesson\"\xca\x01\n" +
+	"\fModuleLesson\x12\x16\n" +
+	"\x06lesson\x18\x01 \x01(\tR\x06lesson\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1a\n" +
+	"\bsegments\x18\x03 \x01(\x05R\bsegments\x12\x14\n" +
+	"\x05group\x18\x04 \x01(\x05R\x05group\x123\n" +
+	"\x05state\x18\x05 \x01(\x0e2\x1d.novatrail.api.v1.LessonStateR\x05state\x12%\n" +
+	"\x0eended_segments\x18\x06 \x03(\x05R\rendedSegments\"\x82\x01\n" +
 	"\x13GetLessonRunRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\"\n" +
@@ -1376,14 +1683,20 @@ const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\fLessonRunRef\x12\"\n" +
 	"\rlesson_run_id\x18\x01 \x01(\tR\vlessonRunId\x12\x16\n" +
 	"\x06lesson\x18\x02 \x01(\tR\x06lesson\x12%\n" +
-	"\x0epackage_digest\x18\x03 \x01(\tR\rpackageDigest2\xcb\x04\n" +
+	"\x0epackage_digest\x18\x03 \x01(\tR\rpackageDigest*q\n" +
+	"\vLessonState\x12\x1c\n" +
+	"\x18LESSON_STATE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10LESSON_STATE_NEW\x10\x01\x12\x15\n" +
+	"\x11LESSON_STATE_OPEN\x10\x02\x12\x17\n" +
+	"\x13LESSON_STATE_PASSED\x10\x032\xa7\x05\n" +
 	"\x0fLearningService\x12W\n" +
 	"\n" +
 	"ChooseNext\x12#.novatrail.api.v1.ChooseNextRequest\x1a$.novatrail.api.v1.ChooseNextResponse\x12]\n" +
 	"\fBeginAttempt\x12%.novatrail.api.v1.BeginAttemptRequest\x1a&.novatrail.api.v1.BeginAttemptResponse\x12c\n" +
 	"\x0eGetOpenAttempt\x12'.novatrail.api.v1.GetOpenAttemptRequest\x1a(.novatrail.api.v1.GetOpenAttemptResponse\x12W\n" +
 	"\n" +
-	"OpenLesson\x12#.novatrail.api.v1.OpenLessonRequest\x1a$.novatrail.api.v1.OpenLessonResponse\x12]\n" +
+	"OpenLesson\x12#.novatrail.api.v1.OpenLessonRequest\x1a$.novatrail.api.v1.OpenLessonResponse\x12Z\n" +
+	"\vListLessons\x12$.novatrail.api.v1.ListLessonsRequest\x1a%.novatrail.api.v1.ListLessonsResponse\x12]\n" +
 	"\fGetLessonRun\x12%.novatrail.api.v1.GetLessonRunRequest\x1a&.novatrail.api.v1.GetLessonRunResponse\x12c\n" +
 	"\x0eCompleteLesson\x12'.novatrail.api.v1.CompleteLessonRequest\x1a(.novatrail.api.v1.CompleteLessonResponseB\xc6\x01\n" +
 	"\x14com.novatrail.api.v1B\rLearningProtoP\x01Z=github.com/altnovatrail/spec/contracts/novatrail/api/v1;apiv1\xa2\x02\x03NAX\xaa\x02\x10Novatrail.Api.V1\xca\x02\x10Novatrail\\Api\\V1\xe2\x02\x1cNovatrail\\Api\\V1\\GPBMetadata\xea\x02\x12Novatrail::Api::V1b\x06proto3"
@@ -1400,71 +1713,80 @@ func file_novatrail_api_v1_learning_proto_rawDescGZIP() []byte {
 	return file_novatrail_api_v1_learning_proto_rawDescData
 }
 
-var file_novatrail_api_v1_learning_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_novatrail_api_v1_learning_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_novatrail_api_v1_learning_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_novatrail_api_v1_learning_proto_goTypes = []any{
-	(*ChooseNextRequest)(nil),      // 0: novatrail.api.v1.ChooseNextRequest
-	(*ChooseNextResponse)(nil),     // 1: novatrail.api.v1.ChooseNextResponse
-	(*BeginAttemptRequest)(nil),    // 2: novatrail.api.v1.BeginAttemptRequest
-	(*BeginAttemptResponse)(nil),   // 3: novatrail.api.v1.BeginAttemptResponse
-	(*SegmentPlace)(nil),           // 4: novatrail.api.v1.SegmentPlace
-	(*AttemptStart)(nil),           // 5: novatrail.api.v1.AttemptStart
-	(*GetOpenAttemptRequest)(nil),  // 6: novatrail.api.v1.GetOpenAttemptRequest
-	(*GetOpenAttemptResponse)(nil), // 7: novatrail.api.v1.GetOpenAttemptResponse
-	(*OpenAttempt)(nil),            // 8: novatrail.api.v1.OpenAttempt
-	(*EssaySubmission)(nil),        // 9: novatrail.api.v1.EssaySubmission
-	(*OpenLessonRequest)(nil),      // 10: novatrail.api.v1.OpenLessonRequest
-	(*OpenLessonResponse)(nil),     // 11: novatrail.api.v1.OpenLessonResponse
-	(*GetLessonRunRequest)(nil),    // 12: novatrail.api.v1.GetLessonRunRequest
-	(*GetLessonRunResponse)(nil),   // 13: novatrail.api.v1.GetLessonRunResponse
-	(*LessonRun)(nil),              // 14: novatrail.api.v1.LessonRun
-	(*CompleteLessonRequest)(nil),  // 15: novatrail.api.v1.CompleteLessonRequest
-	(*CompleteLessonResponse)(nil), // 16: novatrail.api.v1.CompleteLessonResponse
-	(*OpenAttemptRef)(nil),         // 17: novatrail.api.v1.OpenAttemptRef
-	(*LessonRunRef)(nil),           // 18: novatrail.api.v1.LessonRunRef
-	(*EngineChoice)(nil),           // 19: novatrail.api.v1.EngineChoice
-	(*OpenView)(nil),               // 20: novatrail.api.v1.OpenView
-	(*ItemVerdict)(nil),            // 21: novatrail.api.v1.ItemVerdict
-	(*RungHint)(nil),               // 22: novatrail.api.v1.RungHint
-	(*timestamppb.Timestamp)(nil),  // 23: google.protobuf.Timestamp
-	(SubmissionEnd)(0),             // 24: novatrail.api.v1.SubmissionEnd
-	(*RunEnd)(nil),                 // 25: novatrail.api.v1.RunEnd
+	(LessonState)(0),               // 0: novatrail.api.v1.LessonState
+	(*ChooseNextRequest)(nil),      // 1: novatrail.api.v1.ChooseNextRequest
+	(*ChooseNextResponse)(nil),     // 2: novatrail.api.v1.ChooseNextResponse
+	(*BeginAttemptRequest)(nil),    // 3: novatrail.api.v1.BeginAttemptRequest
+	(*BeginAttemptResponse)(nil),   // 4: novatrail.api.v1.BeginAttemptResponse
+	(*SegmentPlace)(nil),           // 5: novatrail.api.v1.SegmentPlace
+	(*AttemptStart)(nil),           // 6: novatrail.api.v1.AttemptStart
+	(*GetOpenAttemptRequest)(nil),  // 7: novatrail.api.v1.GetOpenAttemptRequest
+	(*GetOpenAttemptResponse)(nil), // 8: novatrail.api.v1.GetOpenAttemptResponse
+	(*OpenAttempt)(nil),            // 9: novatrail.api.v1.OpenAttempt
+	(*EssaySubmission)(nil),        // 10: novatrail.api.v1.EssaySubmission
+	(*OpenLessonRequest)(nil),      // 11: novatrail.api.v1.OpenLessonRequest
+	(*OpenLessonResponse)(nil),     // 12: novatrail.api.v1.OpenLessonResponse
+	(*ListLessonsRequest)(nil),     // 13: novatrail.api.v1.ListLessonsRequest
+	(*ListLessonsResponse)(nil),    // 14: novatrail.api.v1.ListLessonsResponse
+	(*ModuleLesson)(nil),           // 15: novatrail.api.v1.ModuleLesson
+	(*GetLessonRunRequest)(nil),    // 16: novatrail.api.v1.GetLessonRunRequest
+	(*GetLessonRunResponse)(nil),   // 17: novatrail.api.v1.GetLessonRunResponse
+	(*LessonRun)(nil),              // 18: novatrail.api.v1.LessonRun
+	(*CompleteLessonRequest)(nil),  // 19: novatrail.api.v1.CompleteLessonRequest
+	(*CompleteLessonResponse)(nil), // 20: novatrail.api.v1.CompleteLessonResponse
+	(*OpenAttemptRef)(nil),         // 21: novatrail.api.v1.OpenAttemptRef
+	(*LessonRunRef)(nil),           // 22: novatrail.api.v1.LessonRunRef
+	(*EngineChoice)(nil),           // 23: novatrail.api.v1.EngineChoice
+	(*OpenView)(nil),               // 24: novatrail.api.v1.OpenView
+	(*ItemVerdict)(nil),            // 25: novatrail.api.v1.ItemVerdict
+	(*RungHint)(nil),               // 26: novatrail.api.v1.RungHint
+	(*timestamppb.Timestamp)(nil),  // 27: google.protobuf.Timestamp
+	(SubmissionEnd)(0),             // 28: novatrail.api.v1.SubmissionEnd
+	(*RunEnd)(nil),                 // 29: novatrail.api.v1.RunEnd
 }
 var file_novatrail_api_v1_learning_proto_depIdxs = []int32{
-	19, // 0: novatrail.api.v1.ChooseNextResponse.choice:type_name -> novatrail.api.v1.EngineChoice
-	4,  // 1: novatrail.api.v1.BeginAttemptRequest.segment:type_name -> novatrail.api.v1.SegmentPlace
-	5,  // 2: novatrail.api.v1.BeginAttemptResponse.attempt:type_name -> novatrail.api.v1.AttemptStart
-	20, // 3: novatrail.api.v1.AttemptStart.task:type_name -> novatrail.api.v1.OpenView
-	4,  // 4: novatrail.api.v1.AttemptStart.segment:type_name -> novatrail.api.v1.SegmentPlace
-	8,  // 5: novatrail.api.v1.GetOpenAttemptResponse.attempt:type_name -> novatrail.api.v1.OpenAttempt
-	5,  // 6: novatrail.api.v1.OpenAttempt.start:type_name -> novatrail.api.v1.AttemptStart
-	21, // 7: novatrail.api.v1.OpenAttempt.items:type_name -> novatrail.api.v1.ItemVerdict
-	22, // 8: novatrail.api.v1.OpenAttempt.rung:type_name -> novatrail.api.v1.RungHint
-	9,  // 9: novatrail.api.v1.OpenAttempt.essay_submissions:type_name -> novatrail.api.v1.EssaySubmission
-	23, // 10: novatrail.api.v1.EssaySubmission.submitted_at:type_name -> google.protobuf.Timestamp
-	24, // 11: novatrail.api.v1.EssaySubmission.end:type_name -> novatrail.api.v1.SubmissionEnd
-	14, // 12: novatrail.api.v1.OpenLessonResponse.run:type_name -> novatrail.api.v1.LessonRun
-	14, // 13: novatrail.api.v1.GetLessonRunResponse.run:type_name -> novatrail.api.v1.LessonRun
-	20, // 14: novatrail.api.v1.LessonRun.lesson:type_name -> novatrail.api.v1.OpenView
-	17, // 15: novatrail.api.v1.LessonRun.open_attempt:type_name -> novatrail.api.v1.OpenAttemptRef
-	25, // 16: novatrail.api.v1.CompleteLessonResponse.end:type_name -> novatrail.api.v1.RunEnd
-	4,  // 17: novatrail.api.v1.OpenAttemptRef.segment:type_name -> novatrail.api.v1.SegmentPlace
-	0,  // 18: novatrail.api.v1.LearningService.ChooseNext:input_type -> novatrail.api.v1.ChooseNextRequest
-	2,  // 19: novatrail.api.v1.LearningService.BeginAttempt:input_type -> novatrail.api.v1.BeginAttemptRequest
-	6,  // 20: novatrail.api.v1.LearningService.GetOpenAttempt:input_type -> novatrail.api.v1.GetOpenAttemptRequest
-	10, // 21: novatrail.api.v1.LearningService.OpenLesson:input_type -> novatrail.api.v1.OpenLessonRequest
-	12, // 22: novatrail.api.v1.LearningService.GetLessonRun:input_type -> novatrail.api.v1.GetLessonRunRequest
-	15, // 23: novatrail.api.v1.LearningService.CompleteLesson:input_type -> novatrail.api.v1.CompleteLessonRequest
-	1,  // 24: novatrail.api.v1.LearningService.ChooseNext:output_type -> novatrail.api.v1.ChooseNextResponse
-	3,  // 25: novatrail.api.v1.LearningService.BeginAttempt:output_type -> novatrail.api.v1.BeginAttemptResponse
-	7,  // 26: novatrail.api.v1.LearningService.GetOpenAttempt:output_type -> novatrail.api.v1.GetOpenAttemptResponse
-	11, // 27: novatrail.api.v1.LearningService.OpenLesson:output_type -> novatrail.api.v1.OpenLessonResponse
-	13, // 28: novatrail.api.v1.LearningService.GetLessonRun:output_type -> novatrail.api.v1.GetLessonRunResponse
-	16, // 29: novatrail.api.v1.LearningService.CompleteLesson:output_type -> novatrail.api.v1.CompleteLessonResponse
-	24, // [24:30] is the sub-list for method output_type
-	18, // [18:24] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	23, // 0: novatrail.api.v1.ChooseNextResponse.choice:type_name -> novatrail.api.v1.EngineChoice
+	5,  // 1: novatrail.api.v1.BeginAttemptRequest.segment:type_name -> novatrail.api.v1.SegmentPlace
+	6,  // 2: novatrail.api.v1.BeginAttemptResponse.attempt:type_name -> novatrail.api.v1.AttemptStart
+	24, // 3: novatrail.api.v1.AttemptStart.task:type_name -> novatrail.api.v1.OpenView
+	5,  // 4: novatrail.api.v1.AttemptStart.segment:type_name -> novatrail.api.v1.SegmentPlace
+	9,  // 5: novatrail.api.v1.GetOpenAttemptResponse.attempt:type_name -> novatrail.api.v1.OpenAttempt
+	6,  // 6: novatrail.api.v1.OpenAttempt.start:type_name -> novatrail.api.v1.AttemptStart
+	25, // 7: novatrail.api.v1.OpenAttempt.items:type_name -> novatrail.api.v1.ItemVerdict
+	26, // 8: novatrail.api.v1.OpenAttempt.rung:type_name -> novatrail.api.v1.RungHint
+	10, // 9: novatrail.api.v1.OpenAttempt.essay_submissions:type_name -> novatrail.api.v1.EssaySubmission
+	27, // 10: novatrail.api.v1.EssaySubmission.submitted_at:type_name -> google.protobuf.Timestamp
+	28, // 11: novatrail.api.v1.EssaySubmission.end:type_name -> novatrail.api.v1.SubmissionEnd
+	18, // 12: novatrail.api.v1.OpenLessonResponse.run:type_name -> novatrail.api.v1.LessonRun
+	15, // 13: novatrail.api.v1.ListLessonsResponse.lessons:type_name -> novatrail.api.v1.ModuleLesson
+	0,  // 14: novatrail.api.v1.ModuleLesson.state:type_name -> novatrail.api.v1.LessonState
+	18, // 15: novatrail.api.v1.GetLessonRunResponse.run:type_name -> novatrail.api.v1.LessonRun
+	24, // 16: novatrail.api.v1.LessonRun.lesson:type_name -> novatrail.api.v1.OpenView
+	21, // 17: novatrail.api.v1.LessonRun.open_attempt:type_name -> novatrail.api.v1.OpenAttemptRef
+	29, // 18: novatrail.api.v1.CompleteLessonResponse.end:type_name -> novatrail.api.v1.RunEnd
+	5,  // 19: novatrail.api.v1.OpenAttemptRef.segment:type_name -> novatrail.api.v1.SegmentPlace
+	1,  // 20: novatrail.api.v1.LearningService.ChooseNext:input_type -> novatrail.api.v1.ChooseNextRequest
+	3,  // 21: novatrail.api.v1.LearningService.BeginAttempt:input_type -> novatrail.api.v1.BeginAttemptRequest
+	7,  // 22: novatrail.api.v1.LearningService.GetOpenAttempt:input_type -> novatrail.api.v1.GetOpenAttemptRequest
+	11, // 23: novatrail.api.v1.LearningService.OpenLesson:input_type -> novatrail.api.v1.OpenLessonRequest
+	13, // 24: novatrail.api.v1.LearningService.ListLessons:input_type -> novatrail.api.v1.ListLessonsRequest
+	16, // 25: novatrail.api.v1.LearningService.GetLessonRun:input_type -> novatrail.api.v1.GetLessonRunRequest
+	19, // 26: novatrail.api.v1.LearningService.CompleteLesson:input_type -> novatrail.api.v1.CompleteLessonRequest
+	2,  // 27: novatrail.api.v1.LearningService.ChooseNext:output_type -> novatrail.api.v1.ChooseNextResponse
+	4,  // 28: novatrail.api.v1.LearningService.BeginAttempt:output_type -> novatrail.api.v1.BeginAttemptResponse
+	8,  // 29: novatrail.api.v1.LearningService.GetOpenAttempt:output_type -> novatrail.api.v1.GetOpenAttemptResponse
+	12, // 30: novatrail.api.v1.LearningService.OpenLesson:output_type -> novatrail.api.v1.OpenLessonResponse
+	14, // 31: novatrail.api.v1.LearningService.ListLessons:output_type -> novatrail.api.v1.ListLessonsResponse
+	17, // 32: novatrail.api.v1.LearningService.GetLessonRun:output_type -> novatrail.api.v1.GetLessonRunResponse
+	20, // 33: novatrail.api.v1.LearningService.CompleteLesson:output_type -> novatrail.api.v1.CompleteLessonResponse
+	27, // [27:34] is the sub-list for method output_type
+	20, // [20:27] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_novatrail_api_v1_learning_proto_init() }
@@ -1485,13 +1807,14 @@ func file_novatrail_api_v1_learning_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_novatrail_api_v1_learning_proto_rawDesc), len(file_novatrail_api_v1_learning_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   19,
+			NumEnums:      1,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_novatrail_api_v1_learning_proto_goTypes,
 		DependencyIndexes: file_novatrail_api_v1_learning_proto_depIdxs,
+		EnumInfos:         file_novatrail_api_v1_learning_proto_enumTypes,
 		MessageInfos:      file_novatrail_api_v1_learning_proto_msgTypes,
 	}.Build()
 	File_novatrail_api_v1_learning_proto = out.File

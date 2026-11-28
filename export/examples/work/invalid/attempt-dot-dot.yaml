@@ -1,6 +1,6 @@
 # error: pattern at #/attempt_id
 # The attempt's ID names the work's file, works/<id>/<attempt>.json: it is never . or .., nor holds a /.
-format: 5
+format: 6
 profile_id: "p-1"
 attempt_id: ".."
 kind: "handwriting"
